@@ -179,8 +179,18 @@ impl SigningKey {
         if let Some(dir) = p.parent() {
             std::fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
         }
-        // Created with 0600 from the first byte: written first and
-        // narrowed afterwards, the key sat world-readable in between.
+        // Created with 0600 from the first byte (written first and narrowed
+        // afterwards, the key sat world-readable in between), in a private
+        // temp file, then published with link(2), which is atomic and fails
+        // if a key already exists. Two processes creating the key at once —
+        // two firings, two test threads — therefore agree on one key, and
+        // nobody ever reads a half-written file.
+        let tmp = p.with_extension(format!(
+            "tmp-{}-{:?}",
+            std::process::id(),
+            std::thread::current().id()
+        ));
+        let _ = std::fs::remove_file(&tmp);
         let mut o = std::fs::OpenOptions::new();
         o.write(true).create_new(true);
         #[cfg(unix)]
@@ -191,11 +201,31 @@ impl SigningKey {
         {
             use std::io::Write;
             let mut f = o
-                .open(&p)
+                .open(&tmp)
                 .map_err(|e| format!("cannot create the signing key {}: {e}", p.display()))?;
             f.write_all(to_hex(&seed).as_bytes())
                 .and_then(|_| f.sync_all())
                 .map_err(|e| format!("cannot write the signing key {}: {e}", p.display()))?;
+        }
+        let linked = std::fs::hard_link(&tmp, &p);
+        let _ = std::fs::remove_file(&tmp);
+        match linked {
+            Ok(()) => {}
+            Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
+                // Somebody else won the race: use their key.
+                let text = std::fs::read_to_string(&p)
+                    .map_err(|e| format!("cannot read the signing key {}: {e}", p.display()))?;
+                return Ok(SigningKey {
+                    seed: from_hex(text.trim())?,
+                    provenance: Provenance::LocalGenerated,
+                });
+            }
+            Err(e) => {
+                return Err(format!(
+                    "cannot create the signing key {}: {e}",
+                    p.display()
+                ))
+            }
         }
         Ok(SigningKey {
             seed,
@@ -477,6 +507,26 @@ mod tests {
         let did = wright_core::jcs::did_key(&ed25519::public_key(&[9u8; 32]));
         assert!(signer(&stranger, &[did]).is_ok(), "a did:key pins it too");
         assert!(normalize_key("not a key").is_none());
+        std::env::remove_var("WRIGHT_HOME");
+    }
+
+    /// Regression: two firings creating the key at the same moment used to
+    /// fail one of them with "File exists" (seen as a flaky engine e2e).
+    #[test]
+    fn concurrent_first_use_agrees_on_one_key() {
+        let _guard = ENV_LOCK.lock().unwrap_or_else(|p| p.into_inner());
+        std::env::remove_var("WRIGHT_EPHEMERAL_SIGNING");
+        let home = tmp_home("race");
+        std::env::set_var("WRIGHT_HOME", &home);
+        let keys: Vec<String> = (0..16)
+            .map(|_| std::thread::spawn(|| SigningKey::resolve().map(|k| k.public_hex())))
+            .collect::<Vec<_>>()
+            .into_iter()
+            .map(|t| t.join().unwrap().expect("every racer gets a key"))
+            .collect();
+        assert!(keys.windows(2).all(|w| w[0] == w[1]), "one key: {keys:?}");
+        let leftovers = std::fs::read_dir(home.join("keys")).unwrap().count();
+        assert_eq!(leftovers, 1, "no temp files left behind");
         std::env::remove_var("WRIGHT_HOME");
     }
 }
