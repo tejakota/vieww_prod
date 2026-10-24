@@ -97,6 +97,17 @@ fn run_starts(now: Duration) {
 /// with nothing animating wants.
 pub type Steps = Vec<(String, u64, Box<dyn Fn(&mut FrameDriver)>)>;
 
+/// True when this run is a `VIEWW_SHOT` capture rather than a live window.
+///
+/// Captures must be byte-identical from run to run (they are the golden
+/// baseline, FW-14), so anything driven by the wall clock — a live frame
+/// counter, an off-thread spring sampled "now" — should show a fixed value
+/// when this is true.
+#[must_use]
+pub fn capturing() -> bool {
+    std::env::var_os("VIEWW_SHOT").is_some()
+}
+
 /// Open a window, or — under `VIEWW_SHOT` — rasterise one PNG per step.
 ///
 /// `build` returns the steps it wants photographed. Returning an empty vec is

@@ -214,11 +214,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     },
                 );
 
-                let frames = ui.frames();
-                let now = live.get();
+                // The live UiThread runs on the wall clock: in a capture its
+                // readout is fixed, so the golden stays byte-identical (FW-14).
+                let (caption, now) = if feature_harness::capturing() {
+                    ("UiThread live · spring settles to 1.000".to_string(), 1.0)
+                } else {
+                    let now = live.get();
+                    (format!("UiThread frames {} · live spring {now:.3}", ui.frames()), now)
+                };
                 let p4 = painted(
                     "worklets · shared values",
-                    &format!("UiThread frames {frames} · live spring {now:.3}"),
+                    &caption,
                     Size::new(200.0, 190.0),
                     move |g, _| {
                         let specs: [(&str, MakeWorklet); 3] = [
