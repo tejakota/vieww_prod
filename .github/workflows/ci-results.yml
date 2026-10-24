@@ -1,0 +1,169 @@
+# Every CI run's results, written to the branch `ci-results`, so anyone (or a
+# session that can `git fetch` but not call the GitHub API) can read them:
+#
+#   git fetch origin ci-results && git checkout FETCH_HEAD -- .   (or git show)
+#
+# Layout on the branch:
+#   LATEST.md                               newest run of every workflow × branch
+#   <workflow>/<branch>/latest/             the newest run (overwritten)
+#     SUMMARY.md                            conclusion, sha, every job + step verdict
+#     failed-logs.txt                       tail of each failed step's log
+#     artifacts/<name>/...                  text artifacts (md/txt/json/tsv/log/html, <2 MB each)
+#   <workflow>/<branch>/history.tsv         one line per run
+#
+# Triggered by `workflow_run`, so it always runs the default branch's copy of
+# this file with a token scoped to this repository — a pull request from a
+# fork cannot change what it does. It reads the finished run through the API
+# and writes only to `ci-results`.
+name: ci-results
+
+on:
+  workflow_run:
+    workflows:
+      - pr-quick
+      - release-gate
+      - goldens
+      - supply-chain
+      - publish
+      - Audio CI
+      - Audio backends
+      - Audio plugins (CLAP / VST3)
+      - Hardware (self-hosted Linux and Windows)
+      - Device Farm (Android and iOS phones)
+      - Build Mobile Apps
+      - Framework checks
+      - Wright - built-in models
+      - Wright - desktop installers
+    types: [completed]
+
+permissions:
+  contents: write
+  actions: read
+
+# One writer at a time; runs queue rather than race on the branch.
+concurrency:
+  group: ci-results-writer
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      RUN_ID: ${{ github.event.workflow_run.id }}
+      WF: ${{ github.event.workflow_run.name }}
+      BRANCH: ${{ github.event.workflow_run.head_branch }}
+      SHA: ${{ github.event.workflow_run.head_sha }}
+      EVENT: ${{ github.event.workflow_run.event }}
+      CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+      URL: ${{ github.event.workflow_run.html_url }}
+    steps:
+      - name: Collect the run
+        run: |
+          set -euo pipefail
+          slug() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9._-]+/-/g; s/^-+|-+$//g'; }
+          wf=$(slug "$WF"); br=$(slug "${BRANCH:-detached}")
+          out="$RUNNER_TEMP/out/$wf/$br/latest"
+          mkdir -p "$out/artifacts"
+          echo "WF_SLUG=$wf" >> "$GITHUB_ENV"; echo "BR_SLUG=$br" >> "$GITHUB_ENV"
+
+          gh api --paginate "repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100" > jobs.json
+          python3 - "$out/SUMMARY.md" <<'PY'
+          import json, os, sys
+          pages = [json.loads(l) for l in open("jobs.json").read().replace("}{", "}\n{").splitlines() if l.strip()]
+          jobs = [j for p in pages for j in p["jobs"]]
+          e = os.environ
+          icon = {"success": "PASS", "failure": "FAIL", "cancelled": "CANCELLED", "skipped": "skipped", None: "running"}
+          lines = [f"# {e['WF']} — {e['CONCLUSION'].upper()}", "",
+                   f"- branch: `{e['BRANCH']}`  sha: `{e['SHA']}`  event: {e['EVENT']}",
+                   f"- run: {e['URL']}", "",
+                   "| job | verdict | failed steps |", "|---|---|---|"]
+          for j in jobs:
+              bad = [s["name"] for s in j.get("steps", []) if s.get("conclusion") == "failure"]
+              lines.append(f"| {j['name']} | {icon.get(j['conclusion'], j['conclusion'])} | {'; '.join(bad)} |")
+          lines += ["", "## Steps", ""]
+          for j in jobs:
+              lines.append(f"### {j['name']} — {icon.get(j['conclusion'], j['conclusion'])}")
+              for s in j.get("steps", []):
+                  lines.append(f"- {icon.get(s.get('conclusion'), s.get('conclusion'))}: {s['name']}")
+              lines.append("")
+          open(sys.argv[1], "w").write("\n".join(lines) + "\n")
+          PY
+
+          # Failed steps' logs, last 300 lines each (the end is where errors are).
+          if [ "$CONCLUSION" != "success" ]; then
+            gh run view "$RUN_ID" -R "$REPO" --log-failed > failed.log 2>/dev/null || true
+            python3 - "$out/failed-logs.txt" <<'PY'
+          import sys, collections
+          per = collections.OrderedDict()
+          for line in open("failed.log", errors="replace"):
+              parts = line.split("\t", 2)
+              key = "\t".join(parts[:2]) if len(parts) == 3 else "log"
+              per.setdefault(key, collections.deque(maxlen=300)).append(parts[-1])
+          with open(sys.argv[1], "w") as f:
+              for k, v in per.items():
+                  f.write(f"===== {k} =====\n"); f.writelines(v); f.write("\n")
+          PY
+          fi
+
+          # Text artifacts (summaries, checklists, diff reports — not binaries).
+          gh api "repos/$REPO/actions/runs/$RUN_ID/artifacts?per_page=100" \
+            --jq '.artifacts[] | select(.expired|not) | select(.size_in_bytes < 200000000) | .name' > names.txt || true
+          while read -r name; do
+            [ -n "$name" ] || continue
+            tmp="$RUNNER_TEMP/a/$name"; mkdir -p "$tmp"
+            gh run download "$RUN_ID" -R "$REPO" -n "$name" -D "$tmp" 2>/dev/null || continue
+            (cd "$tmp" && find . -type f \( -name '*.md' -o -name '*.txt' -o -name '*.json' -o -name '*.tsv' \
+                -o -name '*.log' -o -name '*.html' -o -name 'SHA256SUMS' \) -size -2M -print) |
+              while read -r f; do mkdir -p "$out/artifacts/$name/$(dirname "$f")"; cp "$tmp/$f" "$out/artifacts/$name/$f"; done
+          done < names.txt
+          echo "- artifacts: $(tr '\n' ' ' < names.txt)" >> "$out/SUMMARY.md"
+
+      - uses: actions/checkout@v4
+        with:
+          path: results
+          fetch-depth: 1
+      - name: Write to the ci-results branch
+        working-directory: results
+        run: |
+          set -euo pipefail
+          git config user.name "ci-results"
+          git config user.email "ci-results@users.noreply.github.com"
+          write() {
+            dest="$WF_SLUG/$BR_SLUG"
+            rm -rf "$dest/latest"; mkdir -p "$dest"
+            cp -R "$RUNNER_TEMP/out/$dest/latest" "$dest/latest"
+            printf '%s\t%s\t%s\t%s\t%s\n' "$(date -u +%FT%TZ)" "$CONCLUSION" "${SHA:0:12}" "$EVENT" "$URL" >> "$dest/history.tsv"
+            # LATEST.md: one row per workflow x branch, newest first.
+            {
+              echo "# Latest CI results"; echo
+              echo "| when (UTC) | workflow / branch | verdict | sha | details |"; echo "|---|---|---|---|---|"
+              for h in */*/history.tsv; do
+                IFS=$'\t' read -r when concl sha _ url < <(tail -1 "$h")
+                d=$(dirname "$h")
+                printf '%s\t| %s | %s | %s | `%s` | [summary](%s/latest/SUMMARY.md) / [run](%s) |\n' "$when" "$when" "$d" "${concl^^}" "$sha" "$d" "$url"
+              done | sort -r | cut -f2-
+            } > LATEST.md
+            git add -A
+            git commit -qm "$WF ($BRANCH @ ${SHA:0:12}): $CONCLUSION"
+          }
+          # Each attempt starts from the branch's current tip and rewrites,
+          # so a concurrent writer never needs a merge.
+          for _ in 1 2 3 4 5; do
+            if git ls-remote --exit-code origin ci-results >/dev/null; then
+              git fetch -q --depth 1 origin ci-results
+              git checkout -q -f -B ci-results FETCH_HEAD
+              git clean -fdxq
+            else
+              git checkout -q --orphan ci-results
+              git rm -rq --cached . >/dev/null 2>&1 || true
+              git clean -fdxq
+              printf '# CI results\n\nWritten by .github/workflows/ci-results.yml. Start at LATEST.md.\n' > README.md
+            fi
+            write
+            if git push -q origin HEAD:ci-results; then exit 0; fi
+            sleep 5
+          done
+          echo "could not push to ci-results" >&2; exit 1
