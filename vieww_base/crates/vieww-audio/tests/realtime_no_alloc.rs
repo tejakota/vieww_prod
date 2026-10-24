@@ -28,6 +28,7 @@ struct Counting;
 
 static ARMED: AtomicBool = AtomicBool::new(false);
 static ALLOCS: AtomicUsize = AtomicUsize::new(0);
+static FREES: AtomicUsize = AtomicUsize::new(0);
 
 // SAFETY: forwards every call to the system allocator unchanged; the only
 // addition is an atomic counter, which cannot affect the returned memory.
@@ -41,6 +42,9 @@ unsafe impl GlobalAlloc for Counting {
     }
 
     unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+        if ARMED.load(Ordering::Relaxed) {
+            FREES.fetch_add(1, Ordering::Relaxed);
+        }
         // SAFETY: `ptr` came from `System.alloc` via `alloc` above.
         unsafe { System.dealloc(ptr, layout) }
     }
@@ -51,7 +55,8 @@ static GLOBAL: Counting = Counting;
 
 fn main() {
     rendering_allocates_nothing();
-    println!("realtime_no_alloc: the render path, mixer, parallel voices, disk stream, polyphony, every stereo effect, NaN recovery, the sampler, struck instruments and rate-matched device output allocate nothing");
+    engine_player_renders_without_allocating_or_freeing();
+    println!("realtime_no_alloc: the render path, mixer, parallel voices, disk stream, polyphony, every stereo effect, NaN recovery, the sampler, struck instruments and rate-matched device output allocate nothing; the EnginePlayer callback neither allocates nor frees");
 }
 
 fn rendering_allocates_nothing() {
@@ -415,4 +420,67 @@ fn rate_matched_device_output_allocates_nothing() {
         let n = ALLOCS.swap(0, Ordering::SeqCst);
         assert_eq!(n, 0, "{from}→{to}: {n} allocations converting and encoding");
     }
+}
+
+/// AU-01: the `Engine` callback — voices starting, fading, pausing, looping
+/// and ending mid-block — never allocates and never frees (finished voices
+/// are reaped on the control thread).
+fn engine_player_renders_without_allocating_or_freeing() {
+    use std::time::Duration;
+    use vieww_audio::{Engine, Samples, VoiceOptions};
+    let e = Engine::detached(48_000, 2);
+    let short = Samples {
+        data: vec![0.3; 1000],
+        channels: 1,
+        rate: 48_000,
+    };
+    let long = Samples {
+        data: vec![0.2; 96_000],
+        channels: 2,
+        rate: 48_000,
+    };
+    let a = e.play(&short, VoiceOptions::default()).unwrap();
+    let b = e
+        .play(
+            &long,
+            VoiceOptions {
+                looping: true,
+                ..VoiceOptions::default()
+            },
+        )
+        .unwrap();
+    let c = e
+        .play(
+            &long,
+            VoiceOptions {
+                fade_in: Duration::from_millis(50),
+                ..VoiceOptions::default()
+            },
+        )
+        .unwrap();
+    e.pause(c);
+    e.stop(b, Duration::from_millis(20));
+    let mut out = vec![0.0f32; 256 * 2];
+    ALLOCS.store(0, Ordering::Relaxed);
+    FREES.store(0, Ordering::Relaxed);
+    ARMED.store(true, Ordering::Relaxed);
+    for _ in 0..400 {
+        e.render(&mut out);
+    }
+    ARMED.store(false, Ordering::Relaxed);
+    let (al, fr) = (
+        ALLOCS.load(Ordering::Relaxed),
+        FREES.load(Ordering::Relaxed),
+    );
+    assert_eq!(
+        (al, fr),
+        (0, 0),
+        "Engine::render allocated {al} and freed {fr} times"
+    );
+    let ev = e.poll_events();
+    assert!(
+        ev.len() >= 2,
+        "the short voice ended and the long one stopped: {ev:?}"
+    );
+    let _ = a;
 }

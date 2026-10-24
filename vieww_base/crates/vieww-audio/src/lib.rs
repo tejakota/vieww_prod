@@ -129,6 +129,7 @@ pub mod codec;
 pub mod denormal;
 pub mod device;
 pub mod dsp;
+pub mod engine_player;
 pub mod fft;
 pub mod fx;
 pub mod graph;
@@ -154,6 +155,10 @@ pub mod synth;
 pub mod transport;
 pub mod wav;
 
+pub use engine_player::{
+    Engine, EnginePlayer, MediaPlayer, MediaState, PlayError, PlaybackEvent, Source as MediaSource,
+    VoiceId, VoiceOptions,
+};
 pub use player::{AudioPlayer, NoAudio, PlaybackHandle, RecordedCommand, RecordingPlayer, Sound};
 pub use wav::{read_wav, write_wav, PcmError, PcmSamples};
 

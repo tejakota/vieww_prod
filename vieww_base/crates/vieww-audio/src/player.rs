@@ -35,10 +35,13 @@
 //! * **`Sound` is an enum, not a file path.** A path is somebody's asset
 //!   pipeline; a `Tone` or a decoded [`Samples`] is *sound*, in the hand,
 //!   and the same value can come from a file, a synth, or a test fixture.
-//! * **The implementations here play nothing.** [`NoAudio`] refuses;
-//!   [`RecordingPlayer`] writes down what it was asked. The one that makes
-//!   noise is a platform crate's job, because making noise is what
-//!   platforms disagree about.
+//! * **The implementations here are the honest defaults.** [`NoAudio`]
+//!   refuses; [`RecordingPlayer`] writes down what it was asked. The one
+//!   that makes noise is [`EnginePlayer`](crate::EnginePlayer), which
+//!   `vieww-platform-winit` registers on desktop and Android: it opens the
+//!   platform's default output on the first `play`. A player UI that needs
+//!   pause, seek, position and an "ended" event uses
+//!   [`MediaPlayer`](crate::MediaPlayer) on the same engine.
 
 use std::cell::RefCell;
 use std::rc::Rc;

@@ -98,6 +98,8 @@ pub fn platform() -> Services {
     services.provide::<dyn Storage>(Rc::new(FileStorage::platform()));
     services.provide::<dyn DeepLinks>(Rc::new(PlatformDeepLinks::from_command_line()));
     services.provide::<dyn AssetBundle>(Rc::new(executable_assets()));
+    // Sound (AU-01): the engine opens the default output on first play.
+    vieww_audio::EnginePlayer::register(&mut services);
     // Not on Android: the pasteboard there needs the activity, so it is
     // registered by `for_android` instead. This function is still compiled for
     // that target — it is the desktop and iOS entry point — so the exclusion has
@@ -168,6 +170,8 @@ pub fn for_android(android: &crate::AndroidApp) -> Services {
         None => services.provide::<dyn Storage>(Rc::new(MemoryStorage::new())),
     }
     services.provide::<dyn DeepLinks>(Rc::new(PlatformDeepLinks::from_android(android)));
+    // Sound (AU-01): AAudio, opened on first play.
+    vieww_audio::EnginePlayer::register(&mut services);
     services.provide::<dyn AssetBundle>(Rc::new(AndroidAssets {
         android: android.clone(),
     }));
@@ -226,6 +230,9 @@ mod tests {
         assert!(services.has::<dyn DeepLinks>());
         assert!(services.has::<dyn AssetBundle>());
         assert!(services.has::<dyn Clipboard>());
+        // AU-01: sound without app wiring (opened lazily, so registering it
+        // touches no audio device).
+        assert!(services.has::<dyn vieww_audio::AudioPlayer>());
     }
 
     #[test]

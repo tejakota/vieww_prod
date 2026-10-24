@@ -23,6 +23,11 @@ desktop-services = ["dep:tray-icon", "dep:global-hotkey", "dep:gtk"]
 
 [dependencies]
 vieww-foundation.workspace = true
+# AU-01: `services::platform()` / `for_android()` register vieww-audio's
+# `EnginePlayer` as the `AudioPlayer`, so sound works without app wiring. The
+# device is opened on the first `play`, never at startup. vieww-audio's only
+# dependency is vieww-foundation, so this adds no third-party crates.
+vieww-audio.workspace = true
 # **For `App::theme`.** Already in this crate's graph through `vieww-render`,
 # which depends on it; named here because `App::theme` takes a `ThemeData` in
 # its signature, and relying on a transitive dependency's version is how a build
