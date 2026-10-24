@@ -56,7 +56,7 @@ powershell -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps baseline
    machine unlocked and awake for the run; a locked screen can stop presentation.
 3. **Run it**: Actions → *Hardware (self-hosted Linux and Windows)* → Run
    workflow. Untick a machine to run only the other. Results land in the run's
-   artifacts and, as text, on the branch `ci-results/hardware-<branch>`.
+   artifacts and, as text, on the branch `ci-runs/hardware-<branch>`.
 
 ### Security — read once
 

@@ -70,7 +70,7 @@ app test with `vieww-arm64.apk`.
 | `test_lab_android` / `test_lab_ios` | on / off | Firebase Test Lab; needs the `GCP_SA_KEY` and `FTL_PROJECT` secrets (and `IOS_*` for iOS). |
 | `device` | off | The self-hosted phone runner, if one is registered. |
 
-Results are pushed to the `ci-results/<branch>` branch (`SUMMARY.md`,
+Results are pushed to the `ci-runs/<branch>` branch (`SUMMARY.md`,
 `jobs.json`, screenshots). The token used from this workspace cannot push
 workflow files (no `workflow` scope); changes to the YAML go through GitHub's
 web upload.
