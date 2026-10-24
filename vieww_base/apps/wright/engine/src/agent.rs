@@ -149,13 +149,20 @@ impl FiringEnv {
         let system = match &task.kind {
             TaskKind::Project(name) => {
                 let agent = bp.agent(name).expect("compiled from this blueprint");
+                // WR-08: the taint the Rule of Two computes reaches the model.
+                let tainted = wright_core::rule_of_two::untrusted_artifacts(bp);
                 for input in &agent.inputs {
                     let path = self.tools.artifacts_dir().join(input);
                     match std::fs::read(&path) {
                         Ok(bytes) => {
                             let text = String::from_utf8_lossy(&bytes);
                             let shown: String = text.chars().take(INLINE_INPUT).collect();
-                            user.push_str(&format!("=== input: {input} ({} bytes) ===\n{shown}\n", bytes.len()));
+                            user.push_str(&wright_agents::render_input(
+                                input,
+                                &shown,
+                                bytes.len(),
+                                tainted.contains(input),
+                            ));
                             if shown.len() < text.len() {
                                 user.push_str("[... truncated; read the rest with files-read if you have it ...]\n");
                             }
@@ -191,6 +198,7 @@ impl FiringEnv {
                         }
                     }
                 }
+                let tainted = wright_core::rule_of_two::untrusted_artifacts(bp);
                 user.push_str("\nArtifacts produced so far:\n");
                 let mut any = false;
                 if let Ok(rd) = std::fs::read_dir(self.tools.artifacts_dir()) {
@@ -204,10 +212,12 @@ impl FiringEnv {
                         any = true;
                         let text = std::fs::read_to_string(self.tools.artifacts_dir().join(&n))
                             .unwrap_or_default();
-                        user.push_str(&format!(
-                            "=== artifacts/{n} ({} bytes) ===\n{}\n",
+                        let shown: String = text.chars().take(4096).collect();
+                        user.push_str(&wright_agents::render_input(
+                            &format!("artifacts/{n}"),
+                            &shown,
                             text.len(),
-                            text.chars().take(4096).collect::<String>()
+                            tainted.contains(&n),
                         ));
                     }
                 }
@@ -234,8 +244,9 @@ impl FiringEnv {
                 }
                 user.push_str("\nDo your job now.");
                 format!(
-                    "{}\n\nYou are working inside a Wright project that follows the universal project convention (src/, tests/, logs/, artifacts/; see AGENTS.md in the project root). Work only with your tools. Nobody is watching: do not ask questions.",
-                    spec.prompt
+                    "{}\n\nYou are working inside a Wright project that follows the universal project convention (src/, tests/, logs/, artifacts/; see AGENTS.md in the project root). Work only with your tools. Nobody is watching: do not ask questions.\n\n{}",
+                    spec.prompt,
+                    wright_agents::DATA_RULE
                 )
             }
         };
