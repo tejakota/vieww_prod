@@ -20,7 +20,7 @@ name: Hardware (self-hosted Linux and Windows)
 #            |                                      | studio's remote preview
 #   report   | ubuntu (hosted)                      | publishes every summary,
 #            |                                      | receipt and baseline report to
-#            |                                      | ci-results/hardware-<branch>
+#            |                                      | ci-runs/hardware-<branch>
 #
 # **Manual or nightly — never push or pull_request.** A self-hosted runner
 # executes whatever a workflow tells it to on your machine. This workflow has
@@ -143,12 +143,12 @@ jobs:
 
   # **Results where a session without API access can read them**, as
   # framework-checks.yml's report job does: `git fetch origin
-  # ci-results/hardware-<branch>` is all a reader needs. Summaries, receipts,
+  # ci-runs/hardware-<branch>` is all a reader needs. Summaries, receipts,
   # baseline reports and shadow logs are committed; PNGs, GIFs and PPM diff
   # triptychs stay in the run's artifacts (90 days), because they are tens of
   # MB per run.
   report:
-    name: Publish to ci-results/hardware-<branch>
+    name: Publish to ci-runs/hardware-<branch>
     if: always() && github.ref == 'refs/heads/main'
     needs: [linux, windows]
     runs-on: ubuntu-24.04
@@ -183,12 +183,12 @@ jobs:
             done
           } > out/SUMMARY.md
           cat out/SUMMARY.md
-      - name: Push to ci-results/hardware-<branch>
+      - name: Push to ci-runs/hardware-<branch>
         env:
           TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
-          branch="ci-results/hardware-${GITHUB_REF_NAME//\//-}"
+          branch="ci-runs/hardware-${GITHUB_REF_NAME//\//-}"
           cd out
           git init -q
           git checkout -q -b "$branch"
