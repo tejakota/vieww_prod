@@ -339,6 +339,17 @@ jobs:
       PACKAGE: ${{ matrix.mode == 'cpu' && !matrix.export_only && (github.event_name == 'push' && 'true' || inputs.package) || 'false' }}
       # Decided in `plan` — empty means the whole gate.
       ONLY: ${{ matrix.only }}
+      # FW-06: platform signing (packaging/sign.sh). Empty secrets mean
+      # unsigned installers, said so in MANIFEST.txt; this workflow never runs
+      # on pull requests, so fork code never sees them.
+      APPLE_DEVELOPER_ID_P12: ${{ secrets.APPLE_DEVELOPER_ID_P12 }}
+      APPLE_P12_PASSWORD: ${{ secrets.APPLE_P12_PASSWORD }}
+      APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+      APPLE_NOTARY_KEY: ${{ secrets.APPLE_NOTARY_KEY }}
+      APPLE_NOTARY_KEY_ID: ${{ secrets.APPLE_NOTARY_KEY_ID }}
+      APPLE_NOTARY_ISSUER: ${{ secrets.APPLE_NOTARY_ISSUER }}
+      WINDOWS_CERT_PFX: ${{ secrets.WINDOWS_CERT_PFX }}
+      WINDOWS_CERT_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -478,6 +489,7 @@ jobs:
           name: installers-${{ matrix.id }}
           path: |
             vieww_base/target/package/viewwstudio-*
+            vieww_base/target/package/viewwstudio.cdx.json
             vieww_base/target/package/SHA256SUMS
             vieww_base/target/package/MANIFEST.txt
           retention-days: 30
@@ -523,3 +535,67 @@ jobs:
             vieww_base/FAILURES.md
             vieww_base/logs/
           if-no-files-found: warn
+
+  # ── FW-03 / FW-06: the release itself ─────────────────────────────────────
+  #
+  # On a `v*` tag, after the gate: collect every leg's installers, merge their
+  # SHA256SUMS, attach SLSA build provenance (GitHub's keyless Sigstore
+  # attestation — no certificate to buy; `gh attestation verify <file> -R
+  # <repo>` checks it), and open a DRAFT GitHub Release carrying the
+  # installers, SHA256SUMS, the SBOM, CHECKLIST-ci.md and the CHANGELOG
+  # section for the version. A human reads the checklist and publishes it.
+  # Only this job gets write access, and only on tags.
+  release:
+    name: draft GitHub Release
+    needs: [gate, checklist]
+    if: startsWith(github.ref, 'refs/tags/v') && !cancelled()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: installers-*
+          path: dist-in
+      - uses: actions/download-artifact@v4
+        with:
+          name: checklist-ci
+          path: checklist
+      - name: Assemble
+        id: assemble
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          find dist-in -type f ! -name SHA256SUMS ! -name MANIFEST.txt -exec cp {} dist/ \;
+          [ -n "$(ls -A dist)" ] || { echo "no installers were produced by the gate" >&2; exit 1; }
+          (cd dist && sha256sum -- * > SHA256SUMS)
+          for m in dist-in/*/MANIFEST.txt; do
+            echo "## $(basename "$(dirname "$m")")"; cat "$m"; echo
+          done > dist/MANIFESTS.txt
+          cp checklist/CHECKLIST-ci.md dist/ 2>/dev/null || true
+          ver="${GITHUB_REF_NAME#v}"
+          # This version's CHANGELOG section (up to the next "## [").
+          awk -v v="$ver" '
+            $0 ~ "^## \\[" v "\\]" {on=1; next}
+            on && /^## \[/ {exit}
+            on {print}' vieww_base/CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "See CHANGELOG.md." > notes.md
+          { echo; echo "Checksums: SHA256SUMS. Provenance: \`gh attestation verify <file> -R ${GITHUB_REPOSITORY}\`."; } >> notes.md
+          echo "prerelease=$([[ "$ver" == *-* ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - name: Build provenance (Sigstore, keyless)
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "dist/*"
+      - name: Draft the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRE: ${{ steps.assemble.outputs.prerelease }}
+        run: |
+          flags=(--draft --title "vieww ${GITHUB_REF_NAME}" --notes-file notes.md --verify-tag)
+          [ "$PRE" = true ] && flags+=(--prerelease)
+          gh release create "$GITHUB_REF_NAME" "${flags[@]}" dist/* -R "$GITHUB_REPOSITORY"
