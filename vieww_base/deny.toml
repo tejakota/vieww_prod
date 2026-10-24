@@ -58,6 +58,20 @@ yanked = "deny"
 # each entry goes in this list with a dated note saying why it is tolerated and
 # what would change that.
 ignore = [
+    # **RUSTSEC-2026-0370 / -0371 / -0372 — `zvariant`, `zbus_names`,
+    # `zvariant_derive` unmaintained (2026-10-24, FW-23's first nightly).**
+    #
+    # Not vulnerabilities: upstream folded the three crates into `zbus` itself
+    # (z-galaxy/zbus#2043) and stopped publishing them standalone. They reach
+    # this graph only through `accesskit_winit` -> `accesskit_unix` ->
+    # `accesskit_atspi_common` (the Linux screen-reader bridge, FW-10), which
+    # pins zbus 5. Dropping them means dropping AT-SPI accessibility on Linux.
+    # Remove these three lines when accesskit moves to the zbus release that
+    # contains them; the nightly supply-chain job will say so the day the
+    # entries stop matching (cargo-deny warns on unused ignores).
+    "RUSTSEC-2026-0370",
+    "RUSTSEC-2026-0371",
+    "RUSTSEC-2026-0372",
     # **RUSTSEC-2026-0192 — `ttf-parser` is unmaintained, and this workspace
     # cannot stop depending on it.**
     #

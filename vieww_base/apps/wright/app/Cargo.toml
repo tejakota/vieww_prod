@@ -5,6 +5,7 @@
 # and it is only pulled in by the `ui` feature, so CI and servers can
 # build a headless binary with zero external crates.
 [package]
+publish = false
 name = "wright"
 version.workspace = true
 edition.workspace = true

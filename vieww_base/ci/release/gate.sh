@@ -400,12 +400,18 @@ elif [[ -n "$package" ]] && wanted G3.1; then
 		find target/package -mindepth 1 -maxdepth 1 \
 			! -name 'viewwstudio-*.deb' ! -name 'viewwstudio-*.AppImage' ! -name 'viewwstudio-*.tar.gz' \
 			! -name 'viewwstudio-*.zip' ! -name 'viewwstudio-*.msi' ! -name 'viewwstudio-*.dmg' \
-			! -name SHA256SUMS ! -name MANIFEST.txt ! -name index.html ! -name build.json \
+			! -name SHA256SUMS ! -name MANIFEST.txt ! -name index.html ! -name build.json ! -name '*.cdx.json' \
 			-exec rm -rf {} +
 	fi
 	if [[ -s "$out/package/SHA256SUMS" ]]; then
 		note G8.1 "SHA256SUMS generated for every artifact" PASS package/SHA256SUMS
 		note G8.2 "toolchain + source recorded with the artifacts" PASS package/MANIFEST.txt
+		if [[ -s target/package/viewwstudio.cdx.json ]]; then
+			cp target/package/viewwstudio.cdx.json "$out/package/"
+			note G8.7 "SBOM (CycloneDX) for the shipped binary" PASS package/viewwstudio.cdx.json
+		else
+			note G8.7 "SBOM (CycloneDX) for the shipped binary" "FAIL(missing)" package/MANIFEST.txt
+		fi
 	else
 		note G8.1 "SHA256SUMS generated for every artifact" "FAIL(no artifacts)" logs/G3.1.txt
 	fi
