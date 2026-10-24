@@ -138,6 +138,25 @@ pub fn config(req: &Request, cfg: &NetConfig, body: &BodyArg) -> String {
         line(flag, None);
     }
     line("proto", Some("=https,http"));
+    // WR-07: connect only to the addresses the SSRF check approved.
+    if let Some(ips) = cfg.pinned_ips.as_ref().filter(|v| !v.is_empty()) {
+        let list: Vec<String> = ips
+            .iter()
+            .map(|ip| match ip {
+                std::net::IpAddr::V6(v6) => format!("[{v6}]"),
+                std::net::IpAddr::V4(v4) => v4.to_string(),
+            })
+            .collect();
+        line(
+            "resolve",
+            Some(&format!(
+                "{}:{}:{}",
+                req.url.host,
+                req.url.port,
+                list.join(",")
+            )),
+        );
+    }
     for (k, v) in &req.headers {
         if !curl_sets(k) {
             line("header", Some(&format!("{k}: {v}")));
@@ -365,6 +384,28 @@ mod tests {
         assert!(c.contains("proxy = \"http://proxy.corp:3128\"\n"), "{c}");
         assert!(c.contains("proxy-header = \"Proxy-Authorization: Basic Ym9iOnB3\"\n"));
         assert!(!c.contains("bob:pw"));
+    }
+
+    /// WR-07: pinned addresses reach curl as `resolve`, so curl does not
+    /// look the host up again.
+    #[test]
+    fn pinned_addresses_become_resolve() {
+        let req = Request::new(
+            "GET",
+            wright_core::wire::http::parse_url("https://api.example:8443/v1").unwrap(),
+        );
+        let cfg = NetConfig {
+            pinned_ips: Some(vec![
+                "203.0.113.5".parse().unwrap(),
+                "2001:db8::1".parse().unwrap(),
+            ]),
+            ..NetConfig::default()
+        };
+        let c = config(&req, &cfg, &BodyArg::None);
+        assert!(
+            c.contains("resolve = \"api.example:8443:203.0.113.5,[2001:db8::1]\"\n"),
+            "{c}"
+        );
     }
 
     /// The whole path against a local server: request in through the

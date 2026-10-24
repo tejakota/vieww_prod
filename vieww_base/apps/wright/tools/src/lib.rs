@@ -502,7 +502,12 @@ fn shell(permit: &Permit, input: &Value, ctx: &ToolCtx) -> Result<ToolOutput, To
 
 /// Refuse addresses an agent should never reach by default: loopback,
 /// private ranges, link-local (cloud metadata lives at 169.254.169.254).
-fn check_public(host: &str, port: u16, ctx: &ToolCtx) -> Result<(), ToolError> {
+///
+/// Returns the addresses it approved: the request must connect to those and
+/// nothing else (WR-07), or a DNS server answering the check with a public
+/// address and the connection with 169.254.169.254 wins the race. `None`
+/// when private addresses are allowed (nothing to pin).
+fn check_public(host: &str, port: u16, ctx: &ToolCtx) -> Result<Option<Vec<IpAddr>>, ToolError> {
     if let Some(allowed) = &ctx.allowed_hosts {
         if !wright_runtime::policy::host_allowed(allowed, host) {
             return Err(ToolError::Failed(format!(
@@ -512,14 +517,14 @@ fn check_public(host: &str, port: u16, ctx: &ToolCtx) -> Result<(), ToolError> {
         }
     }
     if ctx.allow_private_network {
-        return Ok(());
+        return Ok(None);
     }
-    let addrs: Vec<IpAddr> = (host, port)
-        .to_socket_addrs()
-        .map_err(|e| ToolError::Failed(format!("cannot resolve {host}: {e}")))?
-        .map(|a| a.ip())
-        .collect();
-    for ip in addrs {
+    let addrs: Vec<IpAddr> = resolve_host(host, port)
+        .map_err(|e| ToolError::Failed(format!("cannot resolve {host}: {e}")))?;
+    if addrs.is_empty() {
+        return Err(ToolError::Failed(format!("{host} has no addresses")));
+    }
+    for &ip in &addrs {
         let private = match ip {
             IpAddr::V4(v4) => {
                 v4.is_loopback()
@@ -539,15 +544,56 @@ fn check_public(host: &str, port: u16, ctx: &ToolCtx) -> Result<(), ToolError> {
             return Err(ToolError::Failed(format!("{host} resolves to a private or local address ({ip}); agents may only reach public addresses")));
         }
     }
-    Ok(())
+    Ok(Some(addrs))
+}
+
+/// DNS resolution, with a test seam so the rebinding race can be staged.
+fn resolve_host(host: &str, port: u16) -> std::io::Result<Vec<IpAddr>> {
+    #[cfg(test)]
+    if let Some(ips) = test_dns::answer(host) {
+        return Ok(ips);
+    }
+    Ok((host, port).to_socket_addrs()?.map(|a| a.ip()).collect())
+}
+
+#[cfg(test)]
+pub(crate) mod test_dns {
+    use std::cell::RefCell;
+    use std::net::IpAddr;
+    thread_local! {
+        static ANSWERS: RefCell<Vec<(String, Vec<Vec<IpAddr>>)>> = const { RefCell::new(Vec::new()) };
+    }
+    /// Answer successive lookups of `host` with `answers`, one per lookup.
+    pub fn stage(host: &str, answers: Vec<Vec<IpAddr>>) {
+        ANSWERS.with(|a| a.borrow_mut().push((host.to_string(), answers)));
+    }
+    pub fn answer(host: &str) -> Option<Vec<IpAddr>> {
+        ANSWERS.with(|a| {
+            let mut a = a.borrow_mut();
+            let (_, list) = a.iter_mut().find(|(h, _)| h == host)?;
+            if list.len() > 1 {
+                Some(list.remove(0))
+            } else {
+                list.first().cloned()
+            }
+        })
+    }
+}
+
+/// The network settings for one agent request to `url`: the SSRF check,
+/// and its answer pinned into the connection.
+fn request_cfg(url: &wright_core::wire::http::Url, ctx: &ToolCtx) -> Result<NetConfig, ToolError> {
+    let pinned = check_public(&url.host, url.port, ctx)?;
+    let mut cfg = ctx.net.clone();
+    cfg.pinned_ips = pinned;
+    Ok(cfg)
 }
 
 const HTTP_READ_LIMIT: usize = 1024 * 1024;
 
 fn http_read(input: &Value, ctx: &ToolCtx) -> Result<ToolOutput, ToolError> {
     let url = parse_url(s(input, "url")?).map_err(ToolError::BadInput)?;
-    check_public(&url.host, url.port, ctx)?;
-    let mut cfg = ctx.net.clone();
+    let mut cfg = request_cfg(&url, ctx)?;
     cfg.limits.max_body = HTTP_READ_LIMIT;
     cfg.io_timeout = Duration::from_secs(30);
     let req = Request::new("GET", url.clone())
@@ -573,7 +619,7 @@ fn http_read(input: &Value, ctx: &ToolCtx) -> Result<ToolOutput, ToolError> {
 
 fn http_post(permit: &Permit, input: &Value, ctx: &ToolCtx) -> Result<ToolOutput, ToolError> {
     let url = parse_url(s(input, "url")?).map_err(ToolError::BadInput)?;
-    check_public(&url.host, url.port, ctx)?;
+    let mut cfg = request_cfg(&url, ctx)?;
     let body = s(input, "body")?;
     let ctype = input.str_of("content_type").unwrap_or("application/json");
     let mut req = Request::new("POST", url.clone())
@@ -595,7 +641,6 @@ fn http_post(permit: &Permit, input: &Value, ctx: &ToolCtx) -> Result<ToolOutput
         req = req.header("Authorization", &format!("Bearer {}", value.expose()));
     }
     let req = req.body(body.as_bytes().to_vec());
-    let mut cfg = ctx.net.clone();
     cfg.io_timeout = Duration::from_secs(30);
     let resp = net::send(&req, &cfg).map_err(ToolError::Failed)?;
     let text: String = resp.body_text().chars().take(4000).collect();
@@ -781,6 +826,38 @@ mod tests {
             let err = call("http-read", &input, &c).unwrap_err().to_string();
             assert!(err.contains("private or local"), "{u}: {err}");
         }
+    }
+
+    /// WR-07: the check's answer is what the connection uses; a rebinding
+    /// second answer (here 169.254.169.254) is never consulted.
+    #[test]
+    fn dns_rebinding_cannot_swap_the_address() {
+        let c = ctx("rebind");
+        let public: IpAddr = "93.184.216.34".parse().unwrap();
+        let metadata: IpAddr = "169.254.169.254".parse().unwrap();
+        test_dns::stage("rebind.example", vec![vec![public], vec![metadata]]);
+        let url = parse_url("http://rebind.example/latest/meta-data/").unwrap();
+        let cfg = request_cfg(&url, &c).unwrap();
+        assert_eq!(cfg.pinned_ips, Some(vec![public]));
+        // The race is real: a second lookup now answers with metadata...
+        assert_eq!(resolve_host("rebind.example", 80).unwrap(), vec![metadata]);
+        // ...but the request config is already pinned and never re-resolves.
+        assert!(!cfg.pinned_ips.unwrap().contains(&metadata));
+    }
+
+    #[test]
+    fn any_private_answer_refuses_the_host() {
+        let c = ctx("mixed");
+        test_dns::stage(
+            "mixed.example",
+            vec![vec![
+                "93.184.216.34".parse().unwrap(),
+                "10.0.0.7".parse().unwrap(),
+            ]],
+        );
+        let url = parse_url("http://mixed.example/").unwrap();
+        let err = request_cfg(&url, &c).unwrap_err().to_string();
+        assert!(err.contains("private or local"), "{err}");
     }
 
     #[test]

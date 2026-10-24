@@ -139,6 +139,11 @@ pub struct NetConfig {
     pub http_proxy: Option<Proxy>,
     pub no_proxy: Vec<String>,
     pub limits: Limits,
+    /// Connect to exactly these addresses for the request's own host,
+    /// instead of resolving it again (WR-07: the SSRF check resolves once
+    /// and pins its answer, so a DNS-rebinding second answer is never
+    /// used). TLS still verifies the certificate against the host name.
+    pub pinned_ips: Option<Vec<IpAddr>>,
 }
 
 impl Default for NetConfig {
@@ -150,6 +155,7 @@ impl Default for NetConfig {
             http_proxy: None,
             no_proxy: Vec::new(),
             limits: Limits::default(),
+            pinned_ips: None,
         }
     }
 }
@@ -225,10 +231,27 @@ impl NetConfig {
 }
 
 fn tcp_connect(host: &str, port: u16, cfg: &NetConfig) -> Result<TcpStream, String> {
-    let addrs: Vec<_> = (host, port)
-        .to_socket_addrs()
-        .map_err(|e| format!("cannot resolve {host}: {e}"))?
-        .collect();
+    tcp_connect_to(host, port, None, cfg)
+}
+
+/// Connect to `host:port`, using `pinned` addresses when given rather than
+/// resolving `host`.
+fn tcp_connect_to(
+    host: &str,
+    port: u16,
+    pinned: Option<&[IpAddr]>,
+    cfg: &NetConfig,
+) -> Result<TcpStream, String> {
+    let addrs: Vec<std::net::SocketAddr> = match pinned {
+        Some(ips) => ips
+            .iter()
+            .map(|ip| std::net::SocketAddr::new(*ip, port))
+            .collect(),
+        None => (host, port)
+            .to_socket_addrs()
+            .map_err(|e| format!("cannot resolve {host}: {e}"))?
+            .collect(),
+    };
     let mut last = format!("no addresses for {host}");
     for addr in addrs {
         match TcpStream::connect_timeout(&addr, cfg.connect_timeout) {
@@ -292,14 +315,22 @@ pub fn connect(url: &Url, cfg: &NetConfig) -> Result<(Conn, bool), String> {
             ))
         }
         (true, None) => {
-            let tcp = tcp_connect(&url.host, url.port, cfg)?;
+            let tcp = tcp_connect_to(&url.host, url.port, cfg.pinned_ips.as_deref(), cfg)?;
             Ok((
                 Conn::Tls(Box::new(TlsStream::connect(tcp, &url.host)?)),
                 false,
             ))
         }
         (false, Some(p)) => Ok((Conn::Tcp(tcp_connect(&p.host, p.port, cfg)?), true)),
-        (false, None) => Ok((Conn::Tcp(tcp_connect(&url.host, url.port, cfg)?), false)),
+        (false, None) => Ok((
+            Conn::Tcp(tcp_connect_to(
+                &url.host,
+                url.port,
+                cfg.pinned_ips.as_deref(),
+                cfg,
+            )?),
+            false,
+        )),
     }
 }
 
@@ -393,6 +424,33 @@ mod tests {
         assert_eq!((p.host.as_str(), p.port), ("proxy.corp", 3128));
         assert!(!format!("{:?}", p.host).contains("s3cret"));
         assert_eq!(p.auth.as_deref(), Some("Basic YWxpY2U6czNjcmV0"));
+    }
+
+    /// WR-07: with pinned addresses the host name is never resolved — a
+    /// name that cannot resolve still reaches the pinned listener.
+    #[test]
+    fn pinned_addresses_skip_resolution() {
+        use std::io::{Read, Write};
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        let port = listener.local_addr().unwrap().port();
+        let server = std::thread::spawn(move || {
+            let (mut s, _) = listener.accept().unwrap();
+            let mut buf = [0u8; 1024];
+            let n = s.read(&mut buf).unwrap();
+            let head = String::from_utf8_lossy(&buf[..n]).to_string();
+            s.write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok")
+                .unwrap();
+            head
+        });
+        let url = http::parse_url(&format!("http://pinned.invalid:{port}/x")).unwrap();
+        let cfg = NetConfig {
+            pinned_ips: Some(vec!["127.0.0.1".parse().unwrap()]),
+            ..NetConfig::default()
+        };
+        let resp = send(&Request::new("GET", url), &cfg).unwrap();
+        assert_eq!(resp.body_text(), "ok");
+        let head = server.join().unwrap();
+        assert!(head.contains("Host: pinned.invalid"), "{head}");
     }
 
     #[test]
