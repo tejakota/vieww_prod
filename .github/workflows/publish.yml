@@ -1,0 +1,126 @@
+# FW-01: the framework as crates.io packages.
+#
+#   check            every PR touching manifests: metadata, versioned deps,
+#                    publish-order.txt fresh, all 52 public crates package
+#   verify           nightly + tags: `cargo publish --workspace --dry-run`
+#                    (builds each crate from its packaged source)
+#   scaffold-external  `vieww new` OUTSIDE the checkout writes a version
+#                    dependency (B16); the project must build against these
+#                    exact sources via [patch.crates-io] — the regression test
+#                    for "a project created by an installed Studio cannot be built"
+#   publish          `v*` tags only, and only when the CARGO_REGISTRY_TOKEN
+#                    secret exists: `cargo publish --workspace`
+name: publish
+
+on:
+  pull_request:
+    paths:
+      - "vieww_base/**/Cargo.toml"
+      - "vieww_base/Cargo.lock"
+      - "vieww_base/ci/release/publish-*"
+      - ".github/workflows/publish.yml"
+  schedule:
+    - cron: "45 22 * * *"
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+    working-directory: vieww_base
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install
+      - run: bash ci/release/publish-check.sh
+
+  verify:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: System packages
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y --no-install-recommends \
+            libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev pkg-config
+      - run: rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: vieww_base
+      - run: bash ci/release/publish-check.sh --verify
+
+  scaffold-external:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: System packages
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y --no-install-recommends \
+            libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev pkg-config
+      - run: rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: vieww_base
+      - name: vieww new, outside the checkout
+        run: |
+          cargo build --release --locked -p vieww-cli
+          cli="$PWD/target/release/vieww"
+          src="$PWD"
+          mkdir -p "$RUNNER_TEMP/outside" && cd "$RUNNER_TEMP/outside"
+          VIEWW_SCAFFOLD_FROM=registry "$cli" new demo
+          cd demo
+          if grep -n 'path *=' Cargo.toml; then
+            echo "scaffold wrote a path dependency outside the checkout" >&2; exit 1
+          fi
+          grep -nE '^vieww[a-z-]* *= *"' Cargo.toml
+          # Resolve the version dependency against these sources, exactly as
+          # crates.io would serve them after `cargo publish`.
+          {
+            echo
+            echo "[patch.crates-io]"
+            grep -v '^#' "$src/ci/release/publish-order.txt" | while read -r c; do
+              echo "$c = { path = \"$src/crates/$c\" }"
+            done
+          } >> Cargo.toml
+          cargo build
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [check, verify, scaffold-external]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install
+      - name: Publish (skipped without a token)
+        run: |
+          if [ -z "$CARGO_REGISTRY_TOKEN" ]; then
+            echo "::notice::CARGO_REGISTRY_TOKEN is not set: nothing published (add it under Settings → Secrets → Actions)"
+            exit 0
+          fi
+          tag="${GITHUB_REF_NAME#v}"
+          ver=$(sed -n '/^\[workspace.package\]/,/^\[/s/^version = "\(.*\)"/\1/p' Cargo.toml)
+          [ "$tag" = "$ver" ] || { echo "tag v$tag does not match workspace version $ver" >&2; exit 1; }
+          cargo publish --workspace --locked
