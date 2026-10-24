@@ -11,7 +11,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
   push:
-    branches-ignore: [main, "ci-results/**"]
+    branches-ignore: [main, ci-results, "ci-runs/**"]
 
 permissions:
   contents: read
