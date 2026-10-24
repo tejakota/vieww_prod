@@ -220,7 +220,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     ("UiThread live · spring settles to 1.000".to_string(), 1.0)
                 } else {
                     let now = live.get();
-                    (format!("UiThread frames {} · live spring {now:.3}", ui.frames()), now)
+                    (
+                        format!("UiThread frames {} · live spring {now:.3}", ui.frames()),
+                        now,
+                    )
                 };
                 let p4 = painted(
                     "worklets · shared values",

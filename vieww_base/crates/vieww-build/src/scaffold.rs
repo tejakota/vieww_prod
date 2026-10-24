@@ -92,12 +92,18 @@ impl Dependency {
     /// `vieww-build`'s source vendored somewhere else — unlikely today, real
     /// the day this crate is published — must not claim a path that is not
     /// there.
+    ///
+    /// `VIEWW_SCAFFOLD_FROM=registry` forces the version dependency even when
+    /// a checkout is found — what an installed CLI on a user's machine writes,
+    /// and what CI uses to prove that project builds (FW-01, checklist B16).
     #[must_use]
     pub fn detect() -> Self {
-        checkout_root().map_or_else(
-            || Self::Version(env!("CARGO_PKG_VERSION").to_owned()),
-            Self::Path,
-        )
+        let registry = std::env::var("VIEWW_SCAFFOLD_FROM").is_ok_and(|v| v == "registry");
+        let version = || Self::Version(env!("CARGO_PKG_VERSION").to_owned());
+        if registry {
+            return version();
+        }
+        checkout_root().map_or_else(version, Self::Path)
     }
 
     fn spec(&self, crate_name: &str) -> String {

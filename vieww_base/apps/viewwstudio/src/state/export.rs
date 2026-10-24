@@ -707,9 +707,14 @@ impl Studio {
         }
 
         // A path dependency on this checkout, because that is the only kind the
-        // preview can load — see `scaffold::Dependency`.
-        let dependency = scaffold::checkout_root()
-            .map_or_else(|| Dependency::Version("0.0.1".into()), Dependency::Path);
+        // preview can load — see `scaffold::Dependency`. Outside a checkout,
+        // the published release this studio was built from (FW-01: it used
+        // to write `0.0.1`, a version that never existed, so the project
+        // could not build — checklist B16).
+        let dependency = scaffold::checkout_root().map_or_else(
+            || Dependency::Version(env!("CARGO_PKG_VERSION").to_owned()),
+            Dependency::Path,
+        );
 
         let written =
             scaffold::create_for(&target, name, &dependency, kind).map_err(|e| e.to_string())?;

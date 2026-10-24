@@ -1,0 +1,120 @@
+# Production-readiness gap status
+
+Every gap in the four research reports (framework.md, studio.md, audio.md, wright.md), with where it stands. **Closed** = code + tests + CI gate landed. **Partial** = the code is in, and what is left is listed. **Open** = not started.
+Mac real-device verification is out of scope by the owner's decision; Mac code paths are still written and CI-built where hosted runners allow.
+
+Totals: Closed 9, Open 80, Partial 5 (of 94).
+
+## Framework
+
+| Gap | P | Title | Status | Notes |
+|---|---|---|---|---|
+| FW-01 | P0 | The framework is unpublishable and unusable outside the monorepo | **Partial** | Metadata on 52 public crates, publish-check.sh + publish-order.txt, publish.yml (package/verify/scaffold-external/publish-on-tag). Left: owner adds CARGO_REGISTRY_TOKEN and tags. |
+| FW-02 | P0 | No CI runs on push or PR — the entire gate is manual | **Closed** | pr-quick.yml, root release-gate.yml, nightly hardware.yml, audio-ci on paths. |
+| FW-03 | P0 | No release has ever been cut: no tag, no changelog, no channel | **Partial** | CHANGELOG.md, docs/release/RELEASING.md, draft GitHub Release job on tags. Left: owner cuts the first tag. |
+| FW-04 | P0 | macOS: end users cannot run a vieww app (MoltenVK not bundled, unsigned, Metal scene renderer not shipped) | **Open** |  |
+| FW-05 | P0 | Windows: D3D12 scene path absent on main, 840 ms startup, unsigned | **Open** |  |
+| FW-06 | P0 | No code signing, notarization, or attestation on any artifact | **Partial** | Sigstore provenance on every release file (no cert needed); packaging/sign.sh (signtool / codesign+notarytool / apksigner) wired into package.sh, release-gate, mobile CI. Left: owner buys certificates and adds secrets; Android AAB output. |
+| FW-07 | P1 | Open performance-budget misses on certified reference hardware | **Open** |  |
+| FW-08 | P1 | Receipts are recorded, not gated: no automated performance trend regression | **Open** |  |
+| FW-09 | P1 | Web: no WebGPU path — canvas-CPU only | **Open** |  |
+| FW-10 | P1 | Accessibility: iOS VoiceOver never heard; desktop screen readers unproven | **Open** |  |
+| FW-11 | P1 | IME: implemented, never proven automatically on-device | **Open** |  |
+| FW-12 | P1 | Crash reports dead-end on device; stripped release binaries lack symbols | **Open** |  |
+| FW-13 | P1 | Hot reload: solid core, rough product edges | **Open** |  |
+| FW-14 | P1 | Golden/snapshot infrastructure has no PR-level teeth | **Closed** | 227-shot baseline, goldens.yml per PR, diff artifact, nondeterministic example fixed. |
+| FW-15 | P2 | Memory: 150 MB RSS vs 40 MB target; no heap profiling in any gate | **Open** |  |
+| FW-16 | P2 | Startup: Windows 4× Linux; font scan can cost 46 s | **Open** |  |
+| FW-17 | P1 | Plugin ecosystem: ABI exists, ecosystem doesn't | **Open** |  |
+| FW-18 | P2 | Documentation gaps: missing page, stale claims, no hosted docs | **Open** |  |
+| FW-19 | P2 | Platform polish debt (DnD out, monitors, Wayland clipboard, APK ABIs, toolchain pin) | **Open** |  |
+| FW-20 | P2 | Embedded native views: no consumer, unknown shape (PENDING §6.2) | **Open** |  |
+| FW-21 | P2 | GPU 3D: per-render bring-up; CPU-side shadow map; no IBL/GI | **Open** |  |
+| FW-22 | P2 | Planner actuation is still data-starved; calibration underestimates CPU 34-38% | **Open** |  |
+| FW-23 | P2 | Supply chain: no scheduled audits, no SBOM, non-reproducible builds | **Closed** | supply-chain.yml nightly (deny gate + audit report, both workspaces), CycloneDX SBOM shipped, repro-check.sh nightly, SOURCE_DATE_EPOCH; fixed yanked clipboard-win, tokio advisories. |
+| FW-24 | P1 | No OTA/update channel for shipped apps | **Open** |  |
+| FW-25 | P3 | Scene-IR has no stable serialization (tool interop locked inside Rust) | **Open** |  |
+| FW-26 | P3 | Cross-backend parity is tested but not contracted | **Open** |  |
+
+## Studio
+
+| Gap | P | Title | Status | Notes |
+|---|---|---|---|---|
+| ST-01 | P0 | No canvas manipulation: the preview is a window, not a workspace | **Open** |  |
+| ST-02 | P0 | No property inspector: nothing about a widget is editable in the right pane | **Open** |  |
+| ST-03 | P0 | "Say" has no AI: no prompt path in the prompt→app wave | **Open** |  |
+| ST-04 | P0 | The out-of-process preview (Windows default) is missing keys, IME, scroll, hover, and state capture | **Open** |  |
+| ST-05 | P1 | No component system: custom widgets cannot be published, browsed, or reused across projects | **Open** |  |
+| ST-06 | P1 | No layers tree / outline navigation and no multi-select | **Open** |  |
+| ST-07 | P1 | Export: no Web target, no user-app store pipelines, no macOS/Linux app packaging for user projects | **Open** |  |
+| ST-08 | P1 | The preview is never verified on a real device; the device farm is not wired to the studio | **Open** |  |
+| ST-09 | P1 | Frame attribution and perf overlays exist only as headless examples — no in-editor performance hints | **Open** |  |
+| ST-10 | P1 | vieww-collab (CRDT + presence + multiplayer undo) exists and the studio uses none of it | **Open** |  |
+| ST-11 | P1 | Undo is text-only; the only cross-file undo is git | **Open** |  |
+| ST-12 | P1 | CI gates one studio test file on one OS; the 608-test suite and all probes are manual | **Open** |  |
+| ST-13 | P1 | No plugin/extension API for the studio | **Open** |  |
+| ST-14 | P1 | Distribution: no auto-update, unsigned installers, ~600 MB toolchain bundle | **Open** |  |
+| ST-15 | P2 | No asset browser or font pipeline UI | **Open** |  |
+| ST-16 | P2 | The studio UI is English-only | **Open** |  |
+| ST-17 | P2 | No telemetry or diagnostics export (opt-in or otherwise) | **Open** |  |
+| ST-18 | P2 | Studio accessibility is settings-deep, not audit-verified | **Open** |  |
+| ST-19 | P2 | The "live" flow preview renders an approximation, honestly labeled, but it is still not the app | **Open** |  |
+| ST-20 | P2 | Say's vocabulary is tiny and closed: 18 widgets, 20 properties, 11 actions, 10 icons | **Open** |  |
+| ST-21 | P2 | One preview at a time: no multi-device matrix, no orientation side-by-side | **Open** |  |
+| ST-22 | P2 | The inspector shows structure, not state: no signal/ElementState values | **Open** |  |
+| ST-23 | P3 | Windows cold start is ~4× Linux (840 ms vs 221 ms) and the first compile of a session is 10.6 s cold-cache | **Open** |  |
+
+## Audio / music
+
+| Gap | P | Title | Status | Notes |
+|---|---|---|---|---|
+| AU-01 | P0 | The engine is an island: no platform registers an `AudioPlayer`, and the only playing implementation is a Linux-only blocking writer | **Partial** | Engine + EnginePlayer registered on desktop/Android (lazy device). Left: web shim registration; live player_smoke on self-hosted runners. |
+| AU-02 | P0 | No Android audio focus: the app that talks over phone calls | **Open** |  |
+| AU-03 | P0 | No AVAudioSession lifecycle on iOS: interruptions kill the stream and App Store background audio is impossible | **Open** |  |
+| AU-04 | P0 | No background playback story: no foreground service/MediaSession (Android), no `UIBackgroundModes` (iOS), no wake locks | **Open** |  |
+| AU-05 | P0 | Large-media playback: full-file decode in memory; only WAV disk-streams; no network source | **Open** |  |
+| AU-06 | P1 | Codec coverage: no Opus (and tags-only support for .opus), no HE-AAC SBR/PS, no ALAC | **Open** |  |
+| AU-07 | P1 | AAC patent posture is undocumented: table provenance exists, patent-pool exposure does not | **Open** |  |
+| AU-08 | P1 | AAudio: always shared mode, no usage/contentType/privacy attributes, no latency query, no underrun query | **Open** |  |
+| AU-09 | P1 | Route changes and Bluetooth: 1-second polling instead of OS events; no Bluetooth-aware behavior at all | **Open** |  |
+| AU-10 | P1 | WASAPI shared mode: IAudioClient v1 with AUTOCONVERTPCM; no IAudioClient2/3 low-latency shared mode | **Open** |  |
+| AU-11 | P1 | The `AudioPlayer` seam is fire-and-forget: no volume, pause, position, seek, completion events, or media sources — you cannot build a player UI on it | **Closed** | MediaPlayer: load/play/pause/seek/position/duration/volume fade/loop/events; tests. |
+| AU-12 | P1 | No lock-screen/now-playing/media-notification integration (MediaSession everywhere) | **Open** |  |
+| AU-13 | P1 | Plugin formats: CLAP+VST3 only — no AUv3 (blocks iOS/macOS store distribution of audio units), no LV2 (Linux pro audio), no AAX, and no GUI story | **Open** |  |
+| AU-14 | P1 | The device farm runs zero audio tests: AAudio has never run on a real device, iOS audio never on a real iPhone, Bluetooth never anywhere | **Open** |  |
+| AU-15 | P1 | All audio workflows are manual-only; the audio-ci.yml header comment still claims otherwise | **Partial** | audio-ci runs on push/PR paths + nightly fuzz; header updated. Left: audio-backends/plugins schedules. |
+| AU-16 | P1 | No notation interchange: MusicXML out/in, LilyPond, ABC — the score cannot leave the ecosystem except as MIDI or audio | **Open** |  |
+| AU-17 | P2 | vieww-music ↔ vieww-audio: no live playback path — the score renderer is offline-only | **Open** |  |
+| AU-18 | P2 | RT-safety is proven by test, not enforced by the compiler — no lint denying allocation/locking in the audio thread path | **Open** |  |
+| AU-19 | P2 | MIDI ports: no Android (AMidi), no Web MIDI; Linux rawmidi misses ALSA-sequencer virtual ports (documented) | **Open** |  |
+| AU-20 | P2 | Fuzz coverage extension: DSP/stream/mixer/plugin paths are not fuzzed; fuzzing is one-shot 300 s on demand | **Open** |  |
+| AU-21 | P2 | Docs: no audio/music chapter in the user guide; no app-facing "sound on each platform" walkthrough; examples are thin | **Open** |  |
+| AU-22 | P2 | Analysis lacks polyphonic pitch/chroma; no key detection; `Spectrum` has no waterfall/peak-hold UI helpers | **Open** |  |
+| AU-23 | P3 | `Samples` is stereo-max while the rest of the stack is multichannel — an inconsistent surface | **Open** |  |
+| AU-24 | P3 | Web: autoplay policy is a comment, not a mechanism; no Media Session on web; worker mode needs COOP/COEP documented per-app | **Open** |  |
+| AU-25 | P3 | No loudness normalization for media playback (ReplayGain/EBU R128 pre-analysis and album mode) | **Open** |  |
+
+## wright
+
+| Gap | P | Title | Status | Notes |
+|---|---|---|---|---|
+| WR-01 | P0 | Linux sandbox: `$HOME` is readable through PATH parents — "home secrets are invisible" is false on dev machines | **Closed** | PATH parents/HOME never roots; regression test. |
+| WR-02 | P0 | Sandbox depth: no syscall filter (seccomp), no PID namespace; networked commands share host process space | **Closed** | User+PID namespace, seccomp denylist, strict mode, escape tests in CI both ways. |
+| WR-03 | P0 | macOS: no sandbox backend at all — the product is fail-closed on a Tier-1 desktop OS | **Open** |  |
+| WR-04 | P0 | Release channel: unsigned installers, no notarization, no auto-update | **Open** |  |
+| WR-05 | P1 | Windows-native worker CLIs run without any OS sandbox (workspace-copy fallback) | **Open** |  |
+| WR-06 | P1 | Windows secret storage: no Credential Manager — keys in env vars on the platform that least wants them | **Open** |  |
+| WR-07 | P1 | HTTP tools: DNS-rebinding TOCTOU between the SSRF check and the connection | **Closed** | Resolve once, pin addresses (native + curl --resolve); staged-rebinding tests. |
+| WR-08 | P1 | Prompt injection: tainted content enters prompts unmarked — the taint system stops one layer short | **Open** |  |
+| WR-09 | P1 | Model calls are non-reproducible and under-specified: no temperature/seed, none recorded | **Open** |  |
+| WR-10 | P1 | Hardening pass: sandbox scratch dir not 0700; macOS `secret set` argv leak; path-check TOCTOU | **Closed** | 0700 scratch, security -i stdin, O_NOFOLLOW pinned writes. |
+| WR-11 | P1 | No browser tool and no visual verification — the one axis every rival competes on | **Open** |  |
+| WR-12 | P2 | Session branching: replay is projection-only; no fork-from-event | **Open** |  |
+| WR-13 | P2 | Budget estimates are coarse; tool calls cost 0; overshoot between checks is admitted | **Open** |  |
+| WR-14 | P2 | Windows POSIX sandbox requires WSL2 + Ubuntu + bubblewrap — heavy onboarding | **Open** |  |
+| WR-15 | P2 | Export targets: zip/wheel/crate/web only — no containers, no deploy, no mobile | **Open** |  |
+| WR-16 | P2 | Kill switch: any local process can engage it (unauthenticated `STOP` file) | **Closed** | 0700 wright home; sandbox cannot reach STOP (test). |
+| WR-17 | P2 | Doc drift: ARCHITECTURE vs code on three points | **Open** |  |
+| WR-18 | P3 | No server/team mode — by documented choice, but it caps the buyer set | **Open** |  |
+| WR-19 | P3 | Interview depends on the model honoring the format; validation loop is the mitigation (no gap in enforcement, but UX cost) | **Open** |  |
+| WR-20 | P3 | `http-read` textual check trusts content-type; no size-capped streaming guard for `http-post` bodies | **Open** |  |

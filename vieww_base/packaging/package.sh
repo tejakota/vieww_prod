@@ -581,6 +581,9 @@ make_msi() {
 	local tree="$1"
 	need_tool wix ".msi" "dotnet tool install --global wix" || return 0
 
+	# FW-06: sign every executable in the payload, then the .msi (no-ops,
+	# stated, without a certificate).
+	bash "$here/sign.sh" win-tree "$tree"
 	wix build -arch x64 \
 		-d "Version=$version" \
 		-d "Payload=$tree" \
@@ -590,7 +593,7 @@ make_msi() {
 		exit 1
 	}
 	echo "==> $out/viewwstudio-windows-x86_64.msi"
-	echo "    unsigned: Authenticode signing needs a certificate this script does not have"
+	bash "$here/sign.sh" win "$out/viewwstudio-windows-x86_64.msi"
 }
 
 case "$host" in
@@ -625,6 +628,7 @@ macos)
 	fi
 
 	echo "==> $app"
+	bash "$here/sign.sh" mac-app "$app"
 	if [ -n "$make_dmg" ]; then
 		# Per architecture, because the bundle carries rlibs for one triple and
 		# `sdk::Manifest` refuses the other — an Apple silicon Mac must not be
@@ -636,8 +640,8 @@ macos)
 			-ov -format UDZO "$dmg" >/dev/null
 		echo "==> $dmg"
 		du -sh "$dmg" | awk '{print "    " $1}'
+		bash "$here/sign.sh" mac-dmg "$dmg"
 	fi
-	echo "    unsigned: signing and notarisation need credentials this script does not have"
 	;;
 linux)
 	tree="$out/viewwstudio-$version"

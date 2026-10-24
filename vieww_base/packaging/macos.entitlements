@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Hardened-runtime entitlements for vieww Studio (FW-06, packaging/sign.sh).
+
+  The studio dlopens the preview cdylibs it has just compiled. Those are
+  built on the user's machine and are not signed by our Developer ID, so
+  library validation must be off for the app to load them; that is the one
+  exception taken. No JIT, no unsigned executable memory, no DYLD variables.
+-->
+<plist version="1.0">
+<dict>
+	<key>com.apple.security.cs.disable-library-validation</key>
+	<true/>
+</dict>
+</plist>

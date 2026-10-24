@@ -141,15 +141,13 @@ edition = "2021"
 # has asked, and until they do this is the honest figure.
 rust-version = "1.89"
 license = "Apache-2.0"
-# `repository` is deliberately absent, decided 2026-08-17. It pointed at
-# `https://github.com/teja/vieww`, which 404s, and this checkout has no remote —
-# so publishing would have put a dead link on twelve crate pages. crates.io does
-# not verify the field, which is exactly why an unverified wrong value is worse
-# than no value: a reader who clicks it learns the project is abandoned.
-#
-# **To restore it**, add the line back here and `repository.workspace = true` to
-# each of the fifteen member manifests. Inheriting a key the workspace does not
-# define is a hard error, so the two halves move together or not at all.
+# `repository` restored 2026-10-24 (FW-01): the canonical repository is
+# public and resolves. It was absent from 2026-08-17 because the old URL
+# (`github.com/teja/vieww`) 404'd — a dead link on every crate page is worse
+# than none. Every publishable member inherits it (`repository.workspace =
+# true`); `ci/release/publish-check.sh` fails if one does not.
+repository = "https://github.com/tejakota/vieww_prod"
+homepage = "https://github.com/tejakota/vieww_prod"
 # Resolved against the workspace root when inherited, so all twelve crates put
 # the same front page on crates.io rather than each carrying a copy.
 readme = "README.md"
