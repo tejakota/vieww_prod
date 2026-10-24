@@ -1,0 +1,75 @@
+# FW-14: golden screenshots with PR-level teeth. Every feature example is
+# re-captured and compared byte-for-byte against examples/shots/baseline;
+# a difference fails the run and uploads the shot-diff report.
+name: goldens
+
+on:
+  pull_request:
+    paths:
+      - "vieww_base/crates/**"
+      - "vieww_base/examples/**"
+      - "vieww_base/Cargo.lock"
+      - ".github/workflows/goldens.yml"
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      update:
+        description: "Capture a new baseline and upload it as an artifact (no comparison)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: goldens-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+    working-directory: vieww_base
+
+jobs:
+  shots:
+    name: shots vs baseline (linux-cpu)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: System packages
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y --no-install-recommends \
+            libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev pkg-config
+      - run: rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: vieww_base
+          key: goldens
+      - name: Capture and compare
+        if: ${{ !inputs.update }}
+        run: bash ci/certify/shot-suite.sh --out target/goldens/run --against examples/shots/baseline
+      - name: Capture new baseline
+        if: ${{ inputs.update }}
+        run: bash ci/certify/shot-suite.sh --out target/goldens/run
+      - name: Upload diff report
+        if: failure() && !inputs.update
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldens-diff
+          path: |
+            vieww_base/target/goldens/run/diff/
+            vieww_base/target/goldens/run/manifest.txt
+            vieww_base/target/goldens/run/stderr.txt
+      - name: Upload new baseline
+        if: ${{ inputs.update }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldens-new-baseline
+          path: |
+            vieww_base/target/goldens/run/*.png
+            vieww_base/target/goldens/run/manifest.txt
