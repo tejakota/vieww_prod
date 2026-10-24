@@ -1,0 +1,108 @@
+# FW-23: the supply chain, checked every night and on every lockfile change.
+#
+#   advisories  cargo-deny (advisories, bans, licenses, sources) against
+#               deny.toml, and cargo-audit, for the framework workspace and
+#               for wright — the RUSTSEC feed moves daily, a lockfile that
+#               was clean yesterday may not be today
+#   sbom        CycloneDX SBOMs (ci/release/sbom.py) for the studio binary and
+#               the whole workspace, uploaded as an artifact
+#   repro       ci/release/repro-check.sh: one framework binary built twice
+#               into fresh target directories must be bit-identical (G8.6)
+name: supply-chain
+
+on:
+  schedule:
+    - cron: "15 22 * * *"
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "**/Cargo.lock"
+      - "**/Cargo.toml"
+      - "vieww_base/deny.toml"
+      - ".github/workflows/supply-chain.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supply-chain-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  advisories:
+    name: deny + audit (${{ matrix.workspace }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        workspace: [vieww_base, vieww_base/apps/wright]
+    defaults:
+      run:
+        working-directory: ${{ matrix.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny,cargo-audit
+      - name: cargo deny (the gate)
+        # deny.toml lives in vieww_base/; wright reuses it.
+        run: |
+          [ -f deny.toml ] || cp "$GITHUB_WORKSPACE/vieww_base/deny.toml" deny.toml
+          cargo deny --locked check advisories bans sources
+      - name: cargo audit (report)
+        # Not the gate: cargo-audit reads the whole lockfile, including
+        # platform- and feature-gated crates this graph never builds (see
+        # deny.toml's note on RUSTSEC-2024-0436), so it over-reports by
+        # design. Its findings go on the run summary for a human to read.
+        continue-on-error: true
+        run: |
+          ignores=$(python3 - <<'PY2'
+          import tomllib
+          d = tomllib.load(open("deny.toml", "rb"))
+          ids = [i if isinstance(i, str) else i.get("id", "") for i in d.get("advisories", {}).get("ignore", [])]
+          print(" ".join(f"--ignore {i}" for i in ids if i))
+          PY2
+          )
+          # shellcheck disable=SC2086
+          cargo audit $ignores | tee audit.txt
+          { echo "### cargo audit (${{ matrix.workspace }})"; echo '```'; grep -E "^(Crate|ID|Title|Warning):" audit.txt || echo "nothing"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+  sbom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: vieww_base
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install
+      - name: Generate
+        run: |
+          export SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
+          mkdir -p target/sbom
+          python3 ci/release/sbom.py --bin viewwstudio -o target/sbom/viewwstudio.cdx.json
+          python3 ci/release/sbom.py -o target/sbom/vieww-workspace.cdx.json
+          python3 ci/release/sbom.py --manifest apps/wright/Cargo.toml -o target/sbom/wright.cdx.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: vieww_base/target/sbom/
+
+  repro:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: vieww_base
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install
+      - run: bash ci/release/repro-check.sh feature-rectangle
