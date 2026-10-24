@@ -1,0 +1,105 @@
+# FW-02: signal on every pull request and every branch push, without burning
+# the full matrix. Runs `ci/vieww checks --quick` (fmt, clippy, check, docs,
+# deny, fast tests) on one hosted Linux runner.
+#
+# Safe for a public repository: hosted runner only, read-only token, no
+# secrets, and `pull_request` (not `pull_request_target`) so fork code never
+# sees write access. Self-hosted legs stay in hardware.yml (manual + nightly).
+name: pr-quick
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches-ignore: [main, "ci-results/**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-quick-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+    working-directory: vieww_base
+
+jobs:
+  quick:
+    name: checks --quick (linux-cpu)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: System packages
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y --no-install-recommends \
+            libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev pkg-config
+      - name: Rust toolchain (from rust-toolchain.toml)
+        run: rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: vieww_base
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny
+      - name: Quick checks
+        run: bash ci/vieww checks --quick
+
+  workflows:
+    name: actionlint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Lint every workflow
+        run: |
+          pip install --quiet actionlint-py
+          actionlint -shellcheck= .github/workflows/*.yml
+
+  # WR-01/02/10/16: the sandbox escape suite, both with and without a PID
+  # namespace (Ubuntu 24.04 hosted runners restrict unprivileged user
+  # namespaces, so the default run exercises the fallback; the second run
+  # forces it explicitly so the result never depends on runner policy).
+  wright-sandbox:
+    name: wright sandbox escape suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: vieww_base/apps/wright
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Rust toolchain
+        run: rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: vieww_base/apps/wright
+      - name: Sandbox capabilities on this runner
+        run: |
+          uname -r
+          cat /sys/kernel/security/lsm || true
+          sysctl kernel.apparmor_restrict_unprivileged_userns 2>/dev/null || true
+      - name: Tools + runtime tests (default path)
+        run: cargo test -p wright-tools -p wright-runtime
+      - name: Sandbox tests (no PID namespace)
+        env:
+          WRIGHT_SANDBOX_NO_PIDNS: "1"
+        run: cargo test -p wright-tools --lib sandbox
+      - name: Sandbox tests with user namespaces enabled
+        run: |
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          cargo test -p wright-tools --lib sandbox
