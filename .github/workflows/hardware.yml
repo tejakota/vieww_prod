@@ -22,12 +22,15 @@ name: Hardware (self-hosted Linux and Windows)
 #            |                                      | receipt and baseline report to
 #            |                                      | ci-results/hardware-<branch>
 #
-# **Manual only, and it must stay that way.** A self-hosted runner executes
-# whatever a workflow tells it to on your machine. This workflow has no
-# `push` or `pull_request` trigger, so nothing a contributor pushes can start
-# it; keep it so, and see the README for the repository settings that matter
-# if the repository is ever public.
+# **Manual or nightly — never push or pull_request.** A self-hosted runner
+# executes whatever a workflow tells it to on your machine. This workflow has
+# no `push` or `pull_request` trigger, so nothing a contributor pushes can
+# start it; keep it so. The nightly `schedule` (FW-02) always runs the default
+# branch, which only the owner can write. On a schedule there are no inputs,
+# so both machines run with their default step lists.
 on:
+  schedule:
+    - cron: "30 20 * * *"   # 02:00 IST nightly
   workflow_dispatch:
     inputs:
       linux:
@@ -78,7 +81,7 @@ jobs:
   linux:
     name: Linux hardware
     needs: main-only
-    if: inputs.linux
+    if: github.event_name == 'schedule' || inputs.linux
     runs-on: [self-hosted, Linux, X64, vieww-linux]
     timeout-minutes: 240
     defaults:
@@ -93,8 +96,8 @@ jobs:
           clean: false
       - name: Hardware run
         env:
-          STEPS: ${{ inputs.linux_steps }}
-          VIEWW_HW_LAUNCHES: ${{ inputs.launches }}
+          STEPS: ${{ inputs.linux_steps || 'env gpu nvidia gallery baseline size stress desktop audio' }}
+          VIEWW_HW_LAUNCHES: ${{ inputs.launches || '5' }}
           VIEWW_HW_OUT: ${{ runner.temp }}/hardware-linux
         # Word-splitting $STEPS is the point: one argument per step.
         run: ci/hardware/linux.sh $STEPS
@@ -109,7 +112,7 @@ jobs:
   windows:
     name: Windows hardware
     needs: main-only
-    if: inputs.windows
+    if: github.event_name == 'schedule' || inputs.windows
     runs-on: [self-hosted, Windows, X64, vieww-windows]
     timeout-minutes: 240
     defaults:
@@ -124,8 +127,8 @@ jobs:
           clean: false
       - name: Hardware run
         env:
-          STEPS: ${{ inputs.windows_steps }}
-          LAUNCHES: ${{ inputs.launches }}
+          STEPS: ${{ inputs.windows_steps || 'env,gpu,d3d12,gallery,baseline,size,stress,desktop,remote,audio' }}
+          LAUNCHES: ${{ inputs.launches || '5' }}
           OUT: ${{ runner.temp }}\hardware-windows
         run: |
           powershell -NoProfile -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps "$env:STEPS" -Launches ([int]$env:LAUNCHES) -OutDir "$env:OUT"
