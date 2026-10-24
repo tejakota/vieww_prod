@@ -1429,9 +1429,6 @@ pub fn secret(args: &[String]) -> i32 {
     let (pos, _) = split(args);
     match (pos.first().copied(), pos.get(1).copied()) {
         (Some("set"), Some(reference)) => {
-            if cfg!(target_os = "macos") {
-                eprintln!("note: on macOS the value is passed to `security` as an argument (briefly visible to local processes).");
-            }
             eprint!("value for {reference} (input is not echoed): ");
             let _ = std::process::Command::new("stty").arg("-echo").status();
             let mut v = String::new();

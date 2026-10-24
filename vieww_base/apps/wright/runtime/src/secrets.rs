@@ -122,25 +122,31 @@ pub fn resolve(reference: &str) -> Result<SecretValue, String> {
     }
 }
 
-/// Store a value in the OS keychain (`wright secret set`). The value is
-/// piped on stdin on Linux; on macOS `security` only takes it as an
-/// argument, which is briefly visible to other local processes — the
-/// CLI says so before asking.
+/// Store a value in the OS keychain (`wright secret set`). The value never
+/// appears in any process's argv (WR-10): it is piped on stdin to
+/// `secret-tool` on Linux, and on macOS to `security -i`, which reads the
+/// `add-generic-password` command line from stdin instead of argv.
 pub fn store(reference: &str, value: &str) -> Result<(), String> {
     let path = path_of(reference)?;
     let status = if cfg!(target_os = "macos") {
-        Command::new("security")
-            .args([
-                "add-generic-password",
-                "-U",
-                "-s",
-                "wright",
-                "-a",
-                path,
-                "-w",
-                value,
-            ])
-            .status()
+        use std::io::Write;
+        if value.contains('\n') || value.contains('\r') {
+            return Err("the value contains a line break; keychain values must be one line".into());
+        }
+        let mut child = Command::new("security")
+            .arg("-i")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::null())
+            .spawn()
+            .map_err(|e| format!("could not run the keychain tool: {e}"))?;
+        let line = macos_add_command(path, value);
+        child
+            .stdin
+            .take()
+            .map(|mut s| s.write_all(line.as_bytes()))
+            .transpose()
+            .map_err(|e| e.to_string())?;
+        child.wait()
     } else if cfg!(target_os = "linux") {
         use std::io::Write;
         let mut child = Command::new("secret-tool")
@@ -168,9 +174,40 @@ pub fn store(reference: &str, value: &str) -> Result<(), String> {
     }
 }
 
+/// The `security -i` command that stores `value` under `path`. Arguments
+/// are double-quoted with `\` and `"` escaped, which is how `security`'s
+/// interactive parser reads them.
+fn macos_add_command(path: &str, value: &str) -> String {
+    fn q(s: &str) -> String {
+        let mut o = String::with_capacity(s.len() + 2);
+        o.push('"');
+        for c in s.chars() {
+            if c == '"' || c == '\\' {
+                o.push('\\');
+            }
+            o.push(c);
+        }
+        o.push('"');
+        o
+    }
+    format!(
+        "add-generic-password -U -s wright -a {} -w {}\n",
+        q(path),
+        q(value)
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn macos_command_quotes_the_value() {
+        assert_eq!(
+            macos_add_command("anthropic", r#"a"b\c d"#),
+            "add-generic-password -U -s wright -a \"anthropic\" -w \"a\\\"b\\\\c d\"\n"
+        );
+    }
 
     #[test]
     fn env_names_are_derived_from_paths() {

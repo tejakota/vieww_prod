@@ -189,8 +189,7 @@ fn write_file(ctx: &ToolCtx, rel: &str, content: &str) -> Result<PathBuf, ToolEr
     if full.is_dir() {
         return Err(ToolError::Failed(format!("'{rel}' is a directory")));
     }
-    paths::create_parents(&ctx.project, &full).map_err(ToolError::Failed)?;
-    wright_runtime::store::write_atomic(&full, content.as_bytes()).map_err(ToolError::Failed)?;
+    paths::write_pinned(&ctx.project, &full, content.as_bytes()).map_err(ToolError::Failed)?;
     Ok(full)
 }
 

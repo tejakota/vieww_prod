@@ -62,10 +62,35 @@ fn engage_at(p: &Path, reason: &str, by: &str) -> Result<Stop, String> {
         ("by", Value::str(stop.by.clone())),
     ]);
     if let Some(dir) = p.parent() {
-        std::fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+        create_private_dir(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
     }
     write_atomic(p, json::to_string(&v).as_bytes())?;
     Ok(stop)
+}
+
+/// Wright's home is private to its user (WR-16): no other local account
+/// can engage or release the switch. (The same user can, by design — the
+/// switch must be easy to hit; sandboxed commands cannot, since the home is
+/// outside every writable root.)
+fn create_private_dir(dir: &Path) -> std::io::Result<()> {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::DirBuilderExt;
+        let fresh = !dir.exists();
+        std::fs::DirBuilder::new()
+            .recursive(true)
+            .mode(0o700)
+            .create(dir)?;
+        if fresh {
+            use std::os::unix::fs::PermissionsExt;
+            std::fs::set_permissions(dir, std::fs::Permissions::from_mode(0o700))?;
+        }
+        Ok(())
+    }
+    #[cfg(not(unix))]
+    {
+        std::fs::create_dir_all(dir)
+    }
 }
 
 /// Let Wright run again. `Ok(false)` when it was not stopped.
