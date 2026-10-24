@@ -168,6 +168,11 @@ jobs:
         run: cargo install cargo-apk --locked
 
       - name: Resolve Android environment and keystore
+        env:
+          ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         working-directory: ${{ matrix.workdir }}
         run: |
           # vavlt ships its own ci/android-env.sh; for the other apps we
@@ -212,6 +217,20 @@ jobs:
           # keystore's well-known values are androiddebugkey/android.
           export CARGO_APK_RELEASE_KEY_ALIAS="androiddebugkey"
           export CARGO_APK_RELEASE_KEY_PASSWORD="android"
+          # FW-06: the release upload key, when the repository has one. The
+          # APK is then signed for real (Play / direct install), not with the
+          # debug key every Android machine shares.
+          if [ -n "$ANDROID_KEYSTORE" ] && [ -n "$ANDROID_KEYSTORE_PASSWORD" ] && [ -n "$ANDROID_KEY_ALIAS" ]; then
+            echo "Using the release keystore from repository secrets"
+            umask 077
+            printf '%s' "$ANDROID_KEYSTORE" | base64 --decode > "$RUNNER_TEMP/release.jks"
+            export CARGO_APK_RELEASE_KEYSTORE="$RUNNER_TEMP/release.jks"
+            export CARGO_APK_RELEASE_KEYSTORE_PASSWORD="$ANDROID_KEYSTORE_PASSWORD"
+            export CARGO_APK_RELEASE_KEY_ALIAS="$ANDROID_KEY_ALIAS"
+            export CARGO_APK_RELEASE_KEY_PASSWORD="${ANDROID_KEY_PASSWORD:-$ANDROID_KEYSTORE_PASSWORD}"
+          else
+            echo "::notice::No ANDROID_KEYSTORE secret: APKs are signed with a debug key (not installable from Play)"
+          fi
 
           {
             echo "ANDROID_HOME=$ANDROID_HOME"
@@ -253,6 +272,9 @@ jobs:
           mkdir -p "$stage"
           cp "$apk" "$stage/${{ matrix.apk_name }}.apk"
           (cd "$stage" && sha256sum "${{ matrix.apk_name }}.apk" > SHA256SUMS)
+          # Which key signed it, in the artifact (FW-06).
+          "$ANDROID_HOME/build-tools/$ANDROID_BUILD_TOOLS/apksigner" verify --print-certs \
+            "$stage/${{ matrix.apk_name }}.apk" | tee "$stage/SIGNER.txt"
           ls -lah "$stage"
 
       - name: Upload Android APK
