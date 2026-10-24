@@ -313,10 +313,10 @@ jobs:
           if-no-files-found: warn
 
   # Results where a session without API access can read them, as the other
-  # workflows do: `git fetch origin ci-results/device-farm-<branch>`. Text only;
+  # workflows do: `git fetch origin ci-runs/device-farm-<branch>`. Text only;
   # screenshots, videos and the test package stay in the run's artifacts.
   report:
-    name: Publish to ci-results/device-farm-<branch>
+    name: Publish to ci-runs/device-farm-<branch>
     if: always() && github.ref == 'refs/heads/main'
     needs: [apk, phones, ipa, iphones]
     runs-on: ubuntu-24.04
@@ -337,7 +337,7 @@ jobs:
         with:
           name: device-farm-ios-results
           path: out/ios
-      - name: Push to ci-results/device-farm-<branch>
+      - name: Push to ci-runs/device-farm-<branch>
         env:
           TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -364,7 +364,7 @@ jobs:
             echo "apk: ${{ needs.apk.result }} · phones: ${{ needs.phones.result }} · ipa: ${{ needs.ipa.result }} · iphones: ${{ needs.iphones.result }}"
             echo "run: ${GITHUB_SERVER_URL}/${REPO}/actions/runs/${GITHUB_RUN_ID} @ ${GITHUB_SHA}"
           } > out/RUN.txt
-          branch="ci-results/device-farm-${GITHUB_REF_NAME//\//-}"
+          branch="ci-runs/device-farm-${GITHUB_REF_NAME//\//-}"
           cd out
           git init -q
           git checkout -q -b "$branch"
