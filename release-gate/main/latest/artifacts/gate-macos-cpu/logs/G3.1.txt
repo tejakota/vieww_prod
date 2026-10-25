@@ -1,0 +1,43 @@
+>>> bash ci/release/artifacts.sh
+Sun Oct 25 07:35:16 UTC 2026
+release-clean: OK
+==> building viewwstudio 0.1.0 (release, macos)
+[1m[92m   Compiling[0m viewwstudio v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
+[1m[92m    Finished[0m `release` profile [optimized] target(s) in 27.54s
+[1m[33mwarning[0m: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+[1m[92mnote[0m: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+==> drawing icons
+[1m[92m   Compiling[0m viewwstudio v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
+[1m[92m    Finished[0m `release` profile [optimized] target(s) in 24.57s
+[1m[33mwarning[0m: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+[1m[92mnote[0m: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+[1m[92m     Running[0m `target/release/examples/icon /Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/icons`
+==> bundling the toolchain from /Users/runner/.rustup/toolchains/1.98.1-aarch64-apple-darwin
+==> verifying the bundle compiles a preview
+==> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/vieww Studio.app
+    unsigned: macOS: APPLE_DEVELOPER_ID_P12 / APPLE_P12_PASSWORD not set (Developer ID, $99/yr)
+==> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/viewwstudio-macos-aarch64.dmg
+    571M
+    unsigned: macOS: APPLE_DEVELOPER_ID_P12 / APPLE_P12_PASSWORD not set (Developer ID, $99/yr)
+==> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/index.html
+    links point at github.com/tejakota/vieww_prod
+done
+sbom: 399 components -> viewwstudio.cdx.json
+version=0.1.0
+git_rev=e8f9da976cb8be7d50dac25d7be669627bd52ef8
+git_dirty=6
+built=2026-10-25T07:36:46Z
+host_os=macos
+host=Darwin lvl04-dq149-a4c58119-d398-4ff0-84ce-8e525ddb8e5f-C6A4EC084DF9.local 25.6.0 Darwin Kernel Version 25.6.0: Fri Jul 31 19:16:43 PDT 2026; root:xnu-12377.161.14~5/RELEASE_ARM64_VMAPPLE arm64
+rustc=rustc 1.98.1 (48a229cea 2026-09-01)
+cargo=cargo 1.98.1 (797e8a9bc 2026-08-05)
+toolchain_file=1.98.1
+signing=UNSIGNED: viewwstudio-macos-aarch64.dmg 
+source_date_epoch=1792911913
+reproducible=partial (framework binaries: checked nightly by ci/release/repro-check.sh; installers: SOURCE_DATE_EPOCH honoured, bundled toolchain paths not normalised)
+sbom=viewwstudio.cdx.json (CycloneDX 1.5)
+# artifacts
+958cfdf7b71017fa94e85a6b515eb29f07b1420e8fb70b332032fc3d40340783  viewwstudio-macos-aarch64.dmg
+f261dce871231138768dd778278971b26e5fc2865b3038cda06a0ce30d07f685  viewwstudio.cdx.json
+==> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/SHA256SUMS
+exit=0

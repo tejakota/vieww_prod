@@ -1,0 +1,15 @@
+>>> cargo run --release -p test-layout-stress -- target\release-gate\windows-cpu\cert\suites\layout-stress
+   Compiling test-layout-stress v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\examples\test-layout-stress)
+    Finished `release` profile [optimized] target(s) in 3.14s
+     Running `target\release\test-layout-stress.exe 'target\release-gate\windows-cpu\cert\suites\layout-stress'`
+01-breadth: 5000 cells, 5002 shapes, built 5004 reused 0 — 11.5 ms
+02-breadth again: 1 flattens (was 2), 8.1 ms
+one cell recoloured: built 1 of 5004 (0% of the scene)
+02-depth: 24 levels, 25 shapes — 15.6 ms
+03-intrinsic: 7 shapes — 8.7 ms
+overflows across every screen: 0
+
+wrote target\release-gate\windows-cpu\cert\suites\layout-stress
+ALL LAYOUT-STRESS CHECKS PASSED
+exit=0
+seconds=5

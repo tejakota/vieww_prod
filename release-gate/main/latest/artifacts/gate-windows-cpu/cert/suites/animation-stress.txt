@@ -1,0 +1,10 @@
+>>> cargo run --release -p test-animation-stress -- target\release-gate\windows-cpu\cert\suites\animation-stress
+   Compiling test-animation-stress v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\examples\test-animation-stress)
+    Finished `release` profile [optimized] target(s) in 4.59s
+     Running `target\release\test-animation-stress.exe 'target\release-gate\windows-cpu\cert\suites\animation-stress'`
+frames: 72, moving: 71/71
+  render mean: 6.52 ms, p95: 6.80 ms, worst: 11.06 ms, over 16.6 ms budget: 0
+wrote target\release-gate\windows-cpu\cert\suites\animation-stress
+ALL ANIMATION-STRESS CHECKS PASSED
+exit=0
+seconds=10

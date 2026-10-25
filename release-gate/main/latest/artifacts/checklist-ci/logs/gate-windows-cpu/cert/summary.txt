@@ -1,0 +1,41 @@
+Vieww Windows Certification
+===========================
+COMPLETE=False (skipped stages: 8)
+FAILED=True
+git_rev=e8f9da976cb8be7d50dac25d7be669627bd52ef8
+source_digest=git-tree:5245227a2c390cfca094903abbf072f209925b73
+
+
+build\release-clean          PASS
+build\fmt                    PASS
+build\check                  PASS
+build\clippy-core            PASS
+tests\workspace              FAIL(exit=101)
+tests\gpu-planner            PASS
+tests\shaders                PASS
+tests\quality                PASS
+tests\paint-native           PASS
+gpu\hal-build-vulkan         PASS
+gpu\device-class             SKIPPED(CPU-only run requested)
+gpu\adapter                  SKIPPED(CPU-only run requested)
+gpu\vulkan-suite             SKIPPED(CPU-only run requested)
+gpu\workload                 SKIPPED(CPU-only run requested)
+gpu\census                   SKIPPED(CPU-only run requested)
+gpu\d3d12-build              PASS
+gpu\d3d12-backend            BUILD-ONLY(d3d12 does not execute a ScenePlan yet; not certified)
+visual\premium               PASS
+visual\fixtures              PASS
+suites\layout-stress         PASS
+suites\animation-stress      PASS
+suites\text-fidelity         PASS
+suites\image-effects         PASS
+suites\scroll-stress         PASS
+suites\native-surface        PASS
+standard\vieww-standard      PASS
+web\baseline                 PASS
+web\build                    SKIPPED(wasm32 target, wasm-bindgen or bash unavailable)
+web\verify                   SKIPPED(no freshly built wasm to verify)
+desktop\suite                SKIPPED(VIEWW_CERT_NO_DESKTOP=1)
+gate\premium-overflows-zero  PASS
+gate\standard-passed         PASS
+gate\standard-allocations-measured PASS

@@ -1,0 +1,135 @@
+>>> cargo run --release -p fixtures -- target/release-gate/macos-gpu/cert/gpu/census-out --census --receipt target/release-gate/macos-gpu/cert/gpu/census-out/receipt.json --shadow target/release-gate/macos-gpu/cert/gpu/census-out/shadow.jsonl
+[1m[92m Downloading[0m crates ...
+[1m[92m  Downloaded[0m byteorder-lite v0.1.0
+[1m[92m  Downloaded[0m moxcms v0.8.1
+[1m[92m  Downloaded[0m image v0.25.10
+[1m[92m  Downloaded[0m pxfm v0.1.30
+[1m[92m  Downloaded[0m zune-core v0.5.3
+[1m[92m  Downloaded[0m zune-jpeg v0.5.15
+[1m[92m   Compiling[0m num-traits v0.2.19
+[1m[92m   Compiling[0m vieww-animation v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+[1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+[1m[92m   Compiling[0m pxfm v0.1.30
+[1m[92m   Compiling[0m euclid v0.22.14
+[1m[92m   Compiling[0m vieww-widget v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+[1m[92m   Compiling[0m lyon_geom v1.0.19
+[1m[92m   Compiling[0m zune-core v0.5.3
+[1m[92m   Compiling[0m zune-jpeg v0.5.15
+[1m[92m   Compiling[0m lyon_path v1.0.19
+[1m[92m   Compiling[0m moxcms v0.8.1
+[1m[92m   Compiling[0m vieww-gestures v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+[1m[92m   Compiling[0m vieww-audio v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+[1m[92m   Compiling[0m byteorder-lite v0.1.0
+[1m[92m   Compiling[0m image v0.25.10
+[1m[92m   Compiling[0m lyon_tessellation v1.0.22
+[1m[92m   Compiling[0m vieww-element v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+[1m[92m   Compiling[0m vieww-scene v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
+[1m[92m   Compiling[0m vieww-image v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-image)
+[1m[92m   Compiling[0m vieww-render-graph v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
+[1m[92m   Compiling[0m vieww-video v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-video)
+[1m[92m   Compiling[0m vieww-render v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+[1m[92m   Compiling[0m vieww-asset v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
+[1m[92m   Compiling[0m vieww-gpu v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+[1m[92m   Compiling[0m vieww-embed v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
+[1m[92m   Compiling[0m vieww-effects v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
+[1m[92m   Compiling[0m vieww-spatial v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-spatial)
+[1m[92m   Compiling[0m vieww-mesh v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-mesh)
+[1m[92m   Compiling[0m vieww-network v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-network)
+[1m[92m   Compiling[0m vieww-physics v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-physics)
+[1m[92m   Compiling[0m fixtures v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/examples/fixtures)
+[1m[92m   Compiling[0m vieww v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
+[1m[92m   Compiling[0m vieww-hal v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+[1m[92m   Compiling[0m vieww-render-planner v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
+[1m[92m    Finished[0m `release` profile [optimized] target(s) in 1m 26s
+[1m[92m     Running[0m `target/release/fixtures target/release-gate/macos-gpu/cert/gpu/census-out --census --receipt target/release-gate/macos-gpu/cert/gpu/census-out/receipt.json --shadow target/release-gate/macos-gpu/cert/gpu/census-out/shadow.jsonl`
+
+=== vieww GPU coverage census ===
+
+device   : Apple Paravirtual device [INTEGRATED_GPU] via vulkan
+fixtures : 23
+diffs to : target/release-gate/macos-gpu/cert/gpu/census-out
+
+fixture                          cmds     plans     tris  draws      cpu      gpu  maxdiff  interior
+--------------------------------------------------------------------------------------------------------------------------
+00-fills                          384  COMPLETE      768      1   1.81ms   5.26ms        0         0
+00-fills-rounded                  384  COMPLETE      768      1   2.66ms   4.94ms       11         0
+00-fills-gradient                 384  COMPLETE      768      1   2.80ms   5.16ms       18         0
+00-fills-rrect-clip               384  COMPLETE      768      1   2.83ms   7.74ms        1         0
+00-fills-nested-clips             384  COMPLETE      768      1   2.77ms   6.63ms        1         0
+00-strokes                        384  COMPLETE      768      1   8.12ms   5.57ms        1         0
+00-curves                         384  COMPLETE      768      1   6.09ms   5.90ms        1         0
+00-shadows                        768  COMPLETE      768    384   5.83ms   8.23ms        3         0
+00-layers-flat                   1152  COMPLETE      768    384   2.70ms 126.24ms       12         0
+00-layers-nested                   74  COMPLETE       52     25  10.22ms  13.52ms        2         0
+00-blend-modes                     71  COMPLETE      244     23   3.71ms   9.67ms       19         0
+00-blurs                           24  COMPLETE       46      9   5.11ms   8.84ms       20         0
+00-transforms                      97  COMPLETE      194      1   1.66ms   5.65ms       16         0
+10-icon-grid                       46  COMPLETE      148      1   1.11ms   4.34ms        1         0
+10-icon-strokes                    46  COMPLETE      160      1   1.90ms   4.53ms        1         0
+11-typography                      11  COMPLETE      936      1   1.00ms   4.78ms        1         0
+11-code-block                      56  COMPLETE      598      1   1.27ms   6.56ms        1         0
+12-avatar                          18  COMPLETE       30      3   4.14ms   5.81ms       23         0
+12-avatar-wall                    362  COMPLETE      674     49   4.37ms  13.69ms       27         0
+20-settings                        45  COMPLETE      564     10   2.77ms   5.12ms       20         0
+21-dashboard                       39  COMPLETE      224      1   2.26ms   5.52ms       27         0
+22-editor                         129  COMPLETE     1356      1   3.57ms  10.47ms       31        56
+23-editor-glass                   149  COMPLETE     1684      3  11.52ms  14.60ms       13        20
+
+--- coverage ---------------------------------------------------------------
+23 of 23 fixtures plan complete today (100%).
+
+kind              screens   sole blocker     commands
+------------------------------------------------------
+
+Greedy fix order — screens complete after each gap is closed:
+
+--- parity against the CPU oracle ------------------------------------------
+23 fixtures rendered on both.
+  whole image, edges included : worst channel 31/255, 151537 channels over 1/255
+                                context only — two rasterizers differ on every
+                                antialiased edge, by design and by documentation
+  interiors only, the verdict : 2 of 23 fixtures have any mismatch
+  beyond the geometry-edge band: 0 of 23 fixtures (> 8, > 2 px from any reference step)
+
+VERDICT: PASS for compositing; KNOWN GAP for geometry edge antialiasing.
+Every strict-rule mismatch is within 2 px of a transition in the reference —
+the GPU fills geometry without edge AA. Strict counts, for tracking that gap:
+  22-editor                            56 px
+  23-editor-glass                      20 px
+
+--- timing (GPU column includes full readback; see the module doc) ---------
+over all 23 complete fixtures:
+  cpu 90.19ms   gpu 288.79ms   ratio 0.31x
+over the 21 that also pass interior parity — the only trustworthy number:
+  cpu 75.11ms   gpu 263.72ms   ratio 0.28x
+
+  fixture                             cpu      gpu    ratio  interior
+  00-strokes                       8.12ms   5.57ms    1.46x         0
+  00-curves                        6.09ms   5.90ms    1.03x         0
+  23-editor-glass                 11.52ms  14.60ms    0.79x        20
+  00-layers-nested                10.22ms  13.52ms    0.76x         0
+  12-avatar                        4.14ms   5.81ms    0.71x         0
+  00-shadows                       5.83ms   8.23ms    0.71x         0
+  00-blurs                         5.11ms   8.84ms    0.58x         0
+  00-fills-gradient                2.80ms   5.16ms    0.54x         0
+  20-settings                      2.77ms   5.12ms    0.54x         0
+  00-fills-rounded                 2.66ms   4.94ms    0.54x         0
+  10-icon-strokes                  1.90ms   4.53ms    0.42x         0
+  00-fills-nested-clips            2.77ms   6.63ms    0.42x         0
+  21-dashboard                     2.26ms   5.52ms    0.41x         0
+  00-blend-modes                   3.71ms   9.67ms    0.38x         0
+  00-fills-rrect-clip              2.83ms   7.74ms    0.37x         0
+  00-fills                         1.81ms   5.26ms    0.34x         0
+  22-editor                        3.57ms  10.47ms    0.34x        56
+  12-avatar-wall                   4.37ms  13.69ms    0.32x         0
+  00-transforms                    1.66ms   5.65ms    0.29x         0
+  10-icon-grid                     1.11ms   4.34ms    0.26x         0
+  11-typography                    1.00ms   4.78ms    0.21x         0
+  11-code-block                    1.27ms   6.56ms    0.19x         0
+  00-layers-flat                   2.70ms 126.24ms    0.02x         0
+shadow   : 23 frames planned -> target/release-gate/macos-gpu/cert/gpu/census-out/shadow.jsonl
+shadow   : planned as DESKTOP_DISCRETE; planner agreed with the executor that ran on 20 of 23 frames
+shadow   : gpu measured/predicted 6.21x -> gpu_fill_mpix_per_sec 111.6 (profile says 8000.0; dispatch overhead held at 0.050 ms, not measured)
+receipt  : target/release-gate/macos-gpu/cert/gpu/census-out/receipt.json
+exit=0
+seconds=91

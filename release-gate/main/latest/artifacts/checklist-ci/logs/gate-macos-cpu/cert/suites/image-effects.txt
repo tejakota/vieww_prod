@@ -1,0 +1,16 @@
+>>> cargo run --release -p test-image-effects -- target/release-gate/macos-cpu/cert/suites/image-effects
+[1m[92m   Compiling[0m test-image-effects v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-image-effects)
+[1m[92m    Finished[0m `release` profile [optimized] target(s) in 1.11s
+[1m[92m     Running[0m `target/release/test-image-effects target/release-gate/macos-cpu/cert/suites/image-effects`
+01-minification: 3 images, 1 shapes — 4.8 ms
+03-rotation: 4 images, 1 shapes — 6.8 ms
+04-filters: 5 images, 1 shapes — 8.1 ms
+05-blends: 8 images, 1 shapes — 10.0 ms
+zoom-out: 40 frames, 1 mip chain(s) for one image
+minified checker (8×): 0 of 1936 samples at an extreme colour
+filter effect: original channel spread 51.8, grayscale 0.0
+
+wrote target/release-gate/macos-cpu/cert/suites/image-effects
+ALL IMAGE-EFFECTS CHECKS PASSED
+exit=0
+seconds=3

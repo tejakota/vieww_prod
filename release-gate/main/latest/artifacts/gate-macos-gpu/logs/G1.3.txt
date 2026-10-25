@@ -1,0 +1,32 @@
+>>> env VIEWW_CERT_REQUIRE_REAL_GPU=1 VIEWW_CERT_ONLY=gpu bash ci/certify/certify.sh target/release-gate/macos-gpu/cert
+Sun Oct 25 07:09:15 UTC 2026
+>>> cargo check -p vieww-hal --features vulkan
+>>> cargo check -p vieww-hal --features metal --all-targets
+>>> cargo run --release -p vieww-hal --example adapter --features vulkan
+>>> cargo test -p vieww-hal --features vulkan -- --ignored --test-threads=1
+    FAILED: gpu/vulkan-suite (see target/release-gate/macos-gpu/cert/gpu/vulkan-suite.txt)
+>>> cargo run --release -p test-gpu-work -- target/release-gate/macos-gpu/cert/gpu/workload
+>>> cargo run --release -p fixtures -- target/release-gate/macos-gpu/cert/gpu/census-out --census --receipt target/release-gate/macos-gpu/cert/gpu/census-out/receipt.json --shadow target/release-gate/macos-gpu/cert/gpu/census-out/shadow.jsonl
+    skipped: desktop/suite — VIEWW_CERT_NO_DESKTOP=1
+Vieww macos certification
+===========================
+COMPLETE=false (skipped stages: 1)
+FAILED=1
+git_rev=e8f9da976cb8be7d50dac25d7be669627bd52ef8
+git_dirty=0
+source_digest=git-tree:5245227a2c390cfca094903abbf072f209925b73
+
+gpu/hal-build                PASS
+gpu/metal-build              PASS
+gpu/metal-backend            BUILD-ONLY(metal does not execute a ScenePlan yet; not certified)
+gpu/adapter                  PASS
+gpu/device-class             PASS(virtual GPU: Apple Paravirtual device; pixels are evidence, timings are not)
+gpu/vulkan-suite             FAIL(exit=101)
+gpu/vulkan-validation        INFO(validation layer not installed: apt install vulkan-validationlayers)
+gpu/workload                 PASS
+gpu/census                   PASS
+desktop/suite                SKIPPED(VIEWW_CERT_NO_DESKTOP=1)
+gate/gpu-unsupported-zero    PASS
+gate/census-all-complete     PASS
+gate/census-no-flat-region-mismatch PASS
+exit=1

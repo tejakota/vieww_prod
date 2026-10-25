@@ -1,0 +1,23 @@
+>>> cargo run --release -p test-text-fidelity -- target/release-gate/macos-cpu/cert/suites/text-fidelity
+[1m[92m   Compiling[0m test-text-fidelity v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-text-fidelity)
+[1m[92m    Finished[0m `release` profile [optimized] target(s) in 1.23s
+[1m[92m     Running[0m `target/release/test-text-fidelity target/release-gate/macos-cpu/cert/suites/text-fidelity`
+01-variable-weights: 63 glyph runs, 277 glyphs (1 from colour tables), 2 shapes — 7.8 ms
+02-colour-layers: 65 glyph runs, 180 glyphs (6 from colour tables), 2 shapes — 3.3 ms
+03-emoji: 78 glyph runs, 203 glyphs (19 from colour tables), 2 shapes — 6.1 ms
+04-cjk-fallback: 61 glyph runs, 176 glyphs (2 from colour tables), 20 shapes — 3.3 ms
+05-selection-caret: 71 glyph runs, 234 glyphs (1 from colour tables), 6 shapes — 3.8 ms
+06-subpixel: 80 glyph runs, 191 glyphs (0 from colour tables), 2 shapes — 3.1 ms
+vieww: RenderColumn overflowed by 516px on the vertical axis — 1204 of children into 688 of space
+07-large-text: 359 glyph runs, 2139 glyphs (0 from colour tables), 2 shapes — 10.7 ms
+08-lcd-subpixel: 139 glyph runs, 380 glyphs (2 from colour tables), 2 shapes — 4.8 ms
+emoji strike decodes: 13 first pass, 13 after a re-render
+large-text re-render: 2451 cache hits, 0 new rasters
+lcd subpixel: 14849 channel-split edge pixels between the two AA modes
+lcd re-render: 448 cache hits, 0 new rasters
+lcd zoom pair: 140x70 window at (471,126) -> 08-lcd-zoom.png
+
+wrote target/release-gate/macos-cpu/cert/suites/text-fidelity
+ALL TEXT-FIDELITY CHECKS PASSED
+exit=0
+seconds=2
