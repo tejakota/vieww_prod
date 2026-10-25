@@ -1,18 +1,12 @@
 # release-gate — CANCELLED
 
-- branch: `main`  sha: `e8f9da976cb8be7d50dac25d7be669627bd52ef8`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40171640088
+- branch: `main`  sha: `e8fc1f712e808f44364b6917e7a52f2f98285a4d`  event: push
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40204076196
 
 | job | verdict | failed steps |
 |---|---|---|
 | plan | PASS |  |
-| gate (linux-gpu) | CANCELLED |  |
-| gate (windows-cpu) | FAIL | Release gate |
-| gate (linux-cpu) | CANCELLED |  |
-| gate (windows-gpu) | CANCELLED |  |
-| gate (macos-cpu) | FAIL | Release gate |
-| gate (macos-gpu) | FAIL | Release gate |
-| gate (linux-export) | PASS |  |
+| gate (windows-cpu) | CANCELLED |  |
 | merged checklist | PASS |  |
 | draft GitHub Release | CANCELLED |  |
 
@@ -23,9 +17,7 @@
 - PASS: Run python3 - <<'PY' >> "$GITHUB_OUTPUT"
 - PASS: Complete job
 
-### gate (linux-gpu) — CANCELLED
-
-### gate (windows-cpu) — FAIL
+### gate (windows-cpu) — CANCELLED
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
 - PASS: Make disk space
@@ -33,99 +25,21 @@
 - PASS: cargo-deny
 - PASS: WiX (Windows installer)
 - PASS: JDK 17 (Android Gradle Plugin 8)
-- PASS: Gradle 8.9 (a scaffolded project has no wrapper JAR)
-- PASS: cargo-ndk
-- skipped: MinGW-w64 (Windows .exe cross-build from Linux)
-- PASS: Android environment
-- skipped: Vulkan loader + MoltenVK (macOS; stages skip if no device)
-- FAIL: Release gate
-- PASS: Failures with logs
-- PASS: Screenshots
-- PASS: Upload screenshots
-- skipped: Checks only
-- PASS: Upload run folder
-- PASS: Upload installers
-- PASS: Post Gradle 8.9 (a scaffolded project has no wrapper JAR)
-- PASS: Post JDK 17 (Android Gradle Plugin 8)
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### gate (linux-cpu) — CANCELLED
-
-### gate (windows-gpu) — CANCELLED
-
-### gate (macos-cpu) — FAIL
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Make disk space
-- PASS: Rust toolchain (from rust-toolchain.toml)
-- PASS: cargo-deny
-- skipped: WiX (Windows installer)
-- PASS: JDK 17 (Android Gradle Plugin 8)
-- PASS: Gradle 8.9 (a scaffolded project has no wrapper JAR)
-- PASS: cargo-ndk
-- skipped: MinGW-w64 (Windows .exe cross-build from Linux)
-- PASS: Android environment
-- PASS: Vulkan loader + MoltenVK (macOS; stages skip if no device)
-- FAIL: Release gate
-- PASS: Failures with logs
-- PASS: Screenshots
-- PASS: Upload screenshots
-- skipped: Checks only
-- PASS: Upload run folder
-- PASS: Upload installers
-- PASS: Post Gradle 8.9 (a scaffolded project has no wrapper JAR)
-- PASS: Post JDK 17 (Android Gradle Plugin 8)
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### gate (macos-gpu) — FAIL
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Make disk space
-- PASS: Rust toolchain (from rust-toolchain.toml)
-- PASS: cargo-deny
-- skipped: WiX (Windows installer)
-- skipped: JDK 17 (Android Gradle Plugin 8)
-- skipped: Gradle 8.9 (a scaffolded project has no wrapper JAR)
+- CANCELLED: Gradle 8.9 (a scaffolded project has no wrapper JAR)
 - skipped: cargo-ndk
 - skipped: MinGW-w64 (Windows .exe cross-build from Linux)
 - skipped: Android environment
-- PASS: Vulkan loader + MoltenVK (macOS; stages skip if no device)
-- FAIL: Release gate
-- PASS: Failures with logs
-- skipped: Screenshots
-- skipped: Upload screenshots
-- skipped: Checks only
-- PASS: Upload run folder
-- skipped: Upload installers
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### gate (linux-export) — PASS
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Make disk space
-- PASS: Rust toolchain (from rust-toolchain.toml)
-- PASS: cargo-deny
-- skipped: WiX (Windows installer)
-- PASS: JDK 17 (Android Gradle Plugin 8)
-- PASS: Gradle 8.9 (a scaffolded project has no wrapper JAR)
-- PASS: cargo-ndk
-- PASS: MinGW-w64 (Windows .exe cross-build from Linux)
-- PASS: Android environment
 - skipped: Vulkan loader + MoltenVK (macOS; stages skip if no device)
-- PASS: Release gate
+- skipped: Release gate
 - PASS: Failures with logs
-- skipped: Screenshots
-- skipped: Upload screenshots
-- skipped: Checks only
-- PASS: Upload run folder
-- skipped: Upload installers
-- PASS: Post Gradle 8.9 (a scaffolded project has no wrapper JAR)
-- PASS: Post JDK 17 (Android Gradle Plugin 8)
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
+- running: Screenshots
+- running: Upload screenshots
+- running: Checks only
+- running: Upload run folder
+- running: Upload installers
+- running: Post Gradle 8.9 (a scaffolded project has no wrapper JAR)
+- running: Post JDK 17 (Android Gradle Plugin 8)
+- running: Post Run actions/checkout@v4
 
 ### merged checklist — PASS
 - PASS: Set up job
@@ -138,4 +52,4 @@
 
 ### draft GitHub Release — CANCELLED
 
-- artifacts: checklist-ci screenshots-windows-cpu gate-windows-cpu gate-linux-export gate-macos-cpu screenshots-macos-cpu gate-macos-gpu 
+- artifacts: 
