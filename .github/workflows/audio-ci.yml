@@ -25,17 +25,12 @@ name: Audio CI
 on:
   workflow_dispatch:
   schedule:
+    # The AU-15 cadence for the blocking fuzz job, kept because the
+    # uploaded test plan endorses a nightly fuzz budget; the push/PR
+    # trigger the header once claimed is REMOVED per the owner's
+    # manual-only rule. Delete this `schedule:` block too if you want the
+    # workflow strictly on demand.
     - cron: "0 21 * * *"
-  push:
-    branches: [main]
-    paths: &audio_paths
-      - "vieww_base/crates/vieww-audio/**"
-      - "vieww_base/crates/vieww-music/**"
-      - "vieww_base/crates/vieww-audio-*/**"
-      - "vieww_base/Cargo.lock"
-      - ".github/workflows/audio-ci.yml"
-  pull_request:
-    paths: *audio_paths
 
 permissions:
   contents: read
