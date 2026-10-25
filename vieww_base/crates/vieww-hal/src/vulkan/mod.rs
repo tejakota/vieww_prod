@@ -2653,7 +2653,7 @@ pub struct Texture3d<'a> {
     /// Texel rows.
     pub height: u32,
     /// Linear-light RGBA, row-major, origin top row — the CPU oracle's own
-    /// texels ([`vieww_3d::scene::Texture::texels`]), uploaded as f16.
+    /// texels (`vieww_3d::scene::Texture::texels`), uploaded as f16.
     pub texels: &'a [[f32; 4]],
     /// `true` for nearest-neighbour sampling, `false` for bilinear — the
     /// material's own `Filter`.

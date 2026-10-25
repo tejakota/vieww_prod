@@ -291,7 +291,7 @@ fn run_external(
     // the card's clock. The report names the isolation honestly.
     let out = direct_run(entry, program, worker_env, &arg_refs, copy_dir, timeout)?;
     let isolation = if cfg!(windows) && sandbox_available {
-        "native Windows worker (workspace copy only; no OS sandbox; WSL isolates POSIX tools)"
+        "native Windows worker (workspace copy + Job object: process tree, memory and process-count bounded; no filesystem sandbox; WSL isolates POSIX tools)"
     } else {
         "workspace copy only (no OS sandbox on this machine)"
     };
@@ -443,7 +443,9 @@ fn direct_run(
             }
         }
         use std::os::windows::process::CommandExt;
-        cmd.creation_flags(0x0800_0000); // CREATE_NO_WINDOW
+        // CREATE_NO_WINDOW, and suspended until it is inside its Job object
+        // (WR-05), so nothing it starts can run outside the job.
+        cmd.creation_flags(0x0800_0000 | crate::winjob::CREATE_SUSPENDED);
     }
     #[cfg(unix)]
     {
@@ -456,6 +458,20 @@ fn direct_run(
             entry.command, entry.name
         ))
     })?;
+    // The whole process tree lives in a job: dropping it (every return
+    // below) kills everything the worker started. 64 processes, 4 GiB.
+    #[cfg(windows)]
+    let job = {
+        let job = crate::winjob::Job::new(64, 4 << 30)
+            .and_then(|j| j.adopt(&mut child).map(|()| j))
+            .map_err(|e| {
+                ToolError::Failed(format!(
+                    "could not contain the worker '{}' in a Job object: {e}. Nothing was run.",
+                    entry.name
+                ))
+            })?;
+        job
+    };
     // Drain both pipes while the worker runs: a chatty agent writes far
     // more than a pipe holds, and a pipe nobody reads stalls the writer
     // until the clock kills it.
@@ -497,6 +513,8 @@ fn direct_run(
                 // Anything the worker left running in the background goes
                 // too, before its files are read back.
                 kill_group(&mut child);
+                #[cfg(windows)]
+                job.kill_all();
                 let output = out_thread.join().unwrap_or_default();
                 let err = err_thread.join().unwrap_or_default();
                 if status.success() {
@@ -506,6 +524,8 @@ fn direct_run(
             }
             Ok(None) => {
                 if wright_runtime::killswitch::is_stopped() {
+                    #[cfg(windows)]
+                    job.kill_all();
                     kill_group(&mut child);
                     let _ = child.wait();
                     return Err(ToolError::Failed(format!(
@@ -514,6 +534,8 @@ fn direct_run(
                     )));
                 }
                 if start.elapsed() > timeout {
+                    #[cfg(windows)]
+                    job.kill_all();
                     kill_group(&mut child);
                     let _ = child.wait();
                     return Err(ToolError::Failed(format!(

@@ -6,7 +6,7 @@
 //! not change between frames: two render passes, three graphics pipelines,
 //! four texture resources and the descriptor sets that bind them. Per frame
 //! it uploads whichever atlases changed, writes the vertex and index buffers,
-//! records **one** command buffer for the plan's whole [`Step`] program, and
+//! records **one** command buffer for the plan's whole [`Step`](vieww_gpu::Step) program, and
 //! submits it once.
 //!
 //! ```text

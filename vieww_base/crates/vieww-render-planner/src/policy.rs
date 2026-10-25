@@ -52,7 +52,7 @@ const HYBRID_SPLIT_OVERHEAD_MULTIPLES: f32 = 2.0;
 /// against. [`decide`]'s split makes both sides finish together, so each
 /// carries about half the pass; the pass is worth splitting only when that
 /// half still dwarfs the overhead it pays for — hence
-/// [`HYBRID_SPLIT_OVERHEAD_MULTIPLES`] × overhead-pixels, clamped to
+/// `HYBRID_SPLIT_OVERHEAD_MULTIPLES` × overhead-pixels, clamped to
 /// [`HYBRID_MIN_PIXELS`, `HYBRID_MAX_PIXELS`].
 ///
 /// On the reference profiles: a discrete desktop (0.05 ms overhead, 8

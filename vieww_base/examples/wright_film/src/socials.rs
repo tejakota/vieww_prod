@@ -495,24 +495,6 @@ fn r4_endcard(ctx: &Ctx) -> WidgetNode {
     stack.into()
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn reels_cut_is_native_vertical_and_keeps_the_real_window_inside_safe_area() {
-        let cut = cut("reels").expect("native vertical cut");
-        assert_eq!((cut.width, cut.height), (1080.0, 1920.0));
-        assert_eq!(cut.out, "wright_reels");
-        assert_eq!(cut.scenes.len(), 4);
-        assert_eq!(cut.scenes[2].kind, Kind::Wright);
-        let (scale, x, y) = cut.window;
-        assert!(x >= 0.0 && y >= 0.0);
-        assert!(x + crate::wright_app::APP_W * scale <= cut.width);
-        assert!(y + crate::wright_app::APP_H * scale <= cut.height);
-    }
-}
-
 /// P1 · the question — the cold open, squared.
 ///
 /// The mark centred high, the question under it, the thesis under that.
@@ -792,4 +774,22 @@ pub(crate) fn p4_endcard(_ctx: &Ctx) -> WidgetNode {
         ease(sec - 3.8, 1.0),
     ));
     stack.into()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn reels_cut_is_native_vertical_and_keeps_the_real_window_inside_safe_area() {
+        let cut = cut("reels").expect("native vertical cut");
+        assert_eq!((cut.width, cut.height), (1080.0, 1920.0));
+        assert_eq!(cut.out, "wright_reels");
+        assert_eq!(cut.scenes.len(), 4);
+        assert_eq!(cut.scenes[2].kind, Kind::Wright);
+        let (scale, x, y) = cut.window;
+        assert!(x >= 0.0 && y >= 0.0);
+        assert!(x + crate::wright_app::APP_W * scale <= cut.width);
+        assert!(y + crate::wright_app::APP_H * scale <= cut.height);
+    }
 }

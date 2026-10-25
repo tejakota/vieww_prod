@@ -1,6 +1,6 @@
 //! Movement III · THE RUN — the actual wright window.
 //!
-//! Three scenes, all one mounting of the real shell ([`wright_app`]):
+//! Three scenes, all one mounting of the real shell (`wright_app`):
 //! the session page with the run pouring in (the run card is a
 //! projection of the real event spine, fed as a growing prefix), the
 //! Mailer's approval card arriving and being dragged right to allow,

@@ -216,59 +216,66 @@ fn blend(mode: i32, s: vec4<f32>, d: vec4<f32>) -> vec4<f32> {
 
 @fragment
 fn fs_main(@builtin(position) frag: vec4<f32>) -> @location(0) vec4<f32> {
+    // An if-chain, not a `switch`: FXC (D3DCompile, the D3D12 backend's
+    // compiler) aborts with "internal error: compilation aborted
+    // unexpectedly" on the blur loop when it sits inside a switch case — a
+    // known FXC defect with loops in switch bodies. The arithmetic is
+    // unchanged, so every backend still draws the same bytes.
     let p = vec2<i32>(floor(frag.xy));
     let mode = i32(round(pc.args.x));
-    switch mode {
-        case 0: {
-            return src_at(p);
+    if mode == 0 {
+        return src_at(p);
+    }
+    if mode == 1 || mode == 2 {
+        return box_blur(p, mode);
+    }
+    if mode == 3 {
+        let c = src_at(p);
+        let a = max(c.a, 1e-6);
+        let v = vec4<f32>(c.rgb / a, c.a);
+        let nr = clamp(dot(pc.p0, v) + pc.p4.x, 0.0, 1.0);
+        let ng = clamp(dot(pc.p1, v) + pc.p4.y, 0.0, 1.0);
+        let nb = clamp(dot(pc.p2, v) + pc.p4.z, 0.0, 1.0);
+        let na = clamp(dot(pc.p3, v) + pc.p4.w, 0.0, 1.0);
+        return vec4<f32>(nr * na, ng * na, nb * na, na);
+    }
+    if mode == 4 {
+        return src_at(p) * mask_at(p, pc.p0.xy);
+    }
+    if mode == 5 {
+        let s = src_at(p) * pc.args.w;
+        let d = textureLoad(t_aux, p, 0);
+        return blend(i32(round(pc.args.z)), s, d);
+    }
+    if mode == 6 {
+        return src_at(p) * pc.args.w;
+    }
+    if mode == 7 {
+        var a = mask_at(p, pc.p0.xy);
+        if pc.p1.z > 0.5 {
+            a = a * mask_at(p, pc.p1.xy);
         }
-        case 1, 2: {
-            let r = i32(round(pc.args.y));
-            var step = vec2<i32>(1, 0);
-            if mode == 2 {
-                step = vec2<i32>(0, 1);
-            }
-            let clamped = pc.args.z > 0.5;
-            var sum = vec4<f32>(0.0);
-            for (var k = -r; k <= r; k = k + 1) {
-                if clamped {
-                    sum = sum + src_clamped(p + step * k);
-                } else {
-                    sum = sum + src_at(p + step * k);
-                }
-            }
-            return sum / f32(2 * r + 1);
-        }
-        case 3: {
-            let c = src_at(p);
-            let a = max(c.a, 1e-6);
-            let v = vec4<f32>(c.rgb / a, c.a);
-            let nr = clamp(dot(pc.p0, v) + pc.p4.x, 0.0, 1.0);
-            let ng = clamp(dot(pc.p1, v) + pc.p4.y, 0.0, 1.0);
-            let nb = clamp(dot(pc.p2, v) + pc.p4.z, 0.0, 1.0);
-            let na = clamp(dot(pc.p3, v) + pc.p4.w, 0.0, 1.0);
-            return vec4<f32>(nr * na, ng * na, nb * na, na);
-        }
-        case 4: {
-            return src_at(p) * mask_at(p, pc.p0.xy);
-        }
-        case 5: {
-            let s = src_at(p) * pc.args.w;
-            let d = textureLoad(t_aux, p, 0);
-            return blend(i32(round(pc.args.z)), s, d);
-        }
-        case 6: {
-            return src_at(p) * pc.args.w;
-        }
-        case 7: {
-            var a = mask_at(p, pc.p0.xy);
-            if pc.p1.z > 0.5 {
-                a = a * mask_at(p, pc.p1.xy);
-            }
-            return pc.p2 * a;
-        }
-        default: {
-            return vec4<f32>(0.0);
+        return pc.p2 * a;
+    }
+    return vec4<f32>(0.0);
+}
+
+// Modes 1 (horizontal) and 2 (vertical): a box blur of radius args.y,
+// clamped to the source rectangle when args.z > 0.5.
+fn box_blur(p: vec2<i32>, mode: i32) -> vec4<f32> {
+    let r = i32(round(pc.args.y));
+    var step = vec2<i32>(1, 0);
+    if mode == 2 {
+        step = vec2<i32>(0, 1);
+    }
+    let clamped = pc.args.z > 0.5;
+    var sum = vec4<f32>(0.0);
+    for (var k = -r; k <= r; k = k + 1) {
+        if clamped {
+            sum = sum + src_clamped(p + step * k);
+        } else {
+            sum = sum + src_at(p + step * k);
         }
     }
+    return sum / f32(2 * r + 1);
 }

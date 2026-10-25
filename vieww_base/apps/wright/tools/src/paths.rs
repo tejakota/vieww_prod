@@ -224,6 +224,7 @@ fn write_pinned_impl(
     }
 }
 
+#[cfg(target_os = "linux")]
 fn refused_link(comp: &std::ffi::OsStr) -> PathError {
     format!(
         "'{}' is a symbolic link or not a directory (refused: links can point outside the project)",

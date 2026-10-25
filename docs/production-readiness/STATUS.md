@@ -3,13 +3,13 @@
 Every gap in the four research reports (framework.md, studio.md, audio.md, wright.md), with where it stands. **Closed** = code + tests + CI gate landed. **Partial** = the code is in, and what is left is listed. **Open** = not started.
 Mac real-device verification is out of scope by the owner's decision; Mac code paths are still written and CI-built where hosted runners allow.
 
-Totals: Closed 9, Open 80, Partial 5 (of 94).
+Totals: Closed 10, Open 76, Partial 8 (of 94).
 
 ## Framework
 
 | Gap | P | Title | Status | Notes |
 |---|---|---|---|---|
-| FW-01 | P0 | The framework is unpublishable and unusable outside the monorepo | **Partial** | Metadata on 52 public crates, publish-check.sh + publish-order.txt, publish.yml (package/verify/scaffold-external/publish-on-tag). Left: owner adds CARGO_REGISTRY_TOKEN and tags. |
+| FW-01 | P0 | The framework is unpublishable and unusable outside the monorepo | **Partial** | Metadata on 52 public crates, publish-check.sh + publish-order.txt, publish.yml (package/verify/scaffold-external/publish-on-tag). Left: owner adds CARGO_REGISTRY_TOKEN and tags. Nightly found the CLI could not find shared libstd outside the checkout; fixed. |
 | FW-02 | P0 | No CI runs on push or PR — the entire gate is manual | **Closed** | pr-quick.yml, root release-gate.yml, nightly hardware.yml, audio-ci on paths. |
 | FW-03 | P0 | No release has ever been cut: no tag, no changelog, no channel | **Partial** | CHANGELOG.md, docs/release/RELEASING.md, draft GitHub Release job on tags. Left: owner cuts the first tag. |
 | FW-04 | P0 | macOS: end users cannot run a vieww app (MoltenVK not bundled, unsigned, Metal scene renderer not shipped) | **Open** |  |
@@ -82,7 +82,7 @@ Totals: Closed 9, Open 80, Partial 5 (of 94).
 | AU-12 | P1 | No lock-screen/now-playing/media-notification integration (MediaSession everywhere) | **Open** |  |
 | AU-13 | P1 | Plugin formats: CLAP+VST3 only — no AUv3 (blocks iOS/macOS store distribution of audio units), no LV2 (Linux pro audio), no AAX, and no GUI story | **Open** |  |
 | AU-14 | P1 | The device farm runs zero audio tests: AAudio has never run on a real device, iOS audio never on a real iPhone, Bluetooth never anywhere | **Open** |  |
-| AU-15 | P1 | All audio workflows are manual-only; the audio-ci.yml header comment still claims otherwise | **Partial** | audio-ci runs on push/PR paths + nightly fuzz; header updated. Left: audio-backends/plugins schedules. |
+| AU-15 | P1 | All audio workflows are manual-only; the audio-ci.yml header comment still claims otherwise | **Partial** | audio-ci nightly fuzz + manual dispatch (owner: manual-only triggers). Nightly fuzz found a failure; crash input not yet captured — collector now keeps findings. |
 | AU-16 | P1 | No notation interchange: MusicXML out/in, LilyPond, ABC — the score cannot leave the ecosystem except as MIDI or audio | **Open** |  |
 | AU-17 | P2 | vieww-music ↔ vieww-audio: no live playback path — the score renderer is offline-only | **Open** |  |
 | AU-18 | P2 | RT-safety is proven by test, not enforced by the compiler — no lint denying allocation/locking in the audio thread path | **Open** |  |
@@ -100,12 +100,12 @@ Totals: Closed 9, Open 80, Partial 5 (of 94).
 |---|---|---|---|---|
 | WR-01 | P0 | Linux sandbox: `$HOME` is readable through PATH parents — "home secrets are invisible" is false on dev machines | **Closed** | PATH parents/HOME never roots; regression test. |
 | WR-02 | P0 | Sandbox depth: no syscall filter (seccomp), no PID namespace; networked commands share host process space | **Closed** | User+PID namespace, seccomp denylist, strict mode, escape tests in CI both ways. |
-| WR-03 | P0 | macOS: no sandbox backend at all — the product is fail-closed on a Tier-1 desktop OS | **Open** |  |
+| WR-03 | P0 | macOS: no sandbox backend at all — the product is fail-closed on a Tier-1 desktop OS | **Partial** | Seatbelt backend (sandbox_macos.rs) + behaviour suite; cross-compiles. Left: first green run of wright-sandbox.yml on hosted macOS. |
 | WR-04 | P0 | Release channel: unsigned installers, no notarization, no auto-update | **Open** |  |
-| WR-05 | P1 | Windows-native worker CLIs run without any OS sandbox (workspace-copy fallback) | **Open** |  |
-| WR-06 | P1 | Windows secret storage: no Credential Manager — keys in env vars on the platform that least wants them | **Open** |  |
+| WR-05 | P1 | Windows-native worker CLIs run without any OS sandbox (workspace-copy fallback) | **Partial** | Tier 1: Job object (tree kill, process/memory caps), suspended start. Left: tier 2 AppContainer filesystem confinement. |
+| WR-06 | P1 | Windows secret storage: no Credential Manager — keys in env vars on the platform that least wants them | **Closed** | Credential Manager via wincred.rs for resolve/store and new signing keys; Windows CI round-trip test. |
 | WR-07 | P1 | HTTP tools: DNS-rebinding TOCTOU between the SSRF check and the connection | **Closed** | Resolve once, pin addresses (native + curl --resolve); staged-rebinding tests. |
-| WR-08 | P1 | Prompt injection: tainted content enters prompts unmarked — the taint system stops one layer short | **Open** |  |
+| WR-08 | P1 | Prompt injection: tainted content enters prompts unmarked — the taint system stops one layer short | **Partial** | Inputs fenced + marked PRIVATE/UNTRUSTED, DATA_RULE in every prompt, PROMPT_VERSION 4. Left: end-to-end mock assertion. |
 | WR-09 | P1 | Model calls are non-reproducible and under-specified: no temperature/seed, none recorded | **Open** |  |
 | WR-10 | P1 | Hardening pass: sandbox scratch dir not 0700; macOS `secret set` argv leak; path-check TOCTOU | **Closed** | 0700 scratch, security -i stdin, O_NOFOLLOW pinned writes. |
 | WR-11 | P1 | No browser tool and no visual verification — the one axis every rival competes on | **Open** |  |

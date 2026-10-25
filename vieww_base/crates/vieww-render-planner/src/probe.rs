@@ -101,7 +101,7 @@ mod fill_benchmark {
     /// `profile` with its `cpu_fill_mpix_per_sec` replaced by a one-time
     /// measurement of *this machine's* CPU rasterizer — the same
     /// [`NativeRenderer`] the live CPU path draws with, rendering a
-    /// plain-fill scene, timed over [`BENCH_RUNS`] runs and reported as the
+    /// plain-fill scene, timed over `BENCH_RUNS` runs and reported as the
     /// best sample. The cores are detected as part of the same call.
     ///
     /// # What can make it keep the original number

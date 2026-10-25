@@ -176,6 +176,20 @@ impl SigningKey {
             });
         }
         let seed = generate_seed()?;
+        // Windows: keep a new key in Credential Manager rather than a file
+        // (WR-06). Read back after writing, so two first-use racers settle
+        // on whichever value the vault ended up holding. (Not in unit tests:
+        // they point WRIGHT_HOME at a temp dir and must not touch the
+        // machine's real vault.)
+        #[cfg(all(windows, not(test)))]
+        if secrets::store(KEY_REF, &to_hex(&seed)).is_ok() {
+            if let Ok(v) = secrets::resolve(KEY_REF) {
+                return Ok(SigningKey {
+                    seed: from_hex(v.expose())?,
+                    provenance: Provenance::OsKeychain,
+                });
+            }
+        }
         if let Some(dir) = p.parent() {
             std::fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
         }

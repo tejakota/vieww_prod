@@ -23,8 +23,11 @@ sandbox; the event spine records everything durably for resume and replay.
    (mimicking a proven design, cited in the PR) or argue for an exception
    in a new ADR. `wright-core` stays std-only, always.
 2. **Unsafe only where the OS must be called**: `runtime/src/tls.rs` (the
-   OpenSSL FFI), `tools/src/sandbox.rs` (Landlock, namespaces,
-   `pre_exec`) and, on Windows only, `app/src/ui/mod.rs`
+   OpenSSL FFI), `runtime/src/wincred.rs` (Windows Credential Manager:
+   CredWriteW/CredReadW/CredDeleteW, WR-06), `tools/src/sandbox.rs` (Landlock, namespaces,
+   `pre_exec`, seccomp), `tools/src/sandbox_macos.rs` (`kill(2)` of the
+   command's process group), `tools/src/winjob.rs` (Windows Job objects for
+   native workers, WR-05) and, on Windows only, `app/src/ui/mod.rs`
    (`release_private_console`: two kernel32 calls so a double-clicked app
    has no console window). Every block carries a `// SAFETY:` comment. The executor
    has zero unsafe; keep it that way. So does `infer/` (the built-in

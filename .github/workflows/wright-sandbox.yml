@@ -88,3 +88,9 @@ jobs:
       - name: Sandbox refuses cleanly without WSL2
         working-directory: vieww_base/apps/wright
         run: cargo test -p wright-tools --lib sandbox_windows -- --ignored --test-threads=1 || cargo test -p wright-tools --lib sandbox
+      - name: Credential Manager round trip (WR-06)
+        working-directory: vieww_base/apps/wright
+        run: cargo test -p wright-runtime wincred -- --test-threads=1
+      - name: Worker Job objects (WR-05) — tree killed with the job, process cap
+        working-directory: vieww_base/apps/wright
+        run: cargo test -p wright-tools winjob -- --test-threads=1

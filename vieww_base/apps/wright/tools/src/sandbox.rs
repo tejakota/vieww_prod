@@ -33,7 +33,8 @@
 //! Windows uses WSL 2 + Bubblewrap (`sandbox_windows.rs`): the project is
 //! mounted as the only writable source tree, Windows drives and user homes
 //! are hidden, and commands still fail closed if the isolation runtime is not
-//! installed. macOS (Seatbelt) remains fail-closed until its backend exists.
+//! installed. macOS uses Seatbelt (`sandbox_macos.rs`, WR-03) with the same
+//! policy, and also fails closed if Seatbelt is unavailable.
 //!
 //! This is one of the files AGENTS.md allows `unsafe` in: the FFI and the
 //! `pre_exec` hook. Every block carries a SAFETY comment.
@@ -131,7 +132,11 @@ pub fn capabilities() -> Result<String, String> {
     {
         windows::capabilities()
     }
-    #[cfg(not(any(target_os = "linux", target_os = "windows")))]
+    #[cfg(target_os = "macos")]
+    {
+        macos::capabilities()
+    }
+    #[cfg(not(any(target_os = "linux", target_os = "windows", target_os = "macos")))]
     {
         Err("the process sandbox is not available on this platform; shell, git and run-tests will refuse".into())
     }
@@ -147,7 +152,11 @@ pub fn run(program: &str, args: &[&str], policy: &Policy) -> Result<RunOutput, S
     {
         windows::run(program, args, policy)
     }
-    #[cfg(not(any(target_os = "linux", target_os = "windows")))]
+    #[cfg(target_os = "macos")]
+    {
+        macos::run(program, args, policy)
+    }
+    #[cfg(not(any(target_os = "linux", target_os = "windows", target_os = "macos")))]
     {
         let _ = (program, args, policy);
         Err(
@@ -160,6 +169,12 @@ pub fn run(program: &str, args: &[&str], policy: &Policy) -> Result<RunOutput, S
 #[cfg(target_os = "windows")]
 #[path = "sandbox_windows.rs"]
 mod windows;
+
+// Compiled on macOS, and in Linux test builds so the profile generator's
+// unit tests run everywhere (its behaviour suite is macOS-only).
+#[cfg(any(target_os = "macos", all(test, target_os = "linux")))]
+#[path = "sandbox_macos.rs"]
+mod macos;
 
 #[cfg(target_os = "linux")]
 mod linux {

@@ -768,9 +768,28 @@ impl MetalSceneRenderer {
             atlas.width = width;
             atlas.height = height;
         }
+        // Metal copies `length` bytes from the pointer and the blit reads a
+        // whole width x height region, so the source must be at least that
+        // long: an atlas shorter than its declared extent (or empty, whose
+        // pointer is dangling) is padded with transparent texels rather than
+        // read out of bounds.
+        let needed = u64::from(width.max(1)) * u64::from(height.max(1)) * bytes_per_texel(format);
+        let padded;
+        let source: &[u8] = if len64(bytes) >= needed {
+            bytes
+        } else {
+            let mut v = vec![
+                0u8;
+                usize::try_from(needed)
+                    .map_err(|_| MetalError::Invalid("atlas size".into()))?
+            ];
+            v[..bytes.len()].copy_from_slice(bytes);
+            padded = v;
+            &padded
+        };
         let staging = self.device.new_buffer_with_data(
-            bytes.as_ptr().cast(),
-            len64(bytes).max(bytes_per_texel(format)),
+            source.as_ptr().cast(),
+            len64(source),
             MTLResourceOptions::StorageModeShared,
         );
         let commands = self.queue.new_command_buffer();

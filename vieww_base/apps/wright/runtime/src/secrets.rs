@@ -11,10 +11,10 @@
 //!    where there is no desktop keychain. `<PATH>` is the reference path
 //!    upper-cased with every non-alphanumeric character turned into `_`
 //!    (`keychain:wright/hn-digest/smtp` -> `WRIGHT_SECRET_WRIGHT_HN_DIGEST_SMTP`).
-//! 2. The OS keychain, through the OS's own command-line tool (no
-//!    library, no crate): macOS `security`, Linux `secret-tool`
-//!    (libsecret / GNOME Keyring / KWallet). Windows Credential Manager
-//!    is not wired yet and says so.
+//! 2. The OS keychain: macOS `security` and Linux `secret-tool`
+//!    (libsecret / GNOME Keyring / KWallet), each fed on stdin; Windows
+//!    Credential Manager in-process through `wincred.rs` (WR-06). No
+//!    library, no crate.
 //!
 //! The event spine records THAT a secret was used, never its value.
 
@@ -93,6 +93,15 @@ pub fn resolve(reference: &str) -> Result<SecretValue, String> {
         }
     }
     let path = path_of(reference)?;
+    // Windows: Credential Manager, in-process (WR-06).
+    #[cfg(windows)]
+    {
+        return match crate::wincred::read(path)? {
+            Some(v) if !v.is_empty() => Ok(SecretValue::new(v)),
+            _ => Err(format!("{reference} is not in Credential Manager yet: run `wright secret set {reference}` (or set {var})")),
+        };
+    }
+    #[allow(unreachable_code)]
     let out = if cfg!(target_os = "macos") {
         Command::new("security")
             .args(["find-generic-password", "-s", "wright", "-a", path, "-w"])
@@ -104,7 +113,7 @@ pub fn resolve(reference: &str) -> Result<SecretValue, String> {
             .stderr(Stdio::null())
             .output()
     } else {
-        return Err(format!("{reference} is not set: set the {var} environment variable (the Windows keychain is not wired yet)"));
+        return Err(format!("{reference} is not set: set the {var} environment variable (no OS keychain on this platform)"));
     };
     match out {
         Ok(o) if o.status.success() && !o.stdout.is_empty() => {
@@ -124,10 +133,18 @@ pub fn resolve(reference: &str) -> Result<SecretValue, String> {
 
 /// Store a value in the OS keychain (`wright secret set`). The value never
 /// appears in any process's argv (WR-10): it is piped on stdin to
-/// `secret-tool` on Linux, and on macOS to `security -i`, which reads the
-/// `add-generic-password` command line from stdin instead of argv.
+/// `secret-tool` on Linux, on macOS to `security -i` (which reads the
+/// `add-generic-password` command line from stdin instead of argv), and on
+/// Windows it goes to Credential Manager in-process (WR-06).
 pub fn store(reference: &str, value: &str) -> Result<(), String> {
     let path = path_of(reference)?;
+    // Windows: Credential Manager, in-process — no child process, no argv
+    // (WR-06).
+    #[cfg(windows)]
+    {
+        return crate::wincred::write(path, value.as_bytes());
+    }
+    #[allow(unreachable_code)]
     let status = if cfg!(target_os = "macos") {
         use std::io::Write;
         if value.contains('\n') || value.contains('\r') {
@@ -163,8 +180,7 @@ pub fn store(reference: &str, value: &str) -> Result<(), String> {
         child.wait()
     } else {
         return Err(
-            "the Windows keychain is not wired yet; use the WRIGHT_SECRET_ environment variable"
-                .into(),
+            "no OS keychain on this platform; use the WRIGHT_SECRET_ environment variable".into(),
         );
     };
     match status {

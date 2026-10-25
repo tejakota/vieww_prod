@@ -100,8 +100,20 @@ jobs:
           status=0
           for t in $(cargo +nightly fuzz list); do
             echo "::group::$t"
-            cargo +nightly fuzz run "$t" "fuzz/corpus/$t" -s none -- \
-              -max_total_time="$FUZZ_SECONDS" -rss_limit_mb=2048 -timeout=20 || status=1
+            if ! cargo +nightly fuzz run "$t" "fuzz/corpus/$t" -s none -- \
+              -max_total_time="$FUZZ_SECONDS" -rss_limit_mb=2048 -timeout=20; then
+              status=1
+              echo "::endgroup::"
+              echo "::error::fuzz target $t failed"
+              # The input that failed, in the log too (it is also uploaded):
+              # small enough to rebuild with xxd -r if the artifact expires.
+              for f in fuzz/artifacts/"$t"/*; do
+                [ -f "$f" ] || continue
+                echo "FUZZ-FINDING $t $(basename "$f") $(wc -c < "$f") bytes"
+                xxd "$f" | head -n 256
+              done
+              continue
+            fi
             echo "::endgroup::"
           done
           exit $status

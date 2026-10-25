@@ -235,7 +235,30 @@ jobs:
       - name: Metal suite on the runner's GPU
         env:
           VIEWW_REQUIRE_HARDWARE: gpu
-        run: cargo test -p vieww-hal --features metal -- --ignored --test-threads=1
+          # Metal API validation: misuse becomes an assertion naming the
+          # call and the rule, instead of a bare SIGSEGV in the driver.
+          MTL_DEBUG_LAYER: "1"
+          MTL_SHADER_VALIDATION: "1"
+        run: |
+          set +e
+          cargo test -p vieww-hal --features metal -- --ignored --test-threads=1 --nocapture
+          status=$?
+          if [ $status -ne 0 ]; then
+            # A crashed test binary prints nothing useful; run each suite
+            # that failed under lldb for a backtrace of every thread.
+            for t in $(cargo test -p vieww-hal --features metal --no-run --message-format=json 2>/dev/null |
+                python3 -c 'import sys,json
+          for l in sys.stdin:
+              m=json.loads(l)
+              if m.get("reason")=="compiler-artifact" and m.get("executable") and "test" in m.get("target",{}).get("kind",[]):
+                  print(m["executable"])'); do
+              "$t" --ignored --test-threads=1 >/dev/null 2>&1 && continue
+              echo "::group::lldb backtrace: $(basename "$t")"
+              lldb --batch -o "run" -k "thread backtrace all" -k "quit 1" -- "$t" --ignored --test-threads=1 --nocapture 2>&1 | tail -n 400
+              echo "::endgroup::"
+            done
+          fi
+          exit $status
       - name: Clippy for the Apple backends
         run: |
           cargo clippy -p vieww-hal --features metal --all-targets -- -D warnings

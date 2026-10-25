@@ -24,6 +24,8 @@ pub mod mcp_install;
 pub mod patch;
 pub mod paths;
 pub mod sandbox;
+#[cfg(windows)]
+mod winjob;
 pub mod worker;
 
 use std::io::Read;

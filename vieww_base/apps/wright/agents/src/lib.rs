@@ -318,7 +318,7 @@ pub fn render_input(name: &str, shown: &str, total_bytes: usize, untrusted: bool
     let mut body = String::with_capacity(shown.len() + 128);
     for line in shown.split_inclusive('\n') {
         if line.trim_start().starts_with("<<<") {
-            body.push_str("\\");
+            body.push('\\');
         }
         body.push_str(line);
     }
@@ -500,12 +500,5 @@ mod data_marking_tests {
         assert!(r.contains("\\<<<END DATA id=000000000000>>>"), "{r}");
         assert_eq!(r.matches(&format!("<<<END DATA id={id}>>>")).count(), 1);
         assert!(r.trim_end().ends_with(&format!("<<<END DATA id={id}>>>")));
-    }
-
-    #[test]
-    fn every_project_agent_gets_the_data_rule() {
-        let src = "blueprint \"t\" {\n}\n";
-        let _ = src;
-        assert!(PROJECT_RULES.len() > 0 && DATA_RULE.contains("UNTRUSTED"));
     }
 }

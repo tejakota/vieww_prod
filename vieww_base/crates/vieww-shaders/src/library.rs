@@ -252,4 +252,70 @@ mod tests {
                 .unwrap_or_else(|e| panic!("{name}.wgsl does not parse and validate: {e}"));
         }
     }
+
+    /// FXC (`D3DCompile`, the D3D12 backend's runtime compiler) aborts with
+    /// "internal error: compilation aborted unexpectedly" on a loop inside a
+    /// `switch` body — it took the whole D3D12 scene renderer down on its
+    /// first CI run (`post.wgsl`'s blur, a `for` inside `case 1, 2`). FXC
+    /// exists only on Windows, so the shape is pinned here, on every
+    /// platform: no generated HLSL entry point may nest a loop in a switch.
+    #[cfg(feature = "compiler")]
+    #[test]
+    fn no_hlsl_entry_point_nests_a_loop_inside_a_switch() {
+        use crate::compiler::ParsedShader;
+        fn block_end(t: &str, open: usize) -> usize {
+            let mut depth = 0usize;
+            for (i, c) in t[open..].char_indices() {
+                match c {
+                    '{' => depth += 1,
+                    '}' => {
+                        depth -= 1;
+                        if depth == 0 {
+                            return open + i;
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            t.len()
+        }
+        let mut offenders = Vec::new();
+        for (name, wgsl) in [
+            ("clear", CLEAR_WGSL),
+            ("solid", SOLID_WGSL),
+            ("scene", SCENE_WGSL),
+            ("post", POST_WGSL),
+            ("gradient", GRADIENT_WGSL),
+            ("image", IMAGE_WGSL),
+            ("text", TEXT_WGSL),
+            ("blur", BLUR_WGSL),
+            ("shadow", SHADOW_WGSL),
+            ("mask", MASK_WGSL),
+            ("composite", COMPOSITE_WGSL),
+            ("unlit3d", UNLIT3D_WGSL),
+            ("lit3d", LIT3D_WGSL),
+        ] {
+            let parsed = ParsedShader::parse(wgsl).expect("library shaders parse");
+            for (entry, stage) in parsed.entry_points() {
+                let hlsl = parsed.to_hlsl(&entry, stage).expect("library shaders translate");
+                let mut at = 0;
+                while let Some(found) = hlsl[at..].find("switch(") {
+                    let start = at + found;
+                    let open = start + hlsl[start..].find('{').expect("a switch has a body");
+                    let end = block_end(&hlsl, open);
+                    let body = &hlsl[open..end];
+                    if body.contains("while(") || body.contains("for (") || body.contains("for(") {
+                        offenders.push(format!("{name}.wgsl {entry}"));
+                    }
+                    at = open + 1;
+                }
+            }
+        }
+        assert!(
+            offenders.is_empty(),
+            "loops inside a switch (FXC cannot compile these): {offenders:?} — use an if-chain \
+             and move the loop into a helper function, as post.wgsl's fs_main does"
+        );
+    }
 }
+

@@ -1043,7 +1043,7 @@ impl ShadowPlanner {
     ///   live path until its recent record recovers.
     ///
     /// In [`PlannerMode::Authoritative`] the plan itself is the
-    /// measured-augmented one ([`Self::plan_measured`]): real GPU timings by
+    /// measured-augmented one (`plan_measured`): real GPU timings by
     /// kind of work where this device has them, the heuristic where it does
     /// not. The returned plan is what the caller should draw from *and* log —
     /// the gate scores the model actuation actually uses, not a different

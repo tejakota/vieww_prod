@@ -77,6 +77,12 @@ jobs:
         run: |
           cargo build --release --locked -p vieww-cli
           cli="$PWD/target/release/vieww"
+          # The workspace links desktop binaries against the toolchain's
+          # shared libstd (.cargo/config.toml: prefer-dynamic, for Studio's
+          # preview ABI). Outside the checkout nothing puts that on the
+          # loader path, so name it — the same sysroot the CLI was built with.
+          LD_LIBRARY_PATH="$(rustc --print sysroot)/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          export LD_LIBRARY_PATH
           src="$PWD"
           mkdir -p "$RUNNER_TEMP/outside" && cd "$RUNNER_TEMP/outside"
           VIEWW_SCAFFOLD_FROM=registry "$cli" new demo

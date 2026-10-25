@@ -20,7 +20,7 @@
 1. A real-model benchmark: time-to-first-artifact, manual interventions,
    tokens on a targeted change, vs. a direct baseline harness.
 2. Typed edge bindings (output → input, with schema) — Open question 6.
-3. macOS/Windows TLS + sandbox (W-6b, W-5b), Windows keychain.
+3. macOS/Windows TLS + sandbox (W-6b, W-5b). (macOS Seatbelt sandbox: WR-03; Windows Credential Manager: WR-06 — both landed.)
 4. MCP client; other harnesses (Claude Code, Codex, Kimi Code) as workers.
 5. Recipes with OS-API signatures (ADR-012); server mode with a reactor.
 

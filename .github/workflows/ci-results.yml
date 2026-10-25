@@ -8,6 +8,8 @@
 #   <workflow>/<branch>/latest/             the newest run (overwritten)
 #     SUMMARY.md                            conclusion, sha, every job + step verdict
 #     failed-logs.txt                       tail of each failed step's log
+#     errors.txt                            every error line in the full log, with context
+#   <workflow>/<branch>/runs/<run_id>/      SUMMARY.md (+ errors.txt) of every run
 #     artifacts/<name>/...                  text artifacts (md/txt/json/tsv/log/html, <2 MB each)
 #   <workflow>/<branch>/history.tsv         one line per run
 #
@@ -34,6 +36,7 @@ on:
       - Framework checks
       - Wright - built-in models
       - Wright - desktop installers
+      - Wright sandbox suites
     types: [completed]
 
 permissions:
@@ -105,6 +108,23 @@ jobs:
           with open(sys.argv[1], "w") as f:
               for k, v in per.items():
                   f.write(f"===== {k} =====\n"); f.writelines(v); f.write("\n")
+          # errors.txt: every error-looking line in the WHOLE failed log with
+          # 15 lines of context before and 5 after — a failure early in a
+          # long step (one fuzz target of eight) is not in the tail.
+          import re
+          pat = re.compile(r"(error(\[|:)|panicked at|FAILED|##\[error\]|==\d+==ERROR|SUMMARY: \w+Sanitizer|deadly signal|Test unit written|FUZZ-FINDING|^failures:|assertion .* failed)", re.I)
+          lines = open("failed.log", errors="replace").read().splitlines()
+          keep = set()
+          for i, l in enumerate(lines):
+              if pat.search(l):
+                  keep.update(range(max(0, i - 15), min(len(lines), i + 6)))
+          with open(sys.argv[1].replace("failed-logs.txt", "errors.txt"), "w") as f:
+              last = -2
+              for i in sorted(keep)[:4000]:
+                  if i != last + 1:
+                      f.write("-----\n")
+                  f.write(lines[i] + "\n")
+                  last = i
           PY
           fi
 
@@ -118,6 +138,13 @@ jobs:
             (cd "$tmp" && find . -type f \( -name '*.md' -o -name '*.txt' -o -name '*.json' -o -name '*.tsv' \
                 -o -name '*.log' -o -name '*.html' -o -name 'SHA256SUMS' \) -size -2M -print) |
               while read -r f; do mkdir -p "$out/artifacts/$name/$(dirname "$f")"; cp "$tmp/$f" "$out/artifacts/$name/$f"; done
+            # Fuzz findings / crash inputs are binary but tiny, and they are
+            # the only way to reproduce the failure: keep them whole.
+            case "$name" in
+              *finding*|*crash*|*repro*)
+                (cd "$tmp" && find . -type f -size -1M -print) |
+                  while read -r f; do mkdir -p "$out/artifacts/$name/$(dirname "$f")"; cp "$tmp/$f" "$out/artifacts/$name/$f"; done ;;
+            esac
           done < names.txt
           echo "- artifacts: $(tr '\n' ' ' < names.txt)" >> "$out/SUMMARY.md"
 
@@ -136,6 +163,10 @@ jobs:
             rm -rf "$dest/latest"; mkdir -p "$dest"
             cp -R "$RUNNER_TEMP/out/$dest/latest" "$dest/latest"
             printf '%s\t%s\t%s\t%s\t%s\n' "$(date -u +%FT%TZ)" "$CONCLUSION" "${SHA:0:12}" "$EVENT" "$URL" >> "$dest/history.tsv"
+            # Every run's summary and error extract stay, not only the latest.
+            mkdir -p "$dest/runs/$RUN_ID"
+            cp "$dest/latest/SUMMARY.md" "$dest/runs/$RUN_ID/"
+            [ -f "$dest/latest/errors.txt" ] && cp "$dest/latest/errors.txt" "$dest/runs/$RUN_ID/"
             # LATEST.md: one row per workflow x branch, newest first.
             {
               echo "# Latest CI results"; echo
