@@ -1,6 +1,0 @@
->>> bash -c 
-	! grep -rIlE --exclude-dir=target --exclude-dir=.git \
-		-e "-----BEGIN [A-Z ]*PRIVATE KEY-----" \
-		-e "AKIA[0-9A-Z]{16}" -e "gh[pousr]_[A-Za-z0-9]{36}" -e "xox[baprs]-[A-Za-z0-9-]{10,}" .
-Sat Oct 24 12:54:46 UTC 2026
-exit=0

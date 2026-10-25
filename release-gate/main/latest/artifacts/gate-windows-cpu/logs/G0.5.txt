@@ -1,3 +1,0 @@
->>> bash -c st=$(git status --porcelain -- . ":(exclude)target"); [[ -z "$st" ]] || { echo "changed or untracked files:"; echo "$st" | head -40; exit 1; }
-Sat Oct 24 12:57:14 CUT 2026
-exit=0
