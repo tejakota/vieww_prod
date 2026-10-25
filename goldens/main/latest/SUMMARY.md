@@ -1,25 +1,25 @@
-# goldens — SUCCESS
+# goldens — CANCELLED
 
-- branch: `main`  sha: `e37c4ca2069192a1edaab617cc5ecf02635cc41c`  event: push
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40095686499
+- branch: `main`  sha: `eb8c9ae37b497d34be09a48989429a4f9c7d30d1`  event: push
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40171200913
 
 | job | verdict | failed steps |
 |---|---|---|
-| shots vs baseline (linux-cpu) | PASS |  |
+| shots vs baseline (linux-cpu) | CANCELLED |  |
 
 ## Steps
 
-### shots vs baseline (linux-cpu) — PASS
+### shots vs baseline (linux-cpu) — CANCELLED
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
 - PASS: System packages
 - PASS: Run rustup toolchain install
 - PASS: Run Swatinem/rust-cache@v2
-- PASS: Capture and compare
+- CANCELLED: Capture and compare
 - skipped: Capture new baseline
 - skipped: Upload diff report
 - skipped: Upload new baseline
-- PASS: Post Run Swatinem/rust-cache@v2
+- skipped: Post Run Swatinem/rust-cache@v2
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
