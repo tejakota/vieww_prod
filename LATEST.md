@@ -2,6 +2,7 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
+| 2026-10-25T22:41:05Z | hardware-self-hosted-linux-and-windows/main | CANCELLED | `e37c4ca20691` | [summary](hardware-self-hosted-linux-and-windows/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40139565653) |
 | 2026-10-25T16:05:03Z | release-gate/main | FAILURE | `f0e7547cea35` | [summary](release-gate/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40204301835) |
 | 2026-10-25T15:23:54Z | framework-checks/main | FAILURE | `f0e7547cea35` | [summary](framework-checks/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40204349396) |
 | 2026-10-25T14:56:41Z | publish/main | FAILURE | `f0e7547cea35` | [summary](publish/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40204393728) |

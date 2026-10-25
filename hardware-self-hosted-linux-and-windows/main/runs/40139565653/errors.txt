@@ -1,0 +1,19 @@
+-----
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8106816Z ^[[36;1m    f="out/hardware-$machine/summary.txt"^[[0m
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8107291Z ^[[36;1m    if [ -f "$f" ]; then^[[0m
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8107687Z ^[[36;1m      echo^[[0m
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8108089Z ^[[36;1m      echo "## $machine"^[[0m
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8108514Z ^[[36;1m      echo^[[0m
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8109067Z ^[[36;1m      echo '```'^[[0m
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8109685Z ^[[36;1m      cat "$f"^[[0m
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8110058Z ^[[36;1m      echo '```'^[[0m
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8110427Z ^[[36;1m    fi^[[0m
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8110752Z ^[[36;1m  done^[[0m
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8111096Z ^[[36;1m} > out/SUMMARY.md^[[0m
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8111486Z ^[[36;1mcat out/SUMMARY.md^[[0m
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8304469Z shell: /usr/bin/bash -e {0}
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8304991Z ##[endgroup]
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8497562Z find: ‘out’: No such file or directory
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8510038Z ##[error]Process completed with exit code 1.
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8613367Z Cleaning up orphan processes
+Publish to ci-runs/hardware-<branch>	UNKNOWN STEP	2026-10-25T22:40:39.8943731Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/download-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
