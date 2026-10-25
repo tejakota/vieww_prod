@@ -8,10 +8,14 @@
 name: pr-quick
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-  push:
-    branches-ignore: [main, ci-results, "ci-runs/**"]
+  workflow_dispatch:
+
+# Owner rule (2026-10-24): every workflow in this repository runs
+# manually. The pull_request/push triggers this file carried are gone;
+# dispatch it (or chain it from another workflow) when you want the quick
+# pass. NOTE: the previous trigger block was also corrupted YAML
+# (`branches-ignore: ain, ...` — a mangled `[main, ...]`), so the file
+# could not have parsed as a push trigger anyway.
 
 permissions:
   contents: read
