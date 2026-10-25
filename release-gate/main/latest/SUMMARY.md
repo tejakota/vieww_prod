@@ -1,14 +1,14 @@
-# release-gate — CANCELLED
+# release-gate — FAILURE
 
-- branch: `main`  sha: `e8fc1f712e808f44364b6917e7a52f2f98285a4d`  event: push
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40204076196
+- branch: `main`  sha: `f0e7547cea355523b3de5c1c2017de4a432c0bf5`  event: push
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40204301835
 
 | job | verdict | failed steps |
 |---|---|---|
 | plan | PASS |  |
-| gate (windows-cpu) | CANCELLED |  |
+| gate (windows-cpu) | FAIL | Release gate |
 | merged checklist | PASS |  |
-| draft GitHub Release | CANCELLED |  |
+| draft GitHub Release | skipped |  |
 
 ## Steps
 
@@ -17,7 +17,7 @@
 - PASS: Run python3 - <<'PY' >> "$GITHUB_OUTPUT"
 - PASS: Complete job
 
-### gate (windows-cpu) — CANCELLED
+### gate (windows-cpu) — FAIL
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
 - PASS: Make disk space
@@ -25,21 +25,22 @@
 - PASS: cargo-deny
 - PASS: WiX (Windows installer)
 - PASS: JDK 17 (Android Gradle Plugin 8)
-- CANCELLED: Gradle 8.9 (a scaffolded project has no wrapper JAR)
-- skipped: cargo-ndk
+- PASS: Gradle 8.9 (a scaffolded project has no wrapper JAR)
+- PASS: cargo-ndk
 - skipped: MinGW-w64 (Windows .exe cross-build from Linux)
-- skipped: Android environment
+- PASS: Android environment
 - skipped: Vulkan loader + MoltenVK (macOS; stages skip if no device)
-- skipped: Release gate
+- FAIL: Release gate
 - PASS: Failures with logs
-- running: Screenshots
-- running: Upload screenshots
-- running: Checks only
-- running: Upload run folder
-- running: Upload installers
-- running: Post Gradle 8.9 (a scaffolded project has no wrapper JAR)
-- running: Post JDK 17 (Android Gradle Plugin 8)
-- running: Post Run actions/checkout@v4
+- PASS: Screenshots
+- PASS: Upload screenshots
+- skipped: Checks only
+- PASS: Upload run folder
+- PASS: Upload installers
+- PASS: Post Gradle 8.9 (a scaffolded project has no wrapper JAR)
+- PASS: Post JDK 17 (Android Gradle Plugin 8)
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
 
 ### merged checklist — PASS
 - PASS: Set up job
@@ -50,6 +51,6 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### draft GitHub Release — CANCELLED
+### draft GitHub Release — skipped
 
-- artifacts: 
+- artifacts: checklist-ci gate-windows-cpu screenshots-windows-cpu 

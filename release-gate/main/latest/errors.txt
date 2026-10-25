@@ -1,0 +1,39 @@
+-----
+gate (windows-cpu)	Release gate	2026-10-25T15:00:52.8627097Z gate: cleared old build trees: target=0.0GB free=218.3GB
+gate (windows-cpu)	Release gate	2026-10-25T15:00:53.0450621Z ==> G1.1 ci/vieww checks (fmt, clippy, check, docs, MSRV, tests, fixtures, packaging)
+gate (windows-cpu)	Release gate	2026-10-25T15:32:03.3375501Z     FAIL: G1.1 (see target/release-gate/windows-cpu/logs/G1.1.txt)
+gate (windows-cpu)	Release gate	2026-10-25T15:32:03.3726336Z       |   - formatting (exit 1)
+gate (windows-cpu)	Release gate	2026-10-25T15:32:03.3727163Z       |   - docs (workspace, broken intra-doc links are errors) (exit 101)
+gate (windows-cpu)	Release gate	2026-10-25T15:32:03.3729338Z       |   - tests (workspace) (exit 101)
+gate (windows-cpu)	Release gate	2026-10-25T15:32:03.3731721Z       |   - raster identity (every fixture byte-identical to the merge base with origin/main; builds BASE in its own worktree — slow) (exit 1)
+gate (windows-cpu)	Release gate	2026-10-25T15:32:03.5328776Z ==> G1.3 certification (cpu)
+gate (windows-cpu)	Release gate	2026-10-25T15:42:47.5192506Z     FAIL: G1.3 (see target/release-gate/windows-cpu/logs/G1.3.txt)
+gate (windows-cpu)	Release gate	2026-10-25T15:42:47.5557087Z       | desktop\suite                SKIPPED(VIEWW_CERT_NO_DESKTOP=1)
+gate (windows-cpu)	Release gate	2026-10-25T15:42:47.5559222Z       | gate\premium-overflows-zero  PASS
+gate (windows-cpu)	Release gate	2026-10-25T15:42:47.5559778Z       | gate\standard-passed         PASS
+gate (windows-cpu)	Release gate	2026-10-25T15:42:47.5560363Z       | gate\standard-allocations-measured PASS
+gate (windows-cpu)	Release gate	2026-10-25T15:42:50.5416175Z ==> G3.1 installers build (package.sh --installers) + bundle compiles a guest
+gate (windows-cpu)	Release gate	2026-10-25T15:52:55.9840599Z gate: disk after: target=0.8GB free=217.5GB, evidence 1.4M
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.0885283Z wrote target\release-gate\windows-cpu\CHECKLIST.md: 9 passed, 2 failed, 164 open
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.0955616Z 
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1612042Z PRE.1  at least 15 GB free for target/                                               PASS(218 GB free)                                    host.txt
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1613647Z G1.1   ci/vieww checks (fmt, clippy, check, docs, MSRV, tests, fixtures, packaging)  FAIL(exit=1)                                         logs/G1.1.txt
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1614903Z G1.3   certification (cpu)                                                           FAIL(exit=1)                                         logs/G1.3.txt
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1615735Z G1.4   GPU device class                                                              SKIPPED(CPU-only run requested)                      cert/quality/stages.txt
+-----
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1617879Z G1.6   GPU census: every fixture plans complete                                      NOT RUN                                              cert/quality/stages.txt
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1618691Z G1.7   CPU renderer: premium UI, fixtures                                            PASS                                                 cert/quality/stages.txt
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1619487Z G1.8   animation stress p95 within budget                                            PASS                                                 cert/quality/stages.txt
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1620286Z G1.9   Vieww Standard (12 clauses, measured)                                         PASS                                                 cert/quality/stages.txt
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1621095Z G1.10  desktop suite (real windows)                                                  SKIPPED(VIEWW_CERT_NO_DESKTOP=1)                     cert/quality/stages.txt
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1621886Z G1.11  D3D12 backend                                                                 N/A(BUILD-ONLY: no ScenePlan executor; not claimed)  
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1622582Z G1.12  Metal backend                                                                 N/A(BUILD-ONLY: no ScenePlan executor; not claimed)  
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1623522Z G3.1   installers build (package.sh --installers) + bundle compiles a guest          PASS                                                 logs/G3.1.txt
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1624373Z G8.1   SHA256SUMS generated for every artifact                                       PASS                                                 package/SHA256SUMS
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1625191Z G8.2   toolchain + source recorded with the artifacts                                PASS                                                 package/MANIFEST.txt
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1625995Z G8.7   SBOM (CycloneDX) for the shipped binary                                       PASS                                                 package/viewwstudio.cdx.json
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1731498Z 
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1732357Z AUTOMATED VERDICT: FAIL
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1735203Z checklist: target/release-gate/windows-cpu/CHECKLIST.md
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1735745Z evidence:  target/release-gate/windows-cpu
+gate (windows-cpu)	Release gate	2026-10-25T15:52:56.1795167Z ##[error]Process completed with exit code 1.

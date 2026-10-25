@@ -1,0 +1,35 @@
+>>> cargo clippy --keep-going -p vieww-gpu -p vieww-hal -p vieww-render-planner -p vieww-shaders -p vieww-paint -p vieww-render -p vieww-element --all-targets --features vieww-hal/vulkan -- -D warnings
+    Checking bytemuck v1.25.2
+   Compiling num-traits v0.2.19
+   Compiling thiserror-impl v2.0.21
+    Checking font-types v0.12.5
+    Checking font-types v0.11.3
+    Checking read-fonts v0.37.0
+    Checking read-fonts v0.41.0
+    Checking euclid v0.22.14
+    Checking lyon_geom v1.0.19
+    Checking lyon_path v1.0.19
+    Checking half v2.7.1
+    Checking lyon_tessellation v1.0.22
+    Checking skrifa v0.40.0
+    Checking skrifa v0.44.0
+    Checking harfrust v0.5.2
+    Checking swash v0.2.10
+    Checking vieww-paint v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-paint)
+   Compiling thiserror v2.0.21
+   Compiling naga-types v30.0.1
+   Compiling naga v30.0.1
+    Checking vieww-gpu v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-gpu)
+    Checking vieww-scene v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-scene)
+    Checking vieww-render-graph v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-render-graph)
+    Checking vieww-render-planner v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-render-planner)
+    Checking cosmic-text v0.19.0
+    Checking vieww-text v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-text)
+    Checking vieww-widget v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-widget)
+    Checking vieww-element v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-element)
+    Checking vieww-render v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-render)
+   Compiling vieww-shaders v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-shaders)
+    Checking vieww-hal v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-hal)
+    Finished `dev` profile [unoptimized] target(s) in 43.71s
+exit=0
+seconds=44
