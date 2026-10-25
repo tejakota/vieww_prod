@@ -1,7 +1,7 @@
 # release-gate — CANCELLED
 
-- branch: `main`  sha: `e78b6c60138f2c714dc947c9b474ad9bf6ce054d`  event: push
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40171350142
+- branch: `main`  sha: `a7e05b42a52c913d1c97985e35fef9f287c3ad24`  event: push
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40171386311
 
 | job | verdict | failed steps |
 |---|---|---|
