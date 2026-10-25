@@ -2,7 +2,7 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
-| 2026-10-25T07:09:14Z | goldens/main | CANCELLED | `b7ef102b3b32` | [summary](goldens/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40171311342) |
+| 2026-10-25T07:17:11Z | goldens/main | SUCCESS | `e8f9da976cb8` | [summary](goldens/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40171670535) |
 | 2026-10-25T07:08:57Z | release-gate/main | CANCELLED | `eb8c9ae37b49` | [summary](release-gate/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40171200935) |
 | 2026-10-25T00:36:49Z | publish/main | FAILURE | `e37c4ca20691` | [summary](publish/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40147123840) |
 | 2026-10-25T00:29:04Z | supply-chain/main | SUCCESS | `e37c4ca20691` | [summary](supply-chain/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40146382067) |
