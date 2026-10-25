@@ -1,0 +1,155 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:4f44d879-9237-52b1-a4c3-fdb25bf0addd",
+  "version": 1,
+  "metadata": {
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "name": "vieww ci/release/sbom.py"
+        }
+      ]
+    },
+    "timestamp": "2026-10-24T12:51:43Z"
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/wright@1.0.2?local=true",
+      "name": "wright",
+      "version": "1.0.2",
+      "purl": "pkg:cargo/wright@1.0.2?local=true",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/wright-agents@1.0.2?local=true",
+      "name": "wright-agents",
+      "version": "1.0.2",
+      "purl": "pkg:cargo/wright-agents@1.0.2?local=true",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/wright-core@1.0.2?local=true",
+      "name": "wright-core",
+      "version": "1.0.2",
+      "purl": "pkg:cargo/wright-core@1.0.2?local=true",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/wright-engine@1.0.2?local=true",
+      "name": "wright-engine",
+      "version": "1.0.2",
+      "purl": "pkg:cargo/wright-engine@1.0.2?local=true",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/wright-infer@1.0.2?local=true",
+      "name": "wright-infer",
+      "version": "1.0.2",
+      "purl": "pkg:cargo/wright-infer@1.0.2?local=true",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/wright-runtime@1.0.2?local=true",
+      "name": "wright-runtime",
+      "version": "1.0.2",
+      "purl": "pkg:cargo/wright-runtime@1.0.2?local=true",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:cargo/wright-tools@1.0.2?local=true",
+      "name": "wright-tools",
+      "version": "1.0.2",
+      "purl": "pkg:cargo/wright-tools@1.0.2?local=true",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:cargo/wright-agents@1.0.2?local=true",
+      "dependsOn": [
+        "pkg:cargo/wright-core@1.0.2?local=true"
+      ]
+    },
+    {
+      "ref": "pkg:cargo/wright@1.0.2?local=true",
+      "dependsOn": [
+        "pkg:cargo/wright-agents@1.0.2?local=true",
+        "pkg:cargo/wright-core@1.0.2?local=true",
+        "pkg:cargo/wright-engine@1.0.2?local=true",
+        "pkg:cargo/wright-infer@1.0.2?local=true",
+        "pkg:cargo/wright-runtime@1.0.2?local=true",
+        "pkg:cargo/wright-tools@1.0.2?local=true"
+      ]
+    },
+    {
+      "ref": "pkg:cargo/wright-core@1.0.2?local=true",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:cargo/wright-engine@1.0.2?local=true",
+      "dependsOn": [
+        "pkg:cargo/wright-agents@1.0.2?local=true",
+        "pkg:cargo/wright-core@1.0.2?local=true",
+        "pkg:cargo/wright-runtime@1.0.2?local=true",
+        "pkg:cargo/wright-tools@1.0.2?local=true"
+      ]
+    },
+    {
+      "ref": "pkg:cargo/wright-infer@1.0.2?local=true",
+      "dependsOn": [
+        "pkg:cargo/wright-core@1.0.2?local=true",
+        "pkg:cargo/wright-runtime@1.0.2?local=true"
+      ]
+    },
+    {
+      "ref": "pkg:cargo/wright-runtime@1.0.2?local=true",
+      "dependsOn": [
+        "pkg:cargo/wright-core@1.0.2?local=true"
+      ]
+    },
+    {
+      "ref": "pkg:cargo/wright-tools@1.0.2?local=true",
+      "dependsOn": [
+        "pkg:cargo/wright-core@1.0.2?local=true",
+        "pkg:cargo/wright-runtime@1.0.2?local=true"
+      ]
+    }
+  ]
+}
