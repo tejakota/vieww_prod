@@ -1,0 +1,73 @@
+===== scaffold-external	vieww new, outside the checkout =====
+﻿2026-10-25T00:33:51.1460609Z ##[group]Run cargo build --release --locked -p vieww-cli
+2026-10-25T00:33:51.1461071Z ^[[36;1mcargo build --release --locked -p vieww-cli^[[0m
+2026-10-25T00:33:51.1461406Z ^[[36;1mcli="$PWD/target/release/vieww"^[[0m
+2026-10-25T00:33:51.1461675Z ^[[36;1msrc="$PWD"^[[0m
+2026-10-25T00:33:51.1461981Z ^[[36;1mmkdir -p "$RUNNER_TEMP/outside" && cd "$RUNNER_TEMP/outside"^[[0m
+2026-10-25T00:33:51.1462382Z ^[[36;1mVIEWW_SCAFFOLD_FROM=registry "$cli" new demo^[[0m
+2026-10-25T00:33:51.1462675Z ^[[36;1mcd demo^[[0m
+2026-10-25T00:33:51.1462900Z ^[[36;1mif grep -n 'path *=' Cargo.toml; then^[[0m
+2026-10-25T00:33:51.1463502Z ^[[36;1m  echo "scaffold wrote a path dependency outside the checkout" >&2; exit 1^[[0m
+2026-10-25T00:33:51.1463900Z ^[[36;1mfi^[[0m
+2026-10-25T00:33:51.1464135Z ^[[36;1mgrep -nE '^vieww[a-z-]* *= *"' Cargo.toml^[[0m
+2026-10-25T00:33:51.1464560Z ^[[36;1m# Resolve the version dependency against these sources, exactly as^[[0m
+2026-10-25T00:33:51.1465002Z ^[[36;1m# crates.io would serve them after `cargo publish`.^[[0m
+2026-10-25T00:33:51.1465352Z ^[[36;1m{^[[0m
+2026-10-25T00:33:51.1465537Z ^[[36;1m  echo^[[0m
+2026-10-25T00:33:51.1465754Z ^[[36;1m  echo "[patch.crates-io]"^[[0m
+2026-10-25T00:33:51.1466559Z ^[[36;1m  grep -v '^#' "$src/ci/release/publish-order.txt" | while read -r c; do^[[0m
+2026-10-25T00:33:51.1467238Z ^[[36;1m    echo "$c = { path = \"$src/crates/$c\" }"^[[0m
+2026-10-25T00:33:51.1467723Z ^[[36;1m  done^[[0m
+2026-10-25T00:33:51.1468031Z ^[[36;1m} >> Cargo.toml^[[0m
+2026-10-25T00:33:51.1468253Z ^[[36;1mcargo build^[[0m
+2026-10-25T00:33:51.1530890Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-25T00:33:51.1531253Z env:
+2026-10-25T00:33:51.1531450Z   CACHE_ON_FAILURE: false
+2026-10-25T00:33:51.1531696Z   CARGO_INCREMENTAL: 0
+2026-10-25T00:33:51.1531914Z ##[endgroup]
+2026-10-25T00:33:51.2726597Z     Updating crates.io index
+2026-10-25T00:33:51.8723935Z  Downloading crates ...
+2026-10-25T00:33:51.9123882Z   Downloaded heck v0.5.0
+2026-10-25T00:33:51.9184580Z   Downloaded utf8parse v0.2.2
+2026-10-25T00:33:51.9194687Z   Downloaded anstyle-parse v1.0.0
+2026-10-25T00:33:51.9212568Z   Downloaded anstyle-query v1.1.5
+2026-10-25T00:33:51.9224318Z   Downloaded is_terminal_polyfill v1.70.2
+2026-10-25T00:33:51.9233731Z   Downloaded clap_lex v1.1.1
+2026-10-25T00:33:51.9245240Z   Downloaded colorchoice v1.0.5
+2026-10-25T00:33:51.9254507Z   Downloaded strsim v0.11.1
+2026-10-25T00:33:51.9267867Z   Downloaded anstream v1.0.0
+2026-10-25T00:33:51.9287894Z   Downloaded anstyle v1.0.14
+2026-10-25T00:33:51.9302401Z   Downloaded quote v1.0.47
+2026-10-25T00:33:51.9330050Z   Downloaded clap_derive v4.6.7
+2026-10-25T00:33:51.9352194Z   Downloaded unicode-ident v1.0.26
+2026-10-25T00:33:51.9380274Z   Downloaded proc-macro2 v1.0.107
+2026-10-25T00:33:51.9410038Z   Downloaded clap v4.6.7
+2026-10-25T00:33:51.9508758Z   Downloaded syn v3.0.6
+2026-10-25T00:33:51.9618420Z   Downloaded unicode-segmentation v1.13.3
+2026-10-25T00:33:51.9647964Z   Downloaded clap_builder v4.6.7
+2026-10-25T00:33:51.9864534Z    Compiling proc-macro2 v1.0.107
+2026-10-25T00:33:51.9865263Z    Compiling unicode-ident v1.0.26
+2026-10-25T00:33:51.9866844Z    Compiling quote v1.0.47
+2026-10-25T00:33:51.9867411Z    Compiling utf8parse v0.2.2
+2026-10-25T00:33:52.0405768Z    Compiling anstyle-parse v1.0.0
+2026-10-25T00:33:52.0506904Z    Compiling anstyle v1.0.14
+2026-10-25T00:33:52.1458986Z    Compiling anstyle-query v1.1.5
+2026-10-25T00:33:52.1791393Z    Compiling colorchoice v1.0.5
+2026-10-25T00:33:52.2106494Z    Compiling is_terminal_polyfill v1.70.2
+2026-10-25T00:33:52.2128014Z    Compiling heck v0.5.0
+2026-10-25T00:33:52.2375707Z    Compiling anstream v1.0.0
+2026-10-25T00:33:52.3006739Z    Compiling clap_lex v1.1.1
+2026-10-25T00:33:52.5237455Z    Compiling unicode-segmentation v1.13.3
+2026-10-25T00:33:52.5385574Z    Compiling strsim v0.11.1
+2026-10-25T00:33:52.5627899Z    Compiling vieww-hardware v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
+2026-10-25T00:33:53.1437300Z    Compiling vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-10-25T00:33:53.2525795Z    Compiling syn v3.0.6
+2026-10-25T00:33:53.2627293Z    Compiling clap_builder v4.6.7
+2026-10-25T00:33:55.3815772Z    Compiling vieww-build v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-build)
+2026-10-25T00:33:55.4167628Z    Compiling clap_derive v4.6.7
+2026-10-25T00:33:56.6961736Z    Compiling clap v4.6.7
+2026-10-25T00:34:01.3961410Z    Compiling vieww-cli v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-cli)
+2026-10-25T00:34:02.4290172Z     Finished `release` profile [optimized + debuginfo] target(s) in 11.24s
+2026-10-25T00:34:02.5035083Z /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/release/vieww: error while loading shared libraries: libstd-64f5f36fb0927694.so: cannot open shared object file: No such file or directory
+2026-10-25T00:34:02.5050812Z ##[error]Process completed with exit code 127.
+
