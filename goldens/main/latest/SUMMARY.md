@@ -1,7 +1,7 @@
 # goldens — CANCELLED
 
-- branch: `main`  sha: `eb8c9ae37b497d34be09a48989429a4f9c7d30d1`  event: push
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40171200913
+- branch: `main`  sha: `b7ef102b3b328dd3db73970ef7b5944ad8758f3a`  event: push
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40171311342
 
 | job | verdict | failed steps |
 |---|---|---|
