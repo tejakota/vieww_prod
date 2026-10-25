@@ -1,0 +1,142 @@
+>>> cargo test -p vieww-hal --features vulkan -- --ignored --test-threads=1
+[1m[92m   Compiling[0m bytemuck v1.25.2
+[1m[92m   Compiling[0m core_maths v0.1.1
+[1m[92m   Compiling[0m simd-adler32 v0.3.10
+[1m[92m   Compiling[0m adler2 v2.0.1
+[1m[92m   Compiling[0m num-traits v0.2.19
+[1m[92m   Compiling[0m font-types v0.12.5
+[1m[92m   Compiling[0m ttf-parser v0.25.1
+[1m[92m   Compiling[0m read-fonts v0.41.0
+[1m[92m   Compiling[0m unicode-segmentation v1.13.3
+[1m[92m   Compiling[0m euclid v0.22.14
+[1m[92m   Compiling[0m font-types v0.11.3
+[1m[92m   Compiling[0m crc32fast v1.5.2
+[1m[92m   Compiling[0m miniz_oxide v0.9.1
+[1m[92m   Compiling[0m arrayvec v0.7.8
+[1m[92m   Compiling[0m lyon_geom v1.0.19
+[1m[92m   Compiling[0m flate2 v1.1.10
+[1m[92m   Compiling[0m read-fonts v0.37.0
+[1m[92m   Compiling[0m libc v0.2.189
+[1m[92m   Compiling[0m vieww-foundation v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+[1m[92m   Compiling[0m skrifa v0.44.0
+[1m[92m   Compiling[0m miniz_oxide v0.8.9
+[1m[92m   Compiling[0m fdeflate v0.3.7
+[1m[92m   Compiling[0m png v0.18.1
+[1m[92m   Compiling[0m memmap2 v0.9.11
+[1m[92m   Compiling[0m slotmap v1.1.1
+[1m[92m   Compiling[0m lyon_path v1.0.19
+[1m[92m   Compiling[0m zeno v0.3.3
+[1m[92m   Compiling[0m yazi v0.2.1
+[1m[92m   Compiling[0m tinyvec v1.13.3
+[1m[92m   Compiling[0m smallvec v1.16.2
+[1m[92m   Compiling[0m float_next_after v1.0.0
+[1m[92m   Compiling[0m lyon_tessellation v1.0.22
+[1m[92m   Compiling[0m harfrust v0.5.2
+[1m[92m   Compiling[0m fontdb v0.23.0
+[1m[92m   Compiling[0m swash v0.2.10
+[1m[92m   Compiling[0m vieww-paint v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+[1m[92m   Compiling[0m skrifa v0.40.0
+[1m[92m   Compiling[0m libloading v0.8.9
+[1m[92m   Compiling[0m sys-locale v0.3.2
+[1m[92m   Compiling[0m linebender_resource_handle v0.1.1
+[1m[92m   Compiling[0m smol_str v0.3.6
+[1m[92m   Compiling[0m unicode-bidi v0.3.18
+[1m[92m   Compiling[0m rustc-hash v2.1.3
+[1m[92m   Compiling[0m unicode-script v0.5.8
+[1m[92m   Compiling[0m self_cell v1.3.0
+[1m[92m   Compiling[0m rangemap v1.8.0
+[1m[92m   Compiling[0m unicode-linebreak v0.1.5
+[1m[92m   Compiling[0m cosmic-text v0.19.0
+[1m[92m   Compiling[0m ash v0.38.0+1.3.281
+[1m[92m   Compiling[0m vieww-gpu v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+[1m[92m   Compiling[0m vieww-shaders v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+[1m[92m   Compiling[0m vieww-text v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+[1m[92m   Compiling[0m vieww-hal v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+[1m[92m    Finished[0m `test` profile [unoptimized] target(s) in 1m 00s
+[1m[92m     Running[0m unittests src/lib.rs (target/debug/deps/vieww_hal-74deed2ee3cf0e1f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 28 filtered out; finished in 0.00s
+
+[1m[92m     Running[0m tests/d3d12_scene.rs (target/debug/deps/d3d12_scene-5317a027683928c1)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+[1m[92m     Running[0m tests/d3d12_smoke.rs (target/debug/deps/d3d12_smoke-6d2f9f84f1b1b257)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+[1m[92m     Running[0m tests/metal_scene.rs (target/debug/deps/metal_scene-007f5398b289c7ba)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+[1m[92m     Running[0m tests/metal_smoke.rs (target/debug/deps/metal_smoke-5574173b94b76dac)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+[1m[92m     Running[0m tests/vulkan_compositor.rs (target/debug/deps/vulkan_compositor-0b4c8880245ac937)
+
+running 17 tests
+test a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp ... ok
+test a_blurred_layer_matches_the_three_box_blur ... ok
+test a_colour_matrix_layer_matches ... ok
+test a_dashed_stroke_under_a_scale_matches_width_and_pattern ... ok
+test a_renderer_shared_between_planners_never_draws_a_stale_atlas ... ok
+test a_shadow_inside_a_translucent_layer_matches ... ok
+test a_steady_frame_uploads_nothing_new_and_reuses_every_target ... ok
+test a_transparent_clear_reads_back_straight_alpha_like_the_cpu ... ok
+test all_twenty_eight_blend_modes_match ... ok
+test every_shadow_variant_matches ... ok
+test group_opacity_composites_the_group_not_each_child ... ok
+test images_magnified_rotated_and_minified_match ... ok
+test linear_radial_and_sweep_gradients_match_per_pixel ... ok
+test nested_layers_with_mixed_effects_match ... ok
+test overlapping_subpaths_fill_under_non_zero_winding ... ok
+test shaped_clips_on_draws_and_on_layers_match ... ok
+test sharp_miter_joins_reach_as_far_as_the_cpu_allows ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.66s
+
+[1m[92m     Running[0m tests/vulkan_compute.rs (target/debug/deps/vulkan_compute-acdc70bc7c6cfb08)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+[1m[92m     Running[0m tests/vulkan_damage.rs (target/debug/deps/vulkan_damage-8300351f6e406bee)
+
+running 7 tests
+test a_backdrop_filter_inside_the_damage_keeps_it ... ok
+test a_backdrop_filter_reaching_outside_the_damage_redraws_everything ... ok
+test a_damaged_frame_is_the_full_frame_through_blurs_shadows_and_blends ... ok
+test a_new_clear_colour_or_size_redraws_everything ... ok
+test gpu_time_is_split_by_the_kind_of_work_that_spent_it ... FAILED
+test overlapping_damage_rectangles_draw_each_pixel_once ... ok
+test pixels_outside_the_damage_are_last_frames ... ok
+
+failures:
+
+---- gpu_time_is_split_by_the_kind_of_work_that_spent_it stdout ----
+
+thread 'gpu_time_is_split_by_the_kind_of_work_that_spent_it' (43531) panicked at crates/vieww-hal/tests/vulkan_damage.rs:436:5:
+GpuPassTimes { draw: 0ns, layers: 0ns, filters: 0ns, shadows: 0ns, blit: 0ns }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    gpu_time_is_split_by_the_kind_of_work_that_spent_it
+
+test result: FAILED. 6 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.24s
+
+[1m[91merror[0m: test failed, to rerun pass `-p vieww-hal --test vulkan_damage`
+exit=101
+seconds=72

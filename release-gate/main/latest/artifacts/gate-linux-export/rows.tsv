@@ -1,0 +1,6 @@
+PRE.1	at least 15 GB free for target/	PASS(95 GB free)	host.txt
+G2.7	scaffolded Rust + Say projects compile for every target	PASS	export/results.txt
+G2.8	Studio export: desktop binary	PASS	export/results.txt
+G2.9	Studio export: Windows .exe	PASS	export/results.txt
+G2.10	Studio export: Android .apk (cargo-ndk + Gradle)	PASS	export/results.txt
+G2.11	Studio export: iOS simulator .app	N/A(macOS only — Apple's toolchain)	

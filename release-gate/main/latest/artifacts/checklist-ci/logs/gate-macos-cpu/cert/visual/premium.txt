@@ -1,0 +1,18 @@
+>>> cargo run --release -p test-premium-ui -- target/release-gate/macos-cpu/cert/visual/premium
+[1m[92m   Compiling[0m num-traits v0.2.19
+[1m[92m   Compiling[0m moxcms v0.8.1
+[1m[92m   Compiling[0m image v0.25.10
+[1m[92m   Compiling[0m vieww-asset v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
+[1m[92m   Compiling[0m vieww v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
+[1m[92m   Compiling[0m test-premium-ui v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-premium-ui)
+[1m[92m    Finished[0m `release` profile [optimized] target(s) in 25.74s
+[1m[92m     Running[0m `target/release/test-premium-ui target/release-gate/macos-cpu/cert/visual/premium`
+Vieww premium visual integration test
+  frames:      56
+  moving:      55/55
+  render mean: 56.70 ms
+  render worst: 71.69 ms
+  overflows:   0
+  gif:         target/release-gate/macos-cpu/cert/visual/premium/test-premium-ui.gif
+exit=0
+seconds=33

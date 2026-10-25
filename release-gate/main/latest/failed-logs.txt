@@ -1,0 +1,906 @@
+===== gate (macos-gpu)	UNKNOWN STEP =====
+2026-10-24T12:54:24.8208290Z ^[[34m==>^[[0m ^[[1mWould install 6 dependencies for vulkan-tools:^[[0m
+2026-10-24T12:54:24.8209230Z spirv-headers   1.4.363.0
+2026-10-24T12:54:24.8209830Z spirv-tools     1.4.363.0
+2026-10-24T12:54:24.8210330Z glslang         16.6.0
+2026-10-24T12:54:24.8210850Z vulkan-headers  1.4.363.0
+2026-10-24T12:54:24.8211530Z vulkan-loader   1.4.363.0
+2026-10-24T12:54:24.8212670Z molten-vk       1.4.2
+2026-10-24T12:54:24.8869150Z ^[[32m==>^[[0m ^[[1mFetching downloads for: ^[[32mmolten-vk^[[39m, ^[[32mvulkan-loader^[[39m and ^[[32mvulkan-tools^[[39m^[[0m
+2026-10-24T12:54:25.4246840Z ✔︎ Bottle Manifest vulkan-headers (1.4.363.0)
+2026-10-24T12:54:25.4348820Z ✔︎ Bottle Manifest spirv-headers (1.4.363.0)
+2026-10-24T12:54:25.4990480Z ✔︎ Bottle Manifest spirv-tools (1.4.363.0)
+2026-10-24T12:54:25.5094530Z ✔︎ Bottle Manifest glslang (16.6.0)
+2026-10-24T12:54:27.9798910Z ✔︎ Bottle vulkan-loader (1.4.363.0)
+2026-10-24T12:54:28.4245380Z ✔︎ Bottle vulkan-headers (1.4.363.0)
+2026-10-24T12:54:28.4454660Z ✔︎ Bottle spirv-tools (1.4.363.0)
+2026-10-24T12:54:28.4556190Z ✔︎ Bottle spirv-headers (1.4.363.0)
+2026-10-24T12:54:28.4657050Z ✔︎ Bottle vulkan-tools (1.4.363.0)
+2026-10-24T12:54:28.5766220Z ✔︎ Bottle glslang (16.6.0)
+2026-10-24T12:54:29.7210910Z ✔︎ Bottle molten-vk (1.4.2)
+2026-10-24T12:54:29.7278290Z ^[[34m==>^[[0m ^[[1mPouring molten-vk--1.4.2.arm64_tahoe.bottle.tar.gz^[[0m
+2026-10-24T12:54:31.4056170Z 🍺  /opt/homebrew/Cellar/molten-vk/1.4.2: 84 files, 86.8MB
+2026-10-24T12:54:31.4092970Z ^[[32m==>^[[0m ^[[1mInstalling vulkan-loader dependency: ^[[32mvulkan-headers^[[39m (1.4.363.0)^[[0m
+2026-10-24T12:54:31.4117690Z ^[[34m==>^[[0m ^[[1mPouring vulkan-headers--1.4.363.0.arm64_tahoe.bottle.tar.gz^[[0m
+2026-10-24T12:54:33.1235870Z 🍺  /opt/homebrew/Cellar/vulkan-headers/1.4.363.0: 72 files, 42.4MB
+2026-10-24T12:54:33.1237720Z ^[[32m==>^[[0m ^[[1mInstalling ^[[32mvulkan-loader^[[39m^[[0m
+2026-10-24T12:54:33.1242040Z ^[[34m==>^[[0m ^[[1mPouring vulkan-loader--1.4.363.0.arm64_tahoe.bottle.tar.gz^[[0m
+2026-10-24T12:54:34.5531830Z 🍺  /opt/homebrew/Cellar/vulkan-loader/1.4.363.0: 15 files, 1.4MB
+2026-10-24T12:54:34.5761720Z ^[[32m==>^[[0m ^[[1mInstalling dependencies for vulkan-tools:^[[0m ^[[32mspirv-headers^[[39m, ^[[32mspirv-tools^[[39m and ^[[32mglslang^[[39m^[[0m
+2026-10-24T12:54:34.5762790Z ^[[32m==>^[[0m ^[[1mInstalling vulkan-tools dependency: ^[[32mspirv-headers^[[39m (1.4.363.0)^[[0m
+2026-10-24T12:54:34.5780580Z ^[[34m==>^[[0m ^[[1mPouring spirv-headers--1.4.363.0.all.bottle.tar.gz^[[0m
+2026-10-24T12:54:35.2328220Z 🍺  /opt/homebrew/Cellar/spirv-headers/1.4.363.0: 98 files, 3.8MB
+2026-10-24T12:54:35.2338960Z ^[[32m==>^[[0m ^[[1mInstalling vulkan-tools dependency: ^[[32mspirv-tools^[[39m (1.4.363.0)^[[0m
+2026-10-24T12:54:35.2404780Z ^[[34m==>^[[0m ^[[1mPouring spirv-tools--1.4.363.0.arm64_tahoe.bottle.tar.gz^[[0m
+2026-10-24T12:54:36.7857790Z 🍺  /opt/homebrew/Cellar/spirv-tools/1.4.363.0: 52 files, 10.2MB
+2026-10-24T12:54:36.7861260Z ^[[32m==>^[[0m ^[[1mInstalling vulkan-tools dependency: ^[[32mglslang^[[39m (16.6.0)^[[0m
+2026-10-24T12:54:36.8185670Z ^[[34m==>^[[0m ^[[1mPouring glslang--16.6.0.arm64_tahoe.bottle.tar.gz^[[0m
+2026-10-24T12:54:38.1774170Z 🍺  /opt/homebrew/Cellar/glslang/16.6.0: 36 files, 3.2MB
+2026-10-24T12:54:38.1776980Z ^[[32m==>^[[0m ^[[1mInstalling ^[[32mvulkan-tools^[[39m^[[0m
+2026-10-24T12:54:38.1779090Z ^[[34m==>^[[0m ^[[1mPouring vulkan-tools--1.4.363.0.arm64_tahoe.bottle.tar.gz^[[0m
+2026-10-24T12:54:39.3886920Z 🍺  /opt/homebrew/Cellar/vulkan-tools/1.4.363.0: 32 files, 4.3MB
+2026-10-24T12:54:39.3894180Z ^[[32m==>^[[0m ^[[1mCaveats^[[0m
+2026-10-24T12:54:39.3895210Z ^[[34m==>^[[0m ^[[1mvulkan-tools^[[0m
+2026-10-24T12:54:39.3896080Z The mock ICD files have been installed in
+2026-10-24T12:54:39.3897820Z   /opt/homebrew/opt/vulkan-tools/lib/mock_icd
+2026-10-24T12:54:39.3898980Z You can use them with the Vulkan Loader by setting
+2026-10-24T12:54:39.3900370Z   export VK_ICD_FILENAMES=/opt/homebrew/opt/vulkan-tools/lib/mock_icd/VkICD_mock_icd.json
+2026-10-24T12:54:39.4107110Z ##[group]Run args=(--mode "gpu" --out "target/release-gate/macos-gpu")
+2026-10-24T12:54:39.4107810Z ^[[36;1margs=(--mode "gpu" --out "target/release-gate/macos-gpu")^[[0m
+2026-10-24T12:54:39.4108310Z ^[[36;1m[[ "$PACKAGE" == true ]] || args+=(--skip-package)^[[0m
+2026-10-24T12:54:39.4108660Z ^[[36;1mif [[ -n "$ONLY" ]]; then^[[0m
+2026-10-24T12:54:39.4108980Z ^[[36;1m  echo "rerunning only: $ONLY"^[[0m
+2026-10-24T12:54:39.4109270Z ^[[36;1m  args+=(--only "$ONLY")^[[0m
+2026-10-24T12:54:39.4109510Z ^[[36;1m  [[ ",$ONLY," == *",G3.1,"* ]] || args+=(--skip-package)^[[0m
+2026-10-24T12:54:39.4109820Z ^[[36;1mfi^[[0m
+2026-10-24T12:54:39.4110040Z ^[[36;1mbash ci/vieww gate "${args[@]}"^[[0m
+2026-10-24T12:54:39.4151950Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-24T12:54:39.4152370Z env:
+2026-10-24T12:54:39.4152690Z   CARGO_TERM_COLOR: always
+2026-10-24T12:54:39.4152980Z   VIEWW_CERT_NO_DESKTOP: 1
+2026-10-24T12:54:39.4153270Z   VIEWW_VK_DEVICE: 
+2026-10-24T12:54:39.4153600Z   VIEWW_TIMINGS_ADVISORY: 1
+2026-10-24T12:54:39.4153920Z   VIEWW_EXPORT_INSTALL_TARGETS: 1
+2026-10-24T12:54:39.4154160Z   SCOPE: gate
+2026-10-24T12:54:39.4155730Z   PACKAGE: false
+2026-10-24T12:54:39.4156310Z   ONLY: 
+2026-10-24T12:54:39.4156560Z   APPLE_DEVELOPER_ID_P12: 
+2026-10-24T12:54:39.4156800Z   APPLE_P12_PASSWORD: 
+2026-10-24T12:54:39.4157140Z   APPLE_SIGNING_IDENTITY: 
+2026-10-24T12:54:39.4157410Z   APPLE_NOTARY_KEY: 
+2026-10-24T12:54:39.4157860Z   APPLE_NOTARY_KEY_ID: 
+2026-10-24T12:54:39.4158180Z   APPLE_NOTARY_ISSUER: 
+2026-10-24T12:54:39.4158430Z   WINDOWS_CERT_PFX: 
+2026-10-24T12:54:39.4158770Z   WINDOWS_CERT_PASSWORD: 
+2026-10-24T12:54:39.4159000Z ##[endgroup]
+2026-10-24T12:54:41.2989860Z gate: disk before: target=0.0GB free=100.4GB
+2026-10-24T12:54:41.3366440Z gate: cleared old build trees: target=0.0GB free=100.4GB
+2026-10-24T12:54:41.4054840Z ==> G1.3 certification (gpu)
+2026-10-24T13:00:47.0627920Z     FAIL: G1.3 (see target/release-gate/macos-gpu/logs/G1.3.txt)
+2026-10-24T13:00:47.0657940Z       | desktop/suite                SKIPPED(VIEWW_CERT_NO_DESKTOP=1)
+2026-10-24T13:00:47.0659380Z       | gate/gpu-unsupported-zero    PASS
+2026-10-24T13:00:47.0659820Z       | gate/census-all-complete     PASS
+2026-10-24T13:00:47.0660380Z       | gate/census-no-flat-region-mismatch PASS
+2026-10-24T13:00:47.4808710Z gate: disk after: target=0.0GB free=100.9GB, evidence 100K
+2026-10-24T13:00:47.6746100Z wrote target/release-gate/macos-gpu/CHECKLIST.md: 4 passed, 2 failed, 169 open
+2026-10-24T13:00:47.6781720Z 
+2026-10-24T13:00:47.6827230Z PRE.1  at least 10 GB free for target/             PASS(100 GB free)                                                                  host.txt
+2026-10-24T13:00:47.6829960Z G0.3   rustc matches rust-toolchain.toml (1.98.1)  PASS                                                                               host.txt
+2026-10-24T13:00:47.6831450Z G1.3   certification (gpu)                         FAIL(exit=1)                                                                       logs/G1.3.txt
+2026-10-24T13:00:47.6833330Z G1.4   GPU device class                            PASS(virtual GPU: Apple Paravirtual device; pixels are evidence, timings are not)  cert/quality/stages.txt
+2026-10-24T13:00:47.6834490Z G1.5   Vulkan compositor pixel parity (17 tests)   FAIL(exit=101)                                                                     cert/quality/stages.txt
+2026-10-24T13:00:47.6836190Z G1.6   GPU census: every fixture plans complete    PASS                                                                               cert/quality/stages.txt
+2026-10-24T13:00:47.6837040Z G1.10  desktop suite (real windows)                SKIPPED(VIEWW_CERT_NO_DESKTOP=1)                                                   cert/quality/stages.txt
+2026-10-24T13:00:47.6839260Z G1.11  D3D12 backend                               N/A(BUILD-ONLY: no ScenePlan executor; not claimed)
+2026-10-24T13:00:47.6840000Z G1.12  Metal backend                               N/A(BUILD-ONLY: no ScenePlan executor; not claimed)
+2026-10-24T13:00:47.6841740Z 
+2026-10-24T13:00:47.6842120Z AUTOMATED VERDICT: FAIL
+2026-10-24T13:00:47.6842480Z checklist: target/release-gate/macos-gpu/CHECKLIST.md
+2026-10-24T13:00:47.6843030Z evidence:  target/release-gate/macos-gpu
+2026-10-24T13:00:47.6864900Z ##[error]Process completed with exit code 1.
+2026-10-24T13:00:47.6980210Z ##[group]Run run="target/release-gate/macos-gpu"
+2026-10-24T13:00:47.6980650Z ^[[36;1mrun="target/release-gate/macos-gpu"^[[0m
+2026-10-24T13:00:47.6981030Z ^[[36;1m[[ -f "$run/rows.tsv" ]] || { echo "no run folder"; exit 0; }^[[0m
+2026-10-24T13:00:47.6981390Z ^[[36;1mpy=$(command -v python3 || command -v python)^[[0m
+2026-10-24T13:00:47.6981810Z ^[[36;1m"$py" ci/release/report-failures.py "$run" -o "$run/FAILURES.md"^[[0m
+2026-10-24T13:00:47.6982230Z ^[[36;1mcat "$run/FAILURES.md"^[[0m
+2026-10-24T13:00:47.6982540Z ^[[36;1m{^[[0m
+2026-10-24T13:00:47.6982720Z ^[[36;1m  echo "# macos-gpu"^[[0m
+2026-10-24T13:00:47.6983010Z ^[[36;1m  cat "$run/FAILURES.md"^[[0m
+2026-10-24T13:00:47.6983260Z ^[[36;1m} >> "$GITHUB_STEP_SUMMARY"^[[0m
+2026-10-24T13:00:47.7159130Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-24T13:00:47.7159450Z env:
+2026-10-24T13:00:47.7159670Z   CARGO_TERM_COLOR: always
+2026-10-24T13:00:47.7159940Z   VIEWW_CERT_NO_DESKTOP: 1
+2026-10-24T13:00:47.7160410Z   VIEWW_VK_DEVICE: 
+2026-10-24T13:00:47.7160630Z   VIEWW_TIMINGS_ADVISORY: 1
+2026-10-24T13:00:47.7160930Z   VIEWW_EXPORT_INSTALL_TARGETS: 1
+2026-10-24T13:00:47.7161130Z   SCOPE: gate
+2026-10-24T13:00:47.7161320Z   PACKAGE: false
+2026-10-24T13:00:47.7161550Z   ONLY: 
+2026-10-24T13:00:47.7161810Z   APPLE_DEVELOPER_ID_P12: 
+2026-10-24T13:00:47.7162040Z   APPLE_P12_PASSWORD: 
+2026-10-24T13:00:47.7162310Z   APPLE_SIGNING_IDENTITY: 
+2026-10-24T13:00:47.7162550Z   APPLE_NOTARY_KEY: 
+2026-10-24T13:00:47.7162840Z   APPLE_NOTARY_KEY_ID: 
+2026-10-24T13:00:47.7163120Z   APPLE_NOTARY_ISSUER: 
+2026-10-24T13:00:47.7163330Z   WINDOWS_CERT_PFX: 
+2026-10-24T13:00:47.7163620Z   WINDOWS_CERT_PASSWORD: 
+2026-10-24T13:00:47.7163830Z ##[endgroup]
+2026-10-24T13:00:47.8038160Z 2 failed row(s)
+2026-10-24T13:00:47.8098920Z ## Failures, with logs
+2026-10-24T13:00:47.8099140Z 
+2026-10-24T13:00:47.8099310Z ### `macos-gpu`
+2026-10-24T13:00:47.8099540Z 
+2026-10-24T13:00:47.8114900Z #### ❌ G1.3 — certification (gpu)
+2026-10-24T13:00:47.8115210Z 
+2026-10-24T13:00:47.8115420Z `FAIL(exit=1)`
+2026-10-24T13:00:47.8115550Z 
+2026-10-24T13:00:47.8115680Z <details><summary>errors in logs/G1.3.txt</summary>
+2026-10-24T13:00:47.8116600Z 
+2026-10-24T13:00:47.8116750Z ```text
+2026-10-24T13:00:47.8117120Z FAILED: gpu/vulkan-suite (see target/release-gate/macos-gpu/cert/gpu/vulkan-suite.txt)
+2026-10-24T13:00:47.8117430Z 
+2026-10-24T13:00:47.8117570Z FAILED=1
+2026-10-24T13:00:47.8117870Z ```
+2026-10-24T13:00:47.8118050Z 
+2026-10-24T13:00:47.8118100Z </details>
+2026-10-24T13:00:47.8118220Z 
+2026-10-24T13:00:47.8118330Z <details><summary>end of logs/G1.3.txt</summary>
+2026-10-24T13:00:47.8118520Z 
+2026-10-24T13:00:47.8118560Z ```text
+2026-10-24T13:00:47.8118910Z … 7 earlier lines omitted
+2026-10-24T13:00:47.8119270Z >>> cargo run --release -p test-gpu-work -- target/release-gate/macos-gpu/cert/gpu/workload
+2026-10-24T13:00:47.8120210Z >>> cargo run --release -p fixtures -- target/release-gate/macos-gpu/cert/gpu/census-out --census --receipt target/release-gate/macos-gpu/cert/gpu/census-out/receipt.json --shadow target/release-gate/macos-gpu/cert/gpu/census-out/shadow.jsonl
+2026-10-24T13:00:47.8121320Z     skipped: desktop/suite — VIEWW_CERT_NO_DESKTOP=1
+2026-10-24T13:00:47.8121700Z Vieww macos certification
+2026-10-24T13:00:47.8121880Z ===========================
+2026-10-24T13:00:47.8122090Z COMPLETE=false (skipped stages: 1)
+2026-10-24T13:00:47.8122350Z FAILED=1
+2026-10-24T13:00:47.8122720Z git_rev=e37c4ca2069192a1edaab617cc5ecf02635cc41c
+2026-10-24T13:00:47.8122950Z git_dirty=0
+2026-10-24T13:00:47.8123250Z source_digest=git-tree:ac106d6efcb0517e3d4666cfe598e1dcd75ae982
+2026-10-24T13:00:47.8123530Z 
+2026-10-24T13:00:47.8123600Z gpu/hal-build                PASS
+2026-10-24T13:00:47.8123890Z gpu/metal-build              PASS
+2026-10-24T13:00:47.8124300Z gpu/metal-backend            BUILD-ONLY(metal does not execute a ScenePlan yet; not certified)
+2026-10-24T13:00:47.8124770Z gpu/adapter                  PASS
+2026-10-24T13:00:47.8125900Z gpu/device-class             PASS(virtual GPU: Apple Paravirtual device; pixels are evidence, timings are not)
+2026-10-24T13:00:47.8126570Z gpu/vulkan-suite             FAIL(exit=101)
+2026-10-24T13:00:47.8127260Z gpu/vulkan-validation        INFO(validation layer not installed: apt install vulkan-validationlayers)
+2026-10-24T13:00:47.8128340Z gpu/workload                 PASS
+2026-10-24T13:00:47.8128750Z gpu/census                   PASS
+2026-10-24T13:00:47.8129110Z desktop/suite                SKIPPED(VIEWW_CERT_NO_DESKTOP=1)
+2026-10-24T13:00:47.8129510Z gate/gpu-unsupported-zero    PASS
+2026-10-24T13:00:47.8129720Z gate/census-all-complete     PASS
+2026-10-24T13:00:47.8130060Z gate/census-no-flat-region-mismatch PASS
+2026-10-24T13:00:47.8130440Z exit=1
+2026-10-24T13:00:47.8130620Z ```
+2026-10-24T13:00:47.8130690Z 
+2026-10-24T13:00:47.8130820Z </details>
+2026-10-24T13:00:47.8130970Z 
+2026-10-24T13:00:47.8131170Z - certification stage **gpu/vulkan-suite**: `FAIL(exit=101)`
+2026-10-24T13:00:47.8131440Z 
+2026-10-24T13:00:47.8131570Z <details><summary>errors in cert/gpu/vulkan-suite.txt</summary>
+2026-10-24T13:00:47.8131890Z 
+2026-10-24T13:00:47.8132020Z ```text
+2026-10-24T13:00:47.8132390Z test gpu_time_is_split_by_the_kind_of_work_that_spent_it ... FAILED
+2026-10-24T13:00:47.8132610Z 
+2026-10-24T13:00:47.8132710Z failures:
+2026-10-24T13:00:47.8132880Z 
+2026-10-24T13:00:47.8133070Z ---- gpu_time_is_split_by_the_kind_of_work_that_spent_it stdout ----
+2026-10-24T13:00:47.8133300Z 
+2026-10-24T13:00:47.8133670Z thread 'gpu_time_is_split_by_the_kind_of_work_that_spent_it' (43531) panicked at crates/vieww-hal/tests/vulkan_damage.rs:436:5:
+2026-10-24T13:00:47.8134330Z GpuPassTimes { draw: 0ns, layers: 0ns, filters: 0ns, shadows: 0ns, blit: 0ns }
+2026-10-24T13:00:47.8134800Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2026-10-24T13:00:47.8135110Z 
+2026-10-24T13:00:47.8135110Z 
+2026-10-24T13:00:47.8135110Z 
+2026-10-24T13:00:47.8135270Z failures:
+2026-10-24T13:00:47.8135400Z 
+2026-10-24T13:00:47.8135620Z test result: FAILED. 6 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.24s
+2026-10-24T13:00:47.8135910Z 
+2026-10-24T13:00:47.8136260Z error: test failed, to rerun pass `-p vieww-hal --test vulkan_damage`
+2026-10-24T13:00:47.8136740Z exit=101
+2026-10-24T13:00:47.8136940Z seconds=72
+2026-10-24T13:00:47.8137220Z ```
+2026-10-24T13:00:47.8137340Z 
+2026-10-24T13:00:47.8137380Z </details>
+2026-10-24T13:00:47.8137510Z 
+2026-10-24T13:00:47.8137670Z <details><summary>end of cert/gpu/vulkan-suite.txt</summary>
+2026-10-24T13:00:47.8137930Z 
+2026-10-24T13:00:47.8137980Z ```text
+2026-10-24T13:00:47.8138320Z … 64 earlier lines omitted
+2026-10-24T13:00:47.8138770Z test a_backdrop_filter_inside_the_damage_keeps_it ... ok
+2026-10-24T13:00:47.8139270Z test a_backdrop_filter_reaching_outside_the_damage_redraws_everything ... ok
+2026-10-24T13:00:47.8139740Z test a_damaged_frame_is_the_full_frame_through_blurs_shadows_and_blends ... ok
+2026-10-24T13:00:47.8140230Z test a_new_clear_colour_or_size_redraws_everything ... ok
+2026-10-24T13:00:47.8140690Z test gpu_time_is_split_by_the_kind_of_work_that_spent_it ... FAILED
+2026-10-24T13:00:47.8141090Z test overlapping_damage_rectangles_draw_each_pixel_once ... ok
+2026-10-24T13:00:47.8141520Z test pixels_outside_the_damage_are_last_frames ... ok
+2026-10-24T13:00:47.8141760Z 
+2026-10-24T13:00:47.8141810Z failures:
+2026-10-24T13:00:47.8142010Z 
+2026-10-24T13:00:47.8142190Z ---- gpu_time_is_split_by_the_kind_of_work_that_spent_it stdout ----
+2026-10-24T13:00:47.8142460Z 
+2026-10-24T13:00:47.8142830Z thread 'gpu_time_is_split_by_the_kind_of_work_that_spent_it' (43531) panicked at crates/vieww-hal/tests/vulkan_damage.rs:436:5:
+2026-10-24T13:00:47.8143430Z GpuPassTimes { draw: 0ns, layers: 0ns, filters: 0ns, shadows: 0ns, blit: 0ns }
+2026-10-24T13:00:47.8143980Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2026-10-24T13:00:47.8144310Z 
+2026-10-24T13:00:47.8144310Z 
+2026-10-24T13:00:47.8144370Z failures:
+2026-10-24T13:00:47.8144900Z     gpu_time_is_split_by_the_kind_of_work_that_spent_it
+2026-10-24T13:00:47.8145160Z 
+2026-10-24T13:00:47.8145420Z test result: FAILED. 6 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.24s
+2026-10-24T13:00:47.8145820Z 
+2026-10-24T13:00:47.8146020Z error: test failed, to rerun pass `-p vieww-hal --test vulkan_damage`
+2026-10-24T13:00:47.8146410Z exit=101
+2026-10-24T13:00:47.8146730Z seconds=72
+2026-10-24T13:00:47.8146910Z ```
+2026-10-24T13:00:47.8147030Z 
+2026-10-24T13:00:47.8147130Z </details>
+2026-10-24T13:00:47.8147210Z 
+2026-10-24T13:00:47.8147510Z #### ❌ G1.5 — Vulkan compositor pixel parity (17 tests)
+2026-10-24T13:00:47.8147750Z 
+2026-10-24T13:00:47.8147890Z `FAIL(exit=101)`
+2026-10-24T13:00:47.8259190Z ##[group]Run actions/upload-artifact@v4
+2026-10-24T13:00:47.8259410Z with:
+2026-10-24T13:00:47.8259550Z   name: gate-macos-gpu
+2026-10-24T13:00:47.8259740Z   path: vieww_base/target/release-gate/macos-gpu
+2026-10-24T13:00:47.8259990Z   include-hidden-files: true
+2026-10-24T13:00:47.8260170Z   retention-days: 30
+2026-10-24T13:00:47.8260330Z   if-no-files-found: warn
+2026-10-24T13:00:47.8260500Z   compression-level: 6
+2026-10-24T13:00:47.8260670Z   overwrite: false
+2026-10-24T13:00:47.8260800Z env:
+2026-10-24T13:00:47.8260940Z   CARGO_TERM_COLOR: always
+2026-10-24T13:00:47.8261110Z   VIEWW_CERT_NO_DESKTOP: 1
+2026-10-24T13:00:47.8261320Z   VIEWW_VK_DEVICE: 
+2026-10-24T13:00:47.8261500Z   VIEWW_TIMINGS_ADVISORY: 1
+2026-10-24T13:00:47.8261720Z   VIEWW_EXPORT_INSTALL_TARGETS: 1
+2026-10-24T13:00:47.8261890Z   SCOPE: gate
+2026-10-24T13:00:47.8262040Z   PACKAGE: false
+2026-10-24T13:00:47.8262200Z   ONLY: 
+2026-10-24T13:00:47.8262330Z   APPLE_DEVELOPER_ID_P12: 
+2026-10-24T13:00:47.8262540Z   APPLE_P12_PASSWORD: 
+2026-10-24T13:00:47.8262710Z   APPLE_SIGNING_IDENTITY: 
+2026-10-24T13:00:47.8262880Z   APPLE_NOTARY_KEY: 
+2026-10-24T13:00:47.8263060Z   APPLE_NOTARY_KEY_ID: 
+2026-10-24T13:00:47.8263280Z   APPLE_NOTARY_ISSUER: 
+2026-10-24T13:00:47.8263430Z   WINDOWS_CERT_PFX: 
+2026-10-24T13:00:47.8263640Z   WINDOWS_CERT_PASSWORD: 
+2026-10-24T13:00:47.8264260Z ##[endgroup]
+2026-10-24T13:00:48.2328190Z (node:15007) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-24T13:00:48.2329480Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-24T13:00:48.2465130Z With the provided path, there will be 21 files uploaded
+2026-10-24T13:00:48.2465830Z Artifact name is valid!
+2026-10-24T13:00:48.2466670Z Root directory input is valid!
+2026-10-24T13:00:48.7006520Z Beginning upload of artifact content to blob storage
+2026-10-24T13:00:48.7543310Z (node:15007) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-24T13:00:49.1139790Z Uploaded bytes 27333
+2026-10-24T13:00:49.1957910Z Finished uploading artifact content to blob storage!
+2026-10-24T13:00:49.1958890Z SHA256 digest of uploaded artifact zip is 20e3f3b2875835c5aa0e5e012e4b26332874b661fc497cb40f580a7b5296b6f0
+2026-10-24T13:00:49.1976250Z Finalizing artifact upload
+2026-10-24T13:00:49.6616390Z Artifact gate-macos-gpu.zip successfully finalized. Artifact ID 12560534546
+2026-10-24T13:00:49.6617840Z Artifact gate-macos-gpu has been successfully uploaded! Final size is 27333 bytes. Artifact ID is 12560534546
+2026-10-24T13:00:49.6632930Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/40095806313/artifacts/12560534546
+2026-10-24T13:00:49.6905840Z Post job cleanup.
+2026-10-24T13:00:49.8053080Z [command]/opt/homebrew/bin/git version
+2026-10-24T13:00:49.8129360Z git version 2.56.0
+2026-10-24T13:00:49.8154670Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/507e6aff-2f25-4ee7-93cb-b0353cb1c8b7/.gitconfig'
+2026-10-24T13:00:49.8162320Z Temporarily overriding HOME='/Users/runner/work/_temp/507e6aff-2f25-4ee7-93cb-b0353cb1c8b7' before making global git config changes
+2026-10-24T13:00:49.8162980Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-24T13:00:49.8166210Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/vieww_prod/vieww_prod
+2026-10-24T13:00:49.8246880Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-24T13:00:49.8319780Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-24T13:00:49.9317490Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-24T13:00:49.9399260Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-24T13:00:50.0315610Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-24T13:00:50.0389390Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-24T13:00:50.1380990Z Cleaning up orphan processes
+2026-10-24T13:00:51.1316990Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== gate (macos-cpu)	UNKNOWN STEP =====
+2026-10-24T13:59:23.1077450Z Finalizing artifact upload
+2026-10-24T13:59:23.5522410Z Artifact gate-macos-cpu.zip successfully finalized. Artifact ID 12563050147
+2026-10-24T13:59:23.5523320Z Artifact gate-macos-cpu has been successfully uploaded! Final size is 103662983 bytes. Artifact ID is 12563050147
+2026-10-24T13:59:23.5540040Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/40095806313/artifacts/12563050147
+2026-10-24T13:59:23.5687640Z ##[group]Run actions/upload-artifact@v4
+2026-10-24T13:59:23.5687880Z with:
+2026-10-24T13:59:23.5688040Z   name: installers-macos-cpu
+2026-10-24T13:59:23.5688640Z   path: vieww_base/target/package/viewwstudio-*
+vieww_base/target/package/viewwstudio.cdx.json
+vieww_base/target/package/SHA256SUMS
+vieww_base/target/package/MANIFEST.txt
+
+2026-10-24T13:59:23.5689400Z   retention-days: 30
+2026-10-24T13:59:23.5689580Z   if-no-files-found: warn
+2026-10-24T13:59:23.5689760Z   compression-level: 6
+2026-10-24T13:59:23.5689930Z   overwrite: false
+2026-10-24T13:59:23.5690110Z   include-hidden-files: false
+2026-10-24T13:59:23.5690290Z env:
+2026-10-24T13:59:23.5690430Z   CARGO_TERM_COLOR: always
+2026-10-24T13:59:23.5690620Z   VIEWW_CERT_NO_DESKTOP: 1
+2026-10-24T13:59:23.5690800Z   VIEWW_VK_DEVICE: 
+2026-10-24T13:59:23.5691010Z   VIEWW_TIMINGS_ADVISORY: 1
+2026-10-24T13:59:23.5691250Z   VIEWW_EXPORT_INSTALL_TARGETS: 1
+2026-10-24T13:59:23.5691450Z   SCOPE: gate
+2026-10-24T13:59:23.5691620Z   PACKAGE: true
+2026-10-24T13:59:23.5691770Z   ONLY: 
+2026-10-24T13:59:23.5691910Z   APPLE_DEVELOPER_ID_P12: 
+2026-10-24T13:59:23.5692110Z   APPLE_P12_PASSWORD: 
+2026-10-24T13:59:23.5692280Z   APPLE_SIGNING_IDENTITY: 
+2026-10-24T13:59:23.5692550Z   APPLE_NOTARY_KEY: 
+2026-10-24T13:59:23.5692770Z   APPLE_NOTARY_KEY_ID: 
+2026-10-24T13:59:23.5692970Z   APPLE_NOTARY_ISSUER: 
+2026-10-24T13:59:23.5693140Z   WINDOWS_CERT_PFX: 
+2026-10-24T13:59:23.5693310Z   WINDOWS_CERT_PASSWORD: 
+2026-10-24T13:59:23.5693680Z   JAVA_HOME: /Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-101/arm64/Contents/Home
+2026-10-24T13:59:23.5694420Z   JAVA_HOME_17_ARM64: /Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-101/arm64/Contents/Home
+2026-10-24T13:59:23.5694870Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
+2026-10-24T13:59:23.5695120Z   GRADLE_USER_HOME: /Users/runner/.gradle
+2026-10-24T13:59:23.5695370Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+2026-10-24T13:59:23.5695670Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+2026-10-24T13:59:23.5696140Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+2026-10-24T13:59:23.5696700Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
+2026-10-24T13:59:23.5696960Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+2026-10-24T13:59:23.5697270Z   ANDROID_NDK_HOME: /Users/runner/Library/Android/sdk/ndk/29.0.14206865
+2026-10-24T13:59:23.5697610Z   ANDROID_HOME: /Users/runner/Library/Android/sdk
+2026-10-24T13:59:23.5697840Z ##[endgroup]
+2026-10-24T13:59:23.7158760Z (node:59251) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-24T13:59:23.7159570Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-24T13:59:23.7214440Z With the provided path, there will be 4 files uploaded
+2026-10-24T13:59:23.7216450Z Artifact name is valid!
+2026-10-24T13:59:23.7216930Z Root directory input is valid!
+2026-10-24T13:59:24.0970170Z Beginning upload of artifact content to blob storage
+2026-10-24T13:59:24.3443100Z (node:59251) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-24T13:59:25.2769220Z Uploaded bytes 8388608
+2026-10-24T13:59:25.6221970Z Uploaded bytes 16777216
+2026-10-24T13:59:25.8765100Z Uploaded bytes 25165824
+2026-10-24T13:59:25.9066970Z Uploaded bytes 33554432
+2026-10-24T13:59:26.0762270Z Uploaded bytes 41943040
+2026-10-24T13:59:26.3497800Z Uploaded bytes 50331648
+2026-10-24T13:59:26.5530370Z Uploaded bytes 58720256
+2026-10-24T13:59:26.6669230Z Uploaded bytes 67108864
+2026-10-24T13:59:26.8568220Z Uploaded bytes 75497472
+2026-10-24T13:59:27.1023260Z Uploaded bytes 83886080
+2026-10-24T13:59:27.4481190Z Uploaded bytes 92274688
+2026-10-24T13:59:27.5863490Z Uploaded bytes 100663296
+2026-10-24T13:59:27.7358710Z Uploaded bytes 109051904
+2026-10-24T13:59:27.8942420Z Uploaded bytes 117440512
+2026-10-24T13:59:28.1290200Z Uploaded bytes 125829120
+2026-10-24T13:59:28.3176220Z Uploaded bytes 134217728
+2026-10-24T13:59:28.8382310Z Uploaded bytes 142606336
+2026-10-24T13:59:29.2401320Z Uploaded bytes 150994944
+2026-10-24T13:59:29.2972130Z Uploaded bytes 159383552
+2026-10-24T13:59:29.3545490Z Uploaded bytes 167772160
+2026-10-24T13:59:29.9725460Z Uploaded bytes 176160768
+2026-10-24T13:59:30.1698170Z Uploaded bytes 184549376
+2026-10-24T13:59:30.3140580Z Uploaded bytes 192937984
+2026-10-24T13:59:30.6743580Z Uploaded bytes 201326592
+2026-10-24T13:59:30.8928940Z Uploaded bytes 209715200
+2026-10-24T13:59:31.0741800Z Uploaded bytes 218103808
+2026-10-24T13:59:31.1512620Z Uploaded bytes 226492416
+2026-10-24T13:59:31.4698040Z Uploaded bytes 234881024
+2026-10-24T13:59:31.6531290Z Uploaded bytes 243269632
+2026-10-24T13:59:31.8064670Z Uploaded bytes 251658240
+2026-10-24T13:59:31.8423380Z Uploaded bytes 260046848
+2026-10-24T13:59:32.0716410Z Uploaded bytes 268435456
+2026-10-24T13:59:32.4167280Z Uploaded bytes 276824064
+2026-10-24T13:59:32.5260820Z Uploaded bytes 285212672
+2026-10-24T13:59:32.8070740Z Uploaded bytes 293601280
+2026-10-24T13:59:33.0585500Z Uploaded bytes 301989888
+2026-10-24T13:59:33.2589600Z Uploaded bytes 310378496
+2026-10-24T13:59:33.5258870Z Uploaded bytes 318767104
+2026-10-24T13:59:33.7999910Z Uploaded bytes 327155712
+2026-10-24T13:59:33.8887600Z Uploaded bytes 335544320
+2026-10-24T13:59:34.4039580Z Uploaded bytes 343932928
+2026-10-24T13:59:34.4789040Z Uploaded bytes 352321536
+2026-10-24T13:59:34.6095390Z Uploaded bytes 360710144
+2026-10-24T13:59:34.9526300Z Uploaded bytes 369098752
+2026-10-24T13:59:35.4645010Z Uploaded bytes 377487360
+2026-10-24T13:59:35.6977200Z Uploaded bytes 385875968
+2026-10-24T13:59:35.9582230Z Uploaded bytes 394264576
+2026-10-24T13:59:36.1537710Z Uploaded bytes 402653184
+2026-10-24T13:59:36.2804460Z Uploaded bytes 411041792
+2026-10-24T13:59:36.5425840Z Uploaded bytes 419430400
+2026-10-24T13:59:37.0525230Z Uploaded bytes 427819008
+2026-10-24T13:59:37.0745510Z Uploaded bytes 436207616
+2026-10-24T13:59:37.1305550Z Uploaded bytes 444596224
+2026-10-24T13:59:37.4300290Z Uploaded bytes 452984832
+2026-10-24T13:59:37.6499310Z Uploaded bytes 461373440
+2026-10-24T13:59:37.8363520Z Uploaded bytes 469762048
+2026-10-24T13:59:38.0524320Z Uploaded bytes 478150656
+2026-10-24T13:59:38.3783060Z Uploaded bytes 486539264
+2026-10-24T13:59:38.9219850Z Uploaded bytes 494927872
+2026-10-24T13:59:38.9265950Z Uploaded bytes 503316480
+2026-10-24T13:59:39.1152910Z Uploaded bytes 511705088
+2026-10-24T13:59:39.6888070Z Uploaded bytes 520093696
+2026-10-24T13:59:39.7334270Z Uploaded bytes 528482304
+2026-10-24T13:59:40.0247000Z Uploaded bytes 536870912
+2026-10-24T13:59:40.1413180Z Uploaded bytes 545259520
+2026-10-24T13:59:40.1580330Z Uploaded bytes 553648128
+2026-10-24T13:59:40.3619870Z Uploaded bytes 562036736
+2026-10-24T13:59:40.8930440Z Uploaded bytes 570425344
+2026-10-24T13:59:41.1882050Z Uploaded bytes 578813952
+2026-10-24T13:59:41.4642230Z Uploaded bytes 587202560
+2026-10-24T13:59:41.6717430Z Uploaded bytes 588731173
+2026-10-24T13:59:41.7549490Z Finished uploading artifact content to blob storage!
+2026-10-24T13:59:41.7551210Z SHA256 digest of uploaded artifact zip is 09ff8914761aeffa8068ca26a6ff568d59512c5a13ee668c6258b1a9cbff510c
+2026-10-24T13:59:41.7552750Z Finalizing artifact upload
+2026-10-24T13:59:42.3658100Z Artifact installers-macos-cpu.zip successfully finalized. Artifact ID 12563010323
+2026-10-24T13:59:42.3661770Z Artifact installers-macos-cpu has been successfully uploaded! Final size is 588731173 bytes. Artifact ID is 12563010323
+2026-10-24T13:59:42.3692950Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/40095806313/artifacts/12563010323
+2026-10-24T13:59:42.4028890Z Post job cleanup.
+2026-10-24T13:59:42.6192290Z In post-action step
+2026-10-24T13:59:42.6210980Z ##[group]Stopping Gradle daemons
+2026-10-24T13:59:42.6211570Z Stopping Gradle daemons for /Users/runner/work/_temp/.gradle-actions/gradle-installations/installs/gradle-8.9
+2026-10-24T13:59:42.6220900Z [command]/Users/runner/work/_temp/.gradle-actions/gradle-installations/installs/gradle-8.9/bin/gradle --stop
+2026-10-24T13:59:43.2406000Z Stopping Daemon(s)
+2026-10-24T13:59:43.2412830Z 1 Daemon stopped
+2026-10-24T13:59:43.2517020Z ##[endgroup]
+2026-10-24T13:59:43.2535030Z ##[group]Provision Gradle >= 8.11
+2026-10-24T13:59:44.1157650Z Gradle distribution 8.11 not found in cache. Will download.
+2026-10-24T13:59:45.1302130Z Downloaded https://services.gradle.org/distributions/gradle-8.11-bin.zip to /Users/runner/work/_temp/.gradle-actions/gradle-installations/downloads/gradle-8.11-bin.zip (size 136917193)
+2026-10-24T13:59:45.1437040Z [command]/opt/homebrew/bin/gtar --posix -cf cache.tzst --exclude cache.tzst -P -C /Users/runner/work/vieww_prod/vieww_prod --files-from manifest.txt --delay-directory-restore --use-compress-program zstdmt
+2026-10-24T13:59:46.5416960Z Sent 2367846 of 136585574 (1.7%), 2.3 MBs/sec
+2026-10-24T13:59:47.5425680Z Sent 2367846 of 136585574 (1.7%), 1.1 MBs/sec
+2026-10-24T13:59:48.5448310Z Sent 69476710 of 136585574 (50.9%), 22.1 MBs/sec
+2026-10-24T13:59:48.7647700Z Sent 136585574 of 136585574 (100.0%), 40.4 MBs/sec
+2026-10-24T13:59:49.0769330Z [command]/usr/bin/unzip -o -q /Users/runner/work/_temp/.gradle-actions/gradle-installations/downloads/gradle-8.11-bin.zip
+2026-10-24T13:59:50.2555570Z Extracted Gradle 8.11 to /Users/runner/work/_temp/.gradle-actions/gradle-installations/installs/gradle-8.11
+2026-10-24T13:59:50.2556810Z Provisioned Gradle executable /Users/runner/work/_temp/.gradle-actions/gradle-installations/installs/gradle-8.11/bin/gradle
+2026-10-24T13:59:50.2558520Z ##[endgroup]
+2026-10-24T13:59:50.2564750Z ##[group]Executing Gradle to clean up caches
+2026-10-24T13:59:50.2565380Z Cleaning up caches last used before 1792846458624
+2026-10-24T13:59:50.2568140Z [command]/Users/runner/work/_temp/.gradle-actions/gradle-installations/installs/gradle-8.11/bin/gradle -g /Users/runner/.gradle -I init.gradle --info --no-daemon --no-scan --build-cache -DGITHUB_DEPENDENCY_GRAPH_ENABLED=false -DGRADLE_ACTIONS_SKIP_BUILD_RESULT_CAPTURE=true noop
+2026-10-24T13:59:50.5479800Z Initialized native services in: /Users/runner/.gradle/native
+2026-10-24T13:59:50.5581280Z Initialized jansi services in: /Users/runner/.gradle/native
+2026-10-24T13:59:50.7664340Z 
+2026-10-24T13:59:50.7693180Z Welcome to Gradle 8.11!
+2026-10-24T13:59:50.7693520Z 
+2026-10-24T13:59:50.7693830Z Here are the highlights of this release:
+2026-10-24T13:59:50.7694400Z  - Parallel load and store for Configuration Cache
+2026-10-24T13:59:50.7695010Z  - Java compilation errors at the end of the build output
+2026-10-24T13:59:50.7695700Z  - Consolidated report for warnings and deprecations
+2026-10-24T13:59:50.7696150Z 
+2026-10-24T13:59:50.7696520Z For more details see https://docs.gradle.org/8.11/release-notes.html
+2026-10-24T13:59:50.7696940Z 
+2026-10-24T13:59:50.7697710Z To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+2026-10-24T13:59:50.7717760Z Starting process 'Gradle build daemon'. Working directory: /Users/runner/.gradle/daemon/8.11 Command: /Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-101/arm64/Contents/Home/bin/java --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED -XX:MaxMetaspaceSize=384m -XX:+HeapDumpOnOutOfMemoryError -Xms256m -Xmx512m -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -cp /Users/runner/work/_temp/.gradle-actions/gradle-installations/installs/gradle-8.11/lib/gradle-daemon-main-8.11.jar -javaagent:/Users/runner/work/_temp/.gradle-actions/gradle-installations/installs/gradle-8.11/lib/agents/gradle-instrumentation-agent-8.11.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 8.11
+2026-10-24T13:59:50.7722360Z Successfully started process 'Gradle build daemon'
+2026-10-24T13:59:51.3940220Z An attempt to start the daemon took 0.575 secs.
+2026-10-24T13:59:51.3941190Z The client will now receive all logging from the daemon (pid: 60114). The daemon log file: /Users/runner/.gradle/daemon/8.11/daemon-60114.out.log
+2026-10-24T13:59:51.3942150Z Daemon will be stopped at the end of the build 
+2026-10-24T13:59:51.6489790Z Using 3 worker leases.
+2026-10-24T13:59:51.6969070Z Received JVM installation metadata from '/Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-101/arm64/Contents/Home': {JAVA_HOME=/Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-101/arm64/Contents/Home, JAVA_VERSION=17.0.20.1, JAVA_VENDOR=Eclipse Adoptium, RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=17.0.20.1+1, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=17.0.20.1+1, VM_VENDOR=Eclipse Adoptium, OS_ARCH=aarch64}
+2026-10-24T13:59:51.9025380Z Watching the file system is configured to be enabled if available
+2026-10-24T13:59:51.9026350Z Now considering [/Users/runner/work/_temp/dummy-cleanup-project] as hierarchies to watch
+2026-10-24T13:59:51.9027070Z File system watching is active
+2026-10-24T13:59:52.1398940Z Caching disabled for Groovy DSL script compilation (cp_init) because:
+2026-10-24T13:59:52.1402260Z   Build cache is disabled
+2026-10-24T13:59:52.1402720Z   Not worth caching.
+2026-10-24T13:59:52.1403480Z Compiling initialization script '/Users/runner/work/_temp/dummy-cleanup-project/init.gradle' using SubsetScriptTransformer.
+2026-10-24T13:59:52.4257640Z Caching disabled for Groovy DSL script compilation (init) because:
+2026-10-24T13:59:52.4258880Z   Build cache is disabled
+2026-10-24T13:59:52.4259430Z   Not worth caching.
+2026-10-24T13:59:52.4260130Z Compiling initialization script '/Users/runner/work/_temp/dummy-cleanup-project/init.gradle' using BuildScriptTransformer.
+2026-10-24T13:59:52.7034300Z Caching disabled for Groovy DSL script compilation (cp_init) because:
+2026-10-24T13:59:52.7040090Z   Build cache is disabled
+2026-10-24T13:59:52.7040710Z   Not worth caching.
+2026-10-24T13:59:52.7041610Z Compiling initialization script '/Users/runner/.gradle/init.d/gradle-actions.build-result-capture.init.gradle' using SubsetScriptTransformer.
+2026-10-24T13:59:53.0127040Z Caching disabled for Groovy DSL script compilation (init) because:
+2026-10-24T13:59:53.0127790Z   Build cache is disabled
+2026-10-24T13:59:53.0128270Z   Not worth caching.
+2026-10-24T13:59:53.0129120Z Compiling initialization script '/Users/runner/.gradle/init.d/gradle-actions.build-result-capture.init.gradle' using BuildScriptTransformer.
+2026-10-24T13:59:53.3943000Z gradle/actions: Not capturing build results
+2026-10-24T13:59:53.4056210Z Caching disabled for Groovy DSL script compilation (cp_init) because:
+2026-10-24T13:59:53.4101690Z   Build cache is disabled
+2026-10-24T13:59:53.4106340Z   Not worth caching.
+2026-10-24T13:59:53.4137560Z Compiling initialization script '/Users/runner/.gradle/init.d/gradle-actions.github-dependency-graph.init.gradle' using SubsetScriptTransformer.
+2026-10-24T13:59:53.4143980Z Caching disabled for Groovy DSL script compilation (init) because:
+2026-10-24T13:59:53.4203960Z   Build cache is disabled
+2026-10-24T13:59:53.4214430Z   Not worth caching.
+2026-10-24T13:59:53.4235060Z Compiling initialization script '/Users/runner/.gradle/init.d/gradle-actions.github-dependency-graph.init.gradle' using BuildScriptTransformer.
+2026-10-24T13:59:53.4237680Z Caching disabled for Groovy DSL script compilation (cp_init) because:
+2026-10-24T13:59:53.4239370Z   Build cache is disabled
+2026-10-24T13:59:53.4248520Z   Not worth caching.
+2026-10-24T13:59:53.4256010Z Compiling initialization script '/Users/runner/.gradle/init.d/gradle-actions.inject-develocity.init.gradle' using SubsetScriptTransformer.
+2026-10-24T13:59:53.8599480Z Caching disabled for Groovy DSL script compilation (init) because:
+2026-10-24T13:59:53.8649720Z   Build cache is disabled
+2026-10-24T13:59:53.8650390Z   Not worth caching.
+2026-10-24T13:59:53.8651240Z Compiling initialization script '/Users/runner/.gradle/init.d/gradle-actions.inject-develocity.init.gradle' using BuildScriptTransformer.
+2026-10-24T13:59:54.1057750Z Starting Build
+2026-10-24T13:59:54.1072480Z Caching disabled for Groovy DSL script compilation (cp_settings) because:
+2026-10-24T13:59:54.1073140Z   Build cache is disabled
+2026-10-24T13:59:54.1073620Z   Not worth caching.
+2026-10-24T13:59:54.1074400Z Compiling settings file '/Users/runner/work/_temp/dummy-cleanup-project/settings.gradle' using SubsetScriptTransformer.
+2026-10-24T13:59:54.1075280Z Caching disabled for Groovy DSL script compilation (settings) because:
+2026-10-24T13:59:54.1075840Z   Build cache is disabled
+2026-10-24T13:59:54.1076270Z   Not worth caching.
+2026-10-24T13:59:54.1077010Z Compiling settings file '/Users/runner/work/_temp/dummy-cleanup-project/settings.gradle' using BuildScriptTransformer.
+2026-10-24T13:59:54.1077920Z Settings evaluated using settings file '/Users/runner/work/_temp/dummy-cleanup-project/settings.gradle'.
+2026-10-24T13:59:54.1078940Z Using local directory build cache for the root build (location = /Users/runner/.gradle/caches/build-cache-1, remove unused entries = older than 2026-10-24 12:54:18 UTC).
+2026-10-24T13:59:54.2463370Z Projects loaded. Root project using build file '/Users/runner/work/_temp/dummy-cleanup-project/build.gradle'.
+2026-10-24T13:59:54.2465920Z Included projects: [root project 'dummy-cleanup-project']
+2026-10-24T13:59:54.2992760Z 
+2026-10-24T13:59:54.2993890Z > Configure project :
+2026-10-24T13:59:54.2994810Z Evaluating root project 'dummy-cleanup-project' using build file '/Users/runner/work/_temp/dummy-cleanup-project/build.gradle'.
+2026-10-24T13:59:54.2995680Z Caching disabled for Groovy DSL script compilation (cp_proj) because:
+2026-10-24T13:59:54.2996230Z   Not worth caching.
+2026-10-24T13:59:54.2996930Z Compiling build file '/Users/runner/work/_temp/dummy-cleanup-project/build.gradle' using SubsetScriptTransformer.
+2026-10-24T13:59:54.2998260Z Caching disabled for Groovy DSL script compilation (proj) because:
+2026-10-24T13:59:54.2998920Z   Not worth caching.
+2026-10-24T13:59:54.2999590Z Compiling build file '/Users/runner/work/_temp/dummy-cleanup-project/build.gradle' using BuildScriptTransformer.
+2026-10-24T13:59:54.3000270Z All projects evaluated.
+2026-10-24T13:59:54.3000690Z Task name matched 'noop'
+2026-10-24T13:59:54.3001140Z Selected primary task 'noop' from project :
+2026-10-24T13:59:54.3591950Z Tasks to be executed: [task ':noop']
+2026-10-24T13:59:54.3604040Z Tasks that were excluded: []
+2026-10-24T13:59:54.3604830Z Resolve mutations for :noop (Thread[Execution worker Thread 2,5,main]) started.
+2026-10-24T13:59:54.3605450Z :noop (Thread[Execution worker Thread 2,5,main]) started.
+2026-10-24T13:59:54.3605850Z 
+2026-10-24T13:59:54.3606090Z > Task :noop UP-TO-DATE
+2026-10-24T13:59:54.3607740Z Skipping task ':noop' as it has no actions.
+2026-10-24T13:59:54.3609680Z 
+2026-10-24T13:59:54.3609940Z BUILD SUCCESSFUL in 3s
+2026-10-24T13:59:54.3610430Z Watched directory hierarchies: []
+2026-10-24T13:59:54.3611090Z jars (/Users/runner/.gradle/caches/jars-9) cleanup deleted 0 files/directories.
+2026-10-24T13:59:54.3612010Z jars (/Users/runner/.gradle/caches/jars-9) removing files not accessed on or after Sat Oct 24 12:54:18 UTC 2026.
+2026-10-24T13:59:54.3617910Z jars (/Users/runner/.gradle/caches/jars-9) cleanup deleted 0 files/directories.
+2026-10-24T13:59:54.3620410Z jars (/Users/runner/.gradle/caches/jars-9) cleaned up in 0.006 secs.
+2026-10-24T13:59:54.3626700Z artifact cache (/Users/runner/.gradle/caches/modules-2) cleanup deleted 0 files/directories.
+2026-10-24T13:59:54.3627990Z artifact cache (/Users/runner/.gradle/caches/modules-2) [subdir: /Users/runner/.gradle/caches/modules-2/resources-2.1] cleanup deleted 0 files/directories.
+2026-10-24T13:59:54.3632530Z artifact cache (/Users/runner/.gradle/caches/modules-2) [subdir: /Users/runner/.gradle/caches/modules-2/resources-2.1] removing files not accessed on or after Sat Oct 24 12:54:18 UTC 2026.
+2026-10-24T13:59:54.3636640Z artifact cache (/Users/runner/.gradle/caches/modules-2) [subdir: /Users/runner/.gradle/caches/modules-2/resources-2.1] cleanup deleted 0 files/directories.
+2026-10-24T13:59:54.3638530Z artifact cache (/Users/runner/.gradle/caches/modules-2) [subdir: /Users/runner/.gradle/caches/modules-2/files-2.1] cleanup deleted 0 files/directories.
+2026-10-24T13:59:54.3663800Z artifact cache (/Users/runner/.gradle/caches/modules-2) [subdir: /Users/runner/.gradle/caches/modules-2/files-2.1] removing files not accessed on or after Sat Oct 24 12:54:18 UTC 2026.
+2026-10-24T13:59:54.4205870Z artifact cache (/Users/runner/.gradle/caches/modules-2) [subdir: /Users/runner/.gradle/caches/modules-2/files-2.1] cleanup deleted 0 files/directories.
+2026-10-24T13:59:54.4232550Z artifact cache (/Users/runner/.gradle/caches/modules-2) [subdir: /Users/runner/.gradle/caches/modules-2/metadata-2.107] cleanup deleted 0 files/directories.
+2026-10-24T13:59:54.4233590Z artifact cache (/Users/runner/.gradle/caches/modules-2) cleanup deleted 0 files/directories.
+2026-10-24T13:59:54.4234960Z artifact cache (/Users/runner/.gradle/caches/modules-2) cleaned up in 0.066 secs.
+2026-10-24T13:59:54.5456450Z ##[endgroup]
+2026-10-24T13:59:54.5458490Z ##[group]Caching Gradle state
+2026-10-24T13:59:54.6957610Z [command]/opt/homebrew/bin/gtar --posix -cf cache.tzst --exclude cache.tzst -P -C /Users/runner/work/vieww_prod/vieww_prod --files-from manifest.txt --delay-directory-restore --use-compress-program zstdmt
+2026-10-24T13:59:54.7106850Z [command]/opt/homebrew/bin/gtar --posix -cf cache.tzst --exclude cache.tzst -P -C /Users/runner/work/vieww_prod/vieww_prod --files-from manifest.txt --delay-directory-restore --use-compress-program zstdmt
+2026-10-24T13:59:54.8151780Z [command]/opt/homebrew/bin/gtar --posix -cf cache.tzst --exclude cache.tzst -P -C /Users/runner/work/vieww_prod/vieww_prod --files-from manifest.txt --delay-directory-restore --use-compress-program zstdmt
+2026-10-24T13:59:55.1339170Z [command]/opt/homebrew/bin/gtar --posix -cf cache.tzst --exclude cache.tzst -P -C /Users/runner/work/vieww_prod/vieww_prod --files-from manifest.txt --delay-directory-restore --use-compress-program zstdmt
+2026-10-24T13:59:55.4409590Z Sent 103370 of 103370 (100.0%), 0.2 MBs/sec
+2026-10-24T13:59:55.4751520Z Sent 164752 of 164752 (100.0%), 0.3 MBs/sec
+2026-10-24T13:59:55.7476980Z Saved cache entry with key gradle-instrumented-jars-v1-4e77aac580807e1ee25f44a0b5724ab0 from /Users/runner/.gradle/caches/jars-*/*/ in 1068ms
+2026-10-24T13:59:55.8167850Z Saved cache entry with key gradle-groovy-dsl-v1-5769150675b76b6a3a43d2046bd5c1de from /Users/runner/.gradle/caches/*/groovy-dsl/*/ in 1111ms
+2026-10-24T13:59:56.3266270Z Sent 20709376 of 90675801 (22.8%), 19.8 MBs/sec
+2026-10-24T13:59:57.3270690Z Sent 89391104 of 90675801 (98.6%), 42.6 MBs/sec
+2026-10-24T13:59:57.4686860Z Sent 18350080 of 53416084 (34.4%), 17.5 MBs/sec
+2026-10-24T13:59:57.5419900Z Sent 90675801 of 90675801 (100.0%), 39.0 MBs/sec
+2026-10-24T13:59:57.8204380Z Saved cache entry with key gradle-dependencies-v1-d25ec8f0457de9d42fa6fe64db316cdd from /Users/runner/.gradle/caches/modules-*/files-*/*/*/*/* in 3147ms
+2026-10-24T13:59:58.4711860Z Sent 53416084 of 53416084 (100.0%), 25.4 MBs/sec
+2026-10-24T13:59:58.8988020Z Saved cache entry with key gradle-transforms-v1-9b0ed9fb0d197e0da04d379c6ba7e555 from /Users/runner/.gradle/caches/transforms-4/*/,/Users/runner/.gradle/caches/*/transforms/*/ in 3941ms
+2026-10-24T13:59:59.2205790Z [command]/opt/homebrew/bin/gtar --posix -cf cache.tzst --exclude cache.tzst -P -C /Users/runner/work/vieww_prod/vieww_prod --files-from manifest.txt --delay-directory-restore --use-compress-program zstdmt
+2026-10-24T14:00:00.0671150Z Sent 234272 of 234272 (100.0%), 0.4 MBs/sec
+2026-10-24T14:00:00.3324850Z Saved cache entry with key gradle-home-v1|macOS-ARM64|gate[07ad5756ef8383c4dc2312ca0afc2d22]-e37c4ca2069192a1edaab617cc5ecf02635cc41c from /Users/runner/.gradle/caches,/Users/runner/.gradle/notifications,/Users/runner/.gradle/.setup-gradle in 1124ms
+2026-10-24T14:00:00.3326050Z ##[endgroup]
+2026-10-24T14:00:00.3330580Z Generating Job Summary
+2026-10-24T14:00:00.3343450Z Completed post-action step
+2026-10-24T14:00:00.3554430Z Post job cleanup.
+2026-10-24T14:00:00.5658900Z (node:60495) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-24T14:00:00.5659880Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-24T14:00:00.5792040Z Post job cleanup.
+2026-10-24T14:00:00.6970180Z [command]/opt/homebrew/bin/git version
+2026-10-24T14:00:00.7055040Z git version 2.56.0
+2026-10-24T14:00:00.7074440Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/e6f06ec8-ce60-4890-b074-3a815f08e286/.gitconfig'
+2026-10-24T14:00:00.7082440Z Temporarily overriding HOME='/Users/runner/work/_temp/e6f06ec8-ce60-4890-b074-3a815f08e286' before making global git config changes
+2026-10-24T14:00:00.7083190Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-24T14:00:00.7085530Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/vieww_prod/vieww_prod
+2026-10-24T14:00:00.7168070Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-24T14:00:00.7243660Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-24T14:00:00.8499030Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-24T14:00:00.8566130Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-24T14:00:00.9419510Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-24T14:00:00.9485780Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-24T14:00:01.0734040Z Cleaning up orphan processes
+2026-10-24T14:00:02.2596320Z Terminate orphan process: pid (56891) (adb)
+2026-10-24T14:00:03.7381730Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-java@v4, actions/upload-artifact@v4, gradle/actions/setup-gradle@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== gate (windows-cpu)	UNKNOWN STEP =====
+2026-10-24T14:17:18.4988478Z   retention-days: 30
+2026-10-24T14:17:18.4988655Z   if-no-files-found: warn
+2026-10-24T14:17:18.4988834Z   compression-level: 6
+2026-10-24T14:17:18.4989002Z   overwrite: false
+2026-10-24T14:17:18.4989164Z   include-hidden-files: false
+2026-10-24T14:17:18.4989342Z env:
+2026-10-24T14:17:18.4989484Z   CARGO_TERM_COLOR: always
+2026-10-24T14:17:18.4989680Z   VIEWW_CERT_NO_DESKTOP: 1
+2026-10-24T14:17:18.4989843Z   VIEWW_VK_DEVICE: 
+2026-10-24T14:17:18.4990012Z   VIEWW_TIMINGS_ADVISORY: 1
+2026-10-24T14:17:18.4990195Z   VIEWW_EXPORT_INSTALL_TARGETS: 1
+2026-10-24T14:17:18.4990387Z   SCOPE: gate
+2026-10-24T14:17:18.4990557Z   PACKAGE: true
+2026-10-24T14:17:18.4990703Z   ONLY: 
+2026-10-24T14:17:18.4990851Z   APPLE_DEVELOPER_ID_P12: 
+2026-10-24T14:17:18.4991021Z   APPLE_P12_PASSWORD: 
+2026-10-24T14:17:18.4991189Z   APPLE_SIGNING_IDENTITY: 
+2026-10-24T14:17:18.4991350Z   APPLE_NOTARY_KEY: 
+2026-10-24T14:17:18.4991512Z   APPLE_NOTARY_KEY_ID: 
+2026-10-24T14:17:18.4991675Z   APPLE_NOTARY_ISSUER: 
+2026-10-24T14:17:18.4991835Z   WINDOWS_CERT_PFX: 
+2026-10-24T14:17:18.4991989Z   WINDOWS_CERT_PASSWORD: 
+2026-10-24T14:17:18.4992269Z   JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\17.0.20-101\x64
+2026-10-24T14:17:18.4992680Z   JAVA_HOME_17_X64: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\17.0.20-101\x64
+2026-10-24T14:17:18.4993208Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
+2026-10-24T14:17:18.4993436Z   GRADLE_USER_HOME: D:\a\.gradle
+2026-10-24T14:17:18.4993640Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+2026-10-24T14:17:18.4993866Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+2026-10-24T14:17:18.4994201Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+2026-10-24T14:17:18.4994568Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
+2026-10-24T14:17:18.4994801Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+2026-10-24T14:17:18.4995057Z   ANDROID_NDK_HOME: C:\Android\android-sdk\ndk\30.0.16248370
+2026-10-24T14:17:18.4995304Z   ANDROID_HOME: C:\Android\android-sdk
+2026-10-24T14:17:18.4995501Z ##[endgroup]
+2026-10-24T14:17:18.6537974Z (node:7292) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-24T14:17:18.6538820Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-24T14:17:18.6604611Z With the provided path, there will be 5 files uploaded
+2026-10-24T14:17:18.6608842Z Artifact name is valid!
+2026-10-24T14:17:18.6609941Z Root directory input is valid!
+2026-10-24T14:17:18.8438325Z Beginning upload of artifact content to blob storage
+2026-10-24T14:17:19.0799081Z (node:7292) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-24T14:17:19.3802001Z Uploaded bytes 8388608
+2026-10-24T14:17:19.6207413Z Uploaded bytes 16777216
+2026-10-24T14:17:19.9103488Z Uploaded bytes 25165824
+2026-10-24T14:17:20.1855422Z Uploaded bytes 33554432
+2026-10-24T14:17:20.5133625Z Uploaded bytes 41943040
+2026-10-24T14:17:20.6986354Z Uploaded bytes 50331648
+2026-10-24T14:17:20.8026904Z Uploaded bytes 58720256
+2026-10-24T14:17:20.8651527Z Uploaded bytes 67108864
+2026-10-24T14:17:21.1949306Z Uploaded bytes 75497472
+2026-10-24T14:17:21.6782872Z Uploaded bytes 83886080
+2026-10-24T14:17:21.7407214Z Uploaded bytes 92274688
+2026-10-24T14:17:22.0882061Z Uploaded bytes 100663296
+2026-10-24T14:17:22.1061238Z Uploaded bytes 109051904
+2026-10-24T14:17:22.1700788Z Uploaded bytes 117440512
+2026-10-24T14:17:22.6074926Z Uploaded bytes 125829120
+2026-10-24T14:17:22.9344186Z Uploaded bytes 134217728
+2026-10-24T14:17:23.2074659Z Uploaded bytes 142606336
+2026-10-24T14:17:23.3319164Z Uploaded bytes 150994944
+2026-10-24T14:17:23.3781090Z Uploaded bytes 159383552
+2026-10-24T14:17:23.9572707Z Uploaded bytes 167772160
+2026-10-24T14:17:24.0291298Z Uploaded bytes 176160768
+2026-10-24T14:17:24.0778852Z Uploaded bytes 184549376
+2026-10-24T14:17:24.1943579Z Uploaded bytes 192937984
+2026-10-24T14:17:24.9583726Z Uploaded bytes 201326592
+2026-10-24T14:17:25.0285774Z Uploaded bytes 209715200
+2026-10-24T14:17:25.0903917Z Uploaded bytes 218103808
+2026-10-24T14:17:25.4617837Z Uploaded bytes 226492416
+2026-10-24T14:17:25.6031923Z Uploaded bytes 234881024
+2026-10-24T14:17:25.7967888Z Uploaded bytes 243269632
+2026-10-24T14:17:25.8471750Z Uploaded bytes 251658240
+2026-10-24T14:17:25.9915765Z Uploaded bytes 260046848
+2026-10-24T14:17:26.5391652Z Uploaded bytes 268435456
+2026-10-24T14:17:26.5795482Z Uploaded bytes 276824064
+2026-10-24T14:17:26.9900098Z Uploaded bytes 285212672
+2026-10-24T14:17:27.4567950Z Uploaded bytes 293601280
+2026-10-24T14:17:27.6836374Z Uploaded bytes 301989888
+2026-10-24T14:17:27.7935914Z Uploaded bytes 310378496
+2026-10-24T14:17:27.8264191Z Uploaded bytes 318767104
+2026-10-24T14:17:28.0583375Z Uploaded bytes 327155712
+2026-10-24T14:17:28.3430410Z Uploaded bytes 335544320
+2026-10-24T14:17:28.5200424Z Uploaded bytes 343932928
+2026-10-24T14:17:28.6971524Z Uploaded bytes 352321536
+2026-10-24T14:17:29.0545281Z Uploaded bytes 360710144
+2026-10-24T14:17:29.2899785Z Uploaded bytes 369098752
+2026-10-24T14:17:29.6023013Z Uploaded bytes 377487360
+2026-10-24T14:17:29.6253174Z Uploaded bytes 385875968
+2026-10-24T14:17:29.9019882Z Uploaded bytes 394264576
+2026-10-24T14:17:30.0325250Z Uploaded bytes 402653184
+2026-10-24T14:17:30.0927067Z Uploaded bytes 411041792
+2026-10-24T14:17:30.2173686Z Uploaded bytes 419430400
+2026-10-24T14:17:30.7707050Z Uploaded bytes 427819008
+2026-10-24T14:17:30.7733013Z Uploaded bytes 436207616
+2026-10-24T14:17:30.8116548Z Uploaded bytes 444596224
+2026-10-24T14:17:31.4225349Z Uploaded bytes 452984832
+2026-10-24T14:17:31.4402405Z Uploaded bytes 461373440
+2026-10-24T14:17:31.6676126Z Uploaded bytes 469762048
+2026-10-24T14:17:31.8745829Z Uploaded bytes 478150656
+2026-10-24T14:17:32.4033219Z Uploaded bytes 486539264
+2026-10-24T14:17:32.4325209Z Uploaded bytes 494927872
+2026-10-24T14:17:32.6599592Z Uploaded bytes 503316480
+2026-10-24T14:17:32.8381533Z Uploaded bytes 511705088
+2026-10-24T14:17:33.4707727Z Uploaded bytes 520093696
+2026-10-24T14:17:33.6988719Z Uploaded bytes 528482304
+2026-10-24T14:17:33.8804727Z Uploaded bytes 536870912
+2026-10-24T14:17:34.0063476Z Uploaded bytes 545259520
+2026-10-24T14:17:34.0166289Z Uploaded bytes 553648128
+2026-10-24T14:17:34.0953893Z Uploaded bytes 562036736
+2026-10-24T14:17:34.4928769Z Uploaded bytes 570425344
+2026-10-24T14:17:34.5728610Z Uploaded bytes 578813952
+2026-10-24T14:17:34.6498645Z Uploaded bytes 587202560
+2026-10-24T14:17:34.7016207Z Uploaded bytes 595591168
+2026-10-24T14:17:35.3005153Z Uploaded bytes 603979776
+2026-10-24T14:17:35.4582217Z Uploaded bytes 612368384
+2026-10-24T14:17:35.4792894Z Uploaded bytes 620756992
+2026-10-24T14:17:35.8445904Z Uploaded bytes 629145600
+2026-10-24T14:17:36.1143251Z Uploaded bytes 637534208
+2026-10-24T14:17:36.6596390Z Uploaded bytes 645922816
+2026-10-24T14:17:36.7757554Z Uploaded bytes 654311424
+2026-10-24T14:17:36.9192538Z Uploaded bytes 662700032
+2026-10-24T14:17:37.0260178Z Uploaded bytes 671088640
+2026-10-24T14:17:37.2392842Z Uploaded bytes 679477248
+2026-10-24T14:17:37.4969545Z Uploaded bytes 687865856
+2026-10-24T14:17:37.5985819Z Uploaded bytes 696254464
+2026-10-24T14:17:37.6457092Z Uploaded bytes 704643072
+2026-10-24T14:17:37.8182915Z Uploaded bytes 713031680
+2026-10-24T14:17:38.3203629Z Uploaded bytes 721420288
+2026-10-24T14:17:38.3949543Z Uploaded bytes 729808896
+2026-10-24T14:17:38.7083914Z Uploaded bytes 738197504
+2026-10-24T14:17:38.7901099Z Uploaded bytes 746586112
+2026-10-24T14:17:39.1879882Z Uploaded bytes 754974720
+2026-10-24T14:17:39.4954426Z Uploaded bytes 763363328
+2026-10-24T14:17:39.5122094Z Uploaded bytes 771751936
+2026-10-24T14:17:39.5791556Z Uploaded bytes 780140544
+2026-10-24T14:17:39.6106301Z Uploaded bytes 788529152
+2026-10-24T14:17:39.9579439Z Uploaded bytes 796917760
+2026-10-24T14:17:40.3717700Z Uploaded bytes 805306368
+2026-10-24T14:17:40.7720070Z Uploaded bytes 813694976
+2026-10-24T14:17:40.9561220Z Uploaded bytes 822083584
+2026-10-24T14:17:41.1596081Z Uploaded bytes 830472192
+2026-10-24T14:17:41.3054421Z Uploaded bytes 838860800
+2026-10-24T14:17:41.7442178Z Uploaded bytes 847249408
+2026-10-24T14:17:41.8537404Z Uploaded bytes 855638016
+2026-10-24T14:17:41.9208728Z Uploaded bytes 864026624
+2026-10-24T14:17:42.0324583Z Uploaded bytes 872415232
+2026-10-24T14:17:42.1179237Z Uploaded bytes 880803840
+2026-10-24T14:17:42.4264616Z Uploaded bytes 889192448
+2026-10-24T14:17:42.6343951Z Uploaded bytes 897581056
+2026-10-24T14:17:46.4253065Z Uploaded bytes 905148751
+2026-10-24T14:17:46.4478757Z Finished uploading artifact content to blob storage!
+2026-10-24T14:17:46.4481715Z SHA256 digest of uploaded artifact zip is aa8afb50cb74bfad04736f82960a3c28a6d297298d478a8891cddc9dc8cedd1a
+2026-10-24T14:17:46.4483780Z Finalizing artifact upload
+2026-10-24T14:17:46.8835843Z Artifact installers-windows-cpu.zip successfully finalized. Artifact ID 12562204496
+2026-10-24T14:17:46.8836583Z Artifact installers-windows-cpu has been successfully uploaded! Final size is 905148751 bytes. Artifact ID is 12562204496
+2026-10-24T14:17:46.8847721Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/40095806313/artifacts/12562204496
+2026-10-24T14:17:46.9255690Z Post job cleanup.
+2026-10-24T14:17:47.1465639Z In post-action step
+2026-10-24T14:17:47.1475689Z ##[group]Stopping Gradle daemons
+2026-10-24T14:17:47.1477772Z Stopping Gradle daemons for C:\ProgramData\chocolatey\lib\gradle\tools\gradle-9.8.2
+2026-10-24T14:17:47.1506015Z [command]C:\Windows\system32\cmd.exe /D /S /C "C:\ProgramData\chocolatey\lib\gradle\tools\gradle-9.8.2\bin\gradle.bat --stop"
+2026-10-24T14:17:47.9296722Z Stopping Daemon(s)
+2026-10-24T14:17:47.9299099Z 1 Daemon stopped
+2026-10-24T14:17:47.9599237Z ##[endgroup]
+2026-10-24T14:17:47.9631825Z ##[group]Provision Gradle >= 9.8.2
+2026-10-24T14:17:48.8822608Z Gradle distribution 9.8.2 not found in cache. Will download.
+2026-10-24T14:17:49.7244195Z Downloaded https://services.gradle.org/distributions/gradle-9.8.2-bin.zip to D:\a\_temp\.gradle-actions\gradle-installations\downloads\gradle-9.8.2-bin.zip (size 151620138)
+2026-10-24T14:17:49.7790237Z [command]"C:\Program Files\Git\usr\bin\tar.exe" --posix -cf cache.tzst --exclude cache.tzst -P -C D:/a/vieww_prod/vieww_prod --files-from manifest.txt --force-local --use-compress-program "zstd -T0"
+2026-10-24T14:17:51.3396836Z Sent 17269786 of 151487514 (11.4%), 16.4 MBs/sec
+2026-10-24T14:17:52.3501204Z Sent 17269786 of 151487514 (11.4%), 8.2 MBs/sec
+2026-10-24T14:17:53.3626526Z Sent 17269786 of 151487514 (11.4%), 5.4 MBs/sec
+2026-10-24T14:17:54.3632323Z Sent 84378650 of 151487514 (55.7%), 20.0 MBs/sec
+2026-10-24T14:17:55.3649992Z Sent 84378650 of 151487514 (55.7%), 16.0 MBs/sec
+2026-10-24T14:17:55.9200131Z Sent 151487514 of 151487514 (100.0%), 25.9 MBs/sec
+2026-10-24T14:17:56.1003728Z [command]"C:\Program Files\PowerShell\7\pwsh.exe" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Unrestricted -Command "$ErrorActionPreference = 'Stop' ; try { Add-Type -AssemblyName System.IO.Compression.ZipFile } catch { } ; try { [System.IO.Compression.ZipFile]::ExtractToDirectory('D:\a\_temp\.gradle-actions\gradle-installations\downloads\gradle-9.8.2-bin.zip', 'D:\a\_temp\.gradle-actions\gradle-installations\installs', $true) } catch { if (($_.Exception.GetType().FullName -eq 'System.Management.Automation.MethodException') -or ($_.Exception.GetType().FullName -eq 'System.Management.Automation.RuntimeException') ){ Expand-Archive -LiteralPath 'D:\a\_temp\.gradle-actions\gradle-installations\downloads\gradle-9.8.2-bin.zip' -DestinationPath 'D:\a\_temp\.gradle-actions\gradle-installations\installs' -Force } else { throw $_ } } ;"
+2026-10-24T14:17:57.4146527Z Extracted Gradle 9.8.2 to D:\a\_temp\.gradle-actions\gradle-installations\installs\gradle-9.8.2
+2026-10-24T14:17:57.4148562Z Provisioned Gradle executable D:\a\_temp\.gradle-actions\gradle-installations\installs\gradle-9.8.2\bin\gradle.bat
+2026-10-24T14:17:57.4149308Z ##[endgroup]
+2026-10-24T14:17:57.4161511Z ##[group]Executing Gradle to clean up caches
+2026-10-24T14:17:57.4161881Z Cleaning up caches last used before 1792846610187
+2026-10-24T14:17:57.4167854Z [command]C:\Windows\system32\cmd.exe /D /S /C "D:\a\_temp\.gradle-actions\gradle-installations\installs\gradle-9.8.2\bin\gradle.bat -g D:\a\.gradle -I init.gradle --info --no-daemon --no-scan --build-cache "-DGITHUB_DEPENDENCY_GRAPH_ENABLED=false" "-DGRADLE_ACTIONS_SKIP_BUILD_RESULT_CAPTURE=true" noop"
+2026-10-24T14:17:57.9065863Z Initialized native services in: D:\a\.gradle\native
+2026-10-24T14:17:57.9098113Z Initialized jansi services in: D:\a\.gradle\native
+2026-10-24T14:17:58.0730373Z The current JVM process isn't compatible with build requirement. The maximum heap size is insufficient.
+2026-10-24T14:17:58.0731491Z 
+2026-10-24T14:17:58.1671238Z To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.2/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+2026-10-24T14:17:58.1696288Z Starting process 'Gradle build daemon'. Working directory: D:\a\.gradle\daemon\9.8.2 Command: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\17.0.20-101\x64\bin\java.exe --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED -XX:MaxMetaspaceSize=384m -XX:+HeapDumpOnOutOfMemoryError -Xms256m -Xmx512m -Dfile.encoding=windows-1252 -Duser.country=US -Duser.language=en -Duser.variant -cp D:\a\_temp\.gradle-actions\gradle-installations\installs\gradle-9.8.2\lib\gradle-daemon-main-9.8.2.jar -javaagent:D:\a\_temp\.gradle-actions\gradle-installations\installs\gradle-9.8.2\lib\agents\gradle-instrumentation-agent-9.8.2.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.8.2
+2026-10-24T14:17:58.2618314Z Successfully started process 'Gradle build daemon'
+2026-10-24T14:17:59.2555434Z An attempt to start the daemon took 1.047 secs.
+2026-10-24T14:17:59.3614058Z The client will now receive all logging from the daemon (pid: 4648). The daemon log file: D:\a\.gradle\daemon\9.8.2\daemon-4648.out.log
+2026-10-24T14:17:59.3614870Z Daemon will be stopped at the end of the build 
+2026-10-24T14:17:59.7660666Z Using 4 worker leases.
+2026-10-24T14:17:59.7664067Z Operational build model parameters: {cachingModelBuilding=false, configurationCache=false, configurationCacheDisabledReason=null, configurationCacheParallelLoad=false, configurationCacheParallelStore=false, configureOnDemand=false, invalidateCoupledProjects=false, isolatedProjects=false, isolatedProjectsDiagnostics=false, isolatedProjectsDangerouslyIgnoreProblems=false, modelAsProjectDependency=false, modelBuilding=false, parallelModelBuilding=false, parallelProjectConfiguration=false, parallelProjectExecution=false, vintage=true}
+2026-10-24T14:18:00.0732624Z Received JVM installation metadata from 'C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\17.0.20-101\x64': {JAVA_HOME=C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\17.0.20-101\x64, JAVA_VERSION=17.0.20.1, JAVA_VENDOR=Eclipse Adoptium, RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=17.0.20.1+1, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=17.0.20.1+1, VM_VENDOR=Eclipse Adoptium, OS_ARCH=amd64}
+2026-10-24T14:18:00.3558289Z Watching the file system is configured to be enabled if available
+2026-10-24T14:18:00.3563320Z Now considering [D:\a\_temp\dummy-cleanup-project] as hierarchies to watch
+2026-10-24T14:18:00.3564102Z File system watching is active
+2026-10-24T14:18:00.8572503Z Caching disabled for Groovy DSL script compilation (cp_init) because:
+2026-10-24T14:18:00.8573302Z   Build cache is disabled
+2026-10-24T14:18:00.8573683Z   Not worth caching.
+2026-10-24T14:18:00.8574409Z Compiling initialization script 'D:\a\_temp\dummy-cleanup-project\init.gradle' using SubsetScriptTransformer.
+2026-10-24T14:18:01.4569762Z Caching disabled for Groovy DSL script compilation (init) because:
+2026-10-24T14:18:01.4570712Z   Build cache is disabled
+2026-10-24T14:18:01.4572420Z   Not worth caching.
+2026-10-24T14:18:01.4579972Z Compiling initialization script 'D:\a\_temp\dummy-cleanup-project\init.gradle' using BuildScriptTransformer.
+2026-10-24T14:18:02.0692045Z gradle/actions: Not capturing build results
+2026-10-24T14:18:02.2692406Z Starting Build
+2026-10-24T14:18:02.2693107Z Caching disabled for Groovy DSL script compilation (cp_settings) because:
+2026-10-24T14:18:02.2771784Z   Build cache is disabled
+2026-10-24T14:18:02.2772742Z   Not worth caching.
+2026-10-24T14:18:02.2773375Z Compiling settings file 'D:\a\_temp\dummy-cleanup-project\settings.gradle' using SubsetScriptTransformer.
+2026-10-24T14:18:02.2774206Z Caching disabled for Groovy DSL script compilation (settings) because:
+2026-10-24T14:18:02.2776017Z   Build cache is disabled
+2026-10-24T14:18:02.2776726Z   Not worth caching.
+2026-10-24T14:18:02.2777348Z Compiling settings file 'D:\a\_temp\dummy-cleanup-project\settings.gradle' using BuildScriptTransformer.
+2026-10-24T14:18:02.3680920Z Settings evaluated using settings file 'D:\a\_temp\dummy-cleanup-project\settings.gradle'.
+2026-10-24T14:18:02.3684077Z Using local directory build cache for the root build (location = D:\a\.gradle\caches\build-cache-1, remove unused entries = older than 2026-10-24 12:56:50 UTC).
+2026-10-24T14:18:02.4585530Z Projects loaded. Root project using build file 'D:\a\_temp\dummy-cleanup-project\build.gradle'.
+2026-10-24T14:18:02.4586643Z Included projects: [root project 'dummy-cleanup-project']
+2026-10-24T14:18:02.7573282Z 
+2026-10-24T14:18:02.7577647Z > Configure project :
+2026-10-24T14:18:02.7583896Z Evaluating root project 'dummy-cleanup-project' using build file 'D:\a\_temp\dummy-cleanup-project\build.gradle'.
+2026-10-24T14:18:02.7598785Z Caching disabled for Groovy DSL script compilation (cp_proj) because:
+2026-10-24T14:18:02.7607279Z   Not worth caching.
+2026-10-24T14:18:02.7609403Z Compiling build file 'D:\a\_temp\dummy-cleanup-project\build.gradle' using SubsetScriptTransformer.
+2026-10-24T14:18:02.7617149Z Caching disabled for Groovy DSL script compilation (proj) because:
+2026-10-24T14:18:02.7620336Z   Not worth caching.
+2026-10-24T14:18:02.7621537Z Compiling build file 'D:\a\_temp\dummy-cleanup-project\build.gradle' using BuildScriptTransformer.
+2026-10-24T14:18:02.7622262Z All projects evaluated.
+2026-10-24T14:18:02.7622638Z Task name matched 'noop'
+2026-10-24T14:18:02.7623046Z Selected primary task 'noop' from project :
+2026-10-24T14:18:02.7623452Z Tasks to be executed: [task ':noop']
+2026-10-24T14:18:02.7624695Z Tasks that were excluded: []
+2026-10-24T14:18:02.7625486Z Resolve mutations for :noop (Thread[included builds,5,main]) started.
+2026-10-24T14:18:02.7625998Z :noop (Thread[included builds,5,main]) started.
+2026-10-24T14:18:02.8608856Z 
+2026-10-24T14:18:02.8636277Z > Task :noop UP-TO-DATE
+2026-10-24T14:18:02.8648904Z Skipping task ':noop' as it has no actions.
+2026-10-24T14:18:02.8651978Z 
+2026-10-24T14:18:02.8664241Z BUILD SUCCESSFUL in 5s
+2026-10-24T14:18:02.8667400Z Watched directory hierarchies: []
+2026-10-24T14:18:02.8678047Z Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.2/userguide/configuration_cache_enabling.html
+2026-10-24T14:18:02.8779232Z groovy-dsl removing files not accessed on or after Sat Oct 24 12:56:50 UTC 2026.
+2026-10-24T14:18:02.8809867Z groovy-dsl cleanup deleted 0 files/directories.
+2026-10-24T14:18:02.8816787Z groovy-dsl cleaned up in 0.009 secs.
+2026-10-24T14:18:02.8835607Z Artifact transforms cache removing files not accessed on or after Sat Oct 24 12:56:50 UTC 2026.
+2026-10-24T14:18:03.0612092Z Artifact transforms cache cleanup deleted 0 files/directories.
+2026-10-24T14:18:03.0614130Z Artifact transforms cache cleaned up in 0.127 secs.
+2026-10-24T14:18:03.0615449Z artifact cache (D:\a\.gradle\caches\modules-2) cleanup deleted 0 files/directories.
+2026-10-24T14:18:03.0616917Z artifact cache (D:\a\.gradle\caches\modules-2) [subdir: D:\a\.gradle\caches\modules-2\resources-2.1] cleanup deleted 0 files/directories.
+2026-10-24T14:18:03.0618487Z artifact cache (D:\a\.gradle\caches\modules-2) [subdir: D:\a\.gradle\caches\modules-2\resources-2.1] removing files not accessed on or after Sat Oct 24 12:56:50 UTC 2026.
+2026-10-24T14:18:03.0621956Z artifact cache (D:\a\.gradle\caches\modules-2) [subdir: D:\a\.gradle\caches\modules-2\resources-2.1] cleanup deleted 0 files/directories.
+2026-10-24T14:18:03.0623011Z artifact cache (D:\a\.gradle\caches\modules-2) [subdir: D:\a\.gradle\caches\modules-2\files-2.1] cleanup deleted 0 files/directories.
+2026-10-24T14:18:03.0624149Z artifact cache (D:\a\.gradle\caches\modules-2) [subdir: D:\a\.gradle\caches\modules-2\files-2.1] removing files not accessed on or after Sat Oct 24 12:56:50 UTC 2026.
+2026-10-24T14:18:03.0847857Z artifact cache (D:\a\.gradle\caches\modules-2) [subdir: D:\a\.gradle\caches\modules-2\files-2.1] cleanup deleted 0 files/directories.
+2026-10-24T14:18:03.0850436Z artifact cache (D:\a\.gradle\caches\modules-2) [subdir: D:\a\.gradle\caches\modules-2\metadata-2.107] cleanup deleted 0 files/directories.
+2026-10-24T14:18:03.0852013Z artifact cache (D:\a\.gradle\caches\modules-2) cleanup deleted 0 files/directories.
+2026-10-24T14:18:03.0853830Z artifact cache (D:\a\.gradle\caches\modules-2) cleaned up in 0.07 secs.
+2026-10-24T14:18:03.0862823Z jars (D:\a\.gradle\caches\jars-9) cleanup deleted 0 files/directories.
+2026-10-24T14:18:03.0863719Z jars (D:\a\.gradle\caches\jars-9) removing files not accessed on or after Sat Oct 24 12:56:50 UTC 2026.
+2026-10-24T14:18:03.0865170Z jars (D:\a\.gradle\caches\jars-9) cleanup deleted 0 files/directories.
+2026-10-24T14:18:03.0866472Z jars (D:\a\.gradle\caches\jars-9) cleaned up in 0.001 secs.
+2026-10-24T14:18:03.1202432Z ##[endgroup]
+2026-10-24T14:18:03.1203661Z ##[group]Caching Gradle state
+2026-10-24T14:18:03.4958851Z [command]"C:\Program Files\Git\usr\bin\tar.exe" --posix -cf cache.tzst --exclude cache.tzst -P -C D:/a/vieww_prod/vieww_prod --files-from manifest.txt --force-local --use-compress-program "zstd -T0"
+2026-10-24T14:18:03.5304518Z [command]"C:\Program Files\Git\usr\bin\tar.exe" --posix -cf cache.tzst --exclude cache.tzst -P -C D:/a/vieww_prod/vieww_prod --files-from manifest.txt --force-local --use-compress-program "zstd -T0"
+2026-10-24T14:18:03.6901657Z Sent 71398 of 71398 (100.0%), 1.7 MBs/sec
+2026-10-24T14:18:03.7487513Z Sent 109692 of 109692 (100.0%), 3.9 MBs/sec
+2026-10-24T14:18:03.7661518Z Saved cache entry with key gradle-instrumented-jars-v1-cdcea9a0406bc7b296055c321bd3d3d9 from D:\a\.gradle\caches\jars-*\*/ in 428ms
+2026-10-24T14:18:03.8188959Z Saved cache entry with key gradle-groovy-dsl-v1-655b07df2b7a700d1df6741807391a54 from D:\a\.gradle\caches\*\groovy-dsl\*/ in 462ms
+2026-10-24T14:18:03.8861330Z [command]"C:\Program Files\Git\usr\bin\tar.exe" --posix -cf cache.tzst --exclude cache.tzst -P -C D:/a/vieww_prod/vieww_prod --files-from manifest.txt --force-local --use-compress-program "zstd -T0"
+2026-10-24T14:18:04.3394605Z [command]"C:\Program Files\Git\usr\bin\tar.exe" --posix -cf cache.tzst --exclude cache.tzst -P -C D:/a/vieww_prod/vieww_prod --files-from manifest.txt --force-local --use-compress-program "zstd -T0"
+2026-10-24T14:18:05.3887948Z Sent 63635456 of 88610858 (71.8%), 60.5 MBs/sec
+2026-10-24T14:18:06.0515065Z Sent 51472428 of 51472428 (100.0%), 96.4 MBs/sec
+2026-10-24T14:18:06.1464019Z Saved cache entry with key gradle-transforms-v1-9952e1c6cd25243ea6d335bead0b3090 from D:\a\.gradle\caches\transforms-4\*/,D:\a\.gradle\caches\*\transforms\*/ in 2348ms
+2026-10-24T14:18:06.5596923Z Sent 88610858 of 88610858 (100.0%), 38.7 MBs/sec
+2026-10-24T14:18:07.4425457Z Saved cache entry with key gradle-dependencies-v1-18b049df73ef581915025e0f65c56f0d from D:\a\.gradle\caches\modules-*\files-*\*\*\*\* in 4114ms
+2026-10-24T14:18:07.5807764Z [command]"C:\Program Files\Git\usr\bin\tar.exe" --posix -cf cache.tzst --exclude cache.tzst -P -C D:/a/vieww_prod/vieww_prod --files-from manifest.txt --force-local --use-compress-program "zstd -T0"
+2026-10-24T14:18:07.8628569Z Sent 189953 of 189953 (100.0%), 2.6 MBs/sec
+2026-10-24T14:18:07.9387625Z Saved cache entry with key gradle-home-v1|Windows-X64|gate[dce00235454ebd08fd56e0ca345a93b7]-e37c4ca2069192a1edaab617cc5ecf02635cc41c from D:\a\.gradle\caches,D:\a\.gradle\notifications,D:\a\.gradle\.setup-gradle in 421ms
+2026-10-24T14:18:07.9388841Z ##[endgroup]
+2026-10-24T14:18:07.9394754Z Generating Job Summary
+2026-10-24T14:18:07.9411471Z Completed post-action step
+2026-10-24T14:18:07.9705283Z Post job cleanup.
+2026-10-24T14:18:08.2052351Z (node:5060) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-24T14:18:08.2052968Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-24T14:18:08.2356452Z Post job cleanup.
+2026-10-24T14:18:08.3741138Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-24T14:18:08.4051265Z git version 2.56.0.windows.2
+2026-10-24T14:18:08.4106518Z Temporarily overriding HOME='D:\a\_temp\f48f18f0-73a8-4008-9b05-7bbcd1d3f1f3' before making global git config changes
+2026-10-24T14:18:08.4107317Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-24T14:18:08.4116583Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\vieww_prod\vieww_prod
+2026-10-24T14:18:08.4516797Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-24T14:18:08.4812367Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-24T14:18:08.9776622Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-24T14:18:09.0080144Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-24T14:18:09.4519303Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-24T14:18:09.4832613Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-24T14:18:09.9642762Z Cleaning up orphan processes
+2026-10-24T14:18:10.1472367Z Terminate orphan process: pid (3224) (vctip)
+2026-10-24T14:18:10.1846726Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-java@v4, actions/upload-artifact@v4, gradle/actions/setup-gradle@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+

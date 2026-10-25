@@ -1,0 +1,76 @@
+>>> env VIEWW_CERT_NO_GPU=1 bash ci/certify/certify.sh target/release-gate/macos-cpu/cert
+Sat Oct 24 13:18:13 UTC 2026
+>>> bash ci/check/release-clean-check.sh /Users/runner/work/vieww_prod/vieww_prod/vieww_base
+>>> cargo fmt --all -- --check
+>>> cargo check --workspace --all-targets
+>>> cargo clippy --keep-going -p vieww-gpu -p vieww-hal -p vieww-render-planner -p vieww-shaders -p vieww-paint -p vieww-render -p vieww-element --all-targets --features vieww-hal/vulkan -- -D warnings
+>>> cargo test --workspace --no-fail-fast --features vieww-paint/native
+    FAILED: tests/workspace (see target/release-gate/macos-cpu/cert/tests/workspace.txt)
+>>> cargo test -p vieww-gpu
+>>> cargo test -p vieww-shaders
+>>> cargo test -p vieww-render-planner quality
+>>> cargo test -p vieww-paint --features native
+>>> cargo check -p vieww-hal --features vulkan
+>>> cargo check -p vieww-hal --features metal --all-targets
+    skipped: gpu/device-class — CPU-only run requested
+    skipped: gpu/adapter — CPU-only run requested
+    skipped: gpu/vulkan-suite — CPU-only run requested
+    skipped: gpu/workload — CPU-only run requested
+    skipped: gpu/census — CPU-only run requested
+>>> cargo run --release -p test-premium-ui -- target/release-gate/macos-cpu/cert/visual/premium
+>>> cargo run --release -p fixtures -- target/release-gate/macos-cpu/cert/visual/fixtures --receipt target/release-gate/macos-cpu/cert/visual/fixtures/receipt.json --shadow target/release-gate/macos-cpu/cert/visual/fixtures/shadow.jsonl
+>>> cargo run --release -p test-layout-stress -- target/release-gate/macos-cpu/cert/suites/layout-stress
+>>> cargo run --release -p test-animation-stress -- target/release-gate/macos-cpu/cert/suites/animation-stress
+>>> cargo run --release -p test-text-fidelity -- target/release-gate/macos-cpu/cert/suites/text-fidelity
+>>> cargo run --release -p test-image-effects -- target/release-gate/macos-cpu/cert/suites/image-effects
+>>> cargo run --release -p test-scroll-stress -- target/release-gate/macos-cpu/cert/suites/scroll-stress
+>>> cargo run --release -p test-native-surface -- target/release-gate/macos-cpu/cert/suites/native-surface
+>>> env RUSTFLAGS= CARGO_TARGET_DIR=/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/static-std cargo run --release -p vieww-standard -- target/release-gate/macos-cpu/cert/standard/vieww-standard
+>>> bash ci/check/wasm-check.sh
+    skipped: web/build — wasm-bindgen not on PATH
+>>> cargo run --release -p test-web --example baseline -- target/release-gate/macos-cpu/cert/web/baseline
+    skipped: web/verify — no freshly built wasm to verify
+    skipped: desktop/suite — VIEWW_CERT_NO_DESKTOP=1
+Vieww macos certification
+===========================
+COMPLETE=false (skipped stages: 8)
+FAILED=1
+git_rev=e37c4ca2069192a1edaab617cc5ecf02635cc41c
+git_dirty=0
+source_digest=git-tree:ac106d6efcb0517e3d4666cfe598e1dcd75ae982
+
+build/release-clean          PASS
+build/fmt                    PASS
+build/check                  PASS
+build/clippy-core            PASS
+tests/workspace              FAIL(exit=101)
+tests/gpu-planner            PASS
+tests/shaders                PASS
+tests/quality                PASS
+tests/paint-native           PASS
+gpu/hal-build                PASS
+gpu/metal-build              PASS
+gpu/metal-backend            BUILD-ONLY(metal does not execute a ScenePlan yet; not certified)
+gpu/device-class             SKIPPED(CPU-only run requested)
+gpu/adapter                  SKIPPED(CPU-only run requested)
+gpu/vulkan-suite             SKIPPED(CPU-only run requested)
+gpu/workload                 SKIPPED(CPU-only run requested)
+gpu/census                   SKIPPED(CPU-only run requested)
+visual/premium               PASS
+visual/fixtures              PASS
+suites/layout-stress         PASS
+suites/animation-stress      PASS
+suites/text-fidelity         PASS
+suites/image-effects         PASS
+suites/scroll-stress         PASS
+suites/native-surface        PASS
+standard/vieww-standard      PASS
+web/wasm-check               PASS
+web/build                    SKIPPED(wasm-bindgen not on PATH)
+web/baseline                 PASS
+web/verify                   SKIPPED(no freshly built wasm to verify)
+desktop/suite                SKIPPED(VIEWW_CERT_NO_DESKTOP=1)
+gate/premium-overflows-zero  PASS
+gate/standard-passed         PASS
+gate/standard-allocations-measured PASS
+exit=1

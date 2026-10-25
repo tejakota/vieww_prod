@@ -1,0 +1,57 @@
+>>> cargo run --release -p fixtures -- target\release-gate\windows-cpu\cert\visual\fixtures
+    Finished `release` profile [optimized] target(s) in 0.31s
+     Running `target\release\fixtures.exe 'target\release-gate\windows-cpu\cert\visual\fixtures'`
+
+fixture                                 size    cmds      best     worst    us/cmd      fps  what it covers
+----------------------------------------------------------------------------------------------------------------------------------------
+00-fills                            840x560      384     3.16ms     3.26ms       8.2        5  384 plain fills — the control
+00-fills-rounded                    840x560      384     3.86ms     3.89ms      10.1        4  the same fills, rounded — cost of curves
+00-fills-gradient                   840x560      384     4.48ms     4.49ms      11.7        4  the same fills, gradient-shaded — cost of shading
+00-fills-rrect-clip                 840x560      384     4.04ms     4.19ms      10.5        4  the same fills under ONE rounded clip
+00-fills-nested-clips               840x560      384     3.89ms     4.17ms      10.1        4  the same fills, three clips deep
+00-strokes                          840x560      384     8.64ms    10.81ms      22.5        2  stroke expansion: joins, caps
+00-curves                           840x560      384     7.00ms     7.02ms      18.2        2  open cubics — the flattener's real workload
+00-shadows                          840x560      768     6.37ms     6.41ms       8.3        3  384 blurred shadow masks
+00-layers-flat                      840x560     1152     3.99ms     4.02ms       3.5        4  384 sibling isolated layers
+00-layers-nested                    840x560       74    20.69ms    20.89ms     279.6        1  24 layers deep — compositor depth  <-- OVER 16.7ms
+00-blend-modes                      840x560       71     4.28ms     4.31ms      60.3        4  12 blend modes over one backdrop
+00-blurs                            840x560       24     6.61ms     6.67ms     275.6        3  blur at five sigmas, incl. bounds
+00-transforms                       840x560       97     2.88ms     2.93ms      29.7        6  96 rotated + scaled boxes
+10-icon-grid                        840x560       46     2.38ms     2.45ms      51.8        7  120 vector icons, four sizes
+10-icon-strokes                     840x560       46     3.28ms     3.31ms      71.3        5  stroked line-art icons at small sizes
+11-typography                       840x560       11     2.34ms     2.38ms     212.5        7  a type scale, real glyph outlines
+11-code-block                       840x560       56     2.21ms     2.26ms      39.4        8  syntax-coloured code — many small runs
+12-avatar                           840x560       18     5.98ms     6.12ms     332.1        3  one complex layered vector portrait
+12-avatar-wall                      840x560      362     5.94ms     6.10ms      16.4        3  24 of them, clipped to circles
+20-settings                         840x560       45     4.05ms     4.13ms      90.1        4  a settings form: rows, switches, chrome
+21-dashboard                        840x560       39     3.94ms     3.98ms     100.9        4  cards, charts, elevation, gradients
+22-editor                          1366x679      129     6.09ms     6.36ms      47.2        3  an IDE shell: sidebar, code, panels
+23-editor-glass                    1366x679      149    14.34ms    14.57ms      96.3        1  the same, with blur, shadows and overlays
+----------------------------------------------------------------------------------------------------------------------------------------
+23 fixtures, 130.4 ms of rendering in total
+drawn across the gallery: 4178 shapes, 2743 glyphs, 449 layers, 394 shadows (0 commands culled)
+over budget: 00-layers-nested
+no fixture's layout overflows
+
+motion                frames       mean      worst   moving   stall  what it covers
+----------------------------------------------------------------------------------------------------------------------
+30-fade-in                24     1.69ms     4.29ms     23/23       0  opacity 0 -> 1: the simplest reveal
+31-stagger                24     1.72ms     2.34ms     15/23       0  five rows revealing in sequence
+32-splash                 24     1.71ms     2.09ms     21/23       2  a launch splash: scale, rise, fade out
+33-sheet                  24     7.57ms    10.71ms     14/23       0  a modal sheet over a blurred backdrop
+34-spinner                24     1.26ms     2.27ms     23/23       0  a continuous sweep — transforms every frame
+35-shared-element         24     4.90ms     6.69ms     23/23       0  a card expanding into a detail view — the hard transition
+36-morph                  24     1.98ms     2.72ms     23/23       0  one vector path morphing into another, stroked and filled
+
+interaction                       damage  full frame    retained  speed-up  identical?
+------------------------------------------------------------------------------------------------
+light row 4                        8.01%      4.65ms      1.60ms      2.9x  yes
+move the light to row 9           16.03%      4.56ms      3.30ms      1.4x  yes
+clear the selection                8.01%      4.26ms      1.50ms      2.8x  yes
+nothing changes at all            -0.00%      4.26ms      0.29ms     14.8x  yes
+glass: highlight moves             0.72%     15.23ms      7.82ms      1.9x  yes  within 60Hz
+glass: highlight clears            0.72%     15.02ms      7.95ms      1.9x  yes  within 60Hz
+
+wrote 23 PNGs to target\release-gate\windows-cpu\cert\visual\fixtures
+exit=0
+seconds=5

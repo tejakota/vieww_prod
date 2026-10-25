@@ -1,0 +1,21 @@
+Vieww macos certification
+===========================
+COMPLETE=false (skipped stages: 1)
+FAILED=1
+git_rev=e37c4ca2069192a1edaab617cc5ecf02635cc41c
+git_dirty=0
+source_digest=git-tree:ac106d6efcb0517e3d4666cfe598e1dcd75ae982
+
+gpu/hal-build                PASS
+gpu/metal-build              PASS
+gpu/metal-backend            BUILD-ONLY(metal does not execute a ScenePlan yet; not certified)
+gpu/adapter                  PASS
+gpu/device-class             PASS(virtual GPU: Apple Paravirtual device; pixels are evidence, timings are not)
+gpu/vulkan-suite             FAIL(exit=101)
+gpu/vulkan-validation        INFO(validation layer not installed: apt install vulkan-validationlayers)
+gpu/workload                 PASS
+gpu/census                   PASS
+desktop/suite                SKIPPED(VIEWW_CERT_NO_DESKTOP=1)
+gate/gpu-unsupported-zero    PASS
+gate/census-all-complete     PASS
+gate/census-no-flat-region-mismatch PASS

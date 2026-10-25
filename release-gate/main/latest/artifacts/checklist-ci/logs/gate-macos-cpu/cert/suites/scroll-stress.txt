@@ -1,0 +1,10 @@
+>>> cargo run --release -p test-scroll-stress -- target/release-gate/macos-cpu/cert/suites/scroll-stress
+[1m[92m   Compiling[0m test-scroll-stress v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-scroll-stress)
+[1m[92m    Finished[0m `release` profile [optimized] target(s) in 1.33s
+[1m[92m     Running[0m `target/release/test-scroll-stress target/release-gate/macos-cpu/cert/suites/scroll-stress`
+rows in tree: 24..27 (of 5000), moving frames: 10/10, render mean 1.02 ms, worst 3.12 ms
+jump frame: built 27 of 27 (100%)
+wrote target/release-gate/macos-cpu/cert/suites/scroll-stress
+ALL SCROLL-STRESS CHECKS PASSED
+exit=0
+seconds=2
