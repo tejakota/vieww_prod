@@ -1,0 +1,31 @@
+===== Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap =====
+﻿2026-10-25T14:54:31.2281711Z ##[group]Run cargo test -p wright-tools winjob -- --test-threads=1
+2026-10-25T14:54:31.2282026Z ^[[36;1mcargo test -p wright-tools winjob -- --test-threads=1^[[0m
+2026-10-25T14:54:31.2288395Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-25T14:54:31.2288612Z ##[endgroup]
+2026-10-25T14:54:31.3577893Z    Compiling wright-tools v1.0.2 (D:\a\vieww_prod\vieww_prod\vieww_base\apps\wright\tools)
+2026-10-25T14:54:32.7081052Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.42s
+2026-10-25T14:54:32.7127106Z      Running unittests src\lib.rs (target\debug\deps\wright_tools-1a39a0bbfd296e09.exe)
+2026-10-25T14:54:32.7166088Z 
+2026-10-25T14:54:32.7166290Z running 2 tests
+2026-10-25T14:54:33.2246195Z test winjob::tests::closing_the_job_kills_the_whole_tree ... FAILED
+2026-10-25T14:54:33.2397190Z Not enough quota is available to process this command.
+2026-10-25T14:54:33.2407700Z test winjob::tests::the_process_cap_holds ... ok
+2026-10-25T14:54:33.2408024Z 
+2026-10-25T14:54:33.2408093Z failures:
+2026-10-25T14:54:33.2408178Z 
+2026-10-25T14:54:33.2408349Z ---- winjob::tests::closing_the_job_kills_the_whole_tree stdout ----
+2026-10-25T14:54:33.2408619Z 
+2026-10-25T14:54:33.2408874Z thread 'winjob::tests::closing_the_job_kills_the_whole_tree' (2684) panicked at tools\src\winjob.rs:186:9:
+2026-10-25T14:54:33.2409331Z assertion failed: !status.success()
+2026-10-25T14:54:33.2409631Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2026-10-25T14:54:33.2409876Z 
+2026-10-25T14:54:33.2409879Z 
+2026-10-25T14:54:33.2409936Z failures:
+2026-10-25T14:54:33.2410119Z     winjob::tests::closing_the_job_kills_the_whole_tree
+2026-10-25T14:54:33.2410296Z 
+2026-10-25T14:54:33.2410519Z test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 37 filtered out; finished in 0.52s
+2026-10-25T14:54:33.2410826Z 
+2026-10-25T14:54:33.2418387Z error: test failed, to rerun pass `-p wright-tools --lib`
+2026-10-25T14:54:33.2508417Z ##[error]Process completed with exit code 101.
+

@@ -2,6 +2,7 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
+| 2026-10-25T14:54:57Z | wright-sandbox-suites/main | FAILURE | `f0e7547cea35` | [summary](wright-sandbox-suites/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40204378592) |
 | 2026-10-25T14:50:53Z | release-gate/main | CANCELLED | `e8f9da976cb8` | [summary](release-gate/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40171640088) |
 | 2026-10-25T07:50:11Z | audio-ci/main | SUCCESS | `e8f9da976cb8` | [summary](audio-ci/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40171656264) |
 | 2026-10-25T07:37:55Z | framework-checks/main | FAILURE | `e8f9da976cb8` | [summary](framework-checks/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40171568264) |
