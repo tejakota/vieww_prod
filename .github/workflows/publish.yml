@@ -13,17 +13,11 @@
 name: publish
 
 on:
-  pull_request:
-    paths:
-      - "vieww_base/**/Cargo.toml"
-      - "vieww_base/Cargo.lock"
-      - "vieww_base/ci/release/publish-*"
-      - ".github/workflows/publish.yml"
-  schedule:
-    - cron: "45 22 * * *"
-  push:
-    tags: ["v*"]
   workflow_dispatch:
+  schedule:
+    # The nightly publish dry-run (FW-01's T11: ordered crates stay
+    # publishable). PR trigger removed per the owner's manual-only rule.
+    - cron: "45 22 * * *"
 
 permissions:
   contents: read
