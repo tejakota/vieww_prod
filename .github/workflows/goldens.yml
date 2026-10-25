@@ -4,20 +4,11 @@
 name: goldens
 
 on:
-  pull_request:
-    paths:
-      - "vieww_base/crates/**"
-      - "vieww_base/examples/**"
-      - "vieww_base/Cargo.lock"
-      - ".github/workflows/goldens.yml"
-  push:
-    branches: [main]
   workflow_dispatch:
-    inputs:
-      update:
-        description: "Capture a new baseline and upload it as an artifact (no comparison)"
-        type: boolean
-        default: false
+
+# Owner rule (2026-10-24): manual only. The pull_request + push triggers
+# are gone; the goldens gate runs when you dispatch it (a pre-merge step
+# in your own flow), not on every branch push.
 
 permissions:
   contents: read
