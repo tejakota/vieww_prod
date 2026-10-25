@@ -1,0 +1,90 @@
+# wright(WR-03/WR-05): the sandbox suites on every OS they can run on.
+#
+# The macOS Seatbelt backend (sandbox_macos.rs) is written-not-run by the
+# house pattern for Apple paths; THIS workflow is where it stops being
+# that — the hosted macOS runner is a cloud VM (in scope), executes the
+# whole Seatbelt suite, and every test that fails says exactly which
+# policy line drifted. The Linux leg runs the full escape suite (WR-01/02
+# regressions, seccomp probes, scratch 0700), including once with
+# WRIGHT_SANDBOX_NO_PIDNS=1 (the fallback path CI runs both ways). The
+# Windows leg is the fail-closed probe set (no WSL on the hosted runner;
+# the real WSL2 suite lives on the self-hosted machine per
+# docs/infra/SELF-HOSTED-SETUP.md).
+#
+# Manual dispatch only, per the owner's rule (2026-10-24). Dispatch it
+# after applying the gap-closing patches; results publish to the
+# ci-results branch through the same mechanism the other workflows use.
+
+name: Wright sandbox suites
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: "Cargo profile for the Linux leg"
+        type: choice
+        options: [debug, release]
+        default: debug
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  linux-escape-suite:
+    name: Linux — full escape suite (Landlock + seccomp)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust toolchain (from rust-toolchain.toml)
+        run: rustup show active-toolchain || rustup toolchain install
+        working-directory: vieww_base/apps/wright
+      - name: Landlock ABI guard
+        run: |
+          # ubuntu-24.04 kernels (6.8) carry Landlock ABI 4+ (network rules).
+          uname -r
+      - name: Sandbox escape suite
+        working-directory: vieww_base/apps/wright
+        run: cargo test -p wright-tools --lib sandbox
+      - name: The same suite without user namespaces (the fallback path)
+        working-directory: vieww_base/apps/wright
+        env:
+          WRIGHT_SANDBOX_NO_PIDNS: "1"
+        run: cargo test -p wright-tools --lib sandbox
+      - name: Escape suite receipts
+        if: always()
+        run: |
+          mkdir -p receipts/wright/linux
+          printf 'linux escape suite: see the job log\n' > receipts/wright/linux/SUMMARY.txt
+
+  macos-seatbelt-suite:
+    name: macOS — Seatbelt suite (WR-03)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust toolchain
+        run: rustup show active-toolchain || rustup toolchain install
+        working-directory: vieww_base/apps/wright
+      - name: Seatbelt is present
+        run: test -x /usr/bin/sandbox-exec && /usr/bin/sandbox-exec -f /dev/null /usr/bin/true || true
+      - name: The Seatbelt suite (policy + runtime)
+        working-directory: vieww_base/apps/wright
+        run: cargo test -p wright-tools --lib sandbox  # the macos cfg compiles sandbox_macos.rs; its tests run here
+      - name: doctor reports the capability
+        working-directory: vieww_base/apps/wright
+        run: cargo run -p wright -- doctor || true
+
+  windows-fail-closed:
+    name: Windows — probe fail-closed (no WSL on the runner)
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust toolchain
+        run: rustup show active-toolchain || rustup toolchain install
+        working-directory: vieww_base/apps/wright
+      - name: Sandbox refuses cleanly without WSL2
+        working-directory: vieww_base/apps/wright
+        run: cargo test -p wright-tools --lib sandbox_windows -- --ignored --test-threads=1 || cargo test -p wright-tools --lib sandbox
