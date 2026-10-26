@@ -1,0 +1,31 @@
+-----
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	﻿2026-10-26T09:33:12.1359766Z ##[group]Run cargo test -p wright-tools winjob -- --test-threads=1
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:12.1360454Z ^[[36;1mcargo test -p wright-tools winjob -- --test-threads=1^[[0m
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:12.1371567Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:12.1372094Z ##[endgroup]
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:12.3435970Z    Compiling wright-tools v1.0.2 (D:\a\vieww_prod\vieww_prod\vieww_base\apps\wright\tools)
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:14.4960126Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.26s
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:14.5033584Z      Running unittests src\lib.rs (target\debug\deps\wright_tools-1a39a0bbfd296e09.exe)
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:14.5097151Z 
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:14.5097997Z running 3 tests
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0192679Z test winjob::tests::closing_the_job_kills_the_whole_tree ... FAILED
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0432547Z Not enough quota is available to process this command.
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0452834Z test winjob::tests::the_process_cap_holds ... ok
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0860358Z test winjob::tests::workers_can_start_children_under_the_production_limits ... ok
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0861339Z 
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0862920Z failures:
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0864853Z 
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0865895Z ---- winjob::tests::closing_the_job_kills_the_whole_tree stdout ----
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0866698Z 
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0867264Z thread 'winjob::tests::closing_the_job_kills_the_whole_tree' (4708) panicked at tools\src\winjob.rs:293:9:
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0868148Z assertion failed: !status.success()
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0868842Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0869339Z 
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0869348Z 
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0869572Z failures:
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0870130Z     winjob::tests::closing_the_job_kills_the_whole_tree
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0870650Z 
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0871043Z test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 37 filtered out; finished in 0.58s
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0871656Z 
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.0880722Z error: test failed, to rerun pass `-p wright-tools --lib`
+Windows — probe fail-closed (no WSL on the runner)	Worker Job objects (WR-05) — tree killed with the job, process cap	2026-10-26T09:33:15.1024630Z ##[error]Process completed with exit code 101.
