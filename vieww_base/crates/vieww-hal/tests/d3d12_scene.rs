@@ -416,3 +416,105 @@ fn a_damaged_frame_keeps_the_previous_frame_outside_the_damage() {
         }
     }
 }
+
+/// The group-opacity scene through cut-down versions of `post.wgsl`'s
+/// `fs_main`, each on a fresh device, to name the part of the post shader a
+/// driver mishandles (WARP removed the device on the first post pass). Every
+/// variant is run and the table printed before the assertion, so one run
+/// reports all of them.
+#[test]
+#[ignore = "needs a D3D12 device"]
+fn post_shader_bisection_on_the_group_opacity_scene() {
+    let full = vieww_shaders::library::POST_WGSL;
+    let renamed = full.replacen("fn fs_main(", "fn fs_main_full(", 1);
+    let stub = |body: &str| {
+        format!(
+            "{renamed}\n@fragment\nfn fs_main(@builtin(position) frag: vec4<f32>) -> @location(0) vec4<f32> {{\n    let p = vec2<i32>(floor(frag.xy));\n    {body}\n}}\n"
+        )
+    };
+    let variants: Vec<(&str, String)> = vec![
+        ("constant", stub("return vec4<f32>(0.25, 0.0, 0.0, 0.5);")),
+        ("push constant only", stub("return vec4<f32>(pc.args.w);")),
+        (
+            "one textureLoad",
+            stub("return textureLoad(t_src, p, 0) * pc.args.w;"),
+        ),
+        (
+            "src_at (region test)",
+            stub("return src_at(p) * pc.args.w;"),
+        ),
+        (
+            "mask textureLoad",
+            stub("return src_at(p) * mask_at(p, pc.p0.xy);"),
+        ),
+        (
+            "aux textureLoad",
+            stub("return src_at(p) * textureLoad(t_aux, p, 0).a;"),
+        ),
+        ("box_blur", stub("return box_blur(p, 1);")),
+        (
+            "blend",
+            stub("return blend(i32(round(pc.args.z)), src_at(p), textureLoad(t_aux, p, 0));"),
+        ),
+        (
+            "full, blur stubbed",
+            full.replacen("return box_blur(p, mode);", "return src_at(p);", 1),
+        ),
+        (
+            "full, blend stubbed",
+            full.replacen(
+                "return blend(i32(round(pc.args.z)), s, d);",
+                "return s + d * 0.0;",
+                1,
+            ),
+        ),
+        ("full", full.to_string()),
+    ];
+
+    let base = Color::WHITE;
+    let mut scene = Scene::default();
+    scene.push_layer(
+        Rect::new(10.0, 10.0, 100.0, 70.0),
+        0.5,
+        vieww_foundation::BlendMode::Normal,
+    );
+    fill_rect(
+        &mut scene,
+        Rect::new(20.0, 20.0, 80.0, 60.0),
+        Color::rgba(255, 0, 0, 255),
+    );
+    scene.pop_layer();
+    let mut planner = Planner::new();
+    let plan = planner.plan(&scene, WIDTH as f32, HEIGHT as f32);
+
+    let guard = ONE_DEVICE_AT_A_TIME
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    let mut report = Vec::new();
+    for (name, source) in &variants {
+        let device = match D3d12Device::new() {
+            Ok(device) => device,
+            Err(error) => {
+                eprintln!("skipping: no D3D12 device available ({error})");
+                return;
+            }
+        };
+        let outcome = match D3d12SceneRenderer::with_post_source(&device, source) {
+            Err(error) => format!("BUILD FAILED: {error}"),
+            Ok(mut renderer) => match renderer.render_planned(&planner, &plan, WIDTH, HEIGHT, base)
+            {
+                Ok(_) => "rendered".to_string(),
+                Err(error) => format!("RENDER FAILED: {error}"),
+            },
+        };
+        eprintln!("BISECT {name:<24} {outcome}");
+        report.push((*name, outcome));
+    }
+    drop(guard);
+    let failed: Vec<_> = report
+        .iter()
+        .filter(|(_, o)| o != "rendered")
+        .map(|(n, _)| *n)
+        .collect();
+    assert!(failed.is_empty(), "post variants that failed: {failed:?}");
+}

@@ -350,6 +350,18 @@ impl D3d12SceneRenderer {
     ///
     /// Any D3D12 call failing, or a shader failing to translate or compile.
     pub fn new(device: &D3d12Device) -> Result<Self, D3d12Error> {
+        Self::with_post_source(device, vieww_shaders::library::POST_WGSL)
+    }
+
+    /// [`Self::new`] with `post` in place of `post.wgsl` — the hook the
+    /// Windows suite's post-shader bisection uses to find which part of the
+    /// shader a driver mishandles. Not for applications.
+    ///
+    /// # Errors
+    ///
+    /// As [`Self::new`].
+    #[doc(hidden)]
+    pub fn with_post_source(device: &D3d12Device, post: &str) -> Result<Self, D3d12Error> {
         let raw = device.raw().clone();
         let queue_desc = D3D12_COMMAND_QUEUE_DESC {
             Type: D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -460,16 +472,8 @@ impl D3d12SceneRenderer {
             TARGET_FORMAT,
             premultiplied_over(),
         )?;
-        let post_vs = D3d12Device::compile(
-            vieww_shaders::library::POST_WGSL,
-            "vs_main",
-            vieww_shaders::ShaderStage::Vertex,
-        )?;
-        let post_ps = D3d12Device::compile(
-            vieww_shaders::library::POST_WGSL,
-            "fs_main",
-            vieww_shaders::ShaderStage::Fragment,
-        )?;
+        let post_vs = D3d12Device::compile(post, "vs_main", vieww_shaders::ShaderStage::Vertex)?;
+        let post_ps = D3d12Device::compile(post, "fs_main", vieww_shaders::ShaderStage::Fragment)?;
         let post_replace_pso = device.pipeline(
             &post_root,
             &post_vs,
