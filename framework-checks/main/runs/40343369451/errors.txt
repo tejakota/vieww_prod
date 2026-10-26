@@ -1,0 +1,263 @@
+-----
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	﻿2026-10-26T14:52:29.2971078Z ##[group]Run cargo test -p vieww-hal --features d3d12 --no-run
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2971544Z ^[[36;1mcargo test -p vieww-hal --features d3d12 --no-run^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2971801Z ^[[36;1mfailed=()^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2971985Z ^[[36;1mfor bin in d3d12_scene d3d12_smoke; do^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2972247Z ^[[36;1m  [ -f "crates/vieww-hal/tests/$bin.rs" ] || continue^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2972711Z ^[[36;1m  for t in $(cargo test -q -p vieww-hal --features d3d12 --test "$bin" -- --ignored --list 2>/dev/null | sed -n 's/: test$//p'); do^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2973129Z ^[[36;1m    echo "::group::$bin::$t"^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2973482Z ^[[36;1m    if cargo test -q -p vieww-hal --features d3d12 --test "$bin" -- --ignored --exact "$t" --nocapture; then^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2973838Z ^[[36;1m      echo "::endgroup::"^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2974026Z ^[[36;1m    else^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2974176Z ^[[36;1m      echo "::endgroup::"^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2974368Z ^[[36;1m      echo "FAILED-TEST $bin::$t"^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2974605Z ^[[36;1m      failed+=("$bin::$t")^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2974784Z ^[[36;1m    fi^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2974924Z ^[[36;1m  done^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2975056Z ^[[36;1mdone^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2975349Z ^[[36;1mcargo test -p vieww-hal --features d3d12 --lib -- --ignored --test-threads=1 || failed+=(lib)^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2975705Z ^[[36;1mif [ ${#failed[@]} -gt 0 ]; then^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2975922Z ^[[36;1m  printf 'failed: %s\n' "${failed[@]}"^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2976126Z ^[[36;1m  exit 1^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2976265Z ^[[36;1mfi^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2985039Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2985343Z env:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:52:29.2985495Z   CARGO_TERM_COLOR: always
+-----
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:39.6585540Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_compositor.rs (target\debug\deps\vulkan_compositor-2d787e9f06499cdc.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:39.6586990Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_compute.rs (target\debug\deps\vulkan_compute-25d698676c686ede.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:39.6588098Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_damage.rs (target\debug\deps\vulkan_damage-79acf964181b8e5c.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:39.6589296Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_mesh_smoke.rs (target\debug\deps\vulkan_mesh_smoke-a96c3de7d2600b5f.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:39.6590475Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_pipeline_cache.rs (target\debug\deps\vulkan_pipeline_cache-ea216774e8d24c1c.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:39.6591667Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_scene.rs (target\debug\deps\vulkan_scene-c3be0be4d13e9268.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:39.6593185Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_smoke.rs (target\debug\deps\vulkan_smoke-9a9cd3af8a5c7bd4.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:39.6594933Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_text.rs (target\debug\deps\vulkan_text-26c67f87701f390a.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:40.0062991Z ##[group]d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:40.3800016Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:40.3800812Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:40.5954302Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:41.4275098Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:41.6835376Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:42.6826608Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:42.6827195Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 2.30s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:42.6827511Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:42.6962891Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:42.6994032Z ##[group]d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.0027851Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.0028191Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.0044131Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.3429816Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.5798582Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.5801276Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.6148366Z d3d12 [execute] severity 4 id 234: ID3D12Device::RemoveDevice: Device removal has been triggered for the following reason (DXGI_ERROR_DEVICE_REMOVED: Plug-and-play stop has been exercised on this adapter. Odds are good that the adapter might no longer be available).
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.6151980Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.6152598Z thread 'a_group_opacity_layer_composites_like_the_cpu_rasterizer' (6836) panicked at crates\vieww-hal\tests\d3d12_scene.rs:242:10:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.6153882Z render should succeed: Api("The GPU device instance has been suspended. Use GetDeviceRemovedReason to determine the appropriate action. (0x887A0005)")
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.6154800Z stack backtrace:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7839049Z    0: std::panicking::panic_handler
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7839619Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7840189Z    1: core::panicking::panic_fmt
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7840640Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7841483Z    2: core::result::unwrap_failed
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7841927Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7847384Z    3: enum2$<core::result::Result<alloc::vec::Vec<u8,alloc::alloc::Global>,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7848269Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7848906Z    4: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7849418Z              at .\tests\d3d12_scene.rs:242
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7849974Z    5: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure$0
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7850394Z              at .\tests\d3d12_scene.rs:209
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7851061Z    6: core::ops::function::FnOnce::call_once<d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure_env$0,tuple$<> >
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7851622Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7887888Z    7: core::ops::function::FnOnce::call_once
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7888443Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:43.7947463Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:44.6180265Z a_group_opacity_layer_composites_like_the_cpu_rasterizer --- FAILED
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:44.6180586Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:44.6180656Z failures:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:44.6180739Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:44.6180801Z failures:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:44.6181000Z     a_group_opacity_layer_composites_like_the_cpu_rasterizer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:44.6181427Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:44.6181651Z test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 1.62s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:44.6181931Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:44.6253206Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test d3d12_scene`
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:44.6339856Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:44.6340287Z FAILED-TEST d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:44.6340975Z ##[group]d3d12_scene::an_empty_scene_is_the_clear_colour_exactly
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:44.9335467Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:44.9335961Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:44.9351976Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:45.2725870Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:45.4579120Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:45.4802020Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:45.4802771Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.55s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:45.4803060Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:45.4941731Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:45.4942326Z ##[group]d3d12_scene::one_rectangle_lands_where_the_geometry_says
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:45.7970269Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:45.7970774Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:45.7986833Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:46.1355616Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:46.3359015Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:47.2811869Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:47.2812457Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 1.48s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:47.2812736Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:47.2944778Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:47.2945429Z ##[group]d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:47.5945483Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:47.5945949Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:47.5961572Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:47.9285688Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:48.1323518Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:49.0897295Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:49.0897866Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 1.50s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:49.0898153Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:49.1033741Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:49.1035523Z ##[group]d3d12_scene::post_shader_bisection_on_the_group_opacity_scene
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:49.4735638Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:55:49.4736162Z running 1 test
+-----
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:00.4799560Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:00.7737047Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:01.0049922Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:01.0052287Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:02.5568509Z BISECT full, blur stubbed       rendered
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:02.5887730Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:02.7615086Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:02.9867585Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:02.9870330Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:04.3848804Z BISECT full, blend stubbed      rendered
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:04.4176976Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:04.7406009Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:04.9598603Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:04.9601665Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:04.9672933Z d3d12 [execute] severity 4 id 234: ID3D12Device::RemoveDevice: Device removal has been triggered for the following reason (DXGI_ERROR_DEVICE_REMOVED: Plug-and-play stop has been exercised on this adapter. Odds are good that the adapter might no longer be available).
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9016396Z BISECT full                     RENDER FAILED: D3D12/DXGI call failed: The GPU device instance has been suspended. Use GetDeviceRemovedReason to determine the appropriate action. (0x887A0005)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9123695Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9124377Z thread 'post_shader_bisection_on_the_group_opacity_scene' (6740) panicked at crates\vieww-hal\tests\d3d12_scene.rs:519:5:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9125125Z post variants that failed: ["full"]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9126127Z stack backtrace:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9642516Z    0: std::panicking::panic_handler
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9643123Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9643545Z    1: core::panicking::panic_fmt
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9643908Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9647132Z    2: d3d12_scene::post_shader_bisection_on_the_group_opacity_scene
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9647660Z              at .\tests\d3d12_scene.rs:519
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9648064Z    3: d3d12_scene::post_shader_bisection_on_the_group_opacity_scene::closure$0
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9648401Z              at .\tests\d3d12_scene.rs:427
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9649203Z    4: core::ops::function::FnOnce::call_once<d3d12_scene::post_shader_bisection_on_the_group_opacity_scene::closure_env$0,tuple$<> >
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9649867Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9676921Z    5: core::ops::function::FnOnce::call_once
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9677448Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9720953Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9724840Z post_shader_bisection_on_the_group_opacity_scene --- FAILED
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9725245Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9725396Z failures:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9725595Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9725701Z failures:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9726048Z     post_shader_bisection_on_the_group_opacity_scene
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9726388Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9726697Z test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 16.50s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9727274Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9803384Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test d3d12_scene`
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9888427Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9889147Z FAILED-TEST d3d12_scene::post_shader_bisection_on_the_group_opacity_scene
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:05.9890010Z ##[group]d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:06.2888750Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:06.2889333Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:06.2905531Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:06.6286088Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:06.8301776Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:07.7540344Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:07.7555391Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:07.7572747Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:07.7588475Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:07.7604691Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:07.7620401Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:07.7635760Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:07.7669551Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:07.7701719Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:07.7918851Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:07.7919985Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 1.50s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:07.7920436Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:07.8053593Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:07.8054222Z ##[group]d3d12_scene::the_renderer_refuses_a_plan_it_cannot_draw
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:08.1107898Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:08.1108398Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:08.1124933Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:08.4464714Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:08.6377992Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:08.6378624Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.53s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:08.6378916Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:08.6512787Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:08.9933547Z ##[group]d3d12_smoke::a_bad_index_is_refused_not_drawn
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.2903590Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.2904183Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.2920632Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.3371002Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.3371601Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.05s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.3371912Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.3498338Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.3498945Z ##[group]d3d12_smoke::a_clear_reads_back_as_the_requested_colour
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.6532786Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.6533350Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.6549267Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.6937105Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.8835762Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.8836430Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.23s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.8836885Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.8963602Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:09.8964303Z ##[group]d3d12_smoke::a_mesh_lands_where_it_was_drawn_and_nowhere_else
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.1940643Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.1941171Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.1956905Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.2496808Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.4576029Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.4576595Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.26s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.4576906Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.4709676Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.4710327Z ##[group]d3d12_smoke::an_empty_mesh_draws_a_transparent_frame
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.7748119Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.7748667Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.7764453Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.8274725Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.8275350Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.05s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.8275809Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.8399437Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:10.8399980Z ##[group]d3d12_smoke::reports_an_adapter
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.1396140Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.1396611Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.1412573Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.1773019Z D3D12 adapter: AdapterInfo { name: "Microsoft Basic Render Driver", backend: "d3d12", device_type: "hardware" } (needs a D3D12 adapter (VIEWW_D3D12_ALLOW_WARP=1 accepts WARP); run with `cargo test -p vieww-hal --features d3d12 -- --ignored`)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.1859071Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.1859728Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.05s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.1860018Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.1983635Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.1984215Z ##[group]d3d12_smoke::several_frames_on_one_device
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.4921708Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.4922203Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.4938482Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.5311898Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.7324190Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.7325069Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.24s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.7325521Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.7467909Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:11.7468614Z ##[group]d3d12_smoke::the_mesh_path_agrees_with_vulkans_pixel_rule
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.0714514Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.0715069Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.0730811Z d3d12: debug layer and GPU-based validation enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.1256652Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.3338957Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.3339635Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.26s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.3340135Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.3490424Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.6422199Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.6513576Z ^[[1m^[[92m     Running^[[0m unittests src\lib.rs (target\debug\deps\vieww_hal-a74ce4f11fce3cd2.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.6577357Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.6577764Z running 0 tests
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.6682107Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.6682964Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.6683504Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.6683830Z failed: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.6684539Z failed: d3d12_scene::post_shader_bisection_on_the_group_opacity_scene
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T14:56:12.6713118Z ##[error]Process completed with exit code 1.

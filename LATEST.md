@@ -2,7 +2,7 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
-| 2026-10-26T14:35:58Z | framework-checks/main | FAILURE | `da8911154550` | [summary](framework-checks/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40339740928) |
+| 2026-10-26T14:56:48Z | framework-checks/main | FAILURE | `db7e79b85d39` | [summary](framework-checks/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40343369451) |
 | 2026-10-26T12:27:36Z | publish/main | SUCCESS | `35c6b3f65b53` | [summary](publish/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40321754699) |
 | 2026-10-26T12:21:26Z | wright-sandbox-suites/main | SUCCESS | `35c6b3f65b53` | [summary](wright-sandbox-suites/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40321681665) |
 | 2026-10-26T10:42:59Z | release-gate/main | SUCCESS | `da72ff4877e7` | [summary](release-gate/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40300437716) |

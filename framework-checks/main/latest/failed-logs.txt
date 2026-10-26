@@ -1,302 +1,302 @@
 ===== Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter) =====
-2026-10-26T14:30:12.3328403Z ^[[36;1m      failed+=("$bin::$t")^[[0m
-2026-10-26T14:30:12.3328638Z ^[[36;1m    fi^[[0m
-2026-10-26T14:30:12.3328807Z ^[[36;1m  done^[[0m
-2026-10-26T14:30:12.3328970Z ^[[36;1mdone^[[0m
-2026-10-26T14:30:12.3329352Z ^[[36;1mcargo test -p vieww-hal --features d3d12 --lib -- --ignored --test-threads=1 || failed+=(lib)^[[0m
-2026-10-26T14:30:12.3329831Z ^[[36;1mif [ ${#failed[@]} -gt 0 ]; then^[[0m
-2026-10-26T14:30:12.3330113Z ^[[36;1m  printf 'failed: %s\n' "${failed[@]}"^[[0m
-2026-10-26T14:30:12.3330381Z ^[[36;1m  exit 1^[[0m
-2026-10-26T14:30:12.3330558Z ^[[36;1mfi^[[0m
-2026-10-26T14:30:12.3343962Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
-2026-10-26T14:30:12.3344373Z env:
-2026-10-26T14:30:12.3344702Z   CARGO_TERM_COLOR: always
-2026-10-26T14:30:12.3344951Z   RUST_BACKTRACE: 1
-2026-10-26T14:30:12.3345139Z   RUST_VERSION: 1.98.1
-2026-10-26T14:30:12.3345338Z   VIEWW_D3D12_ALLOW_WARP: 1
-2026-10-26T14:30:12.3345564Z   VIEWW_REQUIRE_HARDWARE: gpu
-2026-10-26T14:30:12.3345799Z   VIEWW_D3D12_DEBUG: 1
-2026-10-26T14:30:12.3345993Z ##[endgroup]
-2026-10-26T14:30:12.8464565Z ^[[1m^[[92m   Compiling^[[0m unicode-ident v1.0.26
-2026-10-26T14:30:12.8470319Z ^[[1m^[[92m   Compiling^[[0m libm v0.2.16
-2026-10-26T14:30:12.8471024Z ^[[1m^[[92m   Compiling^[[0m cfg-if v1.0.5
-2026-10-26T14:30:12.8471593Z ^[[1m^[[92m   Compiling^[[0m bitflags v2.13.2
-2026-10-26T14:30:12.9038061Z ^[[1m^[[92m   Compiling^[[0m once_cell v1.21.4
-2026-10-26T14:30:13.0017379Z ^[[1m^[[92m   Compiling^[[0m proc-macro2 v1.0.107
-2026-10-26T14:30:13.1079101Z ^[[1m^[[92m   Compiling^[[0m log v0.4.34
-2026-10-26T14:30:13.4695939Z ^[[1m^[[92m   Compiling^[[0m foldhash v0.2.0
-2026-10-26T14:30:13.6789872Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
-2026-10-26T14:30:13.8601772Z ^[[1m^[[92m   Compiling^[[0m quote v1.0.47
-2026-10-26T14:30:14.9773114Z ^[[1m^[[92m   Compiling^[[0m syn v3.0.6
-2026-10-26T14:30:15.3659300Z ^[[1m^[[92m   Compiling^[[0m syn v2.0.119
-2026-10-26T14:30:17.9451945Z ^[[1m^[[92m   Compiling^[[0m core_maths v0.1.1
-2026-10-26T14:30:18.0472770Z ^[[1m^[[92m   Compiling^[[0m num-traits v0.2.19
-2026-10-26T14:30:18.2146019Z ^[[1m^[[92m   Compiling^[[0m arrayvec v0.7.8
-2026-10-26T14:30:18.5734443Z ^[[1m^[[92m   Compiling^[[0m simd-adler32 v0.3.10
-2026-10-26T14:30:19.2861509Z ^[[1m^[[92m   Compiling^[[0m equivalent v1.0.2
-2026-10-26T14:30:19.3531095Z ^[[1m^[[92m   Compiling^[[0m indexmap v2.14.2
-2026-10-26T14:30:19.8037054Z ^[[1m^[[92m   Compiling^[[0m adler2 v2.0.1
-2026-10-26T14:30:20.0659836Z ^[[1m^[[92m   Compiling^[[0m unicode-width v0.2.2
-2026-10-26T14:30:20.5121281Z ^[[1m^[[92m   Compiling^[[0m bit-vec v0.9.1
-2026-10-26T14:30:20.8580504Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v1.1.0
-2026-10-26T14:30:20.9495709Z ^[[1m^[[92m   Compiling^[[0m bit-set v0.10.0
-2026-10-26T14:30:21.0252287Z ^[[1m^[[92m   Compiling^[[0m codespan-reporting v0.13.1
-2026-10-26T14:30:22.8566020Z ^[[1m^[[92m   Compiling^[[0m windows_x86_64_msvc v0.52.6
-2026-10-26T14:30:22.9113981Z ^[[1m^[[92m   Compiling^[[0m ttf-parser v0.25.1
-2026-10-26T14:30:23.5174848Z ^[[1m^[[92m   Compiling^[[0m spirv v0.4.0+sdk-1.4.341.0
-2026-10-26T14:30:32.0343466Z ^[[1m^[[92m   Compiling^[[0m unicode-segmentation v1.13.3
-2026-10-26T14:30:33.4666929Z ^[[1m^[[92m   Compiling^[[0m windows-targets v0.52.6
-2026-10-26T14:30:33.5190210Z ^[[1m^[[92m   Compiling^[[0m crc32fast v1.5.2
-2026-10-26T14:30:34.1763061Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.9.1
-2026-10-26T14:30:38.8336114Z ^[[1m^[[92m   Compiling^[[0m euclid v0.22.14
-2026-10-26T14:30:40.2152344Z ^[[1m^[[92m   Compiling^[[0m lyon_geom v1.0.19
-2026-10-26T14:30:40.2915547Z ^[[1m^[[92m   Compiling^[[0m flate2 v1.1.10
-2026-10-26T14:30:41.0589156Z ^[[1m^[[92m   Compiling^[[0m windows-result v0.2.0
-2026-10-26T14:30:41.5450556Z ^[[1m^[[92m   Compiling^[[0m vieww-foundation v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-foundation)
-2026-10-26T14:30:41.8768407Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.8.9
-2026-10-26T14:30:46.5652978Z ^[[1m^[[92m   Compiling^[[0m fdeflate v0.3.7
-2026-10-26T14:30:49.0212422Z ^[[1m^[[92m   Compiling^[[0m png v0.18.1
-2026-10-26T14:30:49.3463353Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
-2026-10-26T14:30:57.5473970Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v2.0.21
-2026-10-26T14:31:10.4722805Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
-2026-10-26T14:31:10.9422244Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
-2026-10-26T14:31:11.8089604Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
-2026-10-26T14:31:19.5567129Z ^[[1m^[[92m   Compiling^[[0m zerocopy-derive v0.8.59
-2026-10-26T14:31:23.8699333Z ^[[1m^[[92m   Compiling^[[0m thiserror v2.0.21
-2026-10-26T14:31:23.9627315Z ^[[1m^[[92m   Compiling^[[0m naga-types v30.0.1
-2026-10-26T14:31:24.2035949Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
-2026-10-26T14:31:24.9813122Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
-2026-10-26T14:31:25.2356125Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
-2026-10-26T14:32:02.6878883Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
-2026-10-26T14:32:10.1879538Z ^[[1m^[[92m   Compiling^[[0m half v2.7.1
-2026-10-26T14:32:11.0072189Z ^[[1m^[[92m   Compiling^[[0m naga v30.0.1
-2026-10-26T14:32:20.2305567Z ^[[1m^[[92m   Compiling^[[0m windows-implement v0.58.0
-2026-10-26T14:32:21.8403110Z ^[[1m^[[92m   Compiling^[[0m windows-interface v0.58.0
-2026-10-26T14:32:29.0595377Z ^[[1m^[[92m   Compiling^[[0m slotmap v1.1.1
-2026-10-26T14:32:29.8166957Z ^[[1m^[[92m   Compiling^[[0m windows-strings v0.1.0
-2026-10-26T14:32:30.6885152Z ^[[1m^[[92m   Compiling^[[0m lyon_path v1.0.19
-2026-10-26T14:32:31.5212107Z ^[[1m^[[92m   Compiling^[[0m float_next_after v1.0.0
-2026-10-26T14:32:31.6276498Z ^[[1m^[[92m   Compiling^[[0m memmap2 v0.9.11
-2026-10-26T14:32:32.1616992Z ^[[1m^[[92m   Compiling^[[0m smallvec v1.16.2
-2026-10-26T14:32:32.5584903Z ^[[1m^[[92m   Compiling^[[0m zeno v0.3.3
-2026-10-26T14:32:32.8843687Z ^[[1m^[[92m   Compiling^[[0m tinyvec v1.13.3
-2026-10-26T14:32:33.6514694Z ^[[1m^[[92m   Compiling^[[0m constant_time_eq v0.4.2
-2026-10-26T14:32:34.0104360Z ^[[1m^[[92m   Compiling^[[0m cpufeatures v0.3.1
-2026-10-26T14:32:34.0723325Z ^[[1m^[[92m   Compiling^[[0m yazi v0.2.1
-2026-10-26T14:32:35.1690235Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
-2026-10-26T14:32:37.6896198Z ^[[1m^[[92m   Compiling^[[0m windows-core v0.58.0
-2026-10-26T14:32:38.4591974Z ^[[1m^[[92m   Compiling^[[0m blake3 v1.8.7
-2026-10-26T14:32:39.9862419Z ^[[1m^[[92m   Compiling^[[0m fontdb v0.23.0
-2026-10-26T14:32:44.4810011Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
-2026-10-26T14:32:46.3206907Z ^[[1m^[[92m   Compiling^[[0m lyon_tessellation v1.0.22
-2026-10-26T14:33:20.7867788Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
-2026-10-26T14:33:31.6860974Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-paint)
-2026-10-26T14:33:50.5981281Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-shaders)
-2026-10-26T14:33:51.7773675Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.3.6
-2026-10-26T14:33:52.4593371Z ^[[1m^[[92m   Compiling^[[0m unicode-linebreak v0.1.5
-2026-10-26T14:33:52.9134447Z ^[[1m^[[92m   Compiling^[[0m sys-locale v0.3.2
-2026-10-26T14:33:53.2701465Z ^[[1m^[[92m   Compiling^[[0m linebender_resource_handle v0.1.1
-2026-10-26T14:33:53.3766099Z ^[[1m^[[92m   Compiling^[[0m rangemap v1.8.0
-2026-10-26T14:33:53.9230157Z ^[[1m^[[92m   Compiling^[[0m self_cell v1.3.0
-2026-10-26T14:33:54.0365366Z ^[[1m^[[92m   Compiling^[[0m unicode-script v0.5.8
-2026-10-26T14:33:55.5621376Z ^[[1m^[[92m   Compiling^[[0m unicode-bidi v0.3.18
-2026-10-26T14:33:59.0982214Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v2.1.3
-2026-10-26T14:33:59.2099007Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
-2026-10-26T14:34:13.5307545Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-gpu)
-2026-10-26T14:34:16.7423620Z ^[[1m^[[92m   Compiling^[[0m windows v0.58.0
-2026-10-26T14:34:17.7153724Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-text)
-2026-10-26T14:34:31.2008867Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-hal)
-2026-10-26T14:34:59.0866067Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized + debuginfo] target(s) in 4m 46s
-2026-10-26T14:34:59.1160332Z ^[[1m^[[92m  Executable^[[0m unittests src\lib.rs (target\debug\deps\vieww_hal-a74ce4f11fce3cd2.exe)
-2026-10-26T14:34:59.1161990Z ^[[1m^[[92m  Executable^[[0m tests\d3d12_scene.rs (target\debug\deps\d3d12_scene-158b933f97f13737.exe)
-2026-10-26T14:34:59.1163735Z ^[[1m^[[92m  Executable^[[0m tests\d3d12_smoke.rs (target\debug\deps\d3d12_smoke-ee253e281a630522.exe)
-2026-10-26T14:34:59.1164774Z ^[[1m^[[92m  Executable^[[0m tests\metal_scene.rs (target\debug\deps\metal_scene-6b6ef48f6fe193df.exe)
-2026-10-26T14:34:59.1167431Z ^[[1m^[[92m  Executable^[[0m tests\metal_smoke.rs (target\debug\deps\metal_smoke-b361e976d4c9f656.exe)
-2026-10-26T14:34:59.1169330Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_compositor.rs (target\debug\deps\vulkan_compositor-2d787e9f06499cdc.exe)
-2026-10-26T14:34:59.1172860Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_compute.rs (target\debug\deps\vulkan_compute-25d698676c686ede.exe)
-2026-10-26T14:34:59.1174551Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_damage.rs (target\debug\deps\vulkan_damage-79acf964181b8e5c.exe)
-2026-10-26T14:34:59.1175981Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_mesh_smoke.rs (target\debug\deps\vulkan_mesh_smoke-a96c3de7d2600b5f.exe)
-2026-10-26T14:34:59.1178488Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_pipeline_cache.rs (target\debug\deps\vulkan_pipeline_cache-ea216774e8d24c1c.exe)
-2026-10-26T14:34:59.1180034Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_scene.rs (target\debug\deps\vulkan_scene-c3be0be4d13e9268.exe)
-2026-10-26T14:34:59.1182646Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_smoke.rs (target\debug\deps\vulkan_smoke-9a9cd3af8a5c7bd4.exe)
-2026-10-26T14:34:59.1184107Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_text.rs (target\debug\deps\vulkan_text-26c67f87701f390a.exe)
-2026-10-26T14:34:59.7448357Z ##[group]d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage
-2026-10-26T14:35:00.1961021Z 
-2026-10-26T14:35:00.1961676Z running 1 test
-2026-10-26T14:35:00.4978823Z d3d12: debug layer and GPU-based validation enabled
-2026-10-26T14:35:01.7460235Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
-2026-10-26T14:35:02.1336610Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T14:35:03.6054575Z .
-2026-10-26T14:35:03.6058082Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 3.41s
-2026-10-26T14:35:03.6058689Z 
-2026-10-26T14:35:03.6224733Z ##[endgroup]
-2026-10-26T14:35:03.6226009Z ##[group]d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
-2026-10-26T14:35:04.0671960Z 
-2026-10-26T14:35:04.0672715Z running 1 test
-2026-10-26T14:35:04.0695748Z d3d12: debug layer and GPU-based validation enabled
-2026-10-26T14:35:04.6141680Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
-2026-10-26T14:35:04.9439351Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T14:35:04.9441588Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T14:35:05.0277806Z d3d12 [execute] severity 4 id 234: ID3D12Device::RemoveDevice: Device removal has been triggered for the following reason (DXGI_ERROR_DEVICE_REMOVED: Plug-and-play stop has been exercised on this adapter. Odds are good that the adapter might no longer be available).
-2026-10-26T14:35:05.0355592Z 
-2026-10-26T14:35:05.0357190Z thread 'a_group_opacity_layer_composites_like_the_cpu_rasterizer' (2576) panicked at crates\vieww-hal\tests\d3d12_scene.rs:242:10:
-2026-10-26T14:35:05.0359639Z render should succeed: Api("The GPU device instance has been suspended. Use GetDeviceRemovedReason to determine the appropriate action. (0x887A0005)")
-2026-10-26T14:35:05.0361329Z stack backtrace:
-2026-10-26T14:35:05.6426841Z    0: std::panicking::panic_handler
-2026-10-26T14:35:05.6427761Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-2026-10-26T14:35:05.6428668Z    1: core::panicking::panic_fmt
-2026-10-26T14:35:05.6429412Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-2026-10-26T14:35:05.6430498Z    2: core::result::unwrap_failed
-2026-10-26T14:35:05.6433732Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
-2026-10-26T14:35:05.6438290Z    3: enum2$<core::result::Result<alloc::vec::Vec<u8,alloc::alloc::Global>,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
-2026-10-26T14:35:05.6439557Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
-2026-10-26T14:35:05.6440493Z    4: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
-2026-10-26T14:35:05.6441219Z              at .\tests\d3d12_scene.rs:242
-2026-10-26T14:35:05.6441946Z    5: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure$0
-2026-10-26T14:35:05.6442682Z              at .\tests\d3d12_scene.rs:209
-2026-10-26T14:35:05.6444105Z    6: core::ops::function::FnOnce::call_once<d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure_env$0,tuple$<> >
-2026-10-26T14:35:05.6445415Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-26T14:35:05.6496821Z    7: core::ops::function::FnOnce::call_once
-2026-10-26T14:35:05.6497680Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-26T14:35:05.6591061Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-10-26T14:35:06.5269543Z a_group_opacity_layer_composites_like_the_cpu_rasterizer --- FAILED
-2026-10-26T14:35:06.5270217Z 
-2026-10-26T14:35:06.5270431Z failures:
-2026-10-26T14:35:06.5270560Z 
-2026-10-26T14:35:06.5270682Z failures:
-2026-10-26T14:35:06.5270993Z     a_group_opacity_layer_composites_like_the_cpu_rasterizer
-2026-10-26T14:35:06.5271649Z 
-2026-10-26T14:35:06.5271946Z test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 2.46s
-2026-10-26T14:35:06.5272355Z 
-2026-10-26T14:35:06.5363002Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test d3d12_scene`
-2026-10-26T14:35:06.5539135Z ##[endgroup]
-2026-10-26T14:35:06.5539910Z FAILED-TEST d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
-2026-10-26T14:35:06.5541173Z ##[group]d3d12_scene::an_empty_scene_is_the_clear_colour_exactly
-2026-10-26T14:35:06.9782023Z 
-2026-10-26T14:35:06.9782744Z running 1 test
-2026-10-26T14:35:06.9804655Z d3d12: debug layer and GPU-based validation enabled
-2026-10-26T14:35:07.4682478Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
-2026-10-26T14:35:07.7514684Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T14:35:07.7762130Z .
-2026-10-26T14:35:07.7763080Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.80s
-2026-10-26T14:35:07.7763620Z 
-2026-10-26T14:35:07.7929236Z ##[endgroup]
-2026-10-26T14:35:07.7930332Z ##[group]d3d12_scene::one_rectangle_lands_where_the_geometry_says
-2026-10-26T14:35:08.2194359Z 
-2026-10-26T14:35:08.2194985Z running 1 test
-2026-10-26T14:35:08.2219997Z d3d12: debug layer and GPU-based validation enabled
-2026-10-26T14:35:08.7061734Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
-2026-10-26T14:35:09.0082040Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T14:35:10.4824646Z .
-2026-10-26T14:35:10.4825461Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 2.26s
-2026-10-26T14:35:10.4826130Z 
-2026-10-26T14:35:10.5002676Z ##[endgroup]
-2026-10-26T14:35:10.5003812Z ##[group]d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer
-2026-10-26T14:35:10.9527718Z 
-2026-10-26T14:35:10.9528304Z running 1 test
-2026-10-26T14:35:10.9562472Z d3d12: debug layer and GPU-based validation enabled
-2026-10-26T14:35:11.4799156Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
-2026-10-26T14:35:11.7796618Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T14:35:13.1725574Z .
-2026-10-26T14:35:13.1726470Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 2.22s
-2026-10-26T14:35:13.1727080Z 
-2026-10-26T14:35:13.1922450Z ##[endgroup]
-2026-10-26T14:35:13.1924948Z ##[group]d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes
-2026-10-26T14:35:13.6217052Z 
-2026-10-26T14:35:13.6217671Z running 1 test
-2026-10-26T14:35:13.6240939Z d3d12: debug layer and GPU-based validation enabled
-2026-10-26T14:35:14.1070695Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
-2026-10-26T14:35:14.3853471Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T14:35:15.7530508Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T14:35:15.7567426Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T14:35:15.7591776Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T14:35:15.7617092Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T14:35:15.7642195Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T14:35:15.7667050Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T14:35:15.7689396Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T14:35:15.7740552Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T14:35:15.7788539Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T14:35:15.8079939Z .
-2026-10-26T14:35:15.8080780Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 2.19s
-2026-10-26T14:35:15.8081180Z 
-2026-10-26T14:35:15.8252254Z ##[endgroup]
-2026-10-26T14:35:15.8253071Z ##[group]d3d12_scene::the_renderer_refuses_a_plan_it_cannot_draw
-2026-10-26T14:35:16.2602864Z 
-2026-10-26T14:35:16.2603368Z running 1 test
-2026-10-26T14:35:16.2625788Z d3d12: debug layer and GPU-based validation enabled
-2026-10-26T14:35:16.7467951Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
-2026-10-26T14:35:17.0168553Z .
-2026-10-26T14:35:17.0169747Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.76s
-2026-10-26T14:35:17.0170165Z 
-2026-10-26T14:35:17.0347689Z ##[endgroup]
-2026-10-26T14:35:17.5166686Z ##[group]d3d12_smoke::a_bad_index_is_refused_not_drawn
-2026-10-26T14:35:17.9295697Z 
-2026-10-26T14:35:17.9296244Z running 1 test
-2026-10-26T14:35:17.9322282Z d3d12: debug layer and GPU-based validation enabled
-2026-10-26T14:35:18.0010937Z .
-2026-10-26T14:35:18.0011788Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.07s
-2026-10-26T14:35:18.0012436Z 
-2026-10-26T14:35:18.0180067Z ##[endgroup]
-2026-10-26T14:35:18.0181112Z ##[group]d3d12_smoke::a_clear_reads_back_as_the_requested_colour
-2026-10-26T14:35:18.4462629Z 
-2026-10-26T14:35:18.4463196Z running 1 test
-2026-10-26T14:35:18.4486623Z d3d12: debug layer and GPU-based validation enabled
-2026-10-26T14:35:18.5002519Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
-2026-10-26T14:35:18.7648873Z .
-2026-10-26T14:35:18.7649887Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.32s
-2026-10-26T14:35:18.7650344Z 
-2026-10-26T14:35:18.7810702Z ##[endgroup]
-2026-10-26T14:35:18.7811497Z ##[group]d3d12_smoke::a_mesh_lands_where_it_was_drawn_and_nowhere_else
-2026-10-26T14:35:19.2003484Z 
-2026-10-26T14:35:19.2004121Z running 1 test
-2026-10-26T14:35:19.2030586Z d3d12: debug layer and GPU-based validation enabled
-2026-10-26T14:35:19.2753827Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
-2026-10-26T14:35:19.5613640Z .
-2026-10-26T14:35:19.5614400Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.36s
-2026-10-26T14:35:19.5614994Z 
-2026-10-26T14:35:19.5782926Z ##[endgroup]
-2026-10-26T14:35:19.5784065Z ##[group]d3d12_smoke::an_empty_mesh_draws_a_transparent_frame
-2026-10-26T14:35:20.0065490Z 
-2026-10-26T14:35:20.0066107Z running 1 test
-2026-10-26T14:35:20.0089130Z d3d12: debug layer and GPU-based validation enabled
-2026-10-26T14:35:20.0705866Z .
-2026-10-26T14:35:20.0706643Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.06s
-2026-10-26T14:35:20.0707191Z 
-2026-10-26T14:35:20.0868984Z ##[endgroup]
-2026-10-26T14:35:20.0869714Z ##[group]d3d12_smoke::reports_an_adapter
-2026-10-26T14:35:20.4989630Z 
-2026-10-26T14:35:20.4990217Z running 1 test
-2026-10-26T14:35:20.5013745Z d3d12: debug layer and GPU-based validation enabled
-2026-10-26T14:35:20.5492089Z D3D12 adapter: AdapterInfo { name: "Microsoft Basic Render Driver", backend: "d3d12", device_type: "hardware" } (needs a D3D12 adapter (VIEWW_D3D12_ALLOW_WARP=1 accepts WARP); run with `cargo test -p vieww-hal --features d3d12 -- --ignored`)
-2026-10-26T14:35:20.5612475Z .
-2026-10-26T14:35:20.5613188Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.06s
-2026-10-26T14:35:20.5613603Z 
-2026-10-26T14:35:20.5775550Z ##[endgroup]
-2026-10-26T14:35:20.5776382Z ##[group]d3d12_smoke::several_frames_on_one_device
-2026-10-26T14:35:20.9984332Z 
-2026-10-26T14:35:20.9984899Z running 1 test
-2026-10-26T14:35:21.0008605Z d3d12: debug layer and GPU-based validation enabled
-2026-10-26T14:35:21.0519619Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
-2026-10-26T14:35:21.3113288Z .
-2026-10-26T14:35:21.3114005Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.31s
-2026-10-26T14:35:21.3114531Z 
-2026-10-26T14:35:21.3278904Z ##[endgroup]
-2026-10-26T14:35:21.3279704Z ##[group]d3d12_smoke::the_mesh_path_agrees_with_vulkans_pixel_rule
-2026-10-26T14:35:21.7462452Z 
-2026-10-26T14:35:21.7464798Z running 1 test
-2026-10-26T14:35:21.7488539Z d3d12: debug layer and GPU-based validation enabled
-2026-10-26T14:35:21.8173455Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
-2026-10-26T14:35:22.0754472Z .
-2026-10-26T14:35:22.0755215Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.33s
-2026-10-26T14:35:22.0755644Z 
-2026-10-26T14:35:22.0919203Z ##[endgroup]
-2026-10-26T14:35:22.4821343Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized + debuginfo] target(s) in 0.33s
-2026-10-26T14:35:22.4948355Z ^[[1m^[[92m     Running^[[0m unittests src\lib.rs (target\debug\deps\vieww_hal-a74ce4f11fce3cd2.exe)
-2026-10-26T14:35:22.5031482Z 
-2026-10-26T14:35:22.5032092Z running 0 tests
-2026-10-26T14:35:22.5032369Z 
-2026-10-26T14:35:22.5032729Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
-2026-10-26T14:35:22.5033175Z 
-2026-10-26T14:35:22.5165445Z failed: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
-2026-10-26T14:35:22.5207353Z ##[error]Process completed with exit code 1.
+2026-10-26T14:54:12.7992140Z ^[[1m^[[92m   Compiling^[[0m lyon_tessellation v1.0.22
+2026-10-26T14:54:37.5976170Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
+2026-10-26T14:54:39.0268794Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-paint)
+2026-10-26T14:54:53.1960578Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-shaders)
+2026-10-26T14:54:54.0034702Z ^[[1m^[[92m   Compiling^[[0m sys-locale v0.3.2
+2026-10-26T14:54:54.2527571Z ^[[1m^[[92m   Compiling^[[0m rangemap v1.8.0
+2026-10-26T14:54:54.6248571Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.3.6
+2026-10-26T14:54:55.0655846Z ^[[1m^[[92m   Compiling^[[0m self_cell v1.3.0
+2026-10-26T14:54:55.1533193Z ^[[1m^[[92m   Compiling^[[0m unicode-linebreak v0.1.5
+2026-10-26T14:54:55.4526899Z ^[[1m^[[92m   Compiling^[[0m unicode-script v0.5.8
+2026-10-26T14:54:56.4876655Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v2.1.3
+2026-10-26T14:54:56.5654182Z ^[[1m^[[92m   Compiling^[[0m linebender_resource_handle v0.1.1
+2026-10-26T14:54:56.6529948Z ^[[1m^[[92m   Compiling^[[0m unicode-bidi v0.3.18
+2026-10-26T14:54:59.0689932Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
+2026-10-26T14:55:09.1608799Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-gpu)
+2026-10-26T14:55:11.9174984Z ^[[1m^[[92m   Compiling^[[0m windows v0.58.0
+2026-10-26T14:55:12.1886490Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-text)
+2026-10-26T14:55:21.6985798Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-hal)
+2026-10-26T14:55:39.6326109Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized + debuginfo] target(s) in 3m 10s
+2026-10-26T14:55:39.6579541Z ^[[1m^[[92m  Executable^[[0m unittests src\lib.rs (target\debug\deps\vieww_hal-a74ce4f11fce3cd2.exe)
+2026-10-26T14:55:39.6580882Z ^[[1m^[[92m  Executable^[[0m tests\d3d12_scene.rs (target\debug\deps\d3d12_scene-158b933f97f13737.exe)
+2026-10-26T14:55:39.6581926Z ^[[1m^[[92m  Executable^[[0m tests\d3d12_smoke.rs (target\debug\deps\d3d12_smoke-ee253e281a630522.exe)
+2026-10-26T14:55:39.6582875Z ^[[1m^[[92m  Executable^[[0m tests\metal_scene.rs (target\debug\deps\metal_scene-6b6ef48f6fe193df.exe)
+2026-10-26T14:55:39.6583956Z ^[[1m^[[92m  Executable^[[0m tests\metal_smoke.rs (target\debug\deps\metal_smoke-b361e976d4c9f656.exe)
+2026-10-26T14:55:39.6585540Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_compositor.rs (target\debug\deps\vulkan_compositor-2d787e9f06499cdc.exe)
+2026-10-26T14:55:39.6586990Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_compute.rs (target\debug\deps\vulkan_compute-25d698676c686ede.exe)
+2026-10-26T14:55:39.6588098Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_damage.rs (target\debug\deps\vulkan_damage-79acf964181b8e5c.exe)
+2026-10-26T14:55:39.6589296Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_mesh_smoke.rs (target\debug\deps\vulkan_mesh_smoke-a96c3de7d2600b5f.exe)
+2026-10-26T14:55:39.6590475Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_pipeline_cache.rs (target\debug\deps\vulkan_pipeline_cache-ea216774e8d24c1c.exe)
+2026-10-26T14:55:39.6591667Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_scene.rs (target\debug\deps\vulkan_scene-c3be0be4d13e9268.exe)
+2026-10-26T14:55:39.6593185Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_smoke.rs (target\debug\deps\vulkan_smoke-9a9cd3af8a5c7bd4.exe)
+2026-10-26T14:55:39.6594933Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_text.rs (target\debug\deps\vulkan_text-26c67f87701f390a.exe)
+2026-10-26T14:55:40.0062991Z ##[group]d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage
+2026-10-26T14:55:40.3800016Z 
+2026-10-26T14:55:40.3800812Z running 1 test
+2026-10-26T14:55:40.5954302Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:55:41.4275098Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:55:41.6835376Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:42.6826608Z .
+2026-10-26T14:55:42.6827195Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 2.30s
+2026-10-26T14:55:42.6827511Z 
+2026-10-26T14:55:42.6962891Z ##[endgroup]
+2026-10-26T14:55:42.6994032Z ##[group]d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+2026-10-26T14:55:43.0027851Z 
+2026-10-26T14:55:43.0028191Z running 1 test
+2026-10-26T14:55:43.0044131Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:55:43.3429816Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:55:43.5798582Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:43.5801276Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:43.6148366Z d3d12 [execute] severity 4 id 234: ID3D12Device::RemoveDevice: Device removal has been triggered for the following reason (DXGI_ERROR_DEVICE_REMOVED: Plug-and-play stop has been exercised on this adapter. Odds are good that the adapter might no longer be available).
+2026-10-26T14:55:43.6151980Z 
+2026-10-26T14:55:43.6152598Z thread 'a_group_opacity_layer_composites_like_the_cpu_rasterizer' (6836) panicked at crates\vieww-hal\tests\d3d12_scene.rs:242:10:
+2026-10-26T14:55:43.6153882Z render should succeed: Api("The GPU device instance has been suspended. Use GetDeviceRemovedReason to determine the appropriate action. (0x887A0005)")
+2026-10-26T14:55:43.6154800Z stack backtrace:
+2026-10-26T14:55:43.7839049Z    0: std::panicking::panic_handler
+2026-10-26T14:55:43.7839619Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+2026-10-26T14:55:43.7840189Z    1: core::panicking::panic_fmt
+2026-10-26T14:55:43.7840640Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+2026-10-26T14:55:43.7841483Z    2: core::result::unwrap_failed
+2026-10-26T14:55:43.7841927Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+2026-10-26T14:55:43.7847384Z    3: enum2$<core::result::Result<alloc::vec::Vec<u8,alloc::alloc::Global>,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+2026-10-26T14:55:43.7848269Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+2026-10-26T14:55:43.7848906Z    4: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+2026-10-26T14:55:43.7849418Z              at .\tests\d3d12_scene.rs:242
+2026-10-26T14:55:43.7849974Z    5: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure$0
+2026-10-26T14:55:43.7850394Z              at .\tests\d3d12_scene.rs:209
+2026-10-26T14:55:43.7851061Z    6: core::ops::function::FnOnce::call_once<d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure_env$0,tuple$<> >
+2026-10-26T14:55:43.7851622Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T14:55:43.7887888Z    7: core::ops::function::FnOnce::call_once
+2026-10-26T14:55:43.7888443Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T14:55:43.7947463Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T14:55:44.6180265Z a_group_opacity_layer_composites_like_the_cpu_rasterizer --- FAILED
+2026-10-26T14:55:44.6180586Z 
+2026-10-26T14:55:44.6180656Z failures:
+2026-10-26T14:55:44.6180739Z 
+2026-10-26T14:55:44.6180801Z failures:
+2026-10-26T14:55:44.6181000Z     a_group_opacity_layer_composites_like_the_cpu_rasterizer
+2026-10-26T14:55:44.6181427Z 
+2026-10-26T14:55:44.6181651Z test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 1.62s
+2026-10-26T14:55:44.6181931Z 
+2026-10-26T14:55:44.6253206Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test d3d12_scene`
+2026-10-26T14:55:44.6339856Z ##[endgroup]
+2026-10-26T14:55:44.6340287Z FAILED-TEST d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+2026-10-26T14:55:44.6340975Z ##[group]d3d12_scene::an_empty_scene_is_the_clear_colour_exactly
+2026-10-26T14:55:44.9335467Z 
+2026-10-26T14:55:44.9335961Z running 1 test
+2026-10-26T14:55:44.9351976Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:55:45.2725870Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:55:45.4579120Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:45.4802020Z .
+2026-10-26T14:55:45.4802771Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.55s
+2026-10-26T14:55:45.4803060Z 
+2026-10-26T14:55:45.4941731Z ##[endgroup]
+2026-10-26T14:55:45.4942326Z ##[group]d3d12_scene::one_rectangle_lands_where_the_geometry_says
+2026-10-26T14:55:45.7970269Z 
+2026-10-26T14:55:45.7970774Z running 1 test
+2026-10-26T14:55:45.7986833Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:55:46.1355616Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:55:46.3359015Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:47.2811869Z .
+2026-10-26T14:55:47.2812457Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 1.48s
+2026-10-26T14:55:47.2812736Z 
+2026-10-26T14:55:47.2944778Z ##[endgroup]
+2026-10-26T14:55:47.2945429Z ##[group]d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer
+2026-10-26T14:55:47.5945483Z 
+2026-10-26T14:55:47.5945949Z running 1 test
+2026-10-26T14:55:47.5961572Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:55:47.9285688Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:55:48.1323518Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:49.0897295Z .
+2026-10-26T14:55:49.0897866Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 1.50s
+2026-10-26T14:55:49.0898153Z 
+2026-10-26T14:55:49.1033741Z ##[endgroup]
+2026-10-26T14:55:49.1035523Z ##[group]d3d12_scene::post_shader_bisection_on_the_group_opacity_scene
+2026-10-26T14:55:49.4735638Z 
+2026-10-26T14:55:49.4736162Z running 1 test
+2026-10-26T14:55:49.4754456Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:55:49.6232568Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:55:49.8282703Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:49.8284593Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:50.7730086Z BISECT constant                 rendered
+2026-10-26T14:55:50.8062931Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:55:50.9392829Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:55:51.1402452Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:51.1404463Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:52.1051725Z BISECT push constant only       rendered
+2026-10-26T14:55:52.1375947Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:55:52.2714253Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:55:52.4796326Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:52.4798876Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:53.4343344Z BISECT one textureLoad          rendered
+2026-10-26T14:55:53.4697860Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:55:53.6045876Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:55:53.8115004Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:53.8117293Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:54.8006184Z BISECT src_at (region test)     rendered
+2026-10-26T14:55:54.8318286Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:55:54.9683413Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:55:55.1738088Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:55.1740889Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:56.1553105Z BISECT mask textureLoad         rendered
+2026-10-26T14:55:56.1890686Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:55:56.3239964Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:55:56.5323168Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:56.5325214Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:57.4976935Z BISECT aux textureLoad          rendered
+2026-10-26T14:55:57.5305109Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:55:57.6800234Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:55:57.8894915Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:57.8897385Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:58.8744284Z BISECT box_blur                 rendered
+2026-10-26T14:55:58.9150943Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:55:59.1685825Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:55:59.3817313Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:55:59.3819459Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:00.4359521Z BISECT blend                    rendered
+2026-10-26T14:56:00.4799560Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:56:00.7737047Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:56:01.0049922Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:01.0052287Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:02.5568509Z BISECT full, blur stubbed       rendered
+2026-10-26T14:56:02.5887730Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:56:02.7615086Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:56:02.9867585Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:02.9870330Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:04.3848804Z BISECT full, blend stubbed      rendered
+2026-10-26T14:56:04.4176976Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:56:04.7406009Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:56:04.9598603Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:04.9601665Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:04.9672933Z d3d12 [execute] severity 4 id 234: ID3D12Device::RemoveDevice: Device removal has been triggered for the following reason (DXGI_ERROR_DEVICE_REMOVED: Plug-and-play stop has been exercised on this adapter. Odds are good that the adapter might no longer be available).
+2026-10-26T14:56:05.9016396Z BISECT full                     RENDER FAILED: D3D12/DXGI call failed: The GPU device instance has been suspended. Use GetDeviceRemovedReason to determine the appropriate action. (0x887A0005)
+2026-10-26T14:56:05.9123695Z 
+2026-10-26T14:56:05.9124377Z thread 'post_shader_bisection_on_the_group_opacity_scene' (6740) panicked at crates\vieww-hal\tests\d3d12_scene.rs:519:5:
+2026-10-26T14:56:05.9125125Z post variants that failed: ["full"]
+2026-10-26T14:56:05.9126127Z stack backtrace:
+2026-10-26T14:56:05.9642516Z    0: std::panicking::panic_handler
+2026-10-26T14:56:05.9643123Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+2026-10-26T14:56:05.9643545Z    1: core::panicking::panic_fmt
+2026-10-26T14:56:05.9643908Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+2026-10-26T14:56:05.9647132Z    2: d3d12_scene::post_shader_bisection_on_the_group_opacity_scene
+2026-10-26T14:56:05.9647660Z              at .\tests\d3d12_scene.rs:519
+2026-10-26T14:56:05.9648064Z    3: d3d12_scene::post_shader_bisection_on_the_group_opacity_scene::closure$0
+2026-10-26T14:56:05.9648401Z              at .\tests\d3d12_scene.rs:427
+2026-10-26T14:56:05.9649203Z    4: core::ops::function::FnOnce::call_once<d3d12_scene::post_shader_bisection_on_the_group_opacity_scene::closure_env$0,tuple$<> >
+2026-10-26T14:56:05.9649867Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T14:56:05.9676921Z    5: core::ops::function::FnOnce::call_once
+2026-10-26T14:56:05.9677448Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T14:56:05.9720953Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T14:56:05.9724840Z post_shader_bisection_on_the_group_opacity_scene --- FAILED
+2026-10-26T14:56:05.9725245Z 
+2026-10-26T14:56:05.9725396Z failures:
+2026-10-26T14:56:05.9725595Z 
+2026-10-26T14:56:05.9725701Z failures:
+2026-10-26T14:56:05.9726048Z     post_shader_bisection_on_the_group_opacity_scene
+2026-10-26T14:56:05.9726388Z 
+2026-10-26T14:56:05.9726697Z test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 16.50s
+2026-10-26T14:56:05.9727274Z 
+2026-10-26T14:56:05.9803384Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test d3d12_scene`
+2026-10-26T14:56:05.9888427Z ##[endgroup]
+2026-10-26T14:56:05.9889147Z FAILED-TEST d3d12_scene::post_shader_bisection_on_the_group_opacity_scene
+2026-10-26T14:56:05.9890010Z ##[group]d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes
+2026-10-26T14:56:06.2888750Z 
+2026-10-26T14:56:06.2889333Z running 1 test
+2026-10-26T14:56:06.2905531Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:56:06.6286088Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:56:06.8301776Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:07.7540344Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:07.7555391Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:07.7572747Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:07.7588475Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:07.7604691Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:07.7620401Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:07.7635760Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:07.7669551Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:07.7701719Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:56:07.7918851Z .
+2026-10-26T14:56:07.7919985Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 1.50s
+2026-10-26T14:56:07.7920436Z 
+2026-10-26T14:56:07.8053593Z ##[endgroup]
+2026-10-26T14:56:07.8054222Z ##[group]d3d12_scene::the_renderer_refuses_a_plan_it_cannot_draw
+2026-10-26T14:56:08.1107898Z 
+2026-10-26T14:56:08.1108398Z running 1 test
+2026-10-26T14:56:08.1124933Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:56:08.4464714Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:56:08.6377992Z .
+2026-10-26T14:56:08.6378624Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.53s
+2026-10-26T14:56:08.6378916Z 
+2026-10-26T14:56:08.6512787Z ##[endgroup]
+2026-10-26T14:56:08.9933547Z ##[group]d3d12_smoke::a_bad_index_is_refused_not_drawn
+2026-10-26T14:56:09.2903590Z 
+2026-10-26T14:56:09.2904183Z running 1 test
+2026-10-26T14:56:09.2920632Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:56:09.3371002Z .
+2026-10-26T14:56:09.3371601Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.05s
+2026-10-26T14:56:09.3371912Z 
+2026-10-26T14:56:09.3498338Z ##[endgroup]
+2026-10-26T14:56:09.3498945Z ##[group]d3d12_smoke::a_clear_reads_back_as_the_requested_colour
+2026-10-26T14:56:09.6532786Z 
+2026-10-26T14:56:09.6533350Z running 1 test
+2026-10-26T14:56:09.6549267Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:56:09.6937105Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:56:09.8835762Z .
+2026-10-26T14:56:09.8836430Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.23s
+2026-10-26T14:56:09.8836885Z 
+2026-10-26T14:56:09.8963602Z ##[endgroup]
+2026-10-26T14:56:09.8964303Z ##[group]d3d12_smoke::a_mesh_lands_where_it_was_drawn_and_nowhere_else
+2026-10-26T14:56:10.1940643Z 
+2026-10-26T14:56:10.1941171Z running 1 test
+2026-10-26T14:56:10.1956905Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:56:10.2496808Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:56:10.4576029Z .
+2026-10-26T14:56:10.4576595Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.26s
+2026-10-26T14:56:10.4576906Z 
+2026-10-26T14:56:10.4709676Z ##[endgroup]
+2026-10-26T14:56:10.4710327Z ##[group]d3d12_smoke::an_empty_mesh_draws_a_transparent_frame
+2026-10-26T14:56:10.7748119Z 
+2026-10-26T14:56:10.7748667Z running 1 test
+2026-10-26T14:56:10.7764453Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:56:10.8274725Z .
+2026-10-26T14:56:10.8275350Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.05s
+2026-10-26T14:56:10.8275809Z 
+2026-10-26T14:56:10.8399437Z ##[endgroup]
+2026-10-26T14:56:10.8399980Z ##[group]d3d12_smoke::reports_an_adapter
+2026-10-26T14:56:11.1396140Z 
+2026-10-26T14:56:11.1396611Z running 1 test
+2026-10-26T14:56:11.1412573Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:56:11.1773019Z D3D12 adapter: AdapterInfo { name: "Microsoft Basic Render Driver", backend: "d3d12", device_type: "hardware" } (needs a D3D12 adapter (VIEWW_D3D12_ALLOW_WARP=1 accepts WARP); run with `cargo test -p vieww-hal --features d3d12 -- --ignored`)
+2026-10-26T14:56:11.1859071Z .
+2026-10-26T14:56:11.1859728Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.05s
+2026-10-26T14:56:11.1860018Z 
+2026-10-26T14:56:11.1983635Z ##[endgroup]
+2026-10-26T14:56:11.1984215Z ##[group]d3d12_smoke::several_frames_on_one_device
+2026-10-26T14:56:11.4921708Z 
+2026-10-26T14:56:11.4922203Z running 1 test
+2026-10-26T14:56:11.4938482Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:56:11.5311898Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:56:11.7324190Z .
+2026-10-26T14:56:11.7325069Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.24s
+2026-10-26T14:56:11.7325521Z 
+2026-10-26T14:56:11.7467909Z ##[endgroup]
+2026-10-26T14:56:11.7468614Z ##[group]d3d12_smoke::the_mesh_path_agrees_with_vulkans_pixel_rule
+2026-10-26T14:56:12.0714514Z 
+2026-10-26T14:56:12.0715069Z running 1 test
+2026-10-26T14:56:12.0730811Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:56:12.1256652Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:56:12.3338957Z .
+2026-10-26T14:56:12.3339635Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.26s
+2026-10-26T14:56:12.3340135Z 
+2026-10-26T14:56:12.3490424Z ##[endgroup]
+2026-10-26T14:56:12.6422199Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+2026-10-26T14:56:12.6513576Z ^[[1m^[[92m     Running^[[0m unittests src\lib.rs (target\debug\deps\vieww_hal-a74ce4f11fce3cd2.exe)
+2026-10-26T14:56:12.6577357Z 
+2026-10-26T14:56:12.6577764Z running 0 tests
+2026-10-26T14:56:12.6682107Z 
+2026-10-26T14:56:12.6682964Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
+2026-10-26T14:56:12.6683504Z 
+2026-10-26T14:56:12.6683830Z failed: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+2026-10-26T14:56:12.6684539Z failed: d3d12_scene::post_shader_bisection_on_the_group_opacity_scene
+2026-10-26T14:56:12.6713118Z ##[error]Process completed with exit code 1.
 
