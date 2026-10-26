@@ -212,6 +212,22 @@ const fn row_pitch(bytes: u32) -> u32 {
     bytes.div_ceil(256) * 256
 }
 
+/// `bytes` (`height` tightly packed rows of `width` texels) laid out with
+/// each row starting `row_pitch` bytes after the last, as
+/// `CopyTextureRegion` reads a placed footprint. Short input is zero-padded.
+fn pitch_rows(bytes: &[u8], width: u32, height: u32, texel: u32) -> Vec<u8> {
+    let row = (width.max(1) * texel) as usize;
+    let pitch = row_pitch(width.max(1) * texel) as usize;
+    let rows = height.max(1) as usize;
+    let mut out = vec![0u8; pitch * rows];
+    for y in 0..rows {
+        let start = (y * row).min(bytes.len());
+        let end = ((y + 1) * row).min(bytes.len());
+        out[y * pitch..y * pitch + (end - start)].copy_from_slice(&bytes[start..end]);
+    }
+    out
+}
+
 /// An SRV over a whole 2D resource, written into `slot` of the renderer's
 /// heap.
 fn srv(
@@ -1118,6 +1134,9 @@ impl D3d12SceneRenderer {
                 .GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV)
         };
         let (list, allocator) = self.begin()?;
+        // The zero-filled staging buffers must outlive the GPU's copy out of
+        // them, so they are kept until `finish` below has waited.
+        let mut staging = Vec::new();
         while self.levels.len() < depth {
             let level_resource = committed(
                 &self.device,
@@ -1137,6 +1156,7 @@ impl D3d12SceneRenderer {
                 let bytes = vec![0u8; row_pitch(width * 8) as usize * height.max(1) as usize];
                 let zeros = self.upload_buffer(&bytes)?;
                 self.copy_staging_to_texture(&list, resource, &zeros, width, height, TARGET_FORMAT);
+                staging.push(zeros);
                 self.transition_resource(
                     &list,
                     resource,
@@ -1182,6 +1202,7 @@ impl D3d12SceneRenderer {
             }
         }
         self.finish(&list)?;
+        drop(staging);
         drop(allocator);
         Ok(())
     }
@@ -1262,7 +1283,12 @@ impl D3d12SceneRenderer {
             self.atlases[index].height = height;
         }
         let resource = self.atlases[index].resource.clone();
-        let staging = self.upload_buffer(bytes)?;
+        // CopyTextureRegion reads rows `row_pitch` (256-byte aligned) apart;
+        // the atlases hand over tightly packed rows, so repack them. Copying
+        // the packed bytes straight read past the end of the staging buffer
+        // (an access violation on WARP) and sheared every row after the first.
+        let pitched = pitch_rows(bytes, width, height, bytes_per_texel(format));
+        let staging = self.upload_buffer(&pitched)?;
         let (list, allocator) = self.begin()?;
         if !resized {
             // What the last upload left in PIXEL_SHADER_RESOURCE, back to
@@ -1325,7 +1351,10 @@ impl D3d12SceneRenderer {
         // SAFETY: a recorded list on our queue; the fence wait below keeps
         // every resource it references alive until the GPU is done.
         unsafe {
-            list.Close()?;
+            super::print_debug_messages(&self.device, "record");
+            let closed = list.Close();
+            super::print_debug_messages(&self.device, "close");
+            closed?;
             let lists = [Some(list.cast::<ID3D12CommandList>()?)];
             self.queue.ExecuteCommandLists(&lists);
             self.queue.Signal(&self.fence, value)?;
@@ -1340,6 +1369,7 @@ impl D3d12SceneRenderer {
             }
             // A removed device (driver reset, TDR) reports here rather than
             // returning garbage pixels.
+            super::print_debug_messages(&self.device, "execute");
             self.device.GetDeviceRemovedReason()?;
         }
         Ok(())

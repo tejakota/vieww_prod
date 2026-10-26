@@ -146,6 +146,65 @@ fn decode_description(buffer: [u16; 128]) -> String {
     String::from_utf16_lossy(&buffer[..len])
 }
 
+/// `VIEWW_D3D12_DEBUG=1`: turn on the D3D12 debug layer before the device
+/// is created, so validation messages can be printed by
+/// [`print_debug_messages`] (CI sets it; it needs the Graphics Tools
+/// feature, and says so on stderr when that is missing).
+fn debug_requested() -> bool {
+    std::env::var("VIEWW_D3D12_DEBUG").is_ok_and(|v| v == "1")
+}
+
+fn enable_debug_layer() {
+    let mut debug: Option<ID3D12Debug> = None;
+    // SAFETY: a valid out-pointer; the interface is used only if returned.
+    match unsafe { D3D12GetDebugInterface(&mut debug) } {
+        Ok(()) => {
+            if let Some(debug) = debug {
+                // SAFETY: called before any device exists, as required.
+                unsafe { debug.EnableDebugLayer() };
+                eprintln!("d3d12: debug layer enabled");
+            }
+        }
+        Err(error) => eprintln!("d3d12: debug layer unavailable ({error})"),
+    }
+}
+
+/// Print and clear every message the debug layer stored on `device` (a
+/// no-op without the layer). Called after each submit, so the last lines
+/// before a crash say what the runtime objected to.
+pub(crate) fn print_debug_messages(device: &ID3D12Device, context: &str) {
+    let Ok(queue) = device.cast::<ID3D12InfoQueue>() else {
+        return;
+    };
+    // SAFETY: GetMessage is called first for the size, then with a buffer
+    // of exactly that size (8-byte aligned), per its contract.
+    unsafe {
+        let count = queue.GetNumStoredMessages();
+        for i in 0..count {
+            let mut len = 0usize;
+            if queue.GetMessage(i, None, &mut len).is_err() || len == 0 {
+                continue;
+            }
+            let mut buf = vec![0u64; len.div_ceil(8)];
+            let msg = buf.as_mut_ptr().cast::<D3D12_MESSAGE>();
+            if queue.GetMessage(i, Some(msg), &mut len).is_ok() {
+                let m = &*msg;
+                let text = std::slice::from_raw_parts(
+                    m.pDescription,
+                    m.DescriptionByteLength.saturating_sub(1),
+                );
+                eprintln!(
+                    "d3d12 [{context}] severity {} id {}: {}",
+                    m.Severity.0,
+                    m.ID.0,
+                    String::from_utf8_lossy(text)
+                );
+            }
+        }
+        queue.ClearStoredMessages();
+    }
+}
+
 fn warp_allowed() -> bool {
     std::env::var("VIEWW_D3D12_ALLOW_WARP").is_ok_and(|v| v == "1")
 }
@@ -166,6 +225,9 @@ impl D3d12Device {
     ///
     /// [`D3d12Error::NoAdapter`], or a failing DXGI/D3D12 call.
     pub fn new() -> Result<Self, D3d12Error> {
+        if debug_requested() {
+            enable_debug_layer();
+        }
         // SAFETY: an argument-free COM factory.
         let factory: IDXGIFactory4 = unsafe { CreateDXGIFactory1()? };
         let mut chosen = None;
@@ -257,7 +319,10 @@ impl D3d12Device {
         // SAFETY: a recorded list on our queue; the fence wait below keeps
         // every resource it references alive until the GPU is done.
         unsafe {
-            list.Close()?;
+            print_debug_messages(&self.device, "record");
+            let closed = list.Close();
+            print_debug_messages(&self.device, "close");
+            closed?;
             let lists = [Some(list.cast::<ID3D12CommandList>()?)];
             submit.queue.ExecuteCommandLists(&lists);
             submit.queue.Signal(&submit.fence, value)?;
@@ -272,6 +337,7 @@ impl D3d12Device {
             }
             // A removed device (driver reset, TDR) reports here rather than
             // returning garbage pixels.
+            print_debug_messages(&self.device, "execute");
             self.device.GetDeviceRemovedReason()?;
         }
         Ok(())

@@ -282,7 +282,33 @@ jobs:
         env:
           VIEWW_D3D12_ALLOW_WARP: "1"
           VIEWW_REQUIRE_HARDWARE: gpu
-        run: cargo test -p vieww-hal --features d3d12 -- --ignored --test-threads=1
+          VIEWW_D3D12_DEBUG: "1"
+          RUST_BACKTRACE: "1"
+        shell: bash
+        # Every test in its own process with its output shown: a crash in one
+        # (an access violation ends the whole binary) no longer hides the
+        # others, and the debug layer's messages print right before it.
+        run: |
+          cargo test -p vieww-hal --features d3d12 --no-run
+          failed=()
+          for bin in d3d12_scene d3d12_smoke; do
+            [ -f "crates/vieww-hal/tests/$bin.rs" ] || continue
+            for t in $(cargo test -q -p vieww-hal --features d3d12 --test "$bin" -- --ignored --list 2>/dev/null | sed -n 's/: test$//p'); do
+              echo "::group::$bin::$t"
+              if cargo test -q -p vieww-hal --features d3d12 --test "$bin" -- --ignored --exact "$t" --nocapture; then
+                echo "::endgroup::"
+              else
+                echo "::endgroup::"
+                echo "FAILED-TEST $bin::$t"
+                failed+=("$bin::$t")
+              fi
+            done
+          done
+          cargo test -p vieww-hal --features d3d12 --lib -- --ignored --test-threads=1 || failed+=(lib)
+          if [ ${#failed[@]} -gt 0 ]; then
+            printf 'failed: %s\n' "${failed[@]}"
+            exit 1
+          fi
       - name: HLSL that FXC refused (numbered, for the failure report)
         if: failure()
         shell: bash
