@@ -1,12 +1,12 @@
-# publish — FAILURE
+# publish — SUCCESS
 
-- branch: `main`  sha: `da72ff4877e792412cd6ce94fced20d871cc3321`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40300393235
+- branch: `main`  sha: `35c6b3f65b538866b42166a0d1dce21e8cef3a21`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40321754699
 
 | job | verdict | failed steps |
 |---|---|---|
 | verify | PASS |  |
-| scaffold-external | FAIL | vieww new, outside the checkout |
+| scaffold-external | PASS |  |
 | check | PASS |  |
 | publish | skipped |  |
 
@@ -23,14 +23,14 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### scaffold-external — FAIL
+### scaffold-external — PASS
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
 - PASS: System packages
 - PASS: Run rustup toolchain install
 - PASS: Run Swatinem/rust-cache@v2
-- FAIL: vieww new, outside the checkout
-- skipped: Post Run Swatinem/rust-cache@v2
+- PASS: vieww new, outside the checkout
+- PASS: Post Run Swatinem/rust-cache@v2
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
