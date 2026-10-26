@@ -101,8 +101,10 @@ pub struct D3d12SceneRenderer {
     post_root: ID3D12RootSignature,
     clear_root: ID3D12RootSignature,
     scene_pso: ID3D12PipelineState,
-    post_replace_pso: ID3D12PipelineState,
-    post_over_pso: ID3D12PipelineState,
+    /// `[over][blur]`: the post pipeline for `pass.over` and for a blur
+    /// pass (`post.wgsl`'s `fs_blur`) or any other (`fs_no_blur`) — split
+    /// because WARP removes the device on the combined `fs_main`.
+    post_psos: [[ID3D12PipelineState; 2]; 2],
     clear_pso: ID3D12PipelineState,
     /// The one shader-visible heap: the atlases, the dummy, and one triplet
     /// per post pass (see [`TRIPLETS_BASE`]).
@@ -350,18 +352,7 @@ impl D3d12SceneRenderer {
     ///
     /// Any D3D12 call failing, or a shader failing to translate or compile.
     pub fn new(device: &D3d12Device) -> Result<Self, D3d12Error> {
-        Self::with_post_source(device, vieww_shaders::library::POST_WGSL)
-    }
-
-    /// [`Self::new`] with `post` in place of `post.wgsl` — the hook the
-    /// Windows suite's post-shader bisection uses to find which part of the
-    /// shader a driver mishandles. Not for applications.
-    ///
-    /// # Errors
-    ///
-    /// As [`Self::new`].
-    #[doc(hidden)]
-    pub fn with_post_source(device: &D3d12Device, post: &str) -> Result<Self, D3d12Error> {
+        let post = vieww_shaders::library::POST_WGSL;
         let raw = device.raw().clone();
         let queue_desc = D3D12_COMMAND_QUEUE_DESC {
             Type: D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -473,23 +464,28 @@ impl D3d12SceneRenderer {
             premultiplied_over(),
         )?;
         let post_vs = D3d12Device::compile(post, "vs_main", vieww_shaders::ShaderStage::Vertex)?;
-        let post_ps = D3d12Device::compile(post, "fs_main", vieww_shaders::ShaderStage::Fragment)?;
-        let post_replace_pso = device.pipeline(
-            &post_root,
-            &post_vs,
-            &post_ps,
-            &[],
-            TARGET_FORMAT,
-            replace(),
-        )?;
-        let post_over_pso = device.pipeline(
-            &post_root,
-            &post_vs,
-            &post_ps,
-            &[],
-            TARGET_FORMAT,
-            premultiplied_over(),
-        )?;
+        let post_blur =
+            D3d12Device::compile(post, "fs_blur", vieww_shaders::ShaderStage::Fragment)?;
+        let post_rest =
+            D3d12Device::compile(post, "fs_no_blur", vieww_shaders::ShaderStage::Fragment)?;
+        let post_pso = |ps: &windows::Win32::Graphics::Direct3D::ID3DBlob, over: bool| {
+            device.pipeline(
+                &post_root,
+                &post_vs,
+                ps,
+                &[],
+                TARGET_FORMAT,
+                if over {
+                    premultiplied_over()
+                } else {
+                    replace()
+                },
+            )
+        };
+        let post_psos = [
+            [post_pso(&post_rest, false)?, post_pso(&post_blur, false)?],
+            [post_pso(&post_rest, true)?, post_pso(&post_blur, true)?],
+        ];
         let clear_vs = D3d12Device::compile(
             vieww_shaders::library::CLEAR_WGSL,
             "vs_main",
@@ -551,8 +547,7 @@ impl D3d12SceneRenderer {
             post_root,
             clear_root,
             scene_pso,
-            post_replace_pso,
-            post_over_pso,
+            post_psos,
             clear_pso,
             heap,
             heap_posts: INITIAL_POST_CAPACITY,
@@ -913,15 +908,14 @@ impl D3d12SceneRenderer {
                             &self.atlases[Slot::Masks.index()].resource,
                             atlas_format(Slot::Masks),
                         );
-                        if bound != Bound::Post(pass.over) {
+                        let blur = matches!(pass.push.args[0], m if m == crate::scene_exec::mode::BOX_H || m == crate::scene_exec::mode::BOX_V);
+                        if bound != Bound::Post(pass.over, blur) {
                             // SAFETY: as above.
                             list.SetGraphicsRootSignature(&self.post_root);
-                            list.SetPipelineState(if pass.over {
-                                &self.post_over_pso
-                            } else {
-                                &self.post_replace_pso
-                            });
-                            bound = Bound::Post(pass.over);
+                            list.SetPipelineState(
+                                &self.post_psos[usize::from(pass.over)][usize::from(blur)],
+                            );
+                            bound = Bound::Post(pass.over, blur);
                         }
                         // SAFETY: as above.
                         list.SetGraphicsRootDescriptorTable(
@@ -1509,7 +1503,7 @@ enum Bound {
     None,
     Scene,
     /// The post pipeline, and whether it is the blending one.
-    Post(bool),
+    Post(bool, bool),
     Clear,
 }
 

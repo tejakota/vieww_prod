@@ -230,6 +230,27 @@ fn blend(mode: i32, s: vec4<f32>, d: vec4<f32>) -> vec4<f32> {
 
 @fragment
 fn fs_main(@builtin(position) frag: vec4<f32>) -> @location(0) vec4<f32> {
+    return shade(frag, true);
+}
+
+// The D3D12 backend's split of `fs_main` (the other backends use `fs_main`
+// itself): WARP removes the device running a pixel shader that holds both
+// the blur loop and the blend modes, though either alone runs (the
+// `post_shader_bisection_on_the_group_opacity_scene` suite). FXC inlines
+// `shade` and drops the branch a constant `false` turns off, so each entry
+// point carries only half. The arithmetic is `fs_main`'s, unchanged.
+@fragment
+fn fs_blur(@builtin(position) frag: vec4<f32>) -> @location(0) vec4<f32> {
+    let p = vec2<i32>(floor(frag.xy));
+    return box_blur(p, i32(round(pc.args.x)));
+}
+
+@fragment
+fn fs_no_blur(@builtin(position) frag: vec4<f32>) -> @location(0) vec4<f32> {
+    return shade(frag, false);
+}
+
+fn shade(frag: vec4<f32>, with_blur: bool) -> vec4<f32> {
     // An if-chain, not a `switch`: FXC (D3DCompile, the D3D12 backend's
     // compiler) aborts with "internal error: compilation aborted
     // unexpectedly" on the blur loop when it sits inside a switch case — a
@@ -240,7 +261,7 @@ fn fs_main(@builtin(position) frag: vec4<f32>) -> @location(0) vec4<f32> {
     if mode == 0 {
         return src_at(p);
     }
-    if mode == 1 || mode == 2 {
+    if with_blur && (mode == 1 || mode == 2) {
         return box_blur(p, mode);
     }
     if mode == 3 {
