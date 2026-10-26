@@ -10,7 +10,7 @@
 #               harness and the NaN-recovery suite included) and clippy with
 #               `-D warnings`, on every push to main and every pull request
 #               that touches them.
-#   * `fuzz`  — every vieww-audio decoder under cargo-fuzz, nightly, and
+#   * `fuzz`  — every vieww-audio decoder under cargo-fuzz, and
 #               BLOCKING: a crash fails the run and uploads the input. (The
 #               `audio-fuzz` leg in framework-checks.yml is the manual,
 #               report-only twin.)
@@ -20,22 +20,11 @@
 
 name: Audio CI
 
-# FW-02 / AU-15: runs on pushes to main and pull requests that touch audio or
-# music code, and the blocking fuzz job nightly. Still runnable by hand.
+# AU-15: started by hand (owner's rule, 2026-10-26: no automatic triggers).
+# Manual only, by the owner's rule (2026-10-26): no push, pull_request,
+# tag or schedule trigger. Actions -> this workflow -> Run workflow.
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 21 * * *"
-  push:
-    branches: [main]
-    paths: &audio_paths
-      - "vieww_base/crates/vieww-audio/**"
-      - "vieww_base/crates/vieww-music/**"
-      - "vieww_base/crates/vieww-audio-*/**"
-      - "vieww_base/Cargo.lock"
-      - ".github/workflows/audio-ci.yml"
-  pull_request:
-    paths: *audio_paths
 
 permissions:
   contents: read
@@ -105,8 +94,20 @@ jobs:
           status=0
           for t in $(cargo +nightly fuzz list); do
             echo "::group::$t"
-            cargo +nightly fuzz run "$t" "fuzz/corpus/$t" -s none -- \
-              -max_total_time="$FUZZ_SECONDS" -rss_limit_mb=2048 -timeout=20 || status=1
+            if ! cargo +nightly fuzz run "$t" "fuzz/corpus/$t" -s none -- \
+              -max_total_time="$FUZZ_SECONDS" -rss_limit_mb=2048 -timeout=20; then
+              status=1
+              echo "::endgroup::"
+              echo "::error::fuzz target $t failed"
+              # The input that failed, in the log too (it is also uploaded):
+              # small enough to rebuild with xxd -r if the artifact expires.
+              for f in fuzz/artifacts/"$t"/*; do
+                [ -f "$f" ] || continue
+                echo "FUZZ-FINDING $t $(basename "$f") $(wc -c < "$f") bytes"
+                xxd "$f" | head -n 256
+              done
+              continue
+            fi
             echo "::endgroup::"
           done
           exit $status

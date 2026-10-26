@@ -22,15 +22,10 @@ name: Hardware (self-hosted Linux and Windows)
 #            |                                      | receipt and baseline report to
 #            |                                      | ci-runs/hardware-<branch>
 #
-# **Manual or nightly — never push or pull_request.** A self-hosted runner
-# executes whatever a workflow tells it to on your machine. This workflow has
-# no `push` or `pull_request` trigger, so nothing a contributor pushes can
-# start it; keep it so. The nightly `schedule` (FW-02) always runs the default
-# branch, which only the owner can write. On a schedule there are no inputs,
-# so both machines run with their default step lists.
+# **Manual only.** A self-hosted runner executes whatever a workflow tells it
+# to on your machine, so this workflow has no push, pull_request or schedule
+# trigger: nothing a contributor pushes can start it. Keep it so.
 on:
-  schedule:
-    - cron: "30 20 * * *"   # 02:00 IST nightly
   workflow_dispatch:
     inputs:
       linux:

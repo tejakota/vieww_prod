@@ -16,24 +16,26 @@ How a version is chosen, cut, checked and shipped (FW-01, FW-03, FW-06).
 
 | Channel | What | Where |
 |---|---|---|
-| nightly | the last green `release-gate` run on `main` | Actions artifacts, kept 30 days |
+| nightly | the last green `release-gate` run on `main` (started by hand) | Actions artifacts, kept 30 days |
 | beta | `v0.x.y-beta.N` tags | GitHub Release marked pre-release; crates.io pre-release |
 | stable | `v0.x.y` tags | GitHub Release; crates.io |
 
 ## Cutting a release
 
 1. Pick the commit: `main`, with `release-gate`, `goldens`, `supply-chain`
-   and the nightly `hardware` run all green on it.
+   and `hardware` all green on it (every workflow is started by hand —
+   Actions → workflow → Run workflow; none runs on push, tag or schedule).
 2. Set the version: edit `[workspace.package] version` and the `version =`
    of every `vieww-*` entry in `[workspace.dependencies]`, run
    `ci/release/publish-check.sh`, rename `[Unreleased]` in `CHANGELOG.md`.
    Commit: `release: vX.Y.Z`.
 3. Tag and push: `git tag -s vX.Y.Z && git push origin vX.Y.Z`.
-4. CI then runs, on the tag:
+4. Start the release workflows on the tag (Actions → workflow → Run
+   workflow → "Use workflow from" → the tag; nothing starts on its own):
    * `release-gate`: the full gate on every hosted leg, installers, merged
-     checklist, and the `release` job, which drafts the GitHub Release with
-     installers + `SHA256SUMS` + SBOM + `CHECKLIST-ci.md` and Sigstore build
-     provenance on every file;
+     checklist, and the `release` job (it acts only when run on a `v*` tag),
+     which drafts the GitHub Release with installers + `SHA256SUMS` + SBOM +
+     `CHECKLIST-ci.md` and Sigstore build provenance on every file;
    * `publish`: package check, `cargo publish --dry-run`, the
      outside-a-checkout scaffold build, then `cargo publish --workspace` if
      the `CARGO_REGISTRY_TOKEN` secret is set (the tag must equal the version).

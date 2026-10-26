@@ -12,20 +12,21 @@ tag needs a `## [x.y.z]` section here before it is pushed.
 ## [Unreleased]
 
 ### Added
-- **CI on every push and pull request** (FW-02): `pr-quick` (checks --quick,
+- **CI, every workflow started by hand** (FW-02): `pr-quick` (checks --quick,
   actionlint, wright sandbox escape suite), the release gate restored to the
-  root, nightly self-hosted hardware runs, audio CI on audio paths.
+  root, self-hosted hardware runs, audio CI; results of every run land on the
+  `ci-results` branch.
 - **Golden screenshots** (FW-14): 227 committed captures; `goldens` fails a PR
   on any byte difference and uploads the diff report.
-- **Supply chain** (FW-23): nightly cargo-deny + cargo-audit for both
+- **Supply chain** (FW-23): cargo-deny + cargo-audit for both
   workspaces, CycloneDX SBOMs (`ci/release/sbom.py`, shipped beside the
-  installers), a nightly reproducibility check, `SOURCE_DATE_EPOCH` in
+  installers), a reproducibility check, `SOURCE_DATE_EPOCH` in
   packaging.
 - **Publishing** (FW-01): `repository`/`homepage` on all 52 public crates,
   `ci/release/publish-check.sh` + `publish-order.txt`, a `publish` workflow
   (package check, dry-run verify, scaffold-outside-the-checkout build, and
-  `cargo publish --workspace` on tags when a token is configured).
-- **Releases** (FW-03, FW-06): tags produce a draft GitHub Release with
+  `cargo publish --workspace` when run on a tag with a token configured).
+- **Releases** (FW-03, FW-06): `release-gate` run on a tag drafts a GitHub Release with
   installers, merged SHA256SUMS, SBOM, checklist and Sigstore build provenance.
 - **Audio that plays** (AU-01, AU-11): `vieww_audio::Engine`, `EnginePlayer`
   (registered by `vieww-platform-winit` on desktop and Android, device opened on

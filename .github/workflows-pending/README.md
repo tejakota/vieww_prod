@@ -4,12 +4,9 @@ Every workflow that waited here is in `.github/workflows/`, and the stale
 copies (older than the live files) were deleted along with `restore.sh`.
 Trigger policy now:
 
-| Workflow | Triggers |
-|---|---|
-| `pr-quick.yml` | every pull request and non-main branch push: `ci/vieww checks --quick` + actionlint (hosted) |
-| `release-gate.yml` | push to main (failed rows), `v*` tag (full gate), manual |
-| `audio-ci.yml` | push/PR touching audio or music, nightly fuzz, manual |
-| `hardware.yml` | nightly on main + manual; **never** push or PR (self-hosted) |
-| everything else | manual |
+Every workflow is started by hand (Actions → workflow → Run workflow), by
+the owner's rule of 2026-10-26: no push, pull_request, tag or schedule
+trigger anywhere. The one exception is `ci-results.yml`, which runs when a
+(manual) run finishes, to write its results to the `ci-results` branch.
 
 `ABC.md` and `WAY-AHEAD.md` are planning notes kept for the record.

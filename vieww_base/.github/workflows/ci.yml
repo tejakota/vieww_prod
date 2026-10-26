@@ -35,6 +35,8 @@
 
 name: release-gate
 
+# Manual only, by the owner's rule (2026-10-26): no push, pull_request,
+# tag or schedule trigger. Actions -> this workflow -> Run workflow.
 on:
   workflow_dispatch:
     inputs:
@@ -56,12 +58,6 @@ on:
         description: "Which machines: hosted (default) | all | none | a comma list of leg ids (see LEGS below), e.g. windows-cpu,macos-gpu"
         type: string
         default: ""
-  # A push to main reruns the failed-row lists below (the same as a manual run
-  # with rerun=failed); a `v*` tag runs the full gate. A newer push to the same
-  # ref cancels the run still in progress (see `concurrency`).
-  push:
-    branches: [main]
-    tags: ["v*"]
 
 permissions:
   contents: read

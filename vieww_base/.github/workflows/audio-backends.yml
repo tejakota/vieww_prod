@@ -14,19 +14,9 @@ name: Audio backends
 #   * Every backend also type-checks and lints on Linux via
 #     --cfg vieww_check_all.
 
+# Manual only, by the owner's rule (2026-10-26): no push, pull_request,
+# tag or schedule trigger. Actions -> this workflow -> Run workflow.
 on:
-  push:
-    branches:
-      - feature/vieww_code_base
-      - feature/vieww_code_base2
-      - "feature/vieww-gap-closure-*"
-    paths:
-      - "vieww_base/crates/vieww-audio/**"
-      - ".github/workflows/audio-backends.yml"
-  pull_request:
-    paths:
-      - "vieww_base/crates/vieww-audio/**"
-      - ".github/workflows/audio-backends.yml"
   workflow_dispatch:
 
 permissions:

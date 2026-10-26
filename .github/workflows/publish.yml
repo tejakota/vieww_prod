@@ -2,7 +2,7 @@
 #
 #   check            every PR touching manifests: metadata, versioned deps,
 #                    publish-order.txt fresh, all 52 public crates package
-#   verify           nightly + tags: `cargo publish --workspace --dry-run`
+#   verify           `cargo publish --workspace --dry-run`
 #                    (builds each crate from its packaged source)
 #   scaffold-external  `vieww new` OUTSIDE the checkout writes a version
 #                    dependency (B16); the project must build against these
@@ -12,12 +12,10 @@
 #                    secret exists: `cargo publish --workspace`
 name: publish
 
+# Manual only, by the owner's rule (2026-10-26): no push, pull_request,
+# tag or schedule trigger. Actions -> this workflow -> Run workflow.
 on:
   workflow_dispatch:
-  schedule:
-    # The nightly publish dry-run (FW-01's T11: ordered crates stay
-    # publishable). PR trigger removed per the owner's manual-only rule.
-    - cron: "45 22 * * *"
 
 permissions:
   contents: read

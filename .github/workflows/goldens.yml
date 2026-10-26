@@ -5,6 +5,11 @@ name: goldens
 
 on:
   workflow_dispatch:
+    inputs:
+      update:
+        description: "Capture a new baseline and upload it as an artifact (no comparison)"
+        type: boolean
+        default: false
 
 # Owner rule (2026-10-24): manual only. The pull_request + push triggers
 # are gone; the goldens gate runs when you dispatch it (a pre-merge step

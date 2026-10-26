@@ -10,7 +10,7 @@
 #               harness and the NaN-recovery suite included) and clippy with
 #               `-D warnings`, on every push to main and every pull request
 #               that touches them.
-#   * `fuzz`  — every vieww-audio decoder under cargo-fuzz, nightly, and
+#   * `fuzz`  — every vieww-audio decoder under cargo-fuzz, and
 #               BLOCKING: a crash fails the run and uploads the input. (The
 #               `audio-fuzz` leg in framework-checks.yml is the manual,
 #               report-only twin.)
@@ -20,17 +20,11 @@
 
 name: Audio CI
 
-# FW-02 / AU-15: runs on pushes to main and pull requests that touch audio or
-# music code, and the blocking fuzz job nightly. Still runnable by hand.
+# AU-15: started by hand (owner's rule, 2026-10-26: no automatic triggers).
+# Manual only, by the owner's rule (2026-10-26): no push, pull_request,
+# tag or schedule trigger. Actions -> this workflow -> Run workflow.
 on:
   workflow_dispatch:
-  schedule:
-    # The AU-15 cadence for the blocking fuzz job, kept because the
-    # uploaded test plan endorses a nightly fuzz budget; the push/PR
-    # trigger the header once claimed is REMOVED per the owner's
-    # manual-only rule. Delete this `schedule:` block too if you want the
-    # workflow strictly on demand.
-    - cron: "0 21 * * *"
 
 permissions:
   contents: read
