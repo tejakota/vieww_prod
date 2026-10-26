@@ -1,302 +1,302 @@
 ===== Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter) =====
-2026-10-26T13:47:04.4979482Z ^[[36;1mcargo test -p vieww-hal --features d3d12 --no-run^[[0m
-2026-10-26T13:47:04.4979802Z ^[[36;1mfailed=()^[[0m
-2026-10-26T13:47:04.4980029Z ^[[36;1mfor bin in d3d12_scene d3d12_smoke; do^[[0m
-2026-10-26T13:47:04.4980360Z ^[[36;1m  [ -f "crates/vieww-hal/tests/$bin.rs" ] || continue^[[0m
-2026-10-26T13:47:04.4980970Z ^[[36;1m  for t in $(cargo test -q -p vieww-hal --features d3d12 --test "$bin" -- --ignored --list 2>/dev/null | sed -n 's/: test$//p'); do^[[0m
-2026-10-26T13:47:04.4981510Z ^[[36;1m    echo "::group::$bin::$t"^[[0m
-2026-10-26T13:47:04.4981964Z ^[[36;1m    if cargo test -q -p vieww-hal --features d3d12 --test "$bin" -- --ignored --exact "$t" --nocapture; then^[[0m
-2026-10-26T13:47:04.4982429Z ^[[36;1m      echo "::endgroup::"^[[0m
-2026-10-26T13:47:04.4982665Z ^[[36;1m    else^[[0m
-2026-10-26T13:47:04.4982858Z ^[[36;1m      echo "::endgroup::"^[[0m
-2026-10-26T13:47:04.4983101Z ^[[36;1m      echo "FAILED-TEST $bin::$t"^[[0m
-2026-10-26T13:47:04.4983409Z ^[[36;1m      failed+=("$bin::$t")^[[0m
-2026-10-26T13:47:04.4983629Z ^[[36;1m    fi^[[0m
-2026-10-26T13:47:04.4983799Z ^[[36;1m  done^[[0m
-2026-10-26T13:47:04.4983964Z ^[[36;1mdone^[[0m
-2026-10-26T13:47:04.4984331Z ^[[36;1mcargo test -p vieww-hal --features d3d12 --lib -- --ignored --test-threads=1 || failed+=(lib)^[[0m
-2026-10-26T13:47:04.4984772Z ^[[36;1mif [ ${#failed[@]} -gt 0 ]; then^[[0m
-2026-10-26T13:47:04.4985044Z ^[[36;1m  printf 'failed: %s\n' "${failed[@]}"^[[0m
-2026-10-26T13:47:04.4985304Z ^[[36;1m  exit 1^[[0m
-2026-10-26T13:47:04.4985483Z ^[[36;1mfi^[[0m
-2026-10-26T13:47:04.4995688Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
-2026-10-26T13:47:04.4996071Z env:
-2026-10-26T13:47:04.4996258Z   CARGO_TERM_COLOR: always
-2026-10-26T13:47:04.4996474Z   RUST_BACKTRACE: 1
-2026-10-26T13:47:04.4996676Z   RUST_VERSION: 1.98.1
-2026-10-26T13:47:04.4996882Z   VIEWW_D3D12_ALLOW_WARP: 1
-2026-10-26T13:47:04.4997118Z   VIEWW_REQUIRE_HARDWARE: gpu
-2026-10-26T13:47:04.4997352Z   VIEWW_D3D12_DEBUG: 1
-2026-10-26T13:47:04.4997547Z ##[endgroup]
-2026-10-26T13:47:04.9357242Z ^[[1m^[[92m   Compiling^[[0m unicode-ident v1.0.26
-2026-10-26T13:47:04.9361164Z ^[[1m^[[92m   Compiling^[[0m libm v0.2.16
-2026-10-26T13:47:04.9361737Z ^[[1m^[[92m   Compiling^[[0m cfg-if v1.0.5
-2026-10-26T13:47:04.9362296Z ^[[1m^[[92m   Compiling^[[0m once_cell v1.21.4
-2026-10-26T13:47:04.9857909Z ^[[1m^[[92m   Compiling^[[0m bitflags v2.13.2
-2026-10-26T13:47:05.0700038Z ^[[1m^[[92m   Compiling^[[0m proc-macro2 v1.0.107
-2026-10-26T13:47:05.1361430Z ^[[1m^[[92m   Compiling^[[0m foldhash v0.2.0
-2026-10-26T13:47:05.4763542Z ^[[1m^[[92m   Compiling^[[0m log v0.4.34
-2026-10-26T13:47:05.6717790Z ^[[1m^[[92m   Compiling^[[0m quote v1.0.47
-2026-10-26T13:47:05.7923982Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
-2026-10-26T13:47:06.8973850Z ^[[1m^[[92m   Compiling^[[0m syn v3.0.6
-2026-10-26T13:47:06.9914912Z ^[[1m^[[92m   Compiling^[[0m syn v2.0.119
-2026-10-26T13:47:09.2829881Z ^[[1m^[[92m   Compiling^[[0m core_maths v0.1.1
-2026-10-26T13:47:09.3717130Z ^[[1m^[[92m   Compiling^[[0m num-traits v0.2.19
-2026-10-26T13:47:09.5372020Z ^[[1m^[[92m   Compiling^[[0m arrayvec v0.7.8
-2026-10-26T13:47:09.8365255Z ^[[1m^[[92m   Compiling^[[0m simd-adler32 v0.3.10
-2026-10-26T13:47:10.5896209Z ^[[1m^[[92m   Compiling^[[0m equivalent v1.0.2
-2026-10-26T13:47:10.6552377Z ^[[1m^[[92m   Compiling^[[0m indexmap v2.14.2
-2026-10-26T13:47:10.7998542Z ^[[1m^[[92m   Compiling^[[0m bit-vec v0.9.1
-2026-10-26T13:47:11.2479823Z ^[[1m^[[92m   Compiling^[[0m adler2 v2.0.1
-2026-10-26T13:47:11.4824096Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v1.1.0
-2026-10-26T13:47:11.5630491Z ^[[1m^[[92m   Compiling^[[0m unicode-width v0.2.2
-2026-10-26T13:47:11.8782450Z ^[[1m^[[92m   Compiling^[[0m codespan-reporting v0.13.1
-2026-10-26T13:47:11.9615777Z ^[[1m^[[92m   Compiling^[[0m bit-set v0.10.0
-2026-10-26T13:47:13.5337409Z ^[[1m^[[92m   Compiling^[[0m windows_x86_64_msvc v0.52.6
-2026-10-26T13:47:13.5788227Z ^[[1m^[[92m   Compiling^[[0m ttf-parser v0.25.1
-2026-10-26T13:47:13.9280446Z ^[[1m^[[92m   Compiling^[[0m spirv v0.4.0+sdk-1.4.341.0
-2026-10-26T13:47:21.1311060Z ^[[1m^[[92m   Compiling^[[0m unicode-segmentation v1.13.3
-2026-10-26T13:47:22.3643786Z ^[[1m^[[92m   Compiling^[[0m windows-targets v0.52.6
-2026-10-26T13:47:22.4253581Z ^[[1m^[[92m   Compiling^[[0m crc32fast v1.5.2
-2026-10-26T13:47:23.0011414Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.9.1
-2026-10-26T13:47:26.9073276Z ^[[1m^[[92m   Compiling^[[0m euclid v0.22.14
-2026-10-26T13:47:28.0595486Z ^[[1m^[[92m   Compiling^[[0m lyon_geom v1.0.19
-2026-10-26T13:47:28.1250013Z ^[[1m^[[92m   Compiling^[[0m flate2 v1.1.10
-2026-10-26T13:47:28.7449632Z ^[[1m^[[92m   Compiling^[[0m windows-result v0.2.0
-2026-10-26T13:47:29.1725352Z ^[[1m^[[92m   Compiling^[[0m vieww-foundation v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-foundation)
-2026-10-26T13:47:29.4156819Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.8.9
-2026-10-26T13:47:33.2164616Z ^[[1m^[[92m   Compiling^[[0m fdeflate v0.3.7
-2026-10-26T13:47:35.2532745Z ^[[1m^[[92m   Compiling^[[0m png v0.18.1
-2026-10-26T13:47:36.0376937Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
-2026-10-26T13:47:42.3964983Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v2.0.21
-2026-10-26T13:47:53.4082018Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
-2026-10-26T13:47:53.7912344Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
-2026-10-26T13:47:54.4765157Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
-2026-10-26T13:47:59.9643138Z ^[[1m^[[92m   Compiling^[[0m zerocopy-derive v0.8.59
-2026-10-26T13:48:04.0623959Z ^[[1m^[[92m   Compiling^[[0m thiserror v2.0.21
-2026-10-26T13:48:04.1446794Z ^[[1m^[[92m   Compiling^[[0m naga-types v30.0.1
-2026-10-26T13:48:04.3491137Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
-2026-10-26T13:48:04.9856588Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
-2026-10-26T13:48:05.3144427Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
-2026-10-26T13:48:35.6602506Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
-2026-10-26T13:48:41.9918915Z ^[[1m^[[92m   Compiling^[[0m half v2.7.1
-2026-10-26T13:48:42.7091882Z ^[[1m^[[92m   Compiling^[[0m naga v30.0.1
-2026-10-26T13:48:51.4541371Z ^[[1m^[[92m   Compiling^[[0m windows-interface v0.58.0
-2026-10-26T13:48:52.1590374Z ^[[1m^[[92m   Compiling^[[0m windows-implement v0.58.0
-2026-10-26T13:48:59.1170267Z ^[[1m^[[92m   Compiling^[[0m slotmap v1.1.1
-2026-10-26T13:48:59.7327161Z ^[[1m^[[92m   Compiling^[[0m windows-strings v0.1.0
-2026-10-26T13:49:00.5613016Z ^[[1m^[[92m   Compiling^[[0m lyon_path v1.0.19
-2026-10-26T13:49:01.2486898Z ^[[1m^[[92m   Compiling^[[0m zeno v0.3.3
-2026-10-26T13:49:02.3979821Z ^[[1m^[[92m   Compiling^[[0m float_next_after v1.0.0
-2026-10-26T13:49:02.4937804Z ^[[1m^[[92m   Compiling^[[0m tinyvec v1.13.3
-2026-10-26T13:49:03.1062721Z ^[[1m^[[92m   Compiling^[[0m yazi v0.2.1
-2026-10-26T13:49:03.3907798Z ^[[1m^[[92m   Compiling^[[0m memmap2 v0.9.11
-2026-10-26T13:49:03.8486678Z ^[[1m^[[92m   Compiling^[[0m smallvec v1.16.2
-2026-10-26T13:49:04.1740314Z ^[[1m^[[92m   Compiling^[[0m constant_time_eq v0.4.2
-2026-10-26T13:49:04.4866485Z ^[[1m^[[92m   Compiling^[[0m cpufeatures v0.3.1
-2026-10-26T13:49:04.5185906Z ^[[1m^[[92m   Compiling^[[0m windows-core v0.58.0
-2026-10-26T13:49:04.5402329Z ^[[1m^[[92m   Compiling^[[0m blake3 v1.8.7
-2026-10-26T13:49:06.4395162Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
-2026-10-26T13:49:06.7420028Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
-2026-10-26T13:49:11.3513710Z ^[[1m^[[92m   Compiling^[[0m fontdb v0.23.0
-2026-10-26T13:49:15.7053338Z ^[[1m^[[92m   Compiling^[[0m lyon_tessellation v1.0.22
-2026-10-26T13:49:45.3710586Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
-2026-10-26T13:49:46.5788478Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-paint)
-2026-10-26T13:50:05.9324927Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-shaders)
-2026-10-26T13:50:06.9124656Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.3.6
-2026-10-26T13:50:07.4637132Z ^[[1m^[[92m   Compiling^[[0m self_cell v1.3.0
-2026-10-26T13:50:07.5677218Z ^[[1m^[[92m   Compiling^[[0m rangemap v1.8.0
-2026-10-26T13:50:08.0233107Z ^[[1m^[[92m   Compiling^[[0m sys-locale v0.3.2
-2026-10-26T13:50:08.3291783Z ^[[1m^[[92m   Compiling^[[0m unicode-bidi v0.3.18
-2026-10-26T13:50:11.3337173Z ^[[1m^[[92m   Compiling^[[0m unicode-linebreak v0.1.5
-2026-10-26T13:50:11.8687973Z ^[[1m^[[92m   Compiling^[[0m unicode-script v0.5.8
-2026-10-26T13:50:13.1513013Z ^[[1m^[[92m   Compiling^[[0m linebender_resource_handle v0.1.1
-2026-10-26T13:50:13.2557304Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v2.1.3
-2026-10-26T13:50:13.3491518Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
-2026-10-26T13:50:24.8307539Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-gpu)
-2026-10-26T13:50:28.2487878Z ^[[1m^[[92m   Compiling^[[0m windows v0.58.0
-2026-10-26T13:50:28.3210859Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-text)
-2026-10-26T13:50:39.8900260Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-hal)
-2026-10-26T13:51:02.7077932Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized + debuginfo] target(s) in 3m 58s
-2026-10-26T13:51:02.7332367Z ^[[1m^[[92m  Executable^[[0m unittests src\lib.rs (target\debug\deps\vieww_hal-a74ce4f11fce3cd2.exe)
-2026-10-26T13:51:02.7333276Z ^[[1m^[[92m  Executable^[[0m tests\d3d12_scene.rs (target\debug\deps\d3d12_scene-158b933f97f13737.exe)
-2026-10-26T13:51:02.7335292Z ^[[1m^[[92m  Executable^[[0m tests\d3d12_smoke.rs (target\debug\deps\d3d12_smoke-ee253e281a630522.exe)
-2026-10-26T13:51:02.7337207Z ^[[1m^[[92m  Executable^[[0m tests\metal_scene.rs (target\debug\deps\metal_scene-6b6ef48f6fe193df.exe)
-2026-10-26T13:51:02.7371310Z ^[[1m^[[92m  Executable^[[0m tests\metal_smoke.rs (target\debug\deps\metal_smoke-b361e976d4c9f656.exe)
-2026-10-26T13:51:02.7372604Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_compositor.rs (target\debug\deps\vulkan_compositor-2d787e9f06499cdc.exe)
-2026-10-26T13:51:02.7373874Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_compute.rs (target\debug\deps\vulkan_compute-25d698676c686ede.exe)
-2026-10-26T13:51:02.7375049Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_damage.rs (target\debug\deps\vulkan_damage-79acf964181b8e5c.exe)
-2026-10-26T13:51:02.7376248Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_mesh_smoke.rs (target\debug\deps\vulkan_mesh_smoke-a96c3de7d2600b5f.exe)
-2026-10-26T13:51:02.7377533Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_pipeline_cache.rs (target\debug\deps\vulkan_pipeline_cache-ea216774e8d24c1c.exe)
-2026-10-26T13:51:02.7378781Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_scene.rs (target\debug\deps\vulkan_scene-c3be0be4d13e9268.exe)
-2026-10-26T13:51:02.7379865Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_smoke.rs (target\debug\deps\vulkan_smoke-9a9cd3af8a5c7bd4.exe)
-2026-10-26T13:51:02.7380930Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_text.rs (target\debug\deps\vulkan_text-26c67f87701f390a.exe)
-2026-10-26T13:51:03.2821024Z ##[group]d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage
-2026-10-26T13:51:03.6759240Z 
-2026-10-26T13:51:03.6759957Z running 1 test
-2026-10-26T13:51:03.9029340Z d3d12: debug layer enabled
-2026-10-26T13:51:04.8628163Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T13:51:04.9316400Z .
-2026-10-26T13:51:04.9317075Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 1.26s
-2026-10-26T13:51:04.9317603Z 
-2026-10-26T13:51:04.9463685Z ##[endgroup]
-2026-10-26T13:51:04.9464634Z ##[group]d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
-2026-10-26T13:51:05.3201477Z 
-2026-10-26T13:51:05.3202130Z running 1 test
-2026-10-26T13:51:05.3222094Z d3d12: debug layer enabled
-2026-10-26T13:51:05.7160412Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T13:51:05.7163339Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T13:51:05.7435440Z d3d12 [execute] severity 4 id 234: ID3D12Device::RemoveDevice: Device removal has been triggered for the following reason (DXGI_ERROR_DEVICE_REMOVED: Plug-and-play stop has been exercised on this adapter. Odds are good that the adapter might no longer be available).
-2026-10-26T13:51:05.7438237Z 
-2026-10-26T13:51:05.7439092Z thread 'a_group_opacity_layer_composites_like_the_cpu_rasterizer' (7872) panicked at crates\vieww-hal\tests\d3d12_scene.rs:242:10:
-2026-10-26T13:51:05.7440841Z render should succeed: Api("The GPU device instance has been suspended. Use GetDeviceRemovedReason to determine the appropriate action. (0x887A0005)")
-2026-10-26T13:51:05.7442034Z stack backtrace:
-2026-10-26T13:51:05.9205793Z    0: std::panicking::panic_handler
-2026-10-26T13:51:05.9206902Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-2026-10-26T13:51:05.9207722Z    1: core::panicking::panic_fmt
-2026-10-26T13:51:05.9208219Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-2026-10-26T13:51:05.9209016Z    2: core::result::unwrap_failed
-2026-10-26T13:51:05.9209641Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
-2026-10-26T13:51:05.9215631Z    3: enum2$<core::result::Result<alloc::vec::Vec<u8,alloc::alloc::Global>,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
-2026-10-26T13:51:05.9217103Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
-2026-10-26T13:51:05.9218110Z    4: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
-2026-10-26T13:51:05.9218822Z              at .\tests\d3d12_scene.rs:242
-2026-10-26T13:51:05.9219559Z    5: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure$0
-2026-10-26T13:51:05.9220356Z              at .\tests\d3d12_scene.rs:209
-2026-10-26T13:51:05.9221472Z    6: core::ops::function::FnOnce::call_once<d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure_env$0,tuple$<> >
-2026-10-26T13:51:05.9222912Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-26T13:51:05.9256711Z    7: core::ops::function::FnOnce::call_once
-2026-10-26T13:51:05.9257606Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-26T13:51:05.9318097Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-10-26T13:51:05.9459448Z a_group_opacity_layer_composites_like_the_cpu_rasterizer --- FAILED
-2026-10-26T13:51:05.9459937Z 
-2026-10-26T13:51:05.9460069Z failures:
-2026-10-26T13:51:05.9460248Z 
-2026-10-26T13:51:05.9460359Z failures:
-2026-10-26T13:51:05.9461018Z     a_group_opacity_layer_composites_like_the_cpu_rasterizer
-2026-10-26T13:51:05.9461415Z 
-2026-10-26T13:51:05.9461832Z test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.63s
-2026-10-26T13:51:05.9462393Z 
-2026-10-26T13:51:05.9528839Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test d3d12_scene`
-2026-10-26T13:51:05.9633905Z ##[endgroup]
-2026-10-26T13:51:05.9634595Z FAILED-TEST d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
-2026-10-26T13:51:05.9635848Z ##[group]d3d12_scene::an_empty_scene_is_the_clear_colour_exactly
-2026-10-26T13:51:06.3555406Z 
-2026-10-26T13:51:06.3556050Z running 1 test
-2026-10-26T13:51:06.3580676Z d3d12: debug layer enabled
-2026-10-26T13:51:06.7388864Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T13:51:06.7497302Z .
-2026-10-26T13:51:06.7498359Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.39s
-2026-10-26T13:51:06.7499002Z 
-2026-10-26T13:51:06.7653122Z ##[endgroup]
-2026-10-26T13:51:06.7654200Z ##[group]d3d12_scene::one_rectangle_lands_where_the_geometry_says
-2026-10-26T13:51:07.1381032Z 
-2026-10-26T13:51:07.1381626Z running 1 test
-2026-10-26T13:51:07.1402146Z d3d12: debug layer enabled
-2026-10-26T13:51:07.5108884Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T13:51:07.5276490Z .
-2026-10-26T13:51:07.5277512Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.39s
-2026-10-26T13:51:07.5279394Z 
-2026-10-26T13:51:07.5422396Z ##[endgroup]
-2026-10-26T13:51:07.5423310Z ##[group]d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer
-2026-10-26T13:51:07.9187538Z 
-2026-10-26T13:51:07.9188148Z running 1 test
-2026-10-26T13:51:07.9213638Z d3d12: debug layer enabled
-2026-10-26T13:51:08.3230346Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T13:51:08.3396569Z .
-2026-10-26T13:51:08.3397357Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.42s
-2026-10-26T13:51:08.3397786Z 
-2026-10-26T13:51:08.3541686Z ##[endgroup]
-2026-10-26T13:51:08.3542555Z ##[group]d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes
-2026-10-26T13:51:08.7135066Z 
-2026-10-26T13:51:08.7135603Z running 1 test
-2026-10-26T13:51:08.7154726Z d3d12: debug layer enabled
-2026-10-26T13:51:09.0874484Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T13:51:09.0951007Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T13:51:09.0960267Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T13:51:09.0972044Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T13:51:09.0981945Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T13:51:09.0992071Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T13:51:09.1002106Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T13:51:09.1012079Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T13:51:09.1034080Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T13:51:09.1056385Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
-2026-10-26T13:51:09.1167118Z .
-2026-10-26T13:51:09.1168074Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.40s
-2026-10-26T13:51:09.1168554Z 
-2026-10-26T13:51:09.1310988Z ##[endgroup]
-2026-10-26T13:51:09.1311732Z ##[group]d3d12_scene::the_renderer_refuses_a_plan_it_cannot_draw
-2026-10-26T13:51:09.4876041Z 
-2026-10-26T13:51:09.4876470Z running 1 test
-2026-10-26T13:51:09.4895776Z d3d12: debug layer enabled
-2026-10-26T13:51:09.8901566Z .
-2026-10-26T13:51:09.8902240Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.40s
-2026-10-26T13:51:09.8902602Z 
-2026-10-26T13:51:09.9043817Z ##[endgroup]
-2026-10-26T13:51:10.3217135Z ##[group]d3d12_smoke::a_bad_index_is_refused_not_drawn
-2026-10-26T13:51:10.6782794Z 
-2026-10-26T13:51:10.6783330Z running 1 test
-2026-10-26T13:51:10.6803997Z d3d12: debug layer enabled
-2026-10-26T13:51:10.6992172Z .
-2026-10-26T13:51:10.6992832Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.02s
-2026-10-26T13:51:10.6993368Z 
-2026-10-26T13:51:10.7124404Z ##[endgroup]
-2026-10-26T13:51:10.7125113Z ##[group]d3d12_smoke::a_clear_reads_back_as_the_requested_colour
-2026-10-26T13:51:11.1423646Z 
-2026-10-26T13:51:11.1424463Z running 1 test
-2026-10-26T13:51:11.1454064Z d3d12: debug layer enabled
-2026-10-26T13:51:11.1779740Z .
-2026-10-26T13:51:11.1781733Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.04s
-2026-10-26T13:51:11.1783487Z 
-2026-10-26T13:51:11.1986900Z ##[endgroup]
-2026-10-26T13:51:11.1989965Z ##[group]d3d12_smoke::a_mesh_lands_where_it_was_drawn_and_nowhere_else
-2026-10-26T13:51:11.6376014Z 
-2026-10-26T13:51:11.6376595Z running 1 test
-2026-10-26T13:51:11.6405409Z d3d12: debug layer enabled
-2026-10-26T13:51:11.6963950Z .
-2026-10-26T13:51:11.6964478Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.06s
-2026-10-26T13:51:11.6964828Z 
-2026-10-26T13:51:11.7104807Z ##[endgroup]
-2026-10-26T13:51:11.7105933Z ##[group]d3d12_smoke::an_empty_mesh_draws_a_transparent_frame
-2026-10-26T13:51:12.0872200Z 
-2026-10-26T13:51:12.0872782Z running 1 test
-2026-10-26T13:51:12.0895576Z d3d12: debug layer enabled
-2026-10-26T13:51:12.1093761Z .
-2026-10-26T13:51:12.1094379Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.02s
-2026-10-26T13:51:12.1094916Z 
-2026-10-26T13:51:12.1224078Z ##[endgroup]
-2026-10-26T13:51:12.1225238Z ##[group]d3d12_smoke::reports_an_adapter
-2026-10-26T13:51:12.4881452Z 
-2026-10-26T13:51:12.4881926Z running 1 test
-2026-10-26T13:51:12.4901056Z d3d12: debug layer enabled
-2026-10-26T13:51:12.5038402Z D3D12 adapter: AdapterInfo { name: "Microsoft Basic Render Driver", backend: "d3d12", device_type: "hardware" } (needs a D3D12 adapter (VIEWW_D3D12_ALLOW_WARP=1 accepts WARP); run with `cargo test -p vieww-hal --features d3d12 -- --ignored`)
-2026-10-26T13:51:12.5097495Z .
-2026-10-26T13:51:12.5098234Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.02s
-2026-10-26T13:51:12.5098756Z 
-2026-10-26T13:51:12.5231524Z ##[endgroup]
-2026-10-26T13:51:12.5232195Z ##[group]d3d12_smoke::several_frames_on_one_device
-2026-10-26T13:51:12.9248860Z 
-2026-10-26T13:51:12.9249572Z running 1 test
-2026-10-26T13:51:12.9268667Z d3d12: debug layer enabled
-2026-10-26T13:51:12.9527334Z .
-2026-10-26T13:51:12.9528445Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.03s
-2026-10-26T13:51:12.9680448Z 
-2026-10-26T13:51:12.9681105Z ##[endgroup]
-2026-10-26T13:51:12.9682470Z ##[group]d3d12_smoke::the_mesh_path_agrees_with_vulkans_pixel_rule
-2026-10-26T13:51:13.3394231Z 
-2026-10-26T13:51:13.3394852Z running 1 test
-2026-10-26T13:51:13.3420048Z d3d12: debug layer enabled
-2026-10-26T13:51:13.3717050Z .
-2026-10-26T13:51:13.3717877Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.03s
-2026-10-26T13:51:13.3718487Z 
-2026-10-26T13:51:13.3850261Z ##[endgroup]
-2026-10-26T13:51:13.7238866Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized + debuginfo] target(s) in 0.28s
-2026-10-26T13:51:13.7340572Z ^[[1m^[[92m     Running^[[0m unittests src\lib.rs (target\debug\deps\vieww_hal-a74ce4f11fce3cd2.exe)
-2026-10-26T13:51:13.7419534Z 
-2026-10-26T13:51:13.7419877Z running 0 tests
-2026-10-26T13:51:13.7420123Z 
-2026-10-26T13:51:13.7420545Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
-2026-10-26T13:51:13.7421147Z 
-2026-10-26T13:51:13.7540720Z failed: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
-2026-10-26T13:51:13.7576045Z ##[error]Process completed with exit code 1.
+2026-10-26T14:30:12.3328403Z ^[[36;1m      failed+=("$bin::$t")^[[0m
+2026-10-26T14:30:12.3328638Z ^[[36;1m    fi^[[0m
+2026-10-26T14:30:12.3328807Z ^[[36;1m  done^[[0m
+2026-10-26T14:30:12.3328970Z ^[[36;1mdone^[[0m
+2026-10-26T14:30:12.3329352Z ^[[36;1mcargo test -p vieww-hal --features d3d12 --lib -- --ignored --test-threads=1 || failed+=(lib)^[[0m
+2026-10-26T14:30:12.3329831Z ^[[36;1mif [ ${#failed[@]} -gt 0 ]; then^[[0m
+2026-10-26T14:30:12.3330113Z ^[[36;1m  printf 'failed: %s\n' "${failed[@]}"^[[0m
+2026-10-26T14:30:12.3330381Z ^[[36;1m  exit 1^[[0m
+2026-10-26T14:30:12.3330558Z ^[[36;1mfi^[[0m
+2026-10-26T14:30:12.3343962Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-26T14:30:12.3344373Z env:
+2026-10-26T14:30:12.3344702Z   CARGO_TERM_COLOR: always
+2026-10-26T14:30:12.3344951Z   RUST_BACKTRACE: 1
+2026-10-26T14:30:12.3345139Z   RUST_VERSION: 1.98.1
+2026-10-26T14:30:12.3345338Z   VIEWW_D3D12_ALLOW_WARP: 1
+2026-10-26T14:30:12.3345564Z   VIEWW_REQUIRE_HARDWARE: gpu
+2026-10-26T14:30:12.3345799Z   VIEWW_D3D12_DEBUG: 1
+2026-10-26T14:30:12.3345993Z ##[endgroup]
+2026-10-26T14:30:12.8464565Z ^[[1m^[[92m   Compiling^[[0m unicode-ident v1.0.26
+2026-10-26T14:30:12.8470319Z ^[[1m^[[92m   Compiling^[[0m libm v0.2.16
+2026-10-26T14:30:12.8471024Z ^[[1m^[[92m   Compiling^[[0m cfg-if v1.0.5
+2026-10-26T14:30:12.8471593Z ^[[1m^[[92m   Compiling^[[0m bitflags v2.13.2
+2026-10-26T14:30:12.9038061Z ^[[1m^[[92m   Compiling^[[0m once_cell v1.21.4
+2026-10-26T14:30:13.0017379Z ^[[1m^[[92m   Compiling^[[0m proc-macro2 v1.0.107
+2026-10-26T14:30:13.1079101Z ^[[1m^[[92m   Compiling^[[0m log v0.4.34
+2026-10-26T14:30:13.4695939Z ^[[1m^[[92m   Compiling^[[0m foldhash v0.2.0
+2026-10-26T14:30:13.6789872Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
+2026-10-26T14:30:13.8601772Z ^[[1m^[[92m   Compiling^[[0m quote v1.0.47
+2026-10-26T14:30:14.9773114Z ^[[1m^[[92m   Compiling^[[0m syn v3.0.6
+2026-10-26T14:30:15.3659300Z ^[[1m^[[92m   Compiling^[[0m syn v2.0.119
+2026-10-26T14:30:17.9451945Z ^[[1m^[[92m   Compiling^[[0m core_maths v0.1.1
+2026-10-26T14:30:18.0472770Z ^[[1m^[[92m   Compiling^[[0m num-traits v0.2.19
+2026-10-26T14:30:18.2146019Z ^[[1m^[[92m   Compiling^[[0m arrayvec v0.7.8
+2026-10-26T14:30:18.5734443Z ^[[1m^[[92m   Compiling^[[0m simd-adler32 v0.3.10
+2026-10-26T14:30:19.2861509Z ^[[1m^[[92m   Compiling^[[0m equivalent v1.0.2
+2026-10-26T14:30:19.3531095Z ^[[1m^[[92m   Compiling^[[0m indexmap v2.14.2
+2026-10-26T14:30:19.8037054Z ^[[1m^[[92m   Compiling^[[0m adler2 v2.0.1
+2026-10-26T14:30:20.0659836Z ^[[1m^[[92m   Compiling^[[0m unicode-width v0.2.2
+2026-10-26T14:30:20.5121281Z ^[[1m^[[92m   Compiling^[[0m bit-vec v0.9.1
+2026-10-26T14:30:20.8580504Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v1.1.0
+2026-10-26T14:30:20.9495709Z ^[[1m^[[92m   Compiling^[[0m bit-set v0.10.0
+2026-10-26T14:30:21.0252287Z ^[[1m^[[92m   Compiling^[[0m codespan-reporting v0.13.1
+2026-10-26T14:30:22.8566020Z ^[[1m^[[92m   Compiling^[[0m windows_x86_64_msvc v0.52.6
+2026-10-26T14:30:22.9113981Z ^[[1m^[[92m   Compiling^[[0m ttf-parser v0.25.1
+2026-10-26T14:30:23.5174848Z ^[[1m^[[92m   Compiling^[[0m spirv v0.4.0+sdk-1.4.341.0
+2026-10-26T14:30:32.0343466Z ^[[1m^[[92m   Compiling^[[0m unicode-segmentation v1.13.3
+2026-10-26T14:30:33.4666929Z ^[[1m^[[92m   Compiling^[[0m windows-targets v0.52.6
+2026-10-26T14:30:33.5190210Z ^[[1m^[[92m   Compiling^[[0m crc32fast v1.5.2
+2026-10-26T14:30:34.1763061Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.9.1
+2026-10-26T14:30:38.8336114Z ^[[1m^[[92m   Compiling^[[0m euclid v0.22.14
+2026-10-26T14:30:40.2152344Z ^[[1m^[[92m   Compiling^[[0m lyon_geom v1.0.19
+2026-10-26T14:30:40.2915547Z ^[[1m^[[92m   Compiling^[[0m flate2 v1.1.10
+2026-10-26T14:30:41.0589156Z ^[[1m^[[92m   Compiling^[[0m windows-result v0.2.0
+2026-10-26T14:30:41.5450556Z ^[[1m^[[92m   Compiling^[[0m vieww-foundation v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-foundation)
+2026-10-26T14:30:41.8768407Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.8.9
+2026-10-26T14:30:46.5652978Z ^[[1m^[[92m   Compiling^[[0m fdeflate v0.3.7
+2026-10-26T14:30:49.0212422Z ^[[1m^[[92m   Compiling^[[0m png v0.18.1
+2026-10-26T14:30:49.3463353Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
+2026-10-26T14:30:57.5473970Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v2.0.21
+2026-10-26T14:31:10.4722805Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
+2026-10-26T14:31:10.9422244Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
+2026-10-26T14:31:11.8089604Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
+2026-10-26T14:31:19.5567129Z ^[[1m^[[92m   Compiling^[[0m zerocopy-derive v0.8.59
+2026-10-26T14:31:23.8699333Z ^[[1m^[[92m   Compiling^[[0m thiserror v2.0.21
+2026-10-26T14:31:23.9627315Z ^[[1m^[[92m   Compiling^[[0m naga-types v30.0.1
+2026-10-26T14:31:24.2035949Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
+2026-10-26T14:31:24.9813122Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
+2026-10-26T14:31:25.2356125Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
+2026-10-26T14:32:02.6878883Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
+2026-10-26T14:32:10.1879538Z ^[[1m^[[92m   Compiling^[[0m half v2.7.1
+2026-10-26T14:32:11.0072189Z ^[[1m^[[92m   Compiling^[[0m naga v30.0.1
+2026-10-26T14:32:20.2305567Z ^[[1m^[[92m   Compiling^[[0m windows-implement v0.58.0
+2026-10-26T14:32:21.8403110Z ^[[1m^[[92m   Compiling^[[0m windows-interface v0.58.0
+2026-10-26T14:32:29.0595377Z ^[[1m^[[92m   Compiling^[[0m slotmap v1.1.1
+2026-10-26T14:32:29.8166957Z ^[[1m^[[92m   Compiling^[[0m windows-strings v0.1.0
+2026-10-26T14:32:30.6885152Z ^[[1m^[[92m   Compiling^[[0m lyon_path v1.0.19
+2026-10-26T14:32:31.5212107Z ^[[1m^[[92m   Compiling^[[0m float_next_after v1.0.0
+2026-10-26T14:32:31.6276498Z ^[[1m^[[92m   Compiling^[[0m memmap2 v0.9.11
+2026-10-26T14:32:32.1616992Z ^[[1m^[[92m   Compiling^[[0m smallvec v1.16.2
+2026-10-26T14:32:32.5584903Z ^[[1m^[[92m   Compiling^[[0m zeno v0.3.3
+2026-10-26T14:32:32.8843687Z ^[[1m^[[92m   Compiling^[[0m tinyvec v1.13.3
+2026-10-26T14:32:33.6514694Z ^[[1m^[[92m   Compiling^[[0m constant_time_eq v0.4.2
+2026-10-26T14:32:34.0104360Z ^[[1m^[[92m   Compiling^[[0m cpufeatures v0.3.1
+2026-10-26T14:32:34.0723325Z ^[[1m^[[92m   Compiling^[[0m yazi v0.2.1
+2026-10-26T14:32:35.1690235Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
+2026-10-26T14:32:37.6896198Z ^[[1m^[[92m   Compiling^[[0m windows-core v0.58.0
+2026-10-26T14:32:38.4591974Z ^[[1m^[[92m   Compiling^[[0m blake3 v1.8.7
+2026-10-26T14:32:39.9862419Z ^[[1m^[[92m   Compiling^[[0m fontdb v0.23.0
+2026-10-26T14:32:44.4810011Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
+2026-10-26T14:32:46.3206907Z ^[[1m^[[92m   Compiling^[[0m lyon_tessellation v1.0.22
+2026-10-26T14:33:20.7867788Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
+2026-10-26T14:33:31.6860974Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-paint)
+2026-10-26T14:33:50.5981281Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-shaders)
+2026-10-26T14:33:51.7773675Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.3.6
+2026-10-26T14:33:52.4593371Z ^[[1m^[[92m   Compiling^[[0m unicode-linebreak v0.1.5
+2026-10-26T14:33:52.9134447Z ^[[1m^[[92m   Compiling^[[0m sys-locale v0.3.2
+2026-10-26T14:33:53.2701465Z ^[[1m^[[92m   Compiling^[[0m linebender_resource_handle v0.1.1
+2026-10-26T14:33:53.3766099Z ^[[1m^[[92m   Compiling^[[0m rangemap v1.8.0
+2026-10-26T14:33:53.9230157Z ^[[1m^[[92m   Compiling^[[0m self_cell v1.3.0
+2026-10-26T14:33:54.0365366Z ^[[1m^[[92m   Compiling^[[0m unicode-script v0.5.8
+2026-10-26T14:33:55.5621376Z ^[[1m^[[92m   Compiling^[[0m unicode-bidi v0.3.18
+2026-10-26T14:33:59.0982214Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v2.1.3
+2026-10-26T14:33:59.2099007Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
+2026-10-26T14:34:13.5307545Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-gpu)
+2026-10-26T14:34:16.7423620Z ^[[1m^[[92m   Compiling^[[0m windows v0.58.0
+2026-10-26T14:34:17.7153724Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-text)
+2026-10-26T14:34:31.2008867Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-hal)
+2026-10-26T14:34:59.0866067Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized + debuginfo] target(s) in 4m 46s
+2026-10-26T14:34:59.1160332Z ^[[1m^[[92m  Executable^[[0m unittests src\lib.rs (target\debug\deps\vieww_hal-a74ce4f11fce3cd2.exe)
+2026-10-26T14:34:59.1161990Z ^[[1m^[[92m  Executable^[[0m tests\d3d12_scene.rs (target\debug\deps\d3d12_scene-158b933f97f13737.exe)
+2026-10-26T14:34:59.1163735Z ^[[1m^[[92m  Executable^[[0m tests\d3d12_smoke.rs (target\debug\deps\d3d12_smoke-ee253e281a630522.exe)
+2026-10-26T14:34:59.1164774Z ^[[1m^[[92m  Executable^[[0m tests\metal_scene.rs (target\debug\deps\metal_scene-6b6ef48f6fe193df.exe)
+2026-10-26T14:34:59.1167431Z ^[[1m^[[92m  Executable^[[0m tests\metal_smoke.rs (target\debug\deps\metal_smoke-b361e976d4c9f656.exe)
+2026-10-26T14:34:59.1169330Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_compositor.rs (target\debug\deps\vulkan_compositor-2d787e9f06499cdc.exe)
+2026-10-26T14:34:59.1172860Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_compute.rs (target\debug\deps\vulkan_compute-25d698676c686ede.exe)
+2026-10-26T14:34:59.1174551Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_damage.rs (target\debug\deps\vulkan_damage-79acf964181b8e5c.exe)
+2026-10-26T14:34:59.1175981Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_mesh_smoke.rs (target\debug\deps\vulkan_mesh_smoke-a96c3de7d2600b5f.exe)
+2026-10-26T14:34:59.1178488Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_pipeline_cache.rs (target\debug\deps\vulkan_pipeline_cache-ea216774e8d24c1c.exe)
+2026-10-26T14:34:59.1180034Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_scene.rs (target\debug\deps\vulkan_scene-c3be0be4d13e9268.exe)
+2026-10-26T14:34:59.1182646Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_smoke.rs (target\debug\deps\vulkan_smoke-9a9cd3af8a5c7bd4.exe)
+2026-10-26T14:34:59.1184107Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_text.rs (target\debug\deps\vulkan_text-26c67f87701f390a.exe)
+2026-10-26T14:34:59.7448357Z ##[group]d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage
+2026-10-26T14:35:00.1961021Z 
+2026-10-26T14:35:00.1961676Z running 1 test
+2026-10-26T14:35:00.4978823Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:35:01.7460235Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:35:02.1336610Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:35:03.6054575Z .
+2026-10-26T14:35:03.6058082Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 3.41s
+2026-10-26T14:35:03.6058689Z 
+2026-10-26T14:35:03.6224733Z ##[endgroup]
+2026-10-26T14:35:03.6226009Z ##[group]d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+2026-10-26T14:35:04.0671960Z 
+2026-10-26T14:35:04.0672715Z running 1 test
+2026-10-26T14:35:04.0695748Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:35:04.6141680Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:35:04.9439351Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:35:04.9441588Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:35:05.0277806Z d3d12 [execute] severity 4 id 234: ID3D12Device::RemoveDevice: Device removal has been triggered for the following reason (DXGI_ERROR_DEVICE_REMOVED: Plug-and-play stop has been exercised on this adapter. Odds are good that the adapter might no longer be available).
+2026-10-26T14:35:05.0355592Z 
+2026-10-26T14:35:05.0357190Z thread 'a_group_opacity_layer_composites_like_the_cpu_rasterizer' (2576) panicked at crates\vieww-hal\tests\d3d12_scene.rs:242:10:
+2026-10-26T14:35:05.0359639Z render should succeed: Api("The GPU device instance has been suspended. Use GetDeviceRemovedReason to determine the appropriate action. (0x887A0005)")
+2026-10-26T14:35:05.0361329Z stack backtrace:
+2026-10-26T14:35:05.6426841Z    0: std::panicking::panic_handler
+2026-10-26T14:35:05.6427761Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+2026-10-26T14:35:05.6428668Z    1: core::panicking::panic_fmt
+2026-10-26T14:35:05.6429412Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+2026-10-26T14:35:05.6430498Z    2: core::result::unwrap_failed
+2026-10-26T14:35:05.6433732Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+2026-10-26T14:35:05.6438290Z    3: enum2$<core::result::Result<alloc::vec::Vec<u8,alloc::alloc::Global>,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+2026-10-26T14:35:05.6439557Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+2026-10-26T14:35:05.6440493Z    4: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+2026-10-26T14:35:05.6441219Z              at .\tests\d3d12_scene.rs:242
+2026-10-26T14:35:05.6441946Z    5: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure$0
+2026-10-26T14:35:05.6442682Z              at .\tests\d3d12_scene.rs:209
+2026-10-26T14:35:05.6444105Z    6: core::ops::function::FnOnce::call_once<d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure_env$0,tuple$<> >
+2026-10-26T14:35:05.6445415Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T14:35:05.6496821Z    7: core::ops::function::FnOnce::call_once
+2026-10-26T14:35:05.6497680Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T14:35:05.6591061Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T14:35:06.5269543Z a_group_opacity_layer_composites_like_the_cpu_rasterizer --- FAILED
+2026-10-26T14:35:06.5270217Z 
+2026-10-26T14:35:06.5270431Z failures:
+2026-10-26T14:35:06.5270560Z 
+2026-10-26T14:35:06.5270682Z failures:
+2026-10-26T14:35:06.5270993Z     a_group_opacity_layer_composites_like_the_cpu_rasterizer
+2026-10-26T14:35:06.5271649Z 
+2026-10-26T14:35:06.5271946Z test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 2.46s
+2026-10-26T14:35:06.5272355Z 
+2026-10-26T14:35:06.5363002Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test d3d12_scene`
+2026-10-26T14:35:06.5539135Z ##[endgroup]
+2026-10-26T14:35:06.5539910Z FAILED-TEST d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+2026-10-26T14:35:06.5541173Z ##[group]d3d12_scene::an_empty_scene_is_the_clear_colour_exactly
+2026-10-26T14:35:06.9782023Z 
+2026-10-26T14:35:06.9782744Z running 1 test
+2026-10-26T14:35:06.9804655Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:35:07.4682478Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:35:07.7514684Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:35:07.7762130Z .
+2026-10-26T14:35:07.7763080Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.80s
+2026-10-26T14:35:07.7763620Z 
+2026-10-26T14:35:07.7929236Z ##[endgroup]
+2026-10-26T14:35:07.7930332Z ##[group]d3d12_scene::one_rectangle_lands_where_the_geometry_says
+2026-10-26T14:35:08.2194359Z 
+2026-10-26T14:35:08.2194985Z running 1 test
+2026-10-26T14:35:08.2219997Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:35:08.7061734Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:35:09.0082040Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:35:10.4824646Z .
+2026-10-26T14:35:10.4825461Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 2.26s
+2026-10-26T14:35:10.4826130Z 
+2026-10-26T14:35:10.5002676Z ##[endgroup]
+2026-10-26T14:35:10.5003812Z ##[group]d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer
+2026-10-26T14:35:10.9527718Z 
+2026-10-26T14:35:10.9528304Z running 1 test
+2026-10-26T14:35:10.9562472Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:35:11.4799156Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:35:11.7796618Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:35:13.1725574Z .
+2026-10-26T14:35:13.1726470Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 2.22s
+2026-10-26T14:35:13.1727080Z 
+2026-10-26T14:35:13.1922450Z ##[endgroup]
+2026-10-26T14:35:13.1924948Z ##[group]d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes
+2026-10-26T14:35:13.6217052Z 
+2026-10-26T14:35:13.6217671Z running 1 test
+2026-10-26T14:35:13.6240939Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:35:14.1070695Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:35:14.3853471Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:35:15.7530508Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:35:15.7567426Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:35:15.7591776Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:35:15.7617092Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:35:15.7642195Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:35:15.7667050Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:35:15.7689396Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:35:15.7740552Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:35:15.7788539Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+2026-10-26T14:35:15.8079939Z .
+2026-10-26T14:35:15.8080780Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 2.19s
+2026-10-26T14:35:15.8081180Z 
+2026-10-26T14:35:15.8252254Z ##[endgroup]
+2026-10-26T14:35:15.8253071Z ##[group]d3d12_scene::the_renderer_refuses_a_plan_it_cannot_draw
+2026-10-26T14:35:16.2602864Z 
+2026-10-26T14:35:16.2603368Z running 1 test
+2026-10-26T14:35:16.2625788Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:35:16.7467951Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:35:17.0168553Z .
+2026-10-26T14:35:17.0169747Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.76s
+2026-10-26T14:35:17.0170165Z 
+2026-10-26T14:35:17.0347689Z ##[endgroup]
+2026-10-26T14:35:17.5166686Z ##[group]d3d12_smoke::a_bad_index_is_refused_not_drawn
+2026-10-26T14:35:17.9295697Z 
+2026-10-26T14:35:17.9296244Z running 1 test
+2026-10-26T14:35:17.9322282Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:35:18.0010937Z .
+2026-10-26T14:35:18.0011788Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.07s
+2026-10-26T14:35:18.0012436Z 
+2026-10-26T14:35:18.0180067Z ##[endgroup]
+2026-10-26T14:35:18.0181112Z ##[group]d3d12_smoke::a_clear_reads_back_as_the_requested_colour
+2026-10-26T14:35:18.4462629Z 
+2026-10-26T14:35:18.4463196Z running 1 test
+2026-10-26T14:35:18.4486623Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:35:18.5002519Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:35:18.7648873Z .
+2026-10-26T14:35:18.7649887Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.32s
+2026-10-26T14:35:18.7650344Z 
+2026-10-26T14:35:18.7810702Z ##[endgroup]
+2026-10-26T14:35:18.7811497Z ##[group]d3d12_smoke::a_mesh_lands_where_it_was_drawn_and_nowhere_else
+2026-10-26T14:35:19.2003484Z 
+2026-10-26T14:35:19.2004121Z running 1 test
+2026-10-26T14:35:19.2030586Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:35:19.2753827Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:35:19.5613640Z .
+2026-10-26T14:35:19.5614400Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.36s
+2026-10-26T14:35:19.5614994Z 
+2026-10-26T14:35:19.5782926Z ##[endgroup]
+2026-10-26T14:35:19.5784065Z ##[group]d3d12_smoke::an_empty_mesh_draws_a_transparent_frame
+2026-10-26T14:35:20.0065490Z 
+2026-10-26T14:35:20.0066107Z running 1 test
+2026-10-26T14:35:20.0089130Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:35:20.0705866Z .
+2026-10-26T14:35:20.0706643Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.06s
+2026-10-26T14:35:20.0707191Z 
+2026-10-26T14:35:20.0868984Z ##[endgroup]
+2026-10-26T14:35:20.0869714Z ##[group]d3d12_smoke::reports_an_adapter
+2026-10-26T14:35:20.4989630Z 
+2026-10-26T14:35:20.4990217Z running 1 test
+2026-10-26T14:35:20.5013745Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:35:20.5492089Z D3D12 adapter: AdapterInfo { name: "Microsoft Basic Render Driver", backend: "d3d12", device_type: "hardware" } (needs a D3D12 adapter (VIEWW_D3D12_ALLOW_WARP=1 accepts WARP); run with `cargo test -p vieww-hal --features d3d12 -- --ignored`)
+2026-10-26T14:35:20.5612475Z .
+2026-10-26T14:35:20.5613188Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.06s
+2026-10-26T14:35:20.5613603Z 
+2026-10-26T14:35:20.5775550Z ##[endgroup]
+2026-10-26T14:35:20.5776382Z ##[group]d3d12_smoke::several_frames_on_one_device
+2026-10-26T14:35:20.9984332Z 
+2026-10-26T14:35:20.9984899Z running 1 test
+2026-10-26T14:35:21.0008605Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:35:21.0519619Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:35:21.3113288Z .
+2026-10-26T14:35:21.3114005Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.31s
+2026-10-26T14:35:21.3114531Z 
+2026-10-26T14:35:21.3278904Z ##[endgroup]
+2026-10-26T14:35:21.3279704Z ##[group]d3d12_smoke::the_mesh_path_agrees_with_vulkans_pixel_rule
+2026-10-26T14:35:21.7462452Z 
+2026-10-26T14:35:21.7464798Z running 1 test
+2026-10-26T14:35:21.7488539Z d3d12: debug layer and GPU-based validation enabled
+2026-10-26T14:35:21.8173455Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-10-26T14:35:22.0754472Z .
+2026-10-26T14:35:22.0755215Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.33s
+2026-10-26T14:35:22.0755644Z 
+2026-10-26T14:35:22.0919203Z ##[endgroup]
+2026-10-26T14:35:22.4821343Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized + debuginfo] target(s) in 0.33s
+2026-10-26T14:35:22.4948355Z ^[[1m^[[92m     Running^[[0m unittests src\lib.rs (target\debug\deps\vieww_hal-a74ce4f11fce3cd2.exe)
+2026-10-26T14:35:22.5031482Z 
+2026-10-26T14:35:22.5032092Z running 0 tests
+2026-10-26T14:35:22.5032369Z 
+2026-10-26T14:35:22.5032729Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
+2026-10-26T14:35:22.5033175Z 
+2026-10-26T14:35:22.5165445Z failed: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+2026-10-26T14:35:22.5207353Z ##[error]Process completed with exit code 1.
 
