@@ -1,25 +1,34 @@
-# Audio CI — FAILURE
+# Audio CI — SUCCESS
 
-- branch: `main`  sha: `f0e7547cea355523b3de5c1c2017de4a432c0bf5`  event: schedule
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40242689640
+- branch: `main`  sha: `da72ff4877e792412cd6ce94fced20d871cc3321`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40300351101
 
 | job | verdict | failed steps |
 |---|---|---|
-| Audio decoders under cargo-fuzz (nightly, blocking) | FAIL | Fuzz every target |
-| Audio and music crates (tests + clippy) | skipped |  |
+| Audio decoders under cargo-fuzz (nightly, blocking) | PASS |  |
+| Audio and music crates (tests + clippy) | PASS |  |
 
 ## Steps
 
-### Audio decoders under cargo-fuzz (nightly, blocking) — FAIL
+### Audio decoders under cargo-fuzz (nightly, blocking) — PASS
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
 - PASS: Nightly and cargo-fuzz
 - PASS: Seed each target's corpus
-- FAIL: Fuzz every target
-- PASS: Findings
+- PASS: Fuzz every target
+- skipped: Findings
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### Audio and music crates (tests + clippy) — skipped
+### Audio and music crates (tests + clippy) — PASS
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Toolchain
+- PASS: Run actions/cache@v4
+- PASS: Tests (release)
+- PASS: Clippy
+- PASS: Post Run actions/cache@v4
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
 
-- artifacts: audio-fuzz-findings 
+- artifacts: 
