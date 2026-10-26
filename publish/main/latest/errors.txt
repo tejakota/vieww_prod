@@ -1,17 +1,29 @@
 -----
-scaffold-external	vieww new, outside the checkout	2026-10-26T00:44:27.4127736Z    Compiling anstream v1.0.0
-scaffold-external	vieww new, outside the checkout	2026-10-26T00:44:27.4207394Z    Compiling unicode-segmentation v1.13.3
-scaffold-external	vieww new, outside the checkout	2026-10-26T00:44:27.4405272Z    Compiling strsim v0.11.1
-scaffold-external	vieww new, outside the checkout	2026-10-26T00:44:27.9435218Z    Compiling clap_lex v1.1.1
-scaffold-external	vieww new, outside the checkout	2026-10-26T00:44:27.9585137Z    Compiling heck v0.5.0
-scaffold-external	vieww new, outside the checkout	2026-10-26T00:44:28.0824838Z    Compiling syn v3.0.6
-scaffold-external	vieww new, outside the checkout	2026-10-26T00:44:28.0983919Z    Compiling clap_builder v4.6.7
-scaffold-external	vieww new, outside the checkout	2026-10-26T00:44:28.2025294Z    Compiling vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
-scaffold-external	vieww new, outside the checkout	2026-10-26T00:44:28.2125026Z    Compiling vieww-hardware v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
-scaffold-external	vieww new, outside the checkout	2026-10-26T00:44:29.8102044Z    Compiling vieww-build v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-build)
-scaffold-external	vieww new, outside the checkout	2026-10-26T00:44:31.2776903Z    Compiling clap_derive v4.6.7
-scaffold-external	vieww new, outside the checkout	2026-10-26T00:44:32.2225092Z    Compiling clap v4.6.7
-scaffold-external	vieww new, outside the checkout	2026-10-26T00:44:36.4621895Z    Compiling vieww-cli v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-cli)
-scaffold-external	vieww new, outside the checkout	2026-10-26T00:44:37.5059596Z     Finished `release` profile [optimized + debuginfo] target(s) in 11.34s
-scaffold-external	vieww new, outside the checkout	2026-10-26T00:44:37.6161564Z /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/release/vieww: error while loading shared libraries: libstd-64f5f36fb0927694.so: cannot open shared object file: No such file or directory
-scaffold-external	vieww new, outside the checkout	2026-10-26T00:44:37.6174036Z ##[error]Process completed with exit code 127.
+scaffold-external	vieww new, outside the checkout	﻿2026-10-26T09:33:42.2978171Z ##[group]Run # Built the way an installed CLI ships: standard library linked in.
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:42.2978843Z ^[[36;1m# Built the way an installed CLI ships: standard library linked in.^[[0m
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:42.2979341Z ^[[36;1m# (The workspace's .cargo/config.toml links desktop binaries to the^[[0m
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:42.2979822Z ^[[36;1m# toolchain's shared libstd for Studio's preview ABI; setting^[[0m
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:42.2980309Z ^[[36;1m# RUSTFLAGS replaces that, and a user's machine has no toolchain^[[0m
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:42.2980764Z ^[[36;1m# libstd to find - the nightly failed exactly so.)^[[0m
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:42.2981541Z ^[[36;1mRUSTFLAGS="-C debuginfo=0" cargo build --release --locked -p vieww-cli --target-dir target/static-cli^[[0m
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:42.2982115Z ^[[36;1mcli="$PWD/target/static-cli/release/vieww"^[[0m
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:42.2982455Z ^[[36;1mif ldd "$cli" | grep -q libstd; then^[[0m
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:42.2983155Z ^[[36;1m  echo "the CLI still needs the toolchain's libstd" >&2; exit 1^[[0m
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:42.2983558Z ^[[36;1mfi^[[0m
+-----
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:43.7037453Z    Compiling anstream v1.0.0
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:43.7103805Z    Compiling unicode-segmentation v1.13.3
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:43.7983797Z    Compiling strsim v0.11.1
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:44.2204520Z    Compiling vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:44.2983980Z    Compiling clap_builder v4.6.7
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:44.4154374Z    Compiling syn v3.0.6
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:44.5354100Z    Compiling vieww-hardware v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:46.1354223Z    Compiling vieww-build v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-build)
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:47.8274702Z    Compiling clap_derive v4.6.7
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:49.3943994Z    Compiling clap v4.6.7
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:52.7316194Z    Compiling vieww-cli v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-cli)
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:53.7579172Z     Finished `release` profile [optimized + debuginfo] target(s) in 11.41s
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:53.8551545Z created demo (3 files)
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:53.8565115Z 29:path = "src/main.rs"
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:53.8567730Z scaffold wrote a path dependency outside the checkout
+scaffold-external	vieww new, outside the checkout	2026-10-26T09:33:53.8585476Z ##[error]Process completed with exit code 1.

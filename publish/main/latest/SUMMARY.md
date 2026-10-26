@@ -1,22 +1,25 @@
 # publish — FAILURE
 
-- branch: `main`  sha: `f0e7547cea355523b3de5c1c2017de4a432c0bf5`  event: schedule
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40250745917
+- branch: `main`  sha: `da72ff4877e792412cd6ce94fced20d871cc3321`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40300393235
 
 | job | verdict | failed steps |
 |---|---|---|
-| check | PASS |  |
-| scaffold-external | FAIL | vieww new, outside the checkout |
 | verify | PASS |  |
+| scaffold-external | FAIL | vieww new, outside the checkout |
+| check | PASS |  |
 | publish | skipped |  |
 
 ## Steps
 
-### check — PASS
+### verify — PASS
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
+- PASS: System packages
 - PASS: Run rustup toolchain install
-- PASS: Run bash ci/release/publish-check.sh
+- PASS: Run Swatinem/rust-cache@v2
+- PASS: Run bash ci/release/publish-check.sh --verify
+- PASS: Post Run Swatinem/rust-cache@v2
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
@@ -31,14 +34,11 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### verify — PASS
+### check — PASS
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
-- PASS: System packages
 - PASS: Run rustup toolchain install
-- PASS: Run Swatinem/rust-cache@v2
-- PASS: Run bash ci/release/publish-check.sh --verify
-- PASS: Post Run Swatinem/rust-cache@v2
+- PASS: Run bash ci/release/publish-check.sh
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
