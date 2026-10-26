@@ -289,14 +289,26 @@ mod tests {
         );
         let started = Instant::now();
         drop(job);
-        let status = child.wait().unwrap();
-        assert!(!status.success());
-        assert!(started.elapsed() < Duration::from_secs(5));
-        let still = std::process::Command::new("tasklist")
-            .args(["/FI", &format!("PID eq {}", child.id())])
+        // Not the exit status: processes ended by KILL_ON_JOB_CLOSE report
+        // exit code 0 (the first CI run's "success"). What proves the tree
+        // died is time — ping would run ~30 s — and no ping left behind.
+        let _ = child.wait().unwrap();
+        assert!(
+            started.elapsed() < Duration::from_secs(5),
+            "closing the job did not end cmd promptly"
+        );
+        std::thread::sleep(Duration::from_millis(300));
+        let pings = std::process::Command::new("tasklist")
+            .args(["/FI", "IMAGENAME eq PING.EXE", "/NH"])
             .output()
             .unwrap();
-        assert!(!String::from_utf8_lossy(&still.stdout).contains(&child.id().to_string()));
+        assert!(
+            !String::from_utf8_lossy(&pings.stdout)
+                .to_ascii_uppercase()
+                .contains("PING.EXE"),
+            "the grandchild survived the job: {}",
+            String::from_utf8_lossy(&pings.stdout)
+        );
     }
 
     #[test]

@@ -89,7 +89,8 @@ jobs:
           mkdir -p "$RUNNER_TEMP/outside" && cd "$RUNNER_TEMP/outside"
           VIEWW_SCAFFOLD_FROM=registry "$cli" new demo
           cd demo
-          if grep -n 'path *=' Cargo.toml; then
+          # Dependency lines only: `[[bin]] path = "src/main.rs"` is not one.
+          if grep -nE '^vieww[a-z-]* *= *\{[^}]*path *=' Cargo.toml; then
             echo "scaffold wrote a path dependency outside the checkout" >&2; exit 1
           fi
           grep -nE '^vieww[a-z-]* *= *"' Cargo.toml

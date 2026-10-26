@@ -237,8 +237,10 @@ jobs:
           VIEWW_REQUIRE_HARDWARE: gpu
           # Metal API validation: misuse becomes an assertion naming the
           # call and the rule, instead of a bare SIGSEGV in the driver.
+          # (Not MTL_SHADER_VALIDATION: on the runner's paravirtual GPU the
+          # instrumented shaders drew nothing at all - even metal_smoke's
+          # single mesh came back transparent.)
           MTL_DEBUG_LAYER: "1"
-          MTL_SHADER_VALIDATION: "1"
         run: |
           set +e
           cargo test -p vieww-hal --features metal -- --ignored --test-threads=1 --nocapture
@@ -281,6 +283,17 @@ jobs:
           VIEWW_D3D12_ALLOW_WARP: "1"
           VIEWW_REQUIRE_HARDWARE: gpu
         run: cargo test -p vieww-hal --features d3d12 -- --ignored --test-threads=1
+      - name: HLSL that FXC refused (numbered, for the failure report)
+        if: failure()
+        shell: bash
+        run: |
+          for f in "$RUNNER_TEMP"/../vieww-fxc-*.hlsl "$TEMP"/vieww-fxc-*.hlsl; do
+            [ -f "$f" ] || continue
+            echo "::group::$f"
+            echo "FXC-REFUSED $(basename "$f")"
+            cat -n "$f"
+            echo "::endgroup::"
+          done
       - name: Clippy for the Windows backends
         run: |
           cargo clippy -p vieww-hal --features d3d12 --all-targets -- -D warnings

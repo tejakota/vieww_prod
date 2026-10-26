@@ -60,7 +60,8 @@ use vieww_shaders::{hlsl_slots, ParsedShader, ShaderStage};
 use windows::core::{Interface, PCSTR};
 use windows::Win32::Foundation::{CloseHandle, HANDLE};
 use windows::Win32::Graphics::Direct3D::Fxc::{
-    D3DCompile, D3DCOMPILE_ENABLE_STRICTNESS, D3DCOMPILE_OPTIMIZATION_LEVEL3,
+    D3DCompile, D3DCOMPILE_ENABLE_STRICTNESS, D3DCOMPILE_OPTIMIZATION_LEVEL1,
+    D3DCOMPILE_OPTIMIZATION_LEVEL3, D3DCOMPILE_SKIP_OPTIMIZATION,
 };
 use windows::Win32::Graphics::Direct3D::{
     ID3DBlob, D3D_FEATURE_LEVEL_11_0, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
@@ -481,32 +482,69 @@ impl D3d12Device {
         };
         let entry_c = std::ffi::CString::new(entry)
             .map_err(|_| D3d12Error::Invalid("entry point name".into()))?;
-        let mut code: Option<ID3DBlob> = None;
-        let mut errors: Option<ID3DBlob> = None;
-        // SAFETY: the source pointer and length describe `hlsl`; every
-        // string argument is NUL-terminated and outlives the call.
-        let compiled = unsafe {
-            D3DCompile(
-                hlsl.as_ptr().cast(),
-                hlsl.len(),
-                PCSTR(c"vieww.hlsl".as_ptr().cast()),
-                None,
-                None,
-                PCSTR(entry_c.as_ptr().cast()),
-                PCSTR(target.as_ptr()),
+        // FXC's optimiser has internal errors ("compilation aborted
+        // unexpectedly") on some valid naga output. Level 3 first; on an
+        // internal error, the same source at level 1, then unoptimised —
+        // the result is the same program, only less tuned.
+        let mut attempts = Vec::new();
+        for (level, flags) in [
+            (
+                "O3",
                 D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_OPTIMIZATION_LEVEL3,
-                0,
-                &mut code,
-                Some(&mut errors),
-            )
-        };
-        if let Err(error) = compiled {
-            let log = errors.map(|b| blob_text(&b)).unwrap_or_default();
-            return Err(D3d12Error::Shader(format!(
-                "D3DCompile({entry}): {error}: {log}"
-            )));
+            ),
+            (
+                "O1",
+                D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_OPTIMIZATION_LEVEL1,
+            ),
+            (
+                "Od",
+                D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_SKIP_OPTIMIZATION,
+            ),
+        ] {
+            let mut code: Option<ID3DBlob> = None;
+            let mut errors: Option<ID3DBlob> = None;
+            // SAFETY: the source pointer and length describe `hlsl`; every
+            // string argument is NUL-terminated and outlives the call.
+            let compiled = unsafe {
+                D3DCompile(
+                    hlsl.as_ptr().cast(),
+                    hlsl.len(),
+                    PCSTR(c"vieww.hlsl".as_ptr().cast()),
+                    None,
+                    None,
+                    PCSTR(entry_c.as_ptr().cast()),
+                    PCSTR(target.as_ptr()),
+                    flags,
+                    0,
+                    &mut code,
+                    Some(&mut errors),
+                )
+            };
+            match compiled {
+                Ok(()) => {
+                    return code
+                        .ok_or_else(|| D3d12Error::Shader("D3DCompile produced no code".into()));
+                }
+                Err(error) => {
+                    let log = errors.map(|b| blob_text(&b)).unwrap_or_default();
+                    let internal = log.contains("internal error");
+                    attempts.push(format!("{level}: {error}: {}", log.trim()));
+                    if !internal {
+                        break; // a real error in the source: retrying cannot help
+                    }
+                }
+            }
         }
-        code.ok_or_else(|| D3d12Error::Shader("D3DCompile produced no code".into()))
+        // Keep the source that failed, for the report and for reproducing.
+        let saved = std::env::temp_dir().join(format!("vieww-fxc-{entry}.hlsl"));
+        let saved_note = match std::fs::write(&saved, &hlsl) {
+            Ok(()) => format!(" (HLSL saved to {})", saved.display()),
+            Err(_) => String::new(),
+        };
+        Err(D3d12Error::Shader(format!(
+            "D3DCompile({entry}) failed at every optimisation level{saved_note}: {}",
+            attempts.join(" | ")
+        )))
     }
 
     /// The mesh path's root signature: eight root constants at `b0`.

@@ -255,27 +255,19 @@ fn the_renderer_refuses_a_plan_it_cannot_draw() {
     let Some((_lock, _device, mut renderer)) = try_renderer() else {
         return;
     };
-    // A shaped clip: expressible by the CPU rasterizer, not by a scissor —
-    // the same refusal the Vulkan suite pins, one backend later.
-    let mut clip = Clip::NONE;
-    clip.add_rect(Rect::new(10.0, 10.0, 90.0, 70.0));
-    let mut rounded = vieww_foundation::Path::new();
-    rounded.move_to(vieww_foundation::Offset::new(20.0, 20.0));
-    rounded.cubic_to(
-        vieww_foundation::Offset::new(60.0, 10.0),
-        vieww_foundation::Offset::new(80.0, 40.0),
-        vieww_foundation::Offset::new(40.0, 60.0),
-    );
-    rounded.close();
-    clip.add_path(rounded);
-
+    // Layers nested past MAX_TARGET_DEPTH: beyond what any backend's target
+    // stack holds, with or without a Planner's atlases. (This used a shaped
+    // clip, which the Planner's mask atlas now draws — so the plan came out
+    // complete and the test failed for a capability gained, not lost.)
     let mut scene = Scene::default();
-    scene.push_command(Command::FillRect {
-        rect: Rect::new(0.0, 0.0, 120.0, 90.0),
-        paint: Paint::solid(Color::rgba(200, 30, 30, 255)),
-        transform: Transform::IDENTITY,
-        clip,
-    });
+    let full = Rect::new(0.0, 0.0, 120.0, 90.0);
+    for _ in 0..=vieww_gpu::MAX_TARGET_DEPTH {
+        scene.push_layer(full, 0.9, vieww_foundation::BlendMode::Normal);
+    }
+    fill_rect(&mut scene, full, Color::rgba(200, 30, 30, 255));
+    for _ in 0..=vieww_gpu::MAX_TARGET_DEPTH {
+        scene.pop_layer();
+    }
 
     let mut planner = Planner::new();
     let plan = planner.plan(&scene, WIDTH as f32, HEIGHT as f32);
@@ -288,7 +280,7 @@ fn the_renderer_refuses_a_plan_it_cannot_draw() {
     );
     let message = refused.unwrap_err().to_string();
     assert!(
-        message.contains("shaped-clip"),
+        message.contains("layer"),
         "the error should name what stopped it, got: {message}"
     );
 }

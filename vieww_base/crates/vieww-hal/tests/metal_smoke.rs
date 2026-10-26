@@ -96,7 +96,28 @@ fn a_mesh_lands_where_it_was_drawn_and_nowhere_else() {
         let i = (y * 100 + x) * 4;
         [pixels[i], pixels[i + 1], pixels[i + 2], pixels[i + 3]]
     };
-    assert_eq!(at(35, 22), [255, 0, 0, 255]);
+    // Where anything landed at all: a mirrored or offset draw and a draw
+    // that rasterized nothing fail the same assertion below and need very
+    // different fixes.
+    let (mut n, mut x0, mut y0, mut x1, mut y1) = (0usize, 100, 100, 0, 0);
+    for y in 0..100 {
+        for x in 0..100 {
+            if at(x, y)[3] != 0 {
+                n += 1;
+                x0 = x0.min(x);
+                y0 = y0.min(y);
+                x1 = x1.max(x);
+                y1 = y1.max(y);
+            }
+        }
+    }
+    assert_eq!(
+        at(35, 22),
+        [255, 0, 0, 255],
+        "the mesh (10,10)-(60,35) is not at (35, 22): {n} drawn pixels, bounding box \
+         ({x0},{y0})-({x1},{y1}); sample at (35, 22) is {:?}",
+        at(35, 22)
+    );
     for (x, y) in [(5, 5), (90, 90), (35, 78), (85, 22)] {
         assert_eq!(at(x, y)[3], 0, "({x}, {y}) should be empty");
     }
