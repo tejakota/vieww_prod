@@ -155,23 +155,37 @@ fn sat(c: vec3<f32>) -> f32 {
     return max(max(c.r, c.g), c.b) - min(min(c.r, c.g), c.b);
 }
 
+// Component `i` of `c`, by comparison rather than `c[i]`: FXC (the D3D12
+// backend's compiler) mishandles runtime indexing of local vectors.
+fn comp(c: vec3<f32>, i: i32) -> f32 {
+    return select(select(c.b, c.g, i == 1), c.r, i == 0);
+}
+
 fn set_sat(c: vec3<f32>, s: f32) -> vec3<f32> {
     // A stable sort of three indices by value, as `native/color.rs` sorts.
     var i0 = 0;
     var i1 = 1;
     var i2 = 2;
-    if c[i1] < c[i0] { let t = i0; i0 = i1; i1 = t; }
-    if c[i2] < c[i1] {
+    if comp(c, i1) < comp(c, i0) { let t = i0; i0 = i1; i1 = t; }
+    if comp(c, i2) < comp(c, i1) {
         let t = i1; i1 = i2; i2 = t;
-        if c[i1] < c[i0] { let u = i0; i0 = i1; i1 = u; }
+        if comp(c, i1) < comp(c, i0) { let u = i0; i0 = i1; i1 = u; }
     }
-    var out = vec3<f32>(0.0);
-    if c[i2] > c[i0] {
-        out[i1] = (c[i1] - c[i0]) * s / (c[i2] - c[i0]);
-        out[i2] = s;
+    let lo = comp(c, i0);
+    let mid = comp(c, i1);
+    let hi = comp(c, i2);
+    var new_mid = 0.0;
+    var new_hi = 0.0;
+    if hi > lo {
+        new_mid = (mid - lo) * s / (hi - lo);
+        new_hi = s;
     }
-    out[i0] = 0.0;
-    return out;
+    // Scatter back by index without `out[i] = ...`: each component is the
+    // new max, the new mid, or zero (the min), by which index it was.
+    let r = select(select(0.0, new_mid, i1 == 0), new_hi, i2 == 0);
+    let g = select(select(0.0, new_mid, i1 == 1), new_hi, i2 == 1);
+    let b = select(select(0.0, new_mid, i1 == 2), new_hi, i2 == 2);
+    return vec3<f32>(r, g, b);
 }
 
 // `native/color.rs`'s `blend`, on premultiplied colours.
