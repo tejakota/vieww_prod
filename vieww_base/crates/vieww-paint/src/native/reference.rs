@@ -2343,10 +2343,19 @@ mod tests {
         let walk = started.elapsed();
         let kinds = renderer.last_kind_times().expect("on");
         assert!(kinds.composite > Duration::ZERO, "{kinds:?}");
-        assert!(
-            kinds.composite > kinds.paths,
-            "the blur is the work: {kinds:?}"
-        );
+        assert!(kinds.paths > Duration::ZERO, "{kinds:?}");
+        // The ordering is a property of the optimised build. Under coverage
+        // instrumentation (LLVM_PROFILE_FILE is how an instrumented binary
+        // finds where to write) the scalar path filler slows far more than
+        // the SIMD blur, and on CI the fill came out 33 ms to the
+        // composite's 21 ms - the test failing aborted the whole coverage
+        // run. The attribution checks above and below still hold there.
+        if std::env::var_os("LLVM_PROFILE_FILE").is_none() {
+            assert!(
+                kinds.composite > kinds.paths,
+                "the blur is the work: {kinds:?}"
+            );
+        }
         assert_eq!(kinds.text, Duration::ZERO);
         assert!(kinds.total() <= walk, "{kinds:?} against {walk:?}");
 

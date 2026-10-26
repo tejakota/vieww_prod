@@ -171,7 +171,14 @@ fn parallel_voices_allocate_nothing() {
         p.note_on(0, k, 0.9);
     }
     let mut out = vec![0.0f32; 512];
-    p.render(&mut out); // warm-up
+    // Warm-up long enough that every worker has run jobs: workers claim jobs
+    // from a shared counter, so one render may leave some idle, and a
+    // thread's first job does one-time OS work (on Windows, first use of a
+    // thread-local with a destructor registers it - an allocation). That is
+    // start-up cost, not the steady state this test measures.
+    for _ in 0..64 {
+        p.render(&mut out);
+    }
     ARMED.store(true, Ordering::SeqCst);
     for _ in 0..100 {
         p.render(&mut out);

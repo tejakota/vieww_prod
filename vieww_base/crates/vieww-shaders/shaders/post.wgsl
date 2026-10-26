@@ -270,7 +270,9 @@ fn box_blur(p: vec2<i32>, mode: i32) -> vec4<f32> {
     }
     let clamped = pc.args.z > 0.5;
     var sum = vec4<f32>(0.0);
-    for (var k = -r; k <= r; k = k + 1) {
+    // `0 - r`, not `-r`: naga lowers integer negation to
+    // `asint(-asuint(v))`, and FXC aborts compiling that (see fs_main).
+    for (var k = 0 - r; k <= r; k = k + 1) {
         if clamped {
             sum = sum + src_clamped(p + step * k);
         } else {

@@ -894,6 +894,12 @@ pub fn decode_adts(bytes: &[u8]) -> Result<Decoded, CodecError> {
             return Err(CodecError::Malformed("ADTS header"));
         }
         let hdr = if no_crc { 7 } else { 9 };
+        // A frame with a CRC has a 9-byte header: a declared length of 7 or
+        // 8 passed the check above and sliced `at+9..at+len` backwards
+        // (fuzz finding: "slice index starts at 86 but ends at 85").
+        if len < hdr {
+            return Err(CodecError::Malformed("ADTS frame shorter than its header"));
+        }
         if blocks > 1 {
             return Err(CodecError::Unsupported(
                 "multiple raw blocks per ADTS frame",
@@ -967,6 +973,28 @@ pub fn decode_mp4(bytes: &[u8]) -> Result<Decoded, CodecError> {
 
 #[cfg(test)]
 mod tests {
+
+    /// Fuzz regression (`decode_aac_adts`, CI 2026-10-25): a CRC-protected
+    /// frame (9-byte header) declaring a length of 8 panicked slicing
+    /// `at+9..at+8`. It must be refused as malformed.
+    #[test]
+    fn a_frame_shorter_than_its_crc_header_is_malformed_not_a_panic() {
+        // sync FFF, MPEG-4, layer 0, protection_absent 0 (CRC present);
+        // LC, 44.1 kHz (index 4), stereo; frame_length 8; fullness 0x7FF;
+        // one raw block.
+        let mut bytes = vec![0xFF, 0xF0, 0x50, 0x80, 0x01, 0x1F, 0xFC];
+        bytes.resize(32, 0);
+        for len in [7u16, 8] {
+            bytes[3] = 0x80 | ((len >> 11) & 0x3) as u8;
+            bytes[4] = ((len >> 3) & 0xFF) as u8;
+            bytes[5] = (((len & 0x7) as u8) << 5) | 0x1F;
+            assert!(
+                matches!(decode_adts(&bytes), Err(CodecError::Malformed(_))),
+                "length {len}"
+            );
+        }
+    }
+
     use super::*;
     use crate::codec::{s16le, snr_db};
 

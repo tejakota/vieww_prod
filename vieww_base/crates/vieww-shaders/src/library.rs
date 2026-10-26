@@ -261,7 +261,7 @@ mod tests {
     /// platform: no generated HLSL entry point may nest a loop in a switch.
     #[cfg(feature = "compiler")]
     #[test]
-    fn no_hlsl_entry_point_nests_a_loop_inside_a_switch() {
+    fn no_hlsl_entry_point_has_a_shape_fxc_cannot_compile() {
         use crate::compiler::ParsedShader;
         fn block_end(t: &str, open: usize) -> usize {
             let mut depth = 0usize;
@@ -297,7 +297,17 @@ mod tests {
         ] {
             let parsed = ParsedShader::parse(wgsl).expect("library shaders parse");
             for (entry, stage) in parsed.entry_points() {
-                let hlsl = parsed.to_hlsl(&entry, stage).expect("library shaders translate");
+                let hlsl = parsed
+                    .to_hlsl(&entry, stage)
+                    .expect("library shaders translate");
+                // naga's integer negation helper, `asint(-asuint(v))`: FXC
+                // warns X3092 on it and then aborts (the D3D12 renderer's
+                // second CI run). Write `0 - x`, which lowers to a subtraction.
+                if hlsl.contains("-asuint(") {
+                    offenders.push(format!(
+                        "{name}.wgsl {entry}: integer negation (write `0 - x`)"
+                    ));
+                }
                 let mut at = 0;
                 while let Some(found) = hlsl[at..].find("switch(") {
                     let start = at + found;
@@ -313,9 +323,8 @@ mod tests {
         }
         assert!(
             offenders.is_empty(),
-            "loops inside a switch (FXC cannot compile these): {offenders:?} — use an if-chain \
+            "HLSL shapes FXC cannot compile: {offenders:?} — use an if-chain \
              and move the loop into a helper function, as post.wgsl's fs_main does"
         );
     }
 }
-

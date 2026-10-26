@@ -94,7 +94,6 @@ pub struct MetalSceneRenderer {
     scene_pipeline: RenderPipelineState,
     post_replace: RenderPipelineState,
     post_over: RenderPipelineState,
-    clear_pipeline: RenderPipelineState,
     levels: Vec<Texture>,
     scratch: Vec<Texture>,
     dummy: Texture,
@@ -233,6 +232,22 @@ fn new_target(device: &Device, width: u32, height: u32, format: MTLPixelFormat) 
     device.new_texture(&desc)
 }
 
+/// A shared buffer holding `bytes`. An empty slice gets a zeroed 16-byte
+/// buffer instead: its pointer is dangling (`0x4` for a `u32` slice), and
+/// `newBufferWithBytes` copies `length` bytes from it — the macOS CI's
+/// SIGSEGV on the empty scene, `EXC_BAD_ACCESS (address=0x4)` in memmove.
+fn shared_buffer(device: &Device, bytes: &[u8]) -> metal::Buffer {
+    if bytes.is_empty() {
+        device.new_buffer(16, MTLResourceOptions::StorageModeShared)
+    } else {
+        device.new_buffer_with_data(
+            bytes.as_ptr().cast(),
+            len64(bytes),
+            MTLResourceOptions::StorageModeShared,
+        )
+    }
+}
+
 /// The one place `T`'s bytes come from: a plain-data slice, as
 /// `vulkan::scene`'s `as_bytes` — every type it is used with here (`Vertex`,
 /// `u32`) is a struct of `f32`/`u32` fields with no padding.
@@ -292,16 +307,7 @@ impl MetalSceneRenderer {
             TARGET_FORMAT,
             Blend::PremultipliedOver,
         )?;
-        // The damaged frame's region clears: `clear.wgsl` is the same
-        // full-screen-triangle-with-a-uniform-colour shape `post.wgsl` is,
-        // with `Replace` blending so the clear wins over anything beneath.
-        let clear_pipeline = device.pipeline(
-            vieww_shaders::library::CLEAR_WGSL,
-            &[],
-            0,
-            TARGET_FORMAT,
-            Blend::Replace,
-        )?;
+        // Region clears are blits of the clear colour (see `render_with`).
 
         let mut renderer = Self {
             device: device.raw().clone(),
@@ -309,7 +315,6 @@ impl MetalSceneRenderer {
             scene_pipeline,
             post_replace,
             post_over,
-            clear_pipeline,
             levels: Vec::new(),
             scratch: Vec::new(),
             dummy: new_target(device.raw(), 1, 1, TARGET_FORMAT),
@@ -420,18 +425,8 @@ impl MetalSceneRenderer {
 
         let started = Instant::now();
         self.ensure_targets(width, height, plan.target_depth + 1)?;
-        let vertex_bytes = as_bytes(&plan.vertices);
-        let index_bytes = as_bytes(&plan.indices);
-        let vertices = self.device.new_buffer_with_data(
-            vertex_bytes.as_ptr().cast(),
-            len64(vertex_bytes).max(1),
-            MTLResourceOptions::StorageModeShared,
-        );
-        let indices = self.device.new_buffer_with_data(
-            index_bytes.as_ptr().cast(),
-            len64(index_bytes).max(1),
-            MTLResourceOptions::StorageModeShared,
-        );
+        let vertices = shared_buffer(&self.device, as_bytes(&plan.vertices));
+        let indices = shared_buffer(&self.device, as_bytes(&plan.indices));
         #[expect(clippy::cast_precision_loss, reason = "frame extents")]
         let viewport: [f32; 4] = [width as f32, height as f32, 0.0, 0.0];
         self.timings.upload += started.elapsed();
@@ -517,14 +512,45 @@ impl MetalSceneRenderer {
                     let target = open.expect("a region clear follows a begin");
                     end_current(&mut encoder);
                     bound = Bound::None;
-                    let enc = begin_on(self, commands, target, None, width, height);
-                    enc.set_render_pipeline_state(&self.clear_pipeline);
-                    enc.set_fragment_bytes(0, 16, color.as_ptr().cast());
+                    // A blit of the clear colour, not a draw: no pipeline,
+                    // no shader, no binding — the draw-based clear came back
+                    // all-zero inside the damage on the macOS CI.
+                    let texel: [u16; 4] = color.map(crate::scene_exec::f32_to_half);
+                    let blit = commands.new_blit_command_encoder();
+                    let mut staging_buffers = Vec::new();
                     for rect in rects {
-                        enc.set_scissor_rect(scissor(*rect, width, height));
-                        enc.draw_primitives(MTLPrimitiveType::Triangle, 0, 3);
+                        let r = scissor(*rect, width, height);
+                        if r.width == 0 || r.height == 0 {
+                            continue;
+                        }
+                        let count = usize::try_from(r.width * r.height).unwrap_or(0);
+                        let fill: Vec<[u16; 4]> = vec![texel; count];
+                        let staging = shared_buffer(&self.device, as_bytes(&fill));
+                        blit.copy_from_buffer_to_texture(
+                            &staging,
+                            0,
+                            r.width * 8,
+                            r.width * r.height * 8,
+                            MTLSize {
+                                width: r.width,
+                                height: r.height,
+                                depth: 1,
+                            },
+                            self.target(target),
+                            0,
+                            0,
+                            MTLOrigin {
+                                x: r.x,
+                                y: r.y,
+                                z: 0,
+                            },
+                            MTLBlitOption::empty(),
+                        );
+                        staging_buffers.push(staging);
                     }
-                    encoder = Some(enc);
+                    blit.end_encoding();
+                    drop(staging_buffers); // retained by the command buffer
+                    encoder = Some(begin_on(self, commands, target, None, width, height));
                 }
                 SceneOp::DrawRun {
                     target,

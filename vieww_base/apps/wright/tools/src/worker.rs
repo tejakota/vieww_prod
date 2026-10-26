@@ -462,14 +462,17 @@ fn direct_run(
     // below) kills everything the worker started. 64 processes, 4 GiB.
     #[cfg(windows)]
     let job = {
-        let job = crate::winjob::Job::new(64, 4 << 30)
-            .and_then(|j| j.adopt(&mut child).map(|()| j))
-            .map_err(|e| {
-                ToolError::Failed(format!(
-                    "could not contain the worker '{}' in a Job object: {e}. Nothing was run.",
-                    entry.name
-                ))
-            })?;
+        let job = crate::winjob::Job::new(
+            crate::winjob::WORKER_MAX_PROCESSES,
+            Some(crate::winjob::WORKER_MAX_MEMORY),
+        )
+        .and_then(|j| j.adopt(&mut child).map(|()| j))
+        .map_err(|e| {
+            ToolError::Failed(format!(
+                "could not contain the worker '{}' in a Job object: {e}. Nothing was run.",
+                entry.name
+            ))
+        })?;
         job
     };
     // Drain both pipes while the worker runs: a chatty agent writes far
@@ -520,6 +523,15 @@ fn direct_run(
                 if status.success() {
                     return Ok(format!("{output}{err}"));
                 }
+                #[cfg(windows)]
+                let err = {
+                    let report = job.report();
+                    if report.is_empty() {
+                        err
+                    } else {
+                        format!("{err}\n[job: {report}]")
+                    }
+                };
                 return Err(worker_failed(entry, &format!("{output}{err}")));
             }
             Ok(None) => {

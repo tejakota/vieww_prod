@@ -27,7 +27,13 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 repo="$(git -C "$root" rev-parse --show-toplevel)"
 # The workspace's path inside the repository (vieww_base/ in this one).
-inside="$(realpath --relative-to="$repo" "$root")"
+# From git itself: on Windows (Git Bash) `--show-toplevel` is `D:/a/...` while
+# the shell's paths are `/d/a/...`, and `realpath --relative-to` across the two
+# returned an absolute path, sending the base build to a directory that did
+# not exist (the release gate's windows-cpu leg).
+inside="$(git -C "$root" rev-parse --show-prefix)"
+inside="${inside%/}"
+inside="${inside:-.}"
 
 base="origin/main"
 allow=0

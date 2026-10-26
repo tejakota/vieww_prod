@@ -101,6 +101,17 @@ fn interior_mismatches(gpu: &[u8], cpu: &[u8], tolerance: u8) -> usize {
     for y in 0..h {
         for x in 0..w {
             if differs(y * w + x) && !reference_edge(x, y) {
+                // The first few, with values: a count alone says *that* the
+                // backends disagree, not how (a missing pass, a wrong blend,
+                // an alpha convention, a channel swap all look different).
+                if count < 8 {
+                    let i = (y * w + x) * 4;
+                    eprintln!(
+                        "mismatch at ({x}, {y}): gpu {:?} cpu {:?}",
+                        &gpu[i..i + 4],
+                        &cpu[i..i + 4]
+                    );
+                }
                 count += 1;
             }
         }

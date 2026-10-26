@@ -278,7 +278,11 @@ pub fn audio_track(file: &[u8]) -> Result<AudioTrack, CodecError> {
                 if mt >= 0 {
                     skip = mt.unsigned_abs();
                     // Duration is in movie units; convert to media units.
-                    play = Some(dur * u64::from(timescale) / u64::from(movie_timescale.max(1)));
+                    // In u128: a hostile edit list's duration times the
+                    // timescale overflows u64 (fuzz finding).
+                    let media = u128::from(dur) * u128::from(timescale)
+                        / u128::from(movie_timescale.max(1));
+                    play = Some(u64::try_from(media).unwrap_or(u64::MAX));
                     break;
                 }
             }

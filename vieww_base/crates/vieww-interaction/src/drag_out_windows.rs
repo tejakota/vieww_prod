@@ -3,7 +3,7 @@
 //!
 //! # Status: type-checked, never run
 //!
-//! The same standing as [`crate::ios`] on the other end of the platform
+//! The same standing as `crate::ios` on the other end of the platform
 //! list, with one further honest limit: `cargo check
 //! --target x86_64-pc-windows-msvc` proves the signatures line up against
 //! the fetched `windows` 0.58 crate (every feature name and every method

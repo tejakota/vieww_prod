@@ -58,7 +58,9 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
 
     var accumulated = vec4<f32>(0.0, 0.0, 0.0, 0.0);
     var weight_sum = 0.0;
-    for (var i = -radius; i <= radius; i++) {
+    // `0 - radius`, not `-radius`: FXC aborts on naga's integer negation
+    // helper (`asint(-asuint(v))`) — see post.wgsl's fs_main.
+    for (var i = 0 - radius; i <= radius; i++) {
         let weight = gaussian_weight(f32(i), sigma);
         let sample_uv = in.uv + texel * f32(i);
         accumulated += textureSample(t_source, s_source, sample_uv) * weight;
