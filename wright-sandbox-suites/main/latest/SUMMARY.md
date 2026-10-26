@@ -1,23 +1,23 @@
-# Wright sandbox suites — FAILURE
+# Wright sandbox suites — SUCCESS
 
-- branch: `main`  sha: `da72ff4877e792412cd6ce94fced20d871cc3321`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40300321355
+- branch: `main`  sha: `35c6b3f65b538866b42166a0d1dce21e8cef3a21`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40321681665
 
 | job | verdict | failed steps |
 |---|---|---|
-| Windows — probe fail-closed (no WSL on the runner) | FAIL | Worker Job objects (WR-05) — tree killed with the job, process cap |
-| Linux — full escape suite (Landlock + seccomp) | PASS |  |
 | macOS — Seatbelt suite (WR-03) | PASS |  |
+| Linux — full escape suite (Landlock + seccomp) | PASS |  |
+| Windows — probe fail-closed (no WSL on the runner) | PASS |  |
 
 ## Steps
 
-### Windows — probe fail-closed (no WSL on the runner) — FAIL
+### macOS — Seatbelt suite (WR-03) — PASS
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
 - PASS: Rust toolchain
-- PASS: Sandbox refuses cleanly without WSL2
-- PASS: Credential Manager round trip (WR-06)
-- FAIL: Worker Job objects (WR-05) — tree killed with the job, process cap
+- PASS: Seatbelt is present
+- PASS: The Seatbelt suite (policy + runtime)
+- PASS: doctor reports the capability
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
@@ -32,13 +32,13 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### macOS — Seatbelt suite (WR-03) — PASS
+### Windows — probe fail-closed (no WSL on the runner) — PASS
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
 - PASS: Rust toolchain
-- PASS: Seatbelt is present
-- PASS: The Seatbelt suite (policy + runtime)
-- PASS: doctor reports the capability
+- PASS: Sandbox refuses cleanly without WSL2
+- PASS: Credential Manager round trip (WR-06)
+- PASS: Worker Job objects (WR-05) — tree killed with the job, process cap
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
