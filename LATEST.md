@@ -2,9 +2,9 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
+| 2026-10-26T10:42:59Z | release-gate/main | SUCCESS | `da72ff4877e7` | [summary](release-gate/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40300437716) |
 | 2026-10-26T10:14:29Z | audio-ci/main | SUCCESS | `da72ff4877e7` | [summary](audio-ci/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40300351101) |
 | 2026-10-26T09:54:41Z | framework-checks/main | FAILURE | `da72ff4877e7` | [summary](framework-checks/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40299851181) |
-| 2026-10-26T09:38:58Z | release-gate/main | CANCELLED | `da72ff4877e7` | [summary](release-gate/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40299048441) |
 | 2026-10-26T09:35:29Z | publish/main | FAILURE | `da72ff4877e7` | [summary](publish/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40300393235) |
 | 2026-10-26T09:33:38Z | wright-sandbox-suites/main | FAILURE | `da72ff4877e7` | [summary](wright-sandbox-suites/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40300321355) |
 | 2026-10-26T00:30:49Z | supply-chain/main | SUCCESS | `f0e7547cea35` | [summary](supply-chain/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40249282660) |

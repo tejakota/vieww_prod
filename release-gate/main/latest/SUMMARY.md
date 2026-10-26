@@ -1,14 +1,14 @@
-# release-gate — CANCELLED
+# release-gate — SUCCESS
 
-- branch: `main`  sha: `da72ff4877e792412cd6ce94fced20d871cc3321`  event: push
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40299048441
+- branch: `main`  sha: `da72ff4877e792412cd6ce94fced20d871cc3321`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40300437716
 
 | job | verdict | failed steps |
 |---|---|---|
 | plan | PASS |  |
-| gate (windows-cpu) | CANCELLED |  |
+| gate (windows-cpu) | PASS |  |
 | merged checklist | PASS |  |
-| draft GitHub Release | CANCELLED |  |
+| draft GitHub Release | skipped |  |
 
 ## Steps
 
@@ -17,7 +17,7 @@
 - PASS: Run python3 - <<'PY' >> "$GITHUB_OUTPUT"
 - PASS: Complete job
 
-### gate (windows-cpu) — CANCELLED
+### gate (windows-cpu) — PASS
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
 - PASS: Make disk space
@@ -30,16 +30,17 @@
 - skipped: MinGW-w64 (Windows .exe cross-build from Linux)
 - PASS: Android environment
 - skipped: Vulkan loader + MoltenVK (macOS; stages skip if no device)
-- CANCELLED: Release gate
+- PASS: Release gate
 - PASS: Failures with logs
-- running: Screenshots
-- running: Upload screenshots
-- running: Checks only
-- running: Upload run folder
-- running: Upload installers
-- running: Post Gradle 8.9 (a scaffolded project has no wrapper JAR)
-- running: Post JDK 17 (Android Gradle Plugin 8)
-- running: Post Run actions/checkout@v4
+- PASS: Screenshots
+- PASS: Upload screenshots
+- skipped: Checks only
+- PASS: Upload run folder
+- PASS: Upload installers
+- PASS: Post Gradle 8.9 (a scaffolded project has no wrapper JAR)
+- PASS: Post JDK 17 (Android Gradle Plugin 8)
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
 
 ### merged checklist — PASS
 - PASS: Set up job
@@ -50,6 +51,6 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### draft GitHub Release — CANCELLED
+### draft GitHub Release — skipped
 
-- artifacts: 
+- artifacts: checklist-ci screenshots-windows-cpu gate-windows-cpu 

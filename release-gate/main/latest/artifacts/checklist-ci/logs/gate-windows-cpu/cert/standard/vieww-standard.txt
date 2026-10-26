@@ -1,0 +1,25 @@
+>>> cargo run --release -p vieww-standard -- target\release-gate\windows-cpu\cert\standard\vieww-standard
+   Compiling vieww-accessibility v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-accessibility)
+   Compiling vieww-standard v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\examples\vieww-standard)
+    Finished `release` profile [optimized] target(s) in 3.15s
+     Running `target\release\vieww-standard.exe 'target\release-gate\windows-cpu\cert\standard\vieww-standard'`
+input probe: tapped a live target at Offset { dx: 64.0, dy: 220.0 }
+The Vieww standard — measured, not asserted
+
+  startup:                      9.8 ms (cold driver + store + first frame)
+  (system font scan:            9.0 ms, measured separately — not first-frame work)
+  frame budget (worst):         5.8 ms
+  frame pacing (p95):           5.0 ms
+  animation latency:            1.0 intervals
+  input latency:                1.0 intervals
+  pixel parity drift:         0.000
+  trim pixel changes:             0
+  typography drift:             0.0 px
+  a11y findings:                  0
+  clean-scene rebuilds:           0
+  steady allocations:             0 over 60 frames (counting allocator; retained frame matches: true)
+  unsupported GPU cmds:           0 {} (vieww_gpu::Planner, 91 frames)
+
+  VERDICT: PASS — every clause of the standard held
+exit=0
+seconds=4
