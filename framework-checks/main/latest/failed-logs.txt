@@ -1,1208 +1,604 @@
-===== Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter) =====
-2026-10-25T14:56:19.3532742Z   VIEWW_REQUIRE_HARDWARE: gpu
-2026-10-25T14:56:19.3533006Z ##[endgroup]
-2026-10-25T14:56:19.8331998Z ^[[1m^[[92m   Compiling^[[0m unicode-ident v1.0.26
-2026-10-25T14:56:19.8335682Z ^[[1m^[[92m   Compiling^[[0m libm v0.2.16
-2026-10-25T14:56:19.8336297Z ^[[1m^[[92m   Compiling^[[0m cfg-if v1.0.5
-2026-10-25T14:56:19.8337208Z ^[[1m^[[92m   Compiling^[[0m bitflags v2.13.2
-2026-10-25T14:56:19.8830477Z ^[[1m^[[92m   Compiling^[[0m once_cell v1.21.4
-2026-10-25T14:56:19.9897587Z ^[[1m^[[92m   Compiling^[[0m proc-macro2 v1.0.107
-2026-10-25T14:56:20.0892000Z ^[[1m^[[92m   Compiling^[[0m foldhash v0.2.0
-2026-10-25T14:56:20.4791903Z ^[[1m^[[92m   Compiling^[[0m log v0.4.34
-2026-10-25T14:56:20.6565961Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
-2026-10-25T14:56:20.8300468Z ^[[1m^[[92m   Compiling^[[0m quote v1.0.47
-2026-10-25T14:56:21.8972724Z ^[[1m^[[92m   Compiling^[[0m syn v3.0.6
-2026-10-25T14:56:22.2594967Z ^[[1m^[[92m   Compiling^[[0m syn v2.0.119
-2026-10-25T14:56:24.6970084Z ^[[1m^[[92m   Compiling^[[0m core_maths v0.1.1
-2026-10-25T14:56:24.7966233Z ^[[1m^[[92m   Compiling^[[0m num-traits v0.2.19
-2026-10-25T14:56:24.9061324Z ^[[1m^[[92m   Compiling^[[0m equivalent v1.0.2
-2026-10-25T14:56:24.9677047Z ^[[1m^[[92m   Compiling^[[0m arrayvec v0.7.8
-2026-10-25T14:56:25.2991357Z ^[[1m^[[92m   Compiling^[[0m simd-adler32 v0.3.10
-2026-10-25T14:56:25.9634227Z ^[[1m^[[92m   Compiling^[[0m indexmap v2.14.2
-2026-10-25T14:56:26.4288027Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v1.1.0
-2026-10-25T14:56:26.5118923Z ^[[1m^[[92m   Compiling^[[0m adler2 v2.0.1
-2026-10-25T14:56:26.7607199Z ^[[1m^[[92m   Compiling^[[0m unicode-width v0.2.2
-2026-10-25T14:56:27.1680883Z ^[[1m^[[92m   Compiling^[[0m bit-vec v0.9.1
-2026-10-25T14:56:27.2775079Z ^[[1m^[[92m   Compiling^[[0m codespan-reporting v0.13.1
-2026-10-25T14:56:27.6425520Z ^[[1m^[[92m   Compiling^[[0m bit-set v0.10.0
-2026-10-25T14:56:29.4086891Z ^[[1m^[[92m   Compiling^[[0m windows_x86_64_msvc v0.52.6
-2026-10-25T14:56:29.4562605Z ^[[1m^[[92m   Compiling^[[0m ttf-parser v0.25.1
-2026-10-25T14:56:29.5212366Z ^[[1m^[[92m   Compiling^[[0m spirv v0.4.0+sdk-1.4.341.0
-2026-10-25T14:56:37.4226993Z ^[[1m^[[92m   Compiling^[[0m unicode-segmentation v1.13.3
-2026-10-25T14:56:38.6913386Z ^[[1m^[[92m   Compiling^[[0m windows-targets v0.52.6
-2026-10-25T14:56:38.7414346Z ^[[1m^[[92m   Compiling^[[0m crc32fast v1.5.2
-2026-10-25T14:56:39.3673081Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.9.1
-2026-10-25T14:56:43.8342509Z ^[[1m^[[92m   Compiling^[[0m euclid v0.22.14
-2026-10-25T14:56:45.2011737Z ^[[1m^[[92m   Compiling^[[0m lyon_geom v1.0.19
-2026-10-25T14:56:45.6777480Z ^[[1m^[[92m   Compiling^[[0m flate2 v1.1.10
-2026-10-25T14:56:46.0411134Z ^[[1m^[[92m   Compiling^[[0m windows-result v0.2.0
-2026-10-25T14:56:46.8329800Z ^[[1m^[[92m   Compiling^[[0m vieww-foundation v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-foundation)
-2026-10-25T14:56:46.9071712Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.8.9
-2026-10-25T14:56:51.5034290Z ^[[1m^[[92m   Compiling^[[0m fdeflate v0.3.7
-2026-10-25T14:56:53.8112500Z ^[[1m^[[92m   Compiling^[[0m png v0.18.1
-2026-10-25T14:56:54.7402290Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
-2026-10-25T14:57:01.9110300Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v2.0.21
-2026-10-25T14:57:14.1828471Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
-2026-10-25T14:57:14.5971992Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
-2026-10-25T14:57:15.3600446Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
-2026-10-25T14:57:22.1068403Z ^[[1m^[[92m   Compiling^[[0m zerocopy-derive v0.8.59
-2026-10-25T14:57:26.1583765Z ^[[1m^[[92m   Compiling^[[0m thiserror v2.0.21
-2026-10-25T14:57:26.2473364Z ^[[1m^[[92m   Compiling^[[0m naga-types v30.0.1
-2026-10-25T14:57:26.4641557Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
-2026-10-25T14:57:27.1505851Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
-2026-10-25T14:57:27.3957997Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
-2026-10-25T14:58:01.7777625Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
-2026-10-25T14:58:08.4373801Z ^[[1m^[[92m   Compiling^[[0m half v2.7.1
-2026-10-25T14:58:09.1972540Z ^[[1m^[[92m   Compiling^[[0m naga v30.0.1
-2026-10-25T14:58:17.2873096Z ^[[1m^[[92m   Compiling^[[0m windows-implement v0.58.0
-2026-10-25T14:58:18.7288962Z ^[[1m^[[92m   Compiling^[[0m windows-interface v0.58.0
-2026-10-25T14:58:25.3580086Z ^[[1m^[[92m   Compiling^[[0m slotmap v1.1.1
-2026-10-25T14:58:26.1018208Z ^[[1m^[[92m   Compiling^[[0m windows-strings v0.1.0
-2026-10-25T14:58:27.0745915Z ^[[1m^[[92m   Compiling^[[0m lyon_path v1.0.19
-2026-10-25T14:58:27.7490723Z ^[[1m^[[92m   Compiling^[[0m tinyvec v1.13.3
-2026-10-25T14:58:28.4332353Z ^[[1m^[[92m   Compiling^[[0m cpufeatures v0.3.1
-2026-10-25T14:58:28.4884947Z ^[[1m^[[92m   Compiling^[[0m float_next_after v1.0.0
-2026-10-25T14:58:28.5869436Z ^[[1m^[[92m   Compiling^[[0m smallvec v1.16.2
-2026-10-25T14:58:28.9245669Z ^[[1m^[[92m   Compiling^[[0m memmap2 v0.9.11
-2026-10-25T14:58:29.1066965Z ^[[1m^[[92m   Compiling^[[0m yazi v0.2.1
-2026-10-25T14:58:29.4087674Z ^[[1m^[[92m   Compiling^[[0m constant_time_eq v0.4.2
-2026-10-25T14:58:29.7376803Z ^[[1m^[[92m   Compiling^[[0m zeno v0.3.3
-2026-10-25T14:58:32.0073346Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
-2026-10-25T14:58:33.1007179Z ^[[1m^[[92m   Compiling^[[0m blake3 v1.8.7
-2026-10-25T14:58:33.5807746Z ^[[1m^[[92m   Compiling^[[0m windows-core v0.58.0
-2026-10-25T14:58:35.6535412Z ^[[1m^[[92m   Compiling^[[0m fontdb v0.23.0
-2026-10-25T14:58:39.7388301Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
-2026-10-25T14:58:40.3849335Z ^[[1m^[[92m   Compiling^[[0m lyon_tessellation v1.0.22
-2026-10-25T14:59:13.4501761Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
-2026-10-25T14:59:23.0734227Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-paint)
-2026-10-25T14:59:41.5948905Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-shaders)
-2026-10-25T14:59:42.6594332Z ^[[1m^[[92m   Compiling^[[0m rangemap v1.8.0
-2026-10-25T14:59:43.1413254Z ^[[1m^[[92m   Compiling^[[0m unicode-script v0.5.8
-2026-10-25T14:59:44.5428249Z ^[[1m^[[92m   Compiling^[[0m sys-locale v0.3.2
-2026-10-25T14:59:44.8727106Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v2.1.3
-2026-10-25T14:59:44.9697897Z ^[[1m^[[92m   Compiling^[[0m linebender_resource_handle v0.1.1
-2026-10-25T14:59:45.0744884Z ^[[1m^[[92m   Compiling^[[0m unicode-linebreak v0.1.5
-2026-10-25T14:59:45.4696521Z ^[[1m^[[92m   Compiling^[[0m unicode-bidi v0.3.18
-2026-10-25T14:59:48.7275946Z ^[[1m^[[92m   Compiling^[[0m self_cell v1.3.0
-2026-10-25T14:59:48.8316302Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.3.6
-2026-10-25T14:59:49.4231117Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
-2026-10-25T15:00:02.3849557Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-gpu)
-2026-10-25T15:00:05.5218115Z ^[[1m^[[92m   Compiling^[[0m windows v0.58.0
-2026-10-25T15:00:06.1130632Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-text)
-2026-10-25T15:00:18.4391547Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-hal)
-2026-10-25T15:00:41.4515907Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized + debuginfo] target(s) in 4m 22s
-2026-10-25T15:00:41.4763722Z ^[[1m^[[92m     Running^[[0m unittests src\lib.rs (target\debug\deps\vieww_hal-a74ce4f11fce3cd2.exe)
-2026-10-25T15:00:41.4837196Z 
-2026-10-25T15:00:41.4837663Z running 0 tests
-2026-10-25T15:00:41.4838011Z 
-2026-10-25T15:00:41.4838695Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
-2026-10-25T15:00:41.4839655Z 
-2026-10-25T15:00:41.4853303Z ^[[1m^[[92m     Running^[[0m tests\d3d12_scene.rs (target\debug\deps\d3d12_scene-158b933f97f13737.exe)
-2026-10-25T15:00:41.4962668Z 
-2026-10-25T15:00:41.4962944Z running 7 tests
-2026-10-25T15:00:41.9557403Z test a_damaged_frame_keeps_the_previous_frame_outside_the_damage ... FAILED
-2026-10-25T15:00:42.0897223Z test a_group_opacity_layer_composites_like_the_cpu_rasterizer ... FAILED
-2026-10-25T15:00:42.2257505Z test an_empty_scene_is_the_clear_colour_exactly ... FAILED
-2026-10-25T15:00:42.3574311Z test one_rectangle_lands_where_the_geometry_says ... FAILED
-2026-10-25T15:00:42.4933907Z test overlapping_translucent_fills_composite_like_the_cpu_rasterizer ... FAILED
-2026-10-25T15:00:42.6296836Z test the_renderer_is_reusable_across_frames_and_sizes ... FAILED
-2026-10-25T15:00:42.7611069Z test the_renderer_refuses_a_plan_it_cannot_draw ... FAILED
-2026-10-25T15:00:42.7611632Z 
-2026-10-25T15:00:42.7611737Z failures:
-2026-10-25T15:00:42.7611889Z 
-2026-10-25T15:00:42.7612141Z ---- a_damaged_frame_keeps_the_previous_frame_outside_the_damage stdout ----
-2026-10-25T15:00:42.7613850Z 
-2026-10-25T15:00:42.7614878Z thread 'a_damaged_frame_keeps_the_previous_frame_outside_the_damage' (7972) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
-2026-10-25T15:00:42.7617900Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): D:\\a\\vieww_prod\\vieww_prod\\vieww_base\\crates\\vieww-hal\\vieww.hlsl(370,18-29): warning X3092: unary negate of unsigned value is still unsigned\ninternal error: compilation aborted unexpectedly")
-2026-10-25T15:00:42.7620726Z stack backtrace:
-2026-10-25T15:00:42.7660279Z    0: std::panicking::panic_handler
-2026-10-25T15:00:42.7661171Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-2026-10-25T15:00:42.7662018Z    1: core::panicking::panic_fmt
-2026-10-25T15:00:42.7662794Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-2026-10-25T15:00:42.7663612Z    2: core::result::unwrap_failed
-2026-10-25T15:00:42.7664366Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
-2026-10-25T15:00:42.7665553Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
-2026-10-25T15:00:42.7666732Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
-2026-10-25T15:00:42.7667450Z    4: d3d12_scene::try_renderer
-2026-10-25T15:00:42.7667888Z              at .\tests\d3d12_scene.rs:52
-2026-10-25T15:00:42.7668589Z    5: d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage
-2026-10-25T15:00:42.7669284Z              at .\tests\d3d12_scene.rs:336
-2026-10-25T15:00:42.7669999Z    6: d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::closure$0
-2026-10-25T15:00:42.7670737Z              at .\tests\d3d12_scene.rs:335
-2026-10-25T15:00:42.7671778Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::closure_env$0,tuple$<> >
-2026-10-25T15:00:42.7673362Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-25T15:00:42.7674226Z    8: core::ops::function::FnOnce::call_once
-2026-10-25T15:00:42.7675039Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-25T15:00:42.7676089Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-10-25T15:00:42.7676688Z 
-2026-10-25T15:00:42.7677048Z ---- a_group_opacity_layer_composites_like_the_cpu_rasterizer stdout ----
-2026-10-25T15:00:42.7677550Z 
-2026-10-25T15:00:42.7678282Z thread 'a_group_opacity_layer_composites_like_the_cpu_rasterizer' (1296) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
-2026-10-25T15:00:42.7680831Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): D:\\a\\vieww_prod\\vieww_prod\\vieww_base\\crates\\vieww-hal\\vieww.hlsl(370,18-29): warning X3092: unary negate of unsigned value is still unsigned\ninternal error: compilation aborted unexpectedly")
-2026-10-25T15:00:42.7683057Z stack backtrace:
-2026-10-25T15:00:42.7683426Z    0: std::panicking::panic_handler
-2026-10-25T15:00:42.7684171Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-2026-10-25T15:00:42.7685043Z    1: core::panicking::panic_fmt
-2026-10-25T15:00:42.7685730Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-2026-10-25T15:00:42.7686476Z    2: core::result::unwrap_failed
-2026-10-25T15:00:42.7687103Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
-2026-10-25T15:00:42.7688301Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
-2026-10-25T15:00:42.7689478Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
-2026-10-25T15:00:42.7690187Z    4: d3d12_scene::try_renderer
-2026-10-25T15:00:42.7690552Z              at .\tests\d3d12_scene.rs:52
-2026-10-25T15:00:42.7691150Z    5: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
-2026-10-25T15:00:42.7691759Z              at .\tests\d3d12_scene.rs:199
-2026-10-25T15:00:42.7692408Z    6: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure$0
-2026-10-25T15:00:42.7693092Z              at .\tests\d3d12_scene.rs:198
-2026-10-25T15:00:42.7694100Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure_env$0,tuple$<> >
-2026-10-25T15:00:42.7695430Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-25T15:00:42.7696254Z    8: core::ops::function::FnOnce::call_once
-2026-10-25T15:00:42.7697012Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-25T15:00:42.7698063Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-10-25T15:00:42.7698424Z 
-2026-10-25T15:00:42.7698584Z ---- an_empty_scene_is_the_clear_colour_exactly stdout ----
-2026-10-25T15:00:42.7698845Z 
-2026-10-25T15:00:42.7699177Z thread 'an_empty_scene_is_the_clear_colour_exactly' (7840) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
-2026-10-25T15:00:42.7700912Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): D:\\a\\vieww_prod\\vieww_prod\\vieww_base\\crates\\vieww-hal\\vieww.hlsl(370,18-29): warning X3092: unary negate of unsigned value is still unsigned\ninternal error: compilation aborted unexpectedly")
-2026-10-25T15:00:42.7702016Z stack backtrace:
-2026-10-25T15:00:42.7702233Z    0: std::panicking::panic_handler
-2026-10-25T15:00:42.7702663Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-2026-10-25T15:00:42.7703112Z    1: core::panicking::panic_fmt
-2026-10-25T15:00:42.7703507Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-2026-10-25T15:00:42.7704122Z    2: core::result::unwrap_failed
-2026-10-25T15:00:42.7704513Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
-2026-10-25T15:00:42.7705202Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
-2026-10-25T15:00:42.7705883Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
-2026-10-25T15:00:42.7706307Z    4: d3d12_scene::try_renderer
-2026-10-25T15:00:42.7706543Z              at .\tests\d3d12_scene.rs:52
-2026-10-25T15:00:42.7706898Z    5: d3d12_scene::an_empty_scene_is_the_clear_colour_exactly
-2026-10-25T15:00:42.7707217Z              at .\tests\d3d12_scene.rs:115
-2026-10-25T15:00:42.7707558Z    6: d3d12_scene::an_empty_scene_is_the_clear_colour_exactly::closure$0
-2026-10-25T15:00:42.7708041Z              at .\tests\d3d12_scene.rs:114
-2026-10-25T15:00:42.7708586Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::an_empty_scene_is_the_clear_colour_exactly::closure_env$0,tuple$<> >
-2026-10-25T15:00:42.7709282Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-25T15:00:42.7709739Z    8: core::ops::function::FnOnce::call_once
-2026-10-25T15:00:42.7710167Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-25T15:00:42.7710732Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-10-25T15:00:42.7711053Z 
-2026-10-25T15:00:42.7711199Z ---- one_rectangle_lands_where_the_geometry_says stdout ----
-2026-10-25T15:00:42.7711436Z 
-2026-10-25T15:00:42.7711757Z thread 'one_rectangle_lands_where_the_geometry_says' (6240) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
-2026-10-25T15:00:42.7713081Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): D:\\a\\vieww_prod\\vieww_prod\\vieww_base\\crates\\vieww-hal\\vieww.hlsl(370,18-29): warning X3092: unary negate of unsigned value is still unsigned\ninternal error: compilation aborted unexpectedly")
-2026-10-25T15:00:42.7714132Z stack backtrace:
-2026-10-25T15:00:42.7714355Z    0: std::panicking::panic_handler
-2026-10-25T15:00:42.7714786Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-2026-10-25T15:00:42.7715220Z    1: core::panicking::panic_fmt
-2026-10-25T15:00:42.7715613Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-2026-10-25T15:00:42.7716077Z    2: core::result::unwrap_failed
-2026-10-25T15:00:42.7716470Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
-2026-10-25T15:00:42.7717142Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
-2026-10-25T15:00:42.7717806Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
-2026-10-25T15:00:42.7718248Z    4: d3d12_scene::try_renderer
-2026-10-25T15:00:42.7718478Z              at .\tests\d3d12_scene.rs:52
-2026-10-25T15:00:42.7718790Z    5: d3d12_scene::one_rectangle_lands_where_the_geometry_says
-2026-10-25T15:00:42.7719102Z              at .\tests\d3d12_scene.rs:135
-2026-10-25T15:00:42.7719449Z    6: d3d12_scene::one_rectangle_lands_where_the_geometry_says::closure$0
-2026-10-25T15:00:42.7719802Z              at .\tests\d3d12_scene.rs:134
-2026-10-25T15:00:42.7720309Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::one_rectangle_lands_where_the_geometry_says::closure_env$0,tuple$<> >
-2026-10-25T15:00:42.7721006Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-25T15:00:42.7721460Z    8: core::ops::function::FnOnce::call_once
-2026-10-25T15:00:42.7721894Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-25T15:00:42.7722555Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-10-25T15:00:42.7722889Z 
-2026-10-25T15:00:42.7723112Z ---- overlapping_translucent_fills_composite_like_the_cpu_rasterizer stdout ----
-2026-10-25T15:00:42.7723428Z 
-2026-10-25T15:00:42.7723831Z thread 'overlapping_translucent_fills_composite_like_the_cpu_rasterizer' (4592) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
-2026-10-25T15:00:42.7725211Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): D:\\a\\vieww_prod\\vieww_prod\\vieww_base\\crates\\vieww-hal\\vieww.hlsl(370,18-29): warning X3092: unary negate of unsigned value is still unsigned\ninternal error: compilation aborted unexpectedly")
-2026-10-25T15:00:42.7726250Z stack backtrace:
-2026-10-25T15:00:42.7726487Z    0: std::panicking::panic_handler
-2026-10-25T15:00:42.7727803Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-2026-10-25T15:00:42.7728245Z    1: core::panicking::panic_fmt
-2026-10-25T15:00:42.7728636Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-2026-10-25T15:00:42.7729053Z    2: core::result::unwrap_failed
-2026-10-25T15:00:42.7729434Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
-2026-10-25T15:00:42.7730098Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
-2026-10-25T15:00:42.7730758Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
-2026-10-25T15:00:42.7731169Z    4: d3d12_scene::try_renderer
-2026-10-25T15:00:42.7731394Z              at .\tests\d3d12_scene.rs:52
-2026-10-25T15:00:42.7731775Z    5: d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer
-2026-10-25T15:00:42.7732162Z              at .\tests\d3d12_scene.rs:163
-2026-10-25T15:00:42.7732577Z    6: d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer::closure$0
-2026-10-25T15:00:42.7733008Z              at .\tests\d3d12_scene.rs:162
-2026-10-25T15:00:42.7733594Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer::closure_env$0,tuple$<> >
-2026-10-25T15:00:42.7734365Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-25T15:00:42.7734817Z    8: core::ops::function::FnOnce::call_once
-2026-10-25T15:00:42.7735236Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-25T15:00:42.7735792Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-10-25T15:00:42.7736110Z 
-2026-10-25T15:00:42.7736265Z ---- the_renderer_is_reusable_across_frames_and_sizes stdout ----
-2026-10-25T15:00:42.7736522Z 
-2026-10-25T15:00:42.7736859Z thread 'the_renderer_is_reusable_across_frames_and_sizes' (1156) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
-2026-10-25T15:00:42.7738177Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): D:\\a\\vieww_prod\\vieww_prod\\vieww_base\\crates\\vieww-hal\\vieww.hlsl(370,18-29): warning X3092: unary negate of unsigned value is still unsigned\ninternal error: compilation aborted unexpectedly")
-2026-10-25T15:00:42.7739222Z stack backtrace:
-2026-10-25T15:00:42.7739418Z    0: std::panicking::panic_handler
-2026-10-25T15:00:42.7739819Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-2026-10-25T15:00:42.7740243Z    1: core::panicking::panic_fmt
-2026-10-25T15:00:42.7740623Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-2026-10-25T15:00:42.7741033Z    2: core::result::unwrap_failed
-2026-10-25T15:00:42.7741408Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
-2026-10-25T15:00:42.7742170Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
-2026-10-25T15:00:42.7742830Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
-2026-10-25T15:00:42.7743235Z    4: d3d12_scene::try_renderer
-2026-10-25T15:00:42.7743458Z              at .\tests\d3d12_scene.rs:52
-2026-10-25T15:00:42.7743795Z    5: d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes
-2026-10-25T15:00:42.7744129Z              at .\tests\d3d12_scene.rs:288
-2026-10-25T15:00:42.7744482Z    6: d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes::closure$0
-2026-10-25T15:00:42.7744847Z              at .\tests\d3d12_scene.rs:287
-2026-10-25T15:00:42.7745381Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes::closure_env$0,tuple$<> >
-2026-10-25T15:00:42.7746167Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-25T15:00:42.7746610Z    8: core::ops::function::FnOnce::call_once
-2026-10-25T15:00:42.7747030Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-25T15:00:42.7747582Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-10-25T15:00:42.7747895Z 
-2026-10-25T15:00:42.7748090Z ---- the_renderer_refuses_a_plan_it_cannot_draw stdout ----
-2026-10-25T15:00:42.7748338Z 
-2026-10-25T15:00:42.7748693Z thread 'the_renderer_refuses_a_plan_it_cannot_draw' (2912) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
-2026-10-25T15:00:42.7750033Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): D:\\a\\vieww_prod\\vieww_prod\\vieww_base\\crates\\vieww-hal\\vieww.hlsl(370,18-29): warning X3092: unary negate of unsigned value is still unsigned\ninternal error: compilation aborted unexpectedly")
-2026-10-25T15:00:42.7751125Z stack backtrace:
-2026-10-25T15:00:42.7751363Z    0: std::panicking::panic_handler
-2026-10-25T15:00:42.7751754Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-2026-10-25T15:00:42.7752176Z    1: core::panicking::panic_fmt
-2026-10-25T15:00:42.7752554Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-2026-10-25T15:00:42.7753022Z    2: core::result::unwrap_failed
-2026-10-25T15:00:42.7753425Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
-2026-10-25T15:00:42.7754162Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
-2026-10-25T15:00:42.7754926Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
-2026-10-25T15:00:42.7755374Z    4: d3d12_scene::try_renderer
-2026-10-25T15:00:42.7755650Z              at .\tests\d3d12_scene.rs:52
-2026-10-25T15:00:42.7756016Z    5: d3d12_scene::the_renderer_refuses_a_plan_it_cannot_draw
-2026-10-25T15:00:42.7756361Z              at .\tests\d3d12_scene.rs:244
-2026-10-25T15:00:42.7756732Z    6: d3d12_scene::the_renderer_refuses_a_plan_it_cannot_draw::closure$0
-2026-10-25T15:00:42.7757122Z              at .\tests\d3d12_scene.rs:243
-2026-10-25T15:00:42.7757685Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::the_renderer_refuses_a_plan_it_cannot_draw::closure_env$0,tuple$<> >
-2026-10-25T15:00:42.7758427Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-25T15:00:42.7758928Z    8: core::ops::function::FnOnce::call_once
-2026-10-25T15:00:42.7759404Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-10-25T15:00:42.7760292Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-10-25T15:00:42.7760773Z 
-2026-10-25T15:00:42.7760779Z 
-2026-10-25T15:00:42.7761011Z failures:
-2026-10-25T15:00:42.7761278Z     a_damaged_frame_keeps_the_previous_frame_outside_the_damage
-2026-10-25T15:00:42.7761710Z     a_group_opacity_layer_composites_like_the_cpu_rasterizer
-2026-10-25T15:00:42.7762092Z     an_empty_scene_is_the_clear_colour_exactly
-2026-10-25T15:00:42.7762436Z     one_rectangle_lands_where_the_geometry_says
-2026-10-25T15:00:42.7762850Z     overlapping_translucent_fills_composite_like_the_cpu_rasterizer
-2026-10-25T15:00:42.7763280Z     the_renderer_is_reusable_across_frames_and_sizes
-2026-10-25T15:00:42.7764005Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test d3d12_scene`
-2026-10-25T15:00:42.7764455Z     the_renderer_refuses_a_plan_it_cannot_draw
-2026-10-25T15:00:42.7764658Z 
-2026-10-25T15:00:42.7764943Z test result: FAILED. 0 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.26s
-2026-10-25T15:00:42.7765414Z 
-2026-10-25T15:00:42.7863868Z ##[error]Process completed with exit code 101.
-
-===== Coverage floor	Coverage =====
-2026-10-25T15:16:25.4857686Z test damage::tests::add_scene_damages_every_command ... ok
-2026-10-25T15:16:25.4858142Z test damage::tests::adding_to_a_full_repaint_stays_a_full_repaint ... ok
-2026-10-25T15:16:25.4858912Z test damage::tests::an_appended_command_leaves_the_matching_prefix_clean ... ok
-2026-10-25T15:16:25.4859842Z test damage::tests::damage_entirely_off_surface_is_dropped ... ok
-2026-10-25T15:16:25.4860304Z test damage::tests::an_added_region_is_inflated_outward_never_inward ... ok
-2026-10-25T15:16:25.4864301Z test damage::tests::an_empty_rect_damages_nothing_even_though_the_bleed_would_inflate_it ... ok
-2026-10-25T15:16:25.4865639Z test damage::tests::clearing_returns_to_clean_and_keeps_the_surface ... ok
-2026-10-25T15:16:25.4866740Z test damage::tests::damage_is_clipped_to_the_surface ... ok
-2026-10-25T15:16:25.4867480Z test damage::tests::distant_regions_stay_separate ... ok
-2026-10-25T15:16:25.4867984Z test damage::tests::identical_scenes_produce_no_damage ... ok
-2026-10-25T15:16:25.4868876Z test damage::tests::intersects_lets_a_backend_skip_untouched_commands ... ok
-2026-10-25T15:16:25.4869827Z test damage::tests::diffing_against_an_empty_scene_damages_everything_drawn ... ok
-2026-10-25T15:16:25.4870697Z test damage::tests::overlapping_regions_merge_into_one ... ok
-2026-10-25T15:16:25.4871450Z test damage::tests::regions_never_overlap_so_covered_area_is_exact ... ok
-2026-10-25T15:16:25.4872288Z test damage::tests::region_count_is_bounded_however_many_rects_arrive ... ok
-2026-10-25T15:16:25.4873004Z test damage::tests::regions_are_pixel_aligned ... ok
-2026-10-25T15:16:25.4873551Z test damage::tests::tracking_is_abandoned_once_most_of_the_surface_is_pending ... ok
-2026-10-25T15:16:25.4874108Z test flatten::tests::a_child_is_spliced_into_the_hole_its_parent_left ... ok
-2026-10-25T15:16:25.4874594Z test flatten::tests::a_group_enclosing_nothing_leaves_no_markers ... ok
-2026-10-25T15:16:25.4875324Z test flatten::tests::a_frame_that_changed_nothing_rebuilds_nothing ... ok
-2026-10-25T15:16:25.4875899Z test flatten::tests::a_clip_that_excludes_everything_drops_the_run_and_keeps_markers_balanced ... ok
-2026-10-25T15:16:25.4876774Z test flatten::tests::a_group_gets_the_union_of_what_it_encloses ... ok
-2026-10-25T15:16:25.4877536Z test flatten::tests::a_group_faded_to_nothing_takes_its_contents_with_it ... ok
-2026-10-25T15:16:25.4878656Z test flatten::tests::a_parent_moving_rebuilds_its_descendants_because_their_screen_space_moved ... ok
-2026-10-25T15:16:25.4879641Z test flatten::tests::an_empty_tree_flattens_to_nothing ... ok
-2026-10-25T15:16:25.4880428Z test flatten::tests::an_inner_group_emptying_takes_its_parent_with_it ... ok
-2026-10-25T15:16:25.4881372Z test flatten::tests::a_moved_layer_rebuilds_only_itself ... ok
-2026-10-25T15:16:25.4882166Z test flatten::tests::a_row_that_grows_moves_the_tail_rather_than_rebuilding_it ... ok
-2026-10-25T15:16:25.4883237Z test flatten::tests::contents_moving_patches_the_group_bounds_rather_than_rebuilding_the_marker ... ok
-2026-10-25T15:16:25.4884272Z test flatten::tests::inserting_and_removing_layers_stays_correct ... ok
-2026-10-25T15:16:25.4885530Z test flatten::tests::reordering_children_reorders_the_flattened_scene ... ok
-2026-10-25T15:16:25.4886371Z test flatten::tests::the_first_frame_builds_everything ... ok
-2026-10-25T15:16:25.4887196Z test graph::tests::a_flat_scene_is_just_the_root_pass ... ok
-2026-10-25T15:16:25.4888059Z test graph::tests::a_push_layer_pair_becomes_a_child_pass_with_a_dependency_edge ... ok
-2026-10-25T15:16:25.4889244Z test flatten::tests::reset_forgets_everything_without_changing_the_answer ... ok
-2026-10-25T15:16:25.4896374Z test flatten::tests::one_repainted_row_costs_one_row_and_not_the_screen ... ok
-2026-10-25T15:16:25.4897897Z test graph::tests::co_schedulable_siblings_excludes_overlapping_children ... ok
-2026-10-25T15:16:25.4899204Z test graph::tests::co_schedulable_siblings_groups_non_overlapping_children_of_the_same_parent ... ok
-2026-10-25T15:16:25.4900395Z test graph::tests::multi_region_damage_prunes_more_precisely_than_the_bounding_box_approach ... ok
-2026-10-25T15:16:25.4901692Z test flatten::tests::the_incremental_scene_equals_the_from_scratch_scene_through_every_mutation ... ok
-2026-10-25T15:16:25.4902822Z test graph::tests::prune_drops_a_pass_whose_bounds_miss_the_damage ... ok
-2026-10-25T15:16:25.4903791Z test graph::tests::prune_agrees_with_damage_cull_for_single_region_damage ... ok
-2026-10-25T15:16:25.4905139Z test layer::tests::a_child_layers_pixels_are_inside_its_parents_effect ... ok
-2026-10-25T15:16:25.4906460Z test graph::tests::prune_gates_a_child_by_its_parents_activity_not_only_its_own_bounds ... ok
-2026-10-25T15:16:25.4907708Z test layer::tests::a_clip_alone_opens_no_compositing_target ... ok
-2026-10-25T15:16:25.4908963Z test graph::tests::prune_keeps_a_parent_whose_own_content_is_untouched_but_whose_child_changed ... ok
-2026-10-25T15:16:25.4910525Z test layer::tests::a_clip_does_not_leak_onto_a_sibling_subtree ... ok
-2026-10-25T15:16:25.4911610Z test layer::tests::a_clip_keeps_applying_to_layers_further_down ... ok
-2026-10-25T15:16:25.4912756Z test layer::tests::a_clip_reaches_a_child_layer_the_recording_could_not ... ok
-2026-10-25T15:16:25.4913964Z test layer::tests::a_clip_that_excludes_everything_records_nothing_at_all ... ok
-2026-10-25T15:16:25.4915577Z test layer::tests::a_layer_that_moved_damages_both_places_even_though_it_re_recorded_nothing ... ok
-2026-10-25T15:16:25.4916974Z test layer::tests::a_layer_with_nothing_to_do_emits_no_markers ... ok
-2026-10-25T15:16:25.4917743Z test layer::tests::a_layers_transform_is_applied_when_compositing ... ok
-2026-10-25T15:16:25.4918630Z test layer::tests::a_nan_alpha_is_an_invisible_group_rather_than_a_panic ... ok
-2026-10-25T15:16:25.4919805Z test layer::tests::a_never_painted_layer_contributes_no_spurious_damage ... ok
-2026-10-25T15:16:25.4920943Z test layer::tests::a_new_layer_starts_pending_because_it_has_nothing_recorded ... ok
-2026-10-25T15:16:25.4922020Z test layer::tests::a_new_tree_has_no_root_until_something_is_inserted ... ok
-2026-10-25T15:16:25.4923198Z test layer::tests::a_parent_moving_damages_its_children_old_and_new_positions ... ok
-2026-10-25T15:16:25.4924605Z test layer::tests::a_repainted_layer_composites_its_new_content_without_the_parent_repainting ... ok
-2026-10-25T15:16:25.4926248Z test layer::tests::a_reused_slot_does_not_answer_to_the_old_id ... ok
-2026-10-25T15:16:25.4927273Z test layer::tests::a_tree_of_empty_layers_is_clean ... ok
-2026-10-25T15:16:25.4928299Z test layer::tests::an_effect_on_a_layer_fades_its_own_recording ... ok
-2026-10-25T15:16:25.4929544Z test layer::tests::changing_a_clip_damages_the_layer_though_the_recording_is_identical ... ok
-2026-10-25T15:16:25.4931109Z test layer::tests::changing_an_effect_damages_the_layer_though_the_recording_is_identical ... ok
-2026-10-25T15:16:25.4932351Z test layer::tests::compositing_puts_children_over_their_parents_content ... ok
-2026-10-25T15:16:25.4933399Z test layer::tests::damage_covers_a_repainted_layers_old_and_new_content ... ok
-2026-10-25T15:16:25.4934610Z test layer::tests::damage_is_the_difference_between_two_recordings_not_the_whole_layer ... ok
-2026-10-25T15:16:25.4936420Z test layer::tests::effects_multiply_rather_than_the_inner_one_winning ... ok
-2026-10-25T15:16:25.4937348Z test layer::tests::end_frame_settles_the_tree ... ok
-2026-10-25T15:16:25.4938188Z test layer::tests::mark_needs_paint_on_a_dead_layer_is_ignored ... ok
-2026-10-25T15:16:25.4939173Z test layer::tests::marking_a_child_pending_does_not_pending_its_parent ... ok
-2026-10-25T15:16:25.4940261Z test layer::tests::moving_a_layer_damages_both_the_old_and_the_new_position ... ok
-2026-10-25T15:16:25.4941355Z test layer::tests::nested_clips_intersect ... ok
-2026-10-25T15:16:25.4942231Z test layer::tests::nested_transforms_accumulate_down_the_layer_tree ... ok
-2026-10-25T15:16:25.4943169Z test layer::tests::painting_clears_the_pending_flag ... ok
-2026-10-25T15:16:25.4944149Z test layer::tests::painting_clears_the_previous_recording_rather_than_appending ... ok
-2026-10-25T15:16:25.4945587Z test layer::tests::re_declaring_the_same_effect_costs_nothing ... ok
-2026-10-25T15:16:25.4946647Z test layer::tests::removing_a_layer_damages_the_pixels_it_leaves_behind ... ok
-2026-10-25T15:16:25.4947616Z test layer::tests::removing_a_layer_removes_its_descendants ... ok
-2026-10-25T15:16:25.4948600Z test layer::tests::reordering_children_changes_the_composite_and_damages_them ... ok
-2026-10-25T15:16:25.4949803Z test layer::tests::screen_bounds_of_an_empty_layer_is_zero_not_a_transformed_point ... ok
-2026-10-25T15:16:25.4950877Z test layer::tests::setting_the_same_child_order_marks_nothing_pending ... ok
-2026-10-25T15:16:25.4951874Z test layer::tests::setting_the_same_transform_marks_nothing_pending ... ok
-2026-10-25T15:16:25.4952837Z test layer::tests::the_clip_is_read_in_the_enclosing_layers_space ... ok
-2026-10-25T15:16:25.4953944Z test layer::tests::the_first_insert_becomes_the_root ... ok
-2026-10-25T15:16:25.4954805Z test native::blend_oracle::tests::known_identities ... ok
-2026-10-25T15:16:25.4955816Z test native::blend_oracle::tests::known_vectors ... ok
-2026-10-25T15:16:25.4956797Z test native::cache_budgets::tests::the_default_keeps_the_blur_cache_and_not_the_fill_cache ... ok
-2026-10-25T15:16:25.4957915Z test native::blend_oracle::tests::agrees_with_the_shipped_renderer ... ok
-2026-10-25T15:16:25.4958878Z test native::cache_budgets::tests::the_fill_cache_is_off_by_default ... ok
-2026-10-25T15:16:25.4959879Z test native::cache_budgets::tests::the_tiers_only_ever_shrink_the_default ... ok
-2026-10-25T15:16:25.4960863Z test native::color::tests::clear_erases_regardless_of_backdrop ... ok
-2026-10-25T15:16:25.4961850Z test native::color::tests::every_blend_mode_produces_a_finite_in_range_result ... ok
-2026-10-25T15:16:25.4962897Z test native::color::tests::hue_of_a_gray_source_leaves_backdrop_unchanged ... ok
-2026-10-25T15:16:25.4963852Z test native::color::tests::multiply_of_white_is_identity ... ok
-2026-10-25T15:16:25.4965217Z test native::color::tests::normal_over_opaque_backdrop_is_plain_replace ... ok
-2026-10-25T15:16:25.4966170Z test native::color::tests::screen_of_black_is_identity ... ok
-2026-10-25T15:16:25.4967143Z test native::clip::tests::partially_overlapping_shaped_clips_intersect_not_union ... ok
-2026-10-25T15:16:25.4968124Z test native::color_glyphs::tests::a_static_font_answers_none ... ok
-2026-10-25T15:16:25.4969058Z test native::color_glyphs::tests::bgra_premultiplied_entry_is_straightened ... ok
-2026-10-25T15:16:25.4970095Z test native::effects::tests::a_budgeted_cache_keeps_the_most_recent_band_working ... ok
-2026-10-25T15:16:25.4971176Z test native::effects::tests::a_directed_blur_keys_separately_from_the_isotropic_one ... ok
-2026-10-25T15:16:25.4972583Z test native::effects::tests::a_hit_returns_the_derived_band_without_rederiving ... ok
-2026-10-25T15:16:25.4973679Z test native::effects::tests::a_negative_sigma_is_a_no_op_on_both_paths ... ok
-2026-10-25T15:16:25.4974636Z test native::effects::tests::a_single_changed_pixel_is_a_different_key ... ok
-2026-10-25T15:16:25.4975924Z test native::effects::tests::an_inkless_layer_grows_ink_without_touching_the_cache ... ok
-2026-10-25T15:16:25.4977049Z test native::effects::tests::sigmas_that_round_to_the_same_radius_share_an_entry ... ok
-2026-10-25T15:16:25.4978128Z test native::effects::tests::the_cached_and_uncached_paths_write_the_same_bytes ... ok
-2026-10-25T15:16:25.4979254Z test native::effects::tests::the_cached_directed_blur_matches_the_uncached_kernel_too ... ok
-2026-10-25T15:16:25.5006162Z test native::fill_cache::tests::a_changed_bit_of_geometry_is_a_miss ... ok
-2026-10-25T15:16:25.5085803Z test native::fill_cache::tests::a_changed_clip_is_a_miss ... ok
-2026-10-25T15:16:25.5102498Z test native::fill_cache::tests::a_second_identical_fill_is_a_hit_and_the_same_bytes ... ok
-2026-10-25T15:16:25.5104098Z test native::fill_cache::tests::an_empty_path_set_round_trips ... ok
-2026-10-25T15:16:25.5385950Z test native::fill_cache::tests::the_cache_evicts_to_its_budget_and_stays_correct ... ok
-2026-10-25T15:16:25.5415846Z test native::fill_cache::tests::zero_budget_bypasses_without_paying_the_hash ... ok
-2026-10-25T15:16:25.5417213Z test native::geometry::fill::tests::a_half_covered_edge_pixel_is_half_covered ... ok
-2026-10-25T15:16:25.5418298Z test native::geometry::fill::tests::a_hole_cut_by_opposite_winding_is_empty ... ok
-2026-10-25T15:16:25.5419492Z test native::geometry::fill::tests::a_pixel_aligned_square_is_fully_covered_inside ... ok
-2026-10-25T15:16:25.5420681Z test native::geometry::fill::tests::a_rotated_rectangle_is_not_taken_by_the_fast_path ... ok
-2026-10-25T15:16:25.5430636Z test native::geometry::fill::tests::an_edge_spanning_every_chunk_is_carried_into_each_chunk ... ok
-2026-10-25T15:16:25.5433463Z test native::geometry::fill::tests::lcd_channels_average_to_the_gray_coverage ... ok
-2026-10-25T15:16:25.5435069Z test native::geometry::fill::tests::lcd_leaves_channels_equal_for_purely_vertical_fractions ... ok
-2026-10-25T15:16:25.5436274Z test native::geometry::fill::tests::lcd_resolves_a_centred_vertical_edge_into_three_coverages ... ok
-2026-10-25T15:16:25.5437430Z test native::geometry::fill::tests::nonzero_winding_fills_overlap_of_same_direction_holes ... ok
-2026-10-25T15:16:25.5790754Z test native::geometry::fill::tests::parallel_rows_match_the_serial_walk_bit_for_bit ... ok
-2026-10-25T15:16:25.5819063Z test native::geometry::fill::tests::the_entry_point_agrees_with_the_serial_walk_whatever_the_machine ... ok
-2026-10-25T15:16:25.5820177Z test native::geometry::fill::tests::the_env_request_fails_safe ... ok
-2026-10-25T15:16:25.5869843Z test native::geometry::fill::tests::the_rect_fast_path_matches_the_scanline_pass ... ok
-2026-10-25T15:16:25.5870995Z test native::geometry::fill::tests::the_thread_decision_gates_on_size_and_ceiling ... ok
-2026-10-25T15:16:25.5872236Z test native::geometry::flatten::tests::a_cubic_produces_more_than_two_points ... ok
-2026-10-25T15:16:25.5873147Z test native::geometry::flatten::tests::a_straight_line_flattens_to_two_points ... ok
-2026-10-25T15:16:25.5874135Z test native::geometry::flatten::tests::recursion_terminates_on_a_degenerate_cubic ... ok
-2026-10-25T15:16:25.5876217Z test native::geometry::stroke::orientation_tests::round_joins_do_not_punch_holes ... ok
-2026-10-25T15:16:25.5880449Z test native::glyph::door_tests::a_non_font_reports_none_rather_than_a_default ... ok
-2026-10-25T15:16:25.5881706Z test native::glyph_coverage::tests::coverage_rounds_to_the_nearest_byte_rather_than_truncating ... ok
-2026-10-25T15:16:25.5888723Z test native::glyph_coverage::tests::the_byte_bound_is_half_a_step_everywhere ... ok
-2026-10-25T15:16:25.5890379Z test native::glyph_raster::tests::a_different_sub_pixel_phase_is_a_different_entry ... ok
-2026-10-25T15:16:25.5893535Z test native::glyph_raster::tests::a_glyph_with_no_outline_is_cached_as_empty_rather_than_retried ... ok
-2026-10-25T15:16:25.5895449Z test native::glyph_raster::tests::a_whole_pixel_move_reuses_the_entry_and_moves_the_origin ... ok
-2026-10-25T15:16:25.5896574Z test native::glyph_raster::tests::lcd_and_gray_are_separate_entries ... ok
-2026-10-25T15:16:25.5903581Z test native::glyph_raster::tests::the_budget_evicts_rather_than_growing_without_bound ... ok
-2026-10-25T15:16:25.5904683Z test native::glyph_raster::tests::the_same_glyph_at_the_same_phase_is_a_hit ... ok
-2026-10-25T15:16:25.5906072Z test native::gradient::tests::linear_gradient_interpolates_along_its_axis ... ok
-2026-10-25T15:16:25.5910497Z test native::gradient::tests::radial_gradient_is_flat_along_a_circle ... ok
-2026-10-25T15:16:25.5917560Z test native::gradient::tests::the_folded_device_ramp_matches_the_unfolded_sampler ... ok
-2026-10-25T15:16:25.5920119Z test native::image::mip_tests::a_minified_checkerboard_averages_instead_of_aliaging ... ok
-2026-10-25T15:16:25.5922079Z test native::image::mip_tests::a_new_image_at_a_dead_images_address_gets_its_own_chain ... ok
-2026-10-25T15:16:25.5933331Z test native::image::mip_tests::a_one_to_one_draw_matches_the_plain_sampler_exactly ... ok
-2026-10-25T15:16:25.5934231Z test native::image::mip_tests::mip_chain_halves_and_averages ... ok
-2026-10-25T15:16:25.5939967Z test native::instancing::tests::a_translated_mask_samples_at_its_new_position_not_its_old_one ... ok
-2026-10-25T15:16:25.5942099Z test native::instancing::tests::n_identical_shapes_at_different_positions_match_todays_rendering_with_less_rasterization_work ... ok
-2026-10-25T15:16:25.5943491Z test native::instancing::tests::translating_reuses_the_same_coverage_data_at_a_new_origin ... ok
-2026-10-25T15:16:25.5944628Z test native::linear::tests::gamma_space_pipeline_is_byte_identical_to_calling_blend_directly ... ok
-2026-10-25T15:16:25.5948917Z test native::linear::tests::linear_light_normal_half_alpha_over_produces_a_lighter_midpoint_than_gamma_space ... ok
-2026-10-25T15:16:25.5950207Z test native::linear::tests::mid_gray_decodes_to_roughly_a_fifth_of_the_light_not_half ... ok
-2026-10-25T15:16:25.5951442Z test native::linear::tests::the_transfer_function_round_trips ... ok
-2026-10-25T15:16:25.5952196Z test native::linear::tests::zero_and_one_are_fixed_points ... ok
-2026-10-25T15:16:25.5952975Z test native::pool::tests::a_buffer_bigger_than_the_whole_budget_is_still_kept ... ok
-2026-10-25T15:16:25.5953847Z test native::pool::tests::a_sibling_layer_reuses_a_popped_siblings_buffer ... ok
-2026-10-25T15:16:25.5959164Z test native::pool::tests::different_size_acquire_does_not_reuse ... ok
-2026-10-25T15:16:25.5960045Z test native::pool::tests::idle_bytes_tracks_the_budgeted_figure_exactly ... ok
-2026-10-25T15:16:25.5961052Z test native::pool::tests::releases_past_the_count_cap_evict_the_oldest_not_the_newcomer ... ok
-2026-10-25T15:16:25.5962092Z test native::pool::tests::reused_buffer_comes_back_cleared ... ok
-2026-10-25T15:16:25.5963129Z test native::pool::tests::same_size_acquire_after_release_reuses_the_buffer ... ok
-2026-10-25T15:16:25.5964268Z test native::pool::tests::the_byte_budget_evicts_least_recently_released_first ... ok
-2026-10-25T15:16:25.5965516Z test native::pool::tests::the_env_override_parses_megabytes_strictly ... ok
-2026-10-25T15:16:25.5997532Z test native::reference::tests::a_backdrop_blur_genuinely_blurs_the_background_but_not_the_foreground ... ok
-2026-10-25T15:16:25.6012739Z test native::reference::tests::a_backdrop_layer_leaves_the_paint_beside_it_alone ... ok
-2026-10-25T15:16:25.6028565Z test native::reference::tests::a_backdrop_layer_samples_real_destination_pixels_not_a_flat_stand_in ... ok
-2026-10-25T15:16:25.7147496Z test native::reference::tests::a_clip_costs_a_bounded_number_of_masks_not_one_per_command ... ok
-2026-10-25T15:16:25.7154745Z test native::reference::tests::a_guard_above_the_filtered_layer_count_stays_quiet ... ok
-2026-10-25T15:16:25.8196796Z test native::color::tests::simd_output_matches_scalar_bit_for_bit ... ok
-2026-10-25T15:16:25.8216390Z test native::reference::tests::an_open_subpath_fill_is_counted_and_chord_closed ... ok
-2026-10-25T15:16:25.8285577Z test native::reference::tests::blur_bounds_are_expanded_exactly_once ... ok
-2026-10-25T15:16:25.8370145Z test native::reference::tests::coalesced_retained_repaint_matches_a_full_frame ... ok
-2026-10-25T15:16:25.8395903Z test native::reference::tests::neighbouring_damage_is_one_replay_and_far_corners_stay_two ... ok
-2026-10-25T15:16:25.8445393Z test graph::tests::build_panics_on_an_unbalanced_scene ... ok
-2026-10-25T15:16:25.8475405Z test native::reference::tests::sub_pixel_strokes_vanish_entirely_without_a_floor ... ok
-2026-10-25T15:16:25.8521140Z test layer::tests::a_child_order_that_drops_a_child_panics - should panic ... ok
-2026-10-25T15:16:25.8599173Z test native::reference::tests::the_hairline_floor_separates_the_rungs_it_was_asked_to_separate ... ok
-2026-10-25T15:16:25.8625496Z test native::reference::tests::the_filtered_layer_guard_fires_above_its_limit - should panic ... ok
-2026-10-25T15:16:25.8691530Z test native::reference::tests::two_different_clips_in_one_scene_do_not_share_a_mask ... ok
-2026-10-25T15:16:25.8736154Z test native::residency::tests::a_hit_does_not_call_the_deriver_again ... ok
-2026-10-25T15:16:25.8765586Z test native::residency::tests::a_single_entry_larger_than_the_budget_is_kept_anyway ... ok
-2026-10-25T15:16:25.8785100Z test native::residency::tests::clear_drops_everything_and_resets_cost ... ok
-2026-10-25T15:16:25.8796359Z test native::residency::tests::eviction_removes_the_least_recently_used_entry_first ... ok
-2026-10-25T15:16:25.8825341Z test native::residency::tests::eviction_stays_under_budget ... ok
-2026-10-25T15:16:25.8826101Z test native::residency::tests::eviction_then_reaccess_rederives_and_returns_correctly ... ok
-2026-10-25T15:16:25.8826875Z test native::shadow::tests::a_shadow_beyond_the_surface_is_not_computed ... ok
-2026-10-25T15:16:25.9158351Z test native::shadow::tests::a_shadow_bigger_than_the_surface_is_clamped_to_it ... ok
-2026-10-25T15:16:25.9295530Z test native::shadow::tests::a_shadow_crossing_the_surface_edge_does_not_fade_at_it ... ok
-2026-10-25T15:16:25.9725755Z test native::shadow::tests::a_shadow_from_the_cache_is_the_shadow_drawn_in_place ... ok
-2026-10-25T15:16:25.9808722Z test native::shadow::tests::a_shadow_scrolling_under_the_edge_keeps_its_patch ... ok
-2026-10-25T15:16:25.9875687Z test native::reference::tests::raster_time_by_kind_is_opt_in_and_lands_on_the_kind_that_did_the_work ... FAILED
-2026-10-25T15:16:26.0258637Z test native::shadow::tests::a_whole_pixel_move_is_a_cache_hit_at_the_new_place ... ok
-2026-10-25T15:16:26.0267244Z test native::target::tests::a_split_channel_lcd_composite_pushes_red_in_and_keeps_blue_out ... ok
-2026-10-25T15:16:26.0269153Z test native::target::tests::an_equal_channel_lcd_composite_is_the_gray_composite_bit_for_bit ... ok
-2026-10-25T15:16:26.0271907Z test native::target::tests::composite_and_clear_matches_composite_then_clear ... ok
-2026-10-25T15:16:26.0283648Z test native::target::tests::composite_flat_clips_a_coverage_that_starts_left_of_the_origin ... ok
-2026-10-25T15:16:26.0291938Z test native::target::tests::composite_flat_clips_a_left_overhang_against_a_layer_origin ... ok
-2026-10-25T15:16:26.0302715Z test native::target::tests::snapshot_from_composes_both_origins ... ok
-2026-10-25T15:16:26.0303805Z test native::target::tests::snapshot_from_copies_pixels_when_origins_match ... ok
-2026-10-25T15:16:26.0305167Z test native::target::tests::snapshot_from_maps_a_nested_layers_origin_correctly ... ok
-2026-10-25T15:16:26.0309778Z test native::target::tests::snapshot_from_reads_transparent_beyond_the_sources_edge ... ok
-2026-10-25T15:16:26.0311071Z test scene::tests::a_backdrop_layers_region_is_its_declared_bounds_not_grown_by_reach ... ok
-2026-10-25T15:16:26.0312278Z test scene::tests::a_child_painting_outside_the_declared_bounds_is_not_cut_off ... ok
-2026-10-25T15:16:26.0313271Z test scene::tests::a_clip_shrinks_recorded_bounds ... ok
-2026-10-25T15:16:26.0314171Z test scene::tests::a_clip_that_excludes_everything_records_nothing_at_all ... ok
-2026-10-25T15:16:26.0316077Z test scene::tests::a_faded_layer_inside_a_visible_one_leaves_the_outer_one_intact ... ok
-2026-10-25T15:16:26.0317226Z test scene::tests::a_glyph_runs_baseline_is_resolved_to_screen_space ... ok
-2026-10-25T15:16:26.0327669Z test scene::tests::a_gradient_fades_stop_by_stop_under_an_alpha ... ok
-2026-10-25T15:16:26.0328894Z test scene::tests::a_layer_faded_to_nothing_takes_its_contents_with_it ... ok
-2026-10-25T15:16:26.0329893Z test scene::tests::a_layer_nothing_was_drawn_into_leaves_no_trace ... ok
-2026-10-25T15:16:26.0330940Z test scene::tests::a_layer_reports_the_union_of_what_it_encloses ... ok
-2026-10-25T15:16:26.0332028Z test scene::tests::a_layers_contents_are_not_faded_at_record_time ... ok
-2026-10-25T15:16:26.0333104Z test scene::tests::a_rounded_clip_keeps_a_shape_as_well_as_a_box ... ok
-2026-10-25T15:16:26.0334242Z test scene::tests::a_shadow_reports_bounds_larger_than_the_box_casting_it ... ok
-2026-10-25T15:16:26.0335698Z test scene::tests::a_shape_clip_is_resolved_into_absolute_space_like_a_rect_one ... ok
-2026-10-25T15:16:26.0336874Z test scene::tests::a_square_rounded_clip_costs_no_shape ... ok
-2026-10-25T15:16:26.0337910Z test scene::tests::a_stroke_reports_bounds_grown_by_half_its_width ... ok
-2026-10-25T15:16:26.0339165Z test scene::tests::an_enclosing_fade_multiplies_into_a_layer_rather_than_being_lost ... ok
-2026-10-25T15:16:26.0340434Z test scene::tests::an_unbalanced_pop_layer_fails_loudly - should panic ... ok
-2026-10-25T15:16:26.0341601Z test scene::tests::an_unbalanced_restore_fails_loudly - should panic ... ok
-2026-10-25T15:16:26.0342625Z test scene::tests::appending_lifts_layers_and_shapes_together ... ok
-2026-10-25T15:16:26.0351550Z test scene::tests::commands_record_in_paint_order ... ok
-2026-10-25T15:16:26.0352498Z test scene::tests::damage_cull_keeps_everything_for_full_repaint ... ok
-2026-10-25T15:16:26.0353457Z test scene::tests::damage_cull_on_clean_damage_returns_empty ... ok
-2026-10-25T15:16:26.0354451Z test scene::tests::damage_cull_skips_commands_outside_the_region ... ok
-2026-10-25T15:16:26.0356051Z test scene::tests::damage_filtered_append_drops_an_unaffected_layer_wholesale ... ok
-2026-10-25T15:16:26.0357633Z test scene::tests::damage_filtered_append_keeps_layers_balanced_around_surviving_content ... ok
-2026-10-25T15:16:26.0358789Z test scene::tests::damage_filtered_append_skips_untouched_commands ... ok
-2026-10-25T15:16:26.0375190Z test scene::tests::glyph_bounds_are_measured_from_the_run_rather_than_estimated ... ok
-2026-10-25T15:16:26.0376309Z test scene::tests::invisible_draws_are_dropped_at_record_time ... ok
-2026-10-25T15:16:26.0377212Z test scene::tests::nested_clips_intersect ... ok
-2026-10-25T15:16:26.0378021Z test scene::tests::nested_transforms_compose_outermost_last ... ok
-2026-10-25T15:16:26.0378893Z test scene::tests::restore_undoes_a_transform ... ok
-2026-10-25T15:16:26.0379794Z test scene::tests::scaled_matches_recording_the_same_scene_through_a_scale ... ok
-2026-10-25T15:16:26.0385843Z test scene::tests::scaling_a_scene_scales_a_filtered_layer_sigma_with_its_bounds ... ok
-2026-10-25T15:16:26.0386677Z test scene::tests::scaling_by_one_changes_nothing ... ok
-2026-10-25T15:16:26.0387443Z test scene::tests::scene_bounds_cover_every_command ... ok
-2026-10-25T15:16:26.0388276Z test scene::tests::the_transform_is_resolved_when_the_command_is_recorded ... ok
-2026-10-25T15:16:26.0389243Z test scheduler::tests::a_display_reporting_nonsense_is_ignored_rather_than_fatal ... ok
-2026-10-25T15:16:26.0390106Z test scheduler::tests::a_display_that_reports_its_rate_moves_the_budget ... ok
-2026-10-25T15:16:26.0390857Z test scheduler::tests::a_frame_inside_budget_is_not_jank ... ok
-2026-10-25T15:16:26.0391608Z test scheduler::tests::a_frame_is_not_produced_again_without_a_new_request ... ok
-2026-10-25T15:16:26.0392444Z test scheduler::tests::a_nonsense_refresh_rate_is_rejected - should panic ... ok
-2026-10-25T15:16:26.0393305Z test scheduler::tests::a_requested_frame_runs_every_phase_in_pipeline_order ... ok
-2026-10-25T15:16:26.0394330Z test scheduler::tests::a_slow_frame_is_counted_as_jank ... ok
-2026-10-25T15:16:26.0395836Z test scheduler::tests::an_idle_scheduler_does_no_work_however_often_vsync_fires ... ok
-2026-10-25T15:16:26.0396688Z test scheduler::tests::cancelling_drops_a_pending_frame ... ok
-2026-10-25T15:16:26.0397502Z test scheduler::tests::delta_is_measured_between_vsyncs_so_a_dropped_frame_is_visible ... ok
-2026-10-25T15:16:26.0398493Z test scheduler::tests::driving_the_pipeline_from_inside_itself_fails_loudly - should panic ... ok
-2026-10-25T15:16:26.0399342Z test scheduler::tests::each_phase_is_timed_separately ... ok
-2026-10-25T15:16:26.0400131Z test scheduler::tests::many_requests_within_one_interval_coalesce_into_a_single_frame ... ok
-2026-10-25T15:16:26.0401033Z test scheduler::tests::marking_pending_is_legal_up_to_build_and_not_after ... ok
-2026-10-25T15:16:26.0401800Z test scheduler::tests::stats_are_kept_for_the_last_frame ... ok
-2026-10-25T15:16:26.0402487Z test scheduler::tests::the_budget_follows_the_refresh_rate ... ok
-2026-10-25T15:16:26.0403279Z test scheduler::tests::the_first_frame_gets_one_interval_as_its_delta_not_zero ... ok
-2026-10-25T15:16:26.0404125Z test scheduler::tests::the_slowest_phase_is_reported_for_diagnosis ... ok
-2026-10-25T15:16:26.0405184Z test scheduler::tests::work_scheduled_during_a_frame_lands_on_the_next_one ... ok
-2026-10-25T15:16:26.1438193Z test native::reference::tests::twice_the_commands_under_one_clip_build_the_same_masks ... ok
-2026-10-25T15:16:26.4583268Z test native::simd::tests::simd_rows_match_scalar_bit_for_bit ... ok
-2026-10-25T15:16:27.1892490Z test native::reference::tests::a_window_sized_shadow_does_not_thrash_the_cache ... ok
-2026-10-25T15:16:27.1893203Z 
-2026-10-25T15:16:27.1893342Z failures:
-2026-10-25T15:16:27.1893538Z 
-2026-10-25T15:16:27.1894100Z ---- native::reference::tests::raster_time_by_kind_is_opt_in_and_lands_on_the_kind_that_did_the_work stdout ----
-2026-10-25T15:16:27.1894825Z 
-2026-10-25T15:16:27.1897628Z thread 'native::reference::tests::raster_time_by_kind_is_opt_in_and_lands_on_the_kind_that_did_the_work' (49121) panicked at crates/vieww-paint/src/native/reference.rs:2346:9:
-2026-10-25T15:16:27.1899479Z the blur is the work: RasterKindTimes { rects: 0ns, paths: 32.827845ms, text: 0ns, images: 0ns, shadows: 0ns, layers: 1.903µs, composite: 20.881583ms }
-2026-10-25T15:16:27.1900091Z stack backtrace:
-2026-10-25T15:16:27.1900314Z    0: __rustc::rust_begin_unwind
-2026-10-25T15:16:27.1900730Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
-2026-10-25T15:16:27.1901224Z    1: core::panicking::panic_fmt
-2026-10-25T15:16:27.1901646Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
-2026-10-25T15:16:27.1902319Z    2: vieww_paint::native::reference::tests::raster_time_by_kind_is_opt_in_and_lands_on_the_kind_that_did_the_work
-2026-10-25T15:16:27.1903108Z    3: vieww_paint::native::reference::tests::raster_time_by_kind_is_opt_in_and_lands_on_the_kind_that_did_the_work::{closure#0}
-2026-10-25T15:16:27.1903678Z              at ./src/native/reference.rs:2325:79
-2026-10-25T15:16:27.1904392Z    4: <vieww_paint::native::reference::tests::raster_time_by_kind_is_opt_in_and_lands_on_the_kind_that_did_the_work::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-2026-10-25T15:16:27.1905571Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-10-25T15:16:27.1906231Z    5: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-2026-10-25T15:16:27.1906863Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-10-25T15:16:27.1907453Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-10-25T15:16:27.1907783Z 
-2026-10-25T15:16:27.1907789Z 
-2026-10-25T15:16:27.1907864Z failures:
-2026-10-25T15:16:27.1908229Z     native::reference::tests::raster_time_by_kind_is_opt_in_and_lands_on_the_kind_that_did_the_work
-2026-10-25T15:16:27.1908794Z 
-2026-10-25T15:16:27.1909057Z test result: FAILED. 281 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.71s
-2026-10-25T15:16:27.1909423Z 
-2026-10-25T15:16:27.2056207Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-paint --lib`
-2026-10-25T15:16:27.3132785Z error: process didn't exit successfully: `/home/runner/.rustup/toolchains/1.98.1-x86_64-unknown-linux-gnu/bin/cargo test --tests --manifest-path /home/runner/work/vieww_prod/vieww_prod/vieww_base/Cargo.toml --target-dir /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target --workspace --features vieww-paint/native --exclude vieww-platform-winit --exclude reload-host --exclude reload-guest --exclude reload-android` (exit status: 101)
-2026-10-25T15:16:27.3203502Z 
-2026-10-25T15:16:27.3203795Z error: line coverage is below 70%.
-2026-10-25T15:16:27.3204131Z 
-2026-10-25T15:16:27.3204516Z Untested code is not automatically a defect, but it is always a decision. If the
-2026-10-25T15:16:27.3205695Z uncovered lines are a deliberate gap — a platform path this machine cannot run,
-2026-10-25T15:16:27.3206454Z a panic arm that exists to be loud — say so in TRACKER.md rather than lowering
-2026-10-25T15:16:27.3206998Z the floor quietly.
-2026-10-25T15:16:27.3330174Z ##[error]Process completed with exit code 1.
-
-===== checks.sh (Linux)	The gate =====
-2026-10-25T15:12:41.8429230Z ^[[1m^[[92m    Checking^[[0m unicode-segmentation v1.13.3
-2026-10-25T15:12:42.1927588Z ^[[1m^[[92m    Checking^[[0m cfg-if v1.0.5
-2026-10-25T15:12:42.2245146Z ^[[1m^[[92m    Checking^[[0m bitflags v2.13.2
-2026-10-25T15:12:42.3407943Z ^[[1m^[[92m    Checking^[[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
-2026-10-25T15:12:42.8086763Z ^[[1m^[[92m    Checking^[[0m core_maths v0.1.1
-2026-10-25T15:12:42.8587446Z ^[[1m^[[92m   Compiling^[[0m slotmap v1.1.1
-2026-10-25T15:12:42.9613848Z ^[[1m^[[92m   Compiling^[[0m syn v3.0.6
-2026-10-25T15:12:43.5327092Z ^[[1m^[[92m    Checking^[[0m ttf-parser v0.25.1
-2026-10-25T15:12:44.0747785Z ^[[1m^[[92m    Checking^[[0m simd-adler32 v0.3.10
-2026-10-25T15:12:44.1397621Z ^[[1m^[[92m   Compiling^[[0m rustversion v1.0.23
-2026-10-25T15:12:44.6697119Z ^[[1m^[[92m    Checking^[[0m log v0.4.34
-2026-10-25T15:12:44.7696990Z ^[[1m^[[92m    Checking^[[0m tinyvec v1.13.3
-2026-10-25T15:12:44.7977596Z ^[[1m^[[92m   Compiling^[[0m crc32fast v1.5.2
-2026-10-25T15:12:45.0847322Z ^[[1m^[[92m    Checking^[[0m smallvec v1.16.2
-2026-10-25T15:12:45.1106983Z ^[[1m^[[92m    Checking^[[0m memmap2 v0.9.11
-2026-10-25T15:12:45.1893175Z ^[[1m^[[92m    Checking^[[0m adler2 v2.0.1
-2026-10-25T15:12:45.2426982Z ^[[1m^[[92m    Checking^[[0m yazi v0.2.1
-2026-10-25T15:12:45.2466927Z ^[[1m^[[92m    Checking^[[0m zeno v0.3.3
-2026-10-25T15:12:45.5907562Z ^[[1m^[[92m    Checking^[[0m fontdb v0.23.0
-2026-10-25T15:12:45.7935204Z ^[[1m^[[92m    Checking^[[0m rustc-hash v2.1.3
-2026-10-25T15:12:45.8487563Z ^[[1m^[[92m   Compiling^[[0m bumpalo v3.20.3
-2026-10-25T15:12:46.1107090Z ^[[1m^[[92m    Checking^[[0m linebender_resource_handle v0.1.1
-2026-10-25T15:12:46.1606615Z ^[[1m^[[92m    Checking^[[0m smol_str v0.3.6
-2026-10-25T15:12:46.2886975Z ^[[1m^[[92m    Checking^[[0m unicode-linebreak v0.1.5
-2026-10-25T15:12:46.4157201Z ^[[1m^[[92m    Checking^[[0m unicode-script v0.5.8
-2026-10-25T15:12:46.4447507Z ^[[1m^[[92m    Checking^[[0m self_cell v1.3.0
-2026-10-25T15:12:46.4940227Z ^[[1m^[[92m    Checking^[[0m unicode-bidi v0.3.18
-2026-10-25T15:12:46.6703636Z ^[[1m^[[92m    Checking^[[0m sys-locale v0.3.2
-2026-10-25T15:12:46.7087159Z ^[[1m^[[92m    Checking^[[0m rangemap v1.8.0
-2026-10-25T15:12:46.9059555Z ^[[1m^[[92m    Checking^[[0m miniz_oxide v0.9.1
-2026-10-25T15:12:46.9237496Z ^[[1m^[[92m    Checking^[[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
-2026-10-25T15:12:47.0627538Z ^[[1m^[[92m   Compiling^[[0m wasm-bindgen v0.2.129
-2026-10-25T15:12:47.3177067Z ^[[1m^[[92m   Compiling^[[0m syn v2.0.119
-2026-10-25T15:12:47.3487087Z ^[[1m^[[92m   Compiling^[[0m wasm-bindgen-macro-support v0.2.129
-2026-10-25T15:12:48.1686958Z ^[[1m^[[92m    Checking^[[0m flate2 v1.1.10
-2026-10-25T15:12:48.4657103Z ^[[1m^[[92m    Checking^[[0m miniz_oxide v0.8.9
-2026-10-25T15:12:48.9017071Z ^[[1m^[[92m    Checking^[[0m fdeflate v0.3.7
-2026-10-25T15:12:49.2167101Z ^[[1m^[[92m    Checking^[[0m futures-core v0.3.34
-2026-10-25T15:12:49.2787173Z ^[[1m^[[92m    Checking^[[0m futures-task v0.3.34
-2026-10-25T15:12:49.3667083Z ^[[1m^[[92m    Checking^[[0m pin-project-lite v0.2.17
-2026-10-25T15:12:49.4087107Z ^[[1m^[[92m    Checking^[[0m slab v0.4.12
-2026-10-25T15:12:49.5047060Z ^[[1m^[[92m    Checking^[[0m futures-util v0.3.34
-2026-10-25T15:12:51.1440461Z ^[[1m^[[92m    Checking^[[0m png v0.18.1
-2026-10-25T15:12:51.9537908Z ^[[1m^[[92m    Checking^[[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
-2026-10-25T15:12:52.1308337Z ^[[1m^[[92m    Checking^[[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
-2026-10-25T15:13:06.8758248Z ^[[1m^[[92m   Compiling^[[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
-2026-10-25T15:13:12.0337118Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
-2026-10-25T15:13:22.1517439Z ^[[1m^[[92m   Compiling^[[0m wasm-bindgen-macro v0.2.129
-2026-10-25T15:13:22.9025255Z ^[[1m^[[92m    Checking^[[0m bytemuck v1.25.2
-2026-10-25T15:13:23.0134793Z ^[[1m^[[92m    Checking^[[0m font-types v0.12.5
-2026-10-25T15:13:23.0146533Z ^[[1m^[[92m    Checking^[[0m font-types v0.11.3
-2026-10-25T15:13:23.2122563Z ^[[1m^[[92m    Checking^[[0m read-fonts v0.41.0
-2026-10-25T15:13:23.2970242Z ^[[1m^[[92m    Checking^[[0m read-fonts v0.37.0
-2026-10-25T15:13:23.6906026Z ^[[1m^[[92m    Checking^[[0m js-sys v0.3.106
-2026-10-25T15:13:27.5486576Z ^[[1m^[[92m    Checking^[[0m harfrust v0.5.2
-2026-10-25T15:13:27.5487635Z ^[[1m^[[92m    Checking^[[0m skrifa v0.40.0
-2026-10-25T15:13:29.2356831Z ^[[1m^[[92m    Checking^[[0m skrifa v0.44.0
-2026-10-25T15:13:30.9050036Z ^[[1m^[[92m    Checking^[[0m swash v0.2.10
-2026-10-25T15:13:30.9051842Z ^[[1m^[[92m    Checking^[[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
-2026-10-25T15:13:32.9154341Z ^[[1m^[[92m    Checking^[[0m cosmic-text v0.19.0
-2026-10-25T15:13:32.9214400Z ^[[1m^[[92m    Checking^[[0m web-sys v0.3.106
-2026-10-25T15:13:33.6243675Z ^[[1m^[[92m    Checking^[[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
-2026-10-25T15:13:33.8158029Z ^[[1m^[[92m    Checking^[[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
-2026-10-25T15:13:34.9466457Z ^[[1m^[[92m    Checking^[[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
-2026-10-25T15:13:35.2970704Z ^[[1m^[[92m    Checking^[[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
-2026-10-25T15:13:38.6169125Z ^[[1m^[[92m    Checking^[[0m vieww-platform-web v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web)
-2026-10-25T15:13:38.7087902Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 57.77s
-2026-10-25T15:13:38.7267705Z ==> cargo clippy -p vieww-platform-web --target wasm32-unknown-unknown
-2026-10-25T15:13:38.9775086Z ^[[1m^[[92m    Checking^[[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
-2026-10-25T15:13:38.9814896Z ^[[1m^[[92m   Compiling^[[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
-2026-10-25T15:13:38.9860108Z ^[[1m^[[92m    Checking^[[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
-2026-10-25T15:13:39.9971546Z ^[[1m^[[92m    Checking^[[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
-2026-10-25T15:13:39.9973186Z ^[[1m^[[92m    Checking^[[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
-2026-10-25T15:13:39.9974200Z ^[[1m^[[92m    Checking^[[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
-2026-10-25T15:13:40.8191716Z ^[[1m^[[92m    Checking^[[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
-2026-10-25T15:13:40.8193690Z ^[[1m^[[92m    Checking^[[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
-2026-10-25T15:13:42.0823437Z ^[[1m^[[92m    Checking^[[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
-2026-10-25T15:13:42.4822328Z ^[[1m^[[92m    Checking^[[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
-2026-10-25T15:13:43.2317314Z ^[[1m^[[92m    Checking^[[0m vieww-platform-web v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web)
-2026-10-25T15:13:43.3363142Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 4.56s
-2026-10-25T15:13:43.3554711Z 
-2026-10-25T15:13:43.3555260Z vieww-platform-web compiles for wasm32-unknown-unknown.
-2026-10-25T15:13:43.3556166Z It has also *run*: examples/test-web mounts this crate's WebApp in a
-2026-10-25T15:13:43.3556647Z headless browser and compares the canvas against a native render,
-2026-10-25T15:13:43.3557144Z byte for byte. Re-certify with that example's build-web.sh + the
-2026-10-25T15:13:43.3557748Z certification runner whenever the web-facing code changes.
-2026-10-25T15:13:43.3563385Z 
-2026-10-25T15:13:43.3563836Z ==> fixture gallery (renders every screen; fails on a layout overflow)
-2026-10-25T15:13:43.6209620Z ^[[1m^[[92m   Compiling^[[0m proc-macro2 v1.0.107
-2026-10-25T15:13:43.6210604Z ^[[1m^[[92m   Compiling^[[0m quote v1.0.47
-2026-10-25T15:13:43.6212340Z ^[[1m^[[92m   Compiling^[[0m unicode-ident v1.0.26
-2026-10-25T15:13:43.6213219Z ^[[1m^[[92m   Compiling^[[0m libm v0.2.16
-2026-10-25T15:13:43.6856964Z ^[[1m^[[92m   Compiling^[[0m unicode-segmentation v1.13.3
-2026-10-25T15:13:43.7646081Z ^[[1m^[[92m   Compiling^[[0m autocfg v1.5.1
-2026-10-25T15:13:44.0747693Z ^[[1m^[[92m   Compiling^[[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
-2026-10-25T15:13:44.4455460Z ^[[1m^[[92m   Compiling^[[0m syn v3.0.6
-2026-10-25T15:13:44.4537231Z ^[[1m^[[92m   Compiling^[[0m bitflags v2.13.2
-2026-10-25T15:13:44.7457131Z ^[[1m^[[92m   Compiling^[[0m once_cell v1.21.4
-2026-10-25T15:13:44.8497956Z ^[[1m^[[92m   Compiling^[[0m core_maths v0.1.1
-2026-10-25T15:13:44.9047654Z ^[[1m^[[92m   Compiling^[[0m ttf-parser v0.25.1
-2026-10-25T15:13:45.5617225Z ^[[1m^[[92m   Compiling^[[0m syn v2.0.119
-2026-10-25T15:13:46.8253994Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
-2026-10-25T15:13:47.9282130Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
-2026-10-25T15:13:48.1626823Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
-2026-10-25T15:13:48.5827436Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
-2026-10-25T15:13:49.3707371Z ^[[1m^[[92m   Compiling^[[0m cfg-if v1.0.5
-2026-10-25T15:13:49.4016997Z ^[[1m^[[92m   Compiling^[[0m simd-adler32 v0.3.10
-2026-10-25T15:13:49.6287302Z ^[[1m^[[92m   Compiling^[[0m crc32fast v1.5.2
-2026-10-25T15:13:49.7426903Z ^[[1m^[[92m   Compiling^[[0m adler2 v2.0.1
-2026-10-25T15:13:50.0980978Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.9.1
-2026-10-25T15:13:50.1647613Z ^[[1m^[[92m   Compiling^[[0m num-traits v0.2.19
-2026-10-25T15:13:50.2337156Z ^[[1m^[[92m   Compiling^[[0m version_check v0.9.5
-2026-10-25T15:13:50.4347269Z ^[[1m^[[92m   Compiling^[[0m libc v0.2.189
-2026-10-25T15:13:50.6617613Z ^[[1m^[[92m   Compiling^[[0m flate2 v1.1.10
-2026-10-25T15:13:51.1896999Z ^[[1m^[[92m   Compiling^[[0m slotmap v1.1.1
-2026-10-25T15:13:51.3218554Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.8.9
-2026-10-25T15:13:51.6488264Z ^[[1m^[[92m   Compiling^[[0m fdeflate v0.3.7
-2026-10-25T15:13:52.5154968Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
-2026-10-25T15:13:52.7537230Z ^[[1m^[[92m   Compiling^[[0m png v0.18.1
-2026-10-25T15:13:52.8957041Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
-2026-10-25T15:13:55.2737001Z ^[[1m^[[92m   Compiling^[[0m roxmltree v0.20.0
-2026-10-25T15:13:55.3937004Z ^[[1m^[[92m   Compiling^[[0m memmap2 v0.9.11
-2026-10-25T15:13:56.0367261Z ^[[1m^[[92m   Compiling^[[0m fontconfig-parser v0.5.8
-2026-10-25T15:13:57.2889126Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
-2026-10-25T15:13:58.1477008Z ^[[1m^[[92m   Compiling^[[0m smallvec v1.16.2
-2026-10-25T15:13:58.3437351Z ^[[1m^[[92m   Compiling^[[0m yazi v0.2.1
-2026-10-25T15:13:59.7714927Z ^[[1m^[[92m   Compiling^[[0m log v0.4.34
-2026-10-25T15:13:59.9257331Z ^[[1m^[[92m   Compiling^[[0m tinyvec v1.13.3
-2026-10-25T15:14:00.3867165Z ^[[1m^[[92m   Compiling^[[0m zeno v0.3.3
-2026-10-25T15:14:01.4377461Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
-2026-10-25T15:14:10.1227069Z ^[[1m^[[92m   Compiling^[[0m fontdb v0.23.0
-2026-10-25T15:14:11.7156988Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
-2026-10-25T15:14:12.7317098Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
-2026-10-25T15:14:13.2097411Z ^[[1m^[[92m   Compiling^[[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
-2026-10-25T15:14:17.7101166Z ^[[1m^[[92m   Compiling^[[0m self_cell v1.3.0
-2026-10-25T15:14:17.7582604Z ^[[1m^[[92m   Compiling^[[0m unicode-linebreak v0.1.5
-2026-10-25T15:14:17.9417230Z ^[[1m^[[92m   Compiling^[[0m sys-locale v0.3.2
-2026-10-25T15:14:18.1356893Z ^[[1m^[[92m   Compiling^[[0m unicode-script v0.5.8
-2026-10-25T15:14:18.5770088Z ^[[1m^[[92m   Compiling^[[0m unicode-bidi v0.3.18
-2026-10-25T15:14:19.7270412Z ^[[1m^[[92m   Compiling^[[0m thiserror v2.0.21
-2026-10-25T15:14:19.8959846Z ^[[1m^[[92m   Compiling^[[0m linebender_resource_handle v0.1.1
-2026-10-25T15:14:19.9563703Z ^[[1m^[[92m   Compiling^[[0m foldhash v0.2.0
-2026-10-25T15:14:20.0558332Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
-2026-10-25T15:14:20.2598641Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v2.1.3
-2026-10-25T15:14:20.3117186Z ^[[1m^[[92m   Compiling^[[0m rangemap v1.8.0
-2026-10-25T15:14:20.6177158Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.3.6
-2026-10-25T15:14:20.8547127Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
-2026-10-25T15:14:24.7026082Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
-2026-10-25T15:14:26.4037402Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
-2026-10-25T15:14:26.4277647Z ^[[1m^[[92m   Compiling^[[0m zerocopy-derive v0.8.59
-2026-10-25T15:14:26.4982196Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v2.0.21
-2026-10-25T15:14:27.6347247Z ^[[1m^[[92m   Compiling^[[0m equivalent v1.0.2
-2026-10-25T15:14:27.6627089Z ^[[1m^[[92m   Compiling^[[0m cfg_aliases v0.2.2
-2026-10-25T15:14:27.6956936Z ^[[1m^[[92m   Compiling^[[0m naga v30.0.1
-2026-10-25T15:14:27.8387123Z ^[[1m^[[92m   Compiling^[[0m indexmap v2.14.2
-2026-10-25T15:14:29.2206836Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
-2026-10-25T15:14:29.8367816Z ^[[1m^[[92m   Compiling^[[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
-2026-10-25T15:14:30.0707130Z ^[[1m^[[92m   Compiling^[[0m bit-vec v0.9.1
-2026-10-25T15:14:30.2787670Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v1.1.0
-2026-10-25T15:14:30.4534244Z ^[[1m^[[92m   Compiling^[[0m unicode-width v0.2.2
-2026-10-25T15:14:30.6260850Z ^[[1m^[[92m   Compiling^[[0m codespan-reporting v0.13.1
-2026-10-25T15:14:31.0597349Z ^[[1m^[[92m   Compiling^[[0m spirv v0.4.0+sdk-1.4.341.0
-2026-10-25T15:14:32.0286980Z ^[[1m^[[92m   Compiling^[[0m naga-types v30.0.1
-2026-10-25T15:14:32.1209369Z ^[[1m^[[92m   Compiling^[[0m bit-set v0.10.0
-2026-10-25T15:14:32.2197942Z ^[[1m^[[92m   Compiling^[[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
-2026-10-25T15:14:32.4057540Z ^[[1m^[[92m   Compiling^[[0m half v2.7.1
-2026-10-25T15:14:32.5837321Z ^[[1m^[[92m   Compiling^[[0m euclid v0.22.14
-2026-10-25T15:14:32.9797028Z ^[[1m^[[92m   Compiling^[[0m arrayvec v0.7.8
-2026-10-25T15:14:33.3837890Z ^[[1m^[[92m   Compiling^[[0m lyon_geom v1.0.19
-2026-10-25T15:14:33.8816988Z ^[[1m^[[92m   Compiling^[[0m zune-core v0.5.3
-2026-10-25T15:14:34.1227125Z ^[[1m^[[92m   Compiling^[[0m pxfm v0.1.30
-2026-10-25T15:14:37.1267073Z ^[[1m^[[92m   Compiling^[[0m moxcms v0.8.1
-2026-10-25T15:14:44.4357727Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
-2026-10-25T15:14:44.7147208Z ^[[1m^[[92m   Compiling^[[0m zune-jpeg v0.5.15
-2026-10-25T15:14:45.8067036Z ^[[1m^[[92m   Compiling^[[0m lyon_path v1.0.19
-2026-10-25T15:14:46.0043773Z ^[[1m^[[92m   Compiling^[[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
-2026-10-25T15:14:46.3237545Z ^[[1m^[[92m   Compiling^[[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
-2026-10-25T15:14:46.3907007Z ^[[1m^[[92m   Compiling^[[0m float_next_after v1.0.0
-2026-10-25T15:14:46.4347079Z ^[[1m^[[92m   Compiling^[[0m byteorder-lite v0.1.0
-2026-10-25T15:14:46.5517033Z ^[[1m^[[92m   Compiling^[[0m ash v0.38.0+1.3.281
-2026-10-25T15:14:46.6197960Z ^[[1m^[[92m   Compiling^[[0m lyon_tessellation v1.0.22
-2026-10-25T15:14:46.6717832Z ^[[1m^[[92m   Compiling^[[0m image v0.25.10
-2026-10-25T15:14:47.4237842Z ^[[1m^[[92m   Compiling^[[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
-2026-10-25T15:14:49.0057550Z ^[[1m^[[92m   Compiling^[[0m vieww-scene v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
-2026-10-25T15:14:49.3537154Z ^[[1m^[[92m   Compiling^[[0m libloading v0.8.9
-2026-10-25T15:14:49.5117376Z ^[[1m^[[92m   Compiling^[[0m vieww-image v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-image)
-2026-10-25T15:14:54.5867211Z ^[[1m^[[92m   Compiling^[[0m vieww-video v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-video)
-2026-10-25T15:14:57.1270903Z ^[[1m^[[92m   Compiling^[[0m vieww-asset v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
-2026-10-25T15:14:57.5534636Z ^[[1m^[[92m   Compiling^[[0m vieww-render-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
-2026-10-25T15:14:59.7401550Z ^[[1m^[[92m   Compiling^[[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
-2026-10-25T15:15:08.7337934Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
-2026-10-25T15:15:08.8558333Z ^[[1m^[[92m   Compiling^[[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
-2026-10-25T15:15:09.1077501Z ^[[1m^[[92m   Compiling^[[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
-2026-10-25T15:15:10.3767552Z ^[[1m^[[92m   Compiling^[[0m vieww-spatial v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-spatial)
-2026-10-25T15:15:12.0277548Z ^[[1m^[[92m   Compiling^[[0m vieww-mesh v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-mesh)
-2026-10-25T15:15:13.0018295Z ^[[1m^[[92m   Compiling^[[0m vieww-physics v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-physics)
-2026-10-25T15:15:13.1381692Z ^[[1m^[[92m   Compiling^[[0m vieww-network v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-network)
-2026-10-25T15:15:15.2707513Z ^[[1m^[[92m   Compiling^[[0m fixtures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/fixtures)
-2026-10-25T15:15:15.3977004Z ^[[1m^[[92m   Compiling^[[0m weezl v0.1.12
-2026-10-25T15:15:16.3937156Z ^[[1m^[[92m   Compiling^[[0m color_quant v1.1.0
-2026-10-25T15:15:16.6207020Z ^[[1m^[[92m   Compiling^[[0m gif v0.14.2
-2026-10-25T15:15:17.5129757Z ^[[1m^[[92m   Compiling^[[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
-2026-10-25T15:15:17.5597755Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
-2026-10-25T15:15:18.2448014Z ^[[1m^[[92m   Compiling^[[0m vieww-render-planner v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
-2026-10-25T15:15:34.0304156Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized] target(s) in 1m 50s
-2026-10-25T15:15:34.0403186Z ^[[1m^[[92m     Running^[[0m `target/release/fixtures /tmp/tmp.GHJwvK2VOe`
-2026-10-25T15:15:38.9267826Z 
-2026-10-25T15:15:38.9270201Z ==> raster identity (every fixture byte-identical to the merge base with origin/main; builds BASE in its own worktree — slow)
-2026-10-25T15:15:38.9349473Z raster-identity: rendering the gallery at f0e7547cea355523b3de5c1c2017de4a432c0bf5
-2026-10-25T15:17:37.0812982Z raster-identity: rendering the gallery at the working tree
-2026-10-25T15:17:42.2591791Z raster-identity: all 30 files identical to f0e7547cea355523b3de5c1c2017de4a432c0bf5
-2026-10-25T15:17:42.7231383Z 
-2026-10-25T15:17:42.7232286Z ==> conformance matrix (vieww's row matches the merge base; every false cell planned)
-2026-10-25T15:17:42.7682956Z conformance-matrix: row consistent with the base and fully planned
-2026-10-25T15:17:42.7686968Z 
-2026-10-25T15:17:42.7687275Z ==> hot reload, end to end (builds the guest crate; slow)
-2026-10-25T15:17:42.9572645Z ^[[1m^[[92m   Compiling^[[0m syn v3.0.6
-2026-10-25T15:17:42.9573397Z ^[[1m^[[92m   Compiling^[[0m ttf-parser v0.25.1
-2026-10-25T15:17:42.9586434Z ^[[1m^[[92m   Compiling^[[0m smallvec v1.16.2
-2026-10-25T15:17:42.9616567Z ^[[1m^[[92m   Compiling^[[0m syn v2.0.119
-2026-10-25T15:17:44.5277292Z ^[[1m^[[92m   Compiling^[[0m fontdb v0.23.0
-2026-10-25T15:17:52.3423658Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
-2026-10-25T15:17:58.0777992Z ^[[1m^[[92m   Compiling^[[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
-2026-10-25T15:17:59.0461721Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
-2026-10-25T15:17:59.1822663Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
-2026-10-25T15:17:59.1823527Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
-2026-10-25T15:17:59.3944068Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
-2026-10-25T15:17:59.4125277Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
-2026-10-25T15:18:03.7127683Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
-2026-10-25T15:18:03.7131002Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
-2026-10-25T15:18:19.3199611Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
-2026-10-25T15:18:21.6981883Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
-2026-10-25T15:18:27.3267049Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
-2026-10-25T15:18:30.8559893Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
-2026-10-25T15:18:31.4617453Z ^[[1m^[[92m   Compiling^[[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
-2026-10-25T15:18:35.5187585Z ^[[1m^[[92m   Compiling^[[0m vieww-reload v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-reload)
-2026-10-25T15:18:35.8600397Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized] target(s) in 53.06s
-2026-10-25T15:18:35.8661424Z ^[[1m^[[92m     Running^[[0m tests/end_to_end.rs (target/debug/deps/end_to_end-c193484d1bd3647c)
-2026-10-25T15:18:35.8677197Z 
-2026-10-25T15:18:35.8679048Z running 3 tests
-2026-10-25T15:19:39.3307828Z test a_guest_that_panics_while_building_does_not_take_the_host_down ... ok
-2026-10-25T15:20:41.7317959Z test a_guest_whose_state_changed_shape_forces_a_restart ... ok
-2026-10-25T15:21:43.9770397Z test a_rebuilt_guest_reloads_and_the_tree_is_kept ... ok
-2026-10-25T15:21:43.9771052Z 
-2026-10-25T15:21:43.9771456Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 188.11s
-2026-10-25T15:21:43.9772026Z 
-2026-10-25T15:21:43.9859835Z 
-2026-10-25T15:21:43.9860841Z ==> packaging (layout and a preview compiled against the bundle)
-2026-10-25T15:21:44.0586529Z ==> building viewwstudio 0.1.0 (debug, linux)
-2026-10-25T15:21:44.3501954Z ^[[1m^[[92m   Compiling^[[0m zvariant_utils v4.2.0
-2026-10-25T15:21:44.3545716Z ^[[1m^[[92m   Compiling^[[0m uuid v1.26.1
-2026-10-25T15:21:44.3628058Z ^[[1m^[[92m   Compiling^[[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
-2026-10-25T15:21:44.3634834Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
-2026-10-25T15:21:44.9815458Z ^[[1m^[[92m   Compiling^[[0m accesskit v0.25.1
-2026-10-25T15:21:45.3447940Z ^[[1m^[[92m   Compiling^[[0m zvariant v5.15.0
-2026-10-25T15:21:46.0819641Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
-2026-10-25T15:21:46.8360410Z ^[[1m^[[92m   Compiling^[[0m accesskit_consumer v0.39.1
-2026-10-25T15:21:48.8117189Z ^[[1m^[[92m   Compiling^[[0m zbus_names v4.3.4
-2026-10-25T15:21:50.0437124Z ^[[1m^[[92m   Compiling^[[0m zbus_xml v5.2.1
-2026-10-25T15:21:51.1157058Z ^[[1m^[[92m   Compiling^[[0m zbus-lockstep v0.5.2
-2026-10-25T15:21:51.2736961Z ^[[1m^[[92m   Compiling^[[0m zbus v5.19.0
-2026-10-25T15:21:54.4367647Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
-2026-10-25T15:21:54.7877831Z ^[[1m^[[92m   Compiling^[[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
-2026-10-25T15:21:55.5617088Z ^[[1m^[[92m   Compiling^[[0m ahash v0.8.12
-2026-10-25T15:21:55.7949446Z ^[[1m^[[92m   Compiling^[[0m winit v0.30.13
-2026-10-25T15:21:56.8095894Z ^[[1m^[[92m   Compiling^[[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
-2026-10-25T15:21:58.5397413Z ^[[1m^[[92m   Compiling^[[0m atspi-common v0.13.0
-2026-10-25T15:21:59.6329816Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
-2026-10-25T15:22:04.6886937Z ^[[1m^[[92m   Compiling^[[0m atspi-proxies v0.13.0
-2026-10-25T15:22:07.1307505Z ^[[1m^[[92m   Compiling^[[0m atspi v0.29.0
-2026-10-25T15:22:07.1788024Z ^[[1m^[[92m   Compiling^[[0m accesskit_atspi_common v0.21.0
-2026-10-25T15:22:11.2068072Z ^[[1m^[[92m   Compiling^[[0m accesskit_unix v0.24.0
-2026-10-25T15:22:16.9257492Z ^[[1m^[[92m   Compiling^[[0m accesskit_winit v0.34.1
-2026-10-25T15:22:17.1667399Z ^[[1m^[[92m   Compiling^[[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
-2026-10-25T15:22:17.2958736Z ^[[1m^[[92m   Compiling^[[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
-2026-10-25T15:22:18.1952442Z ^[[1m^[[92m   Compiling^[[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
-2026-10-25T15:22:18.2437542Z ^[[1m^[[92m   Compiling^[[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
-2026-10-25T15:22:18.2969134Z ^[[1m^[[92m   Compiling^[[0m vieww-platform-winit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
-2026-10-25T15:22:32.2348289Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 48.14s
-2026-10-25T15:22:32.2659144Z ==> drawing icons
-2026-10-25T15:22:32.5475291Z ^[[1m^[[92m   Compiling^[[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
-2026-10-25T15:22:32.5478435Z ^[[1m^[[92m   Compiling^[[0m vieww-hardware v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
-2026-10-25T15:22:32.5480015Z ^[[1m^[[92m   Compiling^[[0m vieww-test-harness v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-test-harness)
-2026-10-25T15:22:37.4446307Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 5.15s
-2026-10-25T15:22:37.4613213Z ^[[1m^[[92m     Running^[[0m `target/debug/examples/icon /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/icons`
-2026-10-25T15:22:38.6153174Z ==> verifying the bundle compiles a preview
-2026-10-25T15:23:04.1637174Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/viewwstudio-linux-x86_64.tar.gz
-2026-10-25T15:23:04.1658964Z     204M
-2026-10-25T15:23:04.1680002Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/index.html
-2026-10-25T15:23:04.1680538Z     links point at github.com/tejakota/vieww_prod
-2026-10-25T15:23:04.1709850Z done
-2026-10-25T15:23:04.2296118Z 
-2026-10-25T15:23:04.2296624Z --- formatting: its diagnostics ---
-2026-10-25T15:23:04.2297531Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders/examples/dump_hlsl.rs:1:
-2026-10-25T15:23:04.2298813Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders/src/library.rs:297:
-2026-10-25T15:23:04.2300127Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders/src/library.rs:318:
-2026-10-25T15:23:04.2301148Z 
-2026-10-25T15:23:04.2301257Z 1 stage(s) failed:
-2026-10-25T15:23:04.2301520Z   - formatting (exit 1)
-2026-10-25T15:23:04.2331336Z ##[error]Process completed with exit code 1.
-
 ===== macOS and iOS (Metal)	Metal suite on the runner's GPU =====
-2026-10-25T14:58:55.9968820Z ^[[1m^[[92m   Compiling^[[0m malloc_buf v0.0.6
-2026-10-25T14:58:56.0810080Z ^[[1m^[[92m   Compiling^[[0m bitflags v1.3.2
-2026-10-25T14:58:56.1330420Z ^[[1m^[[92m   Compiling^[[0m float_next_after v1.0.0
-2026-10-25T14:58:56.1738200Z ^[[1m^[[92m   Compiling^[[0m foreign-types-shared v0.3.1
-2026-10-25T14:58:56.2192730Z ^[[1m^[[92m   Compiling^[[0m constant_time_eq v0.4.2
-2026-10-25T14:58:56.3632890Z ^[[1m^[[92m   Compiling^[[0m blake3 v1.8.7
-2026-10-25T14:58:57.1321510Z ^[[1m^[[92m   Compiling^[[0m lyon_tessellation v1.0.22
-2026-10-25T14:59:00.1327970Z ^[[1m^[[92m   Compiling^[[0m core-graphics-types v0.1.3
-2026-10-25T14:59:00.1832990Z ^[[1m^[[92m   Compiling^[[0m objc v0.2.7
-2026-10-25T14:59:00.6687600Z ^[[1m^[[92m   Compiling^[[0m block v0.1.6
-2026-10-25T14:59:04.9969520Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
-2026-10-25T14:59:06.2788790Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v2.0.21
-2026-10-25T14:59:06.4231590Z ^[[1m^[[92m   Compiling^[[0m zerocopy-derive v0.8.59
-2026-10-25T14:59:14.1026710Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
-2026-10-25T14:59:14.2510640Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
-2026-10-25T14:59:14.5367830Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
-2026-10-25T14:59:17.1464360Z ^[[1m^[[92m   Compiling^[[0m thiserror v2.0.21
-2026-10-25T14:59:17.1926770Z ^[[1m^[[92m   Compiling^[[0m naga-types v30.0.1
-2026-10-25T14:59:17.2818740Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
-2026-10-25T14:59:17.5680210Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
-2026-10-25T14:59:20.3941160Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
-2026-10-25T14:59:23.6323250Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
-2026-10-25T14:59:38.7280850Z ^[[1m^[[92m   Compiling^[[0m half v2.7.1
-2026-10-25T14:59:39.0913060Z ^[[1m^[[92m   Compiling^[[0m naga v30.0.1
-2026-10-25T14:59:41.3515110Z ^[[1m^[[92m   Compiling^[[0m foreign-types-macros v0.2.4
-2026-10-25T14:59:45.1638240Z ^[[1m^[[92m   Compiling^[[0m foreign-types v0.5.0
-2026-10-25T14:59:45.1995710Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
-2026-10-25T15:00:01.0881710Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
-2026-10-25T15:00:16.0237430Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
-2026-10-25T15:00:16.8815140Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
-2026-10-25T15:00:18.0110400Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
-2026-10-25T15:00:33.6177490Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
-2026-10-25T15:00:37.1408890Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
-2026-10-25T15:00:39.0794340Z ^[[1m^[[92m   Compiling^[[0m metal v0.31.0
-2026-10-25T15:00:42.0004990Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
-2026-10-25T15:00:46.3781360Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
-2026-10-25T15:00:51.7359600Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized + debuginfo] target(s) in 2m 07s
-2026-10-25T15:00:51.7466430Z ^[[1m^[[33mwarning^[[0m: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
-2026-10-25T15:00:51.7570740Z ^[[1m^[[92mnote^[[0m: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
-2026-10-25T15:00:51.7836220Z ^[[1m^[[92m     Running^[[0m unittests src/lib.rs (target/debug/deps/vieww_hal-e348fe8aa29e10bf)
-2026-10-25T15:00:51.7874340Z 
-2026-10-25T15:00:51.7938550Z ^[[1m^[[92m     Running^[[0m tests/d3d12_scene.rs (target/debug/deps/d3d12_scene-5bf9ba175717887e)
-2026-10-25T15:00:51.7975480Z running 0 tests
-2026-10-25T15:00:51.8040720Z ^[[1m^[[92m     Running^[[0m tests/d3d12_smoke.rs (target/debug/deps/d3d12_smoke-b6fe049c231f84b4)
-2026-10-25T15:00:51.8076180Z 
-2026-10-25T15:00:51.8090670Z ^[[1m^[[92m     Running^[[0m tests/metal_scene.rs (target/debug/deps/metal_scene-d5617e4cb1d7270e)
-2026-10-25T15:00:51.8193170Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
-2026-10-25T15:00:51.8295410Z 
-2026-10-25T15:00:51.8397260Z 2026-10-25 15:00:51.838 metal_scene-d5617e4cb1d7270e[27109:76808] Metal API Validation Enabled
-2026-10-25T15:00:51.8398780Z 
-2026-10-25T15:00:51.8501690Z 2026-10-25 15:00:51.839 metal_scene-d5617e4cb1d7270e[27109:76808] Metal GPU Validation Enabled
-2026-10-25T15:00:51.8509260Z running 0 tests
-2026-10-25T15:00:51.8611640Z 
-2026-10-25T15:00:51.8713540Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-2026-10-25T15:00:51.8815190Z 
-2026-10-25T15:00:51.8916350Z 
-2026-10-25T15:00:51.9018190Z running 0 tests
-2026-10-25T15:00:51.9119660Z 
-2026-10-25T15:00:51.9222470Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-2026-10-25T15:00:51.9324560Z 
-2026-10-25T15:00:51.9425520Z 
-2026-10-25T15:00:51.9526360Z running 7 tests
-2026-10-25T15:00:53.1413850Z 
-2026-10-25T15:00:53.1415220Z thread 'a_damaged_frame_keeps_the_previous_frame_outside_the_damage' (76808) panicked at crates/vieww-hal/tests/metal_scene.rs:407:13:
-2026-10-25T15:00:53.1416940Z assertion `left == right` failed: pixel (5, 5) inside the damage is the new scene's background
-2026-10-25T15:00:53.1417790Z   left: [0, 0, 0, 0]
-2026-10-25T15:00:53.1418510Z  right: [30, 30, 200, 255]
-2026-10-25T15:00:53.1419420Z stack backtrace:
-2026-10-25T15:00:53.1485140Z    0: __rustc::rust_begin_unwind
-2026-10-25T15:00:53.1485670Z    1: core::panicking::panic_fmt
-2026-10-25T15:00:53.1486090Z    2: core::panicking::assert_failed_inner
-2026-10-25T15:00:53.1527140Z    3: core::panicking::assert_failed::<&[u8], &[u8; 4]>
-2026-10-25T15:00:53.1528010Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:394:5
-2026-10-25T15:00:53.1533470Z    4: metal_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage
-2026-10-25T15:00:53.1534600Z              at ./tests/metal_scene.rs:407:13
-2026-10-25T15:00:53.1536490Z    5: metal_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::{closure#0}
-2026-10-25T15:00:53.1537190Z              at ./tests/metal_scene.rs:334:65
-2026-10-25T15:00:53.1541670Z    6: <metal_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-2026-10-25T15:00:53.1542690Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-10-25T15:00:53.1595840Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-2026-10-25T15:00:53.1596630Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-10-25T15:00:53.1663880Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-10-25T15:00:53.1687170Z test a_damaged_frame_keeps_the_previous_frame_outside_the_damage ... FAILED
-2026-10-25T15:00:53.3840660Z 
-2026-10-25T15:00:53.3841660Z thread 'a_group_opacity_layer_composites_like_the_cpu_rasterizer' (76833) panicked at crates/vieww-hal/tests/metal_scene.rs:234:5:
-2026-10-25T15:00:53.3842770Z assertion `left == right` failed: GPU and CPU must agree away from shape edges; 2228 interior pixels differed
-2026-10-25T15:00:53.3843420Z   left: 2228
-2026-10-25T15:00:53.3843810Z  right: 0
-2026-10-25T15:00:53.3844370Z stack backtrace:
-2026-10-25T15:00:53.3845120Z    0: __rustc::rust_begin_unwind
-2026-10-25T15:00:53.3846080Z    1: core::panicking::panic_fmt
-2026-10-25T15:00:53.3846580Z    2: core::panicking::assert_failed_inner
-2026-10-25T15:00:53.3847450Z    3: core::panicking::assert_failed::<usize, usize>
-2026-10-25T15:00:53.3856370Z    4: metal_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
-2026-10-25T15:00:53.3857180Z              at ./tests/metal_scene.rs:234:5
-2026-10-25T15:00:53.3858650Z    5: metal_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::{closure#0}
-2026-10-25T15:00:53.3862280Z              at ./tests/metal_scene.rs:197:62
-2026-10-25T15:00:53.3864410Z    6: <metal_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-2026-10-25T15:00:53.3866990Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-10-25T15:00:53.3868900Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-2026-10-25T15:00:53.3869600Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-10-25T15:00:53.3870830Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-10-25T15:00:53.3875480Z test a_group_opacity_layer_composites_like_the_cpu_rasterizer ... FAILED
-2026-10-25T15:00:53.4093770Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test metal_scene`
-2026-10-25T15:00:53.4094520Z 
-2026-10-25T15:00:53.4094990Z Caused by:
-2026-10-25T15:00:53.4095890Z   process didn't exit successfully: `/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_scene-d5617e4cb1d7270e --ignored --test-threads=1 --nocapture` (signal: 11, SIGSEGV: invalid memory reference)
-2026-10-25T15:00:55.0511470Z /Users/runner/work/_temp/5dbe6cf9-a9d1-48ce-8749-c8e7ae0b75e5.sh: line 7: 27119 Segmentation fault: 11  "$t" --ignored --test-threads=1 > /dev/null 2>&1
-2026-10-25T15:00:55.0691820Z test an_empty_scene_is_the_clear_colour_exactly ... ::group::lldb backtrace: metal_scene-d5617e4cb1d7270e
-2026-10-25T15:01:00.6978550Z (lldb) target create "/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_scene-d5617e4cb1d7270e"
-2026-10-25T15:01:00.6980180Z Current executable set to '/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_scene-d5617e4cb1d7270e' (arm64).
-2026-10-25T15:01:00.6981080Z (lldb) settings set -- target.run-args  "--ignored" "--test-threads=1" "--nocapture"
-2026-10-25T15:01:00.6981790Z (lldb) run
-2026-10-25T15:01:00.6981960Z 
-2026-10-25T15:01:00.6982080Z running 7 tests
-2026-10-25T15:01:00.6982780Z test a_damaged_frame_keeps_the_previous_frame_outside_the_damage ... 2026-10-25 15:01:00.063372+0000 metal_scene-d5617e4cb1d7270e[27310:77318] Metal API Validation Enabled
-2026-10-25T15:01:00.6983710Z 2026-10-25 15:01:00.063664+0000 metal_scene-d5617e4cb1d7270e[27310:77318] Metal GPU Validation Enabled
-2026-10-25T15:01:00.6984260Z 
-2026-10-25T15:01:00.6984660Z thread 'a_damaged_frame_keeps_the_previous_frame_outside_the_damage' (77318) panicked at crates/vieww-hal/tests/metal_scene.rs:407:13:
-2026-10-25T15:01:00.6985410Z assertion `left == right` failed: pixel (5, 5) inside the damage is the new scene's background
-2026-10-25T15:01:00.6986000Z   left: [0, 0, 0, 0]
-2026-10-25T15:01:00.6986250Z  right: [30, 30, 200, 255]
-2026-10-25T15:01:00.6986670Z stack backtrace:
-2026-10-25T15:01:00.6987730Z    0: __rustc::rust_begin_unwind
-2026-10-25T15:01:00.6988070Z    1: core::panicking::panic_fmt
-2026-10-25T15:01:00.6988470Z    2: core::panicking::assert_failed_inner
-2026-10-25T15:01:00.6988910Z    3: core::panicking::assert_failed::<&[u8], &[u8; 4]>
-2026-10-25T15:01:00.6989400Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:394:5
-2026-10-25T15:01:00.6990110Z    4: metal_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage
-2026-10-25T15:01:00.6990550Z              at ./crates/vieww-hal/tests/metal_scene.rs:407:13
-2026-10-25T15:01:00.6991130Z    5: metal_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::{closure#0}
-2026-10-25T15:01:00.6991620Z              at ./crates/vieww-hal/tests/metal_scene.rs:334:65
-2026-10-25T15:01:00.6992320Z    6: <metal_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-2026-10-25T15:01:00.6993140Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-10-25T15:01:00.6995610Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-2026-10-25T15:01:00.6996490Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-10-25T15:01:00.6997250Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-10-25T15:01:00.6998620Z FAILED
-2026-10-25T15:01:00.6998910Z test a_group_opacity_layer_composites_like_the_cpu_rasterizer ... 
-2026-10-25T15:01:00.6999610Z thread 'a_group_opacity_layer_composites_like_the_cpu_rasterizer' (77327) panicked at crates/vieww-hal/tests/metal_scene.rs:234:5:
-2026-10-25T15:01:00.7000340Z assertion `left == right` failed: GPU and CPU must agree away from shape edges; 2228 interior pixels differed
-2026-10-25T15:01:00.7000770Z   left: 2228
-2026-10-25T15:01:00.7000950Z  right: 0
-2026-10-25T15:01:00.7001150Z stack backtrace:
-2026-10-25T15:01:00.7001590Z    0: __rustc::rust_begin_unwind
-2026-10-25T15:01:00.7001880Z    1: core::panicking::panic_fmt
-2026-10-25T15:01:00.7002600Z    2: core::panicking::assert_failed_inner
-2026-10-25T15:01:00.7002950Z    3: core::panicking::assert_failed::<usize, usize>
-2026-10-25T15:01:00.7003360Z    4: metal_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
-2026-10-25T15:01:00.7003840Z              at ./crates/vieww-hal/tests/metal_scene.rs:234:5
-2026-10-25T15:01:00.7004280Z    5: metal_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::{closure#0}
-2026-10-25T15:01:00.7004760Z              at ./crates/vieww-hal/tests/metal_scene.rs:197:62
-2026-10-25T15:01:00.7005370Z    6: <metal_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-2026-10-25T15:01:00.7006140Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-10-25T15:01:00.7006950Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-2026-10-25T15:01:00.7007530Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-10-25T15:01:00.7008120Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-10-25T15:01:00.7008530Z FAILED
-2026-10-25T15:01:00.7008890Z test an_empty_scene_is_the_clear_colour_exactly ... Process 27310 stopped
-2026-10-25T15:01:00.7009490Z * thread #6, name = 'an_empty_scene_is_the_clear_colour_exactly', stop reason = EXC_BAD_ACCESS (code=1, address=0x4)
-2026-10-25T15:01:00.7010090Z     frame #0: 0x00000001991a335c libsystem_platform.dylib`_platform_memmove + 444
-2026-10-25T15:01:00.7010540Z libsystem_platform.dylib`:
-2026-10-25T15:01:00.7010820Z ->  0x1991a335c <+444>: ldrb   w6, [x1], #0x1
-2026-10-25T15:01:00.7011960Z     0x1991a3360 <+448>: strb   w6, [x3], #0x1
-2026-10-25T15:01:00.7012270Z     0x1991a3364 <+452>: subs   x2, x2, #0x1
-2026-10-25T15:01:00.7012670Z     0x1991a3368 <+456>: b.ne   0x1991a335c               ; <+444>
-2026-10-25T15:01:00.7013020Z Target 0: (metal_scene-d5617e4cb1d7270e) stopped.
-2026-10-25T15:01:00.7013610Z Process 27310 launched: '/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_scene-d5617e4cb1d7270e' (arm64)
-2026-10-25T15:01:00.7014260Z (lldb) thread backtrace all
-2026-10-25T15:01:00.7014550Z   thread #1, name = 'main', queue = 'com.apple.main-thread'
-2026-10-25T15:01:00.7015000Z     frame #0: 0x0000000199131dd0 libsystem_kernel.dylib`semaphore_wait_trap + 8
-2026-10-25T15:01:00.7015460Z     frame #1: 0x0000000198fc2984 libdispatch.dylib`_dispatch_sema4_wait + 28
-2026-10-25T15:01:00.7016050Z     frame #2: 0x0000000198fc3034 libdispatch.dylib`_dispatch_semaphore_wait_slow + 132
-2026-10-25T15:01:00.7016680Z     frame #3: 0x0000000100bbe16c libstd-3f21d70fba8f3088.dylib`<std::thread::thread::Thread>::park + 48
-2026-10-25T15:01:00.7017980Z     frame #4: 0x0000000100014b30 metal_scene-d5617e4cb1d7270e`<std::sync::mpmc::list::Channel<test::event::CompletedTest>>::recv::{closure#1} [inlined] <std::sync::mpmc::context::Context>::wait_until at context.rs:143:44 [opt]
-2026-10-25T15:01:00.7020450Z     frame #5: 0x0000000100014acc metal_scene-d5617e4cb1d7270e`<std::sync::mpmc::list::Channel<test::event::CompletedTest>>::recv::{closure#1} at list.rs:453:39 [opt]
-2026-10-25T15:01:00.7022170Z     frame #6: 0x000000010001d9f0 metal_scene-d5617e4cb1d7270e`<std::sync::mpmc::list::Channel<test::event::CompletedTest>>::recv [inlined] <std::sync::mpmc::context::Context>::with::<<std::sync::mpmc::list::Channel<test::event::CompletedTest>>::recv::{closure#1}, ()>::{closure#0} at context.rs:49:13 [opt]
-2026-10-25T15:01:00.7024120Z     frame #7: 0x000000010001d9d4 metal_scene-d5617e4cb1d7270e`<std::sync::mpmc::list::Channel<test::event::CompletedTest>>::recv [inlined] <std::sync::mpmc::context::Context>::with::<<std::sync::mpmc::list::Channel<test::event::CompletedTest>>::recv::{closure#1}, ()>::{closure#1} at context.rs:57:31 [opt]
-2026-10-25T15:01:00.7026070Z     frame #8: 0x000000010001d9b4 metal_scene-d5617e4cb1d7270e`<std::sync::mpmc::list::Channel<test::event::CompletedTest>>::recv [inlined] <std::thread::local::LocalKey<core::cell::Cell<core::option::Option<std::sync::mpmc::context::Context>>>>::try_with::<<std::sync::mpmc::context::Context>::with<<std::sync::mpmc::list::Channel<test::event::CompletedTest>>::recv::{closure#1}, ()>::{closure#1}, ()> at local.rs:463:12 [opt]
-2026-10-25T15:01:00.7028300Z     frame #9: 0x000000010001d9a4 metal_scene-d5617e4cb1d7270e`<std::sync::mpmc::list::Channel<test::event::CompletedTest>>::recv [inlined] <std::sync::mpmc::context::Context>::with::<<std::sync::mpmc::list::Channel<test::event::CompletedTest>>::recv::{closure#1}, ()> at context.rs:53:14 [opt]
-2026-10-25T15:01:00.7029520Z     frame #10: 0x000000010001d994 metal_scene-d5617e4cb1d7270e`<std::sync::mpmc::list::Channel<test::event::CompletedTest>>::recv at list.rs:442:13 [opt]
-2026-10-25T15:01:00.7030470Z     frame #11: 0x0000000100027000 metal_scene-d5617e4cb1d7270e`test::console::run_tests_console [inlined] <std::sync::mpmc::Receiver<test::event::CompletedTest>>::recv at mod.rs:1014:48 [opt]
-2026-10-25T15:01:00.7031530Z     frame #12: 0x0000000100026ff0 metal_scene-d5617e4cb1d7270e`test::console::run_tests_console [inlined] <std::sync::mpsc::Receiver<test::event::CompletedTest>>::recv at mpsc.rs:881:20 [opt]
-2026-10-25T15:01:00.7032700Z     frame #13: 0x0000000100026ff0 metal_scene-d5617e4cb1d7270e`test::console::run_tests_console [inlined] test::run_tests::<test::console::run_tests_console::{closure#2}> at lib.rs:436:41 [opt]
-2026-10-25T15:01:00.7033680Z     frame #14: 0x0000000100026c50 metal_scene-d5617e4cb1d7270e`test::console::run_tests_console at console.rs:328:5 [opt]
-2026-10-25T15:01:00.7034540Z     frame #15: 0x0000000100017bb4 metal_scene-d5617e4cb1d7270e`test::test_main_static [inlined] test::test_main_inner::<test::test_main_static::{closure#0}> at lib.rs:170:19 [opt]
-2026-10-25T15:01:00.7035390Z     frame #16: 0x0000000100017ac4 metal_scene-d5617e4cb1d7270e`test::test_main_static at lib.rs:195:5 [opt]
-2026-10-25T15:01:00.7036380Z     frame #17: 0x0000000100002120 metal_scene-d5617e4cb1d7270e`std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()> [inlined] <fn() as core::ops::function::FnOnce<()>>::call_once((null)=<unavailable>, (null)=<unavailable>) at function.rs:250:5 [opt]
-2026-10-25T15:01:00.7037590Z     frame #18: 0x000000010000211c metal_scene-d5617e4cb1d7270e`std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>(f=<unavailable>) at backtrace.rs:166:18 [opt]
-2026-10-25T15:01:00.7039090Z     frame #19: 0x0000000100006568 metal_scene-d5617e4cb1d7270e`std::rt::lang_start::<()>(main=<unavailable>, argc=<unavailable>, argv=<unavailable>, sigpipe=<unavailable>) - 18446744069414558359 [opt]
-2026-10-25T15:01:00.7039920Z     frame #20: 0x0000000100bc9d64 libstd-3f21d70fba8f3088.dylib`std::rt::lang_start_internal + 952
-2026-10-25T15:01:00.7040510Z     frame #21: 0x00000001000057f4 metal_scene-d5617e4cb1d7270e`main + 52
-2026-10-25T15:01:00.7041270Z     frame #22: 0x0000000198de7154 dyld`start + 2476
-2026-10-25T15:01:00.7041570Z   thread #3
-2026-10-25T15:01:00.7041880Z     frame #0: 0x0000000199133b04 libsystem_kernel.dylib`__workq_kernreturn + 8
-2026-10-25T15:01:00.7042250Z   thread #4
-2026-10-25T15:01:00.7043520Z     frame #0: 0x0000000199133b04 libsystem_kernel.dylib`__workq_kernreturn + 8
-2026-10-25T15:01:00.7043980Z   thread #5
-2026-10-25T15:01:00.7044370Z     frame #0: 0x0000000000000000
-2026-10-25T15:01:00.7045550Z * thread #6, name = 'an_empty_scene_is_the_clear_colour_exactly', stop reason = EXC_BAD_ACCESS (code=1, address=0x4)
-2026-10-25T15:01:00.7046320Z   * frame #0: 0x00000001991a335c libsystem_platform.dylib`_platform_memmove + 444
-2026-10-25T15:01:00.7046970Z     frame #1: 0x000000010080ae50 AppleParavirtGPUMetalIOGPUFamily`___lldb_unnamed_symbol881 + 100
-2026-10-25T15:01:00.7047580Z     frame #2: 0x000000019998e6d0 MetalTools`-[MTLGPUDebugDevice newBufferWithBytes:length:options:] + 72
-2026-10-25T15:01:00.7048160Z     frame #3: 0x00000001999f6c48 MetalTools`-[MTLDebugDevice newBufferWithBytes:length:options:] + 180
-2026-10-25T15:01:00.7048940Z     frame #4: 0x0000000100046c10 metal_scene-d5617e4cb1d7270e`<vieww_hal::metal::scene::MetalSceneRenderer>::render_planned_damaged at scene.rs:425:36 [opt]
-2026-10-25T15:01:00.7050270Z     frame #5: 0x0000000100046ac4 metal_scene-d5617e4cb1d7270e`<vieww_hal::metal::scene::MetalSceneRenderer>::render_planned_damaged(self=<unavailable>, planner=<unavailable>, plan=<unavailable>, width=<unavailable>, height=<unavailable>, clear=(r = '\x14', g = '\x1e', b = '(', a = '\xff', space = Srgb), damage=<unavailable>) at scene.rs:393:14 [opt]
-2026-10-25T15:01:00.7074430Z     frame #6: 0x0000000100046468 metal_scene-d5617e4cb1d7270e`<vieww_hal::metal::scene::MetalSceneRenderer>::render_planned(self=<unavailable>, planner=<unavailable>, plan=<unavailable>, width=<unavailable>, height=<unavailable>, clear=<unavailable>) at scene.rs:358:14 [opt]
-2026-10-25T15:01:00.7075720Z     frame #7: 0x0000000100002ff8 metal_scene-d5617e4cb1d7270e`<metal_scene::an_empty_scene_is_the_clear_colour_exactly::{closure#0} as core::ops::function::FnOnce<()>>::call_once at metal_scene.rs:123:10 [opt]
-2026-10-25T15:01:00.7077100Z     frame #8: 0x0000000100002f40 metal_scene-d5617e4cb1d7270e`<metal_scene::an_empty_scene_is_the_clear_colour_exactly::{closure#0} as core::ops::function::FnOnce<()>>::call_once [inlined] metal_scene::an_empty_scene_is_the_clear_colour_exactly::{closure#0}((null)=<unavailable>) at metal_scene.rs:113:48 [opt]
-2026-10-25T15:01:00.7078560Z     frame #9: 0x0000000100002f40 metal_scene-d5617e4cb1d7270e`<metal_scene::an_empty_scene_is_the_clear_colour_exactly::{closure#0} as core::ops::function::FnOnce<()>>::call_once((null)=<unavailable>, (null)=<unavailable>) at function.rs:250:5 [opt]
-2026-10-25T15:01:00.7080100Z     frame #10: 0x0000000100008d7c metal_scene-d5617e4cb1d7270e`test::__rust_begin_short_backtrace::<core::result::Result<(), alloc::string::String>, fn() -> core::result::Result<(), alloc::string::String>> [inlined] <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once at function.rs:250:5 [opt]
-2026-10-25T15:01:00.7081630Z     frame #11: 0x0000000100008d74 metal_scene-d5617e4cb1d7270e`test::__rust_begin_short_backtrace::<core::result::Result<(), alloc::string::String>, fn() -> core::result::Result<(), alloc::string::String>> at lib.rs:724:18 [opt]
-2026-10-25T15:01:00.7082760Z     frame #12: 0x00000001000140b0 metal_scene-d5617e4cb1d7270e`test::run_test::{closure#0} [inlined] test::run_test_in_process::{closure#0} at lib.rs:747:74 [opt]
-2026-10-25T15:01:00.7083850Z     frame #13: 0x00000001000140a4 metal_scene-d5617e4cb1d7270e`test::run_test::{closure#0} [inlined] <core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure#0}> as core::ops::function::FnOnce<()>>::call_once at unwind_safe.rs:275:9 [opt]
-2026-10-25T15:01:00.7085360Z     frame #14: 0x00000001000140a4 metal_scene-d5617e4cb1d7270e`test::run_test::{closure#0} [inlined] std::panicking::catch_unwind::do_call::<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure#0}>, core::result::Result<(), alloc::string::String>> at panicking.rs:576:43 [opt]
-2026-10-25T15:01:00.7087320Z     frame #15: 0x00000001000140a0 metal_scene-d5617e4cb1d7270e`test::run_test::{closure#0} [inlined] std::panicking::catch_unwind::<core::result::Result<(), alloc::string::String>, core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure#0}>> at panicking.rs:544:19 [opt]
-2026-10-25T15:01:00.7089260Z     frame #16: 0x00000001000140a0 metal_scene-d5617e4cb1d7270e`test::run_test::{closure#0} [inlined] std::panic::catch_unwind::<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure#0}>, core::result::Result<(), alloc::string::String>> at panic.rs:359:14 [opt]
-2026-10-25T15:01:00.7090380Z     frame #17: 0x00000001000140a0 metal_scene-d5617e4cb1d7270e`test::run_test::{closure#0} [inlined] test::run_test_in_process at lib.rs:747:27 [opt]
-2026-10-25T15:01:00.7091200Z     frame #18: 0x0000000100014094 metal_scene-d5617e4cb1d7270e`test::run_test::{closure#0} at lib.rs:668:43 [opt]
-2026-10-25T15:01:00.7092430Z     frame #19: 0x000000010000ef90 metal_scene-d5617e4cb1d7270e`std::sys::backtrace::__rust_begin_short_backtrace::<test::run_test::{closure#1}, ()> [inlined] test::run_test::{closure#1} at lib.rs:698:41 [opt]
-2026-10-25T15:01:00.7093470Z     frame #20: 0x000000010000ef2c metal_scene-d5617e4cb1d7270e`std::sys::backtrace::__rust_begin_short_backtrace::<test::run_test::{closure#1}, ()> at backtrace.rs:166:18 [opt]
-2026-10-25T15:01:00.7094920Z     frame #21: 0x0000000100016578 metal_scene-d5617e4cb1d7270e`<std::thread::lifecycle::spawn_unchecked<test::run_test::{closure#1}, ()>::{closure#1} as core::ops::function::FnOnce<()>>::call_once::{shim:vtable#0} [inlined] std::thread::lifecycle::spawn_unchecked::<test::run_test::{closure#1}, ()>::{closure#1}::{closure#0} at lifecycle.rs:70:13 [opt]
-2026-10-25T15:01:00.7096950Z     frame #22: 0x0000000100016568 metal_scene-d5617e4cb1d7270e`<std::thread::lifecycle::spawn_unchecked<test::run_test::{closure#1}, ()>::{closure#1} as core::ops::function::FnOnce<()>>::call_once::{shim:vtable#0} [inlined] <core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked<test::run_test::{closure#1}, ()>::{closure#1}::{closure#0}> as core::ops::function::FnOnce<()>>::call_once at unwind_safe.rs:275:9 [opt]
-2026-10-25T15:01:00.7099170Z     frame #23: 0x0000000100016568 metal_scene-d5617e4cb1d7270e`<std::thread::lifecycle::spawn_unchecked<test::run_test::{closure#1}, ()>::{closure#1} as core::ops::function::FnOnce<()>>::call_once::{shim:vtable#0} [inlined] std::panicking::catch_unwind::do_call::<core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked<test::run_test::{closure#1}, ()>::{closure#1}::{closure#0}>, ()> at panicking.rs:576:43 [opt]
-2026-10-25T15:01:00.7101440Z     frame #24: 0x0000000100016564 metal_scene-d5617e4cb1d7270e`<std::thread::lifecycle::spawn_unchecked<test::run_test::{closure#1}, ()>::{closure#1} as core::ops::function::FnOnce<()>>::call_once::{shim:vtable#0} [inlined] std::panicking::catch_unwind::<(), core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked<test::run_test::{closure#1}, ()>::{closure#1}::{closure#0}>> at panicking.rs:544:19 [opt]
-2026-10-25T15:01:00.7103610Z     frame #25: 0x0000000100016564 metal_scene-d5617e4cb1d7270e`<std::thread::lifecycle::spawn_unchecked<test::run_test::{closure#1}, ()>::{closure#1} as core::ops::function::FnOnce<()>>::call_once::{shim:vtable#0} [inlined] std::panic::catch_unwind::<core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked<test::run_test::{closure#1}, ()>::{closure#1}::{closure#0}>, ()> at panic.rs:359:14 [opt]
-2026-10-25T15:01:00.7105570Z     frame #26: 0x0000000100016564 metal_scene-d5617e4cb1d7270e`<std::thread::lifecycle::spawn_unchecked<test::run_test::{closure#1}, ()>::{closure#1} as core::ops::function::FnOnce<()>>::call_once::{shim:vtable#0} [inlined] std::thread::lifecycle::spawn_unchecked::<test::run_test::{closure#1}, ()>::{closure#1} at lifecycle.rs:68:26 [opt]
-2026-10-25T15:01:00.7107190Z     frame #27: 0x0000000100016554 metal_scene-d5617e4cb1d7270e`<std::thread::lifecycle::spawn_unchecked<test::run_test::{closure#1}, ()>::{closure#1} as core::ops::function::FnOnce<()>>::call_once::{shim:vtable#0} at function.rs:250:5 [opt]
-2026-10-25T15:01:00.7108240Z     frame #28: 0x0000000100bd53e8 libstd-3f21d70fba8f3088.dylib`<std::sys::thread::unix::Thread>::new::thread_start + 392
-2026-10-25T15:01:00.7109010Z     frame #29: 0x0000000199172f3c libsystem_pthread.dylib`_pthread_start + 136
-2026-10-25T15:01:00.7109350Z (lldb) quit 1
-2026-10-25T15:01:00.7112430Z ##[endgroup]
-2026-10-25T15:01:00.9470110Z ##[group]lldb backtrace: metal_smoke-9ea6ddadf051f37e
-2026-10-25T15:01:03.2261480Z (lldb) target create "/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_smoke-9ea6ddadf051f37e"
-2026-10-25T15:01:03.2262430Z Current executable set to '/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_smoke-9ea6ddadf051f37e' (arm64).
-2026-10-25T15:01:03.2263130Z (lldb) settings set -- target.run-args  "--ignored" "--test-threads=1" "--nocapture"
-2026-10-25T15:01:03.2263470Z (lldb) run
-2026-10-25T15:01:03.2263560Z 
-2026-10-25T15:01:03.2263720Z running 7 tests
-2026-10-25T15:01:03.2264270Z test a_bad_index_is_refused_not_drawn ... 2026-10-25 15:01:03.044780+0000 metal_smoke-9ea6ddadf051f37e[27327:77399] Metal API Validation Enabled
-2026-10-25T15:01:03.2265040Z 2026-10-25 15:01:03.044993+0000 metal_smoke-9ea6ddadf051f37e[27327:77399] Metal GPU Validation Enabled
-2026-10-25T15:01:03.2265660Z ok
-2026-10-25T15:01:03.2265910Z test a_clear_reads_back_as_the_requested_colour ... ok
-2026-10-25T15:01:03.2266280Z test a_mesh_lands_where_it_was_drawn_and_nowhere_else ... 
-2026-10-25T15:01:03.2266840Z thread 'a_mesh_lands_where_it_was_drawn_and_nowhere_else' (77403) panicked at crates/vieww-hal/tests/metal_smoke.rs:99:5:
-2026-10-25T15:01:03.2267350Z assertion `left == right` failed
-2026-10-25T15:01:03.2267680Z   left: [0, 0, 0, 0]
-2026-10-25T15:01:03.2267940Z  right: [255, 0, 0, 255]
-2026-10-25T15:01:03.2268220Z stack backtrace:
-2026-10-25T15:01:03.2268390Z    0: __rustc::rust_begin_unwind
-2026-10-25T15:01:03.2268700Z    1: core::panicking::panic_fmt
-2026-10-25T15:01:03.2269030Z    2: core::panicking::assert_failed_inner
-2026-10-25T15:01:03.2269390Z    3: core::panicking::assert_failed::<[u8; 4], [u8; 4]>
-2026-10-25T15:01:03.2269890Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:394:5
-2026-10-25T15:01:03.2270350Z    4: metal_smoke::a_mesh_lands_where_it_was_drawn_and_nowhere_else
-2026-10-25T15:01:03.2270790Z              at ./crates/vieww-hal/tests/metal_smoke.rs:99:5
-2026-10-25T15:01:03.2271370Z    5: metal_smoke::a_mesh_lands_where_it_was_drawn_and_nowhere_else::{closure#0}
-2026-10-25T15:01:03.2271900Z              at ./crates/vieww-hal/tests/metal_smoke.rs:75:54
-2026-10-25T15:01:03.2272550Z    6: <metal_smoke::a_mesh_lands_where_it_was_drawn_and_nowhere_else::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-2026-10-25T15:01:03.2273240Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-10-25T15:01:03.2273790Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-2026-10-25T15:01:03.2274470Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-10-25T15:01:03.2275130Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-10-25T15:01:03.2275570Z FAILED
-2026-10-25T15:01:03.2275740Z test an_empty_mesh_draws_a_transparent_frame ... ok
-2026-10-25T15:01:03.2276620Z test reports_an_adapter ... Metal adapter: AdapterInfo { name: "Apple Paravirtual device", backend: "metal", device_type: "integrated" } (needs a Metal device; run with `cargo test -p vieww-hal --features metal -- --ignored`)
-2026-10-25T15:01:03.2277980Z ok
-2026-10-25T15:01:03.2278190Z test several_frames_on_one_device ... ok
-2026-10-25T15:01:03.2278610Z test the_mesh_path_agrees_with_vulkans_pixel_rule ... 
-2026-10-25T15:01:03.2279140Z thread 'the_mesh_path_agrees_with_vulkans_pixel_rule' (77408) panicked at crates/vieww-hal/tests/metal_smoke.rs:130:5:
-2026-10-25T15:01:03.2279650Z assertion `left == right` failed
-2026-10-25T15:01:03.2279910Z   left: 0
-2026-10-25T15:01:03.2280490Z  right: 255
-2026-10-25T15:01:03.2280690Z stack backtrace:
-2026-10-25T15:01:03.2280930Z    0: __rustc::rust_begin_unwind
-2026-10-25T15:01:03.2281200Z    1: core::panicking::panic_fmt
-2026-10-25T15:01:03.2281440Z    2: core::panicking::assert_failed_inner
-2026-10-25T15:01:03.2281760Z    3: core::panicking::assert_failed::<u8, u8>
-2026-10-25T15:01:03.2282090Z    4: metal_smoke::the_mesh_path_agrees_with_vulkans_pixel_rule
-2026-10-25T15:01:03.2282530Z    5: metal_smoke::the_mesh_path_agrees_with_vulkans_pixel_rule::{closure#0}
-2026-10-25T15:01:03.2282920Z              at ./crates/vieww-hal/tests/metal_smoke.rs:107:50
-2026-10-25T15:01:03.2283460Z    6: <metal_smoke::the_mesh_path_agrees_with_vulkans_pixel_rule::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-2026-10-25T15:01:03.2284060Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-10-25T15:01:03.2284720Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-2026-10-25T15:01:03.2285370Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-10-25T15:01:03.2285880Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-10-25T15:01:03.2286270Z FAILED
-2026-10-25T15:01:03.2286380Z 
-2026-10-25T15:01:03.2286430Z failures:
-2026-10-25T15:01:03.2286540Z 
-2026-10-25T15:01:03.2286640Z failures:
-2026-10-25T15:01:03.2286840Z     a_mesh_lands_where_it_was_drawn_and_nowhere_else
-2026-10-25T15:01:03.2287220Z     the_mesh_path_agrees_with_vulkans_pixel_rule
-2026-10-25T15:01:03.2287420Z 
-2026-10-25T15:01:03.2287670Z test result: FAILED. 5 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
-2026-10-25T15:01:03.2287950Z 
-2026-10-25T15:01:03.2288100Z Process 27327 exited with status = 101 (0x00000065)
-2026-10-25T15:01:03.2288680Z Process 27327 launched: '/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_smoke-9ea6ddadf051f37e' (arm64)
-2026-10-25T15:01:03.2289600Z ##[endgroup]
-2026-10-25T15:01:03.2391940Z ##[error]Process completed with exit code 101.
+2026-10-26T09:40:02.3037190Z mismatch at (23, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
+2026-10-26T09:40:02.3139560Z mismatch at (24, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
+2026-10-26T09:40:02.3241620Z mismatch at (25, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
+2026-10-26T09:40:02.3343590Z mismatch at (26, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
+2026-10-26T09:40:02.3445060Z mismatch at (27, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
+2026-10-26T09:40:02.3630090Z mismatch at (28, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
+2026-10-26T09:40:02.3730890Z 
+2026-10-26T09:40:02.3832380Z thread 'one_rectangle_lands_where_the_geometry_says' (30925) panicked at crates/vieww-hal/tests/metal_scene.rs:164:5:
+2026-10-26T09:40:02.3935260Z assertion `left == right` failed: GPU and CPU must agree away from shape edges; 2204 interior pixels differed
+2026-10-26T09:40:02.3936610Z   left: 2204
+2026-10-26T09:40:02.4038390Z  right: 0
+2026-10-26T09:40:02.4140380Z stack backtrace:
+2026-10-26T09:40:02.4241820Z    0: __rustc::rust_begin_unwind
+2026-10-26T09:40:02.4342570Z    1: core::panicking::panic_fmt
+2026-10-26T09:40:02.4343130Z test overlapping_translucent_fills_composite_like_the_cpu_rasterizer ... FAILED
+2026-10-26T09:40:02.4445440Z    2: core::panicking::assert_failed_inner
+2026-10-26T09:40:02.4545400Z    3: core::panicking::assert_failed::<usize, usize>
+2026-10-26T09:40:02.4645770Z    4: metal_scene::one_rectangle_lands_where_the_geometry_says
+2026-10-26T09:40:02.4746900Z              at ./tests/metal_scene.rs:164:5
+2026-10-26T09:40:02.4848780Z    5: metal_scene::one_rectangle_lands_where_the_geometry_says::{closure#0}
+2026-10-26T09:40:02.4949160Z              at ./tests/metal_scene.rs:144:49
+2026-10-26T09:40:02.5050920Z    6: <metal_scene::one_rectangle_lands_where_the_geometry_says::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:02.5151110Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:02.5251900Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:02.5353200Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:02.5455000Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:40:02.5555740Z mismatch at (11, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
+2026-10-26T09:40:02.5656530Z mismatch at (12, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
+2026-10-26T09:40:02.5870250Z mismatch at (13, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
+2026-10-26T09:40:02.5969040Z mismatch at (14, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
+2026-10-26T09:40:02.6070190Z mismatch at (15, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
+2026-10-26T09:40:02.6070810Z test the_renderer_is_reusable_across_frames_and_sizes ... ok
+2026-10-26T09:40:02.6182610Z mismatch at (16, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
+2026-10-26T09:40:02.6183490Z test the_renderer_refuses_a_plan_it_cannot_draw ... FAILED
+2026-10-26T09:40:02.6273470Z mismatch at (17, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
+2026-10-26T09:40:02.6273870Z 
+2026-10-26T09:40:02.6274360Z mismatch at (18, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
+2026-10-26T09:40:02.6274690Z failures:
+2026-10-26T09:40:02.6274820Z 
+2026-10-26T09:40:02.6274900Z failures:
+2026-10-26T09:40:02.6275330Z     a_damaged_frame_keeps_the_previous_frame_outside_the_damage
+2026-10-26T09:40:02.6275770Z     a_group_opacity_layer_composites_like_the_cpu_rasterizer
+2026-10-26T09:40:02.6276180Z     one_rectangle_lands_where_the_geometry_says
+2026-10-26T09:40:02.6276670Z     overlapping_translucent_fills_composite_like_the_cpu_rasterizer
+2026-10-26T09:40:02.6277450Z     the_renderer_refuses_a_plan_it_cannot_draw
+2026-10-26T09:40:02.6277680Z 
+2026-10-26T09:40:02.6278000Z test result: FAILED. 2 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.91s
+2026-10-26T09:40:02.6278320Z 
+2026-10-26T09:40:02.6278350Z 
+2026-10-26T09:40:02.6278810Z thread 'overlapping_translucent_fills_composite_like_the_cpu_rasterizer' (30926) panicked at crates/vieww-hal/tests/metal_scene.rs:200:5:
+2026-10-26T09:40:02.6279700Z assertion `left == right` failed: GPU and CPU must agree away from shape edges; 5032 interior pixels differed
+2026-10-26T09:40:02.6280230Z   left: 5032
+2026-10-26T09:40:02.6280600Z  right: 0
+2026-10-26T09:40:02.6280830Z stack backtrace:
+2026-10-26T09:40:02.6281160Z    0: __rustc::rust_begin_unwind
+2026-10-26T09:40:02.6281630Z    1: core::panicking::panic_fmt
+2026-10-26T09:40:02.6281920Z    2: core::panicking::assert_failed_inner
+2026-10-26T09:40:02.6282340Z    3: core::panicking::assert_failed::<usize, usize>
+2026-10-26T09:40:02.6283830Z    4: metal_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer
+2026-10-26T09:40:02.6284440Z              at ./tests/metal_scene.rs:200:5
+2026-10-26T09:40:02.6284970Z    5: metal_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer::{closure#0}
+2026-10-26T09:40:02.6285520Z              at ./tests/metal_scene.rs:172:69
+2026-10-26T09:40:02.6286220Z    6: <metal_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:02.6286960Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:02.6287670Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:02.6288280Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:02.6288920Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:40:02.6289280Z 
+2026-10-26T09:40:02.6289550Z thread 'the_renderer_refuses_a_plan_it_cannot_draw' (30931) panicked at crates/vieww-hal/tests/metal_scene.rs:281:5:
+2026-10-26T09:40:02.6290550Z assertion failed: !plan.is_complete()
+2026-10-26T09:40:02.6290880Z stack backtrace:
+2026-10-26T09:40:02.6291110Z    0: __rustc::rust_begin_unwind
+2026-10-26T09:40:02.6291410Z    1: core::panicking::panic_fmt
+2026-10-26T09:40:02.6291660Z    2: core::panicking::panic
+2026-10-26T09:40:02.6292000Z    3: metal_scene::the_renderer_refuses_a_plan_it_cannot_draw
+2026-10-26T09:40:02.6292740Z              at ./tests/metal_scene.rs:281:5
+2026-10-26T09:40:02.6293110Z    4: metal_scene::the_renderer_refuses_a_plan_it_cannot_draw::{closure#0}
+2026-10-26T09:40:02.6293520Z              at ./tests/metal_scene.rs:253:48
+2026-10-26T09:40:02.6294000Z    5: <metal_scene::the_renderer_refuses_a_plan_it_cannot_draw::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:02.6294680Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:02.6295310Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:02.6295960Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:02.6296590Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:40:02.6297490Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test metal_scene`
+2026-10-26T09:40:04.1788480Z ##[group]lldb backtrace: metal_smoke-9ea6ddadf051f37e
+2026-10-26T09:40:11.3074760Z (lldb) target create "/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_smoke-9ea6ddadf051f37e"
+2026-10-26T09:40:11.3081030Z Current executable set to '/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_smoke-9ea6ddadf051f37e' (arm64).
+2026-10-26T09:40:11.3083090Z (lldb) settings set -- target.run-args  "--ignored" "--test-threads=1" "--nocapture"
+2026-10-26T09:40:11.3084970Z (lldb) run
+2026-10-26T09:40:11.3085390Z 
+2026-10-26T09:40:11.3086300Z running 7 tests
+2026-10-26T09:40:11.3087060Z test a_bad_index_is_refused_not_drawn ... 2026-10-26 09:40:10.956104+0000 metal_smoke-9ea6ddadf051f37e[8614:31184] Metal API Validation Enabled
+2026-10-26T09:40:11.3088390Z 2026-10-26 09:40:10.956348+0000 metal_smoke-9ea6ddadf051f37e[8614:31184] Metal GPU Validation Enabled
+2026-10-26T09:40:11.3089010Z ok
+2026-10-26T09:40:11.3089230Z test a_clear_reads_back_as_the_requested_colour ... ok
+2026-10-26T09:40:11.3090860Z test a_mesh_lands_where_it_was_drawn_and_nowhere_else ... 
+2026-10-26T09:40:11.3092640Z thread 'a_mesh_lands_where_it_was_drawn_and_nowhere_else' (31191) panicked at crates/vieww-hal/tests/metal_smoke.rs:99:5:
+2026-10-26T09:40:11.3093780Z assertion `left == right` failed
+2026-10-26T09:40:11.3094230Z   left: [0, 0, 0, 0]
+2026-10-26T09:40:11.3094910Z  right: [255, 0, 0, 255]
+2026-10-26T09:40:11.3095950Z stack backtrace:
+2026-10-26T09:40:11.3097160Z    0: __rustc::rust_begin_unwind
+2026-10-26T09:40:11.3097720Z    1: core::panicking::panic_fmt
+2026-10-26T09:40:11.3098050Z    2: core::panicking::assert_failed_inner
+2026-10-26T09:40:11.3098460Z    3: core::panicking::assert_failed::<[u8; 4], [u8; 4]>
+2026-10-26T09:40:11.3098990Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:394:5
+2026-10-26T09:40:11.3099520Z    4: metal_smoke::a_mesh_lands_where_it_was_drawn_and_nowhere_else
+2026-10-26T09:40:11.3100110Z              at ./crates/vieww-hal/tests/metal_smoke.rs:99:5
+2026-10-26T09:40:11.3100570Z    5: metal_smoke::a_mesh_lands_where_it_was_drawn_and_nowhere_else::{closure#0}
+2026-10-26T09:40:11.3101150Z              at ./crates/vieww-hal/tests/metal_smoke.rs:75:54
+2026-10-26T09:40:11.3101770Z    6: <metal_smoke::a_mesh_lands_where_it_was_drawn_and_nowhere_else::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:11.3102490Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:11.3103100Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:11.3105250Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:11.3105830Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:40:11.3106320Z FAILED
+2026-10-26T09:40:11.3106640Z test an_empty_mesh_draws_a_transparent_frame ... ok
+2026-10-26T09:40:11.3108730Z test reports_an_adapter ... Metal adapter: AdapterInfo { name: "Apple Paravirtual device", backend: "metal", device_type: "integrated" } (needs a Metal device; run with `cargo test -p vieww-hal --features metal -- --ignored`)
+2026-10-26T09:40:11.3122350Z ok
+2026-10-26T09:40:11.3122670Z test several_frames_on_one_device ... ok
+2026-10-26T09:40:11.3123160Z test the_mesh_path_agrees_with_vulkans_pixel_rule ... 
+2026-10-26T09:40:11.3123770Z thread 'the_mesh_path_agrees_with_vulkans_pixel_rule' (31200) panicked at crates/vieww-hal/tests/metal_smoke.rs:130:5:
+2026-10-26T09:40:11.3124300Z assertion `left == right` failed
+2026-10-26T09:40:11.3126800Z   left: 0
+2026-10-26T09:40:11.3134210Z  right: 255
+2026-10-26T09:40:11.3134550Z stack backtrace:
+2026-10-26T09:40:11.3134870Z    0: __rustc::rust_begin_unwind
+2026-10-26T09:40:11.3135260Z    1: core::panicking::panic_fmt
+2026-10-26T09:40:11.3135580Z    2: core::panicking::assert_failed_inner
+2026-10-26T09:40:11.3136040Z    3: core::panicking::assert_failed::<u8, u8>
+2026-10-26T09:40:11.3140430Z    4: metal_smoke::the_mesh_path_agrees_with_vulkans_pixel_rule
+2026-10-26T09:40:11.3154790Z    5: metal_smoke::the_mesh_path_agrees_with_vulkans_pixel_rule::{closure#0}
+2026-10-26T09:40:11.3159110Z              at ./crates/vieww-hal/tests/metal_smoke.rs:107:50
+2026-10-26T09:40:11.3165600Z    6: <metal_smoke::the_mesh_path_agrees_with_vulkans_pixel_rule::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:11.3172120Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:11.3173100Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:11.3174910Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:11.3177440Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:40:11.3178900Z FAILED
+2026-10-26T09:40:11.3179340Z 
+2026-10-26T09:40:11.3179500Z failures:
+2026-10-26T09:40:11.3180560Z 
+2026-10-26T09:40:11.3181120Z failures:
+2026-10-26T09:40:11.3182890Z     a_mesh_lands_where_it_was_drawn_and_nowhere_else
+2026-10-26T09:40:11.3184280Z     the_mesh_path_agrees_with_vulkans_pixel_rule
+2026-10-26T09:40:11.3184710Z 
+2026-10-26T09:40:11.3185330Z test result: FAILED. 5 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+2026-10-26T09:40:11.3186180Z 
+2026-10-26T09:40:11.3186480Z Process 8614 exited with status = 101 (0x00000065)
+2026-10-26T09:40:11.3187670Z Process 8614 launched: '/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_smoke-9ea6ddadf051f37e' (arm64)
+2026-10-26T09:40:11.3190650Z ##[endgroup]
+2026-10-26T09:40:12.3350250Z ##[group]lldb backtrace: metal_scene-d5617e4cb1d7270e
+2026-10-26T09:40:16.8909820Z (lldb) target create "/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_scene-d5617e4cb1d7270e"
+2026-10-26T09:40:16.8921990Z Current executable set to '/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_scene-d5617e4cb1d7270e' (arm64).
+2026-10-26T09:40:16.8926760Z (lldb) settings set -- target.run-args  "--ignored" "--test-threads=1" "--nocapture"
+2026-10-26T09:40:16.9018110Z (lldb) run
+2026-10-26T09:40:16.9018770Z 
+2026-10-26T09:40:16.9018940Z running 7 tests
+2026-10-26T09:40:16.9019690Z test a_damaged_frame_keeps_the_previous_frame_outside_the_damage ... 2026-10-26 09:40:15.715790+0000 metal_scene-d5617e4cb1d7270e[8637:31352] Metal API Validation Enabled
+2026-10-26T09:40:16.9024660Z 2026-10-26 09:40:15.716054+0000 metal_scene-d5617e4cb1d7270e[8637:31352] Metal GPU Validation Enabled
+2026-10-26T09:40:16.9027440Z 
+2026-10-26T09:40:16.9029300Z thread 'a_damaged_frame_keeps_the_previous_frame_outside_the_damage' (31352) panicked at crates/vieww-hal/tests/metal_scene.rs:418:13:
+2026-10-26T09:40:16.9031610Z assertion `left == right` failed: pixel (5, 5) inside the damage is the new scene's background
+2026-10-26T09:40:16.9032980Z   left: [255, 255, 255, 255]
+2026-10-26T09:40:16.9033430Z  right: [30, 30, 200, 255]
+2026-10-26T09:40:16.9034260Z stack backtrace:
+2026-10-26T09:40:16.9034980Z    0: __rustc::rust_begin_unwind
+2026-10-26T09:40:16.9035280Z    1: core::panicking::panic_fmt
+2026-10-26T09:40:16.9035600Z    2: core::panicking::assert_failed_inner
+2026-10-26T09:40:16.9036000Z    3: core::panicking::assert_failed::<&[u8], &[u8; 4]>
+2026-10-26T09:40:16.9036500Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:394:5
+2026-10-26T09:40:16.9037140Z    4: metal_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage
+2026-10-26T09:40:16.9037870Z              at ./crates/vieww-hal/tests/metal_scene.rs:418:13
+2026-10-26T09:40:16.9038420Z    5: metal_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::{closure#0}
+2026-10-26T09:40:16.9038900Z              at ./crates/vieww-hal/tests/metal_scene.rs:345:65
+2026-10-26T09:40:16.9039730Z    6: <metal_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:16.9040480Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:16.9041140Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:16.9041760Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:16.9042300Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:40:16.9042710Z FAILED
+2026-10-26T09:40:16.9043150Z test a_group_opacity_layer_composites_like_the_cpu_rasterizer ... mismatch at (21, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
+2026-10-26T09:40:16.9044520Z mismatch at (22, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
+2026-10-26T09:40:16.9045710Z mismatch at (23, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
+2026-10-26T09:40:16.9046730Z mismatch at (24, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
+2026-10-26T09:40:16.9047970Z mismatch at (25, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
+2026-10-26T09:40:16.9049800Z mismatch at (26, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
+2026-10-26T09:40:16.9052750Z mismatch at (27, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
+2026-10-26T09:40:16.9053660Z mismatch at (28, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
+2026-10-26T09:40:16.9054250Z 
+2026-10-26T09:40:16.9055130Z thread 'a_group_opacity_layer_composites_like_the_cpu_rasterizer' (31372) panicked at crates/vieww-hal/tests/metal_scene.rs:245:5:
+2026-10-26T09:40:16.9058550Z assertion `left == right` failed: GPU and CPU must agree away from shape edges; 2228 interior pixels differed
+2026-10-26T09:40:16.9059620Z   left: 2228
+2026-10-26T09:40:16.9059920Z  right: 0
+2026-10-26T09:40:16.9060110Z stack backtrace:
+2026-10-26T09:40:16.9060400Z    0: __rustc::rust_begin_unwind
+2026-10-26T09:40:16.9060650Z    1: core::panicking::panic_fmt
+2026-10-26T09:40:16.9060980Z    2: core::panicking::assert_failed_inner
+2026-10-26T09:40:16.9061270Z    3: core::panicking::assert_failed::<usize, usize>
+2026-10-26T09:40:16.9061700Z    4: metal_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+2026-10-26T09:40:16.9062120Z              at ./crates/vieww-hal/tests/metal_scene.rs:245:5
+2026-10-26T09:40:16.9064710Z    5: metal_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::{closure#0}
+2026-10-26T09:40:16.9065400Z              at ./crates/vieww-hal/tests/metal_scene.rs:208:62
+2026-10-26T09:40:16.9065940Z    6: <metal_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:16.9066660Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:16.9067470Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:16.9068360Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:16.9068920Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:40:16.9069460Z FAILED
+2026-10-26T09:40:16.9069760Z test an_empty_scene_is_the_clear_colour_exactly ... ok
+2026-10-26T09:40:16.9070290Z test one_rectangle_lands_where_the_geometry_says ... mismatch at (21, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
+2026-10-26T09:40:16.9070860Z mismatch at (22, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
+2026-10-26T09:40:16.9071230Z mismatch at (23, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
+2026-10-26T09:40:16.9071680Z mismatch at (24, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
+2026-10-26T09:40:16.9072100Z mismatch at (25, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
+2026-10-26T09:40:16.9072530Z mismatch at (26, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
+2026-10-26T09:40:16.9072900Z mismatch at (27, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
+2026-10-26T09:40:16.9091200Z mismatch at (28, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
+2026-10-26T09:40:16.9091460Z 
+2026-10-26T09:40:16.9091840Z thread 'one_rectangle_lands_where_the_geometry_says' (31384) panicked at crates/vieww-hal/tests/metal_scene.rs:164:5:
+2026-10-26T09:40:16.9092490Z assertion `left == right` failed: GPU and CPU must agree away from shape edges; 2204 interior pixels differed
+2026-10-26T09:40:16.9093170Z   left: 2204
+2026-10-26T09:40:16.9093750Z  right: 0
+2026-10-26T09:40:16.9093990Z stack backtrace:
+2026-10-26T09:40:16.9094260Z    0: __rustc::rust_begin_unwind
+2026-10-26T09:40:16.9095270Z    1: core::panicking::panic_fmt
+2026-10-26T09:40:16.9095640Z    2: core::panicking::assert_failed_inner
+2026-10-26T09:40:16.9095960Z    3: core::panicking::assert_failed::<usize, usize>
+2026-10-26T09:40:16.9096370Z    4: metal_scene::one_rectangle_lands_where_the_geometry_says
+2026-10-26T09:40:16.9096730Z              at ./crates/vieww-hal/tests/metal_scene.rs:164:5
+2026-10-26T09:40:16.9097170Z    5: metal_scene::one_rectangle_lands_where_the_geometry_says::{closure#0}
+2026-10-26T09:40:16.9097570Z              at ./crates/vieww-hal/tests/metal_scene.rs:144:49
+2026-10-26T09:40:16.9098180Z    6: <metal_scene::one_rectangle_lands_where_the_geometry_says::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:16.9098950Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:16.9099540Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:16.9100170Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:16.9101040Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:40:16.9101580Z FAILED
+2026-10-26T09:40:16.9102090Z test overlapping_translucent_fills_composite_like_the_cpu_rasterizer ... mismatch at (11, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
+2026-10-26T09:40:16.9102750Z mismatch at (12, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
+2026-10-26T09:40:16.9103180Z mismatch at (13, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
+2026-10-26T09:40:16.9104030Z mismatch at (14, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
+2026-10-26T09:40:16.9104470Z mismatch at (15, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
+2026-10-26T09:40:16.9105190Z mismatch at (16, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
+2026-10-26T09:40:16.9105660Z mismatch at (17, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
+2026-10-26T09:40:16.9106030Z mismatch at (18, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
+2026-10-26T09:40:16.9106360Z 
+2026-10-26T09:40:16.9145240Z thread 'overlapping_translucent_fills_composite_like_the_cpu_rasterizer' (31385) panicked at crates/vieww-hal/tests/metal_scene.rs:200:5:
+2026-10-26T09:40:16.9146710Z assertion `left == right` failed: GPU and CPU must agree away from shape edges; 5032 interior pixels differed
+2026-10-26T09:40:16.9147150Z   left: 5032
+2026-10-26T09:40:16.9147410Z  right: 0
+2026-10-26T09:40:16.9147600Z stack backtrace:
+2026-10-26T09:40:16.9147870Z    0: __rustc::rust_begin_unwind
+2026-10-26T09:40:16.9148130Z    1: core::panicking::panic_fmt
+2026-10-26T09:40:16.9149160Z    2: core::panicking::assert_failed_inner
+2026-10-26T09:40:16.9149540Z    3: core::panicking::assert_failed::<usize, usize>
+2026-10-26T09:40:16.9149950Z    4: metal_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer
+2026-10-26T09:40:16.9150400Z              at ./crates/vieww-hal/tests/metal_scene.rs:200:5
+2026-10-26T09:40:16.9150840Z    5: metal_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer::{closure#0}
+2026-10-26T09:40:16.9151330Z              at ./crates/vieww-hal/tests/metal_scene.rs:172:69
+2026-10-26T09:40:16.9151900Z    6: <metal_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:16.9152650Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:16.9153340Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:16.9153920Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:16.9154530Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:40:16.9154900Z FAILED
+2026-10-26T09:40:16.9155220Z test the_renderer_is_reusable_across_frames_and_sizes ... ok
+2026-10-26T09:40:16.9155630Z test the_renderer_refuses_a_plan_it_cannot_draw ... 
+2026-10-26T09:40:16.9156090Z thread 'the_renderer_refuses_a_plan_it_cannot_draw' (31391) panicked at crates/vieww-hal/tests/metal_scene.rs:281:5:
+2026-10-26T09:40:16.9156580Z assertion failed: !plan.is_complete()
+2026-10-26T09:40:16.9156870Z stack backtrace:
+2026-10-26T09:40:16.9157040Z    0: __rustc::rust_begin_unwind
+2026-10-26T09:40:16.9157240Z    1: core::panicking::panic_fmt
+2026-10-26T09:40:16.9157450Z    2: core::panicking::panic
+2026-10-26T09:40:16.9157810Z    3: metal_scene::the_renderer_refuses_a_plan_it_cannot_draw
+2026-10-26T09:40:16.9158150Z              at ./crates/vieww-hal/tests/metal_scene.rs:281:5
+2026-10-26T09:40:16.9158530Z    4: metal_scene::the_renderer_refuses_a_plan_it_cannot_draw::{closure#0}
+2026-10-26T09:40:16.9158910Z              at ./crates/vieww-hal/tests/metal_scene.rs:253:48
+2026-10-26T09:40:16.9159470Z    5: <metal_scene::the_renderer_refuses_a_plan_it_cannot_draw::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:16.9160110Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:16.9160720Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-10-26T09:40:16.9161380Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-10-26T09:40:16.9161890Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:40:16.9162330Z FAILED
+2026-10-26T09:40:16.9162450Z 
+2026-10-26T09:40:16.9162510Z failures:
+2026-10-26T09:40:16.9162640Z 
+2026-10-26T09:40:16.9162740Z failures:
+2026-10-26T09:40:16.9163050Z     a_damaged_frame_keeps_the_previous_frame_outside_the_damage
+2026-10-26T09:40:16.9163750Z     a_group_opacity_layer_composites_like_the_cpu_rasterizer
+2026-10-26T09:40:16.9164140Z     one_rectangle_lands_where_the_geometry_says
+2026-10-26T09:40:16.9164500Z     overlapping_translucent_fills_composite_like_the_cpu_rasterizer
+2026-10-26T09:40:16.9164930Z     the_renderer_refuses_a_plan_it_cannot_draw
+2026-10-26T09:40:16.9165090Z 
+2026-10-26T09:40:16.9165350Z test result: FAILED. 2 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.19s
+2026-10-26T09:40:16.9165890Z 
+2026-10-26T09:40:16.9166030Z Process 8637 exited with status = 101 (0x00000065)
+2026-10-26T09:40:16.9166580Z Process 8637 launched: '/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_scene-d5617e4cb1d7270e' (arm64)
+2026-10-26T09:40:16.9169270Z ##[endgroup]
+2026-10-26T09:40:16.9392980Z ##[error]Process completed with exit code 101.
+
+===== Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter) =====
+2026-10-26T09:31:39.5197389Z   VIEWW_REQUIRE_HARDWARE: gpu
+2026-10-26T09:31:39.5197843Z ##[endgroup]
+2026-10-26T09:31:40.0220179Z ^[[1m^[[92m   Compiling^[[0m unicode-ident v1.0.26
+2026-10-26T09:31:40.0229198Z ^[[1m^[[92m   Compiling^[[0m libm v0.2.16
+2026-10-26T09:31:40.0235150Z ^[[1m^[[92m   Compiling^[[0m cfg-if v1.0.5
+2026-10-26T09:31:40.0236772Z ^[[1m^[[92m   Compiling^[[0m bitflags v2.13.2
+2026-10-26T09:31:40.0776965Z ^[[1m^[[92m   Compiling^[[0m once_cell v1.21.4
+2026-10-26T09:31:40.2035237Z ^[[1m^[[92m   Compiling^[[0m proc-macro2 v1.0.107
+2026-10-26T09:31:40.2809297Z ^[[1m^[[92m   Compiling^[[0m log v0.4.34
+2026-10-26T09:31:40.7031142Z ^[[1m^[[92m   Compiling^[[0m foldhash v0.2.0
+2026-10-26T09:31:40.8488564Z ^[[1m^[[92m   Compiling^[[0m arrayvec v0.7.8
+2026-10-26T09:31:41.0946677Z ^[[1m^[[92m   Compiling^[[0m quote v1.0.47
+2026-10-26T09:31:41.2217144Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
+2026-10-26T09:31:42.5270837Z ^[[1m^[[92m   Compiling^[[0m syn v3.0.6
+2026-10-26T09:31:42.7554205Z ^[[1m^[[92m   Compiling^[[0m syn v2.0.119
+2026-10-26T09:31:46.2318690Z ^[[1m^[[92m   Compiling^[[0m core_maths v0.1.1
+2026-10-26T09:31:46.3397418Z ^[[1m^[[92m   Compiling^[[0m num-traits v0.2.19
+2026-10-26T09:31:46.3962193Z ^[[1m^[[92m   Compiling^[[0m equivalent v1.0.2
+2026-10-26T09:31:46.4997429Z ^[[1m^[[92m   Compiling^[[0m simd-adler32 v0.3.10
+2026-10-26T09:31:47.2455730Z ^[[1m^[[92m   Compiling^[[0m indexmap v2.14.2
+2026-10-26T09:31:48.0549057Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v1.1.0
+2026-10-26T09:31:48.2502489Z ^[[1m^[[92m   Compiling^[[0m adler2 v2.0.1
+2026-10-26T09:31:48.5092572Z ^[[1m^[[92m   Compiling^[[0m unicode-width v0.2.2
+2026-10-26T09:31:48.7339163Z ^[[1m^[[92m   Compiling^[[0m bit-vec v0.9.1
+2026-10-26T09:31:48.9624188Z ^[[1m^[[92m   Compiling^[[0m codespan-reporting v0.13.1
+2026-10-26T09:31:49.2305158Z ^[[1m^[[92m   Compiling^[[0m bit-set v0.10.0
+2026-10-26T09:31:51.0964391Z ^[[1m^[[92m   Compiling^[[0m windows_x86_64_msvc v0.52.6
+2026-10-26T09:31:51.1448360Z ^[[1m^[[92m   Compiling^[[0m ttf-parser v0.25.1
+2026-10-26T09:31:51.4672268Z ^[[1m^[[92m   Compiling^[[0m spirv v0.4.0+sdk-1.4.341.0
+2026-10-26T09:31:59.6474075Z ^[[1m^[[92m   Compiling^[[0m unicode-segmentation v1.13.3
+2026-10-26T09:32:00.9821789Z ^[[1m^[[92m   Compiling^[[0m windows-targets v0.52.6
+2026-10-26T09:32:01.0346252Z ^[[1m^[[92m   Compiling^[[0m crc32fast v1.5.2
+2026-10-26T09:32:01.6914793Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.9.1
+2026-10-26T09:32:06.1210821Z ^[[1m^[[92m   Compiling^[[0m euclid v0.22.14
+2026-10-26T09:32:07.3682138Z ^[[1m^[[92m   Compiling^[[0m lyon_geom v1.0.19
+2026-10-26T09:32:07.5827931Z ^[[1m^[[92m   Compiling^[[0m flate2 v1.1.10
+2026-10-26T09:32:08.1431385Z ^[[1m^[[92m   Compiling^[[0m windows-result v0.2.0
+2026-10-26T09:32:08.7445620Z ^[[1m^[[92m   Compiling^[[0m vieww-foundation v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-foundation)
+2026-10-26T09:32:08.9000451Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.8.9
+2026-10-26T09:32:13.3053113Z ^[[1m^[[92m   Compiling^[[0m fdeflate v0.3.7
+2026-10-26T09:32:15.6069742Z ^[[1m^[[92m   Compiling^[[0m png v0.18.1
+2026-10-26T09:32:16.5341923Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
+2026-10-26T09:32:23.6329773Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v2.0.21
+2026-10-26T09:32:36.3529599Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
+2026-10-26T09:32:36.7830347Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
+2026-10-26T09:32:37.5798142Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
+2026-10-26T09:32:44.0282465Z ^[[1m^[[92m   Compiling^[[0m zerocopy-derive v0.8.59
+2026-10-26T09:32:48.3237295Z ^[[1m^[[92m   Compiling^[[0m thiserror v2.0.21
+2026-10-26T09:32:48.4171762Z ^[[1m^[[92m   Compiling^[[0m naga-types v30.0.1
+2026-10-26T09:32:48.6447410Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
+2026-10-26T09:32:49.3843527Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
+2026-10-26T09:32:49.5423163Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
+2026-10-26T09:33:24.6699149Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
+2026-10-26T09:33:31.5303268Z ^[[1m^[[92m   Compiling^[[0m half v2.7.1
+2026-10-26T09:33:32.2936603Z ^[[1m^[[92m   Compiling^[[0m naga v30.0.1
+2026-10-26T09:33:41.0642198Z ^[[1m^[[92m   Compiling^[[0m windows-interface v0.58.0
+2026-10-26T09:33:42.1105510Z ^[[1m^[[92m   Compiling^[[0m windows-implement v0.58.0
+2026-10-26T09:33:48.5628751Z ^[[1m^[[92m   Compiling^[[0m slotmap v1.1.1
+2026-10-26T09:33:49.2617306Z ^[[1m^[[92m   Compiling^[[0m windows-strings v0.1.0
+2026-10-26T09:33:50.8534944Z ^[[1m^[[92m   Compiling^[[0m lyon_path v1.0.19
+2026-10-26T09:33:51.5341738Z ^[[1m^[[92m   Compiling^[[0m smallvec v1.16.2
+2026-10-26T09:33:51.8927166Z ^[[1m^[[92m   Compiling^[[0m tinyvec v1.13.3
+2026-10-26T09:33:52.6048623Z ^[[1m^[[92m   Compiling^[[0m yazi v0.2.1
+2026-10-26T09:33:52.8762798Z ^[[1m^[[92m   Compiling^[[0m float_next_after v1.0.0
+2026-10-26T09:33:52.9814657Z ^[[1m^[[92m   Compiling^[[0m constant_time_eq v0.4.2
+2026-10-26T09:33:53.3276153Z ^[[1m^[[92m   Compiling^[[0m memmap2 v0.9.11
+2026-10-26T09:33:53.8325384Z ^[[1m^[[92m   Compiling^[[0m cpufeatures v0.3.1
+2026-10-26T09:33:53.8885773Z ^[[1m^[[92m   Compiling^[[0m zeno v0.3.3
+2026-10-26T09:33:55.6375687Z ^[[1m^[[92m   Compiling^[[0m windows-core v0.58.0
+2026-10-26T09:33:56.2964390Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
+2026-10-26T09:33:56.7272571Z ^[[1m^[[92m   Compiling^[[0m blake3 v1.8.7
+2026-10-26T09:33:57.8359544Z ^[[1m^[[92m   Compiling^[[0m fontdb v0.23.0
+2026-10-26T09:34:02.0953600Z ^[[1m^[[92m   Compiling^[[0m lyon_tessellation v1.0.22
+2026-10-26T09:34:04.2441480Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
+2026-10-26T09:34:38.6217282Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
+2026-10-26T09:34:47.6947272Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-paint)
+2026-10-26T09:35:04.6883252Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-shaders)
+2026-10-26T09:35:05.7647550Z ^[[1m^[[92m   Compiling^[[0m linebender_resource_handle v0.1.1
+2026-10-26T09:35:05.8791224Z ^[[1m^[[92m   Compiling^[[0m rangemap v1.8.0
+2026-10-26T09:35:06.4079887Z ^[[1m^[[92m   Compiling^[[0m unicode-bidi v0.3.18
+2026-10-26T09:35:09.7612926Z ^[[1m^[[92m   Compiling^[[0m sys-locale v0.3.2
+2026-10-26T09:35:10.0893912Z ^[[1m^[[92m   Compiling^[[0m unicode-linebreak v0.1.5
+2026-10-26T09:35:10.4835053Z ^[[1m^[[92m   Compiling^[[0m unicode-script v0.5.8
+2026-10-26T09:35:11.9055650Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.3.6
+2026-10-26T09:35:12.5158823Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v2.1.3
+2026-10-26T09:35:12.6139216Z ^[[1m^[[92m   Compiling^[[0m self_cell v1.3.0
+2026-10-26T09:35:12.7219735Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
+2026-10-26T09:35:26.4258984Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-gpu)
+2026-10-26T09:35:30.1687194Z ^[[1m^[[92m   Compiling^[[0m windows v0.58.0
+2026-10-26T09:35:30.2847669Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-text)
+2026-10-26T09:35:42.8691951Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-hal)
+2026-10-26T09:36:05.6054255Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized + debuginfo] target(s) in 4m 25s
+2026-10-26T09:36:05.6313333Z ^[[1m^[[92m     Running^[[0m unittests src\lib.rs (target\debug\deps\vieww_hal-a74ce4f11fce3cd2.exe)
+2026-10-26T09:36:05.6385349Z 
+2026-10-26T09:36:05.6385724Z running 0 tests
+2026-10-26T09:36:05.6386009Z 
+2026-10-26T09:36:05.6386443Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
+2026-10-26T09:36:05.6386946Z 
+2026-10-26T09:36:05.6400859Z ^[[1m^[[92m     Running^[[0m tests\d3d12_scene.rs (target\debug\deps\d3d12_scene-158b933f97f13737.exe)
+2026-10-26T09:36:05.6514845Z 
+2026-10-26T09:36:05.6515206Z running 7 tests
+2026-10-26T09:36:06.0708470Z test a_damaged_frame_keeps_the_previous_frame_outside_the_damage ... FAILED
+2026-10-26T09:36:06.2068024Z test a_group_opacity_layer_composites_like_the_cpu_rasterizer ... FAILED
+2026-10-26T09:36:06.3430267Z test an_empty_scene_is_the_clear_colour_exactly ... FAILED
+2026-10-26T09:36:06.4780814Z test one_rectangle_lands_where_the_geometry_says ... FAILED
+2026-10-26T09:36:06.6110548Z test overlapping_translucent_fills_composite_like_the_cpu_rasterizer ... FAILED
+2026-10-26T09:36:06.7466498Z test the_renderer_is_reusable_across_frames_and_sizes ... FAILED
+2026-10-26T09:36:06.8789866Z test the_renderer_refuses_a_plan_it_cannot_draw ... FAILED
+2026-10-26T09:36:06.8790483Z 
+2026-10-26T09:36:06.8790638Z failures:
+2026-10-26T09:36:06.8790867Z 
+2026-10-26T09:36:06.8791305Z ---- a_damaged_frame_keeps_the_previous_frame_outside_the_damage stdout ----
+2026-10-26T09:36:06.8792158Z 
+2026-10-26T09:36:06.8793121Z thread 'a_damaged_frame_keeps_the_previous_frame_outside_the_damage' (5016) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
+2026-10-26T09:36:06.8795136Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
+2026-10-26T09:36:06.8796218Z stack backtrace:
+2026-10-26T09:36:06.8801711Z    0: std::panicking::panic_handler
+2026-10-26T09:36:06.8802262Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+2026-10-26T09:36:06.8802776Z    1: core::panicking::panic_fmt
+2026-10-26T09:36:06.8803227Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+2026-10-26T09:36:06.8803745Z    2: core::result::unwrap_failed
+2026-10-26T09:36:06.8804193Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+2026-10-26T09:36:06.8804986Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+2026-10-26T09:36:06.8805750Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+2026-10-26T09:36:06.8839475Z    4: d3d12_scene::try_renderer
+2026-10-26T09:36:06.8839940Z              at .\tests\d3d12_scene.rs:52
+2026-10-26T09:36:06.8840625Z    5: d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage
+2026-10-26T09:36:06.8841319Z              at .\tests\d3d12_scene.rs:347
+2026-10-26T09:36:06.8842098Z    6: d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::closure$0
+2026-10-26T09:36:06.8842737Z              at .\tests\d3d12_scene.rs:346
+2026-10-26T09:36:06.8843402Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::closure_env$0,tuple$<> >
+2026-10-26T09:36:06.8844226Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T09:36:06.8845026Z    8: core::ops::function::FnOnce::call_once
+2026-10-26T09:36:06.8845514Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T09:36:06.8846164Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:36:06.8846543Z 
+2026-10-26T09:36:06.8846779Z ---- a_group_opacity_layer_composites_like_the_cpu_rasterizer stdout ----
+2026-10-26T09:36:06.8847083Z 
+2026-10-26T09:36:06.8847502Z thread 'a_group_opacity_layer_composites_like_the_cpu_rasterizer' (2364) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
+2026-10-26T09:36:06.8848442Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
+2026-10-26T09:36:06.8849073Z stack backtrace:
+2026-10-26T09:36:06.8849329Z    0: std::panicking::panic_handler
+2026-10-26T09:36:06.8849938Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+2026-10-26T09:36:06.8850428Z    1: core::panicking::panic_fmt
+2026-10-26T09:36:06.8850897Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+2026-10-26T09:36:06.8851373Z    2: core::result::unwrap_failed
+2026-10-26T09:36:06.8851794Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+2026-10-26T09:36:06.8852518Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+2026-10-26T09:36:06.8853213Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+2026-10-26T09:36:06.8853633Z    4: d3d12_scene::try_renderer
+2026-10-26T09:36:06.8853871Z              at .\tests\d3d12_scene.rs:52
+2026-10-26T09:36:06.8854228Z    5: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+2026-10-26T09:36:06.8854608Z              at .\tests\d3d12_scene.rs:210
+2026-10-26T09:36:06.8854998Z    6: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure$0
+2026-10-26T09:36:06.8855395Z              at .\tests\d3d12_scene.rs:209
+2026-10-26T09:36:06.8855963Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure_env$0,tuple$<> >
+2026-10-26T09:36:06.8856711Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T09:36:06.8857166Z    8: core::ops::function::FnOnce::call_once
+2026-10-26T09:36:06.8857600Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T09:36:06.8858185Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:36:06.8858502Z 
+2026-10-26T09:36:06.8858648Z ---- an_empty_scene_is_the_clear_colour_exactly stdout ----
+2026-10-26T09:36:06.8858887Z 
+2026-10-26T09:36:06.8859222Z thread 'an_empty_scene_is_the_clear_colour_exactly' (1456) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
+2026-10-26T09:36:06.8860258Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
+2026-10-26T09:36:06.8860849Z stack backtrace:
+2026-10-26T09:36:06.8861061Z    0: std::panicking::panic_handler
+2026-10-26T09:36:06.8861473Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+2026-10-26T09:36:06.8862099Z    1: core::panicking::panic_fmt
+2026-10-26T09:36:06.8862576Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+2026-10-26T09:36:06.8863001Z    2: core::result::unwrap_failed
+2026-10-26T09:36:06.8863379Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+2026-10-26T09:36:06.8864072Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+2026-10-26T09:36:06.8864887Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+2026-10-26T09:36:06.8865307Z    4: d3d12_scene::try_renderer
+2026-10-26T09:36:06.8865543Z              at .\tests\d3d12_scene.rs:52
+2026-10-26T09:36:06.8865856Z    5: d3d12_scene::an_empty_scene_is_the_clear_colour_exactly
+2026-10-26T09:36:06.8866190Z              at .\tests\d3d12_scene.rs:126
+2026-10-26T09:36:06.8866529Z    6: d3d12_scene::an_empty_scene_is_the_clear_colour_exactly::closure$0
+2026-10-26T09:36:06.8866876Z              at .\tests\d3d12_scene.rs:125
+2026-10-26T09:36:06.8867385Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::an_empty_scene_is_the_clear_colour_exactly::closure_env$0,tuple$<> >
+2026-10-26T09:36:06.8868071Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T09:36:06.8868544Z    8: core::ops::function::FnOnce::call_once
+2026-10-26T09:36:06.8869086Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T09:36:06.8869659Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:36:06.8869986Z 
+2026-10-26T09:36:06.8870129Z ---- one_rectangle_lands_where_the_geometry_says stdout ----
+2026-10-26T09:36:06.8870370Z 
+2026-10-26T09:36:06.8870690Z thread 'one_rectangle_lands_where_the_geometry_says' (6960) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
+2026-10-26T09:36:06.8871519Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
+2026-10-26T09:36:06.8872100Z stack backtrace:
+2026-10-26T09:36:06.8872319Z    0: std::panicking::panic_handler
+2026-10-26T09:36:06.8872716Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+2026-10-26T09:36:06.8873177Z    1: core::panicking::panic_fmt
+2026-10-26T09:36:06.8873574Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+2026-10-26T09:36:06.8873997Z    2: core::result::unwrap_failed
+2026-10-26T09:36:06.8874376Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+2026-10-26T09:36:06.8875052Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+2026-10-26T09:36:06.8875731Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+2026-10-26T09:36:06.8876143Z    4: d3d12_scene::try_renderer
+2026-10-26T09:36:06.8876372Z              at .\tests\d3d12_scene.rs:52
+2026-10-26T09:36:06.8876686Z    5: d3d12_scene::one_rectangle_lands_where_the_geometry_says
+2026-10-26T09:36:06.8877005Z              at .\tests\d3d12_scene.rs:146
+2026-10-26T09:36:06.8877361Z    6: d3d12_scene::one_rectangle_lands_where_the_geometry_says::closure$0
+2026-10-26T09:36:06.8877727Z              at .\tests\d3d12_scene.rs:145
+2026-10-26T09:36:06.8878240Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::one_rectangle_lands_where_the_geometry_says::closure_env$0,tuple$<> >
+2026-10-26T09:36:06.8878942Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T09:36:06.8879395Z    8: core::ops::function::FnOnce::call_once
+2026-10-26T09:36:06.8879824Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T09:36:06.8880389Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:36:06.8880710Z 
+2026-10-26T09:36:06.8880924Z ---- overlapping_translucent_fills_composite_like_the_cpu_rasterizer stdout ----
+2026-10-26T09:36:06.8881250Z 
+2026-10-26T09:36:06.8881645Z thread 'overlapping_translucent_fills_composite_like_the_cpu_rasterizer' (7504) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
+2026-10-26T09:36:06.8882614Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test d3d12_scene`
+2026-10-26T09:36:06.8883410Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
+2026-10-26T09:36:06.8883992Z stack backtrace:
+2026-10-26T09:36:06.8884219Z    0: std::panicking::panic_handler
+2026-10-26T09:36:06.8884618Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+2026-10-26T09:36:06.8885044Z    1: core::panicking::panic_fmt
+2026-10-26T09:36:06.8885425Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+2026-10-26T09:36:06.8885848Z    2: core::result::unwrap_failed
+2026-10-26T09:36:06.8886230Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+2026-10-26T09:36:06.8886898Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+2026-10-26T09:36:06.8888490Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+2026-10-26T09:36:06.8888918Z    4: d3d12_scene::try_renderer
+2026-10-26T09:36:06.8889151Z              at .\tests\d3d12_scene.rs:52
+2026-10-26T09:36:06.8889919Z    5: d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer
+2026-10-26T09:36:06.8890335Z              at .\tests\d3d12_scene.rs:174
+2026-10-26T09:36:06.8890753Z    6: d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer::closure$0
+2026-10-26T09:36:06.8891191Z              at .\tests\d3d12_scene.rs:173
+2026-10-26T09:36:06.8891791Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer::closure_env$0,tuple$<> >
+2026-10-26T09:36:06.8892575Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T09:36:06.8893024Z    8: core::ops::function::FnOnce::call_once
+2026-10-26T09:36:06.8893462Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T09:36:06.8894039Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:36:06.8894354Z 
+2026-10-26T09:36:06.8894516Z ---- the_renderer_is_reusable_across_frames_and_sizes stdout ----
+2026-10-26T09:36:06.8894770Z 
+2026-10-26T09:36:06.8895111Z thread 'the_renderer_is_reusable_across_frames_and_sizes' (5644) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
+2026-10-26T09:36:06.8895959Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
+2026-10-26T09:36:06.8896538Z stack backtrace:
+2026-10-26T09:36:06.8896740Z    0: std::panicking::panic_handler
+2026-10-26T09:36:06.8897142Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+2026-10-26T09:36:06.8897594Z    1: core::panicking::panic_fmt
+2026-10-26T09:36:06.8897989Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+2026-10-26T09:36:06.8898410Z    2: core::result::unwrap_failed
+2026-10-26T09:36:06.8898792Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+2026-10-26T09:36:06.8899465Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+2026-10-26T09:36:06.8900130Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+2026-10-26T09:36:06.8900538Z    4: d3d12_scene::try_renderer
+2026-10-26T09:36:06.8900770Z              at .\tests\d3d12_scene.rs:52
+2026-10-26T09:36:06.8901099Z    5: d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes
+2026-10-26T09:36:06.8901428Z              at .\tests\d3d12_scene.rs:299
+2026-10-26T09:36:06.8901785Z    6: d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes::closure$0
+2026-10-26T09:36:06.8902284Z              at .\tests\d3d12_scene.rs:298
+2026-10-26T09:36:06.8902817Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes::closure_env$0,tuple$<> >
+2026-10-26T09:36:06.8903535Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T09:36:06.8903984Z    8: core::ops::function::FnOnce::call_once
+2026-10-26T09:36:06.8904414Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T09:36:06.8904985Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:36:06.8905302Z 
+2026-10-26T09:36:06.8905442Z ---- the_renderer_refuses_a_plan_it_cannot_draw stdout ----
+2026-10-26T09:36:06.8905673Z 
+2026-10-26T09:36:06.8905994Z thread 'the_renderer_refuses_a_plan_it_cannot_draw' (5772) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
+2026-10-26T09:36:06.8906904Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
+2026-10-26T09:36:06.8907485Z stack backtrace:
+2026-10-26T09:36:06.8907714Z    0: std::panicking::panic_handler
+2026-10-26T09:36:06.8908147Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+2026-10-26T09:36:06.8908629Z    1: core::panicking::panic_fmt
+2026-10-26T09:36:06.8909094Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+2026-10-26T09:36:06.8909602Z    2: core::result::unwrap_failed
+2026-10-26T09:36:06.8910033Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+2026-10-26T09:36:06.8910717Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+2026-10-26T09:36:06.8911380Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+2026-10-26T09:36:06.8911797Z    4: d3d12_scene::try_renderer
+2026-10-26T09:36:06.8912035Z              at .\tests\d3d12_scene.rs:52
+2026-10-26T09:36:06.8912399Z    5: d3d12_scene::the_renderer_refuses_a_plan_it_cannot_draw
+2026-10-26T09:36:06.8912775Z              at .\tests\d3d12_scene.rs:255
+2026-10-26T09:36:06.8913155Z    6: d3d12_scene::the_renderer_refuses_a_plan_it_cannot_draw::closure$0
+2026-10-26T09:36:06.8913560Z              at .\tests\d3d12_scene.rs:254
+2026-10-26T09:36:06.8914104Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::the_renderer_refuses_a_plan_it_cannot_draw::closure_env$0,tuple$<> >
+2026-10-26T09:36:06.8914834Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T09:36:06.8915333Z    8: core::ops::function::FnOnce::call_once
+2026-10-26T09:36:06.8915829Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-10-26T09:36:06.8916451Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-10-26T09:36:06.8916817Z 
+2026-10-26T09:36:06.8916822Z 
+2026-10-26T09:36:06.8916924Z failures:
+2026-10-26T09:36:06.8917214Z     a_damaged_frame_keeps_the_previous_frame_outside_the_damage
+2026-10-26T09:36:06.8917643Z     a_group_opacity_layer_composites_like_the_cpu_rasterizer
+2026-10-26T09:36:06.8918029Z     an_empty_scene_is_the_clear_colour_exactly
+2026-10-26T09:36:06.8918374Z     one_rectangle_lands_where_the_geometry_says
+2026-10-26T09:36:06.8918780Z     overlapping_translucent_fills_composite_like_the_cpu_rasterizer
+2026-10-26T09:36:06.8919204Z     the_renderer_is_reusable_across_frames_and_sizes
+2026-10-26T09:36:06.8919535Z     the_renderer_refuses_a_plan_it_cannot_draw
+2026-10-26T09:36:06.8919757Z 
+2026-10-26T09:36:06.8920047Z test result: FAILED. 0 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.23s
+2026-10-26T09:36:06.8920414Z 
+2026-10-26T09:36:06.9025445Z ##[error]Process completed with exit code 101.
 
