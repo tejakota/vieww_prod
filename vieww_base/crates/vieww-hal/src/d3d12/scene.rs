@@ -1063,26 +1063,30 @@ impl D3d12SceneRenderer {
         }
     }
 
-    /// The tracked state of every target: levels then scratch, dummy last.
+    /// The tracked state of every target in [`Self::target_index`] order:
+    /// `L[n]` at `2n`, `S[n]` at `2n + 1`, the dummy last. (This was levels
+    /// then scratch, which disagreed with `target_index` from depth 2 on:
+    /// `L[1]`'s barriers were recorded from `S[0]`'s state, and the device
+    /// was removed on the first frame with an offscreen layer.)
     fn target_states(&self) -> Vec<D3D12_RESOURCE_STATES> {
-        let mut states: Vec<D3D12_RESOURCE_STATES> = self
-            .levels
-            .iter()
-            .chain(self.scratch.iter())
-            .map(|t| t.state)
-            .collect();
+        let mut states = Vec::with_capacity(2 * self.levels.len() + 1);
+        for (level, scratch) in self.levels.iter().zip(&self.scratch) {
+            states.push(level.state);
+            states.push(scratch.state);
+        }
         states.push(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         states
     }
 
     fn store_target_states(&mut self, states: Vec<D3D12_RESOURCE_STATES>) {
-        for (target, state) in self
+        for (n, (level, scratch)) in self
             .levels
             .iter_mut()
-            .chain(self.scratch.iter_mut())
-            .zip(&states)
+            .zip(self.scratch.iter_mut())
+            .enumerate()
         {
-            target.state = *state;
+            level.state = states[2 * n];
+            scratch.state = states[2 * n + 1];
         }
     }
 

@@ -162,7 +162,16 @@ fn enable_debug_layer() {
             if let Some(debug) = debug {
                 // SAFETY: called before any device exists, as required.
                 unsafe { debug.EnableDebugLayer() };
-                eprintln!("d3d12: debug layer enabled");
+                // GPU-based validation too: resource states and descriptors
+                // checked as the GPU runs, which the CPU-side layer cannot
+                // see (WARP supports it).
+                if let Ok(debug1) = debug.cast::<ID3D12Debug1>() {
+                    // SAFETY: as above, before any device exists.
+                    unsafe { debug1.SetEnableGPUBasedValidation(true) };
+                    eprintln!("d3d12: debug layer and GPU-based validation enabled");
+                } else {
+                    eprintln!("d3d12: debug layer enabled");
+                }
             }
         }
         Err(error) => eprintln!("d3d12: debug layer unavailable ({error})"),
