@@ -1,23 +1,23 @@
 # Framework checks — FAILURE
 
-- branch: `main`  sha: `46bfa47614b82d4aa641e84f525ede84d9310241`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40328548801
+- branch: `main`  sha: `e39905317ff7342137f688e7b15adc307da59377`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40333211492
 
 | job | verdict | failed steps |
 |---|---|---|
 | Wire check (root ↔ vieww_base) | PASS |  |
 | Windows (D3D12 on WARP) | FAIL | D3D12 suite (WARP when there is no hardware adapter) |
 | GPU on software Vulkan (lavapipe) | skipped |  |
-| checks.sh (Linux) | skipped |  |
-| Coverage floor | skipped |  |
-| Android device suite (self-hosted) | skipped |  |
-| Type-check for macOS, iOS, Windows, Android (from Linux) | skipped |  |
-| iOS simulator (tests in the sim, a frame on its screen) | skipped |  |
 | Android (compile) | skipped |  |
+| Web (wasm32; Chromium, Firefox, WebKit) | skipped |  |
+| Android device suite (self-hosted) | skipped |  |
+| checks.sh (Linux) | skipped |  |
 | Android emulator (APK, device and accessibility suites) | skipped |  |
 | macOS and iOS (Metal) | skipped |  |
 | Audio decoders under cargo-fuzz (nightly) | skipped |  |
-| Web (wasm32; Chromium, Firefox, WebKit) | skipped |  |
+| Type-check for macOS, iOS, Windows, Android (from Linux) | skipped |  |
+| iOS simulator (tests in the sim, a frame on its screen) | skipped |  |
+| Coverage floor | skipped |  |
 | Publish results to ci-runs/<branch> | PASS |  |
 
 ## Steps
@@ -43,17 +43,13 @@
 
 ### GPU on software Vulkan (lavapipe) — skipped
 
-### checks.sh (Linux) — skipped
+### Android (compile) — skipped
 
-### Coverage floor — skipped
+### Web (wasm32; Chromium, Firefox, WebKit) — skipped
 
 ### Android device suite (self-hosted) — skipped
 
-### Type-check for macOS, iOS, Windows, Android (from Linux) — skipped
-
-### iOS simulator (tests in the sim, a frame on its screen) — skipped
-
-### Android (compile) — skipped
+### checks.sh (Linux) — skipped
 
 ### Android emulator (APK, device and accessibility suites) — skipped
 
@@ -61,7 +57,11 @@
 
 ### Audio decoders under cargo-fuzz (nightly) — skipped
 
-### Web (wasm32; Chromium, Firefox, WebKit) — skipped
+### Type-check for macOS, iOS, Windows, Android (from Linux) — skipped
+
+### iOS simulator (tests in the sim, a frame on its screen) — skipped
+
+### Coverage floor — skipped
 
 ### Publish results to ci-runs/<branch> — PASS
 - PASS: Set up job

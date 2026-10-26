@@ -1,0 +1,203 @@
+-----
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	﻿2026-10-26T13:47:04.4978934Z ##[group]Run cargo test -p vieww-hal --features d3d12 --no-run
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4979482Z ^[[36;1mcargo test -p vieww-hal --features d3d12 --no-run^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4979802Z ^[[36;1mfailed=()^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4980029Z ^[[36;1mfor bin in d3d12_scene d3d12_smoke; do^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4980360Z ^[[36;1m  [ -f "crates/vieww-hal/tests/$bin.rs" ] || continue^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4980970Z ^[[36;1m  for t in $(cargo test -q -p vieww-hal --features d3d12 --test "$bin" -- --ignored --list 2>/dev/null | sed -n 's/: test$//p'); do^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4981510Z ^[[36;1m    echo "::group::$bin::$t"^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4981964Z ^[[36;1m    if cargo test -q -p vieww-hal --features d3d12 --test "$bin" -- --ignored --exact "$t" --nocapture; then^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4982429Z ^[[36;1m      echo "::endgroup::"^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4982665Z ^[[36;1m    else^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4982858Z ^[[36;1m      echo "::endgroup::"^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4983101Z ^[[36;1m      echo "FAILED-TEST $bin::$t"^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4983409Z ^[[36;1m      failed+=("$bin::$t")^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4983629Z ^[[36;1m    fi^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4983799Z ^[[36;1m  done^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4983964Z ^[[36;1mdone^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4984331Z ^[[36;1mcargo test -p vieww-hal --features d3d12 --lib -- --ignored --test-threads=1 || failed+=(lib)^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4984772Z ^[[36;1mif [ ${#failed[@]} -gt 0 ]; then^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4985044Z ^[[36;1m  printf 'failed: %s\n' "${failed[@]}"^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4985304Z ^[[36;1m  exit 1^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4985483Z ^[[36;1mfi^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4995688Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4996071Z env:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:47:04.4996258Z   CARGO_TERM_COLOR: always
+-----
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:02.7371310Z ^[[1m^[[92m  Executable^[[0m tests\metal_smoke.rs (target\debug\deps\metal_smoke-b361e976d4c9f656.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:02.7372604Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_compositor.rs (target\debug\deps\vulkan_compositor-2d787e9f06499cdc.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:02.7373874Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_compute.rs (target\debug\deps\vulkan_compute-25d698676c686ede.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:02.7375049Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_damage.rs (target\debug\deps\vulkan_damage-79acf964181b8e5c.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:02.7376248Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_mesh_smoke.rs (target\debug\deps\vulkan_mesh_smoke-a96c3de7d2600b5f.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:02.7377533Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_pipeline_cache.rs (target\debug\deps\vulkan_pipeline_cache-ea216774e8d24c1c.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:02.7378781Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_scene.rs (target\debug\deps\vulkan_scene-c3be0be4d13e9268.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:02.7379865Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_smoke.rs (target\debug\deps\vulkan_smoke-9a9cd3af8a5c7bd4.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:02.7380930Z ^[[1m^[[92m  Executable^[[0m tests\vulkan_text.rs (target\debug\deps\vulkan_text-26c67f87701f390a.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:03.2821024Z ##[group]d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:03.6759240Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:03.6759957Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:03.9029340Z d3d12: debug layer enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:04.8628163Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:04.9316400Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:04.9317075Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 1.26s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:04.9317603Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:04.9463685Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:04.9464634Z ##[group]d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.3201477Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.3202130Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.3222094Z d3d12: debug layer enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.7160412Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.7163339Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.7435440Z d3d12 [execute] severity 4 id 234: ID3D12Device::RemoveDevice: Device removal has been triggered for the following reason (DXGI_ERROR_DEVICE_REMOVED: Plug-and-play stop has been exercised on this adapter. Odds are good that the adapter might no longer be available).
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.7438237Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.7439092Z thread 'a_group_opacity_layer_composites_like_the_cpu_rasterizer' (7872) panicked at crates\vieww-hal\tests\d3d12_scene.rs:242:10:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.7440841Z render should succeed: Api("The GPU device instance has been suspended. Use GetDeviceRemovedReason to determine the appropriate action. (0x887A0005)")
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.7442034Z stack backtrace:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9205793Z    0: std::panicking::panic_handler
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9206902Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9207722Z    1: core::panicking::panic_fmt
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9208219Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9209016Z    2: core::result::unwrap_failed
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9209641Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9215631Z    3: enum2$<core::result::Result<alloc::vec::Vec<u8,alloc::alloc::Global>,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9217103Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9218110Z    4: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9218822Z              at .\tests\d3d12_scene.rs:242
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9219559Z    5: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure$0
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9220356Z              at .\tests\d3d12_scene.rs:209
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9221472Z    6: core::ops::function::FnOnce::call_once<d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure_env$0,tuple$<> >
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9222912Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9256711Z    7: core::ops::function::FnOnce::call_once
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9257606Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9318097Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9459448Z a_group_opacity_layer_composites_like_the_cpu_rasterizer --- FAILED
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9459937Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9460069Z failures:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9460248Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9460359Z failures:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9461018Z     a_group_opacity_layer_composites_like_the_cpu_rasterizer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9461415Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9461832Z test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.63s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9462393Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9528839Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test d3d12_scene`
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9633905Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9634595Z FAILED-TEST d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:05.9635848Z ##[group]d3d12_scene::an_empty_scene_is_the_clear_colour_exactly
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:06.3555406Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:06.3556050Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:06.3580676Z d3d12: debug layer enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:06.7388864Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:06.7497302Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:06.7498359Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.39s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:06.7499002Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:06.7653122Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:06.7654200Z ##[group]d3d12_scene::one_rectangle_lands_where_the_geometry_says
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:07.1381032Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:07.1381626Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:07.1402146Z d3d12: debug layer enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:07.5108884Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:07.5276490Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:07.5277512Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.39s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:07.5279394Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:07.5422396Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:07.5423310Z ##[group]d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:07.9187538Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:07.9188148Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:07.9213638Z d3d12: debug layer enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:08.3230346Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:08.3396569Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:08.3397357Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.42s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:08.3397786Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:08.3541686Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:08.3542555Z ##[group]d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:08.7135066Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:08.7135603Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:08.7154726Z d3d12: debug layer enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.0874484Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.0951007Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.0960267Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.0972044Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.0981945Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.0992071Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.1002106Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.1012079Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.1034080Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.1056385Z d3d12 [record] severity 2 id 820: ID3D12CommandList::ClearRenderTargetView: The application did not pass any clear value to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.1167118Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.1168074Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.40s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.1168554Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.1310988Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.1311732Z ##[group]d3d12_scene::the_renderer_refuses_a_plan_it_cannot_draw
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.4876041Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.4876470Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.4895776Z d3d12: debug layer enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.8901566Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.8902240Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.40s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.8902602Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:09.9043817Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:10.3217135Z ##[group]d3d12_smoke::a_bad_index_is_refused_not_drawn
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:10.6782794Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:10.6783330Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:10.6803997Z d3d12: debug layer enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:10.6992172Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:10.6992832Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.02s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:10.6993368Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:10.7124404Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:10.7125113Z ##[group]d3d12_smoke::a_clear_reads_back_as_the_requested_colour
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:11.1423646Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:11.1424463Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:11.1454064Z d3d12: debug layer enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:11.1779740Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:11.1781733Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.04s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:11.1783487Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:11.1986900Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:11.1989965Z ##[group]d3d12_smoke::a_mesh_lands_where_it_was_drawn_and_nowhere_else
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:11.6376014Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:11.6376595Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:11.6405409Z d3d12: debug layer enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:11.6963950Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:11.6964478Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.06s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:11.6964828Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:11.7104807Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:11.7105933Z ##[group]d3d12_smoke::an_empty_mesh_draws_a_transparent_frame
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.0872200Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.0872782Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.0895576Z d3d12: debug layer enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.1093761Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.1094379Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.02s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.1094916Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.1224078Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.1225238Z ##[group]d3d12_smoke::reports_an_adapter
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.4881452Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.4881926Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.4901056Z d3d12: debug layer enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.5038402Z D3D12 adapter: AdapterInfo { name: "Microsoft Basic Render Driver", backend: "d3d12", device_type: "hardware" } (needs a D3D12 adapter (VIEWW_D3D12_ALLOW_WARP=1 accepts WARP); run with `cargo test -p vieww-hal --features d3d12 -- --ignored`)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.5097495Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.5098234Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.02s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.5098756Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.5231524Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.5232195Z ##[group]d3d12_smoke::several_frames_on_one_device
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.9248860Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.9249572Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.9268667Z d3d12: debug layer enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.9527334Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.9528445Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.03s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.9680448Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.9681105Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:12.9682470Z ##[group]d3d12_smoke::the_mesh_path_agrees_with_vulkans_pixel_rule
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:13.3394231Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:13.3394852Z running 1 test
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:13.3420048Z d3d12: debug layer enabled
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:13.3717050Z .
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:13.3717877Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.03s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:13.3718487Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:13.3850261Z ##[endgroup]
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:13.7238866Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized + debuginfo] target(s) in 0.28s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:13.7340572Z ^[[1m^[[92m     Running^[[0m unittests src\lib.rs (target\debug\deps\vieww_hal-a74ce4f11fce3cd2.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:13.7419534Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:13.7419877Z running 0 tests
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:13.7420123Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:13.7420545Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:13.7421147Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:13.7540720Z failed: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T13:51:13.7576045Z ##[error]Process completed with exit code 1.
