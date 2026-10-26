@@ -1,621 +1,216 @@
 -----
-macOS and iOS (Metal)	Metal suite on the runner's GPU	﻿2026-10-26T09:36:54.3261210Z ##[group]Run set +e
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:36:54.3261620Z ^[[36;1mset +e^[[0m
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:36:54.3262210Z ^[[36;1mcargo test -p vieww-hal --features metal -- --ignored --test-threads=1 --nocapture^[[0m
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:36:54.3262670Z ^[[36;1mstatus=$?^[[0m
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:36:54.3266070Z ^[[36;1mif [ $status -ne 0 ]; then^[[0m
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:36:54.3266700Z ^[[36;1m  # A crashed test binary prints nothing useful; run each suite^[[0m
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:36:54.3267130Z ^[[36;1m  # that failed under lldb for a backtrace of every thread.^[[0m
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:36:54.3270670Z ^[[36;1m  for t in $(cargo test -p vieww-hal --features metal --no-run --message-format=json 2>/dev/null |^[[0m
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:36:54.3271180Z ^[[36;1m      python3 -c 'import sys,json^[[0m
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:36:54.3271760Z ^[[36;1mfor l in sys.stdin:^[[0m
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:36:54.3272080Z ^[[36;1m    m=json.loads(l)^[[0m
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:36:54.3272630Z ^[[36;1m    if m.get("reason")=="compiler-artifact" and m.get("executable") and "test" in m.get("target",{}).get("kind",[]):^[[0m
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:24:58.7809620Z ^[[1m^[[92m   Compiling^[[0m unicode-bidi v0.3.18
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:01.8426448Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.3.6
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:02.3972667Z ^[[1m^[[92m   Compiling^[[0m sys-locale v0.3.2
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:02.7063851Z ^[[1m^[[92m   Compiling^[[0m unicode-script v0.5.8
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:03.9795713Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v2.1.3
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:04.0766994Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:15.8793185Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-gpu)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:18.5623130Z ^[[1m^[[92m   Compiling^[[0m windows v0.58.0
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:19.3339235Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-text)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:30.2647138Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-hal)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:54.1740857Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized + debuginfo] target(s) in 3m 56s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:54.1996156Z ^[[1m^[[92m     Running^[[0m unittests src\lib.rs (target\debug\deps\vieww_hal-a74ce4f11fce3cd2.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:54.2078911Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:54.2079706Z running 0 tests
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:54.2080101Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:54.2080639Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:54.2081380Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:54.2098201Z ^[[1m^[[92m     Running^[[0m tests\d3d12_scene.rs (target\debug\deps\d3d12_scene-158b933f97f13737.exe)
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:54.2228138Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:54.2228906Z running 7 tests
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:54.6833764Z test a_damaged_frame_keeps_the_previous_frame_outside_the_damage ... FAILED
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:54.8301097Z test a_group_opacity_layer_composites_like_the_cpu_rasterizer ... FAILED
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:54.9765565Z test an_empty_scene_is_the_clear_colour_exactly ... FAILED
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.1332055Z test one_rectangle_lands_where_the_geometry_says ... FAILED
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.2801260Z test overlapping_translucent_fills_composite_like_the_cpu_rasterizer ... FAILED
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.4278505Z test the_renderer_is_reusable_across_frames_and_sizes ... FAILED
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5762759Z test the_renderer_refuses_a_plan_it_cannot_draw ... FAILED
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5763636Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5763758Z failures:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5764004Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5764321Z ---- a_damaged_frame_keeps_the_previous_frame_outside_the_damage stdout ----
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5765019Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5765513Z thread 'a_damaged_frame_keeps_the_previous_frame_outside_the_damage' (8132) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5768223Z the pipelines should build: Shader("D3DCompile(fs_main) failed at every optimisation level (HLSL saved to C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\vieww-fxc-fs_main.hlsl): O3: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly | O1: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly | Od: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5770562Z stack backtrace:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5777396Z    0: std::panicking::panic_handler
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5778058Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5778600Z    1: core::panicking::panic_fmt
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5779055Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5779542Z    2: core::result::unwrap_failed
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5779983Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5781559Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5782281Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5782846Z    4: d3d12_scene::try_renderer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5783177Z              at .\tests\d3d12_scene.rs:52
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5783610Z    5: d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5784047Z              at .\tests\d3d12_scene.rs:339
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5784741Z    6: d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::closure$0
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5785242Z              at .\tests\d3d12_scene.rs:338
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5785873Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::closure_env$0,tuple$<> >
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5786656Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5787148Z    8: core::ops::function::FnOnce::call_once
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5787613Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5788181Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5788544Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5788749Z ---- a_group_opacity_layer_composites_like_the_cpu_rasterizer stdout ----
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5789117Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5789493Z thread 'a_group_opacity_layer_composites_like_the_cpu_rasterizer' (4352) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5792762Z the pipelines should build: Shader("D3DCompile(fs_main) failed at every optimisation level (HLSL saved to C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\vieww-fxc-fs_main.hlsl): O3: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly | O1: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly | Od: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5794353Z stack backtrace:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5794667Z    0: std::panicking::panic_handler
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5795167Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5795705Z    1: core::panicking::panic_fmt
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5796154Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5796698Z    2: core::result::unwrap_failed
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5797130Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5797858Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5798587Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5799042Z    4: d3d12_scene::try_renderer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5799366Z              at .\tests\d3d12_scene.rs:52
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5799787Z    5: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5800250Z              at .\tests\d3d12_scene.rs:210
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5800697Z    6: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure$0
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5801141Z              at .\tests\d3d12_scene.rs:209
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5801759Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure_env$0,tuple$<> >
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5802517Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5803017Z    8: core::ops::function::FnOnce::call_once
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5803503Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5804124Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5804454Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5804656Z ---- an_empty_scene_is_the_clear_colour_exactly stdout ----
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5804896Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5805251Z thread 'an_empty_scene_is_the_clear_colour_exactly' (1464) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5806959Z the pipelines should build: Shader("D3DCompile(fs_main) failed at every optimisation level (HLSL saved to C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\vieww-fxc-fs_main.hlsl): O3: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly | O1: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly | Od: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5808634Z stack backtrace:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5808918Z    0: std::panicking::panic_handler
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5809392Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5809866Z    1: core::panicking::panic_fmt
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5810317Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5810780Z    2: core::result::unwrap_failed
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5811201Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5811909Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5812628Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5813206Z    4: d3d12_scene::try_renderer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5813510Z              at .\tests\d3d12_scene.rs:52
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5813868Z    5: d3d12_scene::an_empty_scene_is_the_clear_colour_exactly
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5814260Z              at .\tests\d3d12_scene.rs:126
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5814660Z    6: d3d12_scene::an_empty_scene_is_the_clear_colour_exactly::closure$0
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5815180Z              at .\tests\d3d12_scene.rs:125
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5815734Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::an_empty_scene_is_the_clear_colour_exactly::closure_env$0,tuple$<> >
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5816409Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5816923Z    8: core::ops::function::FnOnce::call_once
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5817434Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5818015Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5818371Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5818570Z ---- one_rectangle_lands_where_the_geometry_says stdout ----
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5818808Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5819144Z thread 'one_rectangle_lands_where_the_geometry_says' (4264) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5820816Z the pipelines should build: Shader("D3DCompile(fs_main) failed at every optimisation level (HLSL saved to C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\vieww-fxc-fs_main.hlsl): O3: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly | O1: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly | Od: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5822199Z stack backtrace:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5822519Z    0: std::panicking::panic_handler
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5822962Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5823411Z    1: core::panicking::panic_fmt
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5823856Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5824305Z    2: core::result::unwrap_failed
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5824727Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5825407Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5826073Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5826545Z    4: d3d12_scene::try_renderer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5826839Z              at .\tests\d3d12_scene.rs:52
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5827286Z    5: d3d12_scene::one_rectangle_lands_where_the_geometry_says
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5827666Z              at .\tests\d3d12_scene.rs:146
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5828051Z    6: d3d12_scene::one_rectangle_lands_where_the_geometry_says::closure$0
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5828450Z              at .\tests\d3d12_scene.rs:145
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5828980Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::one_rectangle_lands_where_the_geometry_says::closure_env$0,tuple$<> >
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5829734Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5830225Z    8: core::ops::function::FnOnce::call_once
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5830683Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5831264Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5831597Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5831910Z ---- overlapping_translucent_fills_composite_like_the_cpu_rasterizer stdout ----
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5832209Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5833424Z thread 'overlapping_translucent_fills_composite_like_the_cpu_rasterizer' (916) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5835129Z the pipelines should build: Shader("D3DCompile(fs_main) failed at every optimisation level (HLSL saved to C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\vieww-fxc-fs_main.hlsl): O3: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly | O1: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly | Od: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5836515Z stack backtrace:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5836798Z    0: std::panicking::panic_handler
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5837244Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5837740Z    1: core::panicking::panic_fmt
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5838184Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5838638Z    2: core::result::unwrap_failed
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5839072Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5839738Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5840390Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5840877Z    4: d3d12_scene::try_renderer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5841173Z              at .\tests\d3d12_scene.rs:52
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5841600Z    5: d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5842029Z              at .\tests\d3d12_scene.rs:174
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5842473Z    6: d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer::closure$0
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5842948Z              at .\tests\d3d12_scene.rs:173
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5843580Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer::closure_env$0,tuple$<> >
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5844409Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5844898Z    8: core::ops::function::FnOnce::call_once
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5845363Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5845981Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5846329Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5846507Z ---- the_renderer_is_reusable_across_frames_and_sizes stdout ----
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5846787Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5847128Z thread 'the_renderer_is_reusable_across_frames_and_sizes' (3160) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5848908Z the pipelines should build: Shader("D3DCompile(fs_main) failed at every optimisation level (HLSL saved to C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\vieww-fxc-fs_main.hlsl): O3: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly | O1: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly | Od: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5850757Z stack backtrace:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5851068Z    0: std::panicking::panic_handler
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5851508Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5852093Z    1: core::panicking::panic_fmt
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5852580Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5853068Z    2: core::result::unwrap_failed
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5853514Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5854443Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5855269Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5855733Z    4: d3d12_scene::try_renderer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5856026Z              at .\tests\d3d12_scene.rs:52
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5856406Z    5: d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5856842Z              at .\tests\d3d12_scene.rs:291
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5857252Z    6: d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes::closure$0
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5857678Z              at .\tests\d3d12_scene.rs:290
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5858235Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes::closure_env$0,tuple$<> >
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5858954Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5859449Z    8: core::ops::function::FnOnce::call_once
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5859902Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5860534Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5860838Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5861040Z ---- the_renderer_refuses_a_plan_it_cannot_draw stdout ----
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5861259Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5861619Z thread 'the_renderer_refuses_a_plan_it_cannot_draw' (8072) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5863229Z the pipelines should build: Shader("D3DCompile(fs_main) failed at every optimisation level (HLSL saved to C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\vieww-fxc-fs_main.hlsl): O3: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly | O1: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly | Od: Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5864666Z stack backtrace:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5864952Z    0: std::panicking::panic_handler
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5865438Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5865918Z    1: core::panicking::panic_fmt
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5866348Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5866796Z    2: core::result::unwrap_failed
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5867245Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5867918Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5868721Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5869186Z    4: d3d12_scene::try_renderer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5869482Z              at .\tests\d3d12_scene.rs:52
 -----
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:38:54.4040450Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:39:09.1954270Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:39:16.7688970Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:39:35.9753750Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:39:37.1891110Z ^[[1m^[[92m   Compiling^[[0m metal v0.31.0
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:39:38.7248730Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:39:46.5156900Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6420670Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized + debuginfo] target(s) in 3m 06s
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6549080Z ^[[1m^[[33mwarning^[[0m: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6553640Z ^[[1m^[[92mnote^[[0m: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6817710Z ^[[1m^[[92m     Running^[[0m unittests src/lib.rs (target/debug/deps/vieww_hal-e348fe8aa29e10bf)
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6921120Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6922370Z ^[[1m^[[92m     Running^[[0m tests/d3d12_scene.rs (target/debug/deps/d3d12_scene-5bf9ba175717887e)
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6922860Z running 0 tests
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6923070Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6923480Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6923990Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6949520Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6973530Z ^[[1m^[[92m     Running^[[0m tests/d3d12_smoke.rs (target/debug/deps/d3d12_smoke-b6fe049c231f84b4)
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6974050Z running 0 tests
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6974230Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6974440Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6974900Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6989000Z ^[[1m^[[92m     Running^[[0m tests/metal_scene.rs (target/debug/deps/metal_scene-d5617e4cb1d7270e)
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6997810Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6997960Z running 0 tests
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6998090Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6998400Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.6998810Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.7031770Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.7032660Z running 7 tests
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.7375030Z 2026-10-26 09:40:00.737 metal_scene-d5617e4cb1d7270e[8527:30899] Metal API Validation Enabled
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:00.7375880Z 2026-10-26 09:40:00.737 metal_scene-d5617e4cb1d7270e[8527:30899] Metal GPU Validation Enabled
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9040580Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9077770Z thread 'a_damaged_frame_keeps_the_previous_frame_outside_the_damage' (30899) panicked at crates/vieww-hal/tests/metal_scene.rs:418:13:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9080070Z assertion `left == right` failed: pixel (5, 5) inside the damage is the new scene's background
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9081550Z   left: [255, 255, 255, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9082570Z  right: [30, 30, 200, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9092560Z stack backtrace:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9109240Z    0: __rustc::rust_begin_unwind
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9110980Z    1: core::panicking::panic_fmt
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9111570Z    2: core::panicking::assert_failed_inner
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9158370Z    3: core::panicking::assert_failed::<&[u8], &[u8; 4]>
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9160920Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:394:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9171580Z    4: metal_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9173310Z              at ./tests/metal_scene.rs:418:13
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9186200Z    5: metal_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::{closure#0}
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9187020Z              at ./tests/metal_scene.rs:345:65
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9188750Z    6: <metal_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9189660Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9230060Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9230830Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9275990Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:01.9301940Z test a_damaged_frame_keeps_the_previous_frame_outside_the_damage ... FAILED
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1466740Z mismatch at (21, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1467920Z mismatch at (22, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1469000Z mismatch at (23, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1469980Z mismatch at (24, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1471130Z mismatch at (25, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1472280Z mismatch at (26, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1473230Z mismatch at (27, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1474610Z mismatch at (28, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1475580Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1476670Z thread 'a_group_opacity_layer_composites_like_the_cpu_rasterizer' (30921) panicked at crates/vieww-hal/tests/metal_scene.rs:245:5:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1480490Z assertion `left == right` failed: GPU and CPU must agree away from shape edges; 2228 interior pixels differed
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1482820Z   left: 2228
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1484870Z  right: 0
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1485560Z stack backtrace:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1486550Z    0: __rustc::rust_begin_unwind
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1487960Z    1: core::panicking::panic_fmt
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1489880Z    2: core::panicking::assert_failed_inner
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1490940Z    3: core::panicking::assert_failed::<usize, usize>
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1492470Z    4: metal_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1493780Z              at ./tests/metal_scene.rs:245:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1495080Z    5: metal_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::{closure#0}
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1496220Z              at ./tests/metal_scene.rs:208:62
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1496850Z    6: <metal_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1497640Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1498470Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1499090Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1499670Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1500190Z test a_group_opacity_layer_composites_like_the_cpu_rasterizer ... FAILED
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.1671660Z test an_empty_scene_is_the_clear_colour_exactly ... ok
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.2830390Z mismatch at (21, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.2932860Z mismatch at (22, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.2934410Z test one_rectangle_lands_where_the_geometry_says ... FAILED
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.3037190Z mismatch at (23, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.3139560Z mismatch at (24, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.3241620Z mismatch at (25, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.3343590Z mismatch at (26, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.3445060Z mismatch at (27, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.3630090Z mismatch at (28, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.3730890Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.3832380Z thread 'one_rectangle_lands_where_the_geometry_says' (30925) panicked at crates/vieww-hal/tests/metal_scene.rs:164:5:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.3935260Z assertion `left == right` failed: GPU and CPU must agree away from shape edges; 2204 interior pixels differed
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.3936610Z   left: 2204
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.4038390Z  right: 0
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.4140380Z stack backtrace:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.4241820Z    0: __rustc::rust_begin_unwind
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.4342570Z    1: core::panicking::panic_fmt
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.4343130Z test overlapping_translucent_fills_composite_like_the_cpu_rasterizer ... FAILED
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.4445440Z    2: core::panicking::assert_failed_inner
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.4545400Z    3: core::panicking::assert_failed::<usize, usize>
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.4645770Z    4: metal_scene::one_rectangle_lands_where_the_geometry_says
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.4746900Z              at ./tests/metal_scene.rs:164:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.4848780Z    5: metal_scene::one_rectangle_lands_where_the_geometry_says::{closure#0}
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.4949160Z              at ./tests/metal_scene.rs:144:49
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.5050920Z    6: <metal_scene::one_rectangle_lands_where_the_geometry_says::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.5151110Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.5251900Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.5353200Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.5455000Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.5555740Z mismatch at (11, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.5656530Z mismatch at (12, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.5870250Z mismatch at (13, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.5969040Z mismatch at (14, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6070190Z mismatch at (15, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6070810Z test the_renderer_is_reusable_across_frames_and_sizes ... ok
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6182610Z mismatch at (16, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6183490Z test the_renderer_refuses_a_plan_it_cannot_draw ... FAILED
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6273470Z mismatch at (17, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6273870Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6274360Z mismatch at (18, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6274690Z failures:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6274820Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6274900Z failures:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6275330Z     a_damaged_frame_keeps_the_previous_frame_outside_the_damage
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6275770Z     a_group_opacity_layer_composites_like_the_cpu_rasterizer
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6276180Z     one_rectangle_lands_where_the_geometry_says
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6276670Z     overlapping_translucent_fills_composite_like_the_cpu_rasterizer
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6277450Z     the_renderer_refuses_a_plan_it_cannot_draw
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6277680Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6278000Z test result: FAILED. 2 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.91s
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6278320Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6278350Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6278810Z thread 'overlapping_translucent_fills_composite_like_the_cpu_rasterizer' (30926) panicked at crates/vieww-hal/tests/metal_scene.rs:200:5:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6279700Z assertion `left == right` failed: GPU and CPU must agree away from shape edges; 5032 interior pixels differed
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6280230Z   left: 5032
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6280600Z  right: 0
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6280830Z stack backtrace:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6281160Z    0: __rustc::rust_begin_unwind
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6281630Z    1: core::panicking::panic_fmt
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6281920Z    2: core::panicking::assert_failed_inner
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6282340Z    3: core::panicking::assert_failed::<usize, usize>
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6283830Z    4: metal_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6284440Z              at ./tests/metal_scene.rs:200:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6284970Z    5: metal_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer::{closure#0}
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6285520Z              at ./tests/metal_scene.rs:172:69
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6286220Z    6: <metal_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6286960Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6287670Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6288280Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6288920Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6289280Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6289550Z thread 'the_renderer_refuses_a_plan_it_cannot_draw' (30931) panicked at crates/vieww-hal/tests/metal_scene.rs:281:5:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6290550Z assertion failed: !plan.is_complete()
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6290880Z stack backtrace:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6291110Z    0: __rustc::rust_begin_unwind
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6291410Z    1: core::panicking::panic_fmt
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6291660Z    2: core::panicking::panic
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6292000Z    3: metal_scene::the_renderer_refuses_a_plan_it_cannot_draw
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6292740Z              at ./tests/metal_scene.rs:281:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6293110Z    4: metal_scene::the_renderer_refuses_a_plan_it_cannot_draw::{closure#0}
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6293520Z              at ./tests/metal_scene.rs:253:48
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6294000Z    5: <metal_scene::the_renderer_refuses_a_plan_it_cannot_draw::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6294680Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6295310Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6295960Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6296590Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:02.6297490Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test metal_scene`
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:04.1788480Z ##[group]lldb backtrace: metal_smoke-9ea6ddadf051f37e
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3074760Z (lldb) target create "/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_smoke-9ea6ddadf051f37e"
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3081030Z Current executable set to '/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_smoke-9ea6ddadf051f37e' (arm64).
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3083090Z (lldb) settings set -- target.run-args  "--ignored" "--test-threads=1" "--nocapture"
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3084970Z (lldb) run
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3085390Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3086300Z running 7 tests
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3087060Z test a_bad_index_is_refused_not_drawn ... 2026-10-26 09:40:10.956104+0000 metal_smoke-9ea6ddadf051f37e[8614:31184] Metal API Validation Enabled
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3088390Z 2026-10-26 09:40:10.956348+0000 metal_smoke-9ea6ddadf051f37e[8614:31184] Metal GPU Validation Enabled
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3089010Z ok
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3089230Z test a_clear_reads_back_as_the_requested_colour ... ok
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3090860Z test a_mesh_lands_where_it_was_drawn_and_nowhere_else ... 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3092640Z thread 'a_mesh_lands_where_it_was_drawn_and_nowhere_else' (31191) panicked at crates/vieww-hal/tests/metal_smoke.rs:99:5:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3093780Z assertion `left == right` failed
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3094230Z   left: [0, 0, 0, 0]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3094910Z  right: [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3095950Z stack backtrace:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3097160Z    0: __rustc::rust_begin_unwind
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3097720Z    1: core::panicking::panic_fmt
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3098050Z    2: core::panicking::assert_failed_inner
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3098460Z    3: core::panicking::assert_failed::<[u8; 4], [u8; 4]>
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3098990Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:394:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3099520Z    4: metal_smoke::a_mesh_lands_where_it_was_drawn_and_nowhere_else
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3100110Z              at ./crates/vieww-hal/tests/metal_smoke.rs:99:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3100570Z    5: metal_smoke::a_mesh_lands_where_it_was_drawn_and_nowhere_else::{closure#0}
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3101150Z              at ./crates/vieww-hal/tests/metal_smoke.rs:75:54
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3101770Z    6: <metal_smoke::a_mesh_lands_where_it_was_drawn_and_nowhere_else::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3102490Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3103100Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3105250Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3105830Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3106320Z FAILED
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3106640Z test an_empty_mesh_draws_a_transparent_frame ... ok
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3108730Z test reports_an_adapter ... Metal adapter: AdapterInfo { name: "Apple Paravirtual device", backend: "metal", device_type: "integrated" } (needs a Metal device; run with `cargo test -p vieww-hal --features metal -- --ignored`)
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3122350Z ok
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3122670Z test several_frames_on_one_device ... ok
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3123160Z test the_mesh_path_agrees_with_vulkans_pixel_rule ... 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3123770Z thread 'the_mesh_path_agrees_with_vulkans_pixel_rule' (31200) panicked at crates/vieww-hal/tests/metal_smoke.rs:130:5:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3124300Z assertion `left == right` failed
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3126800Z   left: 0
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3134210Z  right: 255
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3134550Z stack backtrace:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3134870Z    0: __rustc::rust_begin_unwind
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3135260Z    1: core::panicking::panic_fmt
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3135580Z    2: core::panicking::assert_failed_inner
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3136040Z    3: core::panicking::assert_failed::<u8, u8>
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3140430Z    4: metal_smoke::the_mesh_path_agrees_with_vulkans_pixel_rule
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3154790Z    5: metal_smoke::the_mesh_path_agrees_with_vulkans_pixel_rule::{closure#0}
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3159110Z              at ./crates/vieww-hal/tests/metal_smoke.rs:107:50
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3165600Z    6: <metal_smoke::the_mesh_path_agrees_with_vulkans_pixel_rule::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3172120Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3173100Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3174910Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3177440Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3178900Z FAILED
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3179340Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3179500Z failures:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3180560Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3181120Z failures:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3182890Z     a_mesh_lands_where_it_was_drawn_and_nowhere_else
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3184280Z     the_mesh_path_agrees_with_vulkans_pixel_rule
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3184710Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3185330Z test result: FAILED. 5 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3186180Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3186480Z Process 8614 exited with status = 101 (0x00000065)
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3187670Z Process 8614 launched: '/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_smoke-9ea6ddadf051f37e' (arm64)
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:11.3190650Z ##[endgroup]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:12.3350250Z ##[group]lldb backtrace: metal_scene-d5617e4cb1d7270e
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.8909820Z (lldb) target create "/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_scene-d5617e4cb1d7270e"
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.8921990Z Current executable set to '/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_scene-d5617e4cb1d7270e' (arm64).
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.8926760Z (lldb) settings set -- target.run-args  "--ignored" "--test-threads=1" "--nocapture"
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9018110Z (lldb) run
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9018770Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9018940Z running 7 tests
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9019690Z test a_damaged_frame_keeps_the_previous_frame_outside_the_damage ... 2026-10-26 09:40:15.715790+0000 metal_scene-d5617e4cb1d7270e[8637:31352] Metal API Validation Enabled
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9024660Z 2026-10-26 09:40:15.716054+0000 metal_scene-d5617e4cb1d7270e[8637:31352] Metal GPU Validation Enabled
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9027440Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9029300Z thread 'a_damaged_frame_keeps_the_previous_frame_outside_the_damage' (31352) panicked at crates/vieww-hal/tests/metal_scene.rs:418:13:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9031610Z assertion `left == right` failed: pixel (5, 5) inside the damage is the new scene's background
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9032980Z   left: [255, 255, 255, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9033430Z  right: [30, 30, 200, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9034260Z stack backtrace:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9034980Z    0: __rustc::rust_begin_unwind
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9035280Z    1: core::panicking::panic_fmt
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9035600Z    2: core::panicking::assert_failed_inner
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9036000Z    3: core::panicking::assert_failed::<&[u8], &[u8; 4]>
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9036500Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:394:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9037140Z    4: metal_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9037870Z              at ./crates/vieww-hal/tests/metal_scene.rs:418:13
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9038420Z    5: metal_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::{closure#0}
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9038900Z              at ./crates/vieww-hal/tests/metal_scene.rs:345:65
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9039730Z    6: <metal_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9040480Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9041140Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9041760Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9042300Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9042710Z FAILED
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9043150Z test a_group_opacity_layer_composites_like_the_cpu_rasterizer ... mismatch at (21, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9044520Z mismatch at (22, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9045710Z mismatch at (23, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9046730Z mismatch at (24, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9047970Z mismatch at (25, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9049800Z mismatch at (26, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9052750Z mismatch at (27, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9053660Z mismatch at (28, 21): gpu [255, 255, 255, 255] cpu [255, 128, 128, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9054250Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9055130Z thread 'a_group_opacity_layer_composites_like_the_cpu_rasterizer' (31372) panicked at crates/vieww-hal/tests/metal_scene.rs:245:5:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9058550Z assertion `left == right` failed: GPU and CPU must agree away from shape edges; 2228 interior pixels differed
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9059620Z   left: 2228
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9059920Z  right: 0
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9060110Z stack backtrace:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9060400Z    0: __rustc::rust_begin_unwind
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9060650Z    1: core::panicking::panic_fmt
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9060980Z    2: core::panicking::assert_failed_inner
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9061270Z    3: core::panicking::assert_failed::<usize, usize>
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9061700Z    4: metal_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9062120Z              at ./crates/vieww-hal/tests/metal_scene.rs:245:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9064710Z    5: metal_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::{closure#0}
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9065400Z              at ./crates/vieww-hal/tests/metal_scene.rs:208:62
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9065940Z    6: <metal_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9066660Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9067470Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9068360Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9068920Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9069460Z FAILED
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9069760Z test an_empty_scene_is_the_clear_colour_exactly ... ok
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9070290Z test one_rectangle_lands_where_the_geometry_says ... mismatch at (21, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9070860Z mismatch at (22, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9071230Z mismatch at (23, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9071680Z mismatch at (24, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9072100Z mismatch at (25, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9072530Z mismatch at (26, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9072900Z mismatch at (27, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9091200Z mismatch at (28, 21): gpu [255, 255, 255, 255] cpu [255, 0, 0, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9091460Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9091840Z thread 'one_rectangle_lands_where_the_geometry_says' (31384) panicked at crates/vieww-hal/tests/metal_scene.rs:164:5:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9092490Z assertion `left == right` failed: GPU and CPU must agree away from shape edges; 2204 interior pixels differed
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9093170Z   left: 2204
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9093750Z  right: 0
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9093990Z stack backtrace:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9094260Z    0: __rustc::rust_begin_unwind
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9095270Z    1: core::panicking::panic_fmt
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9095640Z    2: core::panicking::assert_failed_inner
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9095960Z    3: core::panicking::assert_failed::<usize, usize>
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9096370Z    4: metal_scene::one_rectangle_lands_where_the_geometry_says
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9096730Z              at ./crates/vieww-hal/tests/metal_scene.rs:164:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9097170Z    5: metal_scene::one_rectangle_lands_where_the_geometry_says::{closure#0}
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9097570Z              at ./crates/vieww-hal/tests/metal_scene.rs:144:49
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9098180Z    6: <metal_scene::one_rectangle_lands_where_the_geometry_says::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9098950Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9099540Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9100170Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9101040Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9101580Z FAILED
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9102090Z test overlapping_translucent_fills_composite_like_the_cpu_rasterizer ... mismatch at (11, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9102750Z mismatch at (12, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9103180Z mismatch at (13, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9104030Z mismatch at (14, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9104470Z mismatch at (15, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9105190Z mismatch at (16, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9105660Z mismatch at (17, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9106030Z mismatch at (18, 11): gpu [255, 255, 255, 255] cpu [200, 40, 40, 255]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9106360Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9145240Z thread 'overlapping_translucent_fills_composite_like_the_cpu_rasterizer' (31385) panicked at crates/vieww-hal/tests/metal_scene.rs:200:5:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9146710Z assertion `left == right` failed: GPU and CPU must agree away from shape edges; 5032 interior pixels differed
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9147150Z   left: 5032
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9147410Z  right: 0
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9147600Z stack backtrace:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9147870Z    0: __rustc::rust_begin_unwind
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9148130Z    1: core::panicking::panic_fmt
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9149160Z    2: core::panicking::assert_failed_inner
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9149540Z    3: core::panicking::assert_failed::<usize, usize>
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9149950Z    4: metal_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9150400Z              at ./crates/vieww-hal/tests/metal_scene.rs:200:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9150840Z    5: metal_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer::{closure#0}
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9151330Z              at ./crates/vieww-hal/tests/metal_scene.rs:172:69
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9151900Z    6: <metal_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9152650Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9153340Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9153920Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9154530Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9154900Z FAILED
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9155220Z test the_renderer_is_reusable_across_frames_and_sizes ... ok
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9155630Z test the_renderer_refuses_a_plan_it_cannot_draw ... 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9156090Z thread 'the_renderer_refuses_a_plan_it_cannot_draw' (31391) panicked at crates/vieww-hal/tests/metal_scene.rs:281:5:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9156580Z assertion failed: !plan.is_complete()
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9156870Z stack backtrace:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9157040Z    0: __rustc::rust_begin_unwind
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9157240Z    1: core::panicking::panic_fmt
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9157450Z    2: core::panicking::panic
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9157810Z    3: metal_scene::the_renderer_refuses_a_plan_it_cannot_draw
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9158150Z              at ./crates/vieww-hal/tests/metal_scene.rs:281:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9158530Z    4: metal_scene::the_renderer_refuses_a_plan_it_cannot_draw::{closure#0}
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9158910Z              at ./crates/vieww-hal/tests/metal_scene.rs:253:48
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9159470Z    5: <metal_scene::the_renderer_refuses_a_plan_it_cannot_draw::{closure#0} as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9160110Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9160720Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9161380Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9161890Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9162330Z FAILED
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9162450Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9162510Z failures:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9162640Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9162740Z failures:
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9163050Z     a_damaged_frame_keeps_the_previous_frame_outside_the_damage
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9163750Z     a_group_opacity_layer_composites_like_the_cpu_rasterizer
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9164140Z     one_rectangle_lands_where_the_geometry_says
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9164500Z     overlapping_translucent_fills_composite_like_the_cpu_rasterizer
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9164930Z     the_renderer_refuses_a_plan_it_cannot_draw
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9165090Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9165350Z test result: FAILED. 2 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.19s
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9165890Z 
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9166030Z Process 8637 exited with status = 101 (0x00000065)
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9166580Z Process 8637 launched: '/Users/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/deps/metal_scene-d5617e4cb1d7270e' (arm64)
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9169270Z ##[endgroup]
-macOS and iOS (Metal)	Metal suite on the runner's GPU	2026-10-26T09:40:16.9392980Z ##[error]Process completed with exit code 101.
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	﻿2026-10-26T09:31:39.5176566Z ##[group]Run cargo test -p vieww-hal --features d3d12 -- --ignored --test-threads=1
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:31:39.5177598Z ^[[36;1mcargo test -p vieww-hal --features d3d12 -- --ignored --test-threads=1^[[0m
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:31:39.5194328Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:31:39.5195178Z env:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:31:39.5195570Z   CARGO_TERM_COLOR: always
------
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:35:10.0893912Z ^[[1m^[[92m   Compiling^[[0m unicode-linebreak v0.1.5
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:35:10.4835053Z ^[[1m^[[92m   Compiling^[[0m unicode-script v0.5.8
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:35:11.9055650Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.3.6
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:35:12.5158823Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v2.1.3
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:35:12.6139216Z ^[[1m^[[92m   Compiling^[[0m self_cell v1.3.0
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:35:12.7219735Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:35:26.4258984Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-gpu)
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:35:30.1687194Z ^[[1m^[[92m   Compiling^[[0m windows v0.58.0
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:35:30.2847669Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-text)
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:35:42.8691951Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-hal)
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:05.6054255Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized + debuginfo] target(s) in 4m 25s
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:05.6313333Z ^[[1m^[[92m     Running^[[0m unittests src\lib.rs (target\debug\deps\vieww_hal-a74ce4f11fce3cd2.exe)
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:05.6385349Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:05.6385724Z running 0 tests
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:05.6386009Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:05.6386443Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:05.6386946Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:05.6400859Z ^[[1m^[[92m     Running^[[0m tests\d3d12_scene.rs (target\debug\deps\d3d12_scene-158b933f97f13737.exe)
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:05.6514845Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:05.6515206Z running 7 tests
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.0708470Z test a_damaged_frame_keeps_the_previous_frame_outside_the_damage ... FAILED
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.2068024Z test a_group_opacity_layer_composites_like_the_cpu_rasterizer ... FAILED
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.3430267Z test an_empty_scene_is_the_clear_colour_exactly ... FAILED
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.4780814Z test one_rectangle_lands_where_the_geometry_says ... FAILED
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.6110548Z test overlapping_translucent_fills_composite_like_the_cpu_rasterizer ... FAILED
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.7466498Z test the_renderer_is_reusable_across_frames_and_sizes ... FAILED
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8789866Z test the_renderer_refuses_a_plan_it_cannot_draw ... FAILED
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8790483Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8790638Z failures:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8790867Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8791305Z ---- a_damaged_frame_keeps_the_previous_frame_outside_the_damage stdout ----
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8792158Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8793121Z thread 'a_damaged_frame_keeps_the_previous_frame_outside_the_damage' (5016) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8795136Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8796218Z stack backtrace:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8801711Z    0: std::panicking::panic_handler
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8802262Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8802776Z    1: core::panicking::panic_fmt
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8803227Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8803745Z    2: core::result::unwrap_failed
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8804193Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8804986Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8805750Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8839475Z    4: d3d12_scene::try_renderer
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8839940Z              at .\tests\d3d12_scene.rs:52
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8840625Z    5: d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8841319Z              at .\tests\d3d12_scene.rs:347
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8842098Z    6: d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::closure$0
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8842737Z              at .\tests\d3d12_scene.rs:346
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8843402Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::a_damaged_frame_keeps_the_previous_frame_outside_the_damage::closure_env$0,tuple$<> >
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8844226Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8845026Z    8: core::ops::function::FnOnce::call_once
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8845514Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8846164Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8846543Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8846779Z ---- a_group_opacity_layer_composites_like_the_cpu_rasterizer stdout ----
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8847083Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8847502Z thread 'a_group_opacity_layer_composites_like_the_cpu_rasterizer' (2364) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8848442Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8849073Z stack backtrace:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8849329Z    0: std::panicking::panic_handler
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8849938Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8850428Z    1: core::panicking::panic_fmt
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8850897Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8851373Z    2: core::result::unwrap_failed
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8851794Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8852518Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8853213Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8853633Z    4: d3d12_scene::try_renderer
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8853871Z              at .\tests\d3d12_scene.rs:52
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8854228Z    5: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8854608Z              at .\tests\d3d12_scene.rs:210
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8854998Z    6: d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure$0
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8855395Z              at .\tests\d3d12_scene.rs:209
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8855963Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::a_group_opacity_layer_composites_like_the_cpu_rasterizer::closure_env$0,tuple$<> >
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8856711Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8857166Z    8: core::ops::function::FnOnce::call_once
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8857600Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8858185Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8858502Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8858648Z ---- an_empty_scene_is_the_clear_colour_exactly stdout ----
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8858887Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8859222Z thread 'an_empty_scene_is_the_clear_colour_exactly' (1456) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8860258Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8860849Z stack backtrace:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8861061Z    0: std::panicking::panic_handler
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8861473Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8862099Z    1: core::panicking::panic_fmt
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8862576Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8863001Z    2: core::result::unwrap_failed
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8863379Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8864072Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8864887Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8865307Z    4: d3d12_scene::try_renderer
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8865543Z              at .\tests\d3d12_scene.rs:52
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8865856Z    5: d3d12_scene::an_empty_scene_is_the_clear_colour_exactly
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8866190Z              at .\tests\d3d12_scene.rs:126
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8866529Z    6: d3d12_scene::an_empty_scene_is_the_clear_colour_exactly::closure$0
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8866876Z              at .\tests\d3d12_scene.rs:125
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8867385Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::an_empty_scene_is_the_clear_colour_exactly::closure_env$0,tuple$<> >
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8868071Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8868544Z    8: core::ops::function::FnOnce::call_once
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8869086Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8869659Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8869986Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8870129Z ---- one_rectangle_lands_where_the_geometry_says stdout ----
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8870370Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8870690Z thread 'one_rectangle_lands_where_the_geometry_says' (6960) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8871519Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8872100Z stack backtrace:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8872319Z    0: std::panicking::panic_handler
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8872716Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8873177Z    1: core::panicking::panic_fmt
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8873574Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8873997Z    2: core::result::unwrap_failed
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8874376Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8875052Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8875731Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8876143Z    4: d3d12_scene::try_renderer
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8876372Z              at .\tests\d3d12_scene.rs:52
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8876686Z    5: d3d12_scene::one_rectangle_lands_where_the_geometry_says
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8877005Z              at .\tests\d3d12_scene.rs:146
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8877361Z    6: d3d12_scene::one_rectangle_lands_where_the_geometry_says::closure$0
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8877727Z              at .\tests\d3d12_scene.rs:145
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8878240Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::one_rectangle_lands_where_the_geometry_says::closure_env$0,tuple$<> >
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8878942Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8879395Z    8: core::ops::function::FnOnce::call_once
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8879824Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8880389Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8880710Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8880924Z ---- overlapping_translucent_fills_composite_like_the_cpu_rasterizer stdout ----
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8881250Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8881645Z thread 'overlapping_translucent_fills_composite_like_the_cpu_rasterizer' (7504) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8882614Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test d3d12_scene`
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8883410Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8883992Z stack backtrace:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8884219Z    0: std::panicking::panic_handler
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8884618Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8885044Z    1: core::panicking::panic_fmt
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8885425Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8885848Z    2: core::result::unwrap_failed
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8886230Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8886898Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8888490Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8888918Z    4: d3d12_scene::try_renderer
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8889151Z              at .\tests\d3d12_scene.rs:52
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8889919Z    5: d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8890335Z              at .\tests\d3d12_scene.rs:174
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8890753Z    6: d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer::closure$0
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8891191Z              at .\tests\d3d12_scene.rs:173
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8891791Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::overlapping_translucent_fills_composite_like_the_cpu_rasterizer::closure_env$0,tuple$<> >
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8892575Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8893024Z    8: core::ops::function::FnOnce::call_once
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8893462Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8894039Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8894354Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8894516Z ---- the_renderer_is_reusable_across_frames_and_sizes stdout ----
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8894770Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8895111Z thread 'the_renderer_is_reusable_across_frames_and_sizes' (5644) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8895959Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8896538Z stack backtrace:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8896740Z    0: std::panicking::panic_handler
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8897142Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8897594Z    1: core::panicking::panic_fmt
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8897989Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8898410Z    2: core::result::unwrap_failed
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8898792Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8899465Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8900130Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8900538Z    4: d3d12_scene::try_renderer
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8900770Z              at .\tests\d3d12_scene.rs:52
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8901099Z    5: d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8901428Z              at .\tests\d3d12_scene.rs:299
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8901785Z    6: d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes::closure$0
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8902284Z              at .\tests\d3d12_scene.rs:298
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8902817Z    7: core::ops::function::FnOnce::call_once<d3d12_scene::the_renderer_is_reusable_across_frames_and_sizes::closure_env$0,tuple$<> >
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8903535Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8903984Z    8: core::ops::function::FnOnce::call_once
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8904414Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8904985Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8905302Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8905442Z ---- the_renderer_refuses_a_plan_it_cannot_draw stdout ----
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8905673Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8905994Z thread 'the_renderer_refuses_a_plan_it_cannot_draw' (5772) panicked at crates\vieww-hal\tests\d3d12_scene.rs:52:53:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8906904Z the pipelines should build: Shader("D3DCompile(fs_main): Unspecified error (0x80004005): internal error: compilation aborted unexpectedly")
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8907485Z stack backtrace:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8907714Z    0: std::panicking::panic_handler
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8908147Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8908629Z    1: core::panicking::panic_fmt
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8909094Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8909602Z    2: core::result::unwrap_failed
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8910033Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1870
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8910717Z    3: enum2$<core::result::Result<vieww_hal::d3d12::scene::D3d12SceneRenderer,enum2$<vieww_hal::d3d12::D3d12Error> > >::expect
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8911380Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\result.rs:1183
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8911797Z    4: d3d12_scene::try_renderer
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8912035Z              at .\tests\d3d12_scene.rs:52
------
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8914834Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8915333Z    8: core::ops::function::FnOnce::call_once
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8915829Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8916451Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8916817Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8916822Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8916924Z failures:
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8917214Z     a_damaged_frame_keeps_the_previous_frame_outside_the_damage
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8917643Z     a_group_opacity_layer_composites_like_the_cpu_rasterizer
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8918029Z     an_empty_scene_is_the_clear_colour_exactly
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8918374Z     one_rectangle_lands_where_the_geometry_says
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8918780Z     overlapping_translucent_fills_composite_like_the_cpu_rasterizer
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8919204Z     the_renderer_is_reusable_across_frames_and_sizes
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8919535Z     the_renderer_refuses_a_plan_it_cannot_draw
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8919757Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8920047Z test result: FAILED. 0 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.23s
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.8920414Z 
-Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T09:36:06.9025445Z ##[error]Process completed with exit code 101.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5872431Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5872937Z    8: core::ops::function::FnOnce::call_once
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5873426Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5874062Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5874516Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5874521Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5874616Z failures:
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5874961Z     a_damaged_frame_keeps_the_previous_frame_outside_the_damage
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5875456Z     a_group_opacity_layer_composites_like_the_cpu_rasterizer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5875869Z     an_empty_scene_is_the_clear_colour_exactly
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5876262Z     one_rectangle_lands_where_the_geometry_says
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5876705Z     overlapping_translucent_fills_composite_like_the_cpu_rasterizer
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5877159Z     the_renderer_is_reusable_across_frames_and_sizes
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5877547Z     the_renderer_refuses_a_plan_it_cannot_draw
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5877789Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5878036Z test result: FAILED. 0 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.35s
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5878447Z 
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.5879000Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test d3d12_scene`
+Windows (D3D12 on WARP)	D3D12 suite (WARP when there is no hardware adapter)	2026-10-26T12:25:55.6042836Z ##[error]Process completed with exit code 101.

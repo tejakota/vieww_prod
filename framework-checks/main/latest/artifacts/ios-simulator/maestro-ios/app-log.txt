@@ -1,376 +1,39 @@
 getpwuid_r did not find a match for uid 501
 Timestamp               Ty Process[PID:TID]
-2026-10-26 09:37:38.669 Df vieww[21956:eebc] [com.apple.xpc:connection] [0x600003d08000] activating connection: mach=true listener=false peer=false name=com.apple.cfprefsd.daemon
-2026-10-26 09:37:38.671 Df vieww[21956:eebf] (libMobileGestalt.dylib) No persisted cache on this platform.
-2026-10-26 09:37:38.672 Df vieww[21956:eebe] [com.apple.runningboard:connection] Initializing connection
-2026-10-26 09:37:38.672 Df vieww[21956:eebe] [com.apple.runningboard:process] Removing all cached process handles
-2026-10-26 09:37:38.672 Df vieww[21956:eebc] [com.apple.UIKit:BackgroundTask] _UIBackgroundTaskInfo *_doAddBackgroundTask(NSString *__strong, void (^__strong)(void), BOOL)_block_invoke: Creating new assertion because there is no existing background assertion.
-2026-10-26 09:37:38.672 Df vieww[21956:eebe] [com.apple.xpc:connection] [0x105406c30] activating connection: mach=false listener=false peer=false name=(anonymous)
-2026-10-26 09:37:38.673 Df vieww[21956:eebc] [com.apple.UIKit:BackgroundTask] _UIBackgroundTaskInfo *_doAddBackgroundTask(NSString *__strong, void (^__strong)(void), BOOL)_block_invoke: Creating new background assertion
-2026-10-26 09:37:38.673 Df vieww[21956:eebc] [com.apple.UIKit:BackgroundTask] _UIBackgroundTaskInfo *_doAddBackgroundTask(NSString *__strong, void (^__strong)(void), BOOL)_block_invoke: Created new background assertion <BKSProcessAssertion: 0x6000021095e0>
-2026-10-26 09:37:38.674 Df vieww[21956:eebc] [com.apple.runningboard:connection] Creating connection to com.apple.runningboard
-2026-10-26 09:37:38.674 Df vieww[21956:eebc] [com.apple.xpc:connection] [0x600003d040f0] activating connection: mach=true listener=false peer=false name=com.apple.runningboard
-2026-10-26 09:37:38.674 Df vieww[21956:eec0] [com.apple.runningboard:connection] Sending handshake request attempt #1 to server
-2026-10-26 09:37:38.675 Df vieww[21956:eeb1] [com.apple.UIKit:Application] Deactivation reason added: 10; deactivation reasons: 0 -> 1024; animating application lifecycle event: 0
-2026-10-26 09:37:38.676 A  vieww[21956:eebe] (RunningBoardServices) didChangeInheritances
-2026-10-26 09:37:38.676 Df vieww[21956:eec0] [com.apple.runningboard:connection] Handshake succeeded
-2026-10-26 09:37:38.676 E  vieww[21956:0] [com.apple.os_debug_log:] assertion failed: 23J631 21E213: libxpc.dylib + 72964 [E96936FD-67D3-331D-A5D9-8539CCFDAC88]: 0x7d
-2026-10-26 09:37:38.676 Df vieww[21956:eec0] [com.apple.runningboard:connection] Identity resolved as app<dev.vieww.demo((null))>
-2026-10-26 09:37:38.676 Df vieww[21956:eeb1] [com.apple.BoardServices:Injection] activating monitor for service com.apple.frontboard.open
-2026-10-26 09:37:38.676 Df vieww[21956:eeb1] [com.apple.BoardServices:Injection] activating monitor for service com.apple.frontboard.workspace-service
-2026-10-26 09:37:38.676 Df vieww[21956:eeb1] [com.apple.FrontBoard:Common] FBSWorkspace connecting to endpoint : <BSServiceConnectionEndpoint: 0x600001700ec0; target: com.apple.frontboard.systemappservices; service: com.apple.frontboard.workspace-service>
-2026-10-26 09:37:38.676 Df vieww[21956:eeb1] [com.apple.FrontBoard:Common] FBSWorkspace registering source: <FBSWorkspaceScenesClient: 0x600002c01d00>
-2026-10-26 09:37:38.677 Df vieww[21956:eebc] [com.apple.UIKit:BackgroundTask] _UIBackgroundTaskInfo *_doAddBackgroundTask(NSString *__strong, void (^__strong)(void), BOOL)_block_invoke: Incrementing reference count for background assertion <BKSProcessAssertion: 0x6000021095e0>
-2026-10-26 09:37:38.677 Df vieww[21956:eebc] [com.apple.UIKit:BackgroundTask] _UIBackgroundTaskInfo *_doAddBackgroundTask(NSString *__strong, void (^__strong)(void), BOOL): Created background task <_UIBackgroundTaskInfo: 0x600001701b80>: taskID = 1, taskName = Launch Background Task for Coalescing, creationTime = 587 (elapsed = 0).
-2026-10-26 09:37:38.677 Df vieww[21956:eeb1] [com.apple.FrontBoard:Common] FBSWorkspace connected to endpoint : <BSServiceConnectionEndpoint: 0x600001700ec0; target: com.apple.frontboard.systemappservices; service: com.apple.frontboard.workspace-service>
-2026-10-26 09:37:38.677 Df vieww[21956:eeb1] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0x600002c01d00 com.apple.frontboard.systemappservices> attempting immediate handshake from activate
-2026-10-26 09:37:38.678 Df vieww[21956:eeb1] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0x600002c01d00 com.apple.frontboard.systemappservices> sent handshake
-2026-10-26 09:37:38.678 Df vieww[21956:eeb1] [com.apple.runningboard:general] Added observer for process assertions expiration warning: <_RBSExpirationWarningClient: 0x600000210a80>
-2026-10-26 09:37:38.679 Df vieww[21956:eec1] [com.apple.FrontBoard:Common] Realizing settings extension FBSSceneSettingsCore on FBSSceneSettings
-2026-10-26 09:37:38.680 Df vieww[21956:eec1] [com.apple.FrontBoard:Common] Realizing settings extension FBSSceneClientSettingsCore on FBSSceneClientSettings
-2026-10-26 09:37:38.681 Df vieww[21956:eec1] [com.apple.FrontBoard:Common] Realizing settings extension FBSSceneTransitionContextCore on FBSSceneTransitionContext
-2026-10-26 09:37:38.681 Df vieww[21956:eebe] [com.apple.runningboard:connection] Gained inheritances: {(
-    <RBSInheritance| environment:(none) name:com.apple.frontboard.visibility origID:1671-1668-519 0>
-)}
-2026-10-26 09:37:38.682 Df vieww[21956:eeb1] [com.apple.Accessibility:AXSupportCommon] Read CategoryName: per-app = 1, category name = (null)
-2026-10-26 09:37:38.682 Df vieww[21956:eeb1] [com.apple.Accessibility:AXSupportCommon] Read CategoryName: per-app = 0, category name = (null)
-2026-10-26 09:37:38.684 Df vieww[21956:eeb1] [com.apple.dt.xctest:Default] Registering for test daemon availability notify post.
-2026-10-26 09:37:38.692 Df vieww[21956:eeb1] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
-2026-10-26 09:37:38.697 Df vieww[21956:eeb1] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
-2026-10-26 09:37:38.697 Df vieww[21956:eeb1] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
-2026-10-26 09:37:38.698 Df vieww[21956:eeb1] [com.apple.UIKit:BackgroundTask] UIBackgroundTaskIdentifier _UIApplicationBeginBackgroundTaskWithExpirationHandler(void (^__strong _Nullable)(void), NSString *__strong _Nullable): Will add backgroundTask with taskName: Persistent SceneSession Map Update, expirationHandler: <__NSGlobalBlock__: 0x1efa99f48>
-2026-10-26 09:37:38.698 Df vieww[21956:eeb1] [com.apple.UIKit:BackgroundTask] _UIBackgroundTaskInfo *_doAddBackgroundTask(NSString *__strong, void (^__strong)(void), BOOL)_block_invoke: Reusing background assertion <BKSProcessAssertion: 0x6000021095e0>
-2026-10-26 09:37:38.698 Df vieww[21956:eebe] [com.apple.runningboard:message] Received inheritances: {(
-    <RBSInheritance| environment:(none) name:com.apple.frontboard.visibility origID:1671-1668-519 0>
-)}
-2026-10-26 09:37:38.698 Df vieww[21956:eeb1] [com.apple.UIKit:BackgroundTask] _UIBackgroundTaskInfo *_doAddBackgroundTask(NSString *__strong, void (^__strong)(void), BOOL)_block_invoke: Incrementing reference count for background assertion <BKSProcessAssertion: 0x6000021095e0>
-2026-10-26 09:37:38.698 Df vieww[21956:eeb1] [com.apple.UIKit:BackgroundTask] _UIBackgroundTaskInfo *_doAddBackgroundTask(NSString *__strong, void (^__strong)(void), BOOL): Created background task <_UIBackgroundTaskInfo: 0x60000170d8c0>: taskID = 2, taskName = Persistent SceneSession Map Update, creationTime = 587 (elapsed = 0).
-2026-10-26 09:37:38.698 Df vieww[21956:eeb1] [com.apple.UIKit:Application] Deactivation reason added: 5; deactivation reasons: 1024 -> 1056; animating application lifecycle event: 1
-2026-10-26 09:37:38.699 Df vieww[21956:eeb1] [com.apple.UIKit:InterfaceStyle] Not push traits update to screen for new style 1, <UIWindowScene: 0x106206d90> (8777FC94-5536-44C5-802A-7C1DC02A9AA9)
-2026-10-26 09:37:38.699 Df vieww[21956:eeb1] [com.apple.UIKit:InterfaceStyle] Should send trait collection or coordinate space update, interface style 1 -> 1, <UIWindowScene: 0x106206d90> (8777FC94-5536-44C5-802A-7C1DC02A9AA9)
-2026-10-26 09:37:38.700 Df vieww[21956:eeb1] [com.apple.UIKit:InterfaceStyle] Not push traits update to screen for new style 1, <UIWindowScene: 0x106206d90> (8777FC94-5536-44C5-802A-7C1DC02A9AA9)
-2026-10-26 09:37:38.700 Df vieww[21956:eeb1] [com.apple.UIKit:KeyWindow] Setting default evaluation strategy for UIUserInterfaceIdiomPhone to LastOneWins
-2026-10-26 09:37:38.700 Df vieww[21956:eeb1] [com.apple.UIKit:EventDeferring] [0x600002901730] Initialized with scene: <UIWindowScene: 0x106206d90>; behavior: <_UIEventDeferringBehavior_iOS: 0x60000020e7a0>; systemShellManagesKeyboardFocus: 1
-2026-10-26 09:37:38.700 Df vieww[21956:eeb1] [com.apple.BacklightServices:scenes] 0x600000c01410 setDelegate:<0x600000c01b30 _UIBacklightEnvironment> hasDelegate:YES for environment:sceneID:dev.vieww.demo-default
-2026-10-26 09:37:38.701 Df vieww[21956:eeb1] [com.apple.UIKit:InterfaceStyle] Not push traits update to screen for new style 1, <UIWindowScene: 0x106206d90> (8777FC94-5536-44C5-802A-7C1DC02A9AA9)
-2026-10-26 09:37:38.701 Df vieww[21956:eeb1] [com.apple.UIKit:AppLifecycle] sceneOfRecord: sceneID: sceneID:dev.vieww.demo-default  persistentID: 8777FC94-5536-44C5-802A-7C1DC02A9AA9
-2026-10-26 09:37:38.701 Df vieww[21956:eeb1] [com.apple.UIKit:Application] Ignoring already applied deactivation reason: 5; deactivation reasons: 1056
-2026-10-26 09:37:38.701 Df vieww[21956:eeb1] [com.apple.UIKit:Application] Deactivation reason added: 11; deactivation reasons: 1056 -> 3104; animating application lifecycle event: 1
-2026-10-26 09:37:38.702 Df vieww[21956:eeb1] [com.apple.xpc:connection] [0x105406ea0] activating connection: mach=true listener=false peer=false name=com.apple.UIKit.KeyboardManagement.hosted
-2026-10-26 09:37:38.703 Df vieww[21956:eeb1] [com.apple.UIKit:Application] Deactivation reason removed: 10; deactivation reasons: 3104 -> 2080; animating application lifecycle event: 1
-2026-10-26 09:37:38.703 Df vieww[21956:eeb1] [com.apple.UIKit:Application] Deactivation reason added: 12; deactivation reasons: 2080 -> 6176; animating application lifecycle event: 1
-2026-10-26 09:37:38.703 Df vieww[21956:eeb1] [com.apple.UIKit:Application] Deactivation reason removed: 11; deactivation reasons: 6176 -> 4128; animating application lifecycle event: 1
-2026-10-26 09:37:38.705 Df vieww[21956:eeb1] [com.apple.network:activity] Create activity from XPC object <nw_activity 50:1[ABEBA3AE-F302-4D0C-8916-B6162956E50F]   (reporting strategy default)>
-2026-10-26 09:37:38.705 Df vieww[21956:eeb1] [com.apple.network:activity] Create activity from XPC object <nw_activity 50:2[00A82610-A840-4B94-B41C-E3E08C1A5CE3]   (reporting strategy default)>
-2026-10-26 09:37:38.706 Df vieww[21956:eeb1] [com.apple.network:activity] Set activity <nw_activity 50:1[ABEBA3AE-F302-4D0C-8916-B6162956E50F]   (reporting strategy default)> as the global parent.
-2026-10-26 09:37:38.706 Df vieww[21956:eeb1] [com.apple.UIKit:BackgroundTask] BOOL _UIApplicationEndBackgroundTask(UIBackgroundTaskIdentifier): Ending background task with UIBackgroundTaskIdentifier: 1
-2026-10-26 09:37:38.706 Df vieww[21956:eeb1] [com.apple.UIKit:BackgroundTask] BOOL _UIApplicationEndBackgroundTask(UIBackgroundTaskIdentifier): Ending task with identifier 1 and description: <_UIBackgroundTaskInfo: 0x600001701b80>: taskID = 1, taskName = Launch Background Task for Coalescing, creationTime = 587 (elapsed = 0), _expireHandler: (null)
-2026-10-26 09:37:38.706 Df vieww[21956:eeb1] [com.apple.UIKit:BackgroundTask] BOOL _UIApplicationEndBackgroundTask(UIBackgroundTaskIdentifier)_block_invoke: Decrementing reference count for assertion <BKSProcessAssertion: 0x6000021095e0> (used by background task with identifier 1: <_UIBackgroundTaskInfo: 0x600001701b80>: taskID = 1, taskName = Launch Background Task for Coalescing, creationTime = 587 (elapsed = 0))
-2026-10-26 09:37:38.707 Df vieww[21956:eeb1] [com.apple.UIKit:KeyboardSceneDelegate] forceReloadInputViews
-2026-10-26 09:37:38.707 Df vieww[21956:eeb1] [com.apple.UIKit:KeyboardSceneDelegate] _inputViewsForResponder: <(null): 0x0; >, automaticKeyboard: 0, force: 1
-2026-10-26 09:37:38.707 Df vieww[21956:eeb1] [com.apple.UIKit:KeyboardSceneDelegate] _inputViewsForResponder, found custom inputView: (null), customInputViewController: (null)
-2026-10-26 09:37:38.707 Df vieww[21956:eeb1] [com.apple.UIKit:KeyboardSceneDelegate] _inputViewsForResponder, found inputAccessoryView: (null)
-2026-10-26 09:37:38.707 Df vieww[21956:eeb1] [com.apple.UIKit:KeyboardSceneDelegate] _inputViewsForResponder, responderRequiresKeyboard 0 (automaticKeyboardEnabled: 0, activeInstance: (null), self.isOnScreen: 0, requiresKBWhenFirstResponder: 0)
-2026-10-26 09:37:38.708 Df vieww[21956:eeb1] [com.apple.UIKit:KeyboardSceneDelegate] _inputViewsForResponder, useKeyboard 0 (allowsSystemInputView: 1, !inputView (null), responderRequiresKeyboard 0)
-2026-10-26 09:37:38.708 Df vieww[21956:eeb1] [com.apple.UIKit:KeyboardSceneDelegate] _inputViewsForResponder, configuring _responderWithoutAutomaticAppearanceEnabled: (null) (_automaticAppearEnabled: 1)
-2026-10-26 09:37:38.708 Df vieww[21956:eeb1] [com.apple.UIKit:KeyboardSceneDelegate] _inputViewsForResponder, needsIVPlaceholder: 0, needsIAVPlaceholder: 0, needsInputSetWithPlaceholder: 0
-2026-10-26 09:37:38.708 Df vieww[21956:eeb1] [com.apple.UIKit:KeyboardSceneDelegate] _inputViewsForResponder returning: <<UIInputViewSet: 0x600003304460>; (empty)>
-2026-10-26 09:37:38.751 Df vieww[21956:eeb1] [com.apple.network:activity] <nw_activity 50:1[ABEBA3AE-F302-4D0C-8916-B6162956E50F] (global parent)  (reporting strategy default) complete (reason success)> complete with reason 2 (success), duration 226ms
-2026-10-26 09:37:38.751 Df vieww[21956:eeb1] [com.apple.network:activity] <nw_activity 50:2[00A82610-A840-4B94-B41C-E3E08C1A5CE3]   (reporting strategy default) complete (reason success)> complete with reason 2 (success), duration 225ms
-2026-10-26 09:37:38.751 Df vieww[21956:eeb1] [com.apple.network:activity] Unsetting the global parent activity <nw_activity 50:1[ABEBA3AE-F302-4D0C-8916-B6162956E50F] (global parent)  (reporting strategy default) complete (reason success)>.
-2026-10-26 09:37:38.751 Df vieww[21956:eeb1] [com.apple.network:activity] Unset the global parent activity.
-2026-10-26 09:37:38.943 Df vieww[21956:eeb1] [com.apple.UIKit:AppLifecycle] sceneOfRecord: sceneID: sceneID:dev.vieww.demo-default  persistentID: 8777FC94-5536-44C5-802A-7C1DC02A9AA9
-2026-10-26 09:37:38.971 Df vieww[21956:eeb1] [com.apple.UIKit:AppLifecycle] sceneOfRecord: sceneID: sceneID:dev.vieww.demo-default  persistentID: 8777FC94-5536-44C5-802A-7C1DC02A9AA9
-2026-10-26 09:37:38.971 Df vieww[21956:eeb1] [com.apple.UIKit:KeyWindow] Scene target of keyboard event deferring environment did change: 1; scene: UIWindowScene: 0x106206d90; scene identity: @com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Adev.vieww.demo-default
-2026-10-26 09:37:38.971 Df vieww[21956:eeb1] [com.apple.UIKit:EventDeferring] [0x600002901730] Scene target of event deferring environments did update: scene: 0x106206d90; current systemShellManagesKeyboardFocus: 1; systemShellManagesKeyboardFocusForScene: 1; eligibleForRecordRemoval: 1;
-2026-10-26 09:37:38.972 Df vieww[21956:eeb1] [com.apple.UIKit:KeyWindow] Scene became target of keyboard event deferring environment: UIWindowScene: 0x106206d90; scene identity: @com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Adev.vieww.demo-default
-2026-10-26 09:37:38.972 Df vieww[21956:eeb1] [com.apple.UIKit:KeyWindow] Setting default evaluation strategy for UIUserInterfaceIdiomPhone to SystemShellManaged
-2026-10-26 09:37:38.972 Df vieww[21956:eeb1] [com.apple.UIKit:KeyWindow] Key window needs update: 0; currentKeyWindowScene: 0x0; evaluatedKeyWindowScene: 0x106206d90; currentApplicationKeyWindow: 0x0; evaluatedApplicationKeyWindow: 0x0; reason: UIWindowScene: 0x106206d90: Window scene became target of keyboard environment
-2026-10-26 09:37:38.992 Df vieww[21956:eeb1] [com.apple.UIKit:AppLifecycle] sceneOfRecord: sceneID: sceneID:dev.vieww.demo-default  persistentID: 8777FC94-5536-44C5-802A-7C1DC02A9AA9
-2026-10-26 09:37:38.992 Df vieww[21956:eeb1] [com.apple.UIKit:Application] Deactivation reason removed: 12; deactivation reasons: 4128 -> 32; animating application lifecycle event: 1
-2026-10-26 09:37:38.992 Df vieww[21956:eeb1] [com.apple.UIKit:Application] Deactivation reason removed: 5; deactivation reasons: 32 -> 0; animating application lifecycle event: 0
-2026-10-26 09:37:38.997 A  vieww[21956:eebe] (RunningBoardServices) didChangeInheritances
-2026-10-26 09:37:38.997 Df vieww[21956:eebe] [com.apple.runningboard:connection] Gained inheritances: {(
-    <RBSInheritance| environment:UIScene:@com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Adev.vieww.demo-default name:com.apple.frontboard.visibility origID:1671-1668-523 payload 1990944341640830085>
-)}
-2026-10-26 09:37:38.999 Df vieww[21956:eebe] [com.apple.runningboard:message] Received inheritances: {(
-    <RBSInheritance| environment:UIScene:@com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Adev.vieww.demo-default name:com.apple.frontboard.visibility origID:1671-1668-523 payload 1990944341640830085>
-)}
-2026-10-26 09:37:39.007 Df vieww[21956:eeb1] [com.apple.FrontBoard:Common] Realizing settings extension <_UIApplicationSceneDisplaySettings> on FBSSceneSettings
-2026-10-26 09:37:39.019 Df vieww[21956:eec0] [com.apple.xpc:connection] [0x106306a80] activating connection: mach=true listener=false peer=false name=com.apple.fontservicesd
-2026-10-26 09:37:39.024 Df vieww[21956:eeb1] [com.apple.runningboard:connection] Creating side-channel connection to com.apple.runningboard
-2026-10-26 09:37:39.024 Df vieww[21956:eeb1] [com.apple.xpc:connection] [0x600003d003c0] activating connection: mach=true listener=false peer=false name=com.apple.runningboard
-2026-10-26 09:37:39.026 Df vieww[21956:eeb1] [com.apple.runningboard:process] Hit the server for a process handle 6d3b5b2000055c4 that resolved to: [app<dev.vieww.demo((null))>:21956]
-2026-10-26 09:37:39.027 Df vieww[21956:eeb1] [com.apple.UIKit:Orientation] <UIWindowScene: 0x106206d90> (8777FC94-5536-44C5-802A-7C1DC02A9AA9) Scene updated orientation preferences: none -> ( Pu )
-2026-10-26 09:37:39.027 Df vieww[21956:eeb1] [com.apple.UIKit:KeyWindow] Key window API is scene-level: YES
-2026-10-26 09:37:39.028 Df vieww[21956:eeb1] [com.apple.UIKit:KeyWindow] UIWindowScene: 0x106206d90: Window became key in scene: WinitUIWindow: 0x10540b3f0; contextId: 0x707E2B0D: reason: UIWindowScene: 0x106206d90: Window requested to become key in scene: 0x10540b3f0
-2026-10-26 09:37:39.028 Df vieww[21956:eeb1] [com.apple.UIKit:KeyWindow] Key window needs update: 1; currentKeyWindowScene: 0x0; evaluatedKeyWindowScene: 0x106206d90; currentApplicationKeyWindow: 0x0; evaluatedApplicationKeyWindow: 0x10540b3f0; reason: UIWindowScene: 0x106206d90: Window requested to become key in scene: 0x10540b3f0
-2026-10-26 09:37:39.028 Df vieww[21956:eeb1] [com.apple.UIKit:KeyWindow] Window did become application key: WinitUIWindow: 0x10540b3f0; contextId: 0x707E2B0D; scene identity: @com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Adev.vieww.demo-default
-2026-10-26 09:37:39.028 Df vieww[21956:eeb1] [com.apple.UIKit:EventDeferring] [0x600002901730] Begin local event deferring requested for token: 0x60000210ad50; environments: 1; reason: UIWindowScene: 0x106206d90: Begin event deferring in keyboardFocus for window: 0x10540b3f0
-2026-10-26 09:37:39.081 Df vieww[21956:eeb1] [com.apple.FrontBoard:Common] Realizing settings extension <_UIApplicationSceneKeyboardSettings> on FBSSceneSettings
-2026-10-26 09:37:39.085 Df vieww[21956:eeb1] [com.apple.UIKit:InputWindowController] Change from input view set: (null)
-2026-10-26 09:37:39.085 Df vieww[21956:eeb1] [com.apple.UIKit:InputWindowController] Change to input view set: (null)
-2026-10-26 09:37:39.110 Df vieww[21956:eeb1] [com.apple.UIKit:KeyboardLayoutGuide] changeSizingConstants: size is changing [not transitioning] to {393, 0} [previous size: {1, 0}]
-2026-10-26 09:37:39.111 Df vieww[21956:eeb1] __VIEWW_PROGRESS__ frames=0
-2026-10-26 09:37:39.224 Df vieww[21956:eebc] [com.apple.UIKit:BackgroundTask] BOOL _UIApplicationEndBackgroundTask(UIBackgroundTaskIdentifier): Ending background task with UIBackgroundTaskIdentifier: 2
-2026-10-26 09:37:39.224 Df vieww[21956:eebc] [com.apple.UIKit:BackgroundTask] BOOL _UIApplicationEndBackgroundTask(UIBackgroundTaskIdentifier): Ending task with identifier 2 and description: <_UIBackgroundTaskInfo: 0x60000170d8c0>: taskID = 2, taskName = Persistent SceneSession Map Update, creationTime = 587 (elapsed = 0), _expireHandler: <__NSGlobalBlock__: 0x1efa99f48>
-2026-10-26 09:37:39.224 Df vieww[21956:eebc] [com.apple.UIKit:BackgroundTask] BOOL _UIApplicationEndBackgroundTask(UIBackgroundTaskIdentifier)_block_invoke: Decrementing reference count for assertion <BKSProcessAssertion: 0x6000021095e0> (used by background task with identifier 2: <_UIBackgroundTaskInfo: 0x60000170d8c0>: taskID = 2, taskName = Persistent SceneSession Map Update, creationTime = 587 (elapsed = 0))
-2026-10-26 09:37:39.224 Df vieww[21956:eebc] [com.apple.UIKit:BackgroundTask] BOOL _UIApplicationEndBackgroundTask(UIBackgroundTaskIdentifier)_block_invoke: Will invalidate assertion: <BKSProcessAssertion: 0x6000021095e0> for task identifier: 2
-2026-10-26 09:37:39.279 Df vieww[21956:eeb1] __VIEWW_TAPS__ button=197,670 field=260,951 menu=286,2418
-2026-10-26 09:37:39.279 Df vieww[21956:eeb1] __VIEWW_TAPS_PT__ scale=3 button=66,223 field=87,317
-2026-10-26 09:37:39.717 A  vieww[21956:eebc] (RunningBoardServices) didChangeInheritances
-2026-10-26 09:37:39.717 Df vieww[21956:eebc] [com.apple.runningboard:connection] Gained inheritances: {(
-    <RBSInheritance| environment:(none) name:com.apple.frontboard.visibility origID:1671-1668-525 0>
-)}
-2026-10-26 09:37:39.717 Df vieww[21956:eebc] [com.apple.runningboard:message] Received inheritances: {(
-    <RBSInheritance| environment:(none) name:com.apple.frontboard.visibility origID:1671-1668-525 0>
-)}
-2026-10-26 09:37:40.557 Df vieww[21956:eeb1] __VIEWW_PROGRESS__ frames=60
-2026-10-26 09:37:41.625 Df vieww[21956:eeb1] __VIEWW_PROGRESS__ frames=120
-2026-10-26 09:37:42.748 Df vieww[21956:eeb1] __VIEWW_PROGRESS__ frames=180
-2026-10-26 09:37:43.848 Df vieww[21956:eeb1] __VIEWW_PROGRESS__ frames=240
-2026-10-26 09:37:44.922 Df vieww[21956:eeb1] __VIEWW_PROGRESS__ frames=300
-2026-10-26 09:37:45.006 A  vieww[21956:eec2] (RunningBoardServices) didChangeInheritances
-2026-10-26 09:37:45.006 Df vieww[21956:eec2] [com.apple.runningboard:message] Lost inheritances: {(
-    <RBSInheritance| environment:(none) name:com.apple.frontboard.visibility origID:1671-1668-519 0>
-)}
-2026-10-26 09:37:45.992 Df vieww[21956:eeb1] __VIEWW_PROGRESS__ frames=360
-2026-10-26 09:37:47.084 Df vieww[21956:eeb1] __VIEWW_PROGRESS__ frames=420
-2026-10-26 09:37:48.162 Df vieww[21956:eeb1] __VIEWW_PROGRESS__ frames=480
-2026-10-26 09:37:49.244 Df vieww[21956:eeb1] __VIEWW_PROGRESS__ frames=540
-2026-10-26 09:37:50.334 Df vieww[21956:eeb1] __VIEWW_PROGRESS__ frames=600
-2026-10-26 09:37:50.336 Df vieww[21956:eeb1] __VIEWW_SUITE__ begin
-2026-10-26 09:37:50.336 Df vieww[21956:eeb1] __VIEWW_SUITE__ ok   view_metrics_reached_the_tree: 393x852 logical
-2026-10-26 09:37:50.337 Df vieww[21956:eeb1] __VIEWW_SUITE__ ok   the_display_density_is_plausible: 3x
-2026-10-26 09:37:50.337 Df vieww[21956:eeb1] __VIEWW_SUITE__ ok   the_safe_area_fits_inside_the_surface: l0 t59 r0 b34
-2026-10-26 09:37:50.337 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   safe_area: l0 t59 r0 b34 on a 393x852 surface at 3x
-2026-10-26 09:37:50.337 Df vieww[21956:eeb1] __VIEWW_SUITE__ ok   the_keyboard_inset_is_a_plausible_bottom_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 34.0 } on a 852-tall surface
-2026-10-26 09:37:50.337 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   keyboard_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 34.0 } at the moment of the report
-2026-10-26 09:37:50.337 Df vieww[21956:eeb1] __VIEWW_SUITE__ ok   the_keyboard_inset_appears_when_the_keyboard_does: 34 logical pixels
-2026-10-26 09:37:50.337 Df vieww[21956:eeb1] __VIEWW_SUITE__ ok   a_modal_silences_the_screen_behind_it: 3 of 3 panel item(s) reachable, and nothing is behind the scrim (3 labelled node(s) in the tree)
-2026-10-26 09:37:50.338 Df vieww[21956:eeb1] __VIEWW_SUITE__ ok   frames_were_presented: 600 frames
-2026-10-26 09:37:50.338 Df vieww[21956:eeb1] __VIEWW_SUITE__ ok   the_typical_frame_is_inside_its_budget: median 13.096291ms against a budget of 16.666668ms
-2026-10-26 09:37:50.339 Df vieww[21956:eeb1] __VIEWW_SUITE__ FAIL frames_inside_their_budget: 43 of 240 frames over a budget of 16.666668ms (at most 1 in 20)
-2026-10-26 09:37:50.339 Df vieww[21956:eeb1] __VIEWW_SUITE__ ok   no_frame_stalled: worst 30.098875ms against a stall line of 66.666672ms (max of 4x budget, 3x median), 43 of 240 over budget
-2026-10-26 09:37:50.339 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   frame_time: median 13.096291ms, worst 30.098875ms, budget 16.666668ms (240 samples)
-2026-10-26 09:37:50.339 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   startup_stages: before run 128 ms | app setup 5.1 | event loop started 37.6 | resumed 289.5 | window created 37.2 | present ready 2.7 | accessibility and show 0.9 | tree built 32.2 | window ready 45.3 | until first draw 0.9 | app before-frame hooks 1.3 | first build and layout 16.6 | first raster and present 149.4 = 747.1 ms from process start
-2026-10-26 09:37:50.339 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   frame_stages: medians ms: scale 0.02 plan 0.00 cpu 7.60 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 5.04
-2026-10-26 09:37:50.339 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   frame_stages_p95: p95 ms: scale 0.06 plan 0.00 cpu 11.34 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.01 present 9.33
-2026-10-26 09:37:50.339 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   input_latency: no input reached this window
-2026-10-26 09:37:50.339 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   raster_by_kind: medians ms: text 0.00 shadows 0.00 paths 0.08 rects 6.19 images 0.00 layers 0.00 composite 0.00 total 6.27; p95 ms: text 0.00 shadows 0.00 paths 0.20 rects 9.34 images 0.00 layers 0.00 composite 0.00 total 9.55
-2026-10-26 09:37:50.339 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   worst_frame: work 30.10 ms, outside the renderer 0.19 ms; stages ms: scale 0.02 plan 0.00 cpu 4.70 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 25.19
-2026-10-26 09:37:50.339 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   device: tier low, RAM unreadable, 3 cores
-2026-10-26 09:37:50.339 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   cache_budgets: blur off (tier low), fill off (tier low), raster threads up to 3 workers per large mask
-2026-10-26 09:37:50.339 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   quality_overlay: tier low · median 13.57639ms / p95 19.739417ms / worst 30.098875ms vs budget 16.666668ms · 43/240 over
-2026-10-26 09:37:50.339 Df vieww[21956:eeb1] __VIEWW_SUITE__ ok   damage_tracking_costs_a_fraction_of_a_full_repaint: 0.081 full repaints per frame over 600 frames, against a 3013524px surface
-2026-10-26 09:37:50.339 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   full_repaints: 3 of 600 frames cost a whole surface, 0 of those after the loop slept
-2026-10-26 09:37:50.340 Df vieww[21956:eeb1] __VIEWW_SUITE__ ok   idle_frames_do_not_repaint_the_whole_surface: 0 idle full repaint(s) over 600 frames, against a budget of 12
-2026-10-26 09:37:50.340 Df vieww[21956:eeb1] __VIEWW_SUITE__ ok   the_full_repaint_counter_saw_the_first_frame: 3 full repaint(s) over 600 frames against a 3013524px surface
-2026-10-26 09:37:50.340 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   frame_report: 600 frames in 11.05s — 54.2fps (median 14.24ms, worst 20.98ms over 45 continuous); work median 13.10ms, worst 30.10ms; 151 over a 16.67ms budget; rasterised 48.68 full repaints (3 frame(s) cost a whole surface, 0 of them idle); stage medians: scale 0.02 plan 0.00 cpu 7.60 gpu[upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00] acquire 0.00 present 5.04 ms
-2026-10-26 09:37:50.340 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   gpu_frames: 0 of 600 drawn by the GPU rasterizer (0 straight into the swapchain)
-2026-10-26 09:37:50.340 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   thermal: not reported by this device
-2026-10-26 09:37:50.340 Df vieww[21956:eeb1] __VIEWW_SUITE__ --   shadow_blurs: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-2026-10-26 09:37:50.340 Df vieww[21956:eeb1] __VIEWW_SUITE__ end 13 checks, 1 failed
-2026-10-26 09:37:50.340 Df vieww[21956:eeb1] __VIEWW_SUITE__ result FAIL
-2026-10-26 09:38:26.399 Df vieww[23427:fd0c] [com.apple.xpc:connection] [0x600003d04000] activating connection: mach=true listener=false peer=false name=com.apple.cfprefsd.daemon
-2026-10-26 09:38:26.405 Df vieww[23427:fd0f] (libMobileGestalt.dylib) No persisted cache on this platform.
-2026-10-26 09:38:26.412 Df vieww[23427:fd0c] [com.apple.UIKit:BackgroundTask] _UIBackgroundTaskInfo *_doAddBackgroundTask(NSString *__strong, void (^__strong)(void), BOOL)_block_invoke: Creating new assertion because there is no existing background assertion.
-2026-10-26 09:38:26.412 Df vieww[23427:fd0c] [com.apple.UIKit:BackgroundTask] _UIBackgroundTaskInfo *_doAddBackgroundTask(NSString *__strong, void (^__strong)(void), BOOL)_block_invoke: Creating new background assertion
-2026-10-26 09:38:26.412 Df vieww[23427:fd0c] [com.apple.UIKit:BackgroundTask] _UIBackgroundTaskInfo *_doAddBackgroundTask(NSString *__strong, void (^__strong)(void), BOOL)_block_invoke: Created new background assertion <BKSProcessAssertion: 0x600002101540>
-2026-10-26 09:38:26.412 Df vieww[23427:fd0c] [com.apple.runningboard:connection] Initializing connection
-2026-10-26 09:38:26.412 Df vieww[23427:fd0c] [com.apple.runningboard:process] Removing all cached process handles
-2026-10-26 09:38:26.413 Df vieww[23427:fd0a] [com.apple.xpc:connection] [0x105d04dd0] activating connection: mach=false listener=false peer=false name=(anonymous)
-2026-10-26 09:38:26.413 Df vieww[23427:fd0c] [com.apple.runningboard:connection] Creating connection to com.apple.runningboard
-2026-10-26 09:38:26.413 Df vieww[23427:fd0c] [com.apple.xpc:connection] [0x600003d08000] activating connection: mach=true listener=false peer=false name=com.apple.runningboard
-2026-10-26 09:38:26.414 Df vieww[23427:fd0e] [com.apple.runningboard:connection] Sending handshake request attempt #1 to server
-2026-10-26 09:38:26.417 A  vieww[23427:fd11] (RunningBoardServices) didChangeInheritances
-2026-10-26 09:38:26.418 Df vieww[23427:fd0a] [com.apple.UIKit:Application] Deactivation reason added: 10; deactivation reasons: 0 -> 1024; animating application lifecycle event: 0
-2026-10-26 09:38:26.418 Df vieww[23427:fd0e] [com.apple.runningboard:connection] Handshake succeeded
-2026-10-26 09:38:26.418 Df vieww[23427:fd0e] [com.apple.runningboard:connection] Identity resolved as app<dev.vieww.demo((null))>
-2026-10-26 09:38:26.419 E  vieww[23427:0] [com.apple.os_debug_log:] assertion failed: 23J631 21E213: libxpc.dylib + 72964 [E96936FD-67D3-331D-A5D9-8539CCFDAC88]: 0x7d
-2026-10-26 09:38:26.419 Df vieww[23427:fd0a] [com.apple.BoardServices:Injection] activating monitor for service com.apple.frontboard.open
-2026-10-26 09:38:26.420 Df vieww[23427:fd11] [com.apple.runningboard:connection] Gained inheritances: {(
-    <RBSInheritance| environment:(none) name:com.apple.frontboard.visibility origID:1671-1668-531 0>
-)}
-2026-10-26 09:38:26.420 Df vieww[23427:fd0c] [com.apple.UIKit:BackgroundTask] _UIBackgroundTaskInfo *_doAddBackgroundTask(NSString *__strong, void (^__strong)(void), BOOL)_block_invoke: Incrementing reference count for background assertion <BKSProcessAssertion: 0x600002101540>
-2026-10-26 09:38:26.420 Df vieww[23427:fd0a] [com.apple.BoardServices:Injection] activating monitor for service com.apple.frontboard.workspace-service
-2026-10-26 09:38:26.420 Df vieww[23427:fd0c] [com.apple.UIKit:BackgroundTask] _UIBackgroundTaskInfo *_doAddBackgroundTask(NSString *__strong, void (^__strong)(void), BOOL): Created background task <_UIBackgroundTaskInfo: 0x6000017013c0>: taskID = 1, taskName = Launch Background Task for Coalescing, creationTime = 634 (elapsed = 0).
-2026-10-26 09:38:26.421 Df vieww[23427:fd0a] [com.apple.FrontBoard:Common] FBSWorkspace connecting to endpoint : <BSServiceConnectionEndpoint: 0x6000017055c0; target: com.apple.frontboard.systemappservices; service: com.apple.frontboard.workspace-service>
-2026-10-26 09:38:26.421 Df vieww[23427:fd0a] [com.apple.FrontBoard:Common] FBSWorkspace registering source: <FBSWorkspaceScenesClient: 0x600002c00c00>
-2026-10-26 09:38:26.421 Df vieww[23427:fd11] [com.apple.runningboard:message] Received inheritances: {(
-    <RBSInheritance| environment:(none) name:com.apple.frontboard.visibility origID:1671-1668-531 0>
-)}
-2026-10-26 09:38:26.424 Df vieww[23427:fd0a] [com.apple.FrontBoard:Common] FBSWorkspace connected to endpoint : <BSServiceConnectionEndpoint: 0x6000017055c0; target: com.apple.frontboard.systemappservices; service: com.apple.frontboard.workspace-service>
-2026-10-26 09:38:26.424 Df vieww[23427:fd0a] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0x600002c00c00 com.apple.frontboard.systemappservices> attempting immediate handshake from activate
-2026-10-26 09:38:26.425 Df vieww[23427:fd0a] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0x600002c00c00 com.apple.frontboard.systemappservices> sent handshake
-2026-10-26 09:38:26.426 Df vieww[23427:fd0a] [com.apple.runningboard:general] Added observer for process assertions expiration warning: <_RBSExpirationWarningClient: 0x60000020cfa0>
-2026-10-26 09:38:26.431 Df vieww[23427:fd10] [com.apple.FrontBoard:Common] Realizing settings extension FBSSceneSettingsCore on FBSSceneSettings
-2026-10-26 09:38:26.434 Df vieww[23427:fd10] [com.apple.FrontBoard:Common] Realizing settings extension FBSSceneClientSettingsCore on FBSSceneClientSettings
-2026-10-26 09:38:26.435 Df vieww[23427:fd10] [com.apple.FrontBoard:Common] Realizing settings extension FBSSceneTransitionContextCore on FBSSceneTransitionContext
-2026-10-26 09:38:26.443 Df vieww[23427:fd0a] [com.apple.Accessibility:AXSupportCommon] Read CategoryName: per-app = 1, category name = (null)
-2026-10-26 09:38:26.443 Df vieww[23427:fd0a] [com.apple.Accessibility:AXSupportCommon] Read CategoryName: per-app = 0, category name = (null)
-2026-10-26 09:38:26.445 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] Registering for test daemon availability notify post.
-2026-10-26 09:38:26.445 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
-2026-10-26 09:38:26.445 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
-2026-10-26 09:38:26.445 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
-2026-10-26 09:38:26.449 Df vieww[23427:fd0a] [com.apple.UIKit:Application] Deactivation reason added: 5; deactivation reasons: 1024 -> 1056; animating application lifecycle event: 1
-2026-10-26 09:38:26.449 Df vieww[23427:fd0a] [com.apple.UIKit:InterfaceStyle] Not push traits update to screen for new style 1, <UIWindowScene: 0x1067097b0> (8777FC94-5536-44C5-802A-7C1DC02A9AA9)
-2026-10-26 09:38:26.450 Df vieww[23427:fd0a] [com.apple.UIKit:InterfaceStyle] Should send trait collection or coordinate space update, interface style 1 -> 1, <UIWindowScene: 0x1067097b0> (8777FC94-5536-44C5-802A-7C1DC02A9AA9)
-2026-10-26 09:38:26.453 Df vieww[23427:fd0a] [com.apple.UIKit:InterfaceStyle] Not push traits update to screen for new style 1, <UIWindowScene: 0x1067097b0> (8777FC94-5536-44C5-802A-7C1DC02A9AA9)
-2026-10-26 09:38:26.454 Df vieww[23427:fd0a] [com.apple.UIKit:KeyWindow] Setting default evaluation strategy for UIUserInterfaceIdiomPhone to LastOneWins
-2026-10-26 09:38:26.454 Df vieww[23427:fd0a] [com.apple.UIKit:EventDeferring] [0x6000029051f0] Initialized with scene: <UIWindowScene: 0x1067097b0>; behavior: <_UIEventDeferringBehavior_iOS: 0x6000002003a0>; systemShellManagesKeyboardFocus: 1
-2026-10-26 09:38:26.454 Df vieww[23427:fd0a] [com.apple.BacklightServices:scenes] 0x600000c0ca20 setDelegate:<0x600000c01ef0 _UIBacklightEnvironment> hasDelegate:YES for environment:sceneID:dev.vieww.demo-default
-2026-10-26 09:38:26.455 Df vieww[23427:fd0a] [com.apple.UIKit:InterfaceStyle] Not push traits update to screen for new style 1, <UIWindowScene: 0x1067097b0> (8777FC94-5536-44C5-802A-7C1DC02A9AA9)
-2026-10-26 09:38:26.457 Df vieww[23427:fd0a] [com.apple.UIKit:AppLifecycle] sceneOfRecord: sceneID: sceneID:dev.vieww.demo-default  persistentID: 8777FC94-5536-44C5-802A-7C1DC02A9AA9
-2026-10-26 09:38:26.458 Df vieww[23427:fd0a] [com.apple.UIKit:Application] Ignoring already applied deactivation reason: 5; deactivation reasons: 1056
-2026-10-26 09:38:26.458 Df vieww[23427:fd0a] [com.apple.UIKit:Application] Deactivation reason added: 11; deactivation reasons: 1056 -> 3104; animating application lifecycle event: 1
-2026-10-26 09:38:26.459 Df vieww[23427:fd0a] [com.apple.xpc:connection] [0x105b07870] activating connection: mach=true listener=false peer=false name=com.apple.UIKit.KeyboardManagement.hosted
-2026-10-26 09:38:26.461 Df vieww[23427:fd0a] [com.apple.UIKit:Application] Deactivation reason removed: 10; deactivation reasons: 3104 -> 2080; animating application lifecycle event: 1
-2026-10-26 09:38:26.461 Df vieww[23427:fd0a] [com.apple.UIKit:Application] Deactivation reason added: 12; deactivation reasons: 2080 -> 6176; animating application lifecycle event: 1
-2026-10-26 09:38:26.461 Df vieww[23427:fd0a] [com.apple.UIKit:Application] Deactivation reason removed: 11; deactivation reasons: 6176 -> 4128; animating application lifecycle event: 1
-2026-10-26 09:38:26.464 Df vieww[23427:fd0a] [com.apple.network:activity] Create activity from XPC object <nw_activity 50:1[F3A33EA2-2EDD-4ECB-976E-D75190B634DB]   (reporting strategy default)>
-2026-10-26 09:38:26.464 Df vieww[23427:fd0a] [com.apple.network:activity] Create activity from XPC object <nw_activity 50:2[7AF67069-4615-420A-83DC-661E8FF00197]   (reporting strategy default)>
-2026-10-26 09:38:26.464 Df vieww[23427:fd0a] [com.apple.network:activity] Set activity <nw_activity 50:1[F3A33EA2-2EDD-4ECB-976E-D75190B634DB]   (reporting strategy default)> as the global parent.
-2026-10-26 09:38:26.464 Df vieww[23427:fd0a] [com.apple.UIKit:BackgroundTask] BOOL _UIApplicationEndBackgroundTask(UIBackgroundTaskIdentifier): Ending background task with UIBackgroundTaskIdentifier: 1
-2026-10-26 09:38:26.464 Df vieww[23427:fd0a] [com.apple.UIKit:BackgroundTask] BOOL _UIApplicationEndBackgroundTask(UIBackgroundTaskIdentifier): Ending task with identifier 1 and description: <_UIBackgroundTaskInfo: 0x6000017013c0>: taskID = 1, taskName = Launch Background Task for Coalescing, creationTime = 634 (elapsed = 0), _expireHandler: (null)
-2026-10-26 09:38:26.465 Df vieww[23427:fd0a] [com.apple.UIKit:BackgroundTask] BOOL _UIApplicationEndBackgroundTask(UIBackgroundTaskIdentifier)_block_invoke: Decrementing reference count for assertion <BKSProcessAssertion: 0x600002101540> (used by background task with identifier 1: <_UIBackgroundTaskInfo: 0x6000017013c0>: taskID = 1, taskName = Launch Background Task for Coalescing, creationTime = 634 (elapsed = 0))
-2026-10-26 09:38:26.465 Df vieww[23427:fd0a] [com.apple.UIKit:BackgroundTask] BOOL _UIApplicationEndBackgroundTask(UIBackgroundTaskIdentifier)_block_invoke: Will invalidate assertion: <BKSProcessAssertion: 0x600002101540> for task identifier: 1
-2026-10-26 09:38:26.466 Df vieww[23427:fd0a] [com.apple.UIKit:AppLifecycle] sceneOfRecord: sceneID: sceneID:dev.vieww.demo-default  persistentID: 8777FC94-5536-44C5-802A-7C1DC02A9AA9
-2026-10-26 09:38:26.466 Df vieww[23427:fd0a] [com.apple.UIKit:KeyWindow] Scene target of keyboard event deferring environment did change: 1; scene: UIWindowScene: 0x1067097b0; scene identity: @com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Adev.vieww.demo-default
-2026-10-26 09:38:26.467 Df vieww[23427:fd0a] [com.apple.UIKit:EventDeferring] [0x6000029051f0] Scene target of event deferring environments did update: scene: 0x1067097b0; current systemShellManagesKeyboardFocus: 1; systemShellManagesKeyboardFocusForScene: 1; eligibleForRecordRemoval: 1;
-2026-10-26 09:38:26.467 Df vieww[23427:fd0a] [com.apple.UIKit:KeyWindow] Scene became target of keyboard event deferring environment: UIWindowScene: 0x1067097b0; scene identity: @com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Adev.vieww.demo-default
-2026-10-26 09:38:26.467 Df vieww[23427:fd0a] [com.apple.UIKit:KeyWindow] Setting default evaluation strategy for UIUserInterfaceIdiomPhone to SystemShellManaged
-2026-10-26 09:38:26.467 Df vieww[23427:fd0a] [com.apple.UIKit:KeyWindow] Key window needs update: 0; currentKeyWindowScene: 0x0; evaluatedKeyWindowScene: 0x1067097b0; currentApplicationKeyWindow: 0x0; evaluatedApplicationKeyWindow: 0x0; reason: UIWindowScene: 0x1067097b0: Window scene became target of keyboard environment
-2026-10-26 09:38:26.467 Df vieww[23427:fd0a] [com.apple.UIKit:KeyboardSceneDelegate] forceReloadInputViews
-2026-10-26 09:38:26.467 Df vieww[23427:fd0a] [com.apple.UIKit:KeyboardSceneDelegate] _inputViewsForResponder: <(null): 0x0; >, automaticKeyboard: 0, force: 1
-2026-10-26 09:38:26.468 Df vieww[23427:fd0a] [com.apple.UIKit:KeyboardSceneDelegate] _inputViewsForResponder, found custom inputView: (null), customInputViewController: (null)
-2026-10-26 09:38:26.468 Df vieww[23427:fd0a] [com.apple.UIKit:KeyboardSceneDelegate] _inputViewsForResponder, found inputAccessoryView: (null)
-2026-10-26 09:38:26.469 Df vieww[23427:fd0a] [com.apple.UIKit:KeyboardSceneDelegate] _inputViewsForResponder, responderRequiresKeyboard 0 (automaticKeyboardEnabled: 0, activeInstance: (null), self.isOnScreen: 0, requiresKBWhenFirstResponder: 0)
-2026-10-26 09:38:26.469 Df vieww[23427:fd0a] [com.apple.UIKit:KeyboardSceneDelegate] _inputViewsForResponder, useKeyboard 0 (allowsSystemInputView: 1, !inputView (null), responderRequiresKeyboard 0)
-2026-10-26 09:38:26.469 Df vieww[23427:fd0a] [com.apple.UIKit:KeyboardSceneDelegate] _inputViewsForResponder, configuring _responderWithoutAutomaticAppearanceEnabled: (null) (_automaticAppearEnabled: 1)
-2026-10-26 09:38:26.469 Df vieww[23427:fd0a] [com.apple.UIKit:KeyboardSceneDelegate] _inputViewsForResponder, needsIVPlaceholder: 0, needsIAVPlaceholder: 0, needsInputSetWithPlaceholder: 0
-2026-10-26 09:38:26.469 Df vieww[23427:fd0a] [com.apple.UIKit:KeyboardSceneDelegate] _inputViewsForResponder returning: <<UIInputViewSet: 0x6000033088c0>; (empty)>
-2026-10-26 09:38:26.471 Df vieww[23427:fd0a] [com.apple.UIKit:AppLifecycle] sceneOfRecord: sceneID: sceneID:dev.vieww.demo-default  persistentID: 8777FC94-5536-44C5-802A-7C1DC02A9AA9
-2026-10-26 09:38:26.480 A  vieww[23427:fd11] (RunningBoardServices) didChangeInheritances
-2026-10-26 09:38:26.481 Df vieww[23427:fd11] [com.apple.runningboard:connection] Gained inheritances: {(
-    <RBSInheritance| environment:UIScene:@com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Adev.vieww.demo-default name:com.apple.frontboard.visibility origID:1671-1668-535 payload 1990944341640830085>
-)}
-2026-10-26 09:38:26.481 Df vieww[23427:fd11] [com.apple.runningboard:message] Received inheritances: {(
-    <RBSInheritance| environment:UIScene:@com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Adev.vieww.demo-default name:com.apple.frontboard.visibility origID:1671-1668-535 payload 1990944341640830085>
-)}
-2026-10-26 09:38:26.513 Df vieww[23427:fd0a] [com.apple.network:activity] <nw_activity 50:1[F3A33EA2-2EDD-4ECB-976E-D75190B634DB] (global parent)  (reporting strategy default) complete (reason success)> complete with reason 2 (success), duration 225ms
-2026-10-26 09:38:26.513 Df vieww[23427:fd0a] [com.apple.network:activity] <nw_activity 50:2[7AF67069-4615-420A-83DC-661E8FF00197]   (reporting strategy default) complete (reason success)> complete with reason 2 (success), duration 225ms
-2026-10-26 09:38:26.513 Df vieww[23427:fd0a] [com.apple.network:activity] Unsetting the global parent activity <nw_activity 50:1[F3A33EA2-2EDD-4ECB-976E-D75190B634DB] (global parent)  (reporting strategy default) complete (reason success)>.
-2026-10-26 09:38:26.513 Df vieww[23427:fd0a] [com.apple.network:activity] Unset the global parent activity.
-2026-10-26 09:38:26.637 Df vieww[23427:fd0a] [com.apple.UIKit:AppLifecycle] sceneOfRecord: sceneID: sceneID:dev.vieww.demo-default  persistentID: 8777FC94-5536-44C5-802A-7C1DC02A9AA9
-2026-10-26 09:38:26.638 Df vieww[23427:fd0a] [com.apple.UIKit:Application] Deactivation reason removed: 12; deactivation reasons: 4128 -> 32; animating application lifecycle event: 1
-2026-10-26 09:38:26.638 Df vieww[23427:fd0a] [com.apple.UIKit:Application] Deactivation reason removed: 5; deactivation reasons: 32 -> 0; animating application lifecycle event: 0
-2026-10-26 09:38:26.648 Df vieww[23427:fd0a] [com.apple.FrontBoard:Common] Realizing settings extension <_UIApplicationSceneDisplaySettings> on FBSSceneSettings
-2026-10-26 09:38:26.661 Df vieww[23427:fd0c] [com.apple.xpc:connection] [0x105d0b240] activating connection: mach=true listener=false peer=false name=com.apple.fontservicesd
-2026-10-26 09:38:26.665 Df vieww[23427:fd0a] [com.apple.runningboard:connection] Creating side-channel connection to com.apple.runningboard
-2026-10-26 09:38:26.666 Df vieww[23427:fd0a] [com.apple.xpc:connection] [0x600003d04f00] activating connection: mach=true listener=false peer=false name=com.apple.runningboard
-2026-10-26 09:38:26.666 Df vieww[23427:fd0a] [com.apple.runningboard:process] Hit the server for a process handle f671cc100005b83 that resolved to: [app<dev.vieww.demo((null))>:23427]
-2026-10-26 09:38:26.668 Df vieww[23427:fd0a] [com.apple.UIKit:Orientation] <UIWindowScene: 0x1067097b0> (8777FC94-5536-44C5-802A-7C1DC02A9AA9) Scene updated orientation preferences: none -> ( Pu )
-2026-10-26 09:38:26.669 Df vieww[23427:fd0a] [com.apple.UIKit:KeyWindow] Key window API is scene-level: YES
-2026-10-26 09:38:26.669 Df vieww[23427:fd0a] [com.apple.UIKit:KeyWindow] UIWindowScene: 0x1067097b0: Window became key in scene: WinitUIWindow: 0x105d07980; contextId: 0x831B46AC: reason: UIWindowScene: 0x1067097b0: Window requested to become key in scene: 0x105d07980
-2026-10-26 09:38:26.669 Df vieww[23427:fd0a] [com.apple.UIKit:KeyWindow] Key window needs update: 1; currentKeyWindowScene: 0x0; evaluatedKeyWindowScene: 0x1067097b0; currentApplicationKeyWindow: 0x0; evaluatedApplicationKeyWindow: 0x105d07980; reason: UIWindowScene: 0x1067097b0: Window requested to become key in scene: 0x105d07980
-2026-10-26 09:38:26.670 Df vieww[23427:fd0a] [com.apple.UIKit:KeyWindow] Window did become application key: WinitUIWindow: 0x105d07980; contextId: 0x831B46AC; scene identity: @com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Adev.vieww.demo-default
-2026-10-26 09:38:26.670 Df vieww[23427:fd0a] [com.apple.UIKit:EventDeferring] [0x6000029051f0] Begin local event deferring requested for token: 0x600002105e50; environments: 1; reason: UIWindowScene: 0x1067097b0: Begin event deferring in keyboardFocus for window: 0x105d07980
-2026-10-26 09:38:26.681 Df vieww[23427:fd0a] [com.apple.FrontBoard:Common] Realizing settings extension <_UIApplicationSceneKeyboardSettings> on FBSSceneSettings
-2026-10-26 09:38:26.681 Df vieww[23427:fd0a] [com.apple.UIKit:InputWindowController] Change from input view set: (null)
-2026-10-26 09:38:26.682 Df vieww[23427:fd0a] [com.apple.UIKit:InputWindowController] Change to input view set: (null)
-2026-10-26 09:38:26.693 Df vieww[23427:fd0a] [com.apple.UIKit:KeyboardLayoutGuide] changeSizingConstants: size is changing [not transitioning] to {393, 0} [previous size: {1, 0}]
-2026-10-26 09:38:26.694 Df vieww[23427:fd0a] __VIEWW_PROGRESS__ frames=0
-2026-10-26 09:38:26.750 Df vieww[23427:fd0a] __VIEWW_TAPS__ button=197,670 field=260,951 menu=286,2418
-2026-10-26 09:38:26.750 Df vieww[23427:fd0a] __VIEWW_TAPS_PT__ scale=3 button=66,223 field=87,317
-2026-10-26 09:38:27.437 A  vieww[23427:fd0c] (RunningBoardServices) didChangeInheritances
-2026-10-26 09:38:27.438 Df vieww[23427:fd0c] [com.apple.runningboard:connection] Gained inheritances: {(
-    <RBSInheritance| environment:(none) name:com.apple.frontboard.visibility origID:1671-1668-537 0>
-)}
-2026-10-26 09:38:27.438 Df vieww[23427:fd0c] [com.apple.runningboard:message] Received inheritances: {(
-    <RBSInheritance| environment:(none) name:com.apple.frontboard.visibility origID:1671-1668-537 0>
-)}
-2026-10-26 09:38:27.546 A  vieww[23427:fd0c] (RunningBoardServices) didChangeInheritances
-2026-10-26 09:38:27.546 Df vieww[23427:fd0c] [com.apple.runningboard:message] Lost inheritances: {(
-    <RBSInheritance| environment:(none) name:com.apple.frontboard.visibility origID:1671-1668-531 0>
-)}
-2026-10-26 09:38:27.905 Df vieww[23427:fd0a] __VIEWW_PROGRESS__ frames=60
-2026-10-26 09:38:28.974 Df vieww[23427:fd0a] __VIEWW_PROGRESS__ frames=120
-2026-10-26 09:38:30.062 Df vieww[23427:fd0a] __VIEWW_PROGRESS__ frames=180
-2026-10-26 09:38:31.145 Df vieww[23427:fd0a] __VIEWW_PROGRESS__ frames=240
-2026-10-26 09:38:32.213 Df vieww[23427:fd0a] __VIEWW_PROGRESS__ frames=300
-2026-10-26 09:38:33.306 Df vieww[23427:fd0a] __VIEWW_PROGRESS__ frames=360
-2026-10-26 09:38:34.382 Df vieww[23427:fd0a] __VIEWW_PROGRESS__ frames=420
-2026-10-26 09:38:35.454 Df vieww[23427:fd0a] __VIEWW_PROGRESS__ frames=480
-2026-10-26 09:38:36.533 Df vieww[23427:fd0a] __VIEWW_PROGRESS__ frames=540
-2026-10-26 09:38:37.618 Df vieww[23427:fd0a] __VIEWW_PROGRESS__ frames=600
-2026-10-26 09:38:37.619 Df vieww[23427:fd0a] __VIEWW_SUITE__ begin
-2026-10-26 09:38:37.619 Df vieww[23427:fd0a] __VIEWW_SUITE__ ok   view_metrics_reached_the_tree: 393x852 logical
-2026-10-26 09:38:37.619 Df vieww[23427:fd0a] __VIEWW_SUITE__ ok   the_display_density_is_plausible: 3x
-2026-10-26 09:38:37.619 Df vieww[23427:fd0a] __VIEWW_SUITE__ ok   the_safe_area_fits_inside_the_surface: l0 t59 r0 b34
-2026-10-26 09:38:37.619 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   safe_area: l0 t59 r0 b34 on a 393x852 surface at 3x
-2026-10-26 09:38:37.619 Df vieww[23427:fd0a] __VIEWW_SUITE__ ok   the_keyboard_inset_is_a_plausible_bottom_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 34.0 } on a 852-tall surface
-2026-10-26 09:38:37.619 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   keyboard_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 34.0 } at the moment of the report
-2026-10-26 09:38:37.619 Df vieww[23427:fd0a] __VIEWW_SUITE__ ok   the_keyboard_inset_appears_when_the_keyboard_does: 34 logical pixels
-2026-10-26 09:38:37.619 Df vieww[23427:fd0a] __VIEWW_SUITE__ ok   a_modal_silences_the_screen_behind_it: 3 of 3 panel item(s) reachable, and nothing is behind the scrim (3 labelled node(s) in the tree)
-2026-10-26 09:38:37.619 Df vieww[23427:fd0a] __VIEWW_SUITE__ ok   frames_were_presented: 600 frames
-2026-10-26 09:38:37.619 Df vieww[23427:fd0a] __VIEWW_SUITE__ ok   the_typical_frame_is_inside_its_budget: median 13.715666ms against a budget of 16.666668ms
-2026-10-26 09:38:37.619 Df vieww[23427:fd0a] __VIEWW_SUITE__ FAIL frames_inside_their_budget: 43 of 240 frames over a budget of 16.666668ms (at most 1 in 20)
-2026-10-26 09:38:37.619 Df vieww[23427:fd0a] __VIEWW_SUITE__ ok   no_frame_stalled: worst 27.366501ms against a stall line of 66.666672ms (max of 4x budget, 3x median), 43 of 240 over budget
-2026-10-26 09:38:37.619 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   frame_time: median 13.715666ms, worst 27.366501ms, budget 16.666668ms (240 samples)
-2026-10-26 09:38:37.620 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   startup_stages: before run 101 ms | app setup 2.1 | event loop started 64.0 | resumed 177.4 | window created 34.1 | present ready 1.2 | accessibility and show 0.4 | tree built 2.8 | window ready 16.5 | until first draw 0.8 | app before-frame hooks 0.2 | first build and layout 6.8 | first raster and present 49.0 = 456.7 ms from process start
-2026-10-26 09:38:37.620 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   frame_stages: medians ms: scale 0.02 plan 0.00 cpu 7.42 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 5.55
-2026-10-26 09:38:37.620 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   frame_stages_p95: p95 ms: scale 0.07 plan 0.00 cpu 11.30 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.01 present 9.50
-2026-10-26 09:38:37.620 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   input_latency: no input reached this window
-2026-10-26 09:38:37.620 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   raster_by_kind: medians ms: text 0.00 shadows 0.00 paths 0.08 rects 6.27 images 0.00 layers 0.00 composite 0.00 total 6.35; p95 ms: text 0.00 shadows 0.00 paths 0.19 rects 9.28 images 0.00 layers 0.00 composite 0.00 total 9.47
-2026-10-26 09:38:37.620 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   worst_frame: work 27.37 ms, outside the renderer 0.22 ms; stages ms: scale 0.03 plan 0.00 cpu 10.50 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.01 present 16.60
-2026-10-26 09:38:37.620 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   device: tier low, RAM unreadable, 3 cores
-2026-10-26 09:38:37.620 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   cache_budgets: blur off (tier low), fill off (tier low), raster threads up to 3 workers per large mask
-2026-10-26 09:38:37.620 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   quality_overlay: tier low · median 14.088141ms / p95 19.669083ms / worst 27.366501ms vs budget 16.666668ms · 43/240 over
-2026-10-26 09:38:37.620 Df vieww[23427:fd0a] __VIEWW_SUITE__ ok   damage_tracking_costs_a_fraction_of_a_full_repaint: 0.079 full repaints per frame over 600 frames, against a 3013524px surface
-2026-10-26 09:38:37.620 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   full_repaints: 3 of 600 frames cost a whole surface, 0 of those after the loop slept
-2026-10-26 09:38:37.621 Df vieww[23427:fd0a] __VIEWW_SUITE__ ok   idle_frames_do_not_repaint_the_whole_surface: 0 idle full repaint(s) over 600 frames, against a budget of 12
-2026-10-26 09:38:37.621 Df vieww[23427:fd0a] __VIEWW_SUITE__ ok   the_full_repaint_counter_saw_the_first_frame: 3 full repaint(s) over 600 frames against a 3013524px surface
-2026-10-26 09:38:37.621 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   frame_report: 600 frames in 10.86s — 55.1fps (median 15.20ms, worst 21.22ms over 50 continuous); work median 13.72ms, worst 27.37ms; 129 over a 16.67ms budget; rasterised 47.62 full repaints (3 frame(s) cost a whole surface, 0 of them idle); stage medians: scale 0.02 plan 0.00 cpu 7.42 gpu[upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00] acquire 0.00 present 5.55 ms
-2026-10-26 09:38:37.621 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   gpu_frames: 0 of 600 drawn by the GPU rasterizer (0 straight into the swapchain)
-2026-10-26 09:38:37.621 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   thermal: not reported by this device
-2026-10-26 09:38:37.621 Df vieww[23427:fd0a] __VIEWW_SUITE__ --   shadow_blurs: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-2026-10-26 09:38:37.622 Df vieww[23427:fd0a] __VIEWW_SUITE__ end 13 checks, 1 failed
-2026-10-26 09:38:37.622 Df vieww[23427:fd0a] __VIEWW_SUITE__ result FAIL
-2026-10-26 09:39:16.981 A  vieww[23427:fd0c] (CoreFoundation) Updating Key-Value Observers Of Preferences
-2026-10-26 09:39:24.423 Df vieww[23427:fd0a] [com.apple.BackBoard:Display] [FBSDisplaySource 1-1] silently connecting raw configuration: <FBSDisplayConfiguration: 0x600003d1c870; Main; mode: "393x852@3x 60Hz p3 SDR">
-2026-10-26 09:39:31.234 Df vieww[23427:fd0e] [com.apple.dt.xctest:Default] Got availability notification from test daemon.
-2026-10-26 09:39:31.235 Df vieww[23427:fd0e] [com.apple.xpc:connection] [0x105d505d0] activating connection: mach=true listener=false peer=false name=com.apple.dt.xctestd.target
-2026-10-26 09:39:31.238 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] Received request for endpoint.
-2026-10-26 09:39:31.238 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] Attempting to load /Library/Developer/CoreSimulator/Volumes/iOS_21E213/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 17.4.simruntime/Contents/Resources/RuntimeRoot/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework.
-2026-10-26 09:39:31.271 Df vieww[23427:10f60] [com.apple.dt.automationmode:Default] XAM shared observer connecting to com.apple.dt.automationmode.reader
-2026-10-26 09:39:31.272 Df vieww[23427:10f60] [com.apple.xpc:connection] [0x105d53520] activating connection: mach=true listener=false peer=false name=com.apple.dt.automationmode.reader
-2026-10-26 09:39:31.275 Df vieww[23427:10f60] [com.apple.xpc:connection] [0x105d53520] invalidated because the current process cancelled the connection by calling xpc_connection_cancel()
-2026-10-26 09:39:31.275 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] Sending anonymous endpoint.
-2026-10-26 09:39:31.275 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] Setting up target listener.
-2026-10-26 09:39:31.275 Df vieww[23427:10f60] [com.apple.xpc:connection] [0x105d53520] activating connection: mach=false listener=true peer=false name=(anonymous)
-2026-10-26 09:39:31.275 Df vieww[23427:10f60] [com.apple.xpc:connection] [0x105d53520] Channel could not return listener port.
-2026-10-26 09:39:31.279 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] Received client to target connection.
-2026-10-26 09:39:31.279 Df vieww[23427:10f4a] [com.apple.dt.automationmode:Default] Returning 1 for enabled state
-2026-10-26 09:39:31.279 Df vieww[23427:10f4a] [com.apple.xpc:connection] [0x105d3b0d0] activating connection: mach=false listener=false peer=true name=com.apple.xpc.anonymous.0x105d53520.peer[25037].0x105d3b0d0
-2026-10-26 09:39:31.280 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] Received request to exchange capabilities, remote interface capabilities are: <XCTCapabilities: 0x60000000e930>: {
+2026-10-26 12:30:08.364 A  vieww[20977:eb51] (CoreFoundation) Updating Key-Value Observers Of Preferences
+2026-10-26 12:30:16.236 Df vieww[20977:eb4f] [com.apple.BackBoard:Display] [FBSDisplaySource 1-1] silently connecting raw configuration: <FBSDisplayConfiguration: 0x600003d263a0; Main; mode: "393x852@3x 60Hz p3 SDR">
+2026-10-26 12:30:24.084 Df vieww[20977:1054e] [com.apple.dt.xctest:Default] Got availability notification from test daemon.
+2026-10-26 12:30:24.084 Df vieww[20977:1054e] [com.apple.xpc:connection] [0x103d28670] activating connection: mach=true listener=false peer=false name=com.apple.dt.xctestd.target
+2026-10-26 12:30:24.085 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Received request for endpoint.
+2026-10-26 12:30:24.085 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Attempting to load /Library/Developer/CoreSimulator/Volumes/iOS_21E213/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 17.4.simruntime/Contents/Resources/RuntimeRoot/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework.
+2026-10-26 12:30:24.121 Df vieww[20977:1054d] [com.apple.dt.automationmode:Default] XAM shared observer connecting to com.apple.dt.automationmode.reader
+2026-10-26 12:30:24.124 Df vieww[20977:1054d] [com.apple.xpc:connection] [0x103d27fb0] activating connection: mach=true listener=false peer=false name=com.apple.dt.automationmode.reader
+2026-10-26 12:30:24.128 Df vieww[20977:1054d] [com.apple.xpc:connection] [0x103d27fb0] invalidated because the current process cancelled the connection by calling xpc_connection_cancel()
+2026-10-26 12:30:24.128 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Sending anonymous endpoint.
+2026-10-26 12:30:24.129 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Setting up target listener.
+2026-10-26 12:30:24.129 Df vieww[20977:1054d] [com.apple.xpc:connection] [0x103d27fb0] activating connection: mach=false listener=true peer=false name=(anonymous)
+2026-10-26 12:30:24.129 Df vieww[20977:1054d] [com.apple.xpc:connection] [0x103d27fb0] Channel could not return listener port.
+2026-10-26 12:30:24.135 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Received client to target connection.
+2026-10-26 12:30:24.135 Df vieww[20977:1054d] [com.apple.dt.automationmode:Default] Returning 1 for enabled state
+2026-10-26 12:30:24.136 Df vieww[20977:1054d] [com.apple.xpc:connection] [0x103c59c50] activating connection: mach=false listener=false peer=true name=com.apple.xpc.anonymous.0x103d27fb0.peer[23338].0x103c59c50
+2026-10-26 12:30:24.137 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Received request to exchange capabilities, remote interface capabilities are: <XCTCapabilities: 0x60000000ce00>: {
     "query runtime issue reporting" = 1;
     "query runtime issue reporting/automation type mismatch" = 1;
 }
-2026-10-26 09:39:31.281 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] Received request to fetch matches for query:
-2026-10-26 09:39:31.282 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] Evaluating query:
-2026-10-26 09:39:31.282 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] Getting root element snapshot
-2026-10-26 09:39:31.282 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] Getting snapshot for App element pid: 23427 for query
-2026-10-26 09:39:31.282 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] Query requires iOS snapshot attributes .
-2026-10-26 09:39:31.282 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: about to CFRunLoopPerform
-2026-10-26 09:39:31.282 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting with 30.00s responsiveness timeout
-2026-10-26 09:39:31.282 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: inside CFRunLoopPerform
-2026-10-26 09:39:31.282 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: MT responded in time (won the race to the busy flag)
-2026-10-26 09:39:31.282 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting 60.00s for work to complete
-2026-10-26 09:39:31.290 Df vieww[23427:fd0a] [com.apple.Accessibility:AXIPC] Setting client identifier com.apple.accessibility.AXSystemReplyServer-23427-0
-2026-10-26 09:39:31.301 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] Got main window <AXUIElementRef 0x600000c397a0> {pid=23427} {uid=[ID:4 hash:0x105d07980]}
-2026-10-26 09:39:31.305 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] Capturing hierarchy with attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeParent, XC_kAXXCAttributeIdentifier, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits
-2026-10-26 09:39:31.306 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] Capturing hierarchy with parameters {
+2026-10-26 12:30:24.139 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Received request to fetch matches for query:
+2026-10-26 12:30:24.139 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Evaluating query:
+2026-10-26 12:30:24.139 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Getting root element snapshot
+2026-10-26 12:30:24.139 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Getting snapshot for App element pid: 20977 for query
+2026-10-26 12:30:24.140 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Query requires iOS snapshot attributes .
+2026-10-26 12:30:24.140 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: about to CFRunLoopPerform
+2026-10-26 12:30:24.140 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting with 30.00s responsiveness timeout
+2026-10-26 12:30:24.141 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: inside CFRunLoopPerform
+2026-10-26 12:30:24.141 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: MT responded in time (won the race to the busy flag)
+2026-10-26 12:30:24.141 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting 60.00s for work to complete
+2026-10-26 12:30:24.152 Df vieww[20977:eb4f] [com.apple.Accessibility:AXIPC] Setting client identifier com.apple.accessibility.AXSystemReplyServer-20977-0
+2026-10-26 12:30:24.158 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] Got main window <AXUIElementRef 0x600000c3e940> {pid=20977} {uid=[ID:4 hash:0x103c079a0]}
+2026-10-26 12:30:24.161 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] Capturing hierarchy with attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeParent, XC_kAXXCAttributeIdentifier, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits
+2026-10-26 12:30:24.162 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] Capturing hierarchy with parameters {
     attributes =     (
         5003,
         5004,
@@ -385,32 +48,32 @@ Timestamp               Ty Process[PID:TID]
     snapshotKeyHonorModalViews = 0;
     traverseFromParentsToChildren = 1;
 }
-2026-10-26 09:39:31.306 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] Snapshot attributes 5003, 5004, 5002, 5019, 5058, 2004
-2026-10-26 09:39:31.316 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] Got snapshot for <AXUIElementRef 0x600000c821c0> {pid=23427} {uid=[ID:1 hash:0x0]}
-2026-10-26 09:39:31.316 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] Got app orientation 0
-2026-10-26 09:39:31.316 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] Captured accessibility snapshot data in 0.03s
-2026-10-26 09:39:31.316 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] Found main window: Window
-2026-10-26 09:39:31.316 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: AccessKitSubclassOfWinitUIView:UIView 140746078552064
-2026-10-26 09:39:31.316 E  vieww[23427:10f60] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 52 from class AccessKitSubclassOfWinitUIView:UIView, traits 140746078552064, but AXAutomationType returned 0 which maps to 1
-2026-10-26 09:39:31.316 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] App orientation is 0 (not portrait) and UITextEffectsWindow window Window is not main window
-2026-10-26 09:39:31.316 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] Leaving frame unchanged for Window: either already correct or we can't detect it.
-2026-10-26 09:39:31.316 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] Query  found matching snapshots: {(
-    Application, pid: 23427
+2026-10-26 12:30:24.162 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] Snapshot attributes 5003, 5004, 5002, 5019, 5058, 2004
+2026-10-26 12:30:24.180 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] Got snapshot for <AXUIElementRef 0x600000c3f150> {pid=20977} {uid=[ID:1 hash:0x0]}
+2026-10-26 12:30:24.181 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] Got app orientation 0
+2026-10-26 12:30:24.181 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] Captured accessibility snapshot data in 0.04s
+2026-10-26 12:30:24.181 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Found main window: Window
+2026-10-26 12:30:24.181 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: AccessKitSubclassOfWinitUIView:UIView 140746078552064
+2026-10-26 12:30:24.181 E  vieww[20977:1054d] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 52 from class AccessKitSubclassOfWinitUIView:UIView, traits 140746078552064, but AXAutomationType returned 0 which maps to 1
+2026-10-26 12:30:24.181 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] App orientation is 0 (not portrait) and UITextEffectsWindow window Window is not main window
+2026-10-26 12:30:24.182 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Leaving frame unchanged for Window: either already correct or we can't detect it.
+2026-10-26 12:30:24.182 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Query  found matching snapshots: {(
+    Application, pid: 20977
 )} (error: (null))
-2026-10-26 09:39:31.317 Df vieww[23427:10f60] [com.apple.dt.xctest:Default] Replying to query  with results: <XCTElementQueryResults: 0x600000c36d00> (error: (null))
-2026-10-26 09:39:34.124 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] Received request to fetch matches for query:
-2026-10-26 09:39:34.124 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] Evaluating query:
-2026-10-26 09:39:34.124 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] Getting root element snapshot
-2026-10-26 09:39:34.124 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] Getting snapshot for App element pid: 23427 for query
-2026-10-26 09:39:34.124 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] Query requires iOS snapshot attributes .
-2026-10-26 09:39:34.124 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: about to CFRunLoopPerform
-2026-10-26 09:39:34.124 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting with 30.00s responsiveness timeout
-2026-10-26 09:39:34.130 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: inside CFRunLoopPerform
-2026-10-26 09:39:34.130 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: MT responded in time (won the race to the busy flag)
-2026-10-26 09:39:34.131 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting 60.00s for work to complete
-2026-10-26 09:39:34.132 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] Got main window <AXUIElementRef 0x600000c38810> {pid=23427} {uid=[ID:4 hash:0x105d07980]}
-2026-10-26 09:39:34.132 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] Capturing hierarchy with attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeParent, XC_kAXXCAttributeIdentifier, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits
-2026-10-26 09:39:34.132 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] Capturing hierarchy with parameters {
+2026-10-26 12:30:24.182 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Replying to query  with results: <XCTElementQueryResults: 0x600000c3db30> (error: (null))
+2026-10-26 12:30:25.416 Df vieww[20977:eb51] [com.apple.dt.xctest:Default] Received request to fetch matches for query:
+2026-10-26 12:30:25.416 Df vieww[20977:eb51] [com.apple.dt.xctest:Default] Evaluating query:
+2026-10-26 12:30:25.416 Df vieww[20977:eb51] [com.apple.dt.xctest:Default] Getting root element snapshot
+2026-10-26 12:30:25.417 Df vieww[20977:eb51] [com.apple.dt.xctest:Default] Getting snapshot for App element pid: 20977 for query
+2026-10-26 12:30:25.417 Df vieww[20977:eb51] [com.apple.dt.xctest:Default] Query requires iOS snapshot attributes .
+2026-10-26 12:30:25.417 Df vieww[20977:eb51] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: about to CFRunLoopPerform
+2026-10-26 12:30:25.417 Df vieww[20977:eb51] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting with 30.00s responsiveness timeout
+2026-10-26 12:30:25.428 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: inside CFRunLoopPerform
+2026-10-26 12:30:25.428 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: MT responded in time (won the race to the busy flag)
+2026-10-26 12:30:25.428 Df vieww[20977:eb51] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting 60.00s for work to complete
+2026-10-26 12:30:25.430 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] Got main window <AXUIElementRef 0x600000c3dc50> {pid=20977} {uid=[ID:4 hash:0x103c079a0]}
+2026-10-26 12:30:25.430 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] Capturing hierarchy with attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeParent, XC_kAXXCAttributeIdentifier, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits
+2026-10-26 12:30:25.430 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] Capturing hierarchy with parameters {
     attributes =     (
         5003,
         5004,
@@ -425,24 +88,24 @@ Timestamp               Ty Process[PID:TID]
     snapshotKeyHonorModalViews = 0;
     traverseFromParentsToChildren = 1;
 }
-2026-10-26 09:39:34.132 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] Snapshot attributes 5003, 5004, 5002, 5019, 5058, 2004
-2026-10-26 09:39:34.136 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] Got snapshot for <AXUIElementRef 0x600000c298f0> {pid=23427} {uid=[ID:1 hash:0x0]}
-2026-10-26 09:39:34.136 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] Got app orientation 0
-2026-10-26 09:39:34.136 Df vieww[23427:fd0a] [com.apple.dt.xctest:Default] Captured accessibility snapshot data in 0.01s
-2026-10-26 09:39:34.136 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] Found main window: Window
-2026-10-26 09:39:34.136 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: AccessKitSubclassOfWinitUIView:UIView 140746078552064
-2026-10-26 09:39:34.136 E  vieww[23427:10f4a] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 52 from class AccessKitSubclassOfWinitUIView:UIView, traits 140746078552064, but AXAutomationType returned 0 which maps to 1
-2026-10-26 09:39:34.136 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] App orientation is 0 (not portrait) and UITextEffectsWindow window Window is not main window
-2026-10-26 09:39:34.137 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] Leaving frame unchanged for Window: either already correct or we can't detect it.
-2026-10-26 09:39:34.137 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] Query  found matching snapshots: {(
-    Application, pid: 23427
+2026-10-26 12:30:25.430 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] Snapshot attributes 5003, 5004, 5002, 5019, 5058, 2004
+2026-10-26 12:30:25.436 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] Got snapshot for <AXUIElementRef 0x600000c2c4b0> {pid=20977} {uid=[ID:1 hash:0x0]}
+2026-10-26 12:30:25.436 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] Got app orientation 0
+2026-10-26 12:30:25.436 Df vieww[20977:eb4f] [com.apple.dt.xctest:Default] Captured accessibility snapshot data in 0.01s
+2026-10-26 12:30:25.437 Df vieww[20977:eb51] [com.apple.dt.xctest:Default] Found main window: Window
+2026-10-26 12:30:25.437 Df vieww[20977:eb51] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: AccessKitSubclassOfWinitUIView:UIView 140746078552064
+2026-10-26 12:30:25.437 E  vieww[20977:eb51] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 52 from class AccessKitSubclassOfWinitUIView:UIView, traits 140746078552064, but AXAutomationType returned 0 which maps to 1
+2026-10-26 12:30:25.437 Df vieww[20977:eb51] [com.apple.dt.xctest:Default] App orientation is 0 (not portrait) and UITextEffectsWindow window Window is not main window
+2026-10-26 12:30:25.437 Df vieww[20977:eb51] [com.apple.dt.xctest:Default] Leaving frame unchanged for Window: either already correct or we can't detect it.
+2026-10-26 12:30:25.438 Df vieww[20977:eb51] [com.apple.dt.xctest:Default] Query  found matching snapshots: {(
+    Application, pid: 20977
 )} (error: (null))
-2026-10-26 09:39:34.137 Df vieww[23427:10f4a] [com.apple.dt.xctest:Default] Replying to query  with results: <XCTElementQueryResults: 0x600000c2cbd0> (error: (null))
-2026-10-26 09:39:36.847 Df vieww[23427:fd0e] [com.apple.xpc:connection] [0x105d3b0d0] invalidated after getting a no-senders notification - client is gone
-2026-10-26 09:39:36.847 Df vieww[23427:fd0e] [com.apple.dt.xctest:Default] Connection from client with pid 25037 was invalidated.
-2026-10-26 09:39:36.906 Df vieww[23427:10f60] [com.apple.dt.automationmode:Default] Handling posted change notification (com.apple.dt.automationmode.state-changed)
-2026-10-26 09:39:36.906 Df vieww[23427:10f60] [com.apple.dt.automationmode:Default] XAM shared observer connecting to com.apple.dt.automationmode.reader
-2026-10-26 09:39:36.906 Df vieww[23427:10f60] [com.apple.xpc:connection] [0x105b33c50] activating connection: mach=true listener=false peer=false name=com.apple.dt.automationmode.reader
-2026-10-26 09:39:36.915 Df vieww[23427:10f60] [com.apple.xpc:connection] [0x105b33c50] invalidated because the current process cancelled the connection by calling xpc_connection_cancel()
-2026-10-26 09:39:36.915 Df vieww[23427:10f60] [com.apple.dt.automationmode:Default] Comparing previous enabled state (1) to current enabled state (0)
-2026-10-26 09:39:36.916 Df vieww[23427:fd0c] [com.apple.dt.xctest:Default] Automation Mode has been disabled, existing connections will be invalidated.
+2026-10-26 12:30:25.438 Df vieww[20977:eb51] [com.apple.dt.xctest:Default] Replying to query  with results: <XCTElementQueryResults: 0x600000c3db00> (error: (null))
+2026-10-26 12:30:27.292 Df vieww[20977:1054d] [com.apple.xpc:connection] [0x103c59c50] invalidated after getting a no-senders notification - client is gone
+2026-10-26 12:30:27.292 Df vieww[20977:1054d] [com.apple.dt.xctest:Default] Connection from client with pid 23338 was invalidated.
+2026-10-26 12:30:27.320 Df vieww[20977:1054d] [com.apple.dt.automationmode:Default] Handling posted change notification (com.apple.dt.automationmode.state-changed)
+2026-10-26 12:30:27.322 Df vieww[20977:1054d] [com.apple.dt.automationmode:Default] XAM shared observer connecting to com.apple.dt.automationmode.reader
+2026-10-26 12:30:27.322 Df vieww[20977:1054d] [com.apple.xpc:connection] [0x103b3f570] activating connection: mach=true listener=false peer=false name=com.apple.dt.automationmode.reader
+2026-10-26 12:30:27.336 Df vieww[20977:1054d] [com.apple.xpc:connection] [0x103b3f570] invalidated because the current process cancelled the connection by calling xpc_connection_cancel()
+2026-10-26 12:30:27.336 Df vieww[20977:1054d] [com.apple.dt.automationmode:Default] Comparing previous enabled state (1) to current enabled state (0)
+2026-10-26 12:30:27.336 Df vieww[20977:eb51] [com.apple.dt.xctest:Default] Automation Mode has been disabled, existing connections will be invalidated.
