@@ -75,14 +75,16 @@ jobs:
           workspaces: vieww_base
       - name: vieww new, outside the checkout
         run: |
-          cargo build --release --locked -p vieww-cli
-          cli="$PWD/target/release/vieww"
-          # The workspace links desktop binaries against the toolchain's
-          # shared libstd (.cargo/config.toml: prefer-dynamic, for Studio's
-          # preview ABI). Outside the checkout nothing puts that on the
-          # loader path, so name it — the same sysroot the CLI was built with.
-          LD_LIBRARY_PATH="$(rustc --print sysroot)/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-          export LD_LIBRARY_PATH
+          # Built the way an installed CLI ships: standard library linked in.
+          # (The workspace's .cargo/config.toml links desktop binaries to the
+          # toolchain's shared libstd for Studio's preview ABI; setting
+          # RUSTFLAGS replaces that, and a user's machine has no toolchain
+          # libstd to find - the nightly failed exactly so.)
+          RUSTFLAGS="-C debuginfo=0" cargo build --release --locked -p vieww-cli --target-dir target/static-cli
+          cli="$PWD/target/static-cli/release/vieww"
+          if ldd "$cli" | grep -q libstd; then
+            echo "the CLI still needs the toolchain's libstd" >&2; exit 1
+          fi
           src="$PWD"
           mkdir -p "$RUNNER_TEMP/outside" && cd "$RUNNER_TEMP/outside"
           VIEWW_SCAFFOLD_FROM=registry "$cli" new demo

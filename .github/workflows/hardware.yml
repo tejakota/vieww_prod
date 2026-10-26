@@ -162,6 +162,9 @@ jobs:
           path: out
       - name: Keep the text, drop the pictures
         run: |
+          # Neither machine may have produced anything (cancelled, or no
+          # runner registered with these labels): still publish what happened.
+          mkdir -p out
           find out -type f \( -name '*.png' -o -name '*.gif' -o -name '*.ppm' \) -delete
           {
             echo "# Hardware run · ${GITHUB_REF_NAME} @ ${GITHUB_SHA}"
@@ -170,6 +173,11 @@ jobs:
             echo
             echo "- linux: ${{ needs.linux.result }}"
             echo "- windows: ${{ needs.windows.result }}"
+            if [ "${{ needs.linux.result }}" = cancelled ] || [ "${{ needs.windows.result }}" = cancelled ]; then
+              echo
+              echo "A cancelled machine usually means no self-hosted runner with its labels"
+              echo "(vieww-linux / vieww-windows) was online: see docs/infra/SELF-HOSTED-SETUP.md."
+            fi
             for machine in linux windows; do
               f="out/hardware-$machine/summary.txt"
               if [ -f "$f" ]; then
