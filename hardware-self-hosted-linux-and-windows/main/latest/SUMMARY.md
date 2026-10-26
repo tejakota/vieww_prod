@@ -1,7 +1,7 @@
 # Hardware (self-hosted Linux and Windows) — CANCELLED
 
-- branch: `main`  sha: `e37c4ca2069192a1edaab617cc5ecf02635cc41c`  event: schedule
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40139565653
+- branch: `main`  sha: `f0e7547cea355523b3de5c1c2017de4a432c0bf5`  event: schedule
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40241626076
 
 | job | verdict | failed steps |
 |---|---|---|

@@ -1,76 +1,76 @@
 ===== Publish to ci-runs/hardware-<branch>	UNKNOWN STEP =====
-﻿2026-10-25T22:40:38.1097234Z Current runner version: '2.338.0'
-2026-10-25T22:40:38.1120235Z ##[group]Runner Image Provisioner
-2026-10-25T22:40:38.1121007Z Hosted Compute Agent
-2026-10-25T22:40:38.1121497Z Version: 20261021.618
-2026-10-25T22:40:38.1122126Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
-2026-10-25T22:40:38.1122715Z Build Date: 2026-10-21T00:45:21Z
-2026-10-25T22:40:38.1123302Z Worker ID: {ae417394-732c-4768-9fd6-eec530168a11}
-2026-10-25T22:40:38.1123901Z Region: westus3
-2026-10-25T22:40:38.1124360Z Cloud: Azure
-2026-10-25T22:40:38.1124876Z ##[endgroup]
-2026-10-25T22:40:38.1125996Z ##[group]Operating System
-2026-10-25T22:40:38.1126485Z Ubuntu
-2026-10-25T22:40:38.1126993Z 24.04.5
-2026-10-25T22:40:38.1127424Z LTS
-2026-10-25T22:40:38.1127898Z ##[endgroup]
-2026-10-25T22:40:38.1128406Z ##[group]Runner Image
-2026-10-25T22:40:38.1129018Z Image: ubuntu-24.04
-2026-10-25T22:40:38.1129544Z Version: 20261012.334.1
-2026-10-25T22:40:38.1130656Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
-2026-10-25T22:40:38.1131966Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
-2026-10-25T22:40:38.1132749Z ##[endgroup]
-2026-10-25T22:40:38.1133725Z ##[group]GITHUB_TOKEN Permissions
-2026-10-25T22:40:38.1135675Z Contents: write
-2026-10-25T22:40:38.1136244Z Metadata: read
-2026-10-25T22:40:38.1136708Z ##[endgroup]
-2026-10-25T22:40:38.1138602Z Secret source: Actions
-2026-10-25T22:40:38.1139808Z Cache mode: write
-2026-10-25T22:40:38.1140843Z Prepare workflow directory
-2026-10-25T22:40:38.1431042Z Prepare all required actions
-2026-10-25T22:40:38.1473335Z Getting action download info
-2026-10-25T22:40:38.4394402Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
-2026-10-25T22:40:39.3344610Z Complete job name: Publish to ci-runs/hardware-<branch>
-2026-10-25T22:40:39.4156310Z ##[group]Run actions/download-artifact@v4
-2026-10-25T22:40:39.4157213Z with:
-2026-10-25T22:40:39.4157612Z   path: out
-2026-10-25T22:40:39.4158040Z   merge-multiple: false
-2026-10-25T22:40:39.4158487Z   repository: tejakota/vieww_prod
-2026-10-25T22:40:39.4159117Z   run-id: 40139565653
-2026-10-25T22:40:39.4159688Z ##[endgroup]
-2026-10-25T22:40:39.5633427Z (node:1942) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-2026-10-25T22:40:39.5635019Z (Use `node --trace-deprecation ...` to show where the warning was created)
-2026-10-25T22:40:39.7897133Z Found 0 artifact(s)
-2026-10-25T22:40:39.7899086Z No input name, artifact-ids or pattern filtered specified, downloading all artifacts
-2026-10-25T22:40:39.7900571Z An extra directory with the artifact name will be created for each download
-2026-10-25T22:40:39.7901623Z Total of 0 artifact(s) downloaded
-2026-10-25T22:40:39.7904580Z Download artifact has finished successfully
-2026-10-25T22:40:39.8101270Z ##[group]Run find out -type f \( -name '*.png' -o -name '*.gif' -o -name '*.ppm' \) -delete
-2026-10-25T22:40:39.8102267Z ^[[36;1mfind out -type f \( -name '*.png' -o -name '*.gif' -o -name '*.ppm' \) -delete^[[0m
-2026-10-25T22:40:39.8102915Z ^[[36;1m{^[[0m
-2026-10-25T22:40:39.8103371Z ^[[36;1m  echo "# Hardware run · ${GITHUB_REF_NAME} @ ${GITHUB_SHA}"^[[0m
-2026-10-25T22:40:39.8103904Z ^[[36;1m  echo^[[0m
-2026-10-25T22:40:39.8104458Z ^[[36;1m  echo "run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"^[[0m
-2026-10-25T22:40:39.8105082Z ^[[36;1m  echo^[[0m
-2026-10-25T22:40:39.8105434Z ^[[36;1m  echo "- linux: cancelled"^[[0m
-2026-10-25T22:40:39.8105868Z ^[[36;1m  echo "- windows: cancelled"^[[0m
-2026-10-25T22:40:39.8106319Z ^[[36;1m  for machine in linux windows; do^[[0m
-2026-10-25T22:40:39.8106816Z ^[[36;1m    f="out/hardware-$machine/summary.txt"^[[0m
-2026-10-25T22:40:39.8107291Z ^[[36;1m    if [ -f "$f" ]; then^[[0m
-2026-10-25T22:40:39.8107687Z ^[[36;1m      echo^[[0m
-2026-10-25T22:40:39.8108089Z ^[[36;1m      echo "## $machine"^[[0m
-2026-10-25T22:40:39.8108514Z ^[[36;1m      echo^[[0m
-2026-10-25T22:40:39.8109067Z ^[[36;1m      echo '```'^[[0m
-2026-10-25T22:40:39.8109685Z ^[[36;1m      cat "$f"^[[0m
-2026-10-25T22:40:39.8110058Z ^[[36;1m      echo '```'^[[0m
-2026-10-25T22:40:39.8110427Z ^[[36;1m    fi^[[0m
-2026-10-25T22:40:39.8110752Z ^[[36;1m  done^[[0m
-2026-10-25T22:40:39.8111096Z ^[[36;1m} > out/SUMMARY.md^[[0m
-2026-10-25T22:40:39.8111486Z ^[[36;1mcat out/SUMMARY.md^[[0m
-2026-10-25T22:40:39.8304469Z shell: /usr/bin/bash -e {0}
-2026-10-25T22:40:39.8304991Z ##[endgroup]
-2026-10-25T22:40:39.8497562Z find: ‘out’: No such file or directory
-2026-10-25T22:40:39.8510038Z ##[error]Process completed with exit code 1.
-2026-10-25T22:40:39.8613367Z Cleaning up orphan processes
-2026-10-25T22:40:39.8943731Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/download-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+﻿2026-10-26T22:44:58.1189784Z Current runner version: '2.338.0'
+2026-10-26T22:44:58.1225272Z ##[group]Runner Image Provisioner
+2026-10-26T22:44:58.1226758Z Hosted Compute Agent
+2026-10-26T22:44:58.1228172Z Version: 20261021.618
+2026-10-26T22:44:58.1229323Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-26T22:44:58.1230783Z Build Date: 2026-10-21T00:45:21Z
+2026-10-26T22:44:58.1232080Z Worker ID: {bc5d4385-2109-498c-a957-0e09dcd1edbd}
+2026-10-26T22:44:58.1233606Z Region: eastus2
+2026-10-26T22:44:58.1235143Z Cloud: Azure
+2026-10-26T22:44:58.1236327Z ##[endgroup]
+2026-10-26T22:44:58.1238936Z ##[group]Operating System
+2026-10-26T22:44:58.1240127Z Ubuntu
+2026-10-26T22:44:58.1241060Z 24.04.5
+2026-10-26T22:44:58.1242105Z LTS
+2026-10-26T22:44:58.1243039Z ##[endgroup]
+2026-10-26T22:44:58.1244048Z ##[group]Runner Image
+2026-10-26T22:44:58.1245434Z Image: ubuntu-24.04
+2026-10-26T22:44:58.1246387Z Version: 20261012.334.1
+2026-10-26T22:44:58.1248665Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-26T22:44:58.1251642Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-26T22:44:58.1253427Z ##[endgroup]
+2026-10-26T22:44:58.1255877Z ##[group]GITHUB_TOKEN Permissions
+2026-10-26T22:44:58.1258767Z Contents: write
+2026-10-26T22:44:58.1259838Z Metadata: read
+2026-10-26T22:44:58.1260879Z ##[endgroup]
+2026-10-26T22:44:58.1263851Z Secret source: Actions
+2026-10-26T22:44:58.1266329Z Cache mode: write
+2026-10-26T22:44:58.1267579Z Prepare workflow directory
+2026-10-26T22:44:58.1699571Z Prepare all required actions
+2026-10-26T22:44:58.1748463Z Getting action download info
+2026-10-26T22:44:58.3720286Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-10-26T22:44:58.7553371Z Complete job name: Publish to ci-runs/hardware-<branch>
+2026-10-26T22:44:58.8496199Z ##[group]Run actions/download-artifact@v4
+2026-10-26T22:44:58.8497220Z with:
+2026-10-26T22:44:58.8497655Z   path: out
+2026-10-26T22:44:58.8498122Z   merge-multiple: false
+2026-10-26T22:44:58.8498699Z   repository: tejakota/vieww_prod
+2026-10-26T22:44:58.8499230Z   run-id: 40241626076
+2026-10-26T22:44:58.8500032Z ##[endgroup]
+2026-10-26T22:44:59.0247446Z (node:2158) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-26T22:44:59.0248876Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-26T22:44:59.1190349Z Found 0 artifact(s)
+2026-10-26T22:44:59.1192547Z No input name, artifact-ids or pattern filtered specified, downloading all artifacts
+2026-10-26T22:44:59.1194463Z An extra directory with the artifact name will be created for each download
+2026-10-26T22:44:59.1196295Z Total of 0 artifact(s) downloaded
+2026-10-26T22:44:59.1198971Z Download artifact has finished successfully
+2026-10-26T22:44:59.1439573Z ##[group]Run find out -type f \( -name '*.png' -o -name '*.gif' -o -name '*.ppm' \) -delete
+2026-10-26T22:44:59.1440795Z ^[[36;1mfind out -type f \( -name '*.png' -o -name '*.gif' -o -name '*.ppm' \) -delete^[[0m
+2026-10-26T22:44:59.1441615Z ^[[36;1m{^[[0m
+2026-10-26T22:44:59.1442195Z ^[[36;1m  echo "# Hardware run · ${GITHUB_REF_NAME} @ ${GITHUB_SHA}"^[[0m
+2026-10-26T22:44:59.1442948Z ^[[36;1m  echo^[[0m
+2026-10-26T22:44:59.1443687Z ^[[36;1m  echo "run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"^[[0m
+2026-10-26T22:44:59.1444784Z ^[[36;1m  echo^[[0m
+2026-10-26T22:44:59.1445279Z ^[[36;1m  echo "- linux: cancelled"^[[0m
+2026-10-26T22:44:59.1445863Z ^[[36;1m  echo "- windows: cancelled"^[[0m
+2026-10-26T22:44:59.1446456Z ^[[36;1m  for machine in linux windows; do^[[0m
+2026-10-26T22:44:59.1447107Z ^[[36;1m    f="out/hardware-$machine/summary.txt"^[[0m
+2026-10-26T22:44:59.1447754Z ^[[36;1m    if [ -f "$f" ]; then^[[0m
+2026-10-26T22:44:59.1448283Z ^[[36;1m      echo^[[0m
+2026-10-26T22:44:59.1448795Z ^[[36;1m      echo "## $machine"^[[0m
+2026-10-26T22:44:59.1449319Z ^[[36;1m      echo^[[0m
+2026-10-26T22:44:59.1449780Z ^[[36;1m      echo '```'^[[0m
+2026-10-26T22:44:59.1450557Z ^[[36;1m      cat "$f"^[[0m
+2026-10-26T22:44:59.1451042Z ^[[36;1m      echo '```'^[[0m
+2026-10-26T22:44:59.1451516Z ^[[36;1m    fi^[[0m
+2026-10-26T22:44:59.1451939Z ^[[36;1m  done^[[0m
+2026-10-26T22:44:59.1452381Z ^[[36;1m} > out/SUMMARY.md^[[0m
+2026-10-26T22:44:59.1452901Z ^[[36;1mcat out/SUMMARY.md^[[0m
+2026-10-26T22:44:59.1757894Z shell: /usr/bin/bash -e {0}
+2026-10-26T22:44:59.1758857Z ##[endgroup]
+2026-10-26T22:44:59.1986373Z find: ‘out’: No such file or directory
+2026-10-26T22:44:59.1998873Z ##[error]Process completed with exit code 1.
+2026-10-26T22:44:59.2122029Z Cleaning up orphan processes
+2026-10-26T22:44:59.2537396Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/download-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
 
