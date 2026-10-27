@@ -429,15 +429,9 @@ fn contained_run(
         .iter()
         .filter_map(|k| std::env::var(k).ok().map(|v| (k.to_string(), v)))
         .collect();
-    for k in [
-        "HOME",
-        "USERPROFILE",
-        "APPDATA",
-        "LOCALAPPDATA",
-        "TEMP",
-        "TMP",
-        "TMPDIR",
-    ] {
+    // LOCALAPPDATA stays real: CreateProcessW derives the container's
+    // package folder from it (and fails with error 203 without it).
+    for k in ["HOME", "USERPROFILE", "APPDATA", "TEMP", "TMP", "TMPDIR"] {
         env.push((k.to_string(), copy.clone()));
     }
     env.extend(worker_env.iter().cloned());

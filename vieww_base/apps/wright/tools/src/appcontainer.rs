@@ -6,6 +6,9 @@
 //!   tokens are denied by default everywhere an ACE does not name the
 //!   container, so the user's profile (`~/.ssh`, startup folders, the rest
 //!   of `%USERPROFILE%`) is neither readable nor writable;
+//! * the container's own package folder
+//!   (`%LOCALAPPDATA%\Packages\wright.worker\AC`) is writable too, as
+//!   for every AppContainer; it holds nothing of the user's;
 //! * the program's own install folders are granted read + execute for the
 //!   length of the run and revoked afterwards (the system folders are
 //!   already readable by every AppContainer);
@@ -646,7 +649,20 @@ pub fn run(
     };
     let application = wide(program.as_os_str());
     let mut line = command_line(program, args);
-    let block = environment_block(env);
+    // CreateProcessW builds an AppContainer's package folders from the
+    // environment it is handed and fails with ERROR_ENVVAR_NOT_FOUND (203)
+    // when LOCALAPPDATA is missing from it, so the real one is supplied
+    // when the caller did not choose its own.
+    let mut env = env.to_vec();
+    if !env
+        .iter()
+        .any(|(k, _)| k.eq_ignore_ascii_case("LOCALAPPDATA"))
+    {
+        if let Ok(v) = std::env::var("LOCALAPPDATA") {
+            env.push(("LOCALAPPDATA".into(), v));
+        }
+    }
+    let block = environment_block(&env);
     let cwd = wide(writable.as_os_str());
     let mut info = ProcessInformation {
         process: std::ptr::null_mut(),
@@ -674,9 +690,11 @@ pub fn run(
             &mut info,
         )
     };
+    // Read the error before anything else can overwrite it.
+    let create_error = (created == 0).then(|| last_error("CreateProcessW in the AppContainer"));
     drop(list_guard);
-    if created == 0 {
-        return Err(last_error("CreateProcessW in the AppContainer"));
+    if let Some(e) = create_error {
+        return Err(e);
     }
     let process = Owned(info.process);
     drop(Owned(info.thread));
@@ -764,7 +782,14 @@ mod tests {
             .iter()
             .filter_map(|k| std::env::var(k).ok().map(|v| (k.to_string(), v)))
             .collect();
-        for k in ["TEMP", "TMP", "USERPROFILE", "HOME"] {
+        for k in [
+            "TEMP",
+            "TMP",
+            "USERPROFILE",
+            "HOME",
+            "APPDATA",
+            "LOCALAPPDATA",
+        ] {
             env.push((k.into(), copy.display().to_string()));
         }
         env
