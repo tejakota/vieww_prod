@@ -3,7 +3,7 @@
 Every gap in the four research reports (framework.md, studio.md, audio.md, wright.md), with where it stands. **Closed** = code + tests + CI gate landed. **Partial** = the code is in, and what is left is listed. **Open** = not started.
 Mac real-device verification is out of scope by the owner's decision; Mac code paths are still written and CI-built where hosted runners allow.
 
-Totals: Closed 17, Open 71, Partial 6 (of 94).
+Totals: Closed 17, Open 70, Partial 7 (of 94).
 
 ## Framework
 
@@ -85,7 +85,7 @@ Totals: Closed 17, Open 71, Partial 6 (of 94).
 | AU-15 | P1 | All audio workflows are manual-only; the audio-ci.yml header comment still claims otherwise | **Closed** | audio-ci (tests, clippy, blocking decoder fuzz) and the framework-checks audio-fuzz leg are manual by the owner's rule and documented as such (the stale "runs without being asked" header is gone); both green; the collector keeps crash inputs; fuzz findings fixed (aac/mp4). |
 | AU-16 | P1 | No notation interchange: MusicXML out/in, LilyPond, ABC — the score cannot leave the ecosystem except as MIDI or audio | **Open** |  |
 | AU-17 | P2 | vieww-music ↔ vieww-audio: no live playback path — the score renderer is offline-only | **Open** |  |
-| AU-18 | P2 | RT-safety is proven by test, not enforced by the compiler — no lint denying allocation/locking in the audio thread path | **Open** |  |
+| AU-18 | P2 | RT-safety is proven by test, not enforced by the compiler — no lint denying allocation/locking in the audio thread path | **Partial** | The harness now arms the allocator across a plugin Driver (vieww-audio-plugin tests/realtime_no_alloc.rs) and clip + step-sequencer dispatch; it found that Driver::run heap-allocated every block (std stable sort scratch above ~4 KiB of events) and that sequencer dispatch could only return fresh Vecs. Fixed: rt::sort_stable_in_place (in-place insertion sort) in the Driver, Clip/StepSequencer::events_into. Both checks fail with the old code. Left: a compile-time marker (#[rt] or a lint), LiveScore block once AU-17 exists. |
 | AU-19 | P2 | MIDI ports: no Android (AMidi), no Web MIDI; Linux rawmidi misses ALSA-sequencer virtual ports (documented) | **Open** |  |
 | AU-20 | P2 | Fuzz coverage extension: DSP/stream/mixer/plugin paths are not fuzzed; fuzzing is one-shot 300 s on demand | **Open** |  |
 | AU-21 | P2 | Docs: no audio/music chapter in the user guide; no app-facing "sound on each platform" walkthrough; examples are thin | **Open** |  |

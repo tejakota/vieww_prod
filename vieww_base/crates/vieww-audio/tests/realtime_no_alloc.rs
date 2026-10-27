@@ -55,8 +55,9 @@ static GLOBAL: Counting = Counting;
 
 fn main() {
     rendering_allocates_nothing();
+    sequencer_dispatch_allocates_nothing();
     engine_player_renders_without_allocating_or_freeing();
-    println!("realtime_no_alloc: the render path, mixer, parallel voices, disk stream, polyphony, every stereo effect, NaN recovery, the sampler, struck instruments and rate-matched device output allocate nothing; the EnginePlayer callback neither allocates nor frees");
+    println!("realtime_no_alloc: the render path, mixer, parallel voices, disk stream, polyphony, every stereo effect, NaN recovery, the sampler, struck instruments and rate-matched device output allocate nothing; clip and step-sequencer dispatch allocate nothing; the EnginePlayer callback neither allocates nor frees");
 }
 
 fn rendering_allocates_nothing() {
@@ -490,4 +491,68 @@ fn engine_player_renders_without_allocating_or_freeing() {
         "the short voice ended and the long one stopped: {ev:?}"
     );
     let _ = a;
+}
+
+/// AU-18: a clip and a step sequencer dispatched block by block into a
+/// preallocated list allocate nothing — the audio thread can drive them.
+fn sequencer_dispatch_allocates_nothing() {
+    use vieww_audio::sequencer::{Clip, Note, Step, StepSequencer, StepTrack};
+
+    let mut clip = Clip::new(4.0);
+    clip.looping = true;
+    // Added out of order and many: the full-clip window below holds more
+    // events than the standard stable sort sorts on its stack scratch, so
+    // a sort that heap-allocates scratch would show (checked: with
+    // `sort_by` in `events_into` this harness fails).
+    for i in (0..512u16).rev() {
+        let key = 48 + u8::try_from(i % 24).unwrap_or(0);
+        clip.add(Note::new(f64::from(i) / 128.0, 0.005, key, 100));
+    }
+    let mut steps = StepSequencer::new(vec![StepTrack {
+        key: 36,
+        channel: 9,
+        steps: (0..16)
+            .map(|i| Step {
+                on: i % 2 == 0,
+                ratchet: 1 + (i % 3) as u8,
+                ..Step::default()
+            })
+            .collect(),
+    }]);
+    steps.swing = 0.3;
+    let mut out = Vec::with_capacity(4096);
+    // Warm up, then arm.
+    clip.events_into(0.0, 1.0, 0.0, &mut out);
+    out.clear();
+    ARMED.store(true, Ordering::SeqCst);
+    let before = ALLOCS.load(Ordering::SeqCst);
+    let block = 0.0625; // a 16th of a beat per block
+    let mut beat = 0.0;
+    let mut seen = 0usize;
+    for _ in 0..1024 {
+        out.clear();
+        clip.events_into(beat, beat + block, 0.0, &mut out);
+        steps.events_into(beat, beat + block, &mut out);
+        seen += out.len();
+        beat += block;
+    }
+    ARMED.store(false, Ordering::SeqCst);
+    let allocs = ALLOCS.load(Ordering::SeqCst) - before;
+    assert!(seen > 0, "the dispatch produced no events");
+    assert_eq!(allocs, 0, "sequencer dispatch allocated {allocs} times");
+    // One window holding many notes sorts in place too.
+    out.clear();
+    ARMED.store(true, Ordering::SeqCst);
+    let before = ALLOCS.load(Ordering::SeqCst);
+    clip.events_into(0.0, 4.0, 0.0, &mut out);
+    ARMED.store(false, Ordering::SeqCst);
+    assert_eq!(
+        ALLOCS.load(Ordering::SeqCst) - before,
+        0,
+        "a full-clip window allocated"
+    );
+    assert!(
+        out.windows(2).all(|w| w[0].beat <= w[1].beat),
+        "events are in order"
+    );
 }

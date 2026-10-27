@@ -278,8 +278,17 @@ impl Clip {
     #[must_use]
     pub fn events(&self, from: f64, to: f64, at: f64) -> Vec<Timed<Event>> {
         let mut out = Vec::new();
+        self.events_into(from, to, at, &mut out);
+        out
+    }
+
+    /// [`Self::events`] appended to `out`, sorted among themselves. With
+    /// enough capacity in `out` this never allocates, so the audio thread
+    /// can dispatch a clip block by block (AU-18).
+    pub fn events_into(&self, from: f64, to: f64, at: f64, out: &mut Vec<Timed<Event>>) {
+        let appended_from = out.len();
         if to <= from || self.length <= 0.0 {
-            return out;
+            return;
         }
         let (mut a, b) = (from, to);
         if self.looping {
@@ -288,20 +297,14 @@ impl Clip {
                 let cycle_start = cycle * self.length;
                 let cycle_end = cycle_start + self.length;
                 let end = b.min(cycle_end);
-                self.window(
-                    a - cycle_start,
-                    end - cycle_start,
-                    at + cycle_start,
-                    &mut out,
-                );
+                self.window(a - cycle_start, end - cycle_start, at + cycle_start, out);
                 a = end;
                 cycle += 1.0;
             }
         } else {
-            self.window(a, b.min(self.length.max(b)), at, &mut out);
+            self.window(a, b.min(self.length.max(b)), at, out);
         }
-        out.sort_by(|x, y| x.beat.total_cmp(&y.beat));
-        out
+        crate::rt::sort_stable_in_place(&mut out[appended_from..], |x, y| x.beat < y.beat);
     }
 
     fn window(&self, a: f64, b: f64, at: f64, out: &mut Vec<Timed<Event>>) {
@@ -482,6 +485,14 @@ impl StepSequencer {
     #[must_use]
     pub fn events(&self, from: f64, to: f64) -> Vec<Timed<Event>> {
         let mut out = Vec::new();
+        self.events_into(from, to, &mut out);
+        out
+    }
+
+    /// [`Self::events`] appended to `out`, sorted among themselves; never
+    /// allocates when `out` has the capacity (AU-18).
+    pub fn events_into(&self, from: f64, to: f64, out: &mut Vec<Timed<Event>>) {
+        let appended_from = out.len();
         #[expect(clippy::cast_possible_truncation, reason = "step indices")]
         let first = (from / self.step_beats).floor() as i64 - 1;
         #[expect(clippy::cast_possible_truncation, reason = "step indices")]
@@ -535,8 +546,7 @@ impl StepSequencer {
                 }
             }
         }
-        out.sort_by(|a, b| a.beat.total_cmp(&b.beat));
-        out
+        crate::rt::sort_stable_in_place(&mut out[appended_from..], |a, b| a.beat < b.beat);
     }
 }
 

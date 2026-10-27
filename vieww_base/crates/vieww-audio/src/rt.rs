@@ -497,8 +497,36 @@ mod imp {
     }
 }
 
+/// Sort `items` by `less`, stably and in place, without allocating (AU-18).
+///
+/// `slice::sort_by` may allocate a scratch buffer (the standard library's
+/// stable sort does above a small length), which on the audio thread is a
+/// possible lock in the allocator and a missed deadline. Event lists on the
+/// render path are short and nearly sorted (a host's events, a block's
+/// notes), which is insertion sort's best case: linear when already in
+/// order, and it never moves equal items past each other.
+pub fn sort_stable_in_place<T>(items: &mut [T], less: impl Fn(&T, &T) -> bool) {
+    for i in 1..items.len() {
+        let mut j = i;
+        while j > 0 && less(&items[j], &items[j - 1]) {
+            items.swap(j, j - 1);
+            j -= 1;
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn the_in_place_sort_is_stable_and_sorts() {
+        let mut v = [(3, 'a'), (1, 'b'), (3, 'c'), (2, 'd'), (1, 'e')];
+        super::sort_stable_in_place(&mut v, |x, y| x.0 < y.0);
+        assert_eq!(v, [(1, 'b'), (1, 'e'), (2, 'd'), (3, 'a'), (3, 'c')]);
+        let mut empty: [u8; 0] = [];
+        super::sort_stable_in_place(&mut empty, |a, b| a < b);
+    }
+
     use super::*;
 
     #[test]

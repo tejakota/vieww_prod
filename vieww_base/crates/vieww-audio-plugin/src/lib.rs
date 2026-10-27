@@ -440,9 +440,10 @@ impl<P: Plugin> Driver<P> {
     /// allocates.
     pub fn run(&mut self, inputs: &[&[f32]], outputs: &mut [&mut [f32]], frames: usize) -> Status {
         let _ftz = DenormalGuard::new();
-        // Sorted, stable: same-frame events keep the host's order.
-        self.events.sort_by_key(Event::time);
-        self.changes.sort_by_key(|c| c.time);
+        // Sorted, stable: same-frame events keep the host's order. In
+        // place: the standard stable sort may allocate scratch (AU-18).
+        vieww_audio::rt::sort_stable_in_place(&mut self.events, |a, b| a.time() < b.time());
+        vieww_audio::rt::sort_stable_in_place(&mut self.changes, |a, b| a.time < b.time);
         let n = u32::try_from(frames).unwrap_or(u32::MAX);
         let mut cursor = 0u32;
         let mut ev = 0usize;

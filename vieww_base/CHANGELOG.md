@@ -59,6 +59,10 @@ tag needs a `## [x.y.z]` section here before it is pushed.
 - D3D12 scene renderer runs on WARP: atlas uploads honour the 256-byte
   row pitch, staging buffers outlive their copies, target states are
   tracked in one order, and the post shader is split so WARP runs it.
+- The audio-plugin `Driver` heap-allocated on the audio thread every block
+  once a block held a few hundred events (the standard stable sort's
+  scratch); it now sorts in place. Clips and step sequencers gain
+  `events_into` for allocation-free dispatch (AU-18).
 - `84-particles-retarget` captured a different picture on every run.
 
 ## [0.1.0] - unreleased
