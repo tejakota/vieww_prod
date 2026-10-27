@@ -527,7 +527,11 @@ impl FiringEnv {
         let summary = input_summary(tool, input);
         let verdict = {
             let mut budget = self.budget.lock().unwrap_or_else(|p| p.into_inner());
-            self.gate.check(name, tool, &mut budget, 0)
+            // WR-13: a tool call is charged its palette allowance, so the
+            // budget bounds tool calls too (an unknown tool is denied by the
+            // gate before any charge).
+            let est = wright_core::palette::find(tool).map_or(0, |t| t.est_cost_micro_usd());
+            self.gate.check(name, tool, &mut budget, est)
         };
         let permit = match verdict {
             Verdict::Allow(p) => p,

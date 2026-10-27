@@ -3,7 +3,7 @@
 Every gap in the four research reports (framework.md, studio.md, audio.md, wright.md), with where it stands. **Closed** = code + tests + CI gate landed. **Partial** = the code is in, and what is left is listed. **Open** = not started.
 Mac real-device verification is out of scope by the owner's decision; Mac code paths are still written and CI-built where hosted runners allow.
 
-Totals: Closed 16, Open 72, Partial 6 (of 94).
+Totals: Closed 17, Open 71, Partial 6 (of 94).
 
 ## Framework
 
@@ -110,7 +110,7 @@ Totals: Closed 16, Open 72, Partial 6 (of 94).
 | WR-10 | P1 | Hardening pass: sandbox scratch dir not 0700; macOS `secret set` argv leak; path-check TOCTOU | **Closed** | 0700 scratch, security -i stdin, O_NOFOLLOW pinned writes. |
 | WR-11 | P1 | No browser tool and no visual verification — the one axis every rival competes on | **Open** |  |
 | WR-12 | P2 | Session branching: replay is projection-only; no fork-from-event | **Open** |  |
-| WR-13 | P2 | Budget estimates are coarse; tool calls cost 0; overshoot between checks is admitted | **Open** |  |
+| WR-13 | P2 | Budget estimates are coarse; tool calls cost 0; overshoot between checks is admitted | **Closed** | Every tool call is charged its palette allowance at gate.check (10 micro-USD local, 100 for network or world effects), so the budget bounds tool calls; model pre-checks include a 512-token output estimate. Test: runtime gate tool_calls_spend_the_budget_until_it_runs_out. Known and documented: the actual model cost recorded after a call can pass the cap once; the next check denies. |
 | WR-14 | P2 | Windows POSIX sandbox requires WSL2 + Ubuntu + bubblewrap — heavy onboarding | **Open** |  |
 | WR-15 | P2 | Export targets: zip/wheel/crate/web only — no containers, no deploy, no mobile | **Open** |  |
 | WR-16 | P2 | Kill switch: any local process can engage it (unauthenticated `STOP` file) | **Closed** | 0700 wright home; sandbox cannot reach STOP (test). |

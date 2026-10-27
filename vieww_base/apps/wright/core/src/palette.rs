@@ -171,7 +171,25 @@ pub struct ToolSpec {
     pub implemented: bool,
 }
 
+/// What one tool call is charged against the firing's budget, in
+/// micro-USD (WR-13). Not a price anyone bills: an allowance, so a firing's
+/// budget bounds its tool calls as well as its model calls (before this a
+/// tool call cost 0 and an agent could make as many as its turns allowed).
+/// A call that leaves the machine (network, or an effect on the world)
+/// costs ten times one that stays local.
+pub const TOOL_CALL_LOCAL_MICRO_USD: u64 = 10;
+pub const TOOL_CALL_WORLD_MICRO_USD: u64 = 100;
+
 impl ToolSpec {
+    /// This tool's per-call budget charge (WR-13).
+    pub fn est_cost_micro_usd(&self) -> u64 {
+        if self.effect == Effect::World || self.caps.contains(&Capability::Network) {
+            TOOL_CALL_WORLD_MICRO_USD
+        } else {
+            TOOL_CALL_LOCAL_MICRO_USD
+        }
+    }
+
     /// True when the tool touches the world outside the machine.
     pub fn side_effect(&self) -> bool {
         self.effect == Effect::World

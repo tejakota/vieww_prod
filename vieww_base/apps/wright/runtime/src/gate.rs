@@ -383,6 +383,30 @@ deliverable kind=\"k\" { check \"c\" }";
         assert_eq!(budget.spent_micro_usd, 10_000);
     }
 
+    /// WR-13: tool calls draw on the budget at the palette's allowance,
+    /// so a budget runs out mid-tools instead of allowing unbounded calls.
+    #[test]
+    fn tool_calls_spend_the_budget_until_it_runs_out() {
+        let read = palette::find("http-read").unwrap().est_cost_micro_usd();
+        assert_eq!(read, palette::TOOL_CALL_WORLD_MICRO_USD);
+        let mut budget = BudgetMeter::new(2 * read + read / 2);
+        let g = gate();
+        assert!(g
+            .check("Fetcher", "http-read", &mut budget, read)
+            .is_allow());
+        assert!(g
+            .check("Fetcher", "http-read", &mut budget, read)
+            .is_allow());
+        assert_eq!(budget.spent_micro_usd, 2 * read);
+        match g.check("Fetcher", "http-read", &mut budget, read) {
+            Verdict::Deny(msg) => assert!(msg.contains("budget exhausted"), "{msg}"),
+            other => panic!("expected Deny, got {other:?}"),
+        }
+        assert_eq!(budget.spent_micro_usd, 2 * read, "the denial is free");
+        let write = palette::find("write-output").unwrap().est_cost_micro_usd();
+        assert!(write < read, "a local call costs less than a world call");
+    }
+
     #[test]
     fn tool_not_on_the_card_is_denied() {
         // Regression: v0.1 never consulted the allowlist, so any agent
