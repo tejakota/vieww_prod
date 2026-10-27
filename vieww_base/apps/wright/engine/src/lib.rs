@@ -38,6 +38,7 @@ pub mod explain;
 pub mod export;
 pub mod firing;
 pub mod fleet;
+pub mod fork;
 pub mod handoff;
 pub mod interview;
 pub mod mock;

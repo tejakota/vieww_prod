@@ -984,6 +984,9 @@ fn export_menu(p: &Pal, s: &Session, verified: bool) -> WidgetNode {
                 Kind::Wheel => "A .whl that pip installs, with its command",
                 Kind::Crate => "A .crate from cargo package",
                 Kind::Web => "npm install + npm run build, then dist/ as a .zip",
+                Kind::Docker => "A Dockerfile running the project, tests at build time",
+                Kind::Systemd => "A systemd service and timer for its schedule",
+                Kind::GhActions => "A GitHub Actions workflow running its tests",
             };
             let allowed = verified || !kind.needs_proof();
             let why = if allowed {

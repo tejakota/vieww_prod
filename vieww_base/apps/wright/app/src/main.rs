@@ -7,6 +7,8 @@
 //!   wright resume <run> [dir]   continue a run that crashed or was stopped
 //!   wright runs [dir]           run history
 //!   wright replay <run> [dir]   reconstruct a past run from its log (--at N)
+//!   wright fork <run> [dir] --at N [--into DIR]
+//!                                a new project branched from a run at event N
 //!   wright verify [run|dir]      check a receipt: signature, log,
 //!                                artifacts, inputs, blueprint (ADR-025);
 //!                                --key <hex> trusts that signer for once
@@ -73,6 +75,7 @@ fn main() {
         Some("resume") => cmd::resume(rest),
         Some("runs") => cmd::runs(rest),
         Some("replay") => cmd::replay(rest),
+        Some("fork") => cmd::fork(rest),
         Some("approve") => cmd::approve(rest),
         Some("verify") => cmd::verify(rest),
         Some("explain") => cmd::explain(rest),

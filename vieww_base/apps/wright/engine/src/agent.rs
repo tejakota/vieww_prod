@@ -624,8 +624,15 @@ impl FiringEnv {
                     // so the event says so and the taint flows on.
                     let untrusted = task.legs.is_untrusted();
                     for f in &o.wrote {
+                        // Into the object store as it is now (WR-12): a
+                        // fork at this event can restore exactly these
+                        // bytes even if a later step overwrites the file.
                         let h = std::fs::read(ctx.project.join(f))
-                            .map(|b| wright_core::hash::blake3_hex(&b))
+                            .map(|b| {
+                                self.store
+                                    .put_object(&b)
+                                    .unwrap_or_else(|_| wright_core::hash::blake3_hex(&b))
+                            })
                             .unwrap_or_default();
                         let _ = self.spine.emit(
                             EventKind::ArtifactWritten,

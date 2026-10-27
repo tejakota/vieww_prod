@@ -881,6 +881,48 @@ pub fn replay(args: &[String]) -> i32 {
     0
 }
 
+/// `wright fork <run> [dir] --at N [--into DIR]` (WR-12) — branch a new
+/// project from run `<run>` as it stood at event N: its files, the run's
+/// blueprint (lineage stamped), artifacts as of N, events 1..=N.
+pub fn fork(args: &[String]) -> i32 {
+    let usage = "usage: wright fork <run-number> [project-dir] --at <event> [--into <new-dir>]";
+    let at_arg = flag_value(args, "--at");
+    let into_arg = flag_value(args, "--into");
+    let (pos, _) = split(args);
+    let pos: Vec<&str> = pos
+        .into_iter()
+        .filter(|p| Some(*p) != at_arg && Some(*p) != into_arg)
+        .collect();
+    let Some(run) = pos.first().and_then(|r| r.parse::<RunId>().ok()) else {
+        return fail(usage);
+    };
+    let Some(at) = at_arg.and_then(|v| v.parse::<u64>().ok()) else {
+        return fail(usage);
+    };
+    let dir = project_dir(pos.get(1).copied());
+    let dir = dir.canonicalize().unwrap_or(dir);
+    let into = into_arg.map(PathBuf::from).unwrap_or_else(|| {
+        let name = dir
+            .file_name()
+            .map_or_else(|| "project".into(), |n| n.to_string_lossy().to_string());
+        dir.with_file_name(format!("{name}-fork-{run}-{at}"))
+    });
+    match wright_engine::fork::fork(&dir, run, at, &into) {
+        Ok(f) => {
+            println!("forked run {run} at event {at} into {}", f.dir.display());
+            println!("  lineage   {}", f.lineage);
+            println!("  events    {} carried over as run 1", f.events);
+            println!("  artifacts {} restored as of event {at}", f.restored.len());
+            for m in &f.missing {
+                println!("  not restored: {m} (its bytes at event {at} are no longer stored)");
+            }
+            println!("next: wright plan {0}  ·  wright run {0}", f.dir.display());
+            0
+        }
+        Err(e) => fail(e),
+    }
+}
+
 /// `wright approve [dir]` lists pending requests;
 /// `wright approve <run> <n> yes|no [dir]` answers one.
 pub fn approve(args: &[String]) -> i32 {
@@ -1493,10 +1535,13 @@ pub fn where_(args: &[String]) -> i32 {
 
 // ── export ───────────────────────────────────────────────────────
 
-/// `wright export [dir] [--zip|--wheel|--crate|--web] [--out DIR]` — the
-/// project as a zip, plus the package its language makes (a Python wheel,
-/// a Rust crate, a built web app). With no kind given, every one that
-/// applies. Packages need a last run that passed its checks and review.
+/// `wright export [dir] [--zip|--wheel|--crate|--web|--docker|--systemd|--gh-actions] [--out DIR]`
+/// — the project as a zip, plus the package its language makes (a Python
+/// wheel, a Rust crate, a built web app); on request, deployment
+/// packagings generated from the blueprint (WR-15): a Dockerfile, systemd
+/// units for its schedule, a GitHub Actions workflow for its tests. With
+/// no kind given, the zip and the package. Packages and the Dockerfile
+/// need a last run that passed its checks and review.
 pub fn export(args: &[String]) -> i32 {
     use wright_engine::export::{self, Kind};
     let out_arg = flag_value(args, "--out");
@@ -1513,7 +1558,7 @@ pub fn export(args: &[String]) -> i32 {
         .filter(|k| flags.contains(&k.flag()))
         .collect();
     let kinds = if asked.is_empty() {
-        export::available(&bp)
+        export::default_kinds(&bp)
     } else {
         asked
     };
