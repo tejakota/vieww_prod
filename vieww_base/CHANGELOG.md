@@ -38,6 +38,12 @@ tag needs a `## [x.y.z]` section here before it is pushed.
   `$HOME`; own PID namespace; seccomp-BPF filter; 0700 scratch; macOS
   `secret set` no longer leaks the value in argv; symlink-race-free writes;
   private wright home.
+- wright prompts (WR-08): every inlined input is fenced and marked PRIVATE
+  or UNTRUSTED from the Rule-of-Two taint set, with a data rule in every
+  system prompt; an end-to-end test pins it on the bytes sent to the model.
+- wright native Windows workers (WR-05): every worker runs in a Job object;
+  a worker `.exe` also runs in an AppContainer whose only writable folder
+  is its workspace copy, with internet access only.
 - wright HTTP tools (WR-07): DNS-rebinding closed by pinning the SSRF-checked
   addresses into the connection.
 - `clipboard-win` 5.4.1 (yanked) → 5.4.3; `tokio` → 1.54.1 (RUSTSEC-2026-0384,
@@ -48,6 +54,9 @@ tag needs a `## [x.y.z]` section here before it is pushed.
   version that never existed (checklist B16).
 - wright: two processes creating the receipt signing key at once failed one
   of them.
+- D3D12 scene renderer runs on WARP: atlas uploads honour the 256-byte
+  row pitch, staging buffers outlive their copies, target states are
+  tracked in one order, and the post shader is split so WARP runs it.
 - `84-particles-retarget` captured a different picture on every run.
 
 ## [0.1.0] - unreleased

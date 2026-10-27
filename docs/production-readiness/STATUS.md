@@ -3,17 +3,17 @@
 Every gap in the four research reports (framework.md, studio.md, audio.md, wright.md), with where it stands. **Closed** = code + tests + CI gate landed. **Partial** = the code is in, and what is left is listed. **Open** = not started.
 Mac real-device verification is out of scope by the owner's decision; Mac code paths are still written and CI-built where hosted runners allow.
 
-Totals: Closed 10, Open 76, Partial 8 (of 94).
+Totals: Closed 11, Open 75, Partial 8 (of 94).
 
 ## Framework
 
 | Gap | P | Title | Status | Notes |
 |---|---|---|---|---|
 | FW-01 | P0 | The framework is unpublishable and unusable outside the monorepo | **Partial** | Metadata on 52 public crates, publish-check.sh + publish-order.txt, publish.yml (package/verify/scaffold-external/publish-on-tag). Left: owner adds CARGO_REGISTRY_TOKEN and tags. Nightly found the CLI could not find shared libstd outside the checkout; fixed. |
-| FW-02 | P0 | No CI runs on push or PR — the entire gate is manual | **Closed** | pr-quick.yml, root release-gate.yml, nightly hardware.yml, audio-ci on paths. |
+| FW-02 | P0 | No CI runs on push or PR — the entire gate is manual | **Closed** | pr-quick.yml, root release-gate.yml, hardware.yml, audio-ci, goldens, supply-chain, publish, framework-checks; every workflow started by hand (owner's rule), every result collected on the ci-results branch. |
 | FW-03 | P0 | No release has ever been cut: no tag, no changelog, no channel | **Partial** | CHANGELOG.md, docs/release/RELEASING.md, draft GitHub Release job on tags. Left: owner cuts the first tag. |
 | FW-04 | P0 | macOS: end users cannot run a vieww app (MoltenVK not bundled, unsigned, Metal scene renderer not shipped) | **Open** |  |
-| FW-05 | P0 | Windows: D3D12 scene path absent on main, 840 ms startup, unsigned | **Open** |  |
+| FW-05 | P0 | Windows: D3D12 scene path absent on main, 840 ms startup, unsigned | **Partial** | D3D12 scene renderer on main and green on WARP in framework-checks (fixes found by running it: FXC-safe post shader, atlas row pitch, staging lifetimes, target-state tracking, a split post pixel shader for WARP); debug layer + GPU-based validation behind VIEWW_D3D12_DEBUG. Left: startup work (parallel device creation, pipeline-cache proof on the self-hosted Windows machine), Authenticode once a certificate exists, MSI smoke. |
 | FW-06 | P0 | No code signing, notarization, or attestation on any artifact | **Partial** | Sigstore provenance on every release file (no cert needed); packaging/sign.sh (signtool / codesign+notarytool / apksigner) wired into package.sh, release-gate, mobile CI. Left: owner buys certificates and adds secrets; Android AAB output. |
 | FW-07 | P1 | Open performance-budget misses on certified reference hardware | **Open** |  |
 | FW-08 | P1 | Receipts are recorded, not gated: no automated performance trend regression | **Open** |  |
@@ -102,10 +102,10 @@ Totals: Closed 10, Open 76, Partial 8 (of 94).
 | WR-02 | P0 | Sandbox depth: no syscall filter (seccomp), no PID namespace; networked commands share host process space | **Closed** | User+PID namespace, seccomp denylist, strict mode, escape tests in CI both ways. |
 | WR-03 | P0 | macOS: no sandbox backend at all — the product is fail-closed on a Tier-1 desktop OS | **Partial** | Seatbelt backend (sandbox_macos.rs) + behaviour suite; cross-compiles. Left: first green run of wright-sandbox.yml on hosted macOS. |
 | WR-04 | P0 | Release channel: unsigned installers, no notarization, no auto-update | **Open** |  |
-| WR-05 | P1 | Windows-native worker CLIs run without any OS sandbox (workspace-copy fallback) | **Partial** | Tier 1: Job object (tree kill, process/memory caps), suspended start. Left: tier 2 AppContainer filesystem confinement. |
+| WR-05 | P1 | Windows-native worker CLIs run without any OS sandbox (workspace-copy fallback) | **Partial** | Tier 1: Job object (kill-on-close tree, 64 processes, 4 GiB), suspended until adopted. Tier 2: worker .exe files run in the wright.worker AppContainer (copy is the only writable folder; user profile unreadable; install folders read+execute for the run only; internet capability only) inside the job; escape suite (write/read outside, startup-folder plant, env, timeout) in wright-sandbox windows. Left: npm .cmd shims stay tier 1 (reported as such); green run on CI and the self-hosted Windows box. |
 | WR-06 | P1 | Windows secret storage: no Credential Manager — keys in env vars on the platform that least wants them | **Closed** | Credential Manager via wincred.rs for resolve/store and new signing keys; Windows CI round-trip test. |
 | WR-07 | P1 | HTTP tools: DNS-rebinding TOCTOU between the SSRF check and the connection | **Closed** | Resolve once, pin addresses (native + curl --resolve); staged-rebinding tests. |
-| WR-08 | P1 | Prompt injection: tainted content enters prompts unmarked — the taint system stops one layer short | **Partial** | Inputs fenced + marked PRIVATE/UNTRUSTED, DATA_RULE in every prompt, PROMPT_VERSION 4. Left: end-to-end mock assertion. |
+| WR-08 | P1 | Prompt injection: tainted content enters prompts unmarked — the taint system stops one layer short | **Closed** | Inputs fenced with content-derived ids and marked PRIVATE/UNTRUSTED; DATA_RULE in every system prompt; PROMPT_VERSION 4. engine/tests/injection.rs: a hostile page fetched by one agent reaches the next agent's recorded request inside an UNTRUSTED block, with the rule in its system prompt (fails if the mark is dropped). |
 | WR-09 | P1 | Model calls are non-reproducible and under-specified: no temperature/seed, none recorded | **Open** |  |
 | WR-10 | P1 | Hardening pass: sandbox scratch dir not 0700; macOS `secret set` argv leak; path-check TOCTOU | **Closed** | 0700 scratch, security -i stdin, O_NOFOLLOW pinned writes. |
 | WR-11 | P1 | No browser tool and no visual verification — the one axis every rival competes on | **Open** |  |
