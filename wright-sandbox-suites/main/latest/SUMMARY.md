@@ -1,15 +1,25 @@
 # Wright sandbox suites — SUCCESS
 
-- branch: `main`  sha: `5e7c88909db933d1b453dee430d81fa6b6eb91cb`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40468541415
+- branch: `main`  sha: `7cd114dc558ef6eca3feea1d0a9b4d418ec73b85`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40532711825
 
 | job | verdict | failed steps |
 |---|---|---|
-| Windows — probe fail-closed (no WSL on the runner) | PASS |  |
 | macOS — Seatbelt suite (WR-03) | PASS |  |
+| Windows — probe fail-closed (no WSL on the runner) | PASS |  |
 | Linux — full escape suite (Landlock + seccomp) | PASS |  |
 
 ## Steps
+
+### macOS — Seatbelt suite (WR-03) — PASS
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Rust toolchain
+- PASS: Seatbelt is present
+- PASS: The Seatbelt suite (policy + runtime)
+- PASS: doctor reports the capability
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
 
 ### Windows — probe fail-closed (no WSL on the runner) — PASS
 - PASS: Set up job
@@ -19,16 +29,6 @@
 - PASS: Credential Manager round trip (WR-06)
 - PASS: Worker Job objects (WR-05) — tree killed with the job, process cap
 - PASS: Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### macOS — Seatbelt suite (WR-03) — PASS
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Rust toolchain
-- PASS: Seatbelt is present
-- PASS: The Seatbelt suite (policy + runtime)
-- PASS: doctor reports the capability
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
