@@ -55,6 +55,7 @@
 
 pub mod carnatic;
 pub mod generate;
+pub mod notation;
 pub mod pieces;
 pub mod pitch;
 pub mod render;

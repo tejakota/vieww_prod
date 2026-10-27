@@ -2,6 +2,7 @@
 //! and roman numerals, voice leading, rhythm.
 
 pub mod chord;
+pub mod key;
 pub mod rhythm;
 pub mod scale;
 pub mod voice_leading;

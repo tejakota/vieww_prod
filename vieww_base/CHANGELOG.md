@@ -28,6 +28,14 @@ tag needs a `## [x.y.z]` section here before it is pushed.
   `cargo publish --workspace` when run on a tag with a token configured).
 - **Releases** (FW-03, FW-06): `release-gate` run on a tag drafts a GitHub Release with
   installers, merged SHA256SUMS, SBOM, checklist and Sigstore build provenance.
+- **Notation and analysis** (AU-16, AU-22): MusicXML 4.0 export and
+  import (`vieww_music::notation::musicxml`), YIN pitch detection and
+  chroma (`vieww_audio::analysis`), key and melakarta estimation
+  (`vieww_music::western::key`).
+- **wright fork** (WR-12): `wright fork <run> --at N` branches a new
+  project from a run at one event.
+- **wright export targets** (WR-15): `--docker`, `--systemd`,
+  `--gh-actions`, generated from the blueprint.
 - **Loudness normalization** (AU-25): `MediaPlayer::set_normalization`
   (track mode to a target LUFS with a −1 dBTP peak cap, album mode with
   `album_gain_db`). Media wider than stereo now folds down with the

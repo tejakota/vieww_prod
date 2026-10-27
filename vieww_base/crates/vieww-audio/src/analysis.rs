@@ -307,6 +307,132 @@ fn as_f32(value: u32) -> f32 {
     value as f32
 }
 
+/// A detected fundamental: frequency and how periodic the signal was.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Pitch {
+    /// Hz.
+    pub hz: f32,
+    /// 0..=1: 1 is perfectly periodic (1 − the YIN dip's depth).
+    pub clarity: f32,
+}
+
+/// The fundamental of a monophonic frame by YIN (de Cheveigné & Kawahara,
+/// 2002): the cumulative-mean-normalised difference function, its first
+/// dip under the threshold, refined by parabolic interpolation (AU-22).
+///
+/// `frame` is mono; `rate` its sample rate; the search covers
+/// `min_hz..=max_hz`. The frame must hold at least two periods of
+/// `min_hz`. `None` when nothing periodic enough is found.
+#[must_use]
+pub fn yin(frame: &[f32], rate: u32, min_hz: f32, max_hz: f32) -> Option<Pitch> {
+    const THRESHOLD: f32 = 0.15;
+    #[expect(clippy::cast_precision_loss, reason = "a sample rate")]
+    let r = rate as f32;
+    let w = frame.len() / 2;
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "a lag in samples"
+    )]
+    let (lo, hi) = (
+        (r / max_hz.max(1.0)).floor().max(2.0) as usize,
+        ((r / min_hz.max(1.0)).ceil() as usize).min(w.saturating_sub(1)),
+    );
+    if hi <= lo + 2 {
+        return None;
+    }
+    // d(τ), then d'(τ) = d(τ)·τ / Σ_{j≤τ} d(j).
+    let mut cmnd = vec![1.0f32; hi + 2];
+    let mut running = 0.0f64;
+    for tau in 1..=hi + 1 {
+        let d: f64 = (0..w)
+            .map(|j| {
+                let diff = f64::from(frame[j]) - f64::from(frame[j + tau]);
+                diff * diff
+            })
+            .sum();
+        running += d;
+        #[expect(
+            clippy::cast_precision_loss,
+            clippy::cast_possible_truncation,
+            reason = "a lag"
+        )]
+        {
+            cmnd[tau] = if running > 0.0 {
+                (d * tau as f64 / running) as f32
+            } else {
+                1.0
+            };
+        }
+    }
+    // The first dip under the threshold, walked down to its minimum; if
+    // none dips that far, the global minimum.
+    let mut best = None;
+    let mut tau = lo;
+    while tau <= hi {
+        if cmnd[tau] < THRESHOLD {
+            while tau < hi && cmnd[tau + 1] < cmnd[tau] {
+                tau += 1;
+            }
+            best = Some(tau);
+            break;
+        }
+        tau += 1;
+    }
+    let tau = best.unwrap_or_else(|| {
+        (lo..=hi)
+            .min_by(|a, b| cmnd[*a].total_cmp(&cmnd[*b]))
+            .unwrap_or(lo)
+    });
+    let clarity = 1.0 - cmnd[tau].clamp(0.0, 1.0);
+    if clarity < 0.5 {
+        return None;
+    }
+    // Parabolic interpolation around the dip.
+    let (a, b, c) = (cmnd[tau - 1], cmnd[tau], cmnd[tau + 1]);
+    let denom = a - 2.0 * b + c;
+    let shift = if denom.abs() > f32::EPSILON {
+        (0.5 * (a - c) / denom).clamp(-1.0, 1.0)
+    } else {
+        0.0
+    };
+    #[expect(clippy::cast_precision_loss, reason = "a lag")]
+    let period = tau as f32 + shift;
+    Some(Pitch {
+        hz: r / period,
+        clarity,
+    })
+}
+
+/// The energy in each of the twelve pitch classes, C = 0 … B = 11, from a
+/// spectrum's bins between 55 Hz and 5 kHz (A4 = 440 Hz), normalised to
+/// sum to 1 — the input to key detection (AU-22).
+#[must_use]
+pub fn chroma(spectrum: &Spectrum) -> [f32; 12] {
+    let mut c = [0.0f32; 12];
+    for (i, m) in spectrum.magnitudes().iter().enumerate().skip(1) {
+        let f = spectrum.bin_hz(i);
+        if !(55.0..=5000.0).contains(&f) {
+            continue;
+        }
+        let semis = 12.0 * (f / 440.0).log2() + 9.0; // 0 = C
+        #[expect(
+            clippy::cast_possible_truncation,
+            clippy::cast_sign_loss,
+            reason = "a pitch class"
+        )]
+        let pc = (semis.round().rem_euclid(12.0)) as usize % 12;
+        c[pc] += m * m;
+    }
+    let total: f32 = c.iter().sum();
+    if total > 0.0 {
+        for v in &mut c {
+            *v /= total;
+        }
+    }
+    c
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -503,5 +629,123 @@ mod tests {
         assert!(note_b > quiet_b * 10.0, "1318 Hz: {note_b} vs {quiet_b}");
         // And the two notes are the two loudest things in the buffer.
         assert!(note_a > 0.01 && note_b > 0.01);
+    }
+
+    fn sine_wave(hz: f32, rate: u32, secs: f32) -> Vec<f32> {
+        #[expect(
+            clippy::cast_possible_truncation,
+            clippy::cast_sign_loss,
+            reason = "a length"
+        )]
+        let n = (rate as f32 * secs) as usize;
+        (0..n)
+            .map(|i| {
+                #[expect(clippy::cast_precision_loss, reason = "a sample index")]
+                let t = i as f32 / rate as f32;
+                (std::f32::consts::TAU * hz * t).sin()
+            })
+            .collect()
+    }
+
+    fn cents(a: f32, b: f32) -> f32 {
+        1200.0 * (a / b).log2()
+    }
+
+    /// AU-22: YIN finds every one of the 22 shrutis over Sa = 220 Hz to
+    /// within 5 cents — microtones are this module's home ground.
+    #[test]
+    fn yin_finds_the_twenty_two_shrutis_within_five_cents() {
+        // The classical 22-shruti ratios (just intonation).
+        let ratios: [f32; 22] = [
+            1.0,
+            256.0 / 243.0,
+            16.0 / 15.0,
+            10.0 / 9.0,
+            9.0 / 8.0,
+            32.0 / 27.0,
+            6.0 / 5.0,
+            5.0 / 4.0,
+            81.0 / 64.0,
+            4.0 / 3.0,
+            27.0 / 20.0,
+            45.0 / 32.0,
+            729.0 / 512.0,
+            3.0 / 2.0,
+            128.0 / 81.0,
+            8.0 / 5.0,
+            5.0 / 3.0,
+            27.0 / 16.0,
+            16.0 / 9.0,
+            9.0 / 5.0,
+            15.0 / 8.0,
+            243.0 / 128.0,
+        ];
+        for r in ratios {
+            let hz = 220.0 * r;
+            let x = sine_wave(hz, 48_000, 0.05);
+            let p = yin(&x, 48_000, 80.0, 1000.0).expect("a pitch");
+            assert!(cents(p.hz, hz).abs() < 5.0, "{hz} Hz read as {} Hz", p.hz);
+            assert!(p.clarity > 0.9);
+        }
+    }
+
+    /// A gamaka-style vibrato (±50 cents at 6 Hz) is tracked frame by frame.
+    #[test]
+    fn yin_tracks_a_vibrato() {
+        let rate = 48_000u32;
+        let mut phase = 0.0f32;
+        let x: Vec<f32> = (0..rate as usize)
+            .map(|i| {
+                #[expect(clippy::cast_precision_loss, reason = "a sample index")]
+                let t = i as f32 / rate as f32;
+                let f = 330.0 * 2f32.powf(0.5 / 12.0 * (std::f32::consts::TAU * 6.0 * t).sin());
+                phase += std::f32::consts::TAU * f / rate as f32;
+                phase.sin()
+            })
+            .collect();
+        let frame = 1024;
+        for start in (0..x.len() - frame).step_by(2400) {
+            #[expect(clippy::cast_precision_loss, reason = "a sample index")]
+            let t = (start + frame / 4) as f32 / rate as f32;
+            let want = 330.0 * 2f32.powf(0.5 / 12.0 * (std::f32::consts::TAU * 6.0 * t).sin());
+            let p = yin(&x[start..start + frame], rate, 100.0, 1000.0).expect("a pitch");
+            assert!(
+                cents(p.hz, want).abs() < 25.0,
+                "at {t}s: {} vs {want}",
+                p.hz
+            );
+        }
+    }
+
+    #[test]
+    fn yin_reports_nothing_for_noise() {
+        let mut seed = 1u32;
+        let x: Vec<f32> = (0..4096)
+            .map(|_| {
+                seed = seed.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
+                #[expect(clippy::cast_precision_loss, reason = "noise")]
+                let v = (seed >> 8) as f32 / (1u32 << 24) as f32;
+                v * 2.0 - 1.0
+            })
+            .collect();
+        assert!(yin(&x, 48_000, 80.0, 1000.0).is_none());
+    }
+
+    /// A C major triad's chroma peaks on C, E and G.
+    #[test]
+    fn chroma_of_a_triad_names_its_notes() {
+        let rate = 44_100;
+        let mut x = vec![0.0f32; 16_384];
+        for hz in [261.63f32, 329.63, 392.0] {
+            for (v, s) in x.iter_mut().zip(sine_wave(hz, rate, 1.0)) {
+                *v += s / 3.0;
+            }
+        }
+        let c = chroma(&Spectrum::analyze(&Samples::mono(x, rate), Window::Hann));
+        let mut order: Vec<usize> = (0..12).collect();
+        order.sort_by(|a, b| c[*b].total_cmp(&c[*a]));
+        let mut top = order[..3].to_vec();
+        top.sort_unstable();
+        assert_eq!(top, vec![0, 4, 7], "{c:?}");
     }
 }
