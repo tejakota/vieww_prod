@@ -152,6 +152,103 @@ impl Tags {
 }
 
 /// The tags in a file of any supported container (empty if it has none or
+/// The ReplayGain 2.0 reference loudness, LUFS: tag gains are relative to it.
+pub const REPLAYGAIN_REFERENCE_LUFS: f64 = -18.0;
+
+/// Loudness metadata a file carries (AU-25): ReplayGain
+/// (`REPLAYGAIN_TRACK_GAIN` "−6.20 dB", `…_PEAK` linear) or Opus R128
+/// (`R128_TRACK_GAIN`, Q7.8 dB relative to −23 LUFS). Gains are expressed
+/// relative to the ReplayGain reference ([`REPLAYGAIN_REFERENCE_LUFS`]).
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct LoudnessTags {
+    /// The track's gain to the reference, dB.
+    pub track_gain_db: Option<f64>,
+    /// The track's peak, linear (1.0 = full scale).
+    pub track_peak: Option<f64>,
+    /// The album's gain to the reference, dB.
+    pub album_gain_db: Option<f64>,
+    /// The album's peak, linear.
+    pub album_peak: Option<f64>,
+}
+
+fn parse_db(v: &str) -> Option<f64> {
+    let v = v.trim();
+    let v = v
+        .strip_suffix("dB")
+        .or_else(|| v.strip_suffix("db"))
+        .or_else(|| v.strip_suffix("DB"))
+        .unwrap_or(v)
+        .trim();
+    v.parse::<f64>()
+        .ok()
+        .filter(|x| x.is_finite() && x.abs() < 100.0)
+}
+
+fn parse_r128(v: &str) -> Option<f64> {
+    // Q7.8 relative to −23 LUFS; the ReplayGain reference is 5 dB louder.
+    v.trim()
+        .parse::<i32>()
+        .ok()
+        .map(|q| f64::from(q) / 256.0 + (REPLAYGAIN_REFERENCE_LUFS + 23.0))
+}
+
+impl Tags {
+    /// The loudness tags, ReplayGain first, R128 where ReplayGain is absent.
+    #[must_use]
+    pub fn loudness(&self) -> LoudnessTags {
+        let peak = |k: &str| {
+            self.get(k)
+                .and_then(|v| v.trim().parse::<f64>().ok())
+                .filter(|x| x.is_finite() && *x >= 0.0)
+        };
+        LoudnessTags {
+            track_gain_db: self
+                .get("REPLAYGAIN_TRACK_GAIN")
+                .and_then(parse_db)
+                .or_else(|| self.get("R128_TRACK_GAIN").and_then(parse_r128)),
+            track_peak: peak("REPLAYGAIN_TRACK_PEAK"),
+            album_gain_db: self
+                .get("REPLAYGAIN_ALBUM_GAIN")
+                .and_then(parse_db)
+                .or_else(|| self.get("R128_ALBUM_GAIN").and_then(parse_r128)),
+            album_peak: peak("REPLAYGAIN_ALBUM_PEAK"),
+        }
+    }
+
+    /// Write the track's ReplayGain tags (gain in dB to the reference,
+    /// peak linear), in the form every player reads.
+    pub fn set_replaygain_track(&mut self, gain_db: f64, peak: f64) {
+        self.set("REPLAYGAIN_TRACK_GAIN", &format!("{gain_db:+.2} dB"));
+        self.set("REPLAYGAIN_TRACK_PEAK", &format!("{peak:.6}"));
+    }
+
+    /// Write the album's ReplayGain tags.
+    pub fn set_replaygain_album(&mut self, gain_db: f64, peak: f64) {
+        self.set("REPLAYGAIN_ALBUM_GAIN", &format!("{gain_db:+.2} dB"));
+        self.set("REPLAYGAIN_ALBUM_PEAK", &format!("{peak:.6}"));
+    }
+}
+
+/// ReplayGain 2.0 analysis of a decoded track: `(gain_db, peak)` — the
+/// gain that brings its EBU R128 integrated loudness to −18 LUFS, and its
+/// true peak, linear. Write them with [`Tags::set_replaygain_track`].
+#[must_use]
+pub fn analyze_replaygain(samples: &crate::Samples) -> (f64, f64) {
+    let layout = crate::channels::Layout::for_channels(usize::from(samples.channels.max(1)));
+    let (integrated, _, peak_db) = crate::meter::measure(&samples.data, layout, samples.rate);
+    let gain = if integrated.is_finite() {
+        REPLAYGAIN_REFERENCE_LUFS - integrated
+    } else {
+        0.0
+    };
+    let peak = if peak_db.is_finite() {
+        10f64.powf(peak_db / 20.0)
+    } else {
+        0.0
+    };
+    (gain, peak)
+}
+
 /// the container is not recognised).
 #[must_use]
 pub fn read(bytes: &[u8]) -> Tags {
@@ -963,6 +1060,55 @@ fn mp4(b: &[u8], t: &mut Tags) {
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn loudness_tags_read_replaygain_and_r128() {
+        let t = Tags::new()
+            .with("REPLAYGAIN_TRACK_GAIN", "-6.20 dB")
+            .with("REPLAYGAIN_TRACK_PEAK", "0.988")
+            .with("R128_ALBUM_GAIN", "-1280");
+        let l = t.loudness();
+        assert_eq!(l.track_gain_db, Some(-6.2));
+        assert_eq!(l.track_peak, Some(0.988));
+        // −1280/256 = −5 dB to −23 LUFS = 0 dB to −18 LUFS.
+        assert!((l.album_gain_db.unwrap() - 0.0).abs() < 1e-9);
+        assert_eq!(
+            Tags::new()
+                .with("REPLAYGAIN_TRACK_GAIN", "loud")
+                .loudness()
+                .track_gain_db,
+            None
+        );
+    }
+
+    #[test]
+    fn replaygain_round_trips_through_the_tag_strings() {
+        let mut t = Tags::new();
+        t.set_replaygain_track(-7.25, 0.5);
+        t.set_replaygain_album(3.0, 0.75);
+        assert_eq!(t.get("REPLAYGAIN_TRACK_GAIN"), Some("-7.25 dB"));
+        let l = t.loudness();
+        assert_eq!((l.track_gain_db, l.track_peak), (Some(-7.25), Some(0.5)));
+        assert_eq!((l.album_gain_db, l.album_peak), (Some(3.0), Some(0.75)));
+    }
+
+    #[test]
+    fn analysis_brings_a_tone_to_the_reference() {
+        let rate = 48_000u32;
+        let data: Vec<f32> = (0..rate as usize * 2)
+            .map(|i| {
+                #[expect(clippy::cast_precision_loss, reason = "a sample index")]
+                let t = i as f32 / rate as f32;
+                0.25 * (std::f32::consts::TAU * 997.0 * t).sin()
+            })
+            .collect();
+        let s = crate::Samples::mono(data, rate);
+        let (gain, peak) = analyze_replaygain(&s);
+        let layout = crate::channels::Layout::Mono;
+        let after = crate::meter::measure(&s.data, layout, rate).0 + gain;
+        assert!((after - REPLAYGAIN_REFERENCE_LUFS).abs() < 0.01);
+        assert!((peak - 0.25).abs() < 0.01, "{peak}");
+    }
     use super::*;
 
     #[test]

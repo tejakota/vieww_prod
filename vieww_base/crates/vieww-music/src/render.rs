@@ -20,8 +20,10 @@
 //! un-staged mix compresses everything and overshoots its own ceiling;
 //! one fed a staged mix touches only the loudest transients.
 //!
-//! Rendering is offline and deterministic: the same score gives the same
-//! samples, bit for bit, on the same platform.
+//! Rendering is deterministic: the same score gives the same samples, bit
+//! for bit, on the same platform. Each part is a block-by-block stream, so
+//! the same code also plays a score live ([`crate::live`]); only mastering,
+//! which measures the whole mix first, is offline-only.
 
 use vieww_audio::codec::tags;
 use vieww_audio::fx::dynamics::Limiter;
@@ -125,100 +127,183 @@ fn schedule(part: &Part, spb: f64, rate: f64) -> Vec<Scheduled> {
         .collect()
 }
 
-/// Play one part on a pool of `voices`, `frames` long, interleaved stereo.
-fn play<V: Voice>(
-    mut poly: Poly<V>,
-    part: &Part,
-    tuning: Option<TuningTable>,
-    spb: f64,
-    rate: f64,
-    frames: usize,
-) -> Vec<f32> {
-    poly.mpe = true;
-    poly.bend_range = 48.0;
-    poly.set_tuning(tuning);
-    let notes = schedule(part, spb, rate);
-    let mut ons: Vec<usize> = (0..notes.len()).collect();
-    ons.sort_by_key(|&i| notes[i].on);
-    let mut offs = ons.clone();
-    offs.sort_by_key(|&i| notes[i].off);
-    let (mut oi, mut fi) = (0usize, 0usize);
-    let mut sounding: Vec<usize> = Vec::new();
-    let mut out = vec![0.0f32; frames * 2];
-    for f in 0..frames {
-        while fi < offs.len() && notes[offs[fi]].off <= f {
-            let n = &notes[offs[fi]];
-            poly.note_off(n.channel, n.key);
-            sounding.retain(|&i| i != offs[fi]);
-            fi += 1;
-        }
-        while oi < ons.len() && notes[ons[oi]].on <= f {
-            let i = ons[oi];
-            let n = &notes[i];
-            poly.set_channel_bend(n.channel, 0.0);
-            poly.note_on_pitch(n.channel, n.key, n.event.pitch, n.event.velocity);
-            sounding.push(i);
-            oi += 1;
-        }
-        if f % CONTROL == 0 {
-            for &i in &sounding {
-                let n = &notes[i];
-                #[expect(clippy::cast_precision_loss, reason = "sample counts")]
-                let len = (n.off - n.on) as f32;
-                #[expect(clippy::cast_precision_loss, reason = "sample counts")]
-                let t = (f - n.on) as f32 / len;
-                #[expect(clippy::cast_possible_truncation, reason = "seconds in f32")]
-                let secs = (len / rate as f32).max(1e-3);
-                let cents = n.event.gamaka.cents(t, secs);
-                poly.set_channel_bend(n.channel, cents / 100.0);
-            }
-        }
-        let (l, r) = poly.next_stereo();
-        out[f * 2] = l;
-        out[f * 2 + 1] = r;
-    }
-    out
+/// One part's sound, block by block: the same code renders a whole score
+/// offline and plays it live ([`crate::live`]), so the two agree sample
+/// for sample.
+pub(crate) trait PartStream: Send {
+    /// Render the next `out.len() / 2` frames, interleaved stereo.
+    fn render(&mut self, out: &mut [f32]);
 }
 
-/// Render one part alone (no mixer), interleaved stereo.
-fn render_part(part: &Part, score: &Score, s: Settings, frames: usize) -> Vec<f32> {
+/// A part on a pool of voices, as MPE, with its gamakas.
+struct PolyStream<V: Voice> {
+    poly: Poly<V>,
+    notes: Vec<Scheduled>,
+    ons: Vec<usize>,
+    offs: Vec<usize>,
+    oi: usize,
+    fi: usize,
+    sounding: Vec<usize>,
+    frame: usize,
+    rate: f64,
+    /// The lead's overdrive.
+    drive: bool,
+}
+
+impl<V: Voice> PolyStream<V> {
+    fn new(
+        mut poly: Poly<V>,
+        part: &Part,
+        tuning: Option<TuningTable>,
+        spb: f64,
+        rate: f64,
+        drive: bool,
+    ) -> Self {
+        poly.mpe = true;
+        poly.bend_range = 48.0;
+        poly.set_tuning(tuning);
+        let notes = schedule(part, spb, rate);
+        let mut ons: Vec<usize> = (0..notes.len()).collect();
+        ons.sort_by_key(|&i| notes[i].on);
+        let mut offs = ons.clone();
+        offs.sort_by_key(|&i| notes[i].off);
+        let sounding = Vec::with_capacity(notes.len().min(64));
+        Self {
+            poly,
+            notes,
+            ons,
+            offs,
+            oi: 0,
+            fi: 0,
+            sounding,
+            frame: 0,
+            rate,
+            drive,
+        }
+    }
+}
+
+impl<V: Voice + Send> PartStream for PolyStream<V> {
+    fn render(&mut self, out: &mut [f32]) {
+        for o in out.as_chunks_mut::<2>().0 {
+            let f = self.frame;
+            while self.fi < self.offs.len() && self.notes[self.offs[self.fi]].off <= f {
+                let i = self.offs[self.fi];
+                let n = &self.notes[i];
+                self.poly.note_off(n.channel, n.key);
+                self.sounding.retain(|&k| k != i);
+                self.fi += 1;
+            }
+            while self.oi < self.ons.len() && self.notes[self.ons[self.oi]].on <= f {
+                let i = self.ons[self.oi];
+                let n = &self.notes[i];
+                self.poly.set_channel_bend(n.channel, 0.0);
+                self.poly
+                    .note_on_pitch(n.channel, n.key, n.event.pitch, n.event.velocity);
+                self.sounding.push(i);
+                self.oi += 1;
+            }
+            if f.is_multiple_of(CONTROL) {
+                for &i in &self.sounding {
+                    let n = &self.notes[i];
+                    #[expect(clippy::cast_precision_loss, reason = "sample counts")]
+                    let len = (n.off - n.on) as f32;
+                    #[expect(clippy::cast_precision_loss, reason = "sample counts")]
+                    let t = (f - n.on) as f32 / len;
+                    #[expect(clippy::cast_possible_truncation, reason = "seconds in f32")]
+                    let secs = (len / self.rate as f32).max(1e-3);
+                    let cents = n.event.gamaka.cents(t, secs);
+                    self.poly.set_channel_bend(n.channel, cents / 100.0);
+                }
+            }
+            let (mut l, mut r) = self.poly.next_stereo();
+            if self.drive {
+                // Overdrive: the rock guitar's grit.
+                l = (l * 4.0).tanh() * 0.6;
+                r = (r * 4.0).tanh() * 0.6;
+            }
+            o[0] = l;
+            o[1] = r;
+            self.frame += 1;
+        }
+    }
+}
+
+/// One part's stream, at the start of the score.
+pub(crate) fn part_stream(part: &Part, score: &Score, s: Settings) -> Box<dyn PartStream> {
     #[expect(clippy::cast_precision_loss, reason = "sample rates")]
     let rate = s.rate as f32;
     let spb = score.seconds_per_beat();
     let n = s.polyphony.max(1);
     let tuned = Some(score.tuning.table());
     let seeds = 1..=u64::try_from(n).unwrap_or(16);
-    let r = f64::from(rate);
+    fn boxed<V: Voice + Send + 'static>(
+        voices: Vec<V>,
+        rate: f32,
+        part: &Part,
+        tuning: Option<TuningTable>,
+        spb: f64,
+        drive: bool,
+    ) -> Box<dyn PartStream> {
+        Box::new(PolyStream::new(
+            Poly::new(voices, rate),
+            part,
+            tuning,
+            spb,
+            f64::from(rate),
+            drive,
+        ))
+    }
     match part.instrument {
-        Instrument::Pluck => {
-            let v = seeds.map(|k| KarplusStrong::new(rate, k)).collect();
-            play(Poly::new(v, rate), part, tuned, spb, r, frames)
-        }
-        Instrument::Bowed => {
-            let v = (0..n).map(|_| Bowed::new(rate)).collect();
-            play(Poly::new(v, rate), part, tuned, spb, r, frames)
-        }
-        Instrument::Reed => {
-            let v = seeds.map(|k| Clarinet::new(rate, k)).collect();
-            play(Poly::new(v, rate), part, tuned, spb, r, frames)
-        }
-        Instrument::Mallet => {
-            let v = (0..n).map(|_| Modal::marimba(rate)).collect();
-            play(Poly::new(v, rate), part, tuned, spb, r, frames)
-        }
-        Instrument::Pad => {
-            let v = (0..n)
+        Instrument::Pluck => boxed(
+            seeds.map(|k| KarplusStrong::new(rate, k)).collect(),
+            rate,
+            part,
+            tuned,
+            spb,
+            false,
+        ),
+        Instrument::Bowed => boxed(
+            (0..n).map(|_| Bowed::new(rate)).collect(),
+            rate,
+            part,
+            tuned,
+            spb,
+            false,
+        ),
+        Instrument::Reed => boxed(
+            seeds.map(|k| Clarinet::new(rate, k)).collect(),
+            rate,
+            part,
+            tuned,
+            spb,
+            false,
+        ),
+        Instrument::Mallet => boxed(
+            (0..n).map(|_| Modal::marimba(rate)).collect(),
+            rate,
+            part,
+            tuned,
+            spb,
+            false,
+        ),
+        Instrument::Pad => boxed(
+            (0..n)
                 .map(|_| {
                     let mut v = SubtractiveVoice::new(rate);
                     v.cutoff = 1_800.0;
                     v.env_amount = 1.0;
                     v
                 })
-                .collect();
-            play(Poly::new(v, rate), part, tuned, spb, r, frames)
-        }
-        Instrument::Bass => {
-            let v = (0..n)
+                .collect(),
+            rate,
+            part,
+            tuned,
+            spb,
+            false,
+        ),
+        Instrument::Bass => boxed(
+            (0..n)
                 .map(|_| {
                     let mut v = SubtractiveVoice::new(rate);
                     v.cutoff = 500.0;
@@ -226,58 +311,67 @@ fn render_part(part: &Part, score: &Score, s: Settings, frames: usize) -> Vec<f3
                     v.osc2_mix = 0.4;
                     v
                 })
-                .collect();
-            play(Poly::new(v, rate), part, tuned, spb, r, frames)
-        }
-        Instrument::Lead => {
-            let v = (0..n)
+                .collect(),
+            rate,
+            part,
+            tuned,
+            spb,
+            false,
+        ),
+        Instrument::Lead => boxed(
+            (0..n)
                 .map(|_| {
                     let mut v = SubtractiveVoice::new(rate);
                     v.cutoff = 3_500.0;
                     v.resonance = 1.6;
                     v
                 })
-                .collect();
-            let mut x = play(Poly::new(v, rate), part, tuned, spb, r, frames);
-            // Overdrive: the rock guitar's grit.
-            for v in &mut x {
-                *v = (*v * 4.0).tanh() * 0.6;
-            }
-            x
-        }
-        Instrument::Drums => {
-            let v = seeds.map(|k| DrumKit::new(rate, k)).collect();
-            play(Poly::new(v, rate), part, None, spb, r, frames)
-        }
-        Instrument::Tambura => {
-            let v = seeds.map(|k| Tambura::new(rate, k)).collect();
-            play(Poly::new(v, rate), part, tuned, spb, r, frames)
-        }
-        Instrument::Mridangam => {
-            let v = (0..n)
+                .collect(),
+            rate,
+            part,
+            tuned,
+            spb,
+            true,
+        ),
+        Instrument::Drums => boxed(
+            seeds.map(|k| DrumKit::new(rate, k)).collect(),
+            rate,
+            part,
+            None,
+            spb,
+            false,
+        ),
+        Instrument::Tambura => boxed(
+            seeds.map(|k| Tambura::new(rate, k)).collect(),
+            rate,
+            part,
+            tuned,
+            spb,
+            false,
+        ),
+        Instrument::Mridangam => boxed(
+            (0..n)
                 .map(|_| Mridangam::new(rate, s.mridangam_tonic_hz))
-                .collect();
-            play(Poly::new(v, rate), part, None, spb, r, frames)
-        }
+                .collect(),
+            rate,
+            part,
+            None,
+            spb,
+            false,
+        ),
     }
 }
 
-/// Render `score` to interleaved stereo at `settings.rate`.
-#[must_use]
-pub fn render(score: &Score, settings: Settings) -> Samples {
-    let rate = f64::from(settings.rate);
-    #[expect(
-        clippy::cast_possible_truncation,
-        clippy::cast_sign_loss,
-        reason = "frame count"
-    )]
-    let frames = ((score.seconds() + settings.tail) * rate).ceil() as usize;
-    let parts: Vec<Vec<f32>> = score
-        .parts
-        .iter()
-        .map(|p| render_part(p, score, settings, frames))
-        .collect();
+/// Render one part alone (no mixer), interleaved stereo.
+fn render_part(part: &Part, score: &Score, s: Settings, frames: usize) -> Vec<f32> {
+    let mut out = vec![0.0f32; frames * 2];
+    part_stream(part, score, s).render(&mut out);
+    out
+}
 
+/// The score's mixer: a track per part (fader, pan), a reverb bus and the
+/// sends — the same for offline rendering and live playback.
+pub(crate) fn mixer_for(score: &Score, settings: Settings) -> Mixer {
     #[expect(clippy::cast_precision_loss, reason = "sample rates")]
     let fr = settings.rate as f32;
     let mut mixer = Mixer::new(settings.rate);
@@ -300,9 +394,41 @@ pub fn render(score: &Score, settings: Settings) -> Samples {
             let _ = mixer.add_send(t, bus_index, p.reverb_db, Tap::PostFader);
         }
     }
+    mixer
+}
+
+/// The frames a score renders to, its tail included.
+pub(crate) fn total_frames(score: &Score, settings: Settings) -> usize {
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "frame count"
+    )]
+    let frames = ((score.seconds() + settings.tail) * f64::from(settings.rate)).ceil() as usize;
+    frames
+}
+
+/// The mix before mastering: what [`render`] masters, and what
+/// [`crate::live::LiveScore`] plays.
+#[must_use]
+pub fn render_unmastered(score: &Score, settings: Settings) -> Samples {
+    let frames = total_frames(score, settings);
+    let parts: Vec<Vec<f32>> = score
+        .parts
+        .iter()
+        .map(|p| render_part(p, score, settings, frames))
+        .collect();
+    let mut mixer = mixer_for(score, settings);
     let inputs: Vec<&[f32]> = parts.iter().map(Vec::as_slice).collect();
     let mut out = vec![0.0f32; frames * 2];
     mixer.process(&inputs, &mut out);
+    Samples::stereo(out, settings.rate)
+}
+
+/// Render `score` to interleaved stereo at `settings.rate`, mastered.
+#[must_use]
+pub fn render(score: &Score, settings: Settings) -> Samples {
+    let mut out = render_unmastered(score, settings).data;
     master(&mut out, settings);
     Samples::stereo(out, settings.rate)
 }

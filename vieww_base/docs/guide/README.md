@@ -22,6 +22,7 @@ assume you have read anything else here.
 | [`theming.md`](./theming.md) | How do I make it look like my product instead of like the default? |
 | [`testing.md`](./testing.md) | How do I test a UI without a screen? |
 | [`accessibility.md`](./accessibility.md) | What do I get for free, and what do I still have to do? |
+| [`audio.md`](./audio.md) | How do I play a sound, a track or a score, and what does each platform (the web included) need? |
 
 ## The shortest possible orientation
 

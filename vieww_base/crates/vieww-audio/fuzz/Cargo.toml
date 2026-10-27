@@ -95,3 +95,38 @@ path = "fuzz_targets/decode_aiff.rs"
 test = false
 doc = false
 bench = false
+
+[[bin]]
+name = "parse_sf2"
+path = "fuzz_targets/parse_sf2.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "parse_sfz"
+path = "fuzz_targets/parse_sfz.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "parse_midi_smf"
+path = "fuzz_targets/parse_midi_smf.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "load_preset"
+path = "fuzz_targets/load_preset.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "graph_random"
+path = "fuzz_targets/graph_random.rs"
+test = false
+doc = false
+bench = false

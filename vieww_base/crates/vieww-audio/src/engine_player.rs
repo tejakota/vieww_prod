@@ -666,6 +666,16 @@ pub enum Normalization {
         /// The gain, in dB.
         gain_db: f64,
     },
+    /// The file's own ReplayGain / R128 tags (album gain when `album` and
+    /// the file has one, else track gain), moved from the ReplayGain
+    /// reference to `target_lufs`, limited by the tagged peak to −1 dBTP.
+    /// A file without tags is measured, as [`Normalization::Track`] does.
+    Tags {
+        /// Prefer the album gain.
+        album: bool,
+        /// The loudness to play at, in LUFS.
+        target_lufs: f64,
+    },
 }
 
 /// −16 LUFS: the level Apple Music and most podcast guidance play at.
@@ -726,6 +736,8 @@ pub struct MediaPlayer {
     normalization: Normalization,
     /// The loaded track's normalization gain, linear (1 when off).
     norm_gain: f32,
+    /// The loaded file's loudness tags (empty for decoded samples).
+    tagged: crate::codec::tags::LoudnessTags,
 }
 
 impl MediaPlayer {
@@ -742,6 +754,12 @@ impl MediaPlayer {
             state: MediaState::Empty,
             normalization: Normalization::Off,
             norm_gain: 1.0,
+            tagged: crate::codec::tags::LoudnessTags {
+                track_gain_db: None,
+                track_peak: None,
+                album_gain_db: None,
+                album_peak: None,
+            },
         }
     }
 
@@ -773,6 +791,24 @@ impl MediaPlayer {
             (Normalization::Off, _) | (_, None) => 0.0,
             (Normalization::Track { target_lufs }, Some(s)) => track_gain_db(s, target_lufs),
             (Normalization::Album { gain_db }, Some(_)) => gain_db,
+            (Normalization::Tags { album, target_lufs }, Some(s)) => {
+                let t = self.tagged;
+                let (gain, peak) = if album && t.album_gain_db.is_some() {
+                    (t.album_gain_db, t.album_peak)
+                } else {
+                    (t.track_gain_db, t.track_peak)
+                };
+                match gain {
+                    Some(g) => {
+                        let g = g + (target_lufs - crate::codec::tags::REPLAYGAIN_REFERENCE_LUFS);
+                        match peak.filter(|p| *p > 0.0) {
+                            Some(p) => g.min(PEAK_CEILING_DBTP - 20.0 * p.log10()),
+                            None => g,
+                        }
+                    }
+                    None => track_gain_db(s, target_lufs),
+                }
+            }
         };
         #[expect(clippy::cast_possible_truncation, reason = "a gain")]
         let lin = 10f64.powf(db / 20.0) as f32;
@@ -788,17 +824,23 @@ impl MediaPlayer {
     /// # Errors
     /// The file could not be read or decoded, or it is empty.
     pub fn load(&mut self, source: Source) -> Result<(), PlayError> {
+        let mut tagged = crate::codec::tags::LoudnessTags::default();
         let samples = match source {
             Source::Samples(s) => s,
             Source::File(p) => {
                 let bytes = std::fs::read(&p)
                     .map_err(|e| PlayError::Media(format!("{}: {e}", p.display())))?;
+                tagged = crate::codec::tags::read(&bytes).loudness();
                 decode(&bytes)?
             }
-            Source::Bytes(b) => decode(&b)?,
+            Source::Bytes(b) => {
+                tagged = crate::codec::tags::read(&b).loudness();
+                decode(&b)?
+            }
         };
         self.unload();
         self.samples = Some(self.engine.prepare(&samples)?);
+        self.tagged = tagged;
         self.update_norm_gain();
         self.parked = Duration::ZERO;
         self.state = MediaState::Paused;
@@ -1077,6 +1119,64 @@ mod tests {
         assert!(
             (b - b_off - album).abs() < 0.5,
             "album mode applied {album} dB"
+        );
+    }
+
+    /// AU-25: a file's ReplayGain tag decides the gain, moved to the
+    /// target; a file without tags is measured instead.
+    #[test]
+    fn tagged_files_play_at_their_tagged_gain() {
+        use crate::codec::tags::{self, Tags};
+        let rate = 48_000u32;
+        let data: Vec<f32> = (0..rate as usize)
+            .map(|i| {
+                #[expect(clippy::cast_precision_loss, reason = "a sample index")]
+                let t = i as f32 / rate as f32;
+                0.1 * (std::f32::consts::TAU * 440.0 * t).sin()
+            })
+            .collect();
+        // FLAC: Vorbis comments carry any key, as players store ReplayGain.
+        let wav = crate::codec::flac::encode(
+            &crate::codec::Decoded {
+                channels: 1,
+                data,
+                rate,
+            },
+            16,
+        )
+        .unwrap();
+        let mut t = Tags::new();
+        t.set_replaygain_track(-4.0, 0.1);
+        t.set_replaygain_album(2.0, 0.1);
+        let tagged = tags::write_flac(&wav, &t).unwrap();
+
+        let e = Arc::new(Engine::detached(rate, 2));
+        let mut p = MediaPlayer::new(Arc::clone(&e));
+        p.set_normalization(Normalization::Tags {
+            album: false,
+            target_lufs: -18.0,
+        });
+        p.load(Source::Bytes(tagged.clone())).unwrap();
+        assert!(
+            (p.normalization_gain_db() - -4.0).abs() < 0.01,
+            "{}",
+            p.normalization_gain_db()
+        );
+        p.set_normalization(Normalization::Tags {
+            album: true,
+            target_lufs: -14.0,
+        });
+        assert!(
+            (p.normalization_gain_db() - 6.0).abs() < 0.01,
+            "{}",
+            p.normalization_gain_db()
+        );
+
+        p.load(Source::Bytes(wav)).unwrap();
+        let measured = p.normalization_gain_db();
+        assert!(
+            measured.abs() > 0.5,
+            "no tags: measured instead ({measured})"
         );
     }
 

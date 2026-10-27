@@ -29,9 +29,23 @@
 // 3. Messages (no isolation). The worklet keeps a queue of transferred
 //    blocks and asks the page for frames when it falls below three blocks.
 //
-// Capture runs the other way in each, from a getUserMedia source. Browsers
-// require a user gesture before audio starts: open streams from an input
-// handler, or the context waits suspended until one happens.
+// Capture runs the other way in each, from a getUserMedia source.
+//
+// Autoplay (AU-24): browsers start an AudioContext suspended until the
+// page has had a user gesture. The shim makes that a mechanism, not a
+// comment:
+//   * `resumeAll()` resumes every suspended context (idempotent; call it
+//     from any input handler);
+//   * `resumeOnGesture()` (or `attach(wasm, { autoResume: true })`) does
+//     that on the page's first pointer, key or touch event, then stops
+//     listening;
+//   * `onAudioState(cb)` reports `(handle, state)` whenever a stream's
+//     context changes state ("suspended", "running", "interrupted",
+//     "closed"), and so does the optional wasm export
+//     `vieww_audio_state(handle, code)` (0 suspended, 1 running,
+//     2 interrupted, 3 closed), so the app can show "tap to play".
+// Media Session: `setMediaSession(metadata, handlers)` fills the
+// browser's now-playing card and routes its play/pause/seek/skip buttons.
 
 export const WORKLET_SOURCE = `
 class ViewwAudioProcessor extends AudioWorkletProcessor {
@@ -178,6 +192,81 @@ let wasm = null;
 let host = null; // worker mode: the channel to the page that owns the audio
 let cushion = 0;
 const streams = new Map();
+/** Every live context, for `resumeAll`. */
+const contexts = new Set();
+const stateListeners = new Set();
+const STATE_CODE = { suspended: 0, running: 1, interrupted: 2, closed: 3 };
+
+function reportState(handle, state) {
+  for (const cb of stateListeners) {
+    try {
+      cb(handle, state);
+    } catch (_) {
+      /* a listener's error is its own */
+    }
+  }
+  if (wasm && typeof wasm.vieww_audio_state === "function" && state in STATE_CODE) {
+    wasm.vieww_audio_state(handle, STATE_CODE[state]);
+  }
+}
+
+/** Call `cb(handle, state)` on every context state change. Returns an unsubscribe function. */
+export function onAudioState(cb) {
+  stateListeners.add(cb);
+  return () => stateListeners.delete(cb);
+}
+
+/**
+ * Resume every suspended (or interrupted) context. Safe to call any number
+ * of times, from any input handler. Resolves when all have been asked.
+ */
+export async function resumeAll() {
+  const waits = [];
+  for (const ctx of contexts) {
+    if (ctx.state !== "running" && ctx.state !== "closed") {
+      waits.push(Promise.resolve(ctx.resume()).catch(() => {}));
+    }
+  }
+  await Promise.all(waits);
+}
+
+/**
+ * Resume audio on the first user gesture on `target` (default: the
+ * document). Returns a function that stops listening early.
+ */
+export function resumeOnGesture(target = globalThis.document) {
+  if (!target || !target.addEventListener) return () => {};
+  const kinds = ["pointerdown", "keydown", "touchend"];
+  const on = () => {
+    stop();
+    resumeAll();
+  };
+  const stop = () => kinds.forEach((k) => target.removeEventListener(k, on, true));
+  kinds.forEach((k) => target.addEventListener(k, on, { capture: true, passive: true }));
+  return stop;
+}
+
+/**
+ * The browser's now-playing card (Media Session API): `metadata` is
+ * `{ title, artist, album, artwork }`; `handlers` maps "play", "pause",
+ * "stop", "seekto" (gets `{ seekTime }`), "previoustrack", "nexttrack" to
+ * functions. A no-op where the API is missing.
+ */
+export function setMediaSession(metadata, handlers = {}) {
+  const ms = globalThis.navigator && globalThis.navigator.mediaSession;
+  if (!ms) return false;
+  if (metadata && typeof globalThis.MediaMetadata === "function") {
+    ms.metadata = new globalThis.MediaMetadata(metadata);
+  }
+  for (const action of ["play", "pause", "stop", "seekto", "previoustrack", "nexttrack"]) {
+    try {
+      ms.setActionHandler(action, handlers[action] || null);
+    } catch (_) {
+      /* this browser does not support that action */
+    }
+  }
+  return true;
+}
 
 /** Whether SharedArrayBuffer may be used (the page is cross-origin isolated). */
 function sharedOk() {
@@ -205,6 +294,7 @@ export function attach(exports, options = {}) {
   wasm = exports;
   cushion = options.cushion || 0;
   host = options.host || (workerScope() ? globalThis : null);
+  if (options.autoResume && !host) resumeOnGesture();
   if (host) {
     listen(host, (e) => {
       const d = e.data;
@@ -225,6 +315,7 @@ function openContext(o, events) {
   if (!Ctx) throw new Error("no Web Audio");
   const ctx = new Ctx({ sampleRate: o.rate, latencyHint: "interactive" });
   const c = { ctx, node: null, media: null, closed: false };
+  contexts.add(ctx);
   const url = URL.createObjectURL(new Blob([WORKLET_SOURCE], { type: "application/javascript" }));
   ctx.audioWorklet
     .addModule(url)
@@ -251,7 +342,11 @@ function openContext(o, events) {
     })
     .finally(() => URL.revokeObjectURL(url));
   ctx.onstatechange = () => {
-    if (ctx.state === "closed" && !c.closed) events.ended();
+    if (events.state) events.state(ctx.state);
+    if (ctx.state === "closed") {
+      contexts.delete(ctx);
+      if (!c.closed) events.ended();
+    }
   };
   return c;
 }
@@ -261,6 +356,7 @@ function closeContext(c) {
   try {
     if (c.node) c.node.disconnect();
     if (c.media) c.media.getTracks().forEach((t) => t.stop());
+    contexts.delete(c.ctx);
     c.ctx.close();
   } catch (_) {
     /* already closed */
@@ -456,6 +552,7 @@ export function vieww_audio_open(handle, rate, channels, block, capture, scratch
               ended(handle);
             }
           },
+          state: (state) => reportState(handle, state),
         },
       );
       st.rate = st.c.ctx.sampleRate;
@@ -475,6 +572,7 @@ export function vieww_audio_open(handle, rate, channels, block, capture, scratch
         ended: () => {
           if (!st.closed) ended(handle);
         },
+        state: (state) => reportState(handle, state),
       },
     );
     return st.c.ctx.sampleRate;

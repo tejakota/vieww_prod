@@ -433,6 +433,116 @@ pub fn chroma(spectrum: &Spectrum) -> [f32; 12] {
     c
 }
 
+/// Magnitude to dB, floored at −120 dB.
+fn to_db(m: f32) -> f32 {
+    if m > 1e-6 {
+        20.0 * m.log10()
+    } else {
+        -120.0
+    }
+}
+
+/// A spectrum display's peak-hold line (AU-22): each bin holds its
+/// highest level, then falls at `fall_db_per_s` after `hold_s` seconds.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PeakHold {
+    peaks_db: Vec<f32>,
+    held_s: Vec<f32>,
+    hold_s: f32,
+    fall_db_per_s: f32,
+}
+
+impl PeakHold {
+    /// A peak line that holds for `hold_s`, then falls at `fall_db_per_s`.
+    #[must_use]
+    pub const fn new(hold_s: f32, fall_db_per_s: f32) -> Self {
+        Self {
+            peaks_db: Vec::new(),
+            held_s: Vec::new(),
+            hold_s,
+            fall_db_per_s,
+        }
+    }
+
+    /// Fold in a frame of `spectrum`, `dt` seconds after the last one.
+    pub fn push(&mut self, spectrum: &Spectrum, dt: f32) {
+        let m = spectrum.magnitudes();
+        if self.peaks_db.len() != m.len() {
+            self.peaks_db = vec![-120.0; m.len()];
+            self.held_s = vec![0.0; m.len()];
+        }
+        for ((p, h), v) in self.peaks_db.iter_mut().zip(&mut self.held_s).zip(m) {
+            let db = to_db(*v);
+            if db >= *p {
+                *p = db;
+                *h = 0.0;
+            } else {
+                *h += dt;
+                if *h > self.hold_s {
+                    *p = (*p - self.fall_db_per_s * dt).max(db);
+                }
+            }
+        }
+    }
+
+    /// The held level per bin, dB.
+    #[must_use]
+    pub fn peaks_db(&self) -> &[f32] {
+        &self.peaks_db
+    }
+}
+
+/// A spectrogram's rows, newest last (AU-22): each pushed spectrum
+/// becomes one row of dB levels, and at most `rows` are kept, ready to
+/// draw as a scrolling waterfall.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Waterfall {
+    rows: std::collections::VecDeque<Vec<f32>>,
+    capacity: usize,
+}
+
+impl Waterfall {
+    /// Keep the last `rows` spectra.
+    #[must_use]
+    pub fn new(rows: usize) -> Self {
+        Self {
+            rows: std::collections::VecDeque::with_capacity(rows.max(1)),
+            capacity: rows.max(1),
+        }
+    }
+
+    /// Add a row from `spectrum`, dropping the oldest when full.
+    pub fn push(&mut self, spectrum: &Spectrum) {
+        let row = if self.rows.len() == self.capacity {
+            let mut r = self.rows.pop_front().unwrap_or_default();
+            r.clear();
+            r
+        } else {
+            Vec::new()
+        };
+        let mut row = row;
+        row.extend(spectrum.magnitudes().iter().map(|m| to_db(*m)));
+        self.rows.push_back(row);
+    }
+
+    /// The rows, oldest first, each in dB per bin.
+    pub fn rows(&self) -> impl Iterator<Item = &[f32]> {
+        self.rows.iter().map(Vec::as_slice)
+    }
+
+    /// How many rows are held.
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.rows.len()
+    }
+
+    /// Whether no row has been pushed.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.rows.is_empty()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -747,5 +857,38 @@ mod tests {
         let mut top = order[..3].to_vec();
         top.sort_unstable();
         assert_eq!(top, vec![0, 4, 7], "{c:?}");
+    }
+
+    #[test]
+    fn peak_hold_holds_then_falls_and_the_waterfall_scrolls() {
+        let rate = 48_000;
+        let loud = Spectrum::analyze(
+            &Samples::mono(sine_wave(1000.0, rate, 0.1), rate),
+            Window::Hann,
+        );
+        let silent = Spectrum::analyze(&Samples::mono(vec![0.0; 4800], rate), Window::Hann);
+        let bin = loud.peak_bin();
+        let mut ph = PeakHold::new(0.5, 20.0);
+        ph.push(&loud, 0.1);
+        let top = ph.peaks_db()[bin];
+        ph.push(&silent, 0.3); // inside the hold
+        assert_eq!(ph.peaks_db()[bin], top, "held");
+        ph.push(&silent, 0.5); // past the hold: falls 10 dB
+        assert!(
+            (ph.peaks_db()[bin] - (top - 10.0)).abs() < 1e-3,
+            "{} vs {top}",
+            ph.peaks_db()[bin]
+        );
+
+        let mut w = Waterfall::new(3);
+        for s in [&loud, &silent, &loud, &silent] {
+            w.push(s);
+        }
+        assert_eq!(w.len(), 3, "the oldest row scrolled off");
+        let rows: Vec<&[f32]> = w.rows().collect();
+        assert!(
+            rows[1][bin] > rows[0][bin] + 40.0,
+            "the loud row is the middle one"
+        );
     }
 }

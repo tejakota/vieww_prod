@@ -279,6 +279,81 @@ stopHosting();
 shim.attach({ memory }); // back to page mode (no host) for the last check
 globalThis.crossOriginIsolated = undefined;
 
+// ---- autoplay: a context that starts suspended (AU-24) ----------------------
+{
+  const states = [];
+  const unsubscribe = shim.onAudioState((h, st) => states.push([h, st]));
+  class SuspendedContext extends FakeContext {
+    constructor(o) {
+      super(o);
+      this.state = "suspended";
+      this.resumes = 0;
+    }
+    async resume() {
+      this.resumes++;
+      if (this.gestured) {
+        this.state = "running";
+        if (this.onstatechange) this.onstatechange();
+      }
+    }
+  }
+  globalThis.AudioContext = SuspendedContext;
+  shim.attach({
+    memory,
+    vieww_audio_render: (_h, frames) => frames,
+    vieww_audio_capture() {},
+    vieww_audio_xrun() {},
+    vieww_audio_ended() {},
+  });
+  // A fake page that delivers gestures.
+  const listeners = {};
+  const page = {
+    addEventListener: (k, f) => (listeners[k] = f),
+    removeEventListener: (k) => delete listeners[k],
+  };
+  const stop = shim.resumeOnGesture(page);
+  assert.equal(shim.vieww_audio_open(11, 48000, CH, 128, 0, SCRATCH, 256 * CH), 48000);
+  for (let k = 0; k < 8; k++) await tick();
+  // Before a gesture the browser refuses: the context stays suspended.
+  assert.ok(!states.some(([h, st]) => h === 11 && st === "running"), "no audio before a gesture");
+  assert.ok(listeners.pointerdown, "the shim listens for the first gesture");
+  // The gesture: the browser now allows audio, and the shim resumes.
+  SuspendedContext.prototype.gestured = true;
+  listeners.pointerdown();
+  for (let k = 0; k < 4; k++) await tick();
+  assert.ok(!listeners.pointerdown, "one gesture is enough: the listeners are gone");
+  assert.ok(
+    states.some(([h, st]) => h === 11 && st === "running"),
+    `the app heard the context start: ${JSON.stringify(states)}`,
+  );
+  // resumeAll is idempotent: a running context is not asked again.
+  await shim.resumeAll();
+  await shim.resumeAll();
+  stop();
+  unsubscribe();
+  shim.vieww_audio_close(11);
+  shim.attach({ memory });
+  globalThis.AudioContext = FakeContext;
+}
+
+// ---- media session ------------------------------------------------------------
+{
+  const set = {};
+  globalThis.MediaMetadata = class {
+    constructor(m) {
+      Object.assign(this, m);
+    }
+  };
+  const nav = { mediaSession: { metadata: null, setActionHandler: (a, f) => (set[a] = f) } };
+  Object.defineProperty(globalThis, "navigator", { value: nav, configurable: true, writable: true });
+  let played = false;
+  assert.equal(shim.setMediaSession({ title: "Raga", artist: "vieww" }, { play: () => (played = true) }), true);
+  assert.equal(nav.mediaSession.metadata.title, "Raga");
+  set.play();
+  assert.ok(played, "the card's play button reaches the app");
+  assert.equal(set.pause, null, "unhandled actions are cleared");
+}
+
 // ---- unavailable ------------------------------------------------------------
 delete globalThis.AudioContext;
 assert.equal(shim.vieww_audio_open(1, 48000, 2, 128, 0, SCRATCH, 512), 0, "no Web Audio → 0");
