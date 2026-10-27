@@ -103,7 +103,11 @@ impl Decoded {
         self.data.len() / usize::from(self.channels.max(1))
     }
 
-    /// As [`Samples`](crate::Samples) when mono or stereo.
+    /// As [`Samples`](crate::Samples) when mono or stereo; `None` for more
+    /// channels — the seam is mono/stereo by design (see
+    /// [`Samples::channels`](crate::Samples::channels)). Use
+    /// [`Self::to_samples_downmixed`] to fold surround to stereo, or
+    /// [`MultiSamples`](crate::channels::MultiSamples) to keep every channel.
     #[must_use]
     pub fn to_samples(&self) -> Option<crate::Samples> {
         match self.channels {
@@ -111,6 +115,25 @@ impl Decoded {
             2 => Some(crate::Samples::stereo(self.data.clone(), self.rate)),
             _ => None,
         }
+    }
+
+    /// As [`Samples`](crate::Samples) whatever the channel count (AU-23):
+    /// mono and stereo unchanged, anything wider folded to stereo with the
+    /// standard down-mix coefficients of [`channels::remix`](crate::channels::remix)
+    /// for the conventional layout of that count (5.1: centre and
+    /// surrounds at −3 dB into each side, LFE dropped).
+    #[must_use]
+    pub fn to_samples_downmixed(&self) -> crate::Samples {
+        if let Some(s) = self.to_samples() {
+            return s;
+        }
+        let layout = crate::channels::Layout::for_channels(usize::from(self.channels));
+        crate::channels::MultiSamples {
+            data: self.data.clone(),
+            layout,
+            rate: self.rate,
+        }
+        .to_stereo()
     }
 
     /// Converted to `rate` (any channel count), the same length in time.
@@ -370,10 +393,37 @@ mod tests {
     fn the_patent_page_exists_and_is_referenced() {
         let patents = include_str!("../../PATENTS.md");
         for format in ["FLAC", "Vorbis", "MP3", "AAC", "not legal advice"] {
-            assert!(patents.contains(format), "PATENTS.md does not mention {format}");
+            assert!(
+                patents.contains(format),
+                "PATENTS.md does not mention {format}"
+            );
         }
         assert!(include_str!("mod.rs").contains("see PATENTS.md"));
         assert!(include_str!("../../tools/THIRD_PARTY.md").contains("PATENTS.md"));
+    }
+
+    /// AU-23: a 5.1 decode is not lost at the stereo seam — it folds
+    /// down, with the centre in both sides and the LFE left out.
+    #[test]
+    fn surround_folds_to_stereo_at_the_seam() {
+        // One frame: L R C LFE SL SR.
+        let d = Decoded {
+            channels: 6,
+            data: vec![1.0, 0.0, 0.5, 1.0, 0.0, 0.0],
+            rate: 48_000,
+        };
+        assert!(d.to_samples().is_none(), "the seam itself stays stereo-max");
+        let s = d.to_samples_downmixed();
+        assert_eq!((s.channels, s.rate), (2, 48_000));
+        let h = std::f32::consts::FRAC_1_SQRT_2;
+        assert!((s.data[0] - (1.0 + 0.5 * h)).abs() < 1e-6, "{:?}", s.data);
+        assert!((s.data[1] - 0.5 * h).abs() < 1e-6, "{:?}", s.data);
+        let stereo = Decoded {
+            channels: 2,
+            data: vec![0.1, 0.2],
+            rate: 44_100,
+        };
+        assert_eq!(stereo.to_samples_downmixed().data, vec![0.1, 0.2]);
     }
 
     #[test]

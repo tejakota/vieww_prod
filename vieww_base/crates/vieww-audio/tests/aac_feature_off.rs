@@ -14,10 +14,16 @@ fn aac_is_refused_by_name_when_the_feature_is_off() {
     ] {
         match codec::decode(bytes) {
             Err(CodecError::Unsupported(why)) => {
-                assert!(why.contains("`aac` feature") && why.contains("PATENTS.md"), "{why}");
+                assert!(
+                    why.contains("`aac` feature") && why.contains("PATENTS.md"),
+                    "{why}"
+                );
             }
             other => panic!("expected Unsupported, got {other:?}"),
         }
     }
-    assert!(codec::decode(include_bytes!("fixtures/src.mp3")).is_ok(), "MP3 still decodes");
+    assert!(
+        codec::decode(include_bytes!("fixtures/src.mp3")).is_ok(),
+        "MP3 still decodes"
+    );
 }

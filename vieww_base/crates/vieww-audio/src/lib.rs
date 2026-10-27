@@ -171,18 +171,20 @@ pub use vieww_foundation as foundation;
 /// [`Mixer`] summed, a [`wav`] file decoded. Samples are `f32` in `-1..=1`
 /// per channel — the convention every audio API in wide use settles on —
 /// and `channels` says how to walk `data`: mono is one value per frame,
-/// stereo is two, and nothing above two is supported (see the type's
-/// `channels` field docs for why).
+/// stereo is two; wider layouts fold down at this seam (see the type's
+/// `channels` field docs).
 #[derive(Debug, Clone, PartialEq)]
 pub struct Samples {
     /// The interleaved samples: `[L, R, L, R, ...]` for stereo.
     pub data: Vec<f32>,
     /// 1 for mono, 2 for stereo.
     ///
-    /// Not `usize` unbounded: a 5.1 layout is six mono buffers interleaved
-    /// in an order two standards disagree about, and a type that pretended
-    /// to carry it would be lying about what a UI framework's audio does.
-    /// Mono and stereo cover every sound a UI makes.
+    /// Mono and stereo only, by design: this is the seam UI sounds and the
+    /// stereo graph and mixer meet at, and mono and stereo cover every sound
+    /// a UI makes. Wider audio is not lost — the decoders keep up to
+    /// [`codec::MAX_CHANNELS`] channels, [`channels::MultiSamples`] carries
+    /// and remixes any layout, and [`codec::Decoded::to_samples_downmixed`]
+    /// folds surround into this type with the standard coefficients (AU-23).
     pub channels: u8,
     /// Samples per second, per channel.
     pub rate: u32,
