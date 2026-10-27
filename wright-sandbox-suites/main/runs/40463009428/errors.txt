@@ -1,0 +1,30 @@
+-----
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	﻿2026-10-27T06:46:28.1871305Z ##[group]Run cargo test -p wright-tools appcontainer -- --test-threads=1
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.1871931Z ^[[36;1mcargo test -p wright-tools appcontainer -- --test-threads=1^[[0m
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.1885005Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.1885410Z ##[endgroup]
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.3927889Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.3977444Z      Running unittests src\lib.rs (target\debug\deps\wright_tools-1a39a0bbfd296e09.exe)
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.4032342Z 
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.4032561Z running 4 tests
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.4408187Z test appcontainer::tests::a_contained_worker_past_its_timeout_is_killed ... FAILED
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.4650457Z test appcontainer::tests::a_contained_worker_sees_only_the_environment_it_was_given ... ok
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.4652505Z test appcontainer::tests::arguments_survive_quoting ... ok
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5649525Z test appcontainer::tests::the_copy_is_the_only_place_a_contained_worker_can_write_or_read ... ok
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5650548Z 
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5650679Z failures:
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5650836Z 
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5651225Z ---- appcontainer::tests::a_contained_worker_past_its_timeout_is_killed stdout ----
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5651982Z 
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5652899Z thread 'appcontainer::tests::a_contained_worker_past_its_timeout_is_killed' (2388) panicked at tools\src\appcontainer.rs:905:9:
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5654056Z assertion failed: out.timed_out && !out.success
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5654955Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5655468Z 
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5655476Z 
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5655591Z failures:
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5656210Z     appcontainer::tests::a_contained_worker_past_its_timeout_is_killed
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5656657Z 
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5657071Z test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 40 filtered out; finished in 0.16s
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5657639Z 
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5664480Z error: test failed, to rerun pass `-p wright-tools --lib`
+Windows — probe fail-closed (no WSL on the runner)	Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout	2026-10-27T06:46:28.5773014Z ##[error]Process completed with exit code 101.
