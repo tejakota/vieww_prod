@@ -16,7 +16,7 @@
 //! | run-tests     | the project's test command                    | [`sandbox`]                   |
 //! | shell         | any command                                   | [`sandbox`] (net only if granted) |
 //! | http-read     | GET a public URL (≤ 1 MiB, text)              | no private/metadata addresses |
-//! | http-post     | POST to a public URL                          | same; approval-eligible       |
+//! | http-post     | POST to a public URL (body ≤ 1 MiB)           | same; approval-eligible       |
 //! | browser       | (not implemented: refuses loudly)             |                               |
 
 #[cfg(windows)]
@@ -613,7 +613,9 @@ fn http_read(input: &Value, ctx: &ToolCtx) -> Result<ToolOutput, ToolError> {
         || ctype.contains("json")
         || ctype.contains("xml")
         || ctype.contains("javascript");
-    if !textual || resp.body.contains(&0) {
+    // The header is the server's word; the bytes are checked too (WR-20):
+    // a binary body labelled text/plain is refused all the same.
+    if !textual || !looks_textual(&resp.body) {
         return Err(ToolError::Failed(format!(
             "{url} returned {ctype}, not text"
         )));
@@ -621,10 +623,35 @@ fn http_read(input: &Value, ctx: &ToolCtx) -> Result<ToolOutput, ToolError> {
     ok(format!("HTTP {}\n{}", resp.status, resp.body_text()))
 }
 
+/// How much of a POST's answer is read (only 4000 characters are shown).
+const HTTP_POST_RESPONSE_LIMIT: usize = 64 * 1024;
+
+/// Text, judged by the bytes: no NUL, and at most 1% of it not UTF-8.
+fn looks_textual(body: &[u8]) -> bool {
+    if body.contains(&0) {
+        return false;
+    }
+    let text = String::from_utf8_lossy(body);
+    let bad = text
+        .chars()
+        .filter(|&c| c == char::REPLACEMENT_CHARACTER)
+        .count();
+    bad * 100 <= text.chars().count().max(1)
+}
+
 fn http_post(permit: &Permit, input: &Value, ctx: &ToolCtx) -> Result<ToolOutput, ToolError> {
     let url = parse_url(s(input, "url")?).map_err(ToolError::BadInput)?;
-    let mut cfg = request_cfg(&url, ctx)?;
     let body = s(input, "body")?;
+    // The same bound as a file write (WR-20): an outbound body is never
+    // larger than anything an agent could have written to disk.
+    if body.len() > WRITE_LIMIT {
+        return Err(ToolError::BadInput(format!(
+            "the body is {} bytes; the limit is {WRITE_LIMIT}",
+            body.len()
+        )));
+    }
+    let mut cfg = request_cfg(&url, ctx)?;
+    cfg.limits.max_body = HTTP_POST_RESPONSE_LIMIT;
     let ctype = input.str_of("content_type").unwrap_or("application/json");
     let mut req = Request::new("POST", url.clone())
         .header("Content-Type", ctype)
@@ -862,6 +889,31 @@ mod tests {
         let url = parse_url("http://mixed.example/").unwrap();
         let err = request_cfg(&url, &c).unwrap_err().to_string();
         assert!(err.contains("private or local"), "{err}");
+    }
+
+    /// WR-20: an outbound body larger than a file write is refused before
+    /// any connection is made.
+    #[test]
+    fn an_oversized_post_body_is_refused() {
+        let c = ctx("bigpost");
+        let input = json::to_string(&Value::obj(vec![
+            ("url", Value::str("http://93.184.216.34/send")),
+            ("body", Value::str("x".repeat(WRITE_LIMIT + 1))),
+        ]));
+        let err = call("http-post", &input, &c).unwrap_err().to_string();
+        assert!(err.contains("the limit is"), "{err}");
+    }
+
+    #[test]
+    fn text_is_judged_by_its_bytes_too() {
+        assert!(looks_textual(b"plain text\n"));
+        assert!(looks_textual("caf\u{e9} \u{1f980}".as_bytes()));
+        assert!(!looks_textual(b"PK\x03\x04\x00binary"));
+        let png_like: Vec<u8> = (0u8..=255).filter(|b| *b != 0).cycle().take(4096).collect();
+        assert!(
+            !looks_textual(&png_like),
+            "mostly invalid UTF-8 is not text"
+        );
     }
 
     #[test]

@@ -194,16 +194,14 @@ pub fn canonical(bp: &Blueprint) -> String {
     ));
 
     s.push_str("models {\n");
-    s.push_str(&format!(
-        "  tier cheap prefer=\"{}\" fallback=\"{}\"\n",
-        escape_string(&bp.models.cheap.prefer),
-        escape_string(&bp.models.cheap.fallback)
-    ));
-    s.push_str(&format!(
-        "  tier quality prefer=\"{}\" fallback=\"{}\"\n",
-        escape_string(&bp.models.quality.prefer),
-        escape_string(&bp.models.quality.fallback)
-    ));
+    for (name, tier) in [("cheap", &bp.models.cheap), ("quality", &bp.models.quality)] {
+        s.push_str(&format!(
+            "  tier {name} prefer=\"{}\" fallback=\"{}\"{}\n",
+            escape_string(&tier.prefer),
+            escape_string(&tier.fallback),
+            sampling_props(&tier.sampling)
+        ));
+    }
     s.push_str("}\n");
 
     s
@@ -224,6 +222,23 @@ fn on_off(b: bool) -> &'static str {
 /// The content hash of a blueprint. This IS the commit identity.
 pub fn content_hash(bp: &Blueprint) -> String {
     hash::hash_hex(&[canonical(bp).as_bytes()])
+}
+
+/// ` temp=0.2 top-p=0.9 seed=7`, only the pinned ones — so a blueprint
+/// without sampling keeps the canonical text (and commit hash) it had
+/// before WR-09.
+fn sampling_props(s: &super::model::Sampling) -> String {
+    let mut out = String::new();
+    if let Some(t) = s.temperature_milli {
+        out.push_str(&format!(" temp={}", super::model::milli_text(t)));
+    }
+    if let Some(p) = s.top_p_milli {
+        out.push_str(&format!(" top-p={}", super::model::milli_text(p)));
+    }
+    if let Some(seed) = s.seed {
+        out.push_str(&format!(" seed={seed}"));
+    }
+    out
 }
 
 #[cfg(test)]
@@ -271,5 +286,45 @@ mod tests {
         sorted.edges.sort();
         assert_eq!(sorted, again);
         assert_eq!(canonical(&bp), canonical(&again));
+    }
+    #[test]
+    fn sampling_round_trips_and_an_unpinned_blueprint_keeps_its_text() {
+        let base = "meta { name \"x\" }\nintent { summary \"s\" confirmed \"v1\" }\nagent A { goal \"g\" }\ndeliverable kind=\"k\" { check \"c\" }\n";
+        let plain = parse::blueprint(base).unwrap();
+        assert!(plain.models.cheap.sampling.is_default());
+        assert!(
+            !canonical(&plain).contains("temp="),
+            "nothing pinned, nothing written"
+        );
+
+        let pinned = format!(
+            "{base}models {{\n  tier cheap prefer=\"a\" fallback=\"b\" temp=0.2 top-p=0.95 seed=7\n  tier quality prefer=\"c\" fallback=\"d\" temp=1\n}}\n"
+        );
+        let bp = parse::blueprint(&pinned).unwrap();
+        assert_eq!(bp.models.cheap.sampling.temperature_milli, Some(200));
+        assert_eq!(bp.models.cheap.sampling.top_p_milli, Some(950));
+        assert_eq!(bp.models.cheap.sampling.seed, Some(7));
+        assert_eq!(bp.models.quality.sampling.temperature_milli, Some(1000));
+        let text = canonical(&bp);
+        assert!(text.contains("temp=0.2 top-p=0.95 seed=7"), "{text}");
+        assert!(text.contains("temp=1.0"), "{text}");
+        let again = parse::blueprint(&text).unwrap();
+        assert_eq!(again.models, bp.models);
+        assert_ne!(content_hash(&bp), content_hash(&plain));
+    }
+
+    #[test]
+    fn out_of_range_sampling_is_refused_with_its_line() {
+        let base = "meta { name \"x\" }\nintent { summary \"s\" confirmed \"v1\" }\nagent A { goal \"g\" }\ndeliverable kind=\"k\" { check \"c\" }\n";
+        for bad in [
+            "temp=2.5",
+            "top-p=1.5",
+            "temp=0.12345",
+            "seed=-1",
+            "temp=\"hot\"",
+        ] {
+            let src = format!("{base}models {{\n  tier cheap prefer=\"a\" {bad}\n}}\n");
+            assert!(parse::blueprint(&src).is_err(), "{bad} was accepted");
+        }
     }
 }

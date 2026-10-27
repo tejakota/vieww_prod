@@ -878,9 +878,44 @@ fn map_models(node: &KdlNode, models: &mut ModelTiers) -> Result<(), ParseError>
         let tier_name = child.arg_str().ok_or_else(|| {
             ParseError::new(child.line, "'tier' needs a name: tier cheap prefer=...")
         })?;
+        let milli = |key: &str, max: u32| -> Result<Option<u32>, ParseError> {
+            let Some(v) = child.prop(key) else {
+                return Ok(None);
+            };
+            let parsed = match v {
+                KdlValue::Int(i) => u32::try_from(*i).ok().and_then(|i| i.checked_mul(1000)),
+                KdlValue::Str(s) => super::model::parse_milli(s),
+                KdlValue::Bool(_) => None,
+            };
+            match parsed {
+                Some(m) if m <= max => Ok(Some(m)),
+                _ => Err(ParseError::new(
+                    child.line,
+                    format!(
+                        "'{key}' must be a number from 0 to {} with at most three decimals",
+                        super::model::milli_text(max)
+                    ),
+                )),
+            }
+        };
+        let seed = match child.prop("seed") {
+            None => None,
+            Some(KdlValue::Int(i)) if *i >= 0 => Some(*i as u64),
+            Some(_) => {
+                return Err(ParseError::new(
+                    child.line,
+                    "'seed' must be a whole number, 0 or more",
+                ))
+            }
+        };
         let pref = TierPref {
             prefer: child.prop_str("prefer").unwrap_or("").to_string(),
             fallback: child.prop_str("fallback").unwrap_or("").to_string(),
+            sampling: super::model::Sampling {
+                temperature_milli: milli("temp", 2000)?,
+                top_p_milli: milli("top-p", 1000)?,
+                seed,
+            },
         };
         match tier_name {
             "cheap" => models.cheap = pref,

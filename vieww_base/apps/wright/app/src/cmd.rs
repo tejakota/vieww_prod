@@ -729,6 +729,7 @@ pub fn run(args: &[String]) -> i32 {
         trigger: Trigger::Manual,
         approver: approver_for(&flags, &dir),
         no_cache: flags.contains(&"--no-cache"),
+        reproducible: flags.contains(&"--reproducible"),
         allow_private_network: flags.contains(&"--allow-private-network"),
         config: forced_config,
         ..FireOptions::default()

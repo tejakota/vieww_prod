@@ -3,7 +3,7 @@
 Every gap in the four research reports (framework.md, studio.md, audio.md, wright.md), with where it stands. **Closed** = code + tests + CI gate landed. **Partial** = the code is in, and what is left is listed. **Open** = not started.
 Mac real-device verification is out of scope by the owner's decision; Mac code paths are still written and CI-built where hosted runners allow.
 
-Totals: Closed 11, Open 75, Partial 8 (of 94).
+Totals: Closed 13, Open 73, Partial 8 (of 94).
 
 ## Framework
 
@@ -106,7 +106,7 @@ Totals: Closed 11, Open 75, Partial 8 (of 94).
 | WR-06 | P1 | Windows secret storage: no Credential Manager — keys in env vars on the platform that least wants them | **Closed** | Credential Manager via wincred.rs for resolve/store and new signing keys; Windows CI round-trip test. |
 | WR-07 | P1 | HTTP tools: DNS-rebinding TOCTOU between the SSRF check and the connection | **Closed** | Resolve once, pin addresses (native + curl --resolve); staged-rebinding tests. |
 | WR-08 | P1 | Prompt injection: tainted content enters prompts unmarked — the taint system stops one layer short | **Closed** | Inputs fenced with content-derived ids and marked PRIVATE/UNTRUSTED; DATA_RULE in every system prompt; PROMPT_VERSION 4. engine/tests/injection.rs: a hostile page fetched by one agent reaches the next agent's recorded request inside an UNTRUSTED block, with the rule in its system prompt (fails if the mark is dropped). |
-| WR-09 | P1 | Model calls are non-reproducible and under-specified: no temperature/seed, none recorded | **Open** |  |
+| WR-09 | P1 | Model calls are non-reproducible and under-specified: no temperature/seed, none recorded | **Closed** | Per-tier temperature/top_p/seed in the blueprint (canonical, range-checked), sent to both providers (seed only where supported), recorded per call in TokensRecorded, signed into the v3 receipt; wright verify recomputes the rows and reports v2 receipts as predating them; wright run --reproducible pins temperature 0 + seed 0. engine/tests/sampling.rs. Optional: same-seed A/B on the built-in model on the self-hosted box. |
 | WR-10 | P1 | Hardening pass: sandbox scratch dir not 0700; macOS `secret set` argv leak; path-check TOCTOU | **Closed** | 0700 scratch, security -i stdin, O_NOFOLLOW pinned writes. |
 | WR-11 | P1 | No browser tool and no visual verification — the one axis every rival competes on | **Open** |  |
 | WR-12 | P2 | Session branching: replay is projection-only; no fork-from-event | **Open** |  |
@@ -117,4 +117,4 @@ Totals: Closed 11, Open 75, Partial 8 (of 94).
 | WR-17 | P2 | Doc drift: ARCHITECTURE vs code on three points | **Open** |  |
 | WR-18 | P3 | No server/team mode — by documented choice, but it caps the buyer set | **Open** |  |
 | WR-19 | P3 | Interview depends on the model honoring the format; validation loop is the mitigation (no gap in enforcement, but UX cost) | **Open** |  |
-| WR-20 | P3 | `http-read` textual check trusts content-type; no size-capped streaming guard for `http-post` bodies | **Open** |  |
+| WR-20 | P3 | `http-read` textual check trusts content-type; no size-capped streaming guard for `http-post` bodies | **Closed** | http-post body capped at WRITE_LIMIT (1 MiB) before any connection; its answer read to 64 KiB; http-read checks the bytes as well as the content-type (no NUL, at most 1% invalid UTF-8). Tests in tools/src/lib.rs. |

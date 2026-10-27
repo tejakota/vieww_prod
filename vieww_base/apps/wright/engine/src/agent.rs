@@ -67,6 +67,25 @@ pub struct FiringEnv {
     /// Testwright's ACCEPT lines; the Reviewer may not approve a run
     /// with a broken promise, and the receipt carries every one.
     pub accepts: Mutex<BTreeMap<usize, bool>>,
+    /// `wright run --reproducible` (WR-09): temperature 0 and seed 0
+    /// wherever the blueprint pinned neither.
+    pub reproducible: bool,
+}
+
+/// The sampling block of one call as recorded in its `TokensRecorded`
+/// event and, through the receipt, signed.
+fn sampling_value(req: &CompletionRequest, _model: &str) -> Value {
+    let num = |v: Option<f64>| v.map(Value::Num).unwrap_or(Value::Null);
+    Value::obj(vec![
+        ("temperature", num(req.temperature)),
+        ("top_p", num(req.top_p)),
+        (
+            "seed",
+            req.seed
+                .map(|s| Value::int(s as i64))
+                .unwrap_or(Value::Null),
+        ),
+    ])
 }
 
 /// A provider client, the model id it serves, and its resolved key.
@@ -140,6 +159,21 @@ fn input_summary(tool: &str, input: &Value) -> String {
 impl FiringEnv {
     fn task_name(task: &Task) -> String {
         task.name()
+    }
+
+    /// The sampling a task's model calls use (WR-09): its tier's pinned
+    /// values, with `--reproducible` filling temperature and seed.
+    pub fn effective_sampling(&self, task: &Task) -> wright_core::blueprint::Sampling {
+        let mut s = task
+            .model
+            .as_ref()
+            .map(|m| self.bp.models.tier(m.tier).sampling)
+            .unwrap_or_default();
+        if self.reproducible {
+            s.temperature_milli.get_or_insert(0);
+            s.seed.get_or_insert(0);
+        }
+        s
     }
 
     /// The system prompt and first user message for a task.
@@ -343,6 +377,10 @@ impl FiringEnv {
         req.tools = tool_defs;
         req.messages.push(Message::user_text(first_user));
         req.max_tokens = MAX_TOKENS;
+        let sampling = self.effective_sampling(task);
+        req.temperature = sampling.temperature_milli.map(|m| f64::from(m) / 1000.0);
+        req.top_p = sampling.top_p_milli.map(|m| f64::from(m) / 1000.0);
+        req.seed = sampling.seed;
 
         let mut result = AgentResult::default();
         loop {
@@ -431,6 +469,9 @@ impl FiringEnv {
                     ("out", Value::int(resp.usage.output_tokens as i64)),
                     ("model", Value::str(resp.model.clone())),
                     ("cost_micro_usd", Value::int(cost as i64)),
+                    // What was asked of the provider (WR-09); null = its
+                    // default. Anthropic has no seed: recorded as sent.
+                    ("sampling", sampling_value(&req, &resp.model)),
                 ])),
             )?;
             let text = resp.text();

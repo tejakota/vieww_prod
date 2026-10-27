@@ -146,9 +146,9 @@ pub fn verify_text_pinned(store: &Store, text: &str, pins: &[String]) -> Verific
         Err(e) => return fail(format!("the receipt is not valid JSON ({e})")),
     };
     let fmt = v.str_of("format").unwrap_or("");
-    if fmt != "wright.run-receipt/2" {
+    if fmt != "wright.run-receipt/3" && fmt != "wright.run-receipt/2" {
         return fail(format!(
-            "the receipt says its format is '{}', not wright.run-receipt/2. v1 receipts predate signatures and input hashes; ask for a fresh run.",
+            "the receipt says its format is '{}', not wright.run-receipt/3 (or /2). v1 receipts predate signatures and input hashes; ask for a fresh run.",
             if fmt.is_empty() { "missing" } else { fmt }
         ));
     }
@@ -274,10 +274,92 @@ pub fn verify_text_pinned(store: &Store, text: &str, pins: &[String]) -> Verific
     //    the log's tool calls match those attestations one for one.
     let identities_ok = check_identities(store, &v, run, &mut checks);
 
+    // 7. Sampling (WR-09): the signed rows are exactly what the event
+    //    log's model calls asked for. A v2 receipt predates the record;
+    //    that is said, not hidden.
+    let sampling_ok = check_sampling(store, &v, fmt, run, &mut checks);
+
     Verification {
-        ok: sig_ok && events_ok && artifacts_ok && inputs_ok && blueprint_ok && identities_ok,
+        ok: sig_ok
+            && events_ok
+            && artifacts_ok
+            && inputs_ok
+            && blueprint_ok
+            && identities_ok
+            && sampling_ok,
         checks,
         run,
+    }
+}
+
+fn check_sampling(
+    store: &Store,
+    v: &Value,
+    fmt: &str,
+    run: Option<u64>,
+    checks: &mut Vec<Check>,
+) -> bool {
+    if fmt == "wright.run-receipt/2" {
+        checks.push(Check {
+            name: "sampling",
+            ok: true,
+            note: "not recorded: a v2 receipt predates sampling records (temperature, top_p, seed); a fresh run records them".into(),
+        });
+        return true;
+    }
+    let Some(claimed) = v.get("sampling") else {
+        checks.push(Check {
+            name: "sampling",
+            ok: false,
+            note: "the v3 receipt has no sampling record".into(),
+        });
+        return false;
+    };
+    let Some(run) = run else {
+        return false;
+    };
+    let events = match store.read_events(run) {
+        Ok(log) => log.events().to_vec(),
+        Err(e) => {
+            checks.push(Check {
+                name: "sampling",
+                ok: false,
+                note: format!("cannot read the event log: {e}"),
+            });
+            return false;
+        }
+    };
+    let recomputed = crate::firing::sampling_rows(&events);
+    if json::to_string(&recomputed) == json::to_string(claimed) {
+        let n = claimed.as_arr().map_or(0, <[Value]>::len);
+        let pinned = claimed.as_arr().is_some_and(|rows| {
+            rows.iter().any(|r| {
+                ["temperature", "top_p", "seed"]
+                    .iter()
+                    .any(|k| !matches!(r.get(k), None | Some(Value::Null)))
+            })
+        });
+        checks.push(Check {
+            name: "sampling",
+            ok: true,
+            note: format!(
+                "{n} sampling setting(s) recorded, matching the model calls in the log{}",
+                if pinned {
+                    ""
+                } else {
+                    " (all provider defaults)"
+                }
+            ),
+        });
+        true
+    } else {
+        checks.push(Check {
+            name: "sampling",
+            ok: false,
+            note: "the receipt's sampling record does not match the model calls in the event log"
+                .into(),
+        });
+        false
     }
 }
 

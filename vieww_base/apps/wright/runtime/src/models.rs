@@ -97,6 +97,14 @@ pub struct CompletionRequest {
     pub tools: Vec<ToolDef>,
     pub max_tokens: u32,
     pub stream: bool,
+    /// Sampling (WR-09). `None` sends nothing, so the provider's default
+    /// applies — and the receipt says "provider default" rather than a
+    /// number nobody chose.
+    pub temperature: Option<f64>,
+    pub top_p: Option<f64>,
+    /// Honoured by OpenAI-compatible servers that support it; Anthropic's
+    /// Messages API has no seed, so it is not sent there.
+    pub seed: Option<u64>,
 }
 
 impl CompletionRequest {
@@ -108,6 +116,9 @@ impl CompletionRequest {
             tools: Vec::new(),
             max_tokens: 4096,
             stream: true,
+            temperature: None,
+            top_p: None,
+            seed: None,
         }
     }
 }
@@ -336,6 +347,21 @@ impl OpenAiCompatible {
     }
 }
 
+/// The request's pinned sampling values into a provider body (WR-09).
+fn push_sampling(body: &mut Vec<(&'static str, Value)>, req: &CompletionRequest, seed: bool) {
+    if let Some(t) = req.temperature {
+        body.push(("temperature", Value::Num(t)));
+    }
+    if let Some(p) = req.top_p {
+        body.push(("top_p", Value::Num(p)));
+    }
+    if seed {
+        if let Some(s) = req.seed {
+            body.push(("seed", Value::int(s as i64)));
+        }
+    }
+}
+
 impl Provider for OpenAiCompatible {
     fn name(&self) -> &str {
         "openai-compatible"
@@ -351,6 +377,7 @@ impl Provider for OpenAiCompatible {
             ("messages", Value::Arr(Self::messages(req))),
             ("max_tokens", Value::int(req.max_tokens as i64)),
         ];
+        push_sampling(&mut body, req, true);
         if !req.tools.is_empty() {
             let tools: Vec<Value> = req
                 .tools
@@ -640,6 +667,7 @@ impl Provider for Anthropic {
             ("model", Value::str(req.model.clone())),
             ("max_tokens", Value::int(req.max_tokens as i64)),
         ];
+        push_sampling(&mut body, req, false);
         if !req.system.is_empty() {
             // The system prompt is stable across every turn of an agent,
             // so mark it cacheable: later turns pay the cached rate.

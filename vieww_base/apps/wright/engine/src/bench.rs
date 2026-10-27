@@ -125,6 +125,7 @@ pub fn run(project_dir: &Path, runs: u32) -> Result<Report, String> {
                 allow_private_network: false,
                 resume: None,
                 no_cache: i == 0,
+                reproducible: false,
             },
         )?;
         let store = Store::open(project_dir)?;

@@ -34,7 +34,7 @@ use wright_runtime::signing::SigningKey;
 const CONTEXT: &str = "https://www.w3.org/ns/credentials/v2";
 pub const CRYPTOSUITE: &str = "eddsa-jcs-2022";
 
-/// Turn a signed `wright.run-receipt/2` into a signed credential.
+/// Turn a signed `wright.run-receipt/3` (or `/2`) into a signed credential.
 pub fn issue(receipt: &Value, key: &SigningKey) -> Result<Value, String> {
     let Value::Obj(fields) = receipt else {
         return Err("a receipt is a JSON object".into());

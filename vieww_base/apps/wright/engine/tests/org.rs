@@ -21,6 +21,7 @@ fn dir(tag: &str) -> PathBuf {
 
 fn opts(cfg: &Config) -> FireOptions {
     FireOptions {
+        reproducible: false,
         trigger: Trigger::Manual,
         approver: Box::new(wright_engine::approve::AutoApprove),
         listeners: Vec::new(),

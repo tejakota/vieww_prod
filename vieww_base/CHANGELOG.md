@@ -44,6 +44,8 @@ tag needs a `## [x.y.z]` section here before it is pushed.
 - wright native Windows workers (WR-05): every worker runs in a Job object;
   a worker `.exe` also runs in an AppContainer whose only writable folder
   is its workspace copy, with internet access only.
+- wright `http-post` bodies are capped at 1 MiB and its answers read to
+  64 KiB; `http-read` checks the bytes as well as the content-type (WR-20).
 - wright HTTP tools (WR-07): DNS-rebinding closed by pinning the SSRF-checked
   addresses into the connection.
 - `clipboard-win` 5.4.1 (yanked) → 5.4.3; `tokio` → 1.54.1 (RUSTSEC-2026-0384,

@@ -82,6 +82,10 @@ pub struct FireOptions {
     pub resume: Option<RunId>,
     /// Ignore the cache (re-run everything).
     pub no_cache: bool,
+    /// Temperature 0 and seed 0 wherever the blueprint pinned neither
+    /// (WR-09). Providers that ignore them stay nondeterministic; the
+    /// receipt records what was asked.
+    pub reproducible: bool,
 }
 
 impl Default for FireOptions {
@@ -94,6 +98,7 @@ impl Default for FireOptions {
             allow_private_network: false,
             resume: None,
             no_cache: false,
+            reproducible: false,
         }
     }
 }
@@ -308,6 +313,7 @@ pub fn fire(project_dir: &Path, opts: FireOptions) -> Result<RunSummary, String>
         approval_seq: AtomicU32::new(0),
         deadline: Instant::now() + Duration::from_secs(bp.guardrails.wall_clock_secs.max(1)),
         cancel: AtomicBool::new(false),
+        reproducible: opts.reproducible,
         reports: Mutex::new(BTreeMap::new()),
         written: Mutex::new(BTreeMap::new()),
         accepts: Mutex::new(BTreeMap::new()),
@@ -532,7 +538,7 @@ pub fn fire(project_dir: &Path, opts: FireOptions) -> Result<RunSummary, String>
         }
     }
     let mut receipt = Value::obj(vec![
-        ("format", Value::str("wright.run-receipt/2")),
+        ("format", Value::str("wright.run-receipt/3")),
         ("run", Value::int(run as i64)),
         ("project", Value::str(bp.meta.name.clone())),
         ("project_dir", Value::str(project_dir.display().to_string())),
@@ -631,6 +637,11 @@ pub fn fire(project_dir: &Path, opts: FireOptions) -> Result<RunSummary, String>
                     .unwrap_or_default(),
             ),
         ),
+        // How every model call was sampled (WR-09): one row per agent,
+        // model and setting, from the calls' own events; null = the
+        // provider's default.
+        ("reproducible", Value::Bool(env.reproducible)),
+        ("sampling", sampling_rows(&env.spine.events())),
         ("events_blake3", Value::str(events_hash)),
         ("wright", Value::str(APP_VERSION)),
     ]);
@@ -715,12 +726,18 @@ fn key_for(env: &FiringEnv, task: &Task) -> Option<String> {
             };
             // The effective prompt = the agent's canonical card + the
             // template version + inference settings. All of it is keyed.
-            let def = format!(
+            let mut def = format!(
                 "{}prompt-template=v{}\nmax-tokens={}\n",
                 canon::agent_canon(agent),
                 wright_agents::PROMPT_VERSION,
                 crate::agent::MAX_TOKENS
             );
+            // Sampling is an inference setting too (WR-09); written only
+            // when pinned, so unpinned keys stay what they were.
+            let sampling = env.effective_sampling(task);
+            if !sampling.is_default() {
+                def.push_str(&format!("sampling={sampling:?}\n"));
+            }
             Some(cache::cache_key(&KeyInputs {
                 definition: &def,
                 resolved: task.model.as_ref(),
@@ -1511,4 +1528,37 @@ pub fn never_cached_names(bp: &Blueprint) -> BTreeSet<String> {
     wright_core::blueprint::diff::never_cached(bp)
         .into_keys()
         .collect()
+}
+
+/// The receipt's `sampling` rows: distinct (agent, model, temperature,
+/// top_p, seed) over the run's `TokensRecorded` events, in first-seen order.
+pub(crate) fn sampling_rows(events: &[wright_core::events::Event]) -> Value {
+    let mut rows: Vec<Value> = Vec::new();
+    for e in events {
+        if e.kind != EventKind::TokensRecorded {
+            continue;
+        }
+        let Some(data) = e.data_value() else { continue };
+        let pick = |k: &str| {
+            data.get("sampling")
+                .and_then(|s| s.get(k))
+                .cloned()
+                .unwrap_or(Value::Null)
+        };
+        let row = Value::obj(vec![
+            ("agent", Value::str(e.agent.clone().unwrap_or_default())),
+            (
+                "model",
+                Value::str(data.str_of("model").unwrap_or("").to_string()),
+            ),
+            ("temperature", pick("temperature")),
+            ("top_p", pick("top_p")),
+            ("seed", pick("seed")),
+        ]);
+        let text = json::to_string(&row);
+        if !rows.iter().any(|r| json::to_string(r) == text) {
+            rows.push(row);
+        }
+    }
+    Value::Arr(rows)
 }

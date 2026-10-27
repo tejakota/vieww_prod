@@ -389,11 +389,53 @@ pub struct Deliverable {
     pub accept: Vec<String>,
 }
 
+/// A tier's sampling parameters (WR-09). Fixed-point thousandths so the
+/// blueprint stays `Eq` and its canonical text exact: `temp=0.2` is
+/// `temperature_milli: Some(200)`. `None` leaves the provider's default.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct Sampling {
+    pub temperature_milli: Option<u32>,
+    pub top_p_milli: Option<u32>,
+    pub seed: Option<u64>,
+}
+
+impl Sampling {
+    /// True when nothing is pinned (every value is the provider's default).
+    pub fn is_default(&self) -> bool {
+        *self == Sampling::default()
+    }
+}
+
+/// `200` → `"0.2"`, `1000` → `"1.0"`: the canonical decimal of a milli
+/// value (always one fractional digit or more, so it re-parses as a
+/// decimal).
+pub fn milli_text(v: u32) -> String {
+    let whole = v / 1000;
+    let frac = format!("{:03}", v % 1000);
+    let frac = frac.trim_end_matches('0');
+    format!("{whole}.{}", if frac.is_empty() { "0" } else { frac })
+}
+
+/// `"0.2"` → `200`; at most three fractional digits.
+pub fn parse_milli(text: &str) -> Option<u32> {
+    let (whole, frac) = text.split_once('.').unwrap_or((text, ""));
+    if whole.is_empty() || frac.len() > 3 || !whole.bytes().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    if !frac.bytes().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    let whole: u32 = whole.parse().ok()?;
+    let frac: u32 = format!("{frac:0<3}").parse().ok()?;
+    whole.checked_mul(1000)?.checked_add(frac)
+}
+
 /// One tier's routing preference.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TierPref {
     pub prefer: String,
     pub fallback: String,
+    pub sampling: Sampling,
 }
 
 impl Default for TierPref {
@@ -401,6 +443,7 @@ impl Default for TierPref {
         TierPref {
             prefer: "deepseek-v4-flash".into(),
             fallback: "glm-5.3-flash".into(),
+            sampling: Sampling::default(),
         }
     }
 }

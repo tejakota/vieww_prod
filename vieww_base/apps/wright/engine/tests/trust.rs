@@ -93,6 +93,7 @@ fn fire_once(dir: &std::path::Path, cfg: Config) -> wright_engine::RunSummary {
     fire(
         dir,
         FireOptions {
+            reproducible: false,
             trigger: Trigger::Manual,
             approver: Box::new(wright_engine::approve::AutoApprove),
             listeners: Vec::new(),
@@ -136,7 +137,7 @@ deliverable kind=\"report\" {{ check \"a digest exists\" accept \"the digest say
 
     // the receipt is v2 and signed
     let receipt = std::fs::read_to_string(&summary.receipt).unwrap();
-    assert!(receipt.contains("wright.run-receipt/2"), "{receipt}");
+    assert!(receipt.contains("wright.run-receipt/3"), "{receipt}");
     assert!(receipt.contains("\"signature\""), "{receipt}");
     assert!(
         receipt.contains("\"accepts\""),
@@ -424,6 +425,7 @@ deliverable kind=\"report\" { check \"the file exists\" }\n",
     let summary = fire(
         &dir,
         FireOptions {
+            reproducible: false,
             trigger: Trigger::Manual,
             approver: Box::new(wright_engine::approve::AutoDeny),
             listeners: Vec::new(),
@@ -485,6 +487,7 @@ deliverable kind=\"k\" {{ check \"c\" }}\n"
     let err = fire(
         &dir,
         FireOptions {
+            reproducible: false,
             trigger: Trigger::Manual,
             approver: Box::new(wright_engine::approve::AutoApprove),
             listeners: Vec::new(),
