@@ -28,6 +28,10 @@ tag needs a `## [x.y.z]` section here before it is pushed.
   `cargo publish --workspace` when run on a tag with a token configured).
 - **Releases** (FW-03, FW-06): `release-gate` run on a tag drafts a GitHub Release with
   installers, merged SHA256SUMS, SBOM, checklist and Sigstore build provenance.
+- **Loudness normalization** (AU-25): `MediaPlayer::set_normalization`
+  (track mode to a target LUFS with a −1 dBTP peak cap, album mode with
+  `album_gain_db`). Media wider than stereo now folds down with the
+  standard coefficients (AU-23).
 - **Audio patents** (AU-07): `vieww-audio/PATENTS.md` states each
   format's patent status; the AAC decoder is behind the default-on `aac`
   feature so distributors can leave it out.

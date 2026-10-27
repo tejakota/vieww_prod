@@ -3,7 +3,7 @@
 Every gap in the four research reports (framework.md, studio.md, audio.md, wright.md), with where it stands. **Closed** = code + tests + CI gate landed. **Partial** = the code is in, and what is left is listed. **Open** = not started.
 Mac real-device verification is out of scope by the owner's decision; Mac code paths are still written and CI-built where hosted runners allow.
 
-Totals: Closed 19, Open 68, Partial 7 (of 94).
+Totals: Closed 19, Open 67, Partial 8 (of 94).
 
 ## Framework
 
@@ -92,7 +92,7 @@ Totals: Closed 19, Open 68, Partial 7 (of 94).
 | AU-22 | P2 | Analysis lacks polyphonic pitch/chroma; no key detection; `Spectrum` has no waterfall/peak-hold UI helpers | **Open** |  |
 | AU-23 | P3 | `Samples` is stereo-max while the rest of the stack is multichannel — an inconsistent surface | **Closed** | Option (a): Samples stays mono/stereo by design (the UI seam and the stereo graph/mixer), documented as such; wider decodes are kept (up to 64 channels, MultiSamples) and Decoded::to_samples_downmixed folds them with channels::remix coefficients. Test: surround_folds_to_stereo_at_the_seam (5.1 frame: centre at -3 dB each side, LFE dropped). |
 | AU-24 | P3 | Web: autoplay policy is a comment, not a mechanism; no Media Session on web; worker mode needs COOP/COEP documented per-app | **Open** |  |
-| AU-25 | P3 | No loudness normalization for media playback (ReplayGain/EBU R128 pre-analysis and album mode) | **Open** |  |
+| AU-25 | P3 | No loudness normalization for media playback (ReplayGain/EBU R128 pre-analysis and album mode) | **Partial** | MediaPlayer::set_normalization(Off | Track{target_lufs} | Album{gain_db}): track mode measures EBU R128 integrated loudness on load and applies target − measured, capped so the true peak stays at or below −1 dBTP; album_gain_db measures several tracks as one programme. Tests: two tracks 10 LU apart play within 0.5 LU of each other and each moves by its own gain; album mode keeps the 10 LU; the peak cap holds. Left: reading/writing REPLAYGAIN_*/R128_* tags and caching gains beside decoded files. |
 
 ## wright
 

@@ -156,8 +156,8 @@ pub mod transport;
 pub mod wav;
 
 pub use engine_player::{
-    Engine, EnginePlayer, MediaPlayer, MediaState, PlayError, PlaybackEvent, Source as MediaSource,
-    VoiceId, VoiceOptions,
+    album_gain_db, Engine, EnginePlayer, MediaPlayer, MediaState, Normalization, PlayError,
+    PlaybackEvent, Source as MediaSource, VoiceId, VoiceOptions, DEFAULT_TARGET_LUFS,
 };
 pub use player::{AudioPlayer, NoAudio, PlaybackHandle, RecordedCommand, RecordingPlayer, Sound};
 pub use wav::{read_wav, write_wav, PcmError, PcmSamples};

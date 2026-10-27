@@ -645,6 +645,73 @@ pub enum MediaState {
     Ended,
 }
 
+/// Loudness normalization for a [`MediaPlayer`] (AU-25): tracks mastered
+/// at very different levels play at one level, the way Sound Check and
+/// streaming services do it.
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub enum Normalization {
+    /// Play as mastered.
+    #[default]
+    Off,
+    /// Measure each track's EBU R128 integrated loudness on load and bring
+    /// it to `target_lufs` ([`DEFAULT_TARGET_LUFS`] is a good default).
+    /// Gain upward is limited so the true peak stays at or below −1 dBTP.
+    Track {
+        /// The loudness to play at, in LUFS.
+        target_lufs: f64,
+    },
+    /// One fixed gain for every track — an album's, from [`album_gain_db`],
+    /// so the album's own dynamics between tracks survive.
+    Album {
+        /// The gain, in dB.
+        gain_db: f64,
+    },
+}
+
+/// −16 LUFS: the level Apple Music and most podcast guidance play at.
+pub const DEFAULT_TARGET_LUFS: f64 = -16.0;
+
+/// The highest true peak normalization may raise a track to, in dBTP.
+const PEAK_CEILING_DBTP: f64 = -1.0;
+
+/// The gain, in dB, that brings `tracks` *as one programme* to
+/// `target_lufs` — album mode's single gain (AU-25).
+#[must_use]
+pub fn album_gain_db(tracks: &[&Samples], target_lufs: f64) -> f64 {
+    let Some(first) = tracks.first() else {
+        return 0.0;
+    };
+    let layout = crate::channels::Layout::for_channels(usize::from(first.channels.max(1)));
+    let mut meter = crate::meter::LoudnessMeter::new(layout, first.rate);
+    for t in tracks {
+        if t.channels == first.channels && t.rate == first.rate {
+            meter.push(&t.data);
+        }
+    }
+    let i = meter.integrated();
+    if i.is_finite() {
+        target_lufs - i
+    } else {
+        0.0
+    }
+}
+
+/// Track mode's gain for `s`: to the target, but never pushing the true
+/// peak above the ceiling.
+fn track_gain_db(s: &Samples, target_lufs: f64) -> f64 {
+    let layout = crate::channels::Layout::for_channels(usize::from(s.channels.max(1)));
+    let (integrated, _, peak) = crate::meter::measure(&s.data, layout, s.rate);
+    if !integrated.is_finite() {
+        return 0.0;
+    }
+    let gain = target_lufs - integrated;
+    if peak.is_finite() {
+        gain.min(PEAK_CEILING_DBTP - peak)
+    } else {
+        gain
+    }
+}
+
 /// One track's transport: the shape a player UI binds to.
 #[derive(Debug)]
 pub struct MediaPlayer {
@@ -656,6 +723,9 @@ pub struct MediaPlayer {
     /// Position while there is no voice (before play, after end).
     parked: Duration,
     state: MediaState,
+    normalization: Normalization,
+    /// The loaded track's normalization gain, linear (1 when off).
+    norm_gain: f32,
 }
 
 impl MediaPlayer {
@@ -670,7 +740,47 @@ impl MediaPlayer {
             looping: false,
             parked: Duration::ZERO,
             state: MediaState::Empty,
+            normalization: Normalization::Off,
+            norm_gain: 1.0,
         }
+    }
+
+    /// Turn loudness normalization on or off (AU-25). Applies to the
+    /// loaded track at once, and to every track loaded after.
+    pub fn set_normalization(&mut self, mode: Normalization) {
+        self.normalization = mode;
+        self.update_norm_gain();
+        if let Some(v) = self.voice {
+            self.engine.set_gain(v, self.effective_gain(), DECLICK);
+        }
+    }
+
+    /// The normalization mode last set.
+    #[must_use]
+    pub const fn normalization(&self) -> Normalization {
+        self.normalization
+    }
+
+    /// The gain normalization applies to the loaded track, in dB (0 when
+    /// off or nothing is loaded).
+    #[must_use]
+    pub fn normalization_gain_db(&self) -> f64 {
+        20.0 * f64::from(self.norm_gain).log10()
+    }
+
+    fn update_norm_gain(&mut self) {
+        let db = match (self.normalization, &self.samples) {
+            (Normalization::Off, _) | (_, None) => 0.0,
+            (Normalization::Track { target_lufs }, Some(s)) => track_gain_db(s, target_lufs),
+            (Normalization::Album { gain_db }, Some(_)) => gain_db,
+        };
+        #[expect(clippy::cast_possible_truncation, reason = "a gain")]
+        let lin = 10f64.powf(db / 20.0) as f32;
+        self.norm_gain = lin;
+    }
+
+    fn effective_gain(&self) -> f32 {
+        self.volume * self.norm_gain
     }
 
     /// Load `source`, replacing what was loaded. Starts paused at zero.
@@ -689,6 +799,7 @@ impl MediaPlayer {
         };
         self.unload();
         self.samples = Some(self.engine.prepare(&samples)?);
+        self.update_norm_gain();
         self.parked = Duration::ZERO;
         self.state = MediaState::Paused;
         Ok(())
@@ -712,7 +823,7 @@ impl MediaPlayer {
             return Err(PlayError::Empty);
         };
         match self.voice {
-            Some(v) => self.engine.resume(v, self.volume),
+            Some(v) => self.engine.resume(v, self.effective_gain()),
             None => {
                 let at = if self.state == MediaState::Ended {
                     Duration::ZERO
@@ -722,7 +833,7 @@ impl MediaPlayer {
                 self.voice = Some(self.engine.play_shared(
                     samples,
                     VoiceOptions {
-                        gain: self.volume,
+                        gain: self.effective_gain(),
                         looping: self.looping,
                         start_at: at,
                         ..VoiceOptions::default()
@@ -773,7 +884,7 @@ impl MediaPlayer {
     pub fn set_volume(&mut self, volume: f32, fade: Duration) {
         self.volume = volume.max(0.0);
         if let Some(v) = self.voice {
-            self.engine.set_gain(v, self.volume, fade);
+            self.engine.set_gain(v, self.effective_gain(), fade);
         }
     }
 
@@ -865,35 +976,9 @@ impl Drop for MediaPlayer {
 
 fn decode(bytes: &[u8]) -> Result<Samples, PlayError> {
     let d = crate::codec::decode(bytes).map_err(|e| PlayError::Media(format!("{e:?}")))?;
-    // `Samples` carries at most stereo: fold wider layouts down.
-    let ch = usize::from(d.channels.max(1));
-    if ch <= 2 {
-        return Ok(Samples {
-            data: d.data,
-            channels: d.channels.max(1),
-            rate: d.rate,
-        });
-    }
-    #[expect(clippy::cast_precision_loss, reason = "a channel count")]
-    let scale = 1.0 / (ch as f32 / 2.0);
-    let mut data = Vec::with_capacity(d.data.len() / ch * 2);
-    for frame in d.data.chunks_exact(ch) {
-        let (mut l, mut r) = (0.0, 0.0);
-        for (i, s) in frame.iter().enumerate() {
-            if i % 2 == 0 {
-                l += s
-            } else {
-                r += s
-            }
-        }
-        data.push(l * scale);
-        data.push(r * scale);
-    }
-    Ok(Samples {
-        data,
-        channels: 2,
-        rate: d.rate,
-    })
+    // `Samples` carries at most stereo: wider layouts fold down with the
+    // standard coefficients (AU-23).
+    Ok(d.to_samples_downmixed())
 }
 
 #[cfg(test)]
@@ -914,6 +999,106 @@ mod tests {
         let mut out = vec![0.0; frames * 2];
         e.render(&mut out);
         out
+    }
+
+    /// AU-25: two tracks mastered 10 dB apart play at the same loudness,
+    /// within 0.5 LU of the target; album mode keeps their difference.
+    #[test]
+    fn normalization_levels_tracks_and_album_mode_keeps_their_difference() {
+        use crate::channels::Layout;
+        let rate = 48_000u32;
+        let tone = |amp: f32| {
+            let data: Vec<f32> = (0..rate as usize * 3)
+                .map(|i| {
+                    #[expect(clippy::cast_precision_loss, reason = "a sample index")]
+                    let t = i as f32 / rate as f32;
+                    amp * (std::f32::consts::TAU * 997.0 * t).sin()
+                })
+                .collect();
+            Samples {
+                data,
+                channels: 1,
+                rate,
+            }
+        };
+        let (loud, quiet) = (tone(0.5), tone(0.5 * 10f32.powf(-10.0 / 20.0)));
+        let played = |s: &Samples, mode: Normalization| {
+            let e = Arc::new(Engine::detached(rate, 2));
+            let mut p = MediaPlayer::new(Arc::clone(&e));
+            p.set_normalization(mode);
+            p.load(Source::Samples(s.clone())).unwrap();
+            p.play().unwrap();
+            let mut out = vec![0.0; rate as usize * 2 * 2];
+            e.render(&mut out); // fade-in and settle
+            e.render(&mut out);
+            crate::meter::measure(&out, Layout::Stereo, rate).0
+        };
+        let target = -20.0;
+        let mode = Normalization::Track {
+            target_lufs: target,
+        };
+        let (a, b) = (played(&loud, mode), played(&quiet, mode));
+        let (a_off, b_off) = (
+            played(&loud, Normalization::Off),
+            played(&quiet, Normalization::Off),
+        );
+        assert!(
+            (a_off - b_off - 10.0).abs() < 0.5,
+            "the fixtures are 10 LU apart"
+        );
+        assert!(
+            (a - b).abs() < 0.5,
+            "normalized, they play {} LU apart",
+            a - b
+        );
+        // Each moved by exactly what brings its own loudness to the target
+        // (the device path's mono-to-stereo step adds the same to both).
+        let measured = |s: &Samples| crate::meter::measure(&s.data, Layout::Mono, rate).0;
+        assert!(
+            (a - a_off - (target - measured(&loud))).abs() < 0.5,
+            "loud track moved {}",
+            a - a_off
+        );
+        assert!(
+            (b - b_off - (target - measured(&quiet))).abs() < 0.5,
+            "quiet track moved {}",
+            b - b_off
+        );
+
+        let album = album_gain_db(&[&loud, &quiet], target);
+        let mode = Normalization::Album { gain_db: album };
+        let (a, b) = (played(&loud, mode), played(&quiet, mode));
+        assert!(
+            (a - b - 10.0).abs() < 0.5,
+            "album mode kept {} LU between them",
+            a - b
+        );
+
+        assert!(
+            (b - b_off - album).abs() < 0.5,
+            "album mode applied {album} dB"
+        );
+    }
+
+    /// Upward gain stops short of clipping: a quiet track with one loud
+    /// peak is not raised past −1 dBTP.
+    #[test]
+    fn normalization_never_raises_the_peak_past_the_ceiling() {
+        let mut data = vec![0.001f32; 48_000 * 2];
+        data[1000] = 0.9;
+        let s = Samples {
+            data,
+            channels: 1,
+            rate: 48_000,
+        };
+        let g = track_gain_db(&s, -10.0);
+        let layout = crate::channels::Layout::Mono;
+        let peak = crate::meter::measure(&s.data, layout, 48_000).2;
+        assert!(
+            peak + g <= PEAK_CEILING_DBTP + 1e-9,
+            "peak would reach {}",
+            peak + g
+        );
     }
 
     #[test]
