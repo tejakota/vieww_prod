@@ -28,6 +28,19 @@ tag needs a `## [x.y.z]` section here before it is pushed.
   `cargo publish --workspace` when run on a tag with a token configured).
 - **Releases** (FW-03, FW-06): `release-gate` run on a tag drafts a GitHub Release with
   installers, merged SHA256SUMS, SBOM, checklist and Sigstore build provenance.
+- **Live scores** (AU-17): `vieww_music::live::LiveScore` plays a score
+  through a running stream, sample-for-sample the offline mix.
+- **Scene IR** (FW-25): `vieww_paint::ir` encodes and decodes a `Scene`
+  as versioned bytes, for tools, fuzzers and bug reports.
+- **Parity certificate** (FW-26): GPU suites write per-comparison parity
+  rows; CI turns them into `parity-certificate-<leg>.json`.
+- **Audio** (AU-20, AU-22, AU-24, AU-25): five new fuzz targets and a
+  stable mutation suite; peak-hold and waterfall helpers; web autoplay
+  resume, state events and Media Session; ReplayGain/R128 tags read,
+  written and used by `MediaPlayer`; ABC export; `docs/guide/audio.md`.
+- **wright** (WR-16, WR-19): kill-switch reach tested and shown in
+  `wright doctor`; interviews measured, with a strict-format hint after
+  repeated invalid drafts.
 - **Notation and analysis** (AU-16, AU-22): MusicXML 4.0 export and
   import (`vieww_music::notation::musicxml`), YIN pitch detection and
   chroma (`vieww_audio::analysis`), key and melakarta estimation

@@ -382,6 +382,14 @@ fn interview_to_confirmed_blueprint_to_working_project() {
         .unwrap()
         .expect("confirmed");
     assert_eq!(bp.intent.confirmed, "v1");
+    // WR-19: the interview is measured.
+    let h = wright_engine::interview::interview_history(&dir);
+    assert_eq!(h.len(), 1, "{h:?}");
+    assert!(h[0].proposals >= 1 && h[0].turns >= h[0].proposals, "{h:?}");
+    assert_eq!(
+        h[0].rejected, 0,
+        "the mock's draft is valid first time: {h:?}"
+    );
     assert!(
         io.transcript
             .iter()

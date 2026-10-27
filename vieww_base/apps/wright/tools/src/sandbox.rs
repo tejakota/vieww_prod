@@ -884,6 +884,33 @@ mod tests {
         assert!(!victim.exists(), "the sandbox let a write escape");
     }
 
+    /// WR-16: a sandboxed command cannot engage Wright's kill switch — the
+    /// switch file lives in Wright's home, outside every writable root.
+    #[test]
+    fn the_kill_switch_is_out_of_a_sandboxed_commands_reach() {
+        let p = project("killswitch");
+        let stop = wright_runtime::killswitch::path();
+        let existed = stop.exists();
+        let out = sh(
+            &format!(
+                "mkdir -p '{}' 2>/dev/null; echo '{{}}' > '{}'",
+                stop.parent().unwrap().display(),
+                stop.display()
+            ),
+            &Policy::new(&p),
+        );
+        let created = !existed && stop.exists();
+        if created {
+            let _ = std::fs::remove_file(&stop); // never leave the machine stopped
+        }
+        assert!(
+            !created,
+            "a sandboxed command engaged the kill switch: {}",
+            out.report()
+        );
+        assert!(!out.success() || existed, "{}", out.report());
+    }
+
     #[test]
     fn home_secrets_are_invisible() {
         let p = project("home");

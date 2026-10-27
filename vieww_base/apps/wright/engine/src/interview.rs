@@ -250,7 +250,14 @@ pub fn interview(
     req.messages = resumed(&earlier, first);
 
     let mut proposal: Option<Blueprint> = None;
+    // WR-19: how hard the format was for this model.
+    let mut stats = InterviewStats {
+        model: model.clone(),
+        ..InterviewStats::default()
+    };
+    let base_system = req.system.clone();
     for _turn in 0..40 {
+        stats.turns += 1;
         let ep = [Endpoint {
             model: model.clone(),
             provider: client.as_ref(),
@@ -290,13 +297,24 @@ pub fn interview(
                     format!("Unknown tool '{name}'. Use propose_blueprint.")
                 } else {
                     io.working("Checking the draft plan");
+                    stats.proposals += 1;
                     match check_proposal_with(input.str_of("kdl").unwrap_or(""), config) {
                         Ok(bp) => {
                             proposal = Some(bp);
+                            stats.failed_in_a_row = 0;
+                            req.system.clone_from(&base_system);
                             "VALID. Wright will now show the person the summary.".into()
                         }
                         Err(problems) => {
                             proposal = None;
+                            stats.rejected += 1;
+                            stats.failed_in_a_row += 1;
+                            // After three misses in a row the last error moves
+                            // into the system prompt, where small models weigh
+                            // it more than a tool result.
+                            if stats.failed_in_a_row >= STRICT_AFTER {
+                                req.system = format!("{base_system}{}", strict_hint(&problems));
+                            }
                             problems
                         }
                     }
@@ -318,7 +336,9 @@ pub fn interview(
             let graph = compiler::compile(&bp)?;
             let lines = confirm::summary(&bp, &graph);
             if io.confirm(&lines) {
-                return write_confirmed(project_dir, bp).map(Some);
+                let bp = write_confirmed(project_dir, bp)?;
+                record_stats(project_dir, &stats);
+                return Ok(Some(bp));
             }
             io.say("What should change?");
         }
@@ -328,6 +348,80 @@ pub fn interview(
         }
     }
     Err("the interview went on too long without a confirmed blueprint".into())
+}
+
+/// Misses in a row before the format hint moves into the system prompt.
+const STRICT_AFTER: u32 = 3;
+
+/// What one interview took (WR-19): turns, proposals, how many Wright
+/// rejected. Appended to `<store>/interviews.jsonl` when a blueprint is
+/// confirmed, so a slow model shows up as a number, not an impression.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct InterviewStats {
+    /// The Interviewer's model.
+    pub model: String,
+    /// Model turns taken.
+    pub turns: u32,
+    /// Blueprints proposed.
+    pub proposals: u32,
+    /// Proposals Wright refused.
+    pub rejected: u32,
+    failed_in_a_row: u32,
+}
+
+/// The system-prompt addition after repeated invalid proposals.
+fn strict_hint(last_error: &str) -> String {
+    let short: String = last_error.chars().take(1500).collect();
+    format!(
+        "\n\nSTRICT FORMAT: your last proposals were refused. Call propose_blueprint with the COMPLETE blueprint as KDL in the `kdl` field, exactly in the format above, nothing else. Fix this first:\n{short}"
+    )
+}
+
+fn record_stats(project_dir: &Path, stats: &InterviewStats) {
+    use wright_core::wire::json::{self, Value};
+    let Ok(store) = Store::open(project_dir) else {
+        return;
+    };
+    let line = json::to_string(&Value::obj(vec![
+        ("at_ms", Value::int(wright_core::events::now_ms() as i64)),
+        ("model", Value::str(stats.model.clone())),
+        ("turns", Value::int(i64::from(stats.turns))),
+        ("proposals", Value::int(i64::from(stats.proposals))),
+        ("rejected", Value::int(i64::from(stats.rejected))),
+    ]));
+    let path = store.root().join("interviews.jsonl");
+    let mut text = std::fs::read_to_string(&path).unwrap_or_default();
+    text.push_str(&line);
+    text.push('\n');
+    let _ = write_atomic(&path, text.as_bytes());
+}
+
+/// Every recorded interview for this project, oldest first (WR-19).
+#[must_use]
+pub fn interview_history(project_dir: &Path) -> Vec<InterviewStats> {
+    use wright_core::wire::json;
+    let Ok(store) = Store::open(project_dir) else {
+        return Vec::new();
+    };
+    let text = std::fs::read_to_string(store.root().join("interviews.jsonl")).unwrap_or_default();
+    text.lines()
+        .filter_map(|l| json::parse(l).ok())
+        .map(|v| {
+            let n = |k: &str| {
+                v.get(k)
+                    .and_then(json::Value::as_u64)
+                    .and_then(|x| u32::try_from(x).ok())
+                    .unwrap_or(0)
+            };
+            InterviewStats {
+                model: v.str_of("model").unwrap_or("").to_owned(),
+                turns: n("turns"),
+                proposals: n("proposals"),
+                rejected: n("rejected"),
+                failed_in_a_row: 0,
+            }
+        })
+        .collect()
 }
 
 /// Stamp, write and commit a confirmed blueprint.
@@ -391,6 +485,13 @@ mod tests {
         let err = check_proposal(bad).unwrap_err();
         assert!(err.contains("not allowed to use the network"), "{err}");
         assert!(check_proposal("garbage {").unwrap_err().contains("parse"));
+    }
+
+    #[test]
+    fn the_strict_hint_carries_the_last_error_and_stays_bounded() {
+        let h = strict_hint("line 3: unknown node `agnet`");
+        assert!(h.contains("STRICT FORMAT") && h.contains("unknown node `agnet`"));
+        assert!(strict_hint(&"x".repeat(10_000)).len() < 2_000);
     }
 
     #[test]
