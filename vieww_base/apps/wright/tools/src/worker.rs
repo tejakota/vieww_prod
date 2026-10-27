@@ -289,12 +289,21 @@ fn run_external(
     // No kernel sandbox on this machine: the copy is the boundary (the
     // worker only ever sees the clone), plus a scrubbed environment and
     // the card's clock. The report names the isolation honestly.
+    #[cfg(windows)]
+    if crate::appcontainer::can_contain(program) {
+        let out = contained_run(entry, program, worker_env, &arg_refs, copy_dir, timeout)?;
+        return Ok((
+            out,
+            "AppContainer (writes and reads only its workspace copy and its own install folders; internet only; inside a Job object)",
+        ));
+    }
     let out = direct_run(entry, program, worker_env, &arg_refs, copy_dir, timeout)?;
-    let isolation = if cfg!(windows) && sandbox_available {
-        "native Windows worker (workspace copy + Job object: process tree, memory and process-count bounded; no filesystem sandbox; WSL isolates POSIX tools)"
+    let isolation = if cfg!(windows) {
+        "native Windows worker launched through a batch shim (workspace copy + Job object: process tree, memory and process-count bounded; no filesystem sandbox — point the worker at its .exe for AppContainer isolation)"
     } else {
         "workspace copy only (no OS sandbox on this machine)"
     };
+    let _ = sandbox_available;
     Ok((out, isolation))
 }
 
@@ -401,6 +410,87 @@ impl Drop for RemoveOnDrop {
     fn drop(&mut self) {
         let _ = std::fs::remove_dir_all(&self.0);
     }
+}
+
+/// WR-05 tier 2: a native `.exe` worker in the `wright.worker`
+/// AppContainer, inside a Job object. Its whole environment is built here;
+/// every folder a program writes by convention points into the copy.
+#[cfg(windows)]
+fn contained_run(
+    entry: &WorkerEntry,
+    program: &Path,
+    worker_env: &[(String, String)],
+    args: &[&str],
+    copy_dir: &Path,
+    timeout: Duration,
+) -> Result<String, ToolError> {
+    let copy = copy_dir.display().to_string();
+    let mut env: Vec<(String, String)> = ["PATH", "SystemRoot", "PATHEXT", "COMSPEC"]
+        .iter()
+        .filter_map(|k| std::env::var(k).ok().map(|v| (k.to_string(), v)))
+        .collect();
+    for k in [
+        "HOME",
+        "USERPROFILE",
+        "APPDATA",
+        "LOCALAPPDATA",
+        "TEMP",
+        "TMP",
+        "TMPDIR",
+    ] {
+        env.push((k.to_string(), copy.clone()));
+    }
+    env.extend(worker_env.iter().cloned());
+    let job = crate::winjob::Job::new(
+        crate::winjob::WORKER_MAX_PROCESSES,
+        Some(crate::winjob::WORKER_MAX_MEMORY),
+    )
+    .map_err(|e| {
+        ToolError::Failed(format!(
+            "could not contain the worker '{}' in a Job object: {e}. Nothing was run.",
+            entry.name
+        ))
+    })?;
+    let out = crate::appcontainer::run(
+        program,
+        args,
+        copy_dir,
+        &program_dirs(program),
+        &env,
+        &job,
+        timeout,
+        &wright_runtime::killswitch::is_stopped,
+    )
+    .map_err(|e| {
+        ToolError::Failed(format!(
+            "could not start the worker '{}' in its AppContainer: {e}. Nothing was run.",
+            entry.name
+        ))
+    })?;
+    if out.stopped {
+        return Err(ToolError::Failed(format!(
+            "the worker '{}' was stopped by the kill switch. Nothing was applied.",
+            entry.name
+        )));
+    }
+    if out.timed_out {
+        return Err(ToolError::Failed(format!(
+            "the worker '{}' ran past its {}s timeout and was killed. Nothing was applied.",
+            entry.name,
+            timeout.as_secs()
+        )));
+    }
+    if out.success {
+        return Ok(out.output);
+    }
+    let report = job.report();
+    Err(worker_failed(
+        entry,
+        &format!(
+            "{}\n[exit code {}; job: {report}]",
+            out.output, out.exit_code
+        ),
+    ))
 }
 
 /// The degraded path: direct process, scrubbed environment, hard clock.

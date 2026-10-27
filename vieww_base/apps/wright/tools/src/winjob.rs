@@ -11,8 +11,8 @@
 //!
 //! What a Job object does not do is narrow the filesystem: the throwaway
 //! 0700 copy, the scrubbed environment and the all-or-nothing read-back
-//! remain the filesystem boundary for native Windows workers, and
-//! `wright doctor` says so. (Tier 2 — AppContainer — is tracked in WR-05.)
+//! remain the filesystem boundary for workers launched through batch shims;
+//! a worker `.exe` also runs in an AppContainer (`appcontainer.rs`, tier 2).
 //!
 //! One of the files AGENTS.md allows `unsafe` in. Every block carries a
 //! SAFETY comment.
@@ -20,7 +20,7 @@
 use std::ffi::c_void;
 use std::os::windows::io::AsRawHandle;
 
-type Handle = *mut c_void;
+pub(crate) type Handle = *mut c_void;
 
 const JOB_OBJECT_EXTENDED_LIMIT_INFORMATION_CLASS: i32 = 9;
 const LIMIT_ACTIVE_PROCESS: u32 = 0x0000_0008;
@@ -146,17 +146,24 @@ impl Job {
     /// it run. On failure the child is killed — it never runs outside.
     pub fn adopt(&self, child: &mut std::process::Child) -> std::io::Result<()> {
         let process = child.as_raw_handle() as Handle;
+        let adopted = self.adopt_raw(process);
+        if adopted.is_err() {
+            let _ = child.kill();
+        }
+        adopted
+    }
+
+    /// [`Self::adopt`] for a raw process handle created suspended (the
+    /// AppContainer launcher's). The caller kills the process on failure.
+    pub fn adopt_raw(&self, process: Handle) -> std::io::Result<()> {
         // SAFETY: both handles are valid for the duration of the call.
         if unsafe { AssignProcessToJobObject(self.0, process) } == 0 {
-            let e = std::io::Error::last_os_error();
-            let _ = child.kill();
-            return Err(e);
+            return Err(std::io::Error::last_os_error());
         }
         // SAFETY: a valid process handle; NtResumeProcess resumes every
         // thread of a process created suspended.
         let status = unsafe { NtResumeProcess(process) };
         if status < 0 {
-            let _ = child.kill();
             return Err(std::io::Error::other(format!(
                 "NtResumeProcess failed (0x{status:08x})"
             )));

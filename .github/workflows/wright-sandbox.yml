@@ -94,3 +94,6 @@ jobs:
       - name: Worker Job objects (WR-05) — tree killed with the job, process cap
         working-directory: vieww_base/apps/wright
         run: cargo test -p wright-tools winjob -- --test-threads=1
+      - name: Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout
+        working-directory: vieww_base/apps/wright
+        run: cargo test -p wright-tools appcontainer -- --test-threads=1

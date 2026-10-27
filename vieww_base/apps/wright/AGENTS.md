@@ -27,7 +27,9 @@ sandbox; the event spine records everything durably for resume and replay.
    CredWriteW/CredReadW/CredDeleteW, WR-06), `tools/src/sandbox.rs` (Landlock, namespaces,
    `pre_exec`, seccomp), `tools/src/sandbox_macos.rs` (`kill(2)` of the
    command's process group), `tools/src/winjob.rs` (Windows Job objects for
-   native workers, WR-05) and, on Windows only, `app/src/ui/mod.rs`
+   native workers, WR-05), `tools/src/appcontainer.rs` (the AppContainer
+   profile, folder ACLs and CreateProcessW for native worker `.exe`s,
+   WR-05 tier 2) and, on Windows only, `app/src/ui/mod.rs`
    (`release_private_console`: two kernel32 calls so a double-clicked app
    has no console window). Every block carries a `// SAFETY:` comment. The executor
    has zero unsafe; keep it that way. So does `infer/` (the built-in

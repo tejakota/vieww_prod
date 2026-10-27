@@ -19,6 +19,8 @@
 //! | http-post     | POST to a public URL                          | same; approval-eligible       |
 //! | browser       | (not implemented: refuses loudly)             |                               |
 
+#[cfg(windows)]
+mod appcontainer;
 pub mod mcp;
 pub mod mcp_install;
 pub mod patch;
