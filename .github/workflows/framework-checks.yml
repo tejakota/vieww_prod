@@ -196,7 +196,26 @@ jobs:
       - name: Adapter
         run: vulkaninfo --summary
       - name: Vulkan suites (headless)
+        env:
+          VIEWW_PARITY_OUT: ${{ runner.temp }}/parity
+          VIEWW_PARITY_ADAPTER: lavapipe
         run: cargo test --release -p vieww-hal --features vulkan -- --ignored --test-threads=1
+      - name: Parity certificate (vulkan-lavapipe, FW-26)
+        if: always()
+        shell: bash
+        run: |
+          PY=$(command -v python3 || command -v python)
+          "$PY" ci/check/parity-certificate.py "$RUNNER_TEMP/parity" -o "parity-certificate-vulkan-lavapipe.json" --markdown "$RUNNER_TEMP/parity.md"
+          status=$?
+          cat "$RUNNER_TEMP/parity.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+          exit $status
+      - name: Upload the parity certificate (vulkan-lavapipe)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: parity-certificate-vulkan-lavapipe
+          path: vieww_base/parity-certificate-vulkan-lavapipe.json
+          if-no-files-found: ignore
       - name: 3D GPU parity suite (headless)
         run: cargo test --release -p vieww-3d --features vulkan -- --ignored --test-threads=1
       - name: A GPU frame presented to a real window
@@ -241,6 +260,8 @@ jobs:
           # instrumented shaders drew nothing at all - even metal_smoke's
           # single mesh came back transparent.)
           MTL_DEBUG_LAYER: "1"
+          VIEWW_PARITY_OUT: ${{ runner.temp }}/parity
+          VIEWW_PARITY_ADAPTER: macos-14 paravirtual GPU
         run: |
           set +e
           cargo test -p vieww-hal --features metal -- --ignored --test-threads=1 --nocapture
@@ -261,6 +282,22 @@ jobs:
             done
           fi
           exit $status
+      - name: Parity certificate (metal-paravirtual, FW-26)
+        if: always()
+        shell: bash
+        run: |
+          PY=$(command -v python3 || command -v python)
+          "$PY" ci/check/parity-certificate.py "$RUNNER_TEMP/parity" -o "parity-certificate-metal-paravirtual.json" --markdown "$RUNNER_TEMP/parity.md"
+          status=$?
+          cat "$RUNNER_TEMP/parity.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+          exit $status
+      - name: Upload the parity certificate (metal-paravirtual)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: parity-certificate-metal-paravirtual
+          path: vieww_base/parity-certificate-metal-paravirtual.json
+          if-no-files-found: ignore
       - name: Clippy for the Apple backends
         run: |
           cargo clippy -p vieww-hal --features metal --all-targets -- -D warnings
@@ -284,6 +321,8 @@ jobs:
           VIEWW_REQUIRE_HARDWARE: gpu
           VIEWW_D3D12_DEBUG: "1"
           RUST_BACKTRACE: "1"
+          VIEWW_PARITY_OUT: ${{ runner.temp }}/parity
+          VIEWW_PARITY_ADAPTER: WARP
         shell: bash
         # Every test in its own process with its output shown: a crash in one
         # (an access violation ends the whole binary) no longer hides the
@@ -320,6 +359,22 @@ jobs:
             cat -n "$f"
             echo "::endgroup::"
           done
+      - name: Parity certificate (d3d12-warp, FW-26)
+        if: always()
+        shell: bash
+        run: |
+          PY=$(command -v python3 || command -v python)
+          "$PY" ci/check/parity-certificate.py "$RUNNER_TEMP/parity" -o "parity-certificate-d3d12-warp.json" --markdown "$RUNNER_TEMP/parity.md"
+          status=$?
+          cat "$RUNNER_TEMP/parity.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+          exit $status
+      - name: Upload the parity certificate (d3d12-warp)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: parity-certificate-d3d12-warp
+          path: vieww_base/parity-certificate-d3d12-warp.json
+          if-no-files-found: ignore
       - name: Clippy for the Windows backends
         run: |
           cargo clippy -p vieww-hal --features d3d12 --all-targets -- -D warnings

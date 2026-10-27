@@ -19,6 +19,9 @@
 
 #![cfg(feature = "metal")]
 
+#[path = "support/parity_row.rs"]
+mod parity_row;
+
 use vieww_foundation::{Color, Rect, Transform};
 use vieww_gpu::Planner;
 use vieww_hal::metal::{MetalDevice, MetalSceneRenderer};
@@ -116,6 +119,7 @@ fn interior_mismatches(gpu: &[u8], cpu: &[u8], tolerance: u8) -> usize {
             }
         }
     }
+    parity_row::record("metal", tolerance, gpu, cpu, count);
     count
 }
 

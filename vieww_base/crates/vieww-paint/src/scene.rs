@@ -103,6 +103,11 @@ pub struct Clip {
 static NO_CLIP: Clip = Clip::NONE;
 
 impl Clip {
+    /// A clip from its stored parts (the IR decoder's constructor).
+    pub(crate) fn from_parts(bounds: Option<Rect>, shapes: Vec<Path>) -> Self {
+        Self { bounds, shapes }
+    }
+
     /// Clips nothing.
     pub const NONE: Self = Self {
         bounds: None,

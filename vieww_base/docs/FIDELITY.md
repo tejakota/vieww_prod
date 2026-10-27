@@ -42,14 +42,29 @@ backend and one kind of content; there is no global one.
 | Vulkan `SceneRenderer` | filled and stroked shapes | **interior** pixels within 2/255 per channel, none over; edge pixels free (analytic scanline coverage against triangulation plus hardware sampling disagree by design only there) | `crates/vieww-hal/tests/vulkan_scene.rs` |
 | Vulkan `SceneRenderer` | text | **every** pixel within 1/255, rims included (one glyph rasterizer; the atlas stores coverage as `u8`) | `crates/vieww-hal/tests/vulkan_text.rs` |
 | Vulkan compositor | layers, group opacity, blur, backdrop blur, colour matrix, shaped clips, shadows, transparent clear, winding, dashed strokes | **every** pixel within 2/255, none over | `crates/vieww-hal/tests/vulkan_compositor.rs` |
-| Metal | — | not declared; the port must add its rows here before it draws a user's frame | `metal_smoke.rs` is a smoke test only |
-| D3D12 | — | not declared; same rule | `d3d12_smoke.rs` is a smoke test only |
+| Metal `SceneRenderer` | filled and stroked shapes, translucent overlaps, group-opacity layers | **interior** pixels within 2/255 per channel, none over; edge pixels free (the Vulkan rule, verbatim) | `crates/vieww-hal/tests/metal_scene.rs` (hosted macOS, paravirtual GPU) |
+| D3D12 `SceneRenderer` | filled and stroked shapes, translucent overlaps, group-opacity layers, retained damage | **interior** pixels within 2/255 per channel, none over; edge pixels free (the Vulkan rule, verbatim) | `crates/vieww-hal/tests/d3d12_scene.rs` (hosted Windows, WARP) |
 | WebGPU | — | not declared; same rule | — |
 
 Where they run: lavapipe in ordinary CI, real GPUs in `ci/hardware/linux.sh`
 and `ci/hardware/windows.ps1` (`cargo test -p vieww-hal --features vulkan --
 --ignored`). Phones are not covered yet; Device Farm runs the device suite,
 not these parity tests.
+
+### The parity certificate (FW-26)
+
+The rows above are a contract, and each CI run measures it. When the GPU
+suites run with `VIEWW_PARITY_OUT` set, every comparison against the CPU
+oracle appends a row: backend, adapter, test, contract, interior
+violations, and the worst channel delta anywhere. The rows are written by
+`crates/vieww-hal/tests/support/parity_row.rs`.
+`ci/check/parity-certificate.py` merges them into
+`parity-certificate-<leg>.json` and fails the leg if any row broke its
+contract. The `framework-checks` Vulkan (lavapipe), Metal (paravirtual)
+and D3D12 (WARP) legs each upload theirs, and the table is written to the
+run summary. A release attaches the certificates of the commit it was cut
+from. Real-GPU rows come from the self-hosted runners, through the same
+script.
 
 ## 3. Changing a bound
 

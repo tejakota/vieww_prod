@@ -64,6 +64,7 @@ mod flatten;
 /// is, how it is validated against [`Scene::damage_cull`], and what it
 /// deliberately does not do.
 pub mod graph;
+pub mod ir;
 mod layer;
 mod scene;
 mod scheduler;

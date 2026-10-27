@@ -20,6 +20,9 @@
 
 #![cfg(feature = "d3d12")]
 
+#[path = "support/parity_row.rs"]
+mod parity_row;
+
 use vieww_foundation::{Color, Rect, Transform};
 use vieww_gpu::Planner;
 use vieww_hal::d3d12::{D3d12Device, D3d12SceneRenderer};
@@ -117,6 +120,7 @@ fn interior_mismatches(gpu: &[u8], cpu: &[u8], tolerance: u8) -> usize {
             }
         }
     }
+    parity_row::record("d3d12", tolerance, gpu, cpu, count);
     count
 }
 

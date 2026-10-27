@@ -31,6 +31,9 @@
 
 #![cfg(feature = "vulkan")]
 
+#[path = "support/parity_row.rs"]
+mod parity_row;
+
 use vieww_foundation::{Color, Offset, Path, Rect, Transform};
 use vieww_gpu::{plan_scene, Unsupported};
 use vieww_hal::vulkan::{SceneRenderer, VulkanDevice};
@@ -160,6 +163,7 @@ fn interior_mismatches(gpu: &[u8], cpu: &[u8], tolerance: u8) -> usize {
             }
         }
     }
+    parity_row::record("vulkan", tolerance, gpu, cpu, count);
     count
 }
 

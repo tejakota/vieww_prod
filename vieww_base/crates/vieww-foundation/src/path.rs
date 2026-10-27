@@ -93,6 +93,15 @@ impl Path {
         }
     }
 
+    /// A path made of `verbs` as they are, for decoders (`vieww_paint::ir`)
+    /// that read a path back from bytes.
+    #[must_use]
+    pub fn from_verbs(verbs: Vec<PathVerb>) -> Self {
+        Self {
+            verbs: std::sync::Arc::new(verbs),
+        }
+    }
+
     /// The segments making up this path.
     #[must_use]
     pub fn verbs(&self) -> &[PathVerb] {
