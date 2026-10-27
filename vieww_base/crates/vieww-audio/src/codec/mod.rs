@@ -7,7 +7,7 @@
 //! | FLAC | [`flac`] | yes | all subframe types, all stereo modes, MD5-verified |
 //! | MP3 | [`mp3`] | — | MPEG-1/2/2.5 Layer III, joint stereo, gapless (LAME tag) |
 //! | Ogg Vorbis | [`vorbis`] | — | floor 1, residue 0/1/2, coupling; granule trimming |
-//! | AAC-LC | [`aac`] | — | ADTS and MP4/M4A (with edit-list priming removal) |
+//! | AAC-LC | `aac` (feature `aac`, default on; see PATENTS.md) | — | ADTS and MP4/M4A (with edit-list priming removal) |
 //!
 //! Every decoder returns [`Decoded`]: interleaved `f32` at the stream's own
 //! rate. [`decode`] sniffs the container and dispatches. Each decoder is
@@ -19,7 +19,9 @@
 //! containers (ID3, Vorbis comments, RIFF INFO, AIFF text, MP4 atoms) and
 //! writes them to WAV, FLAC and AIFF.
 
+#[cfg(feature = "aac")]
 pub mod aac;
+#[cfg(feature = "aac")]
 mod aac_tables;
 pub mod aiff;
 pub mod bits;
@@ -235,10 +237,19 @@ pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
         Format::Flac => flac::decode(bytes),
         Format::Ogg => vorbis::decode(bytes),
         Format::Mp3 => mp3::decode(bytes),
+        #[cfg(feature = "aac")]
         Format::Adts => aac::decode_adts(bytes),
+        #[cfg(feature = "aac")]
         Format::Mp4 => aac::decode_mp4(bytes),
+        #[cfg(not(feature = "aac"))]
+        Format::Adts | Format::Mp4 => Err(CodecError::Unsupported(AAC_DISABLED)),
     }
 }
+
+/// Why AAC input fails in a build without the `aac` feature.
+#[cfg(not(feature = "aac"))]
+const AAC_DISABLED: &str =
+    "AAC (this build of vieww-audio has the `aac` feature off; see PATENTS.md)";
 
 /// Signal-to-noise ratio in dB of `test` against `reference`, after the
 /// best alignment within `±max_lag` frames — how the decoders are graded.
@@ -351,6 +362,18 @@ mod tests {
         let mut data = clean;
         data[9] = 1.6;
         assert_eq!(ok(data.clone()), data);
+    }
+
+    /// AU-07: the patent page exists, covers every decoded format, and
+    /// the codec table points at it.
+    #[test]
+    fn the_patent_page_exists_and_is_referenced() {
+        let patents = include_str!("../../PATENTS.md");
+        for format in ["FLAC", "Vorbis", "MP3", "AAC", "not legal advice"] {
+            assert!(patents.contains(format), "PATENTS.md does not mention {format}");
+        }
+        assert!(include_str!("mod.rs").contains("see PATENTS.md"));
+        assert!(include_str!("../../tools/THIRD_PARTY.md").contains("PATENTS.md"));
     }
 
     #[test]

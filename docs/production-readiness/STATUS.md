@@ -3,7 +3,7 @@
 Every gap in the four research reports (framework.md, studio.md, audio.md, wright.md), with where it stands. **Closed** = code + tests + CI gate landed. **Partial** = the code is in, and what is left is listed. **Open** = not started.
 Mac real-device verification is out of scope by the owner's decision; Mac code paths are still written and CI-built where hosted runners allow.
 
-Totals: Closed 17, Open 70, Partial 7 (of 94).
+Totals: Closed 18, Open 69, Partial 7 (of 94).
 
 ## Framework
 
@@ -74,7 +74,7 @@ Totals: Closed 17, Open 70, Partial 7 (of 94).
 | AU-04 | P0 | No background playback story: no foreground service/MediaSession (Android), no `UIBackgroundModes` (iOS), no wake locks | **Open** |  |
 | AU-05 | P0 | Large-media playback: full-file decode in memory; only WAV disk-streams; no network source | **Open** |  |
 | AU-06 | P1 | Codec coverage: no Opus (and tags-only support for .opus), no HE-AAC SBR/PS, no ALAC | **Open** |  |
-| AU-07 | P1 | AAC patent posture is undocumented: table provenance exists, patent-pool exposure does not | **Open** |  |
+| AU-07 | P1 | AAC patent posture is undocumented: table provenance exists, patent-pool exposure does not | **Closed** | crates/vieww-audio/PATENTS.md: per-format patent status (PCM, FLAC, Vorbis none known; MP3 programme ended 2017; AAC pooled by Via LA in some jurisdictions; Opus royalty-free IETF declarations), not-legal-advice framing, source-not-binaries. AAC decoder behind the default-on `aac` feature; off, AAC input fails with CodecError::Unsupported naming the feature and PATENTS.md. Tests: aac_feature_off.rs (run --no-default-features in audio-ci), the_patent_page_exists_and_is_referenced. |
 | AU-08 | P1 | AAudio: always shared mode, no usage/contentType/privacy attributes, no latency query, no underrun query | **Open** |  |
 | AU-09 | P1 | Route changes and Bluetooth: 1-second polling instead of OS events; no Bluetooth-aware behavior at all | **Open** |  |
 | AU-10 | P1 | WASAPI shared mode: IAudioClient v1 with AUTOCONVERTPCM; no IAudioClient2/3 low-latency shared mode | **Open** |  |

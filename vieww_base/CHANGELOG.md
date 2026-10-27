@@ -28,6 +28,9 @@ tag needs a `## [x.y.z]` section here before it is pushed.
   `cargo publish --workspace` when run on a tag with a token configured).
 - **Releases** (FW-03, FW-06): `release-gate` run on a tag drafts a GitHub Release with
   installers, merged SHA256SUMS, SBOM, checklist and Sigstore build provenance.
+- **Audio patents** (AU-07): `vieww-audio/PATENTS.md` states each
+  format's patent status; the AAC decoder is behind the default-on `aac`
+  feature so distributors can leave it out.
 - **Audio that plays** (AU-01, AU-11): `vieww_audio::Engine`, `EnginePlayer`
   (registered by `vieww-platform-winit` on desktop and Android, device opened on
   first play) and `MediaPlayer` (load / play / pause / seek / position /

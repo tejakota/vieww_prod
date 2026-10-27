@@ -20,3 +20,10 @@ Regenerate with:
 
 Both generators check their output (prefix-code completeness, band totals,
 window entries) before writing anything.
+
+## Patents
+
+The credits above are about copyright. What is known about patents on
+each format (MP3's expired pool, AAC's active one, and the `aac` feature
+for distributors who prefer to leave the AAC decoder out) is in
+[`../PATENTS.md`](../PATENTS.md).

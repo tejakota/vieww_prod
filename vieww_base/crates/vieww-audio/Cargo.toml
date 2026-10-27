@@ -20,6 +20,14 @@ categories.workspace = true
 # learning what an audio device looks like.
 vieww-foundation.workspace = true
 
+[features]
+default = ["aac"]
+# The AAC-LC decoder (ADTS and MP4/M4A). On by default; a distributor whose
+# counsel prefers not to ship an AAC decoder builds with
+# `default-features = false` and AAC input fails with
+# `CodecError::Unsupported`. See PATENTS.md.
+aac = []
+
 [lints]
 workspace = true
 

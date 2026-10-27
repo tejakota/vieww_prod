@@ -44,8 +44,12 @@ fn every_hostile_input_is_refused_or_decodes_to_sane_audio() {
             "mp3" => codec::mp3::decode(&bytes),
             "flac" => codec::flac::decode(&bytes),
             "aiff" => codec::aiff::decode(&bytes),
+            #[cfg(feature = "aac")]
             "aac_adts" => codec::aac::decode_adts(&bytes),
+            #[cfg(feature = "aac")]
             "aac_mp4" => codec::aac::decode_mp4(&bytes),
+            #[cfg(not(feature = "aac"))]
+            "aac_adts" | "aac_mp4" => codec::decode(&bytes),
             "vorbis" => codec::vorbis::decode(&bytes),
             other => panic!("{name}: unknown entry prefix {other:?}"),
         };

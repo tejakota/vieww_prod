@@ -61,6 +61,10 @@ jobs:
         run: cargo test --release -p vieww-audio -p vieww-audio-plugin -p vieww-music
       - name: Clippy
         run: cargo clippy -p vieww-audio -p vieww-audio-plugin -p vieww-music --all-targets -- -D warnings
+      - name: Without the AAC decoder (AU-07, the distributor opt-out)
+        run: |
+          cargo clippy -p vieww-audio --no-default-features --all-targets -- -D warnings
+          cargo test --release -p vieww-audio --no-default-features --test aac_feature_off --test hostile_inputs
 
   fuzz:
     name: Audio decoders under cargo-fuzz (nightly, blocking)
