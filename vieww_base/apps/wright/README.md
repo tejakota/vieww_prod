@@ -33,7 +33,7 @@ affected work runs again.
 | Installers: Windows, macOS, Linux | ✅ | `.github/workflows/wright-release.yml` (ADR-020) |
 | Secrets: OS keychain via `security` / `secret-tool`, env for CI | ✅ | Windows Credential Manager: not yet |
 | Rule of Two: typed legs, taint fixpoint, validator + gate enforcement | ✅ | ADR-024; 3-leg agents need a human approval, and the gate asks anyway |
-| Signed receipts + `wright verify` (Ed25519, SHA-512 reference ports) | ✅ | ADR-025; five checks, inputs' hashes, acceptance verdicts |
+| Signed receipts + `wright verify` (Ed25519, SHA-512 reference ports) | ✅ | ADR-025; seven checks, inputs' hashes, acceptance verdicts |
 | Workers: claude-code / codex / kimi-code / zcode steps, sandboxed copy, all-or-nothing | ✅ | ADR-026 |
 | MCP behind permits: hash-pinned servers, allow-listed tools | ✅ | ADR-029; `wright mcp-hash` |
 | Typed edges: out=/in=/schema= over five readable shapes | ✅ | ADR-027; checked at plan and fire time |
@@ -97,7 +97,7 @@ cargo build --release --features ui         # + the vieww shell
 # Fire it, choose what you pay (the estimate comes first):
 ./target/release/wright run myproject
 
-# Prove what ran — five checks over the signed receipt:
+# Prove what ran — seven checks over the signed receipt:
 ./target/release/wright verify myproject
 
 # The one-screen story of the run:
@@ -163,7 +163,7 @@ instead (`wright secret env <ref>` prints the variable name).
 | Speak | the mic — transcribed on this machine by the built-in Whisper (or any speech model you set) |
 | Settings | ⚙, or Ctrl/Cmd+, — models & keys, defaults, appearance, workspace, project |
 | Export | **Export** on the result: the source as a .zip, or the package (wheel, crate, web build) once a run has passed its checks |
-| Prove it | **See the receipt** on the result: `wright verify`'s six checks in their own words, the verdict, the report to copy — the same store the CLI reads |
+| Prove it | **See the receipt** on the result: `wright verify`'s seven checks in their own words, the verdict, the report to copy — the same store the CLI reads |
 
 ## The commands
 

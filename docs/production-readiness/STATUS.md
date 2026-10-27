@@ -3,7 +3,7 @@
 Every gap in the four research reports (framework.md, studio.md, audio.md, wright.md), with where it stands. **Closed** = code + tests + CI gate landed. **Partial** = the code is in, and what is left is listed. **Open** = not started.
 Mac real-device verification is out of scope by the owner's decision; Mac code paths are still written and CI-built where hosted runners allow.
 
-Totals: Closed 13, Open 73, Partial 8 (of 94).
+Totals: Closed 14, Open 72, Partial 8 (of 94).
 
 ## Framework
 
@@ -114,7 +114,7 @@ Totals: Closed 13, Open 73, Partial 8 (of 94).
 | WR-14 | P2 | Windows POSIX sandbox requires WSL2 + Ubuntu + bubblewrap — heavy onboarding | **Open** |  |
 | WR-15 | P2 | Export targets: zip/wheel/crate/web only — no containers, no deploy, no mobile | **Open** |  |
 | WR-16 | P2 | Kill switch: any local process can engage it (unauthenticated `STOP` file) | **Closed** | 0700 wright home; sandbox cannot reach STOP (test). |
-| WR-17 | P2 | Doc drift: ARCHITECTURE vs code on three points | **Open** |  |
+| WR-17 | P2 | Doc drift: ARCHITECTURE vs code on three points | **Closed** | ARCHITECTURE: unsigned recipes refused (as recipe.rs), header defers to the code; README and verify.rs say seven checks (sampling added by WR-09). engine/src/verify.rs docs_agree tests fail when the code's check count, its doc list and the README disagree, or ARCHITECTURE promises unsigned installs. |
 | WR-18 | P3 | No server/team mode — by documented choice, but it caps the buyer set | **Open** |  |
 | WR-19 | P3 | Interview depends on the model honoring the format; validation loop is the mitigation (no gap in enforcement, but UX cost) | **Open** |  |
 | WR-20 | P3 | `http-read` textual check trusts content-type; no size-capped streaming guard for `http-post` bodies | **Closed** | http-post body capped at WRITE_LIMIT (1 MiB) before any connection; its answer read to 64 KiB; http-read checks the bytes as well as the content-type (no NUL, at most 1% invalid UTF-8). Tests in tools/src/lib.rs. |

@@ -1,7 +1,8 @@
 # Wright — Architecture & Positioning
 
-*Working draft, updated for v0.2 · October 2026 · this file is the
-source of truth (the PDF is a v0.1 snapshot).*
+*Design and positioning, first written for v0.2 · October 2026. The
+code (v1.0.x) and BLUEPRINT-FORMAT.md win wherever they differ from this
+file; `engine/src/verify.rs` is checked against it in CI (WR-17).*
 
 > **v0.2 in one paragraph.** The machine described here now runs end to
 > end on Linux: interview → code-generated Confirm Gate → blueprint →
@@ -297,8 +298,8 @@ Invariants (each is enforced in code, most are pinned by tests):
    writes a machine-verifiable record — blueprint commit, trigger,
    cost, events, artifacts.
 7. **Signed recipes.** Gallery recipes carry ed25519 signatures;
-   unsigned community recipes install with a warning badge and a chip-
-   permission review. (OpenClaw's CVE firestorm is the counterexample
+   an unsigned recipe is refused, never installed (`core/src/recipe.rs`),
+   and a signed one still goes through the chip-permission review. (OpenClaw's CVE firestorm is the counterexample
    we design against.)
 8. **Local-first.** No accounts, no cloud, no telemetry by default.
    Trust is won by not phoning home.

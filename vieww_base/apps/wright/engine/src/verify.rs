@@ -1,4 +1,4 @@
-//! `wright verify` (ADR-025): five checks over a run receipt.
+//! `wright verify` (ADR-025): seven checks over a run receipt.
 //!
 //! A receipt is only worth something if a third party can check it:
 //! a manager, a client, an auditor — anyone with the project and the
@@ -6,7 +6,7 @@
 //! `wright verify` prints one line per check and a verdict; each line
 //! says what it compared, in words.
 //!
-//! The six checks:
+//! The seven checks:
 //!
 //! 1. **The signature.** The receipt's exact JSON bytes (minus the
 //!    signature field) are signed with Ed25519. Verify re-parses,
@@ -35,6 +35,10 @@
 //! 6. **The identities.** Every task acted under its own identity: each
 //!    one delegated by the receipt's signer, attesting to its calls, and
 //!    every tool call in the log made under one of them, by its agent.
+//! 7. **The sampling.** Receipt v3 signs the temperature, top_p and seed
+//!    every model call asked for (WR-09); recomputed from the event log,
+//!    the rows must match exactly. Receipts v2 are reported as predating
+//!    the record, not silently passed.
 
 use std::path::Path;
 
@@ -704,5 +708,66 @@ fn check_inputs(store: &Store, v: &Value, checks: &mut Vec<Check>) -> bool {
             ),
         });
         false
+    }
+}
+
+/// WR-17: the documents that describe `wright verify` say how many checks
+/// it makes, and that number is the one the code makes.
+#[cfg(test)]
+mod docs_agree {
+    const WORDS: [&str; 10] = [
+        "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+    ];
+
+    #[test]
+    fn the_check_count_is_the_same_in_code_module_doc_and_readme() {
+        let src = include_str!("verify.rs");
+        let in_code = src
+            .lines()
+            .filter(|l| {
+                let t = l.trim_start();
+                t.starts_with("// ")
+                    && t[3..]
+                        .split_once(". ")
+                        .is_some_and(|(n, _)| n.parse::<u32>().is_ok())
+            })
+            .count();
+        let in_doc = src
+            .lines()
+            .filter(|l| {
+                l.strip_prefix("//! ")
+                    .and_then(|t| t.split_once(". **"))
+                    .is_some_and(|(n, _)| n.parse::<u32>().is_ok())
+            })
+            .count();
+        assert_eq!(
+            in_code, in_doc,
+            "verify.rs makes {in_code} checks; its doc lists {in_doc}"
+        );
+        let word = WORDS[in_code];
+        assert!(src.contains(&format!("{word} checks over a run receipt")));
+        let readme = include_str!("../../README.md");
+        for (n, w) in WORDS.iter().enumerate() {
+            if n != in_code {
+                assert!(
+                    !readme.contains(&format!("{w} checks over"))
+                        && !readme.contains(&format!("`wright verify`'s {w} checks")),
+                    "README.md still says {w} checks; the code makes {word}"
+                );
+            }
+        }
+        assert!(
+            readme.contains(&format!("{word} checks")),
+            "README.md does not state the {word} checks"
+        );
+    }
+
+    #[test]
+    fn architecture_does_not_promise_what_the_code_refuses() {
+        let arch = include_str!("../../docs/ARCHITECTURE.md");
+        assert!(
+            !arch.contains("install with a warning badge"),
+            "ARCHITECTURE.md says unsigned recipes install; recipe.rs refuses them"
+        );
     }
 }
