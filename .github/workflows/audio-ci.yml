@@ -1,28 +1,25 @@
-# Audio and music gate — the one workflow that runs without being asked.
+# Audio and music gate — started by hand, like every workflow here.
 #
-# Every other workflow here is manual (`workflow_dispatch`) by the repository
-# owner's choice of 2026-10-15, so nothing used to stop an audio regression
-# reaching `main`. This one is deliberately small: it runs only when audio or
-# music code changes, and only the crates involved — minutes, not the full
-# framework matrix.
+# By the repository owner's rule (2026-10-26) no workflow runs on push,
+# pull request, tag or schedule. This one stays small so it is cheap to
+# start whenever audio or music code changes: only the crates involved —
+# minutes, not the full framework matrix. Its result lands on the
+# `ci-results` branch like the others.
 #
 #   * `test`  — the three crates' tests in release (the realtime no-alloc
 #               harness and the NaN-recovery suite included) and clippy with
-#               `-D warnings`, on every push to main and every pull request
-#               that touches them.
+#               `-D warnings`.
 #   * `fuzz`  — every vieww-audio decoder under cargo-fuzz, and
 #               BLOCKING: a crash fails the run and uploads the input. (The
-#               `audio-fuzz` leg in framework-checks.yml is the manual,
-#               report-only twin.)
+#               `audio-fuzz` leg in framework-checks.yml is the report-only
+#               twin.)
 #
 # Mirrored byte-for-byte at vieww_base/.github/workflows/audio-ci.yml, like
 # the others: GitHub runs this root file.
 
 name: Audio CI
 
-# AU-15: started by hand (owner's rule, 2026-10-26: no automatic triggers).
-# Manual only, by the owner's rule (2026-10-26): no push, pull_request,
-# tag or schedule trigger. Actions -> this workflow -> Run workflow.
+# AU-15: Actions -> Audio CI -> Run workflow.
 on:
   workflow_dispatch:
 

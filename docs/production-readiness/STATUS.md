@@ -3,7 +3,7 @@
 Every gap in the four research reports (framework.md, studio.md, audio.md, wright.md), with where it stands. **Closed** = code + tests + CI gate landed. **Partial** = the code is in, and what is left is listed. **Open** = not started.
 Mac real-device verification is out of scope by the owner's decision; Mac code paths are still written and CI-built where hosted runners allow.
 
-Totals: Closed 14, Open 72, Partial 8 (of 94).
+Totals: Closed 16, Open 72, Partial 6 (of 94).
 
 ## Framework
 
@@ -82,7 +82,7 @@ Totals: Closed 14, Open 72, Partial 8 (of 94).
 | AU-12 | P1 | No lock-screen/now-playing/media-notification integration (MediaSession everywhere) | **Open** |  |
 | AU-13 | P1 | Plugin formats: CLAP+VST3 only — no AUv3 (blocks iOS/macOS store distribution of audio units), no LV2 (Linux pro audio), no AAX, and no GUI story | **Open** |  |
 | AU-14 | P1 | The device farm runs zero audio tests: AAudio has never run on a real device, iOS audio never on a real iPhone, Bluetooth never anywhere | **Open** |  |
-| AU-15 | P1 | All audio workflows are manual-only; the audio-ci.yml header comment still claims otherwise | **Partial** | audio-ci nightly fuzz + manual dispatch (owner: manual-only triggers). Nightly fuzz found a failure; crash input not yet captured — collector now keeps findings. |
+| AU-15 | P1 | All audio workflows are manual-only; the audio-ci.yml header comment still claims otherwise | **Closed** | audio-ci (tests, clippy, blocking decoder fuzz) and the framework-checks audio-fuzz leg are manual by the owner's rule and documented as such (the stale "runs without being asked" header is gone); both green; the collector keeps crash inputs; fuzz findings fixed (aac/mp4). |
 | AU-16 | P1 | No notation interchange: MusicXML out/in, LilyPond, ABC — the score cannot leave the ecosystem except as MIDI or audio | **Open** |  |
 | AU-17 | P2 | vieww-music ↔ vieww-audio: no live playback path — the score renderer is offline-only | **Open** |  |
 | AU-18 | P2 | RT-safety is proven by test, not enforced by the compiler — no lint denying allocation/locking in the audio thread path | **Open** |  |
@@ -100,7 +100,7 @@ Totals: Closed 14, Open 72, Partial 8 (of 94).
 |---|---|---|---|---|
 | WR-01 | P0 | Linux sandbox: `$HOME` is readable through PATH parents — "home secrets are invisible" is false on dev machines | **Closed** | PATH parents/HOME never roots; regression test. |
 | WR-02 | P0 | Sandbox depth: no syscall filter (seccomp), no PID namespace; networked commands share host process space | **Closed** | User+PID namespace, seccomp denylist, strict mode, escape tests in CI both ways. |
-| WR-03 | P0 | macOS: no sandbox backend at all — the product is fail-closed on a Tier-1 desktop OS | **Partial** | Seatbelt backend (sandbox_macos.rs) + behaviour suite; cross-compiles. Left: first green run of wright-sandbox.yml on hosted macOS. |
+| WR-03 | P0 | macOS: no sandbox backend at all — the product is fail-closed on a Tier-1 desktop OS | **Closed** | Seatbelt backend (sandbox_macos.rs, sandbox-exec -D params) + behaviour suite, green on hosted macOS in wright-sandbox (Mac real-device check out of scope by the owner). |
 | WR-04 | P0 | Release channel: unsigned installers, no notarization, no auto-update | **Open** |  |
 | WR-05 | P1 | Windows-native worker CLIs run without any OS sandbox (workspace-copy fallback) | **Partial** | Tier 1: Job object (kill-on-close tree, 64 processes, 4 GiB), suspended until adopted. Tier 2: worker .exe files run in the wright.worker AppContainer (copy is the only writable folder; user profile unreadable; install folders read+execute for the run only; internet capability only) inside the job; escape suite (write/read outside, startup-folder plant, env, timeout) in wright-sandbox windows. Left: npm .cmd shims stay tier 1 (reported as such); green run on CI and the self-hosted Windows box. |
 | WR-06 | P1 | Windows secret storage: no Credential Manager — keys in env vars on the platform that least wants them | **Closed** | Credential Manager via wincred.rs for resolve/store and new signing keys; Windows CI round-trip test. |
