@@ -893,7 +893,9 @@ mod tests {
         let started = Instant::now();
         let out = run(
             &comspec,
-            &["/d", "/c", "ping -n 30 127.0.0.1 >NUL"],
+            // An endless loop in cmd itself: ping (the Job test's sleeper)
+            // exits at once inside a container, which has no loopback.
+            &["/d", "/c", "for /l %i in (1,0,2) do @rem"],
             &copy,
             &[],
             &env,
@@ -902,7 +904,12 @@ mod tests {
             &|| false,
         )
         .unwrap();
-        assert!(out.timed_out && !out.success);
+        assert!(
+            out.timed_out && !out.success,
+            "the worker ended on its own (exit {}): {}",
+            out.exit_code,
+            out.output
+        );
         assert!(started.elapsed() < Duration::from_secs(10));
         let _ = std::fs::remove_dir_all(&copy);
     }
