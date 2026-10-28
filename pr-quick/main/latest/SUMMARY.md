@@ -1,20 +1,25 @@
-# pr-quick — FAILURE
+# pr-quick — SUCCESS
 
-- branch: `main`  sha: `7cd114dc558ef6eca3feea1d0a9b4d418ec73b85`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40532663936
+- branch: `main`  sha: `f00f19e8ffc37cf2c0e89aee3a23c0dadbff12e5`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40629175463
 
 | job | verdict | failed steps |
 |---|---|---|
-| actionlint | PASS |  |
+| checks --quick (linux-cpu) | PASS |  |
 | wright sandbox escape suite | PASS |  |
-| checks --quick (linux-cpu) | FAIL | Quick checks |
+| actionlint | PASS |  |
 
 ## Steps
 
-### actionlint — PASS
+### checks --quick (linux-cpu) — PASS
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
-- PASS: Lint every workflow
+- PASS: System packages
+- PASS: Rust toolchain (from rust-toolchain.toml)
+- PASS: Run Swatinem/rust-cache@v2
+- PASS: Run taiki-e/install-action@v2
+- PASS: Quick checks
+- PASS: Post Run Swatinem/rust-cache@v2
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
@@ -32,15 +37,10 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### checks --quick (linux-cpu) — FAIL
+### actionlint — PASS
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
-- PASS: System packages
-- PASS: Rust toolchain (from rust-toolchain.toml)
-- PASS: Run Swatinem/rust-cache@v2
-- PASS: Run taiki-e/install-action@v2
-- FAIL: Quick checks
-- skipped: Post Run Swatinem/rust-cache@v2
+- PASS: Lint every workflow
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
