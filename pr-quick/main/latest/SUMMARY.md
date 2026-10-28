@@ -1,27 +1,15 @@
 # pr-quick — SUCCESS
 
-- branch: `main`  sha: `f00f19e8ffc37cf2c0e89aee3a23c0dadbff12e5`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40629175463
+- branch: `main`  sha: `38a389d52a037763fd50a3222aa439db08389849`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40666782110
 
 | job | verdict | failed steps |
 |---|---|---|
-| checks --quick (linux-cpu) | PASS |  |
 | wright sandbox escape suite | PASS |  |
+| checks --quick (linux-cpu) | PASS |  |
 | actionlint | PASS |  |
 
 ## Steps
-
-### checks --quick (linux-cpu) — PASS
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: System packages
-- PASS: Rust toolchain (from rust-toolchain.toml)
-- PASS: Run Swatinem/rust-cache@v2
-- PASS: Run taiki-e/install-action@v2
-- PASS: Quick checks
-- PASS: Post Run Swatinem/rust-cache@v2
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
 
 ### wright sandbox escape suite — PASS
 - PASS: Set up job
@@ -33,6 +21,18 @@
 - PASS: The rest of wright (core, engine incl. WR-08/09/13 end-to-end, agents)
 - PASS: Sandbox tests (no PID namespace)
 - PASS: Sandbox tests with user namespaces enabled
+- PASS: Post Run Swatinem/rust-cache@v2
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### checks --quick (linux-cpu) — PASS
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: System packages
+- PASS: Rust toolchain (from rust-toolchain.toml)
+- PASS: Run Swatinem/rust-cache@v2
+- PASS: Run taiki-e/install-action@v2
+- PASS: Quick checks
 - PASS: Post Run Swatinem/rust-cache@v2
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
