@@ -109,7 +109,7 @@ jobs:
           cargo apk build -p vieww-platform-winit --example android --profile "${{ inputs.profile }}" --target aarch64-linux-android
           apk="$(find target -path '*/apk/*' -name '*.apk' -newer "$marker" | head -1)"
           [ -n "$apk" ] || { echo "::error::no APK was built"; exit 1; }
-          ci/mobile/apk-add-code.sh "$apk" ../dist/vieww-devicefarm.apk
+          ci/mobile/apk-add-code.sh "$apk" ../dist/vieww-devicefarm.apk --background-audio
           ls -l ../dist
           unzip -lv ../dist/vieww-devicefarm.apk | sort -k1 -n -r | head -8
       - uses: actions/upload-artifact@v4
@@ -245,7 +245,7 @@ jobs:
           echo "VIEWW_IOS_IDENTITY=$IOS_IDENTITY" >> "$GITHUB_ENV"
       - name: Device .ipa
         run: |
-          VIEWW_MOLTENVK="$MVK_DEVICE" ci/mobile/ios-app.sh --ipa
+          VIEWW_BACKGROUND_AUDIO=1 VIEWW_MOLTENVK="$MVK_DEVICE" ci/mobile/ios-app.sh --ipa
           mkdir -p ../dist && cp target/ios/vieww.ipa ../dist/vieww.ipa
           ls -l ../dist
       - uses: actions/upload-artifact@v4

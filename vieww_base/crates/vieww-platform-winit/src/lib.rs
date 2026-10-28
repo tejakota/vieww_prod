@@ -80,6 +80,9 @@ mod a11y_android;
 mod app;
 #[cfg(target_os = "android")]
 mod audio_android;
+/// The on-device audio check the Device Farm suites run (AU-02/03/04).
+#[cfg(any(target_os = "android", target_os = "ios"))]
+pub mod audio_check;
 #[cfg(target_os = "ios")]
 mod audio_ios;
 mod cadence;

@@ -455,3 +455,68 @@ pub(crate) fn install() {
         std::mem::forget(observer);
     });
 }
+
+/// For the on-device audio check: whether the session's category is
+/// `.playback` now.
+pub(crate) fn category_is_playback() -> bool {
+    let Some(s) = shared_session() else {
+        return false;
+    };
+    let category: *mut AnyObject = unsafe { msg_send![s, category] };
+    if category.is_null() {
+        return false;
+    }
+    let same: bool =
+        unsafe { msg_send![category, isEqualToString: AVAudioSessionCategoryPlayback] };
+    same
+}
+
+/// For the on-device audio check: whether the lock screen has a now-playing
+/// entry.
+pub(crate) fn now_playing_published() -> bool {
+    let Some(center_cls) = class("MPNowPlayingInfoCenter") else {
+        return false;
+    };
+    unsafe {
+        let center: *mut AnyObject = msg_send![center_cls, defaultCenter];
+        if center.is_null() {
+            return false;
+        }
+        let info: *mut AnyObject = msg_send![center, nowPlayingInfo];
+        !info.is_null()
+    }
+}
+
+/// For the on-device audio check: post the interruption notification iOS
+/// posts for a call, so the observer → session → engine path runs on the
+/// phone. (A real call cannot be placed on a device cloud.)
+pub(crate) fn post_interruption(began: bool, should_resume: bool) {
+    let (Some(nc_cls), Some(dict_cls), Some(num_cls)) = (
+        class("NSNotificationCenter"),
+        class("NSMutableDictionary"),
+        class("NSNumber"),
+    ) else {
+        return;
+    };
+    unsafe {
+        let nc: *mut AnyObject = msg_send![nc_cls, defaultCenter];
+        let info: *mut AnyObject = msg_send![dict_cls, dictionary];
+        if nc.is_null() || info.is_null() {
+            return;
+        }
+        let kind: usize = if began { INTERRUPTION_BEGAN } else { 0 };
+        let n: *mut AnyObject = msg_send![num_cls, numberWithUnsignedInteger: kind];
+        let _: () = msg_send![info, setObject: n, forKey: AVAudioSessionInterruptionTypeKey];
+        if !began {
+            let opt: usize = if should_resume {
+                OPTION_SHOULD_RESUME
+            } else {
+                0
+            };
+            let o: *mut AnyObject = msg_send![num_cls, numberWithUnsignedInteger: opt];
+            let _: () = msg_send![info, setObject: o, forKey: AVAudioSessionInterruptionOptionKey];
+        }
+        let nil: *mut AnyObject = std::ptr::null_mut();
+        let _: () = msg_send![nc, postNotificationName: AVAudioSessionInterruptionNotification, object: nil, userInfo: info];
+    }
+}

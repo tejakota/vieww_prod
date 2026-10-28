@@ -733,3 +733,101 @@ pub(crate) fn install(app: &crate::AndroidApp) {
         }
     });
 }
+
+/// A competing focus request, for the on-device audio check
+/// (`audio_check.rs`): what another app's request would do, made from this
+/// process with a different focus client (no listener), so Android sends
+/// the loss to vieww's own listener through the real focus stack.
+pub(crate) struct CompetingFocus {
+    app: crate::AndroidApp,
+    request: Global<JObject<'static>>,
+}
+
+impl CompetingFocus {
+    /// Ask for focus with `gain` (`AUDIOFOCUS_GAIN_TRANSIENT` = 2,
+    /// `..._MAY_DUCK` = 3). `None` if the request could not be made or was
+    /// refused.
+    pub(crate) fn claim(app: &crate::AndroidApp, gain: i32) -> Option<Self> {
+        let made = with_env(app, |env, activity| {
+            let am = audio_manager(env, activity)?;
+            let builder = env.new_object(
+                jni_str!("android/media/AudioAttributes$Builder"),
+                jni_sig!("()V"),
+                &[],
+            )?;
+            env.call_method(
+                &builder,
+                jni_str!("setUsage"),
+                jni_sig!("(I)Landroid/media/AudioAttributes$Builder;"),
+                // USAGE_ASSISTANCE_NAVIGATION_GUIDANCE: a prompt, as a
+                // navigation app's would be.
+                &[JValue::Int(12)],
+            )?;
+            let attrs = env
+                .call_method(
+                    &builder,
+                    jni_str!("build"),
+                    jni_sig!("()Landroid/media/AudioAttributes;"),
+                    &[],
+                )?
+                .l()?;
+            let fb = env.new_object(
+                jni_str!("android/media/AudioFocusRequest$Builder"),
+                jni_sig!("(I)V"),
+                &[JValue::Int(gain)],
+            )?;
+            env.call_method(
+                &fb,
+                jni_str!("setAudioAttributes"),
+                jni_sig!(
+                    "(Landroid/media/AudioAttributes;)Landroid/media/AudioFocusRequest$Builder;"
+                ),
+                &[JValue::Object(&attrs)],
+            )?;
+            let req = env
+                .call_method(
+                    &fb,
+                    jni_str!("build"),
+                    jni_sig!("()Landroid/media/AudioFocusRequest;"),
+                    &[],
+                )?
+                .l()?;
+            let answer = env
+                .call_method(
+                    &am,
+                    jni_str!("requestAudioFocus"),
+                    jni_sig!("(Landroid/media/AudioFocusRequest;)I"),
+                    &[JValue::Object(&req)],
+                )?
+                .i()?;
+            (answer == GRANTED)
+                .then(|| env.new_global_ref(&req))
+                .transpose()
+        });
+        match made {
+            Ok(Some(request)) => Some(Self {
+                app: app.clone(),
+                request,
+            }),
+            Ok(None) => None,
+            Err(e) => {
+                log::warn!("vieww-audio check: competing focus request failed: {e}");
+                None
+            }
+        }
+    }
+
+    /// Give it back: vieww's listener hears `AUDIOFOCUS_GAIN`.
+    pub(crate) fn release(self) {
+        let _ = with_env(&self.app, |env, activity| {
+            let am = audio_manager(env, activity)?;
+            env.call_method(
+                &am,
+                jni_str!("abandonAudioFocusRequest"),
+                jni_sig!("(Landroid/media/AudioFocusRequest;)I"),
+                &[JValue::Object(self.request.as_obj())],
+            )?;
+            Ok(())
+        });
+    }
+}

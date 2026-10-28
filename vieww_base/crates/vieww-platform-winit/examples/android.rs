@@ -703,6 +703,17 @@ mod demo {
         // phone" understated it — the wiring a device would have exercised was
         // not there to exercise.
         let registry = vieww_platform_winit::services::for_android(&android);
+        // The audio check (AU-02/03/04): `debug.vieww.audio=1` plays a tone
+        // and checks focus on this phone; `run-android.sh`'s audio pass reads
+        // its `__VIEWW_AUDIO__` lines and drives the rest (media keys, the
+        // screen off). After `for_android`, which registers the session bridge.
+        if std::process::Command::new("/system/bin/getprop")
+            .arg("debug.vieww.audio")
+            .output()
+            .is_ok_and(|out| String::from_utf8_lossy(&out.stdout).trim() == "1")
+        {
+            vieww_platform_winit::audio_check::spawn(&android);
+        }
         // Taken out before the registry is consumed, so the suite can round-trip
         // the *same* instance the tree will use rather than a second one.
         let clipboard = registry.get::<dyn Clipboard>();

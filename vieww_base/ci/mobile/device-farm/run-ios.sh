@@ -209,6 +209,58 @@ for mode in cpu gpu auto; do
     sleep 2
 done
 
+# ── audio: the session, an interruption, the background (AU-03, AU-04) ──────
+#
+# `VIEWW_AUDIO=1` makes the demo play a looping tone and check, on the phone,
+# the session category, the lock-screen entry, and that the interruption
+# notification iOS posts for a call pauses and resumes playback
+# (`audio_check.rs`); its lines start with `__VIEWW_AUDIO__`. This pass then
+# presses Home and checks the audio callbacks keep counting for 30 s in the
+# background, which iOS allows only with UIBackgroundModes = audio
+# (`ios-app.sh` with VIEWW_BACKGROUND_AUDIO=1).
+audio_fail=""
+audio_check() { # name ok(0/1) detail
+    kv "audio_$1" "$([ "$2" = 1 ] && echo PASS || echo FAIL) $3"
+    [ "$2" = 1 ] || audio_fail="$audio_fail $1"
+}
+audio_status() { grep -o '__VIEWW_AUDIO__ status .*' "$1" | tail -1 | tr -d '\r'; }
+audio_field() { echo "$1" | tr ' ' '\n' | grep "^$2=" | cut -d= -f2; }
+if [ "$legacy" = 1 ]; then
+    kv audio "skipped (iOS below 17: no devicectl console)"
+else
+    alog="$out/audio-app.log"
+    apid="$(launch '{"VIEWW_AUDIO":"1"}' "$alog")"
+    if wait_for "$alog" 90 "__VIEWW_AUDIO__ result"; then
+        in_app="$(grep -m1 '__VIEWW_AUDIO__ result' "$alog" | tr -d '\r' | awk '{print $NF}')"
+    else
+        in_app=""
+    fi
+    audio_check in_app "$([ "$in_app" = PASS ] && echo 1 || echo 0)" "${in_app:-no result}; failed: $(grep -o '__VIEWW_AUDIO__ FAIL [a-z_]*' "$alog" | awk '{print $NF}' | tr '\n' ' ')"
+    if [ -n "$in_app" ]; then
+        if [ -n "$session" ]; then
+            sleep 2
+            before="$(audio_status "$alog")"
+            python3 "$here/tap_ios.py" home --session "$session" >> "$out/audio-home.log" 2>&1
+            sleep 30
+            after="$(audio_status "$alog")"
+            c0="$(audio_field "$before" callbacks)"; c1="$(audio_field "$after" callbacks)"
+            rate="$(audio_field "$after" rate)"; [ "${rate:-0}" -gt 0 ] 2>/dev/null || rate=1
+            t0="$(audio_field "$before" t_ms)"; t1="$(audio_field "$after" t_ms)"
+            played=$(( (${c1:-0} - ${c0:-0}) / rate ))
+            ok=0; [ "$played" -ge 25 ] && [ $(( ${t1:-0} - ${t0:-0} )) -ge 25000 ] && ok=1
+            audio_check plays_in_background "$ok" "$played s of audio callbacks over $(( (${t1:-0} - ${t0:-0}) / 1000 )) s after Home; after: $after"
+        else
+            kv audio_plays_in_background "not run (no Appium session to press Home)"
+        fi
+    fi
+    kill "$apid" > /dev/null 2>&1 || true
+    if [ -n "$audio_fail" ]; then
+        kv audio_gate_failed "${audio_fail# }"
+        status=1
+    fi
+    kv audio "$([ -z "$audio_fail" ] && echo PASS || echo FAIL)"
+fi
+
 [ -n "$session" ] && python3 "$here/tap_ios.py" close --session "$session" > /dev/null 2>&1
 [ -n "$appium_pid" ] && kill "$appium_pid" > /dev/null 2>&1
 kv status "$([ "$status" = 0 ] && echo PASS || echo FAIL)"

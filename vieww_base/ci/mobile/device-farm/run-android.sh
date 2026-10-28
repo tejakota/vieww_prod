@@ -311,6 +311,81 @@ for mode in cpu gpu auto cpuvk cpuhint gpuscale gpuserial cpubare cpunothreads c
     fi
 done
 
+# ── audio: focus, the media session, the screen off (AU-02, AU-04) ───────────
+#
+# `debug.vieww.audio=1` makes the demo play a looping tone and run its own
+# focus checks (`audio_check.rs`: a competing transient request pauses and
+# its release resumes, a may-duck request ducks); every line starts with
+# `__VIEWW_AUDIO__`. This pass then drives what only the system can:
+#   * pause and play through the media session (`cmd media_session
+#     dispatch`), the path a lock screen, headset or car takes;
+#   * the session and the foreground service, as `dumpsys` reports them;
+#   * a minute with the screen off, checked against the audio callbacks
+#     the app keeps counting — Android freezes a backgrounded app without a
+#     mediaPlayback foreground service, and the count stops with it.
+# Needs the APK from `apk-add-code.sh --background-audio`.
+audio_line() { adb logcat -d 2>/dev/null | tr -d '\r' | grep -o '__VIEWW_AUDIO__ .*' | sed 's/^__VIEWW_AUDIO__ //'; }
+audio_status() { audio_line | grep '^status ' | tail -1; }
+audio_field() { echo "$1" | tr ' ' '\n' | grep "^$2=" | cut -d= -f2; }
+audio_fail=""
+audio_check() { # name ok(0/1) detail
+    kv "audio_$1" "$([ "$2" = 1 ] && echo PASS || echo FAIL) $3"
+    [ "$2" = 1 ] || audio_fail="$audio_fail $1"
+}
+sh_ am force-stop "$package" >/dev/null
+sh_ setprop debug.vieww.screen '""' >/dev/null
+sh_ setprop debug.vieww.gpu 0 >/dev/null
+sh_ setprop debug.vieww.audio 1 >/dev/null
+adb logcat -c 2>/dev/null
+sh_ am start -n "$component" >/dev/null
+deadline=$(( $(date +%s) + 90 ))
+while [ "$(date +%s)" -lt "$deadline" ] && ! audio_line | grep -q '^result '; do sleep 1; done
+audio_line > "$out/audio-app.log"
+in_app="$(grep -m1 '^result ' "$out/audio-app.log" | awk '{print $2}')"
+audio_check in_app "$([ "$in_app" = PASS ] && echo 1 || echo 0)" "${in_app:-no result}; failed: $(grep '^FAIL ' "$out/audio-app.log" | awk '{print $2}' | tr '\n' ' ')"
+
+if [ -n "$in_app" ]; then
+    # The media session: pause, then play, as a lock screen would.
+    sh_ cmd media_session dispatch pause > "$out/audio-dispatch.txt"
+    sleep 3
+    st="$(audio_status)"
+    audio_check remote_pause "$([ "$(audio_field "$st" playing)" = false ] && echo 1 || echo 0)" "$st"
+    sh_ cmd media_session dispatch play >> "$out/audio-dispatch.txt"
+    sleep 3
+    st="$(audio_status)"
+    audio_check remote_play "$([ "$(audio_field "$st" playing)" = true ] && echo 1 || echo 0)" "$st"
+
+    sh_ dumpsys media_session > "$out/audio-media-session.txt"
+    playing_session="$(grep -A30 "package=$package" "$out/audio-media-session.txt" | grep -m1 -o 'state=PlaybackState {state=[0-9]*' | grep -o '[0-9]*$')"
+    audio_check media_session_playing "$([ "$playing_session" = 3 ] && echo 1 || echo 0)" "state=${playing_session:-absent}"
+    sh_ dumpsys activity services dev.vieww.audio.PlaybackService > "$out/audio-service.txt"
+    audio_check foreground_service "$(grep -q 'isForeground=true' "$out/audio-service.txt" && echo 1 || echo 0)" "$(grep -m1 -o 'isForeground=[a-z]*' "$out/audio-service.txt")"
+
+    # A minute with the screen off.
+    before="$(audio_status)"
+    sh_ input keyevent KEYCODE_SLEEP >/dev/null
+    sleep 60
+    after="$(audio_status)"
+    sh_ input keyevent KEYCODE_WAKEUP >/dev/null
+    sh_ wm dismiss-keyguard >/dev/null
+    c0="$(audio_field "$before" callbacks)"; c1="$(audio_field "$after" callbacks)"; rate="$(audio_field "$after" rate)"
+    t0="$(audio_field "$before" t_ms)"; t1="$(audio_field "$after" t_ms)"
+    rate="${rate:-0}"; [ "$rate" -gt 0 ] 2>/dev/null || rate=1
+    played_s=$(( (${c1:-0} - ${c0:-0}) / rate ))
+    ok=0; [ "$played_s" -ge 50 ] && [ $(( ${t1:-0} - ${t0:-0} )) -ge 50000 ] && ok=1
+    audio_check plays_with_screen_off "${ok:-0}" "${played_s:-?} s of audio callbacks over $(( (${t1:-0}-${t0:-0}) / 1000 )) s with the screen off; after: $after"
+fi
+audio_line > "$out/audio-app.log"
+adb logcat -d 2>/dev/null > "$out/audio-logcat.txt"
+sh_ setprop debug.vieww.audio 0 >/dev/null
+sh_ am force-stop "$package" >/dev/null
+if [ -n "$audio_fail" ]; then
+    kv audio_gate_failed "${audio_fail# }"
+    echo "::error::run-android: $(sh_ getprop ro.product.model) audio:$audio_fail" >&2
+    status=1
+fi
+kv audio "$([ -z "$audio_fail" ] && echo PASS || echo FAIL)"
+
 # **Which passes gate.** `auto` is what ships, so it always does. `cpu` does
 # too: on the phones where `auto` keeps the CPU it is the same path, and
 # everywhere else it is the fallback when a GPU driver is refused, judged at
@@ -405,6 +480,7 @@ sh_ setprop debug.vieww.partialblit '""' >/dev/null
 sh_ setprop debug.vieww.frames '""' >/dev/null
 sh_ setprop debug.vieww.seconds '""' >/dev/null
 sh_ setprop debug.vieww.cadence "" >/dev/null
+sh_ setprop debug.vieww.audio 0 >/dev/null
 sh_ am force-stop "$package" >/dev/null
 sh_ svc power stayon false >/dev/null
 kv status "$([ "$status" = 0 ] && echo PASS || echo FAIL)"

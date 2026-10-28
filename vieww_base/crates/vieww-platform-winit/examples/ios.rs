@@ -122,6 +122,12 @@ fn main() {
     // lock-screen controls; AU-03/04), which this registers with
     // AVAudioSession at startup.
     let _services = vieww_platform_winit::services::platform();
+    // The audio check (AU-03/04): `VIEWW_AUDIO=1` plays a tone and checks
+    // the session on this phone; `run-ios.sh`'s audio pass reads its
+    // `__VIEWW_AUDIO__` lines.
+    if std::env::var("VIEWW_AUDIO").is_ok_and(|v| v == "1") {
+        vieww_platform_winit::audio_check::spawn();
+    }
     let app = App::new();
     let app = if prefer_gpu { app.prefer_gpu() } else { app };
     // `VIEWW_GPU=auto` measures both rasterizers on this iPhone and keeps the

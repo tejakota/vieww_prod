@@ -8,6 +8,7 @@ wheels (and their validator has nothing to reject).
     tap_ios.py open  --udid UDID [--wda DERIVED_DATA]   prints the session id
     tap_ios.py tap   --session ID --line "__VIEWW_TAPS_PT__ scale=3 button=x,y field=x,y"
     tap_ios.py close --session ID
+    tap_ios.py home  --session ID     presses the Home button (the app goes to the background)
     tap_ios.py suite --udid UDID [--wda DERIVED_DATA] --bundle ID --gpu 0|1 --out LOG
 
 `suite` is the whole run for an iPhone **below iOS 17**, where Xcode's
@@ -143,9 +144,15 @@ def tap(session, x, y):
     call("POST", f"/session/{session}/actions", actions, timeout=60)
 
 
+def home(session):
+    """Send the app to the background, as the Home button does."""
+    call("POST", f"/session/{session}/execute/sync",
+         {"script": "mobile: pressButton", "args": [{"name": "home"}]}, timeout=60)
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["open", "tap", "close", "suite"])
+    parser.add_argument("command", choices=["open", "tap", "close", "suite", "home"])
     parser.add_argument("--bundle", default="dev.vieww.demo")
     parser.add_argument("--gpu", default="0")
     parser.add_argument("--out", default="suite.log")
@@ -159,6 +166,9 @@ def main():
         open_session(args.udid, args.wda)
     elif args.command == "suite":
         run_suite(args)
+    elif args.command == "home":
+        home(args.session)
+        print("pressed home")
     elif args.command == "tap":
         for name in ("button", "field"):
             match = re.search(rf"{name}=(-?\d+),(-?\d+)", args.line)

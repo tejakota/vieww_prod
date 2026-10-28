@@ -275,6 +275,25 @@ def raster_ab_section(rows):
     return lines
 
 
+def audio_section(rows):
+    """The audio pass (AU-02/03/04): one line per check per phone, from the
+    `audio_*` keys run-android.sh and run-ios.sh write."""
+    out = []
+    for row in rows:
+        r = row["result"] or {}
+        checks = sorted((k[len("audio_"):], v) for k, v in r.items()
+                        if k.startswith("audio_") and k != "audio_gate_failed")
+        if not checks and not r.get("audio"):
+            continue
+        if not out:
+            out += ["## Audio: focus, interruptions, background playback", ""]
+        out.append(f"**{row['device']}**: {r.get('audio', '–')}")
+        for name, value in checks:
+            out.append(f"- {name}: {value}")
+        out.append("")
+    return out
+
+
 def summarize(rows, out, run):
     lines = [
         "# vieww on AWS Device Farm",
@@ -410,6 +429,7 @@ def summarize(rows, out, run):
             if failed:
                 lines.append(f"- failed checks: {failed}")
             lines.append("")
+    lines.extend(audio_section(rows))
     lines.extend(raster_ab_section(rows))
     lines.append(
         "Targets from the audit, for reading the table: product UI p95 under 15 ms and cold start "
