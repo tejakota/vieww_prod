@@ -147,28 +147,23 @@ impl ParsedShader {
             })
     }
 
-    /// Translate to SPIR-V — the same `naga::back::spv` call
-    /// `vieww-hal::vulkan::translate_wgsl_to_spirv` makes, generalized to
-    /// any entry point rather than the two hardcoded ones there. A whole
-    /// module is written at once (SPIR-V's binary carries every entry
-    /// point; `entry_point`/`stage` select which one a *caller* means to
-    /// bind when building a pipeline, they don't change what bytes come
-    /// out), so `entry_point`/`stage` here only need to exist for the
-    /// error to be caught early rather than at pipeline-creation time.
+    /// Translate one entry point to SPIR-V: a module holding only
+    /// `entry_point` of `stage` and what it reaches. Never a whole
+    /// multi-entry-point module, which Adreno drivers fail at pipeline
+    /// creation (see `spirv_options::write_spirv_entry`). The options are
+    /// shared with `build.rs`, which bakes the built-in library with exactly
+    /// these (see `crate::baked`).
     pub fn to_spirv(
         &self,
         entry_point: &str,
         stage: ShaderStage,
     ) -> Result<Vec<u32>, CompileError> {
-        self.find_entry_point(entry_point, stage)?;
-        // Options live in `spirv_options.rs`, shared with `build.rs`, which
-        // bakes the built-in library with exactly these (see `crate::baked`).
-        crate::spirv_options::write_spirv(&self.module, &self.info).map_err(|message| {
-            CompileError::Backend {
+        let ep = self.find_entry_point(entry_point, stage)?;
+        crate::spirv_options::write_spirv_entry(&self.module, &self.info, entry_point, ep.stage)
+            .map_err(|message| CompileError::Backend {
                 target: "spir-v",
                 message,
-            }
-        })
+            })
     }
 
     /// Translate one entry point to Metal Shading Language, with every

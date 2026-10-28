@@ -346,17 +346,25 @@ audio_check in_app "$([ "$in_app" = PASS ] && echo 1 || echo 0)" "${in_app:-no r
 
 if [ -n "$in_app" ]; then
     # The media session: pause, then play, as a lock screen would.
-    sh_ cmd media_session dispatch pause > "$out/audio-dispatch.txt"
+    # `cmd media_session` is Android 10+; Android 9 has the older `media`
+    # tool (the LG Stylo 5's pause went nowhere in run 40720367260).
+    if [ "$(sh_ getprop ro.build.version.sdk)" -ge 29 ] 2>/dev/null; then
+        dispatch() { sh_ cmd media_session dispatch "$1"; }
+    else
+        dispatch() { sh_ media dispatch "$1"; }
+    fi
+    dispatch pause > "$out/audio-dispatch.txt" 2>&1
     sleep 3
     st="$(audio_status)"
     audio_check remote_pause "$([ "$(audio_field "$st" playing)" = false ] && echo 1 || echo 0)" "$st"
-    sh_ cmd media_session dispatch play >> "$out/audio-dispatch.txt"
+    dispatch play >> "$out/audio-dispatch.txt" 2>&1
     sleep 3
     st="$(audio_status)"
     audio_check remote_play "$([ "$(audio_field "$st" playing)" = true ] && echo 1 || echo 0)" "$st"
 
     sh_ dumpsys media_session > "$out/audio-media-session.txt"
-    playing_session="$(grep -A30 "package=$package" "$out/audio-media-session.txt" | grep -m1 -o 'state=PlaybackState {state=[0-9]*' | grep -o '[0-9]*$')"
+    # `state=3` up to Android 12, `state=PLAYING(3)` from 13.
+    playing_session="$(grep -A30 "package=$package" "$out/audio-media-session.txt" | grep -m1 -oE 'state=PlaybackState \{state=[A-Z_]*\(?[0-9]+' | grep -oE '[0-9]+$')"
     audio_check media_session_playing "$([ "$playing_session" = 3 ] && echo 1 || echo 0)" "state=${playing_session:-absent}"
     sh_ dumpsys activity services dev.vieww.audio.PlaybackService > "$out/audio-service.txt"
     audio_check foreground_service "$(grep -q 'isForeground=true' "$out/audio-service.txt" && echo 1 || echo 0)" "$(grep -m1 -o 'isForeground=[a-z]*' "$out/audio-service.txt")"

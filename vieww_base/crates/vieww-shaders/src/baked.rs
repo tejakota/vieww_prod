@@ -24,7 +24,7 @@ pub enum Stage {
     Compute,
 }
 
-/// One built-in WGSL module and its SPIR-V.
+/// One built-in WGSL module and its SPIR-V, one module per entry point.
 #[derive(Debug)]
 pub struct Baked {
     /// The file stem under `shaders/`: `"scene"`, `"post"`, …
@@ -32,20 +32,26 @@ pub struct Baked {
     /// The WGSL it was translated from — the same text as the matching
     /// [`crate::library`] constant.
     pub wgsl: &'static str,
-    /// The whole module (every entry point) as SPIR-V words.
-    pub spirv: &'static [u32],
-    /// Its entry points, so a wrong name fails here rather than at pipeline
-    /// creation inside a driver.
-    pub entry_points: &'static [(&'static str, Stage)],
+    /// Each entry point with its stage and its own SPIR-V module (only that
+    /// entry point and what it reaches; see `spirv_options::write_spirv_entry`
+    /// for why a module never holds more than one).
+    pub entries: &'static [(&'static str, Stage, &'static [u32])],
 }
 
 impl Baked {
     /// Whether this module has an entry point `name` of `stage`.
     #[must_use]
     pub fn has_entry_point(&self, name: &str, stage: Stage) -> bool {
-        self.entry_points
+        self.spirv(name, stage).is_some()
+    }
+
+    /// The SPIR-V module for entry point `name` of `stage`.
+    #[must_use]
+    pub fn spirv(&self, name: &str, stage: Stage) -> Option<&'static [u32]> {
+        self.entries
             .iter()
-            .any(|&(n, s)| n == name && s == stage)
+            .find(|&&(n, s, _)| n == name && s == stage)
+            .map(|&(_, _, words)| words)
     }
 }
 
@@ -76,9 +82,7 @@ pub fn find(wgsl: &str) -> Option<&'static Baked> {
 /// `None` if `wgsl` is not a built-in or has no such entry point.
 #[must_use]
 pub fn spirv(wgsl: &str, entry_point: &str, stage: Stage) -> Option<&'static [u32]> {
-    find(wgsl)
-        .filter(|b| b.has_entry_point(entry_point, stage))
-        .map(|b| b.spirv)
+    find(wgsl).and_then(|b| b.spirv(entry_point, stage))
 }
 
 #[cfg(test)]
@@ -104,12 +108,14 @@ mod tests {
             library::COMPOSITE_WGSL,
         ] {
             let baked = find(wgsl).expect("a library shader is baked");
-            assert!(baked.spirv.len() > 5, "{} is empty", baked.name);
-            assert_eq!(
-                baked.spirv[0], 0x0723_0203,
-                "{} lacks the SPIR-V magic",
-                baked.name
-            );
+            for &(entry, _, words) in baked.entries {
+                assert!(words.len() > 5, "{} {entry} is empty", baked.name);
+                assert_eq!(
+                    words[0], 0x0723_0203,
+                    "{} {entry} lacks the SPIR-V magic",
+                    baked.name
+                );
+            }
             assert!(
                 baked.has_entry_point("vs_main", Stage::Vertex),
                 "{}",
@@ -144,20 +150,49 @@ mod tests {
 
     /// The baked bytes are what the runtime compiler produces now — the
     /// shared options file makes drift unlikely; this makes it impossible
-    /// to miss.
+    /// to miss. Every entry point, not only `vs_main`.
     #[cfg(feature = "compiler")]
     #[test]
     fn baked_spirv_equals_runtime_translation() {
         for baked in all() {
             let parsed = crate::ParsedShader::parse(baked.wgsl).expect("parses");
-            let runtime = parsed
-                .to_spirv("vs_main", crate::ShaderStage::Vertex)
-                .expect("translates");
-            assert_eq!(
-                runtime, baked.spirv,
-                "{} differs from runtime translation",
-                baked.name
-            );
+            for &(entry, stage, words) in baked.entries {
+                let stage = match stage {
+                    Stage::Vertex => crate::ShaderStage::Vertex,
+                    Stage::Fragment => crate::ShaderStage::Fragment,
+                    Stage::Compute => crate::ShaderStage::Compute,
+                };
+                let runtime = parsed.to_spirv(entry, stage).expect("translates");
+                assert_eq!(
+                    runtime, words,
+                    "{} {entry} differs from runtime translation",
+                    baked.name
+                );
+            }
         }
+    }
+
+    /// The Adreno rule: a SPIR-V module carries exactly one entry point
+    /// (`OpEntryPoint` appears once). post.wgsl has four; written whole, its
+    /// module failed pipeline creation on every Adreno phone.
+    #[test]
+    fn every_baked_module_has_exactly_one_entry_point() {
+        const OP_ENTRY_POINT: u32 = 15;
+        for baked in all() {
+            for &(entry, _, words) in baked.entries {
+                let mut at = 5; // past the header
+                let mut count = 0;
+                while at < words.len() {
+                    let len = (words[at] >> 16) as usize;
+                    if words[at] & 0xFFFF == OP_ENTRY_POINT {
+                        count += 1;
+                    }
+                    at += len.max(1);
+                }
+                assert_eq!(count, 1, "{} {entry}: {count} OpEntryPoint", baked.name);
+            }
+        }
+        let post = find(crate::library::POST_WGSL).expect("post is baked");
+        assert!(post.entries.len() >= 4, "post.wgsl's D3D12 entry points");
     }
 }

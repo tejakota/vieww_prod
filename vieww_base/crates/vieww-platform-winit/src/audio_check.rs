@@ -41,7 +41,12 @@ use vieww_audio::session::AudioSession;
 use vieww_audio::Samples;
 
 fn say(line: &str) {
+    // Android: logcat (the demo also forwards stdout there, so one channel
+    // or every line arrives twice). iOS: stdout, which devicectl's console
+    // forwards.
+    #[cfg(target_os = "android")]
     log::info!("__VIEWW_AUDIO__ {line}");
+    #[cfg(not(target_os = "android"))]
     println!("__VIEWW_AUDIO__ {line}");
 }
 

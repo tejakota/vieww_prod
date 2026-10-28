@@ -241,8 +241,19 @@ fn java_side(env: &mut jni::Env<'_>, activity: &JObject<'_>) -> Java {
                     jni_sig!("(Ljava/lang/String;)V"),
                     &[JValue::Object(&action)],
                 )?;
+                // On the application context: one registered on the
+                // activity leaks (and is logged as leaked) when the activity
+                // is destroyed, and this receiver is for the process.
+                let context = env
+                    .call_method(
+                        activity,
+                        jni_str!("getApplicationContext"),
+                        jni_sig!("()Landroid/content/Context;"),
+                        &[],
+                    )?
+                    .l()?;
                 env.call_method(
-                    activity,
+                    &context,
                     jni_str!("registerReceiver"),
                     jni_sig!(
                         "(Landroid/content/BroadcastReceiver;Landroid/content/IntentFilter;)\

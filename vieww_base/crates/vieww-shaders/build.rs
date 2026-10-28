@@ -45,30 +45,36 @@ fn main() {
         let wgsl = std::fs::read_to_string(&path).expect("shader is readable");
         let (module, info) = spirv_options::parse_and_validate(&wgsl)
             .unwrap_or_else(|e| panic!("shaders/{name}.wgsl: {e}"));
-        let words = spirv_options::write_spirv(&module, &info)
-            .unwrap_or_else(|e| panic!("shaders/{name}.wgsl: spir-v: {e}"));
         let ident = name.to_uppercase();
-        let _ = write!(out, "static {ident}_SPIRV: [u32; {}] = [", words.len());
-        for (i, w) in words.iter().enumerate() {
-            if i % 8 == 0 {
-                out.push_str("\n    ");
-            }
-            let _ = write!(out, "0x{w:08x}, ");
-        }
-        out.push_str("\n];\n");
         let mut entries = String::new();
-        for ep in &module.entry_points {
+        for (i, ep) in module.entry_points.iter().enumerate() {
             let stage = match ep.stage {
                 naga::ShaderStage::Vertex => "Vertex",
                 naga::ShaderStage::Fragment => "Fragment",
                 naga::ShaderStage::Compute => "Compute",
                 other => panic!("shaders/{name}.wgsl: unsupported stage {other:?}"),
             };
-            let _ = write!(entries, "({:?}, Stage::{stage}), ", ep.name);
+            // One SPIR-V module per entry point (see
+            // `spirv_options::write_spirv_entry` for the driver bug).
+            let words = spirv_options::write_spirv_entry(&module, &info, &ep.name, ep.stage)
+                .unwrap_or_else(|e| panic!("shaders/{name}.wgsl: {}: spir-v: {e}", ep.name));
+            let _ = write!(out, "static {ident}_{i}_SPIRV: [u32; {}] = [", words.len());
+            for (j, w) in words.iter().enumerate() {
+                if j % 8 == 0 {
+                    out.push_str("\n    ");
+                }
+                let _ = write!(out, "0x{w:08x}, ");
+            }
+            out.push_str("\n];\n");
+            let _ = write!(
+                entries,
+                "({:?}, Stage::{stage}, &{ident}_{i}_SPIRV), ",
+                ep.name
+            );
         }
         let _ = writeln!(
             table,
-            "    Baked {{ name: {name:?}, wgsl: include_str!({:?}), spirv: &{ident}_SPIRV, entry_points: &[{entries}] }},",
+            "    Baked {{ name: {name:?}, wgsl: include_str!({:?}), entries: &[{entries}] }},",
             path.display().to_string()
         );
     }

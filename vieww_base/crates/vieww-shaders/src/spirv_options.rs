@@ -47,14 +47,32 @@ pub(crate) fn spirv_options() -> naga::back::spv::Options<'static> {
 
 /// The whole module as SPIR-V words. SPIR-V carries every entry point, so
 /// there is one blob per WGSL module, not one per entry point.
-pub(crate) fn write_spirv(
+/// SPIR-V for **one** entry point: a module holding only `entry_point` of
+/// `stage` and what it reaches.
+///
+/// One module per entry point, not one per file. A WGSL file with several
+/// fragment entry points (post.wgsl: `fs_main`, `fs_blur`, `fs_no_blur`)
+/// becomes, written whole, a SPIR-V module declaring an output variable at
+/// `Location 0` once per entry point. That is valid SPIR-V, and lavapipe,
+/// MoltenVK and the validation layers accept it, but Qualcomm's Adreno
+/// drivers fail it at pipeline creation ("Failed to link shaders",
+/// `VK_ERROR_UNKNOWN`) — every GPU pass on the Adreno 506, 650 and 840 in
+/// Device Farm run 40720367260, after post.wgsl gained its D3D12 entry
+/// points. wgpu writes one module per entry point for the same reason.
+pub(crate) fn write_spirv_entry(
     module: &naga::Module,
     info: &naga::valid::ModuleInfo,
+    entry_point: &str,
+    stage: naga::ShaderStage,
 ) -> Result<Vec<u32>, String> {
     let mut writer = naga::back::spv::Writer::new(&spirv_options()).map_err(|e| e.to_string())?;
     let mut spirv = Vec::new();
+    let pipeline = naga::back::spv::PipelineOptions {
+        shader_stage: stage,
+        entry_point: entry_point.to_owned(),
+    };
     writer
-        .write(module, info, None, &None, &mut spirv)
+        .write(module, info, Some(&pipeline), &None, &mut spirv)
         .map_err(|e| e.to_string())?;
     Ok(spirv)
 }

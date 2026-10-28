@@ -11,6 +11,10 @@ tag needs a `## [x.y.z]` section here before it is pushed.
 
 ## [Unreleased]
 
+### Fixed
+- **GPU path on Qualcomm Adreno phones**: built-in shaders are now baked (and translated at run time) as one SPIR-V module per entry point. Since post.wgsl gained its D3D12 entry points, the whole-file module failed pipeline creation on Adreno ("Failed to link shaders", `VK_ERROR_UNKNOWN`): every GPU pass on the Adreno 506, 650 and 840 in Device Farm run 40720367260. A test now holds every baked module to exactly one `OpEntryPoint`.
+- **Device Farm audio pass**: reads the media-session state in Android 13+'s `state=PLAYING(3)` form, sends media keys with `media dispatch` on Android 9, and logs each line once; the headphones receiver is registered on the application context so it no longer leaks with the activity.
+
 ### Added
 - **Device Farm: audio pass** (AU-02, AU-03, AU-04): on every phone, the demo plays a tone and checks focus loss/duck/resume (Android, through a real competing focus request) or the session category, now-playing entry and interruption handling (iOS); the runners then check media-session pause/play, the foreground service, and that audio keeps playing with the screen off (Android, 60 s) or in the background (iOS, 30 s). The Device Farm APK and .ipa are built with background audio on.
 - **Mobile audio: focus and interruptions** (AU-02, AU-03): `vieww_audio::focus` and `vieww_audio::session` — one focus/interruption state machine for both platforms; the engine pauses on the exact sample, ducks smoothly and resumes only what it paused. Android requests `AudioFocusRequest` focus (refused during a call: `PlayError::FocusDenied`); iOS sets the `AVAudioSession` category and follows interruptions, route changes and media-services resets. The device stream is not reopened during an interruption.
