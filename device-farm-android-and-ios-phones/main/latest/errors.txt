@@ -1,0 +1,26 @@
+-----
+Device suite on Device Farm iPhones	AWS credentials (access keys)	﻿2026-10-28T15:44:40.2218559Z ##[group]Run aws-actions/configure-aws-credentials@v4
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:44:40.2218969Z with:
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:44:40.2219317Z   aws-region: us-west-2
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:44:40.2219709Z   audience: sts.amazonaws.com
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:44:40.2220040Z   output-env-credentials: true
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:44:40.2220390Z env:
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:44:40.2220672Z   CARGO_TERM_COLOR: always
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:44:40.2221056Z   RUST_VERSION: 1.98.1
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:44:40.2221361Z   AWS_REGION: us-west-2
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:44:40.2221654Z   DEVICE_FARM_PROJECT_ARN: 
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:44:40.2221997Z   HAS_ROLE: false
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:44:40.2222284Z ##[endgroup]
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:44:40.3352352Z ##[error]Credentials could not be loaded, please check your action inputs: Could not load credentials from any providers
+Device suite on Device Farm phones	Check the secrets are there	﻿2026-10-28T15:45:04.8862874Z ##[group]Run [ -n "$DEVICE_FARM_PROJECT_ARN" ] || { echo "::error::secret DEVICE_FARM_PROJECT_ARN is not set"; exit 1; }
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:45:04.8863532Z ^[[36;1m[ -n "$DEVICE_FARM_PROJECT_ARN" ] || { echo "::error::secret DEVICE_FARM_PROJECT_ARN is not set"; exit 1; }^[[0m
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:45:04.8884539Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:45:04.8884838Z env:
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:45:04.8885003Z   CARGO_TERM_COLOR: always
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:45:04.8885205Z   RUST_VERSION: 1.98.1
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:45:04.8885386Z   AWS_REGION: us-west-2
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:45:04.8885582Z   DEVICE_FARM_PROJECT_ARN: 
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:45:04.8885771Z   HAS_ROLE: false
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:45:04.8885941Z ##[endgroup]
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:45:04.8949295Z ##[error]secret DEVICE_FARM_PROJECT_ARN is not set
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:45:04.8957307Z ##[error]Process completed with exit code 1.
