@@ -100,6 +100,9 @@ pub fn platform() -> Services {
     services.provide::<dyn AssetBundle>(Rc::new(executable_assets()));
     // Sound (AU-01): the engine opens the default output on first play.
     vieww_audio::EnginePlayer::register(&mut services);
+    // AU-03/04: the audio session (interruptions, routes, lock screen).
+    #[cfg(target_os = "ios")]
+    crate::audio_ios::install();
     // Not on Android: the pasteboard there needs the activity, so it is
     // registered by `for_android` instead. This function is still compiled for
     // that target — it is the desktop and iOS entry point — so the exclusion has
@@ -172,6 +175,8 @@ pub fn for_android(android: &crate::AndroidApp) -> Services {
     services.provide::<dyn DeepLinks>(Rc::new(PlatformDeepLinks::from_android(android)));
     // Sound (AU-01): AAudio, opened on first play.
     vieww_audio::EnginePlayer::register(&mut services);
+    // AU-02/04: audio focus, calls, headphones, the lock screen.
+    crate::audio_android::install(android);
     services.provide::<dyn AssetBundle>(Rc::new(AndroidAssets {
         android: android.clone(),
     }));

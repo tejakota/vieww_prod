@@ -1,6 +1,12 @@
 """Add classes.dex to an APK and set hasCode=true in its compiled manifest.
 
-    python3 apk_add_code.py IN.apk classes.dex OUT.apk
+    python3 apk_add_code.py IN.apk classes.dex OUT.apk [--background-audio]
+    python3 apk_add_code.py --check-background-audio APK
+
+--background-audio also declares the foreground service and permissions
+background playback needs (AU-04; see axml.py). --check-background-audio
+exits non-zero, naming what is missing, when an APK lacks them or the
+service class.
 
 Used by apk-add-code.sh, which explains why. OUT is unsigned and unaligned:
 the old signature is dropped (it no longer matches) and the caller zipaligns
@@ -11,9 +17,13 @@ boolean attribute does not change its size, so this edits the one value in
 place instead of recompiling the manifest.
 """
 
+import os
 import struct
 import sys
 import zipfile
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import axml  # noqa: E402
 
 RES_STRING_POOL = 0x0001
 RES_XML = 0x0003
@@ -92,7 +102,7 @@ def set_has_code(manifest: bytes) -> tuple[bytes, str]:
     raise ValueError("no <application> element in the manifest")
 
 
-def main(src, dex_path, dst):
+def main(src, dex_path, dst, background_audio=False):
     dex = open(dex_path, "rb").read()
     with zipfile.ZipFile(src) as zin, zipfile.ZipFile(dst, "w") as zout:
         names = zin.namelist()
@@ -105,6 +115,10 @@ def main(src, dex_path, dst):
             if info.filename == "AndroidManifest.xml":
                 data, what = set_has_code(data)
                 print("apk_add_code:", what)
+                if background_audio:
+                    data, changes = axml.add_background_audio(data)
+                    for c in changes:
+                        print("apk_add_code: added", c)
             out = zipfile.ZipInfo(info.filename, info.date_time)
             out.compress_type = info.compress_type
             out.external_attr = info.external_attr
@@ -115,7 +129,28 @@ def main(src, dex_path, dst):
                       compress_type=zipfile.ZIP_DEFLATED)
 
 
+SERVICE_DEX_NAME = b"Ldev/vieww/audio/PlaybackService;"
+
+
+def check(apk):
+    """Background audio in a built APK: manifest entries and the class."""
+    with zipfile.ZipFile(apk) as z:
+        missing = axml.check_background_audio(z.read("AndroidManifest.xml"))
+        dex = b"".join(z.read(n) for n in z.namelist()
+                       if n.startswith("classes") and n.endswith(".dex"))
+    if SERVICE_DEX_NAME not in dex:
+        missing.append("no dev.vieww.audio.PlaybackService class in classes*.dex")
+    for m in missing:
+        print("apk_add_code: %s: %s" % (apk, m))
+    return not missing
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
+    args = sys.argv[1:]
+    if len(args) == 2 and args[0] == "--check-background-audio":
+        sys.exit(0 if check(args[1]) else 1)
+    flag = "--background-audio" in args
+    args = [a for a in args if a != "--background-audio"]
+    if len(args) != 3:
         raise SystemExit(__doc__)
-    main(*sys.argv[1:])
+    main(*args, background_audio=flag)

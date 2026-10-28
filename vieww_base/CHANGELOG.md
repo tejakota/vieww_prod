@@ -12,6 +12,9 @@ tag needs a `## [x.y.z]` section here before it is pushed.
 ## [Unreleased]
 
 ### Added
+- **Mobile audio: focus and interruptions** (AU-02, AU-03): `vieww_audio::focus` and `vieww_audio::session` — one focus/interruption state machine for both platforms; the engine pauses on the exact sample, ducks smoothly and resumes only what it paused. Android requests `AudioFocusRequest` focus (refused during a call: `PlayError::FocusDenied`); iOS sets the `AVAudioSession` category and follows interruptions, route changes and media-services resets. The device stream is not reopened during an interruption.
+- **Mobile audio: background playback and lock-screen controls** (AU-04): `NowPlaying` and `RemoteCommand`, `MediaPlayer::set_metadata` / `poll_remote`; Android `MediaSession` + a `mediaPlayback` foreground service (`apk-add-code.sh --background-audio`), iOS `MPNowPlayingInfoCenter` / `MPRemoteCommandCenter` and an opt-in `UIBackgroundModes` (`background-audio = true` under `[package.metadata.vieww]`). `ci/mobile/lint-background-audio.sh` checks a built APK or plist.
+- **CI: Mobile audio workflow**: the logic tests, an Android APK built and linted with the audio classes and service, and the iOS bridge type-checked and linked on macOS; started by hand.
 - **Studio: undo for file operations** (ST-11): `Undo File Operation` / `Redo File Operation` reverse Explorer creates, renames and deletes without ever overwriting.
 - **Studio: Copy Diagnostics** (ST-17): a bug-report block (version, toolchains, problems, session) that never includes code.
 - **Studio: interface language** (ST-16): Spanish catalog for command, view and menu titles; `language` setting and `VIEWWSTUDIO_LANG`.

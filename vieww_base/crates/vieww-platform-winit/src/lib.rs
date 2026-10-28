@@ -78,6 +78,10 @@ pub(crate) mod a11y;
 #[cfg(target_os = "android")]
 mod a11y_android;
 mod app;
+#[cfg(target_os = "android")]
+mod audio_android;
+#[cfg(target_os = "ios")]
+mod audio_ios;
 mod cadence;
 pub mod clipboard;
 pub mod crash;

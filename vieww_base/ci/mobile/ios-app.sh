@@ -117,6 +117,14 @@ if [ ! -f "$binary" ]; then
     exit 1
 fi
 
+# Background audio (AU-04): VIEWW_BACKGROUND_AUDIO=1 adds UIBackgroundModes =
+# audio, which iOS needs to keep playing once the screen locks. Opt-in, as App
+# Review rejects the key on an app that plays nothing in the background.
+background_modes=""
+if [ "${VIEWW_BACKGROUND_AUDIO:-0}" = "1" ]; then
+    background_modes="<key>UIBackgroundModes</key><array><string>audio</string></array>"
+fi
+
 app="target/ios/$app_name.app"
 rm -rf "$app"
 mkdir -p "$app"
@@ -147,6 +155,7 @@ cat > "$app/Info.plist" <<PLIST
     <key>UIDeviceFamily</key><array><integer>1</integer><integer>2</integer></array>
     <key>CADisableMinimumFrameDurationOnPhone</key><true/>
     <key>UILaunchScreen</key><dict/>
+    $background_modes
     <key>UIRequiredDeviceCapabilities</key><array><string>arm64</string></array>
     <key>UISupportedInterfaceOrientations</key>
     <array><string>UIInterfaceOrientationPortrait</string></array>

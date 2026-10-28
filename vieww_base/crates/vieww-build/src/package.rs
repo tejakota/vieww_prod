@@ -350,11 +350,46 @@ fn package_linux(app_dir: &Path) -> Result<PackageReport, PackageError> {
     })
 }
 
+/// Whether the project asks to keep playing with the screen locked
+/// (AU-04): `background-audio = true` under `[package.metadata.vieww]`.
+///
+/// iOS suspends an app the moment it leaves the foreground unless its
+/// `Info.plist` lists `audio` in `UIBackgroundModes`. App Review rejects
+/// the key on an app that plays nothing in the background, so it is opt-in
+/// rather than written into every bundle.
+fn wants_background_audio(app_dir: &Path) -> bool {
+    let Ok(manifest) = std::fs::read_to_string(app_dir.join("Cargo.toml")) else {
+        return false;
+    };
+    let mut in_section = false;
+    for line in manifest.lines() {
+        let trimmed = line.trim();
+        if trimmed.starts_with('[') && trimmed.ends_with(']') {
+            in_section = trimmed == "[package.metadata.vieww]";
+            continue;
+        }
+        if !in_section {
+            continue;
+        }
+        if let Some((key, value)) = trimmed.split_once('=') {
+            if key.trim() == "background-audio" {
+                return value.split('#').next().is_some_and(|v| v.trim() == "true");
+            }
+        }
+    }
+    false
+}
+
 /// A generic `Info.plist`. Modelled on `packaging/Info.plist`'s shape (the
 /// same keys, `CFBundleIdentifier` built the same way) but with no document
 /// types and no fixed name — those are the studio's own, not a scaffolded
 /// project's.
-fn info_plist(name: &str) -> String {
+fn info_plist(name: &str, background_audio: bool) -> String {
+    let background = if background_audio {
+        "\t<key>UIBackgroundModes</key>\n\t<array>\n\t\t<string>audio</string>\n\t</array>\n"
+    } else {
+        ""
+    };
     format!(
         r#"<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -372,7 +407,7 @@ fn info_plist(name: &str) -> String {
 	<string>0.1.0</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
-</dict>
+{background}</dict>
 </plist>
 "#
     )
@@ -406,7 +441,7 @@ fn package_macos(app_dir: &Path) -> Result<PackageReport, PackageError> {
     std::fs::copy(&binary, &bin_dest)?;
 
     let plist_dest = app.join("Contents/Info.plist");
-    std::fs::write(&plist_dest, info_plist(&name))?;
+    std::fs::write(&plist_dest, info_plist(&name, false))?;
 
     let artifacts = vec![bin_dest, plist_dest];
     let notes = if tool_on_path("iconutil") {
@@ -666,7 +701,10 @@ fn package_ios(app_dir: &Path) -> Result<PackageReport, PackageError> {
     let bin_dest = bundle.join(&name);
     std::fs::copy(&binary, &bin_dest)?;
     let plist_dest = bundle.join("Info.plist");
-    std::fs::write(&plist_dest, info_plist(&name))?;
+    std::fs::write(
+        &plist_dest,
+        info_plist(&name, wants_background_audio(app_dir)),
+    )?;
 
     Ok(PackageReport {
         target: PackageTarget::Ios,
@@ -683,6 +721,39 @@ fn package_ios(app_dir: &Path) -> Result<PackageReport, PackageError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // ----- background audio (AU-04) -----------------------------------------
+
+    #[test]
+    fn the_background_audio_key_is_written_only_when_asked() {
+        assert!(!info_plist("demo", false).contains("UIBackgroundModes"));
+        let plist = info_plist("demo", true);
+        let at = plist.find("<key>UIBackgroundModes</key>").expect("the key");
+        assert!(plist[at..].contains("<string>audio</string>"));
+        assert!(plist.trim_end().ends_with("</dict>\n</plist>"));
+
+        let dir = std::env::temp_dir().join(format!("vieww-build-bgaudio-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let toml = dir.join("Cargo.toml");
+        std::fs::write(&toml, "[package]\nname = \"demo\"\n").unwrap();
+        assert!(!wants_background_audio(&dir));
+        std::fs::write(
+            &toml,
+            "[package]\nname = \"demo\"\n\n[package.metadata.vieww]\nbackground-audio = true # lock screen\n",
+        )
+        .unwrap();
+        assert!(wants_background_audio(&dir));
+        std::fs::write(
+            &toml,
+            "[package]\nname = \"demo\"\n[other]\nbackground-audio = true\n",
+        )
+        .unwrap();
+        assert!(
+            !wants_background_audio(&dir),
+            "only under [package.metadata.vieww]"
+        );
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 
     // ----- the host gate, testable without being any particular host -------
 

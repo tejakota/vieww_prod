@@ -116,6 +116,8 @@ struct State {
     stop: AtomicBool,
     reopens: AtomicU64,
     failed_opens: AtomicU64,
+    /// Supervisor polls spent waiting out an interruption (AU-03).
+    held: AtomicU64,
     following_default: AtomicBool,
     /// The app's closure panicked: nothing more is opened.
     poisoned: Arc<AtomicBool>,
@@ -141,6 +143,24 @@ impl ResilientStream {
         target: Target,
         config: StreamConfig,
         render: RenderFn,
+    ) -> Result<Self, BackendError> {
+        Self::open_with_session(backend, target, config, render, None)
+    }
+
+    /// As [`Self::open`], and while `session` says an interruption is in
+    /// progress (AU-03) an ended stream is not reopened: on iOS the audio
+    /// session is inactive until the interruption ends and every open
+    /// would fail, so retrying is only a busy loop. Reopening resumes as
+    /// soon as the interruption ends.
+    ///
+    /// # Errors
+    /// As [`Self::open`].
+    pub fn open_with_session(
+        backend: Box<dyn Backend>,
+        target: Target,
+        config: StreamConfig,
+        render: RenderFn,
+        session: Option<Arc<crate::session::AudioSession>>,
     ) -> Result<Self, BackendError> {
         let slot: Slot = Arc::new(Mutex::new(Some(render)));
         let poisoned = Arc::new(AtomicBool::new(false));
@@ -214,6 +234,14 @@ impl ResilientStream {
                         backoff = POLL;
                         continue;
                     }
+                    if ended && session.as_ref().is_some_and(|s| s.hold_reopen()) {
+                        // Interrupted: wait for the end, without opening.
+                        drop(stream.take());
+                        st.held.fetch_add(1, Ordering::Relaxed);
+                        lost_for = Duration::ZERO;
+                        backoff = POLL;
+                        continue;
+                    }
                     // Drop the old stream first: it returns the closure.
                     drop(stream.take());
                     lost_for += backoff;
@@ -274,6 +302,13 @@ impl ResilientStream {
     #[must_use]
     pub fn failed_opens(&self) -> u64 {
         self.state.failed_opens.load(Ordering::Relaxed)
+    }
+
+    /// How many supervisor polls (100 ms each) were spent waiting out an
+    /// interruption instead of reopening.
+    #[must_use]
+    pub fn held_polls(&self) -> u64 {
+        self.state.held.load(Ordering::Relaxed)
     }
 
     /// Whether the stream is on the system default (from the start, or
@@ -434,6 +469,49 @@ mod tests {
         assert_eq!(rs.reopens(), 2, "followed the default");
         assert!(rs.following_default());
         assert!(rs.stats().is_some_and(|s| s.callbacks > 0));
+    }
+
+    /// AU-03: an interruption ends the stream (iOS deactivates the
+    /// session), and the supervisor waits instead of retrying every second
+    /// against a session that refuses; it reopens once the interruption
+    /// ends.
+    #[test]
+    fn an_interruption_holds_reopening_without_a_retry_storm() {
+        use crate::focus::{FocusRequest, Interruption};
+        use crate::session::AudioSession;
+        let fake = Fake::default();
+        fake.present.store(true, Ordering::Release);
+        *fake.default_id.lock().unwrap() = "speakers".into();
+        let (generation, present) = (fake.generation.clone(), fake.present.clone());
+        let session = Arc::new(AudioSession::new());
+        assert!(session.begin(FocusRequest::default()));
+        let rs = ResilientStream::open_with_session(
+            Box::new(fake),
+            Target::Default,
+            StreamConfig::default(),
+            Box::new(|_, _| {}),
+            Some(Arc::clone(&session)),
+        )
+        .unwrap();
+        std::thread::sleep(Duration::from_millis(150));
+
+        // A call: the session goes inactive and the device refuses.
+        session.on_interruption(Interruption::Began);
+        present.store(false, Ordering::Release);
+        generation.fetch_add(1, Ordering::AcqRel);
+        std::thread::sleep(Duration::from_millis(800));
+        assert_eq!(rs.failed_opens(), 0, "no open attempted while interrupted");
+        assert!(rs.held_polls() >= 3, "waited instead: {}", rs.held_polls());
+        assert_eq!(rs.reopens(), 0);
+
+        // The call ends; the platform reactivates, then reports the end.
+        present.store(true, Ordering::Release);
+        session.on_interruption(Interruption::Ended {
+            should_resume: true,
+        });
+        std::thread::sleep(Duration::from_millis(400));
+        assert_eq!(rs.reopens(), 1, "reopened as soon as it ended");
+        assert_eq!(rs.failed_opens(), 0);
     }
 
     #[test]

@@ -1,0 +1,158 @@
+# Mobile audio: focus, interruptions, background playback (AU-02, AU-03, AU-04).
+#
+# What hosted runners can check without a phone:
+#
+#   * logic: vieww-audio's focus automaton, session, engine suspend/duck and
+#     the supervisor's interruption hold (`cargo test -p vieww-audio --lib
+#     focus session resilient engine_player`), plus the AXML editor
+#     (`ci/mobile/test_axml.py`) and the iOS plist opt-in (`vieww-build`);
+#   * Android: the platform crate type-checks for aarch64-linux-android, the Java audio classes compile against the
+#     runner's android.jar, and a real APK built by cargo-apk is given them
+#     with `apk-add-code.sh --background-audio`, then linted
+#     (`lint-background-audio.sh --apk`) and checked by aapt2 to be a
+#     well-formed manifest declaring the service;
+#   * iOS: the platform crate type-checks and lints for aarch64-apple-ios
+#     on macOS, which links nothing yet but checks every msg_send! and
+#     extern static against the SDK's frameworks at build time.
+#
+# What needs a phone (the device suites, AU-02/03/04 "Tests" sections): a
+# real call or competing focus request, a locked screen with audio still
+# advancing. Those are not here.
+#
+# Started by hand: Actions -> Mobile audio -> Run workflow. Results land on
+# the `ci-results` branch.
+
+name: Mobile audio
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-audio-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: "1"
+  CARGO_PROFILE_DEV_DEBUG: "0"
+  CARGO_INCREMENTAL: "0"
+
+defaults:
+  run:
+    shell: bash
+    working-directory: vieww_base
+
+jobs:
+  logic:
+    name: Focus and session logic (Linux)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: rustup show active-toolchain || rustup toolchain install
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            vieww_base/target
+          key: mobile-audio-logic-${{ hashFiles('vieww_base/Cargo.lock') }}
+      - name: vieww-audio focus, session, engine, supervisor
+        run: cargo test -p vieww-audio --lib -- focus session resilient engine_player
+      - name: iOS plist opt-in (vieww-build)
+        run: cargo test -p vieww-build --lib -- package
+      - name: AXML editor
+        run: python3 -I ci/mobile/test_axml.py
+
+  android:
+    name: Android bridge and APK packaging
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain and target
+        run: |
+          rustup show active-toolchain || rustup toolchain install
+          rustup target add aarch64-linux-android
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-apk
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            vieww_base/target
+          key: mobile-audio-android-${{ hashFiles('vieww_base/Cargo.lock') }}
+      # The platform crate is type-checked, not linted, for Android: clippy
+      # 1.98 reports `missing_const_for_thread_local` on thread-locals that
+      # are already `const` in code this workflow does not own. vieww-audio
+      # is linted, as audio-backends.yml does.
+      - name: Type-check for Android
+        run: |
+          cargo check -p vieww-platform-winit --lib --target aarch64-linux-android
+          cargo clippy -p vieww-audio --lib --target aarch64-linux-android -- -D warnings
+      - name: APK with the audio classes and the playback service
+        env:
+          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_LATEST_HOME }}
+        run: |
+          . ci/mobile/android-env.sh
+          android_env mobile-audio
+          marker="$(mktemp)"
+          cargo apk build -p vieww-platform-winit --example android --target aarch64-linux-android
+          apk="$(find target -path '*/apk/*' -name '*.apk' -newer "$marker" | head -1)"
+          [ -n "$apk" ] || { echo "::error::no APK was built"; exit 1; }
+          mkdir -p ../dist
+          ci/mobile/apk-add-code.sh "$apk" ../dist/vieww-audio.apk --background-audio
+          ci/mobile/lint-background-audio.sh --apk ../dist/vieww-audio.apk
+          aapt2="$(find "$ANDROID_HOME/build-tools" -name aapt2 | sort -V | tail -1)"
+          "$aapt2" dump xmltree --file AndroidManifest.xml ../dist/vieww-audio.apk | tee ../dist/manifest.txt
+          grep -q 'dev.vieww.audio.PlaybackService' ../dist/manifest.txt
+          grep -q 'FOREGROUND_SERVICE_MEDIA_PLAYBACK' ../dist/manifest.txt
+          "$aapt2" dump badging ../dist/vieww-audio.apk | head -5
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vieww-audio-apk
+          path: |
+            dist/vieww-audio.apk
+            dist/manifest.txt
+          if-no-files-found: ignore
+
+  ios:
+    name: iOS bridge (macOS)
+    runs-on: macos-14
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain and target
+        run: |
+          rustup show active-toolchain || rustup toolchain install
+          rustup target add aarch64-apple-ios aarch64-apple-ios-sim
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            vieww_base/target
+          key: mobile-audio-ios-${{ hashFiles('vieww_base/Cargo.lock') }}
+      - name: Type-check and lint for iOS
+        run: cargo clippy -p vieww-platform-winit --lib --target aarch64-apple-ios -- -D warnings
+      - name: Link the iOS example (frameworks and extern statics resolve)
+        run: cargo build -p vieww-platform-winit --example ios --target aarch64-apple-ios-sim
+      - name: Background-audio plist opt-in lints
+        run: |
+          out="$RUNNER_TEMP/plist"
+          mkdir -p "$out"
+          cat > "$out/Info.plist" <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <plist version="1.0"><dict>
+          <key>UIBackgroundModes</key><array><string>audio</string></array>
+          </dict></plist>
+          PLIST
+          plutil -lint "$out/Info.plist"
+          ci/mobile/lint-background-audio.sh --plist "$out/Info.plist"

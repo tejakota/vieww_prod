@@ -1,8 +1,8 @@
-{'Partial': 11, 'Closed': 31, 'Open': 52} 94
+{'Partial': 14, 'Closed': 31, 'Open': 49} 94
 in the four research reports (framework.md, studio.md, audio.md, wright.md), with where it stands. **Closed** = code + tests + CI gate landed. **Partial** = the code is in, and what is left is listed. **Open** = not started.
 Mac real-device verification is out of scope by the owner's decision; Mac code paths are still written and CI-built where hosted runners allow.
 
-Totals: Closed 31, Open 52, Partial 11 (of 94).
+Totals: Closed 31, Open 49, Partial 14 (of 94).
 
 ## Framework
 
@@ -68,9 +68,9 @@ Totals: Closed 31, Open 52, Partial 11 (of 94).
 | Gap | P | Title | Status | Notes |
 |---|---|---|---|---|
 | AU-01 | P0 | The engine is an island: no platform registers an `AudioPlayer`, and the only playing implementation is a Linux-only blocking writer | **Partial** | Engine + EnginePlayer registered on desktop/Android (lazy device). Left: web shim registration; live player_smoke on self-hosted runners. |
-| AU-02 | P0 | No Android audio focus: the app that talks over phone calls | **Open** |  |
-| AU-03 | P0 | No AVAudioSession lifecycle on iOS: interruptions kill the stream and App Store background audio is impossible | **Open** |  |
-| AU-04 | P0 | No background playback story: no foreground service/MediaSession (Android), no `UIBackgroundModes` (iOS), no wake locks | **Open** |  |
+| AU-02 | P0 | No Android audio focus: the app that talks over phone calls | **Partial** | focus.rs (OS-neutral focus automaton: duck/pause/resume, only undoes its own pauses, speech pauses instead of ducking) + session.rs (process-wide AudioSession; engine suspends on the exact sample, ducks with a one-block ramp). Android bridge (audio_android.rs): AudioAttributes + AudioFocusRequest, FocusListener/NoisyReceiver Java classes with registered natives, getMode() call polling when the classes are absent; a refused request makes MediaPlayer::play return FocusDenied. Unit/engine tests; Mobile audio workflow builds the APK. Left: device-farm run with a competing focus request. |
+| AU-03 | P0 | No AVAudioSession lifecycle on iOS: interruptions kill the stream and App Store background audio is impossible | **Partial** | audio_ios.rs: AVAudioSession category/mode per content, setActive with notifyOthersOnDeactivation, interruption (began/ended + shouldResume), route change (old device unavailable), media-services reset observers; the session reactivates before the engine resumes. ResilientStream holds reopening during an interruption (no retry storm: failed_opens stays 0, tested). Type-checked/linted for aarch64-apple-ios and linked into the iOS example in the Mobile audio workflow. Left: device run of a real interruption. |
+| AU-04 | P0 | No background playback story: no foreground service/MediaSession (Android), no `UIBackgroundModes` (iOS), no wake locks | **Partial** | NowPlaying + RemoteCommand in session.rs; MediaPlayer publishes metadata and applies lock-screen/headset commands (poll_remote). iOS: MPNowPlayingInfoCenter + MPRemoteCommandCenter; UIBackgroundModes=audio opt-in (vieww-build [package.metadata.vieww] background-audio, ios-app.sh VIEWW_BACKGROUND_AUDIO=1). Android: MediaSession (metadata, state, callback on the main looper) + PlaybackService foreground service (mediaPlayback); apk-add-code.sh --background-audio compiles the Java and declares service + permissions via ci/mobile/axml.py (round-trip exact, checked against androguard); lint-background-audio.sh. Left: locked-screen device run. |
 | AU-05 | P0 | Large-media playback: full-file decode in memory; only WAV disk-streams; no network source | **Open** |  |
 | AU-06 | P1 | Codec coverage: no Opus (and tags-only support for .opus), no HE-AAC SBR/PS, no ALAC | **Open** |  |
 | AU-07 | P1 | AAC patent posture is undocumented: table provenance exists, patent-pool exposure does not | **Closed** | crates/vieww-audio/PATENTS.md: per-format patent status (PCM, FLAC, Vorbis none known; MP3 programme ended 2017; AAC pooled by Via LA in some jurisdictions; Opus royalty-free IETF declarations), not-legal-advice framing, source-not-binaries. AAC decoder behind the default-on `aac` feature; off, AAC input fails with CodecError::Unsupported naming the feature and PATENTS.md. Tests: aac_feature_off.rs (run --no-default-features in audio-ci), the_patent_page_exists_and_is_referenced. |

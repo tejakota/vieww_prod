@@ -117,6 +117,11 @@ fn main() {
     // (`xcrun devicectl device process launch --environment-variables`), which
     // is how `ci/mobile/device-farm/run-ios.sh` runs the suite on both paths.
     let prefer_gpu = std::env::var("VIEWW_GPU").is_ok_and(|v| v == "1");
+    // The platform services, as the Android example builds them: storage,
+    // links, sound, and the audio session (interruptions, route changes,
+    // lock-screen controls; AU-03/04), which this registers with
+    // AVAudioSession at startup.
+    let _services = vieww_platform_winit::services::platform();
     let app = App::new();
     let app = if prefer_gpu { app.prefer_gpu() } else { app };
     // `VIEWW_GPU=auto` measures both rasterizers on this iPhone and keeps the

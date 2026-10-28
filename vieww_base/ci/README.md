@@ -51,7 +51,9 @@ The release process itself is in
 | `mobile/maestro.sh android\|ios` | Maestro's flows (`mobile/maestro/`) against an installed app, keeping the hierarchy it saw, logs and screenshots. |
 | `mobile/ios-app.sh [--sim\|--ipa\|--bundle-only]` | macOS only. Builds the `.app` with MoltenVK (`VIEWW_MOLTENVK`) bundled; `--ipa` signs with `VIEWW_IOS_IDENTITY`/`VIEWW_IOS_PROFILE` when set, ad-hoc otherwise. |
 | `mobile/test-lab.sh android\|ios\|list` | Firebase Test Lab: Game Loop on real phones (scenario 1 CPU, 2 GPU), Robo on one Android phone, one summary row per device and scenario. Needs `gcloud` and a Firebase project. 5 free physical-device runs a day; Test Lab shuts down 30 September 2027. |
-| `mobile/apk-add-code.sh IN.apk OUT.apk` | Adds the `classes.dex` Test Lab requires to a pure-Rust APK (and sets `hasCode`), then re-aligns and re-signs. `test-lab.sh` and the CI APK build run it. |
+| `mobile/apk-add-code.sh IN.apk OUT.apk [--background-audio]` | Adds the `classes.dex` Test Lab requires to a pure-Rust APK (and sets `hasCode`), then re-aligns and re-signs. `test-lab.sh` and the CI APK build run it. | It also compiles vieww's Java audio classes (focus listener, headphones receiver, media-session callback, playback service) against the newest `android.jar`; `--background-audio` declares the `mediaPlayback` foreground service and its permissions (AU-04).
+| `mobile/axml.py`, `mobile/test_axml.py` | Reads, edits and rewrites a compiled `AndroidManifest.xml` (binary XML) — how `--background-audio` adds the service cargo-apk cannot declare. The test round-trips a real manifest (`mobile/testdata/`). |
+| `mobile/lint-background-audio.sh --apk APK \| --plist PLIST` | Fails, naming what is missing, unless a built app declares background audio: the Android service/type/permissions/class, or iOS `UIBackgroundModes` = `audio`. |
 
 Device clouds that re-sign uploads (LambdaTest, for example) take the CI
 `vieww.ipa` as it is; Firebase Test Lab needs it signed with a real Apple

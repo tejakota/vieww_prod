@@ -40,8 +40,10 @@ use vieww_foundation::service::ServiceError;
 
 use crate::backend::resilient::{ResilientStream, Target};
 use crate::backend::{self, Backend, BackendError, BlockInfo, StreamConfig};
+use crate::focus::FocusRequest;
 use crate::player::{AudioPlayer, PlaybackHandle, Sound};
 use crate::resample::Quality;
+use crate::session::{AudioSession, NowPlaying, RemoteCommand};
 use crate::Samples;
 
 /// Most voices mixed at once. A UI plays a handful; a game a few dozen.
@@ -99,6 +101,9 @@ pub enum PlayError {
     Empty,
     /// The media could not be read or decoded.
     Media(String),
+    /// The platform refused audio focus — a call is in progress, for
+    /// instance (AU-02). Playing anyway would talk over it.
+    FocusDenied,
 }
 
 impl std::fmt::Display for PlayError {
@@ -107,6 +112,7 @@ impl std::fmt::Display for PlayError {
             Self::TooManyVoices => write!(f, "{MAX_VOICES} voices are already playing"),
             Self::Empty => write!(f, "the sound has no samples"),
             Self::Media(e) => write!(f, "{e}"),
+            Self::FocusDenied => write!(f, "another app or a call has the audio focus"),
         }
     }
 }
@@ -166,6 +172,10 @@ struct Shared {
     frames: AtomicU64,
     contended: AtomicU64,
     master: AtomicU32,
+    /// Focus, interruptions, ducking (AU-02/03).
+    session: Arc<AudioSession>,
+    /// The duck gain the last block ended on, for the ramp.
+    applied_duck: AtomicU32,
 }
 
 /// The mixer behind both facades. Cheap to share: clone the `Arc`.
@@ -219,13 +229,15 @@ impl Engine {
         let mut engine = Self::detached(config.rate, config.channels);
         engine.backend = name;
         let shared = Arc::clone(&engine.shared);
-        let stream = ResilientStream::open(
+        let session = Arc::clone(&engine.shared.session);
+        let stream = ResilientStream::open_with_session(
             backend,
             Target::Default,
             config,
             Box::new(move |out: &mut [f32], info: &BlockInfo| {
                 render_into(&shared, out, info.channels.max(1), info.rate);
             }),
+            Some(session),
         )?;
         engine.stream = Some(stream);
         Ok(engine)
@@ -235,12 +247,20 @@ impl Engine {
     /// For tests and offline rendering.
     #[must_use]
     pub fn detached(rate: u32, channels: u16) -> Self {
+        Self::detached_with_session(rate, channels, Arc::clone(AudioSession::shared()))
+    }
+
+    /// A detached engine on its own `session` (tests of focus behaviour).
+    #[must_use]
+    pub fn detached_with_session(rate: u32, channels: u16, session: Arc<AudioSession>) -> Self {
         Self {
             shared: Arc::new(Shared {
                 voices: Mutex::new(Vec::with_capacity(MAX_VOICES)),
                 frames: AtomicU64::new(0),
                 contended: AtomicU64::new(0),
                 master: AtomicU32::new(1.0f32.to_bits()),
+                session,
+                applied_duck: AtomicU32::new(1.0f32.to_bits()),
             }),
             rate: rate.max(1),
             channels: channels.max(1),
@@ -255,6 +275,18 @@ impl Engine {
     /// the device callback does. Real-time safe.
     pub fn render(&self, out: &mut [f32]) {
         render_into(&self.shared, out, usize::from(self.channels), self.rate);
+    }
+
+    /// The audio session this engine obeys.
+    #[must_use]
+    pub fn session(&self) -> &Arc<AudioSession> {
+        &self.shared.session
+    }
+
+    /// Supervisor polls spent waiting out an interruption (0 detached).
+    #[must_use]
+    pub fn held_polls(&self) -> u64 {
+        self.stream.as_ref().map_or(0, ResilientStream::held_polls)
     }
 
     /// The output rate.
@@ -497,7 +529,22 @@ fn render_into(shared: &Shared, out: &mut [f32], channels: usize, _rate: u32) {
         shared.contended.fetch_add(1, Ordering::Relaxed);
         return;
     };
+    if shared.session.suspended() {
+        // Paused by focus: silence, and nothing advances.
+        return;
+    }
     let master = f32::from_bits(shared.master.load(Ordering::Relaxed));
+    let duck_to = shared.session.duck_gain();
+    let duck_from = f32::from_bits(
+        shared
+            .applied_duck
+            .swap(duck_to.to_bits(), Ordering::Relaxed),
+    );
+    let duck_step = if frames > 0 {
+        (duck_to - duck_from) / frames as f32
+    } else {
+        0.0
+    };
     for v in voices.iter_mut() {
         if v.finished.is_some() || v.paused {
             continue;
@@ -533,7 +580,7 @@ fn render_into(shared: &Shared, out: &mut [f32], channels: usize, _rate: u32) {
                 }
             }
             let base = v.frame * src_ch;
-            let g = v.gain * master;
+            let g = v.gain * master * (duck_from + duck_step * (f + 1) as f32);
             for c in 0..channels.min(2) {
                 let s = v.samples.data[base + c.min(src_ch - 1)];
                 out[f * channels + c] += s * g;
@@ -738,6 +785,10 @@ pub struct MediaPlayer {
     norm_gain: f32,
     /// The loaded file's loudness tags (empty for decoded samples).
     tagged: crate::codec::tags::LoudnessTags,
+    /// What focus `play` asks for (AU-02).
+    focus: FocusRequest,
+    /// What the lock screen shows (AU-04); empty title publishes nothing.
+    now: NowPlaying,
 }
 
 impl MediaPlayer {
@@ -760,7 +811,93 @@ impl MediaPlayer {
                 album_gain_db: None,
                 album_peak: None,
             },
+            focus: FocusRequest {
+                content: crate::focus::Content::Media,
+                gain: crate::focus::GainType::Gain,
+                duck_db: -12.0,
+            },
+            now: NowPlaying {
+                title: String::new(),
+                artist: String::new(),
+                album: String::new(),
+                duration: None,
+                position: Duration::ZERO,
+                playing: false,
+            },
         }
+    }
+
+    /// What `play` asks the platform for: content kind (speech pauses
+    /// rather than ducks), focus length, duck depth.
+    pub fn set_focus_request(&mut self, request: FocusRequest) {
+        self.focus = request;
+    }
+
+    /// What the lock screen and system media controls show for the loaded
+    /// track (AU-04). Published on every play, pause, seek and stop.
+    pub fn set_metadata(&mut self, title: &str, artist: &str, album: &str) {
+        self.now.title = title.to_owned();
+        self.now.artist = artist.to_owned();
+        self.now.album = album.to_owned();
+        self.publish();
+    }
+
+    fn publish(&mut self) {
+        if self.now.title.is_empty() {
+            return;
+        }
+        self.now.duration = self.samples.as_ref().map(|_| self.duration());
+        self.now.position = self.position_now();
+        self.now.playing = self.state == MediaState::Playing;
+        self.engine.session().publish(&self.now);
+    }
+
+    fn position_now(&self) -> Duration {
+        self.voice
+            .and_then(|v| self.engine.position(v))
+            .unwrap_or(self.parked)
+    }
+
+    /// Whether playback is held by the platform: a call, another app's
+    /// focus, headphones unplugged. [`Self::state`] still says `Playing`
+    /// for a resumable pause, which ends by itself.
+    #[must_use]
+    pub fn interrupted(&self) -> bool {
+        self.engine.session().paused_by_focus()
+    }
+
+    /// Apply the lock screen's and headset's commands (AU-04). Play, pause,
+    /// toggle, stop and seeks are handled here; next and previous are the
+    /// app's and are returned.
+    pub fn poll_remote(&mut self) -> Vec<RemoteCommand> {
+        let mut rest = Vec::new();
+        for c in self.engine.session().take_remote() {
+            match c {
+                RemoteCommand::Play => {
+                    let _ = self.play();
+                }
+                RemoteCommand::Pause => self.pause(),
+                RemoteCommand::TogglePlayPause => {
+                    if self.state() == MediaState::Playing && !self.interrupted() {
+                        self.pause();
+                    } else {
+                        let _ = self.play();
+                    }
+                }
+                RemoteCommand::Stop => self.stop(),
+                RemoteCommand::SeekTo(at) => self.seek(at),
+                RemoteCommand::SkipForward(by) => {
+                    let at = self.position() + by;
+                    self.seek(at);
+                }
+                RemoteCommand::SkipBackward(by) => {
+                    let at = self.position().saturating_sub(by);
+                    self.seek(at);
+                }
+                RemoteCommand::Next | RemoteCommand::Previous => rest.push(c),
+            }
+        }
+        rest
     }
 
     /// Turn loudness normalization on or off (AU-25). Applies to the
@@ -864,6 +1001,9 @@ impl MediaPlayer {
         let Some(samples) = self.samples.clone() else {
             return Err(PlayError::Empty);
         };
+        if !self.engine.session().begin(self.focus) {
+            return Err(PlayError::FocusDenied);
+        }
         match self.voice {
             Some(v) => self.engine.resume(v, self.effective_gain()),
             None => {
@@ -884,6 +1024,7 @@ impl MediaPlayer {
             }
         }
         self.state = MediaState::Playing;
+        self.publish();
         Ok(())
     }
 
@@ -896,6 +1037,8 @@ impl MediaPlayer {
         if self.state == MediaState::Playing {
             self.state = MediaState::Paused;
         }
+        self.engine.session().end();
+        self.publish();
     }
 
     /// Stop and rewind to the start.
@@ -907,6 +1050,8 @@ impl MediaPlayer {
         if self.samples.is_some() {
             self.state = MediaState::Paused;
         }
+        self.engine.session().end();
+        self.publish();
     }
 
     /// Jump to `at` (clamped to the duration).
@@ -920,6 +1065,7 @@ impl MediaPlayer {
             self.state = MediaState::Paused;
             self.parked = at;
         }
+        self.publish();
     }
 
     /// Set the volume (linear), fading over `fade`.
@@ -1199,6 +1345,128 @@ mod tests {
             "peak would reach {}",
             peak + g
         );
+    }
+
+    /// AU-02/03: a pause by focus freezes the engine on the exact sample,
+    /// and the resume carries on from it.
+    #[test]
+    fn a_focus_pause_freezes_and_resumes_on_the_same_sample() {
+        use crate::focus::{FocusEvent, FocusRequest, Interruption};
+        let session = Arc::new(AudioSession::new());
+        let engine = Arc::new(Engine::detached_with_session(
+            48_000,
+            2,
+            Arc::clone(&session),
+        ));
+        let mut player = MediaPlayer::new(Arc::clone(&engine));
+        let ramp: Vec<f32> = vec![0.5; 48_000];
+        player
+            .load(Source::Samples(Samples {
+                data: ramp,
+                channels: 1,
+                rate: 48_000,
+            }))
+            .unwrap();
+        player.play().unwrap();
+        let mut buf = vec![0.0f32; 2 * 4800];
+        engine.render(&mut buf);
+        let before = player.position();
+        assert!(before >= Duration::from_millis(99));
+
+        assert_eq!(
+            session.on_interruption(Interruption::Began),
+            crate::focus::Action::Pause
+        );
+        assert!(player.interrupted());
+        for _ in 0..10 {
+            engine.render(&mut buf);
+            assert!(buf.iter().all(|s| *s == 0.0), "silent while interrupted");
+        }
+        assert_eq!(player.position(), before, "nothing advanced");
+
+        session.on_interruption(Interruption::Ended {
+            should_resume: true,
+        });
+        engine.render(&mut buf);
+        assert!(buf.iter().any(|s| *s != 0.0));
+        assert!(player.position() > before);
+
+        // A duck lowers the level; gaining focus restores it.
+        let _ = FocusRequest::default();
+        engine.render(&mut buf);
+        let full = buf[buf.len() - 2].abs();
+        session.on_focus(FocusEvent::LostCanDuck);
+        engine.render(&mut buf); // the ramp block
+        engine.render(&mut buf);
+        let ducked = buf[buf.len() - 2].abs();
+        assert!(
+            ducked < full * 0.3 && ducked > full * 0.2,
+            "ducked {ducked} vs {full}"
+        );
+        session.on_focus(FocusEvent::Gained);
+        engine.render(&mut buf);
+        engine.render(&mut buf);
+        assert!(buf[buf.len() - 2].abs() >= full * 0.99, "back to full");
+    }
+
+    /// AU-02: a refused request does not play.
+    #[test]
+    fn a_refused_focus_request_fails_play() {
+        use crate::focus::FocusRequest;
+        use crate::session::SessionBridge;
+        struct Busy;
+        impl SessionBridge for Busy {
+            fn name(&self) -> &'static str {
+                "busy"
+            }
+            fn request_focus(&self, _: &FocusRequest) -> bool {
+                false
+            }
+            fn abandon_focus(&self) {}
+        }
+        let session = Arc::new(AudioSession::new());
+        session.set_bridge(Arc::new(Busy));
+        let engine = Arc::new(Engine::detached_with_session(48_000, 2, session));
+        let mut player = MediaPlayer::new(engine);
+        player
+            .load(Source::Samples(Samples {
+                data: vec![0.5; 4800],
+                channels: 1,
+                rate: 48_000,
+            }))
+            .unwrap();
+        assert_eq!(player.play(), Err(PlayError::FocusDenied));
+        assert_ne!(player.state(), MediaState::Playing);
+    }
+
+    /// AU-04: lock-screen commands drive the player; next/previous are the
+    /// app's.
+    #[test]
+    fn remote_commands_drive_the_player() {
+        let session = Arc::new(AudioSession::new());
+        let engine = Arc::new(Engine::detached_with_session(
+            48_000,
+            2,
+            Arc::clone(&session),
+        ));
+        let mut player = MediaPlayer::new(engine);
+        player
+            .load(Source::Samples(Samples {
+                data: vec![0.5; 48_000 * 10],
+                channels: 1,
+                rate: 48_000,
+            }))
+            .unwrap();
+        session.push_remote(RemoteCommand::Play);
+        session.push_remote(RemoteCommand::SeekTo(Duration::from_secs(4)));
+        session.push_remote(RemoteCommand::Next);
+        assert_eq!(player.poll_remote(), vec![RemoteCommand::Next]);
+        assert_eq!(player.state(), MediaState::Playing);
+        assert_eq!(player.position(), Duration::from_secs(4));
+        session.push_remote(RemoteCommand::TogglePlayPause);
+        player.poll_remote();
+        assert_eq!(player.state(), MediaState::Paused);
+        assert!(!session.holding(), "pausing gave focus back");
     }
 
     #[test]
