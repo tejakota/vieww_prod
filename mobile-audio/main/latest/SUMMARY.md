@@ -1,27 +1,15 @@
 # Mobile audio — SUCCESS
 
-- branch: `main`  sha: `068e1efb012e54accf313079739c2053debf8e81`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40718425836
+- branch: `main`  sha: `ad768f4640d394565892925cb96d56cec0d7775a`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40753923484
 
 | job | verdict | failed steps |
 |---|---|---|
-| iOS bridge (macOS) | PASS |  |
 | Android bridge and APK packaging | PASS |  |
 | Focus and session logic (Linux) | PASS |  |
+| iOS bridge (macOS) | PASS |  |
 
 ## Steps
-
-### iOS bridge (macOS) — PASS
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Toolchain and target
-- PASS: Run actions/cache@v4
-- PASS: Type-check and lint for iOS
-- PASS: Link the iOS example (frameworks and extern statics resolve)
-- PASS: Background-audio plist opt-in lints
-- PASS: Post Run actions/cache@v4
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
 
 ### Android bridge and APK packaging — PASS
 - PASS: Set up job
@@ -44,6 +32,18 @@
 - PASS: vieww-audio focus, session, engine, supervisor
 - PASS: iOS plist opt-in (vieww-build)
 - PASS: AXML editor
+- PASS: Post Run actions/cache@v4
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### iOS bridge (macOS) — PASS
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Toolchain and target
+- PASS: Run actions/cache@v4
+- PASS: Type-check and lint for iOS
+- PASS: Link the iOS example (frameworks and extern statics resolve)
+- PASS: Background-audio plist opt-in lints
 - PASS: Post Run actions/cache@v4
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
