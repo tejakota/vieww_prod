@@ -3,9 +3,9 @@
 #
 # # Why this exists
 #
-# Ten of the studio's modules — `json`, `cargo`, `task`, `toolchains`,
-# `scaffold`, `builds`, `jobs`, `edit_ops`, `folding`, `picker`, `tokens` — use
-# nothing but `std`. They were written
+# A dozen of the studio's modules — `json`, `task`, `toolchains`, `folding`,
+# `picker`, `tokens`, `language`, plus `lsp`, `cargo`, `jobs` and `git` in the
+# harness — use nothing but `std`. They were written
 # that way on purpose: the build pipeline, the toolchain checklist, the project
 # scaffolder and the editor comforts are all logic that has no business needing
 # a GPU, a font stack or a window to be checked.
@@ -49,11 +49,11 @@ export CARGO_MANIFEST_DIR="$here/.."
 
 # Modules with no dependency on any other studio module.
 #
-# `settings`, `language` and `customise` joined the list when they were written,
-# and each is std-only for the same reason the rest are: a settings file, a file
-# extension and a keymap are decisions that can be got right without a window,
-# and this harness is where getting them right is cheapest to check.
-ALONE=(json task toolchains scaffold edit_ops folding picker tokens settings language)
+# `scaffold`, `edit_ops`, `settings`, `customise`, `builds` and `export` used to
+# be here; each has since grown a dependency on the crate (themes, the live doc,
+# the test harness, Say codegen) and is covered by `cargo test -p viewwstudio`
+# instead. A module that stops compiling alone is removed here, not stubbed.
+ALONE=(json task toolchains folding picker tokens language)
 failed=0
 
 echo "== each module alone =="
@@ -77,14 +77,6 @@ echo "== the modules that depend on each other =="
 cat > harness.rs <<EOF
 #[path = "$src/json.rs"]
 pub mod json;
-// customise reads the key = value parser out of settings, which is the whole
-// reason there is one parser rather than two — so it belongs in the harness
-// rather than in the list above. (No backticks in here: the heredoc below is
-// unquoted, and a backtick in a comment is a command substitution.)
-#[path = "$src/settings.rs"]
-pub mod settings;
-#[path = "$src/customise.rs"]
-pub mod customise;
 #[path = "$src/lsp.rs"]
 pub mod lsp;
 #[path = "$src/cargo.rs"]
@@ -93,14 +85,8 @@ pub mod cargo;
 pub mod task;
 #[path = "$src/toolchains.rs"]
 pub mod toolchains;
-#[path = "$src/scaffold.rs"]
-pub mod scaffold;
-#[path = "$src/builds.rs"]
-pub mod builds;
 #[path = "$src/jobs.rs"]
 pub mod jobs;
-#[path = "$src/export.rs"]
-pub mod export;
 #[path = "$src/git.rs"]
 pub mod git;
 
