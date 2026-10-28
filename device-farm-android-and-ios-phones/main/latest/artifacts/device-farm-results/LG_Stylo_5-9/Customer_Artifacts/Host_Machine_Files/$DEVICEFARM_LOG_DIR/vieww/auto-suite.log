@@ -1,0 +1,39 @@
+device-suite: dev.vieww.demo is running as pid 19108
+device-suite: display is 1080x2160
+device-suite: waiting for the app to report its tap targets…
+device-suite: the app never reported its tap targets.
+  Expected a logcat line like:
+    __VIEWW_TAPS__ button=523,1474 field=523,2194
+  emitted by DeviceSuite::tap_targets on App::after_frame. Without it
+  this script does not know where anything is, and tapping a guessed
+  coordinate is how a suite passes while checking nothing.
+10-28 16:34:23.751 19108 19129 I Adreno  : Shader Compiler Version : EV031.25.03.03
+10-28 16:34:23.751 19108 19129 I Adreno  : Local Branch            : 
+10-28 16:34:23.751 19108 19129 I Adreno  : Remote Branch           : 
+10-28 16:34:23.751 19108 19129 I Adreno  : Remote Branch           : 
+10-28 16:34:23.751 19108 19129 I Adreno  : Reconstruct Branch      : 
+10-28 16:34:23.751 19108 19129 I Adreno  : Build Config                     : S L 6.0.7 AArch64
+10-28 16:34:23.759 19108 19129 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+--------- beginning of system
+10-28 16:34:23.759 19108 19108 I Timeline: Timeline: Activity_idle id: android.os.BinderProxy@469d135 time:5535622
+10-28 16:34:23.759 19108 19129 I chatty  : uid=10237(dev.vieww.demo) identical 2 lines
+10-28 16:34:23.759 19108 19129 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+10-28 16:34:23.777 19108 19129 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+10-28 16:34:23.781 19108 19129 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+10-28 16:34:23.819 19108 19129 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu, measuring (the cpu path measured 18.66 ms last launch)
+10-28 16:34:23.833 19108 19129 I vieww   : vieww_platform_winit::insets: display refresh: no display, or below API 30
+10-28 16:34:23.833 19108 19129 I vieww   : vieww_platform_winit::app: vieww: window#primary is on Android Device, which reports no refresh rate; keeping the current budget
+10-28 16:34:23.834 19108 19129 I vieww   : vieww_platform_winit::insets: window insets: device is below API 30, reporting none (asked once)
+10-28 16:34:23.850 19108 19129 I vieww   : android::device_tests: __VIEWW_PROGRESS__ frames=0
+10-28 16:34:23.869 19108 19129 I Adreno  : Failed to link shaders.
+10-28 16:34:23.870 19108 19129 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+10-28 16:34:23.871 19108 19129 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+10-28 16:34:23.887 19108 19129 E vieww   : android::demo: vieww failed: opening a Vulkan device/surface: Vulkan: A return array was too small for the result
+10-28 16:34:24.492 19108 19108 E ActivityThread: Activity android.app.NativeActivity has leaked IntentReceiver dev.vieww.audio.NoisyReceiver@eb6bfe9 that was originally registered here. Are you missing a call to unregisterReceiver()?
+10-28 16:34:24.492 19108 19108 E ActivityThread: android.app.IntentReceiverLeaked: Activity android.app.NativeActivity has leaked IntentReceiver dev.vieww.audio.NoisyReceiver@eb6bfe9 that was originally registered here. Are you missing a call to unregisterReceiver()?
+10-28 16:34:24.492 19108 19108 E ActivityThread: 	at android.app.LoadedApk$ReceiverDispatcher.<init>(LoadedApk.java:1491)
+10-28 16:34:24.492 19108 19108 E ActivityThread: 	at android.app.LoadedApk.getReceiverDispatcher(LoadedApk.java:1232)
+10-28 16:34:24.492 19108 19108 E ActivityThread: 	at android.app.ContextImpl.registerReceiverInternal(ContextImpl.java:1503)
+10-28 16:34:24.492 19108 19108 E ActivityThread: 	at android.app.ContextImpl.registerReceiver(ContextImpl.java:1476)
+10-28 16:34:24.492 19108 19108 E ActivityThread: 	at android.app.ContextImpl.registerReceiver(ContextImpl.java:1464)
+10-28 16:34:24.492 19108 19108 E ActivityThread: 	at android.content.ContextWrapper.registerReceiver(ContextWrapper.java:623)

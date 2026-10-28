@@ -1,0 +1,49 @@
+device_name=00008160-000A2D140C800036
+ios=27.0
+model=
+ipa_bytes=5139715
+bundle_id=dev.vieww.demo
+route=devicectl
+appium_session=edeb5696-63d7-4e75-ac3c-1b2ca81a3c91
+cpu_first_frame_ms=256.0 273.0 268.0
+cpu_tap_targets=scale=3 button=66,225 field=87,319
+cpu_suite=PASS
+cpu_frame_time=median 3.331416ms, worst 6.773083ms, budget 8.333334ms (240 samples)
+cpu_frame_stages=medians ms: scale 0.01 plan 0.00 cpu 2.43 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.15 present 0.60
+cpu_frame_stages_p95=p95 ms: scale 0.01 plan 0.00 cpu 3.48 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.19 present 2.23
+cpu_input_latency=input to present ms: median 11.0 p95 46.7 p99 46.7 worst 46.7 over 10 inputs in 10 frames; 0 unanswered within 1 s
+cpu_worst_frame=work 6.77 ms, outside the renderer 0.21 ms; stages ms: scale 0.01 plan 0.00 cpu 4.53 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.30 present 1.72
+cpu_startup_stages=before run 17 ms | app setup 0.2 | event loop started 85.6 | resumed 166.2 | window created 5.4 | present ready 0.2 | accessibility and show 0.1 | tree built 1.5 | window ready 2.7 | until first draw 1.1 | app before-frame hooks 0.1 | first build and layout 0.7 | first raster and present 9.7 = 290.3 ms from process start
+cpu_gpu_frames=0 of 600 drawn by the GPU rasterizer (0 straight into the swapchain)
+cpu_cache_budgets=blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+cpu_failed_checks=
+gpu_first_frame_ms=903.0 281.0 284.0
+gpu_tap_targets=scale=3 button=66,225 field=87,319
+gpu_suite=PASS
+gpu_frame_time=median 759.708µs, worst 12.091417ms, budget 8.333334ms (240 samples)
+gpu_frame_stages=medians ms: scale 0.03 plan 0.13 cpu 0.00 gpu_upload 0.01 gpu_record 0.01 gpu_submit 0.25 gpu_wait 0.00 gpu_readback 0.00 acquire 0.02 present 0.02
+gpu_frame_stages_p95=p95 ms: scale 0.05 plan 0.23 cpu 0.00 gpu_upload 0.02 gpu_record 0.04 gpu_submit 6.00 gpu_wait 1.19 gpu_readback 0.00 acquire 0.04 present 0.03
+gpu_input_latency=input to present ms: median 11.0 p95 28.6 p99 53.5 worst 53.5 over 14 inputs in 14 frames; 0 unanswered within 1 s
+gpu_worst_frame=work 12.09 ms, outside the renderer 0.36 ms; stages ms: scale 0.04 plan 0.23 cpu 0.00 gpu_upload 0.02 gpu_record 0.01 gpu_submit 10.41 gpu_wait 0.97 gpu_readback 0.00 acquire 0.03 present 0.02
+gpu_startup_stages=before run 18 ms | app setup 0.2 | event loop started 84.5 | resumed 171.5 | window created 5.9 | present ready 7.0 | accessibility and show 0.1 | tree built 1.4 | window ready 2.8 | until first draw 1.4 | app before-frame hooks 0.1 | first build and layout 0.6 | first raster and present 15.1 = 308.2 ms from process start
+gpu_pipeline_cache=started from 41212 bytes; saved 41212 bytes after the first GPU frame
+gpu_gpu_frames=600 of 600 drawn by the GPU rasterizer (600 straight into the swapchain)
+gpu_cache_budgets=blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+gpu_failed_checks=
+auto_first_frame_ms=275.0 282.0 275.0
+auto_tap_targets=scale=3 button=66,225 field=87,319
+auto_suite=PASS
+auto_frame_time=median 4.262209ms, worst 7.64675ms, budget 8.333334ms (240 samples)
+auto_frame_stages=medians ms: scale 0.01 plan 0.00 cpu 2.29 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.10 present 1.84
+auto_frame_stages_p95=p95 ms: scale 0.01 plan 0.00 cpu 2.63 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.12 present 2.32
+auto_input_latency=input to present ms: median 9.5 p95 11.3 p99 21.1 worst 21.1 over 12 inputs in 12 frames; 0 unanswered within 1 s
+auto_worst_frame=work 7.65 ms, outside the renderer 0.13 ms; stages ms: scale 0.01 plan 0.00 cpu 4.64 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.22 present 2.65
+auto_startup_stages=before run 18 ms | app setup 0.2 | event loop started 87.0 | resumed 167.5 | window created 5.6 | present ready 0.3 | accessibility and show 0.1 | tree built 1.5 | window ready 2.7 | until first draw 0.9 | app before-frame hooks 0.1 | first build and layout 0.7 | first raster and present 9.8 = 294.9 ms from process start
+auto_renderer_choice=cpu (calibrated earlier: cpu 4.83 ms, gpu 8.18 ms)
+auto_gpu_frames=0 of 600 drawn by the GPU rasterizer (0 straight into the swapchain)
+auto_cache_budgets=blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+auto_failed_checks=
+audio_in_app=PASS PASS; failed: 
+audio_plays_in_background=PASS 31 s of audio callbacks over 31 s after Home; after: __VIEWW_AUDIO__ status t_ms=39550 callbacks=1796096 rate=48000 position_ms=5904 playing=true suspended=false duck=1.000 holding=true
+audio=PASS
+status=PASS

@@ -1,0 +1,42 @@
+device_name=00008110-001E0C462183801E
+ios=16.0
+model=
+ipa_bytes=5139723
+bundle_id=dev.vieww.demo
+route=appium-only
+cpu_suite=PASS
+cpu_first_frame_ms=n/a (no console below iOS 17)
+cpu_frame_time=median 7.532375ms, worst 8.882751ms, budget 16.666668ms (240 samples)
+cpu_frame_stages=medians ms: scale 0.01 plan 0.00 cpu 4.32 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 2.99
+cpu_frame_stages_p95=p95 ms: scale 0.02 plan 0.00 cpu 4.63 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.51
+cpu_input_latency=input to present ms: median 16.9 p95 18.3 p99 33.9 worst 33.9 over 18 inputs in 18 frames; 0 unanswered within 1 s
+cpu_worst_frame=work 8.88 ms, outside the renderer 0.19 ms; stages ms: scale 0.02 plan 0.00 cpu 4.89 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.78
+cpu_startup_stages=before run 51 ms | app setup 0.9 | event loop started 51.2 | resumed 235.0 | window created 24.2 | present ready 2.1 | accessibility and show 0.3 | tree built 18.0 | window ready 0.4 | until first draw 0.9 | app before-frame hooks 0.2 | first build and layout 6.1 | first raster and present 31.5 = 421.2 ms from process start
+cpu_gpu_frames=0 of 600 drawn by the GPU rasterizer (0 straight into the swapchain)
+cpu_cache_budgets=blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+cpu_failed_checks=
+gpu_suite=PASS
+gpu_first_frame_ms=n/a (no console below iOS 17)
+gpu_frame_time=median 15.912208ms, worst 16.729207ms, budget 16.666668ms (240 samples)
+gpu_frame_stages=medians ms: scale 0.11 plan 0.57 cpu 0.00 gpu_upload 0.02 gpu_record 0.03 gpu_submit 13.91 gpu_wait 0.00 gpu_readback 0.00 acquire 0.06 present 0.06
+gpu_frame_stages_p95=p95 ms: scale 0.13 plan 0.66 cpu 0.00 gpu_upload 0.05 gpu_record 0.07 gpu_submit 14.32 gpu_wait 1.60 gpu_readback 0.00 acquire 0.08 present 0.07
+gpu_input_latency=input to present ms: median 16.1 p95 24.3 p99 48.8 worst 48.8 over 16 inputs in 16 frames; 0 unanswered within 1 s
+gpu_worst_frame=work 16.73 ms, outside the renderer 0.66 ms; stages ms: scale 0.06 plan 0.36 cpu 0.00 gpu_upload 0.07 gpu_record 0.02 gpu_submit 14.48 gpu_wait 1.01 gpu_readback 0.00 acquire 0.04 present 0.04
+gpu_startup_stages=before run 27 ms | app setup 0.2 | event loop started 59.6 | resumed 245.6 | window created 23.4 | present ready 255.6 | accessibility and show 0.1 | tree built 2.1 | window ready 0.1 | until first draw 2.8 | app before-frame hooks 0.1 | first build and layout 0.9 | first raster and present 247.2 = 864.9 ms from process start
+gpu_pipeline_cache=started from 0 bytes; saved 41212 bytes after the first GPU frame
+gpu_gpu_frames=600 of 600 drawn by the GPU rasterizer (600 straight into the swapchain)
+gpu_cache_budgets=blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+gpu_failed_checks=
+auto_suite=PASS
+auto_first_frame_ms=n/a (no console below iOS 17)
+auto_frame_time=median 7.443333ms, worst 8.945709ms, budget 16.666668ms (240 samples)
+auto_frame_stages=medians ms: scale 0.01 plan 0.00 cpu 3.83 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.28
+auto_frame_stages_p95=p95 ms: scale 0.02 plan 0.00 cpu 4.63 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.85
+auto_input_latency=input to present ms: median 17.3 p95 18.5 p99 23.4 worst 23.4 over 18 inputs in 18 frames; 0 unanswered within 1 s
+auto_worst_frame=work 8.95 ms, outside the renderer 0.21 ms; stages ms: scale 0.02 plan 0.00 cpu 5.14 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.58
+auto_startup_stages=before run 27 ms | app setup 0.3 | event loop started 60.9 | resumed 244.4 | window created 25.7 | present ready 0.7 | accessibility and show 0.3 | tree built 5.3 | window ready 0.2 | until first draw 0.4 | app before-frame hooks 0.2 | first build and layout 2.5 | first raster and present 31.4 = 399.0 ms from process start
+auto_renderer_choice=cpu for now; the gpu is measured next launch (measured: cpu 7.57 ms; budget 16.67 ms)
+auto_gpu_frames=0 of 600 drawn by the GPU rasterizer (0 straight into the swapchain)
+auto_cache_budgets=blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+auto_failed_checks=
+status=PASS

@@ -1,0 +1,70 @@
+MEDIA SESSION SERVICE (dumpsys media_session)
+
+6 sessions listeners.
+Global priority session is com.android.server.telecom/HeadsetMediaButton/1 (userId=0)
+  HeadsetMediaButton com.android.server.telecom/HeadsetMediaButton/1 (userId=0)
+    ownerPid=2877, ownerUid=1000, userId=0
+    package=com.android.server.telecom
+    launchIntent=null
+    mediaButtonReceiver=null
+    active=false
+    flags=65537
+    rating type=0
+    controllers: 0
+    state=null
+    audioAttrs=AudioAttributes: usage=USAGE_VOICE_COMMUNICATION content=CONTENT_TYPE_SPEECH flags=0x800(FLAG_MUTE_HAPTIC)  tags= bundle=null
+    volumeType=LOCAL, controlType=ABSOLUTE, max=0, current=0, volumeControlId=null
+    metadata: null
+    queueTitle=null, size=0
+User Records:
+Record for full_user=0
+  Volume key long-press listener: null
+  Volume key long-press listener package: 
+  Media key listener: null
+  Media key listener package: 
+  OnMediaKeyEventDispatchedListener: added 0 listener(s)
+  OnMediaKeyEventSessionChangedListener: added 1 listener(s)
+    from com.android.systemui
+  Last MediaButtonReceiver: MBR {pi=null, componentName=ComponentInfo{com.amazon.avod.thirdpartyclient/com.amazon.video.sdk.player.audiofocus.PlayerAudioFocusManager$RemoteControlReceiver}, type=1, pkg=com.amazon.avod.thirdpartyclient}
+  High priority mediakey receiver: null
+  Volume key long-press receiver: null
+  Media button session is dev.vieww.demo/vieww/51 (userId=0)
+  Sessions Stack - have 1 sessions:
+    vieww dev.vieww.demo/vieww/51 (userId=0)
+      ownerPid=28603, ownerUid=10340, userId=0
+      package=dev.vieww.demo
+      launchIntent=null
+      mediaButtonReceiver=null
+      active=true
+      flags=0
+      rating type=0
+      controllers: 9
+      state=PlaybackState {state=PLAYING(3), position=6314, buffered position=0, speed=1.0, updated=1456900, actions=895, custom actions=[], active item id=-1, error=null}
+      audioAttrs=AudioAttributes: usage=USAGE_MEDIA content=CONTENT_TYPE_UNKNOWN flags=0x800(FLAG_MUTE_HAPTIC)  tags= bundle=null
+      volumeType=LOCAL, controlType=ABSOLUTE, max=0, current=0, volumeControlId=null
+      metadata: size=4, description=vieww audio check, vieww, Device Farm
+      queueTitle=null, size=0
+isAppCastingOn:false
+isMultiSoundOn:false
+Events log: MediaSession events
+10-28 16:18:06:024 registerRemoteVolumeController uid : 10048, pid : 3911, rvc : android.media.IRemoteSessionCallback$Stub$Proxy@d814370
+10-28 16:42:10:509 MediaKeyEvt,pkg=com.android.shell pid=28943,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PAUSE,act:ACTION_DOWN
+10-28 16:42:10:511 MediaKeyEvt,pkg=com.android.shell pid=28943,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PAUSE,act:ACTION_UP
+10-28 16:42:13:700 MediaKeyEvt,pkg=com.android.shell pid=28976,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PLAY,act:ACTION_DOWN
+10-28 16:42:13:700 MediaKeyEvt,pkg=com.android.shell pid=28976,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PLAY,act:ACTION_UP
+
+isSupportMediaDataPlatform:true
+Events log: MediaSessionDataPlatform logger
+10-28 16:42:02:441 getMediaType for uid: 10340 Audio
+10-28 16:42:04:442 getMediaType for uid: 10340 Audio
+10-28 16:42:10:558 Do not send data because playing time too short 8117ms
+10-28 16:42:13:762 getMediaType for uid: 10340 Audio
+10-28 16:42:15:764 getMediaType for uid: 10340 Audio
+
+Audio playback (lastly played comes first)
+  uid=10340 packages=dev.vieww.demo 
+Media session config:
+  media_button_receiver_fgs_allowlist_duration_ms: [cur: 10000, def: 10000]
+  media_session_calback_fgs_allowlist_duration_ms: [cur: 10000, def: 10000]
+  media_session_callback_fgs_while_in_use_temp_allow_duration_ms: [cur: 10000, def: 10000]
+  media_session_temp_user_engaged_duration_ms: [cur: 600000, def: 600000]

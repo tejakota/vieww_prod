@@ -1,0 +1,48 @@
+--------- beginning of main
+10-28 16:49:54.249 24578 24578 E dev.vieww.demo: Not starting debugger since process cannot load the jdwp agent.
+10-28 16:49:54.302 24578 24578 E DisplayManagerHelper: ISmartCoverManager is null
+10-28 16:49:54.343 24578 24578 D PhoneWindow: windowLightStatusBar : false, disable View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+10-28 16:49:54.355 24578 24578 I android-activity: Creating: Activity = 0x2872, saved state size = 0
+10-28 16:49:54.359 24578 24600 I vieww   : android::demo: vieww starting
+10-28 16:49:54.405 24578 24600 I vieww   : vieww_platform_winit::audio_android: vieww-audio: android session bridge (sdk 28, listener true, media session true, playback service true)
+10-28 16:49:54.788 24578 24578 D OpenGLRenderer: Skia GL Pipeline
+10-28 16:49:54.799 24578 24578 I TouchFilterInputStageHelper: [needTouchEventFilter] Displayid : 0
+10-28 16:49:54.803 24578 24578 D BezellessGripSuppressionFilter: getdisplaysize, x : 1080 y : 2160
+--------- beginning of system
+10-28 16:49:54.832 24578 24578 I Timeline: Timeline: Activity_idle id: android.os.BinderProxy@469d135 time:6466695
+10-28 16:49:54.837 24578 24600 D vulkan  : searching for layers in '/data/app/dev.vieww.demo-xbO9W6gIDoFGQnFbpKCEcA==/lib/arm64'
+10-28 16:49:54.837 24578 24600 D vulkan  : searching for layers in '/data/app/dev.vieww.demo-xbO9W6gIDoFGQnFbpKCEcA==/base.apk!/lib/arm64-v8a'
+10-28 16:49:54.845 24578 24600 I Adreno  : QUALCOMM build          : 50f1b2d, I1b05bd271c
+10-28 16:49:54.845 24578 24600 I Adreno  : Build Date              : 03/26/19
+10-28 16:49:54.845 24578 24600 I Adreno  : Shader Compiler Version : EV031.25.03.03
+10-28 16:49:54.845 24578 24600 I Adreno  : Local Branch            : 
+10-28 16:49:54.845 24578 24600 I Adreno  : Remote Branch           : 
+10-28 16:49:54.845 24578 24600 I Adreno  : Remote Branch           : 
+10-28 16:49:54.845 24578 24600 I Adreno  : Reconstruct Branch      : 
+10-28 16:49:54.845 24578 24600 I Adreno  : Build Config                     : S L 6.0.7 AArch64
+10-28 16:49:54.851 24578 24600 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+10-28 16:49:54.851 24578 24600 I chatty  : uid=10237(dev.vieww.demo) identical 2 lines
+10-28 16:49:54.851 24578 24600 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+10-28 16:49:54.855 24578 24600 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+10-28 16:49:54.856 24578 24600 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+10-28 16:49:54.884 24578 24600 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu, measuring (the cpu path measured 18.66 ms last launch)
+10-28 16:49:54.901 24578 24600 I vieww   : vieww_platform_winit::insets: display refresh: no display, or below API 30
+10-28 16:49:54.901 24578 24600 I vieww   : vieww_platform_winit::app: vieww: window#primary is on Android Device, which reports no refresh rate; keeping the current budget
+10-28 16:49:54.901 24578 24600 I vieww   : vieww_platform_winit::insets: window insets: device is below API 30, reporting none (asked once)
+10-28 16:49:54.915 24578 24600 I vieww   : android::device_tests: __VIEWW_PROGRESS__ frames=0
+10-28 16:49:54.943 24578 24600 I Adreno  : Failed to link shaders.
+10-28 16:49:54.944 24578 24600 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+10-28 16:49:54.944 24578 24600 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+10-28 16:49:54.958 24578 24600 E vieww   : android::demo: vieww failed: opening a Vulkan device/surface: Vulkan: A return array was too small for the result
+10-28 16:49:55.572 24578 24578 E ActivityThread: Activity android.app.NativeActivity has leaked IntentReceiver dev.vieww.audio.NoisyReceiver@a1d4070 that was originally registered here. Are you missing a call to unregisterReceiver()?
+10-28 16:49:55.572 24578 24578 E ActivityThread: android.app.IntentReceiverLeaked: Activity android.app.NativeActivity has leaked IntentReceiver dev.vieww.audio.NoisyReceiver@a1d4070 that was originally registered here. Are you missing a call to unregisterReceiver()?
+10-28 16:49:55.572 24578 24578 E ActivityThread: 	at android.app.LoadedApk$ReceiverDispatcher.<init>(LoadedApk.java:1491)
+10-28 16:49:55.572 24578 24578 E ActivityThread: 	at android.app.LoadedApk.getReceiverDispatcher(LoadedApk.java:1232)
+10-28 16:49:55.572 24578 24578 E ActivityThread: 	at android.app.ContextImpl.registerReceiverInternal(ContextImpl.java:1503)
+10-28 16:49:55.572 24578 24578 E ActivityThread: 	at android.app.ContextImpl.registerReceiver(ContextImpl.java:1476)
+10-28 16:49:55.572 24578 24578 E ActivityThread: 	at android.app.ContextImpl.registerReceiver(ContextImpl.java:1464)
+10-28 16:49:55.572 24578 24578 E ActivityThread: 	at android.content.ContextWrapper.registerReceiver(ContextWrapper.java:623)
+10-28 16:50:04.422 24578 24590 I dev.vieww.demo: Explicit concurrent copying GC freed 334(33KB) AllocSpace objects, 0(0B) LOS objects, 78% free, 1111KB/5MB, paused 127us total 14.046ms
+10-28 16:50:14.739 24578 24590 I dev.vieww.demo: Explicit concurrent copying GC freed 3111(126KB) AllocSpace objects, 1(20KB) LOS objects, 78% free, 1112KB/5MB, paused 86us total 13.412ms
+10-28 16:50:25.061 24578 24590 I dev.vieww.demo: Explicit concurrent copying GC freed 3104(127KB) AllocSpace objects, 1(20KB) LOS objects, 78% free, 1112KB/5MB, paused 85us total 13.784ms
+10-28 16:50:28.162 24578 24590 I dev.vieww.demo: Explicit concurrent copying GC freed 3099(128KB) AllocSpace objects, 1(20KB) LOS objects, 78% free, 1112KB/5MB, paused 81us total 14.132ms

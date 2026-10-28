@@ -1,0 +1,41 @@
+device-suite: the planned GPU rasterizer (debug.vieww.gpu=1)
+device-suite: --gpu with --no-build only applies if the app is relaunched
+device-suite: dev.vieww.demo is running as pid 27862
+device-suite: display is 1080x2340
+device-suite: waiting for the app to report its tap targets…
+device-suite: the app never reported its tap targets.
+  Expected a logcat line like:
+    __VIEWW_TAPS__ button=523,1474 field=523,2194
+  emitted by DeviceSuite::tap_targets on App::after_frame. Without it
+  this script does not know where anything is, and tapping a guessed
+  coordinate is how a suite passes while checking nothing.
+10-28 16:41:26.621 27862 27862 D InsetsController: hide(ime())
+10-28 16:41:26.621 27862 27862 I ImeTracker: dev.vieww.demo:8c1752e2: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+10-28 16:41:26.621 27862 27872 D InputTransport: Input channel constructed: 'ClientS', fd=150
+10-28 16:41:26.678 27862 27881 I vieww   : android::device_tests: __VIEWW_PROGRESS__ frames=0
+10-28 16:41:26.683 27862 27881 I AdrenoVK-0: Failed to link shaders.
+10-28 16:41:26.683 27862 27881 I AdrenoVK-0: Pipeline create failed
+10-28 16:41:26.687 27862 27881 E vieww   : android::demo: vieww failed: opening a Vulkan device/surface: Vulkan: An unknown error has occurred, due to an implementation or application bug
+10-28 16:41:26.703 27862 27862 I ImeFocusController: onPreWindowFocus: skipped hasWindowFocus=false mHasImeFocus=true
+10-28 16:41:26.703 27862 27862 I ImeFocusController: onPostWindowFocus: skipped hasWindowFocus=false mHasImeFocus=true
+10-28 16:41:26.740 27862 27862 D InputTransport: Input channel destroyed: 'ClientS', fd=150
+10-28 16:41:27.074 27862 27862 I VRI[NativeActivity]@e698122: handleAppVisibility mAppVisible = true visible = false
+10-28 16:41:27.074 27862 27862 D VRI[NativeActivity]@e698122: visibilityChanged oldVisibility=true newVisibility=false
+10-28 16:41:27.079 27862 27862 I VRI[NativeActivity]@e698122: Relayout returned: old=(0,0,1080,2340) new=(0,0,1080,2340) relayoutAsync=false req=(1080,2340)8 dur=3 res=0x2 s={false 0x0} ch=true seqId=0
+10-28 16:41:27.079 27862 27862 I VRI[NativeActivity]@e698122: ViewRootImpl >> surfaceDestroyed
+10-28 16:41:27.079 27862 27862 D VRI[NativeActivity]@e698122: Not drawing due to not visible. Reason=!mAppVisible && !mForceDecorViewVisibility
+10-28 16:41:27.079 27862 27862 I VRI[NativeActivity]@e698122: stopped(true) old = false
+10-28 16:41:27.079 27862 27862 D ViewRootImpl: Skipping stats log for color mode
+10-28 16:41:27.079 27862 27862 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): null
+10-28 16:41:27.079 27862 27862 I VRI[NativeActivity]@e698122: dispatchDetachedFromWindow
+10-28 16:41:27.081 27862 27862 D InputTransport: Input channel destroyed: '7058b06', fd=118
+10-28 16:41:27.082 27862 27862 D BBA2    : setIsFg isFg = false; delayValue 3999ms
+10-28 16:41:27.082 27862 27862 E ActivityThread: Activity android.app.NativeActivity has leaked IntentReceiver dev.vieww.audio.NoisyReceiver@b13b379 that was originally registered here. Are you missing a call to unregisterReceiver()?
+10-28 16:41:27.082 27862 27862 E ActivityThread: android.app.IntentReceiverLeaked: Activity android.app.NativeActivity has leaked IntentReceiver dev.vieww.audio.NoisyReceiver@b13b379 that was originally registered here. Are you missing a call to unregisterReceiver()?
+10-28 16:41:27.082 27862 27862 E ActivityThread: 	at android.app.LoadedApk$ReceiverDispatcher.<init>(LoadedApk.java:2145)
+10-28 16:41:27.082 27862 27862 E ActivityThread: 	at android.app.LoadedApk.getReceiverDispatcher(LoadedApk.java:1833)
+10-28 16:41:27.082 27862 27862 E ActivityThread: 	at android.app.ContextImpl.registerReceiverInternal(ContextImpl.java:2038)
+10-28 16:41:27.082 27862 27862 E ActivityThread: 	at android.app.ContextImpl.registerReceiver(ContextImpl.java:1990)
+10-28 16:41:27.082 27862 27862 E ActivityThread: 	at android.app.ContextImpl.registerReceiver(ContextImpl.java:1978)
+10-28 16:41:27.082 27862 27862 E ActivityThread: 	at android.content.ContextWrapper.registerReceiver(ContextWrapper.java:821)
+10-28 16:41:54.642 27862 27868 W dev.vieww.demo: userfaultfd: MOVE ioctl seems unsupported: Connection timed out

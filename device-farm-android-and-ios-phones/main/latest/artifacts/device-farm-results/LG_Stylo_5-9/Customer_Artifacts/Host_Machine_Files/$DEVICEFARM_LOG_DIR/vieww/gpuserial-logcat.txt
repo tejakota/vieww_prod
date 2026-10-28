@@ -1,0 +1,44 @@
+--------- beginning of main
+10-28 16:38:05.327 21333 21333 E dev.vieww.demo: Not starting debugger since process cannot load the jdwp agent.
+10-28 16:38:05.370 21333 21333 E DisplayManagerHelper: ISmartCoverManager is null
+10-28 16:38:05.418 21333 21333 D PhoneWindow: windowLightStatusBar : false, disable View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+10-28 16:38:05.428 21333 21333 I android-activity: Creating: Activity = 0x2872, saved state size = 0
+10-28 16:38:05.432 21333 21354 I vieww   : android::demo: vieww starting
+10-28 16:38:05.471 21333 21354 I vieww   : vieww_platform_winit::audio_android: vieww-audio: android session bridge (sdk 28, listener true, media session true, playback service true)
+10-28 16:38:05.824 21333 21333 D OpenGLRenderer: Skia GL Pipeline
+10-28 16:38:05.835 21333 21333 I TouchFilterInputStageHelper: [needTouchEventFilter] Displayid : 0
+10-28 16:38:05.840 21333 21333 D BezellessGripSuppressionFilter: getdisplaysize, x : 1080 y : 2160
+--------- beginning of system
+10-28 16:38:05.863 21333 21333 I Timeline: Timeline: Activity_idle id: android.os.BinderProxy@469d135 time:5757726
+10-28 16:38:05.866 21333 21354 D vulkan  : searching for layers in '/data/app/dev.vieww.demo-xbO9W6gIDoFGQnFbpKCEcA==/lib/arm64'
+10-28 16:38:05.867 21333 21354 D vulkan  : searching for layers in '/data/app/dev.vieww.demo-xbO9W6gIDoFGQnFbpKCEcA==/base.apk!/lib/arm64-v8a'
+10-28 16:38:05.879 21333 21354 I Adreno  : QUALCOMM build          : 50f1b2d, I1b05bd271c
+10-28 16:38:05.879 21333 21354 I Adreno  : Build Date              : 03/26/19
+10-28 16:38:05.879 21333 21354 I Adreno  : Shader Compiler Version : EV031.25.03.03
+10-28 16:38:05.879 21333 21354 I Adreno  : Local Branch            : 
+10-28 16:38:05.879 21333 21354 I Adreno  : Remote Branch           : 
+10-28 16:38:05.879 21333 21354 I Adreno  : Remote Branch           : 
+10-28 16:38:05.879 21333 21354 I Adreno  : Reconstruct Branch      : 
+10-28 16:38:05.879 21333 21354 I Adreno  : Build Config                     : S L 6.0.7 AArch64
+10-28 16:38:05.887 21333 21354 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+10-28 16:38:05.887 21333 21354 I chatty  : uid=10237(dev.vieww.demo) identical 2 lines
+10-28 16:38:05.887 21333 21354 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+10-28 16:38:05.894 21333 21354 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+10-28 16:38:05.895 21333 21354 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+10-28 16:38:05.955 21333 21354 I vieww   : vieww_platform_winit::insets: display refresh: no display, or below API 30
+10-28 16:38:05.955 21333 21354 I vieww   : vieww_platform_winit::app: vieww: window#primary is on Android Device, which reports no refresh rate; keeping the current budget
+10-28 16:38:05.955 21333 21354 I vieww   : vieww_platform_winit::insets: window insets: device is below API 30, reporting none (asked once)
+10-28 16:38:05.969 21333 21354 I vieww   : android::device_tests: __VIEWW_PROGRESS__ frames=0
+10-28 16:38:05.988 21333 21354 I Adreno  : Failed to link shaders.
+10-28 16:38:05.989 21333 21354 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+10-28 16:38:05.990 21333 21354 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+10-28 16:38:06.004 21333 21354 E vieww   : android::demo: vieww failed: opening a Vulkan device/surface: Vulkan: A return array was too small for the result
+10-28 16:38:06.620 21333 21333 E ActivityThread: Activity android.app.NativeActivity has leaked IntentReceiver dev.vieww.audio.NoisyReceiver@a1d4070 that was originally registered here. Are you missing a call to unregisterReceiver()?
+10-28 16:38:06.620 21333 21333 E ActivityThread: android.app.IntentReceiverLeaked: Activity android.app.NativeActivity has leaked IntentReceiver dev.vieww.audio.NoisyReceiver@a1d4070 that was originally registered here. Are you missing a call to unregisterReceiver()?
+10-28 16:38:06.620 21333 21333 E ActivityThread: 	at android.app.LoadedApk$ReceiverDispatcher.<init>(LoadedApk.java:1491)
+10-28 16:38:06.620 21333 21333 E ActivityThread: 	at android.app.LoadedApk.getReceiverDispatcher(LoadedApk.java:1232)
+10-28 16:38:06.620 21333 21333 E ActivityThread: 	at android.app.ContextImpl.registerReceiverInternal(ContextImpl.java:1503)
+10-28 16:38:06.620 21333 21333 E ActivityThread: 	at android.app.ContextImpl.registerReceiver(ContextImpl.java:1476)
+10-28 16:38:06.620 21333 21333 E ActivityThread: 	at android.app.ContextImpl.registerReceiver(ContextImpl.java:1464)
+10-28 16:38:06.620 21333 21333 E ActivityThread: 	at android.content.ContextWrapper.registerReceiver(ContextWrapper.java:623)
+10-28 16:38:40.110 21333 21367 I dev.vieww.demo: Explicit concurrent copying GC freed 334(33KB) AllocSpace objects, 0(0B) LOS objects, 78% free, 1111KB/5MB, paused 101us total 12.978ms
