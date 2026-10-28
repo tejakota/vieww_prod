@@ -1,39 +1,61 @@
-device-suite: dev.vieww.demo is running as pid 26432
+device-suite: dev.vieww.demo is running as pid 30375
 device-suite: display is 1080x2340
 device-suite: waiting for the app to report its tap targets…
-device-suite: the app never reported its tap targets.
-  Expected a logcat line like:
-    __VIEWW_TAPS__ button=523,1474 field=523,2194
-  emitted by DeviceSuite::tap_targets on App::after_frame. Without it
-  this script does not know where anything is, and tapping a guessed
-  coordinate is how a suite passes while checking nothing.
-10-28 16:40:14.613 26432 26452 I vieww   : android::device_tests: __VIEWW_PROGRESS__ frames=0
-10-28 16:40:14.622 26432 26452 I AdrenoVK-0: Failed to link shaders.
-10-28 16:40:14.622 26432 26452 I AdrenoVK-0: Pipeline create failed
-10-28 16:40:14.626 26432 26452 E vieww   : android::demo: vieww failed: opening a Vulkan device/surface: Vulkan: An unknown error has occurred, due to an implementation or application bug
-10-28 16:40:14.641 26432 26432 I ImeFocusController: onPreWindowFocus: skipped hasWindowFocus=false mHasImeFocus=true
-10-28 16:40:14.641 26432 26432 I ImeFocusController: onPostWindowFocus: skipped hasWindowFocus=false mHasImeFocus=true
-10-28 16:40:14.692 26432 26432 D InputTransport: Input channel destroyed: 'ClientS', fd=150
-10-28 16:40:15.026 26432 26432 I VRI[NativeActivity]@e698122: handleAppVisibility mAppVisible = true visible = false
-10-28 16:40:15.026 26432 26432 D VRI[NativeActivity]@e698122: visibilityChanged oldVisibility=true newVisibility=false
-10-28 16:40:15.032 26432 26432 I VRI[NativeActivity]@e698122: Relayout returned: old=(0,0,1080,2340) new=(0,0,1080,2340) relayoutAsync=false req=(1080,2340)8 dur=3 res=0x2 s={false 0x0} ch=true seqId=0
-10-28 16:40:15.032 26432 26432 I VRI[NativeActivity]@e698122: ViewRootImpl >> surfaceDestroyed
-10-28 16:40:15.032 26432 26432 D VRI[NativeActivity]@e698122: Not drawing due to not visible. Reason=!mAppVisible && !mForceDecorViewVisibility
-10-28 16:40:15.032 26432 26432 I VRI[NativeActivity]@e698122: stopped(true) old = false
-10-28 16:40:15.032 26432 26432 D ViewRootImpl: Skipping stats log for color mode
-10-28 16:40:15.032 26432 26432 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): null
-10-28 16:40:15.032 26432 26432 I VRI[NativeActivity]@e698122: dispatchDetachedFromWindow
-10-28 16:40:15.033 26432 26432 D InputTransport: Input channel destroyed: 'c0e419c', fd=118
-10-28 16:40:15.033 26432 26432 D BBA2    : setIsFg isFg = false; delayValue 3999ms
-10-28 16:40:15.034 26432 26432 E ActivityThread: Activity android.app.NativeActivity has leaked IntentReceiver dev.vieww.audio.NoisyReceiver@b13b379 that was originally registered here. Are you missing a call to unregisterReceiver()?
-10-28 16:40:15.034 26432 26432 E ActivityThread: android.app.IntentReceiverLeaked: Activity android.app.NativeActivity has leaked IntentReceiver dev.vieww.audio.NoisyReceiver@b13b379 that was originally registered here. Are you missing a call to unregisterReceiver()?
-10-28 16:40:15.034 26432 26432 E ActivityThread: 	at android.app.LoadedApk$ReceiverDispatcher.<init>(LoadedApk.java:2145)
-10-28 16:40:15.034 26432 26432 E ActivityThread: 	at android.app.LoadedApk.getReceiverDispatcher(LoadedApk.java:1833)
-10-28 16:40:15.034 26432 26432 E ActivityThread: 	at android.app.ContextImpl.registerReceiverInternal(ContextImpl.java:2038)
-10-28 16:40:15.034 26432 26432 E ActivityThread: 	at android.app.ContextImpl.registerReceiver(ContextImpl.java:1990)
-10-28 16:40:15.034 26432 26432 E ActivityThread: 	at android.app.ContextImpl.registerReceiver(ContextImpl.java:1978)
-10-28 16:40:15.034 26432 26432 E ActivityThread: 	at android.content.ContextWrapper.registerReceiver(ContextWrapper.java:821)
-10-28 16:40:24.497 26432 26465 W dev.vieww.demo: userfaultfd: MOVE ioctl seems unsupported: Success
-10-28 16:40:24.498 26432 26465 I dev.vieww.demo: Explicit concurrent mark compact GC freed 2646KB AllocSpace bytes, 2(40KB) LOS objects, 81% free, 1896KB/10088KB, paused 53us,473us total 5.810ms
-10-28 16:40:34.664 26432 26465 I dev.vieww.demo: Explicit concurrent mark compact GC freed 200KB AllocSpace bytes, 1(20KB) LOS objects, 81% free, 1888KB/10080KB, paused 35us,268us total 4.551ms
-10-28 16:40:44.827 26432 26465 I dev.vieww.demo: Explicit concurrent mark compact GC freed 160KB AllocSpace bytes, 1(20KB) LOS objects, 81% free, 1888KB/10080KB, paused 64us,436us total 5.797ms
+device-suite: the app reports button 173,329 and field 232,553 (physical)
+device-suite: sent 40 tap(s) at 173,329 and 1 at 232,553; last progress: __VIEWW_PROGRESS__ frames=1860
+device-suite: screenshot in /tmp/devicefarm-workspace/execution-hvf9u_nl/logs-tisk3z0p/vieww/sustained-screen.png
+
+  begin
+  --   crash_reports_recovered_from_the_last_run: 0
+  ok   crash_reports_have_somewhere_to_go: wrote and read one back in /data/user/0/dev.vieww.demo/files/crashes
+  ok   the_platform_registered_a_clipboard: 5 service(s) registered
+  --   dlopen_from_a_writable_path: PERMITTED (the linker read the file and rejected its contents); dlopen said: dlopen failed: "/data/data/dev.vieww.demo/files/libvieww_probe.so" is too small to be an ELF executable: only found 28 bytes
+  --   dlopen_a_real_guest_library: not staged — found nothing at /storage/emulated/0/Android/data/dev.vieww.demo/files/libreload_guest.so or /data/local/tmp/libreload_guest.so. Run ci/mobile/reload-guest-android.sh to build and stage one; this is not a failure, only an unanswered question.
+  --   screen: stress (debug.vieww.screen=stress)
+  --   seconds: debug.vieww.seconds=60
+  --   rasterizer: measured on this phone (debug.vieww.gpu=auto)
+  ok   view_metrics_reached_the_tree: 384x832 logical
+  ok   the_display_density_is_plausible: 2.8125x
+  ok   the_safe_area_fits_inside_the_surface: l0 t37.333332 r0 b14.933333
+  --   safe_area: l0 t37.333332 r0 b14.933333 on a 384x832 surface at 2.8125x
+  ok   the_keyboard_inset_is_a_plausible_bottom_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } on a 832-tall surface
+  --   keyboard_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } at the moment of the report
+  ok   the_platform_clipboard_round_trips: wrote and read back 33 bytes; restored what was there
+  ok   a_semantic_click_activates_the_button: handled=true, taps 0 -> 1
+  ok   a_tap_reached_a_handler: 1 tap
+  ok   a_modal_silences_the_screen_behind_it: 3 of 3 panel item(s) reachable, and nothing is behind the scrim (3 labelled node(s) in the tree)
+  ok   the_keyboard_inset_appears_when_the_keyboard_does: 358.4 logical pixels
+  ok   frames_were_presented: 1892 frames
+  FAIL the_typical_frame_is_inside_its_budget: median 18.783853ms against a budget of 16.666668ms
+  FAIL frames_inside_their_budget: 205 of 240 frames over a budget of 16.666668ms (at most 1 in 20)
+  FAIL no_frame_stalled: worst 95.512759ms against a stall line of 66.666672ms (max of 4x budget, 3x median), 205 of 240 over budget
+  --   frame_time: median 18.783853ms, worst 95.512759ms, budget 16.666668ms (240 samples)
+  --   startup_stages: before run 143 ms | app setup 0.1 | event loop started 0.0 | resumed 16.4 | window created 0.0 | present ready 7.9 | accessibility and show 0.0 | tree built 2.4 | window ready 0.3 | until first draw 0.0 | app before-frame hooks 42.3 | first build and layout 2.8 | first raster and present 41.1 = 256.5 ms from process start
+  --   renderer_choice: gpu (calibrated earlier: cpu 5.52 ms, gpu 0.35 ms)
+  --   frame_stages: medians ms: scale 0.00 plan 5.41 cpu 0.00 gpu_upload 0.37 gpu_record 0.05 gpu_submit 0.08 gpu_wait 9.87 gpu_readback 0.00 acquire 0.01 present 0.05
+  --   frame_stages_p95: p95 ms: scale 0.02 plan 18.01 cpu 66.44 gpu_upload 1.79 gpu_record 0.21 gpu_submit 0.30 gpu_wait 25.14 gpu_readback 0.00 acquire 0.03 present 1.10
+  --   input_latency: input to present ms: median 19.1 p95 73.7 p99 76.0 worst 78.1 over 82 inputs in 81 frames; 0 unanswered within 1 s
+  --   gpu_overlap: on: the app builds the next frame while the GPU draws this one
+  --   partial_blit: trusted: 0 partial and 1509 full copies, 100.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  --   gpu_passes: medians ms: draw 0.52 layers 1.00 filters 15.45 shadows 0.00 blit 0.10 total 17.08; p95 ms: draw 1.23 layers 1.96 filters 33.00 shadows 0.01 blit 0.20 total 36.40
+  --   worst_frame: work 95.51 ms, outside the renderer 0.58 ms, on cpu7; stages ms: scale 0.01 plan 13.35 cpu 80.43 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 1.15
+  --   raster_by_core: cpu6 28 frames 65.43 ms | cpu7 18 frames 61.47 ms
+  --   cpu_clocks: cpu0 2.61/3.63 GHz | cpu1 2.61/3.63 GHz | cpu2 2.61/3.63 GHz | cpu3 2.61/3.63 GHz | cpu4 2.61/3.63 GHz | cpu5 2.61/3.63 GHz | cpu6 3.65/4.74 GHz | cpu7 3.65/4.74 GHz
+  --   pipeline_cache: started from 37633 bytes; saved 37633 bytes after the first GPU frame
+  --   device: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
+  --   cache_budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
+  --   quality_overlay: tier high · median 30.91845ms / p95 77.57401ms / worst 95.512759ms vs budget 16.666668ms · 205/240 over
+  --   damage: 1.000 full repaints per frame over 1892 frames, against a 2527200px surface (stress screen: the whole list moves every frame)
+  --   full_repaints: 1892 of 1892 frames cost a whole surface, 153 of those after the loop slept
+  FAIL idle_frames_do_not_repaint_the_whole_surface: 153 idle full repaint(s) over 1892 frames, against a budget of 37
+  ok   the_full_repaint_counter_saw_the_first_frame: 1892 full repaint(s) over 1892 frames against a 2527200px surface
+  --   frame_report: 1892 frames in 59.95s — 31.5fps (median 19.08ms, worst 182.93ms over 227 continuous); work median 18.78ms, worst 95.51ms; 1570 over a 16.67ms budget; rasterised 1892.00 full repaints (1892 frame(s) cost a whole surface, 153 of them idle); stage medians: scale 0.00 plan 5.41 cpu 0.00 gpu[upload 0.37 record 0.05 submit 0.08 wait 9.87 readback 0.00] acquire 0.01 present 0.05 ms; frame rate changed 1 time(s), ending at 60 Hz
+  --   gpu_frames: 1509 of 1892 drawn by the GPU rasterizer (1509 straight into the swapchain)
+  --   cpu_time: process CPU 21.23 ms per frame over the last 154 frames, every thread (65% of one core)
+  --   thermal: status none -> none (worst none); headroom 0.71 -> 0.76 (highest 0.76; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 60 s
+  --   shadow_blurs: 3544 over 1892 frames (1.87 a frame), 1324.8 Mpx in all
+  --   sustained: frames 361-600: median 18.62 ms, 209 of 240 over budget; last 240 of 1892 frames: median 18.78 ms, 205 over; 60 s
+  end 17 checks, 4 failed
+  result FAIL
+
+device-suite: FAIL — the in-app suite reported a failure: the_typical_frame_is_inside_its_budget frames_inside_their_budget no_frame_stalled idle_frames_do_not_repaint_the_whole_surface

@@ -3,7 +3,7 @@ MEDIA SESSION SERVICE (dumpsys media_session)
 6 sessions listeners.
 Global priority session is com.android.server.telecom/HeadsetMediaButton/1 (userId=0)
   HeadsetMediaButton com.android.server.telecom/HeadsetMediaButton/1 (userId=0)
-    ownerPid=2877, ownerUid=1000, userId=0
+    ownerPid=3162, ownerUid=1000, userId=0
     package=com.android.server.telecom
     launchIntent=null
     mediaButtonReceiver=null
@@ -24,14 +24,14 @@ Record for full_user=0
   Media key listener package: 
   OnMediaKeyEventDispatchedListener: added 0 listener(s)
   OnMediaKeyEventSessionChangedListener: added 1 listener(s)
-    from com.android.systemui
+    from com.samsung.android.app.aodservice
   Last MediaButtonReceiver: MBR {pi=null, componentName=ComponentInfo{com.amazon.avod.thirdpartyclient/com.amazon.video.sdk.player.audiofocus.PlayerAudioFocusManager$RemoteControlReceiver}, type=1, pkg=com.amazon.avod.thirdpartyclient}
   High priority mediakey receiver: null
   Volume key long-press receiver: null
   Media button session is dev.vieww.demo/vieww/51 (userId=0)
   Sessions Stack - have 1 sessions:
     vieww dev.vieww.demo/vieww/51 (userId=0)
-      ownerPid=28603, ownerUid=10340, userId=0
+      ownerPid=456, ownerUid=10340, userId=0
       package=dev.vieww.demo
       launchIntent=null
       mediaButtonReceiver=null
@@ -39,7 +39,7 @@ Record for full_user=0
       flags=0
       rating type=0
       controllers: 9
-      state=PlaybackState {state=PLAYING(3), position=6314, buffered position=0, speed=1.0, updated=1456900, actions=895, custom actions=[], active item id=-1, error=null}
+      state=PlaybackState {state=PLAYING(3), position=6218, buffered position=0, speed=1.0, updated=2103175, actions=895, custom actions=[], active item id=-1, error=null}
       audioAttrs=AudioAttributes: usage=USAGE_MEDIA content=CONTENT_TYPE_UNKNOWN flags=0x800(FLAG_MUTE_HAPTIC)  tags= bundle=null
       volumeType=LOCAL, controlType=ABSOLUTE, max=0, current=0, volumeControlId=null
       metadata: size=4, description=vieww audio check, vieww, Device Farm
@@ -47,19 +47,19 @@ Record for full_user=0
 isAppCastingOn:false
 isMultiSoundOn:false
 Events log: MediaSession events
-10-28 16:18:06:024 registerRemoteVolumeController uid : 10048, pid : 3911, rvc : android.media.IRemoteSessionCallback$Stub$Proxy@d814370
-10-28 16:42:10:509 MediaKeyEvt,pkg=com.android.shell pid=28943,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PAUSE,act:ACTION_DOWN
-10-28 16:42:10:511 MediaKeyEvt,pkg=com.android.shell pid=28943,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PAUSE,act:ACTION_UP
-10-28 16:42:13:700 MediaKeyEvt,pkg=com.android.shell pid=28976,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PLAY,act:ACTION_DOWN
-10-28 16:42:13:700 MediaKeyEvt,pkg=com.android.shell pid=28976,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PLAY,act:ACTION_UP
+10-28 19:07:28:223 registerRemoteVolumeController uid : 10048, pid : 3957, rvc : android.media.IRemoteSessionCallback$Stub$Proxy@fab2d96
+10-28 19:42:18:192 MediaKeyEvt,pkg=com.android.shell pid=757,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PAUSE,act:ACTION_DOWN
+10-28 19:42:18:193 MediaKeyEvt,pkg=com.android.shell pid=757,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PAUSE,act:ACTION_UP
+10-28 19:42:21:402 MediaKeyEvt,pkg=com.android.shell pid=809,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PLAY,act:ACTION_DOWN
+10-28 19:42:21:403 MediaKeyEvt,pkg=com.android.shell pid=809,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PLAY,act:ACTION_UP
 
 isSupportMediaDataPlatform:true
 Events log: MediaSessionDataPlatform logger
-10-28 16:42:02:441 getMediaType for uid: 10340 Audio
-10-28 16:42:04:442 getMediaType for uid: 10340 Audio
-10-28 16:42:10:558 Do not send data because playing time too short 8117ms
-10-28 16:42:13:762 getMediaType for uid: 10340 Audio
-10-28 16:42:15:764 getMediaType for uid: 10340 Audio
+10-28 19:42:10:251 getMediaType for uid: 10340 Audio
+10-28 19:42:12:252 getMediaType for uid: 10340 Audio
+10-28 19:42:18:272 Do not send data because playing time too short 8021ms
+10-28 19:42:21:474 getMediaType for uid: 10340 Audio
+10-28 19:42:23:474 getMediaType for uid: 10340 Audio
 
 Audio playback (lastly played comes first)
   uid=10340 packages=dev.vieww.demo 

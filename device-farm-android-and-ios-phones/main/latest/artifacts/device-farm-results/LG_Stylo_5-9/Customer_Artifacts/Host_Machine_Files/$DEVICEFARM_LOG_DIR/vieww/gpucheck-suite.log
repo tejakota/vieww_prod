@@ -1,41 +1,59 @@
 device-suite: the planned GPU rasterizer (debug.vieww.gpu=1)
 device-suite: --gpu with --no-build only applies if the app is relaunched
-device-suite: dev.vieww.demo is running as pid 24900
+device-suite: dev.vieww.demo is running as pid 12881
 device-suite: display is 1080x2160
 device-suite: waiting for the app to report its tap targets…
-device-suite: the app never reported its tap targets.
-  Expected a logcat line like:
-    __VIEWW_TAPS__ button=523,1474 field=523,2194
-  emitted by DeviceSuite::tap_targets on App::after_frame. Without it
-  this script does not know where anything is, and tapping a guessed
-  coordinate is how a suite passes while checking nothing.
-10-28 16:50:32.051 24900 24900 I Timeline: Timeline: Activity_idle id: android.os.BinderProxy@469d135 time:6503914
-10-28 16:50:32.063 24900 24921 I Adreno  : QUALCOMM build          : 50f1b2d, I1b05bd271c
-10-28 16:50:32.063 24900 24921 I Adreno  : Build Date              : 03/26/19
-10-28 16:50:32.063 24900 24921 I Adreno  : Shader Compiler Version : EV031.25.03.03
-10-28 16:50:32.063 24900 24921 I Adreno  : Local Branch            : 
-10-28 16:50:32.063 24900 24921 I Adreno  : Remote Branch           : 
-10-28 16:50:32.063 24900 24921 I Adreno  : Remote Branch           : 
-10-28 16:50:32.063 24900 24921 I Adreno  : Reconstruct Branch      : 
-10-28 16:50:32.063 24900 24921 I Adreno  : Build Config                     : S L 6.0.7 AArch64
-10-28 16:50:32.071 24900 24921 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
-10-28 16:50:32.071 24900 24921 I chatty  : uid=10237(dev.vieww.demo) identical 2 lines
-10-28 16:50:32.071 24900 24921 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
-10-28 16:50:32.077 24900 24921 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
-10-28 16:50:32.078 24900 24921 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
-10-28 16:50:32.142 24900 24921 I vieww   : vieww_platform_winit::insets: display refresh: no display, or below API 30
-10-28 16:50:32.142 24900 24921 I vieww   : vieww_platform_winit::app: vieww: window#primary is on Android Device, which reports no refresh rate; keeping the current budget
-10-28 16:50:32.143 24900 24921 I vieww   : vieww_platform_winit::insets: window insets: device is below API 30, reporting none (asked once)
-10-28 16:50:32.157 24900 24921 I vieww   : android::device_tests: __VIEWW_PROGRESS__ frames=0
-10-28 16:50:32.174 24900 24921 I Adreno  : Failed to link shaders.
-10-28 16:50:32.176 24900 24921 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
-10-28 16:50:32.176 24900 24921 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
-10-28 16:50:32.191 24900 24921 E vieww   : android::demo: vieww failed: opening a Vulkan device/surface: Vulkan: A return array was too small for the result
-10-28 16:50:32.797 24900 24900 E ActivityThread: Activity android.app.NativeActivity has leaked IntentReceiver dev.vieww.audio.NoisyReceiver@a1d4070 that was originally registered here. Are you missing a call to unregisterReceiver()?
-10-28 16:50:32.797 24900 24900 E ActivityThread: android.app.IntentReceiverLeaked: Activity android.app.NativeActivity has leaked IntentReceiver dev.vieww.audio.NoisyReceiver@a1d4070 that was originally registered here. Are you missing a call to unregisterReceiver()?
-10-28 16:50:32.797 24900 24900 E ActivityThread: 	at android.app.LoadedApk$ReceiverDispatcher.<init>(LoadedApk.java:1491)
-10-28 16:50:32.797 24900 24900 E ActivityThread: 	at android.app.LoadedApk.getReceiverDispatcher(LoadedApk.java:1232)
-10-28 16:50:32.797 24900 24900 E ActivityThread: 	at android.app.ContextImpl.registerReceiverInternal(ContextImpl.java:1503)
-10-28 16:50:32.797 24900 24900 E ActivityThread: 	at android.app.ContextImpl.registerReceiver(ContextImpl.java:1476)
-10-28 16:50:32.797 24900 24900 E ActivityThread: 	at android.app.ContextImpl.registerReceiver(ContextImpl.java:1464)
-10-28 16:50:32.797 24900 24900 E ActivityThread: 	at android.content.ContextWrapper.registerReceiver(ContextWrapper.java:623)
+device-suite: the app reports button 172,437 and field 227,688 (physical)
+device-suite: sent 40 tap(s) at 172,437 and 1 at 227,688; last progress: __VIEWW_PROGRESS__ frames=600
+device-suite: screenshot in /tmp/devicefarm-workspace/execution-kqxuv991/logs-2e87q91i/vieww/gpucheck-screen.png
+
+  begin
+  --   crash_reports_recovered_from_the_last_run: 0
+  ok   crash_reports_have_somewhere_to_go: wrote and read one back in /data/user/0/dev.vieww.demo/files/crashes
+  ok   the_platform_registered_a_clipboard: 5 service(s) registered
+  --   dlopen_from_a_writable_path: PERMITTED (the linker read the file and rejected its contents); dlopen said: dlopen failed: "/data/data/dev.vieww.demo/files/libvieww_probe.so" is too small to be an ELF executable: only found 28 bytes
+  --   dlopen_a_real_guest_library: not staged — found nothing at /storage/emulated/0/Android/data/dev.vieww.demo/files/libreload_guest.so or /data/local/tmp/libreload_guest.so. Run ci/mobile/reload-guest-android.sh to build and stage one; this is not a failure, only an unanswered question.
+  --   partial_blit_mode: checked (debug.vieww.blitcheck=1)
+  --   rasterizer: planned GPU path requested (debug.vieww.gpu=1)
+  ok   view_metrics_reached_the_tree: 411.42856x822.8571 logical
+  ok   the_display_density_is_plausible: 2.625x
+  ok   the_safe_area_fits_inside_the_surface: l0 t0 r0 b0
+  --   safe_area: l0 t0 r0 b0 on a 411.42856x822.8571 surface at 2.625x
+  ok   the_keyboard_inset_is_a_plausible_bottom_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } on a 822.8571-tall surface
+  --   keyboard_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } at the moment of the report
+  ok   the_platform_clipboard_round_trips: wrote and read back 33 bytes; restored what was there
+  ok   a_semantic_click_activates_the_button: handled=true, taps 0 -> 1
+  ok   a_tap_reached_a_handler: 1 tap
+  ok   a_modal_silences_the_screen_behind_it: 3 of 3 panel item(s) reachable, and nothing is behind the scrim (3 labelled node(s) in the tree)
+  ok   frames_were_presented: 600 frames
+  FAIL the_typical_frame_is_inside_its_budget: median 227.206772ms against a budget of 16.666668ms
+  FAIL frames_inside_their_budget: 240 of 240 frames over a budget of 16.666668ms (at most 1 in 20)
+  FAIL no_frame_stalled: worst 812.961145ms against a stall line of 681.620316ms (max of 4x budget, 3x median), 240 of 240 over budget
+  --   frame_time: median 227.206772ms, worst 812.961145ms, budget 16.666668ms (240 samples)
+  --   startup_stages: before run 540 ms | app setup 0.2 | event loop started 0.0 | resumed 34.5 | window created 0.0 | present ready 59.5 | accessibility and show 0.0 | tree built 14.8 | window ready 1.2 | until first draw 0.1 | app before-frame hooks 14.9 | first build and layout 6.2 | first raster and present 43.9 = 715.6 ms from process start
+  --   frame_stages: medians ms: scale 0.08 plan 0.86 cpu 0.00 gpu_upload 3.86 gpu_record 0.79 gpu_submit 1.18 gpu_wait 34.19 gpu_readback 0.00 acquire 0.40 present 0.63
+  --   frame_stages_p95: p95 ms: scale 0.10 plan 1.31 cpu 0.00 gpu_upload 4.46 gpu_record 0.94 gpu_submit 1.37 gpu_wait 38.57 gpu_readback 0.00 acquire 0.50 present 0.97
+  --   input_latency: input to present ms: median 225.7 p95 798.5 p99 810.2 worst 811.0 over 82 inputs in 82 frames; 0 unanswered within 1 s
+  --   gpu_overlap: on: the app builds the next frame while the GPU draws this one
+  --   partial_blit: trusted: 589 partial and 11 full copies, 7.5% of the frames' pixels copied; 594 image(s) kept their contents, 0 did not
+  ok   partial_copies_leave_no_trails: 75 frames compared with their images: 0 pixel(s) differed; 0 image(s) lost what was written to them
+  --   gpu_passes: medians ms: draw 6.65 layers 0.00 filters 0.00 shadows 0.00 blit 30.16 total 36.81; p95 ms: draw 8.13 layers 0.00 filters 0.00 shadows 0.00 blit 34.48 total 42.62
+  --   worst_frame: work 812.96 ms, outside the renderer 765.08 ms; stages ms: scale 0.08 plan 1.02 cpu 0.00 gpu_upload 4.75 gpu_record 0.93 gpu_submit 1.18 gpu_wait 38.65 gpu_readback 0.00 acquire 0.55 present 0.72
+  --   cpu_clocks: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 1.80/1.80 GHz | cpu5 1.80/1.80 GHz | cpu6 1.80/1.80 GHz | cpu7 1.80/1.80 GHz
+  --   pipeline_cache: started from 37673 bytes; saved 37673 bytes after the first GPU frame
+  --   device: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
+  --   cache_budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
+  --   quality_overlay: tier low · median 295.497606ms / p95 798.453281ms / worst 812.961145ms vs budget 16.666668ms · 240/240 over
+  ok   damage_tracking_costs_a_fraction_of_a_full_repaint: 0.047 full repaints per frame over 600 frames, against a 2332800px surface
+  --   full_repaints: 3 of 600 frames cost a whole surface, 0 of those after the loop slept
+  ok   idle_frames_do_not_repaint_the_whole_surface: 0 idle full repaint(s) over 600 frames, against a budget of 12
+  ok   the_full_repaint_counter_saw_the_first_frame: 3 full repaint(s) over 600 frames against a 2332800px surface
+  --   frame_report: 600 frames in 177.55s — 3.4fps (median 229.00ms, worst 813.15ms over 240 continuous); work median 227.21ms, worst 812.96ms; 600 over a 16.67ms budget; rasterised 28.20 full repaints (3 frame(s) cost a whole surface, 0 of them idle); stage medians: scale 0.08 plan 0.86 cpu 0.00 gpu[upload 3.86 record 0.79 submit 1.18 wait 34.19 readback 0.00] acquire 0.40 present 0.63 ms
+  --   gpu_frames: 600 of 600 drawn by the GPU rasterizer (600 straight into the swapchain)
+  --   cpu_time: process CPU 259.54 ms per frame over the last 240 frames, every thread (87% of one core)
+  --   thermal: hottest zone 37.0 -> 37.0 °C (peak 37.6) over 178 s
+  --   shadow_blurs: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
+  end 18 checks, 3 failed
+  result FAIL
+
+device-suite: FAIL — the in-app suite reported a failure: the_typical_frame_is_inside_its_budget frames_inside_their_budget no_frame_stalled

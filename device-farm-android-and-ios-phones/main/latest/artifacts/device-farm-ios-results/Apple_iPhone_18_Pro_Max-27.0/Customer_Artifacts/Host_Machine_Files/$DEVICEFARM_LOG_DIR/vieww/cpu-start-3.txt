@@ -1,152 +1,182 @@
 Running devicectl with elevated privileges via sudo is unlikely to work properly. Please do not do this.
-   0.247 startup: creating window
-   0.252 startup: window created (1290x2511); opening the Cpu present
-   0.252 startup: Cpu present ready in 145.292µs: none (CPU present: no GPU driver loaded)
-   0.252 startup: accessibility attached
-   0.252 startup: window made visible
-   0.253 startup: system font scan started
-   0.254 startup: tree built
-   0.254 startup: display read
-   0.257 startup: window ready
-   0.257 event Focused
-   0.257 event ScaleFactorChanged
-   0.257 event Resized
-   0.257 poll window#primary requested=true pending=true should_draw=true
-2026-10-28 09:33:22.660 vieww[600:19730] __VIEWW_PROGRESS__ frames=0
+   0.240 startup: creating window
+   0.246 startup: window created (1290x2511); opening the Cpu present
+   0.247 startup: Cpu present ready in 295.042µs: none (CPU present: no GPU driver loaded)
+   0.247 startup: accessibility attached
+   0.247 startup: window made visible
+   0.248 startup: system font scan started
+   0.249 startup: tree built
+   0.249 startup: display read
+   0.252 startup: window ready
+   0.252 event Focused
+   0.252 event ScaleFactorChanged
+   0.252 event Resized
+   0.252 poll window#primary requested=true pending=true should_draw=true
+2026-10-28 12:29:41.579 vieww[642:30484] __VIEWW_PROGRESS__ frames=0
 __VIEWW_PROGRESS__ frames=0
 driver: system fonts adopted; relayout and full repaint requested
-   0.257 ran=true pending=0 animating=true wants_tick=false
-   0.268 frame stages (cpu): scale 0.00 plan 0.00 cpu 8.90 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 0.90 = 9.80 ms
-2026-10-28 09:33:22.670 vieww[600:19730] __VIEWW_TAPS__ button=197,676 field=260,957 menu=286,2426
+   0.253 ran=true pending=0 animating=true wants_tick=false
+   0.264 frame stages (cpu): scale 0.00 plan 0.00 cpu 9.83 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 0.91 = 10.75 ms
+2026-10-28 12:29:41.591 vieww[642:30484] __VIEWW_TAPS__ button=197,676 field=260,957 menu=286,2426
 __VIEWW_TAPS__ button=197,676 field=260,957 menu=286,2426
-2026-10-28 09:33:22.670 vieww[600:19730] __VIEWW_TAPS_PT__ scale=3 button=66,225 field=87,319
+2026-10-28 12:29:41.591 vieww[642:30484] __VIEWW_TAPS_PT__ scale=3 button=66,225 field=87,319
 __VIEWW_TAPS_PT__ scale=3 button=66,225 field=87,319
-   0.268 poll window#primary requested=true pending=true should_draw=true
-   0.278 frame stages (cpu): scale 0.00 plan 0.00 cpu 9.18 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.11 present 0.41 = 9.71 ms
-   0.278 event Resized
-   0.279 event RedrawRequested
-   0.284 frame stages (cpu): scale 0.00 plan 0.00 cpu 5.07 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.17 present 0.50 = 5.75 ms
+   0.265 event Resized
+   0.265 event RedrawRequested
+   0.275 frame stages (cpu): scale 0.01 plan 0.00 cpu 9.40 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.13 present 0.44 = 9.98 ms
+   0.277 poll window#primary requested=true pending=true should_draw=true
+   0.284 frame stages (cpu): scale 0.01 plan 0.00 cpu 5.66 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.11 present 0.50 = 6.28 ms
+   0.284 TIMED window#primary requested=true pending=true should_draw=true
    0.286 poll window#primary requested=true pending=true should_draw=true
-   0.288 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.46 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.06 present 0.38 = 1.90 ms
+   0.288 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.50 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.06 present 0.39 = 1.96 ms
    0.288 TIMED window#primary requested=true pending=true should_draw=true
    0.295 poll window#primary requested=true pending=true should_draw=true
-   0.297 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.50 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.05 present 0.50 = 2.06 ms
+   0.297 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.49 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.06 present 0.41 = 1.96 ms
    0.297 TIMED window#primary requested=true pending=true should_draw=true
    0.304 poll window#primary requested=true pending=true should_draw=true
-   0.306 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.47 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.06 present 0.38 = 1.91 ms
+   0.306 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.15 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.06 present 0.45 = 1.66 ms
    0.306 TIMED window#primary requested=true pending=true should_draw=true
    0.313 poll window#primary requested=true pending=true should_draw=true
-   0.315 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.61 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.06 present 0.40 = 2.07 ms
+   0.315 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.31 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.06 present 0.41 = 1.79 ms
    0.315 TIMED window#primary requested=true pending=true should_draw=true
-   0.322 poll window#primary requested=true pending=true should_draw=true
-   0.324 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.38 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.06 present 0.42 = 1.86 ms
-   0.324 TIMED window#primary requested=true pending=true should_draw=true
-   0.332 poll window#primary requested=true pending=true should_draw=true
-   0.335 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.37 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.06 present 1.38 = 2.82 ms
-   0.335 TIMED window#primary requested=true pending=true should_draw=true
-   0.341 poll window#primary requested=true pending=true should_draw=true
-   0.343 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.34 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 0.51 = 1.94 ms
-   0.343 TIMED window#primary requested=true pending=true should_draw=true
-   0.350 poll window#primary requested=true pending=true should_draw=true
-   0.353 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.48 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.07 present 1.35 = 2.91 ms
-   0.353 TIMED window#primary requested=true pending=true should_draw=true
-   0.359 poll window#primary requested=true pending=true should_draw=true
-   0.361 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.32 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.07 present 0.45 = 1.84 ms
+   0.323 poll window#primary requested=true pending=true should_draw=true
+   0.325 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.28 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.06 present 1.47 = 2.81 ms
+   0.326 TIMED window#primary requested=true pending=true should_draw=true
+   0.331 poll window#primary requested=true pending=true should_draw=true
+   0.333 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.19 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.06 present 0.51 = 1.76 ms
+   0.333 TIMED window#primary requested=true pending=true should_draw=true
+   0.340 poll window#primary requested=true pending=true should_draw=true
+   0.342 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.54 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 0.45 = 2.07 ms
+   0.342 TIMED window#primary requested=true pending=true should_draw=true
+   0.349 poll window#primary requested=true pending=true should_draw=true
+   0.351 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.53 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 0.51 = 2.12 ms
+   0.351 TIMED window#primary requested=true pending=true should_draw=true
+   0.358 poll window#primary requested=true pending=true should_draw=true
+   0.361 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.55 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.07 present 0.58 = 2.21 ms
    0.361 TIMED window#primary requested=true pending=true should_draw=true
    0.367 poll window#primary requested=true pending=true should_draw=true
-   0.369 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.49 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.07 present 0.50 = 2.06 ms
+   0.369 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.42 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.07 present 0.50 = 2.00 ms
    0.369 TIMED window#primary requested=true pending=true should_draw=true
-   0.376 poll window#primary requested=true pending=true should_draw=true
-   0.378 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.31 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 0.47 = 1.86 ms
-   0.378 TIMED window#primary requested=true pending=true should_draw=true
+   0.377 poll window#primary requested=true pending=true should_draw=true
+   0.379 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.55 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 0.50 = 2.12 ms
+   0.379 TIMED window#primary requested=true pending=true should_draw=true
    0.386 poll window#primary requested=true pending=true should_draw=true
-   0.388 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.56 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 0.54 = 2.18 ms
+   0.388 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.81 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 0.52 = 2.42 ms
    0.388 TIMED window#primary requested=true pending=true should_draw=true
    0.395 poll window#primary requested=true pending=true should_draw=true
-   0.397 frame stages (cpu): scale 0.01 plan 0.00 cpu 1.40 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 0.63 = 2.11 ms
+   0.397 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.68 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 0.52 = 2.28 ms
    0.397 TIMED window#primary requested=true pending=true should_draw=true
    0.404 poll window#primary requested=true pending=true should_draw=true
-   0.406 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.55 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.07 present 0.49 = 2.12 ms
+   0.406 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.53 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 0.52 = 2.14 ms
    0.406 TIMED window#primary requested=true pending=true should_draw=true
    0.413 poll window#primary requested=true pending=true should_draw=true
-   0.415 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.51 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 0.52 = 2.11 ms
+   0.415 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.48 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 0.52 = 2.08 ms
    0.415 TIMED window#primary requested=true pending=true should_draw=true
-   0.422 poll window#primary requested=true pending=true should_draw=true
-   0.424 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.55 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 0.52 = 2.15 ms
-   0.424 TIMED window#primary requested=true pending=true should_draw=true
-   0.432 poll window#primary requested=true pending=true should_draw=true
-   0.436 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.68 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 1.73 = 3.50 ms
-   0.436 TIMED window#primary requested=true pending=true should_draw=true
-   0.441 poll window#primary requested=true pending=true should_draw=true
-   0.443 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.59 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 0.69 = 2.36 ms
-   0.443 TIMED window#primary requested=true pending=true should_draw=true
-   0.450 poll window#primary requested=true pending=true should_draw=true
-   0.454 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.03 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 2.01 = 4.15 ms
-   0.454 TIMED window#primary requested=true pending=true should_draw=true
-   0.459 poll window#primary requested=true pending=true should_draw=true
-   0.463 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.88 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 1.92 = 3.89 ms
+   0.423 poll window#primary requested=true pending=true should_draw=true
+   0.426 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.54 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.09 present 1.59 = 3.23 ms
+   0.426 TIMED window#primary requested=true pending=true should_draw=true
+   0.431 poll window#primary requested=true pending=true should_draw=true
+   0.434 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.48 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 0.66 = 2.22 ms
+   0.434 TIMED window#primary requested=true pending=true should_draw=true
+   0.440 poll window#primary requested=true pending=true should_draw=true
+   0.444 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.90 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 1.93 = 3.92 ms
+   0.444 TIMED window#primary requested=true pending=true should_draw=true
+   0.449 poll window#primary requested=true pending=true should_draw=true
+   0.453 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.77 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.11 present 1.92 = 3.80 ms
+   0.453 TIMED window#primary requested=true pending=true should_draw=true
+   0.458 poll window#primary requested=true pending=true should_draw=true
+   0.462 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.10 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.12 present 2.10 = 4.32 ms
    0.463 TIMED window#primary requested=true pending=true should_draw=true
-   0.468 poll window#primary requested=true pending=true should_draw=true
-   0.470 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.60 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.08 present 0.56 = 2.24 ms
+   0.467 poll window#primary requested=true pending=true should_draw=true
+   0.469 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.87 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.52 = 2.50 ms
    0.470 TIMED window#primary requested=true pending=true should_draw=true
-   0.477 poll window#primary requested=true pending=true should_draw=true
-   0.479 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.76 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.56 = 2.42 ms
-   0.479 TIMED window#primary requested=true pending=true should_draw=true
-   0.486 poll window#primary requested=true pending=true should_draw=true
-   0.489 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.86 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.58 = 2.54 ms
-   0.489 TIMED window#primary requested=true pending=true should_draw=true
-   0.495 poll window#primary requested=true pending=true should_draw=true
-   0.498 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.87 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.61 = 2.59 ms
-   0.498 TIMED window#primary requested=true pending=true should_draw=true
-   0.504 poll window#primary requested=true pending=true should_draw=true
-   0.506 frame stages (cpu): scale 0.01 plan 0.00 cpu 1.86 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.63 = 2.60 ms
+   0.476 poll window#primary requested=true pending=true should_draw=true
+   0.478 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.88 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.11 present 0.56 = 2.55 ms
+   0.478 TIMED window#primary requested=true pending=true should_draw=true
+   0.485 poll window#primary requested=true pending=true should_draw=true
+   0.487 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.84 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.56 = 2.51 ms
+   0.487 TIMED window#primary requested=true pending=true should_draw=true
+   0.494 poll window#primary requested=true pending=true should_draw=true
+   0.497 frame stages (cpu): scale 0.01 plan 0.00 cpu 1.88 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.56 = 2.55 ms
+   0.497 TIMED window#primary requested=true pending=true should_draw=true
+   0.503 poll window#primary requested=true pending=true should_draw=true
+   0.506 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.75 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.11 present 0.56 = 2.43 ms
    0.506 TIMED window#primary requested=true pending=true should_draw=true
-   0.513 poll window#primary requested=true pending=true should_draw=true
-   0.516 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.05 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.13 present 1.15 = 3.34 ms
-   0.516 TIMED window#primary requested=true pending=true should_draw=true
+   0.512 poll window#primary requested=true pending=true should_draw=true
+   0.515 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.21 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.11 present 0.64 = 2.96 ms
+   0.515 TIMED window#primary requested=true pending=true should_draw=true
    0.521 poll window#primary requested=true pending=true should_draw=true
-   0.525 frame stages (cpu): scale 0.01 plan 0.00 cpu 2.27 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.61 = 2.98 ms
-   0.525 TIMED window#primary requested=true pending=true should_draw=true
+   0.524 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.23 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.61 = 2.95 ms
+   0.524 TIMED window#primary requested=true pending=true should_draw=true
    0.530 poll window#primary requested=true pending=true should_draw=true
-   0.533 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.10 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.59 = 2.80 ms
-   0.533 TIMED window#primary requested=true pending=true should_draw=true
-   0.539 poll window#primary requested=true pending=true should_draw=true
-   0.543 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.16 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 1.11 = 3.39 ms
-   0.543 TIMED window#primary requested=true pending=true should_draw=true
-   0.549 poll window#primary requested=true pending=true should_draw=true
-   0.553 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.48 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 1.82 = 4.41 ms
-   0.554 TIMED window#primary requested=true pending=true should_draw=true
-   0.557 poll window#primary requested=true pending=true should_draw=true
-   0.561 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.68 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.57 = 3.35 ms
-   0.562 TIMED window#primary requested=true pending=true should_draw=true
-   0.566 poll window#primary requested=true pending=true should_draw=true
-   0.572 frame stages (cpu): scale 0.00 plan 0.00 cpu 3.43 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.09 present 2.25 = 5.78 ms
-   0.572 TIMED window#primary requested=true pending=true should_draw=true
-   0.575 poll window#primary requested=true pending=true should_draw=true
-   0.579 frame stages (cpu): scale 0.00 plan 0.00 cpu 3.18 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.09 present 0.83 = 4.10 ms
-   0.579 TIMED window#primary requested=true pending=true should_draw=true
-   0.584 poll window#primary requested=true pending=true should_draw=true
-   0.589 frame stages (cpu): scale 0.00 plan 0.00 cpu 3.17 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 2.18 = 5.44 ms
+   0.534 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.24 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.11 present 1.17 = 3.52 ms
+   0.534 TIMED window#primary requested=true pending=true should_draw=true
+   0.540 poll window#primary requested=true pending=true should_draw=true
+   0.544 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.61 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 1.81 = 4.52 ms
+   0.544 TIMED window#primary requested=true pending=true should_draw=true
+   0.548 poll window#primary requested=true pending=true should_draw=true
+   0.552 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.81 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.13 present 0.98 = 3.92 ms
+   0.552 TIMED window#primary requested=true pending=true should_draw=true
+   0.559 poll window#primary requested=true pending=true should_draw=true
+   0.563 frame stages (cpu): scale 0.01 plan 0.00 cpu 2.40 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.09 present 1.00 = 3.50 ms
+   0.563 TIMED window#primary requested=true pending=true should_draw=true
+   0.568 poll window#primary requested=true pending=true should_draw=true
+   0.571 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.82 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.88 = 2.81 ms
+   0.571 TIMED window#primary requested=true pending=true should_draw=true
+   0.578 poll window#primary requested=true pending=true should_draw=true
+   0.581 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.46 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.11 present 1.02 = 3.59 ms
+   0.581 TIMED window#primary requested=true pending=true should_draw=true
+   0.586 poll window#primary requested=true pending=true should_draw=true
+   0.590 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.36 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.93 = 3.39 ms
    0.590 TIMED window#primary requested=true pending=true should_draw=true
-   0.593 poll window#primary requested=true pending=true should_draw=true
-   0.597 frame stages (cpu): scale 0.00 plan 0.00 cpu 3.04 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.94 = 4.08 ms
-   0.597 TIMED window#primary requested=true pending=true should_draw=true
-   0.602 poll window#primary requested=true pending=true should_draw=true
-   0.606 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.56 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.09 present 0.95 = 3.61 ms
-   0.606 TIMED window#primary requested=true pending=true should_draw=true
-   0.611 poll window#primary requested=true pending=true should_draw=true
-   0.613 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.84 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.09 present 0.82 = 2.76 ms
-   0.616 TIMED window#primary requested=true pending=true should_draw=true
-   0.620 poll window#primary requested=true pending=true should_draw=true
-   0.624 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.49 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.09 present 1.08 = 3.67 ms
-   0.624 TIMED window#primary requested=true pending=true should_draw=true
-   0.629 poll window#primary requested=true pending=true should_draw=true
-   0.632 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.38 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.91 = 3.40 ms
+   0.595 poll window#primary requested=true pending=true should_draw=true
+   0.600 frame stages (cpu): scale 0.00 plan 0.00 cpu 3.05 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 1.43 = 4.58 ms
+   0.600 TIMED window#primary requested=true pending=true should_draw=true
+   0.604 poll window#primary requested=true pending=true should_draw=true
+   0.608 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.48 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.92 = 3.50 ms
+   0.608 TIMED window#primary requested=true pending=true should_draw=true
+   0.613 poll window#primary requested=true pending=true should_draw=true
+   0.617 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.78 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 1.10 = 3.99 ms
+   0.617 TIMED window#primary requested=true pending=true should_draw=true
+   0.623 poll window#primary requested=true pending=true should_draw=true
+   0.629 frame stages (cpu): scale 0.01 plan 0.00 cpu 2.75 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 2.57 = 5.43 ms
    0.632 TIMED window#primary requested=true pending=true should_draw=true
-   0.638 poll window#primary requested=true pending=true should_draw=true
-   0.642 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.59 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.09 present 1.22 = 3.91 ms
-   0.642 TIMED window#primary requested=true pending=true should_draw=true
-   0.646 poll window#primary requested=true pending=true should_draw=true
+   0.632 poll window#primary requested=true pending=true should_draw=true
+   0.637 frame stages (cpu): scale 0.01 plan 0.00 cpu 3.03 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.09 present 1.20 = 4.34 ms
+   0.637 TIMED window#primary requested=true pending=true should_draw=true
+   0.641 poll window#primary requested=true pending=true should_draw=true
+   0.647 frame stages (cpu): scale 0.00 plan 0.00 cpu 3.13 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 2.62 = 5.85 ms
+   0.647 TIMED window#primary requested=true pending=true should_draw=true
+   0.649 poll window#primary requested=true pending=true should_draw=true
+   0.654 frame stages (cpu): scale 0.00 plan 0.00 cpu 3.39 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.09 present 1.01 = 4.49 ms
+   0.654 TIMED window#primary requested=true pending=true should_draw=true
+   0.658 poll window#primary requested=true pending=true should_draw=true
+   0.664 frame stages (cpu): scale 0.00 plan 0.00 cpu 3.45 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 2.21 = 5.76 ms
+   0.665 TIMED window#primary requested=true pending=true should_draw=true
+   0.667 poll window#primary requested=true pending=true should_draw=true
+   0.671 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.55 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.09 present 1.20 = 3.85 ms
+   0.671 TIMED window#primary requested=true pending=true should_draw=true
+   0.675 poll window#primary requested=true pending=true should_draw=true
+   0.680 frame stages (cpu): scale 0.01 plan 0.00 cpu 2.96 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.09 present 1.05 = 4.12 ms
+   0.680 TIMED window#primary requested=true pending=true should_draw=true
+   0.684 poll window#primary requested=true pending=true should_draw=true
+   0.687 frame stages (cpu): scale 0.00 plan 0.00 cpu 1.80 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.09 present 0.94 = 2.84 ms
+   0.687 TIMED window#primary requested=true pending=true should_draw=true
+   0.693 poll window#primary requested=true pending=true should_draw=true
+   0.697 frame stages (cpu): scale 0.01 plan 0.00 cpu 2.82 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.09 present 1.13 = 4.04 ms
+   0.698 TIMED window#primary requested=true pending=true should_draw=true
+   0.702 poll window#primary requested=true pending=true should_draw=true
+   0.706 frame stages (cpu): scale 0.01 plan 0.00 cpu 2.40 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 0.77 = 3.26 ms
+   0.706 TIMED window#primary requested=true pending=true should_draw=true
+   0.711 poll window#primary requested=true pending=true should_draw=true
+   0.715 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.42 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.09 present 0.91 = 3.42 ms
+   0.715 TIMED window#primary requested=true pending=true should_draw=true
+   0.720 poll window#primary requested=true pending=true should_draw=true
+   0.724 frame stages (cpu): scale 0.00 plan 0.00 cpu 2.37 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.09 present 0.71 = 3.17 ms
+   0.724 TIMED window#primary requested=true pending=true should_draw=true
+   0.729 poll window#primary requested=true pending=true should_draw=true
+   0.734 frame stages (cpu): scale 0.01 plan 0.00 cpu 2.55 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.10 present 1.41 = 4.06 ms
+   0.734 TIMED window#primary requested=true pending=true should_draw=true
 Launched application with dev.vieww.demo bundle identifier.
 Waiting for the application to terminate...
 App terminated due to signal 15.
