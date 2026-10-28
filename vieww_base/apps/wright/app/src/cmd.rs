@@ -1725,7 +1725,6 @@ pub fn doctor() -> i32 {
     line("https", wright_runtime::net::https_backend());
     // WR-16: the kill switch is a file in Wright's home; say who can reach it.
     line("kill switch", {
-        let home = wright_runtime::config::wright_home();
         let state = match wright_runtime::killswitch::current() {
             Some(s) => format!(
                 "ENGAGED ({}{}) — `wright start` releases it",
@@ -1741,6 +1740,7 @@ pub fn doctor() -> i32 {
         #[cfg(unix)]
         let private = {
             use std::os::unix::fs::PermissionsExt;
+            let home = wright_runtime::config::wright_home();
             match std::fs::metadata(&home) {
                 Ok(m) if m.permissions().mode() & 0o077 == 0 => Ok("home 0700: only this user (and not its sandboxed commands) can engage it".to_string()),
                 Ok(m) => Err(format!("{} is mode {:o}: other accounts could engage or release the switch — chmod 700 it", home.display(), m.permissions().mode() & 0o777)),

@@ -11,7 +11,13 @@
 use std::io::Write;
 
 /// Append this comparison's row, if a certificate is being collected.
-pub(crate) fn record(backend: &str, tolerance: u8, gpu: &[u8], cpu: &[u8], interior_violations: usize) {
+pub(crate) fn record(
+    backend: &str,
+    tolerance: u8,
+    gpu: &[u8],
+    cpu: &[u8],
+    interior_violations: usize,
+) {
     let Some(dir) = std::env::var_os("VIEWW_PARITY_OUT") else {
         return;
     };
@@ -25,7 +31,9 @@ pub(crate) fn record(backend: &str, tolerance: u8, gpu: &[u8], cpu: &[u8], inter
         .name()
         .unwrap_or("unnamed")
         .replace('"', "'");
-    let adapter = std::env::var("VIEWW_PARITY_ADAPTER").unwrap_or_default().replace('"', "'");
+    let adapter = std::env::var("VIEWW_PARITY_ADAPTER")
+        .unwrap_or_default()
+        .replace('"', "'");
     let line = format!(
         "{{\"backend\":\"{backend}\",\"adapter\":\"{adapter}\",\"test\":\"{test}\",\"contract\":\"interior<={tolerance}/255,edges-free\",\"tolerance\":{tolerance},\"interior_violations\":{interior_violations},\"worst_delta\":{worst},\"pixels\":{}}}\n",
         gpu.len() / 4

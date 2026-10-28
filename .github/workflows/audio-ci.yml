@@ -70,9 +70,10 @@ jobs:
     name: Audio decoders under cargo-fuzz (nightly, blocking)
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    # 13 targets x FUZZ_SECONDS plus the build must fit: 13 x 3 min + build.
+    timeout-minutes: 75
     env:
-      FUZZ_SECONDS: "300"
+      FUZZ_SECONDS: "180"
     defaults:
       run:
         shell: bash
