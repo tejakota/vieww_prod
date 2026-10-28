@@ -12,6 +12,10 @@ tag needs a `## [x.y.z]` section here before it is pushed.
 ## [Unreleased]
 
 ### Added
+- **Studio: undo for file operations** (ST-11): `Undo File Operation` / `Redo File Operation` reverse Explorer creates, renames and deletes without ever overwriting.
+- **Studio: Copy Diagnostics** (ST-17): a bug-report block (version, toolchains, problems, session) that never includes code.
+- **Studio: interface language** (ST-16): Spanish catalog for command, view and menu titles; `language` setting and `VIEWWSTUDIO_LANG`.
+- **CI: Studio workflow** (ST-12): the Studio suite and screenshots on Linux, macOS and Windows, started by hand.
 - **CI, every workflow started by hand** (FW-02): `pr-quick` (checks --quick,
   actionlint, wright sandbox escape suite), the release gate restored to the
   root, self-hosted hardware runs, audio CI; results of every run land on the

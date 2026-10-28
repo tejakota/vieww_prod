@@ -70,7 +70,7 @@ impl Widget for ActivityBar {
             let hovered = studio.hovered_view.clone();
             let leaving = studio.hovered_view.clone();
 
-            Semantics::button(view.title())
+            Semantics::button(crate::i18n::t(view.title()))
                 .child(
                     vieww_widget::Measured::new()
                         .on_measured(std::rc::Rc::new(move |rect: vieww_foundation::Rect| {

@@ -388,6 +388,15 @@ pub enum Command {
     ToggleWordWrap,
     /// Version, build and licence, in a dialog.
     About,
+    /// The diagnostics report (toolchains, problems, session; never buffer
+    /// text) onto the clipboard, for a bug report (ST-17).
+    CopyDiagnostics,
+    /// The chrome's next language (ST-16): English, Español, …
+    NextLanguage,
+    /// Reverse the newest Explorer file operation (ST-11).
+    UndoFileOperation,
+    /// Do the newest undone file operation again.
+    RedoFileOperation,
     /// The welcome view: recent workspaces and the things a new user needs.
     ShowWelcome,
     /// N10: render when the buffer settles, without pressing anything.
@@ -431,7 +440,7 @@ pub enum Command {
 
 impl Command {
     /// Every command, in palette order.
-    pub const ALL: [Self; 107] = [
+    pub const ALL: [Self; 111] = [
         Self::Render,
         Self::CancelRender,
         Self::Build,
@@ -508,6 +517,10 @@ impl Command {
         Self::RestartAnalyzer,
         Self::ToggleWordWrap,
         Self::About,
+        Self::CopyDiagnostics,
+        Self::NextLanguage,
+        Self::UndoFileOperation,
+        Self::RedoFileOperation,
         Self::ShowWelcome,
         Self::ToggleAutoRender,
         Self::ShowSettings,
@@ -659,6 +672,10 @@ impl Command {
             Self::RestartAnalyzer => "rust-analyzer: Restart",
             Self::ToggleWordWrap => "Toggle Word Wrap",
             Self::About => "About vieww Studio",
+            Self::CopyDiagnostics => "Copy Diagnostics for a Bug Report",
+            Self::NextLanguage => "Interface Language: Next",
+            Self::UndoFileOperation => "Undo File Operation",
+            Self::RedoFileOperation => "Redo File Operation",
             Self::ShowWelcome => "Show Welcome",
             Self::ToggleAutoRender => "Auto Render on Change",
             Self::ShowShortcuts => "Keyboard Shortcuts",
@@ -740,7 +757,8 @@ impl Command {
             | Self::ShowTasks
             | Self::ShowTokens
             | Self::ShowSource => Menu::View,
-            Self::About => Menu::Help,
+            Self::About | Self::CopyDiagnostics | Self::NextLanguage => Menu::Help,
+            Self::UndoFileOperation | Self::RedoFileOperation => Menu::Edit,
             Self::ZoomIn
             | Self::ZoomOut
             | Self::ZoomFit
@@ -914,6 +932,10 @@ impl Command {
             | Self::ToggleAnalyzer
             | Self::RestartAnalyzer
             | Self::About
+            | Self::CopyDiagnostics
+            | Self::NextLanguage
+            | Self::UndoFileOperation
+            | Self::RedoFileOperation
             | Self::ShowWelcome
             | Self::CloseOtherTabs
             | Self::CloseTabsToTheRight

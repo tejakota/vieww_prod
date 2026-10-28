@@ -167,6 +167,8 @@ impl Studio {
             }
             C::CancelRender => "Nothing is rendering.".to_owned(),
             C::Undo => "Nothing to undo.".to_owned(),
+            C::UndoFileOperation => "No file operation to undo.".to_owned(),
+            C::RedoFileOperation => "No file operation to redo.".to_owned(),
             C::Redo => "Nothing to redo.".to_owned(),
             C::Save => "No unsaved changes.".to_owned(),
             C::SaveAll => "No unsaved changes.".to_owned(),
@@ -829,6 +831,21 @@ impl Studio {
                 });
             }
             C::About => self.about.set(true),
+            C::UndoFileOperation => self.undo_file_operation(),
+            C::RedoFileOperation => self.redo_file_operation(),
+            C::NextLanguage => {
+                use crate::i18n::{self, Language};
+                let now = i18n::language();
+                let at = Language::ALL.iter().position(|l| *l == now).unwrap_or(0);
+                let next = Language::ALL[(at + 1) % Language::ALL.len()];
+                i18n::set_language(next);
+                self.save_settings();
+                self.notify(&format!("Interface language: {}", next.name()));
+            }
+            C::CopyDiagnostics => {
+                let report = crate::diagnostics::report(self);
+                self.copy_text(&report);
+            }
             C::ShowWelcome => self.welcome.set(true),
             C::TogglePreviewNote => {
                 let on = !self.preview_note.peek();
@@ -910,6 +927,8 @@ impl Studio {
             C::Render => !self.is_compiling() && self.toolchain.is_ok(),
             C::CancelRender => self.is_compiling(),
             C::Undo => self.active().is_some_and(|b| b.history.can_undo()),
+            C::UndoFileOperation => self.journal.get().can_undo(),
+            C::RedoFileOperation => self.journal.get().can_redo(),
             C::Redo => self.active().is_some_and(|b| b.history.can_redo()),
             // Dirty is the whole condition. Whether it has a path decides
             // *how* it is saved — straight to disk, or through the name prompt

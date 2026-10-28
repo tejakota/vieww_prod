@@ -249,6 +249,9 @@ pub struct Settings {
     /// being reordered or a stop being adjusted. An unknown name falls back to
     /// the default accent rather than refusing to load the file.
     pub accent: String,
+    /// The chrome's language by code (`en`, `es`; ST-16). Unknown codes
+    /// fall back to English.
+    pub language: String,
     /// Whether the vieww-specific lint layer contributes to Problems.
     pub lint: bool,
     /// N-new: which colour theme, by name. `"dark"` and `"light"` are built in;
@@ -332,6 +335,7 @@ impl Default for Settings {
             large_ui: false,
             high_contrast: false,
             accent: crate::theme::accent_name(crate::theme::ACCENT).to_owned(),
+            language: "en".to_owned(),
             lint: true,
             theme: "dark".to_owned(),
             font_size: 13.0,
@@ -380,6 +384,9 @@ impl Settings {
                 .get("accent")
                 .filter(|name| !name.is_empty())
                 .map_or_else(|| fallback.accent.clone(), str::to_owned),
+            language: record
+                .get("language")
+                .map_or_else(|| fallback.language.clone(), str::to_owned),
             lint: record.bool_or("lint", fallback.lint),
             theme: record
                 .get("theme")
@@ -442,6 +449,7 @@ impl Settings {
         record.put_bool("large_ui", self.large_ui);
         record.put_bool("high_contrast", self.high_contrast);
         record.put("accent", self.accent.clone());
+        record.put("language", self.language.clone());
         record.put_bool("lint", self.lint);
         record.put("theme", self.theme.clone());
         record.put_f32("font_size", self.font_size);

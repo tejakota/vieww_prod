@@ -1836,6 +1836,8 @@ pub struct Studio {
     pub name_prompt: Signal<Option<NamePrompt>>,
     /// Files awaiting a delete confirmation.
     pub pending_delete: Signal<Option<std::path::PathBuf>>,
+    /// File operations from the Explorer, reversible (ST-11).
+    pub journal: Signal<Rc<crate::journal::Journal>>,
     /// Open buffers whose file changed on disk while they had unsaved edits.
     ///
     /// Empty on almost every frame. Non-empty raises the conflict dialog, which
@@ -2689,6 +2691,7 @@ impl Studio {
             context_menu: runtime.signal(None),
             name_prompt: runtime.signal(None),
             pending_delete: runtime.signal(None),
+            journal: runtime.signal(Rc::new(crate::journal::Journal::default())),
             indent_guides: runtime.signal(true),
             folds: folds.clone(),
             tab_width: runtime.signal(crate::edit_ops::INDENT.len()),

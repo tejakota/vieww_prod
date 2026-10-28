@@ -150,6 +150,9 @@ impl Studio {
     /// things everywhere — the tree is scanned, the buffers are replaced, and
     /// the workspace goes to the top of the recent list.
     pub fn open_workspace(&self, root: &std::path::Path) {
+        // File-operation undo is per workspace (ST-11).
+        self.journal
+            .set(std::rc::Rc::new(crate::journal::Journal::default()));
         let root = std::fs::canonicalize(root).unwrap_or_else(|_| root.to_path_buf());
         let workspace = Workspace::open(&root);
         if workspace.root.is_none() {

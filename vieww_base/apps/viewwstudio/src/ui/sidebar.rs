@@ -107,7 +107,7 @@ impl Widget for Sidebar {
                             .cross_axis_alignment(CrossAxisAlignment::Center)
                             .children(children![
                                 label_bold(
-                                    &view.title().to_uppercase(),
+                                    &crate::i18n::t(view.title()).to_uppercase(),
                                     10.5,
                                     theme.colors.on_surface_variant
                                 ),

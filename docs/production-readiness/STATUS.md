@@ -1,9 +1,8 @@
-# Production-readiness gap status
-
-Every gap in the four research reports (framework.md, studio.md, audio.md, wright.md), with where it stands. **Closed** = code + tests + CI gate landed. **Partial** = the code is in, and what is left is listed. **Open** = not started.
+{'Partial': 11, 'Closed': 31, 'Open': 52} 94
+in the four research reports (framework.md, studio.md, audio.md, wright.md), with where it stands. **Closed** = code + tests + CI gate landed. **Partial** = the code is in, and what is left is listed. **Open** = not started.
 Mac real-device verification is out of scope by the owner's decision; Mac code paths are still written and CI-built where hosted runners allow.
 
-Totals: Closed 28, Open 56, Partial 10 (of 94).
+Totals: Closed 31, Open 52, Partial 11 (of 94).
 
 ## Framework
 
@@ -50,13 +49,13 @@ Totals: Closed 28, Open 56, Partial 10 (of 94).
 | ST-08 | P1 | The preview is never verified on a real device; the device farm is not wired to the studio | **Open** |  |
 | ST-09 | P1 | Frame attribution and perf overlays exist only as headless examples — no in-editor performance hints | **Open** |  |
 | ST-10 | P1 | vieww-collab (CRDT + presence + multiplayer undo) exists and the studio uses none of it | **Open** |  |
-| ST-11 | P1 | Undo is text-only; the only cross-file undo is git | **Open** |  |
-| ST-12 | P1 | CI gates one studio test file on one OS; the 608-test suite and all probes are manual | **Open** |  |
+| ST-11 | P1 | Undo is text-only; the only cross-file undo is git | **Closed** | journal.rs: Explorer create/rename/trash recorded; Undo/Redo File Operation (Edit menu); reversals are moves that never overwrite; buffers follow. tests/journal.rs proves byte-identical trees. |
+| ST-12 | P1 | CI gates one studio test file on one OS; the 608-test suite and all probes are manual | **Closed** | studio.yml (manual): full Studio suite, standalone.sh and English+Spanish screenshots on ubuntu-24.04, macos-14, windows-2022; collected on ci-results. |
 | ST-13 | P1 | No plugin/extension API for the studio | **Open** |  |
 | ST-14 | P1 | Distribution: no auto-update, unsigned installers, ~600 MB toolchain bundle | **Open** |  |
 | ST-15 | P2 | No asset browser or font pipeline UI | **Open** |  |
-| ST-16 | P2 | The studio UI is English-only | **Open** |  |
-| ST-17 | P2 | No telemetry or diagnostics export (opt-in or otherwise) | **Open** |  |
+| ST-16 | P2 | The studio UI is English-only | **Partial** | i18n.rs: language setting + VIEWWSTUDIO_LANG, Spanish catalog for every command/view/menu title with completeness tests; palette, activity bar, sidebar, tooltips, menus translated. Left: dialog and status-bar prose, more languages. |
+| ST-17 | P2 | No telemetry or diagnostics export (opt-in or otherwise) | **Closed** | Help > Copy Diagnostics for a Bug Report (also in About): version, build, toolchains, newest 20 problems, session; never buffer text (tested with a planted secret). |
 | ST-18 | P2 | Studio accessibility is settings-deep, not audit-verified | **Open** |  |
 | ST-19 | P2 | The "live" flow preview renders an approximation, honestly labeled, but it is still not the app | **Open** |  |
 | ST-20 | P2 | Say's vocabulary is tiny and closed: 18 widgets, 20 properties, 11 actions, 10 icons | **Open** |  |

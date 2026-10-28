@@ -267,6 +267,11 @@ impl Studio {
                 } else {
                     crate::file_tree::create_file(&path)
                         .map(|()| {
+                            self.journal_record(crate::journal::Entry::Created {
+                                path: path.clone(),
+                                dir: false,
+                                trashed_at: None,
+                            });
                             self.open_path(path);
                             format!("Created {name}")
                         })
@@ -279,7 +284,14 @@ impl Studio {
                     Err(format!("{name} is already there"))
                 } else {
                     crate::file_tree::create_dir(&path)
-                        .map(|()| format!("Created {name}/"))
+                        .map(|()| {
+                            self.journal_record(crate::journal::Entry::Created {
+                                path: path.clone(),
+                                dir: true,
+                                trashed_at: None,
+                            });
+                            format!("Created {name}/")
+                        })
                         .map_err(|error| error.to_string())
                 }
             }
@@ -377,21 +389,93 @@ impl Studio {
             return Err(format!("{name} is already there"));
         }
         crate::file_tree::rename(from, &to).map_err(|error| error.to_string())?;
+        self.journal_record(crate::journal::Entry::Renamed {
+            from: from.to_path_buf(),
+            to: to.clone(),
+        });
+        self.follow_buffers(from, &to);
+        Ok(format!("Renamed to {name}"))
+    }
+
+    /// Point every buffer open on `from` at `to` (a rename, or its undo).
+    fn follow_buffers(&self, from: &std::path::Path, to: &std::path::Path) {
+        let name = to
+            .file_name()
+            .map_or_else(String::new, |n| n.to_string_lossy().into_owned());
 
         let mut buffers = (*self.buffers.get()).clone();
         let mut moved = false;
         for buffer in &mut buffers {
             if buffer.path.as_deref() == Some(from) {
-                buffer.path = Some(to.clone());
-                buffer.name = name.to_owned();
-                buffer.language = crate::language::Language::of_path(&to);
+                buffer.path = Some(to.to_path_buf());
+                buffer.name.clone_from(&name);
+                buffer.language = crate::language::Language::of_path(to);
                 moved = true;
             }
         }
         if moved {
             self.put_buffers(buffers);
         }
-        Ok(format!("Renamed to {name}"))
+    }
+
+    fn journal_record(&self, entry: crate::journal::Entry) {
+        let mut j = (*self.journal.get()).clone();
+        j.record(entry);
+        self.journal.set(std::rc::Rc::new(j));
+    }
+
+    /// Reverse the newest Explorer file operation (ST-11).
+    pub fn undo_file_operation(&self) {
+        self.step_journal(true);
+    }
+
+    /// Do the newest undone file operation again.
+    pub fn redo_file_operation(&self) {
+        self.step_journal(false);
+    }
+
+    fn step_journal(&self, backwards: bool) {
+        let Some(root) = self.root.peek() else {
+            self.notify("No workspace is open");
+            return;
+        };
+        let mut j = (*self.journal.get()).clone();
+        let before = if backwards {
+            j.peek_undo().cloned()
+        } else {
+            None
+        };
+        let outcome = if backwards {
+            j.undo(&root)
+        } else {
+            j.redo(&root)
+        };
+        match outcome {
+            Ok(message) => {
+                // A rename's undo moves an open buffer back with it; a
+                // create's undo points an open buffer at the trashed copy,
+                // so a save cannot recreate the file that was just undone.
+                match before {
+                    Some(crate::journal::Entry::Renamed { from, to }) => {
+                        self.follow_buffers(&to, &from);
+                    }
+                    Some(crate::journal::Entry::Created { path, .. }) => {
+                        if let Some(crate::journal::Entry::Created {
+                            trashed_at: Some(t),
+                            ..
+                        }) = j.peek_redo()
+                        {
+                            self.follow_buffers(&path, t);
+                        }
+                    }
+                    _ => {}
+                }
+                self.journal.set(std::rc::Rc::new(j));
+                self.rescan_tree();
+                self.notify(&message);
+            }
+            Err(error) => self.notify(&error),
+        }
     }
 
     /// Ask whether to delete `path`.
@@ -419,7 +503,11 @@ impl Studio {
             return;
         };
         match crate::file_tree::delete_to_trash(&root, &path) {
-            Ok(_) => {
+            Ok(trashed_at) => {
+                self.journal_record(crate::journal::Entry::Trashed {
+                    original: path.clone(),
+                    trashed_at,
+                });
                 // Any buffer over the deleted file is closed: leaving it open
                 // means the next save recreates the file the user just deleted.
                 let buffers: Vec<crate::buffer::Buffer> = (*self.buffers.get())

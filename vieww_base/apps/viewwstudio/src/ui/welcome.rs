@@ -383,6 +383,7 @@ impl Widget for About {
         }
         let closing = self.studio.clone();
         let copying = self.studio.clone();
+        let diagnosing = self.studio.clone();
         let report = crate::about::report();
 
         let mut dialog = crate::ui::dialog::Dialog::new(
@@ -403,6 +404,16 @@ impl Widget for About {
                 "Copy details",
                 crate::ui::dialog::Tone::Neutral,
                 move || copying.copy_text(&report),
+            ))
+            // ST-17: the full report — toolchains, problems, session — never
+            // buffer text.
+            .action(crate::ui::dialog::Action::new(
+                "Copy diagnostics",
+                crate::ui::dialog::Tone::Neutral,
+                move || {
+                    let report = crate::diagnostics::report(&diagnosing);
+                    diagnosing.copy_text(&report);
+                },
             ))
             .into()
     }

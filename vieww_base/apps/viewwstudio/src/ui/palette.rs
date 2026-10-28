@@ -217,7 +217,7 @@ impl Palette {
 
         let (title, detail, hint, enabled) = match entry {
             PaletteEntry::Command(command) => (
-                command.title().to_string(),
+                crate::i18n::t(command.title()).to_string(),
                 command.menu().title().to_string(),
                 studio
                     .chord_for(*command)

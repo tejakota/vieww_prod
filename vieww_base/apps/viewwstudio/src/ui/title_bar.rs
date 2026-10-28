@@ -54,7 +54,7 @@ fn menus_end() -> f32 {
             clippy::cast_precision_loss,
             reason = "a menu title is a handful of characters"
         )]
-        let width = menu.title().chars().count() as f32 * PER_CHARACTER + PADDING;
+        let width = crate::i18n::t(menu.title()).chars().count() as f32 * PER_CHARACTER + PADDING;
         at + width
     })
 }
@@ -293,7 +293,7 @@ impl TitleBar {
                 let chrome = *chrome;
 
                 let studio = self.studio.clone();
-                Semantics::button(menu.title())
+                Semantics::button(crate::i18n::t(menu.title()))
                     .child(crate::ui::chrome::sensed(
                         move |sense| {
                             Container::new()
@@ -305,7 +305,7 @@ impl TitleBar {
                                 .radius(4.0)
                                 .padding(EdgeInsets::symmetric(8.0, 3.0))
                                 .child(label(
-                                    menu.title(),
+                                    crate::i18n::t(menu.title()),
                                     12.0,
                                     if open || sense.emphasis() > 0.0 {
                                         colors.on_surface
@@ -459,7 +459,7 @@ impl TitleBar {
             .chord_for(command)
             .map(|chord| chord.describe(studio.host))
             .unwrap_or_default();
-        let title = command.title();
+        let title = crate::i18n::t(command.title());
         let chrome = *chrome;
 
         // The row's own name, and whether it can be used. A screen reader that

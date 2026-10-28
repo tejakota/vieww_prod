@@ -102,7 +102,7 @@ impl Widget for TooltipLayer {
         vieww_widget::IgnorePointer::new()
             .child(
                 Opacity::new(TOOLTIP_OPACITY)
-                    .child(vieww_widget::Tooltip::new(view.title()).anchor(anchor)),
+                    .child(vieww_widget::Tooltip::new(crate::i18n::t(view.title())).anchor(anchor)),
             )
             .into()
     }

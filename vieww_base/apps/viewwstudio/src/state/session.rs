@@ -64,6 +64,7 @@ impl Studio {
             large_ui: self.large_ui.get(),
             high_contrast: self.high_contrast.get(),
             accent: self.accent.get(),
+            language: crate::i18n::language().code().to_owned(),
             lint: self.lint_enabled.get(),
             theme: self.theme_name.get(),
             font_size: self.font_size.get(),
@@ -119,6 +120,7 @@ impl Studio {
         self.large_ui.set(settings.large_ui);
         self.high_contrast.set(settings.high_contrast);
         self.accent.set(settings.accent.clone());
+        crate::i18n::set_language(crate::i18n::effective(&settings.language));
         self.lint_enabled.set(settings.lint);
         self.theme_name.set(settings.theme.clone());
         self.font_size.set(settings.font_size);
