@@ -5,30 +5,44 @@
 
 | job | verdict | failed steps |
 |---|---|---|
+| Device suite on Device Farm phones | FAIL | AWS credentials (OIDC role) |
+| Device suite on Device Farm iPhones | FAIL | AWS credentials (OIDC role) |
 | Only from main | PASS |  |
-| Build the arm64 APK | PASS |  |
 | Build the iOS .ipa | PASS |  |
-| Device suite on Device Farm phones | FAIL | Check the secrets are there |
-| Device suite on Device Farm iPhones | FAIL | AWS credentials (access keys) |
+| Build the arm64 APK | PASS |  |
 | Publish to ci-runs/device-farm-<branch> | PASS |  |
 
 ## Steps
 
+### Device suite on Device Farm phones — FAIL
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Run actions/download-artifact@v4
+- PASS: Check the secrets are there
+- PASS: Show the OIDC claims AWS will check
+- FAIL: AWS credentials (OIDC role)
+- skipped: AWS credentials (access keys)
+- skipped: Run on phones
+- PASS: Upload everything
+- PASS: Post AWS credentials (OIDC role)
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### Device suite on Device Farm iPhones — FAIL
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Run actions/download-artifact@v4
+- FAIL: AWS credentials (OIDC role)
+- skipped: AWS credentials (access keys)
+- skipped: Run on iPhones
+- PASS: Upload everything
+- PASS: Post AWS credentials (OIDC role)
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
 ### Only from main — PASS
 - PASS: Set up job
 - skipped: Refuse other branches
-- PASS: Complete job
-
-### Build the arm64 APK — PASS
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Run Swatinem/rust-cache@v2
-- PASS: Toolchain, target and cargo-apk
-- PASS: Run taiki-e/install-action@v2
-- PASS: Shipping (dist) APK, with the classes.dex device clouds expect
-- PASS: Run actions/upload-artifact@v4
-- PASS: Post Run Swatinem/rust-cache@v2
-- PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
 ### Build the iOS .ipa — PASS
@@ -44,28 +58,15 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### Device suite on Device Farm phones — FAIL
+### Build the arm64 APK — PASS
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
-- PASS: Run actions/download-artifact@v4
-- FAIL: Check the secrets are there
-- skipped: Show the OIDC claims AWS will check
-- skipped: AWS credentials (OIDC role)
-- skipped: AWS credentials (access keys)
-- skipped: Run on phones
-- PASS: Upload everything
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### Device suite on Device Farm iPhones — FAIL
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Run actions/download-artifact@v4
-- skipped: AWS credentials (OIDC role)
-- FAIL: AWS credentials (access keys)
-- skipped: Run on iPhones
-- PASS: Upload everything
-- PASS: Post AWS credentials (access keys)
+- PASS: Run Swatinem/rust-cache@v2
+- PASS: Toolchain, target and cargo-apk
+- PASS: Run taiki-e/install-action@v2
+- PASS: Shipping (dist) APK, with the classes.dex device clouds expect
+- PASS: Run actions/upload-artifact@v4
+- PASS: Post Run Swatinem/rust-cache@v2
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
