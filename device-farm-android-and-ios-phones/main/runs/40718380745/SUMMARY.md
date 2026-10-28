@@ -5,14 +5,39 @@
 
 | job | verdict | failed steps |
 |---|---|---|
+| Device suite on Device Farm phones | FAIL | Check the secrets are there |
+| Device suite on Device Farm iPhones | FAIL | AWS credentials (access keys) |
 | Only from main | PASS |  |
 | Build the arm64 APK | PASS |  |
 | Build the iOS .ipa | PASS |  |
-| Device suite on Device Farm iPhones | FAIL | AWS credentials (access keys) |
-| Device suite on Device Farm phones | FAIL | Check the secrets are there |
 | Publish to ci-runs/device-farm-<branch> | PASS |  |
 
 ## Steps
+
+### Device suite on Device Farm phones — FAIL
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Run actions/download-artifact@v4
+- FAIL: Check the secrets are there
+- skipped: Show the OIDC claims AWS will check
+- skipped: AWS credentials (OIDC role)
+- skipped: AWS credentials (access keys)
+- skipped: Run on phones
+- PASS: Upload everything
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### Device suite on Device Farm iPhones — FAIL
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Run actions/download-artifact@v4
+- skipped: AWS credentials (OIDC role)
+- FAIL: AWS credentials (access keys)
+- skipped: Run on iPhones
+- PASS: Upload everything
+- PASS: Post AWS credentials (access keys)
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
 
 ### Only from main — PASS
 - PASS: Set up job
@@ -41,31 +66,6 @@
 - PASS: Device .ipa
 - PASS: Run actions/upload-artifact@v4
 - PASS: Post Run Swatinem/rust-cache@v2
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### Device suite on Device Farm iPhones — FAIL
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Run actions/download-artifact@v4
-- skipped: AWS credentials (OIDC role)
-- FAIL: AWS credentials (access keys)
-- skipped: Run on iPhones
-- PASS: Upload everything
-- PASS: Post AWS credentials (access keys)
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### Device suite on Device Farm phones — FAIL
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Run actions/download-artifact@v4
-- FAIL: Check the secrets are there
-- skipped: Show the OIDC claims AWS will check
-- skipped: AWS credentials (OIDC role)
-- skipped: AWS credentials (access keys)
-- skipped: Run on phones
-- PASS: Upload everything
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
