@@ -1,26 +1,26 @@
 -----
-Device suite on Device Farm phones	Check the secrets are there	﻿2026-10-28T15:51:49.2333472Z ##[group]Run [ -n "$DEVICE_FARM_PROJECT_ARN" ] || { echo "::error::secret DEVICE_FARM_PROJECT_ARN is not set"; exit 1; }
-Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:51:49.2333918Z ^[[36;1m[ -n "$DEVICE_FARM_PROJECT_ARN" ] || { echo "::error::secret DEVICE_FARM_PROJECT_ARN is not set"; exit 1; }^[[0m
-Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:51:49.2353149Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
-Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:51:49.2353340Z env:
-Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:51:49.2353453Z   CARGO_TERM_COLOR: always
-Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:51:49.2353580Z   RUST_VERSION: 1.98.1
-Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:51:49.2353700Z   AWS_REGION: us-west-2
-Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:51:49.2353830Z   DEVICE_FARM_PROJECT_ARN: 
-Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:51:49.2353958Z   HAS_ROLE: false
-Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:51:49.2354069Z ##[endgroup]
-Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:51:49.2407753Z ##[error]secret DEVICE_FARM_PROJECT_ARN is not set
-Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:51:49.2413684Z ##[error]Process completed with exit code 1.
-Device suite on Device Farm iPhones	AWS credentials (access keys)	﻿2026-10-28T15:51:17.1500902Z ##[group]Run aws-actions/configure-aws-credentials@v4
-Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:51:17.1501276Z with:
-Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:51:17.1501484Z   aws-region: us-west-2
-Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:51:17.1501730Z   audience: sts.amazonaws.com
-Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:51:17.1501998Z   output-env-credentials: true
-Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:51:17.1502241Z env:
-Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:51:17.1502439Z   CARGO_TERM_COLOR: always
-Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:51:17.1502670Z   RUST_VERSION: 1.98.1
-Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:51:17.1502890Z   AWS_REGION: us-west-2
-Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:51:17.1503113Z   DEVICE_FARM_PROJECT_ARN: 
-Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:51:17.1503352Z   HAS_ROLE: false
-Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:51:17.1503555Z ##[endgroup]
-Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T15:51:17.2800303Z ##[error]Credentials could not be loaded, please check your action inputs: Could not load credentials from any providers
+Device suite on Device Farm phones	Check the secrets are there	﻿2026-10-28T15:56:31.7161972Z ##[group]Run [ -n "$DEVICE_FARM_PROJECT_ARN" ] || { echo "::error::secret DEVICE_FARM_PROJECT_ARN is not set"; exit 1; }
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:56:31.7162458Z ^[[36;1m[ -n "$DEVICE_FARM_PROJECT_ARN" ] || { echo "::error::secret DEVICE_FARM_PROJECT_ARN is not set"; exit 1; }^[[0m
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:56:31.7393284Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:56:31.7393523Z env:
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:56:31.7393649Z   CARGO_TERM_COLOR: always
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:56:31.7393788Z   RUST_VERSION: 1.98.1
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:56:31.7393912Z   AWS_REGION: us-west-2
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:56:31.7394042Z   DEVICE_FARM_PROJECT_ARN: 
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:56:31.7394178Z   HAS_ROLE: false
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:56:31.7394294Z ##[endgroup]
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:56:31.7492002Z ##[error]secret DEVICE_FARM_PROJECT_ARN is not set
+Device suite on Device Farm phones	Check the secrets are there	2026-10-28T15:56:31.7498477Z ##[error]Process completed with exit code 1.
+Device suite on Device Farm iPhones	AWS credentials (access keys)	﻿2026-10-28T16:00:09.1592585Z ##[group]Run aws-actions/configure-aws-credentials@v4
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T16:00:09.1593024Z with:
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T16:00:09.1593723Z   aws-region: us-west-2
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T16:00:09.1594133Z   audience: sts.amazonaws.com
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T16:00:09.1594497Z   output-env-credentials: true
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T16:00:09.1594851Z env:
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T16:00:09.1595148Z   CARGO_TERM_COLOR: always
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T16:00:09.1595558Z   RUST_VERSION: 1.98.1
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T16:00:09.1595879Z   AWS_REGION: us-west-2
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T16:00:09.1596208Z   DEVICE_FARM_PROJECT_ARN: 
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T16:00:09.1596554Z   HAS_ROLE: false
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T16:00:09.1596879Z ##[endgroup]
+Device suite on Device Farm iPhones	AWS credentials (access keys)	2026-10-28T16:00:09.2850966Z ##[error]Credentials could not be loaded, please check your action inputs: Could not load credentials from any providers

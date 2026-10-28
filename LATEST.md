@@ -2,7 +2,7 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
-| 2026-10-28T15:52:55Z | device-farm-android-and-ios-phones/main | FAILURE | `068e1efb012e` | [summary](device-farm-android-and-ios-phones/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40718380745) |
+| 2026-10-28T16:01:10Z | device-farm-android-and-ios-phones/main | FAILURE | `068e1efb012e` | [summary](device-farm-android-and-ios-phones/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40720367260) |
 | 2026-10-28T15:43:12Z | mobile-audio/main | SUCCESS | `068e1efb012e` | [summary](mobile-audio/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40718425836) |
 | 2026-10-28T14:51:10Z | framework-checks/main | SUCCESS | `c40a7185c063` | [summary](framework-checks/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40707519839) |
 | 2026-10-28T13:50:04Z | pr-quick/main | SUCCESS | `c40a7185c063` | [summary](pr-quick/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40697837231) |
