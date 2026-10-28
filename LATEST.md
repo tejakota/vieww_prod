@@ -2,9 +2,9 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
+| 2026-10-28T19:52:55Z | framework-checks/main | FAILURE | `ad768f4640d3` | [summary](framework-checks/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40753875633) |
 | 2026-10-28T19:32:26Z | mobile-audio/main | SUCCESS | `ad768f4640d3` | [summary](mobile-audio/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40753923484) |
 | 2026-10-28T16:55:53Z | device-farm-android-and-ios-phones/main | FAILURE | `068e1efb012e` | [summary](device-farm-android-and-ios-phones/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40720367260) |
-| 2026-10-28T14:51:10Z | framework-checks/main | SUCCESS | `c40a7185c063` | [summary](framework-checks/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40707519839) |
 | 2026-10-28T13:50:04Z | pr-quick/main | SUCCESS | `c40a7185c063` | [summary](pr-quick/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40697837231) |
 | 2026-10-28T13:40:52Z | studio/main | SUCCESS | `c40a7185c063` | [summary](studio/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40697873837) |
 | 2026-10-28T04:33:22Z | audio-ci/main | SUCCESS | `f00f19e8ffc3` | [summary](audio-ci/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40629123782) |

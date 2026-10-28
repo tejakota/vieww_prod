@@ -1,0 +1,142 @@
+# Framework checks — FAILURE
+
+- branch: `main`  sha: `ad768f4640d394565892925cb96d56cec0d7775a`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40753875633
+
+| job | verdict | failed steps |
+|---|---|---|
+| checks.sh (Linux) | FAIL | The gate |
+| Type-check for macOS, iOS, Windows, Android (from Linux) | FAIL | Cross type-check |
+| Coverage floor | PASS |  |
+| Web (wasm32; Chromium, Firefox, WebKit) | PASS |  |
+| Windows (D3D12 on WARP) | PASS |  |
+| macOS and iOS (Metal) | CANCELLED |  |
+| Audio decoders under cargo-fuzz (nightly) | PASS |  |
+| Android (compile) | PASS |  |
+| Wire check (root ↔ vieww_base) | PASS |  |
+| iOS simulator (tests in the sim, a frame on its screen) | CANCELLED |  |
+| Android emulator (APK, device and accessibility suites) | PASS |  |
+| GPU on software Vulkan (lavapipe) | PASS |  |
+| Android device suite (self-hosted) | skipped |  |
+| Publish results to ci-runs/<branch> | PASS |  |
+
+## Steps
+
+### checks.sh (Linux) — FAIL
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Toolchain
+- PASS: System packages
+- PASS: Free disk
+- FAIL: The gate
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### Type-check for macOS, iOS, Windows, Android (from Linux) — FAIL
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Toolchain with std sources
+- FAIL: Cross type-check
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### Coverage floor — PASS
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Toolchain and cargo-llvm-cov
+- PASS: System packages
+- PASS: Free disk
+- PASS: Coverage
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### Web (wasm32; Chromium, Firefox, WebKit) — PASS
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Toolchain and target
+- PASS: wasm-check
+- PASS: wasm-bindgen matching Cargo.lock
+- PASS: Build the page and the native baseline
+- PASS: Playwright with all three engines
+- PASS: Canvas parity per engine
+- skipped: Readbacks
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### Windows (D3D12 on WARP) — PASS
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Toolchain
+- PASS: platform-check windows
+- PASS: D3D12 suite (WARP when there is no hardware adapter)
+- skipped: HLSL that FXC refused (numbered, for the failure report)
+- PASS: Parity certificate (d3d12-warp, FW-26)
+- PASS: Upload the parity certificate (d3d12-warp)
+- PASS: Clippy for the Windows backends
+- PASS: Studio out-of-process preview (PENDING §3.3)
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### macOS and iOS (Metal) — CANCELLED
+
+### Audio decoders under cargo-fuzz (nightly) — PASS
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Nightly and cargo-fuzz
+- PASS: Seed each target's corpus
+- PASS: Fuzz every target
+- skipped: Findings
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### Android (compile) — PASS
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Toolchain and target
+- PASS: platform-check android
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### Wire check (root ↔ vieww_base) — PASS
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: The root file and the vieww_base copy are byte-identical
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### iOS simulator (tests in the sim, a frame on its screen) — CANCELLED
+
+### Android emulator (APK, device and accessibility suites) — PASS
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: KVM for the emulator
+- PASS: Toolchain, target and cargo-apk
+- PASS: Emulator, APK, suites
+- PASS: Run actions/upload-artifact@v4
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### GPU on software Vulkan (lavapipe) — PASS
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Toolchain
+- PASS: Mesa Vulkan, Xvfb
+- PASS: Adapter
+- PASS: Vulkan suites (headless)
+- PASS: Parity certificate (vulkan-lavapipe, FW-26)
+- PASS: Upload the parity certificate (vulkan-lavapipe)
+- PASS: 3D GPU parity suite (headless)
+- PASS: A GPU frame presented to a real window
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### Android device suite (self-hosted) — skipped
+
+### Publish results to ci-runs/<branch> — PASS
+- PASS: Set up job
+- PASS: Run actions/download-artifact@v4
+- PASS: Collect conclusions and failed logs
+- PASS: Push to ci-runs/<branch>
+- PASS: Complete job
+
+- artifacts: parity-certificate-d3d12-warp maestro-android parity-certificate-vulkan-lavapipe 
