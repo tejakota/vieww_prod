@@ -5,14 +5,19 @@
 
 | job | verdict | failed steps |
 |---|---|---|
+| Only from main | PASS |  |
 | Device suite on Device Farm phones | FAIL | AWS credentials (OIDC role) |
 | Device suite on Device Farm iPhones | FAIL | AWS credentials (OIDC role) |
-| Only from main | PASS |  |
-| Build the iOS .ipa | PASS |  |
 | Build the arm64 APK | PASS |  |
+| Build the iOS .ipa | PASS |  |
 | Publish to ci-runs/device-farm-<branch> | PASS |  |
 
 ## Steps
+
+### Only from main — PASS
+- PASS: Set up job
+- skipped: Refuse other branches
+- PASS: Complete job
 
 ### Device suite on Device Farm phones — FAIL
 - PASS: Set up job
@@ -40,9 +45,16 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### Only from main — PASS
+### Build the arm64 APK — PASS
 - PASS: Set up job
-- skipped: Refuse other branches
+- PASS: Run actions/checkout@v4
+- PASS: Run Swatinem/rust-cache@v2
+- PASS: Toolchain, target and cargo-apk
+- PASS: Run taiki-e/install-action@v2
+- PASS: Shipping (dist) APK, with the classes.dex device clouds expect
+- PASS: Run actions/upload-artifact@v4
+- PASS: Post Run Swatinem/rust-cache@v2
+- PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
 ### Build the iOS .ipa — PASS
@@ -53,18 +65,6 @@
 - PASS: MoltenVK (device slice)
 - skipped: Signing identity into a temporary keychain (when the secrets exist)
 - PASS: Device .ipa
-- PASS: Run actions/upload-artifact@v4
-- PASS: Post Run Swatinem/rust-cache@v2
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### Build the arm64 APK — PASS
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Run Swatinem/rust-cache@v2
-- PASS: Toolchain, target and cargo-apk
-- PASS: Run taiki-e/install-action@v2
-- PASS: Shipping (dist) APK, with the classes.dex device clouds expect
 - PASS: Run actions/upload-artifact@v4
 - PASS: Post Run Swatinem/rust-cache@v2
 - PASS: Post Run actions/checkout@v4
