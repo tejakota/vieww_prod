@@ -1,0 +1,402 @@
+===== Studio suite (macos-14)	The std-only modules with rustc alone =====
+﻿2026-10-28T09:51:00.8784320Z ##[group]Run bash apps/viewwstudio/ci/standalone.sh
+2026-10-28T09:51:00.8784960Z ^[[36;1mbash apps/viewwstudio/ci/standalone.sh^[[0m
+2026-10-28T09:51:00.9155780Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T09:51:00.9156180Z env:
+2026-10-28T09:51:00.9156390Z   CARGO_TERM_COLOR: always
+2026-10-28T09:51:00.9156690Z   RUST_BACKTRACE: 1
+2026-10-28T09:51:00.9156960Z   CARGO_PROFILE_DEV_DEBUG: 0
+2026-10-28T09:51:00.9157190Z   CARGO_INCREMENTAL: 0
+2026-10-28T09:51:00.9157470Z ##[endgroup]
+2026-10-28T09:51:01.0454810Z == each module alone ==
+2026-10-28T09:51:02.5120790Z json         test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-28T09:51:03.8345370Z task         test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.81s
+2026-10-28T09:51:04.3759710Z toolchains   test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+2026-10-28T09:51:04.5147440Z scaffold     DID NOT COMPILE
+2026-10-28T09:51:04.5242660Z error[E0433]: cannot find `livedoc` in `crate`
+2026-10-28T09:51:04.5244010Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:440:30
+2026-10-28T09:51:04.5244580Z     |
+2026-10-28T09:51:04.5245040Z 440 |         PathBuf::from(crate::livedoc::FILE),
+2026-10-28T09:51:04.5245400Z     |                              ^^^^^^^ could not find `livedoc` in the crate root
+2026-10-28T09:51:04.5245740Z 
+2026-10-28T09:51:04.5245970Z error[E0433]: cannot find `livedoc` in `crate`
+2026-10-28T09:51:04.5246620Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:441:16
+2026-10-28T09:51:04.5247090Z     |
+2026-10-28T09:51:04.5247370Z 441 |         crate::livedoc::TEMPLATE.to_string(),
+2026-10-28T09:51:04.5247720Z     |                ^^^^^^^ could not find `livedoc` in the crate root
+2026-10-28T09:51:04.5248040Z 
+2026-10-28T09:51:04.5248220Z error[E0433]: cannot find `harness` in `crate`
+2026-10-28T09:51:04.5248740Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:453:23
+2026-10-28T09:51:04.5249350Z     |
+2026-10-28T09:51:04.5249720Z 453 |     out.extend(crate::harness::files(name));
+2026-10-28T09:51:04.5250120Z     |                       ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:51:04.5250490Z 
+2026-10-28T09:51:04.5250650Z error[E0433]: cannot find `harness` in `crate`
+2026-10-28T09:51:04.5251150Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:584:22
+2026-10-28T09:51:04.5251750Z     |
+2026-10-28T09:51:04.5251990Z 584 |         lib = crate::harness::lib_name(name),
+2026-10-28T09:51:04.5252450Z     |                      ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:51:04.5252720Z 
+2026-10-28T09:51:04.5252810Z error[E0433]: cannot find `harness` in `crate`
+2026-10-28T09:51:04.5253360Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:616:22
+2026-10-28T09:51:04.5253850Z     |
+2026-10-28T09:51:04.5254020Z 616 |         lib = crate::harness::lib_name(name),
+2026-10-28T09:51:04.5254390Z     |                      ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:51:04.5254610Z 
+2026-10-28T09:51:04.5254730Z error[E0433]: cannot find `harness` in `crate`
+2026-10-28T09:51:04.5255210Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:732:22
+2026-10-28T09:51:04.5255650Z     |
+2026-10-28T09:51:04.5255840Z 732 |         lib = crate::harness::lib_name(name),
+2026-10-28T09:51:04.5256220Z     |                      ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:51:04.5256490Z 
+2026-10-28T09:51:04.5256710Z error[E0433]: cannot find module or crate `vieww_say_codegen` in this scope
+2026-10-28T09:51:04.5257290Z     --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:1726:22
+2026-10-28T09:51:04.5258340Z      |
+2026-10-28T09:51:04.5259150Z 1726 |         let result = vieww_say_codegen::compile("home.say", HOME_SAY);
+2026-10-28T09:51:04.5259620Z      |                      ^^^^^^^^^^^^^^^^^ use of unresolved module or unlinked crate `vieww_say_codegen`
+2026-10-28T09:51:04.5260130Z      |
+2026-10-28T09:51:04.5260450Z      = help: you might be missing a crate named `vieww_say_codegen`
+2026-10-28T09:51:04.5260770Z 
+2026-10-28T09:51:04.5260970Z error: aborting due to 7 previous errors
+2026-10-28T09:51:04.5261190Z 
+2026-10-28T09:51:04.5261430Z For more information about this error, try `rustc --explain E0433`.
+2026-10-28T09:51:04.7222870Z edit_ops     DID NOT COMPILE
+2026-10-28T09:51:04.7260370Z error[E0432]: unresolved import `crate::language`
+2026-10-28T09:51:04.7261390Z   --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/edit_ops.rs:33:12
+2026-10-28T09:51:04.7261880Z    |
+2026-10-28T09:51:04.7262190Z 33 | use crate::language::Language;
+2026-10-28T09:51:04.7262580Z    |            ^^^^^^^^ could not find `language` in the crate root
+2026-10-28T09:51:04.7262800Z 
+2026-10-28T09:51:04.7263000Z error: aborting due to 1 previous error
+2026-10-28T09:51:04.7263300Z 
+2026-10-28T09:51:04.7263540Z For more information about this error, try `rustc --explain E0432`.
+2026-10-28T09:51:05.0465860Z folding      test result: ok. 29 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-28T09:51:05.4863630Z picker       test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-28T09:51:05.7329590Z tokens       test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-28T09:51:05.8592590Z settings     DID NOT COMPILE
+2026-10-28T09:51:05.8619510Z error[E0433]: cannot find `theme` in `crate`
+2026-10-28T09:51:05.8621140Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:337:28
+2026-10-28T09:51:05.8622420Z     |
+2026-10-28T09:51:05.8623530Z 337 |             accent: crate::theme::accent_name(crate::theme::ACCENT).to_owned(),
+2026-10-28T09:51:05.8624850Z     |                            ^^^^^ could not find `theme` in the crate root
+2026-10-28T09:51:05.8625370Z 
+2026-10-28T09:51:05.8625780Z error[E0433]: cannot find `theme` in `crate`
+2026-10-28T09:51:05.8627080Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:337:54
+2026-10-28T09:51:05.8628270Z     |
+2026-10-28T09:51:05.8629240Z 337 |             accent: crate::theme::accent_name(crate::theme::ACCENT).to_owned(),
+2026-10-28T09:51:05.8629790Z     |                                                      ^^^^^ could not find `theme` in the crate root
+2026-10-28T09:51:05.8630080Z 
+2026-10-28T09:51:05.8630250Z error[E0433]: cannot find `state` in `crate`
+2026-10-28T09:51:05.8630790Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:405:25
+2026-10-28T09:51:05.8631340Z     |
+2026-10-28T09:51:05.8631700Z 405 |                 (crate::state::MIN_SIDEBAR, crate::state::MAX_SIDEBAR),
+2026-10-28T09:51:05.8632130Z     |                         ^^^^^ could not find `state` in the crate root
+2026-10-28T09:51:05.8632390Z 
+2026-10-28T09:51:05.8632570Z error[E0433]: cannot find `state` in `crate`
+2026-10-28T09:51:05.8633070Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:405:52
+2026-10-28T09:51:05.8633650Z     |
+2026-10-28T09:51:05.8633950Z 405 |                 (crate::state::MIN_SIDEBAR, crate::state::MAX_SIDEBAR),
+2026-10-28T09:51:05.8634420Z     |                                                    ^^^^^ could not find `state` in the crate root
+2026-10-28T09:51:05.8634700Z 
+2026-10-28T09:51:05.8634850Z error[E0433]: cannot find `state` in `crate`
+2026-10-28T09:51:05.8635290Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:417:25
+2026-10-28T09:51:05.8636260Z     |
+2026-10-28T09:51:05.8636520Z 417 |                 (crate::state::MIN_PANE, 1600.0),
+2026-10-28T09:51:05.8637360Z     |                         ^^^^^ could not find `state` in the crate root
+2026-10-28T09:51:05.8637600Z 
+2026-10-28T09:51:05.8637680Z error: aborting due to 5 previous errors
+2026-10-28T09:51:05.8637900Z 
+2026-10-28T09:51:05.8638100Z For more information about this error, try `rustc --explain E0433`.
+2026-10-28T09:51:06.0061270Z language     test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-28T09:51:06.0061700Z 
+2026-10-28T09:51:06.0061900Z == the modules that depend on each other ==
+2026-10-28T09:51:06.8514380Z harness      DID NOT COMPILE
+2026-10-28T09:51:06.8555320Z error[E0433]: cannot find `theme` in `crate`
+2026-10-28T09:51:06.8557250Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:337:28
+2026-10-28T09:51:06.8558740Z     |
+2026-10-28T09:51:06.8559680Z 337 |             accent: crate::theme::accent_name(crate::theme::ACCENT).to_owned(),
+2026-10-28T09:51:06.8560980Z     |                            ^^^^^ could not find `theme` in the crate root
+2026-10-28T09:51:06.8561770Z 
+2026-10-28T09:51:06.8562230Z error[E0433]: cannot find `theme` in `crate`
+2026-10-28T09:51:06.8563600Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:337:54
+2026-10-28T09:51:06.8565240Z     |
+2026-10-28T09:51:06.8566090Z 337 |             accent: crate::theme::accent_name(crate::theme::ACCENT).to_owned(),
+2026-10-28T09:51:06.8567490Z     |                                                      ^^^^^ could not find `theme` in the crate root
+2026-10-28T09:51:06.8568330Z 
+2026-10-28T09:51:06.8568650Z error[E0433]: cannot find `livedoc` in `crate`
+2026-10-28T09:51:06.8570750Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:440:30
+2026-10-28T09:51:06.8573280Z     |
+2026-10-28T09:51:06.8574480Z 440 |         PathBuf::from(crate::livedoc::FILE),
+2026-10-28T09:51:06.8576320Z     |                              ^^^^^^^ could not find `livedoc` in the crate root
+2026-10-28T09:51:06.8576760Z 
+2026-10-28T09:51:06.8576910Z error[E0433]: cannot find `livedoc` in `crate`
+2026-10-28T09:51:06.8577640Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:441:16
+2026-10-28T09:51:06.8580130Z     |
+2026-10-28T09:51:06.8580930Z 441 |         crate::livedoc::TEMPLATE.to_string(),
+2026-10-28T09:51:06.8582140Z     |                ^^^^^^^ could not find `livedoc` in the crate root
+2026-10-28T09:51:06.8582810Z 
+2026-10-28T09:51:06.8583310Z error[E0433]: cannot find `harness` in `crate`
+2026-10-28T09:51:06.8584750Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:453:23
+2026-10-28T09:51:06.8586030Z     |
+2026-10-28T09:51:06.8590190Z 453 |     out.extend(crate::harness::files(name));
+2026-10-28T09:51:06.8590770Z     |                       ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:51:06.8591020Z 
+2026-10-28T09:51:06.8591230Z error[E0433]: cannot find `harness` in `crate`
+2026-10-28T09:51:06.8606200Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:584:22
+2026-10-28T09:51:06.8606760Z     |
+2026-10-28T09:51:06.8607140Z 584 |         lib = crate::harness::lib_name(name),
+2026-10-28T09:51:06.8607550Z     |                      ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:51:06.8607950Z 
+2026-10-28T09:51:06.8608160Z error[E0433]: cannot find `harness` in `crate`
+2026-10-28T09:51:06.8608730Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:616:22
+2026-10-28T09:51:06.8609200Z     |
+2026-10-28T09:51:06.8609550Z 616 |         lib = crate::harness::lib_name(name),
+2026-10-28T09:51:06.8609990Z     |                      ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:51:06.8610800Z 
+2026-10-28T09:51:06.8611000Z error[E0433]: cannot find `harness` in `crate`
+2026-10-28T09:51:06.8693190Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:732:22
+2026-10-28T09:51:06.8695430Z     |
+2026-10-28T09:51:06.8696310Z 732 |         lib = crate::harness::lib_name(name),
+2026-10-28T09:51:06.8697260Z     |                      ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:51:06.8698170Z 
+2026-10-28T09:51:06.8698480Z error[E0433]: cannot find `harness` in `crate`
+2026-10-28T09:51:06.8699790Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/builds.rs:277:39
+2026-10-28T09:51:06.8701210Z     |
+2026-10-28T09:51:06.8702700Z 277 |             .unwrap_or_else(|| crate::harness::lib_name("app").replace('_', "-"));
+2026-10-28T09:51:06.8704070Z     |                                       ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:51:06.8704890Z 
+2026-10-28T09:51:06.8705590Z error[E0425]: cannot find value `MIN_SIDEBAR` in module `crate::state`
+2026-10-28T09:51:06.8707400Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:405:32
+2026-10-28T09:51:06.8709280Z     |
+2026-10-28T09:51:06.8710010Z 405 |                 (crate::state::MIN_SIDEBAR, crate::state::MAX_SIDEBAR),
+2026-10-28T09:51:06.8711780Z     |                                ^^^^^^^^^^^ not found in `crate::state`
+2026-10-28T09:51:06.8712490Z 
+2026-10-28T09:51:06.8712910Z error[E0425]: cannot find value `MAX_SIDEBAR` in module `crate::state`
+2026-10-28T09:51:06.8714510Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:405:59
+2026-10-28T09:51:06.8715220Z     |
+2026-10-28T09:51:06.8715620Z 405 |                 (crate::state::MIN_SIDEBAR, crate::state::MAX_SIDEBAR),
+2026-10-28T09:51:06.8716150Z     |                                                           ^^^^^^^^^^^ not found in `crate::state`
+2026-10-28T09:51:06.8716470Z 
+2026-10-28T09:51:06.8716670Z error[E0425]: cannot find value `MIN_PANE` in module `crate::state`
+2026-10-28T09:51:06.8717320Z    --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:417:32
+2026-10-28T09:51:06.8717770Z     |
+2026-10-28T09:51:06.8718090Z 417 |                 (crate::state::MIN_PANE, 1600.0),
+2026-10-28T09:51:06.8718380Z     |                                ^^^^^^^^ not found in `crate::state`
+2026-10-28T09:51:06.8718570Z 
+2026-10-28T09:51:06.8718730Z error[E0433]: cannot find module or crate `vieww_say_codegen` in this scope
+2026-10-28T09:51:06.8719630Z     --> /Users/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:1726:22
+2026-10-28T09:51:06.8720150Z      |
+2026-10-28T09:51:06.8720430Z 1726 |         let result = vieww_say_codegen::compile("home.say", HOME_SAY);
+2026-10-28T09:51:06.8720850Z      |                      ^^^^^^^^^^^^^^^^^ use of unresolved module or unlinked crate `vieww_say_codegen`
+2026-10-28T09:51:06.8721330Z      |
+2026-10-28T09:51:06.8721530Z      = help: you might be missing a crate named `vieww_say_codegen`
+2026-10-28T09:51:06.8721750Z 
+2026-10-28T09:51:06.8721830Z error: aborting due to 13 previous errors
+2026-10-28T09:51:06.8722050Z 
+2026-10-28T09:51:06.8722290Z Some errors have detailed explanations: E0425, E0433.
+2026-10-28T09:51:06.8722740Z For more information about an error, try `rustc --explain E0425`.
+2026-10-28T09:51:06.8723030Z 
+2026-10-28T09:51:06.8723140Z standalone: FAILED
+2026-10-28T09:51:06.8798490Z ##[error]Process completed with exit code 1.
+
+===== Studio suite (ubuntu-24.04)	The std-only modules with rustc alone =====
+﻿2026-10-28T09:53:00.5101967Z ##[group]Run bash apps/viewwstudio/ci/standalone.sh
+2026-10-28T09:53:00.5102403Z ^[[36;1mbash apps/viewwstudio/ci/standalone.sh^[[0m
+2026-10-28T09:53:00.5166460Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T09:53:00.5166878Z env:
+2026-10-28T09:53:00.5167105Z   CARGO_TERM_COLOR: always
+2026-10-28T09:53:00.5167382Z   RUST_BACKTRACE: 1
+2026-10-28T09:53:00.5167636Z   CARGO_PROFILE_DEV_DEBUG: 0
+2026-10-28T09:53:00.5167920Z   CARGO_INCREMENTAL: 0
+2026-10-28T09:53:00.5168172Z ##[endgroup]
+2026-10-28T09:53:00.5296510Z == each module alone ==
+2026-10-28T09:53:02.0966055Z json         test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-28T09:53:03.2484991Z task         test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s
+2026-10-28T09:53:03.7501798Z toolchains   test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+2026-10-28T09:53:04.4954889Z scaffold     DID NOT COMPILE
+2026-10-28T09:53:04.4967113Z error[E0433]: cannot find `livedoc` in the crate root
+2026-10-28T09:53:04.4968572Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:440:30
+2026-10-28T09:53:04.4970173Z     |
+2026-10-28T09:53:04.4970724Z 440 |         PathBuf::from(crate::livedoc::FILE),
+2026-10-28T09:53:04.4971635Z     |                              ^^^^^^^ could not find `livedoc` in the crate root
+2026-10-28T09:53:04.4972298Z 
+2026-10-28T09:53:04.4972518Z error[E0433]: cannot find `livedoc` in the crate root
+2026-10-28T09:53:04.4973341Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:441:16
+2026-10-28T09:53:04.4974095Z     |
+2026-10-28T09:53:04.4974434Z 441 |         crate::livedoc::TEMPLATE.to_string(),
+2026-10-28T09:53:04.4975106Z     |                ^^^^^^^ could not find `livedoc` in the crate root
+2026-10-28T09:53:04.4975484Z 
+2026-10-28T09:53:04.4975686Z error[E0433]: cannot find `harness` in the crate root
+2026-10-28T09:53:04.4976495Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:453:23
+2026-10-28T09:53:04.4977229Z     |
+2026-10-28T09:53:04.4977570Z 453 |     out.extend(crate::harness::files(name));
+2026-10-28T09:53:04.4978138Z     |                       ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:53:04.4978542Z 
+2026-10-28T09:53:04.4978753Z error[E0433]: cannot find `harness` in the crate root
+2026-10-28T09:53:04.4979578Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:584:22
+2026-10-28T09:53:04.4980259Z     |
+2026-10-28T09:53:04.4980483Z 584 |         lib = crate::harness::lib_name(name),
+2026-10-28T09:53:04.4980843Z     |                      ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:53:04.4981102Z 
+2026-10-28T09:53:04.4981235Z error[E0433]: cannot find `harness` in the crate root
+2026-10-28T09:53:04.4981757Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:616:22
+2026-10-28T09:53:04.4982252Z     |
+2026-10-28T09:53:04.4982468Z 616 |         lib = crate::harness::lib_name(name),
+2026-10-28T09:53:04.4982825Z     |                      ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:53:04.4983071Z 
+2026-10-28T09:53:04.4983205Z error[E0433]: cannot find `harness` in the crate root
+2026-10-28T09:53:04.4983730Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:732:22
+2026-10-28T09:53:04.4984210Z     |
+2026-10-28T09:53:04.4984420Z 732 |         lib = crate::harness::lib_name(name),
+2026-10-28T09:53:04.4985045Z     |                      ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:53:04.4985348Z 
+2026-10-28T09:53:04.4985564Z error[E0433]: cannot find module or crate `vieww_say_codegen` in this scope
+2026-10-28T09:53:04.4986186Z     --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:1726:22
+2026-10-28T09:53:04.4986931Z      |
+2026-10-28T09:53:04.4987222Z 1726 |         let result = vieww_say_codegen::compile("home.say", HOME_SAY);
+2026-10-28T09:53:04.4987731Z      |                      ^^^^^^^^^^^^^^^^^ use of unresolved module or unlinked crate `vieww_say_codegen`
+2026-10-28T09:53:04.4988138Z      |
+2026-10-28T09:53:04.4988405Z      = help: you might be missing a crate named `vieww_say_codegen`
+2026-10-28T09:53:04.4988673Z 
+2026-10-28T09:53:04.4988782Z error: aborting due to 7 previous errors
+2026-10-28T09:53:04.4988988Z 
+2026-10-28T09:53:04.4989176Z For more information about this error, try `rustc --explain E0433`.
+2026-10-28T09:53:04.7022885Z edit_ops     DID NOT COMPILE
+2026-10-28T09:53:04.7034912Z error[E0432]: unresolved import `crate::language`
+2026-10-28T09:53:04.7036179Z   --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/edit_ops.rs:33:12
+2026-10-28T09:53:04.7037137Z    |
+2026-10-28T09:53:04.7037526Z 33 | use crate::language::Language;
+2026-10-28T09:53:04.7038175Z    |            ^^^^^^^^ could not find `language` in the crate root
+2026-10-28T09:53:04.7038654Z 
+2026-10-28T09:53:04.7038861Z error: aborting due to 1 previous error
+2026-10-28T09:53:04.7039527Z 
+2026-10-28T09:53:04.7039775Z For more information about this error, try `rustc --explain E0432`.
+2026-10-28T09:53:04.9895914Z folding      test result: ok. 29 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-28T09:53:05.2943037Z picker       test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-28T09:53:05.5023952Z tokens       test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-28T09:53:05.6185653Z settings     DID NOT COMPILE
+2026-10-28T09:53:05.6198420Z error[E0433]: cannot find `theme` in the crate root
+2026-10-28T09:53:05.6199553Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:337:28
+2026-10-28T09:53:05.6200374Z     |
+2026-10-28T09:53:05.6200983Z 337 |             accent: crate::theme::accent_name(crate::theme::ACCENT).to_owned(),
+2026-10-28T09:53:05.6201781Z     |                            ^^^^^ could not find `theme` in the crate root
+2026-10-28T09:53:05.6202154Z 
+2026-10-28T09:53:05.6202344Z error[E0433]: cannot find `theme` in the crate root
+2026-10-28T09:53:05.6203085Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:337:54
+2026-10-28T09:53:05.6203763Z     |
+2026-10-28T09:53:05.6204190Z 337 |             accent: crate::theme::accent_name(crate::theme::ACCENT).to_owned(),
+2026-10-28T09:53:05.6205755Z     |                                                      ^^^^^ could not find `theme` in the crate root
+2026-10-28T09:53:05.6206316Z 
+2026-10-28T09:53:05.6206496Z error[E0433]: cannot find `state` in the crate root
+2026-10-28T09:53:05.6207236Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:405:25
+2026-10-28T09:53:05.6207915Z     |
+2026-10-28T09:53:05.6208305Z 405 |                 (crate::state::MIN_SIDEBAR, crate::state::MAX_SIDEBAR),
+2026-10-28T09:53:05.6208891Z     |                         ^^^^^ could not find `state` in the crate root
+2026-10-28T09:53:05.6209251Z 
+2026-10-28T09:53:05.6209432Z error[E0433]: cannot find `state` in the crate root
+2026-10-28T09:53:05.6210151Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:405:52
+2026-10-28T09:53:05.6210822Z     |
+2026-10-28T09:53:05.6211187Z 405 |                 (crate::state::MIN_SIDEBAR, crate::state::MAX_SIDEBAR),
+2026-10-28T09:53:05.6211622Z     |                                                    ^^^^^ could not find `state` in the crate root
+2026-10-28T09:53:05.6211906Z 
+2026-10-28T09:53:05.6212032Z error[E0433]: cannot find `state` in the crate root
+2026-10-28T09:53:05.6212560Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:417:25
+2026-10-28T09:53:05.6213064Z     |
+2026-10-28T09:53:05.6213585Z 417 |                 (crate::state::MIN_PANE, 1600.0),
+2026-10-28T09:53:05.6213965Z     |                         ^^^^^ could not find `state` in the crate root
+2026-10-28T09:53:05.6214222Z 
+2026-10-28T09:53:05.6214337Z error: aborting due to 5 previous errors
+2026-10-28T09:53:05.6214538Z 
+2026-10-28T09:53:05.6215073Z For more information about this error, try `rustc --explain E0433`.
+2026-10-28T09:53:05.7425224Z language     test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-28T09:53:05.7426166Z 
+2026-10-28T09:53:05.7426400Z == the modules that depend on each other ==
+2026-10-28T09:53:06.5104151Z harness      DID NOT COMPILE
+2026-10-28T09:53:06.5115345Z error[E0433]: cannot find `theme` in the crate root
+2026-10-28T09:53:06.5116609Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:337:28
+2026-10-28T09:53:06.5117725Z     |
+2026-10-28T09:53:06.5118430Z 337 |             accent: crate::theme::accent_name(crate::theme::ACCENT).to_owned(),
+2026-10-28T09:53:06.5119674Z     |                            ^^^^^ could not find `theme` in the crate root
+2026-10-28T09:53:06.5120462Z 
+2026-10-28T09:53:06.5121106Z error[E0433]: cannot find `theme` in the crate root
+2026-10-28T09:53:06.5121847Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:337:54
+2026-10-28T09:53:06.5122524Z     |
+2026-10-28T09:53:06.5122949Z 337 |             accent: crate::theme::accent_name(crate::theme::ACCENT).to_owned(),
+2026-10-28T09:53:06.5123630Z     |                                                      ^^^^^ could not find `theme` in the crate root
+2026-10-28T09:53:06.5124026Z 
+2026-10-28T09:53:06.5124213Z error[E0433]: cannot find `livedoc` in the crate root
+2026-10-28T09:53:06.5125335Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:440:30
+2026-10-28T09:53:06.5126012Z     |
+2026-10-28T09:53:06.5126317Z 440 |         PathBuf::from(crate::livedoc::FILE),
+2026-10-28T09:53:06.5126830Z     |                              ^^^^^^^ could not find `livedoc` in the crate root
+2026-10-28T09:53:06.5127195Z 
+2026-10-28T09:53:06.5127387Z error[E0433]: cannot find `livedoc` in the crate root
+2026-10-28T09:53:06.5128113Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:441:16
+2026-10-28T09:53:06.5128754Z     |
+2026-10-28T09:53:06.5128971Z 441 |         crate::livedoc::TEMPLATE.to_string(),
+2026-10-28T09:53:06.5129307Z     |                ^^^^^^^ could not find `livedoc` in the crate root
+2026-10-28T09:53:06.5129538Z 
+2026-10-28T09:53:06.5129673Z error[E0433]: cannot find `harness` in the crate root
+2026-10-28T09:53:06.5130166Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:453:23
+2026-10-28T09:53:06.5130624Z     |
+2026-10-28T09:53:06.5130838Z 453 |     out.extend(crate::harness::files(name));
+2026-10-28T09:53:06.5131184Z     |                       ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:53:06.5131433Z 
+2026-10-28T09:53:06.5131563Z error[E0433]: cannot find `harness` in the crate root
+2026-10-28T09:53:06.5132055Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:584:22
+2026-10-28T09:53:06.5132521Z     |
+2026-10-28T09:53:06.5132734Z 584 |         lib = crate::harness::lib_name(name),
+2026-10-28T09:53:06.5133089Z     |                      ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:53:06.5133336Z 
+2026-10-28T09:53:06.5133463Z error[E0433]: cannot find `harness` in the crate root
+2026-10-28T09:53:06.5133967Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:616:22
+2026-10-28T09:53:06.5134428Z     |
+2026-10-28T09:53:06.5134847Z 616 |         lib = crate::harness::lib_name(name),
+2026-10-28T09:53:06.5135205Z     |                      ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:53:06.5135466Z 
+2026-10-28T09:53:06.5135779Z error[E0433]: cannot find `harness` in the crate root
+2026-10-28T09:53:06.5136302Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:732:22
+2026-10-28T09:53:06.5136791Z     |
+2026-10-28T09:53:06.5137003Z 732 |         lib = crate::harness::lib_name(name),
+2026-10-28T09:53:06.5137370Z     |                      ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:53:06.5137611Z 
+2026-10-28T09:53:06.5137733Z error[E0433]: cannot find `harness` in the crate root
+2026-10-28T09:53:06.5138222Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/builds.rs:277:39
+2026-10-28T09:53:06.5138668Z     |
+2026-10-28T09:53:06.5139002Z 277 |             .unwrap_or_else(|| crate::harness::lib_name("app").replace('_', "-"));
+2026-10-28T09:53:06.5139470Z     |                                       ^^^^^^^ could not find `harness` in the crate root
+2026-10-28T09:53:06.5139727Z 
+2026-10-28T09:53:06.5139911Z error[E0425]: cannot find value `MIN_SIDEBAR` in module `crate::state`
+2026-10-28T09:53:06.5140493Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:405:32
+2026-10-28T09:53:06.5141095Z     |
+2026-10-28T09:53:06.5141352Z 405 |                 (crate::state::MIN_SIDEBAR, crate::state::MAX_SIDEBAR),
+2026-10-28T09:53:06.5141738Z     |                                ^^^^^^^^^^^ not found in `crate::state`
+2026-10-28T09:53:06.5141969Z 
+2026-10-28T09:53:06.5142168Z error[E0425]: cannot find value `MAX_SIDEBAR` in module `crate::state`
+2026-10-28T09:53:06.5142713Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:405:59
+2026-10-28T09:53:06.5143160Z     |
+2026-10-28T09:53:06.5143408Z 405 |                 (crate::state::MIN_SIDEBAR, crate::state::MAX_SIDEBAR),
+2026-10-28T09:53:06.5143811Z     |                                                           ^^^^^^^^^^^ not found in `crate::state`
+2026-10-28T09:53:06.5144069Z 
+2026-10-28T09:53:06.5144238Z error[E0425]: cannot find value `MIN_PANE` in module `crate::state`
+2026-10-28T09:53:06.5145017Z    --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/settings.rs:417:32
+2026-10-28T09:53:06.5145478Z     |
+2026-10-28T09:53:06.5145689Z 417 |                 (crate::state::MIN_PANE, 1600.0),
+2026-10-28T09:53:06.5146019Z     |                                ^^^^^^^^ not found in `crate::state`
+2026-10-28T09:53:06.5146239Z 
+2026-10-28T09:53:06.5146435Z error[E0433]: cannot find module or crate `vieww_say_codegen` in this scope
+2026-10-28T09:53:06.5147003Z     --> /home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio/ci/../src/scaffold.rs:1726:22
+2026-10-28T09:53:06.5147483Z      |
+2026-10-28T09:53:06.5147761Z 1726 |         let result = vieww_say_codegen::compile("home.say", HOME_SAY);
+2026-10-28T09:53:06.5148504Z      |                      ^^^^^^^^^^^^^^^^^ use of unresolved module or unlinked crate `vieww_say_codegen`
+2026-10-28T09:53:06.5148901Z      |
+2026-10-28T09:53:06.5149171Z      = help: you might be missing a crate named `vieww_say_codegen`
+2026-10-28T09:53:06.5149422Z 
+2026-10-28T09:53:06.5149533Z error: aborting due to 13 previous errors
+2026-10-28T09:53:06.5149722Z 
+2026-10-28T09:53:06.5149861Z Some errors have detailed explanations: E0425, E0433.
+2026-10-28T09:53:06.5150248Z For more information about an error, try `rustc --explain E0425`.
+2026-10-28T09:53:06.5150524Z 
+2026-10-28T09:53:06.5150606Z standalone: FAILED
+2026-10-28T09:53:06.5228698Z ##[error]Process completed with exit code 1.
+

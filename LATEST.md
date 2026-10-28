@@ -2,6 +2,7 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
+| 2026-10-28T09:53:31Z | studio/main | FAILURE | `38a389d52a03` | [summary](studio/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40666748935) |
 | 2026-10-28T04:33:22Z | audio-ci/main | SUCCESS | `f00f19e8ffc3` | [summary](audio-ci/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40629123782) |
 | 2026-10-28T04:20:33Z | framework-checks/main | SUCCESS | `f00f19e8ffc3` | [summary](framework-checks/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40629149186) |
 | 2026-10-28T04:06:40Z | pr-quick/main | SUCCESS | `f00f19e8ffc3` | [summary](pr-quick/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40629175463) |
