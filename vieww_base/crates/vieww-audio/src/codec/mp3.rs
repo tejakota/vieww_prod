@@ -931,84 +931,94 @@ fn xing(frame: &[u8], h: &Header) -> Option<Gapless> {
     Some(g)
 }
 
-/// Decode an MP3 stream.
-///
-/// # Errors
-/// [`CodecError::NotThisFormat`] when no Layer III frame is found.
-#[expect(clippy::too_many_lines, reason = "the frame loop, top to bottom")]
-pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
-    let mut at = 0;
-    if bytes.starts_with(b"ID3") && bytes.len() >= 10 {
-        let size = (usize::from(bytes[6] & 0x7F) << 21)
-            | (usize::from(bytes[7] & 0x7F) << 14)
-            | (usize::from(bytes[8] & 0x7F) << 7)
-            | usize::from(bytes[9] & 0x7F);
-        at = 10 + size + if bytes[5] & 0x10 != 0 { 10 } else { 0 };
-    }
-    // First frame: a header whose successor also parses.
-    let mut first = None;
-    while at + 4 <= bytes.len() {
-        if let Some(h) = header(&bytes[at..]) {
-            let next = at + h.len;
-            if next + 4 > bytes.len() || header(&bytes[next..]).is_some() {
-                first = Some(h);
-                break;
-            }
+/// What one step of the frame loop did.
+pub(crate) enum Step {
+    /// No frame here: advance this many bytes.
+    Skip(usize),
+    /// A frame: `used` bytes, and its samples (silence for a frame whose
+    /// bit reservoir is not there yet, so the timeline stays aligned).
+    Frame { used: usize, pcm: Vec<f32> },
+    /// The stream ends (a frame cut short).
+    End,
+}
+
+/// The MP3 frame loop's state: shared by [`decode`] and the streaming
+/// decoder (AU-05), so the two cannot drift apart.
+pub(crate) struct Mp3Core {
+    fh: Header,
+    nch: usize,
+    reservoir: Vec<u8>,
+    overlap: [[f32; 576]; 2],
+    synth: [Synth; 2],
+    prev_scf: [Scf; 2],
+    /// Frames decoded (each produced samples).
+    pub(crate) frames: u32,
+}
+
+impl Mp3Core {
+    fn new(fh: Header) -> Self {
+        Self {
+            fh,
+            nch: fh.channels,
+            reservoir: Vec::new(),
+            overlap: [[0f32; 576]; 2],
+            synth: [Synth::new(), Synth::new()],
+            prev_scf: [Scf::default(); 2],
+            frames: 0,
         }
-        at += 1;
     }
-    let fh = first.ok_or(CodecError::NotThisFormat)?;
-    let nch = fh.channels;
-    let mut gap = Gapless::default();
-    if let Some(g) = xing(&bytes[at..(at + fh.len).min(bytes.len())], &fh) {
-        gap = g;
-        at += fh.len;
+
+    /// Forget everything carried between frames (after a seek).
+    fn reset(&mut self) {
+        let frames = self.frames;
+        *self = Self::new(self.fh);
+        self.frames = frames;
     }
-    let mut pcm: Vec<f32> = Vec::new();
-    let mut reservoir: Vec<u8> = Vec::new();
-    let mut overlap = [[0f32; 576]; 2];
-    let mut synth = [Synth::new(), Synth::new()];
-    let mut prev_scf = [Scf::default(); 2];
-    let mut frames = 0u32;
-    while at + 4 <= bytes.len() {
-        let Some(h) = header(&bytes[at..]) else {
-            at += 1;
-            continue;
+
+    /// One step over `bytes`, the stream from the current position (at
+    /// least one whole frame of it, or the rest of the stream).
+    pub(crate) fn step(&mut self, bytes: &[u8]) -> Step {
+        if bytes.len() < 4 {
+            return Step::End;
+        }
+        let nch = self.nch;
+        let Some(h) = header(bytes) else {
+            return Step::Skip(1);
         };
-        if h.channels != nch || h.rate != fh.rate {
-            at += 1;
-            continue;
+        if h.channels != nch || h.rate != self.fh.rate {
+            return Step::Skip(1);
         }
-        let end = (at + h.len).min(bytes.len());
-        let frame = &bytes[at..end];
+        let end = h.len.min(bytes.len());
+        let frame = &bytes[..end];
         let hdr_len = 4 + if h.crc { 2 } else { 0 };
         if frame.len() < hdr_len + h.side_len() {
-            break;
+            return Step::End;
         }
         let mut sr = MsbReader::new(&frame[hdr_len..hdr_len + h.side_len()]);
         let Some(side) = side_info(&mut sr, &h) else {
-            at = end;
-            continue;
+            return Step::Skip(end);
         };
         let main = &frame[hdr_len + h.side_len()..];
-        let enough = reservoir.len() >= side.main_data_begin;
-        let start = reservoir.len().saturating_sub(side.main_data_begin);
-        let mut buf = reservoir[start..].to_vec();
+        let enough = self.reservoir.len() >= side.main_data_begin;
+        let start = self.reservoir.len().saturating_sub(side.main_data_begin);
+        let mut buf = self.reservoir[start..].to_vec();
         buf.extend_from_slice(main);
-        reservoir.extend_from_slice(main);
-        if reservoir.len() > 4096 {
-            let cut = reservoir.len() - 2048;
-            reservoir.drain(..cut);
+        self.reservoir.extend_from_slice(main);
+        if self.reservoir.len() > 4096 {
+            let cut = self.reservoir.len() - 2048;
+            self.reservoir.drain(..cut);
         }
-        at = end;
-        frames += 1;
+        self.frames += 1;
         let ngr = if h.mpeg1 { 2 } else { 1 };
         if !enough {
             // The first frames after a cut cannot be decoded: emit silence
             // so the timeline stays aligned.
-            pcm.extend(std::iter::repeat_n(0.0, h.samples() * nch));
-            continue;
+            return Step::Frame {
+                used: end,
+                pcm: vec![0.0; h.samples() * nch],
+            };
         }
+        let mut pcm = Vec::with_capacity(h.samples() * nch);
         let mut r = MsbReader::new(&buf);
         for gi in 0..ngr {
             let mut xr = [[0f32; 576]; 2];
@@ -1021,7 +1031,7 @@ pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
                 let part_start = r.position();
                 let part_end = part_start + g.part2_3;
                 let sf = if h.mpeg1 {
-                    read_scf_mpeg1(&mut r, &g, &side.scfsi[ch], gi, &prev_scf[ch])
+                    read_scf_mpeg1(&mut r, &g, &side.scfsi[ch], gi, &self.prev_scf[ch])
                 } else {
                     let ir = ch == 1 && h.mode == 1 && h.mode_ext & 1 != 0;
                     read_scf_lsf(&mut r, &g, ir).map(|(s, il, is, pre)| {
@@ -1039,7 +1049,7 @@ pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
                 requantise(&is, &g, &sf, h.sr_idx, h.mpeg1, &mut xr[ch]);
                 raw[ch] = is;
                 scfs[ch] = sf;
-                prev_scf[ch] = sf;
+                self.prev_scf[ch] = sf;
             }
             if nch == 2 {
                 let g = side.gr[gi][1];
@@ -1053,14 +1063,14 @@ pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
                 let g = side.gr[gi][ch];
                 reorder(&g, h.sr_idx, h.mpeg1, &mut xr[ch]);
                 antialias(&g, &mut xr[ch]);
-                hybrid(&g, &mut xr[ch], &mut overlap[ch]);
+                hybrid(&g, &mut xr[ch], &mut self.overlap[ch]);
                 for t in 0..18 {
                     let mut s = [0f32; 32];
                     for (sb, v) in s.iter_mut().enumerate() {
                         *v = xr[ch][sb * 18 + t];
                     }
                     let mut o = [0f32; 32];
-                    synth[ch].run(&s, &mut o);
+                    self.synth[ch].run(&s, &mut o);
                     for (j, v) in o.iter().enumerate() {
                         granule_pcm[(t * 32 + j) * nch + ch] = *v;
                     }
@@ -1068,10 +1078,91 @@ pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
             }
             pcm.extend_from_slice(&granule_pcm);
         }
+        Step::Frame { used: end, pcm }
     }
+
+    /// Whether `bytes` starts a frame this stream decodes and that would
+    /// produce samples (what [`Self::step`] counts in `frames`), and its
+    /// length: the seek index walks with this, without decoding.
+    fn frame_len(&self, bytes: &[u8]) -> Result<usize, usize> {
+        let Some(h) = header(bytes) else {
+            return Err(1);
+        };
+        if h.channels != self.nch || h.rate != self.fh.rate {
+            return Err(1);
+        }
+        let end = h.len.min(bytes.len());
+        let hdr_len = 4 + if h.crc { 2 } else { 0 };
+        if end < hdr_len + h.side_len() {
+            return Err(0);
+        }
+        let mut sr = MsbReader::new(&bytes[hdr_len..hdr_len + h.side_len()]);
+        if side_info(&mut sr, &h).is_some() {
+            Ok(end)
+        } else {
+            Err(end)
+        }
+    }
+}
+
+/// Where the audio starts and the first frame's header: past any ID3v2 tag,
+/// the first header whose successor also parses, and past a LAME/Xing frame
+/// (whose gapless figures come back too).
+fn locate(bytes: &[u8]) -> Result<(usize, Header, Gapless), CodecError> {
+    let mut at = 0;
+    if bytes.starts_with(b"ID3") && bytes.len() >= 10 {
+        let size = (usize::from(bytes[6] & 0x7F) << 21)
+            | (usize::from(bytes[7] & 0x7F) << 14)
+            | (usize::from(bytes[8] & 0x7F) << 7)
+            | usize::from(bytes[9] & 0x7F);
+        at = 10 + size + if bytes[5] & 0x10 != 0 { 10 } else { 0 };
+    }
+    let mut first = None;
+    while at + 4 <= bytes.len() {
+        if let Some(h) = header(&bytes[at..]) {
+            let next = at + h.len;
+            if next + 4 > bytes.len() || header(&bytes[next..]).is_some() {
+                first = Some(h);
+                break;
+            }
+        }
+        at += 1;
+    }
+    let fh = first.ok_or(CodecError::NotThisFormat)?;
+    let mut gap = Gapless::default();
+    if let Some(g) = xing(&bytes[at..(at + fh.len).min(bytes.len())], &fh) {
+        gap = g;
+        at += fh.len;
+    }
+    Ok((at, fh, gap))
+}
+
+/// The LAME decoder delay the gapless figures are relative to.
+const DECODER_DELAY: usize = 529;
+
+/// Decode an MP3 stream.
+///
+/// # Errors
+/// [`CodecError::NotThisFormat`] when no Layer III frame is found.
+pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
+    let (mut at, fh, gap) = locate(bytes)?;
+    let nch = fh.channels;
+    let mut pcm: Vec<f32> = Vec::new();
+    let mut core = Mp3Core::new(fh);
+    while at < bytes.len() {
+        match core.step(&bytes[at..]) {
+            Step::Skip(n) => at += n,
+            Step::Frame { used, pcm: frame } => {
+                at += used;
+                pcm.extend_from_slice(&frame);
+            }
+            Step::End => break,
+        }
+    }
+    let frames = core.frames;
     // Gapless trimming.
     let spf = fh.samples();
-    let decoder_delay = 529;
+    let decoder_delay = DECODER_DELAY;
     let mut start = 0;
     let mut total = pcm.len() / nch;
     if gap.delay > 0 || gap.padding > 0 {
@@ -1087,6 +1178,138 @@ pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
         rate: fh.rate,
     }
     .validated()
+}
+
+// ── streaming (AU-05) ────────────────────────────────────────────────────
+
+/// Frames decoded before a seek target, so the bit reservoir (up to 511
+/// bytes back, five frames at 32 kb/s) and the filterbank state are what
+/// a decode from the start would have there.
+const PREROLL: u64 = 10;
+/// One seek-index entry every this many frames.
+const INDEX_EVERY: u64 = 16;
+
+/// MP3 a frame at a time, for [`super::stream`].
+pub(crate) struct Mp3Source {
+    core: Mp3Core,
+    gap: Gapless,
+    /// The first audio frame's offset.
+    first: u64,
+    at: u64,
+    /// `(offset, frame number)` every [`INDEX_EVERY`] frames, as far as
+    /// the stream has been read or walked.
+    index: Vec<(u64, u64)>,
+}
+
+impl Mp3Source {
+    pub(crate) fn open(input: &mut super::stream::Input) -> Result<Self, CodecError> {
+        // The ID3v2 tag's size is in its header; read enough to step over
+        // it and find the first frames.
+        let head = input.window(0, 10)?.to_vec();
+        let tag = if head.starts_with(b"ID3") && head.len() >= 10 {
+            10 + ((usize::from(head[6] & 0x7F) << 21)
+                | (usize::from(head[7] & 0x7F) << 14)
+                | (usize::from(head[8] & 0x7F) << 7)
+                | usize::from(head[9] & 0x7F))
+                + if head[5] & 0x10 != 0 { 10 } else { 0 }
+        } else {
+            0
+        };
+        let bytes = input.window(0, tag + (64 << 10))?.to_vec();
+        let (at, fh, gap) = locate(&bytes)?;
+        Ok(Self {
+            core: Mp3Core::new(fh),
+            gap,
+            first: at as u64,
+            at: at as u64,
+            index: vec![(at as u64, 0)],
+        })
+    }
+
+    fn spf(&self) -> u64 {
+        self.core.fh.samples() as u64
+    }
+}
+
+/// Bytes enough for one frame (2881 at most) and the next header.
+const FRAME_WINDOW: usize = 4096;
+
+impl super::stream::FrameSource for Mp3Source {
+    fn channels(&self) -> usize {
+        self.core.nch
+    }
+
+    fn rate(&self) -> u32 {
+        self.core.fh.rate
+    }
+
+    fn trim(&self) -> (u64, Option<u64>) {
+        if self.gap.delay > 0 || self.gap.padding > 0 {
+            let total = self.gap.frames.map(|f| {
+                (u64::from(f) * self.spf())
+                    .saturating_sub((self.gap.delay + self.gap.padding) as u64)
+            });
+            ((self.gap.delay + DECODER_DELAY) as u64, total)
+        } else {
+            (0, None)
+        }
+    }
+
+    fn next(
+        &mut self,
+        input: &mut super::stream::Input,
+    ) -> Result<Option<super::stream::Chunk>, CodecError> {
+        loop {
+            let frame_no = u64::from(self.core.frames);
+            let w = input.window(self.at, FRAME_WINDOW)?;
+            match self.core.step(w) {
+                Step::Skip(n) => self.at += n as u64,
+                Step::End => return Ok(None),
+                Step::Frame { used, pcm } => {
+                    if frame_no % INDEX_EVERY == 0
+                        && self.index.last().is_none_or(|l| l.1 < frame_no)
+                    {
+                        self.index.push((self.at, frame_no));
+                    }
+                    self.at += used as u64;
+                    return Ok(Some(super::stream::Chunk { pcm }));
+                }
+            }
+        }
+    }
+
+    fn seek(&mut self, input: &mut super::stream::Input, frame: u64) -> Result<u64, CodecError> {
+        let want = (frame / self.spf()).saturating_sub(PREROLL);
+        // From the last indexed frame at or before `want`, walk headers
+        // (no decoding) to it, extending the index on the way.
+        let &(mut pos, mut n) = self
+            .index
+            .iter()
+            .rev()
+            .find(|(_, f)| *f <= want)
+            .unwrap_or(&(self.first, 0));
+        while n < want {
+            let w = input.window(pos, FRAME_WINDOW)?;
+            if w.len() < 4 {
+                break;
+            }
+            match self.core.frame_len(w) {
+                Ok(len) => {
+                    pos += len as u64;
+                    n += 1;
+                    if n % INDEX_EVERY == 0 && self.index.last().is_none_or(|l| l.1 < n) {
+                        self.index.push((pos, n));
+                    }
+                }
+                Err(0) => break,
+                Err(skip) => pos += skip as u64,
+            }
+        }
+        self.core.reset();
+        self.core.frames = u32::try_from(n).unwrap_or(u32::MAX);
+        self.at = pos;
+        Ok(n * self.spf())
+    }
 }
 
 #[cfg(test)]

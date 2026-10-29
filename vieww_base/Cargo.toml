@@ -340,6 +340,20 @@ lto = "fat"
 debug = false
 strip = "symbols"
 
+# `dist` with line tables kept, for a release whose crashes must be readable
+# (FW-12). The code is `dist`'s: debug info does not change codegen. Build
+# with this, then `ci/release/symbols.sh BINARY SYMBOLS_DIR` keeps the debug
+# info as `<build-id>.debug` and strips the binary to what `dist` ships; a
+# crash report's raw frames (`vieww_foundation::crash::raw_frames`) name the
+# build id and offsets that `ci/release/symbolize.py` decodes against it.
+[profile.dist-symbols]
+inherits = "dist"
+debug = "line-tables-only"
+strip = "none"
+
+[profile.dist-symbols.package."*"]
+opt-level = "s"
+
 # Third-party code — winit, the AT-SPI stack, font parsing and shaping, zbus —
 # is start-up and event work, not per-pixel work; "s" is ~14% of the binary
 # for no measured frame cost. Workspace crates keep the release opt-level.

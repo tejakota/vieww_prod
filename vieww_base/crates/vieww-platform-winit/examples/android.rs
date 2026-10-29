@@ -122,6 +122,7 @@ mod demo {
             backtrace: String::new(),
             unix_millis: 0,
             context: Vec::new(),
+            frames: Vec::new(),
         });
 
         let mine: Vec<_> = FileSink::pending(dir)

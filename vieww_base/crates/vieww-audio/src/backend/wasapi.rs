@@ -171,6 +171,8 @@ struct DeviceEnumeratorVtbl {
     enum_audio_endpoints: unsafe extern "system" fn(This, i32, u32, *mut *mut c_void) -> Hresult,
     get_default_audio_endpoint: unsafe extern "system" fn(This, i32, i32, *mut This) -> Hresult,
     get_device: unsafe extern "system" fn(This, *const u16, *mut This) -> Hresult,
+    register_endpoint_notification_callback: unsafe extern "system" fn(This, This) -> Hresult,
+    unregister_endpoint_notification_callback: unsafe extern "system" fn(This, This) -> Hresult,
 }
 
 /// `IMMDevice`, in declaration order.
@@ -255,6 +257,41 @@ struct AudioClientVtbl {
     set_event_handle: unsafe extern "system" fn(This, *mut c_void) -> Hresult,
     get_service: unsafe extern "system" fn(This, *const Guid, *mut This) -> Hresult,
 }
+
+/// `IAudioClient3` (Windows 10+): `IAudioClient`, then `IAudioClient2`'s
+/// three methods, then its own three (AU-10).
+#[repr(C)]
+struct AudioClient3Vtbl {
+    base: AudioClientVtbl,
+    is_offload_capable: unsafe extern "system" fn(This, i32, *mut i32) -> Hresult,
+    set_client_properties: unsafe extern "system" fn(This, *const c_void) -> Hresult,
+    get_buffer_size_limits:
+        unsafe extern "system" fn(This, *const c_void, i32, *mut i64, *mut i64) -> Hresult,
+    get_shared_mode_engine_period: unsafe extern "system" fn(
+        This,
+        *const c_void,
+        *mut u32,
+        *mut u32,
+        *mut u32,
+        *mut u32,
+    ) -> Hresult,
+    get_current_shared_mode_engine_period:
+        unsafe extern "system" fn(This, *mut *mut c_void, *mut u32) -> Hresult,
+    initialize_shared_audio_stream:
+        unsafe extern "system" fn(This, u32, u32, *const c_void, *const Guid) -> Hresult,
+}
+
+const IID_IAUDIO_CLIENT3: Guid = Guid(
+    0x7ed4_ee07,
+    0x8e67,
+    0x4cd4,
+    [0x8c, 0x1a, 0x2b, 0x7a, 0x59, 0x87, 0xad, 0x42],
+);
+
+/// `KSDATAFORMAT_SUBTYPE_IEEE_FLOAT`'s first field (the rest is the shared
+/// tail, `GUID_TAIL` in wav.rs).
+const SUBTYPE_IEEE_FLOAT: u32 = 3;
+const WAVE_FORMAT_IEEE_FLOAT: u16 = 3;
 
 #[repr(C)]
 struct RenderClientVtbl {
@@ -552,6 +589,286 @@ fn list_devices() -> Result<Vec<DeviceInfo>, BackendError> {
     }
 }
 
+/// The engine's mix format, as far as low-latency shared mode needs it:
+/// 32-bit float, its channel count and rate.
+fn mix_is_float(fmt: *const u8) -> Option<(u16, u32)> {
+    // SAFETY: a WAVEFORMATEX from GetMixFormat: 18 bytes, plus 22 more when
+    // the tag says EXTENSIBLE.
+    unsafe {
+        let tag = u16::from_le_bytes([*fmt, *fmt.add(1)]);
+        let channels = u16::from_le_bytes([*fmt.add(2), *fmt.add(3)]);
+        let rate = u32::from_le_bytes([*fmt.add(4), *fmt.add(5), *fmt.add(6), *fmt.add(7)]);
+        let bits = u16::from_le_bytes([*fmt.add(14), *fmt.add(15)]);
+        let float = match tag {
+            WAVE_FORMAT_IEEE_FLOAT => true,
+            WAVE_FORMAT_EXTENSIBLE => {
+                u32::from_le_bytes([*fmt.add(24), *fmt.add(25), *fmt.add(26), *fmt.add(27)])
+                    == SUBTYPE_IEEE_FLOAT
+            }
+            _ => false,
+        };
+        (float && bits == 32).then_some((channels, rate))
+    }
+}
+
+/// Low-latency shared mode (AU-10): `IAudioClient3`, the engine's own
+/// format (no auto-conversion), its minimum period. `Some(rate)` when the
+/// stream was initialised this way; `None` to fall back to `IAudioClient`.
+///
+/// # Safety
+/// `c` is a fresh, uninitialised `IAudioClient`.
+unsafe fn init_low_latency_shared(c: This, ch: u16, block: u32) -> Option<u32> {
+    // SAFETY: the caller's contract; every pointer checked, the mix format
+    // freed with CoTaskMemFree, the extra interface reference released.
+    unsafe {
+        let mut c3 = null_mut();
+        if (vt!(c, UnknownVtbl).query_interface)(c, &IID_IAUDIO_CLIENT3, &raw mut c3) < 0
+            || c3.is_null()
+        {
+            return None; // before Windows 10
+        }
+        let c3 = Com(c3);
+        let mut mix = null_mut();
+        if (vt!(c, AudioClientVtbl).get_mix_format)(c, &raw mut mix) < 0 || mix.is_null() {
+            return None;
+        }
+        let result = (|| {
+            let (mix_ch, mix_rate) = mix_is_float(mix.cast::<u8>())?;
+            if mix_ch != ch {
+                return None; // the shared engine's channels, exactly, or not at all
+            }
+            let (mut default, mut fundamental, mut min, mut max) = (0u32, 0u32, 0u32, 0u32);
+            if (vt!(c3.0, AudioClient3Vtbl).get_shared_mode_engine_period)(
+                c3.0,
+                mix,
+                &raw mut default,
+                &raw mut fundamental,
+                &raw mut min,
+                &raw mut max,
+            ) < 0
+                || min == 0
+            {
+                return None;
+            }
+            // Only worth it when the app asked for blocks no longer than
+            // the default period: a large block gains nothing from a short
+            // engine period.
+            if block > default {
+                return None;
+            }
+            let hr = (vt!(c3.0, AudioClient3Vtbl).initialize_shared_audio_stream)(
+                c3.0,
+                STREAMFLAGS_EVENTCALLBACK,
+                min,
+                mix,
+                std::ptr::null(),
+            );
+            (hr >= 0).then_some(mix_rate)
+        })();
+        CoTaskMemFree(mix);
+        result
+    }
+}
+
+// ── route notifications (AU-09) ─────────────────────────────────────────
+
+/// `IMMNotificationClient`, in declaration order. `PROPERTYKEY` is passed
+/// by value in the IDL; on x64 and arm64 a 20-byte struct travels by
+/// reference, which is how it is declared here (32-bit x86, where it would
+/// be on the stack, is not a target).
+#[repr(C)]
+struct NotificationClientVtbl {
+    unknown: UnknownVtbl,
+    on_device_state_changed: unsafe extern "system" fn(This, *const u16, u32) -> Hresult,
+    on_device_added: unsafe extern "system" fn(This, *const u16) -> Hresult,
+    on_device_removed: unsafe extern "system" fn(This, *const u16) -> Hresult,
+    on_default_device_changed: unsafe extern "system" fn(This, i32, i32, *const u16) -> Hresult,
+    on_property_value_changed:
+        unsafe extern "system" fn(This, *const u16, *const PropertyKey) -> Hresult,
+}
+
+const IID_IUNKNOWN: Guid = Guid(0, 0, 0, [0xc0, 0, 0, 0, 0, 0, 0, 0x46]);
+const IID_IMM_NOTIFICATION_CLIENT: Guid = Guid(
+    0x7991_eec9,
+    0x7e89,
+    0x4d85,
+    [0x83, 0x90, 0x6c, 0x70, 0x3c, 0xec, 0x60, 0xc0],
+);
+const E_NOINTERFACE: Hresult = 0x8000_4002_u32.cast_signed();
+
+/// The COM object: a vtable pointer first, as COM requires.
+#[repr(C)]
+struct NotificationClient {
+    vtbl: *const NotificationClientVtbl,
+    refs: std::sync::atomic::AtomicU32,
+    wake: super::RouteWake,
+}
+
+fn same_guid(a: &Guid, b: &Guid) -> bool {
+    a.0 == b.0 && a.1 == b.1 && a.2 == b.2 && a.3 == b.3
+}
+
+unsafe extern "system" fn nc_query_interface(
+    this: This,
+    iid: *const Guid,
+    out: *mut *mut c_void,
+) -> Hresult {
+    // SAFETY: COM passes a valid IID and out-pointer.
+    unsafe {
+        if out.is_null() {
+            return E_NOINTERFACE;
+        }
+        if same_guid(&*iid, &IID_IUNKNOWN) || same_guid(&*iid, &IID_IMM_NOTIFICATION_CLIENT) {
+            nc_add_ref(this);
+            *out = this;
+            0
+        } else {
+            *out = null_mut();
+            E_NOINTERFACE
+        }
+    }
+}
+
+unsafe extern "system" fn nc_add_ref(this: This) -> u32 {
+    // SAFETY: `this` is a live NotificationClient.
+    let c = unsafe { &*this.cast::<NotificationClient>() };
+    c.refs.fetch_add(1, std::sync::atomic::Ordering::AcqRel) + 1
+}
+
+unsafe extern "system" fn nc_release(this: This) -> u32 {
+    // SAFETY: `this` is a live NotificationClient, freed at zero.
+    let left = unsafe { &*this.cast::<NotificationClient>() }
+        .refs
+        .fetch_sub(1, std::sync::atomic::Ordering::AcqRel)
+        - 1;
+    if left == 0 {
+        // SAFETY: the last reference; it was a Box.
+        drop(unsafe { Box::from_raw(this.cast::<NotificationClient>()) });
+    }
+    left
+}
+
+fn nc_wake(this: This) {
+    // SAFETY: `this` is a live NotificationClient while COM calls it.
+    let c = unsafe { &*this.cast::<NotificationClient>() };
+    // Never unwind into the MMDevice notification thread.
+    let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| (c.wake)()));
+}
+
+unsafe extern "system" fn nc_state_changed(this: This, _id: *const u16, _state: u32) -> Hresult {
+    nc_wake(this);
+    0
+}
+
+unsafe extern "system" fn nc_added(this: This, _id: *const u16) -> Hresult {
+    nc_wake(this);
+    0
+}
+
+unsafe extern "system" fn nc_removed(this: This, _id: *const u16) -> Hresult {
+    nc_wake(this);
+    0
+}
+
+unsafe extern "system" fn nc_default_changed(
+    this: This,
+    flow: i32,
+    role: i32,
+    _id: *const u16,
+) -> Hresult {
+    // The console render default is what `default_endpoint_id` follows.
+    if flow == E_RENDER && role == E_CONSOLE {
+        nc_wake(this);
+    }
+    0
+}
+
+unsafe extern "system" fn nc_property_changed(
+    _this: This,
+    _id: *const u16,
+    _key: *const PropertyKey,
+) -> Hresult {
+    0
+}
+
+static NOTIFICATION_CLIENT_VTBL: NotificationClientVtbl = NotificationClientVtbl {
+    unknown: UnknownVtbl {
+        query_interface: nc_query_interface,
+        add_ref: nc_add_ref,
+        release: nc_release,
+    },
+    on_device_state_changed: nc_state_changed,
+    on_device_added: nc_added,
+    on_device_removed: nc_removed,
+    on_default_device_changed: nc_default_changed,
+    on_property_value_changed: nc_property_changed,
+};
+
+/// The subscription: a thread in the multithreaded apartment that holds
+/// the enumerator and the registered client, and unregisters when this is
+/// dropped (its channel closes). On a thread of its own because the caller
+/// may be a single-threaded apartment (winit's UI thread is), from which
+/// the enumerator could not be used again on the supervisor thread.
+struct Watch {
+    _stop: std::sync::mpsc::Sender<()>,
+}
+
+fn watch(wake: super::RouteWake) -> Option<Watch> {
+    let (ready_tx, ready_rx) = std::sync::mpsc::channel::<bool>();
+    let (stop_tx, stop_rx) = std::sync::mpsc::channel::<()>();
+    std::thread::Builder::new()
+        .name("vieww-audio-routes".into())
+        .spawn(move || {
+            // SAFETY: COM entered and left on this thread; every pointer
+            // checked; the client is a Box COM releases through `nc_release`.
+            unsafe {
+                let hr = CoInitializeEx(null_mut(), COINIT_MULTITHREADED);
+                if hr < 0 {
+                    let _ = ready_tx.send(false);
+                    return;
+                }
+                let mut e = null_mut();
+                if CoCreateInstance(
+                    &CLSID_MM_DEVICE_ENUMERATOR,
+                    null_mut(),
+                    CLSCTX_ALL,
+                    &IID_IMM_DEVICE_ENUMERATOR,
+                    &raw mut e,
+                ) < 0
+                {
+                    let _ = ready_tx.send(false);
+                    CoUninitialize();
+                    return;
+                }
+                let enumerator = Com(e);
+                let client: This = Box::into_raw(Box::new(NotificationClient {
+                    vtbl: &raw const NOTIFICATION_CLIENT_VTBL,
+                    refs: std::sync::atomic::AtomicU32::new(1),
+                    wake,
+                }))
+                .cast();
+                let registered = (vt!(enumerator.0, DeviceEnumeratorVtbl)
+                    .register_endpoint_notification_callback)(
+                    enumerator.0, client
+                ) >= 0;
+                let _ = ready_tx.send(registered);
+                if registered {
+                    // Until the guard is dropped.
+                    let _ = stop_rx.recv();
+                    (vt!(enumerator.0, DeviceEnumeratorVtbl)
+                        .unregister_endpoint_notification_callback)(
+                        enumerator.0, client
+                    );
+                }
+                nc_release(client);
+                drop(enumerator);
+                CoUninitialize();
+            }
+        })
+        .ok()?;
+    ready_rx.recv().ok()?.then_some(Watch { _stop: stop_tx })
+}
+
 /// The default render endpoint's id, from the calling thread (COM joined
 /// for the call and left again).
 fn default_endpoint_id() -> Option<String> {
@@ -726,6 +1043,15 @@ unsafe fn session(
             check(hr, "IAudioClient::Initialize (exclusive)")?;
             format = Some(wire_format(f));
             device_rate = r;
+        } else if let Some(mix_rate) = init_low_latency_shared(c, ch, config.block.max(1)) {
+            // AU-10: low-latency shared mode at the engine's minimum period.
+            // Its format is the mix format: float at the engine's rate, so
+            // at another rate than ours the conversion path (as exclusive
+            // mode at a negotiated rate) resamples.
+            device_rate = mix_rate;
+            if mix_rate != config.rate {
+                format = Some(PcmFormat::F32);
+            }
         } else {
             let fmt = wave_format(PcmFormat::F32, config.rate, ch);
             // Buffer: three blocks, in 100 ns units.
@@ -899,6 +1225,10 @@ fn open(
                     return;
                 }
                 c2.latency_ns.store(sess.latency_ns, Ordering::Relaxed);
+                c2.buffer_frames
+                    .store(u64::from(sess.buffer_frames), Ordering::Relaxed);
+                c2.exclusive.store(exclusive, Ordering::Relaxed);
+
                 tx.send(Ok(sess.buffer_frames)).ok();
                 while !s2.load(Ordering::Acquire) {
                     if WaitForSingleObject(sess.event, 2_000) != WAIT_OBJECT_0 {
@@ -1224,6 +1554,12 @@ impl Backend for Wasapi {
         default_endpoint_id()
     }
 
+    /// `IMMNotificationClient` (AU-09): default and device changes wake the
+    /// supervisor at once.
+    fn watch(&self, wake: super::RouteWake) -> Option<super::RouteWatch> {
+        watch(wake).map(|w| Box::new(w) as super::RouteWatch)
+    }
+
     fn open_output_on(
         &self,
         device: &str,
@@ -1281,6 +1617,97 @@ impl Backend for WasapiExclusive {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// AU-10: the mix format is read as low-latency shared mode needs it.
+    #[test]
+    fn mix_format_float_detection() {
+        // WAVEFORMATEXTENSIBLE: float, 2 channels, 48 kHz, 32 bits.
+        let mut ext = [0u8; 40];
+        ext[0..2].copy_from_slice(&0xFFFEu16.to_le_bytes());
+        ext[2..4].copy_from_slice(&2u16.to_le_bytes());
+        ext[4..8].copy_from_slice(&48_000u32.to_le_bytes());
+        ext[14..16].copy_from_slice(&32u16.to_le_bytes());
+        ext[24..28].copy_from_slice(&3u32.to_le_bytes());
+        assert_eq!(mix_is_float(ext.as_ptr()), Some((2, 48_000)));
+        ext[24..28].copy_from_slice(&1u32.to_le_bytes()); // PCM sub-format
+        assert_eq!(mix_is_float(ext.as_ptr()), None);
+        // Plain WAVE_FORMAT_IEEE_FLOAT.
+        let mut plain = [0u8; 18];
+        plain[0..2].copy_from_slice(&3u16.to_le_bytes());
+        plain[2..4].copy_from_slice(&1u16.to_le_bytes());
+        plain[4..8].copy_from_slice(&44_100u32.to_le_bytes());
+        plain[14..16].copy_from_slice(&32u16.to_le_bytes());
+        assert_eq!(mix_is_float(plain.as_ptr()), Some((1, 44_100)));
+    }
+
+    /// AU-10: a small-block shared stream opens (through `IAudioClient3`
+    /// where the endpoint offers it, else `IAudioClient`) and reports its
+    /// buffer and latency. Skipped where the machine has no render
+    /// endpoint.
+    #[cfg(windows)]
+    #[test]
+    fn a_small_block_shared_stream_reports_buffer_and_latency() {
+        let config = StreamConfig {
+            rate: 48_000,
+            channels: 2,
+            block: 128,
+        };
+        let stream = match Wasapi.open_output(config, Box::new(|out, _| out.fill(0.0))) {
+            Ok(s) => s,
+            Err(e) => {
+                eprintln!("no render endpoint here ({e}); skipped");
+                return;
+            }
+        };
+        std::thread::sleep(std::time::Duration::from_millis(300));
+        let st = stream.stats();
+        eprintln!(
+            "wasapi shared: buffer {:?} frames, latency {:?}, callbacks {}",
+            st.buffer_frames, st.latency, st.callbacks
+        );
+        assert!(st.buffer_frames.is_some(), "the buffer is reported");
+        assert!(st.callbacks > 0, "it runs");
+        assert!(!st.exclusive);
+    }
+
+    /// AU-09: the endpoint notification client registers with the real
+    /// MMDevice enumerator and unregisters when the guard drops.
+    #[cfg(windows)]
+    #[test]
+    fn endpoint_notifications_register_and_unregister() {
+        let watch = Wasapi.watch(Arc::new(|| {}));
+        assert!(
+            watch.is_some(),
+            "RegisterEndpointNotificationCallback refused"
+        );
+        drop(watch);
+    }
+
+    #[test]
+    fn the_notification_client_answers_its_interfaces_only() {
+        let client: This = Box::into_raw(Box::new(NotificationClient {
+            vtbl: &raw const NOTIFICATION_CLIENT_VTBL,
+            refs: std::sync::atomic::AtomicU32::new(1),
+            wake: Arc::new(|| {}),
+        }))
+        .cast();
+        // SAFETY: a live client; references balanced to free it.
+        unsafe {
+            let mut out = null_mut();
+            assert_eq!(
+                nc_query_interface(client, &IID_IMM_NOTIFICATION_CLIENT, &raw mut out),
+                0
+            );
+            assert_eq!(out, client);
+            assert_eq!(
+                nc_query_interface(client, &IID_IAUDIO_CLIENT, &raw mut out),
+                E_NOINTERFACE
+            );
+            assert!(out.is_null());
+            assert_eq!(nc_release(client), 1, "the reference QueryInterface added");
+            assert_eq!(nc_release(client), 0, "freed");
+        }
+    }
 
     #[test]
     fn the_format_struct_has_the_sdk_layout() {

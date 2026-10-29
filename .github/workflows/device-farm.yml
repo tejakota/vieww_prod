@@ -188,6 +188,17 @@ jobs:
           echo "device_farm.py exited $status" >> "$OUT/device_farm.log"
           [ -f "$OUT/SUMMARY.md" ] && cat "$OUT/SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
           exit $status
+      # FW-08: each phone's median frame time (auto and GPU paths) against
+      # ci/check/perf-budgets.json — run N against run N-1, not only against
+      # the 16.7 ms budget the suite checks. After the run, so a regression
+      # fails the job without hiding the results.
+      - name: Performance budgets
+        if: always()
+        working-directory: vieww_base
+        run: |
+          s="${{ runner.temp }}/device-farm/summary.json"
+          [ -f "$s" ] || { echo "no summary.json: the run produced no results to gate"; exit 0; }
+          ci/check/perf-budget.sh "$s" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Upload everything
         if: always()
         uses: actions/upload-artifact@v4
@@ -304,6 +315,17 @@ jobs:
           echo "device_farm.py exited $status" >> "$OUT/device_farm.log"
           [ -f "$OUT/SUMMARY.md" ] && cat "$OUT/SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
           exit $status
+      # FW-08: each phone's median frame time (auto and GPU paths) against
+      # ci/check/perf-budgets.json — run N against run N-1, not only against
+      # the 16.7 ms budget the suite checks. After the run, so a regression
+      # fails the job without hiding the results.
+      - name: Performance budgets
+        if: always()
+        working-directory: vieww_base
+        run: |
+          s="${{ runner.temp }}/device-farm-ios/summary.json"
+          [ -f "$s" ] || { echo "no summary.json: the run produced no results to gate"; exit 0; }
+          ci/check/perf-budget.sh "$s" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Upload everything
         if: always()
         uses: actions/upload-artifact@v4

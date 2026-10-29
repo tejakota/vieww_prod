@@ -158,6 +158,13 @@ if want gallery; then
         --runs 30 --receipt "$out/fixtures/receipt.json" --shadow "$out/fixtures/shadow.jsonl"
     run census cargo run --release -p fixtures -- "$out/census" --census \
         --runs 30 --receipt "$out/census/receipt.json" --shadow "$out/census/shadow.jsonl"
+    # FW-08: this machine's figures against ci/check/perf-budgets.json. The
+    # class is the machine's own (os / arch / cpu model, from the receipt);
+    # the first run of a new machine is reported, not gated, until
+    # `ci/check/perf-budget.sh --record` is committed for it.
+    if [ -f "$out/fixtures/receipt.json" ] && [ -f "$out/census/receipt.json" ]; then
+        run perf-budget ci/check/perf-budget.sh "$out/fixtures/receipt.json" "$out/census/receipt.json"
+    fi
     if command -v python3 >/dev/null && [ -f "$out/census/receipt.json" ]; then
         python3 - "$out/census/receipt.json" <<'PY' | tee -a "$summary"
 import json, sys

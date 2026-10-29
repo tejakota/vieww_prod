@@ -212,7 +212,11 @@ declare_class!(
             } else {
                 RouteChange::Other
             };
-            AudioSession::shared().on_route(change);
+            let session = AudioSession::shared();
+            session.on_route(change);
+            // Any route change: device streams look at the default now
+            // (AU-09).
+            session.notify_route_change();
         }
 
         #[method(mediaServicesReset:)]

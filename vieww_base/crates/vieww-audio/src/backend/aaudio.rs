@@ -4,9 +4,35 @@
 //! levels still starts, and reports the backend unavailable). A stream is
 //! built for float samples in low-latency performance mode with a data
 //! callback, which AAudio runs on its real-time thread with an
-//! interleaved buffer to fill (or read). An error callback — a device
-//! disconnected, typically — marks the stream ended. Signatures and
-//! constants follow `<aaudio/AAudio.h>`.
+//! interleaved buffer to fill (or read). Signatures and constants follow
+//! `<aaudio/AAudio.h>`.
+//!
+//! What the stream asks for and reports (AU-08):
+//!
+//! * **Exclusive mode first.** [`AaudioOptions::exclusive`] (default on)
+//!   asks for `AAUDIO_SHARING_MODE_EXCLUSIVE`, the MMAP path that bypasses
+//!   the system mixer; a device that refuses gets the shared stream it
+//!   always got. [`StreamStats::exclusive`](super::StreamStats::exclusive)
+//!   says which was granted.
+//! * **Usage and content type** (API 28+) from the audio session's focus
+//!   request (`crate::session`): media, speech, game or sonification, so
+//!   the system routes and ducks the stream as what it is. Capture can be
+//!   marked privacy-sensitive (API 30+).
+//! * **Buffer tuning.** After opening, the buffer is set to
+//!   [`AaudioOptions::buffer_bursts`] bursts (default 2, Oboe's
+//!   starting point); each time AAudio reports new underruns it grows by
+//!   one burst, up to the capacity, as Oboe's latency tuner does.
+//! * **Latency and underruns.** Output latency comes from
+//!   `AAudioStream_getTimestamp` against frames written; underruns from
+//!   `AAudioStream_getXRunCount`. AAudio was the one backend of nine that
+//!   reported neither.
+//! * **Disconnects.** The error callback still ends the stream on any
+//!   error, and marks `disconnected` when the error is
+//!   `AAUDIO_ERROR_DISCONNECTED` (headphones out, a Bluetooth device gone,
+//!   the default device changed), which `resilient.rs` reopens from.
+//!
+//! The API 28 and 30 calls are looked up optionally, so Android 8 still
+//! opens a stream.
 
 use std::ffi::{c_char, c_void, CStr};
 use std::ptr::null_mut;
@@ -24,7 +50,59 @@ const AAUDIO_OK: Result_ = 0;
 const AAUDIO_DIRECTION_OUTPUT: i32 = 0;
 const AAUDIO_DIRECTION_INPUT: i32 = 1;
 const AAUDIO_FORMAT_PCM_FLOAT: i32 = 2;
+const AAUDIO_SHARING_MODE_EXCLUSIVE: i32 = 0;
 const AAUDIO_SHARING_MODE_SHARED: i32 = 1;
+const AAUDIO_ERROR_DISCONNECTED: Result_ = -899;
+const CLOCK_MONOTONIC: i32 = 1;
+/// How often (in callbacks) the data callback samples underruns and latency.
+const SAMPLE_EVERY: u32 = 32;
+
+#[repr(C)]
+struct Timespec {
+    tv_sec: std::ffi::c_long,
+    tv_nsec: std::ffi::c_long,
+}
+
+extern "C" {
+    fn clock_gettime(clock: i32, ts: *mut Timespec) -> i32;
+}
+
+fn now_ns() -> i64 {
+    let mut ts = Timespec {
+        tv_sec: 0,
+        tv_nsec: 0,
+    };
+    // SAFETY: a valid out-pointer; CLOCK_MONOTONIC always exists.
+    unsafe { clock_gettime(CLOCK_MONOTONIC, &raw mut ts) };
+    #[allow(
+        clippy::useless_conversion,
+        reason = "c_long is i64 on arm64 and x86_64 but i32 on 32-bit Android"
+    )]
+    let ns = i64::from(ts.tv_sec) * 1_000_000_000 + i64::from(ts.tv_nsec);
+    ns
+}
+
+/// What an AAudio stream asks for (AU-08).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct AaudioOptions {
+    /// Ask for exclusive (MMAP) mode, falling back to shared on refusal.
+    pub exclusive: bool,
+    /// The starting buffer, in bursts (at least 1).
+    pub buffer_bursts: u32,
+    /// Mark capture privacy-sensitive (API 30+): no other app may capture
+    /// concurrently, and it is excluded from accessibility capture.
+    pub privacy_sensitive: bool,
+}
+
+impl Default for AaudioOptions {
+    fn default() -> Self {
+        Self {
+            exclusive: true,
+            buffer_bursts: 2,
+            privacy_sensitive: false,
+        }
+    }
+}
 const AAUDIO_PERFORMANCE_MODE_LOW_LATENCY: i32 = 12;
 const AAUDIO_CALLBACK_RESULT_CONTINUE: i32 = 0;
 
@@ -52,6 +130,18 @@ struct Api {
     get_channel_count: unsafe extern "C" fn(*mut c_void) -> i32,
     get_frames_per_burst: unsafe extern "C" fn(*mut c_void) -> i32,
     convert_result_to_text: unsafe extern "C" fn(Result_) -> *const c_char,
+    get_sharing_mode: unsafe extern "C" fn(*mut c_void) -> i32,
+    set_buffer_size: unsafe extern "C" fn(*mut c_void, i32) -> Result_,
+    get_buffer_size: unsafe extern "C" fn(*mut c_void) -> i32,
+    get_buffer_capacity: unsafe extern "C" fn(*mut c_void) -> i32,
+    get_xrun_count: unsafe extern "C" fn(*mut c_void) -> i32,
+    get_frames_written: unsafe extern "C" fn(*mut c_void) -> i64,
+    get_timestamp: unsafe extern "C" fn(*mut c_void, i32, *mut i64, *mut i64) -> Result_,
+    // API 28+.
+    set_usage: Option<unsafe extern "C" fn(*mut c_void, i32)>,
+    set_content_type: Option<unsafe extern "C" fn(*mut c_void, i32)>,
+    // API 30+.
+    set_privacy_sensitive: Option<unsafe extern "C" fn(*mut c_void, bool)>,
 }
 
 impl Api {
@@ -80,6 +170,16 @@ impl Api {
                 get_channel_count: lib.get(c"AAudioStream_getChannelCount")?,
                 get_frames_per_burst: lib.get(c"AAudioStream_getFramesPerBurst")?,
                 convert_result_to_text: lib.get(c"AAudio_convertResultToText")?,
+                get_sharing_mode: lib.get(c"AAudioStream_getSharingMode")?,
+                set_buffer_size: lib.get(c"AAudioStream_setBufferSizeInFrames")?,
+                get_buffer_size: lib.get(c"AAudioStream_getBufferSizeInFrames")?,
+                get_buffer_capacity: lib.get(c"AAudioStream_getBufferCapacityInFrames")?,
+                get_xrun_count: lib.get(c"AAudioStream_getXRunCount")?,
+                get_frames_written: lib.get(c"AAudioStream_getFramesWritten")?,
+                get_timestamp: lib.get(c"AAudioStream_getTimestamp")?,
+                set_usage: lib.get(c"AAudioStreamBuilder_setUsage").ok(),
+                set_content_type: lib.get(c"AAudioStreamBuilder_setContentType").ok(),
+                set_privacy_sensitive: lib.get(c"AAudioStreamBuilder_setPrivacySensitive").ok(),
                 _lib: lib,
             })
         }
@@ -114,10 +214,82 @@ struct Shared {
     rate: AtomicU32,
     counters: Arc<Counters>,
     frames_done: u64,
+    /// Copied out of `Api` for the callback (plain function pointers).
+    tune: Tuning,
+}
+
+/// What the data callback needs to tune the buffer and read latency.
+struct Tuning {
+    output: bool,
+    burst: i32,
+    buffer: i32,
+    capacity: i32,
+    xruns: i32,
+    since_sample: u32,
+    set_buffer_size: unsafe extern "C" fn(*mut c_void, i32) -> Result_,
+    get_xrun_count: unsafe extern "C" fn(*mut c_void) -> i32,
+    get_frames_written: unsafe extern "C" fn(*mut c_void) -> i64,
+    get_timestamp: unsafe extern "C" fn(*mut c_void, i32, *mut i64, *mut i64) -> Result_,
+}
+
+impl Tuning {
+    /// Every [`SAMPLE_EVERY`] callbacks: fold new underruns into the
+    /// counters and grow the buffer by a burst for them; read the output
+    /// latency. Non-blocking calls only, as the callback requires.
+    ///
+    /// # Safety
+    /// `stream` is the live stream this callback belongs to.
+    unsafe fn sample(&mut self, stream: *mut c_void, rate: u32, counters: &Counters) {
+        self.since_sample += 1;
+        if self.since_sample < SAMPLE_EVERY {
+            return;
+        }
+        self.since_sample = 0;
+        // SAFETY: the caller's contract.
+        let xruns = unsafe { (self.get_xrun_count)(stream) };
+        if xruns > self.xruns {
+            counters
+                .xruns
+                .store(u64::try_from(xruns).unwrap_or(0), Ordering::Relaxed);
+            self.xruns = xruns;
+            if self.buffer + self.burst <= self.capacity {
+                // SAFETY: as above; returns the size granted, or an error.
+                let granted = unsafe { (self.set_buffer_size)(stream, self.buffer + self.burst) };
+                if granted > 0 {
+                    self.buffer = granted;
+                    counters
+                        .buffer_frames
+                        .store(u64::try_from(granted).unwrap_or(0), Ordering::Relaxed);
+                }
+            }
+        }
+        if !self.output || rate == 0 {
+            return;
+        }
+        let (mut position, mut time) = (0i64, 0i64);
+        // SAFETY: as above, with valid out-pointers.
+        let ok = unsafe {
+            (self.get_timestamp)(stream, CLOCK_MONOTONIC, &raw mut position, &raw mut time)
+        };
+        if ok != AAUDIO_OK {
+            return;
+        }
+        // SAFETY: as above.
+        let written = unsafe { (self.get_frames_written)(stream) };
+        // When the next frame written is presented, less now.
+        let ahead = (written - position).max(0);
+        let presented_at = time + ahead * 1_000_000_000 / i64::from(rate);
+        let latency = presented_at - now_ns();
+        if latency > 0 {
+            counters
+                .latency_ns
+                .store(u64::try_from(latency).unwrap_or(0), Ordering::Relaxed);
+        }
+    }
 }
 
 unsafe extern "C" fn on_data(
-    _stream: *mut c_void,
+    stream: *mut c_void,
     user: *mut c_void,
     data: *mut c_void,
     frames: i32,
@@ -151,12 +323,17 @@ unsafe extern "C" fn on_data(
     }
     s.frames_done += n as u64;
     s.counters.block(n);
+    // SAFETY: `stream` is this callback's live stream.
+    unsafe { s.tune.sample(stream, rate, &s.counters) };
     AAUDIO_CALLBACK_RESULT_CONTINUE
 }
 
-unsafe extern "C" fn on_error(_stream: *mut c_void, user: *mut c_void, _error: Result_) {
-    // SAFETY: as in `on_data`; only an atomic is touched.
+unsafe extern "C" fn on_error(_stream: *mut c_void, user: *mut c_void, error: Result_) {
+    // SAFETY: as in `on_data`; only atomics are touched.
     let s = unsafe { &*user.cast::<Shared>() };
+    if error == AAUDIO_ERROR_DISCONNECTED {
+        s.counters.disconnected.store(true, Ordering::Release);
+    }
     s.counters.ended.store(true, Ordering::Release);
 }
 
@@ -184,7 +361,11 @@ impl StreamImpl for AaStream {
     }
 }
 
-fn open(config: StreamConfig, callback: Callback) -> Result<DeviceStream, BackendError> {
+fn open(
+    config: StreamConfig,
+    callback: Callback,
+    options: AaudioOptions,
+) -> Result<DeviceStream, BackendError> {
     let api = Arc::new(Api::load().map_err(BackendError::Unavailable)?);
     let capture = matches!(callback, Callback::Capture(_));
     let ch = config.channels.clamp(1, 8);
@@ -202,38 +383,83 @@ fn open(config: StreamConfig, callback: Callback) -> Result<DeviceStream, Backen
         rate: AtomicU32::new(config.rate),
         counters: counters.clone(),
         frames_done: 0,
+        tune: Tuning {
+            output: !capture,
+            burst: 0,
+            buffer: 0,
+            capacity: 0,
+            xruns: 0,
+            since_sample: 0,
+            set_buffer_size: api.set_buffer_size,
+            get_xrun_count: api.get_xrun_count,
+            get_frames_written: api.get_frames_written,
+            get_timestamp: api.get_timestamp,
+        },
     }));
+    // What the session says is playing (media, speech, game…).
+    let request = crate::session::AudioSession::shared().request();
     // SAFETY: the AAudio builder protocol; every result checked.
     unsafe {
-        let mut b = null_mut();
-        let r = (api.create_builder)(&raw mut b);
-        if r != AAUDIO_OK {
-            drop(Box::from_raw(shared));
-            return Err(BackendError::Unavailable(api.text(r)));
-        }
-        (api.set_direction)(
-            b,
-            if capture {
-                AAUDIO_DIRECTION_INPUT
+        let build = |sharing: i32| -> Result<*mut c_void, Result_> {
+            let mut b = null_mut();
+            let r = (api.create_builder)(&raw mut b);
+            if r != AAUDIO_OK {
+                return Err(r);
+            }
+            (api.set_direction)(
+                b,
+                if capture {
+                    AAUDIO_DIRECTION_INPUT
+                } else {
+                    AAUDIO_DIRECTION_OUTPUT
+                },
+            );
+            (api.set_sample_rate)(b, i32::try_from(config.rate).unwrap_or(48_000));
+            (api.set_channel_count)(b, i32::from(ch));
+            (api.set_format)(b, AAUDIO_FORMAT_PCM_FLOAT);
+            (api.set_sharing_mode)(b, sharing);
+            (api.set_performance_mode)(b, AAUDIO_PERFORMANCE_MODE_LOW_LATENCY);
+            if !capture {
+                if let Some(f) = api.set_usage {
+                    f(b, request.android_usage());
+                }
+                if let Some(f) = api.set_content_type {
+                    f(b, request.android_content_type());
+                }
+            } else if options.privacy_sensitive {
+                if let Some(f) = api.set_privacy_sensitive {
+                    f(b, true);
+                }
+            }
+            (api.set_frames_per_data_callback)(b, i32::try_from(config.block).unwrap_or(0));
+            (api.set_data_callback)(b, on_data, shared.cast());
+            (api.set_error_callback)(b, on_error, shared.cast());
+            let mut stream = null_mut();
+            let r = (api.open_stream)(b, &raw mut stream);
+            (api.builder_delete)(b);
+            if r == AAUDIO_OK {
+                Ok(stream)
             } else {
-                AAUDIO_DIRECTION_OUTPUT
-            },
+                Err(r)
+            }
+        };
+        // Exclusive first, when asked; a refusal falls back to shared.
+        let opened = if options.exclusive {
+            build(AAUDIO_SHARING_MODE_EXCLUSIVE).or_else(|_| build(AAUDIO_SHARING_MODE_SHARED))
+        } else {
+            build(AAUDIO_SHARING_MODE_SHARED)
+        };
+        let stream = match opened {
+            Ok(s) => s,
+            Err(r) => {
+                drop(Box::from_raw(shared));
+                return Err(BackendError::Refused(api.text(r)));
+            }
+        };
+        counters.exclusive.store(
+            (api.get_sharing_mode)(stream) == AAUDIO_SHARING_MODE_EXCLUSIVE,
+            Ordering::Relaxed,
         );
-        (api.set_sample_rate)(b, i32::try_from(config.rate).unwrap_or(48_000));
-        (api.set_channel_count)(b, i32::from(ch));
-        (api.set_format)(b, AAUDIO_FORMAT_PCM_FLOAT);
-        (api.set_sharing_mode)(b, AAUDIO_SHARING_MODE_SHARED);
-        (api.set_performance_mode)(b, AAUDIO_PERFORMANCE_MODE_LOW_LATENCY);
-        (api.set_frames_per_data_callback)(b, i32::try_from(config.block).unwrap_or(0));
-        (api.set_data_callback)(b, on_data, shared.cast());
-        (api.set_error_callback)(b, on_error, shared.cast());
-        let mut stream = null_mut();
-        let r = (api.open_stream)(b, &raw mut stream);
-        (api.builder_delete)(b);
-        if r != AAUDIO_OK {
-            drop(Box::from_raw(shared));
-            return Err(BackendError::Refused(api.text(r)));
-        }
         // The device may grant another rate or channel count.
         let rate = u32::try_from((api.get_sample_rate)(stream)).unwrap_or(config.rate);
         let channels = u16::try_from((api.get_channel_count)(stream)).unwrap_or(ch);
@@ -241,7 +467,29 @@ fn open(config: StreamConfig, callback: Callback) -> Result<DeviceStream, Backen
         (*shared)
             .channels
             .store(usize::from(channels), Ordering::Release);
-        let burst = u32::try_from((api.get_frames_per_burst)(stream)).unwrap_or(config.block);
+        let burst_frames = (api.get_frames_per_burst)(stream).max(1);
+        let burst = u32::try_from(burst_frames).unwrap_or(config.block);
+        // Start at `buffer_bursts` bursts; the callback grows it on
+        // underruns.
+        let capacity = (api.get_buffer_capacity)(stream);
+        let want =
+            burst_frames.saturating_mul(i32::try_from(options.buffer_bursts.max(1)).unwrap_or(2));
+        let granted = (api.set_buffer_size)(stream, want.min(capacity.max(burst_frames)));
+        let buffer = if granted > 0 {
+            granted
+        } else {
+            (api.get_buffer_size)(stream)
+        };
+        counters
+            .buffer_frames
+            .store(u64::try_from(buffer.max(0)).unwrap_or(0), Ordering::Relaxed);
+        if !capture {
+            // Until the first timestamp: the buffer is the floor.
+            counters.set_latency_frames(u64::try_from(buffer.max(0)).unwrap_or(0), rate);
+        }
+        (*shared).tune.burst = burst_frames;
+        (*shared).tune.buffer = buffer;
+        (*shared).tune.capacity = capacity;
         let r = (api.request_start)(stream);
         if r != AAUDIO_OK {
             (api.close)(stream);
@@ -267,7 +515,10 @@ fn open(config: StreamConfig, callback: Callback) -> Result<DeviceStream, Backen
 
 /// The AAudio backend.
 #[derive(Debug, Clone, Copy, Default)]
-pub struct AAudio;
+pub struct AAudio {
+    /// What its streams ask for.
+    pub options: AaudioOptions,
+}
 
 impl Backend for AAudio {
     fn name(&self) -> &'static str {
@@ -279,7 +530,7 @@ impl Backend for AAudio {
         config: StreamConfig,
         render: RenderFn,
     ) -> Result<DeviceStream, BackendError> {
-        open(config, Callback::Render(render))
+        open(config, Callback::Render(render), self.options)
     }
 
     fn open_input(
@@ -287,6 +538,6 @@ impl Backend for AAudio {
         config: StreamConfig,
         capture: CaptureFn,
     ) -> Result<DeviceStream, BackendError> {
-        open(config, Callback::Capture(capture))
+        open(config, Callback::Capture(capture), self.options)
     }
 }

@@ -398,8 +398,27 @@ mod hal {
     const SCOPE_INPUT: u32 = fourcc(b"inpt");
     const UTF8: u32 = 0x0800_0100;
 
+    type Listener = unsafe extern "C" fn(
+        object: u32,
+        count: u32,
+        addresses: *const AudioObjectPropertyAddress,
+        client: *mut c_void,
+    ) -> i32;
+
     #[link(name = "CoreAudio", kind = "framework")]
     unsafe extern "C" {
+        fn AudioObjectAddPropertyListener(
+            object: u32,
+            address: *const AudioObjectPropertyAddress,
+            listener: Listener,
+            client: *mut c_void,
+        ) -> i32;
+        fn AudioObjectRemovePropertyListener(
+            object: u32,
+            address: *const AudioObjectPropertyAddress,
+            listener: Listener,
+            client: *mut c_void,
+        ) -> i32;
         fn AudioObjectGetPropertyDataSize(
             object: u32,
             address: *const AudioObjectPropertyAddress,
@@ -413,6 +432,78 @@ mod hal {
     unsafe extern "C" {
         fn CFStringGetCString(s: *const c_void, buf: *mut c_char, len: isize, encoding: u32) -> u8;
         fn CFRelease(p: *const c_void);
+    }
+
+    unsafe extern "C" fn on_change(
+        _object: u32,
+        _count: u32,
+        _addresses: *const AudioObjectPropertyAddress,
+        client: *mut c_void,
+    ) -> i32 {
+        // SAFETY: `client` is the boxed waker, alive until both listeners
+        // are removed (`Watch::drop`).
+        let wake = unsafe { &*client.cast::<crate::backend::RouteWake>() };
+        // Never unwind into Core Audio's notification thread.
+        let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| wake()));
+        0
+    }
+
+    /// The default-output and device-list listeners (AU-09).
+    pub(super) struct Watch {
+        client: *mut crate::backend::RouteWake,
+    }
+
+    // SAFETY: the waker is `Send + Sync`; the pointer is only freed in
+    // `drop`, after both listeners are removed.
+    unsafe impl Send for Watch {}
+
+    const WATCHED: [u32; 2] = [DEFAULT_OUTPUT, DEVICES];
+
+    /// Listen for the default output and the device list changing.
+    pub(super) fn watch(wake: crate::backend::RouteWake) -> Option<Watch> {
+        let client = Box::into_raw(Box::new(wake));
+        let mut added = 0;
+        for selector in WATCHED {
+            let a = addr(selector, K_AUDIO_OBJECT_PROPERTY_SCOPE_GLOBAL);
+            // SAFETY: a valid address, a matching listener and a client
+            // pointer that outlives the registration.
+            let r = unsafe {
+                AudioObjectAddPropertyListener(
+                    K_AUDIO_OBJECT_SYSTEM_OBJECT,
+                    &raw const a,
+                    on_change,
+                    client.cast(),
+                )
+            };
+            if r == 0 {
+                added += 1;
+            }
+        }
+        if added == 0 {
+            // SAFETY: nothing registered it.
+            drop(unsafe { Box::from_raw(client) });
+            return None;
+        }
+        Some(Watch { client })
+    }
+
+    impl Drop for Watch {
+        fn drop(&mut self) {
+            for selector in WATCHED {
+                let a = addr(selector, K_AUDIO_OBJECT_PROPERTY_SCOPE_GLOBAL);
+                // SAFETY: the same triple that was added.
+                unsafe {
+                    AudioObjectRemovePropertyListener(
+                        K_AUDIO_OBJECT_SYSTEM_OBJECT,
+                        &raw const a,
+                        on_change,
+                        self.client.cast(),
+                    );
+                }
+            }
+            // SAFETY: no listener refers to it any more.
+            drop(unsafe { Box::from_raw(self.client) });
+        }
     }
 
     fn addr(selector: u32, scope: u32) -> AudioObjectPropertyAddress {
@@ -830,6 +921,21 @@ impl Backend for CoreAudio {
         }
     }
 
+    /// macOS: listeners on the default output and the device list
+    /// (`AudioObjectAddPropertyListener`), so a change is followed at once
+    /// (AU-09). iOS reports routes through the audio session instead.
+    fn watch(&self, wake: super::RouteWake) -> Option<super::RouteWatch> {
+        #[cfg(target_os = "macos")]
+        {
+            hal::watch(wake).map(|w| Box::new(w) as super::RouteWatch)
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            let _ = wake;
+            None
+        }
+    }
+
     /// macOS: the default output's UID. The default-output unit follows
     /// the default itself, but a stream on a named device does not, and a
     /// device that vanishes ends the stream; the supervisor watches this.
@@ -877,6 +983,16 @@ impl Backend for CoreAudio {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// AU-09: the default-output and device-list listeners register (and
+    /// unregister on drop) against the real HAL.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn route_listeners_register_and_unregister() {
+        let watch = CoreAudio.watch(std::sync::Arc::new(|| {}));
+        assert!(watch.is_some(), "AudioObjectAddPropertyListener refused");
+        drop(watch);
+    }
 
     #[test]
     fn four_char_codes_and_layouts() {

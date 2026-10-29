@@ -31,6 +31,7 @@ pub mod mp3;
 mod mp3_tables;
 pub mod mp4;
 pub mod ogg;
+pub mod stream;
 pub mod tags;
 pub mod vorbis;
 
@@ -65,7 +66,7 @@ pub const RUNAWAY: f32 = 8.0;
 /// Concealment granularity, in frames: a corrupt run is muted in blocks of
 /// this size rather than sample by sample, so what is left is silence, not
 /// clipped fragments of garbage at the block edges.
-const CONCEAL_FRAMES: usize = 1024;
+pub(crate) const CONCEAL_FRAMES: usize = 1024;
 
 impl Decoded {
     /// The last step of every decoder: refuse a shape no mixer can use, and
@@ -179,6 +180,8 @@ pub enum CodecError {
     Unsupported(&'static str),
     /// A checksum did not match.
     Checksum(&'static str),
+    /// Reading the stream failed (streaming decode, AU-05).
+    Io(String),
 }
 
 impl std::fmt::Display for CodecError {
@@ -189,6 +192,7 @@ impl std::fmt::Display for CodecError {
             Self::Malformed(w) => write!(f, "malformed: {w}"),
             Self::Unsupported(w) => write!(f, "unsupported: {w}"),
             Self::Checksum(w) => write!(f, "checksum mismatch: {w}"),
+            Self::Io(e) => write!(f, "reading the stream failed: {e}"),
         }
     }
 }

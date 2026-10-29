@@ -837,6 +837,209 @@ pub fn encode(d: &Decoded, bits: u8) -> Result<Vec<u8>, CodecError> {
     encode_ints(&ints, d.channels, d.rate, bits)
 }
 
+// ── streaming (AU-05) ────────────────────────────────────────────────────
+
+/// FLAC a frame at a time, for [`super::stream`].
+pub(crate) struct FlacSource {
+    info: StreamInfo,
+    /// The first frame's offset (just past the metadata).
+    first: u64,
+    at: u64,
+    /// The largest frame the stream declares (0: unknown), for the window.
+    max_frame: usize,
+    scale: f64,
+}
+
+impl FlacSource {
+    pub(crate) fn open(input: &mut super::stream::Input) -> Result<Self, CodecError> {
+        if input.window(0, 4)? != b"fLaC" {
+            return Err(CodecError::NotThisFormat);
+        }
+        let mut at = 4u64;
+        let mut found = None;
+        loop {
+            let h = input.window(at, 4)?.to_vec();
+            if h.len() < 4 {
+                return Err(CodecError::Truncated);
+            }
+            let last = h[0] & 0x80 != 0;
+            let kind = h[0] & 0x7F;
+            let len = (usize::from(h[1]) << 16) | (usize::from(h[2]) << 8) | usize::from(h[3]);
+            if kind == 0 {
+                let body = input.window(at + 4, len)?;
+                if body.len() < len {
+                    return Err(CodecError::Truncated);
+                }
+                let info = read_info(body)?;
+                let max_frame = (usize::from(body[7]) << 16)
+                    | (usize::from(body[8]) << 8)
+                    | usize::from(body[9]);
+                found = Some((info, max_frame));
+            }
+            at += 4 + len as u64;
+            if last {
+                break;
+            }
+        }
+        let (info, max_frame) = found.ok_or(CodecError::Malformed("no STREAMINFO"))?;
+        let scale = 1.0 / f64::from(1u32 << (info.bits.clamp(1, 32) - 1));
+        Ok(Self {
+            info,
+            first: at,
+            at,
+            max_frame,
+            scale,
+        })
+    }
+
+    fn window_len(&self) -> usize {
+        if self.max_frame > 0 {
+            self.max_frame + 64
+        } else {
+            1 << 20
+        }
+    }
+
+    /// The first sample of a frame whose header starts `b`, or `None` when
+    /// `b` does not start a valid header (sync, codes and CRC-8).
+    fn frame_start(&self, b: &[u8]) -> Option<u64> {
+        if b.len() < 4 || b[0] != 0xFF || b[1] & 0xFE != 0xF8 {
+            return None;
+        }
+        let variable = b[1] & 1 != 0;
+        let mut r = MsbReader::new(b);
+        r.read(16)?;
+        let bs_code = r.read(4)?;
+        let sr_code = r.read(4)?;
+        r.read(4)?;
+        let sz_code = r.read(3)?;
+        r.read(1)?;
+        if bs_code == 0 || sr_code == 15 || sz_code == 3 || sz_code == 7 && self.info.bits != 32 {
+            return None;
+        }
+        let number = utf8_number(&mut r)?;
+        match bs_code {
+            6 => {
+                r.read(8)?;
+            }
+            7 => {
+                r.read(16)?;
+            }
+            _ => {}
+        }
+        match sr_code {
+            12 => {
+                r.read(8)?;
+            }
+            13 | 14 => {
+                r.read(16)?;
+            }
+            _ => {}
+        }
+        let header_end = r.position() / 8;
+        let crc = r.read(8)?;
+        if crc8(b.get(..header_end)?) != u8::try_from(crc).ok()? {
+            return None;
+        }
+        Some(if variable {
+            number
+        } else {
+            number * u64::from(self.info.max_block)
+        })
+    }
+
+    /// The first valid frame at or after `from`, within a search window.
+    fn sync_from(
+        &self,
+        input: &mut super::stream::Input,
+        from: u64,
+    ) -> Result<Option<(u64, u64)>, CodecError> {
+        let w = input.window(from, 64 << 10)?.to_vec();
+        for i in 0..w.len().saturating_sub(4) {
+            if w[i] == 0xFF && w[i + 1] & 0xFE == 0xF8 {
+                if let Some(s) = self.frame_start(&w[i..]) {
+                    return Ok(Some((from + i as u64, s)));
+                }
+            }
+        }
+        Ok(None)
+    }
+}
+
+impl super::stream::FrameSource for FlacSource {
+    fn channels(&self) -> usize {
+        usize::from(self.info.channels)
+    }
+
+    fn rate(&self) -> u32 {
+        self.info.rate
+    }
+
+    fn trim(&self) -> (u64, Option<u64>) {
+        (0, (self.info.total > 0).then_some(self.info.total))
+    }
+
+    fn next(
+        &mut self,
+        input: &mut super::stream::Input,
+    ) -> Result<Option<super::stream::Chunk>, CodecError> {
+        loop {
+            let want = self.window_len();
+            let w = input.window(self.at, want)?;
+            if w.len() < 2 {
+                return Ok(None);
+            }
+            if !(w[0] == 0xFF && w[1] & 0xFE == 0xF8) {
+                // Resync over garbage between frames, as the whole decode does.
+                let skip = w[1..]
+                    .windows(2)
+                    .position(|p| p[0] == 0xFF && p[1] & 0xFE == 0xF8)
+                    .map_or(w.len() - 1, |p| p + 1);
+                self.at += skip as u64;
+                continue;
+            }
+            let (block, used) = match decode_frame(w, &self.info) {
+                Err(CodecError::Truncated) if w.len() >= want && want < (8 << 20) => {
+                    // A frame larger than the declared maximum: widen.
+                    self.max_frame = want * 2;
+                    continue;
+                }
+                r => r?,
+            };
+            self.at += used as u64;
+            let n = block.first().map_or(0, Vec::len);
+            let mut pcm = Vec::with_capacity(n * block.len());
+            for i in 0..n {
+                for c in &block {
+                    #[expect(clippy::cast_possible_truncation, reason = "f32 output")]
+                    pcm.push((f64::from(c[i]) * self.scale) as f32);
+                }
+            }
+            return Ok(Some(super::stream::Chunk { pcm }));
+        }
+    }
+
+    fn seek(&mut self, input: &mut super::stream::Input, frame: u64) -> Result<u64, CodecError> {
+        let mut best = (self.first, 0u64);
+        let (mut lo, mut hi) = (self.first, input.len());
+        for _ in 0..48 {
+            if hi <= lo + (16 << 10) {
+                break;
+            }
+            let mid = lo + (hi - lo) / 2;
+            match self.sync_from(input, mid)? {
+                Some((pos, start)) if start <= frame && pos < hi => {
+                    best = (pos, start);
+                    lo = pos + 1;
+                }
+                _ => hi = mid,
+            }
+        }
+        self.at = best.0;
+        Ok(best.1)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

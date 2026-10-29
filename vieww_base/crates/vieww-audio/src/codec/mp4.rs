@@ -128,6 +128,16 @@ pub fn audio_track(file: &[u8]) -> Result<AudioTrack, CodecError> {
         return Err(CodecError::NotThisFormat);
     }
     let moov = child(file, b"moov").ok_or(CodecError::Malformed("no moov box"))?;
+    track_from_moov(moov, file.len())
+}
+
+/// [`audio_track`] from the `moov` box's body alone and the file's length
+/// (the sample table's byte ranges are checked against it): what a
+/// streaming decoder reads (AU-05) instead of the whole file.
+///
+/// # Errors
+/// No usable audio track.
+pub fn track_from_moov(moov: &[u8], file_len: usize) -> Result<AudioTrack, CodecError> {
     let movie_timescale = child(moov, b"mvhd")
         .and_then(|m| {
             if m.first() == Some(&1) {
@@ -186,7 +196,7 @@ pub fn audio_track(file: &[u8]) -> Result<AudioTrack, CodecError> {
                 // `as u128` from usize: widening, and `u128::from(usize)` is
                 // not a conversion std provides.
                 let claimed = fixed as u128 * n as u128;
-                if claimed > file.len() as u128 * 32 {
+                if claimed > file_len as u128 * 32 {
                     return Err(CodecError::Malformed(
                         "stsz claims more media than the file holds",
                     ));
@@ -248,7 +258,7 @@ pub fn audio_track(file: &[u8]) -> Result<AudioTrack, CodecError> {
             let mut pos = usize::try_from(off).map_err(|_| CodecError::Malformed("offset"))?;
             for _ in 0..per {
                 let Some(&sz) = sizes.get(si) else { break };
-                if pos + sz > file.len() {
+                if pos + sz > file_len {
                     return Err(CodecError::Truncated);
                 }
                 samples.push((pos, sz));

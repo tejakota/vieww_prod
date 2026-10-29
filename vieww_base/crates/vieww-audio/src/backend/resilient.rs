@@ -22,6 +22,26 @@
 //! a new default themselves (the server does it), WASAPI and Core Audio
 //! report the default endpoint so a change can be followed, JACK and ALSA
 //! have no notion of one.
+//!
+//! **Events, not only polling (AU-09).** The supervisor sleeps on a
+//! condition variable rather than a timer. A backend with route
+//! notifications ([`Backend::watch`]: `IMMNotificationClient` on WASAPI,
+//! property listeners on Core Audio) and the audio session
+//! (`AudioSession::notify_route_change`, which the Android
+//! `AudioDeviceCallback` and the iOS route-change observer call) wake it,
+//! and it looks at the default device at once, rather than within the
+//! one-second poll. The poll stays as the safety net for backends that
+//! notify nothing.
+//!
+//! **Bluetooth.** A Bluetooth headset is a device like any other here, with
+//! two particulars. Its buffers are long (150-300 ms), which the stream's
+//! reported latency shows. And when a call starts, the headset may switch
+//! from A2DP to the hands-free profile, which drops the device to 8 or
+//! 16 kHz mono. The stream ends or the default moves, the supervisor
+//! reopens with the app's configuration, and the backend grants the
+//! device's rate. [`crate::engine_player`]'s mixer then steps its voices
+//! at the ratio between its rate and the device's (`render_into`), so
+//! pitch and speed stay right on the narrower profile.
 
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
@@ -110,6 +130,38 @@ pub enum Target {
     },
 }
 
+/// The supervisor's alarm clock: a generation counter and a condition
+/// variable. [`Wake::ring`] bumps the generation; [`Wake::wait`] returns as
+/// soon as it differs from what the caller saw, or after `timeout`.
+#[derive(Debug, Default)]
+struct Wake {
+    generation: Mutex<u64>,
+    cv: std::sync::Condvar,
+}
+
+impl Wake {
+    fn ring(&self) {
+        if let Ok(mut g) = self.generation.lock() {
+            *g += 1;
+        }
+        self.cv.notify_all();
+    }
+
+    fn wait(&self, seen: u64, timeout: Duration) -> u64 {
+        let Ok(g) = self.generation.lock() else {
+            std::thread::sleep(timeout);
+            return seen;
+        };
+        if *g != seen {
+            return *g;
+        }
+        match self.cv.wait_timeout(g, timeout) {
+            Ok((g, _)) => *g,
+            Err(_) => seen,
+        }
+    }
+}
+
 /// Shared state between the supervisor and its owner.
 #[derive(Debug, Default)]
 struct State {
@@ -119,6 +171,8 @@ struct State {
     /// Supervisor polls spent waiting out an interruption (AU-03).
     held: AtomicU64,
     following_default: AtomicBool,
+    /// Route notifications received (backend or session).
+    route_events: AtomicU64,
     /// The app's closure panicked: nothing more is opened.
     poisoned: Arc<AtomicBool>,
     current: Mutex<Option<StreamStats>>,
@@ -175,19 +229,37 @@ impl ResilientStream {
             poisoned,
             ..State::default()
         });
+        // Route notifications wake the supervisor early (AU-09).
+        let wake = Arc::new(Wake::default());
+        let w2 = Arc::clone(&wake);
+        let route_wake: super::RouteWake = Arc::new(move || w2.ring());
+        let watch = backend.watch(Arc::clone(&route_wake));
+        if let Some(s) = &session {
+            s.subscribe_route(&route_wake);
+        }
         let st = Arc::clone(&state);
+        let w3 = Arc::clone(&wake);
         let thread = std::thread::Builder::new()
             .name("vieww-audio-supervisor".into())
             .spawn(move || {
+                let _watch = watch; // unsubscribed when the supervisor ends
+                let _route_wake = route_wake; // the session holds it weakly
                 let mut stream = Some(first);
                 let mut default = backend.default_device_id();
                 let mut since_default = Duration::ZERO;
                 let mut lost_for = Duration::ZERO;
                 let mut backoff = POLL;
                 let mut named_gone = false;
+                let mut seen = 0u64;
                 while !st.stop.load(Ordering::Acquire) {
-                    std::thread::sleep(POLL);
+                    let rung = w3.wait(seen, POLL);
                     since_default += POLL;
+                    if rung != seen {
+                        // A route notification: look at the default now.
+                        seen = rung;
+                        st.route_events.fetch_add(1, Ordering::Relaxed);
+                        since_default = DEFAULT_POLL;
+                    }
                     let ended = stream.as_ref().is_none_or(|s| s.stats().ended);
                     if let Some(s) = &stream {
                         if let Ok(mut c) = st.current.lock() {
@@ -304,6 +376,13 @@ impl ResilientStream {
         self.state.failed_opens.load(Ordering::Relaxed)
     }
 
+    /// Route notifications received (AU-09): each made the supervisor look
+    /// at the default device at once instead of within a second.
+    #[must_use]
+    pub fn route_events(&self) -> u64 {
+        self.state.route_events.load(Ordering::Relaxed)
+    }
+
     /// How many supervisor polls (100 ms each) were spent waiting out an
     /// interruption instead of reopening.
     #[must_use]
@@ -349,6 +428,9 @@ mod tests {
         generation: Arc<AtomicU32>,
         present: Arc<AtomicBool>,
         default_id: Arc<Mutex<String>>,
+        /// Set: the backend has route notifications (AU-09), and this is
+        /// where the supervisor's waker lands.
+        notify: Option<Arc<Mutex<Option<super::super::RouteWake>>>>,
     }
 
     struct FakeStream {
@@ -419,6 +501,78 @@ mod tests {
         fn default_device_id(&self) -> Option<String> {
             self.default_id.lock().ok().map(|s| s.clone())
         }
+        fn watch(&self, wake: super::super::RouteWake) -> Option<super::super::RouteWatch> {
+            let slot = self.notify.as_ref()?;
+            *slot.lock().unwrap() = Some(wake);
+            Some(Box::new(()))
+        }
+    }
+
+    /// AU-09: a route notification makes the supervisor follow a new
+    /// default at once, not within the one-second poll.
+    #[test]
+    fn a_route_notification_follows_the_default_at_once() {
+        let notify = Arc::new(Mutex::new(None));
+        let fake = Fake {
+            notify: Some(Arc::clone(&notify)),
+            ..Fake::default()
+        };
+        fake.present.store(true, Ordering::Release);
+        *fake.default_id.lock().unwrap() = "speakers".into();
+        let default_id = fake.default_id.clone();
+        let rs = ResilientStream::open(
+            Box::new(fake),
+            Target::Default,
+            StreamConfig::default(),
+            Box::new(|_, _| {}),
+        )
+        .unwrap();
+        // Past the first default poll, so the next one is a second away.
+        std::thread::sleep(Duration::from_millis(1_150));
+        assert_eq!(rs.reopens(), 0);
+        *default_id.lock().unwrap() = "headphones".into();
+        let wake = notify
+            .lock()
+            .unwrap()
+            .clone()
+            .expect("the backend was watched");
+        wake();
+        std::thread::sleep(Duration::from_millis(300));
+        assert_eq!(
+            rs.reopens(),
+            1,
+            "followed within 300 ms of the notification"
+        );
+        assert!(rs.route_events() >= 1);
+    }
+
+    /// AU-09: the session's route change (Android AudioDeviceCallback, iOS
+    /// route observer) wakes every device stream the same way.
+    #[test]
+    fn a_session_route_change_wakes_the_supervisor() {
+        use crate::session::AudioSession;
+        let fake = Fake::default();
+        fake.present.store(true, Ordering::Release);
+        *fake.default_id.lock().unwrap() = "speakers".into();
+        let default_id = fake.default_id.clone();
+        let session = Arc::new(AudioSession::new());
+        let rs = ResilientStream::open_with_session(
+            Box::new(fake),
+            Target::Default,
+            StreamConfig::default(),
+            Box::new(|_, _| {}),
+            Some(Arc::clone(&session)),
+        )
+        .unwrap();
+        std::thread::sleep(Duration::from_millis(1_150));
+        *default_id.lock().unwrap() = "bluetooth".into();
+        session.notify_route_change();
+        std::thread::sleep(Duration::from_millis(300));
+        assert_eq!(rs.reopens(), 1);
+        assert_eq!(session.route_changes(), 1);
+        drop(rs);
+        // A stream that ended is no longer woken (its waker is gone).
+        session.notify_route_change();
     }
 
     #[test]

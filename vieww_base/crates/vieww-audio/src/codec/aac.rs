@@ -863,6 +863,64 @@ fn reorder(pcm: &mut [f32], channels: usize, config: u8) {
 ///
 /// # Errors
 /// Malformed frames or unsupported profiles.
+/// An ADTS frame header.
+#[derive(Debug, Clone, Copy)]
+struct Adts {
+    /// Header bytes (7, or 9 with a CRC).
+    hdr: usize,
+    /// The whole frame's length.
+    len: usize,
+    rate_idx: usize,
+    channel_cfg: u8,
+}
+
+/// The ADTS header at `b` (the stream from a sync word on), checked as
+/// [`decode_adts`] checks it; `remaining` is how many bytes the stream has
+/// from here, which a frame may not run past.
+fn adts_header(b: &[u8], remaining: usize) -> Result<Adts, CodecError> {
+    let mut r = Rd::new(b);
+    rd(&mut r, 12)?;
+    rd(&mut r, 1)?;
+    rd(&mut r, 2)?;
+    let no_crc = rd(&mut r, 1)? == 1;
+    let profile = rd(&mut r, 2)?;
+    let rate_idx = rd(&mut r, 4)? as usize;
+    rd(&mut r, 1)?;
+    let channel_cfg = u8::try_from(rd(&mut r, 3)?).unwrap_or(0);
+    rd(&mut r, 4)?;
+    let len = rd(&mut r, 13)? as usize;
+    rd(&mut r, 11)?;
+    let blocks = rd(&mut r, 2)? as usize + 1;
+    if profile != 1 {
+        return Err(CodecError::Unsupported("AAC profiles other than LC"));
+    }
+    if rate_idx >= 12 || len < 7 || len > remaining {
+        return Err(CodecError::Malformed("ADTS header"));
+    }
+    let hdr = if no_crc { 7 } else { 9 };
+    // A frame with a CRC has a 9-byte header: a declared length of 7 or
+    // 8 passed the check above and sliced `at+9..at+len` backwards
+    // (fuzz finding: "slice index starts at 86 but ends at 85").
+    if len < hdr {
+        return Err(CodecError::Malformed("ADTS frame shorter than its header"));
+    }
+    if blocks > 1 {
+        return Err(CodecError::Unsupported(
+            "multiple raw blocks per ADTS frame",
+        ));
+    }
+    Ok(Adts {
+        hdr,
+        len,
+        rate_idx,
+        channel_cfg,
+    })
+}
+
+const fn is_adts_sync(b: &[u8]) -> bool {
+    b.len() >= 2 && b[0] == 0xFF && b[1] & 0xF6 == 0xF0
+}
+
 pub fn decode_adts(bytes: &[u8]) -> Result<Decoded, CodecError> {
     let mut at = 0;
     let mut dec: Option<Decoder> = None;
@@ -870,46 +928,17 @@ pub fn decode_adts(bytes: &[u8]) -> Result<Decoded, CodecError> {
     let mut out = Vec::new();
     let mut rate = 0;
     while at + 7 <= bytes.len() {
-        if !(bytes[at] == 0xFF && bytes[at + 1] & 0xF6 == 0xF0) {
+        if !is_adts_sync(&bytes[at..]) {
             at += 1;
             continue;
         }
-        let mut r = Rd::new(&bytes[at..]);
-        rd(&mut r, 12)?;
-        rd(&mut r, 1)?;
-        rd(&mut r, 2)?;
-        let no_crc = rd(&mut r, 1)? == 1;
-        let profile = rd(&mut r, 2)?;
-        let rate_idx = rd(&mut r, 4)? as usize;
-        rd(&mut r, 1)?;
-        let channel_cfg = u8::try_from(rd(&mut r, 3)?).unwrap_or(0);
-        rd(&mut r, 4)?;
-        let len = rd(&mut r, 13)? as usize;
-        rd(&mut r, 11)?;
-        let blocks = rd(&mut r, 2)? as usize + 1;
-        if profile != 1 {
-            return Err(CodecError::Unsupported("AAC profiles other than LC"));
-        }
-        if rate_idx >= 12 || len < 7 || at + len > bytes.len() {
-            return Err(CodecError::Malformed("ADTS header"));
-        }
-        let hdr = if no_crc { 7 } else { 9 };
-        // A frame with a CRC has a 9-byte header: a declared length of 7 or
-        // 8 passed the check above and sliced `at+9..at+len` backwards
-        // (fuzz finding: "slice index starts at 86 but ends at 85").
-        if len < hdr {
-            return Err(CodecError::Malformed("ADTS frame shorter than its header"));
-        }
-        if blocks > 1 {
-            return Err(CodecError::Unsupported(
-                "multiple raw blocks per ADTS frame",
-            ));
-        }
-        let d = dec.get_or_insert_with(|| Decoder::new(rate_idx, usize::from(channel_cfg.max(1))));
-        cfg = channel_cfg;
-        rate = RATES[rate_idx];
-        out.extend(d.block(&bytes[at + hdr..at + len])?);
-        at += len;
+        let h = adts_header(&bytes[at..], bytes.len() - at)?;
+        let d =
+            dec.get_or_insert_with(|| Decoder::new(h.rate_idx, usize::from(h.channel_cfg.max(1))));
+        cfg = h.channel_cfg;
+        rate = RATES[h.rate_idx];
+        out.extend(d.block(&bytes[at + h.hdr..at + h.len])?);
+        at += h.len;
     }
     let d = dec.ok_or(CodecError::NotThisFormat)?;
     let ch = d.channels.max(1);
@@ -922,13 +951,11 @@ pub fn decode_adts(bytes: &[u8]) -> Result<Decoded, CodecError> {
     .validated()
 }
 
-/// Decode AAC in an MP4/M4A container.
-///
-/// # Errors
-/// No audio track, unsupported object types, malformed frames.
-pub fn decode_mp4(bytes: &[u8]) -> Result<Decoded, CodecError> {
-    let t = super::mp4::audio_track(bytes)?;
-    let mut r = Rd::new(&t.config);
+/// An AudioSpecificConfig's rate, rate index and channel configuration,
+/// refusing what this decoder does not implement (only AAC-LC, 1024-sample
+/// frames).
+fn lc_config(config: &[u8]) -> Result<(u32, usize, u8), CodecError> {
+    let mut r = Rd::new(config);
     let mut aot = rd(&mut r, 5)?;
     if aot == 31 {
         aot = 32 + rd(&mut r, 6)?;
@@ -951,6 +978,16 @@ pub fn decode_mp4(bytes: &[u8]) -> Result<Decoded, CodecError> {
         return Err(CodecError::Unsupported("960-sample AAC frames"));
     }
     let ri = RATES.iter().position(|v| *v == rate).unwrap_or(4);
+    Ok((rate, ri, channel_cfg))
+}
+
+/// Decode AAC in an MP4/M4A container.
+///
+/// # Errors
+/// No audio track, unsupported object types, malformed frames.
+pub fn decode_mp4(bytes: &[u8]) -> Result<Decoded, CodecError> {
+    let t = super::mp4::audio_track(bytes)?;
+    let (rate, ri, channel_cfg) = lc_config(&t.config)?;
     let mut d = Decoder::new(ri, usize::from(channel_cfg.max(1)));
     let mut out = Vec::new();
     for (off, len) in &t.samples {
@@ -969,6 +1006,231 @@ pub fn decode_mp4(bytes: &[u8]) -> Result<Decoded, CodecError> {
         rate,
     }
     .validated()
+}
+
+// ── streaming (AU-05) ────────────────────────────────────────────────────
+
+/// Frames decoded before a seek target: the filterbank's overlap is one
+/// frame deep.
+const AAC_PREROLL: u64 = 2;
+/// Samples per AAC-LC frame.
+const AAC_FRAME: u64 = 1024;
+
+/// AAC in MP4/M4A an access unit at a time, for [`super::stream`]: the
+/// `moov` box is read (its sample table lists every unit's bytes), and
+/// each unit is read from the file as it is decoded.
+pub(crate) struct Mp4Source {
+    track: super::mp4::AudioTrack,
+    rate: u32,
+    ri: usize,
+    channel_cfg: u8,
+    dec: Decoder,
+    next: usize,
+}
+
+impl Mp4Source {
+    pub(crate) fn open(input: &mut super::stream::Input) -> Result<Self, CodecError> {
+        let len = input.len();
+        if input.window(4, 4)? != b"ftyp" {
+            return Err(CodecError::NotThisFormat);
+        }
+        let mut at = 0u64;
+        let mut moov = None;
+        while at + 8 <= len {
+            let h = input.window(at, 16)?.to_vec();
+            if h.len() < 8 {
+                break;
+            }
+            let size32 = u32::from_be_bytes([h[0], h[1], h[2], h[3]]);
+            let (hdr, size) = match size32 {
+                0 => (8u64, len - at),
+                1 if h.len() >= 16 => (
+                    16,
+                    u64::from_be_bytes([h[8], h[9], h[10], h[11], h[12], h[13], h[14], h[15]]),
+                ),
+                n => (8, u64::from(n)),
+            };
+            if size < hdr || size > len - at {
+                break;
+            }
+            if &h[4..8] == b"moov" {
+                // A moov is metadata: a sample table of a few MB even for
+                // hours of audio. Refuse a claim past 256 MB.
+                let body = usize::try_from(size - hdr)
+                    .ok()
+                    .filter(|n| *n <= 256 << 20)
+                    .ok_or(CodecError::Malformed("moov box too large"))?;
+                let bytes = input.window(at + hdr, body)?;
+                if bytes.len() < body {
+                    return Err(CodecError::Truncated);
+                }
+                moov = Some(bytes.to_vec());
+                break;
+            }
+            at += size;
+        }
+        let moov = moov.ok_or(CodecError::Malformed("no moov box"))?;
+        let track = super::mp4::track_from_moov(&moov, usize::try_from(len).unwrap_or(usize::MAX))?;
+        let (rate, ri, channel_cfg) = lc_config(&track.config)?;
+        Ok(Self {
+            dec: Decoder::new(ri, usize::from(channel_cfg.max(1))),
+            track,
+            rate,
+            ri,
+            channel_cfg,
+            next: 0,
+        })
+    }
+}
+
+impl super::stream::FrameSource for Mp4Source {
+    fn channels(&self) -> usize {
+        self.dec.channels.max(1)
+    }
+
+    fn rate(&self) -> u32 {
+        self.rate
+    }
+
+    fn trim(&self) -> (u64, Option<u64>) {
+        (self.track.skip, self.track.play)
+    }
+
+    fn next(
+        &mut self,
+        input: &mut super::stream::Input,
+    ) -> Result<Option<super::stream::Chunk>, CodecError> {
+        let Some(&(off, len)) = self.track.samples.get(self.next) else {
+            return Ok(None);
+        };
+        self.next += 1;
+        let unit = input.window(off as u64, len)?;
+        if unit.len() < len {
+            return Err(CodecError::Truncated);
+        }
+        let mut pcm = self.dec.block(unit)?;
+        reorder(&mut pcm, self.dec.channels.max(1), self.channel_cfg);
+        Ok(Some(super::stream::Chunk { pcm }))
+    }
+
+    fn seek(&mut self, _input: &mut super::stream::Input, frame: u64) -> Result<u64, CodecError> {
+        let unit = (frame / AAC_FRAME).saturating_sub(AAC_PREROLL);
+        self.next = usize::try_from(unit)
+            .unwrap_or(usize::MAX)
+            .min(self.track.samples.len());
+        self.dec = Decoder::new(self.ri, usize::from(self.channel_cfg.max(1)));
+        Ok(self.next as u64 * AAC_FRAME)
+    }
+}
+
+/// AAC in ADTS frames, a frame at a time, for [`super::stream`].
+pub(crate) struct AdtsSource {
+    dec: Decoder,
+    rate_idx: usize,
+    channels: usize,
+    at: u64,
+    first: u64,
+    frames: u64,
+    /// `(offset, frame number)` every 16 frames, for seeking.
+    index: Vec<(u64, u64)>,
+}
+
+impl AdtsSource {
+    pub(crate) fn open(input: &mut super::stream::Input) -> Result<Self, CodecError> {
+        let len = input.len();
+        let head = input.window(0, 64 << 10)?.to_vec();
+        let first = (0..head.len().saturating_sub(7))
+            .find(|&i| is_adts_sync(&head[i..]))
+            .ok_or(CodecError::NotThisFormat)?;
+        let h = adts_header(
+            &head[first..],
+            usize::try_from(len - first as u64).unwrap_or(usize::MAX),
+        )?;
+        let channels = usize::from(h.channel_cfg.max(1));
+        Ok(Self {
+            dec: Decoder::new(h.rate_idx, channels),
+            rate_idx: h.rate_idx,
+            channels,
+            at: first as u64,
+            first: first as u64,
+            frames: 0,
+            index: vec![(first as u64, 0)],
+        })
+    }
+}
+
+impl super::stream::FrameSource for AdtsSource {
+    fn channels(&self) -> usize {
+        self.channels
+    }
+
+    fn rate(&self) -> u32 {
+        RATES[self.rate_idx]
+    }
+
+    fn trim(&self) -> (u64, Option<u64>) {
+        (0, None)
+    }
+
+    fn next(
+        &mut self,
+        input: &mut super::stream::Input,
+    ) -> Result<Option<super::stream::Chunk>, CodecError> {
+        let len = input.len();
+        loop {
+            if self.at + 7 > len {
+                return Ok(None);
+            }
+            let w = input.window(self.at, 8 << 10)?;
+            if !is_adts_sync(w) {
+                self.at += 1;
+                continue;
+            }
+            let h = adts_header(w, usize::try_from(len - self.at).unwrap_or(usize::MAX))?;
+            let frame = input.window(self.at, h.len)?;
+            if frame.len() < h.len {
+                return Err(CodecError::Truncated);
+            }
+            let mut pcm = self.dec.block(&frame[h.hdr..h.len])?;
+            reorder(&mut pcm, self.channels, h.channel_cfg);
+            if self.frames.is_multiple_of(16) && self.index.last().is_none_or(|l| l.1 < self.frames) {
+                self.index.push((self.at, self.frames));
+            }
+            self.at += h.len as u64;
+            self.frames += 1;
+            return Ok(Some(super::stream::Chunk { pcm }));
+        }
+    }
+
+    fn seek(&mut self, input: &mut super::stream::Input, frame: u64) -> Result<u64, CodecError> {
+        let len = input.len();
+        let want = (frame / AAC_FRAME).saturating_sub(AAC_PREROLL);
+        let &(mut pos, mut n) = self
+            .index
+            .iter()
+            .rev()
+            .find(|(_, f)| *f <= want)
+            .unwrap_or(&(self.first, 0));
+        while n < want && pos + 7 <= len {
+            let w = input.window(pos, 16)?;
+            if !is_adts_sync(w) {
+                pos += 1;
+                continue;
+            }
+            let Ok(h) = adts_header(w, usize::try_from(len - pos).unwrap_or(usize::MAX)) else {
+                break;
+            };
+            pos += h.len as u64;
+            n += 1;
+            if n.is_multiple_of(16) && self.index.last().is_none_or(|l| l.1 < n) {
+                self.index.push((pos, n));
+            }
+        }
+        self.at = pos;
+        self.frames = n;
+        self.dec = Decoder::new(self.rate_idx, self.channels);
+        Ok(n * AAC_FRAME)
+    }
 }
 
 #[cfg(test)]

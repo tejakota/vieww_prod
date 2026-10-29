@@ -56,6 +56,9 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 
+mod frames;
+pub use frames::raw_frames;
+
 /// Where in the source a crash came from.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CrashLocation {
@@ -131,6 +134,12 @@ pub struct CrashReport {
     /// This is where a report stops being a stack trace and starts being
     /// diagnosable: which screen was up, which frame number, which device.
     pub context: Vec<(String, String)>,
+    /// The raw stack: each frame's address, its module, the offset into
+    /// it and the module's build id ([`raw_frames`]). What a stripped
+    /// release build can still be symbolised from, offline, against the
+    /// debug files `ci/release/symbols.sh` keeps (FW-12). Empty where the
+    /// platform has no unwinder this can call.
+    pub frames: Vec<String>,
 }
 
 impl CrashReport {
@@ -182,6 +191,9 @@ impl CrashReport {
         }
         for (key, value) in &self.context {
             line(&format!("context.{key}"), &Sanitised(value));
+        }
+        for frame in &self.frames {
+            line("frame", frame);
         }
 
         text.push('\n');
@@ -382,6 +394,7 @@ impl Crashes {
             backtrace: std::backtrace::Backtrace::force_capture().to_string(),
             unix_millis: now_millis(),
             context: self.all_context(),
+            frames: raw_frames(),
         };
         self.deliver(&report);
     }
@@ -439,6 +452,7 @@ impl Crashes {
                 backtrace: std::backtrace::Backtrace::force_capture().to_string(),
                 unix_millis: now_millis(),
                 context: self.all_context(),
+                frames: raw_frames(),
             };
             self.deliver(&report);
 
@@ -618,6 +632,7 @@ mod tests {
             thread: "main".to_owned(),
             backtrace: "0: nothing\n".to_owned(),
             unix_millis: 1_700_000_000_000,
+            frames: vec!["#0 0x0000000000001000 app+0x1000 build-id=ab".to_owned()],
             context: vec![("build".to_owned(), "0.0.1".to_owned())],
         }
     }

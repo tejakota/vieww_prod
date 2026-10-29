@@ -138,6 +138,9 @@ pub struct AudioSession {
     generation: AtomicU64,
     log: Mutex<VecDeque<SessionEvent>>,
     remote: Mutex<Vec<RemoteCommand>>,
+    /// Device streams' supervisors, woken by [`Self::notify_route_change`].
+    route_wakers: Mutex<Vec<std::sync::Weak<dyn Fn() + Send + Sync>>>,
+    route_changes: AtomicU64,
 }
 
 impl std::fmt::Debug for AudioSession {
@@ -175,6 +178,8 @@ impl AudioSession {
             generation: AtomicU64::new(0),
             log: Mutex::new(VecDeque::with_capacity(LOG_DEPTH)),
             remote: Mutex::new(Vec::new()),
+            route_wakers: Mutex::new(Vec::new()),
+            route_changes: AtomicU64::new(0),
         }
     }
 
@@ -298,6 +303,40 @@ impl AudioSession {
             (s.on_route(r), s.request().duck_db)
         };
         self.apply(a, db)
+    }
+
+    /// The platform saw the output devices change (AU-09): Android's
+    /// `AudioDeviceCallback`, iOS's route-change notification. Every device
+    /// stream's supervisor looks at the default device at once instead of
+    /// within its one-second poll.
+    pub fn notify_route_change(&self) {
+        self.route_changes.fetch_add(1, Ordering::Relaxed);
+        let wakers: Vec<_> = self
+            .route_wakers
+            .lock()
+            .map(|mut w| {
+                w.retain(|x| x.strong_count() > 0);
+                w.iter().filter_map(std::sync::Weak::upgrade).collect()
+            })
+            .unwrap_or_default();
+        for wake in wakers {
+            wake();
+        }
+    }
+
+    /// How many route changes the platform reported.
+    #[must_use]
+    pub fn route_changes(&self) -> u64 {
+        self.route_changes.load(Ordering::Relaxed)
+    }
+
+    /// Register a supervisor's waker (held weakly: a stream that ends
+    /// unsubscribes by dropping it).
+    pub fn subscribe_route(&self, wake: &Arc<dyn Fn() + Send + Sync>) {
+        if let Ok(mut w) = self.route_wakers.lock() {
+            w.retain(|x| x.strong_count() > 0);
+            w.push(Arc::downgrade(wake));
+        }
     }
 
     /// A remote command from the platform, queued for the player.

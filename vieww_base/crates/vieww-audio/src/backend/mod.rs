@@ -155,7 +155,23 @@ pub struct Counters {
     /// long a sample rendered now takes to reach the device. 0 = not
     /// reported.
     pub latency_ns: AtomicU64,
+    /// The stream holds the device exclusively (AAudio exclusive mode,
+    /// WASAPI exclusive): no system mixer between it and the hardware.
+    pub exclusive: AtomicBool,
+    /// The stream ended because its device went away (as opposed to any
+    /// other error), when the backend can tell the difference.
+    pub disconnected: AtomicBool,
+    /// The device-side buffer the stream runs with, in frames (0 = not
+    /// reported): what the latency is made of.
+    pub buffer_frames: AtomicU64,
 }
+
+/// Called by a backend's route notification: "the devices may have
+/// changed, look now" (see [`Backend::watch`]).
+pub type RouteWake = std::sync::Arc<dyn Fn() + Send + Sync>;
+
+/// Keeps a route subscription alive; dropping it unsubscribes.
+pub type RouteWatch = Box<dyn std::any::Any + Send>;
 
 /// A snapshot of [`Counters`].
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
@@ -182,6 +198,12 @@ pub struct StreamStats {
     pub late: u64,
     /// Output latency as the audio system reports it, if it does.
     pub latency: Option<std::time::Duration>,
+    /// Whether the stream holds the device exclusively.
+    pub exclusive: bool,
+    /// Whether it ended because its device went away.
+    pub disconnected: bool,
+    /// The device-side buffer, in frames, if reported.
+    pub buffer_frames: Option<u64>,
 }
 
 impl Counters {
@@ -212,6 +234,12 @@ impl Counters {
             latency: match self.latency_ns.load(Ordering::Relaxed) {
                 0 => None,
                 ns => Some(std::time::Duration::from_nanos(ns)),
+            },
+            exclusive: self.exclusive.load(Ordering::Relaxed),
+            disconnected: self.disconnected.load(Ordering::Relaxed),
+            buffer_frames: match self.buffer_frames.load(Ordering::Relaxed) {
+                0 => None,
+                n => Some(n),
             },
         }
     }
@@ -454,6 +482,20 @@ pub trait Backend: Send + Sync {
         Ok(Vec::new())
     }
 
+    /// Subscribe to the system's route notifications (AU-09): `wake` is
+    /// called, from any thread, whenever the default device or the set of
+    /// devices may have changed. The returned guard unsubscribes when
+    /// dropped. `None` (the default): this backend has no notifications,
+    /// and [`resilient::ResilientStream`] keeps polling
+    /// [`default_device_id`](Self::default_device_id) once a second.
+    ///
+    /// `wake` only says "look now"; the stream then asks the backend what
+    /// changed, so a backend may call it spuriously.
+    fn watch(&self, wake: RouteWake) -> Option<RouteWatch> {
+        let _ = wake;
+        None
+    }
+
     /// The id of the device the system currently uses by default, when the
     /// backend can tell — what [`resilient::ResilientStream`] watches to
     /// follow a default that moves (headphones plugged in, an output picked
@@ -534,7 +576,7 @@ pub fn backends() -> Vec<Box<dyn Backend>> {
     #[cfg(target_os = "ios")]
     v.push(Box::new(coreaudio::CoreAudio));
     #[cfg(target_os = "android")]
-    v.push(Box::new(aaudio::AAudio));
+    v.push(Box::new(aaudio::AAudio::default()));
     #[cfg(target_arch = "wasm32")]
     v.push(Box::new(web::WebAudio));
     v

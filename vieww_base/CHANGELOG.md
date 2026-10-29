@@ -20,6 +20,13 @@ tag needs a `## [x.y.z]` section here before it is pushed.
 - **Device Farm audio pass**: reads the media-session state in Android 13+'s `state=PLAYING(3)` form, sends media keys with `media dispatch` on Android 9, and logs each line once; the headphones receiver is registered on the application context so it no longer leaks with the activity.
 
 ### Added
+
+- Streaming decode (`codec::stream`): WAV, FLAC, MP3 and AAC (MP4/ADTS) play from disk through a bounded window, with seeking (AU-05).
+- AAudio exclusive mode, burst-sized buffers that grow on underruns, and latency/disconnect reporting (AU-08).
+- Audio route changes are delivered as events on Windows, macOS, Android and iOS; the engine resamples when the device rate changes (AU-09).
+- WASAPI low-latency shared streams via IAudioClient3 (AU-10).
+- Per-device-class performance budgets, `ci/check/perf-budget.sh` (FW-08).
+- Symbolicated crash reports: raw frames with build IDs, a `dist-symbols` profile, `ci/release/symbols.sh` and `symbolize.py` (FW-12).
 - **Device Farm: audio pass** (AU-02, AU-03, AU-04): on every phone, the demo plays a tone and checks focus loss/duck/resume (Android, through a real competing focus request) or the session category, now-playing entry and interruption handling (iOS); the runners then check media-session pause/play, the foreground service, and that audio keeps playing with the screen off (Android, 60 s) or in the background (iOS, 30 s). The Device Farm APK and .ipa are built with background audio on.
 - **Mobile audio: focus and interruptions** (AU-02, AU-03): `vieww_audio::focus` and `vieww_audio::session` — one focus/interruption state machine for both platforms; the engine pauses on the exact sample, ducks smoothly and resumes only what it paused. Android requests `AudioFocusRequest` focus (refused during a call: `PlayError::FocusDenied`); iOS sets the `AVAudioSession` category and follows interruptions, route changes and media-services resets. The device stream is not reopened during an interruption.
 - **Mobile audio: background playback and lock-screen controls** (AU-04): `NowPlaying` and `RemoteCommand`, `MediaPlayer::set_metadata` / `poll_remote`; Android `MediaSession` + a `mediaPlayback` foreground service (`apk-add-code.sh --background-audio`), iOS `MPNowPlayingInfoCenter` / `MPRemoteCommandCenter` and an opt-in `UIBackgroundModes` (`background-audio = true` under `[package.metadata.vieww]`). `ci/mobile/lint-background-audio.sh` checks a built APK or plist.

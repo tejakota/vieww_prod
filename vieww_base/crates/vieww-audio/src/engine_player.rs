@@ -135,6 +135,10 @@ struct Voice {
     id: u64,
     samples: Arc<Samples>,
     frame: usize,
+    /// Fraction of a frame past `frame`, when the device runs at another
+    /// rate than the engine (AU-09: a reopened stream on a device that
+    /// granted a different rate).
+    frac: f32,
     gain: f32,
     target: f32,
     step: f32,
@@ -176,6 +180,8 @@ struct Shared {
     session: Arc<AudioSession>,
     /// The duck gain the last block ended on, for the ramp.
     applied_duck: AtomicU32,
+    /// The rate voices were prepared at (the engine's).
+    rate: u32,
 }
 
 /// The mixer behind both facades. Cheap to share: clone the `Arc`.
@@ -261,6 +267,7 @@ impl Engine {
                 master: AtomicU32::new(1.0f32.to_bits()),
                 session,
                 applied_duck: AtomicU32::new(1.0f32.to_bits()),
+                rate: rate.max(1),
             }),
             rate: rate.max(1),
             channels: channels.max(1),
@@ -277,10 +284,25 @@ impl Engine {
         render_into(&self.shared, out, usize::from(self.channels), self.rate);
     }
 
+    /// Render at a device `rate` other than the engine's — what the device
+    /// callback does after a stream reopened on a device that granted
+    /// another rate. For tests.
+    #[cfg(test)]
+    fn render_at(&self, out: &mut [f32], rate: u32) {
+        render_into(&self.shared, out, usize::from(self.channels), rate);
+    }
+
     /// The audio session this engine obeys.
     #[must_use]
     pub fn session(&self) -> &Arc<AudioSession> {
         &self.shared.session
+    }
+
+    /// The device stream's statistics (latency, underruns, buffer,
+    /// exclusive mode), or `None` detached or between streams.
+    #[must_use]
+    pub fn stream_stats(&self) -> Option<crate::backend::StreamStats> {
+        self.stream.as_ref().and_then(ResilientStream::stats)
     }
 
     /// Supervisor polls spent waiting out an interruption (0 detached).
@@ -334,6 +356,7 @@ impl Engine {
             id,
             samples,
             frame: 0,
+            frac: 0.0,
             gain: 0.0,
             target: 0.0,
             step: 0.0,
@@ -521,7 +544,7 @@ impl Engine {
 }
 
 /// The audio callback. No allocation, no blocking.
-fn render_into(shared: &Shared, out: &mut [f32], channels: usize, _rate: u32) {
+fn render_into(shared: &Shared, out: &mut [f32], channels: usize, rate: u32) {
     out.fill(0.0);
     let frames = out.len() / channels;
     shared.frames.fetch_add(frames as u64, Ordering::Relaxed);
@@ -544,6 +567,16 @@ fn render_into(shared: &Shared, out: &mut [f32], channels: usize, _rate: u32) {
         (duck_to - duck_from) / frames as f32
     } else {
         0.0
+    };
+    // Source frames per output frame. 1 unless the device was reopened at
+    // another rate than the engine's (a Bluetooth headset switching to its
+    // 16 kHz call profile, say): then the voices are stepped through at
+    // the ratio, linearly interpolated, so pitch and speed stay right.
+    #[expect(clippy::cast_precision_loss, reason = "a rate ratio")]
+    let step = if rate == 0 || rate == shared.rate {
+        None
+    } else {
+        Some(shared.rate as f32 / rate as f32)
     };
     for v in voices.iter_mut() {
         if v.finished.is_some() || v.paused {
@@ -581,11 +614,29 @@ fn render_into(shared: &Shared, out: &mut [f32], channels: usize, _rate: u32) {
             }
             let base = v.frame * src_ch;
             let g = v.gain * master * (duck_from + duck_step * (f + 1) as f32);
-            for c in 0..channels.min(2) {
-                let s = v.samples.data[base + c.min(src_ch - 1)];
-                out[f * channels + c] += s * g;
+            match step {
+                None => {
+                    for c in 0..channels.min(2) {
+                        let s = v.samples.data[base + c.min(src_ch - 1)];
+                        out[f * channels + c] += s * g;
+                    }
+                    v.frame += 1;
+                }
+                Some(step) => {
+                    let next = (v.frame + 1).min(total - 1) * src_ch;
+                    for c in 0..channels.min(2) {
+                        let k = c.min(src_ch - 1);
+                        let a = v.samples.data[base + k];
+                        let b = v.samples.data[next + k];
+                        out[f * channels + c] += (a + (b - a) * v.frac) * g;
+                    }
+                    v.frac += step;
+                    while v.frac >= 1.0 {
+                        v.frac -= 1.0;
+                        v.frame += 1;
+                    }
+                }
             }
-            v.frame += 1;
         }
     }
 }
@@ -1407,6 +1458,44 @@ mod tests {
         engine.render(&mut buf);
         engine.render(&mut buf);
         assert!(buf[buf.len() - 2].abs() >= full * 0.99, "back to full");
+    }
+
+    /// AU-09: a device reopened at another rate (a Bluetooth headset's
+    /// 16 kHz call profile) plays at the right speed: a second of output
+    /// at 16 kHz moves the voice a second, not a third of one.
+    #[test]
+    fn a_device_at_another_rate_keeps_speed() {
+        let session = Arc::new(AudioSession::new());
+        let engine = Engine::detached_with_session(48_000, 2, session);
+        let tone: Vec<f32> = (0..48_000 * 4)
+            .map(|i| (i as f32 * 0.01).sin() * 0.5)
+            .collect();
+        let id = engine
+            .play(
+                &Samples {
+                    data: tone,
+                    channels: 1,
+                    rate: 48_000,
+                },
+                VoiceOptions::default(),
+            )
+            .unwrap();
+        let mut buf = vec![0.0f32; 2 * 1_600];
+        for _ in 0..10 {
+            engine.render_at(&mut buf, 16_000); // 10 x 100 ms
+        }
+        let pos = engine.position(id).unwrap();
+        assert!(
+            (pos.as_secs_f64() - 1.0).abs() < 0.01,
+            "one second of 16 kHz output is one second of the voice, got {pos:?}"
+        );
+        assert!(buf.iter().any(|s| *s != 0.0), "and it is not silent");
+        // At the engine's own rate, unchanged.
+        let before = engine.position(id).unwrap();
+        let mut buf = vec![0.0f32; 2 * 4_800];
+        engine.render_at(&mut buf, 48_000);
+        let moved = engine.position(id).unwrap() - before;
+        assert!((moved.as_secs_f64() - 0.1).abs() < 0.001);
     }
 
     /// AU-02: a refused request does not play.

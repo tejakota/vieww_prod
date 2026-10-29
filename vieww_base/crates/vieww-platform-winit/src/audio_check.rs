@@ -95,10 +95,30 @@ fn advance(player: &mut MediaPlayer, wait: Duration) -> i64 {
     }
 }
 
+/// The device stream as the backend reports it (AU-08): sharing mode,
+/// buffer, latency, underruns.
+fn device_line(engine: &Engine) -> String {
+    engine.stream_stats().map_or_else(
+        || "device none".to_owned(),
+        |st| {
+            format!(
+                "device exclusive={} buffer_frames={} latency_ms={} xruns={} late={} disconnected={}",
+                st.exclusive,
+                st.buffer_frames.map_or_else(|| "?".to_owned(), |b| b.to_string()),
+                st.latency
+                    .map_or_else(|| "?".to_owned(), |l| format!("{:.1}", l.as_secs_f64() * 1e3)),
+                st.xruns,
+                st.late,
+                st.disconnected,
+            )
+        },
+    )
+}
+
 fn status(started: Instant, engine: &Engine, player: &mut MediaPlayer, session: &AudioSession) {
     let playing = player.state() == MediaState::Playing && !session.suspended();
     say(&format!(
-        "status t_ms={} callbacks={} rate={} position_ms={} playing={} suspended={} duck={:.3} holding={}",
+        "status t_ms={} callbacks={} rate={} position_ms={} playing={} suspended={} duck={:.3} holding={} xruns={}",
         started.elapsed().as_millis(),
         engine.stats().frames,
         engine.rate(),
@@ -107,6 +127,7 @@ fn status(started: Instant, engine: &Engine, player: &mut MediaPlayer, session: 
         session.suspended(),
         session.duck_gain(),
         session.holding(),
+        engine.stream_stats().map_or(0, |st| st.xruns),
     ));
 }
 
@@ -164,6 +185,16 @@ fn start() -> Option<(Arc<Engine>, MediaPlayer, Checks)> {
     );
     let d = advance(&mut player, Duration::from_secs(2));
     checks.check("plays", d >= 1_500, &format!("advanced {d} ms in 2 s"));
+    // AU-08: every backend reports its output latency; AAudio did not.
+    // (Android only: Core Audio reports it on macOS, not yet on iOS.)
+    let device = device_line(&engine);
+    say(&device);
+    #[cfg(target_os = "android")]
+    checks.check(
+        "output_latency_reported",
+        engine.stream_stats().is_some_and(|st| st.latency.is_some()),
+        &device,
+    );
     Some((engine, player, checks))
 }
 
@@ -240,6 +271,7 @@ pub fn spawn(app: &crate::AndroidApp) {
                 ),
             }
 
+            say(&device_line(&engine));
             say(&format!(
                 "events {:?}",
                 session.log().iter().rev().take(16).collect::<Vec<_>>()

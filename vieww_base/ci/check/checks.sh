@@ -383,6 +383,20 @@ fi
 stage "conformance matrix (vieww's row matches the merge base; every false cell planned)"
 check bash ci/check/conformance-matrix.sh
 
+# FW-08: the performance gate's own tests, and the budgets file it reads
+# (schema, positive figures). The gate itself runs where machines are
+# stable — Device Farm and the self-hosted hardware — not on hosted runners.
+stage "performance budgets (the gate's tests and ci/check/perf-budgets.json)"
+check python3 -I ci/check/test_perf_budget.py
+
+# FW-12: a stripped release build's crash, decoded offline from its raw
+# frames and the debug file ci/release/symbols.sh kept. ELF tooling, so
+# Linux; macOS and Windows keep their dSYM and PDB already.
+if [ "$(uname -s)" = Linux ]; then
+	stage "crash symbols (a stripped release crash decoded to function and line)"
+	check bash ci/check/crash-symbols.sh
+fi
+
 # **The `#[ignore]`d suites, which is the whole reason this file is not just a
 # README paragraph.** They are ignored because they run cargo inside a test and
 # take minutes; they are run here because what they check — a real `cdylib`

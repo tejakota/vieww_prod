@@ -174,6 +174,12 @@ extern "system" fn native_becoming_noisy(_env: *mut jni::sys::JNIEnv, _class: jn
     });
 }
 
+extern "system" fn native_routes_changed(_env: *mut jni::sys::JNIEnv, _class: jni::sys::jclass) {
+    guard(|| {
+        AudioSession::shared().notify_route_change();
+    });
+}
+
 extern "system" fn native_command(
     _env: *mut jni::sys::JNIEnv,
     _class: jni::sys::jclass,
@@ -267,6 +273,50 @@ fn java_side(env: &mut jni::Env<'_>, activity: &JObject<'_>) -> Java {
             })();
             if let Err(e) = registered {
                 log::warn!("vieww-audio: becoming-noisy receiver not registered: {e}");
+            }
+        }
+    }
+
+    // Output devices added or removed (AU-09): wakes the device streams'
+    // supervisors at once rather than within their one-second poll.
+    if let Some(class) = load(env, activity, "dev.vieww.audio.RouteCallback") {
+        // SAFETY: `()V` static ↔ fn(env, class).
+        let m = unsafe {
+            jni::NativeMethod::from_raw_parts(
+                jni_str!("nativeRoutesChanged"),
+                jni_str!("()V"),
+                native_routes_changed as *mut std::ffi::c_void,
+            )
+        };
+        if register(env, &class, m) {
+            let registered = (|| -> JResult<()> {
+                let callback = env.new_object(&class, jni_sig!("()V"), &[])?;
+                let main = env
+                    .call_static_method(
+                        jni_str!("android/os/Looper"),
+                        jni_str!("getMainLooper"),
+                        jni_sig!("()Landroid/os/Looper;"),
+                        &[],
+                    )?
+                    .l()?;
+                let handler = env.new_object(
+                    jni_str!("android/os/Handler"),
+                    jni_sig!("(Landroid/os/Looper;)V"),
+                    &[JValue::Object(&main)],
+                )?;
+                let am = audio_manager(env, activity)?;
+                env.call_method(
+                    &am,
+                    jni_str!("registerAudioDeviceCallback"),
+                    jni_sig!("(Landroid/media/AudioDeviceCallback;Landroid/os/Handler;)V"),
+                    &[JValue::Object(&callback), JValue::Object(&handler)],
+                )?;
+                // Process lifetime, like the receiver.
+                std::mem::forget(env.new_global_ref(&callback)?);
+                Ok(())
+            })();
+            if let Err(e) = registered {
+                log::warn!("vieww-audio: audio device callback not registered: {e}");
             }
         }
     }
