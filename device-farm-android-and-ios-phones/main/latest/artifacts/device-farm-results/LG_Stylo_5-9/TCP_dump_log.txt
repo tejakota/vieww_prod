@@ -1,6 +1,10 @@
 tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
 listening on br0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+05:21:00.656326 IP ec2-44-239-82-101.us-west-2.compute.amazonaws.com.https > ip-192-168-1-100.us-west-2.compute.internal.37318: Flags [P.], seq 3108566889:3108566920, ack 131563751, win 319, options [nop,nop,TS val 1864909347 ecr 1627807], length 31
+05:21:00.656419 IP ec2-44-239-82-101.us-west-2.compute.amazonaws.com.https > ip-192-168-1-100.us-west-2.compute.internal.37318: Flags [F.], seq 31, ack 1, win 319, options [nop,nop,TS val 1864909347 ecr 1627807], length 0
+05:21:00.683724 IP ec2-44-239-82-101.us-west-2.compute.amazonaws.com.https > ip-192-168-1-100.us-west-2.compute.internal.37318: Flags [F.], seq 31, ack 1, win 319, options [nop,nop,TS val 1864909375 ecr 1627807], length 0
+05:21:00.899733 IP ec2-44-239-82-101.us-west-2.compute.amazonaws.com.https > ip-192-168-1-100.us-west-2.compute.internal.37318: Flags [FP.], seq 0:31, ack 1, win 319, options [nop,nop,TS val 1864909591 ecr 1627807], length 31
 
-0 packets captured
-0 packets received by filter
+4 packets captured
+4 packets received by filter
 0 packets dropped by kernel

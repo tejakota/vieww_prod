@@ -1,7 +1,7 @@
 # Device Farm (Android and iOS phones) — FAILURE
 
-- branch: `main`  sha: `8f161fdd0106bc05649e573e034b8f12cf9f5193`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40810844722
+- branch: `main`  sha: `96d73b1fff8cc1d14f55fcae4e2fa2d51c05b953`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40818820451
 
 | job | verdict | failed steps |
 |---|---|---|
