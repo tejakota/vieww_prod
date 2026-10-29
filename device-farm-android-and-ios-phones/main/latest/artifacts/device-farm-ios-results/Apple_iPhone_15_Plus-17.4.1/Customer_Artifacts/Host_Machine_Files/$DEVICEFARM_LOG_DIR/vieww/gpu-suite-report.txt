@@ -1,0 +1,36 @@
+__VIEWW_SUITE__ begin
+__VIEWW_SUITE__ ok   view_metrics_reached_the_tree: 430x932 logical
+__VIEWW_SUITE__ ok   the_display_density_is_plausible: 3x
+__VIEWW_SUITE__ ok   the_safe_area_fits_inside_the_surface: l0 t59 r0 b34
+__VIEWW_SUITE__ --   safe_area: l0 t59 r0 b34 on a 430x932 surface at 3x
+__VIEWW_SUITE__ ok   the_keyboard_inset_is_a_plausible_bottom_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 301.0 } on a 932-tall surface
+__VIEWW_SUITE__ --   keyboard_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 301.0 } at the moment of the report
+__VIEWW_SUITE__ ok   the_keyboard_inset_appears_when_the_keyboard_does: 34 logical pixels
+__VIEWW_SUITE__ ok   a_modal_silences_the_screen_behind_it: 3 of 3 panel item(s) reachable, and nothing is behind the scrim (3 labelled node(s) in the tree)
+__VIEWW_SUITE__ ok   a_tap_reached_a_handler: 1 tap
+__VIEWW_SUITE__ ok   frames_were_presented: 600 frames
+__VIEWW_SUITE__ ok   the_typical_frame_is_inside_its_budget: median 16.059375ms against a budget of 16.666668ms
+__VIEWW_SUITE__ ok   frames_inside_their_budget: 4 of 240 frames over a budget of 16.666668ms (at most 1 in 20)
+__VIEWW_SUITE__ ok   no_frame_stalled: worst 16.838667ms against a stall line of 66.666672ms (max of 4x budget, 3x median), 4 of 240 over budget
+__VIEWW_SUITE__ --   frame_time: median 16.059375ms, worst 16.838667ms, budget 16.666668ms (240 samples)
+__VIEWW_SUITE__ --   startup_stages: before run 22 ms | app setup 0.3 | event loop started 86.8 | resumed 215.3 | window created 15.0 | present ready 19.0 | accessibility and show 0.2 | tree built 3.9 | window ready 5.6 | until first draw 1.8 | app before-frame hooks 0.1 | first build and layout 1.7 | first raster and present 19.7 = 391.1 ms from process start
+__VIEWW_SUITE__ --   frame_stages: medians ms: scale 0.07 plan 0.48 cpu 0.00 gpu_upload 0.02 gpu_record 0.03 gpu_submit 12.58 gpu_wait 2.03 gpu_readback 0.00 acquire 0.04 present 0.04
+__VIEWW_SUITE__ --   frame_stages_p95: p95 ms: scale 0.09 plan 0.57 cpu 0.00 gpu_upload 0.03 gpu_record 0.05 gpu_submit 13.67 gpu_wait 2.86 gpu_readback 0.00 acquire 0.08 present 0.05
+__VIEWW_SUITE__ --   input_latency: input to present ms: median 17.7 p95 32.6 p99 54.3 worst 54.3 over 12 inputs in 12 frames; 0 unanswered within 1 s
+__VIEWW_SUITE__ --   gpu_overlap: on: the app builds the next frame while the GPU draws this one
+__VIEWW_SUITE__ --   gpu_passes: medians ms: draw 0.88 layers 0.00 filters 0.00 shadows 0.00 blit 0.06 total 0.94; p95 ms: draw 2.82 layers 0.00 filters 0.00 shadows 0.00 blit 0.11 total 2.94
+__VIEWW_SUITE__ --   worst_frame: work 16.84 ms, outside the renderer 0.87 ms; stages ms: scale 0.09 plan 0.54 cpu 0.00 gpu_upload 0.05 gpu_record 0.05 gpu_submit 13.54 gpu_wait 1.59 gpu_readback 0.00 acquire 0.05 present 0.05
+__VIEWW_SUITE__ --   pipeline_cache: started from 41036 bytes; saved 41036 bytes after the first GPU frame
+__VIEWW_SUITE__ --   device: tier medium, RAM unreadable, 6 cores
+__VIEWW_SUITE__ --   cache_budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+__VIEWW_SUITE__ --   quality_overlay: tier medium · median 15.290547ms / p95 16.532458ms / worst 16.838667ms vs budget 16.666668ms · 4/240 over
+__VIEWW_SUITE__ ok   damage_tracking_costs_a_fraction_of_a_full_repaint: 0.069 full repaints per frame over 600 frames, against a 3606840px surface
+__VIEWW_SUITE__ --   full_repaints: 3 of 600 frames cost a whole surface, 0 of those after the loop slept
+__VIEWW_SUITE__ ok   idle_frames_do_not_repaint_the_whole_surface: 0 idle full repaint(s) over 600 frames, against a budget of 12
+__VIEWW_SUITE__ ok   the_full_repaint_counter_saw_the_first_frame: 3 full repaint(s) over 600 frames against a 3606840px surface
+__VIEWW_SUITE__ --   frame_report: 600 frames in 10.65s — 56.3fps (median 16.65ms, worst 27.84ms over 240 continuous); work median 16.06ms, worst 16.84ms; 54 over a 16.67ms budget; rasterised 41.14 full repaints (3 frame(s) cost a whole surface, 0 of them idle); stage medians: scale 0.07 plan 0.48 cpu 0.00 gpu[upload 0.02 record 0.03 submit 12.58 wait 2.03 readback 0.00] acquire 0.04 present 0.04 ms
+__VIEWW_SUITE__ --   gpu_frames: 600 of 600 drawn by the GPU rasterizer (600 straight into the swapchain)
+__VIEWW_SUITE__ --   thermal: not reported by this device
+__VIEWW_SUITE__ --   shadow_blurs: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
+__VIEWW_SUITE__ end 14 checks, 0 failed
+__VIEWW_SUITE__ result PASS

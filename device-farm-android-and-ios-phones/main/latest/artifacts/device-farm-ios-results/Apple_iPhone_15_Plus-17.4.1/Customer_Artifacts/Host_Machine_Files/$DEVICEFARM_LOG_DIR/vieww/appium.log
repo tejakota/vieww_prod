@@ -1,0 +1,1772 @@
+2026-10-29 17:09:23:549 [Appium] Welcome to Appium v2.11.5
+2026-10-29 17:09:23:550 [Appium] Non-default server args:
+2026-10-29 17:09:23:551 [Appium] { logTimestamp: true }
+2026-10-29 17:09:23:551 [Appium] The autodetected Appium home path: /Users/device-farm/.appium
+2026-10-29 17:09:23:551 [Appium] Attempting to load driver xcuitest...
+2026-10-29 17:09:23:552 [Appium] Requiring driver at /Users/device-farm/.appium/node_modules/appium-xcuitest-driver/build/index.js
+2026-10-29 17:09:24:060 [Appium] XCUITestDriver has been successfully loaded in 0.509s
+2026-10-29 17:09:24:070 [Appium] Appium REST http interface listener started on http://0.0.0.0:4723
+2026-10-29 17:09:24:070 [Appium] You can provide the following URLs in your client code to connect to this server:
+	http://127.0.0.1:4723/ (only accessible from the same host)
+	http://192.168.64.2:4723/
+2026-10-29 17:09:24:070 [Appium] Available drivers:
+2026-10-29 17:09:24:070 [Appium]   - xcuitest@9.10.5 (automationName 'XCUITest')
+2026-10-29 17:09:24:070 [Appium] No plugins have been installed. Use the "appium plugin" command to install the one(s) you want to use.
+2026-10-29 17:09:24:865 [HTTP] --> GET /status {}
+2026-10-29 17:09:24:866 [AppiumDriver@737b] Calling AppiumDriver.getStatus() with args: []
+2026-10-29 17:09:24:869 [AppiumDriver@737b] Responding to client with driver.getStatus() result: {"ready":true,"message":"The server is ready to accept new connections","build":{"version":"2.11.5"}}
+2026-10-29 17:09:24:875 [HTTP] <-- GET /status 200 8 ms - 111 
+2026-10-29 17:09:25:035 [HTTP] --> POST /session {"capabilities":{"alwaysMatch":{"platformName":"iOS","appium:automationName":"XCUITest","appium:udid":"00008120-00092C983EE0A01E","appium:newCommandTimeout":600,"appium:wdaLaunchTimeout":180000,"appium:noReset":true,"appium:usePrebuiltWDA":true,"appium:derivedDataPath":"/tmp/devicefarm-workspace/execution-_mpdwcqz/shared-blnuibzn/DerviedData9x2ahbfh"},"firstMatch":[{}]}}
+2026-10-29 17:09:25:036 [AppiumDriver@737b] Calling AppiumDriver.createSession() with args: [null,null,{"alwaysMatch":{"platformName":"iOS","appium:automationName":"XCUITest","appium:udid":"00008120-00092C983EE0A01E","appium:newCommandTimeout":600,"appium:wdaLaunchTimeout":180000,"appium:noReset":true,"appium:usePrebuiltWDA":true,"appium:derivedDataPath":"/tmp/devicefarm-workspace/execution-_mpdwcqz/shared-blnuibzn/DerviedData9x2ahbfh"},"firstMatch":[{}]}]
+2026-10-29 17:09:25:036 [AppiumDriver@737b] Event 'newSessionRequested' logged at 1793293765036 (17:09:25 GMT+0000 (Coordinated Universal Time))
+2026-10-29 17:09:25:037 [Appium] Attempting to find matching driver for automationName 'XCUITest' and platformName 'iOS'
+2026-10-29 17:09:25:037 [Appium] The 'xcuitest' driver was installed and matched caps.
+2026-10-29 17:09:25:037 [Appium] Will require it at /Users/device-farm/.appium/node_modules/appium-xcuitest-driver
+2026-10-29 17:09:25:038 [Appium] Requiring driver at /Users/device-farm/.appium/node_modules/appium-xcuitest-driver/build/index.js
+2026-10-29 17:09:25:038 [AppiumDriver@737b] Appium v2.11.5 creating new XCUITestDriver (v9.10.5) session
+2026-10-29 17:09:25:038 [AppiumDriver@737b] Checking BaseDriver versions for Appium and XCUITestDriver
+2026-10-29 17:09:25:038 [AppiumDriver@737b] Appium's BaseDriver version is 9.18.0
+2026-10-29 17:09:25:038 [AppiumDriver@737b] XCUITestDriver's BaseDriver version is 9.18.0
+2026-10-29 17:09:25:039 [XCUITestDriver@a0b4] 
+2026-10-29 17:09:25:039 [XCUITestDriver@a0b4] Creating session with W3C capabilities: {
+  "alwaysMatch": {
+    "platformName": "iOS",
+    "appium:automationName": "XCUITest",
+    "appium:udid": "00008120-00092C983EE0A01E",
+    "appium:newCommandTimeout": 600,
+    "appium:wdaLaunchTimeout": 180000,
+    "appium:noReset": true,
+    "appium:usePrebuiltWDA": true,
+    "appium:derivedDataPath": "/tmp/devicefarm-workspace/execution-_mpdwcqz/shared-blnuibzn/DerviedData9x2ahbfh"
+  },
+  "firstMatch": [
+    {}
+  ]
+}
+2026-10-29 17:09:25:042 [XCUITestDriver@a0b4] The desired capabilities include neither an app nor a bundleId. WebDriverAgent will be started without the default app
+2026-10-29 17:09:25:042 [XCUITestDriver@a0b4] 'platformVersion' capability ('undefined') is not a valid version number. Consider fixing it or be ready to experience an inconsistent driver behavior.
+2026-10-29 17:09:25:043 [69b48436][XCUITestDriver@a0b4] Session created with session id: 69b48436-fdf5-4b8d-9005-3c3332bbf56a
+2026-10-29 17:09:25:049 [69b48436][XCUITest] Current user: 'device-farm'
+2026-10-29 17:09:25:060 [69b48436][XCUITestDriver@a0b4] Available real devices: 00008120-00092C983EE0A01E
+2026-10-29 17:09:25:060 [69b48436][XCUITestDriver@a0b4] Creating iDevice object with udid '00008120-00092C983EE0A01E'
+2026-10-29 17:09:25:060 [69b48436][XCUITestDriver@a0b4] Determining device to run tests on: udid: '00008120-00092C983EE0A01E', real device: true
+2026-10-29 17:09:25:128 [69b48436][XCUITestDriver@a0b4] No platformVersion specified. Using device version: '17.4.1'
+2026-10-29 17:09:25:128 [69b48436][XCUITestDriver@a0b4] Normalized platformVersion capability value '17.4.1' to '17.4'
+2026-10-29 17:09:25:137 [69b48436][XCUITestDriver@a0b4] Event 'xcodeDetailsRetrieved' logged at 1793293765137 (17:09:25 GMT+0000 (Coordinated Universal Time))
+2026-10-29 17:09:25:137 [69b48436][XCUITestDriver@a0b4] Event 'appConfigured' logged at 1793293765137 (17:09:25 GMT+0000 (Coordinated Universal Time))
+2026-10-29 17:09:25:138 [69b48436][XCUITestDriver@a0b4] Event 'resetStarted' logged at 1793293765137 (17:09:25 GMT+0000 (Coordinated Universal Time))
+2026-10-29 17:09:25:138 [69b48436][XCUITestDriver@a0b4] Reset: fullReset not set. Leaving as is
+2026-10-29 17:09:25:138 [69b48436][XCUITestDriver@a0b4] Event 'resetComplete' logged at 1793293765138 (17:09:25 GMT+0000 (Coordinated Universal Time))
+2026-10-29 17:09:25:138 [69b48436][XCUITestDriver@a0b4] Using WDA path: '/private/var/devicefarm/runtime/appium_2_x/node_modules/appium-xcuitest-driver/node_modules/appium-webdriveragent'
+2026-10-29 17:09:25:138 [69b48436][XCUITestDriver@a0b4] Using WDA agent: '/private/var/devicefarm/runtime/appium_2_x/node_modules/appium-xcuitest-driver/node_modules/appium-webdriveragent/WebDriverAgent.xcodeproj'
+2026-10-29 17:09:25:141 [69b48436][XCUITestDriver@a0b4] The pyidevice tool is not present in PATH. Skipping crash logs collection for real devices.
+2026-10-29 17:09:25:287 [69b48436][XCUITestDriver@a0b4] Event 'logCaptureStarted' logged at 1793293765287 (17:09:25 GMT+0000 (Coordinated Universal Time))
+2026-10-29 17:09:25:287 [69b48436][XCUITestDriver@a0b4] Setting up real device
+2026-10-29 17:09:25:304 [69b48436][XCUITestDriver@a0b4] No obsolete cached processes from previous WDA sessions listening on port 8100 have been found
+2026-10-29 17:09:25:304 [69b48436][DevCon Factory] Requesting connection for device 00008120-00092C983EE0A01E on local port 8100, device port 8100
+2026-10-29 17:09:25:304 [69b48436][DevCon Factory] Cached connections count: 0
+2026-10-29 17:09:25:305 [69b48436][DevCon Factory] Successfully requested the connection for 00008120-00092C983EE0A01E:8100
+2026-10-29 17:09:25:306 [69b48436][XCUITestDriver@a0b4] Starting WebDriverAgent initialization with the synchronization key 'XCUITestDriver'
+2026-10-29 17:09:25:307 [69b48436][WD Proxy] NoSessionProxy options: {"server":"127.0.0.1","port":"8100","base":"","timeout":3000,"scheme":"http","reqBasePath":"","sessionId":null}
+2026-10-29 17:09:25:308 [69b48436][WD Proxy] Matched '/status' to command name 'getStatus'
+2026-10-29 17:09:25:308 [69b48436][WD Proxy] Proxying [GET /status] to [GET http://127.0.0.1:8100/status] with no body
+2026-10-29 17:09:25:323 [69b48436][iProxy@00008120:8100] Connection was refused to port 8100
+2026-10-29 17:09:25:356 [69b48436][WD Proxy] socket hang up
+2026-10-29 17:09:25:356 [69b48436][XCUITestDriver@a0b4] WDA is not listening at 'http://127.0.0.1:8100/'. Original error:: An unknown server-side error occurred while processing the command. Original error: Could not proxy command to the remote server. Original error: socket hang up
+2026-10-29 17:09:25:356 [69b48436][XCUITestDriver@a0b4] WDA is currently not running. There is nothing to cache
+2026-10-29 17:09:25:357 [69b48436][XCUITestDriver@a0b4] Trying to start WebDriverAgent 1 times with 10000ms interval
+2026-10-29 17:09:25:357 [69b48436][XCUITestDriver@a0b4] These values can be customized by changing wdaStartupRetries/wdaStartupRetryInterval capabilities
+2026-10-29 17:09:25:357 [69b48436][XCUITestDriver@a0b4] Event 'wdaStartAttempted' logged at 1793293765357 (17:09:25 GMT+0000 (Coordinated Universal Time))
+2026-10-29 17:09:25:357 [69b48436][XCUITestDriver@a0b4] Launching WebDriverAgent on the device
+2026-10-29 17:09:25:357 [69b48436][XCUITestDriver@a0b4] JWProxy options: {"scheme":"http","server":"127.0.0.1","port":8100,"base":"","timeout":240000,"keepAlive":true,"reqBasePath":"","sessionId":null}
+2026-10-29 17:09:25:357 [69b48436][XCUITestDriver@a0b4] NoSessionProxy options: {"scheme":"http","server":"127.0.0.1","port":8100,"base":"","timeout":240000,"keepAlive":true,"reqBasePath":"","sessionId":null}
+2026-10-29 17:09:25:357 [69b48436][XCUITestDriver@a0b4] Skipped WDA project cleanup according to the provided capabilities
+2026-10-29 17:09:25:358 [69b48436][WebDriverAgent] Killing running processes 'xcodebuild.*00008120-00092C983EE0A01E' for the device 00008120-00092C983EE0A01E...
+2026-10-29 17:09:25:368 [69b48436][WebDriverAgent] 'pgrep -if xcodebuild.*00008120-00092C983EE0A01E' didn't detect any matching processes. Return code: 1
+2026-10-29 17:09:25:369 [69b48436][XCUITestDriver@a0b4] Beginning test with command 'xcodebuild test-without-building -project /private/var/devicefarm/runtime/appium_2_x/node_modules/appium-xcuitest-driver/node_modules/appium-webdriveragent/WebDriverAgent.xcodeproj -scheme WebDriverAgentRunner -derivedDataPath /tmp/devicefarm-workspace/execution-_mpdwcqz/shared-blnuibzn/DerviedData9x2ahbfh -destination id=00008120-00092C983EE0A01E IPHONEOS_DEPLOYMENT_TARGET=17.4 GCC_TREAT_WARNINGS_AS_ERRORS=0 COMPILER_INDEX_STORE_ENABLE=NO' in directory '/private/var/devicefarm/runtime/appium_2_x/node_modules/appium-xcuitest-driver/node_modules/appium-webdriveragent'
+2026-10-29 17:09:25:369 [69b48436][XCUITestDriver@a0b4] Output from xcodebuild will only be logged if any errors are present there. To change this, use 'showXcodeLog' desired capability
+2026-10-29 17:09:25:935 [69b48436][XCUITestDriver@a0b4] Waiting up to 180000ms for WebDriverAgent to start
+2026-10-29 17:09:25:936 [69b48436][XCUITestDriver@a0b4] Matched '/status' to command name 'getStatus'
+2026-10-29 17:09:25:936 [69b48436][XCUITestDriver@a0b4] Proxying [GET /status] to [GET http://127.0.0.1:8100/status] with no body
+2026-10-29 17:09:25:948 [69b48436][iProxy@00008120:8100] Connection was refused to port 8100
+2026-10-29 17:09:25:951 [69b48436][XCUITestDriver@a0b4] socket hang up
+2026-10-29 17:09:26:955 [69b48436][XCUITestDriver@a0b4] Matched '/status' to command name 'getStatus'
+2026-10-29 17:09:26:955 [69b48436][XCUITestDriver@a0b4] Proxying [GET /status] to [GET http://127.0.0.1:8100/status] with no body
+2026-10-29 17:09:26:968 [69b48436][iProxy@00008120:8100] Connection was refused to port 8100
+2026-10-29 17:09:26:968 [69b48436][XCUITestDriver@a0b4] socket hang up
+2026-10-29 17:09:27:971 [69b48436][XCUITestDriver@a0b4] Matched '/status' to command name 'getStatus'
+2026-10-29 17:09:27:971 [69b48436][XCUITestDriver@a0b4] Proxying [GET /status] to [GET http://127.0.0.1:8100/status] with no body
+2026-10-29 17:09:27:982 [69b48436][iProxy@00008120:8100] Connection was refused to port 8100
+2026-10-29 17:09:27:983 [69b48436][XCUITestDriver@a0b4] socket hang up
+2026-10-29 17:09:28:985 [69b48436][XCUITestDriver@a0b4] Matched '/status' to command name 'getStatus'
+2026-10-29 17:09:28:985 [69b48436][XCUITestDriver@a0b4] Proxying [GET /status] to [GET http://127.0.0.1:8100/status] with no body
+2026-10-29 17:09:28:998 [69b48436][iProxy@00008120:8100] Connection was refused to port 8100
+2026-10-29 17:09:28:998 [69b48436][XCUITestDriver@a0b4] socket hang up
+2026-10-29 17:09:29:999 [69b48436][XCUITestDriver@a0b4] Matched '/status' to command name 'getStatus'
+2026-10-29 17:09:29:999 [69b48436][XCUITestDriver@a0b4] Proxying [GET /status] to [GET http://127.0.0.1:8100/status] with no body
+2026-10-29 17:09:30:012 [69b48436][iProxy@00008120:8100] Connection was refused to port 8100
+2026-10-29 17:09:30:012 [69b48436][XCUITestDriver@a0b4] socket hang up
+2026-10-29 17:09:31:014 [69b48436][XCUITestDriver@a0b4] Matched '/status' to command name 'getStatus'
+2026-10-29 17:09:31:015 [69b48436][XCUITestDriver@a0b4] Proxying [GET /status] to [GET http://127.0.0.1:8100/status] with no body
+2026-10-29 17:09:31:035 [69b48436][iProxy@00008120:8100] Connection was refused to port 8100
+2026-10-29 17:09:31:039 [69b48436][XCUITestDriver@a0b4] socket hang up
+2026-10-29 17:09:32:042 [69b48436][XCUITestDriver@a0b4] Matched '/status' to command name 'getStatus'
+2026-10-29 17:09:32:042 [69b48436][XCUITestDriver@a0b4] Proxying [GET /status] to [GET http://127.0.0.1:8100/status] with no body
+2026-10-29 17:09:32:071 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":{"build":{"upgradedAt":"1777679525000","version":"9.15.3","time":"Jul  8 2026 14:02:57","productBundleIdentifier":"com.facebook.WebDriverAgentRunner"},"os":{"testmanagerdVersion":65535,"name":"iOS","sdkVersion":"26.2","version":"17.4.1"},"device":"iphone","ios":{"ip":"192.168.1.101"},"message":"WebDriverAgent is ready to accept commands","state":"success","ready":true},"sessionId":null}
+2026-10-29 17:09:32:071 [69b48436][XCUITestDriver@a0b4] WebDriverAgent information:
+2026-10-29 17:09:32:071 [69b48436][XCUITestDriver@a0b4] {
+  "build": {
+    "upgradedAt": "1777679525000",
+    "version": "9.15.3",
+    "time": "Jul  8 2026 14:02:57",
+    "productBundleIdentifier": "com.facebook.WebDriverAgentRunner"
+  },
+  "os": {
+    "testmanagerdVersion": 65535,
+    "name": "iOS",
+    "sdkVersion": "26.2",
+    "version": "17.4.1"
+  },
+  "device": "iphone",
+  "ios": {
+    "ip": "192.168.1.101"
+  },
+  "message": "WebDriverAgent is ready to accept commands",
+  "state": "success",
+  "ready": true
+}
+2026-10-29 17:09:32:071 [69b48436][XCUITestDriver@a0b4] WebDriverAgent successfully started after 6702ms
+2026-10-29 17:09:32:072 [69b48436][XCUITestDriver@a0b4] Event 'wdaSessionAttempted' logged at 1793293772071 (17:09:32 GMT+0000 (Coordinated Universal Time))
+2026-10-29 17:09:32:072 [69b48436][XCUITestDriver@a0b4] Sending createSession command to WDA
+2026-10-29 17:09:32:073 [69b48436][XCUITestDriver@a0b4] Matched '/session' to command name 'createSession'
+2026-10-29 17:09:32:074 [69b48436][XCUITestDriver@a0b4] Proxying [POST /session] to [POST http://127.0.0.1:8100/session] with body: {"capabilities":{"firstMatch":[{"arguments":[],"environment":{},"eventloopIdleDelaySec":0,"shouldWaitForQuiescence":true,"shouldUseTestManagerForVisibilityDetection":false,"maxTypingFrequency":60,"shouldUseSingletonTestManager":true,"shouldTerminateApp":false,"forceAppLaunch":false,"useNativeCachingStrategy":true,"forceSimulatorSoftwareKeyboardPresence":true}],"alwaysMatch":{}}}
+2026-10-29 17:09:32:093 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":{"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0","capabilities":{"sdkVersion":"17.4.1","device":"iphone"}},"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:09:32:094 [69b48436][XCUITestDriver@a0b4] Determined the downstream protocol as 'W3C'
+2026-10-29 17:09:32:094 [69b48436][XCUITestDriver@a0b4] WDA session startup took 22ms
+2026-10-29 17:09:32:094 [69b48436][XCUITestDriver@a0b4] Event 'wdaSessionStarted' logged at 1793293772094 (17:09:32 GMT+0000 (Coordinated Universal Time))
+2026-10-29 17:09:32:094 [69b48436][XCUITestDriver@a0b4] WebDriverAgent version: '9.15.3'
+2026-10-29 17:09:32:094 [69b48436][XCUITestDriver@a0b4] Event 'wdaStarted' logged at 1793293772094 (17:09:32 GMT+0000 (Coordinated Universal Time))
+2026-10-29 17:09:32:094 [69b48436][BaseDriver] The value of 'elementResponseAttributes' setting did not change. Skipping the update for it
+2026-10-29 17:09:32:094 [69b48436][BaseDriver] The value of 'shouldUseCompactResponses' setting did not change. Skipping the update for it
+2026-10-29 17:09:32:094 [69b48436][XCUITestDriver@a0b4] Forwarding MJPEG server port 9100 to local port 9100
+2026-10-29 17:09:32:094 [69b48436][DevCon Factory] Requesting connection for device 00008120-00092C983EE0A01E on local port 9100, device port 9100
+2026-10-29 17:09:32:094 [69b48436][DevCon Factory] Cached connections count: 1
+2026-10-29 17:09:32:095 [69b48436][DevCon Factory] Successfully requested the connection for 00008120-00092C983EE0A01E:9100
+2026-10-29 17:09:32:095 [69b48436][AppiumDriver@737b] New XCUITestDriver session created successfully, session 69b48436-fdf5-4b8d-9005-3c3332bbf56a added to master session list
+2026-10-29 17:09:32:096 [69b48436][AppiumDriver@737b] Event 'newSessionStarted' logged at 1793293772096 (17:09:32 GMT+0000 (Coordinated Universal Time))
+2026-10-29 17:09:32:096 [69b48436][XCUITestDriver@a0b4] Cached the protocol value 'W3C' for the new session 69b48436-fdf5-4b8d-9005-3c3332bbf56a
+2026-10-29 17:09:32:096 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.createSession() result: {"capabilities":{"webStorageEnabled":false,"locationContextEnabled":false,"browserName":"","platform":"MAC","javascriptEnabled":true,"databaseEnabled":false,"takesScreenshot":true,"networkConnectionEnabled":false,"platformName":"iOS","automationName":"XCUITest","udid":"00008120-00092C983EE0A01E","newCommandTimeout":600,"wdaLaunchTimeout":180000,"noReset":true,"usePrebuiltWDA":true,"derivedDataPath":"/tmp/devicefarm-workspace/execution-_mpdwcqz/shared-blnuibzn/DerviedData9x2ahbfh","platformVersion":"17.4"}}
+2026-10-29 17:09:32:097 [69b48436][HTTP] <-- POST /session 200 7061 ms - 572 
+2026-10-29 17:09:43:467 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:09:43:468 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:09:43:468 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:09:43:468 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:09:43:469 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:09:43:472 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:09:43:472 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:09:44:034 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:09:44:035 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:09:44:037 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 569 ms - 14 
+2026-10-29 17:09:44:041 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:09:44:043 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:09:44:043 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:09:44:044 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:09:44:044 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:09:44:044 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:09:44:045 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:09:44:787 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:09:44:787 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:09:44:788 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 747 ms - 14 
+2026-10-29 17:09:45:923 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:09:45:924 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:09:45:924 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:09:45:924 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:09:45:924 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:09:45:924 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:09:45:924 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:09:46:624 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:09:46:625 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:09:46:626 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 702 ms - 14 
+2026-10-29 17:09:46:628 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:09:46:629 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:09:46:629 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:09:46:630 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:09:46:630 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:09:46:630 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:09:46:631 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:09:47:304 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:09:47:305 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:09:47:306 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 677 ms - 14 
+2026-10-29 17:09:48:474 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:09:48:474 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:09:48:474 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:09:48:474 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:09:48:474 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:09:48:475 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:09:48:475 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:09:49:173 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:09:49:174 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:09:49:175 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 700 ms - 14 
+2026-10-29 17:09:49:177 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:09:49:178 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:09:49:178 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:09:49:178 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:09:49:178 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:09:49:178 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:09:49:178 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:09:49:997 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:09:49:998 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:09:49:999 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 822 ms - 14 
+2026-10-29 17:09:51:267 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:09:51:268 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:09:51:268 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:09:51:268 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:09:51:268 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:09:51:268 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:09:51:268 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:09:51:951 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:09:51:952 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:09:51:953 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 685 ms - 14 
+2026-10-29 17:09:51:956 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:09:51:957 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:09:51:957 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:09:51:957 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:09:51:957 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:09:51:958 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:09:51:958 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:09:52:674 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:09:52:674 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:09:52:675 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 718 ms - 14 
+2026-10-29 17:10:08:567 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:08:567 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:10:08:567 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:10:08:567 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:08:567 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:08:567 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:10:08:568 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:09:652 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:10:09:654 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:10:09:656 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 1088 ms - 14 
+2026-10-29 17:10:09:661 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:09:661 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:10:09:662 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:10:09:662 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:09:662 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:09:663 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:10:09:663 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:10:940 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:10:10:940 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:10:10:941 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 1280 ms - 14 
+2026-10-29 17:10:12:182 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:12:182 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:10:12:182 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:10:12:182 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:12:182 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:12:182 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:10:12:182 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:13:294 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:10:13:295 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:10:13:295 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 1113 ms - 14 
+2026-10-29 17:10:13:297 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:13:297 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:10:13:298 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:10:13:298 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:13:298 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:13:298 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:10:13:298 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:14:352 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:10:14:353 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:10:14:354 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 1056 ms - 14 
+2026-10-29 17:10:15:494 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:15:494 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:10:15:494 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:10:15:494 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:15:494 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:15:494 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:10:15:494 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:16:480 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:10:16:481 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:10:16:481 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 987 ms - 14 
+2026-10-29 17:10:16:484 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:16:484 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:10:16:484 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:10:16:485 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:16:485 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:16:485 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:10:16:485 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:17:448 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:10:17:448 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:10:17:449 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 965 ms - 14 
+2026-10-29 17:10:18:691 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:18:691 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:10:18:691 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:10:18:691 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:18:691 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:18:691 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:10:18:691 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:19:785 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:10:19:786 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:10:19:787 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 1096 ms - 14 
+2026-10-29 17:10:19:791 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:19:791 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:10:19:791 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:10:19:792 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:19:792 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:19:792 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:10:19:793 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:20:826 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:10:20:827 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:10:20:828 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 1037 ms - 14 
+2026-10-29 17:10:54:068 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:54:068 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:10:54:069 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:10:54:069 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:54:069 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:54:069 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:10:54:069 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:54:531 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:10:54:532 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:10:54:532 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 464 ms - 14 
+2026-10-29 17:10:54:534 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:54:534 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:10:54:535 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:10:54:535 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:54:535 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:54:535 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:10:54:535 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:55:238 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:10:55:239 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:10:55:240 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 705 ms - 14 
+2026-10-29 17:10:56:414 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:56:414 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:10:56:414 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:10:56:414 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:56:414 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:56:414 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:10:56:415 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:57:108 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:10:57:109 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:10:57:110 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 695 ms - 14 
+2026-10-29 17:10:57:113 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:57:113 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:10:57:113 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:10:57:113 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:57:113 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:57:113 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:10:57:114 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:57:787 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:10:57:788 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:10:57:788 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 676 ms - 14 
+2026-10-29 17:10:58:998 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:58:998 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:10:58:998 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:10:58:998 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:58:998 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:58:998 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:10:58:998 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:59:705 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:10:59:706 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:10:59:707 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 709 ms - 14 
+2026-10-29 17:10:59:711 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:10:59:711 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:10:59:711 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:10:59:711 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:59:712 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:10:59:712 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:10:59:712 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:11:00:526 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:11:00:527 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:11:00:527 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 816 ms - 14 
+2026-10-29 17:11:01:703 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:11:01:703 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:11:01:703 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:11:01:703 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:11:01:703 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 66,
+        "y": 223
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:11:01:703 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:11:01:703 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":66,"y":223},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:11:02:401 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:11:02:402 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:11:02:403 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 699 ms - 14 
+2026-10-29 17:11:02:406 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:11:02:406 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.performActions() with args: [[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:11:02:406 [69b48436][XCUITestDriver@a0b4] Executing command 'performActions'
+2026-10-29 17:11:02:406 [69b48436][XCUITestDriver@a0b4] Received the following W3C actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:11:02:407 [69b48436][XCUITestDriver@a0b4] Preprocessed actions: [
+  {
+    "type": "pointer",
+    "id": "finger",
+    "parameters": {
+      "pointerType": "touch"
+    },
+    "actions": [
+      {
+        "type": "pointerMove",
+        "duration": 0,
+        "x": 87,
+        "y": 317
+      },
+      {
+        "type": "pointerDown",
+        "button": 0
+      },
+      {
+        "type": "pause",
+        "duration": 60
+      },
+      {
+        "type": "pointerUp",
+        "button": 0
+      }
+    ]
+  }
+]
+2026-10-29 17:11:02:407 [69b48436][XCUITestDriver@a0b4] Matched '/actions' to command name 'performActions'
+2026-10-29 17:11:02:407 [69b48436][XCUITestDriver@a0b4] Proxying [POST /actions] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/actions] with body: {"actions":[{"type":"pointer","id":"finger","parameters":{"pointerType":"touch"},"actions":[{"type":"pointerMove","duration":0,"x":87,"y":317},{"type":"pointerDown","button":0},{"type":"pause","duration":60},{"type":"pointerUp","button":0}]}]}
+2026-10-29 17:11:03:097 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:11:03:097 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.performActions() result: null
+2026-10-29 17:11:03:099 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/actions 200 692 ms - 14 
+2026-10-29 17:11:18:763 [69b48436][HTTP] --> POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/execute/sync {"script":"mobile: pressButton","args":[{"name":"home"}]}
+2026-10-29 17:11:18:764 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.execute() with args: ["mobile: pressButton",[{"name":"home"}],"69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:11:18:764 [69b48436][XCUITestDriver@a0b4] Executing command 'execute'
+2026-10-29 17:11:18:770 [69b48436][XCUITestDriver@a0b4] Proxying to WDA with an unknown route: POST /wda/pressButton
+2026-10-29 17:11:18:772 [69b48436][XCUITestDriver@a0b4] Proxying [POST /wda/pressButton] to [POST http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0/wda/pressButton] with body: {"name":"home"}
+2026-10-29 17:11:19:255 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":"B8B78758-D777-4EBC-BE87-83A29F937CC0"}
+2026-10-29 17:11:19:255 [69b48436][XCUITestDriver@a0b4] Responding to client with driver.execute() result: null
+2026-10-29 17:11:19:255 [69b48436][HTTP] <-- POST /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a/execute/sync 200 492 ms - 14 
+2026-10-29 17:11:49:514 [69b48436][HTTP] --> DELETE /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a {}
+2026-10-29 17:11:49:515 [69b48436][XCUITestDriver@a0b4] Calling AppiumDriver.deleteSession() with args: ["69b48436-fdf5-4b8d-9005-3c3332bbf56a"]
+2026-10-29 17:11:49:515 [69b48436][AppiumDriver@737b] Event 'quitSessionRequested' logged at 1793293909515 (17:11:49 GMT+0000 (Coordinated Universal Time))
+2026-10-29 17:11:49:515 [69b48436][AppiumDriver@737b] Removing session 69b48436-fdf5-4b8d-9005-3c3332bbf56a from our master session list
+2026-10-29 17:11:49:516 [69b48436][XCUITestDriver@a0b4] Proxying [DELETE /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a] to [DELETE http://127.0.0.1:8100/session/B8B78758-D777-4EBC-BE87-83A29F937CC0] with no body
+2026-10-29 17:11:49:532 [69b48436][XCUITestDriver@a0b4] Got response with status 200: {"value":null,"sessionId":null}
+2026-10-29 17:11:49:532 [69b48436][DevCon Factory] Releasing connections for 00008120-00092C983EE0A01E device on any port number
+2026-10-29 17:11:49:532 [69b48436][DevCon Factory] Found cached connections to release: ["00008120-00092C983EE0A01E:8100","00008120-00092C983EE0A01E:9100"]
+2026-10-29 17:11:49:532 [69b48436][DevCon Factory] Releasing the listener for '00008120-00092C983EE0A01E:8100'
+2026-10-29 17:11:49:532 [69b48436][iProxy@00008120:8100] Closing the connection
+2026-10-29 17:11:49:532 [69b48436][DevCon Factory] Releasing the listener for '00008120-00092C983EE0A01E:9100'
+2026-10-29 17:11:49:532 [69b48436][iProxy@00008120:9100] Closing the connection
+2026-10-29 17:11:49:532 [69b48436][DevCon Factory] Cached connections count: 0
+2026-10-29 17:11:49:532 [69b48436][XCUITestDriver@a0b4] Not clearing log files. Use `clearSystemFiles` capability to turn on.
+2026-10-29 17:11:49:533 [69b48436][iProxy@00008120:9100] The connection has been closed
+2026-10-29 17:11:49:533 [69b48436][AppiumDriver@737b] Event 'quitSessionFinished' logged at 1793293909533 (17:11:49 GMT+0000 (Coordinated Universal Time))
+2026-10-29 17:11:49:533 [69b48436][AppiumDriver@737b] Received response: null
+2026-10-29 17:11:49:533 [69b48436][AppiumDriver@737b] But deleting session, so not returning
+2026-10-29 17:11:49:533 [69b48436][AppiumDriver@737b] Responding to client with driver.deleteSession() result: null
+2026-10-29 17:11:49:533 [69b48436][HTTP] <-- DELETE /session/69b48436-fdf5-4b8d-9005-3c3332bbf56a 200 19 ms - 14 
+2026-10-29 17:11:49:541 [Appium] Received SIGTERM - shutting down

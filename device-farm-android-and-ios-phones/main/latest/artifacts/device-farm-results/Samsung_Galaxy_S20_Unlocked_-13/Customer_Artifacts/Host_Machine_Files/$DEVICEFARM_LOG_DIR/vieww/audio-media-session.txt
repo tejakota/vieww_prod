@@ -1,0 +1,59 @@
+MEDIA SESSION SERVICE (dumpsys media_session)
+
+5 sessions listeners.
+Global priority session is com.android.server.telecom/HeadsetMediaButton (userId=0)
+  HeadsetMediaButton com.android.server.telecom/HeadsetMediaButton (userId=0)
+    ownerPid=1306, ownerUid=1000, userId=0
+    package=com.android.server.telecom
+    launchIntent=null
+    mediaButtonReceiver=null
+    active=false
+    flags=65537
+    rating type=0
+    controllers: 0
+
+    state=null
+    audioAttrs=AudioAttributes: usage=USAGE_VOICE_COMMUNICATION content=CONTENT_TYPE_SPEECH flags=0x800 tags= bundle=null
+    volumeType=1, controlType=2, max=0, current=0
+    metadata: null
+    queueTitle=null, size=0
+User Records:
+Record for full_user=0
+  Volume key long-press listener: null
+  Volume key long-press listener package: 
+  Media key listener: null
+  Media key listener package: 
+  OnMediaKeyEventDispatchedListener: added 0 listener(s)
+  OnMediaKeyEventSessionChangedListener: added 2 listener(s)
+    from com.samsung.android.app.aodservice
+    from com.samsung.android.app.aodservice
+  Last MediaButtonReceiver: MBR {pi=null, componentName=ComponentInfo{tv.twitch.android.qa/com.twitchrn.player.TwitchRNMediaButtonReceiver}, type=1, pkg=tv.twitch.android.qa}
+  High priority mediakey receiver: null
+  Volume key long-press receiver: null
+  Media button session is dev.vieww.demo/vieww (userId=0)
+  Sessions Stack - have 1 sessions:
+    vieww dev.vieww.demo/vieww (userId=0)
+      ownerPid=16745, ownerUid=10318, userId=0
+      package=dev.vieww.demo
+      launchIntent=null
+      mediaButtonReceiver=null
+      active=true
+      flags=0
+      rating type=0
+      controllers: 6
+android com.android.systemui com.android.systemui com.android.systemui com.android.systemui com.android.systemui 
+      state=PlaybackState {state=PLAYING(3), position=7621, buffered position=0, speed=1.0, updated=5034089, actions=895, custom actions=[], active item id=-1, error=null}
+      audioAttrs=AudioAttributes: usage=USAGE_MEDIA content=CONTENT_TYPE_UNKNOWN flags=0x800 tags= bundle=null
+      volumeType=1, controlType=2, max=0, current=0
+      metadata: size=4, description=vieww audio check, vieww, Device Farm
+      queueTitle=null, size=0
+isAppCastingOn:false
+isMultiSoundOn:false
+Audio event log: MediaSession events
+10-29 15:59:32:186 registerRemoteVolumeController uid : 10040, pid : 2484, rvc : android.media.IRemoteSessionCallback$Stub$Proxy@166ca19
+Audio playback (lastly played comes first)
+  uid=10318 packages=dev.vieww.demo 
+Media session config:
+  media_button_receiver_fgs_allowlist_duration_ms: [cur: 10000, def: 10000]
+  media_session_calback_fgs_allowlist_duration_ms: [cur: 10000, def: 10000]
+  media_session_callback_fgs_while_in_use_temp_allow_duration_ms: [cur: 10000, def: 10000]

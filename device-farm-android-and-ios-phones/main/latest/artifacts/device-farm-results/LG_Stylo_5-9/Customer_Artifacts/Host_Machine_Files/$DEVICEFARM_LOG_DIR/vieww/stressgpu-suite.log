@@ -1,0 +1,59 @@
+device-suite: the planned GPU rasterizer (debug.vieww.gpu=1)
+device-suite: --gpu with --no-build only applies if the app is relaunched
+device-suite: dev.vieww.demo is running as pid 26266
+device-suite: display is 1080x2160
+device-suite: waiting for the app to report its tap targets…
+device-suite: the app reports button 161,209 and field 217,418 (physical)
+device-suite: sent 40 tap(s) at 161,209 and 1 at 217,418; last progress: __VIEWW_PROGRESS__ frames=600
+device-suite: screenshot in /tmp/devicefarm-workspace/execution-wdi6afzr/logs-ik26y6bo/vieww/stressgpu-screen.png
+
+  begin
+  --   crash_reports_recovered_from_the_last_run: 0
+  ok   crash_reports_have_somewhere_to_go: wrote and read one back in /data/user/0/dev.vieww.demo/files/crashes
+  ok   the_platform_registered_a_clipboard: 5 service(s) registered
+  --   dlopen_from_a_writable_path: PERMITTED (the linker read the file and rejected its contents); dlopen said: dlopen failed: "/data/data/dev.vieww.demo/files/libvieww_probe.so" is too small to be an ELF executable: only found 28 bytes
+  --   dlopen_a_real_guest_library: not staged — found nothing at /storage/emulated/0/Android/data/dev.vieww.demo/files/libreload_guest.so or /data/local/tmp/libreload_guest.so. Run ci/mobile/reload-guest-android.sh to build and stage one; this is not a failure, only an unanswered question.
+  --   screen: stress (debug.vieww.screen=stress)
+  --   rasterizer: planned GPU path requested (debug.vieww.gpu=1)
+  ok   view_metrics_reached_the_tree: 411.42856x822.8571 logical
+  ok   the_display_density_is_plausible: 2.625x
+  ok   the_safe_area_fits_inside_the_surface: l0 t0 r0 b0
+  --   safe_area: l0 t0 r0 b0 on a 411.42856x822.8571 surface at 2.625x
+  ok   the_keyboard_inset_is_a_plausible_bottom_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } on a 822.8571-tall surface
+  --   keyboard_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } at the moment of the report
+  ok   the_platform_clipboard_round_trips: wrote and read back 33 bytes; restored what was there
+  ok   a_semantic_click_activates_the_button: handled=true, taps 0 -> 1
+  ok   a_tap_reached_a_handler: 1 tap
+  ok   a_modal_silences_the_screen_behind_it: 3 of 3 panel item(s) reachable, and nothing is behind the scrim (3 labelled node(s) in the tree)
+  ok   frames_were_presented: 600 frames
+  FAIL the_typical_frame_is_inside_its_budget: median 1.006049895s against a budget of 16.666668ms
+  FAIL frames_inside_their_budget: 240 of 240 frames over a budget of 16.666668ms (at most 1 in 20)
+  ok   no_frame_stalled: worst 1.082594739s against a stall line of 3.018149685s (max of 4x budget, 3x median), 240 of 240 over budget
+  --   frame_time: median 1.006049895s, worst 1.082594739s, budget 16.666668ms (240 samples)
+  --   startup_stages: before run 560 ms | app setup 0.1 | event loop started 0.0 | resumed 30.2 | window created 0.1 | present ready 65.8 | accessibility and show 0.0 | tree built 13.0 | window ready 0.4 | until first draw 0.2 | app before-frame hooks 15.5 | first build and layout 11.5 | first raster and present 667.5 = 1364.0 ms from process start
+  --   frame_stages: medians ms: scale 0.06 plan 94.29 cpu 0.00 gpu_upload 16.96 gpu_record 5.46 gpu_submit 13.70 gpu_wait 866.32 gpu_readback 0.00 acquire 0.52 present 0.46
+  --   frame_stages_p95: p95 ms: scale 0.13 plan 171.13 cpu 774.83 gpu_upload 44.86 gpu_record 8.35 gpu_submit 19.04 gpu_wait 908.73 gpu_readback 0.00 acquire 0.68 present 24.34
+  --   input_latency: input to present ms: median 979.2 p95 996.6 p99 996.8 worst 996.8 over 24 inputs in 24 frames; 58 unanswered within 1 s
+  --   gpu_overlap: on: the app builds the next frame while the GPU draws this one
+  --   partial_blit: trusted: 0 partial and 500 full copies, 100.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  --   gpu_passes: medians ms: draw 750707.53 layers 43976701167.45 filters 29319965732.82 shadows 19.42 blit 2.05 total 73297417629.27; p95 ms: draw 7565740.85 layers 43980174811.95 filters 43980549566.32 shadows 318387.93 blit 2.12 total 87968608509.17
+  --   worst_frame: work 1082.59 ms, outside the renderer 2.56 ms; stages ms: scale 0.05 plan 142.19 cpu 0.00 gpu_upload 31.69 gpu_record 4.14 gpu_submit 15.01 gpu_wait 885.86 gpu_readback 0.00 acquire 0.67 present 0.42
+  --   raster_by_core: cpu4 28 frames 750.62 ms | cpu5 6 frames 761.82 ms | cpu6 6 frames 785.63 ms | cpu7 4 frames 777.24 ms
+  --   cpu_clocks: cpu0 0.65/1.80 GHz | cpu1 0.65/1.80 GHz | cpu2 0.65/1.80 GHz | cpu3 0.65/1.80 GHz | cpu4 0.65/1.80 GHz | cpu5 0.65/1.80 GHz | cpu6 0.65/1.80 GHz | cpu7 0.65/1.80 GHz
+  --   pipeline_cache: started from 37691 bytes; saved 37691 bytes after the first GPU frame
+  --   device: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
+  --   cache_budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
+  --   quality_overlay: tier low · median 930.027377ms / p95 1.048185104s / worst 1.082594739s vs budget 16.666668ms · 240/240 over
+  --   damage: 1.000 full repaints per frame over 600 frames, against a 2332800px surface (stress screen: the whole list moves every frame)
+  --   full_repaints: 600 of 600 frames cost a whole surface, 0 of those after the loop slept
+  ok   idle_frames_do_not_repaint_the_whole_surface: 0 idle full repaint(s) over 600 frames, against a budget of 12
+  ok   the_full_repaint_counter_saw_the_first_frame: 600 full repaint(s) over 600 frames against a 2332800px surface
+  --   frame_report: 600 frames in 566.68s — 1.1fps (median 1020.07ms, worst 1084.30ms over 240 continuous); work median 1006.05ms, worst 1082.59ms; 600 over a 16.67ms budget; rasterised 600.16 full repaints (600 frame(s) cost a whole surface, 0 of them idle); stage medians: scale 0.06 plan 94.29 cpu 0.00 gpu[upload 16.96 record 5.46 submit 13.70 wait 866.32 readback 0.00] acquire 0.52 present 0.46 ms
+  --   gpu_frames: 500 of 600 drawn by the GPU rasterizer (500 straight into the swapchain)
+  --   cpu_time: process CPU 310.08 ms per frame over the last 240 frames, every thread (33% of one core)
+  --   thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 567 s
+  --   shadow_blurs: 1052 over 600 frames (1.75 a frame), 354.7 Mpx in all
+  end 16 checks, 2 failed
+  result FAIL
+
+device-suite: FAIL — the in-app suite reported a failure: the_typical_frame_is_inside_its_budget frames_inside_their_budget

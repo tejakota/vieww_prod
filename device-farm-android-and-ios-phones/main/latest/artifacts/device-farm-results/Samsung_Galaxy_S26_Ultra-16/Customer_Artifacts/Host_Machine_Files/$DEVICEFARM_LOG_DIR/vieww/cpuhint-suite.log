@@ -1,0 +1,55 @@
+device-suite: dev.vieww.demo is running as pid 15537
+device-suite: display is 1080x2340
+device-suite: waiting for the app to report its tap targets…
+device-suite: the app reports button 184,573 and field 244,842 (physical)
+device-suite: sent 12 tap(s) at 184,573 and 1 at 244,842; last progress: __VIEWW_PROGRESS__ frames=600
+device-suite: screenshot in /tmp/devicefarm-workspace/execution-usvkp3x1/logs-qog8tov4/vieww/cpuhint-screen.png
+
+  begin
+  --   crash_reports_recovered_from_the_last_run: 0
+  ok   crash_reports_have_somewhere_to_go: wrote and read one back in /data/user/0/dev.vieww.demo/files/crashes
+  ok   the_platform_registered_a_clipboard: 5 service(s) registered
+  --   dlopen_from_a_writable_path: PERMITTED (the linker read the file and rejected its contents); dlopen said: dlopen failed: "/data/data/dev.vieww.demo/files/libvieww_probe.so" is too small to be an ELF executable: only found 28 bytes
+  --   dlopen_a_real_guest_library: not staged — found nothing at /storage/emulated/0/Android/data/dev.vieww.demo/files/libreload_guest.so or /data/local/tmp/libreload_guest.so. Run ci/mobile/reload-guest-android.sh to build and stage one; this is not a failure, only an unanswered question.
+  --   rasterizer: CPU rasterizer (set debug.vieww.gpu=1 for the GPU path)
+  ok   view_metrics_reached_the_tree: 384x832 logical
+  ok   the_display_density_is_plausible: 2.8125x
+  ok   the_safe_area_fits_inside_the_surface: l0 t37.333332 r0 b14.933333
+  --   safe_area: l0 t37.333332 r0 b14.933333 on a 384x832 surface at 2.8125x
+  ok   the_keyboard_inset_is_a_plausible_bottom_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } on a 832-tall surface
+  --   keyboard_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } at the moment of the report
+  ok   the_platform_clipboard_round_trips: wrote and read back 33 bytes; restored what was there
+  ok   a_semantic_click_activates_the_button: handled=true, taps 0 -> 1
+  ok   a_tap_reached_a_handler: 1 tap
+  ok   a_modal_silences_the_screen_behind_it: 3 of 3 panel item(s) reachable, and nothing is behind the scrim (3 labelled node(s) in the tree)
+  ok   the_keyboard_inset_appears_when_the_keyboard_does: 358.4 logical pixels
+  ok   frames_were_presented: 600 frames
+  ok   the_typical_frame_is_inside_its_budget: median 9.441198ms against a budget of 16.666668ms
+  FAIL frames_inside_their_budget: 35 of 240 frames over a budget of 16.666668ms (at most 1 in 20)
+  ok   no_frame_stalled: worst 21.681511ms against a stall line of 66.666672ms (max of 4x budget, 3x median), 35 of 240 over budget
+  --   frame_time: median 9.441198ms, worst 21.681511ms, budget 16.666668ms (240 samples)
+  --   startup_stages: before run 137 ms | app setup 0.1 | event loop started 0.0 | resumed 7.7 | window created 0.1 | present ready 0.4 | accessibility and show 0.0 | tree built 3.2 | window ready 0.9 | until first draw 0.0 | app before-frame hooks 65.8 | first build and layout 1.4 | first raster and present 21.4 = 238.2 ms from process start
+  --   frame_stages: medians ms: scale 0.02 plan 0.00 cpu 7.92 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.04 present 0.28
+  --   frame_stages_p95: p95 ms: scale 0.04 plan 0.00 cpu 12.74 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 11.09 present 0.55
+  --   input_latency: input to present ms: median 16.8 p95 23.8 p99 24.2 worst 24.2 over 24 inputs in 17 frames; 0 unanswered within 1 s
+  --   raster_by_kind: medians ms: text 0.00 shadows 0.00 paths 0.15 rects 6.72 images 0.00 layers 0.00 composite 0.00 total 6.87; p95 ms: text 0.00 shadows 0.00 paths 0.30 rects 11.23 images 0.00 layers 0.00 composite 0.00 total 11.52
+  --   worst_frame: work 21.68 ms, outside the renderer 0.21 ms, on cpu1; stages ms: scale 0.01 plan 0.00 cpu 5.68 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 14.67 present 1.11
+  --   raster_by_core: cpu4 85 frames 8.98 ms | cpu5 52 frames 9.31 ms | cpu1 37 frames 8.96 ms | cpu0 36 frames 6.91 ms | cpu3 12 frames 6.00 ms | cpu6 7 frames 3.57 ms | cpu7 6 frames 4.41 ms | cpu2 5 frames 10.74 ms
+  --   cpu_clocks: cpu0 0.88/3.63 GHz | cpu1 0.88/3.63 GHz | cpu2 0.88/3.63 GHz | cpu3 0.88/3.63 GHz | cpu4 0.88/3.63 GHz | cpu5 0.88/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
+  --   perf_hint: on (target 8.33 ms)
+  --   device: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
+  --   cache_budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
+  --   quality_overlay: tier high · median 10.350431ms / p95 20.818229ms / worst 21.681511ms vs budget 16.666668ms · 35/240 over
+  ok   damage_tracking_costs_a_fraction_of_a_full_repaint: 0.061 full repaints per frame over 600 frames, against a 2527200px surface
+  --   full_repaints: 3 of 600 frames cost a whole surface, 0 of those after the loop slept
+  ok   idle_frames_do_not_repaint_the_whole_surface: 0 idle full repaint(s) over 600 frames, against a budget of 12
+  ok   the_full_repaint_counter_saw_the_first_frame: 3 full repaint(s) over 600 frames against a 2527200px surface
+  --   frame_report: 600 frames in 7.21s — 83.0fps (median 20.63ms, worst 44.78ms over 55 continuous); work median 9.44ms, worst 21.68ms; 44 over a 16.67ms budget; rasterised 36.63 full repaints (3 frame(s) cost a whole surface, 0 of them idle); stage medians: scale 0.02 plan 0.00 cpu 7.92 gpu[upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00] acquire 0.04 present 0.28 ms; frame rate changed 1 time(s), ending at 60 Hz
+  --   gpu_frames: 0 of 600 drawn by the GPU rasterizer (0 straight into the swapchain)
+  --   cpu_time: process CPU 9.38 ms per frame over the last 240 frames, every thread (58% of one core)
+  --   thermal: status none -> none (worst none); headroom 0.36 -> 0.36 (highest 0.36; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 7 s
+  --   shadow_blurs: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
+  end 18 checks, 1 failed
+  result FAIL
+
+device-suite: FAIL — the in-app suite reported a failure: frames_inside_their_budget
