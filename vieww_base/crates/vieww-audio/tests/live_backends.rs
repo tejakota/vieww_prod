@@ -224,3 +224,112 @@ fn pulse_sink_unplug_and_replug() {
     drop(rs);
     pactl(&["unload-module", &module]);
 }
+
+/// AU-09 on a real server: the default sink moves while a default-following
+/// stream plays. The server moves the stream itself (no reopen, no gap);
+/// the route event reaches the supervisor within 100 ms, not the second a
+/// poll would take; and the stream is on the new default afterwards.
+#[test]
+#[ignore = "needs a running PulseAudio server and pactl"]
+fn pulse_default_sink_change_is_an_event() {
+    use std::process::Command;
+    use std::sync::atomic::AtomicU64;
+    use vieww_audio::backend::resilient::{ResilientStream, Target};
+
+    let pactl = |args: &[&str]| {
+        Command::new("pactl")
+            .args(args)
+            .output()
+            .ok()
+            .filter(|o| o.status.success())
+            .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_owned())
+    };
+    let Some(a) = pactl(&["load-module", "module-null-sink", "sink_name=vieww-route-a"]) else {
+        eprintln!("no pactl / server — skipped");
+        return;
+    };
+    let b = pactl(&["load-module", "module-null-sink", "sink_name=vieww-route-b"])
+        .expect("second sink");
+    let before = pactl(&["get-default-sink"]).unwrap_or_default();
+    pactl(&["set-default-sink", "vieww-route-a"]).expect("default a");
+    let frames = Arc::new(AtomicU64::new(0));
+    let f2 = Arc::clone(&frames);
+    let rs = ResilientStream::open(
+        Box::new(Pulse),
+        Target::Default,
+        StreamConfig::default(),
+        Box::new(move |out: &mut [f32], info: &BlockInfo| {
+            f2.fetch_add(info.frames as u64, Ordering::Relaxed);
+            out.fill(0.0);
+        }),
+    )
+    .expect("open on the default sink");
+    let t = std::time::Instant::now();
+    while frames.load(Ordering::Relaxed) < 24_000 && t.elapsed() < Duration::from_secs(10) {
+        std::thread::sleep(Duration::from_millis(20));
+    }
+    // Which sink our stream (the only sink input) is on.
+    let sink_of_stream = || {
+        let sinks = pactl(&["list", "short", "sinks"]).unwrap_or_default();
+        let inputs = pactl(&["list", "short", "sink-inputs"]).unwrap_or_default();
+        let idx = inputs.lines().last()?.split_whitespace().nth(1)?.to_owned();
+        sinks
+            .lines()
+            .find(|l| l.split_whitespace().next() == Some(idx.as_str()))
+            .and_then(|l| l.split_whitespace().nth(1))
+            .map(str::to_owned)
+    };
+    assert_eq!(
+        sink_of_stream().as_deref(),
+        Some("vieww-route-a"),
+        "playing on a"
+    );
+    let events = rs.route_events();
+    let reopens = rs.reopens();
+    let t = std::time::Instant::now();
+    pactl(&["set-default-sink", "vieww-route-b"]).expect("default b");
+    while rs.route_events() == events && t.elapsed() < Duration::from_secs(2) {
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    let took = t.elapsed();
+    eprintln!(
+        "route event after {took:?} ({} event(s))",
+        rs.route_events() - events
+    );
+    assert!(
+        rs.route_events() > events,
+        "no route event for the default sink moving"
+    );
+    assert!(
+        took < Duration::from_millis(100),
+        "the route event took {took:?}"
+    );
+    let t = std::time::Instant::now();
+    while sink_of_stream().as_deref() != Some("vieww-route-b")
+        && t.elapsed() < Duration::from_secs(2)
+    {
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    assert_eq!(
+        sink_of_stream().as_deref(),
+        Some("vieww-route-b"),
+        "the stream followed the default"
+    );
+    let at = frames.load(Ordering::Relaxed);
+    std::thread::sleep(Duration::from_millis(300));
+    assert!(
+        frames.load(Ordering::Relaxed) > at,
+        "still playing after the move"
+    );
+    assert_eq!(
+        rs.reopens(),
+        reopens,
+        "the server moved it: nothing reopened"
+    );
+    drop(rs);
+    if !before.is_empty() {
+        pactl(&["set-default-sink", &before]);
+    }
+    pactl(&["unload-module", &b]);
+    pactl(&["unload-module", &a]);
+}

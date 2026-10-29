@@ -141,6 +141,24 @@ jobs:
         run: bash ci/tools/ci-runner-prep.sh || true
       - name: The gate
         run: ci/check/checks.sh
+      # FW-08: frame budgets on this hosted runner, advisory (a shared VM's
+      # neighbours move timings past any useful tolerance). A class with no
+      # committed budget is compared with this leg's previous run, fetched
+      # from ci-results; this run's figures are published for the next.
+      - name: Performance budget (advisory, FW-08)
+        if: always()
+        run: |
+          py="$(command -v python3 || command -v python)"
+          "$py" -I ci/check/perf_baseline.py framework-checks perf-linux "$RUNNER_TEMP/perf-baseline.json"
+          bash ci/check/perf-budget.sh --advisory --baseline "$RUNNER_TEMP/perf-baseline.json" \
+            --write-measured "$RUNNER_TEMP/perf/perf-measured.json"
+      - name: Upload performance figures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-linux
+          path: ${{ runner.temp }}/perf
+          if-no-files-found: ignore
 
   coverage:
     name: Coverage floor
@@ -304,6 +322,29 @@ jobs:
           cargo clippy -p vieww-audio --all-targets -- -D warnings
           cargo clippy -p vieww-hal --features metal --target aarch64-apple-ios -- -D warnings
 
+      # FW-12: a stripped release crash decoded offline — the Mach-O path
+      # (cargo's dSYM, ci/release/symbols.sh, atos/llvm-symbolizer).
+      - name: Crash symbols (Mach-O, FW-12)
+        run: bash ci/check/crash-symbols.sh
+      # FW-08: frame budgets on this hosted runner, advisory (a shared VM's
+      # neighbours move timings past any useful tolerance). A class with no
+      # committed budget is compared with this leg's previous run, fetched
+      # from ci-results; this run's figures are published for the next.
+      - name: Performance budget (advisory, FW-08)
+        if: always()
+        run: |
+          py="$(command -v python3 || command -v python)"
+          "$py" -I ci/check/perf_baseline.py framework-checks perf-macos "$RUNNER_TEMP/perf-baseline.json"
+          bash ci/check/perf-budget.sh --advisory --baseline "$RUNNER_TEMP/perf-baseline.json" \
+            --write-measured "$RUNNER_TEMP/perf/perf-measured.json"
+      - name: Upload performance figures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-macos
+          path: ${{ runner.temp }}/perf
+          if-no-files-found: ignore
+
   windows:
     name: Windows (D3D12 on WARP)
     if: inputs.legs == 'all' || inputs.legs == '' || contains(format(',{0},', inputs.legs), ',windows,') || contains(format(' {0} ', inputs.legs), ' windows ') || contains(format(',{0} ', inputs.legs), ',windows ') || contains(format(' {0},', inputs.legs), ' windows,')
@@ -384,6 +425,33 @@ jobs:
       # had never run on it.
       - name: Studio out-of-process preview (PENDING §3.3)
         run: cargo test -p viewwstudio --test remote -- --test-threads=1
+
+      # FW-12: a stripped release crash decoded offline — the PE path (the
+      # PDB beside the .exe, ci/release/symbols.sh, llvm-symbolizer from the
+      # image's LLVM).
+      - name: Crash symbols (PE/PDB, FW-12)
+        run: |
+          export PATH="$PATH:/c/Program Files/LLVM/bin"
+          command -v llvm-symbolizer
+          bash ci/check/crash-symbols.sh
+      # FW-08: frame budgets on this hosted runner, advisory (a shared VM's
+      # neighbours move timings past any useful tolerance). A class with no
+      # committed budget is compared with this leg's previous run, fetched
+      # from ci-results; this run's figures are published for the next.
+      - name: Performance budget (advisory, FW-08)
+        if: always()
+        run: |
+          py="$(command -v python3 || command -v python)"
+          "$py" -I ci/check/perf_baseline.py framework-checks perf-windows "$RUNNER_TEMP/perf-baseline.json"
+          bash ci/check/perf-budget.sh --advisory --baseline "$RUNNER_TEMP/perf-baseline.json" \
+            --write-measured "$RUNNER_TEMP/perf/perf-measured.json"
+      - name: Upload performance figures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-windows
+          path: ${{ runner.temp }}/perf
+          if-no-files-found: ignore
 
   android:
     name: Android (compile)

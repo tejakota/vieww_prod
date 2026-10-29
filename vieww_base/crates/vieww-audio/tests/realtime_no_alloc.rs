@@ -22,11 +22,30 @@
 //! nothing. Here `main` is the whole program.
 
 use std::alloc::{GlobalAlloc, Layout, System};
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 struct Counting;
 
-static ARMED: AtomicBool = AtomicBool::new(false);
+/// Armed per thread: only the thread that renders (the one that armed)
+/// is counted. Helper threads — a disk stream's reader decoding ahead —
+/// are not real-time and may allocate.
+struct Armed;
+
+impl Armed {
+    fn store(&self, on: bool, _: Ordering) {
+        HERE.with(|c| c.set(on));
+    }
+
+    fn load(&self, _: Ordering) -> bool {
+        HERE.try_with(std::cell::Cell::get).unwrap_or(false)
+    }
+}
+
+thread_local! {
+    static HERE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+static ARMED: Armed = Armed;
 static ALLOCS: AtomicUsize = AtomicUsize::new(0);
 static FREES: AtomicUsize = AtomicUsize::new(0);
 
@@ -57,7 +76,7 @@ fn main() {
     rendering_allocates_nothing();
     sequencer_dispatch_allocates_nothing();
     engine_player_renders_without_allocating_or_freeing();
-    println!("realtime_no_alloc: the render path, mixer, parallel voices, disk stream, polyphony, every stereo effect, NaN recovery, the sampler, struck instruments and rate-matched device output allocate nothing; clip and step-sequencer dispatch allocate nothing; the EnginePlayer callback neither allocates nor frees");
+    println!("realtime_no_alloc: the render path, mixer, parallel voices, disk stream, streamed voices, polyphony, every stereo effect, NaN recovery, the sampler, struck instruments and rate-matched device output allocate nothing; clip and step-sequencer dispatch allocate nothing; the EnginePlayer callback neither allocates nor frees");
 }
 
 fn rendering_allocates_nothing() {
@@ -114,6 +133,7 @@ fn rendering_allocates_nothing() {
     mixer_allocates_nothing();
     parallel_voices_allocate_nothing();
     disk_streaming_allocates_nothing();
+    streamed_voices_allocate_nothing();
     voices_and_every_effect_allocate_nothing();
     sampler_and_struck_instruments_allocate_nothing();
     rate_matched_device_output_allocates_nothing();
@@ -229,6 +249,40 @@ fn disk_streaming_allocates_nothing() {
     std::fs::remove_file(&path).ok();
     assert_eq!(ALLOCS.load(Ordering::SeqCst), 0, "disk streaming allocated");
     assert!(got > 0);
+}
+
+/// The engine mixing a voice streamed from a compressed file (resampled
+/// on its reader thread), through a seek: the render side pulls from the
+/// ring and allocates nothing.
+fn streamed_voices_allocate_nothing() {
+    use vieww_audio::engine_player::{Engine, VoiceOptions};
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/long.ogg");
+    let engine = Engine::detached(48_000, 2);
+    let v = engine
+        .play_streaming(&path, VoiceOptions::default())
+        .unwrap();
+    let mut out = vec![0.0f32; 2 * 256];
+    engine.render(&mut out);
+    ALLOCS.store(0, Ordering::SeqCst);
+    FREES.store(0, Ordering::SeqCst);
+    ARMED.store(true, Ordering::SeqCst);
+    let mut loud = false;
+    for i in 0..300 {
+        engine.render(&mut out);
+        loud |= out.iter().any(|s| s.abs() > 1e-3);
+        if i == 150 {
+            engine.seek(v, std::time::Duration::from_secs(12));
+        }
+        std::thread::sleep(std::time::Duration::from_micros(200));
+    }
+    ARMED.store(false, Ordering::SeqCst);
+    assert_eq!(
+        ALLOCS.load(Ordering::SeqCst),
+        0,
+        "a streamed voice allocated"
+    );
+    assert_eq!(FREES.load(Ordering::SeqCst), 0, "a streamed voice freed");
+    assert!(loud, "and it played");
 }
 
 /// Single-threaded polyphony (`Poly::render_into`) with note-ons, voice

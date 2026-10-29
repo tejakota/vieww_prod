@@ -45,6 +45,70 @@ pub fn f64_to_extended(v: f64) -> [u8; 10] {
     out
 }
 
+/// A sample reader for an AIFF-C compression type at `bits`: the bytes
+/// per sample and the conversion to `f32`.
+///
+/// # Errors
+/// A compressed type, or a depth this reader does not handle.
+#[expect(clippy::type_complexity, reason = "a width and a converter")]
+pub(crate) fn sample_decoder(
+    kind: [u8; 4],
+    bits: u16,
+) -> Result<(usize, fn(&[u8]) -> f32), CodecError> {
+    let width = usize::from(bits).div_ceil(8);
+    Ok(match (&kind, width) {
+        (b"NONE" | b"twos", 1) => (1, |b| f32::from(b[0].cast_signed()) / 128.0),
+        (b"NONE" | b"twos", 2) => (2, |b| {
+            f32::from(i16::from_be_bytes([b[0], b[1]])) / 32_767.0
+        }),
+        (b"NONE" | b"twos", 3) => (3, |b| {
+            (i32::from_be_bytes([b[0], b[1], b[2], 0]) >> 8) as f32 / 8_388_607.0
+        }),
+        (b"NONE" | b"twos", 4) => (4, |b| {
+            (f64::from(i32::from_be_bytes([b[0], b[1], b[2], b[3]])) / 2_147_483_647.0) as f32
+        }),
+        (b"sowt", 2) => (2, |b| {
+            f32::from(i16::from_le_bytes([b[0], b[1]])) / 32_767.0
+        }),
+        (b"sowt", 3) => (3, |b| {
+            (i32::from_le_bytes([0, b[0], b[1], b[2]]) >> 8) as f32 / 8_388_607.0
+        }),
+        (b"fl32" | b"FL32", _) => (4, |b| f32::from_be_bytes([b[0], b[1], b[2], b[3]])),
+        (b"fl64" | b"FL64", _) => (8, |b| {
+            f64::from_be_bytes([b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]]) as f32
+        }),
+        _ => return Err(CodecError::Unsupported("this AIFF-C compression type")),
+    })
+}
+
+/// The shape of an AIFF's `COMM` chunk: channels, frames, bits, rate and
+/// compression type.
+pub(crate) fn parse_comm(
+    c: &[u8],
+    aifc: bool,
+) -> Result<(u16, u32, u16, u32, [u8; 4]), CodecError> {
+    if c.len() < 18 {
+        return Err(CodecError::Truncated);
+    }
+    let channels = u16::from_be_bytes([c[0], c[1]]);
+    let frames = u32::from_be_bytes([c[2], c[3], c[4], c[5]]);
+    let bits = u16::from_be_bytes([c[6], c[7]]);
+    let mut ext = [0u8; 10];
+    ext.copy_from_slice(&c[8..18]);
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "sample rates"
+    )]
+    let rate = extended_to_f64(&ext).round() as u32;
+    let kind: [u8; 4] = if aifc && c.len() >= 22 {
+        [c[18], c[19], c[20], c[21]]
+    } else {
+        *b"NONE"
+    };
+    Ok((channels, frames, bits, rate, kind))
+}
+
 /// Decode AIFF / AIFF-C.
 ///
 /// # Errors
@@ -78,25 +142,8 @@ pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
         at = s + len + (len & 1);
     }
     let c = comm.ok_or(CodecError::Malformed("no COMM chunk"))?;
-    if c.len() < 18 {
-        return Err(CodecError::Truncated);
-    }
-    let channels = u16::from_be_bytes([c[0], c[1]]);
-    let frames = u32::from_be_bytes([c[2], c[3], c[4], c[5]]) as usize;
-    let bits = u16::from_be_bytes([c[6], c[7]]);
-    let mut ext = [0u8; 10];
-    ext.copy_from_slice(&c[8..18]);
-    #[expect(
-        clippy::cast_possible_truncation,
-        clippy::cast_sign_loss,
-        reason = "sample rates"
-    )]
-    let rate = extended_to_f64(&ext).round() as u32;
-    let kind: [u8; 4] = if aifc && c.len() >= 22 {
-        [c[18], c[19], c[20], c[21]]
-    } else {
-        *b"NONE"
-    };
+    let (channels, frames, bits, rate, kind) = parse_comm(c, aifc)?;
+    let frames = frames as usize;
     let s = ssnd.ok_or(CodecError::Malformed("no SSND chunk"))?;
     if s.len() < 8 {
         return Err(CodecError::Truncated);
@@ -104,30 +151,7 @@ pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
     let offset = u32::from_be_bytes([s[0], s[1], s[2], s[3]]) as usize;
     let pcm = s.get(8 + offset..).ok_or(CodecError::Truncated)?;
     let ch = usize::from(channels.max(1));
-    let width = usize::from(bits).div_ceil(8);
-    let (width, decode_one): (usize, fn(&[u8]) -> f32) = match (&kind, width) {
-        (b"NONE" | b"twos", 1) => (1, |b| f32::from(b[0].cast_signed()) / 128.0),
-        (b"NONE" | b"twos", 2) => (2, |b| {
-            f32::from(i16::from_be_bytes([b[0], b[1]])) / 32_767.0
-        }),
-        (b"NONE" | b"twos", 3) => (3, |b| {
-            (i32::from_be_bytes([b[0], b[1], b[2], 0]) >> 8) as f32 / 8_388_607.0
-        }),
-        (b"NONE" | b"twos", 4) => (4, |b| {
-            (f64::from(i32::from_be_bytes([b[0], b[1], b[2], b[3]])) / 2_147_483_647.0) as f32
-        }),
-        (b"sowt", 2) => (2, |b| {
-            f32::from(i16::from_le_bytes([b[0], b[1]])) / 32_767.0
-        }),
-        (b"sowt", 3) => (3, |b| {
-            (i32::from_le_bytes([0, b[0], b[1], b[2]]) >> 8) as f32 / 8_388_607.0
-        }),
-        (b"fl32" | b"FL32", _) => (4, |b| f32::from_be_bytes([b[0], b[1], b[2], b[3]])),
-        (b"fl64" | b"FL64", _) => (8, |b| {
-            f64::from_be_bytes([b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]]) as f32
-        }),
-        _ => return Err(CodecError::Unsupported("this AIFF-C compression type")),
-    };
+    let (width, decode_one) = sample_decoder(kind, bits)?;
     let n = (frames * ch).min(pcm.len() / width);
     let data = pcm[..n * width]
         .chunks_exact(width)

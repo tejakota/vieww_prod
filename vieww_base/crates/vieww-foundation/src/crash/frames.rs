@@ -481,4 +481,21 @@ mod tests {
         assert!(macho_uuid(b"nope").is_none());
         assert!(pe_codeview(&[0u8; 64]).is_none());
     }
+
+    #[test]
+    fn pe_and_macho_ids_match_what_the_release_tools_read() {
+        // The same images ci/release/test_module_id.py reads with
+        // module_id.py: the report's ids and the symbol files' names must
+        // be spelled identically or no frame ever finds its symbols.
+        let pe = include_bytes!("testdata/pe-codeview.bin");
+        assert_eq!(
+            pe_codeview(pe).as_deref(),
+            Some("33221100554477668899aabbccddeeff2a")
+        );
+        let macho = include_bytes!("testdata/macho-uuid.bin");
+        assert_eq!(
+            macho_uuid(macho).as_deref(),
+            Some("000102030405060708090a0b0c0d0e0f")
+        );
+    }
 }

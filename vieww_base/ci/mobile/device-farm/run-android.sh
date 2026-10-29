@@ -338,7 +338,8 @@ sh_ setprop debug.vieww.gpu 0 >/dev/null
 sh_ setprop debug.vieww.audio 1 >/dev/null
 adb logcat -c 2>/dev/null
 sh_ am start -n "$component" >/dev/null
-deadline=$(( $(date +%s) + 90 ))
+# 180 s: the in-app checks include AU-08's 60-second underrun soak.
+deadline=$(( $(date +%s) + 180 ))
 while [ "$(date +%s)" -lt "$deadline" ] && ! audio_line | grep -q '^result '; do sleep 1; done
 audio_line > "$out/audio-app.log"
 in_app="$(grep -m1 '^result ' "$out/audio-app.log" | awk '{print $2}')"

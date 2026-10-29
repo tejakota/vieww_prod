@@ -21,12 +21,12 @@ tag needs a `## [x.y.z]` section here before it is pushed.
 
 ### Added
 
-- Streaming decode (`codec::stream`): WAV, FLAC, MP3 and AAC (MP4/ADTS) play from disk through a bounded window, with seeking (AU-05).
+- Streaming playback (AU-05): `codec::stream` decodes WAV, AIFF, FLAC, MP3, AAC (MP4/ADTS) and Ogg Vorbis from disk through a bounded window, with seeking; `DiskStream` plays any of them; `Engine::play_streaming` and `MediaPlayer` (`Source::Stream`, and long files automatically) stream instead of decoding whole.
 - AAudio exclusive mode, burst-sized buffers that grow on underruns, and latency/disconnect reporting (AU-08).
-- Audio route changes are delivered as events on Windows, macOS, Android and iOS; the engine resamples when the device rate changes (AU-09).
-- WASAPI low-latency shared streams via IAudioClient3 (AU-10).
-- Per-device-class performance budgets, `ci/check/perf-budget.sh` (FW-08).
-- Symbolicated crash reports: raw frames with build IDs, a `dist-symbols` profile, `ci/release/symbols.sh` and `symbolize.py` (FW-12).
+- Audio route changes are events on Windows, macOS, Linux (PulseAudio / pipewire-pulse), Android and iOS; the engine resamples when the device rate changes (AU-09).
+- WASAPI low-latency shared streams via IAudioClient3, with the engine period in `StreamStats` (AU-10).
+- Per-device-class performance budgets; a class without a committed budget is held to its own previous run (FW-08).
+- Symbolicated crash reports on Linux, macOS and Windows: raw frames with build IDs, `ci/release/symbols.sh` / `symbolize.py`, and a symbols archive with every release (`package.sh --symbols`) (FW-12).
 - **Device Farm: audio pass** (AU-02, AU-03, AU-04): on every phone, the demo plays a tone and checks focus loss/duck/resume (Android, through a real competing focus request) or the session category, now-playing entry and interruption handling (iOS); the runners then check media-session pause/play, the foreground service, and that audio keeps playing with the screen off (Android, 60 s) or in the background (iOS, 30 s). The Device Farm APK and .ipa are built with background audio on.
 - **Mobile audio: focus and interruptions** (AU-02, AU-03): `vieww_audio::focus` and `vieww_audio::session` — one focus/interruption state machine for both platforms; the engine pauses on the exact sample, ducks smoothly and resumes only what it paused. Android requests `AudioFocusRequest` focus (refused during a call: `PlayError::FocusDenied`); iOS sets the `AVAudioSession` category and follows interruptions, route changes and media-services resets. The device stream is not reopened during an interruption.
 - **Mobile audio: background playback and lock-screen controls** (AU-04): `NowPlaying` and `RemoteCommand`, `MediaPlayer::set_metadata` / `poll_remote`; Android `MediaSession` + a `mediaPlayback` foreground service (`apk-add-code.sh --background-audio`), iOS `MPNowPlayingInfoCenter` / `MPRemoteCommandCenter` and an opt-in `UIBackgroundModes` (`background-audio = true` under `[package.metadata.vieww]`). `ci/mobile/lint-background-audio.sh` checks a built APK or plist.

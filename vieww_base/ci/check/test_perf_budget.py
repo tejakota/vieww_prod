@@ -76,6 +76,32 @@ class PerfBudget(unittest.TestCase):
         budgets = write({"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": {}})
         self.assertEqual(pb.main(["check", budgets, write(SUMMARY)]), 0)
 
+    def test_a_new_class_is_held_to_its_last_run(self):
+        budgets = write({"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": {}})
+        receipt = write(RECEIPT)
+        last = tempfile.mktemp(suffix=".json")
+        # First run: nothing to compare with, figures saved for the next.
+        self.assertEqual(pb.main(["check", budgets, receipt, "--baseline", last, "--write-measured", last]), 0)
+        self.assertTrue(os.path.exists(last))
+        # Second run, 15% slower: inside the last-run tolerance (25%).
+        a_bit = json.loads(json.dumps(RECEIPT))
+        a_bit["fixtures"][0]["cpu_p50_ms"] = 4.6
+        self.assertEqual(pb.main(["check", budgets, write(a_bit), "--baseline", last]), 0)
+        # 60% slower: over it, and failed...
+        slow = json.loads(json.dumps(RECEIPT))
+        slow["fixtures"][0]["cpu_p50_ms"] = 6.4
+        self.assertEqual(pb.main(["check", budgets, write(slow), "--baseline", last]), 1)
+        # ...unless advisory, as on a hosted runner.
+        self.assertEqual(pb.main(["check", budgets, write(slow), "--baseline", last, "--advisory"]), 0)
+        # A committed budget wins over the last run.
+        pb.main(["record", budgets, write(slow)])
+        self.assertEqual(pb.main(["check", budgets, write(slow), "--baseline", last]), 0)
+
+    def test_a_missing_or_foreign_baseline_is_ignored(self):
+        budgets = write({"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": {}})
+        self.assertEqual(pb.main(["check", budgets, write(RECEIPT), "--baseline", "/no/such.json"]), 0)
+        self.assertEqual(pb.main(["check", budgets, write(RECEIPT), "--baseline", write({"x": 1})]), 0)
+
     def test_a_broken_budgets_file_is_refused(self):
         for bad in (
             {"schema": "other", "tolerance_percent": 10, "classes": {}},

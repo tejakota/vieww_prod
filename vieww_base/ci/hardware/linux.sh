@@ -159,11 +159,15 @@ if want gallery; then
     run census cargo run --release -p fixtures -- "$out/census" --census \
         --runs 30 --receipt "$out/census/receipt.json" --shadow "$out/census/shadow.jsonl"
     # FW-08: this machine's figures against ci/check/perf-budgets.json. The
-    # class is the machine's own (os / arch / cpu model, from the receipt);
-    # the first run of a new machine is reported, not gated, until
-    # `ci/check/perf-budget.sh --record` is committed for it.
+    # class is the machine's own (os / arch / cpu model, from the receipt).
+    # A class with no committed budget is held to this machine's previous
+    # run (perf-measured.json, published to ci-results with this folder's
+    # artifacts), so it is gated from its second run without a hand-made
+    # commit; this run's figures are saved as the next run's baseline.
     if [ -f "$out/fixtures/receipt.json" ] && [ -f "$out/census/receipt.json" ]; then
-        run perf-budget ci/check/perf-budget.sh "$out/fixtures/receipt.json" "$out/census/receipt.json"
+        python3 -I ci/check/perf_baseline.py hardware-self-hosted-linux-and-windows hardware-linux "$out/perf-baseline.json" || true
+        run perf-budget ci/check/perf-budget.sh --baseline "$out/perf-baseline.json" \
+            --write-measured "$out/perf-measured.json" "$out/fixtures/receipt.json" "$out/census/receipt.json"
     fi
     if command -v python3 >/dev/null && [ -f "$out/census/receipt.json" ]; then
         python3 - "$out/census/receipt.json" <<'PY' | tee -a "$summary"
@@ -262,6 +266,9 @@ if want audio; then
     if [ -d /dev/snd ] && ls /dev/snd/pcmC* >/dev/null 2>&1; then
         note "sound cards: $(grep -E '^ *[0-9]+ \[' /proc/asound/cards | sed 's/  */ /g' | tr '\n' ';')"
         run audio-devices cargo test --release -p vieww-audio --lib backend:: -- --nocapture
+        # Includes AU-09's default-sink swap between two null sinks
+        # (pulse_default_sink_change_is_an_event): pactl drives PulseAudio
+        # or, on a PipeWire desktop, pipewire-pulse.
         run audio-live env VIEWW_LIVE_GAIN="${VIEWW_HW_AUDIO_GAIN:-0}" VIEWW_SOAK_SECS=10 \
             cargo test --release -p vieww-audio --test live_backends -- --ignored --nocapture --test-threads=1
         run audio-soak env VIEWW_REQUIRE_LOOPBACK=1 VIEWW_LIVE_GAIN="${VIEWW_HW_AUDIO_GAIN:-0}" \

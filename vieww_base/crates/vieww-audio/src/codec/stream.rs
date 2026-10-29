@@ -358,18 +358,76 @@ impl FrameSource for WavSource {
     }
 }
 
-// ── whole-file fallback ──────────────────────────────────────────────────
+// ── AIFF ─────────────────────────────────────────────────────────────────
 
-/// Formats without a streaming decoder yet (Ogg Vorbis, AIFF): decoded
-/// whole on open, then served through the same interface.
-struct WholeSource {
+struct AiffSource {
     channels: usize,
     rate: u32,
-    data: Vec<f32>,
-    at: usize,
+    width: usize,
+    decode_one: fn(&[u8]) -> f32,
+    data_off: u64,
+    frames: u64,
+    at: u64,
 }
 
-impl FrameSource for WholeSource {
+impl AiffSource {
+    fn open(input: &mut Input) -> Result<Self, CodecError> {
+        let head = input.window(0, 12)?.to_vec();
+        if head.len() < 12 || &head[..4] != b"FORM" {
+            return Err(CodecError::NotThisFormat);
+        }
+        let aifc = match &head[8..12] {
+            b"AIFF" => false,
+            b"AIFC" => true,
+            _ => return Err(CodecError::NotThisFormat),
+        };
+        let len = input.len();
+        let mut comm = None;
+        let mut ssnd = None;
+        let mut at = 12u64;
+        while at + 8 <= len {
+            let h = input.window(at, 8)?.to_vec();
+            if h.len() < 8 {
+                break;
+            }
+            let size = u64::from(u32::from_be_bytes([h[4], h[5], h[6], h[7]]));
+            match &h[..4] {
+                b"COMM" => {
+                    let n = usize::try_from(size.min(64)).unwrap_or(64);
+                    comm = Some(input.window(at + 8, n)?.to_vec());
+                }
+                b"SSND" => {
+                    let o = input.window(at + 8, 8)?.to_vec();
+                    if o.len() < 8 {
+                        return Err(CodecError::Truncated);
+                    }
+                    let offset = u64::from(u32::from_be_bytes([o[0], o[1], o[2], o[3]]));
+                    let start = at + 16 + offset;
+                    let end = (at + 8 + size).min(len);
+                    ssnd = Some((start, end.saturating_sub(start)));
+                }
+                _ => {}
+            }
+            at += 8 + size + (size & 1);
+        }
+        let c = comm.ok_or(CodecError::Malformed("no COMM chunk"))?;
+        let (channels, frames, bits, rate, kind) = super::aiff::parse_comm(&c, aifc)?;
+        let (data_off, data_len) = ssnd.ok_or(CodecError::Malformed("no SSND chunk"))?;
+        let (width, decode_one) = super::aiff::sample_decoder(kind, bits)?;
+        let ch = usize::from(channels.max(1));
+        Ok(Self {
+            channels: ch,
+            rate,
+            width,
+            decode_one,
+            data_off,
+            frames: u64::from(frames).min(data_len / (ch * width) as u64),
+            at: 0,
+        })
+    }
+}
+
+impl FrameSource for AiffSource {
     fn channels(&self) -> usize {
         self.channels
     }
@@ -379,23 +437,32 @@ impl FrameSource for WholeSource {
     }
 
     fn trim(&self) -> (u64, Option<u64>) {
-        (0, Some((self.data.len() / self.channels.max(1)) as u64))
+        (0, Some(self.frames))
     }
 
-    fn next(&mut self, _input: &mut Input) -> Result<Option<Chunk>, CodecError> {
-        if self.at >= self.data.len() {
+    fn next(&mut self, input: &mut Input) -> Result<Option<Chunk>, CodecError> {
+        if self.at >= self.frames {
             return Ok(None);
         }
-        let n = (self.data.len() - self.at).min(4096 * self.channels.max(1));
-        let pcm = self.data[self.at..self.at + n].to_vec();
-        self.at += n;
+        let fb = self.channels * self.width;
+        let n = (self.frames - self.at).min(WAV_CHUNK);
+        let off = self.data_off + self.at * fb as u64;
+        let raw = input.window(off, usize::try_from(n).unwrap_or(0) * fb)?;
+        let whole = raw.len() / fb * fb;
+        let pcm: Vec<f32> = raw[..whole]
+            .chunks_exact(self.width)
+            .map(self.decode_one)
+            .collect();
+        if pcm.is_empty() {
+            return Ok(None);
+        }
+        self.at += (pcm.len() / self.channels) as u64;
         Ok(Some(Chunk { pcm }))
     }
 
     fn seek(&mut self, _input: &mut Input, frame: u64) -> Result<u64, CodecError> {
-        let f = usize::try_from(frame).unwrap_or(usize::MAX);
-        self.at = f.saturating_mul(self.channels.max(1)).min(self.data.len());
-        Ok((self.at / self.channels.max(1)) as u64)
+        self.at = frame.min(self.frames);
+        Ok(self.at)
     }
 }
 
@@ -434,22 +501,10 @@ pub fn open(r: Box<dyn ReadSeek>) -> Result<Box<dyn PullDecoder>, CodecError> {
         Format::Mp4 => Box::new(Pull::new_with(input, super::aac::Mp4Source::open)?),
         #[cfg(feature = "aac")]
         Format::Adts => Box::new(Pull::new_with(input, super::aac::AdtsSource::open)?),
-        _ => {
-            // Whole-file: read it all once, through the window's source.
-            let len = usize::try_from(input.len())
-                .map_err(|_| CodecError::Unsupported("a file this large"))?;
-            let bytes = input.window(0, len)?.to_vec();
-            let d = super::decode(&bytes)?;
-            Box::new(Pull::new(
-                input,
-                WholeSource {
-                    channels: usize::from(d.channels),
-                    rate: d.rate,
-                    data: d.data,
-                    at: 0,
-                },
-            ))
-        }
+        Format::Aiff => Box::new(Pull::new_with(input, AiffSource::open)?),
+        Format::Ogg => Box::new(Pull::new_with(input, super::vorbis::VorbisSource::open)?),
+        #[allow(unreachable_patterns, reason = "every format streams when aac is on")]
+        _ => return Err(CodecError::Unsupported("streaming this format")),
     })
 }
 

@@ -35,7 +35,8 @@ cd "$root"
 bash ci/check/release-clean-check.sh "$root"
 
 args=("$@")
-((${#args[@]} > 0)) || args=(--installers)
+# --symbols: the release's symbol archive rides with its installers (FW-12).
+((${#args[@]} > 0)) || args=(--installers --symbols)
 # FW-23: one timestamp for everything that honours it (dpkg-deb, tar/zip
 # writers, the SBOM) — the commit's, so two builds of one commit agree.
 SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$(git -C "$root" log -1 --format=%ct 2>/dev/null || date +%s)}"

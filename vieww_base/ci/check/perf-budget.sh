@@ -3,6 +3,14 @@
 #
 #     ci/check/perf-budget.sh [--class NAME] [RECEIPT|SUMMARY ...]
 #     ci/check/perf-budget.sh --record [--class NAME] [RECEIPT|SUMMARY ...]
+#     ci/check/perf-budget.sh [--advisory] [--baseline LAST.json] \
+#                             [--write-measured OUT.json] [RECEIPT ...]
+#
+# --write-measured saves this run's figures; --baseline holds a class with
+# no committed budget to the previous run's saved figures (the CI legs
+# fetch them from ci-results), so a machine is gated from its second run
+# without anyone recording by hand. --advisory reports and never fails, for
+# hosted runners.
 #
 # With no files, runs the fixtures gallery (`--runs 10`) and checks its
 # receipt. Files may be fixtures receipts (vieww.bench-receipt/1) or a
@@ -23,17 +31,23 @@ args=()
 while [ $# -gt 0 ]; do
     case "$1" in
         --record) cmd=record ;;
-        --class) args+=(--class "$2"); shift ;;
+        --class | --baseline | --write-measured) args+=("$1" "$2"); shift ;;
+        --advisory) args+=(--advisory) ;;
         *) args+=("$1") ;;
     esac
     shift
 done
 files=0
-for a in "${args[@]}"; do case "$a" in --class) ;; *.json) files=$((files + 1)) ;; esac; done
+skip=""
+for a in "${args[@]}"; do
+    if [ -n "$skip" ]; then skip=""; continue; fi
+    case "$a" in --class | --baseline | --write-measured) skip=1 ;; *.json) files=$((files + 1)) ;; esac
+done
 if [ "$files" -eq 0 ]; then
     tmp="$(mktemp -d)"
     trap 'rm -rf "$tmp"' EXIT
     (cd "$here/../.." && cargo run -q --release -p fixtures -- "$tmp/out" --runs 10 --receipt "$tmp/receipt.json")
     args+=("$tmp/receipt.json")
 fi
-exec python3 -I "$here/perf_budget.py" "$cmd" "$budgets" "${args[@]}"
+py="$(command -v python3 || command -v python)"
+exec "$py" -I "$here/perf_budget.py" "$cmd" "$budgets" "${args[@]}"

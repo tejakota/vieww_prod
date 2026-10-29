@@ -417,6 +417,9 @@ struct Session {
     format: Option<PcmFormat>,
     /// The rate the endpoint runs at.
     device_rate: u32,
+    /// The shared engine's period, frames, when the stream runs on
+    /// `IAudioClient3`'s low-latency path (AU-10); 0 otherwise.
+    period_frames: u32,
 }
 
 impl Drop for Session {
@@ -617,7 +620,7 @@ fn mix_is_float(fmt: *const u8) -> Option<(u16, u32)> {
 ///
 /// # Safety
 /// `c` is a fresh, uninitialised `IAudioClient`.
-unsafe fn init_low_latency_shared(c: This, ch: u16, block: u32) -> Option<u32> {
+unsafe fn init_low_latency_shared(c: This, ch: u16, block: u32) -> Option<(u32, u32)> {
     // SAFETY: the caller's contract; every pointer checked, the mix format
     // freed with CoTaskMemFree, the extra interface reference released.
     unsafe {
@@ -663,7 +666,7 @@ unsafe fn init_low_latency_shared(c: This, ch: u16, block: u32) -> Option<u32> {
                 mix,
                 std::ptr::null(),
             );
-            (hr >= 0).then_some(mix_rate)
+            (hr >= 0).then_some((mix_rate, min))
         })();
         CoTaskMemFree(mix);
         result
@@ -961,6 +964,7 @@ unsafe fn session(
         let ch = config.channels.clamp(1, 18);
         let mut format = None;
         let mut device_rate = config.rate;
+        let mut period_frames = 0u32;
         if exclusive {
             // The best format at the requested rate, else the nearest rate.
             let supports = |f: PcmFormat, r: u32| {
@@ -1043,7 +1047,8 @@ unsafe fn session(
             check(hr, "IAudioClient::Initialize (exclusive)")?;
             format = Some(wire_format(f));
             device_rate = r;
-        } else if let Some(mix_rate) = init_low_latency_shared(c, ch, config.block.max(1)) {
+        } else if let Some((mix_rate, min)) = init_low_latency_shared(c, ch, config.block.max(1)) {
+            period_frames = min;
             // AU-10: low-latency shared mode at the engine's minimum period.
             // Its format is the mix format: float at the engine's rate, so
             // at another rate than ours the conversion path (as exclusive
@@ -1087,6 +1092,7 @@ unsafe fn session(
             latency_ns: 0,
             format,
             device_rate,
+            period_frames,
         };
         check(
             (vt!(c, AudioClientVtbl).set_event_handle)(c, event),
@@ -1228,6 +1234,8 @@ fn open(
                 c2.buffer_frames
                     .store(u64::from(sess.buffer_frames), Ordering::Relaxed);
                 c2.exclusive.store(exclusive, Ordering::Relaxed);
+                c2.period_frames
+                    .store(u64::from(sess.period_frames), Ordering::Relaxed);
 
                 tx.send(Ok(sess.buffer_frames)).ok();
                 while !s2.load(Ordering::Acquire) {
@@ -1668,6 +1676,175 @@ mod tests {
         assert!(st.buffer_frames.is_some(), "the buffer is reported");
         assert!(st.callbacks > 0, "it runs");
         assert!(!st.exclusive);
+    }
+
+    /// AU-10 on a real endpoint (the self-hosted Windows machine's
+    /// `audio` step): shared mode through `IAudioClient3` at the engine's
+    /// minimum period, under 8 ms of output latency, and `VIEWW_SOAK_SECS`
+    /// (600) seconds with no late render and no missed wakeup. Ignored by
+    /// default: a hosted runner's only endpoint is a virtual cable whose
+    /// driver offers no period shorter than the default.
+    #[cfg(windows)]
+    #[test]
+    #[ignore = "needs a real render endpoint (self-hosted Windows)"]
+    fn low_latency_shared_on_a_real_endpoint() {
+        let secs: u64 = std::env::var("VIEWW_SOAK_SECS")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(600);
+        let config = StreamConfig {
+            rate: 48_000,
+            channels: 2,
+            block: 128,
+        };
+        let stream = Wasapi
+            .open_output(config, Box::new(|out, _| out.fill(0.0)))
+            .expect("a render endpoint");
+        std::thread::sleep(std::time::Duration::from_millis(500));
+        let st = stream.stats();
+        eprintln!(
+            "IAudioClient3: period {:?} frames, buffer {:?} frames, latency {:?}",
+            st.period_frames, st.buffer_frames, st.latency
+        );
+        assert!(
+            st.period_frames.is_some(),
+            "the low-latency shared path was not taken (no IAudioClient3, a mix format \
+             other than float stereo, or a driver without a short period)"
+        );
+        let latency = st.latency.expect("latency reported");
+        assert!(
+            latency < std::time::Duration::from_millis(8),
+            "latency {latency:?} at the minimum period"
+        );
+        let (late, xruns) = (st.late, st.xruns);
+        std::thread::sleep(std::time::Duration::from_secs(secs));
+        let end = stream.stats();
+        eprintln!(
+            "after {secs} s: late {} xruns {} callbacks {}",
+            end.late, end.xruns, end.callbacks
+        );
+        assert_eq!(end.late, late, "late renders during the soak");
+        assert_eq!(end.xruns, xruns, "missed wakeups during the soak");
+        assert!(!end.ended, "the stream ended");
+    }
+
+    /// AU-09 on the self-hosted Windows machine (two render endpoints, e.g.
+    /// speakers and VB-CABLE): the default endpoint flips while a
+    /// default-following stream plays. WASAPI does not move streams, so
+    /// the supervisor must: the notification arrives within 100 ms and the
+    /// stream is reopened on the new default exactly once. The flip uses
+    /// `IPolicyConfig` — undocumented, but what every audio switcher uses,
+    /// stable since Windows 7 (Windows has no public call to set the
+    /// default endpoint).
+    #[cfg(windows)]
+    #[test]
+    #[ignore = "needs two render endpoints (self-hosted Windows)"]
+    fn a_default_endpoint_flip_is_followed_at_once() {
+        use crate::backend::resilient::{ResilientStream, Target};
+
+        #[repr(C)]
+        struct PolicyConfigVtbl {
+            _unknown_and_formats: [usize; 13],
+            set_default_endpoint: unsafe extern "system" fn(This, *const u16, u32) -> Hresult,
+        }
+        // CPolicyConfigClient, IPolicyConfig (Windows 10/11).
+        const CLSID_POLICY_CONFIG: Guid = Guid(
+            0x870a_f99c,
+            0x171d,
+            0x4f9e,
+            [0xaf, 0x0d, 0xe6, 0x3d, 0xf4, 0x0c, 0x2b, 0xc9],
+        );
+        const IID_POLICY_CONFIG: Guid = Guid(
+            0xf867_9f50,
+            0x850a,
+            0x41cf,
+            [0x9c, 0x72, 0x43, 0x0f, 0x29, 0x02, 0x90, 0xc8],
+        );
+        fn set_default(id: &str) -> bool {
+            let wide: Vec<u16> = id.encode_utf16().chain(std::iter::once(0)).collect();
+            // SAFETY: COM on this thread; the interface pointer is checked
+            // and released; the id is NUL-terminated UTF-16.
+            unsafe {
+                CoInitializeEx(null_mut(), COINIT_MULTITHREADED);
+                let mut p = null_mut();
+                if CoCreateInstance(
+                    &CLSID_POLICY_CONFIG,
+                    null_mut(),
+                    CLSCTX_ALL,
+                    &IID_POLICY_CONFIG,
+                    &raw mut p,
+                ) < 0
+                    || p.is_null()
+                {
+                    return false;
+                }
+                let p = Com(p);
+                // eConsole and eMultimedia: what "Set as default" sets.
+                (0..2).all(|role| {
+                    (vt!(p.0, PolicyConfigVtbl).set_default_endpoint)(p.0, wide.as_ptr(), role) >= 0
+                })
+            }
+        }
+
+        let endpoints: Vec<String> = Wasapi
+            .devices()
+            .unwrap_or_default()
+            .into_iter()
+            .filter(|d| d.outputs.unwrap_or(0) > 0)
+            .map(|d| d.id)
+            .collect();
+        assert!(
+            endpoints.len() >= 2,
+            "two render endpoints are needed, found {endpoints:?}"
+        );
+        let original = Wasapi.default_device_id().expect("a default endpoint");
+        let other = endpoints
+            .iter()
+            .find(|e| **e != original)
+            .expect("another endpoint")
+            .clone();
+        let rs = ResilientStream::open(
+            Box::new(Wasapi),
+            Target::Default,
+            StreamConfig::default(),
+            Box::new(|out: &mut [f32], _: &crate::backend::BlockInfo| out.fill(0.0)),
+        )
+        .expect("open on the default endpoint");
+        std::thread::sleep(std::time::Duration::from_millis(500));
+        let (events, reopens) = (rs.route_events(), rs.reopens());
+        let t = std::time::Instant::now();
+        assert!(
+            set_default(&other),
+            "IPolicyConfig::SetDefaultEndpoint refused"
+        );
+        while rs.route_events() == events && t.elapsed() < std::time::Duration::from_secs(2) {
+            std::thread::sleep(std::time::Duration::from_millis(1));
+        }
+        let heard = t.elapsed();
+        while rs.reopens() == reopens && t.elapsed() < std::time::Duration::from_secs(2) {
+            std::thread::sleep(std::time::Duration::from_millis(1));
+        }
+        let reopened = t.elapsed();
+        eprintln!("flip heard after {heard:?}, reopened after {reopened:?}");
+        let followed = Wasapi.default_device_id();
+        std::thread::sleep(std::time::Duration::from_millis(500));
+        let reopens_after = rs.reopens();
+        set_default(&original);
+        drop(rs);
+        assert!(
+            heard < std::time::Duration::from_millis(100),
+            "the notification took {heard:?}"
+        );
+        assert!(
+            reopened < std::time::Duration::from_millis(300),
+            "the reopen took {reopened:?}"
+        );
+        assert_eq!(reopens_after, reopens + 1, "reopened exactly once");
+        assert_eq!(
+            followed.as_deref(),
+            Some(other.as_str()),
+            "the default moved"
+        );
     }
 
     /// AU-09: the endpoint notification client registers with the real

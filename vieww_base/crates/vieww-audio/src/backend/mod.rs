@@ -164,6 +164,10 @@ pub struct Counters {
     /// The device-side buffer the stream runs with, in frames (0 = not
     /// reported): what the latency is made of.
     pub buffer_frames: AtomicU64,
+    /// The audio engine's processing period, in frames, when the backend
+    /// chose it (WASAPI's `IAudioClient3` low-latency shared mode, AU-10);
+    /// 0 = the system's default period.
+    pub period_frames: AtomicU64,
 }
 
 /// Called by a backend's route notification: "the devices may have
@@ -204,6 +208,9 @@ pub struct StreamStats {
     pub disconnected: bool,
     /// The device-side buffer, in frames, if reported.
     pub buffer_frames: Option<u64>,
+    /// The engine period the stream asked for, in frames, when it chose
+    /// one (`IAudioClient3`'s minimum, AU-10).
+    pub period_frames: Option<u64>,
 }
 
 impl Counters {
@@ -238,6 +245,10 @@ impl Counters {
             exclusive: self.exclusive.load(Ordering::Relaxed),
             disconnected: self.disconnected.load(Ordering::Relaxed),
             buffer_frames: match self.buffer_frames.load(Ordering::Relaxed) {
+                0 => None,
+                n => Some(n),
+            },
+            period_frames: match self.period_frames.load(Ordering::Relaxed) {
                 0 => None,
                 n => Some(n),
             },

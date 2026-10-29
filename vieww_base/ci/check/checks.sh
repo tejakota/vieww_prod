@@ -388,6 +388,8 @@ check bash ci/check/conformance-matrix.sh
 # stable — Device Farm and the self-hosted hardware — not on hosted runners.
 stage "performance budgets (the gate's tests and ci/check/perf-budgets.json)"
 check python3 -I ci/check/test_perf_budget.py
+stage "crash symbol ids (ci/release/module_id.py reads what raw_frames writes)"
+check python3 -I ci/release/test_module_id.py
 
 # FW-12: a stripped release build's crash, decoded offline from its raw
 # frames and the debug file ci/release/symbols.sh kept. ELF tooling, so

@@ -307,6 +307,14 @@ impl Backend for Pulse {
         list::sinks()
     }
 
+    /// The server's subscription events (AU-09): the default sink moving,
+    /// a sink appearing or going. The server moves a default-following
+    /// stream itself, so there is nothing to reopen; the event tells the
+    /// supervisor and the app's route listeners at once.
+    fn watch(&self, wake: super::RouteWake) -> Option<super::RouteWatch> {
+        route_watch(wake)
+    }
+
     fn open_output_on(
         &self,
         device: &str,
@@ -315,6 +323,12 @@ impl Backend for Pulse {
     ) -> Result<DeviceStream, BackendError> {
         open(config, Callback::Render(render), Some(device))
     }
+}
+
+/// Route events from a PulseAudio-protocol server (PulseAudio itself, or
+/// PipeWire's `pipewire-pulse`), for both backends' [`Backend::watch`].
+pub(super) fn route_watch(wake: super::RouteWake) -> Option<super::RouteWatch> {
+    list::watch(wake).map(|w| Box::new(w) as super::RouteWatch)
 }
 
 /// Listing sinks needs libpulse's asynchronous API (the simple API cannot
@@ -371,7 +385,13 @@ mod list {
         server: unsafe extern "C" fn(*mut c_void, ServerCb, *mut c_void) -> *mut c_void,
         op_state: unsafe extern "C" fn(*mut c_void) -> c_int,
         op_unref: unsafe extern "C" fn(*mut c_void),
+        set_subscribe_cb: unsafe extern "C" fn(*mut c_void, SubscribeCb, *mut c_void),
+        subscribe:
+            unsafe extern "C" fn(*mut c_void, u32, *const c_void, *mut c_void) -> *mut c_void,
+        ml_wakeup: unsafe extern "C" fn(*mut c_void),
     }
+
+    type SubscribeCb = unsafe extern "C" fn(*mut c_void, u32, u32, *mut c_void);
 
     const READY: c_int = 4;
     const FAILED: c_int = 5;
@@ -397,6 +417,9 @@ mod list {
                 server: lib.get(c"pa_context_get_server_info")?,
                 op_state: lib.get(c"pa_operation_get_state")?,
                 op_unref: lib.get(c"pa_operation_unref")?,
+                set_subscribe_cb: lib.get(c"pa_context_set_subscribe_callback")?,
+                subscribe: lib.get(c"pa_context_subscribe")?,
+                ml_wakeup: lib.get(c"pa_mainloop_wakeup")?,
                 _lib: lib,
             })
         }
@@ -501,6 +524,138 @@ mod list {
             s.is_default = s.id == default;
         }
         Ok(sinks)
+    }
+
+    /// `pa_subscription_mask`: sinks and the server (whose change event is
+    /// the default sink moving).
+    const MASK_SINK: u32 = 0x0001;
+    const MASK_SERVER: u32 = 0x0080;
+    const FACILITY_MASK: u32 = 0x000F;
+    const FACILITY_SINK: u32 = 0x0000;
+    const FACILITY_SERVER: u32 = 0x0007;
+    const TYPE_MASK: u32 = 0x0030;
+    const TYPE_CHANGE: u32 = 0x0010;
+
+    unsafe extern "C" fn on_event(_c: *mut c_void, t: u32, _idx: u32, ud: *mut c_void) {
+        // SAFETY: `ud` is the watch thread's `RouteWake`, alive while the
+        // context is (the thread owns both and frees the context first).
+        let wake = unsafe { &*ud.cast::<crate::backend::RouteWake>() };
+        let facility = t & FACILITY_MASK;
+        let kind = t & TYPE_MASK;
+        // The default sink moving (a server change), a sink appearing or
+        // going. A sink's own change events (volume, state) are noise.
+        if facility == FACILITY_SERVER || (facility == FACILITY_SINK && kind != TYPE_CHANGE) {
+            wake();
+        }
+    }
+
+    /// Stops the watch thread when dropped.
+    pub(crate) struct Watch {
+        stop: std::sync::Arc<std::sync::atomic::AtomicBool>,
+        ml: std::sync::Arc<std::sync::atomic::AtomicPtr<c_void>>,
+        wakeup: unsafe extern "C" fn(*mut c_void),
+        thread: Option<std::thread::JoinHandle<()>>,
+    }
+
+    impl Drop for Watch {
+        fn drop(&mut self) {
+            use std::sync::atomic::Ordering;
+            self.stop.store(true, Ordering::Release);
+            let ml = self.ml.load(Ordering::Acquire);
+            if !ml.is_null() {
+                // SAFETY: pa_mainloop_wakeup is documented as callable from
+                // another thread; the loop is freed only after this thread
+                // is joined below... by the watch thread itself, which
+                // clears the pointer first under the stop flag.
+                unsafe { (self.wakeup)(ml) };
+            }
+            if let Some(t) = self.thread.take() {
+                t.join().ok();
+            }
+        }
+    }
+
+    /// Subscribe to the server's sink and default-sink events (AU-09) on a
+    /// thread with its own main loop. `None` with no server.
+    pub(crate) fn watch(wake: crate::backend::RouteWake) -> Option<Watch> {
+        use std::sync::atomic::{AtomicBool, AtomicPtr, Ordering};
+        use std::sync::Arc;
+        let f = load().ok()?;
+        let wakeup = f.ml_wakeup;
+        let stop = Arc::new(AtomicBool::new(false));
+        let shared_ml = Arc::new(AtomicPtr::new(null_mut::<c_void>()));
+        let (ready_tx, ready_rx) = std::sync::mpsc::channel::<bool>();
+        let (stop2, ml2) = (Arc::clone(&stop), Arc::clone(&shared_ml));
+        let thread = std::thread::Builder::new()
+            .name("vieww-audio-routes".into())
+            .spawn(move || {
+                let mut wake = wake;
+                // SAFETY: the documented libpulse sequence on a private main
+                // loop owned by this thread; `wake` outlives the context.
+                unsafe {
+                    let ml = (f.ml_new)();
+                    if ml.is_null() {
+                        let _ = ready_tx.send(false);
+                        return;
+                    }
+                    let ctx = (f.ctx_new)((f.ml_api)(ml), c"vieww-routes".as_ptr());
+                    let mut ok =
+                        !ctx.is_null() && (f.ctx_connect)(ctx, null(), NOAUTOSPAWN, null()) >= 0;
+                    let mut spins = 0;
+                    while ok {
+                        let st = (f.ctx_state)(ctx);
+                        if st == READY {
+                            break;
+                        }
+                        if st == FAILED || st == TERMINATED || spins > 1_000 {
+                            ok = false;
+                            break;
+                        }
+                        (f.ml_iterate)(ml, 1, null_mut());
+                        spins += 1;
+                    }
+                    if ok {
+                        (f.set_subscribe_cb)(ctx, on_event, std::ptr::from_mut(&mut wake).cast());
+                        let op = (f.subscribe)(ctx, MASK_SINK | MASK_SERVER, null(), null_mut());
+                        if op.is_null() {
+                            ok = false;
+                        } else {
+                            (f.op_unref)(op);
+                        }
+                    }
+                    ml2.store(ml, Ordering::Release);
+                    let _ = ready_tx.send(ok);
+                    while ok && !stop2.load(Ordering::Acquire) {
+                        if (f.ml_iterate)(ml, 1, null_mut()) < 0 {
+                            break;
+                        }
+                        let st = (f.ctx_state)(ctx);
+                        if st == FAILED || st == TERMINATED {
+                            break;
+                        }
+                    }
+                    // Wait for the stop flag before freeing, so a wakeup
+                    // from `Watch::drop` never reaches a freed loop.
+                    while !stop2.load(Ordering::Acquire) {
+                        std::thread::sleep(std::time::Duration::from_millis(20));
+                    }
+                    ml2.store(null_mut(), Ordering::Release);
+                    if !ctx.is_null() {
+                        (f.ctx_disconnect)(ctx);
+                        (f.ctx_unref)(ctx);
+                    }
+                    (f.ml_free)(ml);
+                }
+            })
+            .ok()?;
+        let ok = ready_rx.recv().unwrap_or(false);
+        let w = Watch {
+            stop,
+            ml: shared_ml,
+            wakeup,
+            thread: Some(thread),
+        };
+        ok.then_some(w)
     }
 }
 

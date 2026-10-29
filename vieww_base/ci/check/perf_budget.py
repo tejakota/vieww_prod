@@ -1,6 +1,8 @@
 """Performance budgets: fail when a measurement drifts past its recorded figure.
 
     python3 perf_budget.py check  BUDGETS RECEIPT|SUMMARY... [--class NAME]
+                                  [--baseline LAST.json] [--write-measured OUT.json]
+                                  [--advisory]
     python3 perf_budget.py record BUDGETS RECEIPT|SUMMARY... [--class NAME]
 
 FW-08. The receipts (`examples/fixtures --receipt`, `vieww.bench-receipt/1`)
@@ -27,6 +29,7 @@ review. Standard library only.
 """
 
 import json
+import os
 import re
 import sys
 
@@ -148,18 +151,56 @@ def check(budgets, seen):
     return rows, failures, unknown
 
 
+MEASURED_SCHEMA = "vieww.perf-measured/1"
+DEFAULT_BASELINE_TOLERANCE = 25.0
+
+
+def load_baseline(path):
+    """A previous run's `--write-measured` file, or {} when there is none."""
+    try:
+        with open(path) as f:
+            doc = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+    if doc.get("schema") != MEASURED_SCHEMA or not isinstance(doc.get("classes"), dict):
+        return {}
+    return {c: m for c, m in doc["classes"].items() if isinstance(m, dict) and m}
+
+
+def write_measured(path, seen):
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    with open(path, "w") as f:
+        json.dump({"schema": MEASURED_SCHEMA,
+                   "classes": {c: {k: round(v, 3) for k, v in sorted(m.items())} for c, m in seen.items()}},
+                  f, indent=2, sort_keys=True)
+        f.write("\n")
+
+
+def take(rest, flag, has_value=True):
+    if flag not in rest:
+        return None
+    i = rest.index(flag)
+    if not has_value:
+        del rest[i]
+        return True
+    v = rest[i + 1]
+    del rest[i:i + 2]
+    return v
+
+
 def main(argv):
     if len(argv) < 3 or argv[0] not in ("check", "record"):
         print(__doc__)
         return 2
     cmd, budgets_path, *rest = argv
-    forced = None
-    if "--class" in rest:
-        i = rest.index("--class")
-        forced = rest[i + 1]
-        del rest[i:i + 2]
+    forced = take(rest, "--class")
+    baseline_path = take(rest, "--baseline")
+    measured_path = take(rest, "--write-measured")
+    advisory = bool(take(rest, "--advisory", has_value=False))
     budgets = load_budgets(budgets_path)
     seen = gather(rest, forced)
+    if measured_path:
+        write_measured(measured_path, seen)
     if cmd == "record":
         for cls, metrics in seen.items():
             budgets["classes"][cls] = {k: round(v, 3) for k, v in sorted(metrics.items())}
@@ -171,6 +212,20 @@ def main(argv):
               f"for {', '.join(sorted(seen))} in {budgets_path}")
         return 0
     rows, failures, unknown = check(budgets, seen)
+    # A class nobody has committed a budget for is held to its own last run
+    # (`--baseline`, the previous run's `--write-measured` as published to
+    # ci-results), at a wider tolerance: so a new machine is gated from its
+    # second run on, with nothing to commit by hand. A committed budget,
+    # once there, takes over.
+    baseline = load_baseline(baseline_path) if baseline_path else {}
+    held = {c: baseline[c] for c in unknown if c in baseline}
+    if held:
+        btol = budgets.get("baseline_tolerance_percent", DEFAULT_BASELINE_TOLERANCE)
+        last = dict(budgets, tolerance_percent=btol, classes=held)
+        brows, bfail, _ = check(last, {c: seen[c] for c in held})
+        rows += [(c, n, w, now, ch, f"{v} (vs last run, ±{btol:g}%)") for c, n, w, now, ch, v in brows]
+        failures += bfail
+        unknown = [c for c in unknown if c not in held]
     tol = budgets["tolerance_percent"]
     print(f"| class | metric | budget ms | now ms | change | verdict (tolerance ±{tol:g}%) |")
     print("|---|---|---|---|---|---|")
@@ -179,12 +234,16 @@ def main(argv):
         c = "–" if change is None else f"{change:+.1f}%"
         print(f"| {cls} | {name} | {w} | {now:.3f} | {c} | {verdict} |")
     for cls in unknown:
-        print(f"perf-budget: no budget for class {cls!r} yet: not gated "
-              f"(record one with: perf-budget.sh --record)")
+        print(f"perf-budget: no budget and no previous run for class {cls!r}: not gated "
+              f"this time{' (this run is the baseline for the next)' if measured_path else ''}")
     if failures:
+        level = "warning" if advisory else "error"
         for cls, name, was, now, change in failures:
-            print(f"::error::perf-budget: {cls} {name}: {now:.3f} ms against {was:.3f} ms "
-                  f"({change:+.1f}%, tolerance {tol:g}%)")
+            print(f"::{level}::perf-budget: {cls} {name}: {now:.3f} ms against {was:.3f} ms "
+                  f"({change:+.1f}%)")
+        if advisory:
+            print("perf-budget: over budget, reported only (--advisory: a shared hosted runner)")
+            return 0
         return 1
     print("perf-budget: within budget" if rows else "perf-budget: nothing gated")
     return 0

@@ -1193,7 +1193,8 @@ impl super::stream::FrameSource for AdtsSource {
             }
             let mut pcm = self.dec.block(&frame[h.hdr..h.len])?;
             reorder(&mut pcm, self.channels, h.channel_cfg);
-            if self.frames.is_multiple_of(16) && self.index.last().is_none_or(|l| l.1 < self.frames) {
+            if self.frames.is_multiple_of(16) && self.index.last().is_none_or(|l| l.1 < self.frames)
+            {
                 self.index.push((self.at, self.frames));
             }
             self.at += h.len as u64;

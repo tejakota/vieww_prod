@@ -187,6 +187,20 @@ if (Want 'gallery') {
   $cs = Join-Path $OutDir 'census'
   Run-Step 'gallery' @{} 'cargo' @('run','--release','-p','fixtures','--',$fx,'--runs','30','--receipt',(Join-Path $fx 'receipt.json'),'--shadow',(Join-Path $fx 'shadow.jsonl')) | Out-Null
   Run-Step 'census' @{} 'cargo' @('run','--release','-p','fixtures','--',$cs,'--census','--runs','30','--receipt',(Join-Path $cs 'receipt.json'),'--shadow',(Join-Path $cs 'shadow.jsonl')) | Out-Null
+  # FW-08: this machine's figures against ci/check/perf-budgets.json, or,
+  # for a class with no committed budget, against its previous run (as
+  # linux.sh does); this run's figures become the next run's baseline.
+  $py = $null
+  foreach ($candidate in 'python','py','python3') {
+    if (Get-Command $candidate -ErrorAction SilentlyContinue) { $py = $candidate; break }
+  }
+  $fxr = Join-Path $fx 'receipt.json'
+  $csr = Join-Path $cs 'receipt.json'
+  if ($py -and (Test-Path $fxr) -and (Test-Path $csr)) {
+    $base = Join-Path $OutDir 'perf-baseline.json'
+    & $py -I ci\check\perf_baseline.py hardware-self-hosted-linux-and-windows hardware-windows $base | Out-Host
+    Run-Step 'perf-budget' @{} $py @('-I','ci\check\perf_budget.py','check','ci\check\perf-budgets.json',$fxr,$csr,'--baseline',$base,'--write-measured',(Join-Path $OutDir 'perf-measured.json')) | Out-Null
+  }
   $receipt = Join-Path $cs 'receipt.json'
   if (Test-Path $receipt) {
     $r = Get-Content $receipt -Raw | ConvertFrom-Json
@@ -332,6 +346,18 @@ if (Want 'audio') {
   } else {
     Say ("      audio endpoints: " + (($endpoints | ForEach-Object { $_.FriendlyName }) -join '; '))
     Run-Step 'audio-devices' @{} 'cargo' @('test','--release','-p','vieww-audio','--lib','backend::wasapi','--','--nocapture') | Out-Null
+    # AU-10: IAudioClient3 low-latency shared mode on this machine's real
+    # endpoint: under 8 ms, and the soak with no late render.
+    Run-Step 'audio-low-latency-shared' @{ VIEWW_SOAK_SECS = $soak } 'cargo' @('test','--release','-p','vieww-audio','--lib','low_latency_shared_on_a_real_endpoint','--','--ignored','--nocapture') | Out-Null
+    # AU-09: the default endpoint flipped mid-stream (IPolicyConfig), with
+    # the notification heard within 100 ms and one reopen. Needs a second
+    # render endpoint (VB-CABLE beside the speakers will do).
+    $renders = @($endpoints | Where-Object { $_.FriendlyName -notmatch 'Microphone|Line In|CABLE Output|Stereo Mix' })
+    if ($renders.Count -ge 2) {
+      Run-Step 'audio-default-flip' @{} 'cargo' @('test','--release','-p','vieww-audio','--lib','a_default_endpoint_flip_is_followed_at_once','--','--ignored','--nocapture') | Out-Null
+    } else {
+      Skip-Step 'audio-default-flip' 'one render endpoint (install VB-CABLE for a second)'
+    }
     foreach ($b in @('wasapi','wasapi-exclusive')) {
       Run-Step "audio-soak-$b" @{ VIEWW_REQUIRE_LOOPBACK = '1'; VIEWW_SOAK_BACKEND = $b; VIEWW_SOAK_SECS = $soak; VIEWW_LIVE_GAIN = $gain } 'cargo' @('test','--release','-p','vieww-audio','--test','device_loopback','default_output_soak','--','--ignored','--nocapture') | Out-Null
     }

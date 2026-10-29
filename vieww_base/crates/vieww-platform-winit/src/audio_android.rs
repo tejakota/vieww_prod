@@ -893,6 +893,73 @@ impl CompetingFocus {
     }
 }
 
+/// A second `RouteCallback`, for the on-device audio check (AU-09):
+/// Android answers `registerAudioDeviceCallback` by calling
+/// `onAudioDevicesAdded` with the devices present, from the platform, on
+/// the main looper — the same path a headset being plugged in takes. The
+/// check registers one and watches the event reach the device stream's
+/// supervisor; `unregister` removes it.
+pub(crate) struct RouteProbe {
+    app: crate::AndroidApp,
+    callback: Global<JObject<'static>>,
+}
+
+impl RouteProbe {
+    pub(crate) fn register(app: &crate::AndroidApp) -> Option<Self> {
+        let made = with_env(app, |env, activity| {
+            let Some(class) = load(env, activity, "dev.vieww.audio.RouteCallback") else {
+                return Ok(None);
+            };
+            let callback = env.new_object(&class, jni_sig!("()V"), &[])?;
+            let main = env
+                .call_static_method(
+                    jni_str!("android/os/Looper"),
+                    jni_str!("getMainLooper"),
+                    jni_sig!("()Landroid/os/Looper;"),
+                    &[],
+                )?
+                .l()?;
+            let handler = env.new_object(
+                jni_str!("android/os/Handler"),
+                jni_sig!("(Landroid/os/Looper;)V"),
+                &[JValue::Object(&main)],
+            )?;
+            let am = audio_manager(env, activity)?;
+            env.call_method(
+                &am,
+                jni_str!("registerAudioDeviceCallback"),
+                jni_sig!("(Landroid/media/AudioDeviceCallback;Landroid/os/Handler;)V"),
+                &[JValue::Object(&callback), JValue::Object(&handler)],
+            )?;
+            env.new_global_ref(&callback).map(Some)
+        });
+        match made {
+            Ok(Some(callback)) => Some(Self {
+                app: app.clone(),
+                callback,
+            }),
+            Ok(None) => None,
+            Err(e) => {
+                log::warn!("vieww-audio: route probe not registered: {e}");
+                None
+            }
+        }
+    }
+
+    pub(crate) fn unregister(self) {
+        let _ = with_env(&self.app, |env, activity| {
+            let am = audio_manager(env, activity)?;
+            env.call_method(
+                &am,
+                jni_str!("unregisterAudioDeviceCallback"),
+                jni_sig!("(Landroid/media/AudioDeviceCallback;)V"),
+                &[JValue::Object(self.callback.as_obj())],
+            )?;
+            Ok(())
+        });
+    }
+}
+
 /// Media keys pressed while the app is in front (AU-04).
 ///
 /// Android gives a media key to the focused window first and routes it to

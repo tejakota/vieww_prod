@@ -130,10 +130,62 @@ pub struct EngineStats {
     pub voices: usize,
 }
 
+/// A streamed voice's source: a disk stream at the engine's rate and the
+/// block it last read, consumed a frame at a time (AU-05).
+struct StreamVoice {
+    disk: crate::loader::DiskStream,
+    scratch: Box<[f32]>,
+    len: usize,
+    idx: usize,
+    ch: usize,
+    /// The two frames the rate-matching interpolation sits between.
+    a: [f32; 2],
+    b: [f32; 2],
+    primed: bool,
+}
+
+impl std::fmt::Debug for StreamVoice {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("StreamVoice")
+            .field("disk", &self.disk)
+            .finish_non_exhaustive()
+    }
+}
+
+impl StreamVoice {
+    /// The next frame (first two channels), or `None` when the stream has
+    /// nothing buffered. Never blocks, never allocates.
+    fn pull(&mut self) -> Option<[f32; 2]> {
+        if self.idx >= self.len {
+            let got = self.disk.read(&mut self.scratch);
+            if got == 0 {
+                return None;
+            }
+            self.len = got;
+            self.idx = 0;
+        }
+        let f = &self.scratch[self.idx..self.idx + self.ch];
+        self.idx += self.ch;
+        Some([f[0], f[1.min(self.ch - 1)]])
+    }
+
+    fn seek(&mut self, frame: u64) {
+        self.disk.seek(frame);
+        self.idx = self.len;
+        self.primed = false;
+    }
+}
+
+#[derive(Debug)]
+enum VoiceSrc {
+    Mem(Arc<Samples>),
+    Stream(Box<StreamVoice>),
+}
+
 #[derive(Debug)]
 struct Voice {
     id: u64,
-    samples: Arc<Samples>,
+    src: VoiceSrc,
     frame: usize,
     /// Fraction of a frame past `frame`, when the device runs at another
     /// rate than the engine (AU-09: a reopened stream on a device that
@@ -159,7 +211,39 @@ enum Finish {
 
 impl Voice {
     fn frames(&self) -> usize {
-        self.samples.data.len() / usize::from(self.samples.channels.max(1))
+        match &self.src {
+            VoiceSrc::Mem(s) => s.data.len() / usize::from(s.channels.max(1)),
+            VoiceSrc::Stream(sv) => match sv.disk.frames() {
+                0 => usize::MAX,
+                n => usize::try_from(n).unwrap_or(usize::MAX),
+            },
+        }
+    }
+
+    /// One frame's gain-ramp step; `true` when the voice stops or pauses
+    /// here.
+    fn ramp_step(&mut self) -> bool {
+        if self.step != 0.0 {
+            self.gain += self.step;
+            if (self.step > 0.0 && self.gain >= self.target)
+                || (self.step < 0.0 && self.gain <= self.target)
+            {
+                self.gain = self.target;
+                self.step = 0.0;
+            }
+        }
+        if self.step == 0.0 && self.gain <= 0.0 {
+            if self.stop_at_zero {
+                self.finished = Some(Finish::Stopped);
+                return true;
+            }
+            if self.pause_at_zero {
+                self.paused = true;
+                self.pause_at_zero = false;
+                return true;
+            }
+        }
+        false
     }
 
     fn ramp_to(&mut self, target: f32, over: Duration, rate: u32) {
@@ -305,6 +389,16 @@ impl Engine {
         self.stream.as_ref().and_then(ResilientStream::stats)
     }
 
+    /// Route events the device stream's supervisor has received (AU-09):
+    /// backend notifications and the audio session's route changes. 0
+    /// detached.
+    #[must_use]
+    pub fn route_events(&self) -> u64 {
+        self.stream
+            .as_ref()
+            .map_or(0, ResilientStream::route_events)
+    }
+
     /// Supervisor polls spent waiting out an interruption (0 detached).
     #[must_use]
     pub fn held_polls(&self) -> u64 {
@@ -344,6 +438,40 @@ impl Engine {
     }
 
     fn play_shared(&self, samples: Arc<Samples>, opts: VoiceOptions) -> Result<VoiceId, PlayError> {
+        self.play_src(VoiceSrc::Mem(samples), opts)
+    }
+
+    /// Stream `path` from disk instead of decoding it whole (AU-05): any
+    /// format [`crate::codec::stream`] reads, resampled to the engine's rate
+    /// on a reader thread, about half a second buffered. Memory stays
+    /// bounded however long the file is.
+    ///
+    /// # Errors
+    /// The file cannot be opened or decoded, or the engine is full.
+    pub fn play_streaming(
+        &self,
+        path: impl AsRef<std::path::Path>,
+        opts: VoiceOptions,
+    ) -> Result<VoiceId, PlayError> {
+        let path = path.as_ref();
+        let buffer = usize::try_from(self.rate / 2).unwrap_or(24_000).max(4_096);
+        let disk = crate::loader::DiskStream::open_resampled(path, buffer, self.rate)
+            .map_err(|e| PlayError::Media(format!("{}: {e}", path.display())))?;
+        let ch = usize::from(disk.info().channels.max(1));
+        let sv = StreamVoice {
+            disk,
+            scratch: vec![0.0; STREAM_BLOCK * ch].into_boxed_slice(),
+            len: 0,
+            idx: 0,
+            ch,
+            a: [0.0; 2],
+            b: [0.0; 2],
+            primed: false,
+        };
+        self.play_src(VoiceSrc::Stream(Box::new(sv)), opts)
+    }
+
+    fn play_src(&self, src: VoiceSrc, opts: VoiceOptions) -> Result<VoiceId, PlayError> {
         self.reap();
         let id = self.next.fetch_add(1, Ordering::Relaxed);
         #[expect(
@@ -354,7 +482,7 @@ impl Engine {
         let start = (opts.start_at.as_secs_f64() * f64::from(self.rate)) as usize;
         let mut v = Voice {
             id,
-            samples,
+            src,
             frame: 0,
             frac: 0.0,
             gain: 0.0,
@@ -367,6 +495,15 @@ impl Engine {
             finished: None,
         };
         v.frame = start.min(v.frames());
+        if let VoiceSrc::Stream(sv) = &mut v.src {
+            sv.disk.set_looping(opts.looping);
+            if v.frame > 0 {
+                sv.seek(v.frame as u64);
+            }
+            // A first block ready before the voice joins the mix, so it
+            // starts without an underrun.
+            let _ = sv.disk.prime(STREAM_BLOCK, Duration::from_millis(500));
+        }
         if opts.paused {
             v.target = opts.gain.max(0.0);
         } else {
@@ -438,6 +575,9 @@ impl Engine {
             )]
             let f = (at.as_secs_f64() * f64::from(rate)) as usize;
             v.frame = f.min(v.frames());
+            if let VoiceSrc::Stream(sv) = &mut v.src {
+                sv.seek(v.frame as u64);
+            }
         });
     }
 
@@ -454,7 +594,12 @@ impl Engine {
 
     /// Turn looping on or off.
     pub fn set_looping(&self, id: VoiceId, on: bool) {
-        self.with_voice(id, |v, _| v.looping = on);
+        self.with_voice(id, |v, _| {
+            v.looping = on;
+            if let VoiceSrc::Stream(sv) = &v.src {
+                sv.disk.set_looping(on);
+            }
+        });
     }
 
     /// The engine-wide gain applied after mixing.
@@ -582,7 +727,23 @@ fn render_into(shared: &Shared, out: &mut [f32], channels: usize, rate: u32) {
         if v.finished.is_some() || v.paused {
             continue;
         }
-        let src_ch = usize::from(v.samples.channels.max(1));
+        if matches!(v.src, VoiceSrc::Stream(_)) {
+            render_stream(
+                v,
+                out,
+                frames,
+                channels,
+                master,
+                (duck_from, duck_step),
+                step,
+            );
+            continue;
+        }
+        let VoiceSrc::Mem(samples) = &v.src else {
+            continue;
+        };
+        let samples = Arc::clone(samples);
+        let src_ch = usize::from(samples.channels.max(1));
         let total = v.frames();
         for f in 0..frames {
             if v.frame >= total {
@@ -594,30 +755,15 @@ fn render_into(shared: &Shared, out: &mut [f32], channels: usize, rate: u32) {
                 }
             }
             // Gain ramp toward the target.
-            if v.step != 0.0 {
-                v.gain += v.step;
-                if (v.step > 0.0 && v.gain >= v.target) || (v.step < 0.0 && v.gain <= v.target) {
-                    v.gain = v.target;
-                    v.step = 0.0;
-                }
-            }
-            if v.step == 0.0 && v.gain <= 0.0 {
-                if v.stop_at_zero {
-                    v.finished = Some(Finish::Stopped);
-                    break;
-                }
-                if v.pause_at_zero {
-                    v.paused = true;
-                    v.pause_at_zero = false;
-                    break;
-                }
+            if v.ramp_step() {
+                break;
             }
             let base = v.frame * src_ch;
             let g = v.gain * master * (duck_from + duck_step * (f + 1) as f32);
             match step {
                 None => {
                     for c in 0..channels.min(2) {
-                        let s = v.samples.data[base + c.min(src_ch - 1)];
+                        let s = samples.data[base + c.min(src_ch - 1)];
                         out[f * channels + c] += s * g;
                     }
                     v.frame += 1;
@@ -626,8 +772,8 @@ fn render_into(shared: &Shared, out: &mut [f32], channels: usize, rate: u32) {
                     let next = (v.frame + 1).min(total - 1) * src_ch;
                     for c in 0..channels.min(2) {
                         let k = c.min(src_ch - 1);
-                        let a = v.samples.data[base + k];
-                        let b = v.samples.data[next + k];
+                        let a = samples.data[base + k];
+                        let b = samples.data[next + k];
                         out[f * channels + c] += (a + (b - a) * v.frac) * g;
                     }
                     v.frac += step;
@@ -637,6 +783,86 @@ fn render_into(shared: &Shared, out: &mut [f32], channels: usize, rate: u32) {
                     }
                 }
             }
+        }
+    }
+}
+
+/// Frames a streamed voice reads from its ring at a time.
+const STREAM_BLOCK: usize = 1_024;
+
+/// Mix one streamed voice into `out`. A stream that has nothing buffered
+/// yet (an underrun: the disk fell behind) contributes silence and does
+/// not advance; one that has played out ends.
+fn render_stream(
+    v: &mut Voice,
+    out: &mut [f32],
+    frames: usize,
+    channels: usize,
+    master: f32,
+    (duck_from, duck_step): (f32, f32),
+    step: Option<f32>,
+) {
+    for f in 0..frames {
+        if v.ramp_step() {
+            return;
+        }
+        let VoiceSrc::Stream(sv) = &mut v.src else {
+            return;
+        };
+        let frame = match step {
+            None => sv.pull(),
+            Some(step) => {
+                if !sv.primed {
+                    if let (Some(a), Some(b)) = (sv.pull(), sv.pull()) {
+                        sv.a = a;
+                        sv.b = b;
+                        sv.primed = true;
+                        v.frac = 0.0;
+                    }
+                }
+                if sv.primed {
+                    let t = v.frac;
+                    let fr = [
+                        sv.a[0] + (sv.b[0] - sv.a[0]) * t,
+                        sv.a[1] + (sv.b[1] - sv.a[1]) * t,
+                    ];
+                    v.frac += step;
+                    let mut ok = true;
+                    while v.frac >= 1.0 {
+                        v.frac -= 1.0;
+                        sv.a = sv.b;
+                        match sv.pull() {
+                            Some(b) => sv.b = b,
+                            None => {
+                                ok = false;
+                                sv.primed = false;
+                                break;
+                            }
+                        }
+                    }
+                    if ok || !sv.disk.is_finished() {
+                        Some(fr)
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            }
+        };
+        let Some(fr) = frame else {
+            if sv.disk.is_finished() {
+                v.finished = Some(Finish::Ended);
+            }
+            return;
+        };
+        let g = v.gain * master * (duck_from + duck_step * (f + 1) as f32);
+        for c in 0..channels.min(2) {
+            out[f * channels + c] += fr[c] * g;
+        }
+        v.frame += 1;
+        if sv.disk.frames() > 0 && v.frame as u64 >= sv.disk.frames() && v.looping {
+            v.frame = 0;
         }
     }
 }
@@ -728,6 +954,56 @@ pub enum Source {
     File(PathBuf),
     /// Encoded bytes (WAV, FLAC, MP3, AAC, Ogg Vorbis…).
     Bytes(Vec<u8>),
+    /// A file streamed from disk as it plays, whatever its length (AU-05).
+    /// [`Source::File`] streams by itself once a file would decode to more
+    /// than [`STREAM_ABOVE_BYTES`].
+    Stream(PathBuf),
+}
+
+/// Decoded size above which [`MediaPlayer::load`] streams a
+/// [`Source::File`] instead of holding it in memory: 32 MB of `f32`, about
+/// three minutes of 44.1 kHz stereo.
+pub const STREAM_ABOVE_BYTES: u64 = 32 << 20;
+
+/// What a [`MediaPlayer`] has loaded.
+#[derive(Debug, Clone)]
+enum Track {
+    Mem(Arc<Samples>),
+    Stream {
+        path: PathBuf,
+        duration: Duration,
+        /// Integrated loudness and true peak, measured on first need.
+        measured: Option<(f64, f64)>,
+    },
+}
+
+/// Integrated loudness (LUFS) and true peak (dBTP) of a file, decoded a
+/// piece at a time so a long file never sits in memory whole.
+fn measure_stream(path: &std::path::Path) -> Option<(f64, f64)> {
+    let mut d = crate::codec::stream::open_file(path).ok()?;
+    let layout = crate::channels::Layout::for_channels(usize::from(d.channels().max(1)));
+    let mut meter = crate::meter::LoudnessMeter::new(layout, d.rate());
+    let mut buf = vec![0f32; 8_192 * usize::from(d.channels().max(1))];
+    loop {
+        match d.read(&mut buf) {
+            Ok(0) | Err(_) => break,
+            Ok(n) => meter.push(&buf[..n]),
+        }
+    }
+    Some((meter.integrated(), meter.true_peak()))
+}
+
+/// Track mode's gain from a measured loudness and peak.
+fn gain_from(integrated: f64, peak: f64, target_lufs: f64) -> f64 {
+    if !integrated.is_finite() {
+        return 0.0;
+    }
+    let gain = target_lufs - integrated;
+    if peak.is_finite() {
+        gain.min(PEAK_CEILING_DBTP - peak)
+    } else {
+        gain
+    }
 }
 
 /// Where a [`MediaPlayer`] is.
@@ -824,7 +1100,7 @@ fn track_gain_db(s: &Samples, target_lufs: f64) -> f64 {
 #[derive(Debug)]
 pub struct MediaPlayer {
     engine: Arc<Engine>,
-    samples: Option<Arc<Samples>>,
+    samples: Option<Track>,
     voice: Option<VoiceId>,
     volume: f32,
     looping: bool,
@@ -975,11 +1251,25 @@ impl MediaPlayer {
     }
 
     fn update_norm_gain(&mut self) {
-        let db = match (self.normalization, &self.samples) {
-            (Normalization::Off, _) | (_, None) => 0.0,
-            (Normalization::Track { target_lufs }, Some(s)) => track_gain_db(s, target_lufs),
-            (Normalization::Album { gain_db }, Some(_)) => gain_db,
-            (Normalization::Tags { album, target_lufs }, Some(s)) => {
+        let loaded = self.samples.is_some();
+        let mut measured_gain = |target_lufs: f64| -> f64 {
+            match &mut self.samples {
+                Some(Track::Mem(s)) => track_gain_db(s, target_lufs),
+                Some(Track::Stream { path, measured, .. }) => {
+                    if measured.is_none() {
+                        *measured = Some(measure_stream(path).unwrap_or((f64::NAN, f64::NAN)));
+                    }
+                    let (i, p) = measured.unwrap_or((f64::NAN, f64::NAN));
+                    gain_from(i, p, target_lufs)
+                }
+                None => 0.0,
+            }
+        };
+        let db = match (self.normalization, loaded) {
+            (Normalization::Off, _) | (_, false) => 0.0,
+            (Normalization::Track { target_lufs }, true) => measured_gain(target_lufs),
+            (Normalization::Album { gain_db }, true) => gain_db,
+            (Normalization::Tags { album, target_lufs }, true) => {
                 let t = self.tagged;
                 let (gain, peak) = if album && t.album_gain_db.is_some() {
                     (t.album_gain_db, t.album_peak)
@@ -994,7 +1284,7 @@ impl MediaPlayer {
                             None => g,
                         }
                     }
-                    None => track_gain_db(s, target_lufs),
+                    None => measured_gain(target_lufs),
                 }
             }
         };
@@ -1013,26 +1303,42 @@ impl MediaPlayer {
     /// The file could not be read or decoded, or it is empty.
     pub fn load(&mut self, source: Source) -> Result<(), PlayError> {
         let mut tagged = crate::codec::tags::LoudnessTags::default();
-        let samples = match source {
-            Source::Samples(s) => s,
+        let track = match source {
+            Source::Samples(s) => Track::Mem(self.engine.prepare(&s)?),
+            Source::Stream(p) => {
+                tagged = file_tags(&p);
+                stream_track(p)?
+            }
             Source::File(p) => {
-                let bytes = std::fs::read(&p)
-                    .map_err(|e| PlayError::Media(format!("{}: {e}", p.display())))?;
-                tagged = crate::codec::tags::read(&bytes).loudness();
-                decode(&bytes)?
+                if decoded_size(&p).is_some_and(|n| n > STREAM_ABOVE_BYTES) {
+                    tagged = file_tags(&p);
+                    stream_track(p)?
+                } else {
+                    let bytes = std::fs::read(&p)
+                        .map_err(|e| PlayError::Media(format!("{}: {e}", p.display())))?;
+                    tagged = crate::codec::tags::read(&bytes).loudness();
+                    Track::Mem(self.engine.prepare(&decode(&bytes)?)?)
+                }
             }
             Source::Bytes(b) => {
                 tagged = crate::codec::tags::read(&b).loudness();
-                decode(&b)?
+                Track::Mem(self.engine.prepare(&decode(&b)?)?)
             }
         };
         self.unload();
-        self.samples = Some(self.engine.prepare(&samples)?);
+        self.samples = Some(track);
         self.tagged = tagged;
         self.update_norm_gain();
         self.parked = Duration::ZERO;
         self.state = MediaState::Paused;
         Ok(())
+    }
+
+    /// Whether the loaded track streams from disk rather than sitting in
+    /// memory.
+    #[must_use]
+    pub fn is_streaming(&self) -> bool {
+        matches!(self.samples, Some(Track::Stream { .. }))
     }
 
     fn unload(&mut self) {
@@ -1049,7 +1355,7 @@ impl MediaPlayer {
     /// Nothing loaded, or the engine is full.
     pub fn play(&mut self) -> Result<(), PlayError> {
         self.refresh();
-        let Some(samples) = self.samples.clone() else {
+        let Some(track) = self.samples.clone() else {
             return Err(PlayError::Empty);
         };
         if !self.engine.session().begin(self.focus) {
@@ -1063,15 +1369,16 @@ impl MediaPlayer {
                 } else {
                     self.parked
                 };
-                self.voice = Some(self.engine.play_shared(
-                    samples,
-                    VoiceOptions {
-                        gain: self.effective_gain(),
-                        looping: self.looping,
-                        start_at: at,
-                        ..VoiceOptions::default()
-                    },
-                )?);
+                let opts = VoiceOptions {
+                    gain: self.effective_gain(),
+                    looping: self.looping,
+                    start_at: at,
+                    ..VoiceOptions::default()
+                };
+                self.voice = Some(match track {
+                    Track::Mem(samples) => self.engine.play_shared(samples, opts)?,
+                    Track::Stream { path, .. } => self.engine.play_streaming(path, opts)?,
+                });
             }
         }
         self.state = MediaState::Playing;
@@ -1144,11 +1451,15 @@ impl MediaPlayer {
     /// The loaded track's length.
     #[must_use]
     pub fn duration(&self) -> Duration {
-        self.samples.as_ref().map_or(Duration::ZERO, |s| {
-            let frames = s.data.len() / usize::from(s.channels.max(1));
-            #[expect(clippy::cast_precision_loss, reason = "a frame count")]
-            Duration::from_secs_f64(frames as f64 / f64::from(s.rate.max(1)))
-        })
+        match &self.samples {
+            None => Duration::ZERO,
+            Some(Track::Stream { duration, .. }) => *duration,
+            Some(Track::Mem(s)) => {
+                let frames = s.data.len() / usize::from(s.channels.max(1));
+                #[expect(clippy::cast_precision_loss, reason = "a frame count")]
+                Duration::from_secs_f64(frames as f64 / f64::from(s.rate.max(1)))
+            }
+        }
     }
 
     /// Where playback is.
@@ -1202,6 +1513,58 @@ impl MediaPlayer {
                 self.parked = Duration::ZERO;
             }
         }
+    }
+}
+
+/// The size `path` would decode to, in bytes of `f32`, when its format
+/// says how long it is.
+fn decoded_size(path: &std::path::Path) -> Option<u64> {
+    let d = crate::codec::stream::open_file(path).ok()?;
+    Some(d.total_frames()? * u64::from(d.channels()) * 4)
+}
+
+/// A streamed track for `path`: checked to open, with its duration.
+fn stream_track(path: PathBuf) -> Result<Track, PlayError> {
+    let d = crate::codec::stream::open_file(&path)
+        .map_err(|e| PlayError::Media(format!("{}: {e}", path.display())))?;
+    let frames = d.total_frames().unwrap_or(0);
+    if frames == 0 && d.total_frames().is_some() {
+        return Err(PlayError::Empty);
+    }
+    #[expect(clippy::cast_precision_loss, reason = "a frame count")]
+    let duration = Duration::from_secs_f64(frames as f64 / f64::from(d.rate().max(1)));
+    Ok(Track::Stream {
+        path,
+        duration,
+        measured: None,
+    })
+}
+
+/// Loudness tags of a file too long to read whole: the tag blocks live in
+/// the first and last few hundred KB (ID3v2, Vorbis comments, FLAC
+/// metadata and a front `moov` at the head; ID3v1 and APE at the tail).
+fn file_tags(path: &std::path::Path) -> crate::codec::tags::LoudnessTags {
+    use std::io::{Read, Seek, SeekFrom};
+    const HEAD: u64 = 1 << 20;
+    let Ok(mut f) = std::fs::File::open(path) else {
+        return crate::codec::tags::LoudnessTags::default();
+    };
+    let len = f.metadata().map_or(0, |m| m.len());
+    let mut head = Vec::new();
+    let _ = (&mut f).take(HEAD).read_to_end(&mut head);
+    let from_head = crate::codec::tags::read(&head).loudness();
+    if from_head.track_gain_db.is_some() || len <= HEAD {
+        return from_head;
+    }
+    let mut tail = Vec::new();
+    if f.seek(SeekFrom::Start(len.saturating_sub(HEAD))).is_ok() {
+        let _ = f.read_to_end(&mut tail);
+    }
+    let from_tail = crate::codec::tags::read(&tail).loudness();
+    if from_tail.track_gain_db.is_some() {
+        from_tail
+    } else {
+        from_head
     }
 }
 
@@ -1841,5 +2204,106 @@ mod tests {
         assert!(*peak.lock().unwrap() > 0.45, "sound reached the device");
         assert_eq!(e.position(v), None, "finished");
         assert!(e.stats().frames >= 800);
+    }
+
+    fn long(name: &str) -> PathBuf {
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures")
+            .join(name)
+    }
+
+    /// Render streamed output, keeping only the frames the voice actually
+    /// advanced through (an underrun renders silence without advancing).
+    fn drain_stream(e: &Engine, v: VoiceId, max_frames: usize) -> Vec<f32> {
+        let mut got = Vec::new();
+        let mut block = vec![0f32; 2 * 512];
+        let mut idle = 0;
+        while got.len() < max_frames * 2 && idle < 2_000 {
+            let before = e.with_voice(v, |v, _| v.frame);
+            e.render(&mut block);
+            let Some(before) = before else { break };
+            let after = e.with_voice(v, |v, _| v.frame).unwrap_or(before + 512);
+            let n = after.saturating_sub(before).min(512);
+            if n == 0 {
+                idle += 1;
+                std::thread::sleep(Duration::from_millis(1));
+            }
+            got.extend_from_slice(&block[..n * 2]);
+        }
+        got.truncate(max_frames * 2);
+        got
+    }
+
+    #[test]
+    fn a_streamed_voice_matches_the_same_file_in_memory() {
+        // FLAC at 22.05 kHz on a 22.05 kHz engine: no resampling, so the
+        // streamed voice must reproduce the in-memory voice exactly.
+        let path = long("long.flac");
+        let e = Engine::detached(22_050, 2);
+        let decoded = crate::codec::decode(&std::fs::read(&path).unwrap()).unwrap();
+        let mem = e
+            .play(&decoded.to_samples_downmixed(), VoiceOptions::default())
+            .unwrap();
+        let mut want = vec![0f32; 2 * 22_050];
+        e.render(&mut want);
+        e.stop(mem, Duration::ZERO);
+        let e = Engine::detached(22_050, 2);
+        let v = e.play_streaming(&path, VoiceOptions::default()).unwrap();
+        let got = drain_stream(&e, v, 22_050);
+        assert_eq!(got.len(), want.len());
+        let worst = got
+            .iter()
+            .zip(&want)
+            .map(|(a, b)| (a - b).abs())
+            .fold(0f32, f32::max);
+        assert!(worst < 1e-6, "streamed and in-memory differ by {worst}");
+    }
+
+    #[test]
+    fn a_media_player_streams_long_files_seeks_and_ends() {
+        let e = Arc::new(Engine::detached(48_000, 2));
+        let mut p = MediaPlayer::new(Arc::clone(&e));
+        p.load(Source::Stream(long("long.ogg"))).unwrap();
+        assert!(p.is_streaming());
+        let d = p.duration().as_secs_f64();
+        assert!((d - 20.0).abs() < 0.05, "duration {d}");
+        p.play().unwrap();
+        let v = p.voice.unwrap();
+        let first = drain_stream(&e, v, 24_000);
+        let rms = (first.iter().map(|s| s * s).sum::<f32>() / first.len() as f32).sqrt();
+        assert!(rms > 0.1, "streamed audio is there (rms {rms})");
+        p.seek(Duration::from_secs(19));
+        let at = p.position().as_secs_f64();
+        assert!((at - 19.0).abs() < 0.01, "position after seek {at}");
+        let mut ended = false;
+        for _ in 0..5_000 {
+            let mut b = vec![0f32; 2 * 512];
+            e.render(&mut b);
+            if p.state() == MediaState::Ended {
+                ended = true;
+                break;
+            }
+            std::thread::sleep(Duration::from_micros(200));
+        }
+        assert!(ended, "the streamed track played to its end");
+    }
+
+    #[test]
+    fn short_files_stay_in_memory_and_normalization_measures_streams() {
+        let e = Arc::new(Engine::detached(48_000, 2));
+        let mut p = MediaPlayer::new(Arc::clone(&e));
+        p.load(Source::File(long("long.mp3"))).unwrap();
+        assert!(
+            !p.is_streaming(),
+            "20 s decodes to well under the threshold"
+        );
+        p.set_normalization(Normalization::Track { target_lufs: -16.0 });
+        let in_memory = p.normalization_gain_db();
+        p.load(Source::Stream(long("long.mp3"))).unwrap();
+        let streamed = p.normalization_gain_db();
+        assert!(
+            (in_memory - streamed).abs() < 0.5,
+            "streamed loudness {streamed} dB vs in-memory {in_memory} dB"
+        );
     }
 }

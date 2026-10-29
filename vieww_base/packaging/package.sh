@@ -46,6 +46,7 @@
 #   packaging/package.sh --installers    # and every native installer this host can make
 #   packaging/package.sh --debug         # a faster build, for checking the layout
 #   packaging/package.sh --no-toolchain  # ~600 MB smaller, needs a matching rustc on PATH
+#   packaging/package.sh --symbols       # and viewwstudio-<os>-<arch>-symbols.tar.gz (FW-12)
 #   VIEWWSTUDIO_BUILD=$(git rev-parse --short HEAD) packaging/package.sh
 #   VIEWW_REPO=owner/name packaging/package.sh   # override the repo the site links to
 #
@@ -107,6 +108,13 @@ require_installers=""
 # compiler" bundle for someone who knows they want it — and `sdk::Manifest`
 # records which of the two this is.
 with_toolchain="yes"
+# FW-12: build with line tables and split them off the shipped binary into a
+# symbols archive (ci/release/symbols.sh), so a release crash report's raw
+# frames resolve to functions and lines (ci/release/symbolize.py). The
+# shipped binary is stripped of them; the archive is a release asset, never
+# part of the bundle. The bundled rlibs keep their line tables, which only
+# makes a guest's own backtraces readable.
+with_symbols=""
 for arg in "$@"; do
 	case "$arg" in
 	--debug)
@@ -126,6 +134,7 @@ for arg in "$@"; do
 		;;
 	--with-toolchain) with_toolchain="yes" ;;
 	--no-toolchain) with_toolchain="" ;;
+	--symbols) with_symbols="yes" ;;
 	*)
 		echo "unknown option: $arg" >&2
 		exit 2
@@ -200,6 +209,9 @@ build_log="$out/build.json"
 if [ "$host" = "windows" ]; then
 	export RUSTFLAGS="${RUSTFLAGS:+$RUSTFLAGS }-C prefer-dynamic"
 fi
+if [ -n "$with_symbols" ]; then
+	export CARGO_PROFILE_RELEASE_DEBUG=line-tables-only
+fi
 cargo build -p viewwstudio ${cargo_profile[@]+"${cargo_profile[@]}"} \
 	--message-format=json-render-diagnostics >"$build_log"
 
@@ -209,6 +221,21 @@ cargo run -p viewwstudio --example icon ${cargo_profile[@]+"${cargo_profile[@]}"
 target="$root/target/$profile"
 binary="$target/viewwstudio"
 [ "$host" = "windows" ] && binary="$target/viewwstudio.exe"
+
+if [ -n "$with_symbols" ]; then
+	echo "==> splitting debug info off the shipped binary (FW-12)"
+	stage="$out/stage"
+	rm -rf "$stage" "$out/symbols"
+	mkdir -p "$stage"
+	cp "$binary" "$stage/"
+	[ -d "$binary.dSYM" ] && cp -R "$binary.dSYM" "$stage/"
+	[ "$host" = "windows" ] && cp "$target/viewwstudio.pdb" "$stage/"
+	binary="$stage/$(basename "$binary")"
+	bash ci/release/symbols.sh "$binary" "$out/symbols"
+	arch="$(uname -m)"
+	[ "$arch" = arm64 ] && arch=aarch64
+	tar -C "$out" -czf "$out/viewwstudio-$host-$arch-symbols.tar.gz" symbols
+fi
 
 # Every compiled artefact this build produced, one path per line.
 #

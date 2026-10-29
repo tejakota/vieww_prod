@@ -12,6 +12,14 @@
 //!   platform's focus stack to vieww's listener) pauses playback and freezes
 //!   the position; giving it back resumes. A "may duck" request ducks and
 //!   its release unducks;
+//! * **AU-08 (Android):** the AAudio stream's sharing mode, buffer and
+//!   latency — under 20 ms when exclusive (MMAP) was granted, under 100 ms
+//!   shared — and a 60-second soak with no underruns once the buffer has
+//!   settled;
+//! * **AU-09:** a route event from the platform (Android: a registered
+//!   `AudioDeviceCallback`'s device report; iOS: the route-change
+//!   notification a category change posts) reaches the device stream's
+//!   supervisor;
 //! * **iOS:** the session category is `.playback` and the lock screen has a
 //!   now-playing entry. The interruption notification iOS posts for a call
 //!   pauses playback, and its end with "should resume" resumes. The
@@ -198,6 +206,61 @@ fn start() -> Option<(Arc<Engine>, MediaPlayer, Checks)> {
     Some((engine, player, checks))
 }
 
+/// AU-09: a platform route event reaches the device stream's supervisor.
+/// `provoke` makes the platform send one and waits for it; `None` when it
+/// could not.
+#[cfg(any(target_os = "android", target_os = "ios"))]
+fn route_event_check(checks: &mut Checks, engine: &Engine, provoke: impl FnOnce() -> Option<()>) {
+    let session = AudioSession::shared();
+    let (events, changes) = (engine.route_events(), session.route_changes());
+    let provoked = provoke().is_some();
+    checks.check(
+        "route_event_reaches_the_stream",
+        provoked && engine.route_events() > events,
+        &format!(
+            "provoked={provoked} session route changes {changes}->{} stream route events {events}->{}",
+            session.route_changes(),
+            engine.route_events()
+        ),
+    );
+}
+
+/// AU-08: the AAudio stream as tuned — exclusive (MMAP) or shared, its
+/// latency, and a minute of play with no underruns once the buffer has
+/// settled.
+#[cfg(target_os = "android")]
+fn aaudio_checks(checks: &mut Checks, engine: &Engine) {
+    let Some(st) = engine.stream_stats() else {
+        checks.check("aaudio_latency", false, "no stream statistics");
+        return;
+    };
+    let ms = st.latency.map(|l| l.as_secs_f64() * 1e3);
+    let limit = if st.exclusive { 20.0 } else { 100.0 };
+    checks.check(
+        "aaudio_latency",
+        ms.is_some_and(|m| m < limit),
+        &format!(
+            "{} ms, {} (limit {limit} ms), buffer {} frames",
+            ms.map_or_else(|| "?".to_owned(), |m| format!("{m:.1}")),
+            if st.exclusive { "exclusive" } else { "shared" },
+            st.buffer_frames
+                .map_or_else(|| "?".to_owned(), |b| b.to_string()),
+        ),
+    );
+    let x0 = st.xruns;
+    let b0 = st.buffer_frames;
+    std::thread::sleep(Duration::from_secs(60));
+    let st = engine.stream_stats().unwrap_or(st);
+    checks.check(
+        "aaudio_60s_no_xruns",
+        st.xruns == x0 && !st.disconnected,
+        &format!(
+            "xruns {x0}->{} over 60 s, buffer {:?}->{:?} frames, disconnected={}",
+            st.xruns, b0, st.buffer_frames, st.disconnected
+        ),
+    );
+}
+
 /// Android: run the check on its own thread.
 #[cfg(target_os = "android")]
 pub fn spawn(app: &crate::AndroidApp) {
@@ -271,6 +334,14 @@ pub fn spawn(app: &crate::AndroidApp) {
                 ),
             }
 
+            route_event_check(&mut checks, &engine, || {
+                crate::audio_android::RouteProbe::register(&app).map(|p| {
+                    std::thread::sleep(Duration::from_millis(800));
+                    p.unregister();
+                })
+            });
+            aaudio_checks(&mut checks, &engine);
+
             say(&device_line(&engine));
             say(&format!(
                 "events {:?}",
@@ -327,6 +398,16 @@ pub fn spawn() {
                 "interruption_end_resumes",
                 !session.suspended() && d >= 700,
                 &format!("suspended={} advanced {d} ms in 1 s", session.suspended()),
+            );
+
+            route_event_check(&mut checks, &engine, || {
+                crate::audio_ios::bounce_category()
+                    .then(|| std::thread::sleep(Duration::from_millis(800)))
+            });
+            checks.check(
+                "session_category_restored",
+                crate::audio_ios::category_is_playback(),
+                "AVAudioSession.category after the bounce",
             );
 
             say(&format!(

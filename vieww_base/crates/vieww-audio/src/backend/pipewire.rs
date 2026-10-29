@@ -607,6 +607,13 @@ impl Backend for PipeWire {
         "pipewire"
     }
 
+    /// Route events through the PulseAudio protocol (AU-09), which every
+    /// PipeWire desktop serves (`pipewire-pulse`): the default sink moving
+    /// and sinks coming and going. Without it, the supervisor's poll.
+    fn watch(&self, wake: super::RouteWake) -> Option<super::RouteWatch> {
+        super::pulse::route_watch(wake)
+    }
+
     fn open_output(
         &self,
         config: StreamConfig,

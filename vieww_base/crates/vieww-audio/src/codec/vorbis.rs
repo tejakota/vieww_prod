@@ -1209,35 +1209,56 @@ fn window(n: usize, left_n: usize, right_n: usize) -> Vec<f32> {
     w
 }
 
-/// Decode an Ogg Vorbis stream.
-///
-/// # Errors
-/// Malformed headers or packets, or a page CRC failure.
-pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
-    let packets = ogg::packets(bytes)?;
-    if packets.len() < 3 {
-        return Err(CodecError::Truncated);
+/// One Vorbis stream's decoding state: the setup headers, the transforms,
+/// and the previous block's right half waiting for its overlap. Fed one
+/// audio packet at a time (by [`decode`] and by the streaming source).
+pub(crate) struct VorbisCore {
+    s: Setup,
+    imdct: [Imdct; 2],
+    mode_bits: u32,
+    prev: Option<(Vec<Vec<f32>>, usize)>,
+}
+
+impl VorbisCore {
+    /// From the identification and setup header packets.
+    pub(crate) fn new(id: &[u8], setup: &[u8]) -> Result<Self, CodecError> {
+        let s = parse_setup(id, setup)?;
+        let imdct = [Imdct::new(s.bs[0]), Imdct::new(s.bs[1])];
+        let mode_bits = ilog(u32::try_from(s.modes.len() - 1).unwrap_or(0));
+        Ok(Self {
+            s,
+            imdct,
+            mode_bits,
+            prev: None,
+        })
     }
-    let s = parse_setup(&packets[0].data, &packets[2].data)?;
-    let ch = s.channels;
-    let imdct = [Imdct::new(s.bs[0]), Imdct::new(s.bs[1])];
-    let mode_bits = ilog(u32::try_from(s.modes.len() - 1).unwrap_or(0));
-    let mut out: Vec<f32> = Vec::new();
-    let mut prev: Option<(Vec<Vec<f32>>, usize)> = None;
-    let mut final_granule: Option<i64> = None;
-    for pk in &packets[3..] {
-        if pk.last_page && pk.granule >= 0 {
-            final_granule = Some(pk.granule);
-        }
-        let mut r = R::new(&pk.data);
+
+    pub(crate) const fn channels(&self) -> usize {
+        self.s.channels
+    }
+
+    pub(crate) const fn rate(&self) -> u32 {
+        self.s.rate
+    }
+
+    /// Forget the overlap (after a seek): the next packet yields nothing.
+    pub(crate) fn reset(&mut self) {
+        self.prev = None;
+    }
+
+    /// Decode one audio packet, appending the samples it completes.
+    pub(crate) fn packet(&mut self, data: &[u8], out: &mut Vec<f32>) -> Result<(), CodecError> {
+        let s = &self.s;
+        let ch = s.channels;
+        let mut r = R::new(data);
         if r.bit() != Some(false) {
-            continue; // not an audio packet
+            return Ok(()); // not an audio packet
         }
-        let Some(mi) = r.read(mode_bits) else {
-            continue;
+        let Some(mi) = r.read(self.mode_bits) else {
+            return Ok(());
         };
         let Some(mode) = s.modes.get(mi as usize).copied() else {
-            continue;
+            return Ok(());
         };
         let n = s.bs[usize::from(mode.long)];
         let (prev_long, next_long) = if mode.long {
@@ -1349,13 +1370,13 @@ pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
                 Fl::Zero(a, coefs) => floor0_apply(f, *a, coefs, &mut spec[c]),
             }
             let mut y = vec![0f32; n];
-            imdct[usize::from(mode.long)].run(&spec[c], &mut y);
+            self.imdct[usize::from(mode.long)].run(&spec[c], &mut y);
             for (v, wv) in y.iter_mut().zip(&w) {
                 *v *= wv;
             }
             blocks.push(y);
         }
-        if let Some((pb, pn)) = &prev {
+        if let Some((pb, pn)) = &self.prev {
             let count = pn / 4 + n / 4;
             let shift = isize::try_from(n / 4).unwrap_or(0) - isize::try_from(pn / 4).unwrap_or(0);
             for j in 0..count {
@@ -1371,7 +1392,29 @@ pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
                 }
             }
         }
-        prev = Some((blocks, n));
+        self.prev = Some((blocks, n));
+        Ok(())
+    }
+}
+
+/// Decode an Ogg Vorbis stream.
+///
+/// # Errors
+/// Malformed headers or packets, or a page CRC failure.
+pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
+    let packets = ogg::packets(bytes)?;
+    if packets.len() < 3 {
+        return Err(CodecError::Truncated);
+    }
+    let mut core = VorbisCore::new(&packets[0].data, &packets[2].data)?;
+    let ch = core.channels();
+    let mut out: Vec<f32> = Vec::new();
+    let mut final_granule: Option<i64> = None;
+    for pk in &packets[3..] {
+        if pk.last_page && pk.granule >= 0 {
+            final_granule = Some(pk.granule);
+        }
+        core.packet(&pk.data, &mut out)?;
     }
     if let Some(g) = final_granule {
         let want = usize::try_from(g).unwrap_or(0) * ch;
@@ -1382,9 +1425,288 @@ pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
     Decoded {
         data: out,
         channels: u8::try_from(ch).unwrap_or(u8::MAX),
-        rate: s.rate,
+        rate: core.rate(),
     }
     .validated()
+}
+
+// ── streaming (AU-05) ────────────────────────────────────────────────────
+
+/// One Ogg page read from a stream.
+struct Page {
+    granule: i64,
+    serial: u32,
+    flags: u8,
+    lacing: Vec<u8>,
+    body: Vec<u8>,
+    /// Bytes the page occupies.
+    len: u64,
+}
+
+/// The page at `at`, CRC-checked; `None` when there is no page there.
+fn page_at(input: &mut super::stream::Input, at: u64) -> Result<Option<Page>, CodecError> {
+    let h = input.window(at, 27)?;
+    if h.len() < 27 || &h[..4] != b"OggS" {
+        return Ok(None);
+    }
+    let flags = h[5];
+    let granule = i64::from_le_bytes([h[6], h[7], h[8], h[9], h[10], h[11], h[12], h[13]]);
+    let serial = u32::from_le_bytes([h[14], h[15], h[16], h[17]]);
+    let crc = u32::from_le_bytes([h[22], h[23], h[24], h[25]]);
+    let nseg = usize::from(h[26]);
+    let lacing = input.window(at + 27, nseg)?.to_vec();
+    if lacing.len() < nseg {
+        return Ok(None);
+    }
+    let body_len: usize = lacing.iter().map(|v| usize::from(*v)).sum();
+    let total = 27 + nseg + body_len;
+    let mut page = input.window(at, total)?.to_vec();
+    if page.len() < total {
+        return Ok(None);
+    }
+    page[22..26].fill(0);
+    if ogg::crc32(&page) != crc {
+        return Err(CodecError::Checksum("Ogg page CRC-32"));
+    }
+    Ok(Some(Page {
+        granule,
+        serial,
+        flags,
+        lacing,
+        body: page[27 + nseg..].to_vec(),
+        len: total as u64,
+    }))
+}
+
+/// The first page of `serial` starting at or after `from` (within 64 KB),
+/// skipping bytes that only look like a page.
+fn find_page(
+    input: &mut super::stream::Input,
+    from: u64,
+    serial: u32,
+) -> Result<Option<(u64, Page)>, CodecError> {
+    let len = input.len();
+    let mut at = from;
+    while at + 27 <= len && at < from + (64 << 10) {
+        let w = input.window(at, 4)?;
+        if w == b"OggS" {
+            if let Ok(Some(p)) = page_at(input, at) {
+                if p.serial == serial {
+                    return Ok(Some((at, p)));
+                }
+                at += p.len;
+                continue;
+            }
+        }
+        at += 1;
+    }
+    Ok(None)
+}
+
+/// Ogg Vorbis a page at a time, for [`super::stream`].
+pub(crate) struct VorbisSource {
+    core: VorbisCore,
+    serial: u32,
+    /// The first page after the headers.
+    audio_start: u64,
+    /// The next page to read.
+    at: u64,
+    partial: Vec<u8>,
+    /// Packets completed and not yet decoded, with their granule (−1 when
+    /// another packet completes after them on the same page).
+    queue: std::collections::VecDeque<(Vec<u8>, i64)>,
+    /// A seek landed mid-packet: drop the continuation that ends it.
+    drop_continued: bool,
+    /// Samples decoded while a seek found its position.
+    ready: Vec<f32>,
+    final_granule: Option<u64>,
+    long_block: u64,
+}
+
+impl VorbisSource {
+    pub(crate) fn open(input: &mut super::stream::Input) -> Result<Self, CodecError> {
+        let first = page_at(input, 0)?.ok_or(CodecError::NotThisFormat)?;
+        let serial = first.serial;
+        let mut src_headers: Vec<Vec<u8>> = Vec::new();
+        let mut partial = Vec::new();
+        let mut at = 0u64;
+        while src_headers.len() < 3 {
+            let (off, p) = find_page(input, at, serial)?.ok_or(CodecError::Truncated)?;
+            at = off + p.len;
+            let mut o = 0;
+            for &l in &p.lacing {
+                partial.extend_from_slice(&p.body[o..o + usize::from(l)]);
+                o += usize::from(l);
+                if l < 255 {
+                    src_headers.push(std::mem::take(&mut partial));
+                }
+            }
+        }
+        let core = VorbisCore::new(&src_headers[0], &src_headers[2])?;
+        let long_block = core.s.bs[1] as u64;
+        // The stream's length: the last page's granule, when it is marked
+        // the end of the stream (as the whole-file decoder trims).
+        let len = input.len();
+        let tail_from = len.saturating_sub(64 << 10);
+        let mut final_granule = None;
+        let mut t = tail_from;
+        while let Some((off, p)) = find_page(input, t, serial).ok().flatten() {
+            if p.flags & 4 != 0 && p.granule >= 0 {
+                final_granule = u64::try_from(p.granule).ok();
+            }
+            t = off + p.len;
+        }
+        Ok(Self {
+            core,
+            serial,
+            audio_start: at,
+            at,
+            partial: Vec::new(),
+            queue: std::collections::VecDeque::new(),
+            drop_continued: false,
+            ready: Vec::new(),
+            final_granule,
+            long_block,
+        })
+    }
+
+    /// Read the next page's packets into the queue; `false` at the end.
+    fn fill(&mut self, input: &mut super::stream::Input) -> Result<bool, CodecError> {
+        let Some((off, p)) = find_page(input, self.at, self.serial)? else {
+            return Ok(false);
+        };
+        self.at = off + p.len;
+        if p.flags & 1 == 0 {
+            self.partial.clear();
+            self.drop_continued = false;
+        }
+        let last_complete = p.lacing.iter().rposition(|l| *l < 255);
+        let mut o = 0;
+        for (i, &l) in p.lacing.iter().enumerate() {
+            self.partial
+                .extend_from_slice(&p.body[o..o + usize::from(l)]);
+            o += usize::from(l);
+            if l < 255 {
+                let data = std::mem::take(&mut self.partial);
+                if std::mem::take(&mut self.drop_continued) {
+                    continue;
+                }
+                let g = if Some(i) == last_complete {
+                    p.granule
+                } else {
+                    -1
+                };
+                self.queue.push_back((data, g));
+            }
+        }
+        Ok(true)
+    }
+
+    /// Decode the next packet: its samples and granule.
+    fn decode_next(
+        &mut self,
+        input: &mut super::stream::Input,
+    ) -> Result<Option<(Vec<f32>, i64)>, CodecError> {
+        loop {
+            if let Some((data, g)) = self.queue.pop_front() {
+                let mut out = Vec::new();
+                self.core.packet(&data, &mut out)?;
+                return Ok(Some((out, g)));
+            }
+            if !self.fill(input)? {
+                return Ok(None);
+            }
+        }
+    }
+
+    fn restart_at(&mut self, at: u64, mid_packet: bool) {
+        self.at = at;
+        self.partial.clear();
+        self.queue.clear();
+        self.ready.clear();
+        self.drop_continued = mid_packet;
+        self.core.reset();
+    }
+}
+
+impl super::stream::FrameSource for VorbisSource {
+    fn channels(&self) -> usize {
+        self.core.channels()
+    }
+
+    fn rate(&self) -> u32 {
+        self.core.rate()
+    }
+
+    fn trim(&self) -> (u64, Option<u64>) {
+        (0, self.final_granule)
+    }
+
+    fn next(
+        &mut self,
+        input: &mut super::stream::Input,
+    ) -> Result<Option<super::stream::Chunk>, CodecError> {
+        if !self.ready.is_empty() {
+            return Ok(Some(super::stream::Chunk {
+                pcm: std::mem::take(&mut self.ready),
+            }));
+        }
+        loop {
+            match self.decode_next(input)? {
+                None => return Ok(None),
+                Some((pcm, _)) if pcm.is_empty() => {}
+                Some((pcm, _)) => return Ok(Some(super::stream::Chunk { pcm })),
+            }
+        }
+    }
+
+    fn seek(&mut self, input: &mut super::stream::Input, frame: u64) -> Result<u64, CodecError> {
+        let ch = self.core.channels().max(1);
+        // Land on a page whose granule is a couple of long blocks before
+        // the target, then decode until a packet's granule says where the
+        // samples are.
+        let want = frame.saturating_sub(2 * self.long_block);
+        if want > 0 {
+            let (mut lo, mut hi) = (self.audio_start, input.len());
+            let mut best: Option<u64> = None;
+            for _ in 0..48 {
+                if hi <= lo + 4096 {
+                    break;
+                }
+                let mid = lo + (hi - lo) / 2;
+                match find_page(input, mid, self.serial)? {
+                    Some((off, p))
+                        if p.granule >= 0 && u64::try_from(p.granule).unwrap_or(0) <= want =>
+                    {
+                        best = Some(off + p.len);
+                        lo = off + p.len;
+                    }
+                    Some((off, _)) if off < hi => hi = mid,
+                    _ => hi = mid,
+                }
+            }
+            if let Some(at) = best {
+                // The page after `best` may continue a packet: drop it.
+                let mid = page_at(input, at)?.is_some_and(|p| p.flags & 1 != 0);
+                self.restart_at(at, mid);
+                let mut ready = Vec::new();
+                while let Some((pcm, g)) = self.decode_next(input)? {
+                    ready.extend_from_slice(&pcm);
+                    if g >= 0 {
+                        let g = u64::try_from(g).unwrap_or(0);
+                        let start = g.checked_sub((ready.len() / ch) as u64);
+                        if let Some(start) = start.filter(|s| *s <= frame) {
+                            self.ready = ready;
+                            return Ok(start);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        self.restart_at(self.audio_start, false);
+        Ok(0)
+    }
 }
 
 #[cfg(test)]

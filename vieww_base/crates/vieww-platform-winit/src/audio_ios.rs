@@ -475,6 +475,27 @@ pub(crate) fn category_is_playback() -> bool {
     same
 }
 
+/// For the on-device audio check (AU-09): change the session's category to
+/// `.ambient` and back to `.playback`. iOS answers each category change
+/// with an `AVAudioSessionRouteChangeNotification` (reason
+/// `categoryChange`), posted by the system to the same observer a
+/// headphone unplug reaches. `true` when both changes were accepted.
+pub(crate) fn bounce_category() -> bool {
+    let Some(s) = shared_session() else {
+        return false;
+    };
+    let set = |category: &NSString| -> bool {
+        let mut error: *mut AnyObject = std::ptr::null_mut();
+        unsafe {
+            msg_send![s, setCategory: category, mode: AVAudioSessionModeDefault, options: 0usize, error: &mut error]
+        }
+    };
+    let away = set(unsafe { AVAudioSessionCategoryAmbient });
+    std::thread::sleep(std::time::Duration::from_millis(300));
+    let back = set(unsafe { AVAudioSessionCategoryPlayback });
+    away && back
+}
+
 /// For the on-device audio check: whether the lock screen has a now-playing
 /// entry.
 pub(crate) fn now_playing_published() -> bool {

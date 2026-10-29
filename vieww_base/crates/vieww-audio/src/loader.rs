@@ -10,15 +10,16 @@
 //! audio thread only ever receives buffers it can play.
 //!
 //! [`DiskStream`] is for files too long to hold in memory (a two-hour
-//! stem, a multi-gigabyte sample library): a reader thread decodes a WAV
-//! ahead of playback into the lock-free [`ring`], and
+//! stem, a multi-gigabyte sample library): a reader thread decodes any
+//! format [`codec::stream`] reads (WAV, AIFF, FLAC, MP3, AAC, Ogg Vorbis)
+//! ahead of playback, resampling on the way when asked, into the lock-free [`ring`], and
 //! the audio thread [`read`](DiskStream::read)s from it without blocking,
 //! silence and an underrun count standing in for data that is not there
 //! yet. Seeking and looping are handled by the reader, and a seek never
 //! lets stale audio through.
 
 use std::collections::HashMap;
-use std::io::{Read, Seek, SeekFrom};
+use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering};
 use std::sync::{mpsc, Arc, Condvar, Mutex, Weak};
@@ -392,18 +393,55 @@ impl DiskStream {
     /// Open `path`, keeping up to `buffer_frames` decoded ahead.
     ///
     /// # Errors
-    /// The file cannot be opened, or is not a WAV this crate decodes.
+    /// The file cannot be opened, or is not a format this crate decodes.
     pub fn open(path: impl AsRef<Path>, buffer_frames: usize) -> std::io::Result<Self> {
-        let mut f = std::fs::File::open(path)?;
-        let len = f.metadata()?.len();
-        let mut head = vec![0u8; 64 * 1024];
-        let n = read_fully(&mut f, &mut head)?;
-        head.truncate(n);
-        let (info, data_off, data_len) = wav::read_wav_header(&head, len)
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e.to_string()))?;
-        let ch = usize::from(info.channels);
-        let frame_bytes = (info.format.bytes() * ch) as u64;
-        let frames = data_len / frame_bytes;
+        Self::open_inner(path.as_ref(), buffer_frames, None)
+    }
+
+    /// Open `path` resampled to `rate` on the reader thread, so the audio
+    /// thread reads at its own rate. [`Self::info`] then reports `rate`.
+    ///
+    /// # Errors
+    /// As [`Self::open`].
+    pub fn open_resampled(
+        path: impl AsRef<Path>,
+        buffer_frames: usize,
+        rate: u32,
+    ) -> std::io::Result<Self> {
+        Self::open_inner(path.as_ref(), buffer_frames, Some(rate))
+    }
+
+    fn open_inner(path: &Path, buffer_frames: usize, rate: Option<u32>) -> std::io::Result<Self> {
+        let bad =
+            |e: CodecError| std::io::Error::new(std::io::ErrorKind::InvalidData, e.to_string());
+        let wav_format = {
+            let mut f = std::fs::File::open(path)?;
+            let mut head = vec![0u8; 64 * 1024];
+            let n = read_fully(&mut f, &mut head)?;
+            head.truncate(n);
+            let len = f.metadata()?.len();
+            wav::read_wav_header(&head, len).ok().map(|(i, _, _)| i)
+        };
+        let dec = codec::stream::open_file(path).map_err(|e| match e {
+            CodecError::Io(m) => std::io::Error::new(std::io::ErrorKind::NotFound, m),
+            e => bad(e),
+        })?;
+        let src_rate = dec.rate();
+        let out_rate = rate.unwrap_or(src_rate).max(1);
+        let ch = usize::from(dec.channels().max(1));
+        let info = WavInfo {
+            format: wav_format.map_or(wav::SampleFormat::F32, |i| i.format),
+            channels: u16::from(dec.channels()),
+            rate: out_rate,
+            channel_mask: wav_format.map_or(0, |i| i.channel_mask),
+        };
+        let frames = dec.total_frames().map_or(0, |n| {
+            if out_rate == src_rate {
+                n
+            } else {
+                n * u64::from(out_rate) / u64::from(src_rate)
+            }
+        });
         let (producer, consumer) = ring(buffer_frames.max(256) * ch);
         let shared = Arc::new(StreamShared {
             stop: AtomicBool::new(false),
@@ -421,7 +459,7 @@ impl DiskStream {
                 // Feeds a real-time reader but blocks on disk: elevated,
                 // never real-time.
                 let _rt = crate::rt::promote_helper_thread();
-                reader(f, producer, &s2, info, data_off, frames, cap);
+                reader(dec, producer, &s2, out_rate, cap);
             })
             .ok();
         Ok(Self {
@@ -441,7 +479,8 @@ impl DiskStream {
         self.info
     }
 
-    /// Total frames in the file.
+    /// Total frames in the file (at [`Self::info`]'s rate; 0 when the
+    /// format does not say).
     #[must_use]
     pub const fn frames(&self) -> u64 {
         self.frames
@@ -467,12 +506,15 @@ impl DiskStream {
     /// Jump to `frame`. Audio from before the seek is never delivered
     /// after it; until the reader catches up, reads return silence.
     pub fn seek(&mut self, frame: u64) {
-        self.shared
-            .seek_to
-            .store(frame.min(self.frames), Ordering::Release);
+        let frame = if self.frames > 0 {
+            frame.min(self.frames)
+        } else {
+            frame
+        };
+        self.shared.seek_to.store(frame, Ordering::Release);
         self.shared.seek_gen.fetch_add(1, Ordering::AcqRel);
         self.shared.ended.store(false, Ordering::Release);
-        self.position = frame.min(self.frames);
+        self.position = frame;
     }
 
     fn seeking(&self) -> bool {
@@ -496,7 +538,12 @@ impl DiskStream {
             out.fill(0.0);
             return 0;
         }
-        let got = self.consumer.pop(out);
+        // Whole frames only: the reader pushes in pieces, and a frame split
+        // across two reads would shift every channel after it.
+        let ch = usize::from(self.info.channels.max(1));
+        let avail = self.consumer.available() / ch * ch;
+        let room = out.len() / ch * ch;
+        let got = self.consumer.pop(&mut out[..avail.min(room)]);
         out[got..].fill(0.0);
         if got < out.len() && !self.is_finished() {
             self.underruns += 1;
@@ -550,27 +597,26 @@ fn read_fully(f: &mut impl Read, buf: &mut [u8]) -> std::io::Result<usize> {
 }
 
 fn reader(
-    mut f: std::fs::File,
+    mut dec: Box<dyn codec::stream::PullDecoder>,
     mut producer: Producer,
     s: &StreamShared,
-    info: WavInfo,
-    data_off: u64,
-    frames: u64,
+    out_rate: u32,
     capacity: usize,
 ) {
-    let ch = usize::from(info.channels);
-    let width = info.format.bytes();
+    let ch = usize::from(dec.channels().max(1));
+    let src_rate = dec.rate();
+    let new_resampler = || {
+        (src_rate != out_rate)
+            .then(|| crate::resample::Resampler::new(src_rate, out_rate, ch, Quality::Sinc(16)))
+    };
+    let mut rs = new_resampler();
     let chunk_frames = 4_096usize;
-    let mut bytes = vec![0u8; chunk_frames * ch * width];
-    let mut samples = vec![0.0f32; chunk_frames * ch];
-    let mut pos: u64 = 0; // next frame to read
+    let mut decoded = vec![0.0f32; chunk_frames * ch];
+    let mut samples: Vec<f32> = Vec::with_capacity(chunk_frames * ch * 2);
     let mut pending = 0usize;
     let mut offset = 0usize;
     let mut gen_seen = 0u64;
-    if f.seek(SeekFrom::Start(data_off)).is_err() {
-        s.ended.store(true, Ordering::Release);
-        return;
-    }
+    let mut at_end = false;
     while !s.stop.load(Ordering::Acquire) {
         let gen = s.seek_gen.load(Ordering::Acquire);
         if gen != gen_seen {
@@ -580,46 +626,46 @@ fn reader(
                 std::thread::sleep(Duration::from_micros(200));
                 continue;
             }
-            pos = s.seek_to.load(Ordering::Acquire).min(frames);
-            let at = data_off + pos * (ch * width) as u64;
-            if f.seek(SeekFrom::Start(at)).is_err() {
-                pos = frames;
-            }
+            let to = s.seek_to.load(Ordering::Acquire);
+            let src = if src_rate == out_rate {
+                to
+            } else {
+                to * u64::from(src_rate) / u64::from(out_rate)
+            };
+            at_end = dec.seek(src).is_err();
+            rs = new_resampler();
             gen_seen = gen;
             s.ended.store(false, Ordering::Release);
             s.seek_ack.store(gen, Ordering::Release);
             continue;
         }
         if pending == 0 {
-            if pos >= frames {
-                if s.looping.load(Ordering::Acquire) && frames > 0 {
-                    pos = 0;
-                    if f.seek(SeekFrom::Start(data_off)).is_err() {
-                        break;
-                    }
+            if at_end {
+                if s.looping.load(Ordering::Acquire) && dec.seek(0).is_ok() {
+                    at_end = false;
+                    rs = new_resampler();
                 } else {
                     s.ended.store(true, Ordering::Release);
                     std::thread::sleep(Duration::from_millis(1));
                     continue;
                 }
             }
-            let want = usize::try_from((frames - pos).min(chunk_frames as u64)).unwrap_or(0);
-            let nb = want * ch * width;
-            let got = read_fully(&mut f, &mut bytes[..nb]).unwrap_or(0);
-            let got_frames = got / (ch * width);
-            if got_frames == 0 {
-                pos = frames; // the file was shorter than its header said
+            // A corrupt stream past what the decoder conceals ends it.
+            let n = dec.read(&mut decoded).unwrap_or(0);
+            samples.clear();
+            match rs.as_mut() {
+                None => samples.extend_from_slice(&decoded[..n]),
+                Some(r) if n > 0 => r.process(&decoded[..n], &mut samples),
+                Some(r) => r.finish(&mut samples),
+            }
+            if n == 0 {
+                at_end = true;
+            }
+            pending = samples.len();
+            offset = 0;
+            if pending == 0 {
                 continue;
             }
-            for (o, b) in samples
-                .iter_mut()
-                .zip(bytes[..got_frames * ch * width].chunks_exact(width))
-            {
-                *o = info.format.decode_le(b);
-            }
-            pos += got_frames as u64;
-            pending = got_frames * ch;
-            offset = 0;
         }
         let w = producer.push(&samples[offset..offset + pending]);
         pending -= w;
@@ -857,8 +903,8 @@ mod tests {
     }
 
     #[test]
-    fn disk_stream_rejects_non_wav() {
-        assert!(DiskStream::open(fixture("src.mp3"), 1_024).is_err());
+    fn disk_stream_rejects_what_it_cannot_decode() {
+        assert!(DiskStream::open(fixture("tags.opus"), 1_024).is_err());
         assert!(DiskStream::open("/no/such/file.wav", 1_024).is_err());
     }
 }
