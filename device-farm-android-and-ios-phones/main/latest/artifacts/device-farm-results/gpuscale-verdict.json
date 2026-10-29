@@ -2,10 +2,6 @@
   "verdict": "keep-opt-in",
   "promote_tiers": [],
   "tiers": {
-    "low": {
-      "verdict": "no-change",
-      "why": "every device of this tier passes at full resolution"
-    },
     "medium": {
       "verdict": "no-change",
       "why": "every device of this tier passes at full resolution"
@@ -14,27 +10,15 @@
   "devices": [
     {
       "role": "unneeded",
-      "device": "LMQ7201bd5075a",
-      "tier": "low",
-      "budget_ms": 16.666668,
-      "cpu_median_ms": 33.776459,
-      "gpu_median_ms": 16.085,
-      "gpuscale_median_ms": 6.842917,
-      "scale_engaged": 0.5,
-      "best_full_res_ms": 16.085,
-      "why": "passes at full resolution (16.1 ms <= 16.7 ms)"
-    },
-    {
-      "role": "unneeded",
-      "device": "R5CT41PZV0R",
+      "device": "R5CT41SE1VZ",
       "tier": "medium",
       "budget_ms": 8.333333,
-      "cpu_median_ms": 7.274115,
-      "gpu_median_ms": 2.379376,
-      "gpuscale_median_ms": 2.4,
+      "cpu_median_ms": 11.419011,
+      "gpu_median_ms": 1.579376,
+      "gpuscale_median_ms": 2.022916,
       "scale_engaged": 0.75,
-      "best_full_res_ms": 2.379376,
-      "why": "passes at full resolution (2.4 ms <= 8.3 ms)"
+      "best_full_res_ms": 1.579376,
+      "why": "passes at full resolution (1.6 ms <= 8.3 ms)"
     }
   ],
   "rule": {
