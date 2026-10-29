@@ -3551,6 +3551,12 @@ impl<F: FnOnce(&mut FrameDriver)> ApplicationHandler<UserEvent> for Runner<F> {
             WindowEvent::KeyboardInput { event, .. }
                 if !self.windows[index].ime_composing || !event.state.is_pressed() =>
             {
+                // Media keys also go to the audio session: winit marks them
+                // handled, so Android never routes them there itself.
+                #[cfg(target_os = "android")]
+                if event.state.is_pressed() && !event.repeat {
+                    crate::audio_android::forward_media_key(&event.logical_key);
+                }
                 let window = &mut self.windows[index];
                 if let Some(key) = window.keys.key(&event, now) {
                     window.key(&key);

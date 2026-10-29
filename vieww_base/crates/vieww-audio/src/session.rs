@@ -125,6 +125,8 @@ pub enum SessionEvent {
 }
 
 const LOG_DEPTH: usize = 256;
+/// Remote commands kept for a player that has not polled yet.
+const REMOTE_DEPTH: usize = 32;
 
 /// The process's audio session.
 pub struct AudioSession {
@@ -302,6 +304,10 @@ impl AudioSession {
     pub fn push_remote(&self, c: RemoteCommand) {
         self.record(SessionEvent::Remote(c));
         if let Ok(mut q) = self.remote.lock() {
+            // Bounded: an app with no player never drains it.
+            if q.len() >= REMOTE_DEPTH {
+                q.remove(0);
+            }
             q.push(c);
         }
     }
@@ -493,6 +499,18 @@ mod tests {
             ..NowPlaying::default()
         });
         assert_eq!(fake.published.lock().unwrap().len(), 1);
+    }
+
+    #[test]
+    fn the_remote_queue_is_bounded() {
+        let s = AudioSession::new();
+        for _ in 0..100 {
+            s.push_remote(RemoteCommand::Next);
+        }
+        s.push_remote(RemoteCommand::Pause);
+        let q = s.take_remote();
+        assert_eq!(q.len(), REMOTE_DEPTH);
+        assert_eq!(q.last(), Some(&RemoteCommand::Pause), "the newest is kept");
     }
 
     #[test]

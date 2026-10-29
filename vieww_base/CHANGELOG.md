@@ -12,6 +12,7 @@ tag needs a `## [x.y.z]` section here before it is pushed.
 ## [Unreleased]
 
 ### Fixed
+- **Headset and Bluetooth media keys while the app is open (Android)**: winit marks every key but volume as handled, so Android never routed play/pause/next to the media session while a vieww app had focus. The platform crate now forwards media keys to the audio session itself (Galaxy A73, Device Farm run 40818820451). The session's remote-command queue is bounded.
 - **Device Farm audio pass on Android 9**: media keys go straight to `media dispatch` below API 29 and stderr is kept, so a refusal is seen (the Stylo 5's `cmd media_session` failed silently in run 40810844722). The Galaxy S26 Ultra's CPU known-failure entry is removed: it passed three runs in a row.
 - **The iOS example builds everywhere again**: its audio-check call is iOS-only (Framework checks on ad768f4 failed clippy and the cross type-check on it).
 - **Device Farm audio pass, media keys**: falls back from `cmd media_session dispatch` to `media dispatch` to `input keyevent KEYCODE_MEDIA_PAUSE/PLAY` — Samsung's Android 12 answers the first with its usage text (Galaxy A73, run 40753842110).

@@ -842,3 +842,31 @@ impl CompetingFocus {
         });
     }
 }
+
+/// Media keys pressed while the app is in front (AU-04).
+///
+/// Android gives a media key to the focused window first and routes it to
+/// the media session only if the window leaves it unhandled; winit marks
+/// every key but volume as handled. So a headset's play/pause button, a
+/// Bluetooth remote or `input keyevent KEYCODE_MEDIA_PAUSE` never reached
+/// the `MediaSession` while a vieww app was open (Galaxy A73, Device Farm
+/// run 40818820451). The platform crate sees the key, so it forwards it as
+/// the same [`RemoteCommand`] the session callback would have produced.
+pub(crate) fn forward_media_key(key: &winit::keyboard::Key) {
+    use winit::keyboard::{Key, NamedKey};
+    let skip = Duration::from_secs(15);
+    let command = match key {
+        Key::Named(NamedKey::MediaPlay) => RemoteCommand::Play,
+        Key::Named(NamedKey::MediaPause) => RemoteCommand::Pause,
+        Key::Named(NamedKey::MediaPlayPause | NamedKey::HeadsetHook) => {
+            RemoteCommand::TogglePlayPause
+        }
+        Key::Named(NamedKey::MediaStop) => RemoteCommand::Stop,
+        Key::Named(NamedKey::MediaTrackNext) => RemoteCommand::Next,
+        Key::Named(NamedKey::MediaTrackPrevious) => RemoteCommand::Previous,
+        Key::Named(NamedKey::MediaFastForward) => RemoteCommand::SkipForward(skip),
+        Key::Named(NamedKey::MediaRewind) => RemoteCommand::SkipBackward(skip),
+        _ => return,
+    };
+    AudioSession::shared().push_remote(command);
+}
