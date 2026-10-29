@@ -12,6 +12,7 @@ tag needs a `## [x.y.z]` section here before it is pushed.
 ## [Unreleased]
 
 ### Fixed
+- **Device Farm audio pass on Android 9**: media keys go straight to `media dispatch` below API 29 and stderr is kept, so a refusal is seen (the Stylo 5's `cmd media_session` failed silently in run 40810844722). The Galaxy S26 Ultra's CPU known-failure entry is removed: it passed three runs in a row.
 - **The iOS example builds everywhere again**: its audio-check call is iOS-only (Framework checks on ad768f4 failed clippy and the cross type-check on it).
 - **Device Farm audio pass, media keys**: falls back from `cmd media_session dispatch` to `media dispatch` to `input keyevent KEYCODE_MEDIA_PAUSE/PLAY` — Samsung's Android 12 answers the first with its usage text (Galaxy A73, run 40753842110).
 - **GPU path on Qualcomm Adreno phones**: built-in shaders are now baked (and translated at run time) as one SPIR-V module per entry point. Since post.wgsl gained its D3D12 entry points, the whole-file module failed pipeline creation on Adreno ("Failed to link shaders", `VK_ERROR_UNKNOWN`): every GPU pass on the Adreno 506, 650 and 840 in Device Farm run 40720367260. A test now holds every baked module to exactly one `OpEntryPoint`.

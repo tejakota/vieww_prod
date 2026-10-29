@@ -352,14 +352,19 @@ if [ -n "$in_app" ]; then
     # nowhere in run 40720367260), and `input keyevent` with the media key
     # code (Samsung's Android 12 answered `cmd media_session dispatch pause`
     # with its usage text in run 40753842110, and sent nothing).
+    # stderr is kept (`sh_` drops it): Android 9 refuses `cmd media_session`
+    # on stderr only, and an empty answer read as success in run 40810844722.
+    audio_sdk="$(sh_ getprop ro.build.version.sdk)"
     dispatch() { # play | pause
         local got key
-        got="$(sh_ cmd media_session dispatch "$1" 2>&1)"
-        echo "cmd media_session dispatch $1: ${got:-ok}"
-        case "$got" in *[Uu]sage*|*[Uu]nknown*|*"not found"*|*rror*) ;; *) return 0 ;; esac
-        got="$(sh_ media dispatch "$1" 2>&1)"
+        if [ "$audio_sdk" -ge 29 ] 2>/dev/null; then
+            got="$(adb shell cmd media_session dispatch "$1" 2>&1 | tr -d '\r')"
+            echo "cmd media_session dispatch $1: ${got:-ok}"
+            case "$got" in *[Uu]sage*|*[Uu]nknown*|*"not found"*|*"an't find"*|*rror*) ;; *) return 0 ;; esac
+        fi
+        got="$(adb shell media dispatch "$1" 2>&1 | tr -d '\r')"
         echo "media dispatch $1: ${got:-ok}"
-        case "$got" in *[Uu]sage*|*[Uu]nknown*|*"not found"*|*rror*) ;; *) return 0 ;; esac
+        case "$got" in *[Uu]sage*|*[Uu]nknown*|*"not found"*|*"an't find"*|*rror*) ;; *) return 0 ;; esac
         key=KEYCODE_MEDIA_PLAY; [ "$1" = pause ] && key=KEYCODE_MEDIA_PAUSE
         sh_ input keyevent "$key"
         echo "input keyevent $key"
