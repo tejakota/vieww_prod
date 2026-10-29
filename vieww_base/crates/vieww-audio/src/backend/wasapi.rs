@@ -620,7 +620,7 @@ fn mix_is_float(fmt: *const u8) -> Option<(u16, u32)> {
 ///
 /// # Safety
 /// `c` is a fresh, uninitialised `IAudioClient`.
-unsafe fn init_low_latency_shared(c: This, ch: u16, block: u32) -> Option<(u32, u32)> {
+unsafe fn init_low_latency_shared(c: This, ch: u16, rate: u32, block: u32) -> Option<(u32, u32)> {
     // SAFETY: the caller's contract; every pointer checked, the mix format
     // freed with CoTaskMemFree, the extra interface reference released.
     unsafe {
@@ -637,8 +637,13 @@ unsafe fn init_low_latency_shared(c: This, ch: u16, block: u32) -> Option<(u32, 
         }
         let result = (|| {
             let (mix_ch, mix_rate) = mix_is_float(mix.cast::<u8>())?;
-            if mix_ch != ch {
-                return None; // the shared engine's channels, exactly, or not at all
+            // The shared engine's channels and rate, exactly, or not at all:
+            // converting at a period of a few ms dropped and repeated frames
+            // on the hosted runner's cable (run 40917922714, a 44.1 kHz
+            // capture mix under a 48 kHz stream). v1 with AUTOCONVERTPCM
+            // converts for that case.
+            if mix_ch != ch || mix_rate != rate {
+                return None;
             }
             let (mut default, mut fundamental, mut min, mut max) = (0u32, 0u32, 0u32, 0u32);
             if (vt!(c3.0, AudioClient3Vtbl).get_shared_mode_engine_period)(
@@ -1047,7 +1052,12 @@ unsafe fn session(
             check(hr, "IAudioClient::Initialize (exclusive)")?;
             format = Some(wire_format(f));
             device_rate = r;
-        } else if let Some((mix_rate, min)) = init_low_latency_shared(c, ch, config.block.max(1)) {
+        } else if let Some((mix_rate, min)) = (!capture)
+            .then(|| init_low_latency_shared(c, ch, config.rate, config.block.max(1)))
+            .flatten()
+        {
+            // Render only: capture keeps v1, whose buffer absorbs the
+            // capture engine's own period.
             period_frames = min;
             // AU-10: low-latency shared mode at the engine's minimum period.
             // Its format is the mix format: float at the engine's rate, so

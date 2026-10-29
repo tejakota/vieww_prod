@@ -61,6 +61,10 @@ impl FlushDenormals {
 
     /// Whether the current thread is flushing subnormals now.
     #[must_use]
+    #[allow(
+        clippy::bad_bit_mask,
+        reason = "`BITS` is 0 on targets without a flush mode, where `read` is None anyway"
+    )]
     pub fn active() -> bool {
         imp::read().is_some_and(|v| v & imp::BITS == imp::BITS)
     }

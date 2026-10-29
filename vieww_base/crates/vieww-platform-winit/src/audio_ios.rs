@@ -475,25 +475,35 @@ pub(crate) fn category_is_playback() -> bool {
     same
 }
 
-/// For the on-device audio check (AU-09): change the session's category to
-/// `.ambient` and back to `.playback`. iOS answers each category change
-/// with an `AVAudioSessionRouteChangeNotification` (reason
-/// `categoryChange`), posted by the system to the same observer a
-/// headphone unplug reaches. `true` when both changes were accepted.
-pub(crate) fn bounce_category() -> bool {
-    let Some(s) = shared_session() else {
+/// For the on-device audio check (AU-09): post the route-change
+/// notification iOS sends when headphones are plugged in (reason
+/// `newDeviceAvailable`), as the check already posts a call's
+/// interruption: a device cloud can plug nothing in, and a category
+/// change between two playback categories leaves the route alone, so iOS
+/// posts nothing for it (Device Farm run 40917864476). The observer, the
+/// session and the stream's supervisor are the real ones. `true` when it
+/// was posted.
+pub(crate) fn post_route_change() -> bool {
+    const NEW_DEVICE_AVAILABLE: usize = 1;
+    let (Some(nc_cls), Some(dict_cls), Some(num_cls)) = (
+        class("NSNotificationCenter"),
+        class("NSMutableDictionary"),
+        class("NSNumber"),
+    ) else {
         return false;
     };
-    let set = |category: &NSString| -> bool {
-        let mut error: *mut AnyObject = std::ptr::null_mut();
-        unsafe {
-            msg_send![s, setCategory: category, mode: AVAudioSessionModeDefault, options: 0usize, error: &mut error]
+    unsafe {
+        let nc: *mut AnyObject = msg_send![nc_cls, defaultCenter];
+        let info: *mut AnyObject = msg_send![dict_cls, dictionary];
+        if nc.is_null() || info.is_null() {
+            return false;
         }
-    };
-    let away = set(unsafe { AVAudioSessionCategoryAmbient });
-    std::thread::sleep(std::time::Duration::from_millis(300));
-    let back = set(unsafe { AVAudioSessionCategoryPlayback });
-    away && back
+        let n: *mut AnyObject = msg_send![num_cls, numberWithUnsignedInteger: NEW_DEVICE_AVAILABLE];
+        let _: () = msg_send![info, setObject: n, forKey: AVAudioSessionRouteChangeReasonKey];
+        let nil: *mut AnyObject = std::ptr::null_mut();
+        let _: () = msg_send![nc, postNotificationName: AVAudioSessionRouteChangeNotification, object: nil, userInfo: info];
+    }
+    true
 }
 
 /// For the on-device audio check: whether the lock screen has a now-playing

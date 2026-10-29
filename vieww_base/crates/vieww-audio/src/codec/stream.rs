@@ -4,7 +4,7 @@
 //! sample: a three-hour audiobook at 64 kb/s is 90 MB in and 3.8 GB of
 //! `f32` out, which no phone survives. [`open`] instead returns a
 //! [`PullDecoder`] over any `Read + Seek`: it reads the file through a
-//! bounded window ([`Input`], at most a few megabytes held) and decodes one
+//! bounded window (at most a few megabytes held) and decodes one
 //! codec frame at a time into the caller's buffer, so memory is a frame or
 //! two of audio whatever the file's length.
 //!
@@ -23,8 +23,9 @@
 //! (`tests/stream_decode.rs`), and a seek lands on the samples the whole
 //! decode has at that position.
 //!
-//! [`crate::media_stream`] runs a `PullDecoder` on a reader thread ahead of
-//! playback; [`crate::engine_player::MediaPlayer`] uses it for long files.
+//! [`crate::loader::DiskStream`] runs a `PullDecoder` on a reader thread
+//! ahead of playback; [`crate::engine_player::MediaPlayer`] streams long
+//! files through it.
 
 use std::io::{Read, Seek, SeekFrom};
 

@@ -18,8 +18,8 @@
 //!   settled;
 //! * **AU-09:** a route event from the platform (Android: a registered
 //!   `AudioDeviceCallback`'s device report; iOS: the route-change
-//!   notification a category change posts) reaches the device stream's
-//!   supervisor;
+//!   notification, posted by the check as the interruption is) reaches the
+//!   device stream's supervisor;
 //! * **iOS:** the session category is `.playback` and the lock screen has a
 //!   now-playing entry. The interruption notification iOS posts for a call
 //!   pauses playback, and its end with "should resume" resumes. The
@@ -401,14 +401,9 @@ pub fn spawn() {
             );
 
             route_event_check(&mut checks, &engine, || {
-                crate::audio_ios::bounce_category()
+                crate::audio_ios::post_route_change()
                     .then(|| std::thread::sleep(Duration::from_millis(800)))
             });
-            checks.check(
-                "session_category_restored",
-                crate::audio_ios::category_is_playback(),
-                "AVAudioSession.category after the bounce",
-            );
 
             say(&format!(
                 "result {}",

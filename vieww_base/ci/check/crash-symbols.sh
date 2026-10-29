@@ -57,7 +57,10 @@ VIEWW_CRASH_DIR="$work/crashes" "$bin" extra 2>/dev/null && { echo "crash-symbol
 report="$(ls "$work"/crashes/*)"
 grep -E '^(message|frame: #[0-2] )' "$report"
 "$py" -I ci/release/symbolize.py "$report" "$work/symbols" | tee "$work/symbolized.txt"
-for want in 'crash_symbols::outer_frame' 'crash_symbols::inner_frame\|crash_symbols.rs:12'; do
+# Function names may come back demangled (`crash_symbols::outer_frame`,
+# llvm-symbolizer) or in Rust's v0 mangling (`…13crash_symbols11outer_frame`,
+# atos on macOS): both contain the bare name.
+for want in 'outer_frame.*crash_symbols.rs:18' 'inner_frame.*crash_symbols.rs:12'; do
     if ! grep -q "$want" "$work/symbolized.txt"; then
         echo "crash-symbols: '$want' not recovered from the stripped binary's report" >&2
         exit 1

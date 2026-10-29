@@ -63,8 +63,17 @@ def pairs(lines):
     return [(lines[i], lines[i + 1]) for i in range(0, len(lines) - 1, 2)]
 
 
-def resolve(fmt, obj, address):
+def symbolizer():
     tool = shutil.which("llvm-symbolizer")
+    if not tool and shutil.which("xcrun"):
+        # Xcode's toolchain carries one; it is not on PATH by default.
+        r = subprocess.run(["xcrun", "-f", "llvm-symbolizer"], capture_output=True, text=True)
+        tool = r.stdout.strip() if r.returncode == 0 and r.stdout.strip() else None
+    return tool
+
+
+def resolve(fmt, obj, address):
+    tool = symbolizer()
     if tool:
         r = subprocess.run([tool, "--obj", obj, "--functions=linkage", "--demangle", "--inlining", hex(address)],
                            capture_output=True, text=True)
