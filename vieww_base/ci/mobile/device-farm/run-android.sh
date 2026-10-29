@@ -346,13 +346,24 @@ audio_check in_app "$([ "$in_app" = PASS ] && echo 1 || echo 0)" "${in_app:-no r
 
 if [ -n "$in_app" ]; then
     # The media session: pause, then play, as a lock screen would.
-    # `cmd media_session` is Android 10+; Android 9 has the older `media`
-    # tool (the LG Stylo 5's pause went nowhere in run 40720367260).
-    if [ "$(sh_ getprop ro.build.version.sdk)" -ge 29 ] 2>/dev/null; then
-        dispatch() { sh_ cmd media_session dispatch "$1"; }
-    else
-        dispatch() { sh_ media dispatch "$1"; }
-    fi
+    # A media key, the way the lock screen or a headset sends one. Three
+    # routes, first that takes: `cmd media_session dispatch` (Android 10+),
+    # the older `media dispatch` (Android 9: the LG Stylo 5's pause went
+    # nowhere in run 40720367260), and `input keyevent` with the media key
+    # code (Samsung's Android 12 answered `cmd media_session dispatch pause`
+    # with its usage text in run 40753842110, and sent nothing).
+    dispatch() { # play | pause
+        local got key
+        got="$(sh_ cmd media_session dispatch "$1" 2>&1)"
+        echo "cmd media_session dispatch $1: ${got:-ok}"
+        case "$got" in *[Uu]sage*|*[Uu]nknown*|*"not found"*|*rror*) ;; *) return 0 ;; esac
+        got="$(sh_ media dispatch "$1" 2>&1)"
+        echo "media dispatch $1: ${got:-ok}"
+        case "$got" in *[Uu]sage*|*[Uu]nknown*|*"not found"*|*rror*) ;; *) return 0 ;; esac
+        key=KEYCODE_MEDIA_PLAY; [ "$1" = pause ] && key=KEYCODE_MEDIA_PAUSE
+        sh_ input keyevent "$key"
+        echo "input keyevent $key"
+    }
     dispatch pause > "$out/audio-dispatch.txt" 2>&1
     sleep 3
     st="$(audio_status)"

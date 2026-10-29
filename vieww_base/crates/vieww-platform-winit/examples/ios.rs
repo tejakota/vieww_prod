@@ -125,6 +125,9 @@ fn main() {
     // The audio check (AU-03/04): `VIEWW_AUDIO=1` plays a tone and checks
     // the session on this phone; `run-ios.sh`'s audio pass reads its
     // `__VIEWW_AUDIO__` lines.
+    // This example also builds on the desktop (and is linted for Android),
+    // where the check does not exist, hence the cfg.
+    #[cfg(target_os = "ios")]
     if std::env::var("VIEWW_AUDIO").is_ok_and(|v| v == "1") {
         vieww_platform_winit::audio_check::spawn();
     }
