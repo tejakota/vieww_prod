@@ -1,9 +1,9 @@
-device-suite: dev.vieww.demo is running as pid 28619
+device-suite: dev.vieww.demo is running as pid 27071
 device-suite: display is 1080x2340
 device-suite: waiting for the app to report its tap targets…
 device-suite: the app reports button 173,329 and field 232,553 (physical)
 device-suite: sent 40 tap(s) at 173,329 and 1 at 232,553; last progress: __VIEWW_PROGRESS__ frames=600
-device-suite: screenshot in /tmp/devicefarm-workspace/execution-hvf9u_nl/logs-tisk3z0p/vieww/stresscpu-screen.png
+device-suite: screenshot in /tmp/devicefarm-workspace/execution-evgr5jcx/logs-sn8trs6_/vieww/stresscpu-screen.png
 
   begin
   --   crash_reports_recovered_from_the_last_run: 0
@@ -15,8 +15,8 @@ device-suite: screenshot in /tmp/devicefarm-workspace/execution-hvf9u_nl/logs-ti
   --   rasterizer: CPU rasterizer (set debug.vieww.gpu=1 for the GPU path)
   ok   view_metrics_reached_the_tree: 384x832 logical
   ok   the_display_density_is_plausible: 2.8125x
-  ok   the_safe_area_fits_inside_the_surface: l0 t37.333332 r0 b14.933333
-  --   safe_area: l0 t37.333332 r0 b14.933333 on a 384x832 surface at 2.8125x
+  ok   the_safe_area_fits_inside_the_surface: l0 t37.333332 r0 b48
+  --   safe_area: l0 t37.333332 r0 b48 on a 384x832 surface at 2.8125x
   ok   the_keyboard_inset_is_a_plausible_bottom_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } on a 832-tall surface
   --   keyboard_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } at the moment of the report
   ok   the_platform_clipboard_round_trips: wrote and read back 33 bytes; restored what was there
@@ -25,30 +25,30 @@ device-suite: screenshot in /tmp/devicefarm-workspace/execution-hvf9u_nl/logs-ti
   ok   a_modal_silences_the_screen_behind_it: 3 of 3 panel item(s) reachable, and nothing is behind the scrim (3 labelled node(s) in the tree)
   ok   the_keyboard_inset_appears_when_the_keyboard_does: 358.4 logical pixels
   ok   frames_were_presented: 600 frames
-  FAIL the_typical_frame_is_inside_its_budget: median 53.946198ms against a budget of 16.666668ms
+  FAIL the_typical_frame_is_inside_its_budget: median 57.075156ms against a budget of 16.666668ms
   FAIL frames_inside_their_budget: 240 of 240 frames over a budget of 16.666668ms (at most 1 in 20)
-  ok   no_frame_stalled: worst 66.144167ms against a stall line of 161.838594ms (max of 4x budget, 3x median), 240 of 240 over budget
-  --   frame_time: median 53.946198ms, worst 66.144167ms, budget 16.666668ms (240 samples)
-  --   startup_stages: before run 137 ms | app setup 0.1 | event loop started 0.0 | resumed 8.2 | window created 0.0 | present ready 0.3 | accessibility and show 0.0 | tree built 3.0 | window ready 0.3 | until first draw 0.0 | app before-frame hooks 66.8 | first build and layout 2.7 | first raster and present 74.3 = 293.0 ms from process start
-  --   frame_stages: medians ms: scale 0.00 plan 0.00 cpu 53.23 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.02 present 0.48
-  --   frame_stages_p95: p95 ms: scale 0.00 plan 0.00 cpu 58.43 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.03 present 0.52
-  --   input_latency: input to present ms: median 54.3 p95 65.3 p99 112.4 worst 129.6 over 82 inputs in 82 frames; 0 unanswered within 1 s
-  --   raster_by_kind: medians ms: text 0.78 shadows 5.90 paths 3.48 rects 7.66 images 6.86 layers 20.53 composite 5.67 total 50.87; p95 ms: text 0.98 shadows 9.92 paths 3.89 rects 8.03 images 7.17 layers 21.95 composite 6.74 total 58.69
-  --   worst_frame: work 66.14 ms, outside the renderer 0.26 ms, on cpu6; stages ms: scale 0.00 plan 0.00 cpu 65.38 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.02 present 0.48
-  --   raster_by_core: cpu6 130 frames 53.23 ms | cpu7 110 frames 53.28 ms
+  ok   no_frame_stalled: worst 68.294531ms against a stall line of 171.225468ms (max of 4x budget, 3x median), 240 of 240 over budget
+  --   frame_time: median 57.075156ms, worst 68.294531ms, budget 16.666668ms (240 samples)
+  --   startup_stages: before run 133 ms | app setup 0.1 | event loop started 0.0 | resumed 8.3 | window created 0.0 | present ready 0.3 | accessibility and show 0.0 | tree built 2.9 | window ready 0.6 | until first draw 0.0 | app before-frame hooks 50.8 | first build and layout 1.7 | first raster and present 82.6 = 280.0 ms from process start
+  --   frame_stages: medians ms: scale 0.00 plan 0.00 cpu 56.36 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.02 present 0.49
+  --   frame_stages_p95: p95 ms: scale 0.00 plan 0.00 cpu 61.72 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.03 present 0.53
+  --   input_latency: input to present ms: median 57.1 p95 64.1 p99 70.5 worst 103.5 over 82 inputs in 82 frames; 0 unanswered within 1 s
+  --   raster_by_kind: medians ms: text 0.79 shadows 5.82 paths 3.51 rects 7.77 images 6.83 layers 23.08 composite 5.93 total 53.73; p95 ms: text 0.98 shadows 10.12 paths 3.85 rects 8.35 images 7.16 layers 24.65 composite 7.00 total 62.10
+  --   worst_frame: work 68.29 ms, outside the renderer 0.27 ms, on cpu6; stages ms: scale 0.00 plan 0.00 cpu 67.50 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.02 present 0.50
+  --   raster_by_core: cpu6 188 frames 56.34 ms | cpu7 52 frames 56.70 ms
   --   cpu_clocks: cpu0 2.61/3.63 GHz | cpu1 2.61/3.63 GHz | cpu2 2.61/3.63 GHz | cpu3 2.61/3.63 GHz | cpu4 2.61/3.63 GHz | cpu5 2.61/3.63 GHz | cpu6 4.74/4.74 GHz | cpu7 4.74/4.74 GHz
   --   device: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
   --   cache_budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  --   quality_overlay: tier high · median 54.442133ms / p95 59.094011ms / worst 66.144167ms vs budget 16.666668ms · 240/240 over
+  --   quality_overlay: tier high · median 57.492296ms / p95 62.430885ms / worst 68.294531ms vs budget 16.666668ms · 240/240 over
   --   damage: 1.000 full repaints per frame over 600 frames, against a 2527200px surface (stress screen: the whole list moves every frame)
   --   full_repaints: 600 of 600 frames cost a whole surface, 0 of those after the loop slept
   ok   idle_frames_do_not_repaint_the_whole_surface: 0 idle full repaint(s) over 600 frames, against a budget of 12
   ok   the_full_repaint_counter_saw_the_first_frame: 600 full repaint(s) over 600 frames against a 2527200px surface
-  --   frame_report: 600 frames in 33.81s — 17.7fps (median 54.01ms, worst 128.83ms over 240 continuous); work median 53.95ms, worst 66.14ms; 600 over a 16.67ms budget; rasterised 600.00 full repaints (600 frame(s) cost a whole surface, 0 of them idle); stage medians: scale 0.00 plan 0.00 cpu 53.23 gpu[upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00] acquire 0.02 present 0.48 ms; frame rate changed 1 time(s), ending at 60 Hz
+  --   frame_report: 600 frames in 34.93s — 17.1fps (median 57.25ms, worst 69.57ms over 240 continuous); work median 57.08ms, worst 68.29ms; 600 over a 16.67ms budget; rasterised 600.00 full repaints (600 frame(s) cost a whole surface, 0 of them idle); stage medians: scale 0.00 plan 0.00 cpu 56.36 gpu[upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00] acquire 0.02 present 0.49 ms; frame rate changed 1 time(s), ending at 60 Hz
   --   gpu_frames: 0 of 600 drawn by the GPU rasterizer (0 straight into the swapchain)
-  --   cpu_time: process CPU 54.38 ms per frame over the last 240 frames, every thread (96% of one core)
-  --   thermal: status none -> none (worst none); headroom 0.45 -> 0.63 (highest 0.63; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 34 s
-  --   shadow_blurs: 882 over 600 frames (1.47 a frame), 323.1 Mpx in all
+  --   cpu_time: process CPU 57.42 ms per frame over the last 240 frames, every thread (99% of one core)
+  --   thermal: status none -> none (worst none); headroom 0.39 -> 0.57 (highest 0.57; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 35 s
+  --   shadow_blurs: 881 over 600 frames (1.47 a frame), 322.5 Mpx in all
   end 17 checks, 2 failed
   result FAIL
 

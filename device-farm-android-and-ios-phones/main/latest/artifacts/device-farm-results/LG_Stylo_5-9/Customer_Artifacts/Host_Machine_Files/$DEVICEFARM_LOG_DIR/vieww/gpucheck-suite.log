@@ -1,11 +1,11 @@
 device-suite: the planned GPU rasterizer (debug.vieww.gpu=1)
 device-suite: --gpu with --no-build only applies if the app is relaunched
-device-suite: dev.vieww.demo is running as pid 12881
+device-suite: dev.vieww.demo is running as pid 9615
 device-suite: display is 1080x2160
 device-suite: waiting for the app to report its tap targets…
 device-suite: the app reports button 172,437 and field 227,688 (physical)
 device-suite: sent 40 tap(s) at 172,437 and 1 at 227,688; last progress: __VIEWW_PROGRESS__ frames=600
-device-suite: screenshot in /tmp/devicefarm-workspace/execution-kqxuv991/logs-2e87q91i/vieww/gpucheck-screen.png
+device-suite: screenshot in /tmp/devicefarm-workspace/execution-evi_o77g/logs-cvy6m41h/vieww/gpucheck-screen.png
 
   begin
   --   crash_reports_recovered_from_the_last_run: 0
@@ -26,32 +26,32 @@ device-suite: screenshot in /tmp/devicefarm-workspace/execution-kqxuv991/logs-2e
   ok   a_tap_reached_a_handler: 1 tap
   ok   a_modal_silences_the_screen_behind_it: 3 of 3 panel item(s) reachable, and nothing is behind the scrim (3 labelled node(s) in the tree)
   ok   frames_were_presented: 600 frames
-  FAIL the_typical_frame_is_inside_its_budget: median 227.206772ms against a budget of 16.666668ms
+  FAIL the_typical_frame_is_inside_its_budget: median 223.938803ms against a budget of 16.666668ms
   FAIL frames_inside_their_budget: 240 of 240 frames over a budget of 16.666668ms (at most 1 in 20)
-  FAIL no_frame_stalled: worst 812.961145ms against a stall line of 681.620316ms (max of 4x budget, 3x median), 240 of 240 over budget
-  --   frame_time: median 227.206772ms, worst 812.961145ms, budget 16.666668ms (240 samples)
-  --   startup_stages: before run 540 ms | app setup 0.2 | event loop started 0.0 | resumed 34.5 | window created 0.0 | present ready 59.5 | accessibility and show 0.0 | tree built 14.8 | window ready 1.2 | until first draw 0.1 | app before-frame hooks 14.9 | first build and layout 6.2 | first raster and present 43.9 = 715.6 ms from process start
-  --   frame_stages: medians ms: scale 0.08 plan 0.86 cpu 0.00 gpu_upload 3.86 gpu_record 0.79 gpu_submit 1.18 gpu_wait 34.19 gpu_readback 0.00 acquire 0.40 present 0.63
-  --   frame_stages_p95: p95 ms: scale 0.10 plan 1.31 cpu 0.00 gpu_upload 4.46 gpu_record 0.94 gpu_submit 1.37 gpu_wait 38.57 gpu_readback 0.00 acquire 0.50 present 0.97
-  --   input_latency: input to present ms: median 225.7 p95 798.5 p99 810.2 worst 811.0 over 82 inputs in 82 frames; 0 unanswered within 1 s
+  FAIL no_frame_stalled: worst 803.80901ms against a stall line of 671.816409ms (max of 4x budget, 3x median), 240 of 240 over budget
+  --   frame_time: median 223.938803ms, worst 803.80901ms, budget 16.666668ms (240 samples)
+  --   startup_stages: before run 551 ms | app setup 0.2 | event loop started 0.0 | resumed 32.7 | window created 0.1 | present ready 68.9 | accessibility and show 0.0 | tree built 13.7 | window ready 0.3 | until first draw 0.0 | app before-frame hooks 14.3 | first build and layout 4.7 | first raster and present 42.9 = 728.9 ms from process start
+  --   frame_stages: medians ms: scale 0.08 plan 0.77 cpu 0.00 gpu_upload 3.84 gpu_record 0.78 gpu_submit 1.14 gpu_wait 33.70 gpu_readback 0.00 acquire 0.40 present 0.65
+  --   frame_stages_p95: p95 ms: scale 0.11 plan 1.20 cpu 0.00 gpu_upload 4.33 gpu_record 0.98 gpu_submit 1.32 gpu_wait 38.24 gpu_readback 0.00 acquire 0.48 present 0.97
+  --   input_latency: input to present ms: median 224.6 p95 794.9 p99 804.4 worst 816.8 over 82 inputs in 82 frames; 0 unanswered within 1 s
   --   gpu_overlap: on: the app builds the next frame while the GPU draws this one
   --   partial_blit: trusted: 589 partial and 11 full copies, 7.5% of the frames' pixels copied; 594 image(s) kept their contents, 0 did not
   ok   partial_copies_leave_no_trails: 75 frames compared with their images: 0 pixel(s) differed; 0 image(s) lost what was written to them
-  --   gpu_passes: medians ms: draw 6.65 layers 0.00 filters 0.00 shadows 0.00 blit 30.16 total 36.81; p95 ms: draw 8.13 layers 0.00 filters 0.00 shadows 0.00 blit 34.48 total 42.62
-  --   worst_frame: work 812.96 ms, outside the renderer 765.08 ms; stages ms: scale 0.08 plan 1.02 cpu 0.00 gpu_upload 4.75 gpu_record 0.93 gpu_submit 1.18 gpu_wait 38.65 gpu_readback 0.00 acquire 0.55 present 0.72
+  --   gpu_passes: medians ms: draw 6.67 layers 0.00 filters 0.00 shadows 0.00 blit 29.76 total 36.43; p95 ms: draw 7.33 layers 0.00 filters 0.00 shadows 0.00 blit 33.83 total 41.16
+  --   worst_frame: work 803.81 ms, outside the renderer 757.27 ms; stages ms: scale 0.08 plan 0.85 cpu 0.00 gpu_upload 3.78 gpu_record 0.82 gpu_submit 1.18 gpu_wait 38.47 gpu_readback 0.00 acquire 0.39 present 0.95
   --   cpu_clocks: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 1.80/1.80 GHz | cpu5 1.80/1.80 GHz | cpu6 1.80/1.80 GHz | cpu7 1.80/1.80 GHz
-  --   pipeline_cache: started from 37673 bytes; saved 37673 bytes after the first GPU frame
+  --   pipeline_cache: started from 37659 bytes; saved 37659 bytes after the first GPU frame
   --   device: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
   --   cache_budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
-  --   quality_overlay: tier low · median 295.497606ms / p95 798.453281ms / worst 812.961145ms vs budget 16.666668ms · 240/240 over
+  --   quality_overlay: tier low · median 292.321224ms / p95 791.565572ms / worst 803.80901ms vs budget 16.666668ms · 240/240 over
   ok   damage_tracking_costs_a_fraction_of_a_full_repaint: 0.047 full repaints per frame over 600 frames, against a 2332800px surface
   --   full_repaints: 3 of 600 frames cost a whole surface, 0 of those after the loop slept
   ok   idle_frames_do_not_repaint_the_whole_surface: 0 idle full repaint(s) over 600 frames, against a budget of 12
   ok   the_full_repaint_counter_saw_the_first_frame: 3 full repaint(s) over 600 frames against a 2332800px surface
-  --   frame_report: 600 frames in 177.55s — 3.4fps (median 229.00ms, worst 813.15ms over 240 continuous); work median 227.21ms, worst 812.96ms; 600 over a 16.67ms budget; rasterised 28.20 full repaints (3 frame(s) cost a whole surface, 0 of them idle); stage medians: scale 0.08 plan 0.86 cpu 0.00 gpu[upload 3.86 record 0.79 submit 1.18 wait 34.19 readback 0.00] acquire 0.40 present 0.63 ms
+  --   frame_report: 600 frames in 177.26s — 3.4fps (median 226.53ms, worst 803.98ms over 240 continuous); work median 223.94ms, worst 803.81ms; 600 over a 16.67ms budget; rasterised 28.37 full repaints (3 frame(s) cost a whole surface, 0 of them idle); stage medians: scale 0.08 plan 0.77 cpu 0.00 gpu[upload 3.84 record 0.78 submit 1.14 wait 33.70 readback 0.00] acquire 0.40 present 0.65 ms
   --   gpu_frames: 600 of 600 drawn by the GPU rasterizer (600 straight into the swapchain)
-  --   cpu_time: process CPU 259.54 ms per frame over the last 240 frames, every thread (87% of one core)
-  --   thermal: hottest zone 37.0 -> 37.0 °C (peak 37.6) over 178 s
+  --   cpu_time: process CPU 256.96 ms per frame over the last 240 frames, every thread (87% of one core)
+  --   thermal: hottest zone 37.0 -> 37.0 °C (peak 37.8) over 177 s
   --   shadow_blurs: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
   end 18 checks, 3 failed
   result FAIL

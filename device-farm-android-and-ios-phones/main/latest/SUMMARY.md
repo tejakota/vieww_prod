@@ -1,14 +1,14 @@
 # Device Farm (Android and iOS phones) — FAILURE
 
-- branch: `main`  sha: `ad768f4640d394565892925cb96d56cec0d7775a`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40753842110
+- branch: `main`  sha: `8f161fdd0106bc05649e573e034b8f12cf9f5193`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/40810844722
 
 | job | verdict | failed steps |
 |---|---|---|
 | Only from main | PASS |  |
 | Build the arm64 APK | PASS |  |
-| Build the iOS .ipa | PASS |  |
-| Device suite on Device Farm iPhones | PASS |  |
+| Build the iOS .ipa | skipped |  |
+| Device suite on Device Farm iPhones | skipped |  |
 | Device suite on Device Farm phones | FAIL | Run on phones |
 | Publish to ci-runs/device-farm-<branch> | PASS |  |
 
@@ -31,30 +31,9 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### Build the iOS .ipa — PASS
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Run Swatinem/rust-cache@v2
-- PASS: Toolchain and the iOS device target
-- PASS: MoltenVK (device slice)
-- skipped: Signing identity into a temporary keychain (when the secrets exist)
-- PASS: Device .ipa
-- PASS: Run actions/upload-artifact@v4
-- PASS: Post Run Swatinem/rust-cache@v2
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
+### Build the iOS .ipa — skipped
 
-### Device suite on Device Farm iPhones — PASS
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Run actions/download-artifact@v4
-- PASS: AWS credentials (OIDC role)
-- skipped: AWS credentials (access keys)
-- PASS: Run on iPhones
-- PASS: Upload everything
-- PASS: Post AWS credentials (OIDC role)
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
+### Device suite on Device Farm iPhones — skipped
 
 ### Device suite on Device Farm phones — FAIL
 - PASS: Set up job
@@ -77,4 +56,4 @@
 - PASS: Push to ci-runs/device-farm-<branch>
 - PASS: Complete job
 
-- artifacts: device-farm-results device-farm-ios-results vieww-devicefarm-ipa vieww-devicefarm-apk 
+- artifacts: device-farm-results vieww-devicefarm-apk 
