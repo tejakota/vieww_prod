@@ -1,19 +1,39 @@
 # Audio backends — FAILURE
 
-- branch: `main`  sha: `866b6ac500d714391e0032125f8650e419b605f1`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40917922714
+- branch: `main`  sha: `7a9e76951688bed17b8424d7173bd503612b9aa2`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/41005630129
 
 | job | verdict | failed steps |
 |---|---|---|
+| Android and web | PASS |  |
+| macos-latest (native backend) | PASS |  |
 | Linux (ALSA and MIDI through kernel loopbacks, in a VM) | FAIL | Tools, kernel and its sound modules |
-| Android and web | FAIL | Web Audio (wasm32) |
 | Windows (WASAPI shared and exclusive through VB-CABLE) | FAIL | Loopback, shared mode |
+| macOS (Core Audio through BlackHole, CoreMIDI virtual ports) | PASS |  |
 | Linux (PipeWire, JACK, PulseAudio) | PASS |  |
 | windows-latest (native backend) | PASS |  |
-| macos-latest (native backend) | PASS |  |
-| macOS (Core Audio through BlackHole, CoreMIDI virtual ports) | PASS |  |
 
 ## Steps
+
+### Android and web — PASS
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Install Rust toolchain and targets
+- PASS: AAudio (Android)
+- PASS: Web Audio (wasm32)
+- PASS: Run actions/setup-node@v4
+- PASS: Web Audio shim (Node, simulated browser)
+- PASS: Post Run actions/setup-node@v4
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### macos-latest (native backend) — PASS
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Install Rust toolchain
+- PASS: Tests and clippy
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
 
 ### Linux (ALSA and MIDI through kernel loopbacks, in a VM) — FAIL
 - PASS: Set up job
@@ -28,17 +48,6 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### Android and web — FAIL
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Install Rust toolchain and targets
-- PASS: AAudio (Android)
-- FAIL: Web Audio (wasm32)
-- skipped: Run actions/setup-node@v4
-- skipped: Web Audio shim (Node, simulated browser)
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
 ### Windows (WASAPI shared and exclusive through VB-CABLE) — FAIL
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
@@ -49,6 +58,18 @@
 - FAIL: Loopback, shared mode
 - skipped: Loopback, exclusive mode
 - skipped: MIDI ports list (WinMM)
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### macOS (Core Audio through BlackHole, CoreMIDI virtual ports) — PASS
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Install Rust toolchain
+- PASS: Install BlackHole and make it both defaults
+- PASS: Allow microphone access (capture)
+- PASS: Devices list and open by UID
+- PASS: Loopback through BlackHole
+- PASS: CoreMIDI virtual endpoints round trip
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
@@ -71,26 +92,6 @@
 - PASS: Run actions/checkout@v4
 - PASS: Install Rust toolchain
 - PASS: Tests and clippy
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### macos-latest (native backend) — PASS
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Install Rust toolchain
-- PASS: Tests and clippy
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### macOS (Core Audio through BlackHole, CoreMIDI virtual ports) — PASS
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Install Rust toolchain
-- PASS: Install BlackHole and make it both defaults
-- PASS: Allow microphone access (capture)
-- PASS: Devices list and open by UID
-- PASS: Loopback through BlackHole
-- PASS: CoreMIDI virtual endpoints round trip
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
