@@ -38,8 +38,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     reel.advance(&mut driver, 0.6);
     shot(&mut renderer, &mut driver, &out, "1-home")?;
 
-    // The training burst: every cell firing at once, then easing back.
-    u::take(&shared).train();
+    // Answering the day's question: the field fires, the choice is noted
+    // back, and the next question is already on the card.
+    u::take(&shared).answer(true);
     reel.advance(&mut driver, 0.22);
     shot(&mut renderer, &mut driver, &out, "2-home-burst")?;
 

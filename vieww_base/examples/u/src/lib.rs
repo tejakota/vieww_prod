@@ -1,17 +1,21 @@
 //! `U` — an offline persona companion.
 //!
 //! Two screens: **home**, which opens directly, and **settings**, reached by
-//! the gear at the top right and left by the back button. Home is the persona
-//! at a glance — the neuron it lives in, how coherent it is, and one button
-//! that trains it. Settings is the form that shapes it: a name, a voice, a
-//! decision style, a training rhythm, and the privacy posture.
+//! the gear at the top right and left by the back button. Home is one
+//! decision, presented whole: a question, two answers, a way to pass, and
+//! the persona's cell breathing while it waits. Answering *is* training —
+//! the session count and the burst of the field are the whole of what the
+//! prototype records. Settings is the form that shapes the persona: a name,
+//! a voice, a decision style, a training rhythm, and the privacy posture.
 //!
 //! # What is real and what is painted
 //!
 //! This is a prototype: every value the form edits lives in a signal, every
-//! control is wired, and the training button really does fire the neuron —
-//! but nothing is persisted and no persona model exists yet. The screens are
-//! the deliverable; the event-sourced core they will front is the next step.
+//! control is wired, and answering a question really does count a session
+//! and fire the field — but the choice is shown back and then dropped:
+//! nothing is persisted and no persona model exists yet. The screens are
+//! the deliverable; the event-sourced core they will front is the next
+//! step.
 //!
 //! # The shape of the state
 //!
@@ -37,7 +41,7 @@ use vieww_widget::RouteTransition;
 #[cfg(target_os = "android")]
 use vieww_platform_winit::AndroidApp;
 
-pub mod brain;
+pub mod ask;
 pub mod home;
 pub mod neurons;
 pub mod palette;
@@ -90,10 +94,12 @@ pub struct AppState {
     pub biometric: Signal<bool>,
     /// Training sessions completed today.
     pub sessions: Signal<u32>,
-    /// The 3D neuron, built once.
-    pub scene: Rc<RefCell<vieww_3d::Scene>>,
-    /// The 3D renderer's own counters, for the hero card's readout.
-    pub stats: Rc<RefCell<vieww_3d::RenderStats>>,
+    /// The question on the card, as an index into [`ask::ASKS`].
+    pub ask: Signal<usize>,
+    /// The last answer U recorded, shown back until the next one replaces
+    /// it. `None` until a first answer lands — nothing was noted before
+    /// then, and pretending otherwise is the one lie this screen refuses.
+    pub noted: Signal<Option<&'static str>>,
 }
 
 /// Hand-written: the state is handles all the way down, and "Shared(0x…)" is
@@ -105,10 +111,30 @@ impl fmt::Debug for AppState {
 }
 
 impl AppState {
-    /// One training session: count it, and fire the neuron.
+    /// One training session: count it, and fire the field.
     pub fn train(&self) {
         self.sessions.update(|n| *n += 1);
         self.burst.set(1.0);
+    }
+
+    /// Answer the question on the card: note the choice back, count the
+    /// session, fire the field, bring up the next question.
+    pub fn answer(&self, choice: bool) {
+        let ask = &ask::ASKS[self.ask.peek() % ask::ASKS.len()];
+        self.noted.set(Some(if choice { ask.a } else { ask.b }));
+        self.train();
+        self.advance();
+    }
+
+    /// Pass on the question: nothing noted, nothing counted.
+    pub fn skip(&self) {
+        self.noted.set(None);
+        self.advance();
+    }
+
+    /// The next question, around the bank.
+    fn advance(&self) {
+        self.ask.update(|i| *i = (*i + 1) % ask::ASKS.len());
     }
 
     /// What U calls you, or "you" until told otherwise.
@@ -123,17 +149,30 @@ impl AppState {
     }
 }
 
-/// Publishes the wall of time the animations read.
+/// Publishes the wall of time the animations read, at half the display's
+/// rate.
+///
+/// Everything the clock drives — the field, the breathing cell, the gear —
+/// repaints whatever it sits on, and on a phone that paint is the app's
+/// whole cost. Half rate halves it, and at the speeds these move nothing
+/// reads as a step. Press feedback and route transitions do not read the
+/// clock and keep the display's full rate; so does the burst decay, which
+/// is the answer's own feedback and only lasts moments.
 #[derive(Debug)]
 pub struct Clock {
     pub time: Signal<f32>,
+    last: f32,
 }
 
 impl Ticker for Clock {
     fn tick(&mut self, now: Duration) -> bool {
         #[allow(clippy::cast_precision_loss)]
         let t = now.as_secs_f32();
-        self.time.set(t);
+        let stepped = (t * 30.0).floor() / 30.0;
+        if stepped != self.last {
+            self.last = stepped;
+            self.time.set(stepped);
+        }
         true
     }
 
@@ -183,7 +222,10 @@ pub fn mount(driver: &mut FrameDriver) -> Shared {
 
     let time = runtime.signal(0.0_f32);
     let burst = runtime.signal(0.0_f32);
-    let clock = Rc::new(RefCell::new(Clock { time: time.clone() }));
+    let clock = Rc::new(RefCell::new(Clock {
+        time: time.clone(),
+        last: -1.0,
+    }));
     let decay = Rc::new(RefCell::new(Decay::new(burst.clone())));
 
     let slot: Shared = Rc::new(RefCell::new(None));
@@ -205,9 +247,9 @@ pub fn mount(driver: &mut FrameDriver) -> Shared {
         haptics: runtime.signal(true),
         calm: runtime.signal(false),
         biometric: runtime.signal(true),
-        sessions: runtime.signal(3u32),
-        scene: Rc::new(RefCell::new(brain::scene())),
-        stats: Rc::new(RefCell::new(vieww_3d::RenderStats::default())),
+        sessions: runtime.signal(0u32),
+        ask: runtime.signal(0usize),
+        noted: runtime.signal(None::<&'static str>),
     };
 
     // The clock and the decay are weakly held by the driver; the state is the

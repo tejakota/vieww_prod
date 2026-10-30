@@ -1,7 +1,7 @@
 //! The neuron field: the animated, hand-drawn background of every screen.
 //!
 //! Fourteen somas on a deterministic layout, dendrites bowing between their
-//! nearest neighbours, action potentials travelling the edges, and a slow
+//! nearest neighbours, one action potential travelling each edge, and a slow
 //! chemical drift filling the space between. Everything is a *function of the
 //! clock* — nothing accumulates, nothing steps — so any frame is reproducible
 //! from `(time, burst)` alone, and the screenshot tool can photograph a frame
@@ -15,7 +15,7 @@
 //! one offscreen buffer *per layer*, and the expensive version of this file is
 //! the one that wraps each glow separately. Group early, blend once.
 
-use std::f32::consts::PI;
+use std::f32::consts::{PI, TAU};
 
 use vieww_foundation::{BlendMode, Color, Gradient, Offset, Path, Size, Sketchbook};
 use vieww_widget::prelude::{PaintWith, Painting};
@@ -176,8 +176,11 @@ fn paint_field(book: &mut Sketchbook, size: Size, time: f32, burst: f32, intensi
     // ---- all the light, in one additive layer ----------------------------
 
     book.blended_layer(intensity, 0.0, BlendMode::Plus, None, |light| {
-        // Pulse halos travelling the edges. Two per edge, half a cycle apart;
-        // odd edges run the other way, so the field has no grain.
+        // Pulse halos travelling the edges — one per edge, the odd edges
+        // running the other way so the field has no grain. It was two per
+        // edge until the first phone build: every halo is a radial gradient
+        // in the one additive layer, and that layer is the size of the
+        // screen.
         for (e, &(a, b)) in EDGES.iter().enumerate() {
             let pa = at(LAYOUT[a]);
             let pb = at(LAYOUT[b]);
@@ -186,27 +189,25 @@ fn paint_field(book: &mut Sketchbook, size: Size, time: f32, burst: f32, intensi
             let speed = 0.16 + (e % 3) as f32 * 0.05;
             let lit = firing(a).max(firing(b));
 
-            for k in 0..2 {
-                #[allow(clippy::cast_precision_loss)]
-                let mut u = (time * speed + e as f32 * 0.37 + k as f32 * 0.5).fract();
-                if e % 2 == 1 {
-                    u = 1.0 - u;
-                }
-                let p = bowed(pa, pb, bow, u);
-                let hue = ((a + b + k) % 7) as f32 / 6.0;
-                let color = palette::mix(SYNAPSE, AXON, hue);
-                let glow = (0.35 + 0.65 * lit) * intensity;
-                light.circle(
-                    p,
-                    7.0,
-                    Gradient::radial_fill().with_stops(&[
-                        (0.0, color.with_alpha((90.0 * glow) as u8)),
-                        (0.55, color.with_alpha((30.0 * glow) as u8)),
-                        (1.0, Color::TRANSPARENT),
-                    ]),
-                );
-                light.circle(p, 1.7, color.with_alpha((205.0 * glow) as u8));
+            #[allow(clippy::cast_precision_loss)]
+            let mut u = (time * speed + e as f32 * 0.37).fract();
+            if e % 2 == 1 {
+                u = 1.0 - u;
             }
+            let p = bowed(pa, pb, bow, u);
+            let hue = ((a + b) % 7) as f32 / 6.0;
+            let color = palette::mix(SYNAPSE, AXON, hue);
+            let glow = (0.35 + 0.65 * lit) * intensity;
+            light.circle(
+                p,
+                7.0,
+                Gradient::radial_fill().with_stops(&[
+                    (0.0, color.with_alpha((90.0 * glow) as u8)),
+                    (0.55, color.with_alpha((30.0 * glow) as u8)),
+                    (1.0, Color::TRANSPARENT),
+                ]),
+            );
+            light.circle(p, 1.7, color.with_alpha((205.0 * glow) as u8));
         }
 
         // Soma halos.
@@ -280,6 +281,84 @@ fn paint_field(book: &mut Sketchbook, size: Size, time: f32, burst: f32, intensi
             );
         }
     }
+}
+
+/// The persona's own cell, for the question card: a soma that breathes with
+/// the clock and flares when a choice lands.
+///
+/// This is what replaced the 3D neuron — the organ reduced to the one cell
+/// that carried it. The viewport was rendering ~350k supersampled pixels a
+/// frame through a software rasterizer, which on a phone is the whole frame
+/// budget several times over; this is four circles, a ring, and six strokes,
+/// and it keeps the identity the organ was standing in for.
+#[must_use]
+pub fn persona_cell(size: f32, time: f32, burst: f32) -> Painting {
+    Painting::sized(
+        Size::square(size),
+        PaintWith::new(move |book, s| {
+            use vieww_foundation::StrokeStyle;
+            let c = Offset::new(s.width / 2.0, s.height / 2.0);
+            let breathe = (time * 0.8).sin();
+            let r = s.width * 0.30 * (1.0 + 0.03 * breathe);
+
+            // Six dendrites, reaching a little further when a choice lands.
+            for i in 0..6 {
+                let a = i as f32 / 6.0 * TAU - PI / 2.0;
+                let (sin, cos) = a.sin_cos();
+                let reach = 1.45 + 0.28 * (i as f32 / 5.0) + burst * 0.3;
+                let from = Offset::new(c.dx + cos * r * 1.02, c.dy + sin * r * 1.02);
+                let to = Offset::new(c.dx + cos * r * reach, c.dy + sin * r * reach);
+                let mut path = Path::new();
+                path.move_to(from).line_to(to);
+                book.stroke_styled(
+                    path,
+                    AXON.with_alpha((58.0 + burst * 120.0) as u8),
+                    s.width * 0.032,
+                    StrokeStyle::rounded(),
+                );
+            }
+
+            // The halo, additive so it glows against the card.
+            book.blended_layer(1.0, 0.0, BlendMode::Plus, None, |light| {
+                light.circle(
+                    c,
+                    r * 2.4,
+                    Gradient::radial_fill().with_stops(&[
+                        (
+                            0.0,
+                            AXON.with_alpha((52.0 + 18.0 * breathe + burst * 88.0) as u8),
+                        ),
+                        (0.5, AXON.with_alpha(24)),
+                        (1.0, Color::TRANSPARENT),
+                    ]),
+                );
+            });
+
+            // Cytoplasm.
+            book.circle(
+                c,
+                r,
+                Gradient::radial_fill().with_stops(&[
+                    (0.0, AXON.with_alpha(232)),
+                    (0.75, AXON.with_alpha(160)),
+                    (1.0, Color::TRANSPARENT),
+                ]),
+            );
+            // Membrane.
+            book.ring(c, r, 1.4, SYNAPSE.with_alpha((190.0 + burst * 65.0) as u8));
+            // Nucleus — the warm centre.
+            book.circle(c, r * 0.32, SOMA.with_alpha((235.0 + burst * 20.0) as u8));
+            // The flare: a ring racing out when a choice is recorded.
+            if burst > 0.02 {
+                book.ring(
+                    c,
+                    r + 3.0 + burst * s.width * 0.18,
+                    1.5,
+                    SYNAPSE.with_alpha(((1.0 - burst) * 150.0) as u8),
+                );
+            }
+        }),
+    )
 }
 
 /// The app's own mark: one small soma — a violet cell with a warm nucleus and
