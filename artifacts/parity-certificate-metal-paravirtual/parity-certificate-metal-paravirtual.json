@@ -1,0 +1,22 @@
+{
+  "format": "vieww.parity-certificate/1",
+  "commit": "7a9e76951688bed17b8424d7173bd503612b9aa2",
+  "generated": "2026-10-30T05:01:25+00:00",
+  "runner": "GitHub Actions 1000002262",
+  "oracle": "vieww-paint NativeRenderer (CPU)",
+  "backends": [
+    {
+      "backend": "metal",
+      "adapters": [
+        "macos-14 paravirtual GPU"
+      ],
+      "contract": "interior<=2/255,edges-free",
+      "comparisons": 3,
+      "tests": 3,
+      "interior_violations": 0,
+      "worst_delta_anywhere": 0,
+      "holds": true,
+      "failed_tests": []
+    }
+  ]
+}
