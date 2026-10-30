@@ -1,15 +1,17 @@
 //! `U` — an offline persona companion.
 //!
-//! Two screens: **home**, which opens directly, and **settings**, reached by
-//! the gear at the top right and left by the back button. Home is the app's
-//! one loop — U asks, you answer, U gets a little more like you — in two
-//! phases. The **first sketch** is the first twelve answers, counted on the
-//! card ("4 of 12"), completed once and never repeated: the day the twelfth
-//! lands, the card says so, and the counter never comes back. The **daily
-//! rhythm** after it is one question at a time against the day's target,
-//! with the bank rotating for variety and nothing counted by it again.
-//! Settings is the form that shapes the persona: a name, a voice, a decision
-//! style, a training rhythm, and the privacy posture.
+//! Two screens and a sheet: **home**, which the app opens on through a
+//! staged splash; **settings**, reached by the gear at the top right or a
+//! right-to-left swipe; and the **ask sheet**, the one question, pushed by
+//! home's action, its domains, its recent strip or its nudge. Home is the
+//! persona's room — the companion at its centre — and everything on it is
+//! either who lives there or a way to bring U a decision. The asking has two
+//! phases over an event log: the **first sketch** is the first twelve
+//! answers, completed once and never repeated, and the **daily rhythm**
+//! after it is one question at a time against the day's target, rotating for
+//! variety and counted by nothing but the day. Settings is the form that
+//! shapes the persona: a name, a voice, a decision style, a training rhythm,
+//! and the privacy posture.
 //!
 //! # What is real and what is painted
 //!
@@ -51,9 +53,11 @@ pub mod home;
 pub mod neurons;
 pub mod palette;
 pub mod settings;
+pub mod sheet;
 
 use home::HomeScreen;
 use settings::SettingsScreen;
+use sheet::AskSheet;
 
 /// The phone-shaped surface the app is composed for.
 pub const SURFACE: Size = Size::new(420.0, 880.0);
@@ -119,6 +123,15 @@ pub struct AppState {
     /// it. `None` until a first answer lands — nothing was noted before
     /// then, and pretending otherwise is the one lie this screen refuses.
     pub noted: Signal<Option<&'static str>>,
+    /// Whether home's nudge is showing. View state, deliberately not an
+    /// event: declining a question for now is not a fact about a person,
+    /// and the nudge is entitled to return the next time the app opens.
+    pub nudge: Signal<bool>,
+    /// The moment the opening was skipped at, if it was. `INFINITY` when it
+    /// plays out in full; a tap while it plays resolves it at once, and
+    /// `calm` resolves it before it begins. A f32 rather than a bool so the
+    /// fade that follows a skip can start from the moment of the tap.
+    pub skip_at: Signal<f32>,
 }
 
 /// Hand-written: the state is handles all the way down, and "Shared(0x…)" is
@@ -156,6 +169,27 @@ impl AppState {
     /// Dismiss the sketch-complete moment: it will not show again.
     pub fn see_sketch(&self) {
         self.commit(events::Event::SketchSeen);
+    }
+
+    /// Dismiss home's nudge for this session. Not an event — see [`nudge`].
+    pub fn dismiss_nudge(&self) {
+        self.nudge.set(false);
+    }
+
+    /// Point the next question at a domain: the next ask whose tag is among
+    /// `tags`, rotating from where the bank stands. Choosing *which* question
+    /// to show is a view decision, not a fact — the answer, when it lands, is
+    /// what the log records, and it records the ask it was actually asked.
+    pub fn ask_in(&self, tags: &[&'static str]) {
+        let n = ask::ASKS.len();
+        let start = self.ask.peek() % n;
+        for step in 1..=n {
+            let i = (start + step) % n;
+            if tags.contains(&ask::ASKS[i].tag) {
+                self.ask.set(i);
+                return;
+            }
+        }
     }
 
     /// Append the event, then fold it in — the log first, because a state
@@ -360,6 +394,8 @@ pub fn mount_with(driver: &mut FrameDriver, log: events::Log) -> Shared {
         seen_sketch: runtime.signal(false),
         ask: runtime.signal(0usize),
         noted: runtime.signal(None::<&'static str>),
+        nudge: runtime.signal(true),
+        skip_at: runtime.signal(f32::INFINITY),
     };
 
     // The fold: whatever the log holds, the state becomes. This is the only
@@ -367,6 +403,12 @@ pub fn mount_with(driver: &mut FrameDriver, log: events::Log) -> Shared {
     // same `apply` every live change does, so the two cannot disagree.
     for event in state.log.history() {
         state.apply(event);
+    }
+
+    // A person who asked for calm does not open on a four-second staging:
+    // the opening resolves before it begins, and the room simply fades in.
+    if state.calm.get() {
+        state.skip_at.set(0.0);
     }
 
     // The clock and the decay are weakly held by the driver; the state is the
@@ -454,6 +496,25 @@ pub fn settings_route(shared: Shared) -> Route {
             )
             .into()
     }))
+}
+
+/// The ask sheet — the one question, rising from the bottom over a scrim.
+/// Home stays on stage beneath it, which is the point: the companion is
+/// still there while you answer, and the field fires behind the scrim when
+/// a choice lands.
+#[must_use]
+pub fn ask_route(shared: Shared) -> Route {
+    Route::modal(
+        "ask",
+        Rc::new(move |_| {
+            AskSheet {
+                state: take(&shared),
+                shared: shared.clone(),
+            }
+            .into()
+        }),
+    )
+    .transition(RouteTransition::SlideFromBottom)
 }
 
 #[derive(Debug)]

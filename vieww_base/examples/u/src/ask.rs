@@ -19,6 +19,11 @@
 //! The order is hand-set so consecutive questions never repeat a domain or a
 //! mood — a run of money questions reads as a debt collection, not a persona.
 
+/// The sketch is one pass through the bank: this many answers, counted once
+/// and never repeated.
+#[allow(clippy::cast_possible_truncation)]
+pub const SKETCH: u32 = ASKS.len() as u32;
+
 /// One training question: a situation, two answers of equal weight, and the
 /// domain the eventual event log will file the answer under.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

@@ -1,11 +1,26 @@
-//! The neuron field: the animated, hand-drawn background of every screen.
+//! The neuron field, and the companion — the mark that is U.
 //!
-//! Fourteen somas on a deterministic layout, dendrites bowing between their
-//! nearest neighbours, one action potential travelling each edge, and a slow
-//! chemical drift filling the space between. Everything is a *function of the
-//! clock* — nothing accumulates, nothing steps — so any frame is reproducible
-//! from `(time, burst)` alone, and the screenshot tool can photograph a frame
+//! The field is the animated, hand-drawn background of every screen: fourteen
+//! somas on a deterministic layout, dendrites bowing between their nearest
+//! neighbours, one action potential travelling each edge, and a slow chemical
+//! drift filling the space between. Everything is a *function of the clock* —
+//! nothing accumulates, nothing steps — so any frame is reproducible from
+//! `(time, burst)` alone, and the screenshot tool can photograph a frame
 //! without having lived through the ones before it.
+//!
+//! # The companion
+//!
+//! [`companion`] is the organism itself: one eye, six strands, two elliptical
+//! rings. The strands are **three and three** — three violet signal strands
+//! carrying a travelling spark, three solid mint strands — and the same six
+//! positions in the same two colours make the small [`sigil`] that sits in
+//! the top bar, so the mark and its signature cannot disagree. The rings
+//! rotate *in place*, about the mark's exact centre and about nothing else:
+//! an ellipse tumbling about its own centre while its rider dot revolves is
+//! the whole of their motion. `Reveal` is the splash's choreography — the
+//! eye scales in, each strand grows from the eye outward, the atmosphere
+//! (rings, aura, float) fades in last — and `Reveal::complete()` is the
+//! steady state home keeps for the rest of the app's life.
 //!
 //! # One additive layer for all the light
 //!
@@ -17,7 +32,9 @@
 
 use std::f32::consts::{PI, TAU};
 
-use vieww_foundation::{BlendMode, Color, Gradient, Offset, Path, Size, Sketchbook};
+use vieww_foundation::{
+    BlendMode, Color, Dash, Gradient, Offset, Path, Size, Sketchbook, StrokeStyle, Transform,
+};
 use vieww_widget::prelude::{PaintWith, Painting};
 
 use crate::palette::{self, AXON, MEMBRANE, SOMA, SYNAPSE};
@@ -283,113 +300,496 @@ fn paint_field(book: &mut Sketchbook, size: Size, time: f32, burst: f32, intensi
     }
 }
 
-/// The persona's own cell, for the question card: a soma that breathes with
-/// the clock and flares when a choice lands.
+// ---------------------------------------------------------------------------
+// The companion: the mark that is U.
+// ---------------------------------------------------------------------------
+
+/// The eye's own colours — the one place the palette serves specific tints
+/// rather than roles, because an iris is not a button.
+const SCLERA: Color = Color::rgb(18, 26, 43);
+const RIM: Color = Color::rgb(185, 165, 255);
+const IRIS_RIM: Color = Color::rgb(85, 221, 204);
+const IRIS_DEEP: Color = Color::rgb(39, 108, 136);
+const PUPIL: Color = Color::rgb(7, 17, 31);
+
+/// The six strands, in the order the splash grows them. Each is the angle it
+/// leaves the eye at (degrees, mathematical convention, y up) and whether it
+/// is one of the **three violet signal strands** — the other three are solid
+/// mint. Three and three, alternating around the eye, mirrored about the
+/// vertical: the same arrangement the small [`sigil`] draws, so the mark and
+/// its signature cannot disagree.
+const STRANDS: [(f32, bool); 6] = [
+    (90.0, true),   // straight up — signal
+    (30.0, false),  // upper right — mint
+    (150.0, false), // upper left — mint
+    (330.0, true),  // lower right — signal
+    (210.0, true),  // lower left — signal
+    (270.0, false), // straight down — mint
+];
+
+/// How assembled the companion is — the splash's whole choreography, handed
+/// to the painter as numbers rather than replayed through it.
+#[derive(Clone, Copy, Debug)]
+pub struct Reveal {
+    /// The eye's scale-in, `0..1`.
+    pub eye: f32,
+    /// How far each strand has grown from the eye outward, `0..1`, in
+    /// [`STRANDS`] order.
+    pub strands: [f32; 6],
+    /// Each strand's tip dot popping in, `0..1`.
+    pub tips: [f32; 6],
+    /// The atmosphere — rings, aura pulse, sparks, the float — fading in,
+    /// `0..1`.
+    pub atmosphere: f32,
+}
+
+impl Reveal {
+    /// The steady state: everything grown, everything lit. What home keeps
+    /// for the rest of the app's life, and what the settings portrait and the
+    /// splash both resolve to.
+    #[must_use]
+    pub const fn complete() -> Self {
+        Self {
+            eye: 1.0,
+            strands: [1.0; 6],
+            tips: [1.0; 6],
+            atmosphere: 1.0,
+        }
+    }
+}
+
+/// One point on a strand's cubic, in the mark's unit space (radius `1`,
+/// canonical strand pointing up). The curve leaves the eye, bows `bow` to one
+/// side, and arrives at its tip dead on the ray.
+fn strand_point(u: f32, bow: f32, reach: f32) -> Offset {
+    let (x, y) = (
+        bez(0.0, bow, -bow * 0.6, 0.0, u),
+        bez(-0.30, -0.45, -0.62, -reach, u),
+    );
+    Offset::new(x, y)
+}
+
+/// One coordinate of a cubic Bézier.
+fn bez(p0: f32, c1: f32, c2: f32, p3: f32, u: f32) -> f32 {
+    let (u2, u3) = (u * u, u * u * u);
+    (1.0 - 3.0 * u + 3.0 * u2 - u3) * p0
+        + (3.0 * u - 6.0 * u2 + 3.0 * u3) * c1
+        + (3.0 * u2 - 3.0 * u3) * c2
+        + u3 * p3
+}
+
+/// Rotate a point about the origin by `phi` radians (screen convention:
+/// positive turns clockwise on screen).
+fn turned(p: Offset, phi: f32) -> Offset {
+    let (sin, cos) = phi.sin_cos();
+    Offset::new(p.dx * cos - p.dy * sin, p.dx * sin + p.dy * cos)
+}
+
+/// An ellipse centred on `c`, tilted by `tiltr` radians, as a path of four
+/// Bézier arcs — the canvas approximation, exact enough at these sizes.
+fn tilted_ellipse(c: Offset, rx: f32, ry: f32, tiltr: f32) -> Path {
+    const K: f32 = 0.552_284_7;
+    let at = |x: f32, y: f32| c + turned(Offset::new(x, y), tiltr);
+    let mut path = Path::new();
+    path.move_to(at(rx, 0.0));
+    path.cubic_to(at(rx, -K * ry), at(K * rx, -ry), at(0.0, -ry));
+    path.cubic_to(at(-K * rx, -ry), at(-rx, -K * ry), at(-rx, 0.0));
+    path.cubic_to(at(-rx, K * ry), at(-K * rx, ry), at(0.0, ry));
+    path.cubic_to(at(K * rx, ry), at(rx, K * ry), at(rx, 0.0));
+    path
+}
+
+/// The eye's blink: `1` open, dipping toward `0` for a moment once every
+/// `period` seconds. A sine dip rather than a snap, because an eyelid that
+/// closes in one frame reads as a flicker.
+fn blink(time: f32, period: f32) -> f32 {
+    let x = (time / period).fract();
+    if (0.88..0.95).contains(&x) {
+        let u = (x - 0.88) / 0.07;
+        1.0 - 0.94 * (u * PI).sin().min(1.0)
+    } else {
+        1.0
+    }
+}
+
+/// The companion: the organism that is U, at whatever `size` box it is given.
 ///
-/// This is what replaced the 3D neuron — the organ reduced to the one cell
-/// that carried it. The viewport was rendering ~350k supersampled pixels a
-/// frame through a software rasterizer, which on a phone is the whole frame
-/// budget several times over; this is four circles, a ring, and six strokes,
-/// and it keeps the identity the organ was standing in for.
+/// `reveal` is the splash's staging ([`Reveal::complete`] for the steady
+/// state); `burst` is the training afterglow — the strands reach further and
+/// the aura flares when a choice lands; `calm` is the app's own reduced-motion
+/// switch, dimming the additive light to a third and stilling the travelling
+/// sparks.
+///
+/// **The rings only rotate.** Each is drawn centred on the mark's exact
+/// centre and turned about that centre and nothing else, so an ellipse tumbles
+/// in place while its rider dot revolves — no offset drift, no wobble.
 #[must_use]
-pub fn persona_cell(size: f32, time: f32, burst: f32) -> Painting {
+pub fn companion(size: f32, time: f32, burst: f32, calm: f32, reveal: Reveal) -> Painting {
     Painting::sized(
         Size::square(size),
         PaintWith::new(move |book, s| {
-            use vieww_foundation::StrokeStyle;
-            let c = Offset::new(s.width / 2.0, s.height / 2.0);
-            let breathe = (time * 0.8).sin();
-            let r = s.width * 0.30 * (1.0 + 0.03 * breathe);
+            paint_companion(book, s, time, burst, calm, reveal);
+        }),
+    )
+}
 
-            // Six dendrites, reaching a little further when a choice lands.
-            for i in 0..6 {
-                let a = i as f32 / 6.0 * TAU - PI / 2.0;
-                let (sin, cos) = a.sin_cos();
-                let reach = 1.45 + 0.28 * (i as f32 / 5.0) + burst * 0.3;
-                let from = Offset::new(c.dx + cos * r * 1.02, c.dy + sin * r * 1.02);
-                let to = Offset::new(c.dx + cos * r * reach, c.dy + sin * r * reach);
-                let mut path = Path::new();
-                path.move_to(from).line_to(to);
-                book.stroke_styled(
-                    path,
-                    AXON.with_alpha((58.0 + burst * 120.0) as u8),
-                    s.width * 0.032,
-                    StrokeStyle::rounded(),
-                );
+#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+fn paint_companion(
+    book: &mut Sketchbook,
+    s: Size,
+    time: f32,
+    burst: f32,
+    calm: f32,
+    reveal: Reveal,
+) {
+    let r = s.width * 0.5;
+    let c = Offset::new(s.width / 2.0, s.height / 2.0);
+    let dim = if calm > 0.5 { 0.34 } else { 1.0 };
+    let breathe = (time * TAU / 4.4).sin();
+    // The float belongs to the organism, not the rings: the eye and its
+    // strands ride it, the rings stay put.
+    let bob = (time * TAU / 5.8).sin() * 0.047 * r * reveal.atmosphere;
+    let reach = 0.76 + burst * 0.10;
+
+    // ---- the rings: rotation, and only rotation ---------------------------
+
+    if reveal.atmosphere > 0.01 {
+        let a = reveal.atmosphere * dim;
+        // Ring A: violet, one turn every 26 s, its dot riding near the
+        // ellipse's long end.
+        let turn = time * TAU / 26.0;
+        book.transformed(Transform::rotate_around(c, turn), |g| {
+            g.stroke(
+                tilted_ellipse(c, 0.84 * r, 0.327 * r, (-26.0_f32).to_radians()),
+                RIM.with_alpha((97.0 * a) as u8),
+                0.008 * r,
+            );
+            let dot = c + turned(
+                Offset::new(0.84 * r * 0.14_f32.cos(), 0.327 * r * 0.14_f32.sin()),
+                (-26.0_f32).to_radians(),
+            );
+            let twinkle = 0.8 + 0.2 * (time * TAU / 3.0).sin();
+            g.circle(dot, 0.021 * r, RIM.with_alpha((215.0 * a * twinkle) as u8));
+        });
+        // Ring B: mint, dashed, the other way and slower — 34 s.
+        let turn = -time * TAU / 34.0;
+        book.transformed(Transform::rotate_around(c, turn), |g| {
+            let mut dashed = StrokeStyle::rounded();
+            dashed.dash = Some(Dash {
+                pattern: vec![0.02 * r, 0.06 * r],
+                offset: 0.0,
+            });
+            g.stroke_styled(
+                tilted_ellipse(c, 0.627 * r, 0.867 * r, 33.0_f32.to_radians()),
+                SYNAPSE.with_alpha((64.0 * a) as u8),
+                0.007 * r,
+                dashed,
+            );
+            let dot = c + turned(
+                Offset::new(0.627 * r * 1.66_f32.cos(), 0.867 * r * 1.66_f32.sin()),
+                33.0_f32.to_radians(),
+            );
+            let twinkle = 0.8 + 0.2 * (time * TAU / 3.7).sin();
+            g.circle(
+                dot,
+                0.019 * r,
+                SYNAPSE.with_alpha((200.0 * a * twinkle) as u8),
+            );
+        });
+    }
+
+    // ---- all the light, in one additive layer ----------------------------
+
+    book.blended_layer(1.0, 0.0, BlendMode::Plus, None, |light| {
+        // The aura: a breathing violet bloom, the eye's own halo arriving
+        // with the eye and the wider atmosphere behind it.
+        let halo = (0.5 + 0.5 * reveal.eye) * (0.30 + 0.05 * breathe + burst * 0.45);
+        light.circle(
+            c,
+            0.67 * r * (1.0 + 0.02 * breathe),
+            Gradient::radial_fill().with_stops(&[
+                (0.0, AXON.with_alpha((115.0 * halo * dim) as u8)),
+                (0.55, AXON.with_alpha((36.0 * halo * dim) as u8)),
+                (1.0, Color::TRANSPARENT),
+            ]),
+        );
+        if reveal.atmosphere > 0.01 {
+            light.circle(
+                c,
+                r * (1.0 + 0.02 * breathe),
+                Gradient::radial_fill().with_stops(&[
+                    (0.0, AXON.with_alpha((38.0 * reveal.atmosphere * dim) as u8)),
+                    (
+                        0.55,
+                        SYNAPSE.with_alpha((14.0 * reveal.atmosphere * dim) as u8),
+                    ),
+                    (1.0, Color::TRANSPARENT),
+                ]),
+            );
+            // Two pulse rings, expanding out through the rings and fading.
+            for k in 0..2 {
+                let phase = ((time + 1.8 * k as f32) / 3.6).fract();
+                let alpha = (1.0 - phase) * 26.0 * reveal.atmosphere * dim;
+                if alpha > 0.5 {
+                    light.ring(
+                        c,
+                        0.62 * r + phase * 0.52 * r,
+                        0.008 * r,
+                        RIM.with_alpha(alpha as u8),
+                    );
+                }
             }
+        }
 
-            // The halo, additive so it glows against the card.
-            book.blended_layer(1.0, 0.0, BlendMode::Plus, None, |light| {
-                light.circle(
+        // The organism floats; the light it gives off floats with it.
+        light.transformed(Transform::translate(Offset::new(0.0, bob)), |g| {
+            let eye_scale = 0.25 + 0.75 * reveal.eye;
+
+            // The core glow behind the eye.
+            let core = (0.34 + burst * 0.5) * (0.5 + 0.5 * reveal.eye);
+            g.transformed(Transform::scale_around(c, eye_scale, eye_scale), |eye| {
+                eye.circle(
                     c,
-                    r * 2.4,
+                    0.32 * r,
                     Gradient::radial_fill().with_stops(&[
                         (
                             0.0,
-                            AXON.with_alpha((52.0 + 18.0 * breathe + burst * 88.0) as u8),
+                            Color::rgb(201, 250, 255).with_alpha((120.0 * core * dim) as u8),
                         ),
-                        (0.5, AXON.with_alpha(24)),
+                        (0.5, AXON.with_alpha((60.0 * core * dim) as u8)),
                         (1.0, Color::TRANSPARENT),
                     ]),
                 );
             });
 
-            // Cytoplasm.
-            book.circle(
-                c,
-                r,
-                Gradient::radial_fill().with_stops(&[
-                    (0.0, AXON.with_alpha(232)),
-                    (0.75, AXON.with_alpha(160)),
-                    (1.0, Color::TRANSPARENT),
-                ]),
-            );
-            // Membrane.
-            book.ring(c, r, 1.4, SYNAPSE.with_alpha((190.0 + burst * 65.0) as u8));
-            // Nucleus — the warm centre.
-            book.circle(c, r * 0.32, SOMA.with_alpha((235.0 + burst * 20.0) as u8));
-            // The flare: a ring racing out when a choice is recorded.
-            if burst > 0.02 {
-                book.ring(
-                    c,
-                    r + 3.0 + burst * s.width * 0.18,
-                    1.5,
-                    SYNAPSE.with_alpha(((1.0 - burst) * 150.0) as u8),
-                );
+            // The six strands, three signal and three solid.
+            for (i, &(angle, signal)) in STRANDS.iter().enumerate() {
+                let grown = reveal.strands[i];
+                if grown <= 0.01 {
+                    continue;
+                }
+                let phi = (90.0 - angle).to_radians();
+                let bow = if i % 2 == 0 { 0.10 } else { -0.10 };
+                let at = |u: f32| c + turned(strand_point(u, bow, reach), phi).scale(r);
+
+                // A polyline along however much of the strand has grown —
+                // the splash draws the strand as it lengthens.
+                let mut path = Path::new();
+                path.move_to(at(0.0));
+                let steps = (grown * 18.0).ceil().max(1.0);
+                for step in 1..=steps as usize {
+                    let u = (step as f32 / steps) * grown;
+                    path.line_to(at(u));
+                }
+
+                let lit = 0.85 + 0.15 * (time * TAU / 3.4 + i as f32).sin();
+                if signal {
+                    // The violet signal strands: a faint solid base with a
+                    // spark travelling along it.
+                    g.stroke(
+                        path.clone(),
+                        AXON.with_alpha((70.0 * reveal.eye) as u8),
+                        0.018 * r,
+                    );
+                    let mut dashes = StrokeStyle::rounded();
+                    dashes.dash = Some(Dash {
+                        pattern: vec![0.05 * r, 0.085 * r],
+                        offset: if calm > 0.5 {
+                            0.0
+                        } else {
+                            -(time * 0.30 * r * (1.0 + 0.1 * i as f32)) % (0.135 * r)
+                        },
+                    });
+                    g.stroke_styled(
+                        path,
+                        AXON.with_alpha((205.0 * lit * dim) as u8),
+                        0.018 * r,
+                        dashes,
+                    );
+                } else {
+                    // The mint strands: solid, fully there.
+                    g.stroke(
+                        path,
+                        MEMBRANE.with_alpha((190.0 * reveal.eye * lit) as u8),
+                        0.016 * r,
+                    );
+                }
+
+                // The tip: a dot riding the growing end, settling at the
+                // strand's end with a small pop once grown.
+                let tip = reveal.tips[i];
+                if tip > 0.01 {
+                    let pop = 0.8 + 0.35 * tip;
+                    let p = at(grown.min(1.0));
+                    g.circle(
+                        p,
+                        0.022 * r * pop,
+                        (if signal { AXON } else { MEMBRANE })
+                            .with_alpha((235.0 * reveal.eye) as u8),
+                    );
+                } else if grown < 1.0 {
+                    let p = at(grown);
+                    g.circle(p, 0.016 * r, Color::rgb(214, 202, 255).with_alpha(220));
+                }
             }
-        }),
-    )
+        });
+    });
+
+    // ---- the organism itself: eye and strands ----------------------------
+
+    book.transformed(Transform::translate(Offset::new(0.0, bob)), |g| {
+        let eye_scale = 0.25 + 0.75 * reveal.eye;
+        let eye_alpha = (reveal.eye * 1.6).min(1.0);
+        g.transformed(Transform::scale_around(c, eye_scale, eye_scale), |eye| {
+            // The dark sclera and its lit rim — the one part that does not
+            // take part in the blink.
+            eye.circle(c, 0.193 * r, SCLERA.with_alpha((255.0 * eye_alpha) as u8));
+            eye.ring(
+                c,
+                0.193 * r,
+                0.010 * r,
+                RIM.with_alpha((184.0 * eye_alpha) as u8),
+            );
+            // The eyeball, blinking: squashed about its own centre.
+            let lid = blink(time, 5.1);
+            eye.transformed(Transform::scale_around(c, 1.0, lid), |ball| {
+                ball.circle(
+                    c,
+                    0.143 * r,
+                    Gradient::radial_fill().with_stops(&[
+                        (
+                            0.0,
+                            Color::rgb(255, 255, 255).with_alpha((255.0 * eye_alpha) as u8),
+                        ),
+                        (
+                            0.62,
+                            Color::rgb(220, 232, 255).with_alpha((245.0 * eye_alpha) as u8),
+                        ),
+                        (
+                            1.0,
+                            Color::rgb(139, 164, 210).with_alpha((235.0 * eye_alpha) as u8),
+                        ),
+                    ]),
+                );
+                // The iris: violet into teal, deep water at the rim.
+                ball.circle(
+                    c,
+                    0.081 * r,
+                    Gradient::radial_fill().with_stops(&[
+                        (
+                            0.0,
+                            Color::rgb(228, 215, 255).with_alpha((255.0 * eye_alpha) as u8),
+                        ),
+                        (0.35, AXON.with_alpha((250.0 * eye_alpha) as u8)),
+                        (0.72, IRIS_RIM.with_alpha((240.0 * eye_alpha) as u8)),
+                        (1.0, IRIS_DEEP.with_alpha((230.0 * eye_alpha) as u8)),
+                    ]),
+                );
+                ball.circle(c, 0.045 * r, PUPIL.with_alpha((255.0 * eye_alpha) as u8));
+                // The catchlights.
+                ball.circle(
+                    c + Offset::new(-0.034 * r, -0.043 * r),
+                    0.026 * r,
+                    Color::rgba(255, 255, 255, (244.0 * eye_alpha) as u8),
+                );
+                ball.circle(
+                    c + Offset::new(0.046 * r, 0.046 * r),
+                    0.012 * r,
+                    Color::rgb(217, 255, 248).with_alpha((200.0 * eye_alpha) as u8),
+                );
+            });
+        });
+
+        // The flare: a ring racing out when a choice is recorded.
+        if burst > 0.02 {
+            g.ring(
+                c,
+                0.22 * r + burst * 0.34 * r,
+                0.010 * r,
+                SYNAPSE.with_alpha(((1.0 - burst) * 190.0) as u8),
+            );
+        }
+    });
 }
 
-/// The app's own mark: one small soma — a violet cell with a warm nucleus and
-/// a lit membrane, standing in for the persona wherever a wordmark would.
+/// The sigil: the companion's signature, small — the mark that sits in the
+/// top bar and on the ask card.
+///
+/// The same six positions in the same two colours as [`companion`] — three
+/// violet, three mint, mirrored about the vertical — drawn to proportions
+/// that survive at 30 px: a heavier stroke, a larger eye, no rings and no
+/// atmosphere. It blinks on the same clock as its big sibling, so the two
+/// read as one organism at two scales.
 #[must_use]
-pub fn soma_mark(size: f32) -> Painting {
+#[allow(clippy::cast_precision_loss)]
+pub fn sigil(size: f32, time: f32, burst: f32) -> Painting {
     Painting::sized(
         Size::square(size),
         PaintWith::new(move |book, s| {
+            use vieww_foundation::StrokeStyle;
+
+            let r = s.width * 0.5;
             let c = Offset::new(s.width / 2.0, s.height / 2.0);
-            let r = s.width * 0.34;
-            // The halo, additive so it glows against the field behind it.
-            book.blended_layer(1.0, 0.0, BlendMode::Plus, None, |light| {
-                light.circle(
+            let reach = 0.92 + burst * 0.06;
+            let style = StrokeStyle::rounded();
+
+            // Six strands, three and three, grown solid — a dash at this
+            // scale is a dotted line, not a signal.
+            for (i, &(angle, signal)) in STRANDS.iter().enumerate() {
+                let phi = (90.0 - angle).to_radians();
+                let bow = if i % 2 == 0 { 0.08 } else { -0.08 };
+                let from = c + turned(strand_point(0.0, bow, reach), phi).scale(r);
+                let tip = c + turned(strand_point(1.0, bow, reach), phi).scale(r);
+                let mut path = Path::new();
+                path.move_to(from).line_to(tip);
+                book.stroke_styled(
+                    path,
+                    if signal {
+                        AXON.with_alpha((215.0 + burst * 40.0).min(255.0) as u8)
+                    } else {
+                        MEMBRANE.with_alpha((235.0 + burst * 20.0).min(255.0) as u8)
+                    },
+                    0.055 * r,
+                    style.clone(),
+                );
+                book.circle(
+                    tip,
+                    0.075 * r,
+                    if signal { AXON } else { MEMBRANE }.with_alpha(235),
+                );
+            }
+
+            // The eye, blinking with its sibling.
+            book.circle(c, 0.30 * r, SCLERA);
+            book.ring(c, 0.30 * r, 0.030 * r, RIM.with_alpha(190));
+            let lid = blink(time, 5.1);
+            book.transformed(Transform::scale_around(c, 1.0, lid), |ball| {
+                ball.circle(
                     c,
-                    r * 2.1,
-                    Gradient::radial_fill()
-                        .with_stops(&[(0.0, AXON.with_alpha(70)), (1.0, Color::TRANSPARENT)]),
+                    0.225 * r,
+                    Gradient::radial_fill().with_stops(&[
+                        (0.0, Color::rgb(255, 255, 255)),
+                        (0.7, Color::rgb(220, 232, 255)),
+                        (1.0, Color::rgb(139, 164, 210)),
+                    ]),
+                );
+                ball.circle(
+                    c,
+                    0.13 * r,
+                    Gradient::radial_fill().with_stops(&[
+                        (0.0, Color::rgb(228, 215, 255)),
+                        (0.35, AXON),
+                        (0.72, IRIS_RIM),
+                        (1.0, IRIS_DEEP),
+                    ]),
+                );
+                ball.circle(c, 0.072 * r, PUPIL);
+                ball.circle(
+                    c + Offset::new(-0.055 * r, -0.068 * r),
+                    0.042 * r,
+                    Color::rgba(255, 255, 255, 246),
                 );
             });
-            book.circle(
-                c,
-                r,
-                Gradient::radial_fill().with_stops(&[
-                    (0.0, AXON.with_alpha(235)),
-                    (0.75, AXON.with_alpha(170)),
-                    (1.0, Color::TRANSPARENT),
-                ]),
-            );
-            book.ring(c, r, 1.1, SYNAPSE.with_alpha(200));
-            book.circle(c, r * 0.3, SOMA);
         }),
     )
 }
