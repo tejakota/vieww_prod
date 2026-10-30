@@ -1,0 +1,69 @@
+[package]
+name = "u"
+description = "U — an offline persona companion. Two screens, one neuron, no network."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+# Android does not call `main`; the activity loads this library and calls
+# `android_main` inside it — the same reason `examples/android.rs` is a cdylib.
+# `lib` stays in the list so the desktop binary in `src/main.rs` can link the
+# very same code instead of a second copy of it.
+[lib]
+name = "u"
+crate-type = ["lib", "cdylib"]
+
+[[bin]]
+name = "u"
+path = "src/main.rs"
+
+[dependencies]
+vieww.workspace = true
+vieww-foundation.workspace = true
+vieww-widget.workspace = true
+vieww-element.workspace = true
+vieww-animation.workspace = true
+vieww-3d.workspace = true
+vieww-platform-winit.workspace = true
+
+[target.'cfg(target_os = "android")'.dependencies]
+log = "0.4"
+android_logger = "0.14"
+
+# The headless screenshot tool (`cargo run -p u --example shots -- <dir>`).
+# PNG output only, and `native` for `NativeRenderer` — the same dependency set
+# `test-premium-ui` uses, for the same reason: nothing here reaches the app
+# itself, so an APK build never resolves any of it.
+[dev-dependencies]
+image = { version = "0.25", default-features = false, features = ["png"] }
+vieww-paint = { workspace = true, features = ["native"] }
+vieww-render.workspace = true
+
+# A different package id from every other vieww demo app, because an id is an
+# install slot: sharing one with `dev.vieww.demo` would mean installing one
+# over the other and reporting on whichever landed last.
+[package.metadata.android]
+package = "dev.vieww.u"
+build_targets = ["aarch64-linux-android"]
+apk_name = "U"
+
+[package.metadata.android.sdk]
+min_sdk_version = 24
+target_sdk_version = 34
+
+[package.metadata.android.application]
+label = "U"
+# cargo-apk's default theme brings an ActionBar — chrome this app draws straight
+# over, and the same invisible waste the demo's manifest documents.
+theme = "@android:style/Theme.DeviceDefault.NoActionBar"
+
+[package.metadata.android.application.activity]
+orientation = "portrait"
+# Handle these ourselves rather than being restarted for them; the lifecycle
+# vieww-platform-winit implements already covers a lost surface.
+config_changes = "orientation|screenSize|smallestScreenSize|keyboardHidden|screenLayout|density"
+
+[lints]
+workspace = true
