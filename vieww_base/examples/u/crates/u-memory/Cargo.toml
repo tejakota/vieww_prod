@@ -1,0 +1,17 @@
+[package]
+name = "u-memory"
+description = "U — local persistence: decisions, assessments, feedback, outcomes, persona — on the device and nowhere else."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+u-core = { path = "../u-core" }
+u-persona = { path = "../u-persona" }
+serde = { workspace = true }
+serde_json = { workspace = true }

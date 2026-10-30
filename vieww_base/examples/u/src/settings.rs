@@ -135,6 +135,7 @@ fn header(state: &AppState, ctx: &BuildContext) -> WidgetNode {
 
     let state_for_back = state.clone();
     let back = Pressable::themed(ctx, move |press| {
+        let _ = press;
         Container::new()
             .decoration(
                 BoxDecoration::new()

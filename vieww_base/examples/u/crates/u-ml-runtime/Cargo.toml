@@ -1,0 +1,17 @@
+[package]
+name = "u-ml-runtime"
+description = "U — the inference seam: one Runtime trait, the deterministic baseline behind it, and the manifest language a model arrives in."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+u-core = { path = "../u-core" }
+u-decision = { path = "../u-decision" }
+serde = { workspace = true }
+serde_json = { workspace = true }

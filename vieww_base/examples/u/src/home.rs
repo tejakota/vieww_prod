@@ -50,7 +50,7 @@ use vieww_widget::prelude::{PaintWith, Painting};
 use crate::neurons::{self, Reveal};
 use crate::palette::{self, AXON, CHIP_DOT, CHIP_EDGE, EDGE, INK, INK_GREET, MUTED, SYNAPSE};
 use crate::stage;
-use crate::{ask, ask_route, settings_route, take, AppState, Shared};
+use crate::{ask, ask_route, settings_route, take, workspace_route, AppState, Shared};
 
 // ---- the opening's timeline, in seconds since the app opened --------------
 
@@ -158,8 +158,21 @@ impl HomeScreen {
             .push(arrive(intro.blocks[3], 14.0, action(&self.shared, ctx, t)))
             .push(arrive(intro.blocks[4], 16.0, categories(&state, &self.shared, ctx)));
 
-        // -- the tail: whatever was noted last, and the nudge ---------------
-        if let Some(noted) = noted {
+        // -- the tail: the last decision in memory, else the last thing
+        // noted, and the nudge ------------------------------------------
+        // Reading the count subscribes this build to the engine's memory,
+        // so the strip is honest the moment a decision lands — and reading
+        // the words through the engine, not a signal, keeps exactly one
+        // copy of them in the app: the store's own.
+        let decision = if state.decisions.get() > 0 {
+            state.latest_decision_words()
+        } else {
+            None
+        };
+        let strip = decision
+            .map(|words| (words, true))
+            .or_else(|| noted.map(|answer| (answer.to_owned(), false)));
+        if let Some((words, to_workspace)) = strip {
             screen = screen.push(place(24.0, top_of(798.0, 9.0)).child(arrive(
                 intro.blocks[4],
                 10.0,
@@ -168,7 +181,7 @@ impl HomeScreen {
             screen = screen.push(place(24.0, 810.0).child(arrive(
                 intro.blocks[4],
                 10.0,
-                recent(&self.shared, ctx, noted),
+                recent(&self.shared, ctx, &words, to_workspace),
             )));
         }
         if nudge_up {
@@ -584,9 +597,11 @@ fn loading_dots(time: f32) -> Painting {
 }
 
 /// The one primary action: bring U a decision — the reference's disc at
-/// (210, 605), r = 39, under its breathing halo.
+/// (210, 605), r = 39, under its breathing halo. It opens the workspace,
+/// the room a decision is brought into; the asking is a different door,
+/// kept for the domains, the strip and the nudge below.
 fn action(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
-    let shared_for_ask = shared.clone();
+    let shared_for_work = shared.clone();
     let button = Pressable::themed(ctx, move |press| {
         let sink = 1.0 - press * 0.05;
         SizedBox::square(98.0)
@@ -634,8 +649,8 @@ fn action(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
             .into()
     })
     .on_tap(move || {
-        let state = take(&shared_for_ask);
-        state.nav.push(ask_route(shared_for_ask.clone()));
+        let state = take(&shared_for_work);
+        state.nav.push(workspace_route(shared_for_work.clone()));
     });
 
     Stack::new()
@@ -937,10 +952,25 @@ fn recent_label() -> WidgetNode {
     .into()
 }
 
-/// The last thing U noted, and the way back into the asking — the
-/// reference's 372 × 48 card at y = 810.
-fn recent(shared: &Shared, ctx: &BuildContext, noted: &'static str) -> WidgetNode {
-    let shared_for_ask = shared.clone();
+/// The last thing worth picking back up — the latest decision's own
+/// words when the memory holds one, else the last thing U noted — and the
+/// way back into it. The reference's 372 × 48 card at y = 810.
+fn recent(
+    shared: &Shared,
+    ctx: &BuildContext,
+    words: &str,
+    to_workspace: bool,
+) -> WidgetNode {
+    // The card is one line at 12 px in a ~295 px run between the briefcase
+    // and the chevron: 46 glyphs is the honest ceiling, and an ellipsis
+    // says the rest is in the record, not gone.
+    let shown: String = if words.chars().count() > 46 {
+        let cut: String = words.chars().take(46).collect();
+        format!("{cut}…")
+    } else {
+        words.to_owned()
+    };
+    let shared_for_open = shared.clone();
     let card = Pressable::themed(ctx, move |press| {
         Container::new()
             .decoration(
@@ -969,7 +999,7 @@ fn recent(shared: &Shared, ctx: &BuildContext, noted: &'static str) -> WidgetNod
                             .alignment(Alignment::CENTER)
                             .child(strip_briefcase()),
                         SizedBox::width(11.0),
-                        Text::new(noted).style(
+                        Text::new(shown.clone()).style(
                             TextStyle::new(12.0)
                                 .weight(FontWeight::Medium)
                                 .color(Color::rgb(220, 227, 241)),
@@ -981,8 +1011,14 @@ fn recent(shared: &Shared, ctx: &BuildContext, noted: &'static str) -> WidgetNod
             .into()
     })
     .on_tap(move || {
-        let state = take(&shared_for_ask);
-        state.nav.push(ask_route(shared_for_ask.clone()));
+        let state = take(&shared_for_open);
+        // A decision's way back is the room it was brought to; the
+        // asking's is the sheet it was asked in.
+        if to_workspace {
+            state.nav.push(workspace_route(shared_for_open.clone()));
+        } else {
+            state.nav.push(ask_route(shared_for_open.clone()));
+        }
     });
 
     card

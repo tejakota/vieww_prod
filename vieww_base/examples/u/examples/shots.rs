@@ -5,14 +5,16 @@
 //! cargo run -p u --example shots -- /tmp/u-shots
 //! ```
 //!
-//! Three mounts, three logs. The opening runs on a volatile log, so its
+//! Four mounts, four lives. The opening runs on a volatile log, so its
 //! renders never depend on the machine drawing them; the sketch complete
 //! and the daily rhythm run on logs replayed from fixture files written into
 //! a temporary directory. Those fixtures are also the only test the log's
 //! loader has: if [`u::events::Log::at`] could not fold those lines back
 //! into state, the completion shot would show the sketch starting over and
 //! the daily shot would show the first sketch again — the very bug this
-//! build exists without.
+//! build exists without. The workspace runs on a scratch engine that keeps
+//! nothing, and brings the plan's own worked example — the move to another
+//! city — so the assessment's every section has something honest to show.
 //!
 //! The reel steps the clock a sixtieth at a time rather than jumping, so the
 //! tickers (the clock, the burst decay, the route transition) integrate the
@@ -76,7 +78,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let sketch: Vec<String> = (0..12).map(|ask| answer_line(19_000, ask, true)).collect();
     let mut driver = FrameDriver::new(u::SURFACE);
     driver.set_fonts(u::fonts());
-    let shared = u::mount_with(&mut driver, fixture(&sketch)?);
+    let shared = u::mount_with(&mut driver, fixture(&sketch)?, u::engine::Engine::scratch());
     driver.set_root(Theme::new(u::palette::theme()).child(u::root(&shared)));
     let mut reel = Reel { at: 0.0 };
 
@@ -98,7 +100,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     daily.push(answer_line(19_001, 2, true));
     let mut driver = FrameDriver::new(u::SURFACE);
     driver.set_fonts(u::fonts());
-    let shared = u::mount_with(&mut driver, fixture(&daily)?);
+    let shared = u::mount_with(&mut driver, fixture(&daily)?, u::engine::Engine::scratch());
     driver.set_root(Theme::new(u::palette::theme()).child(u::root(&shared)));
     let mut reel = Reel { at: 0.0 };
 
@@ -124,7 +126,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // reference draws — so the studio can be diffed against it directly.
     let mut driver = FrameDriver::new(u::SURFACE);
     driver.set_fonts(u::fonts());
-    let shared = u::mount_with(&mut driver, fixture(&["name Teja".to_owned()])?);
+    let shared = u::mount_with(&mut driver, fixture(&["name Teja".to_owned()])?, u::engine::Engine::scratch());
     driver.set_root(Theme::new(u::palette::theme()).child(u::root(&shared)));
     let mut reel = Reel { at: 0.0 };
     reel.advance(&mut driver, 4.9);
@@ -132,9 +134,58 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     reel.advance(&mut driver, 1.5);
     shot(&mut renderer, &mut driver, &out, "12-settings-reference-state")?;
 
+    // ---- the decision workspace, on a scratch engine ----------------------
+    // The plan's own worked example (§2.3): the move to another city, its
+    // two live options, what matters, the lease. The engine keeps nothing —
+    // these renders show the room, not a life — and the assessment is the
+    // deterministic baseline's own read of it.
+    let mut driver = FrameDriver::new(u::SURFACE);
+    driver.set_fonts(u::fonts());
+    let shared = u::mount(&mut driver);
+    driver.set_root(Theme::new(u::palette::theme()).child(u::root(&shared)));
+    let mut reel = Reel { at: 0.0 };
+    reel.advance(&mut driver, 4.9);
+
+    let state = u::take(&shared);
+    state.set_situation(text(
+        "I'm considering moving to another city, but I'm not sure whether \
+         the change is worth it.",
+    ));
+    state.set_choices(text("stay here\nmove to the coast"));
+    state.set_wants(text("growth\nthe people close to me"));
+    state.set_bounds(text("the lease until June"));
+    state.nav.push(u::workspace_route(shared.clone()));
+    reel.advance(&mut driver, 0.35);
+    shot(&mut renderer, &mut driver, &out, "13-workspace-arriving")?;
+    reel.advance(&mut driver, 0.5);
+    shot(&mut renderer, &mut driver, &out, "14-workspace")?;
+
+    // The assessment: every section the §2.4 contract asks for, on the same
+    // scroll the person would read it on.
+    state.assess();
+    reel.advance(&mut driver, 0.25);
+    shot(&mut renderer, &mut driver, &out, "15-workspace-assessed")?;
+
+    // The verdict row and the read, at the bottom of the same scroll.
+    state.work.drag(-900.0);
+    reel.advance(&mut driver, 0.05);
+    shot(&mut renderer, &mut driver, &out, "16-workspace-read")?;
+
+    // Home again: the decision is the strip now — the memory's own words,
+    // beside the briefcase, where the noted answer stood before any
+    // decision existed.
+    state.nav.pop();
+    reel.advance(&mut driver, 0.5);
+    shot(&mut renderer, &mut driver, &out, "17-home-after-decision")?;
+
     println!("U shots -> {}", std::fs::canonicalize(&out)?.display());
     println!("layout overflows: {}", vieww_render::overflow::reported());
     Ok(())
+}
+
+/// One editing value from a plain string — what a person typed.
+fn text(words: &str) -> vieww_foundation::TextEditingValue {
+    vieww_foundation::TextEditingValue::new(words.to_owned())
 }
 
 /// One `answer` line for a fixture: the verb, the day, the question, the

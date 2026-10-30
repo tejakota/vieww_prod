@@ -5155,6 +5155,12 @@ dependencies = [
  "android_logger",
  "image",
  "log",
+ "u-core",
+ "u-decision",
+ "u-feedback",
+ "u-memory",
+ "u-ml-runtime",
+ "u-persona",
  "vieww",
  "vieww-animation",
  "vieww-element",
@@ -5164,6 +5170,54 @@ dependencies = [
  "vieww-render",
  "vieww-text",
  "vieww-widget",
+]
+
+[[package]]
+name = "u-core"
+version = "0.1.0"
+
+[[package]]
+name = "u-decision"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "u-core",
+]
+
+[[package]]
+name = "u-feedback"
+version = "0.1.0"
+dependencies = [
+ "u-core",
+ "u-persona",
+]
+
+[[package]]
+name = "u-memory"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "u-core",
+ "u-persona",
+]
+
+[[package]]
+name = "u-ml-runtime"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "u-core",
+ "u-decision",
+]
+
+[[package]]
+name = "u-persona"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "u-core",
 ]
 
 [[package]]

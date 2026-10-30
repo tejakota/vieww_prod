@@ -1,0 +1,15 @@
+[package]
+name = "u-persona"
+description = "U — the persona: context-scoped preference dimensions with confidence and evidence."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+u-core = { path = "../u-core" }
+serde = { workspace = true }

@@ -58,6 +58,12 @@ members = [
     "examples/keynote",
     "examples/guide-counter",
     "examples/u",
+    "examples/u/crates/u-core",
+    "examples/u/crates/u-decision",
+    "examples/u/crates/u-persona",
+    "examples/u/crates/u-memory",
+    "examples/u/crates/u-feedback",
+    "examples/u/crates/u-ml-runtime",
     "examples/reload-guest",
     "examples/reload-host",
     "examples/reload-android",
@@ -221,6 +227,13 @@ vieww-plugin-macros = { path = "crates/vieww-plugin-macros", version = "0.1.0" }
 vieww-widget-macros = { path = "crates/vieww-widget-macros", version = "0.1.0" }
 vieww-build = { path = "crates/vieww-build", version = "0.1.0" }
 vieww-cli = { path = "crates/vieww-cli", version = "0.1.0" }
+
+# The U backend's persistence layer: every record and the persona state are
+# serde types written as JSON, so serialisation is a workspace concern the
+# same way the vieww crates are. Both pinned at "1" with no default features
+# beyond `derive`, which is everything u-memory actually uses.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 
 # Touch exploration on Android needs a winit that does not throw hover events
 # away. `ci/tools/patch-winit.sh` vendors and patches one; uncommenting this is what

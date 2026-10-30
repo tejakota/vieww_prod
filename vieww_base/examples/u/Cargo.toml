@@ -1,6 +1,6 @@
 [package]
 name = "u"
-description = "U — an offline persona companion. Two screens, one neuron, no network."
+description = "U — an offline decision companion. Three rooms, one neuron, no network."
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -30,6 +30,16 @@ vieww-platform-winit.workspace = true
 # the reference screens are set in Inter, and the app is an exact clone of
 # them. The faces live in `assets/fonts/` beside this manifest.
 vieww-text.workspace = true
+# The decision backend, as path crates under `crates/` — U's engine room,
+# not part of the framework. They are workspace members too (so a plain
+# `cargo test` covers them), but an APK build resolves exactly these six
+# through this manifest and nothing they do not need.
+u-core = { path = "crates/u-core" }
+u-decision = { path = "crates/u-decision" }
+u-persona = { path = "crates/u-persona" }
+u-memory = { path = "crates/u-memory" }
+u-feedback = { path = "crates/u-feedback" }
+u-ml-runtime = { path = "crates/u-ml-runtime" }
 
 [target.'cfg(target_os = "android")'.dependencies]
 log = "0.4"
