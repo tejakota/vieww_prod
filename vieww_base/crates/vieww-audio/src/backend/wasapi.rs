@@ -664,6 +664,13 @@ unsafe fn init_low_latency_shared(c: This, ch: u16, rate: u32, block: u32) -> Op
             if block > default {
                 return None;
             }
+            // And only when the engine offers a period shorter than its
+            // default: at min == default (VB-CABLE's 480 frames) the path
+            // gains nothing over v1, and on that cable it failed the
+            // loopback's continuity check (runs 40917922714, 41005630129).
+            if min >= default {
+                return None;
+            }
             let hr = (vt!(c3.0, AudioClient3Vtbl).initialize_shared_audio_stream)(
                 c3.0,
                 STREAMFLAGS_EVENTCALLBACK,
