@@ -61,6 +61,11 @@ vieww-render.workspace = true
 package = "dev.vieww.u"
 build_targets = ["aarch64-linux-android"]
 apk_name = "U"
+# The launcher icon and nothing else: `res/drawable/u_icon.xml` is the
+# companion itself — the reference's own strand and eye geometry, at 0.40
+# scale on the 108-unit canvas — drawn the way vavlt's icon is drawn, as a
+# vector so one file serves every density a phone asks for.
+resources = "res"
 
 [package.metadata.android.sdk]
 min_sdk_version = 24
@@ -71,6 +76,7 @@ label = "U"
 # cargo-apk's default theme brings an ActionBar — chrome this app draws straight
 # over, and the same invisible waste the demo's manifest documents.
 theme = "@android:style/Theme.DeviceDefault.NoActionBar"
+icon = "@drawable/u_icon"
 
 [package.metadata.android.application.activity]
 orientation = "portrait"
