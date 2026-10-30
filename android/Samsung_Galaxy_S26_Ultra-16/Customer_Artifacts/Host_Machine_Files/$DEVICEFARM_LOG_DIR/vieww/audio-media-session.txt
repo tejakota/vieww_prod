@@ -1,0 +1,70 @@
+MEDIA SESSION SERVICE (dumpsys media_session)
+
+6 sessions listeners.
+Global priority session is com.android.server.telecom/HeadsetMediaButton/1 (userId=0)
+  HeadsetMediaButton com.android.server.telecom/HeadsetMediaButton/1 (userId=0)
+    ownerPid=3184, ownerUid=1000, userId=0
+    package=com.android.server.telecom
+    launchIntent=null
+    mediaButtonReceiver=null
+    active=false
+    flags=65537
+    rating type=0
+    controllers: 0
+    state=null
+    audioAttrs=AudioAttributes: usage=USAGE_VOICE_COMMUNICATION content=CONTENT_TYPE_SPEECH flags=0x800(FLAG_MUTE_HAPTIC)  tags= bundle=null
+    volumeType=LOCAL, controlType=ABSOLUTE, max=0, current=0, volumeControlId=null
+    metadata: null
+    queueTitle=null, size=0
+User Records:
+Record for full_user=0
+  Volume key long-press listener: null
+  Volume key long-press listener package: 
+  Media key listener: null
+  Media key listener package: 
+  OnMediaKeyEventDispatchedListener: added 0 listener(s)
+  OnMediaKeyEventSessionChangedListener: added 1 listener(s)
+    from com.samsung.android.app.aodservice
+  Last MediaButtonReceiver: MBR {pi=null, componentName=ComponentInfo{com.amazon.avod.thirdpartyclient/com.amazon.video.sdk.player.audiofocus.PlayerAudioFocusManager$RemoteControlReceiver}, type=1, pkg=com.amazon.avod.thirdpartyclient}
+  High priority mediakey receiver: null
+  Volume key long-press receiver: null
+  Media button session is dev.vieww.demo/vieww/51 (userId=0)
+  Sessions Stack - have 1 sessions:
+    vieww dev.vieww.demo/vieww/51 (userId=0)
+      ownerPid=23897, ownerUid=10339, userId=0
+      package=dev.vieww.demo
+      launchIntent=null
+      mediaButtonReceiver=null
+      active=true
+      flags=0
+      rating type=0
+      controllers: 9
+      state=PlaybackState {state=PLAYING(3), position=7519, buffered position=0, speed=1.0, updated=1062262, actions=895, custom actions=[], active item id=-1, error=null}
+      audioAttrs=AudioAttributes: usage=USAGE_MEDIA content=CONTENT_TYPE_UNKNOWN flags=0x800(FLAG_MUTE_HAPTIC)  tags= bundle=null
+      volumeType=LOCAL, controlType=ABSOLUTE, max=0, current=0, volumeControlId=null
+      metadata: size=4, description=vieww audio check, vieww, Device Farm
+      queueTitle=null, size=0
+isAppCastingOn:false
+isMultiSoundOn:false
+Events log: MediaSession events
+10-30 04:51:21:595 registerRemoteVolumeController uid : 10048, pid : 4070, rvc : android.media.IRemoteSessionCallback$Stub$Proxy@413f4b5
+10-30 05:08:50:680 MediaKeyEvt,pkg=com.android.shell pid=25043,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PAUSE,act:ACTION_DOWN
+10-30 05:08:50:682 MediaKeyEvt,pkg=com.android.shell pid=25043,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PAUSE,act:ACTION_UP
+10-30 05:08:54:013 MediaKeyEvt,pkg=com.android.shell pid=25085,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PLAY,act:ACTION_DOWN
+10-30 05:08:54:014 MediaKeyEvt,pkg=com.android.shell pid=25085,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PLAY,act:ACTION_UP
+
+isSupportMediaDataPlatform:true
+Events log: MediaSessionDataPlatform logger
+10-30 05:07:41:443 getMediaType for uid: 10339 Audio
+10-30 05:07:43:444 getMediaType for uid: 10339 Audio
+10-30 05:08:50:773 Succeeded: insert packageName:dev.vieww.demo, title:vieww audio check, artist:vieww, album:Device Farm, genre:null, mediaType:Audio, castType:local, startTime:1793336861443, endTime:1793336930765, playingTime:69322, duration: 30000
+10-30 05:08:54:069 getMediaType for uid: 10339 Audio
+10-30 05:08:56:070 getMediaType for uid: 10339 Audio
+
+Audio playback (lastly played comes first)
+  uid=10339 packages=dev.vieww.demo 
+Media session config:
+  media_button_receiver_fgs_allowlist_duration_ms: [cur: 10000, def: 10000]
+  media_session_calback_fgs_allowlist_duration_ms: [cur: 10000, def: 10000]
+  media_session_callback_fgs_while_in_use_temp_allow_duration_ms: [cur: 10000, def: 10000]
+  media_session_temp_user_engaged_duration_ms: [cur: 600000, def: 600000]
