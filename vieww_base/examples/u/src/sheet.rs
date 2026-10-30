@@ -142,7 +142,7 @@ fn question_card(
             } else {
                 format!("{done} of {target}")
             },
-            *done as f32 / *target as f32,
+            (*done as f32 / *target as f32).min(1.0),
         ),
     };
 
@@ -160,12 +160,16 @@ fn question_card(
         )
         .padding(EdgeInsets::symmetric(18.0, 20.0))
         .child(
+            // Min: the card hugs its content — the sheet is a card at the
+            // bottom of the screen, not a screen of its own.
             Flex::column()
+                .main_axis_size(MainAxisSize::Min)
                 .cross_axis_alignment(CrossAxisAlignment::Stretch)
-                .spacing(13.0)
+                .spacing(12.0)
                 .children(children![
                     card_head(label, &counter, frac),
-                    Align::new(Alignment::CENTER).child(neurons::sigil(46.0, t, burst)),
+                    Align::new(Alignment::CENTER)
+                        .child(SizedBox::height(50.0).child(neurons::sigil(50.0, t, burst))),
                     Text::new(ask.prompt)
                         .size(17.0)
                         .color(INK)
@@ -204,6 +208,7 @@ fn completion_card(
         .padding(EdgeInsets::symmetric(18.0, 20.0))
         .child(
             Flex::column()
+                .main_axis_size(MainAxisSize::Min)
                 .cross_axis_alignment(CrossAxisAlignment::Stretch)
                 .spacing(13.0)
                 .children(children![

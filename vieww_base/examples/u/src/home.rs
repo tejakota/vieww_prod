@@ -11,7 +11,7 @@
 //! # The opening
 //!
 //! The app opens on a splash that is this same screen assembling: the eye
-//! appears, the six strands grow out of it, the atmosphere arrives, the
+//! appears, the six tendrils grow out of it, the atmosphere arrives, the
 //! wordmark rises under it — and then the wordmark hands its place over to
 //! the home content while **the companion never moves**. That is the whole
 //! trick of the handoff: splash and home are one layout, the icon is painted
@@ -21,20 +21,24 @@
 //!
 //! # The way out
 //!
-//! Settings opens from the gear at the top right — and from a right-to-left
-//! swipe anywhere on the screen, because a gesture that opens a drawer from
-//! its edge is how a phone says "there is more over here".
+//! Settings opens from the ALIVE chip at the top right — the pulse is
+//! tappable, because the one thing a status that glows invites is a look
+//! inside — and from a right-to-left swipe anywhere on the screen, because a
+//! gesture that opens a drawer from its edge is how a phone says "there is
+//! more over here".
 
 use std::cell::Cell;
 use std::f32::consts::TAU;
 use std::rc::Rc;
 
 use vieww::prelude::*;
-use vieww_foundation::{Axis, BlendMode, Color, Offset, Path, Rect, Size, Sketchbook, Transform};
+use vieww_foundation::{
+    Axis, BlendMode, Color, FontWeight, Offset, Path, Rect, Size, Sketchbook, TextStyle, Transform,
+};
 use vieww_widget::prelude::{PaintWith, Painting};
 
 use crate::neurons::{self, Reveal};
-use crate::palette::{self, AXON, EDGE, FAINT, INK, MUTED, SYNAPSE};
+use crate::palette::{self, AXON, EDGE, INK, MUTED, SYNAPSE};
 use crate::{ask, ask_route, settings_route, take, AppState, Shared};
 
 // ---- the opening's timeline, in seconds since the app opened --------------
@@ -82,7 +86,6 @@ pub struct HomeScreen {
 impl HomeScreen {
     #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     fn build(&self, ctx: &BuildContext) -> impl Into<WidgetNode> {
-        let theme = ThemeData::of(ctx);
         let state = self.state.clone();
         let t = state.time.get();
         let burst = state.burst.get();
@@ -93,13 +96,15 @@ impl HomeScreen {
         let noted = state.noted.get();
         let nudge_up = state.nudge.get();
 
-        let field = if calm { 0.3 } else { 1.0 } * intro.settled;
+        // The room's ambient life arrives with the splash's atmosphere stage
+        // and stays; calm keeps a third of it.
+        let amb = if calm { 0.3 } else { 1.0 } * intro.amb;
 
         // The tail: whatever was noted last, and the nudge offering the next
         // question. Both belong to the bottom of the screen.
         let mut tail = Flex::column()
             .cross_axis_alignment(CrossAxisAlignment::Stretch)
-            .spacing(8.0);
+            .spacing(6.0);
         if let Some(noted) = noted {
             tail = tail.push(recent(&self.shared, ctx, noted, t));
         }
@@ -113,22 +118,22 @@ impl HomeScreen {
                 Positioned::fill().child(
                     Container::new()
                         .gradient(palette::ground_gradient())
-                        .child(neurons::field(t, burst, field)),
+                        .child(neurons::atmosphere(t, amb, false)),
                 ),
             )
             .push(
                 Positioned::fill().child(
                     SafeArea::new().child(
-                        Padding::new(EdgeInsets::symmetric(24.0, 8.0)).child(
+                        Padding::new(EdgeInsets::symmetric(24.0, 4.0)).child(
                             Flex::column()
                                 .cross_axis_alignment(CrossAxisAlignment::Stretch)
                                 .children(children![
                                     arrive(intro.blocks[0], -12.0, top_bar(&self.shared, ctx, t)),
-                                    SizedBox::height(10.0),
-                                    arrive(intro.blocks[1], -8.0, greeting(&state, &theme)),
+                                    SizedBox::height(6.0),
+                                    arrive(intro.blocks[1], -8.0, greeting(&state)),
                                     SizedBox::height(2.0),
                                     Align::new(Alignment::CENTER).child(neurons::companion(
-                                        272.0,
+                                        252.0,
                                         t,
                                         burst,
                                         if calm { 1.0 } else { 0.0 },
@@ -210,8 +215,9 @@ struct Intro {
     footer: f32,
     /// The home blocks, staggered: bar, greeting, caption, action, tail.
     blocks: [f32; 5],
-    /// The field's own fade-in — the last thing to arrive.
-    settled: f32,
+    /// The background atmosphere's presence — it arrives with the splash's
+    /// atmosphere stage, and a skip fades it in from the moment of the tap.
+    amb: f32,
     /// Still in the opening: the skip layer is up.
     splashing: bool,
 }
@@ -226,29 +232,21 @@ fn ease_out(x: f32) -> f32 {
     1.0 - (1.0 - x).powi(3)
 }
 
-/// The ease of things that pop: slightly past, then back.
-fn ease_out_back(x: f32) -> f32 {
-    let x = x - 1.0;
-    1.0 + 2.701_58 * x.powi(3) + 1.701_58 * x.powi(2)
-}
-
 impl Intro {
     #[allow(clippy::cast_precision_loss)]
     fn at(t: f32, skip_at: f32) -> Self {
         let skipped = t >= skip_at;
-        let (reveal, exit, word, tagline, footer, blocks) = if skipped {
+        let (reveal, exit, word, tagline, footer, blocks, amb) = if skipped {
             // A skip resolves the assembly at once and fades the room in
             // over a third of a second from the moment of the tap.
             let fade = ease_out(ramp(t, skip_at, 0.30));
-            (Reveal::complete(), 1.0, 0.0, 0.0, 0.0, [fade; 5])
+            (Reveal::complete(), 1.0, 0.0, 0.0, 0.0, [fade; 5], fade)
         } else {
             let eye = ease_out(ramp(t, EYE_AT, EYE_DUR));
             let mut strands = [0.0_f32; 6];
-            let mut tips = [0.0_f32; 6];
             for (i, grown) in strands.iter_mut().enumerate() {
                 let at = STRAND_AT + i as f32 * STRAND_STEP;
                 *grown = ramp(t, at, STRAND_DUR);
-                tips[i] = ease_out_back(ramp(t, at + STRAND_DUR * 0.85, 0.30));
             }
             let exit = ramp(t, EXIT_AT, EXIT_DUR);
             let blocks = [
@@ -258,18 +256,15 @@ impl Intro {
                 ease_out(ramp(t, HOME_AT + 3.0 * HOME_STEP, HOME_DUR)),
                 ease_out(ramp(t, HOME_AT + 4.0 * HOME_STEP, HOME_DUR)),
             ];
+            let atmosphere = ramp(t, ATMOS_AT, ATMOS_DUR);
             (
-                Reveal {
-                    eye,
-                    strands,
-                    tips,
-                    atmosphere: ramp(t, ATMOS_AT, ATMOS_DUR),
-                },
+                Reveal { eye, strands, atmosphere },
                 exit,
                 ramp(t, WORD_AT, WORD_DUR) * (1.0 - exit),
                 ramp(t, TAG_AT, TAG_DUR) * (1.0 - exit),
                 ramp(t, FOOT_AT, FOOT_DUR) * (1.0 - exit),
                 blocks,
+                atmosphere,
             )
         };
         Self {
@@ -279,7 +274,7 @@ impl Intro {
             tagline,
             footer,
             blocks,
-            settled: blocks[4],
+            amb,
             splashing: !skipped && t < SKIP_END,
         }
     }
@@ -299,59 +294,130 @@ fn arrive(alpha: f32, rise: f32, child: WidgetNode) -> WidgetNode {
 
 // ---- the room --------------------------------------------------------------
 
-/// The wordmark, the gear, and the room's one exit besides the swipe.
+/// The mark's signature, the name it stands beside, and the ALIVE chip —
+/// the room's one exit besides the swipe.
 fn top_bar(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
-    let shared_for_gear = shared.clone();
-    let angle = t * 0.12;
-    let gear = Pressable::themed(ctx, move |press| {
+    let shared_for_chip = shared.clone();
+    let chip = Pressable::themed(ctx, move |press| {
         Container::new()
             .decoration(
                 BoxDecoration::new()
-                    .color(Color::rgba(16, 23, 40, (205.0 + press * 50.0) as u8))
-                    .radius(21.0)
-                    .border(Border::new(EDGE, 1.0)),
+                    .color(Color::rgba(20, 35, 56, (200.0 + press * 55.0) as u8))
+                    .radius(15.0)
+                    .border(Border::new(
+                        SYNAPSE.with_alpha((71.0 + press * 120.0) as u8),
+                        1.0,
+                    )),
             )
-            .size(42.0, 42.0)
-            .alignment(Alignment::CENTER)
-            .child(neurons::gear(21.0, SYNAPSE, angle + press * 0.8))
+            .height(30.0)
+            .padding(EdgeInsets::symmetric(13.0, 0.0))
+            .child(
+                Flex::row()
+                    .cross_axis_alignment(CrossAxisAlignment::Center)
+                    .spacing(8.0)
+                    .children(children![
+                        alive_dot(t),
+                        Text::new("ALIVE").style(
+                            TextStyle::new(9.5)
+                                .weight(FontWeight::Bold)
+                                .letter_spacing(0.4)
+                                .color(Color::rgb(156, 233, 220)),
+                        ),
+                    ]),
+            )
             .into()
     })
     .on_tap(move || {
-        let state = take(&shared_for_gear);
-        state.nav.push(settings_route(shared_for_gear.clone()));
+        let state = take(&shared_for_chip);
+        state.nav.push(settings_route(shared_for_chip.clone()));
     });
 
     Flex::row()
         .cross_axis_alignment(CrossAxisAlignment::Center)
         .children(children![
-            // The mark's signature: the same six strands, the same eye.
-            neurons::sigil(30.0, t, 0.0),
-            SizedBox::width(10.0),
+            // The mark's signature: the same six tendrils, the same eye.
+            neurons::sigil(34.0, t, 0.0),
+            SizedBox::width(11.0),
             Flex::column()
                 .cross_axis_alignment(CrossAxisAlignment::Start)
                 .children(children![
-                    Text::new("U").size(21.0).bold().color(INK),
-                    Text::new("PERSONA").size(7.5).bold().color(FAINT),
+                    Text::new("U").style(
+                        TextStyle::new(24.0)
+                            .weight(FontWeight::Bold)
+                            .letter_spacing(-1.0)
+                            .color(INK),
+                    ),
+                    Text::new("PERSONA").style(
+                        TextStyle::new(7.5)
+                            .letter_spacing(1.6)
+                            .color(Color::rgb(115, 130, 156)),
+                    ),
                 ]),
             Flexible::expanded(1).child(SizedBox::shrink()),
-            gear,
+            chip,
         ])
         .into()
 }
 
+/// The chip's pulse: a small synapse dot, slowly twinkling.
+fn alive_dot(t: f32) -> Painting {
+    Painting::sized(
+        Size::square(9.0),
+        PaintWith::new(move |book, s| {
+            let c = Offset::new(s.width / 2.0, s.height / 2.0);
+            let twinkle = 0.5 + 0.5 * (t * std::f32::consts::TAU / 3.0).sin();
+            book.circle(
+                c,
+                2.1 + twinkle * 0.6,
+                SYNAPSE.with_alpha((150.0 + 90.0 * twinkle) as u8),
+            );
+        }),
+    )
+}
+
 /// Who this room is for, and that it is ready.
-fn greeting(state: &AppState, theme: &ThemeData) -> WidgetNode {
+fn greeting(state: &AppState) -> WidgetNode {
     Flex::column()
         .cross_axis_alignment(CrossAxisAlignment::Start)
         .spacing(3.0)
         .children(children![
-            Text::new(daypart()).size(11.0).bold().color(FAINT),
-            Text::new(state.display_name())
-                .style(theme.text.headline)
-                .color(INK),
+            Text::new(daypart()).style(
+                TextStyle::new(11.0)
+                    .weight(FontWeight::Medium)
+                    .letter_spacing(1.9)
+                    .color(Color::rgb(131, 146, 170)),
+            ),
+            Flex::row()
+                .cross_axis_alignment(CrossAxisAlignment::Center)
+                .spacing(9.0)
+                .children(children![
+                    Text::new(state.display_name()).style(
+                        TextStyle::new(30.0)
+                            .weight(FontWeight::Bold)
+                            .letter_spacing(-1.3)
+                            .color(Color::rgb(242, 243, 250)),
+                    ),
+                    name_spark(state.time.get()),
+                ]),
             Text::new("Ready when you are.").size(12.0).color(MUTED),
         ])
         .into()
+}
+
+/// The small spark that rides the name — a charm, not a status.
+fn name_spark(t: f32) -> Painting {
+    Painting::sized(
+        Size::square(8.0),
+        PaintWith::new(move |book, s| {
+            let c = Offset::new(s.width / 2.0, s.height / 2.0);
+            let twinkle = 0.5 + 0.5 * (t * std::f32::consts::TAU / 3.0 + 0.9).sin();
+            book.circle(
+                c,
+                1.9 + twinkle * 0.7,
+                AXON.with_alpha((90.0 + 140.0 * twinkle) as u8),
+            );
+        }),
+    )
 }
 
 /// The part of the day for the greeting.
@@ -381,60 +447,73 @@ fn daypart() -> &'static str {
 
 /// The slot under the companion: the splash's wordmark lives here until the
 /// room arrives, then the caption does — a crossfade in a fixed box, so
-/// nothing above or below it ever shifts.
+/// nothing above or below it ever shifts. The splash's stack carries the
+/// reference's own descent: the landing rings, the wordmark, its subtitle,
+/// the tagline, the loader and the privacy line.
 fn below_slot(intro: &Intro, t: f32) -> WidgetNode {
     let splash = Flex::column()
         .cross_axis_alignment(CrossAxisAlignment::Stretch)
         .children(children![
+            Opacity::new(intro.word).child(Align::new(Alignment::CENTER).child(landing_rings())),
+            SizedBox::height(2.0),
             Opacity::new(intro.word).child(
-                Text::new("U")
-                    .size(46.0)
-                    .bold()
-                    .color(INK)
-                    .align(TextAlign::Center),
+                Text::new("U").style(
+                    TextStyle::new(40.0)
+                        .weight(FontWeight::Bold)
+                        .letter_spacing(-2.5)
+                        .color(Color::rgb(241, 239, 255)),
+                )
+                .align(TextAlign::Center),
             ),
+            SizedBox::height(1.0),
             Opacity::new(intro.word).child(
-                Text::new("PERSONA COMPANION")
-                    .size(8.5)
-                    .bold()
-                    .color(AXON)
-                    .align(TextAlign::Center),
+                Text::new("PERSONA COMPANION").style(
+                    TextStyle::new(8.5)
+                        .weight(FontWeight::Medium)
+                        .letter_spacing(2.6)
+                        .color(Color::rgb(155, 139, 220)),
+                )
+                .align(TextAlign::Center),
             ),
-            SizedBox::height(8.0),
+            SizedBox::height(4.0),
             Opacity::new(intro.tagline).child(
                 Text::new("A little more you, every day.")
-                    .size(11.5)
+                    .size(11.0)
                     .color(MUTED)
                     .align(TextAlign::Center),
             ),
-            SizedBox::height(10.0),
+            SizedBox::height(4.0),
             Opacity::new(intro.footer).child(Align::new(Alignment::CENTER).child(loading_dots(t)),),
-            SizedBox::height(8.0),
+            SizedBox::height(3.0),
             Opacity::new(intro.footer).child(
-                Text::new("PRIVATE BY DESIGN")
-                    .size(7.5)
-                    .bold()
-                    .color(FAINT)
-                    .align(TextAlign::Center),
+                Text::new("PRIVATE BY DESIGN").style(
+                    TextStyle::new(7.5)
+                        .weight(FontWeight::Medium)
+                        .letter_spacing(2.0)
+                        .color(Color::rgb(83, 98, 123)),
+                )
+                .align(TextAlign::Center),
             ),
         ]);
 
     let caption = Flex::column()
         .cross_axis_alignment(CrossAxisAlignment::Stretch)
-        .spacing(4.0)
+        .spacing(5.0)
         .children(children![
-            Text::new("U")
-                .size(13.0)
-                .bold()
-                .color(AXON)
-                .align(TextAlign::Center),
+            Text::new("YOUR U").style(
+                TextStyle::new(9.0)
+                    .weight(FontWeight::Bold)
+                    .letter_spacing(2.3)
+                    .color(Color::rgb(189, 176, 245)),
+            )
+            .align(TextAlign::Center),
             Text::new("A little more you, every day")
-                .size(10.0)
-                .color(MUTED)
+                .size(9.5)
+                .color(Color::rgb(111, 126, 152))
                 .align(TextAlign::Center),
         ]);
 
-    SizedBox::height(132.0)
+    SizedBox::height(130.0)
         .child(
             Stack::new()
                 .fit(StackFit::Expand)
@@ -452,6 +531,19 @@ fn below_slot(intro: &Intro, t: f32) -> WidgetNode {
                 ),
         )
         .into()
+}
+
+/// The splash's landing rings: two flat ellipses the icon settles onto, the
+/// reference's own closing chord.
+fn landing_rings() -> Painting {
+    Painting::sized(
+        Size::new(160.0, 20.0),
+        PaintWith::new(move |book, s| {
+            let c = Offset::new(s.width / 2.0, s.height / 2.0);
+            book.stroke(neurons::flat_ellipse(c, 70.0, 8.0), AXON.with_alpha(64), 1.1);
+            book.stroke(neurons::flat_ellipse(c, 48.0, 5.0), SYNAPSE.with_alpha(56), 1.0);
+        }),
+    )
 }
 
 /// The splash's three dots, breathing in sequence.
@@ -480,7 +572,7 @@ fn action(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
     let shared_for_ask = shared.clone();
     let button = Pressable::themed(ctx, move |press| {
         let sink = 1.0 - press * 0.05;
-        SizedBox::square(74.0)
+        SizedBox::square(98.0)
             .child(
                 Stack::new()
                     .fit(StackFit::Expand)
@@ -489,7 +581,7 @@ fn action(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
                         Positioned::fill().child(
                             Align::new(Alignment::CENTER).child(
                                 Transformed::new(Transform::scale_around(
-                                    Offset::new(37.0, 37.0),
+                                    Offset::new(49.0, 49.0),
                                     sink,
                                     sink,
                                 ))
@@ -498,19 +590,26 @@ fn action(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
                                         .decoration(
                                             BoxDecoration::new()
                                                 .gradient(palette::action_gradient())
-                                                .radius(29.0)
+                                                .radius(39.0)
                                                 .shadow(Shadow::new(
                                                     Color::rgba(0, 0, 0, 130),
                                                     Offset::new(0.0, 12.0),
                                                     24.0,
                                                 )),
                                         )
-                                        .size(58.0, 58.0)
+                                        .size(78.0, 78.0)
                                         .alignment(Alignment::CENTER)
                                         .child(
-                                            Icon::new(icons::add())
-                                                .size(26.0)
-                                                .color(Color::rgb(255, 255, 255)),
+                                            Stack::new()
+                                                .fit(StackFit::Expand)
+                                                .push(Positioned::fill().child(action_ring()))
+                                                .push(
+                                                    Align::new(Alignment::CENTER).child(
+                                                        Icon::new(icons::add())
+                                                            .size(28.0)
+                                                            .color(Color::rgb(255, 255, 255)),
+                                                    ),
+                                                ),
                                         ),
                                 ),
                             ),
@@ -526,32 +625,59 @@ fn action(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
 
     Flex::column()
         .cross_axis_alignment(CrossAxisAlignment::Stretch)
-        .spacing(6.0)
+        .spacing(4.0)
         .children(children![
             button,
-            Text::new("New decision")
-                .size(14.0)
-                .color(INK)
-                .align(TextAlign::Center),
+            Text::new("New decision").style(
+                TextStyle::new(15.0)
+                    .weight(FontWeight::Medium)
+                    .color(Color::rgb(238, 240, 251)),
+            )
+            .align(TextAlign::Center),
         ])
         .into()
 }
 
-/// The halo behind the action: one slow ring, breathing outward.
+/// The halo behind the action: the reference's wide pulse disc, breathing,
+/// and one slow ring racing outward.
 fn action_halo(t: f32) -> Painting {
     Painting::sized(
-        Size::square(74.0),
+        Size::square(98.0),
         PaintWith::new(move |book, s| {
             let c = Offset::new(s.width / 2.0, s.height / 2.0);
             let phase = (t / 3.2).fract();
+            let breathe = 0.5 + 0.5 * (t * std::f32::consts::TAU / 3.6).sin();
             book.blended_layer(1.0, 0.0, BlendMode::Plus, None, |light| {
+                light.circle(
+                    c,
+                    49.0,
+                    Gradient::radial_fill().with_stops(&[
+                        (
+                            0.0,
+                            Color::rgb(146, 121, 235).with_alpha((26.0 + 10.0 * breathe) as u8),
+                        ),
+                        (0.72, Color::rgb(146, 121, 235).with_alpha(14)),
+                        (1.0, Color::TRANSPARENT),
+                    ]),
+                );
                 light.ring(
                     c,
-                    30.0 + phase * 12.0,
+                    39.0 + phase * 10.0,
                     1.3,
                     AXON.with_alpha(((1.0 - phase) * 60.0) as u8),
                 );
             });
+        }),
+    )
+}
+
+/// The button's inner ring — the reference's quiet second border.
+fn action_ring() -> Painting {
+    Painting::sized(
+        Size::square(78.0),
+        PaintWith::new(move |book, s| {
+            let c = Offset::new(s.width / 2.0, s.height / 2.0);
+            book.ring(c, 31.0, 1.2, Color::rgba(238, 232, 255, 107));
         }),
     )
 }
@@ -607,16 +733,16 @@ fn category(
                     .decoration(
                         BoxDecoration::new()
                             .color(Color::rgba(21, 31, 49, (235.0 + press * 20.0) as u8,))
-                            .radius(23.0)
+                            .radius(24.0)
                             .border(Border::new(
                                 tint.with_alpha((51.0 + press * 120.0) as u8),
                                 1.0,
                             )),
                     )
-                    .size(46.0, 46.0)
+                    .size(48.0, 48.0)
                     .alignment(Alignment::CENTER)
                     .child(glyph.paint(tint)),
-                Text::new(label).size(8.5).color(FAINT),
+                Text::new(label).size(9.0).color(MUTED),
             ])
             .into()
     })
@@ -775,20 +901,20 @@ impl Glyph {
 }
 
 /// The last thing U noted, and the way back into the asking.
-fn recent(shared: &Shared, ctx: &BuildContext, noted: &'static str, t: f32) -> WidgetNode {
+fn recent(shared: &Shared, ctx: &BuildContext, noted: &'static str, _t: f32) -> WidgetNode {
     let shared_for_ask = shared.clone();
     let card = Pressable::themed(ctx, move |press| {
         Container::new()
             .decoration(
                 BoxDecoration::new()
                     .color(Color::rgba(17, 27, 45, (228.0 + press * 27.0) as u8))
-                    .radius(14.0)
+                    .radius(15.0)
                     .border(Border::new(
-                        EDGE.with_alpha((46.0 + press * 110.0) as u8),
+                        EDGE.with_alpha((19.0 + press * 110.0) as u8),
                         1.0,
                     )),
             )
-            .height(44.0)
+            .height(48.0)
             .padding(EdgeInsets::symmetric(12.0, 0.0))
             .child(
                 Flex::row()
@@ -802,11 +928,13 @@ fn recent(shared: &Shared, ctx: &BuildContext, noted: &'static str, t: f32) -> W
                             )
                             .size(26.0, 26.0)
                             .alignment(Alignment::CENTER)
-                            .child(neurons::sigil(18.0, t, 0.0)),
+                            .child(Glyph::Career.paint(Color::rgb(185, 167, 250))),
                         SizedBox::width(11.0),
-                        Text::new(format!("U noted — {noted}"))
-                            .size(12.0)
-                            .color(INK),
+                        Text::new(noted).style(
+                            TextStyle::new(12.0)
+                                .weight(FontWeight::Medium)
+                                .color(Color::rgb(220, 227, 241)),
+                        ),
                         Flexible::expanded(1).child(SizedBox::shrink()),
                         Icon::new(icons::chevron_right()).size(16.0).color(MUTED),
                     ]),
@@ -822,10 +950,12 @@ fn recent(shared: &Shared, ctx: &BuildContext, noted: &'static str, t: f32) -> W
         .cross_axis_alignment(CrossAxisAlignment::Stretch)
         .spacing(6.0)
         .children(children![
-            Text::new("PICK UP WHERE YOU LEFT OFF")
-                .size(9.0)
-                .bold()
-                .color(FAINT),
+            Text::new("PICK UP WHERE YOU LEFT OFF").style(
+                TextStyle::new(9.0)
+                    .weight(FontWeight::Bold)
+                    .letter_spacing(1.8)
+                    .color(Color::rgb(119, 136, 165)),
+            ),
             card,
         ])
         .into()
@@ -847,11 +977,13 @@ fn nudge(state: &AppState, shared: &Shared, ctx: &BuildContext, answers: u32) ->
 
     let state_for_later = state.clone();
     let later = Pressable::themed(ctx, move |press| {
-        Text::new("LATER")
-            .size(9.0)
-            .bold()
-            .color(AXON.with_alpha((150.0 + press * 105.0) as u8))
-            .into()
+        Text::new("LATER").style(
+            TextStyle::new(10.0)
+                .weight(FontWeight::Medium)
+                .letter_spacing(0.5)
+                .color(palette::mix(Color::rgb(147, 137, 176), INK, press)),
+        )
+        .into()
     })
     .on_tap(move || state_for_later.dismiss_nudge());
 
@@ -861,11 +993,11 @@ fn nudge(state: &AppState, shared: &Shared, ctx: &BuildContext, answers: u32) ->
             .decoration(
                 BoxDecoration::new()
                     .color(Color::rgba(41, 35, 61, (220.0 + press * 35.0) as u8))
-                    .radius(12.0),
+                    .radius(9.0),
             )
-            .size(24.0, 24.0)
+            .size(18.0, 18.0)
             .alignment(Alignment::CENTER)
-            .child(Icon::new(icons::close()).size(9.0).color(MUTED))
+            .child(Icon::new(icons::close()).size(8.0).color(Color::rgb(184, 175, 202)))
             .into()
     })
     .on_tap(move || state_for_close.dismiss_nudge());
@@ -889,11 +1021,11 @@ fn nudge(state: &AppState, shared: &Shared, ctx: &BuildContext, answers: u32) ->
                             .decoration(
                                 BoxDecoration::new()
                                     .color(Color::rgb(48, 36, 73))
-                                    .radius(10.0),
+                                    .radius(9.0),
                             )
-                            .size(20.0, 20.0)
+                            .size(18.0, 18.0)
                             .alignment(Alignment::CENTER)
-                            .child(Icon::new(icons::add()).size(10.0).color(AXON)),
+                            .child(Icon::new(icons::add()).size(10.0).color(Color::rgb(187, 168, 255))),
                         SizedBox::width(10.0),
                         Text::new(text.clone())
                             .size(10.5)

@@ -26,6 +26,7 @@ use std::time::Duration;
 use vieww::foundation::Size;
 use vieww::FrameDriver;
 use vieww_paint::native::NativeRenderer;
+use vieww_widget::Theme;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let out = std::env::args()
@@ -43,7 +44,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut driver = FrameDriver::new(u::SURFACE);
     driver.use_system_fonts();
     let shared = u::mount(&mut driver);
-    driver.set_root(u::root(&shared));
+    driver.set_root(Theme::new(u::palette::theme()).child(u::root(&shared)));
     let mut reel = Reel { at: 0.0 };
 
     reel.advance(&mut driver, 1.2);
@@ -76,7 +77,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut driver = FrameDriver::new(u::SURFACE);
     driver.use_system_fonts();
     let shared = u::mount_with(&mut driver, fixture(&sketch)?);
-    driver.set_root(u::root(&shared));
+    driver.set_root(Theme::new(u::palette::theme()).child(u::root(&shared)));
     let mut reel = Reel { at: 0.0 };
 
     reel.advance(&mut driver, 4.9);
@@ -98,7 +99,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut driver = FrameDriver::new(u::SURFACE);
     driver.use_system_fonts();
     let shared = u::mount_with(&mut driver, fixture(&daily)?);
-    driver.set_root(u::root(&shared));
+    driver.set_root(Theme::new(u::palette::theme()).child(u::root(&shared)));
     let mut reel = Reel { at: 0.0 };
 
     reel.advance(&mut driver, 4.9);
