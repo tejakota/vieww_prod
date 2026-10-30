@@ -1,0 +1,86 @@
+PASS session_bridge_registered android
+PASS output_opens aaudio at 48000 Hz
+PASS focus_granted play() ok
+PASS plays advanced 2000 ms in 2 s
+device exclusive=true buffer_frames=192 latency_ms=7.2 xruns=0 late=0 disconnected=false
+PASS output_latency_reported device exclusive=true buffer_frames=192 latency_ms=7.2 xruns=0 late=0 disconnected=false
+PASS transient_loss_pauses suspended=true
+PASS nothing_advances_while_paused moved 0 ms in 1 s
+PASS focus_return_resumes suspended=false advanced 997 ms in 1 s
+PASS may_duck_loss_ducks duck gain 0.251, suspended=false
+PASS focus_return_unducks duck gain 1.000
+PASS route_event_reaches_the_stream provoked=true session route changes 1->2 stream route events 0->1
+PASS aaudio_latency 7.1 ms, exclusive (limit 20 ms), buffer 192 frames
+PASS aaudio_60s_no_xruns xruns 0->0 over 60 s, buffer Some(192)->Some(192) frames, disconnected=false
+device exclusive=true buffer_frames=192 latency_ms=7.6 xruns=0 late=0 disconnected=false
+events [Action(Unduck), Focus(Gained), Action(Duck), Focus(LostCanDuck), Action(Resume), Focus(Gained), Action(Pause), Focus(LostTransient), Requested { granted: true }]
+result PASS
+status t_ms=71581 callbacks=3314944 rate=48000 position_ms=6927 playing=false suspended=false duck=1.000 holding=false xruns=0
+status t_ms=72582 callbacks=3363072 rate=48000 position_ms=6927 playing=false suspended=false duck=1.000 holding=false xruns=0
+status t_ms=73583 callbacks=3410944 rate=48000 position_ms=6927 playing=false suspended=false duck=1.000 holding=false xruns=0
+status t_ms=74584 callbacks=3459072 rate=48000 position_ms=6927 playing=false suspended=false duck=1.000 holding=false xruns=0
+status t_ms=75595 callbacks=3507712 rate=48000 position_ms=7839 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=76596 callbacks=3555584 rate=48000 position_ms=8837 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=77597 callbacks=3603712 rate=48000 position_ms=9839 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=78598 callbacks=3651840 rate=48000 position_ms=10842 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=79600 callbacks=3699968 rate=48000 position_ms=11845 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=80605 callbacks=3748096 rate=48000 position_ms=12847 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=81608 callbacks=3796224 rate=48000 position_ms=13850 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=82610 callbacks=3844352 rate=48000 position_ms=14853 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=83613 callbacks=3892480 rate=48000 position_ms=15855 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=84616 callbacks=3940608 rate=48000 position_ms=16858 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=85619 callbacks=3988736 rate=48000 position_ms=17861 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=86623 callbacks=4036864 rate=48000 position_ms=18863 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=87626 callbacks=4085248 rate=48000 position_ms=19871 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=88629 callbacks=4133120 rate=48000 position_ms=20869 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=89632 callbacks=4181504 rate=48000 position_ms=21877 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=90636 callbacks=4229632 rate=48000 position_ms=22879 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=91639 callbacks=4277760 rate=48000 position_ms=23882 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=92641 callbacks=4325888 rate=48000 position_ms=24885 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=93644 callbacks=4374016 rate=48000 position_ms=25887 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=94646 callbacks=4422144 rate=48000 position_ms=26890 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=95649 callbacks=4470272 rate=48000 position_ms=27893 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=96651 callbacks=4518400 rate=48000 position_ms=28895 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=97653 callbacks=4566272 rate=48000 position_ms=29893 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=98656 callbacks=4614656 rate=48000 position_ms=901 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=99659 callbacks=4662784 rate=48000 position_ms=1903 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=100661 callbacks=4710656 rate=48000 position_ms=2901 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=101665 callbacks=4759040 rate=48000 position_ms=3909 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=102668 callbacks=4807168 rate=48000 position_ms=4911 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=103671 callbacks=4855296 rate=48000 position_ms=5914 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=104673 callbacks=4903424 rate=48000 position_ms=6917 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=105676 callbacks=4951552 rate=48000 position_ms=7919 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=106679 callbacks=4999680 rate=48000 position_ms=8922 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=107681 callbacks=5047808 rate=48000 position_ms=9925 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=108684 callbacks=5095936 rate=48000 position_ms=10927 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=109687 callbacks=5144064 rate=48000 position_ms=11930 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=110691 callbacks=5192192 rate=48000 position_ms=12933 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=111693 callbacks=5240320 rate=48000 position_ms=13935 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=112695 callbacks=5288448 rate=48000 position_ms=14938 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=113699 callbacks=5336576 rate=48000 position_ms=15941 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=114702 callbacks=5384704 rate=48000 position_ms=16943 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=115705 callbacks=5432832 rate=48000 position_ms=17946 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=116708 callbacks=5480960 rate=48000 position_ms=18949 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=117710 callbacks=5529088 rate=48000 position_ms=19951 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=118713 callbacks=5577216 rate=48000 position_ms=20954 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=119719 callbacks=5625600 rate=48000 position_ms=21962 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=120721 callbacks=5673728 rate=48000 position_ms=22965 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=121724 callbacks=5721856 rate=48000 position_ms=23967 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=122727 callbacks=5769984 rate=48000 position_ms=24970 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=123731 callbacks=5818112 rate=48000 position_ms=25973 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=124734 callbacks=5866240 rate=48000 position_ms=26975 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=125737 callbacks=5914368 rate=48000 position_ms=27978 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=126739 callbacks=5962496 rate=48000 position_ms=28981 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=127742 callbacks=6010624 rate=48000 position_ms=29983 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=128745 callbacks=6058752 rate=48000 position_ms=986 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=129747 callbacks=6106880 rate=48000 position_ms=1989 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=130751 callbacks=6155008 rate=48000 position_ms=2991 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=131754 callbacks=6203392 rate=48000 position_ms=3999 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=132757 callbacks=6251264 rate=48000 position_ms=4997 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=133759 callbacks=6299392 rate=48000 position_ms=5999 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=134763 callbacks=6347776 rate=48000 position_ms=7007 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=135766 callbacks=6395904 rate=48000 position_ms=8010 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=136770 callbacks=6444032 rate=48000 position_ms=9013 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=137774 callbacks=6492160 rate=48000 position_ms=10015 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=138776 callbacks=6540288 rate=48000 position_ms=11018 playing=true suspended=false duck=1.000 holding=true xruns=0
+status t_ms=139779 callbacks=6582272 rate=48000 position_ms=11893 playing=true suspended=false duck=1.000 holding=true xruns=0

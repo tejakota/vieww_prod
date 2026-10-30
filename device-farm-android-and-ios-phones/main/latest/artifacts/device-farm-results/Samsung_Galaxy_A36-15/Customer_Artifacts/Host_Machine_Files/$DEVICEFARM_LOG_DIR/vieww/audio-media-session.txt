@@ -1,0 +1,73 @@
+MEDIA SESSION SERVICE (dumpsys media_session)
+
+8 sessions listeners.
+Global priority session is com.android.server.telecom/HeadsetMediaButton/1 (userId=0)
+  HeadsetMediaButton com.android.server.telecom/HeadsetMediaButton/1 (userId=0)
+    ownerPid=2282, ownerUid=1000, userId=0
+    package=com.android.server.telecom
+    launchIntent=null
+    mediaButtonReceiver=null
+    active=false
+    flags=65537
+    rating type=0
+    controllers: 0
+    state=null
+    audioAttrs=AudioAttributes: usage=USAGE_VOICE_COMMUNICATION content=CONTENT_TYPE_SPEECH flags=0x800 tags= bundle=null
+    volumeType=LOCAL, controlType=ABSOLUTE, max=0, current=0, volumeControlId=null
+    metadata: null
+    queueTitle=null, size=0
+User Records:
+Record for full_user=0
+  Volume key long-press listener: null
+  Volume key long-press listener package: 
+  Media key listener: null
+  Media key listener package: 
+  OnMediaKeyEventDispatchedListener: added 0 listener(s)
+  OnMediaKeyEventSessionChangedListener: added 1 listener(s)
+    from com.samsung.android.app.aodservice
+  Last MediaButtonReceiver: MBR {pi=null, componentName=ComponentInfo{com.audible.application/androidx.media.session.MediaButtonReceiver}, type=1, pkg=com.audible.application}
+  High priority mediakey receiver: null
+  Volume key long-press receiver: null
+  Media button session is dev.vieww.demo/vieww/51 (userId=0)
+  Sessions Stack - have 1 sessions:
+    vieww dev.vieww.demo/vieww/51 (userId=0)
+      ownerPid=11315, ownerUid=10301, userId=0
+      package=dev.vieww.demo
+      launchIntent=null
+      mediaButtonReceiver=null
+      active=true
+      flags=0
+      rating type=0
+      controllers: 10
+       androidcom.android.server.media.MediaSessionRecord$ControllerStub$$ExternalSyntheticLambda0@3589fb2
+       com.android.systemuicom.android.server.media.MediaSessionRecord$ControllerStub$$ExternalSyntheticLambda0@3106b03
+       androidcom.android.server.media.MediaSessionRecord$ControllerStub$$ExternalSyntheticLambda0@5eaaa80
+       com.android.systemuicom.android.server.media.MediaSessionRecord$ControllerStub$$ExternalSyntheticLambda0@3ddc8b9
+       com.android.systemuicom.android.server.media.MediaSessionRecord$ControllerStub$$ExternalSyntheticLambda0@ad04fe
+       com.android.systemuicom.android.server.media.MediaSessionRecord$ControllerStub$$ExternalSyntheticLambda0@ba4b45f
+       com.android.systemuicom.android.server.media.MediaSessionRecord$ControllerStub$$ExternalSyntheticLambda0@48feeac
+       com.android.systemuicom.android.server.media.MediaSessionRecord$ControllerStub$$ExternalSyntheticLambda0@1093775
+       com.android.systemuicom.android.server.media.MediaSessionRecord$ControllerStub$$ExternalSyntheticLambda0@950730a
+       com.android.systemuicom.android.server.media.MediaSessionRecord$ControllerStub$$ExternalSyntheticLambda0@e0a377b
+      state=PlaybackState {state=PLAYING(3), position=6927, buffered position=0, speed=1.0, updated=2134321, actions=895, custom actions=[], active item id=-1, error=null}
+      audioAttrs=AudioAttributes: usage=USAGE_MEDIA content=CONTENT_TYPE_UNKNOWN flags=0x800 tags= bundle=null
+      volumeType=LOCAL, controlType=ABSOLUTE, max=0, current=0, volumeControlId=null
+      metadata: size=4, description=vieww audio check, vieww, Device Farm
+      queueTitle=null, size=0
+isAppCastingOn:false
+isMultiSoundOn:false
+Events log: MediaSession events
+10-30 04:47:05:536 registerRemoteVolumeController uid : 10044, pid : 3212, rvc : android.media.IRemoteSessionCallback$Stub$Proxy@45dff54
+10-30 05:22:12:744 MediaKeyEvt,pkg=com.android.shell pid=11749,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PAUSE,act:ACTION_DOWN
+10-30 05:22:12:746 MediaKeyEvt,pkg=com.android.shell pid=11749,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PAUSE,act:ACTION_UP
+10-30 05:22:16:166 MediaKeyEvt,pkg=com.android.shell pid=11763,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PLAY,act:ACTION_DOWN
+10-30 05:22:16:167 MediaKeyEvt,pkg=com.android.shell pid=11763,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PLAY,act:ACTION_UP
+
+isSupportMediaDataPlatform:false
+
+Audio playback (lastly played comes first)
+  uid=10301 packages=dev.vieww.demo 
+Media session config:
+  media_button_receiver_fgs_allowlist_duration_ms: [cur: 10000, def: 10000]
+  media_session_calback_fgs_allowlist_duration_ms: [cur: 10000, def: 10000]
+  media_session_callback_fgs_while_in_use_temp_allow_duration_ms: [cur: 10000, def: 10000]

@@ -1,96 +1,96 @@
 # vieww on AWS Device Farm
 
-run: `arn:aws:devicefarm:us-west-2:278061313767:run:393108fd-d195-4dad-acb4-12581f7a212f/42a51673-0338-464d-8d11-7e9855bd68e3` — FAILED
+run: `arn:aws:devicefarm:us-west-2:278061313767:run:393108fd-d195-4dad-acb4-12581f7a212f/209c01bf-feff-41e2-85ef-577ecebfd235` — PASSED
 
 | phone | tier | Android | SoC / GPU | RAM | APK | cold start cpu / gpu (ms, median of 3) | frame time cpu | frame time gpu | frames drawn by the GPU, cpu pass / gpu pass | PSS cpu / gpu (MB) | suite cpu / gpu / auto |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Apple iPhone 13 | low | 16.0 | ?<br>? | ? | 5.0 MB | – / – | median 7.688125ms, worst 8.441334ms, budget 16.666668ms (240 samples) | median 15.932876ms, worst 29.946792ms, budget 16.666668ms (240 samples) | 0 of 600 / 600 of 600 | – / – | PASS / PASS / PASS |
-| Apple iPhone 15 Plus | mid | 17.4 | ?<br>? | ? | 5.0 MB | 356 / 371 | median 6.738125ms, worst 9.078042ms, budget 16.666668ms (240 samples) | median 16.059375ms, worst 16.838667ms, budget 16.666668ms (240 samples) | 0 of 600 / 600 of 600 | – / – | PASS / PASS / PASS |
-| Apple iPhone 18 Pro Max | high | 27.0 | ?<br>? | ? | 5.0 MB | 274 / 287 | median 3.564624ms, worst 6.180916ms, budget 8.333334ms (240 samples) | median 747.708µs, worst 11.909584ms, budget 8.333334ms (240 samples) | 0 of 600 / 600 of 600 | – / – | PASS / PASS / PASS |
+| Apple iPhone 13 | low | 16.0 | ?<br>? | ? | 5.0 MB | – / – | median 7.674167ms, worst 9.214917ms, budget 16.666668ms (240 samples) | median 15.95025ms, worst 29.592291ms, budget 16.666668ms (240 samples) | 0 of 600 / 600 of 600 | – / – | PASS / PASS / PASS |
+| Apple iPhone 15 Plus | mid | 17.4 | ?<br>? | ? | 5.0 MB | 369 / 370 | median 6.701626ms, worst 9.120375ms, budget 16.666668ms (240 samples) | median 16.063291ms, worst 16.798708ms, budget 16.666668ms (240 samples) | 0 of 600 / 600 of 600 | – / – | PASS / PASS / PASS |
+| Apple iPhone 18 Pro Max | high | 27.0 | ?<br>? | ? | 5.0 MB | 272 / 283 | median 4.335041ms, worst 6.753708ms, budget 8.333334ms (240 samples) | median 809.625µs, worst 14.314709ms, budget 8.333334ms (240 samples) | 0 of 600 / 600 of 600 | – / – | PASS / PASS / PASS |
 
 **Apple iPhone 13**
-- CPU path: median 7.688125ms, worst 8.441334ms, budget 16.666668ms (240 samples)
-  - start-up: before run 63 ms | app setup 0.9 | event loop started 46.3 | resumed 238.0 | window created 25.5 | present ready 2.2 | accessibility and show 0.3 | tree built 17.5 | window ready 0.2 | until first draw 0.4 | app before-frame hooks 0.2 | first build and layout 4.8 | first raster and present 45.0 = 444.1 ms from process start
-  - stages: medians ms: scale 0.01 plan 0.00 cpu 4.35 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.08
-  - stages: p95 ms: scale 0.02 plan 0.00 cpu 4.71 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.55
-  - input to present: input to present ms: median 15.5 p95 18.6 p99 34.3 worst 34.3 over 18 inputs in 18 frames; 0 unanswered within 1 s
-  - worst frame: work 8.44 ms, outside the renderer 0.12 ms; stages ms: scale 0.02 plan 0.00 cpu 4.42 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.89
+- CPU path: median 7.674167ms, worst 9.214917ms, budget 16.666668ms (240 samples)
+  - start-up: before run 64 ms | app setup 0.8 | event loop started 49.7 | resumed 231.1 | window created 23.4 | present ready 2.7 | accessibility and show 0.2 | tree built 16.9 | window ready 0.2 | until first draw 0.8 | app before-frame hooks 0.1 | first build and layout 4.6 | first raster and present 32.5 = 427.5 ms from process start
+  - stages: medians ms: scale 0.01 plan 0.00 cpu 4.29 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.14
+  - stages: p95 ms: scale 0.02 plan 0.00 cpu 4.73 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.63
+  - input to present: input to present ms: median 16.2 p95 34.3 p99 37.8 worst 37.8 over 18 inputs in 18 frames; 0 unanswered within 1 s
+  - worst frame: work 9.21 ms, outside the renderer 0.25 ms; stages ms: scale 0.01 plan 0.00 cpu 5.26 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.69
   - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
-- GPU path: median 15.932876ms, worst 29.946792ms, budget 16.666668ms (240 samples)
-  - start-up: before run 27 ms | app setup 0.3 | event loop started 58.6 | resumed 238.2 | window created 22.7 | present ready 253.8 | accessibility and show 0.2 | tree built 2.1 | window ready 0.1 | until first draw 3.0 | app before-frame hooks 0.1 | first build and layout 0.9 | first raster and present 246.2 = 852.9 ms from process start
-  - stages: medians ms: scale 0.11 plan 0.69 cpu 0.00 gpu_upload 0.02 gpu_record 0.04 gpu_submit 13.81 gpu_wait 0.00 gpu_readback 0.00 acquire 0.06 present 0.06
-  - stages: p95 ms: scale 0.15 plan 0.82 cpu 0.00 gpu_upload 0.03 gpu_record 0.06 gpu_submit 14.36 gpu_wait 1.85 gpu_readback 0.00 acquire 0.09 present 0.07
-  - input to present: input to present ms: median 16.2 p95 24.2 p99 47.8 worst 47.8 over 16 inputs in 15 frames; 0 unanswered within 1 s
-  - worst frame: work 29.95 ms, outside the renderer 0.24 ms; stages ms: scale 0.03 plan 0.19 cpu 0.00 gpu_upload 0.01 gpu_record 0.00 gpu_submit 28.01 gpu_wait 1.40 gpu_readback 0.00 acquire 0.02 present 0.04
+- GPU path: median 15.95025ms, worst 29.592291ms, budget 16.666668ms (240 samples)
+  - start-up: before run 25 ms | app setup 0.2 | event loop started 59.2 | resumed 241.1 | window created 21.2 | present ready 254.6 | accessibility and show 0.1 | tree built 2.1 | window ready 0.1 | until first draw 3.2 | app before-frame hooks 0.1 | first build and layout 1.0 | first raster and present 249.8 = 857.2 ms from process start
+  - stages: medians ms: scale 0.11 plan 0.62 cpu 0.00 gpu_upload 0.02 gpu_record 0.03 gpu_submit 13.85 gpu_wait 0.09 gpu_readback 0.00 acquire 0.06 present 0.06
+  - stages: p95 ms: scale 0.14 plan 0.77 cpu 0.00 gpu_upload 0.05 gpu_record 0.06 gpu_submit 14.23 gpu_wait 1.99 gpu_readback 0.00 acquire 0.11 present 0.07
+  - input to present: input to present ms: median 16.4 p95 24.8 p99 48.6 worst 48.6 over 16 inputs in 16 frames; 0 unanswered within 1 s
+  - worst frame: work 29.59 ms, outside the renderer 0.23 ms; stages ms: scale 0.03 plan 0.16 cpu 0.00 gpu_upload 0.01 gpu_record 0.01 gpu_submit 27.65 gpu_wait 1.45 gpu_readback 0.00 acquire 0.02 present 0.03
   - pipeline cache: started from 0 bytes; saved 41036 bytes after the first GPU frame
   - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
-- chosen by measurement (auto): median 7.66475ms, worst 8.66875ms, budget 16.666668ms (240 samples)
-  - renderer: cpu for now; the gpu is measured next launch (measured: cpu 7.47 ms; budget 16.67 ms)
-  - start-up: before run 30 ms | app setup 0.3 | event loop started 58.8 | resumed 241.0 | window created 24.7 | present ready 0.7 | accessibility and show 0.3 | tree built 5.1 | window ready 0.2 | until first draw 0.9 | app before-frame hooks 0.2 | first build and layout 2.6 | first raster and present 31.1 = 395.6 ms from process start
-  - stages: medians ms: scale 0.01 plan 0.00 cpu 4.19 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.25
-  - stages: p95 ms: scale 0.02 plan 0.00 cpu 4.73 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.71
-  - input to present: input to present ms: median 16.2 p95 17.5 p99 23.5 worst 23.5 over 18 inputs in 18 frames; 0 unanswered within 1 s
-  - worst frame: work 8.67 ms, outside the renderer 0.19 ms; stages ms: scale 0.02 plan 0.00 cpu 5.11 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.36
+- chosen by measurement (auto): median 7.789167ms, worst 8.779042ms, budget 16.666668ms (240 samples)
+  - renderer: cpu for now; the gpu is measured next launch (measured: cpu 7.57 ms; budget 16.67 ms)
+  - start-up: before run 29 ms | app setup 0.3 | event loop started 61.1 | resumed 239.1 | window created 23.5 | present ready 1.0 | accessibility and show 0.3 | tree built 5.5 | window ready 0.2 | until first draw 0.9 | app before-frame hooks 0.1 | first build and layout 2.5 | first raster and present 32.1 = 395.9 ms from process start
+  - stages: medians ms: scale 0.01 plan 0.00 cpu 4.35 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.20
+  - stages: p95 ms: scale 0.02 plan 0.00 cpu 4.78 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.71
+  - input to present: input to present ms: median 16.9 p95 18.1 p99 23.8 worst 23.8 over 18 inputs in 18 frames; 0 unanswered within 1 s
+  - worst frame: work 8.78 ms, outside the renderer 0.21 ms; stages ms: scale 0.01 plan 0.00 cpu 4.96 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.60
   - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
 
 **Apple iPhone 15 Plus**
-- CPU path: median 6.738125ms, worst 9.078042ms, budget 16.666668ms (240 samples)
-  - start-up: before run 21 ms | app setup 0.2 | event loop started 85.1 | resumed 214.2 | window created 16.5 | present ready 0.5 | accessibility and show 0.2 | tree built 4.4 | window ready 5.9 | until first draw 0.4 | app before-frame hooks 0.1 | first build and layout 1.7 | first raster and present 28.2 = 378.0 ms from process start
-  - stages: medians ms: scale 0.01 plan 0.00 cpu 3.36 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.13 present 3.01
-  - stages: p95 ms: scale 0.01 plan 0.00 cpu 4.26 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.17 present 3.52
-  - input to present: input to present ms: median 15.7 p95 19.8 p99 46.1 worst 46.1 over 16 inputs in 16 frames; 0 unanswered within 1 s
-  - worst frame: work 9.08 ms, outside the renderer 0.12 ms; stages ms: scale 0.01 plan 0.00 cpu 4.08 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 4.86
+- CPU path: median 6.701626ms, worst 9.120375ms, budget 16.666668ms (240 samples)
+  - start-up: before run 21 ms | app setup 0.2 | event loop started 80.0 | resumed 222.3 | window created 17.4 | present ready 0.5 | accessibility and show 0.2 | tree built 4.5 | window ready 6.0 | until first draw 1.1 | app before-frame hooks 0.1 | first build and layout 1.9 | first raster and present 28.6 = 383.4 ms from process start
+  - stages: medians ms: scale 0.01 plan 0.00 cpu 3.32 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.13 present 3.04
+  - stages: p95 ms: scale 0.01 plan 0.00 cpu 4.26 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.16 present 3.56
+  - input to present: input to present ms: median 16.5 p95 45.3 p99 57.8 worst 57.8 over 16 inputs in 16 frames; 0 unanswered within 1 s
+  - worst frame: work 9.12 ms, outside the renderer 0.12 ms; stages ms: scale 0.01 plan 0.00 cpu 5.84 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.14 present 3.01
   - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
-- GPU path: median 16.059375ms, worst 16.838667ms, budget 16.666668ms (240 samples)
-  - start-up: before run 22 ms | app setup 0.3 | event loop started 86.8 | resumed 215.3 | window created 15.0 | present ready 19.0 | accessibility and show 0.2 | tree built 3.9 | window ready 5.6 | until first draw 1.8 | app before-frame hooks 0.1 | first build and layout 1.7 | first raster and present 19.7 = 391.1 ms from process start
-  - stages: medians ms: scale 0.07 plan 0.48 cpu 0.00 gpu_upload 0.02 gpu_record 0.03 gpu_submit 12.58 gpu_wait 2.03 gpu_readback 0.00 acquire 0.04 present 0.04
-  - stages: p95 ms: scale 0.09 plan 0.57 cpu 0.00 gpu_upload 0.03 gpu_record 0.05 gpu_submit 13.67 gpu_wait 2.86 gpu_readback 0.00 acquire 0.08 present 0.05
-  - input to present: input to present ms: median 17.7 p95 32.6 p99 54.3 worst 54.3 over 12 inputs in 12 frames; 0 unanswered within 1 s
-  - worst frame: work 16.84 ms, outside the renderer 0.87 ms; stages ms: scale 0.09 plan 0.54 cpu 0.00 gpu_upload 0.05 gpu_record 0.05 gpu_submit 13.54 gpu_wait 1.59 gpu_readback 0.00 acquire 0.05 present 0.05
+- GPU path: median 16.063291ms, worst 16.798708ms, budget 16.666668ms (240 samples)
+  - start-up: before run 21 ms | app setup 0.2 | event loop started 85.0 | resumed 219.6 | window created 14.2 | present ready 20.0 | accessibility and show 0.2 | tree built 4.0 | window ready 5.4 | until first draw 1.0 | app before-frame hooks 0.1 | first build and layout 1.7 | first raster and present 21.8 = 394.3 ms from process start
+  - stages: medians ms: scale 0.07 plan 0.49 cpu 0.00 gpu_upload 0.02 gpu_record 0.03 gpu_submit 12.59 gpu_wait 2.02 gpu_readback 0.00 acquire 0.04 present 0.04
+  - stages: p95 ms: scale 0.09 plan 0.60 cpu 0.00 gpu_upload 0.03 gpu_record 0.06 gpu_submit 13.86 gpu_wait 2.99 gpu_readback 0.00 acquire 0.08 present 0.05
+  - input to present: input to present ms: median 18.4 p95 31.7 p99 54.1 worst 54.1 over 12 inputs in 12 frames; 0 unanswered within 1 s
+  - worst frame: work 16.80 ms, outside the renderer 0.16 ms; stages ms: scale 0.01 plan 0.10 cpu 0.00 gpu_upload 0.01 gpu_record 0.01 gpu_submit 13.04 gpu_wait 3.42 gpu_readback 0.00 acquire 0.02 present 0.03
   - pipeline cache: started from 41036 bytes; saved 41036 bytes after the first GPU frame
   - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
-- chosen by measurement (auto): median 6.699583ms, worst 8.597833ms, budget 16.666668ms (240 samples)
-  - renderer: cpu (calibrated earlier: cpu 6.43 ms, gpu 29.89 ms)
-  - start-up: before run 21 ms | app setup 0.2 | event loop started 86.3 | resumed 216.1 | window created 15.9 | present ready 0.8 | accessibility and show 0.2 | tree built 4.3 | window ready 5.9 | until first draw 0.4 | app before-frame hooks 0.1 | first build and layout 1.7 | first raster and present 28.8 = 381.4 ms from process start
-  - stages: medians ms: scale 0.01 plan 0.00 cpu 3.35 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.13 present 3.00
-  - stages: p95 ms: scale 0.01 plan 0.00 cpu 4.36 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.16 present 3.50
-  - input to present: input to present ms: median 16.8 p95 18.7 p99 24.2 worst 24.2 over 16 inputs in 16 frames; 0 unanswered within 1 s
-  - worst frame: work 8.60 ms, outside the renderer 0.63 ms; stages ms: scale 0.01 plan 0.00 cpu 4.58 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.12 present 3.25
+- chosen by measurement (auto): median 6.642167ms, worst 8.635167ms, budget 16.666668ms (240 samples)
+  - renderer: cpu (calibrated earlier: cpu 6.61 ms, gpu 29.97 ms)
+  - start-up: before run 21 ms | app setup 0.3 | event loop started 79.4 | resumed 227.0 | window created 13.3 | present ready 0.8 | accessibility and show 0.2 | tree built 5.3 | window ready 6.9 | until first draw 0.5 | app before-frame hooks 0.2 | first build and layout 2.0 | first raster and present 30.6 = 387.4 ms from process start
+  - stages: medians ms: scale 0.01 plan 0.00 cpu 3.34 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.13 present 2.97
+  - stages: p95 ms: scale 0.01 plan 0.00 cpu 4.28 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.16 present 3.42
+  - input to present: input to present ms: median 16.7 p95 19.7 p99 26.5 worst 26.5 over 16 inputs in 16 frames; 0 unanswered within 1 s
+  - worst frame: work 8.64 ms, outside the renderer 0.11 ms; stages ms: scale 0.01 plan 0.00 cpu 5.01 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.26 present 3.25
   - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
 
 **Apple iPhone 18 Pro Max**
-- CPU path: median 3.564624ms, worst 6.180916ms, budget 8.333334ms (240 samples)
-  - start-up: before run 18 ms | app setup 0.2 | event loop started 82.8 | resumed 170.0 | window created 5.3 | present ready 0.2 | accessibility and show 0.1 | tree built 1.5 | window ready 2.6 | until first draw 0.7 | app before-frame hooks 0.0 | first build and layout 0.6 | first raster and present 9.0 = 290.7 ms from process start
-  - stages: medians ms: scale 0.01 plan 0.00 cpu 2.53 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.11 present 0.73
-  - stages: p95 ms: scale 0.01 plan 0.00 cpu 3.22 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.16 present 2.02
-  - input to present: input to present ms: median 11.0 p95 41.7 p99 41.7 worst 41.7 over 8 inputs in 8 frames; 0 unanswered within 1 s
-  - worst frame: work 6.18 ms, outside the renderer 0.11 ms; stages ms: scale 0.01 plan 0.00 cpu 3.28 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.19 present 2.59
+- CPU path: median 4.335041ms, worst 6.753708ms, budget 8.333334ms (240 samples)
+  - start-up: before run 17 ms | app setup 0.2 | event loop started 85.2 | resumed 167.1 | window created 5.5 | present ready 0.2 | accessibility and show 0.1 | tree built 1.5 | window ready 2.8 | until first draw 0.9 | app before-frame hooks 0.1 | first build and layout 0.7 | first raster and present 9.9 = 290.8 ms from process start
+  - stages: medians ms: scale 0.01 plan 0.00 cpu 2.30 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.15 present 1.83
+  - stages: p95 ms: scale 0.01 plan 0.00 cpu 2.78 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.18 present 2.38
+  - input to present: input to present ms: median 10.0 p95 38.7 p99 38.7 worst 38.7 over 10 inputs in 10 frames; 0 unanswered within 1 s
+  - worst frame: work 6.75 ms, outside the renderer 0.08 ms; stages ms: scale 0.01 plan 0.00 cpu 3.31 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.15 present 3.20
   - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
-- GPU path: median 747.708µs, worst 11.909584ms, budget 8.333334ms (240 samples)
-  - start-up: before run 17 ms | app setup 0.2 | event loop started 87.7 | resumed 165.6 | window created 5.2 | present ready 6.9 | accessibility and show 0.1 | tree built 1.4 | window ready 2.6 | until first draw 1.3 | app before-frame hooks 0.0 | first build and layout 0.6 | first raster and present 9.8 = 298.6 ms from process start
-  - stages: medians ms: scale 0.02 plan 0.13 cpu 0.00 gpu_upload 0.01 gpu_record 0.01 gpu_submit 0.26 gpu_wait 0.00 gpu_readback 0.00 acquire 0.02 present 0.02
-  - stages: p95 ms: scale 0.05 plan 0.23 cpu 0.00 gpu_upload 0.02 gpu_record 0.04 gpu_submit 5.88 gpu_wait 0.91 gpu_readback 0.00 acquire 0.05 present 0.03
-  - input to present: input to present ms: median 10.4 p95 29.5 p99 53.3 worst 53.3 over 14 inputs in 14 frames; 0 unanswered within 1 s
-  - worst frame: work 11.91 ms, outside the renderer 0.35 ms; stages ms: scale 0.04 plan 0.22 cpu 0.00 gpu_upload 0.02 gpu_record 0.01 gpu_submit 10.38 gpu_wait 0.84 gpu_readback 0.00 acquire 0.04 present 0.01
+- GPU path: median 809.625µs, worst 14.314709ms, budget 8.333334ms (240 samples)
+  - start-up: before run 16 ms | app setup 0.2 | event loop started 83.9 | resumed 165.7 | window created 5.3 | present ready 6.8 | accessibility and show 0.1 | tree built 1.4 | window ready 2.6 | until first draw 1.3 | app before-frame hooks 0.0 | first build and layout 0.6 | first raster and present 11.2 = 295.6 ms from process start
+  - stages: medians ms: scale 0.02 plan 0.13 cpu 0.00 gpu_upload 0.01 gpu_record 0.01 gpu_submit 0.25 gpu_wait 0.00 gpu_readback 0.00 acquire 0.03 present 0.02
+  - stages: p95 ms: scale 0.05 plan 0.23 cpu 0.00 gpu_upload 0.02 gpu_record 0.04 gpu_submit 0.38 gpu_wait 0.00 gpu_readback 0.00 acquire 0.04 present 0.03
+  - input to present: input to present ms: median 11.3 p95 28.2 p99 51.5 worst 51.5 over 16 inputs in 16 frames; 0 unanswered within 1 s
+  - worst frame: work 14.31 ms, outside the renderer 0.16 ms; stages ms: scale 0.02 plan 0.09 cpu 0.00 gpu_upload 0.01 gpu_record 0.01 gpu_submit 13.33 gpu_wait 0.66 gpu_readback 0.00 acquire 0.02 present 0.02
   - pipeline cache: started from 41036 bytes; saved 41036 bytes after the first GPU frame
   - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
-- chosen by measurement (auto): median 4.392417ms, worst 6.618166ms, budget 8.333334ms (240 samples)
-  - renderer: cpu (calibrated earlier: cpu 4.54 ms, gpu 8.14 ms)
-  - start-up: before run 17 ms | app setup 0.2 | event loop started 87.4 | resumed 165.9 | window created 5.4 | present ready 0.3 | accessibility and show 0.1 | tree built 1.5 | window ready 2.6 | until first draw 1.0 | app before-frame hooks 0.1 | first build and layout 0.7 | first raster and present 9.4 = 291.9 ms from process start
-  - stages: medians ms: scale 0.01 plan 0.00 cpu 2.30 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.14 present 1.90
-  - stages: p95 ms: scale 0.01 plan 0.00 cpu 2.80 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.16 present 2.51
-  - input to present: input to present ms: median 8.9 p95 20.3 p99 20.3 worst 20.3 over 8 inputs in 8 frames; 0 unanswered within 1 s
-  - worst frame: work 6.62 ms, outside the renderer 0.12 ms; stages ms: scale 0.01 plan 0.00 cpu 3.60 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.14 present 2.75
+- chosen by measurement (auto): median 4.349166ms, worst 6.746625ms, budget 8.333334ms (240 samples)
+  - renderer: cpu (calibrated earlier: cpu 4.47 ms, gpu 8.16 ms)
+  - start-up: before run 16 ms | app setup 0.2 | event loop started 85.6 | resumed 168.1 | window created 5.5 | present ready 0.3 | accessibility and show 0.1 | tree built 1.6 | window ready 2.8 | until first draw 1.0 | app before-frame hooks 0.1 | first build and layout 0.7 | first raster and present 9.4 = 291.5 ms from process start
+  - stages: medians ms: scale 0.01 plan 0.00 cpu 2.30 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.15 present 1.86
+  - stages: p95 ms: scale 0.01 plan 0.00 cpu 2.68 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.17 present 2.41
+  - input to present: input to present ms: median 9.3 p95 20.2 p99 20.2 worst 20.2 over 10 inputs in 10 frames; 0 unanswered within 1 s
+  - worst frame: work 6.75 ms, outside the renderer 0.11 ms; stages ms: scale 0.01 plan 0.00 cpu 3.60 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.15 present 2.88
   - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
 
 ## Audio: focus, interruptions, background playback
 
-**Apple iPhone 15 Plus**: FAIL
-- in_app: FAIL FAIL; failed: route_event_reaches_the_stream
-- plays_in_background: PASS 31 s of audio callbacks over 31 s after Home; after: __VIEWW_AUDIO__ status t_ms=41818 callbacks=1905664 rate=48000 position_ms=8165 playing=true suspended=false duck=1.000 holding=true xruns=0
+**Apple iPhone 15 Plus**: PASS
+- in_app: PASS PASS; failed:
+- plays_in_background: PASS 30 s of audio callbacks over 30 s after Home; after: __VIEWW_AUDIO__ status t_ms=40508 callbacks=1843200 rate=48000 position_ms=6864 playing=true suspended=false duck=1.000 holding=true xruns=0
 
-**Apple iPhone 18 Pro Max**: FAIL
-- in_app: FAIL FAIL; failed: route_event_reaches_the_stream
-- plays_in_background: PASS 31 s of audio callbacks over 31 s after Home; after: __VIEWW_AUDIO__ status t_ms=41785 callbacks=1903616 rate=48000 position_ms=8144 playing=true suspended=false duck=1.000 holding=true xruns=0
+**Apple iPhone 18 Pro Max**: PASS
+- in_app: PASS PASS; failed:
+- plays_in_background: PASS 30 s of audio callbacks over 30 s after Home; after: __VIEWW_AUDIO__ status t_ms=40405 callbacks=1838080 rate=48000 position_ms=6778 playing=true suspended=false duck=1.000 holding=true xruns=0
 
 Targets from the audit, for reading the table: product UI p95 under 15 ms and cold start under 120 ms on a mid-tier phone; release APK under 6 MB.

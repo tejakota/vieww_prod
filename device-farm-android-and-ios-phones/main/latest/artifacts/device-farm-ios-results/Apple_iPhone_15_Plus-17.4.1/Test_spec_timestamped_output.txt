@@ -1,138 +1,137 @@
-[2026-10-29 17:09:16.710411] [DEVICEFARM] ########### Start executing testspec ###########
-[2026-10-29 17:09:16.710489]  
-[2026-10-29 17:09:16.713353]  
-[2026-10-29 17:09:16.713370] [DEVICEFARM] ########### Entering phase install ###########
-[2026-10-29 17:09:16.713382]  
-[2026-10-29 17:09:16.713397] [DeviceFarm] devicefarm-cli use appium 2 || true
-[2026-10-29 17:09:17.342828] [DeviceFarm] devicefarm-cli use python 3.12 || true
-[2026-10-29 17:09:17.435349] [DeviceFarm] xcodebuild -version
-[2026-10-29 17:09:17.491659] Xcode 26.6
-[2026-10-29 17:09:17.491697] Build version 17F113
-[2026-10-29 17:09:17.492296] [DeviceFarm] appium driver list --installed 2>&1 | head -20 || true
-[2026-10-29 17:09:17.770526] - Listing installed drivers
-[2026-10-29 17:09:17.770590] ✔ Listing installed drivers
-[2026-10-29 17:09:17.770613] - [33mxcuitest[39m@[33m9.10.5[39m [32m[installed (npm)][39m
-[2026-10-29 17:09:17.770634]  
-[2026-10-29 17:09:17.770650] [DEVICEFARM] ########### Entering phase pre_test ###########
-[2026-10-29 17:09:17.770660]  
-[2026-10-29 17:09:17.770669] [DeviceFarm] xcrun devicectl list devices || true
-[2026-10-29 17:09:17.842882] Running devicectl with elevated privileges via sudo is unlikely to work properly. Please do not do this.
-[2026-10-29 17:09:17.857247] Name           Hostname                        Identifier                             State       Model                      
-[2026-10-29 17:09:17.857289] ------------   -----------------------------   ------------------------------------   ---------   ---------------------------
-[2026-10-29 17:09:17.857308] PDXSIM012029   PDXSIM012029.coredevice.local   BFAC2581-65E4-5044-AA1D-1064158A1C59   connected   iPhone 15 Plus (iPhone15,5)
-[2026-10-29 17:09:17.857633] [DeviceFarm] xcrun xctrace list devices 2>&1 | head -20 || true
-[2026-10-29 17:09:21.401752] == Devices ==
-[2026-10-29 17:09:21.401982] 06a33ea53de0 (0D307ED5-3FFC-5AB5-9FE1-1CE5679DECE3)
-[2026-10-29 17:09:21.402067] PDXSIM012029 (17.4.1) (00008120-00092C983EE0A01E)
-[2026-10-29 17:09:21.402133] 
-[2026-10-29 17:09:21.402194] == Simulators ==
-[2026-10-29 17:09:21.402255] iPad (A16) Simulator (26.5) (BA6BADC6-92E2-4BF6-8236-01E990BFF228)
-[2026-10-29 17:09:21.402312] iPad (A16) Simulator (27.0) (1F908B86-947F-460E-B9A1-034EF689BF43)
-[2026-10-29 17:09:21.402371] iPad Air 11-inch (M4) Simulator (26.5) (2F4B5482-7720-412B-BB0D-05B8329977FF)
-[2026-10-29 17:09:21.402427] iPad Air 11-inch (M4) Simulator (27.0) (6CD202CF-2627-4A0B-BE83-2AAF761EBD74)
-[2026-10-29 17:09:21.402481] iPad Air 13-inch (M4) Simulator (26.5) (FE25F6C4-1C75-40F7-839B-D97BE37FA654)
-[2026-10-29 17:09:21.402534] iPad Air 13-inch (M4) Simulator (27.0) (1791036C-1CAD-466E-9962-4C367C0C0349)
-[2026-10-29 17:09:21.402586] iPad Pro 11-inch (M5) Simulator (26.5) (BF885938-9F9D-4409-98F6-59D0AE0E8AD7)
-[2026-10-29 17:09:21.402639] iPad Pro 11-inch (M5) Simulator (27.0) (B1D9C8AF-4FFC-40E0-A031-D6D5815B32CB)
-[2026-10-29 17:09:21.402691] iPad Pro 13-inch (M5) Simulator (26.5) (19E198E0-8F4A-4E45-9804-9A3995BBE7BD)
-[2026-10-29 17:09:21.402743] iPad Pro 13-inch (M5) Simulator (27.0) (ADC13075-9810-4D2B-A854-E2D1EA96648B)
-[2026-10-29 17:09:21.402797] iPad mini (A17 Pro) Simulator (26.5) (F99CD375-0363-4715-AB2B-5A52A0731B54)
-[2026-10-29 17:09:21.402853] iPad mini (A17 Pro) Simulator (27.0) (A7C54D22-5E49-4C74-9682-D8D091D74E30)
-[2026-10-29 17:09:21.402905] iPhone 17 Simulator (26.5) (D5BA0E0A-C24F-4A26-8701-C90ED34AF046)
-[2026-10-29 17:09:21.402956] iPhone 17 Simulator (27.0) (6E1F4D2A-97D9-496F-B157-282A84CD014E)
-[2026-10-29 17:09:21.403010] iPhone 17 Pro Simulator (26.5) (6C6F64B9-87FD-4EE4-844D-87A1CB98251C)
-[2026-10-29 17:09:21.414302] [DeviceFarm] echo "udid=$DEVICEFARM_DEVICE_UDID os=$DEVICEFARM_DEVICE_OS_VERSION" || true
-[2026-10-29 17:09:21.414427] udid=00008120-00092C983EE0A01E os=17.4
-[2026-10-29 17:09:21.414481]  
-[2026-10-29 17:09:21.414621] [DEVICEFARM] ########### Entering phase test ###########
-[2026-10-29 17:09:21.414658]  
-[2026-10-29 17:09:21.414690] [DeviceFarm] bash $DEVICEFARM_TEST_PACKAGE_PATH/ci/mobile/device-farm/run-ios.sh
-[2026-10-29 17:09:32.107249] run-ios: appium session 69b48436-fdf5-4b8d-9005-3c3332bbf56a
-[2026-10-29 17:11:49.545035] device_name=00008120-00092C983EE0A01E
-[2026-10-29 17:11:49.545120] ios=17.4
-[2026-10-29 17:11:49.545160] model=iPhone 15 Plus
-[2026-10-29 17:11:49.545184] ipa_bytes=5202005
-[2026-10-29 17:11:49.545201] bundle_id=dev.vieww.demo
-[2026-10-29 17:11:49.545216] route=devicectl
-[2026-10-29 17:11:49.545235] appium_session=69b48436-fdf5-4b8d-9005-3c3332bbf56a
-[2026-10-29 17:11:49.545266] cpu_first_frame_ms=349.0 375.0 356.0
-[2026-10-29 17:11:49.545337] cpu_tap_targets=scale=3 button=66,223 field=87,317
-[2026-10-29 17:11:49.545382] cpu_suite=PASS
-[2026-10-29 17:11:49.545411] cpu_frame_time=median 6.738125ms, worst 9.078042ms, budget 16.666668ms (240 samples)
-[2026-10-29 17:11:49.545451] cpu_frame_stages=medians ms: scale 0.01 plan 0.00 cpu 3.36 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.13 present 3.01
-[2026-10-29 17:11:49.545542] cpu_frame_stages_p95=p95 ms: scale 0.01 plan 0.00 cpu 4.26 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.17 present 3.52
-[2026-10-29 17:11:49.545565] cpu_input_latency=input to present ms: median 15.7 p95 19.8 p99 46.1 worst 46.1 over 16 inputs in 16 frames; 0 unanswered within 1 s
-[2026-10-29 17:11:49.545580] cpu_worst_frame=work 9.08 ms, outside the renderer 0.12 ms; stages ms: scale 0.01 plan 0.00 cpu 4.08 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 4.86
-[2026-10-29 17:11:49.545619] cpu_startup_stages=before run 21 ms | app setup 0.2 | event loop started 85.1 | resumed 214.2 | window created 16.5 | present ready 0.5 | accessibility and show 0.2 | tree built 4.4 | window ready 5.9 | until first draw 0.4 | app before-frame hooks 0.1 | first build and layout 1.7 | first raster and present 28.2 = 378.0 ms from process start
-[2026-10-29 17:11:49.545679] cpu_gpu_frames=0 of 600 drawn by the GPU rasterizer (0 straight into the swapchain)
-[2026-10-29 17:11:49.545817] cpu_cache_budgets=blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
-[2026-10-29 17:11:49.545850] cpu_failed_checks=
-[2026-10-29 17:11:49.545870] gpu_first_frame_ms=1002.0 365.0 371.0
-[2026-10-29 17:11:49.545892] gpu_tap_targets=scale=3 button=66,223 field=87,317
-[2026-10-29 17:11:49.545913] gpu_suite=PASS
-[2026-10-29 17:11:49.545931] gpu_frame_time=median 16.059375ms, worst 16.838667ms, budget 16.666668ms (240 samples)
-[2026-10-29 17:11:49.545950] gpu_frame_stages=medians ms: scale 0.07 plan 0.48 cpu 0.00 gpu_upload 0.02 gpu_record 0.03 gpu_submit 12.58 gpu_wait 2.03 gpu_readback 0.00 acquire 0.04 present 0.04
-[2026-10-29 17:11:49.545969] gpu_frame_stages_p95=p95 ms: scale 0.09 plan 0.57 cpu 0.00 gpu_upload 0.03 gpu_record 0.05 gpu_submit 13.67 gpu_wait 2.86 gpu_readback 0.00 acquire 0.08 present 0.05
-[2026-10-29 17:11:49.545987] gpu_input_latency=input to present ms: median 17.7 p95 32.6 p99 54.3 worst 54.3 over 12 inputs in 12 frames; 0 unanswered within 1 s
-[2026-10-29 17:11:49.546044] gpu_worst_frame=work 16.84 ms, outside the renderer 0.87 ms; stages ms: scale 0.09 plan 0.54 cpu 0.00 gpu_upload 0.05 gpu_record 0.05 gpu_submit 13.54 gpu_wait 1.59 gpu_readback 0.00 acquire 0.05 present 0.05
-[2026-10-29 17:11:49.546066] gpu_startup_stages=before run 22 ms | app setup 0.3 | event loop started 86.8 | resumed 215.3 | window created 15.0 | present ready 19.0 | accessibility and show 0.2 | tree built 3.9 | window ready 5.6 | until first draw 1.8 | app before-frame hooks 0.1 | first build and layout 1.7 | first raster and present 19.7 = 391.1 ms from process start
-[2026-10-29 17:11:49.546076] gpu_pipeline_cache=started from 41036 bytes; saved 41036 bytes after the first GPU frame
-[2026-10-29 17:11:49.546085] gpu_gpu_frames=600 of 600 drawn by the GPU rasterizer (600 straight into the swapchain)
-[2026-10-29 17:11:49.546093] gpu_cache_budgets=blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
-[2026-10-29 17:11:49.546187] gpu_failed_checks=
-[2026-10-29 17:11:49.546213] auto_first_frame_ms=370.0 370.0 370.0
-[2026-10-29 17:11:49.546340] auto_tap_targets=scale=3 button=66,223 field=87,317
-[2026-10-29 17:11:49.546364] auto_suite=PASS
-[2026-10-29 17:11:49.546382] auto_frame_time=median 6.699583ms, worst 8.597833ms, budget 16.666668ms (240 samples)
-[2026-10-29 17:11:49.546400] auto_frame_stages=medians ms: scale 0.01 plan 0.00 cpu 3.35 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.13 present 3.00
-[2026-10-29 17:11:49.546418] auto_frame_stages_p95=p95 ms: scale 0.01 plan 0.00 cpu 4.36 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.16 present 3.50
-[2026-10-29 17:11:49.546432] auto_input_latency=input to present ms: median 16.8 p95 18.7 p99 24.2 worst 24.2 over 16 inputs in 16 frames; 0 unanswered within 1 s
-[2026-10-29 17:11:49.546445] auto_worst_frame=work 8.60 ms, outside the renderer 0.63 ms; stages ms: scale 0.01 plan 0.00 cpu 4.58 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.12 present 3.25
-[2026-10-29 17:11:49.546464] auto_startup_stages=before run 21 ms | app setup 0.2 | event loop started 86.3 | resumed 216.1 | window created 15.9 | present ready 0.8 | accessibility and show 0.2 | tree built 4.3 | window ready 5.9 | until first draw 0.4 | app before-frame hooks 0.1 | first build and layout 1.7 | first raster and present 28.8 = 381.4 ms from process start
-[2026-10-29 17:11:49.546484] auto_renderer_choice=cpu (calibrated earlier: cpu 6.43 ms, gpu 29.89 ms)
-[2026-10-29 17:11:49.546492] auto_gpu_frames=0 of 600 drawn by the GPU rasterizer (0 straight into the swapchain)
-[2026-10-29 17:11:49.546502] auto_cache_budgets=blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
-[2026-10-29 17:11:49.546510] auto_failed_checks=
-[2026-10-29 17:11:49.546519] audio_in_app=FAIL FAIL; failed: route_event_reaches_the_stream 
-[2026-10-29 17:11:49.546535] audio_plays_in_background=PASS 31 s of audio callbacks over 31 s after Home; after: __VIEWW_AUDIO__ status t_ms=41818 callbacks=1905664 rate=48000 position_ms=8165 playing=true suspended=false duck=1.000 holding=true xruns=0
-[2026-10-29 17:11:49.546550] audio_gate_failed=in_app
-[2026-10-29 17:11:49.546834] audio=FAIL
-[2026-10-29 17:11:49.546858] status=FAIL
-[2026-10-29 17:11:49.546908]  
-[2026-10-29 17:11:49.546921] [DEVICEFARM] ########### Entering phase post_test ###########
-[2026-10-29 17:11:49.546930]  
-[2026-10-29 17:11:49.546938] [DeviceFarm] ls -la $DEVICEFARM_LOG_DIR/vieww || true
-[2026-10-29 17:11:49.550539] total 1440
-[2026-10-29 17:11:49.550694] drwxr-xr-x  27 device-farm  wheel     864 Oct 29 17:11 .
-[2026-10-29 17:11:49.550754] drwxrwxrwx   3 rwx          wheel      96 Oct 29 17:09 ..
-[2026-10-29 17:11:49.550782] -rw-r--r--   1 device-farm  wheel       0 Oct 29 17:09 appium-session.err
-[2026-10-29 17:11:49.550797] -rw-r--r--   1 device-farm  wheel   88309 Oct 29 17:11 appium.log
-[2026-10-29 17:11:49.550808] -rw-r--r--   1 device-farm  wheel   16987 Oct 29 17:11 audio-app.log
-[2026-10-29 17:11:49.550883] -rw-r--r--   1 device-farm  wheel      13 Oct 29 17:11 audio-home.log
-[2026-10-29 17:11:49.550895] -rw-r--r--   1 device-farm  wheel  114429 Oct 29 17:10 auto-start-1.txt
-[2026-10-29 17:11:49.550907] -rw-r--r--   1 device-farm  wheel   85839 Oct 29 17:10 auto-start-2.txt
-[2026-10-29 17:11:49.550922] -rw-r--r--   1 device-farm  wheel  115060 Oct 29 17:10 auto-start-3.txt
-[2026-10-29 17:11:49.550941] -rw-r--r--@  1 device-farm  wheel    4375 Oct 29 17:11 auto-suite-report.txt
-[2026-10-29 17:11:49.550958] -rw-r--r--   1 device-farm  wheel   12066 Oct 29 17:11 auto-suite.log
-[2026-10-29 17:11:49.550969] -rw-r--r--   1 device-farm  wheel     260 Oct 29 17:11 auto-taps.log
-[2026-10-29 17:11:49.550992] -rw-r--r--   1 device-farm  wheel    8152 Oct 29 17:09 cpu-start-1.txt
-[2026-10-29 17:11:49.551015] -rw-r--r--   1 device-farm  wheel    5947 Oct 29 17:09 cpu-start-2.txt
-[2026-10-29 17:11:49.551030] -rw-r--r--   1 device-farm  wheel    5655 Oct 29 17:09 cpu-start-3.txt
-[2026-10-29 17:11:49.551055] -rw-r--r--@  1 device-farm  wheel    4284 Oct 29 17:09 cpu-suite-report.txt
-[2026-10-29 17:11:49.551069] -rw-r--r--   1 device-farm  wheel   11841 Oct 29 17:09 cpu-suite.log
-[2026-10-29 17:11:49.551090] -rw-r--r--   1 device-farm  wheel     260 Oct 29 17:09 cpu-taps.log
-[2026-10-29 17:11:49.551104] -rw-r--r--   1 device-farm  wheel    4713 Oct 29 17:09 device-info.txt
-[2026-10-29 17:11:49.551179] -rw-r--r--   1 device-farm  wheel   13947 Oct 29 17:09 gpu-start-1.txt
-[2026-10-29 17:11:49.551196] -rw-r--r--   1 device-farm  wheel   12787 Oct 29 17:10 gpu-start-2.txt
-[2026-10-29 17:11:49.551213] -rw-r--r--   1 device-farm  wheel   11607 Oct 29 17:10 gpu-start-3.txt
-[2026-10-29 17:11:49.551230] -rw-r--r--@  1 device-farm  wheel    4474 Oct 29 17:10 gpu-suite-report.txt
-[2026-10-29 17:11:49.551242] -rw-r--r--   1 device-farm  wheel   18994 Oct 29 17:10 gpu-suite.log
-[2026-10-29 17:11:49.551251] -rw-r--r--   1 device-farm  wheel     260 Oct 29 17:10 gpu-taps.log
-[2026-10-29 17:11:49.551283] -rw-r--r--   1 device-farm  wheel    4923 Oct 29 17:11 result.txt
-[2026-10-29 17:11:49.551307] -rw-r--r--   1 device-farm  wheel      32 Oct 29 17:09 xcode.txt
-[2026-10-29 17:11:49.559605]  
-[2026-10-29 17:11:49.559668] [DEVICEFARM] ########### Finish executing testspec ###########
-[2026-10-29 17:11:49.559699]  
-[2026-10-29 17:11:49.567395] [DEVICEFARM] ########### Setting upload permissions ###########
-[2026-10-29 17:11:49.567416]  
-[2026-10-29 17:11:49.577800]  
+[2026-10-30 05:01:00.333524] [DEVICEFARM] ########### Start executing testspec ###########
+[2026-10-30 05:01:00.333627]  
+[2026-10-30 05:01:00.336940]  
+[2026-10-30 05:01:00.336985] [DEVICEFARM] ########### Entering phase install ###########
+[2026-10-30 05:01:00.337007]  
+[2026-10-30 05:01:00.337022] [DeviceFarm] devicefarm-cli use appium 2 || true
+[2026-10-30 05:01:01.020947] [DeviceFarm] devicefarm-cli use python 3.12 || true
+[2026-10-30 05:01:01.123851] [DeviceFarm] xcodebuild -version
+[2026-10-30 05:01:01.189199] Xcode 26.6
+[2026-10-30 05:01:01.189254] Build version 17F113
+[2026-10-30 05:01:01.189955] [DeviceFarm] appium driver list --installed 2>&1 | head -20 || true
+[2026-10-30 05:01:01.533745] - Listing installed drivers
+[2026-10-30 05:01:01.533791] ✔ Listing installed drivers
+[2026-10-30 05:01:01.533807] - [33mxcuitest[39m@[33m9.10.5[39m [32m[installed (npm)][39m
+[2026-10-30 05:01:01.533955]  
+[2026-10-30 05:01:01.533970] [DEVICEFARM] ########### Entering phase pre_test ###########
+[2026-10-30 05:01:01.533982]  
+[2026-10-30 05:01:01.533993] [DeviceFarm] xcrun devicectl list devices || true
+[2026-10-30 05:01:01.610483] Running devicectl with elevated privileges via sudo is unlikely to work properly. Please do not do this.
+[2026-10-30 05:01:01.626380] Name           Hostname                        Identifier                             State       Model                      
+[2026-10-30 05:01:01.626424] ------------   -----------------------------   ------------------------------------   ---------   ---------------------------
+[2026-10-30 05:01:01.626438] PDX647397979   PDX647397979.coredevice.local   8DB5762D-40A9-567C-B6A3-B43472A42543   connected   iPhone 15 Plus (iPhone15,5)
+[2026-10-30 05:01:01.626926] [DeviceFarm] xcrun xctrace list devices 2>&1 | head -20 || true
+[2026-10-30 05:01:05.223824] == Devices ==
+[2026-10-30 05:01:05.224063] bdb417eb17d7 (0D307ED5-3FFC-5AB5-9FE1-1CE5679DECE3)
+[2026-10-30 05:01:05.224152] PDX647397979 (17.4.1) (00008120-001608503E52201E)
+[2026-10-30 05:01:05.224231] 
+[2026-10-30 05:01:05.224309] == Simulators ==
+[2026-10-30 05:01:05.224385] iPad (A16) Simulator (26.5) (E7225223-9880-4FFE-B329-33AC2A186BF3)
+[2026-10-30 05:01:05.224462] iPad (A16) Simulator (27.0) (2E94B70C-6DE8-4C29-8416-C18CD4353ADE)
+[2026-10-30 05:01:05.224533] iPad Air 11-inch (M4) Simulator (26.5) (9E8209ED-984C-45F3-A2AA-85E50617EFF0)
+[2026-10-30 05:01:05.224605] iPad Air 11-inch (M4) Simulator (27.0) (3FAE1581-32F7-45C1-A71F-4207F2A0184E)
+[2026-10-30 05:01:05.224679] iPad Air 13-inch (M4) Simulator (26.5) (86C54509-7224-4014-A7BE-07C25077FFD8)
+[2026-10-30 05:01:05.224751] iPad Air 13-inch (M4) Simulator (27.0) (A3395FC6-B212-433A-B9C6-3FD6C6D01348)
+[2026-10-30 05:01:05.224823] iPad Pro 11-inch (M5) Simulator (26.5) (B453AE38-F529-459B-94C2-4CAD8E759EE8)
+[2026-10-30 05:01:05.224894] iPad Pro 11-inch (M5) Simulator (27.0) (FCBE5C10-E888-4A3A-B9A8-43F944BE552A)
+[2026-10-30 05:01:05.224966] iPad Pro 13-inch (M5) Simulator (26.5) (12C6BA2F-BF6D-43BD-8ABA-71A5EDD4BDC5)
+[2026-10-30 05:01:05.225045] iPad Pro 13-inch (M5) Simulator (27.0) (F301469C-BEF6-46E8-9608-C4A3B66A4249)
+[2026-10-30 05:01:05.225121] iPad mini (A17 Pro) Simulator (26.5) (691FE433-EEE6-4E5A-95AB-739D4F2626CF)
+[2026-10-30 05:01:05.225193] iPad mini (A17 Pro) Simulator (27.0) (EFCF1C61-791A-4E11-888A-C9BD4047140A)
+[2026-10-30 05:01:05.225263] iPhone 17 Simulator (26.5) (7F9CFDBE-26C0-4B38-BD1B-2F6C17DCD9A4)
+[2026-10-30 05:01:05.225333] iPhone 17 Simulator (27.0) (F3124062-11FE-4871-811A-F00330826771)
+[2026-10-30 05:01:05.225422] iPhone 17 Pro Simulator (26.5) (836A1FEE-5A04-42AF-991A-AFD2B5995993)
+[2026-10-30 05:01:05.235439] [DeviceFarm] echo "udid=$DEVICEFARM_DEVICE_UDID os=$DEVICEFARM_DEVICE_OS_VERSION" || true
+[2026-10-30 05:01:05.235603] udid=00008120-001608503E52201E os=17.4
+[2026-10-30 05:01:05.235665]  
+[2026-10-30 05:01:05.235720] [DEVICEFARM] ########### Entering phase test ###########
+[2026-10-30 05:01:05.235774]  
+[2026-10-30 05:01:05.235827] [DeviceFarm] bash $DEVICEFARM_TEST_PACKAGE_PATH/ci/mobile/device-farm/run-ios.sh
+[2026-10-30 05:01:16.134441] run-ios: appium session 4a5885aa-9173-40d1-bd1b-3a1ecdbdad5a
+[2026-10-30 05:03:35.317744] device_name=00008120-001608503E52201E
+[2026-10-30 05:03:35.317803] ios=17.4
+[2026-10-30 05:03:35.317828] model=iPhone 15 Plus
+[2026-10-30 05:03:35.317848] ipa_bytes=5202164
+[2026-10-30 05:03:35.317865] bundle_id=dev.vieww.demo
+[2026-10-30 05:03:35.317877] route=devicectl
+[2026-10-30 05:03:35.317902] appium_session=4a5885aa-9173-40d1-bd1b-3a1ecdbdad5a
+[2026-10-30 05:03:35.317917] cpu_first_frame_ms=370.0 369.0 360.0
+[2026-10-30 05:03:35.317958] cpu_tap_targets=scale=3 button=66,223 field=87,317
+[2026-10-30 05:03:35.318081] cpu_suite=PASS
+[2026-10-30 05:03:35.318112] cpu_frame_time=median 6.701626ms, worst 9.120375ms, budget 16.666668ms (240 samples)
+[2026-10-30 05:03:35.318203] cpu_frame_stages=medians ms: scale 0.01 plan 0.00 cpu 3.32 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.13 present 3.04
+[2026-10-30 05:03:35.318243] cpu_frame_stages_p95=p95 ms: scale 0.01 plan 0.00 cpu 4.26 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.16 present 3.56
+[2026-10-30 05:03:35.318261] cpu_input_latency=input to present ms: median 16.5 p95 45.3 p99 57.8 worst 57.8 over 16 inputs in 16 frames; 0 unanswered within 1 s
+[2026-10-30 05:03:35.318275] cpu_worst_frame=work 9.12 ms, outside the renderer 0.12 ms; stages ms: scale 0.01 plan 0.00 cpu 5.84 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.14 present 3.01
+[2026-10-30 05:03:35.318308] cpu_startup_stages=before run 21 ms | app setup 0.2 | event loop started 80.0 | resumed 222.3 | window created 17.4 | present ready 0.5 | accessibility and show 0.2 | tree built 4.5 | window ready 6.0 | until first draw 1.1 | app before-frame hooks 0.1 | first build and layout 1.9 | first raster and present 28.6 = 383.4 ms from process start
+[2026-10-30 05:03:35.318322] cpu_gpu_frames=0 of 600 drawn by the GPU rasterizer (0 straight into the swapchain)
+[2026-10-30 05:03:35.318388] cpu_cache_budgets=blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+[2026-10-30 05:03:35.318548] cpu_failed_checks=
+[2026-10-30 05:03:35.318574] gpu_first_frame_ms=997.0 370.0 364.0
+[2026-10-30 05:03:35.318603] gpu_tap_targets=scale=3 button=66,223 field=87,317
+[2026-10-30 05:03:35.318637] gpu_suite=PASS
+[2026-10-30 05:03:35.318656] gpu_frame_time=median 16.063291ms, worst 16.798708ms, budget 16.666668ms (240 samples)
+[2026-10-30 05:03:35.318674] gpu_frame_stages=medians ms: scale 0.07 plan 0.49 cpu 0.00 gpu_upload 0.02 gpu_record 0.03 gpu_submit 12.59 gpu_wait 2.02 gpu_readback 0.00 acquire 0.04 present 0.04
+[2026-10-30 05:03:35.318692] gpu_frame_stages_p95=p95 ms: scale 0.09 plan 0.60 cpu 0.00 gpu_upload 0.03 gpu_record 0.06 gpu_submit 13.86 gpu_wait 2.99 gpu_readback 0.00 acquire 0.08 present 0.05
+[2026-10-30 05:03:35.318710] gpu_input_latency=input to present ms: median 18.4 p95 31.7 p99 54.1 worst 54.1 over 12 inputs in 12 frames; 0 unanswered within 1 s
+[2026-10-30 05:03:35.318727] gpu_worst_frame=work 16.80 ms, outside the renderer 0.16 ms; stages ms: scale 0.01 plan 0.10 cpu 0.00 gpu_upload 0.01 gpu_record 0.01 gpu_submit 13.04 gpu_wait 3.42 gpu_readback 0.00 acquire 0.02 present 0.03
+[2026-10-30 05:03:35.318757] gpu_startup_stages=before run 21 ms | app setup 0.2 | event loop started 85.0 | resumed 219.6 | window created 14.2 | present ready 20.0 | accessibility and show 0.2 | tree built 4.0 | window ready 5.4 | until first draw 1.0 | app before-frame hooks 0.1 | first build and layout 1.7 | first raster and present 21.8 = 394.3 ms from process start
+[2026-10-30 05:03:35.318775] gpu_pipeline_cache=started from 41036 bytes; saved 41036 bytes after the first GPU frame
+[2026-10-30 05:03:35.318791] gpu_gpu_frames=600 of 600 drawn by the GPU rasterizer (600 straight into the swapchain)
+[2026-10-30 05:03:35.318809] gpu_cache_budgets=blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+[2026-10-30 05:03:35.318825] gpu_failed_checks=
+[2026-10-30 05:03:35.318850] auto_first_frame_ms=377.0 376.0 369.0
+[2026-10-30 05:03:35.318861] auto_tap_targets=scale=3 button=66,223 field=87,317
+[2026-10-30 05:03:35.318870] auto_suite=PASS
+[2026-10-30 05:03:35.318966] auto_frame_time=median 6.642167ms, worst 8.635167ms, budget 16.666668ms (240 samples)
+[2026-10-30 05:03:35.319108] auto_frame_stages=medians ms: scale 0.01 plan 0.00 cpu 3.34 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.13 present 2.97
+[2026-10-30 05:03:35.319180] auto_frame_stages_p95=p95 ms: scale 0.01 plan 0.00 cpu 4.28 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.16 present 3.42
+[2026-10-30 05:03:35.319305] auto_input_latency=input to present ms: median 16.7 p95 19.7 p99 26.5 worst 26.5 over 16 inputs in 16 frames; 0 unanswered within 1 s
+[2026-10-30 05:03:35.319338] auto_worst_frame=work 8.64 ms, outside the renderer 0.11 ms; stages ms: scale 0.01 plan 0.00 cpu 5.01 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.26 present 3.25
+[2026-10-30 05:03:35.319351] auto_startup_stages=before run 21 ms | app setup 0.3 | event loop started 79.4 | resumed 227.0 | window created 13.3 | present ready 0.8 | accessibility and show 0.2 | tree built 5.3 | window ready 6.9 | until first draw 0.5 | app before-frame hooks 0.2 | first build and layout 2.0 | first raster and present 30.6 = 387.4 ms from process start
+[2026-10-30 05:03:35.319366] auto_renderer_choice=cpu (calibrated earlier: cpu 6.61 ms, gpu 29.97 ms)
+[2026-10-30 05:03:35.319380] auto_gpu_frames=0 of 600 drawn by the GPU rasterizer (0 straight into the swapchain)
+[2026-10-30 05:03:35.319396] auto_cache_budgets=blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+[2026-10-30 05:03:35.319412] auto_failed_checks=
+[2026-10-30 05:03:35.319427] audio_in_app=PASS PASS; failed: 
+[2026-10-30 05:03:35.319441] audio_plays_in_background=PASS 30 s of audio callbacks over 30 s after Home; after: __VIEWW_AUDIO__ status t_ms=40508 callbacks=1843200 rate=48000 position_ms=6864 playing=true suspended=false duck=1.000 holding=true xruns=0
+[2026-10-30 05:03:35.319457] audio=PASS
+[2026-10-30 05:03:35.319473] status=PASS
+[2026-10-30 05:03:35.319498]  
+[2026-10-30 05:03:35.319514] [DEVICEFARM] ########### Entering phase post_test ###########
+[2026-10-30 05:03:35.319530]  
+[2026-10-30 05:03:35.319541] [DeviceFarm] ls -la $DEVICEFARM_LOG_DIR/vieww || true
+[2026-10-30 05:03:35.322444] total 1416
+[2026-10-30 05:03:35.322476] drwxr-xr-x  27 device-farm  wheel     864 Oct 30 05:03 .
+[2026-10-30 05:03:35.322505] drwxrwxrwx   3 rwx          wheel      96 Oct 30 05:01 ..
+[2026-10-30 05:03:35.322524] -rw-r--r--   1 device-farm  wheel       0 Oct 30 05:01 appium-session.err
+[2026-10-30 05:03:35.322559] -rw-r--r--   1 device-farm  wheel   88311 Oct 30 05:03 appium.log
+[2026-10-30 05:03:35.322603] -rw-r--r--   1 device-farm  wheel   16756 Oct 30 05:03 audio-app.log
+[2026-10-30 05:03:35.322618] -rw-r--r--   1 device-farm  wheel      13 Oct 30 05:03 audio-home.log
+[2026-10-30 05:03:35.322709] -rw-r--r--   1 device-farm  wheel  113484 Oct 30 05:02 auto-start-1.txt
+[2026-10-30 05:03:35.322737] -rw-r--r--   1 device-farm  wheel   85383 Oct 30 05:02 auto-start-2.txt
+[2026-10-30 05:03:35.322755] -rw-r--r--   1 device-farm  wheel  114115 Oct 30 05:02 auto-start-3.txt
+[2026-10-30 05:03:35.322768] -rw-r--r--@  1 device-farm  wheel    4375 Oct 30 05:02 auto-suite-report.txt
+[2026-10-30 05:03:35.322793] -rw-r--r--   1 device-farm  wheel   12066 Oct 30 05:02 auto-suite.log
+[2026-10-30 05:03:35.322827] -rw-r--r--   1 device-farm  wheel     260 Oct 30 05:02 auto-taps.log
+[2026-10-30 05:03:35.322846] -rw-r--r--   1 device-farm  wheel    4057 Oct 30 05:01 cpu-start-1.txt
+[2026-10-30 05:03:35.322861] -rw-r--r--   1 device-farm  wheel    2558 Oct 30 05:01 cpu-start-2.txt
+[2026-10-30 05:03:35.322878] -rw-r--r--   1 device-farm  wheel    4710 Oct 30 05:01 cpu-start-3.txt
+[2026-10-30 05:03:35.322895] -rw-r--r--@  1 device-farm  wheel    4285 Oct 30 05:01 cpu-suite-report.txt
+[2026-10-30 05:03:35.322920] -rw-r--r--   1 device-farm  wheel   11843 Oct 30 05:01 cpu-suite.log
+[2026-10-30 05:03:35.322936] -rw-r--r--   1 device-farm  wheel     260 Oct 30 05:01 cpu-taps.log
+[2026-10-30 05:03:35.322949] -rw-r--r--   1 device-farm  wheel    4713 Oct 30 05:01 device-info.txt
+[2026-10-30 05:03:35.322961] -rw-r--r--   1 device-farm  wheel   11853 Oct 30 05:01 gpu-start-1.txt
+[2026-10-30 05:03:35.322977] -rw-r--r--   1 device-farm  wheel    9662 Oct 30 05:01 gpu-start-2.txt
+[2026-10-30 05:03:35.322993] -rw-r--r--   1 device-farm  wheel   15222 Oct 30 05:01 gpu-start-3.txt
+[2026-10-30 05:03:35.323009] -rw-r--r--@  1 device-farm  wheel    4473 Oct 30 05:02 gpu-suite-report.txt
+[2026-10-30 05:03:35.323021] -rw-r--r--   1 device-farm  wheel   19135 Oct 30 05:02 gpu-suite.log
+[2026-10-30 05:03:35.323029] -rw-r--r--   1 device-farm  wheel     260 Oct 30 05:02 gpu-taps.log
+[2026-10-30 05:03:35.323041] -rw-r--r--   1 device-farm  wheel    4866 Oct 30 05:03 result.txt
+[2026-10-30 05:03:35.323099] -rw-r--r--   1 device-farm  wheel      32 Oct 30 05:01 xcode.txt
+[2026-10-30 05:03:35.331744]  
+[2026-10-30 05:03:35.331788] [DEVICEFARM] ########### Finish executing testspec ###########
+[2026-10-30 05:03:35.331808]  
+[2026-10-30 05:03:35.341376] [DEVICEFARM] ########### Setting upload permissions ###########
+[2026-10-30 05:03:35.341445]  
+[2026-10-30 05:03:35.347438]  

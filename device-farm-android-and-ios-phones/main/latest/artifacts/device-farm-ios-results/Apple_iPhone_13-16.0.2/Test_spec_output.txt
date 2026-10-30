@@ -20,72 +20,72 @@ Build version 16F6
 Running devicectl with elevated privileges via sudo is unlikely to work properly. Please do not do this.
 Name   Hostname                                                Identifier                             State         Model     
 ----   -----------------------------------------------------   ------------------------------------   -----------   ----------
-       3EFDADA2-BFD1-57C7-BD5A-C441AE99E56F.coredevice.local   3EFDADA2-BFD1-57C7-BD5A-C441AE99E56F   unavailable   iPhone14,5
+       DB62F99E-C34B-5663-A85C-DCA86149C700.coredevice.local   DB62F99E-C34B-5663-A85C-DCA86149C700   unavailable   iPhone14,5
 [DeviceFarm] xcrun xctrace list devices 2>&1 | head -20 || true
 == Devices ==
 Apple Virtual Machine 1 (CDE592F8-B8A9-5A36-B785-530692B0F767)
 
 == Devices Offline ==
-Unknown (3EFDADA2-BFD1-57C7-BD5A-C441AE99E56F)
+Unknown (DB62F99E-C34B-5663-A85C-DCA86149C700)
 
 == Simulators ==
-iPad (A16) Simulator (18.6) (6DE5FFBD-D08A-4251-A0FC-19AB6273C97C)
-iPad (A16) (26.3.1) (D1CB7090-895B-4DC6-AA5C-D2CFCAABF39D)
-iPad Air 11-inch (M3) Simulator (18.6) (83B2B42D-24E6-4A0A-9830-37ACB527A971)
-iPad Air 11-inch (M3) (26.3.1) (F95DCCAB-E757-4D4F-B8C7-D2351EB3E90D)
-iPad Air 13-inch (M3) Simulator (18.6) (965D3307-E291-4C51-B30C-F2BCC961FEC0)
-iPad Air 13-inch (M3) (26.3.1) (795E83A2-8773-433E-B827-DC192FD9BC29)
-iPad Pro 11-inch (M4) Simulator (18.6) (E43ED95B-C859-4787-A774-D2EC634D00A8)
-iPad Pro 11-inch (M5) (26.3.1) (4CA5C18F-4240-4BF7-90F6-32EE82282DC0)
-iPad Pro 13-inch (M4) Simulator (18.6) (DC2D2490-535A-45F0-ACD3-7E2B5AA5334F)
-iPad Pro 13-inch (M5) (26.3.1) (B896A5C8-6D90-48E4-AA26-532C8F825210)
-iPad mini (A17 Pro) Simulator (18.6) (69B42409-94C0-4BCA-AAF5-A195C518F06B)
-iPad mini (A17 Pro) (26.3.1) (42720C5D-664C-444F-BD09-A04188B5971F)
-iPhone 16 Simulator (18.6) (66114F5F-FE13-44B4-8E05-9686A074566F)
+iPad (A16) Simulator (18.6) (35FBBB57-F5C5-4FAB-AA2D-6F0AEADE8E95)
+iPad (A16) (26.3.1) (C5BA3390-6EA3-4CC0-A617-7927E8BEB0FA)
+iPad Air 11-inch (M3) Simulator (18.6) (6AE6FD8D-F83D-4F64-8CF1-2C904CF5CD5E)
+iPad Air 11-inch (M3) (26.3.1) (A13B8010-3B71-4585-A89C-9E3484CDDE63)
+iPad Air 13-inch (M3) Simulator (18.6) (2A1358C1-EB84-4467-9286-D2D95F51DC5A)
+iPad Air 13-inch (M3) (26.3.1) (B161E65B-88F4-4DC0-9237-3295CF8FA563)
+iPad Pro 11-inch (M4) Simulator (18.6) (78F631D5-E790-4A78-8C62-294E5DD33D69)
+iPad Pro 11-inch (M5) (26.3.1) (791D965D-1AC1-473C-A9C4-DEDC04C0F543)
+iPad Pro 13-inch (M4) Simulator (18.6) (60F475A7-3D77-4063-9748-4F46D0178C25)
+iPad Pro 13-inch (M5) (26.3.1) (B5E2D4B9-0EB9-40EF-BB16-38EA8957C8FE)
+iPad mini (A17 Pro) Simulator (18.6) (217C3CBE-7375-4D89-9453-FAB18EC393D2)
+iPad mini (A17 Pro) (26.3.1) (815A0962-3663-4F79-8814-79CC80FF248C)
+iPhone 16 Simulator (18.6) (B2A59061-47CF-45CA-84E6-8AAD991FFDD8)
 [DeviceFarm] echo "udid=$DEVICEFARM_DEVICE_UDID os=$DEVICEFARM_DEVICE_OS_VERSION" || true
-udid=00008110-000244120C91801E os=16.0
+udid=00008110-000418320ADA801E os=16.0
  
 [DEVICEFARM] ########### Entering phase test ###########
  
 [DeviceFarm] bash $DEVICEFARM_TEST_PACKAGE_PATH/ci/mobile/device-farm/run-ios.sh
-device_name=00008110-000244120C91801E
+device_name=00008110-000418320ADA801E
 ios=16.0
 model=
-ipa_bytes=5202009
+ipa_bytes=5202151
 bundle_id=dev.vieww.demo
 route=appium-only
 cpu_suite=PASS
 cpu_first_frame_ms=n/a (no console below iOS 17)
-cpu_frame_time=median 7.688125ms, worst 8.441334ms, budget 16.666668ms (240 samples)
-cpu_frame_stages=medians ms: scale 0.01 plan 0.00 cpu 4.35 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.08
-cpu_frame_stages_p95=p95 ms: scale 0.02 plan 0.00 cpu 4.71 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.55
-cpu_input_latency=input to present ms: median 15.5 p95 18.6 p99 34.3 worst 34.3 over 18 inputs in 18 frames; 0 unanswered within 1 s
-cpu_worst_frame=work 8.44 ms, outside the renderer 0.12 ms; stages ms: scale 0.02 plan 0.00 cpu 4.42 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.89
-cpu_startup_stages=before run 63 ms | app setup 0.9 | event loop started 46.3 | resumed 238.0 | window created 25.5 | present ready 2.2 | accessibility and show 0.3 | tree built 17.5 | window ready 0.2 | until first draw 0.4 | app before-frame hooks 0.2 | first build and layout 4.8 | first raster and present 45.0 = 444.1 ms from process start
+cpu_frame_time=median 7.674167ms, worst 9.214917ms, budget 16.666668ms (240 samples)
+cpu_frame_stages=medians ms: scale 0.01 plan 0.00 cpu 4.29 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.14
+cpu_frame_stages_p95=p95 ms: scale 0.02 plan 0.00 cpu 4.73 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.63
+cpu_input_latency=input to present ms: median 16.2 p95 34.3 p99 37.8 worst 37.8 over 18 inputs in 18 frames; 0 unanswered within 1 s
+cpu_worst_frame=work 9.21 ms, outside the renderer 0.25 ms; stages ms: scale 0.01 plan 0.00 cpu 5.26 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.69
+cpu_startup_stages=before run 64 ms | app setup 0.8 | event loop started 49.7 | resumed 231.1 | window created 23.4 | present ready 2.7 | accessibility and show 0.2 | tree built 16.9 | window ready 0.2 | until first draw 0.8 | app before-frame hooks 0.1 | first build and layout 4.6 | first raster and present 32.5 = 427.5 ms from process start
 cpu_gpu_frames=0 of 600 drawn by the GPU rasterizer (0 straight into the swapchain)
 cpu_cache_budgets=blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
 cpu_failed_checks=
 gpu_suite=PASS
 gpu_first_frame_ms=n/a (no console below iOS 17)
-gpu_frame_time=median 15.932876ms, worst 29.946792ms, budget 16.666668ms (240 samples)
-gpu_frame_stages=medians ms: scale 0.11 plan 0.69 cpu 0.00 gpu_upload 0.02 gpu_record 0.04 gpu_submit 13.81 gpu_wait 0.00 gpu_readback 0.00 acquire 0.06 present 0.06
-gpu_frame_stages_p95=p95 ms: scale 0.15 plan 0.82 cpu 0.00 gpu_upload 0.03 gpu_record 0.06 gpu_submit 14.36 gpu_wait 1.85 gpu_readback 0.00 acquire 0.09 present 0.07
-gpu_input_latency=input to present ms: median 16.2 p95 24.2 p99 47.8 worst 47.8 over 16 inputs in 15 frames; 0 unanswered within 1 s
-gpu_worst_frame=work 29.95 ms, outside the renderer 0.24 ms; stages ms: scale 0.03 plan 0.19 cpu 0.00 gpu_upload 0.01 gpu_record 0.00 gpu_submit 28.01 gpu_wait 1.40 gpu_readback 0.00 acquire 0.02 present 0.04
-gpu_startup_stages=before run 27 ms | app setup 0.3 | event loop started 58.6 | resumed 238.2 | window created 22.7 | present ready 253.8 | accessibility and show 0.2 | tree built 2.1 | window ready 0.1 | until first draw 3.0 | app before-frame hooks 0.1 | first build and layout 0.9 | first raster and present 246.2 = 852.9 ms from process start
+gpu_frame_time=median 15.95025ms, worst 29.592291ms, budget 16.666668ms (240 samples)
+gpu_frame_stages=medians ms: scale 0.11 plan 0.62 cpu 0.00 gpu_upload 0.02 gpu_record 0.03 gpu_submit 13.85 gpu_wait 0.09 gpu_readback 0.00 acquire 0.06 present 0.06
+gpu_frame_stages_p95=p95 ms: scale 0.14 plan 0.77 cpu 0.00 gpu_upload 0.05 gpu_record 0.06 gpu_submit 14.23 gpu_wait 1.99 gpu_readback 0.00 acquire 0.11 present 0.07
+gpu_input_latency=input to present ms: median 16.4 p95 24.8 p99 48.6 worst 48.6 over 16 inputs in 16 frames; 0 unanswered within 1 s
+gpu_worst_frame=work 29.59 ms, outside the renderer 0.23 ms; stages ms: scale 0.03 plan 0.16 cpu 0.00 gpu_upload 0.01 gpu_record 0.01 gpu_submit 27.65 gpu_wait 1.45 gpu_readback 0.00 acquire 0.02 present 0.03
+gpu_startup_stages=before run 25 ms | app setup 0.2 | event loop started 59.2 | resumed 241.1 | window created 21.2 | present ready 254.6 | accessibility and show 0.1 | tree built 2.1 | window ready 0.1 | until first draw 3.2 | app before-frame hooks 0.1 | first build and layout 1.0 | first raster and present 249.8 = 857.2 ms from process start
 gpu_pipeline_cache=started from 0 bytes; saved 41036 bytes after the first GPU frame
 gpu_gpu_frames=600 of 600 drawn by the GPU rasterizer (600 straight into the swapchain)
 gpu_cache_budgets=blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
 gpu_failed_checks=
 auto_suite=PASS
 auto_first_frame_ms=n/a (no console below iOS 17)
-auto_frame_time=median 7.66475ms, worst 8.66875ms, budget 16.666668ms (240 samples)
-auto_frame_stages=medians ms: scale 0.01 plan 0.00 cpu 4.19 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.25
-auto_frame_stages_p95=p95 ms: scale 0.02 plan 0.00 cpu 4.73 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.71
-auto_input_latency=input to present ms: median 16.2 p95 17.5 p99 23.5 worst 23.5 over 18 inputs in 18 frames; 0 unanswered within 1 s
-auto_worst_frame=work 8.67 ms, outside the renderer 0.19 ms; stages ms: scale 0.02 plan 0.00 cpu 5.11 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.36
-auto_startup_stages=before run 30 ms | app setup 0.3 | event loop started 58.8 | resumed 241.0 | window created 24.7 | present ready 0.7 | accessibility and show 0.3 | tree built 5.1 | window ready 0.2 | until first draw 0.9 | app before-frame hooks 0.2 | first build and layout 2.6 | first raster and present 31.1 = 395.6 ms from process start
-auto_renderer_choice=cpu for now; the gpu is measured next launch (measured: cpu 7.47 ms; budget 16.67 ms)
+auto_frame_time=median 7.789167ms, worst 8.779042ms, budget 16.666668ms (240 samples)
+auto_frame_stages=medians ms: scale 0.01 plan 0.00 cpu 4.35 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.20
+auto_frame_stages_p95=p95 ms: scale 0.02 plan 0.00 cpu 4.78 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.71
+auto_input_latency=input to present ms: median 16.9 p95 18.1 p99 23.8 worst 23.8 over 18 inputs in 18 frames; 0 unanswered within 1 s
+auto_worst_frame=work 8.78 ms, outside the renderer 0.21 ms; stages ms: scale 0.01 plan 0.00 cpu 4.96 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.60
+auto_startup_stages=before run 29 ms | app setup 0.3 | event loop started 61.1 | resumed 239.1 | window created 23.5 | present ready 1.0 | accessibility and show 0.3 | tree built 5.5 | window ready 0.2 | until first draw 0.9 | app before-frame hooks 0.1 | first build and layout 2.5 | first raster and present 32.1 = 395.9 ms from process start
+auto_renderer_choice=cpu for now; the gpu is measured next launch (measured: cpu 7.57 ms; budget 16.67 ms)
 auto_gpu_frames=0 of 600 drawn by the GPU rasterizer (0 straight into the swapchain)
 auto_cache_budgets=blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
 auto_failed_checks=
@@ -95,18 +95,18 @@ status=PASS
  
 [DeviceFarm] ls -la $DEVICEFARM_LOG_DIR/vieww || true
 total 1640
-drwxr-xr-x  12 device-farm  wheel     384 Oct 29 17:10 .
-drwxrwxrwx   3 rwx          wheel      96 Oct 29 17:09 ..
--rw-r--r--   1 device-farm  wheel  173309 Oct 29 17:10 appium.log
--rw-r--r--   1 device-farm  wheel      78 Oct 29 17:10 auto-appium.err
--rw-r--r--   1 device-farm  wheel  188481 Oct 29 17:10 auto-suite.log
--rw-r--r--   1 device-farm  wheel      78 Oct 29 17:09 cpu-appium.err
--rw-r--r--   1 device-farm  wheel  177663 Oct 29 17:09 cpu-suite.log
--rw-r--r--   1 device-farm  wheel     278 Oct 29 17:09 device-info.txt
--rw-r--r--   1 device-farm  wheel      78 Oct 29 17:09 gpu-appium.err
--rw-r--r--   1 device-farm  wheel  167045 Oct 29 17:10 gpu-suite.log
--rw-r--r--   1 device-farm  wheel    4446 Oct 29 17:10 result.txt
--rw-r--r--   1 device-farm  wheel      30 Oct 29 17:09 xcode.txt
+drwxr-xr-x  12 device-farm  wheel     384 Oct 30 05:01 .
+drwxrwxrwx   3 rwx          wheel      96 Oct 30 05:01 ..
+-rw-r--r--   1 device-farm  wheel  172912 Oct 30 05:02 appium.log
+-rw-r--r--   1 device-farm  wheel      78 Oct 30 05:01 auto-appium.err
+-rw-r--r--   1 device-farm  wheel  188067 Oct 30 05:02 auto-suite.log
+-rw-r--r--   1 device-farm  wheel      78 Oct 30 05:01 cpu-appium.err
+-rw-r--r--   1 device-farm  wheel  177129 Oct 30 05:01 cpu-suite.log
+-rw-r--r--   1 device-farm  wheel     278 Oct 30 05:01 device-info.txt
+-rw-r--r--   1 device-farm  wheel      78 Oct 30 05:01 gpu-appium.err
+-rw-r--r--   1 device-farm  wheel  165297 Oct 30 05:01 gpu-suite.log
+-rw-r--r--   1 device-farm  wheel    4447 Oct 30 05:02 result.txt
+-rw-r--r--   1 device-farm  wheel      30 Oct 30 05:01 xcode.txt
  
 [DEVICEFARM] ########### Finish executing testspec ###########
  

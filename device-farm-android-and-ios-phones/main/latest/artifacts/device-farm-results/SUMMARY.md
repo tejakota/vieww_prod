@@ -1,872 +1,880 @@
 # vieww on AWS Device Farm
 
-run: `arn:aws:devicefarm:us-west-2:278061313767:run:393108fd-d195-4dad-acb4-12581f7a212f/f0c59e77-27ec-464b-a771-3bc9f0116b08` — FAILED
+run: `arn:aws:devicefarm:us-west-2:278061313767:run:393108fd-d195-4dad-acb4-12581f7a212f/67f1204c-0649-4e03-8617-6cfd35175d38` — FAILED
 
 | phone | tier | Android | SoC / GPU | RAM | APK | cold start cpu / gpu (ms, median of 3) | frame time cpu | frame time gpu | frames drawn by the GPU, cpu pass / gpu pass | PSS cpu / gpu (MB) | suite cpu / gpu / auto |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| LG Stylo 5 | low | 9 | msm8953<br>Qualcomm, Adreno (TM) 506, OpenGL ES 3.2 V@331.0 (GIT@50f1b2 | 2.7 GB | 2.9 MB | 598 / 595 | median 33.656251ms, worst 46.477552ms, budget 16.666668ms (240 samples) | median 18.565313ms, worst 24.906249ms, budget 16.666668ms (240 samples) | 0 of 600 / 600 of 600 | 77 / 147 | FAIL / FAIL / FAIL |
-| Samsung Galaxy S20 (Unlocked) | mid | 13 | SM8250 (kona)<br>Qualcomm, Adreno (TM) 650, OpenGL ES 3.2 V@0502.0 (GIT@193b2 | 10.4 GB | 2.9 MB | 289 / 292 | median 11.697136ms, worst 23.331823ms, budget 16.666666ms (240 samples) | median 1.389583ms, worst 6.453906ms, budget 16.666666ms (240 samples) | 0 of 600 / 600 of 600 | 132 / 187 | PASS / PASS / PASS |
-| Samsung Galaxy S26 Ultra | high | 16 | SM8850 (canoe)<br>Qualcomm, Adreno (TM) 840, OpenGL ES 3.2 V@0842.19.3 (GIT@ba | 10.9 GB | 2.9 MB | 178 / 163 | median 7.418541ms, worst 17.720885ms, budget 8.333333ms (240 samples) | median 421.666µs, worst 3.049947ms, budget 8.333333ms (240 samples) | 0 of 600 / 600 of 600 | 75 / 197 | PASS / PASS / PASS |
+| LG Stylo 5 | low | 9 | msm8953<br>Qualcomm, Adreno (TM) 506, OpenGL ES 3.2 V@331.0 (GIT@50f1b2 | 2.7 GB | 2.9 MB | 611 / 595 | median 33.66401ms, worst 50.598072ms, budget 16.666668ms (240 samples) | median 19.116666ms, worst 24.533333ms, budget 16.666668ms (240 samples) | 0 of 600 / 600 of 600 | 77 / 146 | FAIL / FAIL / FAIL |
+| Samsung Galaxy A36 | mid | 15 | SM6475 (parrot)<br>Qualcomm, Adreno (TM) 710, OpenGL ES 3.2 V@0800.14.1 (GIT@e6 | 5.2 GB | 2.9 MB | 424 / 413 | median 12.624062ms, worst 51.871666ms, budget 16.666668ms (240 samples) | median 2.059114ms, worst 6.983594ms, budget 8.333333ms (240 samples) | 0 of 600 / 600 of 600 | 82 / 110 | PASS / PASS / PASS |
+| Samsung Galaxy S26 Ultra | high | 16 | SM8850 (canoe)<br>Qualcomm, Adreno (TM) 840, OpenGL ES 3.2 V@0842.19.3 (GIT@ba | 10.9 GB | 2.9 MB | 183 / 178 | median 5.795ms, worst 20.859115ms, budget 8.333333ms (240 samples) | median 320.834µs, worst 2.314844ms, budget 8.333333ms (240 samples) | 0 of 600 / 600 of 600 | 75 / 196 | PASS / PASS / PASS |
 
 **LG Stylo 5**
 - gating passes: auto cpu gpu (auto chose: gpu)
-- CPU path: median 33.656251ms, worst 46.477552ms, budget 16.666668ms (240 samples)
+- CPU path: median 33.66401ms, worst 50.598072ms, budget 16.666668ms (240 samples)
   - known failure (known-failures.txt, not failing the run): frames_inside_their_budget the_typical_frame_is_inside_its_budget — RC5, PENDING.md §4.7: the CPU path on an msm8953 is 35 ms against 16.7 ms (run 39594824376), with the raster stage about 30 ms whatever the damage. The GPU path now passes here - 11.7 ms with frames overlapping, 16.4 ms without - and `auto` ships it; this is the fallback's bar.
   - memory: PSS 77 MB
-  - start-up: before run 553 ms | app setup 0.1 | event loop started 0.0 | resumed 36.3 | window created 0.1 | present ready 1.6 | accessibility and show 0.0 | tree built 17.3 | window ready 1.2 | until first draw 0.1 | app before-frame hooks 15.3 | first build and layout 6.9 | first raster and present 138.6 = 770.5 ms from process start
-  - stages: medians ms: scale 0.07 plan 0.00 cpu 28.65 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.39 present 3.54
-  - stages: p95 ms: scale 0.09 plan 0.00 cpu 34.15 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.49 present 4.34
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.48 rects 23.87 images 0.00 layers 0.00 composite 0.00 total 24.34; p95 ms: text 0.00 shadows 0.00 paths 0.70 rects 27.41 images 0.00 layers 0.00 composite 0.00 total 28.11
+  - start-up: before run 548 ms | app setup 0.2 | event loop started 0.0 | resumed 34.8 | window created 0.1 | present ready 2.2 | accessibility and show 0.0 | tree built 14.3 | window ready 0.3 | until first draw 0.1 | app before-frame hooks 18.2 | first build and layout 5.7 | first raster and present 157.6 = 781.2 ms from process start
+  - stages: medians ms: scale 0.07 plan 0.00 cpu 28.50 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.38 present 3.65
+  - stages: p95 ms: scale 0.10 plan 0.00 cpu 34.02 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.48 present 4.36
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.50 rects 23.78 images 0.00 layers 0.00 composite 0.00 total 24.28; p95 ms: text 0.00 shadows 0.00 paths 0.70 rects 27.95 images 0.00 layers 0.00 composite 0.00 total 28.65
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 34.08 ms per frame over the last 240 frames, every thread (97% of one core)
+  - CPU time: process CPU 34.42 ms per frame over the last 240 frames, every thread (97% of one core)
   - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 18 s
-  - input to present: input to present ms: median 40.7 p95 46.6 p99 50.8 worst 50.8 over 20 inputs in 20 frames; 0 unanswered within 1 s
-  - worst frame: work 46.48 ms, outside the renderer 1.20 ms, on cpu7; stages ms: scale 0.08 plan 0.00 cpu 40.75 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.36 present 4.08
-  - raster by core: cpu6 104 frames 28.61 ms | cpu4 92 frames 28.65 ms | cpu0 30 frames 28.64 ms | cpu7 11 frames 29.82 ms | cpu5 3 frames 29.27 ms
+  - input to present: input to present ms: median 40.9 p95 50.7 p99 55.8 worst 55.8 over 20 inputs in 20 frames; 0 unanswered within 1 s
+  - worst frame: work 50.60 ms, outside the renderer 1.42 ms, on cpu4; stages ms: scale 0.10 plan 0.00 cpu 44.87 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.39 present 3.83
+  - raster by core: cpu5 76 frames 28.53 ms | cpu7 70 frames 28.35 ms | cpu6 49 frames 29.07 ms | cpu4 28 frames 28.73 ms | cpu0 17 frames 27.99 ms
   - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 1.80/1.80 GHz | cpu5 1.80/1.80 GHz | cpu6 1.80/1.80 GHz | cpu7 1.80/1.80 GHz
   - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
   - cache budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
-  - quality overlay: tier low · median 34.533913ms / p95 39.559895ms / worst 46.477552ms vs budget 16.666668ms · 240/240 over
-- GPU path: median 18.565313ms, worst 24.906249ms, budget 16.666668ms (240 samples)
+  - quality overlay: tier low · median 34.784359ms / p95 39.751406ms / worst 50.598072ms vs budget 16.666668ms · 240/240 over
+- GPU path: median 19.116666ms, worst 24.533333ms, budget 16.666668ms (240 samples)
   - **gate failed, run failed**: frames_inside_their_budget the_typical_frame_is_inside_its_budget
-  - memory: PSS 147 MB
-  - start-up: before run 544 ms | app setup 0.1 | event loop started 0.0 | resumed 36.2 | window created 0.1 | present ready 62.3 | accessibility and show 0.0 | tree built 13.9 | window ready 0.3 | until first draw 0.0 | app before-frame hooks 13.9 | first build and layout 5.2 | first raster and present 44.2 = 720.5 ms from process start
-  - stages: medians ms: scale 0.09 plan 0.90 cpu 0.00 gpu_upload 1.12 gpu_record 0.82 gpu_submit 1.23 gpu_wait 10.50 gpu_readback 0.00 acquire 0.33 present 0.57
-  - stages: p95 ms: scale 0.21 plan 2.05 cpu 0.00 gpu_upload 1.76 gpu_record 1.43 gpu_submit 2.13 gpu_wait 13.28 gpu_readback 0.00 acquire 0.54 present 0.96
-  - GPU time by kind of work: medians ms: draw 13.48 layers 0.00 filters 0.00 shadows 0.00 blit 0.39 total 13.87; p95 ms: draw 15.92 layers 0.00 filters 0.00 shadows 0.00 blit 0.47 total 16.39
+  - memory: PSS 146 MB
+  - start-up: before run 522 ms | app setup 0.2 | event loop started 0.0 | resumed 33.8 | window created 0.1 | present ready 69.2 | accessibility and show 0.0 | tree built 13.6 | window ready 0.3 | until first draw 0.1 | app before-frame hooks 15.2 | first build and layout 6.6 | first raster and present 44.3 = 705.8 ms from process start
+  - stages: medians ms: scale 0.09 plan 0.90 cpu 0.00 gpu_upload 1.09 gpu_record 0.75 gpu_submit 1.19 gpu_wait 12.01 gpu_readback 0.00 acquire 0.34 present 0.59
+  - stages: p95 ms: scale 0.21 plan 2.02 cpu 0.00 gpu_upload 1.89 gpu_record 1.37 gpu_submit 2.06 gpu_wait 13.88 gpu_readback 0.00 acquire 0.55 present 0.93
+  - GPU time by kind of work: medians ms: draw 15.28 layers 0.00 filters 0.00 shadows 0.00 blit 0.41 total 15.69; p95 ms: draw 16.24 layers 0.00 filters 0.00 shadows 0.00 blit 0.50 total 16.74
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
-  - copies into the swapchain: trusted: 589 partial and 11 full copies, 10.1% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - copies into the swapchain: trusted: 589 partial and 11 full copies, 10.2% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 6.83 ms per frame over the last 240 frames, every thread (36% of one core)
+  - CPU time: process CPU 6.83 ms per frame over the last 240 frames, every thread (35% of one core)
   - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 12 s
-  - input to present: input to present ms: median 18.5 p95 20.7 p99 21.9 worst 21.9 over 14 inputs in 14 frames; 0 unanswered within 1 s
-  - worst frame: work 24.91 ms, outside the renderer 1.67 ms; stages ms: scale 0.12 plan 1.20 cpu 0.00 gpu_upload 3.09 gpu_record 6.23 gpu_submit 1.93 gpu_wait 9.89 gpu_readback 0.00 acquire 0.32 present 0.45
+  - input to present: input to present ms: median 19.8 p95 21.6 p99 23.1 worst 23.1 over 14 inputs in 14 frames; 0 unanswered within 1 s
+  - worst frame: work 24.53 ms, outside the renderer 1.58 ms; stages ms: scale 0.12 plan 0.84 cpu 0.00 gpu_upload 0.93 gpu_record 0.90 gpu_submit 1.41 gpu_wait 17.76 gpu_readback 0.00 acquire 0.43 present 0.58
   - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 1.80/1.80 GHz | cpu5 1.80/1.80 GHz | cpu6 1.80/1.80 GHz | cpu7 1.80/1.80 GHz
-  - pipeline cache: started from 37691 bytes; saved 37691 bytes after the first GPU frame
+  - pipeline cache: started from 37696 bytes; saved 37696 bytes after the first GPU frame
   - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
   - cache budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
-  - quality overlay: tier low · median 18.251553ms / p95 22.078958ms / worst 24.906249ms vs budget 16.666668ms · 181/240 over
-- chosen by measurement (auto): median 17.897031ms, worst 24.602657ms, budget 16.666668ms (240 samples)
+  - quality overlay: tier low · median 18.820751ms / p95 22.556511ms / worst 24.533333ms vs budget 16.666668ms · 205/240 over
+- chosen by measurement (auto): median 18.171302ms, worst 24.692344ms, budget 16.666668ms (240 samples)
   - **gate failed, run failed**: frames_inside_their_budget the_typical_frame_is_inside_its_budget
   - memory: PSS 145 MB
-  - renderer: gpu (calibrated earlier: cpu 18.74 ms, gpu 12.21 ms)
-  - calibration launches: launch 1: 10-29 17:09:39.245 21056 21073 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer cpu, measuring (first launch with this build here) 10-29 17:09:40.816 21056 21073 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer cpu for now; the gpu is measured next launch (measured: cpu 18.74 ms; budget 16.67 ms) launch 2: 10-29 17:09:48.712 21132 21149 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu, measuring (the cpu path measured 18.74 ms last launch) 10-29 17:09:51.515 21132 21149 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu (measured: cpu 18.74 ms, gpu 12.21 ms; budget 16.67 ms) launch 3: 10-29 17:09:58.073 21195 21212 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu (calibrated earlier: cpu 18.74 ms, gpu 12.21 ms)
-  - start-up: before run 569 ms | app setup 0.1 | event loop started 0.0 | resumed 33.7 | window created 0.1 | present ready 70.4 | accessibility and show 0.0 | tree built 13.6 | window ready 0.3 | until first draw 0.1 | app before-frame hooks 15.3 | first build and layout 6.3 | first raster and present 42.5 = 751.3 ms from process start
-  - stages: medians ms: scale 0.09 plan 0.86 cpu 0.00 gpu_upload 1.02 gpu_record 0.78 gpu_submit 1.20 gpu_wait 10.57 gpu_readback 0.00 acquire 0.33 present 0.57
-  - stages: p95 ms: scale 0.20 plan 1.94 cpu 0.00 gpu_upload 1.69 gpu_record 1.43 gpu_submit 2.11 gpu_wait 13.20 gpu_readback 0.00 acquire 0.54 present 0.92
-  - GPU time by kind of work: medians ms: draw 13.81 layers 0.00 filters 0.00 shadows 0.00 blit 0.38 total 14.18; p95 ms: draw 15.41 layers 0.00 filters 0.00 shadows 0.00 blit 0.44 total 15.85
+  - renderer: gpu (calibrated earlier: cpu 18.57 ms, gpu 11.27 ms)
+  - calibration launches: launch 1: 10-30 05:01:59.487  7912  7940 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer cpu, measuring (first launch with this build here) 10-30 05:02:01.051  7912  7940 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer cpu for now; the gpu is measured next launch (measured: cpu 18.57 ms; budget 16.67 ms) launch 2: 10-30 05:02:08.887  8005  8022 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu, measuring (the cpu path measured 18.57 ms last launch) 10-30 05:02:11.642  8005  8022 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu (measured: cpu 18.57 ms, gpu 11.27 ms; budget 16.67 ms) launch 3: 10-30 05:02:18.290  8088  8105 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu (calibrated earlier: cpu 18.57 ms, gpu 11.27 ms)
+  - start-up: before run 564 ms | app setup 0.2 | event loop started 0.0 | resumed 34.4 | window created 0.1 | present ready 64.7 | accessibility and show 0.0 | tree built 15.0 | window ready 0.3 | until first draw 0.0 | app before-frame hooks 15.2 | first build and layout 5.2 | first raster and present 44.3 = 743.5 ms from process start
+  - stages: medians ms: scale 0.09 plan 0.90 cpu 0.00 gpu_upload 1.04 gpu_record 0.79 gpu_submit 1.18 gpu_wait 11.44 gpu_readback 0.00 acquire 0.33 present 0.55
+  - stages: p95 ms: scale 0.21 plan 1.77 cpu 0.00 gpu_upload 1.74 gpu_record 1.30 gpu_submit 1.93 gpu_wait 13.29 gpu_readback 0.00 acquire 0.54 present 0.85
+  - GPU time by kind of work: medians ms: draw 14.31 layers 0.00 filters 0.00 shadows 0.00 blit 0.39 total 14.70; p95 ms: draw 15.51 layers 0.00 filters 0.00 shadows 0.00 blit 0.48 total 15.99
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
-  - copies into the swapchain: trusted: 589 partial and 11 full copies, 9.7% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - copies into the swapchain: trusted: 589 partial and 11 full copies, 9.9% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 6.62 ms per frame over the last 240 frames, every thread (36% of one core)
+  - CPU time: process CPU 6.50 ms per frame over the last 240 frames, every thread (35% of one core)
   - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 11 s
-  - input to present: input to present ms: median 16.6 p95 19.3 p99 19.6 worst 19.6 over 12 inputs in 12 frames; 0 unanswered within 1 s
-  - worst frame: work 24.60 ms, outside the renderer 1.65 ms; stages ms: scale 0.11 plan 2.41 cpu 0.00 gpu_upload 3.72 gpu_record 0.88 gpu_submit 1.15 gpu_wait 13.90 gpu_readback 0.00 acquire 0.32 present 0.47
+  - input to present: input to present ms: median 18.5 p95 20.8 p99 21.5 worst 21.5 over 14 inputs in 14 frames; 0 unanswered within 1 s
+  - worst frame: work 24.69 ms, outside the renderer 1.55 ms; stages ms: scale 0.12 plan 1.40 cpu 0.00 gpu_upload 1.49 gpu_record 0.93 gpu_submit 1.10 gpu_wait 17.31 gpu_readback 0.00 acquire 0.31 present 0.50
+  - clocks at report: cpu0 0.65/1.80 GHz | cpu1 0.65/1.80 GHz | cpu2 0.65/1.80 GHz | cpu3 0.65/1.80 GHz | cpu4 0.65/1.80 GHz | cpu5 0.65/1.80 GHz | cpu6 0.65/1.80 GHz | cpu7 0.65/1.80 GHz
+  - pipeline cache: started from 37696 bytes; saved 37696 bytes after the first GPU frame
+  - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
+  - cache budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
+  - quality overlay: tier low · median 17.90154ms / p95 20.800469ms / worst 24.692344ms vs budget 16.666668ms · 189/240 over
+- CPU path presented through Vulkan (diagnostic): median 45.162708ms, worst 83.14677ms, budget 16.666668ms (240 samples)
+  - memory: PSS 127 MB
+  - start-up: before run 552 ms | app setup 0.2 | event loop started 0.0 | resumed 31.8 | window created 0.1 | present ready 69.7 | accessibility and show 0.0 | tree built 13.9 | window ready 0.3 | until first draw 0.0 | app before-frame hooks 15.0 | first build and layout 7.8 | first raster and present 127.6 = 818.9 ms from process start
+  - stages: medians ms: scale 0.07 plan 0.00 cpu 11.37 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 30.38
+  - stages: p95 ms: scale 0.19 plan 0.00 cpu 24.16 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 46.22
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.56 rects 9.32 images 0.00 layers 0.00 composite 0.00 total 9.88; p95 ms: text 0.00 shadows 0.00 paths 1.46 rects 20.53 images 0.00 layers 0.00 composite 0.00 total 22.00
+  - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
+  - CPU time: process CPU 21.62 ms per frame over the last 240 frames, every thread (42% of one core)
+  - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 35 s
+  - input to present: input to present ms: median 73.9 p95 97.7 p99 107.7 worst 107.7 over 48 inputs in 48 frames; 0 unanswered within 1 s
+  - worst frame: work 83.15 ms, outside the renderer 2.92 ms, on cpu4; stages ms: scale 0.20 plan 0.00 cpu 35.49 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 44.54
+  - raster by core: cpu4 77 frames 11.37 ms | cpu7 65 frames 11.29 ms | cpu5 49 frames 11.59 ms | cpu6 48 frames 11.80 ms | cpu0 1 frames 9.43 ms
   - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 1.80/1.80 GHz | cpu5 1.80/1.80 GHz | cpu6 1.80/1.80 GHz | cpu7 1.80/1.80 GHz
-  - pipeline cache: started from 37691 bytes; saved 37691 bytes after the first GPU frame
   - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
   - cache budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
-  - quality overlay: tier low · median 17.527204ms / p95 20.718489ms / worst 24.602657ms vs budget 16.666668ms · 162/240 over
-- CPU path presented through Vulkan (diagnostic): median 49.553126ms, worst 93.89875ms, budget 16.666668ms (240 samples)
-  - memory: PSS 129 MB
-  - start-up: before run 554 ms | app setup 0.1 | event loop started 0.0 | resumed 30.1 | window created 0.1 | present ready 68.5 | accessibility and show 0.0 | tree built 14.6 | window ready 0.4 | until first draw 0.1 | app before-frame hooks 14.0 | first build and layout 5.6 | first raster and present 141.4 = 829.2 ms from process start
-  - stages: medians ms: scale 0.08 plan 0.00 cpu 12.28 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 30.75
-  - stages: p95 ms: scale 0.21 plan 0.00 cpu 25.38 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 45.72
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.55 rects 9.87 images 0.00 layers 0.00 composite 0.00 total 10.42; p95 ms: text 0.00 shadows 0.00 paths 1.48 rects 21.38 images 0.00 layers 0.00 composite 0.00 total 22.87
+  - quality overlay: tier low · median 49.985552ms / p95 69.28547ms / worst 83.14677ms vs budget 16.666668ms · 240/240 over
+- CPU path with an Android performance hint (diagnostic): median 33.611406ms, worst 53.893853ms, budget 16.666668ms (240 samples)
+  - memory: PSS 77 MB
+  - start-up: before run 571 ms | app setup 0.2 | event loop started 0.0 | resumed 31.4 | window created 0.1 | present ready 2.4 | accessibility and show 0.0 | tree built 14.9 | window ready 0.3 | until first draw 0.1 | app before-frame hooks 14.4 | first build and layout 5.2 | first raster and present 151.8 = 792.2 ms from process start
+  - stages: medians ms: scale 0.07 plan 0.00 cpu 28.45 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.38 present 3.59
+  - stages: p95 ms: scale 0.09 plan 0.00 cpu 34.01 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.45 present 4.36
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.52 rects 23.64 images 0.00 layers 0.00 composite 0.00 total 24.16; p95 ms: text 0.00 shadows 0.00 paths 0.71 rects 28.15 images 0.00 layers 0.00 composite 0.00 total 28.85
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 22.29 ms per frame over the last 240 frames, every thread (42% of one core)
-  - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 37 s
-  - input to present: input to present ms: median 82.3 p95 110.9 p99 113.2 worst 113.2 over 50 inputs in 50 frames; 0 unanswered within 1 s
-  - worst frame: work 93.90 ms, outside the renderer 2.60 ms, on cpu5; stages ms: scale 0.21 plan 0.00 cpu 46.78 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 44.31
-  - raster by core: cpu7 69 frames 11.21 ms | cpu4 67 frames 13.75 ms | cpu6 56 frames 11.99 ms | cpu5 48 frames 12.36 ms
-  - clocks at report: cpu0 1.04/1.80 GHz | cpu1 1.04/1.80 GHz | cpu2 1.04/1.80 GHz | cpu3 1.04/1.80 GHz | cpu4 1.04/1.80 GHz | cpu5 1.04/1.80 GHz | cpu6 1.04/1.80 GHz | cpu7 1.04/1.80 GHz
-  - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
-  - cache budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
-  - quality overlay: tier low · median 51.838965ms / p95 70.558229ms / worst 93.89875ms vs budget 16.666668ms · 240/240 over
-- CPU path with an Android performance hint (diagnostic): median 33.550781ms, worst 48.889479ms, budget 16.666668ms (240 samples)
-  - memory: PSS 78 MB
-  - start-up: before run 541 ms | app setup 0.1 | event loop started 0.0 | resumed 34.9 | window created 0.1 | present ready 2.0 | accessibility and show 0.0 | tree built 16.0 | window ready 0.3 | until first draw 0.1 | app before-frame hooks 15.3 | first build and layout 6.2 | first raster and present 146.2 = 761.9 ms from process start
-  - stages: medians ms: scale 0.07 plan 0.00 cpu 28.34 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.38 present 3.67
-  - stages: p95 ms: scale 0.09 plan 0.00 cpu 34.95 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.45 present 4.41
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.46 rects 23.61 images 0.00 layers 0.00 composite 0.00 total 24.08; p95 ms: text 0.00 shadows 0.00 paths 0.67 rects 28.30 images 0.00 layers 0.00 composite 0.00 total 28.97
-  - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 34.12 ms per frame over the last 240 frames, every thread (97% of one core)
+  - CPU time: process CPU 34.33 ms per frame over the last 240 frames, every thread (97% of one core)
   - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 18 s
-  - input to present: input to present ms: median 39.4 p95 48.4 p99 49.0 worst 49.0 over 20 inputs in 20 frames; 0 unanswered within 1 s
-  - worst frame: work 48.89 ms, outside the renderer 1.44 ms, on cpu0; stages ms: scale 0.09 plan 0.00 cpu 41.22 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.41 present 5.74
-  - raster by core: cpu5 64 frames 28.59 ms | cpu4 52 frames 28.22 ms | cpu0 51 frames 29.08 ms | cpu6 33 frames 28.04 ms | cpu7 32 frames 27.95 ms | cpu3 8 frames 30.26 ms
+  - input to present: input to present ms: median 39.3 p95 50.9 p99 67.9 worst 67.9 over 21 inputs in 21 frames; 0 unanswered within 1 s
+  - worst frame: work 53.89 ms, outside the renderer 1.40 ms, on cpu4; stages ms: scale 0.07 plan 0.00 cpu 48.16 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.39 present 3.87
+  - raster by core: cpu4 90 frames 28.36 ms | cpu5 50 frames 28.40 ms | cpu7 34 frames 28.89 ms | cpu6 31 frames 29.38 ms | cpu3 28 frames 29.08 ms | cpu2 7 frames 28.80 ms
   - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 1.80/1.80 GHz | cpu5 1.80/1.80 GHz | cpu6 1.80/1.80 GHz | cpu7 1.80/1.80 GHz
   - performance hint: unavailable (Android 12 or older: no APerformanceHint)
   - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
   - cache budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
-  - quality overlay: tier low · median 34.495497ms / p95 40.076302ms / worst 48.889479ms vs budget 16.666668ms · 240/240 over
-- GPU path at the device tier's resolution (diagnostic): median 8.059897ms, worst 11.380989ms, budget 16.666668ms (240 samples)
-  - memory: PSS 84 MB
-  - start-up: before run 528 ms | app setup 0.1 | event loop started 0.0 | resumed 35.7 | window created 0.1 | present ready 79.2 | accessibility and show 0.0 | tree built 13.5 | window ready 1.0 | until first draw 0.2 | app before-frame hooks 14.5 | first build and layout 4.4 | first raster and present 30.2 = 706.6 ms from process start
-  - stages: medians ms: scale 0.09 plan 0.72 cpu 0.00 gpu_upload 0.77 gpu_record 0.66 gpu_submit 0.50 gpu_wait 3.13 gpu_readback 0.00 acquire 0.32 present 0.46
-  - stages: p95 ms: scale 0.12 plan 1.06 cpu 0.00 gpu_upload 1.15 gpu_record 0.89 gpu_submit 0.71 gpu_wait 3.73 gpu_readback 0.00 acquire 0.39 present 0.62
-  - GPU time by kind of work: medians ms: draw 3.24 layers 0.00 filters 0.00 shadows 0.00 blit 2.33 total 5.57; p95 ms: draw 3.37 layers 0.00 filters 0.00 shadows 0.00 blit 2.57 total 5.94
+  - quality overlay: tier low · median 34.639866ms / p95 39.318386ms / worst 53.893853ms vs budget 16.666668ms · 240/240 over
+- GPU path at the device tier's resolution (diagnostic): median 8.204114ms, worst 16.619948ms, budget 16.666668ms (240 samples)
+  - memory: PSS 82 MB
+  - start-up: before run 523 ms | app setup 0.2 | event loop started 0.0 | resumed 32.7 | window created 0.1 | present ready 68.3 | accessibility and show 0.0 | tree built 13.3 | window ready 0.3 | until first draw 0.1 | app before-frame hooks 15.0 | first build and layout 5.6 | first raster and present 29.6 = 688.0 ms from process start
+  - stages: medians ms: scale 0.09 plan 0.68 cpu 0.00 gpu_upload 0.73 gpu_record 0.63 gpu_submit 0.47 gpu_wait 3.38 gpu_readback 0.00 acquire 0.31 present 0.44
+  - stages: p95 ms: scale 0.14 plan 1.01 cpu 0.00 gpu_upload 1.10 gpu_record 0.91 gpu_submit 0.66 gpu_wait 4.08 gpu_readback 0.00 acquire 0.42 present 0.57
+  - GPU time by kind of work: medians ms: draw 3.34 layers 0.00 filters 0.00 shadows 0.00 blit 2.33 total 5.67; p95 ms: draw 3.61 layers 0.00 filters 0.00 shadows 0.00 blit 2.50 total 6.11
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
   - copies into the swapchain: probing: 0 partial and 600 full copies, 100.0% of the frames' pixels copied; 0 image(s) kept their contents, 0 did not
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 4.71 ms per frame over the last 240 frames, every thread (56% of one core)
+  - CPU time: process CPU 4.62 ms per frame over the last 240 frames, every thread (54% of one core)
   - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 5 s
-  - input to present: input to present ms: median 8.8 p95 8.8 p99 8.8 worst 8.8 over 2 inputs in 2 frames; 0 unanswered within 1 s
-  - worst frame: work 11.38 ms, outside the renderer 1.41 ms; stages ms: scale 0.12 plan 1.14 cpu 0.00 gpu_upload 3.77 gpu_record 0.73 gpu_submit 0.78 gpu_wait 2.66 gpu_readback 0.00 acquire 0.33 present 0.46
-  - clocks at report: cpu0 1.40/1.80 GHz | cpu1 1.40/1.80 GHz | cpu2 1.40/1.80 GHz | cpu3 1.40/1.80 GHz | cpu4 1.40/1.80 GHz | cpu5 1.40/1.80 GHz | cpu6 1.40/1.80 GHz | cpu7 1.40/1.80 GHz
-  - pipeline cache: started from 37691 bytes; saved 37691 bytes after the first GPU frame
+  - input to present: input to present ms: median 9.8 p95 9.8 p99 9.8 worst 9.8 over 2 inputs in 2 frames; 0 unanswered within 1 s
+  - worst frame: work 16.62 ms, outside the renderer 1.55 ms; stages ms: scale 0.13 plan 0.80 cpu 0.00 gpu_upload 9.03 gpu_record 0.77 gpu_submit 0.55 gpu_wait 2.95 gpu_readback 0.00 acquire 0.34 present 0.50
+  - clocks at report: cpu0 1.04/1.80 GHz | cpu1 1.04/1.80 GHz | cpu2 1.04/1.80 GHz | cpu3 1.04/1.80 GHz | cpu4 1.04/1.80 GHz | cpu5 1.04/1.80 GHz | cpu6 1.04/1.80 GHz | cpu7 1.04/1.80 GHz
+  - pipeline cache: started from 37696 bytes; saved 37696 bytes after the first GPU frame
   - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
   - gpu resolution: GPU path renders at 0.50x resolution (VIEWW_GPU_SCALE=auto: tier low)
   - cache budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
-  - quality overlay: tier low · median 8.103929ms / p95 8.85625ms / worst 11.380989ms vs budget 16.666668ms · 0/240 over · GPU path renders at 0.50x resolution (VIEWW_GPU_SCALE=auto: tier low)
-- GPU path waiting for every frame, without the overlap (diagnostic A/B): median 24.37901ms, worst 37.029323ms, budget 16.666668ms (240 samples)
-  - memory: PSS 145 MB
-  - start-up: before run 537 ms | app setup 0.1 | event loop started 0.0 | resumed 33.7 | window created 0.1 | present ready 81.9 | accessibility and show 0.0 | tree built 13.6 | window ready 0.3 | until first draw 0.0 | app before-frame hooks 14.0 | first build and layout 5.2 | first raster and present 232.1 = 918.3 ms from process start
-  - stages: medians ms: scale 0.08 plan 0.80 cpu 0.00 gpu_upload 1.10 gpu_record 0.79 gpu_submit 1.24 gpu_wait 18.32 gpu_readback 0.00 acquire 0.38 present 0.37
-  - stages: p95 ms: scale 0.21 plan 1.95 cpu 0.00 gpu_upload 2.03 gpu_record 1.44 gpu_submit 2.18 gpu_wait 18.92 gpu_readback 0.00 acquire 0.61 present 0.60
-  - GPU time by kind of work: medians ms: draw 17.46 layers 0.00 filters 0.00 shadows 0.00 blit 0.49 total 17.95; p95 ms: draw 18.02 layers 0.00 filters 0.00 shadows 0.00 blit 0.57 total 18.59
+  - quality overlay: tier low · median 8.30111ms / p95 9.18552ms / worst 16.619948ms vs budget 16.666668ms · 0/240 over · GPU path renders at 0.50x resolution (VIEWW_GPU_SCALE=auto: tier low)
+- GPU path waiting for every frame, without the overlap (diagnostic A/B): median 24.797968ms, worst 35.234688ms, budget 16.666668ms (240 samples)
+  - memory: PSS 143 MB
+  - start-up: before run 533 ms | app setup 0.3 | event loop started 0.0 | resumed 26.9 | window created 0.1 | present ready 62.6 | accessibility and show 0.0 | tree built 13.9 | window ready 0.3 | until first draw 0.1 | app before-frame hooks 13.7 | first build and layout 4.5 | first raster and present 242.3 = 897.9 ms from process start
+  - stages: medians ms: scale 0.08 plan 0.81 cpu 0.00 gpu_upload 1.13 gpu_record 0.78 gpu_submit 1.19 gpu_wait 18.69 gpu_readback 0.00 acquire 0.39 present 0.37
+  - stages: p95 ms: scale 0.21 plan 1.71 cpu 0.00 gpu_upload 1.60 gpu_record 1.42 gpu_submit 2.10 gpu_wait 19.34 gpu_readback 0.00 acquire 0.63 present 0.60
+  - GPU time by kind of work: medians ms: draw 17.79 layers 0.00 filters 0.00 shadows 0.00 blit 0.50 total 18.29; p95 ms: draw 18.29 layers 0.00 filters 0.00 shadows 0.00 blit 0.58 total 18.87
   - CPU/GPU overlap: off: every GPU frame waited for before the next (VIEWW_GPU_OVERLAP=0)
-  - copies into the swapchain: trusted: 589 partial and 11 full copies, 11.5% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - copies into the swapchain: trusted: 589 partial and 11 full copies, 11.6% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 6.38 ms per frame over the last 240 frames, every thread (25% of one core)
-  - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 16 s
-  - input to present: input to present ms: median 32.3 p95 42.2 p99 44.1 worst 44.1 over 20 inputs in 20 frames; 0 unanswered within 1 s
-  - worst frame: work 37.03 ms, outside the renderer 4.09 ms; stages ms: scale 0.22 plan 2.46 cpu 0.00 gpu_upload 3.87 gpu_record 1.68 gpu_submit 1.97 gpu_wait 21.80 gpu_readback 0.00 acquire 0.53 present 0.40
+  - CPU time: process CPU 6.42 ms per frame over the last 240 frames, every thread (25% of one core)
+  - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 17 s
+  - input to present: input to present ms: median 33.6 p95 44.8 p99 48.6 worst 48.6 over 22 inputs in 22 frames; 0 unanswered within 1 s
+  - worst frame: work 35.23 ms, outside the renderer 2.63 ms; stages ms: scale 0.19 plan 2.12 cpu 0.00 gpu_upload 3.30 gpu_record 1.44 gpu_submit 1.99 gpu_wait 22.57 gpu_readback 0.00 acquire 0.44 present 0.55
   - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 1.80/1.80 GHz | cpu5 1.80/1.80 GHz | cpu6 1.80/1.80 GHz | cpu7 1.80/1.80 GHz
-  - pipeline cache: started from 37691 bytes; saved 37691 bytes after the first GPU frame
+  - pipeline cache: started from 37696 bytes; saved 37696 bytes after the first GPU frame
   - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
   - cache budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
-  - quality overlay: tier low · median 24.866633ms / p95 29.446875ms / worst 37.029323ms vs budget 16.666668ms · 240/240 over
-- CPU path without raster threads, fill cache or blur cache (diagnostic A/B): median 33.571718ms, worst 51.238437ms, budget 16.666668ms (240 samples)
+  - quality overlay: tier low · median 25.422871ms / p95 29.287969ms / worst 35.234688ms vs budget 16.666668ms · 240/240 over
+- CPU path without raster threads, fill cache or blur cache (diagnostic A/B): median 33.653177ms, worst 52.977031ms, budget 16.666668ms (240 samples)
   - memory: PSS 77 MB
-  - start-up: before run 521 ms | app setup 0.2 | event loop started 0.0 | resumed 34.3 | window created 0.1 | present ready 1.7 | accessibility and show 0.0 | tree built 17.8 | window ready 0.4 | until first draw 0.1 | app before-frame hooks 14.6 | first build and layout 6.4 | first raster and present 122.9 = 720.0 ms from process start
-  - stages: medians ms: scale 0.07 plan 0.00 cpu 28.32 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.38 present 3.71
-  - stages: p95 ms: scale 0.09 plan 0.00 cpu 34.20 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.45 present 4.40
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.48 rects 23.62 images 0.00 layers 0.00 composite 0.00 total 24.10; p95 ms: text 0.00 shadows 0.00 paths 0.69 rects 28.92 images 0.00 layers 0.00 composite 0.00 total 29.60
+  - start-up: before run 555 ms | app setup 0.2 | event loop started 0.0 | resumed 32.2 | window created 0.1 | present ready 1.7 | accessibility and show 0.0 | tree built 15.4 | window ready 0.6 | until first draw 0.1 | app before-frame hooks 17.1 | first build and layout 7.3 | first raster and present 140.8 = 770.4 ms from process start
+  - stages: medians ms: scale 0.07 plan 0.00 cpu 28.46 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.38 present 3.70
+  - stages: p95 ms: scale 0.09 plan 0.00 cpu 34.98 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.46 present 4.47
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.52 rects 23.69 images 0.00 layers 0.00 composite 0.00 total 24.21; p95 ms: text 0.00 shadows 0.00 paths 0.69 rects 27.84 images 0.00 layers 0.00 composite 0.00 total 28.53
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 34.00 ms per frame over the last 240 frames, every thread (97% of one core)
+  - CPU time: process CPU 34.29 ms per frame over the last 240 frames, every thread (97% of one core)
   - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 18 s
-  - input to present: input to present ms: median 40.9 p95 49.1 p99 51.5 worst 51.5 over 20 inputs in 20 frames; 0 unanswered within 1 s
-  - worst frame: work 51.24 ms, outside the renderer 1.66 ms, on cpu7; stages ms: scale 0.10 plan 0.00 cpu 44.98 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.41 present 4.09
-  - raster by core: cpu6 88 frames 28.17 ms | cpu5 62 frames 28.06 ms | cpu4 33 frames 28.33 ms | cpu7 31 frames 29.00 ms | cpu0 26 frames 29.90 ms
+  - input to present: input to present ms: median 40.1 p95 50.8 p99 53.1 worst 53.1 over 22 inputs in 22 frames; 0 unanswered within 1 s
+  - worst frame: work 52.98 ms, outside the renderer 1.43 ms, on cpu5; stages ms: scale 0.10 plan 0.00 cpu 47.55 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.38 present 3.52
+  - raster by core: cpu7 84 frames 28.54 ms | cpu5 66 frames 28.42 ms | cpu6 36 frames 28.48 ms | cpu4 27 frames 28.22 ms | cpu2 18 frames 28.10 ms | cpu3 9 frames 28.21 ms
   - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 1.80/1.80 GHz | cpu5 1.80/1.80 GHz | cpu6 1.80/1.80 GHz | cpu7 1.80/1.80 GHz
   - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
   - cache budgets: blur off (VIEWW_BLUR_CACHE_MB=0), fill off (VIEWW_PATH_CACHE_MB=0), raster threads serial (VIEWW_RASTER_THREADS=0)
-  - quality overlay: tier low · median 34.38774ms / p95 39.581667ms / worst 51.238437ms vs budget 16.666668ms · 240/240 over
-- CPU path without the row-parallel walk only (diagnostic A/B): median 33.850365ms, worst 50.391407ms, budget 16.666668ms (240 samples)
-  - memory: PSS 66 MB
-  - start-up: before run 554 ms | app setup 0.1 | event loop started 0.0 | resumed 35.8 | window created 0.1 | present ready 2.1 | accessibility and show 0.0 | tree built 16.8 | window ready 0.5 | until first draw 0.1 | app before-frame hooks 15.7 | first build and layout 5.9 | first raster and present 128.1 = 759.7 ms from process start
-  - stages: medians ms: scale 0.07 plan 0.00 cpu 28.50 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.38 present 3.75
-  - stages: p95 ms: scale 0.09 plan 0.00 cpu 32.79 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.46 present 4.31
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.48 rects 23.72 images 0.00 layers 0.00 composite 0.00 total 24.20; p95 ms: text 0.00 shadows 0.00 paths 0.67 rects 27.56 images 0.00 layers 0.00 composite 0.00 total 28.24
+  - quality overlay: tier low · median 34.644951ms / p95 40.075677ms / worst 52.977031ms vs budget 16.666668ms · 240/240 over
+- CPU path without the row-parallel walk only (diagnostic A/B): median 33.578125ms, worst 48.367135ms, budget 16.666668ms (240 samples)
+  - memory: PSS 76 MB
+  - start-up: before run 562 ms | app setup 0.1 | event loop started 0.0 | resumed 33.7 | window created 0.1 | present ready 2.4 | accessibility and show 0.0 | tree built 18.7 | window ready 2.0 | until first draw 0.1 | app before-frame hooks 16.4 | first build and layout 7.3 | first raster and present 127.8 = 770.7 ms from process start
+  - stages: medians ms: scale 0.07 plan 0.00 cpu 28.43 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.38 present 3.62
+  - stages: p95 ms: scale 0.09 plan 0.00 cpu 34.16 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.44 present 4.18
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.48 rects 23.65 images 0.00 layers 0.00 composite 0.00 total 24.13; p95 ms: text 0.00 shadows 0.00 paths 0.69 rects 27.57 images 0.00 layers 0.00 composite 0.00 total 28.26
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 34.12 ms per frame over the last 240 frames, every thread (97% of one core)
-  - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 19 s
-  - input to present: input to present ms: median 40.0 p95 56.3 p99 61.3 worst 61.3 over 22 inputs in 22 frames; 0 unanswered within 1 s
-  - worst frame: work 50.39 ms, outside the renderer 1.29 ms, on cpu4; stages ms: scale 0.07 plan 0.00 cpu 44.64 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.35 present 4.05
-  - raster by core: cpu6 116 frames 28.33 ms | cpu4 61 frames 28.64 ms | cpu0 38 frames 28.69 ms | cpu5 15 frames 29.21 ms | cpu7 10 frames 29.13 ms
+  - CPU time: process CPU 34.04 ms per frame over the last 240 frames, every thread (97% of one core)
+  - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 18 s
+  - input to present: input to present ms: median 40.1 p95 53.1 p99 62.9 worst 62.9 over 20 inputs in 20 frames; 0 unanswered within 1 s
+  - worst frame: work 48.37 ms, outside the renderer 1.26 ms, on cpu4; stages ms: scale 0.36 plan 0.00 cpu 42.84 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.39 present 3.51
+  - raster by core: cpu6 74 frames 28.41 ms | cpu5 62 frames 28.25 ms | cpu4 45 frames 28.86 ms | cpu7 44 frames 28.45 ms | cpu3 15 frames 29.59 ms
   - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 1.80/1.80 GHz | cpu5 1.80/1.80 GHz | cpu6 1.80/1.80 GHz | cpu7 1.80/1.80 GHz
   - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
   - cache budgets: blur off (tier low), fill off (tier low), raster threads serial (VIEWW_RASTER_THREADS=0)
-  - quality overlay: tier low · median 34.581299ms / p95 37.982604ms / worst 50.391407ms vs budget 16.666668ms · 240/240 over
-- CPU path without the path-fill cache only (diagnostic A/B): median 33.552291ms, worst 49.891874ms, budget 16.666668ms (240 samples)
+  - quality overlay: tier low · median 34.418062ms / p95 39.703645ms / worst 48.367135ms vs budget 16.666668ms · 240/240 over
+- CPU path without the path-fill cache only (diagnostic A/B): median 33.613906ms, worst 51.549687ms, budget 16.666668ms (240 samples)
   - memory: PSS 77 MB
-  - start-up: before run 534 ms | app setup 0.2 | event loop started 0.0 | resumed 37.5 | window created 0.1 | present ready 1.6 | accessibility and show 0.0 | tree built 16.2 | window ready 0.3 | until first draw 0.1 | app before-frame hooks 15.2 | first build and layout 7.0 | first raster and present 147.9 = 760.1 ms from process start
-  - stages: medians ms: scale 0.07 plan 0.00 cpu 28.37 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.38 present 3.66
-  - stages: p95 ms: scale 0.09 plan 0.00 cpu 33.61 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.46 present 4.39
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.49 rects 23.61 images 0.00 layers 0.00 composite 0.00 total 24.09; p95 ms: text 0.00 shadows 0.00 paths 0.67 rects 27.96 images 0.00 layers 0.00 composite 0.00 total 28.64
+  - start-up: before run 567 ms | app setup 0.2 | event loop started 0.0 | resumed 36.1 | window created 0.1 | present ready 1.9 | accessibility and show 0.0 | tree built 15.7 | window ready 0.5 | until first draw 0.1 | app before-frame hooks 16.8 | first build and layout 6.1 | first raster and present 179.6 = 823.8 ms from process start
+  - stages: medians ms: scale 0.07 plan 0.00 cpu 28.48 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.39 present 3.63
+  - stages: p95 ms: scale 0.09 plan 0.00 cpu 33.83 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.49 present 4.29
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.46 rects 23.68 images 0.00 layers 0.00 composite 0.00 total 24.14; p95 ms: text 0.00 shadows 0.00 paths 0.68 rects 27.53 images 0.00 layers 0.00 composite 0.00 total 28.20
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 34.00 ms per frame over the last 240 frames, every thread (97% of one core)
+  - CPU time: process CPU 34.08 ms per frame over the last 240 frames, every thread (97% of one core)
   - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 18 s
-  - input to present: input to present ms: median 40.9 p95 50.0 p99 52.0 worst 52.0 over 20 inputs in 20 frames; 0 unanswered within 1 s
-  - worst frame: work 49.89 ms, outside the renderer 1.22 ms, on cpu1; stages ms: scale 0.07 plan 0.00 cpu 43.96 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.32 present 4.32
-  - raster by core: cpu6 71 frames 28.16 ms | cpu4 64 frames 28.72 ms | cpu7 39 frames 28.45 ms | cpu2 31 frames 28.29 ms | cpu5 23 frames 28.11 ms | cpu1 12 frames 29.10 ms
+  - input to present: input to present ms: median 40.7 p95 50.7 p99 51.7 worst 51.7 over 20 inputs in 20 frames; 0 unanswered within 1 s
+  - worst frame: work 51.55 ms, outside the renderer 1.28 ms, on cpu6; stages ms: scale 0.07 plan 0.00 cpu 45.85 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.35 present 4.01
+  - raster by core: cpu6 65 frames 28.55 ms | cpu4 50 frames 28.42 ms | cpu7 46 frames 28.48 ms | cpu5 44 frames 28.45 ms | cpu3 18 frames 28.98 ms | cpu0 17 frames 28.83 ms
   - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 1.80/1.80 GHz | cpu5 1.80/1.80 GHz | cpu6 1.80/1.80 GHz | cpu7 1.80/1.80 GHz
   - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
   - cache budgets: blur off (tier low), fill off (VIEWW_PATH_CACHE_MB=0), raster threads up to 8 workers per large mask
-  - quality overlay: tier low · median 34.383189ms / p95 38.711718ms / worst 49.891874ms vs budget 16.666668ms · 240/240 over
-- CPU path without the blur cache only (diagnostic A/B): median 33.6025ms, worst 61.382917ms, budget 16.666668ms (240 samples)
+  - quality overlay: tier low · median 34.47114ms / p95 38.769271ms / worst 51.549687ms vs budget 16.666668ms · 240/240 over
+- CPU path without the blur cache only (diagnostic A/B): median 33.512501ms, worst 49.740625ms, budget 16.666668ms (240 samples)
   - memory: PSS 77 MB
-  - start-up: before run 555 ms | app setup 0.2 | event loop started 0.0 | resumed 32.3 | window created 0.1 | present ready 2.2 | accessibility and show 0.0 | tree built 20.5 | window ready 0.4 | until first draw 0.1 | app before-frame hooks 18.3 | first build and layout 7.0 | first raster and present 165.6 = 801.5 ms from process start
-  - stages: medians ms: scale 0.07 plan 0.00 cpu 28.44 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.39 present 3.72
-  - stages: p95 ms: scale 0.09 plan 0.00 cpu 33.33 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.44 present 4.38
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.50 rects 23.63 images 0.00 layers 0.00 composite 0.00 total 24.13; p95 ms: text 0.00 shadows 0.00 paths 0.67 rects 27.65 images 0.00 layers 0.00 composite 0.00 total 28.32
+  - start-up: before run 550 ms | app setup 0.1 | event loop started 0.0 | resumed 33.6 | window created 0.1 | present ready 1.6 | accessibility and show 0.1 | tree built 14.3 | window ready 0.4 | until first draw 0.2 | app before-frame hooks 18.1 | first build and layout 7.1 | first raster and present 134.7 = 760.3 ms from process start
+  - stages: medians ms: scale 0.07 plan 0.00 cpu 28.39 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.38 present 3.63
+  - stages: p95 ms: scale 0.08 plan 0.00 cpu 32.76 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.46 present 4.41
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.48 rects 23.64 images 0.00 layers 0.00 composite 0.00 total 24.11; p95 ms: text 0.00 shadows 0.00 paths 0.67 rects 27.75 images 0.00 layers 0.00 composite 0.00 total 28.42
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 34.17 ms per frame over the last 240 frames, every thread (97% of one core)
+  - CPU time: process CPU 34.04 ms per frame over the last 240 frames, every thread (97% of one core)
   - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 18 s
-  - input to present: input to present ms: median 40.6 p95 51.8 p99 61.5 worst 61.5 over 20 inputs in 20 frames; 0 unanswered within 1 s
-  - worst frame: work 61.38 ms, outside the renderer 1.27 ms, on cpu5; stages ms: scale 0.07 plan 0.00 cpu 55.89 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.39 present 3.77
-  - raster by core: cpu4 81 frames 28.46 ms | cpu5 52 frames 28.16 ms | cpu7 45 frames 28.43 ms | cpu6 41 frames 28.60 ms | cpu2 19 frames 28.15 ms | cpu0 2 frames 30.55 ms
+  - input to present: input to present ms: median 41.3 p95 54.0 p99 55.1 worst 55.1 over 20 inputs in 20 frames; 0 unanswered within 1 s
+  - worst frame: work 49.74 ms, outside the renderer 1.64 ms, on cpu6; stages ms: scale 0.11 plan 0.00 cpu 43.44 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.38 present 4.17
+  - raster by core: cpu4 67 frames 28.46 ms | cpu5 65 frames 28.33 ms | cpu6 45 frames 28.71 ms | cpu7 41 frames 28.26 ms | cpu0 22 frames 29.17 ms
   - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 1.80/1.80 GHz | cpu5 1.80/1.80 GHz | cpu6 1.80/1.80 GHz | cpu7 1.80/1.80 GHz
   - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
   - cache budgets: blur off (VIEWW_BLUR_CACHE_MB=0), fill off (tier low), raster threads up to 8 workers per large mask
-  - quality overlay: tier low · median 34.561969ms / p95 39.042448ms / worst 61.382917ms vs budget 16.666668ms · 240/240 over
-- stress screen, CPU path (diagnostic): median 727.634271ms, worst 1.068868749s, budget 16.666668ms (240 samples)
-  - memory: PSS 184 MB
-  - start-up: before run 542 ms | app setup 0.2 | event loop started 0.0 | resumed 33.1 | window created 0.1 | present ready 1.6 | accessibility and show 0.0 | tree built 21.1 | window ready 0.3 | until first draw 0.1 | app before-frame hooks 14.6 | first build and layout 14.8 | first raster and present 1143.0 = 1771.3 ms from process start
-  - stages: medians ms: scale 0.05 plan 0.00 cpu 717.72 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.37 present 7.27
-  - stages: p95 ms: scale 0.10 plan 0.00 cpu 805.12 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.46 present 7.68
-  - CPU raster by kind of work: medians ms: text 13.46 shadows 144.11 paths 59.70 rects 132.01 images 138.07 layers 123.10 composite 80.58 total 691.03; p95 ms: text 14.05 shadows 203.71 paths 63.44 rects 135.38 images 144.92 layers 128.99 composite 110.14 total 800.64
-  - shadows blurred: 870 over 600 frames (1.45 a frame), 292.0 Mpx in all
-  - CPU time: process CPU 787.71 ms per frame over the last 240 frames, every thread (106% of one core)
+  - quality overlay: tier low · median 34.422964ms / p95 38.731041ms / worst 49.740625ms vs budget 16.666668ms · 240/240 over
+- stress screen, CPU path (diagnostic): median 727.578437ms, worst 1.053590937s, budget 16.666668ms (240 samples)
+  - memory: PSS 178 MB
+  - start-up: before run 556 ms | app setup 0.2 | event loop started 0.0 | resumed 32.0 | window created 0.1 | present ready 1.8 | accessibility and show 0.0 | tree built 21.0 | window ready 0.4 | until first draw 0.1 | app before-frame hooks 14.6 | first build and layout 14.2 | first raster and present 1157.3 = 1797.4 ms from process start
+  - stages: medians ms: scale 0.05 plan 0.00 cpu 717.30 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.37 present 7.18
+  - stages: p95 ms: scale 0.11 plan 0.00 cpu 797.24 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.46 present 7.67
+  - CPU raster by kind of work: medians ms: text 13.44 shadows 144.58 paths 59.99 rects 131.76 images 138.82 layers 123.11 composite 81.13 total 692.85; p95 ms: text 14.07 shadows 206.02 paths 63.77 rects 135.32 images 145.13 layers 129.14 composite 110.14 total 803.60
+  - shadows blurred: 869 over 600 frames (1.45 a frame), 291.5 Mpx in all
+  - CPU time: process CPU 788.00 ms per frame over the last 240 frames, every thread (106% of one core)
   - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 447 s
-  - input to present: input to present ms: median 734.7 p95 812.9 p99 854.8 worst 894.1 over 82 inputs in 82 frames; 0 unanswered within 1 s
-  - worst frame: work 1068.87 ms, outside the renderer 3.61 ms, on cpu7; stages ms: scale 0.08 plan 0.00 cpu 1057.19 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.37 present 7.61
-  - raster by core: cpu4 116 frames 716.29 ms | cpu5 67 frames 718.05 ms | cpu6 28 frames 712.31 ms | cpu7 17 frames 725.39 ms | cpu0 10 frames 722.12 ms | cpu2 1 frames 737.64 ms | cpu3 1 frames 733.74 ms
+  - input to present: input to present ms: median 735.4 p95 832.0 p99 861.5 worst 884.0 over 82 inputs in 82 frames; 0 unanswered within 1 s
+  - worst frame: work 1053.59 ms, outside the renderer 3.33 ms, on cpu0; stages ms: scale 0.05 plan 0.00 cpu 1041.92 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.45 present 7.84
+  - raster by core: cpu4 122 frames 716.30 ms | cpu5 57 frames 722.39 ms | cpu6 38 frames 720.37 ms | cpu7 14 frames 743.38 ms | cpu0 8 frames 716.86 ms | cpu1 1 frames 769.63 ms
   - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 1.80/1.80 GHz | cpu5 1.80/1.80 GHz | cpu6 1.80/1.80 GHz | cpu7 1.80/1.80 GHz
   - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
   - cache budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
-  - quality overlay: tier low · median 738.663287ms / p95 815.923593ms / worst 1.068868749s vs budget 16.666668ms · 240/240 over
-- stress screen, GPU path (diagnostic): median 1.006049895s, worst 1.082594739s, budget 16.666668ms (240 samples)
-  - memory: PSS 510 MB
-  - start-up: before run 560 ms | app setup 0.1 | event loop started 0.0 | resumed 30.2 | window created 0.1 | present ready 65.8 | accessibility and show 0.0 | tree built 13.0 | window ready 0.4 | until first draw 0.2 | app before-frame hooks 15.5 | first build and layout 11.5 | first raster and present 667.5 = 1364.0 ms from process start
-  - stages: medians ms: scale 0.06 plan 94.29 cpu 0.00 gpu_upload 16.96 gpu_record 5.46 gpu_submit 13.70 gpu_wait 866.32 gpu_readback 0.00 acquire 0.52 present 0.46
-  - stages: p95 ms: scale 0.13 plan 171.13 cpu 774.83 gpu_upload 44.86 gpu_record 8.35 gpu_submit 19.04 gpu_wait 908.73 gpu_readback 0.00 acquire 0.68 present 24.34
-  - GPU time by kind of work: medians ms: draw 750707.53 layers 43976701167.45 filters 29319965732.82 shadows 19.42 blit 2.05 total 73297417629.27; p95 ms: draw 7565740.85 layers 43980174811.95 filters 43980549566.32 shadows 318387.93 blit 2.12 total 87968608509.17
+  - quality overlay: tier low · median 739.327025ms / p95 808.27302ms / worst 1.053590937s vs budget 16.666668ms · 240/240 over
+- stress screen, GPU path (diagnostic): median 1.005119166s, worst 1.099115156s, budget 16.666668ms (240 samples)
+  - memory: PSS 513 MB
+  - start-up: before run 546 ms | app setup 0.1 | event loop started 0.0 | resumed 33.9 | window created 0.1 | present ready 63.0 | accessibility and show 0.0 | tree built 13.5 | window ready 0.8 | until first draw 0.3 | app before-frame hooks 15.4 | first build and layout 9.9 | first raster and present 661.7 = 1344.6 ms from process start
+  - stages: medians ms: scale 0.06 plan 95.33 cpu 0.00 gpu_upload 16.75 gpu_record 5.36 gpu_submit 14.10 gpu_wait 860.86 gpu_readback 0.00 acquire 0.50 present 0.46
+  - stages: p95 ms: scale 0.12 plan 164.30 cpu 788.72 gpu_upload 45.93 gpu_record 8.41 gpu_submit 19.12 gpu_wait 908.46 gpu_readback 0.00 acquire 0.72 present 24.61
+  - GPU time by kind of work: medians ms: draw 615130.08 layers 43972970453.38 filters 29320120886.71 shadows 19.41 blit 2.05 total 73293706491.62; p95 ms: draw 15326452.49 layers 43980314422.69 filters 43980549251.33 shadows 316494.99 blit 2.14 total 87976506623.64
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
-  - copies into the swapchain: trusted: 0 partial and 500 full copies, 100.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
-  - shadows blurred: 1052 over 600 frames (1.75 a frame), 354.7 Mpx in all
-  - CPU time: process CPU 310.08 ms per frame over the last 240 frames, every thread (33% of one core)
-  - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 567 s
-  - input to present: input to present ms: median 979.2 p95 996.6 p99 996.8 worst 996.8 over 24 inputs in 24 frames; 58 unanswered within 1 s
-  - worst frame: work 1082.59 ms, outside the renderer 2.56 ms; stages ms: scale 0.05 plan 142.19 cpu 0.00 gpu_upload 31.69 gpu_record 4.14 gpu_submit 15.01 gpu_wait 885.86 gpu_readback 0.00 acquire 0.67 present 0.42
-  - raster by core: cpu4 28 frames 750.62 ms | cpu5 6 frames 761.82 ms | cpu6 6 frames 785.63 ms | cpu7 4 frames 777.24 ms
-  - clocks at report: cpu0 0.65/1.80 GHz | cpu1 0.65/1.80 GHz | cpu2 0.65/1.80 GHz | cpu3 0.65/1.80 GHz | cpu4 0.65/1.80 GHz | cpu5 0.65/1.80 GHz | cpu6 0.65/1.80 GHz | cpu7 0.65/1.80 GHz
-  - pipeline cache: started from 37691 bytes; saved 37691 bytes after the first GPU frame
-  - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
-  - cache budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
-  - quality overlay: tier low · median 930.027377ms / p95 1.048185104s / worst 1.082594739s vs budget 16.666668ms · 240/240 over
-- stress screen for a minute on what auto chose (diagnostic): median 1.005728697s, worst 1.171235677s, budget 16.666668ms (240 samples)
-  - memory: PSS 512 MB
-  - renderer: gpu (calibrated earlier: cpu 18.74 ms, gpu 12.21 ms)
-  - start-up: before run 572 ms | app setup 0.1 | event loop started 0.0 | resumed 30.4 | window created 0.1 | present ready 62.1 | accessibility and show 0.0 | tree built 15.9 | window ready 0.4 | until first draw 0.1 | app before-frame hooks 15.1 | first build and layout 9.9 | first raster and present 671.8 = 1377.6 ms from process start
-  - stages: medians ms: scale 0.06 plan 94.67 cpu 0.00 gpu_upload 16.54 gpu_record 5.66 gpu_submit 14.14 gpu_wait 865.82 gpu_readback 0.00 acquire 0.50 present 0.45
-  - stages: p95 ms: scale 0.15 plan 168.10 cpu 785.57 gpu_upload 43.91 gpu_record 8.35 gpu_submit 18.78 gpu_wait 913.56 gpu_readback 0.00 acquire 0.68 present 24.30
-  - GPU time by kind of work: medians ms: draw 639751.34 layers 43973567759.62 filters 29319973700.15 shadows 19.38 blit 2.05 total 73294181232.55; p95 ms: draw 12929979.84 layers 43980172799.31 filters 43980550465.76 shadows 316462.14 blit 2.10 total 87973969709.15
-  - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
-  - copies into the swapchain: trusted: 0 partial and 506 full copies, 100.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
-  - shadows blurred: 1043 over 600 frames (1.74 a frame), 352.4 Mpx in all
-  - CPU time: process CPU 295.40 ms per frame over the last 544 frames, every thread (31% of one core)
-  - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 567 s
-  - over the run: frames 361-600: median 1005.73 ms, 240 of 240 over budget; last 240 of 600 frames: median 1005.73 ms, 240 over; 567 s
-  - PSS over time: 10s:348 20s:456 30s:490 40s:516 50s:508 60s:493 70s:501 80s:491 90s:492 100s:519 110s:495 120s:503 130s:517 140s:509 150s:509 160s:531 170s:502 180s:521 190s:500 200s:501 210s:503 220s:504 230s:519 240s:521 250s:541 260s:510 270s:556 280s:508 290s:508 300s:519 310s:503 320s:510 330s:508 340s:503 350s:507 360s:511 370s:507 380s:510 390s:546 400s:510 410s:513 420s:512 430s:531 440s:508 450s:507 460s:536 470s:521 480s:510 490s:540 500s:522 510s:514 520s:534 530s:547 540s:545 550s:509 MB (first to last: +161.0 MB)
-  - input to present: input to present ms: median 979.9 p95 998.1 p99 999.8 worst 999.8 over 25 inputs in 25 frames; 57 unanswered within 1 s
-  - worst frame: work 1171.24 ms, outside the renderer 5.02 ms, on cpu6; stages ms: scale 0.15 plan 373.36 cpu 768.09 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 24.62
-  - raster by core: cpu4 21 frames 748.24 ms | cpu5 9 frames 771.71 ms | cpu7 7 frames 757.95 ms | cpu6 5 frames 752.80 ms | cpu0 1 frames 818.36 ms
+  - copies into the swapchain: trusted: 0 partial and 489 full copies, 100.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - shadows blurred: 1070 over 600 frames (1.78 a frame), 359.8 Mpx in all
+  - CPU time: process CPU 326.08 ms per frame over the last 240 frames, every thread (35% of one core)
+  - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 564 s
+  - input to present: input to present ms: median 980.4 p95 998.4 p99 998.5 worst 998.5 over 24 inputs in 24 frames; 58 unanswered within 1 s
+  - worst frame: work 1099.12 ms, outside the renderer 3.96 ms; stages ms: scale 0.06 plan 360.78 cpu 0.00 gpu_upload 46.53 gpu_record 5.35 gpu_submit 17.08 gpu_wait 664.44 gpu_readback 0.00 acquire 0.51 present 0.41
+  - raster by core: cpu5 21 frames 744.82 ms | cpu4 20 frames 757.38 ms | cpu6 3 frames 749.02 ms | cpu7 3 frames 727.08 ms | cpu0 2 frames 902.94 ms
   - clocks at report: cpu0 1.40/1.80 GHz | cpu1 1.40/1.80 GHz | cpu2 1.40/1.80 GHz | cpu3 1.40/1.80 GHz | cpu4 1.40/1.80 GHz | cpu5 1.40/1.80 GHz | cpu6 1.40/1.80 GHz | cpu7 1.40/1.80 GHz
-  - pipeline cache: started from 37691 bytes; saved 37691 bytes after the first GPU frame
+  - pipeline cache: started from 37696 bytes; saved 37696 bytes after the first GPU frame
   - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
   - cache budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
-  - quality overlay: tier low · median 923.073227ms / p95 1.056265677s / worst 1.171235677s vs budget 16.666668ms · 240/240 over
-- GPU path, every swapchain copy read back and compared with its frame: median 224.021094ms, worst 804.405573ms, budget 16.666668ms (240 samples)
-  - memory: PSS 153 MB
-  - start-up: before run 560 ms | app setup 0.2 | event loop started 0.0 | resumed 37.4 | window created 0.1 | present ready 77.0 | accessibility and show 0.0 | tree built 14.7 | window ready 0.3 | until first draw 0.1 | app before-frame hooks 13.8 | first build and layout 5.0 | first raster and present 44.8 = 753.6 ms from process start
-  - stages: medians ms: scale 0.08 plan 0.80 cpu 0.00 gpu_upload 3.88 gpu_record 0.78 gpu_submit 1.11 gpu_wait 33.93 gpu_readback 0.00 acquire 0.40 present 0.65
-  - stages: p95 ms: scale 0.10 plan 1.06 cpu 0.00 gpu_upload 4.47 gpu_record 0.91 gpu_submit 1.34 gpu_wait 38.47 gpu_readback 0.00 acquire 0.50 present 1.00
-  - GPU time by kind of work: medians ms: draw 6.65 layers 0.00 filters 0.00 shadows 0.00 blit 29.95 total 36.59; p95 ms: draw 7.41 layers 0.00 filters 0.00 shadows 0.00 blit 34.30 total 41.71
+  - quality overlay: tier low · median 913.331517ms / p95 1.062556718s / worst 1.099115156s vs budget 16.666668ms · 240/240 over
+- stress screen for a minute on what auto chose (diagnostic): median 1.00415651s, worst 1.084169582s, budget 16.666668ms (240 samples)
+  - memory: PSS 518 MB
+  - renderer: gpu (calibrated earlier: cpu 18.57 ms, gpu 11.27 ms)
+  - start-up: before run 582 ms | app setup 0.1 | event loop started 0.0 | resumed 31.0 | window created 0.1 | present ready 83.6 | accessibility and show 0.0 | tree built 16.5 | window ready 0.3 | until first draw 0.0 | app before-frame hooks 16.8 | first build and layout 10.1 | first raster and present 662.1 = 1402.5 ms from process start
+  - stages: medians ms: scale 0.06 plan 94.74 cpu 0.00 gpu_upload 16.60 gpu_record 5.52 gpu_submit 14.01 gpu_wait 864.11 gpu_readback 0.00 acquire 0.52 present 0.45
+  - stages: p95 ms: scale 0.14 plan 167.89 cpu 773.21 gpu_upload 43.79 gpu_record 8.32 gpu_submit 19.11 gpu_wait 905.38 gpu_readback 0.00 acquire 0.70 present 24.34
+  - GPU time by kind of work: medians ms: draw 639125.94 layers 43976411627.48 filters 29319967951.26 shadows 19.39 blit 2.05 total 73297018726.12; p95 ms: draw 7853507.18 layers 43980179911.09 filters 43980548239.08 shadows 315697.72 blit 2.14 total 87968897357.21
+  - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
+  - copies into the swapchain: trusted: 0 partial and 498 full copies, 100.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - shadows blurred: 1057 over 600 frames (1.76 a frame), 356.3 Mpx in all
+  - CPU time: process CPU 304.45 ms per frame over the last 544 frames, every thread (32% of one core)
+  - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 566 s
+  - over the run: frames 361-600: median 1004.16 ms, 240 of 240 over budget; last 240 of 600 frames: median 1004.16 ms, 240 over; 566 s
+  - PSS over time: 10s:350 20s:456 30s:488 40s:482 50s:492 60s:522 70s:501 80s:500 90s:502 100s:505 110s:501 120s:503 130s:505 140s:538 150s:511 160s:539 170s:536 180s:507 190s:510 200s:542 210s:506 220s:507 230s:526 240s:506 250s:513 260s:519 270s:550 280s:509 290s:543 300s:505 310s:506 320s:533 330s:510 340s:524 350s:511 360s:514 370s:507 380s:510 390s:512 400s:511 410s:512 420s:528 430s:510 440s:513 450s:511 460s:541 470s:512 480s:516 490s:547 500s:512 510s:512 520s:534 530s:532 540s:537 MB (first to last: +187.2 MB)
+  - input to present: input to present ms: median 967.8 p95 999.5 p99 999.8 worst 999.8 over 21 inputs in 21 frames; 61 unanswered within 1 s
+  - worst frame: work 1084.17 ms, outside the renderer 2.39 ms; stages ms: scale 0.08 plan 97.66 cpu 0.00 gpu_upload 40.18 gpu_record 4.05 gpu_submit 15.13 gpu_wait 923.64 gpu_readback 0.00 acquire 0.63 present 0.41
+  - raster by core: cpu4 21 frames 754.75 ms | cpu5 7 frames 725.96 ms | cpu6 7 frames 773.21 ms | cpu0 3 frames 725.70 ms | cpu7 3 frames 775.71 ms
+  - clocks at report: cpu0 1.69/1.80 GHz | cpu1 1.69/1.80 GHz | cpu2 1.69/1.80 GHz | cpu3 1.69/1.80 GHz | cpu4 1.69/1.80 GHz | cpu5 1.69/1.80 GHz | cpu6 1.69/1.80 GHz | cpu7 1.69/1.80 GHz
+  - pipeline cache: started from 37696 bytes; saved 37696 bytes after the first GPU frame
+  - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
+  - cache budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
+  - quality overlay: tier low · median 923.049514ms / p95 1.054561145s / worst 1.084169582s vs budget 16.666668ms · 240/240 over
+- GPU path, every swapchain copy read back and compared with its frame: median 225.684532ms, worst 818.242396ms, budget 16.666668ms (240 samples)
+  - memory: PSS 150 MB
+  - start-up: before run 552 ms | app setup 0.2 | event loop started 0.0 | resumed 29.0 | window created 0.1 | present ready 62.2 | accessibility and show 0.0 | tree built 15.7 | window ready 0.3 | until first draw 0.0 | app before-frame hooks 15.4 | first build and layout 4.8 | first raster and present 46.1 = 725.5 ms from process start
+  - stages: medians ms: scale 0.08 plan 0.92 cpu 0.00 gpu_upload 3.82 gpu_record 0.78 gpu_submit 1.15 gpu_wait 33.56 gpu_readback 0.00 acquire 0.41 present 0.65
+  - stages: p95 ms: scale 0.10 plan 1.30 cpu 0.00 gpu_upload 4.21 gpu_record 0.91 gpu_submit 1.32 gpu_wait 37.60 gpu_readback 0.00 acquire 0.48 present 0.97
+  - GPU time by kind of work: medians ms: draw 6.66 layers 0.00 filters 0.00 shadows 0.00 blit 29.75 total 36.40; p95 ms: draw 7.56 layers 0.00 filters 0.00 shadows 0.00 blit 33.75 total 41.32
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
   - copies into the swapchain: trusted: 589 partial and 11 full copies, 7.5% of the frames' pixels copied; 594 image(s) kept their contents, 0 did not
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 256.08 ms per frame over the last 240 frames, every thread (87% of one core)
-  - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 177 s
-  - input to present: input to present ms: median 226.1 p95 796.0 p99 804.5 worst 807.4 over 81 inputs in 81 frames; 1 unanswered within 1 s
-  - worst frame: work 804.41 ms, outside the renderer 756.91 ms; stages ms: scale 0.07 plan 0.61 cpu 0.00 gpu_upload 3.76 gpu_record 0.80 gpu_submit 1.16 gpu_wait 39.53 gpu_readback 0.00 acquire 0.42 present 1.15
+  - CPU time: process CPU 260.79 ms per frame over the last 240 frames, every thread (87% of one core)
+  - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 179 s
+  - input to present: input to present ms: median 228.7 p95 802.4 p99 806.0 worst 808.2 over 82 inputs in 82 frames; 0 unanswered within 1 s
+  - worst frame: work 818.24 ms, outside the renderer 771.86 ms; stages ms: scale 0.08 plan 1.03 cpu 0.00 gpu_upload 3.87 gpu_record 1.00 gpu_submit 1.13 gpu_wait 37.80 gpu_readback 0.00 acquire 0.50 present 0.98
   - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 1.80/1.80 GHz | cpu5 1.80/1.80 GHz | cpu6 1.80/1.80 GHz | cpu7 1.80/1.80 GHz
-  - pipeline cache: started from 37691 bytes; saved 37691 bytes after the first GPU frame
+  - pipeline cache: started from 37696 bytes; saved 37696 bytes after the first GPU frame
   - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
   - cache budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
-  - quality overlay: tier low · median 291.797087ms / p95 789.621823ms / worst 804.405573ms vs budget 16.666668ms · 240/240 over
-- GPU path copying whole frames into the swapchain (diagnostic A/B): median 21.430157ms, worst 29.093229ms, budget 16.666668ms (240 samples)
-  - memory: PSS 127 MB
-  - start-up: before run 562 ms | app setup 0.1 | event loop started 0.0 | resumed 34.6 | window created 0.1 | present ready 78.4 | accessibility and show 0.0 | tree built 13.6 | window ready 0.4 | until first draw 0.1 | app before-frame hooks 14.2 | first build and layout 5.4 | first raster and present 41.4 = 750.4 ms from process start
-  - stages: medians ms: scale 0.09 plan 0.92 cpu 0.00 gpu_upload 1.11 gpu_record 0.71 gpu_submit 1.20 gpu_wait 14.15 gpu_readback 0.00 acquire 0.34 present 0.58
-  - stages: p95 ms: scale 0.21 plan 1.91 cpu 0.00 gpu_upload 1.44 gpu_record 1.21 gpu_submit 2.08 gpu_wait 18.20 gpu_readback 0.00 acquire 0.57 present 0.92
-  - GPU time by kind of work: medians ms: draw 14.02 layers 0.00 filters 0.00 shadows 0.00 blit 2.96 total 16.99; p95 ms: draw 17.20 layers 0.00 filters 0.00 shadows 0.00 blit 3.69 total 20.88
+  - quality overlay: tier low · median 296.142043ms / p95 800.124791ms / worst 818.242396ms vs budget 16.666668ms · 240/240 over
+- GPU path copying whole frames into the swapchain (diagnostic A/B): median 20.226302ms, worst 31.329063ms, budget 16.666668ms (240 samples)
+  - memory: PSS 126 MB
+  - start-up: before run 559 ms | app setup 0.2 | event loop started 0.0 | resumed 33.6 | window created 0.1 | present ready 70.4 | accessibility and show 0.0 | tree built 13.7 | window ready 0.3 | until first draw 0.1 | app before-frame hooks 14.7 | first build and layout 5.4 | first raster and present 44.3 = 741.6 ms from process start
+  - stages: medians ms: scale 0.09 plan 0.90 cpu 0.00 gpu_upload 1.02 gpu_record 0.71 gpu_submit 1.19 gpu_wait 13.63 gpu_readback 0.00 acquire 0.35 present 0.61
+  - stages: p95 ms: scale 0.21 plan 1.96 cpu 0.00 gpu_upload 1.67 gpu_record 1.22 gpu_submit 2.10 gpu_wait 14.33 gpu_readback 0.00 acquire 0.56 present 0.95
+  - GPU time by kind of work: medians ms: draw 13.79 layers 0.00 filters 0.00 shadows 0.00 blit 2.95 total 16.74; p95 ms: draw 14.58 layers 0.00 filters 0.00 shadows 0.00 blit 3.04 total 17.63
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 6.79 ms per frame over the last 240 frames, every thread (30% of one core)
-  - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 13 s
-  - input to present: input to present ms: median 25.1 p95 26.0 p99 26.7 worst 26.7 over 14 inputs in 14 frames; 0 unanswered within 1 s
-  - worst frame: work 29.09 ms, outside the renderer 2.10 ms; stages ms: scale 0.15 plan 0.94 cpu 0.00 gpu_upload 0.78 gpu_record 0.94 gpu_submit 3.86 gpu_wait 17.11 gpu_readback 0.00 acquire 0.25 present 2.98
-  - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 1.80/1.80 GHz | cpu5 1.80/1.80 GHz | cpu6 1.80/1.80 GHz | cpu7 1.80/1.80 GHz
-  - pipeline cache: started from 37691 bytes; saved 37691 bytes after the first GPU frame
+  - CPU time: process CPU 6.75 ms per frame over the last 240 frames, every thread (32% of one core)
+  - thermal: hottest zone 37.0 -> 37.0 °C (peak 37.0) over 12 s
+  - input to present: input to present ms: median 20.7 p95 23.6 p99 23.9 worst 23.9 over 14 inputs in 14 frames; 0 unanswered within 1 s
+  - worst frame: work 31.33 ms, outside the renderer 1.79 ms; stages ms: scale 0.13 plan 0.94 cpu 0.00 gpu_upload 12.82 gpu_record 0.69 gpu_submit 1.08 gpu_wait 13.00 gpu_readback 0.00 acquire 0.35 present 0.52
+  - clocks at report: cpu0 0.65/1.80 GHz | cpu1 0.65/1.80 GHz | cpu2 0.65/1.80 GHz | cpu3 0.65/1.80 GHz | cpu4 0.65/1.80 GHz | cpu5 0.65/1.80 GHz | cpu6 0.65/1.80 GHz | cpu7 0.65/1.80 GHz
+  - pipeline cache: started from 37696 bytes; saved 37696 bytes after the first GPU frame
   - device profile: tier low, 2.7 GB, 8 cores, msm8953 (API 28)
   - cache budgets: blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask
-  - quality overlay: tier low · median 21.918809ms / p95 26.128594ms / worst 29.093229ms vs budget 16.666668ms · 234/240 over
+  - quality overlay: tier low · median 20.360386ms / p95 23.089999ms / worst 31.329063ms vs budget 16.666668ms · 233/240 over
 - failed checks: frames_inside_their_budget the_typical_frame_is_inside_its_budget frames_inside_their_budget the_typical_frame_is_inside_its_budget frames_inside_their_budget the_typical_frame_is_inside_its_budget
 
-**Samsung Galaxy S20 (Unlocked)**
+**Samsung Galaxy A36**
 - gating passes: auto cpu gpu (auto chose: gpu)
-- CPU path: median 11.697136ms, worst 23.331823ms, budget 16.666666ms (240 samples)
-  - memory: PSS 132 MB
-  - start-up: before run 260 ms | app setup 0.1 | event loop started 0.0 | resumed 16.6 | window created 0.0 | present ready 0.5 | accessibility and show 0.0 | tree built 6.9 | window ready 0.6 | until first draw 0.1 | app before-frame hooks 131.9 | first build and layout 1.4 | first raster and present 38.6 = 456.4 ms from process start
-  - stages: medians ms: scale 0.03 plan 0.00 cpu 8.89 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.67 present 1.53
-  - stages: p95 ms: scale 0.03 plan 0.00 cpu 11.25 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 1.32 present 2.12
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.15 rects 6.51 images 0.00 layers 0.00 composite 0.00 total 6.66; p95 ms: text 0.00 shadows 0.00 paths 0.22 rects 7.56 images 0.00 layers 0.00 composite 0.00 total 7.78
+- CPU path: median 12.624062ms, worst 51.871666ms, budget 16.666668ms (240 samples)
+  - frame rate: frame rate changed 1 time(s), ending at 60 Hz
+  - memory: PSS 82 MB
+  - start-up: before run 374 ms | app setup 0.1 | event loop started 0.0 | resumed 28.6 | window created 0.1 | present ready 2.8 | accessibility and show 0.0 | tree built 4.9 | window ready 7.3 | until first draw 0.1 | app before-frame hooks 33.5 | first build and layout 2.9 | first raster and present 53.8 = 507.9 ms from process start
+  - stages: medians ms: scale 0.03 plan 0.00 cpu 8.58 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.86 present 1.34
+  - stages: p95 ms: scale 0.05 plan 0.00 cpu 10.37 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 5.30 present 2.08
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.21 rects 6.53 images 0.00 layers 0.00 composite 0.00 total 6.73; p95 ms: text 0.00 shadows 0.00 paths 0.38 rects 7.91 images 0.00 layers 0.00 composite 0.00 total 8.30
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 12.75 ms per frame over the last 240 frames, every thread (65% of one core)
-  - thermal: status none -> none (worst none); headroom 0.61 -> 0.61 (highest 0.61; 1.0 is severe throttling); hottest zone 46.1 -> 46.9 °C (peak 47.3) over 12 s
-  - input to present: input to present ms: median 18.6 p95 23.4 p99 26.7 worst 26.7 over 38 inputs in 25 frames; 0 unanswered within 1 s
-  - worst frame: work 23.33 ms, outside the renderer 0.80 ms, on cpu6; stages ms: scale 0.07 plan 0.00 cpu 19.39 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.88 present 2.19
-  - raster by core: cpu6 184 frames 8.89 ms | cpu4 56 frames 8.86 ms
-  - clocks at report: cpu0 1.71/1.80 GHz | cpu1 1.71/1.80 GHz | cpu2 1.71/1.80 GHz | cpu3 1.71/1.80 GHz | cpu4 1.86/2.42 GHz | cpu5 1.86/2.42 GHz | cpu6 1.86/2.42 GHz | cpu7 0.84/2.84 GHz
-  - device profile: tier high, 10.4 GB, 8 cores, SM8250 (kona) (API 33)
-  - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 11.850696ms / p95 14.262709ms / worst 23.331823ms vs budget 16.666666ms · 7/240 over
-- GPU path: median 1.389583ms, worst 6.453906ms, budget 16.666666ms (240 samples)
-  - memory: PSS 187 MB
-  - start-up: before run 246 ms | app setup 0.1 | event loop started 0.0 | resumed 18.0 | window created 0.0 | present ready 26.3 | accessibility and show 0.0 | tree built 4.2 | window ready 0.6 | until first draw 0.0 | app before-frame hooks 161.4 | first build and layout 1.3 | first raster and present 15.4 = 473.1 ms from process start
-  - stages: medians ms: scale 0.05 plan 0.27 cpu 0.00 gpu_upload 0.35 gpu_record 0.09 gpu_submit 0.08 gpu_wait 0.01 gpu_readback 0.00 acquire 0.03 present 0.08
-  - stages: p95 ms: scale 0.06 plan 0.33 cpu 0.00 gpu_upload 0.78 gpu_record 0.12 gpu_submit 0.15 gpu_wait 3.34 gpu_readback 0.00 acquire 0.03 present 0.10
-  - GPU time by kind of work: medians ms: draw 0.19 layers 0.00 filters 0.00 shadows 0.00 blit 0.05 total 0.24; p95 ms: draw 0.31 layers 0.00 filters 0.00 shadows 0.00 blit 0.06 total 0.37
+  - CPU time: process CPU 12.08 ms per frame over the last 240 frames, every thread (72% of one core)
+  - thermal: status none -> none (worst none); headroom 0.58 -> 0.58 (highest 0.58; 1.0 is severe throttling); hottest zone 50.7 -> 42.2 °C (peak 51.4) over 9 s
+  - input to present: input to present ms: median 16.7 p95 24.2 p99 65.4 worst 65.4 over 32 inputs in 24 frames; 0 unanswered within 1 s
+  - worst frame: work 51.87 ms, outside the renderer 3.15 ms, on cpu2; stages ms: scale 0.07 plan 0.00 cpu 46.11 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.60 present 1.93
+  - raster by core: cpu4 110 frames 8.55 ms | cpu5 62 frames 8.55 ms | cpu6 44 frames 8.64 ms | cpu7 23 frames 8.92 ms | cpu2 1 frames 46.11 ms
+  - clocks at report: cpu0 0.69/1.80 GHz | cpu1 0.69/1.80 GHz | cpu2 0.69/1.80 GHz | cpu3 0.69/1.80 GHz | cpu4 0.96/2.40 GHz | cpu5 0.96/2.40 GHz | cpu6 0.96/2.40 GHz | cpu7 0.96/2.40 GHz
+  - device profile: tier medium, 5.2 GB, 8 cores, SM6475 (parrot) (API 35)
+  - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+  - quality overlay: tier medium · median 12.889646ms / p95 16.006095ms / worst 51.871666ms vs budget 16.666668ms · 4/240 over
+- GPU path: median 2.059114ms, worst 6.983594ms, budget 8.333333ms (240 samples)
+  - memory: PSS 110 MB
+  - start-up: before run 370 ms | app setup 0.3 | event loop started 0.0 | resumed 27.6 | window created 0.0 | present ready 26.1 | accessibility and show 0.0 | tree built 4.5 | window ready 1.6 | until first draw 0.0 | app before-frame hooks 31.9 | first build and layout 2.3 | first raster and present 42.1 = 506.3 ms from process start
+  - stages: medians ms: scale 0.04 plan 0.30 cpu 0.00 gpu_upload 0.37 gpu_record 0.12 gpu_submit 0.13 gpu_wait 0.39 gpu_readback 0.00 acquire 0.04 present 0.11
+  - stages: p95 ms: scale 0.05 plan 0.42 cpu 0.00 gpu_upload 0.48 gpu_record 0.19 gpu_submit 0.38 gpu_wait 3.06 gpu_readback 0.00 acquire 0.05 present 0.21
+  - GPU time by kind of work: medians ms: draw 1.16 layers 0.00 filters 0.00 shadows 0.00 blit 0.06 total 1.22; p95 ms: draw 1.89 layers 0.00 filters 0.00 shadows 0.00 blit 0.09 total 1.98
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
-  - copies into the swapchain: trusted: 564 partial and 36 full copies, 8.9% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - copies into the swapchain: trusted: 587 partial and 13 full copies, 7.3% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 1.33 ms per frame over the last 240 frames, every thread (72% of one core)
-  - thermal: status none -> none (worst none); headroom 0.64 -> 0.64 (highest 0.64; 1.0 is severe throttling); hottest zone 59.3 -> 61.2 °C (peak 61.2) over 2 s
+  - CPU time: process CPU 1.88 ms per frame over the last 240 frames, every thread (72% of one core)
+  - thermal: status none -> none (worst none); headroom 0.60 -> 0.60 (highest 0.60; 1.0 is severe throttling); hottest zone 51.4 -> 44.6 °C (peak 51.4) over 2 s
   - input to present: no input reached this window
-  - worst frame: work 6.45 ms, outside the renderer 0.29 ms; stages ms: scale 0.04 plan 0.24 cpu 0.00 gpu_upload 0.23 gpu_record 0.06 gpu_submit 0.06 gpu_wait 5.45 gpu_readback 0.00 acquire 0.02 present 0.06
-  - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 1.06/2.42 GHz | cpu5 1.06/2.42 GHz | cpu6 1.06/2.42 GHz | cpu7 2.84/2.84 GHz
-  - pipeline cache: started from 36639 bytes; saved 36639 bytes after the first GPU frame
-  - device profile: tier high, 10.4 GB, 8 cores, SM8250 (kona) (API 33)
-  - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 1.789386ms / p95 4.601875ms / worst 6.453906ms vs budget 16.666666ms · 0/240 over
-- chosen by measurement (auto): median 1.655886ms, worst 6.081927ms, budget 16.666666ms (240 samples)
-  - memory: PSS 185 MB
-  - renderer: gpu (calibrated earlier: cpu 10.37 ms, gpu 0.57 ms)
-  - calibration launches: launch 1: 10-29 17:09:41.547  8496  8519 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer cpu, measuring (first launch with this build here) 10-29 17:09:42.935  8496  8519 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer cpu for now; the gpu is measured next launch (measured: cpu 10.37 ms; budget 16.67 ms) launch 2: 10-29 17:09:50.553  8586  8609 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu, measuring (the cpu path measured 10.37 ms last launch) 10-29 17:09:51.154  8586  8609 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu (measured: cpu 10.37 ms, gpu 0.57 ms; budget 16.67 ms) launch 3: 10-29 17:09:59.483  8694  8716 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu (calibrated earlier: cpu 10.37 ms, gpu 0.57 ms)
-  - start-up: before run 252 ms | app setup 0.1 | event loop started 0.0 | resumed 17.9 | window created 0.0 | present ready 19.1 | accessibility and show 0.0 | tree built 3.8 | window ready 1.6 | until first draw 0.1 | app before-frame hooks 153.3 | first build and layout 1.7 | first raster and present 21.8 = 471.2 ms from process start
-  - stages: medians ms: scale 0.08 plan 0.36 cpu 0.00 gpu_upload 0.33 gpu_record 0.11 gpu_submit 0.08 gpu_wait 0.01 gpu_readback 0.00 acquire 0.03 present 0.07
-  - stages: p95 ms: scale 0.08 plan 0.44 cpu 0.00 gpu_upload 0.47 gpu_record 0.22 gpu_submit 0.16 gpu_wait 3.78 gpu_readback 0.00 acquire 0.03 present 0.09
-  - GPU time by kind of work: medians ms: draw 0.19 layers 0.00 filters 0.00 shadows 0.00 blit 0.05 total 0.24; p95 ms: draw 0.31 layers 0.00 filters 0.00 shadows 0.00 blit 0.07 total 0.38
+  - worst frame: work 6.98 ms, outside the renderer 0.41 ms; stages ms: scale 0.04 plan 0.29 cpu 0.00 gpu_upload 0.46 gpu_record 0.18 gpu_submit 0.38 gpu_wait 5.03 gpu_readback 0.00 acquire 0.05 present 0.14
+  - clocks at report: cpu0 1.65/1.80 GHz | cpu1 1.65/1.80 GHz | cpu2 1.65/1.80 GHz | cpu3 1.65/1.80 GHz | cpu4 0.96/2.40 GHz | cpu5 0.96/2.40 GHz | cpu6 1.19/2.40 GHz | cpu7 1.19/2.40 GHz
+  - pipeline cache: started from 39170 bytes; saved 39170 bytes after the first GPU frame
+  - device profile: tier medium, 5.2 GB, 8 cores, SM6475 (parrot) (API 35)
+  - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+  - quality overlay: tier medium · median 2.517433ms / p95 4.772916ms / worst 6.983594ms vs budget 8.333333ms · 0/240 over
+- chosen by measurement (auto): median 1.972656ms, worst 5.579688ms, budget 8.333333ms (240 samples)
+  - memory: PSS 110 MB
+  - renderer: gpu (calibrated earlier: cpu 9.28 ms, gpu 1.70 ms)
+  - calibration launches: launch 1: 10-30 05:11:11.289 30125 30143 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer cpu, measuring (first launch with this build here) 10-30 05:11:12.090 30125 30143 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer cpu for now; the gpu is measured next launch (measured: cpu 9.28 ms; budget 8.33 ms) launch 2: 10-30 05:11:20.360 30239 30258 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu, measuring (the cpu path measured 9.28 ms last launch) 10-30 05:11:20.777 30239 30258 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu (measured: cpu 9.28 ms, gpu 1.70 ms; budget 8.33 ms) launch 3: 10-30 05:11:29.357 30348 30366 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu (calibrated earlier: cpu 9.28 ms, gpu 1.70 ms)
+  - start-up: before run 394 ms | app setup 0.3 | event loop started 0.0 | resumed 21.9 | window created 0.0 | present ready 21.4 | accessibility and show 0.0 | tree built 5.9 | window ready 0.8 | until first draw 0.0 | app before-frame hooks 26.9 | first build and layout 2.6 | first raster and present 42.1 = 515.8 ms from process start
+  - stages: medians ms: scale 0.04 plan 0.29 cpu 0.00 gpu_upload 0.36 gpu_record 0.12 gpu_submit 0.13 gpu_wait 0.38 gpu_readback 0.00 acquire 0.04 present 0.11
+  - stages: p95 ms: scale 0.05 plan 0.44 cpu 0.00 gpu_upload 0.54 gpu_record 0.20 gpu_submit 0.35 gpu_wait 3.14 gpu_readback 0.00 acquire 0.06 present 0.20
+  - GPU time by kind of work: medians ms: draw 1.15 layers 0.00 filters 0.00 shadows 0.00 blit 0.06 total 1.21; p95 ms: draw 1.45 layers 0.00 filters 0.00 shadows 0.00 blit 0.08 total 1.54
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
-  - copies into the swapchain: trusted: 572 partial and 28 full copies, 7.8% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - copies into the swapchain: trusted: 587 partial and 13 full copies, 7.1% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 1.58 ms per frame over the last 240 frames, every thread (76% of one core)
-  - thermal: status none -> none (worst none); headroom 0.66 -> 0.67 (highest 0.67; 1.0 is severe throttling); hottest zone 45.7 -> 41.8 °C (peak 45.7) over 2 s
+  - CPU time: process CPU 1.83 ms per frame over the last 240 frames, every thread (72% of one core)
+  - thermal: status none -> none (worst none); headroom 0.62 -> 0.62 (highest 0.62; 1.0 is severe throttling); hottest zone 51.6 -> 45.0 °C (peak 51.6) over 2 s
   - input to present: no input reached this window
-  - worst frame: work 6.08 ms, outside the renderer 0.58 ms; stages ms: scale 0.08 plan 0.36 cpu 0.00 gpu_upload 0.19 gpu_record 0.13 gpu_submit 0.09 gpu_wait 4.55 gpu_readback 0.00 acquire 0.03 present 0.07
-  - clocks at report: cpu0 1.08/1.80 GHz | cpu1 1.08/1.80 GHz | cpu2 1.08/1.80 GHz | cpu3 1.08/1.80 GHz | cpu4 0.94/2.42 GHz | cpu5 0.94/2.42 GHz | cpu6 0.94/2.42 GHz | cpu7 0.84/2.84 GHz
-  - pipeline cache: started from 36639 bytes; saved 36639 bytes after the first GPU frame
-  - device profile: tier high, 10.4 GB, 8 cores, SM8250 (kona) (API 33)
-  - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 2.018217ms / p95 5.186667ms / worst 6.081927ms vs budget 16.666666ms · 0/240 over
-- CPU path presented through Vulkan (diagnostic): median 10.04526ms, worst 17.64474ms, budget 16.666666ms (240 samples)
-  - memory: PSS 262 MB
-  - start-up: before run 236 ms | app setup 0.1 | event loop started 0.0 | resumed 17.8 | window created 0.0 | present ready 25.3 | accessibility and show 0.0 | tree built 3.9 | window ready 1.3 | until first draw 0.1 | app before-frame hooks 159.1 | first build and layout 1.4 | first raster and present 37.8 = 482.9 ms from process start
-  - stages: medians ms: scale 0.02 plan 0.00 cpu 6.55 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.13
-  - stages: p95 ms: scale 0.02 plan 0.00 cpu 7.88 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.79
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.11 rects 4.88 images 0.00 layers 0.00 composite 0.00 total 4.99; p95 ms: text 0.00 shadows 0.00 paths 0.16 rects 5.88 images 0.00 layers 0.00 composite 0.00 total 6.03
+  - worst frame: work 5.58 ms, outside the renderer 0.48 ms; stages ms: scale 0.04 plan 0.29 cpu 0.00 gpu_upload 0.42 gpu_record 0.12 gpu_submit 0.14 gpu_wait 3.83 gpu_readback 0.00 acquire 0.04 present 0.21
+  - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 0.96/2.40 GHz | cpu5 0.96/2.40 GHz | cpu6 0.96/2.40 GHz | cpu7 0.96/2.40 GHz
+  - pipeline cache: started from 39170 bytes; saved 39170 bytes after the first GPU frame
+  - device profile: tier medium, 5.2 GB, 8 cores, SM6475 (parrot) (API 35)
+  - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+  - quality overlay: tier medium · median 2.441925ms / p95 4.792291ms / worst 5.579688ms vs budget 8.333333ms · 0/240 over
+- CPU path presented through Vulkan (diagnostic): median 12.516979ms, worst 27.459687ms, budget 16.666668ms (240 samples)
+  - frame rate: frame rate changed 1 time(s), ending at 60 Hz
+  - memory: PSS 152 MB
+  - start-up: before run 406 ms | app setup 0.3 | event loop started 0.0 | resumed 24.4 | window created 0.1 | present ready 21.5 | accessibility and show 0.0 | tree built 4.7 | window ready 1.2 | until first draw 0.0 | app before-frame hooks 35.8 | first build and layout 2.1 | first raster and present 52.7 = 549.2 ms from process start
+  - stages: medians ms: scale 0.03 plan 0.00 cpu 8.25 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.82
+  - stages: p95 ms: scale 0.05 plan 0.00 cpu 10.30 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 4.96
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.19 rects 6.06 images 0.00 layers 0.00 composite 0.00 total 6.25; p95 ms: text 0.00 shadows 0.00 paths 0.39 rects 8.02 images 0.00 layers 0.00 composite 0.00 total 8.42
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 9.88 ms per frame over the last 240 frames, every thread (79% of one core)
-  - thermal: status none -> none (worst none); headroom 0.67 -> 0.67 (highest 0.67; 1.0 is severe throttling); hottest zone 53.5 -> 62.4 °C (peak 62.4) over 7 s
-  - input to present: input to present ms: median 12.1 p95 17.6 p99 24.3 worst 24.3 over 18 inputs in 18 frames; 0 unanswered within 1 s
-  - worst frame: work 17.64 ms, outside the renderer 0.74 ms, on cpu5; stages ms: scale 0.07 plan 0.00 cpu 13.44 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 3.39
-  - raster by core: cpu6 109 frames 6.44 ms | cpu7 55 frames 6.81 ms | cpu5 49 frames 6.64 ms | cpu4 27 frames 6.62 ms
-  - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 2.42/2.42 GHz | cpu5 2.42/2.42 GHz | cpu6 2.42/2.42 GHz | cpu7 2.84/2.84 GHz
-  - device profile: tier high, 10.4 GB, 8 cores, SM8250 (kona) (API 33)
-  - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 10.312866ms / p95 12.020208ms / worst 17.64474ms vs budget 16.666666ms · 2/240 over
-- CPU path with an Android performance hint (diagnostic): median 11.729531ms, worst 39.154583ms, budget 16.666666ms (240 samples)
-  - memory: PSS 132 MB
-  - start-up: before run 243 ms | app setup 0.1 | event loop started 0.0 | resumed 16.9 | window created 0.0 | present ready 0.5 | accessibility and show 0.0 | tree built 9.2 | window ready 0.7 | until first draw 0.1 | app before-frame hooks 131.5 | first build and layout 1.4 | first raster and present 40.3 = 443.4 ms from process start
-  - stages: medians ms: scale 0.03 plan 0.00 cpu 8.28 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 1.11 present 1.86
-  - stages: p95 ms: scale 0.03 plan 0.00 cpu 10.14 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 1.68 present 2.31
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.13 rects 6.15 images 0.00 layers 0.00 composite 0.00 total 6.28; p95 ms: text 0.00 shadows 0.00 paths 0.20 rects 7.14 images 0.00 layers 0.00 composite 0.00 total 7.34
+  - CPU time: process CPU 11.92 ms per frame over the last 240 frames, every thread (64% of one core)
+  - thermal: status none -> none (worst none); headroom 0.64 -> 0.65 (highest 0.65; 1.0 is severe throttling); hottest zone 52.6 -> 42.9 °C (peak 52.6) over 10 s
+  - input to present: input to present ms: median 16.7 p95 20.0 p99 20.5 worst 20.5 over 34 inputs in 29 frames; 0 unanswered within 1 s
+  - worst frame: work 27.46 ms, outside the renderer 0.75 ms, on cpu6; stages ms: scale 0.05 plan 0.00 cpu 14.75 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 11.91
+  - raster by core: cpu6 92 frames 8.30 ms | cpu7 75 frames 8.03 ms | cpu5 59 frames 8.37 ms | cpu4 13 frames 8.43 ms | cpu0 1 frames 15.49 ms
+  - clocks at report: cpu0 1.50/1.80 GHz | cpu1 1.50/1.80 GHz | cpu2 1.50/1.80 GHz | cpu3 1.50/1.80 GHz | cpu4 0.96/2.40 GHz | cpu5 0.96/2.40 GHz | cpu6 0.96/2.40 GHz | cpu7 0.96/2.40 GHz
+  - device profile: tier medium, 5.2 GB, 8 cores, SM6475 (parrot) (API 35)
+  - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+  - quality overlay: tier medium · median 12.658071ms / p95 14.763698ms / worst 27.459687ms vs budget 16.666668ms · 5/240 over
+- CPU path with an Android performance hint (diagnostic): median 10.928385ms, worst 20.649844ms, budget 16.666668ms (240 samples)
+  - frame rate: frame rate changed 1 time(s), ending at 60 Hz
+  - memory: PSS 83 MB
+  - start-up: before run 371 ms | app setup 0.2 | event loop started 0.0 | resumed 29.4 | window created 0.1 | present ready 1.2 | accessibility and show 0.0 | tree built 8.1 | window ready 7.9 | until first draw 0.0 | app before-frame hooks 85.8 | first build and layout 1.7 | first raster and present 46.2 = 551.5 ms from process start
+  - stages: medians ms: scale 0.03 plan 0.00 cpu 8.37 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.59 present 1.27
+  - stages: p95 ms: scale 0.05 plan 0.00 cpu 10.53 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 1.10 present 1.90
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.23 rects 6.20 images 0.00 layers 0.00 composite 0.00 total 6.44; p95 ms: text 0.00 shadows 0.00 paths 0.46 rects 7.82 images 0.00 layers 0.00 composite 0.00 total 8.27
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 13.21 ms per frame over the last 240 frames, every thread (53% of one core)
-  - thermal: status none -> none (worst none); headroom 0.68 -> 0.70 (highest 0.70; 1.0 is severe throttling); hottest zone 49.6 -> 44.6 °C (peak 49.6) over 15 s
-  - input to present: input to present ms: median 18.3 p95 25.9 p99 462.0 worst 462.0 over 44 inputs in 32 frames; 0 unanswered within 1 s
-  - worst frame: work 39.15 ms, outside the renderer 2.47 ms, on cpu6; stages ms: scale 0.15 plan 0.00 cpu 33.33 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 1.19 present 2.02
-  - raster by core: cpu5 172 frames 8.29 ms | cpu6 67 frames 8.18 ms | cpu2 1 frames 24.63 ms
-  - clocks at report: cpu0 1.25/1.80 GHz | cpu1 1.25/1.80 GHz | cpu2 1.25/1.80 GHz | cpu3 1.25/1.80 GHz | cpu4 1.86/2.42 GHz | cpu5 1.86/2.42 GHz | cpu6 1.86/2.42 GHz | cpu7 0.84/2.84 GHz
-  - performance hint: unavailable (the system declined a session)
-  - device profile: tier high, 10.4 GB, 8 cores, SM8250 (kona) (API 33)
-  - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 12.201705ms / p95 13.489324ms / worst 39.154583ms vs budget 16.666666ms · 8/240 over
-- GPU path at the device tier's resolution (diagnostic): median 1.936356ms, worst 9.869896ms, budget 16.666666ms (240 samples)
-  - memory: PSS 188 MB
-  - start-up: before run 235 ms | app setup 0.1 | event loop started 0.0 | resumed 17.9 | window created 0.0 | present ready 23.7 | accessibility and show 0.0 | tree built 4.0 | window ready 0.8 | until first draw 0.0 | app before-frame hooks 448.3 | first build and layout 2.1 | first raster and present 22.2 = 753.9 ms from process start
-  - stages: medians ms: scale 0.06 plan 0.38 cpu 0.00 gpu_upload 0.35 gpu_record 0.11 gpu_submit 0.08 gpu_wait 0.01 gpu_readback 0.00 acquire 0.03 present 0.07
-  - stages: p95 ms: scale 0.08 plan 0.81 cpu 0.00 gpu_upload 0.53 gpu_record 0.28 gpu_submit 0.17 gpu_wait 3.21 gpu_readback 0.00 acquire 0.04 present 0.15
-  - GPU time by kind of work: medians ms: draw 0.22 layers 0.00 filters 0.00 shadows 0.00 blit 0.06 total 0.28; p95 ms: draw 0.35 layers 0.00 filters 0.00 shadows 0.00 blit 0.09 total 0.43
+  - CPU time: process CPU 11.58 ms per frame over the last 240 frames, every thread (64% of one core)
+  - thermal: status none -> none (worst none); headroom 0.64 -> 0.65 (highest 0.65; 1.0 is severe throttling); hottest zone 51.8 -> 41.9 °C (peak 51.8) over 10 s
+  - input to present: input to present ms: median 17.3 p95 22.0 p99 120.3 worst 120.3 over 34 inputs in 26 frames; 0 unanswered within 1 s
+  - worst frame: work 20.65 ms, outside the renderer 0.75 ms, on cpu7; stages ms: scale 0.05 plan 0.00 cpu 17.04 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.79 present 2.02
+  - raster by core: cpu7 154 frames 8.54 ms | cpu4 47 frames 8.43 ms | cpu6 38 frames 7.99 ms | cpu5 1 frames 5.19 ms
+  - clocks at report: cpu0 0.94/1.80 GHz | cpu1 0.94/1.80 GHz | cpu2 0.94/1.80 GHz | cpu3 0.94/1.80 GHz | cpu4 1.19/2.40 GHz | cpu5 1.19/2.40 GHz | cpu6 1.19/2.40 GHz | cpu7 0.96/2.40 GHz
+  - performance hint: on (target 8.33 ms)
+  - device profile: tier medium, 5.2 GB, 8 cores, SM6475 (parrot) (API 35)
+  - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+  - quality overlay: tier medium · median 10.840341ms / p95 13.063593ms / worst 20.649844ms vs budget 16.666668ms · 4/240 over
+- GPU path at the device tier's resolution (diagnostic): median 1.966615ms, worst 5.321823ms, budget 8.333333ms (240 samples)
+  - memory: PSS 90 MB
+  - start-up: before run 363 ms | app setup 0.1 | event loop started 0.0 | resumed 21.8 | window created 0.0 | present ready 30.8 | accessibility and show 0.0 | tree built 11.8 | window ready 1.0 | until first draw 0.0 | app before-frame hooks 112.3 | first build and layout 1.8 | first raster and present 15.6 = 557.8 ms from process start
+  - stages: medians ms: scale 0.05 plan 0.32 cpu 0.00 gpu_upload 0.39 gpu_record 0.12 gpu_submit 0.15 gpu_wait 0.20 gpu_readback 0.00 acquire 0.04 present 0.10
+  - stages: p95 ms: scale 0.05 plan 0.41 cpu 0.00 gpu_upload 0.54 gpu_record 0.15 gpu_submit 0.40 gpu_wait 2.91 gpu_readback 0.00 acquire 0.07 present 0.14
+  - GPU time by kind of work: medians ms: draw 0.13 layers 0.00 filters 0.00 shadows 0.00 blit 0.77 total 0.90; p95 ms: draw 0.74 layers 0.00 filters 0.00 shadows 0.00 blit 0.91 total 1.65
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
-  - copies into the swapchain: trusted: 577 partial and 23 full copies, 7.3% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - copies into the swapchain: probing: 0 partial and 600 full copies, 100.0% of the frames' pixels copied; 0 image(s) kept their contents, 0 did not
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 1.88 ms per frame over the last 240 frames, every thread (63% of one core)
-  - thermal: status none -> none (worst none); headroom 0.71 -> 0.71 (highest 0.71; 1.0 is severe throttling); hottest zone 49.6 -> 41.1 °C (peak 49.6) over 3 s
+  - CPU time: process CPU 1.96 ms per frame over the last 240 frames, every thread (74% of one core)
+  - thermal: status none -> none (worst none); headroom 0.64 -> 0.64 (highest 0.64; 1.0 is severe throttling); hottest zone 52.5 -> 43.9 °C (peak 52.5) over 2 s
   - input to present: no input reached this window
-  - worst frame: work 9.87 ms, outside the renderer 0.73 ms; stages ms: scale 0.07 plan 0.51 cpu 0.00 gpu_upload 7.08 gpu_record 0.31 gpu_submit 0.28 gpu_wait 0.02 gpu_readback 0.00 acquire 0.06 present 0.81
-  - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 0.71/2.42 GHz | cpu5 0.71/2.42 GHz | cpu6 0.71/2.42 GHz | cpu7 0.84/2.84 GHz
-  - pipeline cache: started from 36639 bytes; saved 36639 bytes after the first GPU frame
-  - device profile: tier high, 10.4 GB, 8 cores, SM8250 (kona) (API 33)
-  - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 2.18962ms / p95 4.634479ms / worst 9.869896ms vs budget 16.666666ms · 0/240 over
-- GPU path waiting for every frame, without the overlap (diagnostic A/B): median 2.235104ms, worst 5.927708ms, budget 16.666666ms (240 samples)
-  - memory: PSS 188 MB
-  - start-up: before run 255 ms | app setup 0.1 | event loop started 0.0 | resumed 15.7 | window created 0.0 | present ready 18.8 | accessibility and show 0.0 | tree built 3.9 | window ready 0.5 | until first draw 0.0 | app before-frame hooks 135.4 | first build and layout 3.9 | first raster and present 46.3 = 479.5 ms from process start
-  - stages: medians ms: scale 0.07 plan 0.44 cpu 0.00 gpu_upload 0.39 gpu_record 0.12 gpu_submit 0.13 gpu_wait 0.45 gpu_readback 0.00 acquire 0.02 present 0.06
-  - stages: p95 ms: scale 0.07 plan 0.60 cpu 0.00 gpu_upload 0.58 gpu_record 0.33 gpu_submit 0.18 gpu_wait 3.37 gpu_readback 0.00 acquire 0.03 present 0.09
-  - GPU time by kind of work: medians ms: draw 0.21 layers 0.00 filters 0.00 shadows 0.00 blit 0.06 total 0.27; p95 ms: draw 0.34 layers 0.00 filters 0.00 shadows 0.00 blit 0.10 total 0.44
+  - worst frame: work 5.32 ms, outside the renderer 0.48 ms; stages ms: scale 0.04 plan 0.26 cpu 0.00 gpu_upload 0.39 gpu_record 0.13 gpu_submit 0.15 gpu_wait 3.71 gpu_readback 0.00 acquire 0.05 present 0.11
+  - clocks at report: cpu0 1.65/1.80 GHz | cpu1 1.65/1.80 GHz | cpu2 1.50/1.80 GHz | cpu3 1.50/1.80 GHz | cpu4 0.96/2.40 GHz | cpu5 0.96/2.40 GHz | cpu6 0.96/2.40 GHz | cpu7 0.96/2.40 GHz
+  - pipeline cache: started from 39170 bytes; saved 39170 bytes after the first GPU frame
+  - device profile: tier medium, 5.2 GB, 8 cores, SM6475 (parrot) (API 35)
+  - gpu resolution: GPU path renders at 0.75x resolution (VIEWW_GPU_SCALE=auto: tier medium)
+  - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+  - quality overlay: tier medium · median 2.544319ms / p95 4.650051ms / worst 5.321823ms vs budget 8.333333ms · 0/240 over · GPU path renders at 0.75x resolution (VIEWW_GPU_SCALE=auto: tier medium)
+- GPU path waiting for every frame, without the overlap (diagnostic A/B): median 3.593386ms, worst 8.786198ms, budget 8.333333ms (240 samples)
+  - memory: PSS 110 MB
+  - start-up: before run 370 ms | app setup 0.2 | event loop started 0.0 | resumed 25.3 | window created 0.1 | present ready 29.5 | accessibility and show 0.0 | tree built 4.5 | window ready 1.1 | until first draw 0.0 | app before-frame hooks 90.4 | first build and layout 1.6 | first raster and present 38.0 = 561.1 ms from process start
+  - stages: medians ms: scale 0.05 plan 0.46 cpu 0.00 gpu_upload 0.46 gpu_record 0.17 gpu_submit 0.19 gpu_wait 1.47 gpu_readback 0.00 acquire 0.05 present 0.07
+  - stages: p95 ms: scale 0.05 plan 0.66 cpu 0.00 gpu_upload 1.06 gpu_record 0.25 gpu_submit 0.46 gpu_wait 4.05 gpu_readback 0.00 acquire 0.07 present 0.11
+  - GPU time by kind of work: medians ms: draw 0.37 layers 0.00 filters 0.00 shadows 0.00 blit 0.07 total 0.44; p95 ms: draw 1.38 layers 0.00 filters 0.00 shadows 0.00 blit 0.11 total 1.48
   - CPU/GPU overlap: off: every GPU frame waited for before the next (VIEWW_GPU_OVERLAP=0)
-  - copies into the swapchain: trusted: 577 partial and 23 full copies, 7.4% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - copies into the swapchain: trusted: 587 partial and 13 full copies, 7.6% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 1.92 ms per frame over the last 240 frames, every thread (57% of one core)
-  - thermal: status none -> none (worst none); headroom 0.71 -> 0.71 (highest 0.71; 1.0 is severe throttling); hottest zone 49.6 -> 40.7 °C (peak 49.6) over 2 s
+  - CPU time: process CPU 2.46 ms per frame over the last 240 frames, every thread (60% of one core)
+  - thermal: status none -> none (worst none); headroom 0.65 -> 0.65 (highest 0.65; 1.0 is severe throttling); hottest zone 52.1 -> 42.2 °C (peak 52.1) over 3 s
   - input to present: no input reached this window
-  - worst frame: work 5.93 ms, outside the renderer 0.55 ms; stages ms: scale 0.07 plan 0.33 cpu 0.00 gpu_upload 0.37 gpu_record 0.23 gpu_submit 0.09 gpu_wait 4.18 gpu_readback 0.00 acquire 0.03 present 0.07
-  - clocks at report: cpu0 1.08/1.80 GHz | cpu1 1.08/1.80 GHz | cpu2 1.08/1.80 GHz | cpu3 1.08/1.80 GHz | cpu4 0.71/2.42 GHz | cpu5 0.71/2.42 GHz | cpu6 0.71/2.42 GHz | cpu7 0.84/2.84 GHz
-  - pipeline cache: started from 36639 bytes; saved 36639 bytes after the first GPU frame
-  - device profile: tier high, 10.4 GB, 8 cores, SM8250 (kona) (API 33)
-  - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 2.665868ms / p95 5.29276ms / worst 5.927708ms vs budget 16.666666ms · 0/240 over
-- CPU path without raster threads, fill cache or blur cache (diagnostic A/B): median 11.779531ms, worst 25.465572ms, budget 16.666666ms (240 samples)
-  - memory: PSS 134 MB
-  - start-up: before run 227 ms | app setup 0.1 | event loop started 0.0 | resumed 17.3 | window created 0.0 | present ready 0.5 | accessibility and show 0.0 | tree built 4.7 | window ready 4.1 | until first draw 0.0 | app before-frame hooks 161.0 | first build and layout 1.5 | first raster and present 37.7 = 453.6 ms from process start
-  - stages: medians ms: scale 0.03 plan 0.00 cpu 8.35 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 1.11 present 1.78
-  - stages: p95 ms: scale 0.03 plan 0.00 cpu 10.10 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 1.44 present 2.26
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.15 rects 6.16 images 0.00 layers 0.00 composite 0.00 total 6.31; p95 ms: text 0.00 shadows 0.00 paths 0.20 rects 7.26 images 0.00 layers 0.00 composite 0.00 total 7.46
+  - worst frame: work 8.79 ms, outside the renderer 0.40 ms; stages ms: scale 0.03 plan 0.32 cpu 0.00 gpu_upload 0.39 gpu_record 0.12 gpu_submit 0.13 gpu_wait 7.25 gpu_readback 0.00 acquire 0.05 present 0.09
+  - clocks at report: cpu0 0.94/1.80 GHz | cpu1 0.94/1.80 GHz | cpu2 0.94/1.80 GHz | cpu3 0.94/1.80 GHz | cpu4 1.19/2.40 GHz | cpu5 1.19/2.40 GHz | cpu6 1.19/2.40 GHz | cpu7 1.19/2.40 GHz
+  - pipeline cache: started from 39170 bytes; saved 39170 bytes after the first GPU frame
+  - device profile: tier medium, 5.2 GB, 8 cores, SM6475 (parrot) (API 35)
+  - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+  - quality overlay: tier medium · median 3.909997ms / p95 6.025833ms / worst 8.786198ms vs budget 8.333333ms · 3/240 over
+- CPU path without raster threads, fill cache or blur cache (diagnostic A/B): median 10.983437ms, worst 17.90224ms, budget 16.666668ms (240 samples)
+  - frame rate: frame rate changed 1 time(s), ending at 60 Hz
+  - memory: PSS 83 MB
+  - start-up: before run 363 ms | app setup 0.2 | event loop started 0.0 | resumed 20.2 | window created 0.0 | present ready 0.5 | accessibility and show 0.0 | tree built 4.2 | window ready 13.3 | until first draw 0.1 | app before-frame hooks 104.4 | first build and layout 1.6 | first raster and present 39.5 = 546.7 ms from process start
+  - stages: medians ms: scale 0.03 plan 0.00 cpu 8.53 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.57 present 1.30
+  - stages: p95 ms: scale 0.05 plan 0.00 cpu 10.19 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.99 present 1.77
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.24 rects 6.26 images 0.00 layers 0.00 composite 0.00 total 6.50; p95 ms: text 0.00 shadows 0.00 paths 0.45 rects 7.53 images 0.00 layers 0.00 composite 0.00 total 7.97
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 13.00 ms per frame over the last 240 frames, every thread (64% of one core)
-  - thermal: status none -> none (worst none); headroom 0.71 -> 0.71 (highest 0.71; 1.0 is severe throttling); hottest zone 49.6 -> 45.3 °C (peak 49.6) over 12 s
-  - input to present: input to present ms: median 18.3 p95 22.7 p99 25.1 worst 25.1 over 38 inputs in 24 frames; 0 unanswered within 1 s
-  - worst frame: work 25.47 ms, outside the renderer 0.70 ms, on cpu4; stages ms: scale 0.07 plan 0.00 cpu 19.63 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 2.00 present 3.07
-  - raster by core: cpu4 181 frames 8.33 ms | cpu6 59 frames 8.38 ms
-  - clocks at report: cpu0 1.25/1.80 GHz | cpu1 1.25/1.80 GHz | cpu2 1.25/1.80 GHz | cpu3 1.25/1.80 GHz | cpu4 0.71/2.42 GHz | cpu5 0.71/2.42 GHz | cpu6 0.71/2.42 GHz | cpu7 0.84/2.84 GHz
-  - device profile: tier high, 10.4 GB, 8 cores, SM8250 (kona) (API 33)
+  - CPU time: process CPU 11.54 ms per frame over the last 240 frames, every thread (67% of one core)
+  - thermal: status none -> none (worst none); headroom 0.65 -> 0.66 (highest 0.66; 1.0 is severe throttling); hottest zone 52.5 -> 41.2 °C (peak 52.5) over 9 s
+  - input to present: input to present ms: median 17.9 p95 27.4 p99 47.1 worst 47.1 over 34 inputs in 24 frames; 0 unanswered within 1 s
+  - worst frame: work 17.90 ms, outside the renderer 0.88 ms, on cpu7; stages ms: scale 0.05 plan 0.00 cpu 14.59 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.71 present 1.67
+  - raster by core: cpu7 154 frames 8.48 ms | cpu5 67 frames 8.69 ms | cpu4 13 frames 8.51 ms | cpu6 6 frames 8.05 ms
+  - clocks at report: cpu0 0.69/1.80 GHz | cpu1 0.69/1.80 GHz | cpu2 0.69/1.80 GHz | cpu3 0.69/1.80 GHz | cpu4 0.96/2.40 GHz | cpu5 0.96/2.40 GHz | cpu6 0.96/2.40 GHz | cpu7 0.96/2.40 GHz
+  - device profile: tier medium, 5.2 GB, 8 cores, SM6475 (parrot) (API 35)
   - cache budgets: blur off (VIEWW_BLUR_CACHE_MB=0), fill off (VIEWW_PATH_CACHE_MB=0), raster threads serial (VIEWW_RASTER_THREADS=0)
-  - quality overlay: tier high · median 12.013817ms / p95 13.612969ms / worst 25.465572ms vs budget 16.666666ms · 6/240 over
-- CPU path without the row-parallel walk only (diagnostic A/B): median 11.608125ms, worst 32.620625ms, budget 16.666666ms (240 samples)
-  - memory: PSS 134 MB
-  - start-up: before run 236 ms | app setup 0.1 | event loop started 0.0 | resumed 17.2 | window created 0.0 | present ready 0.5 | accessibility and show 0.0 | tree built 3.9 | window ready 0.5 | until first draw 0.0 | app before-frame hooks 167.6 | first build and layout 1.4 | first raster and present 39.6 = 467.2 ms from process start
-  - stages: medians ms: scale 0.03 plan 0.00 cpu 8.76 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.68 present 1.64
-  - stages: p95 ms: scale 0.03 plan 0.00 cpu 10.45 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 1.24 present 2.22
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.16 rects 6.45 images 0.00 layers 0.00 composite 0.00 total 6.61; p95 ms: text 0.00 shadows 0.00 paths 0.22 rects 7.54 images 0.00 layers 0.00 composite 0.00 total 7.76
+  - quality overlay: tier medium · median 10.808869ms / p95 12.825469ms / worst 17.90224ms vs budget 16.666668ms · 2/240 over
+- CPU path without the row-parallel walk only (diagnostic A/B): median 10.635521ms, worst 13.855053ms, budget 16.666668ms (240 samples)
+  - frame rate: frame rate changed 1 time(s), ending at 60 Hz
+  - memory: PSS 82 MB
+  - start-up: before run 378 ms | app setup 0.2 | event loop started 0.0 | resumed 29.4 | window created 0.0 | present ready 0.7 | accessibility and show 0.0 | tree built 5.1 | window ready 2.6 | until first draw 0.0 | app before-frame hooks 111.0 | first build and layout 1.6 | first raster and present 39.4 = 567.8 ms from process start
+  - stages: medians ms: scale 0.03 plan 0.00 cpu 8.11 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.52 present 1.39
+  - stages: p95 ms: scale 0.05 plan 0.00 cpu 10.31 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.85 present 1.92
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.23 rects 5.87 images 0.00 layers 0.00 composite 0.00 total 6.10; p95 ms: text 0.00 shadows 0.00 paths 0.44 rects 7.31 images 0.00 layers 0.00 composite 0.00 total 7.75
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 12.88 ms per frame over the last 240 frames, every thread (66% of one core)
-  - thermal: status none -> none (worst none); headroom 0.72 -> 0.73 (highest 0.73; 1.0 is severe throttling); hottest zone 48.8 -> 46.1 °C (peak 56.2) over 12 s
-  - input to present: input to present ms: median 18.8 p95 25.0 p99 179.9 worst 179.9 over 38 inputs in 25 frames; 0 unanswered within 1 s
-  - worst frame: work 32.62 ms, outside the renderer 1.19 ms, on cpu4; stages ms: scale 0.14 plan 0.00 cpu 27.92 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.90 present 2.47
-  - raster by core: cpu4 133 frames 8.82 ms | cpu6 107 frames 8.72 ms
-  - clocks at report: cpu0 1.25/1.80 GHz | cpu1 1.25/1.80 GHz | cpu2 1.25/1.80 GHz | cpu3 1.25/1.80 GHz | cpu4 1.77/2.42 GHz | cpu5 1.77/2.42 GHz | cpu6 1.77/2.42 GHz | cpu7 0.84/2.84 GHz
-  - device profile: tier high, 10.4 GB, 8 cores, SM8250 (kona) (API 33)
-  - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (VIEWW_RASTER_THREADS=0)
-  - quality overlay: tier high · median 11.943217ms / p95 13.761459ms / worst 32.620625ms vs budget 16.666666ms · 7/240 over
-- CPU path without the path-fill cache only (diagnostic A/B): median 11.385001ms, worst 31.050053ms, budget 16.666666ms (240 samples)
-  - memory: PSS 133 MB
-  - start-up: before run 234 ms | app setup 0.1 | event loop started 0.0 | resumed 15.5 | window created 0.0 | present ready 0.5 | accessibility and show 0.0 | tree built 3.9 | window ready 2.5 | until first draw 0.0 | app before-frame hooks 150.3 | first build and layout 1.9 | first raster and present 38.0 = 446.3 ms from process start
-  - stages: medians ms: scale 0.03 plan 0.00 cpu 8.56 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.65 present 1.54
-  - stages: p95 ms: scale 0.03 plan 0.00 cpu 9.92 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 1.24 present 2.26
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.15 rects 6.33 images 0.00 layers 0.00 composite 0.00 total 6.48; p95 ms: text 0.00 shadows 0.00 paths 0.21 rects 7.30 images 0.00 layers 0.00 composite 0.00 total 7.51
+  - CPU time: process CPU 11.08 ms per frame over the last 240 frames, every thread (66% of one core)
+  - thermal: status none -> none (worst none); headroom 0.66 -> 0.67 (highest 0.67; 1.0 is severe throttling); hottest zone 54.2 -> 44.6 °C (peak 54.2) over 10 s
+  - input to present: input to present ms: median 18.4 p95 22.3 p99 24.9 worst 24.9 over 34 inputs in 24 frames; 0 unanswered within 1 s
+  - worst frame: work 13.86 ms, outside the renderer 0.43 ms, on cpu7; stages ms: scale 0.04 plan 0.00 cpu 10.53 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.69 present 2.16
+  - raster by core: cpu7 128 frames 8.11 ms | cpu4 73 frames 8.27 ms | cpu6 21 frames 7.76 ms | cpu5 18 frames 7.92 ms
+  - clocks at report: cpu0 0.81/1.80 GHz | cpu1 0.81/1.80 GHz | cpu2 0.81/1.80 GHz | cpu3 0.81/1.80 GHz | cpu4 2.40/2.40 GHz | cpu5 2.40/2.40 GHz | cpu6 2.40/2.40 GHz | cpu7 2.40/2.40 GHz
+  - device profile: tier medium, 5.2 GB, 8 cores, SM6475 (parrot) (API 35)
+  - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (VIEWW_RASTER_THREADS=0)
+  - quality overlay: tier medium · median 10.424833ms / p95 12.758697ms / worst 13.855053ms vs budget 16.666668ms · 0/240 over
+- CPU path without the path-fill cache only (diagnostic A/B): median 11.368855ms, worst 27.747136ms, budget 16.666668ms (240 samples)
+  - frame rate: frame rate changed 1 time(s), ending at 60 Hz
+  - memory: PSS 82 MB
+  - start-up: before run 369 ms | app setup 0.2 | event loop started 0.0 | resumed 25.1 | window created 0.0 | present ready 2.1 | accessibility and show 0.0 | tree built 7.8 | window ready 8.9 | until first draw 0.0 | app before-frame hooks 103.1 | first build and layout 1.7 | first raster and present 38.2 = 556.8 ms from process start
+  - stages: medians ms: scale 0.03 plan 0.00 cpu 8.46 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.62 present 1.52
+  - stages: p95 ms: scale 0.05 plan 0.00 cpu 10.31 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 8.40 present 1.90
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.23 rects 6.26 images 0.00 layers 0.00 composite 0.00 total 6.48; p95 ms: text 0.00 shadows 0.00 paths 0.47 rects 7.44 images 0.00 layers 0.00 composite 0.00 total 7.90
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 12.37 ms per frame over the last 240 frames, every thread (64% of one core)
-  - thermal: status none -> none (worst none); headroom 0.73 -> 0.73 (highest 0.73; 1.0 is severe throttling); hottest zone 48.8 -> 46.1 °C (peak 59.7) over 12 s
-  - input to present: input to present ms: median 19.5 p95 172.6 p99 193.2 worst 193.2 over 40 inputs in 25 frames; 0 unanswered within 1 s
-  - worst frame: work 31.05 ms, outside the renderer 1.23 ms, on cpu6; stages ms: scale 0.14 plan 0.00 cpu 27.67 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.62 present 1.39
-  - raster by core: cpu5 144 frames 8.71 ms | cpu6 95 frames 8.47 ms | cpu4 1 frames 7.22 ms
-  - clocks at report: cpu0 1.80/1.80 GHz | cpu1 1.80/1.80 GHz | cpu2 1.80/1.80 GHz | cpu3 1.80/1.80 GHz | cpu4 1.77/2.42 GHz | cpu5 1.77/2.42 GHz | cpu6 1.77/2.42 GHz | cpu7 0.84/2.84 GHz
-  - device profile: tier high, 10.4 GB, 8 cores, SM8250 (kona) (API 33)
-  - cache budgets: blur 8 MiB (tier high), fill off (VIEWW_PATH_CACHE_MB=0), raster threads serial (tier high)
-  - quality overlay: tier high · median 11.48501ms / p95 13.132447ms / worst 31.050053ms vs budget 16.666666ms · 5/240 over
-- CPU path without the blur cache only (diagnostic A/B): median 11.630938ms, worst 36.622968ms, budget 16.666666ms (240 samples)
-  - memory: PSS 133 MB
-  - start-up: before run 234 ms | app setup 0.1 | event loop started 0.0 | resumed 16.0 | window created 0.0 | present ready 0.5 | accessibility and show 0.0 | tree built 3.8 | window ready 3.2 | until first draw 0.0 | app before-frame hooks 496.3 | first build and layout 2.1 | first raster and present 35.4 = 791.3 ms from process start
-  - stages: medians ms: scale 0.03 plan 0.00 cpu 8.71 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.67 present 1.71
-  - stages: p95 ms: scale 0.03 plan 0.00 cpu 10.72 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 1.28 present 2.36
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.15 rects 6.45 images 0.00 layers 0.00 composite 0.00 total 6.60; p95 ms: text 0.00 shadows 0.00 paths 0.21 rects 7.54 images 0.00 layers 0.00 composite 0.00 total 7.75
+  - CPU time: process CPU 11.42 ms per frame over the last 240 frames, every thread (66% of one core)
+  - thermal: status none -> none (worst none); headroom 0.66 -> 0.67 (highest 0.67; 1.0 is severe throttling); hottest zone 53.8 -> 42.2 °C (peak 53.8) over 9 s
+  - input to present: input to present ms: median 16.8 p95 22.6 p99 24.1 worst 24.1 over 34 inputs in 29 frames; 0 unanswered within 1 s
+  - worst frame: work 27.75 ms, outside the renderer 0.23 ms, on cpu6; stages ms: scale 0.01 plan 0.00 cpu 8.71 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 16.34 present 2.45
+  - raster by core: cpu6 103 frames 8.69 ms | cpu4 97 frames 8.59 ms | cpu7 36 frames 8.12 ms | cpu5 4 frames 7.90 ms
+  - clocks at report: cpu0 1.11/1.80 GHz | cpu1 1.11/1.80 GHz | cpu2 1.11/1.80 GHz | cpu3 1.11/1.80 GHz | cpu4 0.96/2.40 GHz | cpu5 0.96/2.40 GHz | cpu6 0.96/2.40 GHz | cpu7 0.96/2.40 GHz
+  - device profile: tier medium, 5.2 GB, 8 cores, SM6475 (parrot) (API 35)
+  - cache budgets: blur off (tier medium), fill off (VIEWW_PATH_CACHE_MB=0), raster threads serial (tier medium)
+  - quality overlay: tier medium · median 12.157793ms / p95 16.961198ms / worst 27.747136ms vs budget 16.666668ms · 21/240 over
+- CPU path without the blur cache only (diagnostic A/B): median 13.154844ms, worst 24.022708ms, budget 16.666668ms (240 samples)
+  - frame rate: frame rate changed 1 time(s), ending at 60 Hz
+  - memory: PSS 83 MB
+  - start-up: before run 402 ms | app setup 0.2 | event loop started 0.0 | resumed 29.7 | window created 0.0 | present ready 1.0 | accessibility and show 0.0 | tree built 5.3 | window ready 2.3 | until first draw 0.0 | app before-frame hooks 38.5 | first build and layout 5.5 | first raster and present 60.9 = 545.8 ms from process start
+  - stages: medians ms: scale 0.03 plan 0.00 cpu 8.68 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 2.57 present 1.36
+  - stages: p95 ms: scale 0.05 plan 0.00 cpu 10.47 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 7.90 present 1.84
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.22 rects 6.64 images 0.00 layers 0.00 composite 0.00 total 6.85; p95 ms: text 0.00 shadows 0.00 paths 0.40 rects 7.63 images 0.00 layers 0.00 composite 0.00 total 8.04
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 13.00 ms per frame over the last 240 frames, every thread (60% of one core)
-  - thermal: status none -> none (worst none); headroom 0.73 -> 0.75 (highest 0.75; 1.0 is severe throttling); hottest zone 48.4 -> 45.3 °C (peak 48.4) over 15 s
-  - input to present: input to present ms: median 18.5 p95 27.3 p99 282.1 worst 282.1 over 50 inputs in 34 frames; 0 unanswered within 1 s
-  - worst frame: work 36.62 ms, outside the renderer 2.80 ms, on cpu1; stages ms: scale 0.24 plan 0.00 cpu 29.37 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 1.06 present 3.16
-  - raster by core: cpu4 153 frames 8.72 ms | cpu5 86 frames 8.68 ms | cpu1 1 frames 29.37 ms
-  - clocks at report: cpu0 1.25/1.80 GHz | cpu1 1.25/1.80 GHz | cpu2 1.25/1.80 GHz | cpu3 1.25/1.80 GHz | cpu4 1.67/2.42 GHz | cpu5 1.67/2.42 GHz | cpu6 1.67/2.42 GHz | cpu7 0.84/2.84 GHz
-  - device profile: tier high, 10.4 GB, 8 cores, SM8250 (kona) (API 33)
-  - cache budgets: blur off (VIEWW_BLUR_CACHE_MB=0), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 12.07425ms / p95 14.363385ms / worst 36.622968ms vs budget 16.666666ms · 6/240 over
-- stress screen, CPU path (diagnostic): median 229.856615ms, worst 280.433594ms, budget 16.666666ms (240 samples)
-  - memory: PSS 439 MB
-  - start-up: before run 235 ms | app setup 0.3 | event loop started 0.0 | resumed 18.4 | window created 0.0 | present ready 0.5 | accessibility and show 0.0 | tree built 4.1 | window ready 0.5 | until first draw 0.0 | app before-frame hooks 160.4 | first build and layout 2.8 | first raster and present 238.1 = 660.3 ms from process start
-  - stages: medians ms: scale 0.01 plan 0.00 cpu 225.34 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.80 present 3.16
-  - stages: p95 ms: scale 0.07 plan 0.00 cpu 251.03 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.94 present 3.44
-  - CPU raster by kind of work: medians ms: text 2.76 shadows 29.70 paths 18.01 rects 39.16 images 36.76 layers 60.28 composite 24.47 total 211.14; p95 ms: text 2.87 shadows 36.29 paths 19.13 rects 57.07 images 37.05 layers 64.42 composite 29.93 total 246.77
-  - shadows blurred: 839 over 600 frames (1.40 a frame), 415.8 Mpx in all
-  - CPU time: process CPU 236.46 ms per frame over the last 240 frames, every thread (80% of one core)
-  - thermal: status none -> none (worst none); headroom 0.75 -> 0.81 (highest 0.81; 1.0 is severe throttling); hottest zone 50.4 -> 60.5 °C (peak 66.3) over 175 s
-  - input to present: input to present ms: median 230.4 p95 424.0 p99 702.4 worst 705.2 over 82 inputs in 82 frames; 0 unanswered within 1 s
-  - worst frame: work 280.43 ms, outside the renderer 6.18 ms, on cpu7; stages ms: scale 0.21 plan 0.00 cpu 270.11 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.77 present 3.18
-  - raster by core: cpu7 239 frames 225.29 ms | cpu6 1 frames 267.24 ms
-  - clocks at report: cpu0 1.25/1.80 GHz | cpu1 1.25/1.80 GHz | cpu2 1.25/1.80 GHz | cpu3 1.25/1.80 GHz | cpu4 0.71/2.42 GHz | cpu5 0.71/2.42 GHz | cpu6 0.71/2.42 GHz | cpu7 0.84/2.84 GHz
-  - device profile: tier high, 10.4 GB, 8 cores, SM8250 (kona) (API 33)
-  - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 233.825816ms / p95 257.802812ms / worst 280.433594ms vs budget 16.666666ms · 240/240 over
-- stress screen, GPU path (diagnostic): median 139.373646ms, worst 293.631042ms, budget 16.666666ms (240 samples)
-  - memory: PSS 548 MB
-  - start-up: before run 244 ms | app setup 0.1 | event loop started 0.0 | resumed 16.7 | window created 0.0 | present ready 27.1 | accessibility and show 0.0 | tree built 3.8 | window ready 0.9 | until first draw 0.0 | app before-frame hooks 462.7 | first build and layout 3.4 | first raster and present 109.4 = 868.0 ms from process start
-  - stages: medians ms: scale 0.02 plan 22.59 cpu 0.00 gpu_upload 5.16 gpu_record 0.33 gpu_submit 0.27 gpu_wait 104.68 gpu_readback 0.00 acquire 0.09 present 0.35
-  - stages: p95 ms: scale 0.07 plan 35.81 cpu 232.29 gpu_upload 9.59 gpu_record 0.95 gpu_submit 0.63 gpu_wait 152.31 gpu_readback 0.00 acquire 0.14 present 8.30
-  - GPU time by kind of work: medians ms: draw 4.79 layers 7.30 filters 117.20 shadows 1.76 blit 0.69 total 131.74; p95 ms: draw 8.88 layers 11.05 filters 144.92 shadows 3.19 blit 0.85 total 168.90
+  - CPU time: process CPU 11.83 ms per frame over the last 240 frames, every thread (70% of one core)
+  - thermal: status none -> none (worst none); headroom 0.67 -> 0.68 (highest 0.68; 1.0 is severe throttling); hottest zone 53.1 -> 45.0 °C (peak 53.1) over 9 s
+  - input to present: input to present ms: median 17.4 p95 22.9 p99 26.4 worst 26.4 over 32 inputs in 24 frames; 0 unanswered within 1 s
+  - worst frame: work 24.02 ms, outside the renderer 0.42 ms, on cpu4; stages ms: scale 0.02 plan 0.00 cpu 6.76 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 15.60 present 1.23
+  - raster by core: cpu6 92 frames 8.99 ms | cpu7 73 frames 8.28 ms | cpu4 39 frames 8.29 ms | cpu5 36 frames 9.14 ms
+  - clocks at report: cpu0 0.81/1.80 GHz | cpu1 0.81/1.80 GHz | cpu2 0.81/1.80 GHz | cpu3 0.81/1.80 GHz | cpu4 0.69/2.40 GHz | cpu5 0.69/2.40 GHz | cpu6 0.69/2.40 GHz | cpu7 0.69/2.40 GHz
+  - device profile: tier medium, 5.2 GB, 8 cores, SM6475 (parrot) (API 35)
+  - cache budgets: blur off (VIEWW_BLUR_CACHE_MB=0), fill off (tier medium), raster threads serial (tier medium)
+  - quality overlay: tier medium · median 13.432128ms / p95 17.578229ms / worst 24.022708ms vs budget 16.666668ms · 29/240 over
+- stress screen, CPU path (diagnostic): median 136.559845ms, worst 200.288073ms, budget 16.666668ms (240 samples)
+  - frame rate: frame rate changed 1 time(s), ending at 60 Hz
+  - memory: PSS 254 MB
+  - start-up: before run 380 ms | app setup 0.2 | event loop started 0.0 | resumed 23.5 | window created 0.0 | present ready 0.8 | accessibility and show 0.0 | tree built 4.3 | window ready 3.2 | until first draw 0.0 | app before-frame hooks 28.5 | first build and layout 8.2 | first raster and present 214.8 = 663.7 ms from process start
+  - stages: medians ms: scale 0.01 plan 0.00 cpu 133.27 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.28 present 2.17
+  - stages: p95 ms: scale 0.02 plan 0.00 cpu 158.33 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.35 present 2.30
+  - CPU raster by kind of work: medians ms: text 2.90 shadows 20.86 paths 11.96 rects 24.89 images 22.33 layers 21.53 composite 18.45 total 122.92; p95 ms: text 3.40 shadows 34.20 paths 13.09 rects 28.28 images 23.39 layers 30.70 composite 21.43 total 154.50
+  - shadows blurred: 881 over 600 frames (1.47 a frame), 322.1 Mpx in all
+  - CPU time: process CPU 140.17 ms per frame over the last 240 frames, every thread (98% of one core)
+  - thermal: status none -> none (worst none); headroom 0.68 -> 0.71 (highest 0.71; 1.0 is severe throttling); hottest zone 53.1 -> 48.5 °C (peak 60.7) over 87 s
+  - input to present: input to present ms: median 143.5 p95 190.0 p99 193.9 worst 197.1 over 82 inputs in 82 frames; 0 unanswered within 1 s
+  - worst frame: work 200.29 ms, outside the renderer 0.52 ms, on cpu5; stages ms: scale 0.01 plan 0.00 cpu 197.29 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.29 present 2.18
+  - raster by core: cpu5 119 frames 136.91 ms | cpu7 63 frames 130.44 ms | cpu6 37 frames 131.67 ms | cpu4 21 frames 128.92 ms
+  - clocks at report: cpu0 1.11/1.80 GHz | cpu1 1.11/1.80 GHz | cpu2 1.11/1.80 GHz | cpu3 1.11/1.80 GHz | cpu4 1.65/2.40 GHz | cpu5 1.65/2.40 GHz | cpu6 1.65/2.40 GHz | cpu7 1.65/2.40 GHz
+  - device profile: tier medium, 5.2 GB, 8 cores, SM6475 (parrot) (API 35)
+  - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+  - quality overlay: tier medium · median 140.168837ms / p95 161.350886ms / worst 200.288073ms vs budget 16.666668ms · 240/240 over
+- stress screen, GPU path (diagnostic): median 158.783438ms, worst 246.454583ms, budget 16.666668ms (240 samples)
+  - frame rate: frame rate changed 1 time(s), ending at 60 Hz
+  - memory: PSS 385 MB
+  - start-up: before run 385 ms | app setup 0.2 | event loop started 0.0 | resumed 28.3 | window created 0.0 | present ready 15.9 | accessibility and show 0.0 | tree built 14.2 | window ready 2.3 | until first draw 0.0 | app before-frame hooks 31.1 | first build and layout 4.1 | first raster and present 132.0 = 613.3 ms from process start
+  - stages: medians ms: scale 0.02 plan 17.09 cpu 0.00 gpu_upload 3.59 gpu_record 0.41 gpu_submit 0.48 gpu_wait 126.21 gpu_readback 0.00 acquire 0.07 present 0.42
+  - stages: p95 ms: scale 0.04 plan 35.65 cpu 153.22 gpu_upload 19.93 gpu_record 0.72 gpu_submit 0.71 gpu_wait 187.18 gpu_readback 0.00 acquire 0.17 present 7.78
+  - GPU time by kind of work: medians ms: draw 2.85 layers 7.73 filters 140.97 shadows 0.00 blit 0.63 total 152.18; p95 ms: draw 5.51 layers 17.37 filters 182.68 shadows 0.49 blit 0.99 total 207.03
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
-  - copies into the swapchain: trusted: 0 partial and 511 full copies, 100.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
-  - shadows blurred: 998 over 600 frames (1.66 a frame), 492.0 Mpx in all
-  - CPU time: process CPU 65.58 ms per frame over the last 240 frames, every thread (39% of one core)
-  - thermal: status none -> none (worst none); headroom 0.81 -> 0.83 (highest 0.83; 1.0 is severe throttling); hottest zone 55.4 -> 53.5 °C (peak 66.7) over 107 s
-  - input to present: input to present ms: median 171.0 p95 492.7 p99 541.9 worst 557.7 over 82 inputs in 82 frames; 0 unanswered within 1 s
-  - worst frame: work 293.63 ms, outside the renderer 0.90 ms, on cpu7; stages ms: scale 0.02 plan 38.62 cpu 245.82 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 8.27
-  - raster by core: cpu7 36 frames 230.12 ms
-  - clocks at report: cpu0 1.25/1.80 GHz | cpu1 1.25/1.80 GHz | cpu2 1.25/1.80 GHz | cpu3 1.25/1.80 GHz | cpu4 0.71/2.42 GHz | cpu5 0.71/2.42 GHz | cpu6 0.71/2.42 GHz | cpu7 0.84/2.84 GHz
-  - pipeline cache: started from 36639 bytes; saved 36639 bytes after the first GPU frame
-  - device profile: tier high, 10.4 GB, 8 cores, SM8250 (kona) (API 33)
-  - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 141.824522ms / p95 269.105573ms / worst 293.631042ms vs budget 16.666666ms · 240/240 over
-- stress screen for a minute on what auto chose (diagnostic): median 139.399009ms, worst 304.631511ms, budget 16.666666ms (240 samples)
-  - memory: PSS 476 MB
-  - renderer: gpu (calibrated earlier: cpu 10.37 ms, gpu 0.57 ms)
-  - start-up: before run 248 ms | app setup 0.1 | event loop started 0.0 | resumed 16.4 | window created 0.2 | present ready 26.8 | accessibility and show 0.0 | tree built 3.8 | window ready 0.7 | until first draw 0.0 | app before-frame hooks 155.8 | first build and layout 3.1 | first raster and present 45.9 = 501.1 ms from process start
-  - stages: medians ms: scale 0.02 plan 22.83 cpu 0.00 gpu_upload 4.54 gpu_record 0.33 gpu_submit 0.26 gpu_wait 103.58 gpu_readback 0.00 acquire 0.09 present 0.36
-  - stages: p95 ms: scale 0.07 plan 41.08 cpu 234.86 gpu_upload 9.79 gpu_record 0.83 gpu_submit 0.49 gpu_wait 154.64 gpu_readback 0.00 acquire 0.15 present 8.33
-  - GPU time by kind of work: medians ms: draw 4.85 layers 7.29 filters 117.39 shadows 1.76 blit 0.68 total 131.96; p95 ms: draw 8.81 layers 11.64 filters 145.11 shadows 3.18 blit 0.87 total 169.62
+  - copies into the swapchain: trusted: 0 partial and 468 full copies, 100.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - shadows blurred: 1165 over 600 frames (1.94 a frame), 441.9 Mpx in all
+  - CPU time: process CPU 62.17 ms per frame over the last 240 frames, every thread (40% of one core)
+  - thermal: status none -> none (worst none); headroom 0.71 -> 0.73 (highest 0.73; 1.0 is severe throttling); hottest zone 60.7 -> 51.2 °C (peak 60.7) over 94 s
+  - input to present: input to present ms: median 159.9 p95 212.3 p99 219.2 worst 246.3 over 82 inputs in 82 frames; 0 unanswered within 1 s
+  - worst frame: work 246.45 ms, outside the renderer 0.64 ms; stages ms: scale 0.01 plan 11.95 cpu 0.00 gpu_upload 8.91 gpu_record 0.26 gpu_submit 0.36 gpu_wait 224.03 gpu_readback 0.00 acquire 0.05 present 0.23
+  - raster by core: cpu7 25 frames 148.73 ms | cpu5 17 frames 139.91 ms | cpu6 11 frames 132.10 ms | cpu4 4 frames 148.56 ms
+  - clocks at report: cpu0 0.69/1.80 GHz | cpu1 0.69/1.80 GHz | cpu2 0.69/1.80 GHz | cpu3 0.69/1.80 GHz | cpu4 0.96/2.40 GHz | cpu5 0.96/2.40 GHz | cpu6 0.96/2.40 GHz | cpu7 0.96/2.40 GHz
+  - pipeline cache: started from 39170 bytes; saved 39170 bytes after the first GPU frame
+  - device profile: tier medium, 5.2 GB, 8 cores, SM6475 (parrot) (API 35)
+  - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+  - quality overlay: tier medium · median 151.894924ms / p95 217.453437ms / worst 246.454583ms vs budget 16.666668ms · 240/240 over
+- stress screen for a minute on what auto chose (diagnostic): median 158.595052ms, worst 250.608386ms, budget 16.666668ms (240 samples)
+  - frame rate: frame rate changed 1 time(s), ending at 60 Hz
+  - memory: PSS 380 MB
+  - renderer: gpu (calibrated earlier: cpu 9.28 ms, gpu 1.70 ms)
+  - start-up: before run 387 ms | app setup 0.2 | event loop started 0.0 | resumed 23.1 | window created 0.0 | present ready 17.3 | accessibility and show 0.0 | tree built 13.8 | window ready 0.8 | until first draw 0.0 | app before-frame hooks 104.6 | first build and layout 3.0 | first raster and present 109.1 = 658.7 ms from process start
+  - stages: medians ms: scale 0.02 plan 16.21 cpu 0.00 gpu_upload 3.72 gpu_record 0.34 gpu_submit 0.42 gpu_wait 128.85 gpu_readback 0.00 acquire 0.07 present 0.40
+  - stages: p95 ms: scale 0.04 plan 35.12 cpu 154.02 gpu_upload 19.44 gpu_record 0.71 gpu_submit 0.71 gpu_wait 189.52 gpu_readback 0.00 acquire 0.17 present 7.87
+  - GPU time by kind of work: medians ms: draw 2.85 layers 7.77 filters 140.79 shadows 0.00 blit 0.63 total 152.04; p95 ms: draw 5.49 layers 16.84 filters 182.58 shadows 0.45 blit 0.97 total 206.34
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
-  - copies into the swapchain: trusted: 0 partial and 507 full copies, 100.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
-  - shadows blurred: 997 over 600 frames (1.66 a frame), 494.0 Mpx in all
-  - CPU time: process CPU 71.13 ms per frame over the last 291 frames, every thread (36% of one core)
-  - thermal: status none -> none (worst none); headroom 0.83 -> 0.83 (highest 0.84; 1.0 is severe throttling); hottest zone 57.0 -> 58.9 °C (peak 70.2) over 112 s
-  - over the run: frames 361-600: median 139.40 ms, 240 of 240 over budget; last 240 of 600 frames: median 139.40 ms, 240 over; 112 s
-  - PSS over time: 10s:562 20s:526 30s:520 40s:466 50s:489 60s:562 70s:454 80s:502 90s:541 100s:520 110s:545 MB (first to last: -17.1 MB)
-  - input to present: input to present ms: median 170.6 p95 269.7 p99 447.3 worst 458.8 over 82 inputs in 82 frames; 0 unanswered within 1 s
-  - worst frame: work 304.63 ms, outside the renderer 1.60 ms, on cpu7; stages ms: scale 0.04 plan 37.95 cpu 257.26 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 7.79
-  - raster by core: cpu7 38 frames 232.37 ms
-  - clocks at report: cpu0 1.25/1.80 GHz | cpu1 1.25/1.80 GHz | cpu2 1.25/1.80 GHz | cpu3 1.25/1.80 GHz | cpu4 0.71/2.42 GHz | cpu5 0.71/2.42 GHz | cpu6 0.71/2.42 GHz | cpu7 0.84/2.84 GHz
-  - pipeline cache: started from 36639 bytes; saved 36639 bytes after the first GPU frame
-  - device profile: tier high, 10.4 GB, 8 cores, SM8250 (kona) (API 33)
-  - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 144.158411ms / p95 275.277708ms / worst 304.631511ms vs budget 16.666666ms · 240/240 over
-- GPU path, every swapchain copy read back and compared with its frame: median 1.848699ms, worst 14.604479ms, budget 16.666666ms (240 samples)
-  - **gate failed, run failed**: partial_copies_leave_no_trails: a partial copy into the swapchain image left a trail
-  - memory: PSS 220 MB
-  - start-up: before run 249 ms | app setup 0.1 | event loop started 0.0 | resumed 16.4 | window created 0.0 | present ready 22.8 | accessibility and show 0.0 | tree built 3.9 | window ready 0.5 | until first draw 0.0 | app before-frame hooks 130.0 | first build and layout 1.5 | first raster and present 18.2 = 442.9 ms from process start
-  - stages: medians ms: scale 0.07 plan 0.38 cpu 0.00 gpu_upload 0.28 gpu_record 0.10 gpu_submit 0.09 gpu_wait 0.16 gpu_readback 0.00 acquire 0.03 present 0.10
-  - stages: p95 ms: scale 0.10 plan 0.69 cpu 0.00 gpu_upload 0.47 gpu_record 0.14 gpu_submit 0.17 gpu_wait 3.57 gpu_readback 0.00 acquire 0.04 present 0.15
-  - GPU time by kind of work: medians ms: draw 0.27 layers 0.00 filters 0.00 shadows 0.00 blit 0.90 total 1.18; p95 ms: draw 0.41 layers 0.00 filters 0.00 shadows 0.00 blit 1.28 total 1.69
+  - copies into the swapchain: trusted: 0 partial and 470 full copies, 100.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - shadows blurred: 1180 over 600 frames (1.97 a frame), 452.6 Mpx in all
+  - CPU time: process CPU 61.63 ms per frame over the last 257 frames, every thread (39% of one core)
+  - thermal: status none -> none (worst none); headroom 0.73 -> 0.72 (highest 0.73; 1.0 is severe throttling); hottest zone 62.8 -> 49.2 °C (peak 62.8) over 96 s
+  - over the run: frames 361-600: median 158.60 ms, 240 of 240 over budget; last 240 of 600 frames: median 158.60 ms, 240 over; 96 s
+  - PSS over time: 10s:456 20s:388 30s:521 40s:430 50s:439 60s:376 70s:435 80s:324 90s:420 MB (first to last: -36.0 MB)
+  - input to present: input to present ms: median 158.3 p95 211.0 p99 220.4 worst 289.5 over 82 inputs in 82 frames; 0 unanswered within 1 s
+  - worst frame: work 250.61 ms, outside the renderer 1.34 ms; stages ms: scale 0.03 plan 38.87 cpu 0.00 gpu_upload 12.22 gpu_record 0.32 gpu_submit 0.40 gpu_wait 196.98 gpu_readback 0.00 acquire 0.10 present 0.33
+  - raster by core: cpu6 27 frames 145.50 ms | cpu5 17 frames 138.42 ms | cpu7 6 frames 144.78 ms | cpu4 5 frames 152.55 ms
+  - clocks at report: cpu0 0.69/1.80 GHz | cpu1 0.69/1.80 GHz | cpu2 0.69/1.80 GHz | cpu3 0.69/1.80 GHz | cpu4 0.96/2.40 GHz | cpu5 0.96/2.40 GHz | cpu6 1.19/2.40 GHz | cpu7 1.19/2.40 GHz
+  - pipeline cache: started from 39170 bytes; saved 39170 bytes after the first GPU frame
+  - device profile: tier medium, 5.2 GB, 8 cores, SM6475 (parrot) (API 35)
+  - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+  - quality overlay: tier medium · median 146.438678ms / p95 216.525729ms / worst 250.608386ms vs budget 16.666668ms · 240/240 over
+- GPU path, every swapchain copy read back and compared with its frame: median 20.494011ms, worst 105.735573ms, budget 16.666668ms (240 samples)
+  - frame rate: frame rate changed 1 time(s), ending at 60 Hz
+  - memory: PSS 166 MB
+  - start-up: before run 382 ms | app setup 0.2 | event loop started 0.0 | resumed 42.2 | window created 0.0 | present ready 31.5 | accessibility and show 0.0 | tree built 17.2 | window ready 2.3 | until first draw 0.0 | app before-frame hooks 106.2 | first build and layout 2.0 | first raster and present 41.0 = 625.2 ms from process start
+  - stages: medians ms: scale 0.02 plan 0.23 cpu 0.00 gpu_upload 0.70 gpu_record 0.15 gpu_submit 0.30 gpu_wait 5.62 gpu_readback 0.00 acquire 0.06 present 0.29
+  - stages: p95 ms: scale 0.03 plan 0.46 cpu 0.00 gpu_upload 1.63 gpu_record 0.20 gpu_submit 0.40 gpu_wait 7.57 gpu_readback 0.00 acquire 0.10 present 0.41
+  - GPU time by kind of work: medians ms: draw 2.07 layers 0.00 filters 0.00 shadows 0.00 blit 4.21 total 6.28; p95 ms: draw 3.64 layers 0.00 filters 0.00 shadows 0.00 blit 6.23 total 9.87
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
-  - copies into the swapchain: refused: 83 partial and 517 full copies, 86.9% of the frames' pixels copied; 89 image(s) kept their contents, 0 did not
+  - copies into the swapchain: trusted: 587 partial and 13 full copies, 11.3% of the frames' pixels copied; 592 image(s) kept their contents, 0 did not
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 1.92 ms per frame over the last 240 frames, every thread (60% of one core)
-  - thermal: status none -> none (worst none); headroom 0.83 -> 0.83 (highest 0.83; 1.0 is severe throttling); hottest zone 56.2 -> 50.0 °C (peak 64.0) over 8 s
-  - input to present: input to present ms: median 35.9 p95 43.9 p99 167.1 worst 167.1 over 18 inputs in 18 frames; 0 unanswered within 1 s
-  - worst frame: work 14.60 ms, outside the renderer 2.77 ms; stages ms: scale 0.22 plan 2.53 cpu 0.00 gpu_upload 6.95 gpu_record 0.48 gpu_submit 0.32 gpu_wait 0.04 gpu_readback 0.00 acquire 0.14 present 1.15
-  - clocks at report: cpu0 1.34/1.80 GHz | cpu1 1.34/1.80 GHz | cpu2 1.34/1.80 GHz | cpu3 1.34/1.80 GHz | cpu4 0.71/2.42 GHz | cpu5 0.71/2.42 GHz | cpu6 0.71/2.42 GHz | cpu7 0.84/2.84 GHz
-  - pipeline cache: started from 36639 bytes; saved 36639 bytes after the first GPU frame
-  - device profile: tier high, 10.4 GB, 8 cores, SM8250 (kona) (API 33)
-  - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 2.39466ms / p95 5.299896ms / worst 14.604479ms vs budget 16.666666ms · 0/240 over
-- GPU path copying whole frames into the swapchain (diagnostic A/B): median 1.835417ms, worst 9.561146ms, budget 16.666666ms (240 samples)
-  - memory: PSS 153 MB
-  - start-up: before run 254 ms | app setup 0.1 | event loop started 0.0 | resumed 18.0 | window created 0.0 | present ready 26.1 | accessibility and show 0.0 | tree built 3.8 | window ready 0.5 | until first draw 0.0 | app before-frame hooks 151.0 | first build and layout 1.4 | first raster and present 15.7 = 471.1 ms from process start
-  - stages: medians ms: scale 0.08 plan 0.42 cpu 0.00 gpu_upload 0.25 gpu_record 0.11 gpu_submit 0.09 gpu_wait 0.08 gpu_readback 0.00 acquire 0.02 present 0.07
-  - stages: p95 ms: scale 0.11 plan 0.70 cpu 0.00 gpu_upload 0.53 gpu_record 0.16 gpu_submit 0.17 gpu_wait 4.25 gpu_readback 0.00 acquire 0.03 present 0.15
-  - GPU time by kind of work: medians ms: draw 0.22 layers 0.00 filters 0.00 shadows 0.00 blit 0.89 total 1.12; p95 ms: draw 0.36 layers 0.00 filters 0.00 shadows 0.00 blit 1.34 total 1.70
+  - CPU time: process CPU 24.17 ms per frame over the last 240 frames, every thread (72% of one core)
+  - thermal: status none -> none (worst none); headroom 0.72 -> 0.72 (highest 0.72; 1.0 is severe throttling); hottest zone 56.7 -> 45.0 °C (peak 56.7) over 18 s
+  - input to present: input to present ms: median 17.8 p95 96.6 p99 98.6 worst 159.9 over 66 inputs in 66 frames; 0 unanswered within 1 s
+  - worst frame: work 105.74 ms, outside the renderer 92.25 ms; stages ms: scale 0.02 plan 0.21 cpu 0.00 gpu_upload 5.04 gpu_record 0.17 gpu_submit 0.14 gpu_wait 7.50 gpu_readback 0.00 acquire 0.06 present 0.34
+  - clocks at report: cpu0 1.11/1.80 GHz | cpu1 1.11/1.80 GHz | cpu2 1.11/1.80 GHz | cpu3 1.11/1.80 GHz | cpu4 2.40/2.40 GHz | cpu5 2.40/2.40 GHz | cpu6 2.40/2.40 GHz | cpu7 2.40/2.40 GHz
+  - pipeline cache: started from 39170 bytes; saved 39170 bytes after the first GPU frame
+  - device profile: tier medium, 5.2 GB, 8 cores, SM6475 (parrot) (API 35)
+  - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+  - quality overlay: tier medium · median 29.815197ms / p95 98.717084ms / worst 105.735573ms vs budget 16.666668ms · 213/240 over
+- GPU path copying whole frames into the swapchain (diagnostic A/B): median 3.154323ms, worst 7.003594ms, budget 8.333333ms (240 samples)
+  - memory: PSS 90 MB
+  - start-up: before run 361 ms | app setup 0.1 | event loop started 0.0 | resumed 22.1 | window created 0.0 | present ready 22.3 | accessibility and show 0.0 | tree built 5.0 | window ready 5.9 | until first draw 0.0 | app before-frame hooks 121.5 | first build and layout 2.0 | first raster and present 21.2 = 561.4 ms from process start
+  - stages: medians ms: scale 0.05 plan 0.40 cpu 0.00 gpu_upload 0.40 gpu_record 0.13 gpu_submit 0.16 gpu_wait 1.03 gpu_readback 0.00 acquire 0.05 present 0.12
+  - stages: p95 ms: scale 0.05 plan 0.61 cpu 0.00 gpu_upload 0.90 gpu_record 0.16 gpu_submit 0.43 gpu_wait 2.62 gpu_readback 0.00 acquire 0.07 present 0.21
+  - GPU time by kind of work: medians ms: draw 1.27 layers 0.00 filters 0.00 shadows 0.00 blit 0.77 total 2.03; p95 ms: draw 1.97 layers 0.00 filters 0.00 shadows 0.00 blit 1.69 total 3.67
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 1.83 ms per frame over the last 240 frames, every thread (55% of one core)
-  - thermal: status none -> none (worst none); headroom 0.83 -> 0.83 (highest 0.83; 1.0 is severe throttling); hottest zone 55.4 -> 50.4 °C (peak 55.4) over 2 s
+  - CPU time: process CPU 2.33 ms per frame over the last 240 frames, every thread (67% of one core)
+  - thermal: status none -> none (worst none); headroom 0.71 -> 0.71 (highest 0.71; 1.0 is severe throttling); hottest zone 58.7 -> 46.0 °C (peak 58.7) over 2 s
   - input to present: no input reached this window
-  - worst frame: work 9.56 ms, outside the renderer 3.03 ms; stages ms: scale 0.23 plan 2.04 cpu 0.00 gpu_upload 1.42 gpu_record 0.52 gpu_submit 0.35 gpu_wait 0.03 gpu_readback 0.00 acquire 0.13 present 1.82
-  - clocks at report: cpu0 1.71/1.80 GHz | cpu1 1.71/1.80 GHz | cpu2 1.71/1.80 GHz | cpu3 1.71/1.80 GHz | cpu4 0.71/2.42 GHz | cpu5 0.71/2.42 GHz | cpu6 0.71/2.42 GHz | cpu7 0.84/2.84 GHz
-  - pipeline cache: started from 36639 bytes; saved 36639 bytes after the first GPU frame
-  - device profile: tier high, 10.4 GB, 8 cores, SM8250 (kona) (API 33)
-  - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 2.49311ms / p95 5.995209ms / worst 9.561146ms vs budget 16.666666ms · 0/240 over
+  - worst frame: work 7.00 ms, outside the renderer 0.65 ms; stages ms: scale 0.05 plan 0.55 cpu 0.00 gpu_upload 1.03 gpu_record 0.14 gpu_submit 0.36 gpu_wait 4.05 gpu_readback 0.00 acquire 0.06 present 0.11
+  - clocks at report: cpu0 0.69/1.80 GHz | cpu1 0.69/1.80 GHz | cpu2 0.69/1.80 GHz | cpu3 0.69/1.80 GHz | cpu4 0.96/2.40 GHz | cpu5 1.19/2.40 GHz | cpu6 1.19/2.40 GHz | cpu7 1.19/2.40 GHz
+  - pipeline cache: started from 39170 bytes; saved 39170 bytes after the first GPU frame
+  - device profile: tier medium, 5.2 GB, 8 cores, SM6475 (parrot) (API 35)
+  - cache budgets: blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)
+  - quality overlay: tier medium · median 3.309346ms / p95 4.445729ms / worst 7.003594ms vs budget 8.333333ms · 0/240 over
 
 **Samsung Galaxy S26 Ultra**
 - gating passes: auto cpu gpu (auto chose: gpu)
-- CPU path: median 7.418541ms, worst 17.720885ms, budget 8.333333ms (240 samples)
+- CPU path: median 5.795ms, worst 20.859115ms, budget 8.333333ms (240 samples)
   - memory: PSS 75 MB
-  - start-up: before run 137 ms | app setup 0.1 | event loop started 0.0 | resumed 8.5 | window created 0.0 | present ready 0.4 | accessibility and show 0.0 | tree built 3.9 | window ready 0.5 | until first draw 0.0 | app before-frame hooks 64.7 | first build and layout 1.4 | first raster and present 18.1 = 235.0 ms from process start
-  - stages: medians ms: scale 0.01 plan 0.00 cpu 5.63 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 1.54 present 0.18
-  - stages: p95 ms: scale 0.02 plan 0.00 cpu 6.64 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 2.65 present 0.29
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.10 rects 4.92 images 0.00 layers 0.00 composite 0.00 total 5.02; p95 ms: text 0.00 shadows 0.00 paths 0.14 rects 5.61 images 0.00 layers 0.00 composite 0.00 total 5.75
+  - start-up: before run 160 ms | app setup 0.1 | event loop started 0.0 | resumed 17.3 | window created 0.0 | present ready 0.4 | accessibility and show 0.0 | tree built 2.6 | window ready 1.0 | until first draw 0.0 | app before-frame hooks 8.3 | first build and layout 0.9 | first raster and present 15.4 = 206.0 ms from process start
+  - stages: medians ms: scale 0.02 plan 0.00 cpu 4.89 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.04 present 0.19
+  - stages: p95 ms: scale 0.02 plan 0.00 cpu 5.88 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 4.13 present 0.29
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.14 rects 4.22 images 0.00 layers 0.00 composite 0.00 total 4.35; p95 ms: text 0.00 shadows 0.00 paths 0.21 rects 4.91 images 0.00 layers 0.00 composite 0.00 total 5.11
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 6.58 ms per frame over the last 240 frames, every thread (72% of one core)
-  - thermal: status none -> none (worst none); headroom 0.29 -> 0.29 (highest 0.29; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 5 s
-  - input to present: input to present ms: median 9.0 p95 10.0 p99 10.6 worst 10.6 over 14 inputs in 10 frames; 0 unanswered within 1 s
-  - worst frame: work 17.72 ms, outside the renderer 0.63 ms, on cpu0; stages ms: scale 0.04 plan 0.00 cpu 16.67 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.06 present 0.32
-  - raster by core: cpu5 57 frames 5.64 ms | cpu0 46 frames 5.63 ms | cpu4 41 frames 5.55 ms | cpu1 40 frames 5.85 ms | cpu7 32 frames 4.07 ms | cpu3 12 frames 5.44 ms | cpu2 9 frames 6.46 ms | cpu6 3 frames 3.54 ms
-  - clocks at report: cpu0 2.61/3.63 GHz | cpu1 2.61/3.63 GHz | cpu2 2.61/3.63 GHz | cpu3 2.61/3.63 GHz | cpu4 2.61/3.63 GHz | cpu5 2.61/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
+  - CPU time: process CPU 5.71 ms per frame over the last 240 frames, every thread (66% of one core)
+  - thermal: status none -> none (worst none); headroom 0.40 -> 0.40 (highest 0.40; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 5 s
+  - input to present: input to present ms: median 9.5 p95 13.1 p99 20.7 worst 20.7 over 14 inputs in 12 frames; 0 unanswered within 1 s
+  - worst frame: work 20.86 ms, outside the renderer 0.18 ms, on cpu4; stages ms: scale 0.01 plan 0.00 cpu 3.64 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 16.77 present 0.26
+  - raster by core: cpu5 78 frames 4.95 ms | cpu4 60 frames 5.07 ms | cpu1 45 frames 4.74 ms | cpu0 18 frames 4.77 ms | cpu2 18 frames 4.68 ms | cpu7 11 frames 3.95 ms | cpu6 9 frames 3.77 ms | cpu3 1 frames 4.73 ms
+  - clocks at report: cpu0 2.50/3.63 GHz | cpu1 2.50/3.63 GHz | cpu2 2.50/3.63 GHz | cpu3 2.50/3.63 GHz | cpu4 2.50/3.63 GHz | cpu5 2.50/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
   - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
   - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 7.184659ms / p95 8.122239ms / worst 17.720885ms vs budget 8.333333ms · 4/240 over
-- GPU path: median 421.666µs, worst 3.049947ms, budget 8.333333ms (240 samples)
-  - memory: PSS 197 MB
-  - start-up: before run 136 ms | app setup 0.0 | event loop started 0.0 | resumed 15.9 | window created 0.0 | present ready 5.7 | accessibility and show 0.0 | tree built 2.5 | window ready 0.3 | until first draw 0.0 | app before-frame hooks 15.1 | first build and layout 0.9 | first raster and present 10.6 = 187.1 ms from process start
-  - stages: medians ms: scale 0.01 plan 0.09 cpu 0.00 gpu_upload 0.12 gpu_record 0.01 gpu_submit 0.02 gpu_wait 0.02 gpu_readback 0.00 acquire 0.00 present 0.01
-  - stages: p95 ms: scale 0.01 plan 0.14 cpu 0.00 gpu_upload 0.24 gpu_record 0.02 gpu_submit 0.04 gpu_wait 0.88 gpu_readback 0.00 acquire 0.00 present 0.01
-  - GPU time by kind of work: medians ms: draw 0.09 layers 0.00 filters 0.00 shadows 0.00 blit 0.02 total 0.11; p95 ms: draw 0.12 layers 0.00 filters 0.00 shadows 0.00 blit 0.23 total 0.35
+  - quality overlay: tier high · median 6.67554ms / p95 8.195312ms / worst 20.859115ms vs budget 8.333333ms · 7/240 over
+- GPU path: median 320.834µs, worst 2.314844ms, budget 8.333333ms (240 samples)
+  - memory: PSS 196 MB
+  - start-up: before run 140 ms | app setup 0.1 | event loop started 0.0 | resumed 12.2 | window created 0.0 | present ready 7.2 | accessibility and show 0.0 | tree built 2.5 | window ready 0.3 | until first draw 0.0 | app before-frame hooks 15.7 | first build and layout 0.9 | first raster and present 12.4 = 191.4 ms from process start
+  - stages: medians ms: scale 0.01 plan 0.09 cpu 0.00 gpu_upload 0.12 gpu_record 0.01 gpu_submit 0.02 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 0.01
+  - stages: p95 ms: scale 0.01 plan 0.11 cpu 0.00 gpu_upload 0.21 gpu_record 0.01 gpu_submit 0.03 gpu_wait 0.18 gpu_readback 0.00 acquire 0.00 present 0.01
+  - GPU time by kind of work: medians ms: draw 0.02 layers 0.00 filters 0.00 shadows 0.00 blit 0.01 total 0.03; p95 ms: draw 0.11 layers 0.00 filters 0.00 shadows 0.00 blit 0.23 total 0.34
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
-  - copies into the swapchain: trusted: 551 partial and 49 full copies, 10.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - copies into the swapchain: trusted: 557 partial and 43 full copies, 8.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 0.29 ms per frame over the last 240 frames, every thread (51% of one core)
-  - thermal: status none -> none (worst none); headroom 0.31 -> 0.31 (highest 0.31; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 0 s
+  - CPU time: process CPU 0.25 ms per frame over the last 240 frames, every thread (57% of one core)
+  - thermal: status none -> none (worst none); headroom 0.42 -> 0.42 (highest 0.42; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 0 s
   - input to present: no input reached this window
-  - worst frame: work 3.05 ms, outside the renderer 0.09 ms; stages ms: scale 0.01 plan 0.09 cpu 0.00 gpu_upload 0.29 gpu_record 0.02 gpu_submit 0.04 gpu_wait 2.49 gpu_readback 0.00 acquire 0.01 present 0.01
+  - worst frame: work 2.31 ms, outside the renderer 0.08 ms; stages ms: scale 0.01 plan 0.10 cpu 0.00 gpu_upload 2.07 gpu_record 0.01 gpu_submit 0.03 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 0.01
   - clocks at report: cpu0 3.30/3.63 GHz | cpu1 3.30/3.63 GHz | cpu2 3.30/3.63 GHz | cpu3 3.30/3.63 GHz | cpu4 3.30/3.63 GHz | cpu5 3.30/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
   - pipeline cache: started from 37633 bytes; saved 37633 bytes after the first GPU frame
   - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
   - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 563.605µs / p95 1.883594ms / worst 3.049947ms vs budget 8.333333ms · 0/240 over
-- chosen by measurement (auto): median 417.812µs, worst 2.957708ms, budget 8.333333ms (240 samples)
+  - quality overlay: tier high · median 426.183µs / p95 651.874µs / worst 2.314844ms vs budget 8.333333ms · 0/240 over
+- chosen by measurement (auto): median 336.98µs, worst 3.065573ms, budget 8.333333ms (240 samples)
   - memory: PSS 197 MB
-  - renderer: gpu (calibrated earlier: cpu 4.56 ms, gpu 0.35 ms)
-  - calibration launches: launch 1: 10-29 17:09:02.537 13102 13119 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer cpu, measuring (first launch with this build here) 10-29 17:09:03.133 13102 13119 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer cpu for now; the gpu is measured next launch (measured: cpu 4.56 ms; budget 8.33 ms) launch 2: 10-29 17:09:11.233 13433 13450 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu, measuring (the cpu path measured 4.56 ms last launch) 10-29 17:09:11.472 13433 13450 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu (measured: cpu 4.56 ms, gpu 0.35 ms; budget 8.33 ms) launch 3: 10-29 17:09:19.935 13649 13669 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu (calibrated earlier: cpu 4.56 ms, gpu 0.35 ms)
-  - start-up: before run 155 ms | app setup 0.0 | event loop started 0.0 | resumed 14.5 | window created 0.0 | present ready 6.7 | accessibility and show 0.0 | tree built 2.6 | window ready 0.4 | until first draw 0.0 | app before-frame hooks 69.0 | first build and layout 1.4 | first raster and present 10.2 = 259.7 ms from process start
-  - stages: medians ms: scale 0.01 plan 0.09 cpu 0.00 gpu_upload 0.12 gpu_record 0.01 gpu_submit 0.02 gpu_wait 0.03 gpu_readback 0.00 acquire 0.00 present 0.01
-  - stages: p95 ms: scale 0.01 plan 0.15 cpu 0.00 gpu_upload 0.22 gpu_record 0.02 gpu_submit 0.04 gpu_wait 1.27 gpu_readback 0.00 acquire 0.00 present 0.01
-  - GPU time by kind of work: medians ms: draw 0.09 layers 0.00 filters 0.00 shadows 0.00 blit 0.02 total 0.11; p95 ms: draw 0.12 layers 0.00 filters 0.00 shadows 0.00 blit 0.23 total 0.35
+  - renderer: gpu (calibrated earlier: cpu 4.09 ms, gpu 0.38 ms)
+  - calibration launches: launch 1: 10-30 05:01:20.432 11661 11679 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer cpu, measuring (first launch with this build here) 10-30 05:01:20.984 11661 11679 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer cpu for now; the gpu is measured next launch (measured: cpu 4.09 ms; budget 8.33 ms) launch 2: 10-30 05:01:29.029 11889 11907 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu, measuring (the cpu path measured 4.09 ms last launch) 10-30 05:01:29.217 11889 11907 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu (measured: cpu 4.09 ms, gpu 0.38 ms; budget 8.33 ms) launch 3: 10-30 05:01:37.686 12015 12032 I vieww   : vieww_platform_winit::rasterizer_choice: vieww: rasterizer gpu (calibrated earlier: cpu 4.09 ms, gpu 0.38 ms)
+  - start-up: before run 162 ms | app setup 0.0 | event loop started 0.0 | resumed 15.5 | window created 0.0 | present ready 6.5 | accessibility and show 0.0 | tree built 3.3 | window ready 0.7 | until first draw 0.0 | app before-frame hooks 16.0 | first build and layout 0.9 | first raster and present 11.0 = 216.3 ms from process start
+  - stages: medians ms: scale 0.01 plan 0.09 cpu 0.00 gpu_upload 0.13 gpu_record 0.01 gpu_submit 0.02 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 0.01
+  - stages: p95 ms: scale 0.01 plan 0.12 cpu 0.00 gpu_upload 0.20 gpu_record 0.01 gpu_submit 0.03 gpu_wait 0.22 gpu_readback 0.00 acquire 0.00 present 0.01
+  - GPU time by kind of work: medians ms: draw 0.02 layers 0.00 filters 0.00 shadows 0.00 blit 0.01 total 0.03; p95 ms: draw 0.11 layers 0.00 filters 0.00 shadows 0.00 blit 0.23 total 0.34
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
-  - copies into the swapchain: trusted: 553 partial and 47 full copies, 9.5% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - copies into the swapchain: trusted: 556 partial and 44 full copies, 8.2% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 0.29 ms per frame over the last 240 frames, every thread (52% of one core)
-  - thermal: status none -> none (worst none); headroom 0.32 -> 0.32 (highest 0.32; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 0 s
+  - CPU time: process CPU 0.25 ms per frame over the last 240 frames, every thread (53% of one core)
+  - thermal: status none -> none (worst none); headroom 0.39 -> 0.39 (highest 0.39; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 0 s
   - input to present: no input reached this window
-  - worst frame: work 2.96 ms, outside the renderer 0.13 ms; stages ms: scale 0.02 plan 0.14 cpu 0.00 gpu_upload 0.21 gpu_record 0.03 gpu_submit 0.04 gpu_wait 2.36 gpu_readback 0.00 acquire 0.01 present 0.02
-  - clocks at report: cpu0 2.23/3.63 GHz | cpu1 2.23/3.63 GHz | cpu2 2.23/3.63 GHz | cpu3 2.23/3.63 GHz | cpu4 2.23/3.63 GHz | cpu5 2.23/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
+  - worst frame: work 3.07 ms, outside the renderer 0.06 ms; stages ms: scale 0.01 plan 2.55 cpu 0.00 gpu_upload 0.41 gpu_record 0.01 gpu_submit 0.02 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 0.01
+  - clocks at report: cpu0 3.30/3.63 GHz | cpu1 3.30/3.63 GHz | cpu2 3.30/3.63 GHz | cpu3 3.30/3.63 GHz | cpu4 3.30/3.63 GHz | cpu5 3.30/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
   - pipeline cache: started from 37633 bytes; saved 37633 bytes after the first GPU frame
   - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
   - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 552.184µs / p95 1.856094ms / worst 2.957708ms vs budget 8.333333ms · 0/240 over
-- CPU path presented through Vulkan (diagnostic): median 3.484323ms, worst 14.596875ms, budget 8.333333ms (240 samples)
-  - memory: PSS 157 MB
-  - start-up: before run 139 ms | app setup 0.0 | event loop started 0.0 | resumed 8.5 | window created 0.0 | present ready 5.0 | accessibility and show 0.0 | tree built 3.4 | window ready 0.4 | until first draw 0.0 | app before-frame hooks 15.4 | first build and layout 1.0 | first raster and present 16.3 = 189.0 ms from process start
-  - stages: medians ms: scale 0.01 plan 0.00 cpu 2.34 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 1.06
-  - stages: p95 ms: scale 0.01 plan 0.00 cpu 4.53 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 2.19
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.04 rects 2.10 images 0.00 layers 0.00 composite 0.00 total 2.14; p95 ms: text 0.00 shadows 0.00 paths 0.08 rects 3.98 images 0.00 layers 0.00 composite 0.00 total 4.06
+  - quality overlay: tier high · median 458.684µs / p95 1.363124ms / worst 3.065573ms vs budget 8.333333ms · 0/240 over
+- CPU path presented through Vulkan (diagnostic): median 3.334376ms, worst 12.365001ms, budget 8.333333ms (240 samples)
+  - memory: PSS 160 MB
+  - start-up: before run 150 ms | app setup 0.1 | event loop started 0.0 | resumed 13.9 | window created 0.0 | present ready 7.0 | accessibility and show 0.0 | tree built 2.5 | window ready 0.3 | until first draw 0.1 | app before-frame hooks 39.2 | first build and layout 1.3 | first raster and present 21.0 = 235.2 ms from process start
+  - stages: medians ms: scale 0.01 plan 0.00 cpu 2.19 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 1.05
+  - stages: p95 ms: scale 0.01 plan 0.00 cpu 4.82 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 2.26
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.04 rects 2.04 images 0.00 layers 0.00 composite 0.00 total 2.08; p95 ms: text 0.00 shadows 0.00 paths 0.13 rects 4.35 images 0.00 layers 0.00 composite 0.00 total 4.48
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 3.12 ms per frame over the last 240 frames, every thread (75% of one core)
-  - thermal: status none -> none (worst none); headroom 0.33 -> 0.35 (highest 0.35; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 2 s
+  - CPU time: process CPU 3.04 ms per frame over the last 240 frames, every thread (77% of one core)
+  - thermal: status none -> none (worst none); headroom 0.40 -> 0.40 (highest 0.40; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 3 s
   - input to present: no input reached this window
-  - worst frame: work 14.60 ms, outside the renderer 0.46 ms, on cpu4; stages ms: scale 0.03 plan 0.00 cpu 12.36 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 1.74
-  - raster by core: cpu7 222 frames 2.32 ms | cpu5 7 frames 4.53 ms | cpu4 5 frames 4.38 ms | cpu0 4 frames 5.91 ms | cpu1 2 frames 4.97 ms
-  - clocks at report: cpu0 1.23/3.63 GHz | cpu1 1.23/3.63 GHz | cpu2 1.23/3.63 GHz | cpu3 1.23/3.63 GHz | cpu4 1.23/3.63 GHz | cpu5 1.23/3.63 GHz | cpu6 3.65/4.74 GHz | cpu7 3.65/4.74 GHz
+  - worst frame: work 12.37 ms, outside the renderer 0.33 ms, on cpu5; stages ms: scale 0.03 plan 0.00 cpu 10.32 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 1.69
+  - raster by core: cpu7 149 frames 2.19 ms | cpu6 67 frames 2.06 ms | cpu0 6 frames 4.90 ms | cpu1 6 frames 4.96 ms | cpu4 6 frames 4.57 ms | cpu5 6 frames 5.30 ms
+  - clocks at report: cpu0 1.32/3.63 GHz | cpu1 1.32/3.63 GHz | cpu2 1.32/3.63 GHz | cpu3 1.32/3.63 GHz | cpu4 1.32/3.63 GHz | cpu5 1.32/3.63 GHz | cpu6 3.65/4.74 GHz | cpu7 3.65/4.74 GHz
   - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
   - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 3.844675ms / p95 5.929063ms / worst 14.596875ms vs budget 8.333333ms · 1/240 over
-- CPU path with an Android performance hint (diagnostic): median 9.441198ms, worst 21.681511ms, budget 16.666668ms (240 samples)
-  - frame rate: frame rate changed 1 time(s), ending at 60 Hz
-  - memory: PSS 76 MB
-  - start-up: before run 137 ms | app setup 0.1 | event loop started 0.0 | resumed 7.7 | window created 0.1 | present ready 0.4 | accessibility and show 0.0 | tree built 3.2 | window ready 0.9 | until first draw 0.0 | app before-frame hooks 65.8 | first build and layout 1.4 | first raster and present 21.4 = 238.2 ms from process start
-  - stages: medians ms: scale 0.02 plan 0.00 cpu 7.92 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.04 present 0.28
-  - stages: p95 ms: scale 0.04 plan 0.00 cpu 12.74 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 11.09 present 0.55
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.15 rects 6.72 images 0.00 layers 0.00 composite 0.00 total 6.87; p95 ms: text 0.00 shadows 0.00 paths 0.30 rects 11.23 images 0.00 layers 0.00 composite 0.00 total 11.52
+  - quality overlay: tier high · median 3.782029ms / p95 6.502135ms / worst 12.365001ms vs budget 8.333333ms · 1/240 over
+- CPU path with an Android performance hint (diagnostic): median 7.217136ms, worst 13.11474ms, budget 8.333333ms (240 samples)
+  - memory: PSS 85 MB
+  - start-up: before run 142 ms | app setup 0.1 | event loop started 0.0 | resumed 10.3 | window created 0.0 | present ready 0.3 | accessibility and show 0.0 | tree built 3.9 | window ready 0.4 | until first draw 0.0 | app before-frame hooks 7.7 | first build and layout 0.9 | first raster and present 15.4 = 181.2 ms from process start
+  - stages: medians ms: scale 0.02 plan 0.00 cpu 4.99 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 2.21 present 0.15
+  - stages: p95 ms: scale 0.02 plan 0.00 cpu 6.01 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 3.82 present 0.26
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.13 rects 4.29 images 0.00 layers 0.00 composite 0.00 total 4.42; p95 ms: text 0.00 shadows 0.00 paths 0.22 rects 5.10 images 0.00 layers 0.00 composite 0.00 total 5.32
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 9.38 ms per frame over the last 240 frames, every thread (58% of one core)
-  - thermal: status none -> none (worst none); headroom 0.36 -> 0.36 (highest 0.36; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 7 s
-  - input to present: input to present ms: median 16.8 p95 23.8 p99 24.2 worst 24.2 over 24 inputs in 17 frames; 0 unanswered within 1 s
-  - worst frame: work 21.68 ms, outside the renderer 0.21 ms, on cpu1; stages ms: scale 0.01 plan 0.00 cpu 5.68 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 14.67 present 1.11
-  - raster by core: cpu4 85 frames 8.98 ms | cpu5 52 frames 9.31 ms | cpu1 37 frames 8.96 ms | cpu0 36 frames 6.91 ms | cpu3 12 frames 6.00 ms | cpu6 7 frames 3.57 ms | cpu7 6 frames 4.41 ms | cpu2 5 frames 10.74 ms
-  - clocks at report: cpu0 0.88/3.63 GHz | cpu1 0.88/3.63 GHz | cpu2 0.88/3.63 GHz | cpu3 0.88/3.63 GHz | cpu4 0.88/3.63 GHz | cpu5 0.88/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
+  - CPU time: process CPU 5.88 ms per frame over the last 240 frames, every thread (66% of one core)
+  - thermal: status none -> none (worst none); headroom 0.41 -> 0.41 (highest 0.41; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 5 s
+  - input to present: input to present ms: median 8.3 p95 10.2 p99 12.9 worst 12.9 over 14 inputs in 12 frames; 0 unanswered within 1 s
+  - worst frame: work 13.11 ms, outside the renderer 0.49 ms, on cpu1; stages ms: scale 0.04 plan 0.00 cpu 12.29 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.07 present 0.23
+  - raster by core: cpu5 79 frames 5.01 ms | cpu4 63 frames 4.99 ms | cpu0 30 frames 5.09 ms | cpu1 24 frames 5.06 ms | cpu6 16 frames 3.61 ms | cpu3 11 frames 5.10 ms | cpu2 10 frames 5.21 ms | cpu7 7 frames 3.22 ms
+  - clocks at report: cpu0 2.50/3.63 GHz | cpu1 2.50/3.63 GHz | cpu2 2.50/3.63 GHz | cpu3 2.50/3.63 GHz | cpu4 2.50/3.63 GHz | cpu5 2.50/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
   - performance hint: on (target 8.33 ms)
   - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
   - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 10.350431ms / p95 20.818229ms / worst 21.681511ms vs budget 16.666668ms · 35/240 over
-- GPU path at the device tier's resolution (diagnostic): median 431.667µs, worst 2.739218ms, budget 8.333333ms (240 samples)
+  - quality overlay: tier high · median 7.260583ms / p95 8.153958ms / worst 13.11474ms vs budget 8.333333ms · 4/240 over
+- GPU path at the device tier's resolution (diagnostic): median 307.865µs, worst 2.205573ms, budget 8.333333ms (240 samples)
   - memory: PSS 197 MB
-  - start-up: before run 133 ms | app setup 0.0 | event loop started 0.0 | resumed 10.8 | window created 0.0 | present ready 5.5 | accessibility and show 0.0 | tree built 2.6 | window ready 0.4 | until first draw 0.0 | app before-frame hooks 7.1 | first build and layout 1.0 | first raster and present 10.6 = 170.8 ms from process start
-  - stages: medians ms: scale 0.01 plan 0.12 cpu 0.00 gpu_upload 0.13 gpu_record 0.02 gpu_submit 0.03 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 0.01
-  - stages: p95 ms: scale 0.01 plan 0.15 cpu 0.00 gpu_upload 0.22 gpu_record 0.02 gpu_submit 0.03 gpu_wait 1.20 gpu_readback 0.00 acquire 0.00 present 0.01
-  - GPU time by kind of work: medians ms: draw 0.09 layers 0.00 filters 0.00 shadows 0.00 blit 0.02 total 0.11; p95 ms: draw 0.13 layers 0.00 filters 0.00 shadows 0.00 blit 0.23 total 0.36
+  - start-up: before run 147 ms | app setup 0.0 | event loop started 0.0 | resumed 15.6 | window created 0.0 | present ready 5.8 | accessibility and show 0.0 | tree built 2.9 | window ready 0.5 | until first draw 0.0 | app before-frame hooks 41.3 | first build and layout 1.4 | first raster and present 12.5 = 227.1 ms from process start
+  - stages: medians ms: scale 0.01 plan 0.08 cpu 0.00 gpu_upload 0.12 gpu_record 0.01 gpu_submit 0.02 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 0.01
+  - stages: p95 ms: scale 0.01 plan 0.09 cpu 0.00 gpu_upload 0.17 gpu_record 0.01 gpu_submit 0.02 gpu_wait 0.18 gpu_readback 0.00 acquire 0.00 present 0.01
+  - GPU time by kind of work: medians ms: draw 0.02 layers 0.00 filters 0.00 shadows 0.00 blit 0.01 total 0.03; p95 ms: draw 0.10 layers 0.00 filters 0.00 shadows 0.00 blit 0.02 total 0.12
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
-  - copies into the swapchain: trusted: 551 partial and 49 full copies, 10.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - copies into the swapchain: trusted: 558 partial and 42 full copies, 7.8% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 0.33 ms per frame over the last 240 frames, every thread (59% of one core)
-  - thermal: status none -> none (worst none); headroom 0.35 -> 0.35 (highest 0.35; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 0 s
+  - CPU time: process CPU 0.25 ms per frame over the last 240 frames, every thread (61% of one core)
+  - thermal: status none -> none (worst none); headroom 0.40 -> 0.40 (highest 0.40; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 0 s
   - input to present: no input reached this window
-  - worst frame: work 2.74 ms, outside the renderer 0.11 ms; stages ms: scale 0.01 plan 0.14 cpu 0.00 gpu_upload 0.17 gpu_record 0.03 gpu_submit 0.04 gpu_wait 2.20 gpu_readback 0.00 acquire 0.01 present 0.02
+  - worst frame: work 2.21 ms, outside the renderer 0.06 ms; stages ms: scale 0.01 plan 0.08 cpu 0.00 gpu_upload 0.12 gpu_record 0.01 gpu_submit 0.02 gpu_wait 1.89 gpu_readback 0.00 acquire 0.00 present 0.01
   - clocks at report: cpu0 3.30/3.63 GHz | cpu1 3.30/3.63 GHz | cpu2 3.30/3.63 GHz | cpu3 3.30/3.63 GHz | cpu4 3.30/3.63 GHz | cpu5 3.30/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
   - pipeline cache: started from 37633 bytes; saved 37633 bytes after the first GPU frame
   - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
   - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 557.091µs / p95 1.644634ms / worst 2.739218ms vs budget 8.333333ms · 0/240 over
-- GPU path waiting for every frame, without the overlap (diagnostic A/B): median 1.359219ms, worst 2.994166ms, budget 8.333333ms (240 samples)
+  - quality overlay: tier high · median 399.316µs / p95 564.166µs / worst 2.205573ms vs budget 8.333333ms · 0/240 over
+- GPU path waiting for every frame, without the overlap (diagnostic A/B): median 1.295833ms, worst 3.096718ms, budget 8.333333ms (240 samples)
   - memory: PSS 197 MB
-  - start-up: before run 135 ms | app setup 0.0 | event loop started 0.0 | resumed 8.7 | window created 0.0 | present ready 4.9 | accessibility and show 0.0 | tree built 2.6 | window ready 0.3 | until first draw 0.0 | app before-frame hooks 6.3 | first build and layout 0.9 | first raster and present 18.5 = 177.3 ms from process start
-  - stages: medians ms: scale 0.02 plan 0.26 cpu 0.00 gpu_upload 0.47 gpu_record 0.03 gpu_submit 0.04 gpu_wait 0.35 gpu_readback 0.00 acquire 0.00 present 0.01
-  - stages: p95 ms: scale 0.02 plan 0.31 cpu 0.00 gpu_upload 0.92 gpu_record 0.05 gpu_submit 0.05 gpu_wait 1.32 gpu_readback 0.00 acquire 0.00 present 0.01
-  - GPU time by kind of work: medians ms: draw 0.15 layers 0.00 filters 0.00 shadows 0.00 blit 0.03 total 0.17; p95 ms: draw 0.17 layers 0.00 filters 0.00 shadows 0.00 blit 0.03 total 0.21
+  - start-up: before run 142 ms | app setup 0.1 | event loop started 0.0 | resumed 15.0 | window created 0.0 | present ready 6.0 | accessibility and show 0.0 | tree built 2.6 | window ready 0.3 | until first draw 0.1 | app before-frame hooks 41.5 | first build and layout 1.5 | first raster and present 21.4 = 230.6 ms from process start
+  - stages: medians ms: scale 0.02 plan 0.26 cpu 0.00 gpu_upload 0.48 gpu_record 0.02 gpu_submit 0.04 gpu_wait 0.27 gpu_readback 0.00 acquire 0.00 present 0.01
+  - stages: p95 ms: scale 0.02 plan 0.29 cpu 0.00 gpu_upload 1.39 gpu_record 0.04 gpu_submit 0.06 gpu_wait 0.65 gpu_readback 0.00 acquire 0.00 present 0.01
+  - GPU time by kind of work: medians ms: draw 0.04 layers 0.00 filters 0.00 shadows 0.00 blit 0.02 total 0.07; p95 ms: draw 0.17 layers 0.00 filters 0.00 shadows 0.00 blit 0.03 total 0.20
   - CPU/GPU overlap: off: every GPU frame waited for before the next (VIEWW_GPU_OVERLAP=0)
-  - copies into the swapchain: trusted: 581 partial and 19 full copies, 6.5% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - copies into the swapchain: trusted: 583 partial and 17 full copies, 5.2% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 0.62 ms per frame over the last 240 frames, every thread (41% of one core)
-  - thermal: status none -> none (worst none); headroom 0.36 -> 0.36 (highest 0.36; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 1 s
+  - CPU time: process CPU 0.62 ms per frame over the last 240 frames, every thread (43% of one core)
+  - thermal: status none -> none (worst none); headroom 0.39 -> 0.39 (highest 0.39; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 1 s
   - input to present: no input reached this window
-  - worst frame: work 2.99 ms, outside the renderer 0.17 ms; stages ms: scale 0.02 plan 0.32 cpu 0.00 gpu_upload 0.47 gpu_record 0.03 gpu_submit 0.06 gpu_wait 1.92 gpu_readback 0.00 acquire 0.00 present 0.01
+  - worst frame: work 3.10 ms, outside the renderer 0.14 ms; stages ms: scale 0.02 plan 0.26 cpu 0.00 gpu_upload 2.23 gpu_record 0.02 gpu_submit 0.05 gpu_wait 0.36 gpu_readback 0.00 acquire 0.00 present 0.01
   - clocks at report: cpu0 1.44/3.63 GHz | cpu1 1.44/3.63 GHz | cpu2 1.44/3.63 GHz | cpu3 1.44/3.63 GHz | cpu4 1.44/3.63 GHz | cpu5 1.44/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
   - pipeline cache: started from 37633 bytes; saved 37633 bytes after the first GPU frame
   - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
   - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 1.51226ms / p95 2.774687ms / worst 2.994166ms vs budget 8.333333ms · 0/240 over
-- CPU path without raster threads, fill cache or blur cache (diagnostic A/B): median 9.651667ms, worst 21.684635ms, budget 16.666668ms (240 samples)
+  - quality overlay: tier high · median 1.423513ms / p95 2.693333ms / worst 3.096718ms vs budget 8.333333ms · 0/240 over
+- CPU path without raster threads, fill cache or blur cache (diagnostic A/B): median 11.209322ms, worst 21.435261ms, budget 16.666668ms (240 samples)
   - frame rate: frame rate changed 1 time(s), ending at 60 Hz
-  - memory: PSS 76 MB
-  - start-up: before run 132 ms | app setup 0.1 | event loop started 0.0 | resumed 8.3 | window created 0.0 | present ready 0.3 | accessibility and show 0.0 | tree built 2.5 | window ready 0.2 | until first draw 0.0 | app before-frame hooks 64.0 | first build and layout 1.4 | first raster and present 17.2 = 226.4 ms from process start
-  - stages: medians ms: scale 0.02 plan 0.00 cpu 8.47 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.03 present 0.28
-  - stages: p95 ms: scale 0.04 plan 0.00 cpu 13.28 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 11.87 present 0.64
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.15 rects 7.19 images 0.00 layers 0.00 composite 0.00 total 7.34; p95 ms: text 0.03 shadows 0.00 paths 0.33 rects 11.57 images 0.00 layers 0.00 composite 0.00 total 11.93
+  - memory: PSS 75 MB
+  - start-up: before run 149 ms | app setup 0.1 | event loop started 0.0 | resumed 11.8 | window created 0.0 | present ready 0.4 | accessibility and show 0.0 | tree built 2.6 | window ready 1.6 | until first draw 0.0 | app before-frame hooks 7.1 | first build and layout 0.9 | first raster and present 16.5 = 190.0 ms from process start
+  - stages: medians ms: scale 0.02 plan 0.00 cpu 8.50 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.05 present 0.25
+  - stages: p95 ms: scale 0.04 plan 0.00 cpu 12.46 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 13.96 present 0.54
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.20 rects 7.47 images 0.00 layers 0.00 composite 0.00 total 7.67; p95 ms: text 0.00 shadows 0.00 paths 0.38 rects 11.35 images 0.00 layers 0.00 composite 0.00 total 11.73
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 9.71 ms per frame over the last 240 frames, every thread (57% of one core)
-  - thermal: status none -> none (worst none); headroom 0.36 -> 0.36 (highest 0.36; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 7 s
-  - input to present: input to present ms: median 19.9 p95 25.2 p99 25.5 worst 25.5 over 26 inputs in 17 frames; 0 unanswered within 1 s
-  - worst frame: work 21.68 ms, outside the renderer 0.19 ms, on cpu1; stages ms: scale 0.02 plan 0.00 cpu 4.50 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 16.13 present 0.84
-  - raster by core: cpu4 65 frames 8.98 ms | cpu5 64 frames 9.36 ms | cpu1 41 frames 9.10 ms | cpu7 24 frames 3.77 ms | cpu3 15 frames 9.16 ms | cpu0 13 frames 6.71 ms | cpu6 10 frames 4.01 ms | cpu2 8 frames 6.85 ms
-  - clocks at report: cpu0 1.67/3.63 GHz | cpu1 1.67/3.63 GHz | cpu2 1.67/3.63 GHz | cpu3 1.67/3.63 GHz | cpu4 1.67/3.63 GHz | cpu5 1.67/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
+  - CPU time: process CPU 9.50 ms per frame over the last 240 frames, every thread (56% of one core)
+  - thermal: status none -> none (worst none); headroom 0.39 -> 0.39 (highest 0.39; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 7 s
+  - input to present: input to present ms: median 20.3 p95 23.2 p99 23.5 worst 23.5 over 22 inputs in 16 frames; 0 unanswered within 1 s
+  - worst frame: work 21.44 ms, outside the renderer 0.30 ms, on cpu4; stages ms: scale 0.03 plan 0.00 cpu 6.62 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 13.64 present 0.84
+  - raster by core: cpu4 69 frames 8.74 ms | cpu5 68 frames 8.72 ms | cpu1 32 frames 9.34 ms | cpu0 25 frames 9.02 ms | cpu7 15 frames 4.06 ms | cpu6 11 frames 3.50 ms | cpu2 10 frames 6.30 ms | cpu3 10 frames 8.35 ms
+  - clocks at report: cpu0 1.56/3.63 GHz | cpu1 1.56/3.63 GHz | cpu2 1.56/3.63 GHz | cpu3 1.56/3.63 GHz | cpu4 1.56/3.63 GHz | cpu5 1.56/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
   - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
   - cache budgets: blur off (VIEWW_BLUR_CACHE_MB=0), fill off (VIEWW_PATH_CACHE_MB=0), raster threads serial (VIEWW_RASTER_THREADS=0)
-  - quality overlay: tier high · median 10.88934ms / p95 21.062032ms / worst 21.684635ms vs budget 16.666668ms · 44/240 over
-- CPU path without the row-parallel walk only (diagnostic A/B): median 9.937656ms, worst 18.943073ms, budget 16.666668ms (240 samples)
-  - frame rate: frame rate changed 1 time(s), ending at 60 Hz
+  - quality overlay: tier high · median 12.92605ms / p95 21.040365ms / worst 21.435261ms vs budget 16.666668ms · 83/240 over
+- CPU path without the row-parallel walk only (diagnostic A/B): median 5.738386ms, worst 11.78ms, budget 8.333333ms (240 samples)
   - memory: PSS 75 MB
-  - start-up: before run 136 ms | app setup 0.1 | event loop started 0.0 | resumed 14.2 | window created 0.0 | present ready 0.4 | accessibility and show 0.0 | tree built 3.3 | window ready 0.4 | until first draw 0.0 | app before-frame hooks 66.5 | first build and layout 1.6 | first raster and present 16.5 = 239.0 ms from process start
-  - stages: medians ms: scale 0.02 plan 0.00 cpu 8.95 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.03 present 0.28
-  - stages: p95 ms: scale 0.04 plan 0.00 cpu 12.93 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 7.07 present 0.44
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.17 rects 7.79 images 0.00 layers 0.00 composite 0.00 total 7.97; p95 ms: text 0.03 shadows 0.00 paths 0.34 rects 11.40 images 0.00 layers 0.00 composite 0.00 total 11.77
+  - start-up: before run 148 ms | app setup 0.1 | event loop started 0.0 | resumed 15.4 | window created 0.0 | present ready 0.5 | accessibility and show 0.0 | tree built 3.8 | window ready 0.5 | until first draw 0.0 | app before-frame hooks 7.0 | first build and layout 0.9 | first raster and present 16.6 = 193.3 ms from process start
+  - stages: medians ms: scale 0.02 plan 0.00 cpu 4.98 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.04 present 0.15
+  - stages: p95 ms: scale 0.02 plan 0.00 cpu 6.38 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 2.92 present 0.26
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.13 rects 4.30 images 0.00 layers 0.00 composite 0.00 total 4.43; p95 ms: text 0.00 shadows 0.00 paths 0.21 rects 5.51 images 0.00 layers 0.00 composite 0.00 total 5.71
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 10.46 ms per frame over the last 240 frames, every thread (57% of one core)
-  - thermal: status none -> none (worst none); headroom 0.36 -> 0.36 (highest 0.36; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 8 s
-  - input to present: input to present ms: median 14.3 p95 22.6 p99 23.4 worst 23.4 over 26 inputs in 17 frames; 0 unanswered within 1 s
-  - worst frame: work 18.94 ms, outside the renderer 0.64 ms, on cpu4; stages ms: scale 0.04 plan 0.00 cpu 17.67 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.07 present 0.53
-  - raster by core: cpu5 83 frames 9.39 ms | cpu4 81 frames 9.29 ms | cpu3 27 frames 8.52 ms | cpu1 24 frames 8.27 ms | cpu0 14 frames 8.71 ms | cpu2 10 frames 6.98 ms | cpu7 1 frames 10.11 ms
-  - clocks at report: cpu0 1.00/3.63 GHz | cpu1 1.00/3.63 GHz | cpu2 1.00/3.63 GHz | cpu3 1.00/3.63 GHz | cpu4 1.00/3.63 GHz | cpu5 1.00/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
-  - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
-  - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (VIEWW_RASTER_THREADS=0)
-  - quality overlay: tier high · median 10.486366ms / p95 16.670678ms / worst 18.943073ms vs budget 16.666668ms · 14/240 over
-- CPU path without the path-fill cache only (diagnostic A/B): median 10.134843ms, worst 21.683646ms, budget 16.666668ms (240 samples)
-  - frame rate: frame rate changed 1 time(s), ending at 60 Hz
-  - memory: PSS 75 MB
-  - start-up: before run 139 ms | app setup 0.1 | event loop started 0.0 | resumed 10.5 | window created 0.0 | present ready 0.3 | accessibility and show 0.0 | tree built 2.7 | window ready 0.4 | until first draw 0.0 | app before-frame hooks 69.8 | first build and layout 2.2 | first raster and present 17.2 = 242.0 ms from process start
-  - stages: medians ms: scale 0.02 plan 0.00 cpu 8.88 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.05 present 0.31
-  - stages: p95 ms: scale 0.05 plan 0.00 cpu 13.69 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 12.60 present 0.66
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.17 rects 7.74 images 0.00 layers 0.00 composite 0.00 total 7.91; p95 ms: text 0.09 shadows 0.00 paths 0.39 rects 11.95 images 0.00 layers 0.00 composite 0.00 total 12.43
-  - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 9.88 ms per frame over the last 240 frames, every thread (57% of one core)
-  - thermal: status none -> none (worst none); headroom 0.37 -> 0.37 (highest 0.37; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 7 s
-  - input to present: input to present ms: median 13.0 p95 24.3 p99 135.2 worst 135.2 over 24 inputs in 17 frames; 0 unanswered within 1 s
-  - worst frame: work 21.68 ms, outside the renderer 0.25 ms, on cpu5; stages ms: scale 0.02 plan 0.00 cpu 6.27 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 13.95 present 1.19
-  - raster by core: cpu4 68 frames 9.25 ms | cpu1 47 frames 9.63 ms | cpu5 47 frames 9.29 ms | cpu0 36 frames 9.36 ms | cpu6 17 frames 3.49 ms | cpu2 14 frames 5.31 ms | cpu7 8 frames 3.99 ms | cpu3 3 frames 7.05 ms
-  - clocks at report: cpu0 2.23/3.63 GHz | cpu1 2.23/3.63 GHz | cpu2 2.23/3.63 GHz | cpu3 2.23/3.63 GHz | cpu4 2.23/3.63 GHz | cpu5 2.23/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
-  - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
-  - cache budgets: blur 8 MiB (tier high), fill off (VIEWW_PATH_CACHE_MB=0), raster threads serial (tier high)
-  - quality overlay: tier high · median 12.046673ms / p95 21.087396ms / worst 21.683646ms vs budget 16.666668ms · 61/240 over
-- CPU path without the blur cache only (diagnostic A/B): median 5.899063ms, worst 14.504167ms, budget 8.333333ms (240 samples)
-  - memory: PSS 75 MB
-  - start-up: before run 145 ms | app setup 0.0 | event loop started 0.0 | resumed 8.9 | window created 0.0 | present ready 0.3 | accessibility and show 0.0 | tree built 3.5 | window ready 0.6 | until first draw 0.0 | app before-frame hooks 65.9 | first build and layout 1.9 | first raster and present 14.8 = 241.0 ms from process start
-  - stages: medians ms: scale 0.01 plan 0.00 cpu 5.51 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.02 present 0.20
-  - stages: p95 ms: scale 0.02 plan 0.00 cpu 6.85 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.04 present 0.34
-  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.10 rects 4.79 images 0.00 layers 0.00 composite 0.00 total 4.89; p95 ms: text 0.00 shadows 0.00 paths 0.14 rects 5.89 images 0.00 layers 0.00 composite 0.00 total 6.03
-  - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 6.50 ms per frame over the last 240 frames, every thread (70% of one core)
-  - thermal: status none -> none (worst none); headroom 0.37 -> 0.37 (highest 0.37; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 6 s
-  - input to present: input to present ms: median 9.3 p95 9.9 p99 9.9 worst 9.9 over 16 inputs in 11 frames; 0 unanswered within 1 s
-  - worst frame: work 14.50 ms, outside the renderer 0.68 ms, on cpu2; stages ms: scale 0.07 plan 0.00 cpu 13.38 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.07 present 0.31
-  - raster by core: cpu5 70 frames 5.73 ms | cpu3 38 frames 5.24 ms | cpu7 35 frames 3.96 ms | cpu4 28 frames 5.66 ms | cpu1 24 frames 5.93 ms | cpu6 18 frames 4.10 ms | cpu2 16 frames 5.48 ms | cpu0 11 frames 5.88 ms
+  - CPU time: process CPU 5.88 ms per frame over the last 240 frames, every thread (68% of one core)
+  - thermal: status none -> none (worst none); headroom 0.39 -> 0.39 (highest 0.39; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 5 s
+  - input to present: input to present ms: median 8.8 p95 11.3 p99 13.2 worst 13.2 over 12 inputs in 7 frames; 0 unanswered within 1 s
+  - worst frame: work 11.78 ms, outside the renderer 0.25 ms, on cpu1; stages ms: scale 0.01 plan 0.00 cpu 11.26 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.05 present 0.20
+  - raster by core: cpu4 109 frames 5.01 ms | cpu5 42 frames 4.95 ms | cpu1 39 frames 5.06 ms | cpu0 22 frames 4.84 ms | cpu7 13 frames 3.66 ms | cpu6 11 frames 3.91 ms | cpu2 4 frames 6.38 ms
   - clocks at report: cpu0 2.50/3.63 GHz | cpu1 2.50/3.63 GHz | cpu2 2.50/3.63 GHz | cpu3 2.50/3.63 GHz | cpu4 2.50/3.63 GHz | cpu5 2.50/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
   - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
+  - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (VIEWW_RASTER_THREADS=0)
+  - quality overlay: tier high · median 6.131699ms / p95 7.749167ms / worst 11.78ms vs budget 8.333333ms · 4/240 over
+- CPU path without the path-fill cache only (diagnostic A/B): median 5.601666ms, worst 13.637343ms, budget 8.333333ms (240 samples)
+  - memory: PSS 75 MB
+  - start-up: before run 148 ms | app setup 0.1 | event loop started 0.0 | resumed 8.2 | window created 0.0 | present ready 0.4 | accessibility and show 0.0 | tree built 4.3 | window ready 0.4 | until first draw 0.0 | app before-frame hooks 53.1 | first build and layout 1.5 | first raster and present 18.4 = 234.6 ms from process start
+  - stages: medians ms: scale 0.01 plan 0.00 cpu 5.09 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.03 present 0.16
+  - stages: p95 ms: scale 0.02 plan 0.00 cpu 6.33 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 2.63 present 0.29
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.11 rects 4.58 images 0.00 layers 0.00 composite 0.00 total 4.69; p95 ms: text 0.00 shadows 0.00 paths 0.16 rects 5.60 images 0.00 layers 0.00 composite 0.00 total 5.76
+  - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
+  - CPU time: process CPU 6.12 ms per frame over the last 240 frames, every thread (69% of one core)
+  - thermal: status none -> none (worst none); headroom 0.39 -> 0.39 (highest 0.39; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 5 s
+  - input to present: input to present ms: median 8.8 p95 12.7 p99 14.8 worst 14.8 over 16 inputs in 10 frames; 0 unanswered within 1 s
+  - worst frame: work 13.64 ms, outside the renderer 1.19 ms, on cpu2; stages ms: scale 0.02 plan 0.00 cpu 11.82 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.05 present 0.57
+  - raster by core: cpu0 58 frames 5.17 ms | cpu5 54 frames 5.05 ms | cpu4 52 frames 5.25 ms | cpu1 36 frames 4.94 ms | cpu6 14 frames 3.47 ms | cpu3 11 frames 5.49 ms | cpu7 9 frames 3.96 ms | cpu2 6 frames 6.72 ms
+  - clocks at report: cpu0 2.50/3.63 GHz | cpu1 2.50/3.63 GHz | cpu2 2.50/3.63 GHz | cpu3 2.50/3.63 GHz | cpu4 2.50/3.63 GHz | cpu5 2.50/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
+  - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
+  - cache budgets: blur 8 MiB (tier high), fill off (VIEWW_PATH_CACHE_MB=0), raster threads serial (tier high)
+  - quality overlay: tier high · median 5.965527ms / p95 8.073803ms / worst 13.637343ms vs budget 8.333333ms · 6/240 over
+- CPU path without the blur cache only (diagnostic A/B): median 5.325833ms, worst 14.049219ms, budget 8.333333ms (240 samples)
+  - memory: PSS 75 MB
+  - start-up: before run 139 ms | app setup 0.1 | event loop started 0.0 | resumed 9.7 | window created 0.0 | present ready 0.6 | accessibility and show 0.0 | tree built 2.5 | window ready 1.3 | until first draw 0.0 | app before-frame hooks 16.4 | first build and layout 0.9 | first raster and present 16.4 = 187.4 ms from process start
+  - stages: medians ms: scale 0.02 plan 0.00 cpu 4.93 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.02 present 0.17
+  - stages: p95 ms: scale 0.02 plan 0.00 cpu 6.00 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.04 present 0.26
+  - CPU raster by kind of work: medians ms: text 0.00 shadows 0.00 paths 0.13 rects 4.26 images 0.00 layers 0.00 composite 0.00 total 4.39; p95 ms: text 0.00 shadows 0.00 paths 0.20 rects 5.21 images 0.00 layers 0.00 composite 0.00 total 5.41
+  - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
+  - CPU time: process CPU 6.00 ms per frame over the last 240 frames, every thread (69% of one core)
+  - thermal: status none -> none (worst none); headroom 0.39 -> 0.39 (highest 0.39; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 5 s
+  - input to present: input to present ms: median 9.4 p95 15.8 p99 17.4 worst 17.4 over 14 inputs in 7 frames; 0 unanswered within 1 s
+  - worst frame: work 14.05 ms, outside the renderer 0.46 ms, on cpu5; stages ms: scale 0.06 plan 0.00 cpu 13.21 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.06 present 0.25
+  - raster by core: cpu4 115 frames 5.00 ms | cpu5 34 frames 4.95 ms | cpu3 32 frames 5.05 ms | cpu0 25 frames 4.58 ms | cpu7 20 frames 3.72 ms | cpu1 7 frames 4.52 ms | cpu2 5 frames 5.06 ms | cpu6 2 frames 5.53 ms
+  - clocks at report: cpu0 2.00/3.63 GHz | cpu1 2.00/3.63 GHz | cpu2 2.00/3.63 GHz | cpu3 2.00/3.63 GHz | cpu4 2.00/3.63 GHz | cpu5 2.00/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
+  - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
   - cache budgets: blur off (VIEWW_BLUR_CACHE_MB=0), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 5.874673ms / p95 7.36802ms / worst 14.504167ms vs budget 8.333333ms · 4/240 over
-- stress screen, CPU path (diagnostic): median 52.784115ms, worst 65.807969ms, budget 16.666668ms (240 samples)
+  - quality overlay: tier high · median 5.311264ms / p95 6.390156ms / worst 14.049219ms vs budget 8.333333ms · 4/240 over
+- stress screen, CPU path (diagnostic): median 56.64302ms, worst 67.756041ms, budget 16.666668ms (240 samples)
   - frame rate: frame rate changed 1 time(s), ending at 60 Hz
-  - memory: PSS 206 MB
-  - start-up: before run 133 ms | app setup 0.0 | event loop started 0.0 | resumed 17.5 | window created 0.0 | present ready 0.4 | accessibility and show 0.0 | tree built 3.9 | window ready 0.6 | until first draw 0.0 | app before-frame hooks 69.7 | first build and layout 3.5 | first raster and present 79.4 = 308.6 ms from process start
-  - stages: medians ms: scale 0.00 plan 0.00 cpu 52.03 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.05 present 0.51
-  - stages: p95 ms: scale 0.00 plan 0.00 cpu 58.11 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.05 present 0.55
-  - CPU raster by kind of work: medians ms: text 0.83 shadows 5.70 paths 3.44 rects 7.53 images 6.65 layers 19.91 composite 5.66 total 49.72; p95 ms: text 1.02 shadows 9.82 paths 3.83 rects 7.96 images 7.12 layers 21.83 composite 6.68 total 58.26
-  - shadows blurred: 881 over 600 frames (1.47 a frame), 321.7 Mpx in all
-  - CPU time: process CPU 53.25 ms per frame over the last 240 frames, every thread (95% of one core)
-  - thermal: status none -> none (worst none); headroom 0.37 -> 0.56 (highest 0.56; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 34 s
-  - input to present: input to present ms: median 54.8 p95 62.5 p99 115.1 worst 115.9 over 82 inputs in 82 frames; 0 unanswered within 1 s
-  - worst frame: work 65.81 ms, outside the renderer 0.28 ms, on cpu7; stages ms: scale 0.00 plan 0.00 cpu 64.96 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.05 present 0.52
-  - raster by core: cpu6 157 frames 52.36 ms | cpu7 83 frames 51.56 ms
+  - memory: PSS 209 MB
+  - start-up: before run 145 ms | app setup 0.1 | event loop started 0.0 | resumed 11.4 | window created 0.0 | present ready 0.4 | accessibility and show 0.0 | tree built 3.2 | window ready 1.3 | until first draw 0.0 | app before-frame hooks 38.4 | first build and layout 2.2 | first raster and present 83.8 = 286.1 ms from process start
+  - stages: medians ms: scale 0.00 plan 0.00 cpu 55.97 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.02 present 0.49
+  - stages: p95 ms: scale 0.00 plan 0.00 cpu 61.56 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.03 present 0.52
+  - CPU raster by kind of work: medians ms: text 0.82 shadows 5.88 paths 3.50 rects 7.59 images 6.86 layers 22.83 composite 5.80 total 53.28; p95 ms: text 1.01 shadows 10.05 paths 3.88 rects 8.03 images 7.18 layers 24.56 composite 6.77 total 61.48
+  - shadows blurred: 883 over 600 frames (1.47 a frame), 324.3 Mpx in all
+  - CPU time: process CPU 57.12 ms per frame over the last 240 frames, every thread (97% of one core)
+  - thermal: status none -> none (worst none); headroom 0.39 -> 0.59 (highest 0.59; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 35 s
+  - input to present: input to present ms: median 56.6 p95 91.9 p99 93.8 worst 94.5 over 82 inputs in 82 frames; 0 unanswered within 1 s
+  - worst frame: work 67.76 ms, outside the renderer 0.19 ms, on cpu6; stages ms: scale 0.00 plan 0.00 cpu 67.05 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.03 present 0.49
+  - raster by core: cpu6 170 frames 55.80 ms | cpu7 70 frames 56.12 ms
   - clocks at report: cpu0 2.61/3.63 GHz | cpu1 2.61/3.63 GHz | cpu2 2.61/3.63 GHz | cpu3 2.61/3.63 GHz | cpu4 2.61/3.63 GHz | cpu5 2.61/3.63 GHz | cpu6 4.74/4.74 GHz | cpu7 4.74/4.74 GHz
   - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
   - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 53.307822ms / p95 58.792604ms / worst 65.807969ms vs budget 16.666668ms · 240/240 over
-- stress screen, GPU path (diagnostic): median 18.976875ms, worst 90.43927ms, budget 16.666668ms (240 samples)
+  - quality overlay: tier high · median 57.144192ms / p95 62.355729ms / worst 67.756041ms vs budget 16.666668ms · 240/240 over
+- stress screen, GPU path (diagnostic): median 19.488229ms, worst 91.231041ms, budget 16.666668ms (240 samples)
   - frame rate: frame rate changed 1 time(s), ending at 60 Hz
-  - memory: PSS 683 MB
-  - start-up: before run 133 ms | app setup 0.0 | event loop started 0.0 | resumed 15.4 | window created 0.0 | present ready 8.2 | accessibility and show 0.0 | tree built 2.4 | window ready 0.3 | until first draw 0.0 | app before-frame hooks 75.8 | first build and layout 2.4 | first raster and present 46.6 = 284.3 ms from process start
-  - stages: medians ms: scale 0.00 plan 4.48 cpu 0.00 gpu_upload 0.47 gpu_record 0.05 gpu_submit 0.06 gpu_wait 9.42 gpu_readback 0.00 acquire 0.01 present 0.05
-  - stages: p95 ms: scale 0.01 plan 13.75 cpu 57.37 gpu_upload 2.81 gpu_record 0.16 gpu_submit 0.21 gpu_wait 27.50 gpu_readback 0.00 acquire 0.02 present 1.10
-  - GPU time by kind of work: medians ms: draw 0.45 layers 0.97 filters 15.32 shadows 0.00 blit 0.10 total 16.86; p95 ms: draw 1.09 layers 2.12 filters 33.08 shadows 0.08 blit 0.19 total 36.58
+  - memory: PSS 690 MB
+  - start-up: before run 153 ms | app setup 0.1 | event loop started 0.0 | resumed 13.4 | window created 0.1 | present ready 7.8 | accessibility and show 0.0 | tree built 3.4 | window ready 0.5 | until first draw 0.1 | app before-frame hooks 45.0 | first build and layout 2.8 | first raster and present 43.4 = 269.6 ms from process start
+  - stages: medians ms: scale 0.00 plan 4.09 cpu 0.00 gpu_upload 0.34 gpu_record 0.05 gpu_submit 0.06 gpu_wait 12.78 gpu_readback 0.00 acquire 0.01 present 0.05
+  - stages: p95 ms: scale 0.01 plan 12.70 cpu 58.91 gpu_upload 2.76 gpu_record 0.14 gpu_submit 0.20 gpu_wait 20.85 gpu_readback 0.00 acquire 0.02 present 1.01
+  - GPU time by kind of work: medians ms: draw 0.43 layers 0.94 filters 16.83 shadows 0.00 blit 0.10 total 18.29; p95 ms: draw 0.71 layers 1.72 filters 29.29 shadows 0.07 blit 0.19 total 31.98
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
-  - copies into the swapchain: trusted: 0 partial and 480 full copies, 100.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
-  - shadows blurred: 1144 over 600 frames (1.91 a frame), 431.4 Mpx in all
-  - CPU time: process CPU 18.67 ms per frame over the last 240 frames, every thread (57% of one core)
-  - thermal: status none -> none (worst none); headroom 0.58 -> 0.63 (highest 0.63; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 19 s
-  - input to present: input to present ms: median 20.1 p95 67.9 p99 77.6 worst 79.8 over 78 inputs in 78 frames; 0 unanswered within 1 s
-  - worst frame: work 90.44 ms, outside the renderer 0.71 ms, on cpu7; stages ms: scale 0.01 plan 10.69 cpu 72.80 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 6.23
-  - raster by core: cpu7 30 frames 53.69 ms | cpu6 20 frames 55.49 ms
+  - copies into the swapchain: trusted: 0 partial and 479 full copies, 100.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - shadows blurred: 1146 over 600 frames (1.91 a frame), 428.7 Mpx in all
+  - CPU time: process CPU 18.71 ms per frame over the last 240 frames, every thread (60% of one core)
+  - thermal: status none -> none (worst none); headroom 0.61 -> 0.67 (highest 0.67; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 19 s
+  - input to present: input to present ms: median 20.6 p95 75.1 p99 85.0 worst 85.9 over 78 inputs in 77 frames; 0 unanswered within 1 s
+  - worst frame: work 91.23 ms, outside the renderer 0.69 ms, on cpu6; stages ms: scale 0.01 plan 12.99 cpu 76.52 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 1.03
+  - raster by core: cpu6 28 frames 56.11 ms | cpu7 23 frames 57.74 ms
   - clocks at report: cpu0 2.61/3.63 GHz | cpu1 2.61/3.63 GHz | cpu2 2.61/3.63 GHz | cpu3 2.61/3.63 GHz | cpu4 2.61/3.63 GHz | cpu5 2.61/3.63 GHz | cpu6 4.74/4.74 GHz | cpu7 4.74/4.74 GHz
   - pipeline cache: started from 37633 bytes; saved 37633 bytes after the first GPU frame
   - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
   - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 29.406181ms / p95 72.102292ms / worst 90.43927ms vs budget 16.666668ms · 189/240 over
-- stress screen for a minute on what auto chose (diagnostic): median 20.107186ms, worst 94.570469ms, budget 16.666668ms (240 samples)
+  - quality overlay: tier high · median 29.497092ms / p95 68.109843ms / worst 91.231041ms vs budget 16.666668ms · 206/240 over
+- stress screen for a minute on what auto chose (diagnostic): median 19.457865ms, worst 90.460052ms, budget 16.666668ms (240 samples)
   - frame rate: frame rate changed 1 time(s), ending at 60 Hz
-  - memory: PSS 680 MB
-  - renderer: gpu (calibrated earlier: cpu 4.56 ms, gpu 0.35 ms)
-  - start-up: before run 147 ms | app setup 0.1 | event loop started 0.0 | resumed 13.3 | window created 0.0 | present ready 7.0 | accessibility and show 0.0 | tree built 2.6 | window ready 0.3 | until first draw 0.0 | app before-frame hooks 88.4 | first build and layout 1.6 | first raster and present 44.8 = 304.8 ms from process start
-  - stages: medians ms: scale 0.00 plan 5.10 cpu 0.00 gpu_upload 0.37 gpu_record 0.05 gpu_submit 0.07 gpu_wait 10.97 gpu_readback 0.00 acquire 0.01 present 0.05
-  - stages: p95 ms: scale 0.02 plan 17.36 cpu 59.44 gpu_upload 1.65 gpu_record 0.18 gpu_submit 0.29 gpu_wait 16.66 gpu_readback 0.00 acquire 0.02 present 1.08
-  - GPU time by kind of work: medians ms: draw 0.48 layers 1.08 filters 17.57 shadows 0.00 blit 0.10 total 19.24; p95 ms: draw 0.74 layers 1.55 filters 22.55 shadows 0.15 blit 0.19 total 25.19
+  - memory: PSS 691 MB
+  - renderer: gpu (calibrated earlier: cpu 4.09 ms, gpu 0.38 ms)
+  - start-up: before run 155 ms | app setup 0.1 | event loop started 0.0 | resumed 16.0 | window created 0.0 | present ready 8.2 | accessibility and show 0.0 | tree built 2.6 | window ready 0.3 | until first draw 0.1 | app before-frame hooks 41.4 | first build and layout 2.6 | first raster and present 43.9 = 270.1 ms from process start
+  - stages: medians ms: scale 0.00 plan 4.96 cpu 0.00 gpu_upload 0.33 gpu_record 0.05 gpu_submit 0.08 gpu_wait 12.35 gpu_readback 0.00 acquire 0.01 present 0.05
+  - stages: p95 ms: scale 0.01 plan 12.83 cpu 70.22 gpu_upload 2.01 gpu_record 0.15 gpu_submit 0.18 gpu_wait 29.98 gpu_readback 0.00 acquire 0.02 present 1.15
+  - GPU time by kind of work: medians ms: draw 0.50 layers 0.93 filters 16.86 shadows 0.00 blit 0.10 total 18.39; p95 ms: draw 0.86 layers 2.59 filters 40.64 shadows 0.40 blit 0.19 total 44.69
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
-  - copies into the swapchain: trusted: 0 partial and 1565 full copies, 100.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
-  - shadows blurred: 3705 over 1955 frames (1.90 a frame), 1392.3 Mpx in all
-  - CPU time: process CPU 19.61 ms per frame over the last 152 frames, every thread (60% of one core)
-  - thermal: status none -> none (worst none); headroom 0.64 -> 0.73 (highest 0.73; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 60 s
-  - over the run: frames 361-600: median 17.94 ms, 201 of 240 over budget; last 240 of 1955 frames: median 20.11 ms, 207 over; 60 s
-  - PSS over time: 10s:683 20s:676 30s:661 40s:690 50s:683 60s:673 MB (first to last: -10.6 MB)
-  - input to present: input to present ms: median 19.2 p95 69.3 p99 131.8 worst 135.6 over 82 inputs in 81 frames; 0 unanswered within 1 s
-  - worst frame: work 94.57 ms, outside the renderer 0.62 ms, on cpu6; stages ms: scale 0.02 plan 20.55 cpu 72.18 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 1.20
-  - raster by core: cpu6 32 frames 57.00 ms | cpu7 21 frames 56.26 ms
-  - clocks at report: cpu0 2.61/3.63 GHz | cpu1 2.61/3.63 GHz | cpu2 2.61/3.63 GHz | cpu3 2.61/3.63 GHz | cpu4 2.61/3.63 GHz | cpu5 2.61/3.63 GHz | cpu6 4.34/4.74 GHz | cpu7 4.34/4.74 GHz
+  - copies into the swapchain: trusted: 0 partial and 1486 full copies, 100.0% of the frames' pixels copied; 6 image(s) kept their contents, 0 did not
+  - shadows blurred: 3554 over 1882 frames (1.89 a frame), 1334.1 Mpx in all
+  - CPU time: process CPU 21.06 ms per frame over the last 151 frames, every thread (64% of one core)
+  - thermal: status none -> none (worst none); headroom 0.69 -> 0.79 (highest 0.79; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 60 s
+  - over the run: frames 361-600: median 19.99 ms, 217 of 240 over budget; last 240 of 1882 frames: median 19.46 ms, 205 over; 60 s
+  - PSS over time: 10s:685 20s:670 30s:692 40s:673 50s:673 60s:682 MB (first to last: -3.4 MB)
+  - input to present: input to present ms: median 21.1 p95 73.7 p99 88.8 worst 126.1 over 82 inputs in 82 frames; 0 unanswered within 1 s
+  - worst frame: work 90.46 ms, outside the renderer 0.25 ms, on cpu6; stages ms: scale 0.00 plan 11.56 cpu 77.50 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 1.15
+  - raster by core: cpu6 31 frames 67.80 ms | cpu7 22 frames 64.66 ms
+  - clocks at report: cpu0 2.61/3.63 GHz | cpu1 2.61/3.63 GHz | cpu2 2.61/3.63 GHz | cpu3 2.61/3.63 GHz | cpu4 2.61/3.63 GHz | cpu5 2.61/3.63 GHz | cpu6 3.65/4.74 GHz | cpu7 3.65/4.74 GHz
   - pipeline cache: started from 37633 bytes; saved 37633 bytes after the first GPU frame
   - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
   - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 30.026198ms / p95 71.646042ms / worst 94.570469ms vs budget 16.666668ms · 207/240 over
-- GPU path, every swapchain copy read back and compared with its frame: median 11.71974ms, worst 68.789688ms, budget 16.666668ms (240 samples)
+  - quality overlay: tier high · median 33.457563ms / p95 84.545157ms / worst 90.460052ms vs budget 16.666668ms · 205/240 over
+- GPU path, every swapchain copy read back and compared with its frame: median 11.429635ms, worst 61.023802ms, budget 16.666668ms (240 samples)
   - frame rate: frame rate changed 1 time(s), ending at 60 Hz
   - memory: PSS 224 MB
-  - start-up: before run 143 ms | app setup 0.2 | event loop started 0.0 | resumed 9.6 | window created 0.0 | present ready 7.1 | accessibility and show 0.0 | tree built 2.4 | window ready 0.3 | until first draw 0.0 | app before-frame hooks 65.2 | first build and layout 1.2 | first raster and present 10.3 = 239.5 ms from process start
-  - stages: medians ms: scale 0.01 plan 0.15 cpu 0.00 gpu_upload 0.49 gpu_record 0.06 gpu_submit 0.05 gpu_wait 0.00 gpu_readback 0.00 acquire 0.01 present 0.06
-  - stages: p95 ms: scale 0.02 plan 0.30 cpu 0.00 gpu_upload 0.94 gpu_record 0.12 gpu_submit 0.09 gpu_wait 2.40 gpu_readback 0.00 acquire 0.02 present 0.12
-  - GPU time by kind of work: medians ms: draw 0.42 layers 0.00 filters 0.00 shadows 0.00 blit 1.90 total 2.32; p95 ms: draw 0.48 layers 0.00 filters 0.00 shadows 0.00 blit 4.04 total 4.52
+  - start-up: before run 161 ms | app setup 0.1 | event loop started 0.0 | resumed 16.3 | window created 0.0 | present ready 6.0 | accessibility and show 0.0 | tree built 3.0 | window ready 0.4 | until first draw 0.0 | app before-frame hooks 7.6 | first build and layout 0.8 | first raster and present 10.2 = 205.5 ms from process start
+  - stages: medians ms: scale 0.01 plan 0.14 cpu 0.00 gpu_upload 0.47 gpu_record 0.05 gpu_submit 0.04 gpu_wait 0.00 gpu_readback 0.00 acquire 0.01 present 0.06
+  - stages: p95 ms: scale 0.02 plan 0.26 cpu 0.00 gpu_upload 0.75 gpu_record 0.11 gpu_submit 0.08 gpu_wait 2.26 gpu_readback 0.00 acquire 0.02 present 0.11
+  - GPU time by kind of work: medians ms: draw 0.33 layers 0.00 filters 0.00 shadows 0.00 blit 1.88 total 2.22; p95 ms: draw 0.39 layers 0.00 filters 0.00 shadows 0.00 blit 4.01 total 4.40
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
-  - copies into the swapchain: trusted: 581 partial and 19 full copies, 10.9% of the frames' pixels copied; 592 image(s) kept their contents, 0 did not
+  - copies into the swapchain: trusted: 581 partial and 19 full copies, 8.2% of the frames' pixels copied; 592 image(s) kept their contents, 0 did not
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 15.29 ms per frame over the last 240 frames, every thread (68% of one core)
-  - thermal: status none -> none (worst none); headroom 0.74 -> 0.68 (highest 0.74; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 11 s
-  - input to present: input to present ms: median 15.6 p95 19.2 p99 22.8 worst 22.8 over 40 inputs in 28 frames; 0 unanswered within 1 s
-  - worst frame: work 68.79 ms, outside the renderer 65.33 ms; stages ms: scale 0.01 plan 0.12 cpu 0.00 gpu_upload 0.75 gpu_record 0.03 gpu_submit 0.03 gpu_wait 2.49 gpu_readback 0.00 acquire 0.01 present 0.04
-  - clocks at report: cpu0 1.79/3.63 GHz | cpu1 1.79/3.63 GHz | cpu2 1.79/3.63 GHz | cpu3 1.79/3.63 GHz | cpu4 1.79/3.63 GHz | cpu5 1.79/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
+  - CPU time: process CPU 14.33 ms per frame over the last 240 frames, every thread (75% of one core)
+  - thermal: status none -> none (worst none); headroom 0.80 -> 0.77 (highest 0.80; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 9 s
+  - input to present: input to present ms: median 16.1 p95 44.5 p99 59.3 worst 59.3 over 36 inputs in 22 frames; 0 unanswered within 1 s
+  - worst frame: work 61.02 ms, outside the renderer 60.15 ms; stages ms: scale 0.02 plan 0.26 cpu 0.00 gpu_upload 0.50 gpu_record 0.02 gpu_submit 0.03 gpu_wait 0.00 gpu_readback 0.00 acquire 0.01 present 0.03
+  - clocks at report: cpu0 2.50/3.63 GHz | cpu1 2.50/3.63 GHz | cpu2 2.50/3.63 GHz | cpu3 2.50/3.63 GHz | cpu4 2.50/3.63 GHz | cpu5 2.50/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
   - pipeline cache: started from 37633 bytes; saved 37633 bytes after the first GPU frame
   - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
   - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 16.155707ms / p95 54.729636ms / worst 68.789688ms vs budget 16.666668ms · 39/240 over
-- GPU path copying whole frames into the swapchain (diagnostic A/B): median 756.198µs, worst 3.225104ms, budget 8.333333ms (240 samples)
+  - quality overlay: tier high · median 14.859045ms / p95 44.80099ms / worst 61.023802ms vs budget 16.666668ms · 30/240 over
+- GPU path copying whole frames into the swapchain (diagnostic A/B): median 627.865µs, worst 3.031719ms, budget 8.333333ms (240 samples)
   - memory: PSS 158 MB
-  - start-up: before run 144 ms | app setup 0.2 | event loop started 0.0 | resumed 9.6 | window created 0.0 | present ready 5.7 | accessibility and show 0.0 | tree built 2.9 | window ready 0.3 | until first draw 0.0 | app before-frame hooks 66.7 | first build and layout 1.4 | first raster and present 10.5 = 241.4 ms from process start
-  - stages: medians ms: scale 0.01 plan 0.17 cpu 0.00 gpu_upload 0.20 gpu_record 0.02 gpu_submit 0.04 gpu_wait 0.17 gpu_readback 0.00 acquire 0.00 present 0.01
-  - stages: p95 ms: scale 0.02 plan 0.25 cpu 0.00 gpu_upload 0.35 gpu_record 0.03 gpu_submit 0.06 gpu_wait 1.58 gpu_readback 0.00 acquire 0.01 present 0.02
-  - GPU time by kind of work: medians ms: draw 0.10 layers 0.00 filters 0.00 shadows 0.00 blit 0.23 total 0.33; p95 ms: draw 0.14 layers 0.00 filters 0.00 shadows 0.00 blit 0.25 total 0.40
+  - start-up: before run 135 ms | app setup 0.0 | event loop started 0.0 | resumed 12.4 | window created 0.0 | present ready 6.5 | accessibility and show 0.0 | tree built 2.6 | window ready 0.4 | until first draw 0.0 | app before-frame hooks 6.3 | first build and layout 0.8 | first raster and present 10.5 = 174.8 ms from process start
+  - stages: medians ms: scale 0.01 plan 0.15 cpu 0.00 gpu_upload 0.18 gpu_record 0.01 gpu_submit 0.03 gpu_wait 0.13 gpu_readback 0.00 acquire 0.00 present 0.01
+  - stages: p95 ms: scale 0.01 plan 0.17 cpu 0.00 gpu_upload 0.25 gpu_record 0.02 gpu_submit 0.04 gpu_wait 1.26 gpu_readback 0.00 acquire 0.00 present 0.02
+  - GPU time by kind of work: medians ms: draw 0.03 layers 0.00 filters 0.00 shadows 0.00 blit 0.23 total 0.26; p95 ms: draw 0.12 layers 0.00 filters 0.00 shadows 0.00 blit 0.27 total 0.39
   - CPU/GPU overlap: on: the app builds the next frame while the GPU draws this one
   - shadows blurred: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
-  - CPU time: process CPU 0.50 ms per frame over the last 240 frames, every thread (52% of one core)
-  - thermal: status none -> none (worst none); headroom 0.67 -> 0.67 (highest 0.67; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 1 s
+  - CPU time: process CPU 0.38 ms per frame over the last 240 frames, every thread (51% of one core)
+  - thermal: status none -> none (worst none); headroom 0.74 -> 0.74 (highest 0.74; 1.0 is severe throttling); hottest zone 105.0 -> 105.0 °C (peak 105.0) over 1 s
   - input to present: no input reached this window
-  - worst frame: work 3.23 ms, outside the renderer 0.10 ms; stages ms: scale 0.01 plan 0.14 cpu 0.00 gpu_upload 2.44 gpu_record 0.03 gpu_submit 0.06 gpu_wait 0.40 gpu_readback 0.00 acquire 0.03 present 0.02
-  - clocks at report: cpu0 1.90/3.63 GHz | cpu1 1.90/3.63 GHz | cpu2 1.90/3.63 GHz | cpu3 1.90/3.63 GHz | cpu4 1.90/3.63 GHz | cpu5 1.90/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
+  - worst frame: work 3.03 ms, outside the renderer 0.10 ms; stages ms: scale 0.01 plan 0.14 cpu 0.00 gpu_upload 0.21 gpu_record 0.02 gpu_submit 0.04 gpu_wait 2.47 gpu_readback 0.00 acquire 0.01 present 0.03
+  - clocks at report: cpu0 2.23/3.63 GHz | cpu1 2.23/3.63 GHz | cpu2 2.23/3.63 GHz | cpu3 2.23/3.63 GHz | cpu4 2.23/3.63 GHz | cpu5 2.23/3.63 GHz | cpu6 0.88/4.74 GHz | cpu7 0.88/4.74 GHz
   - pipeline cache: started from 37633 bytes; saved 37633 bytes after the first GPU frame
   - device profile: tier high, 10.9 GB, 8 cores, SM8850 (canoe) (API 36)
   - cache budgets: blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)
-  - quality overlay: tier high · median 938.463µs / p95 2.31526ms / worst 3.225104ms vs budget 8.333333ms · 0/240 over
+  - quality overlay: tier high · median 728.041µs / p95 1.709635ms / worst 3.031719ms vs budget 8.333333ms · 0/240 over
 
 ## Audio: focus, interruptions, background playback
 
@@ -874,25 +882,25 @@ run: `arn:aws:devicefarm:us-west-2:278061313767:run:393108fd-d195-4dad-acb4-1258
 - foreground_service: PASS isForeground=true
 - in_app: PASS PASS; failed:
 - media_session_playing: PASS state=3
-- plays_with_screen_off: PASS 61 s of audio callbacks over 61 s with the screen off; after: status t_ms=140589 callbacks=6643712 rate=48000 position_ms=12426 playing=true suspended=false duck=1.000 holding=true xruns=0
-- remote_pause: PASS status t_ms=75374 callbacks=3513344 rate=48000 position_ms=8223 playing=false suspended=false duck=1.000 holding=false xruns=0
-- remote_play: PASS status t_ms=79400 callbacks=3706624 rate=48000 position_ms=11242 playing=true suspended=false duck=1.000 holding=true xruns=0
+- plays_with_screen_off: PASS 61 s of audio callbacks over 61 s with the screen off; after: status t_ms=140543 callbacks=6640896 rate=48000 position_ms=12399 playing=true suspended=false duck=1.000 holding=true xruns=0
+- remote_pause: PASS status t_ms=74343 callbacks=3463424 rate=48000 position_ms=8010 playing=false suspended=false duck=1.000 holding=false xruns=0
+- remote_play: PASS status t_ms=78362 callbacks=3656448 rate=48000 position_ms=10223 playing=true suspended=false duck=1.000 holding=true xruns=0
 
-**Samsung Galaxy S20 (Unlocked)**: PASS
+**Samsung Galaxy A36**: PASS
 - foreground_service: PASS isForeground=true
 - in_app: PASS PASS; failed:
 - media_session_playing: PASS state=3
-- plays_with_screen_off: PASS 60 s of audio callbacks over 60 s with the screen off; after: status t_ms=138343 callbacks=6537472 rate=48000 position_ms=11055 playing=true suspended=false duck=1.000 holding=true xruns=1
-- remote_pause: PASS status t_ms=74210 callbacks=3459072 rate=48000 position_ms=7621 playing=false suspended=false duck=1.000 holding=false xruns=0
-- remote_play: PASS status t_ms=77226 callbacks=3603712 rate=48000 position_ms=9935 playing=true suspended=false duck=1.000 holding=true xruns=0
+- plays_with_screen_off: PASS 61 s of audio callbacks over 61 s with the screen off; after: status t_ms=138776 callbacks=6540288 rate=48000 position_ms=11018 playing=true suspended=false duck=1.000 holding=true xruns=0
+- remote_pause: PASS status t_ms=74584 callbacks=3459072 rate=48000 position_ms=6927 playing=false suspended=false duck=1.000 holding=false xruns=0
+- remote_play: PASS status t_ms=77597 callbacks=3603712 rate=48000 position_ms=9839 playing=true suspended=false duck=1.000 holding=true xruns=0
 
 **Samsung Galaxy S26 Ultra**: PASS
 - foreground_service: PASS isForeground=true
 - in_app: PASS PASS; failed:
 - media_session_playing: PASS state=3
-- plays_with_screen_off: PASS 60 s of audio callbacks over 60 s with the screen off; after: status t_ms=137263 callbacks=6486272 rate=48000 position_ms=9999 playing=true suspended=false duck=1.000 holding=true xruns=0
-- remote_pause: PASS status t_ms=74170 callbacks=3458048 rate=48000 position_ms=7114 playing=false suspended=false duck=1.000 holding=false xruns=0
-- remote_play: PASS status t_ms=77180 callbacks=3602432 rate=48000 position_ms=9919 playing=true suspended=false duck=1.000 holding=true xruns=0
+- plays_with_screen_off: PASS 60 s of audio callbacks over 60 s with the screen off; after: status t_ms=138297 callbacks=6534656 rate=48000 position_ms=11007 playing=true suspended=false duck=1.000 holding=true xruns=0
+- remote_pause: PASS status t_ms=74203 callbacks=3458304 rate=48000 position_ms=7519 playing=false suspended=false duck=1.000 holding=false xruns=0
+- remote_play: PASS status t_ms=77214 callbacks=3602944 rate=48000 position_ms=9930 playing=true suspended=false duck=1.000 holding=true xruns=0
 
 ## Raster A/B: the 2026-10-18/19 CPU additions, one at a time
 
@@ -902,31 +910,31 @@ Same phone, same run, same build; only the named feature is off. Negative deltas
 
 | pass | switched off | frame median | raster stage median | PSS |
 |---|---|---|---|---|
-| `cpu` | nothing (all three on) | 33.66 ms | 28.65 ms | 77 MB |
-| `cpunothreads` | row-parallel walk | 33.85 ms (+0.19) | 28.50 ms (-0.15) | 66 MB (-11) |
-| `cpunofill` | path-fill cache | 33.55 ms (-0.10) | 28.37 ms (-0.28) | 77 MB (+0) |
-| `cpunoblur` | blur cache | 33.60 ms (-0.05) | 28.44 ms (-0.21) | 77 MB (+0) |
-| `cpubare` | all three | 33.57 ms (-0.08) | 28.32 ms (-0.33) | 77 MB (-0) |
+| `cpu` | nothing (all three on) | 33.66 ms | 28.50 ms | 77 MB |
+| `cpunothreads` | row-parallel walk | 33.58 ms (-0.09) | 28.43 ms (-0.07) | 76 MB (-1) |
+| `cpunofill` | path-fill cache | 33.61 ms (-0.05) | 28.48 ms (-0.02) | 77 MB (-0) |
+| `cpunoblur` | blur cache | 33.51 ms (-0.15) | 28.39 ms (-0.11) | 77 MB (-0) |
+| `cpubare` | all three | 33.65 ms (-0.01) | 28.46 ms (-0.04) | 77 MB (-0) |
 
-**Samsung Galaxy S20 (Unlocked)**
+**Samsung Galaxy A36**
 
 | pass | switched off | frame median | raster stage median | PSS |
 |---|---|---|---|---|
-| `cpu` | nothing (all three on) | 11.70 ms | 8.89 ms | 132 MB |
-| `cpunothreads` | row-parallel walk | 11.61 ms (-0.09) | 8.76 ms (-0.13) | 134 MB (+2) |
-| `cpunofill` | path-fill cache | 11.39 ms (-0.31) | 8.56 ms (-0.33) | 133 MB (+0) |
-| `cpunoblur` | blur cache | 11.63 ms (-0.07) | 8.71 ms (-0.18) | 133 MB (+1) |
-| `cpubare` | all three | 11.78 ms (+0.08) | 8.35 ms (-0.54) | 134 MB (+2) |
+| `cpu` | nothing (all three on) | 12.62 ms | 8.58 ms | 82 MB |
+| `cpunothreads` | row-parallel walk | 10.64 ms (-1.99) | 8.11 ms (-0.47) | 82 MB (+0) |
+| `cpunofill` | path-fill cache | 11.37 ms (-1.26) | 8.46 ms (-0.12) | 82 MB (-0) |
+| `cpunoblur` | blur cache | 13.15 ms (+0.53) | 8.68 ms (+0.10) | 83 MB (+0) |
+| `cpubare` | all three | 10.98 ms (-1.64) | 8.53 ms (-0.05) | 83 MB (+0) |
 
 **Samsung Galaxy S26 Ultra**
 
 | pass | switched off | frame median | raster stage median | PSS |
 |---|---|---|---|---|
-| `cpu` | nothing (all three on) | 7.42 ms | 5.63 ms | 75 MB |
-| `cpunothreads` | row-parallel walk | 9.94 ms (+2.52) | 8.95 ms (+3.32) | 75 MB (-0) |
-| `cpunofill` | path-fill cache | 10.13 ms (+2.72) | 8.88 ms (+3.25) | 75 MB (+0) |
-| `cpunoblur` | blur cache | 5.90 ms (-1.52) | 5.51 ms (-0.12) | 75 MB (+0) |
-| `cpubare` | all three | 9.65 ms (+2.23) | 8.47 ms (+2.84) | 76 MB (+0) |
+| `cpu` | nothing (all three on) | 5.79 ms | 4.89 ms | 75 MB |
+| `cpunothreads` | row-parallel walk | 5.74 ms (-0.06) | 4.98 ms (+0.09) | 75 MB (+0) |
+| `cpunofill` | path-fill cache | 5.60 ms (-0.19) | 5.09 ms (+0.20) | 75 MB (-0) |
+| `cpunoblur` | blur cache | 5.33 ms (-0.47) | 4.93 ms (+0.04) | 75 MB (-0) |
+| `cpubare` | all three | 11.21 ms (+5.41) | 8.50 ms (+3.61) | 75 MB (+0) |
 
 Targets from the audit, for reading the table: product UI p95 under 15 ms and cold start under 120 ms on a mid-tier phone; release APK under 6 MB.
 
@@ -937,10 +945,11 @@ gpuscale verdict: PROMOTE
 
   high: no-change — every device of this tier passes at full resolution
   low: promote — every device of this tier passes only at the tier's scale
+  medium: no-change — every device of this tier passes at full resolution
 
-  LMQ7208c396ae8 [low]: promote — the scale passes where full resolution misses (8.1 <= 16.7 ms)
-  RFCN6053KQR [high]: unneeded — passes at full resolution (1.4 ms <= 16.7 ms)
-  R3GL10AJQ1H [high]: unneeded — passes at full resolution (0.4 ms <= 8.3 ms)
+  LMQ7208c396ae8 [low]: promote — the scale passes where full resolution misses (8.2 <= 16.7 ms)
+  R3CY407W9SP [medium]: unneeded — passes at full resolution (2.1 ms <= 8.3 ms)
+  RFGL126L4PV [high]: unneeded — passes at full resolution (0.3 ms <= 8.3 ms)
 
 The flip a promoted verdict licenses (quality.rs, `gpu_scale()`): when
 `VIEWW_GPU_SCALE` is unset, take `low`'s profile scale instead of

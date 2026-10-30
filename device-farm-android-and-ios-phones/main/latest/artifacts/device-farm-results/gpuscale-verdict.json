@@ -11,6 +11,10 @@
     "low": {
       "verdict": "promote",
       "why": "every device of this tier passes only at the tier's scale"
+    },
+    "medium": {
+      "verdict": "no-change",
+      "why": "every device of this tier passes at full resolution"
     }
   },
   "devices": [
@@ -19,36 +23,36 @@
       "device": "LMQ7208c396ae8",
       "tier": "low",
       "budget_ms": 16.666668,
-      "cpu_median_ms": 33.656251,
-      "gpu_median_ms": 18.565313,
-      "gpuscale_median_ms": 8.059897,
+      "cpu_median_ms": 33.66401,
+      "gpu_median_ms": 19.116666,
+      "gpuscale_median_ms": 8.204114,
       "scale_engaged": 0.5,
-      "best_full_res_ms": 18.565313,
-      "why": "the scale passes where full resolution misses (8.1 <= 16.7 ms)"
+      "best_full_res_ms": 19.116666,
+      "why": "the scale passes where full resolution misses (8.2 <= 16.7 ms)"
     },
     {
       "role": "unneeded",
-      "device": "RFCN6053KQR",
-      "tier": "high",
-      "budget_ms": 16.666666,
-      "cpu_median_ms": 11.697136,
-      "gpu_median_ms": 1.389583,
-      "gpuscale_median_ms": 1.936356,
-      "scale_engaged": null,
-      "best_full_res_ms": 1.389583,
-      "why": "passes at full resolution (1.4 ms <= 16.7 ms)"
+      "device": "R3CY407W9SP",
+      "tier": "medium",
+      "budget_ms": 8.333333,
+      "cpu_median_ms": 12.624062,
+      "gpu_median_ms": 2.059114,
+      "gpuscale_median_ms": 1.966615,
+      "scale_engaged": 0.75,
+      "best_full_res_ms": 2.059114,
+      "why": "passes at full resolution (2.1 ms <= 8.3 ms)"
     },
     {
       "role": "unneeded",
-      "device": "R3GL10AJQ1H",
+      "device": "RFGL126L4PV",
       "tier": "high",
       "budget_ms": 8.333333,
-      "cpu_median_ms": 7.418541,
-      "gpu_median_ms": 0.421666,
-      "gpuscale_median_ms": 0.43166699999999997,
+      "cpu_median_ms": 5.795,
+      "gpu_median_ms": 0.320834,
+      "gpuscale_median_ms": 0.307865,
       "scale_engaged": null,
-      "best_full_res_ms": 0.421666,
-      "why": "passes at full resolution (0.4 ms <= 8.3 ms)"
+      "best_full_res_ms": 0.320834,
+      "why": "passes at full resolution (0.3 ms <= 8.3 ms)"
     }
   ],
   "rule": {

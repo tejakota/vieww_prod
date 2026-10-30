@@ -1,7 +1,7 @@
 # Device Farm (Android and iOS phones) — FAILURE
 
-- branch: `main`  sha: `866b6ac500d714391e0032125f8650e419b605f1`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/40917864476
+- branch: `main`  sha: `7a9e76951688bed17b8424d7173bd503612b9aa2`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/41005684768
 
 | job | verdict | failed steps |
 |---|---|---|
@@ -9,7 +9,7 @@
 | Build the arm64 APK | PASS |  |
 | Build the iOS .ipa | PASS |  |
 | Device suite on Device Farm phones | FAIL | Run on phones; Performance budgets |
-| Device suite on Device Farm iPhones | FAIL | Run on iPhones |
+| Device suite on Device Farm iPhones | PASS |  |
 | Publish to ci-runs/device-farm-<branch> | PASS |  |
 
 ## Steps
@@ -59,13 +59,13 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### Device suite on Device Farm iPhones — FAIL
+### Device suite on Device Farm iPhones — PASS
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
 - PASS: Run actions/download-artifact@v4
 - PASS: AWS credentials (OIDC role)
 - skipped: AWS credentials (access keys)
-- FAIL: Run on iPhones
+- PASS: Run on iPhones
 - PASS: Performance budgets
 - PASS: Upload everything
 - PASS: Post AWS credentials (OIDC role)
@@ -79,4 +79,4 @@
 - PASS: Push to ci-runs/device-farm-<branch>
 - PASS: Complete job
 
-- artifacts: device-farm-results device-farm-ios-results vieww-devicefarm-ipa vieww-devicefarm-apk 
+- artifacts: device-farm-results device-farm-ios-results vieww-devicefarm-apk vieww-devicefarm-ipa 

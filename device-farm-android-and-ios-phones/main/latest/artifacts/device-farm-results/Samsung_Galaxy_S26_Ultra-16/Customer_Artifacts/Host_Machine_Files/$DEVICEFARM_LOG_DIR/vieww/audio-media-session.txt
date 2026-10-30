@@ -3,7 +3,7 @@ MEDIA SESSION SERVICE (dumpsys media_session)
 6 sessions listeners.
 Global priority session is com.android.server.telecom/HeadsetMediaButton/1 (userId=0)
   HeadsetMediaButton com.android.server.telecom/HeadsetMediaButton/1 (userId=0)
-    ownerPid=3209, ownerUid=1000, userId=0
+    ownerPid=3184, ownerUid=1000, userId=0
     package=com.android.server.telecom
     launchIntent=null
     mediaButtonReceiver=null
@@ -31,7 +31,7 @@ Record for full_user=0
   Media button session is dev.vieww.demo/vieww/51 (userId=0)
   Sessions Stack - have 1 sessions:
     vieww dev.vieww.demo/vieww/51 (userId=0)
-      ownerPid=26054, ownerUid=10340, userId=0
+      ownerPid=23897, ownerUid=10339, userId=0
       package=dev.vieww.demo
       launchIntent=null
       mediaButtonReceiver=null
@@ -39,7 +39,7 @@ Record for full_user=0
       flags=0
       rating type=0
       controllers: 9
-      state=PlaybackState {state=PLAYING(3), position=7114, buffered position=0, speed=1.0, updated=1700147, actions=895, custom actions=[], active item id=-1, error=null}
+      state=PlaybackState {state=PLAYING(3), position=7519, buffered position=0, speed=1.0, updated=1062262, actions=895, custom actions=[], active item id=-1, error=null}
       audioAttrs=AudioAttributes: usage=USAGE_MEDIA content=CONTENT_TYPE_UNKNOWN flags=0x800(FLAG_MUTE_HAPTIC)  tags= bundle=null
       volumeType=LOCAL, controlType=ABSOLUTE, max=0, current=0, volumeControlId=null
       metadata: size=4, description=vieww audio check, vieww, Device Farm
@@ -47,22 +47,22 @@ Record for full_user=0
 isAppCastingOn:false
 isMultiSoundOn:false
 Events log: MediaSession events
-10-29 16:48:34:298 registerRemoteVolumeController uid : 10048, pid : 4106, rvc : android.media.IRemoteSessionCallback$Stub$Proxy@10a9577
-10-29 17:16:40:719 MediaKeyEvt,pkg=com.android.shell pid=27079,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PAUSE,act:ACTION_DOWN
-10-29 17:16:40:720 MediaKeyEvt,pkg=com.android.shell pid=27079,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PAUSE,act:ACTION_UP
-10-29 17:16:44:006 MediaKeyEvt,pkg=com.android.shell pid=27125,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PLAY,act:ACTION_DOWN
-10-29 17:16:44:006 MediaKeyEvt,pkg=com.android.shell pid=27125,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PLAY,act:ACTION_UP
+10-30 04:51:21:595 registerRemoteVolumeController uid : 10048, pid : 4070, rvc : android.media.IRemoteSessionCallback$Stub$Proxy@413f4b5
+10-30 05:08:50:680 MediaKeyEvt,pkg=com.android.shell pid=25043,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PAUSE,act:ACTION_DOWN
+10-30 05:08:50:682 MediaKeyEvt,pkg=com.android.shell pid=25043,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PAUSE,act:ACTION_UP
+10-30 05:08:54:013 MediaKeyEvt,pkg=com.android.shell pid=25085,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PLAY,act:ACTION_DOWN
+10-30 05:08:54:014 MediaKeyEvt,pkg=com.android.shell pid=25085,uid=2000,asSystem=false,code=KEYCODE_MEDIA_PLAY,act:ACTION_UP
 
 isSupportMediaDataPlatform:true
 Events log: MediaSessionDataPlatform logger
-10-29 17:15:31:865 getMediaType for uid: 10340 Audio
-10-29 17:15:33:867 getMediaType for uid: 10340 Audio
-10-29 17:16:40:786 Succeeded: insert packageName:dev.vieww.demo, title:vieww audio check, artist:vieww, album:Device Farm, genre:null, mediaType:Audio, castType:local, startTime:1793294131865, endTime:1793294200782, playingTime:68917, duration: 30000
-10-29 17:16:44:087 getMediaType for uid: 10340 Audio
-10-29 17:16:46:088 getMediaType for uid: 10340 Audio
+10-30 05:07:41:443 getMediaType for uid: 10339 Audio
+10-30 05:07:43:444 getMediaType for uid: 10339 Audio
+10-30 05:08:50:773 Succeeded: insert packageName:dev.vieww.demo, title:vieww audio check, artist:vieww, album:Device Farm, genre:null, mediaType:Audio, castType:local, startTime:1793336861443, endTime:1793336930765, playingTime:69322, duration: 30000
+10-30 05:08:54:069 getMediaType for uid: 10339 Audio
+10-30 05:08:56:070 getMediaType for uid: 10339 Audio
 
 Audio playback (lastly played comes first)
-  uid=10340 packages=dev.vieww.demo 
+  uid=10339 packages=dev.vieww.demo 
 Media session config:
   media_button_receiver_fgs_allowlist_duration_ms: [cur: 10000, def: 10000]
   media_session_calback_fgs_allowlist_duration_ms: [cur: 10000, def: 10000]
