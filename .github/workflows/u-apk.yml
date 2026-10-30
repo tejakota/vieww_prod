@@ -19,9 +19,11 @@ name: U APK
 # Everything here mirrors the Android half of ci.yml's app builds — the
 # pinned toolchain, the pinned SDK/NDK versions, and the debug keystore
 # generated on the runner unless the repository carries ANDROID_KEYSTORE
-# secrets (FW-06). One deliberate difference: vieww_base/target is cached,
-# as mobile-audio.yml already does, because a prototype is pushed often and
-# a cold release build of the framework is the slowest thing in the repo.
+# secrets (FW-06). No cargo cache: the first run clocked the cold release
+# build of the whole framework at 1m38s on a hosted runner, so a multi-GB
+# vieww_base/target cache would cost more to save and restore than the
+# build it was skipping, while eating the repository's 10GB cache budget
+# that twenty other workflows share.
 
 on:
   push:
@@ -130,19 +132,6 @@ jobs:
       - name: Install cargo-apk
         run: cargo install cargo-apk --locked
 
-      # A prototype is pushed often; the framework's release build is the
-      # slowest thing in the repository. Same cache shape as
-      # mobile-audio.yml, keyed on the lockfile.
-      - name: Cache cargo builds
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            vieww_base/target
-          key: u-apk-${{ hashFiles('vieww_base/Cargo.lock') }}
-          restore-keys: u-apk-
-
       - name: Resolve Android environment and signing key
         env:
           ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
@@ -214,12 +203,17 @@ jobs:
         run: |
           set -e
 
+          # cargo-apk's output path depends on how the target is chosen:
+          # under target/<triple>/release/apk/ with an explicit --target
+          # flag, under target/release/apk/ when it builds for the
+          # [package.metadata.android] build_targets as it does here. So
+          # search the whole target tree rather than guessing a layout.
           echo "APK files produced:"
-          find target/aarch64-linux-android/release -type f -name '*.apk' -print || true
+          find target -type f -name '*.apk' -print || true
 
-          apk="$(find target/aarch64-linux-android/release -type f -name '*.apk' | head -n 1)"
+          apk="$(find target -type f -name '*.apk' | head -n 1)"
           if [ -z "$apk" ]; then
-            echo "::error::No APK was produced under target/aarch64-linux-android/release"
+            echo "::error::No APK was produced anywhere under target/"
             exit 1
           fi
 
@@ -261,14 +255,16 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      # The runner is recycled anyway, but gradle and cargo spill caches
-      # mid-build; clearing them keeps the job under the disk budget. The
-      # target directory is NOT deleted — the cache step above saves it on
-      # job success, and deleting it here would defeat that.
-      - name: Clean up build spill
+      # Free the build memory before the runner shuts down, as ci.yml
+      # does: the cargo target directory is by far the largest consumer,
+      # and gradle appears even though there is no gradle project because
+      # cargo-apk shells out to Android build tools that use it.
+      - name: Clean up build memory
         if: always()
         run: |
+          rm -rf target
           rm -rf "$HOME/.gradle/caches" "$HOME/.gradle/wrapper"
           rm -rf "$HOME/.cargo/registry/cache"
+          rm -rf "$HOME/.cargo/registry/git/checkouts"
           rm -rf "$HOME/.android/build-cache" 2>/dev/null || true
           sync
