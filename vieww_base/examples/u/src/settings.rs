@@ -15,7 +15,7 @@
 use std::rc::Rc;
 
 use vieww::prelude::*;
-use vieww_foundation::{Color, Offset, TextEditingValue};
+use vieww_foundation::{Color, TextEditingValue};
 
 use crate::neurons;
 use crate::palette::{self, AXON, EDGE, FAINT, INK, MEMBRANE, MUTED, SYNAPSE};
@@ -69,7 +69,7 @@ impl SettingsScreen {
                                                 .on_extents(scroll.on_extents())
                                                 .child(
                                                     Padding::new(EdgeInsets::symmetric(0.0, 6.0,))
-                                                        .child(form(ctx, &state, &name))
+                                                        .child(form(&state, &name))
                                                 ),
                                         ),
                                     ]),
@@ -137,24 +137,25 @@ fn top_bar(state: &AppState, ctx: &BuildContext) -> WidgetNode {
         .into()
 }
 
-/// The form itself: four cards and the button that acts.
-fn form(ctx: &BuildContext, state: &AppState, name: &TextEditingValue) -> WidgetNode {
+/// The form itself: four cards and the line that signs them. Every write
+/// goes through the state, so every change is an event in the log — the
+/// form restores through the same fold the answers do.
+fn form(state: &AppState, name: &TextEditingValue) -> WidgetNode {
     let tone = state.tone.get();
     let style = state.style.get();
     let daily = state.daily.get();
     let haptics = state.haptics.get();
     let calm = state.calm.get();
     let biometric = state.biometric.get();
-    let sessions = state.sessions.get();
 
-    let name_write = state.name.clone();
-    let tone_pick = state.tone.clone();
-    let style_fast = state.style.clone();
-    let style_slow = state.style.clone();
-    let daily_pick = state.daily.clone();
-    let haptics_flip = state.haptics.clone();
-    let calm_flip = state.calm.clone();
-    let biometric_flip = state.biometric.clone();
+    let name_write = state.clone();
+    let tone_pick = state.clone();
+    let style_fast = state.clone();
+    let style_slow = state.clone();
+    let daily_pick = state.clone();
+    let haptics_flip = state.clone();
+    let calm_flip = state.clone();
+    let biometric_flip = state.clone();
 
     Flex::column()
         .cross_axis_alignment(CrossAxisAlignment::Stretch)
@@ -183,7 +184,7 @@ fn form(ctx: &BuildContext, state: &AppState, name: &TextEditingValue) -> Widget
                                 .placeholder_color(MUTED)
                                 .color(INK)
                                 .single_line()
-                                .on_changed(Rc::new(move |next| name_write.set(next))),
+                                .on_changed(Rc::new(move |next| name_write.set_name(next))),
                         )
                         .into(),
                 ],
@@ -195,7 +196,7 @@ fn form(ctx: &BuildContext, state: &AppState, name: &TextEditingValue) -> Widget
                     setting_row("Voice", "how U speaks when it answers"),
                     SizedBox::height(10.0).into(),
                     SegmentedControl::new(["Direct", "Warm", "Analytical"], tone)
-                        .on_selected(Rc::new(move |index| tone_pick.set(index)))
+                        .on_selected(Rc::new(move |index| tone_pick.set_tone(index)))
                         .into(),
                     SizedBox::height(16.0).into(),
                     setting_row("Decision style", "how U weighs a choice you bring it"),
@@ -204,14 +205,14 @@ fn form(ctx: &BuildContext, state: &AppState, name: &TextEditingValue) -> Widget
                         "Fast and intuitive",
                         "gut calls, short debates",
                         style == 0,
-                        Rc::new(move || style_fast.set(0)),
+                        Rc::new(move || style_fast.set_style(0)),
                     ),
                     SizedBox::height(8.0).into(),
                     choice(
                         "Deliberate and thorough",
                         "weighs every option twice",
                         style == 1,
-                        Rc::new(move || style_slow.set(1)),
+                        Rc::new(move || style_slow.set_style(1)),
                     ),
                 ],
             ),
@@ -242,21 +243,21 @@ fn form(ctx: &BuildContext, state: &AppState, name: &TextEditingValue) -> Widget
                     Slider::new(daily)
                         .range(1.0, 12.0)
                         .divisions(11)
-                        .on_changed(Rc::new(move |value| daily_pick.set(value)))
+                        .on_changed(Rc::new(move |value| daily_pick.set_daily(value)))
                         .into(),
                     SizedBox::height(14.0).into(),
                     switch_row(
                         "Haptic feedback",
                         "a pulse when a memory lands",
                         haptics,
-                        Rc::new(move |on| haptics_flip.set(on)),
+                        Rc::new(move |on| haptics_flip.set_haptics(on)),
                     ),
                     SizedBox::height(8.0).into(),
                     switch_row(
                         "Calm animations",
                         "dim the neuron field and its pulses",
                         calm,
-                        Rc::new(move |on| calm_flip.set(on)),
+                        Rc::new(move |on| calm_flip.set_calm(on)),
                     ),
                 ],
             ),
@@ -268,7 +269,7 @@ fn form(ctx: &BuildContext, state: &AppState, name: &TextEditingValue) -> Widget
                         "Biometric lock",
                         "ask for your fingerprint to open U",
                         biometric,
-                        Rc::new(move |on| biometric_flip.set(on)),
+                        Rc::new(move |on| biometric_flip.set_biometric(on)),
                     ),
                     SizedBox::height(8.0).into(),
                     // Locked on: no handler is the disabled state, which is the
@@ -306,8 +307,7 @@ fn form(ctx: &BuildContext, state: &AppState, name: &TextEditingValue) -> Widget
                 ],
             ),
             // ---------------------------------------------------- the act
-            train_button(ctx, state, sessions, daily),
-            SizedBox::height(2.0),
+            SizedBox::height(4.0),
             Text::new("U · on-device persona · research prototype")
                 .size(10.0)
                 .color(FAINT)
@@ -395,57 +395,4 @@ fn switch_row(head: &str, caption: &str, on: bool, flip: Rc<dyn Fn(bool)>) -> Wi
             Switch::new(on).on_changed(flip),
         ])
         .into()
-}
-
-/// The same act as home's train button, in the persona's own colour.
-fn train_button(ctx: &BuildContext, state: &AppState, sessions: u32, daily: f32) -> WidgetNode {
-    let state_for_tap = state.clone();
-    Pressable::themed(ctx, move |press| {
-        let sink = 1.0 - press * 0.03;
-        Container::new()
-            .decoration(
-                BoxDecoration::new()
-                    .gradient(palette::train_violet_gradient())
-                    .radius(22.0)
-                    .shadow(Shadow::new(
-                        Color::rgba(167, 139, 250, 70),
-                        Offset::new(0.0, 12.0),
-                        26.0,
-                    )),
-            )
-            .padding(EdgeInsets::symmetric(18.0, 15.0))
-            .child(
-                Transformed::new(Transform::scale_around(
-                    Offset::new(190.0, 34.0),
-                    sink,
-                    sink,
-                ))
-                .child(
-                    Flex::row()
-                        .cross_axis_alignment(CrossAxisAlignment::Center)
-                        .children(children![
-                            neurons::spark(22.0, Color::rgb(16, 10, 28)),
-                            SizedBox::width(12.0),
-                            Flex::column()
-                                .cross_axis_alignment(CrossAxisAlignment::Start)
-                                .spacing(1.0)
-                                .children(children![
-                                    Text::new("Begin training session")
-                                        .size(15.0)
-                                        .bold()
-                                        .color(Color::rgb(18, 11, 32)),
-                                    Text::new(format!(
-                                        "{} of {daily:.0} today — the neuron fires either way",
-                                        sessions
-                                    ))
-                                    .size(10.5)
-                                    .color(Color::rgba(24, 14, 42, 205)),
-                                ]),
-                        ]),
-                ),
-            )
-            .into()
-    })
-    .on_tap(move || state_for_tap.train())
-    .into()
 }

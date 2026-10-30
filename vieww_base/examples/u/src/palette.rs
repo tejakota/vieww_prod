@@ -47,16 +47,9 @@ pub fn card_gradient() -> Gradient {
     Gradient::vertical().with_stops(&[(0.0, Color::rgb(20, 27, 48)), (1.0, CARD)])
 }
 
-/// The train button: synapse light flowing into mint.
-pub fn train_gradient() -> Gradient {
-    Gradient::vertical().with_stops(&[
-        (0.0, Color::rgb(110, 240, 218)),
-        (1.0, Color::rgb(84, 214, 178)),
-    ])
-}
-
-/// The settings train button: axon violet.
-pub fn train_violet_gradient() -> Gradient {
+/// The one full-width action — the button that begins the daily rhythm, in
+/// the persona's own colour.
+pub fn action_gradient() -> Gradient {
     Gradient::vertical().with_stops(&[
         (0.0, Color::rgb(182, 152, 252)),
         (1.0, Color::rgb(148, 116, 236)),

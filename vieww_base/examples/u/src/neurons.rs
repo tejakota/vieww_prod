@@ -427,26 +427,3 @@ pub fn gear(size: f32, color: Color, angle: f32) -> Painting {
         }),
     )
 }
-
-/// The train glyph: a small soma with three radiating sparks — the app's
-/// "lightning bolt", in a vocabulary that stays biological.
-#[must_use]
-pub fn spark(size: f32, color: Color) -> Painting {
-    Painting::sized(
-        Size::square(size),
-        PaintWith::new(move |book, s| {
-            use vieww_foundation::StrokeStyle;
-            let c = Offset::new(s.width / 2.0, s.height * 0.56);
-            book.circle(c, s.width * 0.14, color);
-            for i in 0..3 {
-                let a = -PI / 2.0 + (i as f32 - 1.0) * 0.75;
-                let (sin, cos) = a.sin_cos();
-                let from = Offset::new(c.dx + cos * s.width * 0.22, c.dy + sin * s.width * 0.22);
-                let to = Offset::new(c.dx + cos * s.width * 0.44, c.dy + sin * s.width * 0.44);
-                let mut path = Path::new();
-                path.move_to(from).line_to(to);
-                book.stroke_styled(path, color, s.width * 0.075, StrokeStyle::rounded());
-            }
-        }),
-    )
-}

@@ -1,9 +1,18 @@
-//! Headless PNGs of both screens — the same renders the app would draw, without
-//! a window.
+//! Headless PNGs of the home screen's phases and the settings form — the
+//! same renders the app would draw, without a window.
 //!
 //! ```console
 //! cargo run -p u --example shots -- /tmp/u-shots
 //! ```
+//!
+//! Three mounts, three logs. The sketch in progress runs on a volatile log,
+//! so its renders never depend on the machine drawing them; the sketch
+//! complete and the daily rhythm run on logs replayed from fixture files
+//! written into a temporary directory. Those fixtures are also the only test
+//! the log's loader has: if [`u::events::Log::at`] could not fold those
+//! lines back into state, shot 3 would show the sketch starting over and
+//! shot 4 would show the first sketch again — the very bug this build exists
+//! without.
 //!
 //! The reel steps the clock a sixtieth at a time rather than jumping, so the
 //! tickers (the clock, the burst decay, the route transition) integrate the
@@ -26,42 +35,94 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // them here keeps the panic from eating the picture that shows it.
     vieww_render::overflow::forget_reported();
 
+    let mut renderer = NativeRenderer::new();
+
+    // ---- the sketch in progress, on a log that keeps nothing -------------
     let mut driver = FrameDriver::new(u::SURFACE);
     driver.use_system_fonts();
     let shared = u::mount(&mut driver);
     driver.set_root(u::root(&shared));
-
-    let mut renderer = NativeRenderer::new();
     let mut reel = Reel { at: 0.0 };
 
-    // Home, settled.
     reel.advance(&mut driver, 0.6);
-    shot(&mut renderer, &mut driver, &out, "1-home")?;
+    shot(&mut renderer, &mut driver, &out, "1-home-sketch")?;
 
-    // Answering the day's question: the field fires, the choice is noted
-    // back, and the next question is already on the card.
+    // Answering: the field fires, the choice is noted back, and the next
+    // question is already on the card, one further along the count.
     u::take(&shared).answer(true);
     reel.advance(&mut driver, 0.22);
     shot(&mut renderer, &mut driver, &out, "2-home-burst")?;
 
-    // Settings, caught mid-arrival and then at rest.
+    // ---- the sketch complete, replayed from a log ------------------------
+    // Twelve answers on one day, and no `ack`: the once-ever card between
+    // the two phases, standing where a question was.
+    let sketch: Vec<String> = (0..12).map(|ask| answer_line(19_000, ask, true)).collect();
+    let mut driver = FrameDriver::new(u::SURFACE);
+    driver.use_system_fonts();
+    let shared = u::mount_with(&mut driver, fixture(&sketch)?);
+    driver.set_root(u::root(&shared));
+    let mut reel = Reel { at: 0.0 };
+
+    reel.advance(&mut driver, 0.6);
+    shot(&mut renderer, &mut driver, &out, "3-sketch-complete")?;
+
+    // ---- the daily rhythm, replayed from a log ---------------------------
+    // The sketch on one day, acknowledged, then three answers on the next:
+    // the day's counter is three of four, the lifetime count is fifteen, and
+    // the name and voice came back through the same fold.
+    let mut daily = sketch;
+    daily.push("ack".to_owned());
+    daily.push("name Teja Kota".to_owned());
+    daily.push("tone 2".to_owned());
+    daily.push(answer_line(19_001, 0, true));
+    daily.push(answer_line(19_001, 1, false));
+    daily.push(answer_line(19_001, 2, true));
+    let mut driver = FrameDriver::new(u::SURFACE);
+    driver.use_system_fonts();
+    let shared = u::mount_with(&mut driver, fixture(&daily)?);
+    driver.set_root(u::root(&shared));
+    let mut reel = Reel { at: 0.0 };
+
+    reel.advance(&mut driver, 0.6);
+    shot(&mut renderer, &mut driver, &out, "4-home-daily")?;
+
+    // ---- settings, on that same replayed state ---------------------------
     let state = u::take(&shared);
     state.nav.push(u::settings_route(shared.clone()));
     reel.advance(&mut driver, 0.1);
-    shot(&mut renderer, &mut driver, &out, "3-settings-arriving")?;
+    shot(&mut renderer, &mut driver, &out, "5-settings-arriving")?;
     reel.advance(&mut driver, 1.4);
-    shot(&mut renderer, &mut driver, &out, "4-settings")?;
+    shot(&mut renderer, &mut driver, &out, "6-settings")?;
 
     // The same screen, scrolled to the bottom: the form really scrolls, and
-    // the button that acts is reachable.
+    // the line that signs it is reachable.
     state.scroll.drag(-900.0);
     reel.advance(&mut driver, 0.05);
-    shot(&mut renderer, &mut driver, &out, "5-settings-scrolled")?;
+    shot(&mut renderer, &mut driver, &out, "7-settings-scrolled")?;
 
     let overflows = vieww_render::overflow::reported();
     println!("U shots -> {}", std::fs::canonicalize(&out)?.display());
     println!("layout overflows: {overflows}");
     Ok(())
+}
+
+/// One `answer` line for a fixture: the verb, the day, the question, the
+/// choice.
+fn answer_line(day: u64, ask: usize, choice: bool) -> String {
+    format!("answer {day} {ask} {}", if choice { 'a' } else { 'b' })
+}
+
+/// A log replayed from lines written into a temporary file — the loader's
+/// only test, and the fixture that makes these renders reproducible.
+fn fixture(lines: &[String]) -> Result<u::events::Log, Box<dyn std::error::Error>> {
+    let path = std::env::temp_dir().join(format!("u-shots-{}-events.log", std::process::id()));
+    let mut text = String::from("u-log 1\n");
+    for line in lines {
+        text.push_str(line);
+        text.push('\n');
+    }
+    std::fs::write(&path, text)?;
+    Ok(u::events::Log::at(path))
 }
 
 /// The film's clock, advanced only forwards.

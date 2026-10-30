@@ -1,21 +1,26 @@
 //! `U` — an offline persona companion.
 //!
 //! Two screens: **home**, which opens directly, and **settings**, reached by
-//! the gear at the top right and left by the back button. Home is one
-//! decision, presented whole: a question, two answers, a way to pass, and
-//! the persona's cell breathing while it waits. Answering *is* training —
-//! the session count and the burst of the field are the whole of what the
-//! prototype records. Settings is the form that shapes the persona: a name,
-//! a voice, a decision style, a training rhythm, and the privacy posture.
+//! the gear at the top right and left by the back button. Home is the app's
+//! one loop — U asks, you answer, U gets a little more like you — in two
+//! phases. The **first sketch** is the first twelve answers, counted on the
+//! card ("4 of 12"), completed once and never repeated: the day the twelfth
+//! lands, the card says so, and the counter never comes back. The **daily
+//! rhythm** after it is one question at a time against the day's target,
+//! with the bank rotating for variety and nothing counted by it again.
+//! Settings is the form that shapes the persona: a name, a voice, a decision
+//! style, a training rhythm, and the privacy posture.
 //!
 //! # What is real and what is painted
 //!
-//! This is a prototype: every value the form edits lives in a signal, every
-//! control is wired, and answering a question really does count a session
-//! and fire the field — but the choice is shown back and then dropped:
-//! nothing is persisted and no persona model exists yet. The screens are
-//! the deliverable; the event-sourced core they will front is the next
-//! step.
+//! Every change — each answer, each pass, each setting — is an
+//! [`events::Event`] appended to the log *before* it is applied, and the
+//! state at startup is a fold of that log. That is the whole memory of the
+//! app, and it is why the sketch is completed once ever rather than once per
+//! process. The answer is shown back and counted, and that is still the
+//! whole of the model: no persona mathematics exists yet. The screens and
+//! the log they front are the deliverable; the event-sourced core the log
+//! seeds is the next step.
 //!
 //! # The shape of the state
 //!
@@ -27,7 +32,7 @@
 //! because the home route must exist before the state that contains the
 //! navigator does — the one cycle in this design, broken by indirection.
 
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::fmt;
 use std::rc::Rc;
 use std::time::Duration;
@@ -35,13 +40,13 @@ use std::time::Duration;
 use vieww::animation::Ticker;
 use vieww::prelude::*;
 use vieww::{FrameDriver, NavigatorController, ScrollController};
+#[cfg(target_os = "android")]
+use vieww_platform_winit::AndroidApp;
 use vieww_platform_winit::App;
 use vieww_widget::RouteTransition;
 
-#[cfg(target_os = "android")]
-use vieww_platform_winit::AndroidApp;
-
 pub mod ask;
+pub mod events;
 pub mod home;
 pub mod neurons;
 pub mod palette;
@@ -73,6 +78,12 @@ pub struct AppState {
     pub clock: Rc<RefCell<Clock>>,
     /// The training afterglow, decaying to zero on its own ticker.
     pub decay: Rc<RefCell<Decay>>,
+    /// The append-only log every change is written to before it is applied.
+    /// `Rc` so the clones a route builder takes share the one log.
+    pub log: Rc<events::Log>,
+    /// The UTC day the day-counter belongs to. `Rc<Cell<..>>` for the same
+    /// reason: a plain field would copy, and copies would disagree.
+    pub day: Rc<Cell<u64>>,
     /// Seconds since the app opened. Reading it subscribes; the clock ticker
     /// writes it every frame.
     pub time: Signal<f32>,
@@ -92,8 +103,16 @@ pub struct AppState {
     pub calm: Signal<bool>,
     /// Require a fingerprint to open U.
     pub biometric: Signal<bool>,
-    /// Training sessions completed today.
+    /// Training sessions today — the sketch's answers and the day's own, reset
+    /// by the first event of a new UTC day.
     pub sessions: Signal<u32>,
+    /// Answers recorded, ever — the sketch is the first [`ask::ASKS.len()`]
+    /// of them, and this number is the only thing that decides which phase
+    /// home is in.
+    pub answers: Signal<u32>,
+    /// Whether the sketch-complete moment has been seen. It shows once, ever;
+    /// the log is what makes "ever" true.
+    pub seen_sketch: Signal<bool>,
     /// The question on the card, as an index into [`ask::ASKS`].
     pub ask: Signal<usize>,
     /// The last answer U recorded, shown back until the next one replaces
@@ -111,30 +130,116 @@ impl fmt::Debug for AppState {
 }
 
 impl AppState {
-    /// One training session: count it, and fire the field.
-    pub fn train(&self) {
-        self.sessions.update(|n| *n += 1);
+    /// Answer the question on the card: append the fact, fold it in — which
+    /// counts the session, notes the choice back, and brings up the next
+    /// question — then fire the field, because a choice landing is the one
+    /// thing this screen celebrates.
+    pub fn answer(&self, choice: bool) {
+        let ask = self.ask.peek() % ask::ASKS.len();
+        self.commit(events::Event::Answered {
+            day: events::today(),
+            ask,
+            choice,
+        });
         self.burst.set(1.0);
     }
 
-    /// Answer the question on the card: note the choice back, count the
-    /// session, fire the field, bring up the next question.
-    pub fn answer(&self, choice: bool) {
-        let ask = &ask::ASKS[self.ask.peek() % ask::ASKS.len()];
-        self.noted.set(Some(if choice { ask.a } else { ask.b }));
-        self.train();
-        self.advance();
-    }
-
-    /// Pass on the question: nothing noted, nothing counted.
+    /// Pass on the question: noted nothing, counted nothing, next question.
     pub fn skip(&self) {
-        self.noted.set(None);
-        self.advance();
+        let ask = self.ask.peek() % ask::ASKS.len();
+        self.commit(events::Event::Skipped {
+            day: events::today(),
+            ask,
+        });
     }
 
-    /// The next question, around the bank.
-    fn advance(&self) {
-        self.ask.update(|i| *i = (*i + 1) % ask::ASKS.len());
+    /// Dismiss the sketch-complete moment: it will not show again.
+    pub fn see_sketch(&self) {
+        self.commit(events::Event::SketchSeen);
+    }
+
+    /// Append the event, then fold it in — the log first, because a state
+    /// that has moved without a record of why is the one lie this app
+    /// refuses.
+    fn commit(&self, event: events::Event) {
+        self.log.append(&event);
+        self.apply(&event);
+    }
+
+    /// The fold: state as a function of one event. This runs at startup over
+    /// the whole log and again on every change, which is what keeps the two
+    /// paths from disagreeing. It is also the whole of the prototype's
+    /// "model", and the seam where a real one goes.
+    fn apply(&self, event: &events::Event) {
+        use events::Event;
+        match event {
+            Event::Answered { day, ask, choice } => {
+                self.rollover(*day);
+                self.answers.update(|n| *n += 1);
+                self.sessions.update(|n| *n += 1);
+                let question = &ask::ASKS[*ask % ask::ASKS.len()];
+                self.noted
+                    .set(Some(if *choice { question.a } else { question.b }));
+                self.ask.set((*ask + 1) % ask::ASKS.len());
+            }
+            Event::Skipped { day, ask } => {
+                self.rollover(*day);
+                self.noted.set(None);
+                self.ask.set((*ask + 1) % ask::ASKS.len());
+            }
+            Event::SketchSeen => self.seen_sketch.set(true),
+            Event::Named(name) => self.name.set(TextEditingValue::new(name.clone())),
+            Event::Toned(voice) => self.tone.set(*voice),
+            Event::Styled(style) => self.style.set(*style),
+            Event::Daily(daily) => self.daily.set(*daily),
+            Event::Haptics(on) => self.haptics.set(*on),
+            Event::Calm(on) => self.calm.set(*on),
+            Event::Biometric(on) => self.biometric.set(*on),
+        }
+    }
+
+    /// A new day's first event resets the day's counter.
+    fn rollover(&self, day: u64) {
+        if self.day.get() != day {
+            self.day.set(day);
+            self.sessions.set(0);
+        }
+    }
+
+    /// The settings screen's writes. Each is an event, so the form restores
+    /// through the same fold the answers do.
+    pub fn set_name(&self, next: TextEditingValue) {
+        self.commit(events::Event::Named(next.text));
+    }
+
+    /// Choose the voice: 0 direct, 1 warm, 2 analytical.
+    pub fn set_tone(&self, voice: usize) {
+        self.commit(events::Event::Toned(voice));
+    }
+
+    /// Choose the decision style.
+    pub fn set_style(&self, style: usize) {
+        self.commit(events::Event::Styled(style));
+    }
+
+    /// Choose the training rhythm, in sessions per day.
+    pub fn set_daily(&self, daily: f32) {
+        self.commit(events::Event::Daily(daily));
+    }
+
+    /// Turn the landing pulse on or off.
+    pub fn set_haptics(&self, on: bool) {
+        self.commit(events::Event::Haptics(on));
+    }
+
+    /// Dim or brighten the neuron field.
+    pub fn set_calm(&self, on: bool) {
+        self.commit(events::Event::Calm(on));
+    }
+
+    /// Require or drop the fingerprint gate.
+    pub fn set_biometric(&self, on: bool) {
+        self.commit(events::Event::Biometric(on));
     }
 
     /// What U calls you, or "you" until told otherwise.
@@ -214,10 +319,11 @@ impl Ticker for Decay {
     }
 }
 
-/// Mount the app onto a driver: create the state, wire the routes, attach the
-/// tickers. Returns the shared slot — for `root`, and for the screenshot tool.
+/// Mount the app onto a driver with the given log: create the state, fold the
+/// log's history into it, wire the routes, attach the tickers. Returns the
+/// shared slot — for `root`, and for the screenshot tool.
 #[must_use]
-pub fn mount(driver: &mut FrameDriver) -> Shared {
+pub fn mount_with(driver: &mut FrameDriver, log: events::Log) -> Shared {
     let runtime = driver.elements().runtime().clone();
 
     let time = runtime.signal(0.0_f32);
@@ -238,6 +344,8 @@ pub fn mount(driver: &mut FrameDriver) -> Shared {
         scroll,
         clock,
         decay,
+        log: Rc::new(log),
+        day: Rc::new(Cell::new(0)),
         time,
         burst,
         name: runtime.signal(TextEditingValue::new("Teja")),
@@ -248,9 +356,18 @@ pub fn mount(driver: &mut FrameDriver) -> Shared {
         calm: runtime.signal(false),
         biometric: runtime.signal(true),
         sessions: runtime.signal(0u32),
+        answers: runtime.signal(0u32),
+        seen_sketch: runtime.signal(false),
         ask: runtime.signal(0usize),
         noted: runtime.signal(None::<&'static str>),
     };
+
+    // The fold: whatever the log holds, the state becomes. This is the only
+    // path by which anything survives a restart, and it runs through the
+    // same `apply` every live change does, so the two cannot disagree.
+    for event in state.log.history() {
+        state.apply(event);
+    }
 
     // The clock and the decay are weakly held by the driver; the state is the
     // strong owner that keeps them alive for as long as the app runs.
@@ -261,6 +378,13 @@ pub fn mount(driver: &mut FrameDriver) -> Shared {
 
     *slot.borrow_mut() = Some(state);
     slot
+}
+
+/// Mount with a log that keeps nothing — the screenshot tool's mount, so its
+/// renders never depend on the machine drawing them.
+#[must_use]
+pub fn mount(driver: &mut FrameDriver) -> Shared {
+    mount_with(driver, events::Log::volatile())
 }
 
 /// A route builder's first move: the state, or a panic that names the bug.
@@ -361,7 +485,8 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
         .size(SURFACE)
         .theme(palette::theme())
         .run(|driver| {
-            let shared = mount(driver);
+            let log = events::Log::at(vieww_platform_winit::data_dir().join("u-events.log"));
+            let shared = mount_with(driver, log);
             driver.set_root(root(&shared));
         })?;
     println!("{report}");
@@ -380,12 +505,22 @@ fn android_main(android: AndroidApp) {
             .with_max_level(log::LevelFilter::Info)
             .with_tag("U"),
     );
+    // The log's home is the activity's private directory. Before the activity
+    // is attached there may not be one; the run keeps nothing rather than
+    // refusing to start, and says so where a person can read it.
+    let log = match android.internal_data_path() {
+        Some(dir) => events::Log::at(dir.join("u-events.log")),
+        None => {
+            log::warn!("U: no internal data path; this session keeps nothing");
+            events::Log::volatile()
+        }
+    };
     let result = App::new()
         .title("U")
         .size(SURFACE)
         .theme(palette::theme())
-        .run_android(android, |driver| {
-            let shared = mount(driver);
+        .run_android(android, move |driver| {
+            let shared = mount_with(driver, log);
             driver.set_root(root(&shared));
         });
     if let Err(error) = result {
