@@ -42,7 +42,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // ---- the opening, and the room it becomes, on a log that keeps nothing -
     let mut driver = FrameDriver::new(u::SURFACE);
-    driver.use_system_fonts();
+    driver.set_fonts(u::fonts());
     let shared = u::mount(&mut driver);
     driver.set_root(Theme::new(u::palette::theme()).child(u::root(&shared)));
     let mut reel = Reel { at: 0.0 };
@@ -75,7 +75,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // the two phases, standing in the sheet that opened for the twelfth.
     let sketch: Vec<String> = (0..12).map(|ask| answer_line(19_000, ask, true)).collect();
     let mut driver = FrameDriver::new(u::SURFACE);
-    driver.use_system_fonts();
+    driver.set_fonts(u::fonts());
     let shared = u::mount_with(&mut driver, fixture(&sketch)?);
     driver.set_root(Theme::new(u::palette::theme()).child(u::root(&shared)));
     let mut reel = Reel { at: 0.0 };
@@ -97,7 +97,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     daily.push(answer_line(19_001, 1, false));
     daily.push(answer_line(19_001, 2, true));
     let mut driver = FrameDriver::new(u::SURFACE);
-    driver.use_system_fonts();
+    driver.set_fonts(u::fonts());
     let shared = u::mount_with(&mut driver, fixture(&daily)?);
     driver.set_root(Theme::new(u::palette::theme()).child(u::root(&shared)));
     let mut reel = Reel { at: 0.0 };
@@ -118,6 +118,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     state.scroll.drag(-900.0);
     reel.advance(&mut driver, 0.05);
     shot(&mut renderer, &mut driver, &out, "11-settings-scrolled")?;
+
+    // ---- settings at the reference's own state ----------------------------
+    // A fresh log: Teja, warm, intuitive, four a day — the state the
+    // reference draws — so the studio can be diffed against it directly.
+    let mut driver = FrameDriver::new(u::SURFACE);
+    driver.set_fonts(u::fonts());
+    let shared = u::mount_with(&mut driver, fixture(&["name Teja".to_owned()])?);
+    driver.set_root(Theme::new(u::palette::theme()).child(u::root(&shared)));
+    let mut reel = Reel { at: 0.0 };
+    reel.advance(&mut driver, 4.9);
+    u::take(&shared).nav.push(u::settings_route(shared.clone()));
+    reel.advance(&mut driver, 1.5);
+    shot(&mut renderer, &mut driver, &out, "12-settings-reference-state")?;
 
     println!("U shots -> {}", std::fs::canonicalize(&out)?.display());
     println!("layout overflows: {}", vieww_render::overflow::reported());

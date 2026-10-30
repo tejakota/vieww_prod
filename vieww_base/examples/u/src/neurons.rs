@@ -555,10 +555,15 @@ fn paint_strand(
             path.cubic_to(q1, q2, tip_now);
         }
 
+        // The strand's own gradient, sampled where this segment ends: light
+        // at the eye, deep at the tips, as the reference's own `violet` and
+        // `mint` gradients run.
+        let reach = (piece.to.0.hypot(piece.to.1) / 115.0).clamp(0.0, 1.0);
         if strand.violet {
+            let color = violet_at(reach);
             // The signal strands: a faint solid base, a travelling dashed
             // spark over it.
-            book.stroke(path.clone(), AXON.with_alpha((70.0 * reveal_of(grown)) as u8), 0.018 * r);
+            book.stroke(path.clone(), color.with_alpha((70.0 * reveal_of(grown)) as u8), 0.018 * r);
             let mut dashes = StrokeStyle::rounded();
             dashes.dash = Some(Dash {
                 pattern: vec![0.047 * r, 0.087 * r],
@@ -570,7 +575,7 @@ fn paint_strand(
             });
             book.stroke_styled(
                 path,
-                AXON.with_alpha((205.0 * lit * dim) as u8),
+                color.with_alpha((205.0 * lit * dim) as u8),
                 0.018 * r,
                 dashes,
             );
@@ -578,7 +583,7 @@ fn paint_strand(
             // The mint strands: solid, fully there.
             book.stroke(
                 path,
-                SYNAPSE.with_alpha((190.0 * reveal_of(grown) * lit) as u8),
+                mint_at(reach).with_alpha((190.0 * reveal_of(grown) * lit) as u8),
                 0.015 * r,
             );
         }
@@ -599,6 +604,32 @@ fn paint_strand(
         }
         start = end;
     }
+}
+
+/// The reference's `violet` gradient — `#e0d6ff` into `#a78bfa` at 48% into
+/// `#7156d2` — sampled at `t` along a strand.
+fn violet_at(t: f32) -> Color {
+    let light = Color::rgb(224, 214, 255);
+    if t < 0.48 {
+        mix(light, AXON, t / 0.48)
+    } else {
+        mix(AXON, Color::rgb(113, 86, 210), (t - 0.48) / 0.52)
+    }
+}
+
+/// The reference's `mint` gradient — `#c1fff5` into `#52d9c6` — sampled at
+/// `t` along a strand.
+fn mint_at(t: f32) -> Color {
+    mix(Color::rgb(193, 255, 245), Color::rgb(82, 217, 198), t)
+}
+
+/// sRGB interpolation, as [`crate::palette::mix`] but local to keep the
+/// strand colours next to the strands they paint.
+fn mix(a: Color, b: Color, t: f32) -> Color {
+    let t = t.clamp(0.0, 1.0);
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    let lerp = |x: u8, y: u8| (f32::from(x) + (f32::from(y) - f32::from(x)) * t).round() as u8;
+    Color::rgb(lerp(a.r, b.r), lerp(a.g, b.g), lerp(a.b, b.b))
 }
 
 /// A tendril's overall presence as it grows: faint at first, fully there
@@ -695,183 +726,105 @@ pub fn sigil(size: f32, time: f32, burst: f32) -> Painting {
 // The atmosphere: the quiet room every screen floats in.
 // ---------------------------------------------------------------------------
 
-/// The screen's background life: a wide ambient bloom where the companion
-/// sits, a mint wash low in a corner, hand-set filaments bowing in from the
-/// frame, and a few twinkling sparks — the reference screens' own
-/// atmosphere, nothing more. `intensity` is how present it is (the splash
-/// fades it in, calm dims it); `quiet` is the settings variant, one bloom in
-/// the top right and two filaments, because the form is the subject there.
+/// The home screen's background life, at the reference's own coordinates:
+/// a wide elliptical ambient bloom where the companion sits, a mint wash low
+/// in the corner, eight filament strokes bowing in from the frame, and four
+/// twinkling sparks. `intensity` is how present it is — the splash fades it
+/// in, calm dims it — and at `1.0` every alpha is the reference's own.
 #[must_use]
-pub fn atmosphere(time: f32, intensity: f32, quiet: bool) -> Painting {
-    Painting::new(PaintWith::new(move |book, size| {
-        paint_atmosphere(book, size, time, intensity, quiet);
+pub fn atmosphere(time: f32, intensity: f32) -> Painting {
+    Painting::new(PaintWith::new(move |book, s| {
+        paint_room(book, s, time, intensity);
     }))
 }
 
+/// The settings screen's background: one elliptical bloom over the form's
+/// shoulder and the two filaments the reference gives it, at the reference's
+/// authored opacities. Painted in the 420 × 1040 space the form scrolls in.
+#[must_use]
+pub fn studio(time: f32, intensity: f32) -> Painting {
+    Painting::new(PaintWith::new(move |book, s| {
+        paint_studio(book, s, time, intensity);
+    }))
+}
+
+/// One bowing filament, from `a` to `b` through its two controls.
+fn filament(
+    book: &mut Sketchbook,
+    a: Pt,
+    c1: Pt,
+    c2: Pt,
+    b: Pt,
+    color: Color,
+    width: f32,
+) {
+    let mut path = Path::new();
+    path.move_to(Offset::new(a.0, a.1));
+    path.cubic_to(Offset::new(c1.0, c1.1), Offset::new(c2.0, c2.1), Offset::new(b.0, b.1));
+    book.stroke(path, color, width);
+}
+
+/// An elliptical radial bloom centred on `c`: the gradient circle `rx`, drawn
+/// through a vertical scale so it lands as `rx × ry`. The reference's own
+/// radial gradients are object-bounding-box, which is exactly this.
+fn bloom(book: &mut Sketchbook, c: Pt, rx: f32, ry: f32, center: Color, mid: Color) {
+    book.transformed(
+        Transform::scale_around(Offset::new(c.0, c.1), 1.0, ry / rx),
+        |g| {
+            g.circle(
+                Offset::new(c.0, c.1),
+                rx,
+                Gradient::radial_fill().with_stops(&[
+                    (0.0, center),
+                    (0.55, mid),
+                    (1.0, Color::TRANSPARENT),
+                ]),
+            );
+        },
+    );
+}
+
 #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-fn paint_atmosphere(book: &mut Sketchbook, s: Size, time: f32, intensity: f32, quiet: bool) {
+fn paint_room(book: &mut Sketchbook, s: Size, time: f32, intensity: f32) {
     if intensity <= 0.005 {
         return;
     }
-    let sx = s.width / 420.0;
-    let sy = s.height / 880.0;
-    let at = |x: f32, y: f32| Offset::new(x * sx, y * sy);
+    let _ = s; // the design box is 420 × 920; coordinates are the reference's own.
 
-    // One bowing filament, from a to b through its two controls.
-    let filament =
-        |book: &mut Sketchbook, a: Pt, c1: Pt, c2: Pt, b: Pt, color: Color, width: f32| {
-            let mut path = Path::new();
-            path.move_to(at(a.0, a.1));
-            path.cubic_to(at(c1.0, c1.1), at(c2.0, c2.1), at(b.0, b.1));
-            book.stroke(path, color, width * sx);
-        };
-
-    if quiet {
-        // The studio: one bloom over the form's shoulder, two filaments.
-        book.circle(
-            at(330.0, 155.0),
-            160.0 * sx,
-            Gradient::radial_fill().with_stops(&[
-                (0.0, AXON.with_alpha((46.0 * intensity) as u8)),
-                (0.55, SYNAPSE.with_alpha((12.0 * intensity) as u8)),
-                (1.0, Color::TRANSPARENT),
-            ]),
-        );
-        let a = (31.0 * intensity) as u8;
-        filament(
-            book,
-            (-30.0, 190.0),
-            (22.0, 165.0),
-            (42.0, 184.0),
-            (68.0, 213.0),
-            AXON.with_alpha(a),
-            1.2,
-        );
-        filament(
-            book,
-            (68.0, 213.0),
-            (94.0, 242.0),
-            (111.0, 246.0),
-            (138.0, 238.0),
-            AXON.with_alpha(a),
-            1.2,
-        );
-        filament(
-            book,
-            (433.0, 408.0),
-            (389.0, 383.0),
-            (360.0, 401.0),
-            (339.0, 431.0),
-            SYNAPSE.with_alpha(a),
-            1.2,
-        );
-        filament(
-            book,
-            (339.0, 431.0),
-            (318.0, 461.0),
-            (300.0, 470.0),
-            (266.0, 472.0),
-            SYNAPSE.with_alpha(a),
-            1.2,
-        );
-        return;
-    }
-
-    // The room: the wide ambient bloom behind the companion, the low mint
-    // wash, four filaments, four sparks.
-    book.circle(
-        at(210.0, 350.0),
-        228.0 * sx,
-        Gradient::radial_fill().with_stops(&[
-            (0.0, Color::rgb(156, 123, 247).with_alpha((70.0 * intensity) as u8)),
-            (0.55, Color::rgb(101, 223, 208).with_alpha((18.0 * intensity) as u8)),
-            (1.0, Color::TRANSPARENT),
-        ]),
+    // The wide ambient bloom behind the companion: ellipse (210, 350) at
+    // 210 × 245, the reference gradient at the reference's 85% presence.
+    bloom(
+        book,
+        (210.0, 350.0),
+        210.0,
+        245.0,
+        Color::rgb(156, 123, 247).with_alpha((76.0 * intensity) as u8),
+        Color::rgb(101, 223, 208).with_alpha((22.0 * intensity) as u8),
     );
-    book.circle(
-        at(40.0, 765.0),
-        120.0 * sx,
-        Gradient::radial_fill().with_stops(&[
-            (0.0, SYNAPSE.with_alpha((14.0 * intensity) as u8)),
-            (1.0, Color::TRANSPARENT),
-        ]),
+    // The mint wash low in the left corner: ellipse (40, 765) at 110 × 165.
+    bloom(
+        book,
+        (40.0, 765.0),
+        110.0,
+        165.0,
+        SYNAPSE.with_alpha((12.0 * intensity) as u8),
+        SYNAPSE.with_alpha(((12.0 * 0.45) * intensity) as u8),
     );
 
+    // Eight filament strokes — the reference's four paths, each split at its
+    // smooth join so the bow renders as drawn — at the reference's 16%.
     let a = (41.0 * intensity) as u8;
-    filament(
-        book,
-        (-20.0, 230.0),
-        (42.0, 207.0),
-        (47.0, 153.0),
-        (99.0, 138.0),
-        AXON.with_alpha(a),
-        1.3,
-    );
-    filament(
-        book,
-        (99.0, 138.0),
-        (151.0, 123.0),
-        (164.0, 113.0),
-        (185.0, 65.0),
-        AXON.with_alpha(a),
-        1.3,
-    );
-    filament(
-        book,
-        (439.0, 186.0),
-        (394.0, 204.0),
-        (373.0, 235.0),
-        (376.0, 275.0),
-        SYNAPSE.with_alpha(a),
-        1.3,
-    );
-    filament(
-        book,
-        (376.0, 275.0),
-        (379.0, 315.0),
-        (364.0, 329.0),
-        (344.0, 348.0),
-        SYNAPSE.with_alpha(a),
-        1.3,
-    );
-    filament(
-        book,
-        (-16.0, 735.0),
-        (32.0, 710.0),
-        (58.0, 723.0),
-        (89.0, 759.0),
-        AXON.with_alpha((35.0 * intensity) as u8),
-        1.1,
-    );
-    filament(
-        book,
-        (89.0, 759.0),
-        (120.0, 795.0),
-        (141.0, 799.0),
-        (181.0, 801.0),
-        AXON.with_alpha((35.0 * intensity) as u8),
-        1.1,
-    );
-    filament(
-        book,
-        (438.0, 694.0),
-        (401.0, 672.0),
-        (368.0, 693.0),
-        (342.0, 725.0),
-        SYNAPSE.with_alpha((35.0 * intensity) as u8),
-        1.1,
-    );
-    filament(
-        book,
-        (342.0, 725.0),
-        (316.0, 757.0),
-        (294.0, 759.0),
-        (262.0, 764.0),
-        SYNAPSE.with_alpha((35.0 * intensity) as u8),
-        1.1,
-    );
+    filament(book, (-20.0, 230.0), (42.0, 207.0), (47.0, 153.0), (99.0, 138.0), AXON.with_alpha(a), 1.3);
+    filament(book, (99.0, 138.0), (151.0, 123.0), (164.0, 113.0), (185.0, 65.0), AXON.with_alpha(a), 1.3);
+    filament(book, (439.0, 186.0), (394.0, 204.0), (373.0, 235.0), (376.0, 275.0), SYNAPSE.with_alpha(a), 1.3);
+    filament(book, (376.0, 275.0), (379.0, 315.0), (364.0, 329.0), (344.0, 348.0), SYNAPSE.with_alpha(a), 1.3);
+    let low = (35.0 * intensity) as u8;
+    filament(book, (-16.0, 735.0), (32.0, 710.0), (58.0, 723.0), (89.0, 759.0), AXON.with_alpha(low), 1.1);
+    filament(book, (89.0, 759.0), (120.0, 795.0), (141.0, 799.0), (181.0, 801.0), AXON.with_alpha(low), 1.1);
+    filament(book, (438.0, 694.0), (401.0, 672.0), (368.0, 693.0), (342.0, 725.0), SYNAPSE.with_alpha(low), 1.1);
+    filament(book, (342.0, 725.0), (316.0, 757.0), (294.0, 759.0), (262.0, 764.0), SYNAPSE.with_alpha(low), 1.1);
 
-    // The sparks, each on its own slow twinkle.
+    // The four sparks, each on its own slow twinkle.
     let sparks: [(Pt, f32, f32); 4] = [
         ((48.0, 230.0), 2.0, 0.0),
         ((365.0, 264.0), 2.2, 1.4),
@@ -881,9 +834,35 @@ fn paint_atmosphere(book: &mut Sketchbook, s: Size, time: f32, intensity: f32, q
     for ((x, y), radius, phase) in sparks {
         let t = twinkle(time, 3.0 + phase * 0.4, phase);
         book.circle(
-            at(x, y),
-            radius * sx * (0.7 + 0.35 * t),
+            Offset::new(x, y),
+            radius * (0.7 + 0.35 * t),
             Color::rgb(143, 123, 228).with_alpha(((26.0 + 66.0 * t) * intensity) as u8),
         );
     }
+}
+
+#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+fn paint_studio(book: &mut Sketchbook, s: Size, time: f32, intensity: f32) {
+    if intensity <= 0.005 {
+        return;
+    }
+    let _ = s; // the design box is 420 × 1040; coordinates are the reference's own.
+
+    // The studio: one bloom over the form's shoulder — ellipse (330, 155) at
+    // 150 × 165, the reference gradient at the reference's 55% presence —
+    // and the two filaments, at the reference's 12%.
+    bloom(
+        book,
+        (330.0, 155.0),
+        150.0,
+        165.0,
+        Color::rgb(156, 123, 247).with_alpha((49.0 * intensity) as u8),
+        Color::rgb(101, 223, 208).with_alpha((14.0 * intensity) as u8),
+    );
+    let a = (31.0 * intensity) as u8;
+    filament(book, (-30.0, 190.0), (22.0, 165.0), (42.0, 184.0), (68.0, 213.0), AXON.with_alpha(a), 1.2);
+    filament(book, (68.0, 213.0), (94.0, 242.0), (111.0, 246.0), (138.0, 238.0), AXON.with_alpha(a), 1.2);
+    filament(book, (433.0, 408.0), (389.0, 383.0), (360.0, 401.0), (339.0, 431.0), SYNAPSE.with_alpha(a), 1.2);
+    filament(book, (339.0, 431.0), (318.0, 461.0), (300.0, 470.0), (266.0, 472.0), SYNAPSE.with_alpha(a), 1.2);
+    let _ = time;
 }

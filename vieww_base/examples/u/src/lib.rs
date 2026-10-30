@@ -45,27 +45,59 @@ use vieww::{FrameDriver, NavigatorController, ScrollController};
 #[cfg(target_os = "android")]
 use vieww_platform_winit::AndroidApp;
 use vieww_platform_winit::App;
+use vieww_text::FontStore;
 use vieww_widget::RouteTransition;
 
 pub mod ask;
+pub mod controls;
 pub mod events;
 pub mod home;
 pub mod neurons;
 pub mod palette;
 pub mod settings;
 pub mod sheet;
+pub mod stage;
 
 use home::HomeScreen;
 use settings::SettingsScreen;
 use sheet::AskSheet;
 
-/// The phone-shaped surface the app is composed for.
-pub const SURFACE: Size = Size::new(420.0, 880.0);
+/// The phone-shaped surface the app is composed for — the reference's own
+/// canvas, 420 × 920, which the [`stage`] scales onto whatever screen it is
+/// given.
+pub const SURFACE: Size = Size::new(420.0, 920.0);
 
 /// The state slot every route builder upgrades. `Rc<RefCell<Option<..>>>`
 /// rather than `Rc<AppState>` because the navigator — inside the state — must
 /// exist before the state does, and something has to hold the seam.
 pub type Shared = Rc<RefCell<Option<AppState>>>;
+
+/// The typeface the reference screens are set in: **Inter**, in the three
+/// weights the app draws with, embedded so the app carries its own face onto
+/// every device it installs on.
+///
+/// The reference asks for weights 400 to 730; the framework's type scale
+/// names Regular, Medium and Bold, and those three cover every line the
+/// screens draw. Embedded rather than resolved from the system, because the
+/// system's face is Roboto on a phone and DejaVu on a desktop and neither is
+/// Inter — and the app is an exact clone of drawings set in Inter.
+///
+/// `with_application_faces` puts these ahead of both the embedded and any
+/// system face for every tie, and points the generic `sans-serif` at Inter,
+/// so no style in the tree has to name a family to get it. The faces are
+/// ~975 KB together — three trips for a webpage, and one mmap into a process
+/// that stays under 3 MB of heap on a low-RAM phone.
+#[must_use]
+pub fn fonts() -> FontStore {
+    const REGULAR: &[u8] = include_bytes!("../assets/fonts/Inter-Regular.ttf");
+    const MEDIUM: &[u8] = include_bytes!("../assets/fonts/Inter-Medium.ttf");
+    const BOLD: &[u8] = include_bytes!("../assets/fonts/Inter-Bold.ttf");
+    FontStore::with_application_faces(
+        [REGULAR.to_vec(), MEDIUM.to_vec(), BOLD.to_vec()],
+        Some("Inter"),
+        None,
+    )
+}
 
 /// Everything both screens share.
 #[derive(Clone)]
@@ -546,6 +578,7 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
         .size(SURFACE)
         .theme(palette::theme())
         .run(|driver| {
+            driver.set_fonts(fonts());
             let log = events::Log::at(vieww_platform_winit::data_dir().join("u-events.log"));
             let shared = mount_with(driver, log);
             driver.set_root(root(&shared));
@@ -581,6 +614,7 @@ fn android_main(android: AndroidApp) {
         .size(SURFACE)
         .theme(palette::theme())
         .run_android(android, move |driver| {
+            driver.set_fonts(fonts());
             let shared = mount_with(driver, log);
             driver.set_root(root(&shared));
         });

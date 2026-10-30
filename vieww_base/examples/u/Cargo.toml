@@ -26,6 +26,10 @@ vieww-widget.workspace = true
 vieww-element.workspace = true
 vieww-animation.workspace = true
 vieww-platform-winit.workspace = true
+# Inter, embedded as `include_bytes!` and handed to the driver's `set_fonts`:
+# the reference screens are set in Inter, and the app is an exact clone of
+# them. The faces live in `assets/fonts/` beside this manifest.
+vieww-text.workspace = true
 
 [target.'cfg(target_os = "android")'.dependencies]
 log = "0.4"

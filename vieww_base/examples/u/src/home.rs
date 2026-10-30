@@ -8,6 +8,16 @@
 //! question itself is not on this screen: it arrives as the ask sheet, pushed
 //! by the action, a domain, the recent strip or the nudge.
 //!
+//! # The layout is the reference's own
+//!
+//! Every block is placed at the reference SVG's own coordinates, inside the
+//! 420 × 920 canvas it was drawn on — the sigil's eye at (37, 44), the
+//! companion at (210, 373), the action at (210, 605), the categories at
+//! y = 720, the strip at y = 810, the nudge at y = 878. The [`crate::stage`]
+//! puts that canvas on whatever screen the app wakes up on, so the spacing
+//! the reference drew is the spacing the app keeps — nothing is reflowed,
+//! nothing is inferred, and a window of the design's own size is the identity.
+//!
 //! # The opening
 //!
 //! The app opens on a splash that is this same screen assembling: the eye
@@ -38,7 +48,8 @@ use vieww_foundation::{
 use vieww_widget::prelude::{PaintWith, Painting};
 
 use crate::neurons::{self, Reveal};
-use crate::palette::{self, AXON, EDGE, INK, MUTED, SYNAPSE};
+use crate::palette::{self, AXON, CHIP_DOT, CHIP_EDGE, EDGE, INK, INK_GREET, MUTED, SYNAPSE};
+use crate::stage;
 use crate::{ask, ask_route, settings_route, take, AppState, Shared};
 
 // ---- the opening's timeline, in seconds since the app opened --------------
@@ -68,6 +79,17 @@ const HOME_DUR: f32 = 0.55;
 const HOME_STEP: f32 = 0.07;
 /// The last moment a tap still counts as skipping the opening.
 const SKIP_END: f32 = EXIT_AT;
+
+/// Where a glyph's baseline sits below its line box's top, as a fraction of
+/// the font size: Inter's own ascent, which the framework top-aligns the
+/// line box against. Measured against the rasterizer rather than assumed —
+/// placing a box is only placing a baseline if this number is true.
+const ASCENT: f32 = 0.969;
+
+/// A left-aligned text box top for a baseline at `baseline`.
+fn top_of(baseline: f32, size: f32) -> f32 {
+    baseline - ASCENT * size
+}
 
 /// The four domains a decision can be brought from, as the tags the bank
 /// files its questions under.
@@ -100,60 +122,62 @@ impl HomeScreen {
         // and stays; calm keeps a third of it.
         let amb = if calm { 0.3 } else { 1.0 } * intro.amb;
 
-        // The tail: whatever was noted last, and the nudge offering the next
-        // question. Both belong to the bottom of the screen.
-        let mut tail = Flex::column()
-            .cross_axis_alignment(CrossAxisAlignment::Stretch)
-            .spacing(6.0);
+        let mut screen = Stack::new().fit(StackFit::Expand).push(Positioned::fill().child(
+            neurons::atmosphere(t, amb),
+        ));
+
+        // -- the room, at the reference's own coordinates --------------------
+        screen = screen
+            .push(arrive(intro.blocks[0], -12.0, top_bar(&self.shared, ctx, t)))
+            .push(place(24.0, top_of(132.0, 11.0)).child(arrive(
+                intro.blocks[1],
+                -8.0,
+                daypart_text(),
+            )))
+            .push(place(25.0, top_of(166.0, 31.0)).child(arrive(
+                intro.blocks[1],
+                -8.0,
+                name_text(&state),
+            )))
+            .push(place(86.0, 147.0).child(arrive(intro.blocks[1], -8.0, name_spark(t).into())))
+            .push(place(25.0, top_of(190.0, 12.0)).child(arrive(
+                intro.blocks[1],
+                -8.0,
+                Text::new("Ready when you are.").size(12.0).color(MUTED).into(),
+            )))
+            // The companion — the mark the splash assembles, at the exact
+            // slot it never leaves: centre (210, 373), 276 across.
+            .push(place(72.0, 235.0).child(neurons::companion(
+                276.0,
+                t,
+                burst,
+                if calm { 1.0 } else { 0.0 },
+                intro.reveal,
+            )))
+            .push(below_slot(&intro, t))
+            .push(arrive(intro.blocks[3], 14.0, action(&self.shared, ctx, t)))
+            .push(arrive(intro.blocks[4], 16.0, categories(&state, &self.shared, ctx)));
+
+        // -- the tail: whatever was noted last, and the nudge ---------------
         if let Some(noted) = noted {
-            tail = tail.push(recent(&self.shared, ctx, noted, t));
+            screen = screen.push(place(24.0, top_of(798.0, 9.0)).child(arrive(
+                intro.blocks[4],
+                10.0,
+                recent_label(),
+            )));
+            screen = screen.push(place(24.0, 810.0).child(arrive(
+                intro.blocks[4],
+                10.0,
+                recent(&self.shared, ctx, noted),
+            )));
         }
         if nudge_up {
-            tail = tail.push(nudge(&state, &self.shared, ctx, answers));
+            screen = screen.push(place(24.0, 878.0).child(arrive(
+                intro.blocks[4],
+                10.0,
+                nudge(&state, &self.shared, ctx, answers),
+            )));
         }
-
-        let mut screen = Stack::new()
-            .fit(StackFit::Expand)
-            .push(
-                Positioned::fill().child(
-                    Container::new()
-                        .gradient(palette::ground_gradient())
-                        .child(neurons::atmosphere(t, amb, false)),
-                ),
-            )
-            .push(
-                Positioned::fill().child(
-                    SafeArea::new().child(
-                        Padding::new(EdgeInsets::symmetric(24.0, 4.0)).child(
-                            Flex::column()
-                                .cross_axis_alignment(CrossAxisAlignment::Stretch)
-                                .children(children![
-                                    arrive(intro.blocks[0], -12.0, top_bar(&self.shared, ctx, t)),
-                                    SizedBox::height(6.0),
-                                    arrive(intro.blocks[1], -8.0, greeting(&state)),
-                                    SizedBox::height(2.0),
-                                    Align::new(Alignment::CENTER).child(neurons::companion(
-                                        252.0,
-                                        t,
-                                        burst,
-                                        if calm { 1.0 } else { 0.0 },
-                                        intro.reveal,
-                                    )),
-                                    below_slot(&intro, t),
-                                    arrive(intro.blocks[3], 14.0, action(&self.shared, ctx, t),),
-                                    SizedBox::height(6.0),
-                                    arrive(
-                                        intro.blocks[4],
-                                        16.0,
-                                        categories(&state, &self.shared, ctx),
-                                    ),
-                                    Flexible::expanded(1).child(SizedBox::shrink()),
-                                    arrive(intro.blocks[4], 10.0, tail.into()),
-                                ]),
-                        ),
-                    ),
-                ),
-            );
 
         // While the opening plays, a tap anywhere finishes it: the layer sits
         // above the content, so the tap cannot fall through to a control that
@@ -194,9 +218,14 @@ impl HomeScreen {
                         state.nav.push(settings_route(shared_for_swipe.clone()));
                     }
                 })
-                .child(screen),
+                .child(stage::screen(screen)),
         )
     }
+}
+
+/// A `Positioned` at the reference's own coordinates.
+fn place(left: f32, top: f32) -> Positioned {
+    Positioned::new().left(left).top(top)
 }
 
 // ---- the opening, as numbers ----------------------------------------------
@@ -295,17 +324,19 @@ fn arrive(alpha: f32, rise: f32, child: WidgetNode) -> WidgetNode {
 // ---- the room --------------------------------------------------------------
 
 /// The mark's signature, the name it stands beside, and the ALIVE chip —
-/// the room's one exit besides the swipe.
+/// the room's one exit besides the swipe. All at the reference's own marks:
+/// the sigil's eye at (37, 44), the wordmark's baseline at y = 51, the chip
+/// at (320, 36).
 fn top_bar(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
     let shared_for_chip = shared.clone();
     let chip = Pressable::themed(ctx, move |press| {
         Container::new()
             .decoration(
                 BoxDecoration::new()
-                    .color(Color::rgba(20, 35, 56, (200.0 + press * 55.0) as u8))
+                    .color(Color::rgba(20, 35, 56, 255))
                     .radius(15.0)
                     .border(Border::new(
-                        SYNAPSE.with_alpha((71.0 + press * 120.0) as u8),
+                        CHIP_EDGE.with_alpha((71.0 + press * 120.0) as u8),
                         1.0,
                     )),
             )
@@ -319,7 +350,7 @@ fn top_bar(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
                         alive_dot(t),
                         Text::new("ALIVE").style(
                             TextStyle::new(9.5)
-                                .weight(FontWeight::Bold)
+                                .weight(FontWeight::Medium)
                                 .letter_spacing(0.4)
                                 .color(Color::rgb(156, 233, 220)),
                         ),
@@ -332,85 +363,73 @@ fn top_bar(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
         state.nav.push(settings_route(shared_for_chip.clone()));
     });
 
-    Flex::row()
-        .cross_axis_alignment(CrossAxisAlignment::Center)
-        .children(children![
-            // The mark's signature: the same six tendrils, the same eye.
-            neurons::sigil(34.0, t, 0.0),
-            SizedBox::width(11.0),
-            Flex::column()
-                .cross_axis_alignment(CrossAxisAlignment::Start)
-                .children(children![
-                    Text::new("U").style(
-                        TextStyle::new(24.0)
-                            .weight(FontWeight::Bold)
-                            .letter_spacing(-1.0)
-                            .color(INK),
-                    ),
-                    Text::new("PERSONA").style(
-                        TextStyle::new(7.5)
-                            .letter_spacing(1.6)
-                            .color(Color::rgb(115, 130, 156)),
-                    ),
-                ]),
-            Flexible::expanded(1).child(SizedBox::shrink()),
-            chip,
-        ])
-        .into()
+    Positioned::fill().child(
+        Stack::new()
+            .fit(StackFit::Expand)
+            .push(place(20.0, 27.0).child(neurons::sigil(34.0, t, 0.0)))
+            .push(place(64.0, top_of(51.0, 24.0)).child(Text::new("U").style(
+                TextStyle::new(24.0)
+                    .weight(FontWeight::Bold)
+                    .letter_spacing(-1.0)
+                    .color(INK),
+            )))
+            .push(place(65.0, top_of(65.0, 7.5)).child(Text::new("PERSONA").style(
+                TextStyle::new(7.5).letter_spacing(1.6).color(Color::rgb(115, 130, 156)),
+            )))
+            .push(place(320.0, 36.0).child(chip)),
+    )
+    .into()
 }
 
-/// The chip's pulse: a small synapse dot, slowly twinkling.
+/// The chip's pulse: a small synapse dot, slowly twinkling — the reference's
+/// own (334, 51) r = 3.
 fn alive_dot(t: f32) -> Painting {
     Painting::sized(
         Size::square(9.0),
         PaintWith::new(move |book, s| {
             let c = Offset::new(s.width / 2.0, s.height / 2.0);
-            let twinkle = 0.5 + 0.5 * (t * std::f32::consts::TAU / 3.0).sin();
+            let twinkle = 0.5 + 0.5 * (t * TAU / 3.0).sin();
             book.circle(
                 c,
                 2.1 + twinkle * 0.6,
-                SYNAPSE.with_alpha((150.0 + 90.0 * twinkle) as u8),
+                CHIP_DOT.with_alpha((150.0 + 90.0 * twinkle) as u8),
             );
         }),
     )
 }
 
-/// Who this room is for, and that it is ready.
-fn greeting(state: &AppState) -> WidgetNode {
-    Flex::column()
-        .cross_axis_alignment(CrossAxisAlignment::Start)
-        .spacing(3.0)
-        .children(children![
-            Text::new(daypart()).style(
-                TextStyle::new(11.0)
-                    .weight(FontWeight::Medium)
-                    .letter_spacing(1.9)
-                    .color(Color::rgb(131, 146, 170)),
-            ),
-            Flex::row()
-                .cross_axis_alignment(CrossAxisAlignment::Center)
-                .spacing(9.0)
-                .children(children![
-                    Text::new(state.display_name()).style(
-                        TextStyle::new(30.0)
-                            .weight(FontWeight::Bold)
-                            .letter_spacing(-1.3)
-                            .color(Color::rgb(242, 243, 250)),
-                    ),
-                    name_spark(state.time.get()),
-                ]),
-            Text::new("Ready when you are.").size(12.0).color(MUTED),
-        ])
+/// The greeting's first line — 11 pt caps at the reference's y = 132.
+fn daypart_text() -> WidgetNode {
+    Text::new(daypart())
+        .style(
+            TextStyle::new(11.0)
+                .weight(FontWeight::Medium)
+                .letter_spacing(1.9)
+                .color(Color::rgb(131, 146, 170)),
+        )
         .into()
 }
 
-/// The small spark that rides the name — a charm, not a status.
+/// The name — 31 pt at the reference's y = 166.
+fn name_text(state: &AppState) -> WidgetNode {
+    Text::new(state.display_name())
+        .style(
+            TextStyle::new(31.0)
+                .weight(FontWeight::Bold)
+                .letter_spacing(-1.3)
+                .color(INK_GREET),
+        )
+        .into()
+}
+
+/// The small spark that rides the name — a charm, not a status, at the
+/// reference's (93, 154).
 fn name_spark(t: f32) -> Painting {
     Painting::sized(
         Size::square(8.0),
         PaintWith::new(move |book, s| {
             let c = Offset::new(s.width / 2.0, s.height / 2.0);
-            let twinkle = 0.5 + 0.5 * (t * std::f32::consts::TAU / 3.0 + 0.9).sin();
+            let twinkle = 0.5 + 0.5 * (t * TAU / 3.0 + 0.9).sin();
             book.circle(
                 c,
                 1.9 + twinkle * 0.7,
@@ -446,91 +465,88 @@ fn daypart() -> &'static str {
 }
 
 /// The slot under the companion: the splash's wordmark lives here until the
-/// room arrives, then the caption does — a crossfade in a fixed box, so
-/// nothing above or below it ever shifts. The splash's stack carries the
-/// reference's own descent: the landing rings, the wordmark, its subtitle,
-/// the tagline, the loader and the privacy line.
+/// room arrives, then the caption does — a crossfade between two absolutely
+/// placed stacks, so nothing around either ever shifts.
+///
+/// The caption is the reference's own — `YOUR U` at y = 525, its line at
+/// y = 544, both centred on the mark. The splash's text is the opening's own:
+/// the landing rings the mark settles onto, the wordmark, its subtitle, the
+/// tagline, the loader and the privacy line.
 fn below_slot(intro: &Intro, t: f32) -> WidgetNode {
-    let splash = Flex::column()
-        .cross_axis_alignment(CrossAxisAlignment::Stretch)
-        .children(children![
-            Opacity::new(intro.word).child(Align::new(Alignment::CENTER).child(landing_rings())),
-            SizedBox::height(2.0),
-            Opacity::new(intro.word).child(
-                Text::new("U").style(
-                    TextStyle::new(40.0)
-                        .weight(FontWeight::Bold)
-                        .letter_spacing(-2.5)
-                        .color(Color::rgb(241, 239, 255)),
-                )
-                .align(TextAlign::Center),
-            ),
-            SizedBox::height(1.0),
-            Opacity::new(intro.word).child(
-                Text::new("PERSONA COMPANION").style(
-                    TextStyle::new(8.5)
-                        .weight(FontWeight::Medium)
-                        .letter_spacing(2.6)
-                        .color(Color::rgb(155, 139, 220)),
-                )
-                .align(TextAlign::Center),
-            ),
-            SizedBox::height(4.0),
-            Opacity::new(intro.tagline).child(
-                Text::new("A little more you, every day.")
-                    .size(11.0)
-                    .color(MUTED)
-                    .align(TextAlign::Center),
-            ),
-            SizedBox::height(4.0),
-            Opacity::new(intro.footer).child(Align::new(Alignment::CENTER).child(loading_dots(t)),),
-            SizedBox::height(3.0),
-            Opacity::new(intro.footer).child(
-                Text::new("PRIVATE BY DESIGN").style(
-                    TextStyle::new(7.5)
-                        .weight(FontWeight::Medium)
-                        .letter_spacing(2.0)
-                        .color(Color::rgb(83, 98, 123)),
-                )
-                .align(TextAlign::Center),
-            ),
-        ]);
-
-    let caption = Flex::column()
-        .cross_axis_alignment(CrossAxisAlignment::Stretch)
-        .spacing(5.0)
-        .children(children![
-            Text::new("YOUR U").style(
-                TextStyle::new(9.0)
-                    .weight(FontWeight::Bold)
-                    .letter_spacing(2.3)
-                    .color(Color::rgb(189, 176, 245)),
-            )
-            .align(TextAlign::Center),
-            Text::new("A little more you, every day")
-                .size(9.5)
-                .color(Color::rgb(111, 126, 152))
-                .align(TextAlign::Center),
-        ]);
-
-    SizedBox::height(130.0)
-        .child(
-            Stack::new()
-                .fit(StackFit::Expand)
-                .push(
-                    Positioned::fill().child(
-                        Opacity::new(1.0 - intro.exit)
-                            .child(Align::new(Alignment::CENTER).child(splash)),
-                    ),
-                )
-                .push(
-                    Positioned::fill().child(
-                        Opacity::new(intro.blocks[2])
-                            .child(Align::new(Alignment::CENTER).child(caption)),
-                    ),
+    Positioned::fill().child(
+    Stack::new()
+        .fit(StackFit::Expand)
+        .push(
+            Positioned::fill().child(
+                Opacity::new(1.0 - intro.exit).child(
+                    Stack::new()
+                        .fit(StackFit::Expand)
+                        .push(place(130.0, 495.0).child(Opacity::new(intro.word).child(
+                            Align::new(Alignment::CENTER).child(landing_rings()),
+                        )))
+                        .push(place(0.0, top_of(536.0, 40.0)).width(420.0).child(Opacity::new(intro.word).child(
+                            Text::new("U").style(
+                                TextStyle::new(40.0)
+                                    .weight(FontWeight::Bold)
+                                    .letter_spacing(-2.5)
+                                    .color(Color::rgb(241, 239, 255)),
+                            )
+                            .align(TextAlign::Center),
+                        )))
+                        .push(place(0.0, top_of(551.0, 8.5)).width(420.0).child(Opacity::new(intro.word).child(
+                            Text::new("PERSONA COMPANION").style(
+                                TextStyle::new(8.5)
+                                    .weight(FontWeight::Medium)
+                                    .letter_spacing(2.6)
+                                    .color(Color::rgb(155, 139, 220)),
+                            )
+                            .align(TextAlign::Center),
+                        )))
+                        .push(place(0.0, top_of(572.0, 11.0)).width(420.0).child(Opacity::new(intro.tagline).child(
+                            Text::new("A little more you, every day.")
+                                .size(11.0)
+                                .color(MUTED)
+                                .align(TextAlign::Center),
+                        )))
+                        .push(place(187.0, 585.0).child(Opacity::new(intro.footer).child(
+                            Align::new(Alignment::CENTER).child(loading_dots(t)),
+                        )))
+                        .push(place(0.0, top_of(612.0, 7.5)).width(420.0).child(Opacity::new(intro.footer).child(
+                            Text::new("PRIVATE BY DESIGN").style(
+                                TextStyle::new(7.5)
+                                    .weight(FontWeight::Medium)
+                                    .letter_spacing(2.0)
+                                    .color(Color::rgb(83, 98, 123)),
+                            )
+                            .align(TextAlign::Center),
+                        ))),
                 ),
+            ),
         )
-        .into()
+        .push(
+            Positioned::fill().child(Opacity::new(intro.blocks[2]).child(
+                Stack::new()
+                    .fit(StackFit::Expand)
+                    .push(place(0.0, top_of(525.0, 9.0)).width(420.0).child(Text::new("YOUR U").style(
+                        TextStyle::new(9.0)
+                            .weight(FontWeight::Bold)
+                            .letter_spacing(2.3)
+                            .color(Color::rgb(189, 176, 245)),
+                    )
+                    .align(TextAlign::Center)))
+                    .push(place(0.0, top_of(544.0, 9.5)).width(420.0).child(
+                        Text::new("A little more you, every day")
+                            .style(
+                                TextStyle::new(9.5)
+                                    .letter_spacing(0.4)
+                                    .color(Color::rgb(111, 126, 152)),
+                            )
+                            .align(TextAlign::Center),
+                    )),
+            )),
+        )
+    )
+    .into()
 }
 
 /// The splash's landing rings: two flat ellipses the icon settles onto, the
@@ -567,7 +583,8 @@ fn loading_dots(time: f32) -> Painting {
     )
 }
 
-/// The one primary action: bring U a decision.
+/// The one primary action: bring U a decision — the reference's disc at
+/// (210, 605), r = 39, under its breathing halo.
 fn action(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
     let shared_for_ask = shared.clone();
     let button = Pressable::themed(ctx, move |press| {
@@ -592,9 +609,9 @@ fn action(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
                                                 .gradient(palette::action_gradient())
                                                 .radius(39.0)
                                                 .shadow(Shadow::new(
-                                                    Color::rgba(0, 0, 0, 130),
-                                                    Offset::new(0.0, 12.0),
-                                                    24.0,
+                                                    Color::rgba(0, 0, 0, 122),
+                                                    Offset::new(0.0, 6.0),
+                                                    9.0,
                                                 )),
                                         )
                                         .size(78.0, 78.0)
@@ -605,9 +622,7 @@ fn action(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
                                                 .push(Positioned::fill().child(action_ring()))
                                                 .push(
                                                     Align::new(Alignment::CENTER).child(
-                                                        Icon::new(icons::add())
-                                                            .size(28.0)
-                                                            .color(Color::rgb(255, 255, 255)),
+                                                        plus_glyph(12.0, 2.8, Color::rgb(255, 255, 255)),
                                                     ),
                                                 ),
                                         ),
@@ -623,18 +638,17 @@ fn action(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
         state.nav.push(ask_route(shared_for_ask.clone()));
     });
 
-    Flex::column()
-        .cross_axis_alignment(CrossAxisAlignment::Stretch)
-        .spacing(4.0)
-        .children(children![
-            button,
+    Stack::new()
+        .fit(StackFit::Expand)
+        .push(place(161.0, 556.0).child(button))
+        .push(place(0.0, top_of(661.0, 15.0)).width(420.0).child(
             Text::new("New decision").style(
                 TextStyle::new(15.0)
                     .weight(FontWeight::Medium)
                     .color(Color::rgb(238, 240, 251)),
             )
             .align(TextAlign::Center),
-        ])
+        ))
         .into()
 }
 
@@ -646,7 +660,7 @@ fn action_halo(t: f32) -> Painting {
         PaintWith::new(move |book, s| {
             let c = Offset::new(s.width / 2.0, s.height / 2.0);
             let phase = (t / 3.2).fract();
-            let breathe = 0.5 + 0.5 * (t * std::f32::consts::TAU / 3.6).sin();
+            let breathe = 0.5 + 0.5 * (t * TAU / 3.6).sin();
             book.blended_layer(1.0, 0.0, BlendMode::Plus, None, |light| {
                 light.circle(
                     c,
@@ -682,41 +696,68 @@ fn action_ring() -> Painting {
     )
 }
 
-/// The four domains a decision can arrive from.
-fn categories(state: &AppState, shared: &Shared, ctx: &BuildContext) -> WidgetNode {
-    Flex::row()
-        .main_axis_alignment(MainAxisAlignment::SpaceBetween)
-        .cross_axis_alignment(CrossAxisAlignment::Start)
-        .children(children![
-            category(state, shared, ctx, "CAREER", CAREER, AXON, Glyph::Career,),
-            category(
-                state,
-                shared,
-                ctx,
-                "PERSONAL",
-                PERSONAL,
-                Color::rgb(239, 159, 192),
-                Glyph::Personal,
-            ),
-            category(
-                state,
-                shared,
-                ctx,
-                "FINANCE",
-                FINANCE,
-                Color::rgb(240, 199, 127),
-                Glyph::Finance,
-            ),
-            category(state, shared, ctx, "LIFE", LIFE, SYNAPSE, Glyph::Life,),
-        ])
-        .into()
+/// A plus, as the reference draws both of its own: two round-capped strokes
+/// `arm` long, `width` thick, crossing at the centre of a box that holds
+/// them. The action's is twelve and 2.8; the nudge's is five and 1.25.
+fn plus_glyph(arm: f32, width: f32, color: Color) -> Painting {
+    let span = arm * 2.0 + width + 2.0;
+    Painting::sized(
+        Size::square(span),
+        PaintWith::new(move |book, s| {
+            use vieww_foundation::StrokeStyle;
+            let c = Offset::new(s.width / 2.0, s.height / 2.0);
+            let mut path = Path::new();
+            path.move_to(Offset::new(c.dx, c.dy - arm));
+            path.line_to(Offset::new(c.dx, c.dy + arm));
+            path.move_to(Offset::new(c.dx - arm, c.dy));
+            path.line_to(Offset::new(c.dx + arm, c.dy));
+            book.stroke_styled(path, color, width, StrokeStyle::rounded());
+        }),
+    )
 }
 
-/// One domain: its circle, its glyph, its name.
+/// The four domains a decision can arrive from — the reference's own row:
+/// circles at x = 78, 166, 254, 342, forty points of air between their
+/// centres, labels nineteen points below each rim.
+fn categories(state: &AppState, shared: &Shared, ctx: &BuildContext) -> WidgetNode {
+    Positioned::fill().child(
+        Stack::new()
+            .fit(StackFit::Expand)
+            .children(children![
+                category(state, shared, ctx, 78.0, "CAREER", CAREER, AXON, Glyph::Career),
+                category(
+                    state,
+                    shared,
+                    ctx,
+                    166.0,
+                    "PERSONAL",
+                    PERSONAL,
+                    Color::rgb(239, 159, 192),
+                    Glyph::Personal,
+                ),
+                category(
+                    state,
+                    shared,
+                    ctx,
+                    254.0,
+                    "FINANCE",
+                    FINANCE,
+                    Color::rgb(240, 199, 127),
+                    Glyph::Finance,
+                ),
+                category(state, shared, ctx, 342.0, "LIFE", LIFE, crate::palette::LIFE_TINT, Glyph::Life),
+            ]),
+    )
+    .into()
+}
+
+/// One domain: its circle at `(x, 720)`, its glyph, its name at y = 763 —
+/// both placed directly, as the reference places them.
 fn category(
     state: &AppState,
     shared: &Shared,
     ctx: &BuildContext,
+    x: f32,
     label: &'static str,
     tags: &'static [&'static str],
     tint: Color,
@@ -724,38 +765,47 @@ fn category(
 ) -> WidgetNode {
     let state_for_pick = state.clone();
     let shared_for_ask = shared.clone();
-    Pressable::themed(ctx, move |press| {
-        Flex::column()
-            .cross_axis_alignment(CrossAxisAlignment::Center)
-            .spacing(5.0)
-            .children(children![
-                Container::new()
-                    .decoration(
-                        BoxDecoration::new()
-                            .color(Color::rgba(21, 31, 49, (235.0 + press * 20.0) as u8,))
-                            .radius(24.0)
-                            .border(Border::new(
-                                tint.with_alpha((51.0 + press * 120.0) as u8),
-                                1.0,
-                            )),
-                    )
-                    .size(48.0, 48.0)
-                    .alignment(Alignment::CENTER)
-                    .child(glyph.paint(tint)),
-                Text::new(label).size(9.0).color(MUTED),
-            ])
+    let pressable = Pressable::themed(ctx, move |press| {
+        Container::new()
+            .decoration(
+                BoxDecoration::new()
+                    .color(Color::rgba(21, 31, 49, (235.0 + press * 20.0) as u8))
+                    .radius(24.0)
+                    .border(Border::new(
+                        tint.with_alpha((51.0 + press * 120.0) as u8),
+                        1.0,
+                    )),
+            )
+            .size(48.0, 48.0)
+            .alignment(Alignment::CENTER)
+            .child(glyph.paint(tint))
             .into()
     })
     .on_tap(move || {
         // The next question from this domain, then the sheet.
         state_for_pick.ask_in(tags);
         state_for_pick.nav.push(ask_route(shared_for_ask.clone()));
-    })
-    .into()
+    });
+
+    Stack::new()
+        .fit(StackFit::Expand)
+        .push(place(x - 24.0, 696.0).child(pressable))
+        .push(place(x - 40.0, top_of(763.0, 9.0)).child(
+            SizedBox::width(80.0).child(
+                Text::new(label)
+                    .style(
+                        TextStyle::new(9.0)
+                            .letter_spacing(0.4)
+                            .color(Color::rgb(147, 160, 182)),
+                    )
+                    .align(TextAlign::Center),
+            ),
+        ))
+        .into()
 }
 
-/// A domain's glyph, drawn rather than stocked — the icon set is ten shapes
-/// and none of them is a briefcase.
+/// A domain's glyph, drawn rather than stocked — the reference's own paths,
+/// at their own measures.
 #[derive(Debug, Clone, Copy)]
 enum Glyph {
     Career,
@@ -767,7 +817,7 @@ enum Glyph {
 impl Glyph {
     fn paint(self, color: Color) -> Painting {
         Painting::sized(
-            Size::square(26.0),
+            Size::square(32.0),
             PaintWith::new(move |book, s| {
                 use vieww_foundation::StrokeStyle;
                 let c = Offset::new(s.width / 2.0, s.height / 2.0);
@@ -784,115 +834,91 @@ impl Glyph {
                 ) {
                     let mut path = Path::new();
                     path.move_to(from).line_to(to);
-                    book.stroke_styled(path, color, 1.6, style.clone());
+                    book.stroke_styled(path, color, 1.65, style.clone());
                 }
                 match self {
                     Glyph::Career => {
-                        // A briefcase: the case, the handle, the clasp line.
+                        // The reference's briefcase: a 20 × 14 case, a handle
+                        // five above it, a clasp line through the lid.
                         book.stroke_rrect(
-                            Rect::new(c.dx - 9.0, c.dy - 5.0, c.dx + 9.0, c.dy + 7.0),
-                            2.5,
+                            Rect::new(c.dx - 10.0, c.dy - 5.0, c.dx + 10.0, c.dy + 9.0),
+                            2.0,
                             color,
-                            1.6,
+                            1.65,
                         );
+                        let mut handle = Path::new();
+                        handle.move_to(Offset::new(c.dx - 6.0, c.dy - 5.0));
+                        handle.line_to(Offset::new(c.dx - 6.0, c.dy - 10.0));
+                        handle.line_to(Offset::new(c.dx + 6.0, c.dy - 10.0));
+                        handle.line_to(Offset::new(c.dx + 6.0, c.dy - 5.0));
+                        book.stroke_styled(handle, color, 1.65, style.clone());
                         seg(
                             book,
-                            Offset::new(c.dx - 3.0, c.dy - 5.0),
-                            Offset::new(c.dx - 3.0, c.dy - 8.0),
-                            color,
-                            &style,
-                        );
-                        seg(
-                            book,
-                            Offset::new(c.dx + 3.0, c.dy - 5.0),
-                            Offset::new(c.dx + 3.0, c.dy - 8.0),
-                            color,
-                            &style,
-                        );
-                        seg(
-                            book,
-                            Offset::new(c.dx - 3.0, c.dy - 8.0),
-                            Offset::new(c.dx + 3.0, c.dy - 8.0),
-                            color,
-                            &style,
-                        );
-                        seg(
-                            book,
-                            Offset::new(c.dx - 9.0, c.dy + 0.5),
-                            Offset::new(c.dx + 9.0, c.dy + 0.5),
+                            Offset::new(c.dx - 4.0, c.dy + 1.0),
+                            Offset::new(c.dx + 4.0, c.dy + 1.0),
                             color,
                             &style,
                         );
                     }
                     Glyph::Personal => {
-                        // A heart, in two bows.
+                        // The reference's heart, in its four bows.
                         let mut path = Path::new();
-                        path.move_to(Offset::new(c.dx, c.dy + 7.0));
+                        path.move_to(Offset::new(c.dx, c.dy + 10.0));
                         path.cubic_to(
-                            Offset::new(c.dx - 10.0, c.dy + 1.0),
-                            Offset::new(c.dx - 8.0, c.dy - 8.0),
-                            Offset::new(c.dx, c.dy - 3.0),
+                            Offset::new(c.dx, c.dy + 10.0),
+                            Offset::new(c.dx - 12.0, c.dy + 3.0),
+                            Offset::new(c.dx - 12.0, c.dy - 5.0),
                         );
                         path.cubic_to(
-                            Offset::new(c.dx + 8.0, c.dy - 8.0),
-                            Offset::new(c.dx + 10.0, c.dy + 1.0),
-                            Offset::new(c.dx, c.dy + 7.0),
+                            Offset::new(c.dx - 12.0, c.dy - 13.0),
+                            Offset::new(c.dx - 3.0, c.dy - 14.0),
+                            Offset::new(c.dx, c.dy - 7.0),
                         );
-                        book.stroke_styled(path, color, 1.6, style);
+                        path.cubic_to(
+                            Offset::new(c.dx + 3.0, c.dy - 14.0),
+                            Offset::new(c.dx + 12.0, c.dy - 13.0),
+                            Offset::new(c.dx + 12.0, c.dy - 5.0),
+                        );
+                        path.cubic_to(
+                            Offset::new(c.dx + 12.0, c.dy + 3.0),
+                            Offset::new(c.dx, c.dy + 10.0),
+                            Offset::new(c.dx, c.dy + 10.0),
+                        );
+                        book.stroke_styled(path, color, 1.65, style.clone());
                     }
                     Glyph::Finance => {
-                        // A card: the face, the stripe, the chip.
+                        // The reference's card: a 22 × 16 face, its stripe,
+                        // its five-point line.
                         book.stroke_rrect(
-                            Rect::new(c.dx - 10.0, c.dy - 6.5, c.dx + 10.0, c.dy + 6.5),
-                            2.5,
+                            Rect::new(c.dx - 11.0, c.dy - 8.0, c.dx + 11.0, c.dy + 8.0),
+                            3.0,
                             color,
                             1.6,
                         );
                         seg(
                             book,
-                            Offset::new(c.dx - 10.0, c.dy - 1.5),
-                            Offset::new(c.dx + 10.0, c.dy - 1.5),
+                            Offset::new(c.dx - 11.0, c.dy - 2.0),
+                            Offset::new(c.dx + 11.0, c.dy - 2.0),
                             color,
                             &style,
                         );
-                        book.stroke_rrect(
-                            Rect::new(c.dx + 2.0, c.dy + 1.5, c.dx + 7.0, c.dy + 4.0),
-                            1.0,
+                        seg(
+                            book,
+                            Offset::new(c.dx - 5.0, c.dy + 4.0),
+                            Offset::new(c.dx, c.dy + 4.0),
                             color,
-                            1.3,
+                            &style,
                         );
                     }
                     Glyph::Life => {
-                        // A compass rose: the ring and four points.
-                        book.ring(c, 6.0, 1.6, color);
-                        seg(
-                            book,
-                            Offset::new(c.dx, c.dy - 9.5),
-                            Offset::new(c.dx, c.dy - 6.5),
-                            color,
-                            &style,
-                        );
-                        seg(
-                            book,
-                            Offset::new(c.dx, c.dy + 6.5),
-                            Offset::new(c.dx, c.dy + 9.5),
-                            color,
-                            &style,
-                        );
-                        seg(
-                            book,
-                            Offset::new(c.dx - 9.5, c.dy),
-                            Offset::new(c.dx - 6.5, c.dy),
-                            color,
-                            &style,
-                        );
-                        seg(
-                            book,
-                            Offset::new(c.dx + 6.5, c.dy),
-                            Offset::new(c.dx + 9.5, c.dy),
-                            color,
-                            &style,
-                        );
+                        // The reference's compass: a ten-point ring and four
+                        // long rays, one of them the diagonal.
+                        book.ring(c, 10.0, 1.65, color);
+                        seg(book, Offset::new(c.dx, c.dy - 15.0), Offset::new(c.dx, c.dy - 10.0), color, &style);
+                        seg(book, Offset::new(c.dx, c.dy + 10.0), Offset::new(c.dx, c.dy + 15.0), color, &style);
+                        seg(book, Offset::new(c.dx - 15.0, c.dy), Offset::new(c.dx - 10.0, c.dy), color, &style);
+                        seg(book, Offset::new(c.dx + 10.0, c.dy), Offset::new(c.dx + 15.0, c.dy), color, &style);
+                        seg(book, Offset::new(c.dx + 8.0, c.dy - 8.0), Offset::new(c.dx + 4.0, c.dy - 4.0), color, &style);
                     }
                 }
             }),
@@ -900,8 +926,20 @@ impl Glyph {
     }
 }
 
-/// The last thing U noted, and the way back into the asking.
-fn recent(shared: &Shared, ctx: &BuildContext, noted: &'static str, _t: f32) -> WidgetNode {
+/// The strip's label — the reference's y = 798.
+fn recent_label() -> WidgetNode {
+    Text::new("PICK UP WHERE YOU LEFT OFF").style(
+        TextStyle::new(9.0)
+            .weight(FontWeight::Bold)
+            .letter_spacing(1.8)
+            .color(Color::rgb(119, 136, 165)),
+    )
+    .into()
+}
+
+/// The last thing U noted, and the way back into the asking — the
+/// reference's 372 × 48 card at y = 810.
+fn recent(shared: &Shared, ctx: &BuildContext, noted: &'static str) -> WidgetNode {
     let shared_for_ask = shared.clone();
     let card = Pressable::themed(ctx, move |press| {
         Container::new()
@@ -915,6 +953,7 @@ fn recent(shared: &Shared, ctx: &BuildContext, noted: &'static str, _t: f32) -> 
                     )),
             )
             .height(48.0)
+            .width(372.0)
             .padding(EdgeInsets::symmetric(12.0, 0.0))
             .child(
                 Flex::row()
@@ -928,7 +967,7 @@ fn recent(shared: &Shared, ctx: &BuildContext, noted: &'static str, _t: f32) -> 
                             )
                             .size(26.0, 26.0)
                             .alignment(Alignment::CENTER)
-                            .child(Glyph::Career.paint(Color::rgb(185, 167, 250))),
+                            .child(strip_briefcase()),
                         SizedBox::width(11.0),
                         Text::new(noted).style(
                             TextStyle::new(12.0)
@@ -946,24 +985,44 @@ fn recent(shared: &Shared, ctx: &BuildContext, noted: &'static str, _t: f32) -> 
         state.nav.push(ask_route(shared_for_ask.clone()));
     });
 
-    Flex::column()
-        .cross_axis_alignment(CrossAxisAlignment::Stretch)
-        .spacing(6.0)
-        .children(children![
-            Text::new("PICK UP WHERE YOU LEFT OFF").style(
-                TextStyle::new(9.0)
-                    .weight(FontWeight::Bold)
-                    .letter_spacing(1.8)
-                    .color(Color::rgb(119, 136, 165)),
-            ),
-            card,
-        ])
-        .into()
+    card
+    .into()
 }
 
-/// The nudge: U's offer of a question, dismissible for this session. What it
-/// says is where the two of you stand — the sketch and its progress, or the
-/// portrait it has become.
+/// The strip's briefcase — the reference's smaller one: a 14 × 9 case, a
+/// stubby handle, a four-point clasp, at (49, 834).
+fn strip_briefcase() -> Painting {
+    Painting::sized(
+        Size::square(26.0),
+        PaintWith::new(move |book, s| {
+            use vieww_foundation::StrokeStyle;
+            let c = Offset::new(s.width / 2.0, s.height / 2.0);
+            let color = Color::rgb(185, 167, 250);
+            let style = StrokeStyle::rounded();
+            // The case sits two below the circle's centre, as drawn.
+            book.stroke_rrect(
+                Rect::new(c.dx - 7.0, c.dy - 2.0, c.dx + 7.0, c.dy + 7.0),
+                2.0,
+                color,
+                1.3,
+            );
+            let mut handle = Path::new();
+            handle.move_to(Offset::new(c.dx - 4.0, c.dy - 2.0));
+            handle.line_to(Offset::new(c.dx - 4.0, c.dy - 5.0));
+            handle.line_to(Offset::new(c.dx + 4.0, c.dy - 5.0));
+            handle.line_to(Offset::new(c.dx + 4.0, c.dy - 2.0));
+            book.stroke_styled(handle, color, 1.3, style.clone());
+            let mut clasp = Path::new();
+            clasp.move_to(Offset::new(c.dx - 2.0, c.dy + 2.0));
+            clasp.line_to(Offset::new(c.dx + 2.0, c.dy + 2.0));
+            book.stroke_styled(clasp, color, 1.3, style.clone());
+        }),
+    )
+}
+
+/// The nudge: U's offer of a question, dismissible for this session — the
+/// reference's 372 × 34 bar at y = 878. What it says is where the two of you
+/// stand — the sketch and its progress, or the portrait it has become.
 fn nudge(state: &AppState, shared: &Shared, ctx: &BuildContext, answers: u32) -> WidgetNode {
     let text = if answers == 0 {
         "A first sketch — twelve little questions".to_owned()
@@ -1012,6 +1071,7 @@ fn nudge(state: &AppState, shared: &Shared, ctx: &BuildContext, answers: u32) ->
                     .border(Border::new(AXON.with_alpha(56), 1.0)),
             )
             .height(34.0)
+            .width(372.0)
             .padding(EdgeInsets::symmetric(8.0, 0.0))
             .child(
                 Flex::row()
@@ -1025,7 +1085,7 @@ fn nudge(state: &AppState, shared: &Shared, ctx: &BuildContext, answers: u32) ->
                             )
                             .size(18.0, 18.0)
                             .alignment(Alignment::CENTER)
-                            .child(Icon::new(icons::add()).size(10.0).color(Color::rgb(187, 168, 255))),
+                            .child(plus_glyph(5.0, 1.25, Color::rgb(187, 168, 255))),
                         SizedBox::width(10.0),
                         Text::new(text.clone())
                             .size(10.5)
