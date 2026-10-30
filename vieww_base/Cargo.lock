@@ -1880,6 +1880,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "feature-media-player"
+version = "0.1.0"
+dependencies = [
+ "feature-harness",
+ "vieww-audio",
+ "vieww-element",
+ "vieww-foundation",
+ "vieww-widget",
+]
+
+[[package]]
 name = "feature-mesh"
 version = "0.1.0"
 dependencies = [
@@ -5295,8 +5306,13 @@ dependencies = [
 name = "vieww-audio"
 version = "0.1.0"
 dependencies = [
+ "vieww-audio-macros",
  "vieww-foundation",
 ]
+
+[[package]]
+name = "vieww-audio-macros"
+version = "0.1.0"
 
 [[package]]
 name = "vieww-audio-plugin"
@@ -5522,6 +5538,7 @@ name = "vieww-platform-web"
 version = "0.1.0"
 dependencies = [
  "js-sys",
+ "vieww-audio",
  "vieww-foundation",
  "vieww-paint",
  "vieww-platform",

@@ -1,0 +1,13 @@
+-- say-language: 1
+-- ST-20: a set of tabs, each tab a block of its own.
+
+keep a whole number called likes starting at 0
+
+screen "Profile":
+    a set of tabs:
+        a tab "Posts":
+            a text "No posts yet"
+        a tab "Likes":
+            a text "\(likes) likes"
+            a button "Like" which when tapped:
+                add 1 to likes

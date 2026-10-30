@@ -49,6 +49,7 @@
 
 pub mod about;
 pub mod assets;
+pub mod attribution;
 pub mod buffer;
 pub mod builds;
 pub mod caret;
@@ -79,6 +80,7 @@ pub mod live;
 pub mod livedoc;
 pub mod loaded;
 pub mod lsp;
+pub mod outline;
 pub mod picker;
 pub mod png;
 pub mod recovery;

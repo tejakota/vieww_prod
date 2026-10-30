@@ -106,6 +106,9 @@ fn main() {
     let shared: std::rc::Rc<std::cell::RefCell<Option<Studio>>> =
         std::rc::Rc::new(std::cell::RefCell::new(None));
     let for_hook = std::rc::Rc::clone(&shared);
+    // ST-09: the window's own frame log, for the performance overlay over
+    // the previewed screen.
+    let for_frames = std::rc::Rc::clone(&shared);
 
     // The last settings written, so the frame hook can tell a change from a
     // frame. `None` until the first poll, which is the baseline rather than a
@@ -119,6 +122,11 @@ fn main() {
         std::cell::RefCell::new(None);
 
     let result = app
+        .on_frame(move |log| {
+            if let Some(studio) = for_frames.borrow().as_ref() {
+                studio.note_frames(log.work_samples(), log.budget());
+            }
+        })
         .before_frame(move |driver| {
             // Two things every frame, both no-ops on almost all of them.
             //
@@ -162,6 +170,11 @@ fn main() {
                 //    early return on every frame the pane is not open, which is
                 //    nearly all of them — see `Studio::capture_tree`.
                 studio.capture_tree(driver);
+                // 5b. The device matrix's frames, kept to one state (ST-21).
+                studio.sync_matrix_states(driver);
+                // 5c. An attribution somebody asked for (ST-09). A `Cell`
+                //     read on every frame nobody did.
+                studio.run_attribution(driver);
                 // 6. And the damage, the semantics tree and any pending pick.
                 //    Three boolean reads on a frame with every overlay off.
                 studio.capture_overlays(driver);

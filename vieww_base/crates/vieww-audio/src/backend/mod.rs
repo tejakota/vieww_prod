@@ -334,14 +334,21 @@ pub(crate) fn isolate_render(render: RenderFn, counters: &Arc<Counters>) -> Rend
             counters.priority.store(level.as_u8(), Ordering::Relaxed);
             counters.priority_known.store(true, Ordering::Release);
         }
+        // `Instant` panics on wasm32-unknown-unknown (no clock without a JS
+        // import), which aborted the first web block in a real browser
+        // (AU-01's Chromium smoke); the web reports no render timing.
+        #[cfg(not(target_arch = "wasm32"))]
         let started = std::time::Instant::now();
         let ok = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| render(out, info)));
-        #[expect(
-            clippy::cast_possible_truncation,
-            reason = "a render takes far less than 584 years"
-        )]
-        let ns = started.elapsed().as_nanos() as u64;
-        counters.render_timed(ns, info.frames, info.rate);
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "a render takes far less than 584 years"
+            )]
+            let ns = started.elapsed().as_nanos() as u64;
+            counters.render_timed(ns, info.frames, info.rate);
+        }
         match ok {
             Ok(()) => {
                 // The device boundary is the last place a non-finite sample

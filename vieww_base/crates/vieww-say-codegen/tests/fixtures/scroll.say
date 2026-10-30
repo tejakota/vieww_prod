@@ -1,0 +1,10 @@
+-- say-language: 1
+-- ST-20: a scroll view keeps its own offset; nothing to declare.
+
+keep a list of text called names starting at "Ada", "Grace", "Hedy", "Katherine", "Margaret", "Radia", "Barbara", "Frances", "Joan", "Karen", "Mary", "Evelyn"
+
+screen "Names":
+    a scroll view:
+        for each name in names:
+            a card, padded 24:
+                a text "\(name)"

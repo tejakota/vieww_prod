@@ -336,6 +336,17 @@ impl Preview {
     /// with it permanently true. The two arms therefore disagreed and
     /// `cargo build --workspace` did not compile at all. `from_rc` now takes
     /// the identity in both configurations, so there is one call.
+    /// A screen built in this process rather than loaded from a compiled
+    /// library: for tests and for embedders that link the screen directly.
+    /// It skips the ABI check because there is no second compilation of
+    /// vieww to disagree with.
+    #[must_use]
+    pub fn from_widget(widget: impl Widget + 'static) -> Self {
+        Self {
+            widget: Rc::new(widget),
+        }
+    }
+
     #[must_use]
     pub fn node(&self) -> WidgetNode {
         WidgetNode::from_rc(Rc::clone(&self.widget), "vieww::preview::Guest")

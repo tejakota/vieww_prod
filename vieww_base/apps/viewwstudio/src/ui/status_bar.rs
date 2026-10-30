@@ -39,8 +39,11 @@ impl Widget for StatusBar {
         let analyzer = self.studio.analyzer_state.get();
         let platform = self.studio.platform.get();
         let (toolchain, abi) = match self.studio.toolchain.as_ref() {
-            Ok(found) => (found.stamp(), "ABI ok"),
-            Err(_) => ("no rustc".to_string(), "ABI unchecked"),
+            Ok(found) => (found.stamp(), crate::i18n::t("ABI ok")),
+            Err(_) => (
+                crate::i18n::t("no rustc").to_string(),
+                crate::i18n::t("ABI unchecked"),
+            ),
         };
 
         // **Two pipelines, one light.** `preview` tracks the studio's own
@@ -93,7 +96,7 @@ impl Widget for StatusBar {
         let state_label = if show_build {
             build.describe()
         } else {
-            state.status_label().to_string()
+            crate::i18n::t(state.status_label()).to_string()
         };
 
         let timing: WidgetNode = match self.studio.last_render.get() {
@@ -105,7 +108,7 @@ impl Widget for StatusBar {
                 ];
                 if self.studio.is_compiling() {
                     row.push(space(5.0));
-                    row.push(label("· compiling", 11.0, chrome.warning).into());
+                    row.push(label(crate::i18n::t("· compiling"), 11.0, chrome.warning).into());
                 }
                 Container::new()
                     .padding(EdgeInsets::symmetric(8.0, 0.0))
@@ -133,7 +136,11 @@ impl Widget for StatusBar {
         let tasks_cell: WidgetNode = if running == 0 {
             vieww_widget::SizedBox::shrink().into()
         } else {
-            let text = format!("{running} task{}", if running == 1 { "" } else { "s" });
+            let text = if running == 1 {
+                crate::i18n::tf("{} task", &[&running])
+            } else {
+                crate::i18n::tf("{} tasks", &[&running])
+            };
             let studio = self.studio.clone();
             crate::ui::chrome::clickable(
                 move || cell(text.clone(), Some(icons::clock())),
@@ -159,7 +166,11 @@ impl Widget for StatusBar {
         let folded_cell: WidgetNode = if hidden == 0 {
             vieww_widget::SizedBox::shrink().into()
         } else {
-            let text = format!("{hidden} line{} folded", if hidden == 1 { "" } else { "s" });
+            let text = if hidden == 1 {
+                crate::i18n::tf("{} line folded", &[&hidden])
+            } else {
+                crate::i18n::tf("{} lines folded", &[&hidden])
+            };
             let studio = self.studio.clone();
             crate::ui::chrome::clickable(
                 move || cell(text.clone(), None),
@@ -203,7 +214,7 @@ impl Widget for StatusBar {
             |buffer| cell(buffer.language.name().to_string(), None),
         );
         let read_only_cell: WidgetNode = match file.as_ref() {
-            Some(buffer) if buffer.read_only => cell("Read-only".to_string(), None),
+            Some(buffer) if buffer.read_only => cell(crate::i18n::t("Read-only").to_string(), None),
             _ => vieww_widget::SizedBox::shrink().into(),
         };
 
@@ -292,7 +303,10 @@ impl Widget for StatusBar {
                 WidgetNode::from(CaretCells {
                     studio: self.studio.clone(),
                 }),
-                cell(format!("Spaces: {}", self.studio.tab_width.get()), None),
+                cell(
+                    crate::i18n::tf("Spaces: {}", &[&self.studio.tab_width.get()]),
+                    None
+                ),
                 tasks_cell,
                 // Lines are hidden, and the pane does not otherwise say so.
                 // A file that is missing half its content with no explanation
@@ -402,7 +416,7 @@ impl Widget for CaretCells {
         let carets_cell: WidgetNode = if carets <= 1 {
             vieww_widget::SizedBox::shrink().into()
         } else {
-            let text = format!("{carets} cursors");
+            let text = crate::i18n::tf("{} cursors", &[&carets]);
             let studio = self.studio.clone();
             crate::ui::chrome::clickable(
                 move || cell(text.clone(), None),
@@ -414,7 +428,7 @@ impl Widget for CaretCells {
         Flex::row()
             .cross_axis_alignment(CrossAxisAlignment::Center)
             .children(children![
-                cell(format!("Ln {line}, Col {column}"), None),
+                cell(crate::i18n::tf("Ln {}, Col {}", &[&line, &column]), None),
                 carets_cell,
             ])
             .into()

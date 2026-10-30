@@ -20,11 +20,39 @@
 
 use crate::parse::{
     AKind, ActionLine, Align, CmpOp, ColorSpec, Cond, Cross, EventKind, Expr, Init, Node, Part,
-    Pin, Program, Prop, Screen, StateDecl, StateKind, ThemeSlot, Value, WKind, Widget,
+    Pin, Program, Prop, RustBlock, Screen, StateDecl, StateKind, ThemeEntry, ThemeSlot, Transition,
+    Value, WKind, Widget,
 };
 
-pub(crate) fn generate(file: &std::rc::Rc<String>, program: &Program) -> String {
+/// What `generate` is told beyond the program itself.
+#[derive(Debug, Clone, Default)]
+pub(crate) struct GenOptions {
+    /// Where `an image` paths are read from; empty is the working folder.
+    pub asset_root: String,
+}
+
+/// A piece of per-screen interface state a widget needs and the `.say`
+/// file does not name: a scroll view's offset, a set of tabs' selection.
+/// Named by the line the widget is on, so the name is stable across edits
+/// to the rest of the file.
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum UiField {
+    Scroll(u32),
+    Tab(u32),
+}
+
+pub(crate) fn generate(
+    file: &std::rc::Rc<String>,
+    program: &Program,
+    options: &GenOptions,
+) -> String {
     let multi_screen = program.screens.len() > 1;
+    let mut ui = Vec::new();
+    for screen in &program.screens {
+        collect_ui(&screen.body, &mut ui);
+    }
+    let uses_images = program.screens.iter().any(|s| subtree_has_image(&s.body));
+    let uses_transitions = multi_screen && program.screens.iter().any(|s| s.transition.is_some());
     let uses_dialog = !program.modal_fields.is_empty();
     let uses_toast = program_has_toast(program);
 
@@ -40,11 +68,18 @@ pub(crate) fn generate(file: &std::rc::Rc<String>, program: &Program) -> String 
         uses_dialog,
         uses_toast,
         unique: 0,
+        theme: &program.theme,
+        rust_items: &program.rust_items,
+        asset_root: options.asset_root.clone(),
+        uses_images,
+        uses_transitions,
+        ui,
     };
     g.header();
     g.type_alias();
     g.state_struct();
     g.say_mod();
+    g.extras();
     g.app_widget();
     for screen in program.screens.iter() {
         g.screen_fn(screen);
@@ -78,6 +113,12 @@ struct Gen<'a> {
     uses_dialog: bool,
     uses_toast: bool,
     unique: usize,
+    theme: &'a [ThemeEntry],
+    rust_items: &'a [RustBlock],
+    asset_root: String,
+    uses_images: bool,
+    uses_transitions: bool,
+    ui: Vec<UiField>,
 }
 
 /// One `open a dialog` in the file, with its generated function name.
@@ -168,7 +209,7 @@ impl<'a> Gen<'a> {
                 "vec![{}]",
                 items
                     .iter()
-                    .map(|i| rust_str(i))
+                    .map(|i| format!("{}.to_owned()", rust_str(i)))
                     .collect::<Vec<_>>()
                     .join(", ")
             ),
@@ -212,6 +253,31 @@ impl<'a> Gen<'a> {
             self.push("    toast: Option<String>,");
             self.push("    toast_start: Option<std::time::Duration>,");
         }
+        for field in self.ui.clone() {
+            match field {
+                UiField::Scroll(line) => {
+                    self.push(format!(
+                        "    // say: {}:{line}  a scroll view's offset and how far it goes",
+                        self.file
+                    ));
+                    self.push(format!("    ui_scroll_{line}: f32,"));
+                    self.push(format!("    ui_scroll_{line}_max: f32,"));
+                }
+                UiField::Tab(line) => {
+                    self.push(format!(
+                        "    // say: {}:{line}  the selected tab",
+                        self.file
+                    ));
+                    self.push(format!("    ui_tab_{line}: usize,"));
+                }
+            }
+        }
+        if self.uses_transitions {
+            self.push("    /// How far the screen transition has run, 0 to 1.");
+            self.push("    nav_t: f32,");
+            self.push("    nav_start: Option<std::time::Duration>,");
+            self.push("    nav_running: bool,");
+        }
         self.push("    dirty: bool,");
         self.push("}");
         self.push("");
@@ -234,6 +300,20 @@ impl<'a> Gen<'a> {
         if self.uses_toast {
             self.push("            toast: None,");
             self.push("            toast_start: None,");
+        }
+        for field in self.ui.clone() {
+            match field {
+                UiField::Scroll(line) => {
+                    self.push(format!("            ui_scroll_{line}: 0.0,"));
+                    self.push(format!("            ui_scroll_{line}_max: 0.0,"));
+                }
+                UiField::Tab(line) => self.push(format!("            ui_tab_{line}: 0,")),
+            }
+        }
+        if self.uses_transitions {
+            self.push("            nav_t: 1.0,");
+            self.push("            nav_start: None,");
+            self.push("            nav_running: false,");
         }
         self.push("            dirty: false,");
         self.push("        }");
@@ -268,24 +348,49 @@ impl<'a> Gen<'a> {
             self.push("");
             self.push("    /// The screen on top of the stack; the home screen is the floor.");
             self.push("    fn current(&self) -> SayScreens {");
-            self.push("        *self.stack.last().unwrap_or(&SayScreens::Home)");
+            let floor = variant(&self.screens[0].title);
+            self.push(format!(
+                "        *self.stack.last().unwrap_or(&SayScreens::{floor})"
+            ));
             self.push("    }");
             self.push("");
             self.push("    /// `open the screen \"X\"`");
             self.push("    fn open_screen(&mut self, screen: SayScreens) {");
             self.push("        self.stack.push(screen);");
+            if self.uses_transitions {
+                self.push("        self.start_transition();");
+            }
             self.push("        self.mark();");
             self.push("    }");
             self.push("");
             self.push("    /// `go back` — closes a dialog first; the home screen is the floor.");
             self.push("    fn go_back(&mut self) {");
-            self.push("        if self.modal.is_some() {");
-            self.push("            self.modal = None;");
-            self.push("        } else if !self.stack.is_empty() {");
+            if self.uses_dialog {
+                self.push("        if self.modal.is_some() {");
+                self.push("            self.modal = None;");
+                self.push("        } else if !self.stack.is_empty() {");
+            } else {
+                self.push("        if !self.stack.is_empty() {");
+            }
             self.push("            self.stack.pop();");
+            if self.uses_transitions {
+                self.push("            self.start_transition();");
+            }
             self.push("        }");
             self.push("        self.mark();");
             self.push("    }");
+            if self.uses_transitions {
+                self.push("");
+                self.push(
+                    "    /// The screen that just came up plays its transition from the start;",
+                );
+                self.push("    /// the clock starts at the next frame, in `tick`.");
+                self.push("    fn start_transition(&mut self) {");
+                self.push("        self.nav_t = 0.0;");
+                self.push("        self.nav_start = None;");
+                self.push("        self.nav_running = true;");
+                self.push("    }");
+            }
         }
         if self.uses_dialog {
             self.push("");
@@ -372,6 +477,34 @@ impl<'a> Gen<'a> {
             self.push("        )");
             self.push("    }");
             self.push("");
+            // ST-22: the kept values for a person reading them, in the
+            // studio's inspector.
+            self.push("    /// The kept values, for the studio's inspector.");
+            self.push("    fn debug_fields(&self) -> Vec<(String, String)> {");
+            self.push("        vec![");
+            for state in &kept {
+                let value = match state.kind {
+                    StateKind::Whole | StateKind::Number | StateKind::Flag => {
+                        format!("self.{}.to_string()", state.name)
+                    }
+                    StateKind::Text => format!("self.{}.text.clone()", state.name),
+                    StateKind::ListText | StateKind::ListNumber => {
+                        format!("format!(\"{{:?}}\", self.{})", state.name)
+                    }
+                };
+                self.push(format!(
+                    "            (\"{}\".to_owned(), {value}),",
+                    state.name
+                ));
+            }
+            if self.multi_screen {
+                self.push(
+                    "            (\"screen\".to_owned(), self.stack.iter().map(|s| s.tag()).collect::<Vec<_>>().join(\" \u{2192} \")),",
+                );
+            }
+            self.push("        ]");
+            self.push("    }");
+            self.push("");
             self.push("    /// Put back what `snapshot` saved. The input is untrusted — it may be");
             self.push("    /// from a version of this file that kept different things — so this");
             self.push("    /// reads into locals and applies only when all of it made sense.");
@@ -454,34 +587,57 @@ impl<'a> Gen<'a> {
             self.push("    }");
         }
 
-        if self.uses_toast {
+        if self.uses_toast || self.uses_transitions {
             self.push("");
-            self.push("    /// A snackbar asks for frames until it has been up long enough. The");
-            self.push("    /// handler that showed it cannot know the time — the tree supplies");
-            self.push("    /// it here, in the frame's animate phase.");
+            self.push("    /// A snackbar and a screen transition ask for frames until they are");
+            self.push("    /// done. The handler that started them cannot know the time — the");
+            self.push("    /// tree supplies it here, in the frame's animate phase.");
             self.push("    fn tick(&mut self, now: std::time::Duration) -> bool {");
-            self.push("        match (self.toast.as_ref(), self.toast_start) {");
-            self.push("            (Some(_), Some(start)) => {");
-            self.push("                if now - start >= TOAST_FOR {");
-            self.push("                    self.toast = None;");
-            self.push("                    self.toast_start = None;");
-            self.push("                    self.dirty = true;");
-            self.push("                }");
-            self.push("                true");
-            self.push("            }");
-            self.push("            (Some(_), None) => {");
-            self.push("                self.toast_start = Some(now);");
-            self.push("                true");
-            self.push("            }");
-            self.push("            (None, _) => {");
-            self.push("                self.toast_start = None;");
-            self.push("                false");
-            self.push("            }");
-            self.push("        }");
+            self.push("        let mut busy = false;");
+            if self.uses_toast {
+                self.push("        match (self.toast.as_ref(), self.toast_start) {");
+                self.push("            (Some(_), Some(start)) => {");
+                self.push("                if now.saturating_sub(start) >= TOAST_FOR {");
+                self.push("                    self.toast = None;");
+                self.push("                    self.toast_start = None;");
+                self.push("                    self.dirty = true;");
+                self.push("                }");
+                self.push("                busy = true;");
+                self.push("            }");
+                self.push("            (Some(_), None) => {");
+                self.push("                self.toast_start = Some(now);");
+                self.push("                busy = true;");
+                self.push("            }");
+                self.push("            (None, _) => self.toast_start = None,");
+                self.push("        }");
+            }
+            if self.uses_transitions {
+                self.push("        if self.nav_running {");
+                self.push("            let start = *self.nav_start.get_or_insert(now);");
+                self.push("            let t = now.saturating_sub(start).as_secs_f32() / NAV_FOR.as_secs_f32();");
+                self.push("            if t >= 1.0 {");
+                self.push("                self.nav_t = 1.0;");
+                self.push("                self.nav_start = None;");
+                self.push("                self.nav_running = false;");
+                self.push("            } else {");
+                self.push("                self.nav_t = t;");
+                self.push("            }");
+                self.push("            self.dirty = true;");
+                self.push("            busy = true;");
+                self.push("        }");
+            }
+            self.push("        busy");
             self.push("    }");
             self.push("");
             self.push("    fn is_animating(&self) -> bool {");
-            self.push("        self.toast.is_some()");
+            let mut parts = Vec::new();
+            if self.uses_toast {
+                parts.push("self.toast.is_some()");
+            }
+            if self.uses_transitions {
+                parts.push("self.nav_running");
+            }
+            self.push(format!("        {}", parts.join(" || ")));
             self.push("    }");
         }
         self.push("}");
@@ -489,6 +645,13 @@ impl<'a> Gen<'a> {
             self.push("");
             self.push("/// How long a snackbar stays up.");
             self.push("const TOAST_FOR: std::time::Duration = std::time::Duration::from_secs(3);");
+        }
+        if self.uses_transitions {
+            self.push("");
+            self.push("/// How long a screen transition runs.");
+            self.push(
+                "const NAV_FOR: std::time::Duration = std::time::Duration::from_millis(300);",
+            );
         }
     }
 
@@ -498,7 +661,7 @@ impl<'a> Gen<'a> {
         self.push("#[derive(Debug, Clone, Copy, PartialEq, Eq)]");
         self.push("enum SayScreens {");
         for screen in self.screens {
-            self.push(format!("    {},", snake(&screen.title)));
+            self.push(format!("    {},", variant(&screen.title)));
         }
         self.push("}");
         self.push("");
@@ -507,7 +670,8 @@ impl<'a> Gen<'a> {
         self.push("        match self {");
         for screen in self.screens {
             let name = snake(&screen.title);
-            self.push(format!("            Self::{name} => \"{name}\","));
+            let v = variant(&screen.title);
+            self.push(format!("            Self::{v} => \"{name}\","));
         }
         self.push("        }");
         self.push("    }");
@@ -518,7 +682,8 @@ impl<'a> Gen<'a> {
         self.push("        match tag {");
         for screen in self.screens {
             let name = snake(&screen.title);
-            self.push(format!("            \"{name}\" => Some(Self::{name}),"));
+            let v = variant(&screen.title);
+            self.push(format!("            \"{name}\" => Some(Self::{v}),"));
         }
         self.push("            _ => None,");
         self.push("        }");
@@ -531,7 +696,7 @@ impl<'a> Gen<'a> {
         self.push("/// The value a dialog edits while it is open. Transient by design:");
         self.push("/// closing a dialog throws the draft away, which is what Cancel means");
         self.push("/// and what Save has already copied into state.");
-        self.push("#[derive(Debug)]");
+        self.push("#[derive(Debug, Clone)]");
         self.push("struct SayModal {");
         self.push("    title: String,");
         for field in self.modal_fields {
@@ -625,6 +790,39 @@ impl<'a> Gen<'a> {
         );
         self.push("        saved.split('\\u{1f}').map(str::to_owned)");
         self.push("    }");
+        if self.uses_images {
+            self.push("");
+            self.push("    /// `an image \"…\"`: read and decoded once, then kept. A file that is");
+            self.push("    /// missing or not a picture shows what went wrong in its place rather");
+            self.push("    /// than failing the screen.");
+            self.push("    pub(crate) fn image(");
+            self.push("        path: &str,");
+            self.push("        label: Option<&str>,");
+            self.push("        width: Option<f32>,");
+            self.push("        height: Option<f32>,");
+            self.push("    ) -> WidgetNode {");
+            self.push("        thread_local! {");
+            self.push("            static CACHE: vieww::ImageCache = vieww::ImageCache::new();");
+            self.push("        }");
+            self.push("        let bundle = vieww::DirectoryBundle::at(super::SAY_ASSET_ROOT);");
+            self.push("        match CACHE.with(|cache| cache.load(&bundle, path)) {");
+            self.push("            Ok(data) => {");
+            self.push("                let mut image = Image::new(data);");
+            self.push("                if let Some(label) = label {");
+            self.push("                    image = image.label(label);");
+            self.push("                }");
+            self.push("                if let Some(width) = width {");
+            self.push("                    image = image.width(width);");
+            self.push("                }");
+            self.push("                if let Some(height) = height {");
+            self.push("                    image = image.height(height);");
+            self.push("                }");
+            self.push("                image.into()");
+            self.push("            }");
+            self.push("            Err(error) => vieww::widget::ErrorPlaceholder::new(\"Image\", format!(\"{path}: {error}\")).into(),");
+            self.push("        }");
+            self.push("    }");
+        }
         self.push("}");
         self.push("");
     }
@@ -658,18 +856,24 @@ impl<'a> Gen<'a> {
         self.push("    fn build(&self, ctx: &BuildContext) -> WidgetNode {");
         self.push("        let handle = ctx.state_handle();");
         if self.uses_toast {
-            self.push("        let theme = ThemeData::of(ctx);");
+            let theme = self.theme_of();
+            self.push(format!("        let theme = {theme};"));
         }
         if self.multi_screen {
-            self.push("        let current = ctx.state::<SayState, _>(|s| s.current()).unwrap_or(SayScreens::Home);");
+            let floor = variant(&self.screens[0].title);
+            self.push(format!("        let current = ctx.state::<SayState, _>(|s| s.current()).unwrap_or(SayScreens::{floor});"));
             self.push("        let page: WidgetNode = match current {");
             for screen in self.screens {
                 let name = snake(&screen.title);
+                let v = variant(&screen.title);
                 self.push(format!(
-                    "            SayScreens::{name} => screen_{name}(ctx, &handle),"
+                    "            SayScreens::{v} => screen_{name}(ctx, &handle),"
                 ));
             }
             self.push("        };");
+            if self.uses_transitions {
+                self.transition_wrap();
+            }
         } else {
             let name = snake(
                 &self
@@ -684,7 +888,7 @@ impl<'a> Gen<'a> {
             "        let mut layers: Vec<WidgetNode> = vec![SafeArea::new().child(page).into()];",
         );
         if self.uses_dialog {
-            self.push("        if let Some(m) = ctx.state::<SayState, _>(|s| s.modal.clone()) {");
+            self.push("        if let Some(m) = ctx.state::<SayState, _>(|s| s.modal.clone()).flatten() {");
             self.push("            layers.push(vieww::widget::ModalBarrier::new().into());");
             self.push(
                 "            layers.push(Center::new().child(dialog(ctx, &handle, &m)).into());",
@@ -713,11 +917,21 @@ impl<'a> Gen<'a> {
             self.push("            );");
             self.push("        }");
         }
-        self.push("        if layers.len() == 1 {");
-        self.push("            layers.remove(0)");
-        self.push("        } else {");
-        self.push("            Stack::new().children(layers).into()");
-        self.push("        }");
+        if self.theme.is_empty() {
+            self.push("        if layers.len() == 1 {");
+            self.push("            layers.remove(0)");
+            self.push("        } else {");
+            self.push("            Stack::new().children(layers).into()");
+            self.push("        }");
+        } else {
+            self.push("        let built: WidgetNode = if layers.len() == 1 {");
+            self.push("            layers.remove(0)");
+            self.push("        } else {");
+            self.push("            Stack::new().children(layers).into()");
+            self.push("        };");
+            self.push("        // The theme block, for every widget that reads the theme itself.");
+            self.push("        Theme::new(say_theme(&ThemeData::of(ctx))).child(built).into()");
+        }
         self.push("    }");
         self.push("}");
         self.push("");
@@ -750,18 +964,24 @@ impl<'a> Gen<'a> {
         ));
         if let Some(transition) = screen.transition {
             self.push(format!(
-                "    // the {} transition is accepted and reserved for Say 1.1",
+                "    // comes up with a {} transition — see `SayApp::build`",
                 match transition {
-                    crate::parse::Transition::Fade => "fade",
-                    crate::parse::Transition::Slide => "slide",
+                    Transition::Fade => "fade",
+                    Transition::Slide => "slide",
                 }
             ));
         }
         for read in &reads {
             self.emit_read(read, None);
         }
+        self.emit_rust_reads(&screen.body, &reads);
+        self.emit_ui_reads(&screen.body);
         if uses_theme(&screen.body) {
-            self.push("    let theme = ThemeData::of(ctx);");
+            let theme = self.theme_of();
+            self.push(format!("    let theme = {theme};"));
+        }
+        if !reads_context(&screen.body, &reads) {
+            self.push("    let _ = ctx; // this screen reads nothing from its element");
         }
         if !has_handlers {
             self.push("    let _ = handle; // this screen has no events");
@@ -855,8 +1075,14 @@ impl<'a> Gen<'a> {
                 self.push(format!("    let {field} = m.{field}.clone();"));
             }
         }
+        self.emit_rust_reads(body, &reads);
+        self.emit_ui_reads(body);
         if uses_theme(body) {
-            self.push("    let theme = ThemeData::of(ctx);");
+            let theme = self.theme_of();
+            self.push(format!("    let theme = {theme};"));
+        }
+        if !reads_context(body, &reads) {
+            self.push("    let _ = ctx; // this dialog reads nothing from its element");
         }
         if !has_handlers {
             self.push("    let _ = handle;");
@@ -886,6 +1112,144 @@ impl<'a> Gen<'a> {
         self.push("        .into()");
         self.push("}");
         self.push("");
+    }
+
+    // -- extras: images, the theme, Rust written in the file --------------------
+
+    /// The pieces a file gets only when it uses them, between the helpers
+    /// and the app: the image root, the theme function, and every top-level
+    /// `rust:` block.
+    fn extras(&mut self) {
+        if self.uses_images {
+            self.push("/// Where `an image` paths are read from. Empty means the working folder;");
+            self.push("/// the studio sets it to the folder the `.say` file is in.");
+            self.push(format!(
+                "const SAY_ASSET_ROOT: &str = {};",
+                rust_str(&self.asset_root)
+            ));
+            self.push("");
+        }
+        if !self.theme.is_empty() {
+            self.push(
+                "// -- the theme ----------------------------------------------------------------",
+            );
+            self.push("");
+            self.push("/// The `the theme:` block, over whatever theme the host supplies.");
+            self.push(
+                "#[allow(unreachable_pub)] // reachable when the file is included as a module",
+            );
+            self.push("pub fn say_theme(base: &ThemeData) -> ThemeData {");
+            self.push("    let mut theme = *base;");
+            for entry in self.theme {
+                let field = slot_field(entry.slot);
+                self.push(format!(
+                    "    // say: {}:{}  {}",
+                    self.file,
+                    entry.line,
+                    field.replace('_', " ")
+                ));
+                self.push(format!(
+                    "    theme.colors.{field} = Color::hex(0x{:06X});",
+                    entry.color
+                ));
+            }
+            self.push("    theme");
+            self.push("}");
+            self.push("");
+        }
+        if !self.rust_items.is_empty() {
+            self.push(
+                "// -- Rust from the .say file -------------------------------------------------",
+            );
+            self.push("");
+            for block in self.rust_items {
+                self.push(format!("// say: {}:{}  rust", self.file, block.line));
+                for line in block.code.lines() {
+                    self.push(line);
+                }
+                self.push(format!(
+                    "// say: end of the rust from {}:{}",
+                    self.file, block.line
+                ));
+                self.push("");
+            }
+        }
+    }
+
+    /// How a function reaches the theme: the host's, or the host's with
+    /// the file's `the theme:` block over it.
+    fn theme_of(&self) -> &'static str {
+        if self.theme.is_empty() {
+            "ThemeData::of(ctx)"
+        } else {
+            "say_theme(&ThemeData::of(ctx))"
+        }
+    }
+
+    /// The page, wrapped in the transition of the screen on top. The
+    /// transition belongs to the screen that comes up — opened, or revealed
+    /// by `go back`.
+    fn transition_wrap(&mut self) {
+        self.push("        let nav_t = ctx.state::<SayState, _>(|s| s.nav_t).unwrap_or(1.0);");
+        self.push("        let eased = 1.0 - (1.0 - nav_t.clamp(0.0, 1.0)).powi(3);");
+        self.push("        let page: WidgetNode = match current {");
+        let mut all = true;
+        for screen in self.screens {
+            let name = variant(&screen.title);
+            match screen.transition {
+                Some(Transition::Fade) => self.push(format!(
+                    "            SayScreens::{name} => Opacity::new(eased).child(page).into(),"
+                )),
+                Some(Transition::Slide) => {
+                    self.push(format!("            SayScreens::{name} => {{"));
+                    self.push("                let width = ctx.inherit_or(ViewMetrics::default()).size.width;");
+                    self.push("                Transformed::translate(Offset::new((1.0 - eased) * width, 0.0))");
+                    self.push("                    .child(page)");
+                    self.push("                    .into()");
+                    self.push("            }");
+                }
+                None => all = false,
+            }
+        }
+        if !all {
+            self.push("            _ => page,");
+        }
+        self.push("        };");
+    }
+
+    /// The interface state the widgets under these nodes need.
+    fn emit_ui_reads(&mut self, nodes: &[Node]) {
+        let mut ui = Vec::new();
+        collect_ui(nodes, &mut ui);
+        for field in ui {
+            match field {
+                UiField::Scroll(line) => self.push(format!(
+                    "    let ui_scroll_{line} = ctx.state::<SayState, _>(|s| s.ui_scroll_{line}).unwrap_or(0.0);"
+                )),
+                UiField::Tab(line) => self.push(format!(
+                    "    let ui_tab_{line} = ctx.state::<SayState, _>(|s| s.ui_tab_{line}).unwrap_or(0);"
+                )),
+            }
+        }
+    }
+
+    /// State a `rust:` block names: read like any other, and marked used,
+    /// since Say cannot tell a name in the code from a word in a string.
+    fn emit_rust_reads(&mut self, nodes: &[Node], already: &[Read]) {
+        let mut names: Vec<String> = Vec::new();
+        collect_rust_names(nodes, &mut names);
+        let states: Vec<String> = self.states.iter().map(|s| s.name.clone()).collect();
+        let mut done: Vec<String> = Vec::new();
+        for name in names {
+            if !states.contains(&name) || done.contains(&name) {
+                continue;
+            }
+            if !already.iter().any(|r| r.name == name) {
+                self.emit_read(&Read { name: name.clone() }, None);
+            }
+            self.push(format!("    let _ = &{name};"));
+            done.push(name);
+        }
     }
 
     // -- reads ------------------------------------------------------------------
@@ -1131,6 +1495,8 @@ fn subtree_has_handlers(nodes: &[Node]) -> bool {
                 || matches!(widget.kind, WKind::Switch { .. })
                 || matches!(widget.kind, WKind::Checkbox { .. })
                 || matches!(widget.kind, WKind::Slider { .. })
+                || matches!(widget.kind, WKind::ScrollView | WKind::Tabs)
+                || matches!(&widget.kind, WKind::Rust { code } if rust_mentions(code, "handle"))
                 || subtree_has_handlers(&widget.children)
         }
         Node::ForEach { body, .. } => subtree_has_handlers(body),
@@ -1153,11 +1519,112 @@ fn body_uses_field(nodes: &[Node], field: &str) -> bool {
     })
 }
 
+/// The `ColorScheme` field a theme slot names.
+fn slot_field(slot: ThemeSlot) -> &'static str {
+    match slot {
+        ThemeSlot::Primary => "primary",
+        ThemeSlot::OnPrimary => "on_primary",
+        ThemeSlot::Surface => "surface",
+        ThemeSlot::OnSurface => "on_surface",
+        ThemeSlot::SurfaceVariant => "surface_variant",
+        ThemeSlot::OnSurfaceVariant => "on_surface_variant",
+        ThemeSlot::Outline => "outline",
+        ThemeSlot::Error => "error",
+        ThemeSlot::OnError => "on_error",
+    }
+}
+
+/// Every scroll view and set of tabs under these nodes, dialogs included,
+/// in file order.
+fn collect_ui(nodes: &[Node], into: &mut Vec<UiField>) {
+    for node in nodes {
+        match node {
+            Node::Widget(widget) => {
+                match widget.kind {
+                    WKind::ScrollView => into.push(UiField::Scroll(widget.line)),
+                    WKind::Tabs => into.push(UiField::Tab(widget.line)),
+                    _ => {}
+                }
+                collect_ui(&widget.children, into);
+                if let Some(event) = &widget.event {
+                    for action in &event.actions {
+                        if let AKind::OpenDialog { body, .. } = &action.kind {
+                            let mut inner = Vec::new();
+                            collect_ui(body, &mut inner);
+                            for field in inner {
+                                if !into.contains(&field) {
+                                    into.push(field);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Node::ForEach { body, .. } => collect_ui(body, into),
+        }
+    }
+}
+
+/// The identifiers a `rust:` block under these nodes uses, so the state it
+/// names can be read before it runs. Dialogs are their own functions and
+/// are not looked into.
+fn collect_rust_names(nodes: &[Node], into: &mut Vec<String>) {
+    for node in nodes {
+        match node {
+            Node::Widget(widget) => {
+                if let WKind::Rust { code } = &widget.kind {
+                    for word in code.split(|c: char| !(c.is_ascii_alphanumeric() || c == '_')) {
+                        if !word.is_empty() && !into.iter().any(|w| w == word) {
+                            into.push(word.to_owned());
+                        }
+                    }
+                }
+                collect_rust_names(&widget.children, into);
+            }
+            Node::ForEach { body, .. } => collect_rust_names(body, into),
+        }
+    }
+}
+
+/// Whether a screen's function reads its element: state, the theme, a
+/// scroll view's offset or a tab's selection, or a `rust:` block that
+/// names `ctx`. One that does not is told so, rather than warning.
+fn reads_context(nodes: &[Node], reads: &[Read]) -> bool {
+    let mut ui = Vec::new();
+    collect_ui(nodes, &mut ui);
+    let mut names = Vec::new();
+    collect_rust_names(nodes, &mut names);
+    !reads.is_empty() || uses_theme(nodes) || !ui.is_empty() || names.iter().any(|n| n == "ctx")
+}
+
+fn subtree_has_image(nodes: &[Node]) -> bool {
+    nodes.iter().any(|node| match node {
+        Node::Widget(widget) => {
+            matches!(widget.kind, WKind::Image { .. })
+                || subtree_has_image(&widget.children)
+                || widget.event.as_ref().is_some_and(|event| {
+                    event.actions.iter().any(|action| match &action.kind {
+                        AKind::OpenDialog { body, .. } => subtree_has_image(body),
+                        _ => false,
+                    })
+                })
+        }
+        Node::ForEach { body, .. } => subtree_has_image(body),
+    })
+}
+
+/// Whether a `rust:` block's code mentions `word` as a whole identifier.
+fn rust_mentions(code: &str, word: &str) -> bool {
+    code.split(|c: char| !(c.is_ascii_alphanumeric() || c == '_'))
+        .any(|w| w == word)
+}
+
 fn uses_theme(nodes: &[Node]) -> bool {
     nodes.iter().any(|node| match node {
         Node::Widget(widget) => {
             let themed = match &widget.kind {
                 WKind::Text { .. } => true,
+                WKind::Rust { code } => rust_mentions(code, "theme"),
                 _ => widget
                     .props
                     .iter()
@@ -1189,6 +1656,21 @@ fn snake(title: &str) -> String {
     } else {
         trimmed
     }
+}
+
+/// `Home` → `Home`, `my settings` → `MySettings`: the screen's variant in
+/// `SayScreens`, which Rust wants in upper camel case.
+fn variant(title: &str) -> String {
+    snake(title)
+        .split('_')
+        .filter(|part| !part.is_empty())
+        .map(|part| {
+            let mut chars = part.chars();
+            chars.next().map_or_else(String::new, |first| {
+                first.to_ascii_uppercase().to_string() + chars.as_str()
+            })
+        })
+        .collect()
 }
 
 fn declare(name: &str, ty: &str) -> String {
@@ -1304,13 +1786,18 @@ impl<'a> Gen<'a> {
             }
             WKind::Fixed { width, height } => {
                 used.push(0);
-                let mut out = String::from("SizedBox");
-                if let Some(w) = width {
-                    out.push_str(&format!(".width({})", rust_f32(*w)));
-                }
-                if let Some(h) = height {
-                    out.push_str(&format!(".height({})", rust_f32(*h)));
-                }
+                // `SizedBox` is built by its constructors; it has no
+                // width or height setters to chain.
+                let out = match (width, height) {
+                    (Some(w), Some(h)) => format!(
+                        "SizedBox::from_size(Size::new({}, {}))",
+                        rust_f32(*w),
+                        rust_f32(*h)
+                    ),
+                    (Some(w), None) => format!("SizedBox::width({})", rust_f32(*w)),
+                    (None, Some(h)) => format!("SizedBox::height({})", rust_f32(*h)),
+                    (None, None) => "SizedBox::new()".to_owned(),
+                };
                 let inner = self.children_vec(widget, scope, depth + 1, false);
                 format!("{out}.child({inner})")
             }
@@ -1514,6 +2001,102 @@ impl<'a> Gen<'a> {
             WKind::IconOnly { icon } => {
                 used.push(0);
                 format!("Icon::new({})", icon.rust())
+            }
+            WKind::Image { path } => {
+                used.push(0);
+                let mut label = "None".to_owned();
+                let mut width = "None".to_owned();
+                let mut height = "None".to_owned();
+                for (index, prop) in widget.props.iter().enumerate() {
+                    match prop {
+                        Prop::Description(text) => {
+                            used.push(index);
+                            label = format!("Some({})", rust_str(text));
+                        }
+                        Prop::Wide(n) => {
+                            used.push(index);
+                            width = format!("Some({})", rust_f32(*n));
+                        }
+                        Prop::Tall(n) => {
+                            used.push(index);
+                            height = format!("Some({})", rust_f32(*n));
+                        }
+                        _ => {}
+                    }
+                }
+                format!("say::image({}, {label}, {width}, {height})", rust_str(path))
+            }
+            WKind::ScrollView => {
+                used.push(0);
+                let f = format!("ui_scroll_{}", widget.line);
+                let children = self.children_vec(widget, scope, depth + 1, true);
+                format!(
+                    "Scrollable::vertical({f})\n\
+                     .on_drag(Rc::new(say::on(handle, |s: &mut SayState, d: vieww::foundation::DragDetails| {{ s.{f} = (s.{f} - d.delta.dy).clamp(0.0, s.{f}_max); }})))\n\
+                     .on_extents(Rc::new(say::on(handle, |s: &mut SayState, e: ScrollExtents| {{ s.{f}_max = e.max_offset(); s.{f} = s.{f}.min(s.{f}_max); }})))\n\
+                     .child(Flex::column().main_axis_size(MainAxisSize::Min).cross_axis_alignment(CrossAxisAlignment::Stretch).children({children}))"
+                )
+            }
+            WKind::Tabs => {
+                used.push(0);
+                let f = format!("ui_tab_{}", widget.line);
+                let pad = "    ".repeat(depth + 1);
+                let mut labels: Vec<String> = Vec::new();
+                let mut arms = String::new();
+                for (index, child) in widget.children.iter().enumerate() {
+                    let Node::Widget(tab) = child else { continue };
+                    let WKind::Tab { label } = &tab.kind else {
+                        continue;
+                    };
+                    labels.push(rust_str(label));
+                    let body = self.children_vec(tab, scope, depth + 2, false);
+                    arms.push_str(&format!(
+                        "{pad}    // say: {}:{}  a tab\n{pad}    {index} => {body}",
+                        self.file, tab.line
+                    ));
+                    arms.push_str(&format!("{pad}    ,\n"));
+                }
+                format!(
+                    "{{\n\
+                     {pad}let page: WidgetNode = match {f} {{\n\
+                     {arms}\
+                     {pad}    _ => SizedBox::shrink().into(),\n\
+                     {pad}}};\n\
+                     {pad}Flex::column().main_axis_size(MainAxisSize::Min).cross_axis_alignment(CrossAxisAlignment::Stretch).children(vec![\n\
+                     {pad}    TabBar::new([{}], {f}).on_selected(Rc::new(say::on(handle, |s: &mut SayState, i: usize| {{ s.{f} = i; }}))).into(),\n\
+                     {pad}    page,\n\
+                     {pad}])\n\
+                     {}}}",
+                    labels.join(", "),
+                    "    ".repeat(depth)
+                )
+            }
+            WKind::Tab { .. } => {
+                // Only reachable through `a set of tabs`, which emits its
+                // tabs itself; the parser refuses a tab anywhere else.
+                used.push(0);
+                self.children_vec(widget, scope, depth + 1, false)
+            }
+            WKind::Rust { code } => {
+                used.push(0);
+                let pad = "    ".repeat(depth + 1);
+                let mut out = String::from("{\n");
+                for line in code.lines() {
+                    if line.is_empty() {
+                        out.push('\n');
+                    } else {
+                        out.push_str(&pad);
+                        out.push_str(line);
+                        out.push('\n');
+                    }
+                }
+                out.push_str(&format!(
+                    "{pad}// say: end of the rust from {}:{}\n{}}}",
+                    self.file,
+                    widget.line,
+                    "    ".repeat(depth)
+                ));
+                out
             }
         };
 
@@ -1737,17 +2320,7 @@ impl<'a> Gen<'a> {
                 format!("Color::{name}")
             }
             ColorSpec::Theme(slot) => {
-                let field = match slot {
-                    ThemeSlot::Primary => "primary",
-                    ThemeSlot::OnPrimary => "on_primary",
-                    ThemeSlot::Surface => "surface",
-                    ThemeSlot::OnSurface => "on_surface",
-                    ThemeSlot::SurfaceVariant => "surface_variant",
-                    ThemeSlot::OnSurfaceVariant => "on_surface_variant",
-                    ThemeSlot::Outline => "outline",
-                    ThemeSlot::Error => "error",
-                    ThemeSlot::OnError => "on_error",
-                };
+                let field = slot_field(*slot);
                 format!("theme.colors.{field}")
             }
         }
@@ -1858,9 +2431,16 @@ impl<'a> Gen<'a> {
             }
             Expr::Ref { name, .. } => {
                 let is_text = self.name_kind(name, scope) == Kind::Text;
-                match is_text {
-                    false => name.clone(),
-                    true => match form {
+                match (is_text, self.is_editing_value(name, scope)) {
+                    (false, _) => name.clone(),
+                    // A loop variable or a list row's `item` is a plain
+                    // `String`; only text *state* (and a dialog's field)
+                    // is an editing value with its caret.
+                    (true, false) => match form {
+                        Form::Display => name.clone(),
+                        Form::Value => format!("{name}.clone()"),
+                    },
+                    (true, true) => match form {
                         Form::Display => format!("{name}.text"),
                         Form::Value => format!("{name}.text.clone()"),
                     },
@@ -1912,9 +2492,24 @@ impl<'a> Gen<'a> {
     /// A condition's left side: text state reads `.text`, lists stay lists.
     fn of_rust(&self, name: &str, scope: &Scope) -> String {
         match self.name_kind(name, scope) {
-            Kind::Text => format!("{name}.text"),
+            Kind::Text if self.is_editing_value(name, scope) => format!("{name}.text"),
             _ => name.to_owned(),
         }
+    }
+
+    /// Whether `name` reads as a `TextEditingValue`: text state, or a
+    /// dialog's bound field. Loop variables and `item` shadow both.
+    fn is_editing_value(&self, name: &str, scope: &Scope) -> bool {
+        if scope.loop_vars.iter().any(|(v, _)| v == name) {
+            return false;
+        }
+        if name == "item" && scope.item.is_some() {
+            return false;
+        }
+        if scope.is_dialog && self.modal_fields.iter().any(|f| f == name) {
+            return true;
+        }
+        self.state(name).is_some_and(|s| s.kind == StateKind::Text)
     }
 
     // -- actions --------------------------------------------------------------
@@ -1998,7 +2593,7 @@ impl<'a> Gen<'a> {
                 stmt!(&format!("s.{target}.clear();"));
             }
             AKind::Open { screen } => {
-                stmt!(&format!("s.open_screen(SayScreens::{});", snake(screen)));
+                stmt!(&format!("s.open_screen(SayScreens::{});", variant(screen)));
             }
             AKind::GoBack => {
                 stmt!("s.go_back();");

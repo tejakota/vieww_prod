@@ -111,7 +111,7 @@ impl Widget for FolderPicker {
                     Flex::row()
                         .cross_axis_alignment(CrossAxisAlignment::Center)
                         .children(children![
-                            label_bold(mode.title(), 13.0, colors.on_surface),
+                            label_bold(crate::i18n::t(mode.title()), 13.0, colors.on_surface),
                             space(10.0),
                             Flexible::expanded(1).child(label(
                                 &picker.crumb(),

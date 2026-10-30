@@ -323,6 +323,15 @@ pub trait ElementState: Debug {
         let _ = saved;
         false
     }
+
+    /// The state's values for a person debugging it, as `(name, value)`
+    /// pairs (ST-22): what a tool's inspector shows beside the widget —
+    /// "count = 3", "screen = Settings". Empty by default; Say's generated
+    /// state lists every `keep` value. Unlike [`snapshot`](Self::snapshot)
+    /// this is for reading, not for restoring: any format a human can read.
+    fn debug_fields(&self) -> Vec<(String, String)> {
+        Vec::new()
+    }
 }
 
 /// A boxed state is state.
@@ -372,6 +381,10 @@ impl ElementState for Box<dyn ElementState> {
 
     fn restore(&mut self, saved: &str) -> bool {
         (**self).restore(saved)
+    }
+
+    fn debug_fields(&self) -> Vec<(String, String)> {
+        (**self).debug_fields()
     }
 }
 

@@ -320,6 +320,23 @@ pub const LARGE_UI_SCALE: f32 = 1.15;
 /// place, which is a different accessibility problem.
 pub const CONTRAST_LIFT: f32 = 0.35;
 
+/// The result of "Attribute This Frame" (ST-09).
+#[derive(Debug, Clone, PartialEq)]
+pub struct FrameAttribution {
+    /// The previewed screen alone, at its device size.
+    pub screen: Option<crate::attribution::Breakdown>,
+    /// Each Inspector row's subtree, by render id.
+    pub rows: Vec<crate::attribution::SubtreeCost>,
+}
+
+impl FrameAttribution {
+    /// The cost of the row whose render id is `id`, if it was measured.
+    #[must_use]
+    pub fn row(&self, id: vieww_render::RenderId) -> Option<crate::attribution::SubtreeCost> {
+        self.rows.iter().find(|c| c.id == id).copied()
+    }
+}
+
 /// One device the preview can be framed at.
 ///
 /// # Why presets rather than the three platform defaults
@@ -2039,6 +2056,26 @@ pub struct Studio {
     /// under it is reached by scrolling, which is the answer the Devices tab and
     /// the bottom panel already give to the same question.
     pub stage_scroll: ScrollController,
+    /// The devices shown side by side (ST-21); empty for the single frame.
+    pub preview_matrix: Signal<Vec<Device>>,
+    /// ST-09: the performance overlay over the previewed screen.
+    pub perf_overlay: Signal<bool>,
+    /// The work time of recent frames, for the overlay; written by the
+    /// window's frame hook only while the overlay is on.
+    pub perf_samples: Signal<Vec<std::time::Duration>>,
+    /// The frame budget those samples are measured against.
+    pub perf_budget: std::cell::Cell<std::time::Duration>,
+    /// Set by "Attribute This Frame"; the next frame carries it out, since
+    /// only the frame loop holds the driver.
+    pub attribute_pending: std::cell::Cell<bool>,
+    /// The last attribution: the screen's breakdown, and each Inspector
+    /// row's subtree cost.
+    pub attribution: RefCell<Option<crate::state::FrameAttribution>>,
+    /// The matrix row's horizontal scroll.
+    pub matrix_scroll: ScrollController,
+    /// The guest state the matrix frames last agreed on, so the frame that
+    /// changed can be told from the ones that did not.
+    pub matrix_synced: Rc<RefCell<Vec<(String, String)>>>,
     /// One scroll position per bottom-panel tab.
     ///
     /// **The panel body did not scroll at all.** It was a fixed 176-pixel box,
@@ -2117,8 +2154,27 @@ pub struct Studio {
     /// only needs to know that it *changed*.
     pub tree_snapshot: Rc<RefCell<Vec<(usize, vieww_render::NodeDescription)>>>,
     pub tree_generation: Signal<u64>,
-    /// Which row of the Inspector is expanded.
+    /// The previewed screen's state values (ST-22), captured with the tree:
+    /// `(path, widget, fields)` for every element state that has
+    /// `debug_fields` — Say's `keep` values, for one.
+    pub preview_fields: Rc<RefCell<Vec<vieww_element::DebugState>>>,
+    /// Which row of the Inspector is expanded: the selection's primary
+    /// row, the one the keys move and whose properties show.
     pub inspect_selected: Signal<Option<usize>>,
+    /// Every selected Inspector row (ST-06): ⌘/Ctrl-click adds one,
+    /// Shift-click a range. Always contains `inspect_selected`.
+    pub inspect_selection: Signal<std::collections::BTreeSet<usize>>,
+    /// Collapsed Inspector rows, by path key (`crate::outline::paths`), so
+    /// folding survives the guest re-rendering.
+    pub inspect_collapsed: Signal<std::collections::BTreeSet<String>>,
+    /// The Inspector's name filter.
+    pub inspect_filter: Signal<String>,
+    /// Whether the arrow keys drive the Inspector: set by a click on one of
+    /// its rows, cleared by a click in the editor.
+    pub inspect_keys: Signal<bool>,
+    /// The modifier keys held, as the last key event reported them: what a
+    /// click is read with (⌘/Ctrl adds an Inspector row, Shift a range).
+    pub held_modifiers: Rc<std::cell::Cell<vieww_foundation::Modifiers>>,
     /// Paint the regions the last frame actually repainted.
     ///
     /// The framework's central performance claim is damage-driven repaint — a
@@ -2576,6 +2632,14 @@ impl Studio {
             devices_scroll: ScrollController::new(runtime, ScrollPhysics::ios()),
             generated_scroll: ScrollController::new(runtime, ScrollPhysics::ios()),
             stage_scroll: ScrollController::new(runtime, ScrollPhysics::ios()),
+            preview_matrix: runtime.signal(Vec::new()),
+            perf_overlay: runtime.signal(false),
+            perf_samples: runtime.signal(Vec::new()),
+            perf_budget: std::cell::Cell::new(std::time::Duration::from_micros(16_667)),
+            attribute_pending: std::cell::Cell::new(false),
+            attribution: RefCell::new(None),
+            matrix_scroll: ScrollController::new(runtime, ScrollPhysics::ios()),
+            matrix_synced: Rc::new(RefCell::new(Vec::new())),
             panel_scroll: std::array::from_fn(|_| {
                 ScrollController::new(runtime, ScrollPhysics::ios())
             }),
@@ -2588,7 +2652,13 @@ impl Studio {
             right_open: runtime.signal(true),
             tree_snapshot: Rc::new(RefCell::new(Vec::new())),
             tree_generation: runtime.signal(0),
+            preview_fields: Rc::new(RefCell::new(Vec::new())),
             inspect_selected: runtime.signal(None),
+            inspect_selection: runtime.signal(std::collections::BTreeSet::new()),
+            inspect_collapsed: runtime.signal(std::collections::BTreeSet::new()),
+            inspect_filter: runtime.signal(String::new()),
+            inspect_keys: runtime.signal(false),
+            held_modifiers: Rc::new(std::cell::Cell::new(vieww_foundation::Modifiers::NONE)),
             show_damage: runtime.signal(false),
             show_semantics: runtime.signal(false),
             pick_mode: runtime.signal(false),
@@ -2903,7 +2973,16 @@ impl Studio {
         // seeing the file. Only what escapes Say's own checks needs the
         // `// say:` source map.
         let source: String = if buffer.language == crate::language::Language::Say {
-            match vieww_say_codegen::compile(&buffer.name, &buffer.value.text) {
+            // `an image "…"` reads from the folder the `.say` file is in.
+            let options = vieww_say_codegen::Options {
+                asset_root: buffer
+                    .path
+                    .as_deref()
+                    .and_then(std::path::Path::parent)
+                    .map(|dir| dir.to_string_lossy().into_owned())
+                    .unwrap_or_default(),
+            };
+            match vieww_say_codegen::compile_with(&buffer.name, &buffer.value.text, &options) {
                 Ok(generated) => {
                     self.generated_rust
                         .set(Some(Rc::new(generated.rust.clone())));

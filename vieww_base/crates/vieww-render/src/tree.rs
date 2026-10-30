@@ -1189,6 +1189,23 @@ impl RenderTree {
         }
     }
 
+    /// Paint one node and everything under it, with the node's own top-left
+    /// at the canvas origin — the commands that subtree contributes to a
+    /// frame, and nothing else.
+    ///
+    /// What makes per-subtree cost measurable: rasterising this and nothing
+    /// else is what the subtree costs to draw. Transforms, clips and
+    /// opacity from *ancestors* are not applied, because they belong to the
+    /// ancestors; the subtree's own are. A stale or unknown id paints
+    /// nothing.
+    pub fn paint_subtree(&self, id: RenderId, canvas: &mut dyn Canvas) {
+        if !self.is_alive(id) {
+            return;
+        }
+        let offset = self.node(id).offset;
+        self.paint_node(id, Offset::new(-offset.dx, -offset.dy), canvas, 1.0);
+    }
+
     fn paint_node(&self, id: RenderId, parent_origin: Offset, canvas: &mut dyn Canvas, dpr: f32) {
         let node = self.node(id);
         let origin = parent_origin + node.offset;

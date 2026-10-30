@@ -346,6 +346,8 @@ if (Want 'audio') {
   } else {
     Say ("      audio endpoints: " + (($endpoints | ForEach-Object { $_.FriendlyName }) -join '; '))
     Run-Step 'audio-devices' @{} 'cargo' @('test','--release','-p','vieww-audio','--lib','backend::wasapi','--','--nocapture') | Out-Null
+    # AU-01: the registered player (EnginePlayer) on this machine's output.
+    Run-Step 'audio-player' @{ VIEWW_LIVE_GAIN = $gain } 'cargo' @('test','--release','-p','vieww-audio','--test','player_smoke','--','--ignored','--nocapture') | Out-Null
     # AU-10: IAudioClient3 low-latency shared mode on this machine's real
     # endpoint: under 8 ms, and the soak with no late render.
     Run-Step 'audio-low-latency-shared' @{ VIEWW_SOAK_SECS = $soak } 'cargo' @('test','--release','-p','vieww-audio','--lib','low_latency_shared_on_a_real_endpoint','--','--ignored','--nocapture') | Out-Null

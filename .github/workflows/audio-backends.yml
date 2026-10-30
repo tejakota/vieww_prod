@@ -104,6 +104,8 @@ jobs:
           VIEWW_LOOP_BACKEND: pulse
         run: |
           cargo test --release -p vieww-audio --test live_backends -- --ignored --nocapture --test-threads=1
+          # AU-01: the registered player (EnginePlayer) on the live server.
+          cargo test --release -p vieww-audio --test player_smoke -- --ignored --nocapture
           pactl set-default-source null.monitor
           cargo test --release -p vieww-audio --test device_loopback default_device -- --ignored --nocapture
       - name: Server logs

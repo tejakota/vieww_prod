@@ -69,6 +69,13 @@ impl ElementState for SayState {
         )
     }
 
+    /// The kept values, for the studio's inspector.
+    fn debug_fields(&self) -> Vec<(String, String)> {
+        vec![
+            ("count".to_owned(), self.count.to_string()),
+        ]
+    }
+
     /// Put back what `snapshot` saved. The input is untrusted — it may be
     /// from a version of this file that kept different things — so this
     /// reads into locals and applies only when all of it made sense.

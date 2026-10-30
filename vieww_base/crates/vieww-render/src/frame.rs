@@ -432,6 +432,14 @@ impl FrameDriver {
         !self.frame_errors.is_empty()
     }
 
+    /// The render object an element produced, if it produced one — how a
+    /// tool that found something in the element tree (a marker widget, say)
+    /// finds the same thing in the render tree.
+    #[must_use]
+    pub fn render_of(&self, element: vieww_element::ElementId) -> Option<crate::RenderId> {
+        self.owner.render_of(element)
+    }
+
     pub fn elements(&mut self) -> &mut ElementTree {
         &mut self.elements
     }

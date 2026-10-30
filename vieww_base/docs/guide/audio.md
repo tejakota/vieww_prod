@@ -79,15 +79,65 @@ piece first, so it cannot run live. Set a fixed gain instead with
 `set_gain_db`. `seek_beat` moves the playhead exactly; it is not meant
 for the audio thread.
 
+## Long files
+
+A file that would decode to more than 32 MB (about three minutes of
+44.1 kHz stereo) is streamed from disk as it plays instead of held in
+memory: `MediaSource::File` does this by itself, and
+`MediaSource::Stream(path)` asks for it at any length. Seeking, looping,
+normalization (measured by streaming the file once) and the lock screen
+work the same. Every format streams; memory stays at a few megabytes
+however long the file is.
+
+The example `examples/features/92-media-player` is a small player
+(`cargo run -p feature-media-player -- song.flac`).
+
 ## Platforms
 
-| Platform | Output | What to know |
+What each platform needs from the app, beyond the code above:
+
+| Platform | Output | The app must |
 |---|---|---|
-| Linux | PipeWire / PulseAudio / ALSA | Nothing to configure. |
-| Windows | WASAPI shared mode | Nothing to configure. |
-| macOS, iOS | Core Audio | iOS audio-session handling (interruptions, background audio) is tracked as AU-03. |
-| Android | AAudio | Audio focus and background playback are tracked as AU-02 and AU-04. |
+| Linux | PipeWire, JACK, PulseAudio, ALSA (first that opens) | Nothing. |
+| Windows | WASAPI shared mode (low-latency `IAudioClient3` path when the device offers a short period) | Nothing. |
+| macOS | Core Audio | Nothing. |
+| iOS | Core Audio, `AVAudioSession` category `.playback` | For playback with the screen locked or the app in the background: `UIBackgroundModes` = `audio` in `Info.plist`. |
+| Android | AAudio (exclusive mode when granted, shared otherwise) | For playback in the background: the `mediaPlayback` foreground service and its permissions — `ci/mobile/apk-add-code.sh --background-audio` adds both to an APK. |
 | Web | Web Audio (AudioWorklet) | See below. |
+
+`ci/mobile/lint-background-audio.sh --apk APP.apk` (or `--plist
+Info.plist`) fails, naming what is missing, when a build does not
+declare background audio.
+
+On iOS and Android, vieww also takes audio focus (a call pauses playback,
+a notification ducks it), publishes the lock-screen card from
+`MediaPlayer::set_metadata`, and follows headphones and Bluetooth: an
+unplug pauses, and the stream moves to the new output at once.
+
+## Latency
+
+The engine opens 48 kHz stereo in 256-frame blocks (5.3 ms) unless told
+otherwise (`StreamConfig`). What a device adds on top, measured on
+Device Farm phones and CI runners, and what changes it:
+
+| Backend | Typical output latency | How to lower it |
+|---|---|---|
+| AAudio exclusive (most recent phones) | 7–9 ms | It is the default when the phone grants it. |
+| AAudio shared (older phones, e.g. LG Stylo 5) | 25–30 ms | Nothing app-side; the phone refused exclusive mode. |
+| WASAPI shared, default period | ~22 ms | Use a device whose driver offers a shorter engine period (the `IAudioClient3` path takes it), or WASAPI exclusive. |
+| WASAPI exclusive | one device period | `Engine::with_backend(Box::new(WasapiExclusive), config)`; the app then owns the device. |
+| PipeWire / PulseAudio | the server's quantum | Lower the server's quantum (PipeWire: `PIPEWIRE_QUANTUM=128/48000` in the app's environment). |
+| JACK | the server's period | `jackd -p 128`. |
+| Core Audio | a few ms plus the device's | Smaller `block`. |
+
+`Engine::stream_stats()` reports what the device actually granted: its
+latency, buffer, period, exclusive mode and underruns. Real-time
+priority is taken for every audio thread vieww owns
+(`VIEWW_AUDIO_NO_RT=1` turns that off).
+
+Code on the audio thread can carry `#[vieww_audio::realtime]`: the
+compiler then refuses allocation and locking in it, and in debug builds
+`vieww_audio::rt::CheckedAlloc` catches what its callees allocate.
 
 ## The web
 

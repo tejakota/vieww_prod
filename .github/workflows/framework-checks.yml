@@ -504,6 +504,14 @@ jobs:
           exit $status
         env:
           PLAYWRIGHT_BROWSERS_PATH: ""
+      # AU-01: the web AudioPlayer — services() registers the engine, a
+      # tone plays through the real shim and AudioWorklet in Chromium.
+      - name: Web audio player in Chromium (AU-01)
+        run: |
+          cargo build --release --target wasm32-unknown-unknown -p vieww-platform-web --example audio_smoke
+          python3 crates/vieww-platform-web/web-test/audio_smoke.py
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ""
       - name: Readbacks
         if: failure()
         uses: actions/upload-artifact@v4

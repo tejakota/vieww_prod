@@ -183,6 +183,11 @@ struct State {
 pub struct ResilientStream {
     state: Arc<State>,
     thread: Option<JoinHandle<()>>,
+    /// The web (AU-01): wasm32-unknown-unknown cannot spawn the supervisor
+    /// thread, and the browser owns the device (its `AudioContext` follows
+    /// the system output itself), so the stream is held as it opened.
+    #[cfg(target_arch = "wasm32")]
+    held: Option<super::DeviceStream>,
 }
 
 impl ResilientStream {
@@ -209,6 +214,14 @@ impl ResilientStream {
     ///
     /// # Errors
     /// As [`Self::open`].
+    #[cfg_attr(
+        target_arch = "wasm32",
+        allow(
+            unreachable_code,
+            unused_variables,
+            reason = "the web holds the stream unsupervised"
+        )
+    )]
     pub fn open_with_session(
         backend: Box<dyn Backend>,
         target: Target,
@@ -229,6 +242,15 @@ impl ResilientStream {
             poisoned,
             ..State::default()
         });
+        #[cfg(target_arch = "wasm32")]
+        {
+            let _ = (session, slot);
+            return Ok(Self {
+                state,
+                thread: None,
+                held: Some(first),
+            });
+        }
         // Route notifications wake the supervisor early (AU-09).
         let wake = Arc::new(Wake::default());
         let w2 = Arc::clone(&wake);
@@ -352,6 +374,8 @@ impl ResilientStream {
         Ok(Self {
             state,
             thread: Some(thread),
+            #[cfg(target_arch = "wasm32")]
+            held: None,
         })
     }
 
@@ -401,6 +425,10 @@ impl ResilientStream {
     /// `None` until the first refresh).
     #[must_use]
     pub fn stats(&self) -> Option<StreamStats> {
+        #[cfg(target_arch = "wasm32")]
+        if let Some(s) = &self.held {
+            return Some(s.stats());
+        }
         self.state.current.lock().ok().and_then(|c| *c)
     }
 }

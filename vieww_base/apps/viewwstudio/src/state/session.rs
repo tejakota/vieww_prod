@@ -365,12 +365,17 @@ impl Studio {
             // Said once, on the way in, with the count — a keymap file where
             // one line silently did nothing is a file people keep editing
             // without understanding why.
-            self.notify(&format!(
-                "{} problem{} in your customisation files: {}",
-                problems.len(),
-                if problems.len() == 1 { "" } else { "s" },
-                problems.join("; ")
-            ));
+            self.notify(&if problems.len() == 1 {
+                crate::i18n::tf(
+                    "{} problem in your customisation files: {}",
+                    &[&1, &problems.join("; ")],
+                )
+            } else {
+                crate::i18n::tf(
+                    "{} problems in your customisation files: {}",
+                    &[&problems.len(), &problems.join("; ")],
+                )
+            });
         }
     }
 
@@ -418,11 +423,11 @@ impl Studio {
                 written += 1;
             }
         }
-        self.notify(&format!(
-            "{written} template{} written to {}",
-            if written == 1 { "" } else { "s" },
-            dir.display()
-        ));
+        self.notify(&if written == 1 {
+            crate::i18n::tf("{} template written to {}", &[&written, &dir.display()])
+        } else {
+            crate::i18n::tf("{} templates written to {}", &[&written, &dir.display()])
+        });
     }
 
     /// Read both records back. Called once, by `main`, after services are in.

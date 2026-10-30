@@ -19,8 +19,27 @@ pub(crate) struct Program {
     /// Fields of the generated `SayModal` — the bound values a dialog's
     /// content edits. Empty unless some `open a dialog` block binds one.
     pub modal_fields: Vec<String>,
+    /// The `the theme:` block: colour slots over the host's theme.
+    pub theme: Vec<ThemeEntry>,
+    /// Top-level `rust:` blocks, passed into the file verbatim.
+    pub rust_items: Vec<RustBlock>,
     /// Compiles fine; the author would still want to know.
     pub warnings: Vec<Diagnostic>,
+}
+
+/// One line of `the theme:` — `primary is #3366FF`.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct ThemeEntry {
+    pub slot: ThemeSlot,
+    pub color: u32,
+    pub line: u32,
+}
+
+/// Rust written inside a `.say` file, verbatim, with the line it starts on.
+#[derive(Debug, Clone)]
+pub(crate) struct RustBlock {
+    pub code: String,
+    pub line: u32,
 }
 
 #[derive(Debug, Default)]
@@ -151,6 +170,22 @@ pub(crate) enum WKind {
     },
     IconOnly {
         icon: Icon,
+    },
+    /// `an image "photos/cat.png"` — a file, decoded at run time.
+    Image {
+        path: String,
+    },
+    /// `a scroll view:` — its children in a column that scrolls.
+    ScrollView,
+    /// `a set of tabs:` — a tab bar over the selected tab's children.
+    Tabs,
+    /// `a tab "Name":` — one page of a set of tabs.
+    Tab {
+        label: String,
+    },
+    /// `rust:` inside a block — an expression that becomes a widget.
+    Rust {
+        code: String,
     },
 }
 
@@ -379,6 +414,11 @@ pub(crate) struct Parser<'a> {
     pub(crate) pending_screen_refs: Vec<(String, u32)>,
     pub(crate) has_go_back: bool,
     pub(crate) inside_dialog: usize,
+    pub(crate) theme: Vec<ThemeEntry>,
+    pub(crate) rust_items: Vec<RustBlock>,
+    /// The indentation a `a tab` line may sit at: one deeper than each open
+    /// `a set of tabs`.
+    pub(crate) open_tabs: Vec<u32>,
 }
 
 /// Parse a lexed file. Collects every error it can before failing, so a
@@ -398,6 +438,9 @@ pub(crate) fn parse(file: &Rc<String>, lines: &[Line]) -> Result<Program, Vec<Di
         pending_screen_refs: Vec::new(),
         has_go_back: false,
         inside_dialog: 0,
+        theme: Vec::new(),
+        rust_items: Vec::new(),
+        open_tabs: Vec::new(),
     };
     parser.top_level();
     parser.cross_checks();
@@ -407,6 +450,8 @@ pub(crate) fn parse(file: &Rc<String>, lines: &[Line]) -> Result<Program, Vec<Di
             states: parser.states,
             screens: parser.screens,
             modal_fields: parser.modal_fields,
+            theme: parser.theme,
+            rust_items: parser.rust_items,
             warnings: parser.warnings,
         })
     } else {
@@ -567,6 +612,9 @@ impl<'a> Parser<'a> {
                     self.parse_app_line(i);
                     i += 1;
                 }
+                Some("the") if words.get(1).copied() == Some("theme") => {
+                    i = self.parse_theme(i);
+                }
                 Some("widget") => {
                     self.reserved(
                         number,
@@ -576,21 +624,20 @@ impl<'a> Parser<'a> {
                     );
                     i = self.skip_block(i + 1, 1);
                 }
-                Some("rust") => {
-                    self.reserved(
-                        number,
-                        1,
-                        "a `rust:` block",
-                        "v1 screens stay in Say; the escape hatch returns with the Say 1.1 update.",
-                    );
-                    i = self.skip_block(i + 1, 1);
+                _ if self.opens_rust(i) => {
+                    if let Some((code, next)) = self.rust_block(i, 0) {
+                        self.rust_items.push(RustBlock { code, line: number });
+                        i = next;
+                    } else {
+                        i += 1;
+                    }
                 }
                 _ => {
                     self.error(
                         number,
                         1,
                         codes::E060,
-                        "a file holds `keep` state, `the app` lines and `screen` blocks — this line is none of them",
+                        "a file holds `keep` state, `the app` lines, `the theme:`, `rust:` blocks and `screen` blocks — this line is none of them",
                     );
                     i += 1;
                 }
@@ -887,20 +934,8 @@ impl<'a> Parser<'a> {
                     let joined = words.join(" ");
                     if joined.starts_with("with a fade transition") {
                         transition = Some(Transition::Fade);
-                        self.warn(
-                            number,
-                            1,
-                            codes::W130,
-                            "the preview navigates without transitions in this version — `with a fade transition` is accepted and reserved for Say 1.1",
-                        );
                     } else if joined.starts_with("with a slide transition") {
                         transition = Some(Transition::Slide);
-                        self.warn(
-                            number,
-                            1,
-                            codes::W130,
-                            "the preview navigates without transitions in this version — `with a slide transition` is accepted and reserved for Say 1.1",
-                        );
                     } else if joined.starts_with("with no transition") {
                         transition = None;
                     } else {
@@ -998,14 +1033,21 @@ impl<'a> Parser<'a> {
                 }
                 continue;
             }
-            if words.first().copied() == Some("rust") {
-                self.reserved(
-                    number,
-                    1,
-                    "a `rust:` block",
-                    "v1 screens stay in Say; the escape hatch returns with the Say 1.1 update.",
-                );
-                i = self.skip_block(i + 1, indent + 1);
+            if self.opens_rust(i) {
+                if let Some((code, next)) = self.rust_block(i, indent) {
+                    nodes.push(Node::Widget(Widget {
+                        kind: WKind::Rust { code },
+                        props: Vec::new(),
+                        event: None,
+                        only_if: None,
+                        children: Vec::new(),
+                        line: number,
+                        phrase: "rust",
+                    }));
+                    i = next;
+                } else {
+                    i += 1;
+                }
                 continue;
             }
             match self.parse_widget_line(i, indent) {
@@ -1017,6 +1059,175 @@ impl<'a> Parser<'a> {
             }
         }
         (nodes, i)
+    }
+
+    /// Whether line `index` opens a Rust block: `rust:` or a fence.
+    pub(crate) fn opens_rust(&self, index: usize) -> bool {
+        let Some(line) = self.lines.get(index) else {
+            return false;
+        };
+        let body = line.raw.trim();
+        body == "rust:" || body == "```rust"
+    }
+
+    /// The Rust in the block line `index` opens, dedented, and the index of
+    /// the first line after it.
+    ///
+    /// Two spellings: `rust:` with the code indented under it, ended by the
+    /// first line back at the block's own depth; or a fence, ```` ```rust ````
+    /// down to a closing ```` ``` ````, whose lines may sit at the fence's
+    /// own depth. Either way the code is passed through as written — Say
+    /// does not read it — and rustc's errors point into the generated file
+    /// beside the `// say:` marker for this line.
+    pub(crate) fn rust_block(&mut self, index: usize, indent: u32) -> Option<(String, usize)> {
+        let number = self.lines.get(index)?.number;
+        let fenced = self.lines[index].raw.trim() == "```rust";
+        let (strip, mut i) = if fenced {
+            (indent as usize * 4, index + 1)
+        } else {
+            ((indent as usize + 1) * 4, index + 1)
+        };
+        let mut code: Vec<String> = Vec::new();
+        let mut closed = !fenced;
+        while i < self.lines.len() {
+            let raw = &self.lines[i].raw;
+            if fenced {
+                if raw.trim() == "```" {
+                    closed = true;
+                    i += 1;
+                    break;
+                }
+            } else if !raw.trim().is_empty() {
+                let depth = (raw.len() - raw.trim_start_matches(' ').len()) / 4;
+                if depth <= indent as usize {
+                    break;
+                }
+            }
+            let cut = raw.len() - raw.trim_start_matches(' ').len();
+            code.push(raw[cut.min(strip)..].to_owned());
+            i += 1;
+        }
+        while code.last().is_some_and(|l| l.trim().is_empty()) {
+            code.pop();
+        }
+        if !closed {
+            self.error(
+                number,
+                1,
+                codes::E010,
+                "this ```rust block is never closed — end it with a line holding only ```",
+            );
+            return None;
+        }
+        if code.is_empty() {
+            self.error(
+                number,
+                1,
+                codes::E010,
+                "this Rust block is empty — indent the code under `rust:`",
+            );
+            return None;
+        }
+        Some((code.join("\n"), i))
+    }
+
+    /// `the theme:` and its lines: `<slot> is #RRGGBB`.
+    fn parse_theme(&mut self, index: usize) -> usize {
+        let number = self.lines[index].number;
+        if self.lines[index].tokens.last() != Some(&Tok::Colon) {
+            self.error(
+                number,
+                1,
+                codes::E010,
+                "the theme is a block: `the theme:`, with a colour per line under it",
+            );
+            return index + 1;
+        }
+        if !self.theme.is_empty() {
+            self.error(
+                number,
+                1,
+                codes::E031,
+                "this file already has a `the theme:` block",
+            );
+            return self.skip_block(index + 1, 1);
+        }
+        let mut i = index + 1;
+        while i < self.lines.len() {
+            let line = &self.lines[i];
+            let Some(depth) = line.indent else {
+                i += 1;
+                continue;
+            };
+            if depth == 0 {
+                break;
+            }
+            let number = line.number;
+            let toks = line.tokens.clone();
+            let mut words: Vec<&str> = toks.iter().filter_map(Tok::word).collect();
+            if words.first() == Some(&"the") {
+                words.remove(0);
+            }
+            let is = words.iter().position(|w| *w == "is");
+            let color = toks.iter().find_map(|t| match t {
+                Tok::Hex(h) => Some(*h),
+                _ => None,
+            });
+            let slot_words = is.map(|at| {
+                let mut slot = words[..at].to_vec();
+                if slot.last() == Some(&"color") || slot.last() == Some(&"colour") {
+                    slot.pop();
+                }
+                slot.join(" ")
+            });
+            let slot = match slot_words.as_deref() {
+                Some("primary") => Some(ThemeSlot::Primary),
+                Some("on primary") => Some(ThemeSlot::OnPrimary),
+                Some("surface") => Some(ThemeSlot::Surface),
+                Some("on surface") => Some(ThemeSlot::OnSurface),
+                Some("surface variant") => Some(ThemeSlot::SurfaceVariant),
+                Some("on surface variant") => Some(ThemeSlot::OnSurfaceVariant),
+                Some("outline") => Some(ThemeSlot::Outline),
+                Some("error") => Some(ThemeSlot::Error),
+                Some("on error") => Some(ThemeSlot::OnError),
+                _ => None,
+            };
+            match (slot, color) {
+                (Some(slot), Some(color)) => {
+                    if self.theme.iter().any(|e| e.slot == slot) {
+                        self.error(
+                            number,
+                            1,
+                            codes::E031,
+                            "this colour is already set earlier in the theme",
+                        );
+                    } else {
+                        self.theme.push(ThemeEntry {
+                            slot,
+                            color,
+                            line: number,
+                        });
+                    }
+                }
+                (None, _) => self.error(
+                    number,
+                    1,
+                    codes::E060,
+                    "a theme line names a colour slot — primary, on primary, surface, on surface, surface variant, on surface variant, outline, error or on error — then `is #RRGGBB`",
+                ),
+                (Some(_), None) => self.error(
+                    number,
+                    1,
+                    codes::E04X,
+                    "a theme colour is written `#RRGGBB`",
+                ),
+            }
+            i += 1;
+        }
+        if self.theme.is_empty() {
+            self.error(number, 1, codes::E010, "this theme sets no colours");
+        }
+        i
     }
 
     fn parse_for_each(&mut self, index: usize, indent: u32) -> Option<(Node, usize)> {

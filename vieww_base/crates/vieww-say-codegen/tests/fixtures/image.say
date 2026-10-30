@@ -1,0 +1,9 @@
+-- say-language: 1
+-- ST-20: pictures from files. The path is read from the folder the studio
+-- names (the `.say` file's own), or the working folder for `saygen`.
+
+screen "Gallery":
+    a column, spaced 12:
+        a heading "Gallery"
+        an image "tests/fixtures/dot.png", 64 wide, 64 tall, described as "A red dot"
+        an image "tests/fixtures/missing.png"

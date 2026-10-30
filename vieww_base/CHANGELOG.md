@@ -11,6 +11,24 @@ tag needs a `## [x.y.z]` section here before it is pushed.
 
 ## [Unreleased]
 
+### Added
+
+- **Say grows** (ST-20): `an image "…"`, `a scroll view:`, `a set of tabs:` with `a tab "…":`, a `the theme:` block over the host's colour slots, fade and slide transitions that now play, and `rust:` / ```` ```rust ```` blocks passed through verbatim. `compile_with` and `Options::asset_root`; `docs/guide/say.md`.
+- **Studio performance tools** (ST-09): Preview: Performance Overlay (the window's frame times over the previewed screen) and Preview: Attribute This Frame (the screen's text/shadow/rest breakdown, and a cost on every Inspector row). `RenderTree::paint_subtree`, `FrameDriver::render_of`.
+- **Device matrix** (ST-21): the previewed screen on several devices side by side, sharing one state.
+- **Inspector** (ST-06, ST-22): an outline with filter, multi-select and keyboard navigation, the screen's kept state, and the stage beside it; `ElementState::debug_fields`, `ElementTree::debug_states`.
+- **Studio in French and German** (ST-16), and every dialog and status-bar message in Spanish too.
+- **LilyPond export** and schema-checked notation (AU-16): `notation::lilypond`, `ci/check/notation.sh`.
+- **`#[realtime]`** (AU-18): compile-time and debug run-time real-time checks (`vieww-audio-macros`, `rt::RtSection`, `rt::CheckedAlloc`).
+- **The web AudioPlayer** (AU-01): `vieww_platform_web::services()`, proven in Chromium.
+- `docs/guide/music.md`, more in `docs/guide/audio.md`, `examples/features/92-media-player` (AU-21).
+
+### Fixed (this batch)
+
+- Web audio never rendered in a browser: timing each block with `Instant` trapped on wasm.
+- Say: files with more than one screen, or with a dialog, generated Rust that did not compile; `a fixed area` and `a list of text` defaults did not compile; a loop variable was read as an editing value; the home screen was assumed to be called "Home".
+- Say error messages no longer say "a an image".
+
 ### Fixed
 - **Headset and Bluetooth media keys while the app is open (Android)**: winit marks every key but volume as handled, so Android never routed play/pause/next to the media session while a vieww app had focus. The platform crate now forwards media keys to the audio session itself (Galaxy A73, Device Farm run 40818820451). The session's remote-command queue is bounded.
 - **Device Farm audio pass on Android 9**: media keys go straight to `media dispatch` below API 29 and stderr is kept, so a refusal is seen (the Stylo 5's `cmd media_session` failed silently in run 40810844722). The Galaxy S26 Ultra's CPU known-failure entry is removed: it passed three runs in a row.

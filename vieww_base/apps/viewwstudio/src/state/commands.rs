@@ -291,6 +291,9 @@ impl Studio {
 
     /// Say something in the status bar.
     pub fn notify(&self, message: &str) {
+        // ST-16: every status-bar message in the interface language.
+        let translated = crate::i18n::translate_message(message);
+        let message = translated.as_str();
         self.notice.set(Some(message.to_owned()));
     }
 
@@ -523,5 +526,184 @@ impl Studio {
         value.composing = None;
         self.edit(value);
         self.notify("Flow file loaded. Click Render to start the Live Preview.");
+    }
+
+    // ── several devices side by side (ST-21) ────────────────────────────
+
+    /// The matrix a first toggle opens: a phone, a tablet and a desktop.
+    #[must_use]
+    pub fn default_matrix() -> Vec<Device> {
+        ["Phone", "Tablet", "Desktop"]
+            .iter()
+            .filter_map(|name| Device::ALL.iter().find(|d| d.name == *name).copied())
+            .collect()
+    }
+
+    /// Open the matrix with the default three devices, or close it.
+    pub fn toggle_device_matrix(&self) {
+        if self.preview_matrix.peek().is_empty() {
+            self.preview_matrix.set(Self::default_matrix());
+            self.notify("Preview: several devices");
+        } else {
+            self.preview_matrix.set(Vec::new());
+            self.matrix_synced.borrow_mut().clear();
+            self.notify("Preview: one device");
+        }
+    }
+
+    /// Add the next device (in `Device::ALL` order) the matrix does not
+    /// show yet; opens the matrix if it was closed.
+    pub fn matrix_add_device(&self) {
+        let mut shown = self.preview_matrix.peek();
+        if let Some(next) = Device::ALL
+            .iter()
+            .find(|d| !shown.iter().any(|s| s.name == d.name))
+        {
+            shown.push(*next);
+            self.preview_matrix.set(shown);
+        }
+    }
+
+    /// Take the `index`th device out of the matrix.
+    pub fn matrix_remove_device(&self, index: usize) {
+        self.preview_matrix.update(|m| {
+            if index < m.len() {
+                m.remove(index);
+            }
+        });
+    }
+
+    /// Keep the matrix frames showing **one** state (ST-21): the frames are
+    /// separate mounts of the same screen, each with its own elements, so
+    /// a tap changes one of them. After every frame, the frame whose state
+    /// differs from what they last agreed on is copied into the others,
+    /// matched from each frame's `GuestRoot` down —
+    /// with the snapshot/restore that carries state across a Render, so
+    /// what survives is what that survives (a frame whose layout differs,
+    /// a responsive screen on a desktop, skips what does not match).
+    /// Returns how many frames were updated.
+    pub fn sync_matrix_states(&self, driver: &mut vieww_render::FrameDriver) -> usize {
+        if self.preview_matrix.peek().len() < 2 {
+            return 0;
+        }
+        let elements = driver.elements();
+        // Each frame's screen, not the frame itself: the device chrome
+        // around the screen differs (a desktop has no notch layers), and
+        // the snapshot's paths start at the root they are taken from.
+        let frames: Vec<_> = elements
+            .find_all(crate::ui::preview::MATRIX_FRAME)
+            .iter()
+            .filter_map(|e| {
+                let mut stack = vec![e.id()];
+                while let Some(id) = stack.pop() {
+                    let el = elements.get(id)?;
+                    if el.debug_name() == crate::ui::preview::GUEST_ROOT {
+                        return Some(id);
+                    }
+                    stack.extend(el.children().iter().rev().copied());
+                }
+                None
+            })
+            .collect();
+        if frames.len() < 2 {
+            return 0;
+        }
+        let snaps: Vec<Vec<(String, String)>> = frames
+            .iter()
+            .map(|&f| elements.snapshot_states(f))
+            .collect();
+        let last = self.matrix_synced.borrow().clone();
+        if snaps.iter().all(|s| *s == snaps[0]) {
+            *self.matrix_synced.borrow_mut() = snaps[0].clone();
+            return 0;
+        }
+        let Some(changed) = snaps.iter().position(|s| *s != last) else {
+            return 0;
+        };
+        let source = snaps[changed].clone();
+        let mut updated = 0;
+        for (i, &f) in frames.iter().enumerate() {
+            if i != changed && snaps[i] != source && elements.restore_states(f, &source) > 0 {
+                updated += 1;
+            }
+        }
+        *self.matrix_synced.borrow_mut() = source;
+        updated
+    }
+
+    // ── performance (ST-09) ─────────────────────────────────────────────
+
+    /// The performance overlay over the previewed screen, on or off.
+    pub fn toggle_perf_overlay(&self) {
+        let on = !self.perf_overlay.peek();
+        self.perf_overlay.set(on);
+        if on {
+            self.notify("Performance overlay on — one bar per frame, red past the budget.");
+        } else {
+            self.perf_samples.set(Vec::new());
+            self.notify("Performance overlay off.");
+        }
+    }
+
+    /// What the window's frame hook measured. Ignored while the overlay is
+    /// off, so an idle studio is not woken to redraw a graph nobody sees.
+    pub fn note_frames(&self, samples: Vec<std::time::Duration>, budget: std::time::Duration) {
+        if !self.perf_overlay.peek() {
+            return;
+        }
+        self.perf_budget.set(budget);
+        if self.perf_samples.peek() != samples {
+            self.perf_samples.set(samples);
+        }
+    }
+
+    /// Ask for an attribution of the next frame. The frame loop holds the
+    /// driver, so it carries this out in [`Self::run_attribution`].
+    pub fn request_attribution(&self) {
+        if self.preview_screen.peek().is_none() {
+            self.notify("Attributing a frame needs a rendered screen — press Render first.");
+            return;
+        }
+        self.attribute_pending.set(true);
+        // The rows are annotated in the Inspector, so it opens.
+        self.right_open.set(true);
+        self.right_tab.set(crate::state::RightTab::Inspector);
+    }
+
+    /// Carry out a requested attribution: the previewed screen rendered
+    /// alone at its device size and ablated, and every Inspector row's
+    /// subtree measured. Returns whether one ran.
+    pub fn run_attribution(&self, driver: &mut vieww_render::FrameDriver) -> bool {
+        if !self.attribute_pending.replace(false) {
+            return false;
+        }
+        let screen = self.preview_screen.peek().map(|preview| {
+            let metrics = self.preview_view_metrics();
+            let size = metrics.size;
+            let mut alone = vieww_render::FrameDriver::new(size);
+            alone.set_root(crate::ui::preview::guest_tree(
+                preview.node(),
+                metrics,
+                vieww_foundation::Accessibility::default(),
+                self.platform.peek(),
+                self.preview_dark.peek(),
+            ));
+            alone.draw_frame();
+            crate::attribution::breakdown(alone.scene(), size, 3)
+        });
+        // The rows as the Inspector holds them; captured now if it has not
+        // run yet this session.
+        self.capture_tree(driver);
+        let rows = self.tree_snapshot.borrow().clone();
+        let costs = crate::attribution::subtree_costs(driver.renders(), &rows, 200, 2);
+        if let Some(screen) = &screen {
+            self.notify(&format!("Frame attributed: {}", screen.summary()));
+        }
+        *self.attribution.borrow_mut() = Some(crate::state::FrameAttribution {
+            screen,
+            rows: costs,
+        });
+        self.tree_generation.update(|n| *n = n.wrapping_add(1));
+        true
     }
 }

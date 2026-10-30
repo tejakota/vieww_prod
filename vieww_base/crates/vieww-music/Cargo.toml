@@ -18,3 +18,10 @@ vieww-audio.workspace = true
 
 [lints]
 workspace = true
+
+# AU-18: LiveScore's render block under a counting allocator. Its own
+# process, no libtest threads, as vieww-audio's harness explains; run with
+# `-C prefer-dynamic=no` (a shared libstd hides Vec growth from it).
+[[test]]
+name = "realtime_no_alloc"
+harness = false

@@ -67,7 +67,7 @@ pub use navigator::NavigatorController;
 pub use scroll::ScrollController;
 pub use signal::{Memo, Runtime, Signal, SignalId};
 pub use snapshot::{Conflict, Snapshot};
-pub use tree::ElementTree;
+pub use tree::{DebugState, ElementTree};
 
 pub use vieww_animation as animation_layer;
 pub use vieww_foundation as foundation;

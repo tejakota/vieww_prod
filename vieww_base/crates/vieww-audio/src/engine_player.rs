@@ -689,6 +689,7 @@ impl Engine {
 }
 
 /// The audio callback. No allocation, no blocking.
+#[crate::realtime]
 fn render_into(shared: &Shared, out: &mut [f32], channels: usize, rate: u32) {
     out.fill(0.0);
     let frames = out.len() / channels;
@@ -793,6 +794,7 @@ const STREAM_BLOCK: usize = 1_024;
 /// Mix one streamed voice into `out`. A stream that has nothing buffered
 /// yet (an underrun: the disk fell behind) contributes silence and does
 /// not advance; one that has played out ends.
+#[crate::realtime]
 fn render_stream(
     v: &mut Voice,
     out: &mut [f32],

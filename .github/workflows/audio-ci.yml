@@ -61,6 +61,26 @@ jobs:
         run: cargo test --release -p vieww-audio -p vieww-audio-plugin -p vieww-music
       - name: Clippy
         run: cargo clippy -p vieww-audio -p vieww-audio-plugin -p vieww-music --all-targets -- -D warnings
+      # AU-18: the no-allocation harnesses with std linked statically. The
+      # workspace's Linux `prefer-dynamic` makes Vec growth run in
+      # libstd.so's own code, which never reaches a test's allocator, so
+      # the counts above can read 0 for allocations that happen.
+      - name: Real-time checks with a static std (AU-18)
+        env:
+          RUSTFLAGS: -Cprefer-dynamic=no
+          CARGO_TARGET_DIR: target/static
+        run: |
+          cargo test -p vieww-audio --test realtime_attr
+          cargo test --release -p vieww-audio --test realtime_no_alloc
+          cargo test --release -p vieww-audio-plugin --test realtime_no_alloc
+          cargo test --release -p vieww-music --test realtime_no_alloc
+      # AU-16: the MusicXML validates against the official 4.0 schema and
+      # the LilyPond engraves, checked by the tools themselves.
+      - name: Notation export, validated (MusicXML XSD, LilyPond)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends lilypond libxml2-utils
+          ci/check/notation.sh
       - name: Without the AAC decoder (AU-07, the distributor opt-out)
         run: |
           cargo clippy -p vieww-audio --no-default-features --all-targets -- -D warnings

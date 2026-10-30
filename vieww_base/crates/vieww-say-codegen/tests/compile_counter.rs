@@ -17,6 +17,20 @@ mod counter {
     mod behaviour {
         use super::*;
 
+        /// ST-22: the studio's inspector reads the kept values through
+        /// `debug_fields`, named as the `.say` file names them.
+        #[test]
+        fn debug_fields_name_every_kept_value() {
+            let state = SayState {
+                count: 41,
+                ..SayState::default()
+            };
+            assert_eq!(
+                state.debug_fields(),
+                vec![("count".to_owned(), "41".to_owned())]
+            );
+        }
+
         #[test]
         fn snapshot_round_trips_the_counter() {
             let mut state = SayState {

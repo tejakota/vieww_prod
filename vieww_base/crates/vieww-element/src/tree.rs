@@ -138,6 +138,10 @@ pub struct ElementTree {
     deaths: u64,
 }
 
+/// One state for an inspector: its path, its widget's name, and its
+/// fields as name and value. See [`ElementTree::debug_states`].
+pub type DebugState = (String, &'static str, Vec<(String, String)>);
+
 impl ElementTree {
     /// An empty tree with a fresh reactive runtime.
     #[must_use]
@@ -1179,6 +1183,24 @@ impl ElementTree {
             if let Some(state) = element.state() {
                 if let Some(saved) = state.borrow().snapshot() {
                     out.push((path.to_owned(), saved));
+                }
+            }
+        });
+        out
+    }
+
+    /// Every state under `root` that has something to show a person, with
+    /// its path (as [`snapshot_states`](Self::snapshot_states) names it) and
+    /// its widget's name: `ElementState::debug_fields` for an inspector
+    /// (ST-22).
+    #[must_use]
+    pub fn debug_states(&self, root: ElementId) -> Vec<DebugState> {
+        let mut out = Vec::new();
+        self.walk_states(root, String::new(), &mut |path, element| {
+            if let Some(state) = element.state() {
+                let fields = state.borrow().debug_fields();
+                if !fields.is_empty() {
+                    out.push((path.to_owned(), element.widget.debug_name(), fields));
                 }
             }
         });

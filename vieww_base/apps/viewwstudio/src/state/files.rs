@@ -626,8 +626,9 @@ impl Studio {
         self.sync_caret();
 
         self.notify(&match spared {
-            0 => format!("Closed {closed} tab{}", if closed == 1 { "" } else { "s" }),
-            n => format!("Closed {closed}, kept {n} with unsaved changes",),
+            0 if closed == 1 => crate::i18n::tf("Closed {} tab", &[&closed]),
+            0 => crate::i18n::tf("Closed {} tabs", &[&closed]),
+            n => crate::i18n::tf("Closed {}, kept {} with unsaved changes", &[&closed, &n]),
         });
     }
 
@@ -757,16 +758,20 @@ impl Studio {
         self.sync_caret();
         self.rescan_tree();
 
-        let mut message = format!(
-            "Replaced {replaced} match{} in {changed} file{}",
-            if replaced == 1 { "" } else { "es" },
-            if changed == 1 { "" } else { "s" }
-        );
+        let mut message = match (replaced == 1, changed == 1) {
+            (true, _) => crate::i18n::tf("Replaced {} match in {} file", &[&replaced, &changed]),
+            (false, true) => {
+                crate::i18n::tf("Replaced {} matches in {} file", &[&replaced, &changed])
+            }
+            (false, false) => {
+                crate::i18n::tf("Replaced {} matches in {} files", &[&replaced, &changed])
+            }
+        };
         if !plan.skipped.is_empty() {
-            message.push_str(&format!(", skipped {}", plan.skipped.len()));
+            message.push_str(&crate::i18n::tf(", skipped {}", &[&plan.skipped.len()]));
         }
         if failed > 0 {
-            message.push_str(&format!(", {failed} could not be written"));
+            message.push_str(&crate::i18n::tf(", {} could not be written", &[&failed]));
         }
         self.notify(&message);
     }

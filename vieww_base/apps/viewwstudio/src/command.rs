@@ -231,6 +231,15 @@ pub enum Command {
     /// hardcoded, which meant the preview could not answer "does this look
     /// right in dark mode". This writes the signal `device()` reads.
     TogglePreviewDark,
+    /// Show the screen on several devices side by side (ST-21), or go back
+    /// to one.
+    ToggleDeviceMatrix,
+    /// Add the next device not already shown to the matrix.
+    MatrixAddDevice,
+    /// ST-09: the performance overlay over the previewed screen.
+    TogglePerfOverlay,
+    /// ST-09: measure where the next frame's milliseconds go.
+    AttributeFrame,
     /// Open the live-preview caution dialog.
     ///
     /// The live preview mounts a built-in demo app inside the device frame
@@ -440,7 +449,7 @@ pub enum Command {
 
 impl Command {
     /// Every command, in palette order.
-    pub const ALL: [Self; 111] = [
+    pub const ALL: [Self; 115] = [
         Self::Render,
         Self::CancelRender,
         Self::Build,
@@ -493,6 +502,10 @@ impl Command {
         Self::ToggleTheme,
         Self::ToggleSafeArea,
         Self::TogglePreviewDark,
+        Self::ToggleDeviceMatrix,
+        Self::MatrixAddDevice,
+        Self::TogglePerfOverlay,
+        Self::AttributeFrame,
         Self::LivePreview,
         Self::RestoreFlow,
         Self::PlatformIos,
@@ -577,6 +590,10 @@ impl Command {
             Self::PlatformDesktop => "Preview as Desktop",
             Self::ToggleSafeArea => "Toggle Safe-Area Overlay",
             Self::TogglePreviewDark => "Toggle Preview Dark Mode",
+            Self::ToggleDeviceMatrix => "Preview: Several Devices Side by Side",
+            Self::MatrixAddDevice => "Preview: Add a Device to the Row",
+            Self::TogglePerfOverlay => "Preview: Performance Overlay",
+            Self::AttributeFrame => "Preview: Attribute This Frame",
             Self::LivePreview => "Live Preview (No Build)",
             Self::RestoreFlow => "Load Flow File",
             Self::TrySayScreen => "Try a Say Screen Right Now",
@@ -770,6 +787,10 @@ impl Command {
             | Self::CancelRender
             | Self::ToggleSafeArea
             | Self::TogglePreviewDark
+            | Self::ToggleDeviceMatrix
+            | Self::MatrixAddDevice
+            | Self::TogglePerfOverlay
+            | Self::AttributeFrame
             | Self::LivePreview
             | Self::RestoreFlow
             | Self::PlatformIos
@@ -889,6 +910,10 @@ impl Command {
             | Self::ClearOutput
             | Self::ToggleSafeArea
             | Self::TogglePreviewDark
+            | Self::ToggleDeviceMatrix
+            | Self::MatrixAddDevice
+            | Self::TogglePerfOverlay
+            | Self::AttributeFrame
             | Self::LivePreview
             | Self::RestoreFlow
             | Self::ShowExplorer

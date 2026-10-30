@@ -586,6 +586,10 @@ impl Studio {
             C::PlatformAndroid => self.set_platform(Platform::Android),
             C::PlatformDesktop => self.set_platform(Platform::Desktop),
             C::ToggleSafeArea => self.show_insets.set(!self.show_insets.peek()),
+            C::ToggleDeviceMatrix => self.toggle_device_matrix(),
+            C::MatrixAddDevice => self.matrix_add_device(),
+            C::TogglePerfOverlay => self.toggle_perf_overlay(),
+            C::AttributeFrame => self.request_attribution(),
             C::TogglePreviewDark => {
                 let next = !self.preview_dark.peek();
                 self.preview_dark.set(next);

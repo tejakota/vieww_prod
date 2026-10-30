@@ -344,32 +344,39 @@ impl Widget for QuitPrompt {
         };
         let count = unsaved.len();
         let message = if count == 1 {
-            "One file has changes that have not been written to disk.".to_owned()
+            crate::i18n::t("One file has changes that have not been written to disk.").to_owned()
         } else {
-            format!("{count} files have changes that have not been written to disk.")
+            crate::i18n::tf(
+                "{} files have changes that have not been written to disk.",
+                &[&count],
+            )
         };
 
         let saving = self.studio.clone();
         let discarding = self.studio.clone();
         let cancelling = self.studio.clone();
 
-        Dialog::new("Close vieww Studio?", message)
+        Dialog::new(crate::i18n::t("Close vieww Studio?"), message)
             .items((*unsaved).clone())
             // Safe first — `Dialog` draws them right to left, so this ends up
             // as [Close without saving] [Cancel] [Save all and close].
             .action(Action::new(
-                "Save all and close",
+                crate::i18n::t("Save all and close"),
                 Tone::Primary,
                 move || {
                     saving.confirm_quit_saving();
                     saving.request_close();
                 },
             ))
-            .action(Action::new("Cancel", Tone::Neutral, move || {
-                cancelling.cancel_quit();
-            }))
             .action(Action::new(
-                "Close without saving",
+                crate::i18n::t("Cancel"),
+                Tone::Neutral,
+                move || {
+                    cancelling.cancel_quit();
+                },
+            ))
+            .action(Action::new(
+                crate::i18n::t("Close without saving"),
                 Tone::Danger,
                 move || {
                     discarding.confirm_quit_discarding();
@@ -410,30 +417,36 @@ impl Widget for ConflictPrompt {
             return SizedBox::shrink().into();
         }
         let message = if names.len() == 1 {
-            "This file changed on disk while you had unsaved edits to it. \
-             Only one of the two versions can survive."
-                .to_owned()
+            crate::i18n::t(
+                "This file changed on disk while you had unsaved edits to it. \
+                 Only one of the two versions can survive.",
+            )
+            .to_owned()
         } else {
-            format!(
+            crate::i18n::tf(
                 "{} files changed on disk while you had unsaved edits to them. \
                  Only one of the two versions can survive.",
-                names.len()
+                &[&names.len()],
             )
         };
 
         let mine = self.studio.clone();
         let theirs = self.studio.clone();
 
-        Dialog::new("Changed on disk", message)
+        Dialog::new(crate::i18n::t("Changed on disk"), message)
             .items(names)
             // "Keep mine" is the safe answer here — it is the one that does not
             // discard anything the user typed — so it is the primary, and
             // reloading is the destructive one.
-            .action(Action::new("Keep my version", Tone::Primary, move || {
-                mine.keep_mine();
-            }))
             .action(Action::new(
-                "Discard mine and reload",
+                crate::i18n::t("Keep my version"),
+                Tone::Primary,
+                move || {
+                    mine.keep_mine();
+                },
+            ))
+            .action(Action::new(
+                crate::i18n::t("Discard mine and reload"),
                 Tone::Danger,
                 move || theirs.take_theirs(),
             ))
@@ -583,7 +596,7 @@ impl Widget for NamePromptDialog {
         let cancelling = self.studio.clone();
 
         let mut dialog = Dialog::new(
-            prompt.kind.title(),
+            crate::i18n::t(prompt.kind.title()),
             // Says *where*, because "New File" with no location is a question
             // the user cannot answer confidently from a folder tree that has
             // twenty directories in it. New Project says it too, because
@@ -591,10 +604,10 @@ impl Widget for NamePromptDialog {
             // — except the parent here is a directory the studio chose rather
             // than one the user clicked, so naming it is what tells the user
             // where on disk the project will land.
-            format!("In {}", prompt.target.display()),
+            crate::i18n::tf("In {}", &[&prompt.target.display()]),
         );
         let kind_blurb: &str = match prompt.kind {
-            crate::state::NameKind::NewProject => prompt.project_kind.blurb(),
+            crate::state::NameKind::NewProject => crate::i18n::t(prompt.project_kind.blurb()),
             _ => "",
         };
         let blurb_line: WidgetNode = label(kind_blurb, 11.0, colors.outline).into();
@@ -612,19 +625,23 @@ impl Widget for NamePromptDialog {
                 // three that make something new and wrong for the two that do
                 // not: a Save As whose button says Create reads as a second
                 // file appearing beside the one you were editing.
-                match prompt.kind {
+                crate::i18n::t(match prompt.kind {
                     crate::state::NameKind::Rename => "Rename",
                     crate::state::NameKind::SaveAs => "Save",
                     crate::state::NameKind::NewFile
                     | crate::state::NameKind::NewFolder
                     | crate::state::NameKind::NewProject => "Create",
-                },
+                }),
                 Tone::Primary,
                 move || confirming.confirm_name_prompt(),
             ))
-            .action(Action::new("Cancel", Tone::Neutral, move || {
-                cancelling.close_name_prompt();
-            }))
+            .action(Action::new(
+                crate::i18n::t("Cancel"),
+                Tone::Neutral,
+                move || {
+                    cancelling.close_name_prompt();
+                },
+            ))
             .into()
     }
 }
@@ -672,32 +689,48 @@ impl Widget for DeletePrompt {
         {
             let dismiss = self.studio.clone();
             return Dialog::new(
-                "That folder is the workspace",
-                "The trash is a folder inside it, so the workspace cannot be \
-                 moved into its own trash. Close the workspace to stop working \
-                 on it, or delete the folder from outside the studio."
-                    .to_owned(),
+                crate::i18n::t("That folder is the workspace"),
+                crate::i18n::t(
+                    "The trash is a folder inside it, so the workspace cannot be \
+                     moved into its own trash. Close the workspace to stop working \
+                     on it, or delete the folder from outside the studio.",
+                )
+                .to_owned(),
             )
             .items(vec![name])
-            .action(Action::new("OK", Tone::Neutral, move || {
-                dismiss.cancel_delete();
-            }))
+            .action(Action::new(
+                crate::i18n::t("OK"),
+                Tone::Neutral,
+                move || {
+                    dismiss.cancel_delete();
+                },
+            ))
             .into();
         }
 
         Dialog::new(
-            "Move to trash?",
-            "It goes to a .viewwstudio-trash folder at the workspace root, \
-             not to the wastebasket and not to nothing. You can put it back by hand."
-                .to_owned(),
+            crate::i18n::t("Move to trash?"),
+            crate::i18n::t(
+                "It goes to a .viewwstudio-trash folder at the workspace root, \
+                 not to the wastebasket and not to nothing. You can put it back by hand.",
+            )
+            .to_owned(),
         )
         .items(vec![name])
-        .action(Action::new("Cancel", Tone::Neutral, move || {
-            cancelling.cancel_delete();
-        }))
-        .action(Action::new("Move to trash", Tone::Danger, move || {
-            confirming.confirm_delete();
-        }))
+        .action(Action::new(
+            crate::i18n::t("Cancel"),
+            Tone::Neutral,
+            move || {
+                cancelling.cancel_delete();
+            },
+        ))
+        .action(Action::new(
+            crate::i18n::t("Move to trash"),
+            Tone::Danger,
+            move || {
+                confirming.confirm_delete();
+            },
+        ))
         .into()
     }
 }
@@ -735,14 +768,24 @@ impl Widget for ReplacePlanDialog {
         let replacement = self.studio.find_replacement.get();
 
         let message = if total == 0 {
-            "Nothing would be changed — every file that matched is being skipped.".to_owned()
+            crate::i18n::t("Nothing would be changed — every file that matched is being skipped.")
+                .to_owned()
         } else {
+            let what = match (total == 1, files == 1) {
+                (true, _) => crate::i18n::tf("Replace {} match in {} file.", &[&total, &files]),
+                (false, true) => {
+                    crate::i18n::tf("Replace {} matches in {} file.", &[&total, &files])
+                }
+                (false, false) => {
+                    crate::i18n::tf("Replace {} matches across {} files.", &[&total, &files])
+                }
+            };
             format!(
-                "Replace {total} match{} across {files} file{}. \
-                 This cannot be undone: the editor's history is per file, and \
-                 these files are written directly.",
-                if total == 1 { "" } else { "es" },
-                if files == 1 { "" } else { "s" }
+                "{what} {}",
+                crate::i18n::t(
+                    "This cannot be undone: the editor's history is per file, and \
+                     these files are written directly."
+                )
             )
         };
 
@@ -750,30 +793,39 @@ impl Widget for ReplacePlanDialog {
         let cancelling = self.studio.clone();
 
         let mut dialog = Dialog::new(
-            format!(
+            crate::i18n::tf(
                 "Replace \u{201c}{}\u{201d} with \u{201c}{}\u{201d}?",
-                needle, replacement
+                &[&needle, &replacement],
             ),
             message,
         )
         .items(plan.lines(root.as_deref()));
 
         if total > 0 {
-            dialog = dialog.action(Action::new("Cancel", Tone::Neutral, move || {
-                cancelling.cancel_workspace_replace();
-            }));
             dialog = dialog.action(Action::new(
-                format!(
-                    "Replace in {files} file{}",
-                    if files == 1 { "" } else { "s" }
-                ),
+                crate::i18n::t("Cancel"),
+                Tone::Neutral,
+                move || {
+                    cancelling.cancel_workspace_replace();
+                },
+            ));
+            dialog = dialog.action(Action::new(
+                if files == 1 {
+                    crate::i18n::tf("Replace in {} file", &[&files])
+                } else {
+                    crate::i18n::tf("Replace in {} files", &[&files])
+                },
                 Tone::Danger,
                 move || confirming.confirm_workspace_replace(),
             ));
         } else {
-            dialog = dialog.action(Action::new("Close", Tone::Primary, move || {
-                cancelling.cancel_workspace_replace();
-            }));
+            dialog = dialog.action(Action::new(
+                crate::i18n::t("Close"),
+                Tone::Primary,
+                move || {
+                    cancelling.cancel_workspace_replace();
+                },
+            ));
         }
         dialog.into()
     }
@@ -809,20 +861,30 @@ impl Widget for LiveCaution {
         let cancelling = self.studio.clone();
 
         Dialog::new(
-            "Live Preview",
-            "This draws live.rs from this workspace without compiling it, so it \
+            crate::i18n::t("Live Preview"),
+            crate::i18n::t(
+                "This draws live.rs from this workspace without compiling it, so it \
              follows the file as you type. It is a sketch of the flow — screens, \
              rows and the buttons between them — and its switches and counters \
              are the preview's, not your app's.\n\nA `mount` line places one of \
              your own screens in the flow, as it last rendered. Render compiles \
              a screen for real; Build and Run gives you the app.",
+            ),
         )
-        .action(Action::new("Cancel", Tone::Neutral, move || {
-            cancelling.cancel_live_preview();
-        }))
-        .action(Action::new("Continue", Tone::Primary, move || {
-            accepting.accept_live_preview();
-        }))
+        .action(Action::new(
+            crate::i18n::t("Cancel"),
+            Tone::Neutral,
+            move || {
+                cancelling.cancel_live_preview();
+            },
+        ))
+        .action(Action::new(
+            crate::i18n::t("Continue"),
+            Tone::Primary,
+            move || {
+                accepting.accept_live_preview();
+            },
+        ))
         .into()
     }
 }
@@ -857,21 +919,31 @@ impl Widget for LiveMissing {
         let cancelling = self.studio.clone();
 
         Dialog::new(
-            "This workspace has no live.rs",
-            "The Live Preview draws live.rs at the workspace root — screens, \
+            crate::i18n::t("This workspace has no live.rs"),
+            crate::i18n::t(
+                "The Live Preview draws live.rs at the workspace root — screens, \
              rows, and the buttons between them — without compiling it. There \
              is no such file here, so there is nothing live to show.\n\nWriting \
              one gives you a flow to edit; deleting it later turns the Live \
              Preview off again.",
+            ),
         )
         .items(vec![crate::livedoc::FILE.to_owned()])
-        .action(Action::new("Not now", Tone::Neutral, move || {
-            cancelling.live_missing.set(false);
-        }))
-        .action(Action::new("Create live.rs", Tone::Primary, move || {
-            creating.live_missing.set(false);
-            creating.create_live_file();
-        }))
+        .action(Action::new(
+            crate::i18n::t("Not now"),
+            Tone::Neutral,
+            move || {
+                cancelling.live_missing.set(false);
+            },
+        ))
+        .action(Action::new(
+            crate::i18n::t("Create live.rs"),
+            Tone::Primary,
+            move || {
+                creating.live_missing.set(false);
+                creating.create_live_file();
+            },
+        ))
         .into()
     }
 }

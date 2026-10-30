@@ -1,0 +1,23 @@
+-- say-language: 1
+-- ST-20: Rust inside Say, passed through as written. At the top level it
+-- is items; inside a block it is an expression that becomes a widget, and
+-- it can read the state by name.
+
+keep a whole number called rating starting at 3
+
+rust:
+    /// A helper written in Rust, for the block below.
+    fn stars(n: i64) -> String {
+        "*".repeat(n.clamp(0, 5) as usize)
+    }
+
+screen "Home":
+    a column, spaced 8:
+        a heading "Rating"
+        rust:
+            Text::new(stars(rating)).size(24.0)
+        ```rust
+        Text::new(format!("{rating} of 5"))
+        ```
+        a button "More" which when tapped:
+            add 1 to rating

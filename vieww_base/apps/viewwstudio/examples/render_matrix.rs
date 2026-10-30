@@ -25,11 +25,44 @@ fn target() -> PathBuf {
 struct Case {
     group: &'static str,
     name: &'static str,
-    body: &'static str,
+    body: String,
 }
 
 fn case(group: &'static str, name: &'static str, body: &'static str) -> Case {
-    Case { group, name, body }
+    Case {
+        group,
+        name,
+        body: body.to_owned(),
+    }
+}
+
+/// A Say fixture, generated the way the studio generates a `.say` buffer
+/// (ST-20): one case per phrase, through the same compile and `dlopen` as
+/// every Rust case.
+fn say_case(name: &'static str, source: &'static str) -> Case {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../crates/vieww-say-codegen");
+    let options = vieww_say_codegen::Options {
+        asset_root: root.to_string_lossy().into_owned(),
+    };
+    let generated = vieww_say_codegen::compile_with(name, source, &options)
+        .unwrap_or_else(|d| panic!("{name}: {d:?}"));
+    Case {
+        group: "say",
+        name,
+        body: generated.rust,
+    }
+}
+
+macro_rules! say_fixture {
+    ($file:literal) => {
+        say_case(
+            $file,
+            include_str!(concat!(
+                "../../../crates/vieww-say-codegen/tests/fixtures/",
+                $file
+            )),
+        )
+    };
 }
 
 fn main() {
@@ -90,6 +123,21 @@ fn main() {
 }
 
 fn cases() -> Vec<Case> {
+    let mut cases = rust_cases();
+    cases.extend([
+        say_fixture!("counter.say"),
+        say_fixture!("image.say"),
+        say_fixture!("scroll.say"),
+        say_fixture!("tabs.say"),
+        say_fixture!("theme.say"),
+        say_fixture!("transition.say"),
+        say_fixture!("rust.say"),
+        say_fixture!("profile.say"),
+    ]);
+    cases
+}
+
+fn rust_cases() -> Vec<Case> {
     vec![
         // -------------------------------------------------------------- layout
         case(

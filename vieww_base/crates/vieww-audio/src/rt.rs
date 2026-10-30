@@ -515,6 +515,175 @@ pub fn sort_stable_in_place<T>(items: &mut [T], less: impl Fn(&T, &T) -> bool) {
     }
 }
 
+// ── checked real-time sections (AU-18) ──────────────────────────────────
+
+/// Allocations made inside a [`RtSection`] while [`CheckedAlloc`] was the
+/// global allocator, process-wide.
+static RT_VIOLATIONS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+std::thread_local! {
+    /// How many real-time sections the current thread is inside.
+    static RT_DEPTH: std::cell::Cell<u32> = const { std::cell::Cell::new(0) };
+    /// This thread's violations so far (read by the section's drop).
+    static RT_LOCAL: std::cell::Cell<u64> = const { std::cell::Cell::new(0) };
+}
+
+/// The body of a `#[realtime]` function (AU-18).
+///
+/// The attribute refuses, at compile time, a body that allocates or
+/// blocks by name:
+///
+/// ```compile_fail
+/// #[vieww_audio::realtime]
+/// fn render(out: &mut [f32]) {
+///     let scratch = vec![0.0f32; out.len()]; // error: `vec!` allocates
+///     out.copy_from_slice(&scratch);
+/// }
+/// ```
+///
+/// ```compile_fail
+/// #[vieww_audio::realtime]
+/// fn render(m: &std::sync::Mutex<Vec<f32>>, out: &mut [f32]) {
+///     let g = m.lock().unwrap(); // error: `lock` may block
+///     out[0] = g[0];
+/// }
+/// ```
+///
+/// A named exception compiles, and so does a clean body:
+///
+/// ```
+/// #[vieww_audio::realtime(allow(collect))]
+/// fn mix(inputs: &[&[f32]], out: &mut [f32]) {
+///     if inputs.len() > 32 {
+///         let _wide: Vec<f32> = inputs.iter().map(|i| i[0]).collect();
+///     }
+///     for (k, o) in out.iter_mut().enumerate() {
+///         *o = inputs.iter().map(|i| i[k]).sum();
+///     }
+/// }
+/// mix(&[&[1.0], &[2.0]], &mut [0.0]);
+/// ```
+///
+/// While one is alive on a
+/// thread, [`CheckedAlloc`] counts every allocation that thread makes, and
+/// in debug builds the section panics when it ends if any happened,
+/// naming the function. Release builds keep the type and do nothing.
+#[derive(Debug)]
+#[must_use = "the section ends when this is dropped"]
+pub struct RtSection {
+    #[cfg(debug_assertions)]
+    name: &'static str,
+    #[cfg(debug_assertions)]
+    before: u64,
+}
+
+impl RtSection {
+    /// Enter a section for the function `name`.
+    #[inline]
+    pub fn enter(name: &'static str) -> Self {
+        #[cfg(debug_assertions)]
+        {
+            let _ = RT_DEPTH.try_with(|d| d.set(d.get() + 1));
+            let before = RT_LOCAL.try_with(std::cell::Cell::get).unwrap_or(0);
+            Self { name, before }
+        }
+        #[cfg(not(debug_assertions))]
+        {
+            let _ = name;
+            Self {}
+        }
+    }
+
+    /// Whether the calling thread is inside a section now.
+    #[must_use]
+    pub fn active() -> bool {
+        RT_DEPTH.try_with(|d| d.get() > 0).unwrap_or(false)
+    }
+}
+
+impl Drop for RtSection {
+    fn drop(&mut self) {
+        #[cfg(debug_assertions)]
+        {
+            let _ = RT_DEPTH.try_with(|d| d.set(d.get().saturating_sub(1)));
+            let now = RT_LOCAL.try_with(std::cell::Cell::get).unwrap_or(0);
+            if now > self.before && !std::thread::panicking() {
+                panic!(
+                    "#[realtime] {}: allocated {} time(s) on the audio thread",
+                    self.name,
+                    now - self.before
+                );
+            }
+        }
+    }
+}
+
+/// Allocations [`CheckedAlloc`] has seen inside real-time sections, every
+/// thread.
+#[must_use]
+pub fn rt_violations() -> u64 {
+    RT_VIOLATIONS.load(std::sync::atomic::Ordering::Relaxed)
+}
+
+/// Allocations [`CheckedAlloc`] has seen inside real-time sections on the
+/// calling thread.
+#[must_use]
+pub fn rt_violations_here() -> u64 {
+    RT_LOCAL.try_with(std::cell::Cell::get).unwrap_or(0)
+}
+
+/// The system allocator, counting what happens inside a [`RtSection`]
+/// (AU-18). Install it in an app's or test's debug build to turn every
+/// `#[realtime]` function into a check of its callees too:
+///
+/// ```ignore
+/// #[global_allocator]
+/// static ALLOC: vieww_audio::rt::CheckedAlloc = vieww_audio::rt::CheckedAlloc;
+/// ```
+///
+/// It never panics or prints from inside the allocator (neither may
+/// unwind there); the section reports when it ends.
+///
+/// **Link std statically to use it.** Where std is a shared library (this
+/// workspace's Linux `prefer-dynamic`), Vec growth runs in libstd's own
+/// copy of `RawVec`, which calls std's built-in allocator and never this
+/// one; the audio no-alloc checks build with `-C prefer-dynamic=no`.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct CheckedAlloc;
+
+impl CheckedAlloc {
+    #[inline]
+    fn note() {
+        if RT_DEPTH.try_with(|d| d.get() > 0).unwrap_or(false) {
+            RT_VIOLATIONS.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            let _ = RT_LOCAL.try_with(|c| c.set(c.get() + 1));
+        }
+    }
+}
+
+// SAFETY: every call forwards to the system allocator unchanged; the
+// bookkeeping is const-initialised thread-locals and an atomic, which
+// neither allocate nor affect the memory returned.
+unsafe impl std::alloc::GlobalAlloc for CheckedAlloc {
+    unsafe fn alloc(&self, layout: std::alloc::Layout) -> *mut u8 {
+        Self::note();
+        // SAFETY: the caller's contract, passed through.
+        unsafe { std::alloc::System.alloc(layout) }
+    }
+
+    unsafe fn dealloc(&self, ptr: *mut u8, layout: std::alloc::Layout) {
+        Self::note();
+        // SAFETY: `ptr` came from `System` through `alloc` above.
+        unsafe { std::alloc::System.dealloc(ptr, layout) }
+    }
+
+    unsafe fn realloc(&self, ptr: *mut u8, layout: std::alloc::Layout, size: usize) -> *mut u8 {
+        Self::note();
+        // SAFETY: as `dealloc`.
+        unsafe { std::alloc::System.realloc(ptr, layout, size) }
+    }
+}
+
 #[cfg(test)]
 mod tests {
 

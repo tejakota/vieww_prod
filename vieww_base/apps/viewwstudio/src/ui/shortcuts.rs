@@ -103,6 +103,8 @@ impl RenderShortcuts {
 /// unhandled key still works.
 #[must_use]
 pub fn dispatch(studio: &Studio, event: &KeyEvent, host: TargetPlatform) -> bool {
+    // Every key event says which modifiers are down; a click reads them.
+    studio.held_modifiers.set(event.modifiers);
     // The palette owns the arrow keys and Enter while it is open. Checked
     // before the command table so that Enter in the palette runs the highlighted
     // command rather than doing whatever Enter would otherwise mean.
@@ -147,6 +149,25 @@ pub fn dispatch(studio: &Studio, event: &KeyEvent, host: TargetPlatform) -> bool
                 return true;
             }
             _ => {}
+        }
+    }
+
+    // The Inspector's outline owns the arrows, Home and End while it has the
+    // keys (a row was clicked and the editor has not been since) (ST-06).
+    if event.is_down() && event.modifiers.is_empty() {
+        use crate::outline::Nav;
+        use vieww_foundation::{LogicalKey, NamedKey};
+        let nav = match &event.key {
+            LogicalKey::Named(NamedKey::ArrowUp) => Some(Nav::Up),
+            LogicalKey::Named(NamedKey::ArrowDown) => Some(Nav::Down),
+            LogicalKey::Named(NamedKey::ArrowLeft) => Some(Nav::Left),
+            LogicalKey::Named(NamedKey::ArrowRight) => Some(Nav::Right),
+            LogicalKey::Named(NamedKey::Home) => Some(Nav::Home),
+            LogicalKey::Named(NamedKey::End) => Some(Nav::End),
+            _ => None,
+        };
+        if nav.is_some_and(|n| studio.inspector_nav(n)) {
+            return true;
         }
     }
 

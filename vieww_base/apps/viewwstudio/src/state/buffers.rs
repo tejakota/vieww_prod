@@ -247,10 +247,11 @@ impl Studio {
         self.put_buffers(buffers);
         self.conflicts.set(Rc::new(Vec::new()));
         self.sync_caret();
-        self.notify(&format!(
-            "Reloaded {reloaded} file{} from disk",
-            if reloaded == 1 { "" } else { "s" }
-        ));
+        self.notify(&if reloaded == 1 {
+            crate::i18n::tf("Reloaded {} file from disk", &[&reloaded])
+        } else {
+            crate::i18n::tf("Reloaded {} files from disk", &[&reloaded])
+        });
     }
 
     /// The names the conflict dialog lists.

@@ -1,0 +1,22 @@
+-- say-language: 1
+-- ST-20: the new phrases together, with a dialog and a loop, as the guide shows them.
+keep a list of text called posts starting at "a", "b"
+keep a whole number called likes starting at 0
+keep text called draft
+screen "Profile":
+    a column:
+        an icon check icon
+        a fixed area of 80 by 40
+        a card, padded 16, radius 8
+        a text "hi"
+        a button "Ask" which when tapped:
+            open a dialog titled "Name":
+                a text field bound to dialog_name
+        a set of tabs:
+            a tab "Posts":
+                a scroll view:
+                    for each post in posts:
+                        a card, padded 16:
+                            a text "\(post)"
+            a tab "Likes":
+                a text "\(likes) likes"

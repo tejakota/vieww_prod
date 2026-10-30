@@ -79,6 +79,15 @@ impl<'a> Parser<'a> {
         }
 
         let (kind, phrase, mut c) = self.parse_phrase(&toks, number)?;
+        if matches!(kind, WKind::Tab { .. }) && self.open_tabs.last() != Some(&indent) {
+            self.error(
+                number,
+                1,
+                codes::E010,
+                "a tab sits directly under `a set of tabs:`",
+            );
+            return None;
+        }
         let mut props = Vec::new();
         let mut event: Option<EventBlock> = None;
         let mut only_if = None;
@@ -177,7 +186,16 @@ impl<'a> Parser<'a> {
             Block::Children => {
                 let opened = c > 0 && toks.get(c - 1) == Some(&Tok::Colon);
                 if opened {
+                    let tabs = matches!(kind, WKind::Tabs);
+                    if tabs {
+                        self.open_tabs.push(indent + 1);
+                    } else {
+                        // A block under anything else closes the tab level:
+                        // `a tab` two levels down is not a tab of this set.
+                        self.open_tabs.push(u32::MAX);
+                    }
                     let (children, next) = self.parse_block(index + 1, indent + 1);
+                    self.open_tabs.pop();
                     (children, next)
                 } else {
                     (Vec::new(), index + 1)
@@ -193,7 +211,32 @@ impl<'a> Parser<'a> {
             }
         };
 
-        if children.is_empty() && matches!(kind, WKind::Column | WKind::Row | WKind::Stack) {
+        if matches!(kind, WKind::Tabs) {
+            let all_tabs = children.iter().all(|child| {
+                matches!(
+                    child,
+                    crate::parse::Node::Widget(Widget {
+                        kind: WKind::Tab { .. },
+                        ..
+                    })
+                )
+            });
+            if children.is_empty() || !all_tabs {
+                self.error(
+                    number,
+                    1,
+                    codes::E010,
+                    "a set of tabs holds `a tab \"Name\":` lines, one per tab, and nothing else",
+                );
+                return None;
+            }
+        }
+        if children.is_empty()
+            && matches!(
+                kind,
+                WKind::Column | WKind::Row | WKind::Stack | WKind::ScrollView
+            )
+        {
             // Legal — an empty box — but nine times in ten it is a colon that
             // was meant to follow a different line. The linter says so rather
             // than guessing.
@@ -431,6 +474,49 @@ impl<'a> Parser<'a> {
                 let (icon, next) = self.parse_icon(toks, 2, number)?;
                 c = next;
                 Some((WKind::IconOnly { icon }, "an icon"))
+            }
+            "image" | "picture" => {
+                let Some(path) = str_at(2) else {
+                    self.error(
+                        number,
+                        1,
+                        codes::E060,
+                        "an image names its file: `an image \"photos/cat.png\"`",
+                    );
+                    return None;
+                };
+                if path.split(['/', '\\']).any(|part| part == "..") {
+                    self.error(
+                        number,
+                        1,
+                        codes::E060,
+                        "an image's file sits in or under this file's folder — a path with `..` works on one machine and nowhere else",
+                    );
+                    return None;
+                }
+                c = 3;
+                Some((WKind::Image { path }, "an image"))
+            }
+            "scroll" | "scrolling" if is(2, "view") || is(2, "area") => {
+                c = 3;
+                Some((WKind::ScrollView, "a scroll view"))
+            }
+            "set" if is(2, "of") && is(3, "tabs") => {
+                c = 4;
+                Some((WKind::Tabs, "a set of tabs"))
+            }
+            "tab" => {
+                let Some(label) = str_at(2) else {
+                    self.error(
+                        number,
+                        1,
+                        codes::E060,
+                        "a tab carries its name: `a tab \"Photos\":`",
+                    );
+                    return None;
+                };
+                c = 3;
+                Some((WKind::Tab { label }, "a tab"))
             }
             "floating" if is(2, "action") && is(3, "button") => {
                 if !is(4, "with") || !is(5, "the") {
@@ -879,7 +965,7 @@ impl<'a> Parser<'a> {
             (Prop::Placeholder(_) | Prop::SingleLine | Prop::Lines(_), _) => false,
             (Prop::EachRow(_), WKind::ListView { .. }) => true,
             (Prop::EachRow(_), _) => false,
-            (Prop::Description(_), WKind::EmptyState { .. }) => true,
+            (Prop::Description(_), WKind::EmptyState { .. } | WKind::Image { .. }) => true,
             (Prop::Description(_), _) => false,
             (Prop::Labelled(_), WKind::Fab { .. }) => true,
             (Prop::Labelled(_), _) => false,
@@ -909,7 +995,7 @@ impl<'a> Parser<'a> {
                 number,
                 1,
                 codes::E070,
-                format!("a {phrase} does not take `{what}`"),
+                format!("{phrase} does not take `{what}`"),
             );
             None
         }

@@ -138,6 +138,7 @@ impl LiveScore {
 
     /// Fill `out` (interleaved stereo) with the next frames: the mix while
     /// playing, silence when paused or finished.
+    #[vieww_audio::realtime]
     pub fn render(&mut self, out: &mut [f32]) {
         if !self.playing {
             out.fill(0.0);
@@ -158,6 +159,9 @@ impl LiveScore {
     }
 
     /// Render the next `out.len() / 2` (≤ BLOCK) frames of the mix.
+    // More than 32 parts take a Vec of input slices: the one allocation,
+    // named here; the no-alloc harness plays 32 or fewer.
+    #[vieww_audio::realtime(allow(collect))]
     fn advance(&mut self, out: &mut [f32]) {
         let len = out.len();
         for (stream, buf) in self.streams.iter_mut().zip(self.scratch.iter_mut()) {

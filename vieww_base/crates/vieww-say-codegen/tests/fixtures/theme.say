@@ -1,0 +1,14 @@
+-- say-language: 1
+-- ST-20: a theme block sets colour slots over the host's theme; every
+-- widget that reads the theme, and every `with the … color`, follows it.
+
+the theme:
+    primary is #6750A4
+    on primary is #FFFFFF
+    the surface color is #FFFBFE
+
+screen "Home":
+    a column, spaced 12:
+        a card, with the primary color, padded 16:
+            a text "Themed", color #FFFFFF
+        a button "Continue"

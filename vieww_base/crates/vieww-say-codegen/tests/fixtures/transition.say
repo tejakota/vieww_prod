@@ -1,0 +1,19 @@
+-- say-language: 1
+-- ST-20: transitions play when a screen comes up.
+
+screen "Home":
+    a column, spaced 8:
+        a button "Details" which when tapped:
+            open the screen "Details"
+        a button "Settings" which when tapped:
+            open the screen "Settings"
+
+screen "Details" with a slide transition:
+    a column:
+        a text "Details"
+        a button "Back" which when tapped:
+            go back
+
+screen "Settings" with a fade transition:
+    a button "Done" which when tapped:
+        go back

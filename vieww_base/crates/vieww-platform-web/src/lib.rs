@@ -128,6 +128,21 @@ use web_sys::{
 };
 
 /// What can go wrong bringing a vieww application up in a browser.
+/// The capabilities the browser provides, for the app to put in its tree
+/// (as `vieww_platform_winit::services::platform()` does on desktop).
+///
+/// * `dyn AudioPlayer` (AU-01): the engine over Web Audio. It opens an
+///   `AudioContext` on the first play, never at load; browsers start one
+///   suspended until a user gesture, so the page should `attach(wasm, {
+///   autoResume: true })` with `vieww-audio.js` (see docs/guide/audio.md,
+///   "The web").
+#[must_use]
+pub fn services() -> vieww_foundation::service::Services {
+    let mut services = vieww_foundation::service::Services::new();
+    vieww_audio::EnginePlayer::register(&mut services);
+    services
+}
+
 #[derive(Debug, Clone)]
 pub enum WebError {
     /// No `window`, no `document`, or no `performance` — which means this is

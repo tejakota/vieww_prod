@@ -271,6 +271,8 @@ if want audio; then
         # or, on a PipeWire desktop, pipewire-pulse.
         run audio-live env VIEWW_LIVE_GAIN="${VIEWW_HW_AUDIO_GAIN:-0}" VIEWW_SOAK_SECS=10 \
             cargo test --release -p vieww-audio --test live_backends -- --ignored --nocapture --test-threads=1
+        run audio-player env VIEWW_LIVE_GAIN="${VIEWW_HW_AUDIO_GAIN:-0}" \
+            cargo test --release -p vieww-audio --test player_smoke -- --ignored --nocapture
         run audio-soak env VIEWW_REQUIRE_LOOPBACK=1 VIEWW_LIVE_GAIN="${VIEWW_HW_AUDIO_GAIN:-0}" \
             VIEWW_SOAK_SECS="${VIEWW_HW_AUDIO_SOAK:-600}" \
             cargo test --release -p vieww-audio --test device_loopback default_output_soak -- --ignored --nocapture

@@ -35,7 +35,9 @@
 //! State (`keep`), screens and navigation as a route stack, the core layout
 //! and text widgets, buttons, bound controls (`a text field bound to s`),
 //! lists (`a list of`, `for each`), `only if` rows, interpolation and `how
-//! many`, conditional actions, snackbars and modal dialogs — every phrase
+//! many`, conditional actions, snackbars and modal dialogs, images, scroll
+//! views, tabs, a `the theme:` block, fade and slide screen transitions, and
+//! `rust:` blocks that pass Rust through verbatim (ST-20) — every phrase
 //! with an exact Rust counterpart, every generated statement preceded by a
 //! `// say: file:line` marker. Phrases the vocabulary reserves but this
 //! generator does not emit yet answer `E050` with what to do today.
@@ -72,12 +74,41 @@ pub struct Generated {
 /// and keeps going where it can, so a beginner sees everything wrong with
 /// their file in one pass rather than one error per Render.
 pub fn compile(file_name: &str, source: &str) -> Result<Generated, Vec<Diagnostic>> {
+    compile_with(file_name, source, &Options::default())
+}
+
+/// What a compile is told beyond the source.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct Options {
+    /// The folder `an image "…"` paths are read from at run time — the
+    /// studio passes the folder the `.say` file is in. Empty (the default)
+    /// reads them from the working folder. Written into the generated file,
+    /// so the same source and the same options give the same bytes.
+    pub asset_root: String,
+}
+
+/// [`compile`], with [`Options`].
+///
+/// # Errors
+///
+/// As [`compile`].
+pub fn compile_with(
+    file_name: &str,
+    source: &str,
+    options: &Options,
+) -> Result<Generated, Vec<Diagnostic>> {
     let file = std::rc::Rc::new(file_name.to_owned());
     let lines = lex::lex(source);
     let program = parse::parse(&file, &lines);
     match program {
         Ok(program) => Ok(Generated {
-            rust: gen::generate(&file, &program),
+            rust: gen::generate(
+                &file,
+                &program,
+                &gen::GenOptions {
+                    asset_root: options.asset_root.clone(),
+                },
+            ),
             warnings: program.warnings,
         }),
         Err(diagnostics) => Err(diagnostics),
@@ -108,6 +139,32 @@ pub mod registry {
         "an empty state",
         "an icon",
         "a floating action button",
+        "an image \"path\"",
+        "a scroll view",
+        "a set of tabs",
+        "a tab \"Name\"",
+    ];
+
+    /// The blocks that are not widgets: the theme, and Rust passed through.
+    pub const BLOCKS: &[&str] = &[
+        "the theme:",
+        "rust:",
+        "```rust … ```",
+        "with a fade transition",
+        "with a slide transition",
+    ];
+
+    /// The colour slots a `the theme:` line can set.
+    pub const THEME_SLOTS: &[&str] = &[
+        "primary",
+        "on primary",
+        "surface",
+        "on surface",
+        "surface variant",
+        "on surface variant",
+        "outline",
+        "error",
+        "on error",
     ];
 
     /// The properties one widget line can carry, after a comma.
@@ -209,6 +266,144 @@ mod tests {
         let first = crate::compile("counter.say", source).unwrap().rust;
         let second = crate::compile("counter.say", source).unwrap().rust;
         assert_eq!(first, second);
+    }
+
+    /// ST-20: one `.say` + `_gen.rs` pair per new phrase, each held to the
+    /// same contract as the counter. `tests/vocabulary.rs` compiles every
+    /// one and drives it in a frame driver.
+    #[test]
+    fn every_vocabulary_fixture_is_current() {
+        let fixtures: [(&str, &str, &str); 7] = [
+            (
+                "profile.say",
+                include_str!("../tests/fixtures/profile.say"),
+                include_str!("../tests/fixtures/profile_gen.rs"),
+            ),
+            (
+                "image.say",
+                include_str!("../tests/fixtures/image.say"),
+                include_str!("../tests/fixtures/image_gen.rs"),
+            ),
+            (
+                "scroll.say",
+                include_str!("../tests/fixtures/scroll.say"),
+                include_str!("../tests/fixtures/scroll_gen.rs"),
+            ),
+            (
+                "tabs.say",
+                include_str!("../tests/fixtures/tabs.say"),
+                include_str!("../tests/fixtures/tabs_gen.rs"),
+            ),
+            (
+                "theme.say",
+                include_str!("../tests/fixtures/theme.say"),
+                include_str!("../tests/fixtures/theme_gen.rs"),
+            ),
+            (
+                "transition.say",
+                include_str!("../tests/fixtures/transition.say"),
+                include_str!("../tests/fixtures/transition_gen.rs"),
+            ),
+            (
+                "rust.say",
+                include_str!("../tests/fixtures/rust.say"),
+                include_str!("../tests/fixtures/rust_gen.rs"),
+            ),
+        ];
+        for (name, source, expected) in fixtures {
+            let generated =
+                crate::compile(name, source).unwrap_or_else(|d| panic!("{name} compiles: {d:?}"));
+            assert!(
+                generated.warnings.is_empty(),
+                "{name}: {:?}",
+                generated.warnings
+            );
+            assert_eq!(
+                generated.rust.replace("\r\n", "\n"),
+                expected.replace("\r\n", "\n"),
+                "the committed {name} fixture is stale — re-run saygen"
+            );
+            assert_eq!(generated.rust, crate::compile(name, source).unwrap().rust);
+        }
+    }
+
+    fn errors(source: &str) -> Vec<String> {
+        match crate::compile("t.say", source) {
+            Ok(_) => Vec::new(),
+            Err(d) => d
+                .into_iter()
+                .map(|d| format!("{} {}", d.code, d.message))
+                .collect(),
+        }
+    }
+
+    #[test]
+    fn a_tab_outside_a_set_of_tabs_is_refused() {
+        let e = errors("-- say-language: 1\nscreen \"A\":\n    a column:\n        a tab \"One\":\n            a text \"x\"\n");
+        assert!(
+            e.iter()
+                .any(|m| m.contains("directly under `a set of tabs:`")),
+            "{e:?}"
+        );
+        let e =
+            errors("-- say-language: 1\nscreen \"A\":\n    a set of tabs:\n        a text \"x\"\n");
+        assert!(e.iter().any(|m| m.contains("holds `a tab")), "{e:?}");
+        let e = errors("-- say-language: 1\nscreen \"A\":\n    a set of tabs:\n        a tab \"One\":\n            a tab \"Two\":\n                a text \"x\"\n");
+        assert!(
+            e.iter().any(|m| m.contains("directly under")),
+            "a tab inside a tab: {e:?}"
+        );
+    }
+
+    #[test]
+    fn rust_blocks_must_close_and_hold_code() {
+        let e = errors("-- say-language: 1\nscreen \"A\":\n    ```rust\n    Text::new(\"x\")\n");
+        assert!(e.iter().any(|m| m.contains("never closed")), "{e:?}");
+        let e = errors("-- say-language: 1\nrust:\nscreen \"A\":\n    a text \"x\"\n");
+        assert!(e.iter().any(|m| m.contains("empty")), "{e:?}");
+    }
+
+    #[test]
+    fn theme_lines_name_a_slot_and_a_colour() {
+        let e = errors("-- say-language: 1\nthe theme:\n    accent is #FF0000\nscreen \"A\":\n    a text \"x\"\n");
+        assert!(e.iter().any(|m| m.contains("colour slot")), "{e:?}");
+        let e = errors(
+            "-- say-language: 1\nthe theme:\n    primary is red\nscreen \"A\":\n    a text \"x\"\n",
+        );
+        assert!(e.iter().any(|m| m.contains("#RRGGBB")), "{e:?}");
+        let e = errors("-- say-language: 1\nthe theme:\n    primary is #FF0000\n    primary is #00FF00\nscreen \"A\":\n    a text \"x\"\n");
+        assert!(e.iter().any(|m| m.contains("already set")), "{e:?}");
+    }
+
+    #[test]
+    fn an_image_path_stays_inside_its_folder() {
+        let e = errors("-- say-language: 1\nscreen \"A\":\n    an image \"../secret.png\"\n");
+        assert!(e.iter().any(|m| m.contains("`..`")), "{e:?}");
+    }
+
+    #[test]
+    fn the_asset_root_is_written_into_the_file() {
+        let source = include_str!("../tests/fixtures/image.say");
+        let options = crate::Options {
+            asset_root: "/work/app/screens".to_owned(),
+        };
+        let rust = crate::compile_with("image.say", source, &options)
+            .unwrap()
+            .rust;
+        assert!(rust.contains("const SAY_ASSET_ROOT: &str = \"/work/app/screens\";"));
+        assert_eq!(
+            rust,
+            crate::compile_with("image.say", source, &options)
+                .unwrap()
+                .rust
+        );
+        let plain = crate::compile("counter.say", include_str!("../tests/fixtures/counter.say"))
+            .unwrap()
+            .rust;
+        assert!(
+            !plain.contains("SAY_ASSET_ROOT"),
+            "a file without images carries no root"
+        );
     }
 
     /// The review's C1, pinned: the action rows compile as written, which is

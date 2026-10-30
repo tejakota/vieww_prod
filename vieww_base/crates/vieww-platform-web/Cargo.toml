@@ -42,6 +42,8 @@ vieww-render = { workspace = true }
 vieww-paint = { workspace = true, features = ["native"] }
 vieww-text = { workspace = true }
 vieww-platform = { workspace = true }
+# AU-01: the AudioPlayer service, over Web Audio (vieww-audio/web/vieww-audio.js).
+vieww-audio = { workspace = true }
 
 wasm-bindgen = "0.2"
 # For `Uint8ClampedArray::view` — the difference between presenting a frame
@@ -96,3 +98,8 @@ features = [
 
 [lints]
 workspace = true
+
+# AU-01: the web AudioPlayer driven in a browser (web-test/audio-smoke.mjs).
+[[example]]
+name = "audio_smoke"
+crate-type = ["cdylib"]

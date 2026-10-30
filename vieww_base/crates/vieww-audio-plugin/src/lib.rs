@@ -438,6 +438,9 @@ impl<P: Plugin> Driver<P> {
     /// Render `frames` frames, applying queued changes at their frames and
     /// delivering queued events to the slices they fall in. Never
     /// allocates.
+    // `push`: into `slice`, reserved at MAX_EVENTS, from `events`, which
+    // `push_event` caps at the same capacity, so it never grows.
+    #[vieww_audio::realtime(allow(push))]
     pub fn run(&mut self, inputs: &[&[f32]], outputs: &mut [&mut [f32]], frames: usize) -> Status {
         let _ftz = DenormalGuard::new();
         // Sorted, stable: same-frame events keep the host's order. In

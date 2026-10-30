@@ -148,6 +148,12 @@ pub mod quality;
 pub mod resample;
 pub mod rng;
 pub mod rt;
+
+/// `#[vieww_audio::realtime]`: a render function's real-time contract
+/// (AU-18), checked at compile time and in debug builds; see [`rt`].
+pub use vieww_audio_macros::realtime;
+// So the attribute's `::vieww_audio::rt` paths resolve inside this crate too.
+extern crate self as vieww_audio;
 pub mod sequencer;
 pub mod session;
 pub mod simd;

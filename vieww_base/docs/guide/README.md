@@ -23,6 +23,8 @@ assume you have read anything else here.
 | [`testing.md`](./testing.md) | How do I test a UI without a screen? |
 | [`accessibility.md`](./accessibility.md) | What do I get for free, and what do I still have to do? |
 | [`audio.md`](./audio.md) | How do I play a sound, a track or a score, and what does each platform (the web included) need? |
+| [`music.md`](./music.md) | How do I write a score, tune it, render it, play it live, and export it to notation programs? |
+| [`say.md`](./say.md) | How do I write a screen in Say, the English-facing screen language, and drop into Rust where it runs out? |
 
 ## The shortest possible orientation
 

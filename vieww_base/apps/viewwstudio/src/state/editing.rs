@@ -245,6 +245,10 @@ impl Studio {
     /// looks at it. Doing that inside `edit` would mean every caller paying
     /// for a projection none of them needs.
     pub fn edit_projected(&self, value: vieww_foundation::TextEditingValue) {
+        // Typing in the editor takes the arrow keys back from the Inspector.
+        if self.inspect_keys.peek() {
+            self.inspect_keys.set(false);
+        }
         if self.folds.get().is_empty() {
             self.edit(value);
             return;
@@ -288,6 +292,10 @@ impl Studio {
     /// it means anything. With no folds the two are the same string and this is
     /// a straight call.
     pub fn select_projected(&self, selection: vieww_foundation::TextSelection) {
+        // A click in the editor takes the arrow keys back from the Inspector.
+        if self.inspect_keys.peek() {
+            self.inspect_keys.set(false);
+        }
         if self.folds.get().is_empty() {
             self.select(selection);
             return;
@@ -811,11 +819,17 @@ impl Studio {
         self.diagnostics.set(Rc::new(all));
         self.panel_tab.set(PanelTab::Problems);
         self.panel_open.set(true);
-        self.notify(&format!(
-            "{} widget{} panicked — the rest of the screen still rendered.",
-            errors.len(),
-            if errors.len() == 1 { "" } else { "s" }
-        ));
+        self.notify(&if errors.len() == 1 {
+            crate::i18n::tf(
+                "{} widget panicked — the rest of the screen still rendered.",
+                &[&1],
+            )
+        } else {
+            crate::i18n::tf(
+                "{} widgets panicked — the rest of the screen still rendered.",
+                &[&errors.len()],
+            )
+        });
     }
 
     /// Take the previewed screen's state, before the screen is replaced.
@@ -952,11 +966,17 @@ impl Studio {
         self.diagnostics.set(Rc::new(all));
         self.panel_tab.set(PanelTab::Problems);
         self.panel_open.set(true);
-        self.notify(&format!(
-            "{} render panic{} — the last good frame is still on screen.",
-            errors.len(),
-            if errors.len() == 1 { "" } else { "es" }
-        ));
+        self.notify(&if errors.len() == 1 {
+            crate::i18n::tf(
+                "{} render panic — the last good frame is still on screen.",
+                &[&1],
+            )
+        } else {
+            crate::i18n::tf(
+                "{} render panics — the last good frame is still on screen.",
+                &[&errors.len()],
+            )
+        });
     }
 
     /// Every token in the live theme, with any override applied.
@@ -1540,12 +1560,49 @@ impl Studio {
     ///
     /// Costs nothing when the Inspector is shut, which is nearly always — the
     /// early return is the whole reason this is safe to call every frame.
-    pub fn capture_tree(&self, driver: &vieww_render::FrameDriver) {
+    pub fn capture_tree(&self, driver: &mut vieww_render::FrameDriver) {
         if !self.right_open.peek() || self.right_tab.peek() != RightTab::Inspector {
             return;
         }
+        // The guest's state values (ST-22), from the same frame.
+        let fields = {
+            let elements = driver.elements();
+            elements
+                .find(crate::ui::preview::GUEST_ROOT)
+                .map(|e| e.id())
+                .map(|root| elements.debug_states(root))
+                .unwrap_or_default()
+        };
+        let fields_changed = *self.preview_fields.borrow() != fields;
+        if fields_changed {
+            *self.preview_fields.borrow_mut() = fields;
+        }
+        // The previewed screen's own subtree when there is one: the render
+        // object the first element under `GuestRoot` produced. Without a
+        // guest on screen, the window's tree.
+        let guest = {
+            let elements = driver.elements();
+            elements.find(crate::ui::preview::GUEST_ROOT).map(|e| {
+                let mut stack = vec![e.id()];
+                let mut order = Vec::new();
+                while let Some(id) = stack.pop() {
+                    order.push(id);
+                    if let Some(el) = elements.get(id) {
+                        stack.extend(el.children().iter().rev().copied());
+                    }
+                }
+                order
+            })
+        };
+        let guest_root =
+            guest.and_then(|order| order.into_iter().find_map(|id| driver.render_of(id)));
         let tree = driver.renders();
-        let Some(root) = tree.root() else { return };
+        let Some(root) = guest_root.or_else(|| tree.root()) else {
+            if fields_changed {
+                self.tree_generation.update(|n| *n = n.wrapping_add(1));
+            }
+            return;
+        };
         // Bounded: a render tree has no size limit and the pane does. 400 is
         // about thirty screens' worth of rows, and the count is shown so a
         // truncated tree is never mistaken for a small one.
@@ -1558,7 +1615,7 @@ impl Studio {
                     .zip(described.iter())
                     .any(|(a, b)| a.0 != b.0 || a.1 != b.1)
         };
-        if !changed {
+        if !changed && !fields_changed {
             // The generation is what wakes the pane, and bumping it every frame
             // would rebuild the Inspector sixty times a second on a still
             // window. Same rule `RenderViewport::report_extents` follows.
@@ -1566,5 +1623,112 @@ impl Studio {
         }
         *self.tree_snapshot.borrow_mut() = described;
         self.tree_generation.update(|n| *n = n.wrapping_add(1));
+    }
+
+    // ── the Inspector as an outline (ST-06) ─────────────────────────────
+
+    /// The Inspector rows shown now (collapse and filter applied).
+    #[must_use]
+    pub fn inspector_rows(&self) -> Vec<usize> {
+        crate::outline::visible(
+            &self.tree_snapshot.borrow(),
+            &self.inspect_collapsed.peek(),
+            &self.inspect_filter.peek(),
+        )
+    }
+
+    /// A click on Inspector row `index`; `toggle` is ⌘/Ctrl, `range` Shift.
+    /// Gives the arrow keys to the Inspector.
+    pub fn inspector_click(&self, index: usize, toggle: bool, range: bool) {
+        let shown = self.inspector_rows();
+        let (primary, set) = crate::outline::click(
+            &shown,
+            self.inspect_selected.peek(),
+            &self.inspect_selection.peek(),
+            index,
+            toggle,
+            range,
+        );
+        self.inspect_selected.set(primary);
+        self.inspect_selection.set(set);
+        self.inspect_keys.set(true);
+    }
+
+    /// Fold or unfold Inspector row `index`.
+    pub fn inspector_toggle(&self, index: usize) {
+        let keys = crate::outline::paths(&self.tree_snapshot.borrow());
+        let Some(key) = keys.get(index).cloned() else {
+            return;
+        };
+        self.inspect_collapsed.update(|c| {
+            if !c.remove(&key) {
+                c.insert(key);
+            }
+        });
+    }
+
+    /// Set the Inspector's name filter.
+    pub fn set_inspector_filter(&self, text: String) {
+        self.inspect_filter.set(text);
+    }
+
+    /// An arrow, Home or End while the Inspector has the keys. Returns
+    /// whether it was used.
+    pub fn inspector_nav(&self, nav: crate::outline::Nav) -> bool {
+        if !self.inspect_keys.peek()
+            || !self.right_open.peek()
+            || self.right_tab.peek() != RightTab::Inspector
+        {
+            return false;
+        }
+        let step = crate::outline::navigate(
+            &self.tree_snapshot.borrow(),
+            &self.inspect_collapsed.peek(),
+            &self.inspect_filter.peek(),
+            self.inspect_selected.peek(),
+            nav,
+        );
+        if let Some(key) = step.collapse {
+            self.inspect_collapsed.update(|c| {
+                c.insert(key);
+            });
+        }
+        if let Some(key) = step.expand {
+            self.inspect_collapsed.update(|c| {
+                c.remove(&key);
+            });
+        }
+        self.inspect_selected.set(step.select);
+        self.inspect_selection
+            .set(step.select.into_iter().collect());
+        true
+    }
+
+    /// The selected rows' combined bounds in the root's coordinates —
+    /// what a multi-row selection is for until bulk edits exist: "how big
+    /// is this group, and where".
+    #[must_use]
+    pub fn inspector_selection_bounds(&self) -> Option<vieww_foundation::Rect> {
+        let rows = self.tree_snapshot.borrow();
+        let selection = self.inspect_selection.peek();
+        if selection.is_empty() {
+            return None;
+        }
+        // Offsets are parent-relative: accumulate down each row's ancestry.
+        let mut origin = vec![vieww_foundation::Offset::ZERO; rows.len()];
+        for i in 0..rows.len() {
+            let base = crate::outline::parent(&rows[..], i)
+                .map_or(vieww_foundation::Offset::ZERO, |p| origin[p]);
+            origin[i] = vieww_foundation::Offset::new(
+                base.dx + rows[i].1.offset.dx,
+                base.dy + rows[i].1.offset.dy,
+            );
+        }
+        let mut out: Option<vieww_foundation::Rect> = None;
+        for &i in selection.iter().filter(|&&i| i < rows.len()) {
+            let r = vieww_foundation::Rect::from_origin_size(origin[i], rows[i].1.size);
+            out = Some(out.map_or(r, |o| o.union(r)));
+        }
+        out
     }
 }

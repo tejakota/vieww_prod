@@ -19,6 +19,9 @@ categories.workspace = true
 # real audio backend against the service trait without this crate ever
 # learning what an audio device looks like.
 vieww-foundation.workspace = true
+# `#[realtime]` (AU-18): a proc-macro crate with no dependencies of its
+# own, so the dependency tree above stays as it is.
+vieww-audio-macros.workspace = true
 
 [features]
 default = ["aac"]

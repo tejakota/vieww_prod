@@ -1,0 +1,23 @@
+[package]
+name = "vieww-audio-macros"
+description = "#[realtime]: marks a vieww-audio render function as real-time — rejects allocating and blocking calls at compile time, and opens a checked real-time section for the debug allocator."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[lib]
+proc-macro = true
+
+# No dependencies: vieww-audio keeps its dependency list to one crate on
+# purpose, and this macro needs only a token walk, so it uses the
+# compiler's `proc_macro` and nothing else (no syn, no quote).
+[dependencies]
+
+[lints]
+workspace = true

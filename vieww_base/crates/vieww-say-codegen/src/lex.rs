@@ -18,6 +18,9 @@ pub(crate) struct Line {
     /// recognised before comment stripping, which is exactly the trap §3
     /// warns about — so the lexer owns it and hands it over as a flag.
     pub pragma: bool,
+    /// The line exactly as written, indentation and all. Only a `rust:`
+    /// block reads it: Rust is passed through verbatim, not tokenized.
+    pub raw: String,
 }
 
 /// One token: a word, a quoted string (decoded), or punctuation.
@@ -96,6 +99,7 @@ pub(crate) fn lex(source: &str) -> Vec<Line> {
             indent,
             tokens,
             pragma: is_pragma,
+            raw: raw.to_owned(),
         });
     }
     lines

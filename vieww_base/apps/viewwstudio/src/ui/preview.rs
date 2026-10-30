@@ -112,26 +112,10 @@ impl Widget for PreviewPane {
                 )
                 .into();
         }
-        if tab == crate::state::RightTab::Inspector {
-            // The whole pane, because a tree is a list and a list wants the
-            // height. The device frame's toolbar means nothing here.
-            column.push(
-                Flexible::expanded(1)
-                    .child(crate::ui::inspector::InspectorPane {
-                        studio: self.studio.clone(),
-                    })
-                    .into(),
-            );
-            return Container::new()
-                .color(chrome.chrome_1)
-                .width(width)
-                .child(
-                    Flex::column()
-                        .cross_axis_alignment(CrossAxisAlignment::Stretch)
-                        .children(column),
-                )
-                .into();
-        }
+        // The Inspector shares the pane with the stage (ST-06, ST-22, ST-09):
+        // it reads the previewed screen's tree, so the screen has to be
+        // mounted, and a person reading a row wants to see what it is.
+        let inspecting = tab == crate::state::RightTab::Inspector;
         if tab == crate::state::RightTab::GeneratedRust {
             // The Rust the active Say buffer compiles to. Read-only by
             // construction: it is a view of what the studio compiles, the
@@ -195,6 +179,37 @@ impl Widget for PreviewPane {
             column.push(self.abi_refusal(&chrome, theme.colors));
             column.push(hairline(chrome.line));
         }
+        // ST-21: several devices side by side, when the matrix is open and
+        // there is a compiled in-process screen to show on each.
+        let matrix = self.studio.preview_matrix.get();
+        if matrix.len() > 1
+            && !self.studio.live_preview.get()
+            && self.studio.preview_remote.get().is_none()
+        {
+            if let Some(screen) = self.studio.preview_screen.get() {
+                column.push(
+                    Flexible::expanded(1)
+                        .child(matrix_stage(&chrome, &self.studio, &screen, &matrix))
+                        .into(),
+                );
+                if self.studio.preview_note.get() {
+                    column.push(hairline(chrome.line));
+                    column.push(caption(&chrome, theme.colors, &self.studio));
+                }
+                if inspecting {
+                    self.push_inspector(&mut column, &chrome);
+                }
+                return Container::new()
+                    .color(chrome.chrome_1)
+                    .width(width)
+                    .child(
+                        Flex::column()
+                            .cross_axis_alignment(CrossAxisAlignment::Stretch)
+                            .children(column),
+                    )
+                    .into();
+            }
+        }
         column.push(
             Flexible::expanded(1)
                 .child(stage(
@@ -231,6 +246,12 @@ impl Widget for PreviewPane {
                         live_state: self.studio.live_state.clone(),
                         live_source: self.studio.live_source(),
                         live_mounts: self.studio.live_mounts_for(&self.studio.live_source()),
+                        perf: self.studio.perf_overlay.get().then(|| {
+                            (
+                                self.studio.perf_samples.get(),
+                                self.studio.perf_budget.get(),
+                            )
+                        }),
                         accessibility: vieww_foundation::Accessibility {
                             text_scale: self.studio.preview_text_scale.get(),
                             reduce_motion: self.studio.preview_reduce_motion.get(),
@@ -241,9 +262,12 @@ impl Widget for PreviewPane {
                 .into(),
         );
         // The note is dismissible: see `caption`.
-        if self.studio.preview_note.get() {
+        if self.studio.preview_note.get() && !inspecting {
             column.push(hairline(chrome.line));
             column.push(caption(&chrome, theme.colors, &self.studio));
+        }
+        if inspecting {
+            self.push_inspector(&mut column, &chrome);
         }
 
         Container::new()
@@ -261,6 +285,18 @@ impl Widget for PreviewPane {
 widget_node_from!(PreviewPane);
 
 impl PreviewPane {
+    /// The Inspector under the stage, sharing the height with it.
+    fn push_inspector(&self, column: &mut Vec<WidgetNode>, chrome: &StudioTheme) {
+        column.push(hairline(chrome.line));
+        column.push(
+            Flexible::expanded(1)
+                .child(crate::ui::inspector::InspectorPane {
+                    studio: self.studio.clone(),
+                })
+                .into(),
+        );
+    }
+
     /// The §8.2 refusal, and the way out of it.
     ///
     /// Everything here is deliberately about the *studio and the project*
@@ -888,6 +924,9 @@ pub struct Stage {
     pub live_source: crate::live::LiveSource,
     /// What each `mount` in that file resolves to.
     pub live_mounts: std::collections::HashMap<String, crate::loaded::Preview>,
+    /// ST-09: recent frames' work time and the budget, when the performance
+    /// overlay is on.
+    pub perf: Option<(Vec<std::time::Duration>, std::time::Duration)>,
 }
 
 fn stage(chrome: &StudioTheme, scroll: vieww_element::ScrollController, spec: Stage) -> WidgetNode {
@@ -910,6 +949,7 @@ fn stage(chrome: &StudioTheme, scroll: vieww_element::ScrollController, spec: St
         live_state,
         live_source,
         live_mounts,
+        perf,
     } = spec;
 
     LayoutBuilder::new(move |constraints| {
@@ -974,6 +1014,7 @@ fn stage(chrome: &StudioTheme, scroll: vieww_element::ScrollController, spec: St
                     live_source: live_source.clone(),
                     live_mounts: live_mounts.clone(),
                     clipped: overflowing,
+                    perf: perf.clone(),
                 }))
                 .into()
         } else {
@@ -995,6 +1036,7 @@ fn stage(chrome: &StudioTheme, scroll: vieww_element::ScrollController, spec: St
                 live_source: live_source.clone(),
                 live_mounts: live_mounts.clone(),
                 clipped: overflowing,
+                perf: perf.clone(),
             })
         };
 
@@ -1281,7 +1323,13 @@ pub struct Frame<'a> {
     /// puts "Press Render" on the clip edge, which is where a message is least
     /// readable and most easily mistaken for a drawing bug.
     pub clipped: bool,
+    /// ST-09: the performance overlay's samples and budget, when it is on.
+    pub perf: Option<(Vec<std::time::Duration>, std::time::Duration)>,
 }
+
+/// What a performance overlay over the previewed screen is called in the
+/// tree.
+pub const PERF_OVERLAY: &str = "PerformanceOverlay";
 
 fn device(frame: Frame<'_>) -> WidgetNode {
     let Frame {
@@ -1302,6 +1350,7 @@ fn device(frame: Frame<'_>) -> WidgetNode {
         live_source,
         live_mounts,
         clipped,
+        perf,
     } = frame;
     let (device_width, device_height) = viewport;
 
@@ -1485,6 +1534,20 @@ fn device(frame: Frame<'_>) -> WidgetNode {
                     .into(),
             );
         }
+    }
+
+    // ST-09: over the screen, under nothing — a diagnostic that takes no
+    // taps and says nothing to a screen reader, so it cannot change what it
+    // measures.
+    if let Some((samples, budget)) = perf {
+        screen_layers.push(
+            Positioned::new()
+                .top(view_metrics.safe_area.top)
+                .left(0.0)
+                .right(0.0)
+                .child(vieww_widget::PerformanceOverlay::new(samples, budget).height(56.0))
+                .into(),
+        );
     }
 
     let screen = Stack::new()
@@ -2320,6 +2383,143 @@ pub fn guest_tree(
                 .child(Overlay::new().child(GuestRoot { child: guest })),
         ),
     )
+    .into()
+}
+
+/// The name each matrix frame is marked with, so
+/// [`Studio::sync_matrix_states`] finds the frames' subtrees.
+///
+/// [`Studio::sync_matrix_states`]: crate::state::Studio::sync_matrix_states
+pub const MATRIX_FRAME: &str = "MatrixFrame";
+
+/// One frame of the device matrix (ST-21): a marker around a device's
+/// subtree, nothing else.
+#[derive(Debug)]
+pub struct MatrixFrame {
+    pub child: WidgetNode,
+}
+
+impl Widget for MatrixFrame {
+    fn debug_name(&self) -> &'static str {
+        MATRIX_FRAME
+    }
+
+    fn kind(&self) -> WidgetKind<'_> {
+        WidgetKind::Composed
+    }
+
+    fn build(&self, _ctx: &BuildContext) -> WidgetNode {
+        self.child.clone()
+    }
+}
+
+widget_node_from!(MatrixFrame);
+
+/// The screen on every device in the matrix, side by side (ST-21): each
+/// device framed at one scale that fits the tallest frame in the pane's
+/// height, told its own metrics, platform and orientation, the row
+/// scrolling sideways when it is wider than the pane. Above each frame its
+/// name and a × that takes it out; at the end a + that adds the next
+/// device. The frames are separate mounts of the one screen, kept to one
+/// state by `Studio::sync_matrix_states` after every frame.
+fn matrix_stage(
+    chrome: &StudioTheme,
+    studio: &Studio,
+    screen: &crate::loaded::Preview,
+    devices: &[crate::state::Device],
+) -> WidgetNode {
+    let chrome = *chrome;
+    let studio = studio.clone();
+    let screen = screen.clone();
+    let devices = devices.to_vec();
+    LayoutBuilder::new(move |constraints| {
+        let colors = if studio.preview_dark.peek() {
+            ColorScheme::dark()
+        } else {
+            ColorScheme::light()
+        };
+        let label_room = 28.0;
+        let height = if constraints.max_height.is_finite() {
+            constraints.max_height
+        } else {
+            700.0
+        };
+        let tallest = devices.iter().map(|d| d.height).fold(1.0f32, f32::max);
+        let scale = ((height - label_room - STAGE_PADDING * 2.0) / tallest).clamp(0.12, 1.0);
+        let accessibility = vieww_foundation::Accessibility {
+            text_scale: studio.preview_text_scale.peek(),
+            reduce_motion: studio.preview_reduce_motion.peek(),
+            ..vieww_foundation::Accessibility::default()
+        };
+        let mut row: Vec<WidgetNode> = Vec::new();
+        for (index, d) in devices.iter().enumerate() {
+            let removing = studio.clone();
+            let head = Flex::row()
+                .main_axis_size(MainAxisSize::Min)
+                .cross_axis_alignment(CrossAxisAlignment::Center)
+                .children(children![
+                    label(crate::i18n::t(d.name), 11.0, chrome.gutter),
+                    space(6.0),
+                    clickable(
+                        move || label("\u{d7}", 12.0, chrome.gutter).into(),
+                        move || removing.matrix_remove_device(index),
+                    ),
+                ]);
+            let frame = device(Frame {
+                colors,
+                show_insets: studio.show_insets.peek(),
+                platform: d.platform,
+                state: studio.preview.peek(),
+                screen: Some(&screen),
+                remote: None,
+                scale,
+                viewport: (d.width, d.height),
+                accessibility,
+                metrics: d.view_metrics(),
+                landscape: d.landscape,
+                dark: studio.preview_dark.peek(),
+                live_preview: false,
+                live_state: studio.live_state.clone(),
+                live_source: studio.live_source(),
+                live_mounts: std::collections::HashMap::new(),
+                clipped: false,
+                perf: None,
+            });
+            row.push(
+                Container::new()
+                    .padding(EdgeInsets::all(STAGE_PADDING / 2.0))
+                    .child(
+                        Flex::column()
+                            .spacing(6.0)
+                            .main_axis_size(MainAxisSize::Min)
+                            .children(children![head, MatrixFrame { child: frame }]),
+                    )
+                    .into(),
+            );
+        }
+        let adding = studio.clone();
+        row.push(
+            Container::new()
+                .padding(EdgeInsets::all(STAGE_PADDING))
+                .child(clickable(
+                    move || label("+", 18.0, chrome.gutter).into(),
+                    move || adding.matrix_add_device(),
+                ))
+                .into(),
+        );
+        let scroll = studio.matrix_scroll.clone();
+        Scrollable::horizontal(scroll.offset())
+            .key("device-matrix")
+            .on_drag(scroll.on_drag())
+            .on_drag_end(scroll.on_drag_end())
+            .on_extents(scroll.on_extents())
+            .child(
+                Flex::row()
+                    .cross_axis_alignment(CrossAxisAlignment::Start)
+                    .children(row),
+            )
+            .into()
+    })
     .into()
 }
 

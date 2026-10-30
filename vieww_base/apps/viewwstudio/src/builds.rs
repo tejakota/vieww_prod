@@ -101,16 +101,18 @@ impl State {
     /// to guess which of them it belonged to.
     #[must_use]
     pub fn describe(&self) -> String {
+        use crate::i18n::{t, tf};
         match self {
-            Self::Idle => "No build yet".to_string(),
-            Self::Running(Kind::Run) => "Running…".to_string(),
-            Self::Running(_) => "Building…".to_string(),
-            Self::Succeeded { kind, warnings: 0 } => format!("{} succeeded", kind.label()),
-            Self::Succeeded { kind, warnings } => format!(
-                "{} succeeded · {warnings} warning{}",
-                kind.label(),
-                if *warnings == 1 { "" } else { "s" }
-            ),
+            Self::Idle => t("No build yet").to_string(),
+            Self::Running(Kind::Run) => t("Running…").to_string(),
+            Self::Running(_) => t("Building…").to_string(),
+            Self::Succeeded { kind, warnings: 0 } => tf("{} succeeded", &[&t(kind.label())]),
+            Self::Succeeded { kind, warnings: 1 } => {
+                tf("{} succeeded · {} warning", &[&t(kind.label()), &1])
+            }
+            Self::Succeeded { kind, warnings } => {
+                tf("{} succeeded · {} warnings", &[&t(kind.label()), warnings])
+            }
             // A cancelled build is not a failed one, and the task's own status
             // is what knows the difference. Reporting "Build failed" for a
             // build the user stopped on purpose is the same class of lie this
@@ -118,8 +120,8 @@ impl State {
             Self::Failed {
                 kind,
                 status: Status::Cancelled,
-            } => format!("{} cancelled", kind.label()),
-            Self::Failed { kind, .. } => format!("{} failed", kind.label()),
+            } => tf("{} cancelled", &[&t(kind.label())]),
+            Self::Failed { kind, .. } => tf("{} failed", &[&t(kind.label())]),
         }
     }
 
