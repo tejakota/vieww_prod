@@ -16,9 +16,9 @@ cannot be pointed at "whatever weights happen to be lying around".
 
 | manifest | file | size | quant | licence | revision |
 |---|---|---|---|---|---|
-| `qwen3-0.6b-q2k.json` | `Qwen3-0.6B-Q2_K.gguf` | 332 MB | Q2_K (2.625 eff. bits) | Apache-2.0 | `60b85c0e…` |
-| `qwen3-0.6b-q3k.json` | `Qwen3-0.6B-Q3_K_M.gguf` | 395 MB | Q3_K (3.4375 eff. bits) | Apache-2.0 | `60b85c0e…` |
-| `qwen3-0.6b-q4k.json` | `Qwen3-0.6B-Q4_K_M.gguf` | 462 MB | Q4_K (4.5 eff. bits) | Apache-2.0 | `60b85c0e…` |
+| `qwen3-0.6b-q2k.json` | `Qwen_Qwen3-0.6B-Q2_K.gguf` | 332 MB | Q2_K (2.625 eff. bits) | Apache-2.0 | `60b85c0e…` |
+| `qwen3-0.6b-q3k.json` | `Qwen_Qwen3-0.6B-Q3_K_M.gguf` | 395 MB | Q3_K (3.4375 eff. bits) | Apache-2.0 | `60b85c0e…` |
+| `qwen3-0.6b-q4k.json` | `Qwen_Qwen3-0.6B-Q4_K_M.gguf` | 462 MB | Q4_K (4.5 eff. bits) | Apache-2.0 | `60b85c0e…` |
 | `tokenizer.json` (manifest) | `tokenizer.json` | 11 MB | — | Apache-2.0 | `c1899de2…` |
 
 Honest labels, per the plan's §5.2 note that "Q2_K is not exactly two
@@ -37,9 +37,9 @@ intention.
 ```sh
 mkdir -p ~/.u/models && cd ~/.u/models
 curl -L -o tokenizer.json       https://huggingface.co/Qwen/Qwen3-0.6B/resolve/main/tokenizer.json
-curl -L -o Qwen3-0.6B-Q2_K.gguf https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen_Qwen3-0.6B-Q2_K.gguf
-curl -L -o Qwen3-0.6B-Q3_K_M.gguf https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen_Qwen3-0.6B-Q3_K_M.gguf
-curl -L -o Qwen3-0.6B-Q4_K_M.gguf https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen_Qwen3-0.6B-Q4_K_M.gguf
+curl -L -o Qwen_Qwen3-0.6B-Q2_K.gguf https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen_Qwen3-0.6B-Q2_K.gguf
+curl -L -o Qwen_Qwen3-0.6B-Q3_K_M.gguf https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen_Qwen3-0.6B-Q3_K_M.gguf
+curl -L -o Qwen_Qwen3-0.6B-Q4_K_M.gguf https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen_Qwen3-0.6B-Q4_K_M.gguf
 ```
 
 `U_MODELS_DIR=<dir>` points both the app and the benchmark at another

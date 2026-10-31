@@ -56,12 +56,12 @@ jobs:
           cd "$U_MODELS_DIR"
           curl -fL --retry 3 -o tokenizer.json \
             https://huggingface.co/Qwen/Qwen3-0.6B/resolve/main/tokenizer.json
-          curl -fL --retry 3 -o Qwen3-0.6B-Q2_K.gguf \
-            https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q2_K.gguf
-          curl -fL --retry 3 -o Qwen3-0.6B-Q3_K_M.gguf \
-            https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q3_K_M.gguf
-          curl -fL --retry 3 -o Qwen3-0.6B-Q4_K_M.gguf \
-            https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_K_M.gguf
+          curl -fL --retry 3 -o Qwen_Qwen3-0.6B-Q2_K.gguf \
+            https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen_Qwen3-0.6B-Q2_K.gguf
+          curl -fL --retry 3 -o Qwen_Qwen3-0.6B-Q3_K_M.gguf \
+            https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen_Qwen3-0.6B-Q3_K_M.gguf
+          curl -fL --retry 3 -o Qwen_Qwen3-0.6B-Q4_K_M.gguf \
+            https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen_Qwen3-0.6B-Q4_K_M.gguf
 
       - name: Tests (with the real model)
         run: cargo test --release --features model
