@@ -1,0 +1,75 @@
+name: U - model runtime
+
+# Phase 2's gate for U's model runtime (vieww_base/examples/u):
+#
+#   tests    The crate with --features model: the manifest language, the
+#            prompts, the sampler and stopper, the parser, the fallback —
+#            and, with the real weights, a real end-to-end decision.
+#   bench    The Q2_K/Q3_K/Q4_K comparison over the evaluation set, printed
+#            for the run page. Each quant runs in its own child process
+#            because peak RSS is a per-process fact.
+#
+# Weights are fetched from the exact URLs the committed manifests name and
+# verified by the runtime against the manifests' own digests before
+# anything runs — a mismatch fails the job rather than shipping a guess.
+#
+# Manual only, like every workflow in this repository:
+# Actions -> "U - model runtime" -> Run workflow.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  RUST_VERSION: "1.98.1"
+  U_MODELS_DIR: ${{ github.workspace }}/u-models
+
+defaults:
+  run:
+    shell: bash
+    working-directory: vieww_base/examples/u/crates/u-ml-runtime
+
+jobs:
+  model:
+    name: Real weights, real decisions
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Rust ${{ env.RUST_VERSION }}
+        working-directory: .
+        run: |
+          rustup toolchain install "$RUST_VERSION" --profile minimal
+          rustup default "$RUST_VERSION"
+
+      - name: Fetch the pinned files the manifests name
+        working-directory: .
+        run: |
+          mkdir -p "$U_MODELS_DIR"
+          cd "$U_MODELS_DIR"
+          curl -fL --retry 3 -o tokenizer.json \
+            https://huggingface.co/Qwen/Qwen3-0.6B/resolve/main/tokenizer.json
+          curl -fL --retry 3 -o Qwen3-0.6B-Q2_K.gguf \
+            https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q2_K.gguf
+          curl -fL --retry 3 -o Qwen3-0.6B-Q3_K_M.gguf \
+            https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q3_K_M.gguf
+          curl -fL --retry 3 -o Qwen3-0.6B-Q4_K_M.gguf \
+            https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_K_M.gguf
+
+      - name: Tests (with the real model)
+        run: cargo test --release --features model
+
+      - name: The Q2_K / Q3_K / Q4_K benchmark
+        run: |
+          cargo run --release --features model --example bench -- \
+            --models "$U_MODELS_DIR" | tee "$GITHUB_STEP_SUMMARY"
+
+      - name: Also check the default build resolves no model at all
+        run: cargo check --quiet

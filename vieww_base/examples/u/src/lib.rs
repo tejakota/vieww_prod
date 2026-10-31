@@ -399,6 +399,14 @@ impl AppState {
         self.assess();
     }
 
+    /// Abandon the decision in flight — §5.6's "cancel work when requested
+    /// or when the user leaves". Called on the way out of the workspace,
+    /// whatever screen is going on next: the baseline has nothing to
+    /// cancel, and a model stops between tokens.
+    pub fn cancel_assessment(&self) {
+        self.engine.borrow().cancel();
+    }
+
     /// Give the verdict on the last assessment — recorded as memory,
     /// taught to nothing (§7.3: a verdict is not a preference).
     pub fn give_feedback(&self, helpful: bool) {
@@ -756,16 +764,20 @@ impl UShell {
 /// ```console
 /// cargo run -p u --release
 /// ```
+///
+/// With the `model` feature (`cargo run -p u --release --features model`),
+/// the engine opens on Qwen3-0.6B when verified weights are present —
+/// see `docs/models.md` — and on the deterministic baseline otherwise,
+/// which is also what every default build opens on. The §10 release
+/// gates keep the model out of APK builds until Phase 3's physical-device
+/// reports exist.
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     let data = vieww_platform_winit::data_dir();
     // The engine's memory lives beside the log's, under a name of its own.
     // A store that cannot be opened is said and fallen back from — the
     // person still gets the app, on a memory that keeps nothing, rather
     // than a window that never comes.
-    let engine = engine::Engine::at(data.join("u-store")).unwrap_or_else(|error| {
-        eprintln!("U: the decision memory could not be opened ({error}); this session keeps nothing");
-        engine::Engine::scratch()
-    });
+    let engine = engine_at(data.join("u-store"));
     let report = App::new()
         .title("U")
         .size(SURFACE)
@@ -778,6 +790,73 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
         })?;
     println!("{report}");
     Ok(())
+}
+
+/// Open the engine: the deterministic baseline, or — when this build grew
+/// the `model` feature — the model this machine's cohort allows, if its
+/// verified weights are present. Failure to open a model is not failure
+/// to open the app: the baseline answers, and the reason is said.
+fn engine_at(store_dir: std::path::PathBuf) -> engine::Engine {
+    #[cfg(feature = "model")]
+    {
+        if let Some(engine) = engine_with_model(&store_dir) {
+            return engine;
+        }
+    }
+    engine::Engine::at(&store_dir).unwrap_or_else(|error| {
+        eprintln!(
+            "U: the decision memory could not be opened ({error}); this session keeps nothing"
+        );
+        engine::Engine::scratch()
+    })
+}
+
+/// The model this machine's own cohort allows, loaded from the directory
+/// the benchmark fetches into (`U_MODELS_DIR`, or `~/.u/models`), verified
+/// against its manifest before anything runs. `None` — and the baseline
+/// takes over — when the weights are absent, the digest is wrong, or the
+/// tokenizer will not open: every one a fact to say, not a wall to hit.
+#[cfg(feature = "model")]
+fn engine_with_model(store_dir: &std::path::Path) -> Option<engine::Engine> {
+    use u_ml_runtime::{cohort, Manifest, Qwen, Runtime as _, TokenizerManifest};
+
+    let dir = std::env::var_os("U_MODELS_DIR")
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            std::env::var_os("HOME")
+                .map(|home| std::path::Path::new(&home).join(".u").join("models"))
+        })?;
+    // The cohort reads this machine's own memory: the caps a phone earns
+    // are the caps this decision runs under, which is §5.5's whole point.
+    let caps = cohort::current().caps();
+    let tokenizer = TokenizerManifest::embedded();
+    for manifest in Manifest::embedded() {
+        if !cohort::current()
+            .quant_preference()
+            .contains(&manifest.quant)
+        {
+            continue;
+        }
+        if !dir.join(&manifest.file).is_file() {
+            continue;
+        }
+        match Qwen::load(&manifest, &tokenizer, &dir, caps) {
+            Ok(qwen) => {
+                eprintln!(
+                    "U: {} loaded, under this machine's cohort caps",
+                    qwen.name()
+                );
+                return engine::Engine::at_with(store_dir, Box::new(qwen)).ok();
+            }
+            Err(error) => {
+                eprintln!(
+                    "U: {} refused to load ({error}); the baseline answers",
+                    manifest.file
+                );
+            }
+        }
+    }
+    None
 }
 
 /// Called by android-activity's glue once the activity exists. Plain Rust ABI
@@ -809,7 +888,9 @@ fn android_main(android: AndroidApp) {
     // that keeps nothing rather than not at all.
     let engine = match &internal {
         Some(dir) => engine::Engine::at(dir.join("u-store")).unwrap_or_else(|error| {
-            log::warn!("U: the decision memory could not be opened ({error}); this session keeps nothing");
+            log::warn!(
+                "U: the decision memory could not be opened ({error}); this session keeps nothing"
+            );
             engine::Engine::scratch()
         }),
         None => engine::Engine::scratch(),

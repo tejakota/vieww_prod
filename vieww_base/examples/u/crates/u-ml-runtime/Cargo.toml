@@ -1,6 +1,6 @@
 [package]
 name = "u-ml-runtime"
-description = "U — the inference seam: one Runtime trait, the deterministic baseline behind it, and the manifest language a model arrives in."
+description = "U — the inference seam: the Runtime trait, the deterministic baseline, and (behind the `model` feature) Qwen3-0.6B on Candle."
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -10,8 +10,42 @@ publish = false
 [lints]
 workspace = true
 
+# The plan's §5.3 stack, feature-gated: `cargo build` (and every APK build)
+# resolves none of it, because the plan's own release gates (§10) forbid
+# shipping a model/runtime combination that has not been measured on real
+# devices — and Phase 3's physical reports do not exist yet. The benchmark
+# CLI and the desktop runs opt in with `--features model`.
+#
+# `tokenizers` arrives with `candle-transformers` regardless (it is a hard
+# dependency of that crate), so listing it here adds no second copy — it
+# only lets `tokenizer.rs` name the type it wraps.
+[features]
+default = []
+model = [
+    "dep:candle",
+    "dep:candle-transformers",
+    "dep:tokenizers",
+    "dep:sha2",
+]
+
 [dependencies]
 u-core = { path = "../u-core" }
 u-decision = { path = "../u-decision" }
 serde = { workspace = true }
 serde_json = { workspace = true }
+# Renamed to `candle` — the name its own docs and every example import it
+# by, and the name `model.rs` uses.
+candle = { package = "candle-core", version = "0.11", optional = true }
+candle-transformers = { version = "0.11", optional = true }
+tokenizers = { version = "0.22", optional = true }
+sha2 = { version = "0.10", optional = true }
+
+# The Phase 2 exit criterion: "repeatable inference and documented
+# quality/resource comparisons" — a benchmark CLI over the evaluation set,
+# one run per quantisation the plan's §5.2 table names.
+[[example]]
+name = "bench"
+path = "examples/bench.rs"
+required-features = ["model"]
+
+[dev-dependencies]

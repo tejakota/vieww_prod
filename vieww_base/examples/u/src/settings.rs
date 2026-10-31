@@ -954,9 +954,16 @@ fn privacy_section(state: &AppState, ctx: &BuildContext) -> WidgetNode {
                 ),
             ))
             .push(place(82.0, top_of(950.0, 9.0)).child(
-                Text::new("Network access unavailable")
-                    .size(9.0)
-                    .color(Color::rgb(129, 144, 168)),
+                // The engine's own name, said where the privacy claim is:
+                // "no network" and "which engine answered" are the same
+                // promise (§15: nothing presented as available that is
+                // not — and no fallback presented as the model).
+                Text::new(format!(
+                    "Network access unavailable · answered by {}",
+                    state.engine.borrow().runtime_name()
+                ))
+                .size(9.0)
+                .color(Color::rgb(129, 144, 168)),
             ))
             .push(place(355.0, 927.0).child(offline_disc())),
     )

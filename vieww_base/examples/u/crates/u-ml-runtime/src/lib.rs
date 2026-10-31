@@ -1,114 +1,65 @@
-//! `u-ml-runtime` — the seam a model arrives through, and the engine
-//! already behind it.
+//! `u-ml-runtime` — the seam a model arrives through, the engine already
+//! behind it, and — behind the `model` feature — the model itself.
 //!
-//! The plan's Phase 2 is *Candle + Qwen3-0.6B behind a measured baseline*.
-//! This crate is the seam that sentence implies, in the order the plan
-//! itself insists on (§11's guiding rule: the universal decision experience
-//! **first**, the measured on-device inference second):
+//! The plan's Phase 2 is *Candle + Qwen3-0.6B behind a measured baseline*,
+//! and this crate is that sentence in the order the plan's §11 guiding
+//! rule insists on (the universal decision experience **first**, the
+//! measured on-device inference second):
 //!
-//! * [`Runtime`] — the one trait every engine implements: read an input and
-//!   the persona hints relevant to it, produce the §4.4 assessment.
-//! * [`Deterministic`] — the engine already shipping: `u-decision`'s cue
-//!   reader and composer, enforcing the same [`Budget`] a model will. It is
-//!   the §5.6 fallback ("deterministic fallback behaviour when inference
-//!   fails") *and* the quality floor any model must beat before it
-//!   replaces this behind the same trait.
-//! * [`Manifest`] / [`Quant`] — the language a model is described in when
-//!   one lands: family, parameters, quantisation, and a digest to verify
-//!   the weights against. Nothing downloads, nothing loads, and nothing
-//!   claims to — the plan's §15 forbids presenting an unimplemented feature
-//!   as available, and this crate takes that literally.
+//! * [`Runtime`] — the one trait every engine implements: read an input
+//!   and the persona hints relevant to it, produce the §4.4 assessment.
+//! * [`Deterministic`] — the engine that shipped first: `u-decision`'s
+//!   cue reader and composer, enforcing the same [`Budget`] a model
+//!   will. It is the §5.6 fallback ("deterministic fallback behaviour
+//!   when inference fails") *and* the quality floor any model must beat
+//!   before it replaces this behind the same trait.
+//! * [`Manifest`] / [`TokenizerManifest`] / [`Quant`] — §5.1's
+//!   verification language: family, parameters, quantisation, the exact
+//!   revision, a SHA-256 digest, and the licence the bytes carry. The
+//!   three manifests the plan's §5.2 table asks to compare are committed
+//!   at `models/manifests/` and embedded here; the weights stay outside
+//!   the repository, fetched by a developer (see `docs/models.md`) and
+//!   digest-checked at load.
+//! * [`cohort`] — §5.5's device cohorts, read from `/proc/meminfo`,
+//!   each carrying the caps §5.6 demands.
 //!
-//! # Why no `candle` dependency yet
+//! # The `model` feature
 //!
-//! Bundling an unverified dependency graph this early buys a compile risk
-//! and pays for no capability: there are no weights in the repository (a
-//! ~600 MB artefact belongs to a release pipeline, not a git tree), no
-//! device measurements to tune against, and no evaluation set to gate on —
-//! all three are the plan's own Phase 2 preconditions. When they exist, the
-//! runtime lands as `Qwen` behind this same trait, the app's engine code
-//! changes by one constructor, and every screen built against [`Runtime`]
-//! keeps working unchanged. That is the whole reason the seam is here now.
+//! With `--features model` the crate grows the rest of §5.3's checklist:
+//! [`qwen`] is Qwen3-0.6B in GGUF on Candle's CPU device — loaded only
+//! after its digest matches its manifest, running on a worker thread
+//! with a cancellation token and a timeout, emitting contract-validated
+//! structured output or an honest error. A default build (and every APK
+//! build today) resolves *none* of that: the plan's §10 release gates
+//! forbid shipping a model/runtime combination that has not been
+//! measured on real devices, and Phase 3's physical-device reports do
+//! not exist yet. The seam is the same either way — that is the point of
+//! a seam.
 //!
-//! # The safeguards that are already real
+//! # The safeguards that are real in every build
 //!
 //! The budget is enforced *at this layer*, not inside whichever engine —
-//! input caps, output caps, single-shot calls (no unbounded retries, §5.6),
-//! and errors a caller can act on. The day a model runs hot, the caps are
-//! already the app's, not the model's.
+//! input caps, output caps, single-shot calls (no unbounded retries,
+//! §5.6), and errors a caller can act on. The day a model runs hot, the
+//! caps are already the app's, not the model's.
 
 use u_core::{Budget, Error};
 use u_decision::{compose, interpret, Assessment, Hint, Input, Interpretation};
 
-/// The quantisation formats the plan's §5.2 table names, with the effective
-/// weight bits it lists — because "Q2_K" is not two bits, and the number
-/// that matters when sizing a phone's memory is the honest one.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub enum Quant {
-    /// ~2.625 effective bits — the aggressive low-memory experiment.
-    Q2K,
-    /// ~3.4375 effective bits — the memory/quality compromise.
-    Q3K,
-    /// ~4.5 effective bits — the quality-oriented mobile baseline.
-    Q4K,
-}
+pub mod cohort;
+pub mod generation;
+#[cfg(feature = "model")]
+pub mod model;
+pub mod prompt;
+pub mod quantization;
+#[cfg(feature = "model")]
+pub mod qwen;
+#[cfg(feature = "model")]
+pub mod tokenizer;
 
-impl Quant {
-    /// The plan's own effective-bits column, verbatim.
-    #[must_use]
-    pub const fn effective_bits(self) -> f32 {
-        match self {
-            Self::Q2K => 2.625,
-            Self::Q3K => 3.4375,
-            Self::Q4K => 4.5,
-        }
-    }
-
-    /// The format's own name.
-    #[must_use]
-    pub const fn label(self) -> &'static str {
-        match self {
-            Self::Q2K => "Q2_K",
-            Self::Q3K => "Q3_K",
-            Self::Q4K => "Q4_K",
-        }
-    }
-}
-
-/// A model, described — §5.1's "verify the exact revision, tokenizer,
-/// licence and redistribution requirements before packaging", as a type
-/// that forces each field to be answered.
-#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub struct Manifest {
-    /// The family — "qwen3", when Phase 2 lands.
-    pub family: String,
-    /// The parameter count, as the label it ships under.
-    pub parameters: String,
-    /// The quantisation.
-    pub quant: Quant,
-    /// The exact revision the weights were cut from.
-    pub revision: String,
-    /// The digest of the weight files, hex, to verify a download against.
-    pub sha256: String,
-    /// The licence the weights carry — redistribution terms differ by
-    /// family and the APK is a redistribution.
-    pub license: String,
-}
-
-impl Manifest {
-    /// A human-readable one-liner, the shape a benchmark report prints.
-    #[must_use]
-    pub fn summary(&self) -> String {
-        format!(
-            "{}-{} {} ({} effective bits, {})",
-            self.family,
-            self.parameters,
-            self.quant.label(),
-            self.quant.effective_bits(),
-            self.revision
-        )
-    }
-}
+pub use quantization::{Manifest, Quant, TokenizerManifest};
+#[cfg(feature = "model")]
+pub use qwen::Qwen;
 
 /// One engine behind the whole app: read a situation, write an assessment.
 ///
@@ -125,18 +76,25 @@ pub trait Runtime {
 
     /// Read one input into the §4.2 representation.
     ///
+    /// The hints are the persona's *relevant* preferences (§7.5), passed
+    /// to both stages so each engine can decide where personalisation
+    /// belongs — the deterministic engine folds them in here, because
+    /// cues are all it has; a model engine reads the situation without
+    /// them and saves them for [`Self::assess`], where §7.5 puts them.
+    ///
     /// # Errors
     /// [`Error::Empty`] / [`Error::OverBudget`] from the budget, and
     /// whatever an engine's own failure mode is — as an [`Error`], never a
     /// panic, because a phone discards stderr.
     fn interpret(&self, input: &Input, hints: &[Hint]) -> Result<Interpretation, Error>;
 
-    /// Compose the §4.4 assessment for an interpretation.
+    /// Compose the §4.4 assessment for an interpretation, with the
+    /// persona's relevant preferences in view.
     ///
     /// # Errors
     /// Contract violations, as the engine's own error — validation is
     /// §5.6's "valid structured output or tested recovery".
-    fn assess(&self, seen: &Interpretation) -> Result<Assessment, Error>;
+    fn assess(&self, seen: &Interpretation, hints: &[Hint]) -> Result<Assessment, Error>;
 
     /// The whole pipeline in one call: input in, assessment out.
     ///
@@ -144,8 +102,18 @@ pub trait Runtime {
     /// As [`Self::interpret`] and [`Self::assess`].
     fn decide(&self, input: &Input, hints: &[Hint]) -> Result<Assessment, Error> {
         let seen = self.interpret(input, hints)?;
-        self.assess(&seen)
+        self.assess(&seen, hints)
     }
+
+    /// Abandon the work in flight, if there is any and if the engine can.
+    ///
+    /// §5.6's "cancel work when requested or when the user leaves". An
+    /// engine whose work is a cue read over a few hundred bytes has
+    /// nothing to cancel — the default is the honest no-op. An engine
+    /// that owns a worker notices between tokens and stops; the call the
+    /// caller already holds comes back as [`Error::Cancelled`], which is
+    /// the caller's signal to abandon the *result*, not to retry it.
+    fn cancel(&self) {}
 }
 
 /// The deterministic baseline: `u-decision` behind [`Runtime`], enforcing
@@ -191,7 +159,10 @@ impl Runtime for Deterministic {
         Ok(interpret(input, hints, &self.budget))
     }
 
-    fn assess(&self, seen: &Interpretation) -> Result<Assessment, Error> {
+    fn assess(&self, seen: &Interpretation, _hints: &[Hint]) -> Result<Assessment, Error> {
+        // Hints were already folded into the interpretation by this
+        // engine's own `interpret` — a cue reader has no second chance to
+        // weigh them, so it takes the first, and the `_` says so.
         let assessment = compose(seen, &self.budget);
         if assessment.contract_violations().is_empty() {
             Ok(assessment)
@@ -316,14 +287,10 @@ mod tests {
 
     #[test]
     fn a_manifest_summarises_itself_honestly() {
-        let manifest = Manifest {
-            family: "qwen3".into(),
-            parameters: "0.6B".into(),
-            quant: Quant::Q3K,
-            revision: "deadbeef".into(),
-            sha256: String::new(),
-            license: "Apache-2.0".into(),
-        };
+        // The embedded, real manifest — not a hand-built one, so the
+        // summary is checked against the thing a report will actually
+        // print.
+        let manifest = &Manifest::embedded()[1];
         let summary = manifest.summary();
         assert!(summary.contains("qwen3-0.6B"));
         assert!(summary.contains("Q3_K"));

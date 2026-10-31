@@ -80,6 +80,33 @@ pub enum Error {
     /// always present, so this is reached only by asking a model runtime
     /// for something it was never given.
     NoRuntime(&'static str),
+    /// The work was cancelled before it finished — the person left, or the
+    /// caller gave up waiting.
+    ///
+    /// §5.6's "cancel work when requested or when the user leaves": the
+    /// result is abandoned by design, so the error is the caller's signal
+    /// to abandon it too, not to retry (there are no unbounded retries).
+    Cancelled,
+    /// A model's output could not be read as the contract it was asked for.
+    ///
+    /// The tested-recovery half of §5.6: the caller falls back to the
+    /// deterministic engine rather than showing a person prose that only
+    /// looks like an assessment.
+    Output {
+        /// What could not be read — "the model's assessment", and so on.
+        what: &'static str,
+    },
+    /// Weights (or a tokenizer) failed the digest check against their
+    /// manifest.
+    ///
+    /// §5.1's "verify the exact revision" gate: the file is present and
+    /// wrong, which is a different fact from absent — the caller deletes
+    /// and re-fetches rather than loading bytes that are not the ones the
+    /// manifest vouched for.
+    Unverified {
+        /// What did not match — "the weights", "the tokenizer".
+        what: &'static str,
+    },
 }
 
 impl fmt::Display for Error {
@@ -94,10 +121,24 @@ impl fmt::Display for Error {
                 "a stored record could not be read back; {recovered} intact records kept"
             ),
             Self::Schema { found, reads } => {
-                write!(f, "store schema {found} is newer than this build reads ({reads})")
+                write!(
+                    f,
+                    "store schema {found} is newer than this build reads ({reads})"
+                )
             }
             Self::Missing => write!(f, "no such record"),
             Self::NoRuntime(what) => write!(f, "no runtime for {what}"),
+            Self::Cancelled => write!(f, "the work was cancelled before it finished"),
+            Self::Output { what } => {
+                write!(
+                    f,
+                    "{what} could not be read as the contract asks — falling back"
+                )
+            }
+            Self::Unverified { what } => write!(
+                f,
+                "{what} did not match their manifest — refusing to load them"
+            ),
         }
     }
 }
@@ -178,22 +219,32 @@ mod tests {
 
     #[test]
     fn an_empty_situation_is_refused_by_name() {
-        assert_eq!(Budget::DEFAULT.check_input("   "), Err(Error::Empty("the situation")));
+        assert_eq!(
+            Budget::DEFAULT.check_input("   "),
+            Err(Error::Empty("the situation"))
+        );
         // The error is at least actionable, which is the point of the type.
-        assert!(Error::Empty("the situation").to_string().contains("situation"));
+        assert!(Error::Empty("the situation")
+            .to_string()
+            .contains("situation"));
     }
 
     #[test]
     fn the_input_bound_counts_characters_after_trimming() {
         let padded = format!("{}over", " ".repeat(Budget::DEFAULT.max_input_chars));
-        assert!(Budget::DEFAULT.check_input(&padded).is_ok(), "padding is not content");
+        assert!(
+            Budget::DEFAULT.check_input(&padded).is_ok(),
+            "padding is not content"
+        );
         let over = "x".repeat(Budget::DEFAULT.max_input_chars + 1);
         assert!(matches!(
             Budget::DEFAULT.check_input(&over),
             Err(Error::OverBudget { got, bound, .. })
                 if got == Budget::DEFAULT.max_input_chars + 1 && bound == Budget::DEFAULT.max_input_chars
         ));
-        assert!(Budget::DEFAULT.check_input("a considered situation").is_ok());
+        assert!(Budget::DEFAULT
+            .check_input("a considered situation")
+            .is_ok());
     }
 
     #[test]
@@ -201,5 +252,27 @@ mod tests {
         let mut list = vec![1, 2, 3, 4, 5, 6, 7];
         Budget::DEFAULT.clamp_list(&mut list);
         assert_eq!(list.len(), Budget::DEFAULT.max_list_items);
+    }
+
+    #[test]
+    fn cancellation_and_unreadable_output_are_named_and_actionable() {
+        // Both must say what the caller should do, in words a person reads.
+        assert!(Error::Cancelled.to_string().contains("cancelled"));
+        let said = Error::Output {
+            what: "the model's assessment",
+        }
+        .to_string();
+        assert!(said.contains("assessment"));
+        assert!(said.contains("falling back"));
+    }
+
+    #[test]
+    fn unverified_weights_are_refused_by_name() {
+        let said = Error::Unverified {
+            what: "the weights",
+        }
+        .to_string();
+        assert!(said.contains("did not match"));
+        assert!(said.contains("refusing"));
     }
 }

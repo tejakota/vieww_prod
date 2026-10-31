@@ -79,11 +79,7 @@ impl WorkspaceScreen {
             // The one question first — §2.5: ask only what materially
             // changes the assessment, one at a time.
             if let Some(question) = &assessment.follow_up_question {
-                column = column.push(follow_up_card(
-                    &self.shared,
-                    &state,
-                    question,
-                ));
+                column = column.push(follow_up_card(&self.shared, &state, question));
             }
             column = column
                 .push(section(
@@ -130,6 +126,10 @@ impl WorkspaceScreen {
             .child(Padding::new(EdgeInsets::symmetric(0.0, 4.0)).child(column));
 
         // The way back: the mirror of the swipe that opened settings.
+        // Leaving also abandons whatever the engine is still deciding
+        // (§5.6): the baseline has nothing to cancel, and a model stops
+        // between tokens rather than finishing an answer nobody waited
+        // for.
         let travel = Rc::new(Cell::new(0.0_f32));
         let travel_start = travel.clone();
         let travel_update = travel.clone();
@@ -143,6 +143,7 @@ impl WorkspaceScreen {
                 })
                 .on_drag_end(move |details| {
                     if travel.get() >= 48.0 || details.velocity.dx >= 420.0 {
+                        state_for_back.cancel_assessment();
                         state_for_back.nav.pop();
                     }
                 })
@@ -174,10 +175,8 @@ fn header(state: &AppState, ctx: &BuildContext) -> WidgetNode {
         state_for_back.nav.pop();
     });
 
-    SizedBox::from_size(Size::new(420.0, 76.0)).child(
-        Stack::new()
-            .fit(StackFit::Expand)
-            .children(children![
+    SizedBox::from_size(Size::new(420.0, 76.0))
+        .child(Stack::new().fit(StackFit::Expand).children(children![
                 place(24.0, 28.0).child(back),
                 place(82.0, top_of(48.0, 20.0)).child(Text::new("New decision").style(
                     TextStyle::new(20.0)
@@ -190,9 +189,8 @@ fn header(state: &AppState, ctx: &BuildContext) -> WidgetNode {
                         .letter_spacing(0.8)
                         .color(Color::rgb(127, 140, 164)),
                 )),
-            ]),
-    )
-    .into()
+            ]))
+        .into()
 }
 
 /// A `Positioned` at the design's own coordinates.
@@ -240,8 +238,10 @@ fn situation_card(state: &AppState) -> WidgetNode {
                         TextField::new(state.situation.get())
                             .size(12.5)
                             .color(INK)
-                            .placeholder("I'm considering moving to another city, but I'm not \
-                                          sure whether the change is worth it.")
+                            .placeholder(
+                                "I'm considering moving to another city, but I'm not \
+                                          sure whether the change is worth it."
+                            )
                             .placeholder_color(Color::rgb(112, 126, 152))
                             .on_changed(Rc::new({
                                 let state = state.clone();
@@ -332,40 +332,42 @@ fn assess_button(shared: &Shared, ctx: &BuildContext) -> WidgetNode {
     let shared_for_assess = shared.clone();
     Pressable::themed(ctx, move |press| {
         let sink = 1.0 - press * 0.04;
-        SizedBox::height(48.0).child(
-            Align::new(Alignment::CENTER).child(
-                Transformed::new(Transform::scale_around(
-                    Offset::new(186.0, 24.0),
-                    sink,
-                    sink,
-                ))
-                .child(
-                    Container::new()
-                        .decoration(
-                            BoxDecoration::new()
-                                .gradient(palette::action_gradient())
-                                .radius(24.0)
-                                .shadow(Shadow::new(
-                                    Color::rgba(0, 0, 0, 122),
-                                    Offset::new(0.0, 6.0),
-                                    9.0,
-                                )),
-                        )
-                        .width(372.0)
-                        .height(48.0)
-                        .alignment(Alignment::CENTER)
-                        .child(
-                            Text::new("Assess this").style(
-                                TextStyle::new(15.0)
-                                    .weight(FontWeight::Medium)
-                                    .color(Color::rgb(255, 255, 255)),
+        SizedBox::height(48.0)
+            .child(
+                Align::new(Alignment::CENTER).child(
+                    Transformed::new(Transform::scale_around(
+                        Offset::new(186.0, 24.0),
+                        sink,
+                        sink,
+                    ))
+                    .child(
+                        Container::new()
+                            .decoration(
+                                BoxDecoration::new()
+                                    .gradient(palette::action_gradient())
+                                    .radius(24.0)
+                                    .shadow(Shadow::new(
+                                        Color::rgba(0, 0, 0, 122),
+                                        Offset::new(0.0, 6.0),
+                                        9.0,
+                                    )),
                             )
-                            .align(TextAlign::Center),
-                        ),
+                            .width(372.0)
+                            .height(48.0)
+                            .alignment(Alignment::CENTER)
+                            .child(
+                                Text::new("Assess this")
+                                    .style(
+                                        TextStyle::new(15.0)
+                                            .weight(FontWeight::Medium)
+                                            .color(Color::rgb(255, 255, 255)),
+                                    )
+                                    .align(TextAlign::Center),
+                            ),
+                    ),
                 ),
-            ),
-        )
-        .into()
+            )
+            .into()
     })
     .on_tap(move || {
         let state = take(&shared_for_assess);
@@ -441,7 +443,10 @@ fn answer_button(shared: &Shared) -> WidgetNode {
                 BoxDecoration::new()
                     .color(Color::rgba(42, 33, 68, (230.0 + press * 25.0) as u8))
                     .radius(13.0)
-                    .border(Border::new(AXON.with_alpha((90.0 + press * 80.0) as u8), 1.0)),
+                    .border(Border::new(
+                        AXON.with_alpha((90.0 + press * 80.0) as u8),
+                        1.0,
+                    )),
             )
             .height(26.0)
             .padding(EdgeInsets::symmetric(14.0, 0.0))
@@ -585,13 +590,14 @@ fn next_step_card(assessment: &Rc<u_decision::Assessment>) -> WidgetNode {
                 .align(TextAlign::Center),
         )
         .push(
-            Text::new(confidence).style(
-                TextStyle::new(8.0)
-                    .weight(FontWeight::Bold)
-                    .letter_spacing(1.6)
-                    .color(Color::rgb(108, 230, 213)),
-            )
-            .align(TextAlign::Center),
+            Text::new(confidence)
+                .style(
+                    TextStyle::new(8.0)
+                        .weight(FontWeight::Bold)
+                        .letter_spacing(1.6)
+                        .color(Color::rgb(108, 230, 213)),
+                )
+                .align(TextAlign::Center),
         );
     Container::new()
         .decoration(
@@ -617,22 +623,18 @@ fn feedback_row(shared: &Shared, state: &AppState, ctx: &BuildContext) -> Widget
     }
 
     let shared_for_helpful = shared.clone();
-    let helpful = Pressable::themed(ctx, move |press| {
-        pill_button("HELPFUL", SYNAPSE, press)
-    })
-    .on_tap(move || {
-        let state = take(&shared_for_helpful);
-        state.give_feedback(true);
-    });
+    let helpful = Pressable::themed(ctx, move |press| pill_button("HELPFUL", SYNAPSE, press))
+        .on_tap(move || {
+            let state = take(&shared_for_helpful);
+            state.give_feedback(true);
+        });
 
     let shared_for_not = shared.clone();
-    let not_quite = Pressable::themed(ctx, move |press| {
-        pill_button("NOT QUITE", AXON, press)
-    })
-    .on_tap(move || {
-        let state = take(&shared_for_not);
-        state.give_feedback(false);
-    });
+    let not_quite = Pressable::themed(ctx, move |press| pill_button("NOT QUITE", AXON, press))
+        .on_tap(move || {
+            let state = take(&shared_for_not);
+            state.give_feedback(false);
+        });
 
     Flex::row()
         .main_axis_alignment(MainAxisAlignment::Center)
@@ -649,7 +651,10 @@ fn pill_button(text: &'static str, tint: Color, press: f32) -> WidgetNode {
             BoxDecoration::new()
                 .color(tint.with_alpha((20.0 + press * 18.0) as u8))
                 .radius(14.0)
-                .border(Border::new(tint.with_alpha((70.0 + press * 60.0) as u8), 1.0)),
+                .border(Border::new(
+                    tint.with_alpha((70.0 + press * 60.0) as u8),
+                    1.0,
+                )),
         )
         .height(28.0)
         .padding(EdgeInsets::symmetric(16.0, 0.0))
@@ -682,22 +687,24 @@ fn card(child: impl Into<WidgetNode>) -> Container {
 
 /// A section's label — the studio's numbered, violet, letterspaced caps.
 fn label(title: &str) -> WidgetNode {
-    Text::new(title.to_owned()).style(
-        TextStyle::new(9.0)
-            .weight(FontWeight::Bold)
-            .letter_spacing(2.0)
-            .color(Color::rgb(155, 139, 210)),
-    )
-    .into()
+    Text::new(title.to_owned())
+        .style(
+            TextStyle::new(9.0)
+                .weight(FontWeight::Bold)
+                .letter_spacing(2.0)
+                .color(Color::rgb(155, 139, 210)),
+        )
+        .into()
 }
 
 /// One paragraph of prose at the workspace's reading size.
 fn prose(text: &str, color: Color) -> WidgetNode {
-    Text::new(text.to_owned()).style(
-        TextStyle::new(11.5)
-            .weight(FontWeight::Medium)
-            .color(color)
-            .line_height(1.55),
-    )
-    .into()
+    Text::new(text.to_owned())
+        .style(
+            TextStyle::new(11.5)
+                .weight(FontWeight::Medium)
+                .color(color)
+                .line_height(1.55),
+        )
+        .into()
 }

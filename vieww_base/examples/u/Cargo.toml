@@ -41,6 +41,15 @@ u-memory = { path = "crates/u-memory" }
 u-feedback = { path = "crates/u-feedback" }
 u-ml-runtime = { path = "crates/u-ml-runtime" }
 
+# Phase 2, opted into per §10's release gates: a desktop build may grow
+# the model (`cargo run -p u --release --features model`) and every APK
+# build stays on the deterministic baseline until Phase 3's
+# physical-device reports exist. The feature adds nothing to a default
+# build — `u-ml-runtime` without `model` resolves no candle, no
+# tokenizer, and no network stack at all.
+[features]
+model = ["u-ml-runtime/model"]
+
 [target.'cfg(target_os = "android")'.dependencies]
 log = "0.4"
 android_logger = "0.14"
