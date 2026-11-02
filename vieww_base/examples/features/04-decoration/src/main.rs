@@ -55,7 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     cell(
                                         "gradient",
                                         BoxDecoration::new().radius(16.0).gradient(
-                                            Gradient::vertical()
+                                            Gradient::vertical().with_dither()
                                                 .between(ACCENT, Color::rgb(186, 100, 246)),
                                         ),
                                     ),
@@ -78,7 +78,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     cell(
                                         "horizontal gradient",
                                         BoxDecoration::new().radius(16.0).gradient(
-                                            Gradient::horizontal()
+                                            Gradient::horizontal().with_dither()
                                                 .between(Color::rgb(76, 187, 129), ACCENT),
                                         ),
                                     ),
@@ -87,7 +87,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         BoxDecoration::new()
                                             .radius(16.0)
                                             .gradient(
-                                                Gradient::vertical()
+                                                Gradient::vertical().with_dither()
                                                     .between(ACCENT, Color::rgb(126, 87, 246)),
                                             )
                                             .border(Border::new(INK, 2.0))

@@ -219,7 +219,7 @@ fn scene(book: &mut Sketchbook, t: f32) {
         let outline = path_of(&poly).stroke_outline(glow_width);
         book.fill(
             outline,
-            Gradient::vertical().with_stops(&[
+            Gradient::vertical().with_dither().with_stops(&[
                 (0.0, alpha(VIOLET, 0.0)),
                 (0.38, alpha(VIOLET, 0.15 * draw_t)),
                 (0.62, alpha(VIOLET, 0.15 * draw_t)),
@@ -235,7 +235,7 @@ fn scene(book: &mut Sketchbook, t: f32) {
             inner.circle(
                 head,
                 14.0,
-                Gradient::radial_fill()
+                Gradient::radial_fill().with_dither()
                     .with_stops(&[(0.0, alpha(CYAN_SOFT, 0.5)), (1.0, alpha(VIOLET, 0.0))]),
             );
         });
@@ -334,7 +334,7 @@ fn scene(book: &mut Sketchbook, t: f32) {
                 inner.circle(
                     tip,
                     16.0,
-                    Gradient::radial_fill().with_stops(&[
+                    Gradient::radial_fill().with_dither().with_stops(&[
                         (0.0, alpha(Color::WHITE, 0.55)),
                         (1.0, alpha(VIOLET_SOFT, 0.0)),
                     ]),

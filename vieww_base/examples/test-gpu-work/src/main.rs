@@ -433,7 +433,7 @@ fn gpu_scene(t: f32) -> Scene {
     scene.push_command(Command::FillRect {
         rect: Rect::new(366.0, 64.0, 574.0, 250.0),
         paint: Paint::gradient(
-            Gradient::radial(Offset::new(0.3 + 0.4 * pulse, 0.4), 0.8).between(
+            Gradient::radial(Offset::new(0.3 + 0.4 * pulse, 0.4), 0.8).with_dither().between(
                 Color::rgba(255, 250, 230, 255),
                 Color::rgba(90, 70, 140, 255),
             ),
@@ -465,7 +465,7 @@ fn gpu_scene(t: f32) -> Scene {
     scene.push_command(Command::FillRect {
         rect: dial,
         paint: Paint::gradient(
-            Gradient::sweep(Offset::new(0.5, 0.5), 0.0, 0.5 + 5.5 * pulse).between(
+            Gradient::sweep(Offset::new(0.5, 0.5), 0.0, 0.5 + 5.5 * pulse).with_dither().between(
                 Color::rgba(80, 220, 160, 255),
                 Color::rgba(40, 120, 255, 255),
             ),
@@ -574,14 +574,14 @@ fn capability_probes() -> Vec<(&'static str, Scene)> {
         })
     };
     vec![
-        ("gradient-linear", gradient(Gradient::horizontal())),
+        ("gradient-linear", gradient(Gradient::horizontal().with_dither())),
         (
             "gradient-radial",
-            gradient(Gradient::radial(Offset::new(0.5, 0.5), 0.5)),
+            gradient(Gradient::radial(Offset::new(0.5, 0.5), 0.5).with_dither()),
         ),
         (
             "gradient-sweep",
-            gradient(Gradient::sweep(Offset::new(0.5, 0.5), 0.0, 6.0)),
+            gradient(Gradient::sweep(Offset::new(0.5, 0.5), 0.0, 6.0).with_dither()),
         ),
         (
             "image-rotated-minified",

@@ -158,7 +158,7 @@ fn scene(book: &mut Sketchbook, canvas: Size, t: f32) {
                 g.circle(
                     sp,
                     46.0,
-                    Gradient::radial_fill().with_stops(&[
+                    Gradient::radial_fill().with_dither().with_stops(&[
                         (0.0, alpha(tint(AMBER, 0.55), 0.85)),
                         (0.35, alpha(AMBER, 0.30)),
                         (1.0, alpha(AMBER, 0.0)),
@@ -270,7 +270,7 @@ fn scene(book: &mut Sketchbook, canvas: Size, t: f32) {
         let y0 = (horizon_y - band_h * 0.4).max(0.0);
         book.rect(
             Rect::new(0.0, y0, w, (y0 + band_h).min(h)),
-            Gradient::vertical().with_stops(&[
+            Gradient::vertical().with_dither().with_stops(&[
                 (0.0, alpha(Color::rgb(46, 24, 36), 0.0)),
                 (0.6, alpha(Color::rgb(52, 28, 38), 0.35 * horizon_t)),
                 (1.0, alpha(Color::rgb(24, 16, 24), 0.0)),

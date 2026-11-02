@@ -263,7 +263,7 @@ fn face(book: &mut vieww_foundation::Sketchbook, o: Offset, s: f32, skin: Color,
     book.circle(
         p(50.0, 50.0),
         48.0 * s,
-        Gradient::radial_fill().with_stops(&[
+        Gradient::radial_fill().with_dither().with_stops(&[
             (0.0, Color::rgb(238, 242, 250)),
             (1.0, Color::rgb(214, 222, 238)),
         ]),
@@ -278,7 +278,7 @@ fn face(book: &mut vieww_foundation::Sketchbook, o: Offset, s: f32, skin: Color,
     shoulders.close();
     book.fill(
         shoulders,
-        Gradient::vertical().with_stops(&[(0.0, ACCENT), (1.0, Color::rgb(38, 82, 180))]),
+        Gradient::vertical().with_dither().with_stops(&[(0.0, ACCENT), (1.0, Color::rgb(38, 82, 180))]),
     );
 
     // Neck, then head — head over neck so the jaw line is the head's own.

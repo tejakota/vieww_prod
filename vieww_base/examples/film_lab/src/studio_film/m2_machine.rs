@@ -245,7 +245,7 @@ pub(crate) fn the_machine_room(ctx: &pf::Ctx) -> WidgetNode {
                         PaintWith::new(move |book: &mut Sketchbook, s: Size| {
                             book.rect(
                                 Rect::new(0.0, 0.0, s.width, s.height),
-                                Gradient::vertical().with_stops(&[
+                                Gradient::vertical().with_dither().with_stops(&[
                                     (0.0, pf::alpha(Color::BLACK, 0.0)),
                                     (1.0, pf::alpha(Color::BLACK, 0.75)),
                                 ]),

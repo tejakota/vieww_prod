@@ -232,7 +232,7 @@ fn mark(side: f32) -> WidgetNode {
 
     let mut base = Container::new()
         .color(ground)
-        .gradient(Gradient::vertical().between(ground_top, ground))
+        .gradient(Gradient::vertical().with_dither().between(ground_top, ground))
         .radius(side * 0.22)
         .size(side, side);
     // Below about twenty points a shadow is a smudge under a glyph rather than
@@ -268,7 +268,7 @@ fn mark(side: f32) -> WidgetNode {
                     0.48,
                     Container::new()
                         .color(accent_near)
-                        .gradient(Gradient::vertical().between(accent_far, accent_near))
+                        .gradient(Gradient::vertical().with_dither().between(accent_far, accent_near))
                         .shadow(Shadow::new(
                             Color::rgba(0, 0, 0, 90),
                             Offset::new(0.0, side * 0.02),

@@ -133,7 +133,7 @@ fn blob(book: &mut Sketchbook, x: f32, y: f32, r: f32, color: Color, a: f32) {
     book.circle(
         Offset::new(x, y),
         r,
-        Gradient::radial_fill().with_stops(&[
+        Gradient::radial_fill().with_dither().with_stops(&[
             (0.0, alpha(color, a)),
             (0.55, alpha(color, a * 0.45)),
             (1.0, alpha(color, 0.0)),
@@ -229,13 +229,13 @@ fn rim(book: &mut Sketchbook, canvas: Size, t: f32, card: Rect) {
         inner.circle(
             Offset::new(card.left + 24.0, card.bottom - 18.0),
             110.0,
-            Gradient::radial_fill()
+            Gradient::radial_fill().with_dither()
                 .with_stops(&[(0.0, alpha(CYAN_SOFT, 0.22)), (1.0, alpha(CYAN, 0.0))]),
         );
         inner.circle(
             Offset::new(card.right - 30.0, card.top + 22.0),
             130.0,
-            Gradient::radial_fill()
+            Gradient::radial_fill().with_dither()
                 .with_stops(&[(0.0, alpha(MAGENTA, 0.18)), (1.0, alpha(MAGENTA, 0.0))]),
         );
     });
@@ -280,7 +280,7 @@ pub(crate) fn frame(t: f32) -> WidgetNode {
             PaintWith::new(|book: &mut Sketchbook, size: Size| {
                 book.rect(
                     Rect::new(0.0, 0.0, size.width, size.height),
-                    Gradient::radial_fill()
+                    Gradient::radial_fill().with_dither()
                         .with_stops(&[(0.0, Color::rgb(60, 30, 120)), (1.0, Color::rgb(8, 6, 14))]),
                 );
                 let y = 300.0;
@@ -312,7 +312,7 @@ pub(crate) fn frame(t: f32) -> WidgetNode {
                 book.circle(
                     Offset::new(xs + 6.0 * (sw + 20.0) + sw / 2.0, y + 70.0),
                     sw / 2.0,
-                    Gradient::radial_fill().with_stops(&[
+                    Gradient::radial_fill().with_dither().with_stops(&[
                         (0.0, alpha(Color::WHITE, 0.157)),
                         (1.0, alpha(Color::WHITE, 0.157)),
                     ]),
@@ -331,7 +331,7 @@ pub(crate) fn frame(t: f32) -> WidgetNode {
             PaintWith::new(|book: &mut Sketchbook, size: Size| {
                 book.rect(
                     Rect::new(0.0, 0.0, size.width, size.height),
-                    Gradient::radial_fill()
+                    Gradient::radial_fill().with_dither()
                         .with_stops(&[(0.0, Color::rgb(60, 30, 120)), (1.0, Color::rgb(8, 6, 14))]),
                 );
                 // (2) solid translucent white via the painting API
@@ -342,7 +342,7 @@ pub(crate) fn frame(t: f32) -> WidgetNode {
                 // (3) gradient translucent white
                 book.rect(
                     Rect::new(360.0, 260.0, 560.0, 460.0),
-                    Gradient::horizontal().with_stops(&[
+                    Gradient::horizontal().with_dither().with_stops(&[
                         (0.0, alpha(Color::WHITE, 0.157)),
                         (1.0, alpha(Color::WHITE, 0.157)),
                     ]),
@@ -365,7 +365,7 @@ pub(crate) fn frame(t: f32) -> WidgetNode {
     // (d) empty, alpha 10, no radius, no border. Where does white appear?
     if off("micro") {
         let bg = Container::new().size(CANVAS_W, CANVAS_H).gradient(
-            Gradient::radial_fill()
+            Gradient::radial_fill().with_dither()
                 .with_stops(&[(0.0, Color::rgb(60, 30, 120)), (1.0, Color::rgb(8, 6, 14))]),
         );
         let card = |x: f32| {
@@ -416,7 +416,7 @@ pub(crate) fn frame(t: f32) -> WidgetNode {
             Container::new()
                 .size(CANVAS_W, CANVAS_H)
                 .gradient(
-                    Gradient::radial_fill()
+                    Gradient::radial_fill().with_dither()
                         .with_stops(&[(0.0, Color::rgb(60, 30, 120)), (1.0, Color::rgb(8, 6, 14))]),
                 )
                 .into()
@@ -426,7 +426,7 @@ pub(crate) fn frame(t: f32) -> WidgetNode {
                 PaintWith::new(|book: &mut Sketchbook, size: Size| {
                     book.rect(
                         Rect::new(0.0, 0.0, size.width, size.height),
-                        Gradient::radial_fill().with_stops(&[
+                        Gradient::radial_fill().with_dither().with_stops(&[
                             (0.0, Color::rgb(60, 30, 120)),
                             (1.0, Color::rgb(8, 6, 14)),
                         ]),
@@ -608,7 +608,7 @@ pub(crate) fn frame(t: f32) -> WidgetNode {
                                 p.close();
                                 inner.fill(
                                     p,
-                                    Gradient::horizontal().with_stops(&[
+                                    Gradient::horizontal().with_dither().with_stops(&[
                                         (0.0, alpha(Color::WHITE, 0.0)),
                                         (0.5, alpha(Color::WHITE, 0.118)),
                                         (1.0, alpha(Color::WHITE, 0.0)),

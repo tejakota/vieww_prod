@@ -71,7 +71,7 @@ fn main() {
 fn orb(size: f32, inner: Color, outer: Color) -> WidgetNode {
     Container::new()
         .radius(size)
-        .gradient(Gradient::radial(Offset::new(0.5, 0.5), 0.5).with_stops(&[
+        .gradient(Gradient::radial(Offset::new(0.5, 0.5), 0.5).with_dither().with_stops(&[
             (0.0, inner),
             (0.62, mix(inner, outer, 0.55)),
             (1.0, outer),
@@ -125,7 +125,7 @@ fn compositing() -> WidgetNode {
             // The ground: a wide, slow ramp, so the modes have something with
             // tone in it to work against rather than flat black.
             Container::new().gradient(
-                Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0)).with_stops(&[
+                Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0)).with_dither().with_stops(&[
                     (0.0, Color::rgb(0x14, 0x10, 0x22)),
                     (0.55, Color::rgb(0x0E, 0x0C, 0x14)),
                     (1.0, Color::rgb(0x1A, 0x12, 0x10)),
@@ -177,7 +177,7 @@ fn depth() -> WidgetNode {
         Container::new()
             .radius(28.0)
             .color(Color::rgba(tint.r, tint.g, tint.b, alpha))
-            .gradient(Gradient::vertical().between(
+            .gradient(Gradient::vertical().with_dither().between(
                 Color::rgba(255, 255, 255, 26),
                 Color::rgba(255, 255, 255, 4),
             ))
@@ -197,7 +197,7 @@ fn depth() -> WidgetNode {
         .fit(StackFit::Expand)
         .children(children![
             Container::new().gradient(
-                Gradient::linear(Offset::new(0.0, 0.0), Offset::new(0.3, 1.0)).with_stops(&[
+                Gradient::linear(Offset::new(0.0, 0.0), Offset::new(0.3, 1.0)).with_dither().with_stops(&[
                     (0.0, Color::rgb(0x12, 0x0F, 0x1C)),
                     (1.0, Color::rgb(0x0B, 0x0A, 0x09)),
                 ])
@@ -297,7 +297,7 @@ fn easing() -> WidgetNode {
         .fit(StackFit::Expand)
         .children(children![
             Container::new().gradient(
-                Gradient::linear(Offset::new(1.0, 0.0), Offset::new(0.0, 1.0)).with_stops(&[
+                Gradient::linear(Offset::new(1.0, 0.0), Offset::new(0.0, 1.0)).with_dither().with_stops(&[
                     (0.0, Color::rgb(0x12, 0x10, 0x18)),
                     (1.0, Color::rgb(0x0B, 0x0A, 0x09)),
                 ])

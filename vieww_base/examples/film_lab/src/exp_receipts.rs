@@ -173,7 +173,7 @@ fn scene(book: &mut Sketchbook, t: f32) {
         inner.circle(
             Offset::new(w * 0.5, h * 0.40),
             w * 0.30,
-            Gradient::radial_fill()
+            Gradient::radial_fill().with_dither()
                 .with_stops(&[(0.0, alpha(VIOLET, 0.10)), (1.0, alpha(VIOLET, 0.0))]),
         );
     });
@@ -224,7 +224,7 @@ fn scene(book: &mut Sketchbook, t: f32) {
         // brighter in flight than at rest, so the dark never swallows it.
         book.fill(
             quad.clone(),
-            Gradient::vertical().with_stops(&[
+            Gradient::vertical().with_dither().with_stops(&[
                 (0.0, alpha(mix(VIOLET, Color::WHITE, 0.4), 0.09 + 0.03 * p)),
                 (1.0, alpha(VIOLET, 0.13 + 0.04 * p)),
             ]),
@@ -238,7 +238,7 @@ fn scene(book: &mut Sketchbook, t: f32) {
                 inner.circle(
                     Offset::new(c, bottom + 60.0),
                     180.0 * (1.0 - p),
-                    Gradient::radial_fill().with_stops(&[
+                    Gradient::radial_fill().with_dither().with_stops(&[
                         (0.0, alpha(Color::BLACK, 0.35 * (1.0 - p))),
                         (1.0, alpha(Color::BLACK, 0.0)),
                     ]),
@@ -264,7 +264,7 @@ fn scene(book: &mut Sketchbook, t: f32) {
         book.rrect(
             CARD,
             16.0,
-            Gradient::vertical().with_stops(&[
+            Gradient::vertical().with_dither().with_stops(&[
                 (0.0, alpha(mix(VIOLET, Color::WHITE, 0.45), 0.06 * settle)),
                 (1.0, alpha(VIOLET, 0.11 * settle)),
             ]),

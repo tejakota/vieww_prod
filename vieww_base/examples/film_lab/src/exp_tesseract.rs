@@ -165,7 +165,7 @@ fn scene(book: &mut Sketchbook, canvas: Size, t: f32) {
         g.circle(
             Offset::new(w * 0.5, h * 0.48),
             w * 0.33,
-            Gradient::radial_fill().with_stops(&[
+            Gradient::radial_fill().with_dither().with_stops(&[
                 (0.0, alpha(mix(VIOLET, CYAN, 0.4), 0.11)),
                 (1.0, alpha(VIOLET, 0.0)),
             ]),
@@ -242,7 +242,7 @@ fn scene(book: &mut Sketchbook, canvas: Size, t: f32) {
             g.circle(
                 Offset::new(w * 0.5, h * 0.48),
                 90.0 + 60.0 * a,
-                Gradient::radial_fill().with_stops(&[
+                Gradient::radial_fill().with_dither().with_stops(&[
                     (0.0, alpha(mix(VIOLET, Color::WHITE, 0.5), 0.16 * a)),
                     (1.0, alpha(VIOLET, 0.0)),
                 ]),

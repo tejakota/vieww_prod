@@ -122,7 +122,7 @@ fn linear() -> WidgetNode {
         book.rrect(
             Rect::new(0.0, 0.0, size.width, size.height),
             10.0,
-            Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0)).with_stops(&[
+            Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0)).with_dither().with_stops(&[
                 (0.0, ACCENT),
                 (0.55, VIOLET),
                 (1.0, Color::rgb(240, 120, 170)),
@@ -138,7 +138,7 @@ fn radial() -> WidgetNode {
         book.rrect(
             Rect::new(0.0, 0.0, half - 4.0, size.height),
             8.0,
-            Gradient::radial_fill().with_stops(&[
+            Gradient::radial_fill().with_dither().with_stops(&[
                 (0.0, Color::rgb(255, 255, 255)),
                 (0.5, ACCENT),
                 (1.0, Color::rgb(20, 30, 70)),
@@ -147,7 +147,7 @@ fn radial() -> WidgetNode {
         book.rrect(
             Rect::new(half + 4.0, 0.0, size.width, size.height),
             8.0,
-            Gradient::conic().with_stops(&[
+            Gradient::conic().with_dither().with_stops(&[
                 (0.0, ACCENT),
                 (0.33, VIOLET),
                 (0.66, Color::rgb(120, 230, 190)),
@@ -192,7 +192,7 @@ fn arcs() -> WidgetNode {
             7.0,
             -TAU / 4.0,
             TAU * 0.68,
-            Gradient::conic().between(ACCENT, VIOLET),
+            Gradient::conic().with_dither().between(ACCENT, VIOLET),
         );
         book.circle(center, radius * 0.45, Color::rgb(35, 37, 45));
         book.arc(center, radius * 0.45, 3.0, TAU / 4.0, TAU * 0.3, VIOLET);
@@ -219,7 +219,7 @@ fn svg_path() -> WidgetNode {
         );
         book.fill(
             fitted,
-            Gradient::vertical().between(Color::rgb(255, 120, 150), Color::rgb(200, 40, 110)),
+            Gradient::vertical().with_dither().between(Color::rgb(255, 120, 150), Color::rgb(200, 40, 110)),
         );
     }))
     .into()

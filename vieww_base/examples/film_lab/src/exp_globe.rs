@@ -259,7 +259,7 @@ fn scene(book: &mut Sketchbook, t: f32) {
             inner.circle(
                 Offset::new(w * 0.5, h * 0.62),
                 w * 0.36,
-                Gradient::radial_fill()
+                Gradient::radial_fill().with_dither()
                     .with_stops(&[(0.0, alpha(VIOLET, 0.10 * f3)), (1.0, alpha(VIOLET, 0.0))]),
             );
         });
@@ -357,7 +357,7 @@ fn scene(book: &mut Sketchbook, t: f32) {
         let outline = axis.stroke_outline(14.0);
         book.fill(
             outline,
-            Gradient::vertical().with_stops(&[
+            Gradient::vertical().with_dither().with_stops(&[
                 (0.0, alpha(VIOLET_SOFT, 0.0)),
                 (0.5, alpha(VIOLET_SOFT, 0.14)),
                 (1.0, alpha(VIOLET_SOFT, 0.0)),
@@ -368,7 +368,7 @@ fn scene(book: &mut Sketchbook, t: f32) {
             inner.circle(
                 tip,
                 15.0,
-                Gradient::radial_fill().with_stops(&[
+                Gradient::radial_fill().with_dither().with_stops(&[
                     (0.0, alpha(Color::WHITE, 0.5)),
                     (1.0, alpha(VIOLET_SOFT, 0.0)),
                 ]),
@@ -411,7 +411,7 @@ fn scene(book: &mut Sketchbook, t: f32) {
             // floor of the plane.
             book.fill(
                 quad.clone(),
-                Gradient::vertical().with_stops(&[
+                Gradient::vertical().with_dither().with_stops(&[
                     (0.0, alpha(spec.color, 0.02 * fan)),
                     (1.0, alpha(spec.color, 0.10 * fan)),
                 ]),
@@ -426,7 +426,7 @@ fn scene(book: &mut Sketchbook, t: f32) {
                     inner.circle(
                         base_pt,
                         2.6 * base_scale * 900.0,
-                        Gradient::radial_fill().with_stops(&[
+                        Gradient::radial_fill().with_dither().with_stops(&[
                             (0.0, alpha(spec.color, 0.07 * fan)),
                             (1.0, alpha(spec.color, 0.0)),
                         ]),
@@ -525,7 +525,7 @@ pub(crate) fn frame(t: f32) -> WidgetNode {
                     inner.circle(
                         Offset::new(BIG_X + 150.0, BIG_Y + 150.0),
                         240.0 * (1.0 - f3 * 0.5),
-                        Gradient::radial_fill().with_stops(&[
+                        Gradient::radial_fill().with_dither().with_stops(&[
                             (0.0, alpha(VIOLET, 0.14 * mass_t)),
                             (1.0, alpha(VIOLET, 0.0)),
                         ]),

@@ -440,7 +440,7 @@ pub(crate) fn frame(t: f32) -> WidgetNode {
                         g.circle(
                             Offset::new(640.0, dy),
                             17.0 / stretch,
-                            Gradient::radial_fill().with_stops(&[
+                            Gradient::radial_fill().with_dither().with_stops(&[
                                 (0.0, alpha(mix(VIOLET_SOFT, Color::WHITE, 0.5), 0.75)),
                                 (0.7, alpha(VIOLET, 0.55)),
                                 (1.0, alpha(VIOLET, 0.0)),

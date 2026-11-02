@@ -772,7 +772,7 @@ impl PreviewPane {
         let ramp = vieww_foundation::Gradient::linear(
             vieww_foundation::Offset::new(0.0, 0.0),
             vieww_foundation::Offset::new(1.0, 1.0),
-        )
+        ).with_dither()
         .between(near, far);
         let dark = chrome.dark;
         // How far through the compile's own pulse we are. `Animated` with a
@@ -2579,7 +2579,7 @@ impl vieww_widget::Painter for DeviceShell {
         // Side buttons, drawn before the body so the body's edge cuts them —
         // which is what a button sunk into a chassis looks like.
         if self.buttons {
-            let metal = Gradient::horizontal().with_stops(&[
+            let metal = Gradient::horizontal().with_dither().with_stops(&[
                 (0.0, Color::hex(0x3A_3D46)),
                 (0.5, Color::hex(0x24_262D)),
                 (1.0, Color::hex(0x14_161A)),
@@ -2608,7 +2608,7 @@ impl vieww_widget::Painter for DeviceShell {
         book.rrect(
             body,
             self.corner,
-            Gradient::vertical().with_stops(&[
+            Gradient::vertical().with_dither().with_stops(&[
                 (0.0, Color::hex(0x33_3640)),
                 (0.06, Color::hex(0x17_181D)),
                 (0.85, Color::hex(0x0B_0B0D)),

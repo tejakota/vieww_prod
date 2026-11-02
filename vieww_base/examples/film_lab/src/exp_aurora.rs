@@ -100,7 +100,7 @@ fn cone_paint(t: f32) -> WidgetNode {
             book.circle(
                 center,
                 640.0,
-                Gradient::sweep(Offset::new(0.5, 0.5), theta - std::f32::consts::TAU, theta)
+                Gradient::sweep(Offset::new(0.5, 0.5), theta - std::f32::consts::TAU, theta).with_dither()
                     .with_stops(&[
                         (0.0, alpha(VIOLET, 0.0)),
                         (0.70, alpha(VIOLET, 0.0)),
@@ -156,7 +156,7 @@ fn ribbon_paint(
             book.layer(1.0, 26.0, None, |inner| {
                 inner.stroke(
                     p.clone(),
-                    Gradient::vertical().with_stops(&[
+                    Gradient::vertical().with_dither().with_stops(&[
                         (0.0, alpha(color, 0.0)),
                         (0.45, alpha(color, 0.34 * arrive)),
                         (1.0, alpha(color, 0.0)),
@@ -166,7 +166,7 @@ fn ribbon_paint(
                 // The ribbon's bright core — a thin stroke inside the body.
                 inner.stroke(
                     p.clone(),
-                    Gradient::vertical().with_stops(&[
+                    Gradient::vertical().with_dither().with_stops(&[
                         (0.0, alpha(color, 0.0)),
                         (0.5, alpha(mix(color, Color::WHITE, 0.45), 0.28 * arrive)),
                         (1.0, alpha(color, 0.0)),
@@ -197,7 +197,7 @@ fn ribbon_paint(
                     ray.line_to(Offset::new(x + rng.sym() * 6.0, y_base - ray_h));
                     inner.stroke(
                         ray,
-                        Gradient::vertical().with_stops(&[
+                        Gradient::vertical().with_dither().with_stops(&[
                             (0.0, alpha(color, 0.0)),
                             (1.0, alpha(mix(color, Color::WHITE, 0.25), a * arrive)),
                         ]),
@@ -234,7 +234,7 @@ fn star_paint(t: f32) -> WidgetNode {
             book.layer(1.0, 6.0, None, |inner| {
                 inner.stroke(
                     path,
-                    Gradient::horizontal().with_stops(&[
+                    Gradient::horizontal().with_dither().with_stops(&[
                         (0.0, alpha(CYAN_SOFT, 0.0)),
                         (1.0, alpha(Color::WHITE, 0.65 * (1.0 - s))),
                     ]),
@@ -246,7 +246,7 @@ fn star_paint(t: f32) -> WidgetNode {
                 inner.circle(
                     head,
                     12.0,
-                    Gradient::radial_fill().with_stops(&[
+                    Gradient::radial_fill().with_dither().with_stops(&[
                         (0.0, alpha(Color::WHITE, 0.8 * (1.0 - s))),
                         (1.0, alpha(CYAN, 0.0)),
                     ]),

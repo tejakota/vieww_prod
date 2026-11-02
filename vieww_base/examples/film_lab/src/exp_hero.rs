@@ -573,7 +573,7 @@ pub(crate) fn frame(t: f32) -> WidgetNode {
                 });
                 book.rect(
                     Rect::new(0.0, mark_y + 24.0, w, mark_y + 150.0),
-                    Gradient::vertical().with_stops(&[
+                    Gradient::vertical().with_dither().with_stops(&[
                         (0.0, alpha(BG_DEEP, 0.0)),
                         (0.5, alpha(BG_DEEP, 0.7)),
                         (1.0, alpha(BG_DEEP, 1.0)),

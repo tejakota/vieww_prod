@@ -328,7 +328,7 @@ fn wordmark(book: &mut Sketchbook, t: f32) {
                     x + 26.0,
                     BASELINE + mark.descent + 8.0,
                 ),
-                Gradient::horizontal().with_stops(&[
+                Gradient::horizontal().with_dither().with_stops(&[
                     (0.0, alpha(Color::WHITE, 0.0)),
                     (0.5, alpha(mix(Color::WHITE, VIOLET_SOFT, 0.3), 0.30 * fade)),
                     (1.0, alpha(Color::WHITE, 0.0)),
@@ -402,7 +402,7 @@ fn receipt(book: &mut Sketchbook, t: f32) {
     book.circle(
         dial_c,
         dial_r,
-        Gradient::sweep(Offset::new(0.5, 0.5), theta - std::f32::consts::TAU, theta)
+        Gradient::sweep(Offset::new(0.5, 0.5), theta - std::f32::consts::TAU, theta).with_dither()
             .with_stops_mirrored(&[(0.0, VIOLET_DEEP), (0.30, VIOLET), (0.5, Color::WHITE)]),
     );
     book.ring(dial_c, dial_r, 1.0, alpha(Color::WHITE, 0.14));
@@ -422,7 +422,7 @@ fn receipt(book: &mut Sketchbook, t: f32) {
     let ramp_x = 16.0;
     let ramp_y = 92.0;
     let ramp_w = P_W - 32.0;
-    let mut ramp = Gradient::horizontal();
+    let mut ramp = Gradient::horizontal().with_dither();
     ramp = ramp.with_stops(&stops);
     book.rrect(
         Rect::new(ramp_x, ramp_y, ramp_x + ramp_w, ramp_y + 10.0),
@@ -558,7 +558,7 @@ pub(crate) fn frame(t: f32) -> WidgetNode {
             if reflect > 0.0 {
                 book.rect(
                     Rect::new(0.0, BASELINE + 18.0, w, BASELINE + 150.0),
-                    Gradient::vertical().with_stops(&[
+                    Gradient::vertical().with_dither().with_stops(&[
                         (0.0, alpha(BG_DEEP, 0.0)),
                         (0.5, alpha(BG_DEEP, 0.7)),
                         (1.0, alpha(BG_DEEP, 1.0)),

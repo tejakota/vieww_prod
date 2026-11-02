@@ -218,7 +218,7 @@ pub(crate) fn the_pullback(ctx: &pf::Ctx) -> WidgetNode {
                 book.rrect(
                     g,
                     r,
-                    Gradient::vertical().between(
+                    Gradient::vertical().with_dither().between(
                         pf::alpha(Color::rgb(0x24, 0x27, 0x2E), ground_a),
                         pf::alpha(viewwstudio::ui::brand::GROUND, ground_a),
                     ),
@@ -262,7 +262,7 @@ pub(crate) fn the_pullback(ctx: &pf::Ctx) -> WidgetNode {
                 book.rrect(
                     pv_dst,
                     side * 0.08,
-                    Gradient::vertical().between(
+                    Gradient::vertical().with_dither().between(
                         pf::alpha(viewwstudio::ui::brand::ACCENT_FAR, solid),
                         pf::alpha(viewwstudio::ui::brand::ACCENT, solid),
                     ),

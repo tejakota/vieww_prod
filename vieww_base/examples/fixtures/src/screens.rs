@@ -166,7 +166,7 @@ pub(crate) fn dashboard() -> WidgetNode {
         tiles = tiles.push(
             Flexible::expanded(1).child(
                 Container::new()
-                    .gradient(Gradient::vertical().with_stops(&[
+                    .gradient(Gradient::vertical().with_dither().with_stops(&[
                         (0.0, Color::rgb(34, 39, 51)),
                         (1.0, Color::rgb(26, 30, 40)),
                     ]))
@@ -260,7 +260,7 @@ fn sparkline(book: &mut vieww_foundation::Sketchbook, size: Size) {
     area.close();
     book.fill(
         area,
-        Gradient::vertical().with_stops(&[
+        Gradient::vertical().with_dither().with_stops(&[
             (0.0, Color::rgba(58, 122, 246, 140)),
             (1.0, Color::rgba(58, 122, 246, 10)),
         ]),
@@ -378,7 +378,7 @@ fn command_palette() -> WidgetNode {
                     // panel's own translucent fill.
                     Filtered::blur(14.0).child(
                         Container::new()
-                            .gradient(Gradient::vertical().with_stops(&[
+                            .gradient(Gradient::vertical().with_dither().with_stops(&[
                                 (0.0, Color::rgba(60, 70, 96, 220)),
                                 (1.0, Color::rgba(30, 36, 50, 230)),
                             ]))

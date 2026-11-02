@@ -559,7 +559,7 @@ pub(crate) fn token_flood(book: &mut Sketchbook, w: f32, h: f32, p: f32, color: 
     }
     let band = w * 0.55;
     let x = -band + (w + band) * p;
-    let g = Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 0.0)).with_stops(&[
+    let g = Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 0.0)).with_dither().with_stops(&[
         (0.0, pf::alpha(color, 0.0)),
         (0.5, pf::alpha(color, 0.16)),
         (1.0, pf::alpha(color, 0.0)),
@@ -585,7 +585,7 @@ pub(crate) fn light_sweep(book: &mut Sketchbook, w: f32, h: f32, p: f32, a: f32)
             .then(Transform::rotate_around(Offset::new(0.0, h * 0.5), -0.16)),
         |b| {
             let band_w = 190.0;
-            let g = Gradient::horizontal().with_stops(&[
+            let g = Gradient::horizontal().with_dither().with_stops(&[
                 (0.0, pf::alpha(Color::WHITE, 0.0)),
                 (0.5, pf::alpha(Color::WHITE, 0.055 * a)),
                 (1.0, pf::alpha(Color::WHITE, 0.0)),
@@ -722,7 +722,7 @@ pub(crate) fn stage_plate(book: &mut Sketchbook, r: Rect, p: f32, color: Color, 
                 body.left + 22.0 + seam_w,
                 body.top + 2.0,
             ),
-            Gradient::horizontal().with_stops(&[
+            Gradient::horizontal().with_dither().with_stops(&[
                 (0.0, pf::alpha(color, 0.0)),
                 (0.22, pf::alpha(color, 0.85 * a)),
                 (1.0, pf::alpha(color, 0.0)),
@@ -745,7 +745,7 @@ pub(crate) fn plate_sheen(book: &mut Sketchbook, r: Rect, p: f32, a: f32) {
     book.transformed(Transform::translate(Offset::new(x, r.top)), |b| {
         b.rect(
             Rect::new(0.0, 0.0, band, r.height()),
-            Gradient::horizontal().with_stops(&[
+            Gradient::horizontal().with_dither().with_stops(&[
                 (0.0, pf::alpha(Color::WHITE, 0.0)),
                 (0.5, pf::alpha(Color::WHITE, 0.05 * a * env)),
                 (1.0, pf::alpha(Color::WHITE, 0.0)),

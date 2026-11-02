@@ -147,7 +147,7 @@ fn scene(book: &mut Sketchbook, canvas: Size, t: f32) {
                 g.circle(
                     pt,
                     rr * sc * 900.0,
-                    Gradient::radial_fill().with_stops(&[
+                    Gradient::radial_fill().with_dither().with_stops(&[
                         (
                             0.0,
                             alpha(mix(AMBER, VIOLET, k as f32 / 3.0), 0.055 / scale),
@@ -254,7 +254,7 @@ fn scene(book: &mut Sketchbook, canvas: Size, t: f32) {
                 g.circle(
                     pt,
                     rr,
-                    Gradient::radial_fill().with_stops(&[
+                    Gradient::radial_fill().with_dither().with_stops(&[
                         (0.0, alpha(mix(RED, Color::WHITE, 0.40), 0.34)),
                         (1.0, alpha(RED, 0.0)),
                     ]),
@@ -269,7 +269,7 @@ fn scene(book: &mut Sketchbook, canvas: Size, t: f32) {
             g.circle(
                 pt,
                 0.42 * scale * 900.0,
-                Gradient::radial_fill().with_stops(&[
+                Gradient::radial_fill().with_dither().with_stops(&[
                     (0.0, alpha(mix(Color::WHITE, AMBER, 0.30), 0.85)),
                     (0.25, alpha(mix(AMBER, Color::WHITE, 0.4), 0.30)),
                     (1.0, alpha(AMBER, 0.0)),

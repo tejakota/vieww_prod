@@ -123,7 +123,7 @@ impl Screen {
 /// shows a flat dark page instead of this ramp.
 fn background() -> WidgetNode {
     Container::new()
-        .gradient(Gradient::radial(Offset::new(0.5, 0.18), 1.1).with_stops(&[
+        .gradient(Gradient::radial(Offset::new(0.5, 0.18), 1.1).with_dither().with_stops(&[
             (0.0, Color::rgb(0x1E, 0x22, 0x30)),
             (0.6, BG),
             (1.0, Color::rgb(0x0D, 0x0E, 0x13)),
@@ -165,7 +165,7 @@ fn swatch_row() -> WidgetNode {
         .children(children![
             // 1. A three-stop linear ramp, rounded.
             Container::new()
-                .gradient(Gradient::vertical().with_stops(&[
+                .gradient(Gradient::vertical().with_dither().with_stops(&[
                     (0.0, Color::rgb(0x66, 0x7E, 0xEA)),
                     (0.55, Color::rgb(0x76, 0x4B, 0xA2)),
                     (1.0, Color::rgb(0x2B, 0x1A, 0x4A)),
@@ -174,7 +174,7 @@ fn swatch_row() -> WidgetNode {
                 .child(SizedBox::from_size(Size::square(SWATCH))),
             // 2. A radial ramp, rounded the same way.
             Container::new()
-                .gradient(Gradient::radial_fill().with_stops(&[
+                .gradient(Gradient::radial_fill().with_dither().with_stops(&[
                     (0.0, Color::rgb(0xF6, 0xD3, 0x65)),
                     (1.0, Color::rgb(0xFD, 0xA0, 0x85)),
                 ]),)

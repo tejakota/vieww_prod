@@ -197,7 +197,7 @@ fn band_typeon(t: f32) -> WidgetNode {
                         book.rrect(
                             Rect::new(0.0, 0.0, uw.max(0.0), 3.0),
                             1.5,
-                            Gradient::horizontal().with_stops(&[
+                            Gradient::horizontal().with_dither().with_stops(&[
                                 (0.0, alpha(VIOLET, 0.95)),
                                 (1.0, alpha(VIOLET_SOFT, 0.1)),
                             ]),
@@ -612,7 +612,7 @@ pub(crate) fn frame(t: f32) -> WidgetNode {
                 inner.circle(
                     Offset::new(w * 0.28, h * 0.94),
                     w * 0.30,
-                    Gradient::radial_fill()
+                    Gradient::radial_fill().with_dither()
                         .with_stops(&[(0.0, alpha(VIOLET, 0.10)), (1.0, alpha(VIOLET, 0.0))]),
                 );
             });

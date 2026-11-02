@@ -71,7 +71,7 @@ pub(crate) fn fills_rounded() -> WidgetNode {
 /// geometry: identical edges, a ramp evaluated at every covered pixel.
 pub(crate) fn fills_gradient() -> WidgetNode {
     Painting::new(PaintWith::new(|book, _size| {
-        let ramp = Gradient::vertical().with_stops(&[(0.0, ACCENT), (1.0, VIOLET)]);
+        let ramp = Gradient::vertical().with_dither().with_stops(&[(0.0, ACCENT), (1.0, VIOLET)]);
         for i in 0..COUNT {
             book.rrect(cell_rect(i), 6.0, ramp);
         }
@@ -238,7 +238,7 @@ pub(crate) fn blend_modes() -> WidgetNode {
                 .spacing(6.0)
                 .push(
                     Container::new()
-                        .gradient(Gradient::horizontal().with_stops(&[
+                        .gradient(Gradient::horizontal().with_dither().with_stops(&[
                             (0.0, ACCENT),
                             (0.5, MINT),
                             (1.0, VIOLET),
@@ -298,7 +298,7 @@ pub(crate) fn blurs() -> WidgetNode {
                         .child(
                             Filtered::blur(sigma).child(
                                 Container::new()
-                                    .gradient(Gradient::radial_fill().with_stops(&[
+                                    .gradient(Gradient::radial_fill().with_dither().with_stops(&[
                                         (0.0, Color::rgb(255, 210, 90)),
                                         (1.0, VIOLET),
                                     ]))

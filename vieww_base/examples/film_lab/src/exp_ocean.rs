@@ -82,7 +82,7 @@ fn scene(book: &mut Sketchbook, canvas: Size, t: f32) {
                 inner.circle(
                     pt,
                     r * 3.4,
-                    Gradient::radial_fill()
+                    Gradient::radial_fill().with_dither()
                         .with_stops(&[(0.0, alpha(VIOLET_SOFT, 0.60)), (1.0, alpha(VIOLET, 0.0))]),
                 );
             });
@@ -100,7 +100,7 @@ fn scene(book: &mut Sketchbook, canvas: Size, t: f32) {
                 book.circle(
                     pt,
                     r,
-                    Gradient::radial_fill().with_stops(&[
+                    Gradient::radial_fill().with_dither().with_stops(&[
                         (0.0, alpha(Color::WHITE, 0.5 * flash)),
                         (0.5, alpha(CYAN_SOFT, 0.3 * flash)),
                         (1.0, alpha(CYAN, 0.0)),
@@ -169,7 +169,7 @@ fn scene(book: &mut Sketchbook, canvas: Size, t: f32) {
             inner.circle(
                 Offset::new(w * 0.5, h * 0.58),
                 w * 0.5,
-                Gradient::radial_fill().with_stops(&[
+                Gradient::radial_fill().with_dither().with_stops(&[
                     (0.0, alpha(mix(VIOLET, CYAN, 0.45), 0.20)),
                     (0.6, alpha(VIOLET_DEEP, 0.10)),
                     (1.0, alpha(VIOLET, 0.0)),
@@ -254,7 +254,7 @@ fn scene(book: &mut Sketchbook, canvas: Size, t: f32) {
                 inner.circle(
                     *pt,
                     r * 4.0,
-                    Gradient::radial_fill().with_stops(&[
+                    Gradient::radial_fill().with_dither().with_stops(&[
                         (0.0, alpha(mix(Color::WHITE, CYAN_SOFT, 0.2), a * 0.5)),
                         (1.0, alpha(CYAN, 0.0)),
                     ]),
