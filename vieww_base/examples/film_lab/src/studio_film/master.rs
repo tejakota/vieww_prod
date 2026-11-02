@@ -468,7 +468,7 @@ impl Rig {
                 // semantics for the overlays, off the frame just drawn. Each
                 // is an early return while its view is closed, so scenes that
                 // open none of them are untouched.
-                studio.capture_tree(&self.driver);
+                studio.capture_tree(&mut self.driver);
                 studio.capture_overlays(&mut self.driver);
                 self.driver.set_root(shell_only(&studio));
                 self.driver
