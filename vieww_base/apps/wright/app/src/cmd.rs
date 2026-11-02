@@ -690,7 +690,8 @@ pub fn mcp_hash(args: &[String]) -> i32 {
     }
 }
 
-/// `wright run [dir] [--yes] [--headless] [--no-cache] [--quiet]`
+/// `wright run [dir] [--yes] [--headless] [--no-cache] [--quiet]
+/// [--allow-private-network] [--browser-loopback]`
 /// Fire the project: plan, cost sentence, choice, firing, report.
 pub fn run(args: &[String]) -> i32 {
     let (pos, flags) = split(args);
@@ -740,6 +741,7 @@ pub fn run(args: &[String]) -> i32 {
         no_cache: flags.contains(&"--no-cache"),
         reproducible: flags.contains(&"--reproducible"),
         allow_private_network: flags.contains(&"--allow-private-network"),
+        browser_loopback: flags.contains(&"--browser-loopback"),
         config: forced_config,
         ..FireOptions::default()
     };
@@ -1949,6 +1951,12 @@ pub fn doctor() -> i32 {
         );
     }
     line("sandbox", wright_tools::sandbox::capabilities());
+    // WR-11: informational, not a failure — assert-visual works without
+    // a browser; only the render loop needs one.
+    println!(
+        "  browser            {}",
+        wright_tools::browser::doctor_line()
+    );
     line(
         "time zones",
         wright_runtime::tz::load("Asia/Kolkata").map(|_| "system zone database".into()),

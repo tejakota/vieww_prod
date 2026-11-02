@@ -836,3 +836,35 @@ channel URL. No release has been cut with this machinery yet; when one
 is, the owner generates the release key, records it, and the constants
 follow. A wrong-but-plausible repository is worse than none
 (wrightsite's own rule).
+
+## ADR-043 — The browser is a witness, not an actor · Accepted
+
+Date: 2026-11-02 · Status: Accepted
+
+Every rival agent "looks at" the thing it built; wright had nothing
+(WR-11). The tempting design is a browser automation surface (click,
+type, fill — CDP or Playwright). That imports a second dependency, a
+driver process with full reach, and a steering risk: text on a page
+becoming actions taken as the agent. Decision: the browser tool takes
+SCREENSHOTS, and only screenshots. Three actions — `render` (a public
+URL, the same SSRF rule as `http-read`), `screenshot-project` (the
+project's own `wright export --web` output served by a loopback listener
+the TOOL owns and stops when the shot is taken), and `assert-visual`
+(golden-vs-captured PNG comparison on the in-house decoder, integer
+metrics). A screenshot cannot be steered into acting on a page.
+
+Boundaries: the browser runs as an ordinary child process OUTSIDE the
+kernel sandbox (it must write its profile and the PNG; Chrome's own
+renderer sandbox stays on, with `WRIGHT_BROWSER_NO_SANDBOX=1` as the
+documented container escape hatch), behind the same Network capability
+and Rule-of-Two legs as any world effect — the palette entry is
+`Reads::Outside` + `Effect::World`, so render steps are volatile,
+approval-eligible and never retried. The loopback listener is private
+network reach for the TOOL, never the agent: it is off unless the run
+asks for it (`--browser-loopback` / `WRIGHT_BROWSER_LOOPBACK=1`), and it
+never relaxes the http tools' own guards. Refusal-first when no browser
+is installed — the sentence names the candidates; `assert-visual` needs
+no browser at all. Honest limit: the full render loop needs a real
+browser, so it runs where one is installed (CI/self-hosted); a bare
+sandbox gets the refusal. No automation, no page cache, no reach beyond
+the one URL.

@@ -17,18 +17,19 @@
 //! | shell         | any command                                   | [`sandbox`] (net only if granted) |
 //! | http-read     | GET a public URL (≤ 1 MiB, text)              | no private/metadata addresses |
 //! | http-post     | POST to a public URL (body ≤ 1 MiB)           | same; approval-eligible       |
-//! | browser       | (not implemented: refuses loudly)             |                               |
+//! | browser       | render / screenshot-project / assert-visual   | [`browser`] (WR-11)           |
 
 #[cfg(windows)]
 mod appcontainer;
+pub mod browser;
 pub mod mcp;
 pub mod mcp_install;
 pub mod patch;
 pub mod paths;
+pub mod png;
 pub mod sandbox;
 #[cfg(windows)]
 mod winjob;
-pub mod png;
 pub mod worker;
 
 use std::io::Read;
@@ -60,6 +61,12 @@ pub struct ToolCtx {
     /// Allow http tools to reach private / loopback addresses. Off by
     /// default (SSRF guard); local development and tests turn it on.
     pub allow_private_network: bool,
+    /// Let the BROWSER tool serve the project's built web output on a
+    /// loopback listener it owns (WR-11). Off by default; opted in with
+    /// `wright run --browser-loopback` or WRIGHT_BROWSER_LOOPBACK=1.
+    /// This is the tool's own private-network reach — it never relaxes
+    /// the http tools' guards (`allow_private_network`).
+    pub browser_loopback: bool,
     /// Extra writable dirs for the sandbox (e.g. CARGO_HOME).
     pub sandbox_extra_rw: Vec<PathBuf>,
     /// The worker this task hands its step to, if any (ADR-026).
@@ -90,6 +97,9 @@ impl ToolCtx {
             secrets: Vec::new(),
             net: NetConfig::from_env(),
             allow_private_network: std::env::var("WRIGHT_ALLOW_PRIVATE_NETWORK")
+                .map(|v| v == "1")
+                .unwrap_or(false),
+            browser_loopback: std::env::var("WRIGHT_BROWSER_LOOPBACK")
                 .map(|v| v == "1")
                 .unwrap_or(false),
             sandbox_extra_rw: Vec::new(),
@@ -165,7 +175,7 @@ pub fn run(permit: Permit, input: &Value, ctx: &ToolCtx) -> Result<ToolOutput, T
         "http-post" => http_post(&permit, input, ctx),
         "worker" => worker::run(&permit, input, ctx),
         "mcp-call" => mcp::run(&permit, input, ctx),
-        "browser" => Err(ToolError::NotImplemented("browser")),
+        "browser" => browser::run(&permit, input, ctx),
         other => Err(ToolError::Failed(format!(
             "tool '{other}' has no implementation"
         ))),
@@ -920,9 +930,20 @@ mod tests {
     #[test]
     fn browser_refuses_loudly() {
         let c = ctx("browser");
-        assert_eq!(
-            call("browser", r#"{"url":"https://x"}"#, &c),
-            Err(ToolError::NotImplemented("browser"))
+        // No browser on this machine (CI and this sandbox have none):
+        // the refusal names what to install. A machine WITH one is
+        // exercised by the self-hosted render loop, not here.
+        let r = call(
+            "browser",
+            r#"{"action":"render","url":"http://93.184.216.34/"}"#,
+            &c,
         );
+        match r {
+            Err(ToolError::Failed(msg)) => assert!(
+                msg.contains("headless browser"),
+                "a refusal that names the problem: {msg}"
+            ),
+            other => panic!("expected a refusal, got {other:?}"),
+        }
     }
 }

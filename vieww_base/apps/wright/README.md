@@ -22,7 +22,7 @@ affected work runs again.
 | Agent loop: streaming tool calls, gate, approvals, budget, compaction | ✅ | Anthropic + OpenAI-compatible (OpenAI, DeepSeek, GLM, Kimi, xAI, local) |
 | Task cache with freshness rules | ✅ | live-data and delivery steps are never served from cache |
 | Durable run store, resume after crash, receipts | ✅ | fsynced event log, BLAKE3 content-addressed objects |
-| Tools: files, edit, apply-patch, git, run-tests, shell, http | ✅ | `browser` refuses loudly (not implemented) |
+| Tools: files, edit, apply-patch, git, run-tests, shell, http, browser | ✅ | `browser`: render / screenshot-project / assert-visual; the render loop needs a real browser (CI/self-hosted), refusal-first without one |
 | Command sandbox: Linux Landlock; Windows WSL 2 + Bubblewrap for POSIX shell/git/tests | Implemented; Windows runtime validation pending | Windows requires WSL 2 + Bubblewrap; native worker CLIs use the clearly labelled workspace-copy fallback (no OS sandbox); macOS sandboxed commands still fail closed |
 | TLS: OS OpenSSL via dlopen, Linux; HTTP CONNECT proxies | ✅ | macOS/Windows: through the system curl (ADR-023); native FFI is W-6b |
 | Built-in models: Qwen3-1.7B (text, tools), Whisper base (voice), run in-process | ✅ | checked against llama.cpp / whisper.cpp; `docs/MODELS.md` |

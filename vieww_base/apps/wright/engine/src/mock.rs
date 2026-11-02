@@ -418,6 +418,21 @@ fn project_agent(c: &Convo<'_>) -> (String, Vec<(String, Value)>) {
             )],
         );
     }
+    // 1.5. Look at the page, if this agent can (WR-11): one render call.
+    // On a machine with no browser the tool refuses — which is itself
+    // the wiring this script exercises (the refusal is the tool result).
+    if has("browser") && url.is_some() && !c.called.iter().any(|n| n == "browser") {
+        return (
+            format!("Rendering {}.", url.clone().unwrap_or_default()),
+            vec![(
+                "browser".into(),
+                args(vec![
+                    ("action", Value::str("render")),
+                    ("url", Value::str(url.unwrap_or_default())),
+                ]),
+            )],
+        );
+    }
     let fetched = c
         .called
         .iter()

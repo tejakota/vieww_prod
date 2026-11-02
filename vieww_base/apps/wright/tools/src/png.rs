@@ -78,7 +78,9 @@ pub fn decode(bytes: &[u8]) -> Result<Image, String> {
     while at + 12 <= bytes.len() && !saw_iend {
         let len = u32::from_be_bytes(bytes[at..at + 4].try_into().unwrap()) as usize;
         if len > MAX_CHUNK {
-            return Err(format!("a PNG chunk claims {len} bytes; the limit is {MAX_CHUNK}"));
+            return Err(format!(
+                "a PNG chunk claims {len} bytes; the limit is {MAX_CHUNK}"
+            ));
         }
         let kind = &bytes[at + 4..at + 8];
         let data_at = at + 8;
@@ -183,8 +185,7 @@ pub fn decode(bytes: &[u8]) -> Result<Image, String> {
             let (prev, rest) = out.split_at_mut(y * stride);
             (&prev[(y - 1) * stride..y * stride], &mut rest[..stride])
         };
-        unfilter_row(filter, bpp, src, above, dst)
-            .map_err(|e| format!("row {}: {e}", y + 1))?;
+        unfilter_row(filter, bpp, src, above, dst).map_err(|e| format!("row {}: {e}", y + 1))?;
     }
     Ok(Image {
         width,
@@ -393,8 +394,8 @@ fn decode_sym(br: &mut BitReader<'_>, h: &Huffman) -> Result<u16, String> {
 }
 
 const LENGTH_BASE: [u16; 29] = [
-    3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115,
-    131, 163, 195, 227, 258,
+    3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131,
+    163, 195, 227, 258,
 ];
 const LENGTH_EXTRA: [u8; 29] = [
     0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0,
@@ -404,12 +405,13 @@ const DIST_BASE: [u16; 30] = [
     2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577,
 ];
 const DIST_EXTRA: [u8; 30] = [
-    0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12,
-    13, 13,
+    0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13,
+    13,
 ];
 /// The code-length reading order (RFC 1951 §3.2.7).
-const CLEN_ORDER: [usize; 19] =
-    [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15];
+const CLEN_ORDER: [usize; 19] = [
+    16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15,
+];
 
 /// Inflate the DEFLATE blocks; returns the byte offset at which the
 /// stream ended (the trailing Adler-32 starts there).
@@ -800,11 +802,9 @@ mod tests {
         let png = png_with_color(1, 1, 0, &[vec![0, 1, 2, 3]]);
         assert!(decode(&png).unwrap_err().contains("regenerate"));
         // Not a PNG at all.
-        assert!(
-            decode(b"hello world, definitely not a png!!")
-                .unwrap_err()
-                .contains("not a PNG")
-        );
+        assert!(decode(b"hello world, definitely not a png!!")
+            .unwrap_err()
+            .contains("not a PNG"));
     }
 
     #[test]
@@ -818,7 +818,10 @@ mod tests {
         let a = mk(&[10, 10, 10, 10, 10, 10]);
         let b = mk(&[10, 10, 10, 13, 10, 10]); // one channel +3
         let exact = diff(&a, &b, 0).unwrap();
-        assert_eq!((exact.differing, exact.max_delta, exact.total_delta), (1, 3, 3));
+        assert_eq!(
+            (exact.differing, exact.max_delta, exact.total_delta),
+            (1, 3, 3)
+        );
         assert!(!exact.ok());
         let within = diff(&a, &b, 3).unwrap();
         assert!(within.ok() && within.differing == 0);
