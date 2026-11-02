@@ -13,12 +13,16 @@
 //! # The whole loop
 //!
 //! ```console
-//! # one terminal: rebuild the guest whenever a file changes
-//! cargo watch -w app/src -x 'build -p app'
-//!
-//! # the other: run the host, which notices and reloads
-//! cargo run -p host
+//! # one command, since `vieww dev` folded the watcher in: watch sources,
+//! # rebuild the guest, keep the host running
+//! vieww dev --guest app-guest --host host
 //! ```
+//!
+//! The halves still exist separately — `cargo watch -x 'build -p app'` in
+//! one terminal and the host in another works exactly as it always did,
+//! because the host watches the library file rather than the tool that
+//! rewrote it — but the one-command form is what `vieww-cli`'s `dev`
+//! subcommand drives, and its polling cadence is documented there.
 //!
 //! # Development only, and not for the reason people assume
 //!
