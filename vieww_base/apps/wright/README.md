@@ -50,18 +50,22 @@ the repository Wright lives in, by path (ADR-002, ADR-011).
 Wright never runs its shell, Git, or test commands unsandboxed. On Windows,
 those POSIX tools run through WSL 2 and Bubblewrap; the project directory is
 the only writable project tree. This backend must be available before those
-tools are enabled. From an elevated PowerShell, install WSL and Ubuntu if they
-are not already installed:
+tools are enabled. `wright doctor --fix` installs the whole stack unattended
+behind one UAC prompt: it enables the WSL 2 features, installs an Ubuntu
+distribution, apt-installs the isolation utilities as root, and finishes with
+the exact Bubblewrap probe Wright's sandbox runs (see
+`packaging/windows/bootstrap-wsl.ps1`; ADR-044). Or install it by hand from
+elevated PowerShell:
 
 ```powershell
 wsl --install -d Ubuntu
 wsl --set-default Ubuntu
 ```
 
-Finish the first Ubuntu launch and create its Linux user. In that Ubuntu
-terminal, install the isolation utilities and the project toolchains your tasks
-need (Windows-installed Rust, Node, Python, and their packages are not inherited
-inside WSL):
+Finish the first Ubuntu launch and create its Linux user, then install the
+project toolchains your tasks need in that Ubuntu terminal (Windows-installed
+Rust, Node, Python, and their packages are not inherited inside WSL —
+`doctor --fix` deliberately does not choose them for you):
 
 ```bash
 sudo apt update
@@ -71,10 +75,16 @@ sudo apt install bubblewrap util-linux coreutils
 
 Keep the Wright project on a local Windows drive (for example, `C:\work\project`),
 then restart Wright and check `wright doctor`. If WSL 2, namespaces, or Bubblewrap
-are unavailable, Wright refuses the command and reports setup guidance; it does
-not fall back to an unrestricted shell. macOS still fails closed until its
-native sandbox is implemented. Windows-native agent CLIs are run only against a
-throwaway workspace copy and are reported as lacking OS-level isolation.
+are unavailable, Wright refuses the command and names the fix; it does not fall
+back to an unrestricted shell. Two honest reliefs short of the full sandbox
+exist for tools whose program is a Windows-native binary: `git` and the
+project's test runner run under the Windows containment ladder (tier 2:
+AppContainer for `.exe`s; tier 1: Job object, no filesystem sandbox, for `.cmd`
+shims), REPORTED as DEGRADED in every tool report — `wright shell` never takes
+that path. `wright doctor` prints the isolation matrix: where every class of
+command runs on this machine. macOS still fails closed until its native sandbox
+is implemented. Windows-native agent CLIs are run only against a throwaway
+workspace copy and are reported as lacking OS-level isolation.
 
 ## Quick start (no key needed)
 
@@ -183,7 +193,8 @@ wright daemon               fire schedules in the background
 wright secret set <ref>     put a key in the OS keychain
 wright model ...            the built-in models: list | pull [id] | rm <id> | ask | listen
 wright where [dir]          where the project's history lives
-wright doctor               what works on this machine
+wright doctor [--fix]      what works on this machine; --fix installs the Windows
+                            WSL 2 + Bubblewrap sandbox stack (ADR-044)
 wright ui [dir]             the window (--snapshot <dir>: all 18 screens as PNG, receipt and light mode included;
                             --icon <png> [--size N] [--padded]: the app icon)
 ```

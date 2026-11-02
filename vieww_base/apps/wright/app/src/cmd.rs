@@ -1810,8 +1810,12 @@ pub fn update(args: &[String]) -> i32 {
 
 const DOCTOR_BLUEPRINT: &str = "meta { name \"doctor\" }\nintent { summary \"self test\" confirmed \"v1\" }\nagent Probe { goal \"prove the machine compiles\" tools \"files-read\" permissions files-read=true }\ndeliverable kind=\"check\" { check \"doctor ran\" }";
 
-/// `wright doctor` — what works on this machine, and what does not.
-pub fn doctor() -> i32 {
+/// `wright doctor [--fix]` — what works on this machine, and what does
+/// not. `--fix` (WR-14) installs what doctor can: on Windows, the
+/// WSL 2 + Ubuntu + Bubblewrap sandbox stack, unattended behind one
+/// UAC prompt.
+pub fn doctor(args: &[String]) -> i32 {
+    let fix = args.iter().any(|a| a == "--fix");
     let mut failures = 0;
     let mut line = |name: &str, r: Result<String, String>| match r {
         Ok(s) => println!("  {name:<18} ok    {s}"),
@@ -1827,6 +1831,20 @@ pub fn doctor() -> i32 {
         std::env::consts::ARCH
     );
     println!();
+    if fix {
+        // The plan is printed BEFORE anything runs — an unattended
+        // install should say what it is about to do.
+        println!("  --fix will:");
+        for step in wright_tools::setup::wsl_fix_plan() {
+            println!("    {:<16} {}", step.name, step.detail);
+        }
+        println!();
+        match wright_tools::setup::doctor_fix() {
+            Ok(s) => println!("  fix               ok    {s}"),
+            Err(e) => println!("  fix               NO    {e}"),
+        }
+        println!();
+    }
     let home = wright_home();
     line(
         "wright home",
@@ -1957,6 +1975,15 @@ pub fn doctor() -> i32 {
         "  browser            {}",
         wright_tools::browser::doctor_line()
     );
+    // WR-14(c): the honest matrix — where every class of command runs
+    // on THIS machine, including the degraded native tiers and what
+    // `--fix` would install. Informational: the sandbox line above is
+    // the one that fails doctor.
+    let iso = wright_tools::setup::Isolation::probe("");
+    println!("  isolation matrix:");
+    for (row, cell) in wright_tools::setup::matrix(&iso) {
+        println!("    {:<16} {}", row, cell);
+    }
     line(
         "time zones",
         wright_runtime::tz::load("Asia/Kolkata").map(|_| "system zone database".into()),

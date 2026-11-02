@@ -105,3 +105,46 @@ jobs:
       - name: Worker tier report (WR-05) — .cmd shims say tier 1, never silently unsandboxed
         working-directory: vieww_base/apps/wright
         run: cargo test -p wright-tools worker -- --test-threads=1
+
+  windows-doctor-fix:
+    # WR-14: the doctor --fix machinery and the degraded native tiers.
+    # The plan/matrix/script-pinning tests run on every OS, but this leg
+    # is where resolve_native actually resolves Windows binaries (git.exe
+    # is on the runner), the tier vocabulary is pinned against the worker
+    # ladder, and the bootstrap script is PARSED by a real Windows
+    # PowerShell — a syntax check the Linux sandbox cannot give. The full
+    # bootstrap (UAC elevation, WSL install, apt) needs a rebootable,
+    # persistent machine: that leg is the self-hosted Windows box per
+    # docs/infra/SELF-HOSTED-SETUP.md; this hosted leg checks everything
+    # short of it.
+    name: Windows — doctor --fix machinery + degraded tiers (WR-14)
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust toolchain
+        run: rustup show active-toolchain || rustup toolchain install
+        working-directory: vieww_base/apps/wright
+      - name: The fix plan, matrix and script pin (WR-14a/c)
+        working-directory: vieww_base/apps/wright
+        run: cargo test -p wright-tools --lib setup -- --test-threads=1
+      - name: The degraded native tiers (WR-14b) — resolution + vocabulary
+        working-directory: vieww_base/apps/wright
+        run: cargo test -p wright-tools --lib degraded -- --test-threads=1
+      - name: The bootstrap script parses under Windows PowerShell
+        shell: powershell
+        working-directory: vieww_base/apps/wright/packaging/windows
+        run: |
+          $tokens = $null; $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path './bootstrap-wsl.ps1'), [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count -ne 0) {
+            $errors | ForEach-Object { Write-Host ("parse error: " + $_.Message) }
+            exit 1
+          }
+          Write-Host 'bootstrap-wsl.ps1 parses cleanly'
+      - name: doctor prints the isolation matrix (WR-14c)
+        working-directory: vieww_base/apps/wright
+        run: |
+          cargo run -q -p wright -- doctor > doctor.txt || true
+          grep -c 'isolation matrix' doctor.txt
+          grep -E 'shell|git|run-tests' doctor.txt | head -5

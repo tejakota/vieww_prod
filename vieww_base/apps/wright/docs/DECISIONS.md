@@ -868,3 +868,35 @@ no browser at all. Honest limit: the full render loop needs a real
 browser, so it runs where one is installed (CI/self-hosted); a bare
 sandbox gets the refusal. No automation, no page cache, no reach beyond
 the one URL.
+
+## ADR-044 — doctor fixes the sandbox; degraded tiers are named, never silent · Accepted
+
+Date: 2026-11-03 · Status: Accepted
+
+The Windows POSIX sandbox was correct and fail-closed, but its setup
+path was the longest in the market: a wall of elevated PowerShell
+before anything fires (WR-14). Decision: `wright doctor --fix` runs the
+bootstrap ITSELF — one generated PowerShell script
+(`packaging/windows/bootstrap-wsl.ps1`, pinned byte-for-byte to
+`tools/src/setup.rs::bootstrap_ps1` by a test, so file and code cannot
+drift) that elevates once, enables the WSL 2 features, installs Ubuntu
+unattended, apt-installs bubblewrap/util-linux/coreutils as root, and
+ends with the exact bwrap namespace probe the sandbox runs. The plan is
+data printed before anything executes; never a forced restart; never a
+toolchain install inside WSL (the user's choice, as always). Off
+Windows the fix refuses with the OS's own reason — doctor does not
+pretend to install a kernel.
+
+Second decision — the honest middle ground: when the WSL runtime is
+missing but a tool's program is a Windows-NATIVE binary, `git` and
+`run-tests` degrade to WR-05's containment ladder instead of refusing:
+tier 2 (AppContainer, the project the only writable tree, inside a Job
+object) for `.exe`s, tier 1 (Job object only, NO filesystem sandbox)
+for `.cmd`/`.bat` shims. Every degraded run puts its tier IN the tool's
+report — the same vocabulary the worker tool and doctor's isolation
+matrix speak, pinned together by a test. `shell` never degrades: an
+arbitrary command is what the kernel sandbox is FOR, and a Job object
+is not an answer to it. No shell syntax is guessed at in degraded mode
+(operators are refused, not half-run). Doctor's matrix (WR-14c) says
+where every class of command runs on THIS machine — kernel sandbox,
+degraded tier, or REFUSED — never a silent surprise.

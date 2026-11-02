@@ -56,7 +56,8 @@
 //!   wright admin ...            the administrator's console: keygen | policy
 //!                               init/sign/show/check | approve [dir] |
 //!                               fleet-verify [folders] [--json]
-//!   wright doctor               what works on this machine
+//!   wright doctor [--fix]      what works on this machine; --fix installs
+//!                               the Windows WSL 2 + Bubblewrap stack
 
 fn main() {
     use wright::cmd;
@@ -106,7 +107,7 @@ fn main() {
         Some("update") => cmd::update(rest),
         Some("mock-provider") => cmd::mock_provider(rest),
         Some("where") => cmd::where_(rest),
-        Some("doctor") => cmd::doctor(),
+        Some("doctor") => cmd::doctor(rest),
         Some("ui") => open_ui(rest),
         Some("--version") | Some("-V") => {
             println!("wright {}", env!("CARGO_PKG_VERSION"));

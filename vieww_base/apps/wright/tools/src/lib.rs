@@ -22,12 +22,14 @@
 #[cfg(windows)]
 mod appcontainer;
 pub mod browser;
+pub mod degraded;
 pub mod mcp;
 pub mod mcp_install;
 pub mod patch;
 pub mod paths;
 pub mod png;
 pub mod sandbox;
+pub mod setup;
 #[cfg(windows)]
 mod winjob;
 pub mod worker;
@@ -477,7 +479,10 @@ fn git(permit: &Permit, input: &Value, ctx: &ToolCtx) -> Result<ToolOutput, Tool
     ];
     let mut full_args: Vec<&str> = vec!["-c", "safe.directory=*", "-c", "core.hooksPath=/dev/null"];
     full_args.extend(args.iter().map(String::as_str));
-    let out = sandbox::run("git", &full_args, &pol).map_err(ToolError::Failed)?;
+    let out = match sandbox::run("git", &full_args, &pol) {
+        Ok(out) => out,
+        Err(e) => degraded_run("git", &full_args, &pol, e)?,
+    };
     if out.success() {
         Ok(ToolOutput {
             text: out.report(),
@@ -496,10 +501,66 @@ fn run_tests(permit: &Permit, ctx: &ToolCtx) -> Result<ToolOutput, ToolError> {
     if ctx.test_cmd.is_empty() {
         return Err(ToolError::Failed("this project has no test command (set project.language or project.test in the blueprint)".into()));
     }
-    let out = sandbox::run("/bin/sh", &["-c", &ctx.test_cmd], &policy(permit, ctx, 300))
-        .map_err(ToolError::Failed)?;
+    let pol = policy(permit, ctx, 300);
+    let out = match sandbox::run("/bin/sh", &["-c", &ctx.test_cmd], &pol) {
+        Ok(out) => out,
+        Err(e) => {
+            // The degraded native runner takes the command's words, not
+            // a shell: syntax the WSL sandbox would have interpreted is
+            // refused here instead of half-run.
+            let words: Vec<&str> = ctx.test_cmd.split_whitespace().collect();
+            if words.is_empty() || degraded::has_shell_syntax(&ctx.test_cmd) {
+                return Err(ToolError::Failed(format!(
+                    "{e}. The degraded native runner does not interpret shell syntax ('{}'), so this test command needs the WSL 2 + Bubblewrap sandbox — `wright doctor --fix` installs it",
+                    ctx.test_cmd
+                )));
+            }
+            degraded_run(words[0], &words[1..], &pol, e)?
+        }
+    };
     // A failing test run is a RESULT, not a tool error: the agent must see it.
     ok(format!("$ {}\n{}", ctx.test_cmd, out.report()))
+}
+
+/// WR-14(b): the honest degraded fallback. When the POSIX sandbox's
+/// RUNTIME is missing (not a path-mapping error) on Windows and the
+/// program resolves to a Windows-native binary, run it under WR-05's
+/// containment ladder instead of refusing — tier 2 (AppContainer,
+/// project-only writes) for `.exe`s, tier 1 (Job object only) for
+/// `.cmd` shims — and put the tier IN the report. `shell` never takes
+/// this path; other platforms and other errors stay errors.
+fn degraded_run(
+    program: &str,
+    args: &[&str],
+    pol: &sandbox::Policy,
+    why: String,
+) -> Result<sandbox::RunOutput, ToolError> {
+    #[cfg(target_os = "windows")]
+    if sandbox::capabilities().is_err() {
+        if let Some((bin, _)) = degraded::resolve_native(program) {
+            let owned: Vec<String> = args.iter().map(|a| a.to_string()).collect();
+            match degraded::run_native(&bin, &owned, pol) {
+                Ok((mut out, tier)) => {
+                    // The tier rides IN the output, so the tool report and
+                    // the receipt both carry it — never silent.
+                    out.output = format!("[{tier}]\n{}", out.output);
+                    return Ok(out);
+                }
+                Err(e) => {
+                    return Err(ToolError::Failed(format!(
+                        "the degraded native runner could not run {}: {e}",
+                        bin.display()
+                    )))
+                }
+            }
+        }
+        return Err(ToolError::Failed(format!(
+            "{why}. No Windows-native '{}' either; `wright doctor --fix` installs the WSL 2 + Bubblewrap sandbox",
+            program
+        )));
+    }
+    let _ = (program, args, pol);
+    Err(ToolError::Failed(why))
 }
 
 fn shell(permit: &Permit, input: &Value, ctx: &ToolCtx) -> Result<ToolOutput, ToolError> {
