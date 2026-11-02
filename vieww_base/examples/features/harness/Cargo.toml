@@ -8,6 +8,11 @@ license.workspace = true
 publish = false
 
 [dependencies]
+# `VIEWW_AUDIT` turns an example into its own accessibility gate: the tree
+# the audit reads and the scene the contrast walk reads are both already in
+# this crate's dependency graph (vieww-render, vieww-paint), so this adds no
+# edge the examples were not already paying for.
+vieww-accessibility.workspace = true
 # `native` is vieww's one and only renderer: the same code draws the window
 # when there is a display and rasterises to PNG when there is not, which is
 # the only way the repository's "look at a picture of it" rule can be kept

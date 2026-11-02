@@ -35,6 +35,11 @@
 //! schemes have since been moved onto Apple's own published
 //! increased-contrast colours and pass; see that module's docs for what
 //! changed and why pinning the failures was not a good enough answer.
+//! [`scene_audit`] is the newest member: it judges the *rendered* scene —
+//! every glyph run against the backdrop it was actually painted over — which
+//! is the only static place an application's real text-on-real-background
+//! pairs exist. Theme pairs say what a scheme promises; the scene says what
+//! a user sees.
 //!
 //! # What this crate is not
 //!
@@ -48,10 +53,14 @@
 
 pub mod audit;
 pub mod contrast;
+pub mod scene_audit;
 pub mod theme_audit;
 
 pub use audit::{audit, Finding, Severity, MIN_TOUCH_TARGET_SIDE};
 pub use contrast::{contrast_ratio, passes, relative_luminance, WcagLevel};
+pub use scene_audit::{
+    driver_text_contrast, text_contrast, TextContrastFinding, TextContrastReport,
+};
 pub use theme_audit::{
     audit_color_scheme, audit_theme, ThemeAuditReport, ThemeContrastFailure, MIN_NON_TEXT_CONTRAST,
 };
