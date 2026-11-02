@@ -240,7 +240,13 @@ mod tests {
         // one — in place, at its position — so a draining host cannot
         // fall behind a spinning knob.
         assert_eq!(q.first().copied(), Some(Edit { id: 0, value: 99.0 }));
-        assert_eq!(q.last().copied(), Some(Edit { id: 0, value: 255.0 }));
+        assert_eq!(
+            q.last().copied(),
+            Some(Edit {
+                id: 0,
+                value: 255.0
+            })
+        );
         assert_eq!(h.take().len(), 0, "take empties");
     }
 }

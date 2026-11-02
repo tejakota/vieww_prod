@@ -244,9 +244,8 @@ fn sel_musical_context() -> Sel {
     static S: OnceLock<usize> = OnceLock::new();
     // SAFETY: a valid C string; sel_registerName never fails. The
     // selector is held as an integer so the cell is plain data.
-    let s = *S.get_or_init(|| unsafe {
-        sel_registerName(c"musicalContextBlock".as_ptr()) as usize
-    });
+    let s =
+        *S.get_or_init(|| unsafe { sel_registerName(c"musicalContextBlock".as_ptr()) as usize });
     s as Sel
 }
 
@@ -320,13 +319,7 @@ send!(msg_f32, f32,);
 /// # Safety
 /// `sup` names a live receiver and its real superclass; the superclass
 /// answers `sel` with exactly this signature.
-unsafe fn super_init(
-    sup: *const ObjcSuper,
-    sel: Sel,
-    a: *const c_void,
-    b: u32,
-    c: *mut Id,
-) -> Id {
+unsafe fn super_init(sup: *const ObjcSuper, sel: Sel, a: *const c_void, b: u32, c: *mut Id) -> Id {
     #[allow(
         clippy::missing_transmute_annotations,
         reason = "the symbol is variadic by nature"
@@ -569,9 +562,7 @@ impl<P: Plugin> Auv3State<P> {
         let params = driver.params.clone();
         let values = params
             .iter()
-            .map(|p| {
-                AtomicU64::new(driver.plugin.get_param(p.id).unwrap_or(p.default).to_bits())
-            })
+            .map(|p| AtomicU64::new(driver.plugin.get_param(p.id).unwrap_or(p.default).to_bits()))
             .collect();
         Self {
             driver,
@@ -599,11 +590,7 @@ impl<P: Plugin> Auv3State<P> {
     fn apply(&mut self, id: u32, value: f64) {
         if let Ok(mut q) = self.edits.lock() {
             if q.len() < q.capacity() {
-                q.push(ParamChange {
-                    time: 0,
-                    id,
-                    value,
-                });
+                q.push(ParamChange { time: 0, id, value });
             }
         }
         let mirrored = self
@@ -628,7 +615,11 @@ impl<P: Plugin> Auv3State<P> {
     /// when it looks at it (see [`Self::attach_view`]).
     fn mirror(&mut self) {
         for (info, slot) in self.params.iter().zip(&self.values) {
-            let v = self.driver.plugin.get_param(info.id).unwrap_or(info.default);
+            let v = self
+                .driver
+                .plugin
+                .get_param(info.id)
+                .unwrap_or(info.default);
             slot.store(v.to_bits(), Ordering::Relaxed);
         }
     }
@@ -694,8 +685,14 @@ unsafe fn call_pull(
         clippy::missing_transmute_annotations,
         reason = "the symbol is variadic by nature"
     )]
-    let f: unsafe extern "C" fn(Id, *mut u32, *const AudioTimeStamp, Frames, isize, *mut AudioBufferList) -> OsStatus =
-        unsafe { core::mem::transmute((*pull.cast::<Block>()).invoke) };
+    let f: unsafe extern "C" fn(
+        Id,
+        *mut u32,
+        *const AudioTimeStamp,
+        Frames,
+        isize,
+        *mut AudioBufferList,
+    ) -> OsStatus = unsafe { core::mem::transmute((*pull.cast::<Block>()).invoke) };
     // SAFETY: the caller's contract above.
     unsafe { f(pull, action_flags, timestamp, frame_count, bus, list) }
 }
@@ -810,15 +807,16 @@ impl<P: Plugin> Erased for Auv3State<P> {
                 // asked for); the host may have re-pointed `mData`.
                 for (i, buf) in self.pull_list.buffers.iter().take(n).enumerate() {
                     if buf.mData.is_null() || buf.mNumberChannels == 0 {
-                        self.scratch_in[i].iter_mut().take(frames).for_each(|s| *s = 0.0);
+                        self.scratch_in[i]
+                            .iter_mut()
+                            .take(frames)
+                            .for_each(|s| *s = 0.0);
                         continue;
                     }
                     let len = (buf.mDataByteSize as usize) / 4;
                     // SAFETY: the host's own pointer, valid until the
                     // next render cycle per the pull block's contract.
-                    let src = unsafe {
-                        std::slice::from_raw_parts(buf.mData.cast::<f32>(), len)
-                    };
+                    let src = unsafe { std::slice::from_raw_parts(buf.mData.cast::<f32>(), len) };
                     let dst = &mut self.scratch_in[i];
                     for (f, slot) in dst.iter_mut().enumerate() {
                         if f >= frames {
@@ -886,12 +884,13 @@ impl<P: Plugin> Erased for Auv3State<P> {
         }
         // The scheduled-MIDI path (`scheduleMIDIEventList:`) delivers its
         // due events here too.
-        self.schedule.drain_into(block_start, frame_count, |at, bytes| {
-            let mut data = [0u8; 3];
-            let n = bytes.len().min(3);
-            data[..n].copy_from_slice(&bytes[..n]);
-            ev_driver.push_event(Event::Midi { time: at, data });
-        });
+        self.schedule
+            .drain_into(block_start, frame_count, |at, bytes| {
+                let mut data = [0u8; 3];
+                let n = bytes.len().min(3);
+                data[..n].copy_from_slice(&bytes[..n]);
+                ev_driver.push_event(Event::Midi { time: at, data });
+            });
         // Render into the planar scratch.
         let ch_out = self.scratch_out.len();
         let mut ins: [&[f32]; MAX_CHANNELS] = [&[]; MAX_CHANNELS];
@@ -1111,9 +1110,7 @@ pub fn install<P: Plugin>(class_name: &str) -> Result<(), String> {
         if f.contains_key(class_name) {
             return Ok(());
         }
-        f.insert(class_name.to_owned(), || {
-            Box::new(Auv3State::<P>::new())
-        });
+        f.insert(class_name.to_owned(), || Box::new(Auv3State::<P>::new()));
     }
     let name = CString::new(class_name).map_err(|e| format!("class name ({e})"))?;
     // SAFETY: the whole sequence below is the documented runtime API;
@@ -1154,13 +1151,16 @@ static METHODS: &[(&str, unsafe extern "C" fn(), &CStr)] = &[
     (
         "initWithComponentDescription:options:error:",
         unsafe {
-            imp!(imp_init as unsafe extern "C" fn(
-                Id,
-                Sel,
-                *const AudioComponentDescription,
-                u32,
-                *mut Id,
-            ) -> Id)
+            imp!(
+                imp_init
+                    as unsafe extern "C" fn(
+                        Id,
+                        Sel,
+                        *const AudioComponentDescription,
+                        u32,
+                        *mut Id,
+                    ) -> Id
+            )
         },
         c"@@:^{AudioComponentDescription=IIIII}Q^@",
     ),
@@ -1257,7 +1257,10 @@ unsafe extern "C" fn imp_init(
         if !error.is_null() {
             // SAFETY: the host's out-pointer for the failure reason.
             unsafe {
-                *error = ns_error(1, "no state factory for this class (install was not called?)");
+                *error = ns_error(
+                    1,
+                    "no state factory for this class (install was not called?)",
+                );
             }
         }
         return std::ptr::null_mut();
@@ -1399,7 +1402,11 @@ unsafe fn build_tree(obj: Id, state: &mut Box<dyn Erased>) -> Id {
             CFRelease(group);
         }
         // SAFETY: AUParameterTree's tree class method.
-        let tree = msg_id_id(tree_cls.cast(), sel("createTreeWithChildren:"), tree_children);
+        let tree = msg_id_id(
+            tree_cls.cast(),
+            sel("createTreeWithChildren:"),
+            tree_children,
+        );
         // SAFETY: the arrays and strings we created.
         CFRelease(children);
         CFRelease(tree_children);
@@ -1427,11 +1434,7 @@ unsafe extern "C" fn imp_value_observer(block: Id, parameter: Id, value: f32) {
 /// `AUImplementorStringFromValueCallback` — `(AUParameter *, const
 /// AUValue * __nullable)` → `NSString *`. The value arrives by
 /// reference (null meaning "use the parameter's current value").
-unsafe extern "C" fn imp_value_stringer(
-    block: Id,
-    parameter: Id,
-    value: *const f32,
-) -> Id {
+unsafe extern "C" fn imp_value_stringer(block: Id, parameter: Id, value: *const f32) -> Id {
     // SAFETY: as the observer.
     unsafe {
         let obj = capture_of(block);
@@ -1464,16 +1467,19 @@ unsafe extern "C" fn imp_internal_render_block(obj: Id, _sel: Sel) -> Id {
             return (*slot).render_block.cast();
         }
         let b = Box::into_raw(block(
-            imp!(imp_render as unsafe extern "C" fn(
-                Id,
-                *mut u32,
-                *const AudioTimeStamp,
-                Frames,
-                isize,
-                *mut AudioBufferList,
-                *const events::RenderEventHeader,
-                Id,
-            ) -> OsStatus),
+            imp!(
+                imp_render
+                    as unsafe extern "C" fn(
+                        Id,
+                        *mut u32,
+                        *const AudioTimeStamp,
+                        Frames,
+                        isize,
+                        *mut AudioBufferList,
+                        *const events::RenderEventHeader,
+                        Id,
+                    ) -> OsStatus
+            ),
             obj,
         ));
         (*slot).render_block = b;
@@ -1832,8 +1838,7 @@ mod tests {
                 clippy::missing_transmute_annotations,
                 reason = "the symbol is variadic by nature"
             )]
-            let f: unsafe extern "C" fn(Id) =
-                core::mem::transmute((*probe.cast::<Block>()).invoke);
+            let f: unsafe extern "C" fn(Id) = core::mem::transmute((*probe.cast::<Block>()).invoke);
             f(std::ptr::from_ref(&*probe).cast_mut());
             assert_eq!(hit.load(Ordering::Relaxed), 1);
         }

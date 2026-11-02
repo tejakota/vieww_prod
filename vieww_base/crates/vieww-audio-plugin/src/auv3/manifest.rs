@@ -159,10 +159,14 @@ pub fn plist_snippet(class_name: &str, info: &PluginInfo) -> String {
     for (k, v) in components_entry(class_name, info) {
         match k {
             "principal-class" => {
-                out.push_str(&format!("\t\t\t\t\t<key>{k}</key>\n\t\t\t\t\t<string>{v}</string>\n"));
+                out.push_str(&format!(
+                    "\t\t\t\t\t<key>{k}</key>\n\t\t\t\t\t<string>{v}</string>\n"
+                ));
             }
             "version" => {
-                out.push_str(&format!("\t\t\t\t\t<key>{k}</key>\n\t\t\t\t\t<integer>{v}</integer>\n"));
+                out.push_str(&format!(
+                    "\t\t\t\t\t<key>{k}</key>\n\t\t\t\t\t<integer>{v}</integer>\n"
+                ));
             }
             "sandbox-safe" => {
                 out.push_str(&format!("\t\t\t\t\t<key>{k}</key>\n\t\t\t\t\t<true/>\n"));
@@ -175,7 +179,9 @@ pub fn plist_snippet(class_name: &str, info: &PluginInfo) -> String {
                 out.push_str("\t\t\t\t\t</array>\n");
             }
             _ => {
-                out.push_str(&format!("\t\t\t\t\t<key>{k}</key>\n\t\t\t\t\t<string>{v}</string>\n"));
+                out.push_str(&format!(
+                    "\t\t\t\t\t<key>{k}</key>\n\t\t\t\t\t<string>{v}</string>\n"
+                ));
             }
         }
     }
@@ -211,22 +217,40 @@ mod tests {
         assert_eq!(manufacturer(&i), fourcc(b"view"));
         assert_eq!(component_type(&i), fourcc(b"aufx"));
         // Upper-case, separators and overflow all fold to the same rule.
-        assert_eq!(subtype(&PluginInfo { id: "a.b.C-xx-yy", ..info() }), fourcc(b"cxxy"));
         assert_eq!(
-            subtype(&PluginInfo { id: "a.verylongname", ..info() }),
+            subtype(&PluginInfo {
+                id: "a.b.C-xx-yy",
+                ..info()
+            }),
+            fourcc(b"cxxy")
+        );
+        assert_eq!(
+            subtype(&PluginInfo {
+                id: "a.verylongname",
+                ..info()
+            }),
             fourcc(b"very")
         );
         assert_eq!(
-            manufacturer(&PluginInfo { vendor: "ACME Corp", ..info() }),
+            manufacturer(&PluginInfo {
+                vendor: "ACME Corp",
+                ..info()
+            }),
             fourcc(b"acme")
         );
         // Kinds map to the component types.
         assert_eq!(
-            component_type(&PluginInfo { kind: Kind::Instrument, ..info() }),
+            component_type(&PluginInfo {
+                kind: Kind::Instrument,
+                ..info()
+            }),
             fourcc(b"aumu")
         );
         assert_eq!(
-            component_type(&PluginInfo { kind: Kind::NoteEffect, ..info() }),
+            component_type(&PluginInfo {
+                kind: Kind::NoteEffect,
+                ..info()
+            }),
             fourcc(b"aumf")
         );
     }
@@ -235,10 +259,19 @@ mod tests {
     fn versions_pack_and_refuse_to_guess() {
         assert_eq!(version(&info()), 0x0001_0203);
         assert_eq!(
-            version(&PluginInfo { version: "2.0", ..info() }),
+            version(&PluginInfo {
+                version: "2.0",
+                ..info()
+            }),
             0x0002_0000
         );
-        assert_eq!(version(&PluginInfo { version: "junk", ..info() }), 0);
+        assert_eq!(
+            version(&PluginInfo {
+                version: "junk",
+                ..info()
+            }),
+            0
+        );
     }
 
     #[test]
@@ -247,8 +280,7 @@ mod tests {
         assert_eq!(
             tags(&PluginInfo {
                 features: &["synthesizer", "delay"],
-                ..
-                info()
+                ..info()
             }),
             vec!["Synthesizer", "Delay"]
         );

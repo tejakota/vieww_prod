@@ -216,10 +216,7 @@ const WORDS_AT: usize = 12;
 ///
 /// # Errors
 /// `Err(offset)` names the byte offset the walk gave up at.
-pub fn walk_event_list(
-    bytes: &[u8],
-    mut visit: impl FnMut(u64, u8, &[u8]),
-) -> Result<(), usize> {
+pub fn walk_event_list(bytes: &[u8], mut visit: impl FnMut(u64, u8, &[u8])) -> Result<(), usize> {
     // A system-exclusive message being assembled across packets of the
     // SAME list (the accumulator lives here because each packet is its
     // own decode call; a walk may allocate — it runs on whatever thread
@@ -419,8 +416,7 @@ pub fn encode_event_list(messages: &[(u64, u8, &[u8])]) -> Vec<u8> {
         } else {
             // Channel voice: byte 1 (bits 16–23) carries the whole
             // status byte.
-            let mut w =
-                (0x2 << 28) | (u32::from(group) << 24) | (u32::from(first) << 16);
+            let mut w = (0x2 << 28) | (u32::from(group) << 24) | (u32::from(first) << 16);
             if let Some(&b) = bytes.get(1) {
                 w |= u32::from(b) << 8;
             }
@@ -616,19 +612,13 @@ pub unsafe fn walk_render_events(
                     // SAFETY: `length` valid bytes at `data` — the
                     // header's own contract for SysEx events.
                     unsafe {
-                        std::ptr::copy_nonoverlapping(
-                            m.data.as_ptr(),
-                            sysex.as_mut_ptr(),
-                            take,
-                        );
+                        std::ptr::copy_nonoverlapping(m.data.as_ptr(), sysex.as_mut_ptr(), take);
                     }
                     &sysex[..take]
                 };
                 visit(
                     m.eventSampleTime,
-                    RenderEventKind::Midi {
-                        cable: m.cable,
-                    },
+                    RenderEventKind::Midi { cable: m.cable },
                     bytes,
                 );
             }
@@ -660,8 +650,7 @@ mod tests {
 
     fn collect(bytes: &[u8]) -> Vec<(u64, u8, Vec<u8>)> {
         let mut got = Vec::new();
-        walk_event_list(bytes, |t, g, b| got.push((t, g, b.to_vec())))
-            .expect("a well-formed list");
+        walk_event_list(bytes, |t, g, b| got.push((t, g, b.to_vec()))).expect("a well-formed list");
         got
     }
 
@@ -799,10 +788,7 @@ mod tests {
     fn the_immediate_constant_is_the_headers_and_forms_a_window() {
         // AUAudioUnit.h: AUEventSampleTimeImmediate = 0xffffffff00000000.
         assert_eq!(EVENT_TIME_IMMEDIATE, -0x1_0000_0000);
-        assert_eq!(
-            EVENT_TIME_IMMEDIATE,
-            0xFFFF_FFFF_0000_0000u64 as i64
-        );
+        assert_eq!(EVENT_TIME_IMMEDIATE, 0xFFFF_FFFF_0000_0000u64 as i64);
         // The constant itself and the documented sub-4096 offsets are
         // immediate; a true sample time never is.
         assert!(is_immediate(EVENT_TIME_IMMEDIATE));
@@ -921,11 +907,7 @@ mod tests {
             assert_eq!(
                 got,
                 vec![
-                    (
-                        100,
-                        RenderEventKind::Midi { cable: 2 },
-                        vec![0x90, 60, 100]
-                    ),
+                    (100, RenderEventKind::Midi { cable: 2 }, vec![0x90, 60, 100]),
                     (
                         120,
                         RenderEventKind::Parameter {
