@@ -428,6 +428,63 @@ jobs:
           fi
           bash ci/vieww gate "${args[@]}"
 
+      # FW-04: what a clean machine gets is what the DMG carries. The gate
+      # built it with --bundle-moltenvk (artifacts.sh forces the flag on
+      # Darwin; package.sh fails when no source exists), so this step's job
+      # is to read the *artifact* back and assert the files are in it —
+      # trust the bundle, not the flags — and then a launch smoke: the
+      # packaged executable has to open and stay up on this runner's GUI
+      # session, which is the closest a hosted runner gets to the
+      # clean-machine launch (first-frame *timings* stay on the hardware
+      # runners' receipts, where the startup census lives).
+      - name: MoltenVK in the shipped .app + launch smoke (FW-04)
+        if: matrix.os == 'macos' && env.PACKAGE == 'true' && env.SCOPE == 'gate'
+        run: |
+          set -euo pipefail
+          dmg=$(ls target/package/viewwstudio-macos-*.dmg 2>/dev/null | head -1)
+          [[ -n "$dmg" ]] || { echo "FW-04: no macOS .dmg in target/package" >&2; exit 1; }
+          mount="$RUNNER_TEMP/fw04-dmg"
+          rm -rf "$mount"; mkdir -p "$mount"
+          hdiutil attach -readonly -nobrowse -mountpoint "$mount" "$dmg" >/dev/null
+          app="$mount/vieww Studio.app"
+          fail() { hdiutil detach "$mount" >/dev/null 2>&1 || true; echo "FW-04: $1" >&2; exit 1; }
+          [[ -d "$app" ]] || fail "no vieww Studio.app inside $dmg"
+          # The two files a clean-machine launch cannot open the GPU without
+          # (ls assertions, per the FW-04 plan):
+          [[ -f "$app/Contents/Frameworks/libMoltenVK.dylib" ]] ||
+            fail "Contents/Frameworks/libMoltenVK.dylib is missing from the .app"
+          [[ -f "$app/Contents/Resources/vulkan/icd.d/MoltenVK_icd.json" ]] ||
+            fail "Contents/Resources/vulkan/icd.d/MoltenVK_icd.json is missing from the .app"
+          # plutil assertions: the plist this bundle will be launched through
+          # parses, and so does the ICD json the Vulkan loader reads.
+          plutil -lint "$app/Contents/Info.plist"
+          plutil -p "$app/Contents/Resources/vulkan/icd.d/MoltenVK_icd.json" | grep -q '../../Frameworks/libMoltenVK.dylib' ||
+            fail "MoltenVK_icd.json's library_path does not point at the bundle's own dylib"
+          echo "FW-04: $dmg carries MoltenVK (Frameworks dylib + icd.d json, library_path rewritten)"
+          hdiutil detach "$mount" >/dev/null
+          # Launch smoke: open the packaged executable for real, give it 20 s,
+          # and it must still be running (a crash inside the window is the
+          # failure this exists to catch). Kill it afterwards — the studio
+          # has no auto-quit, by design.
+          smoke="$RUNNER_TEMP/fw04-smoke"
+          rm -rf "$smoke"; mkdir -p "$smoke"
+          hdiutil attach -readonly -nobrowse -mountpoint "$mount" "$dmg" >/dev/null
+          cp -R "$app" "$smoke/vieww Studio.app"
+          hdiutil detach "$mount" >/dev/null
+          "$smoke/vieww Studio.app/Contents/MacOS/viewwstudio" >"$RUNNER_TEMP/fw04-smoke.log" 2>&1 &
+          pid=$!
+          sleep 20
+          if ! kill -0 "$pid" 2>/dev/null; then
+            wait "$pid" || true
+            echo "FW-04: the packaged studio exited within 20 s — log:" >&2
+            cat "$RUNNER_TEMP/fw04-smoke.log" >&2 || true
+            exit 1
+          fi
+          kill "$pid" 2>/dev/null || true
+          wait "$pid" 2>/dev/null || true
+          echo "FW-04: launch smoke passed (opened, 20 s, quit)"
+          rm -rf "$smoke"
+
       # The failures and the end of each one's log, on the run's summary page and
       # in the job log — readable without downloading anything.
       - name: Failures with logs

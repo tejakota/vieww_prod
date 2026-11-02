@@ -37,6 +37,12 @@ bash ci/check/release-clean-check.sh "$root"
 args=("$@")
 # --symbols: the release's symbol archive rides with its installers (FW-12).
 ((${#args[@]} > 0)) || args=(--installers --symbols)
+# FW-04: a macOS release bundle must carry MoltenVK, and the build fails
+# rather than ships a .app that cannot open the GPU on a clean machine (the
+# flag is macOS-only; on the other hosts it would be refused). The hosted
+# macOS runner installs it with brew earlier in the job; a local release
+# needs the Vulkan SDK or `brew install molten-vk`.
+[[ "$(uname -s)" == "Darwin" ]] && args+=(--bundle-moltenvk)
 # FW-23: one timestamp for everything that honours it (dpkg-deb, tar/zip
 # writers, the SBOM) — the commit's, so two builds of one commit agree.
 SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$(git -C "$root" log -1 --format=%ct 2>/dev/null || date +%s)}"
@@ -59,6 +65,20 @@ Darwin) os=macos ;;
 MINGW* | MSYS* | CYGWIN*) os=windows ;;
 *) os=linux ;;
 esac
+# FW-04, read back from the bundle rather than assumed from the flags: what
+# the .app carries is what a clean machine gets.
+moltenvk=""
+if [[ "$os" == macos ]]; then
+	app="$out/vieww Studio.app"
+	if [[ -f "$app/Contents/Frameworks/libMoltenVK.dylib" ]]; then
+		moltenvk="bundled (Contents/Frameworks/libMoltenVK.dylib"
+		[[ -f "$app/Contents/Resources/vulkan/icd.d/MoltenVK_icd.json" ]] &&
+			moltenvk="$moltenvk + Resources/vulkan/icd.d/MoltenVK_icd.json"
+		moltenvk="$moltenvk)"
+	else
+		moltenvk="ABSENT: a clean-machine launch cannot open the GPU (FW-04)"
+	fi
+fi
 # What packaging/sign.sh actually achieved, per artifact (FW-06) — read back
 # from the files, not assumed from which secrets were set.
 if [[ "$os" == linux ]]; then
@@ -82,6 +102,7 @@ fi
 	echo "source_date_epoch=$SOURCE_DATE_EPOCH"
 	echo "reproducible=partial (framework binaries: checked nightly by ci/release/repro-check.sh; installers: SOURCE_DATE_EPOCH honoured, bundled toolchain paths not normalised)"
 	echo "sbom=viewwstudio.cdx.json (CycloneDX 1.5)"
+	[[ -n "$moltenvk" ]] && echo "moltenvk=$moltenvk"
 	echo "# artifacts"
 	cat SHA256SUMS
 } >MANIFEST.txt

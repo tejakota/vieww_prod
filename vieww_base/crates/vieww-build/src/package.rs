@@ -395,18 +395,18 @@ fn info_plist(name: &str, background_audio: bool) -> String {
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleName</key>
-	<string>{name}</string>
-	<key>CFBundleIdentifier</key>
-	<string>dev.vieww.{name}</string>
-	<key>CFBundleExecutable</key>
-	<string>{name}</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>0.1.0</string>
-	<key>NSHighResolutionCapable</key>
-	<true/>
+        <key>CFBundleName</key>
+        <string>{name}</string>
+        <key>CFBundleIdentifier</key>
+        <string>dev.vieww.{name}</string>
+        <key>CFBundleExecutable</key>
+        <string>{name}</string>
+        <key>CFBundlePackageType</key>
+        <string>APPL</string>
+        <key>CFBundleShortVersionString</key>
+        <string>0.1.0</string>
+        <key>NSHighResolutionCapable</key>
+        <true/>
 {background}</dict>
 </plist>
 "#
@@ -443,8 +443,8 @@ fn package_macos(app_dir: &Path) -> Result<PackageReport, PackageError> {
     let plist_dest = app.join("Contents/Info.plist");
     std::fs::write(&plist_dest, info_plist(&name, false))?;
 
-    let artifacts = vec![bin_dest, plist_dest];
-    let notes = if tool_on_path("iconutil") {
+    let mut artifacts = vec![bin_dest, plist_dest];
+    let mut notes = if tool_on_path("iconutil") {
         vec![
             "iconutil is present but this generic packager ships no source icon to convert; \
              see packaging/package.sh's macOS branch for the real .iconset -> .icns pipeline"
@@ -454,12 +454,203 @@ fn package_macos(app_dir: &Path) -> Result<PackageReport, PackageError> {
         vec!["no iconutil on PATH — shipping without an .icns".to_owned()]
     };
 
+    // FW-04: MoltenVK into `Contents/Frameworks`, the first place
+    // `vieww_hal::vulkan::load_entry` looks after the system loader. A note
+    // rather than an error when no source exists, because this packager serves
+    // any vieww app and one that deliberately targets the Metal backend needs
+    // no Vulkan portability layer at all — the studio's own release pipeline
+    // (`packaging/package.sh --bundle-moltenvk`, made fatal there) is where a
+    // missing MoltenVK stops a release.
+    match bundle_moltenvk(&app, app_dir) {
+        MoltenVkOutcome::Bundled { files } => artifacts.extend(files),
+        MoltenVkOutcome::Absent { searched } => notes.push(format!(
+            "no MoltenVK found ({}), so the bundle cannot open the GPU on a machine \
+             without a Vulkan SDK or Homebrew — install the SDK, `brew install molten-vk`, \
+             or drop a copy in a `moltenvk/` directory beside Cargo.toml; \
+             vieww_hal::vulkan::load_entry searches Contents/Frameworks first",
+            searched.join(", ")
+        )),
+    }
+
     Ok(PackageReport {
         target: PackageTarget::MacOs,
         output_dir: app,
         artifacts,
         notes,
     })
+}
+
+// ── MoltenVK (FW-04) ────────────────────────────────────────────────────────
+
+/// A found MoltenVK: the dylib itself and, when the source shipped one, the
+/// ICD json that tells a Vulkan loader where the dylib is.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct MoltenVk {
+    dylib: PathBuf,
+    icd: Option<PathBuf>,
+}
+
+/// What attempting to bundle MoltenVK into an `.app` came to.
+#[derive(Debug)]
+enum MoltenVkOutcome {
+    /// The files now inside the bundle (dylib, and the ICD json when written).
+    Bundled { files: Vec<PathBuf> },
+    /// Nothing was bundled; `searched` names every location that was tried,
+    /// because "not found" with no list is a riddle, not an error.
+    Absent { searched: Vec<String> },
+}
+
+/// MoltenVK under an SDK- or Homebrew-shaped root: `lib/libMoltenVK.dylib`
+/// with the ICD json under `share/vulkan/icd.d` (newer layouts) or
+/// `etc/vulkan/icd.d` (older ones). Pure over its input, so the recognition
+/// itself is testable on any host — the macOS-only part is only the *call*.
+fn moltenvk_under(root: &Path) -> Option<MoltenVk> {
+    let dylib = root.join("lib/libMoltenVK.dylib");
+    if !dylib.is_file() {
+        return None;
+    }
+    let icd = ["share/vulkan/icd.d", "etc/vulkan/icd.d"]
+        .iter()
+        .map(|sub| root.join(sub).join("MoltenVK_icd.json"))
+        .find(|path| path.is_file());
+    Some(MoltenVk { dylib, icd })
+}
+
+/// Where a MoltenVK can come from, in the order `vieww_hal::vulkan::load_entry`
+/// prefers the sources themselves: `$VULKAN_SDK` (a deliberate install), then
+/// Homebrew (Apple silicon prefix, then Intel), then a copy vendored beside
+/// the project's own manifest — `moltenvk/libMoltenVK.dylib` + optionally
+/// `moltenvk/MoltenVK_icd.json`, a flat pair rather than an SDK tree, because
+/// a hand-dropped pair is two files and a fake SDK root is a directory tree.
+///
+/// Pure over its inputs for the same reason every other gate here is: the
+/// order is the behaviour, and the order is testable on any machine.
+fn find_moltenvk(
+    sdk: Option<&str>,
+    homebrew_prefixes: &[&str],
+    vendored: &Path,
+) -> Result<MoltenVk, Vec<String>> {
+    let mut searched = Vec::new();
+    if let Some(sdk) = sdk.map(str::trim).filter(|s| !s.is_empty()) {
+        let root = Path::new(sdk);
+        searched.push(root.join("lib").display().to_string());
+        if let Some(found) = moltenvk_under(root) {
+            return Ok(found);
+        }
+    } else {
+        searched.push("$VULKAN_SDK (unset)".to_owned());
+    }
+    for prefix in homebrew_prefixes {
+        let root = Path::new(prefix);
+        searched.push(root.join("lib").display().to_string());
+        if let Some(found) = moltenvk_under(root) {
+            return Ok(found);
+        }
+    }
+    searched.push(vendored.display().to_string());
+    let dylib = vendored.join("libMoltenVK.dylib");
+    if dylib.is_file() {
+        let icd = vendored.join("MoltenVK_icd.json");
+        return Ok(MoltenVk {
+            dylib,
+            icd: icd.is_file().then_some(icd),
+        });
+    }
+    Err(searched)
+}
+
+/// Rewrite an ICD json's `library_path` to the dylib's place inside the
+/// bundle: the json lands in `Contents/Resources/vulkan/icd.d/`, so
+/// `../../Frameworks/libMoltenVK.dylib` is the copy two directories up and
+/// over. A json that still pointed at `/opt/homebrew/lib/...` would describe
+/// a library the bundle does not contain — the exact silent gap a bundled
+/// ICD exists to close.
+///
+/// Hand-rolled, no regex and no JSON parser, for the same reason the manifest
+/// reader in `vieww-update` is: the value is one quoted string after one
+/// known key, and a parser that can read more is a parser that can misread
+/// this. The key is matched *with* both its quotes, so `"library_path_extra"`
+/// is not a hit, and a value that is not a string (or a string that never
+/// closes) leaves the text untouched rather than mangled. Unchanged text
+/// passes through byte-for-byte. (A path containing an escaped `\"` is not a
+/// path; the scan does not try to honour escapes.)
+fn rewrite_icd_library_path(source: &str) -> String {
+    const KEY: &str = "\"library_path\"";
+    const REPLACE: &str = "\"library_path\" : \"../../Frameworks/libMoltenVK.dylib\"";
+    let mut out = String::with_capacity(source.len());
+    let bytes = source.as_bytes();
+    let mut at = 0;
+    while let Some(found) = source[at..].find(KEY) {
+        let start = at + found;
+        out.push_str(&source[at..start]);
+        // The value: from the byte after the key, skip the separator
+        // (spaces and the colon), then replace one *closed* quoted string.
+        let mut end = start + KEY.len();
+        while matches!(bytes.get(end), Some(b' ' | b'\t' | b':')) {
+            end += 1;
+        }
+        let replaced = if bytes.get(end) == Some(&b'"') {
+            // `to_close` is the offset of the value's closing quote; a value
+            // that never closes is not this rewriter's to touch.
+            match source[end + 1..].find('"') {
+                Some(to_close) => {
+                    out.push_str(REPLACE);
+                    at = end + 1 + to_close + 1;
+                    true
+                }
+                None => false,
+            }
+        } else {
+            false
+        };
+        if !replaced {
+            // Not the shape this rewrites: keep the key and continue after it.
+            out.push_str(KEY);
+            at = start + KEY.len();
+        }
+    }
+    out.push_str(&source[at..]);
+    out
+}
+
+/// Put MoltenVK into `app/Contents/Frameworks` (and the ICD json into
+/// `Contents/Resources/vulkan/icd.d`), from wherever it can be found — the
+/// FW-04 stage of [`package_macos`].
+fn bundle_moltenvk(app: &Path, app_dir: &Path) -> MoltenVkOutcome {
+    let sdk = std::env::var("VULKAN_SDK").ok();
+    let vendored = app_dir.join("moltenvk");
+    let found = match find_moltenvk(sdk.as_deref(), &["/opt/homebrew", "/usr/local"], &vendored) {
+        Ok(found) => found,
+        Err(searched) => return MoltenVkOutcome::Absent { searched },
+    };
+
+    let mut files = Vec::with_capacity(2);
+    let frameworks = app.join("Contents/Frameworks");
+    let dylib_dest = frameworks.join("libMoltenVK.dylib");
+    if std::fs::create_dir_all(&frameworks).is_err()
+        || std::fs::copy(&found.dylib, &dylib_dest).is_err()
+    {
+        return MoltenVkOutcome::Absent {
+            searched: vec![format!(
+                "{} (found, but could not be copied into the bundle)",
+                found.dylib.display()
+            )],
+        };
+    }
+    files.push(dylib_dest);
+
+    if let Some(icd) = found.icd {
+        let icd_dir = app.join("Contents/Resources/vulkan/icd.d");
+        let icd_dest = icd_dir.join("MoltenVK_icd.json");
+        if let Ok(text) = std::fs::read_to_string(&icd) {
+            if std::fs::create_dir_all(&icd_dir).is_ok()
+                && std::fs::write(&icd_dest, rewrite_icd_library_path(&text)).is_ok()
+            {
+                files.push(icd_dest);
+            }
+        }
+    }
+    MoltenVkOutcome::Bundled { files }
 }
 
 /// The WiX 4 authoring this writes and builds — a generic, single-executable
@@ -470,21 +661,21 @@ fn wxs_source(name: &str) -> String {
     format!(
         r#"<?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-	<Package
-		Name="{name}"
-		Manufacturer="vieww"
-		Version="$(Version)"
-		UpgradeCode="8f2a6d31-4a1e-4f6b-9c2b-1d0c7b5a9e45"
-		Scope="perMachine"
-		Compressed="yes">
-		<MajorUpgrade AllowSameVersionUpgrades="yes" />
-		<MediaTemplate EmbedCab="yes" />
-		<StandardDirectory Id="ProgramFiles64Folder">
-			<Directory Id="INSTALLFOLDER" Name="{name}">
-				<Files Include="$(Payload)\**" />
-			</Directory>
-		</StandardDirectory>
-	</Package>
+        <Package
+                Name="{name}"
+                Manufacturer="vieww"
+                Version="$(Version)"
+                UpgradeCode="8f2a6d31-4a1e-4f6b-9c2b-1d0c7b5a9e45"
+                Scope="perMachine"
+                Compressed="yes">
+                <MajorUpgrade AllowSameVersionUpgrades="yes" />
+                <MediaTemplate EmbedCab="yes" />
+                <StandardDirectory Id="ProgramFiles64Folder">
+                        <Directory Id="INSTALLFOLDER" Name="{name}">
+                                <Files Include="$(Payload)\**" />
+                        </Directory>
+                </StandardDirectory>
+        </Package>
 </Wix>
 "#
     )
@@ -1059,6 +1250,175 @@ mod tests {
             "only under [package.metadata.vieww]"
         );
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    // ----- MoltenVK bundling (FW-04) -----------------------------------------
+    //
+    // All pure-shape tests: the recognition, the search order and the ICD
+    // rewrite are functions of paths and strings, so they are proven here on
+    // any host. Only the *call* from `package_macos` is macOS-only, and that
+    // is exactly the split the module doc promises.
+
+    /// A fake MoltenVK source root in a temp dir: the dylib under `lib/`, the
+    /// ICD json under whichever sub-layout `icd_sub` names.
+    fn fake_moltenvk_root(tag: &str, icd_sub: &str) -> std::path::PathBuf {
+        let root = std::env::temp_dir().join(format!("vieww-build-moltenvk-{tag}"));
+        std::fs::remove_dir_all(&root).ok();
+        std::fs::create_dir_all(root.join("lib")).unwrap();
+        std::fs::create_dir_all(root.join(icd_sub)).unwrap();
+        std::fs::write(root.join("lib/libMoltenVK.dylib"), b"fake dylib").unwrap();
+        std::fs::write(
+            root.join(icd_sub).join("MoltenVK_icd.json"),
+            "{\n  \"file_format_version\" : \"1.0.0\",\n  \"ICD\": {\n    \
+             \"library_path\" : \"/opt/homebrew/lib/libMoltenVK.dylib\",\n    \
+             \"api_version\" : \"1.2.0\"\n  }\n}\n",
+        )
+        .unwrap();
+        root
+    }
+
+    #[test]
+    fn a_moltenvk_root_is_recognized_under_either_icd_layout() {
+        for icd_sub in ["share/vulkan/icd.d", "etc/vulkan/icd.d"] {
+            let root = fake_moltenvk_root(&icd_sub.replace('/', "-"), icd_sub);
+            let found = moltenvk_under(&root).expect("the dylib is there");
+            assert_eq!(found.dylib, root.join("lib/libMoltenVK.dylib"));
+            assert_eq!(
+                found.icd.as_deref(),
+                Some(root.join(icd_sub).join("MoltenVK_icd.json").as_path()),
+                "the ICD json is picked up from {icd_sub}"
+            );
+            std::fs::remove_dir_all(&root).ok();
+        }
+    }
+
+    #[test]
+    fn a_root_without_the_dylib_is_not_a_moltenvk() {
+        let root = fake_moltenvk_root("no-dylib", "share/vulkan/icd.d");
+        std::fs::remove_file(root.join("lib/libMoltenVK.dylib")).unwrap();
+        // Only the json (the half a loader cannot use alone): not a source.
+        assert!(moltenvk_under(&root).is_none());
+        std::fs::remove_dir_all(&root).ok();
+    }
+
+    #[test]
+    fn the_sdk_is_searched_before_homebrew_before_a_vendored_copy() {
+        let sdk = fake_moltenvk_root("sdk", "share/vulkan/icd.d");
+        let brew = fake_moltenvk_root("brew", "share/vulkan/icd.d");
+        let vendored_dir = std::env::temp_dir().join("vieww-build-moltenvk-vendored");
+        std::fs::remove_dir_all(&vendored_dir).ok();
+        std::fs::create_dir_all(&vendored_dir).unwrap();
+        std::fs::write(vendored_dir.join("libMoltenVK.dylib"), b"vendored").unwrap();
+        std::fs::write(
+            vendored_dir.join("MoltenVK_icd.json"),
+            "{\"ICD\": {\"library_path\" : \"vendored\"}}",
+        )
+        .unwrap();
+
+        // All three populated: the SDK — the deliberate install — wins.
+        let found = find_moltenvk(
+            Some(sdk.to_str().unwrap()),
+            &[brew.to_str().unwrap()],
+            &vendored_dir,
+        )
+        .expect("a source exists");
+        assert_eq!(found.dylib, sdk.join("lib/libMoltenVK.dylib"));
+
+        // No SDK: Homebrew wins over the vendored pair.
+        let found =
+            find_moltenvk(None, &[brew.to_str().unwrap()], &vendored_dir).expect("a source");
+        assert_eq!(found.dylib, brew.join("lib/libMoltenVK.dylib"));
+
+        // Neither: the vendored pair is a flat `moltenvk/` beside the app.
+        let found = find_moltenvk(None, &[], &vendored_dir).expect("the vendored pair");
+        assert_eq!(found.dylib, vendored_dir.join("libMoltenVK.dylib"));
+        assert_eq!(
+            found.icd.as_deref(),
+            Some(vendored_dir.join("MoltenVK_icd.json").as_path())
+        );
+
+        for dir in [sdk, brew, vendored_dir] {
+            std::fs::remove_dir_all(&dir).ok();
+        }
+    }
+
+    #[test]
+    fn a_blank_sdk_falls_through_to_homebrew_and_says_so() {
+        let brew = fake_moltenvk_root("brew-blank-sdk", "share/vulkan/icd.d");
+        for blank in ["", "   "] {
+            let found = find_moltenvk(
+                Some(blank),
+                &[brew.to_str().unwrap()],
+                Path::new("/nowhere"),
+            )
+            .expect("homebrew is populated");
+            assert_eq!(found.dylib, brew.join("lib/libMoltenVK.dylib"));
+        }
+        std::fs::remove_dir_all(&brew).ok();
+    }
+
+    #[test]
+    fn no_moltenvk_anywhere_names_every_place_that_was_looked() {
+        let searched = find_moltenvk(
+            Some("/definitely/not/an/sdk"),
+            &["/brew-a", "/brew-b"],
+            Path::new("/nowhere/app"),
+        )
+        .unwrap_err();
+        let joined = searched.join(" ; ");
+        for needle in [
+            "/definitely/not/an/sdk/lib",
+            "/brew-a/lib",
+            "/brew-b/lib",
+            "/nowhere/app",
+        ] {
+            assert!(joined.contains(needle), "missing {needle} in {joined:?}");
+        }
+        // And the unset case names the variable, not a bare path.
+        let searched = find_moltenvk(None, &[], Path::new("/nowhere/app")).unwrap_err();
+        assert!(
+            searched.iter().any(|s| s.contains("VULKAN_SDK")),
+            "{searched:?}"
+        );
+    }
+
+    #[test]
+    fn an_icd_library_path_is_rewritten_to_the_bundles_own_dylib() {
+        let rewritten = rewrite_icd_library_path(
+            "{\n  \"ICD\": {\n    \"library_path\" : \
+             \"/opt/homebrew/lib/libMoltenVK.dylib\",\n    \"api_version\" : \"1.2.0\"\n  }\n}\n",
+        );
+        assert!(
+            rewritten.contains("\"library_path\" : \"../../Frameworks/libMoltenVK.dylib\""),
+            "{rewritten}"
+        );
+        assert!(
+            !rewritten.contains("/opt/homebrew"),
+            "the absolute path to a library the bundle does not carry is gone: {rewritten}"
+        );
+        assert!(
+            rewritten.contains("\"api_version\" : \"1.2.0\""),
+            "unrelated keys survive untouched: {rewritten}"
+        );
+
+        // Spacing is not the contract — the key/value pair is.
+        let loose = rewrite_icd_library_path(
+            "{\"ICD\":{\"library_path\":\"/usr/local/lib/libMoltenVK.dylib\"}}",
+        );
+        assert!(
+            loose.contains("\"library_path\" : \"../../Frameworks/libMoltenVK.dylib\""),
+            "{loose}"
+        );
+
+        // A json with no `library_path` (or a value that is not a string)
+        // passes through byte-for-byte rather than being mangled.
+        let untouched = "{\"file_format_version\" : \"1.0.0\"}\n";
+        assert_eq!(rewrite_icd_library_path(untouched), untouched);
+        let not_a_string = "{\"ICD\": {\"library_path\" : 3}}";
+        assert_eq!(rewrite_icd_library_path(not_a_string), not_a_string);
+        // And a *longer* key that merely starts the same is not the key.
+        let other_key = "{\"ICD\": {\"library_path_extra\" : \"/x/libMoltenVK.dylib\"}}";
+        assert_eq!(rewrite_icd_library_path(other_key), other_key);
     }
 
     // ----- the host gate, testable without being any particular host -------
