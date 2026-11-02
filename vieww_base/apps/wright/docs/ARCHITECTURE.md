@@ -361,7 +361,10 @@ Then the UI (W-1 unlocks the shell), then the gallery, then the world.
 
 ## 11. Open questions
 
-Honest ledger, mirrored in `DECISIONS.md`: multi-user tenancy (hold),
-recipe curation bar (open), recursive sub-agents (v1: no), the UI for
+Honest ledger, mirrored in `DECISIONS.md`: multi-user tenancy — the
+server kind stays on hold; the no-server kind landed (ADR-045: a
+shared store directory as the team's spine, receipts verifying across
+member keys, `wright team join/status/pull/replay/leave`) — recipe
+curation bar (open), recursive sub-agents (v1: no), the UI for
 multiple deliverables (undesigned), agent-authored tool-packs (v2,
 signed artifacts referenced by hash).

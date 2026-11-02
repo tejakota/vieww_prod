@@ -900,3 +900,42 @@ is not an answer to it. No shell syntax is guessed at in degraded mode
 (operators are refused, not half-run). Doctor's matrix (WR-14c) says
 where every class of command runs on THIS machine — kernel sandbox,
 degraded tier, or REFUSED — never a silent surprise.
+
+## ADR-045 — A team is a shared store, not a server · Accepted
+
+Date: 2026-11-03 · Status: Accepted
+
+Every rival's team story is a server: accounts, tenancy, a protocol
+with a surface to attack (WR-18). Wright already owns what teams
+actually need — verifiable receipts, per-task identities delegated by
+a machine key, content-addressed artifacts — so the decision is to
+build the team ON that, not beside it: ONE store directory, on a
+network mount or a synced folder, is the project's store on every
+member machine. No server process, no account, no new outbound
+protocol; if the folder is reachable, the team is working.
+
+Mechanics: `wright team join <dir>` probes the directory (outside
+every checkout — a store an agent could write is a store an agent
+could forge; writable; fsync-durable, because the event spine is
+fsynced before it counts), appends this machine's `did:key` to the
+shared roster (trust on first use, honestly weaker than checking keys
+in person — `wright trust` stays the stronger path), and writes a
+pointer next to this machine's default store — in Wright's home,
+OUTSIDE the project, where a sandboxed agent cannot reach.
+`WRIGHT_STORE` overrides the pointer for one shell; `Store::open`
+honors the redirect once, so every command follows it. Runs interleave
+on the append-only spine, serialized by the store's firing lock (which
+also makes run-id allocation safe); objects dedup by content; the task
+cache is shared and safe because keys are pure functions of
+task+model+inputs+tool versions+permissions — machine-independent by
+construction, permission-sensitive by design. `wright team pull`
+verifies every receipt against the roster's pins; the identity check
+is signer-relative, so machine A's receipt checks on machine B
+unchanged, and the store's object copy is the durable witness — B
+verifies A's work with B's tree still empty. The working trees still
+sync through the VCS: the STORE converges, the checkouts do not, and
+that line is documented rather than blurred. Honest limits: no
+conflict resolution exists because nothing is edited in place; a
+lagging synced folder means pull sees what has arrived; a mount that
+silently drops fsync or locks is caught by the join probe and by
+verify, not prevented.

@@ -27,6 +27,13 @@
 //!
 //! The runtime never talks to the UI. It writes events; the UI reads them.
 
+/// Env vars are process-wide and tests run in parallel: every test
+/// that flips one (`signing`, `team`) takes this lock, so the settings
+/// they see are the settings they set — and each other's, which is
+/// the point of sharing it.
+#[cfg(test)]
+pub(crate) static TEST_ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 pub mod cache;
 pub mod config;
 pub mod curl;
@@ -41,6 +48,7 @@ pub mod policy;
 pub mod secrets;
 pub mod signing;
 pub mod store;
+pub mod team;
 pub mod tls;
 pub mod tz;
 pub mod update;

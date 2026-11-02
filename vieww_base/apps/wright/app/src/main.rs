@@ -53,6 +53,9 @@
 //!                               publisher's side (the release workflow)
 //!   wright mock-provider        an offline model, for demos and CI
 //!   wright where [dir]          where the project's history lives
+//!   wright team ...              a team without a server (WR-18): join |
+//!                               status | pull | replay | leave — one
+//!                               shared store directory, verifiable receipts
 //!   wright admin ...            the administrator's console: keygen | policy
 //!                               init/sign/show/check | approve [dir] |
 //!                               fleet-verify [folders] [--json]
@@ -107,6 +110,7 @@ fn main() {
         Some("update") => cmd::update(rest),
         Some("mock-provider") => cmd::mock_provider(rest),
         Some("where") => cmd::where_(rest),
+        Some("team") => cmd::team(rest),
         Some("doctor") => cmd::doctor(rest),
         Some("ui") => open_ui(rest),
         Some("--version") | Some("-V") => {

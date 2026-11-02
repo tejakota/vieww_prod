@@ -39,7 +39,8 @@ affected work runs again.
 | Typed edges: out=/in=/schema= over five readable shapes | ✅ | ADR-027; checked at plan and fire time |
 | Recipes gallery + signing, `wright recipe list/sign/verify/install` | ✅ | ADR-028; unsigned installs are refused |
 | `wright explain`, `wright handoff`, `wright bench`, cost choice in `wright run` | ✅ | one-screen run story; PR folder; public benchmark |
-| Server mode, teams | ❌ | not in the memo's scope for this release |
+| Teams without a server: one shared store, receipts that verify across member keys | ✅ | ADR-045; `wright team join/status/pull/replay/leave` |
+| Server mode, tenanted accounts | ❌ | by choice — the shared-store team mode is the audit story without the attack surface (ADR-045) |
 
 **380+ tests passing (plus the live-network opt-in set), clippy clean. Twelve failures on kernels before 5.13 are the sandbox failing closed (Landlock needs 5.13+) — the same tests pass on 5.13+; the new trust suite (`engine/tests/trust.rs`) runs everywhere.** Eight of them compare the built-in engine with llama.cpp and whisper.cpp, or run the real models; they need fixtures (`scripts/models/`) and skip without them — CI provides them (`docs/MODELS.md`). The headless binary has **zero**
 external crates; the `ui` feature adds exactly one dependency — vieww, from
@@ -146,6 +147,33 @@ With cloud models: `wright secret set keychain:wright/anthropic` (or
 from the config. On CI and servers, set `WRIGHT_SECRET_WRIGHT_ANTHROPIC`
 instead (`wright secret env <ref>` prints the variable name).
 
+### A team, with no server (ADR-045)
+
+The team's shared state is one directory — a network mount or a synced
+folder — used as the project's store by every member machine. The
+append-only event spine is the sync medium; nothing is edited in place,
+so there is nothing to conflict.
+
+```bash
+wright team join /mnt/team/project-store --name alice   # probe + roster + pointer
+wright team status                                      # who joined, who fired what
+wright team pull                                         # verify every receipt against the roster
+wright team replay 3                                     # step through a peer's run
+wright team leave                                        # back to this machine's own store
+```
+
+Each machine's receipts are signed by its own key and pinned in the
+shared roster at join time (trust on first use; `wright trust` remains
+the stronger, in-person path). `wright team pull` runs the same seven
+checks on every receipt — a run Alice fired on her machine verifies on
+yours, because the shared store holds the durable copies of the event
+log, the artifacts and the blueprint. The task cache is shared too:
+cache keys are pure functions of task + model + inputs + tool versions
++ permissions, so a peer's entry is usable exactly when a local one
+would be. The STORE converges through the shared spine; the WORKING
+TREES still sync through your version control, as always. No server
+process, no accounts, no new network protocol.
+
 ## The window
 
 ```
@@ -193,6 +221,8 @@ wright daemon               fire schedules in the background
 wright secret set <ref>     put a key in the OS keychain
 wright model ...            the built-in models: list | pull [id] | rm <id> | ask | listen
 wright where [dir]          where the project's history lives
+wright team ...              join | status | pull | replay | leave — a team with no
+                            server: one shared store directory (ADR-045)
 wright doctor [--fix]      what works on this machine; --fix installs the Windows
                             WSL 2 + Bubblewrap sandbox stack (ADR-044)
 wright ui [dir]             the window (--snapshot <dir>: all 18 screens as PNG, receipt and light mode included;
