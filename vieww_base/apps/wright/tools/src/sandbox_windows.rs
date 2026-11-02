@@ -131,7 +131,7 @@ fn probe_runtime_uncached() -> Result<String, String> {
             )
         });
     }
-    Ok("WSL 2 + Bubblewrap (isolates Linux shell/git/test commands; native Windows worker CLIs remain a separate, explicitly reported fallback)".into())
+    Ok("WSL 2 + Bubblewrap (isolates Linux shell/git/test commands; native Windows worker CLIs stay on WR-05's own tier ladder — .exe in an AppContainer (tier 2), .cmd shims in a Job object (tier 1) — reported per worker in its run report)".into())
 }
 
 /// Validate the Windows path in the host, then translate it with WSL's own

@@ -97,3 +97,11 @@ jobs:
       - name: Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout
         working-directory: vieww_base/apps/wright
         run: cargo test -p wright-tools appcontainer -- --test-threads=1
+      # WR-05's leftover: npm .cmd shims stay tier 1 (Job object, no
+      # filesystem sandbox). This leg is the promise made real: the shim
+      # runs, and its report SAYS tier 1 — never silently unsandboxed.
+      # The whole worker suite runs (the tier-vocabulary test is in it);
+      # --test-threads=1 because the Job-object tests adopt processes.
+      - name: Worker tier report (WR-05) — .cmd shims say tier 1, never silently unsandboxed
+        working-directory: vieww_base/apps/wright
+        run: cargo test -p wright-tools worker -- --test-threads=1
