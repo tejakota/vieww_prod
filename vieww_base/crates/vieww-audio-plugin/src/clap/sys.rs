@@ -521,6 +521,179 @@ pub struct clap_plugin_tail {
     pub get: Option<unsafe extern "C" fn(plugin: *const clap_plugin) -> u32>,
 }
 
+// ── clap/ext/gui.h ─────────────────────────────────────────────────────────
+//
+// Transcribed from the same pinned revision as the rest (CLAP 1.2.2). The
+// windowing apis are named strings, not enums; the window's handle is a
+// union with a `ptr` member "for anything defined outside of clap".
+
+pub const CLAP_EXT_GUI: &[u8] = b"clap.gui\0";
+
+pub const CLAP_WINDOW_API_WIN32: &[u8] = b"win32\0";
+pub const CLAP_WINDOW_API_COCOA: &[u8] = b"cocoa\0";
+pub const CLAP_WINDOW_API_UIKIT: &[u8] = b"uikit\0";
+pub const CLAP_WINDOW_API_X11: &[u8] = b"x11\0";
+pub const CLAP_WINDOW_API_WAYLAND: &[u8] = b"wayland\0";
+
+/// The handle half of a [`clap_window`]: the headers' union of the four
+/// listed apis' handle types plus `ptr` for apis defined outside of CLAP.
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub union clap_window_handle {
+    /// `clap_nsview` (cocoa): an `NSView *`.
+    pub cocoa: *mut c_void,
+    /// `clap_uiview` (uikit): a `UIView *`.
+    pub uikit: *mut c_void,
+    /// `clap_xwnd` (x11): an `unsigned long` to cast into a `Window`.
+    pub x11: std::ffi::c_ulong,
+    /// `clap_hwnd` (win32): an `HWND`.
+    pub win32: *mut c_void,
+    /// Any other api's raw handle.
+    pub ptr: *mut c_void,
+}
+
+impl std::fmt::Debug for clap_window_handle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // Which member is live depends on the api string beside it; the
+        // number is the only thing printable for all of them.
+        // SAFETY: reading the union's raw bytes as a number (it is
+        // pointer-wide) is valid however it was written.
+        let raw = unsafe { std::ptr::addr_of!(self.x11).read() };
+        write!(f, "clap_window_handle({raw:#x})")
+    }
+}
+
+/// A window reference: an api name and the handle that api means.
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct clap_window {
+    /// One of the `CLAP_WINDOW_API_*` strings (or a private one both
+    /// sides agreed on).
+    pub api: *const c_char,
+    /// The handle; which member is meaningful depends on `api`.
+    pub handle: clap_window_handle,
+}
+
+impl std::fmt::Debug for clap_window {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // SAFETY: `api` is a valid C string or null (the host's contract).
+        let api = if self.api.is_null() {
+            "(null)".to_owned()
+        } else {
+            unsafe { std::ffi::CStr::from_ptr(self.api) }
+                .to_string_lossy()
+                .into_owned()
+        };
+        f.debug_struct("clap_window")
+            .field("api", &api)
+            .finish_non_exhaustive()
+    }
+}
+
+/// Hints for host-driven resizes: which axes the plugin can follow, and
+/// whether an aspect ratio should be preserved when both can move.
+#[repr(C)]
+#[derive(Debug, Clone, Copy, Default)]
+pub struct clap_gui_resize_hints {
+    /// Horizontal dragging is meaningful.
+    pub can_resize_horizontally: bool,
+    /// Vertical dragging is meaningful.
+    pub can_resize_vertically: bool,
+    /// Keep the width/height ratio (the fields below are then its
+    /// reduced form; unused otherwise).
+    pub preserve_aspect_ratio: bool,
+    /// Ratio width.
+    pub aspect_ratio_width: u32,
+    /// Ratio height.
+    pub aspect_ratio_height: u32,
+}
+
+/// The plugin-side GUI: create → (scale/size/parent) → show/hide →
+/// destroy, all main-thread.
+#[repr(C)]
+#[derive(Debug)]
+pub struct clap_plugin_gui {
+    /// Is this api supported, floating or embedded?
+    pub is_api_supported: Option<
+        unsafe extern "C" fn(
+            plugin: *const clap_plugin,
+            api: *const c_char,
+            is_floating: bool,
+        ) -> bool,
+    >,
+    /// The plugin's preferred api (a hint; the host may ignore it).
+    pub get_preferred_api: Option<
+        unsafe extern "C" fn(
+            plugin: *const clap_plugin,
+            api: *mut *const c_char,
+            is_floating: *mut bool,
+        ) -> bool,
+    >,
+    /// Allocate the GUI's resources.
+    pub create: Option<
+        unsafe extern "C" fn(
+            plugin: *const clap_plugin,
+            api: *const c_char,
+            is_floating: bool,
+        ) -> bool,
+    >,
+    /// Free them.
+    pub destroy: Option<unsafe extern "C" fn(plugin: *const clap_plugin)>,
+    /// An absolute DPI scale (physical-pixel apis only).
+    pub set_scale: Option<unsafe extern "C" fn(plugin: *const clap_plugin, scale: f64) -> bool>,
+    /// The current size; valid after `create`.
+    pub get_size: Option<
+        unsafe extern "C" fn(plugin: *const clap_plugin, width: *mut u32, height: *mut u32) -> bool,
+    >,
+    /// Can the window be dragged?
+    pub can_resize: Option<unsafe extern "C" fn(plugin: *const clap_plugin) -> bool>,
+    /// How the host should drag.
+    pub get_resize_hints: Option<
+        unsafe extern "C" fn(plugin: *const clap_plugin, hints: *mut clap_gui_resize_hints) -> bool,
+    >,
+    /// The closest usable size ≤ the given one; does not resize.
+    pub adjust_size: Option<
+        unsafe extern "C" fn(plugin: *const clap_plugin, width: *mut u32, height: *mut u32) -> bool,
+    >,
+    /// Resize.
+    pub set_size:
+        Option<unsafe extern "C" fn(plugin: *const clap_plugin, width: u32, height: u32) -> bool>,
+    /// Embed into `window` (embedded mode).
+    pub set_parent: Option<
+        unsafe extern "C" fn(plugin: *const clap_plugin, window: *const clap_window) -> bool,
+    >,
+    /// Float above `window` (floating mode).
+    pub set_transient: Option<
+        unsafe extern "C" fn(plugin: *const clap_plugin, window: *const clap_window) -> bool,
+    >,
+    /// A title suggestion (floating mode).
+    pub suggest_title:
+        Option<unsafe extern "C" fn(plugin: *const clap_plugin, title: *const c_char)>,
+    /// Map the window on screen.
+    pub show: Option<unsafe extern "C" fn(plugin: *const clap_plugin) -> bool>,
+    /// Unmap it, keeping the resources.
+    pub hide: Option<unsafe extern "C" fn(plugin: *const clap_plugin) -> bool>,
+}
+
+/// The host-side GUI: what a plugin GUI may ask its host.
+#[repr(C)]
+#[derive(Debug)]
+pub struct clap_host_gui {
+    /// Re-read the plugin's resize hints.
+    pub resize_hints_changed: Option<unsafe extern "C" fn(host: *const clap_host)>,
+    /// Ask for a client-area resize; `true` if accepted.
+    pub request_resize:
+        Option<unsafe extern "C" fn(host: *const clap_host, width: u32, height: u32) -> bool>,
+    /// Ask to be shown.
+    pub request_show: Option<unsafe extern "C" fn(host: *const clap_host) -> bool>,
+    /// Ask to be hidden.
+    pub request_hide: Option<unsafe extern "C" fn(host: *const clap_host) -> bool>,
+    /// The GUI closed itself, or the connection was lost. If
+    /// `was_destroyed` the host must answer with
+    /// [`clap_plugin_gui::destroy`].
+    pub closed: Option<unsafe extern "C" fn(host: *const clap_host, was_destroyed: bool)>,
+}
+
 /// Layout checks: every number here was printed by a C program compiled
 /// against the CLAP headers (x86-64 Linux); `tools/check-plugins.sh`
 /// recompiles that program so CI re-derives them on each platform.
@@ -551,5 +724,10 @@ mod layout {
             size_of::<clap_audio_port_info>(),
             4 + 256 + 4 + 4 + 4 + 8 + 4 + 4
         );
+        // ext/gui.h
+        assert_eq!(size_of::<clap_window>(), 16);
+        assert_eq!(size_of::<clap_gui_resize_hints>(), 12);
+        assert_eq!(size_of::<clap_plugin_gui>(), 15 * 8);
+        assert_eq!(size_of::<clap_host_gui>(), 5 * 8);
     }
 }

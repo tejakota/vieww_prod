@@ -15,6 +15,19 @@ categories.workspace = true
 # The plugin model (parameters, state) is vieww-audio's; the formats are
 # their C ABIs, transcribed here — no CLAP or VST3 SDK, no bindings crate.
 vieww-audio.workspace = true
+# AU-13's GUI story renders through vieww's own rasterizer (`vieww-paint`
+# with its `native` feature — this workspace's one CPU renderer, the same
+# `Scene` every vieww widget draws), offscreen. Optional behind `gui`
+# (default on) because it is the one thing that pulls the rasterizer into
+# a plugin binary; `default-features = false` builds the format wrappers
+# alone, for the targets that want exactly that.
+vieww-paint = { workspace = true, features = ["native"], optional = true }
+
+[features]
+default = ["gui"]
+# The host-neutral plugin GUI abstraction and its first implementation
+# (`src/gui/`), plus the `clap.gui` extension wiring that drives it.
+gui = ["dep:vieww-paint"]
 
 [[example]]
 name = "vieww_gain"

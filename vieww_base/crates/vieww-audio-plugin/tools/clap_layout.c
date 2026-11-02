@@ -8,4 +8,5 @@ int main(void){
  P(clap_event_transport_t); P(clap_event_midi_t); P(clap_param_info_t); P(clap_audio_buffer_t); P(clap_process_t);
  P(clap_plugin_t); P(clap_plugin_descriptor_t); P(clap_audio_port_info_t); P(clap_note_port_info_t); P(clap_host_t);
  P(clap_event_note_expression_t); P(clap_plugin_entry_t);
+ P(clap_window_t); P(clap_gui_resize_hints_t); P(clap_plugin_gui_t); P(clap_host_gui_t);
 }

@@ -33,6 +33,8 @@
 //! slice it is rendering.
 
 pub mod clap;
+#[cfg(feature = "gui")]
+pub mod gui;
 pub mod lv2;
 pub mod vst3;
 

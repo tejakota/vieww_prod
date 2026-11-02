@@ -186,6 +186,54 @@ static void test_plugin(const clap_plugin_factory_t *f, const clap_plugin_descri
    params->get_value(p, first, &now);
    CHECK(fabs(now - target) < 1e-9, "flush applied: %g vs %g", now, target);
 
+   /* GUI: the offscreen api, negotiated and driven per gui.h's flow. */
+   const clap_plugin_gui_t *gui = p->get_extension(p, CLAP_EXT_GUI);
+   if (gui) {
+      printf("    gui: offscreen panel\n");
+      CHECK(!gui->is_api_supported(p, CLAP_WINDOW_API_X11, false), "x11 refused");
+      CHECK(!gui->is_api_supported(p, CLAP_WINDOW_API_COCOA, false), "cocoa refused");
+      CHECK(!gui->is_api_supported(p, CLAP_WINDOW_API_WIN32, true), "floating refused");
+      const char *pref_api = NULL;
+      bool pref_floating = true;
+      CHECK(gui->get_preferred_api(p, &pref_api, &pref_floating), "preferred api");
+      CHECK(pref_api && !strcmp(pref_api, "vieww-offscreen") && !pref_floating,
+            "preferred is vieww-offscreen, embedded");
+      CHECK(gui->is_api_supported(p, pref_api, false), "the preferred api is supported");
+      CHECK(!gui->create(p, CLAP_WINDOW_API_X11, false), "create on x11 refused");
+      CHECK(gui->create(p, pref_api, false), "create");
+      uint32_t w = 0, h = 0;
+      CHECK(gui->get_size(p, &w, &h), "size");
+      CHECK(w > 100 && h > 40, "sane size %ux%u", w, h);
+      CHECK(gui->can_resize(p), "resizable");
+      clap_gui_resize_hints_t hints;
+      memset(&hints, 0, sizeof hints);
+      CHECK(gui->get_resize_hints(p, &hints), "hints");
+      CHECK(hints.can_resize_horizontally && hints.can_resize_vertically, "both axes");
+      uint32_t aw = 1, ah = 1;
+      CHECK(gui->adjust_size(p, &aw, &ah), "adjust");
+      CHECK(aw >= 100 && ah >= 40, "adjusted up to the minimums %ux%u", aw, ah);
+      uint32_t w0 = w, h0 = h;
+      CHECK(gui->get_size(p, &w, &h) && w == w0 && h == h0, "adjust did not resize");
+      /* logical-pixel convention: scale moves the backing store, not the geometry */
+      CHECK(gui->set_scale(p, 2.0), "scale 2x");
+      CHECK(gui->get_size(p, &w, &h) && w == w0 && h == h0, "logical size unchanged by scale");
+      CHECK(gui->set_size(p, 640, 480), "set_size");
+      CHECK(gui->get_size(p, &w, &h) && w == 640 && h == 480, "size kept");
+      clap_window_t offscreen = {pref_api, {NULL}};
+      CHECK(gui->set_parent(p, &offscreen), "offscreen parent");
+      CHECK(gui->show(p), "show");
+      CHECK(gui->hide(p), "hide");
+      clap_window_t x11win = {CLAP_WINDOW_API_X11, {(void *)0x1234}};
+      CHECK(!gui->set_parent(p, &x11win), "x11 parent refused");
+      gui->destroy(p);
+      uint32_t dw = 9, dh = 9;
+      CHECK(!gui->get_size(p, &dw, &dh), "no gui after destroy");
+      CHECK(gui->create(p, pref_api, false), "create again");
+      gui->destroy(p);
+   } else {
+      printf("    gui: (none)\n");
+   }
+
    /* State save → load into a second instance. */
    mem_t *m = calloc(1, sizeof *m);
    clap_ostream_t os = {m, mem_write};
