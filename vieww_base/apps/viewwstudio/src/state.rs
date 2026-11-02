@@ -48,6 +48,7 @@ mod commands;
 mod editing;
 mod export;
 mod files;
+mod inspector_props;
 mod language;
 mod panels;
 mod picker;
@@ -59,6 +60,10 @@ mod vcs;
 // the Handle the state core nudges with — the same one-module-one-subject
 // rule PanelTab follows, just with the type living in its own file.
 pub use canvas_edit::{CanvasDrag, Handle};
+
+// ST-02's property-grid vocabulary, re-exported for the Inspector pane that
+// draws the fields — the same one-module-one-subject rule as above.
+pub use inspector_props::{FieldValue, SayField};
 
 /// Which sidebar view the activity bar has selected.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

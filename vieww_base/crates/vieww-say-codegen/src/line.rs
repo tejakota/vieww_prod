@@ -794,9 +794,22 @@ fn prop_span(atoms: &[Atom], prop: &LineProp) -> Option<(usize, usize)> {
             LineProp::EachRow(_) => (word(i) == Some("each") && word(i + 1) == Some("row"))
                 .then(|| number(i + 2).map(|_| (i, i + 3)))
                 .flatten(),
-            LineProp::Lines(_) => (word(i) == Some("in") && word(i + 2) == Some("lines"))
-                .then(|| number(i + 1).map(|_| (i, i + 3)))
-                .flatten(),
+            LineProp::Lines(_) => {
+                // Both spellings parse — the documented `in N lines` and the
+                // transposed `in lines N` — so both can be found to be
+                // rewritten; the write always emits the documented one.
+                if word(i) == Some("in") && word(i + 2) == Some("lines") && number(i + 1).is_some()
+                {
+                    Some((i, i + 3))
+                } else if word(i) == Some("in")
+                    && word(i + 1) == Some("lines")
+                    && number(i + 2).is_some()
+                {
+                    Some((i, i + 3))
+                } else {
+                    None
+                }
+            }
             LineProp::From(_, _) => (word(i) == Some("from") && word(i + 2) == Some("to"))
                 .then(|| match (number(i + 1), number(i + 3)) {
                     (Some(_), Some(_)) => Some((i, i + 4)),
@@ -1146,6 +1159,34 @@ mod tests {
                 .unwrap_or_else(|| format!("{:?} in {:?}", prop, reread[0].props));
             assert!(found.contains("is on the line"), "{rewritten:?}: {found}");
             let _ = compiled;
+        }
+    }
+
+    /// `in N lines` is the spelling the parser documents, and `in lines N`
+    /// the one its first release actually accepted — both parse, both are
+    /// found on the line, and both rewrite to the documented spelling, so
+    /// a file written against either keeps editing.
+    #[test]
+    fn both_in_lines_spellings_parse_and_normalize() {
+        let file = |line: &str| {
+            format!("-- say-language: 1\nkeep text called draft\nscreen \"A\":\n    {line}\n")
+        };
+        for before in [
+            "a text field bound to draft, in 3 lines:",
+            "a text field bound to draft, in lines 3:",
+        ] {
+            let rewritten = rewrite_prop(before, &LineProp::Lines(5))
+                .unwrap_or_else(|| panic!("rewriting {before:?}"));
+            assert_eq!(rewritten, "a text field bound to draft, in 5 lines:");
+            crate::compile("t.say", &file(&rewritten))
+                .unwrap_or_else(|d| panic!("{rewritten:?} does not compile: {d:?}"));
+        }
+        for line in [
+            "a text field bound to draft, in 5 lines:",
+            "a text field bound to draft, in lines 5:",
+        ] {
+            crate::compile("t.say", &file(line))
+                .unwrap_or_else(|d| panic!("{line:?} should compile: {d:?}"));
         }
     }
 

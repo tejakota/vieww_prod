@@ -249,27 +249,46 @@ impl Studio {
     /// if the value had been typed. Nothing about canvas editing is a
     /// second editing pipeline — that is the whole design.
     pub fn canvas_write(&self, prop: LineProp) {
+        if !self.say_rewrite(|old| line::rewrite_prop(old, &prop)) {
+            self.notify(
+                "That line cannot take this edit — it is not a widget line the tools recognise.",
+            );
+        }
+    }
+
+    /// Rewrite the picked say line's text with `rewrite`, through the one
+    /// edit path every keystroke takes — the machinery ST-01's handles and
+    /// ST-02's property grid share, which is why the grid is not a second
+    /// editor either.
+    ///
+    /// Returns whether the line took the rewrite as asked (a rewrite to
+    /// what the line already says counts). `false` is a refusal, and the
+    /// caller names which one happened in the message it notifies with:
+    /// the same `None` from `rewrite` means different things to a drag
+    /// (the line is not a widget line) and to a grid field (the clause is
+    /// not on the line), and the message should say which one happened —
+    /// which is also why the caller, not this function, holds the prose.
+    pub(super) fn say_rewrite(&self, rewrite: impl FnOnce(&str) -> Option<String>) -> bool {
         let Some(widget) = self.picked_say_line() else {
-            return;
+            return false;
         };
-        let Some(buffer) = self.active() else { return };
+        let Some(buffer) = self.active() else {
+            return false;
+        };
         if buffer.language != crate::language::Language::Say {
-            return;
+            return false;
         }
         let Some((index, old, carriage)) = say_line_text(&buffer.value.text, widget.line) else {
             self.notify(
                 "That line is no longer where the render tree says it is — the buffer has moved on.",
             );
-            return;
+            return false;
         };
-        let Some(new) = line::rewrite_prop(old, &prop) else {
-            self.notify(
-                "That line cannot take this edit — it is not a widget line the tools recognise.",
-            );
-            return;
+        let Some(new) = rewrite(old) else {
+            return false;
         };
         if new == old {
-            return;
+            return true;
         }
         let text = replace_say_line(&buffer.value.text, index, &new, carriage);
         // The selection survives a one-line rewrite by staying where it
@@ -285,6 +304,7 @@ impl Studio {
             affinity: buffer.value.selection.affinity,
         };
         self.edit(value);
+        true
     }
 
     /// Nudge the picked line's `handle` property by `delta`, from the value

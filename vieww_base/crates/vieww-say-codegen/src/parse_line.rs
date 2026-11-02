@@ -868,9 +868,21 @@ impl<'a> Parser<'a> {
                 *c += 2;
                 Prop::SingleLine
             }
-            "in" if word(*c + 1) == Some("lines") => {
+            "in" if word(*c + 2) == Some("lines") => {
                 // `in N lines` — the honest spelling of a taller field: the
                 // field is given a height, because wrapping is always on.
+                // The guard reads the shape it documents: the number first,
+                // `lines` second. (The arm below keeps the transposed
+                // spelling the first release shipped reading, so a file
+                // written against it keeps compiling.)
+                let Some(n) = int_at(*c + 1) else {
+                    self.error(number, 1, codes::E070, "`in N lines` takes a whole number");
+                    return None;
+                };
+                *c += 3;
+                Prop::Lines(n.max(1) as u32)
+            }
+            "in" if word(*c + 1) == Some("lines") => {
                 let Some(n) = int_at(*c + 2) else {
                     self.error(number, 1, codes::E070, "`in N lines` takes a whole number");
                     return None;
