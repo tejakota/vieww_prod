@@ -1,29 +1,30 @@
 # Audio backends — FAILURE
 
-- branch: `main`  sha: `7a9e76951688bed17b8424d7173bd503612b9aa2`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/41005630129
+- branch: `main`  sha: `ec9ab981a17e5ff74ef36217f953b874d2a61da4`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/41392637609
 
 | job | verdict | failed steps |
 |---|---|---|
-| Android and web | PASS |  |
+| Windows (WASAPI shared and exclusive through VB-CABLE) | FAIL | Loopback, shared mode |
 | macos-latest (native backend) | PASS |  |
 | Linux (ALSA and MIDI through kernel loopbacks, in a VM) | FAIL | Tools, kernel and its sound modules |
-| Windows (WASAPI shared and exclusive through VB-CABLE) | FAIL | Loopback, shared mode |
+| windows-latest (native backend) | PASS |  |
 | macOS (Core Audio through BlackHole, CoreMIDI virtual ports) | PASS |  |
 | Linux (PipeWire, JACK, PulseAudio) | PASS |  |
-| windows-latest (native backend) | PASS |  |
+| Android and web | PASS |  |
 
 ## Steps
 
-### Android and web — PASS
+### Windows (WASAPI shared and exclusive through VB-CABLE) — FAIL
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
-- PASS: Install Rust toolchain and targets
-- PASS: AAudio (Android)
-- PASS: Web Audio (wasm32)
-- PASS: Run actions/setup-node@v4
-- PASS: Web Audio shim (Node, simulated browser)
-- PASS: Post Run actions/setup-node@v4
+- PASS: Install Rust toolchain
+- PASS: Install VB-CABLE
+- PASS: Allow microphone access (capture)
+- PASS: Endpoints list and open by id
+- FAIL: Loopback, shared mode
+- skipped: Loopback, exclusive mode
+- skipped: MIDI ports list (WinMM)
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
@@ -48,16 +49,11 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### Windows (WASAPI shared and exclusive through VB-CABLE) — FAIL
+### windows-latest (native backend) — PASS
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
 - PASS: Install Rust toolchain
-- PASS: Install VB-CABLE
-- PASS: Allow microphone access (capture)
-- PASS: Endpoints list and open by id
-- FAIL: Loopback, shared mode
-- skipped: Loopback, exclusive mode
-- skipped: MIDI ports list (WinMM)
+- PASS: Tests and clippy
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
@@ -87,11 +83,15 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### windows-latest (native backend) — PASS
+### Android and web — PASS
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
-- PASS: Install Rust toolchain
-- PASS: Tests and clippy
+- PASS: Install Rust toolchain and targets
+- PASS: AAudio (Android)
+- PASS: Web Audio (wasm32)
+- PASS: Run actions/setup-node@v4
+- PASS: Web Audio shim (Node, simulated browser)
+- PASS: Post Run actions/setup-node@v4
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
