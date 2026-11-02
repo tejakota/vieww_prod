@@ -125,7 +125,10 @@ mod cpu_time;
     not(any(target_os = "android", target_os = "ios"))
 ))]
 pub mod desktop;
+// Outbound drag-and-drop: the interaction crate's portable half plus this
+// platform's OS starter, registered into `services::platform` (FW-19).
 mod device_tier;
+pub mod drag;
 mod frame_budget;
 mod perf_hint;
 mod quality;
@@ -158,6 +161,7 @@ pub use windows::PlatformWindows;
 
 pub use cpu_time::process_cpu_time;
 pub use device_tier::{device_facts, device_facts_status, resolve_tier, DeviceFacts, DeviceTier};
+pub use drag::OsDragStarter;
 pub use input::{PointerTranslator, TouchPhase};
 pub use keys::{ime, KeyTranslator};
 pub use latency::{InputLatencyLog, InputLatencyReport, UNANSWERED_AFTER};
