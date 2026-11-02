@@ -987,6 +987,9 @@ fn lc_config(config: &[u8]) -> Result<(u32, usize, u8), CodecError> {
 /// No audio track, unsupported object types, malformed frames.
 pub fn decode_mp4(bytes: &[u8]) -> Result<Decoded, CodecError> {
     let t = super::mp4::audio_track(bytes)?;
+    if t.codec != *b"mp4a" {
+        return Err(CodecError::NotThisFormat);
+    }
     let (rate, ri, channel_cfg) = lc_config(&t.config)?;
     let mut d = Decoder::new(ri, usize::from(channel_cfg.max(1)));
     let mut out = Vec::new();
@@ -1029,48 +1032,10 @@ pub(crate) struct Mp4Source {
 }
 
 impl Mp4Source {
-    pub(crate) fn open(input: &mut super::stream::Input) -> Result<Self, CodecError> {
-        let len = input.len();
-        if input.window(4, 4)? != b"ftyp" {
-            return Err(CodecError::NotThisFormat);
-        }
-        let mut at = 0u64;
-        let mut moov = None;
-        while at + 8 <= len {
-            let h = input.window(at, 16)?.to_vec();
-            if h.len() < 8 {
-                break;
-            }
-            let size32 = u32::from_be_bytes([h[0], h[1], h[2], h[3]]);
-            let (hdr, size) = match size32 {
-                0 => (8u64, len - at),
-                1 if h.len() >= 16 => (
-                    16,
-                    u64::from_be_bytes([h[8], h[9], h[10], h[11], h[12], h[13], h[14], h[15]]),
-                ),
-                n => (8, u64::from(n)),
-            };
-            if size < hdr || size > len - at {
-                break;
-            }
-            if &h[4..8] == b"moov" {
-                // A moov is metadata: a sample table of a few MB even for
-                // hours of audio. Refuse a claim past 256 MB.
-                let body = usize::try_from(size - hdr)
-                    .ok()
-                    .filter(|n| *n <= 256 << 20)
-                    .ok_or(CodecError::Malformed("moov box too large"))?;
-                let bytes = input.window(at + hdr, body)?;
-                if bytes.len() < body {
-                    return Err(CodecError::Truncated);
-                }
-                moov = Some(bytes.to_vec());
-                break;
-            }
-            at += size;
-        }
-        let moov = moov.ok_or(CodecError::Malformed("no moov box"))?;
-        let track = super::mp4::track_from_moov(&moov, usize::try_from(len).unwrap_or(usize::MAX))?;
+    /// A source over a track already demuxed — the codec was picked from
+    /// its `stsd` entry type by the caller ([`super::stream`], which owns
+    /// the one `moov` read every streaming MP4 codec starts from).
+    pub(crate) fn from_track(track: super::mp4::AudioTrack) -> Result<Self, CodecError> {
         let (rate, ri, channel_cfg) = lc_config(&track.config)?;
         Ok(Self {
             dec: Decoder::new(ri, usize::from(channel_cfg.max(1))),

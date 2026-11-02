@@ -9,8 +9,9 @@ name: Audio backends
 #   * macOS (Core Audio) and Windows (WASAPI): the backends build and their
 #     tests run; on runners without an audio device they must refuse
 #     cleanly, which is what is checked.
-#   * Android (AAudio) and the web (Web Audio): cargo check for the target;
-#     the web shim's logic runs under Node with a simulated Web Audio.
+#   * Android (AAudio) and the web (Web Audio, Web MIDI): cargo check
+#     for the target; the web shims' logic runs under Node with a
+#     simulated Web Audio and a simulated Web MIDI.
 #   * Every backend also type-checks and lints on Linux via
 #     --cfg vieww_check_all.
 #   * Loopback (tests/device_loopback.rs): a known signal is played and
@@ -20,7 +21,9 @@ name: Audio backends
 #         both directions of rate matching, and snd-virmidi ports wired
 #         together for MIDI — in a VM on a stock kernel, since the
 #         runner's own has no sound drivers (ci/audio/vm-loopback.sh);
-#         PulseAudio's default sink into its monitor.
+#         PulseAudio's default sink into its monitor. The same VM runs
+#         the ALSA sequencer's virtual ports round trip (AU-19): the
+#         kernel's own snd-seq, no server needed.
 #       - Windows: the VB-CABLE virtual cable, WASAPI shared and exclusive.
 #       - macOS: the BlackHole virtual device through Core Audio, and
 #         CoreMIDI virtual endpoints.
@@ -152,6 +155,8 @@ jobs:
         run: ci/audio/vm-loopback.sh --setup
       - name: ALSA (every format, rate matching both ways) and MIDI, in the VM
         run: ci/audio/vm-loopback.sh
+      - name: ALSA sequencer virtual ports, in the VM (AU-19)
+        run: ci/audio/vm-loopback.sh --seq
 
   windows-loopback:
     name: Windows (WASAPI shared and exclusive through VB-CABLE)
@@ -263,10 +268,12 @@ jobs:
           rustup target add aarch64-linux-android wasm32-unknown-unknown
       - name: AAudio (Android)
         run: cargo clippy -p vieww-audio --lib --target aarch64-linux-android -- -D warnings
-      - name: Web Audio (wasm32)
+      - name: Web Audio and Web MIDI (wasm32)
         run: cargo clippy -p vieww-audio --lib --target wasm32-unknown-unknown -- -D warnings
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
       - name: Web Audio shim (Node, simulated browser)
         run: node crates/vieww-audio/web/test.mjs
+      - name: Web MIDI shim (Node, simulated browser)
+        run: node crates/vieww-audio/web/test-midi.mjs

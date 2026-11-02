@@ -8,7 +8,10 @@
 //! for. Each plugin gets a descriptor built from its [`PluginInfo`](crate::PluginInfo),
 //! a main stereo (or mono, or none) audio port pair, a note port for
 //! instruments (CLAP and MIDI dialects), and the params, state, latency
-//! and tail extensions.
+//! and tail extensions — plus the `clap.gui` extension when the `gui`
+//! feature is on, driving the host-neutral panel in [`crate::gui`]
+//! through one private offscreen api (see the gui section below for why
+//! that is the honest answer for a crate that links no window system).
 //!
 //! # Threads
 //!
@@ -32,6 +35,8 @@ use std::ptr::{null, null_mut};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, OnceLock};
 
+#[cfg(feature = "gui")]
+use crate::gui::PluginGui as _;
 use crate::{
     Driver, Event, Expression, Kind, ParamChange, Plugin, Status, Transport, MAX_CHANNELS,
 };
@@ -149,6 +154,12 @@ struct Instance<P: Plugin> {
     ext_note_ports: clap_plugin_note_ports,
     ext_latency: clap_plugin_latency,
     ext_tail: clap_plugin_tail,
+    /// The offscreen panel, while the host keeps a GUI alive (AU-13's
+    /// `gui` story; `clap.gui` below is its C side).
+    #[cfg(feature = "gui")]
+    gui: Mutex<Option<crate::gui::vieww::Panel>>,
+    #[cfg(feature = "gui")]
+    ext_gui: clap_plugin_gui,
 }
 
 impl<P: Plugin> Instance<P> {
@@ -235,6 +246,26 @@ pub unsafe fn create<P: Plugin>(host: *const clap_host) -> *const clap_plugin {
         },
         ext_tail: clap_plugin_tail {
             get: Some(tail_get::<P>),
+        },
+        #[cfg(feature = "gui")]
+        gui: Mutex::new(None),
+        #[cfg(feature = "gui")]
+        ext_gui: clap_plugin_gui {
+            is_api_supported: Some(gui_is_api_supported),
+            get_preferred_api: Some(gui_get_preferred_api),
+            create: Some(gui_create::<P>),
+            destroy: Some(gui_destroy::<P>),
+            set_scale: Some(gui_set_scale::<P>),
+            get_size: Some(gui_get_size::<P>),
+            can_resize: Some(gui_can_resize::<P>),
+            get_resize_hints: Some(gui_get_resize_hints::<P>),
+            adjust_size: Some(gui_adjust_size::<P>),
+            set_size: Some(gui_set_size::<P>),
+            set_parent: Some(gui_set_parent::<P>),
+            set_transient: Some(gui_set_transient),
+            suggest_title: Some(gui_suggest_title),
+            show: Some(gui_show::<P>),
+            hide: Some(gui_hide::<P>),
         },
     });
     let p = Box::into_raw(inst);
@@ -583,7 +614,13 @@ unsafe extern "C" fn get_extension<P: Plugin>(
     };
     let id = id.to_bytes_with_nul();
     let info = P::info();
-    if id == CLAP_EXT_PARAMS {
+    // `mut` is only for the gui arm below, which does not exist without
+    // the feature — hence the conditional expectation.
+    #[cfg_attr(
+        not(feature = "gui"),
+        expect(unused_mut, reason = "the gui arm is cfg'd out")
+    )]
+    let mut ptr: *const c_void = if id == CLAP_EXT_PARAMS {
         (&raw const inst.ext_params).cast()
     } else if id == CLAP_EXT_STATE {
         (&raw const inst.ext_state).cast()
@@ -597,7 +634,15 @@ unsafe extern "C" fn get_extension<P: Plugin>(
         (&raw const inst.ext_tail).cast()
     } else {
         null()
+    };
+    // The gui arm lives outside the chain because it only exists with the
+    // `gui` feature; without it the query falls through to null — the
+    // answer for "no GUI", which a host must accept.
+    #[cfg(feature = "gui")]
+    if ptr.is_null() && id == CLAP_EXT_GUI {
+        ptr = (&raw const inst.ext_gui).cast();
     }
+    ptr
 }
 
 unsafe extern "C" fn params_count<P: Plugin>(p: *const clap_plugin) -> u32 {
@@ -863,6 +908,381 @@ unsafe extern "C" fn tail_get<P: Plugin>(p: *const clap_plugin) -> u32 {
     .unwrap_or(u32::MAX)
 }
 
+// ── the gui extension ───────────────────────────────────────────────────────
+//
+// The panel itself is `crate::gui`'s (`gui::vieww::Panel`, offscreen,
+// headless); this is its C side: the `clap.gui` vtable the host drives,
+// and the `GuiHost` bridge that routes the panel's own actions back.
+//
+// **The api question, answered honestly.** CLAP's five window apis
+// (win32, cocoa, uikit, x11, wayland) all mean "the plugin links a
+// window system and embeds in the host's" — this crate links none, so
+// `is_api_supported` refuses every one of them by name, and floating
+// windows besides: there is no window to float. What the wrapper *does*
+// support is one private api, `vieww-offscreen`, negotiated through the
+// extension's own machinery: the header's `clap_window` union carries a
+// `ptr` member "for anything defined outside of clap", and the api
+// strings are explicitly open-ended ("if your windowing API is not
+// listed here, please open an issue"). Its contract:
+//
+// * embedded only, handle null — the host reads frames itself, through
+//   the [`crate::gui::PluginGui`] trait in-process, or through whatever
+//   presenter a host and plugin pair agree on; a non-null handle is
+//   refused (there is nothing to embed in);
+// * **logical pixels** for `get_size`/`adjust_size`/`set_size`, the
+//   cocoa/uikit convention — `set_scale` grows the backing store (the
+//   frame the host presents), not the geometry, exactly the panel's
+//   logical-geometry/physical-frame split.
+//
+// A host that knows none of this gets `false` from `is_api_supported`
+// for everything it will ever ask, which is the correct answer for a
+// plugin with no window; the frame-data path a generic host could use
+// (CLAP's frame interface) is not in the 1.2 headers this wrapper
+// transcribes, so presenting is the platform crates' follow-up.
+#[cfg(feature = "gui")]
+const CLAP_WINDOW_API_OFFSCREEN: &[u8] = b"vieww-offscreen\0";
+
+#[cfg(feature = "gui")]
+impl<P: Plugin> Instance<P> {
+    /// Push the mirrored parameter values into the panel (main thread).
+    ///
+    /// The values atomics are the same mirror the host's param queries
+    /// read, updated after every run — so automation, a preset load, a
+    /// `flush` all land here without the audio thread ever taking the
+    /// gui lock. Called from the gui entry points the host touches.
+    fn sync_gui(&self) {
+        let Ok(mut gui) = self.gui.lock() else {
+            return;
+        };
+        let Some(panel) = gui.as_mut() else {
+            return;
+        };
+        for (info, slot) in self.params.iter().zip(&self.values) {
+            panel.param_notify(info.id, f64::from_bits(slot.load(Ordering::Relaxed)));
+        }
+    }
+}
+
+/// The [`GuiHost`](crate::gui::GuiHost) the panel gets when it attaches
+/// through the extension: edits go into the plugin (the same
+/// apply-and-mirror path `flush` uses), and the panel's own lifecycle
+/// asks go to the host's `clap_host_gui`.
+///
+/// CLAP routes GUI edits out as param *events* for the host to record;
+/// that out-event protocol (gesture begin, value, gesture end, drained
+/// through `flush`) is deliberately not simulated here — this bridge
+/// applies the value directly and mirrors it, so the host sees it
+/// through `params.get_value`, and a presenter crate is the right place
+/// to add the recorded-automation path.
+#[cfg(feature = "gui")]
+struct GuiBridge<P: Plugin> {
+    plugin: *const clap_plugin,
+    _plugin_type: std::marker::PhantomData<fn() -> P>,
+}
+
+// SAFETY: the bridge is only handed to `Panel::attach`, which holds it
+// on the GUI's own thread (every format documents its GUI as
+// main-thread-only; CLAP and VST3 say so explicitly). `Send` is the
+// bound the trait's box carries; nothing ever races it.
+#[cfg(feature = "gui")]
+unsafe impl<P: Plugin> Send for GuiBridge<P> {}
+
+#[cfg(feature = "gui")]
+impl<P: Plugin> crate::gui::GuiHost for GuiBridge<P> {
+    fn set_param(&self, id: u32, value: f64) {
+        // SAFETY: the bridge lives inside the panel, which lives inside
+        // the instance's gui mutex — the instance outlives both.
+        let inst = unsafe { Instance::<P>::get(self.plugin) };
+        // Main thread (the GUI contract); the audio thread only ever
+        // try_locks the driver, so this never blocks audio.
+        if let Ok(mut d) = inst.driver.lock() {
+            d.push_change(ParamChange { time: 0, id, value });
+            let _ = d.run(&[], &mut [], 0);
+            inst.mirror(&d);
+        }
+    }
+
+    fn request_resize(&self, w: u32, h: u32) -> bool {
+        // SAFETY: as `set_param`.
+        let inst = unsafe { Instance::<P>::get(self.plugin) };
+        let hg = inst.host_ext::<clap_host_gui>(CLAP_EXT_GUI);
+        if hg.is_null() {
+            return false;
+        }
+        // SAFETY: a valid host extension, called from the GUI thread.
+        unsafe { (*hg).request_resize.is_some_and(|r| r(inst.host, w, h)) }
+    }
+
+    fn closed(&self) {
+        // SAFETY: as `set_param`.
+        let inst = unsafe { Instance::<P>::get(self.plugin) };
+        let hg = inst.host_ext::<clap_host_gui>(CLAP_EXT_GUI);
+        if !hg.is_null() {
+            // Not was_destroyed: this close is the panel telling the
+            // host the connection ended — answering it with `destroy`
+            // (what was_destroyed=true asks for) would recurse.
+            // SAFETY: a valid host extension, called from the GUI thread.
+            unsafe {
+                if let Some(c) = (*hg).closed {
+                    c(inst.host, false);
+                }
+            }
+        }
+    }
+}
+
+/// Is `api` (a C string) our offscreen api?
+#[cfg(feature = "gui")]
+fn gui_api_is_offscreen(api: *const c_char) -> bool {
+    // SAFETY: null or a valid C string (the host's contract).
+    unsafe { cstr(api).is_some_and(|a| a.to_bytes_with_nul() == CLAP_WINDOW_API_OFFSCREEN) }
+}
+
+#[cfg(feature = "gui")]
+unsafe extern "C" fn gui_is_api_supported(
+    _: *const clap_plugin,
+    api: *const c_char,
+    is_floating: bool,
+) -> bool {
+    // No floating window exists to float, and no listed api is ours.
+    !is_floating && gui_api_is_offscreen(api)
+}
+
+#[cfg(feature = "gui")]
+unsafe extern "C" fn gui_get_preferred_api(
+    _: *const clap_plugin,
+    api: *mut *const c_char,
+    is_floating: *mut bool,
+) -> bool {
+    if api.is_null() || is_floating.is_null() {
+        return false;
+    }
+    // SAFETY: the host gave writable outs (the ABI's contract).
+    unsafe {
+        *api = CLAP_WINDOW_API_OFFSCREEN.as_ptr().cast();
+        *is_floating = false;
+    }
+    true
+}
+
+#[cfg(feature = "gui")]
+unsafe extern "C" fn gui_create<P: Plugin>(
+    p: *const clap_plugin,
+    api: *const c_char,
+    is_floating: bool,
+) -> bool {
+    if is_floating || !gui_api_is_offscreen(api) {
+        return false;
+    }
+    // SAFETY: a live instance.
+    let inst = unsafe { Instance::<P>::get(p) };
+    if inst.params.is_empty() {
+        return false; // a panel needs parameters; nothing to show.
+    }
+    // A create without a destroy in between replaces: forgiving, and
+    // the dropped panel was never attached, so it notifies no host.
+    *inst.gui.lock().unwrap_or_else(|e| e.into_inner()) =
+        Some(crate::gui::vieww::Panel::new(&inst.params));
+    true
+}
+
+#[cfg(feature = "gui")]
+unsafe extern "C" fn gui_destroy<P: Plugin>(p: *const clap_plugin) {
+    // SAFETY: a live instance.
+    let inst = unsafe { Instance::<P>::get(p) };
+    if let Some(mut panel) = inst.gui.lock().unwrap_or_else(|e| e.into_inner()).take() {
+        // close() tells the host (clap_host_gui.closed) — destroy is
+        // host-initiated, and the host should hear that it ended.
+        panel.close();
+    }
+}
+
+#[cfg(feature = "gui")]
+unsafe extern "C" fn gui_set_scale<P: Plugin>(p: *const clap_plugin, scale: f64) -> bool {
+    // SAFETY: a live instance.
+    let inst = unsafe { Instance::<P>::get(p) };
+    inst.gui
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .as_mut()
+        .is_some_and(|g| g.set_scale(scale))
+}
+
+#[cfg(feature = "gui")]
+unsafe extern "C" fn gui_get_size<P: Plugin>(
+    p: *const clap_plugin,
+    width: *mut u32,
+    height: *mut u32,
+) -> bool {
+    if width.is_null() || height.is_null() {
+        return false;
+    }
+    // SAFETY: a live instance.
+    let inst = unsafe { Instance::<P>::get(p) };
+    inst.sync_gui();
+    inst.gui
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .as_ref()
+        .map(|g| g.size())
+        .is_some_and(|(w, h)| {
+            // SAFETY: the host gave writable outs.
+            unsafe {
+                *width = w;
+                *height = h;
+            }
+            true
+        })
+}
+
+#[cfg(feature = "gui")]
+unsafe extern "C" fn gui_can_resize<P: Plugin>(p: *const clap_plugin) -> bool {
+    // SAFETY: a live instance.
+    unsafe { Instance::<P>::get(p) }
+        .gui
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .is_some()
+}
+
+#[cfg(feature = "gui")]
+unsafe extern "C" fn gui_get_resize_hints<P: Plugin>(
+    p: *const clap_plugin,
+    hints: *mut clap_gui_resize_hints,
+) -> bool {
+    if hints.is_null() {
+        return false;
+    }
+    // SAFETY: a live instance.
+    let inst = unsafe { Instance::<P>::get(p) };
+    let has = inst.gui.lock().unwrap_or_else(|e| e.into_inner()).is_some();
+    if !has {
+        return false;
+    }
+    // Rows stack: both axes track, and the rows themselves set the
+    // height a drag should not go below (adjust_size enforces it).
+    // SAFETY: the host gave a writable hints struct.
+    unsafe {
+        *hints = clap_gui_resize_hints {
+            can_resize_horizontally: true,
+            can_resize_vertically: true,
+            preserve_aspect_ratio: false,
+            aspect_ratio_width: 1,
+            aspect_ratio_height: 1,
+        };
+    }
+    true
+}
+
+#[cfg(feature = "gui")]
+unsafe extern "C" fn gui_adjust_size<P: Plugin>(
+    p: *const clap_plugin,
+    width: *mut u32,
+    height: *mut u32,
+) -> bool {
+    if width.is_null() || height.is_null() {
+        return false;
+    }
+    // SAFETY: a live instance; the host gave writable size outs.
+    let inst = unsafe { Instance::<P>::get(p) };
+    let has = inst.gui.lock().unwrap_or_else(|e| e.into_inner()).is_some();
+    if !has {
+        return false;
+    }
+    // SAFETY: the outs are readable and writable.
+    unsafe {
+        let (w, h) = crate::gui::vieww::Panel::clamped_size(*width, *height);
+        *width = w;
+        *height = h;
+    }
+    true
+}
+
+#[cfg(feature = "gui")]
+unsafe extern "C" fn gui_set_size<P: Plugin>(
+    p: *const clap_plugin,
+    width: u32,
+    height: u32,
+) -> bool {
+    // SAFETY: a live instance.
+    let inst = unsafe { Instance::<P>::get(p) };
+    inst.sync_gui();
+    inst.gui
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .as_mut()
+        .is_some_and(|g| g.resize(width, height))
+}
+
+#[cfg(feature = "gui")]
+unsafe extern "C" fn gui_set_parent<P: Plugin>(
+    p: *const clap_plugin,
+    window: *const clap_window,
+) -> bool {
+    if window.is_null() {
+        return false;
+    }
+    // SAFETY: a valid window (the host's contract).
+    let win = unsafe { &*window };
+    if !gui_api_is_offscreen(win.api) {
+        return false; // refused by name: a real window needs a windowing api.
+    }
+    // Read the handle as raw bytes (usize, pointer-wide): forming a
+    // pointer value that was never one would be UB; a number never is.
+    // SAFETY: `window` is valid for the read; the union is pointer-wide.
+    let handle = unsafe { std::ptr::addr_of!((*window).handle).cast::<usize>().read() };
+    if handle != 0 {
+        return false; // offscreen means the host reads frames: no handle.
+    }
+    // SAFETY: a live instance.
+    let inst = unsafe { Instance::<P>::get(p) };
+    inst.sync_gui();
+    inst.gui
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .as_mut()
+        .is_some_and(|g| {
+            g.attach(
+                Box::new(GuiBridge::<P> {
+                    plugin: p,
+                    _plugin_type: std::marker::PhantomData,
+                }),
+                crate::gui::Parent::Offscreen,
+            )
+        })
+}
+
+#[cfg(feature = "gui")]
+unsafe extern "C" fn gui_set_transient(_: *const clap_plugin, _: *const clap_window) -> bool {
+    false // floating windows do not exist here
+}
+
+#[cfg(feature = "gui")]
+unsafe extern "C" fn gui_suggest_title(_: *const clap_plugin, _: *const c_char) {}
+
+#[cfg(feature = "gui")]
+unsafe extern "C" fn gui_show<P: Plugin>(p: *const clap_plugin) -> bool {
+    // SAFETY: a live instance.
+    let inst = unsafe { Instance::<P>::get(p) };
+    inst.sync_gui();
+    inst.gui
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .as_mut()
+        .is_some_and(|g| g.show())
+}
+
+#[cfg(feature = "gui")]
+unsafe extern "C" fn gui_hide<P: Plugin>(p: *const clap_plugin) -> bool {
+    // SAFETY: a live instance.
+    let inst = unsafe { Instance::<P>::get(p) };
+    inst.gui
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .as_mut()
+        .is_some_and(|g| g.hide())
+}
+
 /// Build a `clap_plugin_entry` exposing the listed plugin types (what
 /// [`export_clap!`](crate::export_clap) exports under the `clap_entry`
 /// name). Usable directly for an in-process entry (tests, a host
@@ -1072,5 +1492,118 @@ mod tests {
         );
         assert_eq!(st, crate::clap::sys::CLAP_PROCESS_SLEEP);
         assert!(out[0].iter().all(|v| *v == 0.0));
+    }
+
+    /// The whole `clap.gui` lifecycle, driven through the C vtable the
+    /// way a host would: negotiate the api, create, scale, size, embed
+    /// offscreen, show, hide, destroy — and the host hears the close.
+    #[cfg(feature = "gui")]
+    #[test]
+    fn the_gui_extension_lives_the_clap_lifecycle_offscreen() {
+        use crate::gui::vieww::Panel;
+        let l = lib();
+        let mut p = l.instantiate("dev.vieww.test-gain").unwrap();
+        // Every listed window api is refused by name, and so is floating.
+        for api in ["win32", "cocoa", "uikit", "x11", "wayland"] {
+            assert!(!p.gui_supported(api, false), "{api} is not us");
+        }
+        assert!(!p.gui_supported("vieww-offscreen", true), "never floating");
+        assert!(p.gui_supported("vieww-offscreen", false));
+        // The preferred pair says the same thing.
+        let (api, floating) = p.gui_preferred_api().unwrap();
+        assert_eq!(api, "vieww-offscreen");
+        assert!(!floating);
+        // Create refuses everything but our api.
+        assert!(!p.gui_create("x11", false));
+        assert!(p.gui_create("vieww-offscreen", false));
+        // Logical size: the panel's, and scale does not move it.
+        let (w, h) = p.gui_size().unwrap();
+        assert_eq!((w, h), (380, Panel::height_for(2)));
+        assert!(p.gui_can_resize());
+        assert!(p.gui_set_scale(2.0));
+        assert_eq!(p.gui_size(), Some((380, Panel::height_for(2))));
+        assert_eq!(
+            p.gui_adjust_size(1, 1),
+            Some(Panel::clamped_size(1, 1)),
+            "adjust clamps without resizing"
+        );
+        assert_eq!(p.gui_size(), Some((380, Panel::height_for(2))));
+        assert!(p.gui_set_size(500, 300));
+        assert_eq!(p.gui_size(), Some((500, 300)));
+        // Embed: a real window api is refused by name, a handle too.
+        assert!(!p.gui_set_parent("x11", 0x1234));
+        assert!(!p.gui_set_parent("vieww-offscreen", 0x1234));
+        assert!(p.gui_set_parent("vieww-offscreen", 0));
+        assert!(p.gui_show());
+        assert!(p.gui_hide());
+        // Destroy ends it and tells the host — once.
+        assert_eq!(p.gui_log().closes, 0);
+        p.gui_destroy();
+        assert_eq!(p.gui_log().closes, 1);
+        assert_eq!(p.gui_size(), None, "no gui after destroy");
+        assert!(!p.gui_can_resize());
+        // And the lifecycle runs again (attach included, or there is no
+        // one to tell).
+        assert!(p.gui_create("vieww-offscreen", false));
+        assert!(p.gui_set_parent("vieww-offscreen", 0));
+        p.gui_destroy();
+        assert_eq!(p.gui_log().closes, 2);
+    }
+
+    /// The other half of the wiring: input a presenter would feed the
+    /// panel (through the trait, in-process) reaches the plugin and its
+    /// mirrored values; automation reaches the panel through the same
+    /// mirror when the host next touches the gui.
+    #[cfg(feature = "gui")]
+    #[test]
+    fn gui_edits_reach_the_plugin_and_automation_reaches_the_panel() {
+        use crate::gui::{Parent, PluginGui as _, Pointer};
+        let l = lib();
+        let mut p = l.instantiate("dev.vieww.test-gain").unwrap();
+        assert!(p.gui_create("vieww-offscreen", false));
+        assert!(p.gui_set_parent("vieww-offscreen", 0));
+        // SAFETY: the host's instance owns a live plugin of exactly this
+        // type (it was created from this crate's own entry for `Gain`).
+        let inst = unsafe { super::Instance::<Gain>::get(p.clap()) };
+        // The panel's own input path — what a presenter drives.
+        {
+            let mut gui = inst.gui.lock().unwrap();
+            let panel = gui.as_mut().unwrap();
+            // Row 0 ("Gain", −60..12, default 0): the middle of the track.
+            panel.pointer(Pointer::Down(12.0 + 100.0, 30.0 + 12.0 + 13.0));
+            panel.pointer(Pointer::Up(12.0 + 100.0, 30.0 + 12.0 + 13.0));
+        }
+        // The edit went through the GuiHost bridge: driver applied,
+        // value mirrored, host-visible.
+        assert!((p.value(1).unwrap() + 24.0).abs() < 1e-9, "halfway across");
+        // Automation: the host flushes a new value; the panel has not
+        // seen it yet, but the next gui call syncs it through the mirror.
+        p.flush(&[HostEvent::Param {
+            time: 0,
+            id: 1,
+            value: -6.0,
+        }]);
+        let stale = {
+            let gui = inst.gui.lock().unwrap();
+            gui.as_ref().unwrap().values()
+        };
+        assert_eq!(stale[0].1, -24.0, "not yet: nothing touched the gui");
+        let _ = p.gui_size();
+        let synced = {
+            let gui = inst.gui.lock().unwrap();
+            gui.as_ref().unwrap().values()
+        };
+        assert_eq!(synced[0].1, -6.0, "synced through the values mirror");
+        // The frame reflects it: deterministic, and different from the
+        // pre-automation one.
+        let after = {
+            let mut gui = inst.gui.lock().unwrap();
+            gui.as_mut().unwrap().frame().to_vec()
+        };
+        assert!(after.iter().any(|b| *b != 0), "the panel renders offscreen");
+        // And the panel's own lifecycle end reaches the host's log.
+        p.gui_destroy();
+        assert_eq!(p.gui_log().closes, 1);
+        let _ = Parent::Offscreen; // (the attach kind used above)
     }
 }

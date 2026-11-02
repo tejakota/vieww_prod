@@ -21,6 +21,27 @@ Regenerate with:
 Both generators check their output (prefix-code completeness, band totals,
 window entries) before writing anything.
 
+## Formats that took no third-party data
+
+Two decoders consult nothing generated here, and their posture is worth
+writing down:
+
+* **ALAC** (`src/codec/alac.rs`) — parameter-free bitstream: the rice
+  parameters ride in every file's magic cookie, and no table the standard
+  defines is larger than a shift. The decoder was written from the
+  bitstream the published descriptions describe — David Hammerton's 2005
+  public-domain reverse-engineering notes and Apple's Apache-2.0
+  reference decoder (https://github.com/macosforge/alac) — and verified
+  bit-exactly against ffmpeg's own decode of the same files. No code or
+  table was copied; the reference was the oracle.
+* **Ogg Opus** (`src/codec/opus.rs`) — the container layer only
+  (RFC 7845, a public IETF standard): OpusHead/OpusTags, TOC framing,
+  granule arithmetic. The SILK/CELT payload (RFC 6716 §4-6) is refused
+  by name and handed to the platform bridge instead. Opus is
+  royalty-free under the IETF declarations its contributors filed — the
+  patent posture is in [`../PATENTS.md`](../PATENTS.md) — so the day a
+  pure payload decoder lands, nothing about the licence story changes.
+
 ## Patents
 
 The credits above are about copyright. What is known about patents on

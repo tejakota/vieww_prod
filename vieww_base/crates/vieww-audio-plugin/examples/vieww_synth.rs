@@ -1,5 +1,5 @@
 //! A polyphonic subtractive synthesizer — vieww-audio's voices behind the
-//! plugin interface — exported as CLAP and VST3.
+//! plugin interface — exported as CLAP, VST3 and LV2.
 
 use vieww_audio::midi::Message;
 use vieww_audio::synth::voice::{Poly, SubtractiveVoice};
@@ -179,3 +179,4 @@ impl Plugin for Synth {
 
 vieww_audio_plugin::export_clap!(Synth);
 vieww_audio_plugin::export_vst3!(Synth);
+vieww_audio_plugin::export_lv2!(Synth);

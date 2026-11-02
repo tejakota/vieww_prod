@@ -1,8 +1,10 @@
-//! A stereo gain, drive and pan effect, exported as CLAP and VST3.
+//! A stereo gain, drive and pan effect, exported as CLAP, VST3 and LV2.
 //!
 //! `cargo build --example vieww_gain` produces a shared library that is
 //! both a `.clap` (rename to `vieww_gain.clap`) and a VST3 module (place in
-//! `vieww_gain.vst3/Contents/<arch>-linux/vieww_gain.so`).
+//! `vieww_gain.vst3/Contents/<arch>-linux/vieww_gain.so`); for LV2,
+//! `vieww_gain.lv2/vieww_gain.so` plus the TTLs
+//! `vieww_audio_plugin::lv2::ttl::write_bundle` writes.
 
 use vieww_audio_plugin::{
     Buffers, Event, Kind, ParamInfo, Parametric, Plugin, PluginInfo, Status, Transport,
@@ -125,3 +127,4 @@ impl Plugin for Gain {
 
 vieww_audio_plugin::export_clap!(Gain);
 vieww_audio_plugin::export_vst3!(Gain);
+vieww_audio_plugin::export_lv2!(Gain);

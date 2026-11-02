@@ -223,7 +223,8 @@ impl Library {
     /// # Errors
     /// No such plugin, or it failed to create or initialise.
     pub fn instantiate(&self, id: &str) -> Result<Instance<'_>, HostError> {
-        let host = Box::new(HostData::new());
+        let mut host = Box::new(HostData::new());
+        host.bind_gui_log();
         let cid = CString::new(id).map_err(|_| HostError::Create(id.into()))?;
         // SAFETY: a valid factory; the host box outlives the instance.
         let plugin = unsafe {
@@ -263,6 +264,7 @@ impl Library {
             audio_ports: ext(CLAP_EXT_AUDIO_PORTS).cast(),
             note_ports: ext(CLAP_EXT_NOTE_PORTS).cast(),
             latency: ext(CLAP_EXT_LATENCY).cast(),
+            gui: ext(CLAP_EXT_GUI).cast(),
             active: false,
             processing: false,
             steady: 0,
@@ -335,12 +337,30 @@ unsafe fn unload(h: *mut c_void) {
 #[repr(C)]
 struct HostData {
     clap: clap_host,
+    /// What the plugin's gui has asked of this host — the
+    /// `clap_host_gui` callbacks' record, so tests (and hosts built on
+    /// this module) can assert the plugin-side talked back.
+    gui: std::sync::Mutex<HostGuiLog>,
     _strings: [CString; 4],
+}
+
+/// What a host saw the plugin's gui do through `clap_host_gui`.
+#[derive(Debug, Default, Clone, PartialEq)]
+pub struct HostGuiLog {
+    /// `request_resize` asks, in order.
+    pub resizes: Vec<(u32, u32)>,
+    /// `request_show` count.
+    pub shows: usize,
+    /// `request_hide` count.
+    pub hides: usize,
+    /// `closed` count (the panel ended the connection).
+    pub closes: usize,
 }
 
 impl HostData {
     fn new() -> Self {
         let s = [c"vieww", c"vieww", c"https://vieww.dev", c"0.1.0"].map(CString::from);
+        let gui = std::sync::Mutex::new(HostGuiLog::default());
         Self {
             clap: clap_host {
                 clap_version: CLAP_VERSION,
@@ -354,12 +374,93 @@ impl HostData {
                 request_process: Some(host_request),
                 request_callback: Some(host_request),
             },
+            gui,
             _strings: s,
+        }
+    }
+
+    /// Point `host_data` at the gui log. Must run after the struct has
+    /// reached its final resting place (the box in `instantiate`) — a
+    /// pointer taken to a moving value is the one stale-pointer bug
+    /// this module would otherwise own.
+    fn bind_gui_log(&mut self) {
+        self.clap.host_data = (&raw mut self.gui).cast();
+    }
+}
+
+/// The `clap_host_gui` this host serves: every callback recorded, every
+/// request accepted.
+static HOST_GUI: clap_host_gui = clap_host_gui {
+    resize_hints_changed: Some(hg_resize_hints_changed),
+    request_resize: Some(hg_request_resize),
+    request_show: Some(hg_request_show),
+    request_hide: Some(hg_request_hide),
+    closed: Some(hg_closed),
+};
+
+/// The log behind a host's `host_data`.
+///
+/// # Safety
+/// `h` is a host whose `host_data` points at its `Mutex<HostGuiLog>`.
+unsafe fn gui_log(h: *const clap_host) -> Option<&'static std::sync::Mutex<HostGuiLog>> {
+    if h.is_null() {
+        return None;
+    }
+    // SAFETY: `HostData::new` set `host_data` to exactly this.
+    unsafe {
+        (*h).host_data
+            .cast::<std::sync::Mutex<HostGuiLog>>()
+            .as_ref()
+    }
+}
+
+unsafe extern "C" fn hg_resize_hints_changed(h: *const clap_host) {
+    // This host has no drag logic to re-consult; nothing to record.
+    let _ = unsafe { gui_log(h) };
+}
+
+unsafe extern "C" fn hg_request_resize(h: *const clap_host, w: u32, h_: u32) -> bool {
+    if let Some(log) = unsafe { gui_log(h) } {
+        if let Ok(mut l) = log.lock() {
+            l.resizes.push((w, h_));
+        }
+    }
+    true
+}
+
+unsafe extern "C" fn hg_request_show(h: *const clap_host) -> bool {
+    if let Some(log) = unsafe { gui_log(h) } {
+        if let Ok(mut l) = log.lock() {
+            l.shows += 1;
+        }
+    }
+    true
+}
+
+unsafe extern "C" fn hg_request_hide(h: *const clap_host) -> bool {
+    if let Some(log) = unsafe { gui_log(h) } {
+        if let Ok(mut l) = log.lock() {
+            l.hides += 1;
+        }
+    }
+    true
+}
+
+unsafe extern "C" fn hg_closed(h: *const clap_host, _was_destroyed: bool) {
+    if let Some(log) = unsafe { gui_log(h) } {
+        if let Ok(mut l) = log.lock() {
+            l.closes += 1;
         }
     }
 }
 
-unsafe extern "C" fn host_get_extension(_: *const clap_host, _: *const c_char) -> *const c_void {
+unsafe extern "C" fn host_get_extension(h: *const clap_host, id: *const c_char) -> *const c_void {
+    if !h.is_null() && !id.is_null() {
+        // SAFETY: a NUL-terminated id (the CLAP contract).
+        if unsafe { CStr::from_ptr(id) }.to_bytes_with_nul() == CLAP_EXT_GUI {
+            return (&raw const HOST_GUI).cast();
+        }
+    }
     null()
 }
 
@@ -569,6 +670,7 @@ pub struct Instance<'a> {
     audio_ports: *const clap_plugin_audio_ports,
     note_ports: *const clap_plugin_note_ports,
     latency: *const clap_plugin_latency,
+    gui: *const clap_plugin_gui,
     active: bool,
     processing: bool,
     steady: i64,
@@ -884,6 +986,187 @@ impl Instance<'_> {
         }
         // SAFETY: a valid extension.
         unsafe { (*self.note_ports).count.map_or(0, |c| c(self.plugin, true)) }
+    }
+
+    // ── the gui extension, driven the way a host would ────────────────────
+
+    /// `is_api_supported`: does the plugin's GUI live under this api?
+    #[must_use]
+    pub fn gui_supported(&self, api: &str, floating: bool) -> bool {
+        self.gui_call(api, |gui, p, a| {
+            // SAFETY: the caller checked the extension is live.
+            unsafe { gui.is_api_supported.is_some_and(|f| f(p, a, floating)) }
+        })
+        .unwrap_or(false)
+    }
+
+    /// `get_preferred_api`: the `(api, floating)` the plugin would pick.
+    #[must_use]
+    pub fn gui_preferred_api(&self) -> Option<(String, bool)> {
+        if self.gui.is_null() {
+            return None;
+        }
+        let mut api: *const c_char = null();
+        let mut floating = false;
+        // SAFETY: a valid extension and writable outs.
+        unsafe {
+            (*self.gui)
+                .get_preferred_api
+                .is_some_and(|f| f(self.plugin, &raw mut api, &raw mut floating))
+        }
+        .then(|| (string(api), floating))
+    }
+
+    /// `create`: allocate the GUI under this api.
+    pub fn gui_create(&mut self, api: &str, floating: bool) -> bool {
+        self.gui_call(api, |gui, p, a| {
+            // SAFETY: the caller checked the extension is live.
+            unsafe { gui.create.is_some_and(|f| f(p, a, floating)) }
+        })
+        .unwrap_or(false)
+    }
+
+    /// `destroy`: free the GUI.
+    pub fn gui_destroy(&mut self) {
+        if !self.gui.is_null() {
+            // SAFETY: a valid extension.
+            unsafe {
+                if let Some(d) = (*self.gui).destroy {
+                    d(self.plugin);
+                }
+            }
+        }
+    }
+
+    /// `set_scale`: the DPI factor for the backing store.
+    pub fn gui_set_scale(&mut self, scale: f64) -> bool {
+        if self.gui.is_null() {
+            return false;
+        }
+        // SAFETY: a valid extension.
+        unsafe { (*self.gui).set_scale.is_some_and(|s| s(self.plugin, scale)) }
+    }
+
+    /// `get_size`: the GUI's current size, logical pixels.
+    #[must_use]
+    pub fn gui_size(&self) -> Option<(u32, u32)> {
+        if self.gui.is_null() {
+            return None;
+        }
+        let (mut w, mut h) = (0, 0);
+        // SAFETY: a valid extension and writable outs.
+        unsafe {
+            (*self.gui)
+                .get_size
+                .is_some_and(|g| g(self.plugin, &raw mut w, &raw mut h))
+        }
+        .then_some((w, h))
+    }
+
+    /// `can_resize`: may a host drag the edges?
+    #[must_use]
+    pub fn gui_can_resize(&self) -> bool {
+        if self.gui.is_null() {
+            return false;
+        }
+        // SAFETY: a valid extension.
+        unsafe { (*self.gui).can_resize.is_some_and(|c| c(self.plugin)) }
+    }
+
+    /// `adjust_size`: the size the plugin would keep for `w × h`, without
+    /// resizing.
+    #[must_use]
+    pub fn gui_adjust_size(&self, w: u32, h: u32) -> Option<(u32, u32)> {
+        if self.gui.is_null() {
+            return None;
+        }
+        let (mut w, mut h) = (w, h);
+        // SAFETY: a valid extension and readable/writable size outs.
+        unsafe {
+            (*self.gui)
+                .adjust_size
+                .is_some_and(|a| a(self.plugin, &raw mut w, &raw mut h))
+        }
+        .then_some((w, h))
+    }
+
+    /// `set_size`: resize to exactly this, logical pixels.
+    pub fn gui_set_size(&mut self, w: u32, h: u32) -> bool {
+        if self.gui.is_null() {
+            return false;
+        }
+        // SAFETY: a valid extension.
+        unsafe { (*self.gui).set_size.is_some_and(|s| s(self.plugin, w, h)) }
+    }
+
+    /// `set_parent`: embed under `api`'s window, `handle` as the window
+    /// handle (0 for the offscreen api, which is the point of it).
+    pub fn gui_set_parent(&mut self, api: &str, handle: usize) -> bool {
+        let a = CString::new(api).ok();
+        if self.gui.is_null() || a.is_none() {
+            return false;
+        }
+        let a = a.unwrap();
+        let window = clap_window {
+            api: a.as_ptr(),
+            // The handle is written as the x11 member (an integer, the
+            // same width as the union) so no pointer value is ever
+            // formed from a number.
+            handle: clap_window_handle {
+                x11: handle as std::ffi::c_ulong,
+            },
+        };
+        // SAFETY: a valid extension and a valid window for the call.
+        unsafe {
+            (*self.gui)
+                .set_parent
+                .is_some_and(|s| s(self.plugin, &raw const window))
+        }
+    }
+
+    /// `show` / `hide`.
+    pub fn gui_show(&mut self) -> bool {
+        if self.gui.is_null() {
+            return false;
+        }
+        // SAFETY: a valid extension.
+        unsafe { (*self.gui).show.is_some_and(|s| s(self.plugin)) }
+    }
+
+    pub fn gui_hide(&mut self) -> bool {
+        if self.gui.is_null() {
+            return false;
+        }
+        // SAFETY: a valid extension.
+        unsafe { (*self.gui).hide.is_some_and(|s| s(self.plugin)) }
+    }
+
+    /// What the plugin's gui has asked this host for so far.
+    #[must_use]
+    pub fn gui_log(&self) -> HostGuiLog {
+        self._host.gui.lock().map(|g| g.clone()).unwrap_or_default()
+    }
+
+    /// Run an extension call that takes an api string.
+    fn gui_call<R>(
+        &self,
+        api: &str,
+        f: impl FnOnce(&clap_plugin_gui, *const clap_plugin, *const c_char) -> R,
+    ) -> Option<R> {
+        if self.gui.is_null() {
+            return None;
+        }
+        let a = CString::new(api).ok()?;
+        // SAFETY: a valid extension; the api outlives the call.
+        Some(f(unsafe { &*self.gui }, self.plugin, a.as_ptr()))
+    }
+
+    /// The raw plugin pointer — for this crate's own tests, which reach
+    /// the private instance side to prove the wiring moves what it
+    /// claims to.
+    #[cfg(test)]
+    pub(crate) fn clap(&self) -> *const clap_plugin {
+        self.plugin
     }
 
     /// Reset the plugin.

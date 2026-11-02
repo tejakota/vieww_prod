@@ -15,6 +15,8 @@
 //! | MP3 | yes, frame by frame, gapless (LAME/Xing) | frame index, exact after a short pre-roll |
 //! | AAC in MP4/M4A | yes, access unit by access unit | sample table, exact after one frame's pre-roll |
 //! | AAC in ADTS | yes, frame by frame | frame index, as MP3 |
+//! | ALAC in MP4/M4A | yes, frame by frame | sample table, exact — frames are independent |
+//! | Ogg Opus | container purely; payload via the [`platform`](super::platform) bridge, whole-stream in memory (refused by name without one) | exact |
 //! | Ogg Vorbis, AIFF | whole-file decode behind the same interface | exact |
 //!
 //! Each streaming decoder is built from the same per-frame functions the
@@ -498,14 +500,56 @@ pub fn open(r: Box<dyn ReadSeek>) -> Result<Box<dyn PullDecoder>, CodecError> {
         }
         Format::Flac => Box::new(Pull::new_with(input, super::flac::FlacSource::open)?),
         Format::Mp3 => Box::new(Pull::new_with(input, super::mp3::Mp3Source::open)?),
-        #[cfg(feature = "aac")]
-        Format::Mp4 => Box::new(Pull::new_with(input, super::aac::Mp4Source::open)?),
+        // The stsd entry type inside the moov picks the codec, as
+        // [`super::decode`] does: `mp4a` is AAC, `alac` Apple Lossless.
+        Format::Mp4 => {
+            let moov = super::mp4::moov_from_input(&mut input)?;
+            let track = super::mp4::track_from_moov(
+                &moov,
+                usize::try_from(input.len()).unwrap_or(usize::MAX),
+            )?;
+            match &track.codec {
+                b"alac" => {
+                    let src = super::alac::AlacSource::from_track(track)?;
+                    Box::new(Pull::new_with(input, |_| Ok(src))?)
+                }
+                #[cfg(feature = "aac")]
+                b"mp4a" => {
+                    let src = super::aac::Mp4Source::from_track(track)?;
+                    Box::new(Pull::new_with(input, |_| Ok(src))?)
+                }
+                #[cfg(not(feature = "aac"))]
+                b"mp4a" => {
+                    return Err(CodecError::Unsupported(
+                        "AAC (this build of vieww-audio has the `aac` feature off; see PATENTS.md)",
+                    ))
+                }
+                _ => {
+                    return Err(CodecError::Unsupported(
+                        "streaming an MP4 codec vieww-audio does not decode",
+                    ))
+                }
+            }
+        }
         #[cfg(feature = "aac")]
         Format::Adts => Box::new(Pull::new_with(input, super::aac::AdtsSource::open)?),
+        #[cfg(not(feature = "aac"))]
+        Format::Adts => {
+            return Err(CodecError::Unsupported(
+                "AAC (this build of vieww-audio has the `aac` feature off; see PATENTS.md)",
+            ))
+        }
         Format::Aiff => Box::new(Pull::new_with(input, AiffSource::open)?),
-        Format::Ogg => Box::new(Pull::new_with(input, super::vorbis::VorbisSource::open)?),
-        #[allow(unreachable_patterns, reason = "every format streams when aac is on")]
-        _ => return Err(CodecError::Unsupported("streaming this format")),
+        // An Ogg stream's first packet names its codec: Opus's container
+        // parses purely and its payload rides the platform bridge;
+        // Vorbis streams as it always has.
+        Format::Ogg => {
+            if super::opus::is_opus(&head) {
+                Box::new(Pull::new_with(input, super::opus::OpusSource::open)?)
+            } else {
+                Box::new(Pull::new_with(input, super::vorbis::VorbisSource::open)?)
+            }
+        }
     })
 }
 
