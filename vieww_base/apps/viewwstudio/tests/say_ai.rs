@@ -142,7 +142,13 @@ fn prompt_studio(tag: &str, toolchain: &Toolchain, candidate: usize) -> Studio {
         .with_host(vieww_foundation::TargetPlatform::Linux);
     studio.toolchain = std::rc::Rc::new(Ok(toolchain.clone()));
     studio.candidate.set(candidate);
-    studio.session = std::rc::Rc::new(Some(Session::new(0xA103).expect("a temp directory")));
+    // The seed is folded from the tag, so two studios alive at once (cargo
+    // test runs the prompt tests in parallel) get two directories rather
+    // than the co-tenancy `Session::new` refuses.
+    let seed = tag.bytes().fold(0xA100u64, |s, b| {
+        s.wrapping_mul(31).wrapping_add(u64::from(b))
+    });
+    studio.session = std::rc::Rc::new(Some(Session::new(seed).expect("a temp directory")));
     studio
 }
 

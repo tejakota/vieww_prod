@@ -859,6 +859,7 @@ impl Widget for LiveCaution {
 
         let accepting = self.studio.clone();
         let cancelling = self.studio.clone();
+        let materializing = self.studio.clone();
 
         Dialog::new(
             crate::i18n::t("Live Preview"),
@@ -876,6 +877,18 @@ impl Widget for LiveCaution {
             Tone::Neutral,
             move || {
                 cancelling.cancel_live_preview();
+            },
+        ))
+        // ST-19: the one-click upgrade path off the sketch — the flow becomes
+        // a `.say` file, and from there Render and Build and Run are the real
+        // thing. Beside Continue rather than instead of it: the sketch is
+        // still the right tool for sketching.
+        .action(Action::new(
+            crate::i18n::t("Materialize as Say"),
+            Tone::Neutral,
+            move || {
+                materializing.live_caution.set(false);
+                materializing.materialize_flow();
             },
         ))
         .action(Action::new(

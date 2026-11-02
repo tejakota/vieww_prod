@@ -77,6 +77,7 @@ pub mod language;
 pub mod lessons;
 pub mod lint;
 pub mod live;
+pub mod live_materialize;
 pub mod livedoc;
 pub mod loaded;
 pub mod lsp;

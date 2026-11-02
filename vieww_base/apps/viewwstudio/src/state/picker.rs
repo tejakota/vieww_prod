@@ -614,6 +614,9 @@ impl Studio {
                 }
             }
             C::CreateLiveFile => self.create_live_file(),
+            // ST-19: the sketch becomes a `.say` file — the same flow, the
+            // real pipeline. See `live_materialize`.
+            C::MaterializeFlow => self.materialize_flow(),
             C::RestoreFlow => self.restore_flow(),
 
             C::TrySayScreen => self.try_say_screen(),

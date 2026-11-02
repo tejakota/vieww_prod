@@ -1876,8 +1876,12 @@ impl<'a> Gen<'a> {
                     out.push_str(".single_line()");
                 }
                 let write = self.bound_write(bound, scope);
+                // Braced, because `bound_write` is a statement: unbraced it
+                // was `|s, v| s.x = v;` — a closure body of statements, which
+                // rustc refuses. The braced form also matches every other
+                // `say::on` site below.
                 out.push_str(&format!(
-                    ".on_changed(Rc::new(say::on(handle, |s: &mut SayState, v: TextEditingValue| {write})))"
+                    ".on_changed(Rc::new(say::on(handle, |s: &mut SayState, v: TextEditingValue| {{ {write} }})))"
                 ));
                 if let Some(event) = &widget.event {
                     if event.kind == EventKind::Submitted {
@@ -1892,15 +1896,17 @@ impl<'a> Gen<'a> {
             WKind::Switch { bound } => {
                 used.push(0);
                 let write = self.bound_write(bound, scope);
+                // See the text field above for why the body is braced.
                 format!(
-                    "Switch::new({bound}).on_changed(Rc::new(say::on(handle, |s: &mut SayState, v: bool| {write})))"
+                    "Switch::new({bound}).on_changed(Rc::new(say::on(handle, |s: &mut SayState, v: bool| {{ {write} }})))"
                 )
             }
             WKind::Checkbox { bound } => {
                 used.push(0);
                 let write = self.bound_write(bound, scope);
+                // See the text field above for why the body is braced.
                 format!(
-                    "Checkbox::new({bound}).on_changed(Rc::new(say::on(handle, |s: &mut SayState, v: bool| {write})))"
+                    "Checkbox::new({bound}).on_changed(Rc::new(say::on(handle, |s: &mut SayState, v: bool| {{ {write} }})))"
                 )
             }
             WKind::Slider { bound, from, to } => {
@@ -1915,8 +1921,9 @@ impl<'a> Gen<'a> {
                     }
                 }
                 let write = self.bound_write(bound, scope);
+                // See the text field above for why the body is braced.
                 format!(
-                    "Slider::new({bound}).range({}, {}).on_changed(Rc::new(say::on(handle, |s: &mut SayState, v: f32| {write})))",
+                    "Slider::new({bound}).range({}, {}).on_changed(Rc::new(say::on(handle, |s: &mut SayState, v: f32| {{ {write} }})))",
                     rust_f32(out_from),
                     rust_f32(out_to)
                 )

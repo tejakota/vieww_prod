@@ -451,11 +451,14 @@ pub enum Command {
     TogglePreviewNote,
     /// Write the starter `live.rs` into the workspace and open it.
     CreateLiveFile,
+    /// ST-19: write the flow as `src/screens/flow.say` — the sketch becomes
+    /// real Say, compiled by Render, shipped by Build and Run.
+    MaterializeFlow,
 }
 
 impl Command {
     /// Every command, in palette order.
-    pub const ALL: [Self; 117] = [
+    pub const ALL: [Self; 118] = [
         Self::Render,
         Self::CancelRender,
         Self::Build,
@@ -585,6 +588,7 @@ impl Command {
         Self::ShowShortcuts,
         Self::TogglePreviewNote,
         Self::CreateLiveFile,
+        Self::MaterializeFlow,
     ];
 
     /// What the menu item and the palette row say.
@@ -708,6 +712,7 @@ impl Command {
             Self::ShowShortcuts => "Keyboard Shortcuts",
             Self::TogglePreviewNote => "Show or Hide the Preview Note",
             Self::CreateLiveFile => "Create live.rs for the Live Preview",
+            Self::MaterializeFlow => "Materialize the Live Flow as Say",
         }
     }
 
@@ -817,6 +822,7 @@ impl Command {
             Self::ShowToolchain | Self::ShowShortcuts => Menu::Help,
             Self::TogglePreviewNote => Menu::View,
             Self::CreateLiveFile => Menu::Render,
+            Self::MaterializeFlow => Menu::Render,
             Self::CloseFind
             | Self::ClearOutput
             | Self::ClearFinishedTasks
@@ -985,6 +991,9 @@ impl Command {
             | Self::ToggleAutoRender
             | Self::ShowShortcuts
             | Self::TogglePreviewNote
+            // No chord on purpose: it writes a file into the project, and a
+            // keystroke that does that belongs behind a name somebody chose.
+            | Self::MaterializeFlow
             | Self::CreateLiveFile => return None,
             // The chord every editor uses for completion, and the one people
             // press without thinking.
