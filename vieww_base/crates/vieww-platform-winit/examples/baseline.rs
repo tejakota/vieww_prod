@@ -139,6 +139,10 @@ struct OsSample {
     rss_bytes: Option<u64>,
     peak_rss_bytes: Option<u64>,
     cpu: Option<Duration>,
+    /// Context switches into this process's threads — FW-15's idle-wakeup
+    /// counter, sampled the same moment as the rest so an idle stretch's
+    /// delta is one subtraction (see `vieww_platform_winit::wakeups`).
+    wakeups: Option<u64>,
     /// Per RAPL package: (energy µJ, wrap range µJ).
     energy: Option<[(u64, u64); 4]>,
     packages: usize,
@@ -549,6 +553,20 @@ fn report(
         "idle_cpu_percent",
         idle_cpu.zip(idle_secs).map(|(c, t)| c / 10.0 / t.max(1e-9)),
     );
+    // FW-15: what the idle CPU *was* — wakeups over the same stretch, so a
+    // poller (3.4% CPU at zero frames, PENDING §4.2) reads as a rate the
+    // hardware step can gate on instead of an unexplained percentage.
+    let idle_wakeups = idle_start
+        .zip(idle_end)
+        .and_then(|(a, b)| vieww_platform_winit::wakeups_between(a.os.wakeups, b.os.wakeups));
+    int(&mut s, "idle_wakeups", idle_wakeups);
+    num(
+        &mut s,
+        "idle_wakeups_per_s",
+        idle_wakeups
+            .zip(idle_secs)
+            .map(|(w, t)| w as f64 / t.max(1e-9)),
+    );
     num(&mut s, "idle_package_energy_j", idle_energy);
     num(&mut s, "idle_package_power_w", idle_power);
     int(
@@ -662,6 +680,7 @@ mod os {
         let mut sample = OsSample::default();
         imp::memory(&mut sample);
         sample.cpu = imp::cpu();
+        sample.wakeups = vieww_platform_winit::process_wakeups();
         energy(&mut sample);
         sample
     }

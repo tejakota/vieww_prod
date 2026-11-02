@@ -18,7 +18,11 @@
 #   baseline  P0    a real window, launched N times on the CPU path and N on
 #                   the GPU path: launch-to-first-frame, RSS, idle frames / CPU /
 #                   power, animated fps, frame-stage medians, marginal energy
-#                   per animated frame (`examples/baseline.rs`)
+#                   per animated frame (`examples/baseline.rs`) — then FW-15's
+#                   three gates off one more launch: idle CPU and wakeups at
+#                   zero frames (idle-gate), peak RSS against the interim
+#                   budget (rss-budget), and a heaptrack capture with the
+#                   top-10 allocation report (SKIP when heaptrack is absent)
 #   size      P0    shipped (`--profile dist`, static std) size of that windowed app, and
 #                   the framework-core size gate (`ci/check/size-budget.sh`)
 #   stress    §1.1  the animation stress suite five times on this fixed
@@ -33,6 +37,8 @@
 # Environment:
 #   VIEWW_HW_OUT=dir         results directory (default hardware-results/linux-<stamp>)
 #   VIEWW_HW_LAUNCHES=5      baseline launches per path
+#   VIEWW_HW_IDLE_SECS=60    the idle stretch FW-15's idle-gate measures (and
+#                            its launch's timeout padding)
 #   VIEWW_HW_DROP_CACHES=1   drop the page cache before each launch (needs
 #                            passwordless sudo) — a true cold start; otherwise
 #                            the start-up figures are warm-cache and say so
@@ -219,6 +225,109 @@ if want baseline; then
         done
         if command -v python3 >/dev/null; then
             python3 "$root/ci/hardware/summarize_baseline.py" "$out/baseline" | tee "$out/baseline/summary.txt" | sed 's/^/      /' | tee -a "$summary"
+        fi
+
+        # FW-15: what the idle CPU *is*. One more launch, held idle long
+        # enough for a rate to mean something (60 s), gated on the two idle
+        # numbers the audit had no gate for: CPU at zero frames (3.4% was
+        # measured, "unexplained") and wakeups per second — the counter
+        # `vieww_platform_winit::process_wakeups` added so a poller reads as a
+        # rate instead of folklore. `VIEWW_HW_IDLE_SECS` shortens it on a
+        # machine being poked at interactively.
+        idle_secs="${VIEWW_HW_IDLE_SECS:-60}"
+        wake="$out/baseline/wakeup.json"
+        if env VIEWW_BASELINE_LAUNCH_UNIX_NS="$(date +%s%N)" timeout $((idle_secs + 120)) "$bin" \
+            --settle 1 --idle "$idle_secs" --animate 1 --out "$wake" \
+            >> "$out/baseline-wakeup.log" 2>&1; then
+            # The heredoc is the script; `run` tees it into idle-gate.log and
+            # records PASS/FAIL by its exit status (pipefail is on).
+            run idle-gate python3 -I - "$wake" <<'PY'
+import json, sys
+r = json.load(open(sys.argv[1]))
+frames = r.get("idle_frames")
+wakeups = r.get("idle_wakeups_per_s")
+cpu = r.get("idle_cpu_percent")
+failed = []
+if frames is None:
+    print("idle-gate: no idle observations in the report — cannot gate"); sys.exit(1)
+if frames != 0:
+    failed.append(f"idle presented {frames} frame(s): the idle gate measures an app that presents nothing")
+# 5/s is the interim budget: a loop asleep in Wait on an untouched X11 session
+# wakes on compositor noise alone (single digits); the GTK tray poll this gate
+# was written to catch reads 62.5/s. Ratchet down once the machine says what
+# its own floor is.
+if wakeups is None:
+    print("idle-gate: this OS does not report wakeups — not gated on them")
+elif wakeups > 5.0:
+    failed.append(f"idle wakeups {wakeups:.1f}/s at zero frames (budget 5) — a poller, not input")
+if cpu is None:
+    print("idle-gate: this OS does not report process CPU — not gated on it")
+elif cpu > 0.5:
+    failed.append(f"idle CPU {cpu:.2f}% at zero frames (budget 0.5%)")
+for line in failed:
+    print("idle-gate: FAIL " + line)
+sys.exit(1 if failed else 0)
+PY
+        else
+            echo "FAIL  idle-gate (the wakeup launch itself failed; see baseline-wakeup.log)" | tee -a "$summary"
+            failed=1
+        fi
+
+        # FW-15: the memory budget. The baseline's peak RSS against the interim
+        # 120 MB row in ci/check/perf-budgets.json (ratchet noted there). The
+        # class is forced because the report cannot name the machine, and a
+        # budget keyed "linux" would fire for somebody else's Linux.
+        if [ -f "$wake" ]; then
+            run rss-budget ci/check/perf-budget.sh --class hardware-linux "$wake"
+        fi
+
+        # FW-15: heap profiling in the gate. heaptrack when it is installed;
+        # an honest SKIP naming the install command when it is not. The
+        # capture runs the app the same way the baseline does (windowed, both
+        # phases) so the allocation profile is the one a user's session sees.
+        if command -v heaptrack >/dev/null 2>&1; then
+            heap_out="$out/baseline/heaptrack"
+            if heaptrack -o "$heap_out" timeout 180 "$bin" --settle 1 --idle 10 --animate 5 \
+                --out "$out/baseline/heaptrack-run.json" \
+                >> "$out/baseline-heaptrack.log" 2>&1; then
+                # heaptrack writes .zgz under zstd and .gz under gzip; either is
+                # heaptrack_print's input, and preferring whichever it wrote is
+                # more honest than failing to notice a capture that succeeded.
+                zgz="$(ls "$heap_out".zgz "$heap_out".gz 2>/dev/null | head -1)"
+                if command -v heaptrack_print >/dev/null 2>&1 && [ -n "$zgz" ]; then
+                    heaptrack_print "$zgz" > "$out/baseline/heaptrack.txt" 2>&1 || true
+                    python3 -I - "$out/baseline/heaptrack.txt" <<'PY' | sed 's/^/      /' | tee -a "$summary" || true
+import sys
+# heaptrack_print's section names are not a stable contract, so the top-10
+# extraction is best-effort over the ones it has used historically; the full
+# report is kept beside this as heaptrack.txt either way.
+SECTIONS = ("PEAK ALLOCATION SOURCES", "ALLOCATION SOURCES", "PEAK CALLERS", "CALLERS")
+lines = open(sys.argv[1], encoding="utf-8", errors="replace").read().splitlines()
+for i, line in enumerate(lines):
+    if any(line.strip().startswith(s) or line.strip() == s for s in SECTIONS):
+        print(f"heaptrack: top allocations ({line.strip()}):")
+        shown = 0
+        for follow in lines[i + 1:]:
+            if shown >= 10:
+                break
+            if follow.strip():
+                print("  " + follow.strip())
+                shown += 1
+            elif shown:
+                break
+        sys.exit(0)
+print("heaptrack: report kept (baseline/heaptrack.txt); no known section header in it —")
+print("heaptrack: top-10 extraction needs a look at this heaptrack_print's format")
+PY
+                else
+                    note "heaptrack captured but heaptrack_print is missing or no .zgz/.gz was written — see baseline-heaptrack.log"
+                fi
+            else
+                echo "FAIL  heaptrack (capture failed; see baseline-heaptrack.log)" | tee -a "$summary"
+                failed=1
+            fi
+        else
+            skip heaptrack "not installed — sudo apt install heaptrack (analysis: heaptrack-gui)"
         fi
     fi
 fi

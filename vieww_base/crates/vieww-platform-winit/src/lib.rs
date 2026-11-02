@@ -135,6 +135,17 @@ mod startup;
 mod stats;
 pub mod storage;
 mod thermal;
+// The Linux tray thread's wait discipline, split out of `desktop` (which is
+// behind `desktop-services`, and with it the GTK bindings) so its rule —
+// block with no icon shown, poll at menu latency with one — is unit-testable
+// in the default build. Dead code when that feature is off, by the same
+// argument as the feature's own docs: the only caller is `desktop`'s.
+#[cfg(target_os = "linux")]
+#[cfg_attr(not(feature = "desktop-services"), allow(dead_code))]
+mod tray_pace;
+// Idle wakeups, the way `cpu_time` is idle CPU: the OS-side cost of an app
+// that is presenting nothing, which is what FW-15's idle budget gates on.
+mod wakeups;
 mod windows;
 
 pub use app::{App, CloseRequest, Closing, Pinch, PinchPhase, PlatformError, Waker, WindowIcon};
@@ -155,6 +166,7 @@ pub use startup::{pipeline_cache_status, report as startup_report};
 pub use stats::{Frame, FrameLog, FrameReport};
 pub use storage::{data_dir, FileStorage};
 pub use thermal::{status_name as thermal_status_name, thermal_reading, ThermalReading};
+pub use wakeups::{process_wakeups, wakeups_between};
 /// The activity handle `android_main` is handed, re-exported so an application
 /// needs no direct dependency on `android-activity`.
 ///
