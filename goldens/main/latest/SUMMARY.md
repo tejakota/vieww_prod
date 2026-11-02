@@ -1,26 +1,26 @@
-# goldens — FAILURE
+# goldens — SUCCESS
 
-- branch: `main`  sha: `092c1c2d15aee360789a4b508a2822edb2de7fdd`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/41432658093
+- branch: `main`  sha: `0a3a38222372d28fb7699dfef765fa1e51681d13`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/41445495538
 
 | job | verdict | failed steps |
 |---|---|---|
-| shots vs baseline (linux-cpu) | FAIL | Capture and compare |
+| shots vs baseline (linux-cpu) | PASS |  |
 
 ## Steps
 
-### shots vs baseline (linux-cpu) — FAIL
+### shots vs baseline (linux-cpu) — PASS
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
 - PASS: System packages
 - PASS: Run rustup toolchain install
 - PASS: Run Swatinem/rust-cache@v2
-- FAIL: Capture and compare
+- PASS: Capture and compare
 - skipped: Capture new baseline
-- PASS: Upload diff report
+- skipped: Upload diff report
 - skipped: Upload new baseline
-- skipped: Post Run Swatinem/rust-cache@v2
+- PASS: Post Run Swatinem/rust-cache@v2
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-- artifacts: goldens-diff 
+- artifacts: 
