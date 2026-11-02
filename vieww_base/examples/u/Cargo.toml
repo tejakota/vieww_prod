@@ -1,0 +1,113 @@
+[package]
+name = "u"
+description = "U — an offline decision companion. Three rooms, one neuron, no network."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+# Android does not call `main`; the activity loads this library and calls
+# `android_main` inside it — the same reason `examples/android.rs` is a cdylib.
+# `lib` stays in the list so the desktop binary in `src/main.rs` can link the
+# very same code instead of a second copy of it.
+[lib]
+name = "u"
+crate-type = ["lib", "cdylib"]
+
+[[bin]]
+name = "u"
+path = "src/main.rs"
+
+[dependencies]
+vieww.workspace = true
+vieww-foundation.workspace = true
+vieww-widget.workspace = true
+vieww-element.workspace = true
+vieww-animation.workspace = true
+vieww-platform-winit.workspace = true
+# Inter, embedded as `include_bytes!` and handed to the driver's `set_fonts`:
+# the reference screens are set in Inter, and the app is an exact clone of
+# them. The faces live in `assets/fonts/` beside this manifest.
+vieww-text.workspace = true
+# The decision backend, as path crates under `crates/` — U's engine room,
+# not part of the framework. They are workspace members too (so a plain
+# `cargo test` covers them), but an APK build resolves exactly these six
+# through this manifest and nothing they do not need.
+u-core = { path = "crates/u-core" }
+u-decision = { path = "crates/u-decision" }
+u-persona = { path = "crates/u-persona" }
+u-memory = { path = "crates/u-memory" }
+u-feedback = { path = "crates/u-feedback" }
+u-ml-runtime = { path = "crates/u-ml-runtime" }
+
+# Phase 2, opted into per §10's release gates: a desktop build may grow
+# the model (`cargo run -p u --release --features model`) and every APK
+# build stays on the deterministic baseline until Phase 3's
+# physical-device reports exist. The feature adds nothing to a default
+# build — `u-ml-runtime` without `model` resolves no candle, no
+# tokenizer, and no network stack at all.
+[features]
+model = ["u-ml-runtime/model"]
+
+[target.'cfg(target_os = "android")'.dependencies]
+log = "0.4"
+android_logger = "0.14"
+# The biometric shim's JNI, pinned to the version vieww-platform-winit
+# resolves for this target — a second `jni` in the binary would give us a
+# `JavaVM` type that looks identical and is not.
+jni = "0.22"
+
+[build-dependencies]
+# Compiles and dexes the biometric Java shim at build time — the vavlt /
+# three-capture pattern: no Gradle, no AGP, no Kotlin.
+android-build = "0.1"
+
+# The headless screenshot tool (`cargo run -p u --example shots -- <dir>`).
+# PNG output only, and `native` for `NativeRenderer` — the same dependency set
+# `test-premium-ui` uses, for the same reason: nothing here reaches the app
+# itself, so an APK build never resolves any of it.
+[dev-dependencies]
+image = { version = "0.25", default-features = false, features = ["png"] }
+vieww-paint = { workspace = true, features = ["native"] }
+vieww-render.workspace = true
+
+# A different package id from every other vieww demo app, because an id is an
+# install slot: sharing one with `dev.vieww.demo` would mean installing one
+# over the other and reporting on whichever landed last.
+[package.metadata.android]
+package = "dev.vieww.u"
+build_targets = ["aarch64-linux-android"]
+apk_name = "U"
+# A complete manifest instead of the generated one, for one reason: the
+# biometric lock needs `android.permission.USE_BIOMETRIC`, a normal
+# permission cargo-apk cannot express in its metadata. The file mirrors
+# exactly what cargo-apk would generate, plus that one line; the `U APK`
+# workflow's badging dump is what proves the result (and that no INTERNET
+# permission crept in).
+full_manifest = "AndroidManifest.xml"
+# The launcher icon and nothing else: `res/drawable/u_icon.xml` is the
+# companion itself — the reference's own strand and eye geometry, at 0.40
+# scale on the 108-unit canvas — drawn the way vavlt's icon is drawn, as a
+# vector so one file serves every density a phone asks for.
+resources = "res"
+
+[package.metadata.android.sdk]
+min_sdk_version = 24
+target_sdk_version = 34
+
+[package.metadata.android.application]
+label = "U"
+# cargo-apk's default theme brings an ActionBar — chrome this app draws straight
+# over, and the same invisible waste the demo's manifest documents.
+theme = "@android:style/Theme.DeviceDefault.NoActionBar"
+icon = "@drawable/u_icon"
+
+[package.metadata.android.application.activity]
+orientation = "portrait"
+# Handle these ourselves rather than being restarted for them; the lifecycle
+# vieww-platform-winit implements already covers a lost surface.
+config_changes = "orientation|screenSize|smallestScreenSize|keyboardHidden|screenLayout|density"
+
+[lints]
+workspace = true

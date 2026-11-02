@@ -1,0 +1,15 @@
+[package]
+name = "u-feedback"
+description = "U — feedback validation and the persona signals feedback is allowed to become."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+u-core = { path = "../u-core" }
+u-persona = { path = "../u-persona" }

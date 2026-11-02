@@ -13,7 +13,8 @@
 //! Hinting stays off (spec §6.1: "matching the current convention") — that
 //! decision, and the subpixel-AA one, are written out below.
 //!
-//! # The two sharpness decisions: subpixel AA is opt-in, hinting is off
+//! # The three sharpness decisions: subpixel AA is opt-in, hinting is off,
+//! coverage gamma is on
 //!
 //! **RGB (LCD) subpixel antialiasing exists, opt-in, as
 //! [`AaMode::Lcd`](super::AaMode::Lcd)** — this note records where the
@@ -23,7 +24,8 @@
 //! renderer assumed and a liability everywhere else: under rotation (no
 //! correct stripe direction), under translucency and layer compositing
 //! (the fringe enters the blend as colour, not coverage), and on any panel
-//! with the wrong stripe order. So [`AaMode::Lcd`](super::AaMode::Lcd) is a *text* mode with a
+//! with the wrong stripe order — which is every PenTile/diamond OLED, where
+//! the stripes do not run straight RGB at all. So [`AaMode::Lcd`](super::AaMode::Lcd) is a *text* mode with a
 //! fallback contract rather than a scene-wide policy — root surface only,
 //! opaque background only, gamma colour pipeline only, monochrome glyphs
 //! only, silent grayscale fallback for every other case, and a cache entry
@@ -43,6 +45,16 @@
 //! byte-exact relationship between them. At the display densities this
 //! framework targets, the sharpness hinting buys is under a pixel and the
 //! fidelity it costs is the letterform.
+//!
+//! **Coverage gamma is on**, everywhere — text, icons, shapes, gradients.
+//! Rasterised coverage is a fraction of a pixel's *area*; the display's
+//! pixel emits *light*, and the two are not the same scale, so coverage is
+//! put through a perceptual ramp ([`linear::coverage_alpha`](super::linear::coverage_alpha),
+//! the square root — Skia's A8 policy, applied by VS Code and every
+//! Chromium surface) before it becomes alpha. This is what dark-theme text
+//! and hairlines owe their weight to, and it is the reason a glyph here
+//! draws the same on a phone OLED and a desktop panel: grayscale AA with a
+//! gamma ramp, the one policy both display families read well.
 //!
 //! # Variable fonts: the shaper already knows, and now this side does too
 //!

@@ -20,6 +20,11 @@ pub(crate) struct Target {
     pub(crate) width: u32,
     pub(crate) height: u32,
     pub(crate) pixels: Vec<Premul>,
+    /// The coverage gamma, applied once per row into this scratch by the
+    /// flat-fill fast path — one buffer, reused, so the SIMD and scalar
+    /// loops both read the same transferred values and stay byte-identical.
+    /// See [`super::linear::coverage_alpha`].
+    scratch: Vec<f32>,
     /// Writes are confined to this rectangle, when one is set.
     ///
     /// # Why a write mask and not a smaller surface
@@ -80,6 +85,7 @@ impl Target {
             pixels: vec![Premul::TRANSPARENT; (width as usize) * (height as usize)],
             write_mask: None,
             ink: None,
+            scratch: Vec::new(),
         }
     }
 
@@ -286,7 +292,11 @@ impl Target {
             let pixel_row = ty as usize * self.width as usize;
 
             for dx in dx_start..dx_end {
-                let c = mask_row[dx as usize];
+                // The coverage gamma — see `linear::coverage_alpha`. The
+                // full/empty short-circuits there keep the interior and the
+                // skip paths untouched; only the antialiased fringe pays
+                // the table lookup.
+                let c = super::linear::coverage_alpha(mask_row[dx as usize]);
                 if c <= 0.0 {
                     continue;
                 }
@@ -393,9 +403,6 @@ impl Target {
 
             for dx in dx_start..dx_end {
                 let base = dx as usize * LCD_SUBPIXELS;
-                let kr = mask_row[base];
-                let kg = mask_row[base + 1];
-                let kb = mask_row[base + 2];
                 let x = coverage.x0 + dx;
                 // A clip is a mask over the whole pixel, not over individual
                 // sub-columns, so it multiplies all three channels equally.
@@ -403,6 +410,16 @@ impl Target {
                 if clip <= 0.0 {
                     continue;
                 }
+                // The same coverage gamma as the gray path, per channel —
+                // Skia's LCD pipeline gamma-corrects too. It is applied
+                // *before* the clip multiplication, so a doubly-fractional
+                // pixel (fringe coverage under a soft clip) is
+                // `gamma(mask) * clip` — exactly the gray path's product —
+                // and the equal-channel branch below stays bit-identical to
+                // the gray compositor, clip and all.
+                let kr = super::linear::coverage_alpha(mask_row[base]);
+                let kg = super::linear::coverage_alpha(mask_row[base + 1]);
+                let kb = super::linear::coverage_alpha(mask_row[base + 2]);
                 let (kr, kg, kb) = if clip >= 1.0 {
                     (kr, kg, kb)
                 } else {
@@ -522,7 +539,17 @@ impl Target {
             let base = ty as usize * self.width as usize + x_left as usize;
             let span = (dx_end - dx_start) as usize;
 
-            let mask = &coverage.row(dy as u32)[dx_start as usize..dx_end as usize];
+            // The coverage gamma, applied once per row into the scratch, so
+            // the SIMD and scalar paths below read the same transferred
+            // values — byte-identity survives because the transfer is shared,
+            // not because each loop re-implements it.
+            self.scratch.clear();
+            self.scratch.extend(
+                coverage.row(dy as u32)[dx_start as usize..dx_end as usize]
+                    .iter()
+                    .map(|c| super::linear::coverage_alpha(*c)),
+            );
+            let mask = self.scratch.as_slice();
             let row = &mut self.pixels[base..base + span];
             // The normal blend in gamma space — nearly every draw — is the
             // explicit-SIMD row in `native/simd.rs`, byte-identical to the
@@ -611,7 +638,10 @@ impl Target {
             let row = ramp.row(y);
 
             for dx in dx_start..dx_end {
-                let c = mask_row[dx as usize];
+                // The coverage gamma — see `linear::coverage_alpha` — for
+                // the same reason the flat-fill loop applies it: coverage
+                // is area, alpha is light.
+                let c = super::linear::coverage_alpha(mask_row[dx as usize]);
                 if c <= 0.0 {
                     continue;
                 }

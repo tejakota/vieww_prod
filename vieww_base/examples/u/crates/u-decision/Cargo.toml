@@ -1,0 +1,15 @@
+[package]
+name = "u-decision"
+description = "U — universal free-form interpretation and structured assessment, no categories required."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+u-core = { path = "../u-core" }
+serde = { workspace = true }
