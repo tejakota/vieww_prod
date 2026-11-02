@@ -1,222 +1,312 @@
 -----
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:21.6367897Z ^[[1m^[[92m    Checking^[[0m feature-grid-view v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/44-grid-view)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:21.6967575Z ^[[1m^[[92m    Checking^[[0m wright_film v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/wright_film)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:21.9367919Z ^[[1m^[[92m    Checking^[[0m feature-list-view v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/42-list-view)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:22.2617929Z ^[[1m^[[92m    Checking^[[0m feature-text-display v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/02-text-display)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:22.2827974Z ^[[1m^[[92m    Checking^[[0m feature-function-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/75-function-graph)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:22.3258111Z ^[[1m^[[92m    Checking^[[0m feature-scroll-driven v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/43-scroll-driven)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:22.3525230Z ^[[1m^[[92m    Checking^[[0m feature-text-box v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/03-text-box)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:22.3657623Z ^[[1m^[[92m    Checking^[[0m feature-curves v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/40-curves)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:22.4357920Z ^[[1m^[[92m    Checking^[[0m feature-line-chart v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/24-line-chart)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:22.4517930Z ^[[1m^[[92m    Checking^[[0m feature-3d-advanced v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/85-3d-advanced)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:22.5197915Z ^[[1m^[[92m    Checking^[[0m feature-stack-positioned v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/14-stack-positioned)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:22.5967611Z ^[[1m^[[92m    Checking^[[0m feature-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/71-embed)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:22.6058196Z ^[[1m^[[92m    Checking^[[0m feature-physics-joint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/69-physics-joint)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:22.6127553Z ^[[1m^[[92m    Checking^[[0m feature-particles v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/60-particles)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:22.6742125Z ^[[1m^[[92m    Checking^[[0m feature-pie-chart v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/73-pie-chart)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:26.3327413Z ^[[1m^[[91merror[E0308]^[[0m^[[1m: mismatched types^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:26.3347060Z     ^[[1m^[[94m--> ^[[0mexamples/film_lab/src/studio_film/master.rs:471:37
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:26.3376651Z      ^[[1m^[[94m|^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:26.3397241Z ^[[1m^[[94m 471^[[0m ^[[1m^[[94m|^[[0m                 studio.capture_tree(&self.driver);
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:26.3398539Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m------------^[[0m ^[[1m^[[91m^^^^^^^^^^^^^[[0m ^[[1m^[[91mtypes differ in mutability^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:26.3436694Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m|^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7600502Z      fn double_taps_are_one_opinion() {
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7600656Z -        assert!(is_duplicate(
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7600806Z -            Some(&Feedback::Helpful),
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7600958Z -            &Feedback::Helpful
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7601093Z -        ));
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7601266Z +        assert!(is_duplicate(Some(&Feedback::Helpful), &Feedback::Helpful));
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7601489Z          assert!(!is_duplicate(
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7601638Z              Some(&Feedback::Helpful),
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7601792Z              &Feedback::NotHelpful
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7602041Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-memory/src/lib.rs:254:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7602294Z  
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7602425Z  /// Append one serialised record as a line, flushed.
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7602675Z  fn append_line<T: serde::Serialize>(path: &Path, record: &T) -> std::io::Result<()> {
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7602969Z -    let mut file = fs::OpenOptions::new().create(true).append(true).open(path)?;
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7603203Z -    let line = serde_json::to_string(record)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7603399Z -        .map_err(|e| std::io::Error::other(e.to_string()))?;
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7603586Z +    let mut file = fs::OpenOptions::new()
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7603838Z +        .create(true)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7603964Z +        .append(true)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7604087Z +        .open(path)?;
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7604450Z +    let line = serde_json::to_string(record).map_err(|e| std::io::Error::other(e.to_string()))?;
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7604694Z      writeln!(file, "{line}")?;
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7604831Z      file.flush()
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7604945Z  }
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7605158Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-memory/src/lib.rs:309:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7605408Z      #[test]
 -----
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:27.2858064Z ^[[1m^[[92m    Checking^[[0m feature-math-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/76-math-text)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:27.3778190Z ^[[1m^[[92m    Checking^[[0m feature-graph-game-collab-lottie v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/88-graph-game-collab-lottie)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:27.6018216Z ^[[1m^[[92m    Checking^[[0m feature-transform-translate v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/20-transform-translate)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:27.7453444Z ^[[1m^[[92m    Checking^[[0m feature-opacity v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/15-opacity)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:27.7650531Z ^[[1m^[[92m    Checking^[[0m feature-particles-retarget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/84-particles-retarget)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:27.8792346Z ^[[1m^[[92m    Checking^[[0m feature-motion-tokens v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/46-motion-tokens)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:27.9297105Z ^[[1m^[[92m    Checking^[[0m feature-video-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/89-video-effects)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:28.0667777Z ^[[1m^[[92m    Checking^[[0m feature-lfo v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/62-lfo)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:28.1217960Z ^[[1m^[[92m    Checking^[[0m feature-media-player v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/92-media-player)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:28.2347973Z ^[[1m^[[92m    Checking^[[0m feature-grayscale v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/33-grayscale)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:28.2998364Z ^[[1m^[[92m    Checking^[[0m feature-code-binding-sprites v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/91-code-binding-sprites)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:28.4168035Z ^[[1m^[[92m    Checking^[[0m feature-colors-rgb v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/09-colors-rgb)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:28.4959155Z ^[[1m^[[92m    Checking^[[0m feature-box-fit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/19-box-fit)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:28.5347449Z ^[[1mFor more information about this error, try `rustc --explain E0308`.^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:28.5757817Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab") due to 1 previous error
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:28.5761254Z ^[[1m^[[33mwarning^[[0m: build failed, waiting for other jobs to finish...
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:28.5918065Z ^[[1m^[[92m    Checking^[[0m feature-switch v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/27-switch)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:28.6697827Z ^[[1m^[[92m    Checking^[[0m feature-rectangle v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/00-rectangle)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:28.8327722Z ^[[1m^[[92m    Checking^[[0m feature-transition-fade v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/06-transition-fade)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:29.0357955Z ^[[1m^[[92m    Checking^[[0m feature-clip-rounded v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/16-clip-rounded)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:29.1048472Z ^[[1m^[[92m    Checking^[[0m feature-noise v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/61-noise)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7750428Z -        persona.observe(Dimension::Security, 0.5, 0.3, Source::DecisionPriority, None, T0);
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7750675Z +        persona.observe(
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7750818Z +            Dimension::Security,
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7750960Z +            0.5,
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7751074Z +            0.3,
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7751195Z +            Source::DecisionPriority,
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7751340Z +            None,
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7751451Z +            T0,
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7751558Z +        );
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7751677Z          let found = persona.relevant(&[]);
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7751886Z          assert_eq!(found[0].dimension, Dimension::Simplicity);
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7752063Z      }
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7765950Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/calib.rs:16:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7766204Z  use vieww_widget::Theme;
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7766332Z  
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7766463Z  fn main() -> Result<(), Box<dyn std::error::Error>> {
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7766709Z -    let out = std::env::args().nth(1).unwrap_or_else(|| "u-calib".to_owned());
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7766922Z +    let out = std::env::args()
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7767232Z +        .nth(1)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7767374Z +        .unwrap_or_else(|| "u-calib".to_owned());
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.7767590Z      std::fs::create_dir_all(&out)?;
 -----
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:37.3237982Z ^[[1m^[[92m    Checking^[[0m test-layout-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-layout-stress)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:37.4011103Z ^[[1m^[[92m    Checking^[[0m test-animation-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-animation-stress)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:37.5107736Z ^[[1m^[[92m    Checking^[[0m keynote v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/keynote)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:37.5934037Z ^[[1m^[[92m    Checking^[[0m test-scroll-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-scroll-stress)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:37.8812251Z ^[[1m^[[92m    Checking^[[0m test-image-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-image-effects)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:38.1387673Z ^[[1m^[[92m    Checking^[[0m screenshot v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/screenshot)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:38.3137873Z ^[[1m^[[92m    Checking^[[0m test-premium-ui v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-premium-ui)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:38.5846134Z ^[[1m^[[92m    Checking^[[0m audit-sheets v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/audit-sheets)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:40.0077795Z ^[[1m^[[92m    Checking^[[0m reload-guest v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/reload-guest)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:41.6378425Z ^[[1m^[[92m    Checking^[[0m vieww-scroll v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scroll)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:42.9598782Z ^[[1m^[[92m    Checking^[[0m test-gpu-work v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-gpu-work)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:43.4027724Z ^[[1m^[[92m    Checking^[[0m vieww-runtime v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-runtime)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:44.5368615Z ^[[1m^[[92m    Checking^[[0m feature-image-mipmaps-atlas v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/54-image-mipmaps-atlas)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:44.6306301Z ^[[1m^[[92m    Checking^[[0m shot-diff v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/shot-diff)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:45.6575834Z ^[[1m^[[92m    Checking^[[0m vieww-interaction v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-interaction)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:52.9578978Z     FAILED: clippy (workspace, all targets, warnings are errors) (exit 101)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:52.9579599Z 
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:52.9579784Z ==> build (workspace, all targets)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:53.5872898Z ^[[1m^[[92m    Checking^[[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:53.6016214Z ^[[1m^[[92m   Compiling^[[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:13:53.6109373Z ^[[1m^[[92m   Compiling^[[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.9447677Z -            ));
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.9447736Z +            .push(
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.9447819Z +                place(0.0, top_of(512.0, 9.0)).width(420.0).child(
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.9447917Z +                    Text::new("U  ·  ON-DEVICE PERSONA")
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.9447972Z +                        .style(
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.9448034Z +                            TextStyle::new(9.0)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.9448105Z +                                .letter_spacing(0.6)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.9448189Z +                                .color(Color::rgb(94, 109, 132)),
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.9448241Z +                        )
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.9448384Z +                        .align(TextAlign::Center),
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.9448435Z +                ),
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.9448481Z +            );
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.9448534Z  
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.9448594Z          stage::screen(screen)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:37.9448638Z      }
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:38.0033003Z grep: write error: Broken pipe
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:38.0033726Z     FAILED: formatting (exit 1)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:38.0034611Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:38.0034762Z ==> clippy (workspace, all targets, warnings are errors)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:38.1058805Z ^[[1m^[[92m    Updating^[[0m crates.io index
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:38.7255290Z ^[[1m^[[92m Downloading^[[0m crates ...
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:39.3966646Z ^[[1m^[[92m  Downloaded^[[0m android-build v0.1.4
 -----
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:03.9379475Z ^[[1m^[[92m    Checking^[[0m feature-chip-badge v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/30-chip-badge)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:03.9528894Z ^[[1m^[[92m    Checking^[[0m feature-easing-presets v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/63-easing-presets)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:04.0111824Z ^[[1m^[[92m    Checking^[[0m feature-sepia v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/34-sepia)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:04.0287930Z ^[[1m^[[92m    Checking^[[0m feature-ik v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/79-ik)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:04.1045374Z ^[[1m^[[92m    Checking^[[0m feature-stack-positioned v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/14-stack-positioned)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:04.1154821Z ^[[1m^[[92m    Checking^[[0m feature-particles v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/60-particles)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:04.1758014Z ^[[1m^[[92m    Checking^[[0m feature-transition-slide v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/07-transition-slide)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:04.1917682Z ^[[1m^[[92m    Checking^[[0m feature-mesh v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/67-mesh)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:04.2698393Z ^[[1m^[[92m    Checking^[[0m feature-3d-scene v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/80-3d-scene)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:04.2767803Z ^[[1m^[[92m    Checking^[[0m feature-image-display v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/18-image-display)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:04.3555626Z ^[[1m^[[92m    Checking^[[0m feature-animated-container v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/38-animated-container)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:04.3707515Z ^[[1m^[[92m    Checking^[[0m feature-bar-chart v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/23-bar-chart)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:04.4077790Z ^[[1m^[[92m    Checking^[[0m feature-blur-effect v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/32-blur-effect)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:04.5006641Z ^[[1m^[[92m    Checking^[[0m feature-midi-dsp-osc v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/90-midi-dsp-osc)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:04.5157508Z ^[[1m^[[92m    Checking^[[0m feature-rigging v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/83-rigging)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:07.6237263Z ^[[1m^[[91merror[E0308]^[[0m^[[1m: mismatched types^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:07.6266945Z     ^[[1m^[[94m--> ^[[0mexamples/film_lab/src/studio_film/master.rs:471:37
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:07.6296528Z      ^[[1m^[[94m|^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:07.6326770Z ^[[1m^[[94m 471^[[0m ^[[1m^[[94m|^[[0m                 studio.capture_tree(&self.driver);
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:07.6356971Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m------------^[[0m ^[[1m^[[91m^^^^^^^^^^^^^[[0m ^[[1m^[[91mtypes differ in mutability^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:07.6386625Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m|^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8424692Z ^[[1m^[[94m70^[[0m ^[[92m+             engine.decisions()^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8454716Z ^[[1m^[[94m71^[[0m ^[[92m~         }).unwrap_or_default()^[[0m;
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8484636Z    ^[[1m^[[94m|^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8514389Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8545367Z ^[[1m^[[91merror^[[0m^[[1m: useless conversion to the same type: `vieww::WidgetNode`^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8545944Z    ^[[1m^[[94m--> ^[[0mexamples/u/src/history.rs:204:13
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8574922Z     ^[[1m^[[94m|^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8604957Z ^[[1m^[[94m204^[[0m ^[[1m^[[94m|^[[0m             saved_chip().into()
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8634942Z     ^[[1m^[[94m|^[[0m             ^[[1m^[[91m^^^^^^^^^^^^^^^^^^^^[[0m ^[[1m^[[91mhelp: consider removing `.into()`: `saved_chip()`^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8635446Z     ^[[1m^[[94m|^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8664938Z     ^[[1m^[[94m= ^[[0m^[[1mhelp^[[0m: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#useless_conversion
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8695002Z     ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `-D clippy::useless-conversion` implied by `-D warnings`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8724935Z     ^[[1m^[[94m= ^[[0m^[[1mhelp^[[0m: to override `-D warnings` add `#[allow(clippy::useless_conversion)]`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8771266Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8795685Z ^[[1m^[[91merror^[[0m: could not compile `u` (lib) due to 2 previous errors
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8815213Z ^[[1m^[[33mwarning^[[0m: build failed, waiting for other jobs to finish...
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8835391Z ^[[1m^[[92m    Checking^[[0m vieww-game v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-game)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:46.8844956Z ^[[1m^[[92m    Checking^[[0m wright-engine v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/engine)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:47.0715769Z ^[[1m^[[92m    Checking^[[0m wright-infer v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/infer)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:47.2806035Z ^[[1m^[[92m   Compiling^[[0m vieww-plugin-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-plugin-macros)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:01:47.4905802Z ^[[1m^[[92m   Compiling^[[0m fixtures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/fixtures)
 -----
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:08.7902048Z ^[[1m^[[92m    Checking^[[0m feature-particles-retarget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/84-particles-retarget)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:08.8612218Z ^[[1m^[[92m    Checking^[[0m feature-transition-fade v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/06-transition-fade)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:08.9539225Z ^[[1m^[[92m    Checking^[[0m feature-radio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/28-radio)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.0430014Z ^[[1m^[[92m    Checking^[[0m feature-audio-reactive v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/65-audio-reactive)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.1808196Z ^[[1m^[[92m    Checking^[[0m feature-blend-modes v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/52-blend-modes)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.1977698Z ^[[1m^[[92m    Checking^[[0m feature-markdown v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/49-markdown)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.2677921Z ^[[1m^[[92m    Checking^[[0m feature-locale-formatting v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/51-locale-formatting)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.3769094Z ^[[1m^[[92m    Checking^[[0m feature-clip-rounded v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/16-clip-rounded)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.4558188Z ^[[1m^[[92m    Checking^[[0m feature-form-controls v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/47-form-controls)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.6228159Z ^[[1m^[[92m    Checking^[[0m feature-button-pressable v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/25-button-pressable)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.6918071Z ^[[1m^[[92m    Checking^[[0m feature-decoration v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/04-decoration)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.7067696Z ^[[1m^[[92m    Checking^[[0m feature-list-view v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/42-list-view)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.7838457Z ^[[1m^[[92m    Checking^[[0m feature-spring-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/37-spring-animation)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.8177308Z ^[[1mFor more information about this error, try `rustc --explain E0308`.^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.8620820Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.8625473Z ^[[1m^[[33mwarning^[[0m: build failed, waiting for other jobs to finish...
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.8627412Z ^[[1m^[[92m    Checking^[[0m feature-pie-chart v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/73-pie-chart)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.8908600Z ^[[1m^[[92m    Checking^[[0m feature-grayscale v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/33-grayscale)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.9417906Z ^[[1m^[[92m    Checking^[[0m feature-colors-rgba v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/10-colors-rgba)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:09.9548069Z ^[[1m^[[92m    Checking^[[0m feature-3d-advanced v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/85-3d-advanced)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:10.0057947Z ^[[1m^[[92m    Checking^[[0m feature-lfo v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/62-lfo)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:01.7681026Z ^[[1m^[[92m    Checking^[[0m keynote v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/keynote)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:01.8972797Z ^[[1m^[[92m    Checking^[[0m test-scroll-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-scroll-stress)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:01.9205902Z ^[[1m^[[92m    Checking^[[0m vector-probe v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/vector-probe)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:01.9945860Z ^[[1m^[[92m    Checking^[[0m test-premium-ui v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-premium-ui)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:02.1076439Z ^[[1m^[[92m    Checking^[[0m audit-sheets v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/audit-sheets)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:02.3885955Z ^[[1m^[[92m    Checking^[[0m test-native-surface v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-native-surface)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:02.7045995Z ^[[1m^[[92m    Checking^[[0m test-text-fidelity v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-text-fidelity)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:02.8492092Z ^[[1m^[[92m    Checking^[[0m screenshot v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/screenshot)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:02.9415967Z ^[[1m^[[92m    Checking^[[0m test-layout-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-layout-stress)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:03.9265895Z ^[[1m^[[92m    Checking^[[0m reload-guest v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/reload-guest)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:04.9475828Z ^[[1m^[[92m    Checking^[[0m test-gpu-work v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-gpu-work)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:05.0576223Z ^[[1m^[[92m    Checking^[[0m vieww-runtime v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-runtime)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:05.8165913Z ^[[1m^[[92m    Checking^[[0m vieww-scroll v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scroll)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:06.4756826Z ^[[1m^[[92m    Checking^[[0m feature-image-mipmaps-atlas v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/54-image-mipmaps-atlas)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:06.9826566Z ^[[1m^[[92m    Checking^[[0m shot-diff v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/shot-diff)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:08.5905229Z ^[[1m^[[91merror[E0063]^[[0m^[[1m: missing field `scratch` in initializer of `native::target::Target`^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:08.5935007Z    ^[[1m^[[94m--> ^[[0mcrates/vieww-paint/src/native/target.rs:183:9
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:08.5975075Z     ^[[1m^[[94m|^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:08.5995083Z ^[[1m^[[94m183^[[0m ^[[1m^[[94m|^[[0m         Self {
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:08.6035098Z     ^[[1m^[[94m|^[[0m         ^[[1m^[[91m^^^^^[[0m ^[[1m^[[91mmissing `scratch`^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:08.6064419Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:09.0505595Z ^[[1mFor more information about this error, try `rustc --explain E0063`.^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:09.0685617Z ^[[1m^[[91merror^[[0m: could not compile `vieww-paint` (lib test) due to 1 previous error
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:09.4096284Z ^[[1m^[[92m    Checking^[[0m vieww-interaction v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-interaction)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:13.3070881Z     FAILED: clippy (workspace, all targets, warnings are errors) (exit 101)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:13.3071171Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:13.3071289Z ==> build (workspace, all targets)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:13.7505653Z ^[[1m^[[92m    Checking^[[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:13.7635803Z ^[[1m^[[92m   Compiling^[[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:13.7640004Z ^[[1m^[[92m   Compiling^[[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
 -----
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:18.6030189Z ^[[1m^[[92m    Checking^[[0m test-premium-ui v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-premium-ui)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:18.7617766Z ^[[1m^[[92m    Checking^[[0m screenshot v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/screenshot)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:18.8660342Z ^[[1m^[[92m    Checking^[[0m test-animation-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-animation-stress)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:19.0118270Z ^[[1m^[[92m    Checking^[[0m test-native-surface v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-native-surface)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:19.3327947Z ^[[1m^[[92m    Checking^[[0m test-layout-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-layout-stress)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:19.4724018Z ^[[1m^[[92m    Checking^[[0m test-image-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-image-effects)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:19.5984868Z ^[[1m^[[92m    Checking^[[0m keynote v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/keynote)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:19.6677677Z ^[[1m^[[92m    Checking^[[0m audit-sheets v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/audit-sheets)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:20.7737965Z ^[[1m^[[92m    Checking^[[0m reload-guest v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/reload-guest)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:20.8669800Z ^[[1m^[[92m    Checking^[[0m test-gpu-work v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-gpu-work)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:21.2267833Z ^[[1m^[[92m    Checking^[[0m vieww-runtime v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-runtime)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:22.9207898Z ^[[1m^[[92m    Checking^[[0m vieww-scroll v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scroll)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:24.0616904Z ^[[1m^[[92m    Checking^[[0m shot-diff v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/shot-diff)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:24.2499257Z ^[[1m^[[92m    Checking^[[0m feature-image-mipmaps-atlas v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/54-image-mipmaps-atlas)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:27.1843461Z ^[[1m^[[92m    Checking^[[0m vieww-interaction v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-interaction)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:31.6229616Z     FAILED: build (workspace, all targets) (exit 101)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:31.6230074Z 
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:31.6230239Z ==> docs (workspace, broken intra-doc links are errors)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:31.8784220Z ^[[1m^[[33mwarning^[[0m: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/doc/vieww/index.html
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:31.8785101Z   ^[[1m^[[94m|^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:14:31.8786967Z   ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: the bin target `vieww` in package `vieww-cli v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-cli)` has the same output filename as the lib target `vieww` in package `vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:33.2891097Z ^[[1m^[[92m    Checking^[[0m test-text-fidelity v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-text-fidelity)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:33.3545682Z ^[[1m^[[92m    Checking^[[0m keynote v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/keynote)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:33.6182574Z ^[[1m^[[92m    Checking^[[0m test-image-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-image-effects)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:33.6555988Z ^[[1m^[[92m    Checking^[[0m test-layout-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-layout-stress)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:33.7204945Z ^[[1m^[[92m    Checking^[[0m test-premium-ui v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-premium-ui)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:33.8355998Z ^[[1m^[[92m    Checking^[[0m test-scroll-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-scroll-stress)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:33.9244351Z ^[[1m^[[92m    Checking^[[0m screenshot v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/screenshot)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:33.9599658Z ^[[1m^[[92m    Checking^[[0m audit-sheets v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/audit-sheets)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:35.1147771Z ^[[1m^[[92m    Checking^[[0m vieww-cli v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-cli)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:35.2516634Z ^[[1m^[[92m    Checking^[[0m reload-guest v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/reload-guest)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:36.1665902Z ^[[1m^[[92m    Checking^[[0m test-gpu-work v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-gpu-work)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:36.6278635Z ^[[1m^[[92m    Checking^[[0m vieww-runtime v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-runtime)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:36.8995483Z ^[[1m^[[92m    Checking^[[0m vieww-scroll v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scroll)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:37.9526025Z ^[[1m^[[92m    Checking^[[0m shot-diff v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/shot-diff)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:38.4736644Z ^[[1m^[[92m    Checking^[[0m feature-image-mipmaps-atlas v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/54-image-mipmaps-atlas)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:39.5416141Z ^[[1m^[[91merror[E0063]^[[0m^[[1m: missing field `scratch` in initializer of `target::Target`^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:39.5475324Z    ^[[1m^[[94m--> ^[[0mcrates/vieww-paint/src/native/target.rs:183:9
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:39.5504928Z     ^[[1m^[[94m|^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:39.5535102Z ^[[1m^[[94m183^[[0m ^[[1m^[[94m|^[[0m         Self {
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:39.5564889Z     ^[[1m^[[94m|^[[0m         ^[[1m^[[91m^^^^^[[0m ^[[1m^[[91mmissing `scratch`^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:39.5565177Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:39.8726048Z ^[[1m^[[92m    Checking^[[0m vieww-interaction v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-interaction)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:40.0150992Z ^[[1mFor more information about this error, try `rustc --explain E0063`.^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:40.0326020Z ^[[1m^[[91merror^[[0m: could not compile `vieww-paint` (lib test) due to 1 previous error
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:40.0355883Z ^[[1m^[[33mwarning^[[0m: build failed, waiting for other jobs to finish...
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:43.4356683Z     FAILED: build (workspace, all targets) (exit 101)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:43.4356934Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:43.4357036Z ==> docs (workspace, broken intra-doc links are errors)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:43.6279652Z ^[[1m^[[33mwarning^[[0m: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/doc/vieww/index.html
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:43.6280341Z   ^[[1m^[[94m|^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:02:43.6281090Z   ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: the bin target `vieww` in package `vieww-cli v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-cli)` has the same output filename as the lib target `vieww` in package `vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)`
 -----
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:08.8673169Z ^[[1m^[[92m   Compiling^[[0m wright-tools v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/tools)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:08.9528818Z ^[[1m^[[92m   Compiling^[[0m vieww-dataviz v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-dataviz)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:09.1197933Z ^[[1m^[[92m   Compiling^[[0m vieww-collab v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-collab)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:09.8117702Z ^[[1m^[[92m   Compiling^[[0m vieww-game v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-game)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:10.8867581Z ^[[1m^[[92m   Compiling^[[0m wright-agents v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/agents)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:10.9637752Z ^[[1m^[[92m   Compiling^[[0m wrightsite v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wrightsite)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:11.4418973Z ^[[1m^[[92m   Compiling^[[0m wright-engine v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/engine)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:12.4118309Z ^[[1m^[[92m   Compiling^[[0m test-web v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-web)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:12.8167748Z ^[[1m^[[92m   Compiling^[[0m wright-infer v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/infer)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:17.0927965Z ^[[1m^[[92m   Compiling^[[0m wright v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/app)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:17.9757744Z ^[[1m^[[92m   Compiling^[[0m reload-guest v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/reload-guest)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:18.2676600Z ^[[1m^[[92m   Compiling^[[0m vieww-runtime v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-runtime)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:18.4867771Z ^[[1m^[[92m   Compiling^[[0m vieww-scroll v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scroll)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:18.6417676Z ^[[1m^[[92m   Compiling^[[0m vieww-interaction v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-interaction)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:29.8759058Z ^[[1m^[[92m   Compiling^[[0m film_lab v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/film_lab)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:32.9137231Z ^[[1m^[[91merror[E0308]^[[0m^[[1m: mismatched types^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:32.9156780Z     ^[[1m^[[94m--> ^[[0mexamples/film_lab/src/studio_film/master.rs:471:37
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:32.9196512Z      ^[[1m^[[94m|^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:32.9226911Z ^[[1m^[[94m 471^[[0m ^[[1m^[[94m|^[[0m                 studio.capture_tree(&self.driver);
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:32.9247008Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m------------^[[0m ^[[1m^[[91m^^^^^^^^^^^^^[[0m ^[[1m^[[91mtypes differ in mutability^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:32.9276680Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m|^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:32.9277538Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94marguments to this method are incorrect^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:32.9278235Z      ^[[1m^[[94m|^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:32.9278968Z      ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: expected mutable reference `&^[[1m^[[35mmut ^[[0mFrameDriver`
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:32.9279703Z                         found reference `&FrameDriver`
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:32.9280306Z ^[[1m^[[92mnote^[[0m: method defined here
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:32.9280979Z     ^[[1m^[[94m--> ^[[0mapps/viewwstudio/src/state/editing.rs:1563:12
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:32.9281659Z      ^[[1m^[[94m|^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:32.9282691Z ^[[1m^[[94m1563^[[0m ^[[1m^[[94m|^[[0m     pub fn capture_tree(&self, driver: &mut vieww_render::FrameDriver) {
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:32.9283581Z      ^[[1m^[[94m|^[[0m            ^[[1m^[[92m^^^^^^^^^^^^^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:32.9283940Z 
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:35.5608846Z ^[[1mFor more information about this error, try `rustc --explain E0308`.^[[0m
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:35.6058793Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:35.6060301Z ^[[1m^[[33mwarning^[[0m: build failed, waiting for other jobs to finish...
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:43.0954272Z     FAILED: tests (workspace) (exit 101)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:43.0954763Z 
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:43.0955166Z ==> web-sys feature audit (the half of ci/check/wasm-check.sh that needs no target)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:43.1002361Z ==> auditing web-sys features against the types the crate names
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:43.1107230Z     every web-sys type the crate names is enabled
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:17:43.3176767Z ==> installing wasm32-unknown-unknown
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.1854969Z    ^[[1m^[[94m|^[[0m                                           ^[[1m^[[94m---------^[[0m  ^[[1m^[[91m^^^^^^^^^^^^^^^^^^^^^^[[0m ^[[1m^[[91mexplicit target is redundant^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.1864515Z    ^[[1m^[[94m|^[[0m                                           ^[[1m^[[94m|^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.1894722Z    ^[[1m^[[94m|^[[0m                                           ^[[1m^[[94mbecause label contains path that resolves to same destination^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.1914517Z    ^[[1m^[[94m|^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.1944575Z    ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: when a link's destination is not specified,
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.1954438Z            the label is used to resolve intra-doc links
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.1984833Z    ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `-D rustdoc::redundant-explicit-links` implied by `-D warnings`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.2004822Z    ^[[1m^[[94m= ^[[0m^[[1mhelp^[[0m: to override `-D warnings` add `#[allow(rustdoc::redundant_explicit_links)]`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.2014482Z ^[[1m^[[96mhelp^[[0m: remove explicit link target
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.2044413Z    ^[[1m^[[94m|^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.2064911Z ^[[1m^[[94m15^[[0m ^[[91m- ^[[0m//! arithmetic to a worker thread behind ^[[91m[`Runtime`](u_ml_runtime::Runtime)^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.2094659Z ^[[1m^[[94m15^[[0m ^[[92m+ ^[[0m//! arithmetic to a worker thread behind ^[[92m[`Runtime`]^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.2104416Z    ^[[1m^[[94m|^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.2134254Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.3075232Z ^[[1m^[[91merror^[[0m: could not document `u`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.3115066Z ^[[1m^[[33mwarning^[[0m: build failed, waiting for other jobs to finish...
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.3165197Z ^[[1m^[[92m Documenting^[[0m reload-android v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/reload-android)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:47.8366177Z ^[[1m^[[92m Documenting^[[0m feature-harness v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/harness)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:48.5961255Z ^[[1m^[[92m Documenting^[[0m animation-showcase v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/animation-showcase)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:49.2646953Z ^[[1m^[[92m Documenting^[[0m u-ml-runtime v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-ml-runtime)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:03:49.5735660Z ^[[1m^[[92m Documenting^[[0m vieww-plugin v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-plugin)
 -----
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:14.0709274Z ^[[1m^[[92m   Compiling^[[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:14.3267711Z ^[[1m^[[92m   Compiling^[[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:15.9677922Z ^[[1m^[[92m   Compiling^[[0m vieww-spatial v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-spatial)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:17.0987686Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:18.1697853Z ^[[1m^[[92m   Compiling^[[0m vieww-asset v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:18.6558201Z ^[[1m^[[92m   Compiling^[[0m vieww-network v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-network)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:18.7947947Z ^[[1m^[[92m   Compiling^[[0m vieww-mesh v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-mesh)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:20.8377871Z ^[[1m^[[92m   Compiling^[[0m vieww-physics v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-physics)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:22.8755188Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:24.3212016Z ^[[1m^[[92m   Compiling^[[0m vieww-render-planner v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:26.7283183Z ^[[1m^[[92m   Compiling^[[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:51.3356279Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized] target(s) in 55.49s
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:51.3457932Z ^[[1m^[[92m     Running^[[0m `target/release/fixtures /tmp/tmp.PSmZLy8sWz`
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1902721Z 
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1903398Z --- clippy (workspace, all targets, warnings are errors): its diagnostics ---
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1904077Z error[E0308]: mismatched types
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1904615Z     --> examples/film_lab/src/studio_film/master.rs:471:37
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1905190Z     --> apps/viewwstudio/src/state/editing.rs:1563:12
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1906183Z error: could not compile `film_lab` (bin "film_lab") due to 1 previous error
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1907817Z warning: build failed, waiting for other jobs to finish...
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1908598Z error: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1909113Z 
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1909356Z --- build (workspace, all targets): its diagnostics ---
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1909905Z error[E0308]: mismatched types
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1910417Z     --> examples/film_lab/src/studio_film/master.rs:471:37
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1910899Z     --> apps/viewwstudio/src/state/editing.rs:1563:12
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1911362Z error: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1912019Z warning: build failed, waiting for other jobs to finish...
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1912462Z error: could not compile `film_lab` (bin "film_lab") due to 1 previous error
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1912753Z 
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1912874Z --- tests (workspace): its diagnostics ---
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1913444Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1914276Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline.dwp
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1915086Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1916111Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench.dwp
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1916917Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1917716Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render.dwp
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1918277Z error[E0308]: mismatched types
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1918585Z     --> examples/film_lab/src/studio_film/master.rs:471:37
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1918947Z     --> apps/viewwstudio/src/state/editing.rs:1563:12
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1919387Z error: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1919844Z warning: build failed, waiting for other jobs to finish...
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1920191Z 
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1920349Z 3 stage(s) failed:
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1920859Z   - clippy (workspace, all targets, warnings are errors) (exit 101)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1921512Z   - build (workspace, all targets) (exit 101)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1922018Z   - tests (workspace) (exit 101)
-checks --quick (linux-cpu)	Quick checks	2026-11-02T05:18:56.1942242Z ##[error]Process completed with exit code 1.
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:08.7282159Z ^[[1m^[[92m Documenting^[[0m vieww-spatial v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-spatial)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:09.1093728Z ^[[1m^[[92m Documenting^[[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:09.5200824Z ^[[1m^[[92m Documenting^[[0m vieww-interaction v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-interaction)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:09.9918421Z ^[[1m^[[92m Documenting^[[0m vieww-mesh v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-mesh)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:10.4429558Z ^[[1m^[[92m Documenting^[[0m vieww-dataviz v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-dataviz)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:10.9753616Z ^[[1m^[[92m Documenting^[[0m vieww-physics v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-physics)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:11.4172024Z ^[[1m^[[92m Documenting^[[0m vieww-image v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-image)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:11.8975683Z ^[[1m^[[92m Documenting^[[0m vieww-network v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-network)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:12.4069039Z ^[[1m^[[92m Documenting^[[0m vieww-collab v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-collab)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:12.8866191Z ^[[1m^[[92m Documenting^[[0m vieww-game v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-game)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:13.3862539Z ^[[1m^[[92m Documenting^[[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:13.9188186Z ^[[1m^[[92m Documenting^[[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:14.4288294Z ^[[1m^[[92m Documenting^[[0m vieww-platform-web v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:15.0645320Z ^[[1m^[[92m Documenting^[[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:15.6781723Z ^[[1m^[[92m Documenting^[[0m u-core v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-core)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:17.6813772Z     FAILED: docs (workspace, broken intra-doc links are errors) (exit 101)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:18.5102762Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:18.5103637Z ==> minimum supported Rust (1.89) — skipped, not installed
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:18.5103928Z   install it to check locally: rustup toolchain install 1.89
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:18.5104074Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:04:18.5104262Z ==> licences and advisories
+-----
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:36.5217377Z ^[[1m^[[92m   Compiling^[[0m feature-scatter-chart v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/72-scatter-chart)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:39.2005921Z ^[[1m^[[92m   Compiling^[[0m test-animation-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-animation-stress)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:40.1146038Z ^[[1m^[[92m   Compiling^[[0m vector-probe v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/vector-probe)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:40.7907046Z ^[[1m^[[92m   Compiling^[[0m test-scroll-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-scroll-stress)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:42.2276442Z ^[[1m^[[92m   Compiling^[[0m audit-sheets v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/audit-sheets)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:42.4715051Z ^[[1m^[[92m   Compiling^[[0m test-text-fidelity v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-text-fidelity)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:43.7063561Z ^[[1m^[[92m   Compiling^[[0m test-layout-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-layout-stress)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:43.9176149Z ^[[1m^[[92m   Compiling^[[0m test-premium-ui v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-premium-ui)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:44.1416027Z ^[[1m^[[92m   Compiling^[[0m full-showcase v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/full-showcase)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:44.1535788Z ^[[1m^[[92m   Compiling^[[0m test-native-surface v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-native-surface)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:44.4546199Z ^[[1m^[[92m   Compiling^[[0m test-image-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-image-effects)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:44.6286224Z ^[[1m^[[92m   Compiling^[[0m keynote v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/keynote)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:45.4026658Z ^[[1m^[[92m   Compiling^[[0m screenshot v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/screenshot)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:50.5345894Z ^[[1m^[[92m   Compiling^[[0m shot-diff v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/shot-diff)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:52.8027394Z ^[[1m^[[92m   Compiling^[[0m feature-image-mipmaps-atlas v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/54-image-mipmaps-atlas)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:54.7136965Z ^[[1m^[[91merror[E0063]^[[0m^[[1m: missing field `scratch` in initializer of `target::Target`^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:54.7154931Z    ^[[1m^[[94m--> ^[[0mcrates/vieww-paint/src/native/target.rs:183:9
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:54.7214912Z     ^[[1m^[[94m|^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:54.7234668Z ^[[1m^[[94m183^[[0m ^[[1m^[[94m|^[[0m         Self {
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:54.7264676Z     ^[[1m^[[94m|^[[0m         ^[[1m^[[91m^^^^^[[0m ^[[1m^[[91mmissing `scratch`^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:54.7294351Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:55.2155602Z ^[[1mFor more information about this error, try `rustc --explain E0063`.^[[0m
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:55.2322454Z ^[[1m^[[91merror^[[0m: could not compile `vieww-paint` (lib test) due to 1 previous error
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:55.2323113Z ^[[1m^[[33mwarning^[[0m: build failed, waiting for other jobs to finish...
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:55.8417416Z     FAILED: tests (workspace) (exit 101)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:55.8417769Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:55.8418066Z ==> web-sys feature audit (the half of ci/check/wasm-check.sh that needs no target)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:55.8455434Z ==> auditing web-sys features against the types the crate names
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:55.8533791Z     every web-sys type the crate names is enabled
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:05:55.9343918Z ==> installing wasm32-unknown-unknown
+-----
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0407089Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/shots.rs:147:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0407403Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/shots.rs:197:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0407744Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/shots.rs:204:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0408059Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/biometrics.rs:51:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0408383Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/biometrics.rs:400:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0408698Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/controls.rs:57:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0409016Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/controls.rs:140:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0409321Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/engine.rs:30:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0409626Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/history.rs:88:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0409930Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/history.rs:236:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0410233Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/history.rs:331:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0410723Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/home.rs:118:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0411189Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/home.rs:127:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0411645Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0411835Z --- clippy (workspace, all targets, warnings are errors): its diagnostics ---
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0412217Z error: match can be simplified with `.unwrap_or_default()`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0412453Z   --> examples/u/src/history.rs:67:23
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0412691Z error: useless conversion to the same type: `vieww::WidgetNode`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0412903Z    --> examples/u/src/history.rs:204:13
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0413094Z error: could not compile `u` (lib) due to 2 previous errors
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0413310Z warning: build failed, waiting for other jobs to finish...
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0413532Z error: could not compile `u` (lib test) due to 2 previous errors
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0413790Z error[E0063]: missing field `scratch` in initializer of `native::target::Target`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0414029Z    --> crates/vieww-paint/src/native/target.rs:183:9
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0414480Z error: could not compile `vieww-paint` (lib test) due to 1 previous error
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0414649Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0414730Z --- build (workspace, all targets): its diagnostics ---
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0414955Z error[E0063]: missing field `scratch` in initializer of `target::Target`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0415180Z    --> crates/vieww-paint/src/native/target.rs:183:9
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0415398Z error: could not compile `vieww-paint` (lib test) due to 1 previous error
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0415745Z warning: build failed, waiting for other jobs to finish...
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0415872Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0415988Z --- docs (workspace, broken intra-doc links are errors): its diagnostics ---
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0416327Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/doc/vieww/index.html
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0416656Z error: unresolved link to `AndroidApp::run_on_java_main_thread`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0416856Z   --> examples/u/src/biometrics.rs:20:7
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0417020Z error: unresolved link to `AppState`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0417179Z  --> examples/u/src/events.rs:5:66
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0417388Z error: public documentation for `strands` links to private item `STRANDS`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0417602Z    --> examples/u/src/neurons.rs:182:11
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0417762Z error: unresolved link to `ask::ASKS.len`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0417922Z    --> examples/u/src/lib.rs:170:60
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0418078Z error: unresolved link to `nudge`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0418229Z    --> examples/u/src/lib.rs:262:69
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0418381Z error: redundant explicit link target
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0418537Z   --> examples/u/src/engine.rs:15:54
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0418690Z error: could not document `u`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0418863Z warning: build failed, waiting for other jobs to finish...
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0419051Z error: unresolved link to `qwen`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0419217Z   --> examples/u/crates/u-ml-runtime/src/lib.rs:29:7
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0419392Z error: unresolved link to `u_memory`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0419565Z    --> examples/u/crates/u-ml-runtime/src/lib.rs:182:62
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0419746Z error: could not document `u-ml-runtime`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0419908Z error: unresolved link to `u-decision`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0420078Z    --> examples/u/crates/u-decision/src/lib.rs:228:7
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0420282Z error: could not document `u-decision`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0420525Z error: public documentation for `alpha` links to private item `super::linear::coverage_alpha`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0420806Z    --> crates/vieww-paint/src/native/glyph_coverage.rs:157:28
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0421003Z error: could not document `vieww-paint`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0421109Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0421175Z --- tests (workspace): its diagnostics ---
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0421469Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0421897Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline.dwp
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0422513Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0422920Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench.dwp
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0423326Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0423738Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render.dwp
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0424077Z error[E0063]: missing field `scratch` in initializer of `target::Target`
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0424527Z    --> crates/vieww-paint/src/native/target.rs:183:9
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0424752Z error: could not compile `vieww-paint` (lib test) due to 1 previous error
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0424991Z warning: build failed, waiting for other jobs to finish...
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0425119Z 
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0425172Z 5 stage(s) failed:
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0434057Z   - formatting (exit 1)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0434549Z   - clippy (workspace, all targets, warnings are errors) (exit 101)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0434842Z   - build (workspace, all targets) (exit 101)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0435051Z   - docs (workspace, broken intra-doc links are errors) (exit 101)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0435249Z   - tests (workspace) (exit 101)
+checks --quick (linux-cpu)	Quick checks	2026-11-02T10:06:47.0447369Z ##[error]Process completed with exit code 1.
