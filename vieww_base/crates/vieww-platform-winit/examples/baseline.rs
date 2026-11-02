@@ -409,6 +409,21 @@ fn int(out: &mut String, key: &str, value: Option<u64>) {
     num(out, key, value.map(|v| v as f64));
 }
 
+/// One string field, `null` when the observation is not in yet. The report is
+/// hand-written, so escaping is too: `\"` and `\\` are all a JSON string
+/// needs beyond what these lines contain.
+fn text(out: &mut String, key: &str, value: Option<String>) {
+    match value {
+        Some(v) => {
+            let escaped = v.replace('\\', "\\\\").replace('"', "\\\"");
+            let _ = write!(out, "\"{key}\":\"{escaped}\",");
+        }
+        None => {
+            let _ = write!(out, "\"{key}\":null,");
+        }
+    }
+}
+
 /// Joules between two samples, summed over packages, handling counter wrap.
 fn energy_joules(from: &OsSample, to: &OsSample) -> Option<f64> {
     let (Some(a), Some(b)) = (from.energy, to.energy) else {
@@ -483,6 +498,21 @@ fn report(
     );
     num(&mut s, "main_to_first_frame_ms", Some(ms(since_main)));
     num(&mut s, "launch_to_first_frame_ms", since_launch);
+    // FW-05/FW-16: the stage marks and the pipeline-cache observation the
+    // device suite already prints (Android/iOS, `shared/device_tests.rs`),
+    // as JSON — the Windows hardware step reads them back to prove a warm
+    // cache makes the second launch cheaper. `null` until the first frame
+    // has been presented; the CPU path has no pipeline cache and says so.
+    text(
+        &mut s,
+        "startup_stages",
+        vieww_platform_winit::startup_report(),
+    );
+    text(
+        &mut s,
+        "pipeline_cache",
+        vieww_platform_winit::pipeline_cache_status(),
+    );
 
     if let Some(f) = first {
         int(&mut s, "first_frame_rss_bytes", f.os.rss_bytes);

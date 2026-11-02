@@ -41,9 +41,9 @@ on:
         type: string
         default: "env gpu nvidia gallery baseline size stress desktop audio"
       windows_steps:
-        description: "Windows steps (comma-separated): env,gpu,d3d12,gallery,baseline,size,stress,desktop,remote,audio"
+        description: "Windows steps (comma-separated): env,gpu,d3d12,gallery,baseline,size,pipelines,stress,desktop,remote,audio"
         type: string
-        default: "env,gpu,d3d12,gallery,baseline,size,stress,desktop,remote,audio"
+        default: "env,gpu,d3d12,gallery,baseline,size,pipelines,stress,desktop,remote,audio"
       launches:
         description: "Baseline launches per path (CPU and GPU)"
         type: string
@@ -122,7 +122,7 @@ jobs:
           clean: false
       - name: Hardware run
         env:
-          STEPS: ${{ inputs.windows_steps || 'env,gpu,d3d12,gallery,baseline,size,stress,desktop,remote,audio' }}
+          STEPS: ${{ inputs.windows_steps || 'env,gpu,d3d12,gallery,baseline,size,pipelines,stress,desktop,remote,audio' }}
           LAUNCHES: ${{ inputs.launches || '5' }}
           OUT: ${{ runner.temp }}\hardware-windows
         run: |

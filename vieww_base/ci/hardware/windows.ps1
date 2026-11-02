@@ -19,6 +19,10 @@
 #                   CPU, animated fps, frame-stage medians (examples/baseline.rs).
 #                   Energy is not measured on Windows and is reported as null
 #   size      P0    size of that windowed app as shipped (`--profile dist`)
+#   pipelines FW-05 the GPU pipeline-cache proof: the baseline app launched
+#                   twice against a cache this step owns — the second launch
+#                   must start from the bytes the first saved and reach its
+#                   first frame sooner (the hit-rate a user gets from day two)
 #   stress    —     the animation stress suite five times: one reproducible p95
 #   desktop   —     the on-desktop suite, through Git Bash
 #   remote    §3.3  the studio's out-of-process preview tests
@@ -42,7 +46,7 @@
 # any step failed; a step this machine cannot run is SKIP, never PASS.
 
 param(
-  [string[]]$Steps = @('env','gpu','d3d12','gallery','baseline','size','stress','desktop','remote','audio'),
+  [string[]]$Steps = @('env','gpu','d3d12','gallery','baseline','size','pipelines','stress','desktop','remote','audio'),
   [string]$OutDir = '',
   [int]$Launches = 5
 )
@@ -271,6 +275,90 @@ if (Want 'size') {
       Set-Content -Path (Join-Path $OutDir 'size-baseline-bytes.txt') -Value $bytes
       Say ("      windowed baseline app, stripped release: {0} bytes ({1:N1} MB)" -f $bytes, ($bytes / 1MB))
     }
+  }
+}
+
+# ── pipeline-cache hit-rate: the second launch must be cheaper ────────────
+# FW-05: the cache exists (vieww_hal::vulkan::pipeline_cache) and every GPU
+# launch seeds from it, but nothing on Windows had ever *proved* the seed
+# survives a process boundary. So this step owns a cache file — deleted
+# first, so run 1 is cold whatever ran before — launches the baseline app
+# twice, and reads both reports back: run 1 must start from 0 bytes, run 2
+# from the bytes run 1 saved, and run 2's first frame must arrive sooner.
+# The drop is what the Device Farm paid for starting it: 1463 ms on a Stylo 5
+# first launch against 82 ms warm on an S26 Ultra.
+if (Want 'pipelines') {
+  if (-not $hasVulkan) {
+    Skip-Step 'pipelines' 'no Vulkan loader'
+  } elseif (Run-Step 'pipelines-build' @{} 'cargo' @('build','--release','-p','vieww-platform-winit','--example','baseline')) {
+    $bin = Join-Path $Root 'target\release\examples\baseline.exe'
+    if (-not (Test-Path $bin)) {
+      Say "FAIL  pipelines (built, but $bin is not there)"
+      $script:Failed = $true
+    } else {
+      $dir = Join-Path $OutDir 'pipelines'
+      New-Item -ItemType Directory -Force -Path $dir | Out-Null
+      $cache = Join-Path $dir 'pipelines.bin'
+      Remove-Item $cache -ErrorAction SilentlyContinue
+      $ok = $true
+      $report = @{}
+      foreach ($run in 1, 2) {
+        # This step's own cache: run 1 cold by construction, run 2 warm.
+        $env:VIEWW_PIPELINE_CACHE = $cache
+        $out = Join-Path $dir "run-$run.json"
+        $p = Start-Process -FilePath $bin -ArgumentList @('--gpu','--settle','1','--idle','1','--animate','1','--out',$out) `
+          -NoNewWindow -PassThru `
+          -RedirectStandardOutput (Join-Path $OutDir "pipelines-$run.out.log") `
+          -RedirectStandardError (Join-Path $OutDir "pipelines-$run.err.log")
+        $null = $p.Handle
+        if (-not $p.WaitForExit(120000)) {
+          $p.Kill()
+          Add-Content (Join-Path $OutDir "pipelines-$run.err.log") 'pipelines: killed after 120 s'
+          $ok = $false
+        } elseif ($p.ExitCode -ne 0) { $ok = $false }
+        if (Test-Path $out) {
+          $report[$run] = Get-Content $out -Raw | ConvertFrom-Json
+        } else { $ok = $false }
+      }
+      Remove-Item Env:\VIEWW_PIPELINE_CACHE -ErrorAction SilentlyContinue
+      if ($ok -and $report.Count -eq 2) {
+        $seed = @{}
+        foreach ($run in 1, 2) {
+          $text = [string]$report[$run].pipeline_cache
+          $m = [regex]::Match($text, 'started from (\d+) bytes')
+          if (-not $m.Success) {
+            Say "FAIL  pipelines (run $run reported no pipeline_cache observation; is the GPU path up?)"
+            $ok = $false
+            break
+          }
+          $seed[$run] = [long]$m.Groups[1].Value
+          Say "      pipelines run $run: started from $($seed[$run]) bytes; first frame $($report[$run].main_to_first_frame_ms) ms"
+          if ($report[$run].startup_stages) {
+            Say "      pipelines run $run stages: $($report[$run].startup_stages)"
+          }
+        }
+        if ($ok) {
+          if ($seed[1] -ne 0) {
+            Say "FAIL  pipelines (run 1 started from $($seed[1]) bytes — the cache was not cold; this step's own setup failed)"
+            $script:Failed = $true
+          } elseif ($seed[2] -le 0) {
+            Say 'FAIL  pipelines (run 2 started from 0 bytes — what run 1 saved did not seed it: cache not written, or the header no longer matches this GPU/driver)'
+            $script:Failed = $true
+          } elseif ($report[2].main_to_first_frame_ms -ge $report[1].main_to_first_frame_ms) {
+            Say ("FAIL  pipelines (warm first frame {0:N1} ms is not under the cold {1:N1} ms)" -f $report[2].main_to_first_frame_ms, $report[1].main_to_first_frame_ms)
+            $script:Failed = $true
+          } else {
+            Say ("PASS  pipelines (cold {0:N1} ms -> warm {1:N1} ms, seeded from {2} bytes)" -f $report[1].main_to_first_frame_ms, $report[2].main_to_first_frame_ms, $seed[2])
+          }
+        } else { $script:Failed = $true }
+      } else {
+        Say 'FAIL  pipelines (a launch failed or wrote no report; see pipelines-*.err.log)'
+        $script:Failed = $true
+      }
+    }
+  } else {
+    Say 'FAIL  pipelines (pipelines-build failed)'
+    $script:Failed = $true
   }
 }
 

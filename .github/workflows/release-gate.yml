@@ -485,6 +485,49 @@ jobs:
           echo "FW-04: launch smoke passed (opened, 20 s, quit)"
           rm -rf "$smoke"
 
+      # FW-05: the .msi a clean machine would install is the one the gate just
+      # built. An administrative install (`msiexec /a`) unpacks it into a temp
+      # directory without touching this machine's real Program Files —
+      # "install to temp" — and then the payload's viewwstudio.exe has to
+      # open and stay up 20 s, exactly the macOS launch smoke's contract.
+      # Killed afterwards: the studio has no auto-quit, by design.
+      - name: MSI smoke (FW-05)
+        if: matrix.os == 'windows' && env.PACKAGE == 'true' && env.SCOPE == 'gate'
+        run: |
+          set -euo pipefail
+          msi=$(ls target/package/viewwstudio-windows-*.msi 2>/dev/null | head -1)
+          [[ -n "$msi" ]] || { echo "FW-05: no viewwstudio-windows-*.msi in target/package" >&2; exit 1; }
+          dir="$RUNNER_TEMP/fw05-msi"
+          rm -rf "$dir"; mkdir -p "$dir"
+          # /qn: no UI on the runner. Exit 0 = installed, 3010 = installed with
+          # a reboot pending; both are the installer succeeding.
+          # `cmd //c` + cygpath: Git Bash rewrites a bare `/a` into a path,
+          # and msiexec wants Windows paths in TARGETDIR.
+          wmsi=$(cygpath -w "$msi")
+          wdir=$(cygpath -w "$dir")
+          rc=0
+          cmd //c "msiexec /a \"$wmsi\" /qn TARGETDIR=\"$wdir\"" >/dev/null || rc=$?
+          if [[ $rc -ne 0 && $rc -ne 3010 ]]; then
+            echo "FW-05: msiexec /a exited $rc" >&2; exit 1
+          fi
+          exe=$(find "$dir" -name viewwstudio.exe -type f | head -1)
+          [[ -n "$exe" ]] || { echo "FW-05: no viewwstudio.exe under the installed tree $dir" >&2; exit 1; }
+          echo "FW-05: $msi installed to temp; payload: $exe"
+          # Launch smoke: 20 s alive, then quit (killed — no auto-quit).
+          "$exe" >"$RUNNER_TEMP/fw05-msi-smoke.log" 2>&1 &
+          pid=$!
+          sleep 20
+          if ! kill -0 "$pid" 2>/dev/null; then
+            wait "$pid" || true
+            echo "FW-05: the installed studio exited within 20 s — log:" >&2
+            cat "$RUNNER_TEMP/fw05-msi-smoke.log" >&2 || true
+            exit 1
+          fi
+          kill "$pid" 2>/dev/null || true
+          wait "$pid" 2>/dev/null || true
+          echo "FW-05: MSI smoke passed (installed to temp, opened, 20 s, quit)"
+          rm -rf "$dir"
+
       # The failures and the end of each one's log, on the run's summary page and
       # in the job log — readable without downloading anything.
       - name: Failures with logs

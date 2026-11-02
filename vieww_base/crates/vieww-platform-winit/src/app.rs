@@ -2431,6 +2431,29 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
             f64::from(size.width),
             f64::from(size.height),
         ));
+        // **FW-05: the window-independent half of the Vulkan bring-up starts
+        // before the window does.** `VulkanDevice::for_window` cannot begin
+        // until the window's handles exist — the `VkSurfaceKHR` is made from
+        // them — but resolving the Vulkan loader and reading the pipeline
+        // cache cannot wait for anything, and both sit on the critical path
+        // of PENDING.md §3.5's 215 ms Windows "device ready". A window that
+        // cannot want the GPU never starts the thread at all, so the CPU
+        // path's "no GPU driver is loaded" contract stands. See
+        // `crate::native::Prewarm` for what the prefix is and is not.
+        let present_env = std::env::var("VIEWW_PRESENT").ok();
+        let prewarm = crate::native::may_want_vulkan(
+            present_env.as_deref(),
+            self.shared.config.prefer_gpu,
+            self.shared.config.auto_rasterizer,
+        )
+        .then(|| {
+            // Before the thread reads it, so the prewarm and the device
+            // agree on the file. The same call below makes the window
+            // that did not prewarm agree too.
+            let file = self.pipeline_cache_file();
+            vieww_hal::vulkan::set_pipeline_cache_file(file.clone());
+            crate::native::Prewarm::start(file)
+        });
         // **Startup is traced step by step.** A gate run on a GNOME/Wayland
         // hybrid-GPU laptop hung here — `tests/wait_loop.rs`' idle scenario
         // printed no window event at all in 20 s while its waker thread fired
@@ -2502,6 +2525,19 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
         // And before the first renderer, so its blur and fill caches start at
         // this device tier's budgets (`quality::cache_budgets_for`).
         crate::quality::apply_cache_budgets();
+        // The prewarm has had the window's creation, the calibration read and
+        // the cache budgets to run beside; the device open is the first thing
+        // that genuinely needs its results, so it joins here. The mark says
+        // when the prefix finished — with `window created` beside it, the
+        // startup line shows the overlap rather than hiding it in the open.
+        if let Some(prewarm) = prewarm {
+            let prewarmed = prewarm.join();
+            crate::startup::mark("vulkan prewarmed");
+            trace_line(
+                self.shared.now(),
+                format_args!("startup: prewarm: {}", prewarmed.line()),
+            );
+        }
         let opened = NativeRenderer::for_window_on(&window, width, height, path);
         // A device whose GPU cannot be opened has answered the question: under
         // `auto_rasterizer` that is the CPU path, kept, rather than an app that
