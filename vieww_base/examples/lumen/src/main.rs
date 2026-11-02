@@ -18,6 +18,8 @@
 //! Nothing here is a bitmap: the screen is vector all the way down, so the
 //! same tree renders exactly as crisply at 4× or 8× — change `DENSITY`.
 
+mod depth;
+
 use vieww::prelude::*;
 use vieww::FrameDriver;
 use vieww_foundation::{
@@ -538,7 +540,16 @@ fn render(
     pipeline: ColorPipeline,
     base: Color,
 ) -> Result<image::RgbaImage, Box<dyn std::error::Error>> {
-    let device = Size::new(SCREEN.width * DENSITY, SCREEN.height * DENSITY);
+    render_at(screen, pipeline, base, DENSITY)
+}
+
+fn render_at(
+    screen: WidgetNode,
+    pipeline: ColorPipeline,
+    base: Color,
+    density: f32,
+) -> Result<image::RgbaImage, Box<dyn std::error::Error>> {
+    let device = Size::new(SCREEN.width * density, SCREEN.height * density);
     let mut driver = FrameDriver::new(device);
     driver.set_fonts(fonts());
     // The whole tree laid out at the logical size and drawn through one
@@ -546,7 +557,7 @@ fn render(
     // second set of assets.
     driver.set_root(
         Theme::new(ThemeData::dark()).child(
-            Transformed::new(Transform::scale(DENSITY, DENSITY)).child(
+            Transformed::new(Transform::scale(density, density)).child(
                 Align::new(Alignment::TOP_LEFT).child(SizedBox::from_size(SCREEN).child(screen)),
             ),
         ),
@@ -561,24 +572,85 @@ fn render(
         .ok_or_else(|| "invalid RGBA frame".into())
 }
 
+/// How much light a frame asks an OLED panel to emit, as a percentage of an
+/// all-white screen: the mean linear luminance of its pixels. Emission is
+/// what an OLED pays for, pixel by pixel, so this is the theme's share of
+/// display power — compute (blur, redraws) is a separate cost.
+fn emission(image: &image::RgbaImage) -> f64 {
+    let lin = |c: u8| {
+        let c = f64::from(c) / 255.0;
+        if c <= 0.04045 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) }
+    };
+    let mut sum = 0.0;
+    for p in image.pixels() {
+        sum += 0.2126 * lin(p[0]) + 0.7152 * lin(p[1]) + 0.0722 * lin(p[2]);
+    }
+    100.0 * sum / (image.width() as f64 * image.height() as f64)
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let out = std::env::args().nth(1).unwrap_or_else(|| "lumen-shots".to_owned());
+    let mut args = std::env::args().skip(1);
+    let out = args.next().unwrap_or_else(|| "lumen-shots".to_owned());
+    let frames = args.next().as_deref() == Some("--frames");
     std::fs::create_dir_all(&out)?;
 
-    let platform = render(platform_screen(), ColorPipeline::GammaSpace, Color::rgb(18, 20, 24))?;
-    let lumen = render(lumen_screen(), ColorPipeline::LinearLight, GROUND)?;
-    platform.save(format!("{out}/platform.png"))?;
-    lumen.save(format!("{out}/lumen.png"))?;
+    use depth::{Frame, Power};
+    let still = Frame { tilt: 0.0, dialog: 0.0, power: Power::Full };
 
-    let gap = 60;
-    let mut both = image::RgbaImage::from_pixel(
-        platform.width() * 2 + gap,
-        platform.height(),
-        image::Rgba([255, 255, 255, 255]),
-    );
-    image::imageops::overlay(&mut both, &platform, 0, 0);
-    image::imageops::overlay(&mut both, &lumen, i64::from(platform.width() + gap), 0);
-    both.save(format!("{out}/compare.png"))?;
-    println!("lumen -> {out}/{{platform,lumen,compare}}.png");
+    let shots = [
+        ("platform", render(platform_screen(), ColorPipeline::GammaSpace, Color::rgb(18, 20, 24))?),
+        ("lumen", render(lumen_screen(), ColorPipeline::LinearLight, GROUND)?),
+        ("depth", render(depth::screen(still), ColorPipeline::LinearLight, depth::GROUND)?),
+        (
+            "depth-tilted",
+            render(depth::screen(Frame { tilt: 1.0, ..still }), ColorPipeline::LinearLight, depth::GROUND)?,
+        ),
+        (
+            "depth-dialog",
+            render(depth::screen(Frame { dialog: 1.0, ..still }), ColorPipeline::LinearLight, depth::GROUND)?,
+        ),
+        (
+            "depth-saver",
+            render(depth::screen(Frame { power: Power::Saver, ..still }), ColorPipeline::LinearLight, depth::GROUND)?,
+        ),
+    ];
+    println!("emitted light, % of an all-white screen (OLED display power share):");
+    for (name, image) in &shots {
+        image.save(format!("{out}/{name}.png"))?;
+        println!("  {name:<14} {:5.2}%", emission(image));
+    }
+
+    let side = |a: &image::RgbaImage, b: &image::RgbaImage, c: &image::RgbaImage| {
+        let gap = 60;
+        let mut all = image::RgbaImage::from_pixel(a.width() * 3 + gap * 2, a.height(), image::Rgba([255, 255, 255, 255]));
+        image::imageops::overlay(&mut all, a, 0, 0);
+        image::imageops::overlay(&mut all, b, i64::from(a.width() + gap), 0);
+        image::imageops::overlay(&mut all, c, i64::from((a.width() + gap) * 2), 0);
+        all
+    };
+    side(&shots[0].1, &shots[1].1, &shots[2].1).save(format!("{out}/compare.png"))?;
+    side(&shots[2].1, &shots[4].1, &shots[5].1).save(format!("{out}/depth-states.png"))?;
+
+    if frames {
+        // Two seconds of tilt, then the dialog opening forward: 2x density
+        // to keep the reel quick to render.
+        let dir = format!("{out}/frames");
+        std::fs::create_dir_all(&dir)?;
+        let total = 72;
+        for i in 0..total {
+            let f = i as f32;
+            let frame = if i < 48 {
+                Frame { tilt: (f / 48.0 * std::f32::consts::TAU).sin(), dialog: 0.0, power: Power::Full }
+            } else {
+                let t = ((f - 48.0) / 18.0).min(1.0);
+                let ease = 1.0 - (1.0 - t).powi(3);
+                Frame { tilt: 0.0, dialog: ease, power: Power::Full }
+            };
+            let image = render_at(depth::screen(frame), ColorPipeline::LinearLight, depth::GROUND, 2.0)?;
+            image.save(format!("{dir}/{i:03}.png"))?;
+        }
+        println!("frames -> {dir}");
+    }
+    println!("lumen -> {out}");
     Ok(())
 }
