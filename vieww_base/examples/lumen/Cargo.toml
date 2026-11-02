@@ -1,0 +1,16 @@
+[package]
+name = "lumen"
+description = "Lumen — a theme only vieww can draw: wide-gamut colour, light-correct glass, one light."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+vieww.workspace = true
+vieww-foundation.workspace = true
+vieww-widget.workspace = true
+vieww-paint = { workspace = true, features = ["native"] }
+vieww-text.workspace = true
+image = { version = "0.25", default-features = false, features = ["png"] }
