@@ -47,6 +47,7 @@ use std::fmt;
 mod diag;
 mod gen;
 mod lex;
+pub mod line;
 mod parse;
 mod parse_line;
 

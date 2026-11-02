@@ -424,24 +424,7 @@ pub(crate) struct Parser<'a> {
 /// Parse a lexed file. Collects every error it can before failing, so a
 /// beginner sees their whole file's problems in one Render rather than one.
 pub(crate) fn parse(file: &Rc<String>, lines: &[Line]) -> Result<Program, Vec<Diagnostic>> {
-    let mut parser = Parser {
-        file,
-        lines,
-        diagnostics: Vec::new(),
-        warnings: Vec::new(),
-        states: Vec::new(),
-        screens: Vec::new(),
-        app: AppMeta::default(),
-        screen_titles: Vec::new(),
-        loops: Vec::new(),
-        modal_fields: Vec::new(),
-        pending_screen_refs: Vec::new(),
-        has_go_back: false,
-        inside_dialog: 0,
-        theme: Vec::new(),
-        rust_items: Vec::new(),
-        open_tabs: Vec::new(),
-    };
+    let mut parser = Parser::for_tools(file, lines);
     parser.top_level();
     parser.cross_checks();
     if parser.diagnostics.is_empty() {
@@ -456,6 +439,32 @@ pub(crate) fn parse(file: &Rc<String>, lines: &[Line]) -> Result<Program, Vec<Di
         })
     } else {
         Err(parser.diagnostics)
+    }
+}
+
+impl<'a> Parser<'a> {
+    /// A parser an editor tool drives by hand: [`crate::line`]'s reader of a
+    /// half-edited file wants the partial tree even when diagnostics exist,
+    /// which [`parse`] deliberately refuses to hand back.
+    pub(crate) fn for_tools(file: &'a Rc<String>, lines: &'a [Line]) -> Self {
+        Self {
+            file,
+            lines,
+            diagnostics: Vec::new(),
+            warnings: Vec::new(),
+            states: Vec::new(),
+            screens: Vec::new(),
+            app: AppMeta::default(),
+            screen_titles: Vec::new(),
+            loops: Vec::new(),
+            modal_fields: Vec::new(),
+            pending_screen_refs: Vec::new(),
+            has_go_back: false,
+            inside_dialog: 0,
+            theme: Vec::new(),
+            rust_items: Vec::new(),
+            open_tabs: Vec::new(),
+        }
     }
 }
 
@@ -545,7 +554,9 @@ impl<'a> Parser<'a> {
 
     // -- top level ---------------------------------------------------------
 
-    fn top_level(&mut self) {
+    /// `pub(crate)` for [`Parser::for_tools`], which drives the same walk from
+    /// the editor-tools reader.
+    pub(crate) fn top_level(&mut self) {
         let mut i;
 
         // The pragma is the first non-blank, non-comment line. It is
