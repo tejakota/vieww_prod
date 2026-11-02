@@ -99,6 +99,9 @@ enum PackageTargetArg {
     Macos,
     Windows,
     Android,
+    /// The `.aab` Play requires — `vieww-build`'s AAB route (gradlew or
+    /// bundletool), a separate target from `android`'s APK.
+    Aab,
     Ios,
 }
 
@@ -109,6 +112,7 @@ impl From<PackageTargetArg> for PackageTarget {
             PackageTargetArg::Macos => Self::MacOs,
             PackageTargetArg::Windows => Self::Windows,
             PackageTargetArg::Android => Self::Android,
+            PackageTargetArg::Aab => Self::Aab,
             PackageTargetArg::Ios => Self::Ios,
         }
     }
@@ -391,6 +395,7 @@ mod tests {
             ("macos", PackageTargetArg::Macos),
             ("windows", PackageTargetArg::Windows),
             ("android", PackageTargetArg::Android),
+            ("aab", PackageTargetArg::Aab),
             ("ios", PackageTargetArg::Ios),
         ] {
             assert_eq!(
@@ -438,6 +443,10 @@ mod tests {
         assert_eq!(
             PackageTarget::from(PackageTargetArg::Android),
             PackageTarget::Android
+        );
+        assert_eq!(
+            PackageTarget::from(PackageTargetArg::Aab),
+            PackageTarget::Aab
         );
         assert_eq!(
             PackageTarget::from(PackageTargetArg::Ios),

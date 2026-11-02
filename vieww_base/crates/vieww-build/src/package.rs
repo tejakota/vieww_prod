@@ -58,6 +58,14 @@
 //!   sandbox has none of the three, so the real gate is what a test here
 //!   exercises: a [`PackageError::MissingTool`], not a panic and not a
 //!   silent no-op.
+//! * **Android App Bundle** (`package_aab`, target `aab`) — the `.aab` Play
+//!   actually accepts, via the project's own `gradlew bundleRelease` when it
+//!   has one, else `cargo apk` + `unzip`/`zip` + `bundletool build-bundle`
+//!   reshaping the APK into a base module. Same host-anywhere, tool-gated
+//!   shape as the APK; the route decision ([`aab_plan`]) is a pure function
+//!   of which tools a `PATH` names, so this sandbox tests it with fake tools
+//!   on a fake `PATH` — the running of the real ones is the part left to
+//!   machines that have an Android toolchain.
 //! * **iOS** (`package_ios`) — gated on host *and* on `xcrun`, mirroring
 //!   `ci/mobile/ios-app.sh`'s own opening check verbatim. **Not exercised on this
 //!   Linux sandbox** for the same reason macOS is not.
@@ -72,7 +80,7 @@ use std::fmt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use crate::util::{host_os, is_probably_binary, tool_on_path};
+use crate::util::{host_os, is_probably_binary, tool_in_dirs, tool_on_path};
 
 /// A platform artefact [`package`] knows how to produce.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -85,6 +93,9 @@ pub enum PackageTarget {
     Windows,
     /// An APK, via `cargo apk`.
     Android,
+    /// An `.aab`, via the project's `gradlew bundleRelease` or
+    /// `bundletool build-bundle`.
+    Aab,
     /// An `.ipa`-shaped bundle, via `xcrun`.
     Ios,
 }
@@ -97,6 +108,7 @@ impl PackageTarget {
             Self::MacOs => "macos",
             Self::Windows => "windows",
             Self::Android => "android",
+            Self::Aab => "aab",
             Self::Ios => "ios",
         }
     }
@@ -119,16 +131,21 @@ pub enum PackageError {
         target: PackageTarget,
         host: &'static str,
     },
-    /// A tool this target's packaging step needs is not on `PATH`.
+    /// A tool this target's packaging step needs is not on `PATH` — owned
+    /// strings, because the AAB's refusal names *every* missing tool with its
+    /// install command, composed at run time rather than enumerable up front.
     MissingTool {
         target: PackageTarget,
-        tool: &'static str,
-        how_to_get_it: &'static str,
+        tool: String,
+        how_to_get_it: String,
     },
     /// `app_dir`'s `Cargo.toml` could not be found or has no `[package]
     /// name`.
     Manifest(PathBuf),
-    /// `cargo build --release` ran and exited non-zero. Carries its stderr.
+    /// `cargo build --release` (or one of the packaging steps that wrap it —
+    /// `cargo apk`, `gradlew bundleRelease`, `unzip`/`zip`/`bundletool`) ran and
+    /// exited non-zero. Carries the failing command's stderr, prefixed with
+    /// the command itself by the caller where that is not `cargo build`.
     Build(String),
     /// The build reported success but the binary it should have produced is
     /// not where this expected it — a build that used a different
@@ -159,7 +176,7 @@ impl fmt::Display for PackageError {
                 "{} has no readable [package] name — is this a cargo project?",
                 path.display()
             ),
-            Self::Build(stderr) => write!(f, "cargo build --release failed:\n{stderr}"),
+            Self::Build(stderr) => write!(f, "a build step failed:\n{stderr}"),
             Self::MissingArtifact(path) => write!(
                 f,
                 "the build reported success but {} does not exist",
@@ -206,6 +223,7 @@ pub fn package(target: PackageTarget, app_dir: &Path) -> Result<PackageReport, P
         PackageTarget::MacOs => package_macos(app_dir),
         PackageTarget::Windows => package_windows(app_dir),
         PackageTarget::Android => package_android(app_dir),
+        PackageTarget::Aab => package_aab(app_dir),
         PackageTarget::Ios => package_ios(app_dir),
     }
 }
@@ -218,13 +236,15 @@ pub fn package(target: PackageTarget, app_dir: &Path) -> Result<PackageReport, P
 /// Android is the one target with no host restriction at all: the real gate
 /// for it is tool presence ([`android_tooling`]), checked separately inside
 /// [`package_android`], because the SDK/NDK/`cargo apk` triple can genuinely
-/// be missing or present on any of the three desktop hosts.
+/// be missing or present on any of the three desktop hosts. The AAB is the
+/// second such target, for the same reason — its gates are [`aab_plan`]'s
+/// tool checks.
 fn check_host(target: PackageTarget, host: &str) -> Result<(), PackageError> {
     let ok = match target {
         PackageTarget::Linux => host == "linux",
         PackageTarget::MacOs | PackageTarget::Ios => host == "macos",
         PackageTarget::Windows => host == "windows",
-        PackageTarget::Android => true,
+        PackageTarget::Android | PackageTarget::Aab => true,
     };
     if ok {
         Ok(())
@@ -693,8 +713,8 @@ fn package_windows(app_dir: &Path) -> Result<PackageReport, PackageError> {
     if !tool_on_path("wix") {
         return Err(PackageError::MissingTool {
             target: PackageTarget::Windows,
-            tool: "wix",
-            how_to_get_it: "dotnet tool install --global wix",
+            tool: "wix".to_owned(),
+            how_to_get_it: "dotnet tool install --global wix".to_owned(),
         });
     }
 
@@ -818,10 +838,11 @@ fn package_android(app_dir: &Path) -> Result<PackageReport, PackageError> {
              cargo install cargo-apk if that is missing too"
         } else {
             "cargo install cargo-apk"
-        };
+        }
+        .to_owned();
         return Err(PackageError::MissingTool {
             target: PackageTarget::Android,
-            tool: "cargo apk / Android SDK",
+            tool: "cargo apk / Android SDK".to_owned(),
             how_to_get_it,
         });
     }
@@ -852,6 +873,503 @@ fn package_android(app_dir: &Path) -> Result<PackageReport, PackageError> {
     })
 }
 
+// ── the Android App Bundle (FW-06) ──────────────────────────────────────────
+//
+// Play accepts an `.aab`, not an `.apk`: the store builds and signs every
+// device-specific split from the bundle itself, which is also why the bundle
+// this module hands over is deliberately *not* release-signed — under Play
+// App Signing the only key this pipeline ever needs is the upload key
+// (`packaging/sign.sh apk <file.aab>`, jarsigner, when the keystore secrets
+// exist), and Google holds the real one. Two machines can produce a bundle
+// from a cargo project, and nothing here pretends at a third:
+//
+// * **`gradlew bundleRelease`** — the project's own Android build. A project
+//   that carries a Gradle wrapper (`apps/viewwstudio`'s scaffold writes one)
+//   has already said how its bundle is built; second-guessing it with
+//   `bundletool` would drop whatever that build configures.
+// * **`bundletool build-bundle`** — for the plain cargo project `vieww new`
+//   makes, which has no Gradle harness at all: `cargo apk` builds the APK,
+//   `unzip` lays its (already binary-compiled) manifest and native libraries
+//   out as a base module — signatures excluded, since a module must not carry
+//   the APK's — `zip` packs the module, and `bundletool` turns it into the
+//   bundle. `java`, `zip` and `unzip` are that route's real dependencies:
+//   `bundletool` is a jar, and this crate has no zip implementation to be a
+//   fourth.
+//
+// The route decision is [`aab_plan`], a pure function of [`AabTools`] — which
+// tools a `PATH` names and whether the project has a wrapper — so the planner
+// is fully testable with a directory of fake tools and no Android SDK at all
+// (the same split `android_tooling`/`tool_in_dirs` exist for). What is *not*
+// exercised on this Linux sandbox is running the real tools: no machine here
+// has `bundletool`, `gradle` or `cargo apk`, so the end-to-end test below
+// asserts the refusal instead, and the first real bundle is left to the
+// release-gate's Android legs.
+
+/// One tool the bundletool or gradle route lacks, with how to install it —
+/// the refusal's unit, so a test can assert the *fix* is named, not just the
+/// problem.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct AabMissing {
+    tool: &'static str,
+    how: &'static str,
+}
+
+impl AabMissing {
+    /// "`bundletool` — download bundletool.jar …", the shape every refusal
+    /// line takes.
+    fn line(self) -> String {
+        format!("`{}` — {}", self.tool, self.how)
+    }
+}
+
+/// What the two AAB routes need from the machine and the project, as presence
+/// booleans. Detected from an explicit list of `PATH` directories (not the
+/// process's own `PATH`, which a test must not mutate — see
+/// [`crate::util::tool_on_path`]'s own doc for why), so the detection and the
+/// decision built on it are testable apart from each other.
+#[derive(Debug, Clone, Default)]
+struct AabTools {
+    /// `bundletool` on `PATH` (Google's jar wrapper script).
+    bundletool: bool,
+    /// `java` on `PATH` — `bundletool` and `gradlew` are Java programs.
+    java: bool,
+    /// `zip` on `PATH` — the bundletool route packs the base module with it.
+    zip: bool,
+    /// `unzip` on `PATH` — the same route unpacks the APK with it.
+    unzip: bool,
+    /// The project carries its own Gradle wrapper (`gradlew` / `gradlew.bat`).
+    gradlew: bool,
+    /// `gradle` on `PATH`, for a project with no wrapper of its own.
+    gradle: bool,
+    /// `cargo apk` runs — decided by the caller ([`have_cargo_apk`]), since it
+    /// is a cargo subcommand rather than a binary a `PATH` names.
+    cargo_apk: bool,
+}
+
+/// The wrapper's file name on this host — `gradlew.bat` on Windows, where a
+/// bare `gradlew` shell script would not run.
+fn wrapper_name() -> &'static str {
+    if cfg!(windows) {
+        "gradlew.bat"
+    } else {
+        "gradlew"
+    }
+}
+
+impl AabTools {
+    /// Detect every tool on the `PATH` directories given, and the wrapper in
+    /// `app_dir`. Detection only: every *which route* decision is
+    /// [`aab_plan`]'s, so a fake `PATH` tests one and fake booleans the other.
+    fn detect(dirs: &[PathBuf], app_dir: &Path, cargo_apk: bool) -> Self {
+        let on = |tool: &str| tool_in_dirs(tool, dirs.iter().cloned());
+        Self {
+            bundletool: on("bundletool"),
+            java: on("java"),
+            zip: on("zip"),
+            unzip: on("unzip"),
+            gradlew: app_dir.join(wrapper_name()).is_file(),
+            gradle: on("gradle"),
+            cargo_apk,
+        }
+    }
+
+    /// Everything the bundletool route lacks, each with its install command.
+    fn missing_bundletool(&self) -> Vec<AabMissing> {
+        let mut missing = Vec::new();
+        if !self.cargo_apk {
+            missing.push(AabMissing {
+                tool: "cargo apk",
+                how: "cargo install cargo-apk (the route's APK half)",
+            });
+        }
+        if !self.bundletool {
+            missing.push(AabMissing {
+                tool: "bundletool",
+                how: "download bundletool.jar from \
+                      https://github.com/google/bundletool/releases and put a `bundletool` \
+                      wrapper script on PATH",
+            });
+        }
+        if !self.java {
+            missing.push(AabMissing {
+                tool: "java",
+                how: "install a JDK (apt install openjdk-17-jdk / brew install openjdk@17) — \
+                      bundletool is a jar",
+            });
+        }
+        if !self.zip {
+            missing.push(AabMissing {
+                tool: "zip",
+                how: "apt install zip / brew install zip",
+            });
+        }
+        if !self.unzip {
+            missing.push(AabMissing {
+                tool: "unzip",
+                how: "apt install unzip / brew install unzip",
+            });
+        }
+        missing
+    }
+
+    /// Everything the gradle route lacks. `java` is on both routes' lists,
+    /// because a Gradle wrapper is a Java program too; the merge in
+    /// [`aab_plan`] keeps it named once.
+    fn missing_gradle(&self) -> Vec<AabMissing> {
+        let mut missing = Vec::new();
+        if !self.java {
+            missing.push(AabMissing {
+                tool: "java",
+                how: "install a JDK (apt install openjdk-17-jdk / brew install openjdk@17) — \
+                      gradlew is a Java program",
+            });
+        }
+        if !self.gradlew && !self.gradle {
+            missing.push(AabMissing {
+                tool: "gradle",
+                how: "brew install gradle / sdkman.io, or add a wrapper to the project \
+                      (gradle wrapper) — gradlew bundleRelease builds the bundle the project's \
+                      own way",
+            });
+        }
+        missing
+    }
+}
+
+/// What [`package_aab`] will run, decided before anything is.
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum AabRoute {
+    /// `bundleRelease` through the project's own wrapper, or a host `gradle`
+    /// when the project has no wrapper (`program` says which).
+    Gradle { program: PathBuf },
+    /// `cargo apk` → `unzip` → `zip` → `bundletool build-bundle`, with every
+    /// intermediate living in `target/package`.
+    Bundletool {
+        module_dir: PathBuf,
+        module_zip: PathBuf,
+        config: PathBuf,
+        bundle: PathBuf,
+    },
+}
+
+/// Decide the route from the tools alone. The project's own Gradle wrapper
+/// wins when it can run — a project that says how it is built is not
+/// second-guessed — then `bundletool`, then a host `gradle`. When no route is
+/// possible, every missing tool from *both* routes is returned with its
+/// install command, named once each.
+fn aab_plan(tools: &AabTools, app_dir: &Path, name: &str) -> Result<AabRoute, Vec<AabMissing>> {
+    if tools.gradlew {
+        if tools.java {
+            return Ok(AabRoute::Gradle {
+                program: app_dir.join(wrapper_name()),
+            });
+        }
+        // The wrapper is there but cannot run; refusing with just this is
+        // more honest than falling through to a route that ignores the
+        // project's own build.
+        return Err(vec![AabMissing {
+            tool: "java",
+            how: "install a JDK (apt install openjdk-17-jdk / brew install openjdk@17) — \
+                  the project's gradlew cannot run without one",
+        }]);
+    }
+
+    let bundletool_missing = tools.missing_bundletool();
+    if bundletool_missing.is_empty() {
+        let package_dir = app_dir.join("target/package");
+        return Ok(AabRoute::Bundletool {
+            module_dir: package_dir.join("aab-module"),
+            module_zip: package_dir.join("aab-base.zip"),
+            config: package_dir.join("BundleConfig.json"),
+            bundle: package_dir.join(format!("{name}.aab")),
+        });
+    }
+
+    if tools.missing_gradle().is_empty() {
+        return Ok(AabRoute::Gradle {
+            program: PathBuf::from("gradle"),
+        });
+    }
+
+    // Neither route is possible: everything either one lacks, each tool
+    // named once (java is on both lists above).
+    let mut missing = bundletool_missing;
+    for entry in tools.missing_gradle() {
+        if !missing.iter().any(|seen| seen.tool == entry.tool) {
+            missing.push(entry);
+        }
+    }
+    Err(missing)
+}
+
+/// The `BundleConfig.json` the bundletool route writes: nothing but the
+/// compression policy — native libraries stay uncompressed, so Play's split
+/// delivery can mmap them straight out of the installed module instead of
+/// decompressing at install time (the same trade `cargo apk`'s own APKs
+/// make). Hand-written rather than a dependency on a JSON writer; it is one
+/// object with one array with one glob.
+fn bundle_config() -> String {
+    "{\"compression\":{\"uncompressedGlob\":[\"lib/**/*.so\"]}}\n".to_owned()
+}
+
+/// One command a route runs, as argv plus a working directory — the whole
+/// plan in a form a test can read without a single tool being real.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct AabStep {
+    program: String,
+    args: Vec<String>,
+    cwd: PathBuf,
+}
+
+impl AabStep {
+    /// Run it for real, capturing the failure's stderr verbatim. The build
+    /// step's own message shape is kept: `cargo apk` failing here is a build
+    /// failure exactly like `cargo build --release` failing in
+    /// [`cargo_build_release`].
+    fn run(&self) -> Result<String, PackageError> {
+        let output = Command::new(&self.program)
+            .args(&self.args)
+            .current_dir(&self.cwd)
+            .output()?;
+        if output.status.success() {
+            Ok(String::from_utf8_lossy(&output.stdout).into_owned())
+        } else {
+            Err(PackageError::Build(format!(
+                "{} {} failed:\n{}",
+                self.program,
+                self.args.join(" "),
+                String::from_utf8_lossy(&output.stderr)
+            )))
+        }
+    }
+}
+
+/// The commands each route runs *after* its build step — the build itself
+/// (cargo apk / gradle bundleRelease) is [`package_aab`]'s to schedule,
+/// because the bundletool route needs to discover the APK it just built
+/// before it can name the commands that consume it.
+///
+/// `apk` is the built APK's path, required only by the bundletool route.
+fn aab_steps(route: &AabRoute, app_dir: &Path, apk: Option<&Path>) -> Vec<AabStep> {
+    match route {
+        AabRoute::Gradle { program } => vec![AabStep {
+            program: program.to_string_lossy().into_owned(),
+            args: vec!["bundleRelease".to_owned()],
+            cwd: app_dir.to_owned(),
+        }],
+        AabRoute::Bundletool {
+            module_dir,
+            module_zip,
+            config,
+            bundle,
+        } => {
+            let apk = apk.expect("the bundletool route runs after the APK was built");
+            let arg = |path: &Path| path.to_string_lossy().into_owned();
+            vec![
+                // Unpack the APK as a base module, minus the APK's own
+                // signatures: a signed module is refused by bundletool, and
+                // Play re-signs every split anyway.
+                AabStep {
+                    program: "unzip".to_owned(),
+                    args: vec![
+                        "-o".to_owned(),
+                        arg(apk),
+                        "-d".to_owned(),
+                        arg(module_dir),
+                        "-x".to_owned(),
+                        "META-INF/*".to_owned(),
+                    ],
+                    cwd: app_dir.to_owned(),
+                },
+                AabStep {
+                    program: "zip".to_owned(),
+                    args: vec![
+                        "-X".to_owned(),
+                        "-r".to_owned(),
+                        arg(module_zip),
+                        ".".to_owned(),
+                    ],
+                    cwd: module_dir.clone(),
+                },
+                AabStep {
+                    program: "bundletool".to_owned(),
+                    args: vec![
+                        "build-bundle".to_owned(),
+                        "--modules".to_owned(),
+                        arg(module_zip),
+                        "--output".to_owned(),
+                        arg(bundle),
+                        "--config".to_owned(),
+                        arg(config),
+                    ],
+                    cwd: app_dir.to_owned(),
+                },
+            ]
+        }
+    }
+}
+
+/// Find the first file with `extension` under `dir`, depth-limited — how the
+/// bundletool route finds the APK `cargo apk` just wrote (`target/release/apk`,
+/// a small directory) and the gradle route finds the bundle Gradle just wrote
+/// (`app/build/outputs/bundle/release` for the standard module name).
+///
+/// Directories named in `avoid` are not entered: the gradle fallback searches
+/// the whole project, and a stale bundle from an earlier `target/package` run
+/// must not win over the one Gradle just wrote. Symlinked directories are not
+/// followed either — `DirEntry::file_type` is `lstat` semantics, and a
+/// packaging walk that wanders out of the project through a link is a bug,
+/// not a feature to support.
+fn find_artifact(dir: &Path, extension: &str, avoid: &[&str], depth: usize) -> Option<PathBuf> {
+    if depth == 0 {
+        return None;
+    }
+    let entries = std::fs::read_dir(dir).ok()?;
+    let mut subdirs = Vec::new();
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if entry.file_type().ok().is_some_and(|t| t.is_dir()) {
+            if path
+                .file_name()
+                .and_then(|name| name.to_str())
+                .is_some_and(|name| avoid.contains(&name))
+            {
+                continue;
+            }
+            subdirs.push(path);
+        } else if path.extension().is_some_and(|ext| ext == extension) {
+            return Some(path);
+        }
+    }
+    subdirs
+        .into_iter()
+        .find_map(|sub| find_artifact(&sub, extension, avoid, depth - 1))
+}
+
+/// Build an Android App Bundle (`.aab`) — see the section docs above for
+/// which route and why. Refuses before running anything when no route is
+/// possible, naming every missing tool with its install command; a refusal
+/// leaves nothing behind.
+fn package_aab(app_dir: &Path) -> Result<PackageReport, PackageError> {
+    let name = read_package_name(app_dir)?;
+    let path = std::env::var_os("PATH").unwrap_or_default();
+    let dirs: Vec<PathBuf> = std::env::split_paths(&path).collect();
+    let tools = AabTools::detect(&dirs, app_dir, have_cargo_apk());
+    let route = aab_plan(&tools, app_dir, &name).map_err(|missing| {
+        let joined = missing
+            .iter()
+            .map(|entry| entry.line())
+            .collect::<Vec<_>>()
+            .join("; ");
+        PackageError::MissingTool {
+            target: PackageTarget::Aab,
+            tool: "gradlew/gradle bundleRelease or bundletool (+ cargo apk, java, zip, unzip)"
+                .to_owned(),
+            how_to_get_it: joined,
+        }
+    })?;
+
+    match &route {
+        AabRoute::Gradle { program } => {
+            AabStep {
+                program: program.to_string_lossy().into_owned(),
+                args: vec!["bundleRelease".to_owned()],
+                cwd: app_dir.to_owned(),
+            }
+            .run()?;
+            // Gradle writes <module>/build/outputs/bundle/release/<…>.aab for
+            // whatever modules the project declares, so the standard location
+            // is searched first and the whole project second — bounded, and
+            // never inside `target`, where a stale earlier bundle would win.
+            let produced = find_artifact(
+                &app_dir.join("app/build/outputs/bundle/release"),
+                "aab",
+                &[],
+                2,
+            )
+            .or_else(|| find_artifact(app_dir, "aab", &["target", ".git"], 5));
+            let Some(produced) = produced else {
+                return Err(PackageError::MissingArtifact(
+                    app_dir
+                        .join("app/build/outputs/bundle/release")
+                        .join("<module>-release.aab"),
+                ));
+            };
+            let out_dir = app_dir.join("target/package");
+            std::fs::create_dir_all(&out_dir)?;
+            let bundle = out_dir.join(format!("{name}.aab"));
+            std::fs::copy(&produced, &bundle)?;
+            Ok(PackageReport {
+                target: PackageTarget::Aab,
+                output_dir: out_dir,
+                artifacts: vec![bundle],
+                notes: vec![
+                    format!("built by {} bundleRelease from {}", program.display(), produced.display()),
+                    "sign the upload key with packaging/sign.sh apk <file.aab> (jarsigner) when the \
+                     ANDROID_KEYSTORE secrets exist; Play App Signing holds the delivery key — \
+                     the upload key is the only certificate this pipeline needs"
+                        .to_owned(),
+                ],
+            })
+        }
+        AabRoute::Bundletool {
+            module_dir,
+            // The zip is reached through `route` in `aab_steps` below; binding
+            // it here too would only be a second name for the same path.
+            module_zip: _,
+            config,
+            bundle,
+        } => {
+            AabStep {
+                program: "cargo".to_owned(),
+                args: vec!["apk".to_owned(), "build".to_owned(), "--release".to_owned()],
+                cwd: app_dir.to_owned(),
+            }
+            .run()?;
+            let apk_dir = app_dir.join("target/release/apk");
+            let Some(apk) = find_artifact(&apk_dir, "apk", &[], 3) else {
+                return Err(PackageError::MissingArtifact(
+                    apk_dir.join("<apk_name>.apk"),
+                ));
+            };
+
+            std::fs::create_dir_all(module_dir)?;
+            std::fs::write(config, bundle_config())?;
+            // The intermediates are this run's own scratch: a failed run
+            // leaves them for a person to read, a successful one cleans up
+            // the unpacked module (the zip and the config stay — they are the
+            // bundle's provenance, the same honesty MANIFEST.txt practices).
+            for step in aab_steps(&route, app_dir, Some(&apk)) {
+                step.run()?;
+            }
+            std::fs::remove_dir_all(module_dir)?;
+
+            if !bundle.is_file() {
+                return Err(PackageError::MissingArtifact(bundle.clone()));
+            }
+            Ok(PackageReport {
+                target: PackageTarget::Aab,
+                output_dir: bundle
+                    .parent()
+                    .map(Path::to_owned)
+                    .unwrap_or_else(|| app_dir.join("target/package")),
+                artifacts: vec![bundle.clone()],
+                notes: vec![
+                    format!(
+                        "base module assembled from {} by unzip/zip (the APK's signatures \
+                         excluded) and packed by bundletool build-bundle",
+                        apk.display()
+                    ),
+                    "sign the upload key with packaging/sign.sh apk <file.aab> (jarsigner) when the \
+                     ANDROID_KEYSTORE secrets exist; Play App Signing holds the delivery key — \
+                     the upload key is the only certificate this pipeline needs"
+                        .to_owned(),
+                ],
+            })
+        }
+    }
+}
+
 /// Build and bundle for iOS via `xcrun`, mirroring `ci/mobile/ios-app.sh`'s own
 /// simulator build.
 ///
@@ -864,8 +1382,8 @@ fn package_ios(app_dir: &Path) -> Result<PackageReport, PackageError> {
     if !tool_on_path("xcrun") {
         return Err(PackageError::MissingTool {
             target: PackageTarget::Ios,
-            tool: "xcrun",
-            how_to_get_it: "install the Xcode command line tools",
+            tool: "xcrun".to_owned(),
+            how_to_get_it: "install the Xcode command line tools".to_owned(),
         });
     }
 
@@ -1553,6 +2071,295 @@ mod tests {
                     "unexpected I/O error: {other:?}"
                 );
             }
+        }
+    }
+
+    // ----- the AAB planner: fake tools on a fake PATH (FW-06) ----------------
+    //
+    // The process's own PATH is never mutated (see util::tool_on_path's doc
+    // for the flake that forbids it); instead the fake tools live in a
+    // directory this suite creates, and AabTools::detect reads exactly that
+    // list — the "PATH" the planner is given, fake end to end.
+
+    /// A directory of fake tools — plain files, because that is precisely
+    /// what `tool_in_dirs` counts as present (its own doc explains why it
+    /// does not check the executable bit).
+    fn fake_tool_dir(name: &str, tools: &[&str]) -> PathBuf {
+        let dir = std::env::temp_dir().join(name);
+        std::fs::remove_dir_all(&dir).ok();
+        std::fs::create_dir_all(&dir).unwrap();
+        for tool in tools {
+            std::fs::write(dir.join(tool), b"#!/bin/sh\nexit 0\n").unwrap();
+        }
+        dir
+    }
+
+    /// A scratch cargo project with `[package] name = "probe"`, optionally
+    /// carrying a Gradle wrapper.
+    fn aab_scratch(name: &str, with_wrapper: bool) -> PathBuf {
+        let dir = std::env::temp_dir().join(name);
+        std::fs::remove_dir_all(&dir).ok();
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(
+            dir.join("Cargo.toml"),
+            "[package]\nname = \"probe\"\nversion = \"0.1.0\"\n",
+        )
+        .unwrap();
+        if with_wrapper {
+            std::fs::write(dir.join(wrapper_name()), "#!/bin/sh\nexit 0\n").unwrap();
+        }
+        dir
+    }
+
+    #[test]
+    fn aab_tools_are_read_from_a_path_of_fake_tools() {
+        let bin = fake_tool_dir(
+            "vieww-build-aab-fake-path",
+            &["bundletool", "java", "zip", "unzip", "gradle"],
+        );
+        let no_wrapper = aab_scratch("vieww-build-aab-app-plain", false);
+        let tools = AabTools::detect(std::slice::from_ref(&bin), &no_wrapper, false);
+        std::fs::remove_dir_all(&bin).ok();
+        std::fs::remove_dir_all(&no_wrapper).ok();
+        assert!(tools.bundletool && tools.java && tools.zip && tools.unzip && tools.gradle);
+        assert!(!tools.gradlew, "this project has no wrapper");
+        assert!(!tools.cargo_apk, "the caller said cargo apk is absent");
+
+        // And the wrapper is found in the project, not on the PATH.
+        let wrapper = aab_scratch("vieww-build-aab-app-wrapped", true);
+        let tools = AabTools::detect(&[], &wrapper, false);
+        std::fs::remove_dir_all(&wrapper).ok();
+        assert!(tools.gradlew);
+        assert!(!tools.bundletool, "an empty PATH finds nothing else");
+    }
+
+    #[test]
+    fn the_planner_takes_the_projects_own_gradle_wrapper_first() {
+        let app = aab_scratch("vieww-build-aab-plan-wrapper", true);
+        let tools = AabTools {
+            gradlew: true,
+            java: true,
+            ..AabTools::default()
+        };
+        let route = aab_plan(&tools, &app, "probe").expect("the wrapper route is possible");
+        std::fs::remove_dir_all(&app).ok();
+        let AabRoute::Gradle { program } = route else {
+            panic!("the wrapper route is the Gradle route: {route:?}")
+        };
+        assert_eq!(
+            program.file_name().map(std::ffi::OsStr::to_string_lossy),
+            Some(wrapper_name().to_owned().into())
+        );
+        assert_eq!(program, app.join(wrapper_name()));
+    }
+
+    #[test]
+    fn the_planner_falls_back_to_bundletool_then_a_host_gradle() {
+        // Everything the bundletool route needs, no wrapper, no host gradle:
+        // the bundletool route, with every intermediate under target/package.
+        let app = aab_scratch("vieww-build-aab-plan-bundletool", false);
+        let tools = AabTools {
+            bundletool: true,
+            java: true,
+            zip: true,
+            unzip: true,
+            cargo_apk: true,
+            ..AabTools::default()
+        };
+        let route = aab_plan(&tools, &app, "probe").expect("the bundletool route is possible");
+        let AabRoute::Bundletool {
+            module_dir,
+            module_zip,
+            config,
+            bundle,
+        } = route
+        else {
+            panic!("with every bundletool tool present the route is Bundletool: {route:?}")
+        };
+        let package = app.join("target/package");
+        assert_eq!(module_dir, package.join("aab-module"));
+        assert_eq!(module_zip, package.join("aab-base.zip"));
+        assert_eq!(config, package.join("BundleConfig.json"));
+        assert_eq!(bundle, package.join("probe.aab"));
+        std::fs::remove_dir_all(&app).ok();
+
+        // No bundletool but java + a host gradle: the host gradle route.
+        let tools = AabTools {
+            java: true,
+            gradle: true,
+            ..AabTools::default()
+        };
+        let route = aab_plan(&tools, &app, "probe").expect("the host gradle route is possible");
+        assert_eq!(
+            route,
+            AabRoute::Gradle {
+                program: PathBuf::from("gradle")
+            }
+        );
+    }
+
+    #[test]
+    fn the_planner_refuses_by_naming_every_missing_tool_and_its_fix() {
+        let app = aab_scratch("vieww-build-aab-plan-refused", false);
+        let missing = aab_plan(&AabTools::default(), &app, "probe").unwrap_err();
+        std::fs::remove_dir_all(&app).ok();
+
+        let tools: Vec<&str> = missing.iter().map(|entry| entry.tool).collect();
+        for expected in ["cargo apk", "bundletool", "java", "zip", "unzip", "gradle"] {
+            assert!(
+                tools.contains(&expected),
+                "the refusal names {expected}: {missing:?}"
+            );
+        }
+        // Each names its fix — the install command, not just the problem.
+        let joined = missing
+            .iter()
+            .map(|entry| entry.line())
+            .collect::<Vec<_>>()
+            .join("; ");
+        assert!(joined.contains("cargo install cargo-apk"), "{joined}");
+        assert!(
+            joined.contains("https://github.com/google/bundletool/releases"),
+            "{joined}"
+        );
+        // java is on both routes' lists; the merge names it once.
+        assert_eq!(
+            missing.iter().filter(|entry| entry.tool == "java").count(),
+            1
+        );
+    }
+
+    #[test]
+    fn a_wrapper_without_java_refuses_naming_java_and_nothing_else() {
+        let app = aab_scratch("vieww-build-aab-plan-no-java", true);
+        let tools = AabTools {
+            gradlew: true,
+            ..AabTools::default()
+        };
+        let missing = aab_plan(&tools, &app, "probe").unwrap_err();
+        std::fs::remove_dir_all(&app).ok();
+        assert_eq!(missing.len(), 1, "{missing:?}");
+        assert_eq!(missing[0].tool, "java");
+        assert!(missing[0].how.contains("gradlew"), "{missing:?}");
+    }
+
+    #[test]
+    fn the_bundletool_steps_shape_the_base_module_and_the_bundle() {
+        let app = aab_scratch("vieww-build-aab-steps", false);
+        let tools = AabTools {
+            bundletool: true,
+            java: true,
+            zip: true,
+            unzip: true,
+            cargo_apk: true,
+            ..AabTools::default()
+        };
+        let route = aab_plan(&tools, &app, "probe").expect("the bundletool route is possible");
+        let apk = app.join("target/release/apk/probe.apk");
+        let steps = aab_steps(&route, &app, Some(&apk));
+        std::fs::remove_dir_all(&app).ok();
+
+        assert_eq!(steps.len(), 3, "{steps:?}");
+        // Unpack the APK as a module, excluding the APK's signatures.
+        assert_eq!(steps[0].program, "unzip");
+        assert_eq!(steps[0].args[0], "-o");
+        assert_eq!(steps[0].args[1], apk.to_string_lossy());
+        assert!(steps[0].args.contains(&"-d".to_owned()));
+        assert!(
+            steps[0].args.contains(&"META-INF/*".to_owned()),
+            "{steps:?}"
+        );
+        // Pack the module from inside it — the cwd is the module dir.
+        assert_eq!(steps[1].program, "zip");
+        assert_eq!(steps[1].cwd, app.join("target/package/aab-module"));
+        assert!(steps[1].args.contains(&"-X".to_owned()));
+        assert_eq!(steps[1].args.last(), Some(&".".to_owned()));
+        // And hand the module to bundletool with the config.
+        assert_eq!(steps[2].program, "bundletool");
+        let args = steps[2].args.join(" ");
+        assert!(
+            args.contains("build-bundle --modules")
+                && args.contains("--output")
+                && args.contains("--config"),
+            "{args}"
+        );
+        assert!(args.contains("probe.aab"), "{args}");
+    }
+
+    #[test]
+    fn the_bundle_config_keeps_native_libraries_uncompressed() {
+        let config = bundle_config();
+        assert!(config.contains("\"lib/**/*.so\""), "{config}");
+        assert!(config.contains("uncompressedGlob"), "{config}");
+    }
+
+    #[test]
+    fn the_artifact_walk_finds_nested_outputs_and_skips_avoided_dirs() {
+        let dir = std::env::temp_dir().join("vieww-build-aab-walk");
+        std::fs::remove_dir_all(&dir).ok();
+        let outputs = dir.join("app/build/outputs/bundle/release");
+        std::fs::create_dir_all(&outputs).unwrap();
+        std::fs::write(outputs.join("app-release.aab"), b"bundle").unwrap();
+        // A stale bundle under target/ that must not win when target is avoided.
+        let stale = dir.join("target/package");
+        std::fs::create_dir_all(&stale).unwrap();
+        std::fs::write(stale.join("stale.aab"), b"stale").unwrap();
+
+        assert_eq!(
+            find_artifact(&dir, "aab", &["target", ".git"], 6),
+            Some(outputs.join("app-release.aab"))
+        );
+        // Without the avoidance the stale one is reachable — the walk itself
+        // has no opinion about which artifact is right.
+        assert!(find_artifact(&dir, "aab", &[], 6).is_some());
+        // And depth is honoured rather than recursing forever.
+        assert_eq!(find_artifact(&dir, "aab", &[], 2), None);
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    /// The real path, on the real machine running this suite. This sandbox
+    /// has no `bundletool`, no `gradle` and no `cargo apk`, so packaging an
+    /// AAB here is a real, deterministic `MissingTool` that names the tools
+    /// and their install commands — the refusal-first contract, exercised
+    /// end to end through `package`'s own dispatch.
+    #[test]
+    fn packaging_an_aab_with_no_route_here_is_a_named_missing_tool() {
+        let scratch = aab_scratch("vieww-build-package-aab-probe", false);
+        let result = package(PackageTarget::Aab, &scratch);
+        std::fs::remove_dir_all(&scratch).ok();
+
+        match result {
+            Err(PackageError::MissingTool {
+                target,
+                tool,
+                how_to_get_it,
+            }) => {
+                assert_eq!(target, PackageTarget::Aab);
+                assert!(
+                    tool.contains("bundletool") || tool.contains("gradle"),
+                    "{tool}"
+                );
+                assert!(
+                    how_to_get_it.contains("bundletool.jar") || how_to_get_it.contains("gradle"),
+                    "the refusal names how to get the tools: {how_to_get_it}"
+                );
+            }
+            other => {
+                // A machine that genuinely has a whole Android toolchain
+                // would start a real build here, which this test does not
+                // attempt; only a wrong *kind* of failure is the gate's bug.
+                assert!(
+                    !matches!(other, Err(PackageError::Io(_))),
+                    "unexpected I/O error: {other:?}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn an_aab_target_needs_no_particular_host() {
+        for host in ["linux", "macos", "windows"] {
+            assert!(check_host(PackageTarget::Aab, host).is_ok(), "{host}");
         }
     }
 
