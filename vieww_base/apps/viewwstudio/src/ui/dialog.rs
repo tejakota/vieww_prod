@@ -949,3 +949,152 @@ impl Widget for LiveMissing {
 }
 
 vieww_widget::widget_node_from!(LiveMissing);
+
+/// ST-03: the prompt box — "Say: Write a Screen from a Prompt".
+///
+/// One text field and one button, because the interesting part of this
+/// feature is not the box: it is what [`crate::say_ai`] does before the user
+/// is asked to look at anything. The card says so, in one line, because a
+/// prompt box whose card overpromises ("AI writes your app") would be the
+/// one place the studio's verification story is contradicted by its own
+/// chrome.
+#[derive(Debug)]
+pub struct SayPromptDialog {
+    pub studio: crate::state::Studio,
+}
+
+impl Widget for SayPromptDialog {
+    fn debug_name(&self) -> &'static str {
+        "SayPromptDialog"
+    }
+
+    fn kind(&self) -> WidgetKind<'_> {
+        WidgetKind::Composed
+    }
+
+    fn build(&self, ctx: &BuildContext) -> WidgetNode {
+        if !self.studio.say_prompt_open.get() {
+            return SizedBox::shrink().into();
+        }
+        let chrome = *StudioTheme::of(ctx);
+        let colors = ThemeData::of(ctx).colors;
+
+        // The field the prompt is typed into. Proportional rather than
+        // monospaced — this is a sentence about a screen, not a screen.
+        let studio = self.studio.clone();
+        let field: WidgetNode = Container::new()
+            .color(chrome.chrome_1)
+            .radius(6.0)
+            .padding(EdgeInsets::symmetric(10.0, 8.0))
+            .border(Border {
+                color: chrome.line,
+                width: 1.0,
+            })
+            .child(
+                TextField::text(self.studio.say_prompt_text.get())
+                    .size(12.5)
+                    .style(TextStyle::new(12.5).color(colors.on_surface))
+                    .placeholder("a column of settings rows under a heading")
+                    .selection_color(chrome.selection)
+                    .cursor(colors.primary, 2.0)
+                    .on_changed(std::rc::Rc::new(
+                        move |value: vieww_foundation::TextEditingValue| {
+                            studio.set_say_prompt_text(value.text);
+                        },
+                    )),
+            )
+            .into();
+
+        let submitting = self.studio.clone();
+        let cancelling = self.studio.clone();
+
+        let mut dialog = Dialog::new(
+            crate::i18n::t("Say: Write a Screen from a Prompt"),
+            crate::i18n::t(
+                "Describe the screen. The model's answer is compiled with the real \
+                 toolchain and rendered twice before you see it — and nothing leaves \
+                 this machine.",
+            ),
+        );
+        dialog.body = Some(field);
+        dialog
+            .action(Action::new(
+                crate::i18n::t("Cancel"),
+                Tone::Neutral,
+                move || {
+                    cancelling.say_prompt_open.set(false);
+                },
+            ))
+            .action(Action::new(
+                crate::i18n::t("Write the screen"),
+                Tone::Primary,
+                move || {
+                    submitting.say_ai_submit();
+                },
+            ))
+            .into()
+    }
+}
+
+vieww_widget::widget_node_from!(SayPromptDialog);
+
+/// ST-03: the diff approval dialog — what survived verification, and the
+/// choice of whether it lands.
+///
+/// The `.say` diff, not the generated Rust: the buffer holds Say, the model
+/// wrote Say, and the person is being asked about *their* file. The lines are
+/// the same `diff_lines` marks the Output panel would show, bounded by the
+/// dialog's own list cap — a screen is a few dozen lines, and a model that
+/// wrote more is a model whose diff scrolls, which the cap says out loud.
+#[derive(Debug)]
+pub struct SayProposalDialog {
+    pub studio: crate::state::Studio,
+}
+
+impl Widget for SayProposalDialog {
+    fn debug_name(&self) -> &'static str {
+        "SayProposalDialog"
+    }
+
+    fn kind(&self) -> WidgetKind<'_> {
+        WidgetKind::Composed
+    }
+
+    fn build(&self, _ctx: &BuildContext) -> WidgetNode {
+        let Some(proposal) = self.studio.say_proposal.get() else {
+            return SizedBox::shrink().into();
+        };
+        let applying = self.studio.clone();
+        let refusing = self.studio.clone();
+
+        Dialog::new(
+            crate::i18n::t("The model wrote a screen"),
+            crate::i18n::t(
+                "It compiled and rendered pixel-identically twice. This is the .say \
+                 diff against the buffer — applying is one edit, so Undo takes it \
+                 back.",
+            ),
+        )
+        .items(crate::say_ai::diff_lines(
+            &self.studio.active().map_or(String::new(), |b| b.value.text),
+            &proposal.say,
+        ))
+        .action(Action::new(
+            crate::i18n::t("Don't apply"),
+            Tone::Neutral,
+            move || {
+                refusing.say_ai_dismiss();
+            },
+        ))
+        .action(Action::new(
+            crate::i18n::t("Apply"),
+            Tone::Primary,
+            move || {
+                applying.say_ai_apply();
+            },
+        ))
+        .into()
+    }
+}
+
+vieww_widget::widget_node_from!(SayProposalDialog);

@@ -370,6 +370,22 @@ const SPANISH: &[(&str, &str)] = &[
     ("Filter by name", "Filtrar por nombre"),
     ("{} selected · {} × {} at {}, {}", "{} seleccionados · {} × {} en {}, {}"),
     // Status bar, dialogs and build states
+    // ST-03: the Say prompt (say_ai) — box, worker, refusal, approval.
+    ("A prompt is already being verified.", "Ya se está verificando una consulta."),
+    ("Applied — press Render to see it in the frame.", "Aplicado: pulsa Renderizar para verlo en el marco."),
+    ("Apply", "Aplicar"),
+    ("Describe the screen. The model's answer is compiled with the real toolchain and rendered twice before you see it — and nothing leaves this machine.", "Describe la pantalla. La respuesta del modelo se compila con la cadena de herramientas real y se renderiza dos veces antes de que la veas, y nada sale de esta máquina."),
+    ("Don't apply", "No aplicar"),
+    ("It compiled and rendered pixel-identically twice. This is the .say diff against the buffer — applying is one edit, so Undo takes it back.", "Compiló y se renderizó dos veces con píxeles idénticos. Este es el diff de .say frente al búfer; aplicarlo es una sola edición, así que Deshacer lo revierte."),
+    ("No session directory to compile a proposal into.", "No hay carpeta de sesión donde compilar una propuesta."),
+    ("No toolchain, no verified prompt.", "Sin cadena de herramientas no hay consulta verificada."),
+    ("Say: Write a Screen from a Prompt", "Say: escribe una pantalla a partir de una consulta"),
+    ("The model wrote a screen", "El modelo escribió una pantalla"),
+    ("The prompt loop could not start: {}", "El bucle de la consulta no pudo arrancar: {}"),
+    ("The prompt worker stopped without answering.", "El proceso de la consulta se detuvo sin responder."),
+    ("The Say prompt writes a .say buffer — open one first.", "La consulta de Say escribe un búfer .say: abre primero uno."),
+    ("Verifying the model's Say — compiling and rendering it twice.", "Verificando el Say del modelo: se compila y se renderiza dos veces."),
+    ("Write the screen", "Escribir la pantalla"),
     ("ABI mismatch", "ABI incompatible"),
     ("ABI ok", "ABI correcta"),
     ("ABI unchecked", "ABI sin comprobar"),
@@ -615,6 +631,22 @@ const SPANISH: &[(&str, &str)] = &[
 ];
 
 const FRENCH: &[(&str, &str)] = &[
+    // ST-03: the Say prompt (say_ai) — box, worker, refusal, approval.
+    ("A prompt is already being verified.", "Une requête est déjà en cours de vérification."),
+    ("Applied — press Render to see it in the frame.", "Appliqué — appuyez sur Rendu pour le voir dans le cadre."),
+    ("Apply", "Appliquer"),
+    ("Describe the screen. The model's answer is compiled with the real toolchain and rendered twice before you see it — and nothing leaves this machine.", "Décrivez l'écran. La réponse du modèle est compilée avec la vraie chaîne d'outils et rendue deux fois avant que vous la voyiez — et rien ne quitte cette machine."),
+    ("Don't apply", "Ne pas appliquer"),
+    ("It compiled and rendered pixel-identically twice. This is the .say diff against the buffer — applying is one edit, so Undo takes it back.", "Il a compilé et s'est rendu deux fois à l'identique au pixel près. Voici le diff .say par rapport au tampon ; l'appliquer est une seule édition, donc Annuler le reprend."),
+    ("No session directory to compile a proposal into.", "Aucun répertoire de session où compiler une proposition."),
+    ("No toolchain, no verified prompt.", "Pas de chaîne d'outils, pas de requête vérifiée."),
+    ("Say: Write a Screen from a Prompt", "Say : écrire un écran à partir d'une requête"),
+    ("The model wrote a screen", "Le modèle a écrit un écran"),
+    ("The prompt loop could not start: {}", "La boucle de requête n'a pas pu démarrer : {}"),
+    ("The prompt worker stopped without answering.", "Le processus de la requête s'est arrêté sans répondre."),
+    ("The Say prompt writes a .say buffer — open one first.", "La requête Say écrit un tampon .say — ouvrez-en un d'abord."),
+    ("Verifying the model's Say — compiling and rendering it twice.", "Vérification du Say du modèle — compilation et rendu deux fois."),
+    ("Write the screen", "Écrire l'écran"),
     ("Attributing a frame needs a rendered screen — press Render first.", "Attribuer une image nécessite un écran rendu — appuyez d’abord sur Rendu."),
     ("Frame attributed: {}", "Image attribuée : {}"),
     ("Performance overlay off.", "Superposition de performances désactivée."),
@@ -954,6 +986,22 @@ const FRENCH: &[(&str, &str)] = &[
 ];
 
 const GERMAN: &[(&str, &str)] = &[
+    // ST-03: the Say prompt (say_ai) — box, worker, refusal, approval.
+    ("A prompt is already being verified.", "Eine Anfrage wird bereits geprüft."),
+    ("Applied — press Render to see it in the frame.", "Angewendet – drücken Sie Rendern, um es im Rahmen zu sehen."),
+    ("Apply", "Anwenden"),
+    ("Describe the screen. The model's answer is compiled with the real toolchain and rendered twice before you see it — and nothing leaves this machine.", "Beschreiben Sie den Bildschirm. Die Antwort des Modells wird mit der echten Toolchain kompiliert und zweimal gerendert, bevor Sie sie sehen – und nichts verlässt diese Maschine."),
+    ("Don't apply", "Nicht anwenden"),
+    ("It compiled and rendered pixel-identically twice. This is the .say diff against the buffer — applying is one edit, so Undo takes it back.", "Es wurde kompiliert und zweimal pixelidentisch gerendert. Das ist der .say-Diff zum Puffer – das Anwenden ist eine einzige Bearbeitung, also macht Rückgängig sie rückgängig."),
+    ("No session directory to compile a proposal into.", "Kein Sitzungsverzeichnis, in das ein Vorschlag kompiliert werden könnte."),
+    ("No toolchain, no verified prompt.", "Keine Toolchain, keine geprüfte Anfrage."),
+    ("Say: Write a Screen from a Prompt", "Say: einen Bildschirm aus einer Anfrage schreiben"),
+    ("The model wrote a screen", "Das Modell hat einen Bildschirm geschrieben"),
+    ("The prompt loop could not start: {}", "Die Anfrageschleife konnte nicht starten: {}"),
+    ("The prompt worker stopped without answering.", "Der Anfrage-Worker hat aufgehört, ohne zu antworten."),
+    ("The Say prompt writes a .say buffer — open one first.", "Die Say-Anfrage schreibt einen .say-Puffer – öffnen Sie zuerst einen."),
+    ("Verifying the model's Say — compiling and rendering it twice.", "Das Say des Modells wird geprüft – zweimal kompiliert und gerendert."),
+    ("Write the screen", "Den Bildschirm schreiben"),
     ("Attributing a frame needs a rendered screen — press Render first.", "Ein Bild zuzuordnen braucht einen gerenderten Bildschirm – klicken Sie zuerst auf Rendern."),
     ("Frame attributed: {}", "Bild zugeordnet: {}"),
     ("Performance overlay off.", "Leistungsanzeige aus."),

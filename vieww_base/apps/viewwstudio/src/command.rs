@@ -256,6 +256,9 @@ pub enum Command {
     /// straight away. No folder, no name, no Cargo.toml — the fastest path
     /// from "what is this?" to a screen in the device frame.
     TrySayScreen,
+    /// ST-03: open the "Say: Write a Screen from a Prompt" box — the one
+    /// door into the verified prompt→app loop in `say_ai`.
+    SayPrompt,
     NewProject,
     /// Open a folder as the workspace, through the studio's own picker.
     ///
@@ -452,7 +455,7 @@ pub enum Command {
 
 impl Command {
     /// Every command, in palette order.
-    pub const ALL: [Self; 116] = [
+    pub const ALL: [Self; 117] = [
         Self::Render,
         Self::CancelRender,
         Self::Build,
@@ -462,6 +465,7 @@ impl Command {
         // Above `Save`, because a studio with no folder open can do almost
         // nothing else and this is the command that fixes that.
         Self::TrySayScreen,
+        Self::SayPrompt,
         Self::OpenFolder,
         Self::Save,
         Self::SaveAll,
@@ -601,6 +605,7 @@ impl Command {
             Self::LivePreview => "Live Preview (No Build)",
             Self::RestoreFlow => "Load Flow File",
             Self::TrySayScreen => "Try a Say Screen Right Now",
+            Self::SayPrompt => "Say: Write a Screen from a Prompt",
             Self::NewProject => "New Project\u{2026}",
             Self::OpenFolder => "Open Folder…",
             Self::RestoreSample => "Restore Sample Buffer",
@@ -711,6 +716,7 @@ impl Command {
     pub const fn menu(self) -> Menu {
         match self {
             Self::TrySayScreen
+            | Self::SayPrompt
             | Self::NewProject
             | Self::OpenFolder
             | Self::RestoreSample
@@ -910,7 +916,8 @@ impl Command {
             Self::AddCursorBelow => Chord::cmd_named(NamedKey::ArrowDown).with_alt(),
             Self::AddCursorAbove => Chord::cmd_named(NamedKey::ArrowUp).with_alt(),
             Self::AddCursorAtNextOccurrence => Chord::cmd("d"),
-            Self::TrySayScreen
+            Self::SayPrompt
+            | Self::TrySayScreen
             | Self::Indent
             | Self::Outdent
             | Self::ClearOutput

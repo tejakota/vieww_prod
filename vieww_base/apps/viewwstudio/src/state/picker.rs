@@ -617,6 +617,10 @@ impl Studio {
             C::RestoreFlow => self.restore_flow(),
 
             C::TrySayScreen => self.try_say_screen(),
+            // ST-03: the prompt box. Its own refusals — no Say buffer, no
+            // toolchain, a prompt already being verified — are notifications
+            // the box emits, not silent returns; see `say_ai::say_ai_submit`.
+            C::SayPrompt => self.say_ai_open(),
             C::NewProject => self.new_project(),
             C::OpenFolder => self.open_picker(),
             C::RestoreSample => self.restore_sample(),
@@ -1019,6 +1023,12 @@ impl Studio {
             self.about.set(false);
         } else if self.welcome.peek() {
             self.welcome.set(false);
+        } else if self.say_proposal.peek().is_some() {
+            // The diff approval dialog: Escape means "not that" — the buffer
+            // is untouched either way, so a keystroke can decline it.
+            self.say_ai_dismiss();
+        } else if self.say_prompt_open.peek() {
+            self.say_prompt_open.set(false);
         } else if self.name_prompt.peek().is_some() {
             self.close_name_prompt();
         } else if self.pending_delete.peek().is_some() {

@@ -765,7 +765,13 @@ impl Session {
     }
 
     /// The `(source, library)` pair for the next Render.
-    fn next_pair(&self) -> (PathBuf, PathBuf) {
+    ///
+    /// `pub(crate)` for the Say-prompt worker (`say_ai::ProposeJob`), which
+    /// mints its pairs on the UI thread and crosses only the paths — the
+    /// same arrangement `Job::spawn` makes, stated here so the counter's
+    /// single-threadedness is a documented rule rather than an accident
+    /// somebody trips over.
+    pub(crate) fn next_pair(&self) -> (PathBuf, PathBuf) {
         let index = self.next.get();
         self.next.set(index + 1);
         (
@@ -1186,6 +1192,31 @@ pub fn compile(
         &source_path,
         &library_path,
         file_name,
+        None,
+        &AtomicBool::new(false),
+    )
+}
+
+/// [`compile`], at a pair the caller already minted.
+///
+/// For worker threads that cannot hold a [`Session`] — its pair counter is
+/// a `Cell`, single-threaded by design, so the Say-prompt worker mints its
+/// pairs on the UI thread and crosses only the paths. The source is written
+/// *here*, entry point and all, so what `rustc` is handed cannot drift
+/// between the two doors into `run_rustc`: one definition of the file, two
+/// ways to hand it over.
+pub fn compile_at(
+    toolchain: &Toolchain,
+    source_path: &Path,
+    library_path: &Path,
+    source: &str,
+) -> std::io::Result<Compiled> {
+    std::fs::write(source_path, format!("{source}\n{ENTRY}"))?;
+    run_rustc(
+        toolchain,
+        source_path,
+        library_path,
+        "proposal.rs",
         None,
         &AtomicBool::new(false),
     )

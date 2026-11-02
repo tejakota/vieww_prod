@@ -85,6 +85,7 @@ pub mod picker;
 pub mod png;
 pub mod recovery;
 pub mod remote;
+pub mod say_ai;
 pub mod scaffold;
 pub mod sdk;
 pub mod settings;

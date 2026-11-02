@@ -175,6 +175,17 @@ impl Widget for Shell {
                                     dialog::LiveMissing {
                                         studio: self.studio.clone()
                                     },
+                                    // ST-03: the Say prompt box, and the diff
+                                    // approval it ends in. Above the other
+                                    // dialogs because they are the newest
+                                    // question on screen, the same rule
+                                    // `Studio::escape` follows.
+                                    dialog::SayPromptDialog {
+                                        studio: self.studio.clone()
+                                    },
+                                    dialog::SayProposalDialog {
+                                        studio: self.studio.clone()
+                                    },
                                     // Above everything, including the modals: the
                                     // overlays are a picture of the window as it
                                     // was drawn, and a picture with a hole where a

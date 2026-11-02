@@ -152,6 +152,10 @@ fn main() {
                 // `Studio::restore_preview_state`.
                 studio.restore_preview_state(driver);
                 studio.poll_compile();
+                // And the Say prompt's worker (ST-03): same shape, same cost —
+                // one `try_recv` that is empty on every frame nobody asked a
+                // model for a screen.
+                studio.poll_say_ai();
                 // Pick up external file changes from the watcher. A no-op on
                 // the common frame where nothing moved; a `git checkout`
                 // outside the window reaches the Explorer this way, and an

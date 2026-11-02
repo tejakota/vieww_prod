@@ -2291,6 +2291,25 @@ pub struct Studio {
     pub live_caution: Signal<bool>,
     /// True while the "there is no live.rs" dialog is up.
     pub live_missing: Signal<bool>,
+    /// ST-03: the model behind "Say: Write a Screen from a Prompt". An
+    /// `Arc` inside an [`AnyModel`](crate::say_ai::AnyModel) — `Send + Sync`,
+    /// because the verified loop runs the model on a worker thread, which is
+    /// also what lets a test hand the studio a `RecordedFake` and drive the
+    /// whole path. The default is the localhost one; see `say_ai`'s privacy
+    /// notes.
+    pub say_model: Signal<crate::say_ai::AnyModel>,
+    /// True while the prompt box is up.
+    pub say_prompt_open: Signal<bool>,
+    /// What has been typed into the prompt box.
+    pub say_prompt_text: Signal<String>,
+    /// A proposal that survived verification, awaiting the diff approval
+    /// dialog. `None` when no proposal is on the table.
+    pub say_proposal: Signal<Option<crate::say_ai::Proposal>>,
+    /// The verified loop's worker, polled once per frame by
+    /// `poll_say_ai`. A `RefCell` rather than a `Signal` because a running
+    /// job is not a value the tree renders — its *outcome* is, and that
+    /// lands in `say_proposal`.
+    pub say_job: std::rc::Rc<std::cell::RefCell<Option<crate::say_ai::ProposeJob>>>,
     /// The live demo's state — route, counter, toggle, selected item.
     pub live_state: crate::live::LiveState,
     /// Every screen this session has rendered, by the file it came from.
@@ -2720,6 +2739,15 @@ impl Studio {
             live_preview: runtime.signal(false),
             live_caution: runtime.signal(false),
             live_missing: runtime.signal(false),
+            // ST-03: the prompt's model, the prompt box, the proposal it
+            // produces, and the worker that verifies it. See `say_ai`.
+            say_model: runtime.signal(crate::say_ai::AnyModel::new(std::sync::Arc::new(
+                crate::say_ai::LocalHttpModel::ollama(),
+            ))),
+            say_prompt_open: runtime.signal(false),
+            say_prompt_text: runtime.signal(String::new()),
+            say_proposal: runtime.signal(None),
+            say_job: std::rc::Rc::new(std::cell::RefCell::new(None)),
             live_state: crate::live::LiveState::new(runtime),
             live_mounts: std::rc::Rc::new(
                 std::cell::RefCell::new(std::collections::HashMap::new()),
