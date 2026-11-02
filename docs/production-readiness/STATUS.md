@@ -3,7 +3,7 @@
 Every gap in the four research reports (framework.md, studio.md, audio.md, wright.md), with where it stands. **Closed** = code + tests + CI gate landed. **Partial** = the code is in, and what is left is listed. **Open** = not started.
 Mac real-device verification is out of scope by the owner's decision; Mac code paths are still written and CI-built where hosted runners allow.
 
-Totals: Closed 52, Open 36, Partial 6 (of 94).
+Totals: Closed 57, Open 32, Partial 5 (of 94).
 
 ## Framework
 
