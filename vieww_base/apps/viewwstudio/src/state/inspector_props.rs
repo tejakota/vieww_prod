@@ -250,6 +250,10 @@ fn fields_of(widget: &WidgetLine, rendered: Option<Rect>, writable_value: bool) 
         let label = match kind {
             K::Button => "label",
             K::Tab => "tab",
+            // The image's literal is a file path, and the field that edits it
+            // has to say so — an editable field called "text" holding
+            // "photos/cat.png" is a small lie that teaches the wrong thing.
+            K::Image => "path",
             _ => "text",
         };
         fields.push(SayField {

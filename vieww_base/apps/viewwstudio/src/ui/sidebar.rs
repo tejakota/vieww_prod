@@ -62,6 +62,7 @@ impl Widget for Sidebar {
 
         let content = match view {
             View::Explorer => self.explorer(&chrome, theme.colors),
+            View::Assets => self.assets(&chrome, theme.colors),
             View::Search => self.search(&chrome, theme.colors),
             View::Snippets => self.snippets(&chrome, theme.colors),
             View::Problems => self.problems(&chrome, theme.colors),
@@ -484,6 +485,169 @@ impl Sidebar {
             }));
         }
 
+        Flex::column()
+            .cross_axis_alignment(CrossAxisAlignment::Stretch)
+            .children(rows)
+            .into()
+    }
+
+    /// ST-15: the project's `assets/`, browsed as what it holds rather than as
+    /// a list of names.
+    ///
+    /// The Explorer answers "where is my file"; this answers "what does my
+    /// asset look like". Same folder tree, different question — which is why
+    /// the two sit beside each other in the bar rather than one hiding inside
+    /// the other.
+    ///
+    /// # Why the rows borrow the Explorer's machinery instead of new commands
+    ///
+    /// A tap is `Studio::open_path`, which routes an image or a font to the
+    /// preview pane and everything else to the editor — so the browser and
+    /// the tree agree about what opening a file means. And every row is
+    /// wrapped in the same context menu the tree's rows get, which is where
+    /// rename and delete-to-trash already lived: one implementation of each,
+    /// not an asset-browser copy of either.
+    ///
+    /// # Why the listing is a signal read at build, not a walk per frame
+    ///
+    /// `Studio::refresh_assets` rebuilds it from the same places
+    /// `rescan_tree` runs, guarded by an mtime signature — see
+    /// `assets_browser` for the cost model and its caps.
+    fn assets(&self, chrome: &StudioTheme, colors: ColorScheme) -> WidgetNode {
+        let studio = self.studio.clone();
+        let listing = studio.assets.get();
+        let Some(root) = studio.root.peek() else {
+            return note(
+                colors,
+                "Open a project folder — assets/ is a folder in a project, and a scratch \
+                 workspace has none to browse.",
+            );
+        };
+        if listing.entries.is_empty() {
+            return Flex::column()
+                .cross_axis_alignment(CrossAxisAlignment::Stretch)
+                .children(children![
+                    note(
+                        colors,
+                        "No assets under assets/ yet — drop an image or a font in and it \
+                         appears here.",
+                    ),
+                    note(
+                        colors,
+                        "A Rust screen reads assets/ through the asset service; a Say image \
+                         reads from beside its .say file.",
+                    ),
+                ])
+                .into();
+        }
+        let assets_root = root.join("assets");
+        let mut rows: Vec<WidgetNode> = Vec::with_capacity(listing.entries.len() + 2);
+        let count = listing.entries.len();
+        rows.push(note(
+            colors,
+            &format!(
+                "{count} {} under assets/ — click to preview, right-click to rename or trash.",
+                if count == 1 { "file" } else { "files" }
+            ),
+        ));
+        for entry in listing.entries.iter() {
+            let path = assets_root.join(&entry.relative);
+            let studio_for_click = studio.clone();
+            let path_for_click = path.clone();
+            // Everything the row's closure draws, owned: a `sensed` closure is
+            // `'static`, and borrowing the entry would tie a built subtree to
+            // a listing the next refresh replaces.
+            let thumbnail = entry.thumbnail.clone();
+            let name = entry.name.clone();
+            let kind = entry.kind;
+            let tail = format!(
+                "{} · {}",
+                kind.label(),
+                crate::assets_browser::human_bytes(entry.bytes)
+            );
+            let chrome_for_row = *chrome;
+            let row_node = Semantics::new()
+                .label(format!("{name}, {}", kind.label()))
+                .child(crate::ui::chrome::sensed(
+                    move |sense| {
+                        // A thumbnail, or the two letters every font preview
+                        // starts with: no glyph is a better answer to "what is
+                        // in this file" than a generic document icon, and "Aa"
+                        // is what the font's own name is set in everywhere a
+                        // font is listed.
+                        let leading: WidgetNode = match thumbnail.clone() {
+                            Some(image) => Container::new()
+                                .color(chrome_for_row.chrome_2)
+                                .radius(3.0)
+                                .size(48.0, 32.0)
+                                .alignment(Alignment::CENTER)
+                                .child(
+                                    vieww_widget::Image::new(image)
+                                        .fit(vieww_foundation::BoxFit::ScaleDown)
+                                        .label(name.clone()),
+                                )
+                                .into(),
+                            None => Container::new()
+                                .color(chrome_for_row.chrome_2)
+                                .radius(3.0)
+                                .size(48.0, 32.0)
+                                .alignment(Alignment::CENTER)
+                                .child(label(
+                                    if kind == crate::assets_browser::Kind::Font {
+                                        "Aa"
+                                    } else {
+                                        "?"
+                                    },
+                                    13.0,
+                                    colors.on_surface_variant,
+                                ))
+                                .into(),
+                        };
+                        let foreground = if sense.emphasis() > 0.0 {
+                            colors.on_surface
+                        } else {
+                            colors.on_surface_variant
+                        };
+                        let name_cell: WidgetNode = Flexible::expanded(1)
+                            .child(
+                                label(&name, 12.5, foreground)
+                                    .max_lines(1)
+                                    .overflow(vieww_text::TextOverflow::EllipsisMiddle),
+                            )
+                            .into();
+                        let tail_cell: WidgetNode = label(&tail, 10.0, colors.outline).into();
+                        Container::new()
+                            .color(crate::ui::chrome::hovered(
+                                chrome_for_row.chrome_1,
+                                &chrome_for_row,
+                                sense,
+                            ))
+                            .height(40.0)
+                            .padding(EdgeInsets::only(10.0, 0.0, 8.0, 0.0))
+                            .child(
+                                Flex::row()
+                                    .cross_axis_alignment(CrossAxisAlignment::Center)
+                                    .children(children![
+                                        leading,
+                                        space(8.0),
+                                        name_cell,
+                                        space(8.0),
+                                        tail_cell,
+                                    ]),
+                            )
+                            .into()
+                    },
+                    move || studio_for_click.open_path(path_for_click.clone()),
+                ))
+                .into();
+            rows.push(with_context_menu(row_node, &studio, &path));
+        }
+        if listing.truncated {
+            rows.push(note(
+                colors,
+                "… and more past the first 200 — the listing is bounded, not the folder.",
+            ));
+        }
         Flex::column()
             .cross_axis_alignment(CrossAxisAlignment::Stretch)
             .children(rows)

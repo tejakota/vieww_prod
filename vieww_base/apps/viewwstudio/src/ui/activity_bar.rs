@@ -199,6 +199,7 @@ fn view_icon(view: View) -> vieww_foundation::IconData {
     use crate::ui::icons_filled as icons;
     match view {
         View::Explorer => icons::folder(),
+        View::Assets => icons::image(),
         View::Search => icons::search(),
         View::Snippets => icons::code(),
         View::Problems => icons::warning(),

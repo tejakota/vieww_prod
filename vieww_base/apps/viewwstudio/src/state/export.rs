@@ -754,6 +754,12 @@ impl Studio {
         self.put_buffers(workspace.buffers);
         self.active_buffer.set(active);
         self.sync_caret();
+        // ST-15: a new workspace is a new `assets/` (or the end of one) —
+        // the listing is built now rather than waiting for the first rescan,
+        // and any preview left open from the old folder is closed rather than
+        // showing a file the tree no longer reaches.
+        self.asset_view.set(None);
+        self.refresh_assets();
         // **Point the previewed screen's `AssetBundle` at the new workspace.**
         // A guest that asks for `images/avatar.png` resolves against the
         // project's `assets/` first; before this it got the studio's own

@@ -227,6 +227,17 @@ pub fn has_entry(language: Language, english: &str) -> bool {
 }
 
 const SPANISH: &[(&str, &str)] = &[
+    // ST-15: the asset browser (assets_browser) — view, previews, insert.
+    ("Assets", "Recursos"),
+    ("{} × {} — the file's own size, from its header", "{} × {} — el tamaño propio del archivo, tomado de su cabecera"),
+    ("The font's metadata, as its own tables carry it.", "Los metadatos de la fuente, tal como los llevan sus propias tablas."),
+    ("There is no buffer to insert into.", "No hay ningún búfer en el que insertar."),
+    ("Inserting an image needs a Say buffer — open the .say screen first.", "Insertar una imagen necesita un búfer Say: abre primero la pantalla .say."),
+    ("A scratch buffer has no folder for an image to live beside.", "Un búfer provisional no tiene carpeta junto a la que viva una imagen."),
+    ("Open the project folder first — assets live in it.", "Abre primero la carpeta del proyecto: los recursos viven en ella."),
+    ("“{}” is not beside the .say file — Say reads images from its own folder and refuses .. , so move the asset there first", "«{}» no está junto al archivo .say: Say lee las imágenes desde su propia carpeta y rechaza .. , así que mueve antes el recurso allí"),
+    ("Inserted an image “{}”.", "Se insertó una imagen «{}»."),
+    ("There is no screen below the caret to put the image in — put the caret inside one first.", "No hay ninguna pantalla bajo el caret donde poner la imagen: pon primero el caret dentro de una."),
     ("Attributing a frame needs a rendered screen — press Render first.", "Atribuir un fotograma necesita una pantalla renderizada: pulsa Renderizar primero."),
     ("Frame attributed: {}", "Fotograma atribuido: {}"),
     ("Performance overlay off.", "Superposición de rendimiento desactivada."),
@@ -640,6 +651,17 @@ const SPANISH: &[(&str, &str)] = &[
 ];
 
 const FRENCH: &[(&str, &str)] = &[
+    // ST-15: the asset browser (assets_browser) — view, previews, insert.
+    ("Assets", "Ressources"),
+    ("{} × {} — the file's own size, from its header", "{} × {} — la taille propre du fichier, tirée de son en-tête"),
+    ("The font's metadata, as its own tables carry it.", "Les métadonnées de la police, telles que ses propres tables les portent."),
+    ("There is no buffer to insert into.", "Aucun tampon où insérer."),
+    ("Inserting an image needs a Say buffer — open the .say screen first.", "Insérer une image demande un tampon Say — ouvrez d'abord l'écran .say."),
+    ("A scratch buffer has no folder for an image to live beside.", "Un tampon de brouillon n'a pas de dossier où une image puisse vivre à côté."),
+    ("Open the project folder first — assets live in it.", "Ouvrez d'abord le dossier du projet — les ressources y vivent."),
+    ("“{}” is not beside the .say file — Say reads images from its own folder and refuses .. , so move the asset there first", "« {} » n'est pas à côté du fichier .say — Say lit les images depuis son propre dossier et refuse .. , donc déplacez d'abord la ressource"),
+    ("Inserted an image “{}”.", "Image « {} » insérée."),
+    ("There is no screen below the caret to put the image in — put the caret inside one first.", "Aucun écran sous le caret pour y mettre l’image — placez d’abord le caret dans un écran."),
     // ST-03: the Say prompt (say_ai) — box, worker, refusal, approval.
     ("A prompt is already being verified.", "Une requête est déjà en cours de vérification."),
     ("Applied — press Render to see it in the frame.", "Appliqué — appuyez sur Rendu pour le voir dans le cadre."),
@@ -1004,6 +1026,17 @@ const FRENCH: &[(&str, &str)] = &[
 ];
 
 const GERMAN: &[(&str, &str)] = &[
+    // ST-15: the asset browser (assets_browser) — view, previews, insert.
+    ("Assets", "Assets"),
+    ("{} × {} — the file's own size, from its header", "{} × {} — die eigene Größe der Datei, aus ihrem Header"),
+    ("The font's metadata, as its own tables carry it.", "Die Metadaten der Schrift, wie ihre eigenen Tabellen sie tragen."),
+    ("There is no buffer to insert into.", "Es gibt keinen Puffer zum Einfügen."),
+    ("Inserting an image needs a Say buffer — open the .say screen first.", "Ein Bild einzufügen braucht einen Say-Puffer – öffnen Sie zuerst den .say-Bildschirm."),
+    ("A scratch buffer has no folder for an image to live beside.", "Ein Entwurfspuffer hat keinen Ordner, neben dem ein Bild liegen könnte."),
+    ("Open the project folder first — assets live in it.", "Öffnen Sie zuerst den Projektordner – Assets leben darin."),
+    ("“{}” is not beside the .say file — Say reads images from its own folder and refuses .. , so move the asset there first", "„{}“ liegt nicht neben der .say-Datei – Say liest Bilder aus ihrem eigenen Ordner und lehnt .. ab, also verschieben Sie das Asset zuerst dorthin"),
+    ("Inserted an image “{}”.", "Bild „{}“ eingefügt."),
+    ("There is no screen below the caret to put the image in — put the caret inside one first.", "Unter dem Cursor ist kein Bildschirm, in den das Bild gehört – setzen Sie den Cursor zuerst in einen."),
     // ST-03: the Say prompt (say_ai) — box, worker, refusal, approval.
     ("A prompt is already being verified.", "Eine Anfrage wird bereits geprüft."),
     ("Applied — press Render to see it in the frame.", "Angewendet – drücken Sie Rendern, um es im Rahmen zu sehen."),

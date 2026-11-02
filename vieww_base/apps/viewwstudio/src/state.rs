@@ -69,6 +69,11 @@ pub use inspector_props::{FieldValue, SayField};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum View {
     Explorer,
+    /// ST-15: the project's `assets/` — browsed, thumbnailed, previewed.
+    /// Beside the Explorer because the two browse the same folder tree for
+    /// different questions: "where is my file" and "what does my asset
+    /// look like".
+    Assets,
     Search,
     Snippets,
     Problems,
@@ -100,8 +105,9 @@ pub enum View {
 impl View {
     /// Every view, in activity-bar order. The bar is built from this rather
     /// than from a second list that could disagree with the enum.
-    pub const ALL: [Self; 12] = [
+    pub const ALL: [Self; 13] = [
         Self::Explorer,
+        Self::Assets,
         Self::Search,
         Self::Snippets,
         Self::Problems,
@@ -120,6 +126,7 @@ impl View {
     pub const fn title(self) -> &'static str {
         match self {
             Self::Explorer => "Explorer",
+            Self::Assets => "Assets",
             Self::Search => "Search",
             Self::Snippets => "Snippets",
             Self::Problems => "Problems",
@@ -155,6 +162,7 @@ impl View {
     pub const fn note(self) -> &'static str {
         match self {
             Self::Explorer => "The files in this workspace, and the buffers you have open.",
+            Self::Assets => "The project's assets: images and fonts, previewed in the studio.",
             Self::Search => "Find text across every file, and replace it with a preview first.",
             Self::Snippets => "Templates you can drop into the buffer at the caret.",
             Self::Problems => "Every rustc error and warning from the last build, by file.",
@@ -178,17 +186,18 @@ impl View {
     pub const fn index(self) -> usize {
         match self {
             Self::Explorer => 0,
-            Self::Search => 1,
-            Self::Snippets => 2,
-            Self::Problems => 3,
-            Self::Inspector => 4,
-            Self::Learn => 5,
-            Self::Docs => 6,
-            Self::Toolchain => 7,
-            Self::Source => 8,
-            Self::Export => 9,
-            Self::Tokens => 10,
-            Self::Settings => 11,
+            Self::Assets => 1,
+            Self::Search => 2,
+            Self::Snippets => 3,
+            Self::Problems => 4,
+            Self::Inspector => 5,
+            Self::Learn => 6,
+            Self::Docs => 7,
+            Self::Toolchain => 8,
+            Self::Source => 9,
+            Self::Export => 10,
+            Self::Tokens => 11,
+            Self::Settings => 12,
         }
     }
 
@@ -215,6 +224,7 @@ impl View {
     pub const fn glyph(self) -> &'static str {
         match self {
             Self::Explorer => "Ex",
+            Self::Assets => "As",
             Self::Search => "Se",
             Self::Snippets => "Sn",
             Self::Problems => "Pr",
@@ -2352,6 +2362,24 @@ pub struct Studio {
     /// list would mean the two axes fought for the same offset.
     pub picker_volume_scroll: ScrollController,
     pub diagnostics: Signal<Rc<Vec<Diagnostic>>>,
+    /// ST-15: the asset the editor pane is previewing, in place of code.
+    /// Cleared by `focus_buffer` — the tabs stay, and one click on one hands
+    /// the pane back.
+    pub asset_view: Signal<Option<Rc<crate::assets_browser::AssetView>>>,
+    /// ST-15: what `assets/` holds, refreshed beside the tree and guarded by
+    /// an mtime signature so a watcher tick over an unchanged folder costs
+    /// a stat walk. See `assets_browser`.
+    pub assets: Signal<Rc<crate::assets_browser::Listing>>,
+    /// ST-15: the missing-image warnings the last Say render found, held
+    /// until the compile finishes so they can sit *beside* rustc's
+    /// diagnostics rather than be overwritten by them — `finish` replaces
+    /// the signal wholesale, which is right for rustc (its list is the list)
+    /// and wrong for warnings rustc cannot see: an `an image "gone.png"`
+    /// line is valid Rust to the compiler and a blank rectangle to the
+    /// preview. `Rc<RefCell>` because the render that arms it and the
+    /// `finish` that reads it arrive on different clones of `Studio` — the
+    /// sharing rule `preview_state` already follows.
+    pub say_asset_warnings: Rc<RefCell<Vec<Diagnostic>>>,
     /// Caret position, shown in the status bar. Derived from the active
     /// buffer's selection on every edit rather than tracked separately, so the
     /// two cannot disagree.
@@ -2699,6 +2727,12 @@ impl Studio {
             picker: runtime.signal(None),
             picker_mode: runtime.signal(PickerMode::Open),
             generated_rust: runtime.signal(None),
+            // ST-15: empty until a workspace with an `assets/` folder opens —
+            // `refresh_assets` fills both, from `adopt_workspace` and from
+            // the same places `rescan_tree` runs.
+            asset_view: runtime.signal(None),
+            assets: runtime.signal(Rc::new(crate::assets_browser::Listing::default())),
+            say_asset_warnings: Rc::new(RefCell::new(Vec::new())),
             right_tab: runtime.signal(RightTab::Preview),
             right_open: runtime.signal(true),
             tree_snapshot: Rc::new(RefCell::new(Vec::new())),
@@ -3002,6 +3036,11 @@ impl Studio {
         if self.job.borrow().is_some() {
             return;
         }
+        // ST-15: no carried warnings at the start of a render — the Say
+        // branch below refills this, and a stash left by a render that never
+        // reached `finish` (no toolchain, no `screen()`) must not ride into a
+        // later render's Problems panel under the wrong file's name.
+        self.say_asset_warnings.borrow_mut().clear();
         // **Exit live preview before compiling.** The live demo and a compiled
         // screen are mutually exclusive — the device frame shows one or the
         // other — so clicking Render while the demo is up returns the preview
@@ -3049,6 +3088,18 @@ impl Studio {
                 Ok(generated) => {
                     self.generated_rust
                         .set(Some(Rc::new(generated.rust.clone())));
+                    // ST-15: the images this screen names but cannot resolve.
+                    // rustc will accept every one of them — the generated code
+                    // reads images at runtime and draws a placeholder when the
+                    // read fails — so the Problems panel is the only surface
+                    // that can say it, and it says it at the render that would
+                    // have shown the placeholder. Held for `finish`, which is
+                    // where a render's diagnostics land.
+                    *self.say_asset_warnings.borrow_mut() = self.missing_image_references(
+                        &buffer.name,
+                        &buffer.value.text,
+                        buffer.path.as_deref().and_then(std::path::Path::parent),
+                    );
                     generated.rust
                 }
                 Err(diagnostics) => {
@@ -3341,7 +3392,13 @@ impl Studio {
         };
 
         let mut log = compiled.log.clone();
-        self.diagnostics.set(Rc::new(compiled.diagnostics.clone()));
+        // ST-15: rustc's list, plus the Say render's missing-image warnings —
+        // taken rather than read, so a later `finish` cannot repeat them.
+        let mut diagnostics = compiled.diagnostics.clone();
+        diagnostics.append(&mut std::mem::take(
+            &mut *self.say_asset_warnings.borrow_mut(),
+        ));
+        self.diagnostics.set(Rc::new(diagnostics));
         self.rustc_json.set(Rc::new(compiled.json.clone()));
 
         let Some(library) = compiled.library.as_ref() else {
@@ -3634,6 +3691,9 @@ impl Studio {
     /// all. A scrollable list with a selection has to follow its selection.
     pub fn focus_buffer(&self, index: usize) {
         self.active_buffer.set(index);
+        // ST-15: showing a buffer closes the asset preview — the pane holds
+        // one thing, and this click said which.
+        self.asset_view.set(None);
         self.reveal_tab(index);
     }
 

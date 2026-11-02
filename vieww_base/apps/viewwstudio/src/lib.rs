@@ -49,6 +49,7 @@
 
 pub mod about;
 pub mod assets;
+pub mod assets_browser;
 pub mod attribution;
 pub mod buffer;
 pub mod builds;

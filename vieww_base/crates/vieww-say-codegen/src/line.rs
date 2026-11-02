@@ -251,6 +251,10 @@ fn line_of(widget: &Widget, depth: u32) -> WidgetLine {
     let value = match &widget.kind {
         WKind::Text { value, .. } | WKind::Button { label: value, .. } => literal_prefix(value),
         WKind::Tab { label } => Some(label.clone()),
+        // The image's own path — a literal the tools need (the asset browser's
+        // missing-reference report reads it), carried where every other
+        // phrase's leading literal is.
+        WKind::Image { path } => Some(path.clone()),
         _ => None,
     };
     let props = widget.props.iter().map(prop_of).collect();

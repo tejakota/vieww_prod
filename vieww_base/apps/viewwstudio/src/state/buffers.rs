@@ -274,6 +274,10 @@ impl Studio {
         let mut tree = self.tree.get();
         tree.rescan();
         self.tree.set(tree);
+        // ST-15: the asset listing is refreshed from the same places the tree
+        // is — one watcher, two views of one folder — and costs a stat walk
+        // when nothing changed. See `assets_browser::Listing`.
+        self.refresh_assets();
     }
 
     /// Flip the expansion of the directory at `path` in the Explorer tree.
@@ -300,6 +304,16 @@ impl Studio {
     /// loading: a project's tree may list hundreds of files, but only the ones
     /// the user clicks are loaded into memory.
     pub fn open_path(&self, path: std::path::PathBuf) {
+        // ST-15: an image or a font opens as a preview, not as mojibake.
+        // Routed before the buffer machinery — an asset is not a buffer, has
+        // no tab, and must not canonicalize into one — and through
+        // `open_path` rather than only through the Assets view so the
+        // Explorer, the Problems panel and a palette command that opens a
+        // file all agree about what clicking a PNG does.
+        if crate::assets_browser::previewable(&path) {
+            self.open_asset(path);
+            return;
+        }
         // **Canonicalised, so one file is one buffer.** Without this a
         // symlinked file reached by two paths — `src/shared.rs` and the
         // `../common/shared.rs` it points at — opened as two independent

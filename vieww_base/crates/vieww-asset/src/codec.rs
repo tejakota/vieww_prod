@@ -117,6 +117,28 @@ pub fn decode_sized(
     ))
 }
 
+/// The pixel size an encoded image claims, from its header alone.
+///
+/// For a caller that shows a *scaled* copy —
+/// [`decode_sized`](fn@decode_sized) hands back the pixels it produced, which
+/// is not the size the file is — and still wants to say "1920×1080" about it.
+/// Reading the header is a few bytes per format, so this is the cheap half of
+/// a preview and `decode_sized` is the expensive one, and the two agree only
+/// when the image was small enough not to scale.
+///
+/// # Errors
+///
+/// [`AssetError::Decode`] if the bytes are not an image this build can read.
+pub fn dimensions(bytes: &[u8]) -> Result<(u32, u32), AssetError> {
+    let format = image::guess_format(bytes)
+        .map_err(|error| AssetError::Decode(format!("unrecognised image: {error}")))?;
+    let reader = image::ImageReader::with_format(std::io::Cursor::new(bytes), format);
+    let (width, height) = reader
+        .into_dimensions()
+        .map_err(|error| AssetError::Decode(format!("reading {format:?} header: {error}")))?;
+    Ok((width, height))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -214,5 +236,14 @@ mod tests {
     fn a_zero_target_size_does_not_divide_by_zero() {
         let (decoded, _) = decode_sized(&png_2x2(), 0, 0).expect("decode");
         assert!(decoded.width() >= 1 && decoded.height() >= 1);
+    }
+
+    #[test]
+    fn the_header_names_the_size_the_file_actually_is() {
+        // `decode_sized` scales down, so a preview built from it cannot say
+        // how big the file is; `dimensions` reads the header and can.
+        let (scaled, _) = decode_sized(&png_2x2(), 1, 1).expect("decode");
+        assert_eq!((scaled.width(), scaled.height()), (1, 1));
+        assert_eq!(dimensions(&png_2x2()).expect("the header"), (2, 2));
     }
 }
