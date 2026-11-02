@@ -261,9 +261,7 @@ fn the_demo_tree_reaches_accesskit_intact() {
                 | accesskit::Role::Link
         );
         if interactive {
-            let named = node
-                .label()
-                .is_some_and(|label| !label.is_empty())
+            let named = node.label().is_some_and(|label| !label.is_empty())
                 || node.value().is_some_and(|value| !value.is_empty());
             assert!(
                 named,

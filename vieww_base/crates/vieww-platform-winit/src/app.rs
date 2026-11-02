@@ -798,10 +798,10 @@ impl App {
     ///
     /// ```text
     /// App::new().before_frame(move |driver| match reloader.poll() {
-    ///     Reloaded::Root(root)    => driver.set_root(root),   // keep the tree
-    ///     Reloaded::Restart(root) => driver.remount(root),    // and this drops it
-    ///     Reloaded::Failed(error) => eprintln!("keeping the running build: {error}"),
-    ///     Reloaded::Nothing       => {}
+    ///     Reloaded::Root(root)            => driver.set_root(root),   // keep the tree
+    ///     Reloaded::Restart { root, .. }  => driver.remount(root),    // and this drops it
+    ///     Reloaded::Failed(error)         => eprintln!("keeping the running build: {error}"),
+    ///     Reloaded::Nothing               => {}
     /// })
     /// ```
     ///

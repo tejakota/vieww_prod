@@ -30,6 +30,7 @@
 use std::path::PathBuf;
 use std::time::Duration;
 
+use vieww_devtools::{ReloadLedger, ReloadOutcome};
 use vieww_foundation::task::FrameWaker;
 use vieww_foundation::{Color, Size};
 use vieww_platform_winit::App;
@@ -66,33 +67,52 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let waker = app.waker();
     reloader.wake_on_change(Duration::from_millis(250), move || waker.wake());
 
+    // The session's score, in the shape the devtools overlay prints it: how
+    // many reloads this run accepted, and the share that kept the tree. The
+    // HUD form of the same numbers is `ReloadReport::hud_lines`, for a host
+    // that draws one.
+    let mut ledger = ReloadLedger::new();
+
     let report = app
         // The whole integration. One hook, called between frames.
         .before_frame(move |driver| match reloader.poll() {
             Reloaded::Nothing => {}
             Reloaded::Root(root) => {
-                println!("host: reloaded #{} — state kept", reloader.generation());
+                ledger.record(ReloadOutcome::TreeKept);
+                println!(
+                    "host: reloaded #{} — state kept ({})",
+                    reloader.generation(),
+                    ledger.report().summary_line()
+                );
                 driver.set_root(root);
             }
-            Reloaded::Restart(root) => {
+            Reloaded::Restart { root, changed } => {
                 // The guest's state changed shape. Reusing the old allocations
-                // would be undefined behaviour, so the tree goes.
+                // would be undefined behaviour, so the tree goes — and the
+                // diff says which type paths moved, so the developer knows
+                // which edit cost them the tree.
+                ledger.record(ReloadOutcome::TreeRebuilt);
                 println!(
-                    "host: reloaded #{} — state CHANGED SHAPE, tree rebuilt",
-                    reloader.generation()
+                    "host: reloaded #{} — state CHANGED SHAPE ({}), tree rebuilt ({})",
+                    reloader.generation(),
+                    changed,
+                    ledger.report().summary_line()
                 );
                 driver.remount(root);
             }
             Reloaded::Failed(error) => {
                 // A compile error in the guest. The window carries on running
                 // whatever was loaded last, which is what a developer wants
-                // mid-edit.
+                // mid-edit. Counted, but not against the preservation rate: a
+                // build that never loaded preserved everything it accepted.
+                ledger.record(ReloadOutcome::BuildFailed);
                 eprintln!("host: keeping the running build — {error}");
             }
         })
         .run(move |driver| driver.set_root(first))?;
 
-    println!("{report}");
+    // The session's score on the way out, alongside the runner's own report.
+    println!("{} · {}", report, ledger.report().summary_line());
     Ok(())
 }
 

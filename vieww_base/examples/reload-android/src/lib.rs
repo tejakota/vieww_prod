@@ -196,12 +196,14 @@ fn run(android: AndroidApp) -> Result<(), String> {
                     );
                     driver.set_root(root);
                 }
-                Reloaded::Restart(root) => {
+                Reloaded::Restart { root, changed } => {
                     // The guest's state changed shape. Reusing the old
-                    // allocations would be undefined behaviour, so the tree goes.
+                    // allocations would be undefined behaviour, so the tree
+                    // goes — with the diff naming the type paths that moved.
                     log::info!(
-                        "vieww-reload: reloaded #{} — state CHANGED SHAPE, tree rebuilt",
-                        active.generation()
+                        "vieww-reload: reloaded #{} — state CHANGED SHAPE ({}), tree rebuilt",
+                        active.generation(),
+                        changed
                     );
                     driver.remount(root);
                 }
