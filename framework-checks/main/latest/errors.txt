@@ -1,0 +1,456 @@
+-----
+Coverage floor	Coverage	2026-11-02T05:20:09.5821294Z ^[[1m^[[92m   Compiling^[[0m vieww-platform-web-dom v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web-dom)
+Coverage floor	Coverage	2026-11-02T05:20:10.4325709Z ^[[1m^[[92m   Compiling^[[0m vieww-canvas v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-canvas)
+Coverage floor	Coverage	2026-11-02T05:20:11.7770128Z ^[[1m^[[92m   Compiling^[[0m vieww-audio-plugin v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-plugin)
+Coverage floor	Coverage	2026-11-02T05:20:13.0831400Z ^[[1m^[[92m   Compiling^[[0m vieww-lottie v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-lottie)
+Coverage floor	Coverage	2026-11-02T05:20:14.2961172Z ^[[1m^[[92m   Compiling^[[0m vieww-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-graph)
+Coverage floor	Coverage	2026-11-02T05:20:15.0720803Z ^[[1m^[[92m   Compiling^[[0m vieww-game v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-game)
+Coverage floor	Coverage	2026-11-02T05:20:17.2491034Z ^[[1m^[[92m   Compiling^[[0m vieww-collab v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-collab)
+Coverage floor	Coverage	2026-11-02T05:20:18.5351492Z ^[[1m^[[92m   Compiling^[[0m vieww-dataviz v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-dataviz)
+Coverage floor	Coverage	2026-11-02T05:20:21.6000976Z ^[[1m^[[92m   Compiling^[[0m film_lab v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/film_lab)
+Coverage floor	Coverage	2026-11-02T05:20:21.8381396Z ^[[1m^[[92m   Compiling^[[0m fixtures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/fixtures)
+Coverage floor	Coverage	2026-11-02T05:20:22.3160857Z ^[[1m^[[92m   Compiling^[[0m wright v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/app)
+Coverage floor	Coverage	2026-11-02T05:20:22.8830860Z ^[[1m^[[92m   Compiling^[[0m vieww-devtools v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-devtools)
+Coverage floor	Coverage	2026-11-02T05:20:23.6465127Z ^[[1m^[[92m   Compiling^[[0m vieww-plugin v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-plugin)
+Coverage floor	Coverage	2026-11-02T05:20:23.8711257Z ^[[1m^[[92m   Compiling^[[0m vieww-reload v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-reload)
+Coverage floor	Coverage	2026-11-02T05:20:23.8937360Z ^[[1m^[[92m   Compiling^[[0m vieww-music v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-music)
+Coverage floor	Coverage	2026-11-02T05:20:27.9691361Z ^[[1m^[[91merror[E0308]^[[0m^[[1m: mismatched types^[[0m
+Coverage floor	Coverage	2026-11-02T05:20:27.9710419Z     ^[[1m^[[94m--> ^[[0mexamples/film_lab/src/studio_film/master.rs:471:37
+Coverage floor	Coverage	2026-11-02T05:20:27.9739991Z      ^[[1m^[[94m|^[[0m
+Coverage floor	Coverage	2026-11-02T05:20:27.9750036Z ^[[1m^[[94m 471^[[0m ^[[1m^[[94m|^[[0m                 studio.capture_tree(&self.driver);
+Coverage floor	Coverage	2026-11-02T05:20:27.9780102Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m------------^[[0m ^[[1m^[[91m^^^^^^^^^^^^^[[0m ^[[1m^[[91mtypes differ in mutability^[[0m
+Coverage floor	Coverage	2026-11-02T05:20:27.9800216Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m|^[[0m
+Coverage floor	Coverage	2026-11-02T05:20:27.9809924Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94marguments to this method are incorrect^[[0m
+Coverage floor	Coverage	2026-11-02T05:20:27.9839670Z      ^[[1m^[[94m|^[[0m
+Coverage floor	Coverage	2026-11-02T05:20:27.9860326Z      ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: expected mutable reference `&^[[1m^[[35mmut ^[[0mFrameDriver`
+Coverage floor	Coverage	2026-11-02T05:20:27.9889737Z                         found reference `&FrameDriver`
+Coverage floor	Coverage	2026-11-02T05:20:27.9919820Z ^[[1m^[[92mnote^[[0m: method defined here
+Coverage floor	Coverage	2026-11-02T05:20:27.9949922Z     ^[[1m^[[94m--> ^[[0mapps/viewwstudio/src/state/editing.rs:1563:12
+Coverage floor	Coverage	2026-11-02T05:20:27.9979690Z      ^[[1m^[[94m|^[[0m
+Coverage floor	Coverage	2026-11-02T05:20:28.0027199Z ^[[1m^[[94m1563^[[0m ^[[1m^[[94m|^[[0m     pub fn capture_tree(&self, driver: &mut vieww_render::FrameDriver) {
+Coverage floor	Coverage	2026-11-02T05:20:28.0030392Z      ^[[1m^[[94m|^[[0m            ^[[1m^[[92m^^^^^^^^^^^^^[[0m
+Coverage floor	Coverage	2026-11-02T05:20:28.0079408Z 
+Coverage floor	Coverage	2026-11-02T05:20:29.8391104Z ^[[1m^[[92m   Compiling^[[0m feature-canvas-dataviz v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/87-canvas-dataviz)
+Coverage floor	Coverage	2026-11-02T05:20:30.6221279Z ^[[1m^[[92m   Compiling^[[0m feature-graph-game-collab-lottie v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/88-graph-game-collab-lottie)
+Coverage floor	Coverage	2026-11-02T05:20:31.0107391Z ^[[1mFor more information about this error, try `rustc --explain E0308`.^[[0m
+Coverage floor	Coverage	2026-11-02T05:20:31.2116211Z error: process didn't exit successfully: `/home/runner/.rustup/toolchains/1.98.1-x86_64-unknown-linux-gnu/bin/rustc --crate-name film_lab --edition=2021 examples/film_lab/src/main.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 --warn=unreachable_pub --warn=missing_debug_implementations '--allow=clippy::doc_markdown' --test --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=e6790402e40c623a -C extra-filename=-c502222e4576bca2 --out-dir /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps -C incremental=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/incremental -L dependency=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps --extern image=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libimage-e1e6f71aba4573e2.rlib --extern vieww=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww-9e069c8c0f4a9df2.rlib --extern vieww_3d=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_3d-5419655e173c6379.rlib --extern vieww_accessibility=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_accessibility-7c2729fd6fab9b68.rlib --extern vieww_animation=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_animation-9d061749f2e44c8b.rlib --extern vieww_asset=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_asset-f7dc4c95ef91c551.rlib --extern vieww_audio=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_audio-a4998111233e528d.rlib --extern vieww_canvas=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_canvas-41ca31d9ceb7c501.rlib --extern vieww_collab=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_collab-8b39db4f33e8a049.rlib --extern vieww_dataviz=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_dataviz-adf8d5c0156dfd43.rlib --extern vieww_devtools=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_devtools-7f958f97833f3fe5.rlib --extern vieww_effects=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_effects-d3024a8809af2c4d.rlib --extern vieww_element=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_element-86456a15d7e5a51c.rlib --extern vieww_foundation=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_foundation-d56cc324eee033c1.rlib --extern vieww_game=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_game-dd2da078155490eb.rlib --extern vieww_gestures=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_gestures-7c5dce748d3587e4.rlib --extern vieww_graph=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_graph-39cab257ba00abb5.rlib --extern vieww_image=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_image-629042da5856cdf1.rlib --extern vieww_lottie=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_lottie-a2df0adca334dda8.rlib --extern vieww_mesh=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_mesh-53d5f91c060f2bcb.rlib --extern vieww_paint=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_paint-9f1e3a0b60aeeceb.rlib --extern vieww_physics=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_physics-a66331fb9bf3d90d.rlib --extern vieww_render=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_render-0048ac25e6bba54c.rlib --extern vieww_render_graph=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_render_graph-d4af7f759eef7d49.rlib --extern vieww_render_planner=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_render_planner-cc7045f0437099eb.rlib --extern vieww_scene=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_scene-f6ea6ad9f15f2f8a.rlib --extern vieww_test_harness=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_test_harness-8f456dfbda68b560.rlib --extern vieww_text=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_text-7117ace4b1278784.rlib --extern vieww_video=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_video-ebed3c965d8cc3d2.rlib --extern vieww_widget=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_widget-229655cb0ddf2e90.rlib --extern viewwstudio=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libviewwstudio-defd2b8c13aeb7fb.rlib -C prefer-dynamic -C rpath -C prefer-dynamic -C rpath -L native=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/build/tree-sitter-c920c3042b899294/out -L native=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/build/tree-sitter-json-f2fb94631855769e/out -L native=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/build/tree-sitter-md-46ded5dbcb6f2b42/out -L native=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/build/tree-sitter-rust-7bcbc1b5665b1be8/out -L native=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/build/tree-sitter-toml-ng-0eac924b220e9b23/out -L native=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/build/tree-sitter-yaml-05921d6f44663ffd/out -C instrument-coverage --cfg=coverage` (exit status: 1)
+Coverage floor	Coverage	2026-11-02T05:20:31.2217223Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
+Coverage floor	Coverage	2026-11-02T05:20:31.2218048Z ^[[1m^[[33mwarning^[[0m: build failed, waiting for other jobs to finish...
+Coverage floor	Coverage	2026-11-02T05:20:45.0210794Z error: process didn't exit successfully: `/home/runner/.rustup/toolchains/1.98.1-x86_64-unknown-linux-gnu/bin/cargo test --tests --manifest-path /home/runner/work/vieww_prod/vieww_prod/vieww_base/Cargo.toml --target-dir /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target --workspace --features vieww-paint/native --exclude vieww-platform-winit --exclude reload-host --exclude reload-guest --exclude reload-android` (exit status: 101)
+Coverage floor	Coverage	2026-11-02T05:20:45.0223184Z 
+Coverage floor	Coverage	2026-11-02T05:20:45.0223858Z error: line coverage is below 70%.
+Coverage floor	Coverage	2026-11-02T05:20:45.0224292Z 
+Coverage floor	Coverage	2026-11-02T05:20:45.0224739Z Untested code is not automatically a defect, but it is always a decision. If the
+Coverage floor	Coverage	2026-11-02T05:20:45.0226190Z uncovered lines are a deliberate gap — a platform path this machine cannot run,
+Coverage floor	Coverage	2026-11-02T05:20:45.0226986Z a panic arm that exists to be loud — say so in TRACKER.md rather than lowering
+Coverage floor	Coverage	2026-11-02T05:20:45.0227601Z the floor quietly.
+Coverage floor	Coverage	2026-11-02T05:20:45.0238878Z ##[error]Process completed with exit code 1.
+checks.sh (Linux)	The gate	﻿2026-11-02T05:13:15.6525336Z ##[group]Run ci/check/checks.sh
+checks.sh (Linux)	The gate	2026-11-02T05:13:15.6525706Z ^[[36;1mci/check/checks.sh^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:13:15.6544903Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+checks.sh (Linux)	The gate	2026-11-02T05:13:15.6545279Z env:
+checks.sh (Linux)	The gate	2026-11-02T05:13:15.6545493Z   CARGO_TERM_COLOR: always
+-----
+checks.sh (Linux)	The gate	2026-11-02T05:16:18.0893659Z ^[[1m^[[92m    Checking^[[0m oorandom v11.1.5
+checks.sh (Linux)	The gate	2026-11-02T05:16:18.1553831Z ^[[1m^[[92m    Checking^[[0m anes v0.1.6
+checks.sh (Linux)	The gate	2026-11-02T05:16:18.3194660Z ^[[1m^[[92m    Checking^[[0m wright-engine v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/engine)
+checks.sh (Linux)	The gate	2026-11-02T05:16:18.7455676Z ^[[1m^[[92m    Checking^[[0m wright-infer v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/infer)
+checks.sh (Linux)	The gate	2026-11-02T05:16:19.5144464Z ^[[1m^[[92m   Compiling^[[0m vieww-plugin-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-plugin-macros)
+checks.sh (Linux)	The gate	2026-11-02T05:16:19.7394135Z ^[[1m^[[92m   Compiling^[[0m film_lab v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/film_lab)
+checks.sh (Linux)	The gate	2026-11-02T05:16:19.7962670Z ^[[1m^[[92m   Compiling^[[0m fixtures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/fixtures)
+checks.sh (Linux)	The gate	2026-11-02T05:16:19.9318518Z ^[[1m^[[92m    Checking^[[0m wright v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/app)
+checks.sh (Linux)	The gate	2026-11-02T05:16:20.0034262Z ^[[1m^[[92m    Checking^[[0m vieww-plugin v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-plugin)
+checks.sh (Linux)	The gate	2026-11-02T05:16:20.1325250Z ^[[1m^[[92m    Checking^[[0m wrightsite v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wrightsite)
+checks.sh (Linux)	The gate	2026-11-02T05:16:20.2734393Z ^[[1m^[[92m    Checking^[[0m test-web v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-web)
+checks.sh (Linux)	The gate	2026-11-02T05:16:20.3901308Z ^[[1m^[[92m    Checking^[[0m vieww-platform-web v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web)
+checks.sh (Linux)	The gate	2026-11-02T05:16:21.8184396Z ^[[1m^[[92m    Checking^[[0m wright_film v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/wright_film)
+checks.sh (Linux)	The gate	2026-11-02T05:16:23.2406789Z ^[[1m^[[92m    Checking^[[0m feature-canvas-dataviz v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/87-canvas-dataviz)
+checks.sh (Linux)	The gate	2026-11-02T05:16:23.6994572Z ^[[1m^[[92m    Checking^[[0m feature-graph-game-collab-lottie v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/88-graph-game-collab-lottie)
+checks.sh (Linux)	The gate	2026-11-02T05:16:24.7121950Z ^[[1m^[[91merror[E0308]^[[0m^[[1m: mismatched types^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:16:24.7133109Z     ^[[1m^[[94m--> ^[[0mexamples/film_lab/src/studio_film/master.rs:471:37
+checks.sh (Linux)	The gate	2026-11-02T05:16:24.7163061Z      ^[[1m^[[94m|^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:16:24.7223447Z ^[[1m^[[94m 471^[[0m ^[[1m^[[94m|^[[0m                 studio.capture_tree(&self.driver);
+checks.sh (Linux)	The gate	2026-11-02T05:16:24.7224977Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m------------^[[0m ^[[1m^[[91m^^^^^^^^^^^^^[[0m ^[[1m^[[91mtypes differ in mutability^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:16:24.7253068Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m|^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:16:24.7263117Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94marguments to this method are incorrect^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:16:24.7283005Z      ^[[1m^[[94m|^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:16:24.7331396Z      ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: expected mutable reference `&^[[1m^[[35mmut ^[[0mvieww_render::FrameDriver`
+checks.sh (Linux)	The gate	2026-11-02T05:16:24.7332900Z                         found reference `&vieww_render::FrameDriver`
+checks.sh (Linux)	The gate	2026-11-02T05:16:24.7373389Z ^[[1m^[[92mnote^[[0m: method defined here
+checks.sh (Linux)	The gate	2026-11-02T05:16:24.7403032Z     ^[[1m^[[94m--> ^[[0mapps/viewwstudio/src/state/editing.rs:1563:12
+checks.sh (Linux)	The gate	2026-11-02T05:16:24.7412993Z      ^[[1m^[[94m|^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:16:24.7433759Z ^[[1m^[[94m1563^[[0m ^[[1m^[[94m|^[[0m     pub fn capture_tree(&self, driver: &mut vieww_render::FrameDriver) {
+checks.sh (Linux)	The gate	2026-11-02T05:16:24.7462918Z      ^[[1m^[[94m|^[[0m            ^[[1m^[[92m^^^^^^^^^^^^^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:16:24.7472589Z 
+checks.sh (Linux)	The gate	2026-11-02T05:16:26.8900217Z ^[[1mFor more information about this error, try `rustc --explain E0308`.^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:16:26.9474069Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab") due to 1 previous error
+checks.sh (Linux)	The gate	2026-11-02T05:16:26.9503256Z ^[[1m^[[33mwarning^[[0m: build failed, waiting for other jobs to finish...
+checks.sh (Linux)	The gate	2026-11-02T05:16:27.0297827Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
+checks.sh (Linux)	The gate	2026-11-02T05:16:29.6154405Z ^[[1m^[[92m    Checking^[[0m feature-accessibility-audit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/55-accessibility-audit)
+checks.sh (Linux)	The gate	2026-11-02T05:16:29.6944067Z ^[[1m^[[92m    Checking^[[0m vieww-standard v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/vieww-standard)
+checks.sh (Linux)	The gate	2026-11-02T05:16:29.8631917Z ^[[1m^[[92m    Checking^[[0m reload-host v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/reload-host)
+checks.sh (Linux)	The gate	2026-11-02T05:16:29.9680361Z ^[[1m^[[92m    Checking^[[0m reload-android v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/reload-android)
+-----
+checks.sh (Linux)	The gate	2026-11-02T05:16:40.8784424Z ^[[1m^[[92m    Checking^[[0m feature-timelines v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/82-timelines)
+checks.sh (Linux)	The gate	2026-11-02T05:16:41.1190015Z ^[[1m^[[92m    Checking^[[0m feature-animated-container v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/38-animated-container)
+checks.sh (Linux)	The gate	2026-11-02T05:16:41.7174200Z ^[[1m^[[92m    Checking^[[0m editor v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/editor)
+checks.sh (Linux)	The gate	2026-11-02T05:16:41.7979658Z ^[[1m^[[92m    Checking^[[0m guide-counter v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/guide-counter)
+checks.sh (Linux)	The gate	2026-11-02T05:16:41.9634534Z ^[[1m^[[92m    Checking^[[0m animation-showcase v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/animation-showcase)
+checks.sh (Linux)	The gate	2026-11-02T05:16:43.7534154Z ^[[1m^[[92m    Checking^[[0m vieww-runtime v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-runtime)
+checks.sh (Linux)	The gate	2026-11-02T05:16:44.9014117Z ^[[1m^[[92m    Checking^[[0m keynote v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/keynote)
+checks.sh (Linux)	The gate	2026-11-02T05:16:45.0304109Z ^[[1m^[[92m    Checking^[[0m audit-sheets v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/audit-sheets)
+checks.sh (Linux)	The gate	2026-11-02T05:16:45.1094117Z ^[[1m^[[92m    Checking^[[0m vector-probe v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/vector-probe)
+checks.sh (Linux)	The gate	2026-11-02T05:16:45.2234172Z ^[[1m^[[92m    Checking^[[0m screenshot v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/screenshot)
+checks.sh (Linux)	The gate	2026-11-02T05:16:45.3414175Z ^[[1m^[[92m    Checking^[[0m full-showcase v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/full-showcase)
+checks.sh (Linux)	The gate	2026-11-02T05:16:46.7120161Z ^[[1m^[[92m    Checking^[[0m vieww-scroll v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scroll)
+checks.sh (Linux)	The gate	2026-11-02T05:16:48.0844109Z ^[[1m^[[92m    Checking^[[0m shot-diff v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/shot-diff)
+checks.sh (Linux)	The gate	2026-11-02T05:16:49.4196818Z ^[[1m^[[92m    Checking^[[0m feature-image-mipmaps-atlas v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/54-image-mipmaps-atlas)
+checks.sh (Linux)	The gate	2026-11-02T05:16:51.7674314Z ^[[1m^[[92m    Checking^[[0m vieww-interaction v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-interaction)
+checks.sh (Linux)	The gate	2026-11-02T05:16:56.5285614Z     FAILED: clippy (workspace, all targets, warnings are errors) (exit 101)
+checks.sh (Linux)	The gate	2026-11-02T05:16:56.5286296Z 
+checks.sh (Linux)	The gate	2026-11-02T05:16:56.5287354Z ==> build (workspace, all targets)
+checks.sh (Linux)	The gate	2026-11-02T05:16:57.2169248Z ^[[1m^[[92m    Checking^[[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+checks.sh (Linux)	The gate	2026-11-02T05:16:57.2325785Z ^[[1m^[[92m   Compiling^[[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+checks.sh (Linux)	The gate	2026-11-02T05:16:57.2404922Z ^[[1m^[[92m   Compiling^[[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+-----
+checks.sh (Linux)	The gate	2026-11-02T05:17:11.3969408Z ^[[1m^[[92m    Checking^[[0m feature-noise v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/61-noise)
+checks.sh (Linux)	The gate	2026-11-02T05:17:11.5594865Z ^[[1m^[[92m    Checking^[[0m feature-scroll-driven v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/43-scroll-driven)
+checks.sh (Linux)	The gate	2026-11-02T05:17:11.6263258Z ^[[1m^[[92m    Checking^[[0m feature-transition-fade v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/06-transition-fade)
+checks.sh (Linux)	The gate	2026-11-02T05:17:11.7357557Z ^[[1m^[[92m    Checking^[[0m feature-spring-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/37-spring-animation)
+checks.sh (Linux)	The gate	2026-11-02T05:17:11.7964121Z ^[[1m^[[92m    Checking^[[0m feature-animated-container v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/38-animated-container)
+checks.sh (Linux)	The gate	2026-11-02T05:17:11.9144278Z ^[[1m^[[92m    Checking^[[0m feature-scatter-chart v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/72-scatter-chart)
+checks.sh (Linux)	The gate	2026-11-02T05:17:11.9674202Z ^[[1m^[[92m    Checking^[[0m feature-blend-modes v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/52-blend-modes)
+checks.sh (Linux)	The gate	2026-11-02T05:17:12.0644097Z ^[[1m^[[92m    Checking^[[0m feature-audio-reactive v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/65-audio-reactive)
+checks.sh (Linux)	The gate	2026-11-02T05:17:12.0854313Z ^[[1m^[[92m    Checking^[[0m feature-video-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/89-video-effects)
+checks.sh (Linux)	The gate	2026-11-02T05:17:12.2097849Z ^[[1m^[[92m    Checking^[[0m feature-rectangle v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/00-rectangle)
+checks.sh (Linux)	The gate	2026-11-02T05:17:12.2865425Z ^[[1m^[[92m    Checking^[[0m feature-stack-positioned v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/14-stack-positioned)
+checks.sh (Linux)	The gate	2026-11-02T05:17:12.3828388Z ^[[1m^[[92m    Checking^[[0m feature-bar-chart v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/23-bar-chart)
+checks.sh (Linux)	The gate	2026-11-02T05:17:12.5583397Z ^[[1m^[[92m    Checking^[[0m feature-curves v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/40-curves)
+checks.sh (Linux)	The gate	2026-11-02T05:17:12.6486288Z ^[[1m^[[92m    Checking^[[0m feature-timelines v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/82-timelines)
+checks.sh (Linux)	The gate	2026-11-02T05:17:12.7174300Z ^[[1m^[[92m    Checking^[[0m feature-list-view v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/42-list-view)
+checks.sh (Linux)	The gate	2026-11-02T05:17:12.9444120Z ^[[1m^[[91merror[E0308]^[[0m^[[1m: mismatched types^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:17:12.9463067Z     ^[[1m^[[94m--> ^[[0mexamples/film_lab/src/studio_film/master.rs:471:37
+checks.sh (Linux)	The gate	2026-11-02T05:17:12.9492919Z      ^[[1m^[[94m|^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:17:12.9523250Z ^[[1m^[[94m 471^[[0m ^[[1m^[[94m|^[[0m                 studio.capture_tree(&self.driver);
+checks.sh (Linux)	The gate	2026-11-02T05:17:12.9553348Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m------------^[[0m ^[[1m^[[91m^^^^^^^^^^^^^[[0m ^[[1m^[[91mtypes differ in mutability^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:17:12.9582994Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m|^[[0m
+-----
+checks.sh (Linux)	The gate	2026-11-02T05:17:14.0614430Z ^[[1m^[[92m    Checking^[[0m feature-audio-waveform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/64-audio-waveform)
+checks.sh (Linux)	The gate	2026-11-02T05:17:14.1264297Z ^[[1m^[[92m    Checking^[[0m feature-data-table v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/48-data-table)
+checks.sh (Linux)	The gate	2026-11-02T05:17:14.1974269Z ^[[1m^[[92m    Checking^[[0m feature-radio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/28-radio)
+checks.sh (Linux)	The gate	2026-11-02T05:17:14.2100193Z ^[[1m^[[92m    Checking^[[0m feature-baseline-alignment v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/50-baseline-alignment)
+checks.sh (Linux)	The gate	2026-11-02T05:17:14.2984493Z ^[[1m^[[92m    Checking^[[0m feature-form-controls v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/47-form-controls)
+checks.sh (Linux)	The gate	2026-11-02T05:17:14.4600959Z ^[[1m^[[92m    Checking^[[0m feature-easing-presets v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/63-easing-presets)
+checks.sh (Linux)	The gate	2026-11-02T05:17:14.5524003Z ^[[1m^[[92m    Checking^[[0m feature-circular-progress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/31-circular-progress)
+checks.sh (Linux)	The gate	2026-11-02T05:17:14.6386747Z ^[[1m^[[92m    Checking^[[0m feature-opacity v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/15-opacity)
+checks.sh (Linux)	The gate	2026-11-02T05:17:14.6469282Z ^[[1m^[[92m    Checking^[[0m feature-directionality-rtl v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/22-directionality-rtl)
+checks.sh (Linux)	The gate	2026-11-02T05:17:14.9304080Z ^[[1m^[[92m    Checking^[[0m feature-sepia v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/34-sepia)
+checks.sh (Linux)	The gate	2026-11-02T05:17:14.9624164Z ^[[1m^[[92m    Checking^[[0m feature-text-display v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/02-text-display)
+checks.sh (Linux)	The gate	2026-11-02T05:17:15.0214522Z ^[[1m^[[92m    Checking^[[0m feature-math-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/76-math-text)
+checks.sh (Linux)	The gate	2026-11-02T05:17:15.1034258Z ^[[1mFor more information about this error, try `rustc --explain E0308`.^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:17:15.1073621Z ^[[1m^[[92m    Checking^[[0m feature-media-player v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/92-media-player)
+checks.sh (Linux)	The gate	2026-11-02T05:17:15.1565003Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
+checks.sh (Linux)	The gate	2026-11-02T05:17:15.1583286Z ^[[1m^[[33mwarning^[[0m: build failed, waiting for other jobs to finish...
+checks.sh (Linux)	The gate	2026-11-02T05:17:15.6885150Z ^[[1m^[[92m    Checking^[[0m feature-splash-screen v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/08-splash-screen)
+checks.sh (Linux)	The gate	2026-11-02T05:17:15.7594413Z ^[[1m^[[92m    Checking^[[0m feature-flex-column v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/13-flex-column)
+checks.sh (Linux)	The gate	2026-11-02T05:17:15.8425002Z ^[[1m^[[92m    Checking^[[0m feature-markdown v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/49-markdown)
+checks.sh (Linux)	The gate	2026-11-02T05:17:15.8804506Z ^[[1m^[[92m    Checking^[[0m feature-code-binding-sprites v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/91-code-binding-sprites)
+checks.sh (Linux)	The gate	2026-11-02T05:17:15.9265056Z ^[[1m^[[92m    Checking^[[0m feature-physics-joint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/69-physics-joint)
+-----
+checks.sh (Linux)	The gate	2026-11-02T05:17:22.5004175Z ^[[1m^[[92m    Checking^[[0m test-animation-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-animation-stress)
+checks.sh (Linux)	The gate	2026-11-02T05:17:22.5604091Z ^[[1m^[[92m    Checking^[[0m full-showcase v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/full-showcase)
+checks.sh (Linux)	The gate	2026-11-02T05:17:22.5811183Z ^[[1m^[[92m    Checking^[[0m test-native-surface v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-native-surface)
+checks.sh (Linux)	The gate	2026-11-02T05:17:22.6376026Z ^[[1m^[[92m    Checking^[[0m test-image-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-image-effects)
+checks.sh (Linux)	The gate	2026-11-02T05:17:22.6544172Z ^[[1m^[[92m    Checking^[[0m vector-probe v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/vector-probe)
+checks.sh (Linux)	The gate	2026-11-02T05:17:22.6704289Z ^[[1m^[[92m    Checking^[[0m test-premium-ui v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-premium-ui)
+checks.sh (Linux)	The gate	2026-11-02T05:17:22.8864023Z ^[[1m^[[92m    Checking^[[0m keynote v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/keynote)
+checks.sh (Linux)	The gate	2026-11-02T05:17:23.3114776Z ^[[1m^[[92m    Checking^[[0m test-scroll-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-scroll-stress)
+checks.sh (Linux)	The gate	2026-11-02T05:17:24.8451779Z ^[[1m^[[92m    Checking^[[0m test-gpu-work v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-gpu-work)
+checks.sh (Linux)	The gate	2026-11-02T05:17:25.2024208Z ^[[1m^[[92m    Checking^[[0m reload-guest v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/reload-guest)
+checks.sh (Linux)	The gate	2026-11-02T05:17:25.8914699Z ^[[1m^[[92m    Checking^[[0m vieww-runtime v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-runtime)
+checks.sh (Linux)	The gate	2026-11-02T05:17:26.9884306Z ^[[1m^[[92m    Checking^[[0m vieww-scroll v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scroll)
+checks.sh (Linux)	The gate	2026-11-02T05:17:27.9184144Z ^[[1m^[[92m    Checking^[[0m shot-diff v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/shot-diff)
+checks.sh (Linux)	The gate	2026-11-02T05:17:28.3040567Z ^[[1m^[[92m    Checking^[[0m feature-image-mipmaps-atlas v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/54-image-mipmaps-atlas)
+checks.sh (Linux)	The gate	2026-11-02T05:17:29.6254663Z ^[[1m^[[92m    Checking^[[0m vieww-interaction v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-interaction)
+checks.sh (Linux)	The gate	2026-11-02T05:17:35.1339104Z     FAILED: build (workspace, all targets) (exit 101)
+checks.sh (Linux)	The gate	2026-11-02T05:17:35.1339587Z 
+checks.sh (Linux)	The gate	2026-11-02T05:17:35.1339819Z ==> docs (workspace, broken intra-doc links are errors)
+checks.sh (Linux)	The gate	2026-11-02T05:17:35.4110684Z ^[[1m^[[33mwarning^[[0m: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/doc/vieww/index.html
+checks.sh (Linux)	The gate	2026-11-02T05:17:35.4111810Z   ^[[1m^[[94m|^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:17:35.4114321Z   ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: the bin target `vieww` in package `vieww-cli v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-cli)` has the same output filename as the lib target `vieww` in package `vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)`
+-----
+checks.sh (Linux)	The gate	2026-11-02T05:23:35.1575068Z ^[[1m^[[92m   Compiling^[[0m vieww-plugin v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-plugin)
+checks.sh (Linux)	The gate	2026-11-02T05:23:35.3104230Z ^[[1m^[[92m   Compiling^[[0m wright-infer v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/infer)
+checks.sh (Linux)	The gate	2026-11-02T05:23:37.5274493Z ^[[1m^[[92m   Compiling^[[0m wrightsite v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wrightsite)
+checks.sh (Linux)	The gate	2026-11-02T05:23:38.9524421Z ^[[1m^[[92m   Compiling^[[0m test-web v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-web)
+checks.sh (Linux)	The gate	2026-11-02T05:23:39.3395276Z ^[[1m^[[92m   Compiling^[[0m vieww-platform-web v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web)
+checks.sh (Linux)	The gate	2026-11-02T05:23:39.3863860Z ^[[1m^[[92m   Compiling^[[0m wright v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/app)
+checks.sh (Linux)	The gate	2026-11-02T05:23:46.6774459Z ^[[1m^[[92m   Compiling^[[0m reload-guest v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/reload-guest)
+checks.sh (Linux)	The gate	2026-11-02T05:23:46.9454258Z ^[[1m^[[92m   Compiling^[[0m vieww-runtime v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-runtime)
+checks.sh (Linux)	The gate	2026-11-02T05:23:47.1464118Z ^[[1m^[[92m   Compiling^[[0m vieww-scroll v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scroll)
+checks.sh (Linux)	The gate	2026-11-02T05:23:47.2934186Z ^[[1m^[[92m   Compiling^[[0m vieww-interaction v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-interaction)
+checks.sh (Linux)	The gate	2026-11-02T05:23:47.4864136Z ^[[1m^[[92m   Compiling^[[0m fixtures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/fixtures)
+checks.sh (Linux)	The gate	2026-11-02T05:23:48.4077414Z ^[[1m^[[92m   Compiling^[[0m film_lab v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/film_lab)
+checks.sh (Linux)	The gate	2026-11-02T05:23:50.0004688Z ^[[1m^[[92m   Compiling^[[0m feature-canvas-dataviz v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/87-canvas-dataviz)
+checks.sh (Linux)	The gate	2026-11-02T05:23:50.6584735Z ^[[1m^[[92m   Compiling^[[0m feature-graph-game-collab-lottie v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/88-graph-game-collab-lottie)
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.3124100Z ^[[1m^[[92m   Compiling^[[0m vieww-cli v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-cli)
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.5324494Z ^[[1m^[[91merror[E0308]^[[0m^[[1m: mismatched types^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.5340947Z     ^[[1m^[[94m--> ^[[0mexamples/film_lab/src/studio_film/master.rs:471:37
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.5373201Z      ^[[1m^[[94m|^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.5403253Z ^[[1m^[[94m 471^[[0m ^[[1m^[[94m|^[[0m                 studio.capture_tree(&self.driver);
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.5433327Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m------------^[[0m ^[[1m^[[91m^^^^^^^^^^^^^[[0m ^[[1m^[[91mtypes differ in mutability^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.5434589Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m|^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.5463297Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94marguments to this method are incorrect^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.5492798Z      ^[[1m^[[94m|^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.5498859Z      ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: expected mutable reference `&^[[1m^[[35mmut ^[[0mFrameDriver`
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.5502526Z                         found reference `&FrameDriver`
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.5503470Z ^[[1m^[[92mnote^[[0m: method defined here
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.5504582Z     ^[[1m^[[94m--> ^[[0mapps/viewwstudio/src/state/editing.rs:1563:12
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.5505457Z      ^[[1m^[[94m|^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.5506873Z ^[[1m^[[94m1563^[[0m ^[[1m^[[94m|^[[0m     pub fn capture_tree(&self, driver: &mut vieww_render::FrameDriver) {
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.5508069Z      ^[[1m^[[94m|^[[0m            ^[[1m^[[92m^^^^^^^^^^^^^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:23:51.5508656Z 
+checks.sh (Linux)	The gate	2026-11-02T05:23:52.8125013Z ^[[1m^[[92m   Compiling^[[0m feature-accessibility-audit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/55-accessibility-audit)
+checks.sh (Linux)	The gate	2026-11-02T05:23:52.9896897Z ^[[1m^[[92m   Compiling^[[0m vieww-standard v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/vieww-standard)
+checks.sh (Linux)	The gate	2026-11-02T05:23:54.0914670Z ^[[1mFor more information about this error, try `rustc --explain E0308`.^[[0m
+checks.sh (Linux)	The gate	2026-11-02T05:23:54.1431246Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
+checks.sh (Linux)	The gate	2026-11-02T05:23:54.1434193Z ^[[1m^[[33mwarning^[[0m: build failed, waiting for other jobs to finish...
+checks.sh (Linux)	The gate	2026-11-02T05:24:02.9440596Z     FAILED: tests (workspace) (exit 101)
+checks.sh (Linux)	The gate	2026-11-02T05:24:02.9441035Z 
+checks.sh (Linux)	The gate	2026-11-02T05:24:02.9441483Z ==> web-sys feature audit (the half of ci/check/wasm-check.sh that needs no target)
+checks.sh (Linux)	The gate	2026-11-02T05:24:02.9489972Z ==> auditing web-sys features against the types the crate names
+checks.sh (Linux)	The gate	2026-11-02T05:24:02.9595574Z     every web-sys type the crate names is enabled
+checks.sh (Linux)	The gate	2026-11-02T05:24:03.0532886Z ==> installing wasm32-unknown-unknown
+-----
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2436604Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 4.000 | 4.000 | +0.0% | ok (vs last run, ±25%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2438121Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok (vs last run, ±25%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2439656Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok (vs last run, ±25%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2440698Z perf-budget: within budget
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2441573Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2442611Z |---|---|---|---|---|---|
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2443767Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 4.000 | 4.600 | +15.0% | ok (vs last run, ±25%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2445332Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok (vs last run, ±25%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2447199Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok (vs last run, ±25%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2448166Z perf-budget: within budget
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2448910Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2449658Z |---|---|---|---|---|---|
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2450730Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 4.000 | 6.400 | +60.0% | OVER (vs last run, ±25%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2454859Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok (vs last run, ±25%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2457174Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok (vs last run, ±25%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2478680Z ##[error]perf-budget: ubuntu-24-04/x86-64/intel-i7-8550u gallery/editor/cpu_p50_ms: 6.400 ms against 4.000 ms (+60.0%)
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2486994Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2487726Z |---|---|---|---|---|---|
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2488373Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 4.000 | 6.400 | +60.0% | OVER (vs last run, ±25%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2489276Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok (vs last run, ±25%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2490147Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok (vs last run, ±25%) |
+-----
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2495483Z perf-budget: over budget, reported only (--advisory: a shared hosted runner)
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2496235Z perf-budget: recorded 3 metric(s) for ubuntu-24-04/x86-64/intel-i7-8550u in /tmp/tmp2bdsrnr5.json
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2497389Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2497895Z |---|---|---|---|---|---|
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2498425Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 6.400 | 6.400 | +0.0% | ok |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2499049Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2499664Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2500661Z perf-budget: within budget
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2501369Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2501995Z |---|---|---|---|---|---|
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2502734Z | phone-x | gpu_frame_time_p50_ms | 0.350 | 0.900 | +157.1% | ok |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2503279Z perf-budget: within budget
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2503988Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2504611Z |---|---|---|---|---|---|
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2505143Z | phone-x | gpu_frame_time_p50_ms | 0.350 | 1.600 | +357.1% | OVER |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2507149Z ##[error]perf-budget: phone-x gpu_frame_time_p50_ms: 1.600 ms against 0.350 ms (+357.1%)
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2508963Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2509631Z |---|---|---|---|---|---|
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2510306Z perf-budget: no budget and no previous run for class 'phone-lm-q720': not gated this time
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2511074Z perf-budget: nothing gated
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2511706Z perf-budget: recorded 3 metric(s) for kabylake-linux in /tmp/tmpsu3kivf3.json
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2513107Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2513586Z |---|---|---|---|---|---|
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2513933Z | kabylake-linux | gallery/editor/cpu_p50_ms | 4.000 | 4.000 | +0.0% | ok |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2514417Z | kabylake-linux | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2514889Z | kabylake-linux | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2515494Z perf-budget: within budget
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2515930Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2516301Z |---|---|---|---|---|---|
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2516642Z | kabylake-linux | gallery/editor/cpu_p50_ms | 4.000 | 5.200 | +30.0% | OVER |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2517110Z | kabylake-linux | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2517564Z | kabylake-linux | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2518738Z ##[error]perf-budget: kabylake-linux gallery/editor/cpu_p50_ms: 5.200 ms against 4.000 ms (+30.0%)
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2519815Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2520183Z |---|---|---|---|---|---|
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2520503Z | kabylake-linux | gallery/editor/cpu_p50_ms | 4.000 | 4.300 | +7.5% | ok |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2520961Z | kabylake-linux | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok |
+checks.sh (Linux)	The gate	2026-11-02T05:29:10.2521608Z | kabylake-linux | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok |
+-----
+checks.sh (Linux)	The gate	2026-11-02T05:29:40.5696512Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
+checks.sh (Linux)	The gate	2026-11-02T05:29:56.0949200Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
+checks.sh (Linux)	The gate	2026-11-02T05:29:58.5941474Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
+checks.sh (Linux)	The gate	2026-11-02T05:30:04.0894453Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
+checks.sh (Linux)	The gate	2026-11-02T05:30:07.7654032Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+checks.sh (Linux)	The gate	2026-11-02T05:30:08.4314150Z ^[[1m^[[92m   Compiling^[[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+checks.sh (Linux)	The gate	2026-11-02T05:30:12.2854035Z ^[[1m^[[92m   Compiling^[[0m vieww-reload v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-reload)
+checks.sh (Linux)	The gate	2026-11-02T05:30:12.7672134Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized] target(s) in 53.69s
+checks.sh (Linux)	The gate	2026-11-02T05:30:12.7750534Z ^[[1m^[[92m     Running^[[0m tests/end_to_end.rs (target/debug/deps/end_to_end-c193484d1bd3647c)
+checks.sh (Linux)	The gate	2026-11-02T05:30:12.7767156Z 
+checks.sh (Linux)	The gate	2026-11-02T05:30:12.7767387Z running 3 tests
+checks.sh (Linux)	The gate	2026-11-02T05:31:15.5458578Z test a_guest_that_panics_while_building_does_not_take_the_host_down ... ok
+checks.sh (Linux)	The gate	2026-11-02T05:32:17.7589395Z test a_guest_whose_state_changed_shape_forces_a_restart ... ok
+checks.sh (Linux)	The gate	2026-11-02T05:33:21.2649977Z test a_rebuilt_guest_reloads_and_the_tree_is_kept ... ok
+checks.sh (Linux)	The gate	2026-11-02T05:33:21.2650776Z 
+checks.sh (Linux)	The gate	2026-11-02T05:33:21.2651242Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 188.49s
+checks.sh (Linux)	The gate	2026-11-02T05:33:21.2651890Z 
+checks.sh (Linux)	The gate	2026-11-02T05:33:21.2779516Z 
+checks.sh (Linux)	The gate	2026-11-02T05:33:21.2780037Z ==> packaging (layout and a preview compiled against the bundle)
+checks.sh (Linux)	The gate	2026-11-02T05:33:21.3629600Z ==> building viewwstudio 0.1.0 (debug, linux)
+checks.sh (Linux)	The gate	2026-11-02T05:33:21.6549040Z ^[[1m^[[92m   Compiling^[[0m zvariant_utils v4.2.0
+-----
+checks.sh (Linux)	The gate	2026-11-02T05:34:09.9029361Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 48.50s
+checks.sh (Linux)	The gate	2026-11-02T05:34:09.9417832Z ==> drawing icons
+checks.sh (Linux)	The gate	2026-11-02T05:34:10.2251588Z ^[[1m^[[92m   Compiling^[[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
+checks.sh (Linux)	The gate	2026-11-02T05:34:10.2254994Z ^[[1m^[[92m   Compiling^[[0m vieww-hardware v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
+checks.sh (Linux)	The gate	2026-11-02T05:34:10.2257816Z ^[[1m^[[92m   Compiling^[[0m vieww-test-harness v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-test-harness)
+checks.sh (Linux)	The gate	2026-11-02T05:34:15.4587827Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 5.48s
+checks.sh (Linux)	The gate	2026-11-02T05:34:15.4789772Z ^[[1m^[[92m     Running^[[0m `target/debug/examples/icon /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/icons`
+checks.sh (Linux)	The gate	2026-11-02T05:34:16.6512163Z ==> verifying the bundle compiles a preview
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6013795Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/viewwstudio-linux-x86_64.tar.gz
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6064423Z     206M
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6090207Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/index.html
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6091246Z     links point at github.com/tejakota/vieww_prod
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6122150Z done
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6764305Z 
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6766032Z --- clippy (workspace, all targets, warnings are errors): its diagnostics ---
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6767651Z error[E0308]: mismatched types
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6768990Z     --> examples/film_lab/src/studio_film/master.rs:471:37
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6770203Z     --> apps/viewwstudio/src/state/editing.rs:1563:12
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6771087Z error: could not compile `film_lab` (bin "film_lab") due to 1 previous error
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6771936Z warning: build failed, waiting for other jobs to finish...
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6773953Z error: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6774811Z 
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6775221Z --- build (workspace, all targets): its diagnostics ---
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6776071Z error[E0308]: mismatched types
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6776903Z     --> examples/film_lab/src/studio_film/master.rs:471:37
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6777549Z     --> apps/viewwstudio/src/state/editing.rs:1563:12
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6778364Z error: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6779266Z warning: build failed, waiting for other jobs to finish...
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6780085Z error: could not compile `film_lab` (bin "film_lab") due to 1 previous error
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6780466Z 
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6780604Z --- tests (workspace): its diagnostics ---
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6781463Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6783542Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline.dwp
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6785131Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6786193Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench.dwp
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6787291Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6788904Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render.dwp
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6789943Z error[E0308]: mismatched types
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6790387Z     --> examples/film_lab/src/studio_film/master.rs:471:37
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6790805Z     --> apps/viewwstudio/src/state/editing.rs:1563:12
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6791300Z error: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6791836Z warning: build failed, waiting for other jobs to finish...
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6792162Z 
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6792532Z 3 stage(s) failed:
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6792889Z   - clippy (workspace, all targets, warnings are errors) (exit 101)
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6793337Z   - build (workspace, all targets) (exit 101)
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6793679Z   - tests (workspace) (exit 101)
+checks.sh (Linux)	The gate	2026-11-02T05:34:42.6796613Z ##[error]Process completed with exit code 1.
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	﻿2026-11-02T05:12:05.4395177Z ##[group]Run ci/check/cross-check.sh
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:12:05.4395398Z ^[[36;1mci/check/cross-check.sh^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:12:05.4413192Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:12:05.4413396Z env:
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:12:05.4413522Z   CARGO_TERM_COLOR: always
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:12:05.4413656Z   RUST_BACKTRACE: 1
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:12:05.4413777Z   RUST_VERSION: 1.98.1
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:12:05.4413905Z ##[endgroup]
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:12:05.4932206Z info: syncing channel updates for 1.98.1-x86_64-unknown-linux-gnu
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:12:05.7511045Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:12:05.7630856Z info: downloading 3 components
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:12:08.8825019Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:12:08.8826016Z ^[[1m== macos (aarch64-apple-darwin)^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:51.5299415Z ^[[1m^[[91merror[E0308]^[[0m^[[1m: mismatched types^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:51.5329152Z     ^[[1m^[[94m--> ^[[0mexamples/film_lab/src/studio_film/master.rs:471:37
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:51.5358931Z      ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:51.5359805Z ^[[1m^[[94m 471^[[0m ^[[1m^[[94m|^[[0m                 studio.capture_tree(&self.driver);
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:51.5389210Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m------------^[[0m ^[[1m^[[91m^^^^^^^^^^^^^[[0m ^[[1m^[[91mtypes differ in mutability^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:51.5418801Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:51.5449171Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94marguments to this method are incorrect^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:51.5449859Z      ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:51.5479057Z      ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: expected mutable reference `&^[[1m^[[35mmut ^[[0mFrameDriver`
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:51.5508612Z                         found reference `&FrameDriver`
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:51.5538773Z ^[[1m^[[92mnote^[[0m: method defined here
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:51.5539450Z     ^[[1m^[[94m--> ^[[0mapps/viewwstudio/src/state/editing.rs:1563:12
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:51.5568591Z      ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:51.5605560Z ^[[1m^[[94m1563^[[0m ^[[1m^[[94m|^[[0m     pub fn capture_tree(&self, driver: &mut vieww_render::FrameDriver) {
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:51.5608568Z      ^[[1m^[[94m|^[[0m            ^[[1m^[[92m^^^^^^^^^^^^^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:51.5638142Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:53.1042719Z ^[[1mFor more information about this error, try `rustc --explain E0308`.^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:53.1519738Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:53.7779961Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab") due to 1 previous error
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:53.9226477Z    ^[[31mFAILED^[[0m — see above
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:53.9226740Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:13:53.9226872Z ^[[1m== ios (aarch64-apple-ios)^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:46.3052115Z ^[[1m^[[91merror[E0308]^[[0m^[[1m: mismatched types^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:46.3088976Z     ^[[1m^[[94m--> ^[[0mexamples/film_lab/src/studio_film/master.rs:471:37
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:46.3089586Z      ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:46.3090413Z ^[[1m^[[94m 471^[[0m ^[[1m^[[94m|^[[0m                 studio.capture_tree(&self.driver);
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:46.3134509Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m------------^[[0m ^[[1m^[[91m^^^^^^^^^^^^^[[0m ^[[1m^[[91mtypes differ in mutability^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:46.3135219Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:46.3135702Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94marguments to this method are incorrect^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:46.3136126Z      ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:46.3136570Z      ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: expected mutable reference `&^[[1m^[[35mmut ^[[0mFrameDriver`
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:46.3137061Z                         found reference `&FrameDriver`
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:46.3137454Z ^[[1m^[[92mnote^[[0m: method defined here
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:46.3138598Z     ^[[1m^[[94m--> ^[[0mapps/viewwstudio/src/state/editing.rs:1563:12
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:46.3139000Z      ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:46.3139829Z ^[[1m^[[94m1563^[[0m ^[[1m^[[94m|^[[0m     pub fn capture_tree(&self, driver: &mut vieww_render::FrameDriver) {
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:46.3140348Z      ^[[1m^[[94m|^[[0m            ^[[1m^[[92m^^^^^^^^^^^^^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:46.3141130Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:47.9459494Z ^[[1mFor more information about this error, try `rustc --explain E0308`.^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:47.9959618Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:48.0505293Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab") due to 1 previous error
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:48.1380604Z    ^[[31mFAILED^[[0m — see above
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:48.1380866Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:14:48.1380989Z ^[[1m== windows (x86_64-pc-windows-msvc)^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:42.3799386Z ^[[1m^[[91merror[E0308]^[[0m^[[1m: mismatched types^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:42.3808850Z     ^[[1m^[[94m--> ^[[0mexamples/film_lab/src/studio_film/master.rs:471:37
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:42.3809243Z      ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:42.3809589Z ^[[1m^[[94m 471^[[0m ^[[1m^[[94m|^[[0m                 studio.capture_tree(&self.driver);
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:42.3810118Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m------------^[[0m ^[[1m^[[91m^^^^^^^^^^^^^[[0m ^[[1m^[[91mtypes differ in mutability^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:42.3810622Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:42.3811031Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94marguments to this method are incorrect^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:42.3811365Z      ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:42.3811727Z      ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: expected mutable reference `&^[[1m^[[35mmut ^[[0mFrameDriver`
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:42.3812102Z                         found reference `&FrameDriver`
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:42.3812419Z ^[[1m^[[92mnote^[[0m: method defined here
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:42.3812761Z     ^[[1m^[[94m--> ^[[0mapps/viewwstudio/src/state/editing.rs:1563:12
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:42.3813071Z      ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:42.3813732Z ^[[1m^[[94m1563^[[0m ^[[1m^[[94m|^[[0m     pub fn capture_tree(&self, driver: &mut vieww_render::FrameDriver) {
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:42.3814189Z      ^[[1m^[[94m|^[[0m            ^[[1m^[[92m^^^^^^^^^^^^^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:42.3814369Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:44.0039513Z ^[[1mFor more information about this error, try `rustc --explain E0308`.^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:44.0495155Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:44.3216872Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab") due to 1 previous error
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:47.2523189Z    ^[[31mFAILED^[[0m — see above
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:47.2523400Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:15:47.2523504Z ^[[1m== android (aarch64-linux-android)^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:06.4359438Z ^[[1m^[[91merror[E0308]^[[0m^[[1m: mismatched types^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:06.4389001Z     ^[[1m^[[94m--> ^[[0mexamples/film_lab/src/studio_film/master.rs:471:37
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:06.4390345Z      ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:06.4418739Z ^[[1m^[[94m 471^[[0m ^[[1m^[[94m|^[[0m                 studio.capture_tree(&self.driver);
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:06.4449440Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m------------^[[0m ^[[1m^[[91m^^^^^^^^^^^^^[[0m ^[[1m^[[91mtypes differ in mutability^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:06.4478611Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:06.4479709Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94marguments to this method are incorrect^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:06.4508516Z      ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:06.4538945Z      ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: expected mutable reference `&^[[1m^[[35mmut ^[[0mFrameDriver`
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:06.4568679Z                         found reference `&FrameDriver`
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:06.4569313Z ^[[1m^[[92mnote^[[0m: method defined here
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:06.4598651Z     ^[[1m^[[94m--> ^[[0mapps/viewwstudio/src/state/editing.rs:1563:12
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:06.4628519Z      ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:06.4659989Z ^[[1m^[[94m1563^[[0m ^[[1m^[[94m|^[[0m     pub fn capture_tree(&self, driver: &mut vieww_render::FrameDriver) {
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:06.4661211Z      ^[[1m^[[94m|^[[0m            ^[[1m^[[92m^^^^^^^^^^^^^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:06.4688191Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:07.9909595Z ^[[1mFor more information about this error, try `rustc --explain E0308`.^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:08.0318668Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab") due to 1 previous error
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:08.8726791Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:08.9502629Z    ^[[31mFAILED^[[0m — see above
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:08.9502872Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-02T05:17:08.9516954Z ##[error]Process completed with exit code 4.
