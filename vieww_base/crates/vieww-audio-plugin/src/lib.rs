@@ -1,5 +1,5 @@
-//! Audio plugins: write one [`Plugin`], ship it as CLAP and VST3, and host
-//! either format.
+//! Audio plugins: write one [`Plugin`], ship it as CLAP, VST3 and LV2,
+//! host any of them — and know exactly where AUv3 and AAX stand.
 //!
 //! A plugin here is a vieww-audio [`Parametric`] (its parameters, with
 //! ids, ranges, tapers and text conversion) plus a [`Plugin::process`]
@@ -19,19 +19,32 @@
 //!   extension), transcribed from the LV2 headers, exported with
 //!   [`export_lv2!`]; plus an LV2 host and the TTL manifests that make a
 //!   bundle discoverable.
+//! * [`auv3`] — Apple's AUv3: the `Info.plist` manifest side is complete
+//!   and tested everywhere, the UMP `MIDIEventList` schedule is pure and
+//!   tested everywhere, and the `AUAudioUnit` wrapper (Objective-C
+//!   runtime, clang block literals) is **written and type-checked for
+//!   `aarch64-apple-darwin`, never run in this sandbox** — its module
+//!   doc says exactly what is transcribed and what is not.
+//! * [`aax`] — refused **by design, by name**: Avid's SDK is proprietary
+//!   and binaries are cryptographically signed, so there is no legal
+//!   reimplementation to write; the module is the refusal and its
+//!   rationale. Pro Tools users bridge from CLAP/VST3 (Avid's own
+//!   documented escape hatch).
 //!
-//! Neither format's SDK is used: the ABIs are C (and, for VST3, COM-style
-//! vtables), and all are written out in `sys` modules. The CI builds the
-//! example plugins as shared libraries and drives them from hosts compiled
-//! in C and C++ against the official headers (and a C host for LV2), which
-//! is what proves the transcriptions are the ABIs and not just consistent
-//! with themselves.
+//! None of the wrapped formats' SDKs are used: the ABIs are C (and, for
+//! VST3, COM-style vtables), and all are written out in `sys` modules.
+//! The CI builds the example plugins as shared libraries and drives them
+//! from hosts compiled in C and C++ against the official headers (and a
+//! C host for LV2), which is what proves the transcriptions are the ABIs
+//! and not just consistent with themselves.
 //!
 //! Parameter automation is **sample-accurate** whichever format delivers
 //! it: the shared [`Driver`] splits each block at every parameter change,
 //! so a plugin only ever sees parameters that are constant within the
 //! slice it is rendering.
 
+pub mod aax;
+pub mod auv3;
 pub mod clap;
 #[cfg(feature = "gui")]
 pub mod gui;
