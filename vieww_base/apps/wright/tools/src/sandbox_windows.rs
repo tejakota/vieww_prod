@@ -6,7 +6,15 @@
 //! Windows drives and user homes, scrubbing environment variables, isolating
 //! the network unless granted, and applying process/file-size limits. If the
 //! required isolation runtime is missing, the command is refused with setup
-//! instructions rather than executed unsandboxed.
+//! instructions rather than executed unsandboxed — and `wright doctor
+//! --fix` (WR-14, `crate::setup`) now installs that runtime itself instead
+//! of handing back a wall of instructions. Two honest reliefs short of the
+//! full sandbox exist for tools whose program is a Windows-native binary:
+//! git and the project's test runner degrade to WR-05's containment ladder
+//! (`crate::degraded`: tier 2 AppContainer for `.exe`s, tier 1 Job object
+//! for `.cmd` shims), REPORTED as DEGRADED in every report. `shell` — an
+//! arbitrary command — never degrades: the kernel sandbox is load-bearing
+//! there, and a Job object is not an answer to it.
 
 use super::{Policy, RunOutput, MAX_OUTPUT};
 use std::io::Read;
@@ -18,7 +26,7 @@ use std::thread;
 use std::os::windows::process::CommandExt;
 
 const CREATE_NO_WINDOW: u32 = 0x0800_0000;
-const SETUP_HINT: &str = "Wright needs an isolated WSL 2 runtime on Windows. Enable WSL 2 and install an Ubuntu distribution, then run `sudo apt update && sudo apt install bubblewrap util-linux coreutils` inside it. Run `wright doctor` again. Wright will not run agent commands without isolation.";
+const SETUP_HINT: &str = "Wright needs an isolated WSL 2 runtime on Windows. Run `wright doctor --fix` to install it (WSL 2, an Ubuntu distribution, and `sudo apt install bubblewrap util-linux coreutils` inside it) — or do the same by hand. Wright will not run agent commands without isolation.";
 const PATH_HINT: &str = "The path could not be mapped into WSL. Keep the project on a local Windows drive (for example C:\\work\\project), ensure that drive is mounted in WSL, and retry.";
 
 fn wsl() -> Command {
@@ -131,7 +139,7 @@ fn probe_runtime_uncached() -> Result<String, String> {
             )
         });
     }
-    Ok("WSL 2 + Bubblewrap (isolates Linux shell/git/test commands; native Windows worker CLIs remain a separate, explicitly reported fallback)".into())
+    Ok("WSL 2 + Bubblewrap (isolates Linux shell/git/test commands; native Windows worker CLIs stay on WR-05's own tier ladder — .exe in an AppContainer (tier 2), .cmd shims in a Job object (tier 1) — reported per worker in its run report)".into())
 }
 
 /// Validate the Windows path in the host, then translate it with WSL's own

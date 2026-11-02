@@ -20,14 +20,24 @@
 //! the crate and the web build run the project's own tool chain (`cargo
 //! package`, `npm run build`) on this machine, outside the sandbox, because
 //! a person asked for them.
+//!
+//! **Every export is signed into a receipt** (WR-15): `<out>/receipt.json`,
+//! format `wright.export-receipt/1`, records the artifact set — each file
+//! with its SHA-256 (what a person checks) and its BLAKE3 (the store's
+//! content-addressed copy, the durable witness) — plus the blueprint the
+//! packagings were generated from and the Docker base-image digest when one
+//! is pinned. It is signed over its exact bytes with the machine's Ed25519
+//! key, exactly like a run receipt, and `wright verify <receipt> <project>`
+//! checks it (ADR-046).
 
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use wright_core::blueprint::Blueprint;
+use wright_core::blueprint::{canon, Blueprint};
 use wright_core::convention;
 use wright_core::sha256;
-use wright_core::wire::json;
+use wright_core::wire::json::{self, Value};
 use wright_core::zip::ZipWriter;
 use wright_runtime::store::{write_atomic, Store};
 
@@ -82,6 +92,20 @@ impl Kind {
             Kind::Docker => "--docker",
             Kind::Systemd => "--systemd",
             Kind::GhActions => "--gh-actions",
+        }
+    }
+
+    /// The stable name recorded in the export receipt (and nothing else
+    /// reads it, so it is the wire format: never rename one).
+    pub fn name(self) -> &'static str {
+        match self {
+            Kind::Zip => "zip",
+            Kind::Wheel => "wheel",
+            Kind::Crate => "crate",
+            Kind::Web => "web",
+            Kind::Docker => "docker",
+            Kind::Systemd => "systemd",
+            Kind::GhActions => "gh-actions",
         }
     }
 
@@ -144,29 +168,41 @@ pub struct Exported {
     pub path: PathBuf,
     pub bytes: u64,
     pub sha256: String,
+    /// Docker only: the base image the Dockerfile builds from (with its
+    /// digest appended when one is pinned).
+    pub base_image: Option<String>,
+    /// Docker only: the digest pinning the base image, when the export
+    /// config has one (`sha256:…`).
+    pub digest: Option<String>,
 }
 
 /// Why a package cannot be made yet, or `Ok` when the last run is the proof.
 pub fn verified(project: &Path) -> Result<(), String> {
     let store = Store::open(project)?;
-    let Some(run) = store.runs().last().copied() else {
-        return Err(
-            "this project has not run yet — run it, and export once its checks pass".into(),
-        );
-    };
-    let receipt = std::fs::read_to_string(store.run_dir(run).join("receipt.json"))
-        .map_err(|_| format!("run {run} has no receipt yet (still running, or it stopped)"))?;
-    let ok = json::parse(&receipt)
-        .ok()
-        .and_then(|v| v.get("ok").and_then(|b| b.as_bool()))
-        .unwrap_or(false);
-    if ok {
-        Ok(())
-    } else {
-        Err(format!(
+    match last_run_state(&store) {
+        None => {
+            Err("this project has not run yet — run it, and export once its checks pass".into())
+        }
+        Some((run, None)) => Err(format!(
+            "run {run} has no receipt yet (still running, or it stopped)"
+        )),
+        Some((_, Some(true))) => Ok(()),
+        Some((run, Some(false))) => Err(format!(
             "the last run ({run}) did not pass its checks and review — fix that first, then export"
-        ))
+        )),
     }
+}
+
+/// The last run's number and its verdict (`None` = no receipt yet, so
+/// still running or stopped). The proof a package export asked for, and
+/// the context the export receipt records.
+fn last_run_state(store: &Store) -> Option<(u64, Option<bool>)> {
+    let run = store.runs().last().copied()?;
+    let ok = std::fs::read_to_string(store.run_dir(run).join("receipt.json"))
+        .ok()
+        .and_then(|t| json::parse(&t).ok())
+        .and_then(|v| v.get("ok").and_then(|b| b.as_bool()));
+    Some((run, ok))
 }
 
 /// Make one export of `project` into `out`.
@@ -183,14 +219,15 @@ pub fn export(project: &Path, kind: Kind, out: &Path) -> Result<Exported, String
         verified(project)?;
     }
     std::fs::create_dir_all(out).map_err(|e| format!("{}: {e}", out.display()))?;
-    let (name, bytes) = match kind {
-        Kind::Zip => source_zip(project, &bp)?,
-        Kind::Wheel => wheel(project, &bp)?,
-        Kind::Crate => crate_file(project)?,
-        Kind::Web => web(project, &bp)?,
-        Kind::Docker => dockerfile(&bp)?,
-        Kind::Systemd => systemd(&bp)?,
-        Kind::GhActions => gh_actions(&bp)?,
+    let cfg = ExportConfig::load(project)?;
+    let (name, bytes, image, digest) = match kind {
+        Kind::Zip => two(source_zip(project, &bp)?),
+        Kind::Wheel => two(wheel(project, &bp)?),
+        Kind::Crate => two(crate_file(project)?),
+        Kind::Web => two(web(project, &bp)?),
+        Kind::Docker => dockerfile(&bp, &cfg)?,
+        Kind::Systemd => two(systemd(&bp)?),
+        Kind::GhActions => two(gh_actions(&bp)?),
     };
     let path = out.join(name);
     write_atomic(&path, &bytes)?;
@@ -199,7 +236,122 @@ pub fn export(project: &Path, kind: Kind, out: &Path) -> Result<Exported, String
         bytes: bytes.len() as u64,
         sha256: sha256::hex(&bytes),
         path,
+        base_image: image,
+        digest,
     })
+}
+
+/// What one generator produced: the artifact's name, its bytes, and —
+/// Docker only — the base image and the digest pinning it.
+type Made = (String, Vec<u8>, Option<String>, Option<String>);
+
+/// Widen a generator's `(name, bytes)` to [`Made`] — everything but
+/// the Dockerfile pins nothing.
+fn two(m: (String, Vec<u8>)) -> Made {
+    (m.0, m.1, None, None)
+}
+
+// ── the export receipt (WR-15) ────────────────────────────────────
+
+/// Where the export receipt landed, and whether it is signed. A machine
+/// with no signing key still gets a receipt — it says so by carrying no
+/// signature block, and `wright verify` reports that honestly.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ExportReceipt {
+    pub path: PathBuf,
+    pub signed: bool,
+}
+
+/// Write `<out>/receipt.json` for one export invocation: the artifact
+/// set, signed over its exact bytes with the machine key (ADR-046).
+///
+/// Each artifact is recorded twice over: its SHA-256 (what a person
+/// checks against the file) and its BLAKE3 (the copy the project's store
+/// just took, content-addressed — the durable witness that outlives the
+/// export folder being moved or deleted). The blueprint the packagings
+/// were generated from is committed to the store's history, so the
+/// receipt names the plan it came from the way a run receipt does. The
+/// receipt is overwritten by the next export of the same project; the
+/// artifacts it names stay in the store either way.
+pub fn write_receipt(
+    project: &Path,
+    out: &Path,
+    made: &[Exported],
+) -> Result<ExportReceipt, String> {
+    if made.is_empty() {
+        return Err("nothing was made; there is no export to record".into());
+    }
+    let bp = crate::load_blueprint(project)?;
+    let store = Store::open(project)?;
+    let commit = store.commit_blueprint(&canon::canonical(&bp), "exported")?;
+    let (run, run_ok) = match last_run_state(&store) {
+        Some((r, ok)) => (
+            Value::int(r as i64),
+            ok.map(Value::Bool).unwrap_or(Value::Null),
+        ),
+        None => (Value::Null, Value::Null),
+    };
+    let mut rows: Vec<Value> = Vec::new();
+    for e in made {
+        let bytes = std::fs::read(&e.path).map_err(|err| format!("{}: {err}", e.path.display()))?;
+        let blake3 = store.put_object(&bytes)?;
+        rows.push(Value::obj(vec![
+            ("kind", Value::str(e.kind.name())),
+            (
+                "name",
+                Value::str(
+                    e.path
+                        .file_name()
+                        .map(|n| n.to_string_lossy().to_string())
+                        .unwrap_or_default(),
+                ),
+            ),
+            ("path", Value::str(e.path.display().to_string())),
+            ("bytes", Value::int(e.bytes as i64)),
+            ("sha256", Value::str(e.sha256.clone())),
+            ("blake3", Value::str(blake3)),
+            (
+                "base_image",
+                e.base_image.clone().map(Value::str).unwrap_or(Value::Null),
+            ),
+            (
+                "digest",
+                e.digest.clone().map(Value::str).unwrap_or(Value::Null),
+            ),
+        ]));
+    }
+    let mut receipt = Value::obj(vec![
+        ("format", Value::str("wright.export-receipt/1")),
+        ("project", Value::str(bp.meta.name.clone())),
+        ("project_dir", Value::str(project.display().to_string())),
+        ("blueprint", Value::str(commit)),
+        ("run", run),
+        ("run_ok", run_ok),
+        ("made_ms", Value::int(wright_core::events::now_ms() as i64)),
+        ("artifacts", Value::Arr(rows)),
+        ("wright", Value::str(crate::firing::APP_VERSION)),
+    ]);
+    // The same rule as a run receipt: sign the exact bytes as they stand
+    // (no signature field yet), then append the signature block — the
+    // writer is insertion-ordered, so a verifier reproduces the bytes.
+    let mut signed = false;
+    if let Ok(key) = wright_runtime::signing::SigningKey::resolve() {
+        let bytes = json::to_string(&receipt);
+        let sig = key.sign(bytes.as_bytes());
+        let hex_sig: String = sig.iter().map(|b| format!("{b:02x}")).collect();
+        receipt.set(
+            "signature",
+            Value::obj(vec![
+                ("public_key", Value::str(key.public_hex())),
+                ("provenance", Value::str(key.provenance_str())),
+                ("value", Value::str(hex_sig)),
+            ]),
+        );
+        signed = true;
+    }
+    let path = out.join("receipt.json");
+    write_atomic(&path, json::to_string(&receipt).as_bytes())?;
+    Ok(ExportReceipt { path, signed })
 }
 
 // ── deployment packagings (WR-15) ─────────────────────────────────
@@ -208,9 +360,149 @@ pub fn export(project: &Path, kind: Kind, out: &Path) -> Result<Exported, String
 // same bytes, so an export can be diffed and reviewed like code. None of
 // them imports anything a model wrote.
 
-/// The base image a language's convention runs on. Tags, not digests:
-/// pin a digest by editing the line (`docker buildx imagetools inspect`
-/// prints it) — wright cannot check a registry offline.
+// ── the export config (WR-15: digest pinning) ────────────────────
+
+/// The operator's export decisions, read from `export.kdl` in the project
+/// root. The blueprint is the *plan* (generated from the person's words);
+/// this file is the operator's supply-chain calls — the facts Wright
+/// cannot know and must not guess. Today one fact matters: which Docker
+/// base images are pinned by digest.
+///
+/// ```kdl
+/// export {
+///   docker {
+///     digest "python:3.12-slim" value="sha256:…"   // `docker buildx
+///     //                                imagetools inspect python:3.12-slim`
+///     require_digest true      // refuse --docker while a digest is missing
+///   }
+/// }
+/// ```
+///
+/// **Why the digest is yours to type.** Wright makes no outbound traffic
+/// but the update channel (AGENTS.md), so it cannot read a registry to
+/// learn a digest itself — and a guessed digest would be worse than a
+/// moving tag. The file is optional: without it, the Dockerfile builds
+/// from the tag and says so; with `require_digest`, an unpinned export is
+/// REFUSED rather than quietly reproducible-in-theory.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct ExportConfig {
+    /// Base image (as the Dockerfile spells it) → `sha256:…` digest.
+    digests: BTreeMap<String, String>,
+    /// Refuse a Docker export whose base image has no digest.
+    require_digest: bool,
+}
+
+impl ExportConfig {
+    /// The project's export config: `export.kdl` beside the blueprint, or
+    /// empty when the file does not exist. Anything it cannot parse is an
+    /// error, not a guess — a mistyped digest must never become a tag.
+    pub fn load(project: &Path) -> Result<ExportConfig, String> {
+        let path = project.join("export.kdl");
+        let src = match std::fs::read_to_string(&path) {
+            Ok(s) => s,
+            Err(_) => return Ok(ExportConfig::default()),
+        };
+        Self::parse(&src, &path.display().to_string())
+    }
+
+    /// Parse `export.kdl`'s text. `source` names the file in errors.
+    pub fn parse(src: &str, source: &str) -> Result<ExportConfig, String> {
+        use wright_core::blueprint::parse::parse_doc;
+        let doc = parse_doc(src).map_err(|e| format!("{source}: {e}"))?;
+        let mut cfg = ExportConfig::default();
+        let export = doc
+            .iter()
+            .find(|n| n.name == "export")
+            .ok_or_else(|| format!("{source}: expected one `export {{ … }}` node"))?;
+        for node in &export.children {
+            match node.name.as_str() {
+                "docker" => cfg.read_docker(node, source)?,
+                other => {
+                    return Err(format!(
+                        "{source}: line {}: unknown export setting '{other}' (docker)",
+                        node.line
+                    ))
+                }
+            }
+        }
+        Ok(cfg)
+    }
+
+    fn read_docker(
+        &mut self,
+        docker: &wright_core::blueprint::parse::KdlNode,
+        source: &str,
+    ) -> Result<(), String> {
+        for node in &docker.children {
+            match node.name.as_str() {
+                "digest" => {
+                    let image = node.arg_str().ok_or_else(|| {
+                        format!("{source}: line {}: digest names the image (digest \"python:3.12-slim\" value=…)", node.line)
+                    })?;
+                    let value = node.prop_str("value").ok_or_else(|| {
+                        format!(
+                            "{source}: line {}: digest '{image}' needs value=\"sha256:…\"",
+                            node.line
+                        )
+                    })?;
+                    check_digest(value, image)
+                        .map_err(|e| format!("{source}: line {}: {e}", node.line))?;
+                    self.digests.insert(image.to_string(), value.to_lowercase());
+                }
+                "require_digest" => {
+                    let on = node
+                        .arg_bool()
+                        .or_else(|| node.prop_bool("value"))
+                        .ok_or_else(|| {
+                            format!(
+                                "{source}: line {}: require_digest is true or false",
+                                node.line
+                            )
+                        })?;
+                    self.require_digest = on;
+                }
+                other => {
+                    return Err(format!(
+                    "{source}: line {}: unknown docker setting '{other}' (digest | require_digest)",
+                    node.line
+                ))
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// The digest pinned for `image`, if the config has one.
+    pub fn digest_for(&self, image: &str) -> Option<&str> {
+        self.digests.get(image).map(String::as_str)
+    }
+
+    /// Whether the operator asked for refusal over an unpinned base image.
+    pub fn requires_digest(&self) -> bool {
+        self.require_digest
+    }
+}
+
+/// A Docker digest is `sha256:` + 64 hex digits, nothing else — the same
+/// shape every registry prints, checked here so a typo cannot travel into
+/// a Dockerfile and become a pull error on another machine.
+fn check_digest(digest: &str, image: &str) -> Result<(), String> {
+    let body = digest
+        .strip_prefix("sha256:")
+        .ok_or_else(|| format!("the digest for '{image}' must start with \"sha256:\""))?;
+    let ok = body.len() == 64 && body.bytes().all(|b| b.is_ascii_hexdigit());
+    if ok {
+        Ok(())
+    } else {
+        Err(format!(
+            "the digest for '{image}' is not sha256 + 64 hex digits — `docker buildx imagetools inspect {image}` prints the real one"
+        ))
+    }
+}
+
+/// The base image a language's convention runs on. Tags, not digests: a
+/// digest is the operator's to pin in `export.kdl` (Wright cannot read a
+/// registry offline — see [`ExportConfig`]).
 fn base_image(language: &str) -> Option<&'static str> {
     match language {
         "python" => Some("python:3.12-slim"),
@@ -226,15 +518,41 @@ fn quoted(s: &str) -> String {
     json::to_string(&json::Value::str(s))
 }
 
-fn dockerfile(bp: &Blueprint) -> Result<(String, Vec<u8>), String> {
+/// How the Dockerfile's `FROM` line and its header comment explain the
+/// pin: the digest when there is one, the honest tag when there is not.
+fn from_line(image: &str, digest: Option<&str>) -> String {
+    match digest {
+        Some(d) => format!(
+            "# Base image pinned by digest (export.kdl): {image}@{d}\nFROM {image}@{d}\n"
+        ),
+        None => format!(
+            "# Base image NOT pinned: '{image}' is a moving tag. Pin it in export.kdl\n# (digest \"{image}\" value=\"sha256:…\") for reproducible builds.\nFROM {image}\n"
+        ),
+    }
+}
+
+fn dockerfile(bp: &Blueprint, cfg: &ExportConfig) -> Result<Made, String> {
     let language = bp.project.language.as_str();
     let image = base_image(language)
         .ok_or_else(|| format!("no container recipe for a {language} project"))?;
+    let digest = match cfg.digest_for(image) {
+        Some(d) => Some(d.to_string()),
+        None if cfg.requires_digest() => {
+            // Refusal, not a quiet fallback: the operator said unpinned
+            // images are not acceptable, and an export that silently
+            // ignored that would be the worse bug.
+            return Err(format!(
+                "export.kdl requires a digest for {image}, but none is set. Wright cannot read a registry offline, so the digest is yours to pin: `docker buildx imagetools inspect {image}` prints it. Add `digest \"{image}\" value=\"sha256:…\"` under `export {{ docker {{ … }} }}`, or drop `require_digest`."
+            ));
+        }
+        None => None,
+    };
     let run = convention::run_cmd(bp);
     let test = convention::test_cmd(bp);
     let mut d = format!(
-        "# Generated by `wright export --docker` from the blueprint of\n# \"{}\". Regenerate rather than edit; pin the base image by digest\n# for reproducible builds.\nFROM {image}\nWORKDIR /app\n",
-        bp.meta.name.replace('\n', " ")
+        "# Generated by `wright export --docker` from the blueprint of\n# \"{}\". Regenerate rather than edit.\n{}WORKDIR /app\n",
+        bp.meta.name.replace('\n', " "),
+        from_line(image, digest.as_deref())
     );
     if language == "react" {
         d.push_str("COPY package*.json ./\nRUN npm install --no-audit --no-fund\n");
@@ -250,10 +568,20 @@ fn dockerfile(bp: &Blueprint) -> Result<(String, Vec<u8>), String> {
         ));
     }
     d.push_str(
-        "RUN useradd --system --uid 10001 app 2>/dev/null || adduser -S -u 10001 app\nUSER 10001\n",
+        "# The app runs as uid 10001, and the convention's run command\n\
+         # writes logs/ (and artifacts/) — hand those trees, and the rest of\n\
+         # /app, to that user or the first `docker run` dies on a root-owned\n\
+         # folder. Everything above ran as root, as a Docker build does.\n\
+         RUN mkdir -p logs artifacts && chown -R 10001:0 /app\n\
+         RUN useradd --system --uid 10001 app 2>/dev/null || adduser -S -u 10001 app\nUSER 10001\n",
     );
     d.push_str(&format!("CMD [\"sh\", \"-c\", {}]\n", quoted(&run)));
-    Ok(("Dockerfile".into(), d.into_bytes()))
+    Ok((
+        "Dockerfile".into(),
+        d.into_bytes(),
+        Some(image.to_string()),
+        digest,
+    ))
 }
 
 /// A 5-field cron line as systemd `OnCalendar=` (numbers, lists, ranges

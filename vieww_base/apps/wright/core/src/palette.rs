@@ -326,13 +326,15 @@ pub const PALETTE: &[ToolSpec] = &[
     ToolSpec {
         name: "browser",
         caps: &[Capability::Network],
-        version: 1,
+        // v2: the refused stub became three actions (WR-11); the
+        // version bump retires cache entries from the refusing era.
+        version: 2,
         reads: Reads::Outside,
         effect: Effect::World,
         legs: Legs::untrusted().with(Leg::OutboundChannel),
-        summary: "Headless browser session. Not implemented yet: refuses loudly.",
-        schema: r#"{"type":"object","properties":{"url":{"type":"string"}},"required":["url"]}"#,
-        implemented: false,
+        summary: "Look at a page: render a URL, screenshot the built site, compare a golden PNG.",
+        schema: r#"{"type":"object","properties":{"action":{"type":"string","enum":["render","screenshot-project","assert-visual"]},"url":{"type":"string","description":"public URL to render (render)"},"path":{"type":"string","description":"built site directory, default dist (screenshot-project)"},"page":{"type":"string","description":"page under the served root, default index.html (screenshot-project)"},"name":{"type":"string","description":"screenshot file name"},"width":{"type":"integer","minimum":200,"maximum":3840},"height":{"type":"integer","minimum":200,"maximum":3840},"golden":{"type":"string","description":"reference PNG (assert-visual)"},"actual":{"type":"string","description":"captured PNG (assert-visual)"},"tolerance":{"type":"integer","minimum":0,"maximum":255,"description":"per-channel tolerance (assert-visual)"}},"required":["action"]}"#,
+        implemented: true,
     },
     ToolSpec {
         name: "worker",

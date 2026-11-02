@@ -22,7 +22,7 @@ affected work runs again.
 | Agent loop: streaming tool calls, gate, approvals, budget, compaction | ✅ | Anthropic + OpenAI-compatible (OpenAI, DeepSeek, GLM, Kimi, xAI, local) |
 | Task cache with freshness rules | ✅ | live-data and delivery steps are never served from cache |
 | Durable run store, resume after crash, receipts | ✅ | fsynced event log, BLAKE3 content-addressed objects |
-| Tools: files, edit, apply-patch, git, run-tests, shell, http | ✅ | `browser` refuses loudly (not implemented) |
+| Tools: files, edit, apply-patch, git, run-tests, shell, http, browser | ✅ | `browser`: render / screenshot-project / assert-visual; the render loop needs a real browser (CI/self-hosted), refusal-first without one |
 | Command sandbox: Linux Landlock; Windows WSL 2 + Bubblewrap for POSIX shell/git/tests | Implemented; Windows runtime validation pending | Windows requires WSL 2 + Bubblewrap; native worker CLIs use the clearly labelled workspace-copy fallback (no OS sandbox); macOS sandboxed commands still fail closed |
 | TLS: OS OpenSSL via dlopen, Linux; HTTP CONNECT proxies | ✅ | macOS/Windows: through the system curl (ADR-023); native FFI is W-6b |
 | Built-in models: Qwen3-1.7B (text, tools), Whisper base (voice), run in-process | ✅ | checked against llama.cpp / whisper.cpp; `docs/MODELS.md` |
@@ -39,7 +39,9 @@ affected work runs again.
 | Typed edges: out=/in=/schema= over five readable shapes | ✅ | ADR-027; checked at plan and fire time |
 | Recipes gallery + signing, `wright recipe list/sign/verify/install` | ✅ | ADR-028; unsigned installs are refused |
 | `wright explain`, `wright handoff`, `wright bench`, cost choice in `wright run` | ✅ | one-screen run story; PR folder; public benchmark |
-| Server mode, teams | ❌ | not in the memo's scope for this release |
+| Teams without a server: one shared store, receipts that verify across member keys | ✅ | ADR-045; `wright team join/status/pull/replay/leave` |
+| Exports: zip/wheel/crate/web, plus docker/systemd/gh-actions packagings | ✅ | WR-15; each export is signed into `<out>/receipt.json` — `wright verify` checks it; Docker base images pinned by digest from the project's `export.kdl` (ADR-046), and the docker build itself is the hardware workflow's `wright-docker` step |
+| Server mode, tenanted accounts | ❌ | by choice — the shared-store team mode is the audit story without the attack surface (ADR-045) |
 
 **380+ tests passing (plus the live-network opt-in set), clippy clean. Twelve failures on kernels before 5.13 are the sandbox failing closed (Landlock needs 5.13+) — the same tests pass on 5.13+; the new trust suite (`engine/tests/trust.rs`) runs everywhere.** Eight of them compare the built-in engine with llama.cpp and whisper.cpp, or run the real models; they need fixtures (`scripts/models/`) and skip without them — CI provides them (`docs/MODELS.md`). The headless binary has **zero**
 external crates; the `ui` feature adds exactly one dependency — vieww, from
@@ -50,18 +52,22 @@ the repository Wright lives in, by path (ADR-002, ADR-011).
 Wright never runs its shell, Git, or test commands unsandboxed. On Windows,
 those POSIX tools run through WSL 2 and Bubblewrap; the project directory is
 the only writable project tree. This backend must be available before those
-tools are enabled. From an elevated PowerShell, install WSL and Ubuntu if they
-are not already installed:
+tools are enabled. `wright doctor --fix` installs the whole stack unattended
+behind one UAC prompt: it enables the WSL 2 features, installs an Ubuntu
+distribution, apt-installs the isolation utilities as root, and finishes with
+the exact Bubblewrap probe Wright's sandbox runs (see
+`packaging/windows/bootstrap-wsl.ps1`; ADR-044). Or install it by hand from
+elevated PowerShell:
 
 ```powershell
 wsl --install -d Ubuntu
 wsl --set-default Ubuntu
 ```
 
-Finish the first Ubuntu launch and create its Linux user. In that Ubuntu
-terminal, install the isolation utilities and the project toolchains your tasks
-need (Windows-installed Rust, Node, Python, and their packages are not inherited
-inside WSL):
+Finish the first Ubuntu launch and create its Linux user, then install the
+project toolchains your tasks need in that Ubuntu terminal (Windows-installed
+Rust, Node, Python, and their packages are not inherited inside WSL —
+`doctor --fix` deliberately does not choose them for you):
 
 ```bash
 sudo apt update
@@ -71,10 +77,16 @@ sudo apt install bubblewrap util-linux coreutils
 
 Keep the Wright project on a local Windows drive (for example, `C:\work\project`),
 then restart Wright and check `wright doctor`. If WSL 2, namespaces, or Bubblewrap
-are unavailable, Wright refuses the command and reports setup guidance; it does
-not fall back to an unrestricted shell. macOS still fails closed until its
-native sandbox is implemented. Windows-native agent CLIs are run only against a
-throwaway workspace copy and are reported as lacking OS-level isolation.
+are unavailable, Wright refuses the command and names the fix; it does not fall
+back to an unrestricted shell. Two honest reliefs short of the full sandbox
+exist for tools whose program is a Windows-native binary: `git` and the
+project's test runner run under the Windows containment ladder (tier 2:
+AppContainer for `.exe`s; tier 1: Job object, no filesystem sandbox, for `.cmd`
+shims), REPORTED as DEGRADED in every tool report — `wright shell` never takes
+that path. `wright doctor` prints the isolation matrix: where every class of
+command runs on this machine. macOS still fails closed until its native sandbox
+is implemented. Windows-native agent CLIs are run only against a throwaway
+workspace copy and are reported as lacking OS-level isolation.
 
 ## Quick start (no key needed)
 
@@ -136,6 +148,67 @@ With cloud models: `wright secret set keychain:wright/anthropic` (or
 from the config. On CI and servers, set `WRIGHT_SECRET_WRIGHT_ANTHROPIC`
 instead (`wright secret env <ref>` prints the variable name).
 
+### A team, with no server (ADR-045)
+
+The team's shared state is one directory — a network mount or a synced
+folder — used as the project's store by every member machine. The
+append-only event spine is the sync medium; nothing is edited in place,
+so there is nothing to conflict.
+
+```bash
+wright team join /mnt/team/project-store --name alice   # probe + roster + pointer
+wright team status                                      # who joined, who fired what
+wright team pull                                         # verify every receipt against the roster
+wright team replay 3                                     # step through a peer's run
+wright team leave                                        # back to this machine's own store
+```
+
+Each machine's receipts are signed by its own key and pinned in the
+shared roster at join time (trust on first use; `wright trust` remains
+the stronger, in-person path). `wright team pull` runs the same seven
+checks on every receipt — a run Alice fired on her machine verifies on
+yours, because the shared store holds the durable copies of the event
+log, the artifacts and the blueprint. The task cache is shared too:
+cache keys are pure functions of task + model + inputs + tool versions
++ permissions, so a peer's entry is usable exactly when a local one
+would be. The STORE converges through the shared spine; the WORKING
+TREES still sync through your version control, as always. No server
+process, no accounts, no new network protocol.
+
+### Exports that carry their own proof (ADR-046)
+
+`wright export` writes one more file beside the artifacts:
+`receipt.json`, signed by this machine's Ed25519 key over its exact
+bytes, recording every artifact's SHA-256 and BLAKE3 (the store keeps
+the content-addressed copy, so the receipt still verifies after the
+export folder is moved or emptied), the blueprint the packagings were
+generated from, the run whose passing checks were the proof, and — for
+a Dockerfile — the base image and its digest.
+
+```bash
+wright export --docker --out dist/          # Dockerfile + dist/receipt.json
+wright verify dist/receipt.json .           # signature, artifacts, blueprint, FROM line
+```
+
+The digest is yours to pin, in the project's `export.kdl`:
+
+```kdl
+export {
+  docker {
+    digest "python:3.12-slim" value="sha256:…"   # docker buildx imagetools inspect prints it
+    require_digest true                          # refuse --docker while it is missing
+  }
+}
+```
+
+Wright cannot read a registry offline (outbound traffic is the update
+channel, nothing else), so it never guesses a digest — without one the
+Dockerfile builds from the moving tag and its header says so; with
+`require_digest` an unpinned export refuses. The docker build itself —
+the export's last mile — is the `wright-docker` step of the self-hosted
+hardware workflow (`ci/hardware/wright-docker.sh`, runnable by hand on
+any Linux machine with docker).
+
 ## The window
 
 ```
@@ -177,13 +250,19 @@ wright replay <run> [dir]   reconstruct a past run from its log (--at N) — no 
 wright approve [dir]        list / answer pending approvals (any terminal, any time)
 wright diff [old] [new]     what an edit refires, and why
 wright export [dir]         the project as a .zip, plus its package: a Python wheel,
-                            a Rust crate or a web build (--zip --wheel --crate --web)
+                            a Rust crate or a web build (--zip --wheel --crate --web);
+                            deployment packagings from the blueprint (--docker
+                            --systemd --gh-actions). Everything made is signed
+                            into <out>/receipt.json — wright verify checks it
 wright schedule ...         list | remove [dir] | install (login service)
 wright daemon               fire schedules in the background
 wright secret set <ref>     put a key in the OS keychain
 wright model ...            the built-in models: list | pull [id] | rm <id> | ask | listen
 wright where [dir]          where the project's history lives
-wright doctor               what works on this machine
+wright team ...              join | status | pull | replay | leave — a team with no
+                            server: one shared store directory (ADR-045)
+wright doctor [--fix]      what works on this machine; --fix installs the Windows
+                            WSL 2 + Bubblewrap sandbox stack (ADR-044)
 wright ui [dir]             the window (--snapshot <dir>: all 18 screens as PNG, receipt and light mode included;
                             --icon <png> [--size N] [--padded]: the app icon)
 ```

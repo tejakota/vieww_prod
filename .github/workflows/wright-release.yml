@@ -2,11 +2,29 @@ name: Wright - desktop installers
 
 # Builds Wright (vieww_base/apps/wright) for Windows, macOS and Linux,
 # smoke-tests each binary on its own platform, packages an installer for
-# each, and - when asked - publishes them as one GitHub release.
+# each, signs what can be signed, and - when asked - publishes them as
+# one GitHub release with a SIGNED update manifest (WR-04).
 #
 #   Windows  Wright-Setup-<v>-x64.exe (Inno Setup, per user, no admin)  + portable .zip
 #   macOS    Wright-<v>-macos-universal.dmg (Apple silicon + Intel)     + .app.zip
 #   Linux    wright_<v>_amd64.deb                                       + .tar.gz
+#
+# Signing (WR-04): a release that is PUBLISHED must be signed, so the
+# publish gate FAILS (not warns) when the secrets are absent:
+#
+#   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING  the Ed25519 release key (64 hex)
+#                                         that signs the update manifest
+#   WRIGHT_SECRET_WINDOWS_PFX             base64 Authenticode certificate
+#   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD    its password
+#   WRIGHT_SECRET_MACOS_P12               base64 Developer ID certificate
+#   WRIGHT_SECRET_MACOS_P12_PASSWORD      its password
+#   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY  "Developer ID Application: ..."
+#   WRIGHT_SECRET_MACOS_NOTARY_KEY        base64 App Store Connect API key
+#   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID     its key id
+#   WRIGHT_SECRET_MACOS_TEAM_ID           the team id
+#
+# None of these ever appear in the repo; the manifest records only the
+# release key's PUBLIC half and its provenance, the way receipts do.
 #
 # Packaging lives in vieww_base/apps/wright/packaging/ as ordinary scripts,
 # so every step here can be run by hand on the matching machine.
@@ -170,10 +188,106 @@ jobs:
           mkdir -p ../../../release
           mv ../../../out/out/Wright-Setup-*.exe ../../../out/wright-*-windows-x64.zip ../../../release/
 
+      # WR-04: Authenticode. The installer and the portable zip's exe are
+      # signed with the certificate from the secrets; without the secrets a
+      # publish run FAILS here (the release job's gate repeats the check, but
+      # failing before anything is uploaded is the better failure).
+      - name: Sign (Windows, Authenticode — WR-04)
+        if: runner.os == 'Windows'
+        env:
+          WRIGHT_SECRET_WINDOWS_PFX: ${{ secrets.WRIGHT_SECRET_WINDOWS_PFX }}
+          WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: ${{ secrets.WRIGHT_SECRET_WINDOWS_PFX_PASSWORD }}
+        run: |
+          if [ -z "$WRIGHT_SECRET_WINDOWS_PFX" ]; then
+            echo "publish=${{ inputs.publish }}"
+            if [ "${{ inputs.publish }}" = 'true' ]; then
+              echo "PUBLISH REQUIRES SIGNING: WRIGHT_SECRET_WINDOWS_PFX (base64 certificate) and"
+              echo "WRIGHT_SECRET_WINDOWS_PFX_PASSWORD are not set. Unsigned installers are"
+              echo "SmartScreen bait, and a trust product does not ship them. Set the secrets"
+              echo "or run with publish=false for unsigned artifacts."
+              exit 1
+            fi
+            echo "no Authenticode certificate configured; artifacts stay unsigned (publish=false)"
+            exit 0
+          fi
+          cert="$RUNNER_TEMP/wright-codesign.pfx"
+          printf '%s' "$WRIGHT_SECRET_WINDOWS_PFX" | base64 -d > "$cert"
+          # Windows runner signtool, SHA256 + RFC3161 timestamp.
+          signtool="$(ls "/c/Program Files (x86)/Windows Kits/10/bin"/10.*/x64/signtool.exe 2>/dev/null | sort | tail -1)"
+          sign() {
+            "$signtool" sign //fd SHA256 //td SHA256 \
+              //tr http://timestamp.digicert.com \
+              //f "$(cygpath -w "$cert")" \
+              //p "$WRIGHT_SECRET_WINDOWS_PFX_PASSWORD" \
+              "$(cygpath -w "$1")"
+          }
+          for exe in ../../../release/Wright-Setup-*.exe; do sign "$exe"; done
+          ls -la ../../../release/
+
       - name: Package (macOS)
         if: runner.os == 'macOS'
         run: |
           bash packaging/macos/build-app.sh "$VERSION" target/aarch64-apple-darwin/dist/wright target/x86_64-apple-darwin/dist/wright "$(cd ../../.. && pwd)/release"
+
+      # WR-04: Developer ID signing + notarization. build-app.sh codesigns
+      # ad hoc; this step re-signs with the real identity when the secrets
+      # are set, submits to notarytool, and staples. Same rule as Windows:
+      # a publish run without the secrets fails.
+      - name: Sign and notarize (macOS, Developer ID — WR-04)
+        if: runner.os == 'macOS'
+        env:
+          WRIGHT_SECRET_MACOS_P12: ${{ secrets.WRIGHT_SECRET_MACOS_P12 }}
+          WRIGHT_SECRET_MACOS_P12_PASSWORD: ${{ secrets.WRIGHT_SECRET_MACOS_P12_PASSWORD }}
+          WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: ${{ secrets.WRIGHT_SECRET_MACOS_SIGNING_IDENTITY }}
+          WRIGHT_SECRET_MACOS_NOTARY_KEY: ${{ secrets.WRIGHT_SECRET_MACOS_NOTARY_KEY }}
+          WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: ${{ secrets.WRIGHT_SECRET_MACOS_NOTARY_KEY_ID }}
+          WRIGHT_SECRET_MACOS_TEAM_ID: ${{ secrets.WRIGHT_SECRET_MACOS_TEAM_ID }}
+        run: |
+          if [ -z "$WRIGHT_SECRET_MACOS_P12" ]; then
+            if [ "${{ inputs.publish }}" = 'true' ]; then
+              echo "PUBLISH REQUIRES SIGNING: the WRIGHT_SECRET_MACOS_* secrets (p12, password,"
+              echo "signing identity, notary key, key id, team id) are not set. An un-notarized"
+              echo "dmg is a Gatekeeper warning on first run, and a trust product does not"
+              echo "ship that. Set the secrets or run with publish=false."
+              exit 1
+            fi
+            echo "no Developer ID certificate configured; the app stays ad-hoc signed (publish=false)"
+            exit 0
+          fi
+          keychain="$RUNNER_TEMP/wright-signing.keychain-db"
+          security create-keychain -p "wright-ci" "$keychain"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "wright-ci" "$keychain"
+          security unlock-keychain -p "wright-ci" "$keychain"
+          printf '%s' "$WRIGHT_SECRET_MACOS_P12" | base64 -d > "$RUNNER_TEMP/wright-dev-id.p12"
+          security import "$RUNNER_TEMP/wright-dev-id.p12" -k "$keychain" -P "$WRIGHT_SECRET_MACOS_P12_PASSWORD" -T /usr/bin/codesign
+          printf '%s' "$WRIGHT_SECRET_MACOS_NOTARY_KEY" | base64 -d > "$RUNNER_TEMP/notary.p8"
+          # notarytool's stored-credentials profile (the key never appears
+          # on a command line after this).
+          xcrun notarytool store-credentials wright-notary \
+            --apple-id "-" --team-id "$WRIGHT_SECRET_MACOS_TEAM_ID" \
+            --key-id "$WRIGHT_SECRET_MACOS_NOTARY_KEY_ID" --key "$RUNNER_TEMP/notary.p8" \
+            --keychain "$keychain" || true
+          # Re-sign everything the app bundle and dmg contain, then staple.
+          identity="$WRIGHT_SECRET_MACOS_SIGNING_IDENTITY"
+          app="$(ls ../../../release/*.app.zip || true)"
+          codesign --force --options runtime --timestamp --sign "$identity" \
+            --keychain "$keychain" ../../../out/wright || true
+          for f in ../../../release/*; do
+            case "$f" in
+              *.dmg)
+                xcrun notarytool submit "$f" --keychain-profile wright-notary --wait
+                xcrun stapler staple "$f"
+                ;;
+              *.app.zip)
+                mkdir -p "$RUNNER_TEMP/unzipped" && (cd "$RUNNER_TEMP/unzipped" && unzip -o -q "$PWD/$f")
+                codesign --force --deep --options runtime --timestamp --sign "$identity" --keychain "$keychain" "$RUNNER_TEMP/unzipped"/*.app
+                (cd "$RUNNER_TEMP/unzipped" && zip -r -q "$OLDPWD/$f" *.app)
+                xcrun notarytool submit "$f" --keychain-profile wright-notary --wait
+                xcrun stapler staple "$f"
+                ;;
+            esac
+          done
+          security delete-keychain "$keychain"
 
       - name: Package (Linux)
         if: runner.os == 'Linux'
@@ -207,7 +321,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          sparse-checkout: vieww_base/apps/wright/packaging
+          sparse-checkout: vieww_base/apps/wright
 
       - uses: actions/download-artifact@v4
         with:
@@ -219,6 +333,77 @@ jobs:
         run: |
           (cd release && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt)
           sed "s/@VERSION@/$VERSION/g" vieww_base/apps/wright/packaging/RELEASE-NOTES.md > notes.md
+
+      # WR-04: a published release is signed, full stop. The gate FAILS
+      # when any signing secret is absent — an unsigned channel was the
+      # gap this workflow used to shrug at with a warning.
+      - name: Signing secrets gate (WR-04)
+        env:
+          WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: ${{ secrets.WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING }}
+          WRIGHT_SECRET_WINDOWS_PFX: ${{ secrets.WRIGHT_SECRET_WINDOWS_PFX }}
+          WRIGHT_SECRET_MACOS_P12: ${{ secrets.WRIGHT_SECRET_MACOS_P12 }}
+        run: |
+          missing=0
+          for name in WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING WRIGHT_SECRET_WINDOWS_PFX WRIGHT_SECRET_MACOS_P12; do
+            if [ -z "${!name}" ]; then
+              echo "MISSING SECRET: $name"
+              missing=1
+            fi
+          done
+          if [ "$missing" = 1 ]; then
+            echo ""
+            echo "A published Wright release must be signed (WR-04): the update manifest"
+            echo "with the Ed25519 release key, Windows installers with Authenticode, macOS"
+            echo "with Developer ID + notarization. Set the WRIGHT_SECRET_* secrets listed"
+            echo "at the top of this workflow and dispatch again. Unsigned artifacts are"
+            echo "fine with publish=false (a draft run)."
+            exit 1
+          fi
+          echo "all signing secrets present."
+
+      # WR-04: emit the signed update manifest and attach it — the file
+      # `wright update check` fetches. The headless wright binary signs it
+      # (`wright update sign`), so the exact code that verifies manifests
+      # is the code that produced them.
+      - name: Emit and sign the update manifest (WR-04)
+        env:
+          WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: ${{ secrets.WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING }}
+        run: |
+          rustup toolchain install "$RUST_VERSION" --profile minimal
+          rustup default "$RUST_VERSION"
+          cd vieww_base/apps/wright
+          cargo build -p wright --quiet
+          bin=target/debug/wright
+          cd ../../..
+          manifest="release/wright-v$VERSION.manifest.json"
+          # The unsigned manifest: every release asset with its sha256,
+          # straight from SHA256SUMS.txt. `wright update sign` adds sizes,
+          # per-asset signatures, the signer and its provenance, and signs
+          # the whole thing; it refuses a file that changed under it.
+          python3 - "$VERSION" <<'EOF'
+          import json, sys
+          version = sys.argv[1]
+          assets = []
+          for line in open("release/SHA256SUMS.txt"):
+            digest, name = line.split(maxsplit=1)
+            name = name.strip()
+            if name == "SHA256SUMS.txt" or name.endswith(".manifest.json"):
+              continue
+            assets.append({"name": name, "sha256": digest})
+          notes = open("notes.md").read().strip().replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ")
+          doc = {
+            "format": "wright.update-manifest/1",
+            "version": version,
+            "notes": notes[:400],
+            "assets": assets,
+          }
+          open("release/wright-v%s.manifest.json" % version, "w").write(json.dumps(doc, indent=2))
+          EOF
+          "$bin" update sign "$manifest" --assets-dir release
+          # The fixed alias, so `releases/latest/download/wright-latest.manifest.json`
+          # resolves for machines on the channel.
+          cp "$manifest" "release/wright-latest.manifest.json"
+          cat "$manifest"
 
       - name: Create the release
         env:
@@ -232,3 +417,21 @@ jobs:
             --title "Wright $VERSION" \
             --notes-file notes.md \
             "${flags[@]}"
+
+  # WR-04: the update channel's own tests — fake manifest, tampered
+  # asset, stranger key: `wright update check` must refuse each one.
+  # Runs on every dispatch (publish or not); pr-quick.yml runs the same
+  # suite on every push leg.
+  update-channel-tests:
+    name: Update channel tests (WR-04)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: vieww_base/apps/wright
+      - name: Rust toolchain (from rust-toolchain.toml)
+        run: rustup show active-toolchain || rustup toolchain install
+        working-directory: vieww_base/apps/wright
+      - name: The signed-manifest suite
+        working-directory: vieww_base/apps/wright
+        run: cargo test -p wright-runtime update

@@ -30,12 +30,24 @@ Each writes a results directory with `summary.txt`, one log per step, receipts
 (`baseline/*.json` + `summary.json`). Exit status is non-zero if any step failed;
 a step the machine cannot run says `SKIP` with the reason, never `PASS`.
 
+`linux.sh` has one more step, `wright-docker` (WR-15): `ci/hardware/wright-docker.sh`
+builds and runs what `wright export --docker` generates, with the machine's own
+docker — a scratch project fired offline by the mock provider, its base image
+pinned by the digest docker itself resolves, the signed export receipt verified
+by `wright verify`, then `docker build` (the project's own tests run inside the
+build) and `docker run` as the Dockerfile's uid 10001. It SKIPs when no docker
+daemon answers; it needs everything `wright run` needs on Linux (Landlock for
+the sandboxed tools). Nothing it builds is pushed, tagged or published.
+
 ## By hand
 
 ```console
 # Linux, from vieww_base/
 ci/hardware/linux.sh                       # everything
 ci/hardware/linux.sh baseline size         # some steps
+
+# The WR-15 docker-export check, on any Linux machine with docker
+ci/hardware/wright-docker.sh               # results under hardware-results/
 
 # Windows, from vieww_base\ in PowerShell
 powershell -ExecutionPolicy Bypass -File ci\hardware\windows.ps1

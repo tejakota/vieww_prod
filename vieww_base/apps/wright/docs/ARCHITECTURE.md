@@ -302,7 +302,13 @@ Invariants (each is enforced in code, most are pinned by tests):
    and a signed one still goes through the chip-permission review. (OpenClaw's CVE firestorm is the counterexample
    we design against.)
 8. **Local-first.** No accounts, no cloud, no telemetry by default.
-   Trust is won by not phoning home.
+   Trust is won by not phoning home. The one exception, and it is a
+   setting, not a default: the update channel (`runtime/src/update.rs`,
+   WR-04) — `wright update check` makes a single plain GET of one static,
+   Ed25519-signed manifest file at the URL you configured, verifies it
+   against the release key you pinned, and that is the whole conversation.
+   No version query strings, no identifiers, nothing else — and
+   `update check=false` turns even that off.
 
 ## 7. The moat — incremental refire
 
@@ -342,6 +348,20 @@ remains the source of truth; other harnesses are tools at the edge. We
 never import prose as truth — anything entering the system goes through
 the Interviewer and the Confirm Gate like everything else.
 
+What leaves is signed, too (WR-15, ADR-046): beside the zip, wheel,
+crate and web build, the deployment packagings — a Dockerfile, systemd
+units, a GitHub Actions workflow — are generated from the blueprint
+alone (same blueprint, same bytes, diffable like code), and every
+export invocation writes a `receipt.json` over its exact bytes with the
+machine's Ed25519 key: the artifact set with SHA-256 and BLAKE3 (the
+store's content-addressed copy is the durable witness), the blueprint
+commit, the proof run, and the Docker base image's digest — pinned from
+the project's `export.kdl` by the operator, because Wright cannot read
+a registry offline and never guesses. `wright verify` checks an export
+receipt the way it checks a run's, including reading the Dockerfile's
+`FROM` line back out of the signed bytes to prove the pin is really
+there.
+
 ## 10. Roadmap
 
 Week one is `SPIKES.md`: W-1 vieww consumability (the wiring spike),
@@ -355,7 +375,10 @@ Then the UI (W-1 unlocks the shell), then the gallery, then the world.
 
 ## 11. Open questions
 
-Honest ledger, mirrored in `DECISIONS.md`: multi-user tenancy (hold),
-recipe curation bar (open), recursive sub-agents (v1: no), the UI for
+Honest ledger, mirrored in `DECISIONS.md`: multi-user tenancy — the
+server kind stays on hold; the no-server kind landed (ADR-045: a
+shared store directory as the team's spine, receipts verifying across
+member keys, `wright team join/status/pull/replay/leave`) — recipe
+curation bar (open), recursive sub-agents (v1: no), the UI for
 multiple deliverables (undesigned), agent-authored tool-packs (v2,
 signed artifacts referenced by hash).

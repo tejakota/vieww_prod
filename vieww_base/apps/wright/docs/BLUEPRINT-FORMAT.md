@@ -95,7 +95,7 @@ can write ONLY their declared artifact names. Names of system agents
 | shell | shell, spawn | **outside** | workspace |
 | http-read | network | **outside** | — |
 | http-post | network | **outside** | **world** |
-| browser (not implemented) | network | outside | world |
+| browser | network | **outside** | **world** |
 
 - An agent with any **outside**-reading tool is **volatile**: it runs fresh
   every firing, and so does everything downstream of it unless its output
