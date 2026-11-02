@@ -28,6 +28,7 @@ pub mod paths;
 pub mod sandbox;
 #[cfg(windows)]
 mod winjob;
+pub mod png;
 pub mod worker;
 
 use std::io::Read;
