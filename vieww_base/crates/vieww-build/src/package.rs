@@ -718,9 +718,315 @@ fn package_ios(app_dir: &Path) -> Result<PackageReport, PackageError> {
     })
 }
 
+// ── the update channel (FW-24) ──────────────────────────────────────────────
+//
+// `package` ends a build; the update channel starts where it ends. The
+// integration point between the two crates is one function long:
+// [`update_manifest`] writes the unsigned half of a `vieww.update/1`
+// manifest for a list of artifact files, and everything after that —
+// signing it, pinning the key, checking it, staging, applying — is
+// `vieww-update`'s, deliberately: the packager knows where the bytes are
+// and nothing about trust, and the updater knows trust and nothing about
+// where a build put its bytes.
+
+/// Why [`update_manifest`] could not write one.
+///
+/// Each variant names the fix rather than the disappointment — the same
+/// rule [`PackageError`] follows.
+#[derive(Debug)]
+pub enum UpdateManifestError {
+    /// The version is not `major.minor.patch[-pre]` — an app on an update
+    /// channel has to carry a version the updater can compare, and a
+    /// version the comparer cannot parse is a release that would never
+    /// install over itself.
+    Version(String),
+    /// An "artifact" that is a directory. The updater downloads and
+    /// applies *files*; a directory is a tree an archive should carry.
+    Directory(PathBuf),
+    /// The artifact list is empty. A manifest with no assets applies
+    /// nothing — `vieww-update` refuses to parse one, and this refuses to
+    /// write one, so the mistake is caught at the place that made it.
+    Empty,
+    /// Two artifacts with the same file name. The manifest names assets by
+    /// file name alone (a path in a name is how an updater is made to
+    /// write outside the install directory — `vieww-update` refuses one),
+    /// so two of the same name would have the second silently overwrite
+    /// the first at apply time.
+    DuplicateName(String),
+    /// Reading or hashing an artifact failed.
+    Io(std::io::Error),
+}
+
+impl fmt::Display for UpdateManifestError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Version(version) => write!(
+                f,
+                "version '{version}' is not major.minor.patch[-pre] — an app on the update \
+                 channel needs one the updater can compare"
+            ),
+            Self::Directory(path) => write!(
+                f,
+                "{} is a directory, and an update asset is a file — wrap the tree in an archive \
+                 (tar.gz / zip) the app's own installer understands and pass that instead",
+                path.display()
+            ),
+            Self::Empty => write!(
+                f,
+                "no artifacts — a manifest with no assets applies nothing, and writing one \
+                 would only defer the refusal to the updater that parses it"
+            ),
+            Self::DuplicateName(name) => write!(
+                f,
+                "two artifacts are both named '{name}' — the manifest names assets by file name \
+                 alone, so the second would silently overwrite the first when the update applied"
+            ),
+            Self::Io(error) => write!(f, "{error}"),
+        }
+    }
+}
+
+impl std::error::Error for UpdateManifestError {}
+
+impl From<std::io::Error> for UpdateManifestError {
+    fn from(error: std::io::Error) -> Self {
+        Self::Io(error)
+    }
+}
+
+/// The unsigned half of an update manifest for `artifacts` — the FW-24
+/// integration point between this crate and `vieww-update`.
+///
+/// Every artifact is hashed, and the manifest that comes back carries its
+/// SHA-256 and a *zeroed* `ed25519_sig` — unsigned by construction, because
+/// the release seed is the one secret in the pipeline and it must never be
+/// on the machine that builds (or in the repository that builds from). The
+/// publisher's half is two lines against the returned value:
+///
+/// ```no_run
+/// # use vieww_build::package::{update_manifest, PackageReport};
+/// # let report: PackageReport = unimplemented!();
+/// let unsigned = update_manifest(
+///     &report.artifacts,
+///     "1.4.0",
+///     "http://updates.example.test/1.4.0",
+///     "Fixes the caret blink on Wayland.",
+/// )
+/// .expect("the artifacts are files with distinct names");
+///
+/// // The publisher, on the machine that holds the release seed:
+/// # let release_seed = [0u8; 32];
+/// let signed = unsigned.sign_for_release(&release_seed);
+/// # let _ = signed;
+/// // ...and the app pins `vieww_update::ed25519::public_key(&release_seed)`
+/// // at build time; that pair is the whole trust root.
+/// ```
+///
+/// # Which artifacts belong here
+///
+/// The updater applies every asset by its *plain file name* into one
+/// install directory — a path in an asset name is refused by
+/// `vieww-update` as a matter of safety, not tolerated as a layout. A
+/// [`PackageReport`] whose artifacts are a tree (the Linux target's
+/// `bin/` + `share/applications/`) is therefore a set of files that should
+/// travel as *one* archive asset the app expands itself: pass the archive
+/// to this function, not the tree. Single-file targets (`.msi`, `.apk`,
+/// `.ipa`, a `.tar.gz` you made from a tree) are exactly the shape this
+/// exists for.
+///
+/// # Errors
+///
+/// [`UpdateManifestError`]: an unparsable [`version`](UpdateManifestError::Version),
+/// a directory among the artifacts ([`Directory`](UpdateManifestError::Directory)),
+/// two artifacts with the same file name
+/// ([`DuplicateName`](UpdateManifestError::DuplicateName)),
+/// or a read failure ([`Io`](UpdateManifestError::Io)).
+pub fn update_manifest(
+    artifacts: &[PathBuf],
+    version: &str,
+    base_url: &str,
+    notes: &str,
+) -> Result<vieww_update::Manifest, UpdateManifestError> {
+    let version = vieww_update::Version::parse(version)
+        .ok_or_else(|| UpdateManifestError::Version(version.to_owned()))?;
+    if artifacts.is_empty() {
+        return Err(UpdateManifestError::Empty);
+    }
+
+    let base = base_url.trim_end_matches('/');
+    let mut assets = Vec::with_capacity(artifacts.len());
+    let mut seen: Vec<String> = Vec::with_capacity(artifacts.len());
+    for artifact in artifacts {
+        // A directory here is a tree, and the refusal (rather than a
+        // recursive walk) is the honest move: which files inside a tree an
+        // app can replace at runtime is the app's own installer contract,
+        // not this function's guess.
+        if artifact.is_dir() {
+            return Err(UpdateManifestError::Directory(artifact.clone()));
+        }
+        let name = artifact
+            .file_name()
+            .and_then(|n| n.to_str())
+            .ok_or_else(|| {
+                UpdateManifestError::Io(std::io::Error::other(format!(
+                    "{} has a file name that is not UTF-8 — the manifest names assets by file name",
+                    artifact.display()
+                )))
+            })?;
+        if seen.iter().any(|s| s == name) {
+            return Err(UpdateManifestError::DuplicateName(name.to_owned()));
+        }
+        seen.push(name.to_owned());
+        let bytes = std::fs::read(artifact)?;
+        assets.push(vieww_update::Asset {
+            name: name.to_owned(),
+            url: format!("{base}/{name}"),
+            sha256: vieww_update::digest(&bytes),
+            // Zeroed, and the manifest is unsigned until the publisher's
+            // `sign_for_release`: see the function docs for why the seed
+            // must not be on the build machine.
+            ed25519_sig: [0u8; 64],
+        });
+    }
+
+    Ok(vieww_update::Manifest {
+        version,
+        notes: notes.to_owned(),
+        assets,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // ----- the update channel (FW-24) --------------------------------------
+
+    /// The whole release path from this crate's side of it: hash real
+    /// files, round-trip through the parser `vieww-update` itself uses
+    /// (proving the writer and the reader are one implementation, not two
+    /// shapes), then sign with an ephemeral seed and verify under the key
+    /// that seed derives — the exact pair a publisher and a pinned app
+    /// hold.
+    #[test]
+    fn an_update_manifest_hashes_real_files_and_signs_for_release() {
+        let dir = std::env::temp_dir().join(format!(
+            "vieww-build-update-manifest-{}",
+            std::process::id()
+        ));
+        std::fs::remove_dir_all(&dir).ok();
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("app.msi"), b"an installer's bytes").unwrap();
+        std::fs::write(dir.join("notes.txt"), b"shipping notes").unwrap();
+
+        let unsigned = update_manifest(
+            &[dir.join("app.msi"), dir.join("notes.txt")],
+            "1.4.0",
+            "http://updates.example.test/1.4.0/",
+            "Fixes the caret blink on Wayland.",
+        )
+        .expect("two files with distinct names hash into a manifest");
+
+        assert_eq!(
+            unsigned.version,
+            vieww_update::Version::parse("1.4.0").unwrap()
+        );
+        assert_eq!(unsigned.notes, "Fixes the caret blink on Wayland.");
+        assert_eq!(unsigned.assets.len(), 2);
+        assert_eq!(unsigned.assets[0].name, "app.msi");
+        // `base_url`'s trailing slash is trimmed: the URL is the base the
+        // publisher serves from plus the asset's name, exactly once.
+        assert_eq!(
+            unsigned.assets[0].url,
+            "http://updates.example.test/1.4.0/app.msi"
+        );
+        assert_eq!(
+            unsigned.assets[0].sha256,
+            vieww_update::digest(b"an installer's bytes")
+        );
+        assert_eq!(
+            unsigned.assets[1].sha256,
+            vieww_update::digest(b"shipping notes")
+        );
+        assert!(
+            unsigned.assets.iter().all(|a| a.ed25519_sig == [0u8; 64]),
+            "unsigned by construction: the release seed signs later, off the build machine"
+        );
+
+        // The parser this crate has no reason to distrust: the manifest's
+        // own JSON is what a feed serves, and what comes back is equal.
+        let back = vieww_update::parse_manifest(&unsigned.to_json()).expect("round trips");
+        assert_eq!(back, unsigned);
+
+        // And the publisher's half: sign, then verify under the derived key.
+        let seed = [0x5au8; 32];
+        let signed = unsigned.sign_for_release(&seed);
+        assert!(signed.verify(&vieww_update::public_key(&seed)).is_ok());
+        assert!(signed
+            .verify(&vieww_update::public_key(&[1u8; 32]))
+            .is_err());
+
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn a_directory_artifact_is_refused_by_name() {
+        let dir = std::env::temp_dir().join("vieww-build-update-manifest-dir");
+        std::fs::remove_dir_all(&dir).ok();
+        std::fs::create_dir_all(dir.join("a-tree")).unwrap();
+        std::fs::write(dir.join("a-tree/inside.txt"), b"not an asset").unwrap();
+
+        let error = update_manifest(&[dir.join("a-tree")], "1.0.0", "http://u/", "").unwrap_err();
+        assert!(
+            matches!(error, UpdateManifestError::Directory(_)),
+            "{error:?}"
+        );
+        assert!(
+            error.to_string().contains("archive"),
+            "the refusal names the fix: {error}"
+        );
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn two_artifacts_with_the_same_file_name_are_refused() {
+        let dir = std::env::temp_dir().join("vieww-build-update-manifest-dupes");
+        std::fs::remove_dir_all(&dir).ok();
+        std::fs::create_dir_all(dir.join("one")).unwrap();
+        std::fs::create_dir_all(dir.join("two")).unwrap();
+        std::fs::write(dir.join("one/app.bin"), b"first").unwrap();
+        std::fs::write(dir.join("two/app.bin"), b"second").unwrap();
+
+        let error = update_manifest(
+            &[dir.join("one/app.bin"), dir.join("two/app.bin")],
+            "1.0.0",
+            "http://u/",
+            "",
+        )
+        .unwrap_err();
+        assert!(
+            matches!(&error, UpdateManifestError::DuplicateName(name) if name == "app.bin"),
+            "{error:?}"
+        );
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn a_version_the_updater_cannot_compare_is_refused() {
+        let error = update_manifest(&[], "1.x", "http://u/", "").unwrap_err();
+        assert!(
+            matches!(error, UpdateManifestError::Version(_)),
+            "{error:?}"
+        );
+        assert!(error.to_string().contains("1.x"), "{error}");
+    }
+
+    #[test]
+    fn an_empty_artifact_list_writes_nothing() {
+        let error = update_manifest(&[], "1.0.0", "http://u/", "").unwrap_err();
+        assert!(matches!(error, UpdateManifestError::Empty), "{error:?}");
+        assert!(error.to_string().contains("applies nothing"), "{error}");
+    }
 
     // ----- background audio (AU-04) -----------------------------------------
 

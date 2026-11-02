@@ -14,6 +14,14 @@ categories.workspace = true
 [dependencies]
 vieww-foundation.workspace = true
 
+# FW-24: for `package::update_manifest` — the unsigned half of an update
+# manifest for the artifacts a packaging run produced. Named here so the
+# manifest the packager writes and the manifest the updater verifies are
+# one implementation, not two shapes kept in agreement by review. This
+# crate is the one place in the framework that links the two halves, which
+# is exactly the integration point vieww-update's docs promise.
+vieww-update.workspace = true
+
 # For `doctor`'s display check only, and with no features: default
 # `vieww-hardware` has no dependencies of its own (see its own `Cargo.toml`
 # comment) — the `gpu` feature is what would pull in `vieww-hal`, `ash` and
