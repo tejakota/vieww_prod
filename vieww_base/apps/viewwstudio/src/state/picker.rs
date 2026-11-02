@@ -767,6 +767,20 @@ impl Studio {
                 self.pick_mode.set(true);
                 self.notify("Click anything in the window to select it in the Inspector.");
             }
+            C::ToggleCanvasEdit => {
+                // ST-01. The Inspector has to be capturing for the bridge to
+                // have rows to map, exactly as a pick does — so it comes on
+                // with the mode rather than failing silently later.
+                self.right_tab.set(RightTab::Inspector);
+                self.right_open.set(true);
+                let on = !self.canvas_edit.peek();
+                self.canvas_edit.set(on);
+                self.notify(if on {
+                    "Canvas editing on — pick a widget in the preview, then drag its handles or nudge with the arrow keys."
+                } else {
+                    "Canvas editing off."
+                });
+            }
             C::ZoomFit => {
                 self.preview_zoom.set(None);
                 self.notify("Preview fitted to the pane.");

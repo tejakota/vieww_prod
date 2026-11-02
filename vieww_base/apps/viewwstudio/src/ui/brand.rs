@@ -126,7 +126,9 @@ impl vieww_widget::Painter for Ground {
         book.rrect(
             body,
             radius,
-            Gradient::vertical().with_dither().between(Color::rgba(0x24, 0x27, 0x2E, 0xFF), GROUND),
+            Gradient::vertical()
+                .with_dither()
+                .between(Color::rgba(0x24, 0x27, 0x2E, 0xFF), GROUND),
         );
         // The rim, as a filled ring rather than a stroke: a one-point stroke
         // of a rounded rectangle is the exact shape class GPU stroke
@@ -167,7 +169,11 @@ fn panel(side: f32, rect: (f32, f32, f32, f32), color: Color, t: f32, accent: bo
         .child(SizedBox::from_size(Size::new(width, height)));
     if accent {
         block = block
-            .gradient(Gradient::vertical().with_dither().between(ACCENT_FAR, color))
+            .gradient(
+                Gradient::vertical()
+                    .with_dither()
+                    .between(ACCENT_FAR, color),
+            )
             .shadow(Shadow::new(
                 Color::rgba(0, 0, 0, 90),
                 Offset::new(0.0, side * 0.02),

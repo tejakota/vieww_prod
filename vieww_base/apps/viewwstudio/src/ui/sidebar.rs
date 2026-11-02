@@ -2239,7 +2239,8 @@ fn accent_swatches(studio: &Studio, chrome: &StudioTheme, colors: ColorScheme) -
                                         vieww_foundation::Gradient::linear(
                                             Offset::new(0.0, 0.0),
                                             Offset::new(1.0, 1.0),
-                                        ).with_dither()
+                                        )
+                                        .with_dither()
                                         .between(brand.far(dark), brand.near(dark)),
                                     ),
                             )

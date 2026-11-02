@@ -19,12 +19,12 @@
 //! quietly differs from the device is worse than one that says where it
 //! differs.
 
-use vieww_foundation::{Alignment, Color, EdgeInsets, FontFamily, TextStyle};
+use vieww_foundation::{Alignment, Color, EdgeInsets, FontFamily, Offset, Rect, Size, TextStyle};
 use vieww_widget::prelude::*;
 use vieww_widget::{widget_node_from, Container, ElementState, Flexible, Inherited, Painting};
 
 use crate::command::Command;
-use crate::state::{Platform, PreviewState, Studio};
+use crate::state::{Handle, Platform, PreviewState, Studio};
 use crate::theme::StudioTheme;
 use crate::ui::chrome::{
     clickable, gap, hairline, label, label_bold, mono, segmented, space, SegmentedColors,
@@ -252,6 +252,25 @@ impl Widget for PreviewPane {
                                 self.studio.perf_budget.get(),
                             )
                         }),
+                        // ST-01: the handles overlay, only when the mode is
+                        // armed and the bridge has something honest to point
+                        // at — an in-process screen whose picked row maps to
+                        // a say line. Live preview runs a different pipeline
+                        // and the remote preview is pixels in another
+                        // process; neither has rows to map, so neither gets
+                        // handles (see `state/canvas_edit.rs`).
+                        canvas: (self.studio.canvas_edit.get()
+                            && !self.studio.live_preview.get()
+                            && self.studio.preview_remote.get().is_none())
+                        .then(|| {
+                            let handles = self.studio.canvas_handles().unwrap_or_default();
+                            (!handles.is_empty()).then(|| CanvasEdit {
+                                studio: self.studio.clone(),
+                                picked: self.studio.picked_row_rect(),
+                                handles,
+                            })
+                        })
+                        .flatten(),
                         accessibility: vieww_foundation::Accessibility {
                             text_scale: self.studio.preview_text_scale.get(),
                             reduce_motion: self.studio.preview_reduce_motion.get(),
@@ -772,7 +791,8 @@ impl PreviewPane {
         let ramp = vieww_foundation::Gradient::linear(
             vieww_foundation::Offset::new(0.0, 0.0),
             vieww_foundation::Offset::new(1.0, 1.0),
-        ).with_dither()
+        )
+        .with_dither()
         .between(near, far);
         let dark = chrome.dark;
         // How far through the compile's own pulse we are. `Animated` with a
@@ -927,6 +947,27 @@ pub struct Stage {
     /// ST-09: recent frames' work time and the budget, when the performance
     /// overlay is on.
     pub perf: Option<(Vec<std::time::Duration>, std::time::Duration)>,
+    /// ST-01: canvas editing is armed, with the handles to draw and the
+    /// studio to write through. `None` when the mode is off — the stage is
+    /// then exactly what it was, and no overlay is in the tree at all.
+    pub canvas: Option<CanvasEdit>,
+}
+
+/// ST-01's payload through the stage: what to draw, and who to tell.
+///
+/// The handles and the picked rectangle are guest-logical, computed by
+/// [`Studio::canvas_handles`] against the captured tree, so they scale with
+/// the frame exactly as the content they annotate does. The studio travels
+/// with them because a drag handler is a closure over one — the same shape
+/// every other control in this pane takes.
+#[derive(Debug, Clone)]
+pub struct CanvasEdit {
+    pub studio: Studio,
+    /// One square per manipulation the picked say line accepts.
+    pub handles: Vec<(Handle, Rect)>,
+    /// The picked row's own rectangle, outlined so the handles have a thing
+    /// to belong to.
+    pub picked: Option<Rect>,
 }
 
 fn stage(chrome: &StudioTheme, scroll: vieww_element::ScrollController, spec: Stage) -> WidgetNode {
@@ -950,6 +991,7 @@ fn stage(chrome: &StudioTheme, scroll: vieww_element::ScrollController, spec: St
         live_source,
         live_mounts,
         perf,
+        canvas,
     } = spec;
 
     LayoutBuilder::new(move |constraints| {
@@ -1015,6 +1057,7 @@ fn stage(chrome: &StudioTheme, scroll: vieww_element::ScrollController, spec: St
                     live_mounts: live_mounts.clone(),
                     clipped: overflowing,
                     perf: perf.clone(),
+                    canvas: canvas.clone(),
                 }))
                 .into()
         } else {
@@ -1037,6 +1080,7 @@ fn stage(chrome: &StudioTheme, scroll: vieww_element::ScrollController, spec: St
                 live_mounts: live_mounts.clone(),
                 clipped: overflowing,
                 perf: perf.clone(),
+                canvas: canvas.clone(),
             })
         };
 
@@ -1325,6 +1369,8 @@ pub struct Frame<'a> {
     pub clipped: bool,
     /// ST-09: the performance overlay's samples and budget, when it is on.
     pub perf: Option<(Vec<std::time::Duration>, std::time::Duration)>,
+    /// ST-01: the canvas-editing overlay, when the mode is armed.
+    pub canvas: Option<CanvasEdit>,
 }
 
 /// What a performance overlay over the previewed screen is called in the
@@ -1351,6 +1397,7 @@ fn device(frame: Frame<'_>) -> WidgetNode {
         live_mounts,
         clipped,
         perf,
+        canvas,
     } = frame;
     let (device_width, device_height) = viewport;
 
@@ -1550,6 +1597,14 @@ fn device(frame: Frame<'_>) -> WidgetNode {
         );
     }
 
+    // ST-01: the canvas-editing layer, above the guest. It exists only when
+    // the mode is armed, and it owns exactly the squares it draws — the
+    // outline is paint without a listener, so while a drag is not happening
+    // the guest underneath still takes every pointer event it always did.
+    if let Some(canvas) = canvas {
+        screen_layers.push(canvas_overlay(canvas));
+    }
+
     let screen = Stack::new()
         .alignment(Alignment::TOP_CENTER)
         .children(screen_layers);
@@ -1622,6 +1677,109 @@ fn device(frame: Frame<'_>) -> WidgetNode {
         .size(device_width * scale, device_height * scale)
         .child(Fitted::new().child(frame))
         .into()
+}
+
+/// What the canvas-editing layer is called in the tree.
+pub const CANVAS_OVERLAY: &str = "CanvasEditOverlay";
+
+/// The picked widget's outline: the studio's own selection colour, strong
+/// enough to read at any zoom and nothing like a guest theme's palette.
+const CANVAS_EDGE: Color = Color::rgba(0x5B, 0x4F, 0xD6, 0xE0);
+const CANVAS_FILL: Color = Color::rgba(0x5B, 0x4F, 0xD6, 0xCC);
+
+/// ST-01's layer over the guest: the picked row outlined, one square per
+/// manipulation the picked say line accepts.
+///
+/// # Why the squares are guest-logical and the deltas are measured, not read
+///
+/// The handles are drawn inside the frame, so the stage's [`Fitted`] scale
+/// sizes them with the content — a handle that stayed 10 studio points would
+/// cover a quarter of a 25%-zoom phone. Drag *deltas* come from differencing
+/// `DragDetails::local` between events rather than reading `DragDetails::delta`,
+/// because `local` is handed back in the space the transform chain inverted —
+/// guest points — while `delta` is the window's own units. A handle that moved
+/// by the window's pixels would drift from the finger at every zoom but 100%.
+fn canvas_overlay(canvas: CanvasEdit) -> WidgetNode {
+    let mut layers: Vec<WidgetNode> = Vec::with_capacity(canvas.handles.len() + 1);
+
+    if let Some(rect) = canvas.picked {
+        layers.push(
+            Positioned::new()
+                .left(rect.left)
+                .top(rect.top)
+                .width(rect.width())
+                .height(rect.height())
+                .child(Painting::new(SelectionOutline))
+                .into(),
+        );
+    }
+
+    for (handle, rect) in canvas.handles {
+        let start = canvas.studio.clone();
+        let update = canvas.studio.clone();
+        let end = canvas.studio.clone();
+        // Where this drag last was, in guest points — the difference between
+        // events is the delta the handle writes.
+        let last = std::rc::Rc::new(std::cell::Cell::new(Offset::ZERO));
+        let start_last = std::rc::Rc::clone(&last);
+        let update_last = std::rc::Rc::clone(&last);
+        let name = handle.label().to_owned();
+        layers.push(
+            Positioned::new()
+                .left(rect.left)
+                .top(rect.top)
+                .width(rect.width())
+                .height(rect.height())
+                .child(
+                    vieww_widget::Semantics::button(format!("Drag to change {name}")).child(
+                        GestureDetector::new()
+                            .on_drag_start(move |d: vieww_foundation::DragDetails| {
+                                start_last.set(d.local);
+                                start.canvas_drag_start(handle);
+                            })
+                            .on_drag_update(move |d: vieww_foundation::DragDetails| {
+                                let from = update_last.get();
+                                update_last.set(d.local);
+                                update
+                                    .canvas_drag_update(d.local.dx - from.dx, d.local.dy - from.dy);
+                            })
+                            .on_drag_end(move |_d: vieww_foundation::DragDetails| {
+                                end.canvas_drag_end();
+                            })
+                            .child(Container::new().color(CANVAS_FILL).radius(2.0).border(
+                                vieww_foundation::Border {
+                                    color: CANVAS_EDGE,
+                                    width: 1.5,
+                                },
+                            )),
+                    ),
+                )
+                .into(),
+        );
+    }
+
+    if layers.is_empty() {
+        return SizedBox::shrink().into();
+    }
+    vieww_widget::ExcludeSemantics::new(false)
+        .child(Stack::new().fit(StackFit::Passthrough).children(layers))
+        .into()
+}
+
+/// Strokes the picked row's rectangle — paint only, so it never takes a
+/// pointer event the guest could have had.
+#[derive(Debug)]
+struct SelectionOutline;
+
+impl vieww_widget::Painter for SelectionOutline {
+    fn paint(&self, book: &mut vieww_foundation::Sketchbook, size: Size) {
+        let rect = Rect::from_origin_size(Offset::ZERO, size);
+        book.stroke_rrect(rect, 2.0, CANVAS_EDGE, 1.5);
+    }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 /// What the previewed screen is told about the device, given the toggle.
@@ -2484,6 +2642,9 @@ fn matrix_stage(
                 live_mounts: std::collections::HashMap::new(),
                 clipped: false,
                 perf: None,
+                // The matrix is a side-by-side comparison, not a workspace:
+                // handles belong to the one stage a pick happened in (ST-01).
+                canvas: None,
             });
             row.push(
                 Container::new()

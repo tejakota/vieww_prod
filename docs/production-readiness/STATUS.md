@@ -40,7 +40,7 @@ Totals: Closed 52, Open 36, Partial 6 (of 94).
 
 | Gap | P | Title | Status | Notes |
 |---|---|---|---|---|
-| ST-01 | P0 | No canvas manipulation: the preview is a window, not a workspace | **Open** |  |
+| ST-01 | P0 | No canvas manipulation: the preview is a window, not a workspace | **Closed** | state/canvas_edit.rs: the picked render row maps to its `// say:` line by structural match (generator wrappers inherit the nearest matched ancestor; the framing-column run is re-spread), then the four pure properties — `padded`/`spaced`/`N wide`/`N tall` — are rewritten on that one line through `Studio::edit`, so dirty flag, undo and the 600 ms auto-render all engage. Handle overlay in ui/preview.rs (guest-logical squares, semantics-labelled, drag deltas from `DragDetails::local` differencing), arrow nudges in ui/shortcuts.rs (Shift ×10, Alt → padding/spacing, clamped ≥ 0), Command::ToggleCanvasEdit, ES/FR/DE strings. tests/canvas_edit.rs: drag rewrites line 8 and only it and still compiles; arrows act only while armed, clamp at 0; a spacing drag taken through rustc into two rendered frames moves every row by 0 or a whole multiple of the delta (label +8, button +16) with changed pixels inside the moved rows' union. 6 matcher unit tests in-module. |
 | ST-02 | P0 | No property inspector: nothing about a widget is editable in the right pane | **Open** |  |
 | ST-03 | P0 | "Say" has no AI: no prompt path in the prompt→app wave | **Open** |  |
 | ST-04 | P0 | The out-of-process preview (Windows default) is missing keys, IME, scroll, hover, and state capture | **Open** |  |

@@ -358,6 +358,9 @@ pub enum Command {
     ToggleDamageOverlay,
     ToggleSemanticsOverlay,
     PickWidget,
+    /// ST-01: arm canvas editing — drag handles and arrow nudges rewrite the
+    /// picked say line's pure properties straight from the preview.
+    ToggleCanvasEdit,
     NextTab,
     PreviousTab,
     ShowProblems,
@@ -449,7 +452,7 @@ pub enum Command {
 
 impl Command {
     /// Every command, in palette order.
-    pub const ALL: [Self; 115] = [
+    pub const ALL: [Self; 116] = [
         Self::Render,
         Self::CancelRender,
         Self::Build,
@@ -546,6 +549,7 @@ impl Command {
         Self::ZoomOut,
         Self::ZoomFit,
         Self::PickWidget,
+        Self::ToggleCanvasEdit,
         Self::ToggleDamageOverlay,
         Self::ToggleSemanticsOverlay,
         Self::ZenMode,
@@ -625,6 +629,7 @@ impl Command {
             Self::ToggleDamageOverlay => "Show Repainted Regions",
             Self::ToggleSemanticsOverlay => "Show Semantics Tree",
             Self::PickWidget => "Pick a Widget to Inspect",
+            Self::ToggleCanvasEdit => "Preview: Edit Say on Canvas",
             Self::ToggleComment => "Toggle Comment",
             Self::Indent => "Indent",
             Self::Outdent => "Outdent",
@@ -782,6 +787,7 @@ impl Command {
             | Self::ToggleDamageOverlay
             | Self::ToggleSemanticsOverlay
             | Self::PickWidget
+            | Self::ToggleCanvasEdit
             | Self::ToggleAutoRender => Menu::Render,
             Self::Render
             | Self::CancelRender
@@ -953,6 +959,7 @@ impl Command {
             | Self::ToggleDamageOverlay
             | Self::ToggleSemanticsOverlay
             | Self::PickWidget
+            | Self::ToggleCanvasEdit
             | Self::ShowTokens
             | Self::ToggleAnalyzer
             | Self::RestartAnalyzer

@@ -383,7 +383,9 @@ impl vieww_widget::Painter for ActivitySelection {
         book.rrect(
             bar,
             1.25,
-            vieww_foundation::Gradient::vertical().with_dither().between(self.rail, self.soft),
+            vieww_foundation::Gradient::vertical()
+                .with_dither()
+                .between(self.rail, self.soft),
         );
     }
     fn as_any(&self) -> &dyn std::any::Any {

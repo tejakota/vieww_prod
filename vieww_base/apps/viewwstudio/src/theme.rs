@@ -450,7 +450,8 @@ impl StudioTheme {
     /// twenty-six points of height is a flat fill that costs a gradient.
     #[must_use]
     pub fn accent_ramp(&self) -> Gradient {
-        Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0)).with_dither()
+        Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0))
+            .with_dither()
             .between(self.accent, self.accent_soft)
     }
 
@@ -467,7 +468,11 @@ impl StudioTheme {
         } else {
             Color::rgba(255, 255, 255, 160)
         };
-        Gradient::vertical().with_dither().with_stops(&[(0.0, veil.over(base)), (0.34, base), (1.0, base)])
+        Gradient::vertical().with_dither().with_stops(&[
+            (0.0, veil.over(base)),
+            (0.34, base),
+            (1.0, base),
+        ])
     }
 
     /// A surface lit from the top *and* shaded at the bottom — for the tall

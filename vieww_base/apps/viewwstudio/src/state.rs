@@ -43,6 +43,7 @@ use crate::toolchains;
 // field. `use super::*` in each gives them the same imports this file has, so a
 // reader following a method from here lands somewhere with the same vocabulary.
 mod buffers;
+mod canvas_edit;
 mod commands;
 mod editing;
 mod export;
@@ -52,6 +53,12 @@ mod panels;
 mod picker;
 mod session;
 mod vcs;
+
+// ST-01's canvas-editing vocabulary, re-exported because the shortcut
+// dispatcher (ui/shortcuts.rs) and the preview overlay (ui/preview.rs) need
+// the Handle the state core nudges with — the same one-module-one-subject
+// rule PanelTab follows, just with the type living in its own file.
+pub use canvas_edit::{CanvasDrag, Handle};
 
 /// Which sidebar view the activity bar has selected.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -2195,6 +2202,26 @@ pub struct Studio {
     /// Resolved in `before_frame`, where there is a driver to hit-test against —
     /// a handler has a position and no tree. Same shape as the tree capture.
     pub pick_request: Signal<Option<(f32, f32)>>,
+    /// ST-01: canvas editing is armed — the picked say line's properties can
+    /// be dragged and nudged straight from the preview.
+    ///
+    /// A signal because the handles overlay, the menu tick and the command's
+    /// `can_run` all read it; off is the default because the preview is a
+    /// window until the person editing says otherwise.
+    pub canvas_edit: Signal<bool>,
+    /// A canvas drag in progress: which handle, and the property as it stood
+    /// when the drag began. A `RefCell` beside the studio rather than a
+    /// signal, like `jobs`: it is two words of bookkeeping no widget reads.
+    pub canvas_drag: Rc<RefCell<Option<crate::state::canvas_edit::CanvasDrag>>>,
+    /// ST-01's bridge cache: the say-line index behind each captured render
+    /// row, keyed on the tree generation, the buffer list identity and the
+    /// row count — the three things that can invalidate it.
+    ///
+    /// A `RefCell` beside a generation signal, like `tree_snapshot`: the map
+    /// is a vector of options nobody needs to clone into a signal; what the
+    /// overlay needs to know is that the *pick* changed, which it already
+    /// reads through `inspect_selected`.
+    pub say_map: Rc<RefCell<Option<((u64, usize, usize), Rc<Vec<Option<usize>>>)>>>,
     /// The last frame's damage, in window coordinates.
     pub damage_snapshot: Rc<RefCell<Vec<vieww_foundation::Rect>>>,
     /// The last frame's semantics nodes: where, what, and what it is called.
@@ -2663,6 +2690,9 @@ impl Studio {
             show_semantics: runtime.signal(false),
             pick_mode: runtime.signal(false),
             pick_request: runtime.signal(None),
+            canvas_edit: runtime.signal(false),
+            canvas_drag: Rc::new(RefCell::new(None)),
+            say_map: Rc::new(RefCell::new(None)),
             damage_snapshot: Rc::new(RefCell::new(Vec::new())),
             semantics_snapshot: Rc::new(RefCell::new(Vec::new())),
             overlay_generation: runtime.signal(0),
