@@ -1,7 +1,7 @@
 //! The degraded native-Windows runners (WR-14b).
 //!
-//! Wright's Windows sandbox for `shell`, `git` and `run-tests` is WSL 2
-//! + Bubblewrap ([`crate::sandbox_windows`]) and fails closed when that
+//! Wright's Windows sandbox for `shell`, `git` and `run-tests` is WSL 2 +
+//! Bubblewrap ([`crate::sandbox_windows`]) and fails closed when that
 //! runtime is missing — the correct default. WR-14's honest middle
 //! ground: when the POSIX sandbox is absent but the tool's program is
 //! a *Windows-native binary*, the command can still run under WR-05's

@@ -228,7 +228,7 @@ fn unfilter_row(
                 let a = if i >= bpp { dst[i - bpp] as i32 } else { 0 };
                 let b = up(i) as i32;
                 let c = if i >= bpp { up(i - bpp) as i32 } else { 0 };
-                dst[i] = src[i].wrapping_add(paeth(a, b, c) as u8);
+                dst[i] = src[i].wrapping_add(paeth(a, b, c));
             }
         }
         other => {
@@ -349,9 +349,9 @@ fn build_huffman(lengths: &[u8]) -> Result<Huffman, String> {
         count[l as usize] += 1;
     }
     let mut left = 1i32;
-    for len in 1..16 {
+    for &n in &count[1..] {
         left <<= 1;
-        left -= count[len] as i32;
+        left -= n as i32;
         if left < 0 {
             return Err("an over-subscribed Huffman code (corrupt stream)".into());
         }

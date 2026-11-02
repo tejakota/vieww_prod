@@ -12,6 +12,7 @@ use wright_core::compiler::{self, TaskKind};
 use wright_core::confirm;
 use wright_core::convention;
 use wright_core::events::{Event, EventKind, RunId};
+use wright_core::wire::json;
 use wright_engine::approve::{Approver, AutoApprove, AutoDeny, StoreApprover, TerminalApprover};
 use wright_engine::interview::{self, InterviewIo};
 use wright_engine::{fire, FireOptions, TaskStatus, Trigger};
@@ -300,12 +301,28 @@ pub fn verify(args: &[String]) -> i32 {
             }
         };
     }
-    // A receipt file? Verify it in place.
+    // A receipt file? Verify it in place. An export receipt (what
+    // `wright export` writes) is checked against the export folder it
+    // lives in; a run receipt against the project's store.
     if target.ends_with(".json") && Path::new(target).is_file() {
         let receipt = PathBuf::from(target);
         // Receipts live in Wright's store, outside the project: verifying
         // one needs the project dir as the second argument.
         let project = pos.get(1).copied().unwrap_or(".");
+        let text = std::fs::read_to_string(&receipt).unwrap_or_default();
+        let fmt = json::parse(&text)
+            .ok()
+            .and_then(|v| v.str_of("format").map(String::from))
+            .unwrap_or_default();
+        if fmt.starts_with("wright.export-receipt/") {
+            let v = wright_engine::verify::export_receipt_file_pinned(
+                &PathBuf::from(project),
+                &receipt,
+                &pins,
+            );
+            print!("{}", v.report());
+            return if v.ok { 0 } else { 1 };
+        }
         let v =
             wright_engine::verify::receipt_file_pinned(&PathBuf::from(project), &receipt, &pins);
         print!("{}", v.report());
@@ -1743,7 +1760,7 @@ fn run_verdict(store: &Store, run: RunId) -> String {
     match text.and_then(|t| wright_core::wire::json::parse(&t).ok()) {
         Some(v) => match v.str_of("verdict") {
             Some("approve") => "approved".into(),
-            Some(r) => format!("{r}"),
+            Some(r) => r.to_string(),
             _ => "no reviewer verdict".into(),
         },
         None => "no receipt yet".into(),
@@ -1779,6 +1796,11 @@ fn day_of(ms: u64) -> String {
 /// units for its schedule, a GitHub Actions workflow for its tests. With
 /// no kind given, the zip and the package. Packages and the Dockerfile
 /// need a last run that passed its checks and review.
+///
+/// What was made is signed into `<out>/receipt.json` (WR-15): the
+/// artifact set with its hashes, the Docker base-image digest when
+/// `export.kdl` pins one, under the machine's Ed25519 key —
+/// `wright verify <out>/receipt.json <dir>` checks it.
 pub fn export(args: &[String]) -> i32 {
     use wright_engine::export::{self, Kind};
     let out_arg = flag_value(args, "--out");
@@ -1803,22 +1825,53 @@ pub fn export(args: &[String]) -> i32 {
         .map(PathBuf::from)
         .unwrap_or_else(|| export::default_out(&dir));
     let mut failed = 0;
+    let mut made: Vec<wright_engine::export::Exported> = Vec::new();
     for kind in kinds {
         match export::export(&dir, kind, &out) {
-            Ok(e) => println!(
-                "{:<16} {}
+            Ok(e) => {
+                if let (Some(image), Some(digest)) = (&e.base_image, &e.digest) {
+                    println!(
+                        "{:<16} {image}@{digest} (pinned, from export.kdl)",
+                        "base image"
+                    );
+                }
+                println!(
+                    "{:<16} {}
 {:<16} {} bytes · sha256 {}",
-                kind.label(),
-                e.path.display(),
-                "",
-                e.bytes,
-                e.sha256
-            ),
+                    kind.label(),
+                    e.path.display(),
+                    "",
+                    e.bytes,
+                    e.sha256
+                );
+                made.push(e);
+            }
             Err(err) => {
                 failed += 1;
                 eprintln!("{:<16} not made: {err}", kind.label());
             }
         }
+    }
+    if made.is_empty() {
+        return i32::from(failed > 0);
+    }
+    match export::write_receipt(&dir, &out, &made) {
+        Ok(r) => {
+            if r.signed {
+                println!(
+                    "receipt          {}\n                 signed — verify it: wright verify {} {}",
+                    r.path.display(),
+                    r.path.display(),
+                    dir.display()
+                );
+            } else {
+                println!(
+                    "receipt          {} (UNSIGNED: no signing key could be resolved on this machine)",
+                    r.path.display()
+                );
+            }
+        }
+        Err(e) => eprintln!("receipt          not written: {e}"),
     }
     i32::from(failed > 0)
 }
