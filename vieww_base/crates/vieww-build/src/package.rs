@@ -66,6 +66,14 @@
 //!   of which tools a `PATH` names, so this sandbox tests it with fake tools
 //!   on a fake `PATH` — the running of the real ones is the part left to
 //!   machines that have an Android toolchain.
+//! * **Multi-ABI APK** (`package_android_multi_abi`, target
+//!   `android-multi-abi`) — one APK with `lib/arm64-v8a/` and `lib/x86_64/`
+//!   side by side, for the machine that is a phone today and an emulator
+//!   tomorrow: per-target `cargo apk` builds, `unzip`ed into one tree, packed
+//!   stored, and placed by the SDK's own `zipalign`. Refusal-first like the
+//!   AAB, and its merge plan is as pure as the AAB's route, so this sandbox
+//!   tests the whole plan without an SDK; the merged-and-aligned APK itself
+//!   is left to the machines that have one.
 //! * **iOS** (`package_ios`) — gated on host *and* on `xcrun`, mirroring
 //!   `ci/mobile/ios-app.sh`'s own opening check verbatim. **Not exercised on this
 //!   Linux sandbox** for the same reason macOS is not.
@@ -93,6 +101,11 @@ pub enum PackageTarget {
     Windows,
     /// An APK, via `cargo apk`.
     Android,
+    /// One APK carrying every ABI the framework supports (`arm64-v8a` and
+    /// `x86_64`), via per-target `cargo apk` builds merged with the SDK's own
+    /// `zipalign` — the emulator-installable counterpart of `android`'s
+    /// single-ABI APK.
+    AndroidMultiAbi,
     /// An `.aab`, via the project's `gradlew bundleRelease` or
     /// `bundletool build-bundle`.
     Aab,
@@ -108,6 +121,7 @@ impl PackageTarget {
             Self::MacOs => "macos",
             Self::Windows => "windows",
             Self::Android => "android",
+            Self::AndroidMultiAbi => "android-multi-abi",
             Self::Aab => "aab",
             Self::Ios => "ios",
         }
@@ -223,6 +237,7 @@ pub fn package(target: PackageTarget, app_dir: &Path) -> Result<PackageReport, P
         PackageTarget::MacOs => package_macos(app_dir),
         PackageTarget::Windows => package_windows(app_dir),
         PackageTarget::Android => package_android(app_dir),
+        PackageTarget::AndroidMultiAbi => package_android_multi_abi(app_dir),
         PackageTarget::Aab => package_aab(app_dir),
         PackageTarget::Ios => package_ios(app_dir),
     }
@@ -238,13 +253,14 @@ pub fn package(target: PackageTarget, app_dir: &Path) -> Result<PackageReport, P
 /// [`package_android`], because the SDK/NDK/`cargo apk` triple can genuinely
 /// be missing or present on any of the three desktop hosts. The AAB is the
 /// second such target, for the same reason — its gates are [`aab_plan`]'s
-/// tool checks.
+/// tool checks, and the multi-ABI APK's are
+/// [`package_android_multi_abi`]'s own.
 fn check_host(target: PackageTarget, host: &str) -> Result<(), PackageError> {
     let ok = match target {
         PackageTarget::Linux => host == "linux",
         PackageTarget::MacOs | PackageTarget::Ios => host == "macos",
         PackageTarget::Windows => host == "windows",
-        PackageTarget::Android | PackageTarget::Aab => true,
+        PackageTarget::Android | PackageTarget::Aab | PackageTarget::AndroidMultiAbi => true,
     };
     if ok {
         Ok(())
@@ -814,6 +830,12 @@ fn have_cargo_apk() -> bool {
 /// Build an APK via `cargo apk`, the real Android build tool this workspace
 /// already depends on for `ci/mobile/apk.sh`.
 ///
+/// The APK this produces is **single-ABI** — whatever `cargo apk` builds
+/// without a `--target`, which is arm64. One file that installs on both a
+/// phone and an emulator is [`PackageTarget::AndroidMultiAbi`]'s to build;
+/// this route stays single because a device-picked build is half the size and
+/// twice as fast to link.
+///
 /// **Expects an app already set up for Android** — a `[package.metadata.android]`
 /// table and a `cdylib` crate type, the shape
 /// `crates/vieww-platform-winit/Cargo.toml`'s own `[package.metadata.android]`
@@ -896,7 +918,7 @@ fn package_android(app_dir: &Path) -> Result<PackageReport, PackageError> {
 //   `bundletool` is a jar, and this crate has no zip implementation to be a
 //   fourth.
 //
-// The route decision is [`aab_plan`], a pure function of [`AabTools`] — which
+// The route decision is [`aab_plan`], a pure function of [`AndroidTools`] — which
 // tools a `PATH` names and whether the project has a wrapper — so the planner
 // is fully testable with a directory of fake tools and no Android SDK at all
 // (the same split `android_tooling`/`tool_in_dirs` exist for). What is *not*
@@ -905,16 +927,18 @@ fn package_android(app_dir: &Path) -> Result<PackageReport, PackageError> {
 // asserts the refusal instead, and the first real bundle is left to the
 // release-gate's Android legs.
 
-/// One tool the bundletool or gradle route lacks, with how to install it —
-/// the refusal's unit, so a test can assert the *fix* is named, not just the
-/// problem.
+/// One tool a packaging route lacks, with how to install it — the refusal's
+/// unit, so a test can assert the *fix* is named, not just the problem.
+///
+/// Named for what it is rather than for the route that first needed it: both
+/// the AAB routes and the multi-ABI APK merge build their refusals from these.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct AabMissing {
+struct ToolRefusal {
     tool: &'static str,
     how: &'static str,
 }
 
-impl AabMissing {
+impl ToolRefusal {
     /// "`bundletool` — download bundletool.jar …", the shape every refusal
     /// line takes.
     fn line(self) -> String {
@@ -922,20 +946,25 @@ impl AabMissing {
     }
 }
 
-/// What the two AAB routes need from the machine and the project, as presence
-/// booleans. Detected from an explicit list of `PATH` directories (not the
-/// process's own `PATH`, which a test must not mutate — see
+/// What the Android packaging routes need from the machine and the project, as
+/// presence booleans. Detected from an explicit list of `PATH` directories (not
+/// the process's own `PATH`, which a test must not mutate — see
 /// [`crate::util::tool_on_path`]'s own doc for why), so the detection and the
 /// decision built on it are testable apart from each other.
+///
+/// Named for the platform rather than for one of its routes: the multi-ABI
+/// APK merge below detects its `zip`/`unzip`/`cargo apk` needs through the
+/// same struct rather than through a second copy of the `PATH` walk.
 #[derive(Debug, Clone, Default)]
-struct AabTools {
+struct AndroidTools {
     /// `bundletool` on `PATH` (Google's jar wrapper script).
     bundletool: bool,
     /// `java` on `PATH` — `bundletool` and `gradlew` are Java programs.
     java: bool,
-    /// `zip` on `PATH` — the bundletool route packs the base module with it.
+    /// `zip` on `PATH` — the bundletool route and the multi-ABI merge pack
+    /// with it.
     zip: bool,
-    /// `unzip` on `PATH` — the same route unpacks the APK with it.
+    /// `unzip` on `PATH` — the same routes unpack with it.
     unzip: bool,
     /// The project carries its own Gradle wrapper (`gradlew` / `gradlew.bat`).
     gradlew: bool,
@@ -956,7 +985,7 @@ fn wrapper_name() -> &'static str {
     }
 }
 
-impl AabTools {
+impl AndroidTools {
     /// Detect every tool on the `PATH` directories given, and the wrapper in
     /// `app_dir`. Detection only: every *which route* decision is
     /// [`aab_plan`]'s, so a fake `PATH` tests one and fake booleans the other.
@@ -974,16 +1003,16 @@ impl AabTools {
     }
 
     /// Everything the bundletool route lacks, each with its install command.
-    fn missing_bundletool(&self) -> Vec<AabMissing> {
+    fn missing_bundletool(&self) -> Vec<ToolRefusal> {
         let mut missing = Vec::new();
         if !self.cargo_apk {
-            missing.push(AabMissing {
+            missing.push(ToolRefusal {
                 tool: "cargo apk",
                 how: "cargo install cargo-apk (the route's APK half)",
             });
         }
         if !self.bundletool {
-            missing.push(AabMissing {
+            missing.push(ToolRefusal {
                 tool: "bundletool",
                 how: "download bundletool.jar from \
                       https://github.com/google/bundletool/releases and put a `bundletool` \
@@ -991,20 +1020,20 @@ impl AabTools {
             });
         }
         if !self.java {
-            missing.push(AabMissing {
+            missing.push(ToolRefusal {
                 tool: "java",
                 how: "install a JDK (apt install openjdk-17-jdk / brew install openjdk@17) — \
                       bundletool is a jar",
             });
         }
         if !self.zip {
-            missing.push(AabMissing {
+            missing.push(ToolRefusal {
                 tool: "zip",
                 how: "apt install zip / brew install zip",
             });
         }
         if !self.unzip {
-            missing.push(AabMissing {
+            missing.push(ToolRefusal {
                 tool: "unzip",
                 how: "apt install unzip / brew install unzip",
             });
@@ -1015,17 +1044,17 @@ impl AabTools {
     /// Everything the gradle route lacks. `java` is on both routes' lists,
     /// because a Gradle wrapper is a Java program too; the merge in
     /// [`aab_plan`] keeps it named once.
-    fn missing_gradle(&self) -> Vec<AabMissing> {
+    fn missing_gradle(&self) -> Vec<ToolRefusal> {
         let mut missing = Vec::new();
         if !self.java {
-            missing.push(AabMissing {
+            missing.push(ToolRefusal {
                 tool: "java",
                 how: "install a JDK (apt install openjdk-17-jdk / brew install openjdk@17) — \
                       gradlew is a Java program",
             });
         }
         if !self.gradlew && !self.gradle {
-            missing.push(AabMissing {
+            missing.push(ToolRefusal {
                 tool: "gradle",
                 how: "brew install gradle / sdkman.io, or add a wrapper to the project \
                       (gradle wrapper) — gradlew bundleRelease builds the bundle the project's \
@@ -1057,7 +1086,11 @@ enum AabRoute {
 /// second-guessed — then `bundletool`, then a host `gradle`. When no route is
 /// possible, every missing tool from *both* routes is returned with its
 /// install command, named once each.
-fn aab_plan(tools: &AabTools, app_dir: &Path, name: &str) -> Result<AabRoute, Vec<AabMissing>> {
+fn aab_plan(
+    tools: &AndroidTools,
+    app_dir: &Path,
+    name: &str,
+) -> Result<AabRoute, Vec<ToolRefusal>> {
     if tools.gradlew {
         if tools.java {
             return Ok(AabRoute::Gradle {
@@ -1067,7 +1100,7 @@ fn aab_plan(tools: &AabTools, app_dir: &Path, name: &str) -> Result<AabRoute, Ve
         // The wrapper is there but cannot run; refusing with just this is
         // more honest than falling through to a route that ignores the
         // project's own build.
-        return Err(vec![AabMissing {
+        return Err(vec![ToolRefusal {
             tool: "java",
             how: "install a JDK (apt install openjdk-17-jdk / brew install openjdk@17) — \
                   the project's gradlew cannot run without one",
@@ -1115,13 +1148,13 @@ fn bundle_config() -> String {
 /// One command a route runs, as argv plus a working directory — the whole
 /// plan in a form a test can read without a single tool being real.
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct AabStep {
+struct ToolStep {
     program: String,
     args: Vec<String>,
     cwd: PathBuf,
 }
 
-impl AabStep {
+impl ToolStep {
     /// Run it for real, capturing the failure's stderr verbatim. The build
     /// step's own message shape is kept: `cargo apk` failing here is a build
     /// failure exactly like `cargo build --release` failing in
@@ -1150,9 +1183,9 @@ impl AabStep {
 /// before it can name the commands that consume it.
 ///
 /// `apk` is the built APK's path, required only by the bundletool route.
-fn aab_steps(route: &AabRoute, app_dir: &Path, apk: Option<&Path>) -> Vec<AabStep> {
+fn aab_steps(route: &AabRoute, app_dir: &Path, apk: Option<&Path>) -> Vec<ToolStep> {
     match route {
-        AabRoute::Gradle { program } => vec![AabStep {
+        AabRoute::Gradle { program } => vec![ToolStep {
             program: program.to_string_lossy().into_owned(),
             args: vec!["bundleRelease".to_owned()],
             cwd: app_dir.to_owned(),
@@ -1169,7 +1202,7 @@ fn aab_steps(route: &AabRoute, app_dir: &Path, apk: Option<&Path>) -> Vec<AabSte
                 // Unpack the APK as a base module, minus the APK's own
                 // signatures: a signed module is refused by bundletool, and
                 // Play re-signs every split anyway.
-                AabStep {
+                ToolStep {
                     program: "unzip".to_owned(),
                     args: vec![
                         "-o".to_owned(),
@@ -1181,7 +1214,7 @@ fn aab_steps(route: &AabRoute, app_dir: &Path, apk: Option<&Path>) -> Vec<AabSte
                     ],
                     cwd: app_dir.to_owned(),
                 },
-                AabStep {
+                ToolStep {
                     program: "zip".to_owned(),
                     args: vec![
                         "-X".to_owned(),
@@ -1191,7 +1224,7 @@ fn aab_steps(route: &AabRoute, app_dir: &Path, apk: Option<&Path>) -> Vec<AabSte
                     ],
                     cwd: module_dir.clone(),
                 },
-                AabStep {
+                ToolStep {
                     program: "bundletool".to_owned(),
                     args: vec![
                         "build-bundle".to_owned(),
@@ -1254,7 +1287,7 @@ fn package_aab(app_dir: &Path) -> Result<PackageReport, PackageError> {
     let name = read_package_name(app_dir)?;
     let path = std::env::var_os("PATH").unwrap_or_default();
     let dirs: Vec<PathBuf> = std::env::split_paths(&path).collect();
-    let tools = AabTools::detect(&dirs, app_dir, have_cargo_apk());
+    let tools = AndroidTools::detect(&dirs, app_dir, have_cargo_apk());
     let route = aab_plan(&tools, app_dir, &name).map_err(|missing| {
         let joined = missing
             .iter()
@@ -1271,7 +1304,7 @@ fn package_aab(app_dir: &Path) -> Result<PackageReport, PackageError> {
 
     match &route {
         AabRoute::Gradle { program } => {
-            AabStep {
+            ToolStep {
                 program: program.to_string_lossy().into_owned(),
                 args: vec!["bundleRelease".to_owned()],
                 cwd: app_dir.to_owned(),
@@ -1320,7 +1353,7 @@ fn package_aab(app_dir: &Path) -> Result<PackageReport, PackageError> {
             config,
             bundle,
         } => {
-            AabStep {
+            ToolStep {
                 program: "cargo".to_owned(),
                 args: vec!["apk".to_owned(), "build".to_owned(), "--release".to_owned()],
                 cwd: app_dir.to_owned(),
@@ -1368,6 +1401,337 @@ fn package_aab(app_dir: &Path) -> Result<PackageReport, PackageError> {
             })
         }
     }
+}
+
+// ── the multi-ABI APK (FW-19) ────────────────────────────────────────────────
+//
+// B19: the APK `package_android` hands over is whatever `cargo apk` builds for
+// its default target — arm64 — and an arm64-only APK refuses to install on the
+// x86_64 emulator image every Android CI leg runs (`ci/mobile/apk.sh` works
+// around that per-invocation by passing `--target` after asking `adb` which ABI
+// the attached device has). A multi-ABI APK is one file that installs on both:
+// `lib/arm64-v8a/` and `lib/x86_64/` side by side, and Android's installer
+// picks the directory matching the device it is running on.
+//
+// The merge is deliberately built from the same primitives the AAB's
+// bundletool route already proved: `cargo apk build --target <triple>` per ABI
+// (the same invocation `ci/mobile/apk.sh` uses, so the per-target output
+// directory layout below is the one that script already walks), `unzip` to lay
+// both APKs into one staging tree, `zip` to pack it, and the SDK's own
+// `zipalign` to place the entries. Nothing here reimplements any part of the
+// zip format — `zip`/`unzip`/`zipalign` are the tools, exactly as the AAB
+// route's own doc says about `bundletool`.
+//
+// What a merge means for signatures is stated rather than hidden: rebuilding
+// the zip invalidates the v2 signature that covers the whole file, and the
+// v1 `META-INF` files are excluded on unpack, so the merged APK is **unsigned**
+// until `apksigner` re-signs it — the same posture the AAB route takes toward
+// its upload key, with `packaging/sign.sh apk` named as the signer.
+
+/// One CPU the merged APK carries a `lib/<dir>/` directory for.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct ApkAbi {
+    /// The Rust triple `cargo apk build --target` takes.
+    triple: &'static str,
+    /// The Android ABI name, which is literally the directory name under
+    /// `lib/` in the APK — the loader looks for its own ABI's directory and
+    /// refuses to install when there is none.
+    dir: &'static str,
+}
+
+/// Every ABI a merged APK carries (FW-19): the phone ABI and the emulator ABI.
+///
+/// `arm64-v8a` because that is every shipping Android phone, and `x86_64`
+/// because that is the emulator image CI installs — the two-machine reality
+/// B19 named. Adding a third (say `armeabi-v7a` or `riscv64`) is a one-line
+/// change here plus a test, and the merge code below does not change.
+const MULTI_ABI: &[ApkAbi] = &[
+    ApkAbi {
+        triple: "aarch64-linux-android",
+        dir: "arm64-v8a",
+    },
+    ApkAbi {
+        triple: "x86_64-linux-android",
+        dir: "x86_64",
+    },
+];
+
+/// Everything the multi-ABI merge needs beyond [`package_android`]'s own gate,
+/// each absence one refusal line with its fix — the same composition
+/// [`aab_plan`] practices, so a missing SDK, `cargo apk`, `zip`, `unzip` or
+/// `zipalign` is named together with how to install it.
+fn multi_abi_missing(
+    android_home: Option<&str>,
+    tools: &AndroidTools,
+    zipalign: Option<&Path>,
+) -> Vec<ToolRefusal> {
+    let mut missing = Vec::new();
+    if android_home.map(str::trim).unwrap_or_default().is_empty() {
+        missing.push(ToolRefusal {
+            tool: "ANDROID_HOME",
+            how: "set ANDROID_HOME (or ANDROID_SDK_ROOT) to an installed Android SDK",
+        });
+    }
+    if !tools.cargo_apk {
+        missing.push(ToolRefusal {
+            tool: "cargo apk",
+            how: "cargo install cargo-apk (one `cargo apk build --target` per ABI)",
+        });
+    }
+    if !tools.zip {
+        missing.push(ToolRefusal {
+            tool: "zip",
+            how: "apt install zip / brew install zip",
+        });
+    }
+    if !tools.unzip {
+        missing.push(ToolRefusal {
+            tool: "unzip",
+            how: "apt install unzip / brew install unzip",
+        });
+    }
+    if zipalign.is_none() {
+        // Named separately from the SDK itself: a machine can have ANDROID_HOME
+        // pointing at a platform-tools-only install with no build-tools, and
+        // the fix for that is not "set ANDROID_HOME" but one sdkmanager command.
+        missing.push(ToolRefusal {
+            tool: "zipalign",
+            how: "install Build-Tools into the SDK: sdkmanager \"build-tools;34.0.0\" — the \
+                  same ANDROID_HOME/build-tools/<version>/ directory cargo apk takes aapt2 \
+                  from",
+        });
+    }
+    missing
+}
+
+/// The SDK's `zipalign`, from `$ANDROID_HOME/build-tools/<newest>/` — the same
+/// directory `cargo apk` takes `aapt2` from, so a machine that can build an
+/// APK at all has it. The newest version wins when several are installed,
+/// because that is the one the SDK's own tools updated last.
+///
+/// Pure filesystem probing of the given SDK root, so a test installs a fake
+/// `build-tools/` tree with a fake `zipalign` in it and watches the pick.
+fn zipalign_in(android_home: &Path) -> Option<PathBuf> {
+    let versions = std::fs::read_dir(android_home.join("build-tools")).ok()?;
+    let mut newest: Option<(String, PathBuf)> = None;
+    for entry in versions.flatten() {
+        let name = entry.file_name().to_string_lossy().into_owned();
+        for exe in ["zipalign", "zipalign.exe"] {
+            let program = entry.path().join(exe);
+            if !program.is_file() {
+                continue;
+            }
+            // Lexical order on the version directory name: build-tools version
+            // numbers are dotted numerals (34.0.0, 35.0.0), which sort that way
+            // for every pair a real SDK installs.
+            if newest.as_ref().is_none_or(|(seen, _)| *seen < name) {
+                newest = Some((name.clone(), program));
+            }
+        }
+    }
+    newest.map(|(_, program)| program)
+}
+
+/// The merge commands: unpack each per-ABI APK into one staging tree, then pack
+/// the tree into the still-unaligned APK.
+///
+/// The unpack excludes `META-INF/*` for the reason the section docs give: a
+/// merged zip invalidates the v2 signature outright and leaves v1's files
+/// stale, and `apksigner` refuses to re-sign over files it did not write. The
+/// pack is `-0` — *store*, no deflate — because `zipalign -p` can only align
+/// entries that are stored, and the entries that have to be uncompressed for
+/// the install to work (the native libraries, `resources.arsc`) are exactly the
+/// ones `cargo apk` stored uncompressed in the per-ABI APKs being merged.
+fn multi_abi_steps(apks: &[(ApkAbi, PathBuf)], staging: &Path, unaligned: &Path) -> Vec<ToolStep> {
+    let arg = |path: &Path| path.to_string_lossy().into_owned();
+    let mut steps = Vec::with_capacity(apks.len() + 1);
+    for (_, apk) in apks {
+        // `-o` overwrite: every per-ABI APK carries the same manifest and
+        // resources (they were built from one project), so the second unpack's
+        // copies land on the first's — the only per-ABI difference is the
+        // `lib/<abi>/` directory, which never collides.
+        steps.push(ToolStep {
+            program: "unzip".to_owned(),
+            args: vec![
+                "-o".to_owned(),
+                arg(apk),
+                "-d".to_owned(),
+                arg(staging),
+                "-x".to_owned(),
+                "META-INF/*".to_owned(),
+            ],
+            cwd: staging.to_owned(),
+        });
+    }
+    steps.push(ToolStep {
+        program: "zip".to_owned(),
+        args: vec![
+            "-X".to_owned(),
+            "-r".to_owned(),
+            "-0".to_owned(),
+            arg(unaligned),
+            ".".to_owned(),
+        ],
+        cwd: staging.to_owned(),
+    });
+    steps
+}
+
+/// The merged APK's whole point, checked before anything is signed or shipped:
+/// every ABI it claims to carry has a `lib/<abi>/` directory holding at least
+/// one `.so`.
+///
+/// Pure `std::fs` over the staging tree, so it is testable with directories
+/// this suite writes itself — no unzip, no SDK, no APK. A failure here is not
+/// a merge bug: it means `cargo apk build --target <triple>` produced an APK
+/// without a `lib/<abi>/` directory for its own triple, which is a build gone
+/// wrong rather than a packaging step gone wrong, and the message says which
+/// directory was expected so the next look is at the build, not the merge.
+fn verify_lib_layout(staging: &Path, abis: &[ApkAbi]) -> Result<(), String> {
+    let mut missing = Vec::new();
+    for abi in abis {
+        let dir = staging.join("lib").join(abi.dir);
+        let holds_a_library = std::fs::read_dir(&dir).is_ok_and(|entries| {
+            entries
+                .flatten()
+                .any(|entry| entry.path().extension().is_some_and(|ext| ext == "so"))
+        });
+        if !holds_a_library {
+            missing.push(format!(
+                "lib/{} has no .so — did `cargo apk build --target {}` build what it said?",
+                abi.dir, abi.triple,
+            ));
+        }
+    }
+    if missing.is_empty() {
+        Ok(())
+    } else {
+        Err(missing.join("; "))
+    }
+}
+
+/// Build one APK carrying every ABI in [`MULTI_ABI`] — per-target
+/// `cargo apk` builds, merged, aligned, and left for `apksigner` to sign.
+///
+/// Refuses before running anything when the SDK, `cargo apk`, `zip`, `unzip`
+/// or `zipalign` is missing, naming each with its install command; a refusal
+/// leaves nothing behind. The merge intermediates live under
+/// `target/package/` and the staging tree is removed on success only — a
+/// failed run leaves its evidence for a person to read, the same choice
+/// [`package_aab`] makes for its own unpacked module.
+fn package_android_multi_abi(app_dir: &Path) -> Result<PackageReport, PackageError> {
+    let name = read_package_name(app_dir)?;
+    let android_home = std::env::var("ANDROID_HOME")
+        .ok()
+        .or_else(|| std::env::var("ANDROID_SDK_ROOT").ok());
+    let path = std::env::var_os("PATH").unwrap_or_default();
+    let dirs: Vec<PathBuf> = std::env::split_paths(&path).collect();
+    let tools = AndroidTools::detect(&dirs, app_dir, have_cargo_apk());
+    let sdk_root = android_home
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(PathBuf::from);
+    let zipalign = sdk_root.as_deref().and_then(zipalign_in);
+
+    let missing = multi_abi_missing(android_home.as_deref(), &tools, zipalign.as_deref());
+    if !missing.is_empty() {
+        let joined = missing
+            .iter()
+            .map(|entry| entry.line())
+            .collect::<Vec<_>>()
+            .join("; ");
+        return Err(PackageError::MissingTool {
+            target: PackageTarget::AndroidMultiAbi,
+            tool: "cargo apk / Android SDK (build-tools zipalign) / zip / unzip".to_owned(),
+            how_to_get_it: joined,
+        });
+    }
+    let zipalign = zipalign.expect("the refusal above covers its absence");
+
+    // One build per ABI, then the APK that build wrote. `--target` puts the
+    // artifacts under target/<triple>/release/, which is where the search
+    // looks — the same layout `ci/mobile/apk.sh` walks with `find`.
+    let mut apks = Vec::new();
+    for abi in MULTI_ABI {
+        ToolStep {
+            program: "cargo".to_owned(),
+            args: vec![
+                "apk".to_owned(),
+                "build".to_owned(),
+                "--release".to_owned(),
+                "--target".to_owned(),
+                abi.triple.to_owned(),
+            ],
+            cwd: app_dir.to_owned(),
+        }
+        .run()?;
+        let apk_dir = app_dir.join("target").join(abi.triple).join("release/apk");
+        let Some(apk) = find_artifact(&apk_dir, "apk", &[], 3) else {
+            return Err(PackageError::MissingArtifact(
+                apk_dir.join("<apk_name>.apk"),
+            ));
+        };
+        apks.push((*abi, apk));
+    }
+
+    let package_dir = app_dir.join("target/package");
+    let staging = package_dir.join("apk-multi-abi");
+    let unaligned = package_dir.join(format!("{name}-unaligned.apk"));
+    let merged = package_dir.join(format!("{name}-multi-abi.apk"));
+    std::fs::create_dir_all(&staging)?;
+
+    for step in multi_abi_steps(&apks, &staging, &unaligned) {
+        step.run()?;
+    }
+    verify_lib_layout(&staging, MULTI_ABI).map_err(PackageError::Build)?;
+
+    // `-p` page-aligns the stored `.so` files to 4096 — without it an
+    // `extractNativeLibs="false"` install cannot mmap the library, which is
+    // the exact failure the flag exists for. `4` aligns every other stored
+    // entry; `-f` overwrites a previous run's output.
+    ToolStep {
+        program: zipalign.to_string_lossy().into_owned(),
+        args: vec![
+            "-p".to_owned(),
+            "-f".to_owned(),
+            "4".to_owned(),
+            unaligned.to_string_lossy().into_owned(),
+            merged.to_string_lossy().into_owned(),
+        ],
+        cwd: app_dir.to_owned(),
+    }
+    .run()?;
+    // The unaligned intermediate is this run's own scratch, not provenance:
+    // the merged APK is the artifact, and the per-ABI APKs it came from are
+    // still under target/<triple>/release/apk for anyone who wants them.
+    std::fs::remove_dir_all(&staging)?;
+    std::fs::remove_file(&unaligned).ok();
+
+    if !merged.is_file() {
+        return Err(PackageError::MissingArtifact(merged));
+    }
+    let layout = MULTI_ABI
+        .iter()
+        .map(|abi| format!("lib/{}", abi.dir))
+        .collect::<Vec<_>>()
+        .join(" + ");
+    Ok(PackageReport {
+        target: PackageTarget::AndroidMultiAbi,
+        output_dir: package_dir,
+        artifacts: vec![merged],
+        notes: vec![
+            format!(
+                "{layout} merged from one cargo apk build per target, stored uncompressed \
+                     and page-aligned by zipalign -p — installs on an arm64 phone and an \
+                     x86_64 emulator image alike (the B19 gap)"
+            ),
+            "unsigned: the merge rewrote the zip, so the per-ABI signatures did not survive it — \
+             re-sign with apksigner (packaging/sign.sh apk) when the ANDROID_KEYSTORE secrets \
+             exist"
+                .to_owned(),
+        ],
+    })
 }
 
 /// Build and bundle for iOS via `xcrun`, mirroring `ci/mobile/ios-app.sh`'s own
@@ -1967,6 +2331,12 @@ mod tests {
     fn android_targets_every_host() {
         for host in ["linux", "macos", "windows"] {
             assert!(check_host(PackageTarget::Android, host).is_ok(), "{host}");
+            // The multi-ABI APK is gated on tools, not on the host, for the
+            // same reason the single-ABI one is.
+            assert!(
+                check_host(PackageTarget::AndroidMultiAbi, host).is_ok(),
+                "{host}"
+            );
         }
     }
 
@@ -2078,7 +2448,7 @@ mod tests {
     //
     // The process's own PATH is never mutated (see util::tool_on_path's doc
     // for the flake that forbids it); instead the fake tools live in a
-    // directory this suite creates, and AabTools::detect reads exactly that
+    // directory this suite creates, and AndroidTools::detect reads exactly that
     // list — the "PATH" the planner is given, fake end to end.
 
     /// A directory of fake tools — plain files, because that is precisely
@@ -2118,7 +2488,7 @@ mod tests {
             &["bundletool", "java", "zip", "unzip", "gradle"],
         );
         let no_wrapper = aab_scratch("vieww-build-aab-app-plain", false);
-        let tools = AabTools::detect(std::slice::from_ref(&bin), &no_wrapper, false);
+        let tools = AndroidTools::detect(std::slice::from_ref(&bin), &no_wrapper, false);
         std::fs::remove_dir_all(&bin).ok();
         std::fs::remove_dir_all(&no_wrapper).ok();
         assert!(tools.bundletool && tools.java && tools.zip && tools.unzip && tools.gradle);
@@ -2127,7 +2497,7 @@ mod tests {
 
         // And the wrapper is found in the project, not on the PATH.
         let wrapper = aab_scratch("vieww-build-aab-app-wrapped", true);
-        let tools = AabTools::detect(&[], &wrapper, false);
+        let tools = AndroidTools::detect(&[], &wrapper, false);
         std::fs::remove_dir_all(&wrapper).ok();
         assert!(tools.gradlew);
         assert!(!tools.bundletool, "an empty PATH finds nothing else");
@@ -2136,10 +2506,10 @@ mod tests {
     #[test]
     fn the_planner_takes_the_projects_own_gradle_wrapper_first() {
         let app = aab_scratch("vieww-build-aab-plan-wrapper", true);
-        let tools = AabTools {
+        let tools = AndroidTools {
             gradlew: true,
             java: true,
-            ..AabTools::default()
+            ..AndroidTools::default()
         };
         let route = aab_plan(&tools, &app, "probe").expect("the wrapper route is possible");
         std::fs::remove_dir_all(&app).ok();
@@ -2158,13 +2528,13 @@ mod tests {
         // Everything the bundletool route needs, no wrapper, no host gradle:
         // the bundletool route, with every intermediate under target/package.
         let app = aab_scratch("vieww-build-aab-plan-bundletool", false);
-        let tools = AabTools {
+        let tools = AndroidTools {
             bundletool: true,
             java: true,
             zip: true,
             unzip: true,
             cargo_apk: true,
-            ..AabTools::default()
+            ..AndroidTools::default()
         };
         let route = aab_plan(&tools, &app, "probe").expect("the bundletool route is possible");
         let AabRoute::Bundletool {
@@ -2184,10 +2554,10 @@ mod tests {
         std::fs::remove_dir_all(&app).ok();
 
         // No bundletool but java + a host gradle: the host gradle route.
-        let tools = AabTools {
+        let tools = AndroidTools {
             java: true,
             gradle: true,
-            ..AabTools::default()
+            ..AndroidTools::default()
         };
         let route = aab_plan(&tools, &app, "probe").expect("the host gradle route is possible");
         assert_eq!(
@@ -2201,7 +2571,7 @@ mod tests {
     #[test]
     fn the_planner_refuses_by_naming_every_missing_tool_and_its_fix() {
         let app = aab_scratch("vieww-build-aab-plan-refused", false);
-        let missing = aab_plan(&AabTools::default(), &app, "probe").unwrap_err();
+        let missing = aab_plan(&AndroidTools::default(), &app, "probe").unwrap_err();
         std::fs::remove_dir_all(&app).ok();
 
         let tools: Vec<&str> = missing.iter().map(|entry| entry.tool).collect();
@@ -2232,9 +2602,9 @@ mod tests {
     #[test]
     fn a_wrapper_without_java_refuses_naming_java_and_nothing_else() {
         let app = aab_scratch("vieww-build-aab-plan-no-java", true);
-        let tools = AabTools {
+        let tools = AndroidTools {
             gradlew: true,
-            ..AabTools::default()
+            ..AndroidTools::default()
         };
         let missing = aab_plan(&tools, &app, "probe").unwrap_err();
         std::fs::remove_dir_all(&app).ok();
@@ -2246,13 +2616,13 @@ mod tests {
     #[test]
     fn the_bundletool_steps_shape_the_base_module_and_the_bundle() {
         let app = aab_scratch("vieww-build-aab-steps", false);
-        let tools = AabTools {
+        let tools = AndroidTools {
             bundletool: true,
             java: true,
             zip: true,
             unzip: true,
             cargo_apk: true,
-            ..AabTools::default()
+            ..AndroidTools::default()
         };
         let route = aab_plan(&tools, &app, "probe").expect("the bundletool route is possible");
         let apk = app.join("target/release/apk/probe.apk");
@@ -2360,6 +2730,251 @@ mod tests {
     fn an_aab_target_needs_no_particular_host() {
         for host in ["linux", "macos", "windows"] {
             assert!(check_host(PackageTarget::Aab, host).is_ok(), "{host}");
+        }
+    }
+
+    // ----- the multi-ABI APK planner (FW-19) ----------------------------------
+    //
+    // Same split as the AAB planner above: the ABI table, the merge steps, the
+    // refusal lines and the layout check are all pure functions of paths and
+    // booleans, so every one of them is tested without an SDK — only the real
+    // dispatch at the end touches this machine, and there it is the refusal
+    // that is the assertion.
+
+    #[test]
+    fn the_multi_abi_table_names_the_phone_and_the_emulator() {
+        let triples: Vec<&str> = MULTI_ABI.iter().map(|abi| abi.triple).collect();
+        let dirs: Vec<&str> = MULTI_ABI.iter().map(|abi| abi.dir).collect();
+        assert!(triples.contains(&"aarch64-linux-android"), "{MULTI_ABI:?}");
+        assert!(triples.contains(&"x86_64-linux-android"), "{MULTI_ABI:?}");
+        assert!(dirs.contains(&"arm64-v8a"), "{MULTI_ABI:?}");
+        assert!(dirs.contains(&"x86_64"), "{MULTI_ABI:?}");
+        // Every ABI's directory really is its triple's Android spelling — a
+        // mismatched pair installs nowhere and says nothing about why.
+        for abi in MULTI_ABI {
+            let expected = if abi.triple.contains("aarch64") {
+                "arm64-v8a"
+            } else {
+                "x86_64"
+            };
+            assert_eq!(
+                abi.dir, expected,
+                "lib/{} is not the directory {} builds into",
+                abi.dir, abi.triple
+            );
+        }
+    }
+
+    #[test]
+    fn the_merge_steps_unpack_each_abi_and_pack_the_tree_stored() {
+        let app = aab_scratch("vieww-build-multi-abi-steps", false);
+        let staging = app.join("target/package/apk-multi-abi");
+        let unaligned = app.join("target/package/probe-unaligned.apk");
+        let apks = MULTI_ABI
+            .iter()
+            .map(|abi| {
+                (
+                    *abi,
+                    app.join("target")
+                        .join(abi.triple)
+                        .join("release/apk/probe.apk"),
+                )
+            })
+            .collect::<Vec<_>>();
+        let steps = multi_abi_steps(&apks, &staging, &unaligned);
+        std::fs::remove_dir_all(&app).ok();
+
+        // One unpack per ABI plus one pack, and every unpack names its own
+        // per-target APK — the whole point of the merge.
+        assert_eq!(steps.len(), MULTI_ABI.len() + 1, "{steps:?}");
+        for (index, (_, apk)) in apks.iter().enumerate() {
+            let step = &steps[index];
+            assert_eq!(step.program, "unzip");
+            assert!(
+                step.args.contains(&apk.to_string_lossy().into_owned()),
+                "step {index} does not unpack {}: {:?}",
+                apk.display(),
+                step.args
+            );
+            assert!(
+                step.args.contains(&"META-INF/*".to_owned()),
+                "the stale v1 signature files must not survive the merge"
+            );
+            assert_eq!(step.cwd, staging);
+        }
+        // The pack stores rather than deflates — `zipalign -p` can only align
+        // stored entries, and the uncompressed native libraries are why.
+        let pack = steps.last().expect("the pack step");
+        assert_eq!(pack.program, "zip");
+        assert!(pack.args.contains(&"-0".to_owned()), "{:?}", pack.args);
+        assert!(
+            pack.args
+                .contains(&unaligned.to_string_lossy().into_owned()),
+            "{:?}",
+            pack.args
+        );
+        assert_eq!(pack.cwd, staging, "packed from inside the staging tree");
+    }
+
+    #[test]
+    fn a_missing_sdk_or_merge_tool_is_named_with_its_fix() {
+        // Nothing present at all: every need becomes a line with a fix.
+        let missing = multi_abi_missing(None, &AndroidTools::default(), None);
+        let tools: Vec<&str> = missing.iter().map(|entry| entry.tool).collect();
+        for expected in ["ANDROID_HOME", "cargo apk", "zip", "unzip", "zipalign"] {
+            assert!(
+                tools.contains(&expected),
+                "the refusal names {expected}: {missing:?}"
+            );
+        }
+        let joined = missing
+            .iter()
+            .map(|entry| entry.line())
+            .collect::<Vec<_>>()
+            .join("; ");
+        assert!(joined.contains("sdkmanager"), "{joined}");
+        assert!(joined.contains("cargo install cargo-apk"), "{joined}");
+
+        // Everything present: no refusal at all.
+        let sdk = std::env::temp_dir().join("vieww-build-multi-abi-sdk-ok");
+        let _ = std::fs::remove_dir_all(&sdk);
+        std::fs::create_dir_all(sdk.join("build-tools/34.0.0")).unwrap();
+        std::fs::write(sdk.join("build-tools/34.0.0/zipalign"), b"#!/bin/sh\n").unwrap();
+        let zipalign = zipalign_in(&sdk);
+        assert!(multi_abi_missing(
+            Some("/opt/android-sdk"),
+            &AndroidTools {
+                cargo_apk: true,
+                zip: true,
+                unzip: true,
+                ..AndroidTools::default()
+            },
+            zipalign.as_deref(),
+        )
+        .is_empty());
+        std::fs::remove_dir_all(&sdk).ok();
+
+        // An SDK without build-tools still names zipalign separately — the fix
+        // for that machine is one sdkmanager command, not a new SDK.
+        let bare = std::env::temp_dir().join("vieww-build-multi-abi-sdk-bare");
+        let _ = std::fs::remove_dir_all(&bare);
+        std::fs::create_dir_all(&bare).unwrap();
+        let missing = multi_abi_missing(
+            Some(bare.to_str().unwrap()),
+            &AndroidTools {
+                cargo_apk: true,
+                zip: true,
+                unzip: true,
+                ..AndroidTools::default()
+            },
+            zipalign_in(&bare).as_deref(),
+        );
+        std::fs::remove_dir_all(&bare).ok();
+        assert_eq!(missing.len(), 1, "{missing:?}");
+        assert_eq!(missing[0].tool, "zipalign");
+    }
+
+    #[test]
+    fn zipalign_is_picked_from_the_newest_build_tools_directory() {
+        let sdk = std::env::temp_dir().join("vieww-build-multi-abi-zipalign");
+        let _ = std::fs::remove_dir_all(&sdk);
+        for version in ["33.0.0", "34.0.0"] {
+            std::fs::create_dir_all(sdk.join("build-tools").join(version)).unwrap();
+            std::fs::write(
+                sdk.join("build-tools").join(version).join("zipalign"),
+                b"#!/bin/sh\n",
+            )
+            .unwrap();
+        }
+        assert_eq!(
+            zipalign_in(&sdk),
+            Some(sdk.join("build-tools/34.0.0/zipalign")),
+            "the newest build-tools wins"
+        );
+        // A Windows SDK layout is found through the .exe spelling.
+        std::fs::create_dir_all(sdk.join("build-tools/35.0.0")).unwrap();
+        std::fs::write(sdk.join("build-tools/35.0.0/zipalign.exe"), b"").unwrap();
+        assert_eq!(
+            zipalign_in(&sdk),
+            Some(sdk.join("build-tools/35.0.0/zipalign.exe"))
+        );
+        // And an SDK with no build-tools names none — that is the refusal
+        // above's business, not a guess.
+        let empty = std::env::temp_dir().join("vieww-build-multi-abi-empty");
+        let _ = std::fs::remove_dir_all(&empty);
+        std::fs::create_dir_all(&empty).unwrap();
+        assert_eq!(zipalign_in(&empty), None);
+        let _ = std::fs::remove_dir_all(&sdk);
+        let _ = std::fs::remove_dir_all(&empty);
+    }
+
+    #[test]
+    fn the_layout_check_requires_a_library_per_abi() {
+        let staging = std::env::temp_dir().join("vieww-build-multi-abi-layout");
+        let _ = std::fs::remove_dir_all(&staging);
+        for abi in MULTI_ABI {
+            std::fs::create_dir_all(staging.join("lib").join(abi.dir)).unwrap();
+            std::fs::write(
+                staging.join("lib").join(abi.dir).join("libprobe.so"),
+                b"ELF...",
+            )
+            .unwrap();
+        }
+        assert_eq!(verify_lib_layout(&staging, MULTI_ABI), Ok(()));
+
+        // An ABI directory with no .so in it is a failed build, and the error
+        // says which directory — so the next look is at the build, not here.
+        std::fs::remove_file(staging.join("lib/x86_64/libprobe.so")).unwrap();
+        let error = verify_lib_layout(&staging, MULTI_ABI).unwrap_err();
+        assert!(error.contains("lib/x86_64"), "{error}");
+        assert!(error.contains("x86_64-linux-android"), "{error}");
+
+        // A missing directory entirely is the same failure, not a panic.
+        std::fs::remove_dir_all(staging.join("lib/arm64-v8a")).unwrap();
+        let error = verify_lib_layout(&staging, MULTI_ABI).unwrap_err();
+        assert!(error.contains("arm64-v8a"), "{error}");
+        let _ = std::fs::remove_dir_all(&staging);
+    }
+
+    /// The real path, on the real machine running this suite. This sandbox has
+    /// no Android SDK (no `ANDROID_HOME`), no `cargo apk` and no build-tools,
+    /// so packaging a multi-ABI APK here is a real, deterministic
+    /// `MissingTool` that names the SDK, the subcommand and `zipalign` with
+    /// their fixes — the refusal-first contract, through `package`'s own
+    /// dispatch and past `check_host`, which must not gate this target.
+    #[test]
+    fn packaging_multi_abi_with_no_sdk_here_is_a_named_missing_tool() {
+        let scratch = aab_scratch("vieww-build-package-multi-abi-probe", false);
+        let result = package(PackageTarget::AndroidMultiAbi, &scratch);
+        std::fs::remove_dir_all(&scratch).ok();
+
+        match result {
+            Err(PackageError::MissingTool {
+                target,
+                tool,
+                how_to_get_it,
+            }) => {
+                assert_eq!(target, PackageTarget::AndroidMultiAbi);
+                assert!(tool.contains("cargo apk"), "{tool}");
+                // On this sandbox the SDK is absent too, so the refusal says
+                // so; a machine with only the SDK set says zipalign instead —
+                // whichever line is present, the fix travels with it.
+                assert!(
+                    how_to_get_it.contains("ANDROID_HOME")
+                        || how_to_get_it.contains("sdkmanager")
+                        || how_to_get_it.contains("cargo install cargo-apk"),
+                    "the refusal names how to get the tools: {how_to_get_it}"
+                );
+            }
+            other => {
+                // A machine that genuinely has the whole Android toolchain
+                // would start a real per-ABI build here, which this test does
+                // not attempt; only a wrong *kind* of failure is the gate's bug.
+                assert!(
+                    !matches!(other, Err(PackageError::Io(_))),
+                    "unexpected I/O error: {other:?}"
+                );
+            }
         }
     }
 

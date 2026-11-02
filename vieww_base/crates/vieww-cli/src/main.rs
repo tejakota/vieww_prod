@@ -102,6 +102,9 @@ enum PackageTargetArg {
     /// The `.aab` Play requires — `vieww-build`'s AAB route (gradlew or
     /// bundletool), a separate target from `android`'s APK.
     Aab,
+    /// One APK carrying both `arm64-v8a` and `x86_64` — the
+    /// emulator-installable counterpart of `android`'s single-ABI APK.
+    AndroidMultiAbi,
     Ios,
 }
 
@@ -113,6 +116,7 @@ impl From<PackageTargetArg> for PackageTarget {
             PackageTargetArg::Windows => Self::Windows,
             PackageTargetArg::Android => Self::Android,
             PackageTargetArg::Aab => Self::Aab,
+            PackageTargetArg::AndroidMultiAbi => Self::AndroidMultiAbi,
             PackageTargetArg::Ios => Self::Ios,
         }
     }
@@ -396,6 +400,7 @@ mod tests {
             ("windows", PackageTargetArg::Windows),
             ("android", PackageTargetArg::Android),
             ("aab", PackageTargetArg::Aab),
+            ("android-multi-abi", PackageTargetArg::AndroidMultiAbi),
             ("ios", PackageTargetArg::Ios),
         ] {
             assert_eq!(
@@ -447,6 +452,10 @@ mod tests {
         assert_eq!(
             PackageTarget::from(PackageTargetArg::Aab),
             PackageTarget::Aab
+        );
+        assert_eq!(
+            PackageTarget::from(PackageTargetArg::AndroidMultiAbi),
+            PackageTarget::AndroidMultiAbi
         );
         assert_eq!(
             PackageTarget::from(PackageTargetArg::Ios),
