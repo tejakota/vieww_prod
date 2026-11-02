@@ -16,6 +16,10 @@
 //!   latency — under 20 ms when exclusive (MMAP) was granted, under 100 ms
 //!   shared — and a 60-second soak with no underruns once the buffer has
 //!   settled;
+//! * **AU-19 (Android):** the AMidi library half — `libmediandk.so` loads
+//!   and its `AMidi*` symbols resolve (API 29+); the byte round trip
+//!   needs a MIDI adapter the farm does not list, and is owed by a
+//!   future farm phone with one;
 //! * **AU-09:** a route event from the platform (Android: a registered
 //!   `AudioDeviceCallback`'s device report; iOS: the route-change
 //!   notification, posted by the check as the interruption is) reaches the
@@ -225,6 +229,23 @@ fn route_event_check(checks: &mut Checks, engine: &Engine, provoke: impl FnOnce(
     );
 }
 
+/// AU-19: the AMidi library half, as present as a phone without a MIDI
+/// gadget can show it: `libmediandk.so` loads and its `AMidi*` symbols
+/// resolve (API 29+) — the door `MidiInput::open_amidi` opens a device
+/// through. The device half (a Java `MidiManager` device, a real round
+/// trip) needs a MIDI adapter the farm does not list.
+#[cfg(target_os = "android")]
+fn amidi_checks(checks: &mut Checks) {
+    match vieww_audio::midi_io::AmidiDevice::available() {
+        Ok(()) => checks.check(
+            "amidi_symbols",
+            true,
+            "libmediandk.so loaded, AMidi symbols resolved (API 29+)",
+        ),
+        Err(e) => checks.check("amidi_symbols", false, &e),
+    }
+}
+
 /// AU-08: the AAudio stream as tuned — exclusive (MMAP) or shared, its
 /// latency, and a minute of play with no underruns once the buffer has
 /// settled.
@@ -341,6 +362,7 @@ pub fn spawn(app: &crate::AndroidApp) {
                 })
             });
             aaudio_checks(&mut checks, &engine);
+            amidi_checks(&mut checks);
 
             say(&device_line(&engine));
             say(&format!(
