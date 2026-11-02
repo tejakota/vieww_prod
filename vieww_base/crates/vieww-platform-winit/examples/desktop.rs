@@ -159,6 +159,10 @@ fn main() {
         .on_frame(stress.hook())
         .on_frame(device.hook())
         .after_frame(device.tap_targets())
+        // Same probe as the phones: a workstation with fcitx5 or an X keyboard
+        // can type into the field too, and the `__VIEWW_IME__` lines land on
+        // this console (the one platform where they are stdout).
+        .after_frame(device.ime_probe())
         .after_frame(desktop.surface(WINDOW))
         .before_frame(device.modal_semantics())
         .before_frame(desktop.clipboard())
@@ -169,6 +173,7 @@ fn main() {
             stress.attach(&demo);
             let probe = device.probe(demo.taps());
             device.watch_drawer(demo.drawer());
+            device.watch_field(demo.field());
             // `VIEWW_SCREEN=stress` for the heavy screen the phones run too.
             driver.set_root(if screen::wants_stress() {
                 demo.stress_screen(TargetPlatform::current(), probe)

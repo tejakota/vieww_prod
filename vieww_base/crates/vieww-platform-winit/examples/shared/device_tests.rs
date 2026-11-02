@@ -410,6 +410,22 @@ fn emit(line: &str) {
     eprintln!("{line}");
 }
 
+/// `text` as lowercase hex of its UTF-8 bytes, no separators.
+///
+/// For [`DeviceSuite::ime_probe`]'s report line: the committed text is CJK,
+/// and a byte-exact encoding is the one representation that survives logcat,
+/// `adb shell` and the host shell's grep without a locale in the loop. The
+/// host side makes the same string with `printf %s | od -An -tx1`.
+fn hex_utf8(text: &str) -> String {
+    const HEX: &[u8; 16] = b"0123456789abcdef";
+    let mut out = String::with_capacity(text.len() * 2);
+    for byte in text.as_bytes() {
+        out.push(HEX[usize::from(byte / 16)] as char);
+        out.push(HEX[usize::from(byte % 16)] as char);
+    }
+    out
+}
+
 /// The on-device suite: a probe that lives in the tree, and a per-frame hook.
 ///
 /// Created *before* `App::run`, because `on_frame` is installed before the
@@ -434,6 +450,18 @@ pub(crate) struct DeviceSuite {
     /// screen behind still in the semantics tree — and only the last step of it
     /// ("does TalkBack *say* nothing") needs ears.
     drawer: Rc<RefCell<Option<Signal<bool>>>>,
+    /// The demo's text field, filled in the same way and for the same reason
+    /// as [`taps`](Self::taps).
+    ///
+    /// It exists for the IME step of `ci/mobile/device-suite.sh` (FW-11b): an
+    /// input method commits into the field through the platform bridge, and
+    /// the only place the committed text can be *observed* from outside the
+    /// tree is the signal holding it. `ime_probe` reports it, hex-encoded,
+    /// on a sentinel line the script greps for — the same contract as
+    /// `__VIEWW_TAPS__`, for the one signal a script cannot read any other
+    /// way. The a11y tree also carries the value, and the iOS XCUITest leg
+    /// asserts it there instead.
+    field: Rc<RefCell<Option<Signal<TextEditingValue>>>>,
     /// Who else gets the report, once it is written — see
     /// [`when_reported`](Self::when_reported).
     sink: ReportSink,
@@ -500,6 +528,15 @@ impl DeviceSuite {
     /// call this one.
     pub(crate) fn watch_drawer(&self, drawer: &Signal<bool>) {
         *self.drawer.borrow_mut() = Some(drawer.clone());
+    }
+
+    /// Hand the suite the text field's value, so the IME step can watch what
+    /// an input method commits.
+    ///
+    /// Same shape as [`watch_drawer`](Self::watch_drawer), and for the same
+    /// reason: the hooks are installed before the `Demo` exists.
+    pub(crate) fn watch_field(&self, field: &Signal<TextEditingValue>) {
+        *self.field.borrow_mut() = Some(field.clone());
     }
 
     /// The closure to hand to `App::before_frame`, which raises a modal and
@@ -732,6 +769,61 @@ impl DeviceSuite {
                 point((bx, by)),
                 point((fx, fy))
             );
+        }
+    }
+
+    /// The closure to hand to `App::after_frame`, which reports what the text
+    /// field holds whenever it changes — the IME step's eyes.
+    ///
+    /// # What this closes, and what it does not
+    ///
+    /// FW-11's on-device half: an input method commits CJK text into the
+    /// field through the platform bridge — Android `InputConnection`,
+    /// iOS `UITextInput` — and the committed string has to be observable
+    /// from outside the app for `ci/mobile/device-suite.sh --ime` to assert
+    /// on it. The semantics tree carries the value too (and the iOS XCUITest
+    /// leg asserts it there); this line is the Android logcat channel, the
+    /// same contract as `__VIEWW_TAPS__` for the one signal a script cannot
+    /// read any other way.
+    ///
+    /// What it does **not** close: the composition itself. A preedit
+    /// lifecycle on a real phone needs a real input method composing, and
+    /// the sequences themselves are proven host-side by
+    /// `crates/vieww/tests/ime_replay.rs`. This line just says, honestly
+    /// and whenever it moves, what the field holds — including while a
+    /// composition is in flight, because `composing=` is part of the line.
+    ///
+    /// # Why hex
+    ///
+    /// The text is CJK: logcat handles UTF-8, but the script grepping for it
+    /// through `adb shell` round-trips bytes through whatever encoding two
+    /// shells agree on, and a mismatched locale turns an exact-match
+    /// assertion into a maybe. Lowercase hex of the UTF-8 bytes, no
+    /// separators, is unambiguous in every shell (`od -An -tx1` produces it
+    /// on the host side) and still lets the script assert *contains*, which
+    /// is what a commit into a field that already says "tap to type" needs.
+    pub(crate) fn ime_probe(&self) -> impl FnMut(&vieww_render::FrameDriver) + 'static {
+        let slot = Rc::clone(&self.field);
+        let mut last: Option<(String, Option<vieww_foundation::TextRange>)> = None;
+        move |_driver| {
+            let Some(field) = slot.borrow().clone() else {
+                return;
+            };
+            let value = field.get();
+            if last.as_ref().is_some_and(|(text, composing)| {
+                *text == value.text && *composing == value.composing
+            }) {
+                return;
+            }
+            let composing = match value.composing {
+                Some(range) => format!("{}-{}", range.start, range.end),
+                None => "none".to_owned(),
+            };
+            report!(
+                "__VIEWW_IME__ text={} composing={composing}",
+                hex_utf8(&value.text)
+            );
+            last = Some((value.text, value.composing));
         }
     }
 

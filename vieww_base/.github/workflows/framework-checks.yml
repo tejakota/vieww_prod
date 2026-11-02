@@ -612,7 +612,7 @@ jobs:
       - name: APK
         run: ci/mobile/apk.sh --example android
       - name: Device suite
-        run: ci/mobile/device-suite.sh
+        run: ci/mobile/device-suite.sh --ime
       - name: Accessibility suite
         run: ci/mobile/a11y-android.sh
 
