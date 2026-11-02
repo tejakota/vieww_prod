@@ -44,12 +44,15 @@ backend and one kind of content; there is no global one.
 | Vulkan compositor | layers, group opacity, blur, backdrop blur, colour matrix, shaped clips, shadows, transparent clear, winding, dashed strokes | **every** pixel within 2/255, none over | `crates/vieww-hal/tests/vulkan_compositor.rs` |
 | Metal `SceneRenderer` | filled and stroked shapes, translucent overlaps, group-opacity layers | **interior** pixels within 2/255 per channel, none over; edge pixels free (the Vulkan rule, verbatim) | `crates/vieww-hal/tests/metal_scene.rs` (hosted macOS, paravirtual GPU) |
 | D3D12 `SceneRenderer` | filled and stroked shapes, translucent overlaps, group-opacity layers, retained damage | **interior** pixels within 2/255 per channel, none over; edge pixels free (the Vulkan rule, verbatim) | `crates/vieww-hal/tests/d3d12_scene.rs` (hosted Windows, WARP) |
-| WebGPU | — | not declared; same rule | — |
+| WebGPU `SceneRenderer` | empty frame, blended fills, gradients, group-opacity layers, blurred layers, presentation | **interior** pixels within 2/255 per channel, none over; disagreements only where the reference itself has an edge — `vieww-test-harness`'s `ParityContract::Performance`, stated in its own words (`PERFORMANCE_INTERIOR_TOLERANCE`/`PERFORMANCE_EDGE_GRADIENT`); the empty scene is byte-exact (nothing was drawn, so there is no coverage to disagree about) | `crates/vieww-hal/web-test/webgpu_parity.py` (Framework checks' web leg, per engine; engines without WebGPU skip loudly) |
 
 Where they run: lavapipe in ordinary CI, real GPUs in `ci/hardware/linux.sh`
 and `ci/hardware/windows.ps1` (`cargo test -p vieww-hal --features vulkan --
 --ignored`). Phones are not covered yet; Device Farm runs the device suite,
-not these parity tests.
+not these parity tests. WebGPU runs in Chromium on the web leg (its
+SwiftShader fallback adapter, behind the certification script's
+`--enable-unsafe-webgpu`), so its row is correctness evidence, never
+performance evidence; Firefox and WebKitGTK have no WebGPU there and skip.
 
 ### The parity certificate (FW-26)
 
