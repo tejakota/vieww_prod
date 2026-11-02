@@ -22,7 +22,10 @@
 #   pipelines FW-05 the GPU pipeline-cache proof: the baseline app launched
 #                   twice against a cache this step owns — the second launch
 #                   must start from the bytes the first saved and reach its
-#                   first frame sooner (the hit-rate a user gets from day two)
+#                   first frame sooner (the hit-rate a user gets from day two);
+#                   FW-16: the warm first frame must also clear the absolute
+#                   350 ms gate, and both receipts' startup census is asserted
+#                   (first-frame mark present, every stage carries a time)
 #   stress    —     the animation stress suite five times: one reproducible p95
 #   desktop   —     the on-desktop suite, through Git Bash
 #   remote    §3.3  the studio's out-of-process preview tests
@@ -337,6 +340,35 @@ if (Want 'pipelines') {
             Say "      pipelines run $run stages: $($report[$run].startup_stages)"
           }
         }
+        # FW-16: the receipt's startup census is asserted, not just printed.
+        # The first frame's mark must be there (a run that presented has one),
+        # the census must have enough stages to be one, and every stage must
+        # carry a time — a malformed line is a broken receipt, not a style
+        # problem, and every later gate reads this receipt.
+        if ($ok) {
+          $stages = [string]$report[2].startup_stages
+          if ([string]::IsNullOrWhiteSpace($stages)) {
+            Say 'FAIL  pipelines (run 2 reported no startup_stages — the receipt must carry the startup census)'
+            $ok = $false
+          } else {
+            if (-not ($stages.Contains('first raster and present'))) {
+              Say 'FAIL  pipelines (run 2 startup_stages has no "first raster and present" mark — did the first frame actually present?)'
+              $ok = $false
+            }
+            $segs = $stages.Split('|')
+            if ($segs.Count -lt 5) {
+              Say "FAIL  pipelines (run 2 startup_stages carries only $($segs.Count) segment(s) — the census is incomplete)"
+              $ok = $false
+            }
+            foreach ($seg in $segs) {
+              if ($seg -match '=' -or $seg -match 'before run unknown') { continue }
+              if (-not ($seg -match '\d')) {
+                Say "FAIL  pipelines (run 2 startup stage carries no time: `"$seg`")"
+                $ok = $false
+              }
+            }
+          }
+        }
         if ($ok) {
           if ($seed[1] -ne 0) {
             Say "FAIL  pipelines (run 1 started from $($seed[1]) bytes — the cache was not cold; this step's own setup failed)"
@@ -347,8 +379,15 @@ if (Want 'pipelines') {
           } elseif ($report[2].main_to_first_frame_ms -ge $report[1].main_to_first_frame_ms) {
             Say ("FAIL  pipelines (warm first frame {0:N1} ms is not under the cold {1:N1} ms)" -f $report[2].main_to_first_frame_ms, $report[1].main_to_first_frame_ms)
             $script:Failed = $true
+          } elseif ($report[2].main_to_first_frame_ms -gt 350) {
+            # FW-16's absolute gate: the warm cache may not merely be faster
+            # than this machine's cold start — a person still waited for it.
+            # 350 ms is the receipt-based budget the report names; the relative
+            # win above does not excuse the absolute number.
+            Say ("FAIL  pipelines (warm first frame {0:N1} ms is over FW-16's 350 ms gate)" -f $report[2].main_to_first_frame_ms)
+            $script:Failed = $true
           } else {
-            Say ("PASS  pipelines (cold {0:N1} ms -> warm {1:N1} ms, seeded from {2} bytes)" -f $report[1].main_to_first_frame_ms, $report[2].main_to_first_frame_ms, $seed[2])
+            Say ("PASS  pipelines (cold {0:N1} ms -> warm {1:N1} ms, under the 350 ms gate, seeded from {2} bytes)" -f $report[1].main_to_first_frame_ms, $report[2].main_to_first_frame_ms, $seed[2])
           }
         } else { $script:Failed = $true }
       } else {
