@@ -26,8 +26,12 @@
 //! screen out of themed controls: buttons, switches, sliders, chips, a
 //! virtualised list, a navigation stack and dialogs.
 //!
-//! [`FrameDriver`] joins every layer; enable the `gpu` feature for the vello
-//! backend.
+//! [`FrameDriver`] joins every layer. Rasterisation is [`vieww_paint`]'s
+//! `native` feature — this workspace's own CPU rasterizer — and the GPU path,
+//! when the application asks for one, is `vieww-hal`'s scene renderers
+//! (Vulkan, Metal, D3D12, WebGPU) driven by the platform layer; which of the
+//! two runs is a per-device choice, not a feature flag (see
+//! `vieww-platform-winit`'s `rasterizer_choice`).
 //!
 //! **It runs on Android, at speed.** `android_main` is wired, and a real phone
 //! — a Redmi Note 7 Pro, Adreno 612 — renders **59.3fps over ten seconds with

@@ -8,7 +8,9 @@ explains why the crates are shaped the way they are; [`TRACKER.md`](../../TRACKE
 says what is tested; every non-trivial public item has a doc comment
 explaining its own reasoning. All of that is written for somebody working
 *on* vieww. Somebody working *with* it had a README, a `cargo run` line, and
-57 example directories to read in whatever order they found them.
+north of a hundred example directories to read in whatever order they found
+them. (A count here would go stale the next time somebody adds one; the
+`examples/` tree is the number.)
 
 These pages are the missing half. They assume you know Rust and do not
 assume you have read anything else here.
@@ -99,8 +101,10 @@ cross-checks and CI runners, never by a person on the machine;
 `ci/check/platform-check.sh` is one command each that says so precisely.
 Android and iOS build green on CI runners (the four apps under `apps/`), but
 no frame has reached a device. The web backend is compiled, gated and
-canvas-certified byte-for-byte against the native rasterizer — on
-Chromium only; no Firefox or WebKit run has been scripted.
+canvas-certified byte-for-byte against the native rasterizer, and the
+certification is scripted for all three Playwright engines — Chromium,
+Firefox and WebKit — in `framework-checks`' web leg; the runs live on that
+workflow's dispatches rather than on every push.
 
 If you need a hard 120 Hz guarantee today, this is not the
 framework yet, and it is better to know that now.
