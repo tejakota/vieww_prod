@@ -104,6 +104,10 @@ mod keys;
 mod latency;
 mod lifecycle;
 pub mod locale;
+// The machine's displays: enumeration as a snapshot, and change events as a
+// diff between two. Public because `App::on_monitor_change` hands its types
+// to application code and a caller should not need a second route to them.
+pub mod monitors;
 // Split-frame execution: the Mixed recommendation's path from a planner
 // opinion to pixels on a screen — crate plumbing of native.rs, visible to
 // the crate's own tests: see mixed.rs for what a band split is and is not.
@@ -158,6 +162,7 @@ pub use input::{PointerTranslator, TouchPhase};
 pub use keys::{ime, KeyTranslator};
 pub use latency::{InputLatencyLog, InputLatencyReport, UNANSWERED_AFTER};
 pub use lifecycle::Lifecycle;
+pub use monitors::{MonitorChange, MonitorInfo};
 pub use perf_hint::perf_hint_status;
 pub use quality::{cache_budgets_for, cache_budgets_status, gpu_scale_status, QualityProfile};
 pub use rasterizer_choice::rasterizer_choice;
