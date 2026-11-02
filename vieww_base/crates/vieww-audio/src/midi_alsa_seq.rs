@@ -269,7 +269,9 @@ fn open_client(api: &Api) -> std::io::Result<(*mut c_void, u8)> {
     if !(0..=255).contains(&id) {
         // SAFETY: the handle we opened.
         unsafe { (api.close)(seq) };
-        return Err(std::io::Error::other(format!("client id {id} is not a byte")));
+        return Err(std::io::Error::other(format!(
+            "client id {id} is not a byte"
+        )));
     }
     // The name, so `aconnect -l` shows `vieww-audio` and not `Client-73`.
     // A failure here is cosmetic: keep the client.
@@ -426,7 +428,11 @@ pub(super) fn open_input(port: &MidiPort, feed: Feed) -> std::io::Result<Box<dyn
     let (seq, _) = open_client(api)?;
     let my_port = create_port(api, seq, "in", CAP_WRITE | CAP_SUBS_WRITE)?;
     // SAFETY: the handle, our port, and the parsed address.
-    if let Err(e) = check(api, unsafe { (api.connect_from)(seq, my_port, c, p) }, "snd_seq_connect_from") {
+    if let Err(e) = check(
+        api,
+        unsafe { (api.connect_from)(seq, my_port, c, p) },
+        "snd_seq_connect_from",
+    ) {
         // SAFETY: the client we opened on the failing path.
         unsafe {
             (api.delete_port)(seq, my_port);
@@ -446,12 +452,7 @@ pub(super) fn open_virtual_input(name: &str, feed: Feed) -> std::io::Result<Box<
 }
 
 /// Start the pump thread for an open input port.
-fn pump(
-    api: &'static Api,
-    seq: *mut c_void,
-    port: c_int,
-    feed: Feed,
-) -> std::io::Result<Input> {
+fn pump(api: &'static Api, seq: *mut c_void, port: c_int, feed: Feed) -> std::io::Result<Input> {
     let stop = Arc::new(AtomicBool::new(false));
     let stop2 = Arc::clone(&stop);
     // SAFETY: the handle moves to the pump thread and back to `drop`
@@ -467,13 +468,12 @@ fn pump(
             // closure is `Send` by the impl above.
             pump_loop(api, seq, &stop2, feed);
         })
-        .map_err(|e| {
+        .inspect_err(|_| {
             // SAFETY: the client this pump failed to start on.
             unsafe {
                 (api.delete_port)(seq.0, port);
                 (api.close)(seq.0);
             }
-            e
         })?;
     Ok(Input {
         api,
@@ -511,7 +511,8 @@ fn pump_loop(api: &'static Api, seq: SeqPtr, stop: &AtomicBool, mut feed: Feed) 
         }
         // SAFETY: the handle's own descriptors, `n` of them, with the
         // events mask they were asked for.
-        let filled = unsafe { (api.poll_descriptors)(seq, fds.as_mut_ptr(), fds.len() as u32, POLLIN) };
+        let filled =
+            unsafe { (api.poll_descriptors)(seq, fds.as_mut_ptr(), fds.len() as u32, POLLIN) };
         if filled > 0 {
             // SAFETY: the descriptors the library filled, as many as it
             // said, with a bounded timeout.
@@ -617,8 +618,11 @@ impl Out {
         let (seq, client) = open_client(api)?;
         let my_port = create_port(api, seq, "out", CAP_READ | CAP_SUBS_READ)?;
         // SAFETY: the handle, our port, and the parsed address.
-        let subscribed =
-            check(api, unsafe { (api.connect_to)(seq, my_port, c, p) }, "snd_seq_connect_to");
+        let subscribed = check(
+            api,
+            unsafe { (api.connect_to)(seq, my_port, c, p) },
+            "snd_seq_connect_to",
+        );
         let dest = if subscribed.is_ok() {
             Addr {
                 client: ADDRESS_SUBSCRIBERS,
@@ -774,7 +778,14 @@ mod tests {
         assert_eq!(parse_seq_id("seq:128,3").unwrap(), (128, 3));
         assert_eq!(parse_seq_id("seq:0,0").unwrap(), (0, 0));
         for bad in [
-            "hw:0,0", "seq:", "seq:1", "seq:1,", "seq:,1", "seq:-1,0", "seq:256,0", "seq:1,256",
+            "hw:0,0",
+            "seq:",
+            "seq:1",
+            "seq:1,",
+            "seq:,1",
+            "seq:-1,0",
+            "seq:256,0",
+            "seq:1,256",
             "seq:x,y",
         ] {
             assert!(parse_seq_id(bad).is_err(), "{bad:?}");

@@ -418,7 +418,10 @@ fn alsa_seq_virtual_ports_round_trip() {
         .find(|p| p.name == "vieww-audio:vieww-rt-out")
         .expect("the virtual output is listed as an input port")
         .id;
-    assert!(in_id.starts_with("seq:") && out_id.starts_with("seq:"), "{in_id} {out_id}");
+    assert!(
+        in_id.starts_with("seq:") && out_id.starts_with("seq:"),
+        "{in_id} {out_id}"
+    );
 
     // Both ways: a subscribed output writes into the virtual input; the
     // virtual output broadcasts to a subscribed input.

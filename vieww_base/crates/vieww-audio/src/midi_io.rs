@@ -467,6 +467,67 @@ pub(crate) unsafe fn walk_packet_list(list: *const u8, align4: bool, mut f: impl
     }
 }
 
+// ---- the Web MIDI bridge's pure half (wasm) --------------------------------
+//
+// The `vieww_midi` shim (web/vieww-midi.js, `midi_web.rs` the FFI half)
+// speaks two small conventions across the wasm boundary, and they are
+// protocol — wrong on either side and bytes or errors go astray — so
+// they live here, compile on every platform, and their tests (below,
+// and web/test-midi.mjs on the JS side) hold both halves to the same
+// numbers.
+
+/// Read one string out of the shim: `read` is handed a buffer and
+/// returns the string's full byte length while copying at most the
+/// buffer's worth into it — a short read, then this retry with the
+/// exact size. DOMStrings are well-formed UTF-16, so the bytes are
+/// UTF-8 the shim encoded; the lossy decode only guards a shim bug
+/// (and a name changed between the two reads — ids, what `open`
+/// matches on, are stable).
+#[cfg_attr(
+    not(any(target_arch = "wasm32", test)),
+    expect(dead_code, reason = "the Web MIDI shim is wasm")
+)]
+pub(crate) fn shim_string(mut read: impl FnMut(&mut [u8]) -> u32) -> String {
+    let mut buf = [0u8; 128];
+    let n = read(&mut buf) as usize;
+    if n <= buf.len() {
+        return String::from_utf8_lossy(&buf[..n]).into_owned();
+    }
+    let mut exact = vec![0u8; n];
+    let m = read(&mut exact) as usize;
+    String::from_utf8_lossy(&exact[..m.min(exact.len())]).into_owned()
+}
+
+/// Map a shim result code to what it is: 0 is success; −1, no MIDI
+/// access (the shim not attached, `requestMIDIAccess` not resolved,
+/// rejected, or absent); −2, no such port; −3, the browser's refusal
+/// (SysEx without its permission). Anything else is a shim this file
+/// does not know — said as the unknown it is, never guessed at.
+#[cfg_attr(
+    not(any(target_arch = "wasm32", test)),
+    expect(dead_code, reason = "the Web MIDI shim is wasm")
+)]
+pub(crate) fn shim_check(code: i32, what: &str) -> std::io::Result<()> {
+    match code {
+        0 => Ok(()),
+        -1 => Err(std::io::Error::new(
+            std::io::ErrorKind::Unsupported,
+            format!("{what}: Web MIDI is not available (or its permission was denied)"),
+        )),
+        -2 => Err(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            format!("{what}: no such Web MIDI port"),
+        )),
+        -3 => Err(std::io::Error::new(
+            std::io::ErrorKind::PermissionDenied,
+            format!("{what}: the browser refused"),
+        )),
+        c => Err(std::io::Error::other(format!(
+            "{what}: the shim returned {c}"
+        ))),
+    }
+}
+
 // ---- the ALSA sequencer bridge's pure half (Linux) ------------------------
 //
 // The sequencer is where software MIDI lives on Linux — another
@@ -624,7 +685,11 @@ pub(crate) fn seq_encode(bytes: &[u8]) -> Option<SeqEvent> {
         0xF0 if bytes.len() >= 2 && bytes.last() == Some(&0xF7) => {
             ev.type_ = seq_event::SYSEX;
             ev.flags = seq_event::LENGTH_VARIABLE;
-            put(&mut ev.data, 0, u32::try_from(bytes.len()).unwrap_or(u32::MAX));
+            put(
+                &mut ev.data,
+                0,
+                u32::try_from(bytes.len()).unwrap_or(u32::MAX),
+            );
         }
         0xF1 if bytes.len() == 2 => {
             ev.type_ = seq_event::QFRAME;
@@ -632,7 +697,11 @@ pub(crate) fn seq_encode(bytes: &[u8]) -> Option<SeqEvent> {
         }
         0xF2 if bytes.len() == 3 => {
             ev.type_ = seq_event::SONGPOS;
-            put(&mut ev.data, 8, (u32::from(bytes[2]) << 7) | u32::from(bytes[1]));
+            put(
+                &mut ev.data,
+                8,
+                (u32::from(bytes[2]) << 7) | u32::from(bytes[1]),
+            );
         }
         0xF3 if bytes.len() == 2 => {
             ev.type_ = seq_event::SONGSEL;
@@ -663,16 +732,17 @@ pub(crate) fn seq_encode(bytes: &[u8]) -> Option<SeqEvent> {
 )]
 pub(crate) fn seq_decode(ev: &SeqEvent, ext: &[u8]) -> Option<Vec<u8>> {
     let ch = ev.data[0] & 0x0f;
-    let word = |d: &[u8; 12], at: usize| {
-        u32::from_ne_bytes([d[at], d[at + 1], d[at + 2], d[at + 3]])
-    };
+    let word =
+        |d: &[u8; 12], at: usize| u32::from_ne_bytes([d[at], d[at + 1], d[at + 2], d[at + 3]]);
     let param = word(&ev.data, 4);
     let value = word(&ev.data, 8);
     let b7 = |v: u32| (v & 0x7f) as u8;
     match ev.type_ {
         t if t == seq_event::NOTEON => Some(vec![0x90 | ch, ev.data[1] & 0x7f, ev.data[2] & 0x7f]),
         t if t == seq_event::NOTEOFF => Some(vec![0x80 | ch, ev.data[1] & 0x7f, ev.data[2] & 0x7f]),
-        t if t == seq_event::KEYPRESS => Some(vec![0xA0 | ch, ev.data[1] & 0x7f, ev.data[2] & 0x7f]),
+        t if t == seq_event::KEYPRESS => {
+            Some(vec![0xA0 | ch, ev.data[1] & 0x7f, ev.data[2] & 0x7f])
+        }
         t if t == seq_event::CONTROLLER => Some(vec![0xB0 | ch, b7(param), b7(value)]),
         t if t == seq_event::PGMCHANGE => Some(vec![0xC0 | ch, b7(value)]),
         t if t == seq_event::CHANPRESS => Some(vec![0xD0 | ch, b7(value)]),
@@ -977,25 +1047,25 @@ mod tests {
     const SEQ_WIRE: &[&[u8]] = &[
         &[0x80, 60, 0],
         &[0x90, 60, 100],
-        &[0x9F, 0, 0],      // note-on velocity 0 (either spelling survives)
-        &[0xA5, 61, 20],    // polyphonic key pressure
-        &[0xB3, 74, 12],    // control change
-        &[0xC7, 99],        // program change
-        &[0xD0, 64],        // channel pressure
-        &[0xE1, 0, 0],      // pitch bend, centered
-        &[0xE1, 0x7F, 0x7F], // pitch bend, top
-        &[0xE1, 0x41, 0x00], // pitch bend, bottom (LSB 7-bit, MSB 0)
+        &[0x9F, 0, 0],                // note-on velocity 0 (either spelling survives)
+        &[0xA5, 61, 20],              // polyphonic key pressure
+        &[0xB3, 74, 12],              // control change
+        &[0xC7, 99],                  // program change
+        &[0xD0, 64],                  // channel pressure
+        &[0xE1, 0, 0],                // pitch bend, centered
+        &[0xE1, 0x7F, 0x7F],          // pitch bend, top
+        &[0xE1, 0x41, 0x00],          // pitch bend, bottom (LSB 7-bit, MSB 0)
         &[0xF0, 0x7D, 1, 2, 3, 0xF7], // system exclusive
-        &[0xF1, 0x33],      // quarter frame
-        &[0xF2, 0x22, 0x11], // song position
-        &[0xF3, 0x44],      // song select
-        &[0xF6],            // tune request
-        &[0xF8],            // timing clock
-        &[0xFA],            // start
-        &[0xFB],            // continue
-        &[0xFC],            // stop
-        &[0xFE],            // active sensing
-        &[0xFF],            // reset
+        &[0xF1, 0x33],                // quarter frame
+        &[0xF2, 0x22, 0x11],          // song position
+        &[0xF3, 0x44],                // song select
+        &[0xF6],                      // tune request
+        &[0xF8],                      // timing clock
+        &[0xFA],                      // start
+        &[0xFB],                      // continue
+        &[0xFC],                      // stop
+        &[0xFE],                      // active sensing
+        &[0xFF],                      // reset
     ];
 
     #[test]
@@ -1040,7 +1110,11 @@ mod tests {
     fn seq_decode_refuses_what_the_model_cannot_spell() {
         // The 14-bit and registered-parameter events: channel-voice
         // semantics this model's 7-bit control change does not carry.
-        for t in [seq_event::CONTROL14, seq_event::NONREGPARAM, seq_event::REGPARAM] {
+        for t in [
+            seq_event::CONTROL14,
+            seq_event::NONREGPARAM,
+            seq_event::REGPARAM,
+        ] {
             let ev = SeqEvent {
                 type_: t,
                 flags: 0,
@@ -1049,7 +1123,12 @@ mod tests {
             assert!(seq_decode(&ev, &[]).is_none(), "type {t}");
         }
         // The sequencer's own bookkeeping (a subscription made, a port gone).
-        for t in [seq_event::PORT_SUBSCRIBED, seq_event::PORT_UNSUBSCRIBED, 0, 255] {
+        for t in [
+            seq_event::PORT_SUBSCRIBED,
+            seq_event::PORT_UNSUBSCRIBED,
+            0,
+            255,
+        ] {
             let ev = SeqEvent {
                 type_: t,
                 flags: 0,
@@ -1084,5 +1163,71 @@ mod tests {
         assert!(seq_encode(&[0xF5]).is_none()); // undefined
         assert!(seq_encode(&[0xF7]).is_none()); // bare EOX has no spelling
         assert!(seq_encode(&[0xF0, 1]).is_none()); // unterminated sysex
+    }
+
+    // ---- the Web MIDI bridge's pure half ------------------------------------
+    //
+    // The protocol the `vieww_midi` shim speaks; web/test-midi.mjs holds
+    // the JavaScript half of it to the same numbers.
+
+    #[test]
+    fn shim_strings_read_short_and_retry_long() {
+        // Fits the stack buffer: one read carries it whole.
+        let short = |b: &mut [u8]| {
+            let s = b"loopback";
+            let n = b.len().min(s.len());
+            b[..n].copy_from_slice(&s[..n]);
+            s.len() as u32
+        };
+        assert_eq!(shim_string(short), "loopback");
+        // Exactly the buffer's size is still the one-read path.
+        let fill: Vec<u8> = "a".repeat(128).into_bytes();
+        let exact = |b: &mut [u8]| {
+            let n = b.len().min(fill.len());
+            b[..n].copy_from_slice(&fill[..n]);
+            fill.len() as u32
+        };
+        assert_eq!(shim_string(exact), "a".repeat(128));
+        // Longer: the first read truncates but reports the full length,
+        // and the exact-size retry carries every byte.
+        let long: Vec<u8> = "id-".repeat(100).into_bytes();
+        let over = |b: &mut [u8]| {
+            let n = b.len().min(long.len());
+            b[..n].copy_from_slice(&long[..n]);
+            long.len() as u32
+        };
+        assert_eq!(shim_string(over), "id-".repeat(100));
+    }
+
+    #[test]
+    fn shim_strings_replace_invalid_utf8() {
+        // The bytes are a DOMString the shim encoded — UTF-8 by
+        // construction — so this only fires on a shim bug; lossy, never
+        // a panic, is the honest failure.
+        let lossy = |b: &mut [u8]| {
+            let s = [0xFF, 0xFE, b'x'];
+            let n = b.len().min(s.len());
+            b[..n].copy_from_slice(&s[..n]);
+            s.len() as u32
+        };
+        assert_eq!(shim_string(lossy), "\u{FFFD}\u{FFFD}x");
+    }
+
+    #[test]
+    fn shim_result_codes_map_to_io_kinds() {
+        assert!(shim_check(0, "what").is_ok());
+        let kinds = [
+            (-1, std::io::ErrorKind::Unsupported),
+            (-2, std::io::ErrorKind::NotFound),
+            (-3, std::io::ErrorKind::PermissionDenied),
+        ];
+        for (code, kind) in kinds {
+            let e = shim_check(code, "what").unwrap_err();
+            assert_eq!(e.kind(), kind, "code {code}");
+        }
+        // An unknown code is said as the unknown it is.
+        let e = shim_check(-9, "what").unwrap_err();
+        assert_eq!(e.kind(), std::io::ErrorKind::Other);
+        assert!(e.to_string().contains("-9"));
     }
 }

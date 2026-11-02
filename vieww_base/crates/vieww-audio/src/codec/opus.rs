@@ -746,7 +746,7 @@ mod tests {
             assert_eq!(toc.frame_samples(), want, "config {config}");
             assert!(!toc.stereo && toc.code == 0);
         }
-        assert_eq!(Toc::parse(0x04).stereo, true);
+        assert!(Toc::parse(0x04).stereo);
         assert_eq!(Toc::parse(0x03).code, 3);
         assert_eq!(Toc::parse(0).mode(), Mode::Silk);
         assert_eq!(Toc::parse(12 << 3).mode(), Mode::Hybrid);

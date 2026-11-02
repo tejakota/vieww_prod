@@ -68,12 +68,10 @@ struct Api {
     device_release: unsafe extern "C" fn(DeviceHandle),
     device_num_input_ports: unsafe extern "C" fn(DeviceHandle) -> c_int,
     device_num_output_ports: unsafe extern "C" fn(DeviceHandle) -> c_int,
-    input_port_open:
-        unsafe extern "C" fn(DeviceHandle, c_int, *mut InputPortHandle) -> Status,
+    input_port_open: unsafe extern "C" fn(DeviceHandle, c_int, *mut InputPortHandle) -> Status,
     input_port_close: unsafe extern "C" fn(InputPortHandle),
     input_port_send: unsafe extern "C" fn(InputPortHandle, *const u8, isize) -> Status,
-    output_port_open:
-        unsafe extern "C" fn(DeviceHandle, c_int, *mut OutputPortHandle) -> Status,
+    output_port_open: unsafe extern "C" fn(DeviceHandle, c_int, *mut OutputPortHandle) -> Status,
     output_port_close: unsafe extern "C" fn(OutputPortHandle),
     output_port_receive: unsafe extern "C" fn(
         OutputPortHandle,
@@ -125,7 +123,9 @@ fn check(r: Status, what: &str) -> std::io::Result<()> {
     if r == AMEDIA_OK {
         Ok(())
     } else {
-        Err(std::io::Error::other(format!("{what} failed (media_status_t {r})")))
+        Err(std::io::Error::other(format!(
+            "{what} failed (media_status_t {r})"
+        )))
     }
 }
 
@@ -271,9 +271,8 @@ pub(super) fn open_amidi_input(
     feed: Feed,
 ) -> std::io::Result<Box<dyn Send>> {
     let n = device.num_output_ports();
-    let port = i32::try_from(port).map_err(|_| {
-        std::io::Error::other(format!("output port {port} is not a port number"))
-    })?;
+    let port = i32::try_from(port)
+        .map_err(|_| std::io::Error::other(format!("output port {port} is not a port number")))?;
     if port >= n {
         return Err(std::io::Error::other(format!(
             "output port {port} is out of range (the device has {n})"
