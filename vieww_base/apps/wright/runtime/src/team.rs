@@ -282,20 +282,31 @@ pub fn suitability(shared: &Path, project_dir: &Path) -> Result<String, String> 
         "outside the project, writable, fsync-durable ({})",
         shared_c.display()
     )];
+    notes.extend(dir_warnings(&shared_c));
+    Ok(notes.join("; "))
+}
+
+/// The permission warning a shared store directory deserves, if any:
+/// group/other-writable means everyone the file server already trusts
+/// can write the store — that is the team's boundary, and Wright cannot
+/// narrow it. Unix mode bits only; other platforms have none to read.
+fn dir_warnings(dir: &Path) -> Vec<String> {
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
-        if let Ok(md) = fs::metadata(&shared_c) {
+        if let Ok(md) = fs::metadata(dir) {
             let mode = md.permissions().mode();
             if mode & 0o022 != 0 {
-                notes.push(format!(
+                return vec![format!(
                     "WARNING: the directory is group/other-writable (mode {:o}) — everyone the file server already trusts can write the store; that is the team's boundary, Wright cannot narrow it",
                     mode & 0o777
-                ));
+                )];
             }
         }
     }
-    Ok(notes.join("; "))
+    #[cfg(not(unix))]
+    let _ = dir;
+    Vec::new()
 }
 
 fn hostname() -> String {
