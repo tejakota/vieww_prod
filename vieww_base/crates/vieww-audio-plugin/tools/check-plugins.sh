@@ -1,16 +1,23 @@
 #!/usr/bin/env bash
-# Build the example plugins and prove the CLAP and VST3 transcriptions are the
-# formats' ABIs, not merely self-consistent.
+# Build the example plugins and prove the CLAP, VST3 and LV2 transcriptions
+# are the formats' ABIs, not merely self-consistent.
 #
 #   tools/check-plugins.sh          build, bundle, C/C++ header hosts, Rust hosts
 #   tools/check-plugins.sh --full   also free-audio/clap-validator and
 #                                   Steinberg's VST3 SDK validator
 #
-# The CLAP headers, the VST3 interface headers, clap-validator and the VST3
-# SDK are fetched (pinned to the revisions the wrapper was validated against)
-# into $WORK — they are test tools only; vieww-audio-plugin depends on none of
-# them. Works on Linux and macOS; on Windows (Git Bash) the C/C++ hosts are
-# skipped unless a gcc/g++ is on PATH.
+# The CLAP headers, the VST3 interface headers, the LV2 headers,
+# clap-validator and the VST3 SDK are fetched (pinned to the revisions the
+# wrappers were validated against) into $WORK — they are test tools only;
+# vieww-audio-plugin depends on none of them. Works on Linux and macOS; on
+# Windows (Git Bash) the C/C++ hosts are skipped unless a gcc/g++ is on
+# PATH.
+#
+# lv2lint is deliberately not run: it needs the meson-built lilv/serd/sord
+# stack, which is heavy for a CI leg and mostly re-states the TTL checks
+# the in-house host already asserts (the C host below reads the same
+# manifests). The gate here is the in-house Rust host plus the C host
+# compiled against the official headers.
 set -euo pipefail
 
 FULL=0
@@ -26,6 +33,7 @@ CLAP_REV=a47f6badb49d948fd009998f28309cdab78979c9            # CLAP 1.2.x header
 VST3_IF_REV=4f547e8e102b47de4a8b8aaf343c73b700786372         # vst3_pluginterfaces 3.8.1
 VST3_SDK_REV=3cdf9ca5d1f5b1b21e0a86832aa4abe55607bd96        # vst3sdk 3.8.1
 CLAP_VALIDATOR_REV=b2f1d9b79b1d264a5747f46707d72b1aa40a02ef  # clap-validator 0.4.1
+LV2_REV=3c57dae600a5ad8d05acd53ee3490f7d91cb7be6            # lv2 headers (include/lv2)
 
 case "$(uname -s)" in
   Linux*)  OS=linux; LIB_PREFIX=lib; LIB_EXT=so ;;
@@ -66,24 +74,35 @@ echo "== bundling"
 echo "== Rust hosts loading the built plugins"
 VIEWW_PLUGIN_DIR="$BIN" cargo test -q -p vieww-audio-plugin --test load_built_plugins
 
+echo "== Rust LV2 host writing and loading the built bundles"
+# The tests write the TTLs into the bundles bundle.sh laid out (and the
+# library into each), then drive them through the dlopen host.
+VIEWW_PLUGIN_DIR="$BIN" VIEWW_LV2_BUNDLE_DIR="$OUT/bundles" \
+  cargo test -q -p vieww-audio-plugin --test lv2_bundle --test lv2_synth_bundle
+
 if command -v cc >/dev/null && command -v c++ >/dev/null; then
   echo "== C/C++ hosts compiled against the official headers"
   fetch https://github.com/free-audio/clap "$CLAP_REV" clap
   fetch https://github.com/steinbergmedia/vst3_pluginterfaces "$VST3_IF_REV" vst3_pluginterfaces
+  fetch https://github.com/lv2/lv2 "$LV2_REV" lv2
   mkdir -p "$WORK/inc"; ln -sfn ../vst3_pluginterfaces "$WORK/inc/pluginterfaces"
   DL=""; [[ $OS == linux ]] && DL="-ldl"
   cc -std=c11 -O1 -I"$WORK/clap/include" "$CRATE/tools/clap_host.c" -o "$WORK/clap_host" $DL -lm
   c++ -std=c++17 -O1 -I"$WORK/inc" "$CRATE/tools/vst3_host.cpp" \
     "$WORK/vst3_pluginterfaces/base/funknown.cpp" -o "$WORK/vst3_host" $DL
+  cc -std=c11 -O1 -I"$WORK/lv2/include" "$CRATE/tools/lv2_host.c" -o "$WORK/lv2_host" $DL -lm
   cc -std=c11 -I"$WORK/clap/include" "$CRATE/tools/clap_layout.c" -o "$WORK/clap_layout"
   c++ -std=c++17 -I"$WORK/inc" "$CRATE/tools/vst3_layout.cpp" -o "$WORK/vst3_layout"
+  cc -std=c11 -I"$WORK/lv2/include" "$CRATE/tools/lv2_layout.c" -o "$WORK/lv2_layout"
   echo "-- layouts on this platform (compare with src/*/sys.rs layout tests)"
   "$WORK/clap_layout" | head -8
   "$WORK/vst3_layout" | head -12
+  "$WORK/lv2_layout"
   cc -std=c11 -O2 -I"$WORK/clap/include" "$CRATE/tools/denormal_bench.c" -o "$WORK/denormal_bench" $DL
   for p in vieww_gain vieww_synth; do
     "$WORK/clap_host" "$BIN/${LIB_PREFIX}${p}.${LIB_EXT}"
     "$WORK/vst3_host" "$BIN/${LIB_PREFIX}${p}.${LIB_EXT}"
+    "$WORK/lv2_host" "$OUT/bundles/$p.lv2"
     echo "-- $p: process() on normal vs subnormal input"
     "$WORK/denormal_bench" "$BIN/${LIB_PREFIX}${p}.${LIB_EXT}"
   done

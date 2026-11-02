@@ -14,12 +14,18 @@
 //!   `IAudioProcessor`, `IEditController`, the event, parameter-change and
 //!   stream interfaces), transcribed from Steinberg's interface headers,
 //!   exported with [`export_vst3!`]; plus a VST3 host.
+//! * [`lv2`] — the LV2 C ABI (`lv2_descriptor`, URID map, atom event
+//!   ports carrying MIDI and `patch:` parameter messages, the state
+//!   extension), transcribed from the LV2 headers, exported with
+//!   [`export_lv2!`]; plus an LV2 host and the TTL manifests that make a
+//!   bundle discoverable.
 //!
 //! Neither format's SDK is used: the ABIs are C (and, for VST3, COM-style
-//! vtables), and both are written out in `sys` modules. The CI builds the
+//! vtables), and all are written out in `sys` modules. The CI builds the
 //! example plugins as shared libraries and drives them from hosts compiled
-//! in C and C++ against the official headers, which is what proves the
-//! transcription is the ABI and not just consistent with itself.
+//! in C and C++ against the official headers (and a C host for LV2), which
+//! is what proves the transcriptions are the ABIs and not just consistent
+//! with themselves.
 //!
 //! Parameter automation is **sample-accurate** whichever format delivers
 //! it: the shared [`Driver`] splits each block at every parameter change,
@@ -27,6 +33,7 @@
 //! slice it is rendering.
 
 pub mod clap;
+pub mod lv2;
 pub mod vst3;
 
 pub use vieww_audio::preset::{ParamInfo, Parametric, State, Taper};

@@ -1,13 +1,13 @@
-name: Audio plugins (CLAP / VST3)
+name: Audio plugins (CLAP / VST3 / LV2)
 
 # Builds vieww-audio-plugin's example plugins on every desktop platform and
-# proves the CLAP and VST3 wrappers against the formats themselves:
+# proves the CLAP, VST3 and LV2 wrappers against the formats themselves:
 #
 #   * the crate's unit tests (in-process hosts, ABI layout assertions);
 #   * the built libraries loaded through vieww's own hosts (dlopen /
-#     LoadLibrary, .vst3 bundle layout, module entry points);
-#   * C and C++ hosts compiled against the official CLAP and VST3 headers
-#     (Linux and macOS);
+#     LoadLibrary, .vst3 and .lv2 bundle layouts, module entry points);
+#   * C and C++ hosts compiled against the official CLAP, VST3 and LV2
+#     headers (Linux and macOS);
 #   * free-audio/clap-validator and Steinberg's VST3 SDK validator.
 #
 # Everything is driven by crates/vieww-audio-plugin/tools/check-plugins.sh,
@@ -56,7 +56,7 @@ jobs:
           cargo test -p vieww-audio-plugin --lib
           cargo clippy -p vieww-audio-plugin --all-targets -- -D warnings
 
-      - name: Build, bundle and validate (CLAP + VST3)
+      - name: Build, bundle and validate (CLAP + VST3 + LV2)
         env:
           WORK: ${{ runner.temp }}/plugin-check
         run: crates/vieww-audio-plugin/tools/check-plugins.sh --full
