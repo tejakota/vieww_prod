@@ -2,6 +2,7 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
+| 2026-11-02T11:07:35Z | goldens/main | FAILURE | `092c1c2d15ae` | [summary](goldens/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41432658093) |
 | 2026-11-02T10:29:17Z | framework-checks/main | FAILURE | `3b969c0f122c` | [summary](framework-checks/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41425235503) |
 | 2026-11-02T10:08:01Z | pr-quick/main | FAILURE | `3b969c0f122c` | [summary](pr-quick/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41425273084) |
 | 2026-11-02T05:53:02Z | audio-ci/main | SUCCESS | `ec9ab981a17e` | [summary](audio-ci/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41392592115) |
@@ -14,4 +15,3 @@
 | 2026-10-26T12:27:36Z | publish/main | SUCCESS | `35c6b3f65b53` | [summary](publish/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40321754699) |
 | 2026-10-26T10:42:59Z | release-gate/main | SUCCESS | `da72ff4877e7` | [summary](release-gate/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40300437716) |
 | 2026-10-26T00:30:49Z | supply-chain/main | SUCCESS | `f0e7547cea35` | [summary](supply-chain/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40249282660) |
-| 2026-10-25T07:17:11Z | goldens/main | SUCCESS | `e8f9da976cb8` | [summary](goldens/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40171670535) |
