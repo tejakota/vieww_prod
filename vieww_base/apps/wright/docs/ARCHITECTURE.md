@@ -348,6 +348,20 @@ remains the source of truth; other harnesses are tools at the edge. We
 never import prose as truth — anything entering the system goes through
 the Interviewer and the Confirm Gate like everything else.
 
+What leaves is signed, too (WR-15, ADR-046): beside the zip, wheel,
+crate and web build, the deployment packagings — a Dockerfile, systemd
+units, a GitHub Actions workflow — are generated from the blueprint
+alone (same blueprint, same bytes, diffable like code), and every
+export invocation writes a `receipt.json` over its exact bytes with the
+machine's Ed25519 key: the artifact set with SHA-256 and BLAKE3 (the
+store's content-addressed copy is the durable witness), the blueprint
+commit, the proof run, and the Docker base image's digest — pinned from
+the project's `export.kdl` by the operator, because Wright cannot read
+a registry offline and never guesses. `wright verify` checks an export
+receipt the way it checks a run's, including reading the Dockerfile's
+`FROM` line back out of the signed bytes to prove the pin is really
+there.
+
 ## 10. Roadmap
 
 Week one is `SPIKES.md`: W-1 vieww consumability (the wiring spike),

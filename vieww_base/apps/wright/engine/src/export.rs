@@ -568,7 +568,12 @@ fn dockerfile(bp: &Blueprint, cfg: &ExportConfig) -> Result<Made, String> {
         ));
     }
     d.push_str(
-        "RUN useradd --system --uid 10001 app 2>/dev/null || adduser -S -u 10001 app\nUSER 10001\n",
+        "# The app runs as uid 10001, and the convention's run command\n\
+         # writes logs/ (and artifacts/) — hand those trees, and the rest of\n\
+         # /app, to that user or the first `docker run` dies on a root-owned\n\
+         # folder. Everything above ran as root, as a Docker build does.\n\
+         RUN mkdir -p logs artifacts && chown -R 10001:0 /app\n\
+         RUN useradd --system --uid 10001 app 2>/dev/null || adduser -S -u 10001 app\nUSER 10001\n",
     );
     d.push_str(&format!("CMD [\"sh\", \"-c\", {}]\n", quoted(&run)));
     Ok((

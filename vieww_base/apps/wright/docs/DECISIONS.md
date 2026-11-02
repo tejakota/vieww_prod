@@ -939,3 +939,46 @@ conflict resolution exists because nothing is edited in place; a
 lagging synced folder means pull sees what has arrived; a mount that
 silently drops fsync or locks is caught by the join probe and by
 verify, not prevented.
+
+## ADR-046 — An export is signed into a receipt; digests are the operator's · Accepted
+
+Date: 2026-11-03 · Status: Accepted
+
+WR-15's deployment packagings were generated from the blueprint, but
+they left the machine as anonymous files: nothing tied a Dockerfile to
+the plan it came from, and its base image was a moving tag with a
+comment suggesting a hand edit. Two decisions close that.
+
+First — every export invocation writes a receipt, the same way a run
+does. `<out>/receipt.json`, format `wright.export-receipt/1`, records
+the artifact set (each file's SHA-256 for people and BLAKE3 into the
+store's content-addressed objects as the durable witness — the same
+trick ADR-045 leans on), the blueprint commit the packagings were
+generated from (committed to the store's history so the receipt names
+its plan), the run whose passing receipt was the proof a package
+waited for, and — for a Dockerfile — the base image and its digest.
+It is signed over its exact bytes with the machine's Ed25519 key, the
+identical machinery as a run receipt, and `wright verify <receipt>
+<project>` checks it with four checks of the run receipts' kind:
+signature, artifacts (the file beside the receipt and/or the store's
+copy — an export folder can be moved or emptied and the receipt still
+verifies), blueprint, and the base image's FROM line read back out of
+the signed artifact so a claimed pin that is not in the bytes fails.
+Exports sit OUTSIDE the event spine: they happen at a person's request
+between runs, and the receipt IS the record.
+
+Second — the base-image digest is the operator's to supply, never
+Wright's to guess. `export.kdl` in the project root (the operator's
+supply-chain config; the blueprint is the plan, this is the deployment
+reality) pins `digest "python:3.12-slim" value="sha256:…"` and may set
+`require_digest true`, in which case an unpinned export REFUSES with
+the command that prints the digest. Wright cannot read a registry
+offline — outbound traffic is the update channel and nothing else
+(AGENTS.md) — and a network-fetched digest would make the export
+unreproducible anyway; `docker buildx imagetools inspect` is one paste
+away. Without a config the Dockerfile builds from the tag and its
+header says so; the receipt records either state, signed. The
+docker-build verification (ci/hardware/wright-docker.sh, the hardware
+workflow's `wright-docker` step) resolves the REAL digest with the
+box's own docker, pins it, exports, verifies the receipt, builds and
+runs the image — the last mile, on the only machine that has it.

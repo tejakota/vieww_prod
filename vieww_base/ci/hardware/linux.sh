@@ -29,6 +29,10 @@
 #                   a soak on the default output; with a loopback cable,
 #                   a playback-to-capture check of every frame; with a MIDI
 #                   cable, a MIDI round trip (see Environment)
+#   wright-docker — WR-15: the `wright export --docker` Dockerfile, built
+#                   and run by this machine's own docker, base image pinned
+#                   by the digest docker itself resolves — see
+#                   `ci/hardware/wright-docker.sh`, runnable by hand
 #
 # Environment:
 #   VIEWW_HW_OUT=dir         results directory (default hardware-results/linux-<stamp>)
@@ -68,7 +72,7 @@ launches="${VIEWW_HW_LAUNCHES:-5}"
 failed=0
 
 steps=("$@")
-[ ${#steps[@]} -eq 0 ] && steps=(env gpu nvidia gallery baseline size stress desktop audio)
+[ ${#steps[@]} -eq 0 ] && steps=(env gpu nvidia gallery baseline size stress desktop audio wright-docker)
 want() { local s; for s in "${steps[@]}"; do [ "$s" = "$1" ] && return 0; done; return 1; }
 
 # run NAME CMD... — run, tee to NAME.log, record pass/fail.
@@ -290,6 +294,17 @@ if want audio; then
         fi
     else
         skip audio "no ALSA sound card (/dev/snd/pcmC*)"
+    fi
+fi
+
+if want wright-docker; then
+    # WR-15: the container export's last mile — a docker build of
+    # what `wright export --docker` generates, which no hosted CI leg in
+    # this repository runs. The script SKIPs honestly without a daemon.
+    if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+        run wright-docker bash ci/hardware/wright-docker.sh "$out/wright-docker"
+    else
+        skip wright-docker "no docker daemon on this machine"
     fi
 fi
 
