@@ -8,18 +8,17 @@
 // which is exactly the half of the contract PENDING §3.6 records as
 // missing on iOS.
 //
-// # Status: written, not run
+// # Status: runnable, not yet run
 //
-// **This file has never executed.** XCUITest needs an Xcode project with a
-// UI-testing bundle to run inside, and this repository deliberately has no
-// .xcodeproj (see `ci/mobile/ios-app.sh`'s doc: the app is a plain binary
-// plus an Info.plist, and a generated project file nobody edits is the
-// thing the note exists to avoid). The run recipe lives in
-// `ci/mobile/a11y-ios.sh`, which says honestly what it can and cannot do
-// on a given machine. Until a run has happened, this file is the shape of
-// the assertion, not a green tick — the same standing as
+// **This file has never executed.** It runs from the Xcode project that
+// `ci/mobile/xcuitest/project.yml` generates (`a11y-ios.sh --xcuitest`):
+// the spec is committed, the .xcodeproj is not, and `xcodegen` writes it on
+// the machine that runs the suite. Until a run has happened, this file is
+// the shape of the assertion, not a green tick — the same standing as
 // `vieww-platform-winit`'s `ios_accessibility.rs`, whose elements these
-// tests would be reading.
+// tests would be reading. The macOS runner's manual dispatch of the a11y
+// suite is the first execution, and a failure there is a finding, not a
+// flake.
 //
 // # What a run must assert to count
 //

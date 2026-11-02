@@ -11,8 +11,8 @@ use vieww_widget::prelude::*;
 use vieww_widget::DrawOnce;
 
 const INK: Color = Color::rgb(23, 30, 42);
-const MUTED: Color = Color::rgb(110, 122, 140);
-const ACCENT: Color = Color::rgb(58, 122, 246);
+const MUTED: Color = Color::rgb(101, 112, 129);
+const ACCENT: Color = Color::rgb(44, 98, 234);
 const PLOT: Size = Size::new(150.0, 150.0);
 
 fn cell(label: &str, curve: Curve) -> WidgetNode {

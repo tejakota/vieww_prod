@@ -157,7 +157,7 @@ impl CustomPainter for RigPainter {
                 out.push(DrawInstruction::DrawLine {
                     from: pair[0],
                     to: pair[1],
-                    color: Color::rgb(58, 122, 246),
+                    color: Color::rgb(44, 98, 234),
                     width: 2.0,
                 });
             }
@@ -168,7 +168,7 @@ impl CustomPainter for RigPainter {
             out.push(DrawInstruction::DrawLine {
                 from: to(&Offset::new(x, 18.0)),
                 to: to(&Offset::new(x, -18.0)),
-                color: Color::rgb(58, 122, 246).with_alpha(0x80),
+                color: Color::rgb(44, 98, 234).with_alpha(0x80),
                 width: 1.0,
             });
         }

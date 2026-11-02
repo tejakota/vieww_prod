@@ -162,7 +162,7 @@ impl CustomPainter for CubePainter {
             out.push(DrawInstruction::DrawLine {
                 from: projected[a],
                 to: projected[b],
-                color: Color::rgb(58, 122, 246).with_alpha((90.0 + near * 165.0) as u8),
+                color: Color::rgb(44, 98, 234).with_alpha((90.0 + near * 165.0) as u8),
                 width: 1.0 + near * 2.5,
             });
         }

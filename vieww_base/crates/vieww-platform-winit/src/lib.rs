@@ -77,6 +77,15 @@
 pub(crate) mod a11y;
 #[cfg(target_os = "android")]
 mod a11y_android;
+// The crate's own name, in scope under that name for tests only. `examples/
+// shared/screen.rs` — the demo the AT-SPI fixture test pulls in with `#[path]`,
+// exactly as every example entry point does — says `use vieww_platform_winit::
+// FrameLog`, which is the right spelling for an example and an unresolvable one
+// from inside this crate's own test build without this line. Test-only so the
+// shipped crate gains no self-import; there is no other way to name the crate
+// from a `#[path]`-included module whose text was written for examples.
+#[cfg(test)]
+extern crate self as vieww_platform_winit;
 mod app;
 #[cfg(target_os = "android")]
 mod audio_android;

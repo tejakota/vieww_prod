@@ -10,7 +10,7 @@ use vieww_widget::prelude::*;
 use vieww_widget::DrawOnce;
 
 const INK: Color = Color::rgb(23, 30, 42);
-const ACCENT: Color = Color::rgb(58, 122, 246);
+const ACCENT: Color = Color::rgb(44, 98, 234);
 const CANVAS: Size = Size::new(600.0, 240.0);
 
 /// A sine wave, its axis, and a band under it.

@@ -89,7 +89,7 @@ impl CustomPainter for SpectrumPainter {
             out.push(DrawInstruction::FillRoundedRect {
                 rect: Rect::new(x, floor - height, x + bar_w, floor),
                 radius: 2.0,
-                color: Color::rgb(58, 122, 246),
+                color: Color::rgb(44, 98, 234),
             });
         }
         // The baseline.

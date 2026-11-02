@@ -460,11 +460,11 @@ impl PartialEq for SemanticsTree {
 
 /// What one level of the collect walk hands back to the level above it.
 ///
-/// Two answers rather than one, because a subtree reports something about
-/// itself *and* something about its siblings. Keeping them in a pair is what
-/// lets the second travel: a barrier is nested inside the route that owns it,
-/// and the screen it covers is a sibling of that route rather than of the
-/// barrier, so the flag has to be passed up through every level in between.
+/// Three answers rather than one, because a subtree reports something about
+/// itself *and* something about its siblings. Keeping them in a struct is what
+/// lets the rest travel: a barrier is nested inside the route that owns it, and
+/// the screen it covers is a sibling of that route rather than of the barrier,
+/// so the flag has to be passed up through every level in between.
 struct Contribution {
     /// The semantic children this subtree contributes to the nearest ancestor
     /// that declared anything.
@@ -472,6 +472,25 @@ struct Contribution {
     /// `true` if something in here hides whatever was painted before it — a
     /// modal barrier, at whatever depth.
     blocks: bool,
+    /// `true` if anything in this subtree is a keyboard focus stop.
+    ///
+    /// Tracked because of how composed controls are built: this framework's own
+    /// `Button` is a `Semantics` annotation wrapped *around* the `GestureDetector`
+    /// that is actually focusable, and the annotation object itself is not. A
+    /// node's [`SemanticsNode::focusable`] must say whether a screen reader can
+    /// stop on the control, so the merge path (where the annotation speaks for
+    /// its subtree) needs the subtree's answer, not the annotation object's own
+    /// `is_focusable` — which would be `false` for every composed control in
+    /// the framework.
+    focusable: bool,
+    /// `true` if the object keyboard focus is on is inside this subtree.
+    ///
+    /// Same reasoning as `focusable`: focus lands on the detector inside a
+    /// composed control, several layout objects below the annotation that
+    /// declares the node. Without this travelling upward, a focused button
+    /// would publish a tree in which *no* node reports focus — and the adapter
+    /// resolves that to "focus is on nothing in particular".
+    focused: bool,
 }
 
 impl Contribution {
@@ -480,6 +499,8 @@ impl Contribution {
         Self {
             children: Vec::new(),
             blocks: false,
+            focusable: false,
+            focused: false,
         }
     }
 }
@@ -549,6 +570,12 @@ impl SemanticsTree {
         // barrier is nested inside the route that owns it, and the screen it
         // covers is a sibling of that route rather than of the barrier.
         let mut blocks = false;
+        // Whether anything below (or at) this level is a keyboard focus stop,
+        // and whether the focused object is among them — collected on the way
+        // up for the merge path, which is the one place a node is allowed to
+        // speak for its subtree.
+        let mut subtree_focusable = false;
+        let mut subtree_focused = false;
         // A hidden subtree is hidden from a screen reader too. Reading out a
         // route that is behind another one is worse than not reading it: the
         // user hears a screen they cannot reach and has no way to tell why.
@@ -569,6 +596,8 @@ impl SemanticsTree {
                     descendants.clear();
                     blocks = true;
                 }
+                subtree_focusable |= contribution.focusable;
+                subtree_focused |= contribution.focused;
                 descendants.extend(contribution.children);
             }
         }
@@ -577,17 +606,27 @@ impl SemanticsTree {
             return Contribution {
                 children: descendants,
                 blocks,
+                focusable: subtree_focusable,
+                focused: subtree_focused,
             };
         };
         // Its own flag, in addition to any its children reported. This is the
         // barrier itself: it blocks what was painted before *it*, which is a
         // question for the level above, not for the children it just collected.
         let blocks = blocks || object.blocks_semantics();
+        // This object counts towards its own subtree's reachability even when
+        // it declares nothing: a bare `GestureDetector` under a merging
+        // annotation is exactly the composed-control case `focusable` exists
+        // for, and its own `is_focusable` must survive the trip upward.
+        subtree_focusable |= object.is_focusable();
+        subtree_focused |= focused == Some(id);
         let Some(declared) = object.semantics() else {
             // Nothing of its own: its children belong to its parent instead.
             return Contribution {
                 children: descendants,
                 blocks,
+                focusable: subtree_focusable,
+                focused: subtree_focused,
             };
         };
 
@@ -602,6 +641,24 @@ impl SemanticsTree {
             descendants
         };
 
+        // **A merged node speaks for its subtree, so it inherits the subtree's
+        // keyboard reachability — and a non-merged one does not.** The merge
+        // flag is the difference between "this annotation *is* the control"
+        // (a button, a switch: whatever is focusable inside it is the control
+        // being focusable) and "this annotation is a *container* of controls"
+        // (a dialog, a pane: containing a button does not make the dialog a tab
+        // stop). Absorbing reachability in the second case would put every
+        // container in the tab order; refusing it in the first leaves every
+        // composed control in the framework unfocusable as far as any screen
+        // reader can tell — because the object that declared the node is the
+        // annotation, and the object that is actually focusable is a detector
+        // several layers inside it.
+        let (focusable, focused_now) = if object.merges_descendant_semantics() {
+            (subtree_focusable, subtree_focused)
+        } else {
+            (object.is_focusable(), focused == Some(id))
+        };
+
         let node = SemanticsNode {
             id,
             role: declared.role,
@@ -610,8 +667,8 @@ impl SemanticsTree {
             toggled: declared.toggled,
             enabled: declared.enabled,
             bounds: tree.global_bounds(id),
-            focusable: object.is_focusable(),
-            focused: focused == Some(id),
+            focusable,
+            focused: focused_now,
             // A disabled control offers nothing, whatever it declared. Leaving
             // them on would have a screen reader offer "activate" for a button
             // it has just announced as unavailable.
@@ -636,6 +693,8 @@ impl SemanticsTree {
         Contribution {
             children: vec![id],
             blocks,
+            focusable: subtree_focusable,
+            focused: subtree_focused,
         }
     }
 
@@ -1006,6 +1065,111 @@ mod tests {
             semantics.action_target(deepest, SemanticAction::Activate),
             None,
             "and nothing invents one"
+        );
+    }
+
+    /// The composed-control shape every interactive framework control uses: a
+    /// merging `Semantics` annotation wrapped *around* the `GestureDetector`
+    /// that is actually focusable — see `Button`'s own build.
+    ///
+    /// Returns `(the annotation's id, the detector's id)`.
+    fn composed_control(tree: &mut RenderTree, parent: Option<RenderId>) -> (RenderId, RenderId) {
+        let handlers = vieww_widget::GestureHandlers {
+            on_tap: Some(std::rc::Rc::new(|_| ())),
+            ..vieww_widget::GestureHandlers::default()
+        };
+        let annotation = tree.insert(
+            parent,
+            Box::new(RenderSemantics::new(Role::Button).label("Go")),
+        );
+        let detector = tree.insert(
+            Some(annotation),
+            Box::new(crate::RenderGestureDetector::new(handlers).focusable(true)),
+        );
+        (annotation, detector)
+    }
+
+    #[test]
+    fn a_merged_annotation_speaks_for_its_subtrees_focusability() {
+        let mut tree = RenderTree::new();
+        // A non-merging container — a dialog, a pane — holding a composed
+        // control. Both halves of the claim are under test: the control must
+        // be focusable *through* the detector inside it, and the container
+        // must not become a stop just because it holds one.
+        let container = tree.insert(
+            None,
+            Box::new(RenderSemantics::new(Role::Group).merge(false)),
+        );
+        let (button, _detector) = composed_control(&mut tree, Some(container));
+        let _ = tree.layout_root(Constraints::tight(Size::new(100.0, 100.0)));
+
+        let semantics = SemanticsTree::build(&tree, None);
+        assert!(
+            semantics
+                .node(button)
+                .is_some_and(|node| node.focusable),
+            "a composed control is focusable — the annotation speaks for the detector inside it"
+        );
+        assert!(
+            semantics
+                .node(container)
+                .is_none_or(|node| !node.focusable),
+            "a container that holds a focusable control is not itself a stop"
+        );
+    }
+
+    #[test]
+    fn focus_on_the_detector_inside_is_reported_on_the_annotation() {
+        let mut tree = RenderTree::new();
+        let (button, detector) = composed_control(&mut tree, None);
+        let _ = tree.layout_root(Constraints::tight(Size::new(100.0, 100.0)));
+
+        // Keyboard focus lands on the detector — several objects below the
+        // annotation that declared the node. The node is what a screen reader
+        // is handed, so the node is what must report it.
+        let semantics = SemanticsTree::build(&tree, Some(detector));
+        assert!(
+            semantics
+                .node(button)
+                .is_some_and(|node| node.focused && node.focusable),
+            "a focused composed control reports focus on the node, not nowhere"
+        );
+    }
+
+    #[test]
+    fn a_bare_focusable_object_makes_the_nearest_merging_ancestor_focusable() {
+        let mut tree = RenderTree::new();
+        // An object that declares nothing — a bare detector with no handlers —
+        // between the annotation and the focusable one: the exact shape a
+        // composed control's inner decoration produces, and the case where the
+        // reachability answer has to survive a level that contributes no node.
+        let annotation = tree.insert(
+            None,
+            Box::new(RenderSemantics::new(Role::Button).label("Go")),
+        );
+        let inner_decoration = tree.insert(
+            Some(annotation),
+            Box::new(crate::RenderGestureDetector::new(
+                vieww_widget::GestureHandlers::default(),
+            )),
+        );
+        let _ = tree.insert(
+            Some(inner_decoration),
+            Box::new(crate::RenderGestureDetector::new(
+                vieww_widget::GestureHandlers {
+                    on_tap: Some(std::rc::Rc::new(|_| ())),
+                    ..vieww_widget::GestureHandlers::default()
+                },
+            ).focusable(true)),
+        );
+        let _ = tree.layout_root(Constraints::tight(Size::new(100.0, 100.0)));
+
+        let semantics = SemanticsTree::build(&tree, None);
+        assert!(
+            semantics
+                .node(annotation)
+                .is_some_and(|node| node.focusable),
+            "reachability survives the walk through objects that declare nothing"
         );
     }
 }

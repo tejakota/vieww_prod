@@ -16,26 +16,27 @@
 //! - [`inconsistent_state`] — two internal-consistency checks the framework's
 //!   own derivation already promises to uphold (see each variant's doc).
 //!
-//! **A fourth check — "an action without a focusable node" — was
-//! deliberately not built.** Read `RenderSemantics::semantics` and the
-//! collect walk in `vieww_render::semantics::SemanticsTree::build`
-//! carefully: [`SemanticsNode::focusable`] is `object.is_focusable()` on
+//! **A fourth check — "an action without a focusable node" — was initially
+//! deliberately not built**, and the reason is worth keeping now that it *has*
+//! been: read `RenderSemantics::semantics` and the collect walk in
+//! `vieww_render::semantics::SemanticsTree::build` carefully,
+//! [`SemanticsNode::focusable`] *used to be* `object.is_focusable()` on
 //! *whichever render object declared this exact node* — for every composed
 //! control built the way this framework's own `Button` is (a `Semantics`
-//! annotation wrapping a separately-focusable `GestureDetector` several
-//! layers inside it), that is always `false`, because the annotation itself
-//! never overrides `is_focusable`. That is not a bug this crate can catch —
-//! it means "action declared, node not focusable" is true of essentially
-//! every interactive control in the framework today, built or not, which
-//! makes it a check with no diagnostic power: a check that always fires
-//! tells a caller nothing a check never firing would. Building it anyway
-//! would be exactly the "wrong-looking pseudocode" this codebase's own
-//! conventions warn against — it would *look* like real keyboard-reachability
-//! verification while actually just restating a structural fact about how
-//! `Semantics` and `GestureDetector` compose. If a future version of
-//! `vieww-render` changes `SemanticsNode` to carry the *subtree's* real
-//! keyboard reachability (rather than one object's own flag), this check
-//! becomes buildable and should be added then.
+//! annotation wrapping a separately-focusable `GestureDetector` several layers
+//! inside it), that was always `false`, because the annotation itself never
+//! overrides `is_focusable`. Under that data, "action declared, node not
+//! focusable" was true of essentially every interactive control in the
+//! framework, built or not, which made it a check with no diagnostic power: a
+//! check that always fires tells a caller nothing a check never firing would.
+//! Building it anyway would have been exactly the "wrong-looking pseudocode"
+//! this codebase's own conventions warn against — verification that *looks*
+//! real while restating a structural fact.
+//!
+//! `vieww-render`'s collect walk now carries the *subtree's* real keyboard
+//! reachability into the node (a merged annotation speaks for the detector
+//! inside it; a non-merged container does not absorb its children's stops),
+//! which is what makes [`unreachable_actions`] buildable — and it is built.
 
 use vieww_render::{Role, SemanticsNode, SemanticsTree};
 
@@ -93,8 +94,9 @@ pub struct Finding {
     pub message: String,
 }
 
-/// Every [`missing_labels`], [`undersized_touch_targets`] and
-/// [`inconsistent_state`] finding for `tree`, in that order.
+/// Every [`missing_labels`], [`undersized_touch_targets`],
+/// [`unreachable_actions`] and [`inconsistent_state`] finding for `tree`, in
+/// that order.
 ///
 /// Read-only: `tree` is walked exactly once per check, over
 /// [`SemanticsTree::nodes`], the same public accessor a devtools panel or a
@@ -105,6 +107,7 @@ pub fn audit(tree: &SemanticsTree) -> Vec<Finding> {
     let nodes = tree.nodes();
     let mut findings = missing_labels(nodes);
     findings.extend(undersized_touch_targets(nodes));
+    findings.extend(unreachable_actions(nodes));
     findings.extend(inconsistent_state(nodes));
     findings
 }
@@ -165,10 +168,53 @@ pub fn undersized_touch_targets(nodes: &[SemanticsNode]) -> Vec<Finding> {
         .collect()
 }
 
+/// Nodes that offer a control action — [`SemanticAction::Activate`],
+/// `Increment` or `Decrement` — but are not [`SemanticsNode::focusable`].
+///
+/// A node like that is a control a screen reader will offer to activate (the
+/// action says so) but the keyboard cannot reach: Tab skips past it, so only
+/// users of assistive tech can operate it — WCAG 2.1.1's concern, in tree
+/// form. It is exactly what a hand-rolled `Semantics` annotation that forgot
+/// the interactive half looks like, and what a composed control whose
+/// detector was disabled by mistake looks like too.
+///
+/// **Scroll actions are deliberately out.** A `ScrollView` node is a
+/// container a reader *traverses* — its content's nodes are its children, and
+/// scrolling is the reader's own gesture over the region — not a stop to
+/// activate, so "not focusable" is the correct answer for it and flagging it
+/// would be a false positive on every scrollable surface in the framework.
+#[must_use]
+pub fn unreachable_actions(nodes: &[SemanticsNode]) -> Vec<Finding> {
+    nodes
+        .iter()
+        .filter(|node| {
+            node.actions.iter().any(|action| {
+                matches!(
+                    action,
+                    vieww_render::SemanticAction::Activate
+                        | vieww_render::SemanticAction::Increment
+                        | vieww_render::SemanticAction::Decrement
+                )
+            })
+        })
+        .filter(|node| !node.focusable)
+        .map(|node| Finding {
+            node_id: node.id,
+            role: node.role,
+            severity: Severity::Error,
+            message: format!(
+                "{:?} offers to be activated but is not keyboard-focusable — a screen \
+                 reader can operate it, Tab cannot reach it",
+                node.role
+            ),
+        })
+        .collect()
+}
+
 /// Two internal-consistency checks against invariants the framework's own
-/// derivation already promises — see this module's own doc for the one
-/// check ("action without focusable") that looked like a third but is not
-/// actually supported by the data.
+/// derivation already promises — see this module's own doc for the history of
+/// the check that *looked* like a third but was not, at the time, supported by
+/// the data (it now is, as [`unreachable_actions`]).
 ///
 /// - A [`Role::Group`] or [`Role::Label`] node with a non-empty
 ///   [`SemanticsNode::actions`] — `RenderSemantics::semantics`'s own test,
@@ -386,6 +432,56 @@ mod tests {
         broken.focusable = false;
         let findings = inconsistent_state(std::slice::from_ref(&broken));
         assert!(findings.iter().any(|f| f.message.contains("not focusable")));
+    }
+
+    /// The exact shape a hand-rolled annotation that forgot the interactive
+    /// half produces: a button's role, label, and derived `Activate` action,
+    /// over a child with no gesture detector anywhere in it.
+    #[test]
+    fn an_actionable_but_unfocusable_control_is_flagged() {
+        let tree = semantics_tree(
+            Semantics::new()
+                .role(SemanticRole::Button)
+                .label("Ghost")
+                .child(SizedBox::square(60.0)),
+        );
+        let findings = unreachable_actions(tree.nodes());
+        assert_eq!(findings.len(), 1);
+        assert_eq!(findings[0].severity, Severity::Error);
+        assert!(
+            findings[0].message.contains("not keyboard-focusable"),
+            "the finding must say what is actually wrong: {findings:?}"
+        );
+    }
+
+    /// The composed-control shape the framework's own widgets produce — the
+    /// annotation around the detector — must pass the same check, which is
+    /// the whole reason `vieww-render`'s collect walk carries the subtree's
+    /// reachability into the node.
+    #[test]
+    fn a_composed_control_is_reachable_through_its_detector() {
+        let tree = semantics_tree(Button::new("Save").on_pressed(|| {}));
+        assert!(
+            tree.nodes()
+                .iter()
+                .filter(|node| !node.actions.is_empty())
+                .all(|node| node.focusable),
+            "an actionable node from a real composed control must be focusable"
+        );
+        assert!(unreachable_actions(tree.nodes()).is_empty());
+    }
+
+    /// A `ScrollView`'s scroll actions are deliberately not this check's
+    /// business: a scrollable region is traversed, not activated, and "not
+    /// focusable" is the correct answer for it.
+    #[test]
+    fn a_scrollable_region_is_not_flagged_for_unreachability() {
+        let tree = semantics_tree(
+            Semantics::new()
+                .role(SemanticRole::ScrollView)
+                .child(SizedBox::square(60.0)),
+        );
+        assert!(unreachable_actions(tree.nodes()).is_empty());
     }
 
     #[test]

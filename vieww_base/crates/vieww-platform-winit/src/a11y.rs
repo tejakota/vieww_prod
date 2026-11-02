@@ -384,6 +384,11 @@ fn to_node(node: &SemanticsNode, scale: Scale) -> Node {
     out
 }
 
+/// The AccessKit side of the AT-SPI seam, asserted and (on demand) dumped as
+/// the fixture the Linux screen-reader harness reads — see that module's doc.
+#[cfg(test)]
+mod atspi_fixture;
+
 #[cfg(test)]
 mod tests {
     use vieww_render::RenderId;

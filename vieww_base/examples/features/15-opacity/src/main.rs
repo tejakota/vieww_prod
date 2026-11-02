@@ -7,11 +7,11 @@ fn cell(a: f32) -> WidgetNode {
         .spacing(4.0)
         .children(children![
             Text::new(format!("alpha {a}"))
-                .color(Color::rgb(110, 122, 140))
+                .color(Color::rgb(101, 112, 129))
                 .size(11.0),
             Opacity::new(a).child(
                 Container::new()
-                    .color(Color::rgb(58, 122, 246))
+                    .color(Color::rgb(44, 98, 234))
                     .radius(8.0)
                     .child(SizedBox::square(80.0))
             ),

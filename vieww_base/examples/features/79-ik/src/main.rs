@@ -94,7 +94,7 @@ impl CustomPainter for ArmPainter {
         out.push(DrawInstruction::FillCircle {
             center: root,
             radius: LENGTHS.0 + LENGTHS.1,
-            color: Color::rgb(58, 122, 246).with_alpha(0x0A),
+            color: Color::rgb(44, 98, 234).with_alpha(0x0A),
         });
         // The arm: two bones, thick.
         out.push(DrawInstruction::DrawLine {
@@ -126,7 +126,7 @@ impl CustomPainter for ArmPainter {
         out.push(DrawInstruction::FillCircle {
             center: effector,
             radius: 5.0,
-            color: Color::rgb(58, 122, 246),
+            color: Color::rgb(44, 98, 234),
         });
         out.push(DrawInstruction::DrawLine {
             from: Offset::new(target.dx - 8.0, target.dy - 8.0),

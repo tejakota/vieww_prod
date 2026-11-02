@@ -13,7 +13,7 @@
 use vieww_foundation::{Color, Size};
 use vieww_widget::prelude::*;
 
-const MUTED: Color = Color::rgb(110, 122, 140);
+const MUTED: Color = Color::rgb(101, 112, 129);
 
 fn labelled(label: &str, child: impl Into<WidgetNode>) -> WidgetNode {
     Flex::column()

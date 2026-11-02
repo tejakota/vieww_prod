@@ -9,8 +9,8 @@ use vieww_foundation::{Color, Size};
 use vieww_widget::prelude::*;
 
 const INK: Color = Color::rgb(23, 30, 42);
-const MUTED: Color = Color::rgb(110, 122, 140);
-const ACCENT: Color = Color::rgb(58, 122, 246);
+const MUTED: Color = Color::rgb(101, 112, 129);
+const ACCENT: Color = Color::rgb(44, 98, 234);
 
 fn cell(label: &str, decoration: BoxDecoration) -> WidgetNode {
     Flex::column()

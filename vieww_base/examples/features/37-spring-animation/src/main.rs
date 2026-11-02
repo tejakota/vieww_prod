@@ -88,7 +88,7 @@ impl vieww_widget::Widget for Track {
                             stack.push(
                                 Positioned::new().left(x).top(TRACK_TOP - 6.0).child(
                                     Container::new()
-                                        .color(Color::rgb(58, 122, 246))
+                                        .color(Color::rgb(44, 98, 234))
                                         .radius(16.0)
                                         .child(SizedBox::square(32.0)),
                                 ),

@@ -18,7 +18,7 @@ impl vieww_widget::Widget for Row {
         Opacity::new(self.opacity.get().clamp(0.0, 1.0))
             .child(
                 Container::new()
-                    .color(Color::rgb(58, 122, 246))
+                    .color(Color::rgb(44, 98, 234))
                     .radius(4.0)
                     .child(SizedBox::from_size(Size::new(440.0, 24.0))),
             )

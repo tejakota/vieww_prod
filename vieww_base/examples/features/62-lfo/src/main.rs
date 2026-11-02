@@ -101,7 +101,7 @@ impl CustomPainter for WavePainter {
                 out.push(DrawInstruction::DrawLine {
                     from: previous,
                     to: point,
-                    color: Color::rgb(58, 122, 246),
+                    color: Color::rgb(44, 98, 234),
                     width: 2.0,
                 });
                 previous = point;
@@ -124,7 +124,7 @@ impl CustomPainter for WavePainter {
         out.push(DrawInstruction::FillCircle {
             center: Offset::new(size.width - 64.0, size.height - 64.0),
             radius: radius.max(4.0),
-            color: Color::rgb(58, 122, 246).with_alpha(0xB0),
+            color: Color::rgb(44, 98, 234).with_alpha(0xB0),
         });
         out
     }
