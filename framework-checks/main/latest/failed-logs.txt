@@ -1,707 +1,1047 @@
+===== Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check =====
+﻿2026-11-02T10:00:52.7749590Z ##[group]Run ci/check/cross-check.sh
+2026-11-02T10:00:52.7749805Z ^[[36;1mci/check/cross-check.sh^[[0m
+2026-11-02T10:00:52.7766361Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-02T10:00:52.7766548Z env:
+2026-11-02T10:00:52.7766662Z   CARGO_TERM_COLOR: always
+2026-11-02T10:00:52.7766788Z   RUST_BACKTRACE: 1
+2026-11-02T10:00:52.7766903Z   RUST_VERSION: 1.98.1
+2026-11-02T10:00:52.7767023Z ##[endgroup]
+2026-11-02T10:00:52.8193877Z info: syncing channel updates for 1.98.1-x86_64-unknown-linux-gnu
+2026-11-02T10:00:53.0038088Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-02T10:00:53.0127782Z info: downloading 3 components
+2026-11-02T10:00:55.6713626Z 
+2026-11-02T10:00:55.6714510Z ^[[1m== macos (aarch64-apple-darwin)^[[0m
+2026-11-02T10:02:34.9451166Z ^[[1m^[[91merror[E0063]^[[0m^[[1m: missing field `scratch` in initializer of `target::Target`^[[0m
+2026-11-02T10:02:34.9483277Z    ^[[1m^[[94m--> ^[[0mcrates/vieww-paint/src/native/target.rs:183:9
+2026-11-02T10:02:34.9512963Z     ^[[1m^[[94m|^[[0m
+2026-11-02T10:02:34.9513687Z ^[[1m^[[94m183^[[0m ^[[1m^[[94m|^[[0m         Self {
+2026-11-02T10:02:34.9542931Z     ^[[1m^[[94m|^[[0m         ^[[1m^[[91m^^^^^[[0m ^[[1m^[[91mmissing `scratch`^[[0m
+2026-11-02T10:02:34.9561755Z 
+2026-11-02T10:02:35.3563758Z ^[[1mFor more information about this error, try `rustc --explain E0063`.^[[0m
+2026-11-02T10:02:35.3794031Z ^[[1m^[[91merror^[[0m: could not compile `vieww-paint` (lib test) due to 1 previous error
+2026-11-02T10:02:35.5613267Z    ^[[31mFAILED^[[0m — see above
+2026-11-02T10:03:31.5483310Z ^[[1m^[[91merror[E0063]^[[0m^[[1m: missing field `scratch` in initializer of `target::Target`^[[0m
+2026-11-02T10:03:31.5483737Z 
+2026-11-02T10:03:31.5483875Z ^[[1m== ios (aarch64-apple-ios)^[[0m
+2026-11-02T10:03:31.5512853Z    ^[[1m^[[94m--> ^[[0mcrates/vieww-paint/src/native/target.rs:183:9
+2026-11-02T10:03:31.5532790Z     ^[[1m^[[94m|^[[0m
+2026-11-02T10:03:31.5562709Z ^[[1m^[[94m183^[[0m ^[[1m^[[94m|^[[0m         Self {
+2026-11-02T10:03:31.5572652Z     ^[[1m^[[94m|^[[0m         ^[[1m^[[91m^^^^^[[0m ^[[1m^[[91mmissing `scratch`^[[0m
+2026-11-02T10:03:31.5592590Z 
+2026-11-02T10:03:31.9406960Z ^[[1mFor more information about this error, try `rustc --explain E0063`.^[[0m
+2026-11-02T10:03:31.9584158Z ^[[1m^[[91merror^[[0m: could not compile `vieww-paint` (lib test) due to 1 previous error
+2026-11-02T10:03:32.0494773Z    ^[[31mFAILED^[[0m — see above
+2026-11-02T10:03:32.0495234Z 
+2026-11-02T10:03:32.0495455Z ^[[1m== windows (x86_64-pc-windows-msvc)^[[0m
+2026-11-02T10:04:30.3027731Z ^[[1m^[[91merror[E0063]^[[0m^[[1m: missing field `scratch` in initializer of `target::Target`^[[0m
+2026-11-02T10:04:30.3084337Z    ^[[1m^[[94m--> ^[[0mcrates/vieww-paint/src/native/target.rs:183:9
+2026-11-02T10:04:30.3112790Z     ^[[1m^[[94m|^[[0m
+2026-11-02T10:04:30.3113690Z ^[[1m^[[94m183^[[0m ^[[1m^[[94m|^[[0m         Self {
+2026-11-02T10:04:30.3142949Z     ^[[1m^[[94m|^[[0m         ^[[1m^[[91m^^^^^[[0m ^[[1m^[[91mmissing `scratch`^[[0m
+2026-11-02T10:04:30.3172236Z 
+2026-11-02T10:04:30.7021396Z ^[[1mFor more information about this error, try `rustc --explain E0063`.^[[0m
+2026-11-02T10:04:30.7160856Z ^[[1m^[[91merror^[[0m: could not compile `vieww-paint` (lib test) due to 1 previous error
+2026-11-02T10:04:30.8258487Z    ^[[31mFAILED^[[0m — see above
+2026-11-02T10:04:30.8258966Z 
+2026-11-02T10:04:30.8259088Z ^[[1m== android (aarch64-linux-android)^[[0m
+2026-11-02T10:05:38.1223447Z ^[[1m^[[91merror^[[0m^[[1m: constant `IDLE` is never used^[[0m
+2026-11-02T10:05:38.1253083Z   ^[[1m^[[94m--> ^[[0mexamples/u/src/biometrics.rs:93:11
+2026-11-02T10:05:38.1282638Z    ^[[1m^[[94m|^[[0m
+2026-11-02T10:05:38.1303028Z ^[[1m^[[94m93^[[0m ^[[1m^[[94m|^[[0m     const IDLE: i32 = 0;
+2026-11-02T10:05:38.1314196Z    ^[[1m^[[94m|^[[0m           ^[[1m^[[91m^^^^^[[0m
+2026-11-02T10:05:38.1314883Z    ^[[1m^[[94m|^[[0m
+2026-11-02T10:05:38.1315327Z    ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `-D dead-code` implied by `-D warnings`
+2026-11-02T10:05:38.1315955Z    ^[[1m^[[94m= ^[[0m^[[1mhelp^[[0m: to override `-D warnings` add `#[expect(dead_code)]` or `#[allow(dead_code)]`
+2026-11-02T10:05:38.1316365Z 
+2026-11-02T10:05:38.1316650Z ^[[1m^[[91merror^[[0m^[[1m: constant `RUNNING` is never used^[[0m
+2026-11-02T10:05:38.1317549Z   ^[[1m^[[94m--> ^[[0mexamples/u/src/biometrics.rs:94:11
+2026-11-02T10:05:38.1317962Z    ^[[1m^[[94m|^[[0m
+2026-11-02T10:05:38.1318344Z ^[[1m^[[94m94^[[0m ^[[1m^[[94m|^[[0m     const RUNNING: i32 = 1;
+2026-11-02T10:05:38.1318763Z    ^[[1m^[[94m|^[[0m           ^[[1m^[[91m^^^^^^^^[[0m
+2026-11-02T10:05:38.1319076Z 
+2026-11-02T10:05:38.1835782Z ^[[1m^[[91merror^[[0m: could not compile `u` (lib) due to 2 previous errors
+2026-11-02T10:05:39.3010332Z    ^[[31mFAILED^[[0m — see above
+2026-11-02T10:05:39.3010617Z 
+2026-11-02T10:05:39.3025796Z ##[error]Process completed with exit code 4.
+
+===== GPU on software Vulkan (lavapipe)	Vulkan suites (headless) =====
+2026-11-02T10:01:05.1096513Z ^[[1m^[[92m  Downloaded^[[0m quote v1.0.47
+2026-11-02T10:01:05.1122672Z ^[[1m^[[92m  Downloaded^[[0m roxmltree v0.20.0
+2026-11-02T10:01:05.1247096Z ^[[1m^[[92m  Downloaded^[[0m slotmap v1.1.1
+2026-11-02T10:01:05.1268100Z ^[[1m^[[92m  Downloaded^[[0m smallvec v1.16.2
+2026-11-02T10:01:05.1281885Z ^[[1m^[[92m  Downloaded^[[0m spirv v0.4.0+sdk-1.4.341.0
+2026-11-02T10:01:05.1294289Z ^[[1m^[[92m  Downloaded^[[0m tinyvec v1.13.3
+2026-11-02T10:01:05.1328054Z ^[[1m^[[92m  Downloaded^[[0m unicode-ident v1.0.26
+2026-11-02T10:01:05.1355137Z ^[[1m^[[92m  Downloaded^[[0m unicode-script v0.5.8
+2026-11-02T10:01:05.1373023Z ^[[1m^[[92m  Downloaded^[[0m zeno v0.3.3
+2026-11-02T10:01:05.1394952Z ^[[1m^[[92m  Downloaded^[[0m fontdb v0.23.0
+2026-11-02T10:01:05.1418630Z ^[[1m^[[92m  Downloaded^[[0m miniz_oxide v0.8.9
+2026-11-02T10:01:05.1443354Z ^[[1m^[[92m  Downloaded^[[0m miniz_oxide v0.9.1
+2026-11-02T10:01:05.1467787Z ^[[1m^[[92m  Downloaded^[[0m rangemap v1.8.0
+2026-11-02T10:01:05.1490642Z ^[[1m^[[92m  Downloaded^[[0m unicode-bidi v0.3.18
+2026-11-02T10:01:05.1514241Z ^[[1m^[[92m  Downloaded^[[0m hashbrown v0.17.1
+2026-11-02T10:01:05.1565928Z ^[[1m^[[92m  Downloaded^[[0m unicode-segmentation v1.13.3
+2026-11-02T10:01:05.1595893Z ^[[1m^[[92m  Downloaded^[[0m png v0.18.1
+2026-11-02T10:01:05.1636920Z ^[[1m^[[92m  Downloaded^[[0m zerocopy-derive v0.8.59
+2026-11-02T10:01:05.1755397Z ^[[1m^[[92m  Downloaded^[[0m lyon_tessellation v1.0.22
+2026-11-02T10:01:05.1791461Z ^[[1m^[[92m  Downloaded^[[0m harfrust v0.5.2
+2026-11-02T10:01:05.1872849Z ^[[1m^[[92m  Downloaded^[[0m ttf-parser v0.25.1
+2026-11-02T10:01:05.1963963Z ^[[1m^[[92m  Downloaded^[[0m zlib-rs v0.6.8
+2026-11-02T10:01:05.2017293Z ^[[1m^[[92m  Downloaded^[[0m swash v0.2.10
+2026-11-02T10:01:05.2090895Z ^[[1m^[[92m  Downloaded^[[0m skrifa v0.40.0
+2026-11-02T10:01:05.2179275Z ^[[1m^[[92m  Downloaded^[[0m skrifa v0.44.0
+2026-11-02T10:01:05.2272981Z ^[[1m^[[92m  Downloaded^[[0m unicode-width v0.2.2
+2026-11-02T10:01:05.2329900Z ^[[1m^[[92m  Downloaded^[[0m syn v3.0.6
+2026-11-02T10:01:05.2435022Z ^[[1m^[[92m  Downloaded^[[0m zerocopy v0.8.59
+2026-11-02T10:01:05.2637467Z ^[[1m^[[92m  Downloaded^[[0m syn v2.0.119
+2026-11-02T10:01:05.2741620Z ^[[1m^[[92m  Downloaded^[[0m read-fonts v0.37.0
+2026-11-02T10:01:05.2890200Z ^[[1m^[[92m  Downloaded^[[0m ash v0.38.0+1.3.281
+2026-11-02T10:01:05.3046686Z ^[[1m^[[92m  Downloaded^[[0m read-fonts v0.41.0
+2026-11-02T10:01:05.3233128Z ^[[1m^[[92m  Downloaded^[[0m libc v0.2.189
+2026-11-02T10:01:05.3647325Z ^[[1m^[[92m  Downloaded^[[0m naga v30.0.1
+2026-11-02T10:01:05.3858737Z ^[[1m^[[92m  Downloaded^[[0m cosmic-text v0.19.0
+2026-11-02T10:01:05.4656291Z ^[[1m^[[92m   Compiling^[[0m proc-macro2 v1.0.107
+2026-11-02T10:01:05.4657052Z ^[[1m^[[92m   Compiling^[[0m unicode-ident v1.0.26
+2026-11-02T10:01:05.4657623Z ^[[1m^[[92m   Compiling^[[0m quote v1.0.47
+2026-11-02T10:01:05.4659195Z ^[[1m^[[92m   Compiling^[[0m libm v0.2.16
+2026-11-02T10:01:05.5432270Z ^[[1m^[[92m   Compiling^[[0m autocfg v1.5.1
+2026-11-02T10:01:05.6331817Z ^[[1m^[[92m   Compiling^[[0m once_cell v1.21.4
+2026-11-02T10:01:05.7615109Z ^[[1m^[[92m   Compiling^[[0m thiserror v2.0.21
+2026-11-02T10:01:05.8481230Z ^[[1m^[[92m   Compiling^[[0m num-traits v0.2.19
+2026-11-02T10:01:05.9422461Z ^[[1m^[[92m   Compiling^[[0m cfg-if v1.0.5
+2026-11-02T10:01:05.9852038Z ^[[1m^[[92m   Compiling^[[0m simd-adler32 v0.3.10
+2026-11-02T10:01:06.0171926Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
+2026-11-02T10:01:06.2438180Z ^[[1m^[[92m   Compiling^[[0m foldhash v0.2.0
+2026-11-02T10:01:06.3342406Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
+2026-11-02T10:01:06.4428942Z ^[[1m^[[92m   Compiling^[[0m syn v3.0.6
+2026-11-02T10:01:06.4540526Z ^[[1m^[[92m   Compiling^[[0m syn v2.0.119
+2026-11-02T10:01:06.9082631Z ^[[1m^[[92m   Compiling^[[0m core_maths v0.1.1
+2026-11-02T10:01:07.4702020Z ^[[1m^[[92m   Compiling^[[0m equivalent v1.0.2
+2026-11-02T10:01:07.5142063Z ^[[1m^[[92m   Compiling^[[0m cfg_aliases v0.2.2
+2026-11-02T10:01:07.5521818Z ^[[1m^[[92m   Compiling^[[0m bitflags v2.13.2
+2026-11-02T10:01:07.8411854Z ^[[1m^[[92m   Compiling^[[0m crc32fast v1.5.2
+2026-11-02T10:01:07.9661676Z ^[[1m^[[92m   Compiling^[[0m adler2 v2.0.1
+2026-11-02T10:01:08.2681923Z ^[[1m^[[92m   Compiling^[[0m naga v30.0.1
+2026-11-02T10:01:08.4232286Z ^[[1m^[[92m   Compiling^[[0m indexmap v2.14.2
+2026-11-02T10:01:08.8171785Z ^[[1m^[[92m   Compiling^[[0m ttf-parser v0.25.1
+2026-11-02T10:01:08.8841647Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
+2026-11-02T10:01:09.0991965Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v2.0.21
+2026-11-02T10:01:09.9931616Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
+2026-11-02T10:01:10.2421063Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
+2026-11-02T10:01:10.3611865Z ^[[1m^[[92m   Compiling^[[0m zerocopy-derive v0.8.59
+2026-11-02T10:01:10.6731765Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
+2026-11-02T10:01:11.1777560Z ^[[1m^[[92m   Compiling^[[0m libc v0.2.189
+2026-11-02T10:01:11.4021691Z ^[[1m^[[92m   Compiling^[[0m bit-vec v0.9.1
+2026-11-02T10:01:11.7261912Z ^[[1m^[[92m   Compiling^[[0m unicode-width v0.2.2
+2026-11-02T10:01:11.9431881Z ^[[1m^[[92m   Compiling^[[0m version_check v0.9.5
+2026-11-02T10:01:12.1842853Z ^[[1m^[[92m   Compiling^[[0m unicode-segmentation v1.13.3
+2026-11-02T10:01:12.7991792Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v1.1.0
+2026-11-02T10:01:12.8498264Z ^[[1m^[[92m   Compiling^[[0m naga-types v30.0.1
+2026-11-02T10:01:12.9601913Z ^[[1m^[[92m   Compiling^[[0m slotmap v1.1.1
+2026-11-02T10:01:13.0451979Z ^[[1m^[[92m   Compiling^[[0m codespan-reporting v0.13.1
+2026-11-02T10:01:13.4691159Z ^[[1m^[[92m   Compiling^[[0m spirv v0.4.0+sdk-1.4.341.0
+2026-11-02T10:01:14.6562099Z ^[[1m^[[92m   Compiling^[[0m bit-set v0.10.0
+2026-11-02T10:01:14.7911997Z ^[[1m^[[92m   Compiling^[[0m euclid v0.22.14
+2026-11-02T10:01:15.0271886Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
+2026-11-02T10:01:15.6131760Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.9.1
+2026-11-02T10:01:15.7281961Z ^[[1m^[[92m   Compiling^[[0m arrayvec v0.7.8
+2026-11-02T10:01:15.9361616Z ^[[1m^[[92m   Compiling^[[0m log v0.4.34
+2026-11-02T10:01:16.3181793Z ^[[1m^[[92m   Compiling^[[0m half v2.7.1
+2026-11-02T10:01:16.3772926Z ^[[1m^[[92m   Compiling^[[0m flate2 v1.1.10
+2026-11-02T10:01:16.9325140Z ^[[1m^[[92m   Compiling^[[0m lyon_geom v1.0.19
+2026-11-02T10:01:17.2391732Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
+2026-11-02T10:01:18.4841885Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
+2026-11-02T10:01:27.7652379Z ^[[1m^[[92m   Compiling^[[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-02T10:01:34.4841920Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.8.9
+2026-11-02T10:01:35.4691818Z ^[[1m^[[92m   Compiling^[[0m fdeflate v0.3.7
+2026-11-02T10:01:36.1001774Z ^[[1m^[[92m   Compiling^[[0m roxmltree v0.20.0
+2026-11-02T10:01:36.4092458Z ^[[1m^[[92m   Compiling^[[0m png v0.18.1
+2026-11-02T10:01:38.2081818Z ^[[1m^[[92m   Compiling^[[0m fontconfig-parser v0.5.8
+2026-11-02T10:01:39.1588985Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+2026-11-02T10:01:39.2221602Z ^[[1m^[[92m   Compiling^[[0m memmap2 v0.9.11
+2026-11-02T10:01:39.4602087Z ^[[1m^[[92m   Compiling^[[0m lyon_path v1.0.19
+2026-11-02T10:01:39.4901635Z ^[[1m^[[92m   Compiling^[[0m float_next_after v1.0.0
+2026-11-02T10:01:39.5501692Z ^[[1m^[[92m   Compiling^[[0m smallvec v1.16.2
+2026-11-02T10:01:39.7262032Z ^[[1m^[[92m   Compiling^[[0m yazi v0.2.1
+2026-11-02T10:01:39.7681789Z ^[[1m^[[92m   Compiling^[[0m ash v0.38.0+1.3.281
+2026-11-02T10:01:39.8442240Z ^[[1m^[[92m   Compiling^[[0m tinyvec v1.13.3
+2026-11-02T10:01:40.3282602Z ^[[1m^[[92m   Compiling^[[0m zeno v0.3.3
+2026-11-02T10:01:40.4481974Z ^[[1m^[[92m   Compiling^[[0m fontdb v0.23.0
+2026-11-02T10:01:40.5521156Z ^[[1m^[[92m   Compiling^[[0m lyon_tessellation v1.0.22
+2026-11-02T10:01:41.1782309Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
+2026-11-02T10:01:41.4861553Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
+2026-11-02T10:01:42.4744718Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-02T10:01:43.0901703Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
+2026-11-02T10:01:54.8322919Z ^[[1m^[[92m   Compiling^[[0m libloading v0.8.9
+2026-11-02T10:01:55.0051640Z ^[[1m^[[92m   Compiling^[[0m unicode-script v0.5.8
+2026-11-02T10:01:55.4861754Z ^[[1m^[[92m   Compiling^[[0m sys-locale v0.3.2
+2026-11-02T10:01:55.7171859Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.3.6
+2026-11-02T10:01:55.9751928Z ^[[1m^[[92m   Compiling^[[0m unicode-linebreak v0.1.5
+2026-11-02T10:01:56.1941796Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v2.1.3
+2026-11-02T10:01:56.2566987Z ^[[1m^[[92m   Compiling^[[0m rangemap v1.8.0
+2026-11-02T10:01:56.5761723Z ^[[1m^[[92m   Compiling^[[0m self_cell v1.3.0
+2026-11-02T10:01:56.6421642Z ^[[1m^[[92m   Compiling^[[0m unicode-bidi v0.3.18
+2026-11-02T10:01:57.5992357Z ^[[1m^[[92m   Compiling^[[0m linebender_resource_handle v0.1.1
+2026-11-02T10:01:57.6751892Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
+2026-11-02T10:01:57.9589247Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+2026-11-02T10:01:59.3339320Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-02T10:02:06.9847859Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-02T10:02:12.5664257Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 1m 08s
+2026-11-02T10:02:12.6589227Z ^[[1m^[[92m     Running^[[0m unittests src/lib.rs (target/release/deps/vieww_hal-580b85ab69c42af4)
+2026-11-02T10:02:12.6609413Z 
+2026-11-02T10:02:12.6609642Z running 0 tests
+2026-11-02T10:02:12.6609841Z 
+2026-11-02T10:02:12.6610145Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 28 filtered out; finished in 0.00s
+2026-11-02T10:02:12.6610718Z 
+2026-11-02T10:02:12.6612799Z ^[[1m^[[92m     Running^[[0m tests/d3d12_scene.rs (target/release/deps/d3d12_scene-91a0c204fd4f12b9)
+2026-11-02T10:02:12.6630397Z 
+2026-11-02T10:02:12.6630595Z running 0 tests
+2026-11-02T10:02:12.6630780Z 
+2026-11-02T10:02:12.6631039Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-02T10:02:12.6631377Z 
+2026-11-02T10:02:12.6633558Z ^[[1m^[[92m     Running^[[0m tests/d3d12_smoke.rs (target/release/deps/d3d12_smoke-9ff8aabd1a8e5a50)
+2026-11-02T10:02:12.6668066Z 
+2026-11-02T10:02:12.6668261Z running 0 tests
+2026-11-02T10:02:12.6668477Z 
+2026-11-02T10:02:12.6668762Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-02T10:02:12.6669103Z 
+2026-11-02T10:02:12.6671012Z ^[[1m^[[92m     Running^[[0m tests/metal_scene.rs (target/release/deps/metal_scene-7aeb38028bfbe9a0)
+2026-11-02T10:02:12.6684369Z 
+2026-11-02T10:02:12.6684560Z running 0 tests
+2026-11-02T10:02:12.6684746Z 
+2026-11-02T10:02:12.6685128Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-02T10:02:12.6687090Z ^[[1m^[[92m     Running^[[0m tests/metal_smoke.rs (target/release/deps/metal_smoke-2887965f97008a09)
+2026-11-02T10:02:12.6688108Z 
+2026-11-02T10:02:12.6701133Z 
+2026-11-02T10:02:12.6701295Z running 0 tests
+2026-11-02T10:02:12.6701503Z 
+2026-11-02T10:02:12.6701885Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-02T10:02:12.6702424Z 
+2026-11-02T10:02:12.6703707Z ^[[1m^[[92m     Running^[[0m tests/vulkan_compositor.rs (target/release/deps/vulkan_compositor-0b092c34640282d6)
+2026-11-02T10:02:12.6718551Z 
+2026-11-02T10:02:12.6718709Z running 17 tests
+2026-11-02T10:02:13.9456667Z test a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp ... FAILED
+2026-11-02T10:02:14.0275830Z test a_blurred_layer_matches_the_three_box_blur ... ok
+2026-11-02T10:02:14.1002391Z test a_colour_matrix_layer_matches ... ok
+2026-11-02T10:02:14.1652337Z test a_dashed_stroke_under_a_scale_matches_width_and_pattern ... ok
+2026-11-02T10:02:14.2438395Z test a_renderer_shared_between_planners_never_draws_a_stale_atlas ... FAILED
+2026-11-02T10:02:14.3131504Z test a_shadow_inside_a_translucent_layer_matches ... FAILED
+2026-11-02T10:02:14.3883980Z test a_steady_frame_uploads_nothing_new_and_reuses_every_target ... ok
+2026-11-02T10:02:14.4500983Z test a_transparent_clear_reads_back_straight_alpha_like_the_cpu ... ok
+2026-11-02T10:02:16.3508969Z test all_twenty_eight_blend_modes_match ... ok
+2026-11-02T10:02:16.4177323Z test every_shadow_variant_matches ... FAILED
+2026-11-02T10:02:16.4850777Z test group_opacity_composites_the_group_not_each_child ... ok
+2026-11-02T10:02:16.7529902Z test images_magnified_rotated_and_minified_match ... ok
+2026-11-02T10:02:17.2595133Z test linear_radial_and_sweep_gradients_match_per_pixel ... ok
+2026-11-02T10:02:17.3306024Z test nested_layers_with_mixed_effects_match ... ok
+2026-11-02T10:02:17.3933407Z test overlapping_subpaths_fill_under_non_zero_winding ... ok
+2026-11-02T10:02:17.4628345Z test shaped_clips_on_draws_and_on_layers_match ... FAILED
+2026-11-02T10:02:17.5278671Z test sharp_miter_joins_reach_as_far_as_the_cpu_allows ... ok
+2026-11-02T10:02:17.5279193Z 
+2026-11-02T10:02:17.5279331Z failures:
+2026-11-02T10:02:17.5279560Z 
+2026-11-02T10:02:17.5279940Z ---- a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp stdout ----
+2026-11-02T10:02:17.5281222Z backdrop-blur: max channel diff 20 at (16, 70) gpu=[75, 182, 115, 255] cpu=[55, 175, 101, 255]; 75 px over 2
+2026-11-02T10:02:17.5281818Z 
+2026-11-02T10:02:17.5282467Z thread 'a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp' (4360) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:113:5:
+2026-11-02T10:02:17.5283689Z backdrop-blur: 75 pixels differ by more than 2 (allowed 0); worst 20 at (16, 70) gpu=[75, 182, 115, 255] cpu=[55, 175, 101, 255]
+2026-11-02T10:02:17.5284416Z stack backtrace:
+2026-11-02T10:02:17.5291395Z    0: __rustc::rust_begin_unwind
+2026-11-02T10:02:17.5292117Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-02T10:02:17.5292851Z    1: core::panicking::panic_fmt
+2026-11-02T10:02:17.5293520Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-02T10:02:17.5294216Z    2: assert_parity
+2026-11-02T10:02:17.5294569Z              at ./tests/vulkan_compositor.rs:113:5
+2026-11-02T10:02:17.5295171Z    3: a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp
+2026-11-02T10:02:17.5295776Z              at ./tests/vulkan_compositor.rs:382:5
+2026-11-02T10:02:17.5296204Z    4: {closure#0}
+2026-11-02T10:02:17.5296546Z              at ./tests/vulkan_compositor.rs:357:73
+2026-11-02T10:02:17.5297485Z    5: call_once<vulkan_compositor::a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp::{closure_env#0}, ()>
+2026-11-02T10:02:17.5298625Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-02T10:02:17.5299592Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-11-02T10:02:17.5301256Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-02T10:02:17.5302129Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-02T10:02:17.5302606Z 
+2026-11-02T10:02:17.5302920Z ---- a_renderer_shared_between_planners_never_draws_a_stale_atlas stdout ----
+2026-11-02T10:02:17.5303374Z 
+2026-11-02T10:02:17.5303973Z thread 'a_renderer_shared_between_planners_never_draws_a_stale_atlas' (4404) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:846:9:
+2026-11-02T10:02:17.5305014Z assertion `left == right` failed: planner 0: 64 pixels drawn against a stale atlas
+2026-11-02T10:02:17.5305598Z   left: 64
+2026-11-02T10:02:17.5305864Z  right: 0
+2026-11-02T10:02:17.5306125Z stack backtrace:
+2026-11-02T10:02:17.5306440Z    0: __rustc::rust_begin_unwind
+2026-11-02T10:02:17.5307257Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-02T10:02:17.5307947Z    1: core::panicking::panic_fmt
+2026-11-02T10:02:17.5308573Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-02T10:02:17.5309289Z    2: core::panicking::assert_failed_inner
+2026-11-02T10:02:17.5309964Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:434:23
+2026-11-02T10:02:17.5310848Z    3: core::panicking::assert_failed::<usize, usize>
+2026-11-02T10:02:17.5311573Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:394:5
+2026-11-02T10:02:17.5312390Z    4: a_renderer_shared_between_planners_never_draws_a_stale_atlas
+2026-11-02T10:02:17.5312995Z              at ./tests/vulkan_compositor.rs:846:9
+2026-11-02T10:02:17.5313391Z    5: {closure#0}
+2026-11-02T10:02:17.5313735Z              at ./tests/vulkan_compositor.rs:805:66
+2026-11-02T10:02:17.5314490Z    6: call_once<vulkan_compositor::a_renderer_shared_between_planners_never_draws_a_stale_atlas::{closure_env#0}, ()>
+2026-11-02T10:02:17.5315557Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-02T10:02:17.5316489Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-11-02T10:02:17.5317481Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-02T10:02:17.5318322Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-02T10:02:17.5318784Z 
+2026-11-02T10:02:17.5318988Z ---- a_shadow_inside_a_translucent_layer_matches stdout ----
+2026-11-02T10:02:17.5319739Z shadow-in-layer: max channel diff 43 at (95, 67) gpu=[127, 177, 147, 255] cpu=[84, 159, 113, 255]; 6716 px over 2
+2026-11-02T10:02:17.5320516Z 
+2026-11-02T10:02:17.5321087Z thread 'a_shadow_inside_a_translucent_layer_matches' (4415) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:113:5:
+2026-11-02T10:02:17.5322284Z shadow-in-layer: 6716 pixels differ by more than 2 (allowed 0); worst 43 at (95, 67) gpu=[127, 177, 147, 255] cpu=[84, 159, 113, 255]
+2026-11-02T10:02:17.5322989Z stack backtrace:
+2026-11-02T10:02:17.5323315Z    0: __rustc::rust_begin_unwind
+2026-11-02T10:02:17.5323880Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-02T10:02:17.5324487Z    1: core::panicking::panic_fmt
+2026-11-02T10:02:17.5325054Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-02T10:02:17.5325663Z    2: assert_parity
+2026-11-02T10:02:17.5325977Z              at ./tests/vulkan_compositor.rs:113:5
+2026-11-02T10:02:17.5326461Z    3: a_shadow_inside_a_translucent_layer_matches
+2026-11-02T10:02:17.5326943Z              at ./tests/vulkan_compositor.rs:541:5
+2026-11-02T10:02:17.5327367Z    4: {closure#0}
+2026-11-02T10:02:17.5327705Z              at ./tests/vulkan_compositor.rs:516:49
+2026-11-02T10:02:17.5328420Z    5: call_once<vulkan_compositor::a_shadow_inside_a_translucent_layer_matches::{closure_env#0}, ()>
+2026-11-02T10:02:17.5329644Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-02T10:02:17.5330902Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-11-02T10:02:17.5331869Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-02T10:02:17.5332778Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-02T10:02:17.5333265Z 
+2026-11-02T10:02:17.5333428Z ---- every_shadow_variant_matches stdout ----
+2026-11-02T10:02:17.5334112Z shadow-outer: max channel diff 32 at (51, 25) gpu=[178, 183, 191, 255] cpu=[210, 212, 218, 255]; 7928 px over 2
+2026-11-02T10:02:17.5334632Z 
+2026-11-02T10:02:17.5335249Z thread 'every_shadow_variant_matches' (4730) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:113:5:
+2026-11-02T10:02:17.5336366Z shadow-outer: 7928 pixels differ by more than 2 (allowed 0); worst 32 at (51, 25) gpu=[178, 183, 191, 255] cpu=[210, 212, 218, 255]
+2026-11-02T10:02:17.5337148Z stack backtrace:
+2026-11-02T10:02:17.5337488Z    0: __rustc::rust_begin_unwind
+2026-11-02T10:02:17.5338135Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-02T10:02:17.5338845Z    1: core::panicking::panic_fmt
+2026-11-02T10:02:17.5339447Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-02T10:02:17.5340085Z    2: assert_parity
+2026-11-02T10:02:17.5340559Z              at ./tests/vulkan_compositor.rs:113:5
+2026-11-02T10:02:17.5341007Z    3: every_shadow_variant_matches
+2026-11-02T10:02:17.5341412Z              at ./tests/vulkan_compositor.rs:504:9
+2026-11-02T10:02:17.5341820Z    4: {closure#0}
+2026-11-02T10:02:17.5342154Z              at ./tests/vulkan_compositor.rs:455:34
+2026-11-02T10:02:17.5342778Z    5: call_once<vulkan_compositor::every_shadow_variant_matches::{closure_env#0}, ()>
+2026-11-02T10:02:17.5343653Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-02T10:02:17.5344614Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-11-02T10:02:17.5345549Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-02T10:02:17.5346452Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-02T10:02:17.5346949Z 
+2026-11-02T10:02:17.5347174Z ---- shaped_clips_on_draws_and_on_layers_match stdout ----
+2026-11-02T10:02:17.5347934Z shaped-clips: max channel diff 52 at (87, 8) gpu=[145, 210, 170, 255] cpu=[93, 190, 130, 255]; 419 px over 2
+2026-11-02T10:02:17.5348480Z 
+2026-11-02T10:02:17.5349026Z thread 'shaped_clips_on_draws_and_on_layers_match' (4896) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:113:5:
+2026-11-02T10:02:17.5350207Z shaped-clips: 419 pixels differ by more than 2 (allowed 0); worst 52 at (87, 8) gpu=[145, 210, 170, 255] cpu=[93, 190, 130, 255]
+2026-11-02T10:02:17.5351122Z stack backtrace:
+2026-11-02T10:02:17.5351441Z    0: __rustc::rust_begin_unwind
+2026-11-02T10:02:17.5352079Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-02T10:02:17.5352777Z    1: core::panicking::panic_fmt
+2026-11-02T10:02:17.5353455Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-02T10:02:17.5354170Z    2: assert_parity
+2026-11-02T10:02:17.5354538Z              at ./tests/vulkan_compositor.rs:113:5
+2026-11-02T10:02:17.5355030Z    3: shaped_clips_on_draws_and_on_layers_match
+2026-11-02T10:02:17.5355507Z              at ./tests/vulkan_compositor.rs:432:5
+2026-11-02T10:02:17.5355945Z    4: {closure#0}
+2026-11-02T10:02:17.5356292Z              at ./tests/vulkan_compositor.rs:387:47
+2026-11-02T10:02:17.5357042Z    5: call_once<vulkan_compositor::shaped_clips_on_draws_and_on_layers_match::{closure_env#0}, ()>
+2026-11-02T10:02:17.5358115Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-02T10:02:17.5359002Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-11-02T10:02:17.5359869Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-02T10:02:17.5360915Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-02T10:02:17.5361449Z 
+2026-11-02T10:02:17.5361456Z 
+2026-11-02T10:02:17.5361573Z failures:
+2026-11-02T10:02:17.5362029Z     a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp
+2026-11-02T10:02:17.5362712Z     a_renderer_shared_between_planners_never_draws_a_stale_atlas
+2026-11-02T10:02:17.5363464Z     a_shadow_inside_a_translucent_layer_matches
+2026-11-02T10:02:17.5363915Z     every_shadow_variant_matches
+2026-11-02T10:02:17.5364323Z     shaped_clips_on_draws_and_on_layers_match
+2026-11-02T10:02:17.5364622Z 
+2026-11-02T10:02:17.5365034Z test result: FAILED. 12 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.86s
+2026-11-02T10:02:17.5365586Z 
+2026-11-02T10:02:17.5431311Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test vulkan_compositor`
+2026-11-02T10:02:17.5669601Z ##[error]Process completed with exit code 101.
+
 ===== Coverage floor	Coverage =====
-2026-11-02T05:14:40.7280624Z ^[[1m^[[92m   Compiling^[[0m zune-jpeg v0.5.15
-2026-11-02T05:14:42.8540987Z ^[[1m^[[92m   Compiling^[[0m moxcms v0.8.1
-2026-11-02T05:14:43.1871052Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
-2026-11-02T05:14:43.4050836Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
-2026-11-02T05:14:43.7760827Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
-2026-11-02T05:14:46.4809746Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
-2026-11-02T05:14:46.8291457Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
-2026-11-02T05:14:54.2411031Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
-2026-11-02T05:15:11.6510773Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
-2026-11-02T05:15:12.9771173Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
-2026-11-02T05:15:14.2820737Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
-2026-11-02T05:15:18.4460936Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
-2026-11-02T05:15:31.3436485Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
-2026-11-02T05:15:33.0691009Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
-2026-11-02T05:15:34.5401306Z ^[[1m^[[92m   Compiling^[[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
-2026-11-02T05:15:34.5940199Z ^[[1m^[[92m   Compiling^[[0m byteorder-lite v0.1.0
-2026-11-02T05:15:34.8200778Z ^[[1m^[[92m   Compiling^[[0m image v0.25.10
-2026-11-02T05:15:37.0671063Z ^[[1m^[[92m   Compiling^[[0m vieww-asset v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
-2026-11-02T05:15:37.5690821Z ^[[1m^[[92m   Compiling^[[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
-2026-11-02T05:15:40.8775444Z ^[[1m^[[92m   Compiling^[[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
-2026-11-02T05:15:41.4571138Z ^[[1m^[[92m   Compiling^[[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
-2026-11-02T05:15:41.7032776Z ^[[1m^[[92m   Compiling^[[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
-2026-11-02T05:15:46.7036878Z ^[[1m^[[92m   Compiling^[[0m vieww-video v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-video)
-2026-11-02T05:15:47.7092046Z ^[[1m^[[92m   Compiling^[[0m vieww-spatial v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-spatial)
-2026-11-02T05:15:49.1541027Z ^[[1m^[[92m   Compiling^[[0m vieww-network v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-network)
-2026-11-02T05:15:49.2531295Z ^[[1m^[[92m   Compiling^[[0m vieww-physics v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-physics)
-2026-11-02T05:15:50.5501060Z ^[[1m^[[92m   Compiling^[[0m foldhash v0.2.0
-2026-11-02T05:15:50.6983777Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
-2026-11-02T05:15:51.3531427Z ^[[1m^[[92m   Compiling^[[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
-2026-11-02T05:15:51.4010736Z ^[[1m^[[92m   Compiling^[[0m equivalent v1.0.2
-2026-11-02T05:15:51.4361975Z ^[[1m^[[92m   Compiling^[[0m indexmap v2.14.2
-2026-11-02T05:15:51.7480956Z ^[[1m^[[92m   Compiling^[[0m libloading v0.8.9
-2026-11-02T05:15:51.9350681Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
-2026-11-02T05:15:52.2383999Z ^[[1m^[[92m   Compiling^[[0m zerocopy-derive v0.8.59
-2026-11-02T05:15:52.4080521Z ^[[1m^[[92m   Compiling^[[0m arrayvec v0.7.8
-2026-11-02T05:15:52.6150716Z ^[[1m^[[92m   Compiling^[[0m cfg_aliases v0.2.2
-2026-11-02T05:15:52.6468391Z ^[[1m^[[92m   Compiling^[[0m thiserror v2.0.21
-2026-11-02T05:15:52.8075769Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v2.0.21
-2026-11-02T05:15:53.2857820Z ^[[1m^[[92m   Compiling^[[0m euclid v0.22.14
-2026-11-02T05:15:54.0290575Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v1.1.0
-2026-11-02T05:15:54.1340851Z ^[[1m^[[92m   Compiling^[[0m lyon_geom v1.0.19
-2026-11-02T05:15:54.5401159Z ^[[1m^[[92m   Compiling^[[0m serde_derive v1.0.229
-2026-11-02T05:16:07.6230468Z ^[[1m^[[92m   Compiling^[[0m unicode-width v0.2.2
-2026-11-02T05:16:07.8230440Z ^[[1m^[[92m   Compiling^[[0m bit-vec v0.9.1
-2026-11-02T05:16:08.0800626Z ^[[1m^[[92m   Compiling^[[0m bit-set v0.10.0
-2026-11-02T05:16:08.1930894Z ^[[1m^[[92m   Compiling^[[0m codespan-reporting v0.13.1
-2026-11-02T05:16:09.1861468Z ^[[1m^[[92m   Compiling^[[0m lyon_path v1.0.19
-2026-11-02T05:16:09.9591294Z ^[[1m^[[92m   Compiling^[[0m naga v30.0.1
-2026-11-02T05:16:10.4350718Z ^[[1m^[[92m   Compiling^[[0m float_next_after v1.0.0
-2026-11-02T05:16:10.4669789Z ^[[1m^[[92m   Compiling^[[0m lyon_tessellation v1.0.22
-2026-11-02T05:16:10.4910306Z ^[[1m^[[92m   Compiling^[[0m spirv v0.4.0+sdk-1.4.341.0
-2026-11-02T05:16:12.9530859Z ^[[1m^[[92m   Compiling^[[0m half v2.7.1
-2026-11-02T05:16:13.6991640Z ^[[1m^[[92m   Compiling^[[0m naga-types v30.0.1
-2026-11-02T05:16:13.9438457Z ^[[1m^[[92m   Compiling^[[0m serde_core v1.0.229
-2026-11-02T05:16:14.0680654Z ^[[1m^[[92m   Compiling^[[0m rustix v1.1.5
-2026-11-02T05:16:14.6799742Z ^[[1m^[[92m   Compiling^[[0m blake3 v1.8.7
-2026-11-02T05:16:14.8094672Z ^[[1m^[[92m   Compiling^[[0m linux-raw-sys v0.12.1
-2026-11-02T05:16:15.1421763Z ^[[1m^[[92m   Compiling^[[0m raw-window-handle v0.6.2
-2026-11-02T05:16:15.8804176Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
-2026-11-02T05:16:17.6661971Z ^[[1m^[[92m   Compiling^[[0m constant_time_eq v0.4.2
-2026-11-02T05:16:17.8266422Z ^[[1m^[[92m   Compiling^[[0m cpufeatures v0.3.1
-2026-11-02T05:16:17.8600427Z ^[[1m^[[92m   Compiling^[[0m ash v0.38.0+1.3.281
-2026-11-02T05:16:26.7330779Z ^[[1m^[[92m   Compiling^[[0m pin-project-lite v0.2.17
-2026-11-02T05:16:26.7690446Z ^[[1m^[[92m   Compiling^[[0m serde v1.0.229
-2026-11-02T05:16:27.2231560Z ^[[1m^[[92m   Compiling^[[0m winnow v1.0.4
-2026-11-02T05:16:28.8520595Z ^[[1m^[[92m   Compiling^[[0m pkg-config v0.3.34
-2026-11-02T05:16:31.7960728Z ^[[1m^[[92m   Compiling^[[0m toml_parser v1.1.3+spec-1.1.0
-2026-11-02T05:16:33.1912144Z ^[[1m^[[92m   Compiling^[[0m ash-window v0.13.0
-2026-11-02T05:16:33.2918660Z ^[[1m^[[92m   Compiling^[[0m toml_datetime v1.1.1+spec-1.1.0
-2026-11-02T05:16:33.5930961Z ^[[1m^[[92m   Compiling^[[0m toml_edit v0.25.15+spec-1.1.0
-2026-11-02T05:16:36.3500751Z ^[[1m^[[92m   Compiling^[[0m enumflags2_derive v0.7.12
-2026-11-02T05:16:38.4780677Z ^[[1m^[[92m   Compiling^[[0m proc-macro-crate v3.5.0
-2026-11-02T05:16:40.5601757Z ^[[1m^[[92m   Compiling^[[0m zvariant_utils v4.2.0
-2026-11-02T05:16:40.5960602Z ^[[1m^[[92m   Compiling^[[0m parking v2.2.1
-2026-11-02T05:16:40.7150315Z ^[[1m^[[92m   Compiling^[[0m memchr v2.8.3
-2026-11-02T05:16:42.0222600Z ^[[1m^[[92m   Compiling^[[0m slab v0.4.12
-2026-11-02T05:16:42.1560719Z ^[[1m^[[92m   Compiling^[[0m futures-core v0.3.34
-2026-11-02T05:16:42.2440556Z ^[[1m^[[92m   Compiling^[[0m endi v1.1.1
-2026-11-02T05:16:42.3350724Z ^[[1m^[[92m   Compiling^[[0m crossbeam-utils v0.8.23
-2026-11-02T05:16:42.6450685Z ^[[1m^[[92m   Compiling^[[0m wayland-sys v0.31.11
-2026-11-02T05:16:42.8250540Z ^[[1m^[[92m   Compiling^[[0m polling v3.11.0
-2026-11-02T05:16:43.2910702Z ^[[1m^[[92m   Compiling^[[0m dlib v0.5.3
-2026-11-02T05:16:43.3510498Z ^[[1m^[[92m   Compiling^[[0m fastrand v2.5.0
-2026-11-02T05:16:43.8910871Z ^[[1m^[[92m   Compiling^[[0m wayland-backend v0.3.17
-2026-11-02T05:16:44.0870667Z ^[[1m^[[92m   Compiling^[[0m futures-io v0.3.34
-2026-11-02T05:16:44.2340578Z ^[[1m^[[92m   Compiling^[[0m concurrent-queue v2.5.0
-2026-11-02T05:16:45.0890595Z ^[[1m^[[92m   Compiling^[[0m event-listener v5.4.2
-2026-11-02T05:16:45.3031050Z ^[[1m^[[92m   Compiling^[[0m enumflags2 v0.7.12
-2026-11-02T05:16:45.4250486Z ^[[1m^[[92m   Compiling^[[0m zcheapstr v1.1.0
-2026-11-02T05:16:45.5980588Z ^[[1m^[[92m   Compiling^[[0m downcast-rs v1.2.1
-2026-11-02T05:16:45.6320372Z ^[[1m^[[92m   Compiling^[[0m scoped-tls v1.0.1
-2026-11-02T05:16:50.1680718Z ^[[1m^[[92m   Compiling^[[0m event-listener-strategy v0.5.4
-2026-11-02T05:16:50.2400469Z ^[[1m^[[92m   Compiling^[[0m futures-lite v2.6.1
-2026-11-02T05:16:51.0960710Z ^[[1m^[[92m   Compiling^[[0m quick-xml v0.41.0
-2026-11-02T05:16:55.9021033Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
-2026-11-02T05:16:56.8580527Z ^[[1m^[[92m   Compiling^[[0m zvariant_derive v5.15.0
-2026-11-02T05:16:59.4110934Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
-2026-11-02T05:16:59.5050743Z ^[[1m^[[92m   Compiling^[[0m zvariant v5.15.0
-2026-11-02T05:17:05.4880572Z ^[[1m^[[92m   Compiling^[[0m wayland-client v0.31.15
-2026-11-02T05:17:05.5630567Z ^[[1m^[[92m   Compiling^[[0m zbus_names v4.3.4
-2026-11-02T05:17:06.8872348Z ^[[1m^[[92m   Compiling^[[0m wayland-scanner v0.31.11
-2026-11-02T05:17:14.0621296Z ^[[1m^[[92m   Compiling^[[0m tracing-attributes v0.1.31
-2026-11-02T05:17:23.1100718Z ^[[1m^[[92m   Compiling^[[0m async-io v2.6.0
-2026-11-02T05:17:23.2170844Z ^[[1m^[[92m   Compiling^[[0m tracing-core v0.1.36
-2026-11-02T05:17:26.0560678Z ^[[1m^[[92m   Compiling^[[0m tracing v0.1.44
-2026-11-02T05:17:29.3690810Z ^[[1m^[[92m   Compiling^[[0m errno v0.3.14
-2026-11-02T05:17:29.4850652Z ^[[1m^[[92m   Compiling^[[0m async-task v4.7.1
-2026-11-02T05:17:29.6460586Z ^[[1m^[[92m   Compiling^[[0m signal-hook-registry v1.4.8
-2026-11-02T05:17:31.4391088Z ^[[1m^[[92m   Compiling^[[0m async-channel v2.5.0
-2026-11-02T05:17:31.5903116Z ^[[1m^[[92m   Compiling^[[0m uuid v1.26.1
-2026-11-02T05:17:32.2670958Z ^[[1m^[[92m   Compiling^[[0m vieww-scene v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
-2026-11-02T05:17:32.7039482Z ^[[1m^[[92m   Compiling^[[0m atomic-waker v1.1.2
-2026-11-02T05:17:32.7763317Z ^[[1m^[[92m   Compiling^[[0m piper v0.2.5
-2026-11-02T05:17:32.8490664Z ^[[1m^[[92m   Compiling^[[0m async-signal v0.2.14
-2026-11-02T05:17:33.0678806Z ^[[1m^[[92m   Compiling^[[0m zbus_xml v5.2.1
-2026-11-02T05:17:33.0900547Z ^[[1m^[[92m   Compiling^[[0m async-lock v3.4.2
-2026-11-02T05:17:33.2027928Z ^[[1m^[[92m   Compiling^[[0m thiserror v1.0.69
-2026-11-02T05:17:33.5561026Z ^[[1m^[[92m   Compiling^[[0m siphasher v1.0.4
-2026-11-02T05:17:33.6640571Z ^[[1m^[[92m   Compiling^[[0m rustix v0.38.44
-2026-11-02T05:17:33.7575809Z ^[[1m^[[92m   Compiling^[[0m zbus-lockstep v0.5.2
-2026-11-02T05:17:33.8460636Z ^[[1m^[[92m   Compiling^[[0m async-process v2.5.0
-2026-11-02T05:17:34.0100110Z ^[[1m^[[92m   Compiling^[[0m blocking v1.7.0
-2026-11-02T05:17:34.2620832Z ^[[1m^[[92m   Compiling^[[0m vieww-render-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
-2026-11-02T05:17:35.0651453Z ^[[1m^[[92m   Compiling^[[0m async-executor v1.14.0
-2026-11-02T05:17:35.8577677Z ^[[1m^[[92m   Compiling^[[0m zbus_macros v5.19.0
-2026-11-02T05:17:36.7030783Z ^[[1m^[[92m   Compiling^[[0m async-broadcast v0.7.2
-2026-11-02T05:17:36.8811061Z ^[[1m^[[92m   Compiling^[[0m ordered-stream v0.2.0
-2026-11-02T05:17:37.1390969Z ^[[1m^[[92m   Compiling^[[0m async-trait v0.1.92
-2026-11-02T05:17:38.1420618Z ^[[1m^[[92m   Compiling^[[0m serde_repr v0.1.21
-2026-11-02T05:17:39.6300826Z ^[[1m^[[92m   Compiling^[[0m async-recursion v1.1.1
-2026-11-02T05:17:42.9271061Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v1.0.69
-2026-11-02T05:17:46.2250782Z ^[[1m^[[92m   Compiling^[[0m linux-raw-sys v0.4.15
-2026-11-02T05:17:46.4988368Z ^[[1m^[[92m   Compiling^[[0m hex v0.4.3
-2026-11-02T05:17:51.9221380Z ^[[1m^[[92m   Compiling^[[0m zbus-lockstep-macros v0.5.2
-2026-11-02T05:17:53.6451178Z ^[[1m^[[92m   Compiling^[[0m phf_shared v0.14.0
-2026-11-02T05:17:53.8430926Z ^[[1m^[[92m   Compiling^[[0m wayland-protocols v0.32.13
-2026-11-02T05:17:53.9300507Z ^[[1m^[[92m   Compiling^[[0m static_assertions v1.1.0
-2026-11-02T05:17:54.0560638Z ^[[1m^[[92m   Compiling^[[0m as-raw-xcb-connection v1.0.1
-2026-11-02T05:17:54.1000099Z ^[[1m^[[92m   Compiling^[[0m phf_generator v0.14.0
-2026-11-02T05:17:54.5120470Z ^[[1m^[[92m   Compiling^[[0m calloop v0.13.0
-2026-11-02T05:17:55.5881354Z ^[[1m^[[92m   Compiling^[[0m gethostname v1.1.0
-2026-11-02T05:17:55.6670691Z ^[[1m^[[92m   Compiling^[[0m arrayref v0.3.9
-2026-11-02T05:17:55.6939950Z ^[[1m^[[92m   Compiling^[[0m strict-num v0.1.1
-2026-11-02T05:17:55.7680567Z ^[[1m^[[92m   Compiling^[[0m x11rb-protocol v0.13.2
-2026-11-02T05:17:55.9910460Z ^[[1m^[[92m   Compiling^[[0m getrandom v0.3.4
-2026-11-02T05:17:56.3790578Z ^[[1m^[[92m   Compiling^[[0m smithay-client-toolkit v0.19.2
-2026-11-02T05:17:56.4430847Z ^[[1m^[[92m   Compiling^[[0m xkeysym v0.2.1
-2026-11-02T05:17:58.5540899Z ^[[1m^[[92m   Compiling^[[0m xcursor v0.3.11
-2026-11-02T05:17:59.5300554Z ^[[1m^[[92m   Compiling^[[0m zbus v5.19.0
-2026-11-02T05:17:59.7670502Z ^[[1m^[[92m   Compiling^[[0m cursor-icon v1.2.0
-2026-11-02T05:17:59.8531056Z ^[[1m^[[92m   Compiling^[[0m wayland-csd-frame v0.3.0
-2026-11-02T05:18:00.2311497Z ^[[1m^[[92m   Compiling^[[0m wayland-protocols-wlr v0.3.12
-2026-11-02T05:18:06.1270608Z ^[[1m^[[92m   Compiling^[[0m atspi-common v0.13.0
-2026-11-02T05:18:19.3790929Z ^[[1m^[[92m   Compiling^[[0m x11rb v0.13.2
-2026-11-02T05:18:23.4210727Z ^[[1m^[[92m   Compiling^[[0m wayland-cursor v0.31.14
-2026-11-02T05:18:24.5370574Z ^[[1m^[[92m   Compiling^[[0m tiny-skia-path v0.11.4
-2026-11-02T05:18:26.5060505Z ^[[1m^[[92m   Compiling^[[0m calloop-wayland-source v0.3.0
-2026-11-02T05:18:26.5779526Z ^[[1m^[[92m   Compiling^[[0m phf_macros v0.14.0
-2026-11-02T05:18:28.1211220Z ^[[1m^[[92m   Compiling^[[0m accesskit v0.25.1
-2026-11-02T05:18:29.2720967Z ^[[1m^[[92m   Compiling^[[0m x11-dl v2.21.0
-2026-11-02T05:18:29.5710770Z ^[[1m^[[92m   Compiling^[[0m ahash v0.8.12
-2026-11-02T05:18:29.6910670Z ^[[1m^[[92m   Compiling^[[0m owned_ttf_parser v0.25.1
-2026-11-02T05:18:30.0170510Z ^[[1m^[[92m   Compiling^[[0m parking_lot_core v0.9.12
-2026-11-02T05:18:30.1720816Z ^[[1m^[[92m   Compiling^[[0m ab_glyph_rasterizer v0.1.10
-2026-11-02T05:18:30.4289912Z ^[[1m^[[92m   Compiling^[[0m ab_glyph v0.2.32
-2026-11-02T05:18:32.2320827Z ^[[1m^[[92m   Compiling^[[0m accesskit_consumer v0.39.1
-2026-11-02T05:18:32.6140792Z ^[[1m^[[92m   Compiling^[[0m phf v0.14.0
-2026-11-02T05:18:36.5971307Z ^[[1m^[[92m   Compiling^[[0m tiny-skia v0.11.4
-2026-11-02T05:18:37.8430594Z ^[[1m^[[92m   Compiling^[[0m atspi-proxies v0.13.0
-2026-11-02T05:18:40.0121326Z ^[[1m^[[92m   Compiling^[[0m vieww-render-planner v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
-2026-11-02T05:18:40.3441157Z ^[[1m^[[92m   Compiling^[[0m tiny-xlib v0.2.5
-2026-11-02T05:18:40.6852455Z ^[[1m^[[92m   Compiling^[[0m winit v0.30.13
-2026-11-02T05:18:40.7631008Z ^[[1m^[[92m   Compiling^[[0m futures-macro v0.3.34
-2026-11-02T05:18:41.4290565Z ^[[1m^[[92m   Compiling^[[0m scopeguard v1.2.0
-2026-11-02T05:18:41.4670719Z ^[[1m^[[92m   Compiling^[[0m percent-encoding v2.3.2
-2026-11-02T05:18:41.7191243Z ^[[1m^[[92m   Compiling^[[0m futures-task v0.3.34
-2026-11-02T05:18:41.8217875Z ^[[1m^[[92m   Compiling^[[0m lock_api v0.4.14
-2026-11-02T05:18:42.0200611Z ^[[1m^[[92m   Compiling^[[0m atspi v0.29.0
-2026-11-02T05:18:42.2361457Z ^[[1m^[[92m   Compiling^[[0m sctk-adwaita v0.10.1
-2026-11-02T05:18:43.2910961Z ^[[1m^[[92m   Compiling^[[0m accesskit_atspi_common v0.21.0
-2026-11-02T05:18:48.2411054Z ^[[1m^[[92m   Compiling^[[0m wayland-protocols-plasma v0.3.12
-2026-11-02T05:18:48.2572554Z ^[[1m^[[92m   Compiling^[[0m xkbcommon-dl v0.4.2
-2026-11-02T05:18:49.4190652Z ^[[1m^[[92m   Compiling^[[0m futures-util v0.3.34
-2026-11-02T05:18:49.5771101Z ^[[1m^[[92m   Compiling^[[0m dpi v0.1.2
-2026-11-02T05:18:49.7130828Z ^[[1m^[[92m   Compiling^[[0m ctor v0.10.1
-2026-11-02T05:18:49.7500562Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.2.2
-2026-11-02T05:18:51.4050712Z ^[[1m^[[92m   Compiling^[[0m accesskit_unix v0.24.0
-2026-11-02T05:18:52.2710479Z ^[[1m^[[92m   Compiling^[[0m parking_lot v0.12.5
-2026-11-02T05:18:53.4611138Z ^[[1m^[[92m   Compiling^[[0m arboard v3.6.1
-2026-11-02T05:19:00.7180688Z ^[[1m^[[92m   Compiling^[[0m accesskit_winit v0.34.1
-2026-11-02T05:19:01.0400870Z ^[[1m^[[92m   Compiling^[[0m softbuffer v0.4.8
-2026-11-02T05:19:02.0391710Z ^[[1m^[[92m   Compiling^[[0m vieww-platform-winit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
-2026-11-02T05:19:02.5261232Z ^[[1m^[[92m   Compiling^[[0m vieww-test-harness v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-test-harness)
-2026-11-02T05:19:03.2151104Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-language v0.1.8
-2026-11-02T05:19:03.3246236Z ^[[1m^[[92m   Compiling^[[0m zmij v1.0.23
-2026-11-02T05:19:03.9590911Z ^[[1m^[[92m   Compiling^[[0m feature-harness v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/harness)
-2026-11-02T05:19:04.6441166Z ^[[1m^[[92m   Compiling^[[0m itoa v1.0.18
-2026-11-02T05:19:06.5710924Z ^[[1m^[[92m   Compiling^[[0m aho-corasick v1.1.5
-2026-11-02T05:19:07.5520503Z ^[[1m^[[92m   Compiling^[[0m regex-syntax v0.8.11
-2026-11-02T05:19:15.5553796Z ^[[1m^[[92m   Compiling^[[0m serde_json v1.0.151
-2026-11-02T05:19:15.6550995Z ^[[1m^[[92m   Compiling^[[0m regex-automata v0.4.18
-2026-11-02T05:19:18.4820854Z ^[[1m^[[92m   Compiling^[[0m regex v1.13.1
-2026-11-02T05:19:20.3961334Z ^[[1m^[[92m   Compiling^[[0m vieww-say-codegen v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-say-codegen)
-2026-11-02T05:19:20.5810515Z ^[[1m^[[92m   Compiling^[[0m tree-sitter v0.26.13
-2026-11-02T05:19:22.2421280Z ^[[1m^[[92m   Compiling^[[0m vieww-hardware v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
-2026-11-02T05:19:22.8558333Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-yaml v0.7.2
-2026-11-02T05:19:23.0782243Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-toml-ng v0.7.0
-2026-11-02T05:19:23.2890604Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-md v0.5.3
-2026-11-02T05:19:23.5940803Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-json v0.24.8
-2026-11-02T05:19:23.7960591Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-rust v0.24.2
-2026-11-02T05:19:29.0671079Z ^[[1m^[[92m   Compiling^[[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
-2026-11-02T05:19:29.4180824Z ^[[1m^[[92m   Compiling^[[0m streaming-iterator v0.1.9
-2026-11-02T05:19:31.8450730Z ^[[1m^[[92m   Compiling^[[0m color_quant v1.1.0
-2026-11-02T05:19:32.0188823Z ^[[1m^[[92m   Compiling^[[0m weezl v0.1.12
-2026-11-02T05:19:32.1850586Z ^[[1m^[[92m   Compiling^[[0m utf8parse v0.2.2
-2026-11-02T05:19:32.2310611Z ^[[1m^[[92m   Compiling^[[0m anstyle-parse v1.0.0
-2026-11-02T05:19:32.3821084Z ^[[1m^[[92m   Compiling^[[0m gif v0.14.2
-2026-11-02T05:19:33.5200752Z ^[[1m^[[92m   Compiling^[[0m anstyle v1.0.14
-2026-11-02T05:19:33.7210695Z ^[[1m^[[92m   Compiling^[[0m anstyle-query v1.1.5
-2026-11-02T05:19:33.7617094Z ^[[1m^[[92m   Compiling^[[0m colorchoice v1.0.5
-2026-11-02T05:19:33.8130666Z ^[[1m^[[92m   Compiling^[[0m is_terminal_polyfill v1.70.2
-2026-11-02T05:19:33.8440711Z ^[[1m^[[92m   Compiling^[[0m anstream v1.0.0
-2026-11-02T05:19:33.8677240Z ^[[1m^[[92m   Compiling^[[0m vieww-3d v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-3d)
-2026-11-02T05:19:34.3031287Z ^[[1m^[[92m   Compiling^[[0m heck v0.5.0
-2026-11-02T05:19:35.0070864Z ^[[1m^[[92m   Compiling^[[0m strsim v0.11.1
-2026-11-02T05:19:35.1710549Z ^[[1m^[[92m   Compiling^[[0m clap_lex v1.1.1
-2026-11-02T05:19:35.5360594Z ^[[1m^[[92m   Compiling^[[0m clap_builder v4.6.7
-2026-11-02T05:19:35.9850968Z ^[[1m^[[92m   Compiling^[[0m clap_derive v4.6.7
-2026-11-02T05:19:36.6284930Z ^[[1m^[[92m   Compiling^[[0m wright-core v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/core)
-2026-11-02T05:19:48.0981118Z ^[[1m^[[92m   Compiling^[[0m wright-runtime v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/runtime)
-2026-11-02T05:19:52.7440637Z ^[[1m^[[92m   Compiling^[[0m clap v4.6.7
-2026-11-02T05:19:52.7850593Z ^[[1m^[[92m   Compiling^[[0m alloca v0.4.0
-2026-11-02T05:19:52.9760547Z ^[[1m^[[92m   Compiling^[[0m ciborium-io v0.2.2
-2026-11-02T05:19:53.0086215Z ^[[1m^[[92m   Compiling^[[0m either v1.18.0
-2026-11-02T05:19:53.1790461Z ^[[1m^[[92m   Compiling^[[0m itertools v0.13.0
-2026-11-02T05:19:53.7470603Z ^[[1m^[[92m   Compiling^[[0m ciborium-ll v0.2.2
-2026-11-02T05:19:54.7711514Z ^[[1m^[[92m   Compiling^[[0m vieww-build v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-build)
-2026-11-02T05:19:55.3770838Z ^[[1m^[[92m   Compiling^[[0m cast v0.3.0
-2026-11-02T05:19:55.4970798Z ^[[1m^[[92m   Compiling^[[0m same-file v1.0.6
-2026-11-02T05:19:55.6340495Z ^[[1m^[[92m   Compiling^[[0m walkdir v2.5.0
-2026-11-02T05:19:56.7050767Z ^[[1m^[[92m   Compiling^[[0m criterion-plot v0.8.2
-2026-11-02T05:19:57.3040639Z ^[[1m^[[92m   Compiling^[[0m tinytemplate v1.2.1
-2026-11-02T05:19:58.2631126Z ^[[1m^[[92m   Compiling^[[0m ciborium v0.2.2
-2026-11-02T05:19:58.7321373Z ^[[1m^[[92m   Compiling^[[0m wright-tools v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/tools)
-2026-11-02T05:19:59.1760909Z ^[[1m^[[92m   Compiling^[[0m wright-agents v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/agents)
-2026-11-02T05:19:59.2231662Z ^[[1m^[[92m   Compiling^[[0m vieww-accessibility v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-accessibility)
-2026-11-02T05:19:59.5198845Z ^[[1m^[[92m   Compiling^[[0m vieww-plugin-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-plugin-macros)
-2026-11-02T05:19:59.8370851Z ^[[1m^[[92m   Compiling^[[0m page_size v0.6.0
-2026-11-02T05:19:59.8891142Z ^[[1m^[[92m   Compiling^[[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
-2026-11-02T05:20:00.0060672Z ^[[1m^[[92m   Compiling^[[0m oorandom v11.1.5
-2026-11-02T05:20:00.0800571Z ^[[1m^[[92m   Compiling^[[0m anes v0.1.6
-2026-11-02T05:20:00.2410466Z ^[[1m^[[92m   Compiling^[[0m criterion v0.8.2
-2026-11-02T05:20:00.2886314Z ^[[1m^[[92m   Compiling^[[0m wright-engine v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/engine)
-2026-11-02T05:20:07.1541108Z ^[[1m^[[92m   Compiling^[[0m wright-infer v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/infer)
-2026-11-02T05:20:09.5821294Z ^[[1m^[[92m   Compiling^[[0m vieww-platform-web-dom v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web-dom)
-2026-11-02T05:20:10.4325709Z ^[[1m^[[92m   Compiling^[[0m vieww-canvas v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-canvas)
-2026-11-02T05:20:11.7770128Z ^[[1m^[[92m   Compiling^[[0m vieww-audio-plugin v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-plugin)
-2026-11-02T05:20:13.0831400Z ^[[1m^[[92m   Compiling^[[0m vieww-lottie v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-lottie)
-2026-11-02T05:20:14.2961172Z ^[[1m^[[92m   Compiling^[[0m vieww-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-graph)
-2026-11-02T05:20:15.0720803Z ^[[1m^[[92m   Compiling^[[0m vieww-game v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-game)
-2026-11-02T05:20:17.2491034Z ^[[1m^[[92m   Compiling^[[0m vieww-collab v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-collab)
-2026-11-02T05:20:18.5351492Z ^[[1m^[[92m   Compiling^[[0m vieww-dataviz v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-dataviz)
-2026-11-02T05:20:21.6000976Z ^[[1m^[[92m   Compiling^[[0m film_lab v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/film_lab)
-2026-11-02T05:20:21.8381396Z ^[[1m^[[92m   Compiling^[[0m fixtures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/fixtures)
-2026-11-02T05:20:22.3160857Z ^[[1m^[[92m   Compiling^[[0m wright v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/app)
-2026-11-02T05:20:22.8830860Z ^[[1m^[[92m   Compiling^[[0m vieww-devtools v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-devtools)
-2026-11-02T05:20:23.6465127Z ^[[1m^[[92m   Compiling^[[0m vieww-plugin v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-plugin)
-2026-11-02T05:20:23.8711257Z ^[[1m^[[92m   Compiling^[[0m vieww-reload v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-reload)
-2026-11-02T05:20:23.8937360Z ^[[1m^[[92m   Compiling^[[0m vieww-music v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-music)
-2026-11-02T05:20:27.9691361Z ^[[1m^[[91merror[E0308]^[[0m^[[1m: mismatched types^[[0m
-2026-11-02T05:20:27.9710419Z     ^[[1m^[[94m--> ^[[0mexamples/film_lab/src/studio_film/master.rs:471:37
-2026-11-02T05:20:27.9739991Z      ^[[1m^[[94m|^[[0m
-2026-11-02T05:20:27.9750036Z ^[[1m^[[94m 471^[[0m ^[[1m^[[94m|^[[0m                 studio.capture_tree(&self.driver);
-2026-11-02T05:20:27.9780102Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m------------^[[0m ^[[1m^[[91m^^^^^^^^^^^^^[[0m ^[[1m^[[91mtypes differ in mutability^[[0m
-2026-11-02T05:20:27.9800216Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m|^[[0m
-2026-11-02T05:20:27.9809924Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94marguments to this method are incorrect^[[0m
-2026-11-02T05:20:27.9839670Z      ^[[1m^[[94m|^[[0m
-2026-11-02T05:20:27.9860326Z      ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: expected mutable reference `&^[[1m^[[35mmut ^[[0mFrameDriver`
-2026-11-02T05:20:27.9889737Z                         found reference `&FrameDriver`
-2026-11-02T05:20:27.9919820Z ^[[1m^[[92mnote^[[0m: method defined here
-2026-11-02T05:20:27.9949922Z     ^[[1m^[[94m--> ^[[0mapps/viewwstudio/src/state/editing.rs:1563:12
-2026-11-02T05:20:27.9979690Z      ^[[1m^[[94m|^[[0m
-2026-11-02T05:20:28.0027199Z ^[[1m^[[94m1563^[[0m ^[[1m^[[94m|^[[0m     pub fn capture_tree(&self, driver: &mut vieww_render::FrameDriver) {
-2026-11-02T05:20:28.0030392Z      ^[[1m^[[94m|^[[0m            ^[[1m^[[92m^^^^^^^^^^^^^[[0m
-2026-11-02T05:20:28.0079408Z 
-2026-11-02T05:20:29.8391104Z ^[[1m^[[92m   Compiling^[[0m feature-canvas-dataviz v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/87-canvas-dataviz)
-2026-11-02T05:20:30.6221279Z ^[[1m^[[92m   Compiling^[[0m feature-graph-game-collab-lottie v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/88-graph-game-collab-lottie)
-2026-11-02T05:20:31.0107391Z ^[[1mFor more information about this error, try `rustc --explain E0308`.^[[0m
-2026-11-02T05:20:31.2116211Z error: process didn't exit successfully: `/home/runner/.rustup/toolchains/1.98.1-x86_64-unknown-linux-gnu/bin/rustc --crate-name film_lab --edition=2021 examples/film_lab/src/main.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 --warn=unreachable_pub --warn=missing_debug_implementations '--allow=clippy::doc_markdown' --test --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=e6790402e40c623a -C extra-filename=-c502222e4576bca2 --out-dir /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps -C incremental=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/incremental -L dependency=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps --extern image=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libimage-e1e6f71aba4573e2.rlib --extern vieww=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww-9e069c8c0f4a9df2.rlib --extern vieww_3d=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_3d-5419655e173c6379.rlib --extern vieww_accessibility=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_accessibility-7c2729fd6fab9b68.rlib --extern vieww_animation=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_animation-9d061749f2e44c8b.rlib --extern vieww_asset=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_asset-f7dc4c95ef91c551.rlib --extern vieww_audio=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_audio-a4998111233e528d.rlib --extern vieww_canvas=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_canvas-41ca31d9ceb7c501.rlib --extern vieww_collab=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_collab-8b39db4f33e8a049.rlib --extern vieww_dataviz=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_dataviz-adf8d5c0156dfd43.rlib --extern vieww_devtools=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_devtools-7f958f97833f3fe5.rlib --extern vieww_effects=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_effects-d3024a8809af2c4d.rlib --extern vieww_element=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_element-86456a15d7e5a51c.rlib --extern vieww_foundation=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_foundation-d56cc324eee033c1.rlib --extern vieww_game=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_game-dd2da078155490eb.rlib --extern vieww_gestures=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_gestures-7c5dce748d3587e4.rlib --extern vieww_graph=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_graph-39cab257ba00abb5.rlib --extern vieww_image=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_image-629042da5856cdf1.rlib --extern vieww_lottie=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_lottie-a2df0adca334dda8.rlib --extern vieww_mesh=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_mesh-53d5f91c060f2bcb.rlib --extern vieww_paint=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_paint-9f1e3a0b60aeeceb.rlib --extern vieww_physics=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_physics-a66331fb9bf3d90d.rlib --extern vieww_render=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_render-0048ac25e6bba54c.rlib --extern vieww_render_graph=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_render_graph-d4af7f759eef7d49.rlib --extern vieww_render_planner=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_render_planner-cc7045f0437099eb.rlib --extern vieww_scene=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_scene-f6ea6ad9f15f2f8a.rlib --extern vieww_test_harness=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_test_harness-8f456dfbda68b560.rlib --extern vieww_text=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_text-7117ace4b1278784.rlib --extern vieww_video=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_video-ebed3c965d8cc3d2.rlib --extern vieww_widget=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_widget-229655cb0ddf2e90.rlib --extern viewwstudio=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libviewwstudio-defd2b8c13aeb7fb.rlib -C prefer-dynamic -C rpath -C prefer-dynamic -C rpath -L native=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/build/tree-sitter-c920c3042b899294/out -L native=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/build/tree-sitter-json-f2fb94631855769e/out -L native=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/build/tree-sitter-md-46ded5dbcb6f2b42/out -L native=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/build/tree-sitter-rust-7bcbc1b5665b1be8/out -L native=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/build/tree-sitter-toml-ng-0eac924b220e9b23/out -L native=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/build/tree-sitter-yaml-05921d6f44663ffd/out -C instrument-coverage --cfg=coverage` (exit status: 1)
-2026-11-02T05:20:31.2217223Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
-2026-11-02T05:20:31.2218048Z ^[[1m^[[33mwarning^[[0m: build failed, waiting for other jobs to finish...
-2026-11-02T05:20:45.0210794Z error: process didn't exit successfully: `/home/runner/.rustup/toolchains/1.98.1-x86_64-unknown-linux-gnu/bin/cargo test --tests --manifest-path /home/runner/work/vieww_prod/vieww_prod/vieww_base/Cargo.toml --target-dir /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target --workspace --features vieww-paint/native --exclude vieww-platform-winit --exclude reload-host --exclude reload-guest --exclude reload-android` (exit status: 101)
-2026-11-02T05:20:45.0223184Z 
-2026-11-02T05:20:45.0223858Z error: line coverage is below 70%.
-2026-11-02T05:20:45.0224292Z 
-2026-11-02T05:20:45.0224739Z Untested code is not automatically a defect, but it is always a decision. If the
-2026-11-02T05:20:45.0226190Z uncovered lines are a deliberate gap — a platform path this machine cannot run,
-2026-11-02T05:20:45.0226986Z a panic arm that exists to be loud — say so in TRACKER.md rather than lowering
-2026-11-02T05:20:45.0227601Z the floor quietly.
-2026-11-02T05:20:45.0238878Z ##[error]Process completed with exit code 1.
+2026-11-02T10:04:19.3960000Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
+2026-11-02T10:04:31.5200568Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-02T10:04:32.8561343Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-02T10:04:37.5340496Z ^[[1m^[[92m   Compiling^[[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-02T10:04:38.1429860Z ^[[1m^[[92m   Compiling^[[0m byteorder-lite v0.1.0
+2026-11-02T10:04:38.4220959Z ^[[1m^[[92m   Compiling^[[0m image v0.25.10
+2026-11-02T10:04:38.9681123Z ^[[1m^[[92m   Compiling^[[0m vieww-video v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-video)
+2026-11-02T10:04:42.0296989Z ^[[1m^[[92m   Compiling^[[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-02T10:04:46.1480511Z ^[[1m^[[92m   Compiling^[[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-02T10:04:46.2110662Z ^[[1m^[[92m   Compiling^[[0m vieww-asset v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
+2026-11-02T10:04:46.8420558Z ^[[1m^[[92m   Compiling^[[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
+2026-11-02T10:04:47.1730902Z ^[[1m^[[92m   Compiling^[[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
+2026-11-02T10:04:53.4760878Z ^[[1m^[[92m   Compiling^[[0m vieww-spatial v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-spatial)
+2026-11-02T10:04:53.7920438Z ^[[1m^[[92m   Compiling^[[0m vieww-physics v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-physics)
+2026-11-02T10:04:54.4590397Z ^[[1m^[[92m   Compiling^[[0m vieww-network v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-network)
+2026-11-02T10:04:55.2277110Z ^[[1m^[[92m   Compiling^[[0m foldhash v0.2.0
+2026-11-02T10:04:55.4119879Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
+2026-11-02T10:04:56.1186926Z ^[[1m^[[92m   Compiling^[[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
+2026-11-02T10:04:56.1870271Z ^[[1m^[[92m   Compiling^[[0m equivalent v1.0.2
+2026-11-02T10:04:56.2070098Z ^[[1m^[[92m   Compiling^[[0m libloading v0.8.9
+2026-11-02T10:04:56.2310488Z ^[[1m^[[92m   Compiling^[[0m indexmap v2.14.2
+2026-11-02T10:04:56.4210186Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
+2026-11-02T10:04:56.8020237Z ^[[1m^[[92m   Compiling^[[0m zerocopy-derive v0.8.59
+2026-11-02T10:04:57.1770763Z ^[[1m^[[92m   Compiling^[[0m serde_derive v1.0.229
+2026-11-02T10:04:57.3905525Z ^[[1m^[[92m   Compiling^[[0m arrayvec v0.7.8
+2026-11-02T10:04:57.6015803Z ^[[1m^[[92m   Compiling^[[0m cfg_aliases v0.2.2
+2026-11-02T10:04:57.6455482Z ^[[1m^[[92m   Compiling^[[0m serde_core v1.0.229
+2026-11-02T10:05:00.8669971Z ^[[1m^[[92m   Compiling^[[0m thiserror v2.0.21
+2026-11-02T10:05:01.5790117Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v2.0.21
+2026-11-02T10:05:17.1910101Z ^[[1m^[[92m   Compiling^[[0m euclid v0.22.14
+2026-11-02T10:05:17.8890551Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v1.1.0
+2026-11-02T10:05:17.9860478Z ^[[1m^[[92m   Compiling^[[0m lyon_geom v1.0.19
+2026-11-02T10:05:18.0219987Z ^[[1m^[[92m   Compiling^[[0m bit-vec v0.9.1
+2026-11-02T10:05:18.3300432Z ^[[1m^[[92m   Compiling^[[0m serde v1.0.229
+2026-11-02T10:05:18.4820076Z ^[[1m^[[92m   Compiling^[[0m unicode-width v0.2.2
+2026-11-02T10:05:18.7100234Z ^[[1m^[[92m   Compiling^[[0m codespan-reporting v0.13.1
+2026-11-02T10:05:18.7580120Z ^[[1m^[[92m   Compiling^[[0m lyon_path v1.0.19
+2026-11-02T10:05:18.8700085Z ^[[1m^[[92m   Compiling^[[0m bit-set v0.10.0
+2026-11-02T10:05:19.8782280Z ^[[1m^[[92m   Compiling^[[0m half v2.7.1
+2026-11-02T10:05:19.8910047Z ^[[1m^[[92m   Compiling^[[0m naga v30.0.1
+2026-11-02T10:05:19.9484277Z ^[[1m^[[92m   Compiling^[[0m float_next_after v1.0.0
+2026-11-02T10:05:20.0140153Z ^[[1m^[[92m   Compiling^[[0m lyon_tessellation v1.0.22
+2026-11-02T10:05:20.2730560Z ^[[1m^[[92m   Compiling^[[0m spirv v0.4.0+sdk-1.4.341.0
+2026-11-02T10:05:20.8410138Z ^[[1m^[[92m   Compiling^[[0m naga-types v30.0.1
+2026-11-02T10:05:21.3780031Z ^[[1m^[[92m   Compiling^[[0m rustix v1.1.5
+2026-11-02T10:05:23.5229987Z ^[[1m^[[92m   Compiling^[[0m blake3 v1.8.7
+2026-11-02T10:05:24.3620055Z ^[[1m^[[92m   Compiling^[[0m linux-raw-sys v0.12.1
+2026-11-02T10:05:24.3705225Z ^[[1m^[[92m   Compiling^[[0m raw-window-handle v0.6.2
+2026-11-02T10:05:24.8090733Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+2026-11-02T10:05:27.4880229Z ^[[1m^[[92m   Compiling^[[0m ash v0.38.0+1.3.281
+2026-11-02T10:05:27.5830114Z ^[[1m^[[92m   Compiling^[[0m cpufeatures v0.3.1
+2026-11-02T10:05:27.6310997Z ^[[1m^[[92m   Compiling^[[0m constant_time_eq v0.4.2
+2026-11-02T10:05:36.5640241Z ^[[1m^[[92m   Compiling^[[0m pin-project-lite v0.2.17
+2026-11-02T10:05:36.6234475Z ^[[1m^[[92m   Compiling^[[0m winnow v1.0.4
+2026-11-02T10:05:39.2200404Z ^[[1m^[[92m   Compiling^[[0m pkg-config v0.3.34
+2026-11-02T10:05:42.0420357Z ^[[1m^[[92m   Compiling^[[0m toml_parser v1.1.3+spec-1.1.0
+2026-11-02T10:05:43.6590479Z ^[[1m^[[92m   Compiling^[[0m toml_datetime v1.1.1+spec-1.1.0
+2026-11-02T10:05:43.9960052Z ^[[1m^[[92m   Compiling^[[0m toml_edit v0.25.15+spec-1.1.0
+2026-11-02T10:05:47.6363569Z ^[[1m^[[92m   Compiling^[[0m ash-window v0.13.0
+2026-11-02T10:05:47.7620202Z ^[[1m^[[92m   Compiling^[[0m enumflags2_derive v0.7.12
+2026-11-02T10:05:49.2860695Z ^[[1m^[[92m   Compiling^[[0m proc-macro-crate v3.5.0
+2026-11-02T10:05:51.6140114Z ^[[1m^[[92m   Compiling^[[0m zvariant_utils v4.2.0
+2026-11-02T10:05:52.3791732Z ^[[1m^[[92m   Compiling^[[0m memchr v2.8.3
+2026-11-02T10:05:53.9100585Z ^[[1m^[[92m   Compiling^[[0m parking v2.2.1
+2026-11-02T10:05:54.0610693Z ^[[1m^[[92m   Compiling^[[0m futures-core v0.3.34
+2026-11-02T10:05:54.1830075Z ^[[1m^[[92m   Compiling^[[0m slab v0.4.12
+2026-11-02T10:05:54.3410118Z ^[[1m^[[92m   Compiling^[[0m endi v1.1.1
+2026-11-02T10:05:54.4690742Z ^[[1m^[[92m   Compiling^[[0m crossbeam-utils v0.8.23
+2026-11-02T10:05:54.8740067Z ^[[1m^[[92m   Compiling^[[0m wayland-sys v0.31.11
+2026-11-02T10:05:55.1030633Z ^[[1m^[[92m   Compiling^[[0m polling v3.11.0
+2026-11-02T10:05:55.6600094Z ^[[1m^[[92m   Compiling^[[0m dlib v0.5.3
+2026-11-02T10:05:55.7330061Z ^[[1m^[[92m   Compiling^[[0m fastrand v2.5.0
+2026-11-02T10:05:56.3800106Z ^[[1m^[[92m   Compiling^[[0m wayland-backend v0.3.17
+2026-11-02T10:05:56.5980452Z ^[[1m^[[92m   Compiling^[[0m futures-io v0.3.34
+2026-11-02T10:05:56.7940685Z ^[[1m^[[92m   Compiling^[[0m concurrent-queue v2.5.0
+2026-11-02T10:05:57.8340297Z ^[[1m^[[92m   Compiling^[[0m event-listener v5.4.2
+2026-11-02T10:05:58.0960344Z ^[[1m^[[92m   Compiling^[[0m enumflags2 v0.7.12
+2026-11-02T10:05:58.2550833Z ^[[1m^[[92m   Compiling^[[0m zcheapstr v1.1.0
+2026-11-02T10:05:58.4680276Z ^[[1m^[[92m   Compiling^[[0m scoped-tls v1.0.1
+2026-11-02T10:05:58.5350032Z ^[[1m^[[92m   Compiling^[[0m downcast-rs v1.2.1
+2026-11-02T10:06:03.7212385Z ^[[1m^[[92m   Compiling^[[0m event-listener-strategy v0.5.4
+2026-11-02T10:06:03.8169961Z ^[[1m^[[92m   Compiling^[[0m futures-lite v2.6.1
+2026-11-02T10:06:04.7990852Z ^[[1m^[[92m   Compiling^[[0m quick-xml v0.41.0
+2026-11-02T10:06:08.7950593Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+2026-11-02T10:06:10.0010288Z ^[[1m^[[92m   Compiling^[[0m zvariant_derive v5.15.0
+2026-11-02T10:06:12.9760734Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-02T10:06:13.4010483Z ^[[1m^[[92m   Compiling^[[0m zvariant v5.15.0
+2026-11-02T10:06:20.2807324Z ^[[1m^[[92m   Compiling^[[0m wayland-client v0.31.15
+2026-11-02T10:06:20.4060018Z ^[[1m^[[92m   Compiling^[[0m zbus_names v4.3.4
+2026-11-02T10:06:21.8840272Z ^[[1m^[[92m   Compiling^[[0m wayland-scanner v0.31.11
+2026-11-02T10:06:29.8110189Z ^[[1m^[[92m   Compiling^[[0m tracing-attributes v0.1.31
+2026-11-02T10:06:39.7735620Z ^[[1m^[[92m   Compiling^[[0m async-io v2.6.0
+2026-11-02T10:06:39.9389912Z ^[[1m^[[92m   Compiling^[[0m tracing-core v0.1.36
+2026-11-02T10:06:42.8680054Z ^[[1m^[[92m   Compiling^[[0m tracing v0.1.44
+2026-11-02T10:06:48.1228796Z ^[[1m^[[92m   Compiling^[[0m errno v0.3.14
+2026-11-02T10:06:48.2720408Z ^[[1m^[[92m   Compiling^[[0m async-task v4.7.1
+2026-11-02T10:06:48.4619355Z ^[[1m^[[92m   Compiling^[[0m signal-hook-registry v1.4.8
+2026-11-02T10:06:51.3365368Z ^[[1m^[[92m   Compiling^[[0m async-channel v2.5.0
+2026-11-02T10:06:51.3673644Z ^[[1m^[[92m   Compiling^[[0m uuid v1.26.1
+2026-11-02T10:06:51.5340972Z ^[[1m^[[92m   Compiling^[[0m vieww-scene v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
+2026-11-02T10:06:52.1250243Z ^[[1m^[[92m   Compiling^[[0m atomic-waker v1.1.2
+2026-11-02T10:06:52.2050508Z ^[[1m^[[92m   Compiling^[[0m piper v0.2.5
+2026-11-02T10:06:52.2159984Z ^[[1m^[[92m   Compiling^[[0m async-signal v0.2.14
+2026-11-02T10:06:52.2243587Z ^[[1m^[[92m   Compiling^[[0m zbus_xml v5.2.1
+2026-11-02T10:06:52.5362378Z ^[[1m^[[92m   Compiling^[[0m async-lock v3.4.2
+2026-11-02T10:06:52.6193176Z ^[[1m^[[92m   Compiling^[[0m rustix v0.38.44
+2026-11-02T10:06:53.1280735Z ^[[1m^[[92m   Compiling^[[0m siphasher v1.0.4
+2026-11-02T10:06:53.2790057Z ^[[1m^[[92m   Compiling^[[0m thiserror v1.0.69
+2026-11-02T10:06:53.3840520Z ^[[1m^[[92m   Compiling^[[0m async-process v2.5.0
+2026-11-02T10:06:53.3997294Z ^[[1m^[[92m   Compiling^[[0m zbus-lockstep v0.5.2
+2026-11-02T10:06:53.7179945Z ^[[1m^[[92m   Compiling^[[0m blocking v1.7.0
+2026-11-02T10:06:53.7265931Z ^[[1m^[[92m   Compiling^[[0m vieww-render-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
+2026-11-02T10:06:54.6970005Z ^[[1m^[[92m   Compiling^[[0m async-executor v1.14.0
+2026-11-02T10:06:55.6160782Z ^[[1m^[[92m   Compiling^[[0m zbus_macros v5.19.0
+2026-11-02T10:06:56.5620110Z ^[[1m^[[92m   Compiling^[[0m async-broadcast v0.7.2
+2026-11-02T10:06:56.7920184Z ^[[1m^[[92m   Compiling^[[0m ordered-stream v0.2.0
+2026-11-02T10:06:57.1020650Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v1.0.69
+2026-11-02T10:06:57.9860114Z ^[[1m^[[92m   Compiling^[[0m async-recursion v1.1.1
+2026-11-02T10:07:00.0320198Z ^[[1m^[[92m   Compiling^[[0m serde_repr v0.1.21
+2026-11-02T10:07:05.2340307Z ^[[1m^[[92m   Compiling^[[0m async-trait v0.1.92
+2026-11-02T10:07:05.2736227Z ^[[1m^[[92m   Compiling^[[0m linux-raw-sys v0.4.15
+2026-11-02T10:07:05.6270949Z ^[[1m^[[92m   Compiling^[[0m hex v0.4.3
+2026-11-02T10:07:08.7770231Z ^[[1m^[[92m   Compiling^[[0m zbus-lockstep-macros v0.5.2
+2026-11-02T10:07:13.2915837Z ^[[1m^[[92m   Compiling^[[0m phf_shared v0.14.0
+2026-11-02T10:07:13.6560291Z ^[[1m^[[92m   Compiling^[[0m wayland-protocols v0.32.13
+2026-11-02T10:07:14.4400563Z ^[[1m^[[92m   Compiling^[[0m static_assertions v1.1.0
+2026-11-02T10:07:14.6210195Z ^[[1m^[[92m   Compiling^[[0m as-raw-xcb-connection v1.0.1
+2026-11-02T10:07:14.6820084Z ^[[1m^[[92m   Compiling^[[0m phf_generator v0.14.0
+2026-11-02T10:07:15.1440281Z ^[[1m^[[92m   Compiling^[[0m calloop v0.13.0
+2026-11-02T10:07:16.8369890Z ^[[1m^[[92m   Compiling^[[0m gethostname v1.1.0
+2026-11-02T10:07:16.9370119Z ^[[1m^[[92m   Compiling^[[0m smithay-client-toolkit v0.19.2
+2026-11-02T10:07:17.0220344Z ^[[1m^[[92m   Compiling^[[0m strict-num v0.1.1
+2026-11-02T10:07:17.1190278Z ^[[1m^[[92m   Compiling^[[0m cursor-icon v1.2.0
+2026-11-02T10:07:17.2340073Z ^[[1m^[[92m   Compiling^[[0m getrandom v0.3.4
+2026-11-02T10:07:17.6890617Z ^[[1m^[[92m   Compiling^[[0m arrayref v0.3.9
+2026-11-02T10:07:17.7345636Z ^[[1m^[[92m   Compiling^[[0m x11rb-protocol v0.13.2
+2026-11-02T10:07:21.5810037Z ^[[1m^[[92m   Compiling^[[0m xcursor v0.3.11
+2026-11-02T10:07:21.9150709Z ^[[1m^[[92m   Compiling^[[0m zbus v5.19.0
+2026-11-02T10:07:22.9519990Z ^[[1m^[[92m   Compiling^[[0m xkeysym v0.2.1
+2026-11-02T10:07:25.5035041Z ^[[1m^[[92m   Compiling^[[0m wayland-cursor v0.31.14
+2026-11-02T10:07:26.7160112Z ^[[1m^[[92m   Compiling^[[0m wayland-protocols-wlr v0.3.12
+2026-11-02T10:07:33.3141348Z ^[[1m^[[92m   Compiling^[[0m atspi-common v0.13.0
+2026-11-02T10:07:42.3300109Z ^[[1m^[[92m   Compiling^[[0m x11rb v0.13.2
+2026-11-02T10:07:46.7860019Z ^[[1m^[[92m   Compiling^[[0m tiny-skia-path v0.11.4
+2026-11-02T10:07:48.9940691Z ^[[1m^[[92m   Compiling^[[0m wayland-csd-frame v0.3.0
+2026-11-02T10:07:49.5030130Z ^[[1m^[[92m   Compiling^[[0m calloop-wayland-source v0.3.0
+2026-11-02T10:07:49.6220470Z ^[[1m^[[92m   Compiling^[[0m phf_macros v0.14.0
+2026-11-02T10:07:56.6790031Z ^[[1m^[[92m   Compiling^[[0m accesskit v0.25.1
+2026-11-02T10:07:57.6600415Z ^[[1m^[[92m   Compiling^[[0m x11-dl v2.21.0
+2026-11-02T10:07:57.9990462Z ^[[1m^[[92m   Compiling^[[0m ahash v0.8.12
+2026-11-02T10:07:58.0160198Z ^[[1m^[[92m   Compiling^[[0m owned_ttf_parser v0.25.1
+2026-11-02T10:07:58.1520741Z ^[[1m^[[92m   Compiling^[[0m ab_glyph_rasterizer v0.1.10
+2026-11-02T10:07:58.4000271Z ^[[1m^[[92m   Compiling^[[0m parking_lot_core v0.9.12
+2026-11-02T10:07:58.4450222Z ^[[1m^[[92m   Compiling^[[0m ab_glyph v0.2.32
+2026-11-02T10:07:58.7290136Z ^[[1m^[[92m   Compiling^[[0m accesskit_consumer v0.39.1
+2026-11-02T10:08:00.2230073Z ^[[1m^[[92m   Compiling^[[0m phf v0.14.0
+2026-11-02T10:08:04.9009944Z ^[[1m^[[92m   Compiling^[[0m tiny-skia v0.11.4
+2026-11-02T10:08:05.0290249Z ^[[1m^[[92m   Compiling^[[0m atspi-proxies v0.13.0
+2026-11-02T10:08:07.8821374Z ^[[1m^[[92m   Compiling^[[0m vieww-render-planner v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
+2026-11-02T10:08:08.3479955Z ^[[1m^[[92m   Compiling^[[0m tiny-xlib v0.2.5
+2026-11-02T10:08:08.7422566Z ^[[1m^[[92m   Compiling^[[0m winit v0.30.13
+2026-11-02T10:08:08.7940765Z ^[[1m^[[92m   Compiling^[[0m futures-macro v0.3.34
+2026-11-02T10:08:09.6040158Z ^[[1m^[[92m   Compiling^[[0m percent-encoding v2.3.2
+2026-11-02T10:08:09.9100075Z ^[[1m^[[92m   Compiling^[[0m futures-task v0.3.34
+2026-11-02T10:08:10.0370710Z ^[[1m^[[92m   Compiling^[[0m scopeguard v1.2.0
+2026-11-02T10:08:10.0920181Z ^[[1m^[[92m   Compiling^[[0m lock_api v0.4.14
+2026-11-02T10:08:10.3550047Z ^[[1m^[[92m   Compiling^[[0m atspi v0.29.0
+2026-11-02T10:08:10.4160166Z ^[[1m^[[92m   Compiling^[[0m sctk-adwaita v0.10.1
+2026-11-02T10:08:13.0170158Z ^[[1m^[[92m   Compiling^[[0m accesskit_atspi_common v0.21.0
+2026-11-02T10:08:18.4589869Z ^[[1m^[[92m   Compiling^[[0m futures-util v0.3.34
+2026-11-02T10:08:18.7286141Z ^[[1m^[[92m   Compiling^[[0m xkbcommon-dl v0.4.2
+2026-11-02T10:08:18.7420060Z ^[[1m^[[92m   Compiling^[[0m wayland-protocols-plasma v0.3.12
+2026-11-02T10:08:20.2454411Z ^[[1m^[[92m   Compiling^[[0m dpi v0.1.2
+2026-11-02T10:08:20.4170037Z ^[[1m^[[92m   Compiling^[[0m ctor v0.10.1
+2026-11-02T10:08:20.4657730Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.2.2
+2026-11-02T10:08:20.8070541Z ^[[1m^[[92m   Compiling^[[0m accesskit_unix v0.24.0
+2026-11-02T10:08:23.1810022Z ^[[1m^[[92m   Compiling^[[0m parking_lot v0.12.5
+2026-11-02T10:08:24.5350040Z ^[[1m^[[92m   Compiling^[[0m arboard v3.6.1
+2026-11-02T10:08:32.8550380Z ^[[1m^[[92m   Compiling^[[0m accesskit_winit v0.34.1
+2026-11-02T10:08:33.2629962Z ^[[1m^[[92m   Compiling^[[0m softbuffer v0.4.8
+2026-11-02T10:08:34.1450105Z ^[[1m^[[92m   Compiling^[[0m vieww-platform-winit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
+2026-11-02T10:08:34.9537499Z ^[[1m^[[92m   Compiling^[[0m vieww-test-harness v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-test-harness)
+2026-11-02T10:08:35.8326839Z ^[[1m^[[92m   Compiling^[[0m zmij v1.0.23
+2026-11-02T10:08:36.2191733Z ^[[1m^[[92m   Compiling^[[0m feature-harness v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/harness)
+2026-11-02T10:08:37.5560092Z ^[[1m^[[92m   Compiling^[[0m itoa v1.0.18
+2026-11-02T10:08:39.7335162Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-language v0.1.8
+2026-11-02T10:08:39.9306638Z ^[[1m^[[92m   Compiling^[[0m aho-corasick v1.1.5
+2026-11-02T10:08:41.1520485Z ^[[1m^[[92m   Compiling^[[0m serde_json v1.0.151
+2026-11-02T10:08:41.2670186Z ^[[1m^[[92m   Compiling^[[0m regex-syntax v0.8.11
+2026-11-02T10:08:49.9240094Z ^[[1m^[[92m   Compiling^[[0m regex-automata v0.4.18
+2026-11-02T10:08:53.3570015Z ^[[1m^[[92m   Compiling^[[0m regex v1.13.1
+2026-11-02T10:08:55.2050661Z ^[[1m^[[92m   Compiling^[[0m vieww-say-codegen v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-say-codegen)
+2026-11-02T10:08:55.6666524Z ^[[1m^[[92m   Compiling^[[0m tree-sitter v0.26.13
+2026-11-02T10:08:57.4601036Z ^[[1m^[[92m   Compiling^[[0m vieww-hardware v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
+2026-11-02T10:08:58.2160228Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-rust v0.24.2
+2026-11-02T10:08:58.4520873Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-json v0.24.8
+2026-11-02T10:08:58.6810273Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-toml-ng v0.7.0
+2026-11-02T10:08:58.9240272Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-yaml v0.7.2
+2026-11-02T10:08:59.1920693Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-md v0.5.3
+2026-11-02T10:09:04.9030086Z ^[[1m^[[92m   Compiling^[[0m streaming-iterator v0.1.9
+2026-11-02T10:09:05.1942164Z ^[[1m^[[92m   Compiling^[[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
+2026-11-02T10:09:06.9807498Z ^[[1m^[[92m   Compiling^[[0m weezl v0.1.12
+2026-11-02T10:09:08.6490141Z ^[[1m^[[92m   Compiling^[[0m color_quant v1.1.0
+2026-11-02T10:09:09.0550097Z ^[[1m^[[92m   Compiling^[[0m gif v0.14.2
+2026-11-02T10:09:09.2690714Z ^[[1m^[[92m   Compiling^[[0m u-core v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-core)
+2026-11-02T10:09:10.1390209Z ^[[1m^[[92m   Compiling^[[0m utf8parse v0.2.2
+2026-11-02T10:09:10.1989978Z ^[[1m^[[92m   Compiling^[[0m anstyle-parse v1.0.0
+2026-11-02T10:09:10.3779997Z ^[[1m^[[92m   Compiling^[[0m anstyle-query v1.1.5
+2026-11-02T10:09:10.4390015Z ^[[1m^[[92m   Compiling^[[0m anstyle v1.0.14
+2026-11-02T10:09:10.6910159Z ^[[1m^[[92m   Compiling^[[0m is_terminal_polyfill v1.70.2
+2026-11-02T10:09:10.7410396Z ^[[1m^[[92m   Compiling^[[0m colorchoice v1.0.5
+2026-11-02T10:09:10.8059979Z ^[[1m^[[92m   Compiling^[[0m anstream v1.0.0
+2026-11-02T10:09:11.3379337Z ^[[1m^[[92m   Compiling^[[0m vieww-3d v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-3d)
+2026-11-02T10:09:12.2490112Z ^[[1m^[[92m   Compiling^[[0m clap_lex v1.1.1
+2026-11-02T10:09:12.6650161Z ^[[1m^[[92m   Compiling^[[0m heck v0.5.0
+2026-11-02T10:09:13.1191349Z ^[[1m^[[92m   Compiling^[[0m strsim v0.11.1
+2026-11-02T10:09:13.4383492Z ^[[1m^[[92m   Compiling^[[0m clap_derive v4.6.7
+2026-11-02T10:09:14.1840651Z ^[[1m^[[92m   Compiling^[[0m clap_builder v4.6.7
+2026-11-02T10:09:14.7231420Z ^[[1m^[[92m   Compiling^[[0m u-persona v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-persona)
+2026-11-02T10:09:15.2540747Z ^[[1m^[[92m   Compiling^[[0m wright-core v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/core)
+2026-11-02T10:09:28.5860667Z ^[[1m^[[92m   Compiling^[[0m wright-runtime v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/runtime)
+2026-11-02T10:09:31.8270025Z ^[[1m^[[92m   Compiling^[[0m clap v4.6.7
+2026-11-02T10:09:31.8760626Z ^[[1m^[[92m   Compiling^[[0m u-decision v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision)
+2026-11-02T10:09:32.8039866Z ^[[1m^[[92m   Compiling^[[0m alloca v0.4.0
+2026-11-02T10:09:33.0280123Z ^[[1m^[[92m   Compiling^[[0m either v1.18.0
+2026-11-02T10:09:33.2349975Z ^[[1m^[[92m   Compiling^[[0m ciborium-io v0.2.2
+2026-11-02T10:09:33.2860164Z ^[[1m^[[92m   Compiling^[[0m android-build v0.1.4
+2026-11-02T10:09:34.6572113Z ^[[1m^[[92m   Compiling^[[0m ciborium-ll v0.2.2
+2026-11-02T10:09:34.9000310Z ^[[1m^[[92m   Compiling^[[0m itertools v0.13.0
+2026-11-02T10:09:35.1510324Z ^[[1m^[[92m   Compiling^[[0m u v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u)
+2026-11-02T10:09:35.8430466Z ^[[1m^[[92m   Compiling^[[0m vieww-build v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-build)
+2026-11-02T10:09:36.5990232Z ^[[1m^[[92m   Compiling^[[0m cast v0.3.0
+2026-11-02T10:09:36.7391191Z ^[[1m^[[92m   Compiling^[[0m same-file v1.0.6
+2026-11-02T10:09:36.8420047Z ^[[1m^[[92m   Compiling^[[0m walkdir v2.5.0
+2026-11-02T10:09:36.9080176Z ^[[1m^[[92m   Compiling^[[0m criterion-plot v0.8.2
+2026-11-02T10:09:38.1100185Z ^[[1m^[[92m   Compiling^[[0m ciborium v0.2.2
+2026-11-02T10:09:38.6991009Z ^[[1m^[[92m   Compiling^[[0m u-ml-runtime v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-ml-runtime)
+2026-11-02T10:09:39.2470582Z ^[[1m^[[92m   Compiling^[[0m wright-tools v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/tools)
+2026-11-02T10:09:40.2400179Z ^[[1m^[[92m   Compiling^[[0m wright-agents v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/agents)
+2026-11-02T10:09:40.3080716Z ^[[1m^[[92m   Compiling^[[0m u-memory v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-memory)
+2026-11-02T10:09:41.2190633Z ^[[1m^[[92m   Compiling^[[0m u-feedback v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-feedback)
+2026-11-02T10:09:41.5241204Z ^[[1m^[[92m   Compiling^[[0m tinytemplate v1.2.1
+2026-11-02T10:09:41.5570989Z ^[[1m^[[92m   Compiling^[[0m vieww-accessibility v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-accessibility)
+2026-11-02T10:09:41.9271171Z ^[[1m^[[92m   Compiling^[[0m vieww-plugin-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-plugin-macros)
+2026-11-02T10:09:42.3470275Z ^[[1m^[[92m   Compiling^[[0m page_size v0.6.0
+2026-11-02T10:09:42.4210608Z ^[[1m^[[92m   Compiling^[[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
+2026-11-02T10:09:42.8994475Z ^[[1m^[[92m   Compiling^[[0m anes v0.1.6
+2026-11-02T10:09:43.1620159Z ^[[1m^[[92m   Compiling^[[0m oorandom v11.1.5
+2026-11-02T10:09:43.2660128Z ^[[1m^[[92m   Compiling^[[0m criterion v0.8.2
+2026-11-02T10:09:43.6890493Z ^[[1m^[[92m   Compiling^[[0m wright-engine v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/engine)
+2026-11-02T10:09:50.0671278Z ^[[1m^[[92m   Compiling^[[0m wright-infer v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/infer)
+2026-11-02T10:09:51.6890748Z ^[[1m^[[92m   Compiling^[[0m vieww-platform-web-dom v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web-dom)
+2026-11-02T10:09:52.8360478Z ^[[1m^[[92m   Compiling^[[0m vieww-canvas v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-canvas)
+2026-11-02T10:09:54.5296926Z ^[[1m^[[92m   Compiling^[[0m vieww-audio-plugin v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-plugin)
+2026-11-02T10:09:56.2251244Z ^[[1m^[[92m   Compiling^[[0m vieww-lottie v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-lottie)
+2026-11-02T10:09:57.8433166Z ^[[1m^[[92m   Compiling^[[0m vieww-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-graph)
+2026-11-02T10:09:58.8090381Z ^[[1m^[[92m   Compiling^[[0m vieww-game v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-game)
+2026-11-02T10:10:01.6240680Z ^[[1m^[[92m   Compiling^[[0m vieww-dataviz v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-dataviz)
+2026-11-02T10:10:05.4290532Z ^[[1m^[[92m   Compiling^[[0m vieww-collab v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-collab)
+2026-11-02T10:10:06.9684481Z ^[[1m^[[92m   Compiling^[[0m film_lab v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/film_lab)
+2026-11-02T10:10:07.2700773Z ^[[1m^[[92m   Compiling^[[0m fixtures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/fixtures)
+2026-11-02T10:10:07.6880548Z ^[[1m^[[92m   Compiling^[[0m wright v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/app)
+2026-11-02T10:10:07.9551521Z ^[[1m^[[92m   Compiling^[[0m vieww-devtools v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-devtools)
+2026-11-02T10:10:09.2780707Z ^[[1m^[[92m   Compiling^[[0m vieww-plugin v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-plugin)
+2026-11-02T10:10:09.9772054Z ^[[1m^[[92m   Compiling^[[0m vieww-reload v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-reload)
+2026-11-02T10:10:10.4280664Z ^[[1m^[[92m   Compiling^[[0m vieww-music v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-music)
+2026-11-02T10:10:20.3729781Z ^[[1m^[[92m   Compiling^[[0m feature-graph-game-collab-lottie v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/88-graph-game-collab-lottie)
+2026-11-02T10:10:22.7346724Z ^[[1m^[[92m   Compiling^[[0m feature-canvas-dataviz v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/87-canvas-dataviz)
+2026-11-02T10:10:24.2730626Z ^[[1m^[[92m   Compiling^[[0m viewwsite v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwsite)
+2026-11-02T10:10:24.6950705Z ^[[1m^[[92m   Compiling^[[0m wrightsite v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wrightsite)
+2026-11-02T10:10:26.4388190Z ^[[1m^[[92m   Compiling^[[0m vieww-standard v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/vieww-standard)
+2026-11-02T10:10:27.3232833Z ^[[1m^[[92m   Compiling^[[0m feature-accessibility-audit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/55-accessibility-audit)
+2026-11-02T10:10:28.3938271Z ^[[1m^[[92m   Compiling^[[0m vieww-cli v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-cli)
+2026-11-02T10:11:24.5547426Z ^[[1m^[[92m   Compiling^[[0m feature-3d-advanced v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/85-3d-advanced)
+2026-11-02T10:11:24.5590116Z ^[[1m^[[92m   Compiling^[[0m feature-3d-scene v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/80-3d-scene)
+2026-11-02T10:11:29.6566683Z ^[[1m^[[92m   Compiling^[[0m test-layout-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-layout-stress)
+2026-11-02T10:11:33.3418978Z ^[[1m^[[92m   Compiling^[[0m test-scroll-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-scroll-stress)
+2026-11-02T10:11:33.7735900Z ^[[1m^[[92m   Compiling^[[0m test-premium-ui v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-premium-ui)
+2026-11-02T10:11:34.7328853Z ^[[1m^[[91merror[E0063]^[[0m^[[1m: missing field `scratch` in initializer of `target::Target`^[[0m
+2026-11-02T10:11:34.7358870Z    ^[[1m^[[94m--> ^[[0mcrates/vieww-paint/src/native/target.rs:183:9
+2026-11-02T10:11:34.7408930Z     ^[[1m^[[94m|^[[0m
+2026-11-02T10:11:34.7424168Z ^[[1m^[[94m183^[[0m ^[[1m^[[94m|^[[0m         Self {
+2026-11-02T10:11:34.7440567Z     ^[[1m^[[94m|^[[0m         ^[[1m^[[91m^^^^^[[0m ^[[1m^[[91mmissing `scratch`^[[0m
+2026-11-02T10:11:34.7442724Z 
+2026-11-02T10:11:34.7443624Z ^[[1m^[[92m   Compiling^[[0m test-gpu-work v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-gpu-work)
+2026-11-02T10:11:35.0180739Z ^[[1m^[[92m   Compiling^[[0m test-animation-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-animation-stress)
+2026-11-02T10:11:35.4548324Z ^[[1m^[[92m   Compiling^[[0m test-text-fidelity v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-text-fidelity)
+2026-11-02T10:11:35.6842507Z ^[[1mFor more information about this error, try `rustc --explain E0063`.^[[0m
+2026-11-02T10:11:35.7176557Z error: process didn't exit successfully: `/home/runner/.rustup/toolchains/1.98.1-x86_64-unknown-linux-gnu/bin/rustc --crate-name vieww_paint --edition=2021 crates/vieww-paint/src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C opt-level=3 -C embed-bitcode=no -C debuginfo=2 --warn=unreachable_pub --warn=missing_debug_implementations '--allow=clippy::doc_markdown' -C debug-assertions=on --test --cfg 'feature="default"' --cfg 'feature="native"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("default", "native"))' -C metadata=b5c908133ced6380 -C extra-filename=-62ccd0e629f80bbe --out-dir /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps -C incremental=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/incremental -L dependency=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps --extern gif=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libgif-914b2ca7a3bfbc60.rlib --extern png=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libpng-8f0ad8df66e44ea4.rlib --extern skrifa=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libskrifa-5cec7c16d3db3a3a.rlib --extern ttf_parser=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libttf_parser-e0c1f46a3c3348e8.rlib --extern vieww_foundation=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_foundation-d56cc324eee033c1.rlib --extern vieww_text=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_text-7117ace4b1278784.rlib -C prefer-dynamic -C rpath -C prefer-dynamic -C rpath -C instrument-coverage --cfg=coverage` (exit status: 1)
+2026-11-02T10:11:35.7212602Z ^[[1m^[[91merror^[[0m: could not compile `vieww-paint` (lib test) due to 1 previous error
+2026-11-02T10:11:35.7222788Z ^[[1m^[[33mwarning^[[0m: build failed, waiting for other jobs to finish...
+2026-11-02T10:11:40.0082065Z error: process didn't exit successfully: `/home/runner/.rustup/toolchains/1.98.1-x86_64-unknown-linux-gnu/bin/cargo test --tests --manifest-path /home/runner/work/vieww_prod/vieww_prod/vieww_base/Cargo.toml --target-dir /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target --workspace --features vieww-paint/native --exclude vieww-platform-winit --exclude reload-host --exclude reload-guest --exclude reload-android` (exit status: 101)
+2026-11-02T10:11:40.0157939Z 
+2026-11-02T10:11:40.0170688Z error: line coverage is below 70%.
+2026-11-02T10:11:40.0176779Z 
+2026-11-02T10:11:40.0177192Z Untested code is not automatically a defect, but it is always a decision. If the
+2026-11-02T10:11:40.0187241Z uncovered lines are a deliberate gap — a platform path this machine cannot run,
+2026-11-02T10:11:40.0194643Z a panic arm that exists to be loud — say so in TRACKER.md rather than lowering
+2026-11-02T10:11:40.0202563Z the floor quietly.
+2026-11-02T10:11:40.0770676Z ##[error]Process completed with exit code 1.
+
+===== macOS and iOS (Metal)	NEON compositing loops, bit for bit (aarch64) =====
+﻿2026-11-02T10:03:47.5714590Z ##[group]Run test "$(uname -m)" = arm64
+2026-11-02T10:03:47.5715620Z ^[[36;1mtest "$(uname -m)" = arm64^[[0m
+2026-11-02T10:03:47.5716650Z ^[[36;1mcargo test -p vieww-paint --features native --lib simd -- --nocapture^[[0m
+2026-11-02T10:03:47.6062060Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-02T10:03:47.6062470Z env:
+2026-11-02T10:03:47.6062680Z   CARGO_TERM_COLOR: always
+2026-11-02T10:03:47.6062960Z   RUST_BACKTRACE: 1
+2026-11-02T10:03:47.6063160Z   RUST_VERSION: 1.98.1
+2026-11-02T10:03:47.6063410Z ##[endgroup]
+2026-11-02T10:03:48.2538510Z ^[[1m^[[92m Downloading^[[0m crates ...
+2026-11-02T10:03:48.2873440Z ^[[1m^[[92m  Downloaded^[[0m gif v0.14.2
+2026-11-02T10:03:48.2925370Z ^[[1m^[[92m  Downloaded^[[0m color_quant v1.1.0
+2026-11-02T10:03:48.3256600Z ^[[1m^[[92m   Compiling^[[0m syn v3.0.6
+2026-11-02T10:03:48.3257720Z ^[[1m^[[92m   Compiling^[[0m libm v0.2.16
+2026-11-02T10:03:48.3258140Z ^[[1m^[[92m   Compiling^[[0m once_cell v1.21.4
+2026-11-02T10:03:48.4303020Z ^[[1m^[[92m   Compiling^[[0m simd-adler32 v0.3.10
+2026-11-02T10:03:48.6694180Z ^[[1m^[[92m   Compiling^[[0m libc v0.2.189
+2026-11-02T10:03:49.1542550Z ^[[1m^[[92m   Compiling^[[0m bitflags v2.13.2
+2026-11-02T10:03:49.4451650Z ^[[1m^[[92m   Compiling^[[0m core_maths v0.1.1
+2026-11-02T10:03:49.5095650Z ^[[1m^[[92m   Compiling^[[0m adler2 v2.0.1
+2026-11-02T10:03:49.6538150Z ^[[1m^[[92m   Compiling^[[0m ttf-parser v0.25.1
+2026-11-02T10:03:50.4328270Z ^[[1m^[[92m   Compiling^[[0m slotmap v1.1.1
+2026-11-02T10:03:50.7880300Z ^[[1m^[[92m   Compiling^[[0m memmap2 v0.9.11
+2026-11-02T10:03:50.9898160Z ^[[1m^[[92m   Compiling^[[0m yazi v0.2.1
+2026-11-02T10:03:52.7575190Z ^[[1m^[[92m   Compiling^[[0m log v0.4.34
+2026-11-02T10:03:52.9497650Z ^[[1m^[[92m   Compiling^[[0m smallvec v1.16.2
+2026-11-02T10:03:53.1169770Z ^[[1m^[[92m   Compiling^[[0m tinyvec v1.13.3
+2026-11-02T10:03:53.3756830Z ^[[1m^[[92m   Compiling^[[0m unicode-segmentation v1.13.3
+2026-11-02T10:03:53.9601660Z ^[[1m^[[92m   Compiling^[[0m zeno v0.3.3
+2026-11-02T10:03:54.9420270Z ^[[1m^[[92m   Compiling^[[0m cfg-if v1.0.5
+2026-11-02T10:03:54.9831040Z ^[[1m^[[92m   Compiling^[[0m crc32fast v1.5.2
+2026-11-02T10:03:55.2904570Z ^[[1m^[[92m   Compiling^[[0m fontdb v0.23.0
+2026-11-02T10:03:56.0500250Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.9.1
+2026-11-02T10:03:56.7117330Z ^[[1m^[[92m   Compiling^[[0m unicode-linebreak v0.1.5
+2026-11-02T10:03:56.9246650Z ^[[1m^[[92m   Compiling^[[0m rangemap v1.8.0
+2026-11-02T10:03:57.1916660Z ^[[1m^[[92m   Compiling^[[0m unicode-script v0.5.8
+2026-11-02T10:03:57.6116400Z ^[[1m^[[92m   Compiling^[[0m linebender_resource_handle v0.1.1
+2026-11-02T10:03:57.6834420Z ^[[1m^[[92m   Compiling^[[0m unicode-bidi v0.3.18
+2026-11-02T10:03:57.7540160Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v2.1.3
+2026-11-02T10:03:57.8193500Z ^[[1m^[[92m   Compiling^[[0m self_cell v1.3.0
+2026-11-02T10:03:57.8831300Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.3.6
+2026-11-02T10:03:58.1166600Z ^[[1m^[[92m   Compiling^[[0m sys-locale v0.3.2
+2026-11-02T10:03:58.1759300Z ^[[1m^[[92m   Compiling^[[0m flate2 v1.1.10
+2026-11-02T10:03:58.5788660Z ^[[1m^[[92m   Compiling^[[0m vieww-foundation v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-02T10:03:58.9697540Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.8.9
+2026-11-02T10:04:00.1596720Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
+2026-11-02T10:04:00.5489000Z ^[[1m^[[92m   Compiling^[[0m fdeflate v0.3.7
+2026-11-02T10:04:01.3572150Z ^[[1m^[[92m   Compiling^[[0m color_quant v1.1.0
+2026-11-02T10:04:01.6630420Z ^[[1m^[[92m   Compiling^[[0m weezl v0.1.12
+2026-11-02T10:04:02.9149300Z ^[[1m^[[92m   Compiling^[[0m gif v0.14.2
+2026-11-02T10:04:05.1317570Z ^[[1m^[[92m   Compiling^[[0m png v0.18.1
+2026-11-02T10:04:07.1028840Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
+2026-11-02T10:04:07.3464080Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
+2026-11-02T10:04:07.6387830Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
+2026-11-02T10:04:07.9092850Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
+2026-11-02T10:04:08.5626230Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
+2026-11-02T10:04:14.6277190Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
+2026-11-02T10:04:29.5270190Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
+2026-11-02T10:04:30.1783920Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
+2026-11-02T10:04:33.5206770Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
+2026-11-02T10:04:45.8323390Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
+2026-11-02T10:04:48.0509720Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-02T10:04:53.4104430Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-02T10:04:54.1864420Z ^[[1m^[[91merror[E0063]^[[0m^[[1m: missing field `scratch` in initializer of `target::Target`^[[0m
+2026-11-02T10:04:54.1865300Z    ^[[1m^[[94m--> ^[[0mcrates/vieww-paint/src/native/target.rs:183:9
+2026-11-02T10:04:54.1865800Z     ^[[1m^[[94m|^[[0m
+2026-11-02T10:04:54.1866070Z ^[[1m^[[94m183^[[0m ^[[1m^[[94m|^[[0m         Self {
+2026-11-02T10:04:54.1867140Z     ^[[1m^[[94m|^[[0m         ^[[1m^[[91m^^^^^[[0m ^[[1m^[[91mmissing `scratch`^[[0m
+2026-11-02T10:04:54.1867770Z 
+2026-11-02T10:04:54.8902330Z ^[[1mFor more information about this error, try `rustc --explain E0063`.^[[0m
+2026-11-02T10:04:54.8977480Z ^[[1m^[[91merror^[[0m: could not compile `vieww-paint` (lib test) due to 1 previous error
+2026-11-02T10:04:54.9419120Z ##[error]Process completed with exit code 101.
 
 ===== checks.sh (Linux)	The gate =====
-2026-11-02T05:25:45.2383624Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v2.1.3
-2026-11-02T05:25:45.2984055Z ^[[1m^[[92m   Compiling^[[0m rangemap v1.8.0
-2026-11-02T05:25:45.6173728Z ^[[1m^[[92m   Compiling^[[0m self_cell v1.3.0
-2026-11-02T05:25:45.6823942Z ^[[1m^[[92m   Compiling^[[0m unicode-linebreak v0.1.5
-2026-11-02T05:25:45.9003793Z ^[[1m^[[92m   Compiling^[[0m unicode-bidi v0.3.18
-2026-11-02T05:25:47.0517092Z ^[[1m^[[92m   Compiling^[[0m foldhash v0.2.0
-2026-11-02T05:25:47.1614136Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
-2026-11-02T05:25:47.7533784Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
-2026-11-02T05:25:53.6696325Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
-2026-11-02T05:25:53.6868139Z ^[[1m^[[92m   Compiling^[[0m zerocopy-derive v0.8.59
-2026-11-02T05:25:55.4533973Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v2.0.21
-2026-11-02T05:25:55.8743578Z ^[[1m^[[92m   Compiling^[[0m cfg_aliases v0.2.2
-2026-11-02T05:25:55.9043646Z ^[[1m^[[92m   Compiling^[[0m equivalent v1.0.2
-2026-11-02T05:25:55.9399048Z ^[[1m^[[92m   Compiling^[[0m indexmap v2.14.2
-2026-11-02T05:25:56.6115824Z ^[[1m^[[92m   Compiling^[[0m naga v30.0.1
-2026-11-02T05:25:56.8533433Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
-2026-11-02T05:25:57.5254459Z ^[[1m^[[92m   Compiling^[[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
-2026-11-02T05:25:57.7733751Z ^[[1m^[[92m   Compiling^[[0m bit-vec v0.9.1
-2026-11-02T05:25:57.9543769Z ^[[1m^[[92m   Compiling^[[0m unicode-width v0.2.2
-2026-11-02T05:25:58.2083815Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v1.1.0
-2026-11-02T05:25:58.3984292Z ^[[1m^[[92m   Compiling^[[0m spirv v0.4.0+sdk-1.4.341.0
-2026-11-02T05:25:59.6782429Z ^[[1m^[[92m   Compiling^[[0m naga-types v30.0.1
-2026-11-02T05:25:59.7873798Z ^[[1m^[[92m   Compiling^[[0m codespan-reporting v0.13.1
-2026-11-02T05:26:00.0123749Z ^[[1m^[[92m   Compiling^[[0m bit-set v0.10.0
-2026-11-02T05:26:00.1124083Z ^[[1m^[[92m   Compiling^[[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
-2026-11-02T05:26:00.1983553Z ^[[1m^[[92m   Compiling^[[0m euclid v0.22.14
-2026-11-02T05:26:01.0262962Z ^[[1m^[[92m   Compiling^[[0m arrayvec v0.7.8
-2026-11-02T05:26:01.2223647Z ^[[1m^[[92m   Compiling^[[0m half v2.7.1
-2026-11-02T05:26:01.5954294Z ^[[1m^[[92m   Compiling^[[0m lyon_geom v1.0.19
-2026-11-02T05:26:02.0883718Z ^[[1m^[[92m   Compiling^[[0m pxfm v0.1.30
-2026-11-02T05:26:04.9304056Z ^[[1m^[[92m   Compiling^[[0m zune-core v0.5.3
-2026-11-02T05:26:05.1993774Z ^[[1m^[[92m   Compiling^[[0m zune-jpeg v0.5.15
-2026-11-02T05:26:06.7764256Z ^[[1m^[[92m   Compiling^[[0m moxcms v0.8.1
-2026-11-02T05:26:13.2084053Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
-2026-11-02T05:26:13.4869977Z ^[[1m^[[92m   Compiling^[[0m lyon_path v1.0.19
-2026-11-02T05:26:13.6532721Z ^[[1m^[[92m   Compiling^[[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
-2026-11-02T05:26:14.1744094Z ^[[1m^[[92m   Compiling^[[0m byteorder-lite v0.1.0
-2026-11-02T05:26:14.2703752Z ^[[1m^[[92m   Compiling^[[0m ash v0.38.0+1.3.281
-2026-11-02T05:26:14.3394097Z ^[[1m^[[92m   Compiling^[[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
-2026-11-02T05:26:14.4033025Z ^[[1m^[[92m   Compiling^[[0m float_next_after v1.0.0
-2026-11-02T05:26:14.4574588Z ^[[1m^[[92m   Compiling^[[0m image v0.25.10
-2026-11-02T05:26:14.4623005Z ^[[1m^[[92m   Compiling^[[0m lyon_tessellation v1.0.22
-2026-11-02T05:26:15.0422071Z ^[[1m^[[92m   Compiling^[[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
-2026-11-02T05:26:16.8384576Z ^[[1m^[[92m   Compiling^[[0m vieww-scene v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
-2026-11-02T05:26:17.2093749Z ^[[1m^[[92m   Compiling^[[0m libloading v0.8.9
-2026-11-02T05:26:17.3784320Z ^[[1m^[[92m   Compiling^[[0m vieww-image v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-image)
-2026-11-02T05:26:22.1744133Z ^[[1m^[[92m   Compiling^[[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
-2026-11-02T05:26:23.8594241Z ^[[1m^[[92m   Compiling^[[0m vieww-video v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-video)
-2026-11-02T05:26:29.3644360Z ^[[1m^[[92m   Compiling^[[0m vieww-asset v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
-2026-11-02T05:26:29.8764157Z ^[[1m^[[92m   Compiling^[[0m vieww-render-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
-2026-11-02T05:26:32.1852804Z ^[[1m^[[92m   Compiling^[[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
-2026-11-02T05:26:38.0374137Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
-2026-11-02T05:26:41.3174119Z ^[[1m^[[92m   Compiling^[[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
-2026-11-02T05:26:41.3698145Z ^[[1m^[[92m   Compiling^[[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
-2026-11-02T05:26:41.5765566Z ^[[1m^[[92m   Compiling^[[0m vieww-spatial v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-spatial)
-2026-11-02T05:26:41.6974223Z ^[[1m^[[92m   Compiling^[[0m vieww-mesh v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-mesh)
-2026-11-02T05:26:44.4014556Z ^[[1m^[[92m   Compiling^[[0m vieww-physics v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-physics)
-2026-11-02T05:26:45.2294252Z ^[[1m^[[92m   Compiling^[[0m vieww-network v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-network)
-2026-11-02T05:26:47.2043748Z ^[[1m^[[92m   Compiling^[[0m color_quant v1.1.0
-2026-11-02T05:26:47.4073755Z ^[[1m^[[92m   Compiling^[[0m weezl v0.1.12
-2026-11-02T05:26:47.4474210Z ^[[1m^[[92m   Compiling^[[0m fixtures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/fixtures)
-2026-11-02T05:26:47.6124011Z ^[[1m^[[92m   Compiling^[[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
-2026-11-02T05:26:47.6674764Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
-2026-11-02T05:26:48.3859873Z ^[[1m^[[92m   Compiling^[[0m gif v0.14.2
-2026-11-02T05:26:50.0434338Z ^[[1m^[[92m   Compiling^[[0m vieww-render-planner v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
-2026-11-02T05:27:00.9016399Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized] target(s) in 1m 51s
-2026-11-02T05:27:00.9124190Z ^[[1m^[[92m     Running^[[0m `target/release/fixtures /tmp/tmp.2nhRuO0QoI`
-2026-11-02T05:27:05.7871202Z 
-2026-11-02T05:27:05.7873370Z ==> raster identity (every fixture byte-identical to the merge base with origin/main; builds BASE in its own worktree — slow)
-2026-11-02T05:27:05.7955852Z raster-identity: rendering the gallery at ec9ab981a17e5ff74ef36217f953b874d2a61da4
-2026-11-02T05:29:04.4683928Z raster-identity: rendering the gallery at the working tree
-2026-11-02T05:29:09.6647167Z raster-identity: all 30 files identical to ec9ab981a17e5ff74ef36217f953b874d2a61da4
-2026-11-02T05:29:10.1387532Z 
-2026-11-02T05:29:10.1388349Z ==> conformance matrix (vieww's row matches the merge base; every false cell planned)
-2026-11-02T05:29:10.1862658Z conformance-matrix: row consistent with the base and fully planned
-2026-11-02T05:29:10.1866759Z 
-2026-11-02T05:29:10.1867093Z ==> performance budgets (the gate's tests and ci/check/perf-budgets.json)
-2026-11-02T05:29:10.2421743Z .........
-2026-11-02T05:29:10.2422913Z ----------------------------------------------------------------------
-2026-11-02T05:29:10.2423806Z Ran 9 tests in 0.005s
-2026-11-02T05:29:10.2424235Z 
-2026-11-02T05:29:10.2424572Z OK
-2026-11-02T05:29:10.2425667Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T05:29:10.2426699Z |---|---|---|---|---|---|
-2026-11-02T05:29:10.2427903Z perf-budget: no budget and no previous run for class 'ubuntu-24-04/x86-64/intel-i7-8550u': not gated this time
-2026-11-02T05:29:10.2429254Z perf-budget: nothing gated
-2026-11-02T05:29:10.2430306Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T05:29:10.2431300Z |---|---|---|---|---|---|
-2026-11-02T05:29:10.2432674Z perf-budget: no budget and no previous run for class 'ubuntu-24-04/x86-64/intel-i7-8550u': not gated this time
-2026-11-02T05:29:10.2433914Z perf-budget: nothing gated
-2026-11-02T05:29:10.2434811Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T05:29:10.2435669Z |---|---|---|---|---|---|
-2026-11-02T05:29:10.2436604Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 4.000 | 4.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T05:29:10.2438121Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T05:29:10.2439656Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T05:29:10.2440698Z perf-budget: within budget
-2026-11-02T05:29:10.2441573Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T05:29:10.2442611Z |---|---|---|---|---|---|
-2026-11-02T05:29:10.2443767Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 4.000 | 4.600 | +15.0% | ok (vs last run, ±25%) |
-2026-11-02T05:29:10.2445332Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T05:29:10.2447199Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T05:29:10.2448166Z perf-budget: within budget
-2026-11-02T05:29:10.2448910Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T05:29:10.2449658Z |---|---|---|---|---|---|
-2026-11-02T05:29:10.2450730Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 4.000 | 6.400 | +60.0% | OVER (vs last run, ±25%) |
-2026-11-02T05:29:10.2454859Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T05:29:10.2457174Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T05:29:10.2478680Z ##[error]perf-budget: ubuntu-24-04/x86-64/intel-i7-8550u gallery/editor/cpu_p50_ms: 6.400 ms against 4.000 ms (+60.0%)
-2026-11-02T05:29:10.2486994Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T05:29:10.2487726Z |---|---|---|---|---|---|
-2026-11-02T05:29:10.2488373Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 4.000 | 6.400 | +60.0% | OVER (vs last run, ±25%) |
-2026-11-02T05:29:10.2489276Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T05:29:10.2490147Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T05:29:10.2494122Z ##[warning]perf-budget: ubuntu-24-04/x86-64/intel-i7-8550u gallery/editor/cpu_p50_ms: 6.400 ms against 4.000 ms (+60.0%)
-2026-11-02T05:29:10.2495483Z perf-budget: over budget, reported only (--advisory: a shared hosted runner)
-2026-11-02T05:29:10.2496235Z perf-budget: recorded 3 metric(s) for ubuntu-24-04/x86-64/intel-i7-8550u in /tmp/tmp2bdsrnr5.json
-2026-11-02T05:29:10.2497389Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T05:29:10.2497895Z |---|---|---|---|---|---|
-2026-11-02T05:29:10.2498425Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 6.400 | 6.400 | +0.0% | ok |
-2026-11-02T05:29:10.2499049Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok |
-2026-11-02T05:29:10.2499664Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok |
-2026-11-02T05:29:10.2500661Z perf-budget: within budget
-2026-11-02T05:29:10.2501369Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T05:29:10.2501995Z |---|---|---|---|---|---|
-2026-11-02T05:29:10.2502734Z | phone-x | gpu_frame_time_p50_ms | 0.350 | 0.900 | +157.1% | ok |
-2026-11-02T05:29:10.2503279Z perf-budget: within budget
-2026-11-02T05:29:10.2503988Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T05:29:10.2504611Z |---|---|---|---|---|---|
-2026-11-02T05:29:10.2505143Z | phone-x | gpu_frame_time_p50_ms | 0.350 | 1.600 | +357.1% | OVER |
-2026-11-02T05:29:10.2507149Z ##[error]perf-budget: phone-x gpu_frame_time_p50_ms: 1.600 ms against 0.350 ms (+357.1%)
-2026-11-02T05:29:10.2508963Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T05:29:10.2509631Z |---|---|---|---|---|---|
-2026-11-02T05:29:10.2510306Z perf-budget: no budget and no previous run for class 'phone-lm-q720': not gated this time
-2026-11-02T05:29:10.2511074Z perf-budget: nothing gated
-2026-11-02T05:29:10.2511706Z perf-budget: recorded 3 metric(s) for kabylake-linux in /tmp/tmpsu3kivf3.json
-2026-11-02T05:29:10.2513107Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T05:29:10.2513586Z |---|---|---|---|---|---|
-2026-11-02T05:29:10.2513933Z | kabylake-linux | gallery/editor/cpu_p50_ms | 4.000 | 4.000 | +0.0% | ok |
-2026-11-02T05:29:10.2514417Z | kabylake-linux | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok |
-2026-11-02T05:29:10.2514889Z | kabylake-linux | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok |
-2026-11-02T05:29:10.2515494Z perf-budget: within budget
-2026-11-02T05:29:10.2515930Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T05:29:10.2516301Z |---|---|---|---|---|---|
-2026-11-02T05:29:10.2516642Z | kabylake-linux | gallery/editor/cpu_p50_ms | 4.000 | 5.200 | +30.0% | OVER |
-2026-11-02T05:29:10.2517110Z | kabylake-linux | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok |
-2026-11-02T05:29:10.2517564Z | kabylake-linux | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok |
-2026-11-02T05:29:10.2518738Z ##[error]perf-budget: kabylake-linux gallery/editor/cpu_p50_ms: 5.200 ms against 4.000 ms (+30.0%)
-2026-11-02T05:29:10.2519815Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T05:29:10.2520183Z |---|---|---|---|---|---|
-2026-11-02T05:29:10.2520503Z | kabylake-linux | gallery/editor/cpu_p50_ms | 4.000 | 4.300 | +7.5% | ok |
-2026-11-02T05:29:10.2520961Z | kabylake-linux | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok |
-2026-11-02T05:29:10.2521608Z | kabylake-linux | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok |
-2026-11-02T05:29:10.2521978Z perf-budget: within budget
-2026-11-02T05:29:10.2522146Z 
-2026-11-02T05:29:10.2522721Z ==> crash symbol ids (ci/release/module_id.py reads what raw_frames writes)
-2026-11-02T05:29:10.2944327Z /home/runner/work/vieww_prod/vieww_prod/vieww_base/ci/release/test_module_id.py:28: ResourceWarning: unclosed file <_io.BufferedReader name='/usr/bin/python3'>
-2026-11-02T05:29:10.2945676Z   if not sys.executable or not open(sys.executable, "rb").read(4) == b"\x7fELF":
-2026-11-02T05:29:10.2946521Z ResourceWarning: Enable tracemalloc to get the object allocation traceback
-2026-11-02T05:29:10.3505037Z ....
-2026-11-02T05:29:10.3505515Z ----------------------------------------------------------------------
-2026-11-02T05:29:10.3506256Z Ran 4 tests in 0.058s
-2026-11-02T05:29:10.3506569Z 
-2026-11-02T05:29:10.3506959Z OK
-2026-11-02T05:29:10.3590134Z 
-2026-11-02T05:29:10.3590820Z ==> crash symbols (a stripped release crash decoded to function and line)
-2026-11-02T05:29:18.5977809Z symbols.sh: crash_symbols (elf) id feabd4d316a97a9b38d5ebb6ec67ffa8845a6123 -> /tmp/tmp.us8Vtt847m/symbols/feabd4d316a97a9b38d5ebb6ec67ffa8845a6123.debug (2004464 bytes); shipping binary 352328 bytes
-2026-11-02T05:29:18.6888226Z ci/check/crash-symbols.sh: line 56: 32537 Aborted                 (core dumped) VIEWW_CRASH_DIR="$work/crashes" "$bin" extra 2> /dev/null
-2026-11-02T05:29:18.6932588Z message: a crash for the symbols check, at depth 3
-2026-11-02T05:29:18.6933636Z frame: #0 0x000055fc525ea590 crash_symbols+0x51590 build-id=feabd4d316a97a9b38d5ebb6ec67ffa8845a6123
-2026-11-02T05:29:18.6934676Z frame: #1 0x000055fc525bbd93 crash_symbols+0x22d93 build-id=feabd4d316a97a9b38d5ebb6ec67ffa8845a6123
-2026-11-02T05:29:18.6936696Z frame: #2 0x000055fc525e3df1 crash_symbols+0x4adf1 build-id=feabd4d316a97a9b38d5ebb6ec67ffa8845a6123
-2026-11-02T05:29:19.0285107Z #0   <vieww_foundation::crash::Crashes>::install::{closure#0}  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x51590]
-2026-11-02T05:29:19.0288158Z #1   std::panicking::panic_with_hook  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x22d93]
-2026-11-02T05:29:19.0288930Z #2   std::panicking::panic_handler::{closure#0}  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x4adf1]
-2026-11-02T05:29:19.0289853Z #3   std::sys::backtrace::__rust_end_short_backtrace::<std::panicking::panic_handler::{closure#0}, !>  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x4ada9]
-2026-11-02T05:29:19.0290687Z #4   __rustc::rust_begin_unwind  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x4b28c]
-2026-11-02T05:29:19.0291290Z #5   core::panicking::panic_fmt  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x1473b]
-2026-11-02T05:29:19.0292409Z #6   crash_symbols::inner_frame  /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation/examples/crash_symbols.rs:12  [crash_symbols+0x12022]
-2026-11-02T05:29:19.0293858Z #7   crash_symbols::outer_frame  /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation/examples/crash_symbols.rs:18  [crash_symbols+0x1203c]
-2026-11-02T05:29:19.0294961Z #8   crash_symbols::main  /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation/examples/crash_symbols.rs:25  [crash_symbols+0x12e12]
-2026-11-02T05:29:19.0296063Z #9   std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>  /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250  [crash_symbols+0x11fd3]
-2026-11-02T05:29:19.0297179Z      __rust_begin_short_backtrace<fn(), ()>  /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/sys/backtrace.rs:166  [crash_symbols+0x11fd3]
-2026-11-02T05:29:19.0297850Z #10  main  ??:?  [crash_symbols+0x138dc]
-2026-11-02T05:29:19.0298349Z #11  libc.so.6+0x2a1ca  (no symbols for build-id a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)  [0x00007f4eec62a1ca]
-2026-11-02T05:29:19.0299059Z #12  libc.so.6+0x2a28b  (no symbols for build-id a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)  [0x00007f4eec62a28b]
-2026-11-02T05:29:19.0299747Z #13  _start  ??:?  [crash_symbols+0x11ee5]
-2026-11-02T05:29:19.0300038Z symbolize: 12 of 14 frame(s) resolved
-2026-11-02T05:29:19.0387688Z crash-symbols (linux): a stripped release crash decoded to function and line
-2026-11-02T05:29:19.0413850Z 
-2026-11-02T05:29:19.0414127Z ==> hot reload, end to end (builds the guest crate; slow)
-2026-11-02T05:29:19.2358903Z ^[[1m^[[92m   Compiling^[[0m syn v3.0.6
-2026-11-02T05:29:19.2359911Z ^[[1m^[[92m   Compiling^[[0m ttf-parser v0.25.1
-2026-11-02T05:29:19.2360610Z ^[[1m^[[92m   Compiling^[[0m smallvec v1.16.2
-2026-11-02T05:29:19.2455295Z ^[[1m^[[92m   Compiling^[[0m syn v2.0.119
-2026-11-02T05:29:22.1296683Z ^[[1m^[[92m   Compiling^[[0m fontdb v0.23.0
-2026-11-02T05:29:29.0483546Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
-2026-11-02T05:29:34.7954479Z ^[[1m^[[92m   Compiling^[[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
-2026-11-02T05:29:35.7128433Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
-2026-11-02T05:29:35.8560284Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
-2026-11-02T05:29:35.8561043Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
-2026-11-02T05:29:36.0673172Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
-2026-11-02T05:29:36.0979270Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
-2026-11-02T05:29:40.5695176Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
-2026-11-02T05:29:40.5696512Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
-2026-11-02T05:29:56.0949200Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
-2026-11-02T05:29:58.5941474Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
-2026-11-02T05:30:04.0894453Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
-2026-11-02T05:30:07.7654032Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
-2026-11-02T05:30:08.4314150Z ^[[1m^[[92m   Compiling^[[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
-2026-11-02T05:30:12.2854035Z ^[[1m^[[92m   Compiling^[[0m vieww-reload v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-reload)
-2026-11-02T05:30:12.7672134Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized] target(s) in 53.69s
-2026-11-02T05:30:12.7750534Z ^[[1m^[[92m     Running^[[0m tests/end_to_end.rs (target/debug/deps/end_to_end-c193484d1bd3647c)
-2026-11-02T05:30:12.7767156Z 
-2026-11-02T05:30:12.7767387Z running 3 tests
-2026-11-02T05:31:15.5458578Z test a_guest_that_panics_while_building_does_not_take_the_host_down ... ok
-2026-11-02T05:32:17.7589395Z test a_guest_whose_state_changed_shape_forces_a_restart ... ok
-2026-11-02T05:33:21.2649977Z test a_rebuilt_guest_reloads_and_the_tree_is_kept ... ok
-2026-11-02T05:33:21.2650776Z 
-2026-11-02T05:33:21.2651242Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 188.49s
-2026-11-02T05:33:21.2651890Z 
-2026-11-02T05:33:21.2779516Z 
-2026-11-02T05:33:21.2780037Z ==> packaging (layout and a preview compiled against the bundle)
-2026-11-02T05:33:21.3629600Z ==> building viewwstudio 0.1.0 (debug, linux)
-2026-11-02T05:33:21.6549040Z ^[[1m^[[92m   Compiling^[[0m zvariant_utils v4.2.0
-2026-11-02T05:33:21.6603779Z ^[[1m^[[92m   Compiling^[[0m uuid v1.26.1
-2026-11-02T05:33:21.6703576Z ^[[1m^[[92m   Compiling^[[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
-2026-11-02T05:33:21.6753064Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
-2026-11-02T05:33:22.3361026Z ^[[1m^[[92m   Compiling^[[0m accesskit v0.25.1
-2026-11-02T05:33:22.6533713Z ^[[1m^[[92m   Compiling^[[0m zvariant v5.15.0
-2026-11-02T05:33:23.4635001Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
-2026-11-02T05:33:24.2503861Z ^[[1m^[[92m   Compiling^[[0m accesskit_consumer v0.39.1
-2026-11-02T05:33:26.3333978Z ^[[1m^[[92m   Compiling^[[0m zbus_names v4.3.4
-2026-11-02T05:33:27.5673683Z ^[[1m^[[92m   Compiling^[[0m zbus_xml v5.2.1
-2026-11-02T05:33:28.4633523Z ^[[1m^[[92m   Compiling^[[0m zbus-lockstep v0.5.2
-2026-11-02T05:33:28.6833611Z ^[[1m^[[92m   Compiling^[[0m zbus v5.19.0
-2026-11-02T05:33:31.9006655Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
-2026-11-02T05:33:32.2834227Z ^[[1m^[[92m   Compiling^[[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
-2026-11-02T05:33:33.3243633Z ^[[1m^[[92m   Compiling^[[0m ahash v0.8.12
-2026-11-02T05:33:33.5891404Z ^[[1m^[[92m   Compiling^[[0m winit v0.30.13
-2026-11-02T05:33:34.3884985Z ^[[1m^[[92m   Compiling^[[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
-2026-11-02T05:33:35.6023761Z ^[[1m^[[92m   Compiling^[[0m atspi-common v0.13.0
-2026-11-02T05:33:37.3152996Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
-2026-11-02T05:33:42.3413774Z ^[[1m^[[92m   Compiling^[[0m atspi-proxies v0.13.0
-2026-11-02T05:33:44.8258287Z ^[[1m^[[92m   Compiling^[[0m atspi v0.29.0
-2026-11-02T05:33:44.8933842Z ^[[1m^[[92m   Compiling^[[0m accesskit_atspi_common v0.21.0
-2026-11-02T05:33:49.0914172Z ^[[1m^[[92m   Compiling^[[0m accesskit_unix v0.24.0
-2026-11-02T05:33:54.4963922Z ^[[1m^[[92m   Compiling^[[0m accesskit_winit v0.34.1
-2026-11-02T05:33:54.7470247Z ^[[1m^[[92m   Compiling^[[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
-2026-11-02T05:33:54.8964408Z ^[[1m^[[92m   Compiling^[[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
-2026-11-02T05:33:55.1061387Z ^[[1m^[[92m   Compiling^[[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
-2026-11-02T05:33:55.1554844Z ^[[1m^[[92m   Compiling^[[0m vieww-platform-winit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
-2026-11-02T05:33:57.7794184Z ^[[1m^[[92m   Compiling^[[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
-2026-11-02T05:34:09.9029361Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 48.50s
-2026-11-02T05:34:09.9417832Z ==> drawing icons
-2026-11-02T05:34:10.2251588Z ^[[1m^[[92m   Compiling^[[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
-2026-11-02T05:34:10.2254994Z ^[[1m^[[92m   Compiling^[[0m vieww-hardware v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
-2026-11-02T05:34:10.2257816Z ^[[1m^[[92m   Compiling^[[0m vieww-test-harness v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-test-harness)
-2026-11-02T05:34:15.4587827Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 5.48s
-2026-11-02T05:34:15.4789772Z ^[[1m^[[92m     Running^[[0m `target/debug/examples/icon /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/icons`
-2026-11-02T05:34:16.6512163Z ==> verifying the bundle compiles a preview
-2026-11-02T05:34:42.6013795Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/viewwstudio-linux-x86_64.tar.gz
-2026-11-02T05:34:42.6064423Z     206M
-2026-11-02T05:34:42.6090207Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/index.html
-2026-11-02T05:34:42.6091246Z     links point at github.com/tejakota/vieww_prod
-2026-11-02T05:34:42.6122150Z done
-2026-11-02T05:34:42.6764305Z 
-2026-11-02T05:34:42.6766032Z --- clippy (workspace, all targets, warnings are errors): its diagnostics ---
-2026-11-02T05:34:42.6767651Z error[E0308]: mismatched types
-2026-11-02T05:34:42.6768990Z     --> examples/film_lab/src/studio_film/master.rs:471:37
-2026-11-02T05:34:42.6770203Z     --> apps/viewwstudio/src/state/editing.rs:1563:12
-2026-11-02T05:34:42.6771087Z error: could not compile `film_lab` (bin "film_lab") due to 1 previous error
-2026-11-02T05:34:42.6771936Z warning: build failed, waiting for other jobs to finish...
-2026-11-02T05:34:42.6773953Z error: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
-2026-11-02T05:34:42.6774811Z 
-2026-11-02T05:34:42.6775221Z --- build (workspace, all targets): its diagnostics ---
-2026-11-02T05:34:42.6776071Z error[E0308]: mismatched types
-2026-11-02T05:34:42.6776903Z     --> examples/film_lab/src/studio_film/master.rs:471:37
-2026-11-02T05:34:42.6777549Z     --> apps/viewwstudio/src/state/editing.rs:1563:12
-2026-11-02T05:34:42.6778364Z error: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
-2026-11-02T05:34:42.6779266Z warning: build failed, waiting for other jobs to finish...
-2026-11-02T05:34:42.6780085Z error: could not compile `film_lab` (bin "film_lab") due to 1 previous error
-2026-11-02T05:34:42.6780466Z 
-2026-11-02T05:34:42.6780604Z --- tests (workspace): its diagnostics ---
-2026-11-02T05:34:42.6781463Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline
-2026-11-02T05:34:42.6783542Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline.dwp
-2026-11-02T05:34:42.6785131Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench
-2026-11-02T05:34:42.6786193Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench.dwp
-2026-11-02T05:34:42.6787291Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render
-2026-11-02T05:34:42.6788904Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render.dwp
-2026-11-02T05:34:42.6789943Z error[E0308]: mismatched types
-2026-11-02T05:34:42.6790387Z     --> examples/film_lab/src/studio_film/master.rs:471:37
-2026-11-02T05:34:42.6790805Z     --> apps/viewwstudio/src/state/editing.rs:1563:12
-2026-11-02T05:34:42.6791300Z error: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
-2026-11-02T05:34:42.6791836Z warning: build failed, waiting for other jobs to finish...
-2026-11-02T05:34:42.6792162Z 
-2026-11-02T05:34:42.6792532Z 3 stage(s) failed:
-2026-11-02T05:34:42.6792889Z   - clippy (workspace, all targets, warnings are errors) (exit 101)
-2026-11-02T05:34:42.6793337Z   - build (workspace, all targets) (exit 101)
-2026-11-02T05:34:42.6793679Z   - tests (workspace) (exit 101)
-2026-11-02T05:34:42.6796613Z ##[error]Process completed with exit code 1.
-
-===== Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check =====
-﻿2026-11-02T05:12:05.4395177Z ##[group]Run ci/check/cross-check.sh
-2026-11-02T05:12:05.4395398Z ^[[36;1mci/check/cross-check.sh^[[0m
-2026-11-02T05:12:05.4413192Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
-2026-11-02T05:12:05.4413396Z env:
-2026-11-02T05:12:05.4413522Z   CARGO_TERM_COLOR: always
-2026-11-02T05:12:05.4413656Z   RUST_BACKTRACE: 1
-2026-11-02T05:12:05.4413777Z   RUST_VERSION: 1.98.1
-2026-11-02T05:12:05.4413905Z ##[endgroup]
-2026-11-02T05:12:05.4932206Z info: syncing channel updates for 1.98.1-x86_64-unknown-linux-gnu
-2026-11-02T05:12:05.7511045Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
-2026-11-02T05:12:05.7630856Z info: downloading 3 components
-2026-11-02T05:12:08.8825019Z 
-2026-11-02T05:12:08.8826016Z ^[[1m== macos (aarch64-apple-darwin)^[[0m
-2026-11-02T05:13:51.5299415Z ^[[1m^[[91merror[E0308]^[[0m^[[1m: mismatched types^[[0m
-2026-11-02T05:13:51.5329152Z     ^[[1m^[[94m--> ^[[0mexamples/film_lab/src/studio_film/master.rs:471:37
-2026-11-02T05:13:51.5358931Z      ^[[1m^[[94m|^[[0m
-2026-11-02T05:13:51.5359805Z ^[[1m^[[94m 471^[[0m ^[[1m^[[94m|^[[0m                 studio.capture_tree(&self.driver);
-2026-11-02T05:13:51.5389210Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m------------^[[0m ^[[1m^[[91m^^^^^^^^^^^^^[[0m ^[[1m^[[91mtypes differ in mutability^[[0m
-2026-11-02T05:13:51.5418801Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m|^[[0m
-2026-11-02T05:13:51.5449171Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94marguments to this method are incorrect^[[0m
-2026-11-02T05:13:51.5449859Z      ^[[1m^[[94m|^[[0m
-2026-11-02T05:13:51.5479057Z      ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: expected mutable reference `&^[[1m^[[35mmut ^[[0mFrameDriver`
-2026-11-02T05:13:51.5508612Z                         found reference `&FrameDriver`
-2026-11-02T05:13:51.5538773Z ^[[1m^[[92mnote^[[0m: method defined here
-2026-11-02T05:13:51.5539450Z     ^[[1m^[[94m--> ^[[0mapps/viewwstudio/src/state/editing.rs:1563:12
-2026-11-02T05:13:51.5568591Z      ^[[1m^[[94m|^[[0m
-2026-11-02T05:13:51.5605560Z ^[[1m^[[94m1563^[[0m ^[[1m^[[94m|^[[0m     pub fn capture_tree(&self, driver: &mut vieww_render::FrameDriver) {
-2026-11-02T05:13:51.5608568Z      ^[[1m^[[94m|^[[0m            ^[[1m^[[92m^^^^^^^^^^^^^[[0m
-2026-11-02T05:13:51.5638142Z 
-2026-11-02T05:13:53.1042719Z ^[[1mFor more information about this error, try `rustc --explain E0308`.^[[0m
-2026-11-02T05:13:53.1519738Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
-2026-11-02T05:13:53.7779961Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab") due to 1 previous error
-2026-11-02T05:13:53.9226477Z    ^[[31mFAILED^[[0m — see above
-2026-11-02T05:13:53.9226740Z 
-2026-11-02T05:13:53.9226872Z ^[[1m== ios (aarch64-apple-ios)^[[0m
-2026-11-02T05:14:46.3052115Z ^[[1m^[[91merror[E0308]^[[0m^[[1m: mismatched types^[[0m
-2026-11-02T05:14:46.3088976Z     ^[[1m^[[94m--> ^[[0mexamples/film_lab/src/studio_film/master.rs:471:37
-2026-11-02T05:14:46.3089586Z      ^[[1m^[[94m|^[[0m
-2026-11-02T05:14:46.3090413Z ^[[1m^[[94m 471^[[0m ^[[1m^[[94m|^[[0m                 studio.capture_tree(&self.driver);
-2026-11-02T05:14:46.3134509Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m------------^[[0m ^[[1m^[[91m^^^^^^^^^^^^^[[0m ^[[1m^[[91mtypes differ in mutability^[[0m
-2026-11-02T05:14:46.3135219Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m|^[[0m
-2026-11-02T05:14:46.3135702Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94marguments to this method are incorrect^[[0m
-2026-11-02T05:14:46.3136126Z      ^[[1m^[[94m|^[[0m
-2026-11-02T05:14:46.3136570Z      ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: expected mutable reference `&^[[1m^[[35mmut ^[[0mFrameDriver`
-2026-11-02T05:14:46.3137061Z                         found reference `&FrameDriver`
-2026-11-02T05:14:46.3137454Z ^[[1m^[[92mnote^[[0m: method defined here
-2026-11-02T05:14:46.3138598Z     ^[[1m^[[94m--> ^[[0mapps/viewwstudio/src/state/editing.rs:1563:12
-2026-11-02T05:14:46.3139000Z      ^[[1m^[[94m|^[[0m
-2026-11-02T05:14:46.3139829Z ^[[1m^[[94m1563^[[0m ^[[1m^[[94m|^[[0m     pub fn capture_tree(&self, driver: &mut vieww_render::FrameDriver) {
-2026-11-02T05:14:46.3140348Z      ^[[1m^[[94m|^[[0m            ^[[1m^[[92m^^^^^^^^^^^^^[[0m
-2026-11-02T05:14:46.3141130Z 
-2026-11-02T05:14:47.9459494Z ^[[1mFor more information about this error, try `rustc --explain E0308`.^[[0m
-2026-11-02T05:14:47.9959618Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
-2026-11-02T05:14:48.0505293Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab") due to 1 previous error
-2026-11-02T05:14:48.1380604Z    ^[[31mFAILED^[[0m — see above
-2026-11-02T05:14:48.1380866Z 
-2026-11-02T05:14:48.1380989Z ^[[1m== windows (x86_64-pc-windows-msvc)^[[0m
-2026-11-02T05:15:42.3799386Z ^[[1m^[[91merror[E0308]^[[0m^[[1m: mismatched types^[[0m
-2026-11-02T05:15:42.3808850Z     ^[[1m^[[94m--> ^[[0mexamples/film_lab/src/studio_film/master.rs:471:37
-2026-11-02T05:15:42.3809243Z      ^[[1m^[[94m|^[[0m
-2026-11-02T05:15:42.3809589Z ^[[1m^[[94m 471^[[0m ^[[1m^[[94m|^[[0m                 studio.capture_tree(&self.driver);
-2026-11-02T05:15:42.3810118Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m------------^[[0m ^[[1m^[[91m^^^^^^^^^^^^^[[0m ^[[1m^[[91mtypes differ in mutability^[[0m
-2026-11-02T05:15:42.3810622Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m|^[[0m
-2026-11-02T05:15:42.3811031Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94marguments to this method are incorrect^[[0m
-2026-11-02T05:15:42.3811365Z      ^[[1m^[[94m|^[[0m
-2026-11-02T05:15:42.3811727Z      ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: expected mutable reference `&^[[1m^[[35mmut ^[[0mFrameDriver`
-2026-11-02T05:15:42.3812102Z                         found reference `&FrameDriver`
-2026-11-02T05:15:42.3812419Z ^[[1m^[[92mnote^[[0m: method defined here
-2026-11-02T05:15:42.3812761Z     ^[[1m^[[94m--> ^[[0mapps/viewwstudio/src/state/editing.rs:1563:12
-2026-11-02T05:15:42.3813071Z      ^[[1m^[[94m|^[[0m
-2026-11-02T05:15:42.3813732Z ^[[1m^[[94m1563^[[0m ^[[1m^[[94m|^[[0m     pub fn capture_tree(&self, driver: &mut vieww_render::FrameDriver) {
-2026-11-02T05:15:42.3814189Z      ^[[1m^[[94m|^[[0m            ^[[1m^[[92m^^^^^^^^^^^^^[[0m
-2026-11-02T05:15:42.3814369Z 
-2026-11-02T05:15:44.0039513Z ^[[1mFor more information about this error, try `rustc --explain E0308`.^[[0m
-2026-11-02T05:15:44.0495155Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
-2026-11-02T05:15:44.3216872Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab") due to 1 previous error
-2026-11-02T05:15:47.2523189Z    ^[[31mFAILED^[[0m — see above
-2026-11-02T05:15:47.2523400Z 
-2026-11-02T05:15:47.2523504Z ^[[1m== android (aarch64-linux-android)^[[0m
-2026-11-02T05:17:06.4359438Z ^[[1m^[[91merror[E0308]^[[0m^[[1m: mismatched types^[[0m
-2026-11-02T05:17:06.4389001Z     ^[[1m^[[94m--> ^[[0mexamples/film_lab/src/studio_film/master.rs:471:37
-2026-11-02T05:17:06.4390345Z      ^[[1m^[[94m|^[[0m
-2026-11-02T05:17:06.4418739Z ^[[1m^[[94m 471^[[0m ^[[1m^[[94m|^[[0m                 studio.capture_tree(&self.driver);
-2026-11-02T05:17:06.4449440Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m------------^[[0m ^[[1m^[[91m^^^^^^^^^^^^^[[0m ^[[1m^[[91mtypes differ in mutability^[[0m
-2026-11-02T05:17:06.4478611Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94m|^[[0m
-2026-11-02T05:17:06.4479709Z      ^[[1m^[[94m|^[[0m                        ^[[1m^[[94marguments to this method are incorrect^[[0m
-2026-11-02T05:17:06.4508516Z      ^[[1m^[[94m|^[[0m
-2026-11-02T05:17:06.4538945Z      ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: expected mutable reference `&^[[1m^[[35mmut ^[[0mFrameDriver`
-2026-11-02T05:17:06.4568679Z                         found reference `&FrameDriver`
-2026-11-02T05:17:06.4569313Z ^[[1m^[[92mnote^[[0m: method defined here
-2026-11-02T05:17:06.4598651Z     ^[[1m^[[94m--> ^[[0mapps/viewwstudio/src/state/editing.rs:1563:12
-2026-11-02T05:17:06.4628519Z      ^[[1m^[[94m|^[[0m
-2026-11-02T05:17:06.4659989Z ^[[1m^[[94m1563^[[0m ^[[1m^[[94m|^[[0m     pub fn capture_tree(&self, driver: &mut vieww_render::FrameDriver) {
-2026-11-02T05:17:06.4661211Z      ^[[1m^[[94m|^[[0m            ^[[1m^[[92m^^^^^^^^^^^^^[[0m
-2026-11-02T05:17:06.4688191Z 
-2026-11-02T05:17:07.9909595Z ^[[1mFor more information about this error, try `rustc --explain E0308`.^[[0m
-2026-11-02T05:17:08.0318668Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab") due to 1 previous error
-2026-11-02T05:17:08.8726791Z ^[[1m^[[91merror^[[0m: could not compile `film_lab` (bin "film_lab" test) due to 1 previous error
-2026-11-02T05:17:08.9502629Z    ^[[31mFAILED^[[0m — see above
-2026-11-02T05:17:08.9502872Z 
-2026-11-02T05:17:08.9516954Z ##[error]Process completed with exit code 4.
+2026-11-02T10:19:36.6101764Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok (vs last run, ±25%) |
+2026-11-02T10:19:36.6103001Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok (vs last run, ±25%) |
+2026-11-02T10:19:36.6103765Z perf-budget: within budget
+2026-11-02T10:19:36.6104234Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+2026-11-02T10:19:36.6104868Z |---|---|---|---|---|---|
+2026-11-02T10:19:36.6105522Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 4.000 | 4.600 | +15.0% | ok (vs last run, ±25%) |
+2026-11-02T10:19:36.6106468Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok (vs last run, ±25%) |
+2026-11-02T10:19:36.6107421Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok (vs last run, ±25%) |
+2026-11-02T10:19:36.6108027Z perf-budget: within budget
+2026-11-02T10:19:36.6108478Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+2026-11-02T10:19:36.6108905Z |---|---|---|---|---|---|
+2026-11-02T10:19:36.6109537Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 4.000 | 6.400 | +60.0% | OVER (vs last run, ±25%) |
+2026-11-02T10:19:36.6110473Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok (vs last run, ±25%) |
+2026-11-02T10:19:36.6111384Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok (vs last run, ±25%) |
+2026-11-02T10:19:36.6135295Z ##[error]perf-budget: ubuntu-24-04/x86-64/intel-i7-8550u gallery/editor/cpu_p50_ms: 6.400 ms against 4.000 ms (+60.0%)
+2026-11-02T10:19:36.6143607Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+2026-11-02T10:19:36.6144047Z |---|---|---|---|---|---|
+2026-11-02T10:19:36.6144627Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 4.000 | 6.400 | +60.0% | OVER (vs last run, ±25%) |
+2026-11-02T10:19:36.6145798Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok (vs last run, ±25%) |
+2026-11-02T10:19:36.6146581Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok (vs last run, ±25%) |
+2026-11-02T10:19:36.6149170Z ##[warning]perf-budget: ubuntu-24-04/x86-64/intel-i7-8550u gallery/editor/cpu_p50_ms: 6.400 ms against 4.000 ms (+60.0%)
+2026-11-02T10:19:36.6150447Z perf-budget: over budget, reported only (--advisory: a shared hosted runner)
+2026-11-02T10:19:36.6151046Z perf-budget: recorded 3 metric(s) for ubuntu-24-04/x86-64/intel-i7-8550u in /tmp/tmpp3tnj11x.json
+2026-11-02T10:19:36.6151727Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+2026-11-02T10:19:36.6152107Z |---|---|---|---|---|---|
+2026-11-02T10:19:36.6152838Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 6.400 | 6.400 | +0.0% | ok |
+2026-11-02T10:19:36.6153438Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok |
+2026-11-02T10:19:36.6153998Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok |
+2026-11-02T10:19:36.6154430Z perf-budget: within budget
+2026-11-02T10:19:36.6155144Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+2026-11-02T10:19:36.6155536Z |---|---|---|---|---|---|
+2026-11-02T10:19:36.6155828Z | phone-x | gpu_frame_time_p50_ms | 0.350 | 0.900 | +157.1% | ok |
+2026-11-02T10:19:36.6156180Z perf-budget: within budget
+2026-11-02T10:19:36.6156583Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+2026-11-02T10:19:36.6156947Z |---|---|---|---|---|---|
+2026-11-02T10:19:36.6157241Z | phone-x | gpu_frame_time_p50_ms | 0.350 | 1.600 | +357.1% | OVER |
+2026-11-02T10:19:36.6158358Z ##[error]perf-budget: phone-x gpu_frame_time_p50_ms: 1.600 ms against 0.350 ms (+357.1%)
+2026-11-02T10:19:36.6159643Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+2026-11-02T10:19:36.6160013Z |---|---|---|---|---|---|
+2026-11-02T10:19:36.6160394Z perf-budget: no budget and no previous run for class 'phone-lm-q720': not gated this time
+2026-11-02T10:19:36.6160824Z perf-budget: nothing gated
+2026-11-02T10:19:36.6161180Z perf-budget: recorded 3 metric(s) for kabylake-linux in /tmp/tmpgfj_m4ja.json
+2026-11-02T10:19:36.6161719Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+2026-11-02T10:19:36.6162068Z |---|---|---|---|---|---|
+2026-11-02T10:19:36.6162391Z | kabylake-linux | gallery/editor/cpu_p50_ms | 4.000 | 4.000 | +0.0% | ok |
+2026-11-02T10:19:36.6162845Z | kabylake-linux | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok |
+2026-11-02T10:19:36.6163295Z | kabylake-linux | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok |
+2026-11-02T10:19:36.6163667Z perf-budget: within budget
+2026-11-02T10:19:36.6164047Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+2026-11-02T10:19:36.6164403Z |---|---|---|---|---|---|
+2026-11-02T10:19:36.6164995Z | kabylake-linux | gallery/editor/cpu_p50_ms | 4.000 | 5.200 | +30.0% | OVER |
+2026-11-02T10:19:36.6165535Z | kabylake-linux | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok |
+2026-11-02T10:19:36.6165977Z | kabylake-linux | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok |
+2026-11-02T10:19:36.6167115Z ##[error]perf-budget: kabylake-linux gallery/editor/cpu_p50_ms: 5.200 ms against 4.000 ms (+30.0%)
+2026-11-02T10:19:36.6168212Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
+2026-11-02T10:19:36.6168576Z |---|---|---|---|---|---|
+2026-11-02T10:19:36.6168898Z | kabylake-linux | gallery/editor/cpu_p50_ms | 4.000 | 4.300 | +7.5% | ok |
+2026-11-02T10:19:36.6169350Z | kabylake-linux | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok |
+2026-11-02T10:19:36.6169806Z | kabylake-linux | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok |
+2026-11-02T10:19:36.6170181Z perf-budget: within budget
+2026-11-02T10:19:36.6177315Z 
+2026-11-02T10:19:36.6177821Z ==> crash symbol ids (ci/release/module_id.py reads what raw_frames writes)
+2026-11-02T10:19:36.6653670Z /home/runner/work/vieww_prod/vieww_prod/vieww_base/ci/release/test_module_id.py:28: ResourceWarning: unclosed file <_io.BufferedReader name='/usr/bin/python3'>
+2026-11-02T10:19:36.6655352Z   if not sys.executable or not open(sys.executable, "rb").read(4) == b"\x7fELF":
+2026-11-02T10:19:36.6656117Z ResourceWarning: Enable tracemalloc to get the object allocation traceback
+2026-11-02T10:19:36.7246069Z ....
+2026-11-02T10:19:36.7246795Z ----------------------------------------------------------------------
+2026-11-02T10:19:36.7255844Z Ran 4 tests in 0.062s
+2026-11-02T10:19:36.7256074Z 
+2026-11-02T10:19:36.7256192Z OK
+2026-11-02T10:19:36.7357089Z 
+2026-11-02T10:19:36.7357973Z ==> crash symbols (a stripped release crash decoded to function and line)
+2026-11-02T10:19:45.5952363Z symbols.sh: crash_symbols (elf) id feabd4d316a97a9b38d5ebb6ec67ffa8845a6123 -> /tmp/tmp.mT3CzG7ugN/symbols/feabd4d316a97a9b38d5ebb6ec67ffa8845a6123.debug (2004464 bytes); shipping binary 352328 bytes
+2026-11-02T10:19:45.6759535Z ci/check/crash-symbols.sh: line 56: 36813 Aborted                 (core dumped) VIEWW_CRASH_DIR="$work/crashes" "$bin" extra 2> /dev/null
+2026-11-02T10:19:45.6796445Z message: a crash for the symbols check, at depth 3
+2026-11-02T10:19:45.6819398Z frame: #0 0x00005621e81e2590 crash_symbols+0x51590 build-id=feabd4d316a97a9b38d5ebb6ec67ffa8845a6123
+2026-11-02T10:19:45.6836293Z frame: #1 0x00005621e81b3d93 crash_symbols+0x22d93 build-id=feabd4d316a97a9b38d5ebb6ec67ffa8845a6123
+2026-11-02T10:19:45.6837550Z frame: #2 0x00005621e81dbdf1 crash_symbols+0x4adf1 build-id=feabd4d316a97a9b38d5ebb6ec67ffa8845a6123
+2026-11-02T10:19:46.0082479Z #0   <vieww_foundation::crash::Crashes>::install::{closure#0}  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x51590]
+2026-11-02T10:19:46.0083868Z #1   std::panicking::panic_with_hook  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x22d93]
+2026-11-02T10:19:46.0085684Z #2   std::panicking::panic_handler::{closure#0}  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x4adf1]
+2026-11-02T10:19:46.0087050Z #3   std::sys::backtrace::__rust_end_short_backtrace::<std::panicking::panic_handler::{closure#0}, !>  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x4ada9]
+2026-11-02T10:19:46.0088303Z #4   __rustc::rust_begin_unwind  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x4b28c]
+2026-11-02T10:19:46.0089215Z #5   core::panicking::panic_fmt  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x1473b]
+2026-11-02T10:19:46.0090511Z #6   crash_symbols::inner_frame  /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation/examples/crash_symbols.rs:12  [crash_symbols+0x12022]
+2026-11-02T10:19:46.0092410Z #7   crash_symbols::outer_frame  /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation/examples/crash_symbols.rs:18  [crash_symbols+0x1203c]
+2026-11-02T10:19:46.0094308Z #8   crash_symbols::main  /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation/examples/crash_symbols.rs:25  [crash_symbols+0x12e12]
+2026-11-02T10:19:46.0096416Z #9   std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>  /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250  [crash_symbols+0x11fd3]
+2026-11-02T10:19:46.0098151Z      __rust_begin_short_backtrace<fn(), ()>  /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/sys/backtrace.rs:166  [crash_symbols+0x11fd3]
+2026-11-02T10:19:46.0099298Z #10  main  ??:?  [crash_symbols+0x138dc]
+2026-11-02T10:19:46.0100199Z #11  libc.so.6+0x2a1ca  (no symbols for build-id a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)  [0x00007f065262a1ca]
+2026-11-02T10:19:46.0101478Z #12  libc.so.6+0x2a28b  (no symbols for build-id a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)  [0x00007f065262a28b]
+2026-11-02T10:19:46.0102390Z #13  _start  ??:?  [crash_symbols+0x11ee5]
+2026-11-02T10:19:46.0102867Z symbolize: 12 of 14 frame(s) resolved
+2026-11-02T10:19:46.0172549Z crash-symbols (linux): a stripped release crash decoded to function and line
+2026-11-02T10:19:46.0196700Z 
+2026-11-02T10:19:46.0197366Z ==> hot reload, end to end (builds the guest crate; slow)
+2026-11-02T10:19:46.2469379Z ^[[1m^[[92m   Compiling^[[0m syn v3.0.6
+2026-11-02T10:19:46.2471901Z ^[[1m^[[92m   Compiling^[[0m ttf-parser v0.25.1
+2026-11-02T10:19:46.2475534Z ^[[1m^[[92m   Compiling^[[0m smallvec v1.16.2
+2026-11-02T10:19:46.2581259Z ^[[1m^[[92m   Compiling^[[0m syn v2.0.119
+2026-11-02T10:19:48.2915480Z ^[[1m^[[92m   Compiling^[[0m fontdb v0.23.0
+2026-11-02T10:19:56.6136320Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
+2026-11-02T10:20:02.4740462Z ^[[1m^[[92m   Compiling^[[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-02T10:20:03.4668583Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
+2026-11-02T10:20:03.6228762Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
+2026-11-02T10:20:03.6230004Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
+2026-11-02T10:20:03.8571906Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
+2026-11-02T10:20:03.8862540Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
+2026-11-02T10:20:08.6380887Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
+2026-11-02T10:20:08.6382012Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
+2026-11-02T10:20:24.5985544Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
+2026-11-02T10:20:27.3093549Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
+2026-11-02T10:20:33.0127372Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
+2026-11-02T10:20:36.8076484Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-02T10:20:37.4766682Z ^[[1m^[[92m   Compiling^[[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-02T10:20:41.0656885Z ^[[1m^[[92m   Compiling^[[0m vieww-reload v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-reload)
+2026-11-02T10:20:42.1438866Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized] target(s) in 56.08s
+2026-11-02T10:20:42.1523203Z ^[[1m^[[92m     Running^[[0m tests/end_to_end.rs (target/debug/deps/end_to_end-c193484d1bd3647c)
+2026-11-02T10:20:42.1540831Z 
+2026-11-02T10:20:42.1541103Z running 3 tests
+2026-11-02T10:21:48.5280248Z test a_guest_that_panics_while_building_does_not_take_the_host_down ... ok
+2026-11-02T10:22:53.5081249Z test a_guest_whose_state_changed_shape_forces_a_restart ... ok
+2026-11-02T10:24:00.0021872Z test a_rebuilt_guest_reloads_and_the_tree_is_kept ... ok
+2026-11-02T10:24:00.0022469Z 
+2026-11-02T10:24:00.0023027Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 197.85s
+2026-11-02T10:24:00.0023788Z 
+2026-11-02T10:24:00.0213255Z 
+2026-11-02T10:24:00.0213983Z ==> packaging (layout and a preview compiled against the bundle)
+2026-11-02T10:24:00.1145961Z ==> building viewwstudio 0.1.0 (debug, linux)
+2026-11-02T10:24:00.4573986Z ^[[1m^[[92m   Compiling^[[0m zvariant_utils v4.2.0
+2026-11-02T10:24:00.4656186Z ^[[1m^[[92m   Compiling^[[0m uuid v1.26.1
+2026-11-02T10:24:00.4750695Z ^[[1m^[[92m   Compiling^[[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-02T10:24:00.4759693Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
+2026-11-02T10:24:01.2076282Z ^[[1m^[[92m   Compiling^[[0m accesskit v0.25.1
+2026-11-02T10:24:01.6386169Z ^[[1m^[[92m   Compiling^[[0m zvariant v5.15.0
+2026-11-02T10:24:02.5476320Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
+2026-11-02T10:24:03.4249134Z ^[[1m^[[92m   Compiling^[[0m accesskit_consumer v0.39.1
+2026-11-02T10:24:05.6666203Z ^[[1m^[[92m   Compiling^[[0m zbus_names v4.3.4
+2026-11-02T10:24:06.9956329Z ^[[1m^[[92m   Compiling^[[0m zbus_xml v5.2.1
+2026-11-02T10:24:07.9716607Z ^[[1m^[[92m   Compiling^[[0m zbus-lockstep v0.5.2
+2026-11-02T10:24:08.2466257Z ^[[1m^[[92m   Compiling^[[0m zbus v5.19.0
+2026-11-02T10:24:11.7118495Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+2026-11-02T10:24:12.1256838Z ^[[1m^[[92m   Compiling^[[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-02T10:24:13.3336406Z ^[[1m^[[92m   Compiling^[[0m ahash v0.8.12
+2026-11-02T10:24:13.6175466Z ^[[1m^[[92m   Compiling^[[0m winit v0.30.13
+2026-11-02T10:24:14.4796635Z ^[[1m^[[92m   Compiling^[[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-02T10:24:15.2937184Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-02T10:24:17.6765397Z ^[[1m^[[92m   Compiling^[[0m atspi-common v0.13.0
+2026-11-02T10:24:20.7347007Z ^[[1m^[[92m   Compiling^[[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
+2026-11-02T10:24:25.8966487Z ^[[1m^[[92m   Compiling^[[0m atspi-proxies v0.13.0
+2026-11-02T10:24:28.6436422Z ^[[1m^[[92m   Compiling^[[0m atspi v0.29.0
+2026-11-02T10:24:28.6931409Z ^[[1m^[[92m   Compiling^[[0m accesskit_atspi_common v0.21.0
+2026-11-02T10:24:33.1046307Z ^[[1m^[[92m   Compiling^[[0m accesskit_unix v0.24.0
+2026-11-02T10:24:36.5771706Z ^[[1m^[[92m   Compiling^[[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
+2026-11-02T10:24:36.7422734Z ^[[1m^[[92m   Compiling^[[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
+2026-11-02T10:24:36.8056522Z ^[[1m^[[92m   Compiling^[[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
+2026-11-02T10:24:38.8516476Z ^[[1m^[[92m   Compiling^[[0m accesskit_winit v0.34.1
+2026-11-02T10:24:39.1358303Z ^[[1m^[[92m   Compiling^[[0m vieww-platform-winit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
+2026-11-02T10:24:53.1135333Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 52.96s
+2026-11-02T10:24:53.1536999Z ==> drawing icons
+2026-11-02T10:24:53.4836150Z ^[[1m^[[92m   Compiling^[[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
+2026-11-02T10:24:53.4839095Z ^[[1m^[[92m   Compiling^[[0m vieww-hardware v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
+2026-11-02T10:24:53.4841723Z ^[[1m^[[92m   Compiling^[[0m vieww-test-harness v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-test-harness)
+2026-11-02T10:24:59.2735079Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 6.08s
+2026-11-02T10:24:59.2935114Z ^[[1m^[[92m     Running^[[0m `target/debug/examples/icon /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/icons`
+2026-11-02T10:25:00.5644620Z ==> verifying the bundle compiles a preview
+2026-11-02T10:25:26.5138619Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/viewwstudio-linux-x86_64.tar.gz
+2026-11-02T10:25:26.5165329Z     206M
+2026-11-02T10:25:26.5190646Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/index.html
+2026-11-02T10:25:26.5191859Z     links point at github.com/tejakota/vieww_prod
+2026-11-02T10:25:26.5226113Z done
+2026-11-02T10:25:26.5886235Z 
+2026-11-02T10:25:26.5886804Z --- formatting: its diagnostics ---
+2026-11-02T10:25:26.5887778Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/compose.rs:58:
+2026-11-02T10:25:26.5888719Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/compose.rs:103:
+2026-11-02T10:25:26.5889619Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/compose.rs:124:
+2026-11-02T10:25:26.5890470Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/compose.rs:149:
+2026-11-02T10:25:26.5891311Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/compose.rs:188:
+2026-11-02T10:25:26.5892143Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/compose.rs:242:
+2026-11-02T10:25:26.5893006Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/compose.rs:271:
+2026-11-02T10:25:26.5893876Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:62:
+2026-11-02T10:25:26.5895044Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:96:
+2026-11-02T10:25:26.5895919Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:170:
+2026-11-02T10:25:26.5897304Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:204:
+2026-11-02T10:25:26.5898392Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:211:
+2026-11-02T10:25:26.5899379Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:215:
+2026-11-02T10:25:26.5900547Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:220:
+2026-11-02T10:25:26.5901451Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:241:
+2026-11-02T10:25:26.5902339Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:275:
+2026-11-02T10:25:26.5903201Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:298:
+2026-11-02T10:25:26.5903998Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:333:
+2026-11-02T10:25:26.5905185Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:340:
+2026-11-02T10:25:26.5905958Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:355:
+2026-11-02T10:25:26.5907976Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:368:
+2026-11-02T10:25:26.5909111Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:427:
+2026-11-02T10:25:26.5909831Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:451:
+2026-11-02T10:25:26.5910571Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:460:
+2026-11-02T10:25:26.5911284Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:468:
+2026-11-02T10:25:26.5912057Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:494:
+2026-11-02T10:25:26.5912797Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:518:
+2026-11-02T10:25:26.5913461Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/lib.rs:32:
+2026-11-02T10:25:26.5914124Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-feedback/src/lib.rs:100:
+2026-11-02T10:25:26.5915194Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-feedback/src/lib.rs:115:
+2026-11-02T10:25:26.5915931Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-feedback/src/lib.rs:163:
+2026-11-02T10:25:26.5916619Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-feedback/src/lib.rs:172:
+2026-11-02T10:25:26.5917273Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-feedback/src/lib.rs:192:
+2026-11-02T10:25:26.5917927Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-memory/src/lib.rs:254:
+2026-11-02T10:25:26.5919065Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-memory/src/lib.rs:309:
+2026-11-02T10:25:26.5920210Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-memory/src/lib.rs:344:
+2026-11-02T10:25:26.5921233Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-persona/src/lib.rs:268:
+2026-11-02T10:25:26.5921884Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-persona/src/lib.rs:351:
+2026-11-02T10:25:26.5922533Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-persona/src/lib.rs:371:
+2026-11-02T10:25:26.5923163Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-persona/src/lib.rs:382:
+2026-11-02T10:25:26.5923794Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-persona/src/lib.rs:393:
+2026-11-02T10:25:26.5924421Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-persona/src/lib.rs:427:
+2026-11-02T10:25:26.5925468Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-persona/src/lib.rs:444:
+2026-11-02T10:25:26.5926181Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/calib.rs:16:
+2026-11-02T10:25:26.5926986Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/calib.rs:38:
+2026-11-02T10:25:26.5927557Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/calib.rs:54:
+2026-11-02T10:25:26.5928116Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/calib.rs:75:
+2026-11-02T10:25:26.5928708Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/shots.rs:147:
+2026-11-02T10:25:26.5929315Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/shots.rs:197:
+2026-11-02T10:25:26.5929905Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/shots.rs:204:
+2026-11-02T10:25:26.5930511Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/biometrics.rs:51:
+2026-11-02T10:25:26.5931098Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/biometrics.rs:400:
+2026-11-02T10:25:26.5931671Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/controls.rs:57:
+2026-11-02T10:25:26.5932375Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/controls.rs:140:
+2026-11-02T10:25:26.5932950Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/engine.rs:30:
+2026-11-02T10:25:26.5933496Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/history.rs:88:
+2026-11-02T10:25:26.5934066Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/history.rs:236:
+2026-11-02T10:25:26.5934845Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/history.rs:331:
+2026-11-02T10:25:26.5935477Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/home.rs:118:
+2026-11-02T10:25:26.5936014Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/home.rs:127:
+2026-11-02T10:25:26.5936346Z 
+2026-11-02T10:25:26.5936567Z --- clippy (workspace, all targets, warnings are errors): its diagnostics ---
+2026-11-02T10:25:26.5937028Z error: match can be simplified with `.unwrap_or_default()`
+2026-11-02T10:25:26.5937360Z   --> examples/u/src/history.rs:67:23
+2026-11-02T10:25:26.5937726Z error: useless conversion to the same type: `vieww::WidgetNode`
+2026-11-02T10:25:26.5938103Z    --> examples/u/src/history.rs:204:13
+2026-11-02T10:25:26.5938439Z error: could not compile `u` (lib) due to 2 previous errors
+2026-11-02T10:25:26.5938838Z warning: build failed, waiting for other jobs to finish...
+2026-11-02T10:25:26.5939223Z error: could not compile `u` (lib test) due to 2 previous errors
+2026-11-02T10:25:26.5939687Z error[E0063]: missing field `scratch` in initializer of `native::target::Target`
+2026-11-02T10:25:26.5940118Z    --> crates/vieww-paint/src/native/target.rs:183:9
+2026-11-02T10:25:26.5940555Z error: could not compile `vieww-paint` (lib test) due to 1 previous error
+2026-11-02T10:25:26.5940874Z 
+2026-11-02T10:25:26.5941011Z --- build (workspace, all targets): its diagnostics ---
+2026-11-02T10:25:26.5941451Z error[E0063]: missing field `scratch` in initializer of `target::Target`
+2026-11-02T10:25:26.5941850Z    --> crates/vieww-paint/src/native/target.rs:183:9
+2026-11-02T10:25:26.5942247Z error: could not compile `vieww-paint` (lib test) due to 1 previous error
+2026-11-02T10:25:26.5942661Z warning: build failed, waiting for other jobs to finish...
+2026-11-02T10:25:26.5942894Z 
+2026-11-02T10:25:26.5943098Z --- docs (workspace, broken intra-doc links are errors): its diagnostics ---
+2026-11-02T10:25:26.5943723Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/doc/vieww/index.html
+2026-11-02T10:25:26.5944249Z error: unresolved link to `qwen`
+2026-11-02T10:25:26.5944564Z   --> examples/u/crates/u-ml-runtime/src/lib.rs:29:7
+2026-11-02T10:25:26.5945468Z error: unresolved link to `u_memory`
+2026-11-02T10:25:26.5946078Z    --> examples/u/crates/u-ml-runtime/src/lib.rs:182:62
+2026-11-02T10:25:26.5946910Z error: could not document `u-ml-runtime`
+2026-11-02T10:25:26.5947472Z warning: build failed, waiting for other jobs to finish...
+2026-11-02T10:25:26.5948035Z error: unresolved link to `u-decision`
+2026-11-02T10:25:26.5948565Z    --> examples/u/crates/u-decision/src/lib.rs:228:7
+2026-11-02T10:25:26.5949454Z error: could not document `u-decision`
+2026-11-02T10:25:26.5950073Z error: unresolved link to `AndroidApp::run_on_java_main_thread`
+2026-11-02T10:25:26.5950670Z   --> examples/u/src/biometrics.rs:20:7
+2026-11-02T10:25:26.5951149Z error: unresolved link to `AppState`
+2026-11-02T10:25:26.5951628Z  --> examples/u/src/events.rs:5:66
+2026-11-02T10:25:26.5952256Z error: public documentation for `strands` links to private item `STRANDS`
+2026-11-02T10:25:26.5952957Z    --> examples/u/src/neurons.rs:182:11
+2026-11-02T10:25:26.5953448Z error: unresolved link to `ask::ASKS.len`
+2026-11-02T10:25:26.5953949Z    --> examples/u/src/lib.rs:170:60
+2026-11-02T10:25:26.5954443Z error: unresolved link to `nudge`
+2026-11-02T10:25:26.5955123Z    --> examples/u/src/lib.rs:262:69
+2026-11-02T10:25:26.5955758Z error: redundant explicit link target
+2026-11-02T10:25:26.5956066Z   --> examples/u/src/engine.rs:15:54
+2026-11-02T10:25:26.5956334Z error: could not document `u`
+2026-11-02T10:25:26.5956759Z error: public documentation for `alpha` links to private item `super::linear::coverage_alpha`
+2026-11-02T10:25:26.5957269Z    --> crates/vieww-paint/src/native/glyph_coverage.rs:157:28
+2026-11-02T10:25:26.5957639Z error: could not document `vieww-paint`
+2026-11-02T10:25:26.5957994Z 
+2026-11-02T10:25:26.5958222Z --- tests (workspace): its diagnostics ---
+2026-11-02T10:25:26.5959153Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline
+2026-11-02T10:25:26.5960014Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline.dwp
+2026-11-02T10:25:26.5960819Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench
+2026-11-02T10:25:26.5961616Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench.dwp
+2026-11-02T10:25:26.5962379Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render
+2026-11-02T10:25:26.5963534Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render.dwp
+2026-11-02T10:25:26.5964670Z error[E0063]: missing field `scratch` in initializer of `target::Target`
+2026-11-02T10:25:26.5965713Z    --> crates/vieww-paint/src/native/target.rs:183:9
+2026-11-02T10:25:26.5966506Z error: could not compile `vieww-paint` (lib test) due to 1 previous error
+2026-11-02T10:25:26.5967269Z warning: build failed, waiting for other jobs to finish...
+2026-11-02T10:25:26.5967525Z 
+2026-11-02T10:25:26.5967612Z 5 stage(s) failed:
+2026-11-02T10:25:26.5967827Z   - formatting (exit 1)
+2026-11-02T10:25:26.5968148Z   - clippy (workspace, all targets, warnings are errors) (exit 101)
+2026-11-02T10:25:26.5968538Z   - build (workspace, all targets) (exit 101)
+2026-11-02T10:25:26.5968907Z   - docs (workspace, broken intra-doc links are errors) (exit 101)
+2026-11-02T10:25:26.5969254Z   - tests (workspace) (exit 101)
+2026-11-02T10:25:26.5974388Z ##[error]Process completed with exit code 1.
 
