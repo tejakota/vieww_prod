@@ -86,6 +86,11 @@ sandbox; the event spine records everything durably for resume and replay.
   `core/src/blueprint/parse.rs`.
 - Wright's own state lives OUTSIDE projects (`~/.wright/projects/…`), so
   a sandboxed agent can never touch it (ADR-013).
+- The update channel (`runtime/src/update.rs`, WR-04) is the ONLY
+  outbound traffic Wright makes on its own behalf: one plain GET of one
+  static, signed manifest file, and only when a channel is configured
+  (`update url=… key=…` in config.kdl; `wright update check`). Anything
+  else that wants to phone home needs an ADR first.
 
 ## Where things are
 

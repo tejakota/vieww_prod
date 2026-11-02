@@ -45,6 +45,12 @@
 //!   wright secret set <ref>     put a key in the OS keychain
 //!   wright model ...            the built-in models: list | pull [id] | rm <id>
 //!                               | ask "<prompt>" | listen <file.wav>
+//!   wright update check|apply|sign
+//!                               the signed update channel (WR-04): one
+//!                               plain GET of one static manifest, verified
+//!                               against the pinned release key; apply is
+//!                               verify-then-atomic-swap; sign is the
+//!                               publisher's side (the release workflow)
 //!   wright mock-provider        an offline model, for demos and CI
 //!   wright where [dir]          where the project's history lives
 //!   wright admin ...            the administrator's console: keygen | policy
@@ -97,6 +103,7 @@ fn main() {
         Some("admin") => cmd::admin(rest),
         Some("secret") => cmd::secret(rest),
         Some("model") | Some("models") => cmd::model(rest),
+        Some("update") => cmd::update(rest),
         Some("mock-provider") => cmd::mock_provider(rest),
         Some("where") => cmd::where_(rest),
         Some("doctor") => cmd::doctor(),

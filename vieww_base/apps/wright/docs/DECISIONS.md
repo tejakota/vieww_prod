@@ -796,3 +796,43 @@ non-administrator or edited after signing stops everything (fail closed).
 `wright admin keygen | policy init/sign/show/check | approve |
 fleet-verify [--json]`; Settings > Organization shows the rules, this
 project against them, and verifies every receipt on the computer.
+
+## ADR-042 — The update channel: one GET, signed manifests, verify-then-swap · Accepted
+
+Date: 2026-10-26 · Status: Accepted
+
+Wright's distribution story was unsigned installers plus SHA256SUMS on
+the same channel it verifies — and no updates at all, so a vulnerable
+version lives forever on every machine that installed one. The repo
+already owned every primitive a trustworthy channel needs (audited
+Ed25519, JCS canonicalization, SHA-256, key provenance); this ADR is
+aiming them at distribution.
+
+Decision: each release publishes `wright-v<version>.manifest.json` (and
+a copy at the fixed alias `wright-latest.manifest.json`, so a
+`releases/latest/download/...` channel URL resolves). The manifest
+carries every asset's SHA-256 AND an Ed25519 signature over the asset
+bytes, and the whole manifest is signed over its JCS form — the
+receipt's scheme, checkable without Wright. `wright update check` makes
+exactly one outbound connection: a plain HTTPS GET of that one file,
+verified against the release key pinned in config.kdl
+(`update url="..." key="..."`, `check=false` to turn it off; no channel
+configured means nothing is fetched at all). `wright update apply`
+downloads the asset for the platform, checks BOTH the hash and the
+signature, then swaps the binary with an atomic rename (old aside, new
+in, old deleted; a crash leaves the old or the new, never half), and
+asks for a restart. It refuses downgrades and never auto-executes a
+downloaded installer. `wright update sign` is the publisher side: the
+release workflow builds it, emits the manifest from SHA256SUMS.txt, and
+signs with `WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING` — the key resolved
+env-then-keychain and NEVER silently generated, its provenance recorded
+in the manifest like a receipt records its signer's. The workflow fails
+(not warns) when `publish=true` lacks any signing secret: Authenticode
+and Developer ID + notarytool run behind `WRIGHT_SECRET_WINDOWS_*` /
+`WRIGHT_SECRET_MACOS_*` secrets.
+
+Not decided here: shipping a built-in pinned release key or a default
+channel URL. No release has been cut with this machinery yet; when one
+is, the owner generates the release key, records it, and the constants
+follow. A wrong-but-plausible repository is worse than none
+(wrightsite's own rule).

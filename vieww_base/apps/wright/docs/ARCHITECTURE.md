@@ -302,7 +302,13 @@ Invariants (each is enforced in code, most are pinned by tests):
    and a signed one still goes through the chip-permission review. (OpenClaw's CVE firestorm is the counterexample
    we design against.)
 8. **Local-first.** No accounts, no cloud, no telemetry by default.
-   Trust is won by not phoning home.
+   Trust is won by not phoning home. The one exception, and it is a
+   setting, not a default: the update channel (`runtime/src/update.rs`,
+   WR-04) — `wright update check` makes a single plain GET of one static,
+   Ed25519-signed manifest file at the URL you configured, verifies it
+   against the release key you pinned, and that is the whole conversation.
+   No version query strings, no identifiers, nothing else — and
+   `update check=false` turns even that off.
 
 ## 7. The moat — incremental refire
 

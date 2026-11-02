@@ -43,6 +43,7 @@ pub mod signing;
 pub mod store;
 pub mod tls;
 pub mod tz;
+pub mod update;
 pub mod voice;
 #[cfg(windows)]
 pub mod wincred;

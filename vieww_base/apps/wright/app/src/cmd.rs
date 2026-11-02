@@ -51,8 +51,17 @@ fn split(args: &[String]) -> (Vec<&str>, Vec<&str>) {
 
 /// Flags followed by a value (`--key <hex>`): `split` keeps the value out
 /// of the positional arguments. Read the value with [`flag_values`].
-const VALUE_FLAGS: [&str; 8] = [
-    "--key", "--trust", "--runs", "--at", "--port", "--out", "--bin", "--name",
+const VALUE_FLAGS: [&str; 10] = [
+    "--key",
+    "--trust",
+    "--runs",
+    "--at",
+    "--port",
+    "--out",
+    "--bin",
+    "--name",
+    "--asset",
+    "--assets-dir",
 ];
 
 /// Every value given for a repeatable flag (`--key a --key b`).
@@ -1671,6 +1680,130 @@ pub fn model(args: &[String]) -> i32 {
     }
 }
 
+// ── update (WR-04) ────────────────────────────────────────────────
+
+/// `wright update check | apply | sign` — the signed update channel.
+///
+/// One outbound connection per check: a plain GET of the manifest file
+/// the channel names (see `runtime/src/update.rs` for the privacy
+/// paragraph). `apply` adds exactly one asset download, verified two
+/// ways before anything is written. `sign` is the publisher's side,
+/// the release workflow's last step.
+pub fn update(args: &[String]) -> i32 {
+    let (pos, _) = split(args);
+    let current = env!("CARGO_PKG_VERSION");
+    match pos.first().copied() {
+        None | Some("check") => {
+            let cfg = match Config::load() {
+                Ok(c) => c,
+                Err(e) => return fail(e),
+            };
+            if cfg.update.check == Some(false) {
+                println!("update checks are off (`update check=false` in config.kdl); nothing was asked of the network.");
+                return 0;
+            }
+            let channel = match wright_runtime::update::Channel::from_settings(&cfg.update) {
+                Ok(c) => c,
+                Err(e) => return fail(e),
+            };
+            let Some(channel) = channel else {
+                println!("wright {current}: no update channel is configured, so nothing was asked of the network.");
+                println!("To get signed update checks, add one line to config.kdl:");
+                println!("  update url=\"https://<where releases live>/releases/latest/download/{}\" key=\"<the release key, 64 hex>\"", wright_runtime::update::LATEST_ALIAS);
+                return 0;
+            };
+            match wright_runtime::update::check_with(
+                &wright_runtime::update::http_get,
+                &channel,
+                current,
+            ) {
+                Ok(wright_runtime::update::Outcome::UpToDate) => {
+                    println!("wright {current} is the newest the channel offers (verified against the pinned release key).");
+                    0
+                }
+                Ok(wright_runtime::update::Outcome::Update {
+                    version,
+                    notes,
+                    asset,
+                }) => {
+                    println!("wright {version} is available (the manifest verifies against the pinned release key).");
+                    if !notes.is_empty() {
+                        println!("  {notes}");
+                    }
+                    match &asset {
+                        Some(a) => println!("  for this machine: {} ({} bytes). Apply it: wright update apply", a.name, a.size),
+                        None => println!("  the manifest lists no asset for this platform; see `wright update apply --asset <name>`."),
+                    }
+                    0
+                }
+                Err(e) => fail(e),
+            }
+        }
+        Some("apply") => {
+            let cfg = match Config::load() {
+                Ok(c) => c,
+                Err(e) => return fail(e),
+            };
+            let channel = match wright_runtime::update::Channel::from_settings(&cfg.update) {
+                Ok(c) => c,
+                Err(e) => return fail(e),
+            };
+            let Some(channel) = channel else {
+                return fail("no update channel is configured — there is nothing to apply. Add `update url=\"...\" key=\"...\"` to config.kdl.");
+            };
+            let target = match std::env::current_exe() {
+                Ok(t) => t,
+                Err(e) => return fail(format!("cannot find this binary's own path: {e}")),
+            };
+            let asset = flag_value(args, "--asset");
+            println!("checking the channel, then verifying the asset two ways (sha256 + release signature)...");
+            match wright_runtime::update::apply_with(
+                &wright_runtime::update::http_get,
+                &channel,
+                current,
+                asset,
+                &target,
+            ) {
+                Ok(said) => {
+                    println!("{said}");
+                    0
+                }
+                Err(e) => fail(e),
+            }
+        }
+        Some("sign") => {
+            let Some(file) = pos.get(1).copied() else {
+                return fail("usage: wright update sign <wright-v<version>.manifest.json> [--assets-dir DIR]");
+            };
+            let assets_dir = flag_value(args, "--assets-dir")
+                .map(PathBuf::from)
+                .unwrap_or_else(|| {
+                    Path::new(file)
+                        .parent()
+                        .map(|p| p.to_path_buf())
+                        .unwrap_or_else(|| ".".into())
+                });
+            // The release key: env or keychain, never silently generated.
+            let key = match wright_runtime::update::release_signing_key() {
+                Ok(k) => k,
+                Err(e) => return fail(e),
+            };
+            match wright_runtime::update::sign_file(&PathBuf::from(file), &assets_dir, &key) {
+                Ok((pk, n)) => {
+                    println!("signed {file}: {n} asset(s) and the manifest, with the release key ({provenance}).", provenance = key.provenance_str());
+                    println!("Machines pin this public key in config.kdl:");
+                    println!("  update key=\"{pk}\"");
+                    0
+                }
+                Err(e) => fail(e),
+            }
+        }
+        Some(other) => fail(format!(
+            "unknown update command '{other}' (check | apply | sign)"
+        )),
+    }
+}
+
 // ── doctor ───────────────────────────────────────────────────────
 
 const DOCTOR_BLUEPRINT: &str = "meta { name \"doctor\" }\nintent { summary \"self test\" confirmed \"v1\" }\nagent Probe { goal \"prove the machine compiles\" tools \"files-read\" permissions files-read=true }\ndeliverable kind=\"check\" { check \"doctor ran\" }";
@@ -1723,6 +1856,27 @@ pub fn doctor() -> i32 {
         },
     );
     line("https", wright_runtime::net::https_backend());
+    // WR-04: the update channel is the one thing that phones anywhere,
+    // and only when configured — doctor says which state this machine is in.
+    line(
+        "update channel",
+        match Config::load() {
+            Ok(cfg) if cfg.update.check == Some(false) => {
+                Ok("off by your choice (`update check=false`); nothing is fetched".into())
+            }
+            Ok(cfg) => match wright_runtime::update::Channel::from_settings(&cfg.update) {
+                Ok(Some(_)) => Ok(
+                    "configured; `wright update check` makes one plain GET of one static file"
+                        .into(),
+                ),
+                Ok(None) => {
+                    Ok("not configured (nothing is fetched; see `wright update check`)".into())
+                }
+                Err(e) => Err(e),
+            },
+            Err(e) => Err(e),
+        },
+    );
     // WR-16: the kill switch is a file in Wright's home; say who can reach it.
     line("kill switch", {
         let state = match wright_runtime::killswitch::current() {
