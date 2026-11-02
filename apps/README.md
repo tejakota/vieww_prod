@@ -26,6 +26,7 @@ over); `three` renders its captures through the framework's own 3D stack
 | **vavlt** (`vavlt/`) | consent-first photo/video vault. One Vieww UI (`crates/app`) mounted by desktop, Android and iOS hosts; codec measurement harness with audit chain. | round 3: the Activity tab's composition card — what was handed over as a `vieww-dataviz::hierarchy` treemap (by class, by bytes, the engine's own numbers); 5 new unit tests; a mixed-vault screenshot state |
 | **upxcale** (`upxcale/`) | photo upscaler — Lanczos-3 resampler + unsharp mask behind a real render flow (grid → picker → progress → compare). | enriched round 2: landing masthead with a live count chip, fresh-tile success mark, ramped AFTER chip on the compare stage; 21 tests pass |
 | **SnapSearch** (`snapsearch/`) | find a photo by describing it, or by handing it one. Joint embedding space; local appearance encoder by default, CLIP ViT-B/32 behind `--features clip`. | round 3: the Space view — the library placed on a deterministic `vieww-dataviz::force` map of its own embeddings, kNN cosine links, mean-colour dots, viridis match rings, tap-to-open; 43 tests |
+| **twin** (`twin/`) | a digital life: 2D pixel twins with morse code woven into the pixels, living in creator-made worlds, taught their owner's ideal personality, E2E-encrypted so the server — and the creators — never see plaintext. See `twin/CONCEPT.md`. | concept: the exploration doc and eight SVG screen mockups (`design/screens/`); no code yet |
 
 ## renders/
 

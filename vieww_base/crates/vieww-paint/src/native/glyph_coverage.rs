@@ -152,6 +152,12 @@ impl InkedGlyph<'_> {
     /// GPU than on the CPU — a difference a parity test would report as a
     /// hundred failing pixels without saying why. See the module doc for the
     /// bound this leaves.
+    ///
+    /// The coverage gamma is applied first — the same
+    /// [`coverage_alpha`](super::linear::coverage_alpha) the CPU compositor
+    /// runs — so the atlas and the CPU path carry one transfer, and the two
+    /// backends stay within the rounding bound of each other rather than a
+    /// gamma apart.
     #[must_use]
     pub fn alpha(&self) -> Vec<u8> {
         self.coverage
@@ -162,7 +168,7 @@ impl InkedGlyph<'_> {
                     clippy::cast_sign_loss,
                     reason = "clamped to 0..=255 on the line above the cast"
                 )]
-                let byte = (c.clamp(0.0, 1.0) * 255.0 + 0.5) as u8;
+                let byte = (super::linear::coverage_alpha(*c).clamp(0.0, 1.0) * 255.0 + 0.5) as u8;
                 byte
             })
             .collect()

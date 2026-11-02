@@ -30,7 +30,9 @@ use std::path::Path;
 use u_core::{Budget, Error, Id};
 use u_decision::{Assessment, Hint, Input};
 use u_feedback::Feedback;
-use u_memory::{AssessmentRecord, DecisionRecord, FeedbackRecord, Store, Verdict};
+use u_memory::{
+    AssessmentRecord, DecisionRecord, FeedbackRecord, SavedRecord, Store, Verdict,
+};
 use u_ml_runtime::{to_json, Deterministic, Runtime};
 use u_persona::Persona;
 
@@ -206,6 +208,53 @@ impl Engine {
         self.store.latest_decision()
     }
 
+    /// Every decision the memory holds, newest first — history's own list.
+    ///
+    /// # Errors
+    /// The store's own.
+    pub fn decisions(&self) -> Result<Vec<DecisionRecord>, Error> {
+        let (mut decisions, _) = self.store.load::<DecisionRecord>("decisions")?;
+        decisions.sort_by_key(|d| std::cmp::Reverse(d.id));
+        Ok(decisions)
+    }
+
+    /// The decisions the person marked kept, newest first — history's
+    /// SAVED door.
+    ///
+    /// # Errors
+    /// The store's own.
+    pub fn saved_decisions(&self) -> Result<Vec<DecisionRecord>, Error> {
+        let (saved, _) = self.store.load::<SavedRecord>("saved")?;
+        let keep: std::collections::HashSet<Id> =
+            saved.into_iter().map(|mark| mark.decision).collect();
+        Ok(self
+            .decisions()?
+            .into_iter()
+            .filter(|decision| keep.contains(&decision.id))
+            .collect())
+    }
+
+    /// Mark the last decision as saved — the person's own keep. Idempotent:
+    /// a second mark for the same decision is not a second record, because
+    /// the list is a set, not a log.
+    ///
+    /// # Errors
+    /// The store's own.
+    pub fn save_decision(&mut self) -> Result<(), Error> {
+        let id = self.next - 1;
+        let (saved, _) = self.store.load::<SavedRecord>("saved")?;
+        if saved.iter().any(|mark| mark.decision == id) {
+            return Ok(());
+        }
+        self.store.append(
+            "saved",
+            &SavedRecord {
+                decision: id,
+                at: u_core::now(),
+            },
+        )
+    }
+
     /// How many decisions the memory holds — home's strip reads it at
     /// startup, so the count is honest the moment the app opens rather
     /// than the first time a decision lands.
@@ -315,6 +364,26 @@ mod tests {
             engine.decide(&input("   ")),
             Err(Error::Empty("the situation"))
         );
+    }
+
+    #[test]
+    fn saving_marks_a_decision_and_history_lists_each_list_honestly() {
+        let mut engine = Engine::scratch();
+        engine.decide(&input("First decision")).unwrap();
+        engine.decide(&input("Second decision")).unwrap();
+        engine.save_decision().unwrap();
+
+        let all = engine.decisions().unwrap();
+        assert_eq!(all.len(), 2, "history holds every decision");
+        assert_eq!(all[0].situation, "Second decision", "newest first");
+
+        let saved = engine.saved_decisions().unwrap();
+        assert_eq!(saved.len(), 1, "only the marked one is kept");
+        assert_eq!(saved[0].situation, "Second decision");
+
+        // A second mark is not a second record: the list is a set.
+        engine.save_decision().unwrap();
+        assert_eq!(engine.saved_decisions().unwrap().len(), 1);
     }
 
     #[test]

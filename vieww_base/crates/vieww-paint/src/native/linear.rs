@@ -113,6 +113,55 @@ fn linear_to_srgb(c: f32) -> f32 {
     }
 }
 
+/// How many levels the [`coverage_alpha`] table quantises coverage into.
+/// 1024: the rounding error at the darkest fringe stays below half an
+/// 8-bit alpha step while the table keeps one cache line per pixel row.
+const COVERAGE_LEVELS: usize = 1024;
+
+/// The perceptual transfer applied to rasterised coverage before it becomes
+/// alpha — the one change that separates thin, washed-out AA from the
+/// Skia-style AA the reference renderers ship.
+///
+/// Straight from geometry, coverage is a fraction of a pixel's area. But a
+/// display pixel is light, not area, and a half-lit pixel reads *darker*
+/// than half to the eye — so a stem composited from linear coverage looks
+/// spindly next to the same stem through a gamma ramp, most visibly as
+/// thin, grey text and hairline icons on dark backgrounds.
+///
+/// Skia — and therefore VS Code, Chrome and every Chromium surface —
+/// applies roughly this curve to **all** antialiased coverage, text and
+/// vector shapes alike, as its A8 coverage gamma. This is the same policy,
+/// one transfer for every caller; subpixel (RGB-stripe) coverage is the
+/// separate, opt-in LCD path and is deliberately not put through it.
+///
+/// The curve is the square root — the standard coverage gamma, midway
+/// between FreeType's gamma-1.8 ramp (c^0.556) and Skia's steeper dark-mode
+/// contrast (~c^0.45). Endpoints stay endpoints: a full pixel stays full
+/// and an empty one stays empty, so every opaque fast path survives, and
+/// coverage above one (accumulated overshoot) is passed through untouched —
+/// it is already "more than covered" and squashing it would silently
+/// change the blend.
+///
+/// A table rather than a per-pixel `powf`: the fringe of every glyph and
+/// every shape in the frame pays this, and one cache-resident lookup costs
+/// about what the linear scaling it feeds costs.
+#[must_use]
+pub(crate) fn coverage_alpha(coverage: f32) -> f32 {
+    use std::sync::OnceLock;
+
+    static TABLE: OnceLock<[f32; COVERAGE_LEVELS]> = OnceLock::new();
+    let table = TABLE.get_or_init(|| {
+        std::array::from_fn(|level| (level as f32 / (COVERAGE_LEVELS - 1) as f32).sqrt())
+    });
+    if coverage <= 0.0 {
+        return 0.0;
+    }
+    if coverage >= 1.0 {
+        return coverage;
+    }
+    table[((coverage * (COVERAGE_LEVELS - 1) as f32).round() as usize).min(COVERAGE_LEVELS - 1)]
+}
+
 /// `color`'s straight RGB, sRGB-decoded to linear light and re-premultiplied
 /// by its own (untouched — alpha is not gamma-encoded) alpha.
 fn to_linear(color: Premul) -> Premul {
@@ -126,8 +175,9 @@ fn to_gamma(color: Premul) -> Premul {
 }
 
 /// Unpremultiply, apply `transfer` to each of the three color channels
-/// (never to alpha, which has no transfer function — it is a coverage
-/// fraction, not a light intensity), re-premultiply by the original alpha.
+/// (never to alpha, which carries the *coverage* transfer instead — see
+/// [`coverage_alpha`], applied where coverage becomes alpha, not here),
+/// re-premultiply by the original alpha.
 fn map_straight_rgb(color: Premul, transfer: impl Fn(f32) -> f32) -> Premul {
     if color.a <= 0.0 {
         return color;

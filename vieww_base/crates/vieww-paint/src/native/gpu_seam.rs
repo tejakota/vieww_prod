@@ -107,6 +107,10 @@ impl std::fmt::Debug for GpuSeam {
 }
 
 fn to_byte(c: f32) -> u8 {
+    // The coverage gamma first — the same transfer the CPU compositor and
+    // the glyph atlas apply — so every byte this seam hands a GPU backend
+    // is one the CPU would have blended from.
+    let c = super::linear::coverage_alpha(c);
     #[expect(
         clippy::cast_possible_truncation,
         clippy::cast_sign_loss,

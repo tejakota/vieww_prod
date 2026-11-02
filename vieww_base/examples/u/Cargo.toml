@@ -53,6 +53,15 @@ model = ["u-ml-runtime/model"]
 [target.'cfg(target_os = "android")'.dependencies]
 log = "0.4"
 android_logger = "0.14"
+# The biometric shim's JNI, pinned to the version vieww-platform-winit
+# resolves for this target — a second `jni` in the binary would give us a
+# `JavaVM` type that looks identical and is not.
+jni = "0.22"
+
+[build-dependencies]
+# Compiles and dexes the biometric Java shim at build time — the vavlt /
+# three-capture pattern: no Gradle, no AGP, no Kotlin.
+android-build = "0.1"
 
 # The headless screenshot tool (`cargo run -p u --example shots -- <dir>`).
 # PNG output only, and `native` for `NativeRenderer` — the same dependency set
@@ -70,6 +79,13 @@ vieww-render.workspace = true
 package = "dev.vieww.u"
 build_targets = ["aarch64-linux-android"]
 apk_name = "U"
+# A complete manifest instead of the generated one, for one reason: the
+# biometric lock needs `android.permission.USE_BIOMETRIC`, a normal
+# permission cargo-apk cannot express in its metadata. The file mirrors
+# exactly what cargo-apk would generate, plus that one line; the `U APK`
+# workflow's badging dump is what proves the result (and that no INTERNET
+# permission crept in).
+full_manifest = "AndroidManifest.xml"
 # The launcher icon and nothing else: `res/drawable/u_icon.xml` is the
 # companion itself — the reference's own strand and eye geometry, at 0.40
 # scale on the 108-unit canvas — drawn the way vavlt's icon is drawn, as a

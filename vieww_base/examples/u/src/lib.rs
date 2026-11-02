@@ -1,11 +1,12 @@
 //! `U` — an offline decision companion.
 //!
-//! Three rooms and a sheet: **home**, which the app opens on through a
+//! Four rooms and a sheet: **home**, which the app opens on through a
 //! staged splash; **settings**, reached by the gear at the top right or a
 //! right-to-left swipe; the **decision workspace**, the room home's own
 //! action opens, where a person brings any situation and reads back the
-//! assessment; and the **ask sheet**, the one question, pushed by home's
-//! domains, its recent strip or its nudge. Home is the persona's room — the
+//! assessment; **history**, the room where saved decisions live, reached
+//! from home's shortcuts; and the **ask sheet**, the one question, pushed
+//! by home's recent strip or its nudge. Home is the persona's room — the
 //! companion at its centre — and everything on it is either who lives
 //! there or a way to bring U a decision. The asking has two phases over an
 //! event log: the **first sketch** is the first twelve answers, completed
@@ -49,21 +50,26 @@ use vieww::{FrameDriver, NavigatorController, ScrollController};
 #[cfg(target_os = "android")]
 use vieww_platform_winit::AndroidApp;
 use vieww_platform_winit::App;
+use vieww_foundation::SharedServices;
 use vieww_text::FontStore;
-use vieww_widget::RouteTransition;
+use vieww_widget::{Inherited, RouteTransition};
 
 pub mod ask;
+pub mod biometrics;
 pub mod controls;
 pub mod engine;
 pub mod events;
+pub mod history;
 pub mod home;
 pub mod neurons;
 pub mod palette;
 pub mod settings;
 pub mod sheet;
 pub mod stage;
+pub mod unlock;
 pub mod workspace;
 
+use history::HistoryScreen;
 use home::HomeScreen;
 use settings::SettingsScreen;
 use sheet::AskSheet;
@@ -117,6 +123,8 @@ pub struct AppState {
     /// The workspace's scroll — a second life, so a fling in the decision
     /// workspace survives the sheet opening over it.
     pub work: ScrollController,
+    /// History's scroll — a third, so each room keeps its own place.
+    pub hist: ScrollController,
     /// The decision engine: memory, persona, runtime — the plan's `u-app`
     /// orchestration, held behind a `RefCell` because a decision is one
     /// synchronous call and nothing else ever borrows it mid-build.
@@ -151,7 +159,10 @@ pub struct AppState {
     pub haptics: Signal<bool>,
     /// Dim the neuron field — the app's own reduced-motion switch.
     pub calm: Signal<bool>,
-    /// Require a fingerprint to open U.
+    /// Require a fingerprint — or face, where that is what the phone has —
+    /// to open U. Real on Android (§8's biometric lock, gated at startup by
+    /// the unlock screen); on a device with no sensor the setting is kept
+    /// but the gate has nothing to check, and the settings row says so.
     pub biometric: Signal<bool>,
     /// Training sessions today — the sketch's answers and the day's own, reset
     /// by the first event of a new UTC day.
@@ -189,6 +200,18 @@ pub struct AppState {
     pub assess_error: Signal<Option<String>>,
     /// Whether the person gave their verdict on the last assessment.
     pub feedback_given: Signal<bool>,
+    /// Whether the last decision has been saved — the workspace's save
+    /// button flips it, and a fresh assessment resets it, so the button
+    /// never claims a decision is saved that this one is not.
+    pub saved: Signal<bool>,
+    /// Whether the biometric check passed — the unlock screen's door.
+    pub unlocked: Signal<bool>,
+    /// What the unlock screen says under its action; `None` is the resting
+    /// line.
+    pub unlock_status: Signal<Option<String>>,
+    /// The platform services, published above the root — storage, the
+    /// biometric bridge, the permissions that gate it.
+    pub services: SharedServices,
     /// How many decisions the memory holds — home's recent strip reads it,
     /// so the strip is honest the moment a decision lands.
     pub decisions: Signal<u32>,
@@ -239,22 +262,6 @@ impl AppState {
     /// Dismiss home's nudge for this session. Not an event — see [`nudge`].
     pub fn dismiss_nudge(&self) {
         self.nudge.set(false);
-    }
-
-    /// Point the next question at a domain: the next ask whose tag is among
-    /// `tags`, rotating from where the bank stands. Choosing *which* question
-    /// to show is a view decision, not a fact — the answer, when it lands, is
-    /// what the log records, and it records the ask it was actually asked.
-    pub fn ask_in(&self, tags: &[&'static str]) {
-        let n = ask::ASKS.len();
-        let start = self.ask.peek() % n;
-        for step in 1..=n {
-            let i = (start + step) % n;
-            if tags.contains(&ask::ASKS[i].tag) {
-                self.ask.set(i);
-                return;
-            }
-        }
     }
 
     /// Append the event, then fold it in — the log first, because a state
@@ -375,6 +382,9 @@ impl AppState {
                 self.assessment.set(Some(Rc::new(assessment)));
                 self.assess_error.set(None);
                 self.decisions.update(|n| *n += 1);
+                // A fresh decision is not yet saved — the save button must
+                // never claim otherwise.
+                self.saved.set(false);
             }
             Err(error) => {
                 self.assess_error.set(Some(error.to_string()));
@@ -418,6 +428,36 @@ impl AppState {
         let mut engine = self.engine.borrow_mut();
         let _ = engine.give_feedback(verdict, None);
         self.feedback_given.set(true);
+    }
+
+    /// Mark the last decision as saved — §2.6's "if the user wants to
+    /// record it", the person's own keep, written beside the decision in
+    /// the engine's memory rather than inferred from it. History's SAVED
+    /// door is the list these marks make.
+    pub fn save_decision(&self) {
+        let mut engine = self.engine.borrow_mut();
+        let _ = engine.save_decision();
+        self.saved.set(true);
+    }
+
+    /// Bring a past decision back to the workspace: the fields the person
+    /// actually typed, folded back in — never a normalised replacement —
+    /// and the slate cleared of the last assessment, so the room shows the
+    /// decision being picked back up rather than a stranger's read.
+    pub fn open_decision(&self, record: &u_memory::DecisionRecord) {
+        self.situation
+            .set(TextEditingValue::new(record.situation.clone()));
+        self.choices
+            .set(TextEditingValue::new(record.options.join("\n")));
+        self.wants
+            .set(TextEditingValue::new(record.matters.join("\n")));
+        self.bounds
+            .set(TextEditingValue::new(record.constraints.join("\n")));
+        self.follow_up.set(TextEditingValue::new(String::new()));
+        self.assessment.set(None);
+        self.assess_error.set(None);
+        self.feedback_given.set(false);
+        self.saved.set(false);
     }
 
     /// The workspace's field writes — view state, not events, for the same
@@ -541,7 +581,12 @@ impl Ticker for Decay {
 /// hear it: a phone logs it, a desktop prints it, and a headless render
 /// never had a directory to begin with.
 #[must_use]
-pub fn mount_with(driver: &mut FrameDriver, log: events::Log, engine: engine::Engine) -> Shared {
+pub fn mount_with(
+    driver: &mut FrameDriver,
+    log: events::Log,
+    engine: engine::Engine,
+    services: SharedServices,
+) -> Shared {
     let runtime = driver.elements().runtime().clone();
 
     let time = runtime.signal(0.0_f32);
@@ -557,6 +602,7 @@ pub fn mount_with(driver: &mut FrameDriver, log: events::Log, engine: engine::En
     let nav = NavigatorController::new(&runtime, home_route(slot.clone()));
     let scroll = ScrollController::new(&runtime, ScrollPhysics::android());
     let work = ScrollController::new(&runtime, ScrollPhysics::android());
+    let hist = ScrollController::new(&runtime, ScrollPhysics::android());
 
     // How many decisions the memory already holds, so home's strip is honest
     // the moment the app opens rather than the first time a decision lands.
@@ -566,6 +612,7 @@ pub fn mount_with(driver: &mut FrameDriver, log: events::Log, engine: engine::En
         nav,
         scroll,
         work,
+        hist,
         engine: Rc::new(RefCell::new(engine)),
         clock,
         decay,
@@ -594,7 +641,11 @@ pub fn mount_with(driver: &mut FrameDriver, log: events::Log, engine: engine::En
         assessment: runtime.signal(None::<Rc<u_decision::Assessment>>),
         assess_error: runtime.signal(None::<String>),
         feedback_given: runtime.signal(false),
+        saved: runtime.signal(false),
         decisions,
+        unlocked: runtime.signal(false),
+        unlock_status: runtime.signal(None::<String>),
+        services: services.clone(),
         skip_at: runtime.signal(f32::INFINITY),
     };
 
@@ -603,6 +654,13 @@ pub fn mount_with(driver: &mut FrameDriver, log: events::Log, engine: engine::En
     // same `apply` every live change does, so the two cannot disagree.
     for event in state.log.history() {
         state.apply(event);
+    }
+
+    // The lock, when it stands: the unlock screen over home, before the
+    // first frame — so home never flashes behind it. Decided after the
+    // fold, because the setting is the log's, not the default's.
+    if unlock::locked(&state) {
+        state.nav.push(unlock::route(slot.clone()));
     }
 
     // A person who asked for calm does not open on a four-second staging:
@@ -618,17 +676,23 @@ pub fn mount_with(driver: &mut FrameDriver, log: events::Log, engine: engine::En
     state.nav.attach(driver.tickers());
     state.scroll.attach(driver.tickers());
     state.work.attach(driver.tickers());
+    state.hist.attach(driver.tickers());
 
     *slot.borrow_mut() = Some(state);
     slot
 }
 
-/// Mount with a log that keeps nothing and an engine with nowhere to keep
-/// anything — the screenshot tool's mount, so its renders never depend on
-/// the machine drawing them.
+/// Mount with a log that keeps nothing, an engine with nowhere to keep
+/// anything, and no platform services — the screenshot tool's mount, so
+/// its renders never depend on the machine drawing them.
 #[must_use]
 pub fn mount(driver: &mut FrameDriver) -> Shared {
-    mount_with(driver, events::Log::volatile(), engine::Engine::scratch())
+    mount_with(
+        driver,
+        events::Log::volatile(),
+        engine::Engine::scratch(),
+        SharedServices::empty(),
+    )
 }
 
 /// A route builder's first move: the state, or a panic that names the bug.
@@ -741,6 +805,27 @@ pub fn workspace_route(shared: Shared) -> Route {
     .transition(RouteTransition::SlideFromEnd)
 }
 
+/// History — the saved decisions, reached from home's shortcuts. One room,
+/// two doors: `saved_only` true is the list of decisions the person marked
+/// kept; false is every decision the memory holds. Both are the store's own
+/// records, read at build time, so the room is honest the moment a decision
+/// lands or a save is made.
+#[must_use]
+pub fn history_route(shared: Shared, saved_only: bool) -> Route {
+    Route::new(
+        if saved_only { "history-saved" } else { "history" },
+        Rc::new(move |_| {
+            HistoryScreen {
+                state: take(&shared),
+                shared: shared.clone(),
+                saved_only,
+            }
+            .into()
+        }),
+    )
+    .transition(RouteTransition::SlideFromEnd)
+}
+
 #[derive(Debug)]
 struct UShell {
     shared: Shared,
@@ -778,6 +863,12 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     // person still gets the app, on a memory that keeps nothing, rather
     // than a window that never comes.
     let engine = engine_at(data.join("u-store"));
+    // The platform services, plus U's own: the biometric bridge (the honest
+    // refusal on a desktop — no sensor exists to check).
+    #[cfg(target_os = "android")]
+    let services = services_with(None);
+    #[cfg(not(target_os = "android"))]
+    let services = services_with();
     let report = App::new()
         .title("U")
         .size(SURFACE)
@@ -785,11 +876,48 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
         .run(|driver| {
             driver.set_fonts(fonts());
             let log = events::Log::at(vieww_platform_winit::data_dir().join("u-events.log"));
-            let shared = mount_with(driver, log, engine);
-            driver.set_root(root(&shared));
+            let shared = mount_with(driver, log, engine, services.clone());
+            driver.set_root(Inherited::new(services, root(&shared)));
         })?;
     println!("{report}");
     Ok(())
+}
+
+/// The services U runs on: the platform's own, plus the biometric
+/// capability and the permissions that gate it. `android` is the activity
+/// handle on a phone; every other platform gets the honest refusal.
+#[cfg(target_os = "android")]
+#[must_use]
+fn services_with(android: Option<&AndroidApp>) -> SharedServices {
+    use vieww_foundation::capability::Biometrics;
+    use vieww_foundation::permission::Permissions;
+
+    let mut registry = match android {
+        Some(android) => vieww_platform_winit::services::for_android(android),
+        None => vieww_platform_winit::services::platform(),
+    };
+    let (biometric, permissions) = biometrics::entries(android);
+    registry.provide::<dyn Biometrics>(biometric);
+    if let Some(permissions) = permissions {
+        registry.provide::<dyn Permissions>(permissions);
+    }
+    SharedServices::new(registry)
+}
+
+/// The desktop version: no activity handle exists to pass.
+#[cfg(not(target_os = "android"))]
+#[must_use]
+fn services_with() -> SharedServices {
+    use vieww_foundation::capability::Biometrics;
+    use vieww_foundation::permission::Permissions;
+
+    let mut registry = vieww_platform_winit::services::platform();
+    let (biometric, permissions) = biometrics::entries();
+    registry.provide::<dyn Biometrics>(biometric);
+    if let Some(permissions) = permissions {
+        registry.provide::<dyn Permissions>(permissions);
+    }
+    SharedServices::new(registry)
 }
 
 /// Open the engine: the deterministic baseline, or — when this build grew
@@ -895,14 +1023,17 @@ fn android_main(android: AndroidApp) {
         }),
         None => engine::Engine::scratch(),
     };
+    // The services, with the biometric bridge loaded against this very
+    // activity — the shim's class loader needs the activity's own.
+    let services = services_with(Some(&android));
     let result = App::new()
         .title("U")
         .size(SURFACE)
         .theme(palette::theme())
         .run_android(android, move |driver| {
             driver.set_fonts(fonts());
-            let shared = mount_with(driver, log, engine);
-            driver.set_root(root(&shared));
+            let shared = mount_with(driver, log, engine, services.clone());
+            driver.set_root(Inherited::new(services, root(&shared)));
         });
     if let Err(error) = result {
         // A phone discards stderr; this is the only way the reason for an

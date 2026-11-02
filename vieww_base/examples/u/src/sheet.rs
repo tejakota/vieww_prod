@@ -255,7 +255,8 @@ fn completion_card(
                                     Text::new("Begin the daily rhythm")
                                         .size(14.0)
                                         .bold()
-                                        .color(Color::rgb(18, 11, 32)),
+                                        .color(Color::rgb(18, 11, 32))
+                                        .align(TextAlign::Center),
                                 ),
                             )
                             .into()

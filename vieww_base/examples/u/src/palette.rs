@@ -64,19 +64,26 @@ pub const PILL_OFF_EDGE: Color = Color::rgb(86, 101, 124);
 pub const PILL_KNOB_OFF: Color = Color::rgb(154, 168, 188);
 
 /// The window's background wash, behind everything — the reference `bg`
-/// gradient, stops and positions verbatim.
+/// gradient, stops and positions verbatim. Dithered: an eight-bit screen
+/// quantises a 900-point ramp into visible bands otherwise, and the
+/// rasterizer's ordered dither is exactly the fix Skia-style renderers ship
+/// for this — the bands become noise below the eye's threshold.
 pub fn ground_gradient() -> Gradient {
-    Gradient::vertical().with_stops(&[
-        (0.0, GROUND_TOP),
-        (0.48, GROUND_MID),
-        (1.0, GROUND),
-    ])
+    Gradient::vertical()
+        .with_dither()
+        .with_stops(&[
+            (0.0, GROUND_TOP),
+            (0.48, GROUND_MID),
+            (1.0, GROUND),
+        ])
 }
 
 /// A card's surface for the ask sheet: faintly lighter at the top, as if lit
-/// from above.
+/// from above. Dithered for the same reason as the ground wash.
 pub fn card_gradient() -> Gradient {
-    Gradient::vertical().with_stops(&[(0.0, Color::rgb(20, 29, 48)), (1.0, CARD)])
+    Gradient::vertical()
+        .with_dither()
+        .with_stops(&[(0.0, Color::rgb(20, 29, 48)), (1.0, CARD)])
 }
 
 /// The action button's fill — the reference `action` gradient, corner to
@@ -86,6 +93,7 @@ pub fn action_gradient() -> Gradient {
         vieww_foundation::Offset::new(0.0, 0.0),
         vieww_foundation::Offset::new(1.0, 1.0),
     )
+    .with_dither()
     .with_stops(&[
         (0.0, Color::rgb(162, 138, 250)),
         (0.55, Color::rgb(128, 101, 224)),
@@ -95,10 +103,12 @@ pub fn action_gradient() -> Gradient {
 
 /// The slider fill's mint gradient — `#c1fff5` into `#52d9c6`.
 pub fn mint_gradient() -> Gradient {
-    Gradient::horizontal().with_stops(&[
-        (0.0, Color::rgb(193, 255, 245)),
-        (1.0, MEMBRANE),
-    ])
+    Gradient::horizontal()
+        .with_dither()
+        .with_stops(&[
+            (0.0, Color::rgb(193, 255, 245)),
+            (1.0, MEMBRANE),
+        ])
 }
 
 /// Linear interpolation between two colours, in sRGB. Good enough for the

@@ -112,7 +112,8 @@ impl WorkspaceScreen {
                     prose(&assessment.assessment, Color::rgb(233, 229, 245)),
                 ))
                 .push(next_step_card(&assessment))
-                .push(feedback_row(&self.shared, &state, ctx));
+                .push(feedback_row(&self.shared, &state, ctx))
+                .push(save_row(&self.shared, &state, ctx));
 
             // The confidence, as the word it is, under the read itself.
             let _ = t;
@@ -452,12 +453,14 @@ fn answer_button(shared: &Shared) -> WidgetNode {
             .padding(EdgeInsets::symmetric(14.0, 0.0))
             .alignment(Alignment::CENTER)
             .child(
-                Text::new("FOLD IT IN").style(
-                    TextStyle::new(9.5)
-                        .weight(FontWeight::Bold)
-                        .letter_spacing(1.0)
-                        .color(Color::rgb(209, 194, 255)),
-                ),
+                Text::new("FOLD IT IN")
+                    .style(
+                        TextStyle::new(9.5)
+                            .weight(FontWeight::Bold)
+                            .letter_spacing(1.0)
+                            .color(Color::rgb(209, 194, 255)),
+                    )
+                    .align(TextAlign::Center),
             )
             .into()
     })
@@ -644,6 +647,69 @@ fn feedback_row(shared: &Shared, state: &AppState, ctx: &BuildContext) -> Widget
         .into()
 }
 
+/// The save row — §2.6's "if the user wants to record it": the person's
+/// own keep, written beside the decision, and the reference's own "Saved."
+/// once it is made. Not an event in the training log — the store is the
+/// decision memory's own record, and this mark belongs there.
+fn save_row(shared: &Shared, state: &AppState, ctx: &BuildContext) -> WidgetNode {
+    if state.saved.get() {
+        return Text::new("Saved.")
+            .style(
+                TextStyle::new(10.5)
+                    .weight(FontWeight::Medium)
+                    .color(SYNAPSE),
+            )
+            .align(TextAlign::Center)
+            .into();
+    }
+
+    let shared_for_save = shared.clone();
+    Pressable::themed(ctx, move |press| {
+        let sink = 1.0 - press * 0.04;
+        SizedBox::height(48.0)
+            .child(
+                Align::new(Alignment::CENTER).child(
+                    Transformed::new(Transform::scale_around(
+                        Offset::new(186.0, 24.0),
+                        sink,
+                        sink,
+                    ))
+                    .child(
+                        Container::new()
+                            .decoration(
+                                BoxDecoration::new()
+                                    .gradient(palette::action_gradient())
+                                    .radius(24.0)
+                                    .shadow(Shadow::new(
+                                        Color::rgba(0, 0, 0, 122),
+                                        Offset::new(0.0, 6.0),
+                                        9.0,
+                                    )),
+                            )
+                            .width(372.0)
+                            .height(48.0)
+                            .alignment(Alignment::CENTER)
+                            .child(
+                                Text::new("Save decision")
+                                    .style(
+                                        TextStyle::new(15.0)
+                                            .weight(FontWeight::Medium)
+                                            .color(Color::rgb(255, 255, 255)),
+                                    )
+                                    .align(TextAlign::Center),
+                            ),
+                    ),
+                ),
+            )
+            .into()
+    })
+    .on_tap(move || {
+        let state = take(&shared_for_save);
+        state.save_decision();
+    })
+    .into()
+}
+
 /// One feedback pill.
 fn pill_button(text: &'static str, tint: Color, press: f32) -> WidgetNode {
     Container::new()
@@ -660,12 +726,14 @@ fn pill_button(text: &'static str, tint: Color, press: f32) -> WidgetNode {
         .padding(EdgeInsets::symmetric(16.0, 0.0))
         .alignment(Alignment::CENTER)
         .child(
-            Text::new(text).style(
-                TextStyle::new(9.5)
-                    .weight(FontWeight::Bold)
-                    .letter_spacing(1.2)
-                    .color(tint),
-            ),
+            Text::new(text)
+                .style(
+                    TextStyle::new(9.5)
+                        .weight(FontWeight::Bold)
+                        .letter_spacing(1.2)
+                        .color(tint),
+                )
+                .align(TextAlign::Center),
         )
         .into()
 }

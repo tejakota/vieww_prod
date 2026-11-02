@@ -26,10 +26,20 @@
 //!
 //! # The safe area
 //!
-//! The stage is inset by the platform's safe area (status bar, notch), so on a
-//! phone the design's own top margin — the reference draws its top bar at
-//! y = 31 — sits below the status bar rather than under it. The background
-//! wash still runs full-bleed behind the bar.
+//! The stage is inset by the platform's safe area on the **vertical** edges
+//! only, so on a phone the design's own top margin — the reference draws its
+//! top bar at y = 31 — sits below the status bar rather than under it, and
+//! the home indicator gets the same respect at the bottom. The background
+//! wash still runs full-bleed behind both.
+//!
+//! The horizontal edges are *not* inset, and that is the fix for the screen
+//! that read as "offset": a phone whose platform reports a side inset — a
+//! display cutout on the left, say — pushed the whole centred design right by
+//! that amount, and the settings cards, drawn at the reference's own x = 24,
+//! showed the extra space as a lopsided gutter. The app is portrait-locked,
+//! and in portrait every notch and cutout lives inside the status-bar band
+//! the top inset already clears, so a horizontal inset can only shift the
+//! design — never save it from anything.
 
 use vieww::prelude::*;
 use vieww_foundation::Size;
@@ -57,7 +67,7 @@ pub fn screen(design: impl Into<WidgetNode>) -> WidgetNode {
         )
         .push(
             Positioned::fill().child(
-                SafeArea::new().child(
+                SafeArea::new().horizontal(false).child(
                     Align::new(Alignment::CENTER).child(
                         Fitted::new()
                             .child(SizedBox::from_size(DESIGN).child(design)),

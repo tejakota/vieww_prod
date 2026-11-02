@@ -99,6 +99,18 @@ pub struct OutcomeRecord {
     pub at: Id,
 }
 
+/// A decision the person chose to keep (§2.6's "if the user wants to
+/// record it"). A separate record kind rather than a flag on the decision,
+/// because the store is append-only: a mark can be added, but a written
+/// line can never be rewritten to carry one.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct SavedRecord {
+    /// The decision it marks.
+    pub decision: Id,
+    /// When the mark was made.
+    pub at: Id,
+}
+
 /// The whole store, as one directory of JSON-lines files.
 ///
 /// Created against a directory the *caller* owns — on Android the

@@ -19,9 +19,13 @@ metrics: the deterministic row of every benchmark run.
 **Delivered, shipped in the APK.** Home is one primary action
 (`src/home.rs`), the workspace takes free-form input with optional
 structure and no categories (`src/workspace.rs`), the orchestration is
-`src/engine.rs` behind the `Runtime` trait, and history is the store's
-`decisions`/`assessments` records. Zero-, one- and many-option decisions
-are all one code path; clarification is one question at most
+`src/engine.rs` behind the `Runtime` trait, and history is the room the
+plan's §2.1 names: `src/history.rs`, reached from home's own row of
+icon-first shortcuts — history, saved decisions, settings, per §2.2 —
+over the store's records. A decision the person marks kept
+(`save_decision`, the workspace's "Save decision" and the reference's own
+"Saved.") is what the SAVED door lists. Zero-, one- and many-option
+decisions are all one code path; clarification is one question at most
 (`fold_answer`).
 
 ## Phase 2 — Candle proof of concept
@@ -95,12 +99,17 @@ for that reason, and this line is the decision record.
 **Partially delivered; the rest is named, not implied.** Delivered:
 offline-first is total (no network permission), the §5.6 safeguards are
 code, honest runtime naming, reduced-motion respected by the animation
-layer, and no unimplemented feature is presented as available — the
-tests and screens enforce the wording. Open, because they must be
+layer, the biometric lock (§8: an access-control layer, not encryption)
+behind the system's own sheet — `java/UBiometricShim.java` through
+`src/biometrics.rs`, gated by `src/unlock.rs` at startup, with the device
+credential as the plan's no-biometric fallback — and no unimplemented
+feature is presented as available — the tests and screens enforce the
+wording; a device with no sensor sees the row say so rather than a toggle
+that would never gate anything. Open, because they must be
 *implemented and verified* before claim: encryption at rest with key
 creation/rotation/recovery and Android Keystore integration (§8's own
-list), biometric lock, export, and privacy-reviewed telemetry. The §12
-risk table's mitigations are all in place structurally.
+list), export, and privacy-reviewed telemetry. The §12 risk table's
+mitigations are all in place structurally.
 
 ## The §13 backlog, item by item
 

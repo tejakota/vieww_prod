@@ -3,16 +3,17 @@
 //! The screen is the persona's room, and everything in it answers one of two
 //! questions: *who lives here* — the companion at the centre, the greeting,
 //! the caption — and *what do I do* — the one primary action, **New
-//! decision**, the four domains it can be brought from, the last thing U
-//! noted, and the little nudge that offers a question when one is due. The
-//! question itself is not on this screen: it arrives as the ask sheet, pushed
-//! by the action, a domain, the recent strip or the nudge.
+//! decision**, the three shortcuts the plan's §2.2 names (history, saved
+//! decisions, settings), the last thing U noted, and the little nudge that
+//! offers a question when one is due. The question itself is not on this
+//! screen: it arrives as the ask sheet, pushed by the recent strip or the
+//! nudge.
 //!
 //! # The layout is the reference's own
 //!
 //! Every block is placed at the reference SVG's own coordinates, inside the
 //! 420 × 920 canvas it was drawn on — the sigil's eye at (37, 44), the
-//! companion at (210, 373), the action at (210, 605), the categories at
+//! companion at (210, 373), the action at (210, 605), the shortcuts at
 //! y = 720, the strip at y = 810, the nudge at y = 878. The [`crate::stage`]
 //! puts that canvas on whatever screen the app wakes up on, so the spacing
 //! the reference drew is the spacing the app keeps — nothing is reflowed,
@@ -43,14 +44,16 @@ use std::rc::Rc;
 
 use vieww::prelude::*;
 use vieww_foundation::{
-    Axis, BlendMode, Color, FontWeight, Offset, Path, Rect, Size, Sketchbook, TextStyle, Transform,
+    Axis, BlendMode, Color, FontWeight, Offset, Path, Rect, Size, TextStyle, Transform,
 };
 use vieww_widget::prelude::{PaintWith, Painting};
 
 use crate::neurons::{self, Reveal};
 use crate::palette::{self, AXON, CHIP_DOT, CHIP_EDGE, EDGE, INK, INK_GREET, MUTED, SYNAPSE};
 use crate::stage;
-use crate::{ask, ask_route, settings_route, take, workspace_route, AppState, Shared};
+use crate::{
+    ask, ask_route, history_route, settings_route, take, workspace_route, AppState, Shared,
+};
 
 // ---- the opening's timeline, in seconds since the app opened --------------
 
@@ -90,13 +93,6 @@ const ASCENT: f32 = 0.969;
 fn top_of(baseline: f32, size: f32) -> f32 {
     baseline - ASCENT * size
 }
-
-/// The four domains a decision can be brought from, as the tags the bank
-/// files its questions under.
-const CAREER: &[&str] = &["time", "standards", "persistence"];
-const PERSONAL: &[&str] = &["energy", "conflict", "pride"];
-const FINANCE: &[&str] = &["money"];
-const LIFE: &[&str] = &["impulse", "control", "risk", "discipline"];
 
 #[derive(Debug)]
 pub struct HomeScreen {
@@ -156,7 +152,7 @@ impl HomeScreen {
             )))
             .push(below_slot(&intro, t))
             .push(arrive(intro.blocks[3], 14.0, action(&self.shared, ctx, t)))
-            .push(arrive(intro.blocks[4], 16.0, categories(&state, &self.shared, ctx)));
+            .push(arrive(intro.blocks[4], 16.0, shortcuts(&self.shared, ctx)));
 
         // -- the tail: the last decision in memory, else the last thing
         // noted, and the nudge ------------------------------------------
@@ -731,55 +727,53 @@ fn plus_glyph(arm: f32, width: f32, color: Color) -> Painting {
     )
 }
 
-/// The four domains a decision can arrive from — the reference's own row:
-/// circles at x = 78, 166, 254, 342, forty points of air between their
-/// centres, labels nineteen points below each rim.
-fn categories(state: &AppState, shared: &Shared, ctx: &BuildContext) -> WidgetNode {
+/// The three shortcuts the plan's §2.2 names — history, saved decisions
+/// and settings — in the reference's own row: circles at x = 98, 210 and
+/// 322, forty-four points of air between their centres, labels nineteen
+/// points below each rim. HISTORY opens the full list; SAVED opens the
+/// decisions the person marked kept; SETTINGS is the studio the ALIVE chip
+/// also opens.
+fn shortcuts(shared: &Shared, ctx: &BuildContext) -> WidgetNode {
     Positioned::fill().child(
         Stack::new()
             .fit(StackFit::Expand)
             .children(children![
-                category(state, shared, ctx, 78.0, "CAREER", CAREER, AXON, Glyph::Career),
-                category(
-                    state,
+                shortcut(
                     shared,
                     ctx,
-                    166.0,
-                    "PERSONAL",
-                    PERSONAL,
-                    Color::rgb(239, 159, 192),
-                    Glyph::Personal,
+                    98.0,
+                    "HISTORY",
+                    AXON,
+                    Glyph::History,
+                    false,
                 ),
-                category(
-                    state,
+                shortcut(shared, ctx, 210.0, "SAVED", SYNAPSE, Glyph::Saved, true),
+                shortcut(
                     shared,
                     ctx,
-                    254.0,
-                    "FINANCE",
-                    FINANCE,
+                    322.0,
+                    "SETTINGS",
                     Color::rgb(240, 199, 127),
-                    Glyph::Finance,
+                    Glyph::Settings,
+                    false,
                 ),
-                category(state, shared, ctx, 342.0, "LIFE", LIFE, crate::palette::LIFE_TINT, Glyph::Life),
             ]),
     )
     .into()
 }
 
-/// One domain: its circle at `(x, 720)`, its glyph, its name at y = 763 —
+/// One shortcut: its circle at `(x, 720)`, its glyph, its name at y = 763 —
 /// both placed directly, as the reference places them.
-fn category(
-    state: &AppState,
+fn shortcut(
     shared: &Shared,
     ctx: &BuildContext,
     x: f32,
     label: &'static str,
-    tags: &'static [&'static str],
     tint: Color,
     glyph: Glyph,
+    to_saved: bool,
 ) -> WidgetNode {
-    let state_for_pick = state.clone();
-    let shared_for_ask = shared.clone();
+    let shared_for_pick = shared.clone();
     let pressable = Pressable::themed(ctx, move |press| {
         Container::new()
             .decoration(
@@ -797,9 +791,12 @@ fn category(
             .into()
     })
     .on_tap(move || {
-        // The next question from this domain, then the sheet.
-        state_for_pick.ask_in(tags);
-        state_for_pick.nav.push(ask_route(shared_for_ask.clone()));
+        let state = take(&shared_for_pick);
+        match (to_saved, glyph) {
+            (true, Glyph::Saved) => state.nav.push(history_route(shared_for_pick.clone(), true)),
+            (false, Glyph::History) => state.nav.push(history_route(shared_for_pick.clone(), false)),
+            _ => state.nav.push(settings_route(shared_for_pick.clone())),
+        }
     });
 
     Stack::new()
@@ -819,14 +816,13 @@ fn category(
         .into()
 }
 
-/// A domain's glyph, drawn rather than stocked — the reference's own paths,
-/// at their own measures.
+/// A shortcut's glyph, drawn rather than stocked — the same stroke language
+/// as the reference's own paths, at their own measures.
 #[derive(Debug, Clone, Copy)]
 enum Glyph {
-    Career,
-    Personal,
-    Finance,
-    Life,
+    History,
+    Saved,
+    Settings,
 }
 
 impl Glyph {
@@ -837,103 +833,41 @@ impl Glyph {
                 use vieww_foundation::StrokeStyle;
                 let c = Offset::new(s.width / 2.0, s.height / 2.0);
                 let style = StrokeStyle::rounded();
-                // One straight segment, as its own stroke — a helper rather
-                // than a closure so the case below can keep borrowing the
-                // book.
-                fn seg(
-                    book: &mut Sketchbook,
-                    from: Offset,
-                    to: Offset,
-                    color: Color,
-                    style: &StrokeStyle,
-                ) {
-                    let mut path = Path::new();
-                    path.move_to(from).line_to(to);
-                    book.stroke_styled(path, color, 1.65, style.clone());
-                }
                 match self {
-                    Glyph::Career => {
-                        // The reference's briefcase: a 20 × 14 case, a handle
-                        // five above it, a clasp line through the lid.
-                        book.stroke_rrect(
-                            Rect::new(c.dx - 10.0, c.dy - 5.0, c.dx + 10.0, c.dy + 9.0),
-                            2.0,
-                            color,
-                            1.65,
-                        );
-                        let mut handle = Path::new();
-                        handle.move_to(Offset::new(c.dx - 6.0, c.dy - 5.0));
-                        handle.line_to(Offset::new(c.dx - 6.0, c.dy - 10.0));
-                        handle.line_to(Offset::new(c.dx + 6.0, c.dy - 10.0));
-                        handle.line_to(Offset::new(c.dx + 6.0, c.dy - 5.0));
-                        book.stroke_styled(handle, color, 1.65, style.clone());
-                        seg(
-                            book,
-                            Offset::new(c.dx - 4.0, c.dy + 1.0),
-                            Offset::new(c.dx + 4.0, c.dy + 1.0),
-                            color,
-                            &style,
-                        );
+                    Glyph::History => {
+                        // A clock: the ring, and the two hands at ten past.
+                        book.ring(c, 10.0, 1.65, color);
+                        let mut hands = Path::new();
+                        hands.move_to(Offset::new(c.dx, c.dy - 7.0));
+                        hands.line_to(Offset::new(c.dx, c.dy));
+                        hands.line_to(Offset::new(c.dx + 6.0, c.dy + 1.0));
+                        book.stroke_styled(hands, color, 1.65, style.clone());
                     }
-                    Glyph::Personal => {
-                        // The reference's heart, in its four bows.
+                    Glyph::Saved => {
+                        // A bookmark: the loop and the fold, one path.
                         let mut path = Path::new();
-                        path.move_to(Offset::new(c.dx, c.dy + 10.0));
-                        path.cubic_to(
-                            Offset::new(c.dx, c.dy + 10.0),
-                            Offset::new(c.dx - 12.0, c.dy + 3.0),
-                            Offset::new(c.dx - 12.0, c.dy - 5.0),
-                        );
-                        path.cubic_to(
-                            Offset::new(c.dx - 12.0, c.dy - 13.0),
-                            Offset::new(c.dx - 3.0, c.dy - 14.0),
-                            Offset::new(c.dx, c.dy - 7.0),
-                        );
-                        path.cubic_to(
-                            Offset::new(c.dx + 3.0, c.dy - 14.0),
-                            Offset::new(c.dx + 12.0, c.dy - 13.0),
-                            Offset::new(c.dx + 12.0, c.dy - 5.0),
-                        );
-                        path.cubic_to(
-                            Offset::new(c.dx + 12.0, c.dy + 3.0),
-                            Offset::new(c.dx, c.dy + 10.0),
-                            Offset::new(c.dx, c.dy + 10.0),
-                        );
+                        path.move_to(Offset::new(c.dx - 4.5, c.dy + 10.0));
+                        path.line_to(Offset::new(c.dx - 4.5, c.dy - 8.0));
+                        path.line_to(Offset::new(c.dx + 4.5, c.dy - 8.0));
+                        path.line_to(Offset::new(c.dx + 4.5, c.dy + 10.0));
+                        path.line_to(Offset::new(c.dx, c.dy + 4.0));
+                        path.close();
                         book.stroke_styled(path, color, 1.65, style.clone());
                     }
-                    Glyph::Finance => {
-                        // The reference's card: a 22 × 16 face, its stripe,
-                        // its five-point line.
-                        book.stroke_rrect(
-                            Rect::new(c.dx - 11.0, c.dy - 8.0, c.dx + 11.0, c.dy + 8.0),
-                            3.0,
-                            color,
-                            1.6,
-                        );
-                        seg(
-                            book,
-                            Offset::new(c.dx - 11.0, c.dy - 2.0),
-                            Offset::new(c.dx + 11.0, c.dy - 2.0),
-                            color,
-                            &style,
-                        );
-                        seg(
-                            book,
-                            Offset::new(c.dx - 5.0, c.dy + 4.0),
-                            Offset::new(c.dx, c.dy + 4.0),
-                            color,
-                            &style,
-                        );
-                    }
-                    Glyph::Life => {
-                        // The reference's compass: a ten-point ring and four
-                        // long rays, one of them the diagonal.
-                        book.ring(c, 10.0, 1.65, color);
-                        seg(book, Offset::new(c.dx, c.dy - 15.0), Offset::new(c.dx, c.dy - 10.0), color, &style);
-                        seg(book, Offset::new(c.dx, c.dy + 10.0), Offset::new(c.dx, c.dy + 15.0), color, &style);
-                        seg(book, Offset::new(c.dx - 15.0, c.dy), Offset::new(c.dx - 10.0, c.dy), color, &style);
-                        seg(book, Offset::new(c.dx + 10.0, c.dy), Offset::new(c.dx + 15.0, c.dy), color, &style);
-                        seg(book, Offset::new(c.dx + 8.0, c.dy - 8.0), Offset::new(c.dx + 4.0, c.dy - 4.0), color, &style);
+                    Glyph::Settings => {
+                        // A gear: the ring, the hub, and the eight teeth.
+                        book.ring(c, 7.0, 1.65, color);
+                        book.ring(c, 2.5, 1.3, color);
+                        for step in 0..8 {
+                            let angle = step as f32 * std::f32::consts::TAU / 8.0;
+                            let (sin, cos) = angle.sin_cos();
+                            book.line(
+                                Offset::new(c.dx + cos * 9.5, c.dy + sin * 9.5),
+                                Offset::new(c.dx + cos * 12.5, c.dy + sin * 12.5),
+                                color,
+                                1.5,
+                            );
+                        }
                     }
                 }
             }),

@@ -26,6 +26,7 @@ use std::cell::Cell;
 use std::rc::Rc;
 
 use vieww::prelude::*;
+use vieww_foundation::capability::Biometrics;
 use vieww_foundation::{Axis, Color, FontWeight, Offset, Path, Size, TextStyle};
 use vieww_widget::prelude::{PaintWith, Painting};
 
@@ -72,19 +73,20 @@ impl SettingsScreen {
 
         let scroll = state.scroll.clone();
 
-        let canvas = Stack::new()
-            .fit(StackFit::Expand)
-            .push(Positioned::fill().child(neurons::studio(t, amb)))
-            .children(children![
-                header(&state, ctx),
-                portrait(&state, t),
-                voice_section(&state, ctx),
-                style_section(&state, ctx),
-                training_section(&state, t),
-                feel_section(&state, ctx),
-                privacy_section(&state, ctx),
-                footer(),
-            ]);
+        // One `children` call rather than a push chain, because `Stack::children`
+        // *replaces* the list — a pushed atmosphere followed by `children` would
+        // silently drop the background the studio floats in.
+        let canvas = Stack::new().fit(StackFit::Expand).children(children![
+            Positioned::fill().child(neurons::studio(t, amb)),
+            header(&state, ctx),
+            portrait(&state, t),
+            voice_section(&state, ctx),
+            style_section(&state, ctx),
+            training_section(&state, t),
+            feel_section(&state, ctx),
+            privacy_section(&state, ctx),
+            footer(),
+        ]);
 
         // The form is taller than the viewport on every phone this targets:
         // the whole reference canvas scrolls, header and all.
@@ -711,16 +713,21 @@ fn training_section(state: &AppState, t: f32) -> WidgetNode {
                     .size(9.5)
                     .color(Color::rgb(129, 144, 168)),
             ))
-            .push(place(141.0, top_of(561.0, 20.0)).width(200.0).child(
-                Text::new(format!("{daily:.0}")).style(
-                    TextStyle::new(20.0)
-                        .weight(FontWeight::Bold)
-                        .color(SLIDER_MINT),
-                )
-                .align(TextAlign::End),
-            ))
-            .push(place(349.0, top_of(560.0, 10.0)).child(
-                Text::new("/ day").size(10.0).color(Color::rgb(138, 153, 177)),
+            .push(place(141.0, top_of(561.0, 20.0)).width(235.0).child(
+                Flex::row()
+                    .main_axis_alignment(MainAxisAlignment::Center)
+                    .cross_axis_alignment(CrossAxisAlignment::Center)
+                    .spacing(6.0)
+                    .children(children![
+                        Text::new(format!("{daily:.0}")).style(
+                            TextStyle::new(20.0)
+                                .weight(FontWeight::Bold)
+                                .color(SLIDER_MINT),
+                        ),
+                        Text::new("/ day")
+                            .size(10.0)
+                            .color(Color::rgb(138, 153, 177)),
+                    ]),
             ))
             .push(place(48.0, 590.0).child(controls::daily_slider(
                 daily,
@@ -731,7 +738,10 @@ fn training_section(state: &AppState, t: f32) -> WidgetNode {
                 Text::new("1").size(8.5).color(Color::rgb(116, 132, 157)),
             ))
             .push(place(272.0, top_of(627.0, 8.5)).width(100.0).child(
-                Text::new("12").size(8.5).color(Color::rgb(116, 132, 157)).align(TextAlign::End),
+                Text::new("12")
+                    .size(8.5)
+                    .color(Color::rgb(116, 132, 157))
+                    .align(TextAlign::Center),
             ))
             .push(place(42.0, 636.0).child(divider()))
             .push(place(45.0, 642.0).child(clock_badge()))
@@ -741,12 +751,13 @@ fn training_section(state: &AppState, t: f32) -> WidgetNode {
                     .color(Color::rgb(203, 211, 224)),
             ))
             .push(place(276.0, top_of(656.0, 9.0)).width(100.0).child(
-                Text::new("ON").style(
-                    TextStyle::new(9.0)
-                        .weight(FontWeight::Bold)
-                        .color(SLIDER_MINT),
-                )
-                .align(TextAlign::End),
+                Text::new("ON")
+                    .style(
+                        TextStyle::new(9.0)
+                            .weight(FontWeight::Bold)
+                            .color(SLIDER_MINT),
+                    )
+                    .align(TextAlign::Center),
             )),
     )
     .into()
@@ -917,9 +928,50 @@ fn calm_badge() -> Painting {
 
 /// The privacy card — the reference's 372 × 133 at (24, 840): the biometric
 /// lock, and the offline posture that is not a preference at all.
+///
+/// The biometric row is real, and platform-aware: on a device with a
+/// sensor the pill is the setting it has always looked like; where nothing
+/// can be checked — a desktop, a phone without enrollment — the row says
+/// so instead of offering a lock that would never gate anything (§8:
+/// nothing presented as available that is not).
 fn privacy_section(state: &AppState, ctx: &BuildContext) -> WidgetNode {
     let biometric = state.biometric.get();
     let biometric_flip = state.clone();
+
+    let has_sensor = state
+        .services
+        .get::<dyn Biometrics>()
+        .is_some_and(|capability| !capability.available().is_empty());
+
+    let (caption, right): (&str, WidgetNode) = if has_sensor {
+        (
+            "Use your fingerprint to open U",
+            place(338.0, 858.0)
+                .child(controls::pill(
+                    ctx,
+                    biometric,
+                    Rc::new(move |on| biometric_flip.set_biometric(on)),
+                ))
+                .into(),
+        )
+    } else {
+        (
+            "No biometric sensor on this device",
+            place(276.0, top_of(872.0, 8.5))
+                .width(100.0)
+                .child(
+                    Text::new("NONE")
+                        .style(
+                            TextStyle::new(8.5)
+                                .weight(FontWeight::Bold)
+                                .letter_spacing(1.2)
+                                .color(Color::rgb(129, 144, 168)),
+                        )
+                        .align(TextAlign::Center),
+                )
+                .into(),
+        )
+    };
 
     Positioned::fill().child(
         Stack::new()
@@ -935,15 +987,11 @@ fn privacy_section(state: &AppState, ctx: &BuildContext) -> WidgetNode {
                 ),
             ))
             .push(place(82.0, top_of(882.0, 9.0)).child(
-                Text::new("Use your fingerprint to open U")
+                Text::new(caption)
                     .size(9.0)
                     .color(Color::rgb(129, 144, 168)),
             ))
-            .push(place(338.0, 858.0).child(controls::pill(
-                ctx,
-                biometric,
-                Rc::new(move |on| biometric_flip.set_biometric(on)),
-            )))
+            .push(right)
             .push(place(42.0, 902.0).child(divider()))
             .push(place(42.0, 923.0).child(shield_badge()))
             .push(place(82.0, top_of(935.0, 11.5)).child(

@@ -25,7 +25,7 @@
 
 use std::time::Duration;
 
-use vieww::foundation::Size;
+use vieww::foundation::{SharedServices, Size};
 use vieww::FrameDriver;
 use vieww_paint::native::NativeRenderer;
 use vieww_widget::Theme;
@@ -78,7 +78,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let sketch: Vec<String> = (0..12).map(|ask| answer_line(19_000, ask, true)).collect();
     let mut driver = FrameDriver::new(u::SURFACE);
     driver.set_fonts(u::fonts());
-    let shared = u::mount_with(&mut driver, fixture(&sketch)?, u::engine::Engine::scratch());
+    let shared = u::mount_with(
+        &mut driver,
+        fixture(&sketch)?,
+        u::engine::Engine::scratch(),
+        SharedServices::empty(),
+    );
     driver.set_root(Theme::new(u::palette::theme()).child(u::root(&shared)));
     let mut reel = Reel { at: 0.0 };
 
@@ -100,7 +105,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     daily.push(answer_line(19_001, 2, true));
     let mut driver = FrameDriver::new(u::SURFACE);
     driver.set_fonts(u::fonts());
-    let shared = u::mount_with(&mut driver, fixture(&daily)?, u::engine::Engine::scratch());
+    let shared = u::mount_with(
+        &mut driver,
+        fixture(&daily)?,
+        u::engine::Engine::scratch(),
+        SharedServices::empty(),
+    );
     driver.set_root(Theme::new(u::palette::theme()).child(u::root(&shared)));
     let mut reel = Reel { at: 0.0 };
 
@@ -126,7 +136,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // reference draws — so the studio can be diffed against it directly.
     let mut driver = FrameDriver::new(u::SURFACE);
     driver.set_fonts(u::fonts());
-    let shared = u::mount_with(&mut driver, fixture(&["name Teja".to_owned()])?, u::engine::Engine::scratch());
+    let shared = u::mount_with(
+        &mut driver,
+        fixture(&["name Teja".to_owned()])?,
+        u::engine::Engine::scratch(),
+        SharedServices::empty(),
+    );
     driver.set_root(Theme::new(u::palette::theme()).child(u::root(&shared)));
     let mut reel = Reel { at: 0.0 };
     reel.advance(&mut driver, 4.9);
@@ -177,6 +192,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     state.nav.pop();
     reel.advance(&mut driver, 0.5);
     shot(&mut renderer, &mut driver, &out, "17-home-after-decision")?;
+
+    // ---- history, on that same life ------------------------------------
+    // The assessed decision is in the store now: the room lists it, and the
+    // save the workspace offers marks it for the SAVED door.
+    state.save_decision();
+    u::take(&shared).nav.push(u::history_route(shared.clone(), false));
+    reel.advance(&mut driver, 0.35);
+    shot(&mut renderer, &mut driver, &out, "18-history")?;
+
+    state.nav.pop();
+    reel.advance(&mut driver, 0.5);
+    u::take(&shared).nav.push(u::history_route(shared.clone(), true));
+    reel.advance(&mut driver, 0.35);
+    shot(&mut renderer, &mut driver, &out, "19-history-saved")?;
 
     println!("U shots -> {}", std::fs::canonicalize(&out)?.display());
     println!("layout overflows: {}", vieww_render::overflow::reported());
