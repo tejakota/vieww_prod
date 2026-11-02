@@ -12,7 +12,7 @@ fn fixtures() -> std::path::PathBuf {
 #[test]
 fn every_fixture_passes_the_oracle() {
     let mut checked = 0;
-    let mut rejected = 0;
+    let mut refused = 0;
     let dir = fixtures();
     let names = std::fs::read_dir(&dir)
         .expect("fixtures directory")
@@ -28,16 +28,33 @@ fn every_fixture_passes_the_oracle() {
     assert!(!names.is_empty(), "no fixtures found in {}", dir.display());
     for name in &names {
         let bytes = std::fs::read(dir.join(name)).expect(name);
+        // The Opus fixtures are the one deliberate exception: the container
+        // parses purely, the SILK/CELT payload is refused by name and rides
+        // the platform bridge instead (AU-06; the bridge end-to-end is
+        // tested in the crate's own suites, with a fake PlatformCodec).
+        // Here, without a bridge installed, the refusal itself is the
+        // contract — the exact stable string the fallback matches on.
+        if name.ends_with(".opus") {
+            assert_eq!(
+                vieww_audio::codec::decode(&bytes).err(),
+                Some(vieww_audio::codec::CodecError::Unsupported(
+                    vieww_audio::codec::opus::REFUSED_PAYLOAD
+                )),
+                "{name}: Opus refuses its payload by name"
+            );
+            refused += 1;
+            continue;
+        }
+        // Every other fixture is meant to decode — a rejection here means
+        // the oracle's shape bounds (or a decoder) drifted.
         match vieww_audio::codec::decode(&bytes) {
             Ok(d) => {
                 common::check(&d);
                 checked += 1;
             }
-            Err(_) => rejected += 1,
+            Err(e) => panic!("{name} stopped decoding: {e}"),
         }
     }
-    // Every fixture is meant to decode — a rejection here means the
-    // oracle's shape bounds (or a decoder) drifted.
-    assert_eq!(rejected, 0, "a fixture stopped decoding");
+    assert!(refused >= 2, "the Opus fixtures went missing: {refused}");
     assert!(checked >= 10, "only {checked} fixtures checked");
 }

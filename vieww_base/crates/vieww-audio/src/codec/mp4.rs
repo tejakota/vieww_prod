@@ -3,8 +3,11 @@
 //! Finds the first audio track (`hdlr` = `soun`), reads its sample table —
 //! sizes (`stsz`/`stz2`), chunk offsets (`stco`/`co64`) and the
 //! sample-to-chunk map (`stsc`) — to list every access unit's byte range,
-//! takes the decoder configuration from `esds` (the AudioSpecificConfig an
-//! AAC decoder needs), and reads the edit list (`elst`) so encoder priming
+//! takes the decoder configuration from the sample description (the
+//! `esds`/AudioSpecificConfig an AAC decoder needs, the `alac` box an
+//! ALAC decoder needs — [`AudioTrack::codec`] says which entry type the
+//! track carries, so the codec layer dispatches on it instead of probing
+//! the config bytes), and reads the edit list (`elst`) so encoder priming
 //! and padding can be trimmed: the first `media_time` samples are the
 //! encoder's priming, and `segment_duration` is how long is meant to play.
 
@@ -13,7 +16,12 @@ use super::CodecError;
 /// The audio track's essentials.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AudioTrack {
-    /// Codec configuration bytes (AudioSpecificConfig for AAC).
+    /// The sample description entry's four-character type — `mp4a` (AAC),
+    /// `alac` (Apple Lossless). The codec layer dispatches on this; the
+    /// config bytes mean different things under each.
+    pub codec: [u8; 4],
+    /// Codec configuration bytes (AudioSpecificConfig for AAC, the ALAC
+    /// box's body for ALAC).
     pub config: Vec<u8>,
     /// Each sample's byte range in the file.
     pub samples: Vec<(usize, usize)>,
@@ -172,12 +180,36 @@ pub fn track_from_moov(moov: &[u8], file_len: usize) -> Result<AudioTrack, Codec
             .ok_or(CodecError::Malformed("no sample table"))?;
         let stsd = child(stbl, b"stsd").ok_or(CodecError::Malformed("no stsd"))?;
         let entry = stsd.get(8..).ok_or(CodecError::Truncated)?;
+        // The entry type picks the codec and where its configuration lives.
+        // An unknown type is named in the refusal rather than guessed at:
+        // the config bytes mean different things under each entry type, and
+        // handing AAC's reader an `alac` cookie (or the reverse) would only
+        // produce a confusing error further in.
+        let mut codec = *b"????";
         let mut config = Vec::new();
         for (ek, eb) in boxes(entry) {
             if &ek == b"mp4a" {
+                codec = ek;
                 // AudioSampleEntry: 28 bytes of fields, then child boxes.
                 if let Some(esds) = eb.get(28..).and_then(|c| child(c, b"esds")) {
                     config = esds_config(esds).unwrap_or_default();
+                }
+            } else if &ek == b"alac" {
+                codec = ek;
+                // The ALAC magic cookie rides in an `alac` child box of the
+                // sample entry (after the 28 bytes of AudioSampleEntry
+                // fields ffmpeg and QuickTime write); its body is a 4-byte
+                // version/flags word followed by the 24-byte
+                // ALACSpecificConfig. QuickTime v1 entries put children 4
+                // bytes earlier — accept both, first one found wins.
+                for skip in [28, 24] {
+                    let Some(fields) = eb.get(skip..) else {
+                        continue;
+                    };
+                    if let Some(alac) = child(fields, b"alac") {
+                        config = alac.to_vec();
+                        break;
+                    }
                 }
             }
         }
@@ -298,6 +330,7 @@ pub fn track_from_moov(moov: &[u8], file_len: usize) -> Result<AudioTrack, Codec
             }
         }
         return Ok(AudioTrack {
+            codec,
             config,
             samples,
             timescale,
@@ -307,6 +340,53 @@ pub fn track_from_moov(moov: &[u8], file_len: usize) -> Result<AudioTrack, Codec
         });
     }
     Err(CodecError::Malformed("no audio track"))
+}
+
+/// The `moov` box's body, read from a stream window: what every streaming
+/// MP4 codec (AAC, ALAC) starts from, in one place so they cannot drift
+/// apart on hostile box sizes.
+///
+/// # Errors
+/// Not MP4, no `moov`, or a truncated or oversized box.
+pub(crate) fn moov_from_input(input: &mut super::stream::Input) -> Result<Vec<u8>, CodecError> {
+    let len = input.len();
+    if input.window(4, 4)? != b"ftyp" {
+        return Err(CodecError::NotThisFormat);
+    }
+    let mut at = 0u64;
+    while at + 8 <= len {
+        let h = input.window(at, 16)?.to_vec();
+        if h.len() < 8 {
+            break;
+        }
+        let size32 = u32::from_be_bytes([h[0], h[1], h[2], h[3]]);
+        let (hdr, size) = match size32 {
+            0 => (8u64, len - at),
+            1 if h.len() >= 16 => (
+                16,
+                u64::from_be_bytes([h[8], h[9], h[10], h[11], h[12], h[13], h[14], h[15]]),
+            ),
+            n => (8, u64::from(n)),
+        };
+        if size < hdr || size > len - at {
+            break;
+        }
+        if &h[4..8] == b"moov" {
+            // A moov is metadata: a sample table of a few MB even for
+            // hours of audio. Refuse a claim past 256 MB.
+            let body = usize::try_from(size - hdr)
+                .ok()
+                .filter(|n| *n <= 256 << 20)
+                .ok_or(CodecError::Malformed("moov box too large"))?;
+            let bytes = input.window(at + hdr, body)?;
+            if bytes.len() < body {
+                return Err(CodecError::Truncated);
+            }
+            return Ok(bytes.to_vec());
+        }
+        at += size;
+    }
+    Err(CodecError::Malformed("no moov box"))
 }
 
 #[cfg(test)]
@@ -335,6 +415,7 @@ mod tests {
     fn finds_the_aac_track_in_the_fixture() {
         let f = include_bytes!("../../tests/fixtures/src.m4a");
         let t = audio_track(f).unwrap();
+        assert_eq!(t.codec, *b"mp4a");
         assert_eq!(t.timescale, 44_100);
         // ffmpeg appends explicit "no SBR" signalling after the 2-byte core.
         assert!(t.config.len() >= 2, "AudioSpecificConfig present");

@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 # Regenerates the codec fixtures. Needs python3 and ffmpeg (with libmp3lame,
-# libvorbis, flac and the native aac encoder). The source is deterministic
-# (a chirp, tones and seeded noise), so the fixtures are reproducible; the
-# `.ref` files are ffmpeg's own decodes (signed 16-bit little-endian,
-# interleaved) and are what the decoders are compared against.
+# libvorbis, libopus, the native aac encoder and the native alac encoder).
+# The source is deterministic (a chirp, tones and seeded noise), so the
+# fixtures are reproducible — with one footnote: the Ogg muxer picks Opus's
+# page serial numbers at random, so `src.opus` differs from run to run in
+# 24 serial/CRC bytes and nothing else (every payload byte, and every
+# `.ref` decode, is identical). The `.ref` files are ffmpeg's own decodes
+# (signed 16-bit little-endian, interleaved — `src24m_alac.m4a.ref` is
+# 24-bit big-endian, matching the lossless stream's own depth) and are what
+# the decoders are compared against.
 set -euo pipefail
 cd "$(dirname "$0")"
 python3 - <<'PY'
@@ -40,9 +45,18 @@ ff -i source16.wav -c:a aac -aac_pns 0 -b:a 128k src.m4a
 ff -i source16.wav -ac 1 -c:a aac -aac_pns 0 -b:a 64k -f adts src_mono.aac
 ff -i source16.wav -ac 1 -c:a aac -b:a 64k -f adts src_mono_pns.aac
 ff -i source16.wav -c:a pcm_s24be src24.aiff
-for f in src.mp3 src_mono_vbr.mp3 src.ogg src.m4a src_mono.aac src_mono_pns.aac; do
+# ALAC (Apple Lossless) — lossless, so the refs must match sample-for-sample.
+# The encoder keeps the source depth: 16-bit stereo, and 24-bit mono straight
+# from the 24-bit WAV.
+ff -i source16.wav -c:a alac src_alac.m4a
+ff -i source24m.wav -c:a alac src24m_alac.m4a
+# Ogg Opus — the container fixture: pre-skip, TOC durations, granule
+# arithmetic, and the by-name payload refusal the platform bridge matches.
+ff -i source16.wav -c:a libopus -b:a 96k src.opus
+for f in src.mp3 src_mono_vbr.mp3 src.ogg src.opus src.m4a src_mono.aac src_mono_pns.aac src_alac.m4a; do
   ff -i "$f" -f s16le -c:a pcm_s16le "$f.ref"
 done
+ff -i src24m_alac.m4a -f s24be -c:a pcm_s24be src24m_alac.m4a.ref
 # Tagged files, one per container, for the tag readers (tests/tags.rs):
 # a tenth of a second each, with Unicode text and a custom key.
 ff -t 0.1 -i source16.wav -c:a pcm_s16le tagsrc.wav

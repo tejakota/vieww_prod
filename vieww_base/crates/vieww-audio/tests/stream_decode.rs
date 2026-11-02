@@ -12,6 +12,8 @@ const FIXTURES: &[&str] = &[
     "src_mono.aac",
     "src.ogg",
     "src24.aiff",
+    "src_alac.m4a",
+    "src24m_alac.m4a",
 ];
 
 fn path(n: &str) -> std::path::PathBuf {
@@ -239,4 +241,107 @@ fn a_three_hour_stream_stays_small_through_a_seek_storm() {
         );
         assert!(grew < 32 << 20, "resident memory grew {grew} bytes");
     }
+}
+
+// ── AU-06: ALAC exactness, and Opus through the platform bridge ──────────
+
+/// ALAC is lossless, so the streaming path is held to the same bar as the
+/// whole-file one: bit-exact through the pull seam, and every seek reads
+/// back the very samples the whole-file decode has there.
+#[test]
+fn alac_streams_bit_exactly_and_seeks_exactly() {
+    for f in ["src_alac.m4a", "src24m_alac.m4a"] {
+        let whole = decode(&std::fs::read(path(f)).unwrap()).unwrap();
+        let mut s = stream::open_file(path(f)).unwrap_or_else(|e| panic!("{f}: {e}"));
+        assert_eq!(
+            (s.channels(), s.rate()),
+            (whole.channels, whole.rate),
+            "{f}"
+        );
+        let got = drain(&mut *s);
+        assert_eq!(got, whole.data, "{f}: lossless means bit-exact");
+        let ch = usize::from(whole.channels);
+        let frames = (whole.data.len() / ch) as u64;
+        for t in [0, 1, 4095, 4096, 8191, frames - 1] {
+            s.seek(t).unwrap();
+            assert_eq!(s.position(), t, "{f}");
+            let mut buf = vec![0f32; 64 * ch];
+            let n = s.read(&mut buf).unwrap();
+            assert!(n > 0, "{f} @ {t}");
+            assert_eq!(
+                &buf[..n],
+                &whole.data[t as usize * ch..t as usize * ch + n],
+                "{f} @ {t}"
+            );
+        }
+    }
+}
+
+/// The AU-06 Opus row: the container parses purely, the payload rides the
+/// platform bridge whole, and the pull seam serves it a chunk at a time
+/// with exact seeks — the same kind of fake the platform module's own
+/// tests install, exercised end to end here.
+#[test]
+fn opus_streams_through_the_platform_bridge() {
+    use std::sync::{Arc, Mutex};
+    use vieww_audio::codec::platform::{self, PlatformCodec};
+    use vieww_audio::codec::Decoded;
+
+    /// The fake platform: a deterministic stereo signal at the Opus
+    /// clock, different every frame so a wrong seek cannot pass.
+    struct Fake {
+        mime: Arc<Mutex<Option<String>>>,
+    }
+    fn fake_sample(frame: usize, ch: usize) -> f32 {
+        ((frame.wrapping_mul(2_654_435_761) ^ ch.wrapping_mul(0x5555)) & 0xFFFF) as f32 / 65_535.0
+            - 0.5
+    }
+    impl PlatformCodec for Fake {
+        fn name(&self) -> &'static str {
+            "fake"
+        }
+        fn decode(&self, _bytes: &[u8], mime: &str) -> Result<Decoded, String> {
+            *self.mime.lock().unwrap() = Some(mime.to_owned());
+            let n = 4800; // five 20 ms frames' worth
+            Ok(Decoded {
+                data: (0..n)
+                    .flat_map(|i| [fake_sample(i, 0), fake_sample(i, 1)])
+                    .collect(),
+                channels: 2,
+                rate: 48_000,
+            })
+        }
+    }
+
+    let mime = Arc::new(Mutex::new(None));
+    platform::install(Box::new(Fake {
+        mime: Arc::clone(&mime),
+    }));
+    let bytes = std::fs::read(path("src.opus")).unwrap();
+    // The whole-file bridge first: the fake's signal comes back untouched
+    // (this fixture's output gain is 0) and validated like any decode.
+    let whole = platform::decode(&bytes).unwrap();
+    assert_eq!(
+        mime.lock().unwrap().as_deref(),
+        Some("audio/opus"),
+        "the pure layer derived the mime from the container"
+    );
+    // And the streaming seam: same bytes, same signal, chunk by chunk.
+    let mut s = stream::open(Box::new(std::io::Cursor::new(bytes))).unwrap();
+    assert_eq!((s.channels(), s.rate()), (2, 48_000));
+    let got = drain(&mut *s);
+    assert_eq!(got, whole.data);
+    assert_eq!(got.len(), 4800 * 2);
+    for t in [0, 1, 959, 960, 4_799] {
+        s.seek(t).unwrap();
+        assert_eq!(s.position(), t);
+        let mut buf = vec![0f32; 64 * 2];
+        let n = s.read(&mut buf).unwrap();
+        assert_eq!(
+            &buf[..n],
+            &whole.data[t as usize * 2..t as usize * 2 + n],
+            "seek to {t}"
+        );
+    }
+    assert!(platform::uninstall());
 }
