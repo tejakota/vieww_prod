@@ -68,6 +68,14 @@ pub const UNLIT3D_WGSL: &str = include_str!("../shaders/unlit3d.wgsl");
 /// renderer's 3x3 PCF shadow lookup; what `vieww-hal::vulkan`'s
 /// `render_lit3d_to_pixels` draws for `vieww-3d`'s `GpuRenderer`.
 pub const LIT3D_WGSL: &str = include_str!("../shaders/lit3d.wgsl");
+/// One level of the environment prefilter chain — the split sum's first
+/// half (Karis 2013), the GGX importance-sampled convolution of an
+/// environment mip, written line for line from `vieww_3d::environment`'s
+/// CPU oracle (`prefilter_texel`); what `vieww-hal::vulkan`'s
+/// `render_env_prefilter_level` runs for FW-21. Held to the CPU's own
+/// prefiltered levels by `vieww-3d`'s `tests/gpu_ibl.rs` (the lavapipe CI
+/// leg) — see the file's header for the sampling equivalences that pin.
+pub const IBL_PREFILTER_WGSL: &str = include_str!("../shaders/ibl_prefilter.wgsl");
 /// Two-stop linear gradient.
 pub const GRADIENT_WGSL: &str = include_str!("../shaders/gradient.wgsl");
 /// Textured mesh, optionally tinted.
@@ -224,6 +232,35 @@ mod tests {
         assert_eq!(library.len(), 1);
     }
 
+    /// `ibl_prefilter.wgsl`'s convolution is pinned to `vieww_3d::environment`'s
+    /// CPU oracle (`prefilter_texel`) by formula, on both sides of the arrow.
+    /// This crate cannot depend on `vieww-3d` — the dependency points the
+    /// other way, through `vieww-hal` — so each side pins its own text:
+    /// these strings are the WGSL's, and `environment.rs`'s own test pins the
+    /// same formulas in Rust. Editing one without the other fails exactly one
+    /// of the two pins, which is the drift alarm.
+    #[test]
+    fn the_ibl_prefilter_convolution_is_pinned_to_the_cpu_oracle() {
+        for needle in [
+            // Hammersley's radical inverse, the CPU's `reverse_bits() as f32
+            // * 2.328_306_4e-10`.
+            "f32(reverseBits(i)) * 2.3283064e-10",
+            // The GGX half-vector distribution around N = V = R.
+            "sqrt((1.0 - xi2) / (1.0 + (a * a - 1.0) * xi2))",
+            // The reflected direction, the CPU's `hv * (2·r·hv) − r`.
+            "normalize(hv * (2.0 * dot(r, hv)) - r)",
+            // The ndl-weighted accumulation and its normalisation.
+            "acc = acc + source(l) * ndl;",
+            "wsum = wsum + ndl;",
+            "out = acc / wsum;",
+        ] {
+            assert!(
+                IBL_PREFILTER_WGSL.contains(needle),
+                "ibl_prefilter.wgsl lost the CPU oracle's formula: {needle:?}"
+            );
+        }
+    }
+
     #[test]
     fn every_embedded_wgsl_parses_and_validates() {
         // The 3D passes (`UNLIT3D_WGSL`, `LIT3D_WGSL`) are not in the
@@ -247,6 +284,7 @@ mod tests {
             ("composite", COMPOSITE_WGSL),
             ("unlit3d", UNLIT3D_WGSL),
             ("lit3d", LIT3D_WGSL),
+            ("ibl_prefilter", IBL_PREFILTER_WGSL),
         ] {
             crate::compiler::ParsedShader::parse(wgsl)
                 .unwrap_or_else(|e| panic!("{name}.wgsl does not parse and validate: {e}"));
@@ -294,6 +332,7 @@ mod tests {
             ("composite", COMPOSITE_WGSL),
             ("unlit3d", UNLIT3D_WGSL),
             ("lit3d", LIT3D_WGSL),
+            ("ibl_prefilter", IBL_PREFILTER_WGSL),
         ] {
             let parsed = ParsedShader::parse(wgsl).expect("library shaders parse");
             for (entry, stage) in parsed.entry_points() {
