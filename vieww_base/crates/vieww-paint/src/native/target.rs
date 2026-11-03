@@ -186,6 +186,7 @@ impl Target {
             pixels: vec![color; (width as usize) * (height as usize)],
             write_mask: None,
             ink: Some((0, 0, width as i32, height as i32)),
+            scratch: Vec::new(),
         }
     }
 
