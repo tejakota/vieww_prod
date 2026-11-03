@@ -449,7 +449,7 @@ fn a_job_compiles_on_a_worker_and_reports_back() {
     let woken = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
 
     let flag = std::sync::Arc::clone(&woken);
-    let job = Job::spawn(&toolchain, &session, GOOD, "screen.rs", None, move || {
+    let job = Job::spawn(&toolchain, &session, GOOD, "screen.rs", None, false, move || {
         flag.store(true, std::sync::atomic::Ordering::SeqCst);
     })
     .expect("the buffer was written and a thread started");
@@ -497,7 +497,7 @@ fn a_cancelled_job_leaves_no_diagnostic_behind() {
         return;
     };
     let session = Session::new(0x6666).expect("a temp directory");
-    let job = Job::spawn(&toolchain, &session, GOOD, "screen.rs", None, || {}).expect("spawned");
+    let job = Job::spawn(&toolchain, &session, GOOD, "screen.rs", None, false, || {}).expect("spawned");
 
     job.cancel();
     assert!(job.is_cancelled());

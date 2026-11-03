@@ -351,6 +351,26 @@ pub fn with_project(source: &str, crate_name: &str) -> String {
         .replace("crate::", &format!("{crate_name}::"))
 }
 
+/// The Say variant of [`with_project`] (ST-05): rewrite **only** the
+/// component path.
+///
+/// Generated Say is not hand-written Rust, and the two substitutions
+/// [`with_project`] makes are both wrong for it: `crate::widgets::…` is the
+/// one reach outside the file — emitted only by a `<Name>` component
+/// reference — while the generated `use super::SayState;` is the file's own
+/// root module and would be corrupted into `use <crate>::SayState` by the
+/// hand-written rule. One path in, one path out, and every other `super`
+/// and `crate` in a generated file means what it says.
+///
+/// Line numbers are preserved, for the same reason as [`with_project`].
+#[must_use]
+pub fn with_say_project(source: &str, crate_name: &str) -> String {
+    source.replace(
+        "crate::widgets::",
+        &format!("{crate_name}::widgets::"),
+    )
+}
+
 /// Why a toolchain could not be put together.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ToolchainError {
@@ -882,6 +902,11 @@ impl Job {
     ///
     /// `wake` is called once, from the worker, when the result is ready.
     ///
+    /// `say` says the source is **generated Say** rather than hand-written
+    /// Rust, which changes what linking the project means: see
+    /// [`with_say_project`]. A plain `bool` rather than a richer type because
+    /// the honest answers are exactly two.
+    ///
     /// # Errors
     ///
     /// If the buffer cannot be written to the session directory. Everything
@@ -893,6 +918,7 @@ impl Job {
         source: &str,
         file_name: &str,
         project: Option<ProjectLib>,
+        say: bool,
         wake: impl Fn() + Send + 'static,
     ) -> std::io::Result<Self> {
         // The pair is minted here, on the UI thread, because `Session`'s
@@ -900,6 +926,7 @@ impl Job {
         // else the studio holds. Only the paths cross to the worker.
         let (source_path, library_path) = session.next_pair();
         let source = match project.as_ref() {
+            Some(project) if say => with_say_project(source, &project.crate_name),
             Some(project) => with_project(source, &project.crate_name),
             None => source.to_owned(),
         };
@@ -1193,6 +1220,46 @@ pub fn compile(
         &library_path,
         file_name,
         None,
+        &AtomicBool::new(false),
+    )
+}
+
+/// [`compile`], linked against a project's own library — the synchronous
+/// door the Render worker's [`Job::spawn`] is the asynchronous one of.
+///
+/// Exists for the ST-05 test that proves an extracted component previews
+/// through the project's rlib with the pixels unchanged: the studio itself
+/// always goes through `Job::spawn`, but "the same rustc invocation, waited
+/// on" is what a test needs, and duplicating it in the test would let the
+/// two drift.
+///
+/// `say` selects the rewrite exactly as it does in [`Job::spawn`].
+///
+/// # Errors
+///
+/// As [`compile`].
+#[allow(clippy::similar_names, reason = "`say` is the domain word")]
+pub fn compile_project(
+    toolchain: &Toolchain,
+    session: &Session,
+    source: &str,
+    file_name: &str,
+    project: &ProjectLib,
+    say: bool,
+) -> std::io::Result<Compiled> {
+    let (source_path, library_path) = session.next_pair();
+    let rewritten = if say {
+        with_say_project(source, &project.crate_name)
+    } else {
+        with_project(source, &project.crate_name)
+    };
+    std::fs::write(&source_path, format!("{rewritten}\n{ENTRY}"))?;
+    run_rustc(
+        toolchain,
+        &source_path,
+        &library_path,
+        file_name,
+        Some(project),
         &AtomicBool::new(false),
     )
 }

@@ -49,9 +49,45 @@ pub enum WidgetKindName {
     ScrollView,
     Tabs,
     Tab,
+    /// `<Note>` — a component extracted into `src/widgets/` (ST-05). A
+    /// reference, not a widget the tools can reshape: its subtree lives in
+    /// the component's own file.
+    Component,
 }
 
 impl WidgetKindName {
+    /// The kind as one plain word — `card`, `text field` — for tools that
+    /// name what was picked. Not the phrase on the line (which carries the
+    /// literal too); the category alone.
+    #[must_use]
+    pub const fn name(self) -> &'static str {
+        match self {
+            Self::Card => "card",
+            Self::Row => "row",
+            Self::Column => "column",
+            Self::Stack => "stack",
+            Self::Center => "center",
+            Self::Fixed => "fixed area",
+            Self::Text => "text",
+            Self::Heading => "heading",
+            Self::Label => "label",
+            Self::Button => "button",
+            Self::TextField => "text field",
+            Self::Switch => "switch",
+            Self::Checkbox => "checkbox",
+            Self::Slider => "slider",
+            Self::Fab => "floating action button",
+            Self::ListView => "list",
+            Self::EmptyState => "empty state",
+            Self::Icon => "icon",
+            Self::Image => "image",
+            Self::ScrollView => "scroll view",
+            Self::Tabs => "set of tabs",
+            Self::Tab => "tab",
+            Self::Component => "component",
+        }
+    }
+
     /// The render-object `debug_name` the generated Rust produces for this
     /// widget, where it produces exactly one — the bridge ST-01 matches a
     /// picked render node against.
@@ -83,7 +119,9 @@ impl WidgetKindName {
             | Self::ListView
             | Self::EmptyState
             | Self::Tabs
-            | Self::Tab => return None,
+            | Self::Tab
+            // A component's render rows are its own file's business.
+            | Self::Component => return None,
         })
     }
 }
@@ -247,6 +285,16 @@ fn line_of(widget: &Widget, depth: u32) -> WidgetLine {
         WKind::Tabs => WidgetKindName::Tabs,
         WKind::Tab { .. } => WidgetKindName::Tab,
         WKind::Rust { .. } => WidgetKindName::Text, // unreachable: not a phrase
+        WKind::Component { name } => {
+            return WidgetLine {
+                line: widget.line,
+                phrase: "a component",
+                kind: WidgetKindName::Component,
+                value: Some(name.clone()),
+                props: Vec::new(),
+                depth,
+            }
+        }
     };
     let value = match &widget.kind {
         WKind::Text { value, .. } | WKind::Button { label: value, .. } => literal_prefix(value),

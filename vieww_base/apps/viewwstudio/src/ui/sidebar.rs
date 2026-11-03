@@ -485,6 +485,52 @@ impl Sidebar {
             }));
         }
 
+        // **ST-05: the component registry, surfaced where reuse lives.** An
+        // extracted component is a snippet with a body *and* a file, so it
+        // gets its own group rather than sitting among the plain-text ones:
+        // tapping one scaffolds the Rust into this project and places the
+        // `<Name>` reference — two acts, which is why it is not
+        // `insert_text_snippet`.
+        let components = self.studio.registry_components();
+        rows.push(section_title("Components — extracted, reusable", colors));
+        if components.is_empty() {
+            rows.push(note(
+                colors,
+                "None yet. Pick a subtree on the canvas and run Extract Widget \
+                 as Component to make one.",
+            ));
+        } else {
+            rows.extend(components.iter().map(|component| {
+                let studio = self.studio.clone();
+                let component = component.clone();
+                let sub = label(
+                    &format!("from {} — places <{}>", component.from, component.name),
+                    10.5,
+                    colors.outline,
+                );
+                Flex::column()
+                    .cross_axis_alignment(CrossAxisAlignment::Stretch)
+                    .children(children![
+                        row(
+                            RowSpec {
+                                text: component.name.clone(),
+                                trailing: None,
+                                selected: false,
+                                indent: 12.0,
+                                leading: Leading::None,
+                            },
+                            chrome,
+                            colors,
+                            move || studio.scaffold_component(&component),
+                        ),
+                        Container::new()
+                            .padding(EdgeInsets::only(12.0, 0.0, 12.0, 6.0))
+                            .child(sub),
+                    ])
+                    .into()
+            }));
+        }
+
         Flex::column()
             .cross_axis_alignment(CrossAxisAlignment::Stretch)
             .children(rows)

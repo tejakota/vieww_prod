@@ -3254,55 +3254,48 @@ impl Studio {
         // Linking an rlib a file does not use costs a `--extern` rustc ignores,
         // but finding it costs a directory walk on every Render.
         //
-        // **Never for Say.** `needs_project`'s heuristic is `crate::` or
-        // `use super::` — written for hand-authored Rust, where the second one
-        // means "this file reaches into its parent module in the user's own
-        // crate". Say's own codegen emits `use super::SayState;` too, but that
-        // `super` is the generated file's own root module, not the project's —
-        // the same false positive on every Say screen, which would otherwise
-        // both raise a "no cargo project is open" diagnostic against a buffer
-        // that needs nothing of the kind and, worse, swap the compile onto the
-        // *project's* `vieww` build (below) whenever a project happens to be
-        // open, which is exactly the mismatched-ABI failure this whole check
-        // exists to catch before it reaches `dlopen`. Say's v1 vocabulary has
-        // no way to reach outside the generated file at all, so it never needs
-        // the project's library.
+        // **For Say: only when the screen references a component (ST-05).**
+        // `needs_project`'s heuristic is `crate::` or `use super::` — written
+        // for hand-authored Rust, where the second one means "this file
+        // reaches into its parent module in the user's own crate". Say's own
+        // codegen emits `use super::SayState;` too, but that `super` is the
+        // generated file's own root module, not the project's — the same
+        // false positive on every Say screen, which would otherwise both
+        // raise a "no cargo project is open" diagnostic against a buffer
+        // that needs nothing of the kind and, worse, swap the compile onto
+        // the *project's* `vieww` build (below) whenever a project happens to
+        // be open, which is exactly the mismatched-ABI failure this whole
+        // check exists to catch before it reaches `dlopen`.
+        //
+        // A `<Name>` component reference is the one Say phrase that changes
+        // the premise: its generated Rust is `crate::widgets::<name>::<Name>`,
+        // which reaches the project in the built app and the linked rlib in
+        // the preview. So the reach is detected on exactly that path —
+        // `crate::widgets::`, emitted by nothing else — and a Say screen
+        // without components behaves as it always did: no lookup, no refusal,
+        // no project `vieww`.
         let is_say = buffer.language == crate::language::Language::Say;
+        let reaches_project =
+            is_say && source.contains(crate::components::PROJECT_REACH);
         let project = if is_say {
-            None
+            reaches_project.then(|| self.project_lib(&source)).flatten()
         } else {
             self.project_lib(&source)
         };
-        // **And the refusal is skipped for Say too, not only the lookup.**
+        // **And the refusal follows the same rule, not only the lookup.**
         //
-        // This is the second half of the paragraph above, and it was missing.
-        // Forcing `project` to `None` stops a Say screen from being compiled
-        // against the project's `vieww`, which is what that paragraph is about
-        // — but `project_lib_refusal` was still asked, with `source` being the
-        // *generated* Rust and `project` now unconditionally `None`. Its own
-        // first line is `needs_project(source)`, the `crate::`-or-`use super::`
-        // heuristic, and generated Say always emits `use super::SayState;`. So
-        // it always matched, always found no project, and always produced:
-        //
-        //     this file uses `crate::`, so the preview needs <name>'s own
-        //     library built
-        //
-        // against a file containing neither `crate::` nor any `super` of the
-        // user's own — the exact false positive the paragraph above describes
-        // and suppresses one line too early.
-        //
-        // What that cost is the whole first run. `vieww new` scaffolds a Say
-        // project whose `src/screens/home.say` is `counter.say`, whose own
-        // header comment reads "a counter that renders straight away, with no
-        // project, no setup and nothing to read first" — and pressing Render on
-        // it, the first thing a new user does, was refused with an instruction
-        // to go and run a twelve-minute `cargo build` that would not have
-        // helped, because the file needs nothing from the project.
-        //
-        // Say's v1 vocabulary has no way to reach outside the generated file,
-        // so there is no case where a Say buffer legitimately needs the
-        // project's library and this suppression hides a real problem.
-        let refusal = if is_say {
+        // This is the second half of the paragraph above, and it was missing
+        // once: forcing `project` to `None` stopped a Say screen from being
+        // compiled against the project's `vieww`, but `project_lib_refusal`
+        // was still asked, with `source` being the *generated* Rust and
+        // `project` now unconditionally `None`. Its own first line is
+        // `needs_project(source)`, the `crate::`-or-`use super::` heuristic,
+        // and generated Say always emits `use super::SayState;`. So it always
+        // matched, always found no project, and always refused the very first
+        // Render a new user presses. The gate is the component reach — the
+        // one case where the message ("build the project so there is a library
+        // to link") is true and the fix it suggests works.
+        let refusal = if is_say && !reaches_project {
             None
         } else {
             self.project_lib_refusal(&source, project.as_ref())
@@ -3324,7 +3317,15 @@ impl Studio {
             None => toolchain,
         };
 
-        match Job::spawn(&toolchain, session, &source, &buffer.name, project, wake) {
+        match Job::spawn(
+            &toolchain,
+            session,
+            &source,
+            &buffer.name,
+            project,
+            is_say,
+            wake,
+        ) {
             Ok(job) => {
                 self.set_preview(PreviewState::Compiling);
                 *self.job.borrow_mut() = Some(job);

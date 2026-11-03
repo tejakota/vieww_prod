@@ -18,10 +18,11 @@
 //! the half the studio already runs around its guest root. It is the same
 //! pattern the studio's own scaffold template ships.
 
+use crate::diag::Diagnostic;
 use crate::parse::{
     AKind, ActionLine, Align, CmpOp, ColorSpec, Cond, Cross, EventKind, Expr, Init, Node, Part,
-    Pin, Program, Prop, RustBlock, Screen, StateDecl, StateKind, ThemeEntry, ThemeSlot, Transition,
-    Value, WKind, Widget,
+    Pin, Program, Prop, RustBlock, Screen, StateDecl, StateKind, ThemeEntry, ThemeSlot,
+    Transition, Value, WKind, Widget,
 };
 
 /// What `generate` is told beyond the program itself.
@@ -1753,9 +1754,15 @@ impl<'a> Gen<'a> {
 
     fn emit_widget(&mut self, widget: &Widget, scope: &mut Scope, target: &str, depth: usize) {
         let expr = self.widget_expr(widget, scope, depth);
+        // A component reference is shown as written, `<Note>` — its phrase
+        // is a category, not the line.
+        let written = match &widget.kind {
+            WKind::Component { name } => format!("<{name}>"),
+            _ => widget.phrase.to_owned(),
+        };
         self.indent(
             depth,
-            format!("// say: {}:{}  {}", self.file, widget.line, widget.phrase),
+            format!("// say: {}:{}  {}", self.file, widget.line, written),
         );
         if let Some(cond) = &widget.only_if {
             let guard = self.cond_rust(cond, scope);
@@ -2104,6 +2111,18 @@ impl<'a> Gen<'a> {
                     "    ".repeat(depth)
                 ));
                 out
+            }
+            WKind::Component { name } => {
+                used.push(0);
+                // `crate::` on purpose: inside the built project this is the
+                // project's own module, and the studio's preview rewrites it
+                // to the rlib it links (see `compile::with_say_project`) — one
+                // path, two resolutions, both real.
+                format!(
+                    "WidgetNode::new(crate::widgets::{}::{})",
+                    snake(name),
+                    name
+                )
             }
         };
 
@@ -2649,4 +2668,254 @@ fn push_into(body: &mut String, depth: usize, line: &str) {
     }
     body.push_str(line);
     body.push('\n');
+}
+
+// ---------------------------------------------------------------------------
+// Components — the "extract widget" half of ST-05
+// ---------------------------------------------------------------------------
+
+/// Generate one component file: `pub struct <Name>` and its `impl Widget`,
+/// from the extracted subtree's nodes.
+///
+/// The build body is the same emission a screen's root lines get — same
+/// `emit_node`, same one-root-or-column tail — so a screen that references
+/// `<Name>` builds exactly the tree the subtree built inline. That identity
+/// is the extraction contract: the preview's pixels do not move.
+pub(crate) fn generate_component(
+    file: &std::rc::Rc<String>,
+    name: &str,
+    body: &[Node],
+    options: &GenOptions,
+) -> String {
+    let uses_images = subtree_has_image(body);
+    let mut g = Gen {
+        file: file.to_string(),
+        app_name: None,
+        out: String::new(),
+        states: &[],
+        modal_fields: &[],
+        screens: &[],
+        needs_text: false,
+        multi_screen: false,
+        uses_dialog: false,
+        uses_toast: false,
+        unique: 0,
+        theme: &[],
+        rust_items: &[],
+        asset_root: options.asset_root.clone(),
+        uses_images,
+        uses_transitions: false,
+        ui: Vec::new(),
+    };
+    g.push("// Generated from a `.say` subtree by Say's component extraction — the");
+    g.push("// screen references it as `<Name>`, and it is source: edit it, or edit");
+    g.push("// the `.say` file and extract again.");
+    g.push("");
+    g.push("use vieww::prelude::*;");
+    g.push("");
+    g.push(format!("/// `{name}` — extracted from `{}`.", file));
+    g.push("///");
+    g.push("/// A pure subtree: no state, no events, no scrolling. The screen that");
+    g.push("/// references it builds this exactly where the subtree used to be.");
+    g.push("#[derive(Debug)]");
+    g.push(format!("pub struct {name};"));
+    g.push("");
+    g.push(format!("impl Widget for {name} {{"));
+    g.push("    fn debug_name(&self) -> &'static str {");
+    g.push(format!("        \"{name}\""));
+    g.push("    }");
+    g.push("");
+    g.push("    fn kind(&self) -> WidgetKind<'_> {");
+    g.push("        WidgetKind::Composed");
+    g.push("    }");
+    g.push("");
+    g.push("    fn build(&self, ctx: &BuildContext) -> WidgetNode {");
+    if uses_theme(body) {
+        g.push("        let theme = ThemeData::of(ctx);");
+    } else {
+        g.push("        let _ = ctx; // this component reads nothing from its element");
+    }
+    g.push("        let mut children: Vec<WidgetNode> = Vec::new();");
+    let mut scope = Scope::default();
+    for node in body {
+        g.emit_node(node, &mut scope, "children", 2);
+    }
+    g.push("        // One root line returns itself; more wrap in a column, which is what");
+    g.push("        // a stack of root lines almost always means.");
+    g.push("        if children.len() == 1 {");
+    g.push("            children.remove(0)");
+    g.push("        } else {");
+    g.push("            Flex::column()");
+    g.push("                .cross_axis_alignment(CrossAxisAlignment::Stretch)");
+    g.push("                .children(children)");
+    g.push("                .into()");
+    g.push("        }");
+    g.push("    }");
+    g.push("}");
+    g.push("");
+    if uses_images {
+        // The same asset-root arrangement a generated screen gets, reduced to
+        // the one helper a component can reach: no state, so no `act`/`on`.
+        g.push("/// Where `an image` paths are read from: the folder the `.say` file the");
+        g.push("/// subtree was extracted from lives in.");
+        g.push(format!(
+            "const SAY_ASSET_ROOT: &str = {};",
+            rust_str(&options.asset_root)
+        ));
+        g.push("");
+        g.push("#[allow(dead_code)] // the image helper, kept for uniformity with a screen");
+        g.push("mod say {");
+        g.push("    use vieww::prelude::*;");
+        g.push("");
+        g.push("    /// `an image \"…\"`: read and decoded once, then kept. A file that is");
+        g.push("    /// missing or not a picture shows what went wrong in its place rather");
+        g.push("    /// than failing the component.");
+        g.push("    pub(crate) fn image(");
+        g.push("        path: &str,");
+        g.push("        label: Option<&str>,");
+        g.push("        width: Option<f32>,");
+        g.push("        height: Option<f32>,");
+        g.push("    ) -> WidgetNode {");
+        g.push("        thread_local! {");
+        g.push("            static CACHE: vieww::ImageCache = vieww::ImageCache::new();");
+        g.push("        }");
+        g.push("        let bundle = vieww::DirectoryBundle::at(super::SAY_ASSET_ROOT);");
+        g.push("        match CACHE.with(|cache| cache.load(&bundle, path)) {");
+        g.push("            Ok(data) => {");
+        g.push("                let mut image = Image::new(data);");
+        g.push("                if let Some(label) = label {");
+        g.push("                    image = image.label(label);");
+        g.push("                }");
+        g.push("                if let Some(width) = width {");
+        g.push("                    image = image.width(width);");
+        g.push("                }");
+        g.push("                if let Some(height) = height {");
+        g.push("                    image = image.height(height);");
+        g.push("                }");
+        g.push("                image.into()");
+        g.push("            }");
+        g.push("            Err(error) => vieww::widget::ErrorPlaceholder::new(\"Image\", format!(\"{path}: {error}\")).into(),");
+        g.push("        }");
+        g.push("    }");
+        g.push("}");
+        g.push("");
+    }
+    g.out
+}
+
+/// Every reason `body` cannot become a component, with the line that says why.
+///
+/// A component is a **pure subtree**: it is built wherever it is referenced,
+/// with nothing but the theme its host already supplies, so it may not reach
+/// the state, handlers, dialogs or interface state that live on the *screen's*
+/// element. The test is stated as what is refused rather than what is
+/// allowed, because the allowed list changes with the vocabulary and the
+/// refused list is the contract.
+pub(crate) fn component_refusals(
+    file: &std::rc::Rc<String>,
+    body: &[Node],
+) -> Vec<Diagnostic> {
+    let mut out = Vec::new();
+    impurities(body, &mut out, file);
+    out
+}
+
+/// The walk behind [`component_refusals`]: one entry per refused construct,
+/// each with the line it sits on.
+fn impurities(nodes: &[Node], out: &mut Vec<Diagnostic>, file: &std::rc::Rc<String>) {
+    let refuse = |out: &mut Vec<Diagnostic>, line: u32, why: &'static str| {
+        out.push(Diagnostic::error(
+            file,
+            line,
+            1,
+            crate::diag::codes::E100,
+            format!("this subtree cannot become a component: {why}"),
+        ));
+    };
+    for node in nodes {
+        match node {
+            Node::ForEach { line, body, .. } => {
+                refuse(out, *line, "`for each` reads a list the screen keeps");
+                impurities(body, out, file);
+            }
+            Node::Widget(widget) => {
+                if let Some(event) = &widget.event {
+                    refuse(
+                        out,
+                        widget.line,
+                        "it has an event, and events reach the screen's state",
+                    );
+                    for action in &event.actions {
+                        if let AKind::OpenDialog { body, .. } = &action.kind {
+                            impurities(body, out, file);
+                        }
+                    }
+                }
+                if widget.only_if.is_some() {
+                    refuse(
+                        out,
+                        widget.line,
+                        "`only if` reads state the screen keeps",
+                    );
+                }
+                match &widget.kind {
+                    WKind::TextField { .. } => refuse(
+                        out,
+                        widget.line,
+                        "a bound control reads state the screen keeps",
+                    ),
+                    WKind::Switch { .. } => refuse(
+                        out,
+                        widget.line,
+                        "a bound control reads state the screen keeps",
+                    ),
+                    WKind::Checkbox { .. } => refuse(
+                        out,
+                        widget.line,
+                        "a bound control reads state the screen keeps",
+                    ),
+                    WKind::Slider { .. } => refuse(
+                        out,
+                        widget.line,
+                        "a bound control reads state the screen keeps",
+                    ),
+                    WKind::ListView { .. } => {
+                        refuse(out, widget.line, "a list reads state the screen keeps")
+                    }
+                    WKind::ScrollView => refuse(
+                        out,
+                        widget.line,
+                        "a scroll view keeps its offset in the screen's state",
+                    ),
+                    WKind::Tabs => refuse(
+                        out,
+                        widget.line,
+                        "tabs keep their selection in the screen's state",
+                    ),
+                    WKind::Rust { .. } => refuse(
+                        out,
+                        widget.line,
+                        "a `rust:` block can reach anything, and a component may not",
+                    ),
+                    _ => {}
+                }
+                // Interpolation: a value with a `\(...)` part reads state.
+                let value_reads = match &widget.kind {
+                    WKind::Text { value, .. } | WKind::Button { label: value, .. } => {
+                        matches!(value, Value::Parts(_))
+                    }
+                    WKind::EmptyState { title, .. } => matches!(title, Value::Parts(_)),
+                    _ => false,
+                };
+                if value_reads {
+                    refuse(
+                        out,
+                        widget.line,
+                        "the text interpolates state the screen keeps",
+                    );
+                }
+                impurities(&widget.children, out, file);
+            }
+        }
+    }
 }

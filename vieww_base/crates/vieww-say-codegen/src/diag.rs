@@ -83,6 +83,10 @@ pub(crate) mod codes {
     /// Navigation that cannot work: `go back` with nowhere to go back to, or
     /// `open the screen "X"` with no screen "X".
     pub(crate) const E090: &str = "E090";
+    /// A subtree cannot be extracted as a component: it reaches state,
+    /// handlers or interface state that belong to the screen, not to a pure
+    /// subtree (ST-05).
+    pub(crate) const E100: &str = "E100";
     /// A linter note: compiles, with a caveat worth saying on the line.
     pub(crate) const W130: &str = "W130";
 }

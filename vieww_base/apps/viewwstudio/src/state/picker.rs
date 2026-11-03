@@ -622,6 +622,9 @@ impl Studio {
             // ST-19: the sketch becomes a `.say` file — the same flow, the
             // real pipeline. See `live_materialize`.
             C::MaterializeFlow => self.materialize_flow(),
+            // ST-05: the picked subtree becomes a component — a file in the
+            // project, a one-word reference in the buffer. See `components`.
+            C::ExtractWidget => self.extract_widget(),
             // ST-10: the buffer becomes a shared document — the doc, the log
             // and the carets in `state/collab`.
             C::ShareBuffer => self.toggle_collab(),

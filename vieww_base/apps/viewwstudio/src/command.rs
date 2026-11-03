@@ -454,6 +454,10 @@ pub enum Command {
     /// ST-19: write the flow as `src/screens/flow.say` — the sketch becomes
     /// real Say, compiled by Render, shipped by Build and Run.
     MaterializeFlow,
+    /// ST-05: extract the picked subtree as a component — `src/widgets/`
+    /// gains the Rust, the buffer gains `<Name>`, and the subtree becomes
+    /// reusable as one word.
+    ExtractWidget,
     /// ST-10: share the active buffer through a collaboration session —
     /// `vieww-collab`'s RGA over `.vieww/collab.log`, remote carets in the
     /// editor. Toggles.
@@ -462,7 +466,7 @@ pub enum Command {
 
 impl Command {
     /// Every command, in palette order.
-    pub const ALL: [Self; 119] = [
+    pub const ALL: [Self; 120] = [
         Self::Render,
         Self::CancelRender,
         Self::Build,
@@ -593,6 +597,7 @@ impl Command {
         Self::TogglePreviewNote,
         Self::CreateLiveFile,
         Self::MaterializeFlow,
+        Self::ExtractWidget,
         Self::ShareBuffer,
     ];
 
@@ -718,6 +723,7 @@ impl Command {
             Self::TogglePreviewNote => "Show or Hide the Preview Note",
             Self::CreateLiveFile => "Create live.rs for the Live Preview",
             Self::MaterializeFlow => "Materialize the Live Flow as Say",
+            Self::ExtractWidget => "Extract Widget as Component",
             Self::ShareBuffer => "Share This Buffer for Collaboration",
         }
     }
@@ -829,6 +835,7 @@ impl Command {
             Self::TogglePreviewNote => Menu::View,
             Self::CreateLiveFile => Menu::Render,
             Self::MaterializeFlow => Menu::Render,
+            Self::ExtractWidget => Menu::Render,
             // Sharing is a thing one does with a file, and the File menu is
             // where every desktop puts it.
             Self::ShareBuffer => Menu::File,
@@ -1003,6 +1010,10 @@ impl Command {
             // No chord on purpose: it writes a file into the project, and a
             // keystroke that does that belongs behind a name somebody chose.
             | Self::MaterializeFlow
+            // Nor one for extraction: it rewrites the buffer *and* writes a
+            // file, and both acts belong behind a picked subtree rather than
+            // a reflex.
+            | Self::ExtractWidget
             // Nor one for sharing: a session other people join is a decision,
             // not a reflex.
             | Self::ShareBuffer

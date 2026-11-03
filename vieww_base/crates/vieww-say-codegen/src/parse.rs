@@ -187,6 +187,36 @@ pub(crate) enum WKind {
     Rust {
         code: String,
     },
+    /// `<Note>` — a component the studio extracted into `src/widgets/`.
+    ///
+    /// The one phrase whose generated Rust reaches outside the file it came
+    /// from: it compiles to `crate::widgets::<name>::<Name>`, which is the
+    /// project's own module when `build.rs` compiles the screens and an
+    /// `--extern`'d rlib when the studio previews one in isolation (see the
+    /// studio's `compile::with_say_project`). Extracted with
+    /// [`crate::compile_component`], which also states what a component may
+    /// not contain and why.
+    Component {
+        name: String,
+    },
+}
+
+/// The name inside `<…>`, when `word` is a component reference.
+///
+/// One token, angle brackets included (`<Note>`, not `< Note >`), the name
+/// UpperCamel — because it is the Rust type's name, and a lowercase component
+/// would generate a module and a type the project could never compile. Shared
+/// by the parser (which accepts the phrase) and the component generator
+/// (which names the type), so the two cannot disagree about the shape.
+pub(crate) fn component_name(word: &str) -> Option<&str> {
+    let inner = word.strip_prefix('<')?.strip_suffix('>')?;
+    let mut chars = inner.chars();
+    let first = chars.next()?;
+    if !first.is_ascii_uppercase() {
+        return None;
+    }
+    chars.all(|ch| ch.is_ascii_alphanumeric())
+        .then_some(inner)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

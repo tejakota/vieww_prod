@@ -57,6 +57,7 @@ pub mod caret;
 pub mod cargo;
 pub mod command;
 pub mod compile;
+pub mod components;
 pub mod customise;
 pub mod diagnostics;
 pub mod docs;
