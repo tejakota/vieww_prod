@@ -81,3 +81,40 @@ With `App::auto_rasterizer` the device, not the developer, picks the
 rasterizer: the same build draws on the CPU on one phone and on the GPU on the
 next. The bounds in section 2 are therefore also the bound on how different
 two users' screens may look for the same build.
+
+## 5. Two performance changes are waiting on this policy (FW-07)
+
+Recorded 2026-10-21, so the decision is written down rather than relitigated
+in a PR description. Both would close part of the two known performance
+limitations in `ci/check/perf-budgets.json` (`00-layers-nested`,
+`23-editor-glass` on the reference laptop, each ~5-8 ms over a 16.7 ms
+full repaint), and **neither has been implemented** — precisely because each
+one moves pixels, and section 1 says what that costs.
+
+- **An SSE2 blur.** The remaining blur cost in `23-editor-glass` is the
+  horizontal running sum and the vertical strip pass; both vectorise. The
+  2026-10-16 blur speed-up (17.5 → 15.5 ms) kept byte identity because it
+  reordered *work*, not accumulation; an SSE2 running sum accumulates in a
+  different order and rounds differently, so its output will differ from
+  the scalar reference on low-coverage pixels. To land it: a
+  `Pixels-Changed:` trailer naming the fixture outputs that moved and the
+  worst per-channel delta, `raster-identity.sh --allow-changed` as the
+  report, and the call that the delta is invisible (it will be sub-1/255 in
+  interiors — the same bound every GPU backend already lives under).
+  **Decision pending the owner**: accept a re-baselined blur, or require
+  exact-order accumulation and take only the speed that keeps.
+- **f16 layer storage.** `00-layers-nested` is memory-bandwidth-bound on
+  16-byte-per-pixel (4 × f32) layers; half-float storage halves the traffic.
+  It changes every layer composite's rounding, and the CPU rasterizer is
+  the *reference* every backend in section 2 is judged against — so this is
+  not one `Pixels-Changed:` row but a re-baseline of the reference itself:
+  the golden gallery, the parity bounds, and the two no-exception identities
+  in section 1 all get re-earned in the same commit. **Decision pending the
+  owner**: whether nested-layers' ~5 ms is worth re-anchoring the reference,
+  or whether the layer format stays f32 and the miss stays a recorded
+  limitation.
+
+Until either decision lands, the two misses are recorded as known
+limitations with their drift gates on (`perf-budgets.json`'s
+`known_limitations`), so no regression hides behind them — see
+`ci/check/perf_budget.py`'s module doc for the discipline.

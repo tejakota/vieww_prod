@@ -1,5 +1,13 @@
 {
   "classes": {
+    "kabylake-linux": {
+      "gallery/00-layers-nested/cpu_p50_ms": 23.8,
+      "gallery/23-editor-glass/cpu_p50_ms": 24.8
+    },
+    "kabylake-windows": {
+      "gallery/00-layers-nested/cpu_p50_ms": 22.2,
+      "gallery/23-editor-glass/cpu_p50_ms": 24.2
+    },
     "phone-apple-iphone-13": {
       "auto_frame_time_p50_ms": 7.229,
       "gpu_frame_time_p50_ms": 15.958
@@ -27,6 +35,32 @@
     "phone-sm-s948u1": {
       "auto_frame_time_p50_ms": 0.316,
       "gpu_frame_time_p50_ms": 0.349
+    }
+  },
+  "known_limitations": {
+    "kabylake-linux": {
+      "gallery/00-layers-nested/cpu_p50_ms": {
+        "reason": "FW-07 known limitation, accepted 2026-10-21 (owner decision recorded in STATUS.md): the reference laptop (i5-7200U) misses the 16.7 ms / 60 Hz full-repaint budget by ~7 ms at p50 (receipt run 2026-10-15-kabylake-i5-7200u-linux; figures recorded here from it). What is left is memory bandwidth on 16-byte-per-pixel layers, and the fix that would close it — f16 layer storage — changes bytes, so it is held for the FIDELITY.md section-5 ruling rather than shipped silently. This entry keeps the drift gate honest: a regression past the recorded figure still fails the run. Remove it in the same commit as the win that brings this under target_ms (the check flags it stale).",
+        "since": "2026-10-15",
+        "target_ms": 16.7
+      },
+      "gallery/23-editor-glass/cpu_p50_ms": {
+        "reason": "FW-07 known limitation, accepted 2026-10-21 (owner decision recorded in STATUS.md): the reference laptop (i5-7200U) misses the 16.7 ms / 60 Hz full-repaint budget by ~8 ms at p50 (receipt run 2026-10-15-kabylake-i5-7200u-linux; a retained repaint is already ~7.5 ms). Blur is ~12% of the remaining cost, and the fix that would close it — an SSE2 blur with a different accumulation order — changes bytes, so it is held for the FIDELITY.md section-5 ruling rather than shipped silently. This entry keeps the drift gate honest: a regression past the recorded figure still fails the run. Remove it in the same commit as the win that brings this under target_ms (the check flags it stale).",
+        "since": "2026-10-15",
+        "target_ms": 16.7
+      }
+    },
+    "kabylake-windows": {
+      "gallery/00-layers-nested/cpu_p50_ms": {
+        "reason": "FW-07 known limitation, accepted 2026-10-21 (owner decision recorded in STATUS.md): same renderer, same miss, other OS — the reference laptop (i5-7200U) misses the 16.7 ms / 60 Hz full-repaint budget by ~5.5 ms at p50 (receipt run 2026-10-15-kabylake-i5-7200u-windows), which is why the limitation is per class and not per machine: this is the renderer, not an OS. Closing it is the same f16-layer-storage fidelity decision as the Linux entry. Remove in the same commit as the win that brings this under target_ms (the check flags it stale).",
+        "since": "2026-10-15",
+        "target_ms": 16.7
+      },
+      "gallery/23-editor-glass/cpu_p50_ms": {
+        "reason": "FW-07 known limitation, accepted 2026-10-21 (owner decision recorded in STATUS.md): the reference laptop (i5-7200U) misses the 16.7 ms / 60 Hz full-repaint budget by ~7.5 ms at p50 (receipt run 2026-10-15-kabylake-i5-7200u-windows). Closing it is the same SSE2-blur fidelity decision as the Linux entry. Remove in the same commit as the win that brings this under target_ms (the check flags it stale).",
+        "since": "2026-10-15",
+        "target_ms": 16.7
+      }
     }
   },
   "min_delta_ms": 1.0,

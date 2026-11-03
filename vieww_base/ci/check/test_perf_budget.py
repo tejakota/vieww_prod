@@ -112,6 +112,82 @@ class PerfBudget(unittest.TestCase):
             with self.assertRaises(ValueError):
                 pb.validate(bad)
 
+    def test_a_broken_known_limitations_entry_is_refused(self):
+        good_classes = {"x": {"gallery/f/cpu_p50_ms": 23.8}}
+        for bad in (
+            # no budget class to drift-gate against
+            {"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": {},
+             "known_limitations": {"x": {"gallery/f/cpu_p50_ms": {"target_ms": 16.7, "reason": "r"}}}},
+            # no budget figure for that metric
+            {"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": {"x": {"other": 1.0}},
+             "known_limitations": {"x": {"gallery/f/cpu_p50_ms": {"target_ms": 16.7, "reason": "r"}}}},
+            # no target
+            {"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": good_classes,
+             "known_limitations": {"x": {"gallery/f/cpu_p50_ms": {"reason": "r"}}}},
+            # no reason naming the decision
+            {"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": good_classes,
+             "known_limitations": {"x": {"gallery/f/cpu_p50_ms": {"target_ms": 16.7}}}},
+        ):
+            with self.assertRaises(ValueError):
+                pb.validate(bad)
+
+    def test_the_committed_known_limitations_name_their_decision(self):
+        b = pb.load_budgets(os.path.join(HERE, "perf-budgets.json"))
+        self.assertTrue(b.get("known_limitations"), "FW-07's two over-budget fixtures are recorded")
+        for cls, metrics in b["known_limitations"].items():
+            for name, entry in metrics.items():
+                self.assertIn(name, b["classes"][cls],
+                              f"{cls} {name}: a limitation must drift-gate a committed figure")
+                self.assertGreater(entry["target_ms"], 0)
+                self.assertTrue(entry["reason"].strip())
+
+    def a_limitation_fixture(self):
+        """Budgets with one known limitation, and a receipt factory for it."""
+        budgets = write({
+            "schema": pb.SCHEMA, "tolerance_percent": 10, "min_delta_ms": 1.0,
+            "classes": {"kabylake-linux": {"gallery/00-layers-nested/cpu_p50_ms": 23.8}},
+            "known_limitations": {"kabylake-linux": {
+                "gallery/00-layers-nested/cpu_p50_ms": {
+                    "target_ms": 16.7, "since": "2026-10-15",
+                    "reason": "accepted miss; closing it needs the f16 fidelity ruling"}}},
+        })
+        nested = {"schema": "vieww.bench-receipt/1", "mode": "gallery",
+                  "machine": {"os": "o", "arch": "a", "cpu_model": "c"},
+                  "fixtures": [{"name": "00-layers-nested", "cpu_p50_ms": 23.8}]}
+        return budgets, nested
+
+    def test_a_known_limitation_does_not_license_drift(self):
+        budgets, nested = self.a_limitation_fixture()
+        slower = json.loads(json.dumps(nested))
+        slower["fixtures"][0]["cpu_p50_ms"] = 27.5  # +15.5%, +3.7 ms
+        self.assertEqual(
+            pb.main(["check", budgets, write(slower), "--class", "kabylake-linux"]), 1,
+            "over the recorded figure by tolerance AND floor fails, limitation or not")
+
+    def test_a_known_limitation_under_target_is_flagged_stale_not_passed(self):
+        budgets, nested = self.a_limitation_fixture()
+        won = json.loads(json.dumps(nested))
+        won["fixtures"][0]["cpu_p50_ms"] = 15.9  # under the 16.7 ms target at last
+        rows, failures, unknown, stale = pb.check(pb.load_budgets(budgets), pb.gather([write(won)], "kabylake-linux"))
+        self.assertEqual(failures, [])
+        self.assertEqual(unknown, [])
+        self.assertEqual(stale, [("kabylake-linux", "gallery/00-layers-nested/cpu_p50_ms", 16.7, 15.9)])
+        self.assertIn("stale limitation", rows[0][5])
+        # ...and the run itself exits 0: good news is not a failure, only loud.
+        self.assertEqual(pb.main(["check", budgets, write(won), "--class", "kabylake-linux"]), 0)
+
+    def test_recording_under_a_limitation_target_warns_while_the_file_is_open(self):
+        budgets, nested = self.a_limitation_fixture()
+        won = json.loads(json.dumps(nested))
+        won["fixtures"][0]["cpu_p50_ms"] = 15.9
+        self.assertEqual(pb.main(["record", budgets, write(won), "--class", "kabylake-linux"]), 0)
+        with open(budgets) as f:
+            reread = json.load(f)
+        self.assertEqual(reread["classes"]["kabylake-linux"]["gallery/00-layers-nested/cpu_p50_ms"], 15.9)
+        # The stale limitation survives the rewrite for a human to remove
+        # deliberately: `record` never edits the decision record.
+        self.assertIn("gallery/00-layers-nested/cpu_p50_ms", reread["known_limitations"]["kabylake-linux"])
+
     def test_something_else_is_refused(self):
         with self.assertRaises(ValueError):
             pb.measurements({"hello": 1})
