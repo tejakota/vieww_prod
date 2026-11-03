@@ -68,7 +68,7 @@
 //!
 //! # Untested notes, stated rather than implied
 //!
-//! - **Logical == physical pixels.** [`create`] is documented in logical
+//! - **Logical == physical pixels.** `create` is documented in logical
 //!   pixels; X11 geometry is in device pixels, and this implementation passes
 //!   the numbers through unchanged, which is exactly right at scale factor 1.0
 //!   and exactly wrong under XWayland fractional scaling. The fix (learn the
@@ -371,7 +371,7 @@ impl X11PlatformViews {
     /// # Errors
     /// A [`String`] naming what is missing — no `libX11` (a Wayland-only
     /// session) or no display (a headless one). Callers fall back to
-    /// [`NoPlatformViews`], which makes embedding *unsupported* rather than
+    /// `NoPlatformViews`, which makes embedding *unsupported* rather than
     /// making the application fail to start.
     pub fn connect() -> Result<Self, String> {
         Ok(Self {

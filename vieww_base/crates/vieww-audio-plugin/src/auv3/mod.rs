@@ -13,7 +13,7 @@
 //!   `Info.plist` must carry (type, subtype, manufacturer four-char codes,
 //!   version, name) from a [`PluginInfo`](crate::PluginInfo). Pure code,
 //!   tested on every platform.
-//! * [`wrapper::install`] (Apple targets only) allocates the
+//! * `wrapper::install` (Apple targets only) allocates the
 //!   `AUAudioUnit` subclass at run time with the Objective-C runtime —
 //!   `objc_allocateClassPair`, `class_addMethod`, `objc_registerClassPair`
 //!   — and installs methods for the whole lifecycle:
@@ -153,7 +153,7 @@ pub const fn fourcc(s: &[u8; 4]) -> u32 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[allow(non_snake_case, reason = "the header's own field names")]
 pub struct AudioComponentDescription {
-    /// Component type, e.g. [`fourcc`](self::fourcc)`(b"aumu")`.
+    /// Component type, e.g. [`fourcc`]`(b"aumu")`.
     pub componentType: u32,
     /// Component subtype: the plugin's own four chars.
     pub componentSubType: u32,

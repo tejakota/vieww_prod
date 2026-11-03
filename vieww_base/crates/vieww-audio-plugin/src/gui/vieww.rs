@@ -1,11 +1,11 @@
-//! The first [`PluginGui`](super::PluginGui): a parameter panel rendered by
+//! The first [`PluginGui`]: a parameter panel rendered by
 //! vieww itself, offscreen.
 //!
 //! Every row is a parameter: a rounded track, a fill at the parameter's
 //! normalized position, and a 7-segment readout of the plain value — the
 //! digits a screenshot can read, drawn from rectangles because a plugin
 //! binary embeds no font. The scene is built with the same
-//! [`Command`](vieww_paint::Command)s any vieww widget records and
+//! [`Command`]s any vieww widget records and
 //! rasterized by [`NativeRenderer`], this workspace's one CPU rasterizer:
 //! no OS windowing, no GPU context, nothing a CI container cannot run.
 //!

@@ -505,7 +505,7 @@ pub enum Target {
     /// Its own target rather than a desktop flavour because what it needs is
     /// different in kind, not only in degree: a Rust target that is never
     /// installed by default, and a `wasm-bindgen` whose *version* has to match
-    /// the one in `Cargo.lock` — see [`web`](fn@web) for why that exactness is
+    /// the one in `Cargo.lock` — see `web` for why that exactness is
     /// a requirement and not a nicety.
     Web,
 }

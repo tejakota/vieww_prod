@@ -62,7 +62,7 @@
 //!   actually accepts, via the project's own `gradlew bundleRelease` when it
 //!   has one, else `cargo apk` + `unzip`/`zip` + `bundletool build-bundle`
 //!   reshaping the APK into a base module. Same host-anywhere, tool-gated
-//!   shape as the APK; the route decision ([`aab_plan`]) is a pure function
+//!   shape as the APK; the route decision (`aab_plan`) is a pure function
 //!   of which tools a `PATH` names, so this sandbox tests it with fake tools
 //!   on a fake `PATH` — the running of the real ones is the part left to
 //!   machines that have an Android toolchain.

@@ -12,7 +12,7 @@
 //! opening anything — the semantics tree and the painted scene are judged,
 //! and any error fails the run. It is how the whole gallery is linted in CI
 //! (`ci/check/feature-a11y.sh`) without a single window, and its contract is
-//! [`audit_mode`]'s doc.
+//! `audit_mode`'s doc.
 //!
 //! # Why this exists
 //!

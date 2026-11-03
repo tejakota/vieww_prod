@@ -135,7 +135,7 @@ pub struct Entry {
     pub kind: Kind,
     /// The size on disk, in bytes.
     pub bytes: u64,
-    /// The decoded thumbnail, images only, absent past [`MAX_THUMBNAILS`]
+    /// The decoded thumbnail, images only, absent past `MAX_THUMBNAILS`
     /// or when decoding refused.
     pub thumbnail: Option<Image>,
 }
@@ -146,7 +146,7 @@ pub struct Listing {
     /// The entries, in bundle-path order — sorted, not `read_dir` order, so
     /// two rescans of an unchanged folder cannot reshuffle the rows.
     pub entries: Vec<Entry>,
-    /// `assets/` held more than [`MAX_ENTRIES`] files.
+    /// `assets/` held more than `MAX_ENTRIES` files.
     pub truncated: bool,
     /// The files, sizes and mtimes the listing was built from — the guard
     /// that keeps a watcher-driven rescan from re-decoding a folder that
@@ -336,7 +336,7 @@ fn walk_signature(
 pub enum Preview {
     /// A decoded image, with the truth about the file beside it.
     Image {
-        /// The pixels, scaled to at most [`PREVIEW`] on an edge.
+        /// The pixels, scaled to at most `PREVIEW` on an edge.
         image: Image,
         /// What the codec said the bytes were — a `.png` that is really a
         /// JPEG is reported as the JPEG it is.
@@ -370,7 +370,7 @@ impl FontCard {
     /// A face with no readable name table still gets a card: the file name
     /// is the family and the style is unstated, because a preview that
     /// *refuses* over metadata nobody needs is a worse tool than one that
-    /// shows what it has. [`font_preview`](fn@font_preview) is the layer
+    /// shows what it has. `font_preview` is the layer
     /// that decides the bytes were not a font at all.
     #[must_use]
     pub fn read(bytes: &[u8], fallback_name: &str) -> Self {

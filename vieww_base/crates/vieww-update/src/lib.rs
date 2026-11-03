@@ -108,7 +108,7 @@
 //!   socket is tested for real.
 //! * The apply step's atomicity is per-file. A multi-asset update that
 //!   dies between file one and file two leaves file one new and file two
-//!   old — which is why [`Updater::apply`] reports exactly what it did,
+//!   old — which is why `Updater::apply` reports exactly what it did,
 //!   and why the rollback takes the same report. Whole-set atomicity
 //!   needs a directory swap, which is a platform installer's job (the
 //!   `.msi`/`.dmg` this framework already ships), not a rename's.

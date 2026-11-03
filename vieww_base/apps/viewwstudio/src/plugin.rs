@@ -8,7 +8,7 @@
 //!
 //! * [`LintRule`](crate::lint::LintRule) — extra findings in the Problems
 //!   panel, through the same door the built-in rules use;
-//! * an export [`Plan`](crate::export::Plan) builder — extra rows in the
+//! * an export [`Plan`] builder — extra rows in the
 //!   export sheet, through the same planner/refusal split every built-in
 //!   format goes through;
 //! * palette commands — extra rows in the command palette.
@@ -200,7 +200,7 @@ impl std::fmt::Display for LoadError {
     }
 }
 
-/// One of a plugin's lint rules, as the [`LintRule`] the lint pass merges
+/// One of a plugin's lint rules, as the `LintRule` the lint pass merges
 /// with its own.
 ///
 /// A newtype rather than calling `Plugin::lint` straight from the pass, so
@@ -504,7 +504,7 @@ impl Registry {
             .collect()
     }
 
-    /// Every lint rule, as the [`LintRule`]s the lint pass merges with its
+    /// Every lint rule, as the `LintRule`s the lint pass merges with its
     /// own.
     #[must_use]
     pub fn lint_rules(&self) -> Vec<PluginLint<'_>> {

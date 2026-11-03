@@ -15,7 +15,7 @@
 //! [`say_of`] turns a parsed [`LiveDoc`] into a real `.say` file — one `screen`
 //! block per flow screen, buttons as `open the screen "…"` actions, toggles
 //! and counters as `keep` state with real controls — and
-//! [`Studio::materialize_flow`] writes it into the project and opens it. From
+//! `Studio::materialize_flow` writes it into the project and opens it. From
 //! there it is an ordinary Say buffer: Render compiles it, the property grid
 //! edits it, the canvas drags it, and what Build ships is what the preview
 //! showed. The live pane stays for speed; the cliff between it and the app is

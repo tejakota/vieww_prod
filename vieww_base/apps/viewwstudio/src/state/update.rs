@@ -39,7 +39,7 @@ impl Studio {
     /// Ask the release feed whether a newer studio exists (ST-14).
     ///
     /// The verdict arrives in the status bar through
-    /// [`read_update_feed`](Self::read_update_feed) when the fetch ends; this
+    /// `read_update_feed` when the fetch ends; this
     /// method is the refusal half plus the spawn.
     pub fn check_for_updates(&self) {
         if self.update_run.borrow().is_some() {

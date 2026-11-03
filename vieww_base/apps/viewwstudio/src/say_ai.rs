@@ -373,7 +373,7 @@ pub enum Progress {
 /// drawing while `rustc` and the rasteriser do their work.
 ///
 /// The compile pairs are minted on the *calling* thread (see
-/// [`Session::next_pair`]'s single-threaded counter), which is why
+/// `Session::next_pair`'s single-threaded counter), which is why
 /// [`spawn`](Self::spawn) takes the session by reference and the worker
 /// takes only paths — the same arrangement `compile::Job` made first.
 pub struct ProposeJob {

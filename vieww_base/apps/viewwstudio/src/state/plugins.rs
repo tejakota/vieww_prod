@@ -67,7 +67,7 @@ impl Studio {
     /// Run a command a plugin contributed, as the palette asked for it.
     ///
     /// The pair `(plugin, title)` is the command's identity — see
-    /// [`PaletteEntry::Plugin`](crate::state::PaletteEntry::Plugin) for why
+    /// [`PaletteEntry::Plugin`] for why
     /// the title alone is not enough.
     pub fn run_plugin_command(&self, plugin: &str, title: &str) {
         // The registry's Rc is cloned out of the signal's read guard so the

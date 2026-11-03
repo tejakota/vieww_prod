@@ -2031,7 +2031,7 @@ pub struct Studio {
     ///
     /// The switch the palette's Share command flips; the session itself —
     /// the `collab::Doc`, the log path, the read offset, everyone's presence
-    /// — is [`collab_session`](Self::collab_session), and nothing subscribes
+    /// — is `collab_session`, and nothing subscribes
     /// to it directly: the buffer is already a signal, and the carets are
     /// published through [`collab_carets`](Self::collab_carets).
     pub collab: Signal<bool>,

@@ -25,19 +25,19 @@
 //!   on the *container layer*, and MediaCodec does not) is applied here
 //!   from the parsed [`Head`](super::opus::Head) after a platform decode.
 //! * A decode the platform returns goes through
-//!   [`Decoded::validated`](super::Decoded::validated) like any other:
+//!   `Decoded::validated` like any other:
 //!   shape limits and runaway-sample concealment are the crate's contract
 //!   with its mixer, whatever decoded the bytes.
 //!
 //! The shipped implementations:
 //!
-//! * Android — [`MediaCodec`]: the NDK `AMediaExtractor` +
+//! * Android — `MediaCodec`: the NDK `AMediaExtractor` +
 //!   `AMediaCodec` pipeline, `libmediandk.so` loaded at run time exactly
 //!   as `backend::aaudio` loads `libaaudio.so` (an APK on an older device
 //!   reports the bridge unavailable instead of failing to start). The
 //!   bytes are spooled into a `memfd` — no file on disk, no permission
 //!   asked — and handed to the extractor by fd.
-//! * macOS/iOS — [`ExtAudioFile`]: the container readers plus
+//! * macOS/iOS — `ExtAudioFile`: the container readers plus
 //!   `AudioConverter`, asked for interleaved float32. `ExtAudioFile`
 //!   opens by URL, so the bytes are spooled to the sandbox's temporary
 //!   directory first.

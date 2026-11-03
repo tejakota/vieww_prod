@@ -168,7 +168,7 @@ pub fn undersized_touch_targets(nodes: &[SemanticsNode]) -> Vec<Finding> {
         .collect()
 }
 
-/// Nodes that offer a control action — [`SemanticAction::Activate`],
+/// Nodes that offer a control action — `SemanticAction::Activate`,
 /// `Increment` or `Decrement` — but are not [`SemanticsNode::focusable`].
 ///
 /// A node like that is a control a screen reader will offer to activate (the

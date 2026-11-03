@@ -125,7 +125,7 @@ pub fn tags(info: &PluginInfo) -> Vec<&'static str> {
 /// The `AudioComponents` dictionary for `info` (one array entry), as
 /// key/value pairs in plist order. The class name is the app
 /// extension's choice, so it is passed in: it must be the name
-/// [`super::wrapper::install`] registered the class under.
+/// `super::wrapper::install` registered the class under.
 #[must_use]
 pub fn components_entry(class_name: &str, info: &PluginInfo) -> Vec<(&'static str, String)> {
     let d = AudioComponentDescription::for_info(info);

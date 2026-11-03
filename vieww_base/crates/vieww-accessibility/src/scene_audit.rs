@@ -35,7 +35,7 @@
 //!
 //! # What "large text" means here
 //!
-//! [`GlyphRun::size`] is the em size in logical pixels, which is the size
+//! `GlyphRun::size` is the em size in logical pixels, which is the size
 //! WCAG's 24px large-text boundary is stated against. Boldness is not in the
 //! scene, so the *small*-text threshold (4.5:1) is used below 24px — the
 //! conservative direction: bold 18px text judged as small can only fail more

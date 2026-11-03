@@ -15,7 +15,7 @@
 //!   other half from **this studio's own release** — not "latest": the pairing
 //!   between the binary and its rlibs is the entire doctrine of [`crate::sdk`],
 //!   so a split SDK from any release but this one is refused by construction.
-//!   The unpacked bundle is then put through the same [`sdk::Manifest::read`] +
+//!   The unpacked bundle is then put through the same `sdk::Manifest::read` +
 //!   `verify` machinery the full bundle ships through — the download does not
 //!   get to skip the check the CD does not skip.
 //! * **The update check.** `--check-for-updates` on the command line, or
@@ -39,7 +39,7 @@
 //! # What "apply" honestly means here
 //!
 //! The SDK download applies itself — unpacking into the directory
-//! [`crate::install`] already searches, which no running process owns — and
+//! `crate::install` already searches, which no running process owns — and
 //! the studio asks for a restart, because `Toolchain::discover` runs once, at
 //! launch, by design. The *update* download does not apply itself: an update
 //! replaces the binary **and** the rlibs it is paired with, under an

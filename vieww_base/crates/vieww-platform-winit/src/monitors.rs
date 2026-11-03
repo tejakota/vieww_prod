@@ -2,7 +2,7 @@
 //!
 //! # Why this is here and not in `vieww-foundation`
 //!
-//! The same rule [`crate::lifecycle`] states: `winit` is the *single* bridge
+//! The same rule `crate::lifecycle` states: `winit` is the *single* bridge
 //! for all five targets, so a trait in a core crate would have exactly one
 //! implementor and no second opinion to design against. The moment something
 //! above the platform layer needs to observe displays — a layout that
@@ -20,7 +20,7 @@
 //! [`diff`] turns two snapshots into the events an application cares about.
 //! The runner re-reads on every event that could mean the furniture moved
 //! (`Moved`, `ScaleFactorChanged`, and once at `resumed` for the baseline),
-//! which is the same re-read discipline [`crate::app`]'s refresh-rate
+//! which is the same re-read discipline `crate::app`'s refresh-rate
 //! tracking already practices — see that code's own comment for why a
 //! once-a-second poll was deliberately *not* added.
 //!
@@ -52,7 +52,7 @@ use winit::monitor::MonitorHandle;
 
 /// One display, as the platform describes it — everything in **physical**
 /// pixels and raw scale factors, because logical pixels are a *window*
-/// concern ([`crate::scale`]'s whole argument) and a monitor is not a window.
+/// concern (`crate::scale`'s whole argument) and a monitor is not a window.
 #[derive(Debug, Clone, PartialEq)]
 pub struct MonitorInfo {
     /// The platform's name for this display, or `None` on Wayland where the

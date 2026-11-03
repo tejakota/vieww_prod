@@ -6,8 +6,8 @@
 //! generators are the single source of truth alongside the wrapper: the
 //! URIs, port indices, symbols, parameter fragments and state property
 //! here are exactly what `lv2/mod.rs` implements, because both call
-//! [`plugin_uri`](super::plugin_uri) and
-//! [`param_fragment`](super::param_fragment).
+//! [`plugin_uri`] and
+//! [`param_fragment`].
 //!
 //! A bundle on disk is
 //!

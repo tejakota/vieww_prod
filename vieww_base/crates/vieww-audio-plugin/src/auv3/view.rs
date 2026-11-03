@@ -7,12 +7,12 @@
 //! links none of (the same refusal the CLAP `gui` wiring makes, for the
 //! same reason). What the AUv3 wrapper completes the handler with is
 //! `NULL`, by name, and what it offers instead is what every format
-//! here offers: the offscreen [`Panel`](crate::gui::vieww::Panel), whose
+//! here offers: the offscreen [`Panel`], whose
 //! frames a presenter embeds.
 //!
 //! [`Auv3View`] is that wiring: it owns the panel, attaches it to a
-//! [`Parent::Offscreen`](crate::gui::Parent::Offscreen) with a
-//! [`QueueHost`] — the [`GuiHost`](crate::gui::GuiHost) whose edits go
+//! [`Parent::Offscreen`] with a
+//! [`QueueHost`] — the [`GuiHost`] whose edits go
 //! into a queue the AU's main thread drains into the parameter tree's
 //! path — and hands out frames. A presenter crate (AppKit/UIKit glue in
 //! the platform layer, the same follow-up the CLAP wiring names) is what
@@ -120,7 +120,7 @@ impl Auv3View {
     /// Attach the panel for a parameter table (idempotent: a second
     /// call re-attaches, as a host re-opening an editor would).
     ///
-    /// The panel gets an [`Arc`] clone of the host — the box the trait
+    /// The panel gets an `Arc` clone of the host — the box the trait
     /// takes is `'static` by signature, and the Arc is the shared
     /// queue, not a borrow of this view.
     pub fn attach(&mut self, params: &[crate::ParamInfo]) -> bool {
