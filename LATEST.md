@@ -2,6 +2,7 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
+| 2026-11-03T10:01:48Z | pr-quick/close-open-gaps | SUCCESS | `adc4aef6034b` | [summary](pr-quick/close-open-gaps/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41613676698) |
 | 2026-11-02T12:44:23Z | goldens/main | SUCCESS | `0a3a38222372` | [summary](goldens/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41445495538) |
 | 2026-11-02T10:29:17Z | framework-checks/main | FAILURE | `3b969c0f122c` | [summary](framework-checks/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41425235503) |
 | 2026-11-02T10:08:01Z | pr-quick/main | FAILURE | `3b969c0f122c` | [summary](pr-quick/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41425273084) |
