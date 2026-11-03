@@ -153,6 +153,12 @@ fn residuals(
     kb: u32,
     escape_bits: u32,
 ) -> Result<Vec<i32>, CodecError> {
+    // The cookie's rice limit is a whole byte, and `1 << kb` in the
+    // zero-run branch below is a shift-overflow panic for kb ≥ 32 — a
+    // corrupt cookie's value; every real file carries 14. `k` itself
+    // never exceeds 31, so the clamp changes nothing but the hostile
+    // cookie's ability to crash the decode.
+    let kb = kb.min(31);
     // The constants of the adaptive-Golomb code: the mean's fixed-point
     // scale (512), the zmode threshold, and the k estimate's rounding.
     const QB: u32 = 1 << 9;
@@ -309,7 +315,17 @@ fn predict(res: &[i32], coefs: &mut [i16], num: u32, chan_bits: u32, den_shift: 
         return out;
     }
     let num = num as usize;
-    let den_half = 1i64 << (den_shift - 1);
+    // `den_shift` is a 4-bit field, and 0 is a value a corrupt file can
+    // write: `1 << (den_shift − 1)` was the `subtract with overflow`
+    // panic the fuzzer found on this line. With no shift there is no
+    // rounding half — the division rounds nowhere — and every
+    // `>> den_shift` below is the identity, so the decode stays defined
+    // and the concealment pass judges whatever values come out.
+    let den_half = if den_shift == 0 {
+        0
+    } else {
+        1i64 << (den_shift - 1)
+    };
     // Warm-up: straight integration for the first `num` samples.
     for j in 1..=num.min(n - 1) {
         out[j] = clamp(i64::from(res[j]) + i64::from(out[j - 1]));
@@ -459,6 +475,12 @@ fn unmix(
     shift: &[u16],
     bytes_shifted: u8,
 ) {
+    // `mixBits` is an 8-bit field: ≥ 64 would overflow the shifts below
+    // — corrupt-file territory, real matrices sit in single digits.
+    // Clamped rather than refused so the values a corrupt pair produces
+    // stay defined and the concealment pass can judge them, the same
+    // posture the predictor takes.
+    let mix_bits = u32::from(mix_bits).min(63);
     let sh = u32::from(bytes_shifted) * 8;
     for (i, ((&a, &b), frame)) in u
         .iter()
@@ -548,6 +570,17 @@ fn frame(data: &[u8], cfg: &Config, default_samples: usize) -> Result<Vec<i32>, 
                             .ok_or(CodecError::Truncated)?;
                     }
                     let chan_bits = u32::from(cfg.bit_depth) - u32::from(bytes_shifted) * 8;
+                    if chan_bits == 0 {
+                        // 16-bit mono with both bytes shifted off: the
+                        // predictor would sign-extend through a 32-bit
+                        // shift — a panic on a shape no encoder writes
+                        // (shift-off exists to narrow 24/32-bit samples;
+                        // a 16-bit sample has nothing to shift). Refused
+                        // by name rather than decoded as noise.
+                        return Err(CodecError::Malformed(
+                            "ALAC shift-off leaves no coded bits",
+                        ));
+                    }
                     let res = residuals(
                         &mut r,
                         samples,
@@ -983,6 +1016,151 @@ mod tests {
         assert!(matches!(
             frame(&w.bytes, &cfg, 4096),
             Err(CodecError::Truncated) | Err(CodecError::Malformed(_))
+        ));
+    }
+
+    /// The fuzzer's crash, kept as a test: a frame whose predictor
+    /// declares `denShift` 0 — a value the 4-bit field can hold —
+    /// panicked in `predict` on `1 << (den_shift − 1)`. The decode is
+    /// now defined (no shift means no rounding half), and the values it
+    /// produces are judged by the concealment pass like any other
+    /// garbage from a corrupt file.
+    #[test]
+    fn a_zero_den_shift_decodes_rather_than_panicking() {
+        use super::super::bits::MsbWriter;
+        let mut w = MsbWriter::default();
+        w.write(0, 3); // SCE
+        w.write(0, 4);
+        w.write(0, 12);
+        w.write(0, 4); // coded, no shift, no partial
+        w.write(0, 8); // mixBits (read and ignored for mono)
+        w.write(0, 8); // mixRes (read and ignored for mono)
+        w.write(0x00, 8); // mode 0 | denShift 0 — the fuzzer's field
+        w.write(0x01, 8); // pbFactor 0 | num 1 (0 and 31 return early)
+        w.write(0, 16); // the one predictor coefficient
+        for _ in 0..16 {
+            w.write(0, 8); // zero residuals decode as zeros
+        }
+        w.write(7, 3); // END
+        w.align();
+        let cfg = Config {
+            frame_len: 4096,
+            bit_depth: 16,
+            pb: 40,
+            mb: 10,
+            kb: 14,
+            channels: 1,
+            rate: 44_100,
+        };
+        let out = frame(&w.bytes, &cfg, 2).unwrap();
+        assert_eq!(out.len(), 2);
+    }
+
+    /// The cookie's rice limit is a whole byte, and `1 << kb` in the
+    /// zero-run branch overflowed for kb ≥ 32. Clamped now; every real
+    /// file carries 14.
+    #[test]
+    fn a_cookie_rice_limit_past_31_decodes_rather_than_panicking() {
+        use super::super::bits::MsbWriter;
+        let mut w = MsbWriter::default();
+        w.write(0, 3); // SCE
+        w.write(0, 4);
+        w.write(0, 12);
+        w.write(0, 4); // coded, no shift, no partial
+        w.write(0, 8); // mixBits
+        w.write(0, 8); // mixRes
+        w.write(0x01, 8); // mode 0 | denShift 1
+        w.write(0x00, 8); // pbFactor 0 | num 0 (no coefficients)
+        for _ in 0..16 {
+            w.write(0, 8); // residuals: the first sends the mean into
+                           // zero-run mode, where `1 << kb` lives
+        }
+        w.write(7, 3); // END
+        w.align();
+        let cfg = Config {
+            frame_len: 4096,
+            bit_depth: 16,
+            pb: 40,
+            mb: 10,
+            kb: 255, // a corrupt cookie's whole-byte limit
+            channels: 1,
+            rate: 44_100,
+        };
+        let out = frame(&w.bytes, &cfg, 2).unwrap();
+        assert_eq!(out.len(), 2);
+    }
+
+    /// A stereo pair whose `mixBits` is ≥ 64 — an 8-bit field —
+    /// overflowed the decorrelation shift. Clamped now; the matrix's
+    /// garbage stays defined and concealment judges it.
+    #[test]
+    fn a_hostile_mix_bits_decodes_rather_than_panicking() {
+        use super::super::bits::MsbWriter;
+        let mut w = MsbWriter::default();
+        w.write(1, 3); // channel pair
+        w.write(0, 4);
+        w.write(0, 12);
+        w.write(0, 4); // coded, no shift, no partial
+        w.write(64, 8); // mixBits — past every shift's range
+        w.write(1, 8); // mixRes — nonzero, so the matrix branch runs
+        w.write(0x01, 8); // u: mode 0 | denShift 1
+        w.write(0x00, 8); // u: pbFactor 0 | num 0
+        w.write(0x01, 8); // v: mode 0 | denShift 1
+        w.write(0x00, 8); // v: pbFactor 0 | num 0
+        for _ in 0..16 {
+            w.write(0, 8); // both halves' residuals
+        }
+        w.write(7, 3); // END
+        w.align();
+        let cfg = Config {
+            frame_len: 4096,
+            bit_depth: 16,
+            pb: 40,
+            mb: 10,
+            kb: 14,
+            channels: 2,
+            rate: 44_100,
+        };
+        let out = frame(&w.bytes, &cfg, 2).unwrap();
+        assert_eq!(out.len(), 4);
+    }
+
+    /// 16-bit mono that shifts both bytes off leaves zero coded bits —
+    /// the predictor used to sign-extend through a 32-bit shift. No
+    /// encoder writes the shape (shift-off narrows 24/32-bit samples);
+    /// it is refused by name.
+    #[test]
+    fn shifting_every_bit_off_a_16_bit_frame_refuses() {
+        use super::super::bits::MsbWriter;
+        let mut w = MsbWriter::default();
+        w.write(0, 3); // SCE
+        w.write(0, 4);
+        w.write(0, 12);
+        w.write(0b0100, 4); // no partial, bytesShifted 2, no escape
+        for _ in 0..4 {
+            w.write(0, 8); // the shifted-off bytes themselves
+        }
+        w.write(0, 8); // mixBits
+        w.write(0, 8); // mixRes
+        w.write(0x01, 8); // mode 0 | denShift 1
+        w.write(0x00, 8); // pbFactor 0 | num 0
+        for _ in 0..16 {
+            w.write(0, 8);
+        }
+        w.write(7, 3); // END
+        w.align();
+        let cfg = Config {
+            frame_len: 4096,
+            bit_depth: 16,
+            pb: 40,
+            mb: 10,
+            kb: 14,
+            channels: 1,
+            rate: 44_100,
+        };
+        assert!(matches!(
+            frame(&w.bytes, &cfg, 2),
+            Err(CodecError::Malformed("ALAC shift-off leaves no coded bits"))
         ));
     }
 }
