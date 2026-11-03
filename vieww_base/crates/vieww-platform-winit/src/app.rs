@@ -2543,12 +2543,16 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
         // what is drawn. See `NativeRenderer::enable_planner_shadow`. A
         // diagnostic that cannot open its file says so and the app runs on.
         //
-        // **`VIEWW_PLANNER_CALIBRATE=1`** beside it replaces the profile's
-        // round-number CPU throughput with a one-time startup measurement
-        // of this machine's own rasterizer (plus the scheduler's core
-        // count), so the shadow log's predictions start from what the
-        // device actually does rather than from `profile_for`'s table —
-        // see `NativeRenderer::planner_profile`.
+        // **`VIEWW_PLANNER_CALIBRATE=1`** beside it seeds the calibration
+        // loop (FW-22): one startup micro-benchmark of this machine's own
+        // rasterizer (plus the scheduler's core count) feeds *both halves*
+        // of the planner — the profile its predictions divide by, and the
+        // measured-cost history its acted-on plans are priced at — so the
+        // log's predictions start from what the device actually does
+        // rather than from `profile_for`'s table. It is a seed, not an
+        // answer: launch frames are excluded from every correction, and
+        // the steady frames do the calibrating — see
+        // `NativeRenderer::enable_planner_shadow`.
         if let Some(path) = std::env::var_os("VIEWW_PLANNER_SHADOW") {
             let path = std::path::PathBuf::from(path);
             match renderer.enable_planner_shadow(&path) {

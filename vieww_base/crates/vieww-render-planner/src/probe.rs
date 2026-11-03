@@ -31,6 +31,20 @@
 //!   measured path this crate owns. What this module never does is invent a
 //!   GPU number.
 //!
+//! # The benchmark's place in the calibration loop (FW-22)
+//!
+//! The benchmark is the loop's **seed**, not its answer. It runs at launch,
+//! on boost clocks and warm-enough caches, and PENDING §4.6 measured exactly
+//! that bias on the phones: launch-time CPU cost 34–38% under the steady
+//! state (Stylo 22.1 vs 35.7 ms, A73 11.0 vs 16.6). So the loop treats its
+//! number as a better *guess* — one that replaces the round-number table —
+//! and trusts the steady frames past
+//! [`LAUNCH_EXCLUDE_FRAMES`](crate::shadow::LAUNCH_EXCLUDE_FRAMES) for the
+//! correction: `ShadowPlanner::seed_cpu_fill_benchmark` feeds both the
+//! profile and the measured model's `draw` rate with this measurement, and
+//! the live frames do the rest. In a debug build the benchmark deliberately
+//! does not run at all (see `calibrate_cpu_fill`'s doc).
+//!
 //! The benchmark is **opt-in** (`VIEWW_PLANNER_CALIBRATE=1` on the windowed
 //! path): it costs single-digit milliseconds at startup and the zero-cost
 //! profile pick stays the default, the same bargain
@@ -123,8 +137,21 @@ mod fill_benchmark {
     #[must_use]
     pub fn calibrate_cpu_fill(profile: DeviceProfile) -> DeviceProfile {
         let mut out = with_detected_cores(profile);
+        if let Some(rate) = measure_fill_rate() {
+            out.cpu_fill_mpix_per_sec = rate;
+        }
+        out
+    }
+
+    /// The benchmark's own number, without the profile around it: this
+    /// machine's plain-fill throughput in Mpix/s, `None` for every reason
+    /// `calibrate_cpu_fill`'s doc lists. The calibration loop's seed step
+    /// (`ShadowPlanner::seed_cpu_fill_benchmark`) consumes this — the same
+    /// measurement, feeding the measured model as well as the profile.
+    #[must_use]
+    pub(crate) fn measure_fill_rate() -> Option<f32> {
         if cfg!(debug_assertions) {
-            return out;
+            return None;
         }
         let scene = fill_scene(BENCH_WIDTH, BENCH_HEIGHT);
         #[expect(
@@ -132,12 +159,7 @@ mod fill_benchmark {
             reason = "a benchmark frame is a small number of pixels"
         )]
         let mpix = (BENCH_WIDTH as f32 * BENCH_HEIGHT as f32) / 1_000_000.0;
-        if let Some(best_ms) = measure_fill_ms(&scene) {
-            if let Some(rate) = throughput_from_best_ms(mpix, best_ms) {
-                out.cpu_fill_mpix_per_sec = rate;
-            }
-        }
-        out
+        measure_fill_ms(&scene).and_then(|best_ms| throughput_from_best_ms(mpix, best_ms))
     }
 
     /// Convert a best-sample time into the profile's Mpix/s unit, rejecting
@@ -272,6 +294,8 @@ mod fill_benchmark {
 
 #[cfg(feature = "calibrate")]
 pub use fill_benchmark::calibrate_cpu_fill;
+#[cfg(feature = "calibrate")]
+pub(crate) use fill_benchmark::measure_fill_rate;
 
 #[cfg(test)]
 mod tests {

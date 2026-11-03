@@ -986,8 +986,19 @@ impl NativeRenderer {
             .create(true)
             .append(true)
             .open(path)?;
+        let mut planner = ShadowPlanner::new(self.planner_profile());
+        // FW-22, the calibration loop's seed step: `VIEWW_PLANNER_CALIBRATE=1`
+        // runs the startup micro-benchmark once and feeds *both halves* —
+        // the planning profile the heuristic divides by, and the measured
+        // model's `draw` rate the plan an authoritative planner acts on is
+        // priced at. One run feeds both; the profile picker above stays a
+        // pure pick, and the steady frames past the launch window do the
+        // correcting (see `ShadowPlanner::seed_cpu_fill_benchmark`).
+        if planner_calibration() {
+            planner.seed_cpu_fill_benchmark();
+        }
         self.shadow = Some(PlannerShadow {
-            planner: ShadowPlanner::new(self.planner_profile()),
+            planner,
             out: std::io::BufWriter::new(file),
             broken: false,
             authoritative: false,
@@ -1014,44 +1025,40 @@ impl NativeRenderer {
     ///
     /// Shadow mode was never enabled, with the reason as the message.
     pub fn enable_planner_authoritative(&mut self) -> Result<(), String> {
-        if self.shadow.is_none() {
+        let Some(shadow) = self.shadow.as_mut() else {
             return Err(
                 "planner shadow is not enabled; set VIEWW_PLANNER_SHADOW to a log path \
                  so the authoritative gate has something to read"
                     .to_owned(),
             );
-        }
-        // The profile is read before the mutable borrow of the shadow
-        // state, which `planner_profile`'s `&self` would collide with.
-        let profile = self.planner_profile();
-        let shadow = self.shadow.as_mut().expect("checked above");
+        };
         shadow.authoritative = true;
-        shadow.planner = ShadowPlanner::with_authoritative(profile);
+        // Permission is granted to the planner that already runs
+        // (`allow_authoritative`), not to a rebuilt one: everything the
+        // shadow half accumulated — the launch window already served, the
+        // measured history the micro-benchmark seeded, the raw calibration
+        // — survives the grant, where a fresh planner would restart the
+        // launch window and drop the seed it would then have to re-measure.
+        shadow.planner.allow_authoritative();
         Ok(())
     }
 
-    /// The planner's assumed profile for this window's device.
-    ///
-    /// `VIEWW_PLANNER_CALIBRATE=1` (read once per process) additionally runs
-    /// [`vieww_render_planner::probe::calibrate_cpu_fill`]: a one-time,
-    /// single-digit-millisecond startup micro-benchmark that replaces the
-    /// profile's round-number CPU fill throughput with a measurement of this
-    /// machine's own rasterizer, and fills `cpu_cores` from the scheduler.
-    /// The GPU fields stay as `profile_for` guessed them — the shadow log's
-    /// own `Calibration` is the measured path for those, and this function
-    /// is called once per window, not per frame.
+    /// The planner's assumed profile for this window's device — a pure pick
+    /// from the backend's own adapter type, with no measurement in it.
+    /// Calibration is not this function's job: `enable_planner_shadow`
+    /// seeds the planner (`ShadowPlanner::seed_cpu_fill_benchmark`, behind
+    /// `VIEWW_PLANNER_CALIBRATE=1`), because a measurement belongs to the
+    /// planner it feeds — both halves of it, the profile *and* the
+    /// measured-cost history — and this function is called per window,
+    /// while the seed is once per planner.
     fn planner_profile(&self) -> DeviceProfile {
         use vieww_hal::Device as _;
         // On the CPU present path no device was opened to ask; plan as this
         // kind of machine's usual GPU, which is what the log is for.
-        let mut profile = self.device.as_ref().map_or_else(
+        self.device.as_ref().map_or_else(
             || profile_for(""),
             |device| profile_for(&device.info().device_type),
-        );
-        if planner_calibration() {
-            profile = vieww_render_planner::probe::calibrate_cpu_fill(profile);
-        }
-        profile
+        )
     }
 
     /// Plan `scene` in shadow and log what actually happened to it.
@@ -1109,6 +1116,35 @@ impl NativeRenderer {
                 &mut shadow.planner,
                 vieww_render_planner::measured_kinds::BLIT,
                 kinds.blit,
+            );
+        }
+        // The CPU half of the same connection (FW-22): a CPU frame's own
+        // raster stage, as a rate over the frame's pixels — the number the
+        // startup benchmark seeded and every later CPU frame refines. Only
+        // `present_planned` frames are recorded and they are whole-frame
+        // repaints, so `cpu_raster` is exactly the whole-frame cost the
+        // `draw` rate is priced per pixel of; a split frame rasterises the
+        // whole scene on the CPU too (the GPU band only overwrites rows),
+        // so it feeds the same rate, while a GPU frame's zero raster stage
+        // records nothing. Per-kind CPU rates would need per-kind pixel
+        // counts the raster stage does not carry, so `draw` is the whole
+        // honest CPU vocabulary today — `note_cpu_pass_kind` refuses the
+        // launch window either way.
+        if executor != Executor::Gpu && !self.stages.cpu_raster.is_zero() {
+            #[expect(
+                clippy::cast_precision_loss,
+                reason = "a frame extent is a small number of pixels"
+            )]
+            let pixels = (extent.0 as f32) * (extent.1 as f32);
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "a raster time in ms fits an f32"
+            )]
+            let ms = (self.stages.cpu_raster.as_secs_f64() * 1000.0) as f32;
+            shadow.planner.note_cpu_pass_kind(
+                vieww_render_planner::measured_kinds::DRAW,
+                ms,
+                pixels,
             );
         }
         // A pending plan (authoritative mode planned this frame *before*
@@ -1830,10 +1866,12 @@ pub fn gpu_overlap() -> bool {
 /// is always correct; missing one that did leaves a stale edge.
 const GPU_DAMAGE_MARGIN: i32 = 2;
 
-/// Whether the planner's profile is calibrated against this machine at
-/// startup (`VIEWW_PLANNER_CALIBRATE=1`): a one-time CPU fill micro-benchmark
-/// plus core-count detection, replacing the profile's round-number guesses
-/// with measured numbers — see `planner_profile`. Off by default, like every
+/// Whether the planner is calibrated against this machine at startup
+/// (`VIEWW_PLANNER_CALIBRATE=1`): a one-time CPU fill micro-benchmark plus
+/// core-count detection, fed to *both halves* of the planner the shadow log
+/// runs — the planning profile and the measured-cost history — by
+/// `enable_planner_shadow`'s seed step
+/// (`ShadowPlanner::seed_cpu_fill_benchmark`). Off by default, like every
 /// planner diagnostic, because the benchmark costs time and the guesses are
 /// what every existing log was recorded against. Read once per process.
 #[must_use]

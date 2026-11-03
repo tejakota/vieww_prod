@@ -46,5 +46,5 @@ pub use quality::{
 pub use shadow::{
     measured_kind, measured_kinds, Calibration, Executor, PassSummary, PlannerMode, RecentError,
     Recommendation, ShadowFrame, ShadowPlan, ShadowPlanner, TimingRing, AUTHORITATIVE_MAX_RMSE,
-    AUTHORITATIVE_MIN_FRAMES, TIMING_RING_CAPACITY, TIMING_RING_MIN_SAMPLES,
+    AUTHORITATIVE_MIN_FRAMES, LAUNCH_EXCLUDE_FRAMES, TIMING_RING_CAPACITY, TIMING_RING_MIN_SAMPLES,
 };
