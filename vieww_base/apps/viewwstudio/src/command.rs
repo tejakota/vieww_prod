@@ -458,6 +458,11 @@ pub enum Command {
     /// gains the Rust, the buffer gains `<Name>`, and the subtree becomes
     /// reusable as one word.
     ExtractWidget,
+    /// ST-05: clone a component library — a git repository of components —
+    /// so its components are listed and scaffoldable here.
+    AddComponentLibrary,
+    /// ST-05: pull every component library up to date.
+    SyncComponentLibraries,
     /// ST-10: share the active buffer through a collaboration session —
     /// `vieww-collab`'s RGA over `.vieww/collab.log`, remote carets in the
     /// editor. Toggles.
@@ -479,7 +484,7 @@ pub enum Command {
 
 impl Command {
     /// Every command, in palette order.
-    pub const ALL: [Self; 124] = [
+    pub const ALL: [Self; 126] = [
         Self::Render,
         Self::CancelRender,
         Self::Build,
@@ -611,6 +616,8 @@ impl Command {
         Self::CreateLiveFile,
         Self::MaterializeFlow,
         Self::ExtractWidget,
+        Self::AddComponentLibrary,
+        Self::SyncComponentLibraries,
         Self::ShareBuffer,
         Self::ReloadPlugins,
         Self::CheckForUpdates,
@@ -741,6 +748,8 @@ impl Command {
             Self::CreateLiveFile => "Create live.rs for the Live Preview",
             Self::MaterializeFlow => "Materialize the Live Flow as Say",
             Self::ExtractWidget => "Extract Widget as Component",
+            Self::AddComponentLibrary => "Add Component Library…",
+            Self::SyncComponentLibraries => "Sync Component Libraries",
             Self::ShareBuffer => "Share This Buffer for Collaboration",
             Self::ReloadPlugins => "Reload Studio Plugins",
             Self::CheckForUpdates => "Check for Updates",
@@ -857,6 +866,7 @@ impl Command {
             Self::CreateLiveFile => Menu::Render,
             Self::MaterializeFlow => Menu::Render,
             Self::ExtractWidget => Menu::Render,
+            Self::AddComponentLibrary | Self::SyncComponentLibraries => Menu::Render,
             // Sharing is a thing one does with a file, and the File menu is
             // where every desktop puts it.
             Self::ShareBuffer => Menu::File,
@@ -1042,6 +1052,9 @@ impl Command {
             // file, and both acts belong behind a picked subtree rather than
             // a reflex.
             | Self::ExtractWidget
+            // Nor for the libraries: both reach the network through git.
+            | Self::AddComponentLibrary
+            | Self::SyncComponentLibraries
             // Nor one for sharing: a session other people join is a decision,
             // not a reflex.
             | Self::ShareBuffer

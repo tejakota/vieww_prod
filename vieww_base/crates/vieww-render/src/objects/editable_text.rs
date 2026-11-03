@@ -123,6 +123,8 @@ pub struct RenderEditableText {
     /// name outright without drawing anything: it feeds `semantics` only,
     /// and wins over the placeholder when both are set.
     pub semantics_label: Option<String>,
+    /// Take the keyboard when mounted — see [`RenderObject::wants_autofocus`].
+    pub autofocus: bool,
     pub on_selection_changed: Option<SelectionChanged>,
     /// Where a **modified** click reports the caret it wants *added*.
     ///
@@ -290,6 +292,7 @@ impl RenderEditableText {
             placeholder: String::new(),
             placeholder_color: Color::BLACK,
             semantics_label: None,
+            autofocus: false,
             on_selection_changed: None,
             on_changed: None,
             spans: None,
@@ -382,6 +385,13 @@ impl RenderEditableText {
     #[must_use]
     pub fn semantics_label(mut self, label: impl Into<String>) -> Self {
         self.semantics_label = Some(label.into());
+        self
+    }
+
+    /// Take the keyboard as soon as this field is mounted.
+    #[must_use]
+    pub const fn autofocus(mut self, autofocus: bool) -> Self {
+        self.autofocus = autofocus;
         self
     }
 
@@ -1189,6 +1199,10 @@ impl RenderObject for RenderEditableText {
         // drawn by this object. Taking the keyboard would be a black hole: every
         // key would be swallowed and nothing would come of any of them.
         self.on_changed.is_some()
+    }
+
+    fn wants_autofocus(&self) -> bool {
+        self.autofocus && self.is_focusable()
     }
 
     fn skips_traversal(&self) -> bool {

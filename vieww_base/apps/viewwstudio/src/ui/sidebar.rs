@@ -492,6 +492,7 @@ impl Sidebar {
         // `<Name>` reference — two acts, which is why it is not
         // `insert_text_snippet`.
         let components = self.studio.registry_components();
+        let libraries = self.studio.component_libraries();
         rows.push(section_title("Components — extracted, reusable", colors));
         if components.is_empty() {
             rows.push(note(
@@ -502,9 +503,71 @@ impl Sidebar {
         } else {
             rows.extend(components.iter().map(|component| {
                 let studio = self.studio.clone();
-                let component = component.clone();
+                let scaffolded = component.clone();
                 let sub = label(
                     &format!("from {} — places <{}>", component.from, component.name),
+                    10.5,
+                    colors.outline,
+                );
+                let mut lines: Vec<WidgetNode> = vec![
+                    row(
+                        RowSpec {
+                            text: component.name.clone(),
+                            trailing: None,
+                            selected: false,
+                            indent: 12.0,
+                            leading: Leading::None,
+                        },
+                        chrome,
+                        colors,
+                        move || studio.scaffold_component(&scaffolded),
+                    ),
+                    Container::new()
+                        .padding(EdgeInsets::only(12.0, 0.0, 12.0, 6.0))
+                        .child(sub)
+                        .into(),
+                ];
+                // Publishing is to a library the user added: one row per
+                // library, each naming where the component goes.
+                lines.extend(libraries.iter().map(|library| {
+                    let studio = self.studio.clone();
+                    let component = component.clone();
+                    let library = library.clone();
+                    row(
+                        RowSpec {
+                            text: format!("Publish to {}", library.name()),
+                            trailing: None,
+                            selected: false,
+                            indent: 24.0,
+                            leading: Leading::None,
+                        },
+                        chrome,
+                        colors,
+                        move || studio.publish_component(&component, &library),
+                    )
+                }));
+                Flex::column()
+                    .cross_axis_alignment(CrossAxisAlignment::Stretch)
+                    .children(lines)
+                    .into()
+            }));
+        }
+
+        // **ST-05: the team's components** — every library cloned by its git
+        // address, listed as the local ones are and scaffolded the same way.
+        for library in &libraries {
+            rows.push(section_title(
+                &format!("Library — {}", library.name()),
+                colors,
+            ));
+            let held = library.components();
+            if held.is_empty() {
+                rows.push(note(colors, "No components here yet — publish one."));
+            }
+            rows.extend(held.into_iter().map(|component| {
+                let studio = self.studio.clone();
+                let sub = label(
+                    &format!("from {} — places <{}>", library.url, component.name),
                     10.5,
                     colors.outline,
                 );
@@ -529,6 +592,13 @@ impl Sidebar {
                     ])
                     .into()
             }));
+        }
+        if libraries.is_empty() {
+            rows.push(note(
+                colors,
+                "Share components across projects: Add Component Library… \
+                 clones a git repository of them.",
+            ));
         }
 
         Flex::column()

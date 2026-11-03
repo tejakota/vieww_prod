@@ -141,7 +141,9 @@ impl Studio {
             // empty for the same reason as `NewFile`: a pre-filled
             // "untitled-app" is a name the user accepts without reading.
             NameKind::NewFile | NameKind::NewFolder => (Self::container_of(path), String::new()),
-            NameKind::NewProject => (path.to_path_buf(), String::new()),
+            NameKind::NewProject | NameKind::ComponentLibrary => {
+                (path.to_path_buf(), String::new())
+            }
             // Pre-filled, unlike the two above, and for the opposite reason:
             // this buffer already has a name — `untitled-2.rs`, or whatever a
             // template gave it — and the user is confirming or editing it
@@ -192,6 +194,7 @@ impl Studio {
             NameKind::NewFile | NameKind::NewFolder | NameKind::Rename | NameKind::SaveAs => {
                 Self::name_error(&text)
             }
+            NameKind::ComponentLibrary => crate::component_libraries::url_error(&text),
         };
         self.name_prompt.set(Some(NamePrompt {
             text,
@@ -233,7 +236,13 @@ impl Studio {
             return;
         };
         let name = prompt.text.trim().to_owned();
-        if let Some(error) = Self::name_error(&name) {
+        // An address, not a file name: `/` is the point of it.
+        let invalid = if matches!(prompt.kind, NameKind::ComponentLibrary) {
+            crate::component_libraries::url_error(&name)
+        } else {
+            Self::name_error(&name)
+        };
+        if let Some(error) = invalid {
             self.name_prompt.set(Some(NamePrompt {
                 error: Some(error),
                 ..prompt
@@ -304,6 +313,7 @@ impl Studio {
                 self.scaffold_named_project(&prompt.target, &name, prompt.project_kind)
             }
             NameKind::SaveAs => self.write_active_as(&prompt.target.join(&name)),
+            NameKind::ComponentLibrary => self.add_component_library(&name),
         };
 
         match outcome {

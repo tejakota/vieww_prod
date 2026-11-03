@@ -2527,7 +2527,10 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
             // that did not prewarm agree too.
             let file = self.pipeline_cache_file();
             vieww_hal::vulkan::set_pipeline_cache_file(file.clone());
-            crate::native::Prewarm::start(file)
+            // The event loop is the display: its surface extensions are known
+            // before the window is, so the instance can be made beside it.
+            let extensions = vieww_hal::vulkan::surface_extensions(event_loop).ok();
+            crate::native::Prewarm::start(file, extensions)
         });
         // **Startup is traced step by step.** A gate run on a GNOME/Wayland
         // hybrid-GPU laptop hung here — `tests/wait_loop.rs`' idle scenario
@@ -2541,6 +2544,10 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
                 .map_err(|error| PlatformError::Window(error.to_string()))?,
         );
         crate::startup::mark("window created");
+        // FW-20: the platform's `PlatformViews` parents its views here — the
+        // application's first window — at this window's scale.
+        #[cfg(not(target_os = "android"))]
+        crate::os_platform_views::anchor_registered(window.as_ref(), window.scale_factor());
         #[cfg(not(any(target_os = "ios", target_os = "android")))]
         fit_and_center(&window);
 
@@ -2606,7 +2613,10 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
         // when the prefix finished — with `window created` beside it, the
         // startup line shows the overlap rather than hiding it in the open.
         if let Some(prewarm) = prewarm {
-            let prewarmed = prewarm.join();
+            let (prewarmed, instance) = prewarm.join();
+            if let Some(instance) = instance {
+                crate::native::offer_prewarmed_instance(instance);
+            }
             crate::startup::mark("vulkan prewarmed");
             trace_line(
                 self.shared.now(),
@@ -2614,6 +2624,9 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
             );
         }
         let opened = NativeRenderer::for_window_on(&window, width, height, path);
+        // A CPU present wanted no device: the prewarmed instance, if any, is
+        // destroyed here rather than held for the life of the process.
+        crate::native::discard_prewarmed_instance();
         // A device whose GPU cannot be opened has answered the question: under
         // `auto_rasterizer` that is the CPU path, kept, rather than an app that
         // will not start.
@@ -3474,6 +3487,10 @@ impl<F: FnOnce(&mut FrameDriver)> ApplicationHandler<UserEvent> for Runner<F> {
             WindowEvent::ScaleFactorChanged { scale_factor, .. } => {
                 let shared = &self.shared;
                 self.windows[index].display_may_have_changed(shared);
+                if index == 0 {
+                    #[cfg(not(target_os = "android"))]
+                    crate::os_platform_views::scale_registered(scale_factor);
+                }
                 let window = &mut self.windows[index];
                 window.scale = Scale::new(scale_factor);
                 window.input.set_scale(window.scale);

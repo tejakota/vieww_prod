@@ -222,6 +222,25 @@ pub struct FrameDriver {
     hovered: Vec<RenderId>,
     /// Which render object the keyboard is talking to.
     focus: FocusManager,
+    /// The objects that asked for focus on mount and have been given it —
+    /// see [`RenderObject::wants_autofocus`]. An id is honoured once: a
+    /// field that keeps asking on every rebuild must not keep taking the
+    /// keyboard back. Ids carry a generation, so a reused slot is a new id.
+    autofocused: std::collections::HashSet<RenderId>,
+    /// What had the keyboard before an autofocus took it, and the object that
+    /// took it. When that object goes away with the keyboard still on it (a
+    /// palette closing), focus returns here rather than to nothing — a
+    /// keyboard-only user who dismissed an overlay is back where they were.
+    autofocus_return: Option<(RenderId, Option<RenderId>)>,
+    /// The tree's [`structure_changes`](crate::RenderTree::structure_changes)
+    /// at the last autofocus scan: nothing mounted or unmounted since means
+    /// nothing to do, so a rebuild-only frame never walks the tree for it.
+    autofocus_seen: Option<u64>,
+    /// The objects that asked to hear where layout put them, and the
+    /// structure stamp the list was built at — see
+    /// [`report_placements`](Self::report_placements).
+    placement_ids: Vec<RenderId>,
+    placement_seen: Option<u64>,
     /// Animations driven explicitly — an [`Animation`] the application started.
     ///
     /// Implicit animations are *not* here: they live on the elements that own
@@ -380,6 +399,11 @@ impl FrameDriver {
             pointers: PointerRouter::new(),
             hovered: Vec::new(),
             focus: FocusManager::new(),
+            autofocused: std::collections::HashSet::new(),
+            autofocus_return: None,
+            autofocus_seen: None,
+            placement_ids: Vec::new(),
+            placement_seen: None,
             animations: Tickers::new(),
             // The first frame has no previous contents, so all of it is damage.
             damage: Damage::everything(bounds),
@@ -1241,6 +1265,85 @@ impl FrameDriver {
         self.focus.focus(id)
     }
 
+    /// Focus whatever was just mounted asking for it, once per object.
+    ///
+    /// After the sync, so the object exists; the last one in tree order
+    /// wins when a build mounts several, which is the one drawn on top (a
+    /// palette's field over the editor under it). Only when the build
+    /// actually mounted a new asker does focus move.
+    fn apply_autofocus(&mut self) {
+        let tree = self.owner.tree();
+        let changes = tree.structure_changes();
+        if self.autofocus_seen == Some(changes) {
+            return;
+        }
+        self.autofocus_seen = Some(changes);
+        let asking: Vec<RenderId> = tree
+            .ids()
+            .into_iter()
+            .filter(|&id| tree.object(id).is_some_and(|o| o.wants_autofocus()))
+            .collect();
+        // Forget the ones that are gone or no longer asking, so the set
+        // stays the size of what is on screen.
+        self.autofocused.retain(|id| asking.contains(id));
+        let fresh = asking
+            .iter()
+            .rev()
+            .find(|id| !self.autofocused.contains(id))
+            .copied();
+        self.autofocused.extend(asking);
+        // The overlay that took the keyboard is gone: give it back, if what
+        // had it is still there and nothing else has taken it since.
+        if let Some((taker, previous)) = self.autofocus_return {
+            if tree.object(taker).is_none() {
+                self.autofocus_return = None;
+                if self.focus.focused().is_none() {
+                    let back = previous.filter(|&id| tree.object(id).is_some());
+                    if back.is_some() && self.focus.focus(back) {
+                        self.invalidation.upgrade(InvalidationKind::Paint);
+                    }
+                }
+            }
+        }
+        if let Some(id) = fresh {
+            let before = self.focus.focused();
+            if self.focus.focus(Some(id)) {
+                self.invalidation.upgrade(InvalidationKind::Paint);
+                // One autofocus replacing another keeps the first owner.
+                let previous = match self.autofocus_return {
+                    Some((_, earlier)) => earlier,
+                    None => before,
+                };
+                self.autofocus_return = Some((id, previous));
+            }
+        }
+    }
+
+    /// Tell every object that asked ([`RenderObject::wants_placement`]) where
+    /// layout put it — a native view's window rectangle (FW-20).
+    ///
+    /// The list of askers is rebuilt only when the tree's membership changed
+    /// (the same stamp autofocus reads), so a frame pays for the objects that
+    /// asked and nothing else; each implementation makes an unchanged
+    /// rectangle cheap.
+    fn report_placements(&mut self) {
+        let tree = self.owner.tree();
+        let changes = tree.structure_changes();
+        if self.placement_seen != Some(changes) {
+            self.placement_seen = Some(changes);
+            self.placement_ids = tree
+                .ids()
+                .into_iter()
+                .filter(|&id| tree.object(id).is_some_and(|o| o.wants_placement()))
+                .collect();
+        }
+        for &id in &self.placement_ids {
+            if let Some(object) = tree.object(id) {
+                object.placed(tree.global_bounds(id));
+            }
+        }
+    }
+
     /// Move focus to the next focusable object, wrapping at the end.
     pub fn focus_next(&mut self, forward: bool) -> bool {
         self.focus.focus_next(self.owner.tree(), forward)
@@ -1972,6 +2075,7 @@ impl FrameSink for FrameDriver {
         // that is no longer in the tree, which anything drawing a focus ring
         // would otherwise read.
         self.focus.prune(self.owner.tree());
+        self.apply_autofocus();
     }
 
     fn layout(&mut self, _frame: &FrameInfo) {
@@ -2031,7 +2135,7 @@ impl FrameSink for FrameDriver {
             // cases and therefore much harder to see.
             self.elements.poll_states();
             if self.elements.pending_count() == 0 {
-                return;
+                break;
             }
 
             self.elements.rebuild_pending();
@@ -2039,11 +2143,13 @@ impl FrameSink for FrameDriver {
             // For the reason the build phase gives: the sync can have removed
             // whatever held the keyboard.
             self.focus.prune(self.owner.tree());
+            self.apply_autofocus();
             self.size = self.owner.tree_mut().layout_root(self.constraints);
         }
         if self.owner.tree().layout_runs() > before {
             self.invalidation.upgrade(InvalidationKind::Layout);
         }
+        self.report_placements();
     }
 
     fn paint(&mut self, _frame: &FrameInfo) {

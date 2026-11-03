@@ -221,6 +221,13 @@ accesskit_android = { version = "0.9.0", features = ["embedded-dex"] }
 # garbage; see `src/ios.rs`. Pinned to what `winit` already resolves for this
 # target, for the same reason `jni` is pinned to `ndk`'s copy: a second version
 # is a second, incompatible `UIView` type.
+# FW-20's AppKit platform views: a few `msg_send!`s on `NSView`/`NSBox`
+# (`src/platform_views_appkit.rs`). The same `objc2` generation winit 0.30
+# already links on macOS, so nothing new is compiled.
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.5"
+objc2-foundation = { version = "0.2", features = ["NSGeometry"] }
+
 [target.'cfg(target_os = "ios")'.dependencies]
 objc2 = "0.5"
 objc2-ui-kit = { version = "0.2", features = [

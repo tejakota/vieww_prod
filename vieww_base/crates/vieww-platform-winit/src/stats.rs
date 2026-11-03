@@ -4,8 +4,9 @@
 //!
 //! [`FrameStats`] measures the five pipeline phases and stops at `composite`,
 //! because that is where the paint layer's responsibility ends. Everything
-//! expensive about putting a frame on a display happens *after* that: vello
-//! rasterises, the queue is submitted, the swapchain image is acquired — and
+//! expensive about putting a frame on a display happens *after* that: the
+//! renderer rasterises (vieww's CPU rasterizer, or a GPU backend), the queue
+//! is submitted, the swapchain image is acquired — and
 //! acquiring it is where vsync actually blocks. A frame rate computed from
 //! `FrameStats::total` alone would be a report on how fast the CPU can prepare
 //! work, which is not a frame rate at all and is generally about ten times too
@@ -60,7 +61,7 @@ pub struct Frame {
     /// says an idle app is the slowest thing on the machine. Only a gap the
     /// application was trying to fill is a gap it failed to fill.
     pub continuous: bool,
-    /// Pixels vello actually rasterised, summed over the damaged regions.
+    /// Pixels the renderer actually rasterised, summed over the damaged regions.
     pub pixels: u64,
     /// Where the renderer's share of [`work`](Self::work) went — see
     /// [`FrameStages`]. All zero until [`FrameLog::note_stages`] fills it.

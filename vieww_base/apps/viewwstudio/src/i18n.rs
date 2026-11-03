@@ -433,6 +433,13 @@ const SPANISH: &[(&str, &str)] = &[
     ("Materialize as Say", "Materializar como Say"),
     // ST-05: components — extract and scaffold.
     ("Extract Widget as Component", "Extraer el widget como componente"),
+    ("Add Component Library…", "Añadir biblioteca de componentes…"),
+    ("Sync Component Libraries", "Sincronizar bibliotecas de componentes"),
+    ("Add Component Library", "Añadir biblioteca de componentes"),
+    ("Component libraries up to date ({})", "Bibliotecas de componentes al día ({})"),
+    ("Could not sync {}", "No se pudo sincronizar {}"),
+    ("No component libraries yet — add one by its git address first.", "Aún no hay bibliotecas de componentes: añade una por su dirección git primero."),
+    ("Add", "Añadir"),
     ("Open a folder first — a component is a file in a project.", "Abre primero una carpeta: un componente es un archivo del proyecto."),
     ("Pick a widget on the canvas or in the Inspector first.", "Elige primero un widget en el lienzo o en el inspector."),
     ("Extract works on a `.say` screen — the subtree comes out of Say.", "Extraer funciona en una pantalla `.say`: el subárbol sale de Say."),
@@ -759,6 +766,13 @@ const FRENCH: &[(&str, &str)] = &[
     ("Materialize as Say", "Matérialiser en Say"),
     // ST-05 : composants — extraire et réutiliser.
     ("Extract Widget as Component", "Extraire le widget en composant"),
+    ("Add Component Library…", "Ajouter une bibliothèque de composants…"),
+    ("Sync Component Libraries", "Synchroniser les bibliothèques de composants"),
+    ("Add Component Library", "Ajouter une bibliothèque de composants"),
+    ("Component libraries up to date ({})", "Bibliothèques de composants à jour ({})"),
+    ("Could not sync {}", "Impossible de synchroniser {}"),
+    ("No component libraries yet — add one by its git address first.", "Aucune bibliothèque de composants : ajoutez-en une par son adresse git d’abord."),
+    ("Add", "Ajouter"),
     ("Open a folder first — a component is a file in a project.", "Ouvrez d'abord un dossier — un composant est un fichier du projet."),
     ("Pick a widget on the canvas or in the Inspector first.", "Choisissez d'abord un widget sur le canevas ou dans l'inspecteur."),
     ("Extract works on a `.say` screen — the subtree comes out of Say.", "L'extraction fonctionne sur un écran `.say` — le sous-arbre sort de Say."),
@@ -1179,6 +1193,13 @@ const GERMAN: &[(&str, &str)] = &[
     ("Materialize as Say", "Als Say materialisieren"),
     // ST-05: Komponenten — extrahieren und wiederverwenden.
     ("Extract Widget as Component", "Widget als Komponente extrahieren"),
+    ("Add Component Library…", "Komponentenbibliothek hinzufügen…"),
+    ("Sync Component Libraries", "Komponentenbibliotheken synchronisieren"),
+    ("Add Component Library", "Komponentenbibliothek hinzufügen"),
+    ("Component libraries up to date ({})", "Komponentenbibliotheken aktuell ({})"),
+    ("Could not sync {}", "Synchronisierung fehlgeschlagen: {}"),
+    ("No component libraries yet — add one by its git address first.", "Noch keine Komponentenbibliotheken – füge zuerst eine über ihre Git-Adresse hinzu."),
+    ("Add", "Hinzufügen"),
     ("Open a folder first — a component is a file in a project.", "Öffnen Sie zuerst einen Ordner – eine Komponente ist eine Datei im Projekt."),
     ("Pick a widget on the canvas or in the Inspector first.", "Wählen Sie zuerst ein Widget auf der Leinwand oder im Inspektor."),
     ("Extract works on a `.say` screen — the subtree comes out of Say.", "Extrahieren funktioniert auf einem `.say`-Bildschirm – der Teilbaum kommt aus Say."),
@@ -1758,6 +1779,7 @@ mod tests {
             NameKind::Rename,
             NameKind::NewProject,
             NameKind::SaveAs,
+            NameKind::ComponentLibrary,
         ] {
             keys.push(k.title().to_owned());
         }

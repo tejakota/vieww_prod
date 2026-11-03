@@ -59,6 +59,57 @@ class PerfBudget(unittest.TestCase):
         fat = dict(BASELINE, peak_rss_bytes=160 * 1024 * 1024)  # +33%, +40 MB
         self.assertEqual(pb.main(["check", budgets, write(fat), "--class", "hardware-linux"]), 1)
 
+    def test_a_first_frame_ceiling_gates_the_tiers_it_names(self):
+        # FW-16: 500 ms first frame on medium-and-up phones; the phone's
+        # tier is the one the app chose, so the low-tier LG is reported only.
+        summary = {"devices": [
+            {"device": "A36", "result": {"model": "SM-A366U1",
+                "auto_cold_start_ms": "439 437 422 ",
+                "auto_cache_budgets": "blur off (tier medium), fill off (tier medium)"}},
+            {"device": "Stylo", "result": {"model": "LM-Q720",
+                "auto_cold_start_ms": "652 638 615 ",
+                "auto_cache_budgets": "blur off (tier low)"}},
+            {"device": "iPhone 13", "result": {"model": "",
+                "auto_first_frame_ms": "n/a (no console below iOS 17)",
+                "auto_cache_budgets": "blur off (tier medium)"}},
+            {"device": "iPhone 15", "result": {"model": "iPhone 15 Plus",
+                "auto_first_frame_ms": "377.0 376.0 369.0",
+                "auto_cache_budgets": "blur off (tier medium)"}},
+        ]}
+        m = pb.measurements(summary)
+        self.assertEqual(m["phone-sm-a366u1"]["auto_first_frame_ms"], 437.0)
+        self.assertEqual(m["phone-iphone-15-plus"]["auto_first_frame_ms"], 376.0)
+        self.assertNotIn("phone-iphone-13", m, "n/a is not a measurement")
+        self.assertEqual(pb.tiers(summary)["phone-lm-q720"], "low")
+        budgets = {"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": {"x": {"y": 1.0}},
+                   "ceilings": {"auto_first_frame_ms": {"ceiling_ms": 500,
+                                "tiers": ["medium", "high"], "reason": "FW-16"}}}
+        rows, failures = pb.check_ceilings(budgets, m, pb.tiers(summary))
+        self.assertEqual(failures, [])
+        self.assertEqual({r[0] for r in rows}, {"phone-sm-a366u1", "phone-iphone-15-plus"})
+        path = write(budgets)
+        self.assertEqual(pb.main(["check", path, write(summary)]), 0)
+        slow = json.loads(json.dumps(summary))
+        slow["devices"][0]["result"]["auto_cold_start_ms"] = "640 650 660"
+        self.assertEqual(pb.main(["check", path, write(slow)]), 1, "a medium phone over 500 ms fails")
+        self.assertEqual(pb.main(["check", path, write(slow), "--advisory"]), 0)
+        bad = dict(budgets, ceilings={"auto_first_frame_ms": {"ceiling_ms": 500, "tiers": []}})
+        with self.assertRaises(ValueError):
+            pb.validate(bad)
+
+    def test_the_committed_ceiling_passes_the_last_device_farm_run(self):
+        # The figures the ceiling's reason quotes, from the real summary
+        # shape: every medium/high phone of the 2026-10-30 run was under.
+        summary = {"devices": [
+            {"device": "S26", "result": {"model": "SM-S948U1", "auto_cold_start_ms": "191 180 174",
+                                         "auto_cache_budgets": "x (tier high)"}},
+            {"device": "18 Pro Max", "result": {"model": "", "auto_first_frame_ms": "276.0 289.0 280.0",
+                                                "auto_cache_budgets": "x (tier medium)"}},
+        ]}
+        budgets = pb.load_budgets(os.path.join(HERE, "perf-budgets.json"))
+        _, failures = pb.check_ceilings(budgets, pb.measurements(summary), pb.tiers(summary))
+        self.assertEqual(failures, [])
+
     def test_the_committed_budgets_file_is_valid(self):
         pb.validate(pb.load_budgets(os.path.join(HERE, "perf-budgets.json")))
 

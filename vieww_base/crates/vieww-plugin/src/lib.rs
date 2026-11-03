@@ -40,8 +40,10 @@
 pub mod abi;
 pub mod host;
 pub mod registry;
+pub mod sandbox;
 
 pub use abi::{AbiVersion, HostVTable, LogLevel, Plugin, PluginCommand, PluginVTable};
 pub use host::stderr_host_vtable;
 pub use registry::{LoadedPlugin, PluginError, PluginRegistry};
+pub use sandbox::{SandboxError, SandboxPolicy, SandboxedPlugin};
 pub use vieww_plugin_macros::vieww_plugin;

@@ -71,5 +71,15 @@
         "target_ms": 16.7
       }
     }
+  },
+  "ceilings": {
+    "auto_first_frame_ms": {
+      "ceiling_ms": 500,
+      "reason": "FW-16: the audit's mid-tier first-frame budget \u2014 500 ms from launch to the first frame on any phone the app itself rates medium or high (its own tier choice, auto_cache_budgets). Low-tier phones (the LG Stylo 5 at ~640 ms) are reported, not gated; 120 Hz phones' pacing is a separate row. Measured 2026-10-30: iPhone 15 Plus 376, iPhone 18 Pro Max 280, Galaxy A36 437, Galaxy S26 Ultra 180.",
+      "tiers": [
+        "medium",
+        "high"
+      ]
+    }
   }
 }

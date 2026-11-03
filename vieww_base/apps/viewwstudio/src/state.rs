@@ -1336,6 +1336,9 @@ pub enum NameKind {
     /// even said "open a folder first", which is not what was wrong and not
     /// something that would have fixed it.
     SaveAs,
+    /// ST-05: the git address of a component library to clone. The text is
+    /// a URL, not a name, and is judged by `component_libraries::url_error`.
+    ComponentLibrary,
 }
 
 impl NameKind {
@@ -1347,6 +1350,7 @@ impl NameKind {
             Self::Rename => "Rename",
             Self::NewProject => "New Project",
             Self::SaveAs => "Save As",
+            Self::ComponentLibrary => "Add Component Library",
         }
     }
 }

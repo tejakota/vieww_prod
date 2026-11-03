@@ -133,3 +133,40 @@ the remaining questions:
 
 Until one of those exists, `docs/production-readiness/STATUS.md` FW-20
 records the state, and this file is the shape's declaration.
+
+## Settled (2026-11-03)
+
+The three things this page said would settle the open questions all exist
+now, and each answered its question:
+
+- **The widget-tree integration** — `vieww_widget::PlatformView` and its
+  `PlatformViewController`. The render object (`RenderPlatformView`) opts in
+  to a new `RenderObject::wants_placement`/`placed(bounds)` hook; the frame
+  driver calls it after every layout with the object's window-relative
+  bounds, keeping the list of askers by the tree's structure stamp so a frame
+  pays only for the views on screen. The controller owns the handle (a
+  rebuild does not recreate the native view), creates it on the first
+  placement, sends `set_bounds` only for a changed rectangle, and drops it
+  when the last render object holding it goes. `crates/vieww/tests/platform_view.rs`
+  pins create/move/no-op/dispose/refusal against a recording service.
+- **Non-Linux backends** — Win32 child windows (`platform_views_win32.rs`,
+  kind `win32-window`) and AppKit subviews (`platform_views_appkit.rs`, kind
+  `appkit-view`, an `NSBox` per view with flipped/unflipped parent
+  conversion). Both type-checked from Linux; their first runs are the
+  Windows and macOS CI legs.
+- **The anchor decision: the platform layer's wiring** (option 2).
+  `services::platform()` registers `OsPlatformViews`, which opens its
+  backend lazily; `App` anchors it to the application's first window when it
+  creates it and forwards `ScaleFactorChanged`. The trait is unchanged, the
+  backends keep their inherent `anchor` for embedders without an `App`, and a
+  session that cannot host views (a Wayland window, no X11) refuses with the
+  reason in `OsPlatformViews::refusal()` rather than failing to start.
+- **The scale-factor fix** — logical bounds are placed in device pixels at
+  the host's scale on X11 and Win32 (AppKit lays out in points already), and
+  a scale change re-places live views.
+
+Still open, and stated: Android and iOS (an activity / view controller is
+the anchor there, not a window handle), a content-carrying kind (video,
+web view) and its message channel, the TrueColor-visual assumption, and
+reparenting on re-anchor.
+

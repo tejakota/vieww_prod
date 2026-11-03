@@ -84,7 +84,18 @@ impl Widget for Palette {
                     .color(colors.on_surface),
             )
             .placeholder(mode.placeholder())
-            .single_line()
+            // Enter in a focused single-line field is the field's submit, not
+            // a key that bubbles — so the field's submit is the palette's
+            // accept, the same as the shortcut layer's Enter while the editor
+            // held the keyboard.
+            .on_submit({
+                let studio = self.studio.clone();
+                Rc::new(move |_: String| studio.palette_accept())
+            })
+            // ST-18: the palette opens from a chord, so its filter has to take
+            // the keyboard as it appears — before this, typing went to the
+            // editor behind and the palette could only be driven by arrows.
+            .autofocus(true)
             .selection_color(chrome.selection)
             .on_changed({
                 let studio = self.studio.clone();

@@ -625,13 +625,19 @@ impl Widget for NamePromptDialog {
                 // three that make something new and wrong for the two that do
                 // not: a Save As whose button says Create reads as a second
                 // file appearing beside the one you were editing.
-                crate::i18n::t(match prompt.kind {
-                    crate::state::NameKind::Rename => "Rename",
-                    crate::state::NameKind::SaveAs => "Save",
-                    crate::state::NameKind::NewFile
-                    | crate::state::NameKind::NewFolder
-                    | crate::state::NameKind::NewProject => "Create",
-                }),
+                // A library is cloned, not created: its button says Add.
+                if matches!(prompt.kind, crate::state::NameKind::ComponentLibrary) {
+                    crate::i18n::t("Add")
+                } else {
+                    crate::i18n::t(match prompt.kind {
+                        crate::state::NameKind::Rename => "Rename",
+                        crate::state::NameKind::SaveAs => "Save",
+                        crate::state::NameKind::NewFile
+                        | crate::state::NameKind::NewFolder
+                        | crate::state::NameKind::NewProject
+                        | crate::state::NameKind::ComponentLibrary => "Create",
+                    })
+                },
                 Tone::Primary,
                 move || confirming.confirm_name_prompt(),
             ))

@@ -68,12 +68,10 @@
 //!
 //! # Untested notes, stated rather than implied
 //!
-//! - **Logical == physical pixels.** `create` is documented in logical
-//!   pixels; X11 geometry is in device pixels, and this implementation passes
-//!   the numbers through unchanged, which is exactly right at scale factor 1.0
-//!   and exactly wrong under XWayland fractional scaling. The fix (learn the
-//!   host's scale at anchor time) is declared open in the architecture doc —
-//!   the second consumer, if it is not a fullscreen video view, will force it.
+//! - **Scale.** Bounds arrive in logical pixels and are placed in device
+//!   pixels at the host's scale factor ([`X11PlatformViews::set_scale`];
+//!   `App` keeps it in step with `Window::scale_factor()`), edges rounded so
+//!   abutting views stay abutting at a fractional scale.
 //! - **`background` assumes a TrueColor visual** whose channel masks are the
 //!   standard `0xff0000/0x00ff00/0x0000ff` (every default visual of the last
 //!   twenty years, and Xvfb's). A 8-bit PseudoColor screen would need a
@@ -318,15 +316,29 @@ struct Inner {
     state: RefCell<State>,
 }
 
-#[derive(Default)]
 struct State {
     /// The host window's XID, once [`X11PlatformViews::anchor`] has run.
     host: Option<Xid>,
+    /// Device pixels per logical pixel on the host — what turns the trait's
+    /// logical bounds into X11's device geometry. 1.0 until told otherwise
+    /// ([`X11PlatformViews::set_scale`]).
+    scale: f64,
     /// Monotonic source of `PlatformViewId`s.
     next_id: u64,
     /// Live views: capability id → (X11 window, the bounds it is *supposed*
     /// to be at — the cache that makes an unchanged `set_bounds` free).
     views: HashMap<PlatformViewId, (Xid, Rect)>,
+}
+
+impl Default for State {
+    fn default() -> Self {
+        Self {
+            host: None,
+            scale: 1.0,
+            next_id: 0,
+            views: HashMap::new(),
+        }
+    }
 }
 
 impl Inner {
@@ -415,6 +427,38 @@ impl X11PlatformViews {
         Ok(())
     }
 
+    /// The host's scale factor — device pixels per logical pixel, winit's
+    /// `Window::scale_factor()`. Every live view is moved to its bounds at
+    /// the new scale, so a window dragged to a monitor of another density
+    /// keeps its views where layout put them.
+    pub fn set_scale(&self, scale: f64) {
+        let scale = if scale.is_finite() && scale > 0.0 {
+            scale
+        } else {
+            1.0
+        };
+        let mut state = self.inner.state.borrow_mut();
+        if (state.scale - scale).abs() < f64::EPSILON {
+            return;
+        }
+        state.scale = scale;
+        let x11 = &self.inner.x11;
+        for &(window, bounds) in state.views.values() {
+            let (x, y, w, h) = device_geometry(bounds, scale);
+            // SAFETY: a live child this service created, moved on the same
+            // connection — as `set_bounds` does.
+            unsafe { (x11.move_resize_window)(x11.display, window, x, y, w, h) };
+        }
+        // SAFETY: flushing a live connection.
+        unsafe { (x11.flush)(x11.display) };
+    }
+
+    /// The scale factor views are placed at.
+    #[must_use]
+    pub fn scale(&self) -> f64 {
+        self.inner.state.borrow().scale
+    }
+
     /// A minimal top-level host window, for embedders that do not run a full
     /// vieww `App`: mapped, background-cleared, owning nothing but its XID.
     ///
@@ -447,20 +491,23 @@ impl X11PlatformViews {
     }
 }
 
-/// The bounds rectangle as X11 device geometry, `(x, y, width, height)`.
+/// The logical bounds rectangle as X11 device geometry, `(x, y, width,
+/// height)`, at `scale` device pixels per logical one.
 ///
-/// Logical == physical here, honestly: see the module doc's untested notes.
-/// Rounded rather than truncated, so a half-pixel layout (scale-1.5
-/// paranoia) lands on the nearer device pixel, and the size clamped to at
-/// least one pixel, because a zero-sized X window is a server error.
-fn device_geometry(bounds: Rect) -> (c_int, c_int, c_uint, c_uint) {
-    let origin = bounds.origin();
-    let size = bounds.size();
+/// The edges are scaled and rounded, then the size taken between them, so
+/// two views that abut in logical pixels abut in device pixels too at a
+/// fractional scale (scaling the size separately can open a one-pixel
+/// seam). The size is clamped to at least one pixel, because a zero-sized X
+/// window is a server error.
+fn device_geometry(bounds: Rect, scale: f64) -> (c_int, c_int, c_uint, c_uint) {
+    let edge = |v: f32| (f64::from(v) * scale).round();
+    let (left, top) = (edge(bounds.left), edge(bounds.top));
+    let (right, bottom) = (edge(bounds.right), edge(bounds.bottom));
     (
-        origin.dx.round() as c_int,
-        origin.dy.round() as c_int,
-        size.width.max(1.0).round() as c_uint,
-        size.height.max(1.0).round() as c_uint,
+        left as c_int,
+        top as c_int,
+        (right - left).max(1.0) as c_uint,
+        (bottom - top).max(1.0) as c_uint,
     )
 }
 
@@ -493,7 +540,8 @@ impl PlatformViews for X11PlatformViews {
             ))
         })?;
         let x11 = Rc::clone(&self.inner.x11);
-        let (x, y, w, h) = device_geometry(bounds);
+        let scale = self.inner.state.borrow().scale;
+        let (x, y, w, h) = device_geometry(bounds, scale);
         // SAFETY: `host` came from `anchor` (an X11 window the caller says
         // is live), and `create_simple_window` on a live connection with
         // in-bounds geometry values either returns a new window XID or sets
@@ -501,8 +549,16 @@ impl PlatformViews for X11PlatformViews {
         let window = unsafe {
             (x11.create_simple_window)(x11.display, host, x, y, w, h, 0, 0, background as c_ulong)
         };
-        // SAFETY: mapping the window just created, same live connection.
-        unsafe { (x11.map_window)(x11.display, window) };
+        // SAFETY: mapping the window just created, same live connection —
+        // and flushing it: this connection is the service's own and nothing
+        // else ever flushes it, so without this the server would not see the
+        // window until some later request happened to (found by the first
+        // cross-connection test: the app's window asked the server and saw
+        // no child).
+        unsafe {
+            (x11.map_window)(x11.display, window);
+            (x11.flush)(x11.display);
+        }
 
         let id = {
             let mut state = self.inner.state.borrow_mut();
@@ -531,7 +587,7 @@ impl PlatformViews for X11PlatformViews {
             return Ok(());
         }
         let x11 = Rc::clone(&self.inner.x11);
-        let (x, y, w, h) = device_geometry(bounds);
+        let (x, y, w, h) = device_geometry(bounds, state.scale);
         // SAFETY: `window` is a live child of the anchored host, created by
         // this same service (the map holds it), and move/resize is not
         // destructive: a bad value clamps at the server.
@@ -776,6 +832,38 @@ mod tests {
                 }
             }
         };
+    }
+
+    /// Logical bounds at a fractional scale: the server's geometry is the
+    /// device rectangle, and a scale change moves a live view with it.
+    #[test]
+    fn views_are_placed_in_device_pixels_at_the_hosts_scale() {
+        vieww_hardware::skip_without!(display);
+        let views = views_or_return!();
+        let host = views.host_window(800, 600);
+        views.anchor(&host).expect("anchored");
+        views.set_scale(1.5);
+        let spec = PlatformViewSpec::new(KIND);
+        let handle = views
+            .create(&spec, Rect::new(10.0, 20.0, 110.0, 70.0))
+            .expect("created");
+        let child = host.child_xids()[0];
+        assert_eq!(host.geometry_of(child), Some((15, 30, 150, 75)), "×1.5");
+        views.set_scale(2.0);
+        assert_eq!(
+            host.geometry_of(child),
+            Some((20, 40, 200, 100)),
+            "a scale change re-placed the live view"
+        );
+        drop(handle);
+    }
+
+    #[test]
+    fn abutting_views_stay_abutting_at_a_fractional_scale() {
+        // 1.25 × 0.5-pixel edges: separately scaled sizes would open a seam.
+        let a = device_geometry(Rect::new(0.0, 0.0, 10.2, 5.0), 1.25);
+        let b = device_geometry(Rect::new(10.2, 0.0, 20.4, 5.0), 1.25);
+        assert_eq!(a.0 + a.2 as c_int, b.0, "{a:?} {b:?}");
     }
 
     /// The whole lifecycle, asserted against the X server itself rather than

@@ -123,6 +123,11 @@ pub fn platform() -> Services {
     // has a portable state machine that needs *some* starter to run; see
     // [`crate::drag`]'s module doc for the distinction.
     crate::drag::provide(&mut services);
+    // FW-20: embedded native views — X11/Win32/AppKit, anchored to the window
+    // by `App` when it creates one, refusing with the reason until then or
+    // where the session cannot host them (a Wayland window).
+    #[cfg(not(target_os = "android"))]
+    crate::os_platform_views::OsPlatformViews::provide(&mut services);
     services
 }
 

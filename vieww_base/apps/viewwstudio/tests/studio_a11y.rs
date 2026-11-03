@@ -31,16 +31,13 @@
 //!    every row either runs the command or is honestly disabled. No pointer
 //!    event is sent anywhere in the file.
 //!
-//!    **A stated limit, discovered while writing this:** the palette's own
-//!    filter field cannot be *typed into* from the keyboard, because nothing
-//!    moves focus into it when the palette opens — focus management in the
-//!    studio is the one `seed_focus` call at launch (the ST-18 research
-//!    note). Arrows and Enter reach the layer by bubbling from wherever
-//!    focus already is; characters are declined by the shortcut layer and
-//!    reach nothing. Fixing it needs a focus-request path from the palette's
-//!    state to the driver, which does not exist yet; the walk below uses the
-//!    command palette's own `>` query, which the `CommandPalette` command
-//!    sets for exactly this reason.
+//!    The palette's filter takes the keyboard as it opens
+//!    (`TextField::autofocus`, the framework's focus-on-mount path), so the
+//!    walk can type a filter straight after the chord, and closing the
+//!    palette hands the keyboard back to what had it. That was the limit
+//!    this file used to state: before it, focus management in the studio
+//!    was the one `seed_focus` call at launch, and characters typed into an
+//!    open palette reached nothing.
 //!
 //! Both halves run headless on every machine, the way `tests/shell.rs`'s
 //! pixel half does: the audit is a walk over data the driver already has,
@@ -239,6 +236,55 @@ const OPENS_THE_PALETTE: &[Command] = &[
 /// work: `can_run(CloseFind)` answers from `anything_to_escape`, so a dialog
 /// a command opened (Save's name prompt, Open Folder's picker) is dismissed
 /// by a key rather than sitting over the rest of the walk.
+/// **The palette's filter takes the keyboard when it opens** (ST-18): typed
+/// characters land in the query after the chord, with no click, and the
+/// arrows and Enter still reach the list from inside the field.
+#[test]
+fn the_palette_filter_is_typed_into_straight_after_the_chord() {
+    let (mut driver, studio) = mounted();
+    assert!(driver.handle_key(&ctrl("p")), "the chord was not consumed");
+    driver.draw_frame();
+    assert!(studio.palette_open.get());
+    for c in ["r", "e", "n", "d"] {
+        driver.handle_key(&KeyEvent::character(c, Duration::ZERO));
+        driver.draw_frame();
+    }
+    assert_eq!(
+        studio.palette_query.get(),
+        ">rend",
+        "the typed filter did not reach the palette's field"
+    );
+    let results = studio.palette_results();
+    assert!(!results.is_empty(), "'>rend' matches the Render command");
+    // The arrows still walk the (filtered) list from inside the field.
+    if results.len() > 1 {
+        assert!(driver.handle_key(&key(NamedKey::ArrowDown)));
+        assert_eq!(
+            studio.palette_index.get(),
+            1,
+            "ArrowDown was swallowed by the field"
+        );
+        assert!(driver.handle_key(&key(NamedKey::ArrowUp)));
+        assert_eq!(studio.palette_index.get(), 0);
+    }
+    // Escape shuts it; reopening puts the keyboard back in a fresh field.
+    driver.handle_key(&key(NamedKey::Escape));
+    driver.draw_frame();
+    assert!(
+        !studio.palette_open.get(),
+        "Escape did not shut the palette"
+    );
+    assert!(driver.handle_key(&ctrl("p")));
+    driver.draw_frame();
+    driver.handle_key(&KeyEvent::character("s", Duration::ZERO));
+    driver.draw_frame();
+    assert_eq!(
+        studio.palette_query.get(),
+        ">s",
+        "a reopened palette did not take the keyboard"
+    );
+}
+
 #[test]
 fn arrows_and_enter_reach_every_palette_command() {
     let (mut driver, studio) = mounted();

@@ -564,6 +564,37 @@ thread_local! {
     /// driver is fully alive. Sharing between windows is unchanged: while any
     /// window holds the device, this upgrades to it.
     static SHARED_DEVICE: RefCell<Weak<VulkanDevice>> = const { RefCell::new(Weak::new()) };
+
+    /// An instance a [`Prewarm`] made beside the window's creation (FW-05),
+    /// waiting for the first device to be opened from it. Taken by
+    /// [`shared_device_for`]; whatever is left after the window opened (a CPU
+    /// present wanted no device) is dropped by [`discard_prewarmed_instance`].
+    static PREWARMED: RefCell<Option<vieww_hal::vulkan::VulkanInstance>> =
+        const { RefCell::new(None) };
+}
+
+/// Give the next device open an instance made ahead of time.
+pub(crate) fn offer_prewarmed_instance(instance: vieww_hal::vulkan::VulkanInstance) {
+    PREWARMED.with(|cell| *cell.borrow_mut() = Some(instance));
+}
+
+/// Drop an offered instance nothing used — on the thread that opens windows,
+/// where a Vulkan teardown belongs.
+pub(crate) fn discard_prewarmed_instance() {
+    let unused = PREWARMED.with(|cell| cell.borrow_mut().take());
+    drop(unused);
+}
+
+/// A device for `window`: from the prewarmed instance when there is one.
+fn open_device(
+    window: &(impl raw_window_handle::HasWindowHandle + raw_window_handle::HasDisplayHandle),
+    width: u32,
+    height: u32,
+) -> Result<(VulkanDevice, VulkanSwapchain), VulkanError> {
+    match PREWARMED.with(|cell| cell.borrow_mut().take()) {
+        Some(instance) => VulkanDevice::for_window_with(instance, window, width, height),
+        None => VulkanDevice::for_window(window, width, height),
+    }
 }
 
 /// The shared device, and a swapchain for this window on it.
@@ -600,7 +631,7 @@ fn shared_device_for(
         return Ok((Rc::new(device), swapchain));
     }
 
-    let (device, swapchain) = VulkanDevice::for_window(window, width, height)?;
+    let (device, swapchain) = open_device(window, width, height)?;
     let device = Rc::new(device);
     SHARED_DEVICE.with(|cell| *cell.borrow_mut() = Rc::downgrade(&device));
     Ok((device, swapchain))
@@ -2202,7 +2233,7 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
         let file = dir.join("pipelines.bin");
         std::fs::write(&file, [7u8; 4096]).unwrap();
-        let what = run(Some(&file));
+        let (what, _) = run(Some(&file), None);
         std::fs::remove_dir_all(&dir).ok();
         // On iOS the loader clause says why it stayed on the main thread;
         // elsewhere it either resolved or said why not — never neither.
@@ -2215,7 +2246,7 @@ mod tests {
     fn a_first_launch_reads_a_cache_that_is_not_there_yet() {
         let missing = std::env::temp_dir().join("vieww-prewarm-test-missing.bin");
         std::fs::remove_file(&missing).ok();
-        let what = run(Some(&missing));
+        let (what, _) = run(Some(&missing), None);
         assert_eq!(what.cache, Some((0, what.cache.unwrap().1)));
         let line = what.line();
         // The honest reading: zero bytes, not an error — a first launch.
@@ -2224,7 +2255,7 @@ mod tests {
 
     #[test]
     fn a_prewarm_without_a_cache_file_only_resolves_the_loader() {
-        let what = run(None);
+        let (what, _) = run(None, None);
         assert!(what.cache.is_none());
         assert!(!what.line().contains("pipeline cache"), "{:?}", what.line());
     }
@@ -2235,10 +2266,12 @@ mod tests {
         // still answers — start-up proceeds rather than failing on the thing
         // that was meant to speed it up.
         let what = Prewarm {
-            done: Arc::new(Mutex::new(Prewarmed::default())),
+            done: Arc::new(Mutex::new((Prewarmed::default(), None))),
             thread: None,
         }
         .join();
+        assert!(what.1.is_none());
+        let what = what.0;
         assert_eq!(what, Prewarmed::default());
         assert_eq!(what.line(), "prewarm not run");
     }
@@ -2252,7 +2285,7 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
         let file = dir.join("pipelines.bin");
         std::fs::write(&file, [1u8; 2048]).unwrap();
-        let what = Prewarm::start(Some(file.clone())).join();
+        let (what, _) = Prewarm::start(Some(file.clone()), None).join();
         std::fs::remove_dir_all(&dir).ok();
         let line = what.line();
         assert!(
@@ -2260,6 +2293,31 @@ mod tests {
             "{line:?}"
         );
         assert!(line.contains("2.0 KiB read in"), "{line:?}");
+    }
+
+    /// FW-05's instance half: given surface extensions, the prewarm makes the
+    /// `VkInstance` and hands it back to the thread that will open the window
+    /// — or says why it could not. Headless here, so the extensions are the
+    /// surface-free set a headless device uses; what is pinned is the
+    /// hand-over and the report, not a window.
+    #[cfg(not(target_os = "ios"))]
+    #[test]
+    fn a_prewarm_given_extensions_makes_the_instance_and_hands_it_over() {
+        let (what, instance) = Prewarm::start(None, Some(Vec::new())).join();
+        let line = what.line();
+        match (&what.loader, instance) {
+            (Some(_), Some(instance)) => {
+                assert!(line.contains("vulkan instance ("), "{line:?}");
+                assert_eq!(what.instance.map(|(n, _)| n), Some(instance.adapters()));
+                // Unused, it is destroyed here, on the joining thread.
+                drop(instance);
+            }
+            (Some(_), None) => assert!(line.contains("no prewarmed instance ("), "{line:?}"),
+            (None, made) => {
+                assert!(made.is_none(), "no loader, no instance");
+                assert!(!line.contains("vulkan instance"), "{line:?}");
+            }
+        }
     }
 }
 
@@ -2291,6 +2349,11 @@ pub(crate) struct Prewarmed {
     /// `(bytes, how long)` of the pipeline-cache file read, when there was a
     /// file to read.
     cache: Option<(usize, Duration)>,
+    /// `(adapters, how long)` of the instance creation, when it was asked
+    /// for and succeeded.
+    instance: Option<(usize, Duration)>,
+    /// Why the instance was not made, when it was asked for and failed.
+    instance_error: Option<String>,
 }
 
 impl Prewarmed {
@@ -2308,6 +2371,15 @@ impl Prewarmed {
             }
             (None, Some(why)) => parts.push(format!("no vulkan loader yet ({why})")),
             (None, None) => parts.push("prewarm not run".to_owned()),
+        }
+        match (self.instance, &self.instance_error) {
+            (Some((adapters, took)), _) => parts.push(format!(
+                "vulkan instance ({adapters} adapter{}) made in {:.1} ms",
+                if adapters == 1 { "" } else { "s" },
+                took.as_secs_f64() * 1000.0
+            )),
+            (None, Some(why)) => parts.push(format!("no prewarmed instance ({why})")),
+            (None, None) => {}
         }
         if let Some((bytes, took)) = self.cache {
             parts.push(format!(
@@ -2353,10 +2425,14 @@ fn human_bytes(bytes: usize) -> String {
 /// pipeline cache file back (see `vieww_hal::vulkan::pipeline_cache`), so a
 /// prewarm device would race the real device's cache, and destroying a
 /// device on a side thread is the exact class of teardown this crate's
-/// `SHARED_DEVICE` history exists to avoid. The instance/adapter half of the
-/// 215 ms stays on the critical path until `vieww-hal` grows a constructor
-/// split that can receive a pre-made entry — noted for the framework-core
-/// owner in FW-05's STATUS row.
+/// `SHARED_DEVICE` history exists to avoid. What it does make, when the
+/// caller passes the display's surface extensions, is the `VkInstance` —
+/// `vieww_hal::vulkan::VulkanInstance`, the window-independent half of
+/// `VulkanDevice::for_window` (loader, ICDs, adapter enumeration). That has
+/// no `Drop`-time side effects beyond `vkDestroyInstance`, is `Send`, and is
+/// handed to the window's first device open
+/// (`VulkanDevice::for_window_with`); only the surface, the present-capable
+/// adapter pick and the device itself stay after the window.
 ///
 /// # Not on iOS
 ///
@@ -2366,7 +2442,7 @@ fn human_bytes(bytes: usize) -> String {
 /// a data race. There the prewarm reports itself as not run and the bring-up
 /// stays serial, which on a phone-sized start-up is the smaller loss.
 pub(crate) struct Prewarm {
-    done: Arc<Mutex<Prewarmed>>,
+    done: Arc<Mutex<(Prewarmed, Option<vieww_hal::vulkan::VulkanInstance>)>>,
     thread: Option<std::thread::JoinHandle<()>>,
 }
 
@@ -2374,14 +2450,23 @@ impl Prewarm {
     /// Start the prewarm for a window that might present through Vulkan,
     /// reading `cache_file` (the file [`vieww_hal::vulkan::set_pipeline_cache_file`]
     /// has named, or will name) into the page cache.
-    pub(crate) fn start(cache_file: Option<PathBuf>) -> Self {
-        let done = Arc::new(Mutex::new(Prewarmed::default()));
+    ///
+    /// `extensions` — the display's surface extensions
+    /// ([`vieww_hal::vulkan::surface_extensions`], read from the event loop
+    /// before any window exists) — also makes the `VkInstance` here, the
+    /// bulk of a cold Vulkan start; `None` keeps the prefix to the loader and
+    /// the cache.
+    pub(crate) fn start(
+        cache_file: Option<PathBuf>,
+        extensions: Option<Vec<&'static std::ffi::CStr>>,
+    ) -> Self {
+        let done = Arc::new(Mutex::new((Prewarmed::default(), None)));
         let thread = {
             let done = Arc::clone(&done);
             std::thread::Builder::new()
                 .name("vieww-vulkan-prewarm".to_owned())
                 .spawn(move || {
-                    let what = run(cache_file.as_deref());
+                    let what = run(cache_file.as_deref(), extensions.as_deref());
                     if let Ok(mut slot) = done.lock() {
                         *slot = what;
                     }
@@ -2395,23 +2480,27 @@ impl Prewarm {
     /// could not even spawn (a process out of threads) reports that the
     /// prewarm did not run rather than failing the start-up it was meant to
     /// speed up.
-    pub(crate) fn join(mut self) -> Prewarmed {
+    pub(crate) fn join(mut self) -> (Prewarmed, Option<vieww_hal::vulkan::VulkanInstance>) {
         if let Some(thread) = self.thread.take() {
             let _ = thread.join();
             self.done
                 .lock()
-                .map(|slot| slot.clone())
+                .map(|mut slot| (slot.0.clone(), slot.1.take()))
                 .unwrap_or_default()
         } else {
-            Prewarmed::default()
+            (Prewarmed::default(), None)
         }
     }
 }
 
 /// The prewarm itself, separate from the handle so it is testable without a
 /// thread: the two steps are plain calls.
-fn run(cache_file: Option<&Path>) -> Prewarmed {
+fn run(
+    cache_file: Option<&Path>,
+    extensions: Option<&[&'static std::ffi::CStr]>,
+) -> (Prewarmed, Option<vieww_hal::vulkan::VulkanInstance>) {
     let mut what = Prewarmed::default();
+    let mut made = None;
 
     // Not on iOS: `load_entry` sets an environment variable on the simulator
     // (see the struct docs), and a second thread doing that while the main
@@ -2441,5 +2530,22 @@ fn run(cache_file: Option<&Path>) -> Prewarmed {
         let bytes = std::fs::read(file).map(|data| data.len()).unwrap_or(0);
         what.cache = Some((bytes, started.elapsed()));
     }
-    what
+
+    // The instance last: it is the long step, and the loader above has
+    // already been resolved, so its own `load_entry` is a cheap re-open.
+    // Not on iOS, for the loader's reason above.
+    #[cfg(not(target_os = "ios"))]
+    if let (Some(extensions), true) = (extensions, what.loader.is_some()) {
+        let started = Instant::now();
+        match vieww_hal::vulkan::VulkanInstance::for_surfaces(extensions) {
+            Ok(instance) => {
+                what.instance = Some((instance.adapters(), started.elapsed()));
+                made = Some(instance);
+            }
+            Err(error) => what.instance_error = Some(error.to_string()),
+        }
+    }
+    #[cfg(target_os = "ios")]
+    let _ = extensions;
+    (what, made)
 }

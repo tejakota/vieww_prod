@@ -65,6 +65,27 @@ and **a listed entry that comes in under its `target_ms` is flagged stale**
 unnoticed — remove it in the same commit as the win that closed it. A
 limitation never licenses drift: the tolerance check runs exactly as it
 would without it.
+
+## Ceilings (FW-16)
+
+Drift is relative; some budgets are absolute. `ceilings` holds those — a
+fixed number a metric may never exceed, on the device tiers named:
+
+    "ceilings": {
+      "auto_first_frame_ms": {
+        "ceiling_ms": 500,
+        "tiers": ["medium", "high"],
+        "reason": "…the target, and where it came from…"
+      }
+    }
+
+A Device Farm row's tier is the one the app itself chose (`tier medium` in
+`auto_cache_budgets`), so the ceiling follows the framework's own reading of
+the phone rather than a hand-kept list of models. First frame is
+`auto_first_frame_ms` on iOS (the app's own clock) and `auto_cold_start_ms`
+(`am start -W`'s total) on Android, the median of the runs either way. A
+ceiling applies with or without a drift budget for the class, and
+`--advisory` softens it like any other failure.
 """
 
 import json
@@ -94,6 +115,61 @@ def median_ms(text):
     return v / 1000.0 if m.group(2) in ("µs", "us") else v
 
 
+def median_of_runs(text):
+    """'623 611 603' -> 611; anything else ('n/a (no console…)') -> None."""
+    if not re.fullmatch(r"[\d.\s]+", (text or "").strip() or "x"):
+        return None
+    values = sorted(float(v) for v in text.split())
+    n = len(values)
+    return values[n // 2] if n % 2 else (values[n // 2 - 1] + values[n // 2]) / 2.0
+
+
+def first_frame_ms(result):
+    """The shipped (`auto`) pass's first-frame time: iOS's own figure, else
+    Android's `am start -W` total."""
+    for key in ("auto_first_frame_ms", "auto_cold_start_ms"):
+        v = median_of_runs(result.get(key))
+        if v is not None:
+            return v
+    return None
+
+
+def device_tier(result):
+    """The tier the app chose for itself, from `…(tier medium)…`."""
+    m = re.search(r"\(tier ([a-z]+)\)", result.get("auto_cache_budgets") or "")
+    return m.group(1) if m else None
+
+
+def tiers(doc, forced_class=None):
+    """{class: tier} for a Device Farm summary; {} for anything else."""
+    out = {}
+    if isinstance(doc, dict) and "devices" in doc:
+        for row in doc.get("devices", []):
+            r = row.get("result") or {}
+            cls = forced_class or "phone-" + slug(r.get("model") or row.get("device"))
+            tier = device_tier(r)
+            if tier:
+                out[cls] = tier
+    return out
+
+
+def check_ceilings(budgets, seen, tier_of):
+    """(rows, failures) for every `ceilings` metric a tiered class reported."""
+    rows, failures = [], []
+    for name, entry in sorted((budgets.get("ceilings") or {}).items()):
+        for cls, metrics in sorted(seen.items()):
+            now = metrics.get(name)
+            tier = tier_of.get(cls)
+            if now is None or tier not in entry["tiers"]:
+                continue
+            ceiling = entry["ceiling_ms"]
+            verdict = "ok" if now <= ceiling else "OVER CEILING"
+            rows.append((cls, name, ceiling, now, tier, verdict))
+            if now > ceiling:
+                failures.append((cls, name, ceiling, now, tier))
+    return rows, failures
+
+
 def measurements(doc, forced_class=None):
     """{class: {metric: ms}} from one receipt or summary."""
     out = {}
@@ -105,6 +181,9 @@ def measurements(doc, forced_class=None):
                 v = median_ms(r.get(f"{p}_frame_time"))
                 if v is not None:
                     out.setdefault(cls, {})[f"{p}_frame_time_p50_ms"] = v
+            first = first_frame_ms(r)
+            if first is not None:
+                out.setdefault(cls, {})["auto_first_frame_ms"] = first
         return out
     if isinstance(doc, dict) and str(doc.get("schema", "")).startswith("vieww.bench-receipt/"):
         m = doc.get("machine") or {}
@@ -162,6 +241,22 @@ def validate(b):
         for name, v in metrics.items():
             if not isinstance(v, (int, float)) or v <= 0:
                 raise ValueError(f"{cls} {name}: {v!r} is not a positive number of ms")
+    ceilings = b.get("ceilings")
+    if ceilings is not None:
+        if not isinstance(ceilings, dict) or not ceilings:
+            raise ValueError("ceilings must be a non-empty object or absent")
+        for name, entry in ceilings.items():
+            if not isinstance(entry, dict):
+                raise ValueError(f"ceilings {name}: entry must be an object")
+            c = entry.get("ceiling_ms")
+            if not isinstance(c, (int, float)) or c <= 0:
+                raise ValueError(f"ceilings {name}: ceiling_ms must be a positive number of ms")
+            t = entry.get("tiers")
+            if not isinstance(t, list) or not t or not all(isinstance(x, str) and x for x in t):
+                raise ValueError(f"ceilings {name}: tiers must be a non-empty list of tier names")
+            reason = entry.get("reason")
+            if not isinstance(reason, str) or not reason.strip():
+                raise ValueError(f"ceilings {name}: reason must be a non-empty string")
     limitations = b.get("known_limitations")
     if limitations is None:
         return
@@ -192,6 +287,14 @@ def validate(b):
                 raise ValueError(
                     f"known_limitations {cls} {name}: reason must be a "
                     "non-empty string naming the decision that accepted the miss")
+
+
+def gather_tiers(paths, forced_class):
+    out = {}
+    for p in paths:
+        with open(p) as f:
+            out.update(tiers(json.load(f), forced_class))
+    return out
 
 
 def gather(paths, forced_class):
@@ -288,6 +391,7 @@ def main(argv):
     advisory = bool(take(rest, "--advisory", has_value=False))
     budgets = load_budgets(budgets_path)
     seen = gather(rest, forced)
+    tier_of = gather_tiers(rest, forced)
     if measured_path:
         write_measured(measured_path, seen)
     if cmd == "record":
@@ -340,7 +444,19 @@ def main(argv):
         print(f"::warning::perf-budget: {cls} {name}: {now:.3f} ms is under its "
               f"known-limitation target {target:g} ms — the limitation is stale, "
               "remove it from perf-budgets.json in this commit")
-    if failures:
+    crows, cfail = check_ceilings(budgets, seen, tier_of)
+    if crows:
+        print()
+        print("| class | metric | ceiling | now | tier | verdict |")
+        print("|---|---|---|---|---|---|")
+        for cls, name, ceiling, now, tier, verdict in crows:
+            print(f"| {cls} | {name} | {ceiling:g} | {now:.1f} | {tier} | {verdict} |")
+    if cfail:
+        level = "warning" if advisory else "error"
+        for cls, name, ceiling, now, tier in cfail:
+            print(f"::{level}::perf-budget: {cls} ({tier} tier) {name}: {now:.1f} ms is over "
+                  f"its {ceiling:g} ms ceiling")
+    if failures or cfail:
         level = "warning" if advisory else "error"
         for cls, name, was, now, change in failures:
             print(f"::{level}::perf-budget: {cls} {name}: {now:.3f} against {was:.3f} "
@@ -349,7 +465,7 @@ def main(argv):
             print("perf-budget: over budget, reported only (--advisory: a shared hosted runner)")
             return 0
         return 1
-    print("perf-budget: within budget" if rows else "perf-budget: nothing gated")
+    print("perf-budget: within budget" if rows or crows else "perf-budget: nothing gated")
     return 0
 
 

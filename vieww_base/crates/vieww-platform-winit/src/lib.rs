@@ -126,8 +126,13 @@ pub(crate) mod mixed;
 // unrunnable. Public because the capability's whole point is that an
 // application can hold the service in its own registry.
 pub mod native;
+pub mod os_platform_views;
 #[cfg(target_os = "linux")]
 pub mod platform_views;
+#[cfg(target_os = "macos")]
+pub mod platform_views_appkit;
+#[cfg(target_os = "windows")]
+pub mod platform_views_win32;
 mod scale;
 pub mod services;
 // Real backends for `vieww_foundation::desktop`, and the CPU rasteriser the

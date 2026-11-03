@@ -1,9 +1,8 @@
 # ADR: `spawn_sandboxed` — plugin isolation out of process
 
-- **Status:** Accepted (design). Implementation deliberately not started; this
-  page is the record of what was decided so the next session does not
-  re-derive it. When it lands, its tests and honest-untested notes belong in
-  this file's tail.
+- **Status:** Implemented (`vieww_plugin::sandbox`, the `vieww-plugin-host`
+  binary, `tests/sandbox.rs`). The tail records what changed from the design
+  and what is untested.
 - **Context:** FW-17 (`docs/plugin-abi.md`, `vieww-plugin`). Recorded
   2026-10-21, framework worktree `wt-fw-b`.
 - **Related:** [`plugin-abi.md`](./plugin-abi.md) (the in-process contract this
@@ -124,3 +123,39 @@ the versioning system doing its job.
 - **Sequence parity**: the same `examples/plugin-minimal` binary loaded both
   ways answers identically (name, version, commands, invoke results) — the
   sandbox changes *where* the plugin runs, never *what* the contract says.
+
+## As implemented (2026-11-03)
+
+- `PluginRegistry::spawn_sandboxed(&self, path, SandboxPolicy)` returns a
+  `SandboxedPlugin` (`name`, `version`, `commands`, `invoke`, `is_alive`);
+  dropping it sends `shutdown` and reaps the child, killing it past the
+  policy's deadline.
+- **Errors are their own type**, `SandboxError`, not new `PluginError`
+  variants: `PluginError` is not `#[non_exhaustive]`, and a host matching it
+  exhaustively would break on a minor bump. A plugin's own refusals cross the
+  pipe as the same `PluginError` (`SandboxError::Plugin`), so a caller
+  handles them identically; the child's own failures are `Died`, `TimedOut`,
+  `Protocol` and `Spawn`.
+- **The wire is std-only framing, not JSON**: `u32` LE length + UTF-8 body,
+  fields split by U+001F and command id/title by U+001E. This crate depends
+  on `libloading` alone, and five messages do not justify a JSON dependency.
+- **stdout belongs to the protocol.** The host binary moves its replies to a
+  duplicate of fd 1 and points fd 1 at stderr (Windows: `SetStdHandle`)
+  before anything loads, so a plugin's `println!` reaches the console, not
+  the pipe — `a_plugin_printing_to_stdout_does_not_corrupt_the_pipe`.
+- **Memory limit:** the child applies `RLIMIT_AS` to itself before loading
+  (Linux, Android, macOS, iOS, via `setrlimit`); on Windows the limit is
+  reported as not enforced — a job object is the mechanism, not built yet.
+- **Finding the host:** `SandboxPolicy::host_binary`, else
+  `VIEWW_PLUGIN_HOST`, else beside the running executable (or one directory
+  up, for a test binary in `deps/`). An application that sandboxes plugins
+  ships `vieww-plugin-host` next to itself.
+- **Tested** (Linux, `tests/sandbox.rs`, a real misbehaving `cdylib`):
+  sequence parity with the in-process loader, `abort` ending only the child
+  and a fresh child serving afterwards, a hang killed at a 500 ms deadline,
+  stdout writes not corrupting the pipe, a 50 000-command reply refused at a
+  64 KiB cap before it is read, a 512 MiB cap ending an unbounded
+  allocation, and a missing host binary as `Spawn`. **Untested:** the
+  Windows stdout redirection and the macOS `RLIMIT_AS` value (type-checked
+  only).
+

@@ -45,6 +45,16 @@ pub enum Dependency {
     Path(PathBuf),
     /// `vieww = "0.0.1"` — not previewable against this studio.
     Version(String),
+    /// `vieww = { git = "…", rev = "…" }` — a fork, a team mirror, or an
+    /// unreleased revision, pinned (ST-05). Cargo finds each crate by name
+    /// inside the repository, so one URL serves every vieww crate. Not
+    /// previewable, for the same reason as a version: it is not this
+    /// studio's compilation.
+    Git {
+        url: String,
+        /// A commit, tag or branch to pin; `None` follows the default branch.
+        rev: Option<String>,
+    },
 }
 
 impl Dependency {
@@ -58,6 +68,15 @@ impl Dependency {
                 format!("{{ path = \"{path}\" }}")
             }
             Self::Version(version) => format!("\"{version}\""),
+            Self::Git { url, rev } => {
+                // TOML basic strings: a `"` or `\` in the address would end
+                // or escape the string, so both are escaped.
+                let esc = |s: &str| s.replace('\\', "\\\\").replace('"', "\\\"");
+                match rev {
+                    Some(rev) => format!("{{ git = \"{}\", rev = \"{}\" }}", esc(url), esc(rev)),
+                    None => format!("{{ git = \"{}\" }}", esc(url)),
+                }
+            }
         }
     }
 
@@ -2025,6 +2044,31 @@ mod tests {
         assert!(manifest.contains(
             r#"vieww-platform-winit = { path = "/w/vieww/crates/vieww-platform-winit" }"#
         ));
+    }
+
+    #[test]
+    fn a_git_dependency_is_written_as_a_git_table() {
+        let dep = Dependency::Git {
+            url: "https://github.com/team/vieww.git".into(),
+            rev: Some("v0.2.0".into()),
+        };
+        let manifest = &files("app", &dep)[0].1;
+        assert!(
+            manifest.contains(
+                r#"vieww = { git = "https://github.com/team/vieww.git", rev = "v0.2.0" }"#
+            ),
+            "{manifest}"
+        );
+        assert!(!dep.previewable());
+        let unpinned = Dependency::Git {
+            url: "git@host:a\"b".into(),
+            rev: None,
+        };
+        let manifest = &files("app", &unpinned)[0].1;
+        assert!(
+            manifest.contains(r#"{ git = "git@host:a\"b" }"#),
+            "{manifest}"
+        );
     }
 
     #[test]

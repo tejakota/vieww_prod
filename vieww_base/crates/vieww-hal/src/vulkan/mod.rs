@@ -41,7 +41,7 @@ pub use scene::{GpuFrameTimings, GpuPassTimes, Redrawn, SceneRenderer};
 #[cfg(feature = "vulkan-swapchain")]
 pub mod swapchain;
 #[cfg(feature = "vulkan-swapchain")]
-pub use swapchain::{AcquiredImage, VulkanSwapchain};
+pub use swapchain::{surface_extensions, AcquiredImage, VulkanInstance, VulkanSwapchain};
 
 #[derive(Debug)]
 pub enum VulkanError {

@@ -35,6 +35,10 @@ pub struct LiveScore {
     end: usize,
     playing: bool,
     gain: f32,
+    /// The beat and frame of the last tempo change (both 0 until one):
+    /// the playhead's beat is counted from here at the current tempo.
+    anchor_beat: f64,
+    anchor_frame: usize,
 }
 
 impl std::fmt::Debug for LiveScore {
@@ -70,6 +74,8 @@ impl LiveScore {
             end,
             playing: false,
             gain: 1.0,
+            anchor_beat: 0.0,
+            anchor_frame: 0,
         }
     }
 
@@ -98,8 +104,52 @@ impl LiveScore {
     #[must_use]
     pub fn position_beats(&self) -> f64 {
         #[expect(clippy::cast_precision_loss, reason = "a frame count")]
-        let secs = self.frame as f64 / f64::from(self.settings.rate);
-        secs / self.score.seconds_per_beat()
+        let secs = (self.frame - self.anchor_frame) as f64 / f64::from(self.settings.rate);
+        self.anchor_beat + secs / self.score.seconds_per_beat()
+    }
+
+    /// The current tempo, in beats per minute.
+    #[must_use]
+    pub const fn bpm(&self) -> f64 {
+        self.score.bpm
+    }
+
+    /// Change the tempo at the playhead, while playing or paused.
+    ///
+    /// Everything not yet played moves to the new tempo from the beat the
+    /// playhead is on: notes that have not started are rescheduled, notes
+    /// that are sounding keep their start and end at their new time, and
+    /// what has been heard is unchanged. Real-time safe — no allocation, so
+    /// it can be called from the callback thread between blocks (a tempo
+    /// automation lane, a tap-tempo control). The reverb tail and mastering
+    /// gain are not tempo-dependent and stay as they were. A later
+    /// [`seek_beat`](Self::seek_beat) plays the whole score at the new
+    /// tempo.
+    #[vieww_audio::realtime]
+    pub fn set_bpm(&mut self, bpm: f64) {
+        let bpm = bpm.max(1e-6);
+        let at_beat = self.position_beats();
+        self.score.bpm = bpm;
+        let spb = self.score.seconds_per_beat();
+        for stream in &mut self.streams {
+            stream.retime(at_beat, spb);
+        }
+        self.anchor_beat = at_beat;
+        self.anchor_frame = self.frame;
+        // The end moves with the music; the tail after it does not.
+        let rate = f64::from(self.settings.rate);
+        let remaining = (self.score.beats() - at_beat).max(0.0) * spb + self.settings.tail;
+        #[expect(
+            clippy::cast_possible_truncation,
+            clippy::cast_sign_loss,
+            reason = "a frame count"
+        )]
+        let rest = (remaining * rate).ceil() as usize;
+        self.end = if at_beat == 0.0 && self.frame == 0 {
+            total_frames(&self.score, self.settings)
+        } else {
+            self.frame + rest
+        };
     }
 
     /// Whether the playhead has passed the end (tail included).
@@ -235,6 +285,104 @@ mod tests {
             );
             assert!(live.finished());
         }
+    }
+
+    /// A tempo change before playing is a re-render at the new tempo.
+    #[test]
+    fn a_tempo_change_before_playing_is_the_offline_mix_at_that_tempo() {
+        for score in [crate::pieces::rock(), crate::pieces::carnatic(3).0] {
+            let s = settings();
+            let mut faster = score.clone();
+            faster.bpm = score.bpm * 1.5;
+            let offline = render_unmastered(&faster, s).data;
+            let mut live = LiveScore::new(score.clone(), s);
+            live.set_bpm(faster.bpm);
+            live.play();
+            let mut got = vec![0.0f32; offline.len()];
+            for chunk in got.chunks_mut(882) {
+                live.render(chunk);
+            }
+            let err: f64 = offline
+                .iter()
+                .zip(&got)
+                .map(|(a, b)| f64::from(a - b).powi(2))
+                .sum();
+            let sig: f64 = offline.iter().map(|a| f64::from(*a).powi(2)).sum();
+            let null_db = 10.0 * (sig / err.max(1e-30)).log10();
+            assert!(null_db > 60.0, "{}: null only {null_db:.1} dB", score.title);
+            assert!(live.finished());
+        }
+    }
+
+    /// A tempo change mid-piece: notes after it start where the new tempo
+    /// puts them, the playhead counts beats at the new rate, and the piece
+    /// ends when the new tempo says it does.
+    #[test]
+    fn a_tempo_change_mid_play_reschedules_what_has_not_played() {
+        use crate::score::{Event, Instrument};
+        let s = settings();
+        let rate = f64::from(s.rate);
+        // One note at beat 0 and, in `with`, one at beat 6. The run without
+        // the second note is the reference: the two are identical until the
+        // second note starts, so their difference marks its onset exactly,
+        // whatever the first note's ring and the reverb are doing.
+        let score_of = |second: bool| {
+            let mut score = Score::new("click", 120.0);
+            let part = score.part("p", Instrument::Mallet);
+            part.push(Event::new(0.0, 0.25, 72.0, 0.9));
+            // Both runs end on the same far note, so both are as long.
+            part.push(Event::new(10.0, 0.25, 72.0, 0.9));
+            if second {
+                part.push(Event::new(6.0, 0.25, 72.0, 0.9));
+            }
+            score
+        };
+        let to_beat4 = (4.0 * 0.5 * rate) as usize; // 120 bpm: 0.5 s a beat
+        let run = |second: bool| {
+            let mut live = LiveScore::new(score_of(second), s);
+            live.play();
+            let mut head = vec![0.0f32; to_beat4 * 2];
+            for chunk in head.chunks_mut(1024) {
+                live.render(chunk);
+            }
+            assert!((live.position_beats() - 4.0).abs() < 1e-6);
+            live.set_bpm(60.0); // beat 6 is now 2 s away, not 1 s
+            let mut rest = vec![0.0f32; (3.0 * rate) as usize * 2];
+            for chunk in rest.chunks_mut(1024) {
+                live.render(chunk);
+            }
+            (live, rest)
+        };
+        let (live, with) = run(true);
+        let (_, without) = run(false);
+        let onset = with
+            .chunks(2)
+            .zip(without.chunks(2))
+            .position(|(a, b)| (a[0] - b[0]).abs() > 1e-6 || (a[1] - b[1]).abs() > 1e-6)
+            .expect("the second note sounded");
+        let want = (2.0 * rate) as usize;
+        assert!(
+            onset.abs_diff(want) <= 1,
+            "the beat-6 note started {onset} frames after the change, not {want}"
+        );
+        assert_eq!(live.bpm(), 60.0);
+        assert!(
+            (live.position_beats() - 7.0).abs() < 1e-3,
+            "beats count at the new tempo"
+        );
+        // The end: beat 10.25 is 6.25 s after the change at 60 bpm, then the tail.
+        let mut live = live;
+        let mut frames = to_beat4 + (3.0 * rate) as usize;
+        let mut two = [0.0f32; 2];
+        while !live.finished() {
+            live.render(&mut two);
+            frames += 1;
+        }
+        let end = to_beat4 + ((6.25 + s.tail) * rate).ceil() as usize;
+        assert!(
+            frames.abs_diff(end) <= 1,
+            "ended at {frames}, expected {end}"
+        );
     }
 
     #[test]

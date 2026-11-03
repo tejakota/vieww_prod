@@ -156,9 +156,124 @@ impl std::fmt::Debug for VulkanSwapchain {
     }
 }
 
+/// The surface extensions a window on `display` needs its instance to
+/// enable — `VK_KHR_surface` plus the platform's own (`ash_window`'s answer).
+///
+/// A function of the *display*, not the window: on winit the event loop is
+/// a display handle before any window exists, which is what lets the
+/// instance be made ahead of the window ([`VulkanInstance::for_surfaces`]).
+/// The names are `'static` and `Send`, so they can cross to that thread.
+///
+/// # Errors
+///
+/// [`VulkanError::Vulkan`] when the handle is unavailable or names a display
+/// Vulkan has no surface extension for.
+pub fn surface_extensions(
+    display: &impl HasDisplayHandle,
+) -> Result<Vec<&'static CStr>, VulkanError> {
+    let raw = display
+        .display_handle()
+        .map_err(|e| VulkanError::Vulkan(format!("no display handle: {e}")))?
+        .as_raw();
+    let names = ash_window::enumerate_required_extensions(raw)
+        .map_err(|e| VulkanError::Vulkan(format!("required surface extensions: {e}")))?;
+    // SAFETY: `ash_window` returns pointers to its own `'static` extension
+    // name constants (`ash::khr::*::NAME`), each NUL-terminated.
+    Ok(names
+        .iter()
+        .map(|&p| unsafe { CStr::from_ptr(p) })
+        .collect())
+}
+
+/// A `VkInstance` with surface extensions enabled, and nothing else yet —
+/// the window-independent first half of [`VulkanDevice::for_window`].
+///
+/// Made on any thread ([`for_surfaces`](Self::for_surfaces)), it is `Send`,
+/// so a platform layer can build it beside window creation and pass it to
+/// [`VulkanDevice::for_window_with`] once the window exists. Creating it
+/// loads the Vulkan loader and the ICDs and enumerates the adapters, which
+/// is the bulk of a cold Vulkan start on Windows (PENDING §3.5's 215 ms
+/// "device ready"). Dropped unused, it destroys the instance — no device,
+/// so no pipeline cache is touched.
+pub struct VulkanInstance {
+    entry: Option<ash::Entry>,
+    instance: Option<ash::Instance>,
+    extensions: Vec<&'static CStr>,
+    adapters: usize,
+}
+
+impl std::fmt::Debug for VulkanInstance {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("VulkanInstance")
+            .field("extensions", &self.extensions)
+            .field("adapters", &self.adapters)
+            .finish_non_exhaustive()
+    }
+}
+
+impl VulkanInstance {
+    /// Load Vulkan, create an instance enabling `extensions` (from
+    /// [`surface_extensions`]), and enumerate the adapters.
+    ///
+    /// # Errors
+    ///
+    /// [`VulkanError::Loading`] with no loader; [`VulkanError::Vulkan`] when
+    /// the instance cannot be created.
+    pub fn for_surfaces(extensions: &[&'static CStr]) -> Result<Self, VulkanError> {
+        let entry = super::load_entry()?;
+        let pointers: Vec<*const c_char> = extensions.iter().map(|n| n.as_ptr()).collect();
+        let instance = VulkanDevice::create_instance(&entry, &pointers)?;
+        // Enumerated here so the driver is loaded and asked now, not on the
+        // window's critical path; the count is for the startup trace.
+        let adapters =
+            unsafe { instance.enumerate_physical_devices() }.map_or(0, |list| list.len());
+        Ok(Self {
+            entry: Some(entry),
+            instance: Some(instance),
+            extensions: extensions.to_vec(),
+            adapters,
+        })
+    }
+
+    /// How many physical devices the instance saw.
+    #[must_use]
+    pub const fn adapters(&self) -> usize {
+        self.adapters
+    }
+
+    fn parts(&mut self) -> (&ash::Entry, &ash::Instance) {
+        (
+            self.entry.as_ref().expect("a live instance"),
+            self.instance.as_ref().expect("a live instance"),
+        )
+    }
+
+    /// Hand the instance over to a device, which destroys it from then on.
+    fn take(mut self) -> (ash::Entry, ash::Instance) {
+        (
+            self.entry.take().expect("a live instance"),
+            self.instance.take().expect("a live instance"),
+        )
+    }
+}
+
+impl Drop for VulkanInstance {
+    fn drop(&mut self) {
+        if let Some(instance) = self.instance.take() {
+            // SAFETY: no device or surface was made from it that outlives
+            // this — `for_window_with` destroys its surface before letting
+            // an unused instance drop.
+            unsafe { instance.destroy_instance(None) };
+        }
+    }
+}
+
 impl VulkanDevice {
     /// Open a window and a device to present into it — the swapchain half of
     /// spec §14.1's M0/M1 slice.
+    ///
+    /// The short form of [`for_window_with`](Self::for_window_with): it makes
+    /// the [`VulkanInstance`] itself, on this thread.
     ///
     /// # Errors
     ///
@@ -179,6 +294,35 @@ impl VulkanDevice {
         width: u32,
         height: u32,
     ) -> Result<(Self, VulkanSwapchain), VulkanError> {
+        let instance = VulkanInstance::for_surfaces(&surface_extensions(window)?)?;
+        Self::for_window_with(instance, window, width, height)
+    }
+
+    /// [`for_window`](Self::for_window) on an instance made earlier — the
+    /// second half of the bring-up (FW-05).
+    ///
+    /// Creating the `VkInstance` (and the driver load it triggers) needs no
+    /// window, only the display's surface extensions, so a caller can make
+    /// the [`VulkanInstance`] on another thread while the window is being
+    /// created and hand it in here. What is left needs the window: the
+    /// surface, the adapter that can present to it, the device, the
+    /// swapchain. An instance made for a different display's extensions is
+    /// not used: a fresh one is made instead, so the worst a stale prewarm
+    /// can cost is the time it was meant to save.
+    ///
+    /// # Errors
+    ///
+    /// As [`for_window`](Self::for_window).
+    ///
+    /// # Panics
+    ///
+    /// If `width` or `height` is zero.
+    pub fn for_window_with(
+        instance: VulkanInstance,
+        window: &(impl HasWindowHandle + HasDisplayHandle),
+        width: u32,
+        height: u32,
+    ) -> Result<(Self, VulkanSwapchain), VulkanError> {
         assert!(
             width > 0 && height > 0,
             "cannot present into a {width}x{height} window"
@@ -193,42 +337,48 @@ impl VulkanDevice {
             .map_err(|e| VulkanError::Vulkan(format!("no window handle: {e}")))?
             .as_raw();
 
-        let entry = super::load_entry()?;
+        let wanted = surface_extensions(window)?;
+        let mut instance = if instance.extensions == wanted {
+            instance
+        } else {
+            drop(instance);
+            VulkanInstance::for_surfaces(&wanted)?
+        };
+        let (entry, raw) = instance.parts();
 
-        let required = ash_window::enumerate_required_extensions(display_handle)
-            .map_err(|e| VulkanError::Vulkan(format!("required surface extensions: {e}")))?;
-        let instance = Self::create_instance(&entry, required)?;
+        let surface_loader = ash::khr::surface::Instance::new(entry, raw);
+        let surface =
+            unsafe { ash_window::create_surface(entry, raw, display_handle, window_handle, None) }
+                .map_err(|e| VulkanError::Vulkan(format!("creating surface: {e}")))?;
 
-        let surface_loader = ash::khr::surface::Instance::new(&entry, &instance);
-        let surface = unsafe {
-            ash_window::create_surface(&entry, &instance, display_handle, window_handle, None)
-        }
-        .map_err(|e| VulkanError::Vulkan(format!("creating surface: {e}")))?;
-
-        let (physical_device, queue_family) = Self::pick_physical_device(&instance, |pd| {
-            let graphics = Self::find_graphics_family(&instance, pd)?;
+        let Some((physical_device, queue_family)) = Self::pick_physical_device(raw, |pd| {
+            let graphics = Self::find_graphics_family(raw, pd)?;
             let supports_present = unsafe {
                 surface_loader.get_physical_device_surface_support(pd, graphics, surface)
             }
             .unwrap_or(false);
             supports_present.then_some(graphics)
-        })
-        .ok_or_else(|| {
-            unsafe {
-                surface_loader.destroy_surface(surface, None);
-                instance.destroy_instance(None);
-            }
-            VulkanError::NoAdapter
-        })?;
+        }) else {
+            // The surface before the instance (`instance`'s drop).
+            unsafe { surface_loader.destroy_surface(surface, None) };
+            return Err(VulkanError::NoAdapter);
+        };
 
-        let info = Self::adapter_info(&instance, physical_device);
+        let info = Self::adapter_info(raw, physical_device);
         let swapchain_ext = [ash::khr::swapchain::NAME.as_ptr()];
         let (device, queue) =
-            Self::create_device(&instance, physical_device, queue_family, &swapchain_ext)?;
+            match Self::create_device(raw, physical_device, queue_family, &swapchain_ext) {
+                Ok(made) => made,
+                Err(error) => {
+                    unsafe { surface_loader.destroy_surface(surface, None) };
+                    return Err(error);
+                }
+            };
 
+        let (entry, raw) = instance.take();
         let device_bundle = Self::assemble(
             entry,
-            instance,
+            raw,
             physical_device,
             (device, queue, queue_family),
             info,
