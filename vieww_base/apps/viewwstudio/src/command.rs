@@ -454,11 +454,15 @@ pub enum Command {
     /// ST-19: write the flow as `src/screens/flow.say` — the sketch becomes
     /// real Say, compiled by Render, shipped by Build and Run.
     MaterializeFlow,
+    /// ST-10: share the active buffer through a collaboration session —
+    /// `vieww-collab`'s RGA over `.vieww/collab.log`, remote carets in the
+    /// editor. Toggles.
+    ShareBuffer,
 }
 
 impl Command {
     /// Every command, in palette order.
-    pub const ALL: [Self; 118] = [
+    pub const ALL: [Self; 119] = [
         Self::Render,
         Self::CancelRender,
         Self::Build,
@@ -589,6 +593,7 @@ impl Command {
         Self::TogglePreviewNote,
         Self::CreateLiveFile,
         Self::MaterializeFlow,
+        Self::ShareBuffer,
     ];
 
     /// What the menu item and the palette row say.
@@ -713,6 +718,7 @@ impl Command {
             Self::TogglePreviewNote => "Show or Hide the Preview Note",
             Self::CreateLiveFile => "Create live.rs for the Live Preview",
             Self::MaterializeFlow => "Materialize the Live Flow as Say",
+            Self::ShareBuffer => "Share This Buffer for Collaboration",
         }
     }
 
@@ -823,6 +829,9 @@ impl Command {
             Self::TogglePreviewNote => Menu::View,
             Self::CreateLiveFile => Menu::Render,
             Self::MaterializeFlow => Menu::Render,
+            // Sharing is a thing one does with a file, and the File menu is
+            // where every desktop puts it.
+            Self::ShareBuffer => Menu::File,
             Self::CloseFind
             | Self::ClearOutput
             | Self::ClearFinishedTasks
@@ -994,6 +1003,9 @@ impl Command {
             // No chord on purpose: it writes a file into the project, and a
             // keystroke that does that belongs behind a name somebody chose.
             | Self::MaterializeFlow
+            // Nor one for sharing: a session other people join is a decision,
+            // not a reflex.
+            | Self::ShareBuffer
             | Self::CreateLiveFile => return None,
             // The chord every editor uses for completion, and the one people
             // press without thinking.

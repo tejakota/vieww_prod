@@ -507,7 +507,12 @@ impl Studio {
     ///
     /// Kept as a named function rather than inlined because "publish the
     /// buffers" is worth one place to put a breakpoint on.
-    pub(super) fn put_buffers(&self, buffers: Vec<Buffer>) {
+    pub(super) fn put_buffers(&self, mut buffers: Vec<Buffer>) {
+        // ST-10: the second collab seam. Every write that did not come through
+        // `Studio::edit` lands here — a watcher reload, a reopened tab — and
+        // the shared buffer is reconciled to the session's converged text
+        // before the signal is published, so there is one write, not two.
+        self.collab_reconcile(&mut buffers);
         self.buffers.set(Rc::new(buffers));
     }
 
@@ -617,6 +622,9 @@ impl Studio {
             // ST-19: the sketch becomes a `.say` file — the same flow, the
             // real pipeline. See `live_materialize`.
             C::MaterializeFlow => self.materialize_flow(),
+            // ST-10: the buffer becomes a shared document — the doc, the log
+            // and the carets in `state/collab`.
+            C::ShareBuffer => self.toggle_collab(),
             C::RestoreFlow => self.restore_flow(),
 
             C::TrySayScreen => self.try_say_screen(),

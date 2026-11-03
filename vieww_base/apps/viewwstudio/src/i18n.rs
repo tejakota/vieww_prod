@@ -227,6 +227,14 @@ pub fn has_entry(language: Language, english: &str) -> bool {
 }
 
 const SPANISH: &[(&str, &str)] = &[
+    // ST-10: sharing a buffer (state/collab).
+    ("Share This Buffer for Collaboration", "Compartir este búfer para colaborar"),
+    ("Open a project folder first — collaboration shares one of its files.", "Abre primero una carpeta del proyecto: la colaboración comparte uno de sus archivos."),
+    ("A scratch buffer cannot be shared — save it into the project first.", "Un búfer provisional no se puede compartir: guárdalo antes en el proyecto."),
+    ("The .vieww folder could not be created — collaboration keeps its log there.", "No se pudo crear la carpeta .vieww: la colaboración guarda su registro ahí."),
+    ("Sharing {} — edits sync through .vieww/collab.log.", "Compartando {}: las ediciones se sincronizan por .vieww/collab.log."),
+    ("Stopped sharing {}.", "Se dejó de compartir {}."),
+    ("This buffer is shared — restored the session's text over a change from outside it.", "Este búfer está compartido: se restauró el texto de la sesión sobre un cambio ajeno a ella."),
     // ST-15: the asset browser (assets_browser) — view, previews, insert.
     ("Assets", "Recursos"),
     ("{} × {} — the file's own size, from its header", "{} × {} — el tamaño propio del archivo, tomado de su cabecera"),
@@ -651,6 +659,14 @@ const SPANISH: &[(&str, &str)] = &[
 ];
 
 const FRENCH: &[(&str, &str)] = &[
+    // ST-10 : partage d'un tampon (state/collab).
+    ("Share This Buffer for Collaboration", "Partager ce tampon pour collaborer"),
+    ("Open a project folder first — collaboration shares one of its files.", "Ouvrez d'abord un dossier de projet — la collaboration partage l'un de ses fichiers."),
+    ("A scratch buffer cannot be shared — save it into the project first.", "Un tampon de brouillon ne peut pas être partagé — enregistrez-le d'abord dans le projet."),
+    ("The .vieww folder could not be created — collaboration keeps its log there.", "Le dossier .vieww n'a pas pu être créé — la collaboration y garde son journal."),
+    ("Sharing {} — edits sync through .vieww/collab.log.", "Partage de {} — les modifications se synchronisent via .vieww/collab.log."),
+    ("Stopped sharing {}.", "Partage de {} arrêté."),
+    ("This buffer is shared — restored the session's text over a change from outside it.", "Ce tampon est partagé — le texte de la session a été restauré par-dessus un changement venu de l'extérieur."),
     // ST-15: the asset browser (assets_browser) — view, previews, insert.
     ("Assets", "Ressources"),
     ("{} × {} — the file's own size, from its header", "{} × {} — la taille propre du fichier, tirée de son en-tête"),
@@ -1026,6 +1042,14 @@ const FRENCH: &[(&str, &str)] = &[
 ];
 
 const GERMAN: &[(&str, &str)] = &[
+    // ST-10: einen Puffer teilen (state/collab).
+    ("Share This Buffer for Collaboration", "Diesen Puffer zur Zusammenarbeit teilen"),
+    ("Open a project folder first — collaboration shares one of its files.", "Öffnen Sie zuerst einen Projektordner – die Zusammenarbeit teilt eine seiner Dateien."),
+    ("A scratch buffer cannot be shared — save it into the project first.", "Ein Entwurfspuffer lässt sich nicht teilen – speichern Sie ihn zuerst ins Projekt."),
+    ("The .vieww folder could not be created — collaboration keeps its log there.", "Der Ordner .vieww ließ sich nicht anlegen – die Zusammenarbeit bewahrt ihr Protokoll dort."),
+    ("Sharing {} — edits sync through .vieww/collab.log.", "{} wird geteilt – Änderungen synchronisieren über .vieww/collab.log."),
+    ("Stopped sharing {}.", "Teilen von {} beendet."),
+    ("This buffer is shared — restored the session's text over a change from outside it.", "Dieser Puffer wird geteilt – der Text der Sitzung wurde über eine äußere Änderung wiederhergestellt."),
     // ST-15: the asset browser (assets_browser) — view, previews, insert.
     ("Assets", "Assets"),
     ("{} × {} — the file's own size, from its header", "{} × {} — die eigene Größe der Datei, aus ihrem Header"),

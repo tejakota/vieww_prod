@@ -44,6 +44,7 @@ use crate::toolchains;
 // reader following a method from here lands somewhere with the same vocabulary.
 mod buffers;
 mod canvas_edit;
+mod collab;
 mod commands;
 mod editing;
 mod export;
@@ -64,6 +65,11 @@ pub use canvas_edit::{CanvasDrag, Handle};
 // ST-02's property-grid vocabulary, re-exported for the Inspector pane that
 // draws the fields — the same one-module-one-subject rule as above.
 pub use inspector_props::{FieldValue, SayField};
+
+// ST-10's collaboration vocabulary, re-exported for the editor overlay that
+// draws the remote carets (ui/editor.rs) and the tests that assert where they
+// landed — same rule as the two above.
+pub use collab::RemoteCaret;
 
 /// Which sidebar view the activity bar has selected.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -1965,6 +1971,27 @@ pub struct Studio {
     /// generation `0` and `NAN`s, which compare unequal to anything including
     /// themselves, so the first frame always follows.
     pub revealed_caret: std::cell::Cell<(u64, f32, f32)>,
+    /// ST-10: whether the active buffer is shared through a collaboration
+    /// session.
+    ///
+    /// The switch the palette's Share command flips; the session itself —
+    /// the `collab::Doc`, the log path, the read offset, everyone's presence
+    /// — is [`collab_session`](Self::collab_session), and nothing subscribes
+    /// to it directly: the buffer is already a signal, and the carets are
+    /// published through [`collab_carets`](Self::collab_carets).
+    pub collab: Signal<bool>,
+    /// The live session, if one is running. See `state/collab.rs`.
+    ///
+    /// Private to the `state` module tree: the session is machinery, and what
+    /// the outside asks for is `collab`, the carets, and
+    /// [`collab_replica`](Self::collab_replica) — not the doc itself.
+    collab_session: Rc<RefCell<Option<collab::CollabSession>>>,
+    /// Everyone else's carets, as line/column, for the editor's overlay.
+    ///
+    /// A signal rather than part of the session cell because the overlay
+    /// *subscribes* — a caret that moved should redraw the flag, and a
+    /// `RefCell` the pane polled would redraw the pane.
+    pub collab_carets: Signal<Rc<Vec<RemoteCaret>>>,
     /// Whether the far-left activity bar is showing.
     ///
     /// A bool rather than the sidebar's width trick, for the reason
@@ -2672,6 +2699,11 @@ impl Studio {
         let studio = Self {
             // The watcher is built before the struct literal so `workspace.root`
             // is not borrowed after it is moved into the `root` signal below.
+            // ST-10: no session until the Share command starts one; the carets
+            // start empty for the same reason.
+            collab: runtime.signal(false),
+            collab_session: Rc::new(RefCell::new(None)),
+            collab_carets: runtime.signal(Rc::new(Vec::new())),
             preview_state: Rc::new(RefCell::new(Vec::new())),
             preview_restore_due: Rc::new(std::cell::Cell::new(false)),
             preview_capture_due: Rc::new(std::cell::Cell::new(false)),
@@ -3804,6 +3836,10 @@ impl Studio {
         self.blink.borrow_mut().wake();
 
         let changed = buffer.value.text != value.text;
+        // ST-10: the collab seam. Before the value is replaced, while the old
+        // text is still in the buffer — the diff needs both sides. Nothing
+        // happens when no session is running (one boolean read).
+        self.collab_note_edit(buffer, &value);
         // Recorded *before* the value is replaced, because the history's
         // coalescing rule compares where the buffer is with where it is going.
         // A caret-only move records nothing but does keep the newest entry's

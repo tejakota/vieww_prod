@@ -187,6 +187,11 @@ fn main() {
                 //    nothing is running, which is the usual case.
                 studio.poll_analyzer();
                 studio.poll_auto_render();
+                // 7b. The collaboration log (ST-10): one byte comparison on
+                // the common frame where nobody appended. Reading after the
+                // auto-render poll keeps a remote edit and the debounce it
+                // should arm in the same frame.
+                studio.poll_collab();
                 // 8. Write the preferences out if any of them moved. One
                 //    struct comparison on a frame where nothing did.
                 studio.poll_settings(&last_settings);

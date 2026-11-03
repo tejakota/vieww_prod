@@ -46,6 +46,11 @@ ttf-parser = "0.25"
 # For `Tickers`/`Ticker`: the caret blink is driven by the frame scheduler
 # rather than a clock of its own. See `src/caret.rs`.
 vieww-animation.workspace = true
+# ST-10: the CRDT the shared buffer is wrapped in. `src/state/collab.rs` holds
+# the active buffer's text in a `collab::Doc` (RGA) and appends its ops as
+# JSONL to `<workspace>/.vieww/collab.log`; named here for the same reason
+# every other direct call is named.
+vieww-collab.workspace = true
 
 # The only third-party dependency in the studio, and it is here because the
 # alternative is `dlopen` through `libc` by hand. Pinned loosely: the surface

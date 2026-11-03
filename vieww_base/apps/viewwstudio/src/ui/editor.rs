@@ -1132,7 +1132,10 @@ fn code_pane(studio: &Studio, chrome: &StudioTheme, colors: ColorScheme) -> Widg
     // Long string literals and doc comments are the reason anybody turns this
     // on, and until now the only answer to them was constant sideways travel.
     let scrolling_field: WidgetNode = if wrapping {
-        with_inline_diagnostics(studio, field, chrome, colors)
+        with_remote_carets(
+            studio,
+            with_inline_diagnostics(studio, field, chrome, colors),
+        )
     } else {
         let scroll_x = studio.editor_scroll_x.clone();
         Scrollable::horizontal(scroll_x.offset())
@@ -1140,7 +1143,10 @@ fn code_pane(studio: &Studio, chrome: &StudioTheme, colors: ColorScheme) -> Widg
             .on_drag(scroll_x.on_drag())
             .on_drag_end(scroll_x.on_drag_end())
             .on_extents(scroll_x.on_extents())
-            .child(with_inline_diagnostics(studio, field, chrome, colors))
+            .child(with_remote_carets(
+                studio,
+                with_inline_diagnostics(studio, field, chrome, colors),
+            ))
             .into()
     };
 
@@ -1424,6 +1430,155 @@ fn with_inline_diagnostics(
         .alignment(Alignment::TOP_LEFT)
         .children(children)
         .into()
+}
+
+/// Everyone else's carets, over the field (ST-10).
+///
+/// # The same stack, the same contract
+///
+/// The remote caret is a mark at a *position*, and the only thing that knows
+/// where a position landed after shaping is the layout probe — the same
+/// one-line-behind contract the inline diagnostics above state. The line's
+/// rectangle gives the row; the column within it is the line's own measured
+/// width divided by its character count, which the code pane earns by asking
+/// for a monospaced face and not wrapping. An empty line has no width to
+/// measure, so it borrows its neighbour's advance.
+///
+/// # Nothing is drawn without a session
+///
+/// `collab_carets` is empty whenever no session is running, so the common
+/// frame is one signal read and the field returned unchanged.
+fn with_remote_carets(studio: &Studio, field: WidgetNode) -> WidgetNode {
+    let carets = studio.collab_carets.get();
+    if carets.is_empty() {
+        return field;
+    }
+    // Rebuild when the measurement moves, the same line the diagnostics
+    // overlay reads — a caret drawn from last frame's geometry is a caret a
+    // few pixels out for one frame, never a caret in the wrong place.
+    let _generation = studio.layout_generation.get();
+    let report = studio.layout_probe.snapshot();
+    if report.is_empty() || studio.word_wrap.get() {
+        // No measurement yet, or the rows are wrapped and a source line is no
+        // longer one visual row — the v0 limit `state/collab.rs` states.
+        return field;
+    }
+
+    let lines: Vec<String> = studio
+        .active()
+        .map(|buffer| buffer.value.text.split('\n').map(str::to_owned).collect())
+        .unwrap_or_default();
+    let lines: Vec<&str> = lines.iter().map(String::as_str).collect();
+    let font = studio.font_size.get();
+
+    let mut children: Vec<WidgetNode> = vec![field];
+    for caret in carets.iter() {
+        let index = (caret.line.max(1) - 1) as usize;
+        let Some(rect) = report.line(index) else {
+            continue;
+        };
+        let advance = line_advance(&report, &lines, index, font);
+        let x = rect.left + column_offset(caret.col) * advance;
+        let color = caret_color(caret.replica);
+        let height = code_line(font);
+
+        // The caret itself: a thin bar the height of the row, in a colour the
+        // remote's replica picks — never the local caret's, or the two read as
+        // one caret stuttering between positions.
+        children.push(
+            Positioned::new()
+                .left(x)
+                .top(rect.top)
+                .child(
+                    Container::new()
+                        .width(2.0)
+                        .height(height)
+                        .color(color.with_alpha(200)),
+                )
+                .into(),
+        );
+        // And the flag above it, with the name — the label is what makes a
+        // caret *somebody's* rather than a decoration.
+        children.push(
+            Positioned::new()
+                .left(x)
+                .top(rect.top - 13.0)
+                .child(
+                    Container::new()
+                        .padding(EdgeInsets::symmetric(4.0, 1.0))
+                        .color(color.with_alpha(220))
+                        .child(label(&caret.name, 9.0, Color::WHITE)),
+                )
+                .into(),
+        );
+    }
+
+    Stack::new()
+        .fit(StackFit::Loose)
+        .alignment(Alignment::TOP_LEFT)
+        .children(children)
+        .into()
+}
+
+/// One character's advance on line `index`, measured from the shaped line.
+///
+/// The rect's width over its character count is exact for the monospaced face
+/// the code pane asks for; a line that fell back to a wider face for one glyph
+/// is a line whose caret lands a fraction of a glyph out, which is the
+/// honest error bound rather than a hidden one.
+fn line_advance(
+    report: &vieww_foundation::TextLayoutReport,
+    lines: &[&str],
+    index: usize,
+    font: f32,
+) -> f32 {
+    fn measured(
+        report: &vieww_foundation::TextLayoutReport,
+        lines: &[&str],
+        index: usize,
+    ) -> Option<f32> {
+        let chars = lines.get(index)?.chars().count();
+        let width = report.line(index)?.width();
+        (chars > 0 && width > 0.0).then(|| width / chars as f32)
+    }
+    // An empty line has nothing to measure; the rows either side are the same
+    // font at the same size, so either will do. Past both, the last resort is
+    // the DejaVu Sans Mono ratio (0.602 of the point size), used rather than
+    // zero because a caret at the start of an empty file is still a caret.
+    measured(report, lines, index)
+        .or_else(|| measured(report, lines, index.saturating_sub(1)))
+        .or_else(|| measured(report, lines, index + 1))
+        .unwrap_or(font * 0.602)
+}
+
+/// A one-based column, as the pixels it sits at within a line.
+#[expect(
+    clippy::cast_precision_loss,
+    reason = "a column is a small integer; the f32 it becomes is exact far past any line length"
+)]
+fn column_offset(col: u32) -> f32 {
+    (col.max(1) - 1) as f32
+}
+
+/// A colour for a remote caret, stable per replica.
+///
+/// Not from the theme: the theme's accents say what *this* side means, and a
+/// remote's identity is not a meaning this side gets to choose. Eight hues,
+/// hashed by replica, so two people rarely collide and three never read as
+/// one.
+fn caret_color(replica: u32) -> Color {
+    const HUES: [(u8, u8, u8); 8] = [
+        (0xE5, 0x48, 0x4D),
+        (0x8B, 0xB5, 0x51),
+        (0x4C, 0xB3, 0xD4),
+        (0xC0, 0x6E, 0xD8),
+        (0xE8, 0x8C, 0x30),
+        (0x3E, 0x8E, 0x7E),
+        (0xD4, 0x4C, 0x9E),
+        (0x6C, 0x8C, 0xE0),
+    ];
+    let (r, g, b) = HUES[(replica % HUES.len() as u32) as usize];
+    Color::rgb(r, g, b)
 }
 
 /// The minimap: the file, scaled down, with the window you are looking through
