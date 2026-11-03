@@ -94,9 +94,9 @@ use std::io::Write as _;
 // Only the softbuffer present (not Android, which locks the ANativeWindow) uses it.
 #[cfg(not(target_os = "android"))]
 use std::num::NonZeroU32;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::rc::{Rc, Weak};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 use winit::window::Window;
@@ -2141,4 +2141,267 @@ mod tests {
             std::borrow::Cow::Borrowed(_) => panic!("an off-1x frame must be lifted, not borrowed"),
         }
     }
+
+    // ── the Vulkan prewarm (FW-05) ─────────────────────────────────────────
+
+    #[test]
+    fn a_window_that_cannot_want_the_gpu_never_prewarms() {
+        // Forced either way by VIEWW_PRESENT.
+        assert!(!may_want_vulkan(Some("cpu"), true, true));
+        assert!(may_want_vulkan(Some("vulkan"), false, false));
+        // Unforced: only a window that asked for the GPU, or one whose
+        // auto_rasterizer calibration might still pick it.
+        assert!(!may_want_vulkan(None, false, false));
+        assert!(may_want_vulkan(None, true, false));
+        assert!(may_want_vulkan(None, false, true));
+        // A value this crate does not know is the caller's choice, not "no".
+        assert!(may_want_vulkan(Some("d3d12"), true, false));
+    }
+
+    #[test]
+    fn prewarm_reports_what_it_read() {
+        let dir = std::env::temp_dir().join("vieww-prewarm-test");
+        std::fs::create_dir_all(&dir).unwrap();
+        let file = dir.join("pipelines.bin");
+        std::fs::write(&file, [7u8; 4096]).unwrap();
+        let what = run(Some(&file));
+        std::fs::remove_dir_all(&dir).ok();
+        // On iOS the loader clause says why it stayed on the main thread;
+        // elsewhere it either resolved or said why not — never neither.
+        assert!(what.loader.is_some() || what.loader_error.is_some());
+        let line = what.line();
+        assert!(line.contains("pipeline cache 4.0 KiB read in"), "{line:?}");
+    }
+
+    #[test]
+    fn a_first_launch_reads_a_cache_that_is_not_there_yet() {
+        let missing = std::env::temp_dir().join("vieww-prewarm-test-missing.bin");
+        std::fs::remove_file(&missing).ok();
+        let what = run(Some(&missing));
+        assert_eq!(what.cache, Some((0, what.cache.unwrap().1)));
+        let line = what.line();
+        // The honest reading: zero bytes, not an error — a first launch.
+        assert!(line.contains("0 B read in"), "{line:?}");
+    }
+
+    #[test]
+    fn a_prewarm_without_a_cache_file_only_resolves_the_loader() {
+        let what = run(None);
+        assert!(what.cache.is_none());
+        assert!(!what.line().contains("pipeline cache"), "{:?}", what.line());
+    }
+
+    #[test]
+    fn a_joined_prewarm_says_what_ran_even_when_the_thread_never_spawned() {
+        // The degenerate handle: no thread (spawn refused), and a join that
+        // still answers — start-up proceeds rather than failing on the thing
+        // that was meant to speed it up.
+        let what = Prewarm {
+            done: Arc::new(Mutex::new(Prewarmed::default())),
+            thread: None,
+        }
+        .join();
+        assert_eq!(what, Prewarmed::default());
+        assert_eq!(what.line(), "prewarm not run");
+    }
+
+    #[test]
+    fn a_real_prewarm_thread_runs_and_joins() {
+        // The full path: start, join, and an answer that names the loader and
+        // the cache file it read. Whether a loader is present is the
+        // machine's business; the line says which.
+        let dir = std::env::temp_dir().join("vieww-prewarm-thread-test");
+        std::fs::create_dir_all(&dir).unwrap();
+        let file = dir.join("pipelines.bin");
+        std::fs::write(&file, [1u8; 2048]).unwrap();
+        let what = Prewarm::start(Some(file.clone())).join();
+        std::fs::remove_dir_all(&dir).ok();
+        let line = what.line();
+        assert!(
+            line.contains("vulkan loader resolved in") || line.contains("no vulkan loader yet ("),
+            "{line:?}"
+        );
+        assert!(line.contains("2.0 KiB read in"), "{line:?}");
+    }
+}
+
+/// Whether a window that does not exist yet might present through Vulkan —
+/// the gate for starting [`Prewarm`] before winit builds the window.
+///
+/// `present_env` is `VIEWW_PRESENT` as read (not resolved) by the caller:
+/// `"cpu"` and `"vulkan"` are forced answers, anything else (including a
+/// value this crate does not know) leaves the decision to `prefer_gpu` and
+/// `auto_rasterizer`, exactly as [`PresentPath::choose`] will when the window
+/// exists. A window that cannot want the GPU must not load the loader at all
+/// — that is the CPU path's whole contract — so the test of "might" errs on
+/// the side of *not* prewarming only when every input says CPU.
+pub(crate) fn may_want_vulkan(present_env: Option<&str>, prefer_gpu: bool, auto: bool) -> bool {
+    match present_env {
+        Some("cpu") => false,
+        Some("vulkan") => true,
+        _ => prefer_gpu || auto,
+    }
+}
+
+/// What one [`Prewarm`] did, as one line for the startup trace.
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+pub(crate) struct Prewarmed {
+    /// How long resolving the Vulkan loader took, when it resolved.
+    loader: Option<Duration>,
+    /// Why it did not, when it did not.
+    loader_error: Option<String>,
+    /// `(bytes, how long)` of the pipeline-cache file read, when there was a
+    /// file to read.
+    cache: Option<(usize, Duration)>,
+}
+
+impl Prewarmed {
+    /// The observation, one clause per thing attempted — for
+    /// `trace_line` and the receipts.
+    #[must_use]
+    pub(crate) fn line(&self) -> String {
+        let mut parts = Vec::with_capacity(3);
+        match (self.loader, &self.loader_error) {
+            (Some(took), _) => {
+                parts.push(format!(
+                    "vulkan loader resolved in {:.1} ms",
+                    took.as_secs_f64() * 1000.0
+                ));
+            }
+            (None, Some(why)) => parts.push(format!("no vulkan loader yet ({why})")),
+            (None, None) => parts.push("prewarm not run".to_owned()),
+        }
+        if let Some((bytes, took)) = self.cache {
+            parts.push(format!(
+                "pipeline cache {} read in {:.1} ms",
+                human_bytes(bytes),
+                took.as_secs_f64() * 1000.0
+            ));
+        }
+        parts.join("; ")
+    }
+}
+
+/// Bytes as a person reads them — only what the prewarm's line needs.
+fn human_bytes(bytes: usize) -> String {
+    const KIB: f64 = 1024.0;
+    #[expect(clippy::cast_precision_loss, reason = "a byte count fits an f64")]
+    let as_kib = bytes as f64 / KIB;
+    if as_kib >= 1.0 {
+        format!("{as_kib:.1} KiB")
+    } else {
+        format!("{bytes} B")
+    }
+}
+
+/// The window-independent prefix of a window's Vulkan bring-up, run on
+/// another thread while winit creates the window (FW-05).
+///
+/// # Why only a prefix
+///
+/// `VulkanDevice::for_window` needs the window's handles to create the
+/// `VkSurfaceKHR`, so everything from `vkCreateInstance` on can only start
+/// once the window exists. What does *not* need the window is the two steps
+/// before it, and those are not free: resolving the loader is a `dlopen` (on
+/// Windows, `LoadLibrary` of `vulkan-1.dll` plus the SDK search on macOS),
+/// and the pipeline cache is a file the device reads during bring-up —
+/// `PENDING.md` §3.5's 215 ms "device ready" on Windows contains both. So a
+/// window that might present through Vulkan starts them before it asks winit
+/// for a window, and joins them after the window exists: the cost moves off
+/// the critical path rather than disappearing.
+///
+/// What this deliberately does **not** do is open a headless
+/// `VulkanDevice::new()` to warm the driver further: its `Drop` writes the
+/// pipeline cache file back (see `vieww_hal::vulkan::pipeline_cache`), so a
+/// prewarm device would race the real device's cache, and destroying a
+/// device on a side thread is the exact class of teardown this crate's
+/// `SHARED_DEVICE` history exists to avoid. The instance/adapter half of the
+/// 215 ms stays on the critical path until `vieww-hal` grows a constructor
+/// split that can receive a pre-made entry — noted for the framework-core
+/// owner in FW-05's STATUS row.
+///
+/// # Not on iOS
+///
+/// `load_entry` sets `MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS` on the simulator
+/// before the library loads; doing that from a second thread while the main
+/// thread is inside winit would make every `std::env` access on that thread
+/// a data race. There the prewarm reports itself as not run and the bring-up
+/// stays serial, which on a phone-sized start-up is the smaller loss.
+pub(crate) struct Prewarm {
+    done: Arc<Mutex<Prewarmed>>,
+    thread: Option<std::thread::JoinHandle<()>>,
+}
+
+impl Prewarm {
+    /// Start the prewarm for a window that might present through Vulkan,
+    /// reading `cache_file` (the file [`vieww_hal::vulkan::set_pipeline_cache_file`]
+    /// has named, or will name) into the page cache.
+    pub(crate) fn start(cache_file: Option<PathBuf>) -> Self {
+        let done = Arc::new(Mutex::new(Prewarmed::default()));
+        let thread = {
+            let done = Arc::clone(&done);
+            std::thread::Builder::new()
+                .name("vieww-vulkan-prewarm".to_owned())
+                .spawn(move || {
+                    let what = run(cache_file.as_deref());
+                    if let Ok(mut slot) = done.lock() {
+                        *slot = what;
+                    }
+                })
+                .ok()
+        };
+        Self { done, thread }
+    }
+
+    /// Wait for the prewarm to finish and say what it did. A thread that
+    /// could not even spawn (a process out of threads) reports that the
+    /// prewarm did not run rather than failing the start-up it was meant to
+    /// speed up.
+    pub(crate) fn join(mut self) -> Prewarmed {
+        if let Some(thread) = self.thread.take() {
+            let _ = thread.join();
+            self.done
+                .lock()
+                .map(|slot| slot.clone())
+                .unwrap_or_default()
+        } else {
+            Prewarmed::default()
+        }
+    }
+}
+
+/// The prewarm itself, separate from the handle so it is testable without a
+/// thread: the two steps are plain calls.
+fn run(cache_file: Option<&Path>) -> Prewarmed {
+    let mut what = Prewarmed::default();
+
+    // Not on iOS: `load_entry` sets an environment variable on the simulator
+    // (see the struct docs), and a second thread doing that while the main
+    // thread reads the environment is a race. Everywhere else the resolve is
+    // thread-safe — a `dlopen` under the loader's own lock — and the `Entry`
+    // it returns is dropped here, which is only a `dlclose` of a library the
+    // real bring-up is about to `dlopen` again.
+    #[cfg(not(target_os = "ios"))]
+    {
+        let started = Instant::now();
+        match vieww_hal::vulkan::load_entry() {
+            Ok(_entry) => what.loader = Some(started.elapsed()),
+            Err(error) => what.loader_error = Some(error.to_string()),
+        }
+    }
+    #[cfg(target_os = "ios")]
+    {
+        what.loader_error = Some("iOS: the loader resolve stays on the main thread".to_owned());
+    }
+
+    if let Some(file) = cache_file {
+        let started = Instant::now();
+        // Read and drop: the bytes are not used here, only made resident, so
+        // the device's own read of the same file during bring-up is a page
+        // cache hit. A file that is not there yet (a first launch) reads as
+        // zero bytes, which is the truth about a first launch.
+        let bytes = std::fs::read(file).map(|data| data.len()).unwrap_or(0);
+        what.cache = Some((bytes, started.elapsed()));
+    }
+    what
 }

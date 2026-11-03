@@ -104,6 +104,10 @@ mod keys;
 mod latency;
 mod lifecycle;
 pub mod locale;
+// The machine's displays: enumeration as a snapshot, and change events as a
+// diff between two. Public because `App::on_monitor_change` hands its types
+// to application code and a caller should not need a second route to them.
+pub mod monitors;
 // Split-frame execution: the Mixed recommendation's path from a planner
 // opinion to pixels on a screen — crate plumbing of native.rs, visible to
 // the crate's own tests: see mixed.rs for what a band split is and is not.
@@ -121,7 +125,10 @@ mod cpu_time;
     not(any(target_os = "android", target_os = "ios"))
 ))]
 pub mod desktop;
+// Outbound drag-and-drop: the interaction crate's portable half plus this
+// platform's OS starter, registered into `services::platform` (FW-19).
 mod device_tier;
+pub mod drag;
 mod frame_budget;
 mod perf_hint;
 mod quality;
@@ -135,6 +142,17 @@ mod startup;
 mod stats;
 pub mod storage;
 mod thermal;
+// The Linux tray thread's wait discipline, split out of `desktop` (which is
+// behind `desktop-services`, and with it the GTK bindings) so its rule —
+// block with no icon shown, poll at menu latency with one — is unit-testable
+// in the default build. Dead code when that feature is off, by the same
+// argument as the feature's own docs: the only caller is `desktop`'s.
+#[cfg(target_os = "linux")]
+#[cfg_attr(not(feature = "desktop-services"), allow(dead_code))]
+mod tray_pace;
+// Idle wakeups, the way `cpu_time` is idle CPU: the OS-side cost of an app
+// that is presenting nothing, which is what FW-15's idle budget gates on.
+mod wakeups;
 mod windows;
 
 pub use app::{App, CloseRequest, Closing, Pinch, PinchPhase, PlatformError, Waker, WindowIcon};
@@ -143,10 +161,12 @@ pub use windows::PlatformWindows;
 
 pub use cpu_time::process_cpu_time;
 pub use device_tier::{device_facts, device_facts_status, resolve_tier, DeviceFacts, DeviceTier};
+pub use drag::OsDragStarter;
 pub use input::{PointerTranslator, TouchPhase};
 pub use keys::{ime, KeyTranslator};
 pub use latency::{InputLatencyLog, InputLatencyReport, UNANSWERED_AFTER};
 pub use lifecycle::Lifecycle;
+pub use monitors::{MonitorChange, MonitorInfo};
 pub use perf_hint::perf_hint_status;
 pub use quality::{cache_budgets_for, cache_budgets_status, gpu_scale_status, QualityProfile};
 pub use rasterizer_choice::rasterizer_choice;
@@ -155,6 +175,7 @@ pub use startup::{pipeline_cache_status, report as startup_report};
 pub use stats::{Frame, FrameLog, FrameReport};
 pub use storage::{data_dir, FileStorage};
 pub use thermal::{status_name as thermal_status_name, thermal_reading, ThermalReading};
+pub use wakeups::{process_wakeups, wakeups_between};
 /// The activity handle `android_main` is handed, re-exported so an application
 /// needs no direct dependency on `android-activity`.
 ///

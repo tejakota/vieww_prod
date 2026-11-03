@@ -44,7 +44,7 @@
 //! [`Tray::take_activated`] reads it directly and the polling contract in
 //! `vieww_foundation::desktop` is unchanged.
 
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 use vieww_foundation::desktop::{GlobalHotkeys, Hotkey, HotkeyId, MenuId, NativeMenuItem, Tray};
@@ -176,6 +176,13 @@ struct TrayInner {
 struct TrayInner {
     /// Commands for the GTK thread. See the module docs.
     commands: std::sync::mpsc::Sender<TrayCommand>,
+    /// The receiving end, held until the thread starts — which is the first
+    /// `send`, not construction: see [`gtk_tray_thread`].
+    orders: RefCell<Option<std::sync::mpsc::Receiver<TrayCommand>>>,
+    /// Whether the GTK thread has been started. `Cell`, because starting it
+    /// happens inside `send`, which takes `&self` — the service is shared as
+    /// an `Rc` and cloning it must not fork a second thread per copy.
+    started: Cell<bool>,
 }
 
 /// What the Linux GTK thread can be asked to do.
@@ -198,13 +205,21 @@ impl PlatformTray {
         #[cfg(target_os = "linux")]
         {
             let (commands, orders) = std::sync::mpsc::channel();
-            // A thread rather than the winit loop, because libappindicator needs
-            // a GTK main loop and winit's is not one. It outlives the service on
-            // purpose: the icon has to stay up for as long as the process does,
-            // and a thread that exited would take it down.
-            std::thread::spawn(move || gtk_tray_thread(&orders));
+            // **No thread yet.** The old version spawned the GTK loop here,
+            // which made the thread's 16 ms poll a cost of *registering* the
+            // service: 62.5 wakeups per second from an application that never
+            // put an icon anywhere (FW-15's "unexplained wakeups" class — see
+            // `crate::tray_pace`). The thread starts on the first order —
+            // `TrayInner::send` — and blocks whenever no icon is set, so the
+            // common case costs nothing at all. It still outlives the service
+            // on purpose: the icon has to stay up for as long as the process
+            // does, and a thread that exited would take it down.
             Self {
-                inner: Rc::new(TrayInner { commands }),
+                inner: Rc::new(TrayInner {
+                    commands,
+                    orders: RefCell::new(Some(orders)),
+                    started: Cell::new(false),
+                }),
             }
         }
         #[cfg(not(target_os = "linux"))]
@@ -224,6 +239,29 @@ impl Default for PlatformTray {
     }
 }
 
+#[cfg(target_os = "linux")]
+impl TrayInner {
+    /// Send `command`, starting the GTK thread if this is the first.
+    ///
+    /// The thread is deliberately not started in [`PlatformTray::new`]: until
+    /// something is sent there is nothing for it to do but sleep, and the
+    /// first thing sent is what makes an icon possible, so laziness costs no
+    /// latency anywhere it matters.
+    fn send(&self, command: TrayCommand) -> Result<(), ServiceError> {
+        if !self.started.get() {
+            if let Some(orders) = self.orders.borrow_mut().take() {
+                // A thread rather than the winit loop, because libappindicator
+                // needs a GTK main loop and winit's is not one.
+                std::thread::spawn(move || gtk_tray_thread(&orders));
+                self.started.set(true);
+            }
+        }
+        self.commands
+            .send(command)
+            .map_err(|_| ServiceError::failed("the tray thread is gone"))
+    }
+}
+
 /// Own the tray on a GTK main loop, and take orders over `orders`.
 #[cfg(target_os = "linux")]
 fn gtk_tray_thread(orders: &std::sync::mpsc::Receiver<TrayCommand>) {
@@ -240,16 +278,34 @@ fn gtk_tray_thread(orders: &std::sync::mpsc::Receiver<TrayCommand>) {
 
     let mut icon: Option<tray_icon::TrayIcon> = None;
     loop {
-        // Drain everything waiting, then let GTK breathe. Polling rather than
-        // blocking on the channel because the GTK loop has to keep running for
-        // the icon to respond at all.
-        while let Ok(command) = orders.try_recv() {
-            apply(&mut icon, command);
+        // The wait discipline lives in `crate::tray_pace`, on its own so it is
+        // testable without a display: block with nothing shown — FW-15, the
+        // poll this replaced ran at 62.5 wakeups/s whether or not an icon
+        // existed — poll at menu latency while one does.
+        match crate::tray_pace::tray_wait(icon.is_some()) {
+            crate::tray_pace::TrayWait::Block => {
+                // Nothing is visible, so nothing GTK could do matters. A
+                // disconnect means the service is gone and the process with
+                // it — the thread owns the icon, so neither would have
+                // survived anyway.
+                match orders.recv() {
+                    Ok(command) => apply(&mut icon, command),
+                    Err(_) => return,
+                }
+            }
+            crate::tray_pace::TrayWait::Poll(pause) => {
+                // Drain everything waiting, then let GTK breathe. Polling
+                // rather than blocking on the channel because the GTK loop
+                // has to keep running for the icon to respond at all.
+                while let Ok(command) = orders.try_recv() {
+                    apply(&mut icon, command);
+                }
+                while gtk::events_pending() {
+                    gtk::main_iteration_do(false);
+                }
+                std::thread::sleep(pause);
+            }
         }
-        while gtk::events_pending() {
-            gtk::main_iteration_do(false);
-        }
-        std::thread::sleep(std::time::Duration::from_millis(16));
     }
 }
 
@@ -291,10 +347,7 @@ impl Tray for PlatformTray {
 
         #[cfg(target_os = "linux")]
         {
-            self.inner
-                .commands
-                .send(TrayCommand::Icon(rgba, TRAY_ICON_PIXELS))
-                .map_err(|_| ServiceError::failed("the tray thread is gone"))
+            self.inner.send(TrayCommand::Icon(rgba, TRAY_ICON_PIXELS))
         }
         #[cfg(not(target_os = "linux"))]
         {
@@ -329,10 +382,7 @@ impl Tray for PlatformTray {
     fn set_tooltip(&self, text: &str) -> Result<(), ServiceError> {
         #[cfg(target_os = "linux")]
         {
-            self.inner
-                .commands
-                .send(TrayCommand::Tooltip(text.to_owned()))
-                .map_err(|_| ServiceError::failed("the tray thread is gone"))
+            self.inner.send(TrayCommand::Tooltip(text.to_owned()))
         }
         #[cfg(not(target_os = "linux"))]
         {
@@ -350,10 +400,7 @@ impl Tray for PlatformTray {
     fn set_menu(&self, items: &[NativeMenuItem]) -> Result<(), ServiceError> {
         #[cfg(target_os = "linux")]
         {
-            self.inner
-                .commands
-                .send(TrayCommand::Menu(items.to_vec()))
-                .map_err(|_| ServiceError::failed("the tray thread is gone"))
+            self.inner.send(TrayCommand::Menu(items.to_vec()))
         }
         #[cfg(not(target_os = "linux"))]
         {
@@ -378,10 +425,7 @@ impl Tray for PlatformTray {
     fn remove(&self) -> Result<(), ServiceError> {
         #[cfg(target_os = "linux")]
         {
-            self.inner
-                .commands
-                .send(TrayCommand::Remove)
-                .map_err(|_| ServiceError::failed("the tray thread is gone"))
+            self.inner.send(TrayCommand::Remove)
         }
         #[cfg(not(target_os = "linux"))]
         {

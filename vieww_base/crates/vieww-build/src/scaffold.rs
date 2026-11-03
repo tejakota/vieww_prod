@@ -204,6 +204,10 @@ pub fn files(name: &str, dependency: &Dependency) -> Vec<(PathBuf, String)> {
         (PathBuf::from("Cargo.toml"), cargo_toml(name, dependency)),
         (PathBuf::from(".gitignore"), GITIGNORE.to_owned()),
         (PathBuf::from("src/main.rs"), main_rs(name)),
+        // FW-19 (B20): the toolchain the framework itself is developed and
+        // gated against, pinned exactly — see `TOOLCHAIN` for why an exact
+        // version and not `stable`.
+        (PathBuf::from("rust-toolchain.toml"), TOOLCHAIN.to_owned()),
     ]
 }
 
@@ -245,6 +249,40 @@ path = "src/main.rs"
 }
 
 const GITIGNORE: &str = "/target\n";
+
+/// The toolchain a scaffolded project builds with — the repository's own pin,
+/// written out verbatim (channel only; the repo's `components` are gate
+/// machinery a consumer project has no use for).
+///
+/// # Why an exact version, and not `stable`
+///
+/// `stable` is not a version — it is "whatever rustup resolved on the morning
+/// the project was built", which is a different compiler six weeks later. The
+/// repository's own `rust-toolchain.toml` makes this argument for itself (its
+/// whole comment is the history of a gate that went red on nobody's change),
+/// and a scaffolded project inherits the same exposure: the framework is
+/// developed, linted and tested against exactly one toolchain, and "the
+/// compiler the framework was tested with" is the honest default for a new
+/// project that has not yet made its own choice. A user who *has* an opinion
+/// deletes one line — the file says so.
+///
+/// # The number cannot drift from the repository's
+///
+/// This channel is a copy of the repository's own `rust-toolchain.toml` pin,
+/// and `the_scaffold_pins_the_repositories_exact_toolchain` fails the build if
+/// the two ever name different compilers — bumping the repository pin is a
+/// commit, and this string is part of that commit, not a follow-up someone
+/// remembers. That lockstep is the actual fix for B20: the studio's Toolchains
+/// view reports the targets of *its* toolchain (the repository pin), so a
+/// project pinned to anything else could show "ready" and still fail an
+/// export on a target its own channel never had.
+const TOOLCHAIN: &str = r#"[toolchain]
+# The exact toolchain the vieww repository develops and tests against — the
+# same channel its own rust-toolchain.toml pins. Delete this file if your
+# project wants to choose its own; as written, `cargo` here always uses the
+# compiler the framework was gated with.
+channel = "1.98.1"
+"#;
 
 /// The whole application: one window, one widget, real calls throughout.
 ///
@@ -453,6 +491,46 @@ mod tests {
         Dependency::Path(PathBuf::from("/w/vieww"))
     }
 
+    /// The scaffold's channel and the repository's own `rust-toolchain.toml`
+    /// must name the same compiler (FW-19, B20). The failure this guards
+    /// against is silent: the two drift apart, and every project scaffolded
+    /// after the drift builds with a compiler the framework was never tested
+    /// with — while the studio's Toolchains view, reporting the repository
+    /// pin's targets, keeps saying "ready".
+    #[test]
+    fn the_scaffold_pins_the_repositories_exact_toolchain() {
+        let generated = files("my-app", &dependency());
+        let scaffolded = generated
+            .iter()
+            .find(|(path, _)| path.ends_with("rust-toolchain.toml"))
+            .expect("the template writes a rust-toolchain.toml");
+        let channel = scaffolded
+            .1
+            .lines()
+            .find_map(|line| line.trim().strip_prefix("channel = "))
+            .expect("the pin has a channel line");
+
+        // The repository's own pin, read from the checkout this test runs in
+        // — `checkout_root` is the same discovery `Dependency::detect` uses.
+        // `detect_finds_this_very_checkout` below proves that discovery
+        // succeeds here, so the pin's absence is a broken checkout, not a
+        // state to tolerate quietly.
+        let pinned = checkout_root()
+            .map(|root| root.join("rust-toolchain.toml"))
+            .filter(|path| path.is_file())
+            .and_then(|path| std::fs::read_to_string(path).ok())
+            .expect("this checkout pins its own toolchain");
+        let repo_channel = pinned
+            .lines()
+            .find_map(|line| line.trim().strip_prefix("channel = "))
+            .expect("the repository pin has a channel line");
+
+        assert_eq!(
+            channel, repo_channel,
+            "the scaffold and the repository must name the same toolchain"
+        );
+    }
+
     #[test]
     fn a_name_is_checked_before_anything_is_written() {
         for bad in [
@@ -472,7 +550,12 @@ mod tests {
             .iter()
             .map(|(path, _)| path.to_string_lossy().replace('\\', "/"))
             .collect();
-        for expected in ["Cargo.toml", ".gitignore", "src/main.rs"] {
+        for expected in [
+            "Cargo.toml",
+            ".gitignore",
+            "src/main.rs",
+            "rust-toolchain.toml",
+        ] {
             assert!(paths.contains(&expected.to_string()), "missing {expected}");
         }
     }

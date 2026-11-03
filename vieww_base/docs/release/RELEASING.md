@@ -56,7 +56,7 @@ installers ship unsigned and `MANIFEST.txt` says so on each one.
 |---|---|---|
 | Windows | `WINDOWS_CERT_PFX` (base64), `WINDOWS_CERT_PASSWORD` | `signtool sign /fd sha256 /tr <rfc3161>` |
 | macOS | `APPLE_DEVELOPER_ID_P12`, `APPLE_P12_PASSWORD`, `APPLE_NOTARY_KEY` (API key .p8), `APPLE_NOTARY_KEY_ID`, `APPLE_NOTARY_ISSUER` | `codesign --options runtime`, `xcrun notarytool submit --wait`, `stapler staple` |
-| Android | `ANDROID_KEYSTORE` (base64), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` | `apksigner sign`, AAB via `bundletool` |
+| Android | `ANDROID_KEYSTORE` (base64), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` | APK: `apksigner sign`. AAB: `vieww package aab` (the project's `gradlew bundleRelease`, or `cargo apk` + `bundletool build-bundle`) then `sign.sh apk` — jarsigner with the *upload* key; Play App Signing holds the delivery key |
 
 `packaging/sign.sh` applies whichever of these are present and verifies the
 result (`signtool verify /pa`, `codesign --verify --strict` +

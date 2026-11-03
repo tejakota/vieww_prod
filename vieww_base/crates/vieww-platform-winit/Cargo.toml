@@ -25,6 +25,12 @@ desktop-services = ["dep:tray-icon", "dep:global-hotkey", "dep:gtk"]
 
 [dependencies]
 vieww-foundation.workspace = true
+# The portable half of outbound drag-and-drop (FW-19's DnD-out wiring): the
+# payload/session state machine in `vieww-interaction::drag_out`, plus the
+# Windows OLE `DoDragDrop` bridge this crate's `drag` module adapts into its
+# services. Internal-only — `vieww-foundation` is its one dependency on the
+# non-Windows targets, so it adds no third-party crate to this crate's graph.
+vieww-interaction.workspace = true
 # AU-01: `services::platform()` / `for_android()` register vieww-audio's
 # `EnginePlayer` as the `AudioPlayer`, so sound works without app wiring. The
 # device is opened on the first `play`, never at startup. vieww-audio's only

@@ -588,6 +588,12 @@ panic = "abort"
 
 /// Pinned, and the comment says why, because the reason is not obvious and the
 /// consequence of removing it is undefined behaviour rather than an error.
+///
+/// Pinned to an *exact* version (FW-19, B20), and not `stable`, because
+/// `stable` is "whatever rustup resolved this morning" — which is a different
+/// compiler the morning after an upgrade, and the two halves of the pinned
+/// argument below both break when that happens: the preview's ABI identity,
+/// and the Toolchains view's target accounting.
 const TOOLCHAIN: &str = r#"[toolchain]
 # Pinned because vieww Studio's preview loads a compiled library into its own
 # process. A `Box<dyn Widget>` built by a different rustc has a different vtable
@@ -595,7 +601,18 @@ const TOOLCHAIN: &str = r#"[toolchain]
 # behaviour rather than a mismatch anything can detect afterwards. The studio
 # refuses to load a library built by a compiler other than its own; this file is
 # what keeps them the same one.
-channel = "stable"
+#
+# An exact version, and not `stable`, because the studio's Toolchains view
+# reports the targets of the studio's own toolchain — this checkout's pin —
+# while a project pinned to `stable` builds with whatever `stable` resolved
+# to on that machine. A user could see every target "ready" and still fail an
+# export because *their* `stable` never had it (B20). Writing the same channel
+# the studio builds with makes the view's answer the project's answer.
+#
+# The number is the channel of the repository's own rust-toolchain.toml, and
+# a test refuses to let the two drift: bumping the repository pin is a commit,
+# and this file is part of that commit.
+channel = "1.98.1"
 "#;
 
 const GITIGNORE: &str = "/target\n**/*.rs.bk\n";
@@ -1682,6 +1699,44 @@ mod tests {
         ] {
             assert!(paths.contains(&expected.to_string()), "missing {expected}");
         }
+    }
+
+    /// The scaffold's channel and the repository's own `rust-toolchain.toml`
+    /// must name the same compiler (FW-19, B20). This is the lockstep the
+    /// toolchain file's own comment promises: the studio's preview ABI and
+    /// the Toolchains view's target accounting are only honest while the two
+    /// pins agree, and neither one announces the day they stop.
+    #[test]
+    fn the_scaffold_pins_the_repositories_exact_toolchain() {
+        let generated = files("my-app", &dependency());
+        let scaffolded = generated
+            .iter()
+            .find(|(path, _)| path.ends_with("rust-toolchain.toml"))
+            .expect("the template writes a rust-toolchain.toml");
+        let channel = scaffolded
+            .1
+            .lines()
+            .find_map(|line| line.trim().strip_prefix("channel = "))
+            .expect("the pin has a channel line");
+
+        // The studio's own pin: this checkout's rust-toolchain.toml, found by
+        // the same discovery `Dependency::detect` uses. The studio built from
+        // this checkout always finds it; a moved binary has no lockstep to
+        // keep and nothing to assert.
+        let Some(root) = checkout_root() else {
+            panic!("the studio's tests run from its own checkout");
+        };
+        let pinned = std::fs::read_to_string(root.join("rust-toolchain.toml"))
+            .expect("this checkout pins its own toolchain");
+        let repo_channel = pinned
+            .lines()
+            .find_map(|line| line.trim().strip_prefix("channel = "))
+            .expect("the repository pin has a channel line");
+
+        assert_eq!(
+            channel, repo_channel,
+            "the scaffold and the repository must name the same toolchain"
+        );
     }
 
     /// The property that makes Render work on a fresh project. If this ever

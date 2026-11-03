@@ -27,6 +27,12 @@ SUMMARY = {"devices": [{"device": "LG Stylo 5", "result": {
     "auto_frame_time": "median 348.803µs, worst 2.4ms, budget 8.3ms (240 samples)",
 }}, {"device": "no result", "result": None}]}
 
+# The windowed baseline's report (`examples/baseline.rs`), as FW-15's RSS
+# budget sees it: only the peak matters, and the class is the runner's to
+# force, because the report knows its os/arch but not its machine.
+BASELINE = {"schema": "vieww.baseline/1", "os": "linux", "arch": "x86_64",
+            "peak_rss_bytes": 100 * 1024 * 1024, "idle_end_rss_bytes": 99 * 1024 * 1024}
+
 
 def write(obj):
     fd, path = tempfile.mkstemp(suffix=".json")
@@ -111,6 +117,22 @@ class PerfBudget(unittest.TestCase):
         ):
             with self.assertRaises(ValueError):
                 pb.validate(bad)
+
+    def test_a_baseline_report_gates_peak_rss(self):
+        # FW-15: the interim memory budget. Peak, not idle-end, so a run that
+        # finished low after peaking high cannot pass by shrinking.
+        m = pb.measurements(BASELINE, "hardware-linux")
+        self.assertEqual(list(m), ["hardware-linux"])
+        self.assertAlmostEqual(m["hardware-linux"]["peak_rss_mb"], 100.0)
+        self.assertNotIn("idle_end_rss_mb", m["hardware-linux"])
+        # Without --class the class is os/arch — the report cannot name the
+        # machine, and a budget keyed "linux" would fire for any Linux.
+        self.assertEqual(list(pb.measurements(BASELINE)), ["baseline-linux-x86-64"])
+        budgets = write({"schema": pb.SCHEMA, "tolerance_percent": 10, "min_delta_ms": 1.0,
+                         "classes": {"hardware-linux": {"peak_rss_mb": 120.0}}})
+        self.assertEqual(pb.main(["check", budgets, write(BASELINE), "--class", "hardware-linux"]), 0)
+        fat = dict(BASELINE, peak_rss_bytes=160 * 1024 * 1024)  # +33%, +40 MB
+        self.assertEqual(pb.main(["check", budgets, write(fat), "--class", "hardware-linux"]), 1)
 
     def test_something_else_is_refused(self):
         with self.assertRaises(ValueError):

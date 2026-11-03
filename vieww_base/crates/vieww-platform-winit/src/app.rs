@@ -238,6 +238,9 @@ type BeforeFrameHook = Box<dyn FnMut(&mut FrameDriver)>;
 /// and that one is logical too.
 type CloseHook = Box<dyn FnMut(CloseRequest) -> Closing>;
 type PinchHook = Box<dyn FnMut(Pinch) -> bool>;
+/// Told about the machine's displays changing — see
+/// [`App::on_monitor_change`](App::on_monitor_change).
+type MonitorHook = Box<dyn FnMut(&crate::monitors::MonitorChange)>;
 
 /// A two-finger pinch on a trackpad.
 ///
@@ -402,6 +405,9 @@ pub struct App {
     on_close: Option<CloseHook>,
     /// Told about trackpad pinches. See [`App::on_pinch`].
     on_pinch: Option<PinchHook>,
+    /// Told about displays being added, removed, or rescaled. See
+    /// [`App::on_monitor_change`](Self::on_monitor_change).
+    on_monitors: Option<MonitorHook>,
     /// Run before each frame is built, able to change the tree.
     ///
     /// The one hook that takes `&mut FrameDriver`. See [`App::before_frame`].
@@ -476,6 +482,7 @@ impl App {
             before_frame: Vec::new(),
             on_close: None,
             on_pinch: None,
+            on_monitors: None,
             runtime,
             windows,
         }
@@ -879,6 +886,32 @@ impl App {
         self
     }
 
+    /// Told when the machine's displays change — one added, one removed, or
+    /// one rescaled (the per-monitor DPI event).
+    ///
+    /// The hook is how enumeration is delivered too: on startup every display
+    /// the machine has arrives as
+    /// [`MonitorChange::Added`](crate::monitors::MonitorChange::Added), so a
+    /// layout that sizes itself to the desktop needs no second API. Later
+    /// events are the ones [`crate::monitors`]'s own doc says the platform
+    /// gives no notification for — re-read on `Moved` and
+    /// `ScaleFactorChanged`, and on every `resumed` for what could have
+    /// happened in the background.
+    ///
+    /// Marking a signal in the hook is how a redraw is asked for: a scale
+    /// change already redraws through the resize it causes, and an
+    /// added-or-removed display matters to an application's *layout*, which
+    /// is what signals are for. A hook that changes nothing draws nothing,
+    /// which is the same deal every other hook here offers.
+    #[must_use]
+    pub fn on_monitor_change<H>(mut self, hook: H) -> Self
+    where
+        H: FnMut(&crate::monitors::MonitorChange) + 'static,
+    {
+        self.on_monitors = Some(Box::new(hook));
+        self
+    }
+
     /// A handle that asks this application for a frame, from any thread.
     ///
     /// Hand it to [`vieww_foundation::task::Task::spawn`] so that work
@@ -1093,6 +1126,11 @@ impl App {
             windows: Vec::new(),
             requests,
             runtime,
+            // The displays as of the last read. Starts empty so the first
+            // read — on `resumed`, before any window logic — reports every
+            // display the machine has as an addition, which is how
+            // enumeration reaches an `on_monitor_change` hook.
+            monitors: Vec::new(),
         };
 
         // Start-up is split at the platform's own hand-off: everything up to
@@ -2346,6 +2384,9 @@ struct Runner<F> {
     /// draws the same way rather than calibrating again: a dialog's size is
     /// not the device's, and its measurement would overwrite the primary's.
     auto_planned: Option<bool>,
+    /// The machine's displays as of the last [`monitors_may_have_changed`]
+    /// read — the `old` half of every monitor diff this loop takes.
+    monitors: Vec<crate::monitors::MonitorInfo>,
 }
 
 impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
@@ -2360,6 +2401,40 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
             .iter()
             .find(|window| window.key == WindowKey::PRIMARY)
             .or_else(|| self.windows.first())
+    }
+
+    /// Re-read the machine's displays and report what changed since the last
+    /// read, if anything.
+    ///
+    /// Called on the events that can mean the furniture moved — `Moved`,
+    /// `ScaleFactorChanged`, and every `resumed` — because winit has no
+    /// monitor-hotplug event on any backend this version pins (see
+    /// [`crate::monitors`]'s own doc for the full argument). Cheap when
+    /// nothing changed: one enumeration and a compare, the same discipline
+    /// [`WindowState::display_may_have_changed`](WindowState) practices for
+    /// the refresh rate.
+    ///
+    /// The hook is called with every change in one batch rather than once per
+    /// change: a docked laptop reports "removed panel, added two" as one
+    /// world-transition, and a hook that re-reads a layout per event would do
+    /// it three times for one reality.
+    fn monitors_may_have_changed(&mut self, event_loop: &ActiveEventLoop) {
+        let snapshot = crate::monitors::snapshot(event_loop);
+        let changes = crate::monitors::diff(&self.monitors, &snapshot);
+        self.monitors = snapshot;
+        if changes.is_empty() {
+            return;
+        }
+        for change in &changes {
+            // `Display`, not `Debug`: these are sentences a person reads in a
+            // debug log, not a structure a tool parses.
+            log::debug!("vieww: {change}");
+        }
+        if let Some(hook) = self.shared.config.on_monitors.as_mut() {
+            for change in &changes {
+                hook(change);
+            }
+        }
     }
 
     /// The window a [`WindowKey`] names.
@@ -2431,6 +2506,29 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
             f64::from(size.width),
             f64::from(size.height),
         ));
+        // **FW-05: the window-independent half of the Vulkan bring-up starts
+        // before the window does.** `VulkanDevice::for_window` cannot begin
+        // until the window's handles exist — the `VkSurfaceKHR` is made from
+        // them — but resolving the Vulkan loader and reading the pipeline
+        // cache cannot wait for anything, and both sit on the critical path
+        // of PENDING.md §3.5's 215 ms Windows "device ready". A window that
+        // cannot want the GPU never starts the thread at all, so the CPU
+        // path's "no GPU driver is loaded" contract stands. See
+        // `crate::native::Prewarm` for what the prefix is and is not.
+        let present_env = std::env::var("VIEWW_PRESENT").ok();
+        let prewarm = crate::native::may_want_vulkan(
+            present_env.as_deref(),
+            self.shared.config.prefer_gpu,
+            self.shared.config.auto_rasterizer,
+        )
+        .then(|| {
+            // Before the thread reads it, so the prewarm and the device
+            // agree on the file. The same call below makes the window
+            // that did not prewarm agree too.
+            let file = self.pipeline_cache_file();
+            vieww_hal::vulkan::set_pipeline_cache_file(file.clone());
+            crate::native::Prewarm::start(file)
+        });
         // **Startup is traced step by step.** A gate run on a GNOME/Wayland
         // hybrid-GPU laptop hung here — `tests/wait_loop.rs`' idle scenario
         // printed no window event at all in 20 s while its waker thread fired
@@ -2502,6 +2600,19 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
         // And before the first renderer, so its blur and fill caches start at
         // this device tier's budgets (`quality::cache_budgets_for`).
         crate::quality::apply_cache_budgets();
+        // The prewarm has had the window's creation, the calibration read and
+        // the cache budgets to run beside; the device open is the first thing
+        // that genuinely needs its results, so it joins here. The mark says
+        // when the prefix finished — with `window created` beside it, the
+        // startup line shows the overlap rather than hiding it in the open.
+        if let Some(prewarm) = prewarm {
+            let prewarmed = prewarm.join();
+            crate::startup::mark("vulkan prewarmed");
+            trace_line(
+                self.shared.now(),
+                format_args!("startup: prewarm: {}", prewarmed.line()),
+            );
+        }
         let opened = NativeRenderer::for_window_on(&window, width, height, path);
         // A device whose GPU cannot be opened has answered the question: under
         // `auto_rasterizer` that is the CPU path, kept, rather than an app that
@@ -3080,6 +3191,10 @@ impl<F: FnOnce(&mut FrameDriver)> ApplicationHandler<UserEvent> for Runner<F> {
             // the way back in are not the ones on the way out.
             window.inset_watch.disturbed();
         }
+        // The displays too, for the same reason — and on the first resume this
+        // is the baseline read that tells an `on_monitor_change` hook what the
+        // machine has at all.
+        self.monitors_may_have_changed(event_loop);
         if let Some(context) = &self.shared.crash_context {
             context.set("lifecycle", "resumed");
         }
@@ -3232,6 +3347,18 @@ impl<F: FnOnce(&mut FrameDriver)> ApplicationHandler<UserEvent> for Runner<F> {
         event: WindowEvent,
     ) {
         let now = self.shared.now();
+
+        // The two window events that can mean the display set itself changed —
+        // a move onto another monitor, or a scale change, which on Wayland and
+        // X11 is often the *first* sign a hotplug happened at all. Read before
+        // the window acts on the event, so a hook sees the new world before the
+        // frame it will ask for.
+        if matches!(
+            event,
+            WindowEvent::Moved(_) | WindowEvent::ScaleFactorChanged { .. }
+        ) {
+            self.monitors_may_have_changed(event_loop);
+        }
 
         // `Occluded` carries the one bit that decides whether this window may
         // draw at all, so it is the event the trace names with its payload.

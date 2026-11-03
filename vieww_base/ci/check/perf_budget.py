@@ -10,7 +10,7 @@ and Device Farm's `summary.json` record every timing, and until this nothing
 compared run N with run N-1: a fill cache that cost 1.9-6.6 ms on three
 phones was caught only because somebody read a Device Farm table.
 
-Two kinds of input, told apart by their shape:
+Three kinds of input, told apart by their shape:
 
 * a **fixtures receipt**: each fixture's `cpu_p50_ms` (and `gpu_best_ms`
   for the census), under a machine class of `os / arch / cpu_model` unless
@@ -18,7 +18,19 @@ Two kinds of input, told apart by their shape:
   the like, so a kernel update does not orphan the budget);
 * a **Device Farm summary** (`summary.json` from `ci/mobile/device_farm.py`):
   each phone's median frame time per pass (`cpu`, `gpu`, `auto`), under a
-  class named after the phone model.
+  class named after the phone model;
+* a **baseline report** (`vieww.baseline/1`, the `examples/baseline.rs`
+  windowed measurement): `peak_rss_mb`, FW-15's interim memory budget — the
+  class should be forced with `--class` (the hardware legs use
+  `hardware-linux` / `hardware-windows`), because the report names its `os`
+  and `arch` but not the machine, and a budget keyed to "linux" would fire
+  for somebody else's reasons the way an un-named target does in
+  `size-budget.sh`.
+
+Most metrics are milliseconds; `peak_rss_mb` is megabytes. The tolerance and
+the absolute floor are unit-free on purpose — 10% of a 0.3 ms frame and 10%
+of a 120 MB budget are both "moved enough to matter" — and the floor's name
+(`min_delta_ms`) predates the second unit it now also serves.
 
 `check` fails (exit 1) on any metric more than `tolerance_percent` above its
 budget **and** more than `min_delta_ms` above it in absolute terms (10% of a
@@ -80,7 +92,17 @@ def measurements(doc, forced_class=None):
             if f.get("gpu_best_ms") is not None:
                 out.setdefault(cls, {})[f"{mode}/{name}/gpu_best_ms"] = float(f["gpu_best_ms"])
         return out
-    raise ValueError("neither a vieww.bench-receipt nor a Device Farm summary.json")
+    if isinstance(doc, dict) and str(doc.get("schema", "")).startswith("vieww.baseline/"):
+        cls = forced_class or "-".join(("baseline", slug(doc.get("os")), slug(doc.get("arch"))))
+        # FW-15: the windowed baseline's peak RSS is the memory figure the
+        # audit measured (150 MB Linux against a 40 MB target); the interim
+        # 120 MB row lives in perf-budgets.json with the ratchet noted there.
+        # Peak rather than idle-end: idle-end hides a leak that has not run
+        # yet, and the budget is about what a user's machine is asked to hold.
+        if doc.get("peak_rss_bytes") is not None:
+            out.setdefault(cls, {})["peak_rss_mb"] = doc["peak_rss_bytes"] / (1024.0 * 1024.0)
+        return out
+    raise ValueError("not a vieww.bench-receipt, Device Farm summary.json or vieww.baseline report")
 
 
 def load_budgets(path):
@@ -227,7 +249,7 @@ def main(argv):
         failures += bfail
         unknown = [c for c in unknown if c not in held]
     tol = budgets["tolerance_percent"]
-    print(f"| class | metric | budget ms | now ms | change | verdict (tolerance ±{tol:g}%) |")
+    print(f"| class | metric | budget | now | change | verdict (tolerance ±{tol:g}%) |")
     print("|---|---|---|---|---|---|")
     for cls, name, was, now, change, verdict in rows:
         w = "–" if was is None else f"{was:.3f}"
@@ -239,7 +261,7 @@ def main(argv):
     if failures:
         level = "warning" if advisory else "error"
         for cls, name, was, now, change in failures:
-            print(f"::{level}::perf-budget: {cls} {name}: {now:.3f} ms against {was:.3f} ms "
+            print(f"::{level}::perf-budget: {cls} {name}: {now:.3f} against {was:.3f} "
                   f"({change:+.1f}%)")
         if advisory:
             print("perf-budget: over budget, reported only (--advisory: a shared hosted runner)")

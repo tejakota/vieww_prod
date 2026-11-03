@@ -54,6 +54,10 @@ members = [
     "crates/vieww-widget-macros",
     "crates/vieww-build",
     "crates/vieww-cli",
+    # FW-24: the update channel — a signed manifest, a verifying downloader,
+    # an atomic apply. Listed last among the crates to keep the diff that
+    # adds it one line plus this note (parallel worktrees touch this list).
+    "crates/vieww-update",
     "examples/film_lab",
     "examples/wright_film",
     "examples/keynote",
@@ -228,6 +232,11 @@ vieww-plugin = { path = "crates/vieww-plugin", version = "0.1.0" }
 vieww-plugin-macros = { path = "crates/vieww-plugin-macros", version = "0.1.0" }
 vieww-widget-macros = { path = "crates/vieww-widget-macros", version = "0.1.0" }
 vieww-build = { path = "crates/vieww-build", version = "0.1.0" }
+# FW-24: the update channel. `vieww-build` consumes it so the manifest a
+# packaging run emits and the manifest the updater parses are the *same*
+# code, not two shapes kept in agreement by review — and it costs the graph
+# nothing, because vieww-update itself has no dependencies at all.
+vieww-update = { path = "crates/vieww-update", version = "0.1.0" }
 vieww-cli = { path = "crates/vieww-cli", version = "0.1.0" }
 
 # The U backend's persistence layer: every record and the persona state are

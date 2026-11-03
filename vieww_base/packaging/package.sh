@@ -16,13 +16,18 @@
 #   viewwstudio/                     vieww Studio.app/
 #     bin/viewwstudio                  Contents/Info.plist
 #     lib/vieww/                       Contents/MacOS/viewwstudio
-#       vieww-sdk.toml                 Contents/Resources/vieww/
-#       libvieww-<hash>.rlib             vieww-sdk.toml
-#       deps/...                         libvieww-<hash>.rlib
-#       toolchain/bin/rustc              deps/...
-#     share/                             toolchain/bin/rustc
-#       applications/...               Contents/Resources/viewwstudio.icns
-#       icons/...
+#       vieww-sdk.toml                 Contents/Frameworks/libMoltenVK.dylib
+#       libvieww-<hash>.rlib             (+ icd json, see --bundle-moltenvk)
+#       deps/...                       Contents/Resources/vieww/
+#       toolchain/bin/rustc              vieww-sdk.toml
+#     share/                             libvieww-<hash>.rlib
+#       applications/...                 deps/...
+#       icons/...                        toolchain/bin/rustc
+#                                    Contents/Resources/viewwstudio.icns
+#
+# `Contents/Frameworks/libMoltenVK.dylib` is FW-04's addition: the one file a
+# clean-machine launch cannot open the GPU without, and the first path
+# `vieww_hal::vulkan::load_entry` looks in after the system loader.
 #
 # `install::target_dir` knows both layouts, which is what makes the rlibs
 # beside the binary the ones it finds — see that module for the search order.
@@ -115,6 +120,14 @@ with_toolchain="yes"
 # part of the bundle. The bundled rlibs keep their line tables, which only
 # makes a guest's own backtraces readable.
 with_symbols=""
+# FW-04: put MoltenVK inside the .app (Contents/Frameworks + the ICD json the
+# Vulkan loader reads). A macOS bundle without it is a bundle that cannot open
+# the GPU on any machine that has no Vulkan SDK and no Homebrew — which is
+# every machine an end user owns. Off by default only because the dylib has to
+# come from somewhere: `--bundle-moltenvk` fails loudly when no source exists,
+# and a run without it prints the absence instead of staying quiet (see the
+# macOS case below).
+bundle_moltenvk_flag=""
 for arg in "$@"; do
 	case "$arg" in
 	--debug)
@@ -135,6 +148,7 @@ for arg in "$@"; do
 	--with-toolchain) with_toolchain="yes" ;;
 	--no-toolchain) with_toolchain="" ;;
 	--symbols) with_symbols="yes" ;;
+	--bundle-moltenvk) bundle_moltenvk_flag="yes" ;;
 	*)
 		echo "unknown option: $arg" >&2
 		exit 2
@@ -420,6 +434,81 @@ copy_windows_std() {
 	echo "    verified: the executable imports it"
 }
 
+# FW-04: MoltenVK into the .app — the one file a clean-machine macOS launch
+# cannot open the GPU without.
+#
+# `vieww_hal::vulkan::load_entry` tries `libvulkan.1.dylib` first and then
+# MoltenVK directly, from exactly these places, in this order:
+# `<exe>/../Frameworks/libMoltenVK.dylib` (this function's destination), then
+# `$VULKAN_SDK/lib`, then `/opt/homebrew/lib` and `/usr/local/lib`. A bundle
+# that carries the dylib therefore works on a machine that has none of the
+# sources — the whole point of bundling — and a bundle that does not carries a
+# dependency on the user having installed a Vulkan SDK they have no reason to
+# have.
+#
+# The ICD json goes to `Contents/Resources/vulkan/icd.d/`, the path newer
+# Vulkan loaders search inside a bundle, with its `library_path` rewritten to
+# the dylib's new relative location: a json that still points at
+# `/opt/homebrew/lib/...` describes a library the bundle does not contain.
+# MoltenVK is Apache-2.0, so redistribution is permitted; the licence is
+# therefore not a reason to skip this, and `packaging/moltenvk/` is the
+# deterministic place a release machine without brew or the SDK puts a
+# known-good copy.
+bundle_moltenvk() {
+	local app="$1"
+	local frameworks="$app/Contents/Frameworks"
+	local icd_dir="$app/Contents/Resources/vulkan/icd.d"
+
+	# Where a MoltenVK can come from, in the order `load_entry` prefers the
+	# sources themselves: the SDK (a deliberate install), Homebrew (either
+	# prefix — Apple silicon and Intel), a copy vendored beside this script.
+	local dylib="" icd=""
+	if [ -n "${VULKAN_SDK:-}" ]; then
+		[ -f "$VULKAN_SDK/lib/libMoltenVK.dylib" ] && dylib="$VULKAN_SDK/lib/libMoltenVK.dylib"
+		for d in "$VULKAN_SDK/share/vulkan/icd.d" "$VULKAN_SDK/etc/vulkan/icd.d"; do
+			[ -f "$d/MoltenVK_icd.json" ] && { icd="$d/MoltenVK_icd.json"; break; }
+		done
+	fi
+	if [ -z "$dylib" ]; then
+		for prefix in /opt/homebrew /usr/local; do
+			[ -f "$prefix/lib/libMoltenVK.dylib" ] && { dylib="$prefix/lib/libMoltenVK.dylib"; break; }
+		done
+	fi
+	if [ -z "$icd" ]; then
+		for prefix in /opt/homebrew /usr/local; do
+			[ -f "$prefix/share/vulkan/icd.d/MoltenVK_icd.json" ] && { icd="$prefix/share/vulkan/icd.d/MoltenVK_icd.json"; break; }
+		done
+	fi
+	if [ -z "$dylib" ] && [ -f "$here/moltenvk/libMoltenVK.dylib" ]; then
+		dylib="$here/moltenvk/libMoltenVK.dylib"
+		[ -f "$here/moltenvk/MoltenVK_icd.json" ] && icd="$here/moltenvk/MoltenVK_icd.json"
+	fi
+
+	if [ -z "$dylib" ]; then
+		echo "no libMoltenVK.dylib for --bundle-moltenvk — looked in \$VULKAN_SDK/lib," >&2
+		echo "/opt/homebrew/lib, /usr/local/lib and packaging/moltenvk/. Without it a clean-machine" >&2
+		echo "launch cannot open the GPU (vieww_hal::vulkan::load_entry searches the bundle," >&2
+		echo "the SDK and Homebrew, in that order). Install the Vulkan SDK from lunarg.com," >&2
+		echo "or \`brew install molten-vk\`, or drop a copy in packaging/moltenvk/ and rerun." >&2
+		exit 1
+	fi
+
+	mkdir -p "$frameworks" "$icd_dir"
+	cp "$dylib" "$frameworks/libMoltenVK.dylib"
+	echo "==> MoltenVK: $(basename "$dylib") into Contents/Frameworks"
+	if [ -n "$icd" ]; then
+		# `library_path` rewritten to the bundle's own dylib: relative to the
+		# json's directory, ../../Frameworks/ is where the copy just landed.
+		sed -E 's#"library_path"[[:space:]]*:[[:space:]]*"[^"]*"#"library_path" : "../../Frameworks/libMoltenVK.dylib"#' \
+			"$icd" >"$icd_dir/MoltenVK_icd.json"
+		echo "    MoltenVK_icd.json into Contents/Resources/vulkan/icd.d (library_path rewritten)"
+	else
+		echo "    no MoltenVK_icd.json beside the dylib — vieww-hal's direct-load path"
+		echo "    does not need it, but a bundled vulkan loader would; copy one to"
+		echo "    Contents/Resources/vulkan/icd.d if you ship the loader as well"
+	fi
+}
+
 # Compile a screen against the bundle, exactly as the studio's Render does.
 #
 # **The check this script most needed and did not have.** Everything above can
@@ -623,6 +712,13 @@ make_msi() {
 	bash "$here/sign.sh" win "$out/viewwstudio-windows-x86_64.msi"
 }
 
+# A macOS-only flag on another host is a mistake about what it does, not a
+# no-op to swallow: refusing names the mistake (FW-04).
+if [ -n "$bundle_moltenvk_flag" ] && [ "$host" != "macos" ]; then
+	echo "--bundle-moltenvk is macOS-only (it fills .app/Contents/Frameworks); this is a $host build" >&2
+	exit 2
+fi
+
 case "$host" in
 macos)
 	app="$out/vieww Studio.app"
@@ -631,6 +727,19 @@ macos)
 	copy_rlibs "$app/Contents/Resources/vieww"
 	copy_toolchain "$app/Contents/Resources/vieww"
 	verify_bundle "$app/Contents/Resources/vieww"
+
+	# FW-04: the GPU half of a bundle that runs on a machine nobody prepared.
+	# With the flag: bundle (or fail, saying where it looked — above). Without
+	# it: say the absence out loud, because a silent gap here is exactly the
+	# "works on the build machine" trap the flag exists to close.
+	if [ -n "$bundle_moltenvk_flag" ]; then
+		bundle_moltenvk "$app"
+	elif [ ! -f "$app/Contents/Frameworks/libMoltenVK.dylib" ]; then
+		echo "    no MoltenVK in the bundle — a clean-machine launch will fail to open the"
+		echo "    GPU (install the Vulkan SDK or \`brew install molten-vk\` and pass"
+		echo "    --bundle-moltenvk; vieww_hal::vulkan::load_entry will find it in"
+		echo "    Contents/Frameworks). MANIFEST.txt records this as moltenvk=ABSENT"
+	fi
 
 	# One version number, from Cargo.toml, into both plist keys.
 	sed -e "s|<string>0\.0\.0</string>|<string>$version</string>|g" \
