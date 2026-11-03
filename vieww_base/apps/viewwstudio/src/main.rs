@@ -8,6 +8,15 @@ use viewwstudio::compile::{Session, Toolchain};
 use viewwstudio::{Shell, Studio, Workspace, WINDOW};
 
 fn main() {
+    // ST-14's headless mode: ask the release feed, print the answer, leave.
+    // Before anything else, because a scripted check must not need a display
+    // — and before the argument below is read as a directory, which
+    // `--check-for-updates` would otherwise be mistaken for.
+    if std::env::args().any(|arg| arg == "--check-for-updates") {
+        viewwstudio::update::headless_check();
+        return;
+    }
+
     // One optional argument: the directory of `.rs` screens to open. Not a
     // project — a flat list of files, per the plan's non-goals — and an
     // unreadable one gives the scratch buffer rather than an error, because a

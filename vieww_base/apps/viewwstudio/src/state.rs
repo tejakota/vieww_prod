@@ -56,6 +56,7 @@ mod panels;
 mod picker;
 mod plugins;
 mod session;
+mod update;
 mod vcs;
 
 // ST-01's canvas-editing vocabulary, re-exported because the shortcut
@@ -2632,6 +2633,26 @@ pub struct Studio {
     /// has since been unplugged is a receipt for a machine nobody is looking
     /// at).
     pub device_mirror: Signal<Option<Rc<MirrorFrame>>>,
+    /// ST-14: a download in flight — an update, or the SDK half of a split
+    /// bundle. See [`crate::update::UpdateRun`].
+    pub update_run: Rc<RefCell<Option<crate::update::UpdateRun>>>,
+    /// ST-14: the newer release the last check found, if any — the thing
+    /// *Download the Update* fetches, and the reason it refuses without one.
+    pub update_release: Signal<Option<Rc<crate::update::Release>>>,
+    /// ST-14: where fetches stage and verified downloads wait — the data
+    /// directory's `update-staging`, never the installation, so that a
+    /// download half-finished is nobody's business but this studio's.
+    ///
+    /// A plain field rather than a signal because nothing draws from it; a
+    /// plain `PathBuf` rather than derived-on-read because the tests need to
+    /// point it at a directory they own.
+    pub update_dir: PathBuf,
+    /// ST-14: where the SDK download unpacks — `None` to derive it from the
+    /// executable's own location, the shape a packaged studio has. A field at
+    /// all because the tests run from a build tree whose `lib/vieww` would
+    /// otherwise be the destination, and a test that wrote into the tree it
+    /// was built from is a test that poisons every later run.
+    pub sdk_destination: Option<PathBuf>,
     /// What `git status` last said. Empty until a scan has run.
     pub git: Signal<Rc<crate::git::Status>>,
     /// Whether a scan has ever completed, so an empty list can say which kind
@@ -3051,6 +3072,10 @@ impl Studio {
             artefact: runtime.signal(None),
             mirror_run: Rc::new(RefCell::new(None)),
             device_mirror: runtime.signal(None),
+            update_run: Rc::new(RefCell::new(None)),
+            update_release: runtime.signal(None),
+            update_dir: crate::about::data_dir().join(crate::update::STAGING),
+            sdk_destination: None,
             git: runtime.signal(Rc::new(crate::git::Status::default())),
             git_scanned: runtime.signal(false),
             commit_message: runtime.signal(String::new()),

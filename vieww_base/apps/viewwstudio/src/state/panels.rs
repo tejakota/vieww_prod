@@ -260,6 +260,19 @@ impl Studio {
                     .unwrap_or_default();
                 self.advance_mirror(ok && !crate::export::mirror_step_output_failed(&captured));
             }
+            crate::jobs::Follow::UpdateFeed => self.read_update_feed(id),
+            crate::jobs::Follow::UpdateStep => {
+                // The captured stdout rides along for exactly one step — the
+                // SDK's bundled-rustc probe, whose one line of output is the
+                // manifest verify's input — and costs the others nothing.
+                let captured = self
+                    .jobs
+                    .borrow()
+                    .job(id)
+                    .map(crate::jobs::Job::captured)
+                    .unwrap_or_default();
+                self.advance_update(ok, &captured);
+            }
             crate::jobs::Follow::Listing => self.read_device_listing(id),
             crate::jobs::Follow::GitStatus => self.read_git_status(id),
             // Whatever it did, the status is now stale. Asking again is one

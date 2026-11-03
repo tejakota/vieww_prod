@@ -100,6 +100,7 @@ pub mod theme;
 pub mod tokens;
 pub mod toolchains;
 pub mod ui;
+pub mod update;
 
 pub use buffer::{Buffer, Workspace};
 pub use command::{Chord, Command, Menu};

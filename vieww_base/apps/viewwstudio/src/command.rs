@@ -466,11 +466,20 @@ pub enum Command {
     /// lint rules, export formats and palette commands, guarded by the
     /// preview's ABI fingerprint.
     ReloadPlugins,
+    /// ST-14: ask the release feed whether a newer studio exists. Reports;
+    /// downloads nothing.
+    CheckForUpdates,
+    /// ST-14: fetch and verify the update the last check found, against the
+    /// release's published SHA256SUMS, and stage it. Refuses without a check.
+    DownloadUpdate,
+    /// ST-14: fetch and verify the SDK half of this studio's split bundle —
+    /// the first-launch download — and unpack it beside the executable.
+    DownloadSdk,
 }
 
 impl Command {
     /// Every command, in palette order.
-    pub const ALL: [Self; 121] = [
+    pub const ALL: [Self; 124] = [
         Self::Render,
         Self::CancelRender,
         Self::Build,
@@ -604,6 +613,9 @@ impl Command {
         Self::ExtractWidget,
         Self::ShareBuffer,
         Self::ReloadPlugins,
+        Self::CheckForUpdates,
+        Self::DownloadUpdate,
+        Self::DownloadSdk,
     ];
 
     /// What the menu item and the palette row say.
@@ -731,6 +743,9 @@ impl Command {
             Self::ExtractWidget => "Extract Widget as Component",
             Self::ShareBuffer => "Share This Buffer for Collaboration",
             Self::ReloadPlugins => "Reload Studio Plugins",
+            Self::CheckForUpdates => "Check for Updates",
+            Self::DownloadUpdate => "Download the Update",
+            Self::DownloadSdk => "Download the vieww SDK (First Launch)",
         }
     }
 
@@ -849,6 +864,9 @@ impl Command {
             // the palette is where its name is typed, and the File menu is
             // where the studio's other "bring something in" commands live.
             Self::ReloadPlugins => Menu::File,
+            // Updates and the SDK are questions about the studio itself, and
+            // Help is where every desktop puts those.
+            Self::CheckForUpdates | Self::DownloadUpdate | Self::DownloadSdk => Menu::Help,
             Self::CloseFind
             | Self::ClearOutput
             | Self::ClearFinishedTasks
@@ -1032,6 +1050,11 @@ impl Command {
             // belongs behind a name that was read, not a chord that was
             // brushed.
             | Self::ReloadPlugins
+            // Nor the update downloads: several hundred megabytes over the
+            // user's network, behind a name that was read.
+            | Self::CheckForUpdates
+            | Self::DownloadUpdate
+            | Self::DownloadSdk
             | Self::CreateLiveFile => return None,
             // The chord every editor uses for completion, and the one people
             // press without thinking.

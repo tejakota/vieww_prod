@@ -130,6 +130,35 @@ pub fn target_dir() -> PathBuf {
         .unwrap_or_else(|| manifest.join("../../target/debug"))
 }
 
+/// Where a split bundle's SDK half belongs — the one directory beside the
+/// executable that this studio's own layout puts it in (ST-14).
+///
+/// The *installation's* answer, not the search chain's: [`target_dir`] looks
+/// at several places, but a split bundle was packed with the SDK in exactly
+/// one — `lib/vieww` off the install prefix on Linux and Windows (the flat
+/// tree and the installed tree compute the same path), `Resources/vieww`
+/// inside a macOS `.app` — and the download unpacks where the packer put it,
+/// so a restart finds it through the search that already exists. That is the
+/// sense in which `target_dir` "tolerates a late-arriving bundle": nothing
+/// here is cached, and the first launch after the unpack is the first launch
+/// that finds it usable.
+///
+/// `None` when the executable's own location cannot be worked out — a
+/// `/proc`-less container, say — because a download that cannot name its
+/// destination refuses rather than unpacking somewhere plausible.
+#[must_use]
+pub fn sdk_dir(exe: Option<&Path>) -> Option<PathBuf> {
+    // `bin/`, the directory the executable is in.
+    let bin = exe?.parent()?;
+    // The prefix it was installed under — one more level up.
+    let prefix = bin.parent()?;
+    Some(if cfg!(target_os = "macos") {
+        prefix.join("Resources").join(BUNDLED_DIR)
+    } else {
+        prefix.join("lib").join(BUNDLED_DIR)
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -223,5 +252,32 @@ mod tests {
     #[test]
     fn a_missing_directory_is_not_usable_and_does_not_panic() {
         assert!(!is_usable(Path::new("/definitely/not/here/at/all")));
+    }
+
+    /// The split bundle's other half lands where the packer put the full
+    /// one's, per platform (ST-14).
+    #[test]
+    fn the_sdk_directory_is_the_one_the_layout_packs() {
+        let linux = sdk_dir(Some(Path::new("/opt/vieww/bin/viewwstudio")));
+        assert_eq!(linux.as_deref(), Some(Path::new("/opt/vieww/lib/vieww")));
+        // The flat tree computes the same path: `bin/` and `lib/` are
+        // siblings either way.
+        let flat = sdk_dir(Some(Path::new("/tmp/tree/bin/viewwstudio")));
+        assert_eq!(flat.as_deref(), Some(Path::new("/tmp/tree/lib/vieww")));
+        // A macOS `.app` keeps it in Resources — the expectation is spelled
+        // per platform because the code is, and CI runs both.
+        let app = sdk_dir(Some(Path::new(
+            "/Applications/v Studio.app/Contents/MacOS/viewwstudio",
+        )));
+        let app_expected = if cfg!(target_os = "macos") {
+            Path::new("/Applications/v Studio.app/Contents/Resources/vieww")
+        } else {
+            Path::new("/Applications/v Studio.app/Contents/lib/vieww")
+        };
+        assert_eq!(app.as_deref(), Some(app_expected));
+        // No executable, or one with no parent to speak of: refuse rather
+        // than guess.
+        assert_eq!(sdk_dir(None), None);
+        assert_eq!(sdk_dir(Some(Path::new("viewwstudio"))), None);
     }
 }

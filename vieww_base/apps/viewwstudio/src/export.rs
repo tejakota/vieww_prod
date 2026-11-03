@@ -187,6 +187,12 @@ pub enum Refusal {
     /// "cannot" reads as a refusal and not as a plan that silently did
     /// nothing.
     External(String),
+    /// A refusal composed at runtime, because what it names only exists then
+    /// — a staging directory that could not be created (ST-14), a release
+    /// that publishes no checksums. The studio's own words, unlike
+    /// [`External`](Self::External), but written by a `format!` rather than
+    /// whole.
+    Computed(String),
 }
 
 impl std::fmt::Display for Refusal {
@@ -200,6 +206,7 @@ impl std::fmt::Display for Refusal {
             Self::NoProject => write!(f, "no cargo project is open"),
             Self::NotImplemented(what) => write!(f, "{what}"),
             Self::External(why) => write!(f, "{why}"),
+            Self::Computed(why) => write!(f, "{why}"),
         }
     }
 }

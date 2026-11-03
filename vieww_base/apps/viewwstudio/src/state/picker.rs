@@ -643,6 +643,11 @@ impl Studio {
             // ST-13: the plugins directory is (re)read — see `state/plugins`,
             // which owns everything the studio does with what it finds.
             C::ReloadPlugins => self.reload_plugins(),
+            // ST-14: the studio's own distribution commands — see
+            // `state/update`, which owns the feed, the checksums and the SDK.
+            C::CheckForUpdates => self.check_for_updates(),
+            C::DownloadUpdate => self.download_update(),
+            C::DownloadSdk => self.download_sdk(),
             C::RestoreFlow => self.restore_flow(),
 
             C::TrySayScreen => self.try_say_screen(),
