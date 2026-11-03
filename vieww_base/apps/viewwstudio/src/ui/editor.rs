@@ -1065,6 +1065,12 @@ fn code_pane(studio: &Studio, chrome: &StudioTheme, colors: ColorScheme) -> Widg
     let wrapping = studio.word_wrap.get();
     let field = TextField::new(field_value)
         .style(style)
+        // The buffer's name is what a screen reader is told this field is.
+        // A placeholder could not do the job: the tab strip above the editor
+        // already names the file, and drawing a second copy of that name
+        // inside the field would change what an empty file looks like — so
+        // this label reaches the semantics tree and nothing else (ST-18).
+        .semantics_label(buffer.name.clone())
         // Both halves of `show_cursor`: is this the field taking the keyboard,
         // and is the blink in its on phase. Without it four fields each paint a
         // motionless caret and none of them looks live — see `crate::caret`.

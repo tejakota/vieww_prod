@@ -261,6 +261,11 @@ impl RenderFactory {
                     .unwrap_or_else(|| widget.text_style().color);
                 editable = editable.placeholder(widget.placeholder_text(), color);
             }
+            if let Some(label) = widget.accessibility_label() {
+                // A label that names the field without drawing anything — the
+                // placeholder above is only a *fallback* label once this is set.
+                editable = editable.semantics_label(label);
+            }
             if let Some(color) = widget.selection_highlight() {
                 editable = editable.selection_color(color);
             }

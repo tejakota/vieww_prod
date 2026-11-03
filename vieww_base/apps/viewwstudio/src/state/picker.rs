@@ -961,8 +961,15 @@ impl Studio {
         }
 
         // The palette closes behind whatever was chosen from it, except for
-        // the command that *is* the palette.
-        if !matches!(command, C::CommandPalette | C::ShowShortcuts) {
+        // the commands that *are* the palette — its own toggle, and the four
+        // that open it in one of its modes. Found by the ST-18 keyboard
+        // walkthrough: "Go to File" opened the palette in file mode and then
+        // landed here, which closed it again — a menu item whose visible
+        // effect was nothing at all.
+        if !matches!(
+            command,
+            C::CommandPalette | C::ShowShortcuts | C::GoToFile | C::GoToSymbol | C::GoToLine
+        ) {
             self.palette_open.set(false);
         }
     }
@@ -1008,7 +1015,13 @@ impl Studio {
             C::CancelExport => self.exporting(),
             C::ClearFinishedTasks | C::CancelAllTasks => !self.jobs.borrow().jobs().is_empty(),
             C::FindNext | C::FindPrevious => !self.find_query.get().is_empty(),
-            C::CloseFind => self.find_open.get() || self.palette_open.get(),
+            // Escape's own gate (ST-18). It has to say "yes" whenever
+            // `escape` — the thing the key actually runs — would dismiss
+            // something, or a keyboard-only user is left with dialogs they
+            // can see and no key that closes any of them. `escape` walks the
+            // same list innermost-first; this asks whether the list is
+            // non-empty.
+            C::CloseFind => self.anything_to_escape(),
             C::NextTab | C::PreviousTab => self.buffers.get().len() > 1,
             // Answered from the same check the command itself runs, so a greyed
             // item and a refusal can never disagree — and so hovering the item
@@ -1086,5 +1099,27 @@ impl Studio {
             self.platform.set(platform);
             self.mark_dirty();
         }
+    }
+
+    /// Whether [`escape`](Self::escape) would dismiss anything right now.
+    ///
+    /// `can_run(CloseFind)`'s answer, kept beside the walk it mirrors so the
+    /// two cannot drift: a gate that says "Escape does nothing here" while a
+    /// dialog is open is a keyboard-only user locked out of their own UI.
+    #[must_use]
+    pub fn anything_to_escape(&self) -> bool {
+        self.completion.peek().is_some()
+            || self.about.peek()
+            || self.welcome.peek()
+            || self.say_proposal.peek().is_some()
+            || self.say_prompt_open.peek()
+            || self.name_prompt.peek().is_some()
+            || self.pending_delete.peek().is_some()
+            || self.context_menu.peek().is_some()
+            || self.caret_count() > 1
+            || self.picker.peek().is_some()
+            || self.menu_open.peek().is_some()
+            || self.palette_open.peek()
+            || self.find_open.peek()
     }
 }

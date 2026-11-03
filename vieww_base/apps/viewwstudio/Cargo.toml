@@ -77,6 +77,10 @@ tree-sitter-md = "0.5"
 
 [dev-dependencies]
 vieww-test-harness.workspace = true
+# ST-18: the studio's own a11y gate. The audit walks the semantics tree of
+# the *studio's* chrome — the flagship application proving the framework's
+# accessibility story works on a real app rather than on fixtures.
+vieww-accessibility.workspace = true
 # `native` is vieww's one and only rasterizer, and it needs no adapter: this
 # container, and every CI runner without a graphics adapter, has no GPU at
 # all, which is what makes `examples/screenshot` produce a picture rather

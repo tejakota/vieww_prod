@@ -461,6 +461,10 @@ fn say_editor(
                         .size(10.5)
                         .style(mono_style(10.5, colors.on_surface))
                         .single_line()
+                        // The row's own label is the field's name for a screen
+                        // reader too — the word in the Say vocabulary either
+                        // way, so it is not translated here (ST-18).
+                        .semantics_label(field.label)
                         .selection_color(chrome.selection)
                         .on_changed(std::rc::Rc::new(move |v: TextEditingValue| {
                             if let Ok(n) = v.text.trim().parse::<f32>() {
@@ -480,6 +484,8 @@ fn say_editor(
                         .size(10.5)
                         .style(mono_style(10.5, colors.on_surface))
                         .single_line()
+                        // As above: the property's own word is the label.
+                        .semantics_label(field.label)
                         .selection_color(chrome.selection)
                         .on_changed(std::rc::Rc::new(move |v: TextEditingValue| {
                             let value = if is_color {
