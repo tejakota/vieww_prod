@@ -47,11 +47,20 @@ const COMPILE_TARGETS: &[(&str, Option<&str>)] = &[
     ("ios", Some("aarch64-apple-ios")),
     ("ios-sim", Some("aarch64-apple-ios-sim")),
     ("windows", Some("x86_64-pc-windows-gnu")),
+    // ST-07: the web target. `--lib` (below, for every cross target) is the
+    // half of the check that matters here — the `[[bin]]` target cannot build
+    // on wasm and the library is the cdylib a page loads — and a scaffolded
+    // project's platform dependencies are target-gated for exactly this
+    // compile.
+    ("web", Some("wasm32-unknown-unknown")),
 ];
 
 const EXPORT_FORMATS: &[(&str, Format)] = &[
     ("desktop", Format::DesktopBinary),
+    ("mac-app", Format::MacAppBundle),
+    ("deb", Format::LinuxDeb),
     ("windows", Format::WindowsExe),
+    ("web", Format::Web),
     ("android", Format::AndroidApk),
     ("ios-sim", Format::IosSimulatorApp),
     ("ios-ipa", Format::IosIpa),

@@ -49,6 +49,38 @@ pub enum Format {
     /// An optimised binary for the machine the studio is running on, copied
     /// out of `target/release` into an export directory beside it.
     DesktopBinary,
+    /// A macOS `.app` bundle for the user's own application (ST-07).
+    ///
+    /// The layout `packaging/package.sh` builds for the *studio* — `Contents/`
+    /// with `Info.plist`, the binary under `MacOS/` — generalised to any
+    /// project, from the `macos/` directory the scaffolder writes.
+    ///
+    /// macOS only, and for the same reason iOS is: the binary inside a `.app`
+    /// is a Mach-O, and no toolchain this studio can orchestrate produces one
+    /// from elsewhere.
+    MacAppBundle,
+    /// A `.deb` of the user's own application (ST-07).
+    ///
+    /// `dpkg-deb`'s layout — `DEBIAN/control`, the binary under
+    /// `usr/local/bin`, a `.desktop` entry — from the `linux/` directory the
+    /// scaffolder writes. Linux only: a `.deb` holds a Linux binary, and a
+    /// studio running elsewhere has no way to put one inside.
+    LinuxDeb,
+    /// A Windows `.exe`, cross-compiled when the host is not Windows.
+    ///
+    /// The one export that produces something for a machine the user is very
+    /// likely *not* sitting at, which is exactly why it is worth having: a
+    /// person developing on Linux can hand a colleague a Windows build without
+    /// owning a Windows machine to make it on.
+    WindowsExe,
+    /// A `wasm32` bundle and the page that mounts it (ST-07).
+    ///
+    /// The cheapest distribution there is — no store, no signing, no installer
+    /// — and until this format existed it was also the one thing the studio
+    /// could not produce at all, while the framework it previews ran on the
+    /// web the whole time (`crates/vieww-platform-web`, certified byte for
+    /// byte against the native rasteriser by `examples/test-web`).
+    Web,
     /// A debug-signed `.apk`.
     ///
     /// Debug-signed, and named so in the UI: a release-signed APK needs a
@@ -58,13 +90,17 @@ pub enum Format {
     /// with developer mode on, which is what "give this to a colleague"
     /// means.
     AndroidApk,
-    /// A Windows `.exe`, cross-compiled when the host is not Windows.
+    /// A release-signed `.apk` (ST-07).
     ///
-    /// The one export that produces something for a machine the user is very
-    /// likely *not* sitting at, which is exactly why it is worth having: a
-    /// person developing on Linux can hand a colleague a Windows build without
-    /// owning a Windows machine to make it on.
-    WindowsExe,
+    /// The same Gradle project as [`AndroidApk`](Self::AndroidApk) with
+    /// `assembleRelease`, signed by a signing configuration the generated
+    /// `build.gradle` reads from the environment — `VIEWW_KEYSTORE`,
+    /// `VIEWW_KEYSTORE_ALIAS` and `VIEWW_KEYSTORE_PASSWORD` — so the keystore's
+    /// location and alias come from settings and the password comes from a
+    /// one-shot prompt that hands it to the child process and then forgets it.
+    /// None of the three is ever written to a file this studio owns; see
+    /// [`Refusal`] and `settings::Settings::keystore_alias` for the policy.
+    AndroidReleaseApk,
     /// An unsigned `.app` for the iOS simulator.
     IosSimulatorApp,
     /// A signed `.ipa` for a device.
@@ -73,10 +109,14 @@ pub enum Format {
 
 impl Format {
     /// Every format, in the order the export sheet lists them.
-    pub const ALL: [Self; 5] = [
+    pub const ALL: [Self; 9] = [
         Self::DesktopBinary,
+        Self::MacAppBundle,
+        Self::LinuxDeb,
         Self::WindowsExe,
+        Self::Web,
         Self::AndroidApk,
+        Self::AndroidReleaseApk,
         Self::IosSimulatorApp,
         Self::IosIpa,
     ];
@@ -84,9 +124,10 @@ impl Format {
     #[must_use]
     pub const fn target(self) -> Target {
         match self {
-            Self::DesktopBinary => Target::Desktop,
+            Self::DesktopBinary | Self::MacAppBundle | Self::LinuxDeb => Target::Desktop,
             Self::WindowsExe => Target::Windows,
-            Self::AndroidApk => Target::Android,
+            Self::Web => Target::Web,
+            Self::AndroidApk | Self::AndroidReleaseApk => Target::Android,
             Self::IosSimulatorApp | Self::IosIpa => Target::Ios,
         }
     }
@@ -95,8 +136,12 @@ impl Format {
     pub const fn title(self) -> &'static str {
         match self {
             Self::DesktopBinary => "Desktop binary",
+            Self::MacAppBundle => "macOS .app",
+            Self::LinuxDeb => "Linux .deb",
             Self::WindowsExe => "Windows .exe",
+            Self::Web => "Web",
             Self::AndroidApk => "Android APK (debug-signed)",
+            Self::AndroidReleaseApk => "Android APK (release-signed)",
             Self::IosSimulatorApp => "iOS simulator app",
             Self::IosIpa => "iOS .ipa (signed)",
         }
@@ -107,8 +152,12 @@ impl Format {
     pub const fn detail(self) -> &'static str {
         match self {
             Self::DesktopBinary => "an optimised build for this machine, copied into export/",
+            Self::MacAppBundle => "a bundle with Info.plist, from the project's macos/ directory",
+            Self::LinuxDeb => "a .deb with a .desktop entry, from the project's linux/ directory",
             Self::WindowsExe => "a 64-bit Windows build; cross-compiled when this is not Windows",
+            Self::Web => "a wasm32 bundle and its index.html, to serve from anywhere",
             Self::AndroidApk => "installs on any phone with developer mode on",
+            Self::AndroidReleaseApk => "signed with your keystore; the password is asked for once",
             Self::IosSimulatorApp => "runs in the simulator; not installable on a device",
             Self::IosIpa => "needs a signing identity, and macOS",
         }
@@ -233,8 +282,12 @@ pub fn plan(env: &Env, root: &Path, name: &str, format: Format) -> Result<Plan, 
     let out = export_dir(root);
     match format {
         Format::DesktopBinary => Ok(desktop(env, root, name, &out)),
+        Format::MacAppBundle => mac_app_bundle(env, root, name, &out),
+        Format::LinuxDeb => linux_deb(env, root, name, &out),
         Format::WindowsExe => Ok(windows(env, root, name, &out)),
+        Format::Web => web(env, root, name, &out),
         Format::AndroidApk => android(env.host, root, name, &out),
+        Format::AndroidReleaseApk => android_release(env, root, name, &out),
         Format::IosSimulatorApp => ios_app(env, root, name, &out),
         Format::IosIpa => ios_ipa(env, root, name, &out),
     }
@@ -336,6 +389,278 @@ fn windows(env: &Env, root: &Path, name: &str, out: &Path) -> Plan {
     }
 }
 
+/// One `mkdir -p` for every directory a layout wants, then one `cp -R` per
+/// file. Unix-only, on purpose.
+///
+/// [`copy_steps`] branches on the host because a desktop export has to copy on
+/// whatever machine asked. These layouts do not: a `.app` exists only where
+/// macOS already refused-not-to be ([`mac_app_bundle`]), and a `.deb` only
+/// where Linux did ([`linux_deb`]) — so by the time either reaches a copy, the
+/// host is a Unix, and a Windows branch here would be code no plan could ever
+/// run, which is worse than none.
+fn layout_steps(root: &Path, copies: &[(&Path, &Path)]) -> Vec<Spec> {
+    let mut dirs: Vec<&Path> = Vec::new();
+    for (_, to) in copies {
+        if let Some(parent) = to.parent() {
+            if !dirs.contains(&parent) {
+                dirs.push(parent);
+            }
+        }
+    }
+    // One `mkdir -p` with every directory, rather than one per file: a layout
+    // is assembled as a unit, and five identical "Create export directory"
+    // lines in the Output panel say nothing five times.
+    let mut mkdir = Spec::new("Create bundle directories", "mkdir", root).arg("-p");
+    for dir in dirs {
+        mkdir = mkdir.arg(dir.to_string_lossy().to_string());
+    }
+    let mut steps = vec![mkdir];
+    for (from, to) in copies {
+        steps.push(
+            Spec::new("Copy into the bundle", "cp", root)
+                .arg("-R")
+                .arg(from.to_string_lossy().to_string())
+                .arg(to.to_string_lossy().to_string()),
+        );
+    }
+    steps
+}
+
+/// A `.app` bundle of the *user's* application (ST-07).
+///
+/// The layout is `packaging/package.sh`'s, made generic: `Contents/MacOS`
+/// holds the release binary, `Contents/Info.plist` comes from the `macos/`
+/// directory the scaffolder writes, and nothing is signed — for the same
+/// stated reason the studio's own packaging does not sign: a signing identity
+/// is a certificate that cannot live in a repository or a generated file, and a
+/// plan that pretended to sign would be worse than one that says it does not.
+/// Gatekeeper's right-click → Open is the honest path for an unsigned bundle.
+fn mac_app_bundle(env: &Env, root: &Path, name: &str, out: &Path) -> Result<Plan, Refusal> {
+    if env.host != Host::MacOs {
+        return Err(Refusal::Impossible(
+            "a .app holds a macOS binary, and only Apple's toolchain produces one — this is \
+             Apple's rule rather than a gap somebody could install",
+        ));
+    }
+    let plist = root.join("macos").join("Info.plist");
+    if !plist.is_file() {
+        return Err(Refusal::Missing {
+            requirement: "macos/Info.plist",
+            install: "copy `macos/` across from a freshly scaffolded project — this one \
+                      predates the macOS export",
+        });
+    }
+    let app = out.join(format!("{name}.app"));
+    let built = root.join("target").join("release").join(name);
+    let copies: [(&Path, &Path); 2] = [
+        (&built, &app.join("Contents").join("MacOS").join(name)),
+        (
+            &root.join("macos").join("Info.plist"),
+            &app.join("Contents").join("Info.plist"),
+        ),
+    ];
+    let mut steps = vec![Step {
+        spec: Spec::new("Build (release)", "cargo", root).args(["build", "--release"]),
+        why: "an optimised build, which is what ships".into(),
+    }];
+    steps.extend(layout_steps(root, &copies).into_iter().map(|spec| Step {
+        spec,
+        why: "the bundle layout Finder and LaunchServices expect".into(),
+    }));
+    Ok(Plan {
+        title: Format::MacAppBundle.title().to_string(),
+        steps,
+        artefact: app,
+    })
+}
+
+/// A `.deb` of the *user's* application (ST-07).
+///
+/// `dpkg-deb --build` over a staging tree the plan assembles: `DEBIAN/control`
+/// and the `.desktop` entry from the `linux/` directory the scaffolder writes,
+/// the binary under `/usr/local/bin`. `--root-owner-group` because a build as
+/// the current user would otherwise bake that user's uid and gid into every
+/// file — a package that installs everything owned by `1000:1000` and breaks
+/// for the next person.
+///
+/// # Why the control file's architecture is checked, not assumed
+///
+/// `dpkg -i` refuses a package whose `Architecture:` names another machine —
+/// and it refuses `any`, the value a *source* package carries, with exactly
+/// that error. The control file is the project's own source, so the plan reads
+/// it and refuses before building when it does not name this machine: an
+/// export that produced a `.deb` nobody could install would be an export that
+/// worked and shipped nothing, which is the failure this module exists to
+/// prevent.
+fn linux_deb(env: &Env, root: &Path, name: &str, out: &Path) -> Result<Plan, Refusal> {
+    if env.host != Host::Linux {
+        return Err(Refusal::Impossible(
+            "a .deb holds a Linux binary, and this machine is not the one to put it in — \
+             build it from the Linux machine that will run it",
+        ));
+    }
+    if env.find_on_path("dpkg-deb").is_none() {
+        return Err(Refusal::Missing {
+            requirement: "dpkg-deb",
+            install: "`apt install dpkg` (Debian and Ubuntu) — other distributions package \
+                      with rpm instead, and this format is theirs",
+        });
+    }
+    let control = root.join("linux").join("control");
+    if !control.is_file() {
+        return Err(Refusal::Missing {
+            requirement: "linux/control",
+            install: "copy `linux/` across from a freshly scaffolded project — this one \
+                      predates the Linux export",
+        });
+    }
+    let here = crate::harness::debian_arch();
+    let named = std::fs::read_to_string(&control)
+        .ok()
+        .and_then(|text| {
+            text.lines().find_map(|line| {
+                line.trim()
+                    .strip_prefix("Architecture:")
+                    .map(|value| value.trim().to_string())
+            })
+        })
+        .unwrap_or_default();
+    if named.is_empty() {
+        return Err(Refusal::Missing {
+            requirement: "an `Architecture:` line in linux/control",
+            install: "`dpkg-deb` refuses a package with no architecture — set it to what \
+                      `dpkg --print-architecture` prints",
+        });
+    }
+    if named != here {
+        return Err(Refusal::Impossible(
+            "linux/control's `Architecture:` names a machine this is not, and `dpkg -i` \
+             would refuse the package — set it to what `dpkg --print-architecture` prints",
+        ));
+    }
+    let lib = crate::harness::lib_name(name);
+    let stage = out.join("deb");
+    let tree = stage.join(&lib);
+    let built = root.join("target").join("release").join(name);
+    let copies: [(&Path, &Path); 3] = [
+        (
+            &root.join("linux").join("control"),
+            &tree.join("DEBIAN").join("control"),
+        ),
+        (
+            &built,
+            &tree.join("usr").join("local").join("bin").join(name),
+        ),
+        (
+            &root.join("linux").join(format!("{name}.desktop")),
+            &tree
+                .join("usr")
+                .join("share")
+                .join("applications")
+                .join(format!("{name}.desktop")),
+        ),
+    ];
+    let artefact = out.join(format!("{name}.deb"));
+    let mut steps = vec![Step {
+        spec: Spec::new("Build (release)", "cargo", root).args(["build", "--release"]),
+        why: "an optimised build, which is what ships".into(),
+    }];
+    steps.extend(layout_steps(root, &copies).into_iter().map(|spec| Step {
+        spec,
+        why: "the staging tree dpkg-deb turns into the package".into(),
+    }));
+    steps.push(Step {
+        spec: Spec::new("Package .deb", "dpkg-deb", root)
+            .arg("--build")
+            .arg("--root-owner-group")
+            .arg(tree.to_string_lossy().to_string())
+            .arg(artefact.to_string_lossy().to_string()),
+        why: "assembles the archive apt installs from".into(),
+    });
+    Ok(Plan {
+        title: Format::LinuxDeb.title().to_string(),
+        steps,
+        artefact,
+    })
+}
+
+/// The wasm32 bundle and its page (ST-07).
+///
+/// # What the steps are, and why the page is copied rather than written
+///
+/// `cargo build --lib --target wasm32-unknown-unknown` — `--lib`, because the
+/// `[[bin]]` target cannot exist on wasm (its `main` has no process to own)
+/// and the library is where the `cdylib` the browser loads comes from. Then
+/// `wasm-bindgen --target web` turns cargo's `.wasm` into the `.js` +
+/// `_bg.wasm` pair a page imports, straight into the export directory. Then
+/// the page itself — `web/index.html`, which the *scaffolder* generates, for
+/// the same reason it generates `AndroidManifest.xml` and `Info.plist`: a
+/// page is a source file of the project (its canvas, its fallback text, its
+/// own title), not something an export should be inventing per run, and
+/// owning it means the user can edit it and the export still works.
+///
+/// # Why the wasm is named the *library's* name
+///
+/// A `cdylib` on wasm32 lands at `target/wasm32-unknown-unknown/release/`
+/// under the library's name with no `lib` prefix — `my-app` is `my_app.wasm`
+/// — which is the same rename the Android manifest's `android.app.lib_name`
+/// performs for the same reason: the loader asks for the library by name.
+fn web(_env: &Env, root: &Path, name: &str, out: &Path) -> Result<Plan, Refusal> {
+    // `env` is not read here, and that is the point: everything the web
+    // toolchain needs was already asked about through `toolchains::report`
+    // before this ran — the wasm target, `wasm-bindgen` — because those are
+    // checklist questions. The files below are project questions.
+    let page = root.join("web").join("index.html");
+    if !page.is_file() {
+        return Err(Refusal::Missing {
+            requirement: "web/index.html",
+            install: "copy `web/` across from a freshly scaffolded project — this one \
+                      predates the web export",
+        });
+    }
+    let lib = crate::harness::lib_name(name);
+    let triple = "wasm32-unknown-unknown";
+    let bundle = out.join("web");
+    let wasm = root
+        .join("target")
+        .join(triple)
+        .join("release")
+        .join(format!("{lib}.wasm"));
+
+    let mut steps = vec![
+        Step {
+            spec: Spec::new("Build (Web)", "cargo", root).args([
+                "build",
+                "--release",
+                "--lib",
+                "--target",
+                triple,
+            ]),
+            why: "the library as a wasm module; the binary target has no browser to run in".into(),
+        },
+        Step {
+            spec: Spec::new("JS glue", "wasm-bindgen", root)
+                .arg("--target")
+                .arg("web")
+                .arg("--no-typescript")
+                .arg("--out-dir")
+                .arg(bundle.to_string_lossy().to_string())
+                .arg(wasm.to_string_lossy().to_string()),
+            why: "the .js loader and the .wasm it fetches, in the export directory".into(),
+        },
+    ];
+    let copies: [(&Path, &Path); 1] = [(&page, &bundle.join("index.html"))];
+    steps.extend(layout_steps(root, &copies).into_iter().map(|spec| Step {
+        spec,
+        why: "the page the project owns, beside the bundle it mounts".into(),
+    }));
+    Ok(Plan {
+        title: Format::Web.title().to_string(),
+        steps,
+        artefact: bundle.join("index.html"),
+    })
+}
+
 /// `./gradlew` when the project has a wrapper, and `gradle` when it does not.
 ///
 /// # Why this is a choice rather than a constant
@@ -415,6 +740,120 @@ fn android(host: Host, root: &Path, name: &str, out: &Path) -> Result<Plan, Refu
     );
     Ok(Plan {
         title: Format::AndroidApk.title().to_string(),
+        steps,
+        artefact,
+    })
+}
+
+/// The environment variable that names the release keystore, and the one that
+/// names the key inside it. The password is deliberately absent from this list.
+///
+/// # Why these are the planner's business and the password is not
+///
+/// A keystore's *path* and the *alias* of the key in it are facts about the
+/// machine, like `ANDROID_HOME` — they already live in the settings file, they
+/// are what a checklist can check (does the file exist?), and planning around
+/// them is what makes the row's refusal name the thing to fix. The *password*
+/// is none of those: it is a secret, it is deliberately in no file this studio
+/// writes (see `settings::Settings::keystore_alias`), and so it never becomes a
+/// requirement. [`plan`] is pure data about a project; a password is not.
+///
+/// The caller injects `VIEWW_KEYSTORE_PASSWORD` into the packaging step's
+/// environment at run time, from a one-shot prompt or from the studio's own
+/// process environment — never from here.
+pub const KEYSTORE_VAR: &str = "VIEWW_KEYSTORE";
+pub const KEYSTORE_ALIAS_VAR: &str = "VIEWW_KEYSTORE_ALIAS";
+pub const KEYSTORE_PASSWORD_VAR: &str = "VIEWW_KEYSTORE_PASSWORD";
+
+/// A release-signed `.apk` (ST-07).
+///
+/// [`android`] with `assembleRelease` and a signing configuration the generated
+/// `build.gradle` assembles from [`KEYSTORE_VAR`] and [`KEYSTORE_ALIAS_VAR`] —
+/// Gradle reads them out of the child's environment, which is the only place a
+/// signing key's location belongs. The password reaches the same environment by
+/// another route ([`KEYSTORE_PASSWORD_VAR`]), added by the caller between this
+/// plan being printed and the packaging step starting, because a plan is data
+/// the Output panel prints and a password is not.
+fn android_release(env: &Env, root: &Path, name: &str, out: &Path) -> Result<Plan, Refusal> {
+    // The keystore and its alias are requirements like any other: named, with
+    // the fix beside them, checked *before* a build that would otherwise fail
+    // inside Gradle with a message about a store file. The fix is a settings
+    // screen rather than a shell command because the studio is where the value
+    // has to be typed — see the Toolchains view.
+    let keystore = env
+        .vars
+        .get(KEYSTORE_VAR)
+        .map(|value| PathBuf::from(value.trim()))
+        .filter(|path| path.is_file());
+    if keystore.is_none() {
+        return Err(Refusal::Missing {
+            requirement: "release keystore",
+            install: "set the keystore path in Settings \u{2192} Toolchains (the file has to \
+                      exist; create one with `keytool -genkeypair`)",
+        });
+    }
+    let alias = env
+        .vars
+        .get(KEYSTORE_ALIAS_VAR)
+        .map(|value| value.trim())
+        .filter(|alias| !alias.is_empty());
+    if alias.is_none() {
+        return Err(Refusal::Missing {
+            requirement: "key alias",
+            install: "set the key alias in Settings \u{2192} Toolchains — `keytool -list` \
+                      names the keys in the keystore",
+        });
+    }
+
+    let artefact = out.join(format!("{name}-release.apk"));
+    let gradle_output = root
+        .join("android")
+        .join("app")
+        .join("build")
+        .join("outputs")
+        .join("apk")
+        .join("release")
+        .join("app-release.apk");
+    let mut steps = vec![
+        Step {
+            spec: Spec::new("Build (Android)", "cargo", root).args([
+                "ndk",
+                "-t",
+                "arm64-v8a",
+                "-o",
+                "target/android/jniLibs",
+                "build",
+                "--release",
+            ]),
+            why: "cross-compiles the Rust for arm64 with the NDK's linker".into(),
+        },
+        Step {
+            // The signing configuration in the generated `build.gradle` is
+            // assembled from exactly these two variables — the keystore's path
+            // and the alias of the key in it. The password is added to this
+            // step's environment by the caller, from a prompt or the process
+            // environment, and is never in the plan.
+            spec: Spec::new(
+                "Package release APK",
+                gradle_command(root),
+                root.join("android"),
+            )
+            .args(["assembleRelease"])
+            .env(KEYSTORE_VAR, env.vars[KEYSTORE_VAR].trim())
+            .env(KEYSTORE_ALIAS_VAR, env.vars[KEYSTORE_ALIAS_VAR].trim()),
+            why: "packages the apk and signs it with the keystore".into(),
+        },
+    ];
+    steps.extend(
+        copy_steps(env.host, root, &gradle_output, &artefact)
+            .into_iter()
+            .map(|spec| Step {
+                spec,
+                why: "copied out of the gradle output tree under its own name".into(),
+            }),
+    );
+    Ok(Plan {
+        title: Format::AndroidReleaseApk.title().to_string(),
         steps,
         artefact,
     })
@@ -722,6 +1161,9 @@ pub fn install(root: &Path, device: &Device, artefact: &Path) -> Result<Spec, Re
         Target::Desktop | Target::Windows => Err(Refusal::NotImplemented(
             "a desktop binary is run, not installed — it is in target/export",
         )),
+        Target::Web => Err(Refusal::NotImplemented(
+            "a web bundle is served, not installed — the directory it is in is the app",
+        )),
     }
 }
 
@@ -773,6 +1215,7 @@ mod tests {
                 "aarch64-linux-android".into(),
                 "aarch64-apple-ios".into(),
                 "aarch64-apple-ios-sim".into(),
+                "wasm32-unknown-unknown".into(),
             ]),
             signing_identity: toolchains::Probed::Given(Some(
                 "Apple Development: Test (TEAMID)".into(),
@@ -909,6 +1352,342 @@ mod tests {
         assert_eq!(
             plan.artefact,
             PathBuf::from("/project/target/export/app.apk")
+        );
+    }
+
+    // ----- ST-07: web, macOS, Linux, release signing ------------------------
+
+    /// A scratch project with the platform files a scaffolded project has,
+    /// so the plans below plan against something real rather than `/project`
+    /// — which since ST-07 they read (the page, the plist, the control).
+    ///
+    /// Written from `harness::files` rather than by hand, so a template that
+    /// stopped matching the plan fails here as well as in
+    /// `tests/scaffold_exports.rs`.
+    fn scratch_project(name: &str) -> (PathBuf, tempdir::Dir) {
+        let dir = tempdir::Dir::new("viewwstudio-export-platform");
+        let root = dir.path().join(name);
+        for (relative, text) in crate::harness::files(name) {
+            let path = root.join(relative);
+            std::fs::create_dir_all(path.parent().expect("a parent")).expect("mkdir");
+            std::fs::write(&path, text).expect("write platform file");
+        }
+        (root, dir)
+    }
+
+    #[test]
+    fn a_web_export_builds_the_module_binds_it_and_copies_the_page() {
+        let (env, _dir) = complete(Host::Linux, &["cargo", "wasm-bindgen"]);
+        let (root, _project) = scratch_project("my-app");
+        let plan = plan(&env, &root, "my-app", Format::Web).expect("a complete web toolchain");
+        let labels: Vec<&str> = plan.steps.iter().map(|s| s.spec.label.as_str()).collect();
+        assert_eq!(
+            labels,
+            vec![
+                "Build (Web)",
+                "JS glue",
+                "Create bundle directories",
+                "Copy into the bundle"
+            ]
+        );
+        // `--lib`: the `[[bin]]` target has no browser to run in, and asking
+        // for it is a compile error rather than a smaller bundle.
+        assert_eq!(
+            plan.steps[0].spec.args,
+            vec![
+                "build",
+                "--release",
+                "--lib",
+                "--target",
+                "wasm32-unknown-unknown"
+            ]
+        );
+        // The wasm cargo emits is named for the *library* — `my-app` is
+        // `my_app.wasm` — and bindgen writes into the export directory so
+        // nothing has to find it afterwards.
+        let glue = plan.steps[1].spec.command_line();
+        assert!(glue.contains("--target web"), "{glue}");
+        assert!(glue.contains("my_app.wasm"), "{glue}");
+        assert!(glue.contains("target/export/web"), "{glue}");
+        // The page travels beside the bundle it mounts, from the directory the
+        // scaffolder owns.
+        let copy = plan.steps[3].spec.command_line();
+        assert!(copy.contains("web/index.html"), "{copy}");
+        assert_eq!(plan.artefact, root.join("target/export/web/index.html"));
+    }
+
+    #[test]
+    fn a_web_export_without_the_target_names_the_command_that_adds_it() {
+        // The refusal is the fix: `rustup target add wasm32-unknown-unknown`,
+        // not a rustc error about a missing target, twenty minutes from now.
+        let (mut env, _dir) = complete(Host::Linux, &["cargo", "wasm-bindgen"]);
+        env.rust_targets = toolchains::Probed::Given(Vec::new());
+        let refusal = plan(&env, Path::new("/project"), "app", Format::Web)
+            .expect_err("the wasm target is not installed");
+        assert_eq!(
+            refusal,
+            Refusal::Missing {
+                requirement: "wasm32-unknown-unknown",
+                install: "`rustup target add wasm32-unknown-unknown`",
+            }
+        );
+        assert!(
+            refusal
+                .to_string()
+                .contains("rustup target add wasm32-unknown-unknown"),
+            "{refusal}"
+        );
+    }
+
+    #[test]
+    fn a_web_export_without_wasm_bindgen_is_refused_before_building() {
+        // Everything else can be present and the bundle still cannot exist:
+        // the CLI is what turns cargo's wasm into the pair a page loads.
+        let (env, _dir) = complete(Host::Linux, &["cargo"]);
+        let refusal = plan(&env, Path::new("/project"), "app", Format::Web)
+            .expect_err("no wasm-bindgen on PATH");
+        assert_eq!(
+            refusal,
+            Refusal::Missing {
+                requirement: "wasm-bindgen",
+                install: "`cargo install wasm-bindgen-cli --version <the one in Cargo.lock>`",
+            }
+        );
+    }
+
+    #[test]
+    fn a_web_export_without_a_page_is_refused_rather_than_planned() {
+        // A project scaffolded before the web export existed has no page, and
+        // a plan whose copy step fails at run time is a refusal that waited.
+        let (env, _dir) = complete(Host::Linux, &["cargo", "wasm-bindgen"]);
+        let refusal =
+            plan(&env, Path::new("/project"), "app", Format::Web).expect_err("no web/index.html");
+        assert_eq!(
+            refusal,
+            Refusal::Missing {
+                requirement: "web/index.html",
+                install: "copy `web/` across from a freshly scaffolded project — this one \
+                      predates the web export",
+            }
+        );
+    }
+
+    #[test]
+    fn a_mac_app_bundle_off_macos_is_apples_rule_not_a_missing_tool() {
+        let (env, _dir) = complete(Host::Linux, &["cargo"]);
+        let refusal =
+            plan(&env, Path::new("/project"), "app", Format::MacAppBundle).expect_err("not a Mac");
+        assert!(matches!(refusal, Refusal::Impossible(_)), "{refusal:?}");
+        assert!(refusal.to_string().contains("macOS"), "{refusal}");
+    }
+
+    #[test]
+    fn a_mac_app_bundle_lays_out_contents_from_the_scaffolded_plist() {
+        let (env, _dir) = complete(Host::MacOs, &["cargo"]);
+        let (root, _project) = scratch_project("app");
+        let plan = plan(&env, &root, "app", Format::MacAppBundle).expect("a Mac with cargo");
+        let app = root.join("target/export/app.app");
+        assert_eq!(plan.artefact, app);
+        // Build, one mkdir for the whole layout, then the binary and the plist.
+        assert_eq!(plan.steps.len(), 4);
+        let mkdir = plan.steps[1].spec.command_line();
+        assert!(
+            mkdir.contains("Contents/MacOS") && mkdir.contains("Contents"),
+            "one mkdir covers every directory: {mkdir}"
+        );
+        assert!(plan.steps[2].spec.command_line().ends_with("MacOS/app"));
+        assert!(plan.steps[3]
+            .spec
+            .command_line()
+            .contains("macos/Info.plist"));
+        assert!(plan.steps[3]
+            .spec
+            .command_line()
+            .contains("Contents/Info.plist"));
+        // Nothing signs: the studio's own packaging policy, stated in the plan
+        // rather than contradicted by a step that pretends to.
+        assert!(
+            !plan.steps.iter().any(|s| s.spec.program == "codesign"),
+            "an unsigned bundle is the honest bundle"
+        );
+    }
+
+    #[test]
+    fn a_linux_deb_off_linux_says_why_rather_than_guessing() {
+        let (env, _dir) = complete(Host::MacOs, &["cargo", "dpkg-deb"]);
+        let refusal =
+            plan(&env, Path::new("/project"), "app", Format::LinuxDeb).expect_err("not Linux");
+        assert!(matches!(refusal, Refusal::Impossible(_)), "{refusal:?}");
+    }
+
+    #[test]
+    fn a_linux_deb_without_dpkg_deb_names_it_and_its_installer() {
+        let (env, _dir) = complete(Host::Linux, &["cargo"]);
+        let refusal = plan(&env, Path::new("/project"), "app", Format::LinuxDeb)
+            .expect_err("no dpkg-deb on PATH");
+        assert_eq!(
+            refusal,
+            Refusal::Missing {
+                requirement: "dpkg-deb",
+                install: "`apt install dpkg` (Debian and Ubuntu) — other distributions package \
+                          with rpm instead, and this format is theirs",
+            }
+        );
+    }
+
+    #[test]
+    fn a_linux_deb_stages_the_tree_then_builds_it_with_root_owner_group() {
+        let (env, _dir) = complete(Host::Linux, &["cargo", "dpkg-deb"]);
+        let (root, _project) = scratch_project("my-app");
+        let plan = plan(&env, &root, "my-app", Format::LinuxDeb).expect("a Linux with dpkg-deb");
+        assert_eq!(plan.artefact, root.join("target/export/my-app.deb"));
+        // control, binary, .desktop — every path the package needs is one the
+        // scaffolder's `linux/` directory owns.
+        let lines: Vec<String> = plan.steps.iter().map(|s| s.spec.command_line()).collect();
+        let copy = lines
+            .iter()
+            .find(|l| l.contains("linux/control"))
+            .expect("the control file is copied");
+        assert!(copy.contains("DEBIAN/control"), "{copy}");
+        assert!(
+            lines.iter().any(|l| l.contains("usr/local/bin/my-app")),
+            "the binary lands on the PATH the package installs to"
+        );
+        assert!(
+            lines
+                .iter()
+                .any(|l| l.contains("share/applications/my-app.desktop")),
+            "the .desktop entry lands where desktops look"
+        );
+        let build = lines.last().expect("dpkg-deb closes the plan");
+        assert!(
+            build.contains("--root-owner-group"),
+            "no uid/gid baked in: {build}"
+        );
+        assert!(build.contains("target/export/deb"), "{build}");
+    }
+
+    #[test]
+    fn a_linux_deb_refuses_a_control_file_from_another_architecture() {
+        // `dpkg -i` refuses a package whose Architecture names another machine
+        // — verified by building one and trying — so the plan refuses first,
+        // naming the file to edit rather than producing a package nobody can
+        // install.
+        let (env, _dir) = complete(Host::Linux, &["cargo", "dpkg-deb"]);
+        let (root, _project) = scratch_project("app");
+        let other = if crate::harness::debian_arch() == "amd64" {
+            "arm64"
+        } else {
+            "amd64"
+        };
+        let control = root.join("linux").join("control");
+        std::fs::write(
+            &control,
+            format!("Package: app\nVersion: 0.1.0\nArchitecture: {other}\n"),
+        )
+        .expect("write the wrong arch");
+        let refusal = plan(&env, &root, "app", Format::LinuxDeb)
+            .expect_err("the control file names another machine");
+        assert!(matches!(refusal, Refusal::Impossible(_)), "{refusal:?}");
+        assert!(
+            refusal.to_string().contains("dpkg --print-architecture"),
+            "the fix is in the message: {refusal}"
+        );
+    }
+
+    #[test]
+    fn a_linux_deb_without_the_linux_directory_names_what_to_copy() {
+        // A project scaffolded before ST-07 has no `linux/` directory at all.
+        let (env, _dir) = complete(Host::Linux, &["cargo", "dpkg-deb"]);
+        let refusal = plan(&env, Path::new("/project"), "app", Format::LinuxDeb)
+            .expect_err("no linux/control");
+        assert_eq!(
+            refusal,
+            Refusal::Missing {
+                requirement: "linux/control",
+                install: "copy `linux/` across from a freshly scaffolded project — this one \
+                      predates the Linux export",
+            }
+        );
+    }
+
+    #[test]
+    fn a_release_apk_is_refused_without_a_keystore_before_gradle_hears_about_it() {
+        let (env, _dir) = complete(Host::Linux, &["cargo", "cargo-ndk", "gradle", "javac"]);
+        let refusal = plan(
+            &env,
+            Path::new("/project"),
+            "app",
+            Format::AndroidReleaseApk,
+        )
+        .expect_err("no keystore configured");
+        assert_eq!(
+            refusal,
+            Refusal::Missing {
+                requirement: "release keystore",
+                install: "set the keystore path in Settings \u{2192} Toolchains (the file has \
+                          to exist; create one with `keytool -genkeypair`)",
+            }
+        );
+        // The refusal reads as a settings problem, not a download problem.
+        assert!(refusal.to_string().contains("Settings"), "{refusal}");
+    }
+
+    #[test]
+    fn a_release_apk_carries_the_keystore_in_the_child_env_and_nowhere_else() {
+        let (mut env, dir) = complete(Host::Linux, &["cargo", "cargo-ndk", "gradle", "javac"]);
+        // A real file, because "found" has always meant "present at a plausible
+        // path" — a keystore path that does not exist is a missing keystore.
+        let keystore = dir.path().join("release.keystore");
+        std::fs::write(&keystore, "a keystore").expect("write keystore");
+        env.vars.insert(
+            KEYSTORE_VAR.to_string(),
+            keystore.to_string_lossy().into_owned(),
+        );
+        env.vars
+            .insert(KEYSTORE_ALIAS_VAR.to_string(), "upload".into());
+        // What a leaked password would look like, to prove the plan never
+        // carries one even when the studio's own environment has it.
+        env.vars
+            .insert(KEYSTORE_PASSWORD_VAR.to_string(), "hunter2".into());
+
+        let plan = plan(
+            &env,
+            Path::new("/project"),
+            "app",
+            Format::AndroidReleaseApk,
+        )
+        .expect("a keystore, an alias and the Android chain");
+        let packaging = plan
+            .steps
+            .iter()
+            .find(|s| s.spec.label == "Package release APK")
+            .expect("the signing step");
+        // The environment the child sees — the one Gradle's signingConfig reads.
+        let env_keys: Vec<&str> = packaging.spec.env.iter().map(|(k, _)| k.as_str()).collect();
+        assert!(env_keys.contains(&KEYSTORE_VAR), "{env_keys:?}");
+        assert!(env_keys.contains(&KEYSTORE_ALIAS_VAR), "{env_keys:?}");
+        // The command line — the one the Output panel prints — says nothing
+        // about the keystore at all, and no step anywhere carries a password.
+        assert!(
+            !packaging.spec.command_line().contains("keystore"),
+            "{}",
+            packaging.spec.command_line()
+        );
+        for step in &plan.steps {
+            assert!(
+                !step
+                    .spec
+                    .env
+                    .iter()
+                    .any(|(k, _)| k == KEYSTORE_PASSWORD_VAR),
+                "the password is the caller's to inject, never the plan's: {:?}",
+                step.spec.env
+            );
+        }
+        assert_eq!(
+            plan.artefact,
+            PathBuf::from("/project/target/export/app-release.apk")
         );
     }
 
@@ -1077,7 +1856,12 @@ R58M12ABCDE            offline
         // target would run the wrong checklist and refuse for the wrong
         // reason.
         assert_eq!(Format::DesktopBinary.target(), Target::Desktop);
+        assert_eq!(Format::MacAppBundle.target(), Target::Desktop);
+        assert_eq!(Format::LinuxDeb.target(), Target::Desktop);
+        assert_eq!(Format::WindowsExe.target(), Target::Windows);
+        assert_eq!(Format::Web.target(), Target::Web);
         assert_eq!(Format::AndroidApk.target(), Target::Android);
+        assert_eq!(Format::AndroidReleaseApk.target(), Target::Android);
         assert_eq!(Format::IosSimulatorApp.target(), Target::Ios);
         assert_eq!(Format::IosIpa.target(), Target::Ios);
         for format in Format::ALL {

@@ -37,7 +37,37 @@ impl Studio {
     /// with the command that installs it — rather than as whatever `cargo
     /// ndk` says about a linker three minutes into a build that was never
     /// going to work.
+    ///
+    /// # The one format that stops here (ST-07)
+    ///
+    /// A release-signed APK needs one thing the plan cannot know: the
+    /// keystore's password. `VIEWW_KEYSTORE_PASSWORD` in the studio's own
+    /// environment satisfies it — that is the CI path, and the password-manager
+    /// path, and it costs nothing. Without it, the export pauses for the
+    /// one-shot prompt rather than either asking Gradle to sign with nothing
+    /// or starting a three-minute build whose last step fails on a prompt.
     pub fn start_export(&self, format: crate::export::Format) {
+        use crate::export::Format;
+
+        if format == Format::AndroidReleaseApk
+            && std::env::var(crate::export::KEYSTORE_PASSWORD_VAR).is_err()
+        {
+            // Nothing typed yet, every time: a prompt that still held the last
+            // attempt's password would be a password the studio remembered.
+            self.keystore_password.set(String::new());
+            self.keystore_prompt.set(true);
+            return;
+        }
+        self.export_with(format, None);
+    }
+
+    /// The half of every export that is the same however the password arrived.
+    ///
+    /// `password` is [`Some`] only between the one-shot prompt's confirm and
+    /// the child processes starting — the studio's single opportunity to hold
+    /// it, spent immediately and never repeated. See [`Self::start_export`]
+    /// for why the release format is the only caller that ever has one.
+    fn export_with(&self, format: crate::export::Format, password: Option<String>) {
         if self.export_run.borrow().is_some() {
             self.append_output(vec![
                 "an export is already running — cancel it first".to_string()
@@ -51,13 +81,72 @@ impl Studio {
         };
         let name = self.package_name().unwrap_or_default();
 
-        match crate::export::plan(&self.build_env, &root, &name, format) {
+        // `configured_env`, not `build_env`: the toolchain checklist has read
+        // the settings overlay since the settings existed, and an export that
+        // planned against the bare launch environment refused SDKs the
+        // checklist said were found — two answers to one question, both on
+        // screen at once.
+        match crate::export::plan(&self.configured_env(), &root, &name, format) {
             Err(refusal) => {
                 self.append_output(vec![format!("{}: {refusal}", format.title())]);
                 self.show_output();
             }
-            Ok(plan) => self.begin_plan(plan),
+            Ok(mut plan) => {
+                // The password, into the environment of exactly the steps that
+                // already know about the keystore — the packaging steps — and
+                // nowhere else. `Spec::command_line` prints program and
+                // arguments, never environment, so the Output panel cannot
+                // leak what it was never shown.
+                if let Some(password) = password {
+                    for step in &mut plan.steps {
+                        if step
+                            .spec
+                            .env
+                            .iter()
+                            .any(|(key, _)| key == crate::export::KEYSTORE_VAR)
+                        {
+                            step.spec.env.push((
+                                crate::export::KEYSTORE_PASSWORD_VAR.to_owned(),
+                                password.clone(),
+                            ));
+                        }
+                    }
+                }
+                self.begin_plan(plan)
+            }
         }
+    }
+
+    /// Confirm the one-shot keystore prompt and continue the export it paused.
+    ///
+    /// The typed password is taken out of the signal *first*, before anything
+    /// else happens: whichever way the rest goes — refusal, busy queue, plain
+    /// empty — the value is no longer anywhere in the studio the moment the
+    /// prompt closes, and the only copy is the local one on its way to a child
+    /// process's environment.
+    pub fn confirm_keystore_prompt(&self) {
+        let mut password = String::new();
+        self.keystore_password
+            .update(|held| std::mem::swap(held, &mut password));
+        self.keystore_prompt.set(false);
+        if password.is_empty() {
+            self.notify("no password typed — the release export was not started");
+            return;
+        }
+        self.export_with(crate::export::Format::AndroidReleaseApk, Some(password));
+    }
+
+    /// Close the one-shot keystore prompt without exporting.
+    pub fn cancel_keystore_prompt(&self) {
+        // Clearing the text is the point rather than tidiness: a cancelled
+        // prompt must not leave the typed half of a password in a signal.
+        self.keystore_password.set(String::new());
+        self.keystore_prompt.set(false);
+    }
+
+    /// What has been typed into the keystore prompt.
+    pub fn set_keystore_password(&self, text: String) {
+        self.keystore_password.set(text);
     }
 
     /// ST-13: start exporting in a plugin's format, or say why not.
@@ -662,6 +751,15 @@ impl Studio {
         set("ANDROID_NDK_HOME", self.android_ndk.peek());
         set("ANDROID_NDK_ROOT", self.android_ndk.peek());
         set("JAVA_HOME", self.java_home.peek());
+        // ST-07: the release-keystore facts the export plan checks — the path
+        // and the alias, which are settings and were always going to be. The
+        // password is deliberately *not* here: `signing_env`'s doc and
+        // `confirm_keystore_prompt`'s are the two halves of that policy.
+        set(crate::export::KEYSTORE_VAR, self.keystore.peek());
+        set(
+            crate::export::KEYSTORE_ALIAS_VAR,
+            self.keystore_alias.peek(),
+        );
         env
     }
 

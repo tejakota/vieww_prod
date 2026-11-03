@@ -1,5 +1,6 @@
 //! The Gradle and Xcode projects a scaffolded app needs to become an APK or an
-//! `.ipa`.
+//! `.ipa` — and, since ST-07, the web page, macOS bundle metadata and Linux
+//! package files the other export formats lay out.
 //!
 //! # Why this file exists
 //!
@@ -52,6 +53,14 @@
 //! checked is that Gradle and Xcode like them. That is stated here rather than
 //! in a commit message because it is the first thing somebody debugging a
 //! failed first build needs to know.
+//!
+//! The web, macOS and Linux files are in better shape than that, each for its
+//! own reason: `web/index.html` is `examples/test-web`'s certified page with
+//! the names changed, the `.deb` control and `.desktop` were assembled and
+//! installed by hand with this machine's real `dpkg-deb` while they were being
+//! written, and `macos/Info.plist` has still never been seen by Finder — it is
+//! `packaging/Info.plist`'s shape, which has, with the studio's own values
+//! swapped for a new project's.
 
 use std::path::PathBuf;
 
@@ -76,11 +85,19 @@ pub fn bundle_id(name: &str) -> String {
     format!("com.example.{}", lib_name(name))
 }
 
-/// Every Android and iOS file a new project starts with.
+/// Every platform file a new project starts with.
+///
+/// Android and iOS, plus the web page, macOS bundle metadata and Linux
+/// package files the ST-07 export formats lay out — one list, because every
+/// one of them is a file `export` reaches for and `tests/scaffold_exports.rs`
+/// checks exactly that.
 #[must_use]
 pub fn files(name: &str) -> Vec<(PathBuf, String)> {
     let mut out = android(name);
     out.extend(ios(name));
+    out.extend(web(name));
+    out.extend(macos(name));
+    out.extend(linux(name));
     out
 }
 
@@ -206,6 +223,30 @@ android {{
         }}
     }}
 
+    // **The release signing configuration is assembled from the environment,
+    // and never from this file.** A signing key's password written into a
+    // generated file is a signing key given away with the project, so
+    // `export::android_release` (ST-07) refuses to start until the keystore
+    // path and key alias are set in the studio's settings, then hands Gradle
+    // `VIEWW_KEYSTORE`, `VIEWW_KEYSTORE_ALIAS` and `VIEWW_KEYSTORE_PASSWORD`
+    // as the child process's environment — this block reads exactly those
+    // three, and the password never touches a file the studio writes. Without
+    // `VIEWW_KEYSTORE` the block is inert and the release build is unsigned,
+    // which is a build Gradle completes and a store refuses — the honest
+    // outcome for somebody who has not configured signing, rather than a
+    // generated file full of placeholders that fail a build instead.
+    signingConfigs {{
+        release {{
+            def store = System.getenv("VIEWW_KEYSTORE")
+            if (store != null) {{
+                storeFile file(store)
+                storePassword System.getenv("VIEWW_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("VIEWW_KEYSTORE_ALIAS")
+                keyPassword System.getenv("VIEWW_KEYSTORE_PASSWORD")
+            }}
+        }}
+    }}
+
     buildTypes {{
         debug {{
             // Debug-signed with the key every Android SDK ships, which is what
@@ -214,9 +255,12 @@ android {{
         }}
         release {{
             minifyEnabled false
-            // Deliberately unsigned: a release key is a keystore and two
-            // passwords, and neither belongs in a generated file. Configure a
-            // `signingConfig` here when you have somewhere safe to keep them.
+            // Signed when the environment names a keystore, unsigned when it
+            // does not — see the `signingConfigs` block above for where those
+            // values come from and why none of them is here.
+            if (System.getenv("VIEWW_KEYSTORE") != null) {{
+                signingConfig signingConfigs.release
+            }}
         }}
     }}
 }}
@@ -359,36 +403,36 @@ int main(int argc, char *argv[]) {
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>{name}</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>0.1.0</string>
-	<key>CFBundleVersion</key>
-	<string>1</string>
-	<!-- An app with no launch screen is letterboxed into an iPhone 4 sized box
-	     on every modern device. An empty dictionary asks for the system's
-	     default one, which is what an app with nothing to show at launch
-	     wants. -->
-	<key>UILaunchScreen</key>
-	<dict/>
-	<key>UIRequiredDeviceCapabilities</key>
-	<array>
-		<string>arm64</string>
-	</array>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-	</array>
+        <key>CFBundleDevelopmentRegion</key>
+        <string>en</string>
+        <key>CFBundleExecutable</key>
+        <string>$(EXECUTABLE_NAME)</string>
+        <key>CFBundleIdentifier</key>
+        <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+        <key>CFBundleInfoDictionaryVersion</key>
+        <string>6.0</string>
+        <key>CFBundleName</key>
+        <string>{name}</string>
+        <key>CFBundlePackageType</key>
+        <string>APPL</string>
+        <key>CFBundleShortVersionString</key>
+        <string>0.1.0</string>
+        <key>CFBundleVersion</key>
+        <string>1</string>
+        <!-- An app with no launch screen is letterboxed into an iPhone 4 sized box
+             on every modern device. An empty dictionary asks for the system's
+             default one, which is what an app with nothing to show at launch
+             wants. -->
+        <key>UILaunchScreen</key>
+        <dict/>
+        <key>UIRequiredDeviceCapabilities</key>
+        <array>
+                <string>arm64</string>
+        </array>
+        <key>UISupportedInterfaceOrientations</key>
+        <array>
+                <string>UIInterfaceOrientationPortrait</string>
+        </array>
 </dict>
 </plist>
 "#
@@ -407,14 +451,14 @@ int main(int argc, char *argv[]) {
 -->
 <plist version="1.0">
 <dict>
-	<key>method</key>
-	<string>development</string>
-	<key>signingStyle</key>
-	<string>automatic</string>
-	<key>stripSwiftSymbols</key>
-	<true/>
-	<key>uploadSymbols</key>
-	<true/>
+        <key>method</key>
+        <string>development</string>
+        <key>signingStyle</key>
+        <string>automatic</string>
+        <key>stripSwiftSymbols</key>
+        <true/>
+        <key>uploadSymbols</key>
+        <true/>
 </dict>
 </plist>
 "#
@@ -527,26 +571,26 @@ fn pbxproj(name: &str) -> String {
     // The settings that decide whether this links, kept in one place because
     // they are what somebody debugging a link failure will come to read.
     let linking = format!(
-        r#"				"RUST_TARGET[sdk=iphoneos*]" = "aarch64-apple-ios";
-				"RUST_TARGET[sdk=iphonesimulator*]" = "aarch64-apple-ios-sim";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/../target/$(RUST_TARGET)/release",
-				);
-				OTHER_LDFLAGS = (
-					"-l{lib}",
-					"-lc++",
-					"-framework",
-					UIKit,
-					"-framework",
-					Foundation,
-					"-framework",
-					Metal,
-					"-framework",
-					QuartzCore,
-					"-framework",
-					CoreGraphics,
-				);"#
+        r#"                             "RUST_TARGET[sdk=iphoneos*]" = "aarch64-apple-ios";
+                                "RUST_TARGET[sdk=iphonesimulator*]" = "aarch64-apple-ios-sim";
+                                LIBRARY_SEARCH_PATHS = (
+                                        "$(inherited)",
+                                        "$(PROJECT_DIR)/../target/$(RUST_TARGET)/release",
+                                );
+                                OTHER_LDFLAGS = (
+                                        "-l{lib}",
+                                        "-lc++",
+                                        "-framework",
+                                        UIKit,
+                                        "-framework",
+                                        Foundation,
+                                        "-framework",
+                                        Metal,
+                                        "-framework",
+                                        QuartzCore,
+                                        "-framework",
+                                        CoreGraphics,
+                                );"#
     );
 
     // Identical in Debug and Release: everything that differs between the two
@@ -555,201 +599,201 @@ fn pbxproj(name: &str) -> String {
     // places to change one thing.
     let target_settings = || {
         format!(
-            r#"				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = App/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "{id}";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+            r#"                         CODE_SIGN_STYLE = Automatic;
+                                CURRENT_PROJECT_VERSION = 1;
+                                GENERATE_INFOPLIST_FILE = NO;
+                                INFOPLIST_FILE = App/Info.plist;
+                                IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+                                MARKETING_VERSION = 0.1.0;
+                                PRODUCT_BUNDLE_IDENTIFIER = "{id}";
+                                PRODUCT_NAME = "$(TARGET_NAME)";
 {linking}
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";"#
+                                SWIFT_VERSION = 5.0;
+                                TARGETED_DEVICE_FAMILY = "1,2";"#
         )
     };
 
     format!(
         r#"// !$*UTF8*$!
 {{
-	archiveVersion = 1;
-	classes = {{
-	}};
-	objectVersion = 56;
-	objects = {{
+        archiveVersion = 1;
+        classes = {{
+        }};
+        objectVersion = 56;
+        objects = {{
 
 /* Begin PBXBuildFile section */
-		{main_build} /* main.m in Sources */ = {{isa = PBXBuildFile; fileRef = {main_ref} /* main.m */; }};
+                {main_build} /* main.m in Sources */ = {{isa = PBXBuildFile; fileRef = {main_ref} /* main.m */; }};
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		{product} /* {name}.app */ = {{isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "{name}.app"; sourceTree = BUILT_PRODUCTS_DIR; }};
-		{main_ref} /* main.m */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; }};
-		{plist_ref} /* Info.plist */ = {{isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; }};
+                {product} /* {name}.app */ = {{isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "{name}.app"; sourceTree = BUILT_PRODUCTS_DIR; }};
+                {main_ref} /* main.m */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; }};
+                {plist_ref} /* Info.plist */ = {{isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; }};
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		{frameworks} /* Frameworks */ = {{
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		}};
+                {frameworks} /* Frameworks */ = {{
+                        isa = PBXFrameworksBuildPhase;
+                        buildActionMask = 2147483647;
+                        files = (
+                        );
+                        runOnlyForDeploymentPostprocessing = 0;
+                }};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		{root} = {{
-			isa = PBXGroup;
-			children = (
-				{app} /* App */,
-				{products} /* Products */,
-			);
-			sourceTree = "<group>";
-		}};
-		{app} /* App */ = {{
-			isa = PBXGroup;
-			children = (
-				{main_ref} /* main.m */,
-				{plist_ref} /* Info.plist */,
-			);
-			path = App;
-			sourceTree = "<group>";
-		}};
-		{products} /* Products */ = {{
-			isa = PBXGroup;
-			children = (
-				{product} /* {name}.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		}};
+                {root} = {{
+                        isa = PBXGroup;
+                        children = (
+                                {app} /* App */,
+                                {products} /* Products */,
+                        );
+                        sourceTree = "<group>";
+                }};
+                {app} /* App */ = {{
+                        isa = PBXGroup;
+                        children = (
+                                {main_ref} /* main.m */,
+                                {plist_ref} /* Info.plist */,
+                        );
+                        path = App;
+                        sourceTree = "<group>";
+                }};
+                {products} /* Products */ = {{
+                        isa = PBXGroup;
+                        children = (
+                                {product} /* {name}.app */,
+                        );
+                        name = Products;
+                        sourceTree = "<group>";
+                }};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		{target} /* {name} */ = {{
-			isa = PBXNativeTarget;
-			buildConfigurationList = {cfg_target} /* Build configuration list for PBXNativeTarget "{name}" */;
-			buildPhases = (
-				{sources} /* Sources */,
-				{frameworks} /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "{name}";
-			productName = "{name}";
-			productReference = {product} /* {name}.app */;
-			productType = "com.apple.product-type.application";
-		}};
+                {target} /* {name} */ = {{
+                        isa = PBXNativeTarget;
+                        buildConfigurationList = {cfg_target} /* Build configuration list for PBXNativeTarget "{name}" */;
+                        buildPhases = (
+                                {sources} /* Sources */,
+                                {frameworks} /* Frameworks */,
+                        );
+                        buildRules = (
+                        );
+                        dependencies = (
+                        );
+                        name = "{name}";
+                        productName = "{name}";
+                        productReference = {product} /* {name}.app */;
+                        productType = "com.apple.product-type.application";
+                }};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		{project} /* Project object */ = {{
-			isa = PBXProject;
-			attributes = {{
-				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1500;
-				TargetAttributes = {{
-					{target} = {{
-						CreatedOnToolsVersion = 15.0;
-					}};
-				}};
-			}};
-			buildConfigurationList = {cfg_proj} /* Build configuration list for PBXProject "{name}" */;
-			compatibilityVersion = "Xcode 14.0";
-			developmentRegion = en;
-			hasScannedForEncodings = 0;
-			knownRegions = (
-				en,
-				Base,
-			);
-			mainGroup = {root};
-			productRefGroup = {products} /* Products */;
-			projectDirPath = "";
-			projectRoot = "";
-			targets = (
-				{target} /* {name} */,
-			);
-		}};
+                {project} /* Project object */ = {{
+                        isa = PBXProject;
+                        attributes = {{
+                                BuildIndependentTargetsInParallel = 1;
+                                LastUpgradeCheck = 1500;
+                                TargetAttributes = {{
+                                        {target} = {{
+                                                CreatedOnToolsVersion = 15.0;
+                                        }};
+                                }};
+                        }};
+                        buildConfigurationList = {cfg_proj} /* Build configuration list for PBXProject "{name}" */;
+                        compatibilityVersion = "Xcode 14.0";
+                        developmentRegion = en;
+                        hasScannedForEncodings = 0;
+                        knownRegions = (
+                                en,
+                                Base,
+                        );
+                        mainGroup = {root};
+                        productRefGroup = {products} /* Products */;
+                        projectDirPath = "";
+                        projectRoot = "";
+                        targets = (
+                                {target} /* {name} */,
+                        );
+                }};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		{sources} /* Sources */ = {{
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				{main_build} /* main.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		}};
+                {sources} /* Sources */ = {{
+                        isa = PBXSourcesBuildPhase;
+                        buildActionMask = 2147483647;
+                        files = (
+                                {main_build} /* main.m in Sources */,
+                        );
+                        runOnlyForDeploymentPostprocessing = 0;
+                }};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		{proj_debug} /* Debug */ = {{
-			isa = XCBuildConfiguration;
-			buildSettings = {{
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				ENABLE_BITCODE = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = iphoneos;
-			}};
-			name = Debug;
-		}};
-		{proj_release} /* Release */ = {{
-			isa = XCBuildConfiguration;
-			buildSettings = {{
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				ENABLE_BITCODE = NO;
-				SDKROOT = iphoneos;
-				VALIDATE_PRODUCT = YES;
-			}};
-			name = Release;
-		}};
-		{tgt_debug} /* Debug */ = {{
-			isa = XCBuildConfiguration;
-			buildSettings = {{
+                {proj_debug} /* Debug */ = {{
+                        isa = XCBuildConfiguration;
+                        buildSettings = {{
+                                ALWAYS_SEARCH_USER_PATHS = NO;
+                                ARCHS = arm64;
+                                CLANG_ENABLE_OBJC_ARC = YES;
+                                ENABLE_BITCODE = NO;
+                                GCC_OPTIMIZATION_LEVEL = 0;
+                                ONLY_ACTIVE_ARCH = YES;
+                                SDKROOT = iphoneos;
+                        }};
+                        name = Debug;
+                }};
+                {proj_release} /* Release */ = {{
+                        isa = XCBuildConfiguration;
+                        buildSettings = {{
+                                ALWAYS_SEARCH_USER_PATHS = NO;
+                                ARCHS = arm64;
+                                CLANG_ENABLE_OBJC_ARC = YES;
+                                ENABLE_BITCODE = NO;
+                                SDKROOT = iphoneos;
+                                VALIDATE_PRODUCT = YES;
+                        }};
+                        name = Release;
+                }};
+                {tgt_debug} /* Debug */ = {{
+                        isa = XCBuildConfiguration;
+                        buildSettings = {{
 {debug_settings}
-			}};
-			name = Debug;
-		}};
-		{tgt_release} /* Release */ = {{
-			isa = XCBuildConfiguration;
-			buildSettings = {{
+                        }};
+                        name = Debug;
+                }};
+                {tgt_release} /* Release */ = {{
+                        isa = XCBuildConfiguration;
+                        buildSettings = {{
 {release_settings}
-			}};
-			name = Release;
-		}};
+                        }};
+                        name = Release;
+                }};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		{cfg_proj} /* Build configuration list for PBXProject "{name}" */ = {{
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				{proj_debug} /* Debug */,
-				{proj_release} /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		}};
-		{cfg_target} /* Build configuration list for PBXNativeTarget "{name}" */ = {{
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				{tgt_debug} /* Debug */,
-				{tgt_release} /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		}};
+                {cfg_proj} /* Build configuration list for PBXProject "{name}" */ = {{
+                        isa = XCConfigurationList;
+                        buildConfigurations = (
+                                {proj_debug} /* Debug */,
+                                {proj_release} /* Release */,
+                        );
+                        defaultConfigurationIsVisible = 0;
+                        defaultConfigurationName = Release;
+                }};
+                {cfg_target} /* Build configuration list for PBXNativeTarget "{name}" */ = {{
+                        isa = XCConfigurationList;
+                        buildConfigurations = (
+                                {tgt_debug} /* Debug */,
+                                {tgt_release} /* Release */,
+                        );
+                        defaultConfigurationIsVisible = 0;
+                        defaultConfigurationName = Release;
+                }};
 /* End XCConfigurationList section */
-	}};
-	rootObject = {project} /* Project object */;
+        }};
+        rootObject = {project} /* Project object */;
 }}
 "#,
         debug_settings = target_settings(),
@@ -820,6 +864,185 @@ fn xcscheme(name: &str) -> String {
 </Scheme>
 "#
     )
+}
+
+// ---------------------------------------------------------------------------
+// Web, macOS and Linux (ST-07)
+// ---------------------------------------------------------------------------
+
+/// The Debian name of the architecture this machine builds for.
+///
+/// `dpkg` refuses to install a package whose `Architecture:` is anything but
+/// the machine's own name or `all` — verified rather than assumed: `any`, the
+/// value a *source* package carries, is rejected by `dpkg --install` with
+/// "package architecture (any) does not match system (amd64)". So the control
+/// file the scaffolder writes has to name a real architecture, and this is the
+/// one it names — `std::env::consts::ARCH` at scaffold time, because a project
+/// is most often packaged on the machine it was created on, and
+/// `export::linux_deb` refuses rather than ships when that stops being true.
+#[must_use]
+pub fn debian_arch() -> &'static str {
+    match std::env::consts::ARCH {
+        "x86_64" => "amd64",
+        "aarch64" => "arm64",
+        other => other,
+    }
+}
+
+/// The page a Web export mounts the bundle in.
+///
+/// The same page `examples/test-web/index.html` is, with the project's own
+/// title, canvas size and module name — because the studio's certification
+/// scene and a user's app want exactly the same things from it: a canvas with
+/// a fallback message for crawlers and no-wasm browsers, a boot line that says
+/// what happened rather than a silent blank, and one module script importing
+/// the `.js` `wasm-bindgen` emitted.
+///
+/// The canvas matches the window the desktop entry point opens (`WINDOW` in
+/// `src/lib.rs`): the web is one more device shape, not a different app, and a
+/// page that disagreed with the window would make the same screen lay out
+/// differently for no reason the user controls.
+fn web(name: &str) -> Vec<(PathBuf, String)> {
+    let lib = lib_name(name);
+    vec![(
+        PathBuf::from("web/index.html"),
+        format!(
+            r#"<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{name}</title>
+<style>
+  /* The page is furniture, not the app: the canvas is the app, so it sits
+     centred, unscaled, and nothing overlaps it. */
+  html, body {{
+    margin: 0;
+    min-height: 100vh;
+    background: #0b0c10;
+    display: grid;
+    place-items: center;
+    font: 12px ui-monospace, monospace;
+  }}
+  /* `image-rendering: pixelated` keeps a scaled backing buffer crisp rather
+     than smeared, which would read as a renderer difference that is not
+     one. */
+  canvas {{ image-rendering: pixelated; border-radius: 10px; }}
+  #boot {{
+    position: fixed;
+    top: 10px;
+    left: 12px;
+    color: #5b6478;
+  }}
+</style>
+</head>
+<body>
+<!-- The canvas attributes are the starting size, in CSS pixels; `mount`
+     resizes the backing buffer for the device-pixel ratio from there. The
+     fallback content is what a no-wasm browser — and a crawler — sees. -->
+<canvas id="vieww-canvas" width="420" height="880">
+  {name} renders on this canvas; this browser did not run the module.
+</canvas>
+<div id="boot">booting…</div>
+<script type="module">
+  import init from './{lib}.js';
+  init()
+    .then(() => {{ document.getElementById('boot').textContent = 'mounted'; }})
+    .catch(e => {{
+      document.getElementById('boot').textContent = 'failed: ' + e;
+      throw e;
+    }});
+</script>
+</body>
+</html>
+"#
+        ),
+    )]
+}
+
+/// The `Contents` metadata a macOS bundle needs.
+///
+/// `packaging/Info.plist` is the model — this is that file reduced to what any
+/// application needs, with the project's own name, identifier and executable.
+/// `com.example` stays the prefix for exactly the reason `bundle_id` says: an
+/// identifier nobody should be able to publish by accident.
+fn macos(name: &str) -> Vec<(PathBuf, String)> {
+    let id = bundle_id(name);
+    vec![(
+        PathBuf::from("macos/Info.plist"),
+        format!(
+            r#"<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>CFBundleName</key>
+        <string>{name}</string>
+        <key>CFBundleIdentifier</key>
+        <string>{id}</string>
+        <!-- The binary `export::mac_app_bundle` copies to Contents/MacOS. -->
+        <key>CFBundleExecutable</key>
+        <string>{name}</string>
+        <key>CFBundlePackageType</key>
+        <string>APPL</string>
+        <!-- Matches [package].version in Cargo.toml; change them together. -->
+        <key>CFBundleShortVersionString</key>
+        <string>0.1.0</string>
+        <key>CFBundleVersion</key>
+        <string>0.1.0</string>
+        <key>LSMinimumSystemVersion</key>
+        <string>11.0</string>
+        <!-- A vieww app draws its own chrome and needs the real backing scale,
+             or every glyph is upscaled from 1x and soft on a Retina display. -->
+        <key>NSHighResolutionCapable</key>
+        <true/>
+</dict>
+</plist>
+"#
+        ),
+    )]
+}
+
+/// The two files a `.deb` is assembled from: `dpkg-deb`'s control, and the
+/// `.desktop` entry that puts the application in a launcher.
+fn linux(name: &str) -> Vec<(PathBuf, String)> {
+    let lib = lib_name(name);
+    let arch = debian_arch();
+    vec![
+        (
+            PathBuf::from("linux/control"),
+            format!(
+                r#"# dpkg-deb assembles the package from this; `dpkg -i` checks
+# the Architecture against the machine. It was written for {arch} —
+# change it when you package from a different machine, or `dpkg -i`
+# refuses with "package architecture does not match system".
+Package: {lib}
+Version: 0.1.0
+Section: utils
+Priority: optional
+Architecture: {arch}
+# A gnu-target binary links glibc; drop this line for a musl build,
+# which is static and needs nothing.
+Depends: libc6
+Maintainer: {name} <you@example.com>
+Description: {name}, built by vieww Studio
+Homepage: https://example.com/
+"#
+            ),
+        ),
+        (
+            PathBuf::from(format!("linux/{name}.desktop")),
+            format!(
+                r#"[Desktop Entry]
+Type=Application
+Name={name}
+# Resolved through $PATH, where the package installs the binary.
+Exec={name}
+Terminal=false
+Categories=Utility;
+"#
+            ),
+        ),
+    ]
 }
 
 #[cfg(test)]

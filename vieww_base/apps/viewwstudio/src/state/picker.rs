@@ -1071,6 +1071,11 @@ impl Studio {
             self.say_ai_dismiss();
         } else if self.say_prompt_open.peek() {
             self.say_prompt_open.set(false);
+        } else if self.keystore_prompt.peek() {
+            // The one-shot password prompt: Escape means "not that", and
+            // `cancel_keystore_prompt` clears what was typed rather than
+            // leaving it behind for a later dialog to find.
+            self.cancel_keystore_prompt();
         } else if self.name_prompt.peek().is_some() {
             self.close_name_prompt();
         } else if self.pending_delete.peek().is_some() {
@@ -1113,6 +1118,7 @@ impl Studio {
             || self.welcome.peek()
             || self.say_proposal.peek().is_some()
             || self.say_prompt_open.peek()
+            || self.keystore_prompt.peek()
             || self.name_prompt.peek().is_some()
             || self.pending_delete.peek().is_some()
             || self.context_menu.peek().is_some()

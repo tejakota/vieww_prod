@@ -648,6 +648,107 @@ impl Widget for NamePromptDialog {
 
 vieww_widget::widget_node_from!(NamePromptDialog);
 
+/// "What is the keystore's password?" — the one-shot prompt behind a
+/// release-signed APK export (ST-07).
+///
+/// One obscured field, two buttons, and a sentence about where the password
+/// goes and where it deliberately does not. It appears only when a release
+/// export was asked for and `VIEWW_KEYSTORE_PASSWORD` was not in the studio's
+/// environment, and confirming hands the value to the export's packaging step
+/// as that child's environment and clears it here in the same breath — the
+/// settings file never had it, the Output panel never prints it, and a
+/// cancelled prompt does not keep the half that was typed.
+#[derive(Debug)]
+pub struct KeystorePromptDialog {
+    pub studio: crate::state::Studio,
+}
+
+impl Widget for KeystorePromptDialog {
+    fn debug_name(&self) -> &'static str {
+        "KeystorePromptDialog"
+    }
+
+    fn kind(&self) -> WidgetKind<'_> {
+        WidgetKind::Composed
+    }
+
+    fn build(&self, ctx: &BuildContext) -> WidgetNode {
+        if !self.studio.keystore_prompt.get() {
+            return SizedBox::shrink().into();
+        }
+        let chrome = *StudioTheme::of(ctx);
+        let colors = ThemeData::of(ctx).colors;
+
+        let studio = self.studio.clone();
+        let submitting = self.studio.clone();
+        let field: WidgetNode = Container::new()
+            .color(chrome.chrome_1)
+            .radius(6.0)
+            .padding(EdgeInsets::symmetric(10.0, 8.0))
+            .border(Border {
+                color: chrome.line,
+                width: 1.0,
+            })
+            .child(
+                TextField::text(self.studio.keystore_password.get())
+                    .size(12.5)
+                    .style(
+                        TextStyle::new(12.5)
+                            .family(vieww_foundation::FontFamily::Monospace)
+                            .color(colors.on_surface),
+                    )
+                    // `obscure`, not a smaller font or a wider field: the
+                    // framework's mask shapes the caret, the selection and the
+                    // hit tests against what is on screen, stops the field
+                    // copying or cutting itself, and tells a screen reader a
+                    // count rather than the characters.
+                    .obscure(true)
+                    .single_line()
+                    .placeholder("the keystore's password")
+                    .semantics_label("Keystore password")
+                    .selection_color(chrome.selection)
+                    .cursor(colors.primary, 2.0)
+                    .on_changed(std::rc::Rc::new(
+                        move |value: vieww_foundation::TextEditingValue| {
+                            studio.set_keystore_password(value.text);
+                        },
+                    ))
+                    // Enter is what a password field's confirm key has always
+                    // been; the button below is the same action.
+                    .on_submit(std::rc::Rc::new(move |_value: String| {
+                        submitting.confirm_keystore_prompt();
+                    })),
+            )
+            .into();
+
+        let confirming = self.studio.clone();
+        let cancelling = self.studio.clone();
+        let mut dialog = Dialog::new(
+            crate::i18n::t("Android release signing"),
+            crate::i18n::t(
+                "The password is handed to the packaging step and forgotten — it is \
+                 never written to the settings, and the Output panel never sees it.",
+            )
+            .to_owned(),
+        );
+        dialog.body = Some(field);
+        dialog
+            .action(Action::new(
+                crate::i18n::t("Sign the package"),
+                Tone::Primary,
+                move || confirming.confirm_keystore_prompt(),
+            ))
+            .action(Action::new(
+                crate::i18n::t("Cancel"),
+                Tone::Neutral,
+                move || cancelling.cancel_keystore_prompt(),
+            ))
+            .into()
+    }
+}
+
+vieww_widget::widget_node_from!(KeystorePromptDialog);
+
 /// "Move this to the trash?"
 ///
 /// The confirmation that made `delete_to_trash` reachable. Worth being exact

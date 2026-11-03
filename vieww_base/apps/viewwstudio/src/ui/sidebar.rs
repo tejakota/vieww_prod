@@ -1383,8 +1383,11 @@ impl Sidebar {
         );
 
         for format in Format::ALL {
+            // `configured_env`, matching `start_export`: the sheet and the
+            // action it launches have to agree about where the toolchain is,
+            // or the row can be clickable and refuse anyway.
             let refusal = export::plan(
-                &self.studio.build_env,
+                &self.studio.configured_env(),
                 root,
                 name.as_deref().unwrap_or_default(),
                 format,

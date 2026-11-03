@@ -98,6 +98,8 @@ fn ready(host: Host, bin: &Path) -> Env {
         "javac",
         "xcodebuild",
         "xcrun",
+        "wasm-bindgen",
+        "dpkg-deb",
     ] {
         let path = bin.join(tool);
         std::fs::write(&path, "").expect("write stub");
@@ -127,6 +129,7 @@ fn ready(host: Host, bin: &Path) -> Env {
             "aarch64-linux-android".into(),
             "aarch64-apple-ios".into(),
             "aarch64-apple-ios-sim".into(),
+            "wasm32-unknown-unknown".into(),
         ]),
         signing_identity: Probed::Given(Some("Apple Development: Test (TEAMID)".into())),
     }
@@ -140,6 +143,9 @@ fn every_directory_an_export_step_runs_in_is_one_the_scaffolder_wrote() {
     let project = Project::new("my-app");
     for (format, host) in [
         (Format::DesktopBinary, Host::Linux),
+        (Format::MacAppBundle, Host::MacOs),
+        (Format::LinuxDeb, Host::Linux),
+        (Format::Web, Host::Linux),
         (Format::AndroidApk, Host::Linux),
         (Format::IosSimulatorApp, Host::MacOs),
         (Format::IosIpa, Host::MacOs),
@@ -326,6 +332,7 @@ fn the_generated_xml_and_property_lists_parse() {
         "ios/App/Info.plist",
         "ios/ExportOptions.plist",
         "ios/my-app.xcodeproj/xcshareddata/xcschemes/my-app.xcscheme",
+        "macos/Info.plist",
     ] {
         let text = std::fs::read_to_string(project.root.join(relative))
             .unwrap_or_else(|_| panic!("reading {relative}"));
@@ -361,11 +368,17 @@ fn the_project_file_is_balanced_and_every_reference_resolves() {
         .collect();
     assert!(ids.len() > 10, "this file is made of these: {}", ids.len());
 
-    // Defined = appears at the head of an object, which in this format is the
-    // identifier followed by ` = {` or ` /* … */ = {`.
+    // Defined = appears at the head of an object, which in this format is a
+    // line whose first token is the identifier and which assigns an object
+    // (`{id} = {` or `{id} /* … */ = {`). Matched on the trimmed line rather
+    // than a fixed indent: the file's indentation is generated, and a check
+    // that read it as structure would break the day it changed without the
+    // graph changing at all.
     for id in &ids {
-        let defined =
-            text.contains(&format!("\n\t\t{id} = {{")) || text.contains(&format!("\n\t\t{id} /*"));
+        let defined = text.lines().any(|line| {
+            let line = line.trim_start();
+            line.starts_with(id) && line.contains("= {")
+        });
         assert!(defined, "{id} is referenced but never defined");
     }
 
@@ -452,8 +465,232 @@ fn well_formed(text: &str, what: &str) {
     assert!(stack.is_empty(), "{what}: unclosed {stack:?}");
 }
 
-/// Every path under `android/` and `ios/` belongs to `harness`, so a stray file
-/// written by something else would show up here.
+#[test]
+fn the_web_plan_builds_what_the_scaffolded_page_mounts() {
+    // Three files have to agree on one module name, and none of them checks
+    // the others: the wasm cargo will emit (`my_app.wasm`, the *library's*
+    // name), the `.js` the page imports, and the `wasm-bindgen` invocation the
+    // plan runs. When they disagree the page boots forever on "booting…".
+    let project = Project::new("my-app");
+    let plan = export::plan(
+        &ready(Host::Linux, &project.bin()),
+        &project.root,
+        &project.name,
+        Format::Web,
+    )
+    .expect("a plan");
+
+    let glue = plan
+        .steps
+        .iter()
+        .find(|s| s.spec.program == "wasm-bindgen")
+        .expect("the bindgen step");
+    let wasm = glue
+        .spec
+        .args
+        .iter()
+        .find(|arg| arg.ends_with(".wasm"))
+        .expect("the .wasm it binds");
+    assert!(wasm.ends_with("my_app.wasm"), "{wasm}");
+
+    let page = std::fs::read_to_string(project.root.join("web/index.html")).expect("the page");
+    assert!(
+        page.contains("./my_app.js"),
+        "the page imports what bindgen will emit from my_app.wasm: {page}"
+    );
+    assert!(
+        page.contains(r#"id="vieww-canvas""#),
+        "the page carries the canvas the library's `start` mounts on"
+    );
+    // And the library really does mount on that id — the two ends of the web
+    // export, checked in one place so they cannot drift.
+    let lib = std::fs::read_to_string(project.root.join("src/lib.rs")).expect("the library");
+    assert!(
+        lib.contains(r#"WebSurface::by_id("vieww-canvas")"#),
+        "the library mounts the canvas the page carries: {lib}"
+    );
+}
+
+#[test]
+fn the_mac_bundle_lays_out_the_plist_the_scaffolder_wrote() {
+    let project = Project::new("my-app");
+    let plan = export::plan(
+        &ready(Host::MacOs, &project.bin()),
+        &project.root,
+        &project.name,
+        Format::MacAppBundle,
+    )
+    .expect("a plan");
+
+    let plist = std::fs::read_to_string(project.root.join("macos/Info.plist")).expect("the plist");
+    // The executable the bundle runs is the one the plan copies into
+    // `Contents/MacOS/`, and the identifier is the reserved one nobody can
+    // publish by accident.
+    assert!(plist.contains("<string>my-app</string>"), "{plist}");
+    assert!(
+        plist.contains("<string>com.example.my_app</string>"),
+        "{plist}"
+    );
+    let copy = plan
+        .steps
+        .iter()
+        .map(|s| s.spec.command_line())
+        .find(|line| line.contains("Info.plist"))
+        .expect("the plist copy");
+    assert!(copy.contains("Contents/Info.plist"), "{copy}");
+}
+
+#[test]
+fn the_deb_stages_the_control_and_desktop_the_scaffolder_wrote() {
+    let project = Project::new("my-app");
+    let plan = export::plan(
+        &ready(Host::Linux, &project.bin()),
+        &project.root,
+        &project.name,
+        Format::LinuxDeb,
+    )
+    .expect("a plan");
+
+    // The control file names this machine's architecture — `dpkg -i` refuses
+    // anything else, which is why the plan reads it before building.
+    let control = std::fs::read_to_string(project.root.join("linux/control")).expect("control");
+    let arch = viewwstudio::harness::debian_arch();
+    assert!(
+        control.contains(&format!("Architecture: {arch}")),
+        "the scaffolded control names this machine: {control}"
+    );
+    let package = control
+        .lines()
+        .find_map(|line| line.strip_prefix("Package: "))
+        .expect("a package name");
+    assert_eq!(package, "my_app", "the package is the library's name");
+
+    // Both staged files are the scaffolder's, under the paths dpkg-deb and a
+    // desktop expect respectively.
+    let lines: Vec<String> = plan.steps.iter().map(|s| s.spec.command_line()).collect();
+    assert!(
+        lines.iter().any(|l| l.contains("linux/control")),
+        "{lines:?}"
+    );
+    assert!(
+        lines
+            .iter()
+            .any(|l| l.contains("linux/my-app.desktop") && l.contains("applications")),
+        "the .desktop entry lands where launchers look: {lines:?}"
+    );
+    assert!(
+        project.root.join("linux/my-app.desktop").is_file(),
+        "the .desktop entry exists to be staged"
+    );
+}
+
+#[test]
+fn a_release_apk_signs_with_the_environment_the_scaffolded_gradle_reads() {
+    // Two ends of release signing, in one place: the plan hands Gradle
+    // VIEWW_KEYSTORE and VIEWW_KEYSTORE_ALIAS in its environment, and the
+    // scaffolder's build.gradle assembles its signingConfig from exactly those
+    // names. Neither file knows the other exists.
+    let project = Project::new("my-app");
+    let keystore = project.base.join("release.keystore");
+    std::fs::write(&keystore, "a keystore").expect("write keystore");
+    let mut env = ready(Host::Linux, &project.bin());
+    env.vars.insert(
+        viewwstudio::export::KEYSTORE_VAR.to_string(),
+        keystore.to_string_lossy().into_owned(),
+    );
+    env.vars.insert(
+        viewwstudio::export::KEYSTORE_ALIAS_VAR.to_string(),
+        "upload".into(),
+    );
+
+    let plan = export::plan(
+        &env,
+        &project.root,
+        &project.name,
+        Format::AndroidReleaseApk,
+    )
+    .expect("a plan");
+    let packaging = plan
+        .steps
+        .iter()
+        .find(|s| s.spec.label == "Package release APK")
+        .expect("the signing step");
+    assert!(
+        packaging
+            .spec
+            .args
+            .iter()
+            .any(|arg| arg == "assembleRelease"),
+        "the release build type is what gets assembled"
+    );
+    for var in [
+        viewwstudio::export::KEYSTORE_VAR,
+        viewwstudio::export::KEYSTORE_ALIAS_VAR,
+    ] {
+        assert!(
+            packaging.spec.env.iter().any(|(key, _)| key == var),
+            "{var} reaches the child Gradle reads"
+        );
+    }
+
+    let gradle =
+        std::fs::read_to_string(project.root.join("android/app/build.gradle")).expect("gradle");
+    for line in [
+        r#"System.getenv("VIEWW_KEYSTORE")"#,
+        r#"System.getenv("VIEWW_KEYSTORE_ALIAS")"#,
+        r#"System.getenv("VIEWW_KEYSTORE_PASSWORD")"#,
+    ] {
+        assert!(
+            gradle.contains(line),
+            "the generated Gradle reads the same variable the plan hands it: {line}"
+        );
+    }
+    // And the scaffolded library really does have a wasm entry for the page to
+    // start — the Web export's other half, present in the same project.
+    let lib = std::fs::read_to_string(project.root.join("src/lib.rs")).expect("the library");
+    assert!(
+        lib.contains("#[wasm_bindgen::prelude::wasm_bindgen(start)]"),
+        "the library has a browser entry point: {lib}"
+    );
+}
+
+#[test]
+fn the_scaffolded_cargo_manifest_gates_winit_off_the_web_target() {
+    // The wasm32 build fails inside winit unless the platform dependency is
+    // target-gated, and a manifest that looks right but is not is exactly the
+    // `export_check --only web` compile-level failure this guards against in
+    // the meantime.
+    let project = Project::new("my-app");
+    let manifest = std::fs::read_to_string(project.root.join("Cargo.toml")).expect("the manifest");
+    // The universal table: from the `[dependencies]` header to the next table
+    // header, with `#` comment lines dropped — a comment that *names* the
+    // gated dependency (as the one explaining the gating does) is not a
+    // dependency, and counting it as one would make this test assert nothing.
+    let dependencies = manifest
+        .split("[dependencies]\n")
+        .nth(1)
+        .unwrap_or_default()
+        .lines()
+        .take_while(|line| !line.trim_start().starts_with('['))
+        .filter(|line| !line.trim_start().starts_with('#'))
+        .collect::<Vec<&str>>()
+        .join("\n");
+    assert!(
+        !dependencies.contains("vieww-platform-winit"),
+        "the winit platform is not in the universal table:\n{dependencies}"
+    );
+    assert!(
+        manifest.contains("[target.'cfg(not(target_arch = \"wasm32\"))'.dependencies]"),
+        "it is gated to the non-web targets:\n{manifest}"
+    );
+    assert!(
+        manifest.contains("[target.'cfg(target_arch = \"wasm32\")'.dependencies]"),
+        "the web platform has its own table:\n{manifest}"
+    );
+}
+
+/// Every path under `android/`, `ios/`, `web/`, `macos/` and `linux/` belongs
+/// to `harness`, so a stray file written by something else would show up here.
 #[test]
 fn the_harness_module_owns_every_platform_file() {
     let project = Project::new("my-app");
@@ -462,7 +699,7 @@ fn the_harness_module_owns_every_platform_file() {
         .map(|(path, _)| project.root.join(path))
         .collect();
 
-    for dir in ["android", "ios"] {
+    for dir in ["android", "ios", "web", "macos", "linux"] {
         walk(&project.root.join(dir), &mut |path| {
             assert!(
                 generated.contains(&path.to_path_buf()),

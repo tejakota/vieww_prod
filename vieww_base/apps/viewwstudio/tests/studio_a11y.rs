@@ -49,7 +49,7 @@
 use std::time::Duration;
 
 use vieww_element::Runtime;
-use vieww_foundation::{KeyEvent, Modifiers, NamedKey, Size, TargetPlatform};
+use vieww_foundation::{KeyEvent, Modifiers, NamedKey, TargetPlatform};
 use vieww_render::FrameDriver;
 use viewwstudio::command::Command;
 use viewwstudio::state::{PaletteEntry, PanelTab, RightTab, Studio, View};
@@ -106,6 +106,16 @@ fn shell_states() -> Vec<(&'static str, Box<dyn Fn(&Studio)>)> {
         ("find-and-replace", Box::new(|s| s.run(Command::Replace))),
         ("name-prompt", Box::new(|s| s.run(Command::Save))),
         ("say-prompt", Box::new(|s| s.run(Command::SayPrompt))),
+        // ST-07: the one-shot keystore password prompt — its field is the one
+        // control in the studio whose *content* must never reach the audit's
+        // own report, and the one whose label the audit has to find.
+        (
+            "keystore-prompt",
+            Box::new(|s| {
+                s.keystore_prompt.set(true);
+                s.set_keystore_password("typed".into());
+            }),
+        ),
         ("welcome", Box::new(|s| s.welcome.set(true))),
         ("about", Box::new(|s| s.about.set(true))),
         (
@@ -324,7 +334,7 @@ fn arrows_and_enter_reach_every_palette_command() {
 /// user at the bottom of the window with nothing left to reach.
 #[test]
 fn tab_reaches_every_focusable_control_and_closes_the_cycle() {
-    let (mut driver, studio) = mounted();
+    let (mut driver, _studio) = mounted();
 
     let start = driver.focused().expect("focus was seeded at launch");
     let mut presses = 0;

@@ -2360,6 +2360,20 @@ pub struct Studio {
     pub say_prompt_open: Signal<bool>,
     /// What has been typed into the prompt box.
     pub say_prompt_text: Signal<String>,
+    /// ST-07: true while the one-shot keystore password prompt is up, opened
+    /// by a release-signed APK export that found no password in the studio's
+    /// own environment.
+    ///
+    /// The password itself lives in [`Self::keystore_password`], and for as
+    /// short a time as the signal can manage: it is handed to the export's
+    /// packaging step as that child's environment and cleared in the same
+    /// breath — never written to settings, never printed to the Output panel,
+    /// never left in a signal for a later dialog to find. See
+    /// `settings::Settings::keystore_alias` for the policy this completes.
+    pub keystore_prompt: Signal<bool>,
+    /// What has been typed into the keystore prompt. See [`Self::keystore_prompt`]
+    /// for how briefly it is meant to exist.
+    pub keystore_password: Signal<String>,
     /// A proposal that survived verification, awaiting the diff approval
     /// dialog. `None` when no proposal is on the table.
     pub say_proposal: Signal<Option<crate::say_ai::Proposal>>,
@@ -2847,6 +2861,8 @@ impl Studio {
             ))),
             say_prompt_open: runtime.signal(false),
             say_prompt_text: runtime.signal(String::new()),
+            keystore_prompt: runtime.signal(false),
+            keystore_password: runtime.signal(String::new()),
             say_proposal: runtime.signal(None),
             say_job: std::rc::Rc::new(std::cell::RefCell::new(None)),
             live_state: crate::live::LiveState::new(runtime),

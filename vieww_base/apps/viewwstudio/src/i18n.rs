@@ -232,6 +232,11 @@ const SPANISH: &[(&str, &str)] = &[
     // ST-13: plugins (plugin.rs / state/plugins.rs).
     ("Reload Studio Plugins", "Recargar los plugins del estudio"),
     ("that plugin is not loaded — reload plugins and try again", "ese plugin no está cargado: recarga los plugins e inténtalo de nuevo"),
+    // ST-07: the one-shot keystore password prompt (ui/dialog.rs).
+    ("Android release signing", "Firma para Android"),
+    ("The password is handed to the packaging step and forgotten — it is never written to the settings, and the Output panel never sees it.", "La contraseña se entrega al paso de empaquetado y se olvida: nunca se escribe en los ajustes y el panel de salida nunca la ve."),
+    ("Sign the package", "Firmar el paquete"),
+    ("no password typed — the release export was not started", "no se escribió ninguna contraseña: la exportación para publicación no comenzó"),
     ("that plugin command works on a buffer, and none is open", "ese comando del plugin necesita un búfer, y no hay ninguno abierto"),
     ("Open a project folder first — collaboration shares one of its files.", "Abre primero una carpeta del proyecto: la colaboración comparte uno de sus archivos."),
     ("A scratch buffer cannot be shared — save it into the project first.", "Un búfer provisional no se puede compartir: guárdalo antes en el proyecto."),
@@ -681,6 +686,11 @@ const FRENCH: &[(&str, &str)] = &[
     // ST-13 : plugins (plugin.rs / state/plugins.rs).
     ("Reload Studio Plugins", "Recharger les plugins du studio"),
     ("that plugin is not loaded — reload plugins and try again", "ce plugin n'est pas chargé — rechargez les plugins et réessayez"),
+    // ST-07: the one-shot keystore password prompt (ui/dialog.rs).
+    ("Android release signing", "Signature Android"),
+    ("The password is handed to the packaging step and forgotten — it is never written to the settings, and the Output panel never sees it.", "Le mot de passe est transmis à l'étape d'empaquetage puis oublié — il n'est jamais écrit dans les réglages, et le panneau de sortie ne le voit jamais."),
+    ("Sign the package", "Signer le paquet"),
+    ("no password typed — the release export was not started", "aucun mot de passe saisi — l'export signé n'a pas démarré"),
     ("that plugin command works on a buffer, and none is open", "cette commande de plugin agit sur un tampon, et aucun n'est ouvert"),
     ("Open a project folder first — collaboration shares one of its files.", "Ouvrez d'abord un dossier de projet — la collaboration partage l'un de ses fichiers."),
     ("A scratch buffer cannot be shared — save it into the project first.", "Un tampon de brouillon ne peut pas être partagé — enregistrez-le d'abord dans le projet."),
@@ -1081,6 +1091,11 @@ const GERMAN: &[(&str, &str)] = &[
     // ST-13: Plugins (plugin.rs / state/plugins.rs).
     ("Reload Studio Plugins", "Studio-Plugins neu laden"),
     ("that plugin is not loaded — reload plugins and try again", "dieses Plugin ist nicht geladen – laden Sie die Plugins neu und versuchen Sie es erneut"),
+    // ST-07: the one-shot keystore password prompt (ui/dialog.rs).
+    ("Android release signing", "Android-Releasesignatur"),
+    ("The password is handed to the packaging step and forgotten — it is never written to the settings, and the Output panel never sees it.", "Das Passwort wird an den Paketierungsschritt übergeben und danach vergessen — es wird nie in die Einstellungen geschrieben, und das Ausgabefenster sieht es nie."),
+    ("Sign the package", "Paket signieren"),
+    ("no password typed — the release export was not started", "kein Passwort eingegeben — der Release-Export wurde nicht gestartet"),
     ("that plugin command works on a buffer, and none is open", "dieses Plugin-Kommando braucht einen Puffer, und es ist keiner offen"),
     ("Open a project folder first — collaboration shares one of its files.", "Öffnen Sie zuerst einen Projektordner – die Zusammenarbeit teilt eine seiner Dateien."),
     ("A scratch buffer cannot be shared — save it into the project first.", "Ein Entwurfspuffer lässt sich nicht teilen – speichern Sie ihn zuerst ins Projekt."),
