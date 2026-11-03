@@ -26,7 +26,7 @@
 //! # The `model` feature
 //!
 //! With `--features model` the crate grows the rest of §5.3's checklist:
-//! [`qwen`] is Qwen3-0.6B in GGUF on Candle's CPU device — loaded only
+//! `qwen` is Qwen3-0.6B in GGUF on Candle's CPU device — loaded only
 //! after its digest matches its manifest, running on a worker thread
 //! with a cancellation token and a timeout, emitting contract-validated
 //! structured output or an honest error. A default build (and every APK
@@ -179,7 +179,7 @@ impl Runtime for Deterministic {
     }
 }
 
-/// The assessment as its schema-carrying JSON — the shape [`u_memory`]
+/// The assessment as its schema-carrying JSON — the shape `u_memory`
 /// persists and the shape a model runtime will be required to emit before
 /// it is trusted.
 ///

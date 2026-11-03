@@ -225,7 +225,7 @@ impl Input {
 /// A persona preference the engine is allowed to use, passed in as a plain
 /// hint rather than a persona crate type.
 ///
-/// [`u-decision`] deliberately does not depend on `u-persona`: the engine
+/// `u-decision` deliberately does not depend on `u-persona`: the engine
 /// consumes *evidence about a person*, not a data structure that happens to
 /// live in another crate — which is what keeps both replaceable and both
 /// testable alone.

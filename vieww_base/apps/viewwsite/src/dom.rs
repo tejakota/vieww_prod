@@ -256,8 +256,7 @@ fn mark(side: f32) -> WidgetNode {
     // repository puts them. See `.vw-mark` in `index.html`.
     Styled::class(
         "vw-mark",
-        base.child(
-            Stack::new().fit(StackFit::Expand).children(children![
+        base.child(Stack::new().fit(StackFit::Expand).children(children![
                 Styled::class(
                     "vw-mark-a",
                     at(0.16, 0.20, 0.40, 0.60, Container::new().color(panel))
@@ -285,8 +284,7 @@ fn mark(side: f32) -> WidgetNode {
                             ))
                     )
                 ),
-            ]),
-        ),
+            ])),
     )
     .into()
 }

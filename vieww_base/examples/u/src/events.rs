@@ -2,7 +2,7 @@
 //! rewritten.
 //!
 //! This is the seed of the event-sourced core the screens front, shrunk until
-//! it fits a prototype. An [`Event`] is a fact that happened; [`AppState`]'s
+//! it fits a prototype. An [`Event`] is a fact that happened; `AppState`'s
 //! `apply` is the fold; the file is the only memory. Nothing else in the app
 //! is allowed to remember anything across a restart, which is what keeps the
 //! log honest: if a fact is not in the file, it did not happen. It is also

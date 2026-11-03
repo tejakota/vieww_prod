@@ -17,7 +17,7 @@
 //!
 //! The prompt must start on the Java main thread. `authenticate` is called
 //! there already — a tap handler — so it posts the start through
-//! [`AndroidApp::run_on_java_main_thread`] and hands the *waiting* to a
+//! `AndroidApp::run_on_java_main_thread` and hands the *waiting* to a
 //! worker, which polls the shim until the sheet settles. The worker carries
 //! only raw JNI globals (`Raw`, `Copy`), which is how it is `Send` without
 //! any of the app's `Rc` state crossing threads.

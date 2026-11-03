@@ -541,6 +541,7 @@ mod tests {
                       \x20           a heading \"A note\"\n\
                       \x20           a text \"Extract me\", color #3366FF\n\
                       \x20       a text \"Stays\"\n";
+        crate::compile("home.say", screen).expect("the screen before extraction compiles");
         // The picked subtree, as the studio would hand it over: original
         // indentation, taken verbatim out of the buffer.
         let subtree = "    a card, padded 12:\n\

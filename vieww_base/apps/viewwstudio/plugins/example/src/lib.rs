@@ -307,7 +307,7 @@ fn plan_tarball(root: &str, name: &str) -> String {
 /// reader treats as "no answer", rather than an unwind across `extern "C"`,
 /// which is undefined behaviour.
 fn guarded(body: impl FnOnce() -> *mut c_char) -> *mut c_char {
-    catch_unwind(AssertUnwindSafe(body)).unwrap_or_else(|_| std::ptr::null_mut())
+    catch_unwind(AssertUnwindSafe(body)).unwrap_or(std::ptr::null_mut())
 }
 
 /// Copy `text` into memory this plugin owns, as the ABI's answer shape.

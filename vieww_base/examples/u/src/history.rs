@@ -64,14 +64,12 @@ impl HistoryScreen {
                     .collect::<std::collections::HashSet<_>>()
             })
             .unwrap_or_default();
-        let records = match if self.saved_only {
+        let records = if self.saved_only {
             engine.saved_decisions()
         } else {
             engine.decisions()
-        } {
-            Ok(records) => records,
-            Err(_) => Vec::new(),
-        };
+        }
+        .unwrap_or_default();
         let is_saved = |id: u64| saved_ids.contains(&id);
         drop(engine);
 
@@ -205,7 +203,7 @@ fn row(
         // Built inside: the press builder runs on every press, so nothing
         // here is moved out of a capture.
         let chip: WidgetNode = if saved {
-            saved_chip().into()
+            saved_chip()
         } else {
             SizedBox::shrink().into()
         };

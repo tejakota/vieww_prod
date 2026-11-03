@@ -139,6 +139,9 @@ impl StateType {
     }
 }
 
+/// One reshaped type: its path, then the old and new `(size, align)`.
+pub(crate) type Reshaped = (String, (usize, usize), (usize, usize));
+
 /// Which state types moved between two builds, for the restart a
 /// [`Verdict::Restart`] owes an explanation to.
 ///
@@ -157,7 +160,7 @@ pub struct StateDiff {
     ///
     /// Each entry is the path plus the old and new `(size, align)`, so the
     /// message can say what moved rather than only that something did.
-    pub reshaped: Vec<(String, (usize, usize), (usize, usize))>,
+    pub reshaped: Vec<Reshaped>,
     /// Type paths the new build declares that the old one did not.
     pub added: Vec<String>,
     /// Type paths the old build declared that the new one dropped.

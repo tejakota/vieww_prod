@@ -167,7 +167,7 @@ pub struct AppState {
     /// Training sessions today — the sketch's answers and the day's own, reset
     /// by the first event of a new UTC day.
     pub sessions: Signal<u32>,
-    /// Answers recorded, ever — the sketch is the first [`ask::ASKS.len()`]
+    /// Answers recorded, ever — the sketch is the first `ask::ASKS.len()`
     /// of them, and this number is the only thing that decides which phase
     /// home is in.
     pub answers: Signal<u32>,
@@ -259,7 +259,7 @@ impl AppState {
         self.commit(events::Event::SketchSeen);
     }
 
-    /// Dismiss home's nudge for this session. Not an event — see [`nudge`].
+    /// Dismiss home's nudge for this session. Not an event — see `nudge`.
     pub fn dismiss_nudge(&self) {
         self.nudge.set(false);
     }

@@ -38,6 +38,8 @@ use crate::scale::Scale;
 /// The demo screen, unchanged, exactly as the desktop and phone entry points
 /// build it — one copy, so the fixture cannot drift from the app the live leg
 /// runs (`#[path]`, the same trick `examples/desktop.rs` uses).
+// The fixture only reads the tree, so most of the app's screen API is unused here.
+#[allow(dead_code)]
 #[path = "../../examples/shared/screen.rs"]
 mod screen;
 

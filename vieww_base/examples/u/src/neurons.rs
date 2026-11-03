@@ -243,7 +243,7 @@ pub struct Reveal {
     /// The eye's scale-in, `0..1`.
     pub eye: f32,
     /// How far each tendril has grown from the eye outward, `0..1`, in
-    /// [`STRANDS`] order. Within a tendril the growth is sequential: stem
+    /// `STRANDS` order. Within a tendril the growth is sequential: stem
     /// first, branches after.
     pub strands: [f32; 6],
     /// The atmosphere — rings, aura pulse, sparks, the float — fading in,

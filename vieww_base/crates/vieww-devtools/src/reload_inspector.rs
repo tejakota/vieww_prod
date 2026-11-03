@@ -4,7 +4,7 @@
 //!
 //! # What this counts, and why those numbers
 //!
-//! A host's [`Reloaded`](vieww_reload::Reloaded) match already divides every
+//! A host's `Reloaded` match already divides every
 //! poll into the outcomes that matter:
 //!
 //! - `Root` — the tree survived. The **state-preservation rate** is the
@@ -202,7 +202,7 @@ impl ReloadReport {
 
 #[cfg(test)]
 mod tests {
-    use super::{ReloadLedger, ReloadOutcome, ReloadReport};
+    use super::{ReloadLedger, ReloadOutcome};
 
     /// The session the module docs describe: 10 clean reloads that all kept
     /// state, 40 broken builds. The rate is 100%, not 20%.

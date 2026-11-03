@@ -1197,12 +1197,11 @@ mod tests {
             let compiled = crate::compile("t.say", &file)
                 .unwrap_or_else(|d| panic!("{before:?} -> {after:?} does not compile: {d:?}"));
             let reread = parse_widget_lines(&file);
-            let found = reread[0]
-                .props
-                .iter()
-                .any(|p| *p == prop)
-                .then(|| format!("{prop:?} is on the line"))
-                .unwrap_or_else(|| format!("{:?} in {:?}", prop, reread[0].props));
+            let found = if reread[0].props.contains(&prop) {
+                format!("{prop:?} is on the line")
+            } else {
+                format!("{:?} in {:?}", prop, reread[0].props)
+            };
             assert!(found.contains("is on the line"), "{rewritten:?}: {found}");
             let _ = compiled;
         }
