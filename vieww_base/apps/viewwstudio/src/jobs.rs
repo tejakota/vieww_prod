@@ -67,6 +67,11 @@ pub enum Follow {
     /// plan half-run is application state and this module is deliberately
     /// stateless about *why* anything runs.
     ExportStep,
+    /// One step of a device mirror finished (ST-08): the install, the launch,
+    /// the screenshot, the pull, the clean-up. The studio advances the mirror
+    /// the same way it advances an export — the step list lives there, for the
+    /// same reason [`ExportStep`](Self::ExportStep)'s plan does.
+    MirrorStep,
     /// The job's stdout is a listing to be parsed rather than read — `adb
     /// devices`, and anything like it. The lines are on the job, which is what
     /// [`capture`](Queue::capture) is for.

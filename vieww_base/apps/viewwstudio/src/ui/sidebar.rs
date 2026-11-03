@@ -1566,6 +1566,12 @@ impl Sidebar {
                 if let Some(artefact) = self.studio.artefact.get() {
                     let studio = self.studio.clone();
                     let device = device.clone();
+                    // ST-08: the mirror button's own clones, taken before the
+                    // Install closure below moves `device` — a second button
+                    // on the same row, not a second borrow of the first one's.
+                    let mirror_studio = self.studio.clone();
+                    let mirror_device = device.clone();
+                    let mirror_label = mirror_device.name.clone();
                     let name = artefact
                         .file_name()
                         .map_or_else(String::new, |n| n.to_string_lossy().into_owned());
@@ -1590,12 +1596,52 @@ impl Sidebar {
                             ))
                             .into(),
                     );
+                    // ST-08: the same artefact, one step further — install,
+                    // launch, screenshot, and the phone's own pixels back in
+                    // the preview pane. Beside Install rather than above it,
+                    // because it *is* Install plus a question: did it look
+                    // right on the real thing?
+                    rows.push(
+                        Container::new()
+                            .padding(EdgeInsets::only(12.0, 0.0, 12.0, 6.0))
+                            .child(clickable(
+                                move || {
+                                    Container::new()
+                                        .height(26.0)
+                                        .radius(5.0)
+                                        .border(Border {
+                                            color: colors.primary,
+                                            width: 1.0,
+                                        })
+                                        .alignment(Alignment::CENTER)
+                                        .child(label(
+                                            &format!("Mirror preview on {mirror_label}"),
+                                            11.0,
+                                            colors.primary,
+                                        ))
+                                        .into()
+                                },
+                                move || mirror_studio.start_mirror(&mirror_device),
+                            ))
+                            .into(),
+                    );
                 }
             }
         }
         rows.push(button_row("Scan for devices", colors, {
             let studio = self.studio.clone();
             move || studio.scan_devices()
+        }));
+        // ST-08: the farm, one deliberate button rather than anything
+        // automatic — every run spends real device minutes. It runs the
+        // *framework's* conformance app on low/mid/high phones, which is what
+        // makes the studio's own preview claim checkable on real hardware;
+        // the notice after dispatching says so, because a button in the Export
+        // view that let that be misread would be a button that lied by
+        // adjacency.
+        rows.push(button_row("Verify on 3 devices (device farm)", colors, {
+            let studio = self.studio.clone();
+            move || studio.dispatch_farm("android", 3)
         }));
 
         Flex::column()

@@ -10,7 +10,7 @@
 //! not as state hidden inside a widget.
 
 use std::cell::RefCell;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 use vieww_element::{Memo, Runtime, ScrollController, Signal};
@@ -46,6 +46,7 @@ mod buffers;
 mod canvas_edit;
 mod collab;
 mod commands;
+mod device;
 mod editing;
 mod export;
 mod files;
@@ -984,6 +985,41 @@ pub struct ExportRun {
     /// The index of the step to start next. Equal to `plan.steps.len()` once
     /// every step has been started.
     pub next: usize,
+}
+
+/// A device mirror part-way through (ST-08): which phone, which steps, and
+/// where the screenshot will land.
+///
+/// The same shape as [`ExportRun`] for the same reason: a run half-done is
+/// application state, and the module that planned it (`export`) knows nothing
+/// about what happened to the plan it handed over.
+#[derive(Debug, Clone)]
+pub struct MirrorRun {
+    /// The device the steps address — kept rather than re-read from
+    /// `devices`, which a re-scan can change under a running mirror.
+    pub device: crate::export::Device,
+    /// The `adb` steps: install, launch, screenshot, pull, clean up.
+    pub steps: Vec<crate::task::Spec>,
+    /// The index of the step to start next.
+    pub next: usize,
+    /// Where `pull` writes the PNG; decoded into `device_mirror` when the
+    /// last step succeeds.
+    pub png: PathBuf,
+}
+
+/// A screenshot a completed mirror pulled back from a device (ST-08), decoded
+/// and ready for the preview pane.
+///
+/// A receipt, not a live frame: it is the pixels the phone had at the moment
+/// of the screencap, and the pane that shows it says so — the comparison with
+/// the preview is the eye's, which is the honest first version of
+/// "it looked right in the preview".
+#[derive(Debug, Clone)]
+pub struct MirrorFrame {
+    /// The device's human name, as the scan reported it.
+    pub device: String,
+    /// The screenshot, decoded.
+    pub image: vieww_foundation::Image,
 }
 
 /// Which line `offset` falls on, counting from zero.
@@ -2587,6 +2623,15 @@ pub struct Studio {
     /// printed to the Output panel and dropped, so `install_on` had a device
     /// and no artefact to put on it.
     pub artefact: Signal<Option<std::path::PathBuf>>,
+    /// ST-08: the device mirror being run, if any — its steps and how far
+    /// through it is. See [`MirrorRun`].
+    pub mirror_run: Rc<RefCell<Option<MirrorRun>>>,
+    /// ST-08: the screenshot the last completed mirror pulled back, shown in
+    /// the preview pane until it is cleared. `None` whenever no mirror has
+    /// finished (or the last one failed: a stale screenshot from a phone that
+    /// has since been unplugged is a receipt for a machine nobody is looking
+    /// at).
+    pub device_mirror: Signal<Option<Rc<MirrorFrame>>>,
     /// What `git status` last said. Empty until a scan has run.
     pub git: Signal<Rc<crate::git::Status>>,
     /// Whether a scan has ever completed, so an empty list can say which kind
@@ -3004,6 +3049,8 @@ impl Studio {
             devices: runtime.signal(Rc::new(Vec::new())),
             devices_scanned: runtime.signal(false),
             artefact: runtime.signal(None),
+            mirror_run: Rc::new(RefCell::new(None)),
+            device_mirror: runtime.signal(None),
             git: runtime.signal(Rc::new(crate::git::Status::default())),
             git_scanned: runtime.signal(false),
             commit_message: runtime.signal(String::new()),

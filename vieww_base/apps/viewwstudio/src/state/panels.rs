@@ -244,6 +244,22 @@ impl Studio {
                 }
             }
             crate::jobs::Follow::ExportStep => self.advance_export(ok),
+            crate::jobs::Follow::MirrorStep => {
+                // The launch step is judged by more than its exit code:
+                // `am start -W` can exit 0 and still have failed (an old
+                // device's shell, a wrapper around adb), so when the step's
+                // captured output carries am's own verdict — a `Status:` line
+                // that is not ok, or the `Error:` line a renamed package
+                // produces — that output decides. The other mirror steps
+                // print nothing am-shaped, so the rule never fires for them.
+                let captured = self
+                    .jobs
+                    .borrow()
+                    .job(id)
+                    .map(crate::jobs::Job::captured)
+                    .unwrap_or_default();
+                self.advance_mirror(ok && !crate::export::mirror_step_output_failed(&captured));
+            }
             crate::jobs::Follow::Listing => self.read_device_listing(id),
             crate::jobs::Follow::GitStatus => self.read_git_status(id),
             // Whatever it did, the status is now stale. Asking again is one

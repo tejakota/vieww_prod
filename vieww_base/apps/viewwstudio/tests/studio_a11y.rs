@@ -90,6 +90,9 @@ fn errors_in(studio: &Studio) -> Vec<String> {
         .collect()
 }
 
+/// A step that puts the shell into one of the states the gate walks.
+type ShellState = Box<dyn Fn(&Studio)>;
+
 /// The shell states the gate walks.
 ///
 /// Chosen for *coverage of controls*, not of views: every state here mounts
@@ -99,7 +102,7 @@ fn errors_in(studio: &Studio) -> Vec<String> {
 /// body holds fields or buttons of its own. A view that shares its controls
 /// with one already listed adds nothing to the audit; a view that adds one
 /// unlabeled field would fail the build here.
-fn shell_states() -> Vec<(&'static str, Box<dyn Fn(&Studio)>)> {
+fn shell_states() -> Vec<(&'static str, ShellState)> {
     vec![
         ("fresh", Box::new(|_| {})),
         ("palette", Box::new(|s| s.run(Command::CommandPalette))),

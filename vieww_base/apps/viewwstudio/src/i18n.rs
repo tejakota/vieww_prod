@@ -237,6 +237,10 @@ const SPANISH: &[(&str, &str)] = &[
     ("The password is handed to the packaging step and forgotten — it is never written to the settings, and the Output panel never sees it.", "La contraseña se entrega al paso de empaquetado y se olvida: nunca se escribe en los ajustes y el panel de salida nunca la ve."),
     ("Sign the package", "Firmar el paquete"),
     ("no password typed — the release export was not started", "no se escribió ninguna contraseña: la exportación para publicación no comenzó"),
+    // ST-08: the mirrored screenshot (ui/preview.rs, state/device.rs).
+    ("a screenshot from the phone, not a render — the comparison with the preview below is yours", "una captura del teléfono, no un renderizado — la comparación con la vista previa de abajo es tuya"),
+    ("dismiss", "descartar"),
+    ("device farm dispatched on {} phone(s) — it runs the framework's own conformance app, not this project; results land on ci-runs/device-farm-main and in the run's artifacts", "granja de dispositivos despachada en {} teléfono(s) — ejecuta la aplicación de conformidad del framework, no este proyecto; los resultados llegan a ci-runs/device-farm-main y a los artefactos de la ejecución"),
     ("that plugin command works on a buffer, and none is open", "ese comando del plugin necesita un búfer, y no hay ninguno abierto"),
     ("Open a project folder first — collaboration shares one of its files.", "Abre primero una carpeta del proyecto: la colaboración comparte uno de sus archivos."),
     ("A scratch buffer cannot be shared — save it into the project first.", "Un búfer provisional no se puede compartir: guárdalo antes en el proyecto."),
@@ -691,6 +695,10 @@ const FRENCH: &[(&str, &str)] = &[
     ("The password is handed to the packaging step and forgotten — it is never written to the settings, and the Output panel never sees it.", "Le mot de passe est transmis à l'étape d'empaquetage puis oublié — il n'est jamais écrit dans les réglages, et le panneau de sortie ne le voit jamais."),
     ("Sign the package", "Signer le paquet"),
     ("no password typed — the release export was not started", "aucun mot de passe saisi — l'export signé n'a pas démarré"),
+    // ST-08 : la capture miroir (ui/preview.rs, state/device.rs).
+    ("a screenshot from the phone, not a render — the comparison with the preview below is yours", "une capture du téléphone, pas un rendu — la comparaison avec l'aperçu ci-dessous est la vôtre"),
+    ("dismiss", "fermer"),
+    ("device farm dispatched on {} phone(s) — it runs the framework's own conformance app, not this project; results land on ci-runs/device-farm-main and in the run's artifacts", "ferme d'appareils lancée sur {} téléphone(s) — elle exécute l'application de conformité du framework, pas ce projet ; les résultats arrivent sur ci-runs/device-farm-main et dans les artefacts de l'exécution"),
     ("that plugin command works on a buffer, and none is open", "cette commande de plugin agit sur un tampon, et aucun n'est ouvert"),
     ("Open a project folder first — collaboration shares one of its files.", "Ouvrez d'abord un dossier de projet — la collaboration partage l'un de ses fichiers."),
     ("A scratch buffer cannot be shared — save it into the project first.", "Un tampon de brouillon ne peut pas être partagé — enregistrez-le d'abord dans le projet."),
@@ -1096,6 +1104,10 @@ const GERMAN: &[(&str, &str)] = &[
     ("The password is handed to the packaging step and forgotten — it is never written to the settings, and the Output panel never sees it.", "Das Passwort wird an den Paketierungsschritt übergeben und danach vergessen — es wird nie in die Einstellungen geschrieben, und das Ausgabefenster sieht es nie."),
     ("Sign the package", "Paket signieren"),
     ("no password typed — the release export was not started", "kein Passwort eingegeben — der Release-Export wurde nicht gestartet"),
+    // ST-08: der gespiegelte Screenshot (ui/preview.rs, state/device.rs).
+    ("a screenshot from the phone, not a render — the comparison with the preview below is yours", "ein Screenshot vom Telefon, kein Render — der Vergleich mit der Vorschau darunter ist Ihre"),
+    ("dismiss", "ausblenden"),
+    ("device farm dispatched on {} phone(s) — it runs the framework's own conformance app, not this project; results land on ci-runs/device-farm-main and in the run's artifacts", "Gerätefarm auf {} Telefon(e) gestartet — sie führt die Konformitäts-App des Frameworks aus, nicht dieses Projekt; die Ergebnisse landen auf ci-runs/device-farm-main und in den Artefakten des Laufs"),
     ("that plugin command works on a buffer, and none is open", "dieses Plugin-Kommando braucht einen Puffer, und es ist keiner offen"),
     ("Open a project folder first — collaboration shares one of its files.", "Öffnen Sie zuerst einen Projektordner – die Zusammenarbeit teilt eine seiner Dateien."),
     ("A scratch buffer cannot be shared — save it into the project first.", "Ein Entwurfspuffer lässt sich nicht teilen – speichern Sie ihn zuerst ins Projekt."),

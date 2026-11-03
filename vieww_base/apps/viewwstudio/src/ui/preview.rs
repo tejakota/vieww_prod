@@ -170,6 +170,16 @@ impl Widget for PreviewPane {
         }
         column.push(self.bar(ctx, &chrome, theme.colors, platform, state, width));
         column.push(hairline(chrome.line));
+        // ST-08: the mirrored screenshot, when a mirror completed. Above the
+        // stage rather than beside it: the stage's fit-and-scroll geometry is
+        // the pane's hardest-won behaviour, and the phone's own pixels are a
+        // *receipt* — a second thing to look at, not a second thing to lay
+        // out. It says what it is, because a picture of a phone under the
+        // preview toolbar would otherwise read as a render this studio made.
+        if self.studio.device_mirror.get().is_some() {
+            column.push(mirror_strip(&chrome, theme.colors, &self.studio));
+            column.push(hairline(chrome.line));
+        }
         // Plan 2 §8.2's second bullet: when the fingerprints differ, *say so
         // and offer the fallback* rather than failing. Between the toolbar and
         // the stage so it reads as a condition of the pane rather than as
@@ -2572,6 +2582,93 @@ impl Widget for MatrixFrame {
 }
 
 widget_node_from!(MatrixFrame);
+
+/// How tall the mirrored screenshot is drawn in the strip (ST-08).
+///
+/// A receipt, not the main event: tall enough to read a layout on, short
+/// enough that the stage — the thing the screenshot exists to be compared
+/// against — keeps the majority of the pane.
+const MIRROR_HEIGHT: f32 = 190.0;
+
+/// The screenshot a completed device mirror pulled back (ST-08).
+///
+/// The phone's own pixels, beside the preview they are asking about. What
+/// this is *not* is a live frame or a render: it is one moment of one
+/// phone's screen, taken after `am start -W` said the activity was up, and
+/// the caption says so — a picture of a phone under the preview toolbar
+/// would otherwise read as something this studio drew.
+///
+/// The comparison with the preview below it is deliberately the eye's, not a
+/// number: a pixel-diff needs the device's density and insets as inputs
+/// before the studio's own render is comparable, `adb devices -l` reports
+/// neither, and a percentage computed from guesses would be worse than no
+/// percentage. See `state/device.rs`'s module doc for where that line is
+/// drawn.
+fn mirror_strip(chrome: &StudioTheme, colors: ColorScheme, studio: &Studio) -> WidgetNode {
+    let Some(mirror) = studio.device_mirror.get() else {
+        return SizedBox::shrink().into();
+    };
+    let chrome = *chrome;
+    let name = mirror.device.clone();
+    let pixels = mirror.image.width().max(1) as f32 / mirror.image.height().max(1) as f32;
+    let shown = Size::new((MIRROR_HEIGHT * pixels).max(48.0), MIRROR_HEIGHT);
+
+    let image = mirror.image.clone();
+    let dismissal = studio.clone();
+    Container::new()
+        .color(chrome.chrome_1)
+        .alignment(Alignment::CENTER)
+        .padding(EdgeInsets::symmetric(14.0, 10.0))
+        .child(
+            Flex::row()
+                .cross_axis_alignment(CrossAxisAlignment::Center)
+                .spacing(12.0)
+                .children(children![
+                    SizedBox::from_size(shown).child(
+                        Image::new(image)
+                            .fit(vieww_foundation::BoxFit::Fill)
+                            .label(format!("Screenshot mirrored from {name}")),
+                    ),
+                    Flex::column()
+                        .cross_axis_alignment(CrossAxisAlignment::Start)
+                        .main_axis_size(MainAxisSize::Min)
+                        .spacing(6.0)
+                        .children(children![
+                            label_bold(&name, 12.0, colors.on_surface),
+                            label(
+                                crate::i18n::t(
+                                    "a screenshot from the phone, not a render — the \
+                                     comparison with the preview below is yours",
+                                ),
+                                10.5,
+                                colors.on_surface_variant,
+                            ),
+                            SizedBox::height(2.0),
+                            clickable(
+                                move || {
+                                    Container::new()
+                                        .height(22.0)
+                                        .radius(5.0)
+                                        .padding(EdgeInsets::symmetric(9.0, 0.0))
+                                        .border(vieww_foundation::Border {
+                                            color: colors.outline,
+                                            width: 1.0,
+                                        })
+                                        .alignment(Alignment::CENTER)
+                                        .child(label(
+                                            crate::i18n::t("dismiss"),
+                                            10.5,
+                                            colors.on_surface_variant,
+                                        ))
+                                        .into()
+                                },
+                                move || dismissal.clear_mirror(),
+                            ),
+                        ]),
+                ]),
+        )
+        .into()
+}
 
 /// The screen on every device in the matrix, side by side (ST-21): each
 /// device framed at one scale that fits the tallest frame in the pane's

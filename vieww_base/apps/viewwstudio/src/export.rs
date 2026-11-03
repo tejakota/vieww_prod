@@ -1167,6 +1167,239 @@ pub fn install(root: &Path, device: &Device, artefact: &Path) -> Result<Spec, Re
     }
 }
 
+// ---------------------------------------------------------------------------
+// Mirroring the preview on a connected device (ST-08)
+// ---------------------------------------------------------------------------
+
+/// Where a mirror's screenshot lives on the device, and where it is pulled to.
+///
+/// A fixed remote name rather than a generated one: the phone cleans up after
+/// itself (the last step deletes it), and a unique name per mirror would be a
+/// unique file left behind whenever one of those steps failed.
+pub const MIRROR_REMOTE_PNG: &str = "/sdcard/vieww-mirror.png";
+
+/// The component `am start` is given, `<applicationId>/<activity>`.
+///
+/// `android.app.NativeActivity` because that is what the generated
+/// `AndroidManifest.xml` declares — the manifest a scaffold writes and this
+/// launches are the same file's two halves, and this function is where they
+/// meet. A manifest that changes its activity changes this, and
+/// `tests/scaffold_exports.rs` reading both keeps them honest.
+#[must_use]
+pub fn launch_component(package: &str) -> String {
+    format!("{package}/android.app.NativeActivity")
+}
+
+/// The applicationId the project's Gradle file declares — the package the
+/// phone knows the app by, which is not the cargo package's name.
+///
+/// Read from `android/app/build.gradle` because that is the file that decides
+/// it on the device; `com.example.<lib>` (the scaffolder's value, from
+/// [`harness::bundle_id`](crate::harness::bundle_id)) is the fallback for a
+/// project whose Gradle file is missing or edited past recognition. The
+/// android/README tells the user to change the applicationId, and a launcher
+/// that guessed the old one would report the app as missing when it is
+/// installed and fine.
+#[must_use]
+pub fn launch_package(root: &Path, name: &str) -> String {
+    for candidate in [
+        root.join("android").join("app").join("build.gradle"),
+        root.join("android").join("app").join("build.gradle.kts"),
+    ] {
+        let Ok(text) = std::fs::read_to_string(&candidate) else {
+            continue;
+        };
+        for line in text.lines() {
+            let trimmed = line.trim();
+            let Some(rest) = trimmed.strip_prefix("applicationId") else {
+                continue;
+            };
+            if let Some(id) = rest
+                .trim()
+                .strip_prefix('"')
+                .and_then(|r| r.strip_suffix('"'))
+            {
+                if !id.is_empty() {
+                    return id.to_string();
+                }
+            }
+        }
+    }
+    crate::harness::bundle_id(&crate::harness::lib_name(name))
+}
+
+/// Where a mirror's screenshot is pulled to, under the workspace's private
+/// `.vieww` directory (the one `collab.log` already lives in — studio-owned,
+/// git-ignored by convention, and never the user's source tree).
+#[must_use]
+pub fn mirror_png(root: &Path, device: &Device) -> PathBuf {
+    let safe: String = device
+        .id
+        .chars()
+        .map(|c| if c.is_ascii_alphanumeric() { c } else { '_' })
+        .collect();
+    root.join(".vieww").join(format!("mirror-{safe}.png"))
+}
+
+/// The steps that put the app on a device and bring its screen back (ST-08).
+///
+/// # What this is, and what it is honest about
+///
+/// Install the exported debug APK, launch it, screenshot the phone, pull the
+/// PNG where the studio can decode it, delete the copy on the phone. Five
+/// `adb` invocations, no shell — which is why `screencap` writes to a file on
+/// the device and `pull` brings it over rather than `exec-out` piping bytes:
+/// the jobs machinery captures *text*, and a PNG through a text pipe is a PNG
+/// with its newlines rewritten.
+///
+/// # Why a screenshot and not a comparison
+///
+/// The research report's longer arc is preview↔device pixel comparison. That
+/// needs the device's density and inset facts to be known before the studio's
+/// own render is comparable, and a first step that claimed it while guessing
+/// either would be a red number about nothing. This lands the honest first
+/// half: the phone's actual pixels, in the preview pane, beside the preview —
+/// the comparison is the eye's, which is where "it looked right in the
+/// preview" goes to die.
+pub fn mirror_steps(
+    env: &Env,
+    root: &Path,
+    device: &Device,
+    artefact: &Path,
+    package: &str,
+) -> Result<Vec<Spec>, Refusal> {
+    if device.kind != Target::Android {
+        return Err(Refusal::NotImplemented(
+            "mirroring works through `adb`, which speaks Android — an iOS device is reached \
+             with `xcrun devicectl` and a Mac",
+        ));
+    }
+    if !device.state.is_ready() {
+        return Err(Refusal::Impossible(
+            "the device is not ready — a mirror needs the device's own consent, not just its \
+             cable, and the state is printed on its row",
+        ));
+    }
+    if env.find_on_path("adb").is_none() {
+        return Err(Refusal::Missing {
+            requirement: "adb",
+            install: "`brew install android-platform-tools` (macOS) or install \
+                       `google-platform-tools` (Linux) — it is the `adb` half of the SDK, on its own",
+        });
+    }
+    if !artefact.is_file() {
+        return Err(Refusal::Missing {
+            requirement: "an exported APK to mirror",
+            install: "export the Android APK (debug-signed) first — the mirror installs what \
+                      the export built",
+        });
+    }
+    let local = mirror_png(root, device);
+    let launch = launch_component(package);
+    Ok(vec![
+        install(root, device, artefact).expect("Android, checked above"),
+        Spec::new("Launch on device", "adb", root)
+            .args(["-s", &device.id, "shell", "am", "start", "-W", "-n"])
+            .arg(launch)
+            .timeout(std::time::Duration::from_secs(60)),
+        Spec::new("Screenshot on device", "adb", root)
+            .args(["-s", &device.id, "shell", "screencap", "-p"])
+            .arg(MIRROR_REMOTE_PNG)
+            .timeout(std::time::Duration::from_secs(30)),
+        Spec::new("Pull screenshot", "adb", root)
+            .args(["-s", &device.id, "pull"])
+            .arg(MIRROR_REMOTE_PNG.to_string())
+            .arg(local.to_string_lossy().to_string())
+            .timeout(std::time::Duration::from_secs(60)),
+        Spec::new("Clean up on device", "adb", root)
+            .args(["-s", &device.id, "shell", "rm"])
+            .arg(MIRROR_REMOTE_PNG.to_string())
+            .timeout(std::time::Duration::from_secs(30)),
+    ])
+}
+
+/// Whether `am start -W` says the activity came up.
+///
+/// `am start -W` ends with a `Status:` line — `ok` for a launch, an error
+/// string for everything else (`Error: Activity class … does not exist`, the
+/// one a renamed package produces). One line of adb's output is the whole
+/// verdict, so one line is all this reads.
+#[must_use]
+pub fn parse_am_start(output: &str) -> bool {
+    output
+        .lines()
+        .rev()
+        .find_map(|line| line.trim().strip_prefix("Status:"))
+        .is_some_and(|status| status.trim() == "ok")
+}
+
+/// Whether a mirror step's captured stdout contradicts its exit code (ST-08).
+///
+/// Only the launch step has such output, and it has it in two shapes: a
+/// `Status:` line that is not `ok`, and the classic `Error: Activity class …
+/// does not exist` printed with no `Status:` line at all — the failure that
+/// some shells and adb wrappers hand back with exit code 0, which is the
+/// case this function exists for. The other four steps print nothing
+/// am-shaped (`Success`, `1 file pulled`, or silence), so for them this is
+/// always `false` and the exit code stays the only verdict.
+#[must_use]
+pub fn mirror_step_output_failed(output: &str) -> bool {
+    if output
+        .lines()
+        .any(|line| line.trim().starts_with("Status:"))
+    {
+        // am's own protocol is present, so it is authoritative — including
+        // over an `Error:` line printed above a later `Status: ok`.
+        !parse_am_start(output)
+    } else {
+        // am's failure without its protocol, still in its own words.
+        output.lines().any(|line| line.trim().starts_with("Error:"))
+    }
+}
+
+/// Dispatch the repo's device farm workflow on `count` phones (ST-08).
+///
+/// # What the farm runs, honestly
+///
+/// The workflow this starts (`.github/workflows/device-farm.yml`) builds and
+/// runs the **framework's** conformance app on real phones — low, mid and
+/// high end — not the user's project. That is not a smaller version of the
+/// thing the button's neighbourhood implies; it is the thing that makes the
+/// studio's own claim checkable: the renderer the preview certifies itself
+/// against is the one on the phone, and this is where the phone says so.
+/// The user's *app* on real hardware is the local mirror; the farm is the
+/// *framework* on real hardware. The notice the studio prints after
+/// dispatching says exactly this.
+///
+/// # Why `--ref main` is spelled out
+///
+/// The farm's AWS trust policy accepts main's OIDC subject only, so a dispatch
+/// from any other ref is refused by the workflow's own first job — five
+/// minutes of build for a refusal the studio can name at the start.
+pub fn farm_dispatch(env: &Env, root: &Path, platform: &str, count: u32) -> Result<Spec, Refusal> {
+    if !matches!(platform, "android" | "ios" | "both") {
+        return Err(Refusal::Impossible(
+            "the farm workflow knows android, ios and both — nothing else",
+        ));
+    }
+    if env.find_on_path("gh").is_none() {
+        return Err(Refusal::Missing {
+            requirement: "GitHub CLI (`gh`)",
+            install: "`brew install gh` (macOS) or follow github.com/cli/cli — then `gh auth \
+                      login`, because a dispatch is an API call as you",
+        });
+    }
+    Ok(Spec::new("Dispatch device farm", "gh", root)
+        .args(["workflow", "run", "device-farm.yml", "--ref", "main"])
+        .arg("-f")
+        .arg(format!("platform={platform}"))
+        .arg("-f")
+        .arg(format!("count={count}"))
+        .arg("-f")
+        .arg("profile=dist")
+        .timeout(std::time::Duration::from_secs(60)))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1903,5 +2136,268 @@ name = \"not-this-either\"
         // thing to export.
         assert_eq!(package_name("[workspace]\nmembers = [\"a\"]\n"), None);
         assert_eq!(package_name(""), None);
+    }
+
+    // ----- ST-08: the device mirror and the farm dispatch ---------------------
+
+    /// A Ready Android device, and an artefact that exists.
+    fn phone(dir: &tempdir::Dir) -> (Device, PathBuf) {
+        let device = Device {
+            id: "R58M12ABCDE".into(),
+            name: "Pixel 8".into(),
+            kind: Target::Android,
+            state: DeviceState::Ready,
+        };
+        let apk = dir.path().join("app.apk");
+        std::fs::write(&apk, "an apk").expect("the artefact");
+        (device, apk)
+    }
+
+    #[test]
+    fn a_mirror_installs_launches_screenshots_pulls_and_cleans_up_in_that_order() {
+        let (env, dir) = complete(Host::Linux, &["adb"]);
+        let (device, apk) = phone(&dir);
+        let root = dir.path().join("project");
+        std::fs::create_dir_all(root.join(".vieww")).expect("the private directory");
+
+        let steps =
+            mirror_steps(&env, &root, &device, &apk, "com.example.my_app").expect("a mirror");
+        let labels: Vec<&str> = steps.iter().map(|s| s.label.as_str()).collect();
+        assert_eq!(
+            labels,
+            vec![
+                "Install",
+                "Launch on device",
+                "Screenshot on device",
+                "Pull screenshot",
+                "Clean up on device"
+            ],
+            "each step is one adb invocation, and the phone is cleaned up last"
+        );
+        // Every step addresses the device by its serial, because a second
+        // phone plugged in mid-mirror must not receive the screenshot request.
+        for step in &steps {
+            assert!(
+                step.args.iter().any(|arg| arg == "R58M12ABCDE"),
+                "{} does not address the device: {:?}",
+                step.label,
+                step.args
+            );
+        }
+        // The launch names the component the generated manifest declares —
+        // `am start` is the one place the package and the activity meet.
+        let launch = &steps[1];
+        assert!(
+            launch
+                .args
+                .iter()
+                .any(|arg| arg == "com.example.my_app/android.app.NativeActivity"),
+            "the component the manifest's own activity resolves to: {:?}",
+            launch.args
+        );
+        // The screenshot is written on the device and pulled as a file, never
+        // piped: the jobs machinery captures text, and a PNG through a text
+        // pipe arrives with its newlines rewritten.
+        let screenshot = &steps[2];
+        assert!(
+            screenshot
+                .args
+                .windows(2)
+                .any(|pair| pair == ["-p", MIRROR_REMOTE_PNG]),
+            "screencap writes a file on the device — `-p`, then the path: {:?}",
+            screenshot.args
+        );
+        let pull = &steps[3];
+        let pulled_to = pull.args.last().expect("the local destination");
+        assert!(
+            pulled_to.contains(".vieww") && pulled_to.contains("mirror-R58M12ABCDE.png"),
+            "the PNG lands under the workspace's private directory, named for the device: \
+             {pulled_to}"
+        );
+        assert_eq!(pull.args[pull.args.len() - 2], MIRROR_REMOTE_PNG);
+    }
+
+    #[test]
+    fn a_mirror_is_refused_for_every_reason_it_cannot_work_before_anything_runs() {
+        let (env, dir) = complete(Host::Linux, &["adb"]);
+        let (device, apk) = phone(&dir);
+        let root = dir.path().join("project");
+        std::fs::create_dir_all(&root).expect("the project");
+
+        // An unready device: plugged in is not permission.
+        let unauthorised = Device {
+            state: DeviceState::Unauthorised,
+            ..device.clone()
+        };
+        let refusal = mirror_steps(&env, &root, &unauthorised, &apk, "com.example.my_app")
+            .expect_err("the phone has not accepted this computer");
+        assert!(matches!(refusal, Refusal::Impossible(_)), "{refusal:?}");
+
+        // A non-Android device has no adb path at all.
+        let iphone = Device {
+            kind: Target::Ios,
+            ..device.clone()
+        };
+        let refusal = mirror_steps(&env, &root, &iphone, &apk, "com.example.my_app")
+            .expect_err("iOS is not adb's to reach");
+        assert!(matches!(refusal, Refusal::NotImplemented(_)), "{refusal:?}");
+
+        // No adb on PATH.
+        let (no_adb, _dir) = complete(Host::Linux, &[]);
+        let refusal =
+            mirror_steps(&no_adb, &root, &device, &apk, "com.example.my_app").expect_err("no adb");
+        assert_eq!(
+            refusal,
+            Refusal::Missing {
+                requirement: "adb",
+                install: "`brew install android-platform-tools` (macOS) or install \
+                           `google-platform-tools` (Linux) — it is the `adb` half of the SDK, on its own",
+            }
+        );
+
+        // No artefact: a mirror installs what an export built.
+        let missing = root.join("never-exported.apk");
+        let refusal = mirror_steps(&env, &root, &device, &missing, "com.example.my_app")
+            .expect_err("nothing to install");
+        assert_eq!(
+            refusal,
+            Refusal::Missing {
+                requirement: "an exported APK to mirror",
+                install: "export the Android APK (debug-signed) first — the mirror installs what \
+                          the export built",
+            }
+        );
+    }
+
+    #[test]
+    fn am_start_is_answered_by_its_status_line_and_its_noise_is_not_the_answer() {
+        assert!(parse_am_start("Starting: Intent\nStatus: ok\n"));
+        // `am start -W` prints launch statistics after the status; a parser
+        // that read the first matching-looking line would misread the lot.
+        assert!(parse_am_start(
+            "Starting: Intent\nStatus: ok\nLaunchState: COLD\nActivityTime: 812ms\nTotalTime: \
+             812ms\nWaitTime: 836ms\n"
+        ));
+        assert!(!parse_am_start("Starting: Intent\nStatus: error\n"));
+        assert!(!parse_am_start(""));
+        // The one a renamed package produces — the mirror stops, the Output
+        // panel has adb's own words for it.
+        assert!(!parse_am_start(
+            "Starting: Intent\nError: Activity class {com.example.my_app/com.example.my_app.\
+             android.app.NativeActivity} does not exist.\n"
+        ));
+    }
+
+    #[test]
+    fn a_mirror_steps_output_can_fail_it_where_its_exit_code_did_not() {
+        // am's own protocol, on the failure side of it.
+        assert!(mirror_step_output_failed(
+            "Starting: Intent\nStatus: error\n"
+        ));
+        // The classic renamed-package error with no Status line at all — the
+        // shape that arrives with exit code 0 through some shells, which is
+        // the whole reason the function exists.
+        assert!(mirror_step_output_failed(
+            "Starting: Intent\nError: Activity class {com.example.my_app/com.example.my_app.\
+             android.app.NativeActivity} does not exist.\n"
+        ));
+        // Success, in am's own words, with its statistics after.
+        assert!(!mirror_step_output_failed(
+            "Starting: Intent\nStatus: ok\nLaunchState: COLD\nTotalTime: 812ms\n"
+        ));
+        // The other four steps' outputs carry no am verdict — `Success`,
+        // `1 file pulled`, silence — so their exit codes stay the only ones.
+        assert!(!mirror_step_output_failed(
+            "Performing Streamed Install\nSuccess\n"
+        ));
+        assert!(!mirror_step_output_failed("1 file pulled"));
+        assert!(!mirror_step_output_failed(""));
+        // A warning is not a failure: `am start` prints exactly this when the
+        // activity is already on top, and the launch did happen.
+        assert!(!mirror_step_output_failed(
+            "Warning: Activity not started, intent has been delivered to currently running \
+             top-most instance.\nStatus: ok\n"
+        ));
+    }
+
+    #[test]
+    fn a_farm_dispatch_is_gh_workflow_run_with_the_inputs_the_workflow_defines() {
+        let (env, dir) = complete(Host::Linux, &["gh"]);
+        let root = dir.path().join("project");
+        std::fs::create_dir_all(&root).expect("the project");
+
+        let spec = farm_dispatch(&env, &root, "android", 3).expect("gh is installed");
+        assert_eq!(spec.program, "gh");
+        // The workflow file by name, on main because the farm's AWS trust
+        // accepts main's OIDC subject only — a dispatch from anywhere else is
+        // five minutes of build for a refusal the workflow's own first job
+        // prints.
+        assert!(
+            spec.args.starts_with(
+                &["workflow", "run", "device-farm.yml", "--ref", "main"].map(String::from)
+            ),
+            "{:?}",
+            spec.args
+        );
+        // The inputs the workflow's `workflow_dispatch` block actually
+        // declares: platform, count, profile. A typo here is a dispatch that
+        // GitHub silently runs with the input at its default.
+        let joined = spec.args.join(" ");
+        assert!(joined.contains("platform=android"), "{joined}");
+        assert!(joined.contains("count=3"), "{joined}");
+        assert!(joined.contains("profile=dist"), "{joined}");
+    }
+
+    #[test]
+    fn a_farm_dispatch_without_gh_names_the_cli_and_its_login_not_a_gh_error() {
+        let (env, dir) = complete(Host::Linux, &[]);
+        let root = dir.path();
+        let refusal = farm_dispatch(&env, root, "android", 3).expect_err("no gh");
+        assert_eq!(
+            refusal,
+            Refusal::Missing {
+                requirement: "GitHub CLI (`gh`)",
+                install: "`brew install gh` (macOS) or follow github.com/cli/cli — then `gh auth \
+                      login`, because a dispatch is an API call as you",
+            }
+        );
+    }
+
+    #[test]
+    fn a_farm_dispatch_refuses_a_platform_the_workflow_does_not_define() {
+        let (env, dir) = complete(Host::Linux, &["gh"]);
+        let refusal = farm_dispatch(&env, dir.path(), "webos", 3).expect_err("no such input");
+        assert!(matches!(refusal, Refusal::Impossible(_)), "{refusal:?}");
+    }
+
+    #[test]
+    fn the_launch_package_is_the_gradle_applicationid_not_the_cargo_name() {
+        let dir = tempdir::Dir::new("viewwstudio-export-launch");
+        let gradle = dir.path().join("android").join("app");
+        std::fs::create_dir_all(&gradle).expect("the gradle directory");
+        std::fs::write(
+            gradle.join("build.gradle"),
+            "android {\n    namespace \"com.example.my_app\"\n    defaultConfig {\n        \
+             applicationId \"uk.co.real.shipper\"\n    }\n}\n",
+        )
+        .expect("the gradle file");
+
+        // The phone knows the app by this, not by `my-app` — a renamed
+        // applicationId is the first thing the README tells a user to do.
+        assert_eq!(launch_package(dir.path(), "my-app"), "uk.co.real.shipper");
+        // No Gradle file at all: the scaffolder's reserved id, which is what
+        // the file the scaffolder would have written says.
+        assert_eq!(
+            launch_package(Path::new("/nowhere"), "my-app"),
+            "com.example.my_app"
+        );
+        // A Gradle file whose applicationId line was edited past recognition:
+        // the same fallback, rather than a guess about what it used to say.
+        std::fs::write(
+            gradle.join("build.gradle"),
+            "android {\n    defaultConfig {\n        applicationId \"\"\n    }\n}\n",
+        )
+        .expect("rewrite");
+        assert_eq!(launch_package(dir.path(), "my-app"), "com.example.my_app");
     }
 }
