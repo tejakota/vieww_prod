@@ -30,6 +30,11 @@
 name: ViewwA11y
 options:
   bundleIdPrefix: dev.vieww
+  # The CI runner's Xcode is 15.4. A current `brew install xcodegen` writes
+  # Xcode 16's project format (objectVersion 77) by default, which 15.4
+  # refuses to open ("a future Xcode project file format", framework-checks
+  # 2026-11-03). Pinned to a format every Xcode from 15.0 reads.
+  projectFormat: xcode15_0
   deploymentTarget:
     iOS: "13.0"
   createIntermediateGroups: true

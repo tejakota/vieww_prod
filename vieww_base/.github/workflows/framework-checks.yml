@@ -557,8 +557,11 @@ jobs:
             -p vieww-hal --example webgpu_scene --features webgpu
           status=0
           for engine in chromium firefox webkit; do
-            VIEWW_WEB_BROWSER=$engine python3 crates/vieww-hal/web-test/webgpu_parity.py
-            rc=$?
+            # `|| rc=$?`, not a bare `rc=$?` after it: the step runs under
+            # `bash -e`, which ended the step on the skip code (3) before
+            # this line could read it — Firefox has no navigator.gpu.
+            rc=0
+            VIEWW_WEB_BROWSER=$engine python3 crates/vieww-hal/web-test/webgpu_parity.py || rc=$?
             if [ "$rc" -ne 0 ] && [ "$rc" -ne 3 ]; then status=1; fi
           done
           exit $status

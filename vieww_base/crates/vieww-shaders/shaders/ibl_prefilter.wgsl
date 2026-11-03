@@ -148,7 +148,13 @@ fn source(d: vec3<f32>) -> vec3<f32> {
 
 @fragment
 fn fs_main(f: VertexOut) -> @location(0) vec4<f32> {
-    let r = uv_to_dir(f.uv);
+    // The texel's own centre, from the fragment's framebuffer position
+    // (`position.xy` is `x + 0.5, y + 0.5`, row 0 at the top — the row the
+    // readback returns first, on every backend), not the quad's
+    // interpolated `uv`: that ran bottom-up under Vulkan's clip space, and
+    // every level came back upside down against the CPU oracle (lavapipe
+    // 3D leg, 2026-11-03: the sun 1745x the tolerance off).
+    let r = uv_to_dir(f.position.xy / u.dims.xy);
     let a = u.params.y;
     let samples = u32(u.params.z);
     let frame = onb(r);
