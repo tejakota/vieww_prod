@@ -1,0 +1,708 @@
+-----
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:46:40.2275202Z info: syncing channel updates for 1.98.1-x86_64-unknown-linux-gnu
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:46:40.3691079Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:46:40.3797134Z info: downloading 3 components
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:46:43.5280002Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:46:43.5280727Z ^[[1m== macos (aarch64-apple-darwin)^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:48:26.3974874Z ^[[1m^[[91merror^[[0m^[[1m: function `wakeups_from_status` is never used^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:48:26.4021969Z   ^[[1m^[[94m--> ^[[0mcrates/vieww-platform-winit/src/wakeups.rs:53:4
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:48:26.4063821Z    ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:48:26.4124019Z ^[[1m^[[94m53^[[0m ^[[1m^[[94m|^[[0m fn wakeups_from_status(status: &str) -> Option<u64> {
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:48:26.4183798Z    ^[[1m^[[94m|^[[0m    ^[[1m^[[91m^^^^^^^^^^^^^^^^^^^^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:48:26.4213593Z    ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:48:26.4243927Z    ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `-D dead-code` implied by `-D warnings`
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:48:26.4273904Z    ^[[1m^[[94m= ^[[0m^[[1mhelp^[[0m: to override `-D warnings` add `#[expect(dead_code)]` or `#[allow(dead_code)]`
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:48:26.4333352Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:48:26.4561387Z ^[[1m^[[91merror^[[0m: could not compile `vieww-platform-winit` (lib) due to 1 previous error
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:48:27.1141962Z    ^[[31mFAILED^[[0m — see above
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:48:27.1143568Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:48:27.1143830Z ^[[1m== ios (aarch64-apple-ios)^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:49:16.7904496Z ^[[1m^[[91merror^[[0m^[[1m: function `wakeups_from_status` is never used^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:49:16.7933761Z   ^[[1m^[[94m--> ^[[0mcrates/vieww-platform-winit/src/wakeups.rs:53:4
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:49:16.7963714Z    ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:49:16.7993791Z ^[[1m^[[94m53^[[0m ^[[1m^[[94m|^[[0m fn wakeups_from_status(status: &str) -> Option<u64> {
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:49:16.8023593Z    ^[[1m^[[94m|^[[0m    ^[[1m^[[91m^^^^^^^^^^^^^^^^^^^^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:49:16.8043547Z    ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:49:16.8073736Z    ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `-D dead-code` implied by `-D warnings`
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:49:16.8075106Z    ^[[1m^[[94m= ^[[0m^[[1mhelp^[[0m: to override `-D warnings` add `#[expect(dead_code)]` or `#[allow(dead_code)]`
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:49:16.8075522Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:49:16.8556420Z ^[[1m^[[91merror^[[0m: could not compile `vieww-platform-winit` (lib) due to 1 previous error
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:49:17.3244225Z    ^[[31mFAILED^[[0m — see above
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:49:17.3246329Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:49:17.3246626Z ^[[1m== windows (x86_64-pc-windows-msvc)^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:50:09.8695997Z ^[[1m^[[91merror^[[0m^[[1m: function `wakeups_from_status` is never used^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:50:09.8723812Z   ^[[1m^[[94m--> ^[[0mcrates/vieww-platform-winit/src/wakeups.rs:53:4
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:50:09.8724387Z    ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:50:09.8724892Z ^[[1m^[[94m53^[[0m ^[[1m^[[94m|^[[0m fn wakeups_from_status(status: &str) -> Option<u64> {
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:50:09.8725478Z    ^[[1m^[[94m|^[[0m    ^[[1m^[[91m^^^^^^^^^^^^^^^^^^^^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:50:09.8725904Z    ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:50:09.8726371Z    ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `-D dead-code` implied by `-D warnings`
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:50:09.8727165Z    ^[[1m^[[94m= ^[[0m^[[1mhelp^[[0m: to override `-D warnings` add `#[expect(dead_code)]` or `#[allow(dead_code)]`
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:50:09.8727654Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:50:09.9295369Z ^[[1m^[[91merror^[[0m: could not compile `vieww-platform-winit` (lib) due to 1 previous error
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:50:10.4458763Z    ^[[31mFAILED^[[0m — see above
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:50:10.4459087Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:50:10.4459279Z ^[[1m== android (aarch64-linux-android)^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:35.2569181Z ^[[1m^[[91merror^[[0m^[[1m: constant `IDLE` is never used^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:35.2623900Z   ^[[1m^[[94m--> ^[[0mexamples/u/src/biometrics.rs:95:11
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:35.2653767Z    ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:35.2683665Z ^[[1m^[[94m95^[[0m ^[[1m^[[94m|^[[0m     const IDLE: i32 = 0;
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:35.2693614Z    ^[[1m^[[94m|^[[0m           ^[[1m^[[91m^^^^^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:35.2713491Z    ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:35.2713940Z    ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `-D dead-code` implied by `-D warnings`
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:35.2714691Z    ^[[1m^[[94m= ^[[0m^[[1mhelp^[[0m: to override `-D warnings` add `#[expect(dead_code)]` or `#[allow(dead_code)]`
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:35.2715082Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:35.2715337Z ^[[1m^[[91merror^[[0m^[[1m: constant `RUNNING` is never used^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:35.2743882Z   ^[[1m^[[94m--> ^[[0mexamples/u/src/biometrics.rs:96:11
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:35.2807564Z    ^[[1m^[[94m|^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:35.2863787Z ^[[1m^[[94m96^[[0m ^[[1m^[[94m|^[[0m     const RUNNING: i32 = 1;
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:35.2893819Z    ^[[1m^[[94m|^[[0m           ^[[1m^[[91m^^^^^^^^[[0m
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:35.2923408Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:35.3120974Z ^[[1m^[[91merror^[[0m: could not compile `u` (lib) due to 2 previous errors
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:36.4465611Z    ^[[31mFAILED^[[0m — see above
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:36.4465931Z 
+Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check	2026-11-03T09:51:36.4480765Z ##[error]Process completed with exit code 4.
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	﻿2026-11-03T09:46:37.6238172Z ##[group]Run ci/check/feature-a11y.sh
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:46:37.6238456Z ^[[36;1mci/check/feature-a11y.sh^[[0m
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:46:37.6256594Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:46:37.6256888Z env:
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:46:37.6257057Z   CARGO_TERM_COLOR: always
+-----
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.7964398Z ==> auditing feature-sized-box (17-sized-box)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8019198Z audit: 17 — sized box: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8020441Z ==> auditing feature-image-display (18-image-display)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8076184Z audit: 18 — image: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8077314Z ==> auditing feature-box-fit (19-box-fit)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8143886Z audit: 19 — box fit: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 4 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8145199Z ==> auditing feature-transform-translate (20-transform-translate)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8200658Z audit: 20 — transform: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8202011Z ==> auditing feature-theme-light-dark (21-theme-light-dark)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8313654Z     audit: 21 — theme: [ERROR] text 2.3:1 (needs 4.5:1) at 52,52..98,68 — #97969a on #e3e2e6
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8314415Z     audit: 21 — theme: [ERROR] text 2.1:1 (needs 4.5:1) at 147,52..170,68 — #46464f on #777680
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8314868Z     audit: 21 — theme: [ERROR] text 2.4:1 (needs 4.5:1) at 278,52..324,68 — #828188 on #46464f
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8315358Z     audit: 21 — theme: [ERROR] text 1.9:1 (needs 4.5:1) at 373,52..396,68 — #c7c5d0 on #918f9a
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8315987Z     audit: 21 — theme: [ERROR] text 3.5:1 (needs 4.5:1) at 505,50..551,66 — #727274 on #1c1c1e
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8316687Z     audit: 21 — theme: 5 error(s), 0 warning(s); text contrast: 5 failure(s), 1 judged, 6 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8317324Z     Error: "accessibility audit failed: 0 tree error(s), 5 contrast failure(s)"
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8317902Z ==> auditing feature-directionality-rtl (22-directionality-rtl)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8376048Z audit: 22 — RTL: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 1 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8377389Z ==> auditing feature-bar-chart (23-bar-chart)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8433260Z audit: 23 — bar chart: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8434467Z ==> auditing feature-line-chart (24-line-chart)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8492131Z audit: 24 — line chart: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8493478Z ==> auditing feature-button-pressable (25-button-pressable)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8554722Z audit: 25 — button & pressable: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 2 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8556440Z ==> auditing feature-checkbox (26-checkbox)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8611754Z     audit: 26 — checkbox: [ERROR] node r5v0: CheckBox has no label a screen reader can announce
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8612350Z     audit: 26 — checkbox: [ERROR] node r11v0: CheckBox has no label a screen reader can announce
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8613120Z     audit: 26 — checkbox: 2 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8613772Z     Error: "accessibility audit failed: 2 tree error(s), 0 contrast failure(s)"
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8614328Z ==> auditing feature-switch (27-switch)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8670431Z     audit: 27 — switch: [ERROR] node r10v0: Switch has no label a screen reader can announce
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8671123Z     audit: 27 — switch: [ERROR] node r21v0: Switch has no label a screen reader can announce
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8671648Z     audit: 27 — switch: 2 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8672588Z     Error: "accessibility audit failed: 2 tree error(s), 0 contrast failure(s)"
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8673155Z ==> auditing feature-radio (28-radio)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8730576Z     audit: 28 — radio: [ERROR] node r8v0: Radio has no label a screen reader can announce
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8731098Z     audit: 28 — radio: [ERROR] node r15v0: Radio has no label a screen reader can announce
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8731844Z     audit: 28 — radio: 2 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8732481Z     Error: "accessibility audit failed: 2 tree error(s), 0 contrast failure(s)"
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8733040Z ==> auditing feature-linear-progress (29-linear-progress)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8788910Z audit: 29 — progress: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8790866Z ==> auditing feature-chip-badge (30-chip-badge)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8852871Z     audit: 30 — chip & badge: [ERROR] text 2.1:1 (needs 4.5:1) at 36,32..66,48 — #46464f on #777680
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8853610Z     audit: 30 — chip & badge: 1 error(s), 0 warning(s); text contrast: 1 failure(s), 2 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8854101Z     Error: "accessibility audit failed: 0 tree error(s), 1 contrast failure(s)"
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8854606Z ==> auditing feature-circular-progress (31-circular-progress)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8953269Z audit: 31 — circular progress: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 5 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.8954511Z ==> auditing feature-blur-effect (32-blur-effect)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.9012840Z audit: 32 — blur: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.9014055Z ==> auditing feature-grayscale (33-grayscale)
+-----
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:09.9956624Z ==> auditing feature-scroll-driven (43-scroll-driven)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0034797Z audit: 43 — scroll driven: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 1 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0036243Z ==> auditing feature-grid-view (44-grid-view)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0148016Z audit: 44 — grid view: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 32 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0149231Z ==> auditing feature-motion-tokens (46-motion-tokens)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0210242Z audit: 46 — motion tokens: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 6 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0211474Z ==> auditing feature-form-controls (47-form-controls)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0291352Z     audit: 47 — form controls: [ERROR] node r4v0: Slider has no label a screen reader can announce
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0292209Z     audit: 47 — form controls: [ERROR] node r7v0: Slider has no label a screen reader can announce
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0293009Z     audit: 47 — form controls: [ERROR] node r41v0: TextField has no label a screen reader can announce
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0293982Z     audit: 47 — form controls: [warning] node r4v0: Slider target is 360.0x40.0, smaller than the 44x44 minimum
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0295198Z     audit: 47 — form controls: [ERROR] node r4v0: Slider offers to be activated but is not keyboard-focusable — a screen reader can operate it, Tab cannot reach it
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0296433Z     audit: 47 — form controls: [ERROR] text 2.1:1 (needs 4.5:1) at 97,242..117,258 — #46464f on #777680
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0297227Z     audit: 47 — form controls: [ERROR] text 2.1:1 (needs 4.5:1) at 261,242..292,258 — #46464f on #777680
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0298058Z     audit: 47 — form controls: 6 error(s), 1 warning(s); text contrast: 2 failure(s), 6 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0298729Z     Error: "accessibility audit failed: 4 tree error(s), 2 contrast failure(s)"
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0299264Z ==> auditing feature-data-table (48-data-table)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0372344Z     audit: 48 — data table: [ERROR] text 2.1:1 (needs 4.5:1) at 480,94..514,110 — #46464f on #777680
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0373133Z     audit: 48 — data table: [ERROR] text 2.1:1 (needs 4.5:1) at 480,134..514,150 — #46464f on #777680
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0373661Z     audit: 48 — data table: [ERROR] text 2.1:1 (needs 4.5:1) at 480,174..509,190 — #46464f on #777680
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0374430Z     audit: 48 — data table: [ERROR] text 2.1:1 (needs 4.5:1) at 480,214..514,230 — #46464f on #777680
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0375022Z     audit: 48 — data table: [ERROR] text 2.1:1 (needs 4.5:1) at 480,254..509,270 — #46464f on #777680
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0376056Z     audit: 48 — data table: 5 error(s), 0 warning(s); text contrast: 5 failure(s), 14 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0376974Z     Error: "accessibility audit failed: 0 tree error(s), 5 contrast failure(s)"
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0377468Z ==> auditing feature-markdown (49-markdown)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0452013Z audit: 49 — markdown: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 12 judged, 3 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0453609Z ==> auditing feature-baseline-alignment (50-baseline-alignment)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0519443Z     audit: 50 — baseline alignment: [ERROR] text 4.5:1 (needs 4.5:1) at 24,24..166,37 — #d0474e on #ffffff
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0520206Z     audit: 50 — baseline alignment: [ERROR] text 4.5:1 (needs 4.5:1) at 24,122..179,135 — #d0474e on #ffffff
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0520956Z     audit: 50 — baseline alignment: 2 error(s), 0 warning(s); text contrast: 2 failure(s), 4 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0521406Z     Error: "accessibility audit failed: 0 tree error(s), 2 contrast failure(s)"
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0521966Z ==> auditing feature-locale-formatting (51-locale-formatting)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0596668Z audit: 51 — locale formatting: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 52 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0597901Z ==> auditing feature-blend-modes (52-blend-modes)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0679246Z     audit: 52 — blend modes: [ERROR] text 3.2:1 (needs 4.5:1) at 20,395..207,406 — #8a8a8a on #f7f7f7
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0679891Z     audit: 52 — blend modes: [ERROR] text 2.4:1 (needs 4.5:1) at 20,410..339,420 — #a0a0a0 on #f7f7f7
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0680672Z     audit: 52 — blend modes: 2 error(s), 0 warning(s); text contrast: 2 failure(s), 26 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0681763Z     Error: "accessibility audit failed: 0 tree error(s), 2 contrast failure(s)"
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0682405Z ==> auditing feature-wide-gamut-color (53-wide-gamut-color)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0758969Z audit: 53 — wide-gamut colour: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 4 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0760746Z ==> auditing feature-keyframes (56-keyframes)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0944088Z audit: 56 — keyframes: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.0945853Z ==> auditing feature-state-machine (57-state-machine)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.1057543Z     audit: 57 — state machine: [ERROR] text 3.4:1 (needs 4.5:1) at 248,172..304,186 — #828ca0 on #ffffff
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.1058236Z     audit: 57 — state machine: 1 error(s), 0 warning(s); text contrast: 1 failure(s), 1 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.1058781Z     Error: "accessibility audit failed: 0 tree error(s), 1 contrast failure(s)"
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.1059205Z ==> auditing feature-skeletal (58-skeletal)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.1664306Z audit: 58 — skeletal: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.1665204Z ==> auditing feature-blend-tree (59-blend-tree)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.1865718Z audit: 59 — blend tree: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.1866831Z ==> auditing feature-particles (60-particles)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.3163901Z audit: 60 — particles: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:10.3164589Z ==> auditing feature-noise (61-noise)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:12.1207733Z audit: 61 — noise: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:12.1208285Z ==> auditing feature-lfo (62-lfo)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.1561429Z audit: 62 — lfo: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.1562065Z ==> auditing feature-easing-presets (63-easing-presets)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.1868584Z audit: 63 — easing library: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 12 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.1869839Z ==> auditing feature-audio-waveform (64-audio-waveform)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.2145832Z     audit: 64 — audio waveform: [ERROR] text 3.4:1 (needs 4.5:1) at 212,249..401,263 — #828ca0 on #ffffff
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.2146902Z     audit: 64 — audio waveform: 1 error(s), 0 warning(s); text contrast: 1 failure(s), 1 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.2147387Z     Error: "accessibility audit failed: 0 tree error(s), 1 contrast failure(s)"
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.2147985Z ==> auditing feature-audio-reactive (65-audio-reactive)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.2337920Z     audit: 65 — audio reactive: [ERROR] text 3.4:1 (needs 4.5:1) at 112,309..501,323 — #828ca0 on #ffffff
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.2338611Z     audit: 65 — audio reactive: 1 error(s), 0 warning(s); text contrast: 1 failure(s), 1 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.2339276Z     Error: "accessibility audit failed: 0 tree error(s), 1 contrast failure(s)"
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.2339644Z ==> auditing feature-video-filmstrip (66-video-filmstrip)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.2424178Z     vieww: RenderRow overflowed by 230px on the horizontal axis — 810 of children into 580 of space
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.2424926Z     audit: 66 — video filmstrip: [ERROR] text 3.4:1 (needs 4.5:1) at 158,98..456,112 — #828ca0 on #ffffff
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.2425795Z     audit: 66 — video filmstrip: 1 error(s), 0 warning(s); text contrast: 1 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.2426339Z     Error: "accessibility audit failed: 0 tree error(s), 1 contrast failure(s)"
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.2426966Z ==> auditing feature-mesh (67-mesh)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.3013548Z audit: 67 — mesh: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.3014185Z ==> auditing feature-physics (68-physics)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.3185959Z audit: 68 — physics: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.3187766Z ==> auditing feature-physics-joint (69-physics-joint)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4140872Z audit: 69 — physics joints: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4141823Z ==> auditing feature-network (70-network)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4215686Z     audit: 70 — network: [ERROR] text 3.4:1 (needs 4.5:1) at 164,183..470,197 — #828ca0 on #ffffff
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4216407Z     audit: 70 — network: [ERROR] text 2.7:1 (needs 4.5:1) at 165,211..470,224 — #969eac on #ffffff
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4216990Z     audit: 70 — network: 2 error(s), 0 warning(s); text contrast: 2 failure(s), 10 judged, 3 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4217540Z     Error: "accessibility audit failed: 0 tree error(s), 2 contrast failure(s)"
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4217879Z ==> auditing feature-embed (71-embed)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4279681Z audit: 71 — embed: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 2 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4281017Z ==> auditing feature-scatter-chart (72-scatter-chart)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4345418Z audit: 72 — scatter chart: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 10 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4347151Z ==> auditing feature-pie-chart (73-pie-chart)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4407700Z audit: 73 — pie chart: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 5 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4409065Z ==> auditing feature-donut-chart (74-donut-chart)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4468383Z audit: 74 — donut chart: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 4 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4469933Z ==> auditing feature-function-graph (75-function-graph)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4611547Z audit: 75 — function graph: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 18 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4612778Z ==> auditing feature-math-text (76-math-text)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4685391Z audit: 76 — math text: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 11 judged, 53 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.4686816Z ==> auditing feature-split-text (77-split-text)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.5244071Z     audit: 77 — split text: [ERROR] text 3.4:1 (needs 4.5:1) at 24,24..105,38 — #828ca0 on #ffffff
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.5244669Z     audit: 77 — split text: [ERROR] text 3.4:1 (needs 4.5:1) at 24,131..77,145 — #828ca0 on #ffffff
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.5245677Z     audit: 77 — split text: 2 error(s), 0 warning(s); text contrast: 2 failure(s), 8 judged, 36 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.5246163Z     Error: "accessibility audit failed: 0 tree error(s), 2 contrast failure(s)"
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.5246752Z ==> auditing feature-shape-morph (78-shape-morph)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.5353330Z audit: 78 — shape morph: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.5354929Z ==> auditing feature-ik (79-ik)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.5544842Z audit: 79 — two-bone ik: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:53:13.5546560Z ==> auditing feature-3d-scene (80-3d-scene)
+-----
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:24.0676860Z audit: 89 — video & effects: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 26 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:24.0682954Z ==> auditing feature-midi-dsp-osc (90-midi-dsp-osc)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:24.3671389Z audit: 90 — midi, dsp, osc: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 12 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:24.3672212Z ==> auditing feature-code-binding-sprites (91-code-binding-sprites)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:24.7379002Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 32,83..39,97 — #555c6c on #1e2128
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:24.7379960Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 32,137..39,151 — #555c6c on #1e2128
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:24.7380658Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 32,155..39,169 — #555c6c on #1e2128
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:24.7381599Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 32,173..39,187 — #555c6c on #1e2128
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:24.7382314Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 32,191..39,205 — #555c6c on #1e2128
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:24.7382899Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 32,209..39,223 — #555c6c on #1e2128
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:24.7383425Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 458,155..465,169 — #555c6c on #1e2128
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:24.7383934Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 458,173..465,187 — #555c6c on #1e2128
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:24.7384925Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 458,191..465,205 — #555c6c on #1e2128
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:24.7386797Z     audit: 91 — code, binding, sprites: 9 error(s), 0 warning(s); text contrast: 9 failure(s), 43 judged, 73 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:24.7387426Z ==> auditing feature-media-player (92-media-player)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:24.7390693Z     Error: "accessibility audit failed: 0 tree error(s), 9 contrast failure(s)"
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0980738Z audit: 92 — media player: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 6 judged, 0 skipped
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0982527Z feature-a11y: 16 example(s) failed the accessibility audit:
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0982988Z   feature-theme-light-dark
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0983287Z   feature-checkbox
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0983477Z   feature-switch
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0983642Z   feature-radio
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0983812Z   feature-chip-badge
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0984014Z   feature-form-controls
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0984227Z   feature-data-table
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0984417Z   feature-baseline-alignment
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0984612Z   feature-blend-modes
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0984787Z   feature-state-machine
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0985050Z   feature-audio-waveform
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0985316Z   feature-audio-reactive
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0985702Z   feature-video-filmstrip
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0985975Z   feature-network
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0986227Z   feature-split-text
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0986507Z   feature-code-binding-sprites
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0986942Z   (run ci/check/feature-a11y.sh <number> to see one example's findings)
+Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example)	2026-11-03T09:55:25.0998704Z ##[error]Process completed with exit code 1.
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	﻿2026-11-03T09:46:55.1631081Z ##[group]Run status=0
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:46:55.1631347Z ^[[36;1mstatus=0^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:46:55.1631561Z ^[[36;1mfor t in $(cargo +nightly fuzz list); do^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:46:55.1631807Z ^[[36;1m  echo "::group::$t"^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:46:55.1632253Z ^[[36;1m  cargo +nightly fuzz run "$t" "fuzz/corpus/$t" -s none -- \^[[0m
+-----
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.3782539Z ^[[1m^[[92m   Compiling^[[0m vieww-audio-fuzz v0.0.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/fuzz)
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5346087Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 32.30s
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5543966Z ^[[1m^[[33mwarning^[[0m^[[1m: `package.homepage` is redundant with `package.repository`^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5544989Z  ^[[1m^[[94m--> ^[[0m/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/Cargo.toml:9:1
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5545921Z   ^[[1m^[[94m|^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5546282Z ^[[1m^[[94m8^[[0m ^[[1m^[[94m|^[[0m repository.workspace = true
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5546735Z   ^[[1m^[[94m|^[[0m ^[[1m^[[94m----------^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5547167Z ^[[1m^[[94m9^[[0m ^[[1m^[[94m|^[[0m homepage.workspace = true
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5547585Z   ^[[1m^[[94m|^[[0m ^[[1m^[[33m^^^^^^^^^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5547920Z   ^[[1m^[[94m|^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5548704Z   ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `cargo::redundant_homepage` is set to `warn` by default
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5549300Z ^[[1m^[[96mhelp^[[0m: consider removing `package.homepage`
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5550010Z ^[[1m^[[33mwarning^[[0m: `vieww-audio` (manifest) generated 1 warning
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5647002Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 0.01s
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5655005Z ^[[1m^[[92m     Running^[[0m `fuzz/target/x86_64-unknown-linux-gnu/release/decode -artifact_prefix=/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/fuzz/artifacts/decode/ -max_total_time=120 -rss_limit_mb=2048 -timeout=20 fuzz/corpus/decode`
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5676216Z WARNING: Failed to find function "__sanitizer_acquire_crash_state".
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5676747Z WARNING: Failed to find function "__sanitizer_print_stack_trace".
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5677270Z WARNING: Failed to find function "__sanitizer_set_death_callback".
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5677766Z INFO: Running with entropic power schedule (0xFF, 100).
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5678148Z INFO: Seed: 1428635935
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5780192Z INFO: Loaded 1 modules   (7244 inline 8-bit counters): 7244 [0x561f975ab388, 0x561f975acfd4), 
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5780912Z INFO: Loaded 1 PC tables (7244 PCs): 7244 [0x561f975acfd8,0x561f975c9498), 
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:47:27.5781662Z INFO:       35 files found in fuzz/corpus/decode
+-----
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.7290998Z ^[[1m^[[92m   Compiling^[[0m vieww-audio-fuzz v0.0.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/fuzz)
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.8857783Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 0.17s
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9019755Z ^[[1m^[[33mwarning^[[0m^[[1m: `package.homepage` is redundant with `package.repository`^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9020498Z  ^[[1m^[[94m--> ^[[0m/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/Cargo.toml:9:1
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9020928Z   ^[[1m^[[94m|^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9021189Z ^[[1m^[[94m8^[[0m ^[[1m^[[94m|^[[0m repository.workspace = true
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9021490Z   ^[[1m^[[94m|^[[0m ^[[1m^[[94m----------^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9021767Z ^[[1m^[[94m9^[[0m ^[[1m^[[94m|^[[0m homepage.workspace = true
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9022035Z   ^[[1m^[[94m|^[[0m ^[[1m^[[33m^^^^^^^^^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9022247Z   ^[[1m^[[94m|^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9022734Z   ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `cargo::redundant_homepage` is set to `warn` by default
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9023126Z ^[[1m^[[96mhelp^[[0m: consider removing `package.homepage`
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9023483Z ^[[1m^[[33mwarning^[[0m: `vieww-audio` (manifest) generated 1 warning
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9129721Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 0.01s
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9136567Z ^[[1m^[[92m     Running^[[0m `fuzz/target/x86_64-unknown-linux-gnu/release/decode_aac_adts -artifact_prefix=/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/fuzz/artifacts/decode_aac_adts/ -max_total_time=120 -rss_limit_mb=2048 -timeout=20 fuzz/corpus/decode_aac_adts`
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9156392Z WARNING: Failed to find function "__sanitizer_acquire_crash_state".
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9156943Z WARNING: Failed to find function "__sanitizer_print_stack_trace".
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9157422Z WARNING: Failed to find function "__sanitizer_set_death_callback".
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9157749Z INFO: Running with entropic power schedule (0xFF, 100).
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9158001Z INFO: Seed: 2517564228
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9263028Z INFO: Loaded 1 modules   (1931 inline 8-bit counters): 1931 [0x55ad2e9fcac8, 0x55ad2e9fd253), 
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9263653Z INFO: Loaded 1 PC tables (1931 PCs): 1931 [0x55ad2e9fd258,0x55ad2ea04b08), 
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:49:28.9265055Z INFO:       35 files found in fuzz/corpus/decode_aac_adts
+-----
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:29.9712485Z ^[[1m^[[92m   Compiling^[[0m vieww-audio-fuzz v0.0.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/fuzz)
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1194472Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 0.16s
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1353530Z ^[[1m^[[33mwarning^[[0m^[[1m: `package.homepage` is redundant with `package.repository`^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1354224Z  ^[[1m^[[94m--> ^[[0m/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/Cargo.toml:9:1
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1354613Z   ^[[1m^[[94m|^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1354867Z ^[[1m^[[94m8^[[0m ^[[1m^[[94m|^[[0m repository.workspace = true
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1355157Z   ^[[1m^[[94m|^[[0m ^[[1m^[[94m----------^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1355433Z ^[[1m^[[94m9^[[0m ^[[1m^[[94m|^[[0m homepage.workspace = true
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1355696Z   ^[[1m^[[94m|^[[0m ^[[1m^[[33m^^^^^^^^^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1355904Z   ^[[1m^[[94m|^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1356486Z   ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `cargo::redundant_homepage` is set to `warn` by default
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1356922Z ^[[1m^[[96mhelp^[[0m: consider removing `package.homepage`
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1357283Z ^[[1m^[[33mwarning^[[0m: `vieww-audio` (manifest) generated 1 warning
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1472006Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 0.01s
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1478439Z ^[[1m^[[92m     Running^[[0m `fuzz/target/x86_64-unknown-linux-gnu/release/decode_aac_mp4 -artifact_prefix=/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/fuzz/artifacts/decode_aac_mp4/ -max_total_time=120 -rss_limit_mb=2048 -timeout=20 fuzz/corpus/decode_aac_mp4`
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1496793Z WARNING: Failed to find function "__sanitizer_acquire_crash_state".
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1497337Z WARNING: Failed to find function "__sanitizer_print_stack_trace".
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1497837Z WARNING: Failed to find function "__sanitizer_set_death_callback".
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1498151Z INFO: Running with entropic power schedule (0xFF, 100).
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1498459Z INFO: Seed: 3492524372
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1607457Z INFO: Loaded 1 modules   (2319 inline 8-bit counters): 2319 [0x56082a69be28, 0x56082a69c737), 
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1608335Z INFO: Loaded 1 PC tables (2319 PCs): 2319 [0x56082a69c738,0x56082a6a5828), 
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:51:30.1609070Z INFO:       35 files found in fuzz/corpus/decode_aac_mp4
+-----
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.3988967Z ^[[1m^[[92m   Compiling^[[0m vieww-audio-fuzz v0.0.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/fuzz)
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5494701Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 0.17s
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5655281Z ^[[1m^[[33mwarning^[[0m^[[1m: `package.homepage` is redundant with `package.repository`^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5655945Z  ^[[1m^[[94m--> ^[[0m/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/Cargo.toml:9:1
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5656342Z   ^[[1m^[[94m|^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5656607Z ^[[1m^[[94m8^[[0m ^[[1m^[[94m|^[[0m repository.workspace = true
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5656898Z   ^[[1m^[[94m|^[[0m ^[[1m^[[94m----------^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5657181Z ^[[1m^[[94m9^[[0m ^[[1m^[[94m|^[[0m homepage.workspace = true
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5657451Z   ^[[1m^[[94m|^[[0m ^[[1m^[[33m^^^^^^^^^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5657667Z   ^[[1m^[[94m|^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5658146Z   ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `cargo::redundant_homepage` is set to `warn` by default
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5658522Z ^[[1m^[[96mhelp^[[0m: consider removing `package.homepage`
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5659230Z ^[[1m^[[33mwarning^[[0m: `vieww-audio` (manifest) generated 1 warning
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5774566Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 0.01s
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5782032Z ^[[1m^[[92m     Running^[[0m `fuzz/target/x86_64-unknown-linux-gnu/release/decode_aiff -artifact_prefix=/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/fuzz/artifacts/decode_aiff/ -max_total_time=120 -rss_limit_mb=2048 -timeout=20 fuzz/corpus/decode_aiff`
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5802587Z WARNING: Failed to find function "__sanitizer_acquire_crash_state".
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5803144Z WARNING: Failed to find function "__sanitizer_print_stack_trace".
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5803674Z WARNING: Failed to find function "__sanitizer_set_death_callback".
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5804188Z INFO: Running with entropic power schedule (0xFF, 100).
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5804567Z INFO: Seed: 369051756
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5912279Z INFO: Loaded 1 modules   (422 inline 8-bit counters): 422 [0x555f575e51c8, 0x555f575e536e), 
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5912933Z INFO: Loaded 1 PC tables (422 PCs): 422 [0x555f575e5370,0x555f575e6dd0), 
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:53:31.5914279Z INFO:       35 files found in fuzz/corpus/decode_aiff
+-----
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.6364320Z ^[[1m^[[92m   Compiling^[[0m vieww-audio-fuzz v0.0.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/fuzz)
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.7883739Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 0.17s
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8045522Z ^[[1m^[[33mwarning^[[0m^[[1m: `package.homepage` is redundant with `package.repository`^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8046231Z  ^[[1m^[[94m--> ^[[0m/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/Cargo.toml:9:1
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8046629Z   ^[[1m^[[94m|^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8046886Z ^[[1m^[[94m8^[[0m ^[[1m^[[94m|^[[0m repository.workspace = true
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8047173Z   ^[[1m^[[94m|^[[0m ^[[1m^[[94m----------^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8047454Z ^[[1m^[[94m9^[[0m ^[[1m^[[94m|^[[0m homepage.workspace = true
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8047717Z   ^[[1m^[[94m|^[[0m ^[[1m^[[33m^^^^^^^^^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8047928Z   ^[[1m^[[94m|^[[0m
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8048432Z   ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `cargo::redundant_homepage` is set to `warn` by default
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8048825Z ^[[1m^[[96mhelp^[[0m: consider removing `package.homepage`
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8049166Z ^[[1m^[[33mwarning^[[0m: `vieww-audio` (manifest) generated 1 warning
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8167989Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 0.01s
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8174364Z ^[[1m^[[92m     Running^[[0m `fuzz/target/x86_64-unknown-linux-gnu/release/decode_alac -artifact_prefix=/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/fuzz/artifacts/decode_alac/ -max_total_time=120 -rss_limit_mb=2048 -timeout=20 fuzz/corpus/decode_alac`
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8194972Z WARNING: Failed to find function "__sanitizer_acquire_crash_state".
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8195447Z WARNING: Failed to find function "__sanitizer_print_stack_trace".
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8195788Z WARNING: Failed to find function "__sanitizer_set_death_callback".
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8196111Z INFO: Running with entropic power schedule (0xFF, 100).
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8196452Z INFO: Seed: 1349202519
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8300564Z INFO: Loaded 1 modules   (1361 inline 8-bit counters): 1361 [0x560de85acc08, 0x560de85ad159), 
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8301180Z INFO: Loaded 1 PC tables (1361 PCs): 1361 [0x560de85ad160,0x560de85b2670), 
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:32.8302609Z INFO:       35 files found in fuzz/corpus/decode_alac
+-----
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:37.3472042Z #9503	NEW    cov: 394 ft: 981 corp: 163/5698Kb lim: 123065 exec/s: 2375 rss: 36Mb L: 49075/123065 MS: 1 CrossOver-
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:37.3682096Z #9550	NEW    cov: 394 ft: 982 corp: 164/5746Kb lim: 123065 exec/s: 2387 rss: 36Mb L: 49075/123065 MS: 2 ChangeByte-CrossOver-
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:37.3937845Z 	NEW_FUNC[1/1]: 0x560de8500791
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:37.3943723Z #9583	NEW    cov: 399 ft: 988 corp: 165/5866Kb lim: 123065 exec/s: 2395 rss: 36Mb L: 123065/123065 MS: 3 ChangeBit-ChangeBit-CrossOver-
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:37.4120561Z #9609	REDUCE cov: 399 ft: 988 corp: 165/5866Kb lim: 123065 exec/s: 2402 rss: 36Mb L: 1248/123065 MS: 1 EraseBytes-
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:37.4353483Z #9650	NEW    cov: 399 ft: 990 corp: 166/5914Kb lim: 123065 exec/s: 2412 rss: 36Mb L: 49075/123065 MS: 1 CopyPart-
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:37.4607574Z #9678	NEW    cov: 399 ft: 991 corp: 167/5962Kb lim: 123065 exec/s: 2419 rss: 36Mb L: 49075/123065 MS: 3 ChangeBinInt-ChangeBinInt-ChangeBit-
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:37.4826806Z #9804	NEW    cov: 399 ft: 992 corp: 168/6010Kb lim: 123065 exec/s: 2451 rss: 36Mb L: 49075/123065 MS: 1 ChangeBinInt-
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:37.6030212Z #9955	NEW    cov: 399 ft: 994 corp: 169/6050Kb lim: 123065 exec/s: 2488 rss: 36Mb L: 40846/123065 MS: 1 CrossOver-
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:37.7825778Z #10211	NEW    cov: 399 ft: 995 corp: 170/6098Kb lim: 123065 exec/s: 2552 rss: 36Mb L: 49075/123065 MS: 1 CrossOver-
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:37.8019637Z #10246	NEW    cov: 400 ft: 998 corp: 171/6103Kb lim: 123065 exec/s: 2561 rss: 36Mb L: 5546/123065 MS: 5 ChangeBit-CMP-CrossOver-ChangeBit-InsertRepeatedBytes- DE: "\001\000\000\000\000\000\000\034"-
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:37.9622697Z #10533	NEW    cov: 401 ft: 999 corp: 172/6151Kb lim: 123065 exec/s: 2106 rss: 36Mb L: 49075/123065 MS: 2 ChangeBinInt-CMP- DE: "\377\377\377\377\377\377\016\357"-
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:37.9776877Z #10591	NEW    cov: 401 ft: 1000 corp: 173/6199Kb lim: 123065 exec/s: 2118 rss: 36Mb L: 49075/123065 MS: 3 CMP-ShuffleBytes-CMP- DE: " \377\377\377\377\377\377\377"-"!\000\000\000"-
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:37.9905843Z #10603	NEW    cov: 402 ft: 1001 corp: 174/6239Kb lim: 123065 exec/s: 2120 rss: 36Mb L: 40846/123065 MS: 2 ChangeBit-PersAutoDict- DE: "\000\000\000\000\000\000\000\000"-
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0354623Z 
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0355537Z thread '<unnamed>' (3777) panicked at /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/src/codec/alac.rs:312:28:
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0356334Z attempt to subtract with overflow
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0356636Z stack backtrace:
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0456902Z    0: __rustc::rust_begin_unwind
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0457574Z              at /rustc/1c3a6506966e21845b31de0b075d2527660db132/library/std/src/panicking.rs:676:5
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0458205Z    1: core::panicking::panic_fmt
+-----
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0594065Z              at /home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libfuzzer-sys-0.4.13/libfuzzer/FuzzerLoop.cpp:619:15
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0595156Z   10: _ZN6fuzzer6Fuzzer6RunOneEPKhmbPNS_9InputInfoEbPb
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0595668Z              at /home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libfuzzer-sys-0.4.13/libfuzzer/FuzzerLoop.cpp:516:22
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0596348Z   11: _ZN6fuzzer6Fuzzer16MutateAndTestOneEv
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0597159Z              at /home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libfuzzer-sys-0.4.13/libfuzzer/FuzzerLoop.cpp:765:25
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0598032Z   12: _ZN6fuzzer6Fuzzer4LoopERSt6vectorINS_9SizedFileESaIS2_EE
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0598870Z              at /home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libfuzzer-sys-0.4.13/libfuzzer/FuzzerLoop.cpp:910:21
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0624041Z   13: _ZN6fuzzer12FuzzerDriverEPiPPPcPFiPKhmE
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0624757Z              at /home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libfuzzer-sys-0.4.13/libfuzzer/FuzzerDriver.cpp:923:10
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0625441Z   14: main
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0626090Z              at /home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libfuzzer-sys-0.4.13/libfuzzer/FuzzerMain.cpp:20:30
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0627518Z   15: <unknown>
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0627736Z   16: __libc_start_main
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0627969Z   17: _start
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0628347Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0628891Z ==3777== ERROR: libFuzzer: deadly signal
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0629278Z NOTE: libFuzzer has rudimentary signal handlers.
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0629980Z       Combine libFuzzer with AddressSanitizer or similar for better crash reports.
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0630536Z SUMMARY: libFuzzer: deadly signal
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0631214Z MS: 2 PersAutoDict-CopyPart- DE: "\001\000\000\000\000\000\000\034"-; base unit: 4ea8911608aa360aa1d24ef842cbb012ac3cb541
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0634178Z artifact_prefix='/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/fuzz/artifacts/decode_alac/'; Test unit written to /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/fuzz/artifacts/decode_alac/crash-ffd3e08ce224a4115e7443c75eb2eb7483c0079e
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0680949Z 
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0683174Z ────────────────────────────────────────────────────────────────────────────────
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0683526Z 
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0683617Z Failing input:
+Audio decoders under cargo-fuzz (nightly)	Fuzz every target	2026-11-03T09:55:38.0683755Z 
+-----
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:24.1869612Z ^[[1m^[[92m   Compiling^[[0m rangemap v1.8.0
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:24.2325870Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.3.6
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:24.3836099Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v2.1.3
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:24.4066157Z ^[[1m^[[92m   Compiling^[[0m unicode-linebreak v0.1.5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:24.4310493Z ^[[1m^[[92m   Compiling^[[0m self_cell v1.3.0
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:24.4845648Z ^[[1m^[[92m   Compiling^[[0m sys-locale v0.3.2
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:24.5425721Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:24.6915934Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:25.7856192Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:30.4323623Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:33.9906026Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 44.32s
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0523464Z ^[[1m^[[92m     Running^[[0m unittests src/lib.rs (target/release/deps/vieww_hal-580b85ab69c42af4)
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0538957Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0539169Z running 0 tests
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0539298Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0539488Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 28 filtered out; finished in 0.00s
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0539669Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0541156Z ^[[1m^[[92m     Running^[[0m tests/d3d12_scene.rs (target/release/deps/d3d12_scene-91a0c204fd4f12b9)
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0552146Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0552229Z running 0 tests
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0552338Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0552538Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0552809Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0553843Z ^[[1m^[[92m     Running^[[0m tests/d3d12_smoke.rs (target/release/deps/d3d12_smoke-9ff8aabd1a8e5a50)
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0570798Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0570908Z running 0 tests
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0571044Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0571194Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0571373Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0572730Z ^[[1m^[[92m     Running^[[0m tests/metal_scene.rs (target/release/deps/metal_scene-7aeb38028bfbe9a0)
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0582975Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0583064Z running 0 tests
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0583165Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0583397Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0583575Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0585083Z ^[[1m^[[92m     Running^[[0m tests/metal_smoke.rs (target/release/deps/metal_smoke-2887965f97008a09)
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0597155Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0597246Z running 0 tests
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0597349Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0597546Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0597774Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0599309Z ^[[1m^[[92m     Running^[[0m tests/vulkan_compositor.rs (target/release/deps/vulkan_compositor-0b092c34640282d6)
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0610624Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.0610704Z running 17 tests
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.7545931Z test a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp ... FAILED
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.8025190Z test a_blurred_layer_matches_the_three_box_blur ... ok
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.8448274Z test a_colour_matrix_layer_matches ... ok
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.8827483Z test a_dashed_stroke_under_a_scale_matches_width_and_pattern ... ok
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.9286442Z test a_renderer_shared_between_planners_never_draws_a_stale_atlas ... FAILED
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:34.9700059Z test a_shadow_inside_a_translucent_layer_matches ... FAILED
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:35.0141968Z test a_steady_frame_uploads_nothing_new_and_reuses_every_target ... ok
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:35.0509356Z test a_transparent_clear_reads_back_straight_alpha_like_the_cpu ... ok
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.1733151Z test all_twenty_eight_blend_modes_match ... ok
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.2130776Z test every_shadow_variant_matches ... FAILED
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.2536769Z test group_opacity_composites_the_group_not_each_child ... ok
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.4142746Z test images_magnified_rotated_and_minified_match ... ok
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.7138469Z test linear_radial_and_sweep_gradients_match_per_pixel ... ok
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.7563100Z test nested_layers_with_mixed_effects_match ... ok
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.7932288Z test overlapping_subpaths_fill_under_non_zero_winding ... ok
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8348157Z test shaped_clips_on_draws_and_on_layers_match ... FAILED
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8726610Z test sharp_miter_joins_reach_as_far_as_the_cpu_allows ... ok
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8726891Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8726963Z failures:
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8727053Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8727250Z ---- a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp stdout ----
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8727735Z backdrop-blur: max channel diff 20 at (16, 70) gpu=[75, 182, 115, 255] cpu=[55, 175, 101, 255]; 75 px over 2
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8728017Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8728379Z thread 'a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp' (4186) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:113:5:
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8729051Z backdrop-blur: 75 pixels differ by more than 2 (allowed 0); worst 20 at (16, 70) gpu=[75, 182, 115, 255] cpu=[55, 175, 101, 255]
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8729483Z stack backtrace:
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8735053Z    0: __rustc::rust_begin_unwind
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8735471Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8735835Z    1: core::panicking::panic_fmt
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8736154Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8736484Z    2: assert_parity
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8736670Z              at ./tests/vulkan_compositor.rs:113:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8736969Z    3: a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8737273Z              at ./tests/vulkan_compositor.rs:382:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8737490Z    4: {closure#0}
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8737675Z              at ./tests/vulkan_compositor.rs:357:73
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8738165Z    5: call_once<vulkan_compositor::a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp::{closure_env#0}, ()>
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8739097Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8739598Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8740071Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8740568Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8740820Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8740990Z ---- a_renderer_shared_between_planners_never_draws_a_stale_atlas stdout ----
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8741225Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8741540Z thread 'a_renderer_shared_between_planners_never_draws_a_stale_atlas' (4230) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:846:9:
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8742096Z assertion `left == right` failed: planner 0: 64 pixels drawn against a stale atlas
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8742403Z   left: 64
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8742548Z  right: 0
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8742696Z stack backtrace:
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8742867Z    0: __rustc::rust_begin_unwind
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8743318Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8743665Z    1: core::panicking::panic_fmt
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8743986Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8744501Z    2: core::panicking::assert_failed_inner
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8744860Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:434:23
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8745239Z    3: core::panicking::assert_failed::<usize, usize>
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8745604Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:394:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8745997Z    4: a_renderer_shared_between_planners_never_draws_a_stale_atlas
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8746286Z              at ./tests/vulkan_compositor.rs:846:9
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8746504Z    5: {closure#0}
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8746693Z              at ./tests/vulkan_compositor.rs:805:66
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8747114Z    6: call_once<vulkan_compositor::a_renderer_shared_between_planners_never_draws_a_stale_atlas::{closure_env#0}, ()>
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8747647Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8748132Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8748617Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8749072Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8749323Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8749442Z ---- a_shadow_inside_a_translucent_layer_matches stdout ----
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8749838Z shadow-in-layer: max channel diff 43 at (95, 67) gpu=[127, 177, 147, 255] cpu=[84, 159, 113, 255]; 6716 px over 2
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8750114Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8750383Z thread 'a_shadow_inside_a_translucent_layer_matches' (4241) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:113:5:
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8750995Z shadow-in-layer: 6716 pixels differ by more than 2 (allowed 0); worst 43 at (95, 67) gpu=[127, 177, 147, 255] cpu=[84, 159, 113, 255]
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8751396Z stack backtrace:
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8751609Z    0: __rustc::rust_begin_unwind
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8751933Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8752280Z    1: core::panicking::panic_fmt
+-----
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8752939Z    2: assert_parity
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8753122Z              at ./tests/vulkan_compositor.rs:113:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8753496Z    3: a_shadow_inside_a_translucent_layer_matches
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8753740Z              at ./tests/vulkan_compositor.rs:541:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8753953Z    4: {closure#0}
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8754136Z              at ./tests/vulkan_compositor.rs:516:49
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8754610Z    5: call_once<vulkan_compositor::a_shadow_inside_a_translucent_layer_matches::{closure_env#0}, ()>
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8755123Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8755687Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8756196Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8756656Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8756910Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8756998Z ---- every_shadow_variant_matches stdout ----
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8757366Z shadow-outer: max channel diff 32 at (51, 25) gpu=[178, 183, 191, 255] cpu=[210, 212, 218, 255]; 7928 px over 2
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8757648Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8757994Z thread 'every_shadow_variant_matches' (4556) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:113:5:
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8758558Z shadow-outer: 7928 pixels differ by more than 2 (allowed 0); worst 32 at (51, 25) gpu=[178, 183, 191, 255] cpu=[210, 212, 218, 255]
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8758952Z stack backtrace:
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8759126Z    0: __rustc::rust_begin_unwind
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8759451Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8759800Z    1: core::panicking::panic_fmt
+-----
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8760473Z    2: assert_parity
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8760659Z              at ./tests/vulkan_compositor.rs:113:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8760911Z    3: every_shadow_variant_matches
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8761134Z              at ./tests/vulkan_compositor.rs:504:9
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8761351Z    4: {closure#0}
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8761545Z              at ./tests/vulkan_compositor.rs:455:34
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8761877Z    5: call_once<vulkan_compositor::every_shadow_variant_matches::{closure_env#0}, ()>
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8762320Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8762795Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8763270Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8763718Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8763968Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8764085Z ---- shaped_clips_on_draws_and_on_layers_match stdout ----
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8764567Z shaped-clips: max channel diff 52 at (87, 8) gpu=[145, 210, 170, 255] cpu=[93, 190, 130, 255]; 419 px over 2
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8764839Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8765101Z thread 'shaped_clips_on_draws_and_on_layers_match' (4722) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:113:5:
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8765669Z shaped-clips: 419 pixels differ by more than 2 (allowed 0); worst 52 at (87, 8) gpu=[145, 210, 170, 255] cpu=[93, 190, 130, 255]
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8766050Z stack backtrace:
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8766218Z    0: __rustc::rust_begin_unwind
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8766533Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8766876Z    1: core::panicking::panic_fmt
+-----
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8768700Z              at ./tests/vulkan_compositor.rs:387:47
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8769053Z    5: call_once<vulkan_compositor::shaped_clips_on_draws_and_on_layers_match::{closure_env#0}, ()>
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8769523Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8769994Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8770467Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8770914Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8771168Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8771176Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8771241Z failures:
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8771471Z     a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8771810Z     a_renderer_shared_between_planners_never_draws_a_stale_atlas
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8772184Z     a_shadow_inside_a_translucent_layer_matches
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8772412Z     every_shadow_variant_matches
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8772620Z     shaped_clips_on_draws_and_on_layers_match
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8772773Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8772968Z test result: FAILED. 12 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.81s
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8773236Z 
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.8843146Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test vulkan_compositor`
+GPU on software Vulkan (lavapipe)	Vulkan suites (headless)	2026-11-03T09:47:36.9047432Z ##[error]Process completed with exit code 101.
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	﻿2026-11-03T09:53:45.9724808Z ##[group]Run status=0
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:53:45.9725119Z ^[[36;1mstatus=0^[[0m
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:53:45.9725365Z ^[[36;1mfor engine in chromium firefox webkit; do^[[0m
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:53:45.9725811Z ^[[36;1m  VIEWW_WEB_BROWSER=$engine python3 examples/test-web/verify_web.py \^[[0m
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:53:45.9726385Z ^[[36;1m    "$RUNNER_TEMP/web/dist" "$RUNNER_TEMP/web/baseline" "$RUNNER_TEMP/web/out" || status=1^[[0m
+-----
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:54:46.8357076Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/sync_api/_generated.py", line 21235, in wait_for_function
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:54:46.8379310Z     self._sync(
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:54:46.8379927Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_sync_base.py", line 111, in _sync
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:54:46.8388397Z     return task.result()
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:54:46.8388766Z            ^^^^^^^^^^^^^
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:54:46.8389278Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_page.py", line 1158, in wait_for_function
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:54:46.8389936Z     return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:54:46.8390374Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:54:46.8390927Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_frame.py", line 945, in wait_for_function
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:54:46.8391545Z     await self._channel.send("waitForFunction", self._timeout, params)
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:54:46.8392120Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 78, in send
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:54:46.8392634Z     return await self._connection.wrap_api_call(
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:54:46.8392928Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:54:46.8393431Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 636, in wrap_api_call
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:54:46.8394054Z     raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:54:46.8394604Z playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 60000ms exceeded.
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3357312Z web.engine=firefox
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3679494Z Traceback (most recent call last):
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3682500Z   File "/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-web/verify_web.py", line 172, in <module>
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3683579Z     sys.exit(main())
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3683994Z              ^^^^^^
+-----
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3686878Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/sync_api/_generated.py", line 21235, in wait_for_function
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3705312Z     self._sync(
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3706089Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_sync_base.py", line 111, in _sync
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3706949Z     return task.result()
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3707927Z            ^^^^^^^^^^^^^
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3708735Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_page.py", line 1158, in wait_for_function
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3709720Z     return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3710593Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3711535Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_frame.py", line 945, in wait_for_function
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3712433Z     await self._channel.send("waitForFunction", self._timeout, params)
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3713054Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 78, in send
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3713615Z     return await self._connection.wrap_api_call(
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3718356Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3728864Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 636, in wrap_api_call
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3729752Z     raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:55:49.3730322Z playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 60000ms exceeded.
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3514947Z web.engine=webkit
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3838418Z Traceback (most recent call last):
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3839731Z   File "/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-web/verify_web.py", line 172, in <module>
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3840646Z     sys.exit(main())
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3841002Z              ^^^^^^
+-----
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3843547Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/sync_api/_generated.py", line 21235, in wait_for_function
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3865307Z     self._sync(
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3866045Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_sync_base.py", line 111, in _sync
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3866887Z     return task.result()
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3867231Z            ^^^^^^^^^^^^^
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3867999Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_page.py", line 1158, in wait_for_function
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3869244Z     return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3869989Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3870920Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_frame.py", line 945, in wait_for_function
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3871941Z     await self._channel.send("waitForFunction", self._timeout, params)
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3872904Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 78, in send
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3873783Z     return await self._connection.wrap_api_call(
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3874273Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3875129Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 636, in wrap_api_call
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3876204Z     raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.3877108Z playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 60000ms exceeded.
+Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine	2026-11-03T09:56:51.4149960Z ##[error]Process completed with exit code 1.
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	﻿2026-11-03T09:53:45.2937500Z ##[group]Run brew install xcodegen
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:53:45.2938000Z ^[[36;1mbrew install xcodegen^[[0m
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:53:45.2938350Z ^[[36;1mci/mobile/a11y-ios.sh --xcuitest^[[0m
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:53:46.8385960Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:53:46.8386430Z env:
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:53:46.8386970Z   CARGO_TERM_COLOR: always
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:53:46.8387310Z   RUST_BACKTRACE: 1
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:53:46.8387690Z   RUST_VERSION: 1.98.1
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:53:46.8388150Z   VIEWW_SIM_DEVICE: E63A4C69-8ADF-4037-A5EE-AE47A98E069B
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:53:46.8388520Z ##[endgroup]
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:54:03.4974920Z ^[[32m==>^[[0m ^[[1mDownloading bottle manifests^[[0m
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:54:03.5491030Z ✔︎ Bottle Manifest xcodegen (2.46.0)
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:54:03.5601380Z ^[[34m==>^[[0m ^[[1mWould install 1 formula:^[[0m
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:54:03.5605160Z xcodegen
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:54:03.5820270Z ^[[32m==>^[[0m ^[[1mFetching downloads for: ^[[32mxcodegen^[[39m^[[0m
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:54:04.1862990Z ✔︎ Bottle xcodegen (2.46.0)
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:54:04.4059120Z ^[[34m==>^[[0m ^[[1mPouring xcodegen--2.46.0.arm64_sonoma.bottle.1.tar.gz^[[0m
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:54:04.9212000Z 🍺  /opt/homebrew/Cellar/xcodegen/2.46.0: 38 files, 7.6MB
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:54:04.9646030Z a11y-ios: FAIL — no app bundle at target/ios/vieww.app — run ci/mobile/ios-app.sh --sim --bundle-only first
+iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10)	2026-11-03T09:54:04.9754790Z ##[error]Process completed with exit code 1.

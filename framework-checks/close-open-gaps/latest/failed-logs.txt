@@ -1,0 +1,1087 @@
+===== Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check =====
+﻿2026-11-03T09:46:40.1696071Z ##[group]Run ci/check/cross-check.sh
+2026-11-03T09:46:40.1696362Z ^[[36;1mci/check/cross-check.sh^[[0m
+2026-11-03T09:46:40.1714593Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-03T09:46:40.1714871Z env:
+2026-11-03T09:46:40.1715041Z   CARGO_TERM_COLOR: always
+2026-11-03T09:46:40.1715234Z   RUST_BACKTRACE: 1
+2026-11-03T09:46:40.1715424Z   RUST_VERSION: 1.98.1
+2026-11-03T09:46:40.1715636Z ##[endgroup]
+2026-11-03T09:46:40.2275202Z info: syncing channel updates for 1.98.1-x86_64-unknown-linux-gnu
+2026-11-03T09:46:40.3691079Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-03T09:46:40.3797134Z info: downloading 3 components
+2026-11-03T09:46:43.5280002Z 
+2026-11-03T09:46:43.5280727Z ^[[1m== macos (aarch64-apple-darwin)^[[0m
+2026-11-03T09:48:26.3974874Z ^[[1m^[[91merror^[[0m^[[1m: function `wakeups_from_status` is never used^[[0m
+2026-11-03T09:48:26.4021969Z   ^[[1m^[[94m--> ^[[0mcrates/vieww-platform-winit/src/wakeups.rs:53:4
+2026-11-03T09:48:26.4063821Z    ^[[1m^[[94m|^[[0m
+2026-11-03T09:48:26.4124019Z ^[[1m^[[94m53^[[0m ^[[1m^[[94m|^[[0m fn wakeups_from_status(status: &str) -> Option<u64> {
+2026-11-03T09:48:26.4183798Z    ^[[1m^[[94m|^[[0m    ^[[1m^[[91m^^^^^^^^^^^^^^^^^^^^[[0m
+2026-11-03T09:48:26.4213593Z    ^[[1m^[[94m|^[[0m
+2026-11-03T09:48:26.4243927Z    ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `-D dead-code` implied by `-D warnings`
+2026-11-03T09:48:26.4273904Z    ^[[1m^[[94m= ^[[0m^[[1mhelp^[[0m: to override `-D warnings` add `#[expect(dead_code)]` or `#[allow(dead_code)]`
+2026-11-03T09:48:26.4333352Z 
+2026-11-03T09:48:26.4561387Z ^[[1m^[[91merror^[[0m: could not compile `vieww-platform-winit` (lib) due to 1 previous error
+2026-11-03T09:48:27.1141962Z    ^[[31mFAILED^[[0m — see above
+2026-11-03T09:48:27.1143568Z 
+2026-11-03T09:48:27.1143830Z ^[[1m== ios (aarch64-apple-ios)^[[0m
+2026-11-03T09:49:16.7904496Z ^[[1m^[[91merror^[[0m^[[1m: function `wakeups_from_status` is never used^[[0m
+2026-11-03T09:49:16.7933761Z   ^[[1m^[[94m--> ^[[0mcrates/vieww-platform-winit/src/wakeups.rs:53:4
+2026-11-03T09:49:16.7963714Z    ^[[1m^[[94m|^[[0m
+2026-11-03T09:49:16.7993791Z ^[[1m^[[94m53^[[0m ^[[1m^[[94m|^[[0m fn wakeups_from_status(status: &str) -> Option<u64> {
+2026-11-03T09:49:16.8023593Z    ^[[1m^[[94m|^[[0m    ^[[1m^[[91m^^^^^^^^^^^^^^^^^^^^[[0m
+2026-11-03T09:49:16.8043547Z    ^[[1m^[[94m|^[[0m
+2026-11-03T09:49:16.8073736Z    ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `-D dead-code` implied by `-D warnings`
+2026-11-03T09:49:16.8075106Z    ^[[1m^[[94m= ^[[0m^[[1mhelp^[[0m: to override `-D warnings` add `#[expect(dead_code)]` or `#[allow(dead_code)]`
+2026-11-03T09:49:16.8075522Z 
+2026-11-03T09:49:16.8556420Z ^[[1m^[[91merror^[[0m: could not compile `vieww-platform-winit` (lib) due to 1 previous error
+2026-11-03T09:49:17.3244225Z    ^[[31mFAILED^[[0m — see above
+2026-11-03T09:49:17.3246329Z 
+2026-11-03T09:49:17.3246626Z ^[[1m== windows (x86_64-pc-windows-msvc)^[[0m
+2026-11-03T09:50:09.8695997Z ^[[1m^[[91merror^[[0m^[[1m: function `wakeups_from_status` is never used^[[0m
+2026-11-03T09:50:09.8723812Z   ^[[1m^[[94m--> ^[[0mcrates/vieww-platform-winit/src/wakeups.rs:53:4
+2026-11-03T09:50:09.8724387Z    ^[[1m^[[94m|^[[0m
+2026-11-03T09:50:09.8724892Z ^[[1m^[[94m53^[[0m ^[[1m^[[94m|^[[0m fn wakeups_from_status(status: &str) -> Option<u64> {
+2026-11-03T09:50:09.8725478Z    ^[[1m^[[94m|^[[0m    ^[[1m^[[91m^^^^^^^^^^^^^^^^^^^^[[0m
+2026-11-03T09:50:09.8725904Z    ^[[1m^[[94m|^[[0m
+2026-11-03T09:50:09.8726371Z    ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `-D dead-code` implied by `-D warnings`
+2026-11-03T09:50:09.8727165Z    ^[[1m^[[94m= ^[[0m^[[1mhelp^[[0m: to override `-D warnings` add `#[expect(dead_code)]` or `#[allow(dead_code)]`
+2026-11-03T09:50:09.8727654Z 
+2026-11-03T09:50:09.9295369Z ^[[1m^[[91merror^[[0m: could not compile `vieww-platform-winit` (lib) due to 1 previous error
+2026-11-03T09:50:10.4458763Z    ^[[31mFAILED^[[0m — see above
+2026-11-03T09:50:10.4459087Z 
+2026-11-03T09:50:10.4459279Z ^[[1m== android (aarch64-linux-android)^[[0m
+2026-11-03T09:51:35.2569181Z ^[[1m^[[91merror^[[0m^[[1m: constant `IDLE` is never used^[[0m
+2026-11-03T09:51:35.2623900Z   ^[[1m^[[94m--> ^[[0mexamples/u/src/biometrics.rs:95:11
+2026-11-03T09:51:35.2653767Z    ^[[1m^[[94m|^[[0m
+2026-11-03T09:51:35.2683665Z ^[[1m^[[94m95^[[0m ^[[1m^[[94m|^[[0m     const IDLE: i32 = 0;
+2026-11-03T09:51:35.2693614Z    ^[[1m^[[94m|^[[0m           ^[[1m^[[91m^^^^^[[0m
+2026-11-03T09:51:35.2713491Z    ^[[1m^[[94m|^[[0m
+2026-11-03T09:51:35.2713940Z    ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `-D dead-code` implied by `-D warnings`
+2026-11-03T09:51:35.2714691Z    ^[[1m^[[94m= ^[[0m^[[1mhelp^[[0m: to override `-D warnings` add `#[expect(dead_code)]` or `#[allow(dead_code)]`
+2026-11-03T09:51:35.2715082Z 
+2026-11-03T09:51:35.2715337Z ^[[1m^[[91merror^[[0m^[[1m: constant `RUNNING` is never used^[[0m
+2026-11-03T09:51:35.2743882Z   ^[[1m^[[94m--> ^[[0mexamples/u/src/biometrics.rs:96:11
+2026-11-03T09:51:35.2807564Z    ^[[1m^[[94m|^[[0m
+2026-11-03T09:51:35.2863787Z ^[[1m^[[94m96^[[0m ^[[1m^[[94m|^[[0m     const RUNNING: i32 = 1;
+2026-11-03T09:51:35.2893819Z    ^[[1m^[[94m|^[[0m           ^[[1m^[[91m^^^^^^^^[[0m
+2026-11-03T09:51:35.2923408Z 
+2026-11-03T09:51:35.3120974Z ^[[1m^[[91merror^[[0m: could not compile `u` (lib) due to 2 previous errors
+2026-11-03T09:51:36.4465611Z    ^[[31mFAILED^[[0m — see above
+2026-11-03T09:51:36.4465931Z 
+2026-11-03T09:51:36.4480765Z ##[error]Process completed with exit code 4.
+
+===== Accessibility gallery + AT-SPI dry-run (Linux)	The gallery audit (VIEWW_AUDIT over every feature example) =====
+2026-11-03T09:52:14.3697575Z ^[[1m^[[92m   Compiling^[[0m feature-directionality-rtl v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/22-directionality-rtl)
+2026-11-03T09:52:17.5527431Z ^[[1m^[[92m   Compiling^[[0m feature-text-display v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/02-text-display)
+2026-11-03T09:52:17.7477421Z ^[[1m^[[92m   Compiling^[[0m feature-custom-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/35-custom-paint)
+2026-11-03T09:52:18.8397497Z ^[[1m^[[92m   Compiling^[[0m feature-midi-dsp-osc v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/90-midi-dsp-osc)
+2026-11-03T09:52:19.8257976Z ^[[1m^[[92m   Compiling^[[0m feature-video-filmstrip v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/66-video-filmstrip)
+2026-11-03T09:52:22.8527316Z ^[[1m^[[92m   Compiling^[[0m feature-audio-waveform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/64-audio-waveform)
+2026-11-03T09:52:22.9957270Z ^[[1m^[[92m   Compiling^[[0m feature-bar-chart v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/23-bar-chart)
+2026-11-03T09:52:24.6508029Z ^[[1m^[[92m   Compiling^[[0m feature-box-fit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/19-box-fit)
+2026-11-03T09:52:25.2627477Z ^[[1m^[[92m   Compiling^[[0m feature-function-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/75-function-graph)
+2026-11-03T09:52:28.1067266Z ^[[1m^[[92m   Compiling^[[0m feature-grid-view v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/44-grid-view)
+2026-11-03T09:52:28.2218709Z ^[[1m^[[92m   Compiling^[[0m feature-radio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/28-radio)
+2026-11-03T09:52:30.1557351Z ^[[1m^[[92m   Compiling^[[0m feature-container-padding v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/11-container-padding)
+2026-11-03T09:52:30.7897727Z ^[[1m^[[92m   Compiling^[[0m feature-rectangle-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/05-rectangle-animation)
+2026-11-03T09:52:33.5685399Z ^[[1m^[[92m   Compiling^[[0m feature-animated-container v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/38-animated-container)
+2026-11-03T09:52:33.5959163Z ^[[1m^[[92m   Compiling^[[0m feature-blend-modes v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/52-blend-modes)
+2026-11-03T09:52:35.6287245Z ^[[1m^[[92m   Compiling^[[0m feature-donut-chart v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/74-donut-chart)
+2026-11-03T09:52:36.2628921Z ^[[1m^[[92m   Compiling^[[0m feature-opacity v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/15-opacity)
+2026-11-03T09:52:38.9527347Z ^[[1m^[[92m   Compiling^[[0m feature-path-ops v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/81-path-ops)
+2026-11-03T09:52:38.9927196Z ^[[1m^[[92m   Compiling^[[0m feature-state-machine v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/57-state-machine)
+2026-11-03T09:52:40.9487537Z ^[[1m^[[92m   Compiling^[[0m feature-text-box v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/03-text-box)
+2026-11-03T09:52:41.7134180Z ^[[1m^[[92m   Compiling^[[0m feature-switch v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/27-switch)
+2026-11-03T09:52:44.3887386Z ^[[1m^[[92m   Compiling^[[0m feature-keyframes v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/56-keyframes)
+2026-11-03T09:52:44.4287527Z ^[[1m^[[92m   Compiling^[[0m feature-sized-box v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/17-sized-box)
+2026-11-03T09:52:46.3887649Z ^[[1m^[[92m   Compiling^[[0m feature-network v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/70-network)
+2026-11-03T09:52:47.0297288Z ^[[1m^[[92m   Compiling^[[0m feature-skeletal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/58-skeletal)
+2026-11-03T09:52:49.8487176Z ^[[1m^[[92m   Compiling^[[0m feature-canvas-dataviz v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/87-canvas-dataviz)
+2026-11-03T09:52:49.8837503Z ^[[1m^[[92m   Compiling^[[0m feature-graph-game-collab-lottie v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/88-graph-game-collab-lottie)
+2026-11-03T09:52:51.9506752Z ^[[1m^[[92m   Compiling^[[0m feature-motion-tokens v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/46-motion-tokens)
+2026-11-03T09:52:52.5827261Z ^[[1m^[[92m   Compiling^[[0m feature-noise v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/61-noise)
+2026-11-03T09:52:55.7308303Z ^[[1m^[[92m   Compiling^[[0m feature-rectangle v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/00-rectangle)
+2026-11-03T09:52:55.8262595Z ^[[1m^[[92m   Compiling^[[0m feature-shape-morph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/78-shape-morph)
+2026-11-03T09:52:57.3627245Z ^[[1m^[[92m   Compiling^[[0m feature-grayscale v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/33-grayscale)
+2026-11-03T09:52:58.1078061Z ^[[1m^[[92m   Compiling^[[0m feature-lfo v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/62-lfo)
+2026-11-03T09:53:01.0757220Z ^[[1m^[[92m   Compiling^[[0m feature-mesh v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/67-mesh)
+2026-11-03T09:53:01.1137383Z ^[[1m^[[92m   Compiling^[[0m feature-splash-screen v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/08-splash-screen)
+2026-11-03T09:53:02.8067827Z ^[[1m^[[92m   Compiling^[[0m feature-scatter-chart v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/72-scatter-chart)
+2026-11-03T09:53:03.5807155Z ^[[1m^[[92m   Compiling^[[0m feature-split-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/77-split-text)
+2026-11-03T09:53:06.5507746Z ^[[1m^[[92m   Compiling^[[0m feature-transform-translate v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/20-transform-translate)
+2026-11-03T09:53:09.4318865Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized + debuginfo] target(s) in 6m 28s
+2026-11-03T09:53:09.6409061Z ==> auditing feature-rectangle (00-rectangle)
+2026-11-03T09:53:09.6938829Z audit: 00 — rectangle: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.6939488Z ==> auditing feature-circle (01-circle)
+2026-11-03T09:53:09.6993678Z audit: 01 — circle: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.6995037Z ==> auditing feature-text-display (02-text-display)
+2026-11-03T09:53:09.7056121Z audit: 02 — text: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 2 judged, 0 skipped
+2026-11-03T09:53:09.7057477Z ==> auditing feature-text-box (03-text-box)
+2026-11-03T09:53:09.7116153Z audit: 03 — text box: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 1 judged, 0 skipped
+2026-11-03T09:53:09.7117875Z ==> auditing feature-decoration (04-decoration)
+2026-11-03T09:53:09.7182276Z audit: 04 — decoration: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 8 judged, 0 skipped
+2026-11-03T09:53:09.7183688Z ==> auditing feature-rectangle-animation (05-rectangle-animation)
+2026-11-03T09:53:09.7273576Z audit: 05 — rectangle animation: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.7275241Z ==> auditing feature-transition-fade (06-transition-fade)
+2026-11-03T09:53:09.7335946Z audit: 06 — fade transition: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 1 judged, 3 skipped
+2026-11-03T09:53:09.7337587Z ==> auditing feature-transition-slide (07-transition-slide)
+2026-11-03T09:53:09.7408150Z audit: 07 — slide transitions: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 10 judged, 10 skipped
+2026-11-03T09:53:09.7409398Z ==> auditing feature-splash-screen (08-splash-screen)
+2026-11-03T09:53:09.7502770Z audit: 08 — splash: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.7505779Z ==> auditing feature-colors-rgb (09-colors-rgb)
+2026-11-03T09:53:09.7559449Z audit: 09 — rgb: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.7560811Z ==> auditing feature-colors-rgba (10-colors-rgba)
+2026-11-03T09:53:09.7616600Z audit: 10 — rgba: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.7617869Z ==> auditing feature-container-padding (11-container-padding)
+2026-11-03T09:53:09.7678954Z audit: 11 — padding: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 3 judged, 0 skipped
+2026-11-03T09:53:09.7680437Z ==> auditing feature-flex-row (12-flex-row)
+2026-11-03T09:53:09.7736950Z audit: 12 — flex row: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.7738540Z ==> auditing feature-flex-column (13-flex-column)
+2026-11-03T09:53:09.7792969Z audit: 13 — flex column: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.7794242Z ==> auditing feature-stack-positioned (14-stack-positioned)
+2026-11-03T09:53:09.7848349Z audit: 14 — stack: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.7849574Z ==> auditing feature-opacity (15-opacity)
+2026-11-03T09:53:09.7908686Z audit: 15 — opacity: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 4 judged, 0 skipped
+2026-11-03T09:53:09.7909974Z ==> auditing feature-clip-rounded (16-clip-rounded)
+2026-11-03T09:53:09.7963190Z audit: 16 — clip: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.7964398Z ==> auditing feature-sized-box (17-sized-box)
+2026-11-03T09:53:09.8019198Z audit: 17 — sized box: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.8020441Z ==> auditing feature-image-display (18-image-display)
+2026-11-03T09:53:09.8076184Z audit: 18 — image: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.8077314Z ==> auditing feature-box-fit (19-box-fit)
+2026-11-03T09:53:09.8143886Z audit: 19 — box fit: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 4 judged, 0 skipped
+2026-11-03T09:53:09.8145199Z ==> auditing feature-transform-translate (20-transform-translate)
+2026-11-03T09:53:09.8200658Z audit: 20 — transform: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.8202011Z ==> auditing feature-theme-light-dark (21-theme-light-dark)
+2026-11-03T09:53:09.8313654Z     audit: 21 — theme: [ERROR] text 2.3:1 (needs 4.5:1) at 52,52..98,68 — #97969a on #e3e2e6
+2026-11-03T09:53:09.8314415Z     audit: 21 — theme: [ERROR] text 2.1:1 (needs 4.5:1) at 147,52..170,68 — #46464f on #777680
+2026-11-03T09:53:09.8314868Z     audit: 21 — theme: [ERROR] text 2.4:1 (needs 4.5:1) at 278,52..324,68 — #828188 on #46464f
+2026-11-03T09:53:09.8315358Z     audit: 21 — theme: [ERROR] text 1.9:1 (needs 4.5:1) at 373,52..396,68 — #c7c5d0 on #918f9a
+2026-11-03T09:53:09.8315987Z     audit: 21 — theme: [ERROR] text 3.5:1 (needs 4.5:1) at 505,50..551,66 — #727274 on #1c1c1e
+2026-11-03T09:53:09.8316687Z     audit: 21 — theme: 5 error(s), 0 warning(s); text contrast: 5 failure(s), 1 judged, 6 skipped
+2026-11-03T09:53:09.8317324Z     Error: "accessibility audit failed: 0 tree error(s), 5 contrast failure(s)"
+2026-11-03T09:53:09.8317902Z ==> auditing feature-directionality-rtl (22-directionality-rtl)
+2026-11-03T09:53:09.8376048Z audit: 22 — RTL: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 1 judged, 0 skipped
+2026-11-03T09:53:09.8377389Z ==> auditing feature-bar-chart (23-bar-chart)
+2026-11-03T09:53:09.8433260Z audit: 23 — bar chart: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.8434467Z ==> auditing feature-line-chart (24-line-chart)
+2026-11-03T09:53:09.8492131Z audit: 24 — line chart: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.8493478Z ==> auditing feature-button-pressable (25-button-pressable)
+2026-11-03T09:53:09.8554722Z audit: 25 — button & pressable: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 2 judged, 0 skipped
+2026-11-03T09:53:09.8556440Z ==> auditing feature-checkbox (26-checkbox)
+2026-11-03T09:53:09.8611754Z     audit: 26 — checkbox: [ERROR] node r5v0: CheckBox has no label a screen reader can announce
+2026-11-03T09:53:09.8612350Z     audit: 26 — checkbox: [ERROR] node r11v0: CheckBox has no label a screen reader can announce
+2026-11-03T09:53:09.8613120Z     audit: 26 — checkbox: 2 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.8613772Z     Error: "accessibility audit failed: 2 tree error(s), 0 contrast failure(s)"
+2026-11-03T09:53:09.8614328Z ==> auditing feature-switch (27-switch)
+2026-11-03T09:53:09.8670431Z     audit: 27 — switch: [ERROR] node r10v0: Switch has no label a screen reader can announce
+2026-11-03T09:53:09.8671123Z     audit: 27 — switch: [ERROR] node r21v0: Switch has no label a screen reader can announce
+2026-11-03T09:53:09.8671648Z     audit: 27 — switch: 2 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.8672588Z     Error: "accessibility audit failed: 2 tree error(s), 0 contrast failure(s)"
+2026-11-03T09:53:09.8673155Z ==> auditing feature-radio (28-radio)
+2026-11-03T09:53:09.8730576Z     audit: 28 — radio: [ERROR] node r8v0: Radio has no label a screen reader can announce
+2026-11-03T09:53:09.8731098Z     audit: 28 — radio: [ERROR] node r15v0: Radio has no label a screen reader can announce
+2026-11-03T09:53:09.8731844Z     audit: 28 — radio: 2 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.8732481Z     Error: "accessibility audit failed: 2 tree error(s), 0 contrast failure(s)"
+2026-11-03T09:53:09.8733040Z ==> auditing feature-linear-progress (29-linear-progress)
+2026-11-03T09:53:09.8788910Z audit: 29 — progress: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.8790866Z ==> auditing feature-chip-badge (30-chip-badge)
+2026-11-03T09:53:09.8852871Z     audit: 30 — chip & badge: [ERROR] text 2.1:1 (needs 4.5:1) at 36,32..66,48 — #46464f on #777680
+2026-11-03T09:53:09.8853610Z     audit: 30 — chip & badge: 1 error(s), 0 warning(s); text contrast: 1 failure(s), 2 judged, 0 skipped
+2026-11-03T09:53:09.8854101Z     Error: "accessibility audit failed: 0 tree error(s), 1 contrast failure(s)"
+2026-11-03T09:53:09.8854606Z ==> auditing feature-circular-progress (31-circular-progress)
+2026-11-03T09:53:09.8953269Z audit: 31 — circular progress: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 5 judged, 0 skipped
+2026-11-03T09:53:09.8954511Z ==> auditing feature-blur-effect (32-blur-effect)
+2026-11-03T09:53:09.9012840Z audit: 32 — blur: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.9014055Z ==> auditing feature-grayscale (33-grayscale)
+2026-11-03T09:53:09.9072437Z audit: 33 — grayscale: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.9073562Z ==> auditing feature-sepia (34-sepia)
+2026-11-03T09:53:09.9131892Z audit: 34 — sepia: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.9133064Z ==> auditing feature-custom-paint (35-custom-paint)
+2026-11-03T09:53:09.9219139Z audit: 35 — custom paint: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.9220258Z ==> auditing feature-tint-frosted (36-tint-frosted)
+2026-11-03T09:53:09.9278308Z audit: 36 — frosted: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.9279539Z ==> auditing feature-spring-animation (37-spring-animation)
+2026-11-03T09:53:09.9474897Z audit: 37 — spring: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 1 judged, 0 skipped
+2026-11-03T09:53:09.9476300Z ==> auditing feature-animated-container (38-animated-container)
+2026-11-03T09:53:09.9554104Z audit: 38 — animated container: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 1 judged, 0 skipped
+2026-11-03T09:53:09.9555262Z ==> auditing feature-tween (39-tween)
+2026-11-03T09:53:09.9643645Z audit: 39 — tween: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:09.9644815Z ==> auditing feature-curves (40-curves)
+2026-11-03T09:53:09.9770622Z audit: 40 — curves: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 6 judged, 0 skipped
+2026-11-03T09:53:09.9771902Z ==> auditing feature-timeline-stagger (41-timeline-stagger)
+2026-11-03T09:53:09.9880130Z audit: 41 — timeline: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 1 judged, 0 skipped
+2026-11-03T09:53:09.9881292Z ==> auditing feature-list-view (42-list-view)
+2026-11-03T09:53:09.9955299Z audit: 42 — list view: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 13 skipped
+2026-11-03T09:53:09.9956624Z ==> auditing feature-scroll-driven (43-scroll-driven)
+2026-11-03T09:53:10.0034797Z audit: 43 — scroll driven: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 1 judged, 0 skipped
+2026-11-03T09:53:10.0036243Z ==> auditing feature-grid-view (44-grid-view)
+2026-11-03T09:53:10.0148016Z audit: 44 — grid view: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 32 skipped
+2026-11-03T09:53:10.0149231Z ==> auditing feature-motion-tokens (46-motion-tokens)
+2026-11-03T09:53:10.0210242Z audit: 46 — motion tokens: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 6 judged, 0 skipped
+2026-11-03T09:53:10.0211474Z ==> auditing feature-form-controls (47-form-controls)
+2026-11-03T09:53:10.0291352Z     audit: 47 — form controls: [ERROR] node r4v0: Slider has no label a screen reader can announce
+2026-11-03T09:53:10.0292209Z     audit: 47 — form controls: [ERROR] node r7v0: Slider has no label a screen reader can announce
+2026-11-03T09:53:10.0293009Z     audit: 47 — form controls: [ERROR] node r41v0: TextField has no label a screen reader can announce
+2026-11-03T09:53:10.0293982Z     audit: 47 — form controls: [warning] node r4v0: Slider target is 360.0x40.0, smaller than the 44x44 minimum
+2026-11-03T09:53:10.0295198Z     audit: 47 — form controls: [ERROR] node r4v0: Slider offers to be activated but is not keyboard-focusable — a screen reader can operate it, Tab cannot reach it
+2026-11-03T09:53:10.0296433Z     audit: 47 — form controls: [ERROR] text 2.1:1 (needs 4.5:1) at 97,242..117,258 — #46464f on #777680
+2026-11-03T09:53:10.0297227Z     audit: 47 — form controls: [ERROR] text 2.1:1 (needs 4.5:1) at 261,242..292,258 — #46464f on #777680
+2026-11-03T09:53:10.0298058Z     audit: 47 — form controls: 6 error(s), 1 warning(s); text contrast: 2 failure(s), 6 judged, 0 skipped
+2026-11-03T09:53:10.0298729Z     Error: "accessibility audit failed: 4 tree error(s), 2 contrast failure(s)"
+2026-11-03T09:53:10.0299264Z ==> auditing feature-data-table (48-data-table)
+2026-11-03T09:53:10.0372344Z     audit: 48 — data table: [ERROR] text 2.1:1 (needs 4.5:1) at 480,94..514,110 — #46464f on #777680
+2026-11-03T09:53:10.0373133Z     audit: 48 — data table: [ERROR] text 2.1:1 (needs 4.5:1) at 480,134..514,150 — #46464f on #777680
+2026-11-03T09:53:10.0373661Z     audit: 48 — data table: [ERROR] text 2.1:1 (needs 4.5:1) at 480,174..509,190 — #46464f on #777680
+2026-11-03T09:53:10.0374430Z     audit: 48 — data table: [ERROR] text 2.1:1 (needs 4.5:1) at 480,214..514,230 — #46464f on #777680
+2026-11-03T09:53:10.0375022Z     audit: 48 — data table: [ERROR] text 2.1:1 (needs 4.5:1) at 480,254..509,270 — #46464f on #777680
+2026-11-03T09:53:10.0376056Z     audit: 48 — data table: 5 error(s), 0 warning(s); text contrast: 5 failure(s), 14 judged, 0 skipped
+2026-11-03T09:53:10.0376974Z     Error: "accessibility audit failed: 0 tree error(s), 5 contrast failure(s)"
+2026-11-03T09:53:10.0377468Z ==> auditing feature-markdown (49-markdown)
+2026-11-03T09:53:10.0452013Z audit: 49 — markdown: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 12 judged, 3 skipped
+2026-11-03T09:53:10.0453609Z ==> auditing feature-baseline-alignment (50-baseline-alignment)
+2026-11-03T09:53:10.0519443Z     audit: 50 — baseline alignment: [ERROR] text 4.5:1 (needs 4.5:1) at 24,24..166,37 — #d0474e on #ffffff
+2026-11-03T09:53:10.0520206Z     audit: 50 — baseline alignment: [ERROR] text 4.5:1 (needs 4.5:1) at 24,122..179,135 — #d0474e on #ffffff
+2026-11-03T09:53:10.0520956Z     audit: 50 — baseline alignment: 2 error(s), 0 warning(s); text contrast: 2 failure(s), 4 judged, 0 skipped
+2026-11-03T09:53:10.0521406Z     Error: "accessibility audit failed: 0 tree error(s), 2 contrast failure(s)"
+2026-11-03T09:53:10.0521966Z ==> auditing feature-locale-formatting (51-locale-formatting)
+2026-11-03T09:53:10.0596668Z audit: 51 — locale formatting: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 52 judged, 0 skipped
+2026-11-03T09:53:10.0597901Z ==> auditing feature-blend-modes (52-blend-modes)
+2026-11-03T09:53:10.0679246Z     audit: 52 — blend modes: [ERROR] text 3.2:1 (needs 4.5:1) at 20,395..207,406 — #8a8a8a on #f7f7f7
+2026-11-03T09:53:10.0679891Z     audit: 52 — blend modes: [ERROR] text 2.4:1 (needs 4.5:1) at 20,410..339,420 — #a0a0a0 on #f7f7f7
+2026-11-03T09:53:10.0680672Z     audit: 52 — blend modes: 2 error(s), 0 warning(s); text contrast: 2 failure(s), 26 judged, 0 skipped
+2026-11-03T09:53:10.0681763Z     Error: "accessibility audit failed: 0 tree error(s), 2 contrast failure(s)"
+2026-11-03T09:53:10.0682405Z ==> auditing feature-wide-gamut-color (53-wide-gamut-color)
+2026-11-03T09:53:10.0758969Z audit: 53 — wide-gamut colour: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 4 judged, 0 skipped
+2026-11-03T09:53:10.0760746Z ==> auditing feature-keyframes (56-keyframes)
+2026-11-03T09:53:10.0944088Z audit: 56 — keyframes: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:10.0945853Z ==> auditing feature-state-machine (57-state-machine)
+2026-11-03T09:53:10.1057543Z     audit: 57 — state machine: [ERROR] text 3.4:1 (needs 4.5:1) at 248,172..304,186 — #828ca0 on #ffffff
+2026-11-03T09:53:10.1058236Z     audit: 57 — state machine: 1 error(s), 0 warning(s); text contrast: 1 failure(s), 1 judged, 0 skipped
+2026-11-03T09:53:10.1058781Z     Error: "accessibility audit failed: 0 tree error(s), 1 contrast failure(s)"
+2026-11-03T09:53:10.1059205Z ==> auditing feature-skeletal (58-skeletal)
+2026-11-03T09:53:10.1664306Z audit: 58 — skeletal: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:10.1665204Z ==> auditing feature-blend-tree (59-blend-tree)
+2026-11-03T09:53:10.1865718Z audit: 59 — blend tree: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:10.1866831Z ==> auditing feature-particles (60-particles)
+2026-11-03T09:53:10.3163901Z audit: 60 — particles: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:10.3164589Z ==> auditing feature-noise (61-noise)
+2026-11-03T09:53:12.1207733Z audit: 61 — noise: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:12.1208285Z ==> auditing feature-lfo (62-lfo)
+2026-11-03T09:53:13.1561429Z audit: 62 — lfo: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:13.1562065Z ==> auditing feature-easing-presets (63-easing-presets)
+2026-11-03T09:53:13.1868584Z audit: 63 — easing library: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 12 judged, 0 skipped
+2026-11-03T09:53:13.1869839Z ==> auditing feature-audio-waveform (64-audio-waveform)
+2026-11-03T09:53:13.2145832Z     audit: 64 — audio waveform: [ERROR] text 3.4:1 (needs 4.5:1) at 212,249..401,263 — #828ca0 on #ffffff
+2026-11-03T09:53:13.2146902Z     audit: 64 — audio waveform: 1 error(s), 0 warning(s); text contrast: 1 failure(s), 1 judged, 0 skipped
+2026-11-03T09:53:13.2147387Z     Error: "accessibility audit failed: 0 tree error(s), 1 contrast failure(s)"
+2026-11-03T09:53:13.2147985Z ==> auditing feature-audio-reactive (65-audio-reactive)
+2026-11-03T09:53:13.2337920Z     audit: 65 — audio reactive: [ERROR] text 3.4:1 (needs 4.5:1) at 112,309..501,323 — #828ca0 on #ffffff
+2026-11-03T09:53:13.2338611Z     audit: 65 — audio reactive: 1 error(s), 0 warning(s); text contrast: 1 failure(s), 1 judged, 0 skipped
+2026-11-03T09:53:13.2339276Z     Error: "accessibility audit failed: 0 tree error(s), 1 contrast failure(s)"
+2026-11-03T09:53:13.2339644Z ==> auditing feature-video-filmstrip (66-video-filmstrip)
+2026-11-03T09:53:13.2424178Z     vieww: RenderRow overflowed by 230px on the horizontal axis — 810 of children into 580 of space
+2026-11-03T09:53:13.2424926Z     audit: 66 — video filmstrip: [ERROR] text 3.4:1 (needs 4.5:1) at 158,98..456,112 — #828ca0 on #ffffff
+2026-11-03T09:53:13.2425795Z     audit: 66 — video filmstrip: 1 error(s), 0 warning(s); text contrast: 1 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:13.2426339Z     Error: "accessibility audit failed: 0 tree error(s), 1 contrast failure(s)"
+2026-11-03T09:53:13.2426966Z ==> auditing feature-mesh (67-mesh)
+2026-11-03T09:53:13.3013548Z audit: 67 — mesh: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:13.3014185Z ==> auditing feature-physics (68-physics)
+2026-11-03T09:53:13.3185959Z audit: 68 — physics: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:13.3187766Z ==> auditing feature-physics-joint (69-physics-joint)
+2026-11-03T09:53:13.4140872Z audit: 69 — physics joints: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:13.4141823Z ==> auditing feature-network (70-network)
+2026-11-03T09:53:13.4215686Z     audit: 70 — network: [ERROR] text 3.4:1 (needs 4.5:1) at 164,183..470,197 — #828ca0 on #ffffff
+2026-11-03T09:53:13.4216407Z     audit: 70 — network: [ERROR] text 2.7:1 (needs 4.5:1) at 165,211..470,224 — #969eac on #ffffff
+2026-11-03T09:53:13.4216990Z     audit: 70 — network: 2 error(s), 0 warning(s); text contrast: 2 failure(s), 10 judged, 3 skipped
+2026-11-03T09:53:13.4217540Z     Error: "accessibility audit failed: 0 tree error(s), 2 contrast failure(s)"
+2026-11-03T09:53:13.4217879Z ==> auditing feature-embed (71-embed)
+2026-11-03T09:53:13.4279681Z audit: 71 — embed: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 2 judged, 0 skipped
+2026-11-03T09:53:13.4281017Z ==> auditing feature-scatter-chart (72-scatter-chart)
+2026-11-03T09:53:13.4345418Z audit: 72 — scatter chart: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 10 skipped
+2026-11-03T09:53:13.4347151Z ==> auditing feature-pie-chart (73-pie-chart)
+2026-11-03T09:53:13.4407700Z audit: 73 — pie chart: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 5 judged, 0 skipped
+2026-11-03T09:53:13.4409065Z ==> auditing feature-donut-chart (74-donut-chart)
+2026-11-03T09:53:13.4468383Z audit: 74 — donut chart: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 4 judged, 0 skipped
+2026-11-03T09:53:13.4469933Z ==> auditing feature-function-graph (75-function-graph)
+2026-11-03T09:53:13.4611547Z audit: 75 — function graph: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 18 skipped
+2026-11-03T09:53:13.4612778Z ==> auditing feature-math-text (76-math-text)
+2026-11-03T09:53:13.4685391Z audit: 76 — math text: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 11 judged, 53 skipped
+2026-11-03T09:53:13.4686816Z ==> auditing feature-split-text (77-split-text)
+2026-11-03T09:53:13.5244071Z     audit: 77 — split text: [ERROR] text 3.4:1 (needs 4.5:1) at 24,24..105,38 — #828ca0 on #ffffff
+2026-11-03T09:53:13.5244669Z     audit: 77 — split text: [ERROR] text 3.4:1 (needs 4.5:1) at 24,131..77,145 — #828ca0 on #ffffff
+2026-11-03T09:53:13.5245677Z     audit: 77 — split text: 2 error(s), 0 warning(s); text contrast: 2 failure(s), 8 judged, 36 skipped
+2026-11-03T09:53:13.5246163Z     Error: "accessibility audit failed: 0 tree error(s), 2 contrast failure(s)"
+2026-11-03T09:53:13.5246752Z ==> auditing feature-shape-morph (78-shape-morph)
+2026-11-03T09:53:13.5353330Z audit: 78 — shape morph: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:13.5354929Z ==> auditing feature-ik (79-ik)
+2026-11-03T09:53:13.5544842Z audit: 79 — two-bone ik: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:53:13.5546560Z ==> auditing feature-3d-scene (80-3d-scene)
+2026-11-03T09:54:10.1003113Z audit: 80 — 3d scene: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 3 judged, 0 skipped
+2026-11-03T09:54:10.1004057Z ==> auditing feature-path-ops (81-path-ops)
+2026-11-03T09:54:10.1916130Z audit: 81 — path ops: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 18 judged, 0 skipped
+2026-11-03T09:54:10.1918463Z ==> auditing feature-timelines (82-timelines)
+2026-11-03T09:54:10.3984213Z audit: 82 — timelines: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 8 judged, 0 skipped
+2026-11-03T09:54:10.3984829Z ==> auditing feature-rigging (83-rigging)
+2026-11-03T09:54:10.6234358Z audit: 83 — rigging: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 12 judged, 0 skipped
+2026-11-03T09:54:10.6235184Z ==> auditing feature-particles-retarget (84-particles-retarget)
+2026-11-03T09:54:10.8290876Z audit: 84 — particles & retarget: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 10 judged, 0 skipped
+2026-11-03T09:54:10.8292065Z ==> auditing feature-3d-advanced (85-3d-advanced)
+2026-11-03T09:54:29.6183215Z audit: 85 — 3d advanced: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 10 judged, 0 skipped
+2026-11-03T09:54:29.6183969Z ==> auditing feature-physics (86-physics)
+2026-11-03T09:54:29.6358230Z audit: 68 — physics: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 0 judged, 0 skipped
+2026-11-03T09:54:29.6359381Z ==> auditing feature-canvas-dataviz (87-canvas-dataviz)
+2026-11-03T09:54:29.8310197Z audit: 87 — canvas & dataviz: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 18 judged, 0 skipped
+2026-11-03T09:54:29.8310890Z ==> auditing feature-graph-game-collab-lottie (88-graph-game-collab-lottie)
+2026-11-03T09:54:29.8798822Z audit: 88 — graph, game, collab, lottie: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 24 judged, 0 skipped
+2026-11-03T09:54:29.8799545Z ==> auditing feature-video-effects (89-video-effects)
+2026-11-03T09:55:24.0676860Z audit: 89 — video & effects: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 26 judged, 0 skipped
+2026-11-03T09:55:24.0682954Z ==> auditing feature-midi-dsp-osc (90-midi-dsp-osc)
+2026-11-03T09:55:24.3671389Z audit: 90 — midi, dsp, osc: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 12 judged, 0 skipped
+2026-11-03T09:55:24.3672212Z ==> auditing feature-code-binding-sprites (91-code-binding-sprites)
+2026-11-03T09:55:24.7379002Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 32,83..39,97 — #555c6c on #1e2128
+2026-11-03T09:55:24.7379960Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 32,137..39,151 — #555c6c on #1e2128
+2026-11-03T09:55:24.7380658Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 32,155..39,169 — #555c6c on #1e2128
+2026-11-03T09:55:24.7381599Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 32,173..39,187 — #555c6c on #1e2128
+2026-11-03T09:55:24.7382314Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 32,191..39,205 — #555c6c on #1e2128
+2026-11-03T09:55:24.7382899Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 32,209..39,223 — #555c6c on #1e2128
+2026-11-03T09:55:24.7383425Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 458,155..465,169 — #555c6c on #1e2128
+2026-11-03T09:55:24.7383934Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 458,173..465,187 — #555c6c on #1e2128
+2026-11-03T09:55:24.7384925Z     audit: 91 — code, binding, sprites: [ERROR] text 2.4:1 (needs 4.5:1) at 458,191..465,205 — #555c6c on #1e2128
+2026-11-03T09:55:24.7386797Z     audit: 91 — code, binding, sprites: 9 error(s), 0 warning(s); text contrast: 9 failure(s), 43 judged, 73 skipped
+2026-11-03T09:55:24.7387426Z ==> auditing feature-media-player (92-media-player)
+2026-11-03T09:55:24.7390693Z     Error: "accessibility audit failed: 0 tree error(s), 9 contrast failure(s)"
+2026-11-03T09:55:25.0980738Z audit: 92 — media player: 0 error(s), 0 warning(s); text contrast: 0 failure(s), 6 judged, 0 skipped
+2026-11-03T09:55:25.0982527Z feature-a11y: 16 example(s) failed the accessibility audit:
+2026-11-03T09:55:25.0982988Z   feature-theme-light-dark
+2026-11-03T09:55:25.0983287Z   feature-checkbox
+2026-11-03T09:55:25.0983477Z   feature-switch
+2026-11-03T09:55:25.0983642Z   feature-radio
+2026-11-03T09:55:25.0983812Z   feature-chip-badge
+2026-11-03T09:55:25.0984014Z   feature-form-controls
+2026-11-03T09:55:25.0984227Z   feature-data-table
+2026-11-03T09:55:25.0984417Z   feature-baseline-alignment
+2026-11-03T09:55:25.0984612Z   feature-blend-modes
+2026-11-03T09:55:25.0984787Z   feature-state-machine
+2026-11-03T09:55:25.0985050Z   feature-audio-waveform
+2026-11-03T09:55:25.0985316Z   feature-audio-reactive
+2026-11-03T09:55:25.0985702Z   feature-video-filmstrip
+2026-11-03T09:55:25.0985975Z   feature-network
+2026-11-03T09:55:25.0986227Z   feature-split-text
+2026-11-03T09:55:25.0986507Z   feature-code-binding-sprites
+2026-11-03T09:55:25.0986942Z   (run ci/check/feature-a11y.sh <number> to see one example's findings)
+2026-11-03T09:55:25.0998704Z ##[error]Process completed with exit code 1.
+
+===== Audio decoders under cargo-fuzz (nightly)	Fuzz every target =====
+2026-11-03T09:55:32.8300564Z INFO: Loaded 1 modules   (1361 inline 8-bit counters): 1361 [0x560de85acc08, 0x560de85ad159), 
+2026-11-03T09:55:32.8301180Z INFO: Loaded 1 PC tables (1361 PCs): 1361 [0x560de85ad160,0x560de85b2670), 
+2026-11-03T09:55:32.8302609Z INFO:       35 files found in fuzz/corpus/decode_alac
+2026-11-03T09:55:32.8303145Z INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 123065 bytes
+2026-11-03T09:55:32.8303556Z INFO: seed corpus: files: 35 min: 29b max: 123065b total: 959417b rss: 27Mb
+2026-11-03T09:55:32.8434968Z #36	INITED cov: 268 ft: 327 corp: 7/224Kb exec/s: 0 rss: 28Mb
+2026-11-03T09:55:32.8483825Z #37	NEW    cov: 281 ft: 388 corp: 8/272Kb lim: 123065 exec/s: 0 rss: 28Mb L: 49075/123065 MS: 1 CopyPart-
+2026-11-03T09:55:32.8487764Z #38	NEW    cov: 283 ft: 407 corp: 9/275Kb lim: 123065 exec/s: 0 rss: 28Mb L: 2974/123065 MS: 1 CopyPart-
+2026-11-03T09:55:32.8489028Z #40	NEW    cov: 286 ft: 410 corp: 10/277Kb lim: 123065 exec/s: 0 rss: 28Mb L: 2065/123065 MS: 2 ChangeBit-ChangeASCIIInt-
+2026-11-03T09:55:32.8490711Z #45	NEW    cov: 287 ft: 414 corp: 11/279Kb lim: 123065 exec/s: 0 rss: 28Mb L: 2028/123065 MS: 5 ChangeByte-ChangeBinInt-ChangeBit-ShuffleBytes-EraseBytes-
+2026-11-03T09:55:32.8491676Z #46	NEW    cov: 287 ft: 417 corp: 12/281Kb lim: 123065 exec/s: 0 rss: 28Mb L: 1897/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:32.8492723Z #51	REDUCE cov: 287 ft: 417 corp: 12/281Kb lim: 123065 exec/s: 0 rss: 28Mb L: 22/123065 MS: 5 InsertRepeatedBytes-EraseBytes-InsertByte-CopyPart-EraseBytes-
+2026-11-03T09:55:32.8495217Z #58	NEW    cov: 287 ft: 421 corp: 13/314Kb lim: 123065 exec/s: 0 rss: 28Mb L: 33316/123065 MS: 2 InsertByte-EraseBytes-
+2026-11-03T09:55:32.8622367Z #66	NEW    cov: 289 ft: 473 corp: 14/362Kb lim: 123065 exec/s: 0 rss: 28Mb L: 49075/123065 MS: 3 ShuffleBytes-ShuffleBytes-CopyPart-
+2026-11-03T09:55:32.8682706Z #72	NEW    cov: 296 ft: 485 corp: 15/409Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49075/123065 MS: 1 CopyPart-
+2026-11-03T09:55:32.9047106Z 	NEW_FUNC[1/1]: 0x560de8500c51
+2026-11-03T09:55:32.9049643Z #108	NEW    cov: 314 ft: 538 corp: 16/457Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49075/123065 MS: 1 ChangeByte-
+2026-11-03T09:55:32.9053815Z #109	NEW    cov: 316 ft: 559 corp: 17/465Kb lim: 123065 exec/s: 0 rss: 29Mb L: 7626/123065 MS: 1 CopyPart-
+2026-11-03T09:55:32.9056000Z #140	REDUCE cov: 316 ft: 559 corp: 17/464Kb lim: 123065 exec/s: 0 rss: 29Mb L: 1084/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:32.9071362Z #184	NEW    cov: 316 ft: 569 corp: 18/465Kb lim: 123065 exec/s: 0 rss: 29Mb L: 1271/123065 MS: 4 CMP-ChangeByte-InsertByte-EraseBytes- DE: "\312\274\000\000\000\000\000\000"-
+2026-11-03T09:55:32.9120683Z #190	NEW    cov: 316 ft: 579 corp: 19/513Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49075/123065 MS: 1 ChangeBinInt-
+2026-11-03T09:55:32.9173132Z #191	NEW    cov: 316 ft: 585 corp: 20/561Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49075/123065 MS: 1 CMP- DE: "\347\377\377\377"-
+2026-11-03T09:55:32.9178826Z #192	NEW    cov: 316 ft: 586 corp: 21/611Kb lim: 123065 exec/s: 0 rss: 29Mb L: 51140/123065 MS: 1 CrossOver-
+2026-11-03T09:55:32.9232136Z #213	NEW    cov: 316 ft: 587 corp: 22/659Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49075/123065 MS: 1 ChangeBinInt-
+2026-11-03T09:55:32.9236815Z #244	REDUCE cov: 316 ft: 587 corp: 22/658Kb lim: 123065 exec/s: 0 rss: 29Mb L: 1331/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:32.9238013Z #246	REDUCE cov: 316 ft: 587 corp: 22/658Kb lim: 123065 exec/s: 0 rss: 29Mb L: 1149/123065 MS: 2 InsertByte-EraseBytes-
+2026-11-03T09:55:32.9406113Z #282	NEW    cov: 316 ft: 589 corp: 23/706Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49075/123065 MS: 1 PersAutoDict- DE: "\347\377\377\377"-
+2026-11-03T09:55:32.9458170Z #283	NEW    cov: 316 ft: 590 corp: 24/754Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49075/123065 MS: 1 PersAutoDict- DE: "\312\274\000\000\000\000\000\000"-
+2026-11-03T09:55:32.9463323Z #296	REDUCE cov: 316 ft: 590 corp: 24/754Kb lim: 123065 exec/s: 0 rss: 29Mb L: 1130/123065 MS: 3 ChangeBinInt-ShuffleBytes-EraseBytes-
+2026-11-03T09:55:32.9513168Z #307	NEW    cov: 316 ft: 591 corp: 25/802Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49075/123065 MS: 1 ChangeASCIIInt-
+2026-11-03T09:55:32.9566354Z #308	NEW    cov: 316 ft: 592 corp: 26/850Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49075/123065 MS: 1 ChangeASCIIInt-
+2026-11-03T09:55:32.9570024Z #309	NEW    cov: 316 ft: 594 corp: 27/852Kb lim: 123065 exec/s: 0 rss: 29Mb L: 2066/123065 MS: 1 InsertByte-
+2026-11-03T09:55:32.9571025Z #311	NEW    cov: 317 ft: 595 corp: 28/854Kb lim: 123065 exec/s: 0 rss: 29Mb L: 2231/123065 MS: 2 ShuffleBytes-CopyPart-
+2026-11-03T09:55:32.9573305Z #329	NEW    cov: 317 ft: 602 corp: 29/856Kb lim: 123065 exec/s: 0 rss: 29Mb L: 2067/123065 MS: 3 PersAutoDict-ShuffleBytes-InsertByte- DE: "\347\377\377\377"-
+2026-11-03T09:55:32.9574321Z #330	NEW    cov: 317 ft: 603 corp: 30/858Kb lim: 123065 exec/s: 0 rss: 29Mb L: 2158/123065 MS: 1 InsertRepeatedBytes-
+2026-11-03T09:55:32.9608560Z #346	NEW    cov: 317 ft: 604 corp: 31/906Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49075/123065 MS: 1 ChangeBinInt-
+2026-11-03T09:55:32.9613285Z #354	NEW    cov: 320 ft: 614 corp: 32/908Kb lim: 123065 exec/s: 0 rss: 29Mb L: 2132/123065 MS: 3 PersAutoDict-CopyPart-InsertRepeatedBytes- DE: "\312\274\000\000\000\000\000\000"-
+2026-11-03T09:55:32.9614632Z #359	NEW    cov: 320 ft: 622 corp: 33/911Kb lim: 123065 exec/s: 0 rss: 29Mb L: 2812/123065 MS: 5 ShuffleBytes-ShuffleBytes-ShuffleBytes-ChangeBit-CrossOver-
+2026-11-03T09:55:32.9664616Z #375	NEW    cov: 320 ft: 625 corp: 34/959Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49075/123065 MS: 1 ChangeByte-
+2026-11-03T09:55:32.9670832Z #395	NEW    cov: 320 ft: 626 corp: 35/969Kb lim: 123065 exec/s: 0 rss: 29Mb L: 10214/123065 MS: 5 InsertRepeatedBytes-CrossOver-ChangeASCIIInt-ChangeBinInt-CrossOver-
+2026-11-03T09:55:32.9796742Z #406	NEW    cov: 320 ft: 628 corp: 36/1017Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49075/123065 MS: 1 ChangeBit-
+2026-11-03T09:55:32.9803262Z #410	NEW    cov: 321 ft: 631 corp: 37/1065Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49077/123065 MS: 4 InsertByte-ShuffleBytes-InsertByte-CMP- DE: ")\002"-
+2026-11-03T09:55:32.9902091Z #431	REDUCE cov: 321 ft: 631 corp: 37/1064Kb lim: 123065 exec/s: 0 rss: 29Mb L: 2011/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:32.9904440Z #445	NEW    cov: 325 ft: 638 corp: 38/1067Kb lim: 123065 exec/s: 0 rss: 29Mb L: 2192/123065 MS: 4 CMP-ChangeBinInt-ChangeASCIIInt-InsertRepeatedBytes- DE: "UUUUUUU\005"-
+2026-11-03T09:55:32.9907960Z #446	NEW    cov: 326 ft: 639 corp: 39/1115Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49083/123065 MS: 1 CMP- DE: "\006UUUUUUV"-
+2026-11-03T09:55:32.9973226Z #464	NEW    cov: 326 ft: 640 corp: 40/1117Kb lim: 123065 exec/s: 0 rss: 29Mb L: 2133/123065 MS: 3 ChangeBinInt-ChangeBinInt-InsertByte-
+2026-11-03T09:55:32.9974420Z #477	REDUCE cov: 326 ft: 640 corp: 40/1117Kb lim: 123065 exec/s: 0 rss: 29Mb L: 21/123065 MS: 3 CrossOver-InsertByte-EraseBytes-
+2026-11-03T09:55:33.0157801Z #481	NEW    cov: 327 ft: 655 corp: 41/1165Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49075/123065 MS: 4 ChangeBit-ChangeBinInt-ShuffleBytes-CrossOver-
+2026-11-03T09:55:33.0210642Z #507	NEW    cov: 328 ft: 659 corp: 42/1212Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49075/123065 MS: 1 CopyPart-
+2026-11-03T09:55:33.0264394Z #563	NEW    cov: 328 ft: 660 corp: 43/1260Kb lim: 123065 exec/s: 0 rss: 29Mb L: 49075/123065 MS: 1 ShuffleBytes-
+2026-11-03T09:55:33.0268193Z #566	NEW    cov: 328 ft: 661 corp: 44/1262Kb lim: 123065 exec/s: 0 rss: 29Mb L: 2065/123065 MS: 3 ShuffleBytes-ShuffleBytes-CrossOver-
+2026-11-03T09:55:33.0341966Z #567	NEW    cov: 328 ft: 665 corp: 45/1310Kb lim: 123065 exec/s: 0 rss: 30Mb L: 49075/123065 MS: 1 ShuffleBytes-
+2026-11-03T09:55:33.0400703Z #574	NEW    cov: 329 ft: 667 corp: 46/1318Kb lim: 123065 exec/s: 0 rss: 30Mb L: 7742/123065 MS: 2 ChangeByte-InsertRepeatedBytes-
+2026-11-03T09:55:33.0521554Z #600	NEW    cov: 330 ft: 707 corp: 47/1366Kb lim: 123065 exec/s: 0 rss: 30Mb L: 49075/123065 MS: 1 CMP- DE: "\210\000\000\000"-
+2026-11-03T09:55:33.0621855Z #632	NEW    cov: 330 ft: 710 corp: 48/1414Kb lim: 123065 exec/s: 0 rss: 30Mb L: 49075/123065 MS: 2 ChangeASCIIInt-ShuffleBytes-
+2026-11-03T09:55:33.0642699Z #633	NEW    cov: 330 ft: 721 corp: 49/1462Kb lim: 123065 exec/s: 0 rss: 30Mb L: 49075/123065 MS: 1 CopyPart-
+2026-11-03T09:55:33.0772330Z #655	NEW    cov: 330 ft: 722 corp: 50/1502Kb lim: 123065 exec/s: 0 rss: 30Mb L: 40846/123065 MS: 2 ShuffleBytes-ChangeASCIIInt-
+2026-11-03T09:55:33.0982006Z 	NEW_FUNC[1/1]: 0x560de85016f1
+2026-11-03T09:55:33.0984229Z #718	NEW    cov: 334 ft: 745 corp: 51/1541Kb lim: 123065 exec/s: 0 rss: 30Mb L: 40846/123065 MS: 3 ChangeASCIIInt-ShuffleBytes-CopyPart-
+2026-11-03T09:55:33.0987825Z #719	REDUCE cov: 334 ft: 745 corp: 51/1541Kb lim: 123065 exec/s: 0 rss: 30Mb L: 16/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:33.0989937Z #726	NEW    cov: 336 ft: 753 corp: 52/1544Kb lim: 123065 exec/s: 0 rss: 30Mb L: 2132/123065 MS: 2 InsertRepeatedBytes-InsertRepeatedBytes-
+2026-11-03T09:55:33.0991003Z #737	REDUCE cov: 336 ft: 753 corp: 52/1544Kb lim: 123065 exec/s: 0 rss: 30Mb L: 9/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:33.1106945Z #751	NEW    cov: 336 ft: 760 corp: 53/1591Kb lim: 123065 exec/s: 0 rss: 30Mb L: 49075/123065 MS: 4 ChangeBit-ChangeASCIIInt-ShuffleBytes-CopyPart-
+2026-11-03T09:55:33.1111446Z #768	REDUCE cov: 336 ft: 760 corp: 53/1591Kb lim: 123065 exec/s: 0 rss: 30Mb L: 2402/123065 MS: 2 ChangeASCIIInt-EraseBytes-
+2026-11-03T09:55:33.1392253Z #804	NEW    cov: 337 ft: 762 corp: 54/1639Kb lim: 123065 exec/s: 0 rss: 30Mb L: 49075/123065 MS: 1 CrossOver-
+2026-11-03T09:55:33.1396869Z #817	NEW    cov: 338 ft: 764 corp: 55/1648Kb lim: 123065 exec/s: 0 rss: 30Mb L: 8764/123065 MS: 3 PersAutoDict-ChangeBinInt-CrossOver- DE: "\006UUUUUUV"-
+2026-11-03T09:55:33.1845813Z #867	NEW    cov: 338 ft: 765 corp: 56/1695Kb lim: 123065 exec/s: 0 rss: 30Mb L: 49075/123065 MS: 5 ChangeASCIIInt-ShuffleBytes-ChangeBinInt-ChangeASCIIInt-CopyPart-
+2026-11-03T09:55:33.1920105Z #898	NEW    cov: 338 ft: 766 corp: 57/1743Kb lim: 123065 exec/s: 0 rss: 30Mb L: 49075/123065 MS: 1 ChangeBinInt-
+2026-11-03T09:55:33.2063076Z #901	NEW    cov: 338 ft: 767 corp: 58/1791Kb lim: 123065 exec/s: 0 rss: 30Mb L: 49075/123065 MS: 3 ShuffleBytes-PersAutoDict-ShuffleBytes- DE: ")\002"-
+2026-11-03T09:55:33.2067122Z #918	NEW    cov: 338 ft: 768 corp: 59/1793Kb lim: 123065 exec/s: 0 rss: 30Mb L: 2133/123065 MS: 2 ChangeASCIIInt-PersAutoDict- DE: "UUUUUUU\005"-
+2026-11-03T09:55:33.2084695Z #919	NEW    cov: 338 ft: 792 corp: 60/1833Kb lim: 123065 exec/s: 0 rss: 30Mb L: 40846/123065 MS: 1 ChangeByte-
+2026-11-03T09:55:33.2090054Z #927	REDUCE cov: 338 ft: 792 corp: 60/1830Kb lim: 123065 exec/s: 0 rss: 30Mb L: 30463/123065 MS: 3 ChangeBit-ChangeByte-EraseBytes-
+2026-11-03T09:55:33.2247692Z #977	NEW    cov: 339 ft: 794 corp: 61/1885Kb lim: 123065 exec/s: 0 rss: 30Mb L: 56132/123065 MS: 5 ChangeByte-ChangeBit-ChangeByte-ChangeBit-CopyPart-
+2026-11-03T09:55:33.2339597Z #1005	NEW    cov: 339 ft: 796 corp: 62/1925Kb lim: 123065 exec/s: 0 rss: 30Mb L: 40846/123065 MS: 3 PersAutoDict-PersAutoDict-CrossOver- DE: "\312\274\000\000\000\000\000\000"-"UUUUUUU\005"-
+2026-11-03T09:55:33.2345041Z #1011	REDUCE cov: 339 ft: 796 corp: 62/1914Kb lim: 123065 exec/s: 0 rss: 30Mb L: 39770/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:33.2744575Z #1037	NEW    cov: 339 ft: 797 corp: 63/1954Kb lim: 123065 exec/s: 0 rss: 30Mb L: 40846/123065 MS: 1 ChangeBinInt-
+2026-11-03T09:55:33.2769339Z #1058	NEW    cov: 339 ft: 798 corp: 64/1962Kb lim: 123065 exec/s: 0 rss: 30Mb L: 8687/123065 MS: 1 CrossOver-
+2026-11-03T09:55:33.2841753Z #1085	NEW    cov: 341 ft: 801 corp: 65/2002Kb lim: 123065 exec/s: 0 rss: 30Mb L: 40846/123065 MS: 2 ChangeASCIIInt-CopyPart-
+2026-11-03T09:55:33.3075801Z #1100	NEW    cov: 341 ft: 802 corp: 66/2050Kb lim: 123065 exec/s: 0 rss: 30Mb L: 49075/123065 MS: 5 CopyPart-ChangeByte-ChangeASCIIInt-ChangeByte-PersAutoDict- DE: "UUUUUUU\005"-
+2026-11-03T09:55:33.3079638Z #1116	REDUCE cov: 341 ft: 802 corp: 66/2050Kb lim: 123065 exec/s: 0 rss: 30Mb L: 8/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:33.3344523Z #1168	NEW    cov: 341 ft: 804 corp: 67/2098Kb lim: 123065 exec/s: 0 rss: 30Mb L: 49075/123065 MS: 2 ChangeByte-CopyPart-
+2026-11-03T09:55:33.3394909Z #1180	REDUCE cov: 341 ft: 804 corp: 67/2098Kb lim: 123065 exec/s: 0 rss: 30Mb L: 922/123065 MS: 2 ChangeBinInt-EraseBytes-
+2026-11-03T09:55:33.3799617Z #1276	NEW    cov: 341 ft: 805 corp: 68/2146Kb lim: 123065 exec/s: 0 rss: 30Mb L: 49075/123065 MS: 1 ChangeBinInt-
+2026-11-03T09:55:33.3804814Z #1281	REDUCE cov: 341 ft: 805 corp: 68/2136Kb lim: 123065 exec/s: 0 rss: 30Mb L: 20074/123065 MS: 5 ChangeBinInt-CMP-ChangeBinInt-ChangeByte-EraseBytes- DE: "\376\377\375\\"-
+2026-11-03T09:55:33.4098452Z #1353	NEW    cov: 343 ft: 807 corp: 69/2143Kb lim: 123065 exec/s: 0 rss: 30Mb L: 7626/123065 MS: 2 PersAutoDict-ShuffleBytes- DE: "\347\377\377\377"-
+2026-11-03T09:55:33.4100427Z #1361	REDUCE cov: 344 ft: 808 corp: 70/2143Kb lim: 123065 exec/s: 0 rss: 30Mb L: 7/123065 MS: 3 ChangeBit-CrossOver-EraseBytes-
+2026-11-03T09:55:33.4261436Z #1366	NEW    cov: 345 ft: 809 corp: 71/2183Kb lim: 123065 exec/s: 0 rss: 31Mb L: 40846/123065 MS: 5 ChangeASCIIInt-ChangeByte-ChangeBinInt-ChangeByte-CopyPart-
+2026-11-03T09:55:33.4312123Z #1407	NEW    cov: 346 ft: 811 corp: 72/2185Kb lim: 123065 exec/s: 0 rss: 31Mb L: 2175/123065 MS: 1 InsertRepeatedBytes-
+2026-11-03T09:55:33.4313332Z #1408	NEW    cov: 348 ft: 814 corp: 73/2194Kb lim: 123065 exec/s: 0 rss: 31Mb L: 8765/123065 MS: 1 InsertByte-
+2026-11-03T09:55:33.4389782Z #1515	REDUCE cov: 348 ft: 814 corp: 73/2193Kb lim: 123065 exec/s: 0 rss: 31Mb L: 1667/123065 MS: 2 ChangeBinInt-EraseBytes-
+2026-11-03T09:55:33.4830497Z #1571	NEW    cov: 348 ft: 815 corp: 74/2240Kb lim: 123065 exec/s: 0 rss: 31Mb L: 49075/123065 MS: 1 ChangeBit-
+2026-11-03T09:55:33.5777938Z #1799	NEW    cov: 349 ft: 818 corp: 75/2288Kb lim: 123065 exec/s: 0 rss: 31Mb L: 49075/123065 MS: 3 ChangeByte-ChangeBinInt-CopyPart-
+2026-11-03T09:55:33.5783343Z #1812	REDUCE cov: 349 ft: 818 corp: 75/2288Kb lim: 123065 exec/s: 0 rss: 31Mb L: 8740/123065 MS: 3 CrossOver-ShuffleBytes-EraseBytes-
+2026-11-03T09:55:33.5784819Z #1818	NEW    cov: 349 ft: 819 corp: 76/2290Kb lim: 123065 exec/s: 0 rss: 31Mb L: 2136/123065 MS: 1 CMP- DE: "\011\376\377\377"-
+2026-11-03T09:55:33.5966956Z #1859	NEW    cov: 351 ft: 823 corp: 77/2360Kb lim: 123065 exec/s: 0 rss: 31Mb L: 71303/123065 MS: 1 CrossOver-
+2026-11-03T09:55:33.6114416Z #1876	NEW    cov: 352 ft: 824 corp: 78/2389Kb lim: 123065 exec/s: 0 rss: 31Mb L: 30046/123065 MS: 2 InsertByte-EraseBytes-
+2026-11-03T09:55:33.6155076Z #1893	REDUCE cov: 352 ft: 824 corp: 78/2389Kb lim: 123065 exec/s: 0 rss: 31Mb L: 8124/123065 MS: 2 ChangeBinInt-EraseBytes-
+2026-11-03T09:55:33.6234369Z #1915	REDUCE cov: 352 ft: 824 corp: 78/2386Kb lim: 123065 exec/s: 0 rss: 31Mb L: 5654/123065 MS: 2 ChangeBinInt-EraseBytes-
+2026-11-03T09:55:33.6749233Z #2051	NEW    cov: 352 ft: 825 corp: 79/2434Kb lim: 123065 exec/s: 0 rss: 31Mb L: 49075/123065 MS: 1 ChangeBinInt-
+2026-11-03T09:55:33.6865481Z #2132	NEW    cov: 352 ft: 826 corp: 80/2482Kb lim: 123065 exec/s: 0 rss: 31Mb L: 49075/123065 MS: 1 ChangeBinInt-
+2026-11-03T09:55:33.6932570Z #2163	REDUCE cov: 352 ft: 826 corp: 80/2482Kb lim: 123065 exec/s: 0 rss: 31Mb L: 769/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:33.6981594Z #2179	NEW    cov: 352 ft: 828 corp: 81/2530Kb lim: 123065 exec/s: 0 rss: 31Mb L: 49075/123065 MS: 1 PersAutoDict- DE: "\011\376\377\377"-
+2026-11-03T09:55:33.7127180Z #2215	NEW    cov: 352 ft: 829 corp: 82/2578Kb lim: 123065 exec/s: 0 rss: 31Mb L: 49075/123065 MS: 1 ChangeASCIIInt-
+2026-11-03T09:55:33.7314807Z #2219	NEW    cov: 352 ft: 830 corp: 83/2626Kb lim: 123065 exec/s: 0 rss: 31Mb L: 49075/123065 MS: 4 CMP-ShuffleBytes-ChangeBinInt-ChangeASCIIInt- DE: "\007\000\000\000\000\000\000\000"-
+2026-11-03T09:55:33.7460676Z #2258	REDUCE cov: 352 ft: 830 corp: 83/2622Kb lim: 123065 exec/s: 0 rss: 31Mb L: 15588/123065 MS: 4 ChangeByte-CrossOver-PersAutoDict-EraseBytes- DE: "\347\377\377\377"-
+2026-11-03T09:55:33.7462339Z #2264	REDUCE cov: 353 ft: 831 corp: 84/2627Kb lim: 123065 exec/s: 0 rss: 31Mb L: 5654/123065 MS: 1 ChangeByte-
+2026-11-03T09:55:33.7484597Z #2275	NEW    cov: 353 ft: 832 corp: 85/2675Kb lim: 123065 exec/s: 0 rss: 31Mb L: 49075/123065 MS: 1 ChangeBit-
+2026-11-03T09:55:33.7629189Z #2317	NEW    cov: 353 ft: 835 corp: 86/2723Kb lim: 123065 exec/s: 0 rss: 31Mb L: 49075/123065 MS: 2 ChangeBit-PersAutoDict- DE: "\011\376\377\377"-
+2026-11-03T09:55:33.8072437Z #2336	NEW    cov: 353 ft: 836 corp: 87/2771Kb lim: 123065 exec/s: 0 rss: 31Mb L: 49075/123065 MS: 4 ChangeBinInt-ShuffleBytes-ChangeByte-ChangeByte-
+2026-11-03T09:55:33.8138841Z #2367	REDUCE cov: 353 ft: 836 corp: 87/2770Kb lim: 123065 exec/s: 0 rss: 31Mb L: 14259/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:33.8141152Z #2384	NEW    cov: 355 ft: 839 corp: 88/2772Kb lim: 123065 exec/s: 0 rss: 31Mb L: 2158/123065 MS: 2 ChangeBit-CrossOver-
+2026-11-03T09:55:33.8189160Z #2406	NEW    cov: 355 ft: 840 corp: 89/2774Kb lim: 123065 exec/s: 0 rss: 31Mb L: 2198/123065 MS: 2 CrossOver-InsertRepeatedBytes-
+2026-11-03T09:55:33.8216520Z #2422	NEW    cov: 355 ft: 844 corp: 90/2822Kb lim: 123065 exec/s: 0 rss: 31Mb L: 49075/123065 MS: 1 ChangeBit-
+2026-11-03T09:55:33.8223211Z #2438	REDUCE cov: 355 ft: 844 corp: 90/2814Kb lim: 123065 exec/s: 0 rss: 31Mb L: 48591/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:33.8658244Z #2500	REDUCE cov: 355 ft: 844 corp: 90/2811Kb lim: 123065 exec/s: 2500 rss: 35Mb L: 5119/123065 MS: 4 ChangeBinInt-InsertRepeatedBytes-CMP-EraseBytes- DE: "\377\377\377\377\377\377\377\377"-
+2026-11-03T09:55:33.8727945Z #2506	NEW    cov: 356 ft: 845 corp: 91/2859Kb lim: 123065 exec/s: 2506 rss: 35Mb L: 49075/123065 MS: 1 ChangeASCIIInt-
+2026-11-03T09:55:33.8826538Z #2538	NEW    cov: 356 ft: 846 corp: 92/2907Kb lim: 123065 exec/s: 2538 rss: 35Mb L: 49075/123065 MS: 2 ChangeByte-ChangeBinInt-
+2026-11-03T09:55:33.8984726Z #2589	NEW    cov: 356 ft: 847 corp: 93/2955Kb lim: 123065 exec/s: 2589 rss: 35Mb L: 49075/123065 MS: 1 CrossOver-
+2026-11-03T09:55:33.9239759Z #2626	REDUCE cov: 356 ft: 847 corp: 93/2952Kb lim: 123065 exec/s: 2626 rss: 35Mb L: 7289/123065 MS: 2 ShuffleBytes-EraseBytes-
+2026-11-03T09:55:33.9572744Z #2682	NEW    cov: 356 ft: 848 corp: 94/3000Kb lim: 123065 exec/s: 2682 rss: 35Mb L: 49075/123065 MS: 1 ChangeBit-
+2026-11-03T09:55:33.9580859Z #2683	NEW    cov: 364 ft: 856 corp: 95/3048Kb lim: 123065 exec/s: 2683 rss: 35Mb L: 49075/123065 MS: 1 CMP- DE: "\002\216"-
+2026-11-03T09:55:33.9584737Z #2685	REDUCE cov: 364 ft: 856 corp: 95/3047Kb lim: 123065 exec/s: 2685 rss: 35Mb L: 700/123065 MS: 2 InsertRepeatedBytes-EraseBytes-
+2026-11-03T09:55:33.9658089Z #2687	NEW    cov: 364 ft: 857 corp: 96/3095Kb lim: 123065 exec/s: 2687 rss: 35Mb L: 49075/123065 MS: 2 ChangeBit-CopyPart-
+2026-11-03T09:55:33.9846250Z #2731	NEW    cov: 364 ft: 858 corp: 97/3143Kb lim: 123065 exec/s: 2731 rss: 35Mb L: 49075/123065 MS: 4 PersAutoDict-ChangeBit-ChangeByte-ChangeBit- DE: "UUUUUUU\005"-
+2026-11-03T09:55:34.0477664Z #2824	REDUCE cov: 364 ft: 858 corp: 97/3143Kb lim: 123065 exec/s: 2824 rss: 35Mb L: 5572/123065 MS: 3 PersAutoDict-ChangeByte-EraseBytes- DE: "\376\377\375\\"-
+2026-11-03T09:55:34.0481300Z #2836	REDUCE cov: 364 ft: 858 corp: 97/3136Kb lim: 123065 exec/s: 2836 rss: 35Mb L: 41229/123065 MS: 2 CopyPart-EraseBytes-
+2026-11-03T09:55:34.0585941Z #2848	NEW    cov: 364 ft: 863 corp: 98/3184Kb lim: 123065 exec/s: 2848 rss: 35Mb L: 49075/123065 MS: 2 PersAutoDict-ChangeBinInt- DE: "\006UUUUUUV"-
+2026-11-03T09:55:34.1081995Z #2908	REDUCE cov: 364 ft: 863 corp: 98/3179Kb lim: 123065 exec/s: 2908 rss: 35Mb L: 9295/123065 MS: 5 ChangeBit-PersAutoDict-ShuffleBytes-ChangeByte-EraseBytes- DE: "\006UUUUUUV"-
+2026-11-03T09:55:34.1083822Z #2917	NEW    cov: 364 ft: 864 corp: 99/3181Kb lim: 123065 exec/s: 2917 rss: 35Mb L: 2184/123065 MS: 4 ChangeBit-PersAutoDict-ChangeByte-InsertByte- DE: "UUUUUUU\005"-
+2026-11-03T09:55:34.1109747Z #2954	NEW    cov: 366 ft: 866 corp: 100/3183Kb lim: 123065 exec/s: 2954 rss: 35Mb L: 2134/123065 MS: 2 ShuffleBytes-InsertByte-
+2026-11-03T09:55:34.1183146Z #3000	NEW    cov: 366 ft: 867 corp: 101/3188Kb lim: 123065 exec/s: 3000 rss: 35Mb L: 4274/123065 MS: 1 CrossOver-
+2026-11-03T09:55:34.1232352Z #3011	NEW    cov: 366 ft: 868 corp: 102/3235Kb lim: 123065 exec/s: 3011 rss: 35Mb L: 49075/123065 MS: 1 ShuffleBytes-
+2026-11-03T09:55:34.1353375Z #3047	REDUCE cov: 366 ft: 868 corp: 102/3235Kb lim: 123065 exec/s: 3047 rss: 35Mb L: 29927/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:34.1432730Z #3053	NEW    cov: 366 ft: 869 corp: 103/3283Kb lim: 123065 exec/s: 3053 rss: 35Mb L: 49075/123065 MS: 1 ChangeBit-
+2026-11-03T09:55:34.1461427Z #3060	REDUCE cov: 366 ft: 869 corp: 103/3276Kb lim: 123065 exec/s: 3060 rss: 35Mb L: 34016/123065 MS: 2 PersAutoDict-EraseBytes- DE: "\376\377\375\\"-
+2026-11-03T09:55:34.1466262Z #3073	REDUCE cov: 366 ft: 869 corp: 103/3264Kb lim: 123065 exec/s: 3073 rss: 35Mb L: 21690/123065 MS: 3 PersAutoDict-InsertByte-EraseBytes- DE: "\377\377\377\377\377\377\377\377"-
+2026-11-03T09:55:34.1697427Z #3120	NEW    cov: 366 ft: 870 corp: 104/3312Kb lim: 123065 exec/s: 3120 rss: 35Mb L: 49075/123065 MS: 2 ChangeBit-PersAutoDict- DE: "\011\376\377\377"-
+2026-11-03T09:55:34.1930744Z #3173	REDUCE cov: 366 ft: 870 corp: 104/3301Kb lim: 123065 exec/s: 3173 rss: 35Mb L: 18218/123065 MS: 3 ChangeBinInt-PersAutoDict-CrossOver- DE: "\007\000\000\000\000\000\000\000"-
+2026-11-03T09:55:34.2035944Z #3179	NEW    cov: 366 ft: 871 corp: 105/3349Kb lim: 123065 exec/s: 3179 rss: 35Mb L: 49075/123065 MS: 1 CopyPart-
+2026-11-03T09:55:34.2055144Z #3190	NEW    cov: 366 ft: 872 corp: 106/3388Kb lim: 123065 exec/s: 3190 rss: 35Mb L: 40846/123065 MS: 1 CopyPart-
+2026-11-03T09:55:34.2483978Z #3336	NEW    cov: 366 ft: 873 corp: 107/3428Kb lim: 123065 exec/s: 3336 rss: 35Mb L: 40846/123065 MS: 1 CopyPart-
+2026-11-03T09:55:34.2729144Z #3472	REDUCE cov: 366 ft: 873 corp: 107/3412Kb lim: 123065 exec/s: 3472 rss: 35Mb L: 32164/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:34.2885973Z #3510	NEW    cov: 366 ft: 874 corp: 108/3452Kb lim: 123065 exec/s: 3510 rss: 35Mb L: 40846/123065 MS: 3 ShuffleBytes-PersAutoDict-ChangeASCIIInt- DE: "\377\377\377\377\377\377\377\377"-
+2026-11-03T09:55:34.3050848Z #3532	NEW    cov: 367 ft: 875 corp: 109/3500Kb lim: 123065 exec/s: 3532 rss: 35Mb L: 49075/123065 MS: 2 ShuffleBytes-CopyPart-
+2026-11-03T09:55:34.3084080Z #3580	REDUCE cov: 367 ft: 875 corp: 109/3500Kb lim: 123065 exec/s: 3580 rss: 35Mb L: 5549/123065 MS: 3 InsertRepeatedBytes-InsertRepeatedBytes-EraseBytes-
+2026-11-03T09:55:34.3280523Z #3594	NEW    cov: 367 ft: 876 corp: 110/3548Kb lim: 123065 exec/s: 3594 rss: 35Mb L: 49075/123065 MS: 4 ShuffleBytes-ChangeByte-ChangeASCIIInt-CopyPart-
+2026-11-03T09:55:34.3600305Z #3620	NEW    cov: 367 ft: 877 corp: 111/3595Kb lim: 123065 exec/s: 3620 rss: 35Mb L: 49075/123065 MS: 1 CMP- DE: "\031\010\000\000"-
+2026-11-03T09:55:34.4080200Z #3756	NEW    cov: 367 ft: 878 corp: 112/3643Kb lim: 123065 exec/s: 3756 rss: 35Mb L: 49075/123065 MS: 1 CopyPart-
+2026-11-03T09:55:34.4725774Z #3854	REDUCE cov: 367 ft: 878 corp: 112/3630Kb lim: 123065 exec/s: 3854 rss: 35Mb L: 25819/123065 MS: 3 InsertRepeatedBytes-ChangeByte-EraseBytes-
+2026-11-03T09:55:34.4765987Z #3865	NEW    cov: 368 ft: 879 corp: 113/3632Kb lim: 123065 exec/s: 3865 rss: 35Mb L: 2090/123065 MS: 1 InsertRepeatedBytes-
+2026-11-03T09:55:34.4896208Z #3897	NEW    cov: 368 ft: 880 corp: 114/3680Kb lim: 123065 exec/s: 3897 rss: 35Mb L: 49075/123065 MS: 2 ChangeBit-PersAutoDict- DE: "\011\376\377\377"-
+2026-11-03T09:55:34.4992066Z #3923	REDUCE cov: 368 ft: 880 corp: 114/3679Kb lim: 123065 exec/s: 3923 rss: 35Mb L: 402/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:34.5383563Z #4024	NEW    cov: 368 ft: 881 corp: 115/3727Kb lim: 123065 exec/s: 4024 rss: 35Mb L: 49075/123065 MS: 1 CrossOver-
+2026-11-03T09:55:34.5661260Z #4056	REDUCE cov: 368 ft: 881 corp: 115/3725Kb lim: 123065 exec/s: 4056 rss: 35Mb L: 3336/123065 MS: 2 ChangeBit-EraseBytes-
+2026-11-03T09:55:34.6422797Z #4157	NEW    cov: 368 ft: 882 corp: 116/3727Kb lim: 123065 exec/s: 4157 rss: 35Mb L: 2065/123065 MS: 1 CopyPart-
+2026-11-03T09:55:34.7073810Z #4274	NEW    cov: 370 ft: 884 corp: 117/3775Kb lim: 123065 exec/s: 4274 rss: 35Mb L: 49075/123065 MS: 2 ShuffleBytes-CMP- DE: "\004\000\000\000"-
+2026-11-03T09:55:34.7077903Z #4280	NEW    cov: 371 ft: 885 corp: 118/3777Kb lim: 123065 exec/s: 4280 rss: 35Mb L: 2065/123065 MS: 1 PersAutoDict- DE: "\004\000\000\000"-
+2026-11-03T09:55:34.7127930Z #4296	NEW    cov: 371 ft: 886 corp: 119/3825Kb lim: 123065 exec/s: 4296 rss: 35Mb L: 49075/123065 MS: 1 ShuffleBytes-
+2026-11-03T09:55:34.7457135Z #4393	NEW    cov: 371 ft: 887 corp: 120/3873Kb lim: 123065 exec/s: 4393 rss: 35Mb L: 49075/123065 MS: 2 ChangeBinInt-ChangeByte-
+2026-11-03T09:55:34.7620251Z #4401	NEW    cov: 371 ft: 888 corp: 121/3921Kb lim: 123065 exec/s: 4401 rss: 35Mb L: 49075/123065 MS: 3 ChangeBinInt-ChangeByte-PersAutoDict- DE: "\377\377\377\377\377\377\377\377"-
+2026-11-03T09:55:34.7988916Z #4471	REDUCE cov: 371 ft: 888 corp: 121/3921Kb lim: 123065 exec/s: 4471 rss: 35Mb L: 1071/123065 MS: 5 ShuffleBytes-ChangeBinInt-ChangeASCIIInt-ChangeBinInt-EraseBytes-
+2026-11-03T09:55:34.8097130Z #4499	REDUCE cov: 371 ft: 888 corp: 121/3910Kb lim: 123065 exec/s: 4499 rss: 35Mb L: 21548/123065 MS: 3 CMP-ChangeByte-EraseBytes- DE: "\000\000\000\000\000\000\000\000"-
+2026-11-03T09:55:34.8417187Z #4526	NEW    cov: 371 ft: 893 corp: 122/3958Kb lim: 123065 exec/s: 2263 rss: 35Mb L: 49075/123065 MS: 2 ShuffleBytes-CrossOver-
+2026-11-03T09:55:34.8591860Z #4619	REDUCE cov: 371 ft: 893 corp: 122/3940Kb lim: 123065 exec/s: 2309 rss: 35Mb L: 2629/123065 MS: 3 CrossOver-ChangeBit-CrossOver-
+2026-11-03T09:55:34.8821184Z #4662	REDUCE cov: 371 ft: 893 corp: 122/3928Kb lim: 123065 exec/s: 2331 rss: 35Mb L: 14086/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:34.8870992Z #4668	NEW    cov: 371 ft: 894 corp: 123/3976Kb lim: 123065 exec/s: 2334 rss: 35Mb L: 49075/123065 MS: 1 ChangeASCIIInt-
+2026-11-03T09:55:34.9043716Z #4704	REDUCE cov: 371 ft: 894 corp: 123/3975Kb lim: 123065 exec/s: 2352 rss: 35Mb L: 3224/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:34.9352483Z #4797	REDUCE cov: 371 ft: 894 corp: 123/3970Kb lim: 123065 exec/s: 2398 rss: 35Mb L: 9587/123065 MS: 3 ShuffleBytes-ShuffleBytes-EraseBytes-
+2026-11-03T09:55:34.9855433Z #4838	REDUCE cov: 371 ft: 894 corp: 123/3964Kb lim: 123065 exec/s: 2419 rss: 35Mb L: 11700/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:34.9863597Z #4870	REDUCE cov: 371 ft: 894 corp: 123/3956Kb lim: 123065 exec/s: 2435 rss: 35Mb L: 13684/123065 MS: 2 InsertRepeatedBytes-EraseBytes-
+2026-11-03T09:55:34.9961695Z #4888	REDUCE cov: 371 ft: 894 corp: 123/3953Kb lim: 123065 exec/s: 2444 rss: 35Mb L: 10619/123065 MS: 3 ChangeBinInt-ChangeASCIIInt-EraseBytes-
+2026-11-03T09:55:35.0041843Z #4914	NEW    cov: 371 ft: 895 corp: 124/3955Kb lim: 123065 exec/s: 2457 rss: 35Mb L: 2090/123065 MS: 1 ChangeBit-
+2026-11-03T09:55:35.0043823Z #4918	REDUCE cov: 371 ft: 895 corp: 124/3955Kb lim: 123065 exec/s: 2459 rss: 35Mb L: 5520/123065 MS: 4 ChangeASCIIInt-ChangeBit-PersAutoDict-EraseBytes- DE: "\007\000\000\000\000\000\000\000"-
+2026-11-03T09:55:35.0352794Z #4957	NEW    cov: 374 ft: 902 corp: 125/4003Kb lim: 123065 exec/s: 2478 rss: 35Mb L: 49075/123065 MS: 4 ChangeBit-ChangeByte-ChangeASCIIInt-CrossOver-
+2026-11-03T09:55:35.0577680Z #5023	NEW    cov: 374 ft: 903 corp: 126/4051Kb lim: 123065 exec/s: 2511 rss: 35Mb L: 49075/123065 MS: 1 ChangeByte-
+2026-11-03T09:55:35.1167801Z #5159	NEW    cov: 374 ft: 905 corp: 127/4099Kb lim: 123065 exec/s: 2579 rss: 35Mb L: 49075/123065 MS: 1 CopyPart-
+2026-11-03T09:55:35.1233881Z #5161	NEW    cov: 374 ft: 906 corp: 128/4147Kb lim: 123065 exec/s: 2580 rss: 35Mb L: 49075/123065 MS: 2 ChangeASCIIInt-PersAutoDict- DE: "\377\377\377\377\377\377\377\377"-
+2026-11-03T09:55:35.2634913Z #5567	NEW    cov: 374 ft: 908 corp: 129/4187Kb lim: 123065 exec/s: 2783 rss: 35Mb L: 40846/123065 MS: 1 CrossOver-
+2026-11-03T09:55:35.2703190Z #5609	REDUCE cov: 374 ft: 908 corp: 129/4185Kb lim: 123065 exec/s: 2804 rss: 35Mb L: 8920/123065 MS: 2 ShuffleBytes-EraseBytes-
+2026-11-03T09:55:35.3436326Z #5751	REDUCE cov: 374 ft: 908 corp: 129/4185Kb lim: 123065 exec/s: 2875 rss: 35Mb L: 2122/123065 MS: 2 CrossOver-EraseBytes-
+2026-11-03T09:55:35.3443861Z #5777	NEW    cov: 374 ft: 910 corp: 130/4224Kb lim: 123065 exec/s: 2888 rss: 35Mb L: 40846/123065 MS: 1 PersAutoDict- DE: "\210\000\000\000"-
+2026-11-03T09:55:35.4445551Z #5959	NEW    cov: 374 ft: 913 corp: 131/4272Kb lim: 123065 exec/s: 2979 rss: 35Mb L: 49075/123065 MS: 2 ChangeBit-CrossOver-
+2026-11-03T09:55:35.4492165Z #5965	NEW    cov: 377 ft: 916 corp: 132/4320Kb lim: 123065 exec/s: 2982 rss: 35Mb L: 49075/123065 MS: 1 ShuffleBytes-
+2026-11-03T09:55:35.4662169Z #5997	NEW    cov: 377 ft: 917 corp: 133/4368Kb lim: 123065 exec/s: 2998 rss: 35Mb L: 49075/123065 MS: 2 ChangeASCIIInt-CopyPart-
+2026-11-03T09:55:35.4666071Z #5998	NEW    cov: 379 ft: 919 corp: 134/4370Kb lim: 123065 exec/s: 2999 rss: 35Mb L: 2065/123065 MS: 1 ChangeBinInt-
+2026-11-03T09:55:35.4761773Z #6014	NEW    cov: 379 ft: 920 corp: 135/4418Kb lim: 123065 exec/s: 3007 rss: 35Mb L: 49075/123065 MS: 1 ChangeBinInt-
+2026-11-03T09:55:35.5183024Z #6118	REDUCE cov: 379 ft: 920 corp: 135/4417Kb lim: 123065 exec/s: 3059 rss: 35Mb L: 10528/123065 MS: 4 InsertRepeatedBytes-ChangeBinInt-ShuffleBytes-EraseBytes-
+2026-11-03T09:55:35.5184759Z #6124	REDUCE cov: 379 ft: 920 corp: 135/4415Kb lim: 123065 exec/s: 3062 rss: 35Mb L: 7207/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:35.5484405Z #6150	REDUCE cov: 379 ft: 920 corp: 135/4415Kb lim: 123065 exec/s: 3075 rss: 35Mb L: 6/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:35.5818081Z #6183	REDUCE cov: 379 ft: 920 corp: 135/4415Kb lim: 123065 exec/s: 3091 rss: 35Mb L: 1937/123065 MS: 3 ChangeBinInt-InsertByte-EraseBytes-
+2026-11-03T09:55:35.6014736Z #6189	REDUCE cov: 379 ft: 920 corp: 135/4415Kb lim: 123065 exec/s: 3094 rss: 35Mb L: 1407/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:35.6191731Z #6235	REDUCE cov: 379 ft: 920 corp: 135/4414Kb lim: 123065 exec/s: 3117 rss: 35Mb L: 3350/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:35.6254249Z #6241	NEW    cov: 381 ft: 923 corp: 136/4462Kb lim: 123065 exec/s: 3120 rss: 35Mb L: 49075/123065 MS: 1 CopyPart-
+2026-11-03T09:55:35.6275151Z #6247	NEW    cov: 381 ft: 924 corp: 137/4510Kb lim: 123065 exec/s: 3123 rss: 35Mb L: 49075/123065 MS: 1 CopyPart-
+2026-11-03T09:55:35.6287512Z #6248	NEW    cov: 390 ft: 934 corp: 138/4557Kb lim: 123065 exec/s: 3124 rss: 35Mb L: 49075/123065 MS: 1 CMP- DE: "\001\000\000\000\000\001U\277"-
+2026-11-03T09:55:35.6816322Z #6306	NEW    cov: 391 ft: 935 corp: 139/4605Kb lim: 123065 exec/s: 3153 rss: 35Mb L: 49075/123065 MS: 3 ChangeBinInt-ChangeBinInt-CrossOver-
+2026-11-03T09:55:35.7926308Z #6522	REDUCE cov: 391 ft: 935 corp: 139/4603Kb lim: 123065 exec/s: 3261 rss: 35Mb L: 5247/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:35.8254176Z #6573	NEW    cov: 391 ft: 936 corp: 140/4651Kb lim: 123065 exec/s: 3286 rss: 35Mb L: 49075/123065 MS: 1 CMP- DE: "\267\000\000\000"-
+2026-11-03T09:55:35.8617185Z #6652	REDUCE cov: 391 ft: 936 corp: 140/4651Kb lim: 123065 exec/s: 2217 rss: 35Mb L: 5/123065 MS: 4 ChangeBit-PersAutoDict-ChangeBit-EraseBytes- DE: ")\002"-
+2026-11-03T09:55:35.8619104Z #6660	REDUCE cov: 391 ft: 936 corp: 140/4649Kb lim: 123065 exec/s: 2220 rss: 35Mb L: 7972/123065 MS: 3 ChangeBinInt-ChangeBit-EraseBytes-
+2026-11-03T09:55:35.9271296Z #6727	NEW    cov: 391 ft: 937 corp: 141/4697Kb lim: 123065 exec/s: 2242 rss: 35Mb L: 49075/123065 MS: 2 CopyPart-ChangeBinInt-
+2026-11-03T09:55:35.9532800Z #6767	NEW    cov: 391 ft: 938 corp: 142/4745Kb lim: 123065 exec/s: 2255 rss: 35Mb L: 49075/123065 MS: 5 ChangeASCIIInt-CMP-ChangeByte-CMP-ShuffleBytes- DE: "\376\377\377\377\377\377\375l"-"\000\000"-
+2026-11-03T09:55:35.9908424Z #6831	REDUCE cov: 391 ft: 938 corp: 142/4745Kb lim: 123065 exec/s: 2277 rss: 35Mb L: 2097/123065 MS: 4 CMP-ChangeBit-ChangeBinInt-EraseBytes- DE: "\275\376\377\377"-
+2026-11-03T09:55:36.0044849Z #6877	NEW    cov: 391 ft: 939 corp: 143/4793Kb lim: 123065 exec/s: 2292 rss: 35Mb L: 49075/123065 MS: 1 ChangeBinInt-
+2026-11-03T09:55:36.0206515Z #6908	NEW    cov: 391 ft: 940 corp: 144/4840Kb lim: 123065 exec/s: 2302 rss: 35Mb L: 49075/123065 MS: 1 ShuffleBytes-
+2026-11-03T09:55:36.0257692Z #6919	NEW    cov: 391 ft: 941 corp: 145/4888Kb lim: 123065 exec/s: 2306 rss: 35Mb L: 49075/123065 MS: 1 ChangeByte-
+2026-11-03T09:55:36.0289974Z #6935	NEW    cov: 391 ft: 943 corp: 146/4936Kb lim: 123065 exec/s: 2311 rss: 35Mb L: 49075/123065 MS: 1 CrossOver-
+2026-11-03T09:55:36.0542239Z #6966	NEW    cov: 391 ft: 945 corp: 147/4984Kb lim: 123065 exec/s: 2322 rss: 35Mb L: 49075/123065 MS: 1 CopyPart-
+2026-11-03T09:55:36.0722332Z #7048	NEW    cov: 391 ft: 947 corp: 148/5032Kb lim: 123065 exec/s: 2349 rss: 35Mb L: 49075/123065 MS: 2 CopyPart-CopyPart-
+2026-11-03T09:55:36.0929162Z #7079	REDUCE cov: 391 ft: 947 corp: 148/5030Kb lim: 123065 exec/s: 2359 rss: 35Mb L: 3765/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:36.3073997Z #7398	REDUCE cov: 391 ft: 947 corp: 148/5030Kb lim: 123065 exec/s: 2466 rss: 35Mb L: 8359/123065 MS: 4 InsertByte-ChangeBit-ChangeByte-EraseBytes-
+2026-11-03T09:55:36.3132296Z #7429	NEW    cov: 391 ft: 949 corp: 149/5077Kb lim: 123065 exec/s: 2476 rss: 35Mb L: 49075/123065 MS: 1 ChangeBinInt-
+2026-11-03T09:55:36.3136518Z #7435	REDUCE cov: 391 ft: 949 corp: 149/5076Kb lim: 123065 exec/s: 2478 rss: 35Mb L: 2775/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:36.3580831Z #7486	NEW    cov: 391 ft: 950 corp: 150/5124Kb lim: 123065 exec/s: 2495 rss: 35Mb L: 49075/123065 MS: 1 ShuffleBytes-
+2026-11-03T09:55:36.3716607Z #7493	NEW    cov: 391 ft: 951 corp: 151/5172Kb lim: 123065 exec/s: 2497 rss: 35Mb L: 49075/123065 MS: 2 ChangeByte-ChangeBinInt-
+2026-11-03T09:55:36.4060405Z #7609	NEW    cov: 391 ft: 952 corp: 152/5220Kb lim: 123065 exec/s: 2536 rss: 35Mb L: 49075/123065 MS: 1 ShuffleBytes-
+2026-11-03T09:55:36.4210243Z #7635	NEW    cov: 391 ft: 965 corp: 153/5260Kb lim: 123065 exec/s: 2545 rss: 35Mb L: 40846/123065 MS: 1 CrossOver-
+2026-11-03T09:55:36.4813644Z #7731	NEW    cov: 391 ft: 966 corp: 154/5308Kb lim: 123065 exec/s: 2577 rss: 35Mb L: 49075/123065 MS: 1 CrossOver-
+2026-11-03T09:55:36.5166356Z #7774	NEW    cov: 392 ft: 967 corp: 155/5356Kb lim: 123065 exec/s: 2591 rss: 35Mb L: 49075/123065 MS: 3 ChangeBinInt-ChangeBit-CMP- DE: "\001\000\004T"-
+2026-11-03T09:55:36.5863763Z #7875	NEW    cov: 392 ft: 968 corp: 156/5404Kb lim: 123065 exec/s: 2625 rss: 35Mb L: 49075/123065 MS: 1 ChangeByte-
+2026-11-03T09:55:36.5993201Z #7969	REDUCE cov: 392 ft: 968 corp: 156/5402Kb lim: 123065 exec/s: 2656 rss: 35Mb L: 4869/123065 MS: 4 ChangeASCIIInt-PersAutoDict-PersAutoDict-EraseBytes- DE: "\267\000\000\000"-"\001\000\004T"-
+2026-11-03T09:55:36.6173560Z #8030	NEW    cov: 392 ft: 974 corp: 157/5450Kb lim: 123065 exec/s: 2676 rss: 35Mb L: 49075/123065 MS: 1 CopyPart-
+2026-11-03T09:55:36.6450631Z #8051	NEW    cov: 393 ft: 975 corp: 158/5497Kb lim: 123065 exec/s: 2683 rss: 35Mb L: 49075/123065 MS: 1 CopyPart-
+2026-11-03T09:55:36.6668936Z #8126	REDUCE cov: 393 ft: 975 corp: 158/5496Kb lim: 123065 exec/s: 2708 rss: 35Mb L: 7724/123065 MS: 5 ChangeBinInt-CrossOver-ChangeASCIIInt-ChangeBinInt-EraseBytes-
+2026-11-03T09:55:36.6684781Z #8144	REDUCE cov: 393 ft: 975 corp: 158/5493Kb lim: 123065 exec/s: 2714 rss: 35Mb L: 5690/123065 MS: 3 InsertRepeatedBytes-ChangeASCIIInt-EraseBytes-
+2026-11-03T09:55:36.6897566Z #8192	pulse  cov: 393 ft: 975 corp: 158/5493Kb lim: 123065 exec/s: 2730 rss: 35Mb
+2026-11-03T09:55:36.7677924Z #8441	NEW    cov: 393 ft: 977 corp: 159/5541Kb lim: 123065 exec/s: 2813 rss: 35Mb L: 49075/123065 MS: 2 ChangeByte-CrossOver-
+2026-11-03T09:55:36.7775494Z #8477	REDUCE cov: 393 ft: 977 corp: 159/5541Kb lim: 123065 exec/s: 2825 rss: 35Mb L: 70644/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:36.8684529Z #8705	NEW    cov: 394 ft: 978 corp: 160/5589Kb lim: 123065 exec/s: 2176 rss: 35Mb L: 49075/123065 MS: 3 ChangeByte-ChangeBinInt-ChangeBinInt-
+2026-11-03T09:55:37.0744256Z #9022	REDUCE cov: 394 ft: 978 corp: 160/5589Kb lim: 123065 exec/s: 2255 rss: 36Mb L: 3/123065 MS: 2 ChangeBit-EraseBytes-
+2026-11-03T09:55:37.1612001Z #9170	REDUCE cov: 394 ft: 978 corp: 160/5588Kb lim: 123065 exec/s: 2292 rss: 36Mb L: 6574/123065 MS: 3 ChangeBinInt-PersAutoDict-EraseBytes- DE: "\000\000\000\000\000\000\000\000"-
+2026-11-03T09:55:37.2386372Z #9335	REDUCE cov: 394 ft: 978 corp: 160/5587Kb lim: 123065 exec/s: 2333 rss: 36Mb L: 4666/123065 MS: 5 ChangeASCIIInt-PersAutoDict-InsertRepeatedBytes-CopyPart-EraseBytes- DE: "\004\000\000\000"-
+2026-11-03T09:55:37.2388493Z #9366	NEW    cov: 394 ft: 979 corp: 161/5602Kb lim: 123065 exec/s: 2341 rss: 36Mb L: 15190/123065 MS: 1 CopyPart-
+2026-11-03T09:55:37.2655757Z #9387	NEW    cov: 394 ft: 980 corp: 162/5650Kb lim: 123065 exec/s: 2346 rss: 36Mb L: 49075/123065 MS: 1 CopyPart-
+2026-11-03T09:55:37.3472042Z #9503	NEW    cov: 394 ft: 981 corp: 163/5698Kb lim: 123065 exec/s: 2375 rss: 36Mb L: 49075/123065 MS: 1 CrossOver-
+2026-11-03T09:55:37.3682096Z #9550	NEW    cov: 394 ft: 982 corp: 164/5746Kb lim: 123065 exec/s: 2387 rss: 36Mb L: 49075/123065 MS: 2 ChangeByte-CrossOver-
+2026-11-03T09:55:37.3937845Z 	NEW_FUNC[1/1]: 0x560de8500791
+2026-11-03T09:55:37.3943723Z #9583	NEW    cov: 399 ft: 988 corp: 165/5866Kb lim: 123065 exec/s: 2395 rss: 36Mb L: 123065/123065 MS: 3 ChangeBit-ChangeBit-CrossOver-
+2026-11-03T09:55:37.4120561Z #9609	REDUCE cov: 399 ft: 988 corp: 165/5866Kb lim: 123065 exec/s: 2402 rss: 36Mb L: 1248/123065 MS: 1 EraseBytes-
+2026-11-03T09:55:37.4353483Z #9650	NEW    cov: 399 ft: 990 corp: 166/5914Kb lim: 123065 exec/s: 2412 rss: 36Mb L: 49075/123065 MS: 1 CopyPart-
+2026-11-03T09:55:37.4607574Z #9678	NEW    cov: 399 ft: 991 corp: 167/5962Kb lim: 123065 exec/s: 2419 rss: 36Mb L: 49075/123065 MS: 3 ChangeBinInt-ChangeBinInt-ChangeBit-
+2026-11-03T09:55:37.4826806Z #9804	NEW    cov: 399 ft: 992 corp: 168/6010Kb lim: 123065 exec/s: 2451 rss: 36Mb L: 49075/123065 MS: 1 ChangeBinInt-
+2026-11-03T09:55:37.6030212Z #9955	NEW    cov: 399 ft: 994 corp: 169/6050Kb lim: 123065 exec/s: 2488 rss: 36Mb L: 40846/123065 MS: 1 CrossOver-
+2026-11-03T09:55:37.7825778Z #10211	NEW    cov: 399 ft: 995 corp: 170/6098Kb lim: 123065 exec/s: 2552 rss: 36Mb L: 49075/123065 MS: 1 CrossOver-
+2026-11-03T09:55:37.8019637Z #10246	NEW    cov: 400 ft: 998 corp: 171/6103Kb lim: 123065 exec/s: 2561 rss: 36Mb L: 5546/123065 MS: 5 ChangeBit-CMP-CrossOver-ChangeBit-InsertRepeatedBytes- DE: "\001\000\000\000\000\000\000\034"-
+2026-11-03T09:55:37.9622697Z #10533	NEW    cov: 401 ft: 999 corp: 172/6151Kb lim: 123065 exec/s: 2106 rss: 36Mb L: 49075/123065 MS: 2 ChangeBinInt-CMP- DE: "\377\377\377\377\377\377\016\357"-
+2026-11-03T09:55:37.9776877Z #10591	NEW    cov: 401 ft: 1000 corp: 173/6199Kb lim: 123065 exec/s: 2118 rss: 36Mb L: 49075/123065 MS: 3 CMP-ShuffleBytes-CMP- DE: " \377\377\377\377\377\377\377"-"!\000\000\000"-
+2026-11-03T09:55:37.9905843Z #10603	NEW    cov: 402 ft: 1001 corp: 174/6239Kb lim: 123065 exec/s: 2120 rss: 36Mb L: 40846/123065 MS: 2 ChangeBit-PersAutoDict- DE: "\000\000\000\000\000\000\000\000"-
+2026-11-03T09:55:38.0354623Z 
+2026-11-03T09:55:38.0355537Z thread '<unnamed>' (3777) panicked at /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/src/codec/alac.rs:312:28:
+2026-11-03T09:55:38.0356334Z attempt to subtract with overflow
+2026-11-03T09:55:38.0356636Z stack backtrace:
+2026-11-03T09:55:38.0456902Z    0: __rustc::rust_begin_unwind
+2026-11-03T09:55:38.0457574Z              at /rustc/1c3a6506966e21845b31de0b075d2527660db132/library/std/src/panicking.rs:676:5
+2026-11-03T09:55:38.0458205Z    1: core::panicking::panic_fmt
+2026-11-03T09:55:38.0458748Z              at /rustc/1c3a6506966e21845b31de0b075d2527660db132/library/core/src/panicking.rs:80:14
+2026-11-03T09:55:38.0459566Z    2: core::panicking::panic_const::panic_const_sub_overflow
+2026-11-03T09:55:38.0460232Z              at /rustc/1c3a6506966e21845b31de0b075d2527660db132/library/core/src/panicking.rs:175:17
+2026-11-03T09:55:38.0570103Z    3: predict
+2026-11-03T09:55:38.0570890Z    4: predict_half
+2026-11-03T09:55:38.0571173Z              at ./src/codec/alac.rs:378:9
+2026-11-03T09:55:38.0571988Z    5: frame
+2026-11-03T09:55:38.0572226Z              at ./src/codec/alac.rs:644:25
+2026-11-03T09:55:38.0573020Z    6: decode_mp4
+2026-11-03T09:55:38.0573268Z              at ./src/codec/alac.rs:728:17
+2026-11-03T09:55:38.0573922Z    7: __libfuzzer_sys_run
+2026-11-03T09:55:38.0574246Z              at ./fuzz/fuzz_targets/decode_alac.rs:11:20
+2026-11-03T09:55:38.0574528Z    8: rust_fuzzer_test_input
+2026-11-03T09:55:38.0574927Z              at /home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libfuzzer-sys-0.4.13/src/lib.rs:276:60
+2026-11-03T09:55:38.0593496Z    9: _ZN6fuzzer6Fuzzer15ExecuteCallbackEPKhm
+2026-11-03T09:55:38.0594065Z              at /home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libfuzzer-sys-0.4.13/libfuzzer/FuzzerLoop.cpp:619:15
+2026-11-03T09:55:38.0595156Z   10: _ZN6fuzzer6Fuzzer6RunOneEPKhmbPNS_9InputInfoEbPb
+2026-11-03T09:55:38.0595668Z              at /home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libfuzzer-sys-0.4.13/libfuzzer/FuzzerLoop.cpp:516:22
+2026-11-03T09:55:38.0596348Z   11: _ZN6fuzzer6Fuzzer16MutateAndTestOneEv
+2026-11-03T09:55:38.0597159Z              at /home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libfuzzer-sys-0.4.13/libfuzzer/FuzzerLoop.cpp:765:25
+2026-11-03T09:55:38.0598032Z   12: _ZN6fuzzer6Fuzzer4LoopERSt6vectorINS_9SizedFileESaIS2_EE
+2026-11-03T09:55:38.0598870Z              at /home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libfuzzer-sys-0.4.13/libfuzzer/FuzzerLoop.cpp:910:21
+2026-11-03T09:55:38.0624041Z   13: _ZN6fuzzer12FuzzerDriverEPiPPPcPFiPKhmE
+2026-11-03T09:55:38.0624757Z              at /home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libfuzzer-sys-0.4.13/libfuzzer/FuzzerDriver.cpp:923:10
+2026-11-03T09:55:38.0625441Z   14: main
+2026-11-03T09:55:38.0626090Z              at /home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libfuzzer-sys-0.4.13/libfuzzer/FuzzerMain.cpp:20:30
+2026-11-03T09:55:38.0627518Z   15: <unknown>
+2026-11-03T09:55:38.0627736Z   16: __libc_start_main
+2026-11-03T09:55:38.0627969Z   17: _start
+2026-11-03T09:55:38.0628347Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-03T09:55:38.0628891Z ==3777== ERROR: libFuzzer: deadly signal
+2026-11-03T09:55:38.0629278Z NOTE: libFuzzer has rudimentary signal handlers.
+2026-11-03T09:55:38.0629980Z       Combine libFuzzer with AddressSanitizer or similar for better crash reports.
+2026-11-03T09:55:38.0630536Z SUMMARY: libFuzzer: deadly signal
+2026-11-03T09:55:38.0631214Z MS: 2 PersAutoDict-CopyPart- DE: "\001\000\000\000\000\000\000\034"-; base unit: 4ea8911608aa360aa1d24ef842cbb012ac3cb541
+2026-11-03T09:55:38.0634178Z artifact_prefix='/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/fuzz/artifacts/decode_alac/'; Test unit written to /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio/fuzz/artifacts/decode_alac/crash-ffd3e08ce224a4115e7443c75eb2eb7483c0079e
+2026-11-03T09:55:38.0680949Z 
+2026-11-03T09:55:38.0683174Z ────────────────────────────────────────────────────────────────────────────────
+2026-11-03T09:55:38.0683526Z 
+2026-11-03T09:55:38.0683617Z Failing input:
+2026-11-03T09:55:38.0683755Z 
+2026-11-03T09:55:38.0683970Z 	fuzz/artifacts/decode_alac/crash-ffd3e08ce224a4115e7443c75eb2eb7483c0079e
+2026-11-03T09:55:38.0684317Z 
+2026-11-03T09:55:38.2059031Z Output of `std::fmt::Debug`:
+2026-11-03T09:55:38.2059353Z 
+
+===== GPU on software Vulkan (lavapipe)	Vulkan suites (headless) =====
+2026-11-03T09:46:50.5712657Z ^[[1m^[[92m  Downloaded^[[0m lyon_geom v1.0.19
+2026-11-03T09:46:50.5724205Z ^[[1m^[[92m  Downloaded^[[0m num-traits v0.2.19
+2026-11-03T09:46:50.5741291Z ^[[1m^[[92m  Downloaded^[[0m unicode-bidi v0.3.18
+2026-11-03T09:46:50.5757446Z ^[[1m^[[92m  Downloaded^[[0m miniz_oxide v0.9.1
+2026-11-03T09:46:50.5773887Z ^[[1m^[[92m  Downloaded^[[0m rangemap v1.8.0
+2026-11-03T09:46:50.5789107Z ^[[1m^[[92m  Downloaded^[[0m codespan-reporting v0.13.1
+2026-11-03T09:46:50.5838686Z ^[[1m^[[92m  Downloaded^[[0m slotmap v1.1.1
+2026-11-03T09:46:50.5852596Z ^[[1m^[[92m  Downloaded^[[0m proc-macro2 v1.0.107
+2026-11-03T09:46:50.5872040Z ^[[1m^[[92m  Downloaded^[[0m fontdb v0.23.0
+2026-11-03T09:46:50.5887920Z ^[[1m^[[92m  Downloaded^[[0m miniz_oxide v0.8.9
+2026-11-03T09:46:50.5904314Z ^[[1m^[[92m  Downloaded^[[0m unicode-segmentation v1.13.3
+2026-11-03T09:46:50.5924236Z ^[[1m^[[92m  Downloaded^[[0m tinyvec v1.13.3
+2026-11-03T09:46:50.5946961Z ^[[1m^[[92m  Downloaded^[[0m indexmap v2.14.2
+2026-11-03T09:46:50.5975230Z ^[[1m^[[92m  Downloaded^[[0m flate2 v1.1.10
+2026-11-03T09:46:50.6007335Z ^[[1m^[[92m  Downloaded^[[0m png v0.18.1
+2026-11-03T09:46:50.6036481Z ^[[1m^[[92m  Downloaded^[[0m zerocopy-derive v0.8.59
+2026-11-03T09:46:50.6119036Z ^[[1m^[[92m  Downloaded^[[0m libm v0.2.16
+2026-11-03T09:46:50.6191601Z ^[[1m^[[92m  Downloaded^[[0m hashbrown v0.17.1
+2026-11-03T09:46:50.6227109Z ^[[1m^[[92m  Downloaded^[[0m lyon_tessellation v1.0.22
+2026-11-03T09:46:50.6251749Z ^[[1m^[[92m  Downloaded^[[0m zlib-rs v0.6.8
+2026-11-03T09:46:50.6288068Z ^[[1m^[[92m  Downloaded^[[0m ttf-parser v0.25.1
+2026-11-03T09:46:50.6351530Z ^[[1m^[[92m  Downloaded^[[0m swash v0.2.10
+2026-11-03T09:46:50.6402148Z ^[[1m^[[92m  Downloaded^[[0m skrifa v0.40.0
+2026-11-03T09:46:50.6462831Z ^[[1m^[[92m  Downloaded^[[0m skrifa v0.44.0
+2026-11-03T09:46:50.6525942Z ^[[1m^[[92m  Downloaded^[[0m unicode-width v0.2.2
+2026-11-03T09:46:50.6564746Z ^[[1m^[[92m  Downloaded^[[0m harfrust v0.5.2
+2026-11-03T09:46:50.6620727Z ^[[1m^[[92m  Downloaded^[[0m zerocopy v0.8.59
+2026-11-03T09:46:50.6762155Z ^[[1m^[[92m  Downloaded^[[0m syn v2.0.119
+2026-11-03T09:46:50.6833757Z ^[[1m^[[92m  Downloaded^[[0m syn v3.0.6
+2026-11-03T09:46:50.6906239Z ^[[1m^[[92m  Downloaded^[[0m read-fonts v0.37.0
+2026-11-03T09:46:50.7009552Z ^[[1m^[[92m  Downloaded^[[0m ash v0.38.0+1.3.281
+2026-11-03T09:46:50.7118340Z ^[[1m^[[92m  Downloaded^[[0m read-fonts v0.41.0
+2026-11-03T09:46:50.7247079Z ^[[1m^[[92m  Downloaded^[[0m naga v30.0.1
+2026-11-03T09:46:50.7391665Z ^[[1m^[[92m  Downloaded^[[0m libc v0.2.189
+2026-11-03T09:46:50.7679978Z ^[[1m^[[92m  Downloaded^[[0m cosmic-text v0.19.0
+2026-11-03T09:46:51.0667060Z ^[[1m^[[92m   Compiling^[[0m proc-macro2 v1.0.107
+2026-11-03T09:46:51.0667519Z ^[[1m^[[92m   Compiling^[[0m quote v1.0.47
+2026-11-03T09:46:51.0667811Z ^[[1m^[[92m   Compiling^[[0m unicode-ident v1.0.26
+2026-11-03T09:46:51.0668142Z ^[[1m^[[92m   Compiling^[[0m libm v0.2.16
+2026-11-03T09:46:51.1242910Z ^[[1m^[[92m   Compiling^[[0m autocfg v1.5.1
+2026-11-03T09:46:51.1999454Z ^[[1m^[[92m   Compiling^[[0m foldhash v0.2.0
+2026-11-03T09:46:51.2662559Z ^[[1m^[[92m   Compiling^[[0m thiserror v2.0.21
+2026-11-03T09:46:51.3291830Z ^[[1m^[[92m   Compiling^[[0m num-traits v0.2.19
+2026-11-03T09:46:51.3915726Z ^[[1m^[[92m   Compiling^[[0m cfg-if v1.0.5
+2026-11-03T09:46:51.4155419Z ^[[1m^[[92m   Compiling^[[0m simd-adler32 v0.3.10
+2026-11-03T09:46:51.4394117Z ^[[1m^[[92m   Compiling^[[0m once_cell v1.21.4
+2026-11-03T09:46:51.5935658Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
+2026-11-03T09:46:51.6665395Z ^[[1m^[[92m   Compiling^[[0m syn v3.0.6
+2026-11-03T09:46:51.6735646Z ^[[1m^[[92m   Compiling^[[0m syn v2.0.119
+2026-11-03T09:46:51.8565829Z ^[[1m^[[92m   Compiling^[[0m core_maths v0.1.1
+2026-11-03T09:46:51.9025818Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
+2026-11-03T09:46:52.3865777Z ^[[1m^[[92m   Compiling^[[0m cfg_aliases v0.2.2
+2026-11-03T09:46:52.4165752Z ^[[1m^[[92m   Compiling^[[0m crc32fast v1.5.2
+2026-11-03T09:46:52.5096180Z ^[[1m^[[92m   Compiling^[[0m equivalent v1.0.2
+2026-11-03T09:46:52.5410068Z ^[[1m^[[92m   Compiling^[[0m adler2 v2.0.1
+2026-11-03T09:46:52.6130455Z ^[[1m^[[92m   Compiling^[[0m bitflags v2.13.2
+2026-11-03T09:46:52.8175759Z ^[[1m^[[92m   Compiling^[[0m indexmap v2.14.2
+2026-11-03T09:46:53.2475855Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
+2026-11-03T09:46:53.2550489Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v2.0.21
+2026-11-03T09:46:53.4560011Z ^[[1m^[[92m   Compiling^[[0m naga v30.0.1
+2026-11-03T09:46:53.5806293Z ^[[1m^[[92m   Compiling^[[0m ttf-parser v0.25.1
+2026-11-03T09:46:53.9395677Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
+2026-11-03T09:46:54.0115888Z ^[[1m^[[92m   Compiling^[[0m zerocopy-derive v0.8.59
+2026-11-03T09:46:54.1171920Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
+2026-11-03T09:46:54.3895629Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
+2026-11-03T09:46:54.6758915Z ^[[1m^[[92m   Compiling^[[0m bit-vec v0.9.1
+2026-11-03T09:46:54.7825552Z ^[[1m^[[92m   Compiling^[[0m version_check v0.9.5
+2026-11-03T09:46:54.9546032Z ^[[1m^[[92m   Compiling^[[0m unicode-segmentation v1.13.3
+2026-11-03T09:46:55.3195716Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v1.1.0
+2026-11-03T09:46:55.3586207Z ^[[1m^[[92m   Compiling^[[0m unicode-width v0.2.2
+2026-11-03T09:46:55.4872293Z ^[[1m^[[92m   Compiling^[[0m libc v0.2.189
+2026-11-03T09:46:55.6485611Z ^[[1m^[[92m   Compiling^[[0m codespan-reporting v0.13.1
+2026-11-03T09:46:55.8915655Z ^[[1m^[[92m   Compiling^[[0m naga-types v30.0.1
+2026-11-03T09:46:55.9645784Z ^[[1m^[[92m   Compiling^[[0m slotmap v1.1.1
+2026-11-03T09:46:56.0289711Z ^[[1m^[[92m   Compiling^[[0m bit-set v0.10.0
+2026-11-03T09:46:56.0996101Z ^[[1m^[[92m   Compiling^[[0m spirv v0.4.0+sdk-1.4.341.0
+2026-11-03T09:46:56.9965733Z ^[[1m^[[92m   Compiling^[[0m euclid v0.22.14
+2026-11-03T09:46:57.3455939Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
+2026-11-03T09:46:57.6035600Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.9.1
+2026-11-03T09:46:57.6775083Z ^[[1m^[[92m   Compiling^[[0m half v2.7.1
+2026-11-03T09:46:57.7256114Z ^[[1m^[[92m   Compiling^[[0m arrayvec v0.7.8
+2026-11-03T09:46:57.8585698Z ^[[1m^[[92m   Compiling^[[0m log v0.4.34
+2026-11-03T09:46:57.9904090Z ^[[1m^[[92m   Compiling^[[0m flate2 v1.1.10
+2026-11-03T09:46:58.3287433Z ^[[1m^[[92m   Compiling^[[0m lyon_geom v1.0.19
+2026-11-03T09:46:58.6236333Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
+2026-11-03T09:46:59.3689807Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
+2026-11-03T09:47:05.0576290Z ^[[1m^[[92m   Compiling^[[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-03T09:47:10.0645772Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.8.9
+2026-11-03T09:47:10.2536338Z ^[[1m^[[92m   Compiling^[[0m fdeflate v0.3.7
+2026-11-03T09:47:10.8155755Z ^[[1m^[[92m   Compiling^[[0m roxmltree v0.20.0
+2026-11-03T09:47:11.0133554Z ^[[1m^[[92m   Compiling^[[0m png v0.18.1
+2026-11-03T09:47:12.1545675Z ^[[1m^[[92m   Compiling^[[0m fontconfig-parser v0.5.8
+2026-11-03T09:47:12.2616193Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+2026-11-03T09:47:12.4765612Z ^[[1m^[[92m   Compiling^[[0m memmap2 v0.9.11
+2026-11-03T09:47:12.7635917Z ^[[1m^[[92m   Compiling^[[0m lyon_path v1.0.19
+2026-11-03T09:47:12.9258605Z ^[[1m^[[92m   Compiling^[[0m yazi v0.2.1
+2026-11-03T09:47:13.4255784Z ^[[1m^[[92m   Compiling^[[0m zeno v0.3.3
+2026-11-03T09:47:13.4975575Z ^[[1m^[[92m   Compiling^[[0m float_next_after v1.0.0
+2026-11-03T09:47:13.5372886Z ^[[1m^[[92m   Compiling^[[0m tinyvec v1.13.3
+2026-11-03T09:47:13.6485780Z ^[[1m^[[92m   Compiling^[[0m ash v0.38.0+1.3.281
+2026-11-03T09:47:13.7013440Z ^[[1m^[[92m   Compiling^[[0m smallvec v1.16.2
+2026-11-03T09:47:13.8186135Z ^[[1m^[[92m   Compiling^[[0m fontdb v0.23.0
+2026-11-03T09:47:13.8496155Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
+2026-11-03T09:47:13.8780353Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
+2026-11-03T09:47:14.1635806Z ^[[1m^[[92m   Compiling^[[0m lyon_tessellation v1.0.22
+2026-11-03T09:47:15.0555974Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-03T09:47:15.8205557Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
+2026-11-03T09:47:22.9526578Z ^[[1m^[[92m   Compiling^[[0m libloading v0.8.9
+2026-11-03T09:47:23.0775804Z ^[[1m^[[92m   Compiling^[[0m unicode-script v0.5.8
+2026-11-03T09:47:23.3695750Z ^[[1m^[[92m   Compiling^[[0m unicode-bidi v0.3.18
+2026-11-03T09:47:24.1748158Z ^[[1m^[[92m   Compiling^[[0m linebender_resource_handle v0.1.1
+2026-11-03T09:47:24.1869612Z ^[[1m^[[92m   Compiling^[[0m rangemap v1.8.0
+2026-11-03T09:47:24.2325870Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.3.6
+2026-11-03T09:47:24.3836099Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v2.1.3
+2026-11-03T09:47:24.4066157Z ^[[1m^[[92m   Compiling^[[0m unicode-linebreak v0.1.5
+2026-11-03T09:47:24.4310493Z ^[[1m^[[92m   Compiling^[[0m self_cell v1.3.0
+2026-11-03T09:47:24.4845648Z ^[[1m^[[92m   Compiling^[[0m sys-locale v0.3.2
+2026-11-03T09:47:24.5425721Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
+2026-11-03T09:47:24.6915934Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+2026-11-03T09:47:25.7856192Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-03T09:47:30.4323623Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-03T09:47:33.9906026Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 44.32s
+2026-11-03T09:47:34.0523464Z ^[[1m^[[92m     Running^[[0m unittests src/lib.rs (target/release/deps/vieww_hal-580b85ab69c42af4)
+2026-11-03T09:47:34.0538957Z 
+2026-11-03T09:47:34.0539169Z running 0 tests
+2026-11-03T09:47:34.0539298Z 
+2026-11-03T09:47:34.0539488Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 28 filtered out; finished in 0.00s
+2026-11-03T09:47:34.0539669Z 
+2026-11-03T09:47:34.0541156Z ^[[1m^[[92m     Running^[[0m tests/d3d12_scene.rs (target/release/deps/d3d12_scene-91a0c204fd4f12b9)
+2026-11-03T09:47:34.0552146Z 
+2026-11-03T09:47:34.0552229Z running 0 tests
+2026-11-03T09:47:34.0552338Z 
+2026-11-03T09:47:34.0552538Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-03T09:47:34.0552809Z 
+2026-11-03T09:47:34.0553843Z ^[[1m^[[92m     Running^[[0m tests/d3d12_smoke.rs (target/release/deps/d3d12_smoke-9ff8aabd1a8e5a50)
+2026-11-03T09:47:34.0570798Z 
+2026-11-03T09:47:34.0570908Z running 0 tests
+2026-11-03T09:47:34.0571044Z 
+2026-11-03T09:47:34.0571194Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-03T09:47:34.0571373Z 
+2026-11-03T09:47:34.0572730Z ^[[1m^[[92m     Running^[[0m tests/metal_scene.rs (target/release/deps/metal_scene-7aeb38028bfbe9a0)
+2026-11-03T09:47:34.0582975Z 
+2026-11-03T09:47:34.0583064Z running 0 tests
+2026-11-03T09:47:34.0583165Z 
+2026-11-03T09:47:34.0583397Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-03T09:47:34.0583575Z 
+2026-11-03T09:47:34.0585083Z ^[[1m^[[92m     Running^[[0m tests/metal_smoke.rs (target/release/deps/metal_smoke-2887965f97008a09)
+2026-11-03T09:47:34.0597155Z 
+2026-11-03T09:47:34.0597246Z running 0 tests
+2026-11-03T09:47:34.0597349Z 
+2026-11-03T09:47:34.0597546Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-03T09:47:34.0597774Z 
+2026-11-03T09:47:34.0599309Z ^[[1m^[[92m     Running^[[0m tests/vulkan_compositor.rs (target/release/deps/vulkan_compositor-0b092c34640282d6)
+2026-11-03T09:47:34.0610624Z 
+2026-11-03T09:47:34.0610704Z running 17 tests
+2026-11-03T09:47:34.7545931Z test a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp ... FAILED
+2026-11-03T09:47:34.8025190Z test a_blurred_layer_matches_the_three_box_blur ... ok
+2026-11-03T09:47:34.8448274Z test a_colour_matrix_layer_matches ... ok
+2026-11-03T09:47:34.8827483Z test a_dashed_stroke_under_a_scale_matches_width_and_pattern ... ok
+2026-11-03T09:47:34.9286442Z test a_renderer_shared_between_planners_never_draws_a_stale_atlas ... FAILED
+2026-11-03T09:47:34.9700059Z test a_shadow_inside_a_translucent_layer_matches ... FAILED
+2026-11-03T09:47:35.0141968Z test a_steady_frame_uploads_nothing_new_and_reuses_every_target ... ok
+2026-11-03T09:47:35.0509356Z test a_transparent_clear_reads_back_straight_alpha_like_the_cpu ... ok
+2026-11-03T09:47:36.1733151Z test all_twenty_eight_blend_modes_match ... ok
+2026-11-03T09:47:36.2130776Z test every_shadow_variant_matches ... FAILED
+2026-11-03T09:47:36.2536769Z test group_opacity_composites_the_group_not_each_child ... ok
+2026-11-03T09:47:36.4142746Z test images_magnified_rotated_and_minified_match ... ok
+2026-11-03T09:47:36.7138469Z test linear_radial_and_sweep_gradients_match_per_pixel ... ok
+2026-11-03T09:47:36.7563100Z test nested_layers_with_mixed_effects_match ... ok
+2026-11-03T09:47:36.7932288Z test overlapping_subpaths_fill_under_non_zero_winding ... ok
+2026-11-03T09:47:36.8348157Z test shaped_clips_on_draws_and_on_layers_match ... FAILED
+2026-11-03T09:47:36.8726610Z test sharp_miter_joins_reach_as_far_as_the_cpu_allows ... ok
+2026-11-03T09:47:36.8726891Z 
+2026-11-03T09:47:36.8726963Z failures:
+2026-11-03T09:47:36.8727053Z 
+2026-11-03T09:47:36.8727250Z ---- a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp stdout ----
+2026-11-03T09:47:36.8727735Z backdrop-blur: max channel diff 20 at (16, 70) gpu=[75, 182, 115, 255] cpu=[55, 175, 101, 255]; 75 px over 2
+2026-11-03T09:47:36.8728017Z 
+2026-11-03T09:47:36.8728379Z thread 'a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp' (4186) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:113:5:
+2026-11-03T09:47:36.8729051Z backdrop-blur: 75 pixels differ by more than 2 (allowed 0); worst 20 at (16, 70) gpu=[75, 182, 115, 255] cpu=[55, 175, 101, 255]
+2026-11-03T09:47:36.8729483Z stack backtrace:
+2026-11-03T09:47:36.8735053Z    0: __rustc::rust_begin_unwind
+2026-11-03T09:47:36.8735471Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-03T09:47:36.8735835Z    1: core::panicking::panic_fmt
+2026-11-03T09:47:36.8736154Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-03T09:47:36.8736484Z    2: assert_parity
+2026-11-03T09:47:36.8736670Z              at ./tests/vulkan_compositor.rs:113:5
+2026-11-03T09:47:36.8736969Z    3: a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp
+2026-11-03T09:47:36.8737273Z              at ./tests/vulkan_compositor.rs:382:5
+2026-11-03T09:47:36.8737490Z    4: {closure#0}
+2026-11-03T09:47:36.8737675Z              at ./tests/vulkan_compositor.rs:357:73
+2026-11-03T09:47:36.8738165Z    5: call_once<vulkan_compositor::a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp::{closure_env#0}, ()>
+2026-11-03T09:47:36.8739097Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-03T09:47:36.8739598Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-11-03T09:47:36.8740071Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-03T09:47:36.8740568Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-03T09:47:36.8740820Z 
+2026-11-03T09:47:36.8740990Z ---- a_renderer_shared_between_planners_never_draws_a_stale_atlas stdout ----
+2026-11-03T09:47:36.8741225Z 
+2026-11-03T09:47:36.8741540Z thread 'a_renderer_shared_between_planners_never_draws_a_stale_atlas' (4230) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:846:9:
+2026-11-03T09:47:36.8742096Z assertion `left == right` failed: planner 0: 64 pixels drawn against a stale atlas
+2026-11-03T09:47:36.8742403Z   left: 64
+2026-11-03T09:47:36.8742548Z  right: 0
+2026-11-03T09:47:36.8742696Z stack backtrace:
+2026-11-03T09:47:36.8742867Z    0: __rustc::rust_begin_unwind
+2026-11-03T09:47:36.8743318Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-03T09:47:36.8743665Z    1: core::panicking::panic_fmt
+2026-11-03T09:47:36.8743986Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-03T09:47:36.8744501Z    2: core::panicking::assert_failed_inner
+2026-11-03T09:47:36.8744860Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:434:23
+2026-11-03T09:47:36.8745239Z    3: core::panicking::assert_failed::<usize, usize>
+2026-11-03T09:47:36.8745604Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:394:5
+2026-11-03T09:47:36.8745997Z    4: a_renderer_shared_between_planners_never_draws_a_stale_atlas
+2026-11-03T09:47:36.8746286Z              at ./tests/vulkan_compositor.rs:846:9
+2026-11-03T09:47:36.8746504Z    5: {closure#0}
+2026-11-03T09:47:36.8746693Z              at ./tests/vulkan_compositor.rs:805:66
+2026-11-03T09:47:36.8747114Z    6: call_once<vulkan_compositor::a_renderer_shared_between_planners_never_draws_a_stale_atlas::{closure_env#0}, ()>
+2026-11-03T09:47:36.8747647Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-03T09:47:36.8748132Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-11-03T09:47:36.8748617Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-03T09:47:36.8749072Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-03T09:47:36.8749323Z 
+2026-11-03T09:47:36.8749442Z ---- a_shadow_inside_a_translucent_layer_matches stdout ----
+2026-11-03T09:47:36.8749838Z shadow-in-layer: max channel diff 43 at (95, 67) gpu=[127, 177, 147, 255] cpu=[84, 159, 113, 255]; 6716 px over 2
+2026-11-03T09:47:36.8750114Z 
+2026-11-03T09:47:36.8750383Z thread 'a_shadow_inside_a_translucent_layer_matches' (4241) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:113:5:
+2026-11-03T09:47:36.8750995Z shadow-in-layer: 6716 pixels differ by more than 2 (allowed 0); worst 43 at (95, 67) gpu=[127, 177, 147, 255] cpu=[84, 159, 113, 255]
+2026-11-03T09:47:36.8751396Z stack backtrace:
+2026-11-03T09:47:36.8751609Z    0: __rustc::rust_begin_unwind
+2026-11-03T09:47:36.8751933Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-03T09:47:36.8752280Z    1: core::panicking::panic_fmt
+2026-11-03T09:47:36.8752602Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-03T09:47:36.8752939Z    2: assert_parity
+2026-11-03T09:47:36.8753122Z              at ./tests/vulkan_compositor.rs:113:5
+2026-11-03T09:47:36.8753496Z    3: a_shadow_inside_a_translucent_layer_matches
+2026-11-03T09:47:36.8753740Z              at ./tests/vulkan_compositor.rs:541:5
+2026-11-03T09:47:36.8753953Z    4: {closure#0}
+2026-11-03T09:47:36.8754136Z              at ./tests/vulkan_compositor.rs:516:49
+2026-11-03T09:47:36.8754610Z    5: call_once<vulkan_compositor::a_shadow_inside_a_translucent_layer_matches::{closure_env#0}, ()>
+2026-11-03T09:47:36.8755123Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-03T09:47:36.8755687Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-11-03T09:47:36.8756196Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-03T09:47:36.8756656Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-03T09:47:36.8756910Z 
+2026-11-03T09:47:36.8756998Z ---- every_shadow_variant_matches stdout ----
+2026-11-03T09:47:36.8757366Z shadow-outer: max channel diff 32 at (51, 25) gpu=[178, 183, 191, 255] cpu=[210, 212, 218, 255]; 7928 px over 2
+2026-11-03T09:47:36.8757648Z 
+2026-11-03T09:47:36.8757994Z thread 'every_shadow_variant_matches' (4556) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:113:5:
+2026-11-03T09:47:36.8758558Z shadow-outer: 7928 pixels differ by more than 2 (allowed 0); worst 32 at (51, 25) gpu=[178, 183, 191, 255] cpu=[210, 212, 218, 255]
+2026-11-03T09:47:36.8758952Z stack backtrace:
+2026-11-03T09:47:36.8759126Z    0: __rustc::rust_begin_unwind
+2026-11-03T09:47:36.8759451Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-03T09:47:36.8759800Z    1: core::panicking::panic_fmt
+2026-11-03T09:47:36.8760128Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-03T09:47:36.8760473Z    2: assert_parity
+2026-11-03T09:47:36.8760659Z              at ./tests/vulkan_compositor.rs:113:5
+2026-11-03T09:47:36.8760911Z    3: every_shadow_variant_matches
+2026-11-03T09:47:36.8761134Z              at ./tests/vulkan_compositor.rs:504:9
+2026-11-03T09:47:36.8761351Z    4: {closure#0}
+2026-11-03T09:47:36.8761545Z              at ./tests/vulkan_compositor.rs:455:34
+2026-11-03T09:47:36.8761877Z    5: call_once<vulkan_compositor::every_shadow_variant_matches::{closure_env#0}, ()>
+2026-11-03T09:47:36.8762320Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-03T09:47:36.8762795Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-11-03T09:47:36.8763270Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-03T09:47:36.8763718Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-03T09:47:36.8763968Z 
+2026-11-03T09:47:36.8764085Z ---- shaped_clips_on_draws_and_on_layers_match stdout ----
+2026-11-03T09:47:36.8764567Z shaped-clips: max channel diff 52 at (87, 8) gpu=[145, 210, 170, 255] cpu=[93, 190, 130, 255]; 419 px over 2
+2026-11-03T09:47:36.8764839Z 
+2026-11-03T09:47:36.8765101Z thread 'shaped_clips_on_draws_and_on_layers_match' (4722) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:113:5:
+2026-11-03T09:47:36.8765669Z shaped-clips: 419 pixels differ by more than 2 (allowed 0); worst 52 at (87, 8) gpu=[145, 210, 170, 255] cpu=[93, 190, 130, 255]
+2026-11-03T09:47:36.8766050Z stack backtrace:
+2026-11-03T09:47:36.8766218Z    0: __rustc::rust_begin_unwind
+2026-11-03T09:47:36.8766533Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-03T09:47:36.8766876Z    1: core::panicking::panic_fmt
+2026-11-03T09:47:36.8767197Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-03T09:47:36.8767531Z    2: assert_parity
+2026-11-03T09:47:36.8767823Z              at ./tests/vulkan_compositor.rs:113:5
+2026-11-03T09:47:36.8768064Z    3: shaped_clips_on_draws_and_on_layers_match
+2026-11-03T09:47:36.8768300Z              at ./tests/vulkan_compositor.rs:432:5
+2026-11-03T09:47:36.8768521Z    4: {closure#0}
+2026-11-03T09:47:36.8768700Z              at ./tests/vulkan_compositor.rs:387:47
+2026-11-03T09:47:36.8769053Z    5: call_once<vulkan_compositor::shaped_clips_on_draws_and_on_layers_match::{closure_env#0}, ()>
+2026-11-03T09:47:36.8769523Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-03T09:47:36.8769994Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-11-03T09:47:36.8770467Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-03T09:47:36.8770914Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-03T09:47:36.8771168Z 
+2026-11-03T09:47:36.8771176Z 
+2026-11-03T09:47:36.8771241Z failures:
+2026-11-03T09:47:36.8771471Z     a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp
+2026-11-03T09:47:36.8771810Z     a_renderer_shared_between_planners_never_draws_a_stale_atlas
+2026-11-03T09:47:36.8772184Z     a_shadow_inside_a_translucent_layer_matches
+2026-11-03T09:47:36.8772412Z     every_shadow_variant_matches
+2026-11-03T09:47:36.8772620Z     shaped_clips_on_draws_and_on_layers_match
+2026-11-03T09:47:36.8772773Z 
+2026-11-03T09:47:36.8772968Z test result: FAILED. 12 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.81s
+2026-11-03T09:47:36.8773236Z 
+2026-11-03T09:47:36.8843146Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test vulkan_compositor`
+2026-11-03T09:47:36.9047432Z ##[error]Process completed with exit code 101.
+
+===== Web (wasm32; Chromium, Firefox, WebKit)	Canvas parity per engine =====
+﻿2026-11-03T09:53:45.9724808Z ##[group]Run status=0
+2026-11-03T09:53:45.9725119Z ^[[36;1mstatus=0^[[0m
+2026-11-03T09:53:45.9725365Z ^[[36;1mfor engine in chromium firefox webkit; do^[[0m
+2026-11-03T09:53:45.9725811Z ^[[36;1m  VIEWW_WEB_BROWSER=$engine python3 examples/test-web/verify_web.py \^[[0m
+2026-11-03T09:53:45.9726385Z ^[[36;1m    "$RUNNER_TEMP/web/dist" "$RUNNER_TEMP/web/baseline" "$RUNNER_TEMP/web/out" || status=1^[[0m
+2026-11-03T09:53:45.9727008Z ^[[36;1mdone^[[0m
+2026-11-03T09:53:45.9727208Z ^[[36;1mexit $status^[[0m
+2026-11-03T09:53:45.9747018Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-03T09:53:45.9747371Z env:
+2026-11-03T09:53:45.9747850Z   CARGO_TERM_COLOR: always
+2026-11-03T09:53:45.9748103Z   RUST_BACKTRACE: 1
+2026-11-03T09:53:45.9748324Z   RUST_VERSION: 1.98.1
+2026-11-03T09:53:45.9748554Z   PLAYWRIGHT_BROWSERS_PATH: 
+2026-11-03T09:53:45.9748795Z ##[endgroup]
+2026-11-03T09:54:46.7924692Z web.engine=chromium
+2026-11-03T09:54:46.8353281Z Traceback (most recent call last):
+2026-11-03T09:54:46.8354279Z   File "/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-web/verify_web.py", line 172, in <module>
+2026-11-03T09:54:46.8354952Z     sys.exit(main())
+2026-11-03T09:54:46.8355297Z              ^^^^^^
+2026-11-03T09:54:46.8355960Z   File "/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-web/verify_web.py", line 102, in main
+2026-11-03T09:54:46.8356519Z     page.wait_for_function(
+2026-11-03T09:54:46.8357076Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/sync_api/_generated.py", line 21235, in wait_for_function
+2026-11-03T09:54:46.8379310Z     self._sync(
+2026-11-03T09:54:46.8379927Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_sync_base.py", line 111, in _sync
+2026-11-03T09:54:46.8388397Z     return task.result()
+2026-11-03T09:54:46.8388766Z            ^^^^^^^^^^^^^
+2026-11-03T09:54:46.8389278Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_page.py", line 1158, in wait_for_function
+2026-11-03T09:54:46.8389936Z     return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+2026-11-03T09:54:46.8390374Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-03T09:54:46.8390927Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_frame.py", line 945, in wait_for_function
+2026-11-03T09:54:46.8391545Z     await self._channel.send("waitForFunction", self._timeout, params)
+2026-11-03T09:54:46.8392120Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 78, in send
+2026-11-03T09:54:46.8392634Z     return await self._connection.wrap_api_call(
+2026-11-03T09:54:46.8392928Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-03T09:54:46.8393431Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 636, in wrap_api_call
+2026-11-03T09:54:46.8394054Z     raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+2026-11-03T09:54:46.8394604Z playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 60000ms exceeded.
+2026-11-03T09:55:49.3357312Z web.engine=firefox
+2026-11-03T09:55:49.3679494Z Traceback (most recent call last):
+2026-11-03T09:55:49.3682500Z   File "/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-web/verify_web.py", line 172, in <module>
+2026-11-03T09:55:49.3683579Z     sys.exit(main())
+2026-11-03T09:55:49.3683994Z              ^^^^^^
+2026-11-03T09:55:49.3684867Z   File "/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-web/verify_web.py", line 102, in main
+2026-11-03T09:55:49.3685865Z     page.wait_for_function(
+2026-11-03T09:55:49.3686878Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/sync_api/_generated.py", line 21235, in wait_for_function
+2026-11-03T09:55:49.3705312Z     self._sync(
+2026-11-03T09:55:49.3706089Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_sync_base.py", line 111, in _sync
+2026-11-03T09:55:49.3706949Z     return task.result()
+2026-11-03T09:55:49.3707927Z            ^^^^^^^^^^^^^
+2026-11-03T09:55:49.3708735Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_page.py", line 1158, in wait_for_function
+2026-11-03T09:55:49.3709720Z     return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+2026-11-03T09:55:49.3710593Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-03T09:55:49.3711535Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_frame.py", line 945, in wait_for_function
+2026-11-03T09:55:49.3712433Z     await self._channel.send("waitForFunction", self._timeout, params)
+2026-11-03T09:55:49.3713054Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 78, in send
+2026-11-03T09:55:49.3713615Z     return await self._connection.wrap_api_call(
+2026-11-03T09:55:49.3718356Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-03T09:55:49.3728864Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 636, in wrap_api_call
+2026-11-03T09:55:49.3729752Z     raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+2026-11-03T09:55:49.3730322Z playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 60000ms exceeded.
+2026-11-03T09:56:51.3514947Z web.engine=webkit
+2026-11-03T09:56:51.3838418Z Traceback (most recent call last):
+2026-11-03T09:56:51.3839731Z   File "/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-web/verify_web.py", line 172, in <module>
+2026-11-03T09:56:51.3840646Z     sys.exit(main())
+2026-11-03T09:56:51.3841002Z              ^^^^^^
+2026-11-03T09:56:51.3841757Z   File "/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-web/verify_web.py", line 102, in main
+2026-11-03T09:56:51.3842630Z     page.wait_for_function(
+2026-11-03T09:56:51.3843547Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/sync_api/_generated.py", line 21235, in wait_for_function
+2026-11-03T09:56:51.3865307Z     self._sync(
+2026-11-03T09:56:51.3866045Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_sync_base.py", line 111, in _sync
+2026-11-03T09:56:51.3866887Z     return task.result()
+2026-11-03T09:56:51.3867231Z            ^^^^^^^^^^^^^
+2026-11-03T09:56:51.3867999Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_page.py", line 1158, in wait_for_function
+2026-11-03T09:56:51.3869244Z     return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+2026-11-03T09:56:51.3869989Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-03T09:56:51.3870920Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_frame.py", line 945, in wait_for_function
+2026-11-03T09:56:51.3871941Z     await self._channel.send("waitForFunction", self._timeout, params)
+2026-11-03T09:56:51.3872904Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 78, in send
+2026-11-03T09:56:51.3873783Z     return await self._connection.wrap_api_call(
+2026-11-03T09:56:51.3874273Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-03T09:56:51.3875129Z   File "/home/runner/.local/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 636, in wrap_api_call
+2026-11-03T09:56:51.3876204Z     raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+2026-11-03T09:56:51.3877108Z playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 60000ms exceeded.
+2026-11-03T09:56:51.4149960Z ##[error]Process completed with exit code 1.
+
+===== iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10) =====
+﻿2026-11-03T09:53:45.2937500Z ##[group]Run brew install xcodegen
+2026-11-03T09:53:45.2938000Z ^[[36;1mbrew install xcodegen^[[0m
+2026-11-03T09:53:45.2938350Z ^[[36;1mci/mobile/a11y-ios.sh --xcuitest^[[0m
+2026-11-03T09:53:46.8385960Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-03T09:53:46.8386430Z env:
+2026-11-03T09:53:46.8386970Z   CARGO_TERM_COLOR: always
+2026-11-03T09:53:46.8387310Z   RUST_BACKTRACE: 1
+2026-11-03T09:53:46.8387690Z   RUST_VERSION: 1.98.1
+2026-11-03T09:53:46.8388150Z   VIEWW_SIM_DEVICE: E63A4C69-8ADF-4037-A5EE-AE47A98E069B
+2026-11-03T09:53:46.8388520Z ##[endgroup]
+2026-11-03T09:54:03.4974920Z ^[[32m==>^[[0m ^[[1mDownloading bottle manifests^[[0m
+2026-11-03T09:54:03.5491030Z ✔︎ Bottle Manifest xcodegen (2.46.0)
+2026-11-03T09:54:03.5601380Z ^[[34m==>^[[0m ^[[1mWould install 1 formula:^[[0m
+2026-11-03T09:54:03.5605160Z xcodegen
+2026-11-03T09:54:03.5820270Z ^[[32m==>^[[0m ^[[1mFetching downloads for: ^[[32mxcodegen^[[39m^[[0m
+2026-11-03T09:54:04.1862990Z ✔︎ Bottle xcodegen (2.46.0)
+2026-11-03T09:54:04.4059120Z ^[[34m==>^[[0m ^[[1mPouring xcodegen--2.46.0.arm64_sonoma.bottle.1.tar.gz^[[0m
+2026-11-03T09:54:04.9212000Z 🍺  /opt/homebrew/Cellar/xcodegen/2.46.0: 38 files, 7.6MB
+2026-11-03T09:54:04.9646030Z a11y-ios: FAIL — no app bundle at target/ios/vieww.app — run ci/mobile/ios-app.sh --sim --bundle-only first
+2026-11-03T09:54:04.9754790Z ##[error]Process completed with exit code 1.
+
