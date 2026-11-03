@@ -75,6 +75,7 @@ pub mod install;
 pub mod jobs;
 pub mod journal;
 pub mod json;
+pub mod keepwarm;
 pub mod language;
 pub mod lessons;
 pub mod lint;

@@ -1,10 +1,16 @@
-//! Cold start: process entry → the studio's first complete frame.
+//! Cold start: process entry → the studio's first complete frame, and the
+//! session's first compile.
 //!
 //! The number a launch film can honestly show is not "how long cargo took" or
 //! "how long a warm frame costs" — it is how long a user waits between
 //! double-clicking the icon and seeing an interface. That is: construct the
 //! frame driver, install the studio, build the whole widget tree for the first
 //! time, lay it out, and paint it. Everything up to pixels-ready.
+//!
+//! Since ST-23 it also prints the *other* first wait: the guest template
+//! compiled twice through the same `compile` door a Render goes through —
+//! cold cache, then warm — which is the effect `--keep-warm` moves behind
+//! the splash. See the block at the end for how to read those two lines.
 //!
 //! ```console
 //! cargo run --release -p viewwstudio --example coldstart
@@ -64,4 +70,66 @@ fn main() {
         "  second frame                  {:>8.2} ms",
         second_frame.as_secs_f64() * 1e3
     );
+
+    // ST-23's other number: the first compile of a session, cold and warm.
+    //
+    // The frame timings above are the studio's own startup; this is the
+    // other wait a first-time user meets — the preview's first `rustc`,
+    // reading the whole `vieww` rlib and its ~100 dependencies from a cache
+    // nothing has warmed yet (10.6 s on the research's Windows machine,
+    // ~0.8 s after). `--keep-warm` exists to pay the first of those behind
+    // the splash; this block is how the effect is seen, on any machine,
+    // without a GUI: the guest template compiled twice through the same
+    // `compile` door a Render goes through.
+    //
+    // On a machine that just built this tree the "cold" number is optimistic
+    // — the page cache already holds the rlib cargo wrote — so read it as
+    // the warm end of the range, and the gap between the two lines as what
+    // the warm-up moves.
+    println!("\n  the first compile of a session (ST-23):\n");
+    let target = viewwstudio::install::target_dir();
+    match viewwstudio::compile::Toolchain::discover(&target) {
+        Ok(toolchain) => match viewwstudio::compile::Session::new(std::process::id().into()) {
+            Ok(session) => {
+                let report = |label: &str, started: Instant| {
+                    println!("  {label:<30}{:>8.2} s", started.elapsed().as_secs_f64());
+                };
+                let cold = Instant::now();
+                let first = viewwstudio::compile::compile(
+                    &toolchain,
+                    &session,
+                    viewwstudio::keepwarm::TEMPLATE,
+                    viewwstudio::keepwarm::FILE_NAME,
+                );
+                report("guest template, cold cache", cold);
+                let warm = Instant::now();
+                let second = viewwstudio::compile::compile(
+                    &toolchain,
+                    &session,
+                    viewwstudio::keepwarm::TEMPLATE,
+                    viewwstudio::keepwarm::FILE_NAME,
+                );
+                report("same template, warm cache", warm);
+                // The template is the studio's own source; a compile that
+                // fails is a bug, and the number beside it is a lie.
+                for (which, result) in [("cold", &first), ("warm", &second)] {
+                    match result {
+                        Ok(compiled) if !compiled.failed() => {}
+                        Ok(compiled) => eprintln!(
+                            "  the {which} compile of the template FAILED: {}",
+                            compiled
+                                .diagnostics
+                                .first()
+                                .map_or_else(|| "no diagnostics".to_owned(), |d| d.message.clone())
+                        ),
+                        Err(error) => {
+                            eprintln!("  the {which} compile of the template did not run: {error}")
+                        }
+                    }
+                }
+            }
+            Err(error) => println!("  no session directory to compile into — {error}"),
+        },
+        Err(error) => println!("  no preview compiler — {error}"),
+    }
 }

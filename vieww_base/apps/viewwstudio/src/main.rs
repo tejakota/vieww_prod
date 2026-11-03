@@ -21,7 +21,15 @@ fn main() {
     // project — a flat list of files, per the plan's non-goals — and an
     // unreadable one gives the scratch buffer rather than an error, because a
     // studio that will not open is worse than one with nothing in it.
-    let root = std::env::args().nth(1).map(PathBuf::from);
+    // Arguments that begin with `--` are flags (ST-14's `--check-for-updates`,
+    // ST-23's `--keep-warm`), never directories: a root named `--something`
+    // is pathological, while a flag mistaken for one silently opens the
+    // scratch buffer and ignores what the user asked for.
+    let keep_warm = std::env::args().any(|arg| arg == "--keep-warm");
+    let root = std::env::args()
+        .filter(|arg| !arg.starts_with("--"))
+        .nth(1)
+        .map(PathBuf::from);
 
     // Where `libvieww.rlib` and its dependencies live. `CARGO_MANIFEST_DIR` is
     // the app's own directory in a development checkout, so the profile
@@ -161,6 +169,9 @@ fn main() {
                 // `Studio::restore_preview_state`.
                 studio.restore_preview_state(driver);
                 studio.poll_compile();
+                // ST-23's warm-up: same shape, same cost — one `try_recv`
+                // that is empty on every frame nobody warmed.
+                studio.poll_keep_warm();
                 // And the Say prompt's worker (ST-03): same shape, same cost —
                 // one `try_recv` that is empty on every frame nobody asked a
                 // model for a screen.
@@ -383,6 +394,19 @@ fn main() {
             // Problems panel of a studio nobody has asked anything of yet.
             if studio.toolchain.is_ok() {
                 studio.render();
+            }
+            // ST-23: `--keep-warm` — precompile the guest template in the
+            // background, so the first *user* Render meets a warm cache
+            // instead of the session's cold one (10.6 s cold vs ~0.8 s after,
+            // per the research). After the launch render on purpose: when
+            // that render is compiling, it is already warming everything the
+            // template would, and `keep_warm` says so and stands down rather
+            // than racing it; the template earns its keep exactly on the
+            // launches where the render could not start (a `flow.rs` file, a
+            // buffer with no `screen()`), which are the ones whose first real
+            // Render would otherwise pay the whole cold cost.
+            if keep_warm {
+                studio.keep_warm();
             }
             // Raise the splash. Nothing but "this is a launch": how far the
             // animation has got is the overlay's own business, and it takes

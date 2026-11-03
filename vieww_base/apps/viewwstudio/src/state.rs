@@ -51,6 +51,7 @@ mod editing;
 mod export;
 mod files;
 mod inspector_props;
+mod keepwarm;
 mod language;
 mod panels;
 mod picker;
@@ -2539,6 +2540,17 @@ pub struct Studio {
     /// writes — so a compile starting and finishing still rebuilds the tree,
     /// through the state machine that was always meant to drive it.
     pub job: Rc<RefCell<Option<Job>>>,
+    /// ST-23: where the guest-template warm-up stands — `--keep-warm`'s
+    /// observable answer, and the thing the Output panel's sentences come
+    /// from. A `Signal` rather than a `RefCell` because the state *is* the
+    /// UI-relevant fact here (unlike `job`, whose UI story is `preview`).
+    /// See [`crate::keepwarm`].
+    pub keep_warm: Signal<crate::keepwarm::State>,
+    /// ST-23: the warm-up's compile job, when one is running. Same `RefCell`
+    /// shape and for the same reason as [`job`](Self::job): a `Job` is
+    /// neither `Clone` nor comparable, and the state signal above is what
+    /// anything visual reads.
+    pub keep_warm_job: Rc<RefCell<Option<Job>>>,
     /// Asks the platform for a frame from another thread.
     ///
     /// Without it a compile that finishes on an idle window sits in its channel
@@ -3044,6 +3056,8 @@ impl Studio {
             rustc_json: runtime.signal(Rc::new(Vec::new())),
 
             job: Rc::new(RefCell::new(None)),
+            keep_warm: runtime.signal(crate::keepwarm::State::Idle),
+            keep_warm_job: Rc::new(RefCell::new(None)),
             waker: vieww_platform_winit::Waker::default(),
 
             find_open: runtime.signal(false),
@@ -3194,6 +3208,11 @@ impl Studio {
         if self.job.borrow().is_some() {
             return;
         }
+        // ST-23: a Render preempts the warm-up, never the reverse — the
+        // compile the user asked for warms the same caches the template was
+        // going to, and two `rustc`s on one cold disk is the opposite of the
+        // point. A no-op on every launch that never warmed.
+        self.supersede_keep_warm();
         // ST-15: no carried warnings at the start of a render — the Say
         // branch below refills this, and a stash left by a render that never
         // reached `finish` (no toolchain, no `screen()`) must not ride into a
