@@ -881,7 +881,7 @@ mod demo {
         if !switched.is_empty() {
             suite.observe(
                 "bare",
-                &format!("off: {} (debug.vieww.bare={bare})", switched.join(", ")),
+                format!("off: {} (debug.vieww.bare={bare})", switched.join(", ")),
             );
         }
         // The stress screen and a longer pass: `debug.vieww.screen=stress`
@@ -928,18 +928,18 @@ mod demo {
         let seconds_prop = prop("debug.vieww.seconds");
         if seconds_prop.parse::<u64>().is_ok() {
             std::env::set_var("VIEWW_SUITE_SECONDS", &seconds_prop);
-            suite.observe("seconds", &format!("debug.vieww.seconds={seconds_prop}"));
+            suite.observe("seconds", format!("debug.vieww.seconds={seconds_prop}"));
         }
         let frames_prop = prop("debug.vieww.frames");
         if frames_prop.parse::<u64>().is_ok() {
             std::env::set_var("VIEWW_SUITE_FRAMES", &frames_prop);
-            suite.observe("frames", &format!("debug.vieww.frames={frames_prop}"));
+            suite.observe("frames", format!("debug.vieww.frames={frames_prop}"));
         }
         if present == "vulkan" || present == "cpu" {
             // Before the event loop and every worker the app starts, so no
             // other thread is reading the environment yet.
             std::env::set_var("VIEWW_PRESENT", &present);
-            suite.observe("present", &format!("debug.vieww.present={present}"));
+            suite.observe("present", format!("debug.vieww.present={present}"));
         }
         suite.observe(
             "rasterizer",
