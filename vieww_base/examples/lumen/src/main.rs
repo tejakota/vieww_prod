@@ -19,6 +19,7 @@
 //! same tree renders exactly as crisply at 4× or 8× — change `DENSITY`.
 
 mod depth;
+mod light;
 
 use vieww::prelude::*;
 use vieww::FrameDriver;
@@ -591,8 +592,110 @@ fn emission(image: &image::RgbaImage) -> f64 {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut args = std::env::args().skip(1);
     let out = args.next().unwrap_or_else(|| "lumen-shots".to_owned());
-    let frames = args.next().as_deref() == Some("--frames");
+    let mode = args.next();
+    let frames = mode.as_deref() == Some("--frames");
     std::fs::create_dir_all(&out)?;
+
+    if mode.as_deref() == Some("--colors") {
+        // Every palette under every light, at 2x, and every text pairing
+        // measured against WCAG's 4.5:1.
+        let times = [("dawn", 0.06_f32), ("noon", 0.5), ("dusk", 0.94), ("night", 1.5)];
+        let mut rows = Vec::new();
+        let mut worst = (f32::MAX, String::new());
+        println!("lowest text contrast per palette and light (WCAG AA needs 4.5):");
+        for pal in light::PALETTES {
+            let mut row = Vec::new();
+            let mut line = format!("  {:<15}", pal.name);
+            for (name, t) in times {
+                let l = light::Light::at(t);
+                row.push(render_at(light::screen(l, 0.0, pal), ColorPipeline::LinearLight, Color::rgb(4, 5, 8), 2.0)?);
+                let checks = light::checks(l, pal);
+                let low = checks.iter().min_by(|a, b| a.ratio.total_cmp(&b.ratio)).unwrap();
+                line.push_str(&format!(" {name} {:>5.2} ({})", low.ratio, low.place));
+                if low.ratio < worst.0 {
+                    worst = (low.ratio, format!("{} at {name}: {}", pal.name, low.place));
+                }
+            }
+            println!("{line}");
+            rows.push(row);
+        }
+        println!("worst: {:.2} — {}", worst.0, worst.1);
+        let (w, h) = (rows[0][0].width() / 2, rows[0][0].height() / 2);
+        let gap = 24;
+        let mut sheet = image::RgbaImage::from_pixel(
+            (w + gap) * 4 - gap,
+            (h + gap) * rows.len() as u32 - gap,
+            image::Rgba([255, 255, 255, 255]),
+        );
+        for (r, row) in rows.iter().enumerate() {
+            for (c, img) in row.iter().enumerate() {
+                let small = image::imageops::resize(img, w, h, image::imageops::FilterType::Triangle);
+                image::imageops::overlay(&mut sheet, &small, i64::from((w + gap) * c as u32), i64::from((h + gap) * r as u32));
+            }
+        }
+        sheet.save(format!("{out}/colors.png"))?;
+        println!("colors -> {out}/colors.png");
+        return Ok(());
+    }
+
+    if mode.as_deref() == Some("--screens") {
+        // The same rules on five different screens, dark and light, in the
+        // evening light.
+        let l = light::Light::at(0.94);
+        let make: [fn(light::Light, f32, light::Palette) -> WidgetNode; 5] =
+            [light::screen, light::list_screen, light::settings_screen, light::chat_screen, light::dialog_screen];
+        let mut rows = Vec::new();
+        for pal in [light::PALETTES[0], light::PALETTES[1]] {
+            let mut row = Vec::new();
+            for f in make {
+                row.push(render_at(f(l, 0.0, pal), ColorPipeline::LinearLight, Color::rgb(4, 5, 8), 2.0)?);
+            }
+            rows.push(row);
+        }
+        let (w, h) = (rows[0][0].width() / 2, rows[0][0].height() / 2);
+        let gap = 24;
+        let mut sheet = image::RgbaImage::from_pixel((w + gap) * 5 - gap, (h + gap) * 2 - gap, image::Rgba([255, 255, 255, 255]));
+        for (r, row) in rows.iter().enumerate() {
+            for (c, img) in row.iter().enumerate() {
+                let small = image::imageops::resize(img, w, h, image::imageops::FilterType::Triangle);
+                image::imageops::overlay(&mut sheet, &small, i64::from((w + gap) * c as u32), i64::from((h + gap) * r as u32));
+            }
+        }
+        sheet.save(format!("{out}/screens.png"))?;
+        println!("screens -> {out}/screens.png");
+        return Ok(());
+    }
+
+    if mode.as_deref() == Some("--light") {
+        // The same screen at four times of day, then a reel of the sun
+        // crossing it (dawn to dusk) and the lamp coming on.
+        let times = [("dawn", 0.06_f32), ("noon", 0.5), ("dusk", 0.94), ("night", 1.5)];
+        let mut stills = Vec::new();
+        for (name, t) in times {
+            let image = render(light::screen(light::Light::at(t), 0.0, light::PALETTES[0]), ColorPipeline::LinearLight, Color::rgb(4, 5, 8))?;
+            image.save(format!("{out}/light-{name}.png"))?;
+            println!("  {name:<6} emitted {:5.2}%", emission(&image));
+            stills.push(image);
+        }
+        let gap = 60;
+        let w = stills[0].width();
+        let mut sheet = image::RgbaImage::from_pixel(w * 4 + gap * 3, stills[0].height(), image::Rgba([255, 255, 255, 255]));
+        for (i, still) in stills.iter().enumerate() {
+            image::imageops::overlay(&mut sheet, still, i64::from((w + gap) * i as u32), 0);
+        }
+        sheet.save(format!("{out}/light-times.png"))?;
+        let dir = format!("{out}/light-frames");
+        std::fs::create_dir_all(&dir)?;
+        let total = 120;
+        for i in 0..total {
+            let t = if i < 100 { i as f32 / 99.0 } else { 1.5 };
+            let tilt = (i as f32 / 40.0 * std::f32::consts::TAU).sin();
+            let image = render_at(light::screen(light::Light::at(t), tilt, light::PALETTES[0]), ColorPipeline::LinearLight, Color::rgb(4, 5, 8), 2.0)?;
+            image.save(format!("{dir}/{i:03}.png"))?;
+        }
+        println!("light -> {out}");
+        return Ok(());
+    }
 
     use depth::{Frame, Power};
     let still = Frame { tilt: 0.0, dialog: 0.0, power: Power::Full };
