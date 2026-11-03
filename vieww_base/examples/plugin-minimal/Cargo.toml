@@ -1,0 +1,29 @@
+# The smallest real `vieww` plugin — the ABI's compatibility example.
+#
+# NOT a member of the `vieww` workspace: the empty `[workspace]` table below
+# makes this directory its own workspace root, so it builds exactly the way a
+# third party's plugin would — its own `Cargo.toml`, its own `target/`, the
+# framework reached only through the dependency, never through workspace
+# inheritance. That is the point: this crate is what
+# `vieww_base/ci/check/plugin-compat.sh` compiles twice — once against the
+# framework by path (proving the contract is buildable by somebody who is
+# not the ABI's author), and once, in CI, against the *last published*
+# `vieww-plugin` with the resulting binary run by the *current* host —
+# which is what "additive only within a major" actually means.
+#
+# The path below is what a plugin author copies. CI's compat leg rewrites it
+# to a registry version (`vieww-plugin = "0.1"`) before building, in a copy,
+# so this file never has to choose between the two worlds.
+[package]
+name = "vieww-plugin-minimal"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+vieww-plugin = { path = "../../crates/vieww-plugin" }
+
+[workspace]
