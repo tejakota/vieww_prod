@@ -15,8 +15,9 @@ name: Framework checks
 #                  |                 | Android, minutes before those legs finish
 #   gpu-lavapipe   | ubuntu          | the Vulkan suites on Mesa's software
 #                  |                 | Vulkan (incl. vieww-3d's GPU parity
-#                  |                 | suite), and a GPU frame presented to an
-#                  |                 | Xvfb window
+#                  |                 | suite), a GPU frame presented to an
+#                  |                 | Xvfb window, and the X11 platform-view
+#                  |                 | seam's real-server tests (FW-20)
 #   macos          | macos (arm64)   | platform-check macos + ios, and the Metal
 #                  |                 | suite on the runner's GPU
 #   windows        | windows         | platform-check windows, and the D3D12
@@ -258,6 +259,10 @@ jobs:
         env:
           VIEWW_REQUIRE_HARDWARE: display,gpu
         run: xvfb-run -a -s "-screen 0 1366x768x24" cargo test --release -p vieww-platform-winit --test wait_loop
+      - name: Platform views under a real X server (FW-20)
+        env:
+          VIEWW_REQUIRE_HARDWARE: display
+        run: xvfb-run -a -s "-screen 0 1366x768x24" cargo test --release -p vieww-platform-winit --lib platform_views
 
   macos:
     name: macOS and iOS (Metal)

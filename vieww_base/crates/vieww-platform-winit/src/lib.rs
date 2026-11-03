@@ -117,7 +117,13 @@ pub mod locale;
 // opinion to pixels on a screen — crate plumbing of native.rs, visible to
 // the crate's own tests: see mixed.rs for what a band split is and is not.
 pub(crate) mod mixed;
+// FW-20: the first real `PlatformViews` implementation — X11 child windows
+// on Linux, `dlopen`'d so a Wayland-only session is refused rather than
+// unrunnable. Public because the capability's whole point is that an
+// application can hold the service in its own registry.
 pub mod native;
+#[cfg(target_os = "linux")]
+pub mod platform_views;
 mod scale;
 pub mod services;
 // Real backends for `vieww_foundation::desktop`, and the CPU rasteriser the

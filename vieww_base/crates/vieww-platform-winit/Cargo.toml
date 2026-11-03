@@ -157,6 +157,14 @@ global-hotkey = { version = "0.8", optional = true }
 # `gtk::Window` being a different type from `gtk::Window`.
 [target.'cfg(target_os = "linux")'.dependencies]
 gtk = { version = "0.18", optional = true }
+# FW-20: `src/platform_views.rs` opens `libX11.so.6` at runtime to create real
+# child windows for `PlatformViews`. `dlopen` rather than a link-time
+# dependency for the same reason softbuffer's `x11-dlopen` feature exists one
+# dependency over: a Wayland-only session has no X11, and every Linux build of
+# this crate hard-requiring it would refuse to run where the OS allows it.
+# Already this workspace's loader (`vieww-reload`, `vieww-plugin`), so this
+# adds no new crate to the graph — only one more consumer of a pinned one.
+libloading = "0.8"
 
 # winit refuses to compile for Android without being told which activity type to
 # build against — there is no default, because picking one wrong produces an app
