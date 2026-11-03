@@ -2,8 +2,8 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
+| 2026-11-03T14:01:02Z | framework-checks/close-open-gaps | FAILURE | `32e1431638e7` | [summary](framework-checks/close-open-gaps/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41644669392) |
 | 2026-11-03T13:35:58Z | goldens/close-open-gaps | SUCCESS | `32e1431638e7` | [summary](goldens/close-open-gaps/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41644702338) |
-| 2026-11-03T10:16:39Z | framework-checks/close-open-gaps | FAILURE | `adc4aef6034b` | [summary](framework-checks/close-open-gaps/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41613715466) |
 | 2026-11-03T10:01:48Z | pr-quick/close-open-gaps | SUCCESS | `adc4aef6034b` | [summary](pr-quick/close-open-gaps/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41613676698) |
 | 2026-11-02T12:44:23Z | goldens/main | SUCCESS | `0a3a38222372` | [summary](goldens/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41445495538) |
 | 2026-11-02T10:29:17Z | framework-checks/main | FAILURE | `3b969c0f122c` | [summary](framework-checks/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41425235503) |

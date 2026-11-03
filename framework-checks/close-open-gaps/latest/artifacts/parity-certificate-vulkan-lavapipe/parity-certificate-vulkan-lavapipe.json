@@ -1,0 +1,22 @@
+{
+  "format": "vieww.parity-certificate/1",
+  "commit": "32e1431638e708007c7314579f6287173cdbe6bf",
+  "generated": "2026-11-03T13:30:26+00:00",
+  "runner": "GitHub Actions 1000002424",
+  "oracle": "vieww-paint NativeRenderer (CPU)",
+  "backends": [
+    {
+      "backend": "vulkan",
+      "adapters": [
+        "lavapipe"
+      ],
+      "contract": "interior<=2/255,edges-free",
+      "comparisons": 5,
+      "tests": 5,
+      "interior_violations": 0,
+      "worst_delta_anywhere": 161,
+      "holds": true,
+      "failed_tests": []
+    }
+  ]
+}
