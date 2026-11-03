@@ -20,7 +20,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         .cross_axis_alignment(CrossAxisAlignment::Start)
                         .spacing(12.0)
                         .children(children![
-                            bar(480.0, Color::rgb(58, 122, 246)),
+                            bar(480.0, Color::rgb(44, 98, 234)),
                             bar(360.0, Color::rgb(186, 100, 246)),
                             bar(280.0, Color::rgb(76, 187, 129)),
                             bar(180.0, Color::rgb(255, 180, 80)),

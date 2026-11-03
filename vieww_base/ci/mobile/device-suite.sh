@@ -11,6 +11,7 @@
 #   ci/mobile/device-suite.sh                   # build, install, run, verify
 #   ci/mobile/device-suite.sh --expect-cutout   # also require non-zero safe-area insets
 #   ci/mobile/device-suite.sh --expect-keyboard # also require the soft keyboard to inset
+#   ci/mobile/device-suite.sh --ime             # also compose CJK through a real input method
 #   ci/mobile/device-suite.sh --no-build        # use whatever is already installed
 #   ci/mobile/device-suite.sh --gpu             # the planned GPU rasterizer (debug.vieww.gpu=1)
 #
@@ -22,6 +23,7 @@ package="dev.vieww.demo"
 build=1
 expect_cutout=0
 expect_keyboard=0
+ime=0
 gpu=0
 
 while [ "$#" -gt 0 ]; do
@@ -29,8 +31,9 @@ while [ "$#" -gt 0 ]; do
         --no-build) build=0 ;;
         --expect-cutout) expect_cutout=1 ;;
         --expect-keyboard) expect_keyboard=1 ;;
+        --ime) ime=1 ;;
         --gpu) gpu=1 ;;
-        -h|--help) sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+        -h|--help) sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
         *) echo "device-suite: unknown argument: $1" >&2; exit 2 ;;
     esac
     shift
@@ -357,6 +360,153 @@ if [ "$expect_keyboard" -eq 1 ]; then
         echo "  this still failed, it is the second one, and the fallback is a" >&2
         echo "  View-level query marshalled onto the UI thread." >&2
         status=1
+    fi
+fi
+
+# The IME step (FW-11b): compose CJK through whatever input method the
+# device actually carries, and assert the committed string reached the
+# field through the platform bridge — Android's `InputConnection`, via
+# winit, into `FrameDriver::handle_ime`, into the signal `ime_probe`
+# reports as `__VIEWW_IME__`.
+#
+# # Why this step is separate from the app's own report
+#
+# The app can assert what must be true on any device — it cannot install a
+# keyboard, switch the system's input method, or type as a hardware keyboard
+# would. Those are things only somebody holding the device can do, which is
+# exactly the split this script exists for (see its header). The committed
+# sequences themselves — the preedit lifecycles, the append-vs-replace
+# distinction, the candidate rects — are already proven host-side by
+# `crates/vieww/tests/ime_replay.rs`; what only this step can add is the
+# OS-side half: that a *real* input method's events survive the bridge.
+#
+# # How it drives, and what that does and does not mean
+#
+# `adb shell input text` injects key events — the path a hardware keyboard
+# takes, which an IME with hardware-key support (pinyin, OpenWNN, Gboard's
+# CJK layouts) composes through exactly as it would for a physical-keyboard
+# user. The on-screen tap-tap-tap composition path exercises the same
+# `InputConnection` once the IME has the focus, but cannot be driven blind:
+# candidate selection needs eyes on the keyboard's own UI. Hardware-key
+# composition is the honest automated leg, and it is the one emulators can
+# run: AOSP's pinyin IME ships on the images that carry any CJK IME at all.
+#
+# Opt-in for the same reason as --expect-keyboard: a phone with no CJK IME
+# installed cannot run it, and the failure must belong to the run that asked
+# for it — never silently skipped.
+if [ "$ime" -eq 1 ]; then
+    # `-a` includes the disabled ones, because CJK keyboards ship disabled;
+    # `-s` the ids alone. Without `-a` the step would report "no CJK IME" on
+    # every phone that merely has one turned off.
+    ime_list="$(adb shell ime list -s -a 2>/dev/null | tr -d '\r' || true)"
+
+    # The ids a real image carries, in preference order: AOSP pinyin first
+    # (the one emulator images ship), Google's three next (GMS phones),
+    # OpenWNN last (AOSP Japanese, older images). Whole-line matches, so a
+    # third-party "com.example.pinyin" cannot satisfy the search.
+    cjk_ime=""
+    for candidate in \
+        com.android.inputmethod.pinyin/.PinyinIME \
+        com.google.android.inputmethod.pinyin/.PinyinIME \
+        com.google.android.inputmethod.japanese/.JapaneseIME \
+        com.google.android.inputmethod.korean/.KoreanIME \
+        jp.co.omronsoft.openwnn/.OpenWnnJAJP
+    do
+        if printf '%s\n' "$ime_list" | grep -qxF "$candidate"; then
+            cjk_ime="$candidate"
+            break
+        fi
+    done
+
+    if [ -z "$cjk_ime" ]; then
+        echo "device-suite: FAIL — --ime found no CJK input method installed." >&2
+        echo "  Searched \`ime list -a\` for pinyin/japanese/korean/openwnn; the image has:" >&2
+        if [ -n "$ime_list" ]; then
+            echo "$ime_list" | sed 's/^/    /' >&2
+        else
+            echo "    (nothing — did \`ime list\` fail?)" >&2
+        fi
+        echo "  Install one (Google Pinyin Input, Gboard's Japanese/Korean) or use an" >&2
+        echo "  image that carries one. The composition sequences themselves stay" >&2
+        echo "  proven host-side: cargo test -p vieww --test ime_replay." >&2
+        status=1
+    else
+        echo "device-suite: composing CJK through $cjk_ime"
+        # The device's own keyboard goes back on the way out: a suite that
+        # left the phone typing Chinese is a suite somebody uninstalls.
+        previous_ime="$(adb shell settings get secure default_input_method 2>/dev/null | tr -d '\r' || true)"
+        ime_failed=0
+        if ! adb shell ime enable "$cjk_ime" >/dev/null 2>&1; then
+            echo "device-suite: FAIL — could not enable $cjk_ime." >&2
+            ime_failed=1
+        elif ! adb shell ime set "$cjk_ime" >/dev/null 2>&1; then
+            echo "device-suite: FAIL — could not set $cjk_ime as the input method." >&2
+            ime_failed=1
+        fi
+
+        if [ "$ime_failed" -eq 0 ]; then
+            # `ime set` returns before the old keyboard has let go; keystrokes
+            # sent into that gap go to the previous one.
+            sleep 2
+            # Focus the field. The main loop already tapped it once, but that
+            # was possibly before the keyboard switch, and a re-tap is cheap
+            # where a missed focus is an hour of wondering.
+            adb shell input tap "$field_x" "$field_y" >/dev/null 2>&1 || true
+            sleep 1
+            # Type the pinyin, as a hardware keyboard would, then commit the
+            # head candidate with a space. The expected commit defaults to
+            # 你好 — nihao's head candidate in every pinyin IME — as UTF-8 hex
+            # (`e4bda0e5a5bd`), the byte-exact form that survives logcat and
+            # two shells with no locale in the loop; overridable for IMEs that
+            # commit differently (OpenWNN needs a conversion key, Korean
+            # assembles jamo — see the header of the Swift typing leg for the
+            # iOS equivalent).
+            adb shell input text "${VIEWW_IME_TYPE:-nihao}" >/dev/null 2>&1 || true
+            sleep 1
+            adb shell input keyevent KEYCODE_SPACE >/dev/null 2>&1 || true
+
+            expected_hex="${VIEWW_IME_EXPECT_HEX:-e4bda0e5a5bd}"
+            ime_line=""
+            ime_deadline=$(( $(date +%s) + 30 ))
+            while [ "$(date +%s)" -lt "$ime_deadline" ]; do
+                ime_line="$(adb logcat -d --pid="$pid" 2>/dev/null | tr -d '\r' \
+                    | grep "__VIEWW_IME__" || true)"
+                # The commit, not the preedit: the expected bytes present AND
+                # no composing region left. A preedit line with the same bytes
+                # and `composing=` set is the IME mid-flight, not proof.
+                if printf '%s\n' "$ime_line" | grep -q "text=[0-9a-f]*${expected_hex}[0-9a-f]* composing=none"; then
+                    break
+                fi
+                ime_line=""
+                if [ -z "$(running_pid)" ]; then
+                    echo "device-suite: FAIL — the app died during the IME step." >&2
+                    adb logcat -d --pid="$pid" 2>/dev/null | tail -30 >&2
+                    ime_failed=1
+                    break
+                fi
+                sleep 1
+            done
+
+            if [ "$ime_failed" -eq 0 ] && [ -z "$ime_line" ]; then
+                echo "device-suite: FAIL — the input method never committed into the field." >&2
+                echo "  Typed '${VIEWW_IME_TYPE:-nihao}' + space into $cjk_ime and watched for" >&2
+                echo "  __VIEWW_IME__ …${expected_hex}… composing=none for 30s. Either the IME" >&2
+                echo "  did not compose (watch the screen: does its preedit appear?), or it" >&2
+                echo "  composed and the bridge dropped it — and that is exactly the bug" >&2
+                echo "  this step exists to catch. What the field last reported:" >&2
+                adb logcat -d --pid="$pid" 2>/dev/null | tr -d '\r' | grep "__VIEWW_IME__" | tail -5 >&2 || true
+                ime_failed=1
+            elif [ -n "$ime_line" ]; then
+                echo "device-suite: the field received the commit:"
+                printf '%s\n' "$ime_line" | tail -1 | sed 's/.*__VIEWW_IME__/  __VIEWW_IME__/'
+            fi
+        fi
+
+        # The phone's own keyboard back, whatever the step's verdict was.
+        if [ -n "$previous_ime" ]; then
+            adb shell ime set "$previous_ime" >/dev/null 2>&1 || true
+        fi
+        [ "$ime_failed" -eq 0 ] || status=1
     fi
 fi
 

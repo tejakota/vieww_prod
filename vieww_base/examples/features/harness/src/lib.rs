@@ -3,7 +3,16 @@
 //! ```console
 //! cargo run -p feature-rectangle                      # a window
 //! VIEWW_SHOT=shots/features cargo run -p feature-rectangle   # a PNG, no display
+//! VIEWW_AUDIT=1 cargo run -p feature-rectangle       # the a11y audit, no display
 //! ```
+//!
+//! # The audit mode
+//!
+//! `VIEWW_AUDIT` runs the accessibility gate over the example instead of
+//! opening anything — the semantics tree and the painted scene are judged,
+//! and any error fails the run. It is how the whole gallery is linted in CI
+//! (`ci/check/feature-a11y.sh`) without a single window, and its contract is
+//! [`audit_mode`]'s doc.
 //!
 //! # Why this exists
 //!
@@ -40,6 +49,7 @@ use vieww_paint::native::NativeRenderer;
 use vieww_platform_winit::App;
 use vieww_render::FrameDriver;
 
+mod audit_mode;
 mod clock;
 pub mod draw;
 mod page;
@@ -120,6 +130,9 @@ pub fn launch_with<F>(title: &str, size: Size, build: F) -> Result<(), Error>
 where
     F: FnOnce(&mut FrameDriver) -> Steps,
 {
+    if audit_mode::requested() {
+        return audit_mode::run(title, size, build);
+    }
     match std::env::var_os("VIEWW_SHOT") {
         Some(dir) => {
             let dir = PathBuf::from(dir);
@@ -197,6 +210,12 @@ pub fn launch<F>(title: &str, size: Size, build: F) -> Result<(), Error>
 where
     F: FnOnce(&mut FrameDriver),
 {
+    if audit_mode::requested() {
+        return audit_mode::run(title, size, |driver| {
+            build(driver);
+            Vec::new()
+        });
+    }
     match std::env::var_os("VIEWW_SHOT") {
         Some(dir) => shoot(&PathBuf::from(dir), title, size, build),
         None => window(title, size, build),

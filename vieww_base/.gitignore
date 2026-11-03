@@ -36,3 +36,9 @@ crates/vieww-paint/tests/output/
 # Python bytecode from running the CI scripts locally
 __pycache__/
 *.pyc
+
+# The Xcode project xcodegen writes from ci/mobile/xcuitest/project.yml —
+# generated on demand by a11y-ios.sh --xcuitest, never committed (the .yml
+# is the source a human edits).
+/ci/mobile/xcuitest/*.xcodeproj/
+/ci/mobile/xcuitest/generated/

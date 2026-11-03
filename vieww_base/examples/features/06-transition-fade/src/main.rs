@@ -4,7 +4,7 @@ use vieww_widget::RouteTransition;
 
 fn screen_card() -> WidgetNode {
     Container::new()
-        .color(Color::rgb(58, 122, 246))
+        .color(Color::rgb(44, 98, 234))
         .padding(EdgeInsets::all(12.0))
         .child(Text::new("Screen B").color(Color::WHITE).size(15.0).bold())
         .into()

@@ -10,7 +10,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .padding(EdgeInsets::all(20.0))
                 .child(Flex::row().spacing(16.0).children(children![
                         Container::new()
-                            .color(Color::rgb(58, 122, 246))
+                            .color(Color::rgb(44, 98, 234))
                             .child(SizedBox::from_size(Size::new(120.0, 80.0))),
                         Container::new()
                             .color(Color::rgb(186, 100, 246))

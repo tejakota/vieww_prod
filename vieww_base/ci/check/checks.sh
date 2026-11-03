@@ -35,14 +35,14 @@ vieww_lean_env
 
 quick=""
 for arg in "$@"; do
-	case "$arg" in
-	--quick) quick=1 ;;
-	*)
-		echo "unknown argument: $arg" >&2
-		echo "usage: ci/check/checks.sh [--quick]" >&2
-		exit 2
-		;;
-	esac
+        case "$arg" in
+        --quick) quick=1 ;;
+        *)
+                echo "unknown argument: $arg" >&2
+                echo "usage: ci/check/checks.sh [--quick]" >&2
+                exit 2
+                ;;
+        esac
 done
 
 # **Every stage runs, and the summary names every failure.**
@@ -57,8 +57,8 @@ done
 current_stage=""
 failures=()
 stage() {
-	current_stage="$1"
-	printf '\n==> %s\n' "$1"
+        current_stage="$1"
+        printf '\n==> %s\n' "$1"
 }
 # Each check's output is also kept, so a failed stage's diagnostics can be
 # repeated in the summary. CI keeps the last 400 lines of this job's log, and
@@ -68,25 +68,25 @@ check_log="$(mktemp)"
 failure_details="$(mktemp)"
 trap 'rm -f "$check_log" "$failure_details"' EXIT
 check() {
-	"$@" 2>&1 | tee "$check_log"
-	local rc=${PIPESTATUS[0]}
-	if [ "$rc" -ne 0 ]; then
-		failures+=("$current_stage (exit $rc)")
-		{
-			printf '\n--- %s: its diagnostics ---\n' "$current_stage"
-			# Compiler and lint diagnostics with the location under each;
-			# failing tests' names and panics. Capped: the point is the first
-			# screenful, not a second copy of the log.
-			sed 's/\x1b\[[0-9;]*m//g' "$check_log" |
-				grep -E '^(error|warning)(\[|:)|^ *--> |^test .* FAILED$|panicked at|^---- |^Diff in ' |
-				head -n 60
-		} >>"$failure_details"
-		printf '    FAILED: %s (exit %s)\n' "$current_stage" "$rc" >&2
-		if [ "${VIEWW_CHECKS_FAIL_FAST:-0}" = 1 ]; then
-			exit "$rc"
-		fi
-	fi
-	return 0
+        "$@" 2>&1 | tee "$check_log"
+        local rc=${PIPESTATUS[0]}
+        if [ "$rc" -ne 0 ]; then
+                failures+=("$current_stage (exit $rc)")
+                {
+                        printf '\n--- %s: its diagnostics ---\n' "$current_stage"
+                        # Compiler and lint diagnostics with the location under each;
+                        # failing tests' names and panics. Capped: the point is the first
+                        # screenful, not a second copy of the log.
+                        sed 's/\x1b\[[0-9;]*m//g' "$check_log" |
+                                grep -E '^(error|warning)(\[|:)|^ *--> |^test .* FAILED$|panicked at|^---- |^Diff in ' |
+                                head -n 60
+                } >>"$failure_details"
+                printf '    FAILED: %s (exit %s)\n' "$current_stage" "$rc" >&2
+                if [ "${VIEWW_CHECKS_FAIL_FAST:-0}" = 1 ]; then
+                        exit "$rc"
+                fi
+        fi
+        return 0
 }
 
 # The workspace pins a toolchain in `rust-toolchain.toml`, but a machine with no
@@ -94,9 +94,9 @@ check() {
 # directory, which reads like a broken checkout rather than a missing rustup
 # default. Caught here instead.
 if ! cargo --version >/dev/null 2>&1; then
-	echo "cargo will not run. If rustup is installed with no default toolchain," >&2
-	echo "set one: rustup default stable" >&2
-	exit 1
+        echo "cargo will not run. If rustup is installed with no default toolchain," >&2
+        echo "set one: rustup default stable" >&2
+        exit 1
 fi
 
 stage "formatting"
@@ -136,7 +136,7 @@ check cargo fmt --all -- --check
 # just names all of them at once.
 stage "clippy (workspace, all targets, warnings are errors)"
 check cargo clippy --workspace --all-targets --keep-going \
-	--features "vieww-paint/native,vieww-hal/vulkan" -- -D warnings
+        --features "vieww-paint/native,vieww-hal/vulkan" -- -D warnings
 
 stage "build (workspace, all targets)"
 # `--keep-going` for the same reason as the clippy stage above.
@@ -179,9 +179,15 @@ check cargo check --workspace --all-targets --keep-going
 # it reports green about the part nobody was worried about.
 stage "docs (workspace, broken intra-doc links are errors)"
 check env RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps --keep-going \
-	--features "vieww-paint/native,vieww-hal/vulkan"
+        --features "vieww-paint/native,vieww-hal/vulkan"
 # The rendered docs were the check's by-product, not its result.
 vieww_prune "$root" doc
+
+# FW-18: the markdown trees' relative links, which `cargo doc` never sees. The
+# guide's README had promised `layout.md` since the guide existed and nothing
+# failed until this stage asked. Stdlib python, one pass, no network.
+stage "docs (markdown, broken relative links)"
+check python3 -I ci/check/docs-links.py
 
 # **The declared minimum is a promise to every consumer, and nothing was keeping
 # it.** Every stage above builds on whatever `stable` currently is, so the
@@ -194,14 +200,14 @@ vieww_prune "$root" doc
 # does not skip.
 msrv="$(sed -n 's/^rust-version *= *"\(.*\)"/\1/p' Cargo.toml | head -1)"
 if [ -n "$msrv" ] && rustup toolchain list 2>/dev/null | grep -q "^$msrv"; then
-	stage "minimum supported Rust ($msrv)"
-	# Its own target directory, deleted afterwards: a different compiler shares
-	# nothing with target/debug and would otherwise sit beside it for good.
-	check env RUSTUP_TOOLCHAIN="$msrv" CARGO_TARGET_DIR="$root/target/msrv" cargo check --workspace --all-targets
-	vieww_prune "$root" msrv
+        stage "minimum supported Rust ($msrv)"
+        # Its own target directory, deleted afterwards: a different compiler shares
+        # nothing with target/debug and would otherwise sit beside it for good.
+        check env RUSTUP_TOOLCHAIN="$msrv" CARGO_TARGET_DIR="$root/target/msrv" cargo check --workspace --all-targets
+        vieww_prune "$root" msrv
 else
-	stage "minimum supported Rust ($msrv) — skipped, not installed"
-	echo "  install it to check locally: rustup toolchain install $msrv"
+        stage "minimum supported Rust ($msrv) — skipped, not installed"
+        echo "  install it to check locally: rustup toolchain install $msrv"
 fi
 
 # Licences and advisories across the whole dependency closure. "This project is
@@ -210,11 +216,11 @@ fi
 # advisory against one of them breaks no build, so with no gate the first anyone
 # hears of one is a report from a user. See `deny.toml` for the policy.
 if command -v cargo-deny >/dev/null 2>&1; then
-	stage "licences and advisories"
-	check cargo deny check --hide-inclusion-graph all
+        stage "licences and advisories"
+        check cargo deny check --hide-inclusion-graph all
 else
-	stage "licences and advisories — skipped, cargo-deny not installed"
-	echo "  install it to check locally: cargo install cargo-deny"
+        stage "licences and advisories — skipped, cargo-deny not installed"
+        echo "  install it to check locally: cargo install cargo-deny"
 fi
 
 # **The panic boundary, checked before the suite that depends on it.**
@@ -240,9 +246,9 @@ fi
 # this ends up present on the machine it was written on and absent everywhere
 # else. Checked here rather than trusted.
 if [ -f .cargo/config.toml ] && grep -q 'prefer-dynamic' .cargo/config.toml; then
-	: # the host will link std dynamically; the boundary holds
+        : # the host will link std dynamically; the boundary holds
 else
-	cat >&2 <<'EOF'
+        cat >&2 <<'EOF'
 error: the studio's guest-panic boundary is not configured.
 
 `.cargo/config.toml` is missing, or does not set `-C prefer-dynamic` for this
@@ -270,7 +276,7 @@ Note also that setting the `RUSTFLAGS` environment variable at all discards
 or a CI step that exports it silently removes this boundary. ci/check/coverage.sh
 carries the same warning for cargo-llvm-cov.
 EOF
-	exit 1
+        exit 1
 fi
 
 # **`--features vieww-paint/native`, or the renderer is not tested.**
@@ -316,20 +322,20 @@ stage "fixture gallery (renders every screen; fails on a layout overflow)"
 check bash -c 'cargo run --release -p fixtures -- "$(mktemp -d)" >/dev/null'
 
 summary() {
-	if [ "${#failures[@]}" -gt 0 ]; then
-		cat "$failure_details" >&2
-		printf '\n%s stage(s) failed:\n' "${#failures[@]}" >&2
-		printf '  - %s\n' "${failures[@]}" >&2
-		exit 1
-	fi
+        if [ "${#failures[@]}" -gt 0 ]; then
+                cat "$failure_details" >&2
+                printf '\n%s stage(s) failed:\n' "${#failures[@]}" >&2
+                printf '  - %s\n' "${failures[@]}" >&2
+                exit 1
+        fi
 }
 
 if [ -n "$quick" ]; then
-	summary
-	printf '\nall quick checks passed. The slow stages were skipped:\n'
-	printf '  cargo test -p vieww-reload --test end_to_end -- --ignored --test-threads=1\n'
-	printf '  ci/check/raster-identity.sh (renders the gallery at the merge base with origin/main)\n'
-	exit 0
+        summary
+        printf '\nall quick checks passed. The slow stages were skipped:\n'
+        printf '  cargo test -p vieww-reload --test end_to_end -- --ignored --test-threads=1\n'
+        printf '  ci/check/raster-identity.sh (renders the gallery at the merge base with origin/main)\n'
+        exit 0
 fi
 
 # **The fidelity gate, in the gate file.** `docs/FIDELITY.md`'s first rule is
@@ -355,19 +361,19 @@ fi
 # decision trains people to skip the gate.
 rid_base=""
 if origin="$(git rev-parse -q --verify origin/main)"; then
-	rid_base="$(git merge-base HEAD "$origin")"
+        rid_base="$(git merge-base HEAD "$origin")"
 fi
 if [ -z "$rid_base" ]; then
-	stage "raster identity — skipped, origin/main resolves to no commit in this checkout"
-	echo "  a shallow clone cannot name a BASE to be identical to; fetch it: git fetch origin main"
+        stage "raster identity — skipped, origin/main resolves to no commit in this checkout"
+        echo "  a shallow clone cannot name a BASE to be identical to; fetch it: git fetch origin main"
 else
-	rid_args=("$rid_base")
-	if git log --format=%B "$rid_base..HEAD" | grep -q '^Pixels-Changed:'; then
-		rid_args+=("--allow-changed")
-		echo 'raster identity: a Pixels-Changed: trailer covers these commits — differences will be reported, not failed (docs/FIDELITY.md)'
-	fi
-	stage "raster identity (every fixture byte-identical to the merge base with origin/main; builds BASE in its own worktree — slow)"
-	check bash ci/check/raster-identity.sh "${rid_args[@]}"
+        rid_args=("$rid_base")
+        if git log --format=%B "$rid_base..HEAD" | grep -q '^Pixels-Changed:'; then
+                rid_args+=("--allow-changed")
+                echo 'raster identity: a Pixels-Changed: trailer covers these commits — differences will be reported, not failed (docs/FIDELITY.md)'
+        fi
+        stage "raster identity (every fixture byte-identical to the merge base with origin/main; builds BASE in its own worktree — slow)"
+        check bash ci/check/raster-identity.sh "${rid_args[@]}"
 fi
 
 # **The conformance matrix's row, watched** (docs/conformance/matrix.md).
@@ -395,8 +401,8 @@ check python3 -I ci/release/test_module_id.py
 # frames and the debug file ci/release/symbols.sh kept. ELF tooling, so
 # Linux; macOS and Windows keep their dSYM and PDB already.
 if [ "$(uname -s)" = Linux ]; then
-	stage "crash symbols (a stripped release crash decoded to function and line)"
-	check bash ci/check/crash-symbols.sh
+        stage "crash symbols (a stripped release crash decoded to function and line)"
+        check bash ci/check/crash-symbols.sh
 fi
 
 # **The `#[ignore]`d suites, which is the whole reason this file is not just a

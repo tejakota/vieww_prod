@@ -71,7 +71,7 @@ impl Widget for Morphs {
                 ShapeMorph::new(Star::new(5), Polygon::new(6))
                     .progress(progress)
                     .size(Size::new(160.0, 160.0))
-                    .child(Container::new().color(Color::rgb(58, 122, 246))),
+                    .child(Container::new().color(Color::rgb(44, 98, 234))),
                 ShapeMorph::new(Circle, Star::new(8).inner(0.62))
                     .progress(progress)
                     .size(Size::new(160.0, 160.0))

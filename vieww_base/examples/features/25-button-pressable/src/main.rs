@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             Button::new("Tap me").on_pressed(move || { /* action */ }),
                             Pressable::new(move |_p| {
                                 Container::new()
-                                    .color(Color::rgb(58, 122, 246))
+                                    .color(Color::rgb(44, 98, 234))
                                     .radius(8.0)
                                     .padding(EdgeInsets::symmetric(16.0, 10.0))
                                     .child(Text::new("hold me").color(Color::WHITE).size(14.0))

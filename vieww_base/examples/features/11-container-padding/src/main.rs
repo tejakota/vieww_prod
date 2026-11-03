@@ -6,9 +6,9 @@ fn row(pad: EdgeInsets, label: &str) -> WidgetNode {
         .cross_axis_alignment(CrossAxisAlignment::Start)
         .spacing(4.0)
         .children(children![
-            Text::new(label).color(Color::rgb(110, 122, 140)).size(11.0),
+            Text::new(label).color(Color::rgb(101, 112, 129)).size(11.0),
             Container::new()
-                .color(Color::rgb(58, 122, 246))
+                .color(Color::rgb(44, 98, 234))
                 .padding(pad)
                 .child(
                     Container::new()

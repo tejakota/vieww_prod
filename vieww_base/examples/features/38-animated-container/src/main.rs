@@ -41,7 +41,7 @@ impl vieww_widget::Widget for Morph {
                     .spacing(12.0)
                     .children(children![
                         Text::new(if expanded { "expanded" } else { "collapsed" })
-                            .color(Color::rgb(110, 122, 140))
+                            .color(Color::rgb(101, 112, 129))
                             .size(12.0),
                         AnimatedContainer::new()
                             .duration(Duration::from_millis(600))
@@ -53,7 +53,7 @@ impl vieww_widget::Widget for Morph {
                             .color(if expanded {
                                 Color::rgb(186, 100, 246)
                             } else {
-                                Color::rgb(58, 122, 246)
+                                Color::rgb(44, 98, 234)
                             }),
                     ]),
             )

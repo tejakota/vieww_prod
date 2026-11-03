@@ -32,7 +32,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .padding(EdgeInsets::all(20.0))
                 .child(
                     ScatterChart::new(points)
-                        .color(Color::rgb(58, 122, 246))
+                        .color(Color::rgb(44, 98, 234))
                         .dot_radius(4.0)
                         .axes(ChartAxes::Value)
                         .label("study hours versus quiz score")

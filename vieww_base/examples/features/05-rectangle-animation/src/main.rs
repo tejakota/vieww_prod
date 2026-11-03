@@ -39,7 +39,7 @@ impl vieww_widget::Widget for Slide {
                 Stack::new().push(
                     Positioned::new().left(x).top(90.0).child(
                         Container::new()
-                            .color(Color::rgb(58, 122, 246))
+                            .color(Color::rgb(44, 98, 234))
                             .radius(8.0)
                             .child(SizedBox::from_size(Size::new(80.0, 60.0))),
                     ),

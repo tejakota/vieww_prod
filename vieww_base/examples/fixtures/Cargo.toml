@@ -20,7 +20,7 @@ vieww-gpu.workspace = true
 vieww-hal = { workspace = true, features = ["vulkan"] }
 # `--shadow`: the hybrid planner, run beside every measured frame. See
 # `src/shadow.rs`.
-vieww-render-planner.workspace = true
+vieww-render-planner = { workspace = true, features = ["calibrate"] }
 
 [lints]
 workspace = true

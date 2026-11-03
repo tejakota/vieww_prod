@@ -58,6 +58,7 @@ covered in their own file here:
 | [`rendering-pipeline.md`](./rendering-pipeline.md) | `vieww-scene` → `vieww-render-graph` → `vieww-render-planner` → CPU (`vieww-paint`) / GPU (`vieww-gpu`, `vieww-hal`, `vieww-shaders`) / Hybrid, and `vieww-runtime`'s frame orchestration around all of it. |
 | [`cross-cutting.md`](./cross-cutting.md) | The crates every layer can reach: foundation, text, assets/images, gestures/animation, accessibility, interaction/scroll, hardware/platform capability probing. |
 | [`tooling-and-distribution.md`](./tooling-and-distribution.md) | Devtools, the test harness, the plugin ABI, packaging/CLI, and hot reload — everything that ships around an application rather than inside one. |
+| [`platform-views.md`](./platform-views.md) | The platform-view seam: what the capability declares, what the first consumer (X11 child windows) taught it, and the decisions left to the second. |
 
 ## What this directory is not
 

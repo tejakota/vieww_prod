@@ -13,12 +13,16 @@
 //! # The whole loop
 //!
 //! ```console
-//! # one terminal: rebuild the guest whenever a file changes
-//! cargo watch -w app/src -x 'build -p app'
-//!
-//! # the other: run the host, which notices and reloads
-//! cargo run -p host
+//! # one command, since `vieww dev` folded the watcher in: watch sources,
+//! # rebuild the guest, keep the host running
+//! vieww dev --guest app-guest --host host
 //! ```
+//!
+//! The halves still exist separately — `cargo watch -x 'build -p app'` in
+//! one terminal and the host in another works exactly as it always did,
+//! because the host watches the library file rather than the tool that
+//! rewrote it — but the one-command form is what `vieww-cli`'s `dev`
+//! subcommand drives, and its polling cadence is documented there.
 //!
 //! # Development only, and not for the reason people assume
 //!
@@ -65,8 +69,11 @@ mod fingerprint;
 mod guest;
 mod watch;
 
-pub use fingerprint::{Fingerprint, Verdict};
-pub use guest::{Guest, LoadError, FINGERPRINT_SYMBOL, ROOT_SYMBOL};
+pub use fingerprint::{Fingerprint, StateDiff, StateType, Verdict};
+pub use guest::{
+    Guest, LoadError, StateTypeRecord, StateTypeTable, FINGERPRINT_SYMBOL, ROOT_SYMBOL,
+    STATE_TYPES_SYMBOL,
+};
 pub use watch::{Change, Watch};
 
 // Re-exported so `guest!` can name it without the application depending on
@@ -90,7 +97,10 @@ use std::time::Duration;
 /// match reloader.poll() {
 ///     Reloaded::Nothing => {}
 ///     Reloaded::Root(root) => set_root(root),
-///     Reloaded::Restart(root) => set_root(root), // and drop the tree first
+///     Reloaded::Restart { root, changed } => {
+///         eprintln!("state changed shape ({changed}); rebuilding the tree");
+///         set_root(root); // and drop the tree first
+///     }
 ///     Reloaded::Failed(error) => eprintln!("reload failed, still running the old build: {error}"),
 /// }
 /// # }
@@ -113,8 +123,15 @@ pub enum Reloaded {
     ///
     /// Separate from [`Root`](Self::Root) because the host has to do something
     /// *different*, and folding them together would make the dangerous case the
-    /// silent one.
-    Restart(WidgetNode),
+    /// silent one. `changed` names **which type paths moved** — the developer
+    /// restarting their tree is owed the edit that cost them its state, rather
+    /// than a bisect over every line they touched since the last reload.
+    Restart {
+        /// The root of the new build, to mount on a fresh tree.
+        root: WidgetNode,
+        /// The state types that were added, removed or reshaped, by path.
+        changed: StateDiff,
+    },
     /// The new build could not be loaded. **The old one is still running.**
     ///
     /// A compile error in the guest leaves the library missing or stale, and
@@ -256,6 +273,10 @@ impl Reloader {
         };
 
         let verdict = Verdict::between(self.guest.fingerprint(), incoming.fingerprint());
+        // Diffed *before* the swap, from both sides of the boundary at once —
+        // after the swap the running guest's declaration is gone, and the
+        // restart's explanation would have to be a guess.
+        let changed = StateDiff::between(self.guest.state_types(), incoming.state_types());
         // Built *before* the swap, so a guest that panics while building leaves
         // the previous one loaded and running — which is now true rather than
         // merely intended: until the unwind guard went into `guest!`, the panic
@@ -269,7 +290,7 @@ impl Reloader {
 
         match verdict {
             Verdict::Reload => Reloaded::Root(root),
-            Verdict::Restart => Reloaded::Restart(root),
+            Verdict::Restart => Reloaded::Restart { root, changed },
         }
     }
 }

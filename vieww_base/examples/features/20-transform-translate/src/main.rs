@@ -18,7 +18,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .child(
                     Stack::new().push(box_of(Color::rgb(186, 100, 246))).push(
                         Transformed::translate(Offset::new(80.0, 60.0))
-                            .child(box_of(Color::rgb(58, 122, 246))),
+                            .child(box_of(Color::rgb(44, 98, 234))),
                     ),
                 ),
         );

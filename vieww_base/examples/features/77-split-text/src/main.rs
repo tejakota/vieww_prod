@@ -92,7 +92,7 @@ impl Widget for Reveals {
                     .stagger(0.6)
                     .rise(14.0)
                     .size(16.0)
-                    .color(Color::rgb(58, 122, 246)),
+                    .color(Color::rgb(44, 98, 234)),
             ])
             .into()
     }

@@ -11,7 +11,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .padding(EdgeInsets::symmetric(16.0, 12.0))
                 .child(
                     Text::new("you can edit this placeholder")
-                        .color(Color::rgb(110, 122, 140))
+                        .color(Color::rgb(101, 112, 129))
                         .size(16.0),
                 ),
         );

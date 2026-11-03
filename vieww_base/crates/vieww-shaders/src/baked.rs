@@ -99,6 +99,7 @@ mod tests {
             library::POST_WGSL,
             library::UNLIT3D_WGSL,
             library::LIT3D_WGSL,
+            library::IBL_PREFILTER_WGSL,
             library::GRADIENT_WGSL,
             library::IMAGE_WGSL,
             library::TEXT_WGSL,
@@ -129,7 +130,7 @@ mod tests {
         }
         assert_eq!(
             all().len(),
-            13,
+            14,
             "a new shaders/*.wgsl needs a library constant and this list"
         );
     }

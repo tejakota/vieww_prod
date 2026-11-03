@@ -111,6 +111,15 @@ metal = ["dep:metal", "shader-compiler"]
 # `[target.'cfg(target_os = "windows")'.dependencies]` block above. Same
 # no-op-elsewhere shape as `metal`.
 d3d12 = ["dep:windows", "shader-compiler"]
+# The WebGPU backend (FW-09) — wasm. A pure `cfg` gate with **no dependency
+# behind it**: the backend speaks to the browser through raw wasm imports
+# (`src/webgpu.rs`'s `vieww_gpu_web` module, supplied by the hand-written
+# `web/vieww-gpu-web.js` — the `vieww-audio` shim pattern, not a bindings
+# crate), so enabling it resolves nothing new on any target. On native
+# targets the feature compiles the bridge-shaped interpreter and its
+# mock-bridge tests; the raw import surface exists only under
+# `target_arch = "wasm32"`.
+webgpu = []
 
 [dev-dependencies]
 # `tests/vulkan_scene.rs` compares the GPU path against the CPU rasterizer,
@@ -130,3 +139,15 @@ workspace = true
 [[example]]
 name = "adapter"
 required-features = ["vulkan"]
+
+# FW-09's browser certification driver: the same scenes through the CPU
+# rasterizer and the WebGPU backend in one wasm, driven per-poll by
+# `web-test/webgpu_parity.py` with `web/vieww-gpu-web.js` as the
+# `vieww_gpu_web` import module. A cdylib for the same reason
+# `vieww-platform-web`'s `audio_smoke` is: the page instantiates the raw
+# `.wasm` directly, no wasm-bindgen step in between. Empty (not merely
+# untested) on non-wasm targets: the backend it drives only exists there.
+[[example]]
+name = "webgpu_scene"
+crate-type = ["cdylib"]
+required-features = ["webgpu"]

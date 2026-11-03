@@ -92,12 +92,30 @@ pub type MeasurementKey = &'static str;
 /// Wraps a [`HeuristicCostModel`] with a measured-cost override, updated
 /// via an exponential moving average so one outlier frame (a GC pause, a
 /// thermal spike) does not swing the estimate wildly.
+///
+/// CPU measurements arrive in one of two shapes, because the two callers
+/// that exist measure different things:
+///
+/// * an **absolute duration** ([`Self::record_cpu`]) — the whole frame took
+///   this long — meaningful only while the frame shape is stable (the live
+///   loop's own convention, the same one the GPU buckets live by);
+/// * a **rate** ([`Self::record_cpu_rate`]) — this work took this long over
+///   this many pixels — which scales with the pass's own size, the property
+///   a rasterizer's cost actually has and an absolute history cannot
+///   express. The startup micro-benchmark feeds this shape (FW-22: its
+///   fill rate is the measured model's first CPU number), and so does any
+///   caller that knows the pixels it timed.
+///
+/// A recorded rate takes precedence over an absolute history for the same
+/// key: a rate is strictly more information.
 #[derive(Debug)]
 pub struct MeasuredCostModel<M: CostModel = HeuristicCostModel> {
     fallback: M,
     /// EMA smoothing factor: how much weight the newest sample gets.
     alpha: f32,
     cpu_history: HashMap<MeasurementKey, f32>,
+    /// Measured CPU **rates**, in Mpix/s, by key — see the type's doc.
+    cpu_rates: HashMap<MeasurementKey, f32>,
     gpu_history: HashMap<MeasurementKey, f32>,
 }
 
@@ -121,6 +139,7 @@ impl<M: CostModel> MeasuredCostModel<M> {
             fallback,
             alpha: alpha.clamp(0.0, 1.0),
             cpu_history: HashMap::new(),
+            cpu_rates: HashMap::new(),
             gpu_history: HashMap::new(),
         }
     }
@@ -136,6 +155,38 @@ impl<M: CostModel> MeasuredCostModel<M> {
         record(&mut self.gpu_history, key, measured_ms, self.alpha);
     }
 
+    /// Record a real, measured CPU **rate**: `measured_ms` for `pixels`
+    /// pixels of work under `key`, smoothed as an EMA over the rate itself
+    /// (Mpix/s). Unlike [`Self::record_cpu`]'s absolute duration, a rate
+    /// scales with the pass's own pixel count — the shape a rasterizer's
+    /// cost has — so it is the honest form for a caller that knows the area
+    /// it timed: the startup micro-benchmark (FW-22) and any per-frame CPU
+    /// measurement that carries its frame size.
+    ///
+    /// A rate deliberately does **not** stack the heuristic's
+    /// `cpu_complexity` term on top: the measurement already contains
+    /// whatever work was timed under that key, and the caller owns which
+    /// kind of work that was — the same contract the GPU buckets live by.
+    /// Nothing is recorded for a non-finite, non-positive sample.
+    pub fn record_cpu_rate(&mut self, key: MeasurementKey, measured_ms: f32, pixels: f32) {
+        if !(measured_ms.is_finite() && measured_ms > 0.0 && pixels.is_finite() && pixels > 0.0) {
+            return;
+        }
+        let rate = (pixels / 1_000_000.0) / (measured_ms / 1000.0);
+        if rate.is_finite() && rate > 0.0 {
+            record(&mut self.cpu_rates, key, rate, self.alpha);
+        }
+    }
+
+    /// The measured CPU rate recorded for `key`, in Mpix/s — `None` until
+    /// [`Self::record_cpu_rate`] has a sample for it. The read the
+    /// calibration loop's receipts and tests use; estimates go through
+    /// [`Self::estimate_keyed`].
+    #[must_use]
+    pub fn cpu_rate(&self, key: MeasurementKey) -> Option<f32> {
+        self.cpu_rates.get(key).copied()
+    }
+
     /// Estimate using measurement history keyed by `key`, falling back to
     /// the wrapped heuristic model per-executor where no history exists
     /// yet.
@@ -148,12 +199,17 @@ impl<M: CostModel> MeasuredCostModel<M> {
         device: &DeviceProfile,
     ) -> ExecutorEstimate {
         let heuristic = self.fallback.estimate(pass, pixels, device);
+        let mpix = (pixels / 1_000_000.0).max(0.000_1);
+        // A measured rate wins over an absolute history (more
+        // information), and both win over the heuristic.
+        let cpu_ms = self
+            .cpu_rates
+            .get(key)
+            .map(|rate| 1000.0 * mpix / rate.max(0.001))
+            .or_else(|| self.cpu_history.get(key).copied())
+            .unwrap_or(heuristic.cpu_ms);
         ExecutorEstimate {
-            cpu_ms: self
-                .cpu_history
-                .get(key)
-                .copied()
-                .unwrap_or(heuristic.cpu_ms),
+            cpu_ms,
             gpu_ms: heuristic
                 .gpu_ms
                 .map(|h| self.gpu_history.get(key).copied().unwrap_or(h)),
@@ -265,5 +321,48 @@ mod tests {
         let device = DeviceProfile::CPU_ONLY_FALLBACK;
         let est = model.estimate_keyed("p", &pass(), 1_000_000.0, &device);
         assert!((est.cpu_ms - 15.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn a_measured_rate_scales_with_the_pass_size() {
+        // FW-22: the micro-benchmark's rate is the measured model's CPU
+        // number, and it must price a 4 Mpix pass at four times a 1 Mpix
+        // pass — the property an absolute-duration history cannot express
+        // and the reason the rate shape exists.
+        let mut model = MeasuredCostModel::new();
+        // 2 ms per Mpix = 500 Mpix/s.
+        model.record_cpu_rate("draw", 2.0, 1_000_000.0);
+        assert!((model.cpu_rate("draw").unwrap() - 500.0).abs() < 1e-3);
+        let device = DeviceProfile::CPU_ONLY_FALLBACK;
+        let one = model.estimate_keyed("draw", &pass(), 1_000_000.0, &device);
+        let four = model.estimate_keyed("draw", &pass(), 4_000_000.0, &device);
+        assert!((one.cpu_ms - 2.0).abs() < 1e-3, "{:?}", one);
+        assert!((four.cpu_ms - 8.0).abs() < 1e-3, "{:?}", four);
+        // Another key keeps the heuristic.
+        let other = model.estimate_keyed("layers", &pass(), 1_000_000.0, &device);
+        let heuristic = HeuristicCostModel.estimate(&pass(), 1_000_000.0, &device);
+        assert!((other.cpu_ms - heuristic.cpu_ms).abs() < 1e-6);
+    }
+
+    #[test]
+    fn a_rate_wins_over_an_absolute_history_and_bad_samples_never_land() {
+        let mut model = MeasuredCostModel::with_fallback(HeuristicCostModel, 0.5);
+        model.record_cpu("draw", 99.0);
+        model.record_cpu_rate("draw", 1.0, 1_000_000.0);
+        let device = DeviceProfile::CPU_ONLY_FALLBACK;
+        let est = model.estimate_keyed("draw", &pass(), 1_000_000.0, &device);
+        assert!((est.cpu_ms - 1.0).abs() < 1e-3, "the rate wins: {est:?}");
+        // Non-finite, zero and negative inputs record nothing at all.
+        model.record_cpu_rate("bad", f32::NAN, 1_000_000.0);
+        model.record_cpu_rate("bad", 0.0, 1_000_000.0);
+        model.record_cpu_rate("bad", -1.0, 1_000_000.0);
+        model.record_cpu_rate("bad", 1.0, 0.0);
+        assert!(model.cpu_rate("bad").is_none());
+        // The rate's own EMA smooths like every other history: a second
+        // sample at twice the rate moves it halfway (1000 -> 2000, alpha
+        // 0.5, lands at 1500).
+        model.record_cpu_rate("draw", 1.0, 2_000_000.0); // 2000 Mpix/s
+        let smoothed = model.cpu_rate("draw").unwrap();
+        assert!((smoothed - 1500.0).abs() < 1.0, "{smoothed}");
     }
 }

@@ -38,7 +38,34 @@ use std::path::{Path, PathBuf};
 
 use vieww_widget::WidgetNode;
 
+use crate::fingerprint::StateType;
 use crate::Fingerprint;
+
+/// Copy a returned table into memory this side owns.
+///
+/// # Safety
+///
+/// `table.records` must point at `table.len` readable records whose `name`
+/// pointers are readable for `name_len` bytes — the `guest!` macro's leak
+/// guarantees both for as long as the process runs, and the copy happens
+/// here, once, inside the same `unsafe` block that called the guest.
+unsafe fn read_state_types(table: &StateTypeTable) -> Vec<StateType> {
+    if table.records.is_null() || table.len == 0 {
+        return Vec::new();
+    }
+    let records = unsafe { std::slice::from_raw_parts(table.records, table.len) };
+    records
+        .iter()
+        .map(|record| {
+            let name = unsafe { std::slice::from_raw_parts(record.name, record.name_len) };
+            StateType {
+                name: String::from_utf8_lossy(name).into_owned(),
+                size: record.size,
+                align: record.align,
+            }
+        })
+        .collect()
+}
 
 /// The symbol a guest exports to hand over its widget tree.
 ///
@@ -54,8 +81,77 @@ pub const ROOT_SYMBOL: &[u8] = b"__vieww_guest_root\0";
 /// same on both sides without agreement about layout.
 pub const FINGERPRINT_SYMBOL: &[u8] = b"__vieww_guest_fingerprint\0";
 
+/// The symbol a guest exports to hand over its state types by name.
+///
+/// The fingerprint is those types hashed; this is the list itself, so that a
+/// [`Verdict::Restart`](crate::Verdict::Restart) can say *which* type paths
+/// moved instead of only that something did. Present since the state-diff
+/// work; a guest library built before it does not export the symbol, and
+/// [`Guest::state_types`] answers `None` for that guest rather than failing
+/// the load — host and guest are built together, so in practice the pair
+/// always agrees.
+pub const STATE_TYPES_SYMBOL: &[u8] = b"__vieww_guest_state_types\0";
+
 type RootFn = unsafe extern "C" fn() -> *mut WidgetNode;
 type FingerprintFn = unsafe extern "C" fn() -> u64;
+type StateTypesFn = unsafe extern "C" fn() -> StateTypeTable;
+
+/// One entry of the state-type table: a type path and its layout.
+///
+/// `name` points into the guest's own rodata, where `core::any::type_name`
+/// left it, and stays valid for the life of the process because the library
+/// is never unloaded (see the module docs). The host copies it out
+/// immediately on load anyway, so the borrow is short even in theory.
+///
+/// `Debug` is derived rather than hand-written to show the type path: the
+/// pointer is only valid by the `guest!` macro's construction, and a
+/// `Debug` impl that read through it would turn "print this value" into
+/// "trust that construction" — the pointer and the numbers are what a
+/// debugger needs anyway.
+#[derive(Debug)]
+#[repr(C)]
+pub struct StateTypeRecord {
+    /// UTF-8 bytes of the type path.
+    pub name: *const u8,
+    /// Length of `name` in bytes.
+    pub name_len: usize,
+    /// `size_of` the type.
+    pub size: usize,
+    /// `align_of` the type.
+    pub align: usize,
+}
+
+impl StateTypeRecord {
+    /// The record for one `state:` type of a `guest!` declaration.
+    #[must_use]
+    pub fn of<T>() -> Self {
+        let name = core::any::type_name::<T>();
+        Self {
+            name: name.as_ptr(),
+            name_len: name.len(),
+            size: core::mem::size_of::<T>(),
+            align: core::mem::align_of::<T>(),
+        }
+    }
+}
+
+/// The table a guest returns from `__vieww_guest_state_types`.
+///
+/// Returned **by value** across the `extern "C"` boundary: two
+/// pointer-sized fields, which every ABI this workspace targets passes in
+/// registers. The records are leaked in the guest — see the macro — so the
+/// pointer is valid for the process lifetime; `len` zero means "declares no
+/// state", with a pointer that may be dangling (which is also why `Debug`
+/// is derived: it must not read through `records`).
+#[derive(Debug)]
+#[repr(C)]
+pub struct StateTypeTable {
+    /// The records, in declaration order — the same order the fingerprint
+    /// hashes, because the two are the same facts in different shapes.
+    pub records: *const StateTypeRecord,
+    /// How many.
+    pub len: usize,
+}
 
 /// Why a guest could not be loaded.
 #[derive(Debug)]
@@ -119,6 +215,7 @@ impl std::error::Error for LoadError {}
 pub struct Guest {
     root: RootFn,
     fingerprint: Fingerprint,
+    state_types: Option<Vec<StateType>>,
     path: PathBuf,
 }
 
@@ -155,15 +252,24 @@ impl Guest {
             .map_err(|error| LoadError::Open(path.clone(), error))?;
 
         // SAFETY: the symbols are the ones `guest!` exports, with the signatures
-        // it gives them.
-        let (root, fingerprint) = unsafe {
+        // it gives them. `__vieww_guest_state_types` is optional in the lookup
+        // rather than the contract: a guest built before it existed is still a
+        // loadable guest, it just cannot explain a restart, and `None` says so.
+        let (root, fingerprint, state_types) = unsafe {
             let root = *library
                 .get::<RootFn>(ROOT_SYMBOL)
                 .map_err(|e| LoadError::Symbol("__vieww_guest_root", e))?;
             let fingerprint = *library
                 .get::<FingerprintFn>(FINGERPRINT_SYMBOL)
                 .map_err(|e| LoadError::Symbol("__vieww_guest_fingerprint", e))?;
-            (root, fingerprint())
+            let state_types = library
+                .get::<StateTypesFn>(STATE_TYPES_SYMBOL)
+                .ok()
+                .map(|table| {
+                    let table = table();
+                    read_state_types(&table)
+                });
+            (root, fingerprint(), state_types)
         };
 
         // **Leaked on purpose.** Closing this would dangle every vtable pointer
@@ -174,6 +280,7 @@ impl Guest {
         Ok(Self {
             root,
             fingerprint: Fingerprint::from_bits(fingerprint),
+            state_types,
             path,
         })
     }
@@ -182,6 +289,17 @@ impl Guest {
     #[must_use]
     pub const fn fingerprint(&self) -> Fingerprint {
         self.fingerprint
+    }
+
+    /// The state types this guest declared, **by name**.
+    ///
+    /// `None` for a guest that predates the state-type table — one whose
+    /// restarts cannot be explained, only reported. The names come from
+    /// `core::any::type_name`, copied out of the guest at load time, so the
+    /// returned list owns its strings and outlives nothing it points into.
+    #[must_use]
+    pub fn state_types(&self) -> Option<&[StateType]> {
+        self.state_types.as_deref()
     }
 
     /// Where it was loaded from.
@@ -301,6 +419,31 @@ macro_rules! guest {
                 )),*)?
             ])
             .to_bits()
+        }
+
+        /// Hand over the state types by name, for the restart explanation.
+        ///
+        /// # Safety
+        ///
+        /// Called only by `vieww_reload::Guest::load`, which copies the table
+        /// out immediately.
+        ///
+        /// The records are **leaked on every call**, and the call happens once
+        /// per `Guest::load` — a handful of bytes per reload in a crate that
+        /// already deliberately leaks a whole library per reload, for the
+        /// lifetime reason that motivates both: the table borrows type-name
+        /// strings from this library's rodata, so it must live exactly as
+        /// long as the library, and the library is never unloaded.
+        #[no_mangle]
+        pub unsafe extern "C" fn __vieww_guest_state_types() -> $crate::StateTypeTable {
+            let records: ::std::vec::Vec<$crate::StateTypeRecord> = ::std::vec![
+                $($( $crate::StateTypeRecord::of::<$state>() ),*)?
+            ];
+            let records = ::std::boxed::Box::leak(records.into_boxed_slice());
+            $crate::StateTypeTable {
+                records: records.as_ptr(),
+                len: records.len(),
+            }
         }
     };
 }

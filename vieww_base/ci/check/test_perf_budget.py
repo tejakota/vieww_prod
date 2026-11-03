@@ -27,12 +27,6 @@ SUMMARY = {"devices": [{"device": "LG Stylo 5", "result": {
     "auto_frame_time": "median 348.803µs, worst 2.4ms, budget 8.3ms (240 samples)",
 }}, {"device": "no result", "result": None}]}
 
-# The windowed baseline's report (`examples/baseline.rs`), as FW-15's RSS
-# budget sees it: only the peak matters, and the class is the runner's to
-# force, because the report knows its os/arch but not its machine.
-BASELINE = {"schema": "vieww.baseline/1", "os": "linux", "arch": "x86_64",
-            "peak_rss_bytes": 100 * 1024 * 1024, "idle_end_rss_bytes": 99 * 1024 * 1024}
-
 
 def write(obj):
     fd, path = tempfile.mkstemp(suffix=".json")
@@ -41,7 +35,30 @@ def write(obj):
     return path
 
 
+# The windowed baseline's report (`examples/baseline.rs`), as FW-15's RSS
+# budget sees it: only the peak matters, and the class is the runner's to
+# force, because the report knows its os/arch but not its machine.
+BASELINE = {"schema": "vieww.baseline/1", "os": "linux", "arch": "x86_64",
+            "peak_rss_bytes": 100 * 1024 * 1024, "idle_end_rss_bytes": 99 * 1024 * 1024}
+
+
 class PerfBudget(unittest.TestCase):
+    def test_a_baseline_report_gates_peak_rss(self):
+        # FW-15: the interim memory budget. Peak, not idle-end, so a run that
+        # finished low after peaking high cannot pass by shrinking.
+        m = pb.measurements(BASELINE, "hardware-linux")
+        self.assertEqual(list(m), ["hardware-linux"])
+        self.assertAlmostEqual(m["hardware-linux"]["peak_rss_mb"], 100.0)
+        self.assertNotIn("idle_end_rss_mb", m["hardware-linux"])
+        # Without --class the class is os/arch — the report cannot name the
+        # machine, and a budget keyed "linux" would fire for any Linux.
+        self.assertEqual(list(pb.measurements(BASELINE)), ["baseline-linux-x86-64"])
+        budgets = write({"schema": pb.SCHEMA, "tolerance_percent": 10, "min_delta_ms": 1.0,
+                         "classes": {"hardware-linux": {"peak_rss_mb": 120.0}}})
+        self.assertEqual(pb.main(["check", budgets, write(BASELINE), "--class", "hardware-linux"]), 0)
+        fat = dict(BASELINE, peak_rss_bytes=160 * 1024 * 1024)  # +33%, +40 MB
+        self.assertEqual(pb.main(["check", budgets, write(fat), "--class", "hardware-linux"]), 1)
+
     def test_the_committed_budgets_file_is_valid(self):
         pb.validate(pb.load_budgets(os.path.join(HERE, "perf-budgets.json")))
 
@@ -118,21 +135,81 @@ class PerfBudget(unittest.TestCase):
             with self.assertRaises(ValueError):
                 pb.validate(bad)
 
-    def test_a_baseline_report_gates_peak_rss(self):
-        # FW-15: the interim memory budget. Peak, not idle-end, so a run that
-        # finished low after peaking high cannot pass by shrinking.
-        m = pb.measurements(BASELINE, "hardware-linux")
-        self.assertEqual(list(m), ["hardware-linux"])
-        self.assertAlmostEqual(m["hardware-linux"]["peak_rss_mb"], 100.0)
-        self.assertNotIn("idle_end_rss_mb", m["hardware-linux"])
-        # Without --class the class is os/arch — the report cannot name the
-        # machine, and a budget keyed "linux" would fire for any Linux.
-        self.assertEqual(list(pb.measurements(BASELINE)), ["baseline-linux-x86-64"])
-        budgets = write({"schema": pb.SCHEMA, "tolerance_percent": 10, "min_delta_ms": 1.0,
-                         "classes": {"hardware-linux": {"peak_rss_mb": 120.0}}})
-        self.assertEqual(pb.main(["check", budgets, write(BASELINE), "--class", "hardware-linux"]), 0)
-        fat = dict(BASELINE, peak_rss_bytes=160 * 1024 * 1024)  # +33%, +40 MB
-        self.assertEqual(pb.main(["check", budgets, write(fat), "--class", "hardware-linux"]), 1)
+    def test_a_broken_known_limitations_entry_is_refused(self):
+        good_classes = {"x": {"gallery/f/cpu_p50_ms": 23.8}}
+        for bad in (
+            # no budget class to drift-gate against
+            {"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": {},
+             "known_limitations": {"x": {"gallery/f/cpu_p50_ms": {"target_ms": 16.7, "reason": "r"}}}},
+            # no budget figure for that metric
+            {"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": {"x": {"other": 1.0}},
+             "known_limitations": {"x": {"gallery/f/cpu_p50_ms": {"target_ms": 16.7, "reason": "r"}}}},
+            # no target
+            {"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": good_classes,
+             "known_limitations": {"x": {"gallery/f/cpu_p50_ms": {"reason": "r"}}}},
+            # no reason naming the decision
+            {"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": good_classes,
+             "known_limitations": {"x": {"gallery/f/cpu_p50_ms": {"target_ms": 16.7}}}},
+        ):
+            with self.assertRaises(ValueError):
+                pb.validate(bad)
+
+    def test_the_committed_known_limitations_name_their_decision(self):
+        b = pb.load_budgets(os.path.join(HERE, "perf-budgets.json"))
+        self.assertTrue(b.get("known_limitations"), "FW-07's two over-budget fixtures are recorded")
+        for cls, metrics in b["known_limitations"].items():
+            for name, entry in metrics.items():
+                self.assertIn(name, b["classes"][cls],
+                              f"{cls} {name}: a limitation must drift-gate a committed figure")
+                self.assertGreater(entry["target_ms"], 0)
+                self.assertTrue(entry["reason"].strip())
+
+    def a_limitation_fixture(self):
+        """Budgets with one known limitation, and a receipt factory for it."""
+        budgets = write({
+            "schema": pb.SCHEMA, "tolerance_percent": 10, "min_delta_ms": 1.0,
+            "classes": {"kabylake-linux": {"gallery/00-layers-nested/cpu_p50_ms": 23.8}},
+            "known_limitations": {"kabylake-linux": {
+                "gallery/00-layers-nested/cpu_p50_ms": {
+                    "target_ms": 16.7, "since": "2026-10-15",
+                    "reason": "accepted miss; closing it needs the f16 fidelity ruling"}}},
+        })
+        nested = {"schema": "vieww.bench-receipt/1", "mode": "gallery",
+                  "machine": {"os": "o", "arch": "a", "cpu_model": "c"},
+                  "fixtures": [{"name": "00-layers-nested", "cpu_p50_ms": 23.8}]}
+        return budgets, nested
+
+    def test_a_known_limitation_does_not_license_drift(self):
+        budgets, nested = self.a_limitation_fixture()
+        slower = json.loads(json.dumps(nested))
+        slower["fixtures"][0]["cpu_p50_ms"] = 27.5  # +15.5%, +3.7 ms
+        self.assertEqual(
+            pb.main(["check", budgets, write(slower), "--class", "kabylake-linux"]), 1,
+            "over the recorded figure by tolerance AND floor fails, limitation or not")
+
+    def test_a_known_limitation_under_target_is_flagged_stale_not_passed(self):
+        budgets, nested = self.a_limitation_fixture()
+        won = json.loads(json.dumps(nested))
+        won["fixtures"][0]["cpu_p50_ms"] = 15.9  # under the 16.7 ms target at last
+        rows, failures, unknown, stale = pb.check(pb.load_budgets(budgets), pb.gather([write(won)], "kabylake-linux"))
+        self.assertEqual(failures, [])
+        self.assertEqual(unknown, [])
+        self.assertEqual(stale, [("kabylake-linux", "gallery/00-layers-nested/cpu_p50_ms", 16.7, 15.9)])
+        self.assertIn("stale limitation", rows[0][5])
+        # ...and the run itself exits 0: good news is not a failure, only loud.
+        self.assertEqual(pb.main(["check", budgets, write(won), "--class", "kabylake-linux"]), 0)
+
+    def test_recording_under_a_limitation_target_warns_while_the_file_is_open(self):
+        budgets, nested = self.a_limitation_fixture()
+        won = json.loads(json.dumps(nested))
+        won["fixtures"][0]["cpu_p50_ms"] = 15.9
+        self.assertEqual(pb.main(["record", budgets, write(won), "--class", "kabylake-linux"]), 0)
+        with open(budgets) as f:
+            reread = json.load(f)
+        self.assertEqual(reread["classes"]["kabylake-linux"]["gallery/00-layers-nested/cpu_p50_ms"], 15.9)
+        # The stale limitation survives the rewrite for a human to remove
+        # deliberately: `record` never edits the decision record.
+        self.assertIn("gallery/00-layers-nested/cpu_p50_ms", reread["known_limitations"]["kabylake-linux"])
 
     def test_something_else_is_refused(self):
         with self.assertRaises(ValueError):

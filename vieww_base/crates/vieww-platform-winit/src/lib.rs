@@ -77,6 +77,15 @@
 pub(crate) mod a11y;
 #[cfg(target_os = "android")]
 mod a11y_android;
+// The crate's own name, in scope under that name for tests only. `examples/
+// shared/screen.rs` — the demo the AT-SPI fixture test pulls in with `#[path]`,
+// exactly as every example entry point does — says `use vieww_platform_winit::
+// FrameLog`, which is the right spelling for an example and an unresolvable one
+// from inside this crate's own test build without this line. Test-only so the
+// shipped crate gains no self-import; there is no other way to name the crate
+// from a `#[path]`-included module whose text was written for examples.
+#[cfg(test)]
+extern crate self as vieww_platform_winit;
 mod app;
 #[cfg(target_os = "android")]
 mod audio_android;
@@ -112,7 +121,13 @@ pub mod monitors;
 // opinion to pixels on a screen — crate plumbing of native.rs, visible to
 // the crate's own tests: see mixed.rs for what a band split is and is not.
 pub(crate) mod mixed;
+// FW-20: the first real `PlatformViews` implementation — X11 child windows
+// on Linux, `dlopen`'d so a Wayland-only session is refused rather than
+// unrunnable. Public because the capability's whole point is that an
+// application can hold the service in its own registry.
 pub mod native;
+#[cfg(target_os = "linux")]
+pub mod platform_views;
 mod scale;
 pub mod services;
 // Real backends for `vieww_foundation::desktop`, and the CPU rasteriser the

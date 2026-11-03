@@ -38,6 +38,33 @@ budget **and** more than `min_delta_ms` above it in absolute terms (10% of a
 failed, the way `size-budget.sh` treats a target it has no figure for.
 `record` writes today's figures for the classes it saw, to commit after
 review. Standard library only.
+
+## Known limitations (FW-07)
+
+A metric can be *known to miss its real budget* — the 60 Hz 16.7 ms frame
+time, say — while still drift-gating against a recorded figure, so a slow
+regression fails even though the absolute miss is accepted. Those live in
+the budgets file under `known_limitations`, keyed like `classes`:
+
+    "known_limitations": {
+      "kabylake-linux": {
+        "gallery/00-layers-nested/cpu_p50_ms": {
+          "target_ms": 16.7,
+          "since": "2026-10-15",
+          "reason": "…the decision, named…"
+        }
+      }
+    }
+
+The `reason` is the comment the file format cannot carry: it names the
+decision that accepted the miss and what would close it. The discipline is
+`known-failures.txt`'s, word for word: anything *not* listed fails the run
+for missing its target only when a budget entry exists to drift against,
+and **a listed entry that comes in under its `target_ms` is flagged stale**
+(a `::warning::`, never a pass) so a closed limitation does not linger
+unnoticed — remove it in the same commit as the win that closed it. A
+limitation never licenses drift: the tolerance check runs exactly as it
+would without it.
 """
 
 import json
@@ -135,6 +162,36 @@ def validate(b):
         for name, v in metrics.items():
             if not isinstance(v, (int, float)) or v <= 0:
                 raise ValueError(f"{cls} {name}: {v!r} is not a positive number of ms")
+    limitations = b.get("known_limitations")
+    if limitations is None:
+        return
+    if not isinstance(limitations, dict) or not limitations:
+        raise ValueError("known_limitations must be a non-empty object or absent")
+    for cls, metrics in limitations.items():
+        if not isinstance(metrics, dict) or not metrics:
+            raise ValueError(f"known_limitations {cls!r} must map metric names to entries")
+        budget = classes.get(cls)
+        if not isinstance(budget, dict) or not budget:
+            raise ValueError(
+                f"known_limitations {cls!r} has no budget class: a limitation "
+                "drift-gates against a recorded figure, so the figure must exist")
+        for name, entry in metrics.items():
+            if name not in budget:
+                raise ValueError(
+                    f"known_limitations {cls} {name}: no budget figure to gate "
+                    "drift against")
+            if not isinstance(entry, dict):
+                raise ValueError(f"known_limitations {cls} {name}: entry must be an object")
+            target = entry.get("target_ms")
+            if not isinstance(target, (int, float)) or target <= 0:
+                raise ValueError(
+                    f"known_limitations {cls} {name}: target_ms must be a "
+                    "positive number of ms")
+            reason = entry.get("reason")
+            if not isinstance(reason, str) or not reason.strip():
+                raise ValueError(
+                    f"known_limitations {cls} {name}: reason must be a "
+                    "non-empty string naming the decision that accepted the miss")
 
 
 def gather(paths, forced_class):
@@ -147,10 +204,11 @@ def gather(paths, forced_class):
 
 
 def check(budgets, seen):
-    """(table rows, failures, unknown classes)."""
+    """(table rows, failures, unknown classes, stale limitations)."""
     tol = budgets["tolerance_percent"]
     floor = budgets.get("min_delta_ms", DEFAULT_MIN_DELTA_MS)
-    rows, failures, unknown = [], [], []
+    limitations = budgets.get("known_limitations") or {}
+    rows, failures, unknown, stale = [], [], [], []
     for cls, metrics in sorted(seen.items()):
         budget = budgets["classes"].get(cls)
         if budget is None:
@@ -162,15 +220,24 @@ def check(budgets, seen):
                 rows.append((cls, name, None, now, None, "new (no budget)"))
                 continue
             change = (now - was) / was * 100.0
+            limitation = limitations.get(cls, {}).get(name)
             if change > tol and now - was > floor:
+                # A known limitation never licenses drift: the tolerance
+                # check runs exactly as it would without one.
                 verdict = "OVER"
                 failures.append((cls, name, was, now, change))
+            elif limitation is not None and now <= limitation["target_ms"]:
+                # known-failures.txt's discipline, word for word: a listed
+                # entry that now passes is flagged stale, never counted a
+                # pass — the limitation should be removed with the win.
+                verdict = "stale limitation — remove it"
+                stale.append((cls, name, limitation["target_ms"], now))
             elif change < -tol:
                 verdict = "faster (re-record?)"
             else:
                 verdict = "ok"
             rows.append((cls, name, was, now, change, verdict))
-    return rows, failures, unknown
+    return rows, failures, unknown, stale
 
 
 MEASURED_SCHEMA = "vieww.perf-measured/1"
@@ -232,8 +299,18 @@ def main(argv):
             f.write("\n")
         print(f"perf-budget: recorded {sum(len(m) for m in seen.values())} metric(s) "
               f"for {', '.join(sorted(seen))} in {budgets_path}")
+        # A re-recorded figure that has come in under a limitation's target
+        # is the moment to drop the limitation, said out loud while the file
+        # is open in the editor.
+        for cls, metrics in seen.items():
+            for name, now in metrics.items():
+                entry = (budgets.get("known_limitations") or {}).get(cls, {}).get(name)
+                if entry and now <= entry["target_ms"]:
+                    print(f"::warning::perf-budget: {cls} {name} recorded {now:.3f} ms, "
+                          f"under its known-limitation target {entry['target_ms']:g} ms — "
+                          "remove the stale limitation in this commit")
         return 0
-    rows, failures, unknown = check(budgets, seen)
+    rows, failures, unknown, stale = check(budgets, seen)
     # A class nobody has committed a budget for is held to its own last run
     # (`--baseline`, the previous run's `--write-measured` as published to
     # ci-results), at a wider tolerance: so a new machine is gated from its
@@ -243,8 +320,9 @@ def main(argv):
     held = {c: baseline[c] for c in unknown if c in baseline}
     if held:
         btol = budgets.get("baseline_tolerance_percent", DEFAULT_BASELINE_TOLERANCE)
-        last = dict(budgets, tolerance_percent=btol, classes=held)
-        brows, bfail, _ = check(last, {c: seen[c] for c in held})
+        last = dict(budgets, tolerance_percent=btol, classes=held,
+                    known_limitations={})
+        brows, bfail, _, _ = check(last, {c: seen[c] for c in held})
         rows += [(c, n, w, now, ch, f"{v} (vs last run, ±{btol:g}%)") for c, n, w, now, ch, v in brows]
         failures += bfail
         unknown = [c for c in unknown if c not in held]
@@ -258,6 +336,10 @@ def main(argv):
     for cls in unknown:
         print(f"perf-budget: no budget and no previous run for class {cls!r}: not gated "
               f"this time{' (this run is the baseline for the next)' if measured_path else ''}")
+    for cls, name, target, now in stale:
+        print(f"::warning::perf-budget: {cls} {name}: {now:.3f} ms is under its "
+              f"known-limitation target {target:g} ms — the limitation is stale, "
+              "remove it from perf-budgets.json in this commit")
     if failures:
         level = "warning" if advisory else "error"
         for cls, name, was, now, change in failures:

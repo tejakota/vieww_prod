@@ -13,6 +13,11 @@ categories.workspace = true
 
 [dependencies]
 vieww-foundation.workspace = true
+# The scene is where painted colour and geometry have already met, which is
+# what `scene_audit` needs: the backdrop of a glyph run is a fact about the
+# command list, not about the theme that promised it. `vieww-render` sits
+# between them and depends on this too, so nothing new reaches the graph.
+vieww-paint.workspace = true
 vieww-render.workspace = true
 vieww-widget.workspace = true
 

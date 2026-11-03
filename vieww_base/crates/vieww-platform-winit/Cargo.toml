@@ -64,10 +64,11 @@ vieww-hal = { workspace = true, features = ["vulkan-swapchain"] }
 vieww-gpu.workspace = true
 # The hybrid placement planner, run in shadow beside `present_planned` when
 # `VIEWW_PLANNER_SHADOW` is set (`src/native.rs`), and calibrated against this
-# machine at startup when `VIEWW_PLANNER_CALIBRATE=1` (`probe::calibrate_cpu_fill`,
-# behind the planner's `calibrate` feature). That feature only turns on
-# `vieww-paint/native`, which this crate already requires below, so it adds no
-# new dependency to the graph — only the benchmark's use of it.
+# machine at startup when `VIEWW_PLANNER_CALIBRATE=1`
+# (`ShadowPlanner::seed_cpu_fill_benchmark`, behind the planner's `calibrate`
+# feature). That feature only turns on `vieww-paint/native`, which this crate
+# already requires below, so it adds no new dependency to the graph — only the
+# benchmark's use of it.
 vieww-render-planner = { workspace = true, features = ["calibrate"] }
 # The generic window-handle traits `vieww_hal::vulkan::VulkanDevice::for_window`
 # takes — `winit::window::Window` already implements them (winit 0.30 depends
@@ -163,6 +164,14 @@ global-hotkey = { version = "0.8", optional = true }
 # `gtk::Window` being a different type from `gtk::Window`.
 [target.'cfg(target_os = "linux")'.dependencies]
 gtk = { version = "0.18", optional = true }
+# FW-20: `src/platform_views.rs` opens `libX11.so.6` at runtime to create real
+# child windows for `PlatformViews`. `dlopen` rather than a link-time
+# dependency for the same reason softbuffer's `x11-dlopen` feature exists one
+# dependency over: a Wayland-only session has no X11, and every Linux build of
+# this crate hard-requiring it would refuse to run where the OS allows it.
+# Already this workspace's loader (`vieww-reload`, `vieww-plugin`), so this
+# adds no new crate to the graph — only one more consumer of a pinned one.
+libloading = "0.8"
 
 # winit refuses to compile for Android without being told which activity type to
 # build against — there is no default, because picking one wrong produces an app

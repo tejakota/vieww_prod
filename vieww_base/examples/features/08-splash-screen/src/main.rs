@@ -36,7 +36,7 @@ impl vieww_widget::Widget for Splash {
                         Opacity::new(t.clamp(0.0, 1.0)).child(
                             Transformed::translate(Offset::new(0.0, rise)).child(
                                 Container::new()
-                                    .color(Color::rgb(58, 122, 246))
+                                    .color(Color::rgb(44, 98, 234))
                                     .radius(24.0)
                                     .child(SizedBox::square(120.0)),
                             ),

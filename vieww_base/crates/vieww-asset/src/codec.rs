@@ -42,8 +42,10 @@ impl ImageFormat {
 ///
 /// # Straight alpha, not premultiplied
 ///
-/// [`Image::from_rgba8`] documents its input as straight alpha and the GPU
-/// backend tags it that way for vello. `image`'s `to_rgba8` is also straight, so
+/// [`Image::from_rgba8`] documents its input as straight alpha, and the GPU
+/// path reads it that way too (its render-to-texture readback converts back
+/// to straight before handing pixels over). `image`'s `to_rgba8` is also
+/// straight, so
 /// no conversion happens here — but the agreement is worth stating, because
 /// premultiplying by mistake darkens every semi-transparent pixel and looks like
 /// a colour-space bug rather than a decode one.
