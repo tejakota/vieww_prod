@@ -469,7 +469,7 @@ impl CollabSession {
             return;
         };
         for op in ops {
-            let _ = writeln!(file, "{}", op.to_json().to_string());
+            let _ = writeln!(file, "{}", op.to_json());
         }
     }
 
@@ -607,12 +607,10 @@ fn clamp_to_boundary(text: &str, byte: usize) -> usize {
 /// The one-based line and column of character index `at` (zero-based).
 fn line_col(text: &str, at: usize) -> (u32, u32) {
     let (mut line, mut col) = (1u32, 1u32);
-    let mut seen = 0usize;
-    for ch in text.chars() {
+    for (seen, ch) in text.chars().enumerate() {
         if seen >= at {
             break;
         }
-        seen += 1;
         if ch == '\n' {
             line += 1;
             col = 1;

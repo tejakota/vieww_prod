@@ -85,6 +85,7 @@ pub mod loaded;
 pub mod lsp;
 pub mod outline;
 pub mod picker;
+pub mod plugin;
 pub mod png;
 pub mod recovery;
 pub mod remote;

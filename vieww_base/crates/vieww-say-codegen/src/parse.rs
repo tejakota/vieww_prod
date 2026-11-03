@@ -215,8 +215,7 @@ pub(crate) fn component_name(word: &str) -> Option<&str> {
     if !first.is_ascii_uppercase() {
         return None;
     }
-    chars.all(|ch| ch.is_ascii_alphanumeric())
-        .then_some(inner)
+    chars.all(|ch| ch.is_ascii_alphanumeric()).then_some(inner)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

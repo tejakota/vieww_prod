@@ -850,17 +850,12 @@ fn prop_span(atoms: &[Atom], prop: &LineProp) -> Option<(usize, usize)> {
                 // Both spellings parse — the documented `in N lines` and the
                 // transposed `in lines N` — so both can be found to be
                 // rewritten; the write always emits the documented one.
-                if word(i) == Some("in") && word(i + 2) == Some("lines") && number(i + 1).is_some()
-                {
-                    Some((i, i + 3))
-                } else if word(i) == Some("in")
-                    && word(i + 1) == Some("lines")
-                    && number(i + 2).is_some()
-                {
-                    Some((i, i + 3))
-                } else {
-                    None
-                }
+                // `in N lines` or the transposed `in lines N`: either way
+                // three words, the number in the other slot.
+                (word(i) == Some("in")
+                    && (number(i + 1).is_some() && word(i + 2) == Some("lines")
+                        || word(i + 1) == Some("lines") && number(i + 2).is_some()))
+                .then_some((i, i + 3))
             }
             LineProp::From(_, _) => (word(i) == Some("from") && word(i + 2) == Some("to"))
                 .then(|| match (number(i + 1), number(i + 3)) {
@@ -998,7 +993,6 @@ fn color_text(color: &str) -> String {
 fn say_f32(n: f32) -> String {
     #[expect(
         clippy::cast_possible_truncation,
-        clippy::cast_possible_wrap,
         reason = "a property value outside i64 is not a dimension anybody edits"
     )]
     let whole = n as i64;

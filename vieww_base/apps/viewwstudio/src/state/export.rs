@@ -56,28 +56,73 @@ impl Studio {
                 self.append_output(vec![format!("{}: {refusal}", format.title())]);
                 self.show_output();
             }
-            Ok(plan) => {
-                self.append_output(vec![format!(
-                    "{} — {} step(s)",
-                    format.title(),
-                    plan.steps.len()
-                )]);
-                // The whole plan, before it starts. An export is minutes of
-                // child processes and being able to read what it is about to
-                // do is the difference between watching it and waiting on it.
-                for (index, step) in plan.steps.iter().enumerate() {
-                    self.append_output(vec![format!(
-                        "  {}. {} — {}",
-                        index + 1,
-                        step.spec.command_line(),
-                        step.why
-                    )]);
-                }
-                *self.export_run.borrow_mut() = Some(ExportRun { plan, next: 0 });
-                self.show_output();
-                self.advance_export(true);
-            }
+            Ok(plan) => self.begin_plan(plan),
         }
+    }
+
+    /// ST-13: start exporting in a plugin's format, or say why not.
+    ///
+    /// The same shape as [`start_export`](Self::start_export) with the plan
+    /// built by the plugin instead of by this module: same refusal-first
+    /// order, same one-export-at-a-time rule, same queue. A plugin's export
+    /// is not a second kind of export.
+    pub fn start_plugin_export(&self, plugin: &str, format: &str) {
+        if self.export_run.borrow().is_some() {
+            self.append_output(vec![
+                "an export is already running — cancel it first".to_string()
+            ]);
+            return;
+        }
+        let Some(root) = self.root.get().as_ref().cloned() else {
+            self.append_output(vec![crate::export::Refusal::NoProject.to_string()]);
+            self.show_output();
+            return;
+        };
+        let name = self.package_name().unwrap_or_default();
+
+        // The registry's Rc cloned out of the signal guard, so the plugin
+        // borrow outlives the guard (the same discipline plugins.rs uses).
+        let registry = self.plugins.get().clone();
+        let Some(found) = registry.find(plugin) else {
+            self.notify("that plugin is not loaded — reload plugins and try again");
+            return;
+        };
+        match found.plan(format, &root, &name) {
+            Err(refusal) => {
+                self.append_output(vec![format!("{}: {refusal}", found.name())]);
+                self.show_output();
+            }
+            Ok(plan) => self.begin_plan(plan),
+        }
+    }
+
+    /// Take a planned export and put it in motion — the half of every export
+    /// that is the same whoever planned it.
+    ///
+    /// The built-ins and the plugins share it: the plan was already printed,
+    /// the queue already runs it, and a plugin's steps are `Spec`s exactly like
+    /// the studio's own — which is the whole of what "pluggable into the
+    /// planner/refusal split" means here.
+    fn begin_plan(&self, plan: crate::export::Plan) {
+        self.append_output(vec![format!(
+            "{} — {} step(s)",
+            plan.title,
+            plan.steps.len()
+        )]);
+        // The whole plan, before it starts. An export is minutes of
+        // child processes and being able to read what it is about to
+        // do is the difference between watching it and waiting on it.
+        for (index, step) in plan.steps.iter().enumerate() {
+            self.append_output(vec![format!(
+                "  {}. {} — {}",
+                index + 1,
+                step.spec.command_line(),
+                step.why
+            )]);
+        }
+        *self.export_run.borrow_mut() = Some(ExportRun { plan, next: 0 });
+        self.show_output();
+        self.advance_export(true);
     }
 
     /// Run the next step of the export, or finish it.
@@ -98,7 +143,7 @@ impl Studio {
                 drop(slot);
                 self.append_output(vec![format!(
                     "{} stopped at step {step} — nothing was produced",
-                    plan.format.title()
+                    plan.title
                 )]);
                 self.jobs_generation.update(|n| *n = n.wrapping_add(1));
                 return;
@@ -121,7 +166,7 @@ impl Studio {
                 if let Some(plan) = plan {
                     self.append_output(vec![format!(
                         "{} finished — {}",
-                        plan.format.title(),
+                        plan.title,
                         plan.artefact.display()
                     )]);
                 }

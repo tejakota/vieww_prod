@@ -53,6 +53,7 @@ mod inspector_props;
 mod language;
 mod panels;
 mod picker;
+mod plugins;
 mod session;
 mod vcs;
 
@@ -780,6 +781,15 @@ pub enum PaletteEntry {
     /// so, because silently listing nothing looks like the palette is broken.
     Line {
         line: u32,
+        detail: String,
+    },
+    /// ST-13: a command a plugin contributed. `plugin` is the plugin's own
+    /// name — the palette shows it and the studio dispatches by the pair,
+    /// because two plugins are entitled to ship a command with the same
+    /// title and the user is entitled to both.
+    Plugin {
+        plugin: String,
+        label: String,
         detail: String,
     },
 }
@@ -1574,6 +1584,13 @@ pub struct GutterRow {
     pub fold_line: usize,
 }
 
+/// The `Studio::say_map` cache shape: the key is the active buffer's
+/// identity (`Rc` pointer, text length, text hash) and the value is
+/// `Some(row)` per parsed say line. A named shape because it is the one
+/// cache in the studio whose invalidation spans two subsystems (the buffer
+/// list and the inspector), and a tuple this wide reads like a mistake.
+pub type SayMapCache = ((u64, usize, usize), Rc<Vec<Option<usize>>>);
+
 /// Everything the shell reads, and the only thing a widget here is given.
 #[derive(Debug, Clone)]
 pub struct Studio {
@@ -2263,7 +2280,11 @@ pub struct Studio {
     /// is a vector of options nobody needs to clone into a signal; what the
     /// overlay needs to know is that the *pick* changed, which it already
     /// reads through `inspect_selected`.
-    pub say_map: Rc<RefCell<Option<((u64, usize, usize), Rc<Vec<Option<usize>>>)>>>,
+    ///
+    /// The cache shape itself: the key is the active buffer's identity
+    /// (`Rc` pointer, text length, text hash) and the value is `Some(row)`
+    /// per parsed say line.
+    pub say_map: Rc<RefCell<Option<SayMapCache>>>,
     /// The last frame's damage, in window coordinates.
     pub damage_snapshot: Rc<RefCell<Vec<vieww_foundation::Rect>>>,
     /// The last frame's semantics nodes: where, what, and what it is called.
@@ -2527,6 +2548,20 @@ pub struct Studio {
     pub export_run: Rc<RefCell<Option<ExportRun>>>,
     /// The chosen export format, for the export sheet's selection.
     pub export_format: Signal<crate::export::Format>,
+    /// ST-13: the plugins loaded into this studio — extra lint rules, export
+    /// formats and palette commands, from `<data_dir>/plugins/`.
+    ///
+    /// A signal because loading changes what three surfaces show: the
+    /// palette's command list, the export sheet's rows and the Problems
+    /// panel's rule list all rebuild when it moves, and none of them should
+    /// have to ask whether it did.
+    ///
+    /// Empty until the **Reload Studio Plugins** command runs, deliberately:
+    /// `dlopen`-ing a user's directory on every `Studio::new` would make every
+    /// integration test load whatever the developer's machine happens to have
+    /// installed, and a plugin that fails to load would fail tests that never
+    /// asked for it. Loading is a command a person runs.
+    pub plugins: Signal<Rc<crate::plugin::Registry>>,
     /// Devices the last scan found, and whether one has ever run.
     pub devices: Signal<Rc<Vec<crate::export::Device>>>,
     pub devices_scanned: Signal<bool>,
@@ -2947,6 +2982,9 @@ impl Studio {
             build_job: Rc::new(std::cell::Cell::new(None)),
             export_run: Rc::new(RefCell::new(None)),
             export_format: runtime.signal(crate::export::Format::DesktopBinary),
+            // ST-13: nothing loaded until the reload command runs — see the
+            // field's own comment for why loading is not automatic.
+            plugins: runtime.signal(Rc::new(crate::plugin::Registry::empty())),
             devices: runtime.signal(Rc::new(Vec::new())),
             devices_scanned: runtime.signal(false),
             artefact: runtime.signal(None),
@@ -3275,8 +3313,7 @@ impl Studio {
         // without components behaves as it always did: no lookup, no refusal,
         // no project `vieww`.
         let is_say = buffer.language == crate::language::Language::Say;
-        let reaches_project =
-            is_say && source.contains(crate::components::PROJECT_REACH);
+        let reaches_project = is_say && source.contains(crate::components::PROJECT_REACH);
         let project = if is_say {
             reaches_project.then(|| self.project_lib(&source)).flatten()
         } else {

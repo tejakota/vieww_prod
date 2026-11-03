@@ -462,11 +462,15 @@ pub enum Command {
     /// `vieww-collab`'s RGA over `.vieww/collab.log`, remote carets in the
     /// editor. Toggles.
     ShareBuffer,
+    /// ST-13: load (or reload) the plugins in `<data_dir>/plugins/` — extra
+    /// lint rules, export formats and palette commands, guarded by the
+    /// preview's ABI fingerprint.
+    ReloadPlugins,
 }
 
 impl Command {
     /// Every command, in palette order.
-    pub const ALL: [Self; 120] = [
+    pub const ALL: [Self; 121] = [
         Self::Render,
         Self::CancelRender,
         Self::Build,
@@ -599,6 +603,7 @@ impl Command {
         Self::MaterializeFlow,
         Self::ExtractWidget,
         Self::ShareBuffer,
+        Self::ReloadPlugins,
     ];
 
     /// What the menu item and the palette row say.
@@ -725,6 +730,7 @@ impl Command {
             Self::MaterializeFlow => "Materialize the Live Flow as Say",
             Self::ExtractWidget => "Extract Widget as Component",
             Self::ShareBuffer => "Share This Buffer for Collaboration",
+            Self::ReloadPlugins => "Reload Studio Plugins",
         }
     }
 
@@ -839,6 +845,10 @@ impl Command {
             // Sharing is a thing one does with a file, and the File menu is
             // where every desktop puts it.
             Self::ShareBuffer => Menu::File,
+            // Plugins are a thing somebody installs once and reloads rarely;
+            // the palette is where its name is typed, and the File menu is
+            // where the studio's other "bring something in" commands live.
+            Self::ReloadPlugins => Menu::File,
             Self::CloseFind
             | Self::ClearOutput
             | Self::ClearFinishedTasks
@@ -1017,6 +1027,11 @@ impl Command {
             // Nor one for sharing: a session other people join is a decision,
             // not a reflex.
             | Self::ShareBuffer
+            // Nor one for plugins: loading somebody's code into this process
+            // is the most consequential thing a command here can do, and it
+            // belongs behind a name that was read, not a chord that was
+            // brushed.
+            | Self::ReloadPlugins
             | Self::CreateLiveFile => return None,
             // The chord every editor uses for completion, and the one people
             // press without thinking.
@@ -1058,6 +1073,18 @@ impl Command {
             .copied()
             .filter(|command| subsequence(&query, &command.title().to_lowercase()))
             .collect()
+    }
+
+    /// Whether `title` matches `query` the way a palette row's does.
+    ///
+    /// ST-13: the plugin commands the palette lists after the studio's own
+    /// are matched by the same subsequence rule, so "cnt" finds a plugin's
+    /// "Count TODOs" exactly as it would find a studio command of that name —
+    /// one palette, one idea of what a match is, two producers.
+    #[must_use]
+    pub fn title_matches(query: &str, title: &str) -> bool {
+        let query = query.trim().to_lowercase();
+        subsequence(&query, &title.to_lowercase())
     }
 }
 

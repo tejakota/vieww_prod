@@ -137,7 +137,11 @@ pub fn registry_components(dir: &Path) -> Vec<Component> {
                 .partition::<Vec<_>, _>(|line| line.starts_with("--"));
             let from = head
                 .iter()
-                .find_map(|line| line.trim_start_matches("-- extracted from ").split(' ').next())
+                .find_map(|line| {
+                    line.trim_start_matches("-- extracted from ")
+                        .split(' ')
+                        .next()
+                })
                 .unwrap_or("a .say file")
                 .to_owned();
             Some(Component {
@@ -200,9 +204,7 @@ fn upper_camel(name: &str) -> String {
 /// they are what they look like.
 #[must_use]
 pub fn subtree_span(lines: &[WidgetLine], picked: &WidgetLine) -> Option<(u32, u32)> {
-    let start = lines
-        .iter()
-        .position(|widget| widget.line == picked.line)?;
+    let start = lines.iter().position(|widget| widget.line == picked.line)?;
     let mut last = picked.line;
     for widget in &lines[start + 1..] {
         if widget.depth <= picked.depth {
@@ -301,25 +303,21 @@ pub fn extract(studio: &Studio, name: &str) {
             .map(|dir| dir.to_string_lossy().into_owned())
             .unwrap_or_default(),
     };
-    let generated = match vieww_say_codegen::compile_component(
-        &buffer.name,
-        name,
-        &subtree,
-        &options,
-    ) {
-        Ok(generated) => generated,
-        Err(diagnostics) => {
-            let first = diagnostics
-                .first()
-                .map(|d| {
-                    let line = u32::from(d.line.saturating_sub(1)) + span.0;
-                    format!("{} (line {line}): {}", d.code, d.message)
-                })
-                .unwrap_or_else(|| "the subtree cannot become a component".to_owned());
-            studio.notify(&first);
-            return;
-        }
-    };
+    let generated =
+        match vieww_say_codegen::compile_component(&buffer.name, name, &subtree, &options) {
+            Ok(generated) => generated,
+            Err(diagnostics) => {
+                let first = diagnostics
+                    .first()
+                    .map(|d| {
+                        let line = d.line.saturating_sub(1) + span.0;
+                        format!("{} (line {line}): {}", d.code, d.message)
+                    })
+                    .unwrap_or_else(|| "the subtree cannot become a component".to_owned());
+                studio.notify(&first);
+                return;
+            }
+        };
 
     // The component file, its module list, and the library's `pub mod`.
     let module = name.to_ascii_lowercase();
@@ -331,7 +329,10 @@ pub fn extract(studio: &Studio, name: &str) {
         }
     }
     if let Err(error) = std::fs::write(&widget_path, &generated.rust) {
-        studio.notify(&format!("Could not write {}: {error}", widget_path.display()));
+        studio.notify(&format!(
+            "Could not write {}: {error}",
+            widget_path.display()
+        ));
         return;
     }
     let line = format!("pub mod {module};");
@@ -358,7 +359,9 @@ pub fn extract(studio: &Studio, name: &str) {
         if !existing.contains("pub mod widgets;") {
             let joined = format!("{}\npub mod widgets;\n", existing.trim_end());
             if let Err(error) = std::fs::write(&lib_rs, joined) {
-                studio.notify(&format!("Could not add `pub mod widgets` to lib.rs: {error}"));
+                studio.notify(&format!(
+                    "Could not add `pub mod widgets` to lib.rs: {error}"
+                ));
             }
         }
     }
@@ -449,7 +452,10 @@ pub fn scaffold(studio: &Studio, component: &Component) {
             }
         }
         if let Err(error) = std::fs::write(&widget_path, &generated.rust) {
-            studio.notify(&format!("Could not write {}: {error}", widget_path.display()));
+            studio.notify(&format!(
+                "Could not write {}: {error}",
+                widget_path.display()
+            ));
             return;
         }
         let line = format!("pub mod {module};");
@@ -489,7 +495,11 @@ pub fn scaffold(studio: &Studio, component: &Component) {
     // is indentation, and whether `<Name>` may stand where the caret is, is
     // the Say compiler's to say on the next Render — through this edit, the
     // one path every keystroke takes, so undo and the debounce both engage.
-    let value = placed_reference(&buffer.value.text, buffer.value.selection.extent, &component.name);
+    let value = placed_reference(
+        &buffer.value.text,
+        buffer.value.selection.extent,
+        &component.name,
+    );
     studio.edit(value);
     studio.rescan_tree();
     studio.notify(&format!(
@@ -668,8 +678,13 @@ mod tests {
     fn the_registry_round_trips() {
         let dir = std::env::temp_dir().join(format!("components-registry-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
-        write_registry_entry(&dir, "Note", "home.say", "a card, padded 12:\n    a text \"hi\"\n")
-            .expect("the entry writes");
+        write_registry_entry(
+            &dir,
+            "Note",
+            "home.say",
+            "a card, padded 12:\n    a text \"hi\"\n",
+        )
+        .expect("the entry writes");
         let components = registry_components(&dir);
         assert_eq!(components.len(), 1, "{components:?}");
         assert_eq!(components[0].name, "Note");
@@ -723,8 +738,7 @@ mod tests {
             "Card",
         );
         assert_eq!(
-            blank.text,
-            "screen \"Home\":\n    <Card>\n    a text \"x\"\n",
+            blank.text, "screen \"Home\":\n    <Card>\n    a text \"x\"\n",
             "the blank line became the reference"
         );
     }

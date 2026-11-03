@@ -557,10 +557,31 @@ impl Studio {
         let term = term.trim();
 
         match mode {
-            PaletteMode::Commands => Command::matching(term)
-                .into_iter()
-                .map(PaletteEntry::Command)
-                .collect(),
+            PaletteMode::Commands => {
+                let mut entries: Vec<PaletteEntry> = Command::matching(term)
+                    .into_iter()
+                    .map(PaletteEntry::Command)
+                    .collect();
+                // ST-13: the plugins' commands, after the studio's own — a
+                // plugin command is not a second kind of palette row, but the
+                // studio's commands are the ones the palette is *for*, and a
+                // plugin list that pushed them off the first screen would be
+                // a hostile act committed by nobody in particular.
+                //
+                // `PALETTE_MAX` is not applied here: the studio's own list is
+                // unbounded for the same reason — the palette is scrolled, and
+                // a truncation is a command that is silently unreachable.
+                for (plugin, command) in self.plugins.get().palette_commands() {
+                    if term.is_empty() || Command::title_matches(term, &command.title) {
+                        entries.push(PaletteEntry::Plugin {
+                            plugin: plugin.to_owned(),
+                            label: command.title.clone(),
+                            detail: command.detail.clone(),
+                        });
+                    }
+                }
+                entries
+            }
 
             PaletteMode::Files => {
                 let root = self.root.get();
@@ -732,6 +753,13 @@ impl Studio {
             PaletteEntry::File { path, .. } => self.open_path(path.clone()),
             PaletteEntry::Symbol { line, .. } | PaletteEntry::Line { line, .. } => {
                 self.jump_to(*line, 1);
+            }
+            // ST-13: a plugin's command, dispatched by the pair the palette
+            // listed it by. Not a `Command` variant — the registry is a list,
+            // not an enum, and `run_plugin_command` is the one door for it
+            // the way `run` is for the studio's own.
+            PaletteEntry::Plugin { plugin, label, .. } => {
+                self.run_plugin_command(plugin, label);
             }
         }
         self.palette_open.set(false);

@@ -229,6 +229,10 @@ pub fn has_entry(language: Language, english: &str) -> bool {
 const SPANISH: &[(&str, &str)] = &[
     // ST-10: sharing a buffer (state/collab).
     ("Share This Buffer for Collaboration", "Compartir este búfer para colaborar"),
+    // ST-13: plugins (plugin.rs / state/plugins.rs).
+    ("Reload Studio Plugins", "Recargar los plugins del estudio"),
+    ("that plugin is not loaded — reload plugins and try again", "ese plugin no está cargado: recarga los plugins e inténtalo de nuevo"),
+    ("that plugin command works on a buffer, and none is open", "ese comando del plugin necesita un búfer, y no hay ninguno abierto"),
     ("Open a project folder first — collaboration shares one of its files.", "Abre primero una carpeta del proyecto: la colaboración comparte uno de sus archivos."),
     ("A scratch buffer cannot be shared — save it into the project first.", "Un búfer provisional no se puede compartir: guárdalo antes en el proyecto."),
     ("The .vieww folder could not be created — collaboration keeps its log there.", "No se pudo crear la carpeta .vieww: la colaboración guarda su registro ahí."),
@@ -674,6 +678,10 @@ const SPANISH: &[(&str, &str)] = &[
 const FRENCH: &[(&str, &str)] = &[
     // ST-10 : partage d'un tampon (state/collab).
     ("Share This Buffer for Collaboration", "Partager ce tampon pour collaborer"),
+    // ST-13 : plugins (plugin.rs / state/plugins.rs).
+    ("Reload Studio Plugins", "Recharger les plugins du studio"),
+    ("that plugin is not loaded — reload plugins and try again", "ce plugin n'est pas chargé — rechargez les plugins et réessayez"),
+    ("that plugin command works on a buffer, and none is open", "cette commande de plugin agit sur un tampon, et aucun n'est ouvert"),
     ("Open a project folder first — collaboration shares one of its files.", "Ouvrez d'abord un dossier de projet — la collaboration partage l'un de ses fichiers."),
     ("A scratch buffer cannot be shared — save it into the project first.", "Un tampon de brouillon ne peut pas être partagé — enregistrez-le d'abord dans le projet."),
     ("The .vieww folder could not be created — collaboration keeps its log there.", "Le dossier .vieww n'a pas pu être créé — la collaboration y garde son journal."),
@@ -1070,6 +1078,10 @@ const FRENCH: &[(&str, &str)] = &[
 const GERMAN: &[(&str, &str)] = &[
     // ST-10: einen Puffer teilen (state/collab).
     ("Share This Buffer for Collaboration", "Diesen Puffer zur Zusammenarbeit teilen"),
+    // ST-13: Plugins (plugin.rs / state/plugins.rs).
+    ("Reload Studio Plugins", "Studio-Plugins neu laden"),
+    ("that plugin is not loaded — reload plugins and try again", "dieses Plugin ist nicht geladen – laden Sie die Plugins neu und versuchen Sie es erneut"),
+    ("that plugin command works on a buffer, and none is open", "dieses Plugin-Kommando braucht einen Puffer, und es ist keiner offen"),
     ("Open a project folder first — collaboration shares one of its files.", "Öffnen Sie zuerst einen Projektordner – die Zusammenarbeit teilt eine seiner Dateien."),
     ("A scratch buffer cannot be shared — save it into the project first.", "Ein Entwurfspuffer lässt sich nicht teilen – speichern Sie ihn zuerst ins Projekt."),
     ("The .vieww folder could not be created — collaboration keeps its log there.", "Der Ordner .vieww ließ sich nicht anlegen – die Zusammenarbeit bewahrt ihr Protokoll dort."),

@@ -546,9 +546,14 @@ mod tests {
         let subtree = "    a card, padded 12:\n\
                        \x20       a heading \"A note\"\n\
                        \x20       a text \"Extract me\", color #3366FF\n";
-        let component = crate::compile_component("home.say", "Note", subtree, &crate::Options::default())
-            .expect("a pure subtree extracts");
-        assert!(component.rust.contains("pub struct Note;"), "{}", component.rust);
+        let component =
+            crate::compile_component("home.say", "Note", subtree, &crate::Options::default())
+                .expect("a pure subtree extracts");
+        assert!(
+            component.rust.contains("pub struct Note;"),
+            "{}",
+            component.rust
+        );
         assert!(component.rust.contains("impl Widget for Note"));
         assert!(component.rust.contains("use vieww::prelude::*;"));
         // The theme read the `color #3366FF` text style needs is `ctx`'s own.
@@ -562,7 +567,9 @@ mod tests {
                      \x20       a text \"Stays\"\n";
         let generated = crate::compile("home.say", after).expect("the reference compiles");
         assert!(
-            generated.rust.contains("WidgetNode::new(crate::widgets::note::Note)"),
+            generated
+                .rust
+                .contains("WidgetNode::new(crate::widgets::note::Note)"),
             "the reference reaches the project's module: {}",
             generated.rust
         );
@@ -601,7 +608,9 @@ mod tests {
                 crate::compile_component("home.say", "Note", subtree, &crate::Options::default())
                     .expect_err("the subtree is refused");
             assert!(
-                refusals.iter().any(|d| d.code == "E100" && d.message.contains(why)),
+                refusals
+                    .iter()
+                    .any(|d| d.code == "E100" && d.message.contains(why)),
                 "{subtree}: {refusals:?}"
             );
         }

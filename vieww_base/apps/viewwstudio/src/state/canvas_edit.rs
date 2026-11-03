@@ -470,11 +470,10 @@ fn match_rows_to_say_lines<R: crate::outline::Row>(
         let parent_row = widget
             .depth
             .checked_sub(1)
-            .map(|d| {
+            .and_then(|d| {
                 say.iter()
                     .rposition(|w| w.depth == d && w.line < widget.line)
             })
-            .flatten()
             .and_then(|p| row_of_say[p]);
         let descends = |row: usize| -> bool {
             match parent_row {

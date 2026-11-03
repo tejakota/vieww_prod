@@ -21,8 +21,8 @@
 use crate::diag::Diagnostic;
 use crate::parse::{
     AKind, ActionLine, Align, CmpOp, ColorSpec, Cond, Cross, EventKind, Expr, Init, Node, Part,
-    Pin, Program, Prop, RustBlock, Screen, StateDecl, StateKind, ThemeEntry, ThemeSlot,
-    Transition, Value, WKind, Widget,
+    Pin, Program, Prop, RustBlock, Screen, StateDecl, StateKind, ThemeEntry, ThemeSlot, Transition,
+    Value, WKind, Widget,
 };
 
 /// What `generate` is told beyond the program itself.
@@ -2118,11 +2118,7 @@ impl<'a> Gen<'a> {
                 // project's own module, and the studio's preview rewrites it
                 // to the rlib it links (see `compile::with_say_project`) — one
                 // path, two resolutions, both real.
-                format!(
-                    "WidgetNode::new(crate::widgets::{}::{})",
-                    snake(name),
-                    name
-                )
+                format!("WidgetNode::new(crate::widgets::{}::{})", snake(name), name)
             }
         };
 
@@ -2811,10 +2807,7 @@ pub(crate) fn generate_component(
 /// element. The test is stated as what is refused rather than what is
 /// allowed, because the allowed list changes with the vocabulary and the
 /// refused list is the contract.
-pub(crate) fn component_refusals(
-    file: &std::rc::Rc<String>,
-    body: &[Node],
-) -> Vec<Diagnostic> {
+pub(crate) fn component_refusals(file: &std::rc::Rc<String>, body: &[Node]) -> Vec<Diagnostic> {
     let mut out = Vec::new();
     impurities(body, &mut out, file);
     out
@@ -2852,11 +2845,7 @@ fn impurities(nodes: &[Node], out: &mut Vec<Diagnostic>, file: &std::rc::Rc<Stri
                     }
                 }
                 if widget.only_if.is_some() {
-                    refuse(
-                        out,
-                        widget.line,
-                        "`only if` reads state the screen keeps",
-                    );
+                    refuse(out, widget.line, "`only if` reads state the screen keeps");
                 }
                 match &widget.kind {
                     WKind::TextField { .. } => refuse(

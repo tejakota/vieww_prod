@@ -1438,6 +1438,70 @@ impl Sidebar {
             );
         }
 
+        // ST-13: the plugins' export formats, under the studio's own and in
+        // the same shape — one planner, one refusal split, one sheet. A
+        // plugin's row is listed with its plugin's name, because "Source
+        // tarball" on its own does not say whose code is about to package
+        // the project.
+        //
+        // Planning happens here rather than once at load: the refusal this
+        // row may carry is about *this* project on *this* machine, and a
+        // refusal computed against a project that is no longer open would be
+        // a stale answer shown as a fresh one.
+        {
+            let plugins = self.studio.plugins.get();
+            for plugin in &plugins.plugins {
+                for format in plugin.formats() {
+                    let refusal = plugin
+                        .plan(&format.id, root, name.as_deref().unwrap_or_default())
+                        .err();
+                    let available = refusal.is_none() && !running;
+
+                    rows.push(
+                        clickable(
+                            {
+                                let title = format!("{}: {}", plugin.name(), format.title);
+                                let detail = refusal.as_ref().map_or_else(
+                                    || format.detail.clone(),
+                                    std::string::ToString::to_string,
+                                );
+                                let tint = if available {
+                                    colors.on_surface
+                                } else {
+                                    colors.outline
+                                };
+                                move || {
+                                    Container::new()
+                                        .padding(EdgeInsets::symmetric(12.0, 7.0))
+                                        .child(
+                                            Flex::column()
+                                                .cross_axis_alignment(CrossAxisAlignment::Start)
+                                                .children(children![
+                                                    label(&title, 12.0, tint),
+                                                    space(2.0),
+                                                    label(&detail, 10.5, colors.on_surface_variant),
+                                                ]),
+                                        )
+                                        .into()
+                                }
+                            },
+                            {
+                                let studio = self.studio.clone();
+                                let plugin = plugin.name().to_string();
+                                let id = format.id.clone();
+                                move || {
+                                    if available {
+                                        studio.start_plugin_export(&plugin, &id);
+                                    }
+                                }
+                            },
+                        )
+                        .into(),
+                    );
+                }
+            }
+        }
+
         if running {
             rows.push(button_row("Cancel export", colors, {
                 let studio = self.studio.clone();

@@ -114,7 +114,7 @@ impl FieldValue {
             Self::Number(n) => n.to_string(),
             Self::Text(text) | Self::Color(text) => text.clone(),
             Self::Choice(_, current) => current.clone(),
-            Self::Flag(on) => (*on).then_some("\u{2713}").unwrap_or("\u{2013}").to_owned(),
+            Self::Flag(on) => if *on { "\u{2713}" } else { "\u{2013}" }.to_owned(),
         }
     }
 }
@@ -584,7 +584,6 @@ fn parse_range(text: &str) -> Option<(f32, f32)> {
 fn plain(n: f32) -> String {
     #[expect(
         clippy::cast_possible_truncation,
-        clippy::cast_possible_wrap,
         reason = "a property value outside i64 is not a dimension anybody edits"
     )]
     let whole = n as i64;

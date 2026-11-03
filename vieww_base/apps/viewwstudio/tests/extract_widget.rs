@@ -280,11 +280,24 @@ fn extraction_rewrites_the_buffer_and_wires_the_project() {
             6 => before[8],
             _ => before[index],
         };
-        assert_eq!(*line, expected, "line {} of the rewritten buffer", index + 1);
+        assert_eq!(
+            *line,
+            expected,
+            "line {} of the rewritten buffer",
+            index + 1
+        );
     }
-    assert!(buffer.dirty, "the buffer is edited, not merely modified in memory");
     assert!(
-        studio.active().expect("the buffer").value.text.contains("        <Card>\n"),
+        buffer.dirty,
+        "the buffer is edited, not merely modified in memory"
+    );
+    assert!(
+        studio
+            .active()
+            .expect("the buffer")
+            .value
+            .text
+            .contains("        <Card>\n"),
         "the reference carries the span's own indentation"
     );
 
@@ -308,11 +321,14 @@ fn extraction_rewrites_the_buffer_and_wires_the_project() {
     assert!(widget.contains("pub struct Card;"), "{widget}");
     assert!(widget.contains("impl Widget for Card"), "{widget}");
     assert!(widget.contains("use vieww::prelude::*;"), "{widget}");
-    let modules = std::fs::read_to_string(root.join("src/widgets/mod.rs"))
-        .expect("mod.rs was written");
+    let modules =
+        std::fs::read_to_string(root.join("src/widgets/mod.rs")).expect("mod.rs was written");
     assert!(modules.contains("pub mod card;"), "{modules}");
     let lib = std::fs::read_to_string(root.join("src/lib.rs")).expect("lib.rs still there");
-    assert!(lib.contains("pub mod widgets;"), "extraction wired the library: {lib}");
+    assert!(
+        lib.contains("pub mod widgets;"),
+        "extraction wired the library: {lib}"
+    );
 
     // The registry: the subtree, dedented, with its origin recorded.
     let components = studio.registry_components();
@@ -362,8 +378,13 @@ fn an_extracted_component_previews_through_the_project() {
     let before_generated =
         vieww_say_codegen::compile("home.say", HOME_SAY).expect("the fixture compiles");
     let before_session = Session::new(0x5C05).expect("a temp directory");
-    let before_compiled =
-        compile(&toolchain, &before_session, &before_generated.rust, "home.rs").expect("rustc ran");
+    let before_compiled = compile(
+        &toolchain,
+        &before_session,
+        &before_generated.rust,
+        "home.rs",
+    )
+    .expect("rustc ran");
     assert!(
         !before_compiled.failed(),
         "the inline screen compiles: {:?}",
@@ -378,7 +399,14 @@ fn an_extracted_component_previews_through_the_project() {
     std::fs::create_dir_all(&deps).expect("the project's deps directory");
     let rlib = deps.join("libfixture.rlib");
     let built = std::process::Command::new(&toolchain.rustc)
-        .args(["--edition", "2021", "--crate-type", "rlib", "--crate-name", "fixture"])
+        .args([
+            "--edition",
+            "2021",
+            "--crate-type",
+            "rlib",
+            "--crate-name",
+            "fixture",
+        ])
         .arg(root.join("src/lib.rs"))
         .arg("--extern")
         .arg(format!("vieww={}", toolchain.vieww_rlib.display()))
@@ -463,8 +491,7 @@ fn a_registry_component_scaffolds_into_another_project() {
     // writing into the extraction's own leftovers.
     let screen = "-- say-language: 1\nscreen \"Settings\":\n    a column:\n        a text \"v1\"\n";
     std::fs::write(root.join("src/screens/settings.say"), screen).expect("the second screen");
-    let buffer =
-        Buffer::open(&root.join("src/screens/settings.say")).expect("the screen opens");
+    let buffer = Buffer::open(&root.join("src/screens/settings.say")).expect("the screen opens");
     let runtime = Runtime::new();
     let workspace = Workspace::of_buffers(vec![buffer]);
     let studio = Studio::with_workspace(&runtime, workspace).with_host(TargetPlatform::Linux);
@@ -493,16 +520,12 @@ fn a_registry_component_scaffolds_into_another_project() {
         .expect("the component file was written");
     assert!(widget.contains("pub struct Note;"), "{widget}");
     assert!(widget.contains("impl Widget for Note"), "{widget}");
-    assert!(
-        std::fs::read_to_string(root.join("src/widgets/mod.rs"))
-            .expect("mod.rs")
-            .contains("pub mod note;")
-    );
-    assert!(
-        std::fs::read_to_string(root.join("src/lib.rs"))
-            .expect("lib.rs")
-            .contains("pub mod widgets;")
-    );
+    assert!(std::fs::read_to_string(root.join("src/widgets/mod.rs"))
+        .expect("mod.rs")
+        .contains("pub mod note;"));
+    assert!(std::fs::read_to_string(root.join("src/lib.rs"))
+        .expect("lib.rs")
+        .contains("pub mod widgets;"));
 
     // The buffer gained the reference, on its own line — and the result is
     // Say the compiler accepts.
@@ -511,8 +534,7 @@ fn a_registry_component_scaffolds_into_another_project() {
         text.contains("    a column:\n        <Note>\n"),
         "the reference went inside the caret's container, at its children's indent: {text:?}"
     );
-    vieww_say_codegen::compile("settings.say", &text)
-        .expect("the scaffolded screen is valid Say");
+    vieww_say_codegen::compile("settings.say", &text).expect("the scaffolded screen is valid Say");
 
     // And a second scaffold into the same project places another reference
     // without touching the component the project now owns: the notice ends
@@ -523,7 +545,10 @@ fn a_registry_component_scaffolds_into_another_project() {
         source: "a card, padded 12:\n    a text \"hi\"\n".to_owned(),
         from: "home.say".to_owned(),
     });
-    let notice = studio.notice.get().expect("the second scaffold said something");
+    let notice = studio
+        .notice
+        .get()
+        .expect("the second scaffold said something");
     assert!(
         notice.contains("Placed <Note>"),
         "the second scaffold placed a reference too: {notice}"
@@ -534,7 +559,11 @@ fn a_registry_component_scaffolds_into_another_project() {
         "an existing component is never overwritten"
     );
     let text = studio.active().expect("the buffer").value.text.clone();
-    assert_eq!(text.matches("<Note>").count(), 2, "two references, one component: {text}");
+    assert_eq!(
+        text.matches("<Note>").count(),
+        2,
+        "two references, one component: {text}"
+    );
 
     std::fs::remove_dir_all(&root).ok();
 }

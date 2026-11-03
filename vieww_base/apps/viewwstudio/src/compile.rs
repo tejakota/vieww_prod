@@ -365,10 +365,7 @@ pub fn with_project(source: &str, crate_name: &str) -> String {
 /// Line numbers are preserved, for the same reason as [`with_project`].
 #[must_use]
 pub fn with_say_project(source: &str, crate_name: &str) -> String {
-    source.replace(
-        "crate::widgets::",
-        &format!("{crate_name}::widgets::"),
-    )
+    source.replace("crate::widgets::", &format!("{crate_name}::widgets::"))
 }
 
 /// Why a toolchain could not be put together.
@@ -1214,6 +1211,38 @@ pub fn compile(
 ) -> std::io::Result<Compiled> {
     let (source_path, library_path) = session.next_pair();
     std::fs::write(&source_path, format!("{source}\n{ENTRY}"))?;
+    run_rustc(
+        toolchain,
+        &source_path,
+        &library_path,
+        file_name,
+        None,
+        &AtomicBool::new(false),
+    )
+}
+
+/// [`compile`] for a library whose exports are its own — no preview entry
+/// point appended, because the file *is* the whole library.
+///
+/// ST-13's plugin tests build the in-repo example plugin through this door so
+/// its `vieww` is the same compilation this process links: the same `rustc`,
+/// the same `--extern` rlib, the same flags — which is what makes the
+/// fingerprint the plugin exports equal the one the loader checks. A `cargo`
+/// build of the plugin would add a second dependency resolution to the
+/// sandbox for no gain over that property, exactly the trade the ST-05 test
+/// of the project's rlib documented first.
+///
+/// # Errors
+///
+/// As [`compile`].
+pub fn compile_standalone(
+    toolchain: &Toolchain,
+    session: &Session,
+    source: &str,
+    file_name: &str,
+) -> std::io::Result<Compiled> {
+    let (source_path, library_path) = session.next_pair();
+    std::fs::write(&source_path, source)?;
     run_rustc(
         toolchain,
         &source_path,

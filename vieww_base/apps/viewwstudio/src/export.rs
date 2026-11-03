@@ -130,6 +130,14 @@ pub enum Refusal {
     /// The studio does not know how to package this yet, and says so rather
     /// than producing something that is not what was asked for.
     NotImplemented(&'static str),
+    /// A plugin's refusal, in the plugin's own words.
+    ///
+    /// ST-13: a plugin export format plans through this same split, and its
+    /// refusals are its own sentences — the studio cannot name another
+    /// project's missing tools for it. The variant exists so a plugin's
+    /// "cannot" reads as a refusal and not as a plan that silently did
+    /// nothing.
+    External(String),
 }
 
 impl std::fmt::Display for Refusal {
@@ -142,6 +150,7 @@ impl std::fmt::Display for Refusal {
             } => write!(f, "{requirement} is missing — install it with: {install}"),
             Self::NoProject => write!(f, "no cargo project is open"),
             Self::NotImplemented(what) => write!(f, "{what}"),
+            Self::External(why) => write!(f, "{why}"),
         }
     }
 }
@@ -153,13 +162,23 @@ pub struct Step {
     pub spec: Spec,
     /// One line for the export sheet's preview, so a person can see what is
     /// about to run before it runs.
-    pub why: &'static str,
+    ///
+    /// Owned rather than `&'static str` since ST-13: a plugin's plan carries
+    /// its own one-liners, and they are not constants this crate compiled.
+    pub why: String,
 }
 
 /// Everything an export will do, and what it will leave behind.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Plan {
-    pub format: Format,
+    /// What the run is called in the Output panel — the export row's title,
+    /// `"toolbelt: Source tarball"` for a plugin's, the format's own title
+    /// for the built-ins.
+    ///
+    /// A name rather than a [`Format`] since ST-13: plugin formats have no
+    /// variant in that enum, and a plan that could not say what it was would
+    /// report its own result anonymously.
+    pub title: String,
     /// Run in order. A step that fails stops the plan — a package built from
     /// a failed compile is worse than no package.
     pub steps: Vec<Step>,
@@ -233,7 +252,7 @@ fn desktop(env: &Env, root: &Path, name: &str, out: &Path) -> Plan {
 
     let mut steps = vec![Step {
         spec: Spec::new("Build (release)", "cargo", root).args(["build", "--release"]),
-        why: "an optimised build, which is what ships",
+        why: "an optimised build, which is what ships".into(),
     }];
     // Copied through the queue rather than with `std::fs::copy` on the UI
     // thread: it is one more step in the same queue, cancellable and logged
@@ -244,12 +263,12 @@ fn desktop(env: &Env, root: &Path, name: &str, out: &Path) -> Plan {
             .into_iter()
             .map(|spec| Step {
                 spec,
-                why: "copied out of target/release, where the next build overwrites it",
+                why: "copied out of target/release, where the next build overwrites it".into(),
             }),
     );
 
     Plan {
-        format: Format::DesktopBinary,
+        title: Format::DesktopBinary.title().to_string(),
         steps,
         artefact,
     }
@@ -297,19 +316,21 @@ fn windows(env: &Env, root: &Path, name: &str, out: &Path) -> Plan {
             "cross-compiled for Windows; the MinGW linker produces the .exe"
         } else {
             "an optimised build, which is what ships"
-        },
+        }
+        .into(),
     }];
     steps.extend(
         copy_steps(env.host, root, &built, &artefact)
             .into_iter()
             .map(|spec| Step {
                 spec,
-                why: "copied out of the target directory, where the next build overwrites it",
+                why: "copied out of the target directory, where the next build overwrites it"
+                    .into(),
             }),
     );
 
     Plan {
-        format: Format::WindowsExe,
+        title: Format::WindowsExe.title().to_string(),
         steps,
         artefact,
     }
@@ -376,12 +397,12 @@ fn android(host: Host, root: &Path, name: &str, out: &Path) -> Result<Plan, Refu
                 "build",
                 "--release",
             ]),
-            why: "cross-compiles the Rust for arm64 with the NDK's linker",
+            why: "cross-compiles the Rust for arm64 with the NDK's linker".into(),
         },
         Step {
             spec: Spec::new("Package APK", gradle_command(root), root.join("android"))
                 .args(["assembleDebug"]),
-            why: "packages and debug-signs the apk",
+            why: "packages and debug-signs the apk".into(),
         },
     ];
     steps.extend(
@@ -389,11 +410,11 @@ fn android(host: Host, root: &Path, name: &str, out: &Path) -> Result<Plan, Refu
             .into_iter()
             .map(|spec| Step {
                 spec,
-                why: "copied out of the gradle output tree under its own name",
+                why: "copied out of the gradle output tree under its own name".into(),
             }),
     );
     Ok(Plan {
-        format: Format::AndroidApk,
+        title: Format::AndroidApk.title().to_string(),
         steps,
         artefact,
     })
@@ -407,7 +428,7 @@ fn ios_app(env: &Env, root: &Path, name: &str, out: &Path) -> Result<Plan, Refus
     }
     let artefact = out.join(format!("{name}.app"));
     Ok(Plan {
-        format: Format::IosSimulatorApp,
+        title: Format::IosSimulatorApp.title().to_string(),
         steps: vec![
             Step {
                 spec: Spec::new("Build (iOS simulator)", "cargo", root).args([
@@ -416,7 +437,7 @@ fn ios_app(env: &Env, root: &Path, name: &str, out: &Path) -> Result<Plan, Refus
                     "--target",
                     "aarch64-apple-ios-sim",
                 ]),
-                why: "the simulator runs arm64 on an Apple-silicon Mac",
+                why: "the simulator runs arm64 on an Apple-silicon Mac".into(),
             },
             Step {
                 // `CONFIGURATION_BUILD_DIR`: without it the `.app` lands in
@@ -434,7 +455,7 @@ fn ios_app(env: &Env, root: &Path, name: &str, out: &Path) -> Result<Plan, Refus
                         "build",
                     ])
                     .arg(format!("CONFIGURATION_BUILD_DIR={}", out.to_string_lossy())),
-                why: "assembles the bundle Xcode's project describes",
+                why: "assembles the bundle Xcode's project describes".into(),
             },
         ],
         artefact,
@@ -450,7 +471,7 @@ fn ios_ipa(env: &Env, root: &Path, name: &str, out: &Path) -> Result<Plan, Refus
     }
     let artefact = out.join(format!("{name}.ipa"));
     Ok(Plan {
-        format: Format::IosIpa,
+        title: Format::IosIpa.title().to_string(),
         steps: vec![
             Step {
                 spec: Spec::new("Build (iOS device)", "cargo", root).args([
@@ -459,7 +480,7 @@ fn ios_ipa(env: &Env, root: &Path, name: &str, out: &Path) -> Result<Plan, Refus
                     "--target",
                     "aarch64-apple-ios",
                 ]),
-                why: "every device since the iPhone 5s is arm64",
+                why: "every device since the iPhone 5s is arm64".into(),
             },
             Step {
                 spec: Spec::new("Archive", "xcodebuild", root.join("ios")).args([
@@ -473,7 +494,7 @@ fn ios_ipa(env: &Env, root: &Path, name: &str, out: &Path) -> Result<Plan, Refus
                     "-archivePath",
                     "build/app.xcarchive",
                 ]),
-                why: "signs with whichever identity the project is configured for",
+                why: "signs with whichever identity the project is configured for".into(),
             },
             Step {
                 spec: Spec::new("Export .ipa", "xcodebuild", root.join("ios"))
@@ -481,7 +502,7 @@ fn ios_ipa(env: &Env, root: &Path, name: &str, out: &Path) -> Result<Plan, Refus
                     .arg("-exportPath")
                     .arg(out.to_string_lossy().to_string())
                     .args(["-exportOptionsPlist", "ExportOptions.plist"]),
-                why: "turns the signed archive into an installable .ipa",
+                why: "turns the signed archive into an installable .ipa".into(),
             },
         ],
         artefact,

@@ -364,12 +364,22 @@ impl Studio {
         // Through the highlighter's own parse rather than a second one of our
         // own: on a large file the lint pass used to double the per-frame
         // parsing cost for a tree that was already sitting in memory.
+        //
+        // ST-13: the loaded plugins' rules join the same pass — one walk,
+        // one merge, one list in the Problems panel. The registry is held
+        // across the call because the wrappers borrow it.
         let findings = {
+            let registry = self.plugins.get();
+            let wrappers = registry.lint_rules();
+            let rules: Vec<&dyn crate::lint::LintRule> = wrappers
+                .iter()
+                .map(|rule| rule as &dyn crate::lint::LintRule)
+                .collect();
             let mut highlighter = self.highlighter.borrow_mut();
             highlighter
                 .tree_for(&buffer.value.text, buffer.language)
                 .map_or_else(Vec::new, |tree| {
-                    crate::lint::check_tree(tree, &buffer.value.text)
+                    crate::lint::check_tree_with(tree, &buffer.value.text, &rules)
                 })
         };
         let out: Vec<Diagnostic> = findings
@@ -379,8 +389,10 @@ impl Studio {
                 severity: finding.severity,
                 // The rule's own name as the code, exactly as `rustc` puts a
                 // lint name there — so a finding can be recognised, looked up,
-                // and argued with rather than only read.
-                code: finding.rule.to_owned(),
+                // and argued with rather than only read. A plugin's rule
+                // arrives here with its plugin's name already in `rule`, and
+                // that is the attribution the panel has.
+                code: finding.rule.clone(),
                 message: format!("vieww-lint: {}", finding.message),
                 help: None,
                 line: finding.line,
@@ -628,6 +640,9 @@ impl Studio {
             // ST-10: the buffer becomes a shared document — the doc, the log
             // and the carets in `state/collab`.
             C::ShareBuffer => self.toggle_collab(),
+            // ST-13: the plugins directory is (re)read — see `state/plugins`,
+            // which owns everything the studio does with what it finds.
+            C::ReloadPlugins => self.reload_plugins(),
             C::RestoreFlow => self.restore_flow(),
 
             C::TrySayScreen => self.try_say_screen(),

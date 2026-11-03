@@ -1,0 +1,33 @@
+[package]
+# ST-13's reference plugin. A `cdylib`, not a library: the studio `dlopen`s
+# the artefact this package builds and calls the seven `vieww_plugin_*`
+# symbols its `src/lib.rs` exports. `cargo build -p
+# viewwstudio-plugin-example` from the workspace root produces
+# `target/debug/libviewwstudio_plugin_example.so` — copy that into
+# `<data_dir>/vieww/plugins/` and run the studio's **Reload Studio Plugins**
+# command.
+#
+# It is a workspace member, not an `examples/` directory, for one reason:
+# its `vieww` has to resolve from this workspace so the ABI fingerprint it
+# exports matches the studio's — see `src/lib.rs`'s own docs for what that
+# check is buying.
+name = "viewwstudio-plugin-example"
+description = "The reference vieww Studio plugin: a lint rule, a palette command and an export format over the studio's plugin ABI."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# The framework, for exactly one thing: the ABI fingerprint. See
+# `vieww_plugin_fingerprint` below — the plugin does not build widgets, draw,
+# or read the tree; the dependency exists because the fingerprint is a
+# question about a vieww type's identity and only vieww can answer it.
+vieww.workspace = true
+
+[lints]
+workspace = true
