@@ -57,6 +57,10 @@ pub fn lines() -> Vec<String> {
         format!("Target     {}", target()),
         format!("Licence    {LICENSE}"),
         format!("Data       {}", data_dir().display()),
+        // ST-14: the one thing the dialog never said — that this studio can
+        // find out. Both spellings of the same act, because the palette is
+        // where a person looks and the flag is where a script writes.
+        "Updates    Help → Check for Updates, or start with --check-for-updates".to_owned(),
     ]
 }
 

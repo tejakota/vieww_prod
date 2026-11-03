@@ -47,6 +47,7 @@ use std::fmt;
 mod diag;
 mod gen;
 mod lex;
+pub mod line;
 mod parse;
 mod parse_line;
 
@@ -113,6 +114,127 @@ pub fn compile_with(
         }),
         Err(diagnostics) => Err(diagnostics),
     }
+}
+
+/// Compile one extracted subtree into a component file (ST-05).
+///
+/// The studio's "extract widget" hands over the picked subtree's lines
+/// verbatim — indentation relative to the file and all — and this wraps them
+/// in a synthetic screen, parses them, refuses everything a component cannot
+/// carry, and generates `pub struct <Name>` plus `impl Widget` for
+/// `src/widgets/<name>.rs`. The screen left behind references the result as
+/// `<Name>`.
+///
+/// # What a component may not contain, and why
+///
+/// A component is a **pure subtree**: it is built wherever `<Name>` stands,
+/// with nothing but the theme its host already supplies. So it may not read
+/// state (`keep` variables, interpolation, `only if`), carry events (a
+/// handler reaches the *screen's* element), bind controls, list anything,
+/// scroll, or hold tabs — those live on the screen's own `ElementState`, and
+/// a subtree that reached for them would stop being the same widget where it
+/// stood. Diagnostics carry E100 and the line *within the subtree* (the
+/// caller knows where the subtree began); each names the construct that
+/// refused.
+///
+/// # Errors
+///
+/// Every refusal, and every ordinary parse error in the subtree — not the
+/// first one, for the same reason as [`compile`].
+pub fn compile_component(
+    file_name: &str,
+    name: &str,
+    subtree: &str,
+    options: &Options,
+) -> Result<Generated, Vec<Diagnostic>> {
+    let file = std::rc::Rc::new(file_name.to_owned());
+    // The name is the Rust type: UpperCamel or nothing, so a bad name is
+    // refused here rather than by rustc against a file the user never wrote.
+    if crate::parse::component_name(&format!("<{name}>")).is_none() {
+        return Err(vec![Diagnostic::error(
+            &file,
+            1,
+            1,
+            crate::diag::codes::E031,
+            format!(
+                "`{name}` is not a component name — one UpperCamel word, `Note` or `PhotoGrid`"
+            ),
+        )]);
+    }
+    // Dedent to the subtree's own root, then indent every line under one
+    // synthetic screen. Blank and comment lines keep their shape.
+    let indent = subtree
+        .lines()
+        .filter(|line| !line.trim().is_empty())
+        .map(|line| line.len() - line.trim_start_matches(' ').len())
+        .min()
+        .unwrap_or(0);
+    let mut wrapped = String::from("-- say-language: 1\nscreen \"Component\":\n");
+    for line in subtree.lines() {
+        let dedented = line.get(indent..).unwrap_or(line);
+        if dedented.trim().is_empty() {
+            wrapped.push('\n');
+        } else {
+            wrapped.push_str("    ");
+            wrapped.push_str(dedented);
+            wrapped.push('\n');
+        }
+    }
+    let lines = lex::lex(&wrapped);
+    let program = match parse::parse(&file, &lines) {
+        Ok(program) => program,
+        Err(mut diagnostics) => {
+            // A subtree that references a name declared *outside* it — every
+            // `keep` variable, every bound control — parses as "nothing is
+            // called that" here, because the declaration stayed behind with
+            // the screen. That is the refusal, said once up front, with the
+            // parse errors naming what was reached for.
+            let mut out = vec![Diagnostic::error(
+                &file,
+                1,
+                1,
+                crate::diag::codes::E100,
+                "the subtree does not stand alone — a component may not reach \
+                 the state the screen keeps, and the errors below name what it \
+                 reaches for",
+            )];
+            for diagnostic in diagnostics.drain(..) {
+                out.push(Diagnostic {
+                    line: diagnostic.line.saturating_sub(2),
+                    ..diagnostic
+                });
+            }
+            return Err(out);
+        }
+    };
+    let body = program
+        .screens
+        .first()
+        .map(|screen| screen.body.as_slice())
+        .unwrap_or(&[]);
+    let refusals = gen::component_refusals(&file, body);
+    if !refusals.is_empty() {
+        // Line numbers within the wrapped screen are subtree lines plus the
+        // two-line head; put them back where the caller's buffer has them.
+        return Err(refusals
+            .into_iter()
+            .map(|mut diagnostic| {
+                diagnostic.line = diagnostic.line.saturating_sub(2);
+                diagnostic
+            })
+            .collect());
+    }
+    Ok(Generated {
+        rust: gen::generate_component(
+            &file,
+            name,
+            body,
+            &gen::GenOptions {
+                asset_root: options.asset_root.clone(),
+            },
+        ),
+        warnings: Vec::new(),
+    })
 }
 
 /// The word-level registry the editor tools read: the canonical phrases, the
@@ -404,6 +526,120 @@ mod tests {
             !plain.contains("SAY_ASSET_ROOT"),
             "a file without images carries no root"
         );
+    }
+
+    /// ST-05: a pure subtree becomes a component, and the screen left behind
+    /// references it. The two halves of the contract, pinned where a change
+    /// to either shows up as a diff.
+    #[test]
+    fn a_component_reference_and_its_extraction_compile() {
+        // The screen, with the subtree still inline-extractable.
+        let screen = "-- say-language: 1\n\
+                      screen \"Home\":\n\
+                      \x20   a column:\n\
+                      \x20       a card, padded 12:\n\
+                      \x20           a heading \"A note\"\n\
+                      \x20           a text \"Extract me\", color #3366FF\n\
+                      \x20       a text \"Stays\"\n";
+        // The picked subtree, as the studio would hand it over: original
+        // indentation, taken verbatim out of the buffer.
+        let subtree = "    a card, padded 12:\n\
+                       \x20       a heading \"A note\"\n\
+                       \x20       a text \"Extract me\", color #3366FF\n";
+        let component =
+            crate::compile_component("home.say", "Note", subtree, &crate::Options::default())
+                .expect("a pure subtree extracts");
+        assert!(
+            component.rust.contains("pub struct Note;"),
+            "{}",
+            component.rust
+        );
+        assert!(component.rust.contains("impl Widget for Note"));
+        assert!(component.rust.contains("use vieww::prelude::*;"));
+        // The theme read the `color #3366FF` text style needs is `ctx`'s own.
+        assert!(component.rust.contains("let theme = ThemeData::of(ctx);"));
+
+        // The screen after the span is replaced with the reference.
+        let after = "-- say-language: 1\n\
+                     screen \"Home\":\n\
+                     \x20   a column:\n\
+                     \x20       <Note>\n\
+                     \x20       a text \"Stays\"\n";
+        let generated = crate::compile("home.say", after).expect("the reference compiles");
+        assert!(
+            generated
+                .rust
+                .contains("WidgetNode::new(crate::widgets::note::Note)"),
+            "the reference reaches the project's module: {}",
+            generated.rust
+        );
+        assert!(
+            generated.rust.contains("// say: home.say:4  <Note>"),
+            "the marker shows the line as written"
+        );
+    }
+
+    /// The refusals are the contract's other half: a subtree that reaches
+    /// the screen's state, events or interface state is not a component, and
+    /// the diagnostic says which line and why.
+    ///
+    /// Two doors lead out: names the subtree reaches for fail the parse
+    /// (`nothing is called \`count\`` — the declaration stayed with the
+    /// screen), and constructs that parse standalone are refused by the
+    /// purity walk. Both say E100 first.
+    #[test]
+    fn impure_subtrees_are_refused_with_the_reason() {
+        let cases: [(&str, &str); 3] = [
+            (
+                "a button \"Save\" which when tapped:\n    show a snackbar \"Saved\"\n",
+                "events reach the screen's state",
+            ),
+            (
+                "a scroll view:\n    a text \"long\"\n",
+                "a scroll view keeps its offset in the screen's state",
+            ),
+            (
+                "a set of tabs:\n    a tab \"One\":\n        a text \"x\"\n",
+                "tabs keep their selection in the screen's state",
+            ),
+        ];
+        for (subtree, why) in cases {
+            let refusals =
+                crate::compile_component("home.say", "Note", subtree, &crate::Options::default())
+                    .expect_err("the subtree is refused");
+            assert!(
+                refusals
+                    .iter()
+                    .any(|d| d.code == "E100" && d.message.contains(why)),
+                "{subtree}: {refusals:?}"
+            );
+        }
+        // A name declared outside the subtree: the parse says so under the
+        // E100 that explains why that matters here.
+        let reaching = crate::compile_component(
+            "home.say",
+            "Note",
+            "a text field bound to query\n",
+            &crate::Options::default(),
+        )
+        .expect_err("a bound control is refused");
+        assert!(
+            reaching
+                .iter()
+                .any(|d| d.code == "E100" && d.message.contains("does not stand alone")),
+            "{reaching:?}"
+        );
+        assert!(reaching.iter().any(|d| d.code == "E031"), "{reaching:?}");
+        // And a name that is not a Rust type name is refused before any of
+        // that: rustc would otherwise fail against a file nobody wrote.
+        let bad = crate::compile_component(
+            "home.say",
+            "note",
+            "a text \"x\"\n",
+            &crate::Options::default(),
+        )
+        .expect_err("a lowercase name is refused");
+        assert!(bad.iter().any(|d| d.code == "E031"), "{bad:?}");
     }
 
     /// The review's C1, pinned: the action rows compile as written, which is

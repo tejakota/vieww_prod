@@ -66,6 +66,49 @@ impl<'a> Parser<'a> {
             })
         };
 
+        // A component reference, `<Note>`, is a whole widget line on its own:
+        // the subtree it stands for lives in the component's own file, so
+        // there are no clauses to parse and no block to open. Checked before
+        // the article, because the angle bracket is not an article and never
+        // will be.
+        if let Some(Tok::Word(w)) = toks.first() {
+            if w.starts_with('<') {
+                let Some(name) = crate::parse::component_name(w) else {
+                    self.error(
+                        number,
+                        1,
+                        codes::E060,
+                        "a component reference is one UpperCamel name in angle brackets, `<Note>`",
+                    );
+                    return None;
+                };
+                if toks.len() > 1 {
+                    self.error(
+                        number,
+                        1,
+                        codes::E060,
+                        "a component reference is `<Name>` alone — properties and children \
+                         belong in the component's own file",
+                    );
+                    return None;
+                }
+                return Some((
+                    Widget {
+                        kind: WKind::Component {
+                            name: name.to_owned(),
+                        },
+                        props: Vec::new(),
+                        event: None,
+                        only_if: None,
+                        children: Vec::new(),
+                        line: number,
+                        phrase: "a component",
+                    },
+                    index + 1,
+                ));
+            }
+        }
+
         // The article opens every widget line and carries no meaning — it is
         // grammar, not vocabulary. Skip it.
         if word(0) != Some("a") && word(0) != Some("an") && word(0) != Some("the") {
@@ -868,9 +911,21 @@ impl<'a> Parser<'a> {
                 *c += 2;
                 Prop::SingleLine
             }
-            "in" if word(*c + 1) == Some("lines") => {
+            "in" if word(*c + 2) == Some("lines") => {
                 // `in N lines` — the honest spelling of a taller field: the
                 // field is given a height, because wrapping is always on.
+                // The guard reads the shape it documents: the number first,
+                // `lines` second. (The arm below keeps the transposed
+                // spelling the first release shipped reading, so a file
+                // written against it keeps compiling.)
+                let Some(n) = int_at(*c + 1) else {
+                    self.error(number, 1, codes::E070, "`in N lines` takes a whole number");
+                    return None;
+                };
+                *c += 3;
+                Prop::Lines(n.max(1) as u32)
+            }
+            "in" if word(*c + 1) == Some("lines") => {
                 let Some(n) = int_at(*c + 2) else {
                     self.error(number, 1, codes::E070, "`in N lines` takes a whole number");
                     return None;

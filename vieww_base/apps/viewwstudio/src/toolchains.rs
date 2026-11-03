@@ -500,10 +500,24 @@ pub enum Target {
     Windows,
     Android,
     Ios,
+    /// A `wasm32` bundle plus the page that mounts it (ST-07).
+    ///
+    /// Its own target rather than a desktop flavour because what it needs is
+    /// different in kind, not only in degree: a Rust target that is never
+    /// installed by default, and a `wasm-bindgen` whose *version* has to match
+    /// the one in `Cargo.lock` — see [`web`](fn@web) for why that exactness is
+    /// a requirement and not a nicety.
+    Web,
 }
 
 impl Target {
-    pub const ALL: [Self; 4] = [Self::Desktop, Self::Windows, Self::Android, Self::Ios];
+    pub const ALL: [Self; 5] = [
+        Self::Desktop,
+        Self::Windows,
+        Self::Android,
+        Self::Ios,
+        Self::Web,
+    ];
 
     #[must_use]
     pub const fn title(self) -> &'static str {
@@ -512,6 +526,7 @@ impl Target {
             Self::Windows => "Windows",
             Self::Android => "Android",
             Self::Ios => "iOS",
+            Self::Web => "Web",
         }
     }
 
@@ -522,6 +537,7 @@ impl Target {
             Self::Windows => "a Windows .exe",
             Self::Android => "a .apk",
             Self::Ios => "a .app for the simulator, or a signed .ipa",
+            Self::Web => "a wasm32 bundle and the page that mounts it",
         }
     }
 }
@@ -640,6 +656,11 @@ pub fn report(env: &Env, target: Target) -> Report {
                 "Apple's toolchain runs only on macOS, so no iOS build is possible on this machine",
             ),
             requirements: ios(env),
+        },
+        Target::Web => Report {
+            target,
+            impossible: None,
+            requirements: web(env),
         },
     }
 }
@@ -807,10 +828,49 @@ fn rust_target(env: &Env, triple: &'static str, why: &'static str) -> Requiremen
         install: match triple {
             "aarch64-linux-android" => "`rustup target add aarch64-linux-android`",
             "x86_64-pc-windows-gnu" => "`rustup target add x86_64-pc-windows-gnu`",
+            "wasm32-unknown-unknown" => "`rustup target add wasm32-unknown-unknown`",
             _ => "`rustup target add aarch64-apple-ios`",
         },
         why,
     }
+}
+
+/// The web chain: the wasm target and a matching `wasm-bindgen` (ST-07).
+///
+/// # Why `wasm-bindgen` is a requirement with a version in its install line
+///
+/// The Rust side of a web bundle imports `wasm-bindgen` as a *library*, whose
+/// version is pinned by the project's `Cargo.lock`. The CLI that turns the
+/// `.wasm` cargo emits into the `.js` + `.wasm` a page loads has to be that
+/// same version — a mismatch is not a warning but a failed run, with an error
+/// about exported functions the CLI cannot find. `examples/test-web` and
+/// `apps/viewwsite` both check this before building for exactly that reason;
+/// this checklist is the studio's answer to the same trap, and its install
+/// line says where the right version comes from rather than promising the
+/// newest one will do.
+///
+/// # Why no browser is required
+///
+/// "Found" has meant *present at a plausible path* since this module was
+/// written, and there is no plausible path to a browser that helps: the export
+/// produces a directory to serve, and which server and which browser are the
+/// user's business. A requirement that could not be satisfied by installing
+/// something would be a refusal wearing a checklist row's clothes.
+fn web(env: &Env) -> Vec<Requirement> {
+    vec![
+        cargo(env),
+        rust_target(
+            env,
+            "wasm32-unknown-unknown",
+            "the target every browser's wasm runs on",
+        ),
+        Requirement {
+            name: "wasm-bindgen",
+            found: env.find_on_path("wasm-bindgen"),
+            install: "`cargo install wasm-bindgen-cli --version <the one in Cargo.lock>`",
+            why: "turns the .wasm cargo emits into the .js a page imports",
+        },
+    ]
 }
 
 /// The highest-numbered directory under `<sdk>/ndk`.

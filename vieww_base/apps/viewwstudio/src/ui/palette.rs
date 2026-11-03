@@ -225,6 +225,21 @@ impl Palette {
                     .unwrap_or_default(),
                 studio.can_run(*command),
             ),
+            // ST-13: a plugin's command. The plugin's name is the detail line,
+            // because the row's label is the command's own title and the thing
+            // a person deciding whether to press Enter wants to know is *whose*
+            // code is about to run. No chord — the ABI has no way to claim one
+            // and the studio does not lend its own.
+            PaletteEntry::Plugin {
+                label,
+                detail,
+                plugin,
+            } => (
+                label.clone(),
+                format!("{plugin} — {detail}"),
+                String::new(),
+                true,
+            ),
             PaletteEntry::File { label, detail, .. } => {
                 (label.clone(), detail.clone(), String::new(), true)
             }

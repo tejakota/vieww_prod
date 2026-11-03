@@ -1,0 +1,9 @@
+-- say-language: 1
+-- The component-extraction fixture (ST-05): a pure card subtree between two
+-- siblings — the shape "Extract Widget" lifts out whole.
+screen "Home":
+    a column:
+        a card, padded 12, radius 8, color #F4F4F4:
+            a heading "A note"
+            a text "Extract me", color #3366FF
+        a text "Stays"

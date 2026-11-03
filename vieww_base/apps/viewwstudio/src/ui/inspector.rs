@@ -32,11 +32,11 @@
 //! row to the selection, Shift-click a range, and the header gives the
 //! selection's combined bounds. The rules are in `crate::outline`.
 
-use vieww_foundation::{Alignment, EdgeInsets};
+use vieww_foundation::{Alignment, EdgeInsets, FontFamily, TextEditingValue};
 use vieww_widget::prelude::*;
 use vieww_widget::{widget_node_from, Container, Flexible};
 
-use crate::state::Studio;
+use crate::state::{FieldValue, SayField, Studio};
 use crate::theme::StudioTheme;
 use crate::ui::chrome::{clickable, gap, hairline, label, label_bold, mono, space};
 
@@ -191,6 +191,10 @@ impl Widget for InspectorPane {
             );
 
             if is_primary {
+                // ST-02: the picked line's own vocabulary, when the pick maps
+                // into a `.say` buffer — the grid a Rust buffer has no answer
+                // to, and so never sees.
+                rows.push(say_grid(&self.studio, colors, chrome));
                 rows.push(properties(node, colors, chrome.chrome_2));
             }
         }
@@ -359,6 +363,196 @@ fn selection_line(studio: &Studio, count: usize, colors: ColorScheme) -> WidgetN
             colors.on_surface_variant,
         ))
         .into()
+}
+
+/// The selected line's own vocabulary, as a grid of typed fields (ST-02).
+///
+/// This is the writable half of the Inspector: the fields come from the Say
+/// registry mirrored in `state/inspector_props.rs`, and every write lands in
+/// the buffer through the same one-line rewrite a canvas handle drags through
+/// — so the grid, the handles and the keyboard are three pointing devices over
+/// one editor. A pick that does not map into a `.say` buffer (a Rust buffer,
+/// or a wrapper row the bridge does not claim) yields nothing here, and the
+/// read-only `describe()` rows below are the whole story.
+///
+/// The labels are Say vocabulary, untranslated on purpose: they are the words
+/// the next Render reads back, not prose about them.
+fn say_grid(studio: &Studio, colors: ColorScheme, chrome: StudioTheme) -> WidgetNode {
+    let Some(fields) = studio.say_fields() else {
+        return SizedBox::shrink().into();
+    };
+    let mut lines: Vec<WidgetNode> = vec![label_bold(
+        crate::i18n::t("Say properties"),
+        11.0,
+        colors.on_surface_variant,
+    )
+    .into()];
+    for field in &fields {
+        lines.push(say_row(studio, field, colors, chrome));
+    }
+    Container::new()
+        .color(chrome.chrome_2)
+        .padding(EdgeInsets::only(20.0, 6.0, 10.0, 8.0))
+        .child(
+            Flex::column()
+                .cross_axis_alignment(CrossAxisAlignment::Stretch)
+                .children(lines),
+        )
+        .into()
+}
+
+/// One field of the grid: the label Say calls the property, and the editor
+/// its type implies — a number box, a text box, a cycling choice, a flag.
+fn say_row(
+    studio: &Studio,
+    field: &SayField,
+    colors: ColorScheme,
+    chrome: StudioTheme,
+) -> WidgetNode {
+    Container::new()
+        .height(19.0)
+        .child(
+            Flex::row()
+                .cross_axis_alignment(CrossAxisAlignment::Center)
+                .children(children![
+                    Container::new().width(96.0).child(label(
+                        field.label,
+                        10.5,
+                        colors.on_surface_variant
+                    )),
+                    space(6.0),
+                    Flexible::expanded(1).child(say_editor(studio, field, colors, chrome)),
+                ]),
+        )
+        .into()
+}
+
+/// The editor one field's value implies.
+///
+/// Numbers and words are text boxes that commit as they parse — a keystroke
+/// that is not a number yet is simply not a write, not an error, because a
+/// field that shouted at `1` for not being `16` would be unbearable. The two
+/// clause-shaped values are controls instead: an alignment cycles through its
+/// three words, a flag is set or removed. A read-only field (the interpolated
+/// literal) is shown in the code face and says so by looking like one.
+fn say_editor(
+    studio: &Studio,
+    field: &SayField,
+    colors: ColorScheme,
+    chrome: StudioTheme,
+) -> WidgetNode {
+    if !field.writable {
+        return mono(&field.value.to_display(), 10.5, colors.outline).into();
+    }
+    let box_style = move || {
+        Container::new()
+            .color(chrome.chrome_1)
+            .radius(4.0)
+            .height(17.0)
+            .padding(EdgeInsets::symmetric(4.0, 0.0))
+    };
+    match &field.value {
+        FieldValue::Number(n) => {
+            let studio = studio.clone();
+            let field = field.clone();
+            box_style()
+                .child(
+                    TextField::text(n.to_string())
+                        .size(10.5)
+                        .style(mono_style(10.5, colors.on_surface))
+                        .single_line()
+                        // The row's own label is the field's name for a screen
+                        // reader too — the word in the Say vocabulary either
+                        // way, so it is not translated here (ST-18).
+                        .semantics_label(field.label)
+                        .selection_color(chrome.selection)
+                        .on_changed(std::rc::Rc::new(move |v: TextEditingValue| {
+                            if let Ok(n) = v.text.trim().parse::<f32>() {
+                                studio.say_set(&field, &FieldValue::Number(n));
+                            }
+                        })),
+                )
+                .into()
+        }
+        FieldValue::Text(text) | FieldValue::Color(text) => {
+            let is_color = matches!(field.value, FieldValue::Color(_));
+            let studio = studio.clone();
+            let field = field.clone();
+            box_style()
+                .child(
+                    TextField::text(text.clone())
+                        .size(10.5)
+                        .style(mono_style(10.5, colors.on_surface))
+                        .single_line()
+                        // As above: the property's own word is the label.
+                        .semantics_label(field.label)
+                        .selection_color(chrome.selection)
+                        .on_changed(std::rc::Rc::new(move |v: TextEditingValue| {
+                            let value = if is_color {
+                                FieldValue::Color(v.text)
+                            } else {
+                                FieldValue::Text(v.text)
+                            };
+                            studio.say_set(&field, &value);
+                        })),
+                )
+                .into()
+        }
+        FieldValue::Choice(words, current) => {
+            let words = *words;
+            // The next word is fixed the moment the field is drawn — the
+            // control cycles, and what it cycles to is this.
+            let next = words
+                .iter()
+                .position(|w| *w == current)
+                .map(|at| words[(at + 1) % words.len()])
+                .unwrap_or(words[0])
+                .to_owned();
+            let shown = current.clone();
+            let studio = studio.clone();
+            let field = field.clone();
+            clickable(
+                move || {
+                    box_style()
+                        .child(mono(&shown, 10.5, colors.on_surface))
+                        .into()
+                },
+                move || studio.say_set(&field, &FieldValue::Choice(words, next.clone())),
+            )
+            .into()
+        }
+        FieldValue::Flag(on) => {
+            // Copy the flag out before the closures: a `'static` control
+            // cannot borrow the field it was drawn from.
+            let on = *on;
+            let studio = studio.clone();
+            let field = field.clone();
+            clickable(
+                move || {
+                    box_style()
+                        .child(mono(
+                            if on { "\u{2713}" } else { "\u{2013}" },
+                            10.5,
+                            if on {
+                                colors.on_surface
+                            } else {
+                                colors.outline
+                            },
+                        ))
+                        .into()
+                },
+                move || studio.say_set(&field, &FieldValue::Flag(!on)),
+            )
+            .into()
+        }
+    }
+}
+
+/// The code face at `size`, for the grid's editors.
+fn mono_style(size: f32, color: vieww_foundation::Color) -> TextStyle {
+    TextStyle::new(size)
+        .family(FontFamily::Monospace)
+        .color(color)
 }
 
 /// The selected node's own facts, under it.

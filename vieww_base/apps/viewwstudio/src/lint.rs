@@ -43,7 +43,11 @@ use crate::state::Severity;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Finding {
     /// Which rule fired. Shown so a rule can be recognised and argued with.
-    pub rule: &'static str,
+    ///
+    /// Owned since ST-13: a plugin's rule names are not constants this crate
+    /// compiled, and a finding that could not say whose rule it was would
+    /// put an anonymous warning in the Problems panel.
+    pub rule: String,
     pub severity: Severity,
     /// One sentence, in the same voice as the studio's other refusals: what is
     /// wrong, and what to do instead.
@@ -51,6 +55,36 @@ pub struct Finding {
     /// One-based, like every other line number the studio shows.
     pub line: u32,
     pub column: u32,
+}
+
+/// A lint rule the studio did not compile — the plugin ABI's first plug
+/// point (ST-13).
+///
+/// The built-in rules are functions in this module because they share the
+/// tree walk; this trait is the *shape* of a rule as the rest of the studio
+/// sees it, so a rule that arrives over the ABI (see [`crate::plugin`]) and
+/// a rule that lives here are the same thing to the Problems panel.
+///
+/// # What a rule is given
+///
+/// The source text, and only the source text. The tree-sitter tree cannot
+/// cross the plugin boundary — it is a Rust object with no stable layout —
+/// so a plugin parses what it needs itself. That is a real limit and the
+/// reason the built-ins stay built-in: everything the walk already answers
+/// cheaply is a rule a plugin would have to re-earn.
+pub trait LintRule {
+    /// The name findings carry, and the Problems panel's code column shows.
+    fn rule(&self) -> &str;
+
+    /// One line saying what the rule is for, for the panel's rule list.
+    fn description(&self) -> &str;
+
+    /// Check `source`, which is assumed to be Rust.
+    ///
+    /// Returning findings out of source order is tolerated — the merge in
+    /// [`check_tree_with`] sorts — but keeping them in order costs a plugin
+    /// nothing and makes its output legible when it is the only producer.
+    fn check(&self, source: &str) -> Vec<Finding>;
 }
 
 /// Every rule, by name, with what it is for.
@@ -112,8 +146,30 @@ pub fn check(source: &str) -> Vec<Finding> {
 /// anything checking a file that is not open — and now goes through here.
 #[must_use]
 pub fn check_tree(tree: &tree_sitter::Tree, source: &str) -> Vec<Finding> {
+    check_tree_with(tree, source, &[])
+}
+
+/// [`check_tree`], with rules the studio did not compile alongside it.
+///
+/// ST-13: every loaded plugin's lint rules run through here, in the same pass
+/// and into the same list as the built-ins — a plugin finding is not a second
+/// kind of finding, and the Problems panel does not learn that plugins exist.
+///
+/// Plugin findings are sorted in with the built-ins by position, and the
+/// built-ins keep their place: whatever a plugin says, the studio's own rules
+/// still run, because turning a plugin into a way to *disable* the built-ins
+/// was never a design goal.
+#[must_use]
+pub fn check_tree_with(
+    tree: &tree_sitter::Tree,
+    source: &str,
+    extra: &[&dyn LintRule],
+) -> Vec<Finding> {
     let mut out = Vec::new();
     walk(tree.root_node(), source, false, &mut out);
+    for rule in extra {
+        out.extend(rule.check(source));
+    }
     out.sort_by_key(|finding| (finding.line, finding.column));
     out
 }
@@ -332,7 +388,7 @@ fn push(
     out: &mut Vec<Finding>,
     node: Node<'_>,
     source: &str,
-    rule: &'static str,
+    rule: &str,
     severity: Severity,
     message: &str,
 ) {
@@ -347,7 +403,7 @@ fn push(
         reason = "a file with four billion lines is not one this lints"
     )]
     out.push(Finding {
-        rule,
+        rule: rule.to_owned(),
         severity,
         message: message.to_owned(),
         line: start.row as u32 + 1,
@@ -359,8 +415,8 @@ fn push(
 mod tests {
     use super::*;
 
-    fn rules_fired(source: &str) -> Vec<&'static str> {
-        check(source).into_iter().map(|f| f.rule).collect()
+    fn rules_fired(source: &str) -> Vec<String> {
+        check(source).into_iter().map(|f| f.rule.clone()).collect()
     }
 
     /// The rule this module is really for: a build that writes a signal
@@ -375,7 +431,7 @@ impl Widget for S {
     }
 }
 ";
-        assert!(rules_fired(source).contains(&"signal-write-in-build"));
+        assert!(rules_fired(source).contains(&"signal-write-in-build".to_string()));
     }
 
     /// And the same write outside a build is ordinary code.
@@ -403,7 +459,7 @@ fn on_tap(&self) {
                 "impl Widget for S {{ fn build(&self, c: &C) -> W {{ {body} W::new() }} }}"
             );
             assert!(
-                rules_fired(&source).contains(&"panic-in-build"),
+                rules_fired(&source).contains(&"panic-in-build".to_string()),
                 "not flagged: {body}"
             );
         }
@@ -413,16 +469,15 @@ fn on_tap(&self) {
     fn printing_from_a_build_is_flagged() {
         let source =
             "impl Widget for S { fn build(&self, c: &C) -> N { println!(\"hi\"); N::new() } }";
-        assert!(rules_fired(source).contains(&"print-in-build"));
+        assert!(rules_fired(source).contains(&"print-in-build".to_string()));
     }
 
     /// Narrowed to calls with arguments, because the trait's signature takes a
     /// context and a builder's `build()` does not.
     #[test]
     fn calling_build_by_hand_is_flagged_and_a_builder_is_not() {
-        assert!(
-            rules_fired("fn f() { let n = thing.build(ctx); }").contains(&"build-called-directly")
-        );
+        assert!(rules_fired("fn f() { let n = thing.build(ctx); }")
+            .contains(&"build-called-directly".to_string()));
         assert!(
             rules_fired("fn f() { let n = Builder::new().build(); }").is_empty(),
             "an argument-less build() is a builder"
@@ -499,7 +554,7 @@ impl vieww::Widget for S {
     }
 }
 ";
-        assert!(rules_fired(source).contains(&"signal-write-in-build"));
+        assert!(rules_fired(source).contains(&"signal-write-in-build".to_string()));
     }
 
     #[test]
@@ -548,12 +603,15 @@ impl Widget for S {
             "impl Widget for S { fn build(&self, c: &C) -> N { println!(\"x\"); N } }",
             "fn f() { thing.build(ctx); }",
         ];
-        let mut seen: Vec<&str> = Vec::new();
+        let mut seen: Vec<String> = Vec::new();
         for source in sources {
             seen.extend(rules_fired(source));
         }
         for (rule, _) in RULES {
-            assert!(seen.contains(&rule), "{rule} is advertised and unreachable");
+            assert!(
+                seen.contains(&rule.to_string()),
+                "{rule} is advertised and unreachable"
+            );
         }
     }
 
@@ -563,5 +621,67 @@ impl Widget for S {
             assert!(!rule.is_empty());
             assert!(!description.is_empty(), "{rule}");
         }
+    }
+
+    /// ST-13: an extra rule — the shape a plugin's takes — is merged into the
+    /// same list, sorted by position, and does not disturb the built-ins.
+    ///
+    /// The plugin itself is exercised over the real ABI in `tests/plugin.rs`;
+    /// this pins the merge, which is this module's own responsibility.
+    struct TodoComment;
+
+    impl LintRule for TodoComment {
+        fn rule(&self) -> &str {
+            "todo-comment"
+        }
+
+        fn description(&self) -> &str {
+            "TODO/FIXME comments left in the code"
+        }
+
+        fn check(&self, source: &str) -> Vec<Finding> {
+            source
+                .lines()
+                .enumerate()
+                .filter(|(_, line)| line.contains("TODO"))
+                .map(|(index, line)| Finding {
+                    rule: self.rule().to_owned(),
+                    severity: Severity::Warning,
+                    message: "a plugin rule firing, in the tests' own voice".to_owned(),
+                    line: index as u32 + 1,
+                    column: line.find("TODO").map_or(1, |at| at as u32 + 1),
+                })
+                .collect()
+        }
+    }
+
+    #[test]
+    fn an_extra_rule_runs_beside_the_built_ins_and_sorted_into_them() {
+        let source = "\
+impl Widget for S {
+    fn build(&self, c: &C) -> N {
+        // TODO: the rest of this screen
+        println!(\"hi\");
+        N::new()
+    }
+}
+";
+        let todo = TodoComment;
+        let extra: [&dyn LintRule; 1] = [&todo];
+        let mut parser = tree_sitter::Parser::new();
+        parser
+            .set_language(&tree_sitter_rust::LANGUAGE.into())
+            .expect("the rust grammar loads");
+        let tree = parser.parse(source, None).expect("the fixture parses");
+        let findings = check_tree_with(&tree, source, &extra);
+        let fired: Vec<&str> = findings.iter().map(|f| f.rule.as_str()).collect();
+        assert!(
+            fired.contains(&"print-in-build") && fired.contains(&"todo-comment"),
+            "both producers are in one list: {fired:?}"
+        );
+        // The plugin's finding is on line 4, the built-in's on line 5: the
+        // merged list is in source order regardless of who produced what.
+        assert_eq!(findings[0].rule, "todo-comment");
+        assert_eq!(findings[1].rule, "print-in-build");
     }
 }

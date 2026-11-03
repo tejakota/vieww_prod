@@ -62,6 +62,7 @@ impl Widget for Sidebar {
 
         let content = match view {
             View::Explorer => self.explorer(&chrome, theme.colors),
+            View::Assets => self.assets(&chrome, theme.colors),
             View::Search => self.search(&chrome, theme.colors),
             View::Snippets => self.snippets(&chrome, theme.colors),
             View::Problems => self.problems(&chrome, theme.colors),
@@ -484,6 +485,215 @@ impl Sidebar {
             }));
         }
 
+        // **ST-05: the component registry, surfaced where reuse lives.** An
+        // extracted component is a snippet with a body *and* a file, so it
+        // gets its own group rather than sitting among the plain-text ones:
+        // tapping one scaffolds the Rust into this project and places the
+        // `<Name>` reference — two acts, which is why it is not
+        // `insert_text_snippet`.
+        let components = self.studio.registry_components();
+        rows.push(section_title("Components — extracted, reusable", colors));
+        if components.is_empty() {
+            rows.push(note(
+                colors,
+                "None yet. Pick a subtree on the canvas and run Extract Widget \
+                 as Component to make one.",
+            ));
+        } else {
+            rows.extend(components.iter().map(|component| {
+                let studio = self.studio.clone();
+                let component = component.clone();
+                let sub = label(
+                    &format!("from {} — places <{}>", component.from, component.name),
+                    10.5,
+                    colors.outline,
+                );
+                Flex::column()
+                    .cross_axis_alignment(CrossAxisAlignment::Stretch)
+                    .children(children![
+                        row(
+                            RowSpec {
+                                text: component.name.clone(),
+                                trailing: None,
+                                selected: false,
+                                indent: 12.0,
+                                leading: Leading::None,
+                            },
+                            chrome,
+                            colors,
+                            move || studio.scaffold_component(&component),
+                        ),
+                        Container::new()
+                            .padding(EdgeInsets::only(12.0, 0.0, 12.0, 6.0))
+                            .child(sub),
+                    ])
+                    .into()
+            }));
+        }
+
+        Flex::column()
+            .cross_axis_alignment(CrossAxisAlignment::Stretch)
+            .children(rows)
+            .into()
+    }
+
+    /// ST-15: the project's `assets/`, browsed as what it holds rather than as
+    /// a list of names.
+    ///
+    /// The Explorer answers "where is my file"; this answers "what does my
+    /// asset look like". Same folder tree, different question — which is why
+    /// the two sit beside each other in the bar rather than one hiding inside
+    /// the other.
+    ///
+    /// # Why the rows borrow the Explorer's machinery instead of new commands
+    ///
+    /// A tap is `Studio::open_path`, which routes an image or a font to the
+    /// preview pane and everything else to the editor — so the browser and
+    /// the tree agree about what opening a file means. And every row is
+    /// wrapped in the same context menu the tree's rows get, which is where
+    /// rename and delete-to-trash already lived: one implementation of each,
+    /// not an asset-browser copy of either.
+    ///
+    /// # Why the listing is a signal read at build, not a walk per frame
+    ///
+    /// `Studio::refresh_assets` rebuilds it from the same places
+    /// `rescan_tree` runs, guarded by an mtime signature — see
+    /// `assets_browser` for the cost model and its caps.
+    fn assets(&self, chrome: &StudioTheme, colors: ColorScheme) -> WidgetNode {
+        let studio = self.studio.clone();
+        let listing = studio.assets.get();
+        let Some(root) = studio.root.peek() else {
+            return note(
+                colors,
+                "Open a project folder — assets/ is a folder in a project, and a scratch \
+                 workspace has none to browse.",
+            );
+        };
+        if listing.entries.is_empty() {
+            return Flex::column()
+                .cross_axis_alignment(CrossAxisAlignment::Stretch)
+                .children(children![
+                    note(
+                        colors,
+                        "No assets under assets/ yet — drop an image or a font in and it \
+                         appears here.",
+                    ),
+                    note(
+                        colors,
+                        "A Rust screen reads assets/ through the asset service; a Say image \
+                         reads from beside its .say file.",
+                    ),
+                ])
+                .into();
+        }
+        let assets_root = root.join("assets");
+        let mut rows: Vec<WidgetNode> = Vec::with_capacity(listing.entries.len() + 2);
+        let count = listing.entries.len();
+        rows.push(note(
+            colors,
+            &format!(
+                "{count} {} under assets/ — click to preview, right-click to rename or trash.",
+                if count == 1 { "file" } else { "files" }
+            ),
+        ));
+        for entry in listing.entries.iter() {
+            let path = assets_root.join(&entry.relative);
+            let studio_for_click = studio.clone();
+            let path_for_click = path.clone();
+            // Everything the row's closure draws, owned: a `sensed` closure is
+            // `'static`, and borrowing the entry would tie a built subtree to
+            // a listing the next refresh replaces.
+            let thumbnail = entry.thumbnail.clone();
+            let name = entry.name.clone();
+            let kind = entry.kind;
+            let tail = format!(
+                "{} · {}",
+                kind.label(),
+                crate::assets_browser::human_bytes(entry.bytes)
+            );
+            let chrome_for_row = *chrome;
+            let row_node = Semantics::new()
+                .label(format!("{name}, {}", kind.label()))
+                .child(crate::ui::chrome::sensed(
+                    move |sense| {
+                        // A thumbnail, or the two letters every font preview
+                        // starts with: no glyph is a better answer to "what is
+                        // in this file" than a generic document icon, and "Aa"
+                        // is what the font's own name is set in everywhere a
+                        // font is listed.
+                        let leading: WidgetNode = match thumbnail.clone() {
+                            Some(image) => Container::new()
+                                .color(chrome_for_row.chrome_2)
+                                .radius(3.0)
+                                .size(48.0, 32.0)
+                                .alignment(Alignment::CENTER)
+                                .child(
+                                    vieww_widget::Image::new(image)
+                                        .fit(vieww_foundation::BoxFit::ScaleDown)
+                                        .label(name.clone()),
+                                )
+                                .into(),
+                            None => Container::new()
+                                .color(chrome_for_row.chrome_2)
+                                .radius(3.0)
+                                .size(48.0, 32.0)
+                                .alignment(Alignment::CENTER)
+                                .child(label(
+                                    if kind == crate::assets_browser::Kind::Font {
+                                        "Aa"
+                                    } else {
+                                        "?"
+                                    },
+                                    13.0,
+                                    colors.on_surface_variant,
+                                ))
+                                .into(),
+                        };
+                        let foreground = if sense.emphasis() > 0.0 {
+                            colors.on_surface
+                        } else {
+                            colors.on_surface_variant
+                        };
+                        let name_cell: WidgetNode = Flexible::expanded(1)
+                            .child(
+                                label(&name, 12.5, foreground)
+                                    .max_lines(1)
+                                    .overflow(vieww_text::TextOverflow::EllipsisMiddle),
+                            )
+                            .into();
+                        let tail_cell: WidgetNode = label(&tail, 10.0, colors.outline).into();
+                        Container::new()
+                            .color(crate::ui::chrome::hovered(
+                                chrome_for_row.chrome_1,
+                                &chrome_for_row,
+                                sense,
+                            ))
+                            .height(40.0)
+                            .padding(EdgeInsets::only(10.0, 0.0, 8.0, 0.0))
+                            .child(
+                                Flex::row()
+                                    .cross_axis_alignment(CrossAxisAlignment::Center)
+                                    .children(children![
+                                        leading,
+                                        space(8.0),
+                                        name_cell,
+                                        space(8.0),
+                                        tail_cell,
+                                    ]),
+                            )
+                            .into()
+                    },
+                    move || studio_for_click.open_path(path_for_click.clone()),
+                ))
+                .into();
+            rows.push(with_context_menu(row_node, &studio, &path));
+        }
+        if listing.truncated {
+            rows.push(note(
+                colors,
+                "… and more past the first 200 — the listing is bounded, not the folder.",
+            ));
+        }
         Flex::column()
             .cross_axis_alignment(CrossAxisAlignment::Stretch)
             .children(rows)
@@ -1173,8 +1383,11 @@ impl Sidebar {
         );
 
         for format in Format::ALL {
+            // `configured_env`, matching `start_export`: the sheet and the
+            // action it launches have to agree about where the toolchain is,
+            // or the row can be clickable and refuse anyway.
             let refusal = export::plan(
-                &self.studio.build_env,
+                &self.studio.configured_env(),
                 root,
                 name.as_deref().unwrap_or_default(),
                 format,
@@ -1226,6 +1439,70 @@ impl Sidebar {
                 )
                 .into(),
             );
+        }
+
+        // ST-13: the plugins' export formats, under the studio's own and in
+        // the same shape — one planner, one refusal split, one sheet. A
+        // plugin's row is listed with its plugin's name, because "Source
+        // tarball" on its own does not say whose code is about to package
+        // the project.
+        //
+        // Planning happens here rather than once at load: the refusal this
+        // row may carry is about *this* project on *this* machine, and a
+        // refusal computed against a project that is no longer open would be
+        // a stale answer shown as a fresh one.
+        {
+            let plugins = self.studio.plugins.get();
+            for plugin in &plugins.plugins {
+                for format in plugin.formats() {
+                    let refusal = plugin
+                        .plan(&format.id, root, name.as_deref().unwrap_or_default())
+                        .err();
+                    let available = refusal.is_none() && !running;
+
+                    rows.push(
+                        clickable(
+                            {
+                                let title = format!("{}: {}", plugin.name(), format.title);
+                                let detail = refusal.as_ref().map_or_else(
+                                    || format.detail.clone(),
+                                    std::string::ToString::to_string,
+                                );
+                                let tint = if available {
+                                    colors.on_surface
+                                } else {
+                                    colors.outline
+                                };
+                                move || {
+                                    Container::new()
+                                        .padding(EdgeInsets::symmetric(12.0, 7.0))
+                                        .child(
+                                            Flex::column()
+                                                .cross_axis_alignment(CrossAxisAlignment::Start)
+                                                .children(children![
+                                                    label(&title, 12.0, tint),
+                                                    space(2.0),
+                                                    label(&detail, 10.5, colors.on_surface_variant),
+                                                ]),
+                                        )
+                                        .into()
+                                }
+                            },
+                            {
+                                let studio = self.studio.clone();
+                                let plugin = plugin.name().to_string();
+                                let id = format.id.clone();
+                                move || {
+                                    if available {
+                                        studio.start_plugin_export(&plugin, &id);
+                                    }
+                                }
+                            },
+                        )
+                        .into(),
+                    );
+                }
+            }
         }
 
         if running {
@@ -1289,6 +1566,12 @@ impl Sidebar {
                 if let Some(artefact) = self.studio.artefact.get() {
                     let studio = self.studio.clone();
                     let device = device.clone();
+                    // ST-08: the mirror button's own clones, taken before the
+                    // Install closure below moves `device` — a second button
+                    // on the same row, not a second borrow of the first one's.
+                    let mirror_studio = self.studio.clone();
+                    let mirror_device = device.clone();
+                    let mirror_label = mirror_device.name.clone();
                     let name = artefact
                         .file_name()
                         .map_or_else(String::new, |n| n.to_string_lossy().into_owned());
@@ -1313,12 +1596,52 @@ impl Sidebar {
                             ))
                             .into(),
                     );
+                    // ST-08: the same artefact, one step further — install,
+                    // launch, screenshot, and the phone's own pixels back in
+                    // the preview pane. Beside Install rather than above it,
+                    // because it *is* Install plus a question: did it look
+                    // right on the real thing?
+                    rows.push(
+                        Container::new()
+                            .padding(EdgeInsets::only(12.0, 0.0, 12.0, 6.0))
+                            .child(clickable(
+                                move || {
+                                    Container::new()
+                                        .height(26.0)
+                                        .radius(5.0)
+                                        .border(Border {
+                                            color: colors.primary,
+                                            width: 1.0,
+                                        })
+                                        .alignment(Alignment::CENTER)
+                                        .child(label(
+                                            &format!("Mirror preview on {mirror_label}"),
+                                            11.0,
+                                            colors.primary,
+                                        ))
+                                        .into()
+                                },
+                                move || mirror_studio.start_mirror(&mirror_device),
+                            ))
+                            .into(),
+                    );
                 }
             }
         }
         rows.push(button_row("Scan for devices", colors, {
             let studio = self.studio.clone();
             move || studio.scan_devices()
+        }));
+        // ST-08: the farm, one deliberate button rather than anything
+        // automatic — every run spends real device minutes. It runs the
+        // *framework's* conformance app on low/mid/high phones, which is what
+        // makes the studio's own preview claim checkable on real hardware;
+        // the notice after dispatching says so, because a button in the Export
+        // view that let that be misread would be a button that lied by
+        // adjacency.
+        rows.push(button_row("Verify on 3 devices (device farm)", colors, {
+            let studio = self.studio.clone();
+            move || studio.dispatch_farm("android", 3)
         }));
 
         Flex::column()
@@ -2239,7 +2562,8 @@ fn accent_swatches(studio: &Studio, chrome: &StudioTheme, colors: ColorScheme) -
                                         vieww_foundation::Gradient::linear(
                                             Offset::new(0.0, 0.0),
                                             Offset::new(1.0, 1.0),
-                                        ).with_dither()
+                                        )
+                                        .with_dither()
                                         .between(brand.far(dark), brand.near(dark)),
                                     ),
                             )

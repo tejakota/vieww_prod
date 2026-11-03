@@ -187,6 +187,35 @@ pub(crate) enum WKind {
     Rust {
         code: String,
     },
+    /// `<Note>` — a component the studio extracted into `src/widgets/`.
+    ///
+    /// The one phrase whose generated Rust reaches outside the file it came
+    /// from: it compiles to `crate::widgets::<name>::<Name>`, which is the
+    /// project's own module when `build.rs` compiles the screens and an
+    /// `--extern`'d rlib when the studio previews one in isolation (see the
+    /// studio's `compile::with_say_project`). Extracted with
+    /// [`crate::compile_component`], which also states what a component may
+    /// not contain and why.
+    Component {
+        name: String,
+    },
+}
+
+/// The name inside `<…>`, when `word` is a component reference.
+///
+/// One token, angle brackets included (`<Note>`, not `< Note >`), the name
+/// UpperCamel — because it is the Rust type's name, and a lowercase component
+/// would generate a module and a type the project could never compile. Shared
+/// by the parser (which accepts the phrase) and the component generator
+/// (which names the type), so the two cannot disagree about the shape.
+pub(crate) fn component_name(word: &str) -> Option<&str> {
+    let inner = word.strip_prefix('<')?.strip_suffix('>')?;
+    let mut chars = inner.chars();
+    let first = chars.next()?;
+    if !first.is_ascii_uppercase() {
+        return None;
+    }
+    chars.all(|ch| ch.is_ascii_alphanumeric()).then_some(inner)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -424,24 +453,7 @@ pub(crate) struct Parser<'a> {
 /// Parse a lexed file. Collects every error it can before failing, so a
 /// beginner sees their whole file's problems in one Render rather than one.
 pub(crate) fn parse(file: &Rc<String>, lines: &[Line]) -> Result<Program, Vec<Diagnostic>> {
-    let mut parser = Parser {
-        file,
-        lines,
-        diagnostics: Vec::new(),
-        warnings: Vec::new(),
-        states: Vec::new(),
-        screens: Vec::new(),
-        app: AppMeta::default(),
-        screen_titles: Vec::new(),
-        loops: Vec::new(),
-        modal_fields: Vec::new(),
-        pending_screen_refs: Vec::new(),
-        has_go_back: false,
-        inside_dialog: 0,
-        theme: Vec::new(),
-        rust_items: Vec::new(),
-        open_tabs: Vec::new(),
-    };
+    let mut parser = Parser::for_tools(file, lines);
     parser.top_level();
     parser.cross_checks();
     if parser.diagnostics.is_empty() {
@@ -456,6 +468,32 @@ pub(crate) fn parse(file: &Rc<String>, lines: &[Line]) -> Result<Program, Vec<Di
         })
     } else {
         Err(parser.diagnostics)
+    }
+}
+
+impl<'a> Parser<'a> {
+    /// A parser an editor tool drives by hand: [`crate::line`]'s reader of a
+    /// half-edited file wants the partial tree even when diagnostics exist,
+    /// which [`parse`] deliberately refuses to hand back.
+    pub(crate) fn for_tools(file: &'a Rc<String>, lines: &'a [Line]) -> Self {
+        Self {
+            file,
+            lines,
+            diagnostics: Vec::new(),
+            warnings: Vec::new(),
+            states: Vec::new(),
+            screens: Vec::new(),
+            app: AppMeta::default(),
+            screen_titles: Vec::new(),
+            loops: Vec::new(),
+            modal_fields: Vec::new(),
+            pending_screen_refs: Vec::new(),
+            has_go_back: false,
+            inside_dialog: 0,
+            theme: Vec::new(),
+            rust_items: Vec::new(),
+            open_tabs: Vec::new(),
+        }
     }
 }
 
@@ -545,7 +583,9 @@ impl<'a> Parser<'a> {
 
     // -- top level ---------------------------------------------------------
 
-    fn top_level(&mut self) {
+    /// `pub(crate)` for [`Parser::for_tools`], which drives the same walk from
+    /// the editor-tools reader.
+    pub(crate) fn top_level(&mut self) {
         let mut i;
 
         // The pragma is the first non-blank, non-comment line. It is

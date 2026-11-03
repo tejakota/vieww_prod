@@ -24,7 +24,7 @@ use std::rc::Rc;
 
 use crate::state::{Severity, Studio};
 use crate::theme::StudioTheme;
-use crate::ui::chrome::{clickable, hairline, icon_button, label, mono, space};
+use crate::ui::chrome::{clickable, hairline, icon_button, label, label_bold, mono, space};
 use crate::ui::icons;
 
 const TAB_STRIP: f32 = 35.0;
@@ -493,6 +493,203 @@ impl EditorGroup {
     }
 }
 
+/// ST-15: an asset preview in the editor's pane, in place of code.
+///
+/// # What it shows, and what it refuses to pretend
+///
+/// An image is the decoded pixels with the file's own dimensions beside them —
+/// `decode_sized` scaled the copy, the header kept the truth, and the facts row
+/// says which is which. A font is the card its own tables carry. The card does
+/// not typeset a specimen in the face — that would mean loading it into the
+/// live font store, where it would change every fallback in the window — and
+/// the card says so instead of passing the studio's own `Aa` off as the font's
+/// drawing.
+fn asset_pane(
+    studio: &Studio,
+    view: &Rc<crate::assets_browser::AssetView>,
+    chrome: &StudioTheme,
+    colors: ColorScheme,
+) -> WidgetNode {
+    use crate::assets_browser::{format_label, human_bytes, Kind, Preview};
+
+    // The way out, in the header where a tab's close button lives — same
+    // corner, same expectation, different pane.
+    let studio_close = studio.clone();
+    let icon_cell: WidgetNode = crate::ui::chrome::glyph(
+        crate::ui::icons_filled::image(),
+        15.0,
+        colors.on_surface_variant,
+    )
+    .into();
+    let name_cell: WidgetNode = Flexible::expanded(1)
+        .child(label_bold(&view.name, 13.0, colors.on_surface))
+        .into();
+    let header = Flex::row()
+        .cross_axis_alignment(CrossAxisAlignment::Center)
+        .children(children![
+            icon_cell,
+            space(8.0),
+            name_cell,
+            icon_button(icons::close(), 15.0, colors.on_surface_variant, move || {
+                studio_close.close_asset();
+            }),
+        ]);
+
+    // The measurements, mono because they are measurements.
+    let facts = match &view.preview {
+        Ok(Preview::Image {
+            format,
+            width,
+            height,
+            ..
+        }) => format!(
+            "{} · {} × {} · {}",
+            format_label(*format),
+            width,
+            height,
+            human_bytes(view.bytes),
+        ),
+        _ => human_bytes(view.bytes),
+    };
+
+    let body: WidgetNode = match &view.preview {
+        Ok(Preview::Image { image, .. }) => Container::new()
+            .color(chrome.chrome_1)
+            .radius(8.0)
+            .padding(EdgeInsets::all(12.0))
+            .alignment(Alignment::CENTER)
+            .child(
+                Image::new(image.clone())
+                    .fit(vieww_foundation::BoxFit::Contain)
+                    .label(view.name.clone()),
+            )
+            .into(),
+        Ok(Preview::Font(card)) => Flex::column()
+            .cross_axis_alignment(CrossAxisAlignment::Stretch)
+            .spacing(6.0)
+            .children(children![
+                label_bold(&card.family, 16.0, colors.on_surface),
+                label(&card.style, 12.5, colors.on_surface_variant),
+                space(10.0),
+                font_fact("Weight", card.weight.to_string(), colors),
+                font_fact("Glyphs", card.glyphs.to_string(), colors),
+                font_fact(
+                    "Monospaced",
+                    if card.monospaced { "yes" } else { "no" }.to_owned(),
+                    colors,
+                ),
+                space(10.0),
+                label(
+                    "A card, not a specimen: typesetting this pane in the face would load it \
+                     into the live font store and change every fallback in the window.",
+                    11.0,
+                    colors.outline,
+                ),
+            ])
+            .into(),
+        Err(why) => Container::new()
+            .padding(EdgeInsets::symmetric(0.0, 8.0))
+            .child(label(why, 12.5, colors.error))
+            .into(),
+    };
+
+    // "Put this in the screen" — the one action a preview begs for that the
+    // Explorer never offered. Only offered for images, and `insert_say_image`
+    // itself refuses an asset that is not beside the .say file and says why
+    // in the notification rather than inserting a line that cannot render.
+    let insert = studio
+        .asset_entry(&view.path)
+        .filter(|entry| entry.kind == Kind::Image)
+        .map(|entry| {
+            let studio = studio.clone();
+            let chrome_for_button = *chrome;
+            crate::ui::chrome::sensed(
+                move |sense| {
+                    Container::new()
+                        .color(crate::ui::chrome::hovered(
+                            chrome_for_button.chrome_1,
+                            &chrome_for_button,
+                            sense,
+                        ))
+                        .radius(6.0)
+                        .height(30.0)
+                        .padding(EdgeInsets::symmetric(14.0, 0.0))
+                        .alignment(Alignment::CENTER)
+                        .child(label(
+                            "Insert an image line at the caret",
+                            12.0,
+                            colors.primary,
+                        ))
+                        .into()
+                },
+                move || studio.insert_say_image(&entry),
+            )
+            .into()
+        });
+
+    let mut actions: Vec<WidgetNode> = Vec::new();
+    if let Some(button) = insert {
+        actions.push(button);
+        actions.push(space(8.0));
+    }
+    actions.push(
+        label(
+            "Say reads an image from beside its .say file; a Rust screen reads assets/ through \
+             the asset bundle.",
+            11.0,
+            colors.outline,
+        )
+        .into(),
+    );
+
+    let picture_slot: WidgetNode = Flexible::expanded(1)
+        .child(
+            Container::new()
+                .padding(EdgeInsets::symmetric(14.0, 8.0))
+                .child(body),
+        )
+        .into();
+
+    Flex::column()
+        .cross_axis_alignment(CrossAxisAlignment::Stretch)
+        .children(children![
+            Container::new()
+                .padding(EdgeInsets::symmetric(14.0, 10.0))
+                .child(header),
+            Container::new()
+                .padding(EdgeInsets::symmetric(14.0, 4.0))
+                .child(mono(&facts, 11.0, colors.outline)),
+            picture_slot,
+            Container::new()
+                .padding(EdgeInsets::symmetric(14.0, 10.0))
+                .child(
+                    Flex::row()
+                        .cross_axis_alignment(CrossAxisAlignment::Center)
+                        .children(actions),
+                ),
+        ])
+        .into()
+}
+
+/// One label-and-value line of the font card.
+fn font_fact(name: &str, value: String, colors: ColorScheme) -> WidgetNode {
+    let label_cell: WidgetNode = Container::new()
+        .width(110.0)
+        .child(label(name, 11.5, colors.on_surface_variant))
+        .into();
+    let value_cell: WidgetNode = Flexible::expanded(1)
+        .child(mono(&value, 12.0, colors.on_surface))
+        .into();
+    Container::new()
+        .padding(EdgeInsets::symmetric(0.0, 3.0))
+        .child(
+            Flex::row()
+                .cross_axis_alignment(CrossAxisAlignment::Center)
+                .children(children![label_cell, value_cell]),
+        )
+        .into()
+}
+
 /// What the editor shows when nothing is open.
 ///
 /// The two ways out, as buttons rather than as a sentence naming menu items:
@@ -614,6 +811,14 @@ impl Widget for Breadcrumbs {
 }
 
 fn breadcrumbs(studio: &Studio, chrome: &StudioTheme, colors: ColorScheme) -> WidgetNode {
+    // ST-15: an asset preview is what the pane is drawing, so the trail names
+    // the asset — the active buffer is one tab-click away and its symbols are
+    // not on the screen. Read through `get` rather than `peek` so opening or
+    // closing a preview rebuilds the trail instead of leaving it naming a
+    // buffer the pane is not showing.
+    if let Some(view) = studio.asset_view.get() {
+        return crumb_bar(chrome, colors, vec![place_of(studio), view.name.clone()]);
+    }
     // **The whole trail now, not just the file.** This stopped at
     // `[workspace] / [file]` behind a comment saying the rest "needs a parse of
     // the buffer, which is M6's tree-sitter and not this milestone's". M6
@@ -632,18 +837,13 @@ fn breadcrumbs(studio: &Studio, chrome: &StudioTheme, colors: ColorScheme) -> Wi
             .into();
     };
     let buffer = Some(buffer);
-    let root = studio.root.get();
-    let name = buffer.as_ref().map_or("no buffer", |b| b.name.as_str());
-    let place = root.as_ref().map_or_else(
-        || "scratch".to_string(),
-        |path| {
-            path.file_name().map_or_else(
-                || path.display().to_string(),
-                |n| n.to_string_lossy().into(),
-            )
-        },
-    );
-    let mut crumbs: Vec<String> = vec![place, name.to_owned()];
+    let mut crumbs: Vec<String> = vec![
+        place_of(studio),
+        buffer
+            .as_ref()
+            .map_or("no buffer", |b| b.name.as_str())
+            .to_owned(),
+    ];
     // Only for a file the parser understands. A `Cargo.toml` has definitions
     // too and this parser cannot see them, and a trail that is silently absent
     // on some files reads better than one that is confidently wrong.
@@ -657,6 +857,43 @@ fn breadcrumbs(studio: &Studio, chrome: &StudioTheme, colors: ColorScheme) -> Wi
                 .map(|symbol| format!("{} {}", symbol.kind, symbol.name)),
         );
     }
+    let mut row: Vec<WidgetNode> = Vec::new();
+    for (index, crumb) in crumbs.iter().enumerate() {
+        if index > 0 {
+            row.push(space(5.0));
+            row.push(label("/", 11.5, colors.outline).into());
+            row.push(space(5.0));
+        }
+        // The last crumb is where the caret is, so it carries the emphasis.
+        let colour = if index + 1 == crumbs.len() && crumbs.len() > 2 {
+            colors.on_surface
+        } else {
+            colors.on_surface_variant
+        };
+        row.push(label(crumb, 11.5, colour).into());
+    }
+
+    crumb_bar(chrome, colors, crumbs)
+}
+
+/// The workspace's own name, as the first crumb of any trail.
+fn place_of(studio: &Studio) -> String {
+    studio.root.get().as_ref().map_or_else(
+        || "scratch".to_string(),
+        |path| {
+            path.file_name().map_or_else(
+                || path.display().to_string(),
+                |n| n.to_string_lossy().into(),
+            )
+        },
+    )
+}
+
+/// The strip a trail is drawn in: crumbs separated by `/`.
+///
+/// Extracted from `breadcrumbs` when the asset preview needed a trail of its
+/// own — two trails, one bar, so they cannot drift apart in height or padding.
+fn crumb_bar(chrome: &StudioTheme, colors: ColorScheme, crumbs: Vec<String>) -> WidgetNode {
     let mut row: Vec<WidgetNode> = Vec::new();
     for (index, crumb) in crumbs.iter().enumerate() {
         if index > 0 {
@@ -734,6 +971,13 @@ impl Widget for CodePane {
 }
 
 fn code_pane(studio: &Studio, chrome: &StudioTheme, colors: ColorScheme) -> WidgetNode {
+    // ST-15: an asset preview stands in the pane's code position. One thing
+    // in the pane — the same rule the welcome pane follows — with the tabs
+    // still saying what the other things are: `focus_buffer` clears this on
+    // the way in, so a tab click hands the pane back to code.
+    if let Some(view) = studio.asset_view.get() {
+        return asset_pane(studio, &view, chrome, colors);
+    }
     let Some(buffer) = studio.active() else {
         // **An empty editor is a state, not an accident.** It was a bare
         // rectangle the colour of the pane, because until the last tab could be
@@ -821,6 +1065,12 @@ fn code_pane(studio: &Studio, chrome: &StudioTheme, colors: ColorScheme) -> Widg
     let wrapping = studio.word_wrap.get();
     let field = TextField::new(field_value)
         .style(style)
+        // The buffer's name is what a screen reader is told this field is.
+        // A placeholder could not do the job: the tab strip above the editor
+        // already names the file, and drawing a second copy of that name
+        // inside the field would change what an empty file looks like — so
+        // this label reaches the semantics tree and nothing else (ST-18).
+        .semantics_label(buffer.name.clone())
         // Both halves of `show_cursor`: is this the field taking the keyboard,
         // and is the blink in its on phase. Without it four fields each paint a
         // motionless caret and none of them looks live — see `crate::caret`.
@@ -888,7 +1138,10 @@ fn code_pane(studio: &Studio, chrome: &StudioTheme, colors: ColorScheme) -> Widg
     // Long string literals and doc comments are the reason anybody turns this
     // on, and until now the only answer to them was constant sideways travel.
     let scrolling_field: WidgetNode = if wrapping {
-        with_inline_diagnostics(studio, field, chrome, colors)
+        with_remote_carets(
+            studio,
+            with_inline_diagnostics(studio, field, chrome, colors),
+        )
     } else {
         let scroll_x = studio.editor_scroll_x.clone();
         Scrollable::horizontal(scroll_x.offset())
@@ -896,7 +1149,10 @@ fn code_pane(studio: &Studio, chrome: &StudioTheme, colors: ColorScheme) -> Widg
             .on_drag(scroll_x.on_drag())
             .on_drag_end(scroll_x.on_drag_end())
             .on_extents(scroll_x.on_extents())
-            .child(with_inline_diagnostics(studio, field, chrome, colors))
+            .child(with_remote_carets(
+                studio,
+                with_inline_diagnostics(studio, field, chrome, colors),
+            ))
             .into()
     };
 
@@ -1180,6 +1436,155 @@ fn with_inline_diagnostics(
         .alignment(Alignment::TOP_LEFT)
         .children(children)
         .into()
+}
+
+/// Everyone else's carets, over the field (ST-10).
+///
+/// # The same stack, the same contract
+///
+/// The remote caret is a mark at a *position*, and the only thing that knows
+/// where a position landed after shaping is the layout probe — the same
+/// one-line-behind contract the inline diagnostics above state. The line's
+/// rectangle gives the row; the column within it is the line's own measured
+/// width divided by its character count, which the code pane earns by asking
+/// for a monospaced face and not wrapping. An empty line has no width to
+/// measure, so it borrows its neighbour's advance.
+///
+/// # Nothing is drawn without a session
+///
+/// `collab_carets` is empty whenever no session is running, so the common
+/// frame is one signal read and the field returned unchanged.
+fn with_remote_carets(studio: &Studio, field: WidgetNode) -> WidgetNode {
+    let carets = studio.collab_carets.get();
+    if carets.is_empty() {
+        return field;
+    }
+    // Rebuild when the measurement moves, the same line the diagnostics
+    // overlay reads — a caret drawn from last frame's geometry is a caret a
+    // few pixels out for one frame, never a caret in the wrong place.
+    let _generation = studio.layout_generation.get();
+    let report = studio.layout_probe.snapshot();
+    if report.is_empty() || studio.word_wrap.get() {
+        // No measurement yet, or the rows are wrapped and a source line is no
+        // longer one visual row — the v0 limit `state/collab.rs` states.
+        return field;
+    }
+
+    let lines: Vec<String> = studio
+        .active()
+        .map(|buffer| buffer.value.text.split('\n').map(str::to_owned).collect())
+        .unwrap_or_default();
+    let lines: Vec<&str> = lines.iter().map(String::as_str).collect();
+    let font = studio.font_size.get();
+
+    let mut children: Vec<WidgetNode> = vec![field];
+    for caret in carets.iter() {
+        let index = (caret.line.max(1) - 1) as usize;
+        let Some(rect) = report.line(index) else {
+            continue;
+        };
+        let advance = line_advance(&report, &lines, index, font);
+        let x = rect.left + column_offset(caret.col) * advance;
+        let color = caret_color(caret.replica);
+        let height = code_line(font);
+
+        // The caret itself: a thin bar the height of the row, in a colour the
+        // remote's replica picks — never the local caret's, or the two read as
+        // one caret stuttering between positions.
+        children.push(
+            Positioned::new()
+                .left(x)
+                .top(rect.top)
+                .child(
+                    Container::new()
+                        .width(2.0)
+                        .height(height)
+                        .color(color.with_alpha(200)),
+                )
+                .into(),
+        );
+        // And the flag above it, with the name — the label is what makes a
+        // caret *somebody's* rather than a decoration.
+        children.push(
+            Positioned::new()
+                .left(x)
+                .top(rect.top - 13.0)
+                .child(
+                    Container::new()
+                        .padding(EdgeInsets::symmetric(4.0, 1.0))
+                        .color(color.with_alpha(220))
+                        .child(label(&caret.name, 9.0, Color::WHITE)),
+                )
+                .into(),
+        );
+    }
+
+    Stack::new()
+        .fit(StackFit::Loose)
+        .alignment(Alignment::TOP_LEFT)
+        .children(children)
+        .into()
+}
+
+/// One character's advance on line `index`, measured from the shaped line.
+///
+/// The rect's width over its character count is exact for the monospaced face
+/// the code pane asks for; a line that fell back to a wider face for one glyph
+/// is a line whose caret lands a fraction of a glyph out, which is the
+/// honest error bound rather than a hidden one.
+fn line_advance(
+    report: &vieww_foundation::TextLayoutReport,
+    lines: &[&str],
+    index: usize,
+    font: f32,
+) -> f32 {
+    fn measured(
+        report: &vieww_foundation::TextLayoutReport,
+        lines: &[&str],
+        index: usize,
+    ) -> Option<f32> {
+        let chars = lines.get(index)?.chars().count();
+        let width = report.line(index)?.width();
+        (chars > 0 && width > 0.0).then(|| width / chars as f32)
+    }
+    // An empty line has nothing to measure; the rows either side are the same
+    // font at the same size, so either will do. Past both, the last resort is
+    // the DejaVu Sans Mono ratio (0.602 of the point size), used rather than
+    // zero because a caret at the start of an empty file is still a caret.
+    measured(report, lines, index)
+        .or_else(|| measured(report, lines, index.saturating_sub(1)))
+        .or_else(|| measured(report, lines, index + 1))
+        .unwrap_or(font * 0.602)
+}
+
+/// A one-based column, as the pixels it sits at within a line.
+#[expect(
+    clippy::cast_precision_loss,
+    reason = "a column is a small integer; the f32 it becomes is exact far past any line length"
+)]
+fn column_offset(col: u32) -> f32 {
+    (col.max(1) - 1) as f32
+}
+
+/// A colour for a remote caret, stable per replica.
+///
+/// Not from the theme: the theme's accents say what *this* side means, and a
+/// remote's identity is not a meaning this side gets to choose. Eight hues,
+/// hashed by replica, so two people rarely collide and three never read as
+/// one.
+fn caret_color(replica: u32) -> Color {
+    const HUES: [(u8, u8, u8); 8] = [
+        (0xE5, 0x48, 0x4D),
+        (0x8B, 0xB5, 0x51),
+        (0x4C, 0xB3, 0xD4),
+        (0xC0, 0x6E, 0xD8),
+        (0xE8, 0x8C, 0x30),
+        (0x3E, 0x8E, 0x7E),
+        (0xD4, 0x4C, 0x9E),
+        (0x6C, 0x8C, 0xE0),
+    ];
+    let (r, g, b) = HUES[(replica % HUES.len() as u32) as usize];
+    Color::rgb(r, g, b)
 }
 
 /// The minimap: the file, scaled down, with the window you are looking through

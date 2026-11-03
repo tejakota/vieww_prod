@@ -10,7 +10,7 @@
 //! not as state hidden inside a widget.
 
 use std::cell::RefCell;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 use vieww_element::{Memo, Runtime, ScrollController, Signal};
@@ -43,20 +43,47 @@ use crate::toolchains;
 // field. `use super::*` in each gives them the same imports this file has, so a
 // reader following a method from here lands somewhere with the same vocabulary.
 mod buffers;
+mod canvas_edit;
+mod collab;
 mod commands;
+mod device;
 mod editing;
 mod export;
 mod files;
+mod inspector_props;
+mod keepwarm;
 mod language;
 mod panels;
 mod picker;
+mod plugins;
 mod session;
+mod update;
 mod vcs;
+
+// ST-01's canvas-editing vocabulary, re-exported because the shortcut
+// dispatcher (ui/shortcuts.rs) and the preview overlay (ui/preview.rs) need
+// the Handle the state core nudges with — the same one-module-one-subject
+// rule PanelTab follows, just with the type living in its own file.
+pub use canvas_edit::{CanvasDrag, Handle};
+
+// ST-02's property-grid vocabulary, re-exported for the Inspector pane that
+// draws the fields — the same one-module-one-subject rule as above.
+pub use inspector_props::{FieldValue, SayField};
+
+// ST-10's collaboration vocabulary, re-exported for the editor overlay that
+// draws the remote carets (ui/editor.rs) and the tests that assert where they
+// landed — same rule as the two above.
+pub use collab::RemoteCaret;
 
 /// Which sidebar view the activity bar has selected.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum View {
     Explorer,
+    /// ST-15: the project's `assets/` — browsed, thumbnailed, previewed.
+    /// Beside the Explorer because the two browse the same folder tree for
+    /// different questions: "where is my file" and "what does my asset
+    /// look like".
+    Assets,
     Search,
     Snippets,
     Problems,
@@ -88,8 +115,9 @@ pub enum View {
 impl View {
     /// Every view, in activity-bar order. The bar is built from this rather
     /// than from a second list that could disagree with the enum.
-    pub const ALL: [Self; 12] = [
+    pub const ALL: [Self; 13] = [
         Self::Explorer,
+        Self::Assets,
         Self::Search,
         Self::Snippets,
         Self::Problems,
@@ -108,6 +136,7 @@ impl View {
     pub const fn title(self) -> &'static str {
         match self {
             Self::Explorer => "Explorer",
+            Self::Assets => "Assets",
             Self::Search => "Search",
             Self::Snippets => "Snippets",
             Self::Problems => "Problems",
@@ -143,6 +172,7 @@ impl View {
     pub const fn note(self) -> &'static str {
         match self {
             Self::Explorer => "The files in this workspace, and the buffers you have open.",
+            Self::Assets => "The project's assets: images and fonts, previewed in the studio.",
             Self::Search => "Find text across every file, and replace it with a preview first.",
             Self::Snippets => "Templates you can drop into the buffer at the caret.",
             Self::Problems => "Every rustc error and warning from the last build, by file.",
@@ -166,17 +196,18 @@ impl View {
     pub const fn index(self) -> usize {
         match self {
             Self::Explorer => 0,
-            Self::Search => 1,
-            Self::Snippets => 2,
-            Self::Problems => 3,
-            Self::Inspector => 4,
-            Self::Learn => 5,
-            Self::Docs => 6,
-            Self::Toolchain => 7,
-            Self::Source => 8,
-            Self::Export => 9,
-            Self::Tokens => 10,
-            Self::Settings => 11,
+            Self::Assets => 1,
+            Self::Search => 2,
+            Self::Snippets => 3,
+            Self::Problems => 4,
+            Self::Inspector => 5,
+            Self::Learn => 6,
+            Self::Docs => 7,
+            Self::Toolchain => 8,
+            Self::Source => 9,
+            Self::Export => 10,
+            Self::Tokens => 11,
+            Self::Settings => 12,
         }
     }
 
@@ -203,6 +234,7 @@ impl View {
     pub const fn glyph(self) -> &'static str {
         match self {
             Self::Explorer => "Ex",
+            Self::Assets => "As",
             Self::Search => "Se",
             Self::Snippets => "Sn",
             Self::Problems => "Pr",
@@ -754,6 +786,15 @@ pub enum PaletteEntry {
         line: u32,
         detail: String,
     },
+    /// ST-13: a command a plugin contributed. `plugin` is the plugin's own
+    /// name — the palette shows it and the studio dispatches by the pair,
+    /// because two plugins are entitled to ship a command with the same
+    /// title and the user is entitled to both.
+    Plugin {
+        plugin: String,
+        label: String,
+        detail: String,
+    },
 }
 
 /// Which right-pane tab is showing.
@@ -946,6 +987,41 @@ pub struct ExportRun {
     /// The index of the step to start next. Equal to `plan.steps.len()` once
     /// every step has been started.
     pub next: usize,
+}
+
+/// A device mirror part-way through (ST-08): which phone, which steps, and
+/// where the screenshot will land.
+///
+/// The same shape as [`ExportRun`] for the same reason: a run half-done is
+/// application state, and the module that planned it (`export`) knows nothing
+/// about what happened to the plan it handed over.
+#[derive(Debug, Clone)]
+pub struct MirrorRun {
+    /// The device the steps address — kept rather than re-read from
+    /// `devices`, which a re-scan can change under a running mirror.
+    pub device: crate::export::Device,
+    /// The `adb` steps: install, launch, screenshot, pull, clean up.
+    pub steps: Vec<crate::task::Spec>,
+    /// The index of the step to start next.
+    pub next: usize,
+    /// Where `pull` writes the PNG; decoded into `device_mirror` when the
+    /// last step succeeds.
+    pub png: PathBuf,
+}
+
+/// A screenshot a completed mirror pulled back from a device (ST-08), decoded
+/// and ready for the preview pane.
+///
+/// A receipt, not a live frame: it is the pixels the phone had at the moment
+/// of the screencap, and the pane that shows it says so — the comparison with
+/// the preview is the eye's, which is the honest first version of
+/// "it looked right in the preview".
+#[derive(Debug, Clone)]
+pub struct MirrorFrame {
+    /// The device's human name, as the scan reported it.
+    pub device: String,
+    /// The screenshot, decoded.
+    pub image: vieww_foundation::Image,
 }
 
 /// Which line `offset` falls on, counting from zero.
@@ -1546,6 +1622,13 @@ pub struct GutterRow {
     pub fold_line: usize,
 }
 
+/// The `Studio::say_map` cache shape: the key is the active buffer's
+/// identity (`Rc` pointer, text length, text hash) and the value is
+/// `Some(row)` per parsed say line. A named shape because it is the one
+/// cache in the studio whose invalidation spans two subsystems (the buffer
+/// list and the inspector), and a tuple this wide reads like a mistake.
+pub type SayMapCache = ((u64, usize, usize), Rc<Vec<Option<usize>>>);
+
 /// Everything the shell reads, and the only thing a widget here is given.
 #[derive(Debug, Clone)]
 pub struct Studio {
@@ -1943,6 +2026,27 @@ pub struct Studio {
     /// generation `0` and `NAN`s, which compare unequal to anything including
     /// themselves, so the first frame always follows.
     pub revealed_caret: std::cell::Cell<(u64, f32, f32)>,
+    /// ST-10: whether the active buffer is shared through a collaboration
+    /// session.
+    ///
+    /// The switch the palette's Share command flips; the session itself —
+    /// the `collab::Doc`, the log path, the read offset, everyone's presence
+    /// — is [`collab_session`](Self::collab_session), and nothing subscribes
+    /// to it directly: the buffer is already a signal, and the carets are
+    /// published through [`collab_carets`](Self::collab_carets).
+    pub collab: Signal<bool>,
+    /// The live session, if one is running. See `state/collab.rs`.
+    ///
+    /// Private to the `state` module tree: the session is machinery, and what
+    /// the outside asks for is `collab`, the carets, and
+    /// [`collab_replica`](Self::collab_replica) — not the doc itself.
+    collab_session: Rc<RefCell<Option<collab::CollabSession>>>,
+    /// Everyone else's carets, as line/column, for the editor's overlay.
+    ///
+    /// A signal rather than part of the session cell because the overlay
+    /// *subscribes* — a caret that moved should redraw the flag, and a
+    /// `RefCell` the pane polled would redraw the pane.
+    pub collab_carets: Signal<Rc<Vec<RemoteCaret>>>,
     /// Whether the far-left activity bar is showing.
     ///
     /// A bool rather than the sidebar's width trick, for the reason
@@ -2195,6 +2299,30 @@ pub struct Studio {
     /// Resolved in `before_frame`, where there is a driver to hit-test against —
     /// a handler has a position and no tree. Same shape as the tree capture.
     pub pick_request: Signal<Option<(f32, f32)>>,
+    /// ST-01: canvas editing is armed — the picked say line's properties can
+    /// be dragged and nudged straight from the preview.
+    ///
+    /// A signal because the handles overlay, the menu tick and the command's
+    /// `can_run` all read it; off is the default because the preview is a
+    /// window until the person editing says otherwise.
+    pub canvas_edit: Signal<bool>,
+    /// A canvas drag in progress: which handle, and the property as it stood
+    /// when the drag began. A `RefCell` beside the studio rather than a
+    /// signal, like `jobs`: it is two words of bookkeeping no widget reads.
+    pub canvas_drag: Rc<RefCell<Option<crate::state::canvas_edit::CanvasDrag>>>,
+    /// ST-01's bridge cache: the say-line index behind each captured render
+    /// row, keyed on the tree generation, the buffer list identity and the
+    /// row count — the three things that can invalidate it.
+    ///
+    /// A `RefCell` beside a generation signal, like `tree_snapshot`: the map
+    /// is a vector of options nobody needs to clone into a signal; what the
+    /// overlay needs to know is that the *pick* changed, which it already
+    /// reads through `inspect_selected`.
+    ///
+    /// The cache shape itself: the key is the active buffer's identity
+    /// (`Rc` pointer, text length, text hash) and the value is `Some(row)`
+    /// per parsed say line.
+    pub say_map: Rc<RefCell<Option<SayMapCache>>>,
     /// The last frame's damage, in window coordinates.
     pub damage_snapshot: Rc<RefCell<Vec<vieww_foundation::Rect>>>,
     /// The last frame's semantics nodes: where, what, and what it is called.
@@ -2259,6 +2387,39 @@ pub struct Studio {
     pub live_caution: Signal<bool>,
     /// True while the "there is no live.rs" dialog is up.
     pub live_missing: Signal<bool>,
+    /// ST-03: the model behind "Say: Write a Screen from a Prompt". An
+    /// `Arc` inside an [`AnyModel`](crate::say_ai::AnyModel) — `Send + Sync`,
+    /// because the verified loop runs the model on a worker thread, which is
+    /// also what lets a test hand the studio a `RecordedFake` and drive the
+    /// whole path. The default is the localhost one; see `say_ai`'s privacy
+    /// notes.
+    pub say_model: Signal<crate::say_ai::AnyModel>,
+    /// True while the prompt box is up.
+    pub say_prompt_open: Signal<bool>,
+    /// What has been typed into the prompt box.
+    pub say_prompt_text: Signal<String>,
+    /// ST-07: true while the one-shot keystore password prompt is up, opened
+    /// by a release-signed APK export that found no password in the studio's
+    /// own environment.
+    ///
+    /// The password itself lives in [`Self::keystore_password`], and for as
+    /// short a time as the signal can manage: it is handed to the export's
+    /// packaging step as that child's environment and cleared in the same
+    /// breath — never written to settings, never printed to the Output panel,
+    /// never left in a signal for a later dialog to find. See
+    /// `settings::Settings::keystore_alias` for the policy this completes.
+    pub keystore_prompt: Signal<bool>,
+    /// What has been typed into the keystore prompt. See [`Self::keystore_prompt`]
+    /// for how briefly it is meant to exist.
+    pub keystore_password: Signal<String>,
+    /// A proposal that survived verification, awaiting the diff approval
+    /// dialog. `None` when no proposal is on the table.
+    pub say_proposal: Signal<Option<crate::say_ai::Proposal>>,
+    /// The verified loop's worker, polled once per frame by
+    /// `poll_say_ai`. A `RefCell` rather than a `Signal` because a running
+    /// job is not a value the tree renders — its *outcome* is, and that
+    /// lands in `say_proposal`.
+    pub say_job: std::rc::Rc<std::cell::RefCell<Option<crate::say_ai::ProposeJob>>>,
     /// The live demo's state — route, counter, toggle, selected item.
     pub live_state: crate::live::LiveState,
     /// Every screen this session has rendered, by the file it came from.
@@ -2301,6 +2462,24 @@ pub struct Studio {
     /// list would mean the two axes fought for the same offset.
     pub picker_volume_scroll: ScrollController,
     pub diagnostics: Signal<Rc<Vec<Diagnostic>>>,
+    /// ST-15: the asset the editor pane is previewing, in place of code.
+    /// Cleared by `focus_buffer` — the tabs stay, and one click on one hands
+    /// the pane back.
+    pub asset_view: Signal<Option<Rc<crate::assets_browser::AssetView>>>,
+    /// ST-15: what `assets/` holds, refreshed beside the tree and guarded by
+    /// an mtime signature so a watcher tick over an unchanged folder costs
+    /// a stat walk. See `assets_browser`.
+    pub assets: Signal<Rc<crate::assets_browser::Listing>>,
+    /// ST-15: the missing-image warnings the last Say render found, held
+    /// until the compile finishes so they can sit *beside* rustc's
+    /// diagnostics rather than be overwritten by them — `finish` replaces
+    /// the signal wholesale, which is right for rustc (its list is the list)
+    /// and wrong for warnings rustc cannot see: an `an image "gone.png"`
+    /// line is valid Rust to the compiler and a blank rectangle to the
+    /// preview. `Rc<RefCell>` because the render that arms it and the
+    /// `finish` that reads it arrive on different clones of `Studio` — the
+    /// sharing rule `preview_state` already follows.
+    pub say_asset_warnings: Rc<RefCell<Vec<Diagnostic>>>,
     /// Caret position, shown in the status bar. Derived from the active
     /// buffer's selection on every edit rather than tracked separately, so the
     /// two cannot disagree.
@@ -2361,6 +2540,17 @@ pub struct Studio {
     /// writes — so a compile starting and finishing still rebuilds the tree,
     /// through the state machine that was always meant to drive it.
     pub job: Rc<RefCell<Option<Job>>>,
+    /// ST-23: where the guest-template warm-up stands — `--keep-warm`'s
+    /// observable answer, and the thing the Output panel's sentences come
+    /// from. A `Signal` rather than a `RefCell` because the state *is* the
+    /// UI-relevant fact here (unlike `job`, whose UI story is `preview`).
+    /// See [`crate::keepwarm`].
+    pub keep_warm: Signal<crate::keepwarm::State>,
+    /// ST-23: the warm-up's compile job, when one is running. Same `RefCell`
+    /// shape and for the same reason as [`job`](Self::job): a `Job` is
+    /// neither `Clone` nor comparable, and the state signal above is what
+    /// anything visual reads.
+    pub keep_warm_job: Rc<RefCell<Option<Job>>>,
     /// Asks the platform for a frame from another thread.
     ///
     /// Without it a compile that finishes on an idle window sits in its channel
@@ -2421,6 +2611,20 @@ pub struct Studio {
     pub export_run: Rc<RefCell<Option<ExportRun>>>,
     /// The chosen export format, for the export sheet's selection.
     pub export_format: Signal<crate::export::Format>,
+    /// ST-13: the plugins loaded into this studio — extra lint rules, export
+    /// formats and palette commands, from `<data_dir>/plugins/`.
+    ///
+    /// A signal because loading changes what three surfaces show: the
+    /// palette's command list, the export sheet's rows and the Problems
+    /// panel's rule list all rebuild when it moves, and none of them should
+    /// have to ask whether it did.
+    ///
+    /// Empty until the **Reload Studio Plugins** command runs, deliberately:
+    /// `dlopen`-ing a user's directory on every `Studio::new` would make every
+    /// integration test load whatever the developer's machine happens to have
+    /// installed, and a plugin that fails to load would fail tests that never
+    /// asked for it. Loading is a command a person runs.
+    pub plugins: Signal<Rc<crate::plugin::Registry>>,
     /// Devices the last scan found, and whether one has ever run.
     pub devices: Signal<Rc<Vec<crate::export::Device>>>,
     pub devices_scanned: Signal<bool>,
@@ -2432,6 +2636,35 @@ pub struct Studio {
     /// printed to the Output panel and dropped, so `install_on` had a device
     /// and no artefact to put on it.
     pub artefact: Signal<Option<std::path::PathBuf>>,
+    /// ST-08: the device mirror being run, if any — its steps and how far
+    /// through it is. See [`MirrorRun`].
+    pub mirror_run: Rc<RefCell<Option<MirrorRun>>>,
+    /// ST-08: the screenshot the last completed mirror pulled back, shown in
+    /// the preview pane until it is cleared. `None` whenever no mirror has
+    /// finished (or the last one failed: a stale screenshot from a phone that
+    /// has since been unplugged is a receipt for a machine nobody is looking
+    /// at).
+    pub device_mirror: Signal<Option<Rc<MirrorFrame>>>,
+    /// ST-14: a download in flight — an update, or the SDK half of a split
+    /// bundle. See [`crate::update::UpdateRun`].
+    pub update_run: Rc<RefCell<Option<crate::update::UpdateRun>>>,
+    /// ST-14: the newer release the last check found, if any — the thing
+    /// *Download the Update* fetches, and the reason it refuses without one.
+    pub update_release: Signal<Option<Rc<crate::update::Release>>>,
+    /// ST-14: where fetches stage and verified downloads wait — the data
+    /// directory's `update-staging`, never the installation, so that a
+    /// download half-finished is nobody's business but this studio's.
+    ///
+    /// A plain field rather than a signal because nothing draws from it; a
+    /// plain `PathBuf` rather than derived-on-read because the tests need to
+    /// point it at a directory they own.
+    pub update_dir: PathBuf,
+    /// ST-14: where the SDK download unpacks — `None` to derive it from the
+    /// executable's own location, the shape a packaged studio has. A field at
+    /// all because the tests run from a build tree whose `lib/vieww` would
+    /// otherwise be the destination, and a test that wrote into the tree it
+    /// was built from is a test that poisons every later run.
+    pub sdk_destination: Option<PathBuf>,
     /// What `git status` last said. Empty until a scan has run.
     pub git: Signal<Rc<crate::git::Status>>,
     /// Whether a scan has ever completed, so an empty list can say which kind
@@ -2593,6 +2826,11 @@ impl Studio {
         let studio = Self {
             // The watcher is built before the struct literal so `workspace.root`
             // is not borrowed after it is moved into the `root` signal below.
+            // ST-10: no session until the Share command starts one; the carets
+            // start empty for the same reason.
+            collab: runtime.signal(false),
+            collab_session: Rc::new(RefCell::new(None)),
+            collab_carets: runtime.signal(Rc::new(Vec::new())),
             preview_state: Rc::new(RefCell::new(Vec::new())),
             preview_restore_due: Rc::new(std::cell::Cell::new(false)),
             preview_capture_due: Rc::new(std::cell::Cell::new(false)),
@@ -2648,6 +2886,12 @@ impl Studio {
             picker: runtime.signal(None),
             picker_mode: runtime.signal(PickerMode::Open),
             generated_rust: runtime.signal(None),
+            // ST-15: empty until a workspace with an `assets/` folder opens —
+            // `refresh_assets` fills both, from `adopt_workspace` and from
+            // the same places `rescan_tree` runs.
+            asset_view: runtime.signal(None),
+            assets: runtime.signal(Rc::new(crate::assets_browser::Listing::default())),
+            say_asset_warnings: Rc::new(RefCell::new(Vec::new())),
             right_tab: runtime.signal(RightTab::Preview),
             right_open: runtime.signal(true),
             tree_snapshot: Rc::new(RefCell::new(Vec::new())),
@@ -2663,6 +2907,9 @@ impl Studio {
             show_semantics: runtime.signal(false),
             pick_mode: runtime.signal(false),
             pick_request: runtime.signal(None),
+            canvas_edit: runtime.signal(false),
+            canvas_drag: Rc::new(RefCell::new(None)),
+            say_map: Rc::new(RefCell::new(None)),
             damage_snapshot: Rc::new(RefCell::new(Vec::new())),
             semantics_snapshot: Rc::new(RefCell::new(Vec::new())),
             overlay_generation: runtime.signal(0),
@@ -2685,6 +2932,17 @@ impl Studio {
             live_preview: runtime.signal(false),
             live_caution: runtime.signal(false),
             live_missing: runtime.signal(false),
+            // ST-03: the prompt's model, the prompt box, the proposal it
+            // produces, and the worker that verifies it. See `say_ai`.
+            say_model: runtime.signal(crate::say_ai::AnyModel::new(std::sync::Arc::new(
+                crate::say_ai::LocalHttpModel::ollama(),
+            ))),
+            say_prompt_open: runtime.signal(false),
+            say_prompt_text: runtime.signal(String::new()),
+            keystore_prompt: runtime.signal(false),
+            keystore_password: runtime.signal(String::new()),
+            say_proposal: runtime.signal(None),
+            say_job: std::rc::Rc::new(std::cell::RefCell::new(None)),
             live_state: crate::live::LiveState::new(runtime),
             live_mounts: std::rc::Rc::new(
                 std::cell::RefCell::new(std::collections::HashMap::new()),
@@ -2798,6 +3056,8 @@ impl Studio {
             rustc_json: runtime.signal(Rc::new(Vec::new())),
 
             job: Rc::new(RefCell::new(None)),
+            keep_warm: runtime.signal(crate::keepwarm::State::Idle),
+            keep_warm_job: Rc::new(RefCell::new(None)),
             waker: vieww_platform_winit::Waker::default(),
 
             find_open: runtime.signal(false),
@@ -2818,9 +3078,18 @@ impl Studio {
             build_job: Rc::new(std::cell::Cell::new(None)),
             export_run: Rc::new(RefCell::new(None)),
             export_format: runtime.signal(crate::export::Format::DesktopBinary),
+            // ST-13: nothing loaded until the reload command runs — see the
+            // field's own comment for why loading is not automatic.
+            plugins: runtime.signal(Rc::new(crate::plugin::Registry::empty())),
             devices: runtime.signal(Rc::new(Vec::new())),
             devices_scanned: runtime.signal(false),
             artefact: runtime.signal(None),
+            mirror_run: Rc::new(RefCell::new(None)),
+            device_mirror: runtime.signal(None),
+            update_run: Rc::new(RefCell::new(None)),
+            update_release: runtime.signal(None),
+            update_dir: crate::about::data_dir().join(crate::update::STAGING),
+            sdk_destination: None,
             git: runtime.signal(Rc::new(crate::git::Status::default())),
             git_scanned: runtime.signal(false),
             commit_message: runtime.signal(String::new()),
@@ -2939,6 +3208,16 @@ impl Studio {
         if self.job.borrow().is_some() {
             return;
         }
+        // ST-23: a Render preempts the warm-up, never the reverse — the
+        // compile the user asked for warms the same caches the template was
+        // going to, and two `rustc`s on one cold disk is the opposite of the
+        // point. A no-op on every launch that never warmed.
+        self.supersede_keep_warm();
+        // ST-15: no carried warnings at the start of a render — the Say
+        // branch below refills this, and a stash left by a render that never
+        // reached `finish` (no toolchain, no `screen()`) must not ride into a
+        // later render's Problems panel under the wrong file's name.
+        self.say_asset_warnings.borrow_mut().clear();
         // **Exit live preview before compiling.** The live demo and a compiled
         // screen are mutually exclusive — the device frame shows one or the
         // other — so clicking Render while the demo is up returns the preview
@@ -2986,6 +3265,18 @@ impl Studio {
                 Ok(generated) => {
                     self.generated_rust
                         .set(Some(Rc::new(generated.rust.clone())));
+                    // ST-15: the images this screen names but cannot resolve.
+                    // rustc will accept every one of them — the generated code
+                    // reads images at runtime and draws a placeholder when the
+                    // read fails — so the Problems panel is the only surface
+                    // that can say it, and it says it at the render that would
+                    // have shown the placeholder. Held for `finish`, which is
+                    // where a render's diagnostics land.
+                    *self.say_asset_warnings.borrow_mut() = self.missing_image_references(
+                        &buffer.name,
+                        &buffer.value.text,
+                        buffer.path.as_deref().and_then(std::path::Path::parent),
+                    );
                     generated.rust
                 }
                 Err(diagnostics) => {
@@ -3108,55 +3399,47 @@ impl Studio {
         // Linking an rlib a file does not use costs a `--extern` rustc ignores,
         // but finding it costs a directory walk on every Render.
         //
-        // **Never for Say.** `needs_project`'s heuristic is `crate::` or
-        // `use super::` — written for hand-authored Rust, where the second one
-        // means "this file reaches into its parent module in the user's own
-        // crate". Say's own codegen emits `use super::SayState;` too, but that
-        // `super` is the generated file's own root module, not the project's —
-        // the same false positive on every Say screen, which would otherwise
-        // both raise a "no cargo project is open" diagnostic against a buffer
-        // that needs nothing of the kind and, worse, swap the compile onto the
-        // *project's* `vieww` build (below) whenever a project happens to be
-        // open, which is exactly the mismatched-ABI failure this whole check
-        // exists to catch before it reaches `dlopen`. Say's v1 vocabulary has
-        // no way to reach outside the generated file at all, so it never needs
-        // the project's library.
+        // **For Say: only when the screen references a component (ST-05).**
+        // `needs_project`'s heuristic is `crate::` or `use super::` — written
+        // for hand-authored Rust, where the second one means "this file
+        // reaches into its parent module in the user's own crate". Say's own
+        // codegen emits `use super::SayState;` too, but that `super` is the
+        // generated file's own root module, not the project's — the same
+        // false positive on every Say screen, which would otherwise both
+        // raise a "no cargo project is open" diagnostic against a buffer
+        // that needs nothing of the kind and, worse, swap the compile onto
+        // the *project's* `vieww` build (below) whenever a project happens to
+        // be open, which is exactly the mismatched-ABI failure this whole
+        // check exists to catch before it reaches `dlopen`.
+        //
+        // A `<Name>` component reference is the one Say phrase that changes
+        // the premise: its generated Rust is `crate::widgets::<name>::<Name>`,
+        // which reaches the project in the built app and the linked rlib in
+        // the preview. So the reach is detected on exactly that path —
+        // `crate::widgets::`, emitted by nothing else — and a Say screen
+        // without components behaves as it always did: no lookup, no refusal,
+        // no project `vieww`.
         let is_say = buffer.language == crate::language::Language::Say;
+        let reaches_project = is_say && source.contains(crate::components::PROJECT_REACH);
         let project = if is_say {
-            None
+            reaches_project.then(|| self.project_lib(&source)).flatten()
         } else {
             self.project_lib(&source)
         };
-        // **And the refusal is skipped for Say too, not only the lookup.**
+        // **And the refusal follows the same rule, not only the lookup.**
         //
-        // This is the second half of the paragraph above, and it was missing.
-        // Forcing `project` to `None` stops a Say screen from being compiled
-        // against the project's `vieww`, which is what that paragraph is about
-        // — but `project_lib_refusal` was still asked, with `source` being the
-        // *generated* Rust and `project` now unconditionally `None`. Its own
-        // first line is `needs_project(source)`, the `crate::`-or-`use super::`
-        // heuristic, and generated Say always emits `use super::SayState;`. So
-        // it always matched, always found no project, and always produced:
-        //
-        //     this file uses `crate::`, so the preview needs <name>'s own
-        //     library built
-        //
-        // against a file containing neither `crate::` nor any `super` of the
-        // user's own — the exact false positive the paragraph above describes
-        // and suppresses one line too early.
-        //
-        // What that cost is the whole first run. `vieww new` scaffolds a Say
-        // project whose `src/screens/home.say` is `counter.say`, whose own
-        // header comment reads "a counter that renders straight away, with no
-        // project, no setup and nothing to read first" — and pressing Render on
-        // it, the first thing a new user does, was refused with an instruction
-        // to go and run a twelve-minute `cargo build` that would not have
-        // helped, because the file needs nothing from the project.
-        //
-        // Say's v1 vocabulary has no way to reach outside the generated file,
-        // so there is no case where a Say buffer legitimately needs the
-        // project's library and this suppression hides a real problem.
-        let refusal = if is_say {
+        // This is the second half of the paragraph above, and it was missing
+        // once: forcing `project` to `None` stopped a Say screen from being
+        // compiled against the project's `vieww`, but `project_lib_refusal`
+        // was still asked, with `source` being the *generated* Rust and
+        // `project` now unconditionally `None`. Its own first line is
+        // `needs_project(source)`, the `crate::`-or-`use super::` heuristic,
+        // and generated Say always emits `use super::SayState;`. So it always
+        // matched, always found no project, and always refused the very first
+        // Render a new user presses. The gate is the component reach — the
+        // one case where the message ("build the project so there is a library
+        // to link") is true and the fix it suggests works.
+        let refusal = if is_say && !reaches_project {
             None
         } else {
             self.project_lib_refusal(&source, project.as_ref())
@@ -3178,7 +3461,15 @@ impl Studio {
             None => toolchain,
         };
 
-        match Job::spawn(&toolchain, session, &source, &buffer.name, project, wake) {
+        match Job::spawn(
+            &toolchain,
+            session,
+            &source,
+            &buffer.name,
+            project,
+            is_say,
+            wake,
+        ) {
             Ok(job) => {
                 self.set_preview(PreviewState::Compiling);
                 *self.job.borrow_mut() = Some(job);
@@ -3278,7 +3569,13 @@ impl Studio {
         };
 
         let mut log = compiled.log.clone();
-        self.diagnostics.set(Rc::new(compiled.diagnostics.clone()));
+        // ST-15: rustc's list, plus the Say render's missing-image warnings —
+        // taken rather than read, so a later `finish` cannot repeat them.
+        let mut diagnostics = compiled.diagnostics.clone();
+        diagnostics.append(&mut std::mem::take(
+            &mut *self.say_asset_warnings.borrow_mut(),
+        ));
+        self.diagnostics.set(Rc::new(diagnostics));
         self.rustc_json.set(Rc::new(compiled.json.clone()));
 
         let Some(library) = compiled.library.as_ref() else {
@@ -3571,6 +3868,9 @@ impl Studio {
     /// all. A scrollable list with a selection has to follow its selection.
     pub fn focus_buffer(&self, index: usize) {
         self.active_buffer.set(index);
+        // ST-15: showing a buffer closes the asset preview — the pane holds
+        // one thing, and this click said which.
+        self.asset_view.set(None);
         self.reveal_tab(index);
     }
 
@@ -3681,6 +3981,10 @@ impl Studio {
         self.blink.borrow_mut().wake();
 
         let changed = buffer.value.text != value.text;
+        // ST-10: the collab seam. Before the value is replaced, while the old
+        // text is still in the buffer — the diff needs both sides. Nothing
+        // happens when no session is running (one boolean read).
+        self.collab_note_edit(buffer, &value);
         // Recorded *before* the value is replaced, because the history's
         // coalescing rule compares where the buffer is with where it is going.
         // A caret-only move records nothing but does keep the newest entry's

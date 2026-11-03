@@ -364,12 +364,22 @@ impl Studio {
         // Through the highlighter's own parse rather than a second one of our
         // own: on a large file the lint pass used to double the per-frame
         // parsing cost for a tree that was already sitting in memory.
+        //
+        // ST-13: the loaded plugins' rules join the same pass — one walk,
+        // one merge, one list in the Problems panel. The registry is held
+        // across the call because the wrappers borrow it.
         let findings = {
+            let registry = self.plugins.get();
+            let wrappers = registry.lint_rules();
+            let rules: Vec<&dyn crate::lint::LintRule> = wrappers
+                .iter()
+                .map(|rule| rule as &dyn crate::lint::LintRule)
+                .collect();
             let mut highlighter = self.highlighter.borrow_mut();
             highlighter
                 .tree_for(&buffer.value.text, buffer.language)
                 .map_or_else(Vec::new, |tree| {
-                    crate::lint::check_tree(tree, &buffer.value.text)
+                    crate::lint::check_tree_with(tree, &buffer.value.text, &rules)
                 })
         };
         let out: Vec<Diagnostic> = findings
@@ -379,8 +389,10 @@ impl Studio {
                 severity: finding.severity,
                 // The rule's own name as the code, exactly as `rustc` puts a
                 // lint name there — so a finding can be recognised, looked up,
-                // and argued with rather than only read.
-                code: finding.rule.to_owned(),
+                // and argued with rather than only read. A plugin's rule
+                // arrives here with its plugin's name already in `rule`, and
+                // that is the attribution the panel has.
+                code: finding.rule.clone(),
                 message: format!("vieww-lint: {}", finding.message),
                 help: None,
                 line: finding.line,
@@ -507,7 +519,12 @@ impl Studio {
     ///
     /// Kept as a named function rather than inlined because "publish the
     /// buffers" is worth one place to put a breakpoint on.
-    pub(super) fn put_buffers(&self, buffers: Vec<Buffer>) {
+    pub(super) fn put_buffers(&self, mut buffers: Vec<Buffer>) {
+        // ST-10: the second collab seam. Every write that did not come through
+        // `Studio::edit` lands here — a watcher reload, a reopened tab — and
+        // the shared buffer is reconciled to the session's converged text
+        // before the signal is published, so there is one write, not two.
+        self.collab_reconcile(&mut buffers);
         self.buffers.set(Rc::new(buffers));
     }
 
@@ -614,9 +631,30 @@ impl Studio {
                 }
             }
             C::CreateLiveFile => self.create_live_file(),
+            // ST-19: the sketch becomes a `.say` file — the same flow, the
+            // real pipeline. See `live_materialize`.
+            C::MaterializeFlow => self.materialize_flow(),
+            // ST-05: the picked subtree becomes a component — a file in the
+            // project, a one-word reference in the buffer. See `components`.
+            C::ExtractWidget => self.extract_widget(),
+            // ST-10: the buffer becomes a shared document — the doc, the log
+            // and the carets in `state/collab`.
+            C::ShareBuffer => self.toggle_collab(),
+            // ST-13: the plugins directory is (re)read — see `state/plugins`,
+            // which owns everything the studio does with what it finds.
+            C::ReloadPlugins => self.reload_plugins(),
+            // ST-14: the studio's own distribution commands — see
+            // `state/update`, which owns the feed, the checksums and the SDK.
+            C::CheckForUpdates => self.check_for_updates(),
+            C::DownloadUpdate => self.download_update(),
+            C::DownloadSdk => self.download_sdk(),
             C::RestoreFlow => self.restore_flow(),
 
             C::TrySayScreen => self.try_say_screen(),
+            // ST-03: the prompt box. Its own refusals — no Say buffer, no
+            // toolchain, a prompt already being verified — are notifications
+            // the box emits, not silent returns; see `say_ai::say_ai_submit`.
+            C::SayPrompt => self.say_ai_open(),
             C::NewProject => self.new_project(),
             C::OpenFolder => self.open_picker(),
             C::RestoreSample => self.restore_sample(),
@@ -767,6 +805,20 @@ impl Studio {
                 self.pick_mode.set(true);
                 self.notify("Click anything in the window to select it in the Inspector.");
             }
+            C::ToggleCanvasEdit => {
+                // ST-01. The Inspector has to be capturing for the bridge to
+                // have rows to map, exactly as a pick does — so it comes on
+                // with the mode rather than failing silently later.
+                self.right_tab.set(RightTab::Inspector);
+                self.right_open.set(true);
+                let on = !self.canvas_edit.peek();
+                self.canvas_edit.set(on);
+                self.notify(if on {
+                    "Canvas editing on — pick a widget in the preview, then drag its handles or nudge with the arrow keys."
+                } else {
+                    "Canvas editing off."
+                });
+            }
             C::ZoomFit => {
                 self.preview_zoom.set(None);
                 self.notify("Preview fitted to the pane.");
@@ -914,8 +966,15 @@ impl Studio {
         }
 
         // The palette closes behind whatever was chosen from it, except for
-        // the command that *is* the palette.
-        if !matches!(command, C::CommandPalette | C::ShowShortcuts) {
+        // the commands that *are* the palette — its own toggle, and the four
+        // that open it in one of its modes. Found by the ST-18 keyboard
+        // walkthrough: "Go to File" opened the palette in file mode and then
+        // landed here, which closed it again — a menu item whose visible
+        // effect was nothing at all.
+        if !matches!(
+            command,
+            C::CommandPalette | C::ShowShortcuts | C::GoToFile | C::GoToSymbol | C::GoToLine
+        ) {
             self.palette_open.set(false);
         }
     }
@@ -961,7 +1020,13 @@ impl Studio {
             C::CancelExport => self.exporting(),
             C::ClearFinishedTasks | C::CancelAllTasks => !self.jobs.borrow().jobs().is_empty(),
             C::FindNext | C::FindPrevious => !self.find_query.get().is_empty(),
-            C::CloseFind => self.find_open.get() || self.palette_open.get(),
+            // Escape's own gate (ST-18). It has to say "yes" whenever
+            // `escape` — the thing the key actually runs — would dismiss
+            // something, or a keyboard-only user is left with dialogs they
+            // can see and no key that closes any of them. `escape` walks the
+            // same list innermost-first; this asks whether the list is
+            // non-empty.
+            C::CloseFind => self.anything_to_escape(),
             C::NextTab | C::PreviousTab => self.buffers.get().len() > 1,
             // Answered from the same check the command itself runs, so a greyed
             // item and a refusal can never disagree — and so hovering the item
@@ -1005,6 +1070,17 @@ impl Studio {
             self.about.set(false);
         } else if self.welcome.peek() {
             self.welcome.set(false);
+        } else if self.say_proposal.peek().is_some() {
+            // The diff approval dialog: Escape means "not that" — the buffer
+            // is untouched either way, so a keystroke can decline it.
+            self.say_ai_dismiss();
+        } else if self.say_prompt_open.peek() {
+            self.say_prompt_open.set(false);
+        } else if self.keystore_prompt.peek() {
+            // The one-shot password prompt: Escape means "not that", and
+            // `cancel_keystore_prompt` clears what was typed rather than
+            // leaving it behind for a later dialog to find.
+            self.cancel_keystore_prompt();
         } else if self.name_prompt.peek().is_some() {
             self.close_name_prompt();
         } else if self.pending_delete.peek().is_some() {
@@ -1033,5 +1109,28 @@ impl Studio {
             self.platform.set(platform);
             self.mark_dirty();
         }
+    }
+
+    /// Whether [`escape`](Self::escape) would dismiss anything right now.
+    ///
+    /// `can_run(CloseFind)`'s answer, kept beside the walk it mirrors so the
+    /// two cannot drift: a gate that says "Escape does nothing here" while a
+    /// dialog is open is a keyboard-only user locked out of their own UI.
+    #[must_use]
+    pub fn anything_to_escape(&self) -> bool {
+        self.completion.peek().is_some()
+            || self.about.peek()
+            || self.welcome.peek()
+            || self.say_proposal.peek().is_some()
+            || self.say_prompt_open.peek()
+            || self.keystore_prompt.peek()
+            || self.name_prompt.peek().is_some()
+            || self.pending_delete.peek().is_some()
+            || self.context_menu.peek().is_some()
+            || self.caret_count() > 1
+            || self.picker.peek().is_some()
+            || self.menu_open.peek().is_some()
+            || self.palette_open.peek()
+            || self.find_open.peek()
     }
 }

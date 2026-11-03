@@ -648,6 +648,107 @@ impl Widget for NamePromptDialog {
 
 vieww_widget::widget_node_from!(NamePromptDialog);
 
+/// "What is the keystore's password?" — the one-shot prompt behind a
+/// release-signed APK export (ST-07).
+///
+/// One obscured field, two buttons, and a sentence about where the password
+/// goes and where it deliberately does not. It appears only when a release
+/// export was asked for and `VIEWW_KEYSTORE_PASSWORD` was not in the studio's
+/// environment, and confirming hands the value to the export's packaging step
+/// as that child's environment and clears it here in the same breath — the
+/// settings file never had it, the Output panel never prints it, and a
+/// cancelled prompt does not keep the half that was typed.
+#[derive(Debug)]
+pub struct KeystorePromptDialog {
+    pub studio: crate::state::Studio,
+}
+
+impl Widget for KeystorePromptDialog {
+    fn debug_name(&self) -> &'static str {
+        "KeystorePromptDialog"
+    }
+
+    fn kind(&self) -> WidgetKind<'_> {
+        WidgetKind::Composed
+    }
+
+    fn build(&self, ctx: &BuildContext) -> WidgetNode {
+        if !self.studio.keystore_prompt.get() {
+            return SizedBox::shrink().into();
+        }
+        let chrome = *StudioTheme::of(ctx);
+        let colors = ThemeData::of(ctx).colors;
+
+        let studio = self.studio.clone();
+        let submitting = self.studio.clone();
+        let field: WidgetNode = Container::new()
+            .color(chrome.chrome_1)
+            .radius(6.0)
+            .padding(EdgeInsets::symmetric(10.0, 8.0))
+            .border(Border {
+                color: chrome.line,
+                width: 1.0,
+            })
+            .child(
+                TextField::text(self.studio.keystore_password.get())
+                    .size(12.5)
+                    .style(
+                        TextStyle::new(12.5)
+                            .family(vieww_foundation::FontFamily::Monospace)
+                            .color(colors.on_surface),
+                    )
+                    // `obscure`, not a smaller font or a wider field: the
+                    // framework's mask shapes the caret, the selection and the
+                    // hit tests against what is on screen, stops the field
+                    // copying or cutting itself, and tells a screen reader a
+                    // count rather than the characters.
+                    .obscure(true)
+                    .single_line()
+                    .placeholder("the keystore's password")
+                    .semantics_label("Keystore password")
+                    .selection_color(chrome.selection)
+                    .cursor(colors.primary, 2.0)
+                    .on_changed(std::rc::Rc::new(
+                        move |value: vieww_foundation::TextEditingValue| {
+                            studio.set_keystore_password(value.text);
+                        },
+                    ))
+                    // Enter is what a password field's confirm key has always
+                    // been; the button below is the same action.
+                    .on_submit(std::rc::Rc::new(move |_value: String| {
+                        submitting.confirm_keystore_prompt();
+                    })),
+            )
+            .into();
+
+        let confirming = self.studio.clone();
+        let cancelling = self.studio.clone();
+        let mut dialog = Dialog::new(
+            crate::i18n::t("Android release signing"),
+            crate::i18n::t(
+                "The password is handed to the packaging step and forgotten — it is \
+                 never written to the settings, and the Output panel never sees it.",
+            )
+            .to_owned(),
+        );
+        dialog.body = Some(field);
+        dialog
+            .action(Action::new(
+                crate::i18n::t("Sign the package"),
+                Tone::Primary,
+                move || confirming.confirm_keystore_prompt(),
+            ))
+            .action(Action::new(
+                crate::i18n::t("Cancel"),
+                Tone::Neutral,
+                move || cancelling.cancel_keystore_prompt(),
+            ))
+            .into()
+    }
+}
+
+vieww_widget::widget_node_from!(KeystorePromptDialog);
+
 /// "Move this to the trash?"
 ///
 /// The confirmation that made `delete_to_trash` reachable. Worth being exact
@@ -859,6 +960,7 @@ impl Widget for LiveCaution {
 
         let accepting = self.studio.clone();
         let cancelling = self.studio.clone();
+        let materializing = self.studio.clone();
 
         Dialog::new(
             crate::i18n::t("Live Preview"),
@@ -876,6 +978,18 @@ impl Widget for LiveCaution {
             Tone::Neutral,
             move || {
                 cancelling.cancel_live_preview();
+            },
+        ))
+        // ST-19: the one-click upgrade path off the sketch — the flow becomes
+        // a `.say` file, and from there Render and Build and Run are the real
+        // thing. Beside Continue rather than instead of it: the sketch is
+        // still the right tool for sketching.
+        .action(Action::new(
+            crate::i18n::t("Materialize as Say"),
+            Tone::Neutral,
+            move || {
+                materializing.live_caution.set(false);
+                materializing.materialize_flow();
             },
         ))
         .action(Action::new(
@@ -949,3 +1063,152 @@ impl Widget for LiveMissing {
 }
 
 vieww_widget::widget_node_from!(LiveMissing);
+
+/// ST-03: the prompt box — "Say: Write a Screen from a Prompt".
+///
+/// One text field and one button, because the interesting part of this
+/// feature is not the box: it is what [`crate::say_ai`] does before the user
+/// is asked to look at anything. The card says so, in one line, because a
+/// prompt box whose card overpromises ("AI writes your app") would be the
+/// one place the studio's verification story is contradicted by its own
+/// chrome.
+#[derive(Debug)]
+pub struct SayPromptDialog {
+    pub studio: crate::state::Studio,
+}
+
+impl Widget for SayPromptDialog {
+    fn debug_name(&self) -> &'static str {
+        "SayPromptDialog"
+    }
+
+    fn kind(&self) -> WidgetKind<'_> {
+        WidgetKind::Composed
+    }
+
+    fn build(&self, ctx: &BuildContext) -> WidgetNode {
+        if !self.studio.say_prompt_open.get() {
+            return SizedBox::shrink().into();
+        }
+        let chrome = *StudioTheme::of(ctx);
+        let colors = ThemeData::of(ctx).colors;
+
+        // The field the prompt is typed into. Proportional rather than
+        // monospaced — this is a sentence about a screen, not a screen.
+        let studio = self.studio.clone();
+        let field: WidgetNode = Container::new()
+            .color(chrome.chrome_1)
+            .radius(6.0)
+            .padding(EdgeInsets::symmetric(10.0, 8.0))
+            .border(Border {
+                color: chrome.line,
+                width: 1.0,
+            })
+            .child(
+                TextField::text(self.studio.say_prompt_text.get())
+                    .size(12.5)
+                    .style(TextStyle::new(12.5).color(colors.on_surface))
+                    .placeholder("a column of settings rows under a heading")
+                    .selection_color(chrome.selection)
+                    .cursor(colors.primary, 2.0)
+                    .on_changed(std::rc::Rc::new(
+                        move |value: vieww_foundation::TextEditingValue| {
+                            studio.set_say_prompt_text(value.text);
+                        },
+                    )),
+            )
+            .into();
+
+        let submitting = self.studio.clone();
+        let cancelling = self.studio.clone();
+
+        let mut dialog = Dialog::new(
+            crate::i18n::t("Say: Write a Screen from a Prompt"),
+            crate::i18n::t(
+                "Describe the screen. The model's answer is compiled with the real \
+                 toolchain and rendered twice before you see it — and nothing leaves \
+                 this machine.",
+            ),
+        );
+        dialog.body = Some(field);
+        dialog
+            .action(Action::new(
+                crate::i18n::t("Cancel"),
+                Tone::Neutral,
+                move || {
+                    cancelling.say_prompt_open.set(false);
+                },
+            ))
+            .action(Action::new(
+                crate::i18n::t("Write the screen"),
+                Tone::Primary,
+                move || {
+                    submitting.say_ai_submit();
+                },
+            ))
+            .into()
+    }
+}
+
+vieww_widget::widget_node_from!(SayPromptDialog);
+
+/// ST-03: the diff approval dialog — what survived verification, and the
+/// choice of whether it lands.
+///
+/// The `.say` diff, not the generated Rust: the buffer holds Say, the model
+/// wrote Say, and the person is being asked about *their* file. The lines are
+/// the same `diff_lines` marks the Output panel would show, bounded by the
+/// dialog's own list cap — a screen is a few dozen lines, and a model that
+/// wrote more is a model whose diff scrolls, which the cap says out loud.
+#[derive(Debug)]
+pub struct SayProposalDialog {
+    pub studio: crate::state::Studio,
+}
+
+impl Widget for SayProposalDialog {
+    fn debug_name(&self) -> &'static str {
+        "SayProposalDialog"
+    }
+
+    fn kind(&self) -> WidgetKind<'_> {
+        WidgetKind::Composed
+    }
+
+    fn build(&self, _ctx: &BuildContext) -> WidgetNode {
+        let Some(proposal) = self.studio.say_proposal.get() else {
+            return SizedBox::shrink().into();
+        };
+        let applying = self.studio.clone();
+        let refusing = self.studio.clone();
+
+        Dialog::new(
+            crate::i18n::t("The model wrote a screen"),
+            crate::i18n::t(
+                "It compiled and rendered pixel-identically twice. This is the .say \
+                 diff against the buffer — applying is one edit, so Undo takes it \
+                 back.",
+            ),
+        )
+        .items(crate::say_ai::diff_lines(
+            &self.studio.active().map_or(String::new(), |b| b.value.text),
+            &proposal.say,
+        ))
+        .action(Action::new(
+            crate::i18n::t("Don't apply"),
+            Tone::Neutral,
+            move || {
+                refusing.say_ai_dismiss();
+            },
+        ))
+        .action(Action::new(
+            crate::i18n::t("Apply"),
+            Tone::Primary,
+            move || {
+                applying.say_ai_apply();
+            },
+        ))
+        .into()
+    }
+}
+
+vieww_widget::widget_node_from!(SayProposalDialog);

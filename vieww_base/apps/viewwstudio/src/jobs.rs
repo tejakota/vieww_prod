@@ -67,6 +67,21 @@ pub enum Follow {
     /// plan half-run is application state and this module is deliberately
     /// stateless about *why* anything runs.
     ExportStep,
+    /// One step of a device mirror finished (ST-08): the install, the launch,
+    /// the screenshot, the pull, the clean-up. The studio advances the mirror
+    /// the same way it advances an export — the step list lives there, for the
+    /// same reason [`ExportStep`](Self::ExportStep)'s plan does.
+    MirrorStep,
+    /// The job's stdout is a release feed to be parsed rather than read
+    /// (ST-14). Captured, like [`Listing`](Self::Listing), and separate
+    /// from it for the same reason `GitStatus` is: parsed by a different
+    /// module, with a different refusal vocabulary.
+    UpdateFeed,
+    /// One step of an update or SDK download finished (ST-14): a `curl`
+    /// fetch, the unpack, the bundled-rustc probe. The studio advances the
+    /// download the same way it advances an export — the plan lives there,
+    /// for the same reason [`ExportStep`](Self::ExportStep)'s does.
+    UpdateStep,
     /// The job's stdout is a listing to be parsed rather than read — `adb
     /// devices`, and anything like it. The lines are on the job, which is what
     /// [`capture`](Queue::capture) is for.

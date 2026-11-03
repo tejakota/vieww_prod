@@ -351,6 +351,23 @@ pub fn with_project(source: &str, crate_name: &str) -> String {
         .replace("crate::", &format!("{crate_name}::"))
 }
 
+/// The Say variant of [`with_project`] (ST-05): rewrite **only** the
+/// component path.
+///
+/// Generated Say is not hand-written Rust, and the two substitutions
+/// [`with_project`] makes are both wrong for it: `crate::widgets::…` is the
+/// one reach outside the file — emitted only by a `<Name>` component
+/// reference — while the generated `use super::SayState;` is the file's own
+/// root module and would be corrupted into `use <crate>::SayState` by the
+/// hand-written rule. One path in, one path out, and every other `super`
+/// and `crate` in a generated file means what it says.
+///
+/// Line numbers are preserved, for the same reason as [`with_project`].
+#[must_use]
+pub fn with_say_project(source: &str, crate_name: &str) -> String {
+    source.replace("crate::widgets::", &format!("{crate_name}::widgets::"))
+}
+
 /// Why a toolchain could not be put together.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ToolchainError {
@@ -765,7 +782,13 @@ impl Session {
     }
 
     /// The `(source, library)` pair for the next Render.
-    fn next_pair(&self) -> (PathBuf, PathBuf) {
+    ///
+    /// `pub(crate)` for the Say-prompt worker (`say_ai::ProposeJob`), which
+    /// mints its pairs on the UI thread and crosses only the paths — the
+    /// same arrangement `Job::spawn` makes, stated here so the counter's
+    /// single-threadedness is a documented rule rather than an accident
+    /// somebody trips over.
+    pub(crate) fn next_pair(&self) -> (PathBuf, PathBuf) {
         let index = self.next.get();
         self.next.set(index + 1);
         (
@@ -876,6 +899,11 @@ impl Job {
     ///
     /// `wake` is called once, from the worker, when the result is ready.
     ///
+    /// `say` says the source is **generated Say** rather than hand-written
+    /// Rust, which changes what linking the project means: see
+    /// [`with_say_project`]. A plain `bool` rather than a richer type because
+    /// the honest answers are exactly two.
+    ///
     /// # Errors
     ///
     /// If the buffer cannot be written to the session directory. Everything
@@ -887,6 +915,7 @@ impl Job {
         source: &str,
         file_name: &str,
         project: Option<ProjectLib>,
+        say: bool,
         wake: impl Fn() + Send + 'static,
     ) -> std::io::Result<Self> {
         // The pair is minted here, on the UI thread, because `Session`'s
@@ -894,6 +923,7 @@ impl Job {
         // else the studio holds. Only the paths cross to the worker.
         let (source_path, library_path) = session.next_pair();
         let source = match project.as_ref() {
+            Some(project) if say => with_say_project(source, &project.crate_name),
             Some(project) => with_project(source, &project.crate_name),
             None => source.to_owned(),
         };
@@ -1186,6 +1216,103 @@ pub fn compile(
         &source_path,
         &library_path,
         file_name,
+        None,
+        &AtomicBool::new(false),
+    )
+}
+
+/// [`compile`] for a library whose exports are its own — no preview entry
+/// point appended, because the file *is* the whole library.
+///
+/// ST-13's plugin tests build the in-repo example plugin through this door so
+/// its `vieww` is the same compilation this process links: the same `rustc`,
+/// the same `--extern` rlib, the same flags — which is what makes the
+/// fingerprint the plugin exports equal the one the loader checks. A `cargo`
+/// build of the plugin would add a second dependency resolution to the
+/// sandbox for no gain over that property, exactly the trade the ST-05 test
+/// of the project's rlib documented first.
+///
+/// # Errors
+///
+/// As [`compile`].
+pub fn compile_standalone(
+    toolchain: &Toolchain,
+    session: &Session,
+    source: &str,
+    file_name: &str,
+) -> std::io::Result<Compiled> {
+    let (source_path, library_path) = session.next_pair();
+    std::fs::write(&source_path, source)?;
+    run_rustc(
+        toolchain,
+        &source_path,
+        &library_path,
+        file_name,
+        None,
+        &AtomicBool::new(false),
+    )
+}
+
+/// [`compile`], linked against a project's own library — the synchronous
+/// door the Render worker's [`Job::spawn`] is the asynchronous one of.
+///
+/// Exists for the ST-05 test that proves an extracted component previews
+/// through the project's rlib with the pixels unchanged: the studio itself
+/// always goes through `Job::spawn`, but "the same rustc invocation, waited
+/// on" is what a test needs, and duplicating it in the test would let the
+/// two drift.
+///
+/// `say` selects the rewrite exactly as it does in [`Job::spawn`].
+///
+/// # Errors
+///
+/// As [`compile`].
+#[allow(clippy::similar_names, reason = "`say` is the domain word")]
+pub fn compile_project(
+    toolchain: &Toolchain,
+    session: &Session,
+    source: &str,
+    file_name: &str,
+    project: &ProjectLib,
+    say: bool,
+) -> std::io::Result<Compiled> {
+    let (source_path, library_path) = session.next_pair();
+    let rewritten = if say {
+        with_say_project(source, &project.crate_name)
+    } else {
+        with_project(source, &project.crate_name)
+    };
+    std::fs::write(&source_path, format!("{rewritten}\n{ENTRY}"))?;
+    run_rustc(
+        toolchain,
+        &source_path,
+        &library_path,
+        file_name,
+        Some(project),
+        &AtomicBool::new(false),
+    )
+}
+
+/// [`compile`], at a pair the caller already minted.
+///
+/// For worker threads that cannot hold a [`Session`] — its pair counter is
+/// a `Cell`, single-threaded by design, so the Say-prompt worker mints its
+/// pairs on the UI thread and crosses only the paths. The source is written
+/// *here*, entry point and all, so what `rustc` is handed cannot drift
+/// between the two doors into `run_rustc`: one definition of the file, two
+/// ways to hand it over.
+pub fn compile_at(
+    toolchain: &Toolchain,
+    source_path: &Path,
+    library_path: &Path,
+    source: &str,
+) -> std::io::Result<Compiled> {
+    std::fs::write(source_path, format!("{source}\n{ENTRY}"))?;
+    run_rustc(
+        toolchain,
+        source_path,
+        library_path,
+        "proposal.rs",
         None,
         &AtomicBool::new(false),
     )

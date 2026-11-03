@@ -46,12 +46,32 @@
 # present; `sdk::Manifest` reads it and refuses a bundle whose compiler is not
 # the one it names.
 #
+# # The split SDK, and the checksums (ST-14)
+#
+# `--split-sdk` cuts that bundle in two. The studio archive loses `lib/vieww`
+# entirely (an application of ~60 MB instead of ~600), and the rlibs, `deps/`
+# and the toolchain ship separately as `viewwstudio-sdk-<os>-<arch>.tar.gz`,
+# with the one top-level directory the updater's
+# `tar --strip-components=1` unpack strips. A first launch offers to download
+# the other half of **its own release** into the directory this script would
+# have filled (`lib/vieww` on Linux and Windows, `Contents/Resources/vieww`
+# on macOS) - see `apps/viewwstudio/src/update.rs`, which also refuses a
+# half from any other release, because the pairing between the binary and its
+# rlibs is the whole doctrine of `sdk::Manifest`.
+#
+# Every run - split or not - also writes `SHA256SUMS` over the release
+# assets, in the shape GNU `sha256sum` writes and the studio's updater reads.
+# The download page has linked `releases/latest/download/SHA256SUMS` since it
+# was written; verification of what was published is a property of the
+# release, not of a flag somebody has to remember to pass.
+#
 # Usage:
 #   packaging/package.sh                 # host platform, release profile, archive only
 #   packaging/package.sh --installers    # and every native installer this host can make
 #   packaging/package.sh --debug         # a faster build, for checking the layout
 #   packaging/package.sh --no-toolchain  # ~600 MB smaller, needs a matching rustc on PATH
 #   packaging/package.sh --symbols       # and viewwstudio-<os>-<arch>-symbols.tar.gz (FW-12)
+#   packaging/package.sh --split-sdk     # a ~60 MB studio archive + viewwstudio-sdk-<os>-<arch>.tar.gz (ST-14)
 #   VIEWWSTUDIO_BUILD=$(git rev-parse --short HEAD) packaging/package.sh
 #   VIEWW_REPO=owner/name packaging/package.sh   # override the repo the site links to
 #
@@ -128,6 +148,10 @@ with_symbols=""
 # and a run without it prints the absence instead of staying quiet (see the
 # macOS case below).
 bundle_moltenvk_flag=""
+# ST-14: ship the app and the SDK as two archives, so a first launch is a
+# ~60 MB download and the compiler arrives only if it is wanted. See the
+# header for the shape, and apps/viewwstudio/src/update.rs for the fetch.
+split_sdk=
 for arg in "$@"; do
 	case "$arg" in
 	--debug)
@@ -149,12 +173,23 @@ for arg in "$@"; do
 	--no-toolchain) with_toolchain="" ;;
 	--symbols) with_symbols="yes" ;;
 	--bundle-moltenvk) bundle_moltenvk_flag="yes" ;;
+	--split-sdk) split_sdk="yes" ;;
 	*)
 		echo "unknown option: $arg" >&2
 		exit 2
 		;;
 	esac
 done
+
+# ST-14: the split bundle has two halves and no single installer to put them
+# in - a `.deb` built from the app-only tree would carry a description, a
+# `Depends` and an `Installed-Size` that all lie. The two archives are the
+# whole release. (`--dmg` is allowed: on macOS the .dmg *is* the studio
+# archive, and the split run makes it by default.)
+if [ -n "$split_sdk" ] && [ -n "$require_installers$make_deb$make_appimage$make_msi" ]; then
+	echo "--split-sdk produces the two archives; --installers/--deb/--appimage/--msi embed the one-piece bundle - pass one or the other" >&2
+	exit 2
+fi
 
 # **One compiler, named once.**
 #
@@ -186,6 +221,52 @@ Linux) host="linux" ;;
 MINGW* | MSYS* | CYGWIN*) host="windows" ;;
 *) host="linux" ;;
 esac
+
+# ---------------------------------------------------------------- the repository
+#
+# Resolved once, here, because two halves of this script need it and the
+# first is the build itself: `VIEWWSTUDIO_REPO` is stamped into the binary by
+# `build.rs` and read by the studio's updater (ST-14), which refuses to guess
+# where releases come from. Precedence is the download page's: the deliberate
+# override, then Actions, then the clone. The third case - asking the
+# checkout - is `repo_from_git` below.
+#
+# `git remote get-url origin` handles the three URL shapes a clone can carry:
+#
+#   https://github.com/owner/name.git
+#   git@github.com:owner/name.git
+#   ssh://git@github.com/owner/name
+#
+# Anything that is not GitHub, and any directory that is not a clone, yields
+# nothing and falls through to the no-repo messages. The two environment
+# variables still win - `GITHUB_REPOSITORY` is right in Actions even when
+# `origin` is a fork, and `VIEWW_REPO` is the deliberate override.
+repo_from_git() {
+	local url
+	url="$(git -C "$root" remote get-url origin 2>/dev/null)" || return 0
+	case "$url" in
+	*github.com[:/]*) ;;
+	*) return 0 ;;
+	esac
+	# Strip everything up to and including the host, and the optional `.git`.
+	url="${url#*github.com}"
+	url="${url#[:/]}"
+	url="${url%.git}"
+	url="${url%/}"
+	# `owner/name` and nothing else: two segments, no spaces.
+	case "$url" in
+	*/*/*) return 0 ;;
+	*/*) printf '%s' "$url" ;;
+	esac
+}
+repo="${VIEWW_REPO:-${GITHUB_REPOSITORY:-$(repo_from_git)}}"
+# Stamped, not re-resolved in build.rs: this script already knows, and a
+# second resolution in a second language is a second way to disagree with
+# the download page. A pre-set VIEWWSTUDIO_REPO wins - it is the deliberate
+# hand-authored one.
+if [ -n "$repo" ] && [ -z "${VIEWWSTUDIO_REPO:-}" ]; then
+	export VIEWWSTUDIO_REPO="$repo"
+fi
 
 out="$root/target/package"
 rm -rf "$out"
@@ -562,6 +643,22 @@ rlib = "$rlib"
 EOF
 }
 
+# The SDK half of a split release (ST-14): archived on its own, under the
+# stable version-less name the updater asks its own release for, with the
+# one top-level directory its `tar --strip-components=1` unpack strips.
+#
+# `uname -m` mapped to rust's arch spelling, because the name has to match
+# `std::env::consts::ARCH` on the machine that downloads it - arm64 from
+# uname is aarch64 to everything in this repo.
+archive_sdk() {
+	local sdk="$1" arch
+	arch="$(uname -m)"
+	[ "$arch" = arm64 ] && arch=aarch64
+	tar -C "$out" -czf "$out/viewwstudio-sdk-$host-$arch.tar.gz" "$(basename "$sdk")"
+	echo "==> $out/viewwstudio-sdk-$host-$arch.tar.gz"
+	du -sh "$out/viewwstudio-sdk-$host-$arch.tar.gz" | awk '{print "    " $1}'
+}
+
 # A tool that is not there, said once, in the one voice.
 #
 # Under `--installers` this is fatal: that flag is what release CI passes, and a
@@ -722,11 +819,24 @@ fi
 case "$host" in
 macos)
 	app="$out/vieww Studio.app"
+	# A split release's studio archive on macOS is the .dmg - it is the asset
+	# the updater asks for - so make it even when nothing asked for installers.
+	[ -n "$split_sdk" ] && make_dmg="yes"
 	mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 	cp "$binary" "$app/Contents/MacOS/viewwstudio"
-	copy_rlibs "$app/Contents/Resources/vieww"
-	copy_toolchain "$app/Contents/Resources/vieww"
-	verify_bundle "$app/Contents/Resources/vieww"
+	if [ -n "$split_sdk" ]; then
+		# ST-14: the app without the SDK, and the SDK on its own. The updater
+		# unpacks the latter into Contents/Resources/vieww - the one place
+		# install::sdk_dir names on a Mac.
+		sdk="$out/viewwstudio-sdk-$version"
+		copy_rlibs "$sdk"
+		copy_toolchain "$sdk"
+		verify_bundle "$sdk"
+	else
+		copy_rlibs "$app/Contents/Resources/vieww"
+		copy_toolchain "$app/Contents/Resources/vieww"
+		verify_bundle "$app/Contents/Resources/vieww"
+	fi
 
 	# FW-04: the GPU half of a bundle that runs on a machine nobody prepared.
 	# With the flag: bundle (or fail, saying where it looked — above). Without
@@ -778,14 +888,25 @@ macos)
 		du -sh "$dmg" | awk '{print "    " $1}'
 		bash "$here/sign.sh" mac-dmg "$dmg"
 	fi
+	[ -n "$split_sdk" ] && archive_sdk "$sdk"
 	;;
 linux)
 	tree="$out/viewwstudio-$version"
 	mkdir -p "$tree/bin" "$tree/share/applications" "$tree/share/icons/hicolor"
 	cp "$binary" "$tree/bin/viewwstudio"
-	copy_rlibs "$tree/lib/vieww"
-	copy_toolchain "$tree/lib/vieww"
-	verify_bundle "$tree/lib/vieww"
+	if [ -n "$split_sdk" ]; then
+		# ST-14: the app-only tree. `lib/vieww` is deliberately absent - it is
+		# what a first launch downloads - so the tree is ~60 MB and the SDK
+		# below is archived on its own.
+		sdk="$out/viewwstudio-sdk-$version"
+		copy_rlibs "$sdk"
+		copy_toolchain "$sdk"
+		verify_bundle "$sdk"
+	else
+		copy_rlibs "$tree/lib/vieww"
+		copy_toolchain "$tree/lib/vieww"
+		verify_bundle "$tree/lib/vieww"
+	fi
 	cp "$here/viewwstudio.desktop" "$tree/share/applications/"
 	for size in 16 32 48 64 128 256 512; do
 		dir="$tree/share/icons/hicolor/${size}x${size}/apps"
@@ -793,7 +914,25 @@ linux)
 		cp "$out/icons/icon-$size.png" "$dir/viewwstudio.png"
 	done
 
-	cat >"$tree/install.sh" <<'INSTALL'
+	if [ -n "$split_sdk" ]; then
+		cat >"$tree/install.sh" <<'INSTALL'
+#!/usr/bin/env sh
+# Install the app-only half of a split bundle (ST-14). The SDK - the rlibs
+# and the compiler the preview compiles with - is fetched by the studio
+# itself on first launch, into the lib/vieww this installer does not write.
+set -eu
+prefix="${1:-$HOME/.local}"
+here="$(cd "$(dirname "$0")" && pwd)"
+mkdir -p "$prefix/bin" "$prefix/share"
+cp "$here/bin/viewwstudio" "$prefix/bin/"
+cp -R "$here/share/." "$prefix/share/"
+command -v update-desktop-database >/dev/null 2>&1 &&
+	update-desktop-database "$prefix/share/applications" 2>/dev/null || true
+echo "installed to $prefix"
+echo "if 'viewwstudio' is not found, add $prefix/bin to PATH"
+INSTALL
+	else
+		cat >"$tree/install.sh" <<'INSTALL'
 #!/usr/bin/env sh
 # Install into a prefix. ~/.local needs no privileges and is on the XDG path
 # every desktop reads, so it is the default.
@@ -810,6 +949,7 @@ command -v update-desktop-database >/dev/null 2>&1 &&
 echo "installed to $prefix"
 echo "if 'viewwstudio' is not found, add $prefix/bin to PATH"
 INSTALL
+	fi
 	chmod +x "$tree/install.sh"
 
 	tar -C "$out" -czf "$out/viewwstudio-linux-x86_64.tar.gz" "viewwstudio-$version"
@@ -819,6 +959,8 @@ INSTALL
 	# noticed growing.
 	du -sh "$out/viewwstudio-linux-x86_64.tar.gz" | awk '{print "    " $1}'
 
+	[ -n "$split_sdk" ] && archive_sdk "$sdk"
+
 	[ -n "$make_deb" ] && make_deb "$tree"
 	[ -n "$make_appimage" ] && make_appimage "$tree"
 	;;
@@ -826,9 +968,19 @@ windows)
 	tree="$out/viewwstudio-$version"
 	mkdir -p "$tree/bin"
 	cp "$binary" "$tree/bin/viewwstudio.exe"
-	copy_rlibs "$tree/lib/vieww"
-	copy_toolchain "$tree/lib/vieww"
-	verify_bundle "$tree/lib/vieww"
+	if [ -n "$split_sdk" ]; then
+		# ST-14: the app-only zip, and the SDK on its own; the updater
+		# unpacks the latter into the tree's lib/vieww. Windows 10+ ships
+		# bsdtar as tar.exe, which speaks --strip-components.
+		sdk="$out/viewwstudio-sdk-$version"
+		copy_rlibs "$sdk"
+		copy_toolchain "$sdk"
+		verify_bundle "$sdk"
+	else
+		copy_rlibs "$tree/lib/vieww"
+		copy_toolchain "$tree/lib/vieww"
+		verify_bundle "$tree/lib/vieww"
+	fi
 	copy_windows_std "$tree/bin"
 	cp -R "$out/icons" "$tree/"
 
@@ -858,10 +1010,41 @@ windows)
 		du -sh "$out/viewwstudio-windows-x86_64.zip" | awk '{print "    " $1}'
 	}
 
+	[ -n "$split_sdk" ] && archive_sdk "$sdk"
 	[ -n "$make_msi" ] && make_msi "$tree"
 	echo "    unsigned: Authenticode signing needs a certificate this script does not have"
 	;;
 esac
+
+# ---------------------------------------------------------------- the checksums
+#
+# **SHA256SUMS over every release asset (ST-14).** The download page has
+# linked `releases/latest/download/SHA256SUMS` since it was written, and
+# until this block existed nothing anywhere produced the file - a link to a
+# checksum nobody wrote is worse than no link. The studio's updater reads it
+# before anything it fetched is applied; a person can read it by hand.
+#
+# GNU `sha256sum` where it exists (Linux, Git Bash), `shasum -a 256` on a
+# macOS without coreutils - the two line shapes the updater's parser
+# accepts, so which one wrote the file is a fact about the build machine and
+# nothing else. Every `viewwstudio-*` file in the output directory, and
+# nothing else: index.html is not checksummed (it links the checksums), and
+# neither is SHA256SUMS itself.
+(
+	cd "$out"
+	assets="$(find . -maxdepth 1 -type f -name 'viewwstudio-*' | sed 's|^\./||' | sort)"
+	if [ -n "$assets" ]; then
+		if command -v sha256sum >/dev/null 2>&1; then
+			printf '%s\n' "$assets" | xargs sha256sum --
+		else
+			printf '%s\n' "$assets" | xargs shasum -a 256
+		fi
+	fi
+) >"$out/SHA256SUMS"
+[ -s "$out/SHA256SUMS" ] && {
+	echo "==> $out/SHA256SUMS"
+	echo "    $(wc -l <"$out/SHA256SUMS" | tr -d ' 	') asset(s)"
+}
 
 # ---------------------------------------------------------------- the site
 #
@@ -883,42 +1066,12 @@ esac
 # stop, and rendering it with a guess would produce a page that looks right and
 # 404s. An absent page is the only one of the three that cannot mislead anybody,
 # and the message says how to get the real one.
-# **Third: ask the checkout.** A clone knows which repository it came from, and
-# a release is almost always cut from one. Deriving it here is the difference
-# between a download page that renders by default and one that renders only when
-# somebody remembered a variable — and the failure mode of forgetting was a
-# release with no download page at all.
+# **Third: ask the checkout** - `repo_from_git`, defined above the build
+# alongside the precedence order, because the first consumer of the answer
+# is the build itself (ST-14 stamps it into the binary). The failure mode of
+# forgetting a variable was a release with no download page at all; now the
+# same resolution answers the page, the stamp, and nothing else.
 #
-# `git remote get-url origin` handles the three URL shapes a clone can carry:
-#
-#   https://github.com/owner/name.git
-#   git@github.com:owner/name.git
-#   ssh://git@github.com/owner/name
-#
-# Anything that is not GitHub, and any directory that is not a clone, yields
-# nothing and falls through to the message below. The two environment variables
-# still win — `GITHUB_REPOSITORY` is right in Actions even when `origin` is a
-# fork, and `VIEWW_REPO` is the deliberate override.
-repo_from_git() {
-	local url
-	url="$(git -C "$root" remote get-url origin 2>/dev/null)" || return 0
-	case "$url" in
-	*github.com[:/]*) ;;
-	*) return 0 ;;
-	esac
-	# Strip everything up to and including the host, and the optional `.git`.
-	url="${url#*github.com}"
-	url="${url#[:/]}"
-	url="${url%.git}"
-	url="${url%/}"
-	# `owner/name` and nothing else: two segments, no spaces.
-	case "$url" in
-	*/*/*) return 0 ;;
-	*/*) printf '%s' "$url" ;;
-	esac
-}
-
-repo="${VIEWW_REPO:-${GITHUB_REPOSITORY:-$(repo_from_git)}}"
 if [ -n "$repo" ]; then
 	sed "s|__REPO__|$repo|g" "$root/packaging/site/index.html" > "$out/index.html"
 	echo "==> $out/index.html"

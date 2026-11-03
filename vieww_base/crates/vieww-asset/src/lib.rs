@@ -37,7 +37,7 @@ mod svg;
 
 pub use bundle::{AssetBundle, AssetError, DirectoryBundle, EmbeddedBundle};
 pub use cache::{ImageCache, SharedImageCache};
-pub use codec::{decode, decode_sized, ImageFormat};
+pub use codec::{decode, decode_sized, dimensions, ImageFormat};
 #[cfg(feature = "svg")]
 pub use svg::parse_svg;
 

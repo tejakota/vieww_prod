@@ -105,6 +105,9 @@ pub struct TextField {
     obscure: Obscured,
     placeholder: String,
     placeholder_color: Option<Color>,
+    /// What the semantics tree calls this field, when the placeholder cannot
+    /// be that. See the render object's own `semantics_label` doc.
+    semantics_label: Option<String>,
     key: Option<Key>,
     spans: Option<Vec<TextSpan>>,
     diagnostic_lines: Option<(Rc<Vec<usize>>, Color)>,
@@ -136,6 +139,7 @@ impl TextField {
             obscure: Obscured::No,
             placeholder: String::new(),
             placeholder_color: None,
+            semantics_label: None,
             key: None,
             spans: None,
             diagnostic_lines: None,
@@ -389,6 +393,25 @@ impl TextField {
     #[must_use]
     pub const fn placeholder_shade(&self) -> Option<Color> {
         self.placeholder_color
+    }
+
+    /// Name the field for a screen reader without drawing a placeholder.
+    ///
+    /// For a field whose purpose is already visible *beside* it — a property
+    /// grid's row label, an editor under a tab with the file's name — the
+    /// placeholder cannot carry the label without changing what the field
+    /// looks like. This is the label alone: it reaches the semantics tree and
+    /// nothing else, and it wins over the placeholder when both are set.
+    #[must_use]
+    pub fn semantics_label(mut self, label: impl Into<String>) -> Self {
+        self.semantics_label = Some(label.into());
+        self
+    }
+
+    /// The label a screen reader will hear, if one was given explicitly.
+    #[must_use]
+    pub fn accessibility_label(&self) -> Option<&str> {
+        self.semantics_label.as_deref()
     }
 
     /// Supply syntax-highlighted styled runs for the editable text.
