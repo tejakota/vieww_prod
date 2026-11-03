@@ -67,9 +67,13 @@ fn studio(toolchain: Result<Toolchain, ToolchainError>, seed: u64) -> Studio {
         .with_toolchain(toolchain, session)
 }
 
+/// Unix-only: the fake is a `#!/bin/sh` script made executable, which has no
+/// Windows equivalent here — the two tests that need it are gated with it.
+///
 /// A `rustc` that is a script doing nothing for five seconds: long enough to
 /// assert against a compile that is genuinely still running, short enough
 /// that a cancelled one never outlives the test binary.
+#[cfg(unix)]
 fn slow_rustc(root: &Path) -> PathBuf {
     let script = root.join("slow-rustc");
     std::fs::write(&script, "#!/bin/sh\nsleep 5\nexit 0\n").expect("write the fake rustc");
@@ -284,6 +288,7 @@ fn a_second_ask_while_compiling_is_refused_and_a_dead_rustc_is_failed() {
     );
 }
 
+#[cfg(unix)]
 #[test]
 fn a_render_preempts_a_running_warm_up_rather_than_racing_it() {
     let root = dir("preempt");
@@ -330,6 +335,7 @@ fn a_render_preempts_a_running_warm_up_rather_than_racing_it() {
     studio.cancel_render();
 }
 
+#[cfg(unix)]
 #[test]
 fn a_warm_up_stand_down_when_a_compile_is_already_running() {
     let root = dir("already-running");

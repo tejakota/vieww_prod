@@ -106,11 +106,21 @@ impl std::fmt::Debug for GpuSeam {
     }
 }
 
+/// A *shape's* coverage as a byte, through the coverage gamma — the same
+/// transfer the CPU compositor applies to a fill's antialiased fringe
+/// (`Target::composite_coverage`/`composite_flat`), so the GPU blends the
+/// byte the CPU would have.
+fn shape_byte(c: f32) -> u8 {
+    to_byte(super::linear::coverage_alpha(c))
+}
+
+/// Coverage as a byte, **without** the gamma: what clip masks and shadows
+/// are. The CPU multiplies a clip's coverage in raw (it is a mask over the
+/// draw, not a fringe of it) and composites a shadow's blurred alpha raw
+/// (`composite_tinted_within`); putting either through the ramp here made
+/// every GPU shadow darker and every shaped clip harder than the CPU's —
+/// lavapipe's parity suite, since the gamma landed (019de0c).
 fn to_byte(c: f32) -> u8 {
-    // The coverage gamma first — the same transfer the CPU compositor and
-    // the glyph atlas apply — so every byte this seam hands a GPU backend
-    // is one the CPU would have blended from.
-    let c = super::linear::coverage_alpha(c);
     #[expect(
         clippy::cast_possible_truncation,
         clippy::cast_sign_loss,
@@ -208,7 +218,7 @@ impl GpuSeam {
             for x in 0..width {
                 #[expect(clippy::cast_possible_wrap, reason = "mask extents fit a frame")]
                 let c = mask.coverage_at(x0 + x as i32, y0 + y as i32);
-                alpha[(y * width + x) as usize] = to_byte(c);
+                alpha[(y * width + x) as usize] = shape_byte(c);
             }
         }
         if alpha.iter().all(|&a| a == 0) {

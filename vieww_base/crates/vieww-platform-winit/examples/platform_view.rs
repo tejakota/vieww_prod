@@ -38,11 +38,16 @@
 //!   `docs/architecture/platform-views.md` with the rest of the now-known
 //!   shape.
 
+#[cfg(target_os = "linux")]
 use std::thread;
+#[cfg(target_os = "linux")]
 use std::time::Duration;
 
 /// One step of the slide, in milliseconds — 50 steps at 40 ms is the ~2 s.
+/// Linux-only, like the example's real `main`: elsewhere it only refuses.
+#[cfg(target_os = "linux")]
 const STEP: Duration = Duration::from_millis(40);
+#[cfg(target_os = "linux")]
 const STEPS: usize = 50;
 
 #[cfg(target_os = "linux")]

@@ -268,7 +268,10 @@ jobs:
       - name: AAudio (Android)
         run: cargo clippy -p vieww-audio --lib --target aarch64-linux-android -- -D warnings
       - name: Web Audio (wasm32)
-        run: cargo clippy -p vieww-audio --lib --target wasm32-unknown-unknown -- -D warnings
+        run: |
+          cargo clippy -p vieww-audio --lib --target wasm32-unknown-unknown -- -D warnings
+          # The Web MIDI backend is opt-in (feature web-midi); lint it too.
+          cargo clippy -p vieww-audio --lib --target wasm32-unknown-unknown --features web-midi -- -D warnings
       - uses: actions/setup-node@v4
         with:
           node-version: "22"

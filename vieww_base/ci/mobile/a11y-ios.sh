@@ -92,7 +92,9 @@ case "$mode" in
         # The app bundle the suite launches. Built, not rebuilt: the project's
         # app target copies this directory in place, so the test drives the
         # exact bytes ios-app.sh shipped.
-        app="$(cd "$(dirname "$0")" && pwd)/../../../target/ios/vieww.app"
+        # ios-app.sh writes target/ios/ relative to vieww_base/ (where CI runs it),
+        # which is two levels up from this script, not three.
+        app="$(cd "$(dirname "$0")/../.." && pwd)/target/ios/vieww.app"
         [ -d "$app" ] || fail "no app bundle at target/ios/vieww.app — run ci/mobile/ios-app.sh --sim --bundle-only first"
         report "app bundle found: $app"
 

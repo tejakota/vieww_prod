@@ -9,9 +9,8 @@ name: Audio backends
 #   * macOS (Core Audio) and Windows (WASAPI): the backends build and their
 #     tests run; on runners without an audio device they must refuse
 #     cleanly, which is what is checked.
-#   * Android (AAudio) and the web (Web Audio, Web MIDI): cargo check
-#     for the target; the web shims' logic runs under Node with a
-#     simulated Web Audio and a simulated Web MIDI.
+#   * Android (AAudio) and the web (Web Audio): cargo check for the target;
+#     the web shim's logic runs under Node with a simulated Web Audio.
 #   * Every backend also type-checks and lints on Linux via
 #     --cfg vieww_check_all.
 #   * Loopback (tests/device_loopback.rs): a known signal is played and
@@ -268,12 +267,13 @@ jobs:
           rustup target add aarch64-linux-android wasm32-unknown-unknown
       - name: AAudio (Android)
         run: cargo clippy -p vieww-audio --lib --target aarch64-linux-android -- -D warnings
-      - name: Web Audio and Web MIDI (wasm32)
-        run: cargo clippy -p vieww-audio --lib --target wasm32-unknown-unknown -- -D warnings
+      - name: Web Audio (wasm32)
+        run: |
+          cargo clippy -p vieww-audio --lib --target wasm32-unknown-unknown -- -D warnings
+          # The Web MIDI backend is opt-in (feature web-midi); lint it too.
+          cargo clippy -p vieww-audio --lib --target wasm32-unknown-unknown --features web-midi -- -D warnings
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
       - name: Web Audio shim (Node, simulated browser)
         run: node crates/vieww-audio/web/test.mjs
-      - name: Web MIDI shim (Node, simulated browser)
-        run: node crates/vieww-audio/web/test-midi.mjs

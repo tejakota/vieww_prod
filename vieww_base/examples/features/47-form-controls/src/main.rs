@@ -67,10 +67,17 @@ impl vieww_widget::Widget for Form {
                                 .spacing(14.0)
                                 .children(children![
                                     SizedBox::from_size(Size::new(360.0, 40.0)).child(
-                                        Slider::new(volume).range(0.0, 1.0).on_changed(on_volume),
+                                        Slider::new(volume)
+                                            .range(0.0, 1.0)
+                                            .label("Volume")
+                                            .on_changed(on_volume),
                                     ),
-                                    SizedBox::from_size(Size::new(360.0, 40.0))
-                                        .child(Slider::new(0.5).range(0.0, 1.0).divisions(4)),
+                                    SizedBox::from_size(Size::new(360.0, 40.0)).child(
+                                        Slider::new(0.5)
+                                            .range(0.0, 1.0)
+                                            .divisions(4)
+                                            .label("Steps")
+                                    ),
                                 ]),
                         ),
                         row(
@@ -80,8 +87,11 @@ impl vieww_widget::Widget for Form {
                         ),
                         row(
                             "TextField",
-                            SizedBox::from_size(Size::new(360.0, 44.0))
-                                .child(TextField::text("hello@example.com").show_cursor(true)),
+                            SizedBox::from_size(Size::new(360.0, 44.0)).child(
+                                TextField::text("hello@example.com")
+                                    .semantics_label("Email")
+                                    .show_cursor(true)
+                            ),
                         ),
                     ]),
             )

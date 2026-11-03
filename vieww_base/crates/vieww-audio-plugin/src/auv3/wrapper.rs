@@ -1801,6 +1801,7 @@ mod tests {
         assert_eq!(GLOBAL_DESCRIPTOR.size, std::mem::size_of::<PtrBlock>());
     }
 
+    #[repr(C)]
     struct Probe {
         head: Block,
         hits: *const std::sync::atomic::AtomicUsize,
@@ -1838,8 +1839,12 @@ mod tests {
                 clippy::missing_transmute_annotations,
                 reason = "the symbol is variadic by nature"
             )]
-            let f: unsafe extern "C" fn(Id) = core::mem::transmute((*probe.cast::<Block>()).invoke);
-            f(std::ptr::from_ref(&*probe).cast_mut());
+            // The probe *is* a block (its `Block` is the first field of a
+            // `repr(C)` struct): invoke it through the block's own pointer,
+            // as the runtime would.
+            let raw = std::ptr::from_ref::<Probe>(&probe);
+            let f: unsafe extern "C" fn(Id) = core::mem::transmute((*raw.cast::<Block>()).invoke);
+            f(raw.cast_mut().cast());
             assert_eq!(hit.load(Ordering::Relaxed), 1);
         }
     }

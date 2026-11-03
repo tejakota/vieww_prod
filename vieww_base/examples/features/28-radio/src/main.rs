@@ -18,8 +18,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .color(Color::WHITE)
                 .padding(EdgeInsets::all(24.0))
                 .child(Flex::row().spacing(24.0).children(children![
-                    Radio::new(true).on_selected(std::rc::Rc::new(|()| {})),
-                    Radio::new(false).on_selected(std::rc::Rc::new(|()| {})),
+                    Radio::new(true).label("Selected").on_selected(std::rc::Rc::new(|()| {})),
+                    Radio::new(false).label("Not selected").on_selected(std::rc::Rc::new(|()| {})),
                 ])),
         );
     })

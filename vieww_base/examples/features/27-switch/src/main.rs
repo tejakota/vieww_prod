@@ -18,8 +18,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .color(Color::WHITE)
                 .padding(EdgeInsets::all(24.0))
                 .child(Flex::row().spacing(24.0).children(children![
-                    Switch::new(true).on_changed(std::rc::Rc::new(|_: bool| {})),
-                    Switch::new(false).on_changed(std::rc::Rc::new(|_: bool| {})),
+                    Switch::new(true).label("On").on_changed(std::rc::Rc::new(|_: bool| {})),
+                    Switch::new(false).label("Off").on_changed(std::rc::Rc::new(|_: bool| {})),
                 ])),
         );
     })

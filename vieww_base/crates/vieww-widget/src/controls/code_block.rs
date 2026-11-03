@@ -300,10 +300,12 @@ impl CodeTheme {
         function: Color::rgb(97, 175, 239),
         string: Color::rgb(152, 195, 121),
         number: Color::rgb(209, 154, 102),
-        comment: Color::rgb(110, 118, 135),
+        // Gutter and comment clear WCAG AA (4.5:1) on this background — the
+        // gallery audit flagged the old 2.4:1 and 3.5:1 values.
+        comment: Color::rgb(132, 139, 153),
         punctuation: Color::rgb(160, 168, 185),
         property: Color::rgb(224, 108, 117),
-        gutter: Color::rgb(85, 92, 108),
+        gutter: Color::rgb(133, 138, 149),
         highlight: Color::rgba(97, 175, 239, 40),
     };
 
@@ -316,10 +318,11 @@ impl CodeTheme {
         function: Color::rgb(130, 80, 223),
         string: Color::rgb(10, 48, 105),
         number: Color::rgb(5, 80, 174),
-        comment: Color::rgb(110, 119, 129),
+        // AA on this background too (were 4.3:1 and 2.3:1).
+        comment: Color::rgb(106, 114, 124),
         punctuation: Color::rgb(87, 96, 106),
         property: Color::rgb(5, 80, 174),
-        gutter: Color::rgb(160, 166, 174),
+        gutter: Color::rgb(109, 113, 118),
         highlight: Color::rgba(255, 213, 79, 70),
     };
 

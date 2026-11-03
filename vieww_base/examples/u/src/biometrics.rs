@@ -91,8 +91,17 @@ mod android {
     /// The shim's class, by the name it goes by.
     const CLASS: &str = "dev.vieww.u.UBiometricShim";
 
-    /// The shim's state codes, mirrored verbatim.
+    /// The shim's state codes, mirrored verbatim. IDLE and RUNNING are kept
+    /// for the record: the poll loop treats both as "keep waiting".
+    #[allow(
+        dead_code,
+        reason = "mirrored from the Java shim; waited on through `Ok(_)`"
+    )]
     const IDLE: i32 = 0;
+    #[allow(
+        dead_code,
+        reason = "mirrored from the Java shim; waited on through `Ok(_)`"
+    )]
     const RUNNING: i32 = 1;
     const OK: i32 = 2;
     const CANCELLED: i32 = 3;

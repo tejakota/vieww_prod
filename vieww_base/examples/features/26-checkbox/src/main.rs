@@ -18,9 +18,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .color(Color::WHITE)
                 .padding(EdgeInsets::all(24.0))
                 .child(Flex::row().spacing(24.0).children(children![
-                    Checkbox::new(true).on_changed(std::rc::Rc::new(|_: bool| {})),
-                    Checkbox::new(false).on_changed(std::rc::Rc::new(|_: bool| {})),
-                ])),
+                        Checkbox::new(true)
+                            .label("Checked")
+                            .on_changed(std::rc::Rc::new(|_: bool| {})),
+                        Checkbox::new(false)
+                            .label("Unchecked")
+                            .on_changed(std::rc::Rc::new(|_: bool| {})),
+                    ])),
         );
     })
 }

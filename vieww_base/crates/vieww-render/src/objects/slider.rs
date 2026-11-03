@@ -1,7 +1,9 @@
 use std::cell::Cell;
 use std::fmt;
 
-use vieww_foundation::{Color, Constraints, Offset, Path, Rect, Size};
+use vieww_foundation::{
+    Color, Constraints, KeyEvent, LogicalKey, NamedKey, Offset, Path, Rect, Size,
+};
 use vieww_gestures::{DragRecognizer, GestureRecognizer, Recognized, TapRecognizer};
 use vieww_widget::Handler;
 
@@ -173,6 +175,16 @@ impl RenderSlider {
     /// end, so the thumb stays inside the box at both extremes.
     fn travel(&self) -> f32 {
         (self.width.get() - self.thumb_radius * 2.0).max(0.0)
+    }
+
+    /// One keyboard or screen-reader step: a tenth of the range, or one
+    /// division where the slider has them — stepping by a pixel would make a
+    /// user press the key a hundred times to cross a volume slider.
+    fn step(&self) -> f32 {
+        match self.divisions {
+            Some(divisions) if divisions > 0 => (self.max - self.min) / divisions as f32,
+            _ => (self.max - self.min) / 10.0,
+        }
     }
 
     /// The value a point at `dx` from the left edge asks for.
@@ -367,17 +379,37 @@ impl RenderObject for RenderSlider {
         }
     }
 
+    /// Tab reaches an enabled slider: it offers Increment and Decrement to a
+    /// screen reader, and a control a screen reader can operate but the
+    /// keyboard cannot is WCAG 2.1.1's failure (the gallery audit's find).
+    fn is_focusable(&self) -> bool {
+        self.is_enabled()
+    }
+
+    /// The arrows step it by the same amount the screen-reader actions do;
+    /// Home and End jump to the ends — the ARIA slider pattern.
+    fn handle_key(&self, event: &KeyEvent) -> bool {
+        if !self.is_enabled() || !event.is_down() {
+            return false;
+        }
+        let next = match event.key {
+            LogicalKey::Named(NamedKey::ArrowRight | NamedKey::ArrowUp) => self.value + self.step(),
+            LogicalKey::Named(NamedKey::ArrowLeft | NamedKey::ArrowDown) => {
+                self.value - self.step()
+            }
+            LogicalKey::Named(NamedKey::Home) => self.min,
+            LogicalKey::Named(NamedKey::End) => self.max,
+            _ => return false,
+        };
+        self.report(next.clamp(self.min, self.max));
+        true
+    }
+
     fn handle_semantic_action(&self, action: SemanticAction, _size: Size) -> bool {
         if !self.is_enabled() {
             return false;
         }
-        // A tenth of the range, or one division where the slider has them —
-        // stepping by a pixel would make a screen reader user press the key a
-        // hundred times to cross a volume slider.
-        let step = match self.divisions {
-            Some(divisions) if divisions > 0 => (self.max - self.min) / divisions as f32,
-            _ => (self.max - self.min) / 10.0,
-        };
+        let step = self.step();
         let next = match action {
             SemanticAction::Increment => self.value + step,
             SemanticAction::Decrement => self.value - step,
@@ -496,6 +528,32 @@ mod tests {
                 .on_changed(Rc::new(move |value| sink.borrow_mut().push(value))),
         );
         (slider, seen)
+    }
+
+    /// Tab reaches an enabled slider and the keyboard moves it — the ARIA
+    /// slider keys — while a disabled one is neither a stop nor movable.
+    #[test]
+    fn the_keyboard_reaches_and_moves_an_enabled_slider() {
+        use std::time::Duration;
+        use vieww_foundation::{KeyEvent, LogicalKey, NamedKey};
+        let key = |k| KeyEvent::down(LogicalKey::Named(k), Duration::ZERO);
+
+        let (slider, seen) = reporting();
+        assert!(slider.is_focusable());
+        assert!(slider.handle_key(&key(NamedKey::ArrowRight)));
+        assert!(slider.handle_key(&key(NamedKey::ArrowLeft)));
+        assert!(slider.handle_key(&key(NamedKey::End)));
+        assert!(slider.handle_key(&key(NamedKey::Home)));
+        assert!(
+            !slider.handle_key(&key(NamedKey::Enter)),
+            "not a slider key"
+        );
+        // Controlled: the value stays 0, so each step is reported from 0.
+        assert_eq!(*seen.borrow(), vec![10.0, 0.0, 100.0, 0.0]);
+
+        let disabled = laid_out(RenderSlider::new(0.0, 0.0, 100.0));
+        assert!(!disabled.is_focusable());
+        assert!(!disabled.handle_key(&key(NamedKey::ArrowRight)));
     }
 
     fn tap_at(dx: f32) -> Recognized {

@@ -91,13 +91,13 @@ fn named_only(modes: &[BlendMode]) -> WidgetNode {
         )
         .push(
             Text::new(names.join(" \u{00B7} "))
-                .style(TextStyle::new(9.0).color(Color::hex(0x8A_8A8A))),
+                .style(TextStyle::new(9.0).color(Color::hex(0x6A_6A6A))),
         )
         .push(
             Text::new(
                 "each is composited as Normal and counted in SceneReport::unsupported_blends",
             )
-            .style(TextStyle::new(8.0).color(Color::hex(0xA0_A0A0))),
+            .style(TextStyle::new(8.0).color(Color::hex(0x6A_6A6A))),
         )
         .into()
 }

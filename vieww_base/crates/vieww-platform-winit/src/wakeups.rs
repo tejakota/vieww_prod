@@ -50,6 +50,13 @@ pub fn wakeups_between(earlier: Option<u64>, later: Option<u64>) -> Option<u64> 
 /// Both lines are kernel-formatted as `Name:\t<number>` and both must be
 /// present for a reading: a torn read where one line is missing is no reading
 /// at all, which is the same all-or-nothing rule `cpu_time`'s parser keeps.
+#[cfg_attr(
+    not(any(target_os = "linux", target_os = "android")),
+    allow(
+        dead_code,
+        reason = "only /proc platforms read the file; the tests use it everywhere"
+    )
+)]
 fn wakeups_from_status(status: &str) -> Option<u64> {
     let value = |key: &str| {
         status

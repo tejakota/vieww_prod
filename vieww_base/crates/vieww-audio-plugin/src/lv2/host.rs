@@ -368,7 +368,9 @@ unsafe fn unload(h: *mut c_void) {
 #[cfg(windows)]
 unsafe fn load(p: &CString) -> *mut c_void {
     use std::os::windows::ffi::OsStrExt;
-    let path = std::path::Path::new(p.to_string_lossy().as_ref());
+    // Bound first: `Path::new` borrows the string, so the `Cow` must outlive it.
+    let lossy = p.to_string_lossy();
+    let path = std::path::Path::new(lossy.as_ref());
     let wide: Vec<u16> = path.as_os_str().encode_wide().chain(Some(0)).collect();
     // SAFETY: kernel32 with a valid wide path.
     unsafe { dl::LoadLibraryW(wide.as_ptr()) }
@@ -376,8 +378,7 @@ unsafe fn load(p: &CString) -> *mut c_void {
 
 #[cfg(windows)]
 unsafe fn last_error() -> String {
-    // SAFETY: the last Windows error.
-    unsafe { std::io::Error::last_os_error().to_string() }
+    std::io::Error::last_os_error().to_string()
 }
 
 #[cfg(windows)]

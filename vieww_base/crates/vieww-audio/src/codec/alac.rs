@@ -315,17 +315,10 @@ fn predict(res: &[i32], coefs: &mut [i16], num: u32, chan_bits: u32, den_shift: 
         return out;
     }
     let num = num as usize;
-    // `den_shift` is a 4-bit field, and 0 is a value a corrupt file can
-    // write: `1 << (den_shift − 1)` was the `subtract with overflow`
-    // panic the fuzzer found on this line. With no shift there is no
-    // rounding half — the division rounds nowhere — and every
-    // `>> den_shift` below is the identity, so the decode stays defined
-    // and the concealment pass judges whatever values come out.
-    let den_half = if den_shift == 0 {
-        0
-    } else {
-        1i64 << (den_shift - 1)
-    };
+    // The header's 4-bit shift can be 0, where the reference's
+    // `1 << (denshift - 1)` is undefined; no rounding term is the only
+    // answer that cannot panic or depend on the compiler.
+    let den_half = den_shift.checked_sub(1).map_or(0, |s| 1i64 << s);
     // Warm-up: straight integration for the first `num` samples.
     for j in 1..=num.min(n - 1) {
         out[j] = clamp(i64::from(res[j]) + i64::from(out[j - 1]));
@@ -475,12 +468,9 @@ fn unmix(
     shift: &[u16],
     bytes_shifted: u8,
 ) {
-    // `mixBits` is an 8-bit field: ≥ 64 would overflow the shifts below
-    // — corrupt-file territory, real matrices sit in single digits.
-    // Clamped rather than refused so the values a corrupt pair produces
-    // stay defined and the concealment pass can judge them, the same
-    // posture the predictor takes.
-    let mix_bits = u32::from(mix_bits).min(63);
+    // `mix_bits` arrives ≤ 31 — `frame` refuses anything larger before
+    // decorrelating, the same bound the reference's 32-bit products
+    // impose — so every shift below is defined for a hostile value.
     let sh = u32::from(bytes_shifted) * 8;
     for (i, ((&a, &b), frame)) in u
         .iter()
@@ -569,18 +559,12 @@ fn frame(data: &[u8], cfg: &Config, default_samples: usize) -> Result<Vec<i32>, 
                         r.skip(usize::from(bytes_shifted) * 8 * samples)
                             .ok_or(CodecError::Truncated)?;
                     }
-                    let chan_bits = u32::from(cfg.bit_depth) - u32::from(bytes_shifted) * 8;
-                    if chan_bits == 0 {
-                        // 16-bit mono with both bytes shifted off: the
-                        // predictor would sign-extend through a 32-bit
-                        // shift — a panic on a shape no encoder writes
-                        // (shift-off exists to narrow 24/32-bit samples;
-                        // a 16-bit sample has nothing to shift). Refused
-                        // by name rather than decoded as noise.
-                        return Err(CodecError::Malformed(
-                            "ALAC shift-off leaves no coded bits",
-                        ));
-                    }
+                    let chan_bits = u32::from(cfg.bit_depth)
+                        .checked_sub(u32::from(bytes_shifted) * 8)
+                        .filter(|&b| b > 0)
+                        .ok_or(CodecError::Malformed(
+                            "ALAC shift-off exceeds the sample depth",
+                        ))?;
                     let res = residuals(
                         &mut r,
                         samples,
@@ -638,6 +622,11 @@ fn frame(data: &[u8], cfg: &Config, default_samples: usize) -> Result<Vec<i32>, 
                     }
                 } else {
                     mix_bits = rd(&mut r, 8)? as u8;
+                    // The reference shifts a 32-bit product by this; past 31
+                    // that is undefined there and a panic here (fuzzer find).
+                    if mix_bits > 31 {
+                        return Err(CodecError::Malformed("ALAC mix shift"));
+                    }
                     mix_res = rd(&mut r, 8)? as u8 as i8;
                     let hu = half(&mut r)?;
                     let hv = half(&mut r)?;
@@ -651,7 +640,13 @@ fn frame(data: &[u8], cfg: &Config, default_samples: usize) -> Result<Vec<i32>, 
                     // mid channel's +1 needs. 32-bit pairs always shift at
                     // least one byte off (the reference asserts it; ffmpeg
                     // refuses the 33-bit read outright, and so does this).
-                    let chan_bits = u32::from(cfg.bit_depth) - u32::from(bytes_shifted) * 8 + 1;
+                    let chan_bits = u32::from(cfg.bit_depth)
+                        .checked_sub(u32::from(bytes_shifted) * 8)
+                        .filter(|&b| b > 0)
+                        .ok_or(CodecError::Malformed(
+                            "ALAC shift-off exceeds the sample depth",
+                        ))?
+                        + 1;
                     if chan_bits > 32 {
                         return Err(CodecError::Unsupported(
                             "ALAC 32-bit stereo without shift-off bytes",
@@ -693,7 +688,10 @@ fn frame(data: &[u8], cfg: &Config, default_samples: usize) -> Result<Vec<i32>, 
                     mix_bits,
                     mix_res,
                     &shift,
-                    bytes_shifted,
+                    // An escaped (uncompressed) pair ignores the shift-off
+                    // flag, as the mono path and the reference do; only a
+                    // compressed pair read any shift bytes (fuzzer find).
+                    if esc { 0 } else { bytes_shifted },
                 );
                 filled += 2;
             }
@@ -849,6 +847,16 @@ impl super::stream::FrameSource for AlacSource {
 mod tests {
     use super::super::{s16le, snr_db};
     use super::*;
+
+    /// The fuzzer's find (framework-checks, 2026-11-03): a predictor header
+    /// with a zero shift panicked on `den_shift - 1`. It must decode, not panic.
+    #[test]
+    fn a_zero_predictor_shift_does_not_panic() {
+        let res = [5, -3, 7, 2, -1, 4, 0, 9];
+        let mut coefs = [1i16, -2, 3];
+        let out = predict(&res, &mut coefs, 3, 16, 0);
+        assert_eq!(out.len(), res.len());
+    }
 
     /// ALAC is lossless: the decode must be *bit-exact* against ffmpeg's
     /// own decode, not merely close. The SNR oracle doubles as the length
@@ -1090,11 +1098,12 @@ mod tests {
         assert_eq!(out.len(), 2);
     }
 
-    /// A stereo pair whose `mixBits` is ≥ 64 — an 8-bit field —
-    /// overflowed the decorrelation shift. Clamped now; the matrix's
-    /// garbage stays defined and concealment judges it.
+    /// A stereo pair whose `mixBits` is ≥ 32 — an 8-bit field — shifted
+    /// the matrix's product past its width: undefined in the reference,
+    /// a panic here. The decode refuses it by name; real matrices sit
+    /// in single digits.
     #[test]
-    fn a_hostile_mix_bits_decodes_rather_than_panicking() {
+    fn a_hostile_mix_bits_refuses_rather_than_panicking() {
         use super::super::bits::MsbWriter;
         let mut w = MsbWriter::default();
         w.write(1, 3); // channel pair
@@ -1121,8 +1130,10 @@ mod tests {
             channels: 2,
             rate: 44_100,
         };
-        let out = frame(&w.bytes, &cfg, 2).unwrap();
-        assert_eq!(out.len(), 4);
+        assert!(matches!(
+            frame(&w.bytes, &cfg, 2),
+            Err(CodecError::Malformed("ALAC mix shift"))
+        ));
     }
 
     /// 16-bit mono that shifts both bytes off leaves zero coded bits —
@@ -1160,7 +1171,9 @@ mod tests {
         };
         assert!(matches!(
             frame(&w.bytes, &cfg, 2),
-            Err(CodecError::Malformed("ALAC shift-off leaves no coded bits"))
+            Err(CodecError::Malformed(
+                "ALAC shift-off exceeds the sample depth"
+            ))
         ));
     }
 }

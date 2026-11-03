@@ -12,7 +12,8 @@ use vieww_widget::prelude::*;
 
 const INK: Color = Color::hex(0x1A_1A1A);
 const MUTED: Color = Color::hex(0x6E_6E6E);
-const RULE: Color = Color::hex(0xD0_47_4E);
+// Darkened from 0xD0474E, which sat at 4.47:1 on white — just under AA.
+const RULE: Color = Color::hex(0xC0_3C_43);
 
 /// A downward chevron, in the 24-unit grid `Icon` scales from.
 fn chevron() -> IconData {

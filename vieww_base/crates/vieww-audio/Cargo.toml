@@ -30,6 +30,13 @@ default = ["aac"]
 # `default-features = false` and AAC input fails with
 # `CodecError::Unsupported`. See PATENTS.md.
 aac = []
+# Web MIDI on wasm32, through the `vieww_midi` JS shim (web/vieww-midi.js).
+# Opt-in: the backend's exported receive hook keeps the shim's imports in
+# every wasm build, and a page that does not load the shim then fails to
+# start at all ("Failed to resolve module specifier vieww_midi" — every web
+# app, framework-checks 2026-11-03). An app that wants MIDI on the web turns
+# this on and serves the shim; without it wasm32 reports no MIDI ports.
+web-midi = []
 
 [lints]
 workspace = true

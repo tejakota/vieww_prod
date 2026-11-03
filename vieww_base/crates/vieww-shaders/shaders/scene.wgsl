@@ -181,6 +181,15 @@ fn shape_coverage(rect: vec4<f32>, radius: f32, p: vec2<f32>) -> f32 {
     return clamp(0.5 - shape_distance(rect, radius, p), 0.0, 1.0);
 }
 
+// The coverage gamma the CPU compositor puts a *fill's* antialiased fringe
+// through (`vieww-paint`'s `linear::coverage_alpha`: the square root, Skia's
+// A8 policy). A shape edged here must take it too, or every GPU edge is
+// lighter than the CPU's. Clip masks are not fills and stay linear, on both
+// sides; glyph coverage arrives from the atlas already transferred.
+fn fill_coverage(coverage: f32) -> f32 {
+    return sqrt(coverage);
+}
+
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let px = vec2<i32>(floor(in.clip_position.xy));
@@ -208,7 +217,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
         }
     } else if in.kind < 4.5 {
         // A flat colour, edged analytically.
-        let coverage = shape_coverage(in.shape, in.uv.x, in.clip_position.xy);
+        let coverage = fill_coverage(shape_coverage(in.shape, in.uv.x, in.clip_position.xy));
         out = premul(in.color) * coverage;
     } else {
         // A gradient, edged analytically: the gradient branch's own maths,
@@ -220,7 +229,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
             let offset = BAYER4[((px.y & 3) * 4) + (px.x & 3)] / 255.0;
             out = clamp(out + vec4<f32>(offset), vec4<f32>(0.0), vec4<f32>(1.0));
         }
-        let coverage = shape_coverage(in.shape, in.uv.x, in.clip_position.xy);
+        let coverage = fill_coverage(shape_coverage(in.shape, in.uv.x, in.clip_position.xy));
         out = out * coverage;
     }
     if in.mask.z > 0.5 {

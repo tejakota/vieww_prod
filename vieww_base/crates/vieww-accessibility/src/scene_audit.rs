@@ -165,6 +165,42 @@ fn covers(rect: Rect, run: Rect, em: f32) -> bool {
     rect.left <= left && rect.right >= right && rect.top <= top && rect.bottom >= bottom
 }
 
+/// Whether a filled path's *ink* covers the run, not just its bounding box.
+///
+/// An outlined box (a chip's or a text field's border) is drawn as one
+/// `FillPath` ring — outer contour plus inner contour — whose bounds wrap the
+/// label it merely surrounds. Judging the label against the ring's colour
+/// flagged every outlined control as failing (framework-checks, 2026-11-03).
+/// So the run's centre and its four corners, pulled in by the same slack
+/// [`covers`] allows, must all be inside the fill under the rasterizer's
+/// non-zero rule.
+fn path_covers(path: &vieww_foundation::Path, run: Rect, em: f32) -> bool {
+    if !covers(path.bounds(), run, em) {
+        return false;
+    }
+    // `covers` above already refused a run shorter than its own slack.
+    let slack = em * METRIC_SLACK_EM;
+    let inset = Rect::new(
+        run.left + slack,
+        run.top + slack,
+        run.right - slack,
+        run.bottom - slack,
+    );
+    let rule = vieww_foundation::FillRule::NonZero;
+    [
+        vieww_foundation::Offset::new(
+            (inset.left + inset.right) / 2.0,
+            (inset.top + inset.bottom) / 2.0,
+        ),
+        vieww_foundation::Offset::new(inset.left, inset.top),
+        vieww_foundation::Offset::new(inset.right, inset.top),
+        vieww_foundation::Offset::new(inset.left, inset.bottom),
+        vieww_foundation::Offset::new(inset.right, inset.bottom),
+    ]
+    .into_iter()
+    .all(|point| path.contains(point, rule))
+}
+
 /// The bounding box of a glyph run, in the scene's coordinate space.
 fn run_bounds(run: &vieww_foundation::GlyphRun) -> Rect {
     let mut left = f32::INFINITY;
@@ -232,7 +268,11 @@ pub fn text_contrast(scene: &Scene) -> TextContrastReport {
         let mut backdrop: Option<Color> = None;
         for earlier in commands[..index].iter().rev() {
             let (covers_run, resolvable) = match earlier {
-                Command::FillRect { .. } | Command::FillPath { .. } => {
+                Command::FillPath { path, .. } => (
+                    path_covers(path, bounds, run.size),
+                    solid_opaque_fill(earlier).map(|(c, _)| c),
+                ),
+                Command::FillRect { .. } => {
                     match solid_opaque_fill(earlier) {
                         Some((color, rect)) => (covers(rect, bounds, run.size), Some(color)),
                         // An unresolvable fill that covers the run is a real
@@ -240,11 +280,10 @@ pub fn text_contrast(scene: &Scene) -> TextContrastReport {
                         // rather than let it continue to whatever is *under*
                         // the translucent fill, which would flatter the ratio.
                         None => {
-                            let rect = match earlier {
-                                Command::FillRect { rect, .. } => *rect,
-                                Command::FillPath { path, .. } => path.bounds(),
-                                _ => unreachable!("matched above"),
+                            let Command::FillRect { rect, .. } = earlier else {
+                                unreachable!("matched above");
                             };
+                            let rect = *rect;
                             (covers(rect, bounds, run.size), None)
                         }
                     }
@@ -308,6 +347,23 @@ mod tests {
 
     fn harness(size: Size) -> TestHarness {
         TestHarness::new(size)
+    }
+
+    /// An outlined chip's border ring wraps its label but is not its
+    /// backdrop: the label is judged against the white it actually sits on.
+    #[test]
+    fn an_outline_ring_is_not_the_backdrop_of_the_label_it_surrounds() {
+        let mut h = harness(Size::new(300.0, 100.0));
+        h.mount(
+            Container::new()
+                .color(Color::WHITE)
+                .padding(EdgeInsets::all(24.0))
+                .child(Chip::new("inbox")),
+        );
+        h.tick_and_settle(4);
+        let report = driver_text_contrast(h.driver());
+        assert!(report.failures.is_empty(), "{report:?}");
+        assert_eq!(report.checked, 1, "the label is still judged: {report:?}");
     }
 
     /// Grey-on-white text at 16px: the canonical AA failure.

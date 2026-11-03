@@ -102,7 +102,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             Text::new(format!("GET /api/status → 200: {status}")).style(
                                 TextStyle {
                                     size: 12.0,
-                                    color: Color::rgb(130, 140, 160),
+                                    color: Color::rgb(90, 99, 117),
                                     ..TextStyle::default()
                                 },
                             ),
@@ -111,7 +111,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 log.first().cloned().unwrap_or_default()))
                             .style(TextStyle {
                                 size: 11.0,
-                                color: Color::rgb(150, 158, 172),
+                                color: Color::rgb(96, 104, 120),
                                 ..TextStyle::default()
                             }),
                         ])),

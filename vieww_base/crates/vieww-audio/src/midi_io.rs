@@ -12,7 +12,7 @@
 //! | Windows | WinMM (`midiIn*` with a callback, `midiOut*`; SysEx both ways) | device index |
 //! | macOS, iOS | CoreMIDI (a client, an input port connected to the source, `MIDISend`) | `kMIDIPropertyUniqueID` |
 //! | Android | AMidi, the NDK side of `android.media.midi` (`libmediandk.so` loaded at run time); the Java side owns enumeration, so the host opens the device it holds through `MidiInput::open_amidi` | — |
-//! | Web | Web MIDI through the `vieww_midi` JS shim (`web/vieww-midi.js`, the same shape as the Web Audio backend's), once `navigator.requestMIDIAccess` has resolved | the `MIDIPort.id` string |
+//! | Web | (feature `web-midi`) Web MIDI through the `vieww_midi` JS shim (`web/vieww-midi.js`, the same shape as the Web Audio backend's), once `navigator.requestMIDIAccess` has resolved | the `MIDIPort.id` string |
 //!
 //! On Linux a pair of **virtual ports** can be published for other
 //! applications to connect to ([`MidiInput::open_virtual`],
@@ -484,8 +484,8 @@ pub(crate) unsafe fn walk_packet_list(list: *const u8, align4: bool, mut f: impl
 /// (and a name changed between the two reads — ids, what `open`
 /// matches on, are stable).
 #[cfg_attr(
-    not(any(target_arch = "wasm32", test)),
-    expect(dead_code, reason = "the Web MIDI shim is wasm")
+    not(any(all(target_arch = "wasm32", feature = "web-midi"), test)),
+    expect(dead_code, reason = "the Web MIDI shim is wasm with feature web-midi")
 )]
 pub(crate) fn shim_string(mut read: impl FnMut(&mut [u8]) -> u32) -> String {
     let mut buf = [0u8; 128];
@@ -504,8 +504,8 @@ pub(crate) fn shim_string(mut read: impl FnMut(&mut [u8]) -> u32) -> String {
 /// (SysEx without its permission). Anything else is a shim this file
 /// does not know — said as the unknown it is, never guessed at.
 #[cfg_attr(
-    not(any(target_arch = "wasm32", test)),
-    expect(dead_code, reason = "the Web MIDI shim is wasm")
+    not(any(all(target_arch = "wasm32", feature = "web-midi"), test)),
+    expect(dead_code, reason = "the Web MIDI shim is wasm with feature web-midi")
 )]
 pub(crate) fn shim_check(code: i32, what: &str) -> std::io::Result<()> {
     match code {
@@ -869,7 +869,7 @@ mod platform;
 #[path = "midi_amidi.rs"]
 mod platform;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "web-midi"))]
 #[path = "midi_web.rs"]
 mod platform;
 
@@ -879,10 +879,17 @@ mod platform;
     target_os = "macos",
     target_os = "ios",
     target_os = "android",
-    target_arch = "wasm32"
+    all(target_arch = "wasm32", feature = "web-midi")
 )))]
 mod platform {
     use super::{Feed, MidiPort};
+
+    /// `Started`'s clock on wasm32 without `web-midi`: nothing opens there,
+    /// so nothing reads it, but `std::time::Instant` would panic if it did.
+    #[cfg(target_arch = "wasm32")]
+    pub(super) unsafe fn clock_ms() -> f64 {
+        0.0
+    }
 
     fn unsupported() -> std::io::Error {
         std::io::Error::new(
