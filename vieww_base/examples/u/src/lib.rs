@@ -47,10 +47,10 @@ use std::time::Duration;
 use vieww::animation::Ticker;
 use vieww::prelude::*;
 use vieww::{FrameDriver, NavigatorController, ScrollController};
+use vieww_foundation::SharedServices;
 #[cfg(target_os = "android")]
 use vieww_platform_winit::AndroidApp;
 use vieww_platform_winit::App;
-use vieww_foundation::SharedServices;
 use vieww_text::FontStore;
 use vieww_widget::{Inherited, RouteTransition};
 
@@ -813,7 +813,11 @@ pub fn workspace_route(shared: Shared) -> Route {
 #[must_use]
 pub fn history_route(shared: Shared, saved_only: bool) -> Route {
     Route::new(
-        if saved_only { "history-saved" } else { "history" },
+        if saved_only {
+            "history-saved"
+        } else {
+            "history"
+        },
         Rc::new(move |_| {
             HistoryScreen {
                 state: take(&shared),

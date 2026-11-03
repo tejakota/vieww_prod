@@ -293,6 +293,11 @@ pub(crate) fn frame(ctx: &Ctx) -> WidgetNode {
         "quoted from this repository's own artifacts",
         smoothstep(seg(sec, 2.4, 3.4)) * (1.0 - smoothstep(seg(ctx.t, 0.90, 0.98))),
     ));
-    let _ = (VIOLET, Gradient::vertical().with_dither(), Offset::ZERO, ease_out_cubic);
+    let _ = (
+        VIOLET,
+        Gradient::vertical().with_dither(),
+        Offset::ZERO,
+        ease_out_cubic,
+    );
     compose(bg, nodes)
 }

@@ -120,7 +120,9 @@ fn screen(rows_colors: &[Signal<Color>]) -> WidgetNode {
                         .decoration(
                             BoxDecoration::new()
                                 .gradient(
-                                    Gradient::vertical().with_dither().between(ACCENT, Color::rgb(126, 87, 246)),
+                                    Gradient::vertical()
+                                        .with_dither()
+                                        .between(ACCENT, Color::rgb(126, 87, 246)),
                                 )
                                 .radius(12.0),
                         )

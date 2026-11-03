@@ -123,11 +123,15 @@ impl Screen {
 /// shows a flat dark page instead of this ramp.
 fn background() -> WidgetNode {
     Container::new()
-        .gradient(Gradient::radial(Offset::new(0.5, 0.18), 1.1).with_dither().with_stops(&[
-            (0.0, Color::rgb(0x1E, 0x22, 0x30)),
-            (0.6, BG),
-            (1.0, Color::rgb(0x0D, 0x0E, 0x13)),
-        ]))
+        .gradient(
+            Gradient::radial(Offset::new(0.5, 0.18), 1.1)
+                .with_dither()
+                .with_stops(&[
+                    (0.0, Color::rgb(0x1E, 0x22, 0x30)),
+                    (0.6, BG),
+                    (1.0, Color::rgb(0x0D, 0x0E, 0x13)),
+                ]),
+        )
         .child(SizedBox::from_size(Size::new(WIDTH, HEIGHT)))
         .into()
 }

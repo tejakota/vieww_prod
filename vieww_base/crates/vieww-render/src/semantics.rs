@@ -1105,15 +1105,11 @@ mod tests {
 
         let semantics = SemanticsTree::build(&tree, None);
         assert!(
-            semantics
-                .node(button)
-                .is_some_and(|node| node.focusable),
+            semantics.node(button).is_some_and(|node| node.focusable),
             "a composed control is focusable — the annotation speaks for the detector inside it"
         );
         assert!(
-            semantics
-                .node(container)
-                .is_none_or(|node| !node.focusable),
+            semantics.node(container).is_none_or(|node| !node.focusable),
             "a container that holds a focusable control is not itself a stop"
         );
     }
@@ -1155,12 +1151,13 @@ mod tests {
         );
         let _ = tree.insert(
             Some(inner_decoration),
-            Box::new(crate::RenderGestureDetector::new(
-                vieww_widget::GestureHandlers {
+            Box::new(
+                crate::RenderGestureDetector::new(vieww_widget::GestureHandlers {
                     on_tap: Some(std::rc::Rc::new(|_| ())),
                     ..vieww_widget::GestureHandlers::default()
-                },
-            ).focusable(true)),
+                })
+                .focusable(true),
+            ),
         );
         let _ = tree.layout_root(Constraints::tight(Size::new(100.0, 100.0)));
 

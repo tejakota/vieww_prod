@@ -159,11 +159,13 @@ fn root(t: f32, time: f32) -> WidgetNode {
                 Container::new()
                     .size(WIDTH, HEIGHT)
                     .gradient(
-                        Gradient::radial(Offset::new(0.52, 0.28), 0.88).with_dither().with_stops(&[
-                            (0.0, Color::rgb(26, 33, 52)),
-                            (0.46, BG),
-                            (1.0, Color::rgb(6, 8, 13)),
-                        ]),
+                        Gradient::radial(Offset::new(0.52, 0.28), 0.88)
+                            .with_dither()
+                            .with_stops(&[
+                                (0.0, Color::rgb(26, 33, 52)),
+                                (0.46, BG),
+                                (1.0, Color::rgb(6, 8, 13)),
+                            ]),
                     )
                     .child(SizedBox::from_size(Size::new(WIDTH, HEIGHT))),
             ),
@@ -215,7 +217,8 @@ fn root(t: f32, time: f32) -> WidgetNode {
                 Container::new()
                     .size(WIDTH, HEIGHT)
                     .gradient(
-                        Gradient::radial(Offset::new(0.5, 0.5), 0.70).with_dither()
+                        Gradient::radial(Offset::new(0.5, 0.5), 0.70)
+                            .with_dither()
                             .with_stops(&[(0.72, Color::rgba(0, 0, 0, 0)), (1.0, BLACK_90)]),
                     )
                     .child(SizedBox::from_size(Size::new(WIDTH, HEIGHT))),
@@ -312,7 +315,11 @@ fn brand_mark(size: f32) -> WidgetNode {
             book.circle(
                 center,
                 r,
-                Gradient::radial_fill().with_dither().with_stops(&[(0.0, CYAN), (0.46, ACCENT), (1.0, VIOLET)]),
+                Gradient::radial_fill().with_dither().with_stops(&[
+                    (0.0, CYAN),
+                    (0.46, ACCENT),
+                    (1.0, VIOLET),
+                ]),
             );
 
             let mut p = Path::new();
@@ -669,7 +676,8 @@ fn spotlight_card(phase: f32, pulse: f32) -> WidgetNode {
         .decoration(
             BoxDecoration::new()
                 .gradient(
-                    Gradient::vertical().with_dither()
+                    Gradient::vertical()
+                        .with_dither()
                         .with_stops(&[(0.0, glow), (1.0, Color::rgba(104, 145, 255, 5))]),
                 )
                 .radius(16.0)

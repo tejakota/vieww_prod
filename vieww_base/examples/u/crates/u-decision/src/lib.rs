@@ -32,8 +32,8 @@
 
 use u_core::{Budget, Error};
 
-mod interpret;
 mod compose;
+mod interpret;
 
 pub use compose::compose;
 pub use interpret::interpret;

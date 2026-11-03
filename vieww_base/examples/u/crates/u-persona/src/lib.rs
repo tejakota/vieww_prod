@@ -268,9 +268,9 @@ impl Persona {
             // Confidence walks toward the inferred ceiling — a pile of weak
             // evidence can earn trust, but never as much as one statement.
             let target = 0.55_f32;
-            preference.confidence =
-                (preference.confidence + LEARNING_RATE * confidence * (target - preference.confidence))
-                    .clamp(0.0, 1.0);
+            preference.confidence = (preference.confidence
+                + LEARNING_RATE * confidence * (target - preference.confidence))
+                .clamp(0.0, 1.0);
             preference.source = source;
             preference.updated_at = at;
             preference.observations = preference.observations.saturating_add(1);
@@ -351,9 +351,23 @@ mod tests {
     #[test]
     fn the_update_moves_exactly_as_the_plan_says() {
         let mut persona = Persona::default();
-        persona.observe(Dimension::Stability, 0.0, 0.3, Source::DecisionPriority, None, T0);
+        persona.observe(
+            Dimension::Stability,
+            0.0,
+            0.3,
+            Source::DecisionPriority,
+            None,
+            T0,
+        );
         // A second inferred observation, opposite direction, same confidence.
-        persona.observe(Dimension::Stability, 0.6, 0.3, Source::DecisionPriority, None, T0 + 10);
+        persona.observe(
+            Dimension::Stability,
+            0.6,
+            0.3,
+            Source::DecisionPriority,
+            None,
+            T0 + 10,
+        );
 
         let value = persona.preferences[0].value;
         let expected = 0.0 + LEARNING_RATE * 0.3 * (0.6 - 0.0);
@@ -371,7 +385,14 @@ mod tests {
         let explicit_value = persona.preferences[0].value;
 
         // Inferred, opposite, weak — must not move the value.
-        persona.observe(Dimension::Stability, -0.5, 0.2, Source::Usefulness, None, T0 + 1);
+        persona.observe(
+            Dimension::Stability,
+            -0.5,
+            0.2,
+            Source::Usefulness,
+            None,
+            T0 + 1,
+        );
         assert_eq!(
             persona.preferences[0].value, explicit_value,
             "an inference never overrides what the person said"
@@ -382,7 +403,14 @@ mod tests {
     #[test]
     fn one_inferred_choice_is_not_a_permanent_preference() {
         let mut persona = Persona::default();
-        persona.observe(Dimension::Exploration, 1.0, 0.3, Source::DecisionPriority, None, T0);
+        persona.observe(
+            Dimension::Exploration,
+            1.0,
+            0.3,
+            Source::DecisionPriority,
+            None,
+            T0,
+        );
         let preference = &persona.preferences[0];
         // It moved all the way from nothing (there was no prior), but it is
         // marked inferred, weakly held, and honest about its source.
@@ -393,8 +421,22 @@ mod tests {
     #[test]
     fn contexts_do_not_average_into_mush() {
         let mut persona = Persona::default();
-        persona.observe(Dimension::Stability, 0.9, 0.8, Source::Stated, Some("career".into()), T0);
-        persona.observe(Dimension::Stability, -0.7, 0.8, Source::Stated, Some("travel".into()), T0);
+        persona.observe(
+            Dimension::Stability,
+            0.9,
+            0.8,
+            Source::Stated,
+            Some("career".into()),
+            T0,
+        );
+        persona.observe(
+            Dimension::Stability,
+            -0.7,
+            0.8,
+            Source::Stated,
+            Some("travel".into()),
+            T0,
+        );
         assert_eq!(persona.preferences.len(), 2);
 
         // A career-tagged decision sees only the career reading.
@@ -427,7 +469,14 @@ mod tests {
     #[test]
     fn a_correction_supersedes_the_old_reading() {
         let mut persona = Persona::default();
-        persona.observe(Dimension::Growth, 0.2, 0.3, Source::DecisionPriority, None, T0);
+        persona.observe(
+            Dimension::Growth,
+            0.2,
+            0.3,
+            Source::DecisionPriority,
+            None,
+            T0,
+        );
         persona.correct(Dimension::Growth, -0.4, None, None, T0 + 5);
         // One preference for the pair: the old one superseded, the new one
         // the only current reading.
@@ -444,7 +493,14 @@ mod tests {
     fn retrieval_orders_by_confidence() {
         let mut persona = Persona::default();
         persona.observe(Dimension::Simplicity, 0.5, 0.9, Source::Stated, None, T0);
-        persona.observe(Dimension::Security, 0.5, 0.3, Source::DecisionPriority, None, T0);
+        persona.observe(
+            Dimension::Security,
+            0.5,
+            0.3,
+            Source::DecisionPriority,
+            None,
+            T0,
+        );
         let found = persona.relevant(&[]);
         assert_eq!(found[0].dimension, Dimension::Simplicity);
     }

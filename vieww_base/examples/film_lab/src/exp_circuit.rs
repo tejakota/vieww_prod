@@ -235,7 +235,8 @@ fn scene(book: &mut Sketchbook, t: f32) {
             inner.circle(
                 head,
                 14.0,
-                Gradient::radial_fill().with_dither()
+                Gradient::radial_fill()
+                    .with_dither()
                     .with_stops(&[(0.0, alpha(CYAN_SOFT, 0.5)), (1.0, alpha(VIOLET, 0.0))]),
             );
         });

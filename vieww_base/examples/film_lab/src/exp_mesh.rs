@@ -266,7 +266,8 @@ fn scene(book: &mut Sketchbook, canvas: Size, t: f32) {
                 inner.circle(
                     pt,
                     r,
-                    Gradient::radial_fill().with_dither()
+                    Gradient::radial_fill()
+                        .with_dither()
                         .with_stops(&[(0.0, alpha(CYAN_SOFT, 0.22)), (1.0, alpha(CYAN, 0.0))]),
                 );
             }

@@ -202,7 +202,9 @@ fn completeness_sheet(scene: &mut vieww_paint::Scene) {
         ),
         (
             "radial",
-            Gradient::radial_fill().with_dither().between(ACCENT, Color::rgb(10, 13, 20)),
+            Gradient::radial_fill()
+                .with_dither()
+                .between(ACCENT, Color::rgb(10, 13, 20)),
             Gradient::radial_fill()
                 .between(ACCENT, Color::rgb(10, 13, 20))
                 .with_dither(),
@@ -363,7 +365,8 @@ fn header(scene: &mut vieww_paint::Scene) {
     // *glyph* coverage belongs to the suites above this one.
     scene.fill_rect(
         Rect::new(56.0, 24.0, 300.0, 30.0),
-        Gradient::horizontal().with_dither()
+        Gradient::horizontal()
+            .with_dither()
             .between(INK, Color::rgba(23, 30, 42, 170))
             .into(),
     );

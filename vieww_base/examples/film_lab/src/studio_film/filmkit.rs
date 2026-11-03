@@ -559,11 +559,13 @@ pub(crate) fn token_flood(book: &mut Sketchbook, w: f32, h: f32, p: f32, color: 
     }
     let band = w * 0.55;
     let x = -band + (w + band) * p;
-    let g = Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 0.0)).with_dither().with_stops(&[
-        (0.0, pf::alpha(color, 0.0)),
-        (0.5, pf::alpha(color, 0.16)),
-        (1.0, pf::alpha(color, 0.0)),
-    ]);
+    let g = Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 0.0))
+        .with_dither()
+        .with_stops(&[
+            (0.0, pf::alpha(color, 0.0)),
+            (0.5, pf::alpha(color, 0.16)),
+            (1.0, pf::alpha(color, 0.0)),
+        ]);
     // Resolve the unit-square gradient over the band's own rect.
     book.transformed(Transform::translate(Offset::new(x, 0.0)), |b| {
         b.rect(Rect::new(0.0, 0.0, band, h), g);

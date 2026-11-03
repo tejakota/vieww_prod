@@ -51,7 +51,9 @@ pub fn entries(
 ) -> (Rc<dyn Biometrics>, Option<Rc<dyn Permissions>>) {
     match android.and_then(android::load) {
         Some(loaded) => (
-            Rc::new(android::AndroidBiometrics { bridge: loaded.clone() }),
+            Rc::new(android::AndroidBiometrics {
+                bridge: loaded.clone(),
+            }),
             Some(Rc::new(loaded.permissions())),
         ),
         None => (Rc::new(NoBiometrics), None),
@@ -400,7 +402,8 @@ mod android {
                 // The dex is 'static, so the direct buffer it backs stays
                 // valid for as long as the class loader might touch it.
                 // SAFETY: the buffer outlives the loader.
-                let buf = unsafe { env.new_direct_byte_buffer(DEX.as_ptr() as *mut u8, DEX.len())? };
+                let buf =
+                    unsafe { env.new_direct_byte_buffer(DEX.as_ptr() as *mut u8, DEX.len())? };
                 let parent = env
                     .call_method(
                         &activity,

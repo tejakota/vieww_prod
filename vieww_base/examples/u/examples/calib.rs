@@ -16,7 +16,9 @@ use vieww_paint::native::NativeRenderer;
 use vieww_widget::Theme;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let out = std::env::args().nth(1).unwrap_or_else(|| "u-calib".to_owned());
+    let out = std::env::args()
+        .nth(1)
+        .unwrap_or_else(|| "u-calib".to_owned());
     std::fs::create_dir_all(&out)?;
     vieww_render::overflow::forget_reported();
 
@@ -38,30 +40,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let x = 20.0 + (i as f32 % 5.0) * 80.0;
         let y = 20.0 + (i as f32 / 5.0).floor() * 300.0;
         stack = stack.push(
-            Positioned::new()
-                .left(x)
-                .top(y)
-                .child(
-                    Text::new("H").style(
-                        TextStyle::new(*size)
-                            .weight(FontWeight::Regular)
-                            .color(Color::rgb(255, 255, 255)),
-                    ),
+            Positioned::new().left(x).top(y).child(
+                Text::new("H").style(
+                    TextStyle::new(*size)
+                        .weight(FontWeight::Regular)
+                        .color(Color::rgb(255, 255, 255)),
                 ),
+            ),
         );
         println!("H size {size:5} at box origin ({x},{y})");
         // A second row: the same with Bold, offset by 150 y.
         stack = stack.push(
-            Positioned::new()
-                .left(x)
-                .top(y + 150.0)
-                .child(
-                    Text::new("H").style(
-                        TextStyle::new(*size)
-                            .weight(FontWeight::Bold)
-                            .color(Color::rgb(255, 255, 255)),
-                    ),
+            Positioned::new().left(x).top(y + 150.0).child(
+                Text::new("H").style(
+                    TextStyle::new(*size)
+                        .weight(FontWeight::Bold)
+                        .color(Color::rgb(255, 255, 255)),
                 ),
+            ),
         );
     }
 
@@ -75,8 +71,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let (data, _) = renderer.render_to_pixels(scene, 420, 920, ground)?;
         (data, ())
     };
-    let image = image::RgbaImage::from_raw(420, 920, pixels.data().to_vec())
-        .ok_or("bad frame")?;
+    let image = image::RgbaImage::from_raw(420, 920, pixels.data().to_vec()).ok_or("bad frame")?;
     image.save(format!("{out}/calib.png"))?;
     println!("wrote {out}/calib.png");
     Ok(())

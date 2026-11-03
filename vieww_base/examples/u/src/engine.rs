@@ -30,9 +30,7 @@ use std::path::Path;
 use u_core::{Budget, Error, Id};
 use u_decision::{Assessment, Hint, Input};
 use u_feedback::Feedback;
-use u_memory::{
-    AssessmentRecord, DecisionRecord, FeedbackRecord, SavedRecord, Store, Verdict,
-};
+use u_memory::{AssessmentRecord, DecisionRecord, FeedbackRecord, SavedRecord, Store, Verdict};
 use u_ml_runtime::{to_json, Deterministic, Runtime};
 use u_persona::Persona;
 

@@ -123,7 +123,6 @@ impl SettingsScreen {
 
 // ---- the header -------------------------------------------------------------
 
-
 /// Back button, title, and the person this persona is for — the reference's
 /// own marks: the button at (24, 28), the title's baseline at y = 48, the
 /// medallion centred at (373, 49).
@@ -154,32 +153,46 @@ fn header(state: &AppState, ctx: &BuildContext) -> WidgetNode {
         state_for_back.nav.pop();
     });
 
-    Positioned::fill().child(
-        Stack::new()
-            .fit(StackFit::Expand)
-            .push(place(24.0, 28.0).child(back))
-            .push(place(82.0, top_of(48.0, 20.0)).child(Text::new("Settings").style(
-                TextStyle::new(20.0)
-                    .weight(FontWeight::Bold)
-                    .letter_spacing(-0.6)
-                    .color(Color::rgb(240, 242, 250)),
-            )))
-            .push(place(82.0, top_of(63.0, 9.5)).child(Text::new("PERSONA STUDIO").style(
-                TextStyle::new(9.5).letter_spacing(0.8).color(Color::rgb(127, 140, 164)),
-            )))
-            .push(place(333.0, 41.8).child(
-                SizedBox::width(80.0).child(
-                    Text::new(initial).style(
-                        TextStyle::new(13.0)
-                            .weight(FontWeight::Medium)
-                            .color(Color::rgb(222, 214, 255)),
-                    )
-                    .align(TextAlign::Center),
-                ),
-            ))
-            .push(place(354.0, 30.0).child(avatar_disc())),
-    )
-    .into()
+    Positioned::fill()
+        .child(
+            Stack::new()
+                .fit(StackFit::Expand)
+                .push(place(24.0, 28.0).child(back))
+                .push(
+                    place(82.0, top_of(48.0, 20.0)).child(
+                        Text::new("Settings").style(
+                            TextStyle::new(20.0)
+                                .weight(FontWeight::Bold)
+                                .letter_spacing(-0.6)
+                                .color(Color::rgb(240, 242, 250)),
+                        ),
+                    ),
+                )
+                .push(
+                    place(82.0, top_of(63.0, 9.5)).child(
+                        Text::new("PERSONA STUDIO").style(
+                            TextStyle::new(9.5)
+                                .letter_spacing(0.8)
+                                .color(Color::rgb(127, 140, 164)),
+                        ),
+                    ),
+                )
+                .push(
+                    place(333.0, 41.8).child(
+                        SizedBox::width(80.0).child(
+                            Text::new(initial)
+                                .style(
+                                    TextStyle::new(13.0)
+                                        .weight(FontWeight::Medium)
+                                        .color(Color::rgb(222, 214, 255)),
+                                )
+                                .align(TextAlign::Center),
+                        ),
+                    ),
+                )
+                .push(place(354.0, 30.0).child(avatar_disc())),
+        )
+        .into()
 }
 
 /// The back chevron — the reference's own stroke, `#c4b6f5` at 1.8.
@@ -225,55 +238,60 @@ fn portrait(state: &AppState, t: f32) -> WidgetNode {
     let voice = ["Direct", "Warm", "Analytical"][tone.min(2)];
     let manner = ["Intuitive", "Deliberate"][style.min(1)];
 
-    place(24.0, 92.0).child(
-        SizedBox::from_size(Size::new(372.0, 112.0)).child(
-            Container::new()
-                .decoration(
-                    BoxDecoration::new()
-                        .color(palette::CARD_HERO)
-                        .radius(23.0)
-                        .border(Border::new(Color::rgba(255, 255, 255, 23), 1.0)),
-                )
-                .child(
-                    Stack::new()
-                        .fit(StackFit::Expand)
-                        .push(Positioned::fill().child(hero_wash()))
-                        .push(place(25.0, 13.0).child(neurons::companion(
-                            84.0,
-                            t,
-                            0.0,
-                            0.0,
-                            Reveal::complete(),
-                        )))
-                        .push(place(127.0, top_of(39.0, 9.0)).child(Text::new("U CALLS YOU").style(
-                            TextStyle::new(9.0)
-                                .weight(FontWeight::Medium)
-                                .letter_spacing(1.7)
-                                .color(Color::rgb(129, 144, 168)),
-                        )))
-                        .push(
-                            place(127.0, top_of(66.0, 22.0)).width(190.0).child(
-                                TextField::new(state.name.get())
-                                    .size(22.0)
-                                    .color(INK)
-                                    .placeholder("Your name")
-                                    .placeholder_color(MUTED)
-                                    .single_line()
-                                    .on_changed(Rc::new(move |next| {
-                                        name_write.set_name(next)
-                                    })),
-                            ),
-                        )
-                        .push(place(127.0, top_of(88.0, 10.5)).child(
-                            Text::new(format!("{voice}  ·  {manner}"))
-                                .size(10.5)
-                                .color(Color::rgb(166, 154, 203)),
-                        ))
-                        .push(place(317.0, 42.0).child(pencil_disc())),
-                ),
-        ),
-    )
-    .into()
+    place(24.0, 92.0)
+        .child(
+            SizedBox::from_size(Size::new(372.0, 112.0)).child(
+                Container::new()
+                    .decoration(
+                        BoxDecoration::new()
+                            .color(palette::CARD_HERO)
+                            .radius(23.0)
+                            .border(Border::new(Color::rgba(255, 255, 255, 23), 1.0)),
+                    )
+                    .child(
+                        Stack::new()
+                            .fit(StackFit::Expand)
+                            .push(Positioned::fill().child(hero_wash()))
+                            .push(place(25.0, 13.0).child(neurons::companion(
+                                84.0,
+                                t,
+                                0.0,
+                                0.0,
+                                Reveal::complete(),
+                            )))
+                            .push(
+                                place(127.0, top_of(39.0, 9.0)).child(
+                                    Text::new("U CALLS YOU").style(
+                                        TextStyle::new(9.0)
+                                            .weight(FontWeight::Medium)
+                                            .letter_spacing(1.7)
+                                            .color(Color::rgb(129, 144, 168)),
+                                    ),
+                                ),
+                            )
+                            .push(
+                                place(127.0, top_of(66.0, 22.0)).width(190.0).child(
+                                    TextField::new(state.name.get())
+                                        .size(22.0)
+                                        .color(INK)
+                                        .placeholder("Your name")
+                                        .placeholder_color(MUTED)
+                                        .single_line()
+                                        .on_changed(Rc::new(move |next| name_write.set_name(next))),
+                                ),
+                            )
+                            .push(
+                                place(127.0, top_of(88.0, 10.5)).child(
+                                    Text::new(format!("{voice}  ·  {manner}"))
+                                        .size(10.5)
+                                        .color(Color::rgb(166, 154, 203)),
+                                ),
+                            )
+                            .push(place(317.0, 42.0).child(pencil_disc())),
+                    ),
+            ),
+        )
+        .into()
 }
 
 /// The hero's own wash — the reference's ambient overlay, a soft violet bloom
@@ -314,7 +332,6 @@ fn pencil_disc() -> Painting {
 
 // ---- 01 · voice -------------------------------------------------------------
 
-
 /// The voice card — the reference's own: circles at (87, 283), (210, 283)
 /// and (333, 283), the selected one larger and lit, its tick at the corner.
 fn voice_section(state: &AppState, ctx: &BuildContext) -> WidgetNode {
@@ -323,37 +340,38 @@ fn voice_section(state: &AppState, ctx: &BuildContext) -> WidgetNode {
     let tone_warm = state.clone();
     let tone_analytical = state.clone();
 
-    Positioned::fill().child(
-        Stack::new()
-            .fit(StackFit::Expand)
-            .push(place(24.0, 235.0).child(section_card(372.0, 116.0)))
-            .push(place(24.0, top_of(222.0, 9.0)).child(section_label("01  /  VOICE")))
-            .push(voice(
-                ctx,
-                87.0,
-                "Direct",
-                Voice::Direct,
-                tone == 0,
-                Rc::new(move || tone_direct.set_tone(0)),
-            ))
-            .push(voice(
-                ctx,
-                210.0,
-                "Warm",
-                Voice::Warm,
-                tone == 1,
-                Rc::new(move || tone_warm.set_tone(1)),
-            ))
-            .push(voice(
-                ctx,
-                333.0,
-                "Analytical",
-                Voice::Analytical,
-                tone == 2,
-                Rc::new(move || tone_analytical.set_tone(2)),
-            )),
-    )
-    .into()
+    Positioned::fill()
+        .child(
+            Stack::new()
+                .fit(StackFit::Expand)
+                .push(place(24.0, 235.0).child(section_card(372.0, 116.0)))
+                .push(place(24.0, top_of(222.0, 9.0)).child(section_label("01  /  VOICE")))
+                .push(voice(
+                    ctx,
+                    87.0,
+                    "Direct",
+                    Voice::Direct,
+                    tone == 0,
+                    Rc::new(move || tone_direct.set_tone(0)),
+                ))
+                .push(voice(
+                    ctx,
+                    210.0,
+                    "Warm",
+                    Voice::Warm,
+                    tone == 1,
+                    Rc::new(move || tone_warm.set_tone(1)),
+                ))
+                .push(voice(
+                    ctx,
+                    333.0,
+                    "Analytical",
+                    Voice::Analytical,
+                    tone == 2,
+                    Rc::new(move || tone_analytical.set_tone(2)),
+                )),
+        )
+        .into()
 }
 
 /// One of the three voices U can answer in.
@@ -390,16 +408,15 @@ fn voice(
                 voice_disc(which, selected),
                 SizedBox::height((name_top - (circle_top + disc)).max(0.0)),
                 SizedBox::width(120.0).child(
-                    Text::new(label).style(
-                        TextStyle::new(name_size)
-                            .weight(FontWeight::Medium)
-                            .color(if selected {
+                    Text::new(label)
+                        .style(TextStyle::new(name_size).weight(FontWeight::Medium).color(
+                            if selected {
                                 Color::rgb(225, 216, 255)
                             } else {
                                 Color::rgb(145, 160, 184)
-                            }),
-                    )
-                    .align(TextAlign::Center),
+                            }
+                        ),)
+                        .align(TextAlign::Center),
                 ),
             ])
             .into()
@@ -500,7 +517,6 @@ fn voice_disc(which: Voice, selected: bool) -> Painting {
 
 // ---- 02 · decision style ----------------------------------------------------
 
-
 /// The two style cards, standing side by side at the reference's own marks:
 /// (24, 382) and (218, 382), 178 × 105 each.
 fn style_section(state: &AppState, ctx: &BuildContext) -> WidgetNode {
@@ -508,30 +524,31 @@ fn style_section(state: &AppState, ctx: &BuildContext) -> WidgetNode {
     let style_fast = state.clone();
     let style_slow = state.clone();
 
-    Positioned::fill().child(
-        Stack::new()
-            .fit(StackFit::Expand)
-            .push(place(24.0, top_of(369.0, 9.0)).child(section_label("02  /  DECISION STYLE")))
-            .push(style_card(
-                ctx,
-                24.0,
-                "Intuitive",
-                "Fast & instinctive",
-                Style::Intuitive,
-                style == 0,
-                Rc::new(move || style_fast.set_style(0)),
-            ))
-            .push(style_card(
-                ctx,
-                218.0,
-                "Deliberate",
-                "Thorough & measured",
-                Style::Deliberate,
-                style == 1,
-                Rc::new(move || style_slow.set_style(1)),
-            )),
-    )
-    .into()
+    Positioned::fill()
+        .child(
+            Stack::new()
+                .fit(StackFit::Expand)
+                .push(place(24.0, top_of(369.0, 9.0)).child(section_label("02  /  DECISION STYLE")))
+                .push(style_card(
+                    ctx,
+                    24.0,
+                    "Intuitive",
+                    "Fast & instinctive",
+                    Style::Intuitive,
+                    style == 0,
+                    Rc::new(move || style_fast.set_style(0)),
+                ))
+                .push(style_card(
+                    ctx,
+                    218.0,
+                    "Deliberate",
+                    "Thorough & measured",
+                    Style::Deliberate,
+                    style == 1,
+                    Rc::new(move || style_slow.set_style(1)),
+                )),
+        )
+        .into()
 }
 
 /// One of the two ways U can weigh a choice.
@@ -553,61 +570,66 @@ fn style_card(
     on_pick: Rc<dyn Fn()>,
 ) -> WidgetNode {
     let card = Pressable::themed(ctx, move |press| {
-        SizedBox::from_size(Size::new(178.0, 105.0)).child(
-            Container::new()
-                .decoration(
-                    BoxDecoration::new()
-                        .color(if selected {
-                            Color::rgb(37, 32, 58)
-                        } else {
-                            Color::rgb(18, 29, 46)
-                        })
-                        .radius(19.0)
-                        .border(Border::new(
-                            if selected {
-                                AXON.with_alpha((204.0 + press * 51.0) as u8)
+        SizedBox::from_size(Size::new(178.0, 105.0))
+            .child(
+                Container::new()
+                    .decoration(
+                        BoxDecoration::new()
+                            .color(if selected {
+                                Color::rgb(37, 32, 58)
                             } else {
-                                Color::rgba(255, 255, 255, 20)
-                            },
-                            if selected { 1.35 } else { 1.0 },
-                        )),
-                )
-                .child(
-                    Stack::new()
-                        .fit(StackFit::Expand)
-                        .push(place(70.0, 15.0).child(style_disc(which, selected)))
-                        .push(place(9.0, top_of(76.0, 11.5)).width(160.0).child(
-                            Text::new(title).style(
-                                TextStyle::new(11.5)
-                                    .weight(FontWeight::Medium)
-                                    .color(if selected {
-                                        Color::rgb(238, 233, 255)
-                                    } else {
-                                        Color::rgb(196, 204, 218)
-                                    }),
+                                Color::rgb(18, 29, 46)
+                            })
+                            .radius(19.0)
+                            .border(Border::new(
+                                if selected {
+                                    AXON.with_alpha((204.0 + press * 51.0) as u8)
+                                } else {
+                                    Color::rgba(255, 255, 255, 20)
+                                },
+                                if selected { 1.35 } else { 1.0 },
+                            )),
+                    )
+                    .child(
+                        Stack::new()
+                            .fit(StackFit::Expand)
+                            .push(place(70.0, 15.0).child(style_disc(which, selected)))
+                            .push(
+                                place(9.0, top_of(76.0, 11.5)).width(160.0).child(
+                                    Text::new(title)
+                                        .style(
+                                            TextStyle::new(11.5).weight(FontWeight::Medium).color(
+                                                if selected {
+                                                    Color::rgb(238, 233, 255)
+                                                } else {
+                                                    Color::rgb(196, 204, 218)
+                                                },
+                                            ),
+                                        )
+                                        .align(TextAlign::Center),
+                                ),
                             )
-                            .align(TextAlign::Center),
-                        ))
-                        .push(place(9.0, top_of(91.0, 9.0)).width(160.0).child(
-                            Text::new(caption).style(
-                                TextStyle::new(9.0)
-                                    .color(if selected {
-                                        Color::rgb(169, 156, 202)
-                                    } else {
-                                        Color::rgb(135, 150, 173)
-                                    }),
+                            .push(
+                                place(9.0, top_of(91.0, 9.0)).width(160.0).child(
+                                    Text::new(caption)
+                                        .style(TextStyle::new(9.0).color(if selected {
+                                            Color::rgb(169, 156, 202)
+                                        } else {
+                                            Color::rgb(135, 150, 173)
+                                        }))
+                                        .align(TextAlign::Center),
+                                ),
                             )
-                            .align(TextAlign::Center),
-                        ))
-                        .push(if selected {
-                            let badge: WidgetNode = place(154.0, 11.0).child(tick_badge()).into();
-                            badge
-                        } else {
-                            SizedBox::shrink().into()
-                        }),
-                ),
-        )
-        .into()
+                            .push(if selected {
+                                let badge: WidgetNode =
+                                    place(154.0, 11.0).child(tick_badge()).into();
+                                badge
+                            } else {
+                                SizedBox::shrink().into()
+                            }),
+                    ),
+            )
+            .into()
     })
     .on_tap(move || on_pick());
 
@@ -683,13 +705,17 @@ fn tick_badge() -> Painting {
             check.move_to(Offset::new(c.dx - 3.0, c.dy));
             check.line_to(Offset::new(c.dx - 1.0, c.dy + 2.0));
             check.line_to(Offset::new(c.dx + 3.0, c.dy - 2.0));
-            book.stroke_styled(check, Color::rgb(255, 255, 255), 1.1, StrokeStyle::rounded());
+            book.stroke_styled(
+                check,
+                Color::rgb(255, 255, 255),
+                1.1,
+                StrokeStyle::rounded(),
+            );
         }),
     )
 }
 
 // ---- 03 · training ----------------------------------------------------------
-
 
 /// The training card — the reference's own 372 × 147 at (24, 522): the plus
 /// badge, the count, the mint slider with its eleven dots, and the spread.
@@ -697,70 +723,86 @@ fn training_section(state: &AppState, t: f32) -> WidgetNode {
     let daily = state.daily.get();
     let daily_pick = state.clone();
 
-    Positioned::fill().child(
-        Stack::new()
-            .fit(StackFit::Expand)
-            .push(place(24.0, 522.0).child(section_card(372.0, 147.0)))
-            .push(place(24.0, top_of(509.0, 9.0)).child(section_label("03  /  TRAINING")))
-            .push(place(42.0, 539.0).child(training_plus()))
-            .push(place(82.0, top_of(551.0, 12.0)).child(Text::new("Daily sessions").style(
-                TextStyle::new(12.0)
-                    .weight(FontWeight::Medium)
-                    .color(Color::rgb(233, 237, 245)),
-            )))
-            .push(place(82.0, top_of(566.0, 9.5)).child(
-                Text::new("Small moments, through the day")
-                    .size(9.5)
-                    .color(Color::rgb(129, 144, 168)),
-            ))
-            .push(place(141.0, top_of(561.0, 20.0)).width(235.0).child(
-                Flex::row()
-                    .main_axis_alignment(MainAxisAlignment::Center)
-                    .cross_axis_alignment(CrossAxisAlignment::Center)
-                    .spacing(6.0)
-                    .children(children![
-                        Text::new(format!("{daily:.0}")).style(
-                            TextStyle::new(20.0)
-                                .weight(FontWeight::Bold)
-                                .color(SLIDER_MINT),
+    Positioned::fill()
+        .child(
+            Stack::new()
+                .fit(StackFit::Expand)
+                .push(place(24.0, 522.0).child(section_card(372.0, 147.0)))
+                .push(place(24.0, top_of(509.0, 9.0)).child(section_label("03  /  TRAINING")))
+                .push(place(42.0, 539.0).child(training_plus()))
+                .push(
+                    place(82.0, top_of(551.0, 12.0)).child(
+                        Text::new("Daily sessions").style(
+                            TextStyle::new(12.0)
+                                .weight(FontWeight::Medium)
+                                .color(Color::rgb(233, 237, 245)),
                         ),
-                        Text::new("/ day")
-                            .size(10.0)
-                            .color(Color::rgb(138, 153, 177)),
-                    ]),
-            ))
-            .push(place(48.0, 590.0).child(controls::daily_slider(
-                daily,
-                t,
-                Rc::new(move |value| daily_pick.set_daily(value)),
-            )))
-            .push(place(48.0, top_of(627.0, 8.5)).child(
-                Text::new("1").size(8.5).color(Color::rgb(116, 132, 157)),
-            ))
-            .push(place(272.0, top_of(627.0, 8.5)).width(100.0).child(
-                Text::new("12")
-                    .size(8.5)
-                    .color(Color::rgb(116, 132, 157))
-                    .align(TextAlign::Center),
-            ))
-            .push(place(42.0, 636.0).child(divider()))
-            .push(place(45.0, 642.0).child(clock_badge()))
-            .push(place(76.0, top_of(656.0, 10.5)).child(
-                Text::new("Spread through the day")
-                    .size(10.5)
-                    .color(Color::rgb(203, 211, 224)),
-            ))
-            .push(place(276.0, top_of(656.0, 9.0)).width(100.0).child(
-                Text::new("ON")
-                    .style(
-                        TextStyle::new(9.0)
-                            .weight(FontWeight::Bold)
-                            .color(SLIDER_MINT),
-                    )
-                    .align(TextAlign::Center),
-            )),
-    )
-    .into()
+                    ),
+                )
+                .push(
+                    place(82.0, top_of(566.0, 9.5)).child(
+                        Text::new("Small moments, through the day")
+                            .size(9.5)
+                            .color(Color::rgb(129, 144, 168)),
+                    ),
+                )
+                .push(
+                    place(141.0, top_of(561.0, 20.0)).width(235.0).child(
+                        Flex::row()
+                            .main_axis_alignment(MainAxisAlignment::Center)
+                            .cross_axis_alignment(CrossAxisAlignment::Center)
+                            .spacing(6.0)
+                            .children(children![
+                                Text::new(format!("{daily:.0}")).style(
+                                    TextStyle::new(20.0)
+                                        .weight(FontWeight::Bold)
+                                        .color(SLIDER_MINT),
+                                ),
+                                Text::new("/ day")
+                                    .size(10.0)
+                                    .color(Color::rgb(138, 153, 177)),
+                            ]),
+                    ),
+                )
+                .push(place(48.0, 590.0).child(controls::daily_slider(
+                    daily,
+                    t,
+                    Rc::new(move |value| daily_pick.set_daily(value)),
+                )))
+                .push(
+                    place(48.0, top_of(627.0, 8.5))
+                        .child(Text::new("1").size(8.5).color(Color::rgb(116, 132, 157))),
+                )
+                .push(
+                    place(272.0, top_of(627.0, 8.5)).width(100.0).child(
+                        Text::new("12")
+                            .size(8.5)
+                            .color(Color::rgb(116, 132, 157))
+                            .align(TextAlign::Center),
+                    ),
+                )
+                .push(place(42.0, 636.0).child(divider()))
+                .push(place(45.0, 642.0).child(clock_badge()))
+                .push(
+                    place(76.0, top_of(656.0, 10.5)).child(
+                        Text::new("Spread through the day")
+                            .size(10.5)
+                            .color(Color::rgb(203, 211, 224)),
+                    ),
+                )
+                .push(
+                    place(276.0, top_of(656.0, 9.0)).width(100.0).child(
+                        Text::new("ON")
+                            .style(
+                                TextStyle::new(9.0)
+                                    .weight(FontWeight::Bold)
+                                    .color(SLIDER_MINT),
+                            )
+                            .align(TextAlign::Center),
+                    ),
+                ),
+        )
+        .into()
 }
 
 /// The training card's plus — the reference's: r = 14 of `#183a3c`, a cross
@@ -803,7 +845,6 @@ fn clock_badge() -> Painting {
 
 // ---- 04 · feel --------------------------------------------------------------
 
-
 /// The feel card — the reference's 372 × 116 at (24, 697): haptics and calm,
 /// each a round badge, two lines, and a pill.
 fn feel_section(state: &AppState, ctx: &BuildContext) -> WidgetNode {
@@ -812,50 +853,59 @@ fn feel_section(state: &AppState, ctx: &BuildContext) -> WidgetNode {
     let haptics_flip = state.clone();
     let calm_flip = state.clone();
 
-    Positioned::fill().child(
-        Stack::new()
-            .fit(StackFit::Expand)
-            .push(place(24.0, 697.0).child(section_card(372.0, 116.0)))
-            .push(place(24.0, top_of(684.0, 9.0)).child(section_label("04  /  FEEL")))
-            .push(place(42.0, 712.0).child(haptics_badge()))
-            .push(place(82.0, top_of(724.0, 11.5)).child(
-                Text::new("Haptic feedback").style(
-                    TextStyle::new(11.5)
-                        .weight(FontWeight::Medium)
-                        .color(Color::rgb(233, 237, 245)),
-                ),
-            ))
-            .push(place(82.0, top_of(739.0, 9.0)).child(
-                Text::new("A pulse when a memory lands")
-                    .size(9.0)
-                    .color(Color::rgb(129, 144, 168)),
-            ))
-            .push(place(338.0, 715.0).child(controls::pill(
-                ctx,
-                haptics,
-                Rc::new(move |on| haptics_flip.set_haptics(on)),
-            )))
-            .push(place(42.0, 755.0).child(divider()))
-            .push(place(42.0, 769.0).child(calm_badge()))
-            .push(place(82.0, top_of(781.0, 11.5)).child(
-                Text::new("Calm animations").style(
-                    TextStyle::new(11.5)
-                        .weight(FontWeight::Medium)
-                        .color(Color::rgb(233, 237, 245)),
-                ),
-            ))
-            .push(place(82.0, top_of(796.0, 9.0)).child(
-                Text::new("Reduce movement and glow")
-                    .size(9.0)
-                    .color(Color::rgb(129, 144, 168)),
-            ))
-            .push(place(338.0, 772.0).child(controls::pill(
-                ctx,
-                calm,
-                Rc::new(move |on| calm_flip.set_calm(on)),
-            ))),
-    )
-    .into()
+    Positioned::fill()
+        .child(
+            Stack::new()
+                .fit(StackFit::Expand)
+                .push(place(24.0, 697.0).child(section_card(372.0, 116.0)))
+                .push(place(24.0, top_of(684.0, 9.0)).child(section_label("04  /  FEEL")))
+                .push(place(42.0, 712.0).child(haptics_badge()))
+                .push(
+                    place(82.0, top_of(724.0, 11.5)).child(
+                        Text::new("Haptic feedback").style(
+                            TextStyle::new(11.5)
+                                .weight(FontWeight::Medium)
+                                .color(Color::rgb(233, 237, 245)),
+                        ),
+                    ),
+                )
+                .push(
+                    place(82.0, top_of(739.0, 9.0)).child(
+                        Text::new("A pulse when a memory lands")
+                            .size(9.0)
+                            .color(Color::rgb(129, 144, 168)),
+                    ),
+                )
+                .push(place(338.0, 715.0).child(controls::pill(
+                    ctx,
+                    haptics,
+                    Rc::new(move |on| haptics_flip.set_haptics(on)),
+                )))
+                .push(place(42.0, 755.0).child(divider()))
+                .push(place(42.0, 769.0).child(calm_badge()))
+                .push(
+                    place(82.0, top_of(781.0, 11.5)).child(
+                        Text::new("Calm animations").style(
+                            TextStyle::new(11.5)
+                                .weight(FontWeight::Medium)
+                                .color(Color::rgb(233, 237, 245)),
+                        ),
+                    ),
+                )
+                .push(
+                    place(82.0, top_of(796.0, 9.0)).child(
+                        Text::new("Reduce movement and glow")
+                            .size(9.0)
+                            .color(Color::rgb(129, 144, 168)),
+                    ),
+                )
+                .push(place(338.0, 772.0).child(controls::pill(
+                    ctx,
+                    calm,
+                    Rc::new(move |on| calm_flip.set_calm(on)),
+                ))),
+        )
+        .into()
 }
 
 /// Haptic feedback — the reference's heart in `#292342`, `#c5b3ff` at 1.2.
@@ -925,7 +975,6 @@ fn calm_badge() -> Painting {
 
 // ---- 05 · privacy -----------------------------------------------------------
 
-
 /// The privacy card — the reference's 372 × 133 at (24, 840): the biometric
 /// lock, and the offline posture that is not a preference at all.
 ///
@@ -973,49 +1022,58 @@ fn privacy_section(state: &AppState, ctx: &BuildContext) -> WidgetNode {
         )
     };
 
-    Positioned::fill().child(
-        Stack::new()
-            .fit(StackFit::Expand)
-            .push(place(24.0, 840.0).child(section_card(372.0, 133.0)))
-            .push(place(24.0, top_of(827.0, 9.0)).child(section_label("05  /  PRIVACY")))
-            .push(place(42.0, 855.0).child(lock_badge()))
-            .push(place(82.0, top_of(867.0, 11.5)).child(
-                Text::new("Biometric lock").style(
-                    TextStyle::new(11.5)
-                        .weight(FontWeight::Medium)
-                        .color(Color::rgb(233, 237, 245)),
-                ),
-            ))
-            .push(place(82.0, top_of(882.0, 9.0)).child(
-                Text::new(caption)
-                    .size(9.0)
-                    .color(Color::rgb(129, 144, 168)),
-            ))
-            .push(right)
-            .push(place(42.0, 902.0).child(divider()))
-            .push(place(42.0, 923.0).child(shield_badge()))
-            .push(place(82.0, top_of(935.0, 11.5)).child(
-                Text::new("Offline by design").style(
-                    TextStyle::new(11.5)
-                        .weight(FontWeight::Medium)
-                        .color(Color::rgb(233, 237, 245)),
-                ),
-            ))
-            .push(place(82.0, top_of(950.0, 9.0)).child(
-                // The engine's own name, said where the privacy claim is:
-                // "no network" and "which engine answered" are the same
-                // promise (§15: nothing presented as available that is
-                // not — and no fallback presented as the model).
-                Text::new(format!(
-                    "Network access unavailable · answered by {}",
-                    state.engine.borrow().runtime_name()
-                ))
-                .size(9.0)
-                .color(Color::rgb(129, 144, 168)),
-            ))
-            .push(place(355.0, 927.0).child(offline_disc())),
-    )
-    .into()
+    Positioned::fill()
+        .child(
+            Stack::new()
+                .fit(StackFit::Expand)
+                .push(place(24.0, 840.0).child(section_card(372.0, 133.0)))
+                .push(place(24.0, top_of(827.0, 9.0)).child(section_label("05  /  PRIVACY")))
+                .push(place(42.0, 855.0).child(lock_badge()))
+                .push(
+                    place(82.0, top_of(867.0, 11.5)).child(
+                        Text::new("Biometric lock").style(
+                            TextStyle::new(11.5)
+                                .weight(FontWeight::Medium)
+                                .color(Color::rgb(233, 237, 245)),
+                        ),
+                    ),
+                )
+                .push(
+                    place(82.0, top_of(882.0, 9.0)).child(
+                        Text::new(caption)
+                            .size(9.0)
+                            .color(Color::rgb(129, 144, 168)),
+                    ),
+                )
+                .push(right)
+                .push(place(42.0, 902.0).child(divider()))
+                .push(place(42.0, 923.0).child(shield_badge()))
+                .push(
+                    place(82.0, top_of(935.0, 11.5)).child(
+                        Text::new("Offline by design").style(
+                            TextStyle::new(11.5)
+                                .weight(FontWeight::Medium)
+                                .color(Color::rgb(233, 237, 245)),
+                        ),
+                    ),
+                )
+                .push(
+                    place(82.0, top_of(950.0, 9.0)).child(
+                        // The engine's own name, said where the privacy claim is:
+                        // "no network" and "which engine answered" are the same
+                        // promise (§15: nothing presented as available that is
+                        // not — and no fallback presented as the model).
+                        Text::new(format!(
+                            "Network access unavailable · answered by {}",
+                            state.engine.borrow().runtime_name()
+                        ))
+                        .size(9.0)
+                        .color(Color::rgb(129, 144, 168)),
+                    ),
+                )
+                .push(place(355.0, 927.0).child(offline_disc())),
+        )
+        .into()
 }
 
 /// Biometric lock — the reference's lock in `#18372f`, `#72e1b9` at 1.2.
@@ -1104,19 +1162,20 @@ fn offline_disc() -> Painting {
 
 // ---- the signature ----------------------------------------------------------
 
-
 /// The line that signs the form — the reference's y = 1005, centred.
 fn footer() -> WidgetNode {
-    place(0.0, top_of(1005.0, 9.0)).width(420.0).child(
-        Text::new("U  ·  ON-DEVICE PERSONA")
-            .style(
-                TextStyle::new(9.0)
-                    .letter_spacing(0.6)
-                    .color(Color::rgb(94, 109, 132)),
-            )
-            .align(TextAlign::Center),
-    )
-    .into()
+    place(0.0, top_of(1005.0, 9.0))
+        .width(420.0)
+        .child(
+            Text::new("U  ·  ON-DEVICE PERSONA")
+                .style(
+                    TextStyle::new(9.0)
+                        .letter_spacing(0.6)
+                        .color(Color::rgb(94, 109, 132)),
+                )
+                .align(TextAlign::Center),
+        )
+        .into()
 }
 
 // ---- the shared parts -------------------------------------------------------
@@ -1137,13 +1196,14 @@ fn section_card(width: f32, height: f32) -> WidgetNode {
 
 /// A section's label: the reference's numbered, violet, letterspaced caps.
 fn section_label(title: &str) -> WidgetNode {
-    Text::new(title).style(
-        TextStyle::new(9.0)
-            .weight(FontWeight::Bold)
-            .letter_spacing(2.0)
-            .color(Color::rgb(155, 139, 210)),
-    )
-    .into()
+    Text::new(title)
+        .style(
+            TextStyle::new(9.0)
+                .weight(FontWeight::Bold)
+                .letter_spacing(2.0)
+                .color(Color::rgb(155, 139, 210)),
+        )
+        .into()
 }
 
 /// A hairline between the rows of a card — `#2b374a`, from x = 18 to 354

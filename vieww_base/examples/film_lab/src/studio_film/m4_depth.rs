@@ -44,7 +44,8 @@ fn sample_frame_scene() -> vieww_paint::Scene {
                     // The card — gradient fill, hairline.
                     let card = Rect::new(48.0, 40.0, 300.0, 190.0);
                     book.rrect(card, 14.0, pf::alpha(SURFACE, 0.95));
-                    let g = Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0)).with_dither()
+                    let g = Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0))
+                        .with_dither()
                         .with_stops(&[
                             (0.0, pf::alpha(BRAND_NEAR, 0.28)),
                             (1.0, pf::alpha(BRAND_FAR, 0.08)),

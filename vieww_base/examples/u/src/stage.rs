@@ -68,10 +68,8 @@ pub fn screen(design: impl Into<WidgetNode>) -> WidgetNode {
         .push(
             Positioned::fill().child(
                 SafeArea::new().horizontal(false).child(
-                    Align::new(Alignment::CENTER).child(
-                        Fitted::new()
-                            .child(SizedBox::from_size(DESIGN).child(design)),
-                    ),
+                    Align::new(Alignment::CENTER)
+                        .child(Fitted::new().child(SizedBox::from_size(DESIGN).child(design))),
                 ),
             ),
         )

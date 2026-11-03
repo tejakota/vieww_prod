@@ -290,7 +290,11 @@ fn fade_in(t: f32) -> WidgetNode {
             Opacity::new(a).child(
                 Transformed::scale(0.9 + 0.1 * a, 0.9 + 0.1 * a).child(
                     Container::new()
-                        .gradient(Gradient::vertical().with_dither().with_stops(&[(0.0, ACCENT), (1.0, VIOLET)]))
+                        .gradient(
+                            Gradient::vertical()
+                                .with_dither()
+                                .with_stops(&[(0.0, ACCENT), (1.0, VIOLET)]),
+                        )
                         .radius(20.0)
                         .size(240.0, 150.0)
                         .alignment(Alignment::CENTER)
@@ -728,7 +732,8 @@ fn card_face() -> WidgetNode {
                     Container::new()
                         .radius(8.0)
                         .gradient(
-                            Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0)).with_dither()
+                            Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0))
+                                .with_dither()
                                 .between(VIOLET, ACCENT),
                         )
                         .size(96.0, 40.0),
@@ -751,7 +756,8 @@ fn detail_face() -> WidgetNode {
                     Container::new()
                         .radius(12.0)
                         .gradient(
-                            Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0)).with_dither()
+                            Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0))
+                                .with_dither()
                                 .between(VIOLET, MINT),
                         )
                         .size(SIZE.width - 88.0, 96.0),
@@ -863,7 +869,8 @@ fn morph(t: f32) -> WidgetNode {
 
                 book.fill(
                     path.clone(),
-                    Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0)).with_dither()
+                    Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0))
+                        .with_dither()
                         .between(VIOLET, MINT),
                 );
                 book.stroke(path, Color::rgba(232, 236, 245, 190), 2.0);

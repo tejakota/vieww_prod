@@ -473,7 +473,8 @@ pub(crate) fn draw_dot3(
 /// The horizon glow band behind a 3D scene — one wide gradient rect.
 pub(crate) fn horizon(book: &mut Sketchbook, canvas: Size, color: Color) {
     let rect = Rect::new(0.0, 0.0, canvas.width, canvas.height);
-    let g = vieww_foundation::Gradient::radial(Offset::new(0.5, 0.62), 0.9).with_dither()
+    let g = vieww_foundation::Gradient::radial(Offset::new(0.5, 0.62), 0.9)
+        .with_dither()
         .with_stops(&[(0.0, alpha(color, 0.30)), (1.0, alpha(color, 0.0))]);
     book.rect(rect, g);
 }

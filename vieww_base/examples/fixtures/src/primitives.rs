@@ -71,7 +71,9 @@ pub(crate) fn fills_rounded() -> WidgetNode {
 /// geometry: identical edges, a ramp evaluated at every covered pixel.
 pub(crate) fn fills_gradient() -> WidgetNode {
     Painting::new(PaintWith::new(|book, _size| {
-        let ramp = Gradient::vertical().with_dither().with_stops(&[(0.0, ACCENT), (1.0, VIOLET)]);
+        let ramp = Gradient::vertical()
+            .with_dither()
+            .with_stops(&[(0.0, ACCENT), (1.0, VIOLET)]);
         for i in 0..COUNT {
             book.rrect(cell_rect(i), 6.0, ramp);
         }

@@ -232,7 +232,11 @@ fn mark(side: f32) -> WidgetNode {
 
     let mut base = Container::new()
         .color(ground)
-        .gradient(Gradient::vertical().with_dither().between(ground_top, ground))
+        .gradient(
+            Gradient::vertical()
+                .with_dither()
+                .between(ground_top, ground),
+        )
         .radius(side * 0.22)
         .size(side, side);
     // Below about twenty points a shadow is a smudge under a glyph rather than
@@ -252,31 +256,37 @@ fn mark(side: f32) -> WidgetNode {
     // repository puts them. See `.vw-mark` in `index.html`.
     Styled::class(
         "vw-mark",
-        base.child(Stack::new().fit(StackFit::Expand).children(children![
-            Styled::class(
-                "vw-mark-a",
-                at(0.16, 0.20, 0.40, 0.60, Container::new().color(panel))
-            ),
-            // The accent panel is the one piece of colour, so it is the one
-            // that gets a ramp and a shadow.
-            Styled::class(
-                "vw-mark-b",
-                at(
-                    0.44,
-                    0.32,
-                    0.40,
-                    0.48,
-                    Container::new()
-                        .color(accent_near)
-                        .gradient(Gradient::vertical().with_dither().between(accent_far, accent_near))
-                        .shadow(Shadow::new(
-                            Color::rgba(0, 0, 0, 90),
-                            Offset::new(0.0, side * 0.02),
-                            side * 0.07,
-                        ))
-                )
-            ),
-        ])),
+        base.child(
+            Stack::new().fit(StackFit::Expand).children(children![
+                Styled::class(
+                    "vw-mark-a",
+                    at(0.16, 0.20, 0.40, 0.60, Container::new().color(panel))
+                ),
+                // The accent panel is the one piece of colour, so it is the one
+                // that gets a ramp and a shadow.
+                Styled::class(
+                    "vw-mark-b",
+                    at(
+                        0.44,
+                        0.32,
+                        0.40,
+                        0.48,
+                        Container::new()
+                            .color(accent_near)
+                            .gradient(
+                                Gradient::vertical()
+                                    .with_dither()
+                                    .between(accent_far, accent_near)
+                            )
+                            .shadow(Shadow::new(
+                                Color::rgba(0, 0, 0, 90),
+                                Offset::new(0.0, side * 0.02),
+                                side * 0.07,
+                            ))
+                    )
+                ),
+            ]),
+        ),
     )
     .into()
 }

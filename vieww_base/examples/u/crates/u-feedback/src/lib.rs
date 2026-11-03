@@ -100,7 +100,12 @@ pub fn priority_signals(matters: &[String], tags: &[String]) -> Vec<(Dimension, 
         signals.push((Dimension::Simplicity, 0.4, 0.3, Source::DecisionPriority));
     }
     if on("family") || on("partner") || on("friend") || on("people") {
-        signals.push((Dimension::SocialConnection, 0.4, 0.3, Source::DecisionPriority));
+        signals.push((
+            Dimension::SocialConnection,
+            0.4,
+            0.3,
+            Source::DecisionPriority,
+        ));
     }
 
     // The context is the decision's own tags — a preference learned from a
@@ -115,7 +120,12 @@ pub fn priority_signals(matters: &[String], tags: &[String]) -> Vec<(Dimension, 
 /// The *caller* passes the context (the decision's tags, joined or `None`)
 /// so the memory layer decides scoping; this function only applies the
 /// plan's bounded update for each signal.
-pub fn learn_priorities(persona: &mut Persona, matters: &[String], context: Option<String>, at: Id) {
+pub fn learn_priorities(
+    persona: &mut Persona,
+    matters: &[String],
+    context: Option<String>,
+    at: Id,
+) {
     for (dimension, leaning, confidence, source) in priority_signals(matters, &[]) {
         persona.observe(dimension, leaning, confidence, source, context.clone(), at);
     }
@@ -163,7 +173,10 @@ mod tests {
         assert_eq!(persona.preferences.len(), 1);
         let preference = &persona.preferences[0];
         assert_eq!(preference.dimension, Dimension::Growth);
-        assert!(!preference.explicit, "a named priority is inferred, not stated");
+        assert!(
+            !preference.explicit,
+            "a named priority is inferred, not stated"
+        );
         assert!(preference.confidence <= 0.3, "weak by the plan's own rule");
         assert_eq!(preference.context.as_deref(), Some("career"));
     }
@@ -172,7 +185,10 @@ mod tests {
     fn an_unlisted_priority_is_kept_not_learned() {
         let mut persona = Persona::default();
         learn_priorities(&mut persona, &["the vibe".to_owned()], None, 1);
-        assert!(persona.preferences.is_empty(), "the words are kept in the record");
+        assert!(
+            persona.preferences.is_empty(),
+            "the words are kept in the record"
+        );
     }
 
     #[test]
@@ -192,10 +208,7 @@ mod tests {
 
     #[test]
     fn double_taps_are_one_opinion() {
-        assert!(is_duplicate(
-            Some(&Feedback::Helpful),
-            &Feedback::Helpful
-        ));
+        assert!(is_duplicate(Some(&Feedback::Helpful), &Feedback::Helpful));
         assert!(!is_duplicate(
             Some(&Feedback::Helpful),
             &Feedback::NotHelpful

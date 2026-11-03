@@ -254,9 +254,11 @@ fn write_schema(path: &Path) -> std::io::Result<()> {
 
 /// Append one serialised record as a line, flushed.
 fn append_line<T: serde::Serialize>(path: &Path, record: &T) -> std::io::Result<()> {
-    let mut file = fs::OpenOptions::new().create(true).append(true).open(path)?;
-    let line = serde_json::to_string(record)
-        .map_err(|e| std::io::Error::other(e.to_string()))?;
+    let mut file = fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(path)?;
+    let line = serde_json::to_string(record).map_err(|e| std::io::Error::other(e.to_string()))?;
     writeln!(file, "{line}")?;
     file.flush()
 }
@@ -309,8 +311,12 @@ mod tests {
     #[test]
     fn records_round_trip_through_the_store() {
         let store = scratch();
-        store.append("decisions", &decision(1, "switch teams")).unwrap();
-        store.append("decisions", &decision(2, "move cities")).unwrap();
+        store
+            .append("decisions", &decision(1, "switch teams"))
+            .unwrap();
+        store
+            .append("decisions", &decision(2, "move cities"))
+            .unwrap();
         let (loaded, recovered) = store.load::<DecisionRecord>("decisions").unwrap();
         assert_eq!(recovered, 2);
         assert_eq!(loaded.len(), 2);
@@ -344,7 +350,14 @@ mod tests {
     fn the_persona_round_trips_whole() {
         let store = scratch();
         let mut persona = Persona::default();
-        persona.observe(Dimension::Stability, 0.7, 0.8, u_persona::Source::Stated, None, 5);
+        persona.observe(
+            Dimension::Stability,
+            0.7,
+            0.8,
+            u_persona::Source::Stated,
+            None,
+            5,
+        );
         store.save_persona(&persona).unwrap();
         let back = store.load_persona().unwrap();
         assert_eq!(back, persona);

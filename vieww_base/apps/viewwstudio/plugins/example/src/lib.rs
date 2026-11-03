@@ -161,7 +161,11 @@ fn lint_todos(source: &str) -> String {
             findings.push(',');
         }
         first = false;
-        let kind = if line.contains("TODO") { "TODO" } else { "FIXME" };
+        let kind = if line.contains("TODO") {
+            "TODO"
+        } else {
+            "FIXME"
+        };
         findings.push_str(&format!(
             "{{\"rule\":\"todo-comment\",\"severity\":\"warning\",\
              \"message\":\"a {kind} marker was left behind — this is work somebody \
@@ -269,8 +273,10 @@ fn plan_tarball(root: &str, name: &str) -> String {
     if !on_path("tar") {
         return format!(
             "{{\"refusal\":\"{}\"}}",
-            escape("tar is not installed — the source tarball needs it. On Debian and \
-                    Ubuntu: apt install tar; on macOS it ships with the system.")
+            escape(
+                "tar is not installed — the source tarball needs it. On Debian and \
+                    Ubuntu: apt install tar; on macOS it ships with the system."
+            )
         );
     }
     let export_dir = format!("{root}/target/export");
@@ -389,7 +395,6 @@ fn escape(text: &str) -> String {
 /// The plugin's own refusal-first answer to "can this plan run": the ABI
 /// gives it no environment report, so it looks, once, at plan time.
 fn on_path(program: &str) -> bool {
-    std::env::var_os("PATH").is_some_and(|paths| {
-        std::env::split_paths(&paths).any(|dir| dir.join(program).is_file())
-    })
+    std::env::var_os("PATH")
+        .is_some_and(|paths| std::env::split_paths(&paths).any(|dir| dir.join(program).is_file()))
 }

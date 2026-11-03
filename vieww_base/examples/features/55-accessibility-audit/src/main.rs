@@ -195,7 +195,14 @@ fn build_tree() -> (SemanticsTree, [RenderId; 6]) {
     let semantics = SemanticsTree::build(&tree, None);
     (
         semantics,
-        [clean, unlabelled, undersized, actionless_field, odd_toggle, ghost],
+        [
+            clean,
+            unlabelled,
+            undersized,
+            actionless_field,
+            odd_toggle,
+            ghost,
+        ],
     )
 }
 

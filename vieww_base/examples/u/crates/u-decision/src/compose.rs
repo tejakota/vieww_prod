@@ -58,7 +58,10 @@ fn understanding(seen: &Interpretation, their_options: &[&Option_]) -> String {
             their_options[0].label, their_options[1].label
         ),
     };
-    let mut out = format!("You're {}. As you put it: “{}”", seen.intent, seen.situation);
+    let mut out = format!(
+        "You're {}. As you put it: “{}”",
+        seen.intent, seen.situation
+    );
     if let Some(horizon) = &seen.time_horizon {
         out.push_str(&format!(", over {horizon}"));
     }
@@ -103,9 +106,10 @@ fn tradeoffs(
     // are the reason they were suggested.
     for option in suggested.iter().take(2) {
         if option.label.starts_with("Do nothing") {
-            let keeps = top
-                .as_ref()
-                .map_or_else(|| "today's trade-offs".to_owned(), |p| format!("today's “{p}”"));
+            let keeps = top.as_ref().map_or_else(
+                || "today's trade-offs".to_owned(),
+                |p| format!("today's “{p}”"),
+            );
             out.push(format!(
                 "“{}”: keeps {keeps} exactly as they are — the cost is whatever the change would have bought",
                 option.label
@@ -124,10 +128,7 @@ fn tradeoffs(
 fn perspective(seen: &Interpretation, their_options: &[&Option_]) -> String {
     let mut parts: Vec<String> = Vec::new();
 
-    parts.push(format!(
-        "Reading what you wrote, this is {}",
-        seen.intent
-    ));
+    parts.push(format!("Reading what you wrote, this is {}", seen.intent));
 
     match their_options.len() {
         0 => parts.push(
@@ -149,7 +150,9 @@ fn perspective(seen: &Interpretation, their_options: &[&Option_]) -> String {
 
     if let Some(first) = seen.unknowns.first() {
         let first = first.to_lowercase();
-        parts.push(format!("{first} is missing, and it could change this reading"));
+        parts.push(format!(
+            "{first} is missing, and it could change this reading"
+        ));
     } else {
         parts.push(
             "nothing material seems missing, so the limits below are about U's reading, not \
@@ -188,9 +191,7 @@ fn follow_up(seen: &Interpretation) -> Option<String> {
         _ if unknown.contains("alternatives") => {
             "If you could only pick between two versions of this, what would the two be?".to_owned()
         }
-        _ if unknown.contains("timeframe") => {
-            "When does this need to be decided by?".to_owned()
-        }
+        _ if unknown.contains("timeframe") => "When does this need to be decided by?".to_owned(),
         _ if unknown.contains("costs") => {
             "Roughly what numbers are in play — even a range?".to_owned()
         }
@@ -242,9 +243,7 @@ mod tests {
         );
         let joined = format!(
             "{}{}{}",
-            assessment.assessment,
-            assessment.understanding,
-            assessment.next_step
+            assessment.assessment, assessment.understanding, assessment.next_step
         );
         // A bare percentage or a score-shaped number would be false
         // precision; the letters would have to come from us.
@@ -271,10 +270,7 @@ mod tests {
     fn suggested_options_are_always_marked() {
         let assessment = assessed("thinking about whether to change teams");
         for option in &assessment.options {
-            if !assessment
-                .understanding
-                .contains(&option.label)
-            {
+            if !assessment.understanding.contains(&option.label) {
                 // Any option not quoted as the person's must be marked
                 // suggested — there is no third origin.
                 assert_eq!(option.origin, Origin::Suggested);

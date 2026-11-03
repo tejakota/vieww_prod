@@ -69,13 +69,11 @@ pub const PILL_KNOB_OFF: Color = Color::rgb(154, 168, 188);
 /// rasterizer's ordered dither is exactly the fix Skia-style renderers ship
 /// for this — the bands become noise below the eye's threshold.
 pub fn ground_gradient() -> Gradient {
-    Gradient::vertical()
-        .with_dither()
-        .with_stops(&[
-            (0.0, GROUND_TOP),
-            (0.48, GROUND_MID),
-            (1.0, GROUND),
-        ])
+    Gradient::vertical().with_dither().with_stops(&[
+        (0.0, GROUND_TOP),
+        (0.48, GROUND_MID),
+        (1.0, GROUND),
+    ])
 }
 
 /// A card's surface for the ask sheet: faintly lighter at the top, as if lit
@@ -105,10 +103,7 @@ pub fn action_gradient() -> Gradient {
 pub fn mint_gradient() -> Gradient {
     Gradient::horizontal()
         .with_dither()
-        .with_stops(&[
-            (0.0, Color::rgb(193, 255, 245)),
-            (1.0, MEMBRANE),
-        ])
+        .with_stops(&[(0.0, Color::rgb(193, 255, 245)), (1.0, MEMBRANE)])
 }
 
 /// Linear interpolation between two colours, in sRGB. Good enough for the
