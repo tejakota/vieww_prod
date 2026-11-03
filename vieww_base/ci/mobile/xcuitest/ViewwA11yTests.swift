@@ -82,8 +82,8 @@ final class ViewwA11yTests: XCTestCase {
         let allElements = app.descendants(matching: .any)
             .matching(NSPredicate(format: "identifier BEGINSWITH 'vieww.'"))
         XCTAssertGreaterThan(allElements.count, 0,
-                             "no bridge-published elements in the tree — is VoiceOver running? \
-                             the bridge publishes nothing otherwise, by design")
+                             "no bridge-published elements in the tree — is VoiceOver running? "
+                                 + "the bridge publishes nothing otherwise, by design")
         for index in 0..<min(allElements.count, 20) {
             let element = allElements.element(boundBy: index)
             XCTAssertTrue(element.identifier.hasPrefix("vieww."),
