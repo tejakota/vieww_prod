@@ -24,10 +24,10 @@
 //!   licensed SDK and signer can run there.
 //!
 //! This is the same discipline as the AAC decoder's refusal of Main-profile
-//! prediction and LTP by *name* with a precise error, or the Opus decoder's
-//! `REFUSED_PAYLOAD`: what is not done is stated, not hidden. A host or
-//! tool asking this crate for AAX gets [`REFUSED`] — a `&'static str`
-//! reason, not a silent empty format list.
+//! prediction and LTP by *name* with a precise error, or the Opus multistream
+//! decoder's refusal of mapping family 3: what is not done is stated, not
+//! hidden. A host or tool asking this crate for AAX gets [`REFUSED`] — a
+//! `&'static str` reason, not a silent empty format list.
 //!
 //! What a developer who needs Pro Tools support does today: build the
 //! CLAP or VST3 wrapper (they are complete, tested, and validated
