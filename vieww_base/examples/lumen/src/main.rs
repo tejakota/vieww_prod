@@ -529,11 +529,11 @@ fn fonts() -> FontStore {
     const REGULAR: &[u8] = include_bytes!("../../u/assets/fonts/Inter-Regular.ttf");
     const MEDIUM: &[u8] = include_bytes!("../../u/assets/fonts/Inter-Medium.ttf");
     const BOLD: &[u8] = include_bytes!("../../u/assets/fonts/Inter-Bold.ttf");
-    FontStore::with_application_faces(
-        [REGULAR.to_vec(), MEDIUM.to_vec(), BOLD.to_vec()],
-        Some("Inter"),
-        None,
-    )
+    let mut faces = vec![REGULAR.to_vec(), MEDIUM.to_vec(), BOLD.to_vec()];
+    let mono = std::fs::read("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf").ok();
+    let has_mono = mono.is_some();
+    faces.extend(mono);
+    FontStore::with_application_faces(faces, Some("Inter"), has_mono.then_some("DejaVu Sans Mono"))
 }
 
 fn render(
@@ -571,6 +571,24 @@ fn render_at(
         renderer.render_to_pixels(driver.scene(), device.width as u32, device.height as u32, base)?;
     image::RgbaImage::from_raw(device.width as u32, device.height as u32, pixels.data().to_vec())
         .ok_or_else(|| "invalid RGBA frame".into())
+}
+
+fn render_sized(screen: WidgetNode, size: Size, density: f32) -> Result<image::RgbaImage, Box<dyn std::error::Error>> {
+    let device = Size::new(size.width * density, size.height * density);
+    let mut driver = FrameDriver::new(device);
+    driver.set_fonts(fonts());
+    driver.set_root(
+        Theme::new(ThemeData::dark()).child(
+            Transformed::new(Transform::scale(density, density))
+                .child(Align::new(Alignment::TOP_LEFT).child(SizedBox::from_size(size).child(screen))),
+        ),
+    );
+    for frame in 1..=3_u64 {
+        driver.draw_frame_at(std::time::Duration::from_millis(16 * frame));
+    }
+    let mut renderer = NativeRenderer::with_color_pipeline(ColorPipeline::LinearLight);
+    let (pixels, _) = renderer.render_to_pixels(driver.scene(), device.width as u32, device.height as u32, Color::rgb(4, 5, 8))?;
+    image::RgbaImage::from_raw(device.width as u32, device.height as u32, pixels.data().to_vec()).ok_or_else(|| "invalid RGBA frame".into())
 }
 
 /// How much light a frame asks an OLED panel to emit, as a percentage of an
@@ -635,6 +653,66 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         sheet.save(format!("{out}/colors.png"))?;
         println!("colors -> {out}/colors.png");
+        return Ok(());
+    }
+
+    if mode.as_deref() == Some("--studio") {
+        // viewwstudio's shell, rebuilt in the lit theme at its own 1440x900,
+        // dark and light.
+        let l = light::Light::at(0.94);
+        for (name, pal) in [("studio-dark", light::PALETTES[0]), ("studio-light", light::PALETTES[1])] {
+            let image = render_sized(light::studio_screen(l, pal), Size::new(1440.0, 900.0), 1.0)?;
+            image.save(format!("{out}/{name}.png"))?;
+        }
+        println!("studio -> {out}");
+        return Ok(());
+    }
+
+    if mode.as_deref() == Some("--flex") {
+        // Developer flexibility: defaults, nudged + custom widget, retuned —
+        // dark on top, light below.
+        let l = light::Light::at(0.94);
+        let mut shots = Vec::new();
+        for pal in [light::PALETTES[0], light::PALETTES[1]] {
+            for v in 0..3 {
+                shots.push(render_at(light::flex_screen(l, 0.0, pal, v), ColorPipeline::LinearLight, Color::rgb(4, 5, 8), 2.0)?);
+            }
+        }
+        let (w, h) = (shots[0].width() / 2, shots[0].height() / 2);
+        let gap = 24;
+        let mut sheet = image::RgbaImage::from_pixel((w + gap) * 3 - gap, (h + gap) * 2 - gap, image::Rgba([255, 255, 255, 255]));
+        for (i, img) in shots.iter().enumerate() {
+            let small = image::imageops::resize(img, w, h, image::imageops::FilterType::Triangle);
+            image::imageops::overlay(&mut sheet, &small, i64::from((w + gap) * (i as u32 % 3)), i64::from((h + gap) * (i as u32 / 3)));
+        }
+        sheet.save(format!("{out}/flex.png"))?;
+        println!("flex -> {out}/flex.png");
+        return Ok(());
+    }
+
+    if mode.as_deref() == Some("--glimpse") {
+        // A photo-sharing app in the same theme: feed, profile, comments,
+        // dark and light, in the evening light.
+        let l = light::Light::at(0.94);
+        let make: [fn(light::Light, f32, light::Palette) -> WidgetNode; 3] =
+            [light::glimpse_feed, light::glimpse_profile, light::glimpse_comments];
+        let mut shots = Vec::new();
+        for pal in [light::PALETTES[0], light::PALETTES[1]] {
+            for f in make {
+                shots.push(render_at(f(l, 0.0, pal), ColorPipeline::LinearLight, Color::rgb(4, 5, 8), 2.0)?);
+            }
+        }
+        let (w, h) = (shots[0].width() / 2, shots[0].height() / 2);
+        let gap = 24;
+        let mut sheet = image::RgbaImage::from_pixel((w + gap) * 6 - gap, h, image::Rgba([255, 255, 255, 255]));
+        for (i, img) in shots.iter().enumerate() {
+            let small = image::imageops::resize(img, w, h, image::imageops::FilterType::Triangle);
+            image::imageops::overlay(&mut sheet, &small, i64::from((w + gap) * i as u32), 0);
+        }
+        sheet.save(format!("{out}/glimpse.png"))?;
+        shots[0].save(format!("{out}/glimpse-feed-dark.png"))?;
+        shots[4].save(format!("{out}/glimpse-profile-light.png"))?;
+        println!("glimpse -> {out}");
         return Ok(());
     }
 

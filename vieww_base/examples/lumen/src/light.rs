@@ -41,6 +41,10 @@ pub struct Light {
     /// this, so a light theme stays light at dusk and noon costs no more
     /// than morning.
     pub exposure: f32,
+    /// On a black ground shadows have nothing to darken, so depth is shown
+    /// by light instead: each level up catches this much more of it. Zero
+    /// on light themes; the black theme sets it.
+    pub glow: f32,
     /// What this light is called, for the caption.
     pub name: &'static str,
 }
@@ -61,6 +65,7 @@ impl Light {
                 intensity: 0.7,
                 ambient: [0.05, 0.05, 0.07],
                 exposure: 0.82,
+                glow: 0.0,
                 name: "Night · warm lamp",
             };
         }
@@ -75,6 +80,7 @@ impl Light {
             intensity: 0.75 + 0.25 * arc,
             ambient: [0.06, 0.065, 0.08],
             exposure: 0.95,
+            glow: 0.0,
             name: if t < 0.2 {
                 "Morning"
             } else if t < 0.8 {
@@ -161,6 +167,7 @@ fn shade(m: Material, light: Light) -> ([f32; 3], [f32; 3]) {
     // little more of it, and anything below the ground sinks into shade.
     let e = scale(irradiance(light), (1.0 + m.z * 0.09).clamp(0.55, 1.8));
     let diffuse = if m.metal { scale(mul(m.base, e), 0.18) } else { mul(m.base, e) };
+    let diffuse = add(diffuse, scale(light.color, light.glow * m.z.max(0.0)));
     // The specular lobe: a smooth surface concentrates the light into a
     // bright, small highlight; a rough one spreads it thin.
     let strength = light.intensity * (1.0 - m.roughness).powf(1.5) * 0.55;
@@ -202,7 +209,7 @@ fn contact(m: Material, light: Light) -> Shadow {
 /// grazing light (a Fresnel-shaped rim).
 fn rim(m: Material, light: Light) -> Shadow {
     let grazing = 1.0 - light.elevation.to_radians().sin();
-    let a = (0.12 + 0.5 * (1.0 - m.roughness) * (0.4 + grazing)) * light.intensity;
+    let a = (0.12 + 0.5 * (1.0 - m.roughness) * (0.4 + grazing)) * light.intensity + light.glow * m.z.max(0.0) * 4.0;
     let edge = if m.metal { mul(light.color, m.base) } else { light.color };
     Shadow::inset(
         rgba(add(scale(edge, 0.9), [0.1, 0.1, 0.1]), a),
@@ -376,17 +383,20 @@ impl Palette {
         // light's warmth and stays white. A dark theme keeps all of it.
         let keep = if self.light { 0.25 } else { 1.0 };
         let color = add(scale(light.color, keep), scale([1.0, 1.0, 1.0], 1.0 - keep));
-        Light { exposure: base * (light.exposure / 0.95), color, ..light }
+        // Black, not grey: a dark theme's ground is true black, and its
+        // surfaces rise out of it by catching light, not by casting shadow.
+        let glow = if self.light { 0.0 } else { 0.011 };
+        Light { exposure: base * (light.exposure / 0.95), color, glow, ..light }
     }
 
     fn surface(self) -> [f32; 3] {
-        if self.light { [0.93, 0.935, 0.95] } else { [0.16, 0.17, 0.23] }
+        if self.light { [0.93, 0.935, 0.95] } else { [0.034, 0.036, 0.046] }
     }
     fn pill(self) -> [f32; 3] {
-        if self.light { [0.70, 0.71, 0.75] } else { [0.085, 0.09, 0.12] }
+        if self.light { [0.70, 0.71, 0.75] } else { [0.03, 0.032, 0.04] }
     }
     fn floor(self) -> [f32; 3] {
-        if self.light { [0.66, 0.67, 0.71] } else { [0.07, 0.075, 0.09] }
+        if self.light { [0.66, 0.67, 0.71] } else { [0.0, 0.0, 0.0] }
     }
     fn content(self) -> Material {
         Material { base: self.surface(), ..SATIN }
@@ -512,6 +522,9 @@ pub fn checks(light: Light, pal: Palette) -> Vec<Check> {
 // ---- the ground ----------------------------------------------------------------
 
 fn ground_lit(light: Light, pal: Palette) -> [f32; 3] {
+    if !pal.light {
+        return [0.0, 0.0, 0.0];
+    }
     add(mul(pal.floor(), irradiance(light)), scale(light.ambient, 0.4))
 }
 
@@ -563,7 +576,43 @@ impl Role {
 }
 
 fn layered(role: Role, m: Material, light: Light, tilt: f32, radius: f32, child: impl Into<WidgetNode>) -> WidgetNode {
-    let z = role.z();
+    layered_z(role.z(), m, light, tilt, radius, child)
+}
+
+/// The depths a theme gives each role — level 4 swaps this map wholesale.
+#[derive(Clone, Copy)]
+pub struct RoleMap {
+    pub action: f32,
+    pub secondary: f32,
+    pub control: f32,
+    pub feature: f32,
+    pub content: f32,
+    pub pill: f32,
+    pub field: f32,
+}
+
+impl RoleMap {
+    pub const DEFAULT: Self =
+        Self { action: 8.0, secondary: 6.0, control: 4.5, feature: 4.5, content: 3.0, pill: 0.3, field: -1.5 };
+    fn z(self, role: Role) -> f32 {
+        match role {
+            Role::Action => self.action,
+            Role::Secondary => self.secondary,
+            Role::Control => self.control,
+            Role::Feature => self.feature,
+            Role::Content => self.content,
+            Role::Pill => self.pill,
+            Role::Field => self.field,
+        }
+    }
+}
+
+/// How far any surface may sit from the ground, whatever the app asks for:
+/// one widget at z 1000 must not throw its shadow across the whole screen.
+pub const Z_RANGE: (f32, f32) = (-3.0, 12.0);
+
+fn layered_z(z: f32, m: Material, light: Light, tilt: f32, radius: f32, child: impl Into<WidgetNode>) -> WidgetNode {
+    let z = z.clamp(Z_RANGE.0, Z_RANGE.1);
     let m = legible(Material { z, ..m }, light);
     let lit = shade(m, light).0;
     let inks = [text_on(lit, light, true), text_on(lit, light, false)];
@@ -737,14 +786,29 @@ struct Kit {
     light: Light,
     tilt: f32,
     pal: Palette,
+    roles: RoleMap,
 }
 
 impl Kit {
     fn new(light: Light, tilt: f32, pal: Palette) -> Self {
-        Self { light: pal.expose(light), tilt, pal }
+        Self { light: pal.expose(light), tilt, pal, roles: RoleMap::DEFAULT }
+    }
+    /// Level 4: the same kit with the app's own role-to-depth map.
+    fn with_roles(self, roles: RoleMap) -> Self {
+        Self { roles, ..self }
+    }
+    /// Level 4: the same kit under the app's own light.
+    fn with_light(self, light: Light) -> Self {
+        Self { light: self.pal.expose(light), ..self }
+    }
+    fn z(self, role: Role) -> f32 {
+        self.roles.z(role)
+    }
+    fn lay(self, role: Role, m: Material, radius: f32, child: impl Into<WidgetNode>) -> WidgetNode {
+        layered_z(self.z(role), m, self.light, self.tilt, radius, child)
     }
     fn ink(self, m: Material, role: Role, strong: bool) -> Color {
-        let lit = shade(legible(Material { z: role.z(), ..m }, self.light), self.light).0;
+        let lit = shade(legible(Material { z: self.z(role), ..m }, self.light), self.light).0;
         rgb(text_on(lit, self.light, strong))
     }
     fn on_ground(self, strong: bool) -> Color {
@@ -761,7 +825,7 @@ impl Kit {
         text(s, 12.0, FontWeight::Bold, self.on_ground(false))
     }
     fn card(self, radius: f32, child: impl Into<WidgetNode>) -> WidgetNode {
-        layered(Role::Content, self.pal.content(), self.light, self.tilt, radius, child)
+        self.lay(Role::Content, self.pal.content(), radius, child)
     }
     fn heading(self, s: &str, size: f32) -> WidgetNode {
         text(s, size, FontWeight::Bold, self.ink(self.pal.content(), Role::Content, true))
@@ -770,12 +834,7 @@ impl Kit {
         text(s, 13.0, FontWeight::Regular, self.ink(self.pal.content(), Role::Content, false))
     }
     fn pill(self, s: &str) -> WidgetNode {
-        layered(
-            Role::Pill,
-            self.pal.chip(),
-            self.light,
-            self.tilt,
-            12.0,
+        self.lay(Role::Pill, self.pal.chip(), 12.0,
             Container::new()
                 .padding(EdgeInsets::symmetric(10.0, 5.0))
                 .child(text(s, 11.0, FontWeight::Medium, self.ink(self.pal.chip(), Role::Pill, false))),
@@ -783,12 +842,7 @@ impl Kit {
     }
     fn toggle(self, on: bool) -> WidgetNode {
         let base = if on { hex_linear(self.pal.accent) } else { scale(self.pal.pill(), 0.9) };
-        layered(
-            Role::Control,
-            Material { base, ..METAL },
-            self.light,
-            self.tilt,
-            16.0,
+        self.lay(Role::Control, Material { base, ..METAL }, 16.0,
             Container::new()
                 .size(52.0, 30.0)
                 .padding(EdgeInsets::all(4.0))
@@ -802,12 +856,7 @@ impl Kit {
     }
     fn action(self, s: &str) -> WidgetNode {
         let m = self.pal.action();
-        layered(
-            Role::Action,
-            m,
-            self.light,
-            self.tilt,
-            24.0,
+        self.lay(Role::Action, m, 24.0,
             Container::new()
                 .height(50.0)
                 .alignment(Alignment::CENTER)
@@ -815,12 +864,7 @@ impl Kit {
         )
     }
     fn secondary(self, s: &str) -> WidgetNode {
-        layered(
-            Role::Secondary,
-            Material { base: scale(add(self.pal.surface(), hex_linear(self.pal.accent)), 0.5), ..GLASS },
-            self.light,
-            self.tilt,
-            24.0,
+        self.lay(Role::Secondary, Material { base: scale(add(self.pal.surface(), hex_linear(self.pal.accent)), 0.5), ..GLASS }, 24.0,
             Container::new()
                 .height(50.0)
                 .alignment(Alignment::CENTER)
@@ -829,12 +873,7 @@ impl Kit {
     }
     fn field(self, hint: &str) -> WidgetNode {
         let m = self.pal.field();
-        layered(
-            Role::Field,
-            m,
-            self.light,
-            self.tilt,
-            14.0,
+        self.lay(Role::Field, m, 14.0,
             Container::new()
                 .height(44.0)
                 .padding(EdgeInsets::symmetric(14.0, 0.0))
@@ -1036,5 +1075,864 @@ fn progress(pal: Palette, value: f32) -> WidgetNode {
                 .decoration(BoxDecoration::new().stadium().color(rgb(hex_linear(pal.accent))))
                 .size(width * value, 8.0),
         )
+        .into()
+}
+
+// ---- Glimpse: a photo-sharing app, to test whether the theme is generic --------
+//
+// The question this answers: does a lit, layered theme survive an app whose
+// content is other people's photos — where the interface has to step back?
+// Rule added for it: media is not a material. A photo is never shaded,
+// tinted or given a sheen; it only sits at its layer, with that layer's
+// shadow, so the light shapes the frame and never the picture.
+
+use vieww_foundation::{IconData, Path, Rect};
+
+/// A generated "photo": layered colour scenes, standing in for real images.
+fn photo(seed: usize, w: f32, h: f32, radius: f32) -> WidgetNode {
+    let scenes: [[(f32, u32); 3]; 6] = [
+        [(0.0, 0xFF9A5A), (0.55, 0xE0457B), (1.0, 0x2B1B4A)], // sunset
+        [(0.0, 0x9FE3F5), (0.5, 0x2E8BC0), (1.0, 0x0C2D48)],  // sea
+        [(0.0, 0xC9E4A6), (0.5, 0x4F8A3B), (1.0, 0x1B3A1E)],  // forest
+        [(0.0, 0xFFE6B0), (0.6, 0xD99A4E), (1.0, 0x5A3418)],  // desert
+        [(0.0, 0xE8E4F4), (0.5, 0x9C8FD0), (1.0, 0x3A2E6B)],  // dusk sky
+        [(0.0, 0xF6D6C8), (0.5, 0xC77B6A), (1.0, 0x3E2228)],  // café
+    ];
+    let s = scenes[seed % scenes.len()];
+    let hexc = |h: u32| Color::rgb((h >> 16) as u8, (h >> 8) as u8, h as u8);
+    let sun = [(0.72, 0.22), (0.25, 0.3), (0.6, 0.18), (0.3, 0.25), (0.7, 0.35), (0.5, 0.2)][seed % 6];
+    Clip::rounded(radius)
+        .child(
+            Stack::new()
+                .push(
+                    Container::new()
+                        .gradient(
+                            Gradient::vertical()
+                                .with_dither()
+                                .with_stops(&[(s[0].0, hexc(s[0].1)), (s[1].0, hexc(s[1].1)), (s[2].0, hexc(s[2].1))]),
+                        )
+                        .size(w, h),
+                )
+                .push(
+                    Positioned::new().left(w * sun.0 - h * 0.1).top(h * sun.1).child(
+                        Container::new()
+                            .decoration(BoxDecoration::new().stadium().color(Color::rgba(255, 250, 235, 200)))
+                            .size(h * 0.2, h * 0.2),
+                    ),
+                )
+                .push(
+                    Positioned::new().left(-w * 0.1).top(h * 0.62).child(
+                        Container::new()
+                            .decoration(BoxDecoration::new().radius(h).color(Color::rgba(0, 0, 0, 70)))
+                            .size(w * 0.8, h * 0.6),
+                    ),
+                )
+                .push(
+                    Positioned::new().left(w * 0.45).top(h * 0.7).child(
+                        Container::new()
+                            .decoration(BoxDecoration::new().radius(h).color(Color::rgba(0, 0, 0, 110)))
+                            .size(w * 0.8, h * 0.5),
+                    ),
+                ),
+        )
+        .into()
+}
+
+/// A photo placed at the content layer: its frame takes the layer's shadow,
+/// the picture itself is left exactly as it is.
+fn media(k: Kit, seed: usize, w: f32, h: f32, radius: f32) -> WidgetNode {
+    let m = Material { z: Role::Content.z(), ..k.pal.content() };
+    Container::new()
+        .decoration(BoxDecoration::new().radius(radius).shadow(shadow(m, k.light)))
+        .child(
+            Container::new()
+                .decoration(BoxDecoration::new().radius(radius).shadow(contact(m, k.light)))
+                .child(photo(seed, w, h, radius)),
+        )
+        .into()
+}
+
+fn stroke_icon(build: impl FnOnce(&mut Path), color: Color, size: f32) -> WidgetNode {
+    let mut p = Path::new();
+    build(&mut p);
+    Icon::new(IconData::new(p, Rect::new(0.0, 0.0, 24.0, 24.0)))
+        .size(size)
+        .stroke(1.8)
+        .color(color)
+        .into()
+}
+
+fn o(x: f32, y: f32) -> Offset {
+    Offset::new(x, y)
+}
+
+fn heart(c: Color) -> WidgetNode {
+    stroke_icon(|p| {
+        p.move_to(o(12.0, 20.0));
+        p.cubic_to(o(4.0, 14.5), o(2.5, 11.0), o(3.2, 8.0));
+        p.cubic_to(o(4.2, 4.2), o(9.4, 3.6), o(12.0, 7.6));
+        p.cubic_to(o(14.6, 3.6), o(19.8, 4.2), o(20.8, 8.0));
+        p.cubic_to(o(21.5, 11.0), o(20.0, 14.5), o(12.0, 20.0));
+        p.close();
+    }, c, 24.0)
+}
+
+fn bubble(c: Color) -> WidgetNode {
+    stroke_icon(|p| {
+        p.move_to(o(4.0, 5.0));
+        p.line_to(o(20.0, 5.0));
+        p.line_to(o(20.0, 16.0));
+        p.line_to(o(10.0, 16.0));
+        p.line_to(o(6.0, 20.0));
+        p.line_to(o(6.0, 16.0));
+        p.line_to(o(4.0, 16.0));
+        p.close();
+    }, c, 24.0)
+}
+
+fn send(c: Color) -> WidgetNode {
+    stroke_icon(|p| {
+        p.move_to(o(3.0, 11.0));
+        p.line_to(o(21.0, 4.0));
+        p.line_to(o(14.0, 21.0));
+        p.line_to(o(11.0, 13.5));
+        p.close();
+        p.move_to(o(11.0, 13.5));
+        p.line_to(o(21.0, 4.0));
+    }, c, 24.0)
+}
+
+fn mark(c: Color) -> WidgetNode {
+    stroke_icon(|p| {
+        p.move_to(o(6.0, 3.5));
+        p.line_to(o(18.0, 3.5));
+        p.line_to(o(18.0, 20.5));
+        p.line_to(o(12.0, 15.5));
+        p.line_to(o(6.0, 20.5));
+        p.close();
+    }, c, 24.0)
+}
+
+fn circle_icon(c: Color) -> WidgetNode {
+    stroke_icon(|p| {
+        p.move_to(o(12.0, 3.0));
+        p.cubic_to(o(17.0, 3.0), o(21.0, 7.0), o(21.0, 12.0));
+        p.cubic_to(o(21.0, 17.0), o(17.0, 21.0), o(12.0, 21.0));
+        p.cubic_to(o(7.0, 21.0), o(3.0, 17.0), o(3.0, 12.0));
+        p.cubic_to(o(3.0, 7.0), o(7.0, 3.0), o(12.0, 3.0));
+        p.close();
+    }, c, 22.0)
+}
+
+/// A person's round picture, ringed in the accent when they have a new story.
+fn face(k: Kit, seed: usize, size: f32, ring: bool) -> WidgetNode {
+    let inner = Clip::oval().child(photo(seed + 2, size, size, size));
+    let ringed: WidgetNode = if ring {
+        Container::new()
+            .decoration(BoxDecoration::new().stadium().border(Border::new(rgb(hex_linear(k.pal.accent)), 2.0)))
+            .padding(EdgeInsets::all(3.0))
+            .child(inner)
+            .into()
+    } else {
+        inner.into()
+    };
+    ringed
+}
+
+fn top_bar(k: Kit, title: &str) -> WidgetNode {
+    let c = k.on_ground(true);
+    row_between(
+        text(title, 26.0, FontWeight::Bold, c),
+        Flex::row().spacing(18.0).children(children![heart(c), send(c)]).into(),
+    )
+}
+
+/// The feed: a row of stories, then posts — photos, the people who took
+/// them, and the four actions under each.
+pub fn glimpse_feed(light: Light, tilt: f32, pal: Palette) -> WidgetNode {
+    let k = Kit::new(light, tilt, pal);
+    let strong = k.on_ground(true);
+    let soft = k.on_ground(false);
+    let story = |seed: usize, name: &str, ring: bool| -> WidgetNode {
+        Flex::column()
+            .cross_axis_alignment(CrossAxisAlignment::Center)
+            .spacing(6.0)
+            .children(children![face(k, seed, 56.0, ring), text(name, 11.0, FontWeight::Medium, soft)])
+            .into()
+    };
+    let stories = Flex::row()
+        .main_axis_alignment(MainAxisAlignment::SpaceBetween)
+        .children(children![
+            story(0, "You", false),
+            story(1, "asha", true),
+            story(2, "ravi", true),
+            story(3, "meera", true),
+            story(4, "kiran", false),
+        ]);
+    let post = |seed: usize, who: &str, place: &str, likes: &str, caption: &str| -> WidgetNode {
+        Flex::column()
+            .cross_axis_alignment(CrossAxisAlignment::Stretch)
+            .spacing(10.0)
+            .children(children![
+                Flex::row()
+                    .spacing(10.0)
+                    .cross_axis_alignment(CrossAxisAlignment::Center)
+                    .children(children![
+                        face(k, seed + 5, 34.0, false),
+                        Flexible::expanded(1).child(
+                            Flex::column()
+                                .cross_axis_alignment(CrossAxisAlignment::Start)
+                                .children(children![
+                                    text(who, 14.0, FontWeight::Bold, strong),
+                                    text(place, 12.0, FontWeight::Regular, soft),
+                                ]),
+                        ),
+                        k.pill("Follow"),
+                    ]),
+                media(k, seed, 350.0, 300.0, 20.0),
+                Flex::row()
+                    .spacing(18.0)
+                    .cross_axis_alignment(CrossAxisAlignment::Center)
+                    .children(children![
+                        heart(strong),
+                        bubble(strong),
+                        send(strong),
+                        Flexible::expanded(1).child(SizedBox::height(1.0)),
+                        mark(strong),
+                    ]),
+                text(likes, 13.0, FontWeight::Bold, strong),
+                text(caption, 13.0, FontWeight::Regular, soft),
+            ])
+            .into()
+    };
+    k.page(vec![
+        top_bar(k, "Glimpse"),
+        stories.into(),
+        post(0, "asha", "Varkala Cliff", "1,204 likes", "asha  Last light over the cliffs, worth the climb."),
+        post(1, "ravi", "Kovalam", "388 likes", "ravi  Salt, wind, nothing else."),
+    ])
+}
+
+/// A profile: who they are, three numbers, two actions, then their photos
+/// in a grid.
+pub fn glimpse_profile(light: Light, tilt: f32, pal: Palette) -> WidgetNode {
+    let k = Kit::new(light, tilt, pal);
+    let strong = k.on_ground(true);
+    let soft = k.on_ground(false);
+    let stat = |n: &str, label: &str| -> WidgetNode {
+        Flex::column()
+            .cross_axis_alignment(CrossAxisAlignment::Center)
+            .children(children![
+                text(n, 17.0, FontWeight::Bold, strong),
+                text(label, 12.0, FontWeight::Regular, soft),
+            ])
+            .into()
+    };
+    let cell = 112.0;
+    let grid_row = |a: usize| -> WidgetNode {
+        Flex::row()
+            .main_axis_alignment(MainAxisAlignment::SpaceBetween)
+            .children(children![
+                media(k, a, cell, cell, 12.0),
+                media(k, a + 1, cell, cell, 12.0),
+                media(k, a + 2, cell, cell, 12.0),
+            ])
+            .into()
+    };
+    k.page(vec![
+        top_bar(k, "asha"),
+        Flex::row()
+            .cross_axis_alignment(CrossAxisAlignment::Center)
+            .spacing(20.0)
+            .children(children![
+                face(k, 1, 84.0, true),
+                Flexible::expanded(1).child(
+                    Flex::row()
+                        .main_axis_alignment(MainAxisAlignment::SpaceAround)
+                        .children(children![stat("128", "posts"), stat("4.1k", "followers"), stat("312", "following")]),
+                ),
+            ])
+            .into(),
+        Flex::column()
+            .cross_axis_alignment(CrossAxisAlignment::Start)
+            .spacing(3.0)
+            .children(children![
+                text("Asha Menon", 15.0, FontWeight::Bold, strong),
+                text("Coast, light, coffee. Trivandrum.", 13.0, FontWeight::Regular, soft),
+            ])
+            .into(),
+        Flex::row()
+            .spacing(10.0)
+            .children(children![
+                Flexible::expanded(2).child(k.action("Follow")),
+                Flexible::expanded(1).child(k.secondary("Message")),
+            ])
+            .into(),
+        Flex::row().spacing(6.0).children(children![k.pill("Coast"), k.pill("Cafés"), k.pill("Travel"), k.pill("Film")]).into(),
+        grid_row(0),
+        grid_row(3),
+        grid_row(1),
+    ])
+}
+
+/// A post with its comments open: the sheet rises over the photo, the
+/// composer is a field, posting is the action.
+pub fn glimpse_comments(light: Light, tilt: f32, pal: Palette) -> WidgetNode {
+    let k = Kit::new(light, tilt, pal);
+    let sheet_m = legible(Material { z: 9.0, ..pal.content() }, k.light);
+    let lit = shade(sheet_m, k.light).0;
+    let inks = [text_on(lit, k.light, true), text_on(lit, k.light, false)];
+    let comment = |seed: usize, who: &str, what: &str| -> WidgetNode {
+        Flex::row()
+            .spacing(10.0)
+            .cross_axis_alignment(CrossAxisAlignment::Start)
+            .children(children![
+                face(k, seed, 32.0, false),
+                Flexible::expanded(1).child(
+                    Flex::column()
+                        .cross_axis_alignment(CrossAxisAlignment::Start)
+                        .spacing(2.0)
+                        .children(children![
+                            text(who, 13.0, FontWeight::Bold, rgb(inks[0])),
+                            text(what, 13.0, FontWeight::Regular, rgb(inks[1])),
+                        ]),
+                ),
+                heart(rgb(inks[1])),
+            ])
+            .into()
+    };
+    let sheet = surface_for(
+        sheet_m,
+        k.light,
+        26.0,
+        &inks,
+        Padding::new(EdgeInsets::only(18.0, 12.0, 18.0, 20.0)).child(
+            Flex::column()
+                .cross_axis_alignment(CrossAxisAlignment::Stretch)
+                .spacing(14.0)
+                .children(children![
+                    Flex::row().main_axis_alignment(MainAxisAlignment::Center).children(children![
+                        Container::new()
+                            .decoration(BoxDecoration::new().stadium().color(rgba(inks[1], 0.5)))
+                            .size(40.0, 4.0),
+                    ]),
+                    text("Comments", 16.0, FontWeight::Bold, rgb(inks[0])),
+                    comment(3, "meera", "The colours in this! Which time was it?"),
+                    comment(4, "kiran", "Saving this for my trip in December."),
+                    comment(5, "ravi", "Told you the climb was worth it."),
+                    Flex::row()
+                        .spacing(10.0)
+                        .cross_axis_alignment(CrossAxisAlignment::Center)
+                        .children(children![
+                            Flexible::expanded(1).child(k.field("Add a comment…")),
+                            Container::new().width(90.0).child(k.action("Post")),
+                        ]),
+                ]),
+        ),
+    );
+    let _ = circle_icon;
+    Stack::new()
+        .fit(StackFit::Expand)
+        .push(Positioned::fill().child(glimpse_feed(light, tilt, pal)))
+        .push(Positioned::fill().child(Container::new().color(Color::rgba(0, 0, 0, if pal.light { 80 } else { 140 })).child(SizedBox::expand())))
+        .push(Positioned::new().left(0.0).right(0.0).bottom(0.0).child(sheet))
+        .into()
+}
+
+// ---- developer flexibility: levels 2, 3 and 4 --------------------------------
+
+/// Level 2: nudge a widget's depth relative to its role.
+#[derive(Clone, Copy)]
+pub enum Depth {
+    /// Whatever the role says (the default).
+    Role,
+    /// Higher than the role, by this much.
+    Raise(f32),
+    /// Lower than the role, by this much.
+    Lower(f32),
+    /// Exactly here, role or not.
+    At(f32),
+}
+
+impl Depth {
+    fn resolve(self, role_z: f32) -> f32 {
+        let z = match self {
+            Self::Role => role_z,
+            Self::Raise(by) => role_z + by,
+            Self::Lower(by) => role_z - by,
+            Self::At(z) => z,
+        };
+        z.clamp(Z_RANGE.0, Z_RANGE.1)
+    }
+}
+
+impl Material {
+    pub const fn satin() -> Self {
+        SATIN
+    }
+    pub const fn matte() -> Self {
+        MATTE
+    }
+    /// The material, carrying `amount` of a colour (sRGB hex).
+    pub fn tint(self, hex: u32, amount: f32) -> Self {
+        Self { base: add(scale(self.base, 1.0 - amount), scale(hex_linear(hex), amount)), ..self }
+    }
+}
+
+/// Level 3: put *any* widget into the lit scene — it takes a depth and a
+/// material, casts its shadow, catches the rim light, moves with parallax,
+/// and its text is held to the same 4.5:1 as everything else.
+pub struct Lit {
+    child: WidgetNode,
+    z: f32,
+    material: Material,
+    radius: f32,
+}
+
+impl Lit {
+    pub fn new(child: impl Into<WidgetNode>) -> Self {
+        Self { child: child.into(), z: 3.0, material: SATIN, radius: 20.0 }
+    }
+    pub fn z(mut self, z: f32) -> Self {
+        self.z = z;
+        self
+    }
+    pub fn material(mut self, m: Material) -> Self {
+        self.material = m;
+        self
+    }
+    pub fn radius(mut self, r: f32) -> Self {
+        self.radius = r;
+        self
+    }
+    fn build(self, k: Kit) -> WidgetNode {
+        layered_z(self.z, self.material, k.light, k.tilt, self.radius, self.child)
+    }
+    /// The text colours this surface will guarantee, for the child to use.
+    fn inks(&self, k: Kit) -> (Color, Color) {
+        let m = legible(Material { z: self.z, ..self.material }, k.light);
+        let lit = shade(m, k.light).0;
+        (rgb(text_on(lit, k.light, true)), rgb(text_on(lit, k.light, false)))
+    }
+}
+
+/// A developer's own widget — a weather dial drawn from paths — knowing
+/// nothing about the theme.
+fn dial(accent: Color, track: Color, ink: Color, sub: Color, value: f32) -> WidgetNode {
+    let ring = |sweep: f32, color: Color| -> WidgetNode {
+        let path = Path::arc_ring(Offset::new(46.0, 46.0), 40.0, 7.0, -std::f32::consts::FRAC_PI_2, sweep);
+        Icon::new(IconData::new(path, Rect::new(0.0, 0.0, 92.0, 92.0))).size(92.0).color(color).into()
+    };
+    Flex::row()
+        .spacing(16.0)
+        .cross_axis_alignment(CrossAxisAlignment::Center)
+        .children(children![
+            Stack::new()
+                .push(ring(std::f32::consts::TAU, track))
+                .push(ring(std::f32::consts::TAU * value, accent))
+                .push(
+                    Positioned::fill().child(
+                        Container::new().alignment(Alignment::CENTER).child(text("72°", 20.0, FontWeight::Bold, ink)),
+                    ),
+                ),
+            Flex::column()
+                .cross_axis_alignment(CrossAxisAlignment::Start)
+                .spacing(3.0)
+                .children(children![
+                    text("Clear evening", 16.0, FontWeight::Bold, ink),
+                    text("A custom widget, drawn from paths", 12.0, FontWeight::Regular, sub),
+                ]),
+        ])
+        .into()
+}
+
+/// One screen three ways: the defaults; nudged stock widgets plus a custom
+/// widget placed in the scene; and a theme retuned app-wide.
+pub fn flex_screen(light: Light, tilt: f32, pal: Palette, variant: usize) -> WidgetNode {
+    let mut k = Kit::new(light, tilt, pal);
+    if variant == 2 {
+        // Level 4: a flatter, punchier hierarchy, a softer light from the
+        // upper right, and no gloss anywhere.
+        k = k
+            .with_roles(RoleMap { action: 11.0, secondary: 7.0, control: 5.0, feature: 5.0, content: 1.5, pill: 0.0, field: -2.5 })
+            .with_light(Light { from: norm(Offset::new(0.55, -0.83)), size: 0.75, ..light });
+    }
+    let accent = rgb(hex_linear(pal.accent));
+    let content = pal.content();
+
+    // Level 2 nudges, only in the customised version.
+    let (card_depth, delete_depth, live_role) = if variant == 1 {
+        (Depth::Raise(2.0), Depth::Lower(5.0), Role::Control)
+    } else {
+        (Depth::Role, Depth::Role, Role::Pill)
+    };
+
+    let card_z = card_depth.resolve(k.z(Role::Content));
+    let card_lit = Lit::new(SizedBox::height(1.0)).z(card_z).material(content);
+    let (c_ink, c_sub) = card_lit.inks(k);
+    let card = layered_z(
+        card_z,
+        content,
+        k.light,
+        k.tilt,
+        22.0,
+        Padding::new(EdgeInsets::all(18.0)).child(
+            Flex::column()
+                .cross_axis_alignment(CrossAxisAlignment::Start)
+                .spacing(5.0)
+                .children(children![
+                    text(if variant == 1 { "Raised card · Depth::Raise(2)" } else { "Card" }, 12.0, FontWeight::Bold, c_sub),
+                    text("Tonight's plan", 20.0, FontWeight::Bold, c_ink),
+                    text("Dinner at 8, then the long call with the studio.", 14.0, FontWeight::Regular, c_sub),
+                ]),
+        ),
+    );
+
+    let live = {
+        let m = pal.chip();
+        let z = k.z(live_role);
+        let ink = rgb(text_on(shade(legible(Material { z, ..m }, k.light), k.light).0, k.light, false));
+        layered_z(z, m, k.light, k.tilt, 12.0, Container::new().padding(EdgeInsets::symmetric(12.0, 6.0)).child(text(if variant == 1 { "Live · now a control" } else { "Live" }, 12.0, FontWeight::Bold, ink)))
+    };
+    let chips = Flex::row().spacing(8.0).children(children![live, k.pill("Work"), k.pill("Later")]);
+
+    // Level 3: the custom dial — outside the scene by default, inside it
+    // (tinted satin at z 5) once placed with `Lit`.
+    let custom: WidgetNode = if variant == 0 {
+        Padding::new(EdgeInsets::all(16.0))
+            .child(dial(accent, Color::rgba(128, 128, 128, 90), k.on_ground(true), k.on_ground(false), 0.62))
+            .into()
+    } else {
+        let lit = Lit::new(SizedBox::height(1.0)).z(5.0).material(Material::satin().tint(pal.accent, 0.18)).radius(24.0);
+        let (ink, sub) = lit.inks(k);
+        Lit::new(Padding::new(EdgeInsets::all(16.0)).child(dial(accent, Color::rgba(128, 128, 128, 90), ink, sub, 0.62)))
+            .z(5.0)
+            .material(Material::satin().tint(pal.accent, 0.18))
+            .radius(24.0)
+            .build(k)
+    };
+
+    let delete = {
+        let m = pal.chip();
+        let z = delete_depth.resolve(k.z(Role::Secondary));
+        let ink = rgb(text_on(shade(legible(Material { z, ..m }, k.light), k.light).0, k.light, true));
+        layered_z(z, m, k.light, k.tilt, 24.0, Container::new().height(50.0).alignment(Alignment::CENTER).child(text("Delete", 15.0, FontWeight::Bold, ink)))
+    };
+    let save = {
+        let m = if variant == 2 { Material { base: hex_linear(pal.accent), ..SATIN } } else { pal.action() };
+        let z = k.z(Role::Action);
+        let ink = rgb(text_on(shade(legible(Material { z, ..m }, k.light), k.light).0, k.light, true));
+        layered_z(z, m, k.light, k.tilt, 24.0, Container::new().height(50.0).alignment(Alignment::CENTER).child(text("Save", 16.0, FontWeight::Bold, ink)))
+    };
+
+    let heading = match variant {
+        0 => "LEVEL 1 · DEFAULTS",
+        1 => "LEVELS 2 + 3 · NUDGED + CUSTOM WIDGET",
+        _ => "LEVEL 4 · RETUNED THEME",
+    };
+    let note = match variant {
+        0 => "Stock widgets take their role's depth. The custom dial is left out of the scene.",
+        1 => "Card raised, Delete lowered, Live promoted to a control, the dial placed in the scene with Lit.",
+        _ => "Role map: action 11, content 1.5, pill 0. Soft light from the upper right. No gloss.",
+    };
+    k.page(vec![
+        k.label(heading),
+        k.title("Evening"),
+        text(note, 13.0, FontWeight::Regular, k.on_ground(false)),
+        card,
+        chips.into(),
+        custom,
+        SizedBox::height(4.0).into(),
+        Flex::row()
+            .spacing(12.0)
+            .children(children![Flexible::expanded(1).child(delete), Flexible::expanded(2).child(save)])
+            .into(),
+    ])
+}
+
+// ---- viewwstudio's home screen, in the lit theme ------------------------------
+//
+// The same regions and content as the studio's shell (title bar, activity
+// bar, explorer, editor, preview, problems, status bar), rebuilt from roles:
+// panels are content, tabs are pills with the active one lifted to a
+// control, the search box is a field, Render and "Build and run" are the
+// actions, the preview's warning is the screen's one featured surface.
+
+use vieww_foundation::FontFamily;
+
+fn mono(s: &str, size: f32, color: Color) -> WidgetNode {
+    Text::new(s)
+        .style(TextStyle::new(size).family(FontFamily::Monospace).color(color))
+        .into()
+}
+
+fn place(left: f32, top: f32, w: f32, h: f32, child: impl Into<WidgetNode>) -> WidgetNode {
+    Positioned::new().left(left).top(top).child(SizedBox::from_size(Size::new(w, h)).child(child)).into()
+}
+
+/// One line of code, as coloured runs.
+fn code_line(n: usize, runs: &[(&str, Color)], num: Color) -> WidgetNode {
+    let mut row = Flex::row().children(children![Container::new().width(44.0).child(mono(&n.to_string(), 13.0, num))]);
+    for (s, c) in runs {
+        row = row.push(mono(s, 13.0, *c));
+    }
+    Container::new().height(20.0).alignment(Alignment::CENTER_LEFT).child(row).into()
+}
+
+pub fn studio_screen(light: Light, pal: Palette) -> WidgetNode {
+    let k = Kit::new(light, 0.0, pal);
+    let accent = rgb(hex_linear(pal.accent));
+    let panel = |z: f32, child: Padding| layered_z(z, pal.content(), k.light, 0.0, 14.0, child);
+    let pz = Role::Content.z();
+    let ink = k.ink(pal.content(), Role::Content, true);
+    let sub = k.ink(pal.content(), Role::Content, false);
+    let gstrong = k.on_ground(true);
+    let gsoft = k.on_ground(false);
+    let tab = |s: &str, on: bool| -> WidgetNode {
+        let (z, m) = if on { (k.z(Role::Control), Material { base: scale(pal.surface(), if pal.light { 1.0 } else { 1.5 }), ..SATIN }) } else { (k.z(Role::Pill), pal.chip()) };
+        let c = rgb(text_on(shade(legible(Material { z, ..m }, k.light), k.light).0, k.light, on));
+        layered_z(z, m, k.light, 0.0, 9.0, Container::new().padding(EdgeInsets::symmetric(12.0, 6.0)).child(text(s, 12.0, if on { FontWeight::Bold } else { FontWeight::Medium }, c)))
+    };
+    // Syntax colours, held to the panel's legibility: pale on dark, deep on light.
+    let (kw, ty, st, cm, nm) = if pal.light {
+        (Color::rgb(92, 52, 200), Color::rgb(0, 112, 120), Color::rgb(150, 70, 20), Color::rgb(96, 104, 120), Color::rgb(130, 136, 150))
+    } else {
+        (Color::rgb(176, 156, 255), Color::rgb(120, 220, 214), Color::rgb(244, 196, 130), Color::rgb(150, 160, 180), Color::rgb(110, 118, 136))
+    };
+    let code = [
+        vec![("use ", kw), ("vieww::prelude::*;", ink)],
+        vec![],
+        vec![("/// A column of cards. The second screen, so the tab strip", cm)],
+        vec![("/// has something in it and switching buffers changes what compiles.", cm)],
+        vec![("#[derive(Debug)]", sub)],
+        vec![("pub struct ", kw), ("CardGrid", ty), (" {", ink)],
+        vec![("    pub titles: ", ink), ("Vec", ty), ("<", ink), ("String", ty), (">,", ink)],
+        vec![("}", ink)],
+        vec![],
+        vec![("impl ", kw), ("Widget", ty), (" for ", kw), ("CardGrid", ty), (" {", ink)],
+        vec![("    fn ", kw), ("debug_name", ink), ("(&self) -> &'static str {", ink)],
+        vec![("        ", ink), ("\"CardGrid\"", st)],
+        vec![("    }", ink)],
+        vec![],
+        vec![("    fn ", kw), ("kind", ink), ("(&self) -> ", ink), ("WidgetKind", ty), ("<'_> {", ink)],
+        vec![("        ", ink), ("WidgetKind", ty), ("::Composed", ink)],
+        vec![("    }", ink)],
+        vec![],
+        vec![("    fn ", kw), ("build", ink), ("(&self, ctx: &", ink), ("BuildContext", ty), (") -> ", ink), ("WidgetNode", ty), (" {", ink)],
+        vec![("        let ", kw), ("theme = ", ink), ("ThemeData", ty), ("::of(ctx);", ink)],
+        vec![],
+        vec![("        ", ink), ("SafeArea", ty), ("::new()", ink)],
+        vec![("            .child(", ink)],
+        vec![("                ", ink), ("Container", ty), ("::new()", ink)],
+    ];
+    let mut lines = Flex::column().cross_axis_alignment(CrossAxisAlignment::Start);
+    for (i, runs) in code.iter().enumerate() {
+        lines = lines.push(code_line(i + 1, runs, nm));
+    }
+
+    let tree_row = |s: &str, indent: f32, on: bool| -> WidgetNode {
+        let row = Container::new()
+            .height(24.0)
+            .padding(EdgeInsets::only(10.0 + indent, 0.0, 8.0, 0.0))
+            .alignment(Alignment::CENTER_LEFT)
+            .child(text(s, 13.0, if on { FontWeight::Bold } else { FontWeight::Regular }, if on { ink } else { sub }));
+        if on {
+            let m = Material { base: pal.content().base, ..SATIN }.tint(pal.accent, 0.28);
+            let c = rgb(text_on(shade(legible(Material { z: pz + 1.5, ..m }, k.light), k.light).0, k.light, true));
+            layered_z(pz + 1.5, m, k.light, 0.0, 8.0, Container::new().height(24.0).padding(EdgeInsets::only(10.0 + indent, 0.0, 8.0, 0.0)).alignment(Alignment::CENTER_LEFT).child(text(s, 13.0, FontWeight::Bold, c)))
+        } else {
+            row.into()
+        }
+    };
+    let section = |s: &str| -> WidgetNode {
+        Container::new().height(26.0).padding(EdgeInsets::only(10.0, 6.0, 0.0, 0.0)).child(text(s, 11.0, FontWeight::Bold, sub)).into()
+    };
+    let explorer = panel(
+        pz,
+        Padding::new(EdgeInsets::all(8.0))
+            .child(
+                Flex::column()
+                    .cross_axis_alignment(CrossAxisAlignment::Stretch)
+                    .spacing(2.0)
+                    .children(children![
+                        section("EXPLORER"),
+                        tree_row("Project files", 0.0, false),
+                        Container::new().padding(EdgeInsets::symmetric(10.0, 6.0)).child(text("Watching for changes on disk — polling mtimes.", 12.0, FontWeight::Regular, sub)),
+                        tree_row("screens", 6.0, false),
+                        tree_row("src", 16.0, false),
+                        tree_row("card_grid.rs", 28.0, false),
+                        tree_row("landing_screen.rs", 28.0, false),
+                        tree_row("live.rs", 28.0, false),
+                        tree_row("settings_form.rs", 28.0, false),
+                        section("OPEN BUFFERS"),
+                        tree_row("card_grid.rs", 16.0, true),
+                        tree_row("landing_screen.rs", 16.0, false),
+                        tree_row("live.rs", 16.0, false),
+                        tree_row("settings_form.rs", 16.0, false),
+                        tree_row("screen.rs", 16.0, false),
+                        section("SESSION SCRATCH"),
+                        tree_row("preview-0003.rs        4630 B", 16.0, false),
+                        tree_row("preview-0002.rs        4630 B", 16.0, false),
+                        section("THIS FILE"),
+                        tree_row("Lines  62  ·  Characters  1735", 16.0, false),
+                    ]),
+            ),
+    );
+
+    let editor = panel(
+        pz,
+        Padding::new(EdgeInsets::all(10.0)).child(
+            Flex::column()
+                .cross_axis_alignment(CrossAxisAlignment::Stretch)
+                .spacing(10.0)
+                .children(children![
+                    Flex::row().spacing(6.0).children(children![
+                        tab("card_grid.rs", true),
+                        tab("landing_screen.rs", false),
+                        tab("live.rs", false),
+                        tab("settings_form.rs", false),
+                    ]),
+                    text("screens / card_grid.rs", 12.0, FontWeight::Medium, sub),
+                    Padding::new(EdgeInsets::only(4.0, 0.0, 0.0, 0.0)).child(lines),
+                ]),
+        ),
+    );
+
+    let banner = {
+        let m = pal.feature();
+        let z = k.z(Role::Feature);
+        let lit = shade(legible(Material { z, ..m }, k.light), k.light).0;
+        let (bi, bs) = (rgb(text_on(lit, k.light, true)), rgb(text_on(lit, k.light, false)));
+        layered_z(
+            z,
+            m,
+            k.light,
+            0.0,
+            14.0,
+            Padding::new(EdgeInsets::all(14.0)).child(
+                Flex::column()
+                    .cross_axis_alignment(CrossAxisAlignment::Start)
+                    .spacing(6.0)
+                    .children(children![
+                        text("This project cannot be previewed in-process", 14.0, FontWeight::Bold, bi),
+                        text("The preview loads a library into this process, which is only sound when the project's vieww is the same compilation as the studio's. It is not, so nothing was mounted.", 12.0, FontWeight::Regular, bs),
+                        mono("studio  rustc 1.98.1", 11.0, bs),
+                        SizedBox::height(4.0),
+                        Container::new().width(200.0).child(k.action("Build and run instead")),
+                    ]),
+            ),
+        )
+    };
+    let phone = Lit::new(
+        Container::new()
+            .size(176.0, 210.0)
+            .padding(EdgeInsets::all(16.0))
+            .alignment(Alignment::TOP_CENTER)
+            .child(
+                Flex::column()
+                    .cross_axis_alignment(CrossAxisAlignment::Center)
+                    .spacing(8.0)
+                    .children(children![
+                        Container::new().decoration(BoxDecoration::new().stadium().color(Color::rgb(10, 10, 14))).size(56.0, 14.0),
+                        text("No render yet", 15.0, FontWeight::Bold, ink),
+                        text("Press Render to compile the buffer and mount it here.", 12.0, FontWeight::Regular, sub),
+                    ]),
+            ),
+    )
+    .z(4.0)
+    .material(Material { base: pal.surface(), ..MATTE })
+    .radius(26.0);
+    let phone = phone.build(k);
+    let preview = panel(
+        pz,
+        Padding::new(EdgeInsets::all(10.0)).child(
+            Flex::column()
+                .cross_axis_alignment(CrossAxisAlignment::Stretch)
+                .spacing(10.0)
+                .children(children![
+                    Flex::row().spacing(6.0).children(children![tab("Preview", true), tab("Inspector", false), tab("Devices", false), tab("Generated Rust", false)]),
+                    row_between(
+                        Flex::row().spacing(6.0).children(children![tab("iOS", true), tab("Android", false), tab("Desktop", false), tab("Dark", false)]).into(),
+                        Container::new().width(104.0).child(k.action("Render")).into(),
+                    ),
+                    banner,
+                    Flex::row().main_axis_alignment(MainAxisAlignment::Center).children(children![phone]),
+                ]),
+        ),
+    );
+
+    let problems = panel(
+        pz,
+        Padding::new(EdgeInsets::all(10.0)).child(
+            Flex::column()
+                .cross_axis_alignment(CrossAxisAlignment::Start)
+                .spacing(12.0)
+                .children(children![
+                    Flex::row().spacing(6.0).children(children![tab("Problems  0", true), tab("Output", false), tab("Run", false), tab("Tasks", false), tab("Rustc", false), tab("Timings", false)]),
+                    text("No problems. The buffer compiled clean.", 13.0, FontWeight::Regular, sub),
+                ]),
+        ),
+    );
+
+    let activity = panel(
+        1.5,
+        Padding::new(EdgeInsets::symmetric(0.0, 12.0)).child(
+            Flex::column()
+                .cross_axis_alignment(CrossAxisAlignment::Center)
+                .spacing(22.0)
+                .children(children![
+                    layered_z(k.z(Role::Control), Material { base: hex_linear(pal.accent), ..SATIN }, k.light, 0.0, 9.0, SizedBox::from_size(Size::new(30.0, 30.0))),
+                    Container::new().decoration(BoxDecoration::new().radius(5.0).border(Border::new(sub, 1.6))).size(20.0, 20.0),
+                    Container::new().decoration(BoxDecoration::new().radius(5.0).border(Border::new(sub, 1.6))).size(20.0, 20.0),
+                    Container::new().decoration(BoxDecoration::new().radius(5.0).border(Border::new(sub, 1.6))).size(20.0, 20.0),
+                    Container::new().decoration(BoxDecoration::new().radius(5.0).border(Border::new(sub, 1.6))).size(20.0, 20.0),
+                ]),
+        ),
+    );
+
+    let search = layered_z(
+        k.z(Role::Field),
+        pal.field(),
+        k.light,
+        0.0,
+        10.0,
+        Container::new()
+            .padding(EdgeInsets::symmetric(12.0, 0.0))
+            .alignment(Alignment::CENTER_LEFT)
+            .child(text("card_grid.rs                                           Ctrl+P", 12.0, FontWeight::Regular, k.ink(pal.field(), Role::Field, false))),
+    );
+
+    let menus = Flex::row().spacing(18.0).cross_axis_alignment(CrossAxisAlignment::Center).children(children![
+        layered_z(k.z(Role::Control), Material { base: hex_linear(pal.accent), ..SATIN }, k.light, 0.0, 6.0, SizedBox::from_size(Size::new(20.0, 20.0))),
+        text("vieww Studio", 14.0, FontWeight::Bold, gstrong),
+        text("File", 13.0, FontWeight::Medium, gsoft),
+        text("Edit", 13.0, FontWeight::Medium, gsoft),
+        text("Go", 13.0, FontWeight::Medium, gsoft),
+        text("View", 13.0, FontWeight::Medium, gsoft),
+        text("Render", 13.0, FontWeight::Medium, gsoft),
+        text("Build", 13.0, FontWeight::Medium, gsoft),
+        text("Help", 13.0, FontWeight::Medium, gsoft),
+    ]);
+    let status = Flex::row().spacing(22.0).children(children![
+        text("●  ABI mismatch", 12.0, FontWeight::Medium, gsoft),
+        text("iOS · 393×852", 12.0, FontWeight::Medium, gsoft),
+        text("rustc 1.98.1", 12.0, FontWeight::Medium, gsoft),
+        text("studio 0.1.0", 12.0, FontWeight::Medium, gsoft),
+        Flexible::expanded(1).child(SizedBox::height(1.0)),
+        text("Ln 1, Col 1     Spaces: 4     UTF-8     LF     Rust", 12.0, FontWeight::Medium, gsoft),
+    ]);
+    let _ = accent;
+
+    Stack::new()
+        .fit(StackFit::Expand)
+        .push(Positioned::fill().child(ground(k.light, pal)))
+        .push(place(18.0, 12.0, 520.0, 24.0, menus))
+        .push(place(540.0, 8.0, 380.0, 30.0, search))
+        .push(place(10.0, 52.0, 44.0, 812.0, activity))
+        .push(place(64.0, 52.0, 250.0, 812.0, explorer))
+        .push(place(324.0, 52.0, 640.0, 592.0, editor))
+        .push(place(974.0, 52.0, 456.0, 592.0, preview))
+        .push(place(324.0, 654.0, 1106.0, 210.0, problems))
+        .push(place(18.0, 874.0, 1404.0, 20.0, status))
         .into()
 }
