@@ -352,8 +352,9 @@ impl Inner {
         // harmless X error, which the remove makes unreachable anyway.
         unsafe {
             (self.x11.destroy_window)(self.x11.display, window);
-            (self.x11.flush)(self.x11.display);
         }
+        // A round trip, not a flush (see `create`).
+        self.x11.sync();
     }
 }
 
@@ -549,16 +550,16 @@ impl PlatformViews for X11PlatformViews {
         let window = unsafe {
             (x11.create_simple_window)(x11.display, host, x, y, w, h, 0, 0, background as c_ulong)
         };
-        // SAFETY: mapping the window just created, same live connection —
-        // and flushing it: this connection is the service's own and nothing
-        // else ever flushes it, so without this the server would not see the
-        // window until some later request happened to (found by the first
-        // cross-connection test: the app's window asked the server and saw
-        // no child).
-        unsafe {
-            (x11.map_window)(x11.display, window);
-            (x11.flush)(x11.display);
-        }
+        // SAFETY: mapping the window just created, same live connection.
+        unsafe { (x11.map_window)(x11.display, window) };
+        // Then a round trip, not just a flush. This connection is the
+        // service's own and nothing else ever flushes it; and a flush only
+        // *sends* — the server does not order requests across clients, so
+        // the app's own connection could still query the tree before this
+        // create is processed (found by the cross-connection test, which saw
+        // no child on a loaded CI runner). `XSync` returns once the server
+        // has handled everything sent so far.
+        x11.sync();
 
         let id = {
             let mut state = self.inner.state.borrow_mut();
@@ -593,8 +594,8 @@ impl PlatformViews for X11PlatformViews {
         // destructive: a bad value clamps at the server.
         unsafe {
             (x11.move_resize_window)(x11.display, window, x, y, w, h);
-            (x11.flush)(x11.display);
         }
+        x11.sync();
         state.views.insert(id, (window, bounds));
         Ok(())
     }
