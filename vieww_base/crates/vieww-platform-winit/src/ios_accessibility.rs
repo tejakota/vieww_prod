@@ -185,7 +185,10 @@ unsafe fn publish_on_view(
             if let Some(label) = &node.label {
                 element.setAccessibilityLabel(Some(&NSString::from_str(label)));
             }
-            if let Some(value) = &node.value {
+            // An empty value is no value: UIKit reports `""` for it, and
+            // VoiceOver would read a button as carrying one (the first
+            // XCUITest run caught exactly that on the demo's "Tap me").
+            if let Some(value) = node.value.as_deref().filter(|v| !v.is_empty()) {
                 element.setAccessibilityValue(Some(&NSString::from_str(value)));
             }
             element.setAccessibilityTraits(traits_for(node));
