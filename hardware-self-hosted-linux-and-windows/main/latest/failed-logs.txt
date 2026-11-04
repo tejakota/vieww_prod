@@ -1,0 +1,57 @@
+===== Windows hardware	Hardware run =====
+﻿2026-11-04T17:10:38.4450566Z ##[group]Run powershell -NoProfile -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps "$env:STEPS" -Launches ([int]$env:LAUNCHES) -OutDir "$env:OUT"
+2026-11-04T17:10:38.4454446Z ^[[36;1mpowershell -NoProfile -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps "$env:STEPS" -Launches ([int]$env:LAUNCHES) -OutDir "$env:OUT"^[[0m
+2026-11-04T17:10:38.4456497Z ^[[36;1mexit $LASTEXITCODE^[[0m
+2026-11-04T17:14:52.9973994Z shell: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.EXE -command ". '{0}'"
+2026-11-04T17:14:52.9975004Z env:
+2026-11-04T17:14:52.9975730Z   STEPS: env,gpu,d3d12,gallery,baseline,size,pipelines,stress,desktop,remote,audio
+2026-11-04T17:14:52.9976702Z   LAUNCHES: 5
+2026-11-04T17:14:52.9977123Z   OUT: C:\actions-runner\_work\_temp\hardware-windows
+2026-11-04T17:14:52.9977729Z ##[endgroup]
+2026-11-04T17:14:59.0924226Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:338 char:36
+2026-11-04T17:14:59.0926190Z +           Say "      pipelines run $run: started from $($seed[$run])  ...
+2026-11-04T17:14:59.0927421Z +                                    ~~~~~
+2026-11-04T17:14:59.0928978Z Variable reference is not valid. ':' was not followed by a valid variable name character. Consider using ${} to 
+2026-11-04T17:14:59.0930659Z delimit the name.
+2026-11-04T17:14:59.0931844Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:359 char:36
+2026-11-04T17:14:59.0933335Z +             if ($segs.Count -lt 5) {
+2026-11-04T17:14:59.0934122Z +                                    ~
+2026-11-04T17:14:59.0935111Z Missing closing '}' in statement block or type definition.
+2026-11-04T17:14:59.0936769Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:353 char:18
+2026-11-04T17:14:59.0938213Z +           } else {
+2026-11-04T17:14:59.0938813Z +                  ~
+2026-11-04T17:14:59.0939625Z Missing closing '}' in statement block or type definition.
+2026-11-04T17:14:59.0941275Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:348 char:18
+2026-11-04T17:14:59.0942433Z +         if ($ok) {
+2026-11-04T17:14:59.0942752Z +                  ~
+2026-11-04T17:14:59.0943264Z Missing closing '}' in statement block or type definition.
+2026-11-04T17:14:59.0944466Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:327 char:41
+2026-11-04T17:14:59.0945599Z +       if ($ok -and $report.Count -eq 2) {
+2026-11-04T17:14:59.0946163Z +                                         ~
+2026-11-04T17:14:59.0946930Z Missing closing '}' in statement block or type definition.
+2026-11-04T17:14:59.0948348Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:301 char:12
+2026-11-04T17:14:59.0949380Z +     } else {
+2026-11-04T17:14:59.0949653Z +            ~
+2026-11-04T17:14:59.0950115Z Missing closing '}' in statement block or type definition.
+2026-11-04T17:14:59.0951299Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:296 char:127
+2026-11-04T17:14:59.0953151Z + ... d','--release','-p','vieww-platform-winit','--example','baseline')) {
+2026-11-04T17:14:59.0954005Z +                                                                         ~
+2026-11-04T17:14:59.0954778Z Missing closing '}' in statement block or type definition.
+2026-11-04T17:14:59.0955950Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:293 char:23
+2026-11-04T17:14:59.0957050Z + if (Want 'pipelines') {
+2026-11-04T17:14:59.0957426Z +                       ~
+2026-11-04T17:14:59.0957950Z Missing closing '}' in statement block or type definition.
+2026-11-04T17:14:59.0959408Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:360 char:125
+2026-11-04T17:14:59.0961377Z + ... carries only $($segs.Count) segment(s) â€” the census is incomplete)"
+2026-11-04T17:14:59.0962279Z +                                                                        ~
+2026-11-04T17:14:59.0966092Z Unexpected token ')' in expression or statement.
+2026-11-04T17:14:59.0967239Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:366 char:22
+2026-11-04T17:14:59.0968549Z +                 Say "FAIL  pipelines (run 2 startup stage carries no  ...
+2026-11-04T17:14:59.0969267Z +                      ~~~~
+2026-11-04T17:14:59.0969784Z Unexpected token 'FAIL' in expression or statement.
+2026-11-04T17:14:59.0970833Z Not all parse errors were reported.  Correct the reported errors and try again.
+2026-11-04T17:14:59.0972140Z     + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+2026-11-04T17:14:59.0973310Z     + FullyQualifiedErrorId : InvalidVariableReferenceWithDrive
+2026-11-04T17:14:59.0974090Z  
+2026-11-04T17:15:01.1344669Z ##[error]Process completed with exit code 1.
+

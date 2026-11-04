@@ -1,14 +1,14 @@
-# Hardware (self-hosted Linux and Windows) — CANCELLED
+# Hardware (self-hosted Linux and Windows) — FAILURE
 
 - branch: `main`  sha: `e9cff2524beaa6907e7dcf017288c3ab74796a8f`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/41867163447
+- run: https://github.com/tejakota/vieww_prod/actions/runs/41871687888
 
 | job | verdict | failed steps |
 |---|---|---|
 | Only from main | PASS |  |
-| Windows hardware | CANCELLED |  |
+| Windows hardware | FAIL | Hardware run |
 | Linux hardware | skipped |  |
-| Publish to ci-runs/hardware-<branch> | running |  |
+| Publish to ci-runs/hardware-<branch> | PASS |  |
 
 ## Steps
 
@@ -17,11 +17,17 @@
 - skipped: Refuse other branches
 - PASS: Complete job
 
-### Windows hardware — CANCELLED
+### Windows hardware — FAIL
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- FAIL: Hardware run
+- PASS: Upload results
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
 
 ### Linux hardware — skipped
 
-### Publish to ci-runs/hardware-<branch> — running
+### Publish to ci-runs/hardware-<branch> — PASS
 - PASS: Set up job
 - PASS: Run actions/download-artifact@v4
 - PASS: Keep the text, drop the pictures
