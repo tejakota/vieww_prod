@@ -116,7 +116,7 @@ fn linear_to_srgb(c: f32) -> f32 {
 /// How many levels the [`coverage_alpha`] table quantises coverage into.
 /// 1024: the rounding error at the darkest fringe stays below half an
 /// 8-bit alpha step while the table keeps one cache line per pixel row.
-const COVERAGE_LEVELS: usize = 1024;
+pub(crate) const COVERAGE_LEVELS: usize = 1024;
 
 /// The perceptual transfer applied to rasterised coverage before it becomes
 /// alpha — the one change that separates thin, washed-out AA from the
@@ -147,12 +147,28 @@ const COVERAGE_LEVELS: usize = 1024;
 /// about what the linear scaling it feeds costs.
 #[must_use]
 pub(crate) fn coverage_alpha(coverage: f32) -> f32 {
+    coverage_alpha_in(coverage_table(), coverage)
+}
+
+/// The table behind [`coverage_alpha`], for a loop that maps a whole row:
+/// fetched once per draw rather than once per pixel. The per-pixel
+/// `OnceLock` check was 3.4% of a layer-heavy frame on its own (callgrind,
+/// `00-layers-nested`, FW-07).
+#[must_use]
+pub(crate) fn coverage_table() -> &'static [f32; COVERAGE_LEVELS] {
     use std::sync::OnceLock;
 
     static TABLE: OnceLock<[f32; COVERAGE_LEVELS]> = OnceLock::new();
-    let table = TABLE.get_or_init(|| {
+    TABLE.get_or_init(|| {
         std::array::from_fn(|level| (level as f32 / (COVERAGE_LEVELS - 1) as f32).sqrt())
-    });
+    })
+}
+
+/// [`coverage_alpha`] against a table already in hand — the same arithmetic,
+/// so the two are byte-identical by construction.
+#[inline]
+#[must_use]
+pub(crate) fn coverage_alpha_in(table: &[f32; COVERAGE_LEVELS], coverage: f32) -> f32 {
     if coverage <= 0.0 {
         return 0.0;
     }

@@ -1,7 +1,7 @@
 {
   "classes": {
     "hardware-linux": {
-      "peak_rss_mb": 120.0
+      "peak_rss_mb": 60.0
     },
     "phone-apple-iphone-13": {
       "auto_frame_time_p50_ms": 7.229,
@@ -42,7 +42,7 @@
   },
   "min_delta_ms": 1.0,
   "notes": {
-    "hardware-linux/peak_rss_mb": "Interim (FW-15): the audit measured ~150 MB RSS on the Linux baseline window against AIMS' 40 MB target; 120 MB is the first deliberate ratchet, above the phones' 76-92 MB PSS because a desktop process links libstd dynamically. Ratchet toward 40 as the heap work lands; a --record that moves this row up is a regression being written down, not a budget change."
+    "hardware-linux/peak_rss_mb": "Ratcheted 120 -> 60 (FW-15, 2026-11-04). The audit's 150 MB predates the softbuffer CPU present: re-measured with examples/baseline under Xvfb (CPU path), peak RSS is 32 MB with 132 fonts and 32 MB with all 575 Noto faces installed; heaptrack puts the heap peak at 16.5 MB, the largest single allocation being the 840x600 Premul target (7.68 MB, 16 B/px). 60 leaves headroom for a Mesa Vulkan driver's mappings on the GPU path, which this sandbox cannot load; the next ratchet is toward AIMS' 40 once a self-hosted receipt records the GPU-path figure. A --record that moves this row up is a regression being written down, not a budget change."
   },
   "schema": "vieww.perf-budgets/1",
   "tolerance_percent": 10,

@@ -727,6 +727,13 @@ const RASTER_MAX_THREADS: usize = 8;
 /// The worker count for one mask: `request`, but never more than the rows
 /// can divide usefully or the ceiling, and never any at all for a mask too
 /// small to amortise the spawn.
+/// Workers for compositing a `width x height` span — the rasterizer's
+/// request and size gate, so one knob (`VIEWW_RASTER_THREADS`) governs both
+/// halves of a fill.
+pub(crate) fn composite_workers(width: u32, height: u32) -> usize {
+    thread_workers_for(process_raster_thread_request(), width, height)
+}
+
 fn thread_workers_for(request: usize, width: u32, height: u32) -> usize {
     if request <= 1 {
         return 1;
