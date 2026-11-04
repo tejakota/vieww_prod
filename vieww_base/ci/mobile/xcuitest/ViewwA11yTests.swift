@@ -8,9 +8,13 @@
 // which is exactly the half of the contract PENDING §3.6 records as
 // missing on iOS.
 //
-// # Status: runnable, not yet run
+// # Status: run, and corrected by its first runs
 //
-// **This file has never executed.** It runs from the Xcode project that
+// The first CI runs (framework-checks, 2026-11) found four test-side bugs,
+// fixed here: a count taken before the first publish, a nil-vs-"" value
+// check, typing aimed at the proxy element instead of the first responder,
+// and a field query that stopped matching once typing changed its value.
+// Historical note — **this file had never executed.** It runs from the Xcode project that
 // `ci/mobile/xcuitest/project.yml` generates (`a11y-ios.sh --xcuitest`):
 // the spec is committed, the .xcodeproj is not, and `xcodegen` writes it on
 // the machine that runs the suite. Until a run has happened, this file is
@@ -70,8 +74,11 @@ final class ViewwA11yTests: XCTestCase {
                       "the semantics tree's button never reached the accessibility tree")
         XCTAssertTrue(button.isHittable,
                       "the button is in the tree but not where VoiceOver would touch")
-        XCTAssertEqual(button.value as? String, nil,
-                       "a plain button carries no value; a value here means the trait mapping leaked")
+        // XCUITest reports "no value" as nil or "" depending on the iOS
+        // version; either is "none". Anything else is a leaked value.
+        let value = button.value as? String ?? ""
+        XCTAssertTrue(value.isEmpty,
+                      "a plain button carries no value, but this one says '\(value)' — the trait mapping leaked")
     }
 
     /// Every element the bridge published carries a `vieww.` identifier —
@@ -79,6 +86,12 @@ final class ViewwA11yTests: XCTestCase {
     /// one came from somewhere other than the bridge, and the test wants
     /// to know about it.
     func testEveryPublishedElementCarriesABridgeIdentifier() throws {
+        // The bridge publishes on the first semantics rebuild, a frame after
+        // launch — query before it and the tree is honestly empty (the first
+        // run counted 0 for exactly that reason while the button test, which
+        // waits, found its element). Wait for the known button first.
+        XCTAssertTrue(app.buttons["Tap me"].waitForExistence(timeout: 10.0),
+                      "nothing reached the accessibility tree within 10 s of launch")
         let allElements = app.descendants(matching: .any)
             .matching(NSPredicate(format: "identifier BEGINSWITH 'vieww.'"))
         XCTAssertGreaterThan(allElements.count, 0,
@@ -135,15 +148,24 @@ final class ViewwA11yTests: XCTestCase {
     /// Each read of `value` re-resolves the query, which is what makes a
     /// poll here see the tree update at all — a cached snapshot would wait
     /// ten seconds and report the world as it was before the keystroke.
-    private func fieldValue(where check: (String) -> Bool) -> String? {
+    ///
+    /// `typed` is the field re-found by its bridge identifier: the `field`
+    /// query matches on the seeded text, so once typing changes the value it
+    /// matches nothing and a poll through it could never see the result.
+    private func fieldValue(_ typed: XCUIElement, where check: (String) -> Bool) -> String? {
         let deadline = Date().addingTimeInterval(Self.treeSettles)
         while Date() < deadline {
-            if let value = field.value as? String, check(value) {
+            if let value = typed.value as? String, check(value) {
                 return value
             }
             usleep(250_000)
         }
-        return field.value as? String
+        return typed.value as? String
+    }
+
+    /// The field by its `vieww.` identifier (stable while the field lives).
+    private func byIdentifier(_ element: XCUIElement) -> XCUIElement {
+        app.descendants(matching: .any).matching(identifier: element.identifier).firstMatch
     }
 
     /// Typing ASCII into the field commits through the platform's text
@@ -158,9 +180,18 @@ final class ViewwA11yTests: XCTestCase {
         XCTAssertTrue(field.waitForExistence(timeout: Self.treeSettles),
                       "the field never reached the accessibility tree — without it there is " +
                       "nothing to type into and nothing to assert on")
+        let typed = byIdentifier(field)
         field.tap()
-        field.typeText("hello")
-        let value = fieldValue { $0.contains("hello") }
+        // Type into the app, not the element. XCUITest's element.typeText
+        // demands that the *element* report keyboard focus, which a custom
+        // UIAccessibilityElement cannot: the first responder is vieww's
+        // view, and the element is only its accessibility proxy (the first
+        // run: "neither element nor any descendant has keyboard focus").
+        // The keyboard the tap raised delivers to that responder either way.
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5.0),
+                      "tapping the field raised no keyboard — vieww never became first responder")
+        app.typeText("hello")
+        let value = fieldValue(typed) { $0.contains("hello") }
         XCTAssertTrue(value?.contains("hello") == true,
                       "typed 'hello' and the field still reads '\(value ?? "nothing")' — the " +
                       "keystrokes never reached vieww's editing model")
@@ -184,6 +215,7 @@ final class ViewwA11yTests: XCTestCase {
         XCTAssertTrue(field.waitForExistence(timeout: Self.treeSettles),
                       "the field never reached the accessibility tree")
         let before = field.value as? String ?? ""
+        let typed = byIdentifier(field)
         field.tap()
         // No keyboard at all after a tap that should have raised one: the
         // simulator has no CJK keyboard installed — the setup step in
@@ -195,9 +227,10 @@ final class ViewwA11yTests: XCTestCase {
         // Romaji: the pinyin keyboard composes it; ASCII-only keyboards
         // would commit the letters verbatim, which the CJK assertion below
         // then honestly fails on a machine without the right keyboard.
-        field.typeText("nihao")
-        field.typeText(" ")
-        let value = fieldValue { $0 != before }
+        // Into the app, for the reason the ASCII test gives.
+        app.typeText("nihao")
+        app.typeText(" ")
+        let value = fieldValue(typed) { $0 != before }
         let committed = value ?? ""
         XCTAssertNotEqual(committed, before,
                           "typed 'nihao' and the field never changed — composition died before " +
