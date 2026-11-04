@@ -13,7 +13,11 @@ use libfuzzer_sys::fuzz_target;
 
 fuzz_target!(|data: &[u8]| {
     if let Ok((m, _)) = vieww_audio::wav::read_wav_multi(data) {
-        assert!(vieww_audio::codec::RATE_RANGE.contains(&m.rate), "rate {}", m.rate);
+        assert!(
+            vieww_audio::codec::RATE_RANGE.contains(&m.rate),
+            "rate {}",
+            m.rate
+        );
         let ch = m.layout.channels();
         assert!(
             ch >= 1 && ch <= usize::from(vieww_audio::codec::MAX_CHANNELS),

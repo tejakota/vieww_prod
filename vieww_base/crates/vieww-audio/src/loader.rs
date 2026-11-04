@@ -904,7 +904,13 @@ mod tests {
 
     #[test]
     fn disk_stream_rejects_what_it_cannot_decode() {
-        assert!(DiskStream::open(fixture("tags.opus"), 1_024).is_err());
+        // Bytes no decoder claims.
+        let p = std::env::temp_dir().join(format!("vieww-not-audio-{}.bin", std::process::id()));
+        std::fs::write(&p, b"this is not an audio file at all, just text").unwrap();
+        assert!(DiskStream::open(&p, 1_024).is_err());
+        std::fs::remove_file(&p).ok();
         assert!(DiskStream::open("/no/such/file.wav", 1_024).is_err());
+        // Opus used to be the example here; its payload now decodes purely.
+        assert!(DiskStream::open(fixture("tags.opus"), 1_024).is_ok());
     }
 }

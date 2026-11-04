@@ -29,8 +29,9 @@ this one.
 | FLAC | `flac` | Xiph.Org format, published as royalty-free. No known licensing programme. |
 | Ogg Vorbis | `vorbis` | Xiph.Org format, published as royalty-free. No known licensing programme. |
 | MP3 (MPEG-1/2 Layer III) | `mp3` | The licensing programme run by Technicolor and Fraunhofer IIS ended in April 2017, after the last patents it administered expired. Decoding MP3 is generally regarded as unencumbered. |
-| AAC-LC (ADTS, MP4/M4A) | `aac` (feature `aac`) | **Still covered by an active patent pool in some jurisdictions.** The pool is administered by Via LA (formerly Via Licensing). It licenses AAC encoders and decoders in end products. Many early AAC patents have expired, but not all, and not everywhere. |
-| Opus | not decoded yet (AU-06) | IETF RFC 6716. The patent holders who declared patents offer royalty-free licences under their IETF declarations. |
+| AAC-LC, HE-AAC v1/v2 (SBR, PS) (ADTS, MP4/M4A) | `aac` (feature `aac`) | **Still covered by an active patent pool in some jurisdictions.** The pool is administered by Via LA (formerly Via Licensing). It licenses AAC encoders and decoders in end products, and its licence covers the HE-AAC tools (SBR, PS) together with AAC-LC — they are not separately optional inside it, and the `aac` feature gates all three. Many early AAC patents have expired, but not all, and not everywhere. |
+| Opus | `opus` — the Ogg encapsulation of RFC 7845 and the full RFC 6716 payload (SILK, CELT, hybrid, multistream), decoded purely by a port of libopus (BSD-3-Clause; see [`tools/THIRD_PARTY.md`](tools/THIRD_PARTY.md)) | IETF RFC 6716. The patent holders who declared patents (Xiph.Org, Microsoft, Broadcom) offer royalty-free licences under their IETF declarations — the same declarations libopus's own licence points to. |
+| ALAC | `alac` | Published by Apple as the Apache-2.0 `ALAC` reference implementation (2011); the format's own codec files carry no patent-licensing programme Apple has announced. |
 
 ## The `aac` feature
 
@@ -55,7 +56,9 @@ With the feature off:
 A common alternative is to keep the feature off and decode AAC through the
 platform instead: MediaCodec on Android, AVFoundation on Apple systems,
 Media Foundation on Windows. That puts the operating-system vendor's
-licence in charge of AAC. vieww-audio does not provide that bridge today.
+licence in charge of AAC. vieww-audio provides exactly that bridge —
+[`codec::platform`](src/codec/platform.rs) — for the formats its pure
+decoders refuse by name (AAC without the feature, Opus's payload).
 
 ## Sources
 
@@ -64,4 +67,6 @@ licence in charge of AAC. vieww-audio does not provide that bridge today.
 * AAC: Via LA's AAC patent pool and its licensor list are published by
   Via LA.
 * Opus: RFC 6716 and the IPR declarations filed with the IETF for it.
+* ALAC: Apple's Apache-2.0 reference implementation
+  (https://github.com/macosforge/alac), and the format page it ships.
 * FLAC and Vorbis: the Xiph.Org Foundation's format pages.

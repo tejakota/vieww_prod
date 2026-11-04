@@ -273,13 +273,16 @@ impl DeepLinks for PlatformDeepLinks {
     fn open(&self, link: &DeepLink) -> Result<(), ServiceError> {
         #[cfg(target_os = "android")]
         {
-            return match &self.android {
+            // The block is the tail: the `#[cfg(not(android))]` branch
+            // below is stripped on Android, so no `return` is needed —
+            // and one would be a clippy error under -D warnings.
+            match &self.android {
                 Some(android) => android_open(android, &link.raw),
                 None => Err(ServiceError::failed(
                     "opening a link needs the activity — build with \
                      PlatformDeepLinks::from_android",
                 )),
-            };
+            }
         }
         #[cfg(not(target_os = "android"))]
         open_externally(&link.raw)

@@ -19,13 +19,13 @@ fn row(label: &str, m: vieww_widget::Motion) -> WidgetNode {
                         "spatial damping: {:.2}",
                         m.spatial_default.spec().damping_ratio
                     ))
-                    .color(Color::rgb(110, 122, 140))
+                    .color(Color::rgb(101, 112, 129))
                     .size(12.0),
                     Text::new(format!(
                         "effects damping: {:.2}",
                         m.effects_default.spec().damping_ratio
                     ))
-                    .color(Color::rgb(110, 122, 140))
+                    .color(Color::rgb(101, 112, 129))
                     .size(12.0),
                 ]),
         )

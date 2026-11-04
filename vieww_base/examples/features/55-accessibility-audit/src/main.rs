@@ -7,12 +7,14 @@
 //!
 //! # Part 1: a semantics-tree audit
 //!
-//! Five controls are built directly on a [`vieww_render::RenderTree`] using
-//! the real [`RenderSemantics`] and [`RenderConstrainedBox`] render objects —
-//! the same ones a widget's `create_render_object` would produce — with four
-//! of the five carrying a deliberate, distinct defect:
+//! Six controls are built directly on a [`vieww_render::RenderTree`] using
+//! the real [`RenderSemantics`], [`RenderGestureDetector`] and
+//! [`RenderConstrainedBox`] render objects — the same ones a widget's
+//! `create_render_object` would produce — with five
+//! of the six carrying a deliberate, distinct defect:
 //!
-//! 1. A "Save" button, properly labelled and sized. Clean.
+//! 1. A "Save" button, properly labelled and sized, with a focusable gesture
+//!    detector inside it the way a composed control is built. Clean.
 //! 2. A button with **no label** — [`audit`](vieww_accessibility::audit()) can only
 //!    say "Button" about it, nothing else.
 //! 3. A "Close" button squeezed into a **10x10** target, well under the
@@ -24,23 +26,30 @@
 //!    elsewhere in a real widget tree, deliberately not reproduced here).
 //! 5. A button that declares a **toggled** state — a role with no on/off
 //!    announcement to give it.
+//! 6. A "Ghost" button — properly labelled, properly sized, but built with
+//!    **no detector inside it**: nothing for the keyboard to reach, so a
+//!    screen reader can activate it and Tab cannot. The keyboard-reachability
+//!    half of the audit, added when `vieww-render`'s collect walk started
+//!    carrying a subtree's focus stops into the node that speaks for it.
 //!
 //! # Part 2: a theme contrast scan
 //!
 //! `vieww-widget`'s built-in `light` and `dark` schemes are scanned and
-//! reported clean. Its `apple_light`/`apple_dark` schemes are scanned too —
-//! and shown **failing** several pairs, a genuine property of those two
-//! palettes documented in `vieww_accessibility::theme_audit`'s own tests.
-//! Finally, a synthetic scheme with light-grey-on-white text is scanned to
-//! show the failure path.
+//! reported clean, and so are its `apple_light`/`apple_dark` schemes — that
+//! pair used to fail several contrast checks before the palettes were
+//! corrected, which is worth saying because a scan that has never failed
+//! proves nothing. A synthetic scheme with light-grey-on-white text is scanned
+//! to show the failure path still fires.
+
+use std::rc::Rc;
 
 use vieww_accessibility::{audit, audit_color_scheme, Severity};
 use vieww_foundation::{Color, Constraints, Offset, Size};
 use vieww_render::{
-    LayoutCtx, RenderConstrainedBox, RenderId, RenderObject, RenderSemantics, RenderTree, Role,
-    SemanticsTree,
+    LayoutCtx, RenderConstrainedBox, RenderGestureDetector, RenderId, RenderObject,
+    RenderSemantics, RenderTree, Role, SemanticsTree,
 };
-use vieww_widget::ColorScheme;
+use vieww_widget::{ColorScheme, GestureHandlers};
 
 /// A plain vertical stack, existing only so this example has a root object
 /// that can hold more than one child — the accessibility-relevant work
@@ -89,6 +98,12 @@ impl RenderObject for Stack {
 /// A `RenderSemantics` node sized to exactly `width`x`height` via a
 /// `RenderConstrainedBox` child — the same pattern a real control's
 /// `touch_target`-style wrapper uses.
+///
+/// The annotation wraps a focusable `RenderGestureDetector`, because that is
+/// the composed-control shape every framework widget builds and the shape the
+/// audit's keyboard-reachability check judges: a control with no detector
+/// inside it is a defect all of its own (see `ghost_control`), and without this
+/// every deliberate defect below would silently carry a second one.
 fn sized_control(
     tree: &mut RenderTree,
     parent: RenderId,
@@ -97,6 +112,33 @@ fn sized_control(
     height: f32,
 ) -> RenderId {
     let id = tree.insert(Some(parent), Box::new(node));
+    let detector = tree.insert(
+        Some(id),
+        Box::new(
+            RenderGestureDetector::new(GestureHandlers {
+                on_tap: Some(Rc::new(|_| ())),
+                ..GestureHandlers::default()
+            })
+            .focusable(true),
+        ),
+    );
+    tree.insert(
+        Some(detector),
+        Box::new(RenderConstrainedBox::new(Constraints::tight(Size::new(
+            width, height,
+        )))),
+    );
+    id
+}
+
+/// The control built *without* a detector: properly labelled, properly sized,
+/// and reachable by nothing but a screen reader's own activation — the shape
+/// the keyboard-reachability check exists to catch.
+fn ghost_control(tree: &mut RenderTree, parent: RenderId, width: f32, height: f32) -> RenderId {
+    let id = tree.insert(
+        Some(parent),
+        Box::new(RenderSemantics::new(Role::Button).label("Ghost")),
+    );
     tree.insert(
         Some(id),
         Box::new(RenderConstrainedBox::new(Constraints::tight(Size::new(
@@ -106,7 +148,7 @@ fn sized_control(
     id
 }
 
-fn build_tree() -> (SemanticsTree, [RenderId; 5]) {
+fn build_tree() -> (SemanticsTree, [RenderId; 6]) {
     let mut tree = RenderTree::new();
     let root = tree.insert(None, Box::new(Stack));
 
@@ -147,12 +189,20 @@ fn build_tree() -> (SemanticsTree, [RenderId; 5]) {
         120.0,
         48.0,
     );
+    let ghost = ghost_control(&mut tree, root, 120.0, 48.0);
 
     let _ = tree.layout_root(Constraints::tight(Size::new(800.0, 600.0)));
     let semantics = SemanticsTree::build(&tree, None);
     (
         semantics,
-        [clean, unlabelled, undersized, actionless_field, odd_toggle],
+        [
+            clean,
+            unlabelled,
+            undersized,
+            actionless_field,
+            odd_toggle,
+            ghost,
+        ],
     )
 }
 
@@ -194,8 +244,8 @@ fn main() {
     println!("findings:");
     print_findings(&tree);
     println!(
-        "(node ids in order built: clean={} unlabelled={} undersized={} actionless_field={} odd_toggle={})",
-        ids[0], ids[1], ids[2], ids[3], ids[4]
+        "(node ids in order built: clean={} unlabelled={} undersized={} actionless_field={} odd_toggle={} ghost={})",
+        ids[0], ids[1], ids[2], ids[3], ids[4], ids[5]
     );
 
     println!();

@@ -15,8 +15,8 @@
 //! (`FrameLog` reporting a flawless 16.7ms median interval) can still feel
 //! laggy if every tap takes three frames to show up, which is exactly the
 //! gap `stats.rs`'s own module docs name as the reason it measures interval
-//! rather than input response: "vello rasterises, the queue is submitted,
-//! the swapchain image is acquired" happens after the paint layer's
+//! rather than input response: "the renderer rasterises, the queue is
+//! submitted, the swapchain image is acquired" happens after the paint layer's
 //! responsibility ends, and *when the input arrived relative to all of
 //! that* is a third measurement neither `FrameStats` nor `FrameLog` takes.
 //!

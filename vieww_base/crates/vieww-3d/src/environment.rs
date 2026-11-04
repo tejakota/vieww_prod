@@ -523,6 +523,9 @@ pub struct Environment {
     /// Prefiltered radiance: level `k` is convolved for roughness
     /// `k / (levels − 1)`.
     pub specular: Vec<EnvMap>,
+    /// The GGX sample count the chain was convolved with — remembered so
+    /// [`PrefilterJob`]s reproduce exactly the convolution that built it.
+    pub samples: u32,
     /// Multiplier on both lighting terms.
     pub intensity: f32,
     pub background: Background,
@@ -544,6 +547,76 @@ fn onb(n: Vec3) -> (Vec3, Vec3) {
     (t, n.cross(t))
 }
 
+/// One prefiltered radiance texel of the specular chain — the split sum's
+/// first half (Karis 2013), the GGX importance-sampled convolution the
+/// whole chain is built from.
+///
+/// This is the **CPU oracle half of the pin**: `vieww-shaders`'
+/// `shaders/ibl_prefilter.wgsl` is the same convolution written out line
+/// for line (its file header shows the correspondence),
+/// `vieww_hal::vulkan::VulkanDevice::render_env_prefilter_level` runs the
+/// WGSL half on a GPU, and `vieww-3d`'s `tests/gpu_ibl.rs` — the lavapipe
+/// CI leg — asserts the two agree per texel. The formulas below are pinned
+/// from both sides by string tests (here and in `vieww-shaders`'s
+/// `library.rs`), so neither half can drift alone.
+///
+/// `src` is the source **mip** chosen for this roughness (filtered
+/// importance sampling — see [`Environment::with_levels`]), `r` the
+/// destination texel's direction, and the result the radiance the GGX lobe
+/// of `roughness` centred on `r` gathers, ndl-weighted and normalised —
+/// deterministic to the bit, because the sample sequence (Hammersley's
+/// radical inverse) is.
+#[must_use]
+pub fn prefilter_texel(src: &EnvMap, r: Vec3, roughness: f32, samples: u32) -> Rgb {
+    let a = roughness * roughness;
+    let (t, b) = onb(r);
+    let mut acc = Rgb::BLACK;
+    let mut wsum = 0.0;
+    for i in 0..samples {
+        let (xi1, xi2) = hammersley(i, samples);
+        // GGX half-vector around N = V = R.
+        let phi = 2.0 * PI * xi1;
+        let cos_t = ((1.0 - xi2) / (1.0 + (a * a - 1.0) * xi2)).sqrt();
+        let sin_t = (1.0 - cos_t * cos_t).max(0.0).sqrt();
+        let hv = (t * (sin_t * phi.cos()) + b * (sin_t * phi.sin()) + r * cos_t).normalize();
+        let l = (hv * (2.0 * r.dot(hv)) - r).normalize();
+        let ndl = r.dot(l);
+        if ndl > 0.0 {
+            acc = acc.add(src.sample(l).scale(ndl));
+            wsum += ndl;
+        }
+    }
+    if wsum > 0.0 {
+        acc.scale(1.0 / wsum)
+    } else {
+        src.sample(r)
+    }
+}
+
+/// The ≤ 256-wide copy a chain is prefilted from — see `with_levels`.
+fn base_map(map: &EnvMap) -> EnvMap {
+    let mut base = map.clone();
+    while base.width() > 256 {
+        base = base.downsample();
+    }
+    base
+}
+
+/// The source mips for filtered importance sampling — the chain `with_levels`
+/// convolves from, and `prefilter_job` hands the GPU the same one for the
+/// same roughness, so both halves sample the same texels.
+fn source_mips(base: &EnvMap) -> Vec<EnvMap> {
+    let mut mips = vec![base.clone()];
+    while mips.last().is_some_and(|m| m.width() > 8) {
+        let next = mips
+            .last()
+            .map(EnvMap::downsample)
+            .unwrap_or_else(|| base.clone());
+        mips.push(next);
+    }
+    mips
+}
+
 impl Environment {
     /// Precompute irradiance and a six-level specular chain.
     #[must_use]
@@ -558,67 +631,70 @@ impl Environment {
         let levels = levels.max(2);
         // Work from a ≤ 256-wide copy; prefiltering a 4K HDRI per texel is
         // wasted precision at the roughnesses involved.
-        let mut base = map.clone();
-        while base.width() > 256 {
-            base = base.downsample();
-        }
+        let base = base_map(&map);
         let irradiance = Sh9::project(&EnvMap::from_fn(64, 32, |d| base.sample(d)));
         // Source mips for filtered importance sampling.
-        let mut mips = vec![base.clone()];
-        while mips.last().is_some_and(|m| m.width() > 8) {
-            let next = mips
-                .last()
-                .map(EnvMap::downsample)
-                .unwrap_or_else(|| base.clone());
-            mips.push(next);
-        }
+        let mips = source_mips(&base);
         let mut specular = vec![base.clone()];
         for k in 1..levels {
             #[allow(clippy::cast_precision_loss)]
             let roughness = k as f32 / (levels - 1) as f32;
             let w = (base.width() >> k.min(4)).max(16);
             let h = (w / 2).max(8);
-            let a = roughness * roughness;
             // Pick the source mip whose texel roughly matches the lobe.
             #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
             let mip =
                 ((roughness * (mips.len() as f32 - 1.0)).round() as usize).min(mips.len() - 1);
             let src = &mips[mip];
-            let level = EnvMap::from_fn(w, h, |r| {
-                let (t, b) = onb(r);
-                let mut acc = Rgb::BLACK;
-                let mut wsum = 0.0;
-                for i in 0..samples {
-                    let (xi1, xi2) = hammersley(i, samples);
-                    // GGX half-vector around N = V = R.
-                    let phi = 2.0 * PI * xi1;
-                    let cos_t = ((1.0 - xi2) / (1.0 + (a * a - 1.0) * xi2)).sqrt();
-                    let sin_t = (1.0 - cos_t * cos_t).max(0.0).sqrt();
-                    let hv =
-                        (t * (sin_t * phi.cos()) + b * (sin_t * phi.sin()) + r * cos_t).normalize();
-                    let l = (hv * (2.0 * r.dot(hv)) - r).normalize();
-                    let ndl = r.dot(l);
-                    if ndl > 0.0 {
-                        acc = acc.add(src.sample(l).scale(ndl));
-                        wsum += ndl;
-                    }
-                }
-                if wsum > 0.0 {
-                    acc.scale(1.0 / wsum)
-                } else {
-                    src.sample(r)
-                }
-            });
+            let level = EnvMap::from_fn(w, h, |r| prefilter_texel(src, r, roughness, samples));
             specular.push(level);
         }
         Self {
             map: Arc::new(map),
             irradiance,
             specular,
+            samples,
             intensity: 1.0,
             background: Background::Map,
             background_intensity: 1.0,
         }
+    }
+
+    /// What the GPU prefilter pass needs to recompute specular level
+    /// `level` — the roughness, the destination dimensions, and the very
+    /// source mip (as linear texels, alpha 1) that built it. The mip chain
+    /// is rebuilt with `with_levels`' own helpers, so the GPU pass convolves
+    /// from exactly the texels the CPU oracle did.
+    ///
+    /// Level 0 is the base map itself, not a convolution — `None` there,
+    /// and for any level the chain does not have.
+    #[must_use]
+    pub fn prefilter_job(&self, level: usize) -> Option<PrefilterJob> {
+        if level == 0 || level >= self.specular.len() {
+            return None;
+        }
+        let levels = self.specular.len();
+        let base = base_map(&self.map);
+        let mips = source_mips(&base);
+        #[allow(clippy::cast_precision_loss)]
+        let roughness = level as f32 / (levels - 1) as f32;
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        let mip = ((roughness * (mips.len() as f32 - 1.0)).round() as usize).min(mips.len() - 1);
+        let src = &mips[mip];
+        let w = (base.width() >> level.min(4)).max(16);
+        let h = (w / 2).max(8);
+        Some(PrefilterJob {
+            roughness,
+            dst_width: w,
+            dst_height: h,
+            // The chosen mip's texels as RGBA — the hal entry point takes
+            // `[[f32; 4]]` and uploads as f16, the same conversion the 3D
+            // passes' textures get.
+            src_texels: src.pixels().iter().map(|&c| [c.r, c.g, c.b, 1.0]).collect(),
+            src_width: src.width(),
+            src_height: src.height(),
+            samples: self.samples,
+        })
     }
 
     #[must_use]
@@ -670,6 +746,30 @@ impl Environment {
         };
         Some(c.scale(self.background_intensity))
     }
+}
+
+/// What the GPU prefilter pass needs to produce one level of the specular
+/// chain — everything [`Environment::prefilter_job`] hands
+/// `vieww_hal::vulkan::VulkanDevice::render_env_prefilter_level`, which
+/// runs `vieww-shaders`' `ibl_prefilter.wgsl` half of the pin. The source
+/// texels are the very mip the CPU oracle convolved from, so the two
+/// halves of the pin sample the same values (to the f16 rounding of the
+/// upload, the same conversion every 3D texture gets).
+#[derive(Debug, Clone, PartialEq)]
+pub struct PrefilterJob {
+    /// The GGX roughness this level is convolved for.
+    pub roughness: f32,
+    /// The destination level's dimensions.
+    pub dst_width: usize,
+    pub dst_height: usize,
+    /// The chosen source mip's texels, linear, alpha 1, row-major,
+    /// top row = zenith.
+    pub src_texels: Vec<[f32; 4]>,
+    pub src_width: usize,
+    pub src_height: usize,
+    /// The sample count the CPU oracle used — the same sequence, or the
+    /// pin is meaningless.
+    pub samples: u32,
 }
 
 /// Karis' analytic environment BRDF: the `(scale, bias)` applied to F0 for
@@ -823,5 +923,176 @@ mod tests {
     fn mean_of_a_uniform_map_is_its_colour() {
         let m = EnvMap::uniform(Rgb::new(0.2, 0.4, 0.6)).mean();
         assert!(close(m.r, 0.2, 1e-5) && close(m.b, 0.6, 1e-5));
+    }
+
+    // ── The prefilter convolution's own oracle tests (FW-21) ─────────────
+    //
+    // `prefilter_texel` is the CPU half of the pin whose WGSL half is
+    // `vieww-shaders`' `shaders/ibl_prefilter.wgsl`; these tests pin what
+    // the convolution must be true of *mathematically*, so the numeric
+    // parity suite (`tests/gpu_ibl.rs`, the lavapipe leg) is comparing a
+    // correct oracle rather than two agreeing bugs.
+
+    /// The formulas `ibl_prefilter.wgsl` carries line for line, pinned from
+    /// this side of the arrow too — `vieww-shaders`' `library.rs` pins the
+    /// WGSL side, and neither can drift without a red test.
+    #[test]
+    fn the_prefilter_formulas_are_pinned_as_written() {
+        let source = include_str!("environment.rs");
+        for needle in [
+            "i.reverse_bits() as f32 * 2.328_306_4e-10",
+            "((1.0 - xi2) / (1.0 + (a * a - 1.0) * xi2)).sqrt()",
+            "(hv * (2.0 * r.dot(hv)) - r).normalize()",
+            "acc = acc.add(src.sample(l).scale(ndl));",
+        ] {
+            assert!(
+                source.contains(needle),
+                "the CPU oracle lost the pinned formula: {needle:?}"
+            );
+        }
+    }
+
+    /// A uniform sky has nothing to blur: every roughness's lobe gathers
+    /// the same radiance from every direction, so every level is the map
+    /// to within the last rounding of the `acc / wsum` division — one ulp
+    /// of the weighted average, not exactly the input bit pattern (the
+    /// weights never sum to a power of two in general).
+    #[test]
+    fn a_uniform_environment_prefilters_to_itself_at_every_roughness() {
+        let colour = Rgb::new(0.5, 0.25, 1.0);
+        let env = Environment::with_levels(EnvMap::uniform(colour), 6, 64);
+        assert_eq!(env.specular.len(), 6);
+        for (k, level) in env.specular.iter().enumerate() {
+            for px in level.pixels() {
+                for (got, want) in [(px.r, colour.r), (px.g, colour.g), (px.b, colour.b)] {
+                    assert!(
+                        (got - want).abs() <= want.abs() * 1e-6,
+                        "level {k} changed a uniform sky: {px:?} vs {colour:?}"
+                    );
+                }
+            }
+        }
+    }
+
+    /// Prefiltering is deterministic to the bit — the Hammersley sequence
+    /// has no randomness to seed, which is the property that makes a
+    /// pinned GPU/CPU parity meaningful at all.
+    #[test]
+    fn prefiltering_is_deterministic_to_the_bit() {
+        let map = EnvMap::sky(Vec3::new(0.4, 0.5, -0.6).normalize(), 2.0, 30.0);
+        let a = Environment::with_levels(map.clone(), 4, 64);
+        let b = Environment::with_levels(map, 4, 64);
+        assert_eq!(a.specular, b.specular);
+    }
+
+    /// The production sample count approximates the same integral a many
+    /// times larger one does: the 64-sample chain stays within a few
+    /// percent of a 4096-sample recomputation on a real sky. That is the
+    /// oracle for the *convolution itself* — not two implementations
+    /// agreeing, but one implementation converging on its own limit.
+    #[test]
+    fn the_production_sample_count_approximates_the_integral() {
+        let map = EnvMap::gradient(
+            Rgb::new(0.2, 0.4, 0.9),
+            Rgb::new(0.9, 0.7, 0.4),
+            Rgb::new(0.1, 0.1, 0.15),
+        );
+        // The exact source mip `with_levels` would pick for roughness 1.0.
+        let env = Environment::with_levels(map.clone(), 2, 64);
+        let job = env.prefilter_job(1).expect("level 1 exists");
+        let rough = env.specular[1].clone();
+        let fine = Environment::with_levels(map, 2, 4096).specular[1].clone();
+        assert_eq!(
+            (rough.width(), rough.height()),
+            (fine.width(), fine.height()),
+            "level dimensions do not depend on the sample count"
+        );
+        assert_eq!(
+            (job.dst_width, job.dst_height),
+            (rough.width(), rough.height())
+        );
+        let mut worst = 0.0f32;
+        for (a, b) in rough.pixels().iter().zip(fine.pixels()) {
+            for (x, y) in [(a.r, b.r), (a.g, b.g), (a.b, b.b)] {
+                worst = worst.max((x - y).abs() / (y.abs().max(1.0)));
+            }
+        }
+        assert!(worst < 0.05, "64 samples drifted {worst:.3} from 4096");
+    }
+
+    /// A sun disc blurs as roughness grows: the peak falls and the dim
+    /// texels rise, monotonically across the chain — the visible half of
+    /// "the lobe widened", and the reason the chain exists.
+    #[test]
+    fn a_sun_disc_blurs_monotonically_across_the_chain() {
+        let map = EnvMap::sky(Vec3::new(0.3, 0.8, -0.4).normalize(), 2.0, 200.0);
+        let env = Environment::with_levels(map, 5, 256);
+        let peak = |k: usize| {
+            env.specular[k]
+                .pixels()
+                .iter()
+                .map(|p| p.r.max(p.g).max(p.b))
+                .fold(f32::NEG_INFINITY, f32::max)
+        };
+        let floor = |k: usize| {
+            env.specular[k]
+                .pixels()
+                .iter()
+                .map(|p| p.r.max(p.g).max(p.b))
+                .fold(f32::INFINITY, f32::min)
+        };
+        for k in 1..env.specular.len() {
+            assert!(
+                peak(k) <= peak(k - 1) * 1.02,
+                "peak rose at level {k}: {} → {}",
+                peak(k - 1),
+                peak(k)
+            );
+            assert!(
+                floor(k) >= floor(k - 1) * 0.98,
+                "floor fell at level {k}: {} → {}",
+                floor(k - 1),
+                floor(k)
+            );
+        }
+        // And the blur is real, not a threshold artifact: the roughest
+        // level's peak is a small fraction of the base's.
+        assert!(
+            peak(4) < peak(0) * 0.2,
+            "the sun survived roughness 1.0: {} vs {}",
+            peak(4),
+            peak(0)
+        );
+    }
+
+    /// The jobs the GPU pass consumes describe the chain they came from:
+    /// dimensions match the level, level 0 and past-the-end are `None`, and
+    /// rebuilding the job twice yields the same mip (the determinism the
+    /// parity suite relies on to hand the GPU the oracle's own texels).
+    #[test]
+    fn prefilter_jobs_describe_their_level_and_refuse_the_rest() {
+        let map = EnvMap::gradient(
+            Rgb::new(0.2, 0.4, 0.9),
+            Rgb::new(0.9, 0.7, 0.4),
+            Rgb::new(0.1, 0.1, 0.15),
+        );
+        let env = Environment::with_levels(map, 5, 64);
+        assert!(env.prefilter_job(0).is_none(), "level 0 is the base map");
+        assert!(env.prefilter_job(5).is_none(), "past the chain");
+        for k in 1..env.specular.len() {
+            let job = env.prefilter_job(k).expect("a job per convolved level");
+            assert_eq!(
+                (job.dst_width, job.dst_height),
+                (env.specular[k].width(), env.specular[k].height())
+            );
+            assert_eq!(job.src_texels.len(), job.src_width * job.src_height);
+            assert!(
+                job.src_width >= 8 && job.src_height >= 4,
+                "a real mip, not a stub"
+            );
+            assert_eq!(job.roughness, k as f32 / 4.0);
+            assert_eq!(job.samples, 64);
+            assert_eq!(job, env.prefilter_job(k).expect("the same job again"));
+        }
     }
 }

@@ -112,6 +112,19 @@ pub struct RenderEditableText {
     /// the theme has a colour for exactly this — a placeholder is a hint, and
     /// dimming the body colour by a fraction chosen here would not match it.
     pub placeholder_color: Color,
+    /// What a screen reader is told this field is *for*, when that is not
+    /// something the pixels already say.
+    ///
+    /// A placeholder doubles as the label because it states the field's
+    /// purpose — but only as a side effect, and a field whose purpose is
+    /// stated *beside* it rather than inside it (a property grid's rows, an
+    /// editor whose pane header names the file) has no placeholder and no
+    /// label, and announces as "text field" and nothing else. This says the
+    /// name outright without drawing anything: it feeds `semantics` only,
+    /// and wins over the placeholder when both are set.
+    pub semantics_label: Option<String>,
+    /// Take the keyboard when mounted — see [`RenderObject::wants_autofocus`].
+    pub autofocus: bool,
     pub on_selection_changed: Option<SelectionChanged>,
     /// Where a **modified** click reports the caret it wants *added*.
     ///
@@ -278,6 +291,8 @@ impl RenderEditableText {
             obscure: Obscured::No,
             placeholder: String::new(),
             placeholder_color: Color::BLACK,
+            semantics_label: None,
+            autofocus: false,
             on_selection_changed: None,
             on_changed: None,
             spans: None,
@@ -358,6 +373,25 @@ impl RenderEditableText {
     pub fn placeholder(mut self, placeholder: impl Into<String>, color: Color) -> Self {
         self.placeholder = placeholder.into();
         self.placeholder_color = color;
+        self
+    }
+
+    /// Say `label` in the semantics tree, drawing nothing.
+    ///
+    /// The label a screen reader announces for this field when the placeholder
+    /// cannot be one — see [`RenderEditableText::semantics_label`]'s own doc
+    /// for the distinction. The placeholder is a *fallback* label, not the
+    /// primary one, once this is set.
+    #[must_use]
+    pub fn semantics_label(mut self, label: impl Into<String>) -> Self {
+        self.semantics_label = Some(label.into());
+        self
+    }
+
+    /// Take the keyboard as soon as this field is mounted.
+    #[must_use]
+    pub const fn autofocus(mut self, autofocus: bool) -> Self {
+        self.autofocus = autofocus;
         self
     }
 
@@ -1167,6 +1201,10 @@ impl RenderObject for RenderEditableText {
         self.on_changed.is_some()
     }
 
+    fn wants_autofocus(&self) -> bool {
+        self.autofocus && self.is_focusable()
+    }
+
     fn skips_traversal(&self) -> bool {
         // Reachable by a press (so it can be copied), not by Tab: text to
         // read is not a control.
@@ -1524,7 +1562,12 @@ impl RenderObject for RenderEditableText {
         // role it can honestly play. Announcing it as the value would tell
         // somebody the field already contains the hint, which is the same lie
         // the pixels would tell if the placeholder were really in the text.
-        if !self.placeholder.is_empty() {
+        // An explicit `semantics_label` is the same statement made on purpose
+        // by a caller whose field is named beside it rather than inside it,
+        // so it wins when both exist.
+        if let Some(label) = &self.semantics_label {
+            semantics = semantics.with_label(label.clone());
+        } else if !self.placeholder.is_empty() {
             semantics = semantics.with_label(self.placeholder.clone());
         }
 

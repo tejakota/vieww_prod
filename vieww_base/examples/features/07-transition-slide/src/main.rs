@@ -15,7 +15,7 @@ fn film(label: &str, t: f32, rt: RouteTransition, surface: Size) -> WidgetNode {
         .spacing(4.0)
         .children(children![
             Text::new(format!("{label} t={t}"))
-                .color(Color::rgb(110, 122, 140))
+                .color(Color::rgb(101, 112, 129))
                 .size(11.0),
             Container::new()
                 .color(Color::rgb(233, 237, 243))

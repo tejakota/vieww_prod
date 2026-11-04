@@ -412,7 +412,12 @@ use vieww::TextEditingValue;
 #[derive(Debug, Default)]
 struct Ledger {
     taps: u32,
-    text: String,
+    /// The field's whole value — text, caret and composing region — because
+    /// a controlled field that rebuilds from text alone loses the composing
+    /// range between one preedit and the next, and an IME's provisional text
+    /// would then never be replaced by its commit. The same contract the
+    /// studio's own editor follows, on the guest side of the wire.
+    value: TextEditingValue,
     scroll: f32,
     hovered: bool,
     pending: bool,
@@ -422,12 +427,12 @@ impl ElementState for Ledger {
     fn as_any_mut(&mut self) -> &mut dyn Any { self }
     fn take_pending(&mut self) -> bool { std::mem::take(&mut self.pending) }
     fn snapshot(&self) -> Option<String> {
-        Some(format!("{}|{}|{:.2}|{}", self.taps, self.text, self.scroll, self.hovered))
+        Some(format!("{}|{}|{:.2}|{}", self.taps, self.value.text, self.scroll, self.hovered))
     }
     fn restore(&mut self, saved: &str) -> bool {
         let mut parts = saved.split('|');
         self.taps = parts.next().and_then(|v| v.parse().ok()).unwrap_or(0);
-        self.text = parts.next().unwrap_or("").to_owned();
+        self.value = TextEditingValue::new(parts.next().unwrap_or("").to_owned());
         self.scroll = parts.next().and_then(|v| v.parse().ok()).unwrap_or(0.0);
         self.hovered = parts.next() == Some("true");
         true
@@ -463,14 +468,14 @@ impl Widget for Screen {
         // back from the ledger, so a rebuild keeps the text rather than
         // resetting it — the same contract the studio's own editor follows.
         let current = ctx
-            .state::<Ledger, _>(|l| l.text.clone())
+            .state::<Ledger, _>(|l| l.value.clone())
             .unwrap_or_default();
-        let field = TextField::new(TextEditingValue::new(current))
+        let field = TextField::new(current)
             .on_changed(std::rc::Rc::new(move |value: TextEditingValue| {
                 if let Some(handle) = &text_handle {
                     if let Ok(mut state) = handle.try_borrow_mut() {
                         if let Some(l) = state.as_any_mut().downcast_mut::<Ledger>() {
-                            l.text = value.text;
+                            l.value = value;
                             l.pending = true;
                         }
                     }
@@ -585,20 +590,48 @@ fn keys_ime_scroll_and_hover_reach_the_guest() {
         "the keys reached the field: {after_keys:?}"
     );
 
-    // An IME commit, the way a phone types.
+    // An IME composition, the way an input method actually types: the preedit
+    // grows in place — the field's text carries it, underlined — and then a
+    // commit replaces it. Both halves have to cross the wire.
+    for (i, (text, cursor)) in [("ね", (0, 3)), ("ねこ", (0, 6))].iter().enumerate() {
+        let at = Duration::from_millis(48 + i as u64 * 16);
+        remote
+            .frame(
+                &env,
+                1.0,
+                at,
+                Color::BLACK,
+                &[RemoteEvent::Ime(ImeEvent::Preedit {
+                    text: (*text).to_owned(),
+                    cursor: Some(*cursor),
+                })],
+            )
+            .expect("the preedit draws");
+    }
+    let composing = ledger_of(&mut remote);
+    assert!(
+        composing.contains("ねこ"),
+        "the composition reached the field: {composing:?}"
+    );
+
+    // The commit replaces the composition: "hi" + "猫", not "hiねこ猫".
     remote
         .frame(
             &env,
             1.0,
-            Duration::from_millis(48),
+            Duration::from_millis(80),
             Color::BLACK,
-            &[RemoteEvent::Ime(ImeEvent::commit("!"))],
+            &[RemoteEvent::Ime(ImeEvent::commit("猫"))],
         )
         .expect("the commit draws");
     let after_ime = ledger_of(&mut remote);
     assert!(
-        after_ime.contains("hi!"),
-        "the IME commit reached the field: {after_ime:?}"
+        after_ime.contains("hi猫"),
+        "the IME commit reached the field and replaced the preedit: {after_ime:?}"
+    );
+    assert!(
+        !after_ime.contains("ねこ"),
+        "the committed text left no preedit behind: {after_ime:?}"
     );
 
     // A scroll in the lower half, where the detector is.
@@ -606,12 +639,12 @@ fn keys_ime_scroll_and_hover_reach_the_guest() {
         .frame(
             &env,
             1.0,
-            Duration::from_millis(64),
+            Duration::from_millis(96),
             Color::BLACK,
             &[RemoteEvent::Scroll(ScrollEvent::new(
                 Offset::new(206.0, 500.0),
                 Offset::new(0.0, -120.0),
-                Duration::from_millis(64),
+                Duration::from_millis(96),
             ))],
         )
         .expect("the scroll draws");
@@ -625,7 +658,7 @@ fn keys_ime_scroll_and_hover_reach_the_guest() {
         .frame(
             &env,
             1.0,
-            Duration::from_millis(80),
+            Duration::from_millis(112),
             Color::BLACK,
             &[
                 RemoteEvent::Hover(Some(Offset::new(206.0, 500.0))),
@@ -718,4 +751,163 @@ fn the_guest_state_crosses_a_re_render_through_the_child() {
     fresh
         .frame(&env, 1.0, Duration::from_millis(16), Color::BLACK, &[])
         .expect("the fresh child draws");
+}
+
+// ── ST-04: Say screens over the wire ────────────────────────────────────────
+
+/// The counter, as the repository ships it: the one screen whose `keep`
+/// state a tap changes, which is what makes it the honest fixture for a
+/// state-capture test — the number has to come back *and* still work.
+const COUNTER_SAY: &str =
+    include_str!("../../../crates/vieww-say-codegen/tests/fixtures/counter.say");
+
+/// A Say list long enough to have somewhere to scroll to: twenty padded
+/// cards in one scroll view, on a 412×915 device.
+const LONG_LIST_SAY: &str = "-- say-language: 1
+-- long enough that the scroll view has somewhere to go.
+
+keep a list of text called names starting at \"n01\", \"n02\", \"n03\", \"n04\", \"n05\", \"n06\", \"n07\", \"n08\", \"n09\", \"n10\", \"n11\", \"n12\", \"n13\", \"n14\", \"n15\", \"n16\", \"n17\", \"n18\", \"n19\", \"n20\"
+
+screen \"Names\":
+    a scroll view:
+        for each name in names:
+            a card, padded 24:
+                a text \"\\(name)\"
+";
+
+/// A `.say` fixture compiled to its generated Rust, ready for `rustc` — the
+/// same hop `Studio::render` makes for a Say buffer.
+fn say_rust(file: &str, source: &str) -> String {
+    vieww_say_codegen::compile(file, source)
+        .unwrap_or_else(|diagnostics| panic!("{file} did not compile: {diagnostics:?}"))
+        .rust
+}
+
+/// Where the counter's `Add one` button is: the column starts under the safe
+/// area, and the button is the third child — heading, label, button — so its
+/// centre is a computed position, not a magic one.
+fn counter_button() -> Offset {
+    let safe_top = 30.0;
+    let heading = 24.0 * 1.2;
+    let body = 15.0 * 1.45;
+    let spacing = 16.0;
+    let button_height = 48.0;
+    Offset::new(
+        40.0,
+        safe_top + heading + spacing + body + spacing + button_height / 2.0,
+    )
+}
+
+#[test]
+fn a_say_list_scrolls_over_the_wire() {
+    let Some(toolchain) = toolchain() else { return };
+    let library = compiled(&toolchain, 0x7E78, &say_rust("names.say", LONG_LIST_SAY));
+    let mut remote = loaded(&toolchain, &library);
+    let env = Environment::of(Platform::Android);
+
+    let before = remote
+        .frame(&env, 1.0, Duration::ZERO, Color::WHITE, &[])
+        .expect("the list draws");
+
+    // A wheel notch in the middle of the list, in the content-moves
+    // convention the wire documents: −200 dy shows later items.
+    let at = Duration::from_millis(16);
+    let after = remote
+        .frame(
+            &env,
+            1.0,
+            at,
+            Color::WHITE,
+            &[RemoteEvent::Scroll(ScrollEvent::new(
+                Offset::new(206.0, 457.0),
+                Offset::new(0.0, -200.0),
+                at,
+            ))],
+        )
+        .expect("the scroll draws");
+
+    // The whole picture is the list, and it moved.
+    assert!(
+        before.rgba != after.rgba,
+        "scrolling a real list changed the frame"
+    );
+    // And by exactly the delta: what is at y now was at y+200 before — a
+    // scroll of a list, not "something repainted".
+    for x in [40, 206, 370] {
+        for y in [240, 400, 560] {
+            assert_eq!(
+                pixel(&after, x, y),
+                pixel(&before, x, y + 200),
+                "the list moved up by exactly the scroll delta at ({x}, {y})"
+            );
+        }
+    }
+}
+
+#[test]
+fn say_keep_state_survives_a_remote_re_render() {
+    let Some(toolchain) = toolchain() else { return };
+    let library = compiled(&toolchain, 0x7E79, &say_rust("counter.say", COUNTER_SAY));
+    let mut remote = loaded(&toolchain, &library);
+    let env = Environment::of(Platform::Android);
+
+    remote
+        .frame(&env, 1.0, Duration::ZERO, Color::WHITE, &[])
+        .expect("the screen draws");
+
+    // Two taps on `Add one`: the `keep a whole number called count` starts
+    // at 0 and the button's handler adds to it.
+    let button = counter_button();
+    for i in 0..2u64 {
+        let at = Duration::from_millis(16 + i * 16);
+        remote
+            .frame(
+                &env,
+                1.0,
+                at,
+                Color::WHITE,
+                &[
+                    RemoteEvent::Pointer(Pointer::Down(button)),
+                    RemoteEvent::Pointer(Pointer::Up(button)),
+                ],
+            )
+            .expect("the tap draws");
+    }
+    let snapshot = remote.capture_state().expect("the capture answers");
+    assert!(
+        snapshot.iter().any(|(_, state)| state.contains("count=2")),
+        "two taps, two counts: {snapshot:?}"
+    );
+
+    // A fresh child — the process a Render makes — and the state goes back in.
+    let mut fresh = loaded(&toolchain, &library);
+    let restored = fresh
+        .restore_state(&snapshot, Duration::from_millis(0))
+        .expect("the restore answers");
+    assert!(restored >= 1, "at least the Say state came back");
+    let back = fresh.capture_state().expect("the read-back answers");
+    assert!(
+        back.iter().any(|(_, state)| state.contains("count=2")),
+        "the kept value survived the process boundary: {back:?}"
+    );
+
+    // And it came back *live*, not as a string: one more tap makes three,
+    // through the same handler the first two went through.
+    fresh
+        .frame(
+            &env,
+            1.0,
+            Duration::from_millis(16),
+            Color::WHITE,
+            &[
+                RemoteEvent::Pointer(Pointer::Down(button)),
+                RemoteEvent::Pointer(Pointer::Up(button)),
+            ],
+        )
+        .expect("the restored screen still takes a tap");
+    let live = fresh.capture_state().expect("the second read-back answers");
+    assert!(
+        live.iter().any(|(_, state)| state.contains("count=3")),
+        "the restored state drives the guest: {live:?}"
+    );
 }

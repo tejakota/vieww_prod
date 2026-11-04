@@ -11,6 +11,9 @@ publish = false
 vieww-platform-winit.workspace = true
 vieww-foundation.workspace = true
 vieww-reload.workspace = true
+# Only for `ReloadLedger` — the session's reload count and state-preservation
+# rate, printed per reload and on exit, in the devtools overlay's own format.
+vieww-devtools.workspace = true
 
 [lints]
 workspace = true

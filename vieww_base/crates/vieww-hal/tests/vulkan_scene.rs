@@ -567,7 +567,7 @@ fn fractional_and_rounded_rects_have_antialiased_edges_like_the_cpu() {
     for &(x, y) in &edge_samples {
         let centre = Offset::new(x as f32 + 0.5, y as f32 + 0.5);
         let d = vieww_gpu::scene::shape_distance(centre, rect, 0.0);
-        let coverage = (0.5 - d).clamp(0.0, 1.0);
+        let coverage = (0.5 - d).clamp(0.0, 1.0).sqrt(); // through the fill coverage gamma, as both renderers apply it
         let expected = (255.0 * (1.0 - coverage)).round();
         let gpu_r = f32::from(red_of(&gpu, x, y));
         let cpu_r = f32::from(red_of(&cpu, x, y));
@@ -611,7 +611,7 @@ fn fractional_and_rounded_rects_have_antialiased_edges_like_the_cpu() {
             let (x, y) = (x as usize, y as usize);
             let centre = Offset::new(x as f32 + 0.5, y as f32 + 0.5);
             let d = vieww_gpu::scene::shape_distance(centre, card, 9.0);
-            let coverage = (0.5 - d).clamp(0.0, 1.0);
+            let coverage = (0.5 - d).clamp(0.0, 1.0).sqrt(); // through the fill coverage gamma, as both renderers apply it
             if coverage <= 0.05 || coverage >= 0.95 {
                 continue;
             }

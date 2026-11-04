@@ -259,7 +259,8 @@ fn scene(book: &mut Sketchbook, t: f32) {
             inner.circle(
                 Offset::new(w * 0.5, h * 0.62),
                 w * 0.36,
-                Gradient::radial_fill().with_dither()
+                Gradient::radial_fill()
+                    .with_dither()
                     .with_stops(&[(0.0, alpha(VIOLET, 0.10 * f3)), (1.0, alpha(VIOLET, 0.0))]),
             );
         });

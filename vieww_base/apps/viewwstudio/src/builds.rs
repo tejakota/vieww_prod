@@ -306,6 +306,13 @@ impl Builds {
                 "x86_64-pc-windows-gnu",
             ]),
             Target::Desktop | Target::Windows => spec.args(["build", "--bin", &binary]),
+            // `--lib`, because the `[[bin]]` target cannot exist on wasm: its
+            // `main` calls a `run` that is cfg'd out on `target_arch =
+            // "wasm32"` (there is no process to own an event loop in a
+            // browser). The library is where the cdylib — the `.wasm` — comes
+            // from, and `export::web` builds the same way, so Build for Web and
+            // Export ▸ Web cannot disagree about what a web build is.
+            Target::Web => spec.args(["build", "--lib", "--target", "wasm32-unknown-unknown"]),
         };
 
         if let Some(flag) = profile.flag() {

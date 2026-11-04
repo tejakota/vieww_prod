@@ -15,6 +15,11 @@
 //! saturated by spinning threads, and the stream's own statistics are
 //! printed and checked — the callback's scheduling class, render load,
 //! renders that overran their block, and xruns the server reported.
+//!
+//! `alsa_seq_virtual_ports_round_trip` needs none of that — only the
+//! kernel's sequencer (`sudo modprobe snd-seq`; the audio-backends VM leg
+//! boots one). With `VIEWW_REQUIRE_SEQ=1` a missing sequencer fails the
+//! test instead of skipping it, which is how the VM leg asks.
 
 #![cfg(all(target_os = "linux", not(target_os = "android")))]
 
@@ -332,4 +337,152 @@ fn pulse_default_sink_change_is_an_event() {
     }
     pactl(&["unload-module", &b]);
     pactl(&["unload-module", &a]);
+}
+
+// ---- the ALSA sequencer (AU-19) ---------------------------------------------
+
+/// AU-19, live: the sequencer's virtual ports, end to end through the
+/// kernel. A virtual input (`vieww-audio:vieww-rt-in`) and a virtual
+/// output (`vieww-audio:vieww-rt-out`) are published; each is found in
+/// the port lists under its `seq:C,P` id; and messages cross both ways —
+/// a subscribed output writing into the virtual input, and the virtual
+/// output broadcasting to a subscribed input — including a SysEx, whose
+/// bytes ride the sequencer's variable-length event path. When the ports
+/// drop, they leave the lists again.
+#[test]
+#[ignore = "needs the ALSA sequencer (sudo modprobe snd-seq)"]
+fn alsa_seq_virtual_ports_round_trip() {
+    use vieww_audio::midi::Message;
+    use vieww_audio::midi_io::{input_ports, output_ports, MidiInput, MidiOutput};
+
+    let sent = vec![
+        Message::NoteOn {
+            channel: 0,
+            key: 60,
+            velocity: 100,
+        },
+        Message::ControlChange {
+            channel: 3,
+            controller: 74,
+            value: 12,
+        },
+        Message::PitchBend {
+            channel: 1,
+            value: -4_096,
+        },
+        Message::SysEx(vec![0x7D, 0x01, 0x02, 0x03, 0x04]),
+        Message::TimingClock,
+        Message::NoteOff {
+            channel: 0,
+            key: 60,
+            velocity: 0,
+        },
+    ];
+    // A note-off sent as velocity 0 may arrive as either spelling.
+    let norm = |m: &Message| match m {
+        Message::NoteOn {
+            channel,
+            key,
+            velocity: 0,
+        } => Message::NoteOff {
+            channel: *channel,
+            key: *key,
+            velocity: 0,
+        },
+        m => m.clone(),
+    };
+    let want: Vec<Message> = sent.iter().map(norm).collect();
+
+    let require = std::env::var("VIEWW_REQUIRE_SEQ").is_ok_and(|v| v == "1");
+    // A virtual input: a destination other applications connect to.
+    let input = match MidiInput::open_virtual("vieww-rt-in") {
+        Ok(i) => i,
+        Err(e) => {
+            assert!(!require, "the sequencer is required but missing: {e}");
+            eprintln!("no ALSA sequencer — skipped ({e})");
+            return;
+        }
+    };
+    // A virtual output: a source other applications connect to.
+    let mut vout = MidiOutput::open_virtual("vieww-rt-out").expect("publish the virtual output");
+
+    // The lists carry both, under the client `vieww-audio`, by `seq:` id:
+    // a virtual input is a MIDI *destination*, a virtual output a source.
+    let in_id = output_ports()
+        .into_iter()
+        .find(|p| p.name == "vieww-audio:vieww-rt-in")
+        .expect("the virtual input is listed as an output port")
+        .id;
+    let out_id = input_ports()
+        .into_iter()
+        .find(|p| p.name == "vieww-audio:vieww-rt-out")
+        .expect("the virtual output is listed as an input port")
+        .id;
+    assert!(
+        in_id.starts_with("seq:") && out_id.starts_with("seq:"),
+        "{in_id} {out_id}"
+    );
+
+    // Both ways: a subscribed output writes into the virtual input; the
+    // virtual output broadcasts to a subscribed input.
+    let mut to_in = MidiOutput::open(&in_id).expect("subscribe an output to the virtual input");
+    let from_out = MidiInput::open(&out_id).expect("subscribe an input to the virtual output");
+    // Let the subscriptions settle before the first event, as
+    // midi_port_round_trip does.
+    std::thread::sleep(Duration::from_millis(100));
+
+    for (label, send, recv) in [
+        ("into the virtual input", &mut to_in, &input),
+        ("from the virtual output", &mut vout, &from_out),
+    ] {
+        for m in &sent {
+            send.send(m).expect("send");
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        let mut timed = Vec::new();
+        let t = std::time::Instant::now();
+        while timed.len() < sent.len() && t.elapsed() < Duration::from_secs(5) {
+            timed.extend(recv.poll());
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        let got: Vec<Message> = timed.iter().map(|t| norm(&t.message)).collect();
+        assert_eq!(got, want, "{label}: every message, in order");
+        // Arrival timestamps: monotonic, and the clock has not run
+        // backwards past them.
+        let times: Vec<f64> = timed.iter().map(|t| t.time).collect();
+        assert!(
+            times.windows(2).all(|w| w[0] <= w[1]),
+            "{label}: times not monotonic: {times:?}"
+        );
+        assert!(
+            recv.now() >= *times.last().unwrap_or(&0.0),
+            "{label}: now {} before the last arrival {}",
+            recv.now(),
+            times.last().copied().unwrap_or(0.0)
+        );
+    }
+
+    // Dropping the ports withdraws them from the lists again.
+    drop(from_out);
+    drop(to_in);
+    drop(vout);
+    drop(input);
+    let gone = |f: fn() -> Vec<vieww_audio::midi_io::MidiPort>, name: &str| {
+        let t = std::time::Instant::now();
+        while t.elapsed() < Duration::from_secs(5) {
+            if !f().iter().any(|p| p.name == name) {
+                return true;
+            }
+            std::thread::sleep(Duration::from_millis(50));
+        }
+        false
+    };
+    assert!(
+        gone(output_ports, "vieww-audio:vieww-rt-in"),
+        "the virtual input left the list"
+    );
+    assert!(
+        gone(input_ports, "vieww-audio:vieww-rt-out"),
+        "the virtual output left the list"
+    );
 }

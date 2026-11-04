@@ -89,7 +89,7 @@ impl CustomPainter for SpectrumPainter {
             out.push(DrawInstruction::FillRoundedRect {
                 rect: Rect::new(x, floor - height, x + bar_w, floor),
                 radius: 2.0,
-                color: Color::rgb(58, 122, 246),
+                color: Color::rgb(44, 98, 234),
             });
         }
         // The baseline.
@@ -133,7 +133,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             )
                             .style(TextStyle {
                                 size: 12.0,
-                                color: Color::rgb(130, 140, 160),
+                                color: Color::rgb(90, 99, 117),
                                 ..TextStyle::default()
                             }),
                         ])),

@@ -106,10 +106,12 @@ pub(crate) fn draw_mark_2d(book: &mut Sketchbook, c: Offset, half: f32, a: f32) 
     path.close();
     book.fill(
         path,
-        vieww_foundation::Gradient::vertical().with_dither().with_stops(&[
-            (0.0, pf::alpha(super::BRAND_FAR, a)),
-            (1.0, pf::alpha(super::BRAND_NEAR, a)),
-        ]),
+        vieww_foundation::Gradient::vertical()
+            .with_dither()
+            .with_stops(&[
+                (0.0, pf::alpha(super::BRAND_FAR, a)),
+                (1.0, pf::alpha(super::BRAND_NEAR, a)),
+            ]),
     );
 }
 

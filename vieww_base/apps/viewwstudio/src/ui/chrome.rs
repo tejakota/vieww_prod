@@ -533,7 +533,8 @@ pub fn segmented(
                             vieww_foundation::Gradient::linear(
                                 Offset::new(0.0, 0.0),
                                 Offset::new(1.0, 1.0),
-                            ).with_dither()
+                            )
+                            .with_dither()
                             .between(accent, accent_far),
                         )
                         .color(accent)
@@ -675,7 +676,9 @@ impl vieww_widget::Painter for TabIndicator {
         book.rrect(
             bar,
             1.5,
-            vieww_foundation::Gradient::horizontal().with_dither().between(self.accent, self.accent_soft),
+            vieww_foundation::Gradient::horizontal()
+                .with_dither()
+                .between(self.accent, self.accent_soft),
         );
     }
     fn as_any(&self) -> &dyn std::any::Any {

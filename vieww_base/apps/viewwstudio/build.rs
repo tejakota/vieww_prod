@@ -4,6 +4,10 @@
 //!
 //! * `VIEWWSTUDIO_RUSTC` — the compiler, for the ABI guard, explained below.
 //! * `VIEWWSTUDIO_BUILD` — the checkout, for the About box and bug reports.
+//! * `VIEWWSTUDIO_REPO` — where releases are published, for the updater (ST-14);
+//!   set by `packaging/package.sh`, which resolves it the same way the download
+//!   page does. A development build has none, and the updater then refuses
+//!   rather than guessing.
 //!
 //! A preview is a `cdylib` handing a `Box<dyn Widget>` across a library
 //! boundary. That is only sound if the same compiler built both sides, and the
@@ -14,6 +18,18 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     build_identifier();
     link_arg_rpath();
+    // ST-14: the repository this build will be published to, for the updater.
+    // Passed through rather than resolved here because `package.sh` already
+    // resolves it (environment, Actions, then `git remote`), and a second
+    // resolution in a second language is a second way to disagree with the
+    // download page. `option_env!` in `update::repo` reads it; unset in every
+    // build that did not come out of the packager.
+    if let Some(repo) = std::env::var_os("VIEWWSTUDIO_REPO") {
+        println!(
+            "cargo:rustc-env=VIEWWSTUDIO_REPO={}",
+            repo.to_string_lossy()
+        );
+    }
 
     let version =
         std::process::Command::new(std::env::var("RUSTC").unwrap_or_else(|_| "rustc".into()))

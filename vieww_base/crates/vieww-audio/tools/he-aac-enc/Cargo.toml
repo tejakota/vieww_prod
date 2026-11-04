@@ -1,0 +1,13 @@
+# Fixture tool only: encodes the HE-AAC / HE-AACv2 test fixtures with the
+# full Fraunhofer FDK encoder (distro builds strip SBR out). Its own
+# workspace, so it never joins vieww's dependency graph; `make.sh` runs it.
+[package]
+name = "he-aac-enc"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+fdk-aac-sys = "=0.5.0"

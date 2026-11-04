@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .color(Color::WHITE)
                 .padding(EdgeInsets::all(24.0))
                 .child(Flex::row().spacing(16.0).children(children![
-                    tile(Color::rgb(58, 122, 246)),
+                    tile(Color::rgb(44, 98, 234)),
                     tile(Color::rgb(186, 100, 246)),
                     tile(Color::rgb(76, 187, 129)),
                     tile(Color::rgb(255, 180, 80)),

@@ -199,6 +199,7 @@ fn view_icon(view: View) -> vieww_foundation::IconData {
     use crate::ui::icons_filled as icons;
     match view {
         View::Explorer => icons::folder(),
+        View::Assets => icons::image(),
         View::Search => icons::search(),
         View::Snippets => icons::code(),
         View::Problems => icons::warning(),
@@ -383,7 +384,9 @@ impl vieww_widget::Painter for ActivitySelection {
         book.rrect(
             bar,
             1.25,
-            vieww_foundation::Gradient::vertical().with_dither().between(self.rail, self.soft),
+            vieww_foundation::Gradient::vertical()
+                .with_dither()
+                .between(self.rail, self.soft),
         );
     }
     fn as_any(&self) -> &dyn std::any::Any {

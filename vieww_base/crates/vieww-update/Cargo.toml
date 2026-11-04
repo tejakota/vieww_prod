@@ -1,0 +1,26 @@
+[package]
+name = "vieww-update"
+description = "The vieww update channel: a signed update manifest, a verifying downloader, and an atomic apply-with-rollback — for any shipped app, with no dependencies at all."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+# Nothing. Deliberately, and for the same reason `vieww-foundation` carries
+# none: an updater runs inside a shipped application on machines the
+# framework has never seen, and the one thing a user cannot audit is a
+# dependency tree pulled in by the code whose job is to replace the
+# application. Everything below is std: SHA-256 for digests, SHA-512 and
+# Ed25519 for signatures (ports of the audited implementations in
+# `apps/wright/core`, pinned byte-for-byte to the standards' own vectors),
+# a hand-rolled parser for the one JSON shape the manifest is, and a
+# `TcpStream` HTTP GET behind a trait the platform can replace.
+
+[lints]
+workspace = true

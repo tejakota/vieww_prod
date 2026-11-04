@@ -256,6 +256,9 @@ pub enum Command {
     /// straight away. No folder, no name, no Cargo.toml — the fastest path
     /// from "what is this?" to a screen in the device frame.
     TrySayScreen,
+    /// ST-03: open the "Say: Write a Screen from a Prompt" box — the one
+    /// door into the verified prompt→app loop in `say_ai`.
+    SayPrompt,
     NewProject,
     /// Open a folder as the workspace, through the studio's own picker.
     ///
@@ -358,6 +361,9 @@ pub enum Command {
     ToggleDamageOverlay,
     ToggleSemanticsOverlay,
     PickWidget,
+    /// ST-01: arm canvas editing — drag handles and arrow nudges rewrite the
+    /// picked say line's pure properties straight from the preview.
+    ToggleCanvasEdit,
     NextTab,
     PreviousTab,
     ShowProblems,
@@ -445,11 +451,40 @@ pub enum Command {
     TogglePreviewNote,
     /// Write the starter `live.rs` into the workspace and open it.
     CreateLiveFile,
+    /// ST-19: write the flow as `src/screens/flow.say` — the sketch becomes
+    /// real Say, compiled by Render, shipped by Build and Run.
+    MaterializeFlow,
+    /// ST-05: extract the picked subtree as a component — `src/widgets/`
+    /// gains the Rust, the buffer gains `<Name>`, and the subtree becomes
+    /// reusable as one word.
+    ExtractWidget,
+    /// ST-05: clone a component library — a git repository of components —
+    /// so its components are listed and scaffoldable here.
+    AddComponentLibrary,
+    /// ST-05: pull every component library up to date.
+    SyncComponentLibraries,
+    /// ST-10: share the active buffer through a collaboration session —
+    /// `vieww-collab`'s RGA over `.vieww/collab.log`, remote carets in the
+    /// editor. Toggles.
+    ShareBuffer,
+    /// ST-13: load (or reload) the plugins in `<data_dir>/plugins/` — extra
+    /// lint rules, export formats and palette commands, guarded by the
+    /// preview's ABI fingerprint.
+    ReloadPlugins,
+    /// ST-14: ask the release feed whether a newer studio exists. Reports;
+    /// downloads nothing.
+    CheckForUpdates,
+    /// ST-14: fetch and verify the update the last check found, against the
+    /// release's published SHA256SUMS, and stage it. Refuses without a check.
+    DownloadUpdate,
+    /// ST-14: fetch and verify the SDK half of this studio's split bundle —
+    /// the first-launch download — and unpack it beside the executable.
+    DownloadSdk,
 }
 
 impl Command {
     /// Every command, in palette order.
-    pub const ALL: [Self; 115] = [
+    pub const ALL: [Self; 126] = [
         Self::Render,
         Self::CancelRender,
         Self::Build,
@@ -459,6 +494,7 @@ impl Command {
         // Above `Save`, because a studio with no folder open can do almost
         // nothing else and this is the command that fixes that.
         Self::TrySayScreen,
+        Self::SayPrompt,
         Self::OpenFolder,
         Self::Save,
         Self::SaveAll,
@@ -546,6 +582,7 @@ impl Command {
         Self::ZoomOut,
         Self::ZoomFit,
         Self::PickWidget,
+        Self::ToggleCanvasEdit,
         Self::ToggleDamageOverlay,
         Self::ToggleSemanticsOverlay,
         Self::ZenMode,
@@ -577,6 +614,15 @@ impl Command {
         Self::ShowShortcuts,
         Self::TogglePreviewNote,
         Self::CreateLiveFile,
+        Self::MaterializeFlow,
+        Self::ExtractWidget,
+        Self::AddComponentLibrary,
+        Self::SyncComponentLibraries,
+        Self::ShareBuffer,
+        Self::ReloadPlugins,
+        Self::CheckForUpdates,
+        Self::DownloadUpdate,
+        Self::DownloadSdk,
     ];
 
     /// What the menu item and the palette row say.
@@ -597,6 +643,7 @@ impl Command {
             Self::LivePreview => "Live Preview (No Build)",
             Self::RestoreFlow => "Load Flow File",
             Self::TrySayScreen => "Try a Say Screen Right Now",
+            Self::SayPrompt => "Say: Write a Screen from a Prompt",
             Self::NewProject => "New Project\u{2026}",
             Self::OpenFolder => "Open Folder…",
             Self::RestoreSample => "Restore Sample Buffer",
@@ -625,6 +672,7 @@ impl Command {
             Self::ToggleDamageOverlay => "Show Repainted Regions",
             Self::ToggleSemanticsOverlay => "Show Semantics Tree",
             Self::PickWidget => "Pick a Widget to Inspect",
+            Self::ToggleCanvasEdit => "Preview: Edit Say on Canvas",
             Self::ToggleComment => "Toggle Comment",
             Self::Indent => "Indent",
             Self::Outdent => "Outdent",
@@ -698,6 +746,15 @@ impl Command {
             Self::ShowShortcuts => "Keyboard Shortcuts",
             Self::TogglePreviewNote => "Show or Hide the Preview Note",
             Self::CreateLiveFile => "Create live.rs for the Live Preview",
+            Self::MaterializeFlow => "Materialize the Live Flow as Say",
+            Self::ExtractWidget => "Extract Widget as Component",
+            Self::AddComponentLibrary => "Add Component Library…",
+            Self::SyncComponentLibraries => "Sync Component Libraries",
+            Self::ShareBuffer => "Share This Buffer for Collaboration",
+            Self::ReloadPlugins => "Reload Studio Plugins",
+            Self::CheckForUpdates => "Check for Updates",
+            Self::DownloadUpdate => "Download the Update",
+            Self::DownloadSdk => "Download the vieww SDK (First Launch)",
         }
     }
 
@@ -706,6 +763,7 @@ impl Command {
     pub const fn menu(self) -> Menu {
         match self {
             Self::TrySayScreen
+            | Self::SayPrompt
             | Self::NewProject
             | Self::OpenFolder
             | Self::RestoreSample
@@ -782,6 +840,7 @@ impl Command {
             | Self::ToggleDamageOverlay
             | Self::ToggleSemanticsOverlay
             | Self::PickWidget
+            | Self::ToggleCanvasEdit
             | Self::ToggleAutoRender => Menu::Render,
             Self::Render
             | Self::CancelRender
@@ -805,6 +864,19 @@ impl Command {
             Self::ShowToolchain | Self::ShowShortcuts => Menu::Help,
             Self::TogglePreviewNote => Menu::View,
             Self::CreateLiveFile => Menu::Render,
+            Self::MaterializeFlow => Menu::Render,
+            Self::ExtractWidget => Menu::Render,
+            Self::AddComponentLibrary | Self::SyncComponentLibraries => Menu::Render,
+            // Sharing is a thing one does with a file, and the File menu is
+            // where every desktop puts it.
+            Self::ShareBuffer => Menu::File,
+            // Plugins are a thing somebody installs once and reloads rarely;
+            // the palette is where its name is typed, and the File menu is
+            // where the studio's other "bring something in" commands live.
+            Self::ReloadPlugins => Menu::File,
+            // Updates and the SDK are questions about the studio itself, and
+            // Help is where every desktop puts those.
+            Self::CheckForUpdates | Self::DownloadUpdate | Self::DownloadSdk => Menu::Help,
             Self::CloseFind
             | Self::ClearOutput
             | Self::ClearFinishedTasks
@@ -904,7 +976,8 @@ impl Command {
             Self::AddCursorBelow => Chord::cmd_named(NamedKey::ArrowDown).with_alt(),
             Self::AddCursorAbove => Chord::cmd_named(NamedKey::ArrowUp).with_alt(),
             Self::AddCursorAtNextOccurrence => Chord::cmd("d"),
-            Self::TrySayScreen
+            Self::SayPrompt
+            | Self::TrySayScreen
             | Self::Indent
             | Self::Outdent
             | Self::ClearOutput
@@ -953,6 +1026,7 @@ impl Command {
             | Self::ToggleDamageOverlay
             | Self::ToggleSemanticsOverlay
             | Self::PickWidget
+            | Self::ToggleCanvasEdit
             | Self::ShowTokens
             | Self::ToggleAnalyzer
             | Self::RestartAnalyzer
@@ -971,6 +1045,29 @@ impl Command {
             | Self::ToggleAutoRender
             | Self::ShowShortcuts
             | Self::TogglePreviewNote
+            // No chord on purpose: it writes a file into the project, and a
+            // keystroke that does that belongs behind a name somebody chose.
+            | Self::MaterializeFlow
+            // Nor one for extraction: it rewrites the buffer *and* writes a
+            // file, and both acts belong behind a picked subtree rather than
+            // a reflex.
+            | Self::ExtractWidget
+            // Nor for the libraries: both reach the network through git.
+            | Self::AddComponentLibrary
+            | Self::SyncComponentLibraries
+            // Nor one for sharing: a session other people join is a decision,
+            // not a reflex.
+            | Self::ShareBuffer
+            // Nor one for plugins: loading somebody's code into this process
+            // is the most consequential thing a command here can do, and it
+            // belongs behind a name that was read, not a chord that was
+            // brushed.
+            | Self::ReloadPlugins
+            // Nor the update downloads: several hundred megabytes over the
+            // user's network, behind a name that was read.
+            | Self::CheckForUpdates
+            | Self::DownloadUpdate
+            | Self::DownloadSdk
             | Self::CreateLiveFile => return None,
             // The chord every editor uses for completion, and the one people
             // press without thinking.
@@ -1012,6 +1109,18 @@ impl Command {
             .copied()
             .filter(|command| subsequence(&query, &command.title().to_lowercase()))
             .collect()
+    }
+
+    /// Whether `title` matches `query` the way a palette row's does.
+    ///
+    /// ST-13: the plugin commands the palette lists after the studio's own
+    /// are matched by the same subsequence rule, so "cnt" finds a plugin's
+    /// "Count TODOs" exactly as it would find a studio command of that name —
+    /// one palette, one idea of what a match is, two producers.
+    #[must_use]
+    pub fn title_matches(query: &str, title: &str) -> bool {
+        let query = query.trim().to_lowercase();
+        subsequence(&query, &title.to_lowercase())
     }
 }
 

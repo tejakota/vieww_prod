@@ -1,0 +1,108 @@
+#!/usr/bin/env python3
+"""gen_sbr_tables.py <libfaad-dir> [<fdk-aac-dir>] > src/codec/sbr_tables.rs
+
+Writes the tabulated data of ISO/IEC 14496-3 that HE-AAC needs — the QMF
+prototype window (Table 4.A.89), the SBR noise table V (4.A.88), the ten
+SBR and ten PS Huffman books, the PS hybrid-filter prototypes — transcribed
+from libfaad2's sources (the faad2-sys 0.1.0 crate vendors them:
+`cargo fetch` it, then pass .../faad2-sys-0.1.0/faad2/libfaad).
+
+Given the Fraunhofer FDK sources too (fdk-aac-sys 0.5.0 vendors them:
+.../fdk-aac-sys-0.5.0/aac), every table is cross-checked against that
+second, independent transcription first and the run fails on any
+disagreement: the Huffman books code-for-code, the noise table to FDK's
+16-bit rounding, the QMF window to its 32-bit rounding. Only data with no
+closed form is taken; everything computable is computed in sbr.rs / ps.rs.
+"""
+import glob, os, re, sys
+
+L = sys.argv[1]
+FDK = sys.argv[2] if len(sys.argv) > 2 else None
+def src(f):
+    s=open(f'{L}/{f}').read()
+    s=re.sub(r'/\*.*?\*/','',s,flags=re.S); return re.sub(r'//[^\n]*','',s)
+def body(f,name):
+    s=src(f); m=re.search(re.escape(name)+r'\s*(\[[^\]]*\])*\s*=\s*\{',s)
+    i=m.end(); d=1; j=i
+    while d:
+        if s[j]=='{': d+=1
+        elif s[j]=='}': d-=1
+        j+=1
+    return s[i:j-1]
+def nums(b): return [float(x) for x in re.findall(r'-?\d+\.?\d*(?:[eE][-+]?\d+)?',re.sub(r'FRAC_CONST|COEF_CONST|REAL_CONST|QMF_RE|QMF_IM','',b))]
+
+def _fdk_checks():
+    """Fail unless FDK's independent transcription agrees."""
+    s = open(f"{FDK}/libSBRdec/src/sbr_rom.cpp").read()
+    def arr(txt, name):
+        m = re.search(re.escape(name) + r"[^=]*=\s*[\[{]", txt); i = m.end(); d = 1; j = i
+        while d:
+            d += {"[": 1, "{": 1, "]": -1, "}": -1}.get(txt[j], 0); j += 1
+        return [int(x) for x in re.findall(r"-?\d+", txt[i:j - 1])]
+    def book(t, bias):
+        t = [t[k:k + 2] for k in range(0, len(t), 2)]; out = {}
+        def walk(i, code):
+            for b in (0, 1):
+                n = t[i][b]
+                if n < 0: out[n + bias] = code + str(b)
+                else: walk(n, code + str(b))
+        walk(0, ""); return out
+    pairs = {"FDK_sbrDecoder_sbr_huffBook_EnvLevel10T": ("sbr_huff.c", "t_huffman_env_1_5dB", 64),
+             "FDK_sbrDecoder_sbr_huffBook_EnvLevel10F": ("sbr_huff.c", "f_huffman_env_1_5dB", 64),
+             "FDK_sbrDecoder_sbr_huffBook_EnvBalance10T": ("sbr_huff.c", "t_huffman_env_bal_1_5dB", 64),
+             "FDK_sbrDecoder_sbr_huffBook_EnvBalance10F": ("sbr_huff.c", "f_huffman_env_bal_1_5dB", 64),
+             "FDK_sbrDecoder_sbr_huffBook_EnvLevel11T": ("sbr_huff.c", "t_huffman_env_3_0dB", 64),
+             "FDK_sbrDecoder_sbr_huffBook_EnvLevel11F": ("sbr_huff.c", "f_huffman_env_3_0dB", 64),
+             "FDK_sbrDecoder_sbr_huffBook_EnvBalance11T": ("sbr_huff.c", "t_huffman_env_bal_3_0dB", 64),
+             "FDK_sbrDecoder_sbr_huffBook_EnvBalance11F": ("sbr_huff.c", "f_huffman_env_bal_3_0dB", 64),
+             "FDK_sbrDecoder_sbr_huffBook_NoiseLevel11T": ("sbr_huff.c", "t_huffman_noise_3_0dB", 64),
+             "FDK_sbrDecoder_sbr_huffBook_NoiseBalance11T": ("sbr_huff.c", "t_huffman_noise_bal_3_0dB", 64),
+             "aBookPsIidTimeDecode": ("ps_syntax.c", "t_huff_iid_def", 31),
+             "aBookPsIidFreqDecode": ("ps_syntax.c", "f_huff_iid_def", 31),
+             "aBookPsIidFineTimeDecode": ("ps_syntax.c", "t_huff_iid_fine", 31),
+             "aBookPsIidFineFreqDecode": ("ps_syntax.c", "f_huff_iid_fine", 31),
+             "aBookPsIccTimeDecode": ("ps_syntax.c", "t_huff_icc", 31),
+             "aBookPsIccFreqDecode": ("ps_syntax.c", "f_huff_icc", 31)}
+    for fdk, (f, c, bias) in pairs.items():
+        a = book(arr(s, "const SCHAR " + fdk), 64)
+        b = book([int(x) for x in re.findall(r"-?\d+", body(f, c))], bias)
+        assert a == b, f"{c} disagrees with FDK's {fdk}"
+    i = s.index("FDK_sbrDecoder_sbr_randomPhase["); b = s[i:s.index("};", i)].replace("MAXVAL_SGL", "FL2FXCONST_SGL(1.0f)")
+    fv = [float(x) for x in re.findall(r"FL2FXCONST_SGL\((-?[\d.]+)f\)", b)]
+    v = nums(body("sbr_noise.h", "V"))
+    assert len(fv) == len(v) == 1024 and max(abs(x - y) for x, y in zip(fv, v)) < 2e-5, "noise table"
+    t = open(f"{FDK}/libFDK/src/FDK_tools_rom.cpp").read()
+    i = t.index("const FIXP_PFT qmf_pfilt640[] = {"); b = t[i:t.index("};", i)]
+    h = [int(x, 16) for x in re.findall(r"QFC\(0x([0-9a-f]+)\)", b)]
+    h = [(x - (1 << 32) if x >= 1 << 31 else x) / 2 ** 31 for x in h]
+    q = nums(body("sbr_qmf_c.h", "qmf_c"))
+    # FDK stores the window's first half as 5-tap polyphase rows.
+    assert max(abs(h[n * 5 + k] - q[n + 128 * k]) for n in range(64) for k in range(5)) < 1e-7, "QMF window"
+    sys.stderr.write("cross-checked against FDK: 16 Huffman books, noise table, QMF window\n")
+
+if FDK:
+    _fdk_checks()
+
+out=['//! Normative tables of ISO/IEC 14496-3 for SBR (4.A.6) and PS (8.A),','//! generated by `tools/gen_sbr_tables.py` (transcribed from libfaad2, cross-checked against FDK) — see tools/THIRD_PARTY.md.','//! Do not edit by hand.','','#![allow(clippy::unreadable_literal, clippy::excessive_precision)]','']
+def farr(name,vals,ty='f32'):
+    out.append(f'pub(crate) const {name}: [{ty}; {len(vals)}] = [')
+    for k in range(0,len(vals),4): out.append('    '+' '.join(f'{v!r},' for v in vals[k:k+4]))
+    out.append('];\n')
+q=nums(body('sbr_qmf_c.h','qmf_c')); assert len(q)==640; farr('QMF_C',q)
+v=nums(body('sbr_noise.h','V')); assert len(v)==1024,len(v)
+out.append('pub(crate) const NOISE: [[f32; 2]; 512] = [')
+for k in range(512): out.append(f'    [{v[2*k]!r}, {v[2*k+1]!r}],')
+out.append('];\n')
+def tree(f,c,rust,bias):
+    t=[int(x) for x in re.findall(r'-?\d+',body(f,c))]; assert len(t)%2==0
+    out.append(f'/// Leaves are `value - {bias}`, negative; inner nodes index the table.')
+    out.append(f'pub(crate) const {rust}: [[i8; 2]; {len(t)//2}] = [')
+    for k in range(0,len(t),2): out.append(f'    [{t[k]}, {t[k+1]}],')
+    out.append('];\n')
+for c in ['t_huffman_env_1_5dB','f_huffman_env_1_5dB','t_huffman_env_bal_1_5dB','f_huffman_env_bal_1_5dB','t_huffman_env_3_0dB','f_huffman_env_3_0dB','t_huffman_env_bal_3_0dB','f_huffman_env_bal_3_0dB','t_huffman_noise_3_0dB','t_huffman_noise_bal_3_0dB']:
+    tree('sbr_huff.c',c,'SBR_'+c.upper().replace('HUFFMAN_','').replace('1_5DB','15').replace('3_0DB','30'),64)
+for c in ['f_huff_iid_def','t_huff_iid_def','f_huff_iid_fine','t_huff_iid_fine','f_huff_icc','t_huff_icc','f_huff_ipd','t_huff_ipd','f_huff_opd','t_huff_opd']:
+    tree('ps_syntax.c',c,'PS_'+c.upper().replace('HUFF_',''),31)
+for c in ['p8_13_20','p2_13_20','p12_13_34','p8_13_34','p4_13_34']:
+    farr(c.upper(),nums(body('ps_dec.c',c)))
+sys.stdout.write("\n".join(out))

@@ -108,7 +108,7 @@ impl CustomPainter for CascadePainter {
                     size.height - 20.0,
                 ),
                 radius: 4.0,
-                color: Color::rgb(58, 122, 246),
+                color: Color::rgb(44, 98, 234),
             });
             // The track's own delay, on the baseline, so the stagger is
             // visible as data rather than only as timing.

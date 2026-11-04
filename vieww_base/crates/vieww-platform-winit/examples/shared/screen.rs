@@ -345,6 +345,12 @@ impl Demo {
         &self.taps
     }
 
+    /// What the text field holds, so the IME step can watch an input method
+    /// commit into it (`ci/mobile/device-suite.sh --ime`, FW-11b).
+    pub(crate) fn field(&self) -> &Signal<TextEditingValue> {
+        &self.field
+    }
+
     /// The demo screen: a title, a tap counter, a button, a band that moves, and
     /// a graph of what the last frames cost.
     ///

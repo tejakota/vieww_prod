@@ -76,13 +76,126 @@ pub(crate) struct Target {
     ink: Option<(i32, i32, i32, i32)>,
 }
 
+/// One `composite_flat` draw's per-row work, shared by the serial walk and
+/// the row-parallel one so both are the same code.
+#[derive(Clone, Copy)]
+struct FlatRow<'t> {
+    table: &'t [f32; super::linear::COVERAGE_LEVELS],
+    color: Premul,
+    mode: BlendMode,
+    pipeline: ColorPipeline,
+    normal: bool,
+    replaces: bool,
+}
+
+impl FlatRow<'_> {
+    /// `color` through the coverage `raw` over `dst` (one row's visible span).
+    fn paint(&self, dst: &mut [Premul], raw: &[f32], scratch: &mut Vec<f32>) {
+        let (table, color, replaces) = (self.table, self.color, self.replaces);
+        let span = raw.len();
+        if self.normal {
+            // **The covered middle skips the gamma.** A shape's row is
+            // antialiased edges around a run of full coverage, and
+            // `coverage_alpha` is the identity at and above 1.0 — so that run
+            // is its own mask, and for an opaque colour (where
+            // `over_flat_row` stores `color` at c >= 1) it is a fill. Mapping
+            // it through the table into the scratch first was most of
+            // `composite_flat`'s cost on a panel-heavy frame (callgrind,
+            // `00-layers-nested`, FW-07). Same bytes: the edges still go
+            // through the shared transfer.
+            let lo = raw.iter().position(|&c| c >= 1.0).unwrap_or(span);
+            let hi = raw.iter().rposition(|&c| c >= 1.0).map_or(lo, |i| i + 1);
+            if hi - lo >= 16 && raw[lo..hi].iter().all(|&c| c >= 1.0) {
+                for (from, to) in [(0, lo), (hi, span)] {
+                    if from < to {
+                        scratch.clear();
+                        scratch.extend(
+                            raw[from..to]
+                                .iter()
+                                .map(|c| super::linear::coverage_alpha_in(table, *c)),
+                        );
+                        super::simd::over_flat_row(&mut dst[from..to], scratch, color, replaces);
+                    }
+                }
+                if replaces {
+                    dst[lo..hi].fill(color);
+                } else {
+                    super::simd::over_flat_row(&mut dst[lo..hi], &raw[lo..hi], color, false);
+                }
+                return;
+            }
+        }
+        // The coverage gamma, applied once per row into the scratch, so the
+        // SIMD and scalar paths below read the same transferred values —
+        // byte-identity survives because the transfer is shared, not because
+        // each loop re-implements it.
+        scratch.clear();
+        scratch.extend(
+            raw.iter()
+                .map(|c| super::linear::coverage_alpha_in(table, *c)),
+        );
+        let mask = scratch.as_slice();
+        // The normal blend in gamma space — nearly every draw — is the
+        // explicit-SIMD row in `native/simd.rs`, byte-identical to the loop
+        // below specialised to `normal`.
+        if self.normal {
+            super::simd::over_flat_row(dst, mask, color, replaces);
+            return;
+        }
+        for (px, &c) in dst.iter_mut().zip(mask.iter()) {
+            if c <= 0.0 {
+                continue;
+            }
+            if replaces && c >= 1.0 {
+                *px = color;
+                continue;
+            }
+            // No `if c >= 1.0 { color }` fast path to skip `scaled`'s four
+            // multiplies-by-one on a translucent full-coverage pixel: it was
+            // tried, and it cost more than it saved. See `composite_layer`
+            // for the measurement of the pair.
+            let src = color.scaled(c);
+            *px = blend_with_pipeline(self.pipeline, self.mode, src, *px);
+        }
+    }
+}
+
+/// `len` transparent pixels from a *zeroed* allocation.
+///
+/// `vec![Premul::TRANSPARENT; n]` writes every pixel (the zero-value
+/// specialisation does not reach a user struct), and a layer buffer is
+/// megabytes: `00-layers-nested` allocates 24 of them a frame, since the
+/// pool's byte budget keeps only a few idle, and that fill was 6% of the
+/// frame (callgrind, FW-07). A zeroed allocation of that size comes from
+/// fresh pages the kernel already zeroed, and pages nothing draws on are
+/// never touched at all. Same pixels, byte for byte: `TRANSPARENT` is four
+/// `+0.0`, whose bit pattern is all zeros.
+fn transparent_pixels(len: usize) -> Vec<Premul> {
+    const _: () = assert!(std::mem::size_of::<Premul>() == 16);
+    if len == 0 {
+        return Vec::new();
+    }
+    let layout = std::alloc::Layout::array::<Premul>(len).expect("pixel buffer size overflows");
+    // SAFETY: `layout` is non-zero-sized; a null return is handled.
+    let ptr = unsafe { std::alloc::alloc_zeroed(layout) }.cast::<Premul>();
+    if ptr.is_null() {
+        std::alloc::handle_alloc_error(layout);
+    }
+    // SAFETY: `ptr` is a fresh global allocation of exactly `layout`
+    // (`len` `Premul`s, Premul's alignment), so it is valid for a `Vec` of
+    // that capacity; every element is initialised, because `Premul` is
+    // `repr(C)` of four `f32`s and all-zero bits are `+0.0` — which is
+    // `Premul::TRANSPARENT`.
+    unsafe { Vec::from_raw_parts(ptr, len, len) }
+}
+
 impl Target {
     #[must_use]
     pub(crate) fn new(width: u32, height: u32) -> Self {
         Self {
             width,
             height,
-            pixels: vec![Premul::TRANSPARENT; (width as usize) * (height as usize)],
+            pixels: transparent_pixels((width as usize) * (height as usize)),
             write_mask: None,
             ink: None,
             scratch: Vec::new(),
@@ -186,6 +299,7 @@ impl Target {
             pixels: vec![color; (width as usize) * (height as usize)],
             write_mask: None,
             ink: Some((0, 0, width as i32, height as i32)),
+            scratch: Vec::new(),
         }
     }
 
@@ -285,6 +399,7 @@ impl Target {
             coverage.y0 - origin.1 + dy_end,
         );
 
+        let table = super::linear::coverage_table();
         for dy in dy_start..dy_end {
             let y = coverage.y0 + dy;
             let ty = y - origin.1;
@@ -296,7 +411,7 @@ impl Target {
                 // full/empty short-circuits there keep the interior and the
                 // skip paths untouched; only the antialiased fringe pays
                 // the table lookup.
-                let c = super::linear::coverage_alpha(mask_row[dx as usize]);
+                let c = super::linear::coverage_alpha_in(table, mask_row[dx as usize]);
                 if c <= 0.0 {
                     continue;
                 }
@@ -395,6 +510,7 @@ impl Target {
         // equal-channel branch and the gray path are one implementation.
         let c = Premul::from_straight(color);
 
+        let table = super::linear::coverage_table();
         for dy in dy_start..dy_end {
             let y = coverage.y0 + dy;
             let ty = y - origin.1;
@@ -417,9 +533,9 @@ impl Target {
                 // `gamma(mask) * clip` — exactly the gray path's product —
                 // and the equal-channel branch below stays bit-identical to
                 // the gray compositor, clip and all.
-                let kr = super::linear::coverage_alpha(mask_row[base]);
-                let kg = super::linear::coverage_alpha(mask_row[base + 1]);
-                let kb = super::linear::coverage_alpha(mask_row[base + 2]);
+                let kr = super::linear::coverage_alpha_in(table, mask_row[base]);
+                let kg = super::linear::coverage_alpha_in(table, mask_row[base + 1]);
+                let kb = super::linear::coverage_alpha_in(table, mask_row[base + 2]);
                 let (kr, kg, kb) = if clip >= 1.0 {
                     (kr, kg, kb)
                 } else {
@@ -517,71 +633,64 @@ impl Target {
             coverage.y0 - origin.1 + dy_end,
         );
 
-        for dy in dy_start..dy_end {
-            let ty = coverage.y0 + dy - origin.1;
-            // The left edge of the row's visible span, computed in `i32`
-            // **before** the cast. `coverage.x0 - origin.0` can legitimately be
-            // negative — a glyph whose bounding box starts a pixel left of its
-            // layer's declared bounds is the common case — and casting that
-            // negative straight to `usize` wraps it to near 2^64 and overflows
-            // the add below. The clamping above guarantees
-            // `coverage.x0 - origin.0 + dx_start >= 0`: `dx_start` is either 0
-            // (the offset itself was >= `wx0 >= 0`) or exactly
-            // `wx0 - (coverage.x0 - origin.0)`, which cancels the offset back
-            // up to `wx0`. The general `composite_coverage` path already does
-            // its add-then-cast in this order, per pixel; this fast path must
-            // match it with `dx_start`.
-            let x_left = coverage.x0 - origin.0 + dx_start;
-            debug_assert!(
-                ty >= 0 && x_left >= 0,
-                "clamped span must land inside the buffer"
-            );
-            let base = ty as usize * self.width as usize + x_left as usize;
-            let span = (dx_end - dx_start) as usize;
+        let table = super::linear::coverage_table();
+        let row = FlatRow {
+            table,
+            color,
+            mode,
+            pipeline,
+            normal,
+            replaces,
+        };
+        // Both clamps above guarantee the span's left edge lands in the
+        // buffer: `dx_start` is 0 (the offset itself was >= `wx0 >= 0`) or
+        // exactly `wx0 - (coverage.x0 - origin.0)`, which cancels back to
+        // `wx0`. Computed in `i32` before the cast — `coverage.x0 - origin.0`
+        // is legitimately negative for a glyph overhanging its layer.
+        let x_left = coverage.x0 - origin.0 + dx_start;
+        let ty0 = coverage.y0 + dy_start - origin.1;
+        debug_assert!(
+            ty0 >= 0 && x_left >= 0,
+            "clamped span must land inside the buffer"
+        );
+        let width = self.width as usize;
+        let rows = (dy_end - dy_start) as usize;
+        let span = (dx_end - dx_start) as usize;
+        let (x_left, ty0) = (x_left as usize, ty0 as usize);
+        let band = &mut self.pixels[ty0 * width..(ty0 + rows) * width];
+        let paint_rows = |band: &mut [Premul], first: usize, scratch: &mut Vec<f32>| {
+            for (k, line) in band.chunks_exact_mut(width).enumerate() {
+                let dy = (dy_start as usize + first + k) as u32;
+                let raw = &coverage.row(dy)[dx_start as usize..dx_end as usize];
+                row.paint(&mut line[x_left..x_left + span], raw, scratch);
+            }
+        };
 
-            // The coverage gamma, applied once per row into the scratch, so
-            // the SIMD and scalar paths below read the same transferred
-            // values — byte-identity survives because the transfer is shared,
-            // not because each loop re-implements it.
-            self.scratch.clear();
-            self.scratch.extend(
-                coverage.row(dy as u32)[dx_start as usize..dx_end as usize]
-                    .iter()
-                    .map(|c| super::linear::coverage_alpha(*c)),
-            );
-            let mask = self.scratch.as_slice();
-            let row = &mut self.pixels[base..base + span];
-            // The normal blend in gamma space — nearly every draw — is the
-            // explicit-SIMD row in `native/simd.rs`, byte-identical to the
-            // loop below specialised to `normal`.
-            if normal {
-                super::simd::over_flat_row(row, mask, color, replaces);
-                continue;
-            }
-            for (px, &c) in row.iter_mut().zip(mask.iter()) {
-                if c <= 0.0 {
-                    continue;
-                }
-                if replaces && c >= 1.0 {
-                    *px = color;
-                    continue;
-                }
-                // No `if c >= 1.0 { color }` fast path to skip `scaled`'s four
-                // multiplies-by-one on a translucent full-coverage pixel: it
-                // was tried, and it cost more than it saved. See
-                // `composite_layer` for the measurement of the pair.
-                let src = color.scaled(c);
-                if normal && src.a == 1.0 {
-                    *px = src;
-                    continue;
-                }
-                *px = if normal {
-                    over(src, *px)
-                } else {
-                    blend_with_pipeline(pipeline, mode, src, *px)
-                };
-            }
+        // **Rows in parallel** for a big enough draw, on the rasterizer's
+        // own worker count and size gate. A pixel's result depends only on
+        // its own coverage and destination, so splitting the band changes
+        // which thread computes it, never what — bytes are identical at any
+        // worker count. On the 2-core/4-thread reference laptop this halves
+        // the compositing half of a panel-heavy frame (FW-07).
+        let workers = super::geometry::fill::composite_workers(span as u32, rows as u32);
+        if workers <= 1 {
+            let mut scratch = std::mem::take(&mut self.scratch);
+            paint_rows(band, 0, &mut scratch);
+            self.scratch = scratch;
+            return;
         }
+        let chunk = rows.div_ceil(workers);
+        std::thread::scope(|scope| {
+            let mut pieces = band.chunks_mut(chunk * width).enumerate();
+            let first = pieces.next();
+            for (n, piece) in pieces {
+                let paint_rows = &paint_rows;
+                scope.spawn(move || paint_rows(piece, n * chunk, &mut Vec::new()));
+            }
+            if let Some((_, piece)) = first {
+                paint_rows(piece, 0, &mut self.scratch);
+            }
+        });
     }
 
     /// [`composite_coverage`](Self::composite_coverage) for a gradient with no
@@ -619,6 +728,7 @@ impl Target {
             coverage.y0 - origin.1 + dy_end,
         );
 
+        let table = super::linear::coverage_table();
         for dy in dy_start..dy_end {
             let y = coverage.y0 + dy;
             let ty = y - origin.1;
@@ -641,7 +751,7 @@ impl Target {
                 // The coverage gamma — see `linear::coverage_alpha` — for
                 // the same reason the flat-fill loop applies it: coverage
                 // is area, alpha is light.
-                let c = super::linear::coverage_alpha(mask_row[dx as usize]);
+                let c = super::linear::coverage_alpha_in(table, mask_row[dx as usize]);
                 if c <= 0.0 {
                     continue;
                 }
@@ -887,13 +997,43 @@ impl Target {
         self.mark_ink(x_start + ox, y_start + oy, x_end + ox, y_end + oy);
         let opaque_copy = alpha == 1.0;
         let (ow, sw) = (other.width as usize, self.width as usize);
-        for y in y_start..y_end {
-            let src_row = y as usize * ow;
-            let dst_row = (y + oy) as usize * sw;
-            let src = &mut other.pixels[src_row + x_start as usize..src_row + x_end as usize];
-            let dst = &mut self.pixels
-                [dst_row + (x_start + ox) as usize..dst_row + (x_end + ox) as usize];
-            super::simd::over_layer_row_take(dst, src, alpha, opaque_copy);
+        let rows = (y_end - y_start) as usize;
+        let (sx0, sx1) = (x_start as usize, x_end as usize);
+        let (dx0, dx1) = ((x_start + ox) as usize, (x_end + ox) as usize);
+        let src_band = &mut other.pixels[y_start as usize * ow..y_end as usize * ow];
+        let dst_band = &mut self.pixels[(y_start + oy) as usize * sw..(y_end + oy) as usize * sw];
+        let take_rows = |dst: &mut [Premul], src: &mut [Premul]| {
+            for (d, s) in dst.chunks_exact_mut(sw).zip(src.chunks_exact_mut(ow)) {
+                super::simd::over_layer_row_take(
+                    &mut d[dx0..dx1],
+                    &mut s[sx0..sx1],
+                    alpha,
+                    opaque_copy,
+                );
+            }
+        };
+        // Rows in parallel past the rasterizer's size gate, as in
+        // `composite_flat`: each pixel's result is its own source and
+        // destination, so the split cannot change a byte (FW-07).
+        let workers =
+            super::geometry::fill::composite_workers((x_end - x_start) as u32, rows as u32);
+        if workers <= 1 {
+            take_rows(dst_band, src_band);
+        } else {
+            let chunk = rows.div_ceil(workers);
+            std::thread::scope(|scope| {
+                let mut pairs = dst_band
+                    .chunks_mut(chunk * sw)
+                    .zip(src_band.chunks_mut(chunk * ow));
+                let first = pairs.next();
+                for (d, s) in pairs {
+                    let take_rows = &take_rows;
+                    scope.spawn(move || take_rows(d, s));
+                }
+                if let Some((d, s)) = first {
+                    take_rows(d, s);
+                }
+            });
         }
         other.ink = None;
     }
@@ -981,7 +1121,28 @@ impl Target {
         assert_eq!(out.len(), self.pixels.len() * 4);
         // Four pixels per SSE2 step on x86-64, the scalar path elsewhere and
         // for the tail — the same bytes either way; see `write_straight_u8`.
-        write_straight_u8(&self.pixels, out);
+        //
+        // Split into row bands across the rasterizer's workers past its size
+        // gate: the conversion is per pixel, so where a band starts changes
+        // nothing — and bands are whole rows of a multiple of four pixels
+        // where possible, so the SIMD/tail split even lands the same (FW-07).
+        let workers = super::geometry::fill::composite_workers(self.width, self.height);
+        if workers <= 1 {
+            write_straight_u8(&self.pixels, out);
+            return;
+        }
+        let rows = (self.height as usize).div_ceil(workers);
+        let chunk = (rows * self.width as usize).next_multiple_of(4);
+        std::thread::scope(|scope| {
+            let mut bands = self.pixels.chunks(chunk).zip(out.chunks_mut(chunk * 4));
+            let first = bands.next();
+            for (pixels, bytes) in bands {
+                scope.spawn(move || write_straight_u8(pixels, bytes));
+            }
+            if let Some((pixels, bytes)) = first {
+                write_straight_u8(pixels, bytes);
+            }
+        });
     }
 
     /// Resize if needed and refill with `color`, reusing this buffer's
@@ -1074,6 +1235,14 @@ mod tests {
     /// `composite_layer_and_clear` is `composite_layer` followed by a clear,
     /// on both of its paths: the fused one (the whole ink box is read) and
     /// the fallback (a write mask cuts the read, so the pool must clear).
+    #[test]
+    fn a_new_target_is_transparent() {
+        let t = Target::new(7, 5);
+        assert_eq!(t.pixels.len(), 35);
+        assert!(t.pixels.iter().all(|p| *p == Premul::TRANSPARENT));
+        assert!(Target::new(0, 9).pixels.is_empty());
+    }
+
     #[test]
     fn composite_and_clear_matches_composite_then_clear() {
         let tint = |x: u32, y: u32| Premul {

@@ -123,6 +123,7 @@ pub fn run(project_dir: &Path, runs: u32) -> Result<Report, String> {
                 listeners: Vec::new(),
                 config: None,
                 allow_private_network: false,
+                browser_loopback: false,
                 resume: None,
                 no_cache: i == 0,
                 reproducible: false,

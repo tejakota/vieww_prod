@@ -105,6 +105,11 @@ pub struct TextField {
     obscure: Obscured,
     placeholder: String,
     placeholder_color: Option<Color>,
+    /// What the semantics tree calls this field, when the placeholder cannot
+    /// be that. See the render object's own `semantics_label` doc.
+    semantics_label: Option<String>,
+    /// Take the keyboard when mounted. See [`TextField::autofocus`].
+    autofocus: bool,
     key: Option<Key>,
     spans: Option<Vec<TextSpan>>,
     diagnostic_lines: Option<(Rc<Vec<usize>>, Color)>,
@@ -136,6 +141,8 @@ impl TextField {
             obscure: Obscured::No,
             placeholder: String::new(),
             placeholder_color: None,
+            semantics_label: None,
+            autofocus: false,
             key: None,
             spans: None,
             diagnostic_lines: None,
@@ -389,6 +396,45 @@ impl TextField {
     #[must_use]
     pub const fn placeholder_shade(&self) -> Option<Color> {
         self.placeholder_color
+    }
+
+    /// Name the field for a screen reader without drawing a placeholder.
+    ///
+    /// For a field whose purpose is already visible *beside* it — a property
+    /// grid's row label, an editor under a tab with the file's name — the
+    /// placeholder cannot carry the label without changing what the field
+    /// looks like. This is the label alone: it reaches the semantics tree and
+    /// nothing else, and it wins over the placeholder when both are set.
+    #[must_use]
+    pub fn semantics_label(mut self, label: impl Into<String>) -> Self {
+        self.semantics_label = Some(label.into());
+        self
+    }
+
+    /// Take the keyboard as soon as the field appears — once, when it is
+    /// mounted, not on every rebuild after.
+    ///
+    /// For a field that *is* the interaction when it appears: a command
+    /// palette's filter, a search box opened from a shortcut, a rename field.
+    /// Without it the keyboard stays where it was and the first keystrokes
+    /// go to whatever had focus before. Only an editable field (one with an
+    /// `on_changed`) can take focus, so this does nothing on a read-only one.
+    #[must_use]
+    pub const fn autofocus(mut self, autofocus: bool) -> Self {
+        self.autofocus = autofocus;
+        self
+    }
+
+    /// Whether the field asked for focus on mount.
+    #[must_use]
+    pub const fn wants_autofocus(&self) -> bool {
+        self.autofocus
+    }
+
+    /// The label a screen reader will hear, if one was given explicitly.
+    #[must_use]
+    pub fn accessibility_label(&self) -> Option<&str> {
+        self.semantics_label.as_deref()
     }
 
     /// Supply syntax-highlighted styled runs for the editable text.

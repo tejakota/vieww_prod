@@ -973,6 +973,115 @@ mod fallback_tests {
         }
     }
 
+    /// FW-16: the first frame draws on the embedded faces while the scan runs,
+    /// and it can never draw on a *partial* store — nothing is taken until the
+    /// whole scan has finished, so pre-adoption text is exactly the embedded
+    /// shaping, never a half-populated system one that would reflow twice.
+    ///
+    /// Deterministic by construction: the hand-over under test is the
+    /// embedded-only one ([`FontStore::embedded_only_in_background`]), which
+    /// finishes in milliseconds on any machine — the real system scan's
+    /// *duration* is the machine's disk and is deliberately not what this
+    /// pins.
+    #[test]
+    fn the_first_frame_cannot_see_a_half_finished_scan() {
+        use std::sync::atomic::{AtomicBool, Ordering};
+        use std::sync::Arc;
+        use std::time::{Duration, Instant};
+
+        let fixture = "The quick brown fox jumps over the lazy dog — שלום עולם";
+        let mut embedded = FontStore::embedded_only();
+        let before = shape(&mut embedded, fixture);
+        assert_eq!(
+            before
+                .runs()
+                .iter()
+                .map(|run| run.missing_count())
+                .sum::<usize>(),
+            0,
+            "the fixture is covered text: the embedded faces must shape all of it"
+        );
+
+        let ready = Arc::new(AtomicBool::new(false));
+        let pending = FontStore::embedded_only_in_background({
+            let ready = Arc::clone(&ready);
+            move || ready.store(true, Ordering::SeqCst)
+        });
+        assert!(
+            pending.try_take().is_none(),
+            "before the scan finishes there is nothing to adopt"
+        );
+
+        let deadline = Instant::now() + Duration::from_secs(30);
+        while !ready.load(Ordering::SeqCst) && Instant::now() < deadline {
+            std::thread::yield_now();
+        }
+        let mut adopted = pending
+            .try_take()
+            .expect("the finished hand-over yields its store");
+        let after = shape(&mut adopted, fixture);
+        assert!(
+            (before.size().width - after.size().width).abs() < 0.01,
+            "adopting must not move a wrap point the embedded faces decided: \
+             {} vs {}",
+            before.size().width,
+            after.size().width
+        );
+        assert_eq!(
+            after
+                .runs()
+                .iter()
+                .map(|run| run.missing_count())
+                .sum::<usize>(),
+            0,
+            "and the adopted store still covers it all"
+        );
+    }
+
+    /// FW-16: the *system* hand-over keeps the same guarantee — the frame a
+    /// user sees while the scan runs is the one they keep. A reflash is a
+    /// layout that moves: same fixture, shaped on the embedded store (the
+    /// first frame) and on the adopted system store (every frame after), with
+    /// identical metrics. The blocking variant of this equality is
+    /// `the_fallback_store_keeps_embedded_metrics_for_covered_text`; this is
+    /// the background path that `App::run` actually takes.
+    ///
+    /// The scan here is the machine's real one — the suite already runs the
+    /// blocking scan in that test, so this adds no new cost class, only the
+    /// hand-over under test.
+    #[test]
+    fn the_background_system_handover_keeps_covered_text_still() {
+        let fixture = "The quick brown fox jumps over the lazy dog — שלום עולם";
+        let mut first_frame = FontStore::embedded_only();
+        let before = shape(&mut first_frame, fixture);
+
+        let pending = FontStore::system_fallback_in_background(|| {});
+        let mut adopted = pending.wait().expect("the scan thread yields a store");
+        let after = shape(&mut adopted, fixture);
+
+        assert!(
+            (before.size().width - after.size().width).abs() < 0.01,
+            "the system fallback arriving mid-session must not reflow covered \
+             text — that is the difference between a swap-in and a reflash: \
+             {} vs {}",
+            before.size().width,
+            after.size().width
+        );
+        assert_eq!(
+            after
+                .runs()
+                .iter()
+                .map(|run| run.missing_count())
+                .sum::<usize>(),
+            0,
+            "covered text stays covered after the adoption"
+        );
+        assert!(
+            adopted.len() >= first_frame.len(),
+            "the adopted store carries the embedded faces behind the system ones"
+        );
+    }
+
     /// The other half: what the subset *does* cover must not be reported
     /// missing, or every screen grows boxes it does not need.
     #[test]

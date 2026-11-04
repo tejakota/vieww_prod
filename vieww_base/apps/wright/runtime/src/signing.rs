@@ -81,6 +81,13 @@ fn file_path() -> PathBuf {
 }
 
 impl SigningKey {
+    /// A key from a known seed with a named provenance — how
+    /// `release_signing_key` builds the env/keychannel-resolved key.
+    /// The seed itself is never stored here, only used.
+    pub fn from_seed(seed: [u8; 32], provenance: Provenance) -> SigningKey {
+        SigningKey { seed, provenance }
+    }
+
     /// The public half, as hex — the receipt carries it so anyone can
     /// verify without asking Wright for anything.
     pub fn public_hex(&self) -> String {
@@ -118,10 +125,7 @@ impl SigningKey {
     /// A fixed key, for tests.
     #[cfg(test)]
     pub fn for_tests(seed: [u8; 32]) -> SigningKey {
-        SigningKey {
-            seed,
-            provenance: Provenance::Ephemeral,
-        }
+        SigningKey::from_seed(seed, Provenance::Ephemeral)
     }
 
     /// Resolve the machine's key: env override, then the OS keychain,
@@ -428,9 +432,10 @@ mod tests {
     use super::*;
 
     /// Env vars are process-wide and tests run in parallel: every test
-    /// that flips one takes this lock, so the settings they see are the
-    /// settings they set.
-    static ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    /// that flips one takes this lock (shared crate-wide, so `team`'s
+    /// tests and these serialize against each other too), so the
+    /// settings they see are the settings they set.
+    use crate::TEST_ENV_LOCK as ENV_LOCK;
 
     fn tmp_home(name: &str) -> PathBuf {
         let d = std::env::temp_dir().join(format!("wright-signing-{name}-{}", std::process::id()));

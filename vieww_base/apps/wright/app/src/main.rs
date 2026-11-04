@@ -45,12 +45,22 @@
 //!   wright secret set <ref>     put a key in the OS keychain
 //!   wright model ...            the built-in models: list | pull [id] | rm <id>
 //!                               | ask "<prompt>" | listen <file.wav>
+//!   wright update check|apply|sign
+//!                               the signed update channel (WR-04): one
+//!                               plain GET of one static manifest, verified
+//!                               against the pinned release key; apply is
+//!                               verify-then-atomic-swap; sign is the
+//!                               publisher's side (the release workflow)
 //!   wright mock-provider        an offline model, for demos and CI
 //!   wright where [dir]          where the project's history lives
+//!   wright team ...              a team without a server (WR-18): join |
+//!                               status | pull | replay | leave — one
+//!                               shared store directory, verifiable receipts
 //!   wright admin ...            the administrator's console: keygen | policy
 //!                               init/sign/show/check | approve [dir] |
 //!                               fleet-verify [folders] [--json]
-//!   wright doctor               what works on this machine
+//!   wright doctor [--fix]      what works on this machine; --fix installs
+//!                               the Windows WSL 2 + Bubblewrap stack
 
 fn main() {
     use wright::cmd;
@@ -97,9 +107,11 @@ fn main() {
         Some("admin") => cmd::admin(rest),
         Some("secret") => cmd::secret(rest),
         Some("model") | Some("models") => cmd::model(rest),
+        Some("update") => cmd::update(rest),
         Some("mock-provider") => cmd::mock_provider(rest),
         Some("where") => cmd::where_(rest),
-        Some("doctor") => cmd::doctor(),
+        Some("team") => cmd::team(rest),
+        Some("doctor") => cmd::doctor(rest),
         Some("ui") => open_ui(rest),
         Some("--version") | Some("-V") => {
             println!("wright {}", env!("CARGO_PKG_VERSION"));

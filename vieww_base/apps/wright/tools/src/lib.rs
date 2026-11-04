@@ -17,15 +17,19 @@
 //! | shell         | any command                                   | [`sandbox`] (net only if granted) |
 //! | http-read     | GET a public URL (≤ 1 MiB, text)              | no private/metadata addresses |
 //! | http-post     | POST to a public URL (body ≤ 1 MiB)           | same; approval-eligible       |
-//! | browser       | (not implemented: refuses loudly)             |                               |
+//! | browser       | render / screenshot-project / assert-visual   | [`browser`] (WR-11)           |
 
 #[cfg(windows)]
 mod appcontainer;
+pub mod browser;
+pub mod degraded;
 pub mod mcp;
 pub mod mcp_install;
 pub mod patch;
 pub mod paths;
+pub mod png;
 pub mod sandbox;
+pub mod setup;
 #[cfg(windows)]
 mod winjob;
 pub mod worker;
@@ -59,6 +63,12 @@ pub struct ToolCtx {
     /// Allow http tools to reach private / loopback addresses. Off by
     /// default (SSRF guard); local development and tests turn it on.
     pub allow_private_network: bool,
+    /// Let the BROWSER tool serve the project's built web output on a
+    /// loopback listener it owns (WR-11). Off by default; opted in with
+    /// `wright run --browser-loopback` or WRIGHT_BROWSER_LOOPBACK=1.
+    /// This is the tool's own private-network reach — it never relaxes
+    /// the http tools' guards (`allow_private_network`).
+    pub browser_loopback: bool,
     /// Extra writable dirs for the sandbox (e.g. CARGO_HOME).
     pub sandbox_extra_rw: Vec<PathBuf>,
     /// The worker this task hands its step to, if any (ADR-026).
@@ -89,6 +99,9 @@ impl ToolCtx {
             secrets: Vec::new(),
             net: NetConfig::from_env(),
             allow_private_network: std::env::var("WRIGHT_ALLOW_PRIVATE_NETWORK")
+                .map(|v| v == "1")
+                .unwrap_or(false),
+            browser_loopback: std::env::var("WRIGHT_BROWSER_LOOPBACK")
                 .map(|v| v == "1")
                 .unwrap_or(false),
             sandbox_extra_rw: Vec::new(),
@@ -164,7 +177,7 @@ pub fn run(permit: Permit, input: &Value, ctx: &ToolCtx) -> Result<ToolOutput, T
         "http-post" => http_post(&permit, input, ctx),
         "worker" => worker::run(&permit, input, ctx),
         "mcp-call" => mcp::run(&permit, input, ctx),
-        "browser" => Err(ToolError::NotImplemented("browser")),
+        "browser" => browser::run(&permit, input, ctx),
         other => Err(ToolError::Failed(format!(
             "tool '{other}' has no implementation"
         ))),
@@ -466,7 +479,10 @@ fn git(permit: &Permit, input: &Value, ctx: &ToolCtx) -> Result<ToolOutput, Tool
     ];
     let mut full_args: Vec<&str> = vec!["-c", "safe.directory=*", "-c", "core.hooksPath=/dev/null"];
     full_args.extend(args.iter().map(String::as_str));
-    let out = sandbox::run("git", &full_args, &pol).map_err(ToolError::Failed)?;
+    let out = match sandbox::run("git", &full_args, &pol) {
+        Ok(out) => out,
+        Err(e) => degraded_run("git", &full_args, &pol, e)?,
+    };
     if out.success() {
         Ok(ToolOutput {
             text: out.report(),
@@ -485,10 +501,66 @@ fn run_tests(permit: &Permit, ctx: &ToolCtx) -> Result<ToolOutput, ToolError> {
     if ctx.test_cmd.is_empty() {
         return Err(ToolError::Failed("this project has no test command (set project.language or project.test in the blueprint)".into()));
     }
-    let out = sandbox::run("/bin/sh", &["-c", &ctx.test_cmd], &policy(permit, ctx, 300))
-        .map_err(ToolError::Failed)?;
+    let pol = policy(permit, ctx, 300);
+    let out = match sandbox::run("/bin/sh", &["-c", &ctx.test_cmd], &pol) {
+        Ok(out) => out,
+        Err(e) => {
+            // The degraded native runner takes the command's words, not
+            // a shell: syntax the WSL sandbox would have interpreted is
+            // refused here instead of half-run.
+            let words: Vec<&str> = ctx.test_cmd.split_whitespace().collect();
+            if words.is_empty() || degraded::has_shell_syntax(&ctx.test_cmd) {
+                return Err(ToolError::Failed(format!(
+                    "{e}. The degraded native runner does not interpret shell syntax ('{}'), so this test command needs the WSL 2 + Bubblewrap sandbox — `wright doctor --fix` installs it",
+                    ctx.test_cmd
+                )));
+            }
+            degraded_run(words[0], &words[1..], &pol, e)?
+        }
+    };
     // A failing test run is a RESULT, not a tool error: the agent must see it.
     ok(format!("$ {}\n{}", ctx.test_cmd, out.report()))
+}
+
+/// WR-14(b): the honest degraded fallback. When the POSIX sandbox's
+/// RUNTIME is missing (not a path-mapping error) on Windows and the
+/// program resolves to a Windows-native binary, run it under WR-05's
+/// containment ladder instead of refusing — tier 2 (AppContainer,
+/// project-only writes) for `.exe`s, tier 1 (Job object only) for
+/// `.cmd` shims — and put the tier IN the report. `shell` never takes
+/// this path; other platforms and other errors stay errors.
+fn degraded_run(
+    program: &str,
+    args: &[&str],
+    pol: &sandbox::Policy,
+    why: String,
+) -> Result<sandbox::RunOutput, ToolError> {
+    #[cfg(target_os = "windows")]
+    if sandbox::capabilities().is_err() {
+        if let Some((bin, _)) = degraded::resolve_native(program) {
+            let owned: Vec<String> = args.iter().map(|a| a.to_string()).collect();
+            match degraded::run_native(&bin, &owned, pol) {
+                Ok((mut out, tier)) => {
+                    // The tier rides IN the output, so the tool report and
+                    // the receipt both carry it — never silent.
+                    out.output = format!("[{tier}]\n{}", out.output);
+                    return Ok(out);
+                }
+                Err(e) => {
+                    return Err(ToolError::Failed(format!(
+                        "the degraded native runner could not run {}: {e}",
+                        bin.display()
+                    )))
+                }
+            }
+        }
+        return Err(ToolError::Failed(format!(
+            "{why}. No Windows-native '{}' either; `wright doctor --fix` installs the WSL 2 + Bubblewrap sandbox",
+            program
+        )));
+    }
+    let _ = (program, args, pol);
+    Err(ToolError::Failed(why))
 }
 
 fn shell(permit: &Permit, input: &Value, ctx: &ToolCtx) -> Result<ToolOutput, ToolError> {
@@ -919,9 +991,20 @@ mod tests {
     #[test]
     fn browser_refuses_loudly() {
         let c = ctx("browser");
-        assert_eq!(
-            call("browser", r#"{"url":"https://x"}"#, &c),
-            Err(ToolError::NotImplemented("browser"))
+        // No browser on this machine (CI and this sandbox have none):
+        // the refusal names what to install. A machine WITH one is
+        // exercised by the self-hosted render loop, not here.
+        let r = call(
+            "browser",
+            r#"{"action":"render","url":"http://93.184.216.34/"}"#,
+            &c,
         );
+        match r {
+            Err(ToolError::Failed(msg)) => assert!(
+                msg.contains("headless browser"),
+                "a refusal that names the problem: {msg}"
+            ),
+            other => panic!("expected a refusal, got {other:?}"),
+        }
     }
 }

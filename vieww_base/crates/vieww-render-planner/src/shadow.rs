@@ -237,6 +237,18 @@ pub struct ShadowFrame {
     /// the raw model's error from the calibrated model's, or an
     /// authoritative decision's provenance from a shadow-only opinion.
     pub mode: PlannerMode,
+    /// The planning profile's CPU fill throughput when this frame was
+    /// planned — the number every CPU prediction on this line divided by.
+    /// `mode` names the profile's provenance; this pair of fields *is* the
+    /// profile, so a receipt states the correction it is looking at rather
+    /// than inferring it from the mode tag: after a promotion the number
+    /// here is the calibrated one (FW-22 — receipts record the calibrated
+    /// profile, not just the fact that some profile was calibrated).
+    pub cpu_fill_mpix_per_sec: f32,
+    /// The planning profile's GPU fill throughput, same provenance. Never
+    /// null: a profile always carries the number, and a device without a
+    /// GPU simply never has a prediction that uses it.
+    pub gpu_fill_mpix_per_sec: f32,
     pub plan: ShadowPlan,
     pub actual: Executor,
     pub actual_ms: f32,
@@ -270,7 +282,9 @@ impl ShadowFrame {
         let opt = |v: Option<f32>| v.map_or_else(|| "null".to_owned(), fmt_f32);
         let _ = write!(
             s,
-            "{{\"frame\":{},\"mode\":\"{}\",\"label\":{},\"width\":{},\"height\":{},\
+            "{{\"frame\":{},\"mode\":\"{}\",\
+             \"cpu_fill_mpix_per_sec\":{},\"gpu_fill_mpix_per_sec\":{},\
+             \"label\":{},\"width\":{},\"height\":{},\
              \"actual\":\"{}\",\"actual_ms\":{},\"fallback\":{},\
              \"recommendation\":\"{}\",\"agrees\":{},\
              \"predicted_plan_ms\":{},\"predicted_all_cpu_ms\":{},\"predicted_all_gpu_ms\":{},\
@@ -278,6 +292,8 @@ impl ShadowFrame {
              \"passes_cpu\":{},\"passes_gpu\":{},\"passes_hybrid\":{},\"passes\":[",
             self.frame,
             self.mode.name(),
+            fmt_f32(self.cpu_fill_mpix_per_sec),
+            fmt_f32(self.gpu_fill_mpix_per_sec),
             json_str(&self.label),
             self.width,
             self.height,
@@ -559,7 +575,17 @@ impl Calibration {
             }
             return;
         }
-        if predicted > 0.0 && frame.actual_ms.is_finite() {
+        // **Launch is not evidence** (FW-22): a frame inside the launch
+        // window never touches the timing buckets this correction and the
+        // gate are computed from — the phones' launch-time CPU cost sat
+        // 34–38% under their steady state (PENDING §4.6: Stylo 22.1 vs
+        // 35.7 ms, A73 11.0 vs 16.6), so launch frames pull the correction
+        // toward numbers the machine cannot sustain once warm. Agreement
+        // still counts — a decision is a decision whenever it is made — and
+        // the recent ring still takes the frame (a window that washes it
+        // out in `TIMING_RING_CAPACITY` frames anyway).
+        let launch = frame.frame < LAUNCH_EXCLUDE_FRAMES;
+        if !launch && predicted > 0.0 && frame.actual_ms.is_finite() {
             let ratio = f64::from(frame.actual_ms) / f64::from(predicted);
             if ratio.is_finite() {
                 match frame.actual {
@@ -575,24 +601,26 @@ impl Calibration {
                 }
             }
         }
-        match frame.actual {
-            Executor::Cpu => {
-                self.cpu_predicted += f64::from(predicted);
-                self.cpu_actual += f64::from(frame.actual_ms);
-                self.cpu_frames += 1;
+        if !launch {
+            match frame.actual {
+                Executor::Cpu => {
+                    self.cpu_predicted += f64::from(predicted);
+                    self.cpu_actual += f64::from(frame.actual_ms);
+                    self.cpu_frames += 1;
+                }
+                Executor::Gpu => {
+                    self.gpu_predicted += f64::from(predicted);
+                    self.gpu_actual += f64::from(frame.actual_ms);
+                    #[expect(
+                        clippy::cast_precision_loss,
+                        reason = "a frame has a handful of passes"
+                    )]
+                    let passes = frame.plan.passes.len() as f64;
+                    self.gpu_overhead += f64::from(device.gpu_dispatch_overhead_ms) * passes;
+                    self.gpu_frames += 1;
+                }
+                Executor::Mixed => {}
             }
-            Executor::Gpu => {
-                self.gpu_predicted += f64::from(predicted);
-                self.gpu_actual += f64::from(frame.actual_ms);
-                #[expect(
-                    clippy::cast_precision_loss,
-                    reason = "a frame has a handful of passes"
-                )]
-                let passes = frame.plan.passes.len() as f64;
-                self.gpu_overhead += f64::from(device.gpu_dispatch_overhead_ms) * passes;
-                self.gpu_frames += 1;
-            }
-            Executor::Mixed => {}
         }
         if frame.agrees() {
             self.agreeing_frames += 1;
@@ -734,6 +762,23 @@ impl Calibration {
 /// frame can be acted on is twice this.
 pub const AUTHORITATIVE_MIN_FRAMES: u64 = 1_000;
 pub const AUTHORITATIVE_MAX_RMSE: f64 = 0.05;
+
+/// How many of a planner's first frames are **launch, not evidence** for
+/// calibration (FW-22). PENDING §4.6 measured the phones' launch-time CPU
+/// cost 34–38% under their steady state (Stylo 22.1 vs 35.7 ms, A73 11.0
+/// vs 16.6) — the profile's round numbers and any startup benchmark both
+/// inherit that bias — so a calibration fed launch frames corrects the
+/// profile toward numbers the machine cannot sustain once warm. Sixty is
+/// the first second at 60 Hz, the same convention the adaptive cadence
+/// uses ("the first second (start-up) is not evidence").
+///
+/// Launch frames still count as *agreement* (a decision is a decision
+/// whenever it is made) and still enter the recent ring (whose window
+/// washes them out in `TIMING_RING_CAPACITY` frames); they never enter
+/// the ratio buckets the profile correction and the gate are computed
+/// from, and [`ShadowPlanner::note_cpu_pass_kind`] /
+/// [`ShadowPlanner::note_gpu_pass_kind`] refuse their samples.
+pub const LAUNCH_EXCLUDE_FRAMES: u64 = 60;
 
 /// How many `(predicted, actual)` frames [`TimingRing`] holds per executor —
 /// the audit's ring buffer's capacity. Two hundred and forty is about four
@@ -888,6 +933,20 @@ impl ShadowPlanner {
         out
     }
 
+    /// [`Self::with_authoritative`], said later: grant the mode machine its
+    /// permission on a planner that already runs. Everything it has
+    /// accumulated survives — the calibration, the measured history, the
+    /// launch window — where replacing the planner with a fresh
+    /// [`Self::with_authoritative`] would restart the launch window (another
+    /// [`LAUNCH_EXCLUDE_FRAMES`] frames of refused samples), drop every
+    /// measurement, and re-run the startup benchmark to get back what it
+    /// just threw away. The gate still starts empty either way: it is
+    /// filled by the frames *after* the grant, which is the honest reading
+    /// of "may I act" — the answer is earned from now, not backdated.
+    pub fn allow_authoritative(&mut self) {
+        self.authoritative_enabled = true;
+    }
+
     #[must_use]
     pub const fn device(&self) -> &DeviceProfile {
         &self.device
@@ -929,12 +988,90 @@ impl ShadowPlanner {
     /// [`measured_kinds`] vocabulary. Zero-duration samples are ignored: a
     /// bucket the timestamps did not touch is an absence, not a measurement.
     ///
-    /// The history only ever *refines an acted-on decision* — see
+    /// Samples inside the launch window are refused too (FW-22): the
+    /// first [`LAUNCH_EXCLUDE_FRAMES`] frames run on boost clocks and cold
+    /// caches, and PENDING §4.6's phones showed exactly that bias. The
+    /// history only ever *refines an acted-on decision* — see
     /// [`Self::plan_for_frame`] — never the shadow log's predictions.
     pub fn note_gpu_pass_kind(&mut self, kind: crate::cost::MeasurementKey, measured_ms: f32) {
+        if self.next_frame < LAUNCH_EXCLUDE_FRAMES {
+            return;
+        }
         if measured_ms > 0.0 && measured_ms.is_finite() {
             self.measured.record_gpu(kind, measured_ms);
         }
+    }
+
+    /// Feed one *measured* CPU time for a kind of work into the measured-cost
+    /// model — the CPU half of the same connection
+    /// [`Self::note_gpu_pass_kind`] wires for the GPU. `measured_ms` is how
+    /// long the work took, `pixels` how many pixels it covered, and the two
+    /// are recorded as a **rate** ([`MeasuredCostModel::record_cpu_rate`])
+    /// so the estimate scales with the pass's own size — the CPU
+    /// rasterizer's cost genuinely does, which an absolute whole-frame
+    /// duration cannot express across varying frame shapes.
+    ///
+    /// The same launch-window refusal applies, and for the same §4.6
+    /// reason. The caller is whatever renders a CPU frame and can time one
+    /// bucket of it: the startup micro-benchmark seeds the `draw` rate
+    /// through [`Self::seed_cpu_fill_benchmark`], a live CPU path that
+    /// times its raster stage per frame would keep it warm.
+    pub fn note_cpu_pass_kind(
+        &mut self,
+        kind: crate::cost::MeasurementKey,
+        measured_ms: f32,
+        pixels: f32,
+    ) {
+        if self.next_frame < LAUNCH_EXCLUDE_FRAMES {
+            return;
+        }
+        self.measured.record_cpu_rate(kind, measured_ms, pixels);
+    }
+
+    /// The measured CPU rate recorded for `kind`, in Mpix/s — the read the
+    /// calibration loop's tests (and a receipt that wants to say what the
+    /// micro-benchmark measured) use; `None` until a sample lands.
+    #[must_use]
+    pub fn measured_cpu_rate(&self, kind: crate::cost::MeasurementKey) -> Option<f32> {
+        self.measured.cpu_rate(kind)
+    }
+
+    /// **The calibration loop's seed step** (FW-22): run the startup CPU
+    /// fill micro-benchmark (`probe`'s, behind this crate's `calibrate`
+    /// feature) and feed *both halves* with its number —
+    ///
+    /// * the planning profile's `cpu_fill_mpix_per_sec` (the heuristic's
+    ///   divisor for every CPU estimate), and
+    /// * the measured model's `draw` rate (the number the acted-on plan
+    ///   prices raster work at, [`Self::note_cpu_pass_kind`]'s own unit).
+    ///
+    /// The scheduler's core count is filled too, unconditionally — the same
+    /// contract `probe::calibrate_cpu_fill` keeps — so a debug build (where
+    /// the benchmark itself refuses to run) still upgrades the profile's
+    /// core guess.
+    ///
+    /// Returns the measured rate when the benchmark ran and was
+    /// plausible, `None` when it kept the profile's guess (a debug build,
+    /// a rasterizer error, an implausible sample — see `probe`'s docs for
+    /// each). The benchmark is a **launch-time** measurement, which is
+    /// precisely why the loop does not stop here: §4.6's phones sat 34–38%
+    /// under their steady state at launch, so the steady frames past
+    /// [`LAUNCH_EXCLUDE_FRAMES`] — through [`Self::observe`] and the
+    /// per-kind notes — are what the profile correction and the measured
+    /// history actually trust.
+    #[cfg(feature = "calibrate")]
+    pub fn seed_cpu_fill_benchmark(&mut self) -> Option<f32> {
+        let cores = crate::probe::detect_cpu_cores();
+        self.device.cpu_cores = cores;
+        self.planning_device.cpu_cores = cores;
+        let rate = crate::probe::measure_fill_rate();
+        if let Some(rate) = rate {
+            self.device.cpu_fill_mpix_per_sec = rate;
+            self.planning_device.cpu_fill_mpix_per_sec = rate;
+            self.measured
+                .record_cpu_rate(measured_kinds::DRAW, 1000.0 / rate, 1_000_000.0);
+        }
+        rate
     }
 
     /// Plan one frame of `scene` at `width`×`height` device pixels.
@@ -954,8 +1091,10 @@ impl ShadowPlanner {
     /// [`Self::plan`], with the per-pass estimates made through
     /// [`Self::measured`] where that history has samples — the plan the
     /// planner would *act on*: real GPU timings for the kinds of work this
-    /// device has already run, the heuristic wherever they are missing
-    /// (which is [`MeasuredCostModel`]'s own contract). Used by
+    /// device has already run, measured CPU rates where a caller has fed
+    /// them (the micro-benchmark's seed, a live CPU path's per-frame
+    /// notes), the heuristic wherever both are missing (which is
+    /// [`MeasuredCostModel`]'s own contract). Used by
     /// [`Self::plan_for_frame`] in [`PlannerMode::Authoritative`] only, for
     /// the module-doc reason: the logged predictions keep the raw model's
     /// meaning, and the model being acted on is the one the gate scores
@@ -1126,6 +1265,11 @@ impl ShadowPlanner {
             width,
             height,
             mode: self.mode,
+            // The profile the plan's predictions divided by, read before
+            // `advance()` can promote it for the *next* frame — the same
+            // convention `mode` above keeps.
+            cpu_fill_mpix_per_sec: self.planning_device.cpu_fill_mpix_per_sec,
+            gpu_fill_mpix_per_sec: self.planning_device.gpu_fill_mpix_per_sec,
             plan,
             actual,
             actual_ms,
@@ -1204,6 +1348,24 @@ mod tests {
         scene
     }
 
+    /// Advance a planner through its launch window with frames that measure
+    /// exactly what they predict — the cheapest honest way to reach the
+    /// steady state the calibration trusts (FW-22: the first
+    /// `LAUNCH_EXCLUDE_FRAMES` frames never touch the ratio buckets, so what
+    /// they measure is irrelevant here; only their count is not).
+    fn past_launch(shadow: &mut ShadowPlanner, plan: &ShadowPlan, size: (u32, u32)) {
+        for _ in 0..LAUNCH_EXCLUDE_FRAMES {
+            shadow.observe(
+                plan.clone(),
+                "launch",
+                size,
+                Executor::Cpu,
+                plan.all_cpu_ms,
+                None,
+            );
+        }
+    }
+
     #[test]
     fn a_cpu_only_profile_recommends_the_cpu_and_agrees_with_a_cpu_frame() {
         let mut shadow = ShadowPlanner::new(DeviceProfile::CPU_ONLY_FALLBACK);
@@ -1243,9 +1405,15 @@ mod tests {
         );
         assert!(!frame.agrees());
         let line = frame.to_json_line();
-        // The mode rides right after the frame number, so a log's frames can
-        // be split by which profile made their predictions.
-        assert!(line.starts_with("{\"frame\":0,\"mode\":\"shadow\",\"label\":\"glass\""));
+        // The mode rides right after the frame number, and the profile's
+        // own numbers ride right after the mode, so a log's frames can be
+        // split by which profile made their predictions — and state the
+        // correction they were made under, not just tag it.
+        assert!(line.starts_with(
+            "{\"frame\":0,\"mode\":\"shadow\",\
+             \"cpu_fill_mpix_per_sec\":250,\"gpu_fill_mpix_per_sec\":8000,\
+             \"label\":\"glass\""
+        ));
         assert!(line.contains("\"fallback\":\"plan incomplete: Blur\""));
         assert!(line.contains("\"agrees\":false"));
         assert!(line.ends_with("]}"));
@@ -1256,12 +1424,23 @@ mod tests {
     fn calibration_recovers_the_throughput_that_would_have_been_right() {
         let device = DeviceProfile::CPU_ONLY_FALLBACK;
         let mut shadow = ShadowPlanner::new(device);
+        let plan = shadow.plan(&flat(), 500, 500).unwrap();
+        past_launch(&mut shadow, &plan, (500, 500));
         for _ in 0..4 {
-            let plan = shadow.plan(&flat(), 500, 500).unwrap();
             // This "device" is exactly twice as slow as the profile claims.
             let actual = plan.all_cpu_ms * 2.0;
-            shadow.observe(plan, "flat", (500, 500), Executor::Cpu, actual, None);
+            shadow.observe(
+                plan.clone(),
+                "flat",
+                (500, 500),
+                Executor::Cpu,
+                actual,
+                None,
+            );
         }
+        // Only the steady frames are in the buckets: the launch window's
+        // sixty are not (FW-22).
+        assert_eq!(shadow.calibration().cpu_frames(), 4);
         let ratio = shadow.calibration().cpu_error_ratio().unwrap();
         assert!((ratio - 2.0).abs() < 1e-4, "{ratio}");
         let fixed = shadow.calibration().calibrated(&device);
@@ -1278,6 +1457,7 @@ mod tests {
         let device = DeviceProfile::DESKTOP_DISCRETE;
         let mut shadow = ShadowPlanner::new(device);
         let plan = shadow.plan(&glass(), 1000, 1000).unwrap();
+        past_launch(&mut shadow, &plan, (1000, 1000));
         // Faster than the assumed dispatch overhead alone: says nothing
         // about fill rate, so the fill rate is left alone.
         shadow.observe(plan, "g", (1000, 1000), Executor::Gpu, 0.0001, None);
@@ -1295,6 +1475,7 @@ mod tests {
         let device = DeviceProfile::CPU_ONLY_FALLBACK;
         let mut steady = ShadowPlanner::new(device);
         let steady_plan = steady.plan(&flat(), 400, 400).unwrap();
+        past_launch(&mut steady, &steady_plan, (400, 400));
         for _ in 0..10 {
             let observed = steady_plan.clone();
             steady.observe(
@@ -1311,6 +1492,7 @@ mod tests {
 
         let mut wild = ShadowPlanner::new(device);
         let wild_plan = wild.plan(&flat(), 400, 400).unwrap();
+        past_launch(&mut wild, &wild_plan, (400, 400));
         for i in 0..10 {
             let observed = wild_plan.clone();
             let factor = if i % 2 == 0 { 1.0 } else { 5.0 };
@@ -1340,7 +1522,11 @@ mod tests {
         let device = DeviceProfile::CPU_ONLY_FALLBACK;
         let mut shadow = ShadowPlanner::new(device);
         let plan = shadow.plan(&flat(), 400, 400).unwrap();
-        for _ in 0..(AUTHORITATIVE_MIN_FRAMES - 1) {
+        // The window the gate counts is steady frames only: the launch
+        // window's sixty never reach it (FW-22), so the full budget is the
+        // gate's own thousand plus the launch window.
+        let need = AUTHORITATIVE_MIN_FRAMES + LAUNCH_EXCLUDE_FRAMES;
+        for _ in 0..(need - 1) {
             let observed = plan.clone();
             shadow.observe(
                 observed,
@@ -1351,6 +1537,10 @@ mod tests {
                 None,
             );
         }
+        assert_eq!(
+            shadow.calibration().cpu_frames(),
+            AUTHORITATIVE_MIN_FRAMES - 1
+        );
         assert!(
             !shadow.calibration().ready(Executor::Cpu),
             "one frame short of the window is not ready, whatever the RMSE"
@@ -1404,7 +1594,10 @@ mod tests {
         let plan = shadow.plan(&flat(), 40, 40).unwrap();
         assert_eq!(plan.recommendation(), Recommendation::Cpu, "test premise");
         let mut acted = 0;
-        for _ in 0..(2 * AUTHORITATIVE_MIN_FRAMES + 10) {
+        // Raw calibration: a thousand steady frames past the launch window;
+        // gate: a thousand more under the corrected profile.
+        let frames = 2 * AUTHORITATIVE_MIN_FRAMES + 2 * LAUNCH_EXCLUDE_FRAMES + 10;
+        for _ in 0..frames {
             let (act, planned) = shadow.plan_for_frame(&flat(), 40, 40);
             let planned = planned.expect("a flat scene always compiles");
             // The live path measures whatever it measures; here it is
@@ -1465,7 +1658,8 @@ mod tests {
         let mut shadow = ShadowPlanner::with_authoritative(DeviceProfile::CPU_ONLY_FALLBACK);
         let plan = shadow.plan(&flat(), 400, 400).unwrap();
         let mut acted = 0;
-        for _ in 0..(2 * AUTHORITATIVE_MIN_FRAMES + 10) {
+        let frames = 2 * AUTHORITATIVE_MIN_FRAMES + 2 * LAUNCH_EXCLUDE_FRAMES + 10;
+        for _ in 0..frames {
             let (act, planned) = shadow.plan_for_frame(&flat(), 400, 400);
             let planned = planned.unwrap();
             shadow.observe(
@@ -1557,7 +1751,8 @@ mod tests {
             heuristic.all_gpu_ms.unwrap() < 40.0,
             "the heuristic's whole-frame GPU prediction for a 1M-pixel glass scene"
         );
-        for _ in 0..(2 * AUTHORITATIVE_MIN_FRAMES + 10) {
+        let frames = 2 * AUTHORITATIVE_MIN_FRAMES + 2 * LAUNCH_EXCLUDE_FRAMES + 10;
+        for _ in 0..frames {
             let (_, planned) = shadow.plan_for_frame(&glass(), 1000, 1000);
             let planned = planned.unwrap();
             let predicted = planned.all_gpu_ms.unwrap();
@@ -1592,6 +1787,10 @@ mod tests {
     #[test]
     fn zero_and_non_finite_samples_never_become_history() {
         let mut shadow = ShadowPlanner::new(DeviceProfile::DESKTOP_DISCRETE);
+        // Past the launch window first, so the refusal below is the
+        // sample's own fault and not the window's (FW-22).
+        let plan = shadow.plan(&glass(), 1000, 1000).unwrap();
+        past_launch(&mut shadow, &plan, (1000, 1000));
         shadow.note_gpu_pass_kind(measured_kinds::DRAW, 0.0);
         shadow.note_gpu_pass_kind(measured_kinds::DRAW, f32::NAN);
         shadow.note_gpu_pass_kind(measured_kinds::DRAW, -1.0);
@@ -1606,6 +1805,349 @@ mod tests {
         assert_eq!(planned.passes, fresh.passes);
         assert!((planned.all_cpu_ms - fresh.all_cpu_ms).abs() < 1e-5);
         assert!((planned.all_gpu_ms.unwrap() - fresh.all_gpu_ms.unwrap()).abs() < 1e-5);
+    }
+
+    // ── the calibration loop (FW-22) ─────────────────────────────────────
+
+    /// One `"key":value` number out of a JSON line — the receipt fields'
+    /// own reader, so the assertions below check numbers, not spellings.
+    fn json_f32(line: &str, key: &str) -> f32 {
+        let start = line
+            .find(&format!("\"{key}\":"))
+            .unwrap_or_else(|| panic!("no {key} in {line}"))
+            + key.len()
+            + 3;
+        let end = line[start..].find(',').map_or(line.len(), |i| start + i);
+        line[start..end]
+            .trim_end_matches('}')
+            .parse()
+            .unwrap_or_else(|_| panic!("{key} is not a number in {line}"))
+    }
+
+    #[test]
+    fn every_receipt_line_records_the_profile_it_was_planned_with() {
+        // The shadow log is a receipt (FW-22), and a receipt says which
+        // profile made the numbers it holds: the fill throughputs ride on
+        // every line, not just the mode tag that names their provenance.
+        let mut shadow = ShadowPlanner::new(DeviceProfile::CPU_ONLY_FALLBACK);
+        let plan = shadow.plan(&flat(), 400, 400).unwrap();
+        let frame = shadow.observe(plan, "flat", (400, 400), Executor::Cpu, 1.0, None);
+        let line = frame.to_json_line();
+        assert_eq!(
+            json_f32(&line, "cpu_fill_mpix_per_sec"),
+            DeviceProfile::CPU_ONLY_FALLBACK.cpu_fill_mpix_per_sec
+        );
+        assert_eq!(
+            json_f32(&line, "gpu_fill_mpix_per_sec"),
+            DeviceProfile::CPU_ONLY_FALLBACK.gpu_fill_mpix_per_sec
+        );
+    }
+
+    #[test]
+    fn authorisation_can_be_granted_to_a_planner_that_already_runs() {
+        // `allow_authoritative` is `with_authoritative` for a planner that
+        // already exists: the measured history and the launch window it
+        // has accumulated survive the grant — where a rebuilt planner
+        // would have restarted both, and re-run the startup benchmark to
+        // get back what it just threw away. The gate still earns its
+        // frames from the grant onward, which is the point.
+        let mut shadow = ShadowPlanner::new(DeviceProfile::CPU_ONLY_FALLBACK);
+        let plan = shadow.plan(&flat(), 400, 400).unwrap();
+        past_launch(&mut shadow, &plan, (400, 400));
+        shadow.note_cpu_pass_kind(measured_kinds::DRAW, 2.0, 1_000_000.0);
+        shadow.allow_authoritative();
+        // The grant kept the history: the rate noted past the window is
+        // still the measured model's, not reset to nothing.
+        let rate = shadow.measured_cpu_rate(measured_kinds::DRAW);
+        assert!((rate.unwrap() - 500.0).abs() < 0.01, "{rate:?}");
+        // And the machine runs from here: promote, fill the gate, act.
+        let frames = 2 * AUTHORITATIVE_MIN_FRAMES + LAUNCH_EXCLUDE_FRAMES + 10;
+        for _ in 0..frames {
+            let (_, planned) = shadow.plan_for_frame(&flat(), 400, 400);
+            let planned = planned.expect("a flat scene always compiles");
+            let predicted = planned.all_cpu_ms;
+            shadow.observe(planned, "flat", (400, 400), Executor::Cpu, predicted, None);
+        }
+        assert_eq!(shadow.mode(), PlannerMode::Authoritative);
+        assert!(shadow.plan_for_frame(&flat(), 400, 400).0.is_some());
+    }
+
+    #[test]
+    fn the_calibration_loop_closes_the_launch_underestimate() {
+        // FW-22's regression, on §4.6's own numbers: the phones' launch-time
+        // CPU cost sat 34–38% under their steady state (Stylo 22.1 vs
+        // 35.7 ms, A73 11.0 vs 16.6), and every number the planner had was
+        // launch-shaped — the profile's round-number guesses, the startup
+        // benchmark. Reproduce the finding synthetically — a profile whose
+        // guess matches the launch frames exactly, a machine whose steady
+        // state is 35.5% slower — and assert the loop closes the
+        // steady-state error to under 10%.
+        let device = DeviceProfile::CPU_ONLY_FALLBACK;
+        let mut shadow = ShadowPlanner::with_authoritative(device);
+        let plan = shadow.plan(&flat(), 400, 400).unwrap();
+        let launch_ms = plan.all_cpu_ms;
+        // 1.55x ⇒ the guess is 35.5% under the steady state: inside the
+        // 34–38% band §4.6 measured.
+        let steady_ms = launch_ms * 1.55;
+        let raw_error = 1.0 - launch_ms / steady_ms;
+        assert!(
+            (0.34..=0.38).contains(&raw_error),
+            "the reproduced finding: {raw_error:.3}"
+        );
+
+        // The launch window, at launch speed: the §4.6 trap, in full —
+        // every one of these frames measures what the guess predicts, so
+        // a calibration that counted them would correct the profile
+        // toward a launch speed the machine cannot sustain once warm.
+        // (Counted, this window's frames would leave the correction at
+        // (60 + 1000×1.55)/1060 = 1.519x instead of the steady 1.55x — a
+        // 2% steady-state residue: under the 10% bound, but a residue the
+        // exclusion removes entirely, and the exact closure below is this
+        // test's teeth.)
+        for _ in 0..LAUNCH_EXCLUDE_FRAMES {
+            shadow.observe(
+                plan.clone(),
+                "launch",
+                (400, 400),
+                Executor::Cpu,
+                launch_ms,
+                None,
+            );
+        }
+        // A thousand steady frames to promote the raw calibration — all
+        // of them post-launch, so the ratio the promotion computes is the
+        // steady one, not a launch/steady blend. Each frame is planned
+        // fresh, the way the live loop does it.
+        for _ in 0..AUTHORITATIVE_MIN_FRAMES {
+            let (_, planned) = shadow.plan_for_frame(&flat(), 400, 400);
+            let planned = planned.expect("a flat scene always compiles");
+            shadow.observe(
+                planned,
+                "steady",
+                (400, 400),
+                Executor::Cpu,
+                steady_ms,
+                None,
+            );
+        }
+        assert_eq!(shadow.mode(), PlannerMode::ShadowCalibrated);
+        // The launch frames contributed nothing to the buckets the
+        // correction was computed from.
+        assert_eq!(shadow.calibration().cpu_frames(), AUTHORITATIVE_MIN_FRAMES);
+
+        // The loop's answer: the calibrated profile, replanned, predicts
+        // the steady state the machine actually sustains — the 34–38%
+        // underestimate closed to under 10% (here, to under a thousandth).
+        let calibrated = shadow.calibration().calibrated(&device);
+        let replanned = ShadowPlanner::new(calibrated)
+            .plan(&flat(), 400, 400)
+            .unwrap();
+        let closed = (replanned.all_cpu_ms - steady_ms).abs() / steady_ms;
+        assert!(
+            closed < 0.10,
+            "the loop left a {:.1}% steady-state error",
+            closed * 100.0
+        );
+        assert!(
+            closed < 0.001,
+            "the exact steady ratio closes exactly: {closed}"
+        );
+
+        // The gate, scoring the corrected profile: a thousand more steady
+        // frames — which the calibrated profile now predicts exactly — and
+        // the machine may act.
+        for _ in 0..AUTHORITATIVE_MIN_FRAMES {
+            let (act, planned) = shadow.plan_for_frame(&flat(), 400, 400);
+            let planned = planned.expect("a flat scene always compiles");
+            shadow.observe(
+                planned,
+                "steady",
+                (400, 400),
+                Executor::Cpu,
+                steady_ms,
+                None,
+            );
+            assert_eq!(act, None, "not authoritative until the gate clears");
+        }
+        assert_eq!(shadow.mode(), PlannerMode::Authoritative);
+        assert_eq!(
+            shadow.calibration().cpu_frames(),
+            2 * AUTHORITATIVE_MIN_FRAMES,
+            "the launch frames never reached the buckets, before or after promotion"
+        );
+
+        // And the receipts recorded the whole trip: the last steady
+        // frame's line carries the calibrated profile — the number the
+        // loop landed on, not the launch-shaped one it started with.
+        let last = shadow
+            .observe(
+                shadow.plan(&flat(), 400, 400).unwrap(),
+                "steady",
+                (400, 400),
+                Executor::Cpu,
+                steady_ms,
+                None,
+            )
+            .to_json_line();
+        // The line's number is the profile's own f32, quantised to the
+        // receipt format's four decimals.
+        let lined = json_f32(&last, "cpu_fill_mpix_per_sec");
+        assert!(
+            (lined - calibrated.cpu_fill_mpix_per_sec).abs() < 1e-3,
+            "{lined} vs {}",
+            calibrated.cpu_fill_mpix_per_sec
+        );
+        assert_ne!(lined, device.cpu_fill_mpix_per_sec);
+
+        // And the acted-on plan carries the calibrated prediction, not the
+        // launch-shaped one the run started with.
+        let (_, acted) = shadow.plan_for_frame(&flat(), 400, 400);
+        let acted = acted.unwrap();
+        let acted_error = (acted.all_cpu_ms - steady_ms).abs() / steady_ms;
+        assert!(
+            acted_error < 0.10,
+            "the acted-on plan is still {:.1}% off the steady state",
+            acted_error * 100.0
+        );
+    }
+
+    #[test]
+    fn launch_frames_alone_produce_no_correction_at_all() {
+        // The honest refusal: a run that never leaves the launch window has
+        // no steady evidence, so the calibration stays empty, the
+        // correction keeps the guess untouched, and — even opted in — the
+        // machine never promotes. The old arithmetic would have "corrected"
+        // the profile from launch frames alone, which is exactly the §4.6
+        // bias.
+        let device = DeviceProfile::CPU_ONLY_FALLBACK;
+        let mut shadow = ShadowPlanner::with_authoritative(device);
+        let plan = shadow.plan(&flat(), 400, 400).unwrap();
+        for _ in 0..(LAUNCH_EXCLUDE_FRAMES - 1) {
+            shadow.observe(
+                plan.clone(),
+                "launch",
+                (400, 400),
+                Executor::Cpu,
+                plan.all_cpu_ms * 3.0,
+                None,
+            );
+        }
+        assert_eq!(shadow.calibration().cpu_frames(), 0);
+        assert!(shadow.calibration().cpu_error_ratio().is_none());
+        let fixed = shadow.calibration().calibrated(&device);
+        assert_eq!(fixed.cpu_fill_mpix_per_sec, device.cpu_fill_mpix_per_sec);
+        assert_eq!(shadow.mode(), PlannerMode::Shadow);
+    }
+
+    #[test]
+    fn launch_samples_never_become_measured_history() {
+        // `note_*_pass_kind` refuses samples inside the launch window —
+        // the measured model the policy eventually acts on must not be
+        // seeded by boost-clock launch timings (§4.6's bias, applied to the
+        // EMA where it would otherwise live forever). Past the window, the
+        // same note lands.
+        let mut shadow = ShadowPlanner::new(DeviceProfile::CPU_ONLY_FALLBACK);
+        shadow.note_cpu_pass_kind(measured_kinds::DRAW, 1.0, 1_000_000.0);
+        assert!(
+            shadow.measured_cpu_rate(measured_kinds::DRAW).is_none(),
+            "a launch-window sample never lands"
+        );
+        let plan = shadow.plan(&flat(), 400, 400).unwrap();
+        past_launch(&mut shadow, &plan, (400, 400));
+        shadow.note_cpu_pass_kind(measured_kinds::DRAW, 2.0, 1_000_000.0);
+        // 2 ms per Mpix is 500 Mpix/s, to f32's own rounding of it.
+        let rate = shadow.measured_cpu_rate(measured_kinds::DRAW).unwrap();
+        assert!((rate - 500.0).abs() < 0.01, "{rate}");
+    }
+
+    #[test]
+    fn cpu_measured_rates_feed_the_plan_actuation_uses() {
+        // The CPU twin of `measured_gpu_kinds_feed_the_plan_actuation_uses`:
+        // once the machine promotes, a measured `draw` rate is what the
+        // acted-on plan prices raster work at — the rate the micro-benchmark
+        // seeds and a live CPU path keeps warm — while the logged plan keeps
+        // the heuristic's meaning for the whole run.
+        let mut shadow = ShadowPlanner::with_authoritative(DeviceProfile::CPU_ONLY_FALLBACK);
+        let heuristic = shadow.plan(&flat(), 400, 400).unwrap();
+        let frames = 2 * AUTHORITATIVE_MIN_FRAMES + 2 * LAUNCH_EXCLUDE_FRAMES + 10;
+        for _ in 0..frames {
+            let (_, planned) = shadow.plan_for_frame(&flat(), 400, 400);
+            let planned = planned.unwrap();
+            let predicted = planned.all_cpu_ms;
+            shadow.observe(planned, "flat", (400, 400), Executor::Cpu, predicted, None);
+        }
+        assert_eq!(shadow.mode(), PlannerMode::Authoritative);
+        // A measured draw rate 5x slower than the profile's guess: 5000 ms
+        // per guessed-Mpix-per-second of throughput, i.e. one Mpix in
+        // 5000/guessed ms.
+        let guessed = shadow.device().cpu_fill_mpix_per_sec;
+        shadow.note_cpu_pass_kind(measured_kinds::DRAW, 5000.0 / guessed, 1_000_000.0);
+        let (_, acted) = shadow.plan_for_frame(&flat(), 400, 400);
+        let acted = acted.unwrap();
+        // The raster pass itself is priced at the measured rate (5x the
+        // heuristic's own estimate for the same pass); the whole-frame
+        // number moves by whatever share raster work is of it.
+        let heuristic_raster = heuristic
+            .passes
+            .iter()
+            .find(|p| p.name == "root_raster")
+            .expect("a raster pass");
+        let acted_raster = acted
+            .passes
+            .iter()
+            .find(|p| p.name == "root_raster")
+            .expect("a raster pass");
+        assert!(
+            acted_raster.cpu_ms > heuristic_raster.cpu_ms * 4.5,
+            "the acted-on plan prices draw work at its measured rate: {} vs {}",
+            acted_raster.cpu_ms,
+            heuristic_raster.cpu_ms
+        );
+        assert!(acted.all_cpu_ms > heuristic.all_cpu_ms * 2.0);
+        // The logged plan is untouched by the measured history.
+        let logged = shadow.plan(&flat(), 400, 400).unwrap();
+        assert!(
+            (logged.all_cpu_ms - heuristic.all_cpu_ms).abs() < 1e-4,
+            "the shadow plan keeps the heuristic's meaning"
+        );
+    }
+
+    #[test]
+    fn the_benchmark_seed_feeds_both_halves_of_the_loop() {
+        // `seed_cpu_fill_benchmark` (the `calibrate` feature) is the loop's
+        // step one: one measurement, both halves — the profile the
+        // heuristic divides by, and the measured model's `draw` rate. In a
+        // debug build the benchmark deliberately does not run, so this
+        // asserts the plumbing on whatever path the build took.
+        let mut shadow = ShadowPlanner::new(DeviceProfile::CPU_ONLY_FALLBACK);
+        let before = shadow.device().cpu_fill_mpix_per_sec;
+        let seeded = seed_if_available(&mut shadow);
+        match seeded {
+            Some(rate) => {
+                assert!((shadow.device().cpu_fill_mpix_per_sec - rate).abs() < 1e-3);
+                assert_eq!(
+                    shadow.measured_cpu_rate(measured_kinds::DRAW),
+                    Some(rate),
+                    "the seed feeds the measured model in the same unit"
+                );
+            }
+            None => {
+                assert_eq!(shadow.device().cpu_fill_mpix_per_sec, before);
+                assert!(shadow.measured_cpu_rate(measured_kinds::DRAW).is_none());
+            }
+        }
+    }
+
+    /// `seed_cpu_fill_benchmark` when the `calibrate` feature is on, `None`
+    /// when it is not — the test above runs on either build.
+    #[cfg(feature = "calibrate")]
+    fn seed_if_available(shadow: &mut ShadowPlanner) -> Option<f32> {
+        shadow.seed_cpu_fill_benchmark()
+    }
+
+    #[cfg(not(feature = "calibrate"))]
+    fn seed_if_available(_shadow: &mut ShadowPlanner) -> Option<f32> {
+        None
     }
 
     #[test]

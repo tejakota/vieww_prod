@@ -14,7 +14,11 @@ name: Hardware (self-hosted Linux and Windows)
 #            |                                      | window (start-up, RSS, idle,
 #            |                                      | fps, stages, RAPL energy),
 #            |                                      | size, stress p95 x5, desktop
-#            |                                      | audio on the real sound card
+#            |                                      | audio on the real sound card,
+#            |                                      | and (WR-15) a docker build +
+#            |                                      | run of `wright export --docker`
+#            |                                      | with the base image pinned by
+#            |                                      | the digest docker resolves
 #   windows  | self-hosted, Windows, X64,           | the same, plus D3D12 on a
 #            |   vieww-windows                      | hardware adapter and the
 #            |                                      | studio's remote preview
@@ -37,13 +41,13 @@ on:
         type: boolean
         default: true
       linux_steps:
-        description: "Linux steps (space-separated): env gpu nvidia gallery baseline size stress desktop audio"
+        description: "Linux steps (space-separated): env gpu nvidia gallery baseline size stress desktop audio wright-docker"
         type: string
-        default: "env gpu nvidia gallery baseline size stress desktop audio"
+        default: "env gpu nvidia gallery baseline size stress desktop audio wright-docker"
       windows_steps:
-        description: "Windows steps (comma-separated): env,gpu,d3d12,gallery,baseline,size,stress,desktop,remote,audio"
+        description: "Windows steps (comma-separated): env,gpu,d3d12,gallery,baseline,size,pipelines,stress,desktop,remote,audio"
         type: string
-        default: "env,gpu,d3d12,gallery,baseline,size,stress,desktop,remote,audio"
+        default: "env,gpu,d3d12,gallery,baseline,size,pipelines,stress,desktop,remote,audio"
       launches:
         description: "Baseline launches per path (CPU and GPU)"
         type: string
@@ -91,7 +95,7 @@ jobs:
           clean: false
       - name: Hardware run
         env:
-          STEPS: ${{ inputs.linux_steps || 'env gpu nvidia gallery baseline size stress desktop audio' }}
+          STEPS: ${{ inputs.linux_steps || 'env gpu nvidia gallery baseline size stress desktop audio wright-docker' }}
           VIEWW_HW_LAUNCHES: ${{ inputs.launches || '5' }}
           VIEWW_HW_OUT: ${{ runner.temp }}/hardware-linux
         # Word-splitting $STEPS is the point: one argument per step.
@@ -122,7 +126,7 @@ jobs:
           clean: false
       - name: Hardware run
         env:
-          STEPS: ${{ inputs.windows_steps || 'env,gpu,d3d12,gallery,baseline,size,stress,desktop,remote,audio' }}
+          STEPS: ${{ inputs.windows_steps || 'env,gpu,d3d12,gallery,baseline,size,pipelines,stress,desktop,remote,audio' }}
           LAUNCHES: ${{ inputs.launches || '5' }}
           OUT: ${{ runner.temp }}\hardware-windows
         run: |

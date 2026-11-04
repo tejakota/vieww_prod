@@ -387,7 +387,7 @@ fn dialog_name(ctx: &BuildContext, handle: &Handle, m: &SayModal) -> WidgetNode 
     let _ = ctx; // this dialog reads nothing from its element
     let mut children: Vec<WidgetNode> = Vec::new();
     // say: profile.say:14  a text field
-    children.push(TextField::new(dialog_name.clone()).on_changed(Rc::new(say::on(handle, |s: &mut SayState, v: TextEditingValue| if let Some(m) = s.modal.as_mut() { m.dialog_name = v; }))).into());
+    children.push(TextField::new(dialog_name.clone()).on_changed(Rc::new(say::on(handle, |s: &mut SayState, v: TextEditingValue| { if let Some(m) = s.modal.as_mut() { m.dialog_name = v; } }))).into());
     let content: WidgetNode = if children.len() == 1 {
         children.remove(0)
     } else {

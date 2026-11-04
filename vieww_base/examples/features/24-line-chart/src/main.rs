@@ -10,7 +10,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .padding(EdgeInsets::all(20.0))
                 .child(
                     LineChart::new(vec![10.0, 25.0, 15.0, 30.0, 20.0, 35.0, 25.0, 40.0])
-                        .color(Color::rgb(58, 122, 246))
+                        .color(Color::rgb(44, 98, 234))
                         .line_width(2.0)
                         .show_dots(true)
                         .size(Size::new(600.0, 220.0)),

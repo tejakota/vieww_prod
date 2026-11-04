@@ -119,16 +119,6 @@ pub mod vulkan;
 // would merge with it and resolve its links from the crate root).
 pub mod scene_exec;
 
-/// The Metal backend (spec §4.3) — macOS and iOS.
-///
-/// Gated twice: here to Apple targets, and the `metal` crate to the same
-/// targets in `Cargo.toml`, so no other build resolves it. Headless clear and
-/// mesh rendering through the shared WGSL library; see `src/metal.rs` for how
-/// it is verified (`ci/check/cross-check.sh` type-checks it from Linux, the
-/// macOS CI leg runs it).
-#[cfg(all(any(target_os = "macos", target_os = "ios"), feature = "metal"))]
-pub mod metal;
-
 /// The Direct3D 12 backend (spec §4.3, landing M8) — Windows.
 ///
 /// **Not compiled on Linux or macOS**, for the same two-layer reason as
@@ -140,3 +130,27 @@ pub mod metal;
 /// no-compile-check-here reason as Metal).
 #[cfg(all(target_os = "windows", feature = "d3d12"))]
 pub mod d3d12;
+/// The Metal backend (spec §4.3) — macOS and iOS.
+///
+/// Gated twice: here to Apple targets, and the `metal` crate to the same
+/// targets in `Cargo.toml`, so no other build resolves it. Headless clear and
+/// mesh rendering through the shared WGSL library; see `src/metal.rs` for how
+/// it is verified (`ci/check/cross-check.sh` type-checks it from Linux, the
+/// macOS CI leg runs it).
+#[cfg(all(any(target_os = "macos", target_os = "ios"), feature = "metal"))]
+pub mod metal;
+
+/// The WebGPU backend (FW-09) — wasm, through the hand-written JS shim.
+///
+/// Gated behind the optional `webgpu` feature (in `Cargo.toml`), which is a
+/// pure `cfg` gate: this backend needs **no dependency at all**, because it
+/// speaks to the browser through raw wasm imports — the `vieww-audio` shim
+/// pattern, not a bindings crate. The module compiles on every target when
+/// the feature is on: the interpreter is written against a bridge trait and
+/// tested natively against a mock. Only the raw import surface (and the
+/// `Device` implementation over it) is `cfg`-gated to `target_arch =
+/// "wasm32"`, where an import module can exist. See the module's own doc
+/// for the contract and what is honestly *not* tested anywhere but a real
+/// browser.
+#[cfg(feature = "webgpu")]
+pub mod webgpu;

@@ -16,13 +16,18 @@
 #   viewwstudio/                     vieww Studio.app/
 #     bin/viewwstudio                  Contents/Info.plist
 #     lib/vieww/                       Contents/MacOS/viewwstudio
-#       vieww-sdk.toml                 Contents/Resources/vieww/
-#       libvieww-<hash>.rlib             vieww-sdk.toml
-#       deps/...                         libvieww-<hash>.rlib
-#       toolchain/bin/rustc              deps/...
-#     share/                             toolchain/bin/rustc
-#       applications/...               Contents/Resources/viewwstudio.icns
-#       icons/...
+#       vieww-sdk.toml                 Contents/Frameworks/libMoltenVK.dylib
+#       libvieww-<hash>.rlib             (+ icd json, see --bundle-moltenvk)
+#       deps/...                       Contents/Resources/vieww/
+#       toolchain/bin/rustc              vieww-sdk.toml
+#     share/                             libvieww-<hash>.rlib
+#       applications/...                 deps/...
+#       icons/...                        toolchain/bin/rustc
+#                                    Contents/Resources/viewwstudio.icns
+#
+# `Contents/Frameworks/libMoltenVK.dylib` is FW-04's addition: the one file a
+# clean-machine launch cannot open the GPU without, and the first path
+# `vieww_hal::vulkan::load_entry` looks in after the system loader.
 #
 # `install::target_dir` knows both layouts, which is what makes the rlibs
 # beside the binary the ones it finds — see that module for the search order.
@@ -41,12 +46,32 @@
 # present; `sdk::Manifest` reads it and refuses a bundle whose compiler is not
 # the one it names.
 #
+# # The split SDK, and the checksums (ST-14)
+#
+# `--split-sdk` cuts that bundle in two. The studio archive loses `lib/vieww`
+# entirely (an application of ~60 MB instead of ~600), and the rlibs, `deps/`
+# and the toolchain ship separately as `viewwstudio-sdk-<os>-<arch>.tar.gz`,
+# with the one top-level directory the updater's
+# `tar --strip-components=1` unpack strips. A first launch offers to download
+# the other half of **its own release** into the directory this script would
+# have filled (`lib/vieww` on Linux and Windows, `Contents/Resources/vieww`
+# on macOS) - see `apps/viewwstudio/src/update.rs`, which also refuses a
+# half from any other release, because the pairing between the binary and its
+# rlibs is the whole doctrine of `sdk::Manifest`.
+#
+# Every run - split or not - also writes `SHA256SUMS` over the release
+# assets, in the shape GNU `sha256sum` writes and the studio's updater reads.
+# The download page has linked `releases/latest/download/SHA256SUMS` since it
+# was written; verification of what was published is a property of the
+# release, not of a flag somebody has to remember to pass.
+#
 # Usage:
 #   packaging/package.sh                 # host platform, release profile, archive only
 #   packaging/package.sh --installers    # and every native installer this host can make
 #   packaging/package.sh --debug         # a faster build, for checking the layout
 #   packaging/package.sh --no-toolchain  # ~600 MB smaller, needs a matching rustc on PATH
 #   packaging/package.sh --symbols       # and viewwstudio-<os>-<arch>-symbols.tar.gz (FW-12)
+#   packaging/package.sh --split-sdk     # a ~60 MB studio archive + viewwstudio-sdk-<os>-<arch>.tar.gz (ST-14)
 #   VIEWWSTUDIO_BUILD=$(git rev-parse --short HEAD) packaging/package.sh
 #   VIEWW_REPO=owner/name packaging/package.sh   # override the repo the site links to
 #
@@ -115,6 +140,18 @@ with_toolchain="yes"
 # part of the bundle. The bundled rlibs keep their line tables, which only
 # makes a guest's own backtraces readable.
 with_symbols=""
+# FW-04: put MoltenVK inside the .app (Contents/Frameworks + the ICD json the
+# Vulkan loader reads). A macOS bundle without it is a bundle that cannot open
+# the GPU on any machine that has no Vulkan SDK and no Homebrew — which is
+# every machine an end user owns. Off by default only because the dylib has to
+# come from somewhere: `--bundle-moltenvk` fails loudly when no source exists,
+# and a run without it prints the absence instead of staying quiet (see the
+# macOS case below).
+bundle_moltenvk_flag=""
+# ST-14: ship the app and the SDK as two archives, so a first launch is a
+# ~60 MB download and the compiler arrives only if it is wanted. See the
+# header for the shape, and apps/viewwstudio/src/update.rs for the fetch.
+split_sdk=
 for arg in "$@"; do
 	case "$arg" in
 	--debug)
@@ -135,12 +172,24 @@ for arg in "$@"; do
 	--with-toolchain) with_toolchain="yes" ;;
 	--no-toolchain) with_toolchain="" ;;
 	--symbols) with_symbols="yes" ;;
+	--bundle-moltenvk) bundle_moltenvk_flag="yes" ;;
+	--split-sdk) split_sdk="yes" ;;
 	*)
 		echo "unknown option: $arg" >&2
 		exit 2
 		;;
 	esac
 done
+
+# ST-14: the split bundle has two halves and no single installer to put them
+# in - a `.deb` built from the app-only tree would carry a description, a
+# `Depends` and an `Installed-Size` that all lie. The two archives are the
+# whole release. (`--dmg` is allowed: on macOS the .dmg *is* the studio
+# archive, and the split run makes it by default.)
+if [ -n "$split_sdk" ] && [ -n "$require_installers$make_deb$make_appimage$make_msi" ]; then
+	echo "--split-sdk produces the two archives; --installers/--deb/--appimage/--msi embed the one-piece bundle - pass one or the other" >&2
+	exit 2
+fi
 
 # **One compiler, named once.**
 #
@@ -172,6 +221,52 @@ Linux) host="linux" ;;
 MINGW* | MSYS* | CYGWIN*) host="windows" ;;
 *) host="linux" ;;
 esac
+
+# ---------------------------------------------------------------- the repository
+#
+# Resolved once, here, because two halves of this script need it and the
+# first is the build itself: `VIEWWSTUDIO_REPO` is stamped into the binary by
+# `build.rs` and read by the studio's updater (ST-14), which refuses to guess
+# where releases come from. Precedence is the download page's: the deliberate
+# override, then Actions, then the clone. The third case - asking the
+# checkout - is `repo_from_git` below.
+#
+# `git remote get-url origin` handles the three URL shapes a clone can carry:
+#
+#   https://github.com/owner/name.git
+#   git@github.com:owner/name.git
+#   ssh://git@github.com/owner/name
+#
+# Anything that is not GitHub, and any directory that is not a clone, yields
+# nothing and falls through to the no-repo messages. The two environment
+# variables still win - `GITHUB_REPOSITORY` is right in Actions even when
+# `origin` is a fork, and `VIEWW_REPO` is the deliberate override.
+repo_from_git() {
+	local url
+	url="$(git -C "$root" remote get-url origin 2>/dev/null)" || return 0
+	case "$url" in
+	*github.com[:/]*) ;;
+	*) return 0 ;;
+	esac
+	# Strip everything up to and including the host, and the optional `.git`.
+	url="${url#*github.com}"
+	url="${url#[:/]}"
+	url="${url%.git}"
+	url="${url%/}"
+	# `owner/name` and nothing else: two segments, no spaces.
+	case "$url" in
+	*/*/*) return 0 ;;
+	*/*) printf '%s' "$url" ;;
+	esac
+}
+repo="${VIEWW_REPO:-${GITHUB_REPOSITORY:-$(repo_from_git)}}"
+# Stamped, not re-resolved in build.rs: this script already knows, and a
+# second resolution in a second language is a second way to disagree with
+# the download page. A pre-set VIEWWSTUDIO_REPO wins - it is the deliberate
+# hand-authored one.
+if [ -n "$repo" ] && [ -z "${VIEWWSTUDIO_REPO:-}" ]; then
+	export VIEWWSTUDIO_REPO="$repo"
+fi
 
 out="$root/target/package"
 rm -rf "$out"
@@ -420,6 +515,81 @@ copy_windows_std() {
 	echo "    verified: the executable imports it"
 }
 
+# FW-04: MoltenVK into the .app — the one file a clean-machine macOS launch
+# cannot open the GPU without.
+#
+# `vieww_hal::vulkan::load_entry` tries `libvulkan.1.dylib` first and then
+# MoltenVK directly, from exactly these places, in this order:
+# `<exe>/../Frameworks/libMoltenVK.dylib` (this function's destination), then
+# `$VULKAN_SDK/lib`, then `/opt/homebrew/lib` and `/usr/local/lib`. A bundle
+# that carries the dylib therefore works on a machine that has none of the
+# sources — the whole point of bundling — and a bundle that does not carries a
+# dependency on the user having installed a Vulkan SDK they have no reason to
+# have.
+#
+# The ICD json goes to `Contents/Resources/vulkan/icd.d/`, the path newer
+# Vulkan loaders search inside a bundle, with its `library_path` rewritten to
+# the dylib's new relative location: a json that still points at
+# `/opt/homebrew/lib/...` describes a library the bundle does not contain.
+# MoltenVK is Apache-2.0, so redistribution is permitted; the licence is
+# therefore not a reason to skip this, and `packaging/moltenvk/` is the
+# deterministic place a release machine without brew or the SDK puts a
+# known-good copy.
+bundle_moltenvk() {
+	local app="$1"
+	local frameworks="$app/Contents/Frameworks"
+	local icd_dir="$app/Contents/Resources/vulkan/icd.d"
+
+	# Where a MoltenVK can come from, in the order `load_entry` prefers the
+	# sources themselves: the SDK (a deliberate install), Homebrew (either
+	# prefix — Apple silicon and Intel), a copy vendored beside this script.
+	local dylib="" icd=""
+	if [ -n "${VULKAN_SDK:-}" ]; then
+		[ -f "$VULKAN_SDK/lib/libMoltenVK.dylib" ] && dylib="$VULKAN_SDK/lib/libMoltenVK.dylib"
+		for d in "$VULKAN_SDK/share/vulkan/icd.d" "$VULKAN_SDK/etc/vulkan/icd.d"; do
+			[ -f "$d/MoltenVK_icd.json" ] && { icd="$d/MoltenVK_icd.json"; break; }
+		done
+	fi
+	if [ -z "$dylib" ]; then
+		for prefix in /opt/homebrew /usr/local; do
+			[ -f "$prefix/lib/libMoltenVK.dylib" ] && { dylib="$prefix/lib/libMoltenVK.dylib"; break; }
+		done
+	fi
+	if [ -z "$icd" ]; then
+		for prefix in /opt/homebrew /usr/local; do
+			[ -f "$prefix/share/vulkan/icd.d/MoltenVK_icd.json" ] && { icd="$prefix/share/vulkan/icd.d/MoltenVK_icd.json"; break; }
+		done
+	fi
+	if [ -z "$dylib" ] && [ -f "$here/moltenvk/libMoltenVK.dylib" ]; then
+		dylib="$here/moltenvk/libMoltenVK.dylib"
+		[ -f "$here/moltenvk/MoltenVK_icd.json" ] && icd="$here/moltenvk/MoltenVK_icd.json"
+	fi
+
+	if [ -z "$dylib" ]; then
+		echo "no libMoltenVK.dylib for --bundle-moltenvk — looked in \$VULKAN_SDK/lib," >&2
+		echo "/opt/homebrew/lib, /usr/local/lib and packaging/moltenvk/. Without it a clean-machine" >&2
+		echo "launch cannot open the GPU (vieww_hal::vulkan::load_entry searches the bundle," >&2
+		echo "the SDK and Homebrew, in that order). Install the Vulkan SDK from lunarg.com," >&2
+		echo "or \`brew install molten-vk\`, or drop a copy in packaging/moltenvk/ and rerun." >&2
+		exit 1
+	fi
+
+	mkdir -p "$frameworks" "$icd_dir"
+	cp "$dylib" "$frameworks/libMoltenVK.dylib"
+	echo "==> MoltenVK: $(basename "$dylib") into Contents/Frameworks"
+	if [ -n "$icd" ]; then
+		# `library_path` rewritten to the bundle's own dylib: relative to the
+		# json's directory, ../../Frameworks/ is where the copy just landed.
+		sed -E 's#"library_path"[[:space:]]*:[[:space:]]*"[^"]*"#"library_path" : "../../Frameworks/libMoltenVK.dylib"#' \
+			"$icd" >"$icd_dir/MoltenVK_icd.json"
+		echo "    MoltenVK_icd.json into Contents/Resources/vulkan/icd.d (library_path rewritten)"
+	else
+		echo "    no MoltenVK_icd.json beside the dylib — vieww-hal's direct-load path"
+		echo "    does not need it, but a bundled vulkan loader would; copy one to"
+		echo "    Contents/Resources/vulkan/icd.d if you ship the loader as well"
+	fi
+}
+
 # Compile a screen against the bundle, exactly as the studio's Render does.
 #
 # **The check this script most needed and did not have.** Everything above can
@@ -471,6 +641,22 @@ rustc = "$rustc_version"
 host = "$rustc_host"
 rlib = "$rlib"
 EOF
+}
+
+# The SDK half of a split release (ST-14): archived on its own, under the
+# stable version-less name the updater asks its own release for, with the
+# one top-level directory its `tar --strip-components=1` unpack strips.
+#
+# `uname -m` mapped to rust's arch spelling, because the name has to match
+# `std::env::consts::ARCH` on the machine that downloads it - arm64 from
+# uname is aarch64 to everything in this repo.
+archive_sdk() {
+	local sdk="$1" arch
+	arch="$(uname -m)"
+	[ "$arch" = arm64 ] && arch=aarch64
+	tar -C "$out" -czf "$out/viewwstudio-sdk-$host-$arch.tar.gz" "$(basename "$sdk")"
+	echo "==> $out/viewwstudio-sdk-$host-$arch.tar.gz"
+	du -sh "$out/viewwstudio-sdk-$host-$arch.tar.gz" | awk '{print "    " $1}'
 }
 
 # A tool that is not there, said once, in the one voice.
@@ -623,14 +809,47 @@ make_msi() {
 	bash "$here/sign.sh" win "$out/viewwstudio-windows-x86_64.msi"
 }
 
+# A macOS-only flag on another host is a mistake about what it does, not a
+# no-op to swallow: refusing names the mistake (FW-04).
+if [ -n "$bundle_moltenvk_flag" ] && [ "$host" != "macos" ]; then
+	echo "--bundle-moltenvk is macOS-only (it fills .app/Contents/Frameworks); this is a $host build" >&2
+	exit 2
+fi
+
 case "$host" in
 macos)
 	app="$out/vieww Studio.app"
+	# A split release's studio archive on macOS is the .dmg - it is the asset
+	# the updater asks for - so make it even when nothing asked for installers.
+	[ -n "$split_sdk" ] && make_dmg="yes"
 	mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 	cp "$binary" "$app/Contents/MacOS/viewwstudio"
-	copy_rlibs "$app/Contents/Resources/vieww"
-	copy_toolchain "$app/Contents/Resources/vieww"
-	verify_bundle "$app/Contents/Resources/vieww"
+	if [ -n "$split_sdk" ]; then
+		# ST-14: the app without the SDK, and the SDK on its own. The updater
+		# unpacks the latter into Contents/Resources/vieww - the one place
+		# install::sdk_dir names on a Mac.
+		sdk="$out/viewwstudio-sdk-$version"
+		copy_rlibs "$sdk"
+		copy_toolchain "$sdk"
+		verify_bundle "$sdk"
+	else
+		copy_rlibs "$app/Contents/Resources/vieww"
+		copy_toolchain "$app/Contents/Resources/vieww"
+		verify_bundle "$app/Contents/Resources/vieww"
+	fi
+
+	# FW-04: the GPU half of a bundle that runs on a machine nobody prepared.
+	# With the flag: bundle (or fail, saying where it looked — above). Without
+	# it: say the absence out loud, because a silent gap here is exactly the
+	# "works on the build machine" trap the flag exists to close.
+	if [ -n "$bundle_moltenvk_flag" ]; then
+		bundle_moltenvk "$app"
+	elif [ ! -f "$app/Contents/Frameworks/libMoltenVK.dylib" ]; then
+		echo "    no MoltenVK in the bundle — a clean-machine launch will fail to open the"
+		echo "    GPU (install the Vulkan SDK or \`brew install molten-vk\` and pass"
+		echo "    --bundle-moltenvk; vieww_hal::vulkan::load_entry will find it in"
+		echo "    Contents/Frameworks). MANIFEST.txt records this as moltenvk=ABSENT"
+	fi
 
 	# One version number, from Cargo.toml, into both plist keys.
 	sed -e "s|<string>0\.0\.0</string>|<string>$version</string>|g" \
@@ -669,14 +888,25 @@ macos)
 		du -sh "$dmg" | awk '{print "    " $1}'
 		bash "$here/sign.sh" mac-dmg "$dmg"
 	fi
+	[ -n "$split_sdk" ] && archive_sdk "$sdk"
 	;;
 linux)
 	tree="$out/viewwstudio-$version"
 	mkdir -p "$tree/bin" "$tree/share/applications" "$tree/share/icons/hicolor"
 	cp "$binary" "$tree/bin/viewwstudio"
-	copy_rlibs "$tree/lib/vieww"
-	copy_toolchain "$tree/lib/vieww"
-	verify_bundle "$tree/lib/vieww"
+	if [ -n "$split_sdk" ]; then
+		# ST-14: the app-only tree. `lib/vieww` is deliberately absent - it is
+		# what a first launch downloads - so the tree is ~60 MB and the SDK
+		# below is archived on its own.
+		sdk="$out/viewwstudio-sdk-$version"
+		copy_rlibs "$sdk"
+		copy_toolchain "$sdk"
+		verify_bundle "$sdk"
+	else
+		copy_rlibs "$tree/lib/vieww"
+		copy_toolchain "$tree/lib/vieww"
+		verify_bundle "$tree/lib/vieww"
+	fi
 	cp "$here/viewwstudio.desktop" "$tree/share/applications/"
 	for size in 16 32 48 64 128 256 512; do
 		dir="$tree/share/icons/hicolor/${size}x${size}/apps"
@@ -684,7 +914,25 @@ linux)
 		cp "$out/icons/icon-$size.png" "$dir/viewwstudio.png"
 	done
 
-	cat >"$tree/install.sh" <<'INSTALL'
+	if [ -n "$split_sdk" ]; then
+		cat >"$tree/install.sh" <<'INSTALL'
+#!/usr/bin/env sh
+# Install the app-only half of a split bundle (ST-14). The SDK - the rlibs
+# and the compiler the preview compiles with - is fetched by the studio
+# itself on first launch, into the lib/vieww this installer does not write.
+set -eu
+prefix="${1:-$HOME/.local}"
+here="$(cd "$(dirname "$0")" && pwd)"
+mkdir -p "$prefix/bin" "$prefix/share"
+cp "$here/bin/viewwstudio" "$prefix/bin/"
+cp -R "$here/share/." "$prefix/share/"
+command -v update-desktop-database >/dev/null 2>&1 &&
+	update-desktop-database "$prefix/share/applications" 2>/dev/null || true
+echo "installed to $prefix"
+echo "if 'viewwstudio' is not found, add $prefix/bin to PATH"
+INSTALL
+	else
+		cat >"$tree/install.sh" <<'INSTALL'
 #!/usr/bin/env sh
 # Install into a prefix. ~/.local needs no privileges and is on the XDG path
 # every desktop reads, so it is the default.
@@ -701,6 +949,7 @@ command -v update-desktop-database >/dev/null 2>&1 &&
 echo "installed to $prefix"
 echo "if 'viewwstudio' is not found, add $prefix/bin to PATH"
 INSTALL
+	fi
 	chmod +x "$tree/install.sh"
 
 	tar -C "$out" -czf "$out/viewwstudio-linux-x86_64.tar.gz" "viewwstudio-$version"
@@ -710,6 +959,8 @@ INSTALL
 	# noticed growing.
 	du -sh "$out/viewwstudio-linux-x86_64.tar.gz" | awk '{print "    " $1}'
 
+	[ -n "$split_sdk" ] && archive_sdk "$sdk"
+
 	[ -n "$make_deb" ] && make_deb "$tree"
 	[ -n "$make_appimage" ] && make_appimage "$tree"
 	;;
@@ -717,9 +968,19 @@ windows)
 	tree="$out/viewwstudio-$version"
 	mkdir -p "$tree/bin"
 	cp "$binary" "$tree/bin/viewwstudio.exe"
-	copy_rlibs "$tree/lib/vieww"
-	copy_toolchain "$tree/lib/vieww"
-	verify_bundle "$tree/lib/vieww"
+	if [ -n "$split_sdk" ]; then
+		# ST-14: the app-only zip, and the SDK on its own; the updater
+		# unpacks the latter into the tree's lib/vieww. Windows 10+ ships
+		# bsdtar as tar.exe, which speaks --strip-components.
+		sdk="$out/viewwstudio-sdk-$version"
+		copy_rlibs "$sdk"
+		copy_toolchain "$sdk"
+		verify_bundle "$sdk"
+	else
+		copy_rlibs "$tree/lib/vieww"
+		copy_toolchain "$tree/lib/vieww"
+		verify_bundle "$tree/lib/vieww"
+	fi
 	copy_windows_std "$tree/bin"
 	cp -R "$out/icons" "$tree/"
 
@@ -749,10 +1010,41 @@ windows)
 		du -sh "$out/viewwstudio-windows-x86_64.zip" | awk '{print "    " $1}'
 	}
 
+	[ -n "$split_sdk" ] && archive_sdk "$sdk"
 	[ -n "$make_msi" ] && make_msi "$tree"
 	echo "    unsigned: Authenticode signing needs a certificate this script does not have"
 	;;
 esac
+
+# ---------------------------------------------------------------- the checksums
+#
+# **SHA256SUMS over every release asset (ST-14).** The download page has
+# linked `releases/latest/download/SHA256SUMS` since it was written, and
+# until this block existed nothing anywhere produced the file - a link to a
+# checksum nobody wrote is worse than no link. The studio's updater reads it
+# before anything it fetched is applied; a person can read it by hand.
+#
+# GNU `sha256sum` where it exists (Linux, Git Bash), `shasum -a 256` on a
+# macOS without coreutils - the two line shapes the updater's parser
+# accepts, so which one wrote the file is a fact about the build machine and
+# nothing else. Every `viewwstudio-*` file in the output directory, and
+# nothing else: index.html is not checksummed (it links the checksums), and
+# neither is SHA256SUMS itself.
+(
+	cd "$out"
+	assets="$(find . -maxdepth 1 -type f -name 'viewwstudio-*' | sed 's|^\./||' | sort)"
+	if [ -n "$assets" ]; then
+		if command -v sha256sum >/dev/null 2>&1; then
+			printf '%s\n' "$assets" | xargs sha256sum --
+		else
+			printf '%s\n' "$assets" | xargs shasum -a 256
+		fi
+	fi
+) >"$out/SHA256SUMS"
+[ -s "$out/SHA256SUMS" ] && {
+	echo "==> $out/SHA256SUMS"
+	echo "    $(wc -l <"$out/SHA256SUMS" | tr -d ' 	') asset(s)"
+}
 
 # ---------------------------------------------------------------- the site
 #
@@ -774,42 +1066,12 @@ esac
 # stop, and rendering it with a guess would produce a page that looks right and
 # 404s. An absent page is the only one of the three that cannot mislead anybody,
 # and the message says how to get the real one.
-# **Third: ask the checkout.** A clone knows which repository it came from, and
-# a release is almost always cut from one. Deriving it here is the difference
-# between a download page that renders by default and one that renders only when
-# somebody remembered a variable — and the failure mode of forgetting was a
-# release with no download page at all.
+# **Third: ask the checkout** - `repo_from_git`, defined above the build
+# alongside the precedence order, because the first consumer of the answer
+# is the build itself (ST-14 stamps it into the binary). The failure mode of
+# forgetting a variable was a release with no download page at all; now the
+# same resolution answers the page, the stamp, and nothing else.
 #
-# `git remote get-url origin` handles the three URL shapes a clone can carry:
-#
-#   https://github.com/owner/name.git
-#   git@github.com:owner/name.git
-#   ssh://git@github.com/owner/name
-#
-# Anything that is not GitHub, and any directory that is not a clone, yields
-# nothing and falls through to the message below. The two environment variables
-# still win — `GITHUB_REPOSITORY` is right in Actions even when `origin` is a
-# fork, and `VIEWW_REPO` is the deliberate override.
-repo_from_git() {
-	local url
-	url="$(git -C "$root" remote get-url origin 2>/dev/null)" || return 0
-	case "$url" in
-	*github.com[:/]*) ;;
-	*) return 0 ;;
-	esac
-	# Strip everything up to and including the host, and the optional `.git`.
-	url="${url#*github.com}"
-	url="${url#[:/]}"
-	url="${url%.git}"
-	url="${url%/}"
-	# `owner/name` and nothing else: two segments, no spaces.
-	case "$url" in
-	*/*/*) return 0 ;;
-	*/*) printf '%s' "$url" ;;
-	esac
-}
-
-repo="${VIEWW_REPO:-${GITHUB_REPOSITORY:-$(repo_from_git)}}"
 if [ -n "$repo" ]; then
 	sed "s|__REPO__|$repo|g" "$root/packaging/site/index.html" > "$out/index.html"
 	echo "==> $out/index.html"

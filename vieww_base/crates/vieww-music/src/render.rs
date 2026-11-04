@@ -133,6 +133,28 @@ fn schedule(part: &Part, spb: f64, rate: f64) -> Vec<Scheduled> {
 pub(crate) trait PartStream: Send {
     /// Render the next `out.len() / 2` frames, interleaved stereo.
     fn render(&mut self, out: &mut [f32]);
+
+    /// A tempo change at the playhead: from here on a beat lasts `spb`
+    /// seconds. `at_beat` is the beat the playhead is on. Notes that have
+    /// not started are rescheduled from their beat positions; a sounding
+    /// note keeps its start and gets a new end. Real-time safe — the note
+    /// list is rewritten in place, its two orderings are unchanged.
+    fn retime(&mut self, at_beat: f64, spb: f64);
+}
+
+/// The frame a beat falls on, given that `at_beat` is at `at_frame` and a
+/// beat lasts `spb` seconds from there. With `at_beat == 0` and
+/// `at_frame == 0` it is exactly [`schedule`]'s own rounding.
+fn frame_of(beat: f64, at_beat: f64, at_frame: usize, spb: f64, rate: f64) -> usize {
+    #[expect(clippy::cast_precision_loss, reason = "a frame index")]
+    let base = at_frame as f64;
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "sample index, clamped at 0"
+    )]
+    let f = (base + (beat - at_beat) * spb * rate).round().max(0.0) as usize;
+    f
 }
 
 /// A part on a pool of voices, as MPE, with its gamakas.
@@ -184,6 +206,31 @@ impl<V: Voice> PolyStream<V> {
 }
 
 impl<V: Voice + Send> PartStream for PolyStream<V> {
+    #[vieww_audio::realtime]
+    fn retime(&mut self, at_beat: f64, spb: f64) {
+        let now = self.frame;
+        if at_beat == 0.0 && now == 0 {
+            // From the very start: exactly what `schedule` computes at the
+            // new tempo, so a change before playing is a re-render.
+            for n in &mut self.notes {
+                let on = frame_of(n.event.start.max(0.0), 0.0, 0, spb, self.rate);
+                let off = frame_of(n.event.end().max(0.0), 0.0, 0, spb, self.rate);
+                n.on = on;
+                n.off = off.max(on + 1);
+            }
+            return;
+        }
+        for n in &mut self.notes {
+            if n.on > now {
+                n.on = frame_of(n.event.start, at_beat, now, spb, self.rate).max(now + 1);
+            }
+            if n.off > now {
+                let off = frame_of(n.event.end(), at_beat, now, spb, self.rate);
+                n.off = off.max(n.on + 1).max(now + 1);
+            }
+        }
+    }
+
     fn render(&mut self, out: &mut [f32]) {
         for o in out.as_chunks_mut::<2>().0 {
             let f = self.frame;

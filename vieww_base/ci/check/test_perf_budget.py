@@ -35,7 +35,81 @@ def write(obj):
     return path
 
 
+# The windowed baseline's report (`examples/baseline.rs`), as FW-15's RSS
+# budget sees it: only the peak matters, and the class is the runner's to
+# force, because the report knows its os/arch but not its machine.
+BASELINE = {"schema": "vieww.baseline/1", "os": "linux", "arch": "x86_64",
+            "peak_rss_bytes": 100 * 1024 * 1024, "idle_end_rss_bytes": 99 * 1024 * 1024}
+
+
 class PerfBudget(unittest.TestCase):
+    def test_a_baseline_report_gates_peak_rss(self):
+        # FW-15: the interim memory budget. Peak, not idle-end, so a run that
+        # finished low after peaking high cannot pass by shrinking.
+        m = pb.measurements(BASELINE, "hardware-linux")
+        self.assertEqual(list(m), ["hardware-linux"])
+        self.assertAlmostEqual(m["hardware-linux"]["peak_rss_mb"], 100.0)
+        self.assertNotIn("idle_end_rss_mb", m["hardware-linux"])
+        # Without --class the class is os/arch — the report cannot name the
+        # machine, and a budget keyed "linux" would fire for any Linux.
+        self.assertEqual(list(pb.measurements(BASELINE)), ["baseline-linux-x86-64"])
+        budgets = write({"schema": pb.SCHEMA, "tolerance_percent": 10, "min_delta_ms": 1.0,
+                         "classes": {"hardware-linux": {"peak_rss_mb": 120.0}}})
+        self.assertEqual(pb.main(["check", budgets, write(BASELINE), "--class", "hardware-linux"]), 0)
+        fat = dict(BASELINE, peak_rss_bytes=160 * 1024 * 1024)  # +33%, +40 MB
+        self.assertEqual(pb.main(["check", budgets, write(fat), "--class", "hardware-linux"]), 1)
+
+    def test_a_first_frame_ceiling_gates_the_tiers_it_names(self):
+        # FW-16: 500 ms first frame on medium-and-up phones; the phone's
+        # tier is the one the app chose, so the low-tier LG is reported only.
+        summary = {"devices": [
+            {"device": "A36", "result": {"model": "SM-A366U1",
+                "auto_cold_start_ms": "439 437 422 ",
+                "auto_cache_budgets": "blur off (tier medium), fill off (tier medium)"}},
+            {"device": "Stylo", "result": {"model": "LM-Q720",
+                "auto_cold_start_ms": "652 638 615 ",
+                "auto_cache_budgets": "blur off (tier low)"}},
+            {"device": "iPhone 13", "result": {"model": "",
+                "auto_first_frame_ms": "n/a (no console below iOS 17)",
+                "auto_cache_budgets": "blur off (tier medium)"}},
+            {"device": "iPhone 15", "result": {"model": "iPhone 15 Plus",
+                "auto_first_frame_ms": "377.0 376.0 369.0",
+                "auto_cache_budgets": "blur off (tier medium)"}},
+        ]}
+        m = pb.measurements(summary)
+        self.assertEqual(m["phone-sm-a366u1"]["auto_first_frame_ms"], 437.0)
+        self.assertEqual(m["phone-iphone-15-plus"]["auto_first_frame_ms"], 376.0)
+        self.assertNotIn("phone-iphone-13", m, "n/a is not a measurement")
+        self.assertEqual(pb.tiers(summary)["phone-lm-q720"], "low")
+        budgets = {"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": {"x": {"y": 1.0}},
+                   "ceilings": {"auto_first_frame_ms": {"ceiling_ms": 500,
+                                "tiers": ["medium", "high"], "reason": "FW-16"}}}
+        rows, failures = pb.check_ceilings(budgets, m, pb.tiers(summary))
+        self.assertEqual(failures, [])
+        self.assertEqual({r[0] for r in rows}, {"phone-sm-a366u1", "phone-iphone-15-plus"})
+        path = write(budgets)
+        self.assertEqual(pb.main(["check", path, write(summary)]), 0)
+        slow = json.loads(json.dumps(summary))
+        slow["devices"][0]["result"]["auto_cold_start_ms"] = "640 650 660"
+        self.assertEqual(pb.main(["check", path, write(slow)]), 1, "a medium phone over 500 ms fails")
+        self.assertEqual(pb.main(["check", path, write(slow), "--advisory"]), 0)
+        bad = dict(budgets, ceilings={"auto_first_frame_ms": {"ceiling_ms": 500, "tiers": []}})
+        with self.assertRaises(ValueError):
+            pb.validate(bad)
+
+    def test_the_committed_ceiling_passes_the_last_device_farm_run(self):
+        # The figures the ceiling's reason quotes, from the real summary
+        # shape: every medium/high phone of the 2026-10-30 run was under.
+        summary = {"devices": [
+            {"device": "S26", "result": {"model": "SM-S948U1", "auto_cold_start_ms": "191 180 174",
+                                         "auto_cache_budgets": "x (tier high)"}},
+            {"device": "18 Pro Max", "result": {"model": "", "auto_first_frame_ms": "276.0 289.0 280.0",
+                                                "auto_cache_budgets": "x (tier medium)"}},
+        ]}
+        budgets = pb.load_budgets(os.path.join(HERE, "perf-budgets.json"))
+        _, failures = pb.check_ceilings(budgets, pb.measurements(summary), pb.tiers(summary))
+        self.assertEqual(failures, [])
+
     def test_the_committed_budgets_file_is_valid(self):
         pb.validate(pb.load_budgets(os.path.join(HERE, "perf-budgets.json")))
 
@@ -111,6 +185,82 @@ class PerfBudget(unittest.TestCase):
         ):
             with self.assertRaises(ValueError):
                 pb.validate(bad)
+
+    def test_a_broken_known_limitations_entry_is_refused(self):
+        good_classes = {"x": {"gallery/f/cpu_p50_ms": 23.8}}
+        for bad in (
+            # no budget class to drift-gate against
+            {"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": {},
+             "known_limitations": {"x": {"gallery/f/cpu_p50_ms": {"target_ms": 16.7, "reason": "r"}}}},
+            # no budget figure for that metric
+            {"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": {"x": {"other": 1.0}},
+             "known_limitations": {"x": {"gallery/f/cpu_p50_ms": {"target_ms": 16.7, "reason": "r"}}}},
+            # no target
+            {"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": good_classes,
+             "known_limitations": {"x": {"gallery/f/cpu_p50_ms": {"reason": "r"}}}},
+            # no reason naming the decision
+            {"schema": pb.SCHEMA, "tolerance_percent": 10, "classes": good_classes,
+             "known_limitations": {"x": {"gallery/f/cpu_p50_ms": {"target_ms": 16.7}}}},
+        ):
+            with self.assertRaises(ValueError):
+                pb.validate(bad)
+
+    def test_the_committed_known_limitations_name_their_decision(self):
+        b = pb.load_budgets(os.path.join(HERE, "perf-budgets.json"))
+        self.assertTrue(b.get("known_limitations"), "FW-07's two over-budget fixtures are recorded")
+        for cls, metrics in b["known_limitations"].items():
+            for name, entry in metrics.items():
+                self.assertIn(name, b["classes"][cls],
+                              f"{cls} {name}: a limitation must drift-gate a committed figure")
+                self.assertGreater(entry["target_ms"], 0)
+                self.assertTrue(entry["reason"].strip())
+
+    def a_limitation_fixture(self):
+        """Budgets with one known limitation, and a receipt factory for it."""
+        budgets = write({
+            "schema": pb.SCHEMA, "tolerance_percent": 10, "min_delta_ms": 1.0,
+            "classes": {"kabylake-linux": {"gallery/00-layers-nested/cpu_p50_ms": 23.8}},
+            "known_limitations": {"kabylake-linux": {
+                "gallery/00-layers-nested/cpu_p50_ms": {
+                    "target_ms": 16.7, "since": "2026-10-15",
+                    "reason": "accepted miss; closing it needs the f16 fidelity ruling"}}},
+        })
+        nested = {"schema": "vieww.bench-receipt/1", "mode": "gallery",
+                  "machine": {"os": "o", "arch": "a", "cpu_model": "c"},
+                  "fixtures": [{"name": "00-layers-nested", "cpu_p50_ms": 23.8}]}
+        return budgets, nested
+
+    def test_a_known_limitation_does_not_license_drift(self):
+        budgets, nested = self.a_limitation_fixture()
+        slower = json.loads(json.dumps(nested))
+        slower["fixtures"][0]["cpu_p50_ms"] = 27.5  # +15.5%, +3.7 ms
+        self.assertEqual(
+            pb.main(["check", budgets, write(slower), "--class", "kabylake-linux"]), 1,
+            "over the recorded figure by tolerance AND floor fails, limitation or not")
+
+    def test_a_known_limitation_under_target_is_flagged_stale_not_passed(self):
+        budgets, nested = self.a_limitation_fixture()
+        won = json.loads(json.dumps(nested))
+        won["fixtures"][0]["cpu_p50_ms"] = 15.9  # under the 16.7 ms target at last
+        rows, failures, unknown, stale = pb.check(pb.load_budgets(budgets), pb.gather([write(won)], "kabylake-linux"))
+        self.assertEqual(failures, [])
+        self.assertEqual(unknown, [])
+        self.assertEqual(stale, [("kabylake-linux", "gallery/00-layers-nested/cpu_p50_ms", 16.7, 15.9)])
+        self.assertIn("stale limitation", rows[0][5])
+        # ...and the run itself exits 0: good news is not a failure, only loud.
+        self.assertEqual(pb.main(["check", budgets, write(won), "--class", "kabylake-linux"]), 0)
+
+    def test_recording_under_a_limitation_target_warns_while_the_file_is_open(self):
+        budgets, nested = self.a_limitation_fixture()
+        won = json.loads(json.dumps(nested))
+        won["fixtures"][0]["cpu_p50_ms"] = 15.9
+        self.assertEqual(pb.main(["record", budgets, write(won), "--class", "kabylake-linux"]), 0)
+        with open(budgets) as f:
+            reread = json.load(f)
+        self.assertEqual(reread["classes"]["kabylake-linux"]["gallery/00-layers-nested/cpu_p50_ms"], 15.9)
+        # The stale limitation survives the rewrite for a human to remove
+        # deliberately: `record` never edits the decision record.
+        self.assertIn("gallery/00-layers-nested/cpu_p50_ms", reread["known_limitations"]["kabylake-linux"])
 
     def test_something_else_is_refused(self):
         with self.assertRaises(ValueError):

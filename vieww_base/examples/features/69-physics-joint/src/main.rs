@@ -101,7 +101,7 @@ impl CustomPainter for ScenePainter {
             out.push(DrawInstruction::FillCircle {
                 center: to(bob),
                 radius: 11.0,
-                color: Color::rgb(58, 122, 246),
+                color: Color::rgb(44, 98, 234),
             });
             from = *bob;
         }

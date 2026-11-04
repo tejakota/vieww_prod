@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             d,
             Container::new().color(Color::rgb(247, 248, 250)).child(
                 Stack::new()
-                    .push(dot(40.0, 40.0, Color::rgb(58, 122, 246)))
+                    .push(dot(40.0, 40.0, Color::rgb(44, 98, 234)))
                     .push(dot(200.0, 80.0, Color::rgb(186, 100, 246)))
                     .push(dot(120.0, 180.0, Color::rgb(76, 187, 129)))
                     .push(dot(340.0, 220.0, Color::rgb(255, 180, 80))),

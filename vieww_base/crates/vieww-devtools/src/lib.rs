@@ -65,6 +65,13 @@
 //!   against. A report, not a widget — this crate draws no pixels, and an
 //!   overlay baked into the app's own scene would put pixels on the CPU
 //!   path the fidelity reference does not have.
+//! - [`reload_inspector`] — the two numbers a hot-reload session owes the
+//!   developer depending on it: how many reloads were accepted and the
+//!   share that kept the tree. Fed by the host's own `Reloaded` match (this
+//!   crate does not depend on `vieww-reload`, for the same reason
+//!   [`quality_overlay`] takes the tier as a string), with failed builds
+//!   excluded from the rate's denominator — a session of nothing but broken
+//!   builds preserved everything it accepted, which is nothing.
 //! - [`json_export`] — a small hand-rolled JSON writer (this workspace has
 //!   no `serde` dependency anywhere, and does not gain one here) providing
 //!   [`json_export::ToJson`] for [`inspector::InspectorNode`] and every report type
@@ -78,6 +85,7 @@ pub mod inspector;
 pub mod json_export;
 pub mod png_compare;
 pub mod quality_overlay;
+pub mod reload_inspector;
 pub mod render_graph_inspector;
 pub mod semantics_inspector;
 
@@ -103,6 +111,7 @@ pub use json_export::ToJson;
 #[cfg(feature = "snapshots")]
 pub use memory_inspector::MemoryReport;
 pub use quality_overlay::QualityOverlay;
+pub use reload_inspector::{ReloadLedger, ReloadOutcome, ReloadReport};
 pub use render_graph_inspector::{PassReport, RenderGraphReport};
 pub use semantics_inspector::{is_interactive, SemanticsReport};
 #[cfg(feature = "snapshots")]

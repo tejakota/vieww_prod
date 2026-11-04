@@ -64,14 +64,12 @@ impl HistoryScreen {
                     .collect::<std::collections::HashSet<_>>()
             })
             .unwrap_or_default();
-        let records = match if self.saved_only {
+        let records = if self.saved_only {
             engine.saved_decisions()
         } else {
             engine.decisions()
-        } {
-            Ok(records) => records,
-            Err(_) => Vec::new(),
-        };
+        }
+        .unwrap_or_default();
         let is_saved = |id: u64| saved_ids.contains(&id);
         drop(engine);
 
@@ -88,7 +86,11 @@ impl HistoryScreen {
                     &self.shared,
                     ctx,
                     record,
-                    if self.saved_only { false } else { is_saved(record.id) },
+                    if self.saved_only {
+                        false
+                    } else {
+                        is_saved(record.id)
+                    },
                 ));
             }
             column = column.push(new_decision_bar(&self.shared, ctx));
@@ -201,7 +203,7 @@ fn row(
         // Built inside: the press builder runs on every press, so nothing
         // here is moved out of a capture.
         let chip: WidgetNode = if saved {
-            saved_chip().into()
+            saved_chip()
         } else {
             SizedBox::shrink().into()
         };
@@ -236,9 +238,7 @@ fn row(
                                         .cross_axis_alignment(CrossAxisAlignment::Center)
                                         .spacing(8.0)
                                         .children(children![
-                                            Text::new(meta.clone())
-                                                .size(9.5)
-                                                .color(MUTED),
+                                            Text::new(meta.clone()).size(9.5).color(MUTED),
                                             chip,
                                         ]),
                                 ]),
@@ -331,11 +331,7 @@ fn empty_card(saved_only: bool) -> WidgetNode {
                 .spacing(6.0)
                 .children(children![
                     Text::new(line)
-                        .style(
-                            TextStyle::new(14.0)
-                                .weight(FontWeight::Medium)
-                                .color(INK),
-                        )
+                        .style(TextStyle::new(14.0).weight(FontWeight::Medium).color(INK),)
                         .align(TextAlign::Center),
                     Text::new(whisper)
                         .style(TextStyle::new(10.5).color(MUTED).line_height(1.5))

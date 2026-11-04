@@ -14,9 +14,16 @@
 //! 256-point IMDCTs with sine and Kaiser–Bessel-derived windows and the
 //! four window sequences. Channel layouts 1–7 are mapped to WAV order.
 //!
-//! Refused by name: HE-AAC's SBR/PS (object types 5 and 29 are decoded at
-//! the core rate only when signalled implicitly), Main-profile prediction,
-//! LTP, and coupling channels.
+//! HE-AAC: spectral band replication and parametric stereo
+//! (`codec/sbr.rs`, `codec/ps.rs`) — object types 5 and 29, signalled
+//! explicitly (the AudioSpecificConfig's hierarchical form or its 0x2b7 /
+//! 0x548 sync extensions) or implicitly (ADTS, or an LC config whose first
+//! access unit carries SBR fill elements: decided on that first unit, the
+//! way the conformance decoders do). Output is at twice the core rate; a
+//! mono core with PS decodes to stereo.
+//!
+//! Refused by name: Main-profile prediction, LTP, coupling channels, and
+//! downsampled SBR (an SBR rate that is not twice the core's).
 
 use std::sync::OnceLock;
 
@@ -690,6 +697,17 @@ impl Fb {
     }
 }
 
+/// Whether SBR (and PS) run on this stream.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SbrMode {
+    /// AAC-LC: no SBR (none signalled, none found on the first unit).
+    Off,
+    /// Not signalled either way: decided by the first access unit.
+    Implicit,
+    /// HE-AAC; `ps` when a mono core decodes to stereo.
+    On { ps: bool },
+}
+
 /// The decoder for a stream of raw data blocks.
 struct Decoder {
     rate_idx: usize,
@@ -698,10 +716,20 @@ struct Decoder {
     long: Imdct,
     short: Imdct,
     rng: Rng,
+    sbr: SbrMode,
+    /// One SBR instance per syntax element, in element order.
+    sbrs: Vec<super::sbr::Sbr>,
+    blocks: u64,
 }
 
 impl Decoder {
     fn new(rate_idx: usize, channels: usize) -> Self {
+        Self::with_sbr(rate_idx, channels, SbrMode::Implicit)
+    }
+
+    fn with_sbr(rate_idx: usize, channels: usize, sbr: SbrMode) -> Self {
+        // SBR runs at twice the core rate, which must exist (≤ 96 kHz).
+        let sbr = if rate_idx < 3 { SbrMode::Off } else { sbr };
         Self {
             rate_idx,
             channels,
@@ -709,6 +737,36 @@ impl Decoder {
             long: Imdct::new(2048),
             short: Imdct::new(256),
             rng: Rng::new(0x5EED),
+            sbr,
+            sbrs: Vec::new(),
+            blocks: 0,
+        }
+    }
+
+    /// Output channels (a PS stream's mono core is two).
+    fn out_channels(&self) -> usize {
+        match self.sbr {
+            SbrMode::On { ps: true } => 2,
+            _ => self.channels.max(1),
+        }
+    }
+
+    /// Output rate.
+    fn out_rate(&self) -> u32 {
+        let core = RATES[self.rate_idx];
+        if matches!(self.sbr, SbrMode::On { .. }) {
+            core * 2
+        } else {
+            core
+        }
+    }
+
+    /// Samples per channel per access unit.
+    fn frame_len(&self) -> u64 {
+        if matches!(self.sbr, SbrMode::On { .. }) {
+            2 * AAC_FRAME
+        } else {
+            AAC_FRAME
         }
     }
 
@@ -716,6 +774,8 @@ impl Decoder {
     fn block(&mut self, data: &[u8]) -> Result<Vec<f32>, CodecError> {
         let mut r = Rd::new(data);
         let mut chans: Vec<Channel> = Vec::new();
+        // (element id, first channel, channel count), in bitstream order.
+        let mut elems: Vec<(u32, usize, usize)> = Vec::new();
         loop {
             let id = rd(&mut r, 3)?;
             match id {
@@ -723,6 +783,7 @@ impl Decoder {
                     rd(&mut r, 4)?;
                     let mut c = ics(&mut r, self.rate_idx, None, &mut self.rng)?;
                     apply_tns(&mut c, self.rate_idx);
+                    elems.push((id, chans.len(), 1));
                     chans.push(c);
                 }
                 1 => {
@@ -758,6 +819,7 @@ impl Decoder {
                     }
                     apply_tns(&mut l, self.rate_idx);
                     apply_tns(&mut rr, self.rate_idx);
+                    elems.push((id, chans.len(), 2));
                     chans.push(l);
                     chans.push(rr);
                 }
@@ -782,7 +844,26 @@ impl Decoder {
                         // add before subtracting, or esc_count 0 underflows.
                         n = n + rd(&mut r, 8)? as usize - 1;
                     }
-                    r.skip(n * 8).ok_or(CodecError::Truncated)?;
+                    if n * 8 > r.remaining() {
+                        return Err(CodecError::Truncated);
+                    }
+                    // extension_payload: EXT_SBR_DATA (13) / _CRC (14) belongs
+                    // to the element just before it.
+                    let kind = if n > 0 { r.peek(4) } else { None };
+                    let target = elems.len().checked_sub(1).filter(|&e| elems[e].0 != 3);
+                    match (kind, target, self.sbr) {
+                        (Some(k @ (13 | 14)), Some(e), SbrMode::Implicit | SbrMode::On { .. }) => {
+                            rd(&mut r, 4)?;
+                            let rate = RATES[self.rate_idx] * 2;
+                            while self.sbrs.len() <= e {
+                                let ch = elems[self.sbrs.len()].2;
+                                self.sbrs.push(super::sbr::Sbr::new(rate, ch));
+                            }
+                            let allow_ps = elems[e].2 == 1 && self.channels <= 1;
+                            self.sbrs[e].read(&mut r, n * 8 - 4, k == 14, allow_ps);
+                        }
+                        _ => r.skip(n * 8).ok_or(CodecError::Truncated)?,
+                    }
                 }
                 _ => break,
             }
@@ -791,11 +872,57 @@ impl Decoder {
         while self.fbs.len() < chans.len() {
             self.fbs.push(Fb::new());
         }
-        let mut pcm = vec![0f32; 1024 * nch];
-        for (c, ch) in chans.iter().enumerate().take(nch) {
-            let out = self.fbs[c].run(ch, &self.long, &self.short);
-            for (i, v) in out.iter().enumerate() {
-                pcm[i * nch + c] = v / 32_768.0;
+        let core: Vec<Vec<f32>> = chans
+            .iter()
+            .enumerate()
+            .take(nch)
+            .map(|(c, ch)| self.fbs[c].run(ch, &self.long, &self.short))
+            .collect();
+        if self.sbr == SbrMode::Implicit {
+            // Decided on the first unit: SBR if it carried SBR data, PS if
+            // that data (on a mono stream) carried a PS header.
+            self.sbr = if self.sbrs.is_empty() {
+                SbrMode::Off
+            } else {
+                SbrMode::On {
+                    ps: nch == 1 && self.sbrs.first().is_some_and(super::sbr::Sbr::has_ps),
+                }
+            };
+        }
+        self.blocks += 1;
+        let out: Vec<Vec<f32>> = match self.sbr {
+            SbrMode::On { ps } => {
+                let rate = RATES[self.rate_idx] * 2;
+                while self.sbrs.len() < elems.len() {
+                    let ch = elems[self.sbrs.len()].2;
+                    self.sbrs.push(super::sbr::Sbr::new(rate, ch));
+                }
+                let mut out = Vec::with_capacity(nch + 1);
+                for (e, &(_, first, count)) in elems.iter().enumerate() {
+                    let ins: Vec<&[f32]> = core
+                        .get(first..(first + count).min(core.len()))
+                        .unwrap_or(&[])
+                        .iter()
+                        .map(Vec::as_slice)
+                        .collect();
+                    if ins.len() != count {
+                        continue;
+                    }
+                    let n_out = if ps && count == 1 && e == 0 { 2 } else { count };
+                    let mut o = vec![Vec::new(); n_out];
+                    self.sbrs[e].apply(&ins, &mut o);
+                    out.extend(o);
+                }
+                out
+            }
+            _ => core,
+        };
+        let nout = self.out_channels().max(out.len()).max(1);
+        let len = out.first().map_or(1024, Vec::len);
+        let mut pcm = vec![0f32; len * nout];
+        for (c, ch) in out.iter().enumerate().take(nout) {
+            for (i, v) in ch.iter().enumerate() {
+                pcm[i * nout + c] = v / 32_768.0;
             }
         }
         Ok(pcm)
@@ -941,44 +1068,115 @@ pub fn decode_adts(bytes: &[u8]) -> Result<Decoded, CodecError> {
         at += h.len;
     }
     let d = dec.ok_or(CodecError::NotThisFormat)?;
-    let ch = d.channels.max(1);
+    let _ = rate;
+    let ch = d.out_channels();
     reorder(&mut out, ch, cfg);
     Decoded {
         data: out,
         channels: u8::try_from(ch).unwrap_or(2),
-        rate,
+        rate: d.out_rate(),
     }
     .validated()
 }
 
-/// An AudioSpecificConfig's rate, rate index and channel configuration,
-/// refusing what this decoder does not implement (only AAC-LC, 1024-sample
-/// frames).
-fn lc_config(config: &[u8]) -> Result<(u32, usize, u8), CodecError> {
+/// What an AudioSpecificConfig says: the core's rate index, the channel configuration and whether SBR/PS run — refusing what
+/// this decoder does not implement (cores other than AAC-LC, 960-sample
+/// frames, downsampled SBR).
+struct Asc {
+    ri: usize,
+    channel_cfg: u8,
+    sbr: SbrMode,
+}
+
+fn audio_config(config: &[u8]) -> Result<Asc, CodecError> {
     let mut r = Rd::new(config);
-    let mut aot = rd(&mut r, 5)?;
-    if aot == 31 {
-        aot = 32 + rd(&mut r, 6)?;
-    }
-    let rate_idx = rd(&mut r, 4)? as usize;
-    let rate = if rate_idx == 15 {
-        rd(&mut r, 24)?
-    } else {
-        *RATES
-            .get(rate_idx)
-            .ok_or(CodecError::Malformed("rate index"))?
+    let object_type = |r: &mut Rd<'_>| -> Result<u32, CodecError> {
+        let aot = rd(r, 5)?;
+        Ok(if aot == 31 { 32 + rd(r, 6)? } else { aot })
     };
+    let rate_of = |r: &mut Rd<'_>| -> Result<u32, CodecError> {
+        let idx = rd(r, 4)? as usize;
+        if idx == 15 {
+            rd(r, 24)
+        } else {
+            RATES
+                .get(idx)
+                .copied()
+                .ok_or(CodecError::Malformed("rate index"))
+        }
+    };
+    let mut aot = object_type(&mut r)?;
+    let rate = rate_of(&mut r)?;
     let channel_cfg = u8::try_from(rd(&mut r, 4)?).unwrap_or(0);
-    match aot {
-        2 => {}
-        5 | 29 => return Err(CodecError::Unsupported("HE-AAC (SBR/PS)")),
-        _ => return Err(CodecError::Unsupported("AAC object types other than LC")),
+    // Explicit hierarchical signalling: SBR (5) or PS (29) wrapping a core.
+    let mut sbr: Option<bool> = None;
+    let mut ps: Option<bool> = None;
+    let mut ext_rate = None;
+    if aot == 5 || aot == 29 {
+        sbr = Some(true);
+        if aot == 29 {
+            ps = Some(true);
+        }
+        ext_rate = Some(rate_of(&mut r)?);
+        aot = object_type(&mut r)?;
+    }
+    if aot != 2 {
+        return Err(CodecError::Unsupported("AAC object types other than LC"));
     }
     if rd(&mut r, 1)? == 1 {
         return Err(CodecError::Unsupported("960-sample AAC frames"));
     }
+    if rd(&mut r, 1)? == 1 {
+        rd(&mut r, 14)?; // coreCoderDelay
+    }
+    let _extension_flag = rd(&mut r, 1)?;
+    // Backward-compatible signalling: a sync extension after the LC config.
+    if sbr.is_none() && r.remaining() >= 16 && r.peek(11) == Some(0x2b7) {
+        rd(&mut r, 11)?;
+        if object_type(&mut r)? == 5 {
+            let present = rd(&mut r, 1)? == 1;
+            sbr = Some(present);
+            if present {
+                ext_rate = Some(rate_of(&mut r)?);
+                if r.remaining() >= 12 && r.peek(11) == Some(0x548) {
+                    rd(&mut r, 11)?;
+                    ps = Some(rd(&mut r, 1)? == 1);
+                }
+            }
+        }
+    }
     let ri = RATES.iter().position(|v| *v == rate).unwrap_or(4);
-    Ok((rate, ri, channel_cfg))
+    let mode = match sbr {
+        Some(true) => {
+            if ext_rate.is_some_and(|e| e != rate * 2) {
+                return Err(CodecError::Unsupported("downsampled SBR"));
+            }
+            SbrMode::On {
+                ps: ps == Some(true) && channel_cfg == 1,
+            }
+        }
+        Some(false) => SbrMode::Off,
+        None => SbrMode::Implicit,
+    };
+    Ok(Asc {
+        ri,
+        channel_cfg,
+        sbr: mode,
+    })
+}
+
+/// Settle an implicitly signalled stream's mode from its first access unit
+/// (decoded once and thrown away), so a streaming source can state its rate
+/// and channel count before the first chunk.
+fn probe_mode(ri: usize, channels: usize, first: Option<&[u8]>) -> SbrMode {
+    let Some(unit) = first else {
+        return SbrMode::Off;
+    };
+    let mut d = Decoder::new(ri, channels);
+    match d.block(unit) {
+        Ok(_) => d.sbr,
+        Err(_) => SbrMode::Off,
+    }
 }
 
 /// Decode AAC in an MP4/M4A container.
@@ -987,17 +1185,26 @@ fn lc_config(config: &[u8]) -> Result<(u32, usize, u8), CodecError> {
 /// No audio track, unsupported object types, malformed frames.
 pub fn decode_mp4(bytes: &[u8]) -> Result<Decoded, CodecError> {
     let t = super::mp4::audio_track(bytes)?;
-    let (rate, ri, channel_cfg) = lc_config(&t.config)?;
-    let mut d = Decoder::new(ri, usize::from(channel_cfg.max(1)));
+    if t.codec != *b"mp4a" {
+        return Err(CodecError::NotThisFormat);
+    }
+    let asc = audio_config(&t.config)?;
+    let channel_cfg = asc.channel_cfg;
+    let mut d = Decoder::with_sbr(asc.ri, usize::from(channel_cfg.max(1)), asc.sbr);
     let mut out = Vec::new();
     for (off, len) in &t.samples {
-        out.extend(d.block(&bytes[*off..off + len])?);
+        let unit = bytes
+            .get(*off..off.saturating_add(*len))
+            .ok_or(CodecError::Truncated)?;
+        out.extend(d.block(unit)?);
     }
-    let ch = d.channels.max(1);
+    let ch = d.out_channels();
+    let rate = d.out_rate();
     reorder(&mut out, ch, channel_cfg);
-    let skip = usize::try_from(t.skip).unwrap_or(0) * ch;
+    let (skip, play) = media_to_output(t.skip, t.play, t.timescale, rate);
+    let skip = usize::try_from(skip).unwrap_or(0) * ch;
     let mut data = out.get(skip.min(out.len())..).unwrap_or(&[]).to_vec();
-    if let Some(p) = t.play {
+    if let Some(p) = play {
         data.truncate(usize::try_from(p).unwrap_or(usize::MAX) * ch);
     }
     Decoded {
@@ -1008,11 +1215,33 @@ pub fn decode_mp4(bytes: &[u8]) -> Result<Decoded, CodecError> {
     .validated()
 }
 
+/// An edit list's skip/play, given in the media timescale, in output
+/// samples. Equal for LC and for HE-AAC muxed at its output rate (the
+/// usual case); an HE-AAC track timed at its core rate is scaled.
+fn media_to_output(skip: u64, play: Option<u64>, timescale: u32, rate: u32) -> (u64, Option<u64>) {
+    if timescale == 0 || timescale == rate {
+        return (skip, play);
+    }
+    let conv = |v: u64| v.saturating_mul(u64::from(rate)) / u64::from(timescale);
+    (conv(skip), play.map(conv))
+}
+
 // ── streaming (AU-05) ────────────────────────────────────────────────────
 
 /// Frames decoded before a seek target: the filterbank's overlap is one
 /// frame deep.
 const AAC_PREROLL: u64 = 2;
+
+/// Units decoded before a seek target. SBR adds its QMF banks' delay and,
+/// worse, time-differential envelopes that chain back to the last
+/// frequency-coded one; the encoders this was graded against restart that
+/// chain (and send a header) at least every 16 units.
+const fn preroll(mode: SbrMode) -> u64 {
+    match mode {
+        SbrMode::On { .. } => 16,
+        _ => AAC_PREROLL,
+    }
+}
 /// Samples per AAC-LC frame.
 const AAC_FRAME: u64 = 1024;
 
@@ -1024,60 +1253,37 @@ pub(crate) struct Mp4Source {
     rate: u32,
     ri: usize,
     channel_cfg: u8,
+    mode: SbrMode,
     dec: Decoder,
     next: usize,
 }
 
 impl Mp4Source {
-    pub(crate) fn open(input: &mut super::stream::Input) -> Result<Self, CodecError> {
-        let len = input.len();
-        if input.window(4, 4)? != b"ftyp" {
-            return Err(CodecError::NotThisFormat);
-        }
-        let mut at = 0u64;
-        let mut moov = None;
-        while at + 8 <= len {
-            let h = input.window(at, 16)?.to_vec();
-            if h.len() < 8 {
-                break;
-            }
-            let size32 = u32::from_be_bytes([h[0], h[1], h[2], h[3]]);
-            let (hdr, size) = match size32 {
-                0 => (8u64, len - at),
-                1 if h.len() >= 16 => (
-                    16,
-                    u64::from_be_bytes([h[8], h[9], h[10], h[11], h[12], h[13], h[14], h[15]]),
-                ),
-                n => (8, u64::from(n)),
+    /// A source over a track already demuxed — the codec was picked from
+    /// its `stsd` entry type by the caller ([`super::stream`], which owns
+    /// the one `moov` read every streaming MP4 codec starts from).
+    pub(crate) fn from_track(
+        track: super::mp4::AudioTrack,
+        input: &mut super::stream::Input,
+    ) -> Result<Self, CodecError> {
+        let asc = audio_config(&track.config)?;
+        let channels = usize::from(asc.channel_cfg.max(1));
+        let mut mode = asc.sbr;
+        if mode == SbrMode::Implicit {
+            let first = match track.samples.first() {
+                Some(&(off, len)) => Some(input.window(off as u64, len)?.to_vec()),
+                None => None,
             };
-            if size < hdr || size > len - at {
-                break;
-            }
-            if &h[4..8] == b"moov" {
-                // A moov is metadata: a sample table of a few MB even for
-                // hours of audio. Refuse a claim past 256 MB.
-                let body = usize::try_from(size - hdr)
-                    .ok()
-                    .filter(|n| *n <= 256 << 20)
-                    .ok_or(CodecError::Malformed("moov box too large"))?;
-                let bytes = input.window(at + hdr, body)?;
-                if bytes.len() < body {
-                    return Err(CodecError::Truncated);
-                }
-                moov = Some(bytes.to_vec());
-                break;
-            }
-            at += size;
+            mode = probe_mode(asc.ri, channels, first.as_deref());
         }
-        let moov = moov.ok_or(CodecError::Malformed("no moov box"))?;
-        let track = super::mp4::track_from_moov(&moov, usize::try_from(len).unwrap_or(usize::MAX))?;
-        let (rate, ri, channel_cfg) = lc_config(&track.config)?;
+        let dec = Decoder::with_sbr(asc.ri, channels, mode);
         Ok(Self {
-            dec: Decoder::new(ri, usize::from(channel_cfg.max(1))),
+            rate: dec.out_rate(),
+            dec,
             track,
-            rate,
-            ri,
-            channel_cfg,
+            ri: asc.ri,
+            channel_cfg: asc.channel_cfg,
+            mode,
             next: 0,
         })
     }
@@ -1085,7 +1291,7 @@ impl Mp4Source {
 
 impl super::stream::FrameSource for Mp4Source {
     fn channels(&self) -> usize {
-        self.dec.channels.max(1)
+        self.dec.out_channels()
     }
 
     fn rate(&self) -> u32 {
@@ -1093,7 +1299,12 @@ impl super::stream::FrameSource for Mp4Source {
     }
 
     fn trim(&self) -> (u64, Option<u64>) {
-        (self.track.skip, self.track.play)
+        media_to_output(
+            self.track.skip,
+            self.track.play,
+            self.track.timescale,
+            self.rate,
+        )
     }
 
     fn next(
@@ -1109,17 +1320,18 @@ impl super::stream::FrameSource for Mp4Source {
             return Err(CodecError::Truncated);
         }
         let mut pcm = self.dec.block(unit)?;
-        reorder(&mut pcm, self.dec.channels.max(1), self.channel_cfg);
+        reorder(&mut pcm, self.dec.out_channels(), self.channel_cfg);
         Ok(Some(super::stream::Chunk { pcm }))
     }
 
     fn seek(&mut self, _input: &mut super::stream::Input, frame: u64) -> Result<u64, CodecError> {
-        let unit = (frame / AAC_FRAME).saturating_sub(AAC_PREROLL);
+        let fl = self.dec.frame_len();
+        let unit = (frame / fl).saturating_sub(preroll(self.mode));
         self.next = usize::try_from(unit)
             .unwrap_or(usize::MAX)
             .min(self.track.samples.len());
-        self.dec = Decoder::new(self.ri, usize::from(self.channel_cfg.max(1)));
-        Ok(self.next as u64 * AAC_FRAME)
+        self.dec = Decoder::with_sbr(self.ri, usize::from(self.channel_cfg.max(1)), self.mode);
+        Ok(self.next as u64 * fl)
     }
 }
 
@@ -1127,7 +1339,12 @@ impl super::stream::FrameSource for Mp4Source {
 pub(crate) struct AdtsSource {
     dec: Decoder,
     rate_idx: usize,
+    /// Output channels / rate / samples per frame (SBR doubles the last two).
     channels: usize,
+    rate: u32,
+    frame_len: u64,
+    core_channels: usize,
+    mode: SbrMode,
     at: u64,
     first: u64,
     frames: u64,
@@ -1147,10 +1364,17 @@ impl AdtsSource {
             usize::try_from(len - first as u64).unwrap_or(usize::MAX),
         )?;
         let channels = usize::from(h.channel_cfg.max(1));
+        let unit = head.get(first + h.hdr..first + h.len);
+        let mode = probe_mode(h.rate_idx, channels, unit);
+        let dec = Decoder::with_sbr(h.rate_idx, channels, mode);
         Ok(Self {
-            dec: Decoder::new(h.rate_idx, channels),
+            channels: dec.out_channels(),
+            rate: dec.out_rate(),
+            frame_len: dec.frame_len(),
+            core_channels: channels,
+            mode,
+            dec,
             rate_idx: h.rate_idx,
-            channels,
             at: first as u64,
             first: first as u64,
             frames: 0,
@@ -1165,7 +1389,7 @@ impl super::stream::FrameSource for AdtsSource {
     }
 
     fn rate(&self) -> u32 {
-        RATES[self.rate_idx]
+        self.rate
     }
 
     fn trim(&self) -> (u64, Option<u64>) {
@@ -1205,7 +1429,7 @@ impl super::stream::FrameSource for AdtsSource {
 
     fn seek(&mut self, input: &mut super::stream::Input, frame: u64) -> Result<u64, CodecError> {
         let len = input.len();
-        let want = (frame / AAC_FRAME).saturating_sub(AAC_PREROLL);
+        let want = (frame / self.frame_len).saturating_sub(preroll(self.mode));
         let &(mut pos, mut n) = self
             .index
             .iter()
@@ -1229,8 +1453,8 @@ impl super::stream::FrameSource for AdtsSource {
         }
         self.at = pos;
         self.frames = n;
-        self.dec = Decoder::new(self.rate_idx, self.channels);
-        Ok(n * AAC_FRAME)
+        self.dec = Decoder::with_sbr(self.rate_idx, self.core_channels, self.mode);
+        Ok(n * self.frame_len)
     }
 }
 
@@ -1389,5 +1613,101 @@ mod tests {
         // assertion is that the call returned at all.
         assert!(l.spec.iter().all(|&s| s == 0.0));
         assert!(r.spec.iter().all(|&s| s == 0.0));
+    }
+
+    // ── HE-AAC (AU-06): fixtures encoded by the full FDK encoder
+    // (tests/fixtures/he-aac-enc), references decoded by ffmpeg. ──
+
+    fn graded(d: &super::Decoded, reference: &[f32], ch: usize, what: &str) -> f64 {
+        assert_eq!(usize::from(d.channels), ch, "{what}: channels");
+        assert_eq!(d.rate, 44_100, "{what}: SBR doubles the 22.05 kHz core");
+        assert_eq!(d.data.len(), reference.len(), "{what}: length");
+        // The reference is ffmpeg's 16-bit decode, so it is clipped where
+        // the signal overshoots full scale (the PS fixture's last frames
+        // reach -1.35); grade our float output through the same clip.
+        let clipped: Vec<f32> = d
+            .data
+            .iter()
+            .map(|v| v.clamp(-1.0, 32_767.0 / 32_768.0))
+            .collect();
+        let (snr, lag) = snr_db(reference, &clipped, ch, 2_048);
+        eprintln!("{what}: {snr:.1} dB at lag {lag}");
+        assert_eq!(lag, 0, "{what}: sample-aligned with the reference");
+        snr
+    }
+
+    #[test]
+    fn decodes_explicit_he_aac_m4a_like_ffmpeg() {
+        let d = decode_mp4(include_bytes!("../../tests/fixtures/src_he.m4a")).unwrap();
+        let reference = s16le(include_bytes!("../../tests/fixtures/src_he.m4a.ref"));
+        let snr = graded(&d, &reference, 2, "he-aac m4a (explicit SBR)");
+        assert!(snr > 70.0, "SNR {snr} dB");
+    }
+
+    #[test]
+    fn decodes_implicit_he_aac_adts_like_ffmpeg() {
+        let d = decode_adts(include_bytes!("../../tests/fixtures/src_he.aac")).unwrap();
+        let reference = s16le(include_bytes!("../../tests/fixtures/src_he.aac.ref"));
+        let snr = graded(&d, &reference, 2, "he-aac adts (implicit SBR)");
+        assert!(snr > 70.0, "SNR {snr} dB");
+    }
+
+    #[test]
+    fn decodes_mono_he_aac_adts_like_ffmpeg() {
+        let d = decode_adts(include_bytes!("../../tests/fixtures/src_he_mono.aac")).unwrap();
+        let reference = s16le(include_bytes!("../../tests/fixtures/src_he_mono.aac.ref"));
+        let snr = graded(&d, &reference, 1, "he-aac adts mono");
+        assert!(snr > 70.0, "SNR {snr} dB");
+    }
+
+    #[test]
+    fn decodes_explicit_he_aac_v2_m4a_like_ffmpeg() {
+        let d = decode_mp4(include_bytes!("../../tests/fixtures/src_hev2.m4a")).unwrap();
+        let reference = s16le(include_bytes!("../../tests/fixtures/src_hev2.m4a.ref"));
+        let snr = graded(&d, &reference, 2, "he-aac v2 m4a (explicit PS)");
+        assert!(snr > 70.0, "SNR {snr} dB");
+    }
+
+    #[test]
+    fn decodes_implicit_he_aac_v2_adts_like_ffmpeg() {
+        let d = decode_adts(include_bytes!("../../tests/fixtures/src_hev2.aac")).unwrap();
+        let reference = s16le(include_bytes!("../../tests/fixtures/src_hev2.aac.ref"));
+        let snr = graded(&d, &reference, 2, "he-aac v2 adts (implicit PS)");
+        assert!(snr > 70.0, "SNR {snr} dB");
+    }
+
+    #[test]
+    fn hostile_he_aac_payloads_degrade_never_panic() {
+        // Seeded byte flips across the SBR/PS fixtures: every outcome must
+        // be a decode or an error — a malformed SBR payload switches SBR off
+        // until the next header, a malformed PS payload switches PS off.
+        let mut rng = crate::rng::Rng::new(0xAE06);
+        for (bytes, mp4) in [
+            (
+                &include_bytes!("../../tests/fixtures/src_he.aac")[..],
+                false,
+            ),
+            (
+                &include_bytes!("../../tests/fixtures/src_hev2.aac")[..],
+                false,
+            ),
+            (&include_bytes!("../../tests/fixtures/src_he.m4a")[..], true),
+            (
+                &include_bytes!("../../tests/fixtures/src_hev2.m4a")[..],
+                true,
+            ),
+        ] {
+            for _ in 0..120 {
+                let mut b = bytes.to_vec();
+                for _ in 0..1 + (rng.below(8)) {
+                    let i = rng.below(b.len());
+                    b[i] ^= 1 << (rng.below(8));
+                }
+                let out = if mp4 { decode_mp4(&b) } else { decode_adts(&b) };
+                if let Ok(d) = out {
+                    assert!(d.data.iter().all(|v| v.is_finite()));
+                }
+            }
+        }
     }
 }

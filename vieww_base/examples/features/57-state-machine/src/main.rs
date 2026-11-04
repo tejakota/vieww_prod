@@ -131,7 +131,7 @@ impl Widget for Chip {
                     ..TextStyle::default()
                 }),
                 Container::new()
-                    .color(Color::rgb(58, 122, 246))
+                    .color(Color::rgb(44, 98, 234))
                     .radius(8.0)
                     .child(SizedBox::from_size(Size::new(
                         150.0 + 70.0 * scale,
@@ -139,7 +139,7 @@ impl Widget for Chip {
                     ))),
                 Text::new(format!("pose: {scale:.2}")).style(TextStyle {
                     size: 12.0,
-                    color: Color::rgb(130, 140, 160),
+                    color: Color::rgb(90, 99, 117),
                     ..TextStyle::default()
                 }),
             ])

@@ -263,7 +263,38 @@ pub struct Config {
     pub env: Vec<(String, String)>,
     /// Signing keys this machine accepts (`trust "name" key="hex"`).
     pub trusted: Vec<TrustedKey>,
+    /// The update channel (WR-04): `update url="..." key="..." check=true`.
+    /// Empty url = no channel configured on this machine (checked by
+    /// `wright update check`, which says so in plain words).
+    pub update: UpdateSettings,
     pub source: String,
+}
+
+/// The signed-update channel settings (`update ...` lines in config.kdl).
+#[derive(Debug, Clone, PartialEq)]
+pub struct UpdateSettings {
+    /// Where the signed manifest lives: one static file, plain GET —
+    /// the only outbound traffic an update check ever makes.
+    pub url: String,
+    /// The release key that must have signed the manifest (64 hex or a
+    /// did:key). Without it nothing installs, whatever it says.
+    pub key: String,
+    /// Whether update checks are on. `None`: not set (on, the default).
+    pub check: Option<bool>,
+}
+
+// (Not `#[derive(Default)]`: `check`'s None-means-on default is a
+// decision, and a derived impl would let a reader assume the fields'
+// own defaults instead of reading this one.)
+#[allow(clippy::derivable_impls)]
+impl Default for UpdateSettings {
+    fn default() -> Self {
+        UpdateSettings {
+            url: String::new(),
+            key: String::new(),
+            check: None,
+        }
+    }
 }
 
 /// `*`-only glob match.
@@ -507,6 +538,7 @@ impl Config {
             ca_file: None,
             env: Vec::new(),
             trusted: Vec::new(),
+            update: UpdateSettings::default(),
             source: "built-in defaults".into(),
         }
     }
@@ -564,6 +596,7 @@ impl Config {
             ca_file: None,
             env: Vec::new(),
             trusted: Vec::new(),
+            update: UpdateSettings::default(),
             source: source.into(),
         };
         for node in &doc {
@@ -687,7 +720,25 @@ impl Config {
                     cfg.trusted.retain(|t| t.key != key);
                     cfg.trusted.push(TrustedKey { name, key });
                 }
-                other => return Err(format!("{source}: line {}: unknown setting '{other}' (provider | price | interview | voice | builtin | worker | mcp | tls | env | trust)", node.line)),
+                "update" => {
+                    cfg.update.url = s("url").unwrap_or_default().trim().to_string();
+                    let key = s("key").unwrap_or_default().trim().to_string();
+                    if !key.is_empty() && crate::signing::normalize_key(&key).is_none() {
+                        return Err(format!(
+                            "{source}: line {}: update key= must be 64 hex characters or a did:key (the release key that signs update manifests)",
+                            node.line
+                        ));
+                    }
+                    cfg.update.key = key;
+                    if let Some(v) = node.prop("check") {
+                        cfg.update.check = Some(match v {
+                            KdlValue::Bool(b) => *b,
+                            KdlValue::Str(t) if t == "true" || t == "false" => t == "true",
+                            _ => return Err(format!("{source}: line {}: update check=true or check=false", node.line)),
+                        });
+                    }
+                }
+                other => return Err(format!("{source}: line {}: unknown setting '{other}' (provider | price | interview | voice | builtin | worker | mcp | tls | env | trust | update)", node.line)),
             }
         }
         Ok(cfg)
@@ -776,6 +827,16 @@ impl Config {
         }
         for t in &self.trusted {
             out.push_str(&format!("trust {} key={}\n", q(&t.name), q(&t.key)));
+        }
+        if !self.update.url.is_empty() || !self.update.key.is_empty() {
+            out.push_str(&format!("update url={}", q(&self.update.url)));
+            if !self.update.key.is_empty() {
+                out.push_str(&format!(" key={}", q(&self.update.key)));
+            }
+            if let Some(c) = self.update.check {
+                out.push_str(&format!(" check={c}"));
+            }
+            out.push('\n');
         }
         out
     }

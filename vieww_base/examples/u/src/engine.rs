@@ -12,7 +12,7 @@
 //! deterministic baseline — is instant and allocation-light: a cue read
 //! over a few hundred bytes. A model runtime keeps the same shape from
 //! the caller's side (one call in, one record out) while moving its own
-//! arithmetic to a worker thread behind [`Runtime`](u_ml_runtime::Runtime)
+//! arithmetic to a worker thread behind [`Runtime`]
 //! — and when it fails, §5.6's tested recovery happens *here*: the
 //! baseline that never left answers instead, which is why it is kept
 //! beside whatever engine was constructed, not reconstructed on demand.
@@ -30,9 +30,7 @@ use std::path::Path;
 use u_core::{Budget, Error, Id};
 use u_decision::{Assessment, Hint, Input};
 use u_feedback::Feedback;
-use u_memory::{
-    AssessmentRecord, DecisionRecord, FeedbackRecord, SavedRecord, Store, Verdict,
-};
+use u_memory::{AssessmentRecord, DecisionRecord, FeedbackRecord, SavedRecord, Store, Verdict};
 use u_ml_runtime::{to_json, Deterministic, Runtime};
 use u_persona::Persona;
 

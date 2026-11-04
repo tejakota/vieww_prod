@@ -125,8 +125,18 @@ static V_UR: [Seg; 4] = [
         (101.0, -77.0),
         Some(((101.0, -77.0), 3.0)),
     ),
-    seg((77.0, -36.0), (93.0, -33.0), (110.0, -36.0), Some(((110.0, -36.0), 2.5))),
-    seg((64.0, -68.0), (74.0, -80.0), (88.0, -90.0), Some(((88.0, -90.0), 2.5))),
+    seg(
+        (77.0, -36.0),
+        (93.0, -33.0),
+        (110.0, -36.0),
+        Some(((110.0, -36.0), 2.5)),
+    ),
+    seg(
+        (64.0, -68.0),
+        (74.0, -80.0),
+        (88.0, -90.0),
+        Some(((88.0, -90.0), 2.5)),
+    ),
 ];
 static V_LL: [Seg; 3] = [
     seg((-34.0, 33.0), (-50.0, 43.0), (-71.0, 43.0), None),
@@ -136,17 +146,37 @@ static V_LL: [Seg; 3] = [
         (-104.0, 73.0),
         Some(((-104.0, 73.0), 3.0)),
     ),
-    seg((-69.0, 61.0), (-78.0, 76.0), (-91.0, 87.0), Some(((-91.0, 87.0), 2.5))),
+    seg(
+        (-69.0, 61.0),
+        (-78.0, 76.0),
+        (-91.0, 87.0),
+        Some(((-91.0, 87.0), 2.5)),
+    ),
 ];
 static V_LR: [Seg; 3] = [
     seg((35.0, 32.0), (43.0, 49.0), (63.0, 62.0), None),
-    seg((83.0, 75.0), (86.0, 81.0), (91.0, 100.0), Some(((91.0, 100.0), 3.0))),
-    seg((48.0, 76.0), (48.0, 90.0), (53.0, 106.0), Some(((53.0, 106.0), 2.5))),
+    seg(
+        (83.0, 75.0),
+        (86.0, 81.0),
+        (91.0, 100.0),
+        Some(((91.0, 100.0), 3.0)),
+    ),
+    seg(
+        (48.0, 76.0),
+        (48.0, 90.0),
+        (53.0, 106.0),
+        Some(((53.0, 106.0), 2.5)),
+    ),
 ];
 // The two lateral mint strands, left and right.
 static M_L: [Seg; 3] = [
     seg((-42.0, -7.0), (-58.0, -2.0), (-76.0, 7.0), None),
-    seg((-94.0, 16.0), (-99.0, 6.0), (-113.0, 0.0), Some(((-113.0, 0.0), 3.0))),
+    seg(
+        (-94.0, 16.0),
+        (-99.0, 6.0),
+        (-113.0, 0.0),
+        Some(((-113.0, 0.0), 3.0)),
+    ),
     seg(
         (-86.0, -7.0),
         (-100.0, -10.0),
@@ -156,20 +186,54 @@ static M_L: [Seg; 3] = [
 ];
 static M_R: [Seg; 3] = [
     seg((42.0, -2.0), (57.0, 5.0), (75.0, 16.0), None),
-    seg((93.0, 27.0), (99.0, 19.0), (112.0, 14.0), Some(((112.0, 14.0), 3.0))),
-    seg((86.0, 5.0), (101.0, 1.0), (113.0, 5.0), Some(((113.0, 5.0), 2.3))),
+    seg(
+        (93.0, 27.0),
+        (99.0, 19.0),
+        (112.0, 14.0),
+        Some(((112.0, 14.0), 3.0)),
+    ),
+    seg(
+        (86.0, 5.0),
+        (101.0, 1.0),
+        (113.0, 5.0),
+        Some(((113.0, 5.0), 2.3)),
+    ),
 ];
 
 /// The six tendrils, in the order the splash grows them: upper-left,
 /// upper-right, left, right, lower-left, lower-right — the reference
 /// splash's own sequence.
 static STRANDS: [Strand; 6] = [
-    Strand { from: (-8.0, -13.0), violet: true, segs: &V_UL },
-    Strand { from: (12.0, -12.0), violet: true, segs: &V_UR },
-    Strand { from: (-18.0, -2.0), violet: false, segs: &M_L },
-    Strand { from: (18.0, 3.0), violet: false, segs: &M_R },
-    Strand { from: (-12.0, 12.0), violet: true, segs: &V_LL },
-    Strand { from: (11.0, 13.0), violet: true, segs: &V_LR },
+    Strand {
+        from: (-8.0, -13.0),
+        violet: true,
+        segs: &V_UL,
+    },
+    Strand {
+        from: (12.0, -12.0),
+        violet: true,
+        segs: &V_UR,
+    },
+    Strand {
+        from: (-18.0, -2.0),
+        violet: false,
+        segs: &M_L,
+    },
+    Strand {
+        from: (18.0, 3.0),
+        violet: false,
+        segs: &M_R,
+    },
+    Strand {
+        from: (-12.0, 12.0),
+        violet: true,
+        segs: &V_LL,
+    },
+    Strand {
+        from: (11.0, 13.0),
+        violet: true,
+        segs: &V_LR,
+    },
 ];
 
 /// How assembled the companion is — the splash's whole choreography, handed
@@ -179,7 +243,7 @@ pub struct Reveal {
     /// The eye's scale-in, `0..1`.
     pub eye: f32,
     /// How far each tendril has grown from the eye outward, `0..1`, in
-    /// [`STRANDS`] order. Within a tendril the growth is sequential: stem
+    /// `STRANDS` order. Within a tendril the growth is sequential: stem
     /// first, branches after.
     pub strands: [f32; 6],
     /// The atmosphere — rings, aura pulse, sparks, the float — fading in,
@@ -476,7 +540,11 @@ fn paint_companion(
                         (1.0, IRIS_DEEP.with_alpha((230.0 * eye_alpha) as u8)),
                     ]),
                 );
-                ball.circle(iris_at, 0.045 * r, PUPIL.with_alpha((255.0 * eye_alpha) as u8));
+                ball.circle(
+                    iris_at,
+                    0.045 * r,
+                    PUPIL.with_alpha((255.0 * eye_alpha) as u8),
+                );
                 // The catchlights.
                 ball.circle(
                     c + Offset::new(-0.034 * r, -0.043 * r),
@@ -506,10 +574,7 @@ fn paint_companion(
 /// One tendril, grown to `grown` (`0..1`) of its whole length. The growth is
 /// sequential over the tendril's segments — stem first, branches sprouting
 /// after — and each branch's tip pops as its own cubic completes.
-#[allow(
-    clippy::cast_precision_loss,
-    clippy::too_many_arguments
-)]
+#[allow(clippy::cast_precision_loss, clippy::too_many_arguments)]
 fn paint_strand(
     book: &mut Sketchbook,
     c: Offset,
@@ -563,7 +628,11 @@ fn paint_strand(
             let color = violet_at(reach);
             // The signal strands: a faint solid base, a travelling dashed
             // spark over it.
-            book.stroke(path.clone(), color.with_alpha((70.0 * reveal_of(grown)) as u8), 0.018 * r);
+            book.stroke(
+                path.clone(),
+                color.with_alpha((70.0 * reveal_of(grown)) as u8),
+                0.018 * r,
+            );
             let mut dashes = StrokeStyle::rounded();
             dashes.dash = Some(Dash {
                 pattern: vec![0.047 * r, 0.087 * r],
@@ -678,7 +747,12 @@ pub fn sigil(size: f32, time: f32, burst: f32) -> Painting {
                     c + Offset::new(c2.0 * k, c2.1 * k),
                     c + Offset::new(to.0 * k, to.1 * k),
                 );
-                book.stroke_styled(path, AXON.with_alpha((215.0 * lift).min(255.0) as u8), 1.55 * k, style.clone());
+                book.stroke_styled(
+                    path,
+                    AXON.with_alpha((215.0 * lift).min(255.0) as u8),
+                    1.55 * k,
+                    style.clone(),
+                );
             }
 
             // The four end dots: violet above, mint below.
@@ -749,18 +823,14 @@ pub fn studio(time: f32, intensity: f32) -> Painting {
 }
 
 /// One bowing filament, from `a` to `b` through its two controls.
-fn filament(
-    book: &mut Sketchbook,
-    a: Pt,
-    c1: Pt,
-    c2: Pt,
-    b: Pt,
-    color: Color,
-    width: f32,
-) {
+fn filament(book: &mut Sketchbook, a: Pt, c1: Pt, c2: Pt, b: Pt, color: Color, width: f32) {
     let mut path = Path::new();
     path.move_to(Offset::new(a.0, a.1));
-    path.cubic_to(Offset::new(c1.0, c1.1), Offset::new(c2.0, c2.1), Offset::new(b.0, b.1));
+    path.cubic_to(
+        Offset::new(c1.0, c1.1),
+        Offset::new(c2.0, c2.1),
+        Offset::new(b.0, b.1),
+    );
     book.stroke(path, color, width);
 }
 
@@ -814,15 +884,79 @@ fn paint_room(book: &mut Sketchbook, s: Size, time: f32, intensity: f32) {
     // Eight filament strokes — the reference's four paths, each split at its
     // smooth join so the bow renders as drawn — at the reference's 16%.
     let a = (41.0 * intensity) as u8;
-    filament(book, (-20.0, 230.0), (42.0, 207.0), (47.0, 153.0), (99.0, 138.0), AXON.with_alpha(a), 1.3);
-    filament(book, (99.0, 138.0), (151.0, 123.0), (164.0, 113.0), (185.0, 65.0), AXON.with_alpha(a), 1.3);
-    filament(book, (439.0, 186.0), (394.0, 204.0), (373.0, 235.0), (376.0, 275.0), SYNAPSE.with_alpha(a), 1.3);
-    filament(book, (376.0, 275.0), (379.0, 315.0), (364.0, 329.0), (344.0, 348.0), SYNAPSE.with_alpha(a), 1.3);
+    filament(
+        book,
+        (-20.0, 230.0),
+        (42.0, 207.0),
+        (47.0, 153.0),
+        (99.0, 138.0),
+        AXON.with_alpha(a),
+        1.3,
+    );
+    filament(
+        book,
+        (99.0, 138.0),
+        (151.0, 123.0),
+        (164.0, 113.0),
+        (185.0, 65.0),
+        AXON.with_alpha(a),
+        1.3,
+    );
+    filament(
+        book,
+        (439.0, 186.0),
+        (394.0, 204.0),
+        (373.0, 235.0),
+        (376.0, 275.0),
+        SYNAPSE.with_alpha(a),
+        1.3,
+    );
+    filament(
+        book,
+        (376.0, 275.0),
+        (379.0, 315.0),
+        (364.0, 329.0),
+        (344.0, 348.0),
+        SYNAPSE.with_alpha(a),
+        1.3,
+    );
     let low = (35.0 * intensity) as u8;
-    filament(book, (-16.0, 735.0), (32.0, 710.0), (58.0, 723.0), (89.0, 759.0), AXON.with_alpha(low), 1.1);
-    filament(book, (89.0, 759.0), (120.0, 795.0), (141.0, 799.0), (181.0, 801.0), AXON.with_alpha(low), 1.1);
-    filament(book, (438.0, 694.0), (401.0, 672.0), (368.0, 693.0), (342.0, 725.0), SYNAPSE.with_alpha(low), 1.1);
-    filament(book, (342.0, 725.0), (316.0, 757.0), (294.0, 759.0), (262.0, 764.0), SYNAPSE.with_alpha(low), 1.1);
+    filament(
+        book,
+        (-16.0, 735.0),
+        (32.0, 710.0),
+        (58.0, 723.0),
+        (89.0, 759.0),
+        AXON.with_alpha(low),
+        1.1,
+    );
+    filament(
+        book,
+        (89.0, 759.0),
+        (120.0, 795.0),
+        (141.0, 799.0),
+        (181.0, 801.0),
+        AXON.with_alpha(low),
+        1.1,
+    );
+    filament(
+        book,
+        (438.0, 694.0),
+        (401.0, 672.0),
+        (368.0, 693.0),
+        (342.0, 725.0),
+        SYNAPSE.with_alpha(low),
+        1.1,
+    );
+    filament(
+        book,
+        (342.0, 725.0),
+        (316.0, 757.0),
+        (294.0, 759.0),
+        (262.0, 764.0),
+        SYNAPSE.with_alpha(low),
+        1.1,
+    );
 
     // The four sparks, each on its own slow twinkle.
     let sparks: [(Pt, f32, f32); 4] = [
@@ -860,9 +994,41 @@ fn paint_studio(book: &mut Sketchbook, s: Size, time: f32, intensity: f32) {
         Color::rgb(101, 223, 208).with_alpha((14.0 * intensity) as u8),
     );
     let a = (31.0 * intensity) as u8;
-    filament(book, (-30.0, 190.0), (22.0, 165.0), (42.0, 184.0), (68.0, 213.0), AXON.with_alpha(a), 1.2);
-    filament(book, (68.0, 213.0), (94.0, 242.0), (111.0, 246.0), (138.0, 238.0), AXON.with_alpha(a), 1.2);
-    filament(book, (433.0, 408.0), (389.0, 383.0), (360.0, 401.0), (339.0, 431.0), SYNAPSE.with_alpha(a), 1.2);
-    filament(book, (339.0, 431.0), (318.0, 461.0), (300.0, 470.0), (266.0, 472.0), SYNAPSE.with_alpha(a), 1.2);
+    filament(
+        book,
+        (-30.0, 190.0),
+        (22.0, 165.0),
+        (42.0, 184.0),
+        (68.0, 213.0),
+        AXON.with_alpha(a),
+        1.2,
+    );
+    filament(
+        book,
+        (68.0, 213.0),
+        (94.0, 242.0),
+        (111.0, 246.0),
+        (138.0, 238.0),
+        AXON.with_alpha(a),
+        1.2,
+    );
+    filament(
+        book,
+        (433.0, 408.0),
+        (389.0, 383.0),
+        (360.0, 401.0),
+        (339.0, 431.0),
+        SYNAPSE.with_alpha(a),
+        1.2,
+    );
+    filament(
+        book,
+        (339.0, 431.0),
+        (318.0, 461.0),
+        (300.0, 470.0),
+        (266.0, 472.0),
+        SYNAPSE.with_alpha(a),
+        1.2,
+    );
     let _ = time;
 }

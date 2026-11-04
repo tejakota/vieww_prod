@@ -134,6 +134,13 @@ struct Node {
     subtree_revision: u64,
 }
 
+/// The next stamp for [`RenderTree::structure_changes`].
+fn next_structure_change() -> u64 {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static NEXT: AtomicU64 = AtomicU64::new(1);
+    NEXT.fetch_add(1, Ordering::Relaxed)
+}
+
 /// The tree of render objects: layout, paint and hit testing.
 ///
 /// Like the element tree, this is an arena rather than a tree of owned boxes,
@@ -154,6 +161,11 @@ pub struct RenderTree {
     /// Total number of actual layout executions. A monotonic counter lets the
     /// frame driver classify layout work without walking the whole tree.
     layout_runs: u64,
+    /// The last insert or remove, as a stamp from one process-wide sequence:
+    /// a counter that lets the
+    /// frame driver skip work that only matters when the tree's membership
+    /// changed (autofocus on mount) without walking it to find out.
+    structure_changes: u64,
     /// Subtree roots awaiting layout.
     ///
     /// A relayout boundary stops the pending walk, which means the root never
@@ -266,6 +278,7 @@ impl Default for RenderTree {
             free: Vec::new(),
             root: None,
             layout_runs: 0,
+            structure_changes: 0,
             fonts: FontStore::embedded_only(),
             pending_boundaries: FastSet::default(),
             max_hit_slop: 0.0,
@@ -399,6 +412,7 @@ impl RenderTree {
     /// Used while syncing from the element tree, where structure is assigned in
     /// a second step by [`set_children`](Self::set_children).
     pub fn insert_detached(&mut self, object: Box<dyn RenderObject>) -> RenderId {
+        self.structure_changes = next_structure_change();
         let id = match self.free.pop() {
             Some(index) => RenderId::new(index, self.slots[index as usize].generation),
             None => {
@@ -537,6 +551,7 @@ impl RenderTree {
         slot.node = None;
         slot.generation = slot.generation.wrapping_add(1);
         self.free.push(id.index);
+        self.structure_changes = next_structure_change();
     }
 
     /// Replace the object in a slot, keeping its identity and children.
@@ -2154,6 +2169,15 @@ impl RenderTree {
     #[must_use]
     pub const fn layout_runs(&self) -> u64 {
         self.layout_runs
+    }
+
+    /// A stamp of the last insert or remove. Unchanged between two reads
+    /// means the same objects are in the tree. The stamps come from one
+    /// process-wide sequence, so a tree replaced wholesale never repeats
+    /// a stamp the old one handed out.
+    #[must_use]
+    pub const fn structure_changes(&self) -> u64 {
+        self.structure_changes
     }
 }
 

@@ -147,7 +147,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     reel.advance(&mut driver, 4.9);
     u::take(&shared).nav.push(u::settings_route(shared.clone()));
     reel.advance(&mut driver, 1.5);
-    shot(&mut renderer, &mut driver, &out, "12-settings-reference-state")?;
+    shot(
+        &mut renderer,
+        &mut driver,
+        &out,
+        "12-settings-reference-state",
+    )?;
 
     // ---- the decision workspace, on a scratch engine ----------------------
     // The plan's own worked example (§2.3): the move to another city, its
@@ -197,13 +202,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // The assessed decision is in the store now: the room lists it, and the
     // save the workspace offers marks it for the SAVED door.
     state.save_decision();
-    u::take(&shared).nav.push(u::history_route(shared.clone(), false));
+    u::take(&shared)
+        .nav
+        .push(u::history_route(shared.clone(), false));
     reel.advance(&mut driver, 0.35);
     shot(&mut renderer, &mut driver, &out, "18-history")?;
 
     state.nav.pop();
     reel.advance(&mut driver, 0.5);
-    u::take(&shared).nav.push(u::history_route(shared.clone(), true));
+    u::take(&shared)
+        .nav
+        .push(u::history_route(shared.clone(), true));
     reel.advance(&mut driver, 0.35);
     shot(&mut renderer, &mut driver, &out, "19-history-saved")?;
 

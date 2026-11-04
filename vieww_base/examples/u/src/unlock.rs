@@ -217,64 +217,70 @@ impl UnlockScreen {
         let screen = Stack::new()
             .fit(StackFit::Expand)
             .push(Positioned::fill().child(neurons::atmosphere(t, 0.4)))
-            .push(place(0.0, top_of(272.0, 40.0)).width(420.0).child(
-                Text::new("U")
-                    .style(
-                        TextStyle::new(40.0)
-                            .weight(FontWeight::Bold)
-                            .letter_spacing(-2.5)
-                            .color(Color::rgb(241, 239, 255)),
-                    )
-                    .align(TextAlign::Center),
-            ))
-            .push(place(0.0, top_of(287.0, 8.5)).width(420.0).child(
-                Text::new("PERSONA COMPANION")
-                    .style(
-                        TextStyle::new(8.5)
-                            .weight(FontWeight::Medium)
-                            .letter_spacing(2.6)
-                            .color(Color::rgb(155, 139, 220)),
-                    )
-                    .align(TextAlign::Center),
-            ))
-            .push(place(185.0, 296.0).child(neurons::sigil(50.0, t, 0.0)))
-            .push(place(0.0, top_of(372.0, 17.0)).width(420.0).child(
-                Text::new("Locked")
-                    .style(
-                        TextStyle::new(17.0)
-                            .weight(FontWeight::Medium)
-                            .color(INK),
-                    )
-                    .align(TextAlign::Center),
-            ))
-            .push(place(24.0, 396.0).child(
-                SizedBox::from_size(Size::new(372.0, 44.0)).child(
-                    Container::new()
-                        .decoration(
-                            BoxDecoration::new()
-                                .color(CARD)
-                                .radius(14.0)
-                                .border(Border::new(EDGE, 1.0)),
+            .push(
+                place(0.0, top_of(272.0, 40.0)).width(420.0).child(
+                    Text::new("U")
+                        .style(
+                            TextStyle::new(40.0)
+                                .weight(FontWeight::Bold)
+                                .letter_spacing(-2.5)
+                                .color(Color::rgb(241, 239, 255)),
                         )
-                        .alignment(Alignment::CENTER)
-                        .padding(EdgeInsets::symmetric(12.0, 0.0))
-                        .child(
-                            Text::new(line)
-                                .style(TextStyle::new(11.0).color(MUTED))
-                                .align(TextAlign::Center),
-                        ),
+                        .align(TextAlign::Center),
                 ),
-            ))
+            )
+            .push(
+                place(0.0, top_of(287.0, 8.5)).width(420.0).child(
+                    Text::new("PERSONA COMPANION")
+                        .style(
+                            TextStyle::new(8.5)
+                                .weight(FontWeight::Medium)
+                                .letter_spacing(2.6)
+                                .color(Color::rgb(155, 139, 220)),
+                        )
+                        .align(TextAlign::Center),
+                ),
+            )
+            .push(place(185.0, 296.0).child(neurons::sigil(50.0, t, 0.0)))
+            .push(
+                place(0.0, top_of(372.0, 17.0)).width(420.0).child(
+                    Text::new("Locked")
+                        .style(TextStyle::new(17.0).weight(FontWeight::Medium).color(INK))
+                        .align(TextAlign::Center),
+                ),
+            )
+            .push(
+                place(24.0, 396.0).child(
+                    SizedBox::from_size(Size::new(372.0, 44.0)).child(
+                        Container::new()
+                            .decoration(
+                                BoxDecoration::new()
+                                    .color(CARD)
+                                    .radius(14.0)
+                                    .border(Border::new(EDGE, 1.0)),
+                            )
+                            .alignment(Alignment::CENTER)
+                            .padding(EdgeInsets::symmetric(12.0, 0.0))
+                            .child(
+                                Text::new(line)
+                                    .style(TextStyle::new(11.0).color(MUTED))
+                                    .align(TextAlign::Center),
+                            ),
+                    ),
+                ),
+            )
             .push(place(24.0, 452.0).child(button))
-            .push(place(0.0, top_of(512.0, 9.0)).width(420.0).child(
-                Text::new("U  ·  ON-DEVICE PERSONA")
-                    .style(
-                        TextStyle::new(9.0)
-                            .letter_spacing(0.6)
-                            .color(Color::rgb(94, 109, 132)),
-                    )
-                    .align(TextAlign::Center),
-            ));
+            .push(
+                place(0.0, top_of(512.0, 9.0)).width(420.0).child(
+                    Text::new("U  ·  ON-DEVICE PERSONA")
+                        .style(
+                            TextStyle::new(9.0)
+                                .letter_spacing(0.6)
+                                .color(Color::rgb(94, 109, 132)),
+                        )
+                        .align(TextAlign::Center),
+                ),
+            );
 
         stage::screen(screen)
     }

@@ -78,6 +78,10 @@ pub struct FireOptions {
     pub config: Option<Config>,
     /// Let http tools reach private addresses (local dev, tests).
     pub allow_private_network: bool,
+    /// Let the BROWSER tool serve the built site on a loopback listener
+    /// of its own (WR-11). The tool's reach, never the agent's: the
+    /// http tools' SSRF guard is untouched.
+    pub browser_loopback: bool,
     /// Resume this run instead of starting a new one.
     pub resume: Option<RunId>,
     /// Ignore the cache (re-run everything).
@@ -96,6 +100,7 @@ impl Default for FireOptions {
             listeners: Vec::new(),
             config: None,
             allow_private_network: false,
+            browser_loopback: false,
             resume: None,
             no_cache: false,
             reproducible: false,
@@ -259,6 +264,7 @@ pub fn fire(project_dir: &Path, opts: FireOptions) -> Result<RunSummary, String>
     tools.secrets = bp.chips.secrets.clone();
     tools.allowed_hosts = policy.as_ref().and_then(|p| p.allow_hosts.clone());
     tools.allow_private_network = opts.allow_private_network || tools.allow_private_network;
+    tools.browser_loopback = opts.browser_loopback || tools.browser_loopback;
     if bp.project.language == "rust" {
         let cargo_home = std::env::var("CARGO_HOME")
             .map(PathBuf::from)

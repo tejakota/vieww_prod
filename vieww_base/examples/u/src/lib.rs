@@ -47,10 +47,10 @@ use std::time::Duration;
 use vieww::animation::Ticker;
 use vieww::prelude::*;
 use vieww::{FrameDriver, NavigatorController, ScrollController};
+use vieww_foundation::SharedServices;
 #[cfg(target_os = "android")]
 use vieww_platform_winit::AndroidApp;
 use vieww_platform_winit::App;
-use vieww_foundation::SharedServices;
 use vieww_text::FontStore;
 use vieww_widget::{Inherited, RouteTransition};
 
@@ -167,7 +167,7 @@ pub struct AppState {
     /// Training sessions today — the sketch's answers and the day's own, reset
     /// by the first event of a new UTC day.
     pub sessions: Signal<u32>,
-    /// Answers recorded, ever — the sketch is the first [`ask::ASKS.len()`]
+    /// Answers recorded, ever — the sketch is the first `ask::ASKS.len()`
     /// of them, and this number is the only thing that decides which phase
     /// home is in.
     pub answers: Signal<u32>,
@@ -259,7 +259,7 @@ impl AppState {
         self.commit(events::Event::SketchSeen);
     }
 
-    /// Dismiss home's nudge for this session. Not an event — see [`nudge`].
+    /// Dismiss home's nudge for this session. Not an event — see `nudge`.
     pub fn dismiss_nudge(&self) {
         self.nudge.set(false);
     }
@@ -813,7 +813,11 @@ pub fn workspace_route(shared: Shared) -> Route {
 #[must_use]
 pub fn history_route(shared: Shared, saved_only: bool) -> Route {
     Route::new(
-        if saved_only { "history-saved" } else { "history" },
+        if saved_only {
+            "history-saved"
+        } else {
+            "history"
+        },
         Rc::new(move |_| {
             HistoryScreen {
                 state: take(&shared),

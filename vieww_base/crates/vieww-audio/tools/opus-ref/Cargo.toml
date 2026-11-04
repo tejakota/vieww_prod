@@ -1,0 +1,14 @@
+# Fixture tool only: libopus (the RFC 6716 reference implementation, BSD-3,
+# vendored and statically built by audiopus_sys) as the encoder of the Opus
+# fixtures and as the oracle their `.ref` decodes come from. Its own
+# workspace, so it never joins vieww's dependency graph; `make.sh` runs it.
+[package]
+name = "opus-ref"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+audiopus_sys = { version = "=0.2.2", features = ["static"] }

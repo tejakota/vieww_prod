@@ -5,6 +5,10 @@
 #   <name>.vst3   the VST3 bundle: Contents/<arch>-linux/<name>.so,
 #                 Contents/MacOS/<name> (+ Info.plist, PkgInfo),
 #                 Contents/<arch>-win/<name>.vst3
+#   <name>.lv2    the LV2 bundle directory with the library in it; the
+#                 TTLs (manifest.ttl, <name>.ttl) are generated into the
+#                 same directory by the lv2_bundle tests, which
+#                 check-plugins.sh runs with VIEWW_LV2_BUNDLE_DIR
 #
 # Usage: tools/bundle.sh <dir with built libraries> <output dir> <name>...
 set -euo pipefail
@@ -41,6 +45,8 @@ for name in "$@"; do
       cp "$lib" "$DST/$name.clap"
       mkdir -p "$DST/$name.vst3/Contents/$ARCH-linux"
       cp "$lib" "$DST/$name.vst3/Contents/$ARCH-linux/$name.so"
+      mkdir -p "$DST/$name.lv2"
+      cp "$lib" "$DST/$name.lv2/$name.so"
       ;;
     macos)
       lib="$SRC/lib$name.dylib"
@@ -51,6 +57,8 @@ for name in "$@"; do
         plist "$name" "$kind" > "$b/Info.plist"
         printf 'BNDL????' > "$b/PkgInfo"
       done
+      mkdir -p "$DST/$name.lv2"
+      cp "$lib" "$DST/$name.lv2/$name.dylib"
       ;;
     windows)
       lib="$SRC/$name.dll"
@@ -58,7 +66,9 @@ for name in "$@"; do
       w=x86_64-win; [[ "$ARCH" == aarch64 ]] && w=arm64-win
       mkdir -p "$DST/$name.vst3/Contents/$w"
       cp "$lib" "$DST/$name.vst3/Contents/$w/$name.vst3"
+      mkdir -p "$DST/$name.lv2"
+      cp "$lib" "$DST/$name.lv2/$name.dll"
       ;;
   esac
-  echo "  $DST/$name.clap  $DST/$name.vst3"
+  echo "  $DST/$name.clap  $DST/$name.vst3  $DST/$name.lv2"
 done

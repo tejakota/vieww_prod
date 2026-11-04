@@ -2068,6 +2068,7 @@ name = "feature-harness"
 version = "0.1.0"
 dependencies = [
  "vieww",
+ "vieww-accessibility",
  "vieww-animation",
  "vieww-element",
  "vieww-foundation",
@@ -5004,6 +5005,7 @@ dependencies = [
 name = "reload-host"
 version = "0.1.0"
 dependencies = [
+ "vieww-devtools",
  "vieww-foundation",
  "vieww-platform-winit",
  "vieww-reload",
@@ -6257,6 +6259,7 @@ name = "vieww-accessibility"
 version = "0.1.0"
 dependencies = [
  "vieww-foundation",
+ "vieww-paint",
  "vieww-render",
  "vieww-test-harness",
  "vieww-widget",
@@ -6295,6 +6298,7 @@ name = "vieww-audio-plugin"
 version = "0.1.0"
 dependencies = [
  "vieww-audio",
+ "vieww-paint",
 ]
 
 [[package]]
@@ -6303,6 +6307,7 @@ version = "0.1.0"
 dependencies = [
  "vieww-foundation",
  "vieww-hardware",
+ "vieww-update",
 ]
 
 [[package]]
@@ -6571,6 +6576,7 @@ dependencies = [
  "vieww-gpu",
  "vieww-hal",
  "vieww-hardware",
+ "vieww-interaction",
  "vieww-paint",
  "vieww-render",
  "vieww-render-planner",
@@ -6722,6 +6728,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "vieww-update"
+version = "0.1.0"
+
+[[package]]
 name = "vieww-video"
 version = "0.1.0"
 dependencies = [
@@ -6772,9 +6782,12 @@ dependencies = [
  "tree-sitter-rust",
  "tree-sitter-toml-ng",
  "tree-sitter-yaml",
+ "ttf-parser",
  "vieww",
+ "vieww-accessibility",
  "vieww-animation",
  "vieww-asset",
+ "vieww-collab",
  "vieww-element",
  "vieww-foundation",
  "vieww-gestures",
@@ -6786,6 +6799,13 @@ dependencies = [
  "vieww-test-harness",
  "vieww-text",
  "vieww-widget",
+]
+
+[[package]]
+name = "viewwstudio-plugin-example"
+version = "0.1.0"
+dependencies = [
+ "vieww",
 ]
 
 [[package]]

@@ -100,7 +100,8 @@ fn cone_paint(t: f32) -> WidgetNode {
             book.circle(
                 center,
                 640.0,
-                Gradient::sweep(Offset::new(0.5, 0.5), theta - std::f32::consts::TAU, theta).with_dither()
+                Gradient::sweep(Offset::new(0.5, 0.5), theta - std::f32::consts::TAU, theta)
+                    .with_dither()
                     .with_stops(&[
                         (0.0, alpha(VIOLET, 0.0)),
                         (0.70, alpha(VIOLET, 0.0)),

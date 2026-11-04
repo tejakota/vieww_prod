@@ -55,7 +55,7 @@ fn read_out(world: &World) -> Snapshot {
                 body.position,
                 radius,
                 if body.is_dynamic() {
-                    Color::rgb(58, 122, 246)
+                    Color::rgb(44, 98, 234)
                 } else {
                     Color::rgb(150, 158, 175)
                 },

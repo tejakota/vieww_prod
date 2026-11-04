@@ -152,6 +152,34 @@ pub fn dispatch(studio: &Studio, event: &KeyEvent, host: TargetPlatform) -> bool
         }
     }
 
+    // Canvas editing owns the arrows while it is armed (ST-01): width and
+    // height follow the axes, Alt moves to padding and spacing, Shift makes
+    // a nudge ten instead of one. Before the Inspector's arrows — a mode
+    // somebody turned on explicitly outranks a focus the last click left
+    // behind — and only when there is a say line picked to nudge.
+    if studio.canvas_edit.peek() && event.is_down() {
+        use crate::state::Handle;
+        use vieww_foundation::{LogicalKey, NamedKey};
+        let step = if event.modifiers.shift() { 10.0 } else { 1.0 };
+        let nudge = match (&event.key, event.modifiers.alt()) {
+            (LogicalKey::Named(NamedKey::ArrowLeft), false) => Some((Handle::Wide, -step)),
+            (LogicalKey::Named(NamedKey::ArrowRight), false) => Some((Handle::Wide, step)),
+            (LogicalKey::Named(NamedKey::ArrowUp), false) => Some((Handle::Tall, step)),
+            (LogicalKey::Named(NamedKey::ArrowDown), false) => Some((Handle::Tall, -step)),
+            (LogicalKey::Named(NamedKey::ArrowLeft), true) => Some((Handle::Padded, -step)),
+            (LogicalKey::Named(NamedKey::ArrowRight), true) => Some((Handle::Padded, step)),
+            (LogicalKey::Named(NamedKey::ArrowUp), true) => Some((Handle::Spaced, step)),
+            (LogicalKey::Named(NamedKey::ArrowDown), true) => Some((Handle::Spaced, -step)),
+            _ => None,
+        };
+        if let Some((handle, delta)) = nudge {
+            if studio.picked_say_line().is_some() {
+                studio.canvas_nudge(handle, delta);
+                return true;
+            }
+        }
+    }
+
     // The Inspector's outline owns the arrows, Home and End while it has the
     // keys (a row was clicked and the editor has not been since) (ST-06).
     if event.is_down() && event.modifiers.is_empty() {

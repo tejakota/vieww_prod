@@ -12,7 +12,7 @@ fn fixtures() -> std::path::PathBuf {
 #[test]
 fn every_fixture_passes_the_oracle() {
     let mut checked = 0;
-    let mut rejected = 0;
+    let mut opus = 0;
     let dir = fixtures();
     let names = std::fs::read_dir(&dir)
         .expect("fixtures directory")
@@ -22,22 +22,24 @@ fn every_fixture_passes_the_oracle() {
             !n.starts_with('.')
                 && !n.contains("make")
                 && !n.ends_with(".ref")
+                && !n.ends_with(".rng")
                 && !n.starts_with("README")
         })
         .collect::<Vec<_>>();
     assert!(!names.is_empty(), "no fixtures found in {}", dir.display());
     for name in &names {
         let bytes = std::fs::read(dir.join(name)).expect(name);
+        // Every fixture is meant to decode — a rejection here means
+        // the oracle's shape bounds (or a decoder) drifted.
         match vieww_audio::codec::decode(&bytes) {
             Ok(d) => {
                 common::check(&d);
                 checked += 1;
+                opus += usize::from(name.ends_with(".opus"));
             }
-            Err(_) => rejected += 1,
+            Err(e) => panic!("{name} stopped decoding: {e}"),
         }
     }
-    // Every fixture is meant to decode — a rejection here means the
-    // oracle's shape bounds (or a decoder) drifted.
-    assert_eq!(rejected, 0, "a fixture stopped decoding");
+    assert!(opus >= 7, "the Opus fixtures went missing: {opus}");
     assert!(checked >= 10, "only {checked} fixtures checked");
 }

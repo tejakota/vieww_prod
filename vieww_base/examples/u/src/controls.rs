@@ -57,8 +57,7 @@ pub fn daily_slider(value: f32, time: f32, on_pick: Rc<dyn Fn(f32)>) -> WidgetNo
         .drag_axis(Axis::Horizontal)
         .on_drag_start(move |_| held_start.set(value))
         .on_drag_update(move |details| {
-            let next = (held_update.get() + details.delta.dx / TRACK * STEPS)
-                .clamp(LOW, HIGH);
+            let next = (held_update.get() + details.delta.dx / TRACK * STEPS).clamp(LOW, HIGH);
             held_update.set(next);
             pick_drag(next);
         })
@@ -140,14 +139,15 @@ pub fn pill(ctx: &BuildContext, on: bool, on_flip: Rc<dyn Fn(bool)>) -> WidgetNo
     // Resolved now, while the build context is alive: the animation's
     // builder runs after the build has gone.
     let fade = vieww_widget::ThemeData::of(ctx).motion.duration_short;
-    Animated::new(f32::from(on)).build(move |travel| {
-        let on_flip = on_flip.clone();
-        Pressable::new(move |press| pill_painting(travel, press).into())
-            .fade(fade)
-            .on_tap(move || on_flip(!on))
-            .into()
-    })
-    .into()
+    Animated::new(f32::from(on))
+        .build(move |travel| {
+            let on_flip = on_flip.clone();
+            Pressable::new(move |press| pill_painting(travel, press).into())
+                .fade(fade)
+                .on_tap(move || on_flip(!on))
+                .into()
+        })
+        .into()
 }
 
 /// The pill itself, at `travel` (`0` off, `1` on) and `press` (`0..1`).

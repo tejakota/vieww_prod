@@ -278,6 +278,36 @@ pub trait RenderObject: Any + Debug + 'static {
         false
     }
 
+    /// Whether this object takes the keyboard the moment it is mounted.
+    ///
+    /// Read once per object, after the build that attached it: the frame
+    /// driver focuses it then and never again, so a field that asked for
+    /// focus does not steal it back on every later rebuild. A command
+    /// palette's filter is the case — opened from a shortcut, it has to be
+    /// typed into without a click. Defaults to `false`, and an object that
+    /// answers `true` must also be [`is_focusable`](Self::is_focusable).
+    fn wants_autofocus(&self) -> bool {
+        false
+    }
+
+    /// Whether this object wants [`placed`](Self::placed) after layout.
+    ///
+    /// For an object whose job reaches outside vieww's surface — a native
+    /// view the OS composites at a window position — and so must hear where
+    /// layout put it. Read when the object is mounted; the frame driver keeps
+    /// the list, so a frame pays only for the objects that asked.
+    fn wants_placement(&self) -> bool {
+        false
+    }
+
+    /// After every layout: this object's bounds, in logical pixels from the
+    /// window's top-left. Only called when
+    /// [`wants_placement`](Self::wants_placement) answered `true`; an
+    /// implementation should make an unchanged rectangle cheap.
+    fn placed(&self, bounds: Rect) {
+        let _ = bounds;
+    }
+
     /// Whether Tab (and [`FrameDriver::focus_next`](crate::FrameDriver::focus_next))
     /// passes over this object even though a press can focus it.
     ///

@@ -29,6 +29,10 @@
 //!
 //! Local-first: no server, no account. Delete the store directory and
 //! the project is exactly as it was before Wright ran, minus its memory.
+//! One refinement (ADR-045): the store directory a project uses can be
+//! a SHARED one — a network mount or synced folder every member of a
+//! team points at (`wright team join`); see [`crate::team`] for the
+//! convergence rules. Still no server: the spine is the files.
 
 use std::fs::{self, File, OpenOptions};
 use std::io::{BufRead, BufReader, Write};
@@ -100,8 +104,18 @@ impl Store {
     }
 
     /// Open (creating if needed) the store for a project directory.
+    ///
+    /// WR-18 team mode: when this project's store is redirected to a
+    /// shared directory (`WRIGHT_STORE`, or the pointer `wright team
+    /// join` wrote next to the default root — see [`crate::team`]),
+    /// that redirect is honored here, once, so EVERY command that
+    /// opens a store follows it. The redirect lives outside the
+    /// project, in Wright's own trust domain: a sandboxed agent can
+    /// write the project tree, never where its memory lives.
     pub fn open(project_dir: &Path) -> Result<Store, String> {
-        Self::open_at(project_dir, &Self::default_root(project_dir))
+        let default = Self::default_root(project_dir);
+        let root = crate::team::active(&default).unwrap_or(default);
+        Self::open_at(project_dir, &root)
     }
 
     /// Open a store at an explicit location (tests, custom layouts).

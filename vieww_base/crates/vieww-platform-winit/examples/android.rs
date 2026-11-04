@@ -881,7 +881,7 @@ mod demo {
         if !switched.is_empty() {
             suite.observe(
                 "bare",
-                &format!("off: {} (debug.vieww.bare={bare})", switched.join(", ")),
+                format!("off: {} (debug.vieww.bare={bare})", switched.join(", ")),
             );
         }
         // The stress screen and a longer pass: `debug.vieww.screen=stress`
@@ -928,18 +928,18 @@ mod demo {
         let seconds_prop = prop("debug.vieww.seconds");
         if seconds_prop.parse::<u64>().is_ok() {
             std::env::set_var("VIEWW_SUITE_SECONDS", &seconds_prop);
-            suite.observe("seconds", &format!("debug.vieww.seconds={seconds_prop}"));
+            suite.observe("seconds", format!("debug.vieww.seconds={seconds_prop}"));
         }
         let frames_prop = prop("debug.vieww.frames");
         if frames_prop.parse::<u64>().is_ok() {
             std::env::set_var("VIEWW_SUITE_FRAMES", &frames_prop);
-            suite.observe("frames", &format!("debug.vieww.frames={frames_prop}"));
+            suite.observe("frames", format!("debug.vieww.frames={frames_prop}"));
         }
         if present == "vulkan" || present == "cpu" {
             // Before the event loop and every worker the app starts, so no
             // other thread is reading the environment yet.
             std::env::set_var("VIEWW_PRESENT", &present);
-            suite.observe("present", &format!("debug.vieww.present={present}"));
+            suite.observe("present", format!("debug.vieww.present={present}"));
         }
         suite.observe(
             "rasterizer",
@@ -973,7 +973,12 @@ mod demo {
             // device script taps what is on screen rather than a constant
             // that only suited one phone. `after_frame`, not `on_frame`:
             // geometry does not exist until the frame has been laid out.
-            .after_frame(suite.tap_targets());
+            .after_frame(suite.tap_targets())
+            // Reports the field's value whenever it moves, so the device
+            // script's IME step can assert what an input method committed
+            // (FW-11b). `after_frame` for the same reason, and cheap when
+            // nothing is typing: one signal read and a compare per frame.
+            .after_frame(suite.ime_probe());
         let app = if prefer_gpu { app.prefer_gpu() } else { app };
         let app = if auto { app.auto_rasterizer() } else { app };
         let result = app.run_android(android, |driver| {
@@ -995,6 +1000,8 @@ mod demo {
             // reason the tap counter is: the hooks were installed before
             // this closure ran, so the signal did not exist yet.
             suite.watch_drawer(demo.drawer());
+            // And the field the IME step types into, for the same reason.
+            suite.watch_field(demo.field());
             // `Inherited<SharedServices>` above the tree is how a widget
             // reaches the pasteboard — `RenderEditableText` asks its scope
             // for a `Clipboard`, and finds one only if something published

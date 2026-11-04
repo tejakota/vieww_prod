@@ -9,7 +9,10 @@ fn row_of(data: vieww_widget::ThemeData) -> WidgetNode {
                 .radius(data.metrics.corner)
                 .padding(EdgeInsets::all(16.0))
                 .child(Flex::row().spacing(12.0).children(children![
-                    Button::new("Primary"),
+                    // A handler, so the swatch shows the enabled button: one
+                    // without is drawn disabled, which is not what a theme
+                    // comparison is for (and fails the gallery's contrast audit).
+                    Button::new("Primary").on_pressed(|| {}),
                     Chip::new("Chip"),
                     Badge::new(Text::new("in").color(data.colors.on_surface).size(13.0)).count(9),
                 ])),

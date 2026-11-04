@@ -41,7 +41,7 @@ pub use scene::{GpuFrameTimings, GpuPassTimes, Redrawn, SceneRenderer};
 #[cfg(feature = "vulkan-swapchain")]
 pub mod swapchain;
 #[cfg(feature = "vulkan-swapchain")]
-pub use swapchain::{AcquiredImage, VulkanSwapchain};
+pub use swapchain::{surface_extensions, AcquiredImage, VulkanInstance, VulkanSwapchain};
 
 #[derive(Debug)]
 pub enum VulkanError {
@@ -1537,6 +1537,7 @@ impl VulkanDevice {
             },
             background,
         )
+        .map(|linear| encode_3d_to_rgba8(&linear))
     }
 
     /// Render the **lit 3D forward pass** — `vieww-3d`'s `GpuRenderer`'s
@@ -1613,6 +1614,112 @@ impl VulkanDevice {
             },
             background,
         )
+        .map(|linear| encode_3d_to_rgba8(&linear))
+    }
+
+    /// Render **one level of the environment prefilter chain** (FW-21) —
+    /// the split sum's first half, `vieww-shaders`'
+    /// `shaders/ibl_prefilter.wgsl`, convolving one source mip with a GGX
+    /// lobe — and read it back as LINEAR f32, four per texel, row-major,
+    /// row 0 the zenith.
+    ///
+    /// `source` is the mip `vieww_3d::environment::Environment::
+    /// prefilter_job` chose for this `roughness` (`src_texels`,
+    /// `src_width`, `src_height`): the very texels the CPU oracle
+    /// convolved from, uploaded as RGBA16F — the same conversion every 3D
+    /// texture gets — and sampled bilinearly with u wrapping and v clamped
+    /// in the shader, which is `EnvMap::sample` to within that rounding.
+    /// `samples` is the oracle's own Hammersley sequence length; the parity
+    /// contract (`vieww-3d`'s `tests/gpu_ibl.rs`, the lavapipe CI leg)
+    /// holds only when it matches.
+    ///
+    /// Unlike the display passes this returns unencoded linear values: a
+    /// prefiltered HDRI holds radiance above 1.0 (the sun), and an sRGB
+    /// byte readback would clamp exactly the values the chain exists to
+    /// preserve. The destination is `width × height`, level `k` of a chain
+    /// built by `Environment::with_levels` — `prefilter_job` carries those
+    /// dimensions.
+    ///
+    /// # Errors
+    ///
+    /// Any Vulkan call failing.
+    #[allow(
+        clippy::too_many_arguments,
+        reason = "the prefilter's own contract: destination, source mip, roughness, samples"
+    )]
+    pub fn render_env_prefilter_level(
+        &self,
+        width: u32,
+        height: u32,
+        source: &[[f32; 4]],
+        source_width: u32,
+        source_height: u32,
+        roughness: f32,
+        samples: u32,
+    ) -> Result<Vec<f32>, VulkanError> {
+        assert_eq!(
+            source.len(),
+            (source_width * source_height) as usize,
+            "the source mip's texels match its dimensions"
+        );
+        // A fullscreen quad in clip space, uv spanning the destination —
+        // the fragment at pixel centre (x + 0.5, y + 0.5) interpolates
+        // exactly the texel-centre uv `EnvMap::from_fn` built the CPU level
+        // from. v = 0 at the top row (the zenith), as `EnvMap`'s rows are:
+        // no y-flip, because both sides agree row 0 is up.
+        let vertices: [[f32; 4]; 4] = [
+            [-1.0, -1.0, 0.0, 0.0],
+            [1.0, -1.0, 1.0, 0.0],
+            [-1.0, 1.0, 0.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+        ];
+        let flat: &[f32] = vertices.as_flattened();
+        // std140, `ibl_prefilter.wgsl`'s `Uniforms`: (roughness, a, samples,
+        // 0) then (dst_w, dst_h, src_w, src_h).
+        #[allow(clippy::cast_precision_loss)]
+        let uniforms: [f32; 8] = [
+            roughness,
+            roughness * roughness,
+            samples as f32,
+            0.0,
+            width as f32,
+            height as f32,
+            source_width as f32,
+            source_height as f32,
+        ];
+        let batches = [Batch3d {
+            first_index: 0,
+            index_count: 6,
+            depth_write: true,
+            blend: false,
+            alpha_pass: 0.0,
+            texture: Some(Texture3d {
+                texels: source,
+                width: source_width,
+                height: source_height,
+                nearest: false,
+            }),
+        }];
+        self.render_3d_pass(
+            width,
+            height,
+            &Pass3d {
+                wgsl: vieww_shaders::library::IBL_PREFILTER_WGSL,
+                vertices: bytemuck_cast_f32(flat),
+                stride: 16,
+                attributes: &[
+                    (0, vk::Format::R32G32_SFLOAT, 0),
+                    (1, vk::Format::R32G32_SFLOAT, 8),
+                ],
+                indices: &[0, 1, 2, 2, 1, 3],
+                uniforms: bytemuck_cast_f32(&uniforms),
+                storage: None,
+                sampled: true,
+                push_constants: false,
+                batches: &batches,
+            },
+            [0.0, 0.0, 0.0],
+        )
     }
 
     /// The one-shot depth-tested 3D pass every 3D entry point draws through:
@@ -1633,34 +1740,19 @@ impl VulkanDevice {
         height: u32,
         pass: &Pass3d<'_>,
         background: [f32; 3],
-    ) -> Result<Vec<u8>, VulkanError> {
+    ) -> Result<Vec<f32>, VulkanError> {
         let indices = pass.indices;
         let vertex_count = pass.vertices.len() / pass.stride as usize;
-        // The CPU oracle's background, encoded the way its `to_image`
-        // encodes every pixel — including the shaded ones, at the readback.
-        #[allow(clippy::cast_possible_truncation, clippy::cast_precision_loss)]
-        fn srgb(v: f32) -> f32 {
-            let v = v.clamp(0.0, 1.0);
-            if v <= 0.003_130_8 {
-                v * 12.92
-            } else {
-                1.055 * v.powf(1.0 / 2.4) - 0.055
-            }
-        }
-        let bg = [
-            srgb(background[0]),
-            srgb(background[1]),
-            srgb(background[2]),
-        ];
-        let bg_byte = |v: f32| (v.clamp(0.0, 1.0) * 255.0 + 0.5) as u8;
 
         let total_indices: u64 = pass.batches.iter().map(|b| u64::from(b.index_count)).sum();
         if vertex_count == 0 || indices.is_empty() || total_indices == 0 {
-            // Nothing to draw: the frame is the encoded background, exactly
-            // what the CPU renderer returns for an empty scene.
-            let bg_px = [bg_byte(bg[0]), bg_byte(bg[1]), bg_byte(bg[2]), 255];
+            // Nothing to draw: the target is the clear colour, which is the
+            // linear background with alpha 1 — the drawn path's readback of
+            // an empty target, and the bytes the callers' encode turns into
+            // exactly what the CPU renderer returns for an empty scene.
             #[allow(clippy::cast_possible_truncation)]
-            return Ok(bg_px.repeat(width as usize * height as usize));
+            return Ok([background[0], background[1], background[2], 1.0]
+                .repeat(width as usize * height as usize));
         }
         assert_eq!(
             pass.vertices.len() % pass.stride as usize,
@@ -2506,8 +2598,12 @@ impl VulkanDevice {
             device.wait_for_fences(&[fence], true, u64::MAX)?;
         }
 
-        // The readback, encoded: linear f16 -> sRGB bytes + alpha 255, the
-        // CPU oracle's own `to_image` resolve, on the CPU.
+        // The readback, LINEAR: f16 texels -> f32, unencoded — the pass's
+        // display callers encode on top of this (`encode_to_rgba8`, the CPU
+        // oracle's own `to_image` resolve), and the HDR callers (the
+        // environment prefilter, whose values above 1.0 are the point)
+        // consume it directly. Values above 1 survive because the target is
+        // f16 and nothing clamps on the way out.
         let mut half = vec![0u16; width as usize * height as usize * 4];
         unsafe {
             let ptr = device.map_memory(
@@ -2519,23 +2615,18 @@ impl VulkanDevice {
             std::ptr::copy_nonoverlapping(ptr, half.as_mut_ptr(), half.len());
             device.unmap_memory(readback_memory);
         }
-        let mut pixels = vec![0u8; half.len()];
+        let mut pixels = vec![0.0f32; half.len()];
         for (texel, out) in half
             .as_chunks::<4>()
             .0
             .iter()
             .zip(pixels.as_chunks_mut::<4>().0)
         {
-            let rgb = [
+            out.copy_from_slice(&[
                 crate::scene_exec::half_to_f32(texel[0]),
                 crate::scene_exec::half_to_f32(texel[1]),
                 crate::scene_exec::half_to_f32(texel[2]),
-            ];
-            out.copy_from_slice(&[
-                bg_byte(srgb(rgb[0])),
-                bg_byte(srgb(rgb[1])),
-                bg_byte(srgb(rgb[2])),
-                255,
+                crate::scene_exec::half_to_f32(texel[3]),
             ]);
         }
 
@@ -2628,6 +2719,39 @@ impl VulkanDevice {
         }
         Ok((buffer, memory))
     }
+}
+
+/// The 3D display passes' readback encode: linear f32 texels to sRGB bytes
+/// with alpha 255, the CPU oracle's own `to_image` resolve, on the CPU.
+/// Hoisted out of `render_3d_pass` when that pass began returning linear
+/// values (the environment prefilter needs them unencoded), so the two
+/// display entry points still produce byte-identical images to before.
+#[allow(clippy::cast_possible_truncation, clippy::cast_precision_loss)]
+fn encode_3d_to_rgba8(linear: &[f32]) -> Vec<u8> {
+    fn srgb(v: f32) -> f32 {
+        let v = v.clamp(0.0, 1.0);
+        if v <= 0.003_130_8 {
+            v * 12.92
+        } else {
+            1.055 * v.powf(1.0 / 2.4) - 0.055
+        }
+    }
+    let bg_byte = |v: f32| (v.clamp(0.0, 1.0) * 255.0 + 0.5) as u8;
+    let mut pixels = vec![0u8; linear.len()];
+    for (texel, out) in linear
+        .as_chunks::<4>()
+        .0
+        .iter()
+        .zip(pixels.as_chunks_mut::<4>().0)
+    {
+        out.copy_from_slice(&[
+            bg_byte(srgb(texel[0])),
+            bg_byte(srgb(texel[1])),
+            bg_byte(srgb(texel[2])),
+            255,
+        ]);
+    }
+    pixels
 }
 
 fn bytemuck_cast_positions(positions: &[[f32; 2]]) -> &[u8] {

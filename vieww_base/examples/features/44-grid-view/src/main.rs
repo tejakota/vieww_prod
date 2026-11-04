@@ -17,7 +17,7 @@ const EXTENT: f32 = 88.0;
 
 fn tint(index: usize) -> Color {
     const PALETTE: [Color; 4] = [
-        Color::rgb(58, 122, 246),
+        Color::rgb(44, 98, 234),
         Color::rgb(186, 100, 246),
         Color::rgb(76, 187, 129),
         Color::rgb(255, 180, 80),

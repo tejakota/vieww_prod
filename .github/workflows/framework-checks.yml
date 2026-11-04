@@ -15,18 +15,36 @@ name: Framework checks
 #                  |                 | Android, minutes before those legs finish
 #   gpu-lavapipe   | ubuntu          | the Vulkan suites on Mesa's software
 #                  |                 | Vulkan (incl. vieww-3d's GPU parity
-#                  |                 | suite), and a GPU frame presented to an
-#                  |                 | Xvfb window
+#                  |                 | suite), a GPU frame presented to an
+#                  |                 | Xvfb window, and the X11 platform-view
+#                  |                 | seam's real-server tests (FW-20)
 #   macos          | macos (arm64)   | platform-check macos + ios, and the Metal
 #                  |                 | suite on the runner's GPU
 #   windows        | windows         | platform-check windows, and the D3D12
 #                  |                 | suite on WARP (Microsoft's software D3D12)
 #   android        | ubuntu + NDK    | platform-check android
 #   web            | ubuntu          | wasm-check, then canvas parity in
-#                  |                 | Chromium, Firefox and WebKit
+#                  |                 | Chromium, Firefox and WebKit, then the
+#                  |                 | WebGPU backend's own scene parity
+#                  |                 | (FW-09: Chromium certifies, the others
+#                  |                 | skip loudly)
 #   android-device | self-hosted     | the device suite on a real phone — only
 #                  |                 | on demand, and only where such a runner
 #                  |                 | is registered
+#   a11y-gallery   | ubuntu          | the feature gallery audited under
+#                  |                 | VIEWW_AUDIT (tree + painted text
+#                  |                 | contrast, FW-10) and the AT-SPI
+#                  |                 | harness's dry-run half; the live AT-SPI
+#                  |                 | and UIA legs are self-hosted, the
+#                  |                 | XCUITest leg is ios-simulator
+#   plugin-compat  | ubuntu          | the plugin compatibility matrix
+#                  |                 | (FW-17): plugin-minimal — a real
+#                  |                 | plugin cdylib outside the workspace —
+#                  |                 | compiled by path, driven by the
+#                  |                 | current host, and (once FW-01's first
+#                  |                 | publish exists) compiled against the
+#                  |                 | last published vieww-plugin and run
+#                  |                 | against this tree's host anyway
 #
 # What a green run does NOT mean, so nobody reads it that way: the macOS
 # runner's GPU is a paravirtualised Apple GPU and WARP is a CPU rasteriser, so
@@ -64,7 +82,8 @@ on:
       # `cross macos` — to re-run just the ones that went red against the
       # current commit. (GitHub's own "Re-run failed jobs" re-runs the *old*
       # commit, so it cannot pick up a fix.) Ids: audio-fuzz gate coverage cross
-      # gpu-lavapipe macos windows android web ios-simulator android-emulator.
+      # gpu-lavapipe macos windows android web ios-simulator android-emulator
+      # a11y-gallery plugin-compat.
       # The wire check always runs (a few seconds, and it guards the two
       # copies of this file); the report always publishes, listing the legs
       # not asked for as skipped.
@@ -240,6 +259,10 @@ jobs:
         env:
           VIEWW_REQUIRE_HARDWARE: display,gpu
         run: xvfb-run -a -s "-screen 0 1366x768x24" cargo test --release -p vieww-platform-winit --test wait_loop
+      - name: Platform views under a real X server (FW-20)
+        env:
+          VIEWW_REQUIRE_HARDWARE: display
+        run: xvfb-run -a -s "-screen 0 1366x768x24" cargo test --release -p vieww-platform-winit --lib platform_views
 
   macos:
     name: macOS and iOS (Metal)
@@ -512,6 +535,38 @@ jobs:
           python3 crates/vieww-platform-web/web-test/audio_smoke.py
         env:
           PLAYWRIGHT_BROWSERS_PATH: ""
+      # FW-09: the WebGPU backend. The `webgpu` feature is a pure cfg gate
+      # with no dependency behind it, so its bridge-shaped interpreter and
+      # mock tests lint on the native target; the raw extern surface and the
+      # certification driver only exist on wasm, hence the second clippy.
+      - name: WebGPU backend clippy (native, then wasm)
+        run: |
+          cargo clippy -p vieww-hal --features webgpu --all-targets -- -D warnings
+          cargo clippy -p vieww-hal --features webgpu --all-targets \
+            --target wasm32-unknown-unknown -- -D warnings
+      # FW-09's own parity variant: the same five scenes through the WebGPU
+      # backend and the CPU rasterizer in one wasm, per engine, under the
+      # performance contract (interiors <= 2/255, disagreements hugging the
+      # reference's own edges). Chromium certifies; an engine without WebGPU
+      # (Firefox and WebKitGTK on these runners today) skips loudly with the
+      # script's exit code 3, which this step treats as a note, never a
+      # failure — the canvas-CPU backend remains the answer there.
+      - name: WebGPU scene parity per engine (FW-09)
+        run: |
+          cargo build --release --target wasm32-unknown-unknown \
+            -p vieww-hal --example webgpu_scene --features webgpu
+          status=0
+          for engine in chromium firefox webkit; do
+            # `|| rc=$?`, not a bare `rc=$?` after it: the step runs under
+            # `bash -e`, which ended the step on the skip code (3) before
+            # this line could read it — Firefox has no navigator.gpu.
+            rc=0
+            VIEWW_WEB_BROWSER=$engine python3 crates/vieww-hal/web-test/webgpu_parity.py || rc=$?
+            if [ "$rc" -ne 0 ] && [ "$rc" -ne 3 ]; then status=1; fi
+          done
+          exit $status
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ""
       - name: Readbacks
         if: failure()
         uses: actions/upload-artifact@v4
@@ -580,7 +635,7 @@ jobs:
       - name: APK
         run: ci/mobile/apk.sh --example android
       - name: Device suite
-        run: ci/mobile/device-suite.sh
+        run: ci/mobile/device-suite.sh --ime
       - name: Accessibility suite
         run: ci/mobile/a11y-android.sh
 
@@ -609,6 +664,10 @@ jobs:
         run: cargo test -p vieww-foundation -p vieww-text --target aarch64-apple-ios-sim
       - name: The ios example on the simulator's screen
         run: ci/mobile/ios-app.sh --sim
+      - name: XCUITest accessibility suite (generated project, FW-10)
+        run: |
+          brew install xcodegen
+          ci/mobile/a11y-ios.sh --xcuitest
       - name: Maestro flows on the simulator (ci/mobile/maestro/)
         run: ci/mobile/maestro.sh ios
       - name: Screenshot
@@ -672,6 +731,50 @@ jobs:
           path: ci-artifacts/maestro-android/
           if-no-files-found: ignore
 
+  # FW-10: the accessibility teeth that run anywhere. The whole feature
+  # gallery audited with no display — every example's semantics tree and
+  # painted text contrast under VIEWW_AUDIT — plus the Linux AT-SPI
+  # harness's dry-run half: the fixture regenerated from the real tree, the
+  # assertion engine passed over it and proven to fire on broken ones.
+  # The live AT-SPI leg is self-hosted (a11y-linux.sh --live), the iOS
+  # XCUITest leg is the ios-simulator job, the Windows UIA leg is
+  # self-hosted (a11y-windows.ps1).
+  a11y-gallery:
+    name: Accessibility gallery + AT-SPI dry-run (Linux)
+    if: inputs.legs == 'all' || inputs.legs == '' || contains(format(',{0},', inputs.legs), ',a11y-gallery,') || contains(format(' {0} ', inputs.legs), ' a11y-gallery ') || contains(format(',{0} ', inputs.legs), ',a11y-gallery ') || contains(format(' {0},', inputs.legs), ' a11y-gallery,')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: rustup toolchain install "$RUST_VERSION" --profile minimal
+      - name: The gallery audit (VIEWW_AUDIT over every feature example)
+        run: ci/check/feature-a11y.sh
+      - name: AT-SPI harness dry-run
+        run: ci/check/a11y-linux.sh --dry-run
+
+  # FW-17: the plugin compatibility matrix. `examples/plugin-minimal` is a
+  # real plugin `cdylib` that is deliberately its own workspace, so building
+  # it exercises exactly the path a third party's plugin takes. The leg
+  # compiles it against the framework by path, clippys it with `-D warnings`,
+  # then drives the binary with the `load_plugin` host built from this tree —
+  # and, once FW-01's first publish reaches crates.io, additionally compiles
+  # a copy against the *last published* `vieww-plugin` and runs that older
+  # binary against the current host: "additive only within a major",
+  # demonstrated. Until that publish exists the published half skips loudly
+  # with its reason (the script's `::warning::`), never quietly.
+  plugin-compat:
+    name: Plugin compatibility matrix (FW-17)
+    if: inputs.legs == 'all' || inputs.legs == '' || contains(format(',{0},', inputs.legs), ',plugin-compat,') || contains(format(' {0} ', inputs.legs), ' plugin-compat ') || contains(format(',{0} ', inputs.legs), ',plugin-compat ') || contains(format(' {0},', inputs.legs), ' plugin-compat,')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: rustup toolchain install "$RUST_VERSION" --profile minimal --component clippy
+      - name: The matrix (path deps, current host, last published)
+        run: ci/check/plugin-compat.sh
+
   # **Results where a session without API access can read them.** Every run's
   # outcome — each job's conclusion, and the last lines of every failed job's
   # log — is committed to the branch `ci-runs/<branch>`, force-pushed, so
@@ -681,7 +784,7 @@ jobs:
   report:
     name: Publish results to ci-runs/<branch>
     if: always()
-    needs: [wire, gate, coverage, cross, gpu-lavapipe, macos, windows, android, web, ios-simulator, android-emulator, audio-fuzz]
+    needs: [wire, gate, coverage, cross, gpu-lavapipe, macos, windows, android, web, ios-simulator, android-emulator, a11y-gallery, plugin-compat, audio-fuzz]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:

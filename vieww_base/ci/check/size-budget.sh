@@ -68,6 +68,27 @@ else
     SIZE="$(stat -f%z "${BINARY}")"
 fi
 
+# FW-15: where the bytes are, not only how many. `cargo bloat` decomposes the
+# same example the budget gates into the functions that bought the size, so
+# the day this fails, the log already names the suspects. Absent is a note
+# naming the install command, never a failure: the budget above is the gate
+# and this is the diagnosis.
+#
+# Bloat reads the symbol table, so it cannot analyse the stripped build this
+# script just measured — it compiles its own unstripped one in the same
+# profile. That rebuild is the cost of the breakdown, and it only happens when
+# the tool is actually installed.
+if cargo bloat --version >/dev/null 2>&1; then
+    echo
+    echo "== cargo bloat: ${EXAMPLE}, release, top 40 =="
+    if ! cargo bloat --release -p vieww --example "${EXAMPLE}" -n 40; then
+        echo "cargo bloat failed; the budget check above is unaffected." >&2
+    fi
+else
+    echo
+    echo "cargo bloat is not installed — for a size breakdown: cargo install cargo-bloat"
+fi
+
 if [[ "${1:-}" == "--record" ]]; then
     printf '%s %s\n' "${TARGET_TRIPLE}" "${SIZE}" > "${BUDGET_FILE}"
     echo "Recorded ${SIZE} bytes for ${TARGET_TRIPLE} in ${BUDGET_FILE}."

@@ -117,6 +117,17 @@ pub fn platform() -> Services {
         not(any(target_os = "android", target_os = "ios"))
     ))]
     crate::desktop::provide(&mut services);
+    // FW-19 (DnD-out): the OS drag starter — the OLE `DoDragDrop` bridge on
+    // Windows, an honest refusal on this crate's other targets. Registered
+    // rather than left to [`unavailable_capabilities`] because a drag-out
+    // has a portable state machine that needs *some* starter to run; see
+    // [`crate::drag`]'s module doc for the distinction.
+    crate::drag::provide(&mut services);
+    // FW-20: embedded native views — X11/Win32/AppKit, anchored to the window
+    // by `App` when it creates one, refusing with the reason until then or
+    // where the session cannot host them (a Wayland window).
+    #[cfg(not(target_os = "android"))]
+    crate::os_platform_views::OsPlatformViews::provide(&mut services);
     services
 }
 
@@ -181,6 +192,10 @@ pub fn for_android(android: &crate::AndroidApp) -> Services {
         android: android.clone(),
     }));
     services.provide::<dyn Clipboard>(Rc::new(PlatformClipboard::new(android)));
+    // FW-19 (DnD-out): the same registered-and-refusing starter as
+    // [`platform`] — Android has no bridge (winit exposes none), but the
+    // session machinery is target-independent.
+    crate::drag::provide(&mut services);
     services
 }
 
@@ -238,6 +253,10 @@ mod tests {
         // AU-01: sound without app wiring (opened lazily, so registering it
         // touches no audio device).
         assert!(services.has::<dyn vieww_audio::AudioPlayer>());
+        // FW-19 (DnD-out): the starter is part of the platform's services on
+        // every target — present even where it refuses, so a widget's lookup
+        // succeeds and the refusal lands in the call instead.
+        assert!(services.has::<dyn crate::drag::PlatformDragStarter>());
     }
 
     #[test]

@@ -2,9 +2,10 @@
 //!
 //! # Why there is a second rasteriser in this workspace
 //!
-//! Because the first one cannot be asked this question. `vieww-paint` draws
-//! through vello on the GPU, and everything it produces goes to a surface or to
-//! a texture that a device owns. A tray icon is needed **before there is a
+//! Because the first one cannot be asked this question. Both of vieww's own
+//! renderers — `vieww-paint`'s CPU rasterizer and `vieww-hal`'s GPU scene
+//! renderers — produce a frame for a surface or a texture that a window
+//! owns. A tray icon is needed **before there is a
 //! window**, is 32 pixels across, and is handed to the shell as a plain buffer
 //! — so going through the GPU would mean standing up an adapter, a device and a
 //! render target to fill an area smaller than one glyph, on a code path that

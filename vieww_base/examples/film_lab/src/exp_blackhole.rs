@@ -109,7 +109,8 @@ fn scene(book: &mut Sketchbook, canvas: Size, t: f32) {
             g.circle(
                 Offset::new(x, y),
                 r,
-                Gradient::radial_fill().with_dither()
+                Gradient::radial_fill()
+                    .with_dither()
                     .with_stops(&[(0.0, alpha(col, 0.05)), (1.0, alpha(col, 0.0))]),
             );
         }

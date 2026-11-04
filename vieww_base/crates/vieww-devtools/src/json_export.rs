@@ -34,6 +34,7 @@ use crate::damage_inspector::DamageReport;
 use crate::frame_timeline::FrameTimeline;
 use crate::gpu_inspector::{DriverStats, GpuReport};
 use crate::inspector::InspectorNode;
+use crate::reload_inspector::ReloadReport;
 use crate::render_graph_inspector::{PassReport, RenderGraphReport};
 use crate::semantics_inspector::SemanticsReport;
 
@@ -364,6 +365,23 @@ impl ToJson for RenderGraphReport {
             .field("physical_slot_count", &self.physical_slot_count)
             .field("culled_count", &self.culled_count)
             .field("concurrency_batch_count", &self.concurrency_batch_count)
+            .build()
+    }
+}
+
+// --------------------------------------------------------------- ReloadReport
+
+impl ToJson for ReloadReport {
+    fn to_json(&self) -> String {
+        JsonObject::new()
+            .field("reloads", &self.reloads())
+            .field("kept", &self.kept)
+            .field("rebuilt", &self.rebuilt)
+            .field("failed", &self.failed)
+            // `None` (no reload accepted yet) serialises as null, which is
+            // the JSON a browser UI already treats as "no rate yet" — a zero
+            // would read as "nothing ever survived", the opposite of the truth.
+            .field("state_preservation_rate", &self.state_preservation_rate())
             .build()
     }
 }
@@ -937,6 +955,33 @@ mod tests {
             object_field(driver, "gpu_frame_time_micros"),
             &TestJson::Null
         );
+    }
+
+    #[test]
+    fn reload_report_rates_round_trip_and_null_before_the_first_reload() {
+        use crate::reload_inspector::{ReloadLedger, ReloadOutcome};
+
+        let empty = ReloadLedger::new().report();
+        let parsed = parse(&empty.to_json());
+        assert_eq!(
+            object_field(&parsed, "state_preservation_rate"),
+            &TestJson::Null
+        );
+
+        let mut ledger = ReloadLedger::new();
+        for _ in 0..11 {
+            ledger.record(ReloadOutcome::TreeKept);
+        }
+        ledger.record(ReloadOutcome::TreeRebuilt);
+        let parsed = parse(&ledger.report().to_json());
+        assert_eq!(object_field(&parsed, "reloads"), &TestJson::Number(12.0));
+        assert_eq!(object_field(&parsed, "rebuilt"), &TestJson::Number(1.0));
+        // 11/12 ≈ 0.91667; the JSON keeps the float rather than the HUD's
+        // whole-percent rounding, because a UI can round but cannot un-round.
+        let TestJson::Number(rate) = object_field(&parsed, "state_preservation_rate") else {
+            panic!("the rate must be a number once a reload happened");
+        };
+        assert!((rate - 11.0 / 12.0).abs() < 1e-6, "{rate}");
     }
 
     #[test]

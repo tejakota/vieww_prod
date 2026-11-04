@@ -20,7 +20,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             |x| x.sin(),
                             (-2.0 * std::f32::consts::PI, 2.0 * std::f32::consts::PI)
                         )
-                        .color(Color::rgb(58, 122, 246))
+                        .color(Color::rgb(44, 98, 234))
                         .axes(ChartAxes::Value)
                         .label("f(x) = sin(x)")
                         .size(Size::new(560.0, 160.0)),

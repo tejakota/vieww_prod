@@ -118,13 +118,17 @@ impl HomeScreen {
         // and stays; calm keeps a third of it.
         let amb = if calm { 0.3 } else { 1.0 } * intro.amb;
 
-        let mut screen = Stack::new().fit(StackFit::Expand).push(Positioned::fill().child(
-            neurons::atmosphere(t, amb),
-        ));
+        let mut screen = Stack::new()
+            .fit(StackFit::Expand)
+            .push(Positioned::fill().child(neurons::atmosphere(t, amb)));
 
         // -- the room, at the reference's own coordinates --------------------
         screen = screen
-            .push(arrive(intro.blocks[0], -12.0, top_bar(&self.shared, ctx, t)))
+            .push(arrive(
+                intro.blocks[0],
+                -12.0,
+                top_bar(&self.shared, ctx, t),
+            ))
             .push(place(24.0, top_of(132.0, 11.0)).child(arrive(
                 intro.blocks[1],
                 -8.0,
@@ -136,11 +140,16 @@ impl HomeScreen {
                 name_text(&state),
             )))
             .push(place(86.0, 147.0).child(arrive(intro.blocks[1], -8.0, name_spark(t).into())))
-            .push(place(25.0, top_of(190.0, 12.0)).child(arrive(
-                intro.blocks[1],
-                -8.0,
-                Text::new("Ready when you are.").size(12.0).color(MUTED).into(),
-            )))
+            .push(
+                place(25.0, top_of(190.0, 12.0)).child(arrive(
+                    intro.blocks[1],
+                    -8.0,
+                    Text::new("Ready when you are.")
+                        .size(12.0)
+                        .color(MUTED)
+                        .into(),
+                )),
+            )
             // The companion — the mark the splash assembles, at the exact
             // slot it never leaves: centre (210, 373), 276 across.
             .push(place(72.0, 235.0).child(neurons::companion(
@@ -296,7 +305,11 @@ impl Intro {
             ];
             let atmosphere = ramp(t, ATMOS_AT, ATMOS_DUR);
             (
-                Reveal { eye, strands, atmosphere },
+                Reveal {
+                    eye,
+                    strands,
+                    atmosphere,
+                },
                 exit,
                 ramp(t, WORD_AT, WORD_DUR) * (1.0 - exit),
                 ramp(t, TAG_AT, TAG_DUR) * (1.0 - exit),
@@ -372,22 +385,33 @@ fn top_bar(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
         state.nav.push(settings_route(shared_for_chip.clone()));
     });
 
-    Positioned::fill().child(
-        Stack::new()
-            .fit(StackFit::Expand)
-            .push(place(20.0, 27.0).child(neurons::sigil(34.0, t, 0.0)))
-            .push(place(64.0, top_of(51.0, 24.0)).child(Text::new("U").style(
-                TextStyle::new(24.0)
-                    .weight(FontWeight::Bold)
-                    .letter_spacing(-1.0)
-                    .color(INK),
-            )))
-            .push(place(65.0, top_of(65.0, 7.5)).child(Text::new("PERSONA").style(
-                TextStyle::new(7.5).letter_spacing(1.6).color(Color::rgb(115, 130, 156)),
-            )))
-            .push(place(320.0, 36.0).child(chip)),
-    )
-    .into()
+    Positioned::fill()
+        .child(
+            Stack::new()
+                .fit(StackFit::Expand)
+                .push(place(20.0, 27.0).child(neurons::sigil(34.0, t, 0.0)))
+                .push(
+                    place(64.0, top_of(51.0, 24.0)).child(
+                        Text::new("U").style(
+                            TextStyle::new(24.0)
+                                .weight(FontWeight::Bold)
+                                .letter_spacing(-1.0)
+                                .color(INK),
+                        ),
+                    ),
+                )
+                .push(
+                    place(65.0, top_of(65.0, 7.5)).child(
+                        Text::new("PERSONA").style(
+                            TextStyle::new(7.5)
+                                .letter_spacing(1.6)
+                                .color(Color::rgb(115, 130, 156)),
+                        ),
+                    ),
+                )
+                .push(place(320.0, 36.0).child(chip)),
+        )
+        .into()
 }
 
 /// The chip's pulse: a small synapse dot, slowly twinkling — the reference's
@@ -482,80 +506,113 @@ fn daypart() -> &'static str {
 /// the landing rings the mark settles onto, the wordmark, its subtitle, the
 /// tagline, the loader and the privacy line.
 fn below_slot(intro: &Intro, t: f32) -> WidgetNode {
-    Positioned::fill().child(
-    Stack::new()
-        .fit(StackFit::Expand)
-        .push(
-            Positioned::fill().child(
-                Opacity::new(1.0 - intro.exit).child(
-                    Stack::new()
-                        .fit(StackFit::Expand)
-                        .push(place(130.0, 495.0).child(Opacity::new(intro.word).child(
-                            Align::new(Alignment::CENTER).child(landing_rings()),
-                        )))
-                        .push(place(0.0, top_of(536.0, 40.0)).width(420.0).child(Opacity::new(intro.word).child(
-                            Text::new("U").style(
-                                TextStyle::new(40.0)
-                                    .weight(FontWeight::Bold)
-                                    .letter_spacing(-2.5)
-                                    .color(Color::rgb(241, 239, 255)),
-                            )
-                            .align(TextAlign::Center),
-                        )))
-                        .push(place(0.0, top_of(551.0, 8.5)).width(420.0).child(Opacity::new(intro.word).child(
-                            Text::new("PERSONA COMPANION").style(
-                                TextStyle::new(8.5)
-                                    .weight(FontWeight::Medium)
-                                    .letter_spacing(2.6)
-                                    .color(Color::rgb(155, 139, 220)),
-                            )
-                            .align(TextAlign::Center),
-                        )))
-                        .push(place(0.0, top_of(572.0, 11.0)).width(420.0).child(Opacity::new(intro.tagline).child(
-                            Text::new("A little more you, every day.")
-                                .size(11.0)
-                                .color(MUTED)
-                                .align(TextAlign::Center),
-                        )))
-                        .push(place(187.0, 585.0).child(Opacity::new(intro.footer).child(
-                            Align::new(Alignment::CENTER).child(loading_dots(t)),
-                        )))
-                        .push(place(0.0, top_of(612.0, 7.5)).width(420.0).child(Opacity::new(intro.footer).child(
-                            Text::new("PRIVATE BY DESIGN").style(
-                                TextStyle::new(7.5)
-                                    .weight(FontWeight::Medium)
-                                    .letter_spacing(2.0)
-                                    .color(Color::rgb(83, 98, 123)),
-                            )
-                            .align(TextAlign::Center),
-                        ))),
+    Positioned::fill()
+        .child(
+            Stack::new()
+                .fit(StackFit::Expand)
+                .push(
+                    Positioned::fill().child(
+                        Opacity::new(1.0 - intro.exit).child(
+                            Stack::new()
+                                .fit(StackFit::Expand)
+                                .push(place(130.0, 495.0).child(
+                                    Opacity::new(intro.word).child(
+                                        Align::new(Alignment::CENTER).child(landing_rings()),
+                                    ),
+                                ))
+                                .push(
+                                    place(0.0, top_of(536.0, 40.0)).width(420.0).child(
+                                        Opacity::new(intro.word).child(
+                                            Text::new("U")
+                                                .style(
+                                                    TextStyle::new(40.0)
+                                                        .weight(FontWeight::Bold)
+                                                        .letter_spacing(-2.5)
+                                                        .color(Color::rgb(241, 239, 255)),
+                                                )
+                                                .align(TextAlign::Center),
+                                        ),
+                                    ),
+                                )
+                                .push(
+                                    place(0.0, top_of(551.0, 8.5)).width(420.0).child(
+                                        Opacity::new(intro.word).child(
+                                            Text::new("PERSONA COMPANION")
+                                                .style(
+                                                    TextStyle::new(8.5)
+                                                        .weight(FontWeight::Medium)
+                                                        .letter_spacing(2.6)
+                                                        .color(Color::rgb(155, 139, 220)),
+                                                )
+                                                .align(TextAlign::Center),
+                                        ),
+                                    ),
+                                )
+                                .push(
+                                    place(0.0, top_of(572.0, 11.0)).width(420.0).child(
+                                        Opacity::new(intro.tagline).child(
+                                            Text::new("A little more you, every day.")
+                                                .size(11.0)
+                                                .color(MUTED)
+                                                .align(TextAlign::Center),
+                                        ),
+                                    ),
+                                )
+                                .push(place(187.0, 585.0).child(
+                                    Opacity::new(intro.footer).child(
+                                        Align::new(Alignment::CENTER).child(loading_dots(t)),
+                                    ),
+                                ))
+                                .push(
+                                    place(0.0, top_of(612.0, 7.5)).width(420.0).child(
+                                        Opacity::new(intro.footer).child(
+                                            Text::new("PRIVATE BY DESIGN")
+                                                .style(
+                                                    TextStyle::new(7.5)
+                                                        .weight(FontWeight::Medium)
+                                                        .letter_spacing(2.0)
+                                                        .color(Color::rgb(83, 98, 123)),
+                                                )
+                                                .align(TextAlign::Center),
+                                        ),
+                                    ),
+                                ),
+                        ),
+                    ),
+                )
+                .push(
+                    Positioned::fill().child(
+                        Opacity::new(intro.blocks[2]).child(
+                            Stack::new()
+                                .fit(StackFit::Expand)
+                                .push(
+                                    place(0.0, top_of(525.0, 9.0)).width(420.0).child(
+                                        Text::new("YOUR U")
+                                            .style(
+                                                TextStyle::new(9.0)
+                                                    .weight(FontWeight::Bold)
+                                                    .letter_spacing(2.3)
+                                                    .color(Color::rgb(189, 176, 245)),
+                                            )
+                                            .align(TextAlign::Center),
+                                    ),
+                                )
+                                .push(
+                                    place(0.0, top_of(544.0, 9.5)).width(420.0).child(
+                                        Text::new("A little more you, every day")
+                                            .style(
+                                                TextStyle::new(9.5)
+                                                    .letter_spacing(0.4)
+                                                    .color(Color::rgb(111, 126, 152)),
+                                            )
+                                            .align(TextAlign::Center),
+                                    ),
+                                ),
+                        ),
+                    ),
                 ),
-            ),
         )
-        .push(
-            Positioned::fill().child(Opacity::new(intro.blocks[2]).child(
-                Stack::new()
-                    .fit(StackFit::Expand)
-                    .push(place(0.0, top_of(525.0, 9.0)).width(420.0).child(Text::new("YOUR U").style(
-                        TextStyle::new(9.0)
-                            .weight(FontWeight::Bold)
-                            .letter_spacing(2.3)
-                            .color(Color::rgb(189, 176, 245)),
-                    )
-                    .align(TextAlign::Center)))
-                    .push(place(0.0, top_of(544.0, 9.5)).width(420.0).child(
-                        Text::new("A little more you, every day")
-                            .style(
-                                TextStyle::new(9.5)
-                                    .letter_spacing(0.4)
-                                    .color(Color::rgb(111, 126, 152)),
-                            )
-                            .align(TextAlign::Center),
-                    )),
-            )),
-        )
-    )
-    .into()
+        .into()
 }
 
 /// The splash's landing rings: two flat ellipses the icon settles onto, the
@@ -565,8 +622,16 @@ fn landing_rings() -> Painting {
         Size::new(160.0, 20.0),
         PaintWith::new(move |book, s| {
             let c = Offset::new(s.width / 2.0, s.height / 2.0);
-            book.stroke(neurons::flat_ellipse(c, 70.0, 8.0), AXON.with_alpha(64), 1.1);
-            book.stroke(neurons::flat_ellipse(c, 48.0, 5.0), SYNAPSE.with_alpha(56), 1.0);
+            book.stroke(
+                neurons::flat_ellipse(c, 70.0, 8.0),
+                AXON.with_alpha(64),
+                1.1,
+            );
+            book.stroke(
+                neurons::flat_ellipse(c, 48.0, 5.0),
+                SYNAPSE.with_alpha(56),
+                1.0,
+            );
         }),
     )
 }
@@ -631,11 +696,13 @@ fn action(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
                                             Stack::new()
                                                 .fit(StackFit::Expand)
                                                 .push(Positioned::fill().child(action_ring()))
-                                                .push(
-                                                    Align::new(Alignment::CENTER).child(
-                                                        plus_glyph(12.0, 2.8, Color::rgb(255, 255, 255)),
+                                                .push(Align::new(Alignment::CENTER).child(
+                                                    plus_glyph(
+                                                        12.0,
+                                                        2.8,
+                                                        Color::rgb(255, 255, 255),
                                                     ),
-                                                ),
+                                                )),
                                         ),
                                 ),
                             ),
@@ -652,14 +719,17 @@ fn action(shared: &Shared, ctx: &BuildContext, t: f32) -> WidgetNode {
     Stack::new()
         .fit(StackFit::Expand)
         .push(place(161.0, 556.0).child(button))
-        .push(place(0.0, top_of(661.0, 15.0)).width(420.0).child(
-            Text::new("New decision").style(
-                TextStyle::new(15.0)
-                    .weight(FontWeight::Medium)
-                    .color(Color::rgb(238, 240, 251)),
-            )
-            .align(TextAlign::Center),
-        ))
+        .push(
+            place(0.0, top_of(661.0, 15.0)).width(420.0).child(
+                Text::new("New decision")
+                    .style(
+                        TextStyle::new(15.0)
+                            .weight(FontWeight::Medium)
+                            .color(Color::rgb(238, 240, 251)),
+                    )
+                    .align(TextAlign::Center),
+            ),
+        )
         .into()
 }
 
@@ -734,32 +804,21 @@ fn plus_glyph(arm: f32, width: f32, color: Color) -> Painting {
 /// decisions the person marked kept; SETTINGS is the studio the ALIVE chip
 /// also opens.
 fn shortcuts(shared: &Shared, ctx: &BuildContext) -> WidgetNode {
-    Positioned::fill().child(
-        Stack::new()
-            .fit(StackFit::Expand)
-            .children(children![
-                shortcut(
-                    shared,
-                    ctx,
-                    98.0,
-                    "HISTORY",
-                    AXON,
-                    Glyph::History,
-                    false,
-                ),
-                shortcut(shared, ctx, 210.0, "SAVED", SYNAPSE, Glyph::Saved, true),
-                shortcut(
-                    shared,
-                    ctx,
-                    322.0,
-                    "SETTINGS",
-                    Color::rgb(240, 199, 127),
-                    Glyph::Settings,
-                    false,
-                ),
-            ]),
-    )
-    .into()
+    Positioned::fill()
+        .child(Stack::new().fit(StackFit::Expand).children(children![
+            shortcut(shared, ctx, 98.0, "HISTORY", AXON, Glyph::History, false,),
+            shortcut(shared, ctx, 210.0, "SAVED", SYNAPSE, Glyph::Saved, true),
+            shortcut(
+                shared,
+                ctx,
+                322.0,
+                "SETTINGS",
+                Color::rgb(240, 199, 127),
+                Glyph::Settings,
+                false,
+            ),
+        ]))
+        .into()
 }
 
 /// One shortcut: its circle at `(x, 720)`, its glyph, its name at y = 763 —
@@ -794,7 +853,9 @@ fn shortcut(
         let state = take(&shared_for_pick);
         match (to_saved, glyph) {
             (true, Glyph::Saved) => state.nav.push(history_route(shared_for_pick.clone(), true)),
-            (false, Glyph::History) => state.nav.push(history_route(shared_for_pick.clone(), false)),
+            (false, Glyph::History) => state
+                .nav
+                .push(history_route(shared_for_pick.clone(), false)),
             _ => state.nav.push(settings_route(shared_for_pick.clone())),
         }
     });
@@ -802,17 +863,19 @@ fn shortcut(
     Stack::new()
         .fit(StackFit::Expand)
         .push(place(x - 24.0, 696.0).child(pressable))
-        .push(place(x - 40.0, top_of(763.0, 9.0)).child(
-            SizedBox::width(80.0).child(
-                Text::new(label)
-                    .style(
-                        TextStyle::new(9.0)
-                            .letter_spacing(0.4)
-                            .color(Color::rgb(147, 160, 182)),
-                    )
-                    .align(TextAlign::Center),
+        .push(
+            place(x - 40.0, top_of(763.0, 9.0)).child(
+                SizedBox::width(80.0).child(
+                    Text::new(label)
+                        .style(
+                            TextStyle::new(9.0)
+                                .letter_spacing(0.4)
+                                .color(Color::rgb(147, 160, 182)),
+                        )
+                        .align(TextAlign::Center),
+                ),
             ),
-        ))
+        )
         .into()
 }
 
@@ -877,24 +940,20 @@ impl Glyph {
 
 /// The strip's label — the reference's y = 798.
 fn recent_label() -> WidgetNode {
-    Text::new("PICK UP WHERE YOU LEFT OFF").style(
-        TextStyle::new(9.0)
-            .weight(FontWeight::Bold)
-            .letter_spacing(1.8)
-            .color(Color::rgb(119, 136, 165)),
-    )
-    .into()
+    Text::new("PICK UP WHERE YOU LEFT OFF")
+        .style(
+            TextStyle::new(9.0)
+                .weight(FontWeight::Bold)
+                .letter_spacing(1.8)
+                .color(Color::rgb(119, 136, 165)),
+        )
+        .into()
 }
 
 /// The last thing worth picking back up — the latest decision's own
 /// words when the memory holds one, else the last thing U noted — and the
 /// way back into it. The reference's 372 × 48 card at y = 810.
-fn recent(
-    shared: &Shared,
-    ctx: &BuildContext,
-    words: &str,
-    to_workspace: bool,
-) -> WidgetNode {
+fn recent(shared: &Shared, ctx: &BuildContext, words: &str, to_workspace: bool) -> WidgetNode {
     // The card is one line at 12 px in a ~295 px run between the briefcase
     // and the chevron: 46 glyphs is the honest ceiling, and an ellipsis
     // says the rest is in the record, not gone.
@@ -955,8 +1014,7 @@ fn recent(
         }
     });
 
-    card
-    .into()
+    card.into()
 }
 
 /// The strip's briefcase — the reference's smaller one: a 14 × 9 case, a
@@ -1006,13 +1064,14 @@ fn nudge(state: &AppState, shared: &Shared, ctx: &BuildContext, answers: u32) ->
 
     let state_for_later = state.clone();
     let later = Pressable::themed(ctx, move |press| {
-        Text::new("LATER").style(
-            TextStyle::new(10.0)
-                .weight(FontWeight::Medium)
-                .letter_spacing(0.5)
-                .color(palette::mix(Color::rgb(147, 137, 176), INK, press)),
-        )
-        .into()
+        Text::new("LATER")
+            .style(
+                TextStyle::new(10.0)
+                    .weight(FontWeight::Medium)
+                    .letter_spacing(0.5)
+                    .color(palette::mix(Color::rgb(147, 137, 176), INK, press)),
+            )
+            .into()
     })
     .on_tap(move || state_for_later.dismiss_nudge());
 
@@ -1026,7 +1085,11 @@ fn nudge(state: &AppState, shared: &Shared, ctx: &BuildContext, answers: u32) ->
             )
             .size(18.0, 18.0)
             .alignment(Alignment::CENTER)
-            .child(Icon::new(icons::close()).size(8.0).color(Color::rgb(184, 175, 202)))
+            .child(
+                Icon::new(icons::close())
+                    .size(8.0)
+                    .color(Color::rgb(184, 175, 202)),
+            )
             .into()
     })
     .on_tap(move || state_for_close.dismiss_nudge());

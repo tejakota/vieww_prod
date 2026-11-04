@@ -122,11 +122,13 @@ fn linear() -> WidgetNode {
         book.rrect(
             Rect::new(0.0, 0.0, size.width, size.height),
             10.0,
-            Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0)).with_dither().with_stops(&[
-                (0.0, ACCENT),
-                (0.55, VIOLET),
-                (1.0, Color::rgb(240, 120, 170)),
-            ]),
+            Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0))
+                .with_dither()
+                .with_stops(&[
+                    (0.0, ACCENT),
+                    (0.55, VIOLET),
+                    (1.0, Color::rgb(240, 120, 170)),
+                ]),
         );
     }))
     .into()
@@ -219,7 +221,9 @@ fn svg_path() -> WidgetNode {
         );
         book.fill(
             fitted,
-            Gradient::vertical().with_dither().between(Color::rgb(255, 120, 150), Color::rgb(200, 40, 110)),
+            Gradient::vertical()
+                .with_dither()
+                .between(Color::rgb(255, 120, 150), Color::rgb(200, 40, 110)),
         );
     }))
     .into()

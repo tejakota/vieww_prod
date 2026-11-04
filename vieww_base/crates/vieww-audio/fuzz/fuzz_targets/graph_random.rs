@@ -40,7 +40,10 @@ fuzz_target!(|data: &[u8]| {
                     g.set_output(a);
                 }
                 g.render_interleaved(&mut out, 2);
-                assert!(out.iter().all(|v| v.is_finite()), "a graph rendered a non-finite sample");
+                assert!(
+                    out.iter().all(|v| v.is_finite()),
+                    "a graph rendered a non-finite sample"
+                );
             }
         }
     }

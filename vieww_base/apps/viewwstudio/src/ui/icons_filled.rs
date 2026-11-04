@@ -83,3 +83,12 @@ pub fn export() -> IconData {
 pub fn lightbulb() -> IconData {
     icon("M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z")
 }
+
+/// Assets: a frame with a mountain in it — the picture every tool's image
+/// browser uses.
+pub fn image() -> IconData {
+    icon(
+        "M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 \
+         13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z",
+    )
+}

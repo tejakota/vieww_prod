@@ -74,7 +74,7 @@ impl Widget for Reveals {
             .children(children![
                 Text::new("per character:").style(TextStyle {
                     size: 12.0,
-                    color: Color::rgb(130, 140, 160),
+                    color: Color::rgb(90, 99, 117),
                     ..TextStyle::default()
                 }),
                 SplitText::new("Design is intelligence made visible", progress)
@@ -84,7 +84,7 @@ impl Widget for Reveals {
                     .color(Color::rgb(24, 28, 40)),
                 Text::new("per word:").style(TextStyle {
                     size: 12.0,
-                    color: Color::rgb(130, 140, 160),
+                    color: Color::rgb(90, 99, 117),
                     ..TextStyle::default()
                 }),
                 SplitText::new("A user interface is like a joke — if you have to explain it, it is not that good.", progress)
@@ -92,7 +92,7 @@ impl Widget for Reveals {
                     .stagger(0.6)
                     .rise(14.0)
                     .size(16.0)
-                    .color(Color::rgb(58, 122, 246)),
+                    .color(Color::rgb(44, 98, 234)),
             ])
             .into()
     }

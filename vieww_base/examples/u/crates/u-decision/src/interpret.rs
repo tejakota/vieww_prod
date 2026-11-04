@@ -62,8 +62,15 @@ fn strip_punct(word: &str) -> &str {
 /// What kind of decision this is, as one plain phrase.
 fn intent(lower: &str, user_options: &[String]) -> String {
     let has = |needle: &str| lower.contains(needle);
-    if has("should i") || has("whether") || has("or not") || has("decide") || has("deciding")
-        || has("worth it") || has("better to") || has("do i") || has("torn between")
+    if has("should i")
+        || has("whether")
+        || has("or not")
+        || has("decide")
+        || has("deciding")
+        || has("worth it")
+        || has("better to")
+        || has("do i")
+        || has("torn between")
     {
         if user_options.len() > 1 || has(" or ") || has(" vs") || has("between") {
             "choosing between paths".to_owned()
@@ -96,8 +103,18 @@ fn time_horizon(lower: &str) -> Option<String> {
     }
     // "by <month name>" — a deadline stated in calendar words.
     for month in [
-        "january", "february", "march", "april", "may", "june", "july", "august", "september",
-        "october", "november", "december",
+        "january",
+        "february",
+        "march",
+        "april",
+        "may",
+        "june",
+        "july",
+        "august",
+        "september",
+        "october",
+        "november",
+        "december",
     ] {
         if lower.contains(&format!("by {month}")) {
             return Some("until the stated deadline".to_owned());
@@ -170,7 +187,14 @@ fn split_on_either<'a>(lower: &'a str, sep: &str) -> Option<(&'a str, &'a str)> 
     let right = &lower[at + sep.len()..];
 
     let mut left = left.trim();
-    for lead in ["should i ", "should we ", "whether to ", "whether ", "to ", "i "] {
+    for lead in [
+        "should i ",
+        "should we ",
+        "whether to ",
+        "whether ",
+        "to ",
+        "i ",
+    ] {
         if let Some(rest) = left.strip_prefix(lead) {
             left = rest.trim();
             break;
@@ -204,15 +228,37 @@ fn the_constraints(input: &Input, lower: &str, budget: &Budget) -> Vec<String> {
     }
     for (cues, fact) in [
         (
-            &["budget", "afford", "costly", "expensive", "savings", "debt", "loan", "money"][..],
+            &[
+                "budget",
+                "afford",
+                "costly",
+                "expensive",
+                "savings",
+                "debt",
+                "loan",
+                "money",
+            ][..],
             "Money is a stated part of the picture",
         ),
         (
-            &["deadline", "urgent", "by march", "asap", "running out of time"],
+            &[
+                "deadline",
+                "urgent",
+                "by march",
+                "asap",
+                "running out of time",
+            ],
             "Time pressure is a stated part of the picture",
         ),
         (
-            &["can't", "cannot", "must not", "committed", "obligated", "tied to"],
+            &[
+                "can't",
+                "cannot",
+                "must not",
+                "committed",
+                "obligated",
+                "tied to",
+            ],
             "A commitment limits what can change here",
         ),
         (
@@ -220,7 +266,13 @@ fn the_constraints(input: &Input, lower: &str, budget: &Budget) -> Vec<String> {
             "An agreement constrains the timing of any change",
         ),
         (
-            &["visa", "relocate", "moving to", "another city", "remote work"],
+            &[
+                "visa",
+                "relocate",
+                "moving to",
+                "another city",
+                "remote work",
+            ],
             "Where you can be is part of the decision",
         ),
     ] {
@@ -241,12 +293,39 @@ fn the_priorities(input: &Input, lower: &str, budget: &Budget) -> Vec<String> {
         }
     }
     for (cues, what) in [
-        (&["growth", "learn", "career", "opportunity", "advance", "promotion"][..], "growth"),
-        (&["stable", "stability", "secure", "security", "safe", "risk"], "stability"),
-        (&["family", "partner", "kids", "children", "parents", "friends"], "the people close to you"),
-        (&["health", "sleep", "burnout", "stress", "exhausted"], "your health and energy"),
-        (&["freedom", "flexib", "independent", "autonomy", "my own"], "independence"),
-        (&["simple", "simpler", "quiet", "peace", "calm"], "simplicity"),
+        (
+            &[
+                "growth",
+                "learn",
+                "career",
+                "opportunity",
+                "advance",
+                "promotion",
+            ][..],
+            "growth",
+        ),
+        (
+            &["stable", "stability", "secure", "security", "safe", "risk"],
+            "stability",
+        ),
+        (
+            &[
+                "family", "partner", "kids", "children", "parents", "friends",
+            ],
+            "the people close to you",
+        ),
+        (
+            &["health", "sleep", "burnout", "stress", "exhausted"],
+            "your health and energy",
+        ),
+        (
+            &["freedom", "flexib", "independent", "autonomy", "my own"],
+            "independence",
+        ),
+        (
+            &["simple", "simpler", "quiet", "peace", "calm"],
+            "simplicity",
+        ),
     ] {
         if cues.iter().any(|cue| lower.contains(cue))
             && priorities.len() < budget.max_list_items
@@ -275,7 +354,8 @@ fn tags(words: &[&str]) -> Vec<String> {
     {
         tags.push("career".to_owned());
     }
-    if has("money") || has("budget") || has("salary") || has("afford") || has("rent") || has("loan") {
+    if has("money") || has("budget") || has("salary") || has("afford") || has("rent") || has("loan")
+    {
         tags.push("finance".to_owned());
     }
     if has("city") || has("move") || has("moving") || has("apartment") || has("relocate") {
@@ -298,7 +378,11 @@ fn the_unknowns(
     budget: &Budget,
 ) -> Vec<String> {
     let mut unknowns: Vec<String> = Vec::new();
-    let their_options = seen.options.iter().filter(|o| o.origin == Origin::Theirs).count();
+    let their_options = seen
+        .options
+        .iter()
+        .filter(|o| o.origin == Origin::Theirs)
+        .count();
 
     if their_options == 0 && input.options.is_empty() {
         unknowns.push("Which alternatives actually exist here".to_owned());
@@ -333,14 +417,20 @@ fn contains_number(words: &[&str]) -> bool {
 
 /// What the engine proceeded assuming — the honest ledger (§4.3 step 9).
 fn the_assumptions(seen: &Interpretation, hints: &[Hint]) -> Vec<String> {
-    let mut assumptions = vec!["The situation is as described, with nothing material left out".to_owned()];
+    let mut assumptions =
+        vec!["The situation is as described, with nothing material left out".to_owned()];
     // A missing horizon is an assumption the engine has to make to say
     // anything; saying it out loud is cheaper than implying it.
     if seen.time_horizon.is_none() {
-        assumptions.push("No timeframe was given, so this is read as a near-term decision".to_owned());
+        assumptions
+            .push("No timeframe was given, so this is read as a near-term decision".to_owned());
     }
     for hint in hints {
-        let leaning = if hint.leaning >= 0.0 { "toward" } else { "away from" };
+        let leaning = if hint.leaning >= 0.0 {
+            "toward"
+        } else {
+            "away from"
+        };
         let line = format!(
             "You lean {leaning} {}{} — from what you have said before",
             hint.dimension,
@@ -355,7 +445,11 @@ fn the_assumptions(seen: &Interpretation, hints: &[Hint]) -> Vec<String> {
 
 /// Confidence as a description of the input, never of the engine.
 fn confidence(seen: &Interpretation) -> Confidence {
-    let their_options = seen.options.iter().filter(|o| o.origin == Origin::Theirs).count();
+    let their_options = seen
+        .options
+        .iter()
+        .filter(|o| o.origin == Origin::Theirs)
+        .count();
     let chars = seen.situation.chars().count();
     if chars > 80 && their_options >= 1 && !seen.priorities.is_empty() {
         Confidence::High
@@ -368,7 +462,11 @@ fn confidence(seen: &Interpretation) -> Confidence {
 
 /// The one-line reason for the confidence, in plain words.
 fn confidence_reason(seen: &Interpretation) -> String {
-    let their_options = seen.options.iter().filter(|o| o.origin == Origin::Theirs).count();
+    let their_options = seen
+        .options
+        .iter()
+        .filter(|o| o.origin == Origin::Theirs)
+        .count();
     match seen.confidence {
         Confidence::High => "the situation, options and priorities were all clear".to_owned(),
         Confidence::Medium => format!(
@@ -427,7 +525,9 @@ mod tests {
             .map(|o| o.label.as_str())
             .collect();
         assert!(theirs.iter().any(|o| o.contains("stay")));
-        assert!(theirs.iter().any(|o| o.contains("offer") || o.contains("take")));
+        assert!(theirs
+            .iter()
+            .any(|o| o.contains("offer") || o.contains("take")));
         assert_eq!(seen.intent, "choosing between paths");
     }
 
@@ -451,8 +551,18 @@ mod tests {
     #[test]
     fn zero_one_and_many_options_are_all_real_states() {
         // Zero: no options anywhere.
-        let zero = interpret(&input("I feel stuck about my living situation"), &[], &Budget::DEFAULT);
-        assert!(zero.options.iter().filter(|o| o.origin == Origin::Theirs).count() == 0);
+        let zero = interpret(
+            &input("I feel stuck about my living situation"),
+            &[],
+            &Budget::DEFAULT,
+        );
+        assert!(
+            zero.options
+                .iter()
+                .filter(|o| o.origin == Origin::Theirs)
+                .count()
+                == 0
+        );
         // One: a single stated option.
         let one = Input {
             situation: "thinking about whether to take the course".to_owned(),
@@ -460,7 +570,13 @@ mod tests {
             ..Input::default()
         };
         let one = interpret(&one, &[], &Budget::DEFAULT);
-        assert_eq!(one.options.iter().filter(|o| o.origin == Origin::Theirs).count(), 1);
+        assert_eq!(
+            one.options
+                .iter()
+                .filter(|o| o.origin == Origin::Theirs)
+                .count(),
+            1
+        );
         // Many: three given.
         let many = Input {
             situation: "where to live next year".to_owned(),
@@ -468,7 +584,13 @@ mod tests {
             ..Input::default()
         };
         let many = interpret(&many, &[], &Budget::DEFAULT);
-        assert_eq!(many.options.iter().filter(|o| o.origin == Origin::Theirs).count(), 3);
+        assert_eq!(
+            many.options
+                .iter()
+                .filter(|o| o.origin == Origin::Theirs)
+                .count(),
+            3
+        );
     }
 
     #[test]
@@ -494,7 +616,11 @@ mod tests {
             leaning: 0.6,
             context: None,
         }];
-        let seen = interpret(&input("Should I switch teams at work?"), &hints, &Budget::DEFAULT);
+        let seen = interpret(
+            &input("Should I switch teams at work?"),
+            &hints,
+            &Budget::DEFAULT,
+        );
         assert!(seen.assumptions.iter().any(|a| a.contains("stability")));
     }
 
@@ -518,7 +644,11 @@ mod tests {
 
     #[test]
     fn tags_are_inferred_but_never_required() {
-        let seen = interpret(&input("Should I repaint the hallway?"), &[], &Budget::DEFAULT);
+        let seen = interpret(
+            &input("Should I repaint the hallway?"),
+            &[],
+            &Budget::DEFAULT,
+        );
         // A nothing-situation tags nothing and that is fine.
         assert!(seen.optional_tags.is_empty() || seen.optional_tags.len() <= 2);
     }

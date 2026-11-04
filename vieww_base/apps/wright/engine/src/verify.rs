@@ -1,4 +1,5 @@
-//! `wright verify` (ADR-025): seven checks over a run receipt.
+//! `wright verify` (ADR-025): seven checks over a run receipt, four over
+//! an export receipt (WR-15, ADR-046).
 //!
 //! A receipt is only worth something if a third party can check it:
 //! a manager, a client, an auditor — anyone with the project and the
@@ -39,10 +40,21 @@
 //!    every model call asked for (WR-09); recomputed from the event log,
 //!    the rows must match exactly. Receipts v2 are reported as predating
 //!    the record, not silently passed.
+//!
+//! An **export receipt** (`wright.export-receipt/1`, what `wright export`
+//! writes beside the artifacts — WR-15, ADR-046) gets four checks of the
+//! same kind: the signature over its exact bytes; every artifact it names
+//! (the file beside the receipt and/or the store's content-addressed
+//! copy) hashing to the signed sha256; the blueprint the packagings were
+//! generated from, committed in the store's history; and, for a
+//! Dockerfile, whether the base image is pinned by digest — with the
+//! artifact's own `FROM` line read back to prove the pin is really in
+//! the bytes, not just claimed in the JSON.
 
 use std::path::Path;
 
 use wright_core::hash;
+use wright_core::sha256;
 use wright_core::wire::json::{self, Value};
 use wright_runtime::store::Store;
 
@@ -135,6 +147,315 @@ fn fail(note: String) -> Verification {
         ok: false,
         run: None,
     }
+}
+
+// ── export receipts (WR-15, ADR-046) ──────────────────────────────
+
+/// Verify an export receipt (`wright export`'s `receipt.json`) against
+/// the project it came from: `wright verify <out>/receipt.json <project>`.
+pub fn export_receipt_file(project_dir: &Path, receipt: &Path) -> Verification {
+    export_receipt_file_pinned(project_dir, receipt, &[])
+}
+
+/// [`export_receipt_file`], also trusting the public keys in `pins`.
+pub fn export_receipt_file_pinned(
+    project_dir: &Path,
+    receipt: &Path,
+    pins: &[String],
+) -> Verification {
+    let store = match Store::open(project_dir) {
+        Ok(s) => s,
+        Err(e) => return fail(format!("cannot open the project store: {e}")),
+    };
+    let text = std::fs::read_to_string(receipt).unwrap_or_default();
+    if text.is_empty() {
+        return fail(format!("cannot read {}", receipt.display()));
+    }
+    // Artifacts are checked beside the receipt (wherever it now lives)
+    // and in the store (which is where the durable copies are).
+    let dir = receipt
+        .parent()
+        .unwrap_or_else(|| Path::new("."))
+        .to_path_buf();
+    verify_export_text_pinned(&store, &text, &dir, pins)
+}
+
+/// The whole thing, over an export receipt's JSON: the signature over
+/// its exact bytes, every artifact it names (file beside the receipt
+/// and/or the store's content-addressed copy), the blueprint it was
+/// generated from, and — for a Dockerfile — whether the base image is
+/// pinned by digest and the artifact really says `FROM …@digest`.
+pub fn verify_export_text_pinned(
+    store: &Store,
+    text: &str,
+    receipt_dir: &Path,
+    pins: &[String],
+) -> Verification {
+    let v = match json::parse(text) {
+        Ok(v) => v,
+        Err(e) => return fail(format!("the receipt is not valid JSON ({e})")),
+    };
+    if v.str_of("format") != Some("wright.export-receipt/1") {
+        return fail(
+            "the receipt is not an export receipt (format wright.export-receipt/1)".into(),
+        );
+    }
+    let mut checks = Vec::new();
+    let sig_ok = check_signature(&v, &mut checks, pins);
+    let artifacts_ok = check_export_artifacts(store, &v, receipt_dir, &mut checks);
+    let blueprint_ok = check_export_blueprint(store, &v, &mut checks);
+    let image_ok = check_export_base_image(store, &v, receipt_dir, &mut checks);
+    Verification {
+        ok: sig_ok && artifacts_ok && blueprint_ok && image_ok,
+        checks,
+        run: None,
+    }
+}
+
+/// The bytes of one artifact row: the file beside the receipt if it is
+/// still there, else the store's copy. `None` = nobody can witness it.
+fn export_artifact_bytes(
+    store: &Store,
+    receipt_dir: &Path,
+    row: &Value,
+) -> Option<Result<Vec<u8>, String>> {
+    let name = row.str_of("name").unwrap_or("");
+    let blake3 = row.str_of("blake3").unwrap_or("");
+    if let Ok(bytes) = std::fs::read(receipt_dir.join(name)) {
+        return Some(Ok(bytes));
+    }
+    if blake3.is_empty() {
+        return None;
+    }
+    store.get_object(blake3).ok().map(Ok)
+}
+
+fn check_export_artifacts(
+    store: &Store,
+    v: &Value,
+    receipt_dir: &Path,
+    checks: &mut Vec<Check>,
+) -> bool {
+    let Some(rows) = v
+        .get("artifacts")
+        .and_then(|a| a.as_arr().map(|x| x.to_vec()))
+    else {
+        checks.push(Check {
+            name: "artifacts",
+            ok: false,
+            note: "the receipt names no artifacts".into(),
+        });
+        return false;
+    };
+    if rows.is_empty() {
+        checks.push(Check {
+            name: "artifacts",
+            ok: false,
+            note: "the receipt records an export that made nothing".into(),
+        });
+        return false;
+    }
+    let mut ok = true;
+    let mut beside = 0usize;
+    let mut in_store = 0usize;
+    let mut problems: Vec<String> = Vec::new();
+    for (n, row) in rows.iter().enumerate() {
+        let name = row.str_of("name").unwrap_or("").to_string();
+        let claimed = row.str_of("sha256").unwrap_or("").to_string();
+        let blake3 = row.str_of("blake3").unwrap_or("").to_string();
+        if name.is_empty() || claimed.is_empty() || blake3.is_empty() {
+            problems.push(format!("artifact {n} is malformed (name, sha256, blake3)"));
+            ok = false;
+            continue;
+        }
+        match export_artifact_bytes(store, receipt_dir, row) {
+            None => {
+                problems.push(format!(
+                    "'{name}' is gone: not beside the receipt, and the store holds no object {}",
+                    hash::short(&blake3)
+                ));
+                ok = false;
+            }
+            Some(Err(e)) => {
+                problems.push(format!("'{name}': {e}"));
+                ok = false;
+            }
+            Some(Ok(bytes)) => {
+                let now = sha256::hex(&bytes);
+                if receipt_dir.join(&name).exists() {
+                    beside += 1;
+                } else {
+                    in_store += 1;
+                }
+                if now != claimed {
+                    problems.push(format!(
+                        "'{name}' changed after the receipt was signed: it says {}, the bytes are {}",
+                        hash::short(&claimed),
+                        hash::short(&now)
+                    ));
+                    ok = false;
+                }
+            }
+        }
+    }
+    if ok {
+        checks.push(Check {
+            name: "artifacts",
+            ok: true,
+            note: format!(
+                "{} artifact(s): every one still hashes to its signed sha256 — {beside} beside the receipt, {in_store} only in the store",
+                rows.len()
+            ),
+        });
+    } else {
+        checks.push(Check {
+            name: "artifacts",
+            ok: false,
+            note: problems.join("; "),
+        });
+    }
+    ok
+}
+
+fn check_export_blueprint(store: &Store, v: &Value, checks: &mut Vec<Check>) -> bool {
+    let Some(commit) = v.str_of("blueprint") else {
+        checks.push(Check {
+            name: "blueprint",
+            ok: false,
+            note: "the receipt names no blueprint commit".into(),
+        });
+        return false;
+    };
+    match store.blueprint_at(commit) {
+        Ok(text) => match wright_core::blueprint::parse::blueprint(&text) {
+            Ok(_) => {
+                let in_history = store.blueprint_history().iter().any(|c| c.hash == commit);
+                if in_history {
+                    checks.push(Check {
+                        name: "blueprint",
+                        ok: true,
+                        note: format!(
+                            "the packagings were generated from the committed plan {}",
+                            hash::short(commit)
+                        ),
+                    });
+                    true
+                } else {
+                    checks.push(Check {
+                        name: "blueprint",
+                        ok: false,
+                        note: format!(
+                            "the blueprint {} parses, but the store's history does not list it",
+                            hash::short(commit)
+                        ),
+                    });
+                    false
+                }
+            }
+            Err(e) => {
+                checks.push(Check {
+                    name: "blueprint",
+                    ok: false,
+                    note: format!("the committed blueprint no longer parses: {e}"),
+                });
+                false
+            }
+        },
+        Err(e) => {
+            checks.push(Check {
+                name: "blueprint",
+                ok: false,
+                note: format!(
+                    "the receipt names blueprint {}, which is not in the store: {e}",
+                    hash::short(commit)
+                ),
+            });
+            false
+        }
+    }
+}
+
+/// For a Dockerfile row: is the base image pinned by digest, and does
+/// the artifact itself carry that `FROM` line? A receipt that claims a
+/// pin its artifact lacks — or an artifact quietly re-tagged after
+/// signing — fails here.
+fn check_export_base_image(
+    store: &Store,
+    v: &Value,
+    receipt_dir: &Path,
+    checks: &mut Vec<Check>,
+) -> bool {
+    let Some(rows) = v
+        .get("artifacts")
+        .and_then(|a| a.as_arr().map(|x| x.to_vec()))
+    else {
+        checks.push(Check {
+            name: "base image",
+            ok: true,
+            note: "no container packaging in this export".into(),
+        });
+        return true;
+    };
+    let mut ok = true;
+    let mut notes: Vec<String> = Vec::new();
+    let mut saw_docker = false;
+    for row in &rows {
+        if row.str_of("kind") != Some("docker") {
+            continue;
+        }
+        saw_docker = true;
+        let image = row.str_of("base_image").unwrap_or("").to_string();
+        let digest = row.str_of("digest").unwrap_or("").to_string();
+        if image.is_empty() {
+            notes.push("the Dockerfile row records no base image".into());
+            ok = false;
+            continue;
+        }
+        match export_artifact_bytes(store, receipt_dir, row) {
+            Some(Ok(bytes)) => {
+                let text = String::from_utf8_lossy(&bytes);
+                if digest.is_empty() {
+                    notes.push(format!(
+                        "{image} NOT pinned — the Dockerfile builds from the moving tag, and says so in its header"
+                    ));
+                    if !text.contains(&format!("\nFROM {image}\n"))
+                        && !text.starts_with(&format!("FROM {image}\n"))
+                    {
+                        notes.push(format!(
+                            "… but the signed Dockerfile does not build from '{image}' as claimed"
+                        ));
+                        ok = false;
+                    }
+                } else {
+                    let from = format!("FROM {image}@{digest}");
+                    if text.contains(&from) {
+                        notes.push(format!("{image} pinned by digest {digest}"));
+                    } else {
+                        notes.push(format!(
+                            "the receipt pins {image}@{digest}, but the signed Dockerfile carries no such FROM line"
+                        ));
+                        ok = false;
+                    }
+                }
+            }
+            _ => {
+                // Already failed in the artifacts check; say it plainly here too.
+                notes.push(format!(
+                    "{image}: the Dockerfile itself is gone, so its FROM line cannot be checked"
+                ));
+                ok = false;
+            }
+        }
+    }
+    if !saw_docker {
+        notes.push("no container packaging in this export".into());
+    }
+    checks.push(Check {
+        name: "base image",
+        ok,
+        note: notes.join("; "),
+    });
+    ok
 }
 
 /// The whole thing. `text` is the receipt's JSON; the store must be the

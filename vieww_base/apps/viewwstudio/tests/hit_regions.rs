@@ -221,7 +221,7 @@ fn the_folder_icon_folds_and_unfolds_the_sidebar() {
     assert_eq!(studio.view.get(), View::Explorer);
     let icons = activity_bar_icons(&driver);
     assert!(
-        icons.len() >= 2,
+        icons.len() >= 3,
         "the activity bar's icons must be on screen for this to test anything"
     );
 
@@ -253,7 +253,8 @@ fn the_folder_icon_folds_and_unfolds_the_sidebar() {
     // reveals the pane with that icon's view instead.
     click(&mut driver, centre, 1_600);
     assert_eq!(studio.sidebar_width.get(), 0.0);
-    let (_, centre, _) = activity_bar_icons(&driver)[1];
+    // Explorer, Assets (ST-15), Search: Search is third from the top.
+    let (_, centre, _) = activity_bar_icons(&driver)[2];
     click(&mut driver, centre, 2_400);
     assert_eq!(
         studio.view.get(),
@@ -272,14 +273,14 @@ fn every_activity_bar_icon_hides_and_reveals_the_pane() {
     let (mut driver, studio) = shell();
     let icons = activity_bar_icons(&driver);
     assert!(
-        icons.len() >= 4,
+        icons.len() >= 5,
         "the bar's upper group must be on screen for this to test anything"
     );
 
-    // Search, second from the top. The first press finds Search not showing,
+    // Search, third from the top (Explorer, then Assets from ST-15). The first press finds Search not showing,
     // so it switches; the pane stays up. The press after that finds Search
     // showing and folds the pane, and the press after that unfolds it.
-    let (_, search, _) = icons[1];
+    let (_, search, _) = icons[2];
     click(&mut driver, search, 1);
     assert_eq!(
         studio.view.get(),
@@ -306,7 +307,8 @@ fn every_activity_bar_icon_hides_and_reveals_the_pane() {
 
     // Problems, further down the column, same rule from a fresh open pane:
     // switch, fold, unfold — and a folding press never switched the view.
-    let (_, problems, _) = activity_bar_icons(&driver)[3];
+    // Explorer, Assets, Search, Snippets, Problems.
+    let (_, problems, _) = activity_bar_icons(&driver)[4];
     click(&mut driver, problems, 2_400);
     assert_eq!(studio.view.get(), View::Problems);
     assert_eq!(studio.sidebar_width.get(), OPEN_SIDEBAR);

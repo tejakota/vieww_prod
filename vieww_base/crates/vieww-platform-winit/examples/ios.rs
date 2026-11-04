@@ -152,6 +152,12 @@ fn main() {
         // that only suited one phone. `after_frame`, not `on_frame`:
         // geometry does not exist until the frame has been laid out.
         .after_frame(suite.tap_targets())
+        // Reports the field's value whenever it moves, so the XCUITest IME
+        // leg (FW-11c) can assert what a CJK keyboard committed through
+        // `UITextInput` — either here, from the unified log, or straight off
+        // the accessibility tree the test already reads. Cheap when nothing
+        // is typing: one signal read and a compare per frame.
+        .after_frame(suite.ime_probe())
         // Raises the drawer and asks whether the screen behind it left the
         // semantics tree. **Installed here as well as on Android, and it is the
         // one hook in the suite that costs nothing to run anywhere**: it reads
@@ -170,6 +176,7 @@ fn main() {
             stress.attach(&demo);
             let probe = suite.probe(demo.taps());
             suite.watch_drawer(demo.drawer());
+            suite.watch_field(demo.field());
             // `VIEWW_SCREEN=stress` (the runner's launch environment) for the
             // heavy screen the Android phones run too.
             driver.set_root(if screen::wants_stress() {

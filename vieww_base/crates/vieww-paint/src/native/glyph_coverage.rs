@@ -154,7 +154,7 @@ impl InkedGlyph<'_> {
     /// bound this leaves.
     ///
     /// The coverage gamma is applied first — the same
-    /// [`coverage_alpha`](super::linear::coverage_alpha) the CPU compositor
+    /// `coverage_alpha` the CPU compositor
     /// runs — so the atlas and the CPU path carry one transfer, and the two
     /// backends stay within the rounding bound of each other rather than a
     /// gamma apart.
@@ -268,7 +268,16 @@ mod tests {
             height: 1,
             coverage: &coverage,
         };
-        assert_eq!(glyph.alpha(), vec![0, 128, 255, 255, 0, 1]);
+        // `alpha` applies the coverage gamma (`linear::coverage_alpha`) before
+        // rounding, so the expected bytes are the gamma'd values, rounded.
+        let expected: Vec<u8> = coverage
+            .iter()
+            .map(|c| (super::super::linear::coverage_alpha(*c) * 255.0).round() as u8)
+            .collect();
+        assert_eq!(glyph.alpha(), expected);
+        // The ends stay exact: no ink is no ink, full ink is full ink.
+        assert_eq!(glyph.alpha()[0], 0);
+        assert_eq!(glyph.alpha()[2], 255);
     }
 
     /// The bound the module doc claims, asserted rather than described: no
@@ -285,9 +294,10 @@ mod tests {
                 coverage: std::slice::from_ref(&c),
             };
             let back = f32::from(glyph.alpha()[0]) / 255.0;
+            let want = super::super::linear::coverage_alpha(c).clamp(0.0, 1.0);
             assert!(
-                (back - c).abs() <= 0.5 / 255.0 + 1e-6,
-                "coverage {c} became {back}"
+                (back - want).abs() <= 0.5 / 255.0 + 1e-6,
+                "coverage {c} (gamma'd {want}) became {back}"
             );
         }
     }

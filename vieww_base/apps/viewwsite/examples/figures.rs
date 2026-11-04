@@ -71,11 +71,11 @@ fn main() {
 fn orb(size: f32, inner: Color, outer: Color) -> WidgetNode {
     Container::new()
         .radius(size)
-        .gradient(Gradient::radial(Offset::new(0.5, 0.5), 0.5).with_dither().with_stops(&[
-            (0.0, inner),
-            (0.62, mix(inner, outer, 0.55)),
-            (1.0, outer),
-        ]))
+        .gradient(
+            Gradient::radial(Offset::new(0.5, 0.5), 0.5)
+                .with_dither()
+                .with_stops(&[(0.0, inner), (0.62, mix(inner, outer, 0.55)), (1.0, outer)]),
+        )
         .child(SizedBox::from_size(Size::new(size, size)))
         .into()
 }
@@ -125,11 +125,13 @@ fn compositing() -> WidgetNode {
             // The ground: a wide, slow ramp, so the modes have something with
             // tone in it to work against rather than flat black.
             Container::new().gradient(
-                Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0)).with_dither().with_stops(&[
-                    (0.0, Color::rgb(0x14, 0x10, 0x22)),
-                    (0.55, Color::rgb(0x0E, 0x0C, 0x14)),
-                    (1.0, Color::rgb(0x1A, 0x12, 0x10)),
-                ])
+                Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0))
+                    .with_dither()
+                    .with_stops(&[
+                        (0.0, Color::rgb(0x14, 0x10, 0x22)),
+                        (0.55, Color::rgb(0x0E, 0x0C, 0x14)),
+                        (1.0, Color::rgb(0x1A, 0x12, 0x10)),
+                    ])
             ),
             disc(
                 120.0,
@@ -197,10 +199,12 @@ fn depth() -> WidgetNode {
         .fit(StackFit::Expand)
         .children(children![
             Container::new().gradient(
-                Gradient::linear(Offset::new(0.0, 0.0), Offset::new(0.3, 1.0)).with_dither().with_stops(&[
-                    (0.0, Color::rgb(0x12, 0x0F, 0x1C)),
-                    (1.0, Color::rgb(0x0B, 0x0A, 0x09)),
-                ])
+                Gradient::linear(Offset::new(0.0, 0.0), Offset::new(0.3, 1.0))
+                    .with_dither()
+                    .with_stops(&[
+                        (0.0, Color::rgb(0x12, 0x0F, 0x1C)),
+                        (1.0, Color::rgb(0x0B, 0x0A, 0x09)),
+                    ])
             ),
             // A blurred group behind the glass — the thing the cards are
             // translucent *over*.
@@ -297,10 +301,12 @@ fn easing() -> WidgetNode {
         .fit(StackFit::Expand)
         .children(children![
             Container::new().gradient(
-                Gradient::linear(Offset::new(1.0, 0.0), Offset::new(0.0, 1.0)).with_dither().with_stops(&[
-                    (0.0, Color::rgb(0x12, 0x10, 0x18)),
-                    (1.0, Color::rgb(0x0B, 0x0A, 0x09)),
-                ])
+                Gradient::linear(Offset::new(1.0, 0.0), Offset::new(0.0, 1.0))
+                    .with_dither()
+                    .with_stops(&[
+                        (0.0, Color::rgb(0x12, 0x10, 0x18)),
+                        (1.0, Color::rgb(0x0B, 0x0A, 0x09)),
+                    ])
             ),
             at(
                 92.0,

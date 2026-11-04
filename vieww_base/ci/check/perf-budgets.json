@@ -1,5 +1,8 @@
 {
   "classes": {
+    "hardware-linux": {
+      "peak_rss_mb": 60.0
+    },
     "phone-apple-iphone-13": {
       "auto_frame_time_p50_ms": 7.229,
       "gpu_frame_time_p50_ms": 15.958
@@ -27,9 +30,56 @@
     "phone-sm-s948u1": {
       "auto_frame_time_p50_ms": 0.316,
       "gpu_frame_time_p50_ms": 0.349
+    },
+    "kabylake-linux": {
+      "gallery/00-layers-nested/cpu_p50_ms": 23.8,
+      "gallery/23-editor-glass/cpu_p50_ms": 24.8
+    },
+    "kabylake-windows": {
+      "gallery/00-layers-nested/cpu_p50_ms": 22.2,
+      "gallery/23-editor-glass/cpu_p50_ms": 24.2
     }
   },
   "min_delta_ms": 1.0,
+  "notes": {
+    "hardware-linux/peak_rss_mb": "Ratcheted 120 -> 60 (FW-15, 2026-11-04). The audit's 150 MB predates the softbuffer CPU present: re-measured with examples/baseline under Xvfb (CPU path), peak RSS is 32 MB with 132 fonts and 32 MB with all 575 Noto faces installed; heaptrack puts the heap peak at 16.5 MB, the largest single allocation being the 840x600 Premul target (7.68 MB, 16 B/px). 60 leaves headroom for a Mesa Vulkan driver's mappings on the GPU path, which this sandbox cannot load; the next ratchet is toward AIMS' 40 once a self-hosted receipt records the GPU-path figure. A --record that moves this row up is a regression being written down, not a budget change."
+  },
   "schema": "vieww.perf-budgets/1",
-  "tolerance_percent": 10
+  "tolerance_percent": 10,
+  "known_limitations": {
+    "kabylake-linux": {
+      "gallery/00-layers-nested/cpu_p50_ms": {
+        "reason": "FW-07 known limitation, accepted 2026-10-21 (owner decision recorded in STATUS.md): the reference laptop (i5-7200U) misses the 16.7 ms / 60 Hz full-repaint budget by ~7 ms at p50 (receipt run 2026-10-15-kabylake-i5-7200u-linux; figures recorded here from it). What is left is memory bandwidth on 16-byte-per-pixel layers, and the fix that would close it \u2014 f16 layer storage \u2014 changes bytes, so it is held for the FIDELITY.md section-5 ruling rather than shipped silently. This entry keeps the drift gate honest: a regression past the recorded figure still fails the run. Remove it in the same commit as the win that brings this under target_ms (the check flags it stale).",
+        "since": "2026-10-15",
+        "target_ms": 16.7
+      },
+      "gallery/23-editor-glass/cpu_p50_ms": {
+        "reason": "FW-07 known limitation, accepted 2026-10-21 (owner decision recorded in STATUS.md): the reference laptop (i5-7200U) misses the 16.7 ms / 60 Hz full-repaint budget by ~8 ms at p50 (receipt run 2026-10-15-kabylake-i5-7200u-linux; a retained repaint is already ~7.5 ms). Blur is ~12% of the remaining cost, and the fix that would close it \u2014 an SSE2 blur with a different accumulation order \u2014 changes bytes, so it is held for the FIDELITY.md section-5 ruling rather than shipped silently. This entry keeps the drift gate honest: a regression past the recorded figure still fails the run. Remove it in the same commit as the win that brings this under target_ms (the check flags it stale).",
+        "since": "2026-10-15",
+        "target_ms": 16.7
+      }
+    },
+    "kabylake-windows": {
+      "gallery/00-layers-nested/cpu_p50_ms": {
+        "reason": "FW-07 known limitation, accepted 2026-10-21 (owner decision recorded in STATUS.md): same renderer, same miss, other OS \u2014 the reference laptop (i5-7200U) misses the 16.7 ms / 60 Hz full-repaint budget by ~5.5 ms at p50 (receipt run 2026-10-15-kabylake-i5-7200u-windows), which is why the limitation is per class and not per machine: this is the renderer, not an OS. Closing it is the same f16-layer-storage fidelity decision as the Linux entry. Remove in the same commit as the win that brings this under target_ms (the check flags it stale).",
+        "since": "2026-10-15",
+        "target_ms": 16.7
+      },
+      "gallery/23-editor-glass/cpu_p50_ms": {
+        "reason": "FW-07 known limitation, accepted 2026-10-21 (owner decision recorded in STATUS.md): the reference laptop (i5-7200U) misses the 16.7 ms / 60 Hz full-repaint budget by ~7.5 ms at p50 (receipt run 2026-10-15-kabylake-i5-7200u-windows). Closing it is the same SSE2-blur fidelity decision as the Linux entry. Remove in the same commit as the win that brings this under target_ms (the check flags it stale).",
+        "since": "2026-10-15",
+        "target_ms": 16.7
+      }
+    }
+  },
+  "ceilings": {
+    "auto_first_frame_ms": {
+      "ceiling_ms": 500,
+      "reason": "FW-16: the audit's mid-tier first-frame budget \u2014 500 ms from launch to the first frame on any phone the app itself rates medium or high (its own tier choice, auto_cache_budgets). Low-tier phones (the LG Stylo 5 at ~640 ms) are reported, not gated; 120 Hz phones' pacing is a separate row. Measured 2026-10-30: iPhone 15 Plus 376, iPhone 18 Pro Max 280, Galaxy A36 437, Galaxy S26 Ultra 180.",
+      "tiers": [
+        "medium",
+        "high"
+      ]
+    }
+  }
 }

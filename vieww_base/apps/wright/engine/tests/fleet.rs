@@ -28,6 +28,7 @@ fn opts(cfg: &Config) -> FireOptions {
         listeners: Vec::new(),
         config: Some(cfg.clone()),
         allow_private_network: true,
+        browser_loopback: false,
         resume: None,
         no_cache: true,
     }

@@ -87,7 +87,8 @@ pub(super) fn build(ctx: &Ctx) -> WidgetNode {
                             book.rrect(
                                 xywh(14.0, 14.0, 68.0, 68.0),
                                 14.0,
-                                vieww_foundation::Gradient::vertical().with_dither()
+                                vieww_foundation::Gradient::vertical()
+                                    .with_dither()
                                     .with_stops(&[(0.0, color), (1.0, alpha(color, 0.75))]),
                             );
                             // The current one's ring.

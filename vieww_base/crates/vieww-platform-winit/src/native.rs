@@ -94,9 +94,9 @@ use std::io::Write as _;
 // Only the softbuffer present (not Android, which locks the ANativeWindow) uses it.
 #[cfg(not(target_os = "android"))]
 use std::num::NonZeroU32;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::rc::{Rc, Weak};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 use winit::window::Window;
@@ -564,6 +564,37 @@ thread_local! {
     /// driver is fully alive. Sharing between windows is unchanged: while any
     /// window holds the device, this upgrades to it.
     static SHARED_DEVICE: RefCell<Weak<VulkanDevice>> = const { RefCell::new(Weak::new()) };
+
+    /// An instance a [`Prewarm`] made beside the window's creation (FW-05),
+    /// waiting for the first device to be opened from it. Taken by
+    /// [`shared_device_for`]; whatever is left after the window opened (a CPU
+    /// present wanted no device) is dropped by [`discard_prewarmed_instance`].
+    static PREWARMED: RefCell<Option<vieww_hal::vulkan::VulkanInstance>> =
+        const { RefCell::new(None) };
+}
+
+/// Give the next device open an instance made ahead of time.
+pub(crate) fn offer_prewarmed_instance(instance: vieww_hal::vulkan::VulkanInstance) {
+    PREWARMED.with(|cell| *cell.borrow_mut() = Some(instance));
+}
+
+/// Drop an offered instance nothing used — on the thread that opens windows,
+/// where a Vulkan teardown belongs.
+pub(crate) fn discard_prewarmed_instance() {
+    let unused = PREWARMED.with(|cell| cell.borrow_mut().take());
+    drop(unused);
+}
+
+/// A device for `window`: from the prewarmed instance when there is one.
+fn open_device(
+    window: &(impl raw_window_handle::HasWindowHandle + raw_window_handle::HasDisplayHandle),
+    width: u32,
+    height: u32,
+) -> Result<(VulkanDevice, VulkanSwapchain), VulkanError> {
+    match PREWARMED.with(|cell| cell.borrow_mut().take()) {
+        Some(instance) => VulkanDevice::for_window_with(instance, window, width, height),
+        None => VulkanDevice::for_window(window, width, height),
+    }
 }
 
 /// The shared device, and a swapchain for this window on it.
@@ -600,7 +631,7 @@ fn shared_device_for(
         return Ok((Rc::new(device), swapchain));
     }
 
-    let (device, swapchain) = VulkanDevice::for_window(window, width, height)?;
+    let (device, swapchain) = open_device(window, width, height)?;
     let device = Rc::new(device);
     SHARED_DEVICE.with(|cell| *cell.borrow_mut() = Rc::downgrade(&device));
     Ok((device, swapchain))
@@ -986,8 +1017,19 @@ impl NativeRenderer {
             .create(true)
             .append(true)
             .open(path)?;
+        let mut planner = ShadowPlanner::new(self.planner_profile());
+        // FW-22, the calibration loop's seed step: `VIEWW_PLANNER_CALIBRATE=1`
+        // runs the startup micro-benchmark once and feeds *both halves* —
+        // the planning profile the heuristic divides by, and the measured
+        // model's `draw` rate the plan an authoritative planner acts on is
+        // priced at. One run feeds both; the profile picker above stays a
+        // pure pick, and the steady frames past the launch window do the
+        // correcting (see `ShadowPlanner::seed_cpu_fill_benchmark`).
+        if planner_calibration() {
+            planner.seed_cpu_fill_benchmark();
+        }
         self.shadow = Some(PlannerShadow {
-            planner: ShadowPlanner::new(self.planner_profile()),
+            planner,
             out: std::io::BufWriter::new(file),
             broken: false,
             authoritative: false,
@@ -1014,44 +1056,40 @@ impl NativeRenderer {
     ///
     /// Shadow mode was never enabled, with the reason as the message.
     pub fn enable_planner_authoritative(&mut self) -> Result<(), String> {
-        if self.shadow.is_none() {
+        let Some(shadow) = self.shadow.as_mut() else {
             return Err(
                 "planner shadow is not enabled; set VIEWW_PLANNER_SHADOW to a log path \
                  so the authoritative gate has something to read"
                     .to_owned(),
             );
-        }
-        // The profile is read before the mutable borrow of the shadow
-        // state, which `planner_profile`'s `&self` would collide with.
-        let profile = self.planner_profile();
-        let shadow = self.shadow.as_mut().expect("checked above");
+        };
         shadow.authoritative = true;
-        shadow.planner = ShadowPlanner::with_authoritative(profile);
+        // Permission is granted to the planner that already runs
+        // (`allow_authoritative`), not to a rebuilt one: everything the
+        // shadow half accumulated — the launch window already served, the
+        // measured history the micro-benchmark seeded, the raw calibration
+        // — survives the grant, where a fresh planner would restart the
+        // launch window and drop the seed it would then have to re-measure.
+        shadow.planner.allow_authoritative();
         Ok(())
     }
 
-    /// The planner's assumed profile for this window's device.
-    ///
-    /// `VIEWW_PLANNER_CALIBRATE=1` (read once per process) additionally runs
-    /// [`vieww_render_planner::probe::calibrate_cpu_fill`]: a one-time,
-    /// single-digit-millisecond startup micro-benchmark that replaces the
-    /// profile's round-number CPU fill throughput with a measurement of this
-    /// machine's own rasterizer, and fills `cpu_cores` from the scheduler.
-    /// The GPU fields stay as `profile_for` guessed them — the shadow log's
-    /// own `Calibration` is the measured path for those, and this function
-    /// is called once per window, not per frame.
+    /// The planner's assumed profile for this window's device — a pure pick
+    /// from the backend's own adapter type, with no measurement in it.
+    /// Calibration is not this function's job: `enable_planner_shadow`
+    /// seeds the planner (`ShadowPlanner::seed_cpu_fill_benchmark`, behind
+    /// `VIEWW_PLANNER_CALIBRATE=1`), because a measurement belongs to the
+    /// planner it feeds — both halves of it, the profile *and* the
+    /// measured-cost history — and this function is called per window,
+    /// while the seed is once per planner.
     fn planner_profile(&self) -> DeviceProfile {
         use vieww_hal::Device as _;
         // On the CPU present path no device was opened to ask; plan as this
         // kind of machine's usual GPU, which is what the log is for.
-        let mut profile = self.device.as_ref().map_or_else(
+        self.device.as_ref().map_or_else(
             || profile_for(""),
             |device| profile_for(&device.info().device_type),
-        );
-        if planner_calibration() {
-            profile = vieww_render_planner::probe::calibrate_cpu_fill(profile);
-        }
-        profile
+        )
     }
 
     /// Plan `scene` in shadow and log what actually happened to it.
@@ -1109,6 +1147,35 @@ impl NativeRenderer {
                 &mut shadow.planner,
                 vieww_render_planner::measured_kinds::BLIT,
                 kinds.blit,
+            );
+        }
+        // The CPU half of the same connection (FW-22): a CPU frame's own
+        // raster stage, as a rate over the frame's pixels — the number the
+        // startup benchmark seeded and every later CPU frame refines. Only
+        // `present_planned` frames are recorded and they are whole-frame
+        // repaints, so `cpu_raster` is exactly the whole-frame cost the
+        // `draw` rate is priced per pixel of; a split frame rasterises the
+        // whole scene on the CPU too (the GPU band only overwrites rows),
+        // so it feeds the same rate, while a GPU frame's zero raster stage
+        // records nothing. Per-kind CPU rates would need per-kind pixel
+        // counts the raster stage does not carry, so `draw` is the whole
+        // honest CPU vocabulary today — `note_cpu_pass_kind` refuses the
+        // launch window either way.
+        if executor != Executor::Gpu && !self.stages.cpu_raster.is_zero() {
+            #[expect(
+                clippy::cast_precision_loss,
+                reason = "a frame extent is a small number of pixels"
+            )]
+            let pixels = (extent.0 as f32) * (extent.1 as f32);
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "a raster time in ms fits an f32"
+            )]
+            let ms = (self.stages.cpu_raster.as_secs_f64() * 1000.0) as f32;
+            shadow.planner.note_cpu_pass_kind(
+                vieww_render_planner::measured_kinds::DRAW,
+                ms,
+                pixels,
             );
         }
         // A pending plan (authoritative mode planned this frame *before*
@@ -1830,10 +1897,12 @@ pub fn gpu_overlap() -> bool {
 /// is always correct; missing one that did leaves a stale edge.
 const GPU_DAMAGE_MARGIN: i32 = 2;
 
-/// Whether the planner's profile is calibrated against this machine at
-/// startup (`VIEWW_PLANNER_CALIBRATE=1`): a one-time CPU fill micro-benchmark
-/// plus core-count detection, replacing the profile's round-number guesses
-/// with measured numbers — see `planner_profile`. Off by default, like every
+/// Whether the planner is calibrated against this machine at startup
+/// (`VIEWW_PLANNER_CALIBRATE=1`): a one-time CPU fill micro-benchmark plus
+/// core-count detection, fed to *both halves* of the planner the shadow log
+/// runs — the planning profile and the measured-cost history — by
+/// `enable_planner_shadow`'s seed step
+/// (`ShadowPlanner::seed_cpu_fill_benchmark`). Off by default, like every
 /// planner diagnostic, because the benchmark costs time and the guesses are
 /// what every existing log was recorded against. Read once per process.
 #[must_use]
@@ -2141,4 +2210,345 @@ mod tests {
             std::borrow::Cow::Borrowed(_) => panic!("an off-1x frame must be lifted, not borrowed"),
         }
     }
+
+    // ── the Vulkan prewarm (FW-05) ─────────────────────────────────────────
+
+    #[test]
+    fn a_window_that_cannot_want_the_gpu_never_prewarms() {
+        // Forced either way by VIEWW_PRESENT.
+        assert!(!may_want_vulkan(Some("cpu"), true, true));
+        assert!(may_want_vulkan(Some("vulkan"), false, false));
+        // Unforced: only a window that asked for the GPU, or one whose
+        // auto_rasterizer calibration might still pick it.
+        assert!(!may_want_vulkan(None, false, false));
+        assert!(may_want_vulkan(None, true, false));
+        assert!(may_want_vulkan(None, false, true));
+        // A value this crate does not know is the caller's choice, not "no".
+        assert!(may_want_vulkan(Some("d3d12"), true, false));
+    }
+
+    #[test]
+    fn prewarm_reports_what_it_read() {
+        let dir = std::env::temp_dir().join("vieww-prewarm-test");
+        std::fs::create_dir_all(&dir).unwrap();
+        let file = dir.join("pipelines.bin");
+        std::fs::write(&file, [7u8; 4096]).unwrap();
+        let (what, _) = run(Some(&file), None);
+        std::fs::remove_dir_all(&dir).ok();
+        // On iOS the loader clause says why it stayed on the main thread;
+        // elsewhere it either resolved or said why not — never neither.
+        assert!(what.loader.is_some() || what.loader_error.is_some());
+        let line = what.line();
+        assert!(line.contains("pipeline cache 4.0 KiB read in"), "{line:?}");
+    }
+
+    #[test]
+    fn a_first_launch_reads_a_cache_that_is_not_there_yet() {
+        let missing = std::env::temp_dir().join("vieww-prewarm-test-missing.bin");
+        std::fs::remove_file(&missing).ok();
+        let (what, _) = run(Some(&missing), None);
+        assert_eq!(what.cache, Some((0, what.cache.unwrap().1)));
+        let line = what.line();
+        // The honest reading: zero bytes, not an error — a first launch.
+        assert!(line.contains("0 B read in"), "{line:?}");
+    }
+
+    #[test]
+    fn a_prewarm_without_a_cache_file_only_resolves_the_loader() {
+        let (what, _) = run(None, None);
+        assert!(what.cache.is_none());
+        assert!(!what.line().contains("pipeline cache"), "{:?}", what.line());
+    }
+
+    #[test]
+    fn a_joined_prewarm_says_what_ran_even_when_the_thread_never_spawned() {
+        // The degenerate handle: no thread (spawn refused), and a join that
+        // still answers — start-up proceeds rather than failing on the thing
+        // that was meant to speed it up.
+        let what = Prewarm {
+            done: Arc::new(Mutex::new((Prewarmed::default(), None))),
+            thread: None,
+        }
+        .join();
+        assert!(what.1.is_none());
+        let what = what.0;
+        assert_eq!(what, Prewarmed::default());
+        assert_eq!(what.line(), "prewarm not run");
+    }
+
+    #[test]
+    fn a_real_prewarm_thread_runs_and_joins() {
+        // The full path: start, join, and an answer that names the loader and
+        // the cache file it read. Whether a loader is present is the
+        // machine's business; the line says which.
+        let dir = std::env::temp_dir().join("vieww-prewarm-thread-test");
+        std::fs::create_dir_all(&dir).unwrap();
+        let file = dir.join("pipelines.bin");
+        std::fs::write(&file, [1u8; 2048]).unwrap();
+        let (what, _) = Prewarm::start(Some(file.clone()), None).join();
+        std::fs::remove_dir_all(&dir).ok();
+        let line = what.line();
+        assert!(
+            line.contains("vulkan loader resolved in") || line.contains("no vulkan loader yet ("),
+            "{line:?}"
+        );
+        assert!(line.contains("2.0 KiB read in"), "{line:?}");
+    }
+
+    /// FW-05's instance half: given surface extensions, the prewarm makes the
+    /// `VkInstance` and hands it back to the thread that will open the window
+    /// — or says why it could not. Headless here, so the extensions are the
+    /// surface-free set a headless device uses; what is pinned is the
+    /// hand-over and the report, not a window.
+    #[cfg(not(target_os = "ios"))]
+    #[test]
+    fn a_prewarm_given_extensions_makes_the_instance_and_hands_it_over() {
+        let (what, instance) = Prewarm::start(None, Some(Vec::new())).join();
+        let line = what.line();
+        match (&what.loader, instance) {
+            (Some(_), Some(instance)) => {
+                assert!(line.contains("vulkan instance ("), "{line:?}");
+                assert_eq!(what.instance.map(|(n, _)| n), Some(instance.adapters()));
+                // Unused, it is destroyed here, on the joining thread.
+                drop(instance);
+            }
+            (Some(_), None) => assert!(line.contains("no prewarmed instance ("), "{line:?}"),
+            (None, made) => {
+                assert!(made.is_none(), "no loader, no instance");
+                assert!(!line.contains("vulkan instance"), "{line:?}");
+            }
+        }
+    }
+}
+
+/// Whether a window that does not exist yet might present through Vulkan —
+/// the gate for starting [`Prewarm`] before winit builds the window.
+///
+/// `present_env` is `VIEWW_PRESENT` as read (not resolved) by the caller:
+/// `"cpu"` and `"vulkan"` are forced answers, anything else (including a
+/// value this crate does not know) leaves the decision to `prefer_gpu` and
+/// `auto_rasterizer`, exactly as [`PresentPath::choose`] will when the window
+/// exists. A window that cannot want the GPU must not load the loader at all
+/// — that is the CPU path's whole contract — so the test of "might" errs on
+/// the side of *not* prewarming only when every input says CPU.
+pub(crate) fn may_want_vulkan(present_env: Option<&str>, prefer_gpu: bool, auto: bool) -> bool {
+    match present_env {
+        Some("cpu") => false,
+        Some("vulkan") => true,
+        _ => prefer_gpu || auto,
+    }
+}
+
+/// What one [`Prewarm`] did, as one line for the startup trace.
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+pub(crate) struct Prewarmed {
+    /// How long resolving the Vulkan loader took, when it resolved.
+    loader: Option<Duration>,
+    /// Why it did not, when it did not.
+    loader_error: Option<String>,
+    /// `(bytes, how long)` of the pipeline-cache file read, when there was a
+    /// file to read.
+    cache: Option<(usize, Duration)>,
+    /// `(adapters, how long)` of the instance creation, when it was asked
+    /// for and succeeded.
+    instance: Option<(usize, Duration)>,
+    /// Why the instance was not made, when it was asked for and failed.
+    instance_error: Option<String>,
+}
+
+impl Prewarmed {
+    /// The observation, one clause per thing attempted — for
+    /// `trace_line` and the receipts.
+    #[must_use]
+    pub(crate) fn line(&self) -> String {
+        let mut parts = Vec::with_capacity(3);
+        match (self.loader, &self.loader_error) {
+            (Some(took), _) => {
+                parts.push(format!(
+                    "vulkan loader resolved in {:.1} ms",
+                    took.as_secs_f64() * 1000.0
+                ));
+            }
+            (None, Some(why)) => parts.push(format!("no vulkan loader yet ({why})")),
+            (None, None) => parts.push("prewarm not run".to_owned()),
+        }
+        match (self.instance, &self.instance_error) {
+            (Some((adapters, took)), _) => parts.push(format!(
+                "vulkan instance ({adapters} adapter{}) made in {:.1} ms",
+                if adapters == 1 { "" } else { "s" },
+                took.as_secs_f64() * 1000.0
+            )),
+            (None, Some(why)) => parts.push(format!("no prewarmed instance ({why})")),
+            (None, None) => {}
+        }
+        if let Some((bytes, took)) = self.cache {
+            parts.push(format!(
+                "pipeline cache {} read in {:.1} ms",
+                human_bytes(bytes),
+                took.as_secs_f64() * 1000.0
+            ));
+        }
+        parts.join("; ")
+    }
+}
+
+/// Bytes as a person reads them — only what the prewarm's line needs.
+fn human_bytes(bytes: usize) -> String {
+    const KIB: f64 = 1024.0;
+    #[expect(clippy::cast_precision_loss, reason = "a byte count fits an f64")]
+    let as_kib = bytes as f64 / KIB;
+    if as_kib >= 1.0 {
+        format!("{as_kib:.1} KiB")
+    } else {
+        format!("{bytes} B")
+    }
+}
+
+/// The window-independent prefix of a window's Vulkan bring-up, run on
+/// another thread while winit creates the window (FW-05).
+///
+/// # Why only a prefix
+///
+/// `VulkanDevice::for_window` needs the window's handles to create the
+/// `VkSurfaceKHR`, so everything from `vkCreateInstance` on can only start
+/// once the window exists. What does *not* need the window is the two steps
+/// before it, and those are not free: resolving the loader is a `dlopen` (on
+/// Windows, `LoadLibrary` of `vulkan-1.dll` plus the SDK search on macOS),
+/// and the pipeline cache is a file the device reads during bring-up —
+/// `PENDING.md` §3.5's 215 ms "device ready" on Windows contains both. So a
+/// window that might present through Vulkan starts them before it asks winit
+/// for a window, and joins them after the window exists: the cost moves off
+/// the critical path rather than disappearing.
+///
+/// What this deliberately does **not** do is open a headless
+/// `VulkanDevice::new()` to warm the driver further: its `Drop` writes the
+/// pipeline cache file back (see `vieww_hal::vulkan::pipeline_cache`), so a
+/// prewarm device would race the real device's cache, and destroying a
+/// device on a side thread is the exact class of teardown this crate's
+/// `SHARED_DEVICE` history exists to avoid. What it does make, when the
+/// caller passes the display's surface extensions, is the `VkInstance` —
+/// `vieww_hal::vulkan::VulkanInstance`, the window-independent half of
+/// `VulkanDevice::for_window` (loader, ICDs, adapter enumeration). That has
+/// no `Drop`-time side effects beyond `vkDestroyInstance`, is `Send`, and is
+/// handed to the window's first device open
+/// (`VulkanDevice::for_window_with`); only the surface, the present-capable
+/// adapter pick and the device itself stay after the window.
+///
+/// # Not on iOS
+///
+/// `load_entry` sets `MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS` on the simulator
+/// before the library loads; doing that from a second thread while the main
+/// thread is inside winit would make every `std::env` access on that thread
+/// a data race. There the prewarm reports itself as not run and the bring-up
+/// stays serial, which on a phone-sized start-up is the smaller loss.
+pub(crate) struct Prewarm {
+    done: Arc<Mutex<(Prewarmed, Option<vieww_hal::vulkan::VulkanInstance>)>>,
+    thread: Option<std::thread::JoinHandle<()>>,
+}
+
+impl Prewarm {
+    /// Start the prewarm for a window that might present through Vulkan,
+    /// reading `cache_file` (the file [`vieww_hal::vulkan::set_pipeline_cache_file`]
+    /// has named, or will name) into the page cache.
+    ///
+    /// `extensions` — the display's surface extensions
+    /// ([`vieww_hal::vulkan::surface_extensions`], read from the event loop
+    /// before any window exists) — also makes the `VkInstance` here, the
+    /// bulk of a cold Vulkan start; `None` keeps the prefix to the loader and
+    /// the cache.
+    pub(crate) fn start(
+        cache_file: Option<PathBuf>,
+        extensions: Option<Vec<&'static std::ffi::CStr>>,
+    ) -> Self {
+        let done = Arc::new(Mutex::new((Prewarmed::default(), None)));
+        let thread = {
+            let done = Arc::clone(&done);
+            std::thread::Builder::new()
+                .name("vieww-vulkan-prewarm".to_owned())
+                .spawn(move || {
+                    let what = run(cache_file.as_deref(), extensions.as_deref());
+                    if let Ok(mut slot) = done.lock() {
+                        *slot = what;
+                    }
+                })
+                .ok()
+        };
+        Self { done, thread }
+    }
+
+    /// Wait for the prewarm to finish and say what it did. A thread that
+    /// could not even spawn (a process out of threads) reports that the
+    /// prewarm did not run rather than failing the start-up it was meant to
+    /// speed up.
+    pub(crate) fn join(mut self) -> (Prewarmed, Option<vieww_hal::vulkan::VulkanInstance>) {
+        if let Some(thread) = self.thread.take() {
+            let _ = thread.join();
+            self.done
+                .lock()
+                .map(|mut slot| (slot.0.clone(), slot.1.take()))
+                .unwrap_or_default()
+        } else {
+            (Prewarmed::default(), None)
+        }
+    }
+}
+
+/// The prewarm itself, separate from the handle so it is testable without a
+/// thread: the two steps are plain calls.
+fn run(
+    cache_file: Option<&Path>,
+    extensions: Option<&[&'static std::ffi::CStr]>,
+) -> (Prewarmed, Option<vieww_hal::vulkan::VulkanInstance>) {
+    let mut what = Prewarmed::default();
+    // Assigned below everywhere but iOS, which keeps the loader on the
+    // main thread.
+    #[cfg_attr(target_os = "ios", allow(unused_mut))]
+    let mut made = None;
+
+    // Not on iOS: `load_entry` sets an environment variable on the simulator
+    // (see the struct docs), and a second thread doing that while the main
+    // thread reads the environment is a race. Everywhere else the resolve is
+    // thread-safe — a `dlopen` under the loader's own lock — and the `Entry`
+    // it returns is dropped here, which is only a `dlclose` of a library the
+    // real bring-up is about to `dlopen` again.
+    #[cfg(not(target_os = "ios"))]
+    {
+        let started = Instant::now();
+        match vieww_hal::vulkan::load_entry() {
+            Ok(_entry) => what.loader = Some(started.elapsed()),
+            Err(error) => what.loader_error = Some(error.to_string()),
+        }
+    }
+    #[cfg(target_os = "ios")]
+    {
+        what.loader_error = Some("iOS: the loader resolve stays on the main thread".to_owned());
+    }
+
+    if let Some(file) = cache_file {
+        let started = Instant::now();
+        // Read and drop: the bytes are not used here, only made resident, so
+        // the device's own read of the same file during bring-up is a page
+        // cache hit. A file that is not there yet (a first launch) reads as
+        // zero bytes, which is the truth about a first launch.
+        let bytes = std::fs::read(file).map(|data| data.len()).unwrap_or(0);
+        what.cache = Some((bytes, started.elapsed()));
+    }
+
+    // The instance last: it is the long step, and the loader above has
+    // already been resolved, so its own `load_entry` is a cheap re-open.
+    // Not on iOS, for the loader's reason above.
+    #[cfg(not(target_os = "ios"))]
+    if let (Some(extensions), true) = (extensions, what.loader.is_some()) {
+        let started = Instant::now();
+        match vieww_hal::vulkan::VulkanInstance::for_surfaces(extensions) {
+            Ok(instance) => {
+                what.instance = Some((instance.adapters(), started.elapsed()));
+                made = Some(instance);
+            }
+            Err(error) => what.instance_error = Some(error.to_string()),
+        }
+    }
+    #[cfg(target_os = "ios")]
+    let _ = extensions;
+    (what, made)
 }

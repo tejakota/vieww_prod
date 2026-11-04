@@ -402,7 +402,8 @@ fn receipt(book: &mut Sketchbook, t: f32) {
     book.circle(
         dial_c,
         dial_r,
-        Gradient::sweep(Offset::new(0.5, 0.5), theta - std::f32::consts::TAU, theta).with_dither()
+        Gradient::sweep(Offset::new(0.5, 0.5), theta - std::f32::consts::TAU, theta)
+            .with_dither()
             .with_stops_mirrored(&[(0.0, VIOLET_DEEP), (0.30, VIOLET), (0.5, Color::WHITE)]),
     );
     book.ring(dial_c, dial_r, 1.0, alpha(Color::WHITE, 0.14));

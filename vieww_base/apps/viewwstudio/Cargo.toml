@@ -35,11 +35,22 @@ vieww-paint = { workspace = true, features = ["native"] }
 vieww-say-codegen.workspace = true
 # For `AssetBundle`/`DirectoryBundle`/`EmbeddedBundle`: the studio wraps the
 # platform's bundle in a `WorkspaceBundle` that resolves against the open
-# project's `assets/` first. See `src/assets.rs`.
+# project's `assets/` first. See `src/assets.rs`. The image codec the asset
+# browser previews with is the same crate's.
 vieww-asset.workspace = true
+# The asset browser reads a font's own name table (`src/assets_browser.rs`).
+# Not a new dependency in the tree: `vieww-text` and `vieww-paint` already
+# compile this exact version, and the studio names it directly for the same
+# reason it names `vieww-paint` — a crate it calls itself is a crate it says.
+ttf-parser = "0.25"
 # For `Tickers`/`Ticker`: the caret blink is driven by the frame scheduler
 # rather than a clock of its own. See `src/caret.rs`.
 vieww-animation.workspace = true
+# ST-10: the CRDT the shared buffer is wrapped in. `src/state/collab.rs` holds
+# the active buffer's text in a `collab::Doc` (RGA) and appends its ops as
+# JSONL to `<workspace>/.vieww/collab.log`; named here for the same reason
+# every other direct call is named.
+vieww-collab.workspace = true
 
 # The only third-party dependency in the studio, and it is here because the
 # alternative is `dlopen` through `libc` by hand. Pinned loosely: the surface
@@ -66,6 +77,10 @@ tree-sitter-md = "0.5"
 
 [dev-dependencies]
 vieww-test-harness.workspace = true
+# ST-18: the studio's own a11y gate. The audit walks the semantics tree of
+# the *studio's* chrome — the flagship application proving the framework's
+# accessibility story works on a real app rather than on fixtures.
+vieww-accessibility.workspace = true
 # `native` is vieww's one and only rasterizer, and it needs no adapter: this
 # container, and every CI runner without a graphics adapter, has no GPU at
 # all, which is what makes `examples/screenshot` produce a picture rather

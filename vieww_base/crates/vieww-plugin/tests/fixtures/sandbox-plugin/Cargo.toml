@@ -1,0 +1,17 @@
+# A deliberately badly-behaved plugin `cdylib`, for `tests/sandbox.rs`: each
+# command fails in one of the ways the in-process ABI cannot survive (abort,
+# hang, unbounded allocation) or that would corrupt the sandbox's pipe
+# (printing to stdout). Its own workspace, like `example-plugin`.
+[package]
+name = "vieww-sandbox-test-plugin"
+version = "0.0.1"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+vieww-plugin = { path = "../../.." }
+
+[workspace]

@@ -274,6 +274,10 @@ impl Studio {
         let mut tree = self.tree.get();
         tree.rescan();
         self.tree.set(tree);
+        // ST-15: the asset listing is refreshed from the same places the tree
+        // is — one watcher, two views of one folder — and costs a stat walk
+        // when nothing changed. See `assets_browser::Listing`.
+        self.refresh_assets();
     }
 
     /// Flip the expansion of the directory at `path` in the Explorer tree.
@@ -300,6 +304,16 @@ impl Studio {
     /// loading: a project's tree may list hundreds of files, but only the ones
     /// the user clicks are loaded into memory.
     pub fn open_path(&self, path: std::path::PathBuf) {
+        // ST-15: an image or a font opens as a preview, not as mojibake.
+        // Routed before the buffer machinery — an asset is not a buffer, has
+        // no tab, and must not canonicalize into one — and through
+        // `open_path` rather than only through the Assets view so the
+        // Explorer, the Problems panel and a palette command that opens a
+        // file all agree about what clicking a PNG does.
+        if crate::assets_browser::previewable(&path) {
+            self.open_asset(path);
+            return;
+        }
         // **Canonicalised, so one file is one buffer.** Without this a
         // symlinked file reached by two paths — `src/shared.rs` and the
         // `../common/shared.rs` it points at — opened as two independent
@@ -543,10 +557,31 @@ impl Studio {
         let term = term.trim();
 
         match mode {
-            PaletteMode::Commands => Command::matching(term)
-                .into_iter()
-                .map(PaletteEntry::Command)
-                .collect(),
+            PaletteMode::Commands => {
+                let mut entries: Vec<PaletteEntry> = Command::matching(term)
+                    .into_iter()
+                    .map(PaletteEntry::Command)
+                    .collect();
+                // ST-13: the plugins' commands, after the studio's own — a
+                // plugin command is not a second kind of palette row, but the
+                // studio's commands are the ones the palette is *for*, and a
+                // plugin list that pushed them off the first screen would be
+                // a hostile act committed by nobody in particular.
+                //
+                // `PALETTE_MAX` is not applied here: the studio's own list is
+                // unbounded for the same reason — the palette is scrolled, and
+                // a truncation is a command that is silently unreachable.
+                for (plugin, command) in self.plugins.get().palette_commands() {
+                    if term.is_empty() || Command::title_matches(term, &command.title) {
+                        entries.push(PaletteEntry::Plugin {
+                            plugin: plugin.to_owned(),
+                            label: command.title.clone(),
+                            detail: command.detail.clone(),
+                        });
+                    }
+                }
+                entries
+            }
 
             PaletteMode::Files => {
                 let root = self.root.get();
@@ -718,6 +753,13 @@ impl Studio {
             PaletteEntry::File { path, .. } => self.open_path(path.clone()),
             PaletteEntry::Symbol { line, .. } | PaletteEntry::Line { line, .. } => {
                 self.jump_to(*line, 1);
+            }
+            // ST-13: a plugin's command, dispatched by the pair the palette
+            // listed it by. Not a `Command` variant — the registry is a list,
+            // not an enum, and `run_plugin_command` is the one door for it
+            // the way `run` is for the studio's own.
+            PaletteEntry::Plugin { plugin, label, .. } => {
+                self.run_plugin_command(plugin, label);
             }
         }
         self.palette_open.set(false);

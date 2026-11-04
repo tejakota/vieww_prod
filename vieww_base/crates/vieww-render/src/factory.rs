@@ -177,6 +177,9 @@ impl RenderFactory {
         factory
             .register::<Constrained, _>(|widget| RenderConstrainedBox::new(widget.constraints()));
         factory.register::<ColoredBox, _>(|widget| RenderColoredBox::new(widget.color()));
+        factory.register::<vieww_widget::PlatformView, _>(|widget| {
+            crate::objects::RenderPlatformView::new(widget.controller().clone())
+        });
         factory.register::<ImageWidget, _>(|widget| {
             // The pixels are an `Rc` inside `Image`, so this clone is a refcount
             // bump rather than a copy of the buffer — which matters, because
@@ -260,6 +263,14 @@ impl RenderFactory {
                     .placeholder_shade()
                     .unwrap_or_else(|| widget.text_style().color);
                 editable = editable.placeholder(widget.placeholder_text(), color);
+            }
+            if let Some(label) = widget.accessibility_label() {
+                // A label that names the field without drawing anything — the
+                // placeholder above is only a *fallback* label once this is set.
+                editable = editable.semantics_label(label);
+            }
+            if widget.wants_autofocus() {
+                editable = editable.autofocus(true);
             }
             if let Some(color) = widget.selection_highlight() {
                 editable = editable.selection_color(color);

@@ -9,7 +9,8 @@
 #     cargo fuzz run decode_mp3    -s none -- -max_total_time=120
 #     ... or all of them:
 #     for t in decode decode_wav decode_flac decode_mp3 decode_vorbis \
-#              decode_aac_adts decode_aac_mp4 decode_aiff; do \
+#              decode_aac_adts decode_aac_mp4 decode_aiff decode_alac \
+#              decode_opus; do \
 #         cargo fuzz run $t -s none -- -max_total_time=120 || break; \
 #     done
 #
@@ -92,6 +93,20 @@ bench = false
 [[bin]]
 name = "decode_aiff"
 path = "fuzz_targets/decode_aiff.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "decode_alac"
+path = "fuzz_targets/decode_alac.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "decode_opus"
+path = "fuzz_targets/decode_opus.rs"
 test = false
 doc = false
 bench = false

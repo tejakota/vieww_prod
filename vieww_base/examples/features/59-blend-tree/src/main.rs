@@ -139,7 +139,7 @@ impl CustomPainter for GaitPainter {
         out.push(bar(
             blended.clamp(0.0, 100.0),
             size.width - 60.0,
-            Color::rgb(58, 122, 246),
+            Color::rgb(44, 98, 234),
             0xFF,
         ));
         out

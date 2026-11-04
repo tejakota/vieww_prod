@@ -11,6 +11,9 @@
 //!   crate does not reimplement any part of cargo; it is a thin, honest
 //!   pass-through, and its own tests check the *argument construction* and
 //!   the *exit-code propagation*, never a fabricated "success".
+//! * `vieww dev` — the one-terminal hot-reload loop: watch the sources,
+//!   rebuild the guest, keep the host running. See [`dev`]'s own module doc
+//!   for the polling design and its honest cadence.
 //! * `vieww profile` — see its own module doc below for exactly what it
 //!   measures.
 //! * `vieww package <target>` — [`vieww_build::package::package`].
@@ -25,11 +28,14 @@
 
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
+use std::time::Duration;
 
 use clap::{Parser, Subcommand, ValueEnum};
 
 use vieww_build::package::{self, PackageTarget};
 use vieww_build::scaffold;
+
+mod dev;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -78,6 +84,23 @@ enum Cmd {
         #[arg(long)]
         test: bool,
     },
+    /// The one-terminal hot-reload loop: watch sources, rebuild the guest,
+    /// run the host. See `vieww-reload` for the reload itself.
+    Dev {
+        /// The reloadable guest package, rebuilt on every change.
+        #[arg(long)]
+        guest: String,
+        /// The host package to run alongside; without it, rebuild only.
+        #[arg(long)]
+        host: Option<String>,
+        /// Project directory (default: the current one).
+        #[arg(default_value = ".")]
+        dir: PathBuf,
+        /// How often to sweep the sources, in milliseconds. A save is
+        /// noticed within one interval — a polling watcher, not inotify.
+        #[arg(long, default_value_t = 250)]
+        interval: u64,
+    },
     /// Package a built project for one platform.
     Package {
         target: PackageTargetArg,
@@ -99,6 +122,12 @@ enum PackageTargetArg {
     Macos,
     Windows,
     Android,
+    /// The `.aab` Play requires — `vieww-build`'s AAB route (gradlew or
+    /// bundletool), a separate target from `android`'s APK.
+    Aab,
+    /// One APK carrying both `arm64-v8a` and `x86_64` — the
+    /// emulator-installable counterpart of `android`'s single-ABI APK.
+    AndroidMultiAbi,
     Ios,
 }
 
@@ -109,6 +138,8 @@ impl From<PackageTargetArg> for PackageTarget {
             PackageTargetArg::Macos => Self::MacOs,
             PackageTargetArg::Windows => Self::Windows,
             PackageTargetArg::Android => Self::Android,
+            PackageTargetArg::Aab => Self::Aab,
+            PackageTargetArg::AndroidMultiAbi => Self::AndroidMultiAbi,
             PackageTargetArg::Ios => Self::Ios,
         }
     }
@@ -127,6 +158,17 @@ fn run(command: Cmd) -> ExitCode {
         Cmd::Test { dir } => cmd_cargo("test", &dir, &[]),
         Cmd::Profile { dir, test } => cmd_profile(&dir, test),
         Cmd::Package { target, dir } => cmd_package(target.into(), &dir),
+        Cmd::Dev {
+            guest,
+            host,
+            dir,
+            interval,
+        } => dev::run_dev(
+            &guest,
+            host.as_deref(),
+            &dir,
+            Duration::from_millis(interval),
+        ),
     }
 }
 
@@ -391,6 +433,8 @@ mod tests {
             ("macos", PackageTargetArg::Macos),
             ("windows", PackageTargetArg::Windows),
             ("android", PackageTargetArg::Android),
+            ("aab", PackageTargetArg::Aab),
+            ("android-multi-abi", PackageTargetArg::AndroidMultiAbi),
             ("ios", PackageTargetArg::Ios),
         ] {
             assert_eq!(
@@ -417,6 +461,45 @@ mod tests {
     }
 
     #[test]
+    fn dev_requires_a_guest_and_takes_an_optional_host() {
+        assert!(
+            Cli::try_parse_from(["vieww", "dev"]).is_err(),
+            "no guest, no loop"
+        );
+        assert_eq!(
+            parse(&["dev", "--guest", "app-guest"]).command,
+            Cmd::Dev {
+                guest: "app-guest".to_owned(),
+                host: None,
+                dir: PathBuf::from("."),
+                interval: 250,
+            }
+        );
+        assert_eq!(
+            parse(&["dev", "--guest", "g", "--host", "h", "some/app"]).command,
+            Cmd::Dev {
+                guest: "g".to_owned(),
+                host: Some("h".to_owned()),
+                dir: PathBuf::from("some/app"),
+                interval: 250,
+            }
+        );
+    }
+
+    #[test]
+    fn dev_lets_the_cadence_be_slowed_and_not_sped_past_reason() {
+        assert_eq!(
+            parse(&["dev", "--guest", "g", "--interval", "1000"]).command,
+            Cmd::Dev {
+                guest: "g".to_owned(),
+                host: None,
+                dir: PathBuf::from("."),
+                interval: 1000,
+            }
+        );
+    }
+
+    #[test]
     fn an_unknown_subcommand_is_refused() {
         assert!(Cli::try_parse_from(["vieww", "frobnicate"]).is_err());
     }
@@ -438,6 +521,14 @@ mod tests {
         assert_eq!(
             PackageTarget::from(PackageTargetArg::Android),
             PackageTarget::Android
+        );
+        assert_eq!(
+            PackageTarget::from(PackageTargetArg::Aab),
+            PackageTarget::Aab
+        );
+        assert_eq!(
+            PackageTarget::from(PackageTargetArg::AndroidMultiAbi),
+            PackageTarget::AndroidMultiAbi
         );
         assert_eq!(
             PackageTarget::from(PackageTargetArg::Ios),

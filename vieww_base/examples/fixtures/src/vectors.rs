@@ -278,7 +278,9 @@ fn face(book: &mut vieww_foundation::Sketchbook, o: Offset, s: f32, skin: Color,
     shoulders.close();
     book.fill(
         shoulders,
-        Gradient::vertical().with_dither().with_stops(&[(0.0, ACCENT), (1.0, Color::rgb(38, 82, 180))]),
+        Gradient::vertical()
+            .with_dither()
+            .with_stops(&[(0.0, ACCENT), (1.0, Color::rgb(38, 82, 180))]),
     );
 
     // Neck, then head — head over neck so the jaw line is the head's own.

@@ -53,7 +53,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             ))
                             .style(TextStyle {
                                 size: 12.0,
-                                color: Color::rgb(130, 140, 160),
+                                color: Color::rgb(90, 99, 117),
                                 ..TextStyle::default()
                             }),
                         ])),

@@ -12,6 +12,7 @@ use wright_core::compiler::{self, TaskKind};
 use wright_core::confirm;
 use wright_core::convention;
 use wright_core::events::{Event, EventKind, RunId};
+use wright_core::wire::json;
 use wright_engine::approve::{Approver, AutoApprove, AutoDeny, StoreApprover, TerminalApprover};
 use wright_engine::interview::{self, InterviewIo};
 use wright_engine::{fire, FireOptions, TaskStatus, Trigger};
@@ -51,8 +52,17 @@ fn split(args: &[String]) -> (Vec<&str>, Vec<&str>) {
 
 /// Flags followed by a value (`--key <hex>`): `split` keeps the value out
 /// of the positional arguments. Read the value with [`flag_values`].
-const VALUE_FLAGS: [&str; 8] = [
-    "--key", "--trust", "--runs", "--at", "--port", "--out", "--bin", "--name",
+const VALUE_FLAGS: [&str; 10] = [
+    "--key",
+    "--trust",
+    "--runs",
+    "--at",
+    "--port",
+    "--out",
+    "--bin",
+    "--name",
+    "--asset",
+    "--assets-dir",
 ];
 
 /// Every value given for a repeatable flag (`--key a --key b`).
@@ -291,12 +301,28 @@ pub fn verify(args: &[String]) -> i32 {
             }
         };
     }
-    // A receipt file? Verify it in place.
+    // A receipt file? Verify it in place. An export receipt (what
+    // `wright export` writes) is checked against the export folder it
+    // lives in; a run receipt against the project's store.
     if target.ends_with(".json") && Path::new(target).is_file() {
         let receipt = PathBuf::from(target);
         // Receipts live in Wright's store, outside the project: verifying
         // one needs the project dir as the second argument.
         let project = pos.get(1).copied().unwrap_or(".");
+        let text = std::fs::read_to_string(&receipt).unwrap_or_default();
+        let fmt = json::parse(&text)
+            .ok()
+            .and_then(|v| v.str_of("format").map(String::from))
+            .unwrap_or_default();
+        if fmt.starts_with("wright.export-receipt/") {
+            let v = wright_engine::verify::export_receipt_file_pinned(
+                &PathBuf::from(project),
+                &receipt,
+                &pins,
+            );
+            print!("{}", v.report());
+            return if v.ok { 0 } else { 1 };
+        }
         let v =
             wright_engine::verify::receipt_file_pinned(&PathBuf::from(project), &receipt, &pins);
         print!("{}", v.report());
@@ -681,7 +707,8 @@ pub fn mcp_hash(args: &[String]) -> i32 {
     }
 }
 
-/// `wright run [dir] [--yes] [--headless] [--no-cache] [--quiet]`
+/// `wright run [dir] [--yes] [--headless] [--no-cache] [--quiet]
+/// [--allow-private-network] [--browser-loopback]`
 /// Fire the project: plan, cost sentence, choice, firing, report.
 pub fn run(args: &[String]) -> i32 {
     let (pos, flags) = split(args);
@@ -731,6 +758,7 @@ pub fn run(args: &[String]) -> i32 {
         no_cache: flags.contains(&"--no-cache"),
         reproducible: flags.contains(&"--reproducible"),
         allow_private_network: flags.contains(&"--allow-private-network"),
+        browser_loopback: flags.contains(&"--browser-loopback"),
         config: forced_config,
         ..FireOptions::default()
     };
@@ -1533,6 +1561,232 @@ pub fn where_(args: &[String]) -> i32 {
     }
 }
 
+// ── team (WR-18) ─────────────────────────────────────────────────
+
+/// `wright team ...` — team mode without a server (WR-18, ADR-045):
+/// one shared store directory — a network mount or a synced folder —
+/// is this project's store on every member machine. The event spine
+/// is the sync medium; the roster pins member keys at join time;
+/// receipts verify across machines through the same seven checks.
+/// No server process, no new outbound protocol.
+///
+/// ```text
+/// wright team join <shared-dir> [project] [--name NAME]   become a member
+/// wright team status [project]                            who, and what ran
+/// wright team pull [project]                              verify every receipt against the roster
+/// wright team replay <run> [project] [--at N]             replay a peer's run from the spine
+/// wright team leave [project]                             point this machine back at its own store
+/// ```
+pub fn team(args: &[String]) -> i32 {
+    let (pos, _) = split(args);
+    let one = |i: usize| pos.get(i).copied();
+    match one(0).unwrap_or("") {
+        "join" => {
+            let Some(shared) = one(1) else {
+                return fail("usage: wright team join <shared-store-dir> [project-dir] [--name NAME]");
+            };
+            let dir = project_dir(one(2));
+            match wright_runtime::team::join(&dir, Path::new(shared), flag_value(args, "--name")) {
+                Ok(m) => {
+                    println!("joined {} as \"{}\" ({})", m.host, m.name, m.did);
+                    println!("this project's store now lives in {shared} (the pointer is outside the project, out of the sandbox's reach);");
+                    println!("every member runs the same join once, then `wright team status` and `wright run` as usual.");
+                    println!("convergence: the STORE follows the shared spine; the WORKING TREES still sync through your VCS.");
+                    0
+                }
+                Err(e) => fail(e),
+            }
+        }
+        "status" => {
+            let dir = project_dir(one(1));
+            let Some(shared) = wright_runtime::team::shared_store(&dir) else {
+                println!("this project uses its own local store (no team). `wright team join <shared-dir>` to change that.");
+                return 0;
+            };
+            match team_status(&dir, &shared) {
+                Ok(()) => 0,
+                Err(e) => fail(e),
+            }
+        }
+        "pull" => {
+            let dir = project_dir(one(1));
+            let Some(shared) = wright_runtime::team::shared_store(&dir) else {
+                return fail("this project uses its own local store (no team). `wright team join <shared-dir>` first.");
+            };
+            team_pull(&dir, &shared)
+        }
+        "replay" => {
+            // A peer's run replays exactly like a local one: the spine
+            // is the store. Named for what it is — the subcommand says
+            // which machine's work you are stepping through.
+            let mut sub: Vec<String> = vec!["replay".into()];
+            sub.extend(args.iter().skip(1).cloned());
+            replay(&sub)
+        }
+        "leave" => {
+            let dir = project_dir(one(1));
+            match wright_runtime::team::leave(&dir) {
+                Ok(true) => {
+                    println!("this machine points at its own store again. The shared store and this machine's roster line stay (its receipts remain verifiable); remove the line by hand if the team decides to.");
+                    0
+                }
+                Ok(false) => {
+                    println!("this project was not joined to a team.");
+                    0
+                }
+                Err(e) => fail(e),
+            }
+        }
+        _ => fail("usage: wright team join <shared-dir> [project] [--name NAME] | status [project] | pull [project] | replay <run> [project] | leave [project]"),
+    }
+}
+
+/// `wright team status`: the roster, the runs with WHO fired them, and
+/// the store's shape. Read-only — status never writes the shared store.
+fn team_status(project: &Path, shared: &Path) -> Result<(), String> {
+    let members = wright_runtime::team::roster(shared)?;
+    println!("team store: {}", shared.display());
+    match wright_runtime::team::suitability(shared, project) {
+        Ok(note) => println!("  suitable: {note}"),
+        Err(e) => println!("  NOT suitable: {e}"),
+    }
+    println!("  machines ({}):", members.len());
+    for m in &members {
+        println!(
+            "    {:<14} {}  (joined {})",
+            m.name,
+            m.did,
+            day_of(m.joined_ms)
+        );
+    }
+    let store = Store::open(project)?;
+    let runs = store.runs();
+    println!(
+        "  runs: {} (append-only spine, interleaved firings serialize on the store's firing lock)",
+        runs.len()
+    );
+    for run in runs.iter().rev().take(12).rev() {
+        let who = run_signer(&store, *run, &members)
+            .map(|m| format!("{} ({})", m.name, &m.did[..did_short_len(&m.did)]))
+            .unwrap_or_else(|| "an unknown key".into());
+        let verdict = run_verdict(&store, *run);
+        println!("    run {run:<4} by {who}  {verdict}");
+    }
+    let objects = count_files(&shared.join("objects"));
+    let cache = count_files(&shared.join("cache"));
+    let commits = store.blueprint_history().len();
+    println!("  objects: {objects} content-addressed (deduplicated across machines), cache entries: {cache}, blueprint commits: {commits}");
+    Ok(())
+}
+
+/// `wright team pull`: verify EVERY receipt in the shared store against
+/// the roster's pinned keys — a receipt from machine A checks on
+/// machine B, seven checks each, honestly failing on a tree that has
+/// not synced the artifacts yet. Returns the process exit code.
+fn team_pull(project: &Path, shared: &Path) -> i32 {
+    use wright_engine::verify::verify_text_pinned;
+    let members = match wright_runtime::team::roster(shared) {
+        Ok(m) => m,
+        Err(e) => return fail(e),
+    };
+    if members.is_empty() {
+        println!("the roster is empty: nobody has joined this store yet (`wright team join {}` on each machine).", shared.display());
+        return 0;
+    }
+    let pins = wright_runtime::team::pins(&members);
+    let store = match Store::open(project) {
+        Ok(s) => s,
+        Err(e) => return fail(e),
+    };
+    let runs = store.runs();
+    println!(
+        "pulling {} runs from {} against {} pinned key(s)",
+        runs.len(),
+        shared.display(),
+        pins.len()
+    );
+    let mut bad = 0;
+    for run in &runs {
+        let receipt = store.run_dir(*run).join("receipt.json");
+        let text = match std::fs::read_to_string(&receipt) {
+            Ok(t) => t,
+            Err(_) => {
+                println!("  run {run:<4} NO receipt (an interrupted firing?) — nothing to verify");
+                bad += 1;
+                continue;
+            }
+        };
+        let who = run_signer(&store, *run, &members)
+            .map(|m| m.name.clone())
+            .unwrap_or_else(|| "an unknown key".into());
+        let v = verify_text_pinned(&store, &text, &pins);
+        if v.ok {
+            println!("  run {run:<4} by {who:<14} all seven checks pass");
+        } else {
+            bad += 1;
+            println!("  run {run:<4} by {who:<14} FAILED:");
+            for c in &v.checks {
+                if !c.ok {
+                    println!("      {}: {}", c.name, c.note);
+                }
+            }
+        }
+    }
+    if bad == 0 {
+        println!("the team's receipts all verify: every machine's work is checkable by every other, with no server involved.");
+        0
+    } else {
+        println!("{bad} run(s) did not verify — a tree that has not synced the artifacts fails its checks honestly; sync, then pull again.");
+        1
+    }
+}
+
+/// Which member signed a run's receipt (None: a key outside the roster).
+fn run_signer<'a>(
+    store: &Store,
+    run: RunId,
+    members: &'a [wright_runtime::team::Member],
+) -> Option<&'a wright_runtime::team::Member> {
+    let text = std::fs::read_to_string(store.run_dir(run).join("receipt.json")).ok()?;
+    let v = wright_core::wire::json::parse(&text).ok()?;
+    let key = v.get("signature").and_then(|s| s.str_of("public_key"))?;
+    members
+        .iter()
+        .find(|m| m.public_hex().ok().as_deref() == Some(key))
+}
+
+fn run_verdict(store: &Store, run: RunId) -> String {
+    let text = std::fs::read_to_string(store.run_dir(run).join("receipt.json")).ok();
+    match text.and_then(|t| wright_core::wire::json::parse(&t).ok()) {
+        Some(v) => match v.str_of("verdict") {
+            Some("approve") => "approved".into(),
+            Some(r) => r.to_string(),
+            _ => "no reviewer verdict".into(),
+        },
+        None => "no receipt yet".into(),
+    }
+}
+
+fn count_files(dir: &Path) -> usize {
+    std::fs::read_dir(dir)
+        .map(|rd| {
+            rd.filter_map(|e| e.ok())
+                .filter(|e| e.path().is_dir())
+                .count()
+        })
+        .unwrap_or(0)
+}
+
+fn did_short_len(did: &str) -> usize {
+    did.len().min(21)
+}
+
+fn day_of(ms: u64) -> String {
+    let days = (ms / 86_400_000) as i64;
+    let (y, m, d) = wright_core::schedule::civil_from_days(days);
+    format!("{y:04}-{m:02}-{d:02}")
+}
+
 // ── export ───────────────────────────────────────────────────────
 
 /// `wright export [dir] [--zip|--wheel|--crate|--web|--docker|--systemd|--gh-actions] [--out DIR]`
@@ -1542,6 +1796,11 @@ pub fn where_(args: &[String]) -> i32 {
 /// units for its schedule, a GitHub Actions workflow for its tests. With
 /// no kind given, the zip and the package. Packages and the Dockerfile
 /// need a last run that passed its checks and review.
+///
+/// What was made is signed into `<out>/receipt.json` (WR-15): the
+/// artifact set with its hashes, the Docker base-image digest when
+/// `export.kdl` pins one, under the machine's Ed25519 key —
+/// `wright verify <out>/receipt.json <dir>` checks it.
 pub fn export(args: &[String]) -> i32 {
     use wright_engine::export::{self, Kind};
     let out_arg = flag_value(args, "--out");
@@ -1566,22 +1825,53 @@ pub fn export(args: &[String]) -> i32 {
         .map(PathBuf::from)
         .unwrap_or_else(|| export::default_out(&dir));
     let mut failed = 0;
+    let mut made: Vec<wright_engine::export::Exported> = Vec::new();
     for kind in kinds {
         match export::export(&dir, kind, &out) {
-            Ok(e) => println!(
-                "{:<16} {}
+            Ok(e) => {
+                if let (Some(image), Some(digest)) = (&e.base_image, &e.digest) {
+                    println!(
+                        "{:<16} {image}@{digest} (pinned, from export.kdl)",
+                        "base image"
+                    );
+                }
+                println!(
+                    "{:<16} {}
 {:<16} {} bytes · sha256 {}",
-                kind.label(),
-                e.path.display(),
-                "",
-                e.bytes,
-                e.sha256
-            ),
+                    kind.label(),
+                    e.path.display(),
+                    "",
+                    e.bytes,
+                    e.sha256
+                );
+                made.push(e);
+            }
             Err(err) => {
                 failed += 1;
                 eprintln!("{:<16} not made: {err}", kind.label());
             }
         }
+    }
+    if made.is_empty() {
+        return i32::from(failed > 0);
+    }
+    match export::write_receipt(&dir, &out, &made) {
+        Ok(r) => {
+            if r.signed {
+                println!(
+                    "receipt          {}\n                 signed — verify it: wright verify {} {}",
+                    r.path.display(),
+                    r.path.display(),
+                    dir.display()
+                );
+            } else {
+                println!(
+                    "receipt          {} (UNSIGNED: no signing key could be resolved on this machine)",
+                    r.path.display()
+                );
+            }
+        }
+        Err(e) => eprintln!("receipt          not written: {e}"),
     }
     i32::from(failed > 0)
 }
@@ -1671,12 +1961,140 @@ pub fn model(args: &[String]) -> i32 {
     }
 }
 
+// ── update (WR-04) ────────────────────────────────────────────────
+
+/// `wright update check | apply | sign` — the signed update channel.
+///
+/// One outbound connection per check: a plain GET of the manifest file
+/// the channel names (see `runtime/src/update.rs` for the privacy
+/// paragraph). `apply` adds exactly one asset download, verified two
+/// ways before anything is written. `sign` is the publisher's side,
+/// the release workflow's last step.
+pub fn update(args: &[String]) -> i32 {
+    let (pos, _) = split(args);
+    let current = env!("CARGO_PKG_VERSION");
+    match pos.first().copied() {
+        None | Some("check") => {
+            let cfg = match Config::load() {
+                Ok(c) => c,
+                Err(e) => return fail(e),
+            };
+            if cfg.update.check == Some(false) {
+                println!("update checks are off (`update check=false` in config.kdl); nothing was asked of the network.");
+                return 0;
+            }
+            let channel = match wright_runtime::update::Channel::from_settings(&cfg.update) {
+                Ok(c) => c,
+                Err(e) => return fail(e),
+            };
+            let Some(channel) = channel else {
+                println!("wright {current}: no update channel is configured, so nothing was asked of the network.");
+                println!("To get signed update checks, add one line to config.kdl:");
+                println!("  update url=\"https://<where releases live>/releases/latest/download/{}\" key=\"<the release key, 64 hex>\"", wright_runtime::update::LATEST_ALIAS);
+                return 0;
+            };
+            match wright_runtime::update::check_with(
+                &wright_runtime::update::http_get,
+                &channel,
+                current,
+            ) {
+                Ok(wright_runtime::update::Outcome::UpToDate) => {
+                    println!("wright {current} is the newest the channel offers (verified against the pinned release key).");
+                    0
+                }
+                Ok(wright_runtime::update::Outcome::Update {
+                    version,
+                    notes,
+                    asset,
+                }) => {
+                    println!("wright {version} is available (the manifest verifies against the pinned release key).");
+                    if !notes.is_empty() {
+                        println!("  {notes}");
+                    }
+                    match &asset {
+                        Some(a) => println!("  for this machine: {} ({} bytes). Apply it: wright update apply", a.name, a.size),
+                        None => println!("  the manifest lists no asset for this platform; see `wright update apply --asset <name>`."),
+                    }
+                    0
+                }
+                Err(e) => fail(e),
+            }
+        }
+        Some("apply") => {
+            let cfg = match Config::load() {
+                Ok(c) => c,
+                Err(e) => return fail(e),
+            };
+            let channel = match wright_runtime::update::Channel::from_settings(&cfg.update) {
+                Ok(c) => c,
+                Err(e) => return fail(e),
+            };
+            let Some(channel) = channel else {
+                return fail("no update channel is configured — there is nothing to apply. Add `update url=\"...\" key=\"...\"` to config.kdl.");
+            };
+            let target = match std::env::current_exe() {
+                Ok(t) => t,
+                Err(e) => return fail(format!("cannot find this binary's own path: {e}")),
+            };
+            let asset = flag_value(args, "--asset");
+            println!("checking the channel, then verifying the asset two ways (sha256 + release signature)...");
+            match wright_runtime::update::apply_with(
+                &wright_runtime::update::http_get,
+                &channel,
+                current,
+                asset,
+                &target,
+            ) {
+                Ok(said) => {
+                    println!("{said}");
+                    0
+                }
+                Err(e) => fail(e),
+            }
+        }
+        Some("sign") => {
+            let Some(file) = pos.get(1).copied() else {
+                return fail("usage: wright update sign <wright-v<version>.manifest.json> [--assets-dir DIR]");
+            };
+            let assets_dir = flag_value(args, "--assets-dir")
+                .map(PathBuf::from)
+                .unwrap_or_else(|| {
+                    Path::new(file)
+                        .parent()
+                        .map(|p| p.to_path_buf())
+                        .unwrap_or_else(|| ".".into())
+                });
+            // The release key: env or keychain, never silently generated.
+            let key = match wright_runtime::update::release_signing_key() {
+                Ok(k) => k,
+                Err(e) => return fail(e),
+            };
+            match wright_runtime::update::sign_file(&PathBuf::from(file), &assets_dir, &key) {
+                Ok((pk, n)) => {
+                    println!("signed {file}: {n} asset(s) and the manifest, with the release key ({provenance}).", provenance = key.provenance_str());
+                    println!("Machines pin this public key in config.kdl:");
+                    println!("  update key=\"{pk}\"");
+                    0
+                }
+                Err(e) => fail(e),
+            }
+        }
+        Some(other) => fail(format!(
+            "unknown update command '{other}' (check | apply | sign)"
+        )),
+    }
+}
+
 // ── doctor ───────────────────────────────────────────────────────
 
 const DOCTOR_BLUEPRINT: &str = "meta { name \"doctor\" }\nintent { summary \"self test\" confirmed \"v1\" }\nagent Probe { goal \"prove the machine compiles\" tools \"files-read\" permissions files-read=true }\ndeliverable kind=\"check\" { check \"doctor ran\" }";
 
-/// `wright doctor` — what works on this machine, and what does not.
-pub fn doctor() -> i32 {
+/// `wright doctor [--fix]` — what works on this machine, and what does
+/// not. `--fix` (WR-14) installs what doctor can: on Windows, the
+/// WSL 2 + Ubuntu + Bubblewrap sandbox stack, unattended behind one
+/// UAC prompt.
+pub fn doctor(args: &[String]) -> i32 {
+    let fix = args.iter().any(|a| a == "--fix");
     let mut failures = 0;
     let mut line = |name: &str, r: Result<String, String>| match r {
         Ok(s) => println!("  {name:<18} ok    {s}"),
@@ -1692,6 +2110,20 @@ pub fn doctor() -> i32 {
         std::env::consts::ARCH
     );
     println!();
+    if fix {
+        // The plan is printed BEFORE anything runs — an unattended
+        // install should say what it is about to do.
+        println!("  --fix will:");
+        for step in wright_tools::setup::wsl_fix_plan() {
+            println!("    {:<16} {}", step.name, step.detail);
+        }
+        println!();
+        match wright_tools::setup::doctor_fix() {
+            Ok(s) => println!("  fix               ok    {s}"),
+            Err(e) => println!("  fix               NO    {e}"),
+        }
+        println!();
+    }
     let home = wright_home();
     line(
         "wright home",
@@ -1723,6 +2155,27 @@ pub fn doctor() -> i32 {
         },
     );
     line("https", wright_runtime::net::https_backend());
+    // WR-04: the update channel is the one thing that phones anywhere,
+    // and only when configured — doctor says which state this machine is in.
+    line(
+        "update channel",
+        match Config::load() {
+            Ok(cfg) if cfg.update.check == Some(false) => {
+                Ok("off by your choice (`update check=false`); nothing is fetched".into())
+            }
+            Ok(cfg) => match wright_runtime::update::Channel::from_settings(&cfg.update) {
+                Ok(Some(_)) => Ok(
+                    "configured; `wright update check` makes one plain GET of one static file"
+                        .into(),
+                ),
+                Ok(None) => {
+                    Ok("not configured (nothing is fetched; see `wright update check`)".into())
+                }
+                Err(e) => Err(e),
+            },
+            Err(e) => Err(e),
+        },
+    );
     // WR-16: the kill switch is a file in Wright's home; say who can reach it.
     line("kill switch", {
         let state = match wright_runtime::killswitch::current() {
@@ -1795,6 +2248,40 @@ pub fn doctor() -> i32 {
         );
     }
     line("sandbox", wright_tools::sandbox::capabilities());
+    // WR-11: informational, not a failure — assert-visual works without
+    // a browser; only the render loop needs one.
+    println!(
+        "  browser            {}",
+        wright_tools::browser::doctor_line()
+    );
+    // WR-18: the team store line — a shared store is only as good as
+    // the mount under it, so doctor runs the same suitability probe
+    // join ran. Informational: a bad mount is named, not counted.
+    let probe_dir = project_dir(None);
+    match wright_runtime::team::shared_store(&probe_dir) {
+        Some(shared) => {
+            let n = wright_runtime::team::roster(&shared)
+                .map(|m| m.len())
+                .unwrap_or(0);
+            match wright_runtime::team::suitability(&shared, &probe_dir) {
+                Ok(note) => println!(
+                    "  team store         ok    {} — {n} machine(s): {note}",
+                    shared.display()
+                ),
+                Err(e) => println!("  team store         NO    {}: {e}", shared.display()),
+            }
+        }
+        None => println!("  team store         none (this project's store is local; `wright team join <shared-dir>` for the no-server team mode)"),
+    }
+    // WR-14(c): the honest matrix — where every class of command runs
+    // on THIS machine, including the degraded native tiers and what
+    // `--fix` would install. Informational: the sandbox line above is
+    // the one that fails doctor.
+    let iso = wright_tools::setup::Isolation::probe("");
+    println!("  isolation matrix:");
+    for (row, cell) in wright_tools::setup::matrix(&iso) {
+        println!("    {:<16} {}", row, cell);
+    }
     line(
         "time zones",
         wright_runtime::tz::load("Asia/Kolkata").map(|_| "system zone database".into()),

@@ -288,24 +288,47 @@ fn run_external(
 
     // No kernel sandbox on this machine: the copy is the boundary (the
     // worker only ever sees the clone), plus a scrubbed environment and
-    // the card's clock. The report names the isolation honestly.
+    // the card's clock. The report names the isolation honestly — as a
+    // TIER (WR-05's ladder, so `wright doctor` and the report agree):
+    //
+    //   tier 2  AppContainer: only the workspace copy is writable, the
+    //           user profile is unreadable, internet is the only
+    //           capability — a real OS filesystem wall, inside a Job object.
+    //   tier 1  Job object only: process tree, memory and process count
+    //           are bounded and everything dies with wright, but there is
+    //           NO filesystem sandbox — the npm `.cmd` shims land here,
+    //           because cmd.exe cannot run inside the AppContainer.
+    //
+    // The tier is REPORTED, never silent: a tier-1 run says so in the
+    // worker's own report (the escape suite on Windows asserts it —
+    // wright-sandbox.yml, `Worker tier report`).
     #[cfg(windows)]
     if crate::appcontainer::can_contain(program) {
         let out = contained_run(entry, program, worker_env, &arg_refs, copy_dir, timeout)?;
-        return Ok((
-            out,
-            "AppContainer (writes and reads only its workspace copy and its own install folders; internet only; inside a Job object)",
-        ));
+        return Ok((out, TIER2_APPCONTAINER));
     }
     let out = direct_run(entry, program, worker_env, &arg_refs, copy_dir, timeout)?;
     let isolation = if cfg!(windows) {
-        "native Windows worker launched through a batch shim (workspace copy + Job object: process tree, memory and process-count bounded; no filesystem sandbox — point the worker at its .exe for AppContainer isolation)"
+        TIER1_JOB_OBJECT
     } else {
         "workspace copy only (no OS sandbox on this machine)"
     };
     let _ = sandbox_available;
     Ok((out, isolation))
 }
+
+/// WR-05 tier 1: a Job object around the process tree (kill-on-close,
+/// process and memory caps) and nothing else — no filesystem sandbox.
+/// This is where npm `.cmd` shims run, and the report says so.
+pub(crate) const TIER1_JOB_OBJECT: &str = "tier 1: Job object (workspace copy; process tree, memory and process-count bounded; NO filesystem sandbox — point the worker at its .exe for tier 2)";
+
+/// WR-05 tier 2: the `wright.worker` AppContainer inside a Job object —
+/// the copy is the only writable folder, the profile is unreadable,
+/// internet is the only capability. (The Windows run path is its only
+/// user; it stays un-gated so the vocabulary test pins both strings on
+/// every platform.)
+#[cfg_attr(not(windows), allow(dead_code))]
+pub(crate) const TIER2_APPCONTAINER: &str = "tier 2: AppContainer (writes and reads only its workspace copy and its own install folders; internet only; inside a Job object)";
 
 /// Find the program a worker runs: a path as given, or the first match
 /// on this process's PATH (with the Windows executable extensions).
@@ -893,6 +916,90 @@ mod tests {
         ))
         .unwrap();
         v
+    }
+
+    #[test]
+    fn the_tier_ladder_is_named_not_silent() {
+        // WR-05's leftover: the npm .cmd shims stay tier 1, and the
+        // report must SAY tier 1 (a silently unsandboxed worker is the
+        // thing the escape suite exists to catch). These are the exact
+        // strings the Windows run reports; pinned here so every platform
+        // checks the vocabulary.
+        assert!(TIER1_JOB_OBJECT.contains("tier 1"), "{TIER1_JOB_OBJECT}");
+        assert!(
+            TIER1_JOB_OBJECT.contains("Job object"),
+            "{TIER1_JOB_OBJECT}"
+        );
+        assert!(
+            TIER1_JOB_OBJECT
+                .to_ascii_lowercase()
+                .contains("no filesystem sandbox"),
+            "the honest part: {TIER1_JOB_OBJECT}"
+        );
+        assert!(
+            TIER2_APPCONTAINER.contains("tier 2"),
+            "{TIER2_APPCONTAINER}"
+        );
+        assert!(
+            TIER2_APPCONTAINER.contains("AppContainer"),
+            "{TIER2_APPCONTAINER}"
+        );
+    }
+
+    /// WR-05: an npm `.cmd` shim worker (the common Windows install of
+    /// claude-code and friends) runs at TIER 1 and its report says so.
+    ///
+    /// Windows only (it needs cmd.exe and the Job object); the
+    /// wright-sandbox workflow's windows leg runs it and turns the
+    /// "reported as tier 1" promise into a green run.
+    #[cfg(windows)]
+    #[test]
+    fn npm_cmd_shims_run_as_tier_one_and_say_so() {
+        let project = tmp_project("cmd-shim");
+        std::fs::write(project.join("src").join("main.py"), "print('old')\n").unwrap();
+        // A .cmd shim shaped like npm's: cmd.exe batch, not a PE image,
+        // so the AppContainer tier cannot contain it.
+        let shim = project
+            .parent()
+            .unwrap_or(&std::env::temp_dir())
+            .join(format!("fake-claude-{}.cmd", std::process::id()));
+        std::fs::write(
+            &shim,
+            "@echo off\r\necho worker-done\r\necho print('new')> src\\main.py\r\n",
+        )
+        .unwrap();
+        let entry = WorkerEntry {
+            name: "fake-claude".into(),
+            command: shim.to_string_lossy().to_string(),
+            args: Vec::new(),
+            timeout_secs: 30,
+            env: Vec::new(),
+        };
+        let ctx = ctx_for(&project, entry, &[]);
+        let permit = permit_for(&project, "W");
+        let out = run(&permit, &input("make it print new"), &ctx).unwrap();
+        assert!(
+            out.text.contains("worker-done"),
+            "the shim ran: {}",
+            out.text
+        );
+        assert!(
+            out.text.contains("tier 1"),
+            "the report names the tier the shim ran at: {}",
+            out.text
+        );
+        assert!(
+            out.text
+                .to_ascii_lowercase()
+                .contains("no filesystem sandbox"),
+            "and it does not pretend to a filesystem wall: {}",
+            out.text
+        );
+        assert_eq!(
+            std::fs::read_to_string(project.join("src").join("main.py")).unwrap(),
+            "print('new')\r\n"
+        );
+        let _ = std::fs::remove_file(&shim);
     }
 
     #[test]

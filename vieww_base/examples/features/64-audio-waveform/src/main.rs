@@ -107,7 +107,7 @@ impl CustomPainter for WaveformPainter {
             out.push(DrawInstruction::DrawLine {
                 from: Offset::new(x, mid - hi * scale),
                 to: Offset::new(x, mid - lo * scale),
-                color: Color::rgb(58, 122, 246),
+                color: Color::rgb(44, 98, 234),
                 width: 1.0,
             });
         }
@@ -154,7 +154,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             ))
                             .style(TextStyle {
                                 size: 12.0,
-                                color: Color::rgb(130, 140, 160),
+                                color: Color::rgb(90, 99, 117),
                                 ..TextStyle::default()
                             }),
                         ])),

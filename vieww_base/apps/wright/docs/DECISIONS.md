@@ -796,3 +796,189 @@ non-administrator or edited after signing stops everything (fail closed).
 `wright admin keygen | policy init/sign/show/check | approve |
 fleet-verify [--json]`; Settings > Organization shows the rules, this
 project against them, and verifies every receipt on the computer.
+
+## ADR-042 — The update channel: one GET, signed manifests, verify-then-swap · Accepted
+
+Date: 2026-10-26 · Status: Accepted
+
+Wright's distribution story was unsigned installers plus SHA256SUMS on
+the same channel it verifies — and no updates at all, so a vulnerable
+version lives forever on every machine that installed one. The repo
+already owned every primitive a trustworthy channel needs (audited
+Ed25519, JCS canonicalization, SHA-256, key provenance); this ADR is
+aiming them at distribution.
+
+Decision: each release publishes `wright-v<version>.manifest.json` (and
+a copy at the fixed alias `wright-latest.manifest.json`, so a
+`releases/latest/download/...` channel URL resolves). The manifest
+carries every asset's SHA-256 AND an Ed25519 signature over the asset
+bytes, and the whole manifest is signed over its JCS form — the
+receipt's scheme, checkable without Wright. `wright update check` makes
+exactly one outbound connection: a plain HTTPS GET of that one file,
+verified against the release key pinned in config.kdl
+(`update url="..." key="..."`, `check=false` to turn it off; no channel
+configured means nothing is fetched at all). `wright update apply`
+downloads the asset for the platform, checks BOTH the hash and the
+signature, then swaps the binary with an atomic rename (old aside, new
+in, old deleted; a crash leaves the old or the new, never half), and
+asks for a restart. It refuses downgrades and never auto-executes a
+downloaded installer. `wright update sign` is the publisher side: the
+release workflow builds it, emits the manifest from SHA256SUMS.txt, and
+signs with `WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING` — the key resolved
+env-then-keychain and NEVER silently generated, its provenance recorded
+in the manifest like a receipt records its signer's. The workflow fails
+(not warns) when `publish=true` lacks any signing secret: Authenticode
+and Developer ID + notarytool run behind `WRIGHT_SECRET_WINDOWS_*` /
+`WRIGHT_SECRET_MACOS_*` secrets.
+
+Not decided here: shipping a built-in pinned release key or a default
+channel URL. No release has been cut with this machinery yet; when one
+is, the owner generates the release key, records it, and the constants
+follow. A wrong-but-plausible repository is worse than none
+(wrightsite's own rule).
+
+## ADR-043 — The browser is a witness, not an actor · Accepted
+
+Date: 2026-11-02 · Status: Accepted
+
+Every rival agent "looks at" the thing it built; wright had nothing
+(WR-11). The tempting design is a browser automation surface (click,
+type, fill — CDP or Playwright). That imports a second dependency, a
+driver process with full reach, and a steering risk: text on a page
+becoming actions taken as the agent. Decision: the browser tool takes
+SCREENSHOTS, and only screenshots. Three actions — `render` (a public
+URL, the same SSRF rule as `http-read`), `screenshot-project` (the
+project's own `wright export --web` output served by a loopback listener
+the TOOL owns and stops when the shot is taken), and `assert-visual`
+(golden-vs-captured PNG comparison on the in-house decoder, integer
+metrics). A screenshot cannot be steered into acting on a page.
+
+Boundaries: the browser runs as an ordinary child process OUTSIDE the
+kernel sandbox (it must write its profile and the PNG; Chrome's own
+renderer sandbox stays on, with `WRIGHT_BROWSER_NO_SANDBOX=1` as the
+documented container escape hatch), behind the same Network capability
+and Rule-of-Two legs as any world effect — the palette entry is
+`Reads::Outside` + `Effect::World`, so render steps are volatile,
+approval-eligible and never retried. The loopback listener is private
+network reach for the TOOL, never the agent: it is off unless the run
+asks for it (`--browser-loopback` / `WRIGHT_BROWSER_LOOPBACK=1`), and it
+never relaxes the http tools' own guards. Refusal-first when no browser
+is installed — the sentence names the candidates; `assert-visual` needs
+no browser at all. Honest limit: the full render loop needs a real
+browser, so it runs where one is installed (CI/self-hosted); a bare
+sandbox gets the refusal. No automation, no page cache, no reach beyond
+the one URL.
+
+## ADR-044 — doctor fixes the sandbox; degraded tiers are named, never silent · Accepted
+
+Date: 2026-11-03 · Status: Accepted
+
+The Windows POSIX sandbox was correct and fail-closed, but its setup
+path was the longest in the market: a wall of elevated PowerShell
+before anything fires (WR-14). Decision: `wright doctor --fix` runs the
+bootstrap ITSELF — one generated PowerShell script
+(`packaging/windows/bootstrap-wsl.ps1`, pinned byte-for-byte to
+`tools/src/setup.rs::bootstrap_ps1` by a test, so file and code cannot
+drift) that elevates once, enables the WSL 2 features, installs Ubuntu
+unattended, apt-installs bubblewrap/util-linux/coreutils as root, and
+ends with the exact bwrap namespace probe the sandbox runs. The plan is
+data printed before anything executes; never a forced restart; never a
+toolchain install inside WSL (the user's choice, as always). Off
+Windows the fix refuses with the OS's own reason — doctor does not
+pretend to install a kernel.
+
+Second decision — the honest middle ground: when the WSL runtime is
+missing but a tool's program is a Windows-NATIVE binary, `git` and
+`run-tests` degrade to WR-05's containment ladder instead of refusing:
+tier 2 (AppContainer, the project the only writable tree, inside a Job
+object) for `.exe`s, tier 1 (Job object only, NO filesystem sandbox)
+for `.cmd`/`.bat` shims. Every degraded run puts its tier IN the tool's
+report — the same vocabulary the worker tool and doctor's isolation
+matrix speak, pinned together by a test. `shell` never degrades: an
+arbitrary command is what the kernel sandbox is FOR, and a Job object
+is not an answer to it. No shell syntax is guessed at in degraded mode
+(operators are refused, not half-run). Doctor's matrix (WR-14c) says
+where every class of command runs on THIS machine — kernel sandbox,
+degraded tier, or REFUSED — never a silent surprise.
+
+## ADR-045 — A team is a shared store, not a server · Accepted
+
+Date: 2026-11-03 · Status: Accepted
+
+Every rival's team story is a server: accounts, tenancy, a protocol
+with a surface to attack (WR-18). Wright already owns what teams
+actually need — verifiable receipts, per-task identities delegated by
+a machine key, content-addressed artifacts — so the decision is to
+build the team ON that, not beside it: ONE store directory, on a
+network mount or a synced folder, is the project's store on every
+member machine. No server process, no account, no new outbound
+protocol; if the folder is reachable, the team is working.
+
+Mechanics: `wright team join <dir>` probes the directory (outside
+every checkout — a store an agent could write is a store an agent
+could forge; writable; fsync-durable, because the event spine is
+fsynced before it counts), appends this machine's `did:key` to the
+shared roster (trust on first use, honestly weaker than checking keys
+in person — `wright trust` stays the stronger path), and writes a
+pointer next to this machine's default store — in Wright's home,
+OUTSIDE the project, where a sandboxed agent cannot reach.
+`WRIGHT_STORE` overrides the pointer for one shell; `Store::open`
+honors the redirect once, so every command follows it. Runs interleave
+on the append-only spine, serialized by the store's firing lock (which
+also makes run-id allocation safe); objects dedup by content; the task
+cache is shared and safe because keys are pure functions of
+task+model+inputs+tool versions+permissions — machine-independent by
+construction, permission-sensitive by design. `wright team pull`
+verifies every receipt against the roster's pins; the identity check
+is signer-relative, so machine A's receipt checks on machine B
+unchanged, and the store's object copy is the durable witness — B
+verifies A's work with B's tree still empty. The working trees still
+sync through the VCS: the STORE converges, the checkouts do not, and
+that line is documented rather than blurred. Honest limits: no
+conflict resolution exists because nothing is edited in place; a
+lagging synced folder means pull sees what has arrived; a mount that
+silently drops fsync or locks is caught by the join probe and by
+verify, not prevented.
+
+## ADR-046 — An export is signed into a receipt; digests are the operator's · Accepted
+
+Date: 2026-11-03 · Status: Accepted
+
+WR-15's deployment packagings were generated from the blueprint, but
+they left the machine as anonymous files: nothing tied a Dockerfile to
+the plan it came from, and its base image was a moving tag with a
+comment suggesting a hand edit. Two decisions close that.
+
+First — every export invocation writes a receipt, the same way a run
+does. `<out>/receipt.json`, format `wright.export-receipt/1`, records
+the artifact set (each file's SHA-256 for people and BLAKE3 into the
+store's content-addressed objects as the durable witness — the same
+trick ADR-045 leans on), the blueprint commit the packagings were
+generated from (committed to the store's history so the receipt names
+its plan), the run whose passing receipt was the proof a package
+waited for, and — for a Dockerfile — the base image and its digest.
+It is signed over its exact bytes with the machine's Ed25519 key, the
+identical machinery as a run receipt, and `wright verify <receipt>
+<project>` checks it with four checks of the run receipts' kind:
+signature, artifacts (the file beside the receipt and/or the store's
+copy — an export folder can be moved or emptied and the receipt still
+verifies), blueprint, and the base image's FROM line read back out of
+the signed artifact so a claimed pin that is not in the bytes fails.
+Exports sit OUTSIDE the event spine: they happen at a person's request
+between runs, and the receipt IS the record.
+
+Second — the base-image digest is the operator's to supply, never
+Wright's to guess. `export.kdl` in the project root (the operator's
+supply-chain config; the blueprint is the plan, this is the deployment
+reality) pins `digest "python:3.12-slim" value="sha256:…"` and may set
+`require_digest true`, in which case an unpinned export REFUSES with
+the command that prints the digest. Wright cannot read a registry
+offline — outbound traffic is the update channel and nothing else
+(AGENTS.md) — and a network-fetched digest would make the export
+unreproducible anyway; `docker buildx imagetools inspect` is one paste
+away. Without a config the Dockerfile builds from the tag and its
+header says so; the receipt records either state, signed. The
+docker-build verification (ci/hardware/wright-docker.sh, the hardware
+workflow's `wright-docker` step) resolves the REAL digest with the
+box's own docker, pins it, exports, verifies the receipt, builds and
+runs the image — the last mile, on the only machine that has it.

@@ -31,6 +31,7 @@ mod opacity;
 mod padding;
 mod painting;
 mod performance_overlay;
+mod platform_view;
 mod positioned;
 mod repaint_boundary;
 mod rich_text;
@@ -65,6 +66,7 @@ pub use flexible::RenderFlexible;
 pub use focus_trap::RenderFocusTrap;
 pub use gesture_detector::RenderGestureDetector;
 pub use icon::RenderIcon;
+pub use platform_view::RenderPlatformView;
 pub use rich_text::{LinkHandler, RenderRichText};
 // `RenderImage` holds `vieww_foundation::Image`; the pixels are re-exported by
 // `vieww-paint` too, so nothing here needs its own name for them.

@@ -20,7 +20,9 @@ name: Audio backends
 #         both directions of rate matching, and snd-virmidi ports wired
 #         together for MIDI — in a VM on a stock kernel, since the
 #         runner's own has no sound drivers (ci/audio/vm-loopback.sh);
-#         PulseAudio's default sink into its monitor.
+#         PulseAudio's default sink into its monitor. The same VM runs
+#         the ALSA sequencer's virtual ports round trip (AU-19): the
+#         kernel's own snd-seq, no server needed.
 #       - Windows: the VB-CABLE virtual cable, WASAPI shared and exclusive.
 #       - macOS: the BlackHole virtual device through Core Audio, and
 #         CoreMIDI virtual endpoints.
@@ -152,6 +154,8 @@ jobs:
         run: ci/audio/vm-loopback.sh --setup
       - name: ALSA (every format, rate matching both ways) and MIDI, in the VM
         run: ci/audio/vm-loopback.sh
+      - name: ALSA sequencer virtual ports, in the VM (AU-19)
+        run: ci/audio/vm-loopback.sh --seq
 
   windows-loopback:
     name: Windows (WASAPI shared and exclusive through VB-CABLE)
@@ -264,7 +268,10 @@ jobs:
       - name: AAudio (Android)
         run: cargo clippy -p vieww-audio --lib --target aarch64-linux-android -- -D warnings
       - name: Web Audio (wasm32)
-        run: cargo clippy -p vieww-audio --lib --target wasm32-unknown-unknown -- -D warnings
+        run: |
+          cargo clippy -p vieww-audio --lib --target wasm32-unknown-unknown -- -D warnings
+          # The Web MIDI backend is opt-in (feature web-midi); lint it too.
+          cargo clippy -p vieww-audio --lib --target wasm32-unknown-unknown --features web-midi -- -D warnings
       - uses: actions/setup-node@v4
         with:
           node-version: "22"

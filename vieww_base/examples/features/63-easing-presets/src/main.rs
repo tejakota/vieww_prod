@@ -85,7 +85,7 @@ impl CustomPainter for EaseGraph {
             out.push(DrawInstruction::DrawLine {
                 from: previous,
                 to: point,
-                color: Color::rgb(58, 122, 246),
+                color: Color::rgb(44, 98, 234),
                 width: 2.0,
             });
             previous = point;

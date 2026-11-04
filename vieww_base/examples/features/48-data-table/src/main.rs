@@ -9,7 +9,7 @@ use vieww_widget::prelude::*;
 use vieww_widget::SortDirection;
 
 const INK: Color = Color::rgb(23, 30, 42);
-const MUTED: Color = Color::rgb(110, 122, 140);
+const MUTED: Color = Color::rgb(101, 112, 129);
 
 const ROWS: [(&str, &str, &str); 5] = [
     ("Ada Lovelace", "Analyst", "active"),

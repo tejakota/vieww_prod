@@ -17,7 +17,7 @@
 //!
 //! The prompt must start on the Java main thread. `authenticate` is called
 //! there already — a tap handler — so it posts the start through
-//! [`AndroidApp::run_on_java_main_thread`] and hands the *waiting* to a
+//! `AndroidApp::run_on_java_main_thread` and hands the *waiting* to a
 //! worker, which polls the shim until the sheet settles. The worker carries
 //! only raw JNI globals (`Raw`, `Copy`), which is how it is `Send` without
 //! any of the app's `Rc` state crossing threads.
@@ -51,7 +51,9 @@ pub fn entries(
 ) -> (Rc<dyn Biometrics>, Option<Rc<dyn Permissions>>) {
     match android.and_then(android::load) {
         Some(loaded) => (
-            Rc::new(android::AndroidBiometrics { bridge: loaded.clone() }),
+            Rc::new(android::AndroidBiometrics {
+                bridge: loaded.clone(),
+            }),
             Some(Rc::new(loaded.permissions())),
         ),
         None => (Rc::new(NoBiometrics), None),
@@ -89,8 +91,17 @@ mod android {
     /// The shim's class, by the name it goes by.
     const CLASS: &str = "dev.vieww.u.UBiometricShim";
 
-    /// The shim's state codes, mirrored verbatim.
+    /// The shim's state codes, mirrored verbatim. IDLE and RUNNING are kept
+    /// for the record: the poll loop treats both as "keep waiting".
+    #[allow(
+        dead_code,
+        reason = "mirrored from the Java shim; waited on through `Ok(_)`"
+    )]
     const IDLE: i32 = 0;
+    #[allow(
+        dead_code,
+        reason = "mirrored from the Java shim; waited on through `Ok(_)`"
+    )]
     const RUNNING: i32 = 1;
     const OK: i32 = 2;
     const CANCELLED: i32 = 3;
@@ -400,7 +411,8 @@ mod android {
                 // The dex is 'static, so the direct buffer it backs stays
                 // valid for as long as the class loader might touch it.
                 // SAFETY: the buffer outlives the loader.
-                let buf = unsafe { env.new_direct_byte_buffer(DEX.as_ptr() as *mut u8, DEX.len())? };
+                let buf =
+                    unsafe { env.new_direct_byte_buffer(DEX.as_ptr() as *mut u8, DEX.len())? };
                 let parent = env
                     .call_method(
                         &activity,

@@ -84,7 +84,18 @@ impl Widget for Palette {
                     .color(colors.on_surface),
             )
             .placeholder(mode.placeholder())
-            .single_line()
+            // Enter in a focused single-line field is the field's submit, not
+            // a key that bubbles — so the field's submit is the palette's
+            // accept, the same as the shortcut layer's Enter while the editor
+            // held the keyboard.
+            .on_submit({
+                let studio = self.studio.clone();
+                Rc::new(move |_: String| studio.palette_accept())
+            })
+            // ST-18: the palette opens from a chord, so its filter has to take
+            // the keyboard as it appears — before this, typing went to the
+            // editor behind and the palette could only be driven by arrows.
+            .autofocus(true)
             .selection_color(chrome.selection)
             .on_changed({
                 let studio = self.studio.clone();
@@ -224,6 +235,21 @@ impl Palette {
                     .map(|chord| chord.describe(studio.host))
                     .unwrap_or_default(),
                 studio.can_run(*command),
+            ),
+            // ST-13: a plugin's command. The plugin's name is the detail line,
+            // because the row's label is the command's own title and the thing
+            // a person deciding whether to press Enter wants to know is *whose*
+            // code is about to run. No chord — the ABI has no way to claim one
+            // and the studio does not lend its own.
+            PaletteEntry::Plugin {
+                label,
+                detail,
+                plugin,
+            } => (
+                label.clone(),
+                format!("{plugin} — {detail}"),
+                String::new(),
+                true,
             ),
             PaletteEntry::File { label, detail, .. } => {
                 (label.clone(), detail.clone(), String::new(), true)

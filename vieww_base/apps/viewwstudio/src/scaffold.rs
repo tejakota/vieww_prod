@@ -45,6 +45,16 @@ pub enum Dependency {
     Path(PathBuf),
     /// `vieww = "0.0.1"` — not previewable against this studio.
     Version(String),
+    /// `vieww = { git = "…", rev = "…" }` — a fork, a team mirror, or an
+    /// unreleased revision, pinned (ST-05). Cargo finds each crate by name
+    /// inside the repository, so one URL serves every vieww crate. Not
+    /// previewable, for the same reason as a version: it is not this
+    /// studio's compilation.
+    Git {
+        url: String,
+        /// A commit, tag or branch to pin; `None` follows the default branch.
+        rev: Option<String>,
+    },
 }
 
 impl Dependency {
@@ -58,6 +68,15 @@ impl Dependency {
                 format!("{{ path = \"{path}\" }}")
             }
             Self::Version(version) => format!("\"{version}\""),
+            Self::Git { url, rev } => {
+                // TOML basic strings: a `"` or `\` in the address would end
+                // or escape the string, so both are escaped.
+                let esc = |s: &str| s.replace('\\', "\\\\").replace('"', "\\\"");
+                match rev {
+                    Some(rev) => format!("{{ git = \"{}\", rev = \"{}\" }}", esc(url), esc(rev)),
+                    None => format!("{{ git = \"{}\" }}", esc(url)),
+                }
+            }
         }
     }
 
@@ -504,10 +523,31 @@ publish = false
 [dependencies]
 # The umbrella crate: widgets, layout, painting and the element tree.
 vieww = {vieww}
+
 # The window, the event loop and the GPU surface. Separate from `vieww` because
 # a vieww tree can be driven headlessly — by a test, or by another host — and
 # only an application needs a platform.
+#
+# **Gated off wasm32** (ST-07): there is no window to own and no process to
+# loop in inside a browser — the page is the host — and `vieww-platform-winit`
+# does not build there. The platform for that target is the one in the
+# `cfg(target_arch = "wasm32")` table below, and moving this line back to the
+# plain `[dependencies]` table is what makes `cargo build --target
+# wasm32-unknown-unknown` fail inside winit rather than inside your code.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 vieww-platform-winit = {platform}
+
+# The browser half, and only it. `vieww` itself compiles everywhere — `native`
+# is a feature nothing here turns on — and the web platform brings its own
+# rasteriser, which is the same CPU one the studio's preview draws with
+# (`examples/test-web` certifies the two produce equal bytes).
+#
+# `wasm-bindgen` is a *library* on this side of the build and a *CLI* on the
+# export side, and the two have to be the same version — see the studio's
+# Web export refusal for the command that installs the matching one.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+vieww-platform-web = {platform_web}
+wasm-bindgen = "0.2"
 
 # `android_main` in `src/lib.rs` reports a failed start through `log`, which on
 # a phone is the only output there is (`vieww-platform-winit` routes it to
@@ -581,6 +621,7 @@ panic = "abort"
 "#,
         vieww = dependency.spec("vieww"),
         platform = dependency.spec("vieww-platform-winit"),
+        platform_web = dependency.spec("vieww-platform-web"),
         lib = crate::harness::lib_name(name),
         build_deps = build_deps,
     )
@@ -588,6 +629,12 @@ panic = "abort"
 
 /// Pinned, and the comment says why, because the reason is not obvious and the
 /// consequence of removing it is undefined behaviour rather than an error.
+///
+/// Pinned to an *exact* version (FW-19, B20), and not `stable`, because
+/// `stable` is "whatever rustup resolved this morning" — which is a different
+/// compiler the morning after an upgrade, and the two halves of the pinned
+/// argument below both break when that happens: the preview's ABI identity,
+/// and the Toolchains view's target accounting.
 const TOOLCHAIN: &str = r#"[toolchain]
 # Pinned because vieww Studio's preview loads a compiled library into its own
 # process. A `Box<dyn Widget>` built by a different rustc has a different vtable
@@ -595,7 +642,18 @@ const TOOLCHAIN: &str = r#"[toolchain]
 # behaviour rather than a mismatch anything can detect afterwards. The studio
 # refuses to load a library built by a compiler other than its own; this file is
 # what keeps them the same one.
-channel = "stable"
+#
+# An exact version, and not `stable`, because the studio's Toolchains view
+# reports the targets of the studio's own toolchain — this checkout's pin —
+# while a project pinned to `stable` builds with whatever `stable` resolved
+# to on that machine. A user could see every target "ready" and still fail an
+# export because *their* `stable` never had it (B20). Writing the same channel
+# the studio builds with makes the view's answer the project's answer.
+#
+# The number is the channel of the repository's own rust-toolchain.toml, and
+# a test refuses to let the two drift: bumping the repository pin is a commit,
+# and this file is part of that commit.
+channel = "1.98.1"
 "#;
 
 const GITIGNORE: &str = "/target\n**/*.rs.bk\n";
@@ -619,29 +677,32 @@ fn main() {{
 
 /// The library every entry point goes through.
 ///
-/// # Why the platform entry points live here rather than in three files
+/// # Why the platform entry points live here rather than in four files
 ///
-/// `main` on desktop, `android_main` on Android, and an `extern "C"` symbol
-/// called from Objective-C on iOS. All three want the same window title, the
-/// same background and the same root widget, and the only real difference is
-/// where the event loop comes from — on Android it cannot be conjured, because
-/// the activity, its looper and its surface already exist by the time any Rust
-/// runs.
+/// `main` on desktop, `android_main` on Android, an `extern "C"` symbol called
+/// from Objective-C on iOS, and `wasm_bindgen(start)` in the browser. All four
+/// want the same window title, the same background and the same root widget,
+/// and the only real difference is where the event loop comes from — on Android
+/// it cannot be conjured, because the activity, its looper and its surface
+/// already exist by the time any Rust runs, and in a browser there isn't one at
+/// all, only the page's animation frames.
 ///
-/// So the setup is written once in [`app`] and the three entry points are three
-/// lines each. The alternative — a `main.rs`, an `android.rs` and an `ios.rs`
-/// that each build an `App` — is how a project ends up with a title bar that
-/// says the right thing on one platform.
+/// So the setup is written once in [`app`] and the entry points are a few lines
+/// each. The alternative — a `main.rs`, an `android.rs`, an `ios.rs` and a
+/// `web.rs` that each build their own platform — is how a project ends up with
+/// a title bar that says the right thing on one platform.
 fn lib_rs(name: &str) -> String {
     format!(
         r#"//! {name} — a vieww application.
 //!
-//! One library, three entry points: [`run`] for desktop, `android_main` for an
-//! Android activity, and `vieww_ios_main` for `ios/App/main.m`. Everything they
-//! share is in [`app`], so the window cannot end up configured differently
-//! depending on where it was started from.
+//! One library, four entry points: [`run`] for desktop, `android_main` for an
+//! Android activity, `vieww_ios_main` for `ios/App/main.m`, and [`start`] for
+//! the browser (`web/index.html`). Everything they share is in [`app`] and
+//! [`mount`], so the window cannot end up configured differently depending on
+//! where it was started from — and neither can the canvas.
 
 use vieww::prelude::*;
+#[cfg(not(target_arch = "wasm32"))]
 use vieww_platform_winit::App;
 
 pub mod screens;
@@ -670,6 +731,11 @@ pub fn theme() -> ThemeData {{
 }}
 
 /// The application, configured but not started.
+///
+/// Winit's, everywhere the process owns its own event loop. The browser is the
+/// one host that does not, so there [`start`] mounts the web platform's
+/// equivalent instead — same tree, same theme, no `App`.
+#[cfg(not(target_arch = "wasm32"))]
 #[must_use]
 pub fn app() -> App {{
     App::new().title("{name}").size(WINDOW).theme(theme())
@@ -687,11 +753,43 @@ pub fn mount(driver: &mut FrameDriver) {{
 }}
 
 /// Start on a desktop, where the process owns its own event loop.
+///
+/// Gated off wasm32 for the same reason `app` is: there is no event loop to
+/// run, only a page that has already started. [`start`] is that side's
+/// entry point.
+#[cfg(not(target_arch = "wasm32"))]
 pub fn run() {{
     match app().run(mount) {{
         Ok(report) => println!("{{report}}"),
         Err(error) => eprintln!("{name} failed to start: {{error}}"),
     }}
+}}
+
+/// The browser's entry point, on the `<canvas id="vieww-canvas">` that
+/// `web/index.html` carries.
+///
+/// `wasm_bindgen(start)` is called by the shim `wasm-bindgen` generates, the
+/// moment the module is instantiated — no `main`, no attribute to forget to
+/// call. It mounts the same tree on the same theme the desktop does, keeps the
+/// handle alive for the life of the page (dropping it would stop the frame
+/// loop), and surfaces a failed start in the page's boot line rather than as a
+/// blank canvas.
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen::prelude::wasm_bindgen(start)]
+pub fn start() -> Result<(), wasm_bindgen::JsValue> {{
+    use vieww_platform_web::{{WebApp, WebSurface}};
+
+    let surface = WebSurface::by_id("vieww-canvas")
+        .map_err(|error| wasm_bindgen::JsValue::from_str(&error.to_string()))?;
+    WebApp::new(surface)
+        // The theme's surface, which is what `App::theme` paints the desktop
+        // window with — the browser and the desktop clear to the same colour,
+        // so the same screen does not sit on two different grounds depending
+        // on which one opened it.
+        .background(theme().colors.surface)
+        .mount_with(mount)
+        .map(std::mem::forget)
+        .map_err(|error| wasm_bindgen::JsValue::from_str(&error.to_string()))
 }}
 
 /// Android's entry point.
@@ -753,6 +851,7 @@ fn lib_rs_say(name: &str) -> String {
 //! Render for the fast loop, `cargo run` for the real thing.
 
 use vieww::prelude::*;
+#[cfg(not(target_arch = "wasm32"))]
 use vieww_platform_winit::App;
 
 pub mod screens;
@@ -775,6 +874,10 @@ pub fn theme() -> ThemeData {{
 }}
 
 /// The application, configured but not started.
+///
+/// Winit's, everywhere the process owns its own event loop; the browser is the
+/// one host that does not, so there `start` mounts the web platform instead.
+#[cfg(not(target_arch = "wasm32"))]
 #[must_use]
 pub fn app() -> App {{
     App::new().title("{name}").size(WINDOW).theme(theme())
@@ -790,11 +893,33 @@ pub fn mount(driver: &mut FrameDriver) {{
 }}
 
 /// Start on a desktop, where the process owns its own event loop.
+#[cfg(not(target_arch = "wasm32"))]
 pub fn run() {{
     match app().run(mount) {{
         Ok(report) => println!("{{report}}"),
         Err(error) => eprintln!("{name} failed to start: {{error}}"),
     }}
+}}
+
+/// The browser's entry point, on the `<canvas id="vieww-canvas">` that
+/// `web/index.html` carries — the same screen, the same theme, mounted by
+/// `vieww-platform-web` instead of winit. `build.rs` has already compiled the
+/// `.say` files by the time this runs, exactly as it has on every other
+/// target.
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen::prelude::wasm_bindgen(start)]
+pub fn start() -> Result<(), wasm_bindgen::JsValue> {{
+    use vieww_platform_web::{{WebApp, WebSurface}};
+
+    let surface = WebSurface::by_id("vieww-canvas")
+        .map_err(|error| wasm_bindgen::JsValue::from_str(&error.to_string()))?;
+    WebApp::new(surface)
+        // The theme's surface, matching what `App::theme` paints the desktop
+        // window with — one ground for every device shape.
+        .background(theme().colors.surface)
+        .mount_with(mount)
+        .map(std::mem::forget)
+        .map_err(|error| wasm_bindgen::JsValue::from_str(&error.to_string()))
 }}
 
 #[cfg(target_os = "android")]
@@ -1684,6 +1809,44 @@ mod tests {
         }
     }
 
+    /// The scaffold's channel and the repository's own `rust-toolchain.toml`
+    /// must name the same compiler (FW-19, B20). This is the lockstep the
+    /// toolchain file's own comment promises: the studio's preview ABI and
+    /// the Toolchains view's target accounting are only honest while the two
+    /// pins agree, and neither one announces the day they stop.
+    #[test]
+    fn the_scaffold_pins_the_repositories_exact_toolchain() {
+        let generated = files("my-app", &dependency());
+        let scaffolded = generated
+            .iter()
+            .find(|(path, _)| path.ends_with("rust-toolchain.toml"))
+            .expect("the template writes a rust-toolchain.toml");
+        let channel = scaffolded
+            .1
+            .lines()
+            .find_map(|line| line.trim().strip_prefix("channel = "))
+            .expect("the pin has a channel line");
+
+        // The studio's own pin: this checkout's rust-toolchain.toml, found by
+        // the same discovery `Dependency::detect` uses. The studio built from
+        // this checkout always finds it; a moved binary has no lockstep to
+        // keep and nothing to assert.
+        let Some(root) = checkout_root() else {
+            panic!("the studio's tests run from its own checkout");
+        };
+        let pinned = std::fs::read_to_string(root.join("rust-toolchain.toml"))
+            .expect("this checkout pins its own toolchain");
+        let repo_channel = pinned
+            .lines()
+            .find_map(|line| line.trim().strip_prefix("channel = "))
+            .expect("the repository pin has a channel line");
+
+        assert_eq!(
+            channel, repo_channel,
+            "the scaffold and the repository must name the same toolchain"
+        );
+    }
+
     /// The property that makes Render work on a fresh project. If this ever
     /// fails, a new user's first click on the studio's main button does
     /// nothing useful.
@@ -1881,6 +2044,31 @@ mod tests {
         assert!(manifest.contains(
             r#"vieww-platform-winit = { path = "/w/vieww/crates/vieww-platform-winit" }"#
         ));
+    }
+
+    #[test]
+    fn a_git_dependency_is_written_as_a_git_table() {
+        let dep = Dependency::Git {
+            url: "https://github.com/team/vieww.git".into(),
+            rev: Some("v0.2.0".into()),
+        };
+        let manifest = &files("app", &dep)[0].1;
+        assert!(
+            manifest.contains(
+                r#"vieww = { git = "https://github.com/team/vieww.git", rev = "v0.2.0" }"#
+            ),
+            "{manifest}"
+        );
+        assert!(!dep.previewable());
+        let unpinned = Dependency::Git {
+            url: "git@host:a\"b".into(),
+            rev: None,
+        };
+        let manifest = &files("app", &unpinned)[0].1;
+        assert!(
+            manifest.contains(r#"{ git = "git@host:a\"b" }"#),
+            "{manifest}"
+        );
     }
 
     #[test]

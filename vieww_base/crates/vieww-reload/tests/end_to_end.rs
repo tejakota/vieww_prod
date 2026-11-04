@@ -182,7 +182,7 @@ fn a_rebuilt_guest_reloads_and_the_tree_is_kept() {
                  trip across the library boundary intact"
             );
         }
-        Reloaded::Restart(_) => panic!(
+        Reloaded::Restart { .. } => panic!(
             "a colour constant changed and the host tore the tree down — the \
              fingerprint is reporting a state change that did not happen, and \
              every reload would silently reset the application's state"
@@ -221,7 +221,22 @@ fn a_guest_whose_state_changed_shape_forces_a_restart() {
     build_guest(&scratch);
 
     match reloader.poll() {
-        Reloaded::Restart(_) => {}
+        Reloaded::Restart { root: _, changed } => {
+            // The restart has to *name its cause* — the whole point of the
+            // state-type table. `Taps` grew by eight bytes, and the message
+            // has to say so, because "the shape changed" sends the developer
+            // bisecting their own edit.
+            let message = changed.to_string();
+            assert!(
+                message.contains("Taps"),
+                "the restart must name the type that moved, not just that one \
+                 did: {message}"
+            );
+            assert!(
+                message.contains("→"),
+                "and say what its size became: {message}"
+            );
+        }
         Reloaded::Root(_) => panic!(
             "a state type grew by eight bytes and the host said keep the tree — \
              that is an old allocation read with a new layout, which is the one \
@@ -279,7 +294,7 @@ fn a_guest_that_panics_while_building_does_not_take_the_host_down() {
                  `panicked while building` rather than a symbol error: {message}"
             );
         }
-        Reloaded::Root(_) | Reloaded::Restart(_) => panic!(
+        Reloaded::Root(_) | Reloaded::Restart { .. } => panic!(
             "a guest that panicked while building produced a root — the null \
              the guard returns is being read as a widget tree"
         ),
