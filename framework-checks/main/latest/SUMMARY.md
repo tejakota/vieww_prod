@@ -1,25 +1,25 @@
 # Framework checks — SUCCESS
 
-- branch: `main`  sha: `c001ad2bf72684e16de21adf50a55d4ac673e284`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/41833204258
+- branch: `main`  sha: `e9cff2524beaa6907e7dcf017288c3ab74796a8f`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/41841412883
 
 | job | verdict | failed steps |
 |---|---|---|
 | Wire check (root ↔ vieww_base) | PASS |  |
 | iOS simulator (tests in the sim, a frame on its screen) | FAIL | XCUITest accessibility suite (generated project, FW-10) |
-| Android device suite (self-hosted) | skipped |  |
-| macOS and iOS (Metal) | skipped |  |
-| GPU on software Vulkan (lavapipe) | skipped |  |
-| Web (wasm32; Chromium, Firefox, WebKit) | skipped |  |
-| Audio decoders under cargo-fuzz (nightly) | skipped |  |
-| Accessibility gallery + AT-SPI dry-run (Linux) | skipped |  |
-| Type-check for macOS, iOS, Windows, Android (from Linux) | skipped |  |
 | Windows (D3D12 on WARP) | skipped |  |
-| checks.sh (Linux) | skipped |  |
-| Coverage floor | skipped |  |
 | Plugin compatibility matrix (FW-17) | skipped |  |
+| Accessibility gallery + AT-SPI dry-run (Linux) | skipped |  |
+| Coverage floor | skipped |  |
+| Audio decoders under cargo-fuzz (nightly) | skipped |  |
+| Android device suite (self-hosted) | skipped |  |
+| Web (wasm32; Chromium, Firefox, WebKit) | skipped |  |
 | Android emulator (APK, device and accessibility suites) | skipped |  |
+| Type-check for macOS, iOS, Windows, Android (from Linux) | skipped |  |
+| GPU on software Vulkan (lavapipe) | skipped |  |
 | Android (compile) | skipped |  |
+| checks.sh (Linux) | skipped |  |
+| macOS and iOS (Metal) | skipped |  |
 | Publish results to ci-runs/<branch> | PASS |  |
 
 ## Steps
@@ -45,31 +45,31 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### Android device suite (self-hosted) — skipped
-
-### macOS and iOS (Metal) — skipped
-
-### GPU on software Vulkan (lavapipe) — skipped
-
-### Web (wasm32; Chromium, Firefox, WebKit) — skipped
-
-### Audio decoders under cargo-fuzz (nightly) — skipped
-
-### Accessibility gallery + AT-SPI dry-run (Linux) — skipped
-
-### Type-check for macOS, iOS, Windows, Android (from Linux) — skipped
-
 ### Windows (D3D12 on WARP) — skipped
-
-### checks.sh (Linux) — skipped
-
-### Coverage floor — skipped
 
 ### Plugin compatibility matrix (FW-17) — skipped
 
+### Accessibility gallery + AT-SPI dry-run (Linux) — skipped
+
+### Coverage floor — skipped
+
+### Audio decoders under cargo-fuzz (nightly) — skipped
+
+### Android device suite (self-hosted) — skipped
+
+### Web (wasm32; Chromium, Firefox, WebKit) — skipped
+
 ### Android emulator (APK, device and accessibility suites) — skipped
 
+### Type-check for macOS, iOS, Windows, Android (from Linux) — skipped
+
+### GPU on software Vulkan (lavapipe) — skipped
+
 ### Android (compile) — skipped
+
+### checks.sh (Linux) — skipped
+
+### macOS and iOS (Metal) — skipped
 
 ### Publish results to ci-runs/<branch> — PASS
 - PASS: Set up job
