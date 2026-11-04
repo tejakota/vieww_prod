@@ -1,1047 +1,365 @@
-===== Type-check for macOS, iOS, Windows, Android (from Linux)	Cross type-check =====
-﻿2026-11-02T10:00:52.7749590Z ##[group]Run ci/check/cross-check.sh
-2026-11-02T10:00:52.7749805Z ^[[36;1mci/check/cross-check.sh^[[0m
-2026-11-02T10:00:52.7766361Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
-2026-11-02T10:00:52.7766548Z env:
-2026-11-02T10:00:52.7766662Z   CARGO_TERM_COLOR: always
-2026-11-02T10:00:52.7766788Z   RUST_BACKTRACE: 1
-2026-11-02T10:00:52.7766903Z   RUST_VERSION: 1.98.1
-2026-11-02T10:00:52.7767023Z ##[endgroup]
-2026-11-02T10:00:52.8193877Z info: syncing channel updates for 1.98.1-x86_64-unknown-linux-gnu
-2026-11-02T10:00:53.0038088Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
-2026-11-02T10:00:53.0127782Z info: downloading 3 components
-2026-11-02T10:00:55.6713626Z 
-2026-11-02T10:00:55.6714510Z ^[[1m== macos (aarch64-apple-darwin)^[[0m
-2026-11-02T10:02:34.9451166Z ^[[1m^[[91merror[E0063]^[[0m^[[1m: missing field `scratch` in initializer of `target::Target`^[[0m
-2026-11-02T10:02:34.9483277Z    ^[[1m^[[94m--> ^[[0mcrates/vieww-paint/src/native/target.rs:183:9
-2026-11-02T10:02:34.9512963Z     ^[[1m^[[94m|^[[0m
-2026-11-02T10:02:34.9513687Z ^[[1m^[[94m183^[[0m ^[[1m^[[94m|^[[0m         Self {
-2026-11-02T10:02:34.9542931Z     ^[[1m^[[94m|^[[0m         ^[[1m^[[91m^^^^^[[0m ^[[1m^[[91mmissing `scratch`^[[0m
-2026-11-02T10:02:34.9561755Z 
-2026-11-02T10:02:35.3563758Z ^[[1mFor more information about this error, try `rustc --explain E0063`.^[[0m
-2026-11-02T10:02:35.3794031Z ^[[1m^[[91merror^[[0m: could not compile `vieww-paint` (lib test) due to 1 previous error
-2026-11-02T10:02:35.5613267Z    ^[[31mFAILED^[[0m — see above
-2026-11-02T10:03:31.5483310Z ^[[1m^[[91merror[E0063]^[[0m^[[1m: missing field `scratch` in initializer of `target::Target`^[[0m
-2026-11-02T10:03:31.5483737Z 
-2026-11-02T10:03:31.5483875Z ^[[1m== ios (aarch64-apple-ios)^[[0m
-2026-11-02T10:03:31.5512853Z    ^[[1m^[[94m--> ^[[0mcrates/vieww-paint/src/native/target.rs:183:9
-2026-11-02T10:03:31.5532790Z     ^[[1m^[[94m|^[[0m
-2026-11-02T10:03:31.5562709Z ^[[1m^[[94m183^[[0m ^[[1m^[[94m|^[[0m         Self {
-2026-11-02T10:03:31.5572652Z     ^[[1m^[[94m|^[[0m         ^[[1m^[[91m^^^^^[[0m ^[[1m^[[91mmissing `scratch`^[[0m
-2026-11-02T10:03:31.5592590Z 
-2026-11-02T10:03:31.9406960Z ^[[1mFor more information about this error, try `rustc --explain E0063`.^[[0m
-2026-11-02T10:03:31.9584158Z ^[[1m^[[91merror^[[0m: could not compile `vieww-paint` (lib test) due to 1 previous error
-2026-11-02T10:03:32.0494773Z    ^[[31mFAILED^[[0m — see above
-2026-11-02T10:03:32.0495234Z 
-2026-11-02T10:03:32.0495455Z ^[[1m== windows (x86_64-pc-windows-msvc)^[[0m
-2026-11-02T10:04:30.3027731Z ^[[1m^[[91merror[E0063]^[[0m^[[1m: missing field `scratch` in initializer of `target::Target`^[[0m
-2026-11-02T10:04:30.3084337Z    ^[[1m^[[94m--> ^[[0mcrates/vieww-paint/src/native/target.rs:183:9
-2026-11-02T10:04:30.3112790Z     ^[[1m^[[94m|^[[0m
-2026-11-02T10:04:30.3113690Z ^[[1m^[[94m183^[[0m ^[[1m^[[94m|^[[0m         Self {
-2026-11-02T10:04:30.3142949Z     ^[[1m^[[94m|^[[0m         ^[[1m^[[91m^^^^^[[0m ^[[1m^[[91mmissing `scratch`^[[0m
-2026-11-02T10:04:30.3172236Z 
-2026-11-02T10:04:30.7021396Z ^[[1mFor more information about this error, try `rustc --explain E0063`.^[[0m
-2026-11-02T10:04:30.7160856Z ^[[1m^[[91merror^[[0m: could not compile `vieww-paint` (lib test) due to 1 previous error
-2026-11-02T10:04:30.8258487Z    ^[[31mFAILED^[[0m — see above
-2026-11-02T10:04:30.8258966Z 
-2026-11-02T10:04:30.8259088Z ^[[1m== android (aarch64-linux-android)^[[0m
-2026-11-02T10:05:38.1223447Z ^[[1m^[[91merror^[[0m^[[1m: constant `IDLE` is never used^[[0m
-2026-11-02T10:05:38.1253083Z   ^[[1m^[[94m--> ^[[0mexamples/u/src/biometrics.rs:93:11
-2026-11-02T10:05:38.1282638Z    ^[[1m^[[94m|^[[0m
-2026-11-02T10:05:38.1303028Z ^[[1m^[[94m93^[[0m ^[[1m^[[94m|^[[0m     const IDLE: i32 = 0;
-2026-11-02T10:05:38.1314196Z    ^[[1m^[[94m|^[[0m           ^[[1m^[[91m^^^^^[[0m
-2026-11-02T10:05:38.1314883Z    ^[[1m^[[94m|^[[0m
-2026-11-02T10:05:38.1315327Z    ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `-D dead-code` implied by `-D warnings`
-2026-11-02T10:05:38.1315955Z    ^[[1m^[[94m= ^[[0m^[[1mhelp^[[0m: to override `-D warnings` add `#[expect(dead_code)]` or `#[allow(dead_code)]`
-2026-11-02T10:05:38.1316365Z 
-2026-11-02T10:05:38.1316650Z ^[[1m^[[91merror^[[0m^[[1m: constant `RUNNING` is never used^[[0m
-2026-11-02T10:05:38.1317549Z   ^[[1m^[[94m--> ^[[0mexamples/u/src/biometrics.rs:94:11
-2026-11-02T10:05:38.1317962Z    ^[[1m^[[94m|^[[0m
-2026-11-02T10:05:38.1318344Z ^[[1m^[[94m94^[[0m ^[[1m^[[94m|^[[0m     const RUNNING: i32 = 1;
-2026-11-02T10:05:38.1318763Z    ^[[1m^[[94m|^[[0m           ^[[1m^[[91m^^^^^^^^[[0m
-2026-11-02T10:05:38.1319076Z 
-2026-11-02T10:05:38.1835782Z ^[[1m^[[91merror^[[0m: could not compile `u` (lib) due to 2 previous errors
-2026-11-02T10:05:39.3010332Z    ^[[31mFAILED^[[0m — see above
-2026-11-02T10:05:39.3010617Z 
-2026-11-02T10:05:39.3025796Z ##[error]Process completed with exit code 4.
+===== GPU on software Vulkan (lavapipe)	Platform views under a real X server (FW-20) =====
+﻿2026-11-04T10:34:41.6312103Z ##[group]Run xvfb-run -a -s "-screen 0 1366x768x24" cargo test --release -p vieww-platform-winit --lib platform_views
+2026-11-04T10:34:41.6313023Z ^[[36;1mxvfb-run -a -s "-screen 0 1366x768x24" cargo test --release -p vieww-platform-winit --lib platform_views^[[0m
+2026-11-04T10:34:41.6333675Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T10:34:41.6334041Z env:
+2026-11-04T10:34:41.6334245Z   CARGO_TERM_COLOR: always
+2026-11-04T10:34:41.6334482Z   RUST_BACKTRACE: 1
+2026-11-04T10:34:41.6334692Z   RUST_VERSION: 1.98.1
+2026-11-04T10:34:41.6334973Z   VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.json
+2026-11-04T10:34:41.6335308Z   VIEWW_REQUIRE_HARDWARE: display
+2026-11-04T10:34:41.6335567Z ##[endgroup]
+2026-11-04T10:34:41.9806644Z ^[[1m^[[92m   Compiling^[[0m vieww-platform-winit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
+2026-11-04T10:34:51.3576464Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 9.65s
+2026-11-04T10:34:51.3754927Z ^[[1m^[[92m     Running^[[0m unittests src/lib.rs (target/release/deps/vieww_platform_winit-f2f2cf57dc2f9e65)
+2026-11-04T10:34:51.3782646Z 
+2026-11-04T10:34:51.3782927Z running 10 tests
+2026-11-04T10:34:51.3793034Z test os_platform_views::tests::before_a_window_views_are_refused_transiently ... ok
+2026-11-04T10:34:51.3794416Z test platform_views::tests::abutting_views_stay_abutting_at_a_fractional_scale ... ok
+2026-11-04T10:34:51.3795607Z test platform_views::tests::connecting_to_a_bogus_display_fails_cleanly ... ok
+2026-11-04T10:34:51.3796714Z test platform_views::tests::the_background_parameter_becomes_an_x11_pixel ... ok
+2026-11-04T10:34:51.3811323Z test platform_views::tests::a_view_is_a_real_child_window_created_moved_and_destroyed ... ok
+2026-11-04T10:34:51.3812558Z test platform_views::tests::the_service_answers_honestly_about_what_it_offers ... ok
+2026-11-04T10:34:51.3814198Z test platform_views::tests::creating_before_an_anchor_refuses_with_the_fix ... ok
+2026-11-04T10:34:51.3827633Z test platform_views::tests::two_views_are_two_independent_windows ... ok
+2026-11-04T10:34:51.3830749Z test platform_views::tests::views_are_placed_in_device_pixels_at_the_hosts_scale ... ok
+2026-11-04T10:34:51.4541029Z test os_platform_views::tests::a_platform_view_widget_becomes_a_real_child_window_at_the_hosts_scale ... FAILED
+2026-11-04T10:34:51.4541868Z 
+2026-11-04T10:34:51.4542013Z failures:
+2026-11-04T10:34:51.4542196Z 
+2026-11-04T10:34:51.4542749Z ---- os_platform_views::tests::a_platform_view_widget_becomes_a_real_child_window_at_the_hosts_scale stdout ----
+2026-11-04T10:34:51.4543531Z 
+2026-11-04T10:34:51.4544573Z thread 'os_platform_views::tests::a_platform_view_widget_becomes_a_real_child_window_at_the_hosts_scale' (11288) panicked at crates/vieww-platform-winit/src/os_platform_views.rs:265:9:
+2026-11-04T10:34:51.4546062Z assertion `left == right` failed
+2026-11-04T10:34:51.4546577Z   left: 0
+2026-11-04T10:34:51.4546930Z  right: 1
+2026-11-04T10:34:51.4547291Z stack backtrace:
+2026-11-04T10:34:51.4547701Z    0: __rustc::rust_begin_unwind
+2026-11-04T10:34:51.4548454Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-04T10:34:51.4549269Z    1: core::panicking::panic_fmt
+2026-11-04T10:34:51.4550234Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-04T10:34:51.4551063Z    2: core::panicking::assert_failed_inner
+2026-11-04T10:34:51.4551865Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:439:17
+2026-11-04T10:34:51.4552762Z    3: core::panicking::assert_failed::<usize, usize>
+2026-11-04T10:34:51.4553594Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:394:5
+2026-11-04T10:34:51.4554575Z    4: a_platform_view_widget_becomes_a_real_child_window_at_the_hosts_scale
+2026-11-04T10:34:51.4555264Z              at ./src/os_platform_views.rs:265:9
+2026-11-04T10:34:51.4555736Z    5: {closure#0}
+2026-11-04T10:34:51.4556599Z              at ./src/os_platform_views.rs:235:79
+2026-11-04T10:34:51.4557828Z    6: call_once<vieww_platform_winit::os_platform_views::tests::a_platform_view_widget_becomes_a_real_child_window_at_the_hosts_scale::{closure_env#0}, ()>
+2026-11-04T10:34:51.4559507Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-04T10:34:51.4560734Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-11-04T10:34:51.4561923Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-04T10:34:51.4563045Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-04T10:34:51.4563600Z 
+2026-11-04T10:34:51.4563612Z 
+2026-11-04T10:34:51.4563747Z failures:
+2026-11-04T10:34:51.4564387Z     os_platform_views::tests::a_platform_view_widget_becomes_a_real_child_window_at_the_hosts_scale
+2026-11-04T10:34:51.4565016Z 
+2026-11-04T10:34:51.4565471Z test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 213 filtered out; finished in 0.07s
+2026-11-04T10:34:51.4566326Z 
+2026-11-04T10:34:51.4567222Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-platform-winit --lib`
+2026-11-04T10:34:51.4770242Z ##[error]Process completed with exit code 101.
 
-===== GPU on software Vulkan (lavapipe)	Vulkan suites (headless) =====
-2026-11-02T10:01:05.1096513Z ^[[1m^[[92m  Downloaded^[[0m quote v1.0.47
-2026-11-02T10:01:05.1122672Z ^[[1m^[[92m  Downloaded^[[0m roxmltree v0.20.0
-2026-11-02T10:01:05.1247096Z ^[[1m^[[92m  Downloaded^[[0m slotmap v1.1.1
-2026-11-02T10:01:05.1268100Z ^[[1m^[[92m  Downloaded^[[0m smallvec v1.16.2
-2026-11-02T10:01:05.1281885Z ^[[1m^[[92m  Downloaded^[[0m spirv v0.4.0+sdk-1.4.341.0
-2026-11-02T10:01:05.1294289Z ^[[1m^[[92m  Downloaded^[[0m tinyvec v1.13.3
-2026-11-02T10:01:05.1328054Z ^[[1m^[[92m  Downloaded^[[0m unicode-ident v1.0.26
-2026-11-02T10:01:05.1355137Z ^[[1m^[[92m  Downloaded^[[0m unicode-script v0.5.8
-2026-11-02T10:01:05.1373023Z ^[[1m^[[92m  Downloaded^[[0m zeno v0.3.3
-2026-11-02T10:01:05.1394952Z ^[[1m^[[92m  Downloaded^[[0m fontdb v0.23.0
-2026-11-02T10:01:05.1418630Z ^[[1m^[[92m  Downloaded^[[0m miniz_oxide v0.8.9
-2026-11-02T10:01:05.1443354Z ^[[1m^[[92m  Downloaded^[[0m miniz_oxide v0.9.1
-2026-11-02T10:01:05.1467787Z ^[[1m^[[92m  Downloaded^[[0m rangemap v1.8.0
-2026-11-02T10:01:05.1490642Z ^[[1m^[[92m  Downloaded^[[0m unicode-bidi v0.3.18
-2026-11-02T10:01:05.1514241Z ^[[1m^[[92m  Downloaded^[[0m hashbrown v0.17.1
-2026-11-02T10:01:05.1565928Z ^[[1m^[[92m  Downloaded^[[0m unicode-segmentation v1.13.3
-2026-11-02T10:01:05.1595893Z ^[[1m^[[92m  Downloaded^[[0m png v0.18.1
-2026-11-02T10:01:05.1636920Z ^[[1m^[[92m  Downloaded^[[0m zerocopy-derive v0.8.59
-2026-11-02T10:01:05.1755397Z ^[[1m^[[92m  Downloaded^[[0m lyon_tessellation v1.0.22
-2026-11-02T10:01:05.1791461Z ^[[1m^[[92m  Downloaded^[[0m harfrust v0.5.2
-2026-11-02T10:01:05.1872849Z ^[[1m^[[92m  Downloaded^[[0m ttf-parser v0.25.1
-2026-11-02T10:01:05.1963963Z ^[[1m^[[92m  Downloaded^[[0m zlib-rs v0.6.8
-2026-11-02T10:01:05.2017293Z ^[[1m^[[92m  Downloaded^[[0m swash v0.2.10
-2026-11-02T10:01:05.2090895Z ^[[1m^[[92m  Downloaded^[[0m skrifa v0.40.0
-2026-11-02T10:01:05.2179275Z ^[[1m^[[92m  Downloaded^[[0m skrifa v0.44.0
-2026-11-02T10:01:05.2272981Z ^[[1m^[[92m  Downloaded^[[0m unicode-width v0.2.2
-2026-11-02T10:01:05.2329900Z ^[[1m^[[92m  Downloaded^[[0m syn v3.0.6
-2026-11-02T10:01:05.2435022Z ^[[1m^[[92m  Downloaded^[[0m zerocopy v0.8.59
-2026-11-02T10:01:05.2637467Z ^[[1m^[[92m  Downloaded^[[0m syn v2.0.119
-2026-11-02T10:01:05.2741620Z ^[[1m^[[92m  Downloaded^[[0m read-fonts v0.37.0
-2026-11-02T10:01:05.2890200Z ^[[1m^[[92m  Downloaded^[[0m ash v0.38.0+1.3.281
-2026-11-02T10:01:05.3046686Z ^[[1m^[[92m  Downloaded^[[0m read-fonts v0.41.0
-2026-11-02T10:01:05.3233128Z ^[[1m^[[92m  Downloaded^[[0m libc v0.2.189
-2026-11-02T10:01:05.3647325Z ^[[1m^[[92m  Downloaded^[[0m naga v30.0.1
-2026-11-02T10:01:05.3858737Z ^[[1m^[[92m  Downloaded^[[0m cosmic-text v0.19.0
-2026-11-02T10:01:05.4656291Z ^[[1m^[[92m   Compiling^[[0m proc-macro2 v1.0.107
-2026-11-02T10:01:05.4657052Z ^[[1m^[[92m   Compiling^[[0m unicode-ident v1.0.26
-2026-11-02T10:01:05.4657623Z ^[[1m^[[92m   Compiling^[[0m quote v1.0.47
-2026-11-02T10:01:05.4659195Z ^[[1m^[[92m   Compiling^[[0m libm v0.2.16
-2026-11-02T10:01:05.5432270Z ^[[1m^[[92m   Compiling^[[0m autocfg v1.5.1
-2026-11-02T10:01:05.6331817Z ^[[1m^[[92m   Compiling^[[0m once_cell v1.21.4
-2026-11-02T10:01:05.7615109Z ^[[1m^[[92m   Compiling^[[0m thiserror v2.0.21
-2026-11-02T10:01:05.8481230Z ^[[1m^[[92m   Compiling^[[0m num-traits v0.2.19
-2026-11-02T10:01:05.9422461Z ^[[1m^[[92m   Compiling^[[0m cfg-if v1.0.5
-2026-11-02T10:01:05.9852038Z ^[[1m^[[92m   Compiling^[[0m simd-adler32 v0.3.10
-2026-11-02T10:01:06.0171926Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
-2026-11-02T10:01:06.2438180Z ^[[1m^[[92m   Compiling^[[0m foldhash v0.2.0
-2026-11-02T10:01:06.3342406Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
-2026-11-02T10:01:06.4428942Z ^[[1m^[[92m   Compiling^[[0m syn v3.0.6
-2026-11-02T10:01:06.4540526Z ^[[1m^[[92m   Compiling^[[0m syn v2.0.119
-2026-11-02T10:01:06.9082631Z ^[[1m^[[92m   Compiling^[[0m core_maths v0.1.1
-2026-11-02T10:01:07.4702020Z ^[[1m^[[92m   Compiling^[[0m equivalent v1.0.2
-2026-11-02T10:01:07.5142063Z ^[[1m^[[92m   Compiling^[[0m cfg_aliases v0.2.2
-2026-11-02T10:01:07.5521818Z ^[[1m^[[92m   Compiling^[[0m bitflags v2.13.2
-2026-11-02T10:01:07.8411854Z ^[[1m^[[92m   Compiling^[[0m crc32fast v1.5.2
-2026-11-02T10:01:07.9661676Z ^[[1m^[[92m   Compiling^[[0m adler2 v2.0.1
-2026-11-02T10:01:08.2681923Z ^[[1m^[[92m   Compiling^[[0m naga v30.0.1
-2026-11-02T10:01:08.4232286Z ^[[1m^[[92m   Compiling^[[0m indexmap v2.14.2
-2026-11-02T10:01:08.8171785Z ^[[1m^[[92m   Compiling^[[0m ttf-parser v0.25.1
-2026-11-02T10:01:08.8841647Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
-2026-11-02T10:01:09.0991965Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v2.0.21
-2026-11-02T10:01:09.9931616Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
-2026-11-02T10:01:10.2421063Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
-2026-11-02T10:01:10.3611865Z ^[[1m^[[92m   Compiling^[[0m zerocopy-derive v0.8.59
-2026-11-02T10:01:10.6731765Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
-2026-11-02T10:01:11.1777560Z ^[[1m^[[92m   Compiling^[[0m libc v0.2.189
-2026-11-02T10:01:11.4021691Z ^[[1m^[[92m   Compiling^[[0m bit-vec v0.9.1
-2026-11-02T10:01:11.7261912Z ^[[1m^[[92m   Compiling^[[0m unicode-width v0.2.2
-2026-11-02T10:01:11.9431881Z ^[[1m^[[92m   Compiling^[[0m version_check v0.9.5
-2026-11-02T10:01:12.1842853Z ^[[1m^[[92m   Compiling^[[0m unicode-segmentation v1.13.3
-2026-11-02T10:01:12.7991792Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v1.1.0
-2026-11-02T10:01:12.8498264Z ^[[1m^[[92m   Compiling^[[0m naga-types v30.0.1
-2026-11-02T10:01:12.9601913Z ^[[1m^[[92m   Compiling^[[0m slotmap v1.1.1
-2026-11-02T10:01:13.0451979Z ^[[1m^[[92m   Compiling^[[0m codespan-reporting v0.13.1
-2026-11-02T10:01:13.4691159Z ^[[1m^[[92m   Compiling^[[0m spirv v0.4.0+sdk-1.4.341.0
-2026-11-02T10:01:14.6562099Z ^[[1m^[[92m   Compiling^[[0m bit-set v0.10.0
-2026-11-02T10:01:14.7911997Z ^[[1m^[[92m   Compiling^[[0m euclid v0.22.14
-2026-11-02T10:01:15.0271886Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
-2026-11-02T10:01:15.6131760Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.9.1
-2026-11-02T10:01:15.7281961Z ^[[1m^[[92m   Compiling^[[0m arrayvec v0.7.8
-2026-11-02T10:01:15.9361616Z ^[[1m^[[92m   Compiling^[[0m log v0.4.34
-2026-11-02T10:01:16.3181793Z ^[[1m^[[92m   Compiling^[[0m half v2.7.1
-2026-11-02T10:01:16.3772926Z ^[[1m^[[92m   Compiling^[[0m flate2 v1.1.10
-2026-11-02T10:01:16.9325140Z ^[[1m^[[92m   Compiling^[[0m lyon_geom v1.0.19
-2026-11-02T10:01:17.2391732Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
-2026-11-02T10:01:18.4841885Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
-2026-11-02T10:01:27.7652379Z ^[[1m^[[92m   Compiling^[[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
-2026-11-02T10:01:34.4841920Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.8.9
-2026-11-02T10:01:35.4691818Z ^[[1m^[[92m   Compiling^[[0m fdeflate v0.3.7
-2026-11-02T10:01:36.1001774Z ^[[1m^[[92m   Compiling^[[0m roxmltree v0.20.0
-2026-11-02T10:01:36.4092458Z ^[[1m^[[92m   Compiling^[[0m png v0.18.1
-2026-11-02T10:01:38.2081818Z ^[[1m^[[92m   Compiling^[[0m fontconfig-parser v0.5.8
-2026-11-02T10:01:39.1588985Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
-2026-11-02T10:01:39.2221602Z ^[[1m^[[92m   Compiling^[[0m memmap2 v0.9.11
-2026-11-02T10:01:39.4602087Z ^[[1m^[[92m   Compiling^[[0m lyon_path v1.0.19
-2026-11-02T10:01:39.4901635Z ^[[1m^[[92m   Compiling^[[0m float_next_after v1.0.0
-2026-11-02T10:01:39.5501692Z ^[[1m^[[92m   Compiling^[[0m smallvec v1.16.2
-2026-11-02T10:01:39.7262032Z ^[[1m^[[92m   Compiling^[[0m yazi v0.2.1
-2026-11-02T10:01:39.7681789Z ^[[1m^[[92m   Compiling^[[0m ash v0.38.0+1.3.281
-2026-11-02T10:01:39.8442240Z ^[[1m^[[92m   Compiling^[[0m tinyvec v1.13.3
-2026-11-02T10:01:40.3282602Z ^[[1m^[[92m   Compiling^[[0m zeno v0.3.3
-2026-11-02T10:01:40.4481974Z ^[[1m^[[92m   Compiling^[[0m fontdb v0.23.0
-2026-11-02T10:01:40.5521156Z ^[[1m^[[92m   Compiling^[[0m lyon_tessellation v1.0.22
-2026-11-02T10:01:41.1782309Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
-2026-11-02T10:01:41.4861553Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
-2026-11-02T10:01:42.4744718Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
-2026-11-02T10:01:43.0901703Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
-2026-11-02T10:01:54.8322919Z ^[[1m^[[92m   Compiling^[[0m libloading v0.8.9
-2026-11-02T10:01:55.0051640Z ^[[1m^[[92m   Compiling^[[0m unicode-script v0.5.8
-2026-11-02T10:01:55.4861754Z ^[[1m^[[92m   Compiling^[[0m sys-locale v0.3.2
-2026-11-02T10:01:55.7171859Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.3.6
-2026-11-02T10:01:55.9751928Z ^[[1m^[[92m   Compiling^[[0m unicode-linebreak v0.1.5
-2026-11-02T10:01:56.1941796Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v2.1.3
-2026-11-02T10:01:56.2566987Z ^[[1m^[[92m   Compiling^[[0m rangemap v1.8.0
-2026-11-02T10:01:56.5761723Z ^[[1m^[[92m   Compiling^[[0m self_cell v1.3.0
-2026-11-02T10:01:56.6421642Z ^[[1m^[[92m   Compiling^[[0m unicode-bidi v0.3.18
-2026-11-02T10:01:57.5992357Z ^[[1m^[[92m   Compiling^[[0m linebender_resource_handle v0.1.1
-2026-11-02T10:01:57.6751892Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
-2026-11-02T10:01:57.9589247Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
-2026-11-02T10:01:59.3339320Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
-2026-11-02T10:02:06.9847859Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
-2026-11-02T10:02:12.5664257Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 1m 08s
-2026-11-02T10:02:12.6589227Z ^[[1m^[[92m     Running^[[0m unittests src/lib.rs (target/release/deps/vieww_hal-580b85ab69c42af4)
-2026-11-02T10:02:12.6609413Z 
-2026-11-02T10:02:12.6609642Z running 0 tests
-2026-11-02T10:02:12.6609841Z 
-2026-11-02T10:02:12.6610145Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 28 filtered out; finished in 0.00s
-2026-11-02T10:02:12.6610718Z 
-2026-11-02T10:02:12.6612799Z ^[[1m^[[92m     Running^[[0m tests/d3d12_scene.rs (target/release/deps/d3d12_scene-91a0c204fd4f12b9)
-2026-11-02T10:02:12.6630397Z 
-2026-11-02T10:02:12.6630595Z running 0 tests
-2026-11-02T10:02:12.6630780Z 
-2026-11-02T10:02:12.6631039Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-2026-11-02T10:02:12.6631377Z 
-2026-11-02T10:02:12.6633558Z ^[[1m^[[92m     Running^[[0m tests/d3d12_smoke.rs (target/release/deps/d3d12_smoke-9ff8aabd1a8e5a50)
-2026-11-02T10:02:12.6668066Z 
-2026-11-02T10:02:12.6668261Z running 0 tests
-2026-11-02T10:02:12.6668477Z 
-2026-11-02T10:02:12.6668762Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-2026-11-02T10:02:12.6669103Z 
-2026-11-02T10:02:12.6671012Z ^[[1m^[[92m     Running^[[0m tests/metal_scene.rs (target/release/deps/metal_scene-7aeb38028bfbe9a0)
-2026-11-02T10:02:12.6684369Z 
-2026-11-02T10:02:12.6684560Z running 0 tests
-2026-11-02T10:02:12.6684746Z 
-2026-11-02T10:02:12.6685128Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-2026-11-02T10:02:12.6687090Z ^[[1m^[[92m     Running^[[0m tests/metal_smoke.rs (target/release/deps/metal_smoke-2887965f97008a09)
-2026-11-02T10:02:12.6688108Z 
-2026-11-02T10:02:12.6701133Z 
-2026-11-02T10:02:12.6701295Z running 0 tests
-2026-11-02T10:02:12.6701503Z 
-2026-11-02T10:02:12.6701885Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-2026-11-02T10:02:12.6702424Z 
-2026-11-02T10:02:12.6703707Z ^[[1m^[[92m     Running^[[0m tests/vulkan_compositor.rs (target/release/deps/vulkan_compositor-0b092c34640282d6)
-2026-11-02T10:02:12.6718551Z 
-2026-11-02T10:02:12.6718709Z running 17 tests
-2026-11-02T10:02:13.9456667Z test a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp ... FAILED
-2026-11-02T10:02:14.0275830Z test a_blurred_layer_matches_the_three_box_blur ... ok
-2026-11-02T10:02:14.1002391Z test a_colour_matrix_layer_matches ... ok
-2026-11-02T10:02:14.1652337Z test a_dashed_stroke_under_a_scale_matches_width_and_pattern ... ok
-2026-11-02T10:02:14.2438395Z test a_renderer_shared_between_planners_never_draws_a_stale_atlas ... FAILED
-2026-11-02T10:02:14.3131504Z test a_shadow_inside_a_translucent_layer_matches ... FAILED
-2026-11-02T10:02:14.3883980Z test a_steady_frame_uploads_nothing_new_and_reuses_every_target ... ok
-2026-11-02T10:02:14.4500983Z test a_transparent_clear_reads_back_straight_alpha_like_the_cpu ... ok
-2026-11-02T10:02:16.3508969Z test all_twenty_eight_blend_modes_match ... ok
-2026-11-02T10:02:16.4177323Z test every_shadow_variant_matches ... FAILED
-2026-11-02T10:02:16.4850777Z test group_opacity_composites_the_group_not_each_child ... ok
-2026-11-02T10:02:16.7529902Z test images_magnified_rotated_and_minified_match ... ok
-2026-11-02T10:02:17.2595133Z test linear_radial_and_sweep_gradients_match_per_pixel ... ok
-2026-11-02T10:02:17.3306024Z test nested_layers_with_mixed_effects_match ... ok
-2026-11-02T10:02:17.3933407Z test overlapping_subpaths_fill_under_non_zero_winding ... ok
-2026-11-02T10:02:17.4628345Z test shaped_clips_on_draws_and_on_layers_match ... FAILED
-2026-11-02T10:02:17.5278671Z test sharp_miter_joins_reach_as_far_as_the_cpu_allows ... ok
-2026-11-02T10:02:17.5279193Z 
-2026-11-02T10:02:17.5279331Z failures:
-2026-11-02T10:02:17.5279560Z 
-2026-11-02T10:02:17.5279940Z ---- a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp stdout ----
-2026-11-02T10:02:17.5281222Z backdrop-blur: max channel diff 20 at (16, 70) gpu=[75, 182, 115, 255] cpu=[55, 175, 101, 255]; 75 px over 2
-2026-11-02T10:02:17.5281818Z 
-2026-11-02T10:02:17.5282467Z thread 'a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp' (4360) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:113:5:
-2026-11-02T10:02:17.5283689Z backdrop-blur: 75 pixels differ by more than 2 (allowed 0); worst 20 at (16, 70) gpu=[75, 182, 115, 255] cpu=[55, 175, 101, 255]
-2026-11-02T10:02:17.5284416Z stack backtrace:
-2026-11-02T10:02:17.5291395Z    0: __rustc::rust_begin_unwind
-2026-11-02T10:02:17.5292117Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
-2026-11-02T10:02:17.5292851Z    1: core::panicking::panic_fmt
-2026-11-02T10:02:17.5293520Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
-2026-11-02T10:02:17.5294216Z    2: assert_parity
-2026-11-02T10:02:17.5294569Z              at ./tests/vulkan_compositor.rs:113:5
-2026-11-02T10:02:17.5295171Z    3: a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp
-2026-11-02T10:02:17.5295776Z              at ./tests/vulkan_compositor.rs:382:5
-2026-11-02T10:02:17.5296204Z    4: {closure#0}
-2026-11-02T10:02:17.5296546Z              at ./tests/vulkan_compositor.rs:357:73
-2026-11-02T10:02:17.5297485Z    5: call_once<vulkan_compositor::a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp::{closure_env#0}, ()>
-2026-11-02T10:02:17.5298625Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-11-02T10:02:17.5299592Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-2026-11-02T10:02:17.5301256Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-11-02T10:02:17.5302129Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-11-02T10:02:17.5302606Z 
-2026-11-02T10:02:17.5302920Z ---- a_renderer_shared_between_planners_never_draws_a_stale_atlas stdout ----
-2026-11-02T10:02:17.5303374Z 
-2026-11-02T10:02:17.5303973Z thread 'a_renderer_shared_between_planners_never_draws_a_stale_atlas' (4404) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:846:9:
-2026-11-02T10:02:17.5305014Z assertion `left == right` failed: planner 0: 64 pixels drawn against a stale atlas
-2026-11-02T10:02:17.5305598Z   left: 64
-2026-11-02T10:02:17.5305864Z  right: 0
-2026-11-02T10:02:17.5306125Z stack backtrace:
-2026-11-02T10:02:17.5306440Z    0: __rustc::rust_begin_unwind
-2026-11-02T10:02:17.5307257Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
-2026-11-02T10:02:17.5307947Z    1: core::panicking::panic_fmt
-2026-11-02T10:02:17.5308573Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
-2026-11-02T10:02:17.5309289Z    2: core::panicking::assert_failed_inner
-2026-11-02T10:02:17.5309964Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:434:23
-2026-11-02T10:02:17.5310848Z    3: core::panicking::assert_failed::<usize, usize>
-2026-11-02T10:02:17.5311573Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:394:5
-2026-11-02T10:02:17.5312390Z    4: a_renderer_shared_between_planners_never_draws_a_stale_atlas
-2026-11-02T10:02:17.5312995Z              at ./tests/vulkan_compositor.rs:846:9
-2026-11-02T10:02:17.5313391Z    5: {closure#0}
-2026-11-02T10:02:17.5313735Z              at ./tests/vulkan_compositor.rs:805:66
-2026-11-02T10:02:17.5314490Z    6: call_once<vulkan_compositor::a_renderer_shared_between_planners_never_draws_a_stale_atlas::{closure_env#0}, ()>
-2026-11-02T10:02:17.5315557Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-11-02T10:02:17.5316489Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-2026-11-02T10:02:17.5317481Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-11-02T10:02:17.5318322Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-11-02T10:02:17.5318784Z 
-2026-11-02T10:02:17.5318988Z ---- a_shadow_inside_a_translucent_layer_matches stdout ----
-2026-11-02T10:02:17.5319739Z shadow-in-layer: max channel diff 43 at (95, 67) gpu=[127, 177, 147, 255] cpu=[84, 159, 113, 255]; 6716 px over 2
-2026-11-02T10:02:17.5320516Z 
-2026-11-02T10:02:17.5321087Z thread 'a_shadow_inside_a_translucent_layer_matches' (4415) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:113:5:
-2026-11-02T10:02:17.5322284Z shadow-in-layer: 6716 pixels differ by more than 2 (allowed 0); worst 43 at (95, 67) gpu=[127, 177, 147, 255] cpu=[84, 159, 113, 255]
-2026-11-02T10:02:17.5322989Z stack backtrace:
-2026-11-02T10:02:17.5323315Z    0: __rustc::rust_begin_unwind
-2026-11-02T10:02:17.5323880Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
-2026-11-02T10:02:17.5324487Z    1: core::panicking::panic_fmt
-2026-11-02T10:02:17.5325054Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
-2026-11-02T10:02:17.5325663Z    2: assert_parity
-2026-11-02T10:02:17.5325977Z              at ./tests/vulkan_compositor.rs:113:5
-2026-11-02T10:02:17.5326461Z    3: a_shadow_inside_a_translucent_layer_matches
-2026-11-02T10:02:17.5326943Z              at ./tests/vulkan_compositor.rs:541:5
-2026-11-02T10:02:17.5327367Z    4: {closure#0}
-2026-11-02T10:02:17.5327705Z              at ./tests/vulkan_compositor.rs:516:49
-2026-11-02T10:02:17.5328420Z    5: call_once<vulkan_compositor::a_shadow_inside_a_translucent_layer_matches::{closure_env#0}, ()>
-2026-11-02T10:02:17.5329644Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-11-02T10:02:17.5330902Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-2026-11-02T10:02:17.5331869Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-11-02T10:02:17.5332778Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-11-02T10:02:17.5333265Z 
-2026-11-02T10:02:17.5333428Z ---- every_shadow_variant_matches stdout ----
-2026-11-02T10:02:17.5334112Z shadow-outer: max channel diff 32 at (51, 25) gpu=[178, 183, 191, 255] cpu=[210, 212, 218, 255]; 7928 px over 2
-2026-11-02T10:02:17.5334632Z 
-2026-11-02T10:02:17.5335249Z thread 'every_shadow_variant_matches' (4730) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:113:5:
-2026-11-02T10:02:17.5336366Z shadow-outer: 7928 pixels differ by more than 2 (allowed 0); worst 32 at (51, 25) gpu=[178, 183, 191, 255] cpu=[210, 212, 218, 255]
-2026-11-02T10:02:17.5337148Z stack backtrace:
-2026-11-02T10:02:17.5337488Z    0: __rustc::rust_begin_unwind
-2026-11-02T10:02:17.5338135Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
-2026-11-02T10:02:17.5338845Z    1: core::panicking::panic_fmt
-2026-11-02T10:02:17.5339447Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
-2026-11-02T10:02:17.5340085Z    2: assert_parity
-2026-11-02T10:02:17.5340559Z              at ./tests/vulkan_compositor.rs:113:5
-2026-11-02T10:02:17.5341007Z    3: every_shadow_variant_matches
-2026-11-02T10:02:17.5341412Z              at ./tests/vulkan_compositor.rs:504:9
-2026-11-02T10:02:17.5341820Z    4: {closure#0}
-2026-11-02T10:02:17.5342154Z              at ./tests/vulkan_compositor.rs:455:34
-2026-11-02T10:02:17.5342778Z    5: call_once<vulkan_compositor::every_shadow_variant_matches::{closure_env#0}, ()>
-2026-11-02T10:02:17.5343653Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-11-02T10:02:17.5344614Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-2026-11-02T10:02:17.5345549Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-11-02T10:02:17.5346452Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-11-02T10:02:17.5346949Z 
-2026-11-02T10:02:17.5347174Z ---- shaped_clips_on_draws_and_on_layers_match stdout ----
-2026-11-02T10:02:17.5347934Z shaped-clips: max channel diff 52 at (87, 8) gpu=[145, 210, 170, 255] cpu=[93, 190, 130, 255]; 419 px over 2
-2026-11-02T10:02:17.5348480Z 
-2026-11-02T10:02:17.5349026Z thread 'shaped_clips_on_draws_and_on_layers_match' (4896) panicked at crates/vieww-hal/tests/vulkan_compositor.rs:113:5:
-2026-11-02T10:02:17.5350207Z shaped-clips: 419 pixels differ by more than 2 (allowed 0); worst 52 at (87, 8) gpu=[145, 210, 170, 255] cpu=[93, 190, 130, 255]
-2026-11-02T10:02:17.5351122Z stack backtrace:
-2026-11-02T10:02:17.5351441Z    0: __rustc::rust_begin_unwind
-2026-11-02T10:02:17.5352079Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
-2026-11-02T10:02:17.5352777Z    1: core::panicking::panic_fmt
-2026-11-02T10:02:17.5353455Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
-2026-11-02T10:02:17.5354170Z    2: assert_parity
-2026-11-02T10:02:17.5354538Z              at ./tests/vulkan_compositor.rs:113:5
-2026-11-02T10:02:17.5355030Z    3: shaped_clips_on_draws_and_on_layers_match
-2026-11-02T10:02:17.5355507Z              at ./tests/vulkan_compositor.rs:432:5
-2026-11-02T10:02:17.5355945Z    4: {closure#0}
-2026-11-02T10:02:17.5356292Z              at ./tests/vulkan_compositor.rs:387:47
-2026-11-02T10:02:17.5357042Z    5: call_once<vulkan_compositor::shaped_clips_on_draws_and_on_layers_match::{closure_env#0}, ()>
-2026-11-02T10:02:17.5358115Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-11-02T10:02:17.5359002Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
-2026-11-02T10:02:17.5359869Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
-2026-11-02T10:02:17.5360915Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-11-02T10:02:17.5361449Z 
-2026-11-02T10:02:17.5361456Z 
-2026-11-02T10:02:17.5361573Z failures:
-2026-11-02T10:02:17.5362029Z     a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp
-2026-11-02T10:02:17.5362712Z     a_renderer_shared_between_planners_never_draws_a_stale_atlas
-2026-11-02T10:02:17.5363464Z     a_shadow_inside_a_translucent_layer_matches
-2026-11-02T10:02:17.5363915Z     every_shadow_variant_matches
-2026-11-02T10:02:17.5364323Z     shaped_clips_on_draws_and_on_layers_match
-2026-11-02T10:02:17.5364622Z 
-2026-11-02T10:02:17.5365034Z test result: FAILED. 12 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.86s
-2026-11-02T10:02:17.5365586Z 
-2026-11-02T10:02:17.5431311Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-hal --test vulkan_compositor`
-2026-11-02T10:02:17.5669601Z ##[error]Process completed with exit code 101.
-
-===== Coverage floor	Coverage =====
-2026-11-02T10:04:19.3960000Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
-2026-11-02T10:04:31.5200568Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
-2026-11-02T10:04:32.8561343Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
-2026-11-02T10:04:37.5340496Z ^[[1m^[[92m   Compiling^[[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
-2026-11-02T10:04:38.1429860Z ^[[1m^[[92m   Compiling^[[0m byteorder-lite v0.1.0
-2026-11-02T10:04:38.4220959Z ^[[1m^[[92m   Compiling^[[0m image v0.25.10
-2026-11-02T10:04:38.9681123Z ^[[1m^[[92m   Compiling^[[0m vieww-video v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-video)
-2026-11-02T10:04:42.0296989Z ^[[1m^[[92m   Compiling^[[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
-2026-11-02T10:04:46.1480511Z ^[[1m^[[92m   Compiling^[[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
-2026-11-02T10:04:46.2110662Z ^[[1m^[[92m   Compiling^[[0m vieww-asset v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
-2026-11-02T10:04:46.8420558Z ^[[1m^[[92m   Compiling^[[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
-2026-11-02T10:04:47.1730902Z ^[[1m^[[92m   Compiling^[[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
-2026-11-02T10:04:53.4760878Z ^[[1m^[[92m   Compiling^[[0m vieww-spatial v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-spatial)
-2026-11-02T10:04:53.7920438Z ^[[1m^[[92m   Compiling^[[0m vieww-physics v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-physics)
-2026-11-02T10:04:54.4590397Z ^[[1m^[[92m   Compiling^[[0m vieww-network v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-network)
-2026-11-02T10:04:55.2277110Z ^[[1m^[[92m   Compiling^[[0m foldhash v0.2.0
-2026-11-02T10:04:55.4119879Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
-2026-11-02T10:04:56.1186926Z ^[[1m^[[92m   Compiling^[[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
-2026-11-02T10:04:56.1870271Z ^[[1m^[[92m   Compiling^[[0m equivalent v1.0.2
-2026-11-02T10:04:56.2070098Z ^[[1m^[[92m   Compiling^[[0m libloading v0.8.9
-2026-11-02T10:04:56.2310488Z ^[[1m^[[92m   Compiling^[[0m indexmap v2.14.2
-2026-11-02T10:04:56.4210186Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
-2026-11-02T10:04:56.8020237Z ^[[1m^[[92m   Compiling^[[0m zerocopy-derive v0.8.59
-2026-11-02T10:04:57.1770763Z ^[[1m^[[92m   Compiling^[[0m serde_derive v1.0.229
-2026-11-02T10:04:57.3905525Z ^[[1m^[[92m   Compiling^[[0m arrayvec v0.7.8
-2026-11-02T10:04:57.6015803Z ^[[1m^[[92m   Compiling^[[0m cfg_aliases v0.2.2
-2026-11-02T10:04:57.6455482Z ^[[1m^[[92m   Compiling^[[0m serde_core v1.0.229
-2026-11-02T10:05:00.8669971Z ^[[1m^[[92m   Compiling^[[0m thiserror v2.0.21
-2026-11-02T10:05:01.5790117Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v2.0.21
-2026-11-02T10:05:17.1910101Z ^[[1m^[[92m   Compiling^[[0m euclid v0.22.14
-2026-11-02T10:05:17.8890551Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v1.1.0
-2026-11-02T10:05:17.9860478Z ^[[1m^[[92m   Compiling^[[0m lyon_geom v1.0.19
-2026-11-02T10:05:18.0219987Z ^[[1m^[[92m   Compiling^[[0m bit-vec v0.9.1
-2026-11-02T10:05:18.3300432Z ^[[1m^[[92m   Compiling^[[0m serde v1.0.229
-2026-11-02T10:05:18.4820076Z ^[[1m^[[92m   Compiling^[[0m unicode-width v0.2.2
-2026-11-02T10:05:18.7100234Z ^[[1m^[[92m   Compiling^[[0m codespan-reporting v0.13.1
-2026-11-02T10:05:18.7580120Z ^[[1m^[[92m   Compiling^[[0m lyon_path v1.0.19
-2026-11-02T10:05:18.8700085Z ^[[1m^[[92m   Compiling^[[0m bit-set v0.10.0
-2026-11-02T10:05:19.8782280Z ^[[1m^[[92m   Compiling^[[0m half v2.7.1
-2026-11-02T10:05:19.8910047Z ^[[1m^[[92m   Compiling^[[0m naga v30.0.1
-2026-11-02T10:05:19.9484277Z ^[[1m^[[92m   Compiling^[[0m float_next_after v1.0.0
-2026-11-02T10:05:20.0140153Z ^[[1m^[[92m   Compiling^[[0m lyon_tessellation v1.0.22
-2026-11-02T10:05:20.2730560Z ^[[1m^[[92m   Compiling^[[0m spirv v0.4.0+sdk-1.4.341.0
-2026-11-02T10:05:20.8410138Z ^[[1m^[[92m   Compiling^[[0m naga-types v30.0.1
-2026-11-02T10:05:21.3780031Z ^[[1m^[[92m   Compiling^[[0m rustix v1.1.5
-2026-11-02T10:05:23.5229987Z ^[[1m^[[92m   Compiling^[[0m blake3 v1.8.7
-2026-11-02T10:05:24.3620055Z ^[[1m^[[92m   Compiling^[[0m linux-raw-sys v0.12.1
-2026-11-02T10:05:24.3705225Z ^[[1m^[[92m   Compiling^[[0m raw-window-handle v0.6.2
-2026-11-02T10:05:24.8090733Z ^[[1m^[[92m   Compiling^[[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
-2026-11-02T10:05:27.4880229Z ^[[1m^[[92m   Compiling^[[0m ash v0.38.0+1.3.281
-2026-11-02T10:05:27.5830114Z ^[[1m^[[92m   Compiling^[[0m cpufeatures v0.3.1
-2026-11-02T10:05:27.6310997Z ^[[1m^[[92m   Compiling^[[0m constant_time_eq v0.4.2
-2026-11-02T10:05:36.5640241Z ^[[1m^[[92m   Compiling^[[0m pin-project-lite v0.2.17
-2026-11-02T10:05:36.6234475Z ^[[1m^[[92m   Compiling^[[0m winnow v1.0.4
-2026-11-02T10:05:39.2200404Z ^[[1m^[[92m   Compiling^[[0m pkg-config v0.3.34
-2026-11-02T10:05:42.0420357Z ^[[1m^[[92m   Compiling^[[0m toml_parser v1.1.3+spec-1.1.0
-2026-11-02T10:05:43.6590479Z ^[[1m^[[92m   Compiling^[[0m toml_datetime v1.1.1+spec-1.1.0
-2026-11-02T10:05:43.9960052Z ^[[1m^[[92m   Compiling^[[0m toml_edit v0.25.15+spec-1.1.0
-2026-11-02T10:05:47.6363569Z ^[[1m^[[92m   Compiling^[[0m ash-window v0.13.0
-2026-11-02T10:05:47.7620202Z ^[[1m^[[92m   Compiling^[[0m enumflags2_derive v0.7.12
-2026-11-02T10:05:49.2860695Z ^[[1m^[[92m   Compiling^[[0m proc-macro-crate v3.5.0
-2026-11-02T10:05:51.6140114Z ^[[1m^[[92m   Compiling^[[0m zvariant_utils v4.2.0
-2026-11-02T10:05:52.3791732Z ^[[1m^[[92m   Compiling^[[0m memchr v2.8.3
-2026-11-02T10:05:53.9100585Z ^[[1m^[[92m   Compiling^[[0m parking v2.2.1
-2026-11-02T10:05:54.0610693Z ^[[1m^[[92m   Compiling^[[0m futures-core v0.3.34
-2026-11-02T10:05:54.1830075Z ^[[1m^[[92m   Compiling^[[0m slab v0.4.12
-2026-11-02T10:05:54.3410118Z ^[[1m^[[92m   Compiling^[[0m endi v1.1.1
-2026-11-02T10:05:54.4690742Z ^[[1m^[[92m   Compiling^[[0m crossbeam-utils v0.8.23
-2026-11-02T10:05:54.8740067Z ^[[1m^[[92m   Compiling^[[0m wayland-sys v0.31.11
-2026-11-02T10:05:55.1030633Z ^[[1m^[[92m   Compiling^[[0m polling v3.11.0
-2026-11-02T10:05:55.6600094Z ^[[1m^[[92m   Compiling^[[0m dlib v0.5.3
-2026-11-02T10:05:55.7330061Z ^[[1m^[[92m   Compiling^[[0m fastrand v2.5.0
-2026-11-02T10:05:56.3800106Z ^[[1m^[[92m   Compiling^[[0m wayland-backend v0.3.17
-2026-11-02T10:05:56.5980452Z ^[[1m^[[92m   Compiling^[[0m futures-io v0.3.34
-2026-11-02T10:05:56.7940685Z ^[[1m^[[92m   Compiling^[[0m concurrent-queue v2.5.0
-2026-11-02T10:05:57.8340297Z ^[[1m^[[92m   Compiling^[[0m event-listener v5.4.2
-2026-11-02T10:05:58.0960344Z ^[[1m^[[92m   Compiling^[[0m enumflags2 v0.7.12
-2026-11-02T10:05:58.2550833Z ^[[1m^[[92m   Compiling^[[0m zcheapstr v1.1.0
-2026-11-02T10:05:58.4680276Z ^[[1m^[[92m   Compiling^[[0m scoped-tls v1.0.1
-2026-11-02T10:05:58.5350032Z ^[[1m^[[92m   Compiling^[[0m downcast-rs v1.2.1
-2026-11-02T10:06:03.7212385Z ^[[1m^[[92m   Compiling^[[0m event-listener-strategy v0.5.4
-2026-11-02T10:06:03.8169961Z ^[[1m^[[92m   Compiling^[[0m futures-lite v2.6.1
-2026-11-02T10:06:04.7990852Z ^[[1m^[[92m   Compiling^[[0m quick-xml v0.41.0
-2026-11-02T10:06:08.7950593Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
-2026-11-02T10:06:10.0010288Z ^[[1m^[[92m   Compiling^[[0m zvariant_derive v5.15.0
-2026-11-02T10:06:12.9760734Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
-2026-11-02T10:06:13.4010483Z ^[[1m^[[92m   Compiling^[[0m zvariant v5.15.0
-2026-11-02T10:06:20.2807324Z ^[[1m^[[92m   Compiling^[[0m wayland-client v0.31.15
-2026-11-02T10:06:20.4060018Z ^[[1m^[[92m   Compiling^[[0m zbus_names v4.3.4
-2026-11-02T10:06:21.8840272Z ^[[1m^[[92m   Compiling^[[0m wayland-scanner v0.31.11
-2026-11-02T10:06:29.8110189Z ^[[1m^[[92m   Compiling^[[0m tracing-attributes v0.1.31
-2026-11-02T10:06:39.7735620Z ^[[1m^[[92m   Compiling^[[0m async-io v2.6.0
-2026-11-02T10:06:39.9389912Z ^[[1m^[[92m   Compiling^[[0m tracing-core v0.1.36
-2026-11-02T10:06:42.8680054Z ^[[1m^[[92m   Compiling^[[0m tracing v0.1.44
-2026-11-02T10:06:48.1228796Z ^[[1m^[[92m   Compiling^[[0m errno v0.3.14
-2026-11-02T10:06:48.2720408Z ^[[1m^[[92m   Compiling^[[0m async-task v4.7.1
-2026-11-02T10:06:48.4619355Z ^[[1m^[[92m   Compiling^[[0m signal-hook-registry v1.4.8
-2026-11-02T10:06:51.3365368Z ^[[1m^[[92m   Compiling^[[0m async-channel v2.5.0
-2026-11-02T10:06:51.3673644Z ^[[1m^[[92m   Compiling^[[0m uuid v1.26.1
-2026-11-02T10:06:51.5340972Z ^[[1m^[[92m   Compiling^[[0m vieww-scene v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
-2026-11-02T10:06:52.1250243Z ^[[1m^[[92m   Compiling^[[0m atomic-waker v1.1.2
-2026-11-02T10:06:52.2050508Z ^[[1m^[[92m   Compiling^[[0m piper v0.2.5
-2026-11-02T10:06:52.2159984Z ^[[1m^[[92m   Compiling^[[0m async-signal v0.2.14
-2026-11-02T10:06:52.2243587Z ^[[1m^[[92m   Compiling^[[0m zbus_xml v5.2.1
-2026-11-02T10:06:52.5362378Z ^[[1m^[[92m   Compiling^[[0m async-lock v3.4.2
-2026-11-02T10:06:52.6193176Z ^[[1m^[[92m   Compiling^[[0m rustix v0.38.44
-2026-11-02T10:06:53.1280735Z ^[[1m^[[92m   Compiling^[[0m siphasher v1.0.4
-2026-11-02T10:06:53.2790057Z ^[[1m^[[92m   Compiling^[[0m thiserror v1.0.69
-2026-11-02T10:06:53.3840520Z ^[[1m^[[92m   Compiling^[[0m async-process v2.5.0
-2026-11-02T10:06:53.3997294Z ^[[1m^[[92m   Compiling^[[0m zbus-lockstep v0.5.2
-2026-11-02T10:06:53.7179945Z ^[[1m^[[92m   Compiling^[[0m blocking v1.7.0
-2026-11-02T10:06:53.7265931Z ^[[1m^[[92m   Compiling^[[0m vieww-render-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
-2026-11-02T10:06:54.6970005Z ^[[1m^[[92m   Compiling^[[0m async-executor v1.14.0
-2026-11-02T10:06:55.6160782Z ^[[1m^[[92m   Compiling^[[0m zbus_macros v5.19.0
-2026-11-02T10:06:56.5620110Z ^[[1m^[[92m   Compiling^[[0m async-broadcast v0.7.2
-2026-11-02T10:06:56.7920184Z ^[[1m^[[92m   Compiling^[[0m ordered-stream v0.2.0
-2026-11-02T10:06:57.1020650Z ^[[1m^[[92m   Compiling^[[0m thiserror-impl v1.0.69
-2026-11-02T10:06:57.9860114Z ^[[1m^[[92m   Compiling^[[0m async-recursion v1.1.1
-2026-11-02T10:07:00.0320198Z ^[[1m^[[92m   Compiling^[[0m serde_repr v0.1.21
-2026-11-02T10:07:05.2340307Z ^[[1m^[[92m   Compiling^[[0m async-trait v0.1.92
-2026-11-02T10:07:05.2736227Z ^[[1m^[[92m   Compiling^[[0m linux-raw-sys v0.4.15
-2026-11-02T10:07:05.6270949Z ^[[1m^[[92m   Compiling^[[0m hex v0.4.3
-2026-11-02T10:07:08.7770231Z ^[[1m^[[92m   Compiling^[[0m zbus-lockstep-macros v0.5.2
-2026-11-02T10:07:13.2915837Z ^[[1m^[[92m   Compiling^[[0m phf_shared v0.14.0
-2026-11-02T10:07:13.6560291Z ^[[1m^[[92m   Compiling^[[0m wayland-protocols v0.32.13
-2026-11-02T10:07:14.4400563Z ^[[1m^[[92m   Compiling^[[0m static_assertions v1.1.0
-2026-11-02T10:07:14.6210195Z ^[[1m^[[92m   Compiling^[[0m as-raw-xcb-connection v1.0.1
-2026-11-02T10:07:14.6820084Z ^[[1m^[[92m   Compiling^[[0m phf_generator v0.14.0
-2026-11-02T10:07:15.1440281Z ^[[1m^[[92m   Compiling^[[0m calloop v0.13.0
-2026-11-02T10:07:16.8369890Z ^[[1m^[[92m   Compiling^[[0m gethostname v1.1.0
-2026-11-02T10:07:16.9370119Z ^[[1m^[[92m   Compiling^[[0m smithay-client-toolkit v0.19.2
-2026-11-02T10:07:17.0220344Z ^[[1m^[[92m   Compiling^[[0m strict-num v0.1.1
-2026-11-02T10:07:17.1190278Z ^[[1m^[[92m   Compiling^[[0m cursor-icon v1.2.0
-2026-11-02T10:07:17.2340073Z ^[[1m^[[92m   Compiling^[[0m getrandom v0.3.4
-2026-11-02T10:07:17.6890617Z ^[[1m^[[92m   Compiling^[[0m arrayref v0.3.9
-2026-11-02T10:07:17.7345636Z ^[[1m^[[92m   Compiling^[[0m x11rb-protocol v0.13.2
-2026-11-02T10:07:21.5810037Z ^[[1m^[[92m   Compiling^[[0m xcursor v0.3.11
-2026-11-02T10:07:21.9150709Z ^[[1m^[[92m   Compiling^[[0m zbus v5.19.0
-2026-11-02T10:07:22.9519990Z ^[[1m^[[92m   Compiling^[[0m xkeysym v0.2.1
-2026-11-02T10:07:25.5035041Z ^[[1m^[[92m   Compiling^[[0m wayland-cursor v0.31.14
-2026-11-02T10:07:26.7160112Z ^[[1m^[[92m   Compiling^[[0m wayland-protocols-wlr v0.3.12
-2026-11-02T10:07:33.3141348Z ^[[1m^[[92m   Compiling^[[0m atspi-common v0.13.0
-2026-11-02T10:07:42.3300109Z ^[[1m^[[92m   Compiling^[[0m x11rb v0.13.2
-2026-11-02T10:07:46.7860019Z ^[[1m^[[92m   Compiling^[[0m tiny-skia-path v0.11.4
-2026-11-02T10:07:48.9940691Z ^[[1m^[[92m   Compiling^[[0m wayland-csd-frame v0.3.0
-2026-11-02T10:07:49.5030130Z ^[[1m^[[92m   Compiling^[[0m calloop-wayland-source v0.3.0
-2026-11-02T10:07:49.6220470Z ^[[1m^[[92m   Compiling^[[0m phf_macros v0.14.0
-2026-11-02T10:07:56.6790031Z ^[[1m^[[92m   Compiling^[[0m accesskit v0.25.1
-2026-11-02T10:07:57.6600415Z ^[[1m^[[92m   Compiling^[[0m x11-dl v2.21.0
-2026-11-02T10:07:57.9990462Z ^[[1m^[[92m   Compiling^[[0m ahash v0.8.12
-2026-11-02T10:07:58.0160198Z ^[[1m^[[92m   Compiling^[[0m owned_ttf_parser v0.25.1
-2026-11-02T10:07:58.1520741Z ^[[1m^[[92m   Compiling^[[0m ab_glyph_rasterizer v0.1.10
-2026-11-02T10:07:58.4000271Z ^[[1m^[[92m   Compiling^[[0m parking_lot_core v0.9.12
-2026-11-02T10:07:58.4450222Z ^[[1m^[[92m   Compiling^[[0m ab_glyph v0.2.32
-2026-11-02T10:07:58.7290136Z ^[[1m^[[92m   Compiling^[[0m accesskit_consumer v0.39.1
-2026-11-02T10:08:00.2230073Z ^[[1m^[[92m   Compiling^[[0m phf v0.14.0
-2026-11-02T10:08:04.9009944Z ^[[1m^[[92m   Compiling^[[0m tiny-skia v0.11.4
-2026-11-02T10:08:05.0290249Z ^[[1m^[[92m   Compiling^[[0m atspi-proxies v0.13.0
-2026-11-02T10:08:07.8821374Z ^[[1m^[[92m   Compiling^[[0m vieww-render-planner v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
-2026-11-02T10:08:08.3479955Z ^[[1m^[[92m   Compiling^[[0m tiny-xlib v0.2.5
-2026-11-02T10:08:08.7422566Z ^[[1m^[[92m   Compiling^[[0m winit v0.30.13
-2026-11-02T10:08:08.7940765Z ^[[1m^[[92m   Compiling^[[0m futures-macro v0.3.34
-2026-11-02T10:08:09.6040158Z ^[[1m^[[92m   Compiling^[[0m percent-encoding v2.3.2
-2026-11-02T10:08:09.9100075Z ^[[1m^[[92m   Compiling^[[0m futures-task v0.3.34
-2026-11-02T10:08:10.0370710Z ^[[1m^[[92m   Compiling^[[0m scopeguard v1.2.0
-2026-11-02T10:08:10.0920181Z ^[[1m^[[92m   Compiling^[[0m lock_api v0.4.14
-2026-11-02T10:08:10.3550047Z ^[[1m^[[92m   Compiling^[[0m atspi v0.29.0
-2026-11-02T10:08:10.4160166Z ^[[1m^[[92m   Compiling^[[0m sctk-adwaita v0.10.1
-2026-11-02T10:08:13.0170158Z ^[[1m^[[92m   Compiling^[[0m accesskit_atspi_common v0.21.0
-2026-11-02T10:08:18.4589869Z ^[[1m^[[92m   Compiling^[[0m futures-util v0.3.34
-2026-11-02T10:08:18.7286141Z ^[[1m^[[92m   Compiling^[[0m xkbcommon-dl v0.4.2
-2026-11-02T10:08:18.7420060Z ^[[1m^[[92m   Compiling^[[0m wayland-protocols-plasma v0.3.12
-2026-11-02T10:08:20.2454411Z ^[[1m^[[92m   Compiling^[[0m dpi v0.1.2
-2026-11-02T10:08:20.4170037Z ^[[1m^[[92m   Compiling^[[0m ctor v0.10.1
-2026-11-02T10:08:20.4657730Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.2.2
-2026-11-02T10:08:20.8070541Z ^[[1m^[[92m   Compiling^[[0m accesskit_unix v0.24.0
-2026-11-02T10:08:23.1810022Z ^[[1m^[[92m   Compiling^[[0m parking_lot v0.12.5
-2026-11-02T10:08:24.5350040Z ^[[1m^[[92m   Compiling^[[0m arboard v3.6.1
-2026-11-02T10:08:32.8550380Z ^[[1m^[[92m   Compiling^[[0m accesskit_winit v0.34.1
-2026-11-02T10:08:33.2629962Z ^[[1m^[[92m   Compiling^[[0m softbuffer v0.4.8
-2026-11-02T10:08:34.1450105Z ^[[1m^[[92m   Compiling^[[0m vieww-platform-winit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
-2026-11-02T10:08:34.9537499Z ^[[1m^[[92m   Compiling^[[0m vieww-test-harness v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-test-harness)
-2026-11-02T10:08:35.8326839Z ^[[1m^[[92m   Compiling^[[0m zmij v1.0.23
-2026-11-02T10:08:36.2191733Z ^[[1m^[[92m   Compiling^[[0m feature-harness v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/harness)
-2026-11-02T10:08:37.5560092Z ^[[1m^[[92m   Compiling^[[0m itoa v1.0.18
-2026-11-02T10:08:39.7335162Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-language v0.1.8
-2026-11-02T10:08:39.9306638Z ^[[1m^[[92m   Compiling^[[0m aho-corasick v1.1.5
-2026-11-02T10:08:41.1520485Z ^[[1m^[[92m   Compiling^[[0m serde_json v1.0.151
-2026-11-02T10:08:41.2670186Z ^[[1m^[[92m   Compiling^[[0m regex-syntax v0.8.11
-2026-11-02T10:08:49.9240094Z ^[[1m^[[92m   Compiling^[[0m regex-automata v0.4.18
-2026-11-02T10:08:53.3570015Z ^[[1m^[[92m   Compiling^[[0m regex v1.13.1
-2026-11-02T10:08:55.2050661Z ^[[1m^[[92m   Compiling^[[0m vieww-say-codegen v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-say-codegen)
-2026-11-02T10:08:55.6666524Z ^[[1m^[[92m   Compiling^[[0m tree-sitter v0.26.13
-2026-11-02T10:08:57.4601036Z ^[[1m^[[92m   Compiling^[[0m vieww-hardware v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
-2026-11-02T10:08:58.2160228Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-rust v0.24.2
-2026-11-02T10:08:58.4520873Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-json v0.24.8
-2026-11-02T10:08:58.6810273Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-toml-ng v0.7.0
-2026-11-02T10:08:58.9240272Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-yaml v0.7.2
-2026-11-02T10:08:59.1920693Z ^[[1m^[[92m   Compiling^[[0m tree-sitter-md v0.5.3
-2026-11-02T10:09:04.9030086Z ^[[1m^[[92m   Compiling^[[0m streaming-iterator v0.1.9
-2026-11-02T10:09:05.1942164Z ^[[1m^[[92m   Compiling^[[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
-2026-11-02T10:09:06.9807498Z ^[[1m^[[92m   Compiling^[[0m weezl v0.1.12
-2026-11-02T10:09:08.6490141Z ^[[1m^[[92m   Compiling^[[0m color_quant v1.1.0
-2026-11-02T10:09:09.0550097Z ^[[1m^[[92m   Compiling^[[0m gif v0.14.2
-2026-11-02T10:09:09.2690714Z ^[[1m^[[92m   Compiling^[[0m u-core v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-core)
-2026-11-02T10:09:10.1390209Z ^[[1m^[[92m   Compiling^[[0m utf8parse v0.2.2
-2026-11-02T10:09:10.1989978Z ^[[1m^[[92m   Compiling^[[0m anstyle-parse v1.0.0
-2026-11-02T10:09:10.3779997Z ^[[1m^[[92m   Compiling^[[0m anstyle-query v1.1.5
-2026-11-02T10:09:10.4390015Z ^[[1m^[[92m   Compiling^[[0m anstyle v1.0.14
-2026-11-02T10:09:10.6910159Z ^[[1m^[[92m   Compiling^[[0m is_terminal_polyfill v1.70.2
-2026-11-02T10:09:10.7410396Z ^[[1m^[[92m   Compiling^[[0m colorchoice v1.0.5
-2026-11-02T10:09:10.8059979Z ^[[1m^[[92m   Compiling^[[0m anstream v1.0.0
-2026-11-02T10:09:11.3379337Z ^[[1m^[[92m   Compiling^[[0m vieww-3d v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-3d)
-2026-11-02T10:09:12.2490112Z ^[[1m^[[92m   Compiling^[[0m clap_lex v1.1.1
-2026-11-02T10:09:12.6650161Z ^[[1m^[[92m   Compiling^[[0m heck v0.5.0
-2026-11-02T10:09:13.1191349Z ^[[1m^[[92m   Compiling^[[0m strsim v0.11.1
-2026-11-02T10:09:13.4383492Z ^[[1m^[[92m   Compiling^[[0m clap_derive v4.6.7
-2026-11-02T10:09:14.1840651Z ^[[1m^[[92m   Compiling^[[0m clap_builder v4.6.7
-2026-11-02T10:09:14.7231420Z ^[[1m^[[92m   Compiling^[[0m u-persona v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-persona)
-2026-11-02T10:09:15.2540747Z ^[[1m^[[92m   Compiling^[[0m wright-core v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/core)
-2026-11-02T10:09:28.5860667Z ^[[1m^[[92m   Compiling^[[0m wright-runtime v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/runtime)
-2026-11-02T10:09:31.8270025Z ^[[1m^[[92m   Compiling^[[0m clap v4.6.7
-2026-11-02T10:09:31.8760626Z ^[[1m^[[92m   Compiling^[[0m u-decision v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision)
-2026-11-02T10:09:32.8039866Z ^[[1m^[[92m   Compiling^[[0m alloca v0.4.0
-2026-11-02T10:09:33.0280123Z ^[[1m^[[92m   Compiling^[[0m either v1.18.0
-2026-11-02T10:09:33.2349975Z ^[[1m^[[92m   Compiling^[[0m ciborium-io v0.2.2
-2026-11-02T10:09:33.2860164Z ^[[1m^[[92m   Compiling^[[0m android-build v0.1.4
-2026-11-02T10:09:34.6572113Z ^[[1m^[[92m   Compiling^[[0m ciborium-ll v0.2.2
-2026-11-02T10:09:34.9000310Z ^[[1m^[[92m   Compiling^[[0m itertools v0.13.0
-2026-11-02T10:09:35.1510324Z ^[[1m^[[92m   Compiling^[[0m u v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u)
-2026-11-02T10:09:35.8430466Z ^[[1m^[[92m   Compiling^[[0m vieww-build v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-build)
-2026-11-02T10:09:36.5990232Z ^[[1m^[[92m   Compiling^[[0m cast v0.3.0
-2026-11-02T10:09:36.7391191Z ^[[1m^[[92m   Compiling^[[0m same-file v1.0.6
-2026-11-02T10:09:36.8420047Z ^[[1m^[[92m   Compiling^[[0m walkdir v2.5.0
-2026-11-02T10:09:36.9080176Z ^[[1m^[[92m   Compiling^[[0m criterion-plot v0.8.2
-2026-11-02T10:09:38.1100185Z ^[[1m^[[92m   Compiling^[[0m ciborium v0.2.2
-2026-11-02T10:09:38.6991009Z ^[[1m^[[92m   Compiling^[[0m u-ml-runtime v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-ml-runtime)
-2026-11-02T10:09:39.2470582Z ^[[1m^[[92m   Compiling^[[0m wright-tools v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/tools)
-2026-11-02T10:09:40.2400179Z ^[[1m^[[92m   Compiling^[[0m wright-agents v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/agents)
-2026-11-02T10:09:40.3080716Z ^[[1m^[[92m   Compiling^[[0m u-memory v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-memory)
-2026-11-02T10:09:41.2190633Z ^[[1m^[[92m   Compiling^[[0m u-feedback v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-feedback)
-2026-11-02T10:09:41.5241204Z ^[[1m^[[92m   Compiling^[[0m tinytemplate v1.2.1
-2026-11-02T10:09:41.5570989Z ^[[1m^[[92m   Compiling^[[0m vieww-accessibility v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-accessibility)
-2026-11-02T10:09:41.9271171Z ^[[1m^[[92m   Compiling^[[0m vieww-plugin-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-plugin-macros)
-2026-11-02T10:09:42.3470275Z ^[[1m^[[92m   Compiling^[[0m page_size v0.6.0
-2026-11-02T10:09:42.4210608Z ^[[1m^[[92m   Compiling^[[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
-2026-11-02T10:09:42.8994475Z ^[[1m^[[92m   Compiling^[[0m anes v0.1.6
-2026-11-02T10:09:43.1620159Z ^[[1m^[[92m   Compiling^[[0m oorandom v11.1.5
-2026-11-02T10:09:43.2660128Z ^[[1m^[[92m   Compiling^[[0m criterion v0.8.2
-2026-11-02T10:09:43.6890493Z ^[[1m^[[92m   Compiling^[[0m wright-engine v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/engine)
-2026-11-02T10:09:50.0671278Z ^[[1m^[[92m   Compiling^[[0m wright-infer v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/infer)
-2026-11-02T10:09:51.6890748Z ^[[1m^[[92m   Compiling^[[0m vieww-platform-web-dom v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web-dom)
-2026-11-02T10:09:52.8360478Z ^[[1m^[[92m   Compiling^[[0m vieww-canvas v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-canvas)
-2026-11-02T10:09:54.5296926Z ^[[1m^[[92m   Compiling^[[0m vieww-audio-plugin v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-plugin)
-2026-11-02T10:09:56.2251244Z ^[[1m^[[92m   Compiling^[[0m vieww-lottie v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-lottie)
-2026-11-02T10:09:57.8433166Z ^[[1m^[[92m   Compiling^[[0m vieww-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-graph)
-2026-11-02T10:09:58.8090381Z ^[[1m^[[92m   Compiling^[[0m vieww-game v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-game)
-2026-11-02T10:10:01.6240680Z ^[[1m^[[92m   Compiling^[[0m vieww-dataviz v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-dataviz)
-2026-11-02T10:10:05.4290532Z ^[[1m^[[92m   Compiling^[[0m vieww-collab v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-collab)
-2026-11-02T10:10:06.9684481Z ^[[1m^[[92m   Compiling^[[0m film_lab v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/film_lab)
-2026-11-02T10:10:07.2700773Z ^[[1m^[[92m   Compiling^[[0m fixtures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/fixtures)
-2026-11-02T10:10:07.6880548Z ^[[1m^[[92m   Compiling^[[0m wright v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/app)
-2026-11-02T10:10:07.9551521Z ^[[1m^[[92m   Compiling^[[0m vieww-devtools v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-devtools)
-2026-11-02T10:10:09.2780707Z ^[[1m^[[92m   Compiling^[[0m vieww-plugin v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-plugin)
-2026-11-02T10:10:09.9772054Z ^[[1m^[[92m   Compiling^[[0m vieww-reload v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-reload)
-2026-11-02T10:10:10.4280664Z ^[[1m^[[92m   Compiling^[[0m vieww-music v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-music)
-2026-11-02T10:10:20.3729781Z ^[[1m^[[92m   Compiling^[[0m feature-graph-game-collab-lottie v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/88-graph-game-collab-lottie)
-2026-11-02T10:10:22.7346724Z ^[[1m^[[92m   Compiling^[[0m feature-canvas-dataviz v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/87-canvas-dataviz)
-2026-11-02T10:10:24.2730626Z ^[[1m^[[92m   Compiling^[[0m viewwsite v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwsite)
-2026-11-02T10:10:24.6950705Z ^[[1m^[[92m   Compiling^[[0m wrightsite v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wrightsite)
-2026-11-02T10:10:26.4388190Z ^[[1m^[[92m   Compiling^[[0m vieww-standard v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/vieww-standard)
-2026-11-02T10:10:27.3232833Z ^[[1m^[[92m   Compiling^[[0m feature-accessibility-audit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/55-accessibility-audit)
-2026-11-02T10:10:28.3938271Z ^[[1m^[[92m   Compiling^[[0m vieww-cli v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-cli)
-2026-11-02T10:11:24.5547426Z ^[[1m^[[92m   Compiling^[[0m feature-3d-advanced v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/85-3d-advanced)
-2026-11-02T10:11:24.5590116Z ^[[1m^[[92m   Compiling^[[0m feature-3d-scene v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/features/80-3d-scene)
-2026-11-02T10:11:29.6566683Z ^[[1m^[[92m   Compiling^[[0m test-layout-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-layout-stress)
-2026-11-02T10:11:33.3418978Z ^[[1m^[[92m   Compiling^[[0m test-scroll-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-scroll-stress)
-2026-11-02T10:11:33.7735900Z ^[[1m^[[92m   Compiling^[[0m test-premium-ui v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-premium-ui)
-2026-11-02T10:11:34.7328853Z ^[[1m^[[91merror[E0063]^[[0m^[[1m: missing field `scratch` in initializer of `target::Target`^[[0m
-2026-11-02T10:11:34.7358870Z    ^[[1m^[[94m--> ^[[0mcrates/vieww-paint/src/native/target.rs:183:9
-2026-11-02T10:11:34.7408930Z     ^[[1m^[[94m|^[[0m
-2026-11-02T10:11:34.7424168Z ^[[1m^[[94m183^[[0m ^[[1m^[[94m|^[[0m         Self {
-2026-11-02T10:11:34.7440567Z     ^[[1m^[[94m|^[[0m         ^[[1m^[[91m^^^^^[[0m ^[[1m^[[91mmissing `scratch`^[[0m
-2026-11-02T10:11:34.7442724Z 
-2026-11-02T10:11:34.7443624Z ^[[1m^[[92m   Compiling^[[0m test-gpu-work v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-gpu-work)
-2026-11-02T10:11:35.0180739Z ^[[1m^[[92m   Compiling^[[0m test-animation-stress v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-animation-stress)
-2026-11-02T10:11:35.4548324Z ^[[1m^[[92m   Compiling^[[0m test-text-fidelity v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/test-text-fidelity)
-2026-11-02T10:11:35.6842507Z ^[[1mFor more information about this error, try `rustc --explain E0063`.^[[0m
-2026-11-02T10:11:35.7176557Z error: process didn't exit successfully: `/home/runner/.rustup/toolchains/1.98.1-x86_64-unknown-linux-gnu/bin/rustc --crate-name vieww_paint --edition=2021 crates/vieww-paint/src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C opt-level=3 -C embed-bitcode=no -C debuginfo=2 --warn=unreachable_pub --warn=missing_debug_implementations '--allow=clippy::doc_markdown' -C debug-assertions=on --test --cfg 'feature="default"' --cfg 'feature="native"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("default", "native"))' -C metadata=b5c908133ced6380 -C extra-filename=-62ccd0e629f80bbe --out-dir /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps -C incremental=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/incremental -L dependency=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps --extern gif=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libgif-914b2ca7a3bfbc60.rlib --extern png=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libpng-8f0ad8df66e44ea4.rlib --extern skrifa=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libskrifa-5cec7c16d3db3a3a.rlib --extern ttf_parser=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libttf_parser-e0c1f46a3c3348e8.rlib --extern vieww_foundation=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_foundation-d56cc324eee033c1.rlib --extern vieww_text=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/debug/deps/libvieww_text-7117ace4b1278784.rlib -C prefer-dynamic -C rpath -C prefer-dynamic -C rpath -C instrument-coverage --cfg=coverage` (exit status: 1)
-2026-11-02T10:11:35.7212602Z ^[[1m^[[91merror^[[0m: could not compile `vieww-paint` (lib test) due to 1 previous error
-2026-11-02T10:11:35.7222788Z ^[[1m^[[33mwarning^[[0m: build failed, waiting for other jobs to finish...
-2026-11-02T10:11:40.0082065Z error: process didn't exit successfully: `/home/runner/.rustup/toolchains/1.98.1-x86_64-unknown-linux-gnu/bin/cargo test --tests --manifest-path /home/runner/work/vieww_prod/vieww_prod/vieww_base/Cargo.toml --target-dir /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target --workspace --features vieww-paint/native --exclude vieww-platform-winit --exclude reload-host --exclude reload-guest --exclude reload-android` (exit status: 101)
-2026-11-02T10:11:40.0157939Z 
-2026-11-02T10:11:40.0170688Z error: line coverage is below 70%.
-2026-11-02T10:11:40.0176779Z 
-2026-11-02T10:11:40.0177192Z Untested code is not automatically a defect, but it is always a decision. If the
-2026-11-02T10:11:40.0187241Z uncovered lines are a deliberate gap — a platform path this machine cannot run,
-2026-11-02T10:11:40.0194643Z a panic arm that exists to be loud — say so in TRACKER.md rather than lowering
-2026-11-02T10:11:40.0202563Z the floor quietly.
-2026-11-02T10:11:40.0770676Z ##[error]Process completed with exit code 1.
-
-===== macOS and iOS (Metal)	NEON compositing loops, bit for bit (aarch64) =====
-﻿2026-11-02T10:03:47.5714590Z ##[group]Run test "$(uname -m)" = arm64
-2026-11-02T10:03:47.5715620Z ^[[36;1mtest "$(uname -m)" = arm64^[[0m
-2026-11-02T10:03:47.5716650Z ^[[36;1mcargo test -p vieww-paint --features native --lib simd -- --nocapture^[[0m
-2026-11-02T10:03:47.6062060Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
-2026-11-02T10:03:47.6062470Z env:
-2026-11-02T10:03:47.6062680Z   CARGO_TERM_COLOR: always
-2026-11-02T10:03:47.6062960Z   RUST_BACKTRACE: 1
-2026-11-02T10:03:47.6063160Z   RUST_VERSION: 1.98.1
-2026-11-02T10:03:47.6063410Z ##[endgroup]
-2026-11-02T10:03:48.2538510Z ^[[1m^[[92m Downloading^[[0m crates ...
-2026-11-02T10:03:48.2873440Z ^[[1m^[[92m  Downloaded^[[0m gif v0.14.2
-2026-11-02T10:03:48.2925370Z ^[[1m^[[92m  Downloaded^[[0m color_quant v1.1.0
-2026-11-02T10:03:48.3256600Z ^[[1m^[[92m   Compiling^[[0m syn v3.0.6
-2026-11-02T10:03:48.3257720Z ^[[1m^[[92m   Compiling^[[0m libm v0.2.16
-2026-11-02T10:03:48.3258140Z ^[[1m^[[92m   Compiling^[[0m once_cell v1.21.4
-2026-11-02T10:03:48.4303020Z ^[[1m^[[92m   Compiling^[[0m simd-adler32 v0.3.10
-2026-11-02T10:03:48.6694180Z ^[[1m^[[92m   Compiling^[[0m libc v0.2.189
-2026-11-02T10:03:49.1542550Z ^[[1m^[[92m   Compiling^[[0m bitflags v2.13.2
-2026-11-02T10:03:49.4451650Z ^[[1m^[[92m   Compiling^[[0m core_maths v0.1.1
-2026-11-02T10:03:49.5095650Z ^[[1m^[[92m   Compiling^[[0m adler2 v2.0.1
-2026-11-02T10:03:49.6538150Z ^[[1m^[[92m   Compiling^[[0m ttf-parser v0.25.1
-2026-11-02T10:03:50.4328270Z ^[[1m^[[92m   Compiling^[[0m slotmap v1.1.1
-2026-11-02T10:03:50.7880300Z ^[[1m^[[92m   Compiling^[[0m memmap2 v0.9.11
-2026-11-02T10:03:50.9898160Z ^[[1m^[[92m   Compiling^[[0m yazi v0.2.1
-2026-11-02T10:03:52.7575190Z ^[[1m^[[92m   Compiling^[[0m log v0.4.34
-2026-11-02T10:03:52.9497650Z ^[[1m^[[92m   Compiling^[[0m smallvec v1.16.2
-2026-11-02T10:03:53.1169770Z ^[[1m^[[92m   Compiling^[[0m tinyvec v1.13.3
-2026-11-02T10:03:53.3756830Z ^[[1m^[[92m   Compiling^[[0m unicode-segmentation v1.13.3
-2026-11-02T10:03:53.9601660Z ^[[1m^[[92m   Compiling^[[0m zeno v0.3.3
-2026-11-02T10:03:54.9420270Z ^[[1m^[[92m   Compiling^[[0m cfg-if v1.0.5
-2026-11-02T10:03:54.9831040Z ^[[1m^[[92m   Compiling^[[0m crc32fast v1.5.2
-2026-11-02T10:03:55.2904570Z ^[[1m^[[92m   Compiling^[[0m fontdb v0.23.0
-2026-11-02T10:03:56.0500250Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.9.1
-2026-11-02T10:03:56.7117330Z ^[[1m^[[92m   Compiling^[[0m unicode-linebreak v0.1.5
-2026-11-02T10:03:56.9246650Z ^[[1m^[[92m   Compiling^[[0m rangemap v1.8.0
-2026-11-02T10:03:57.1916660Z ^[[1m^[[92m   Compiling^[[0m unicode-script v0.5.8
-2026-11-02T10:03:57.6116400Z ^[[1m^[[92m   Compiling^[[0m linebender_resource_handle v0.1.1
-2026-11-02T10:03:57.6834420Z ^[[1m^[[92m   Compiling^[[0m unicode-bidi v0.3.18
-2026-11-02T10:03:57.7540160Z ^[[1m^[[92m   Compiling^[[0m rustc-hash v2.1.3
-2026-11-02T10:03:57.8193500Z ^[[1m^[[92m   Compiling^[[0m self_cell v1.3.0
-2026-11-02T10:03:57.8831300Z ^[[1m^[[92m   Compiling^[[0m smol_str v0.3.6
-2026-11-02T10:03:58.1166600Z ^[[1m^[[92m   Compiling^[[0m sys-locale v0.3.2
-2026-11-02T10:03:58.1759300Z ^[[1m^[[92m   Compiling^[[0m flate2 v1.1.10
-2026-11-02T10:03:58.5788660Z ^[[1m^[[92m   Compiling^[[0m vieww-foundation v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
-2026-11-02T10:03:58.9697540Z ^[[1m^[[92m   Compiling^[[0m miniz_oxide v0.8.9
-2026-11-02T10:04:00.1596720Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
-2026-11-02T10:04:00.5489000Z ^[[1m^[[92m   Compiling^[[0m fdeflate v0.3.7
-2026-11-02T10:04:01.3572150Z ^[[1m^[[92m   Compiling^[[0m color_quant v1.1.0
-2026-11-02T10:04:01.6630420Z ^[[1m^[[92m   Compiling^[[0m weezl v0.1.12
-2026-11-02T10:04:02.9149300Z ^[[1m^[[92m   Compiling^[[0m gif v0.14.2
-2026-11-02T10:04:05.1317570Z ^[[1m^[[92m   Compiling^[[0m png v0.18.1
-2026-11-02T10:04:07.1028840Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
-2026-11-02T10:04:07.3464080Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
-2026-11-02T10:04:07.6387830Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
-2026-11-02T10:04:07.9092850Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
-2026-11-02T10:04:08.5626230Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
-2026-11-02T10:04:14.6277190Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
-2026-11-02T10:04:29.5270190Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
-2026-11-02T10:04:30.1783920Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
-2026-11-02T10:04:33.5206770Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
-2026-11-02T10:04:45.8323390Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
-2026-11-02T10:04:48.0509720Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
-2026-11-02T10:04:53.4104430Z ^[[1m^[[92m   Compiling^[[0m vieww-paint v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
-2026-11-02T10:04:54.1864420Z ^[[1m^[[91merror[E0063]^[[0m^[[1m: missing field `scratch` in initializer of `target::Target`^[[0m
-2026-11-02T10:04:54.1865300Z    ^[[1m^[[94m--> ^[[0mcrates/vieww-paint/src/native/target.rs:183:9
-2026-11-02T10:04:54.1865800Z     ^[[1m^[[94m|^[[0m
-2026-11-02T10:04:54.1866070Z ^[[1m^[[94m183^[[0m ^[[1m^[[94m|^[[0m         Self {
-2026-11-02T10:04:54.1867140Z     ^[[1m^[[94m|^[[0m         ^[[1m^[[91m^^^^^[[0m ^[[1m^[[91mmissing `scratch`^[[0m
-2026-11-02T10:04:54.1867770Z 
-2026-11-02T10:04:54.8902330Z ^[[1mFor more information about this error, try `rustc --explain E0063`.^[[0m
-2026-11-02T10:04:54.8977480Z ^[[1m^[[91merror^[[0m: could not compile `vieww-paint` (lib test) due to 1 previous error
-2026-11-02T10:04:54.9419120Z ##[error]Process completed with exit code 101.
-
-===== checks.sh (Linux)	The gate =====
-2026-11-02T10:19:36.6101764Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T10:19:36.6103001Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T10:19:36.6103765Z perf-budget: within budget
-2026-11-02T10:19:36.6104234Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T10:19:36.6104868Z |---|---|---|---|---|---|
-2026-11-02T10:19:36.6105522Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 4.000 | 4.600 | +15.0% | ok (vs last run, ±25%) |
-2026-11-02T10:19:36.6106468Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T10:19:36.6107421Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T10:19:36.6108027Z perf-budget: within budget
-2026-11-02T10:19:36.6108478Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T10:19:36.6108905Z |---|---|---|---|---|---|
-2026-11-02T10:19:36.6109537Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 4.000 | 6.400 | +60.0% | OVER (vs last run, ±25%) |
-2026-11-02T10:19:36.6110473Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T10:19:36.6111384Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T10:19:36.6135295Z ##[error]perf-budget: ubuntu-24-04/x86-64/intel-i7-8550u gallery/editor/cpu_p50_ms: 6.400 ms against 4.000 ms (+60.0%)
-2026-11-02T10:19:36.6143607Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T10:19:36.6144047Z |---|---|---|---|---|---|
-2026-11-02T10:19:36.6144627Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 4.000 | 6.400 | +60.0% | OVER (vs last run, ±25%) |
-2026-11-02T10:19:36.6145798Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T10:19:36.6146581Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok (vs last run, ±25%) |
-2026-11-02T10:19:36.6149170Z ##[warning]perf-budget: ubuntu-24-04/x86-64/intel-i7-8550u gallery/editor/cpu_p50_ms: 6.400 ms against 4.000 ms (+60.0%)
-2026-11-02T10:19:36.6150447Z perf-budget: over budget, reported only (--advisory: a shared hosted runner)
-2026-11-02T10:19:36.6151046Z perf-budget: recorded 3 metric(s) for ubuntu-24-04/x86-64/intel-i7-8550u in /tmp/tmpp3tnj11x.json
-2026-11-02T10:19:36.6151727Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T10:19:36.6152107Z |---|---|---|---|---|---|
-2026-11-02T10:19:36.6152838Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/editor/cpu_p50_ms | 6.400 | 6.400 | +0.0% | ok |
-2026-11-02T10:19:36.6153438Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok |
-2026-11-02T10:19:36.6153998Z | ubuntu-24-04/x86-64/intel-i7-8550u | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok |
-2026-11-02T10:19:36.6154430Z perf-budget: within budget
-2026-11-02T10:19:36.6155144Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T10:19:36.6155536Z |---|---|---|---|---|---|
-2026-11-02T10:19:36.6155828Z | phone-x | gpu_frame_time_p50_ms | 0.350 | 0.900 | +157.1% | ok |
-2026-11-02T10:19:36.6156180Z perf-budget: within budget
-2026-11-02T10:19:36.6156583Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T10:19:36.6156947Z |---|---|---|---|---|---|
-2026-11-02T10:19:36.6157241Z | phone-x | gpu_frame_time_p50_ms | 0.350 | 1.600 | +357.1% | OVER |
-2026-11-02T10:19:36.6158358Z ##[error]perf-budget: phone-x gpu_frame_time_p50_ms: 1.600 ms against 0.350 ms (+357.1%)
-2026-11-02T10:19:36.6159643Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T10:19:36.6160013Z |---|---|---|---|---|---|
-2026-11-02T10:19:36.6160394Z perf-budget: no budget and no previous run for class 'phone-lm-q720': not gated this time
-2026-11-02T10:19:36.6160824Z perf-budget: nothing gated
-2026-11-02T10:19:36.6161180Z perf-budget: recorded 3 metric(s) for kabylake-linux in /tmp/tmpgfj_m4ja.json
-2026-11-02T10:19:36.6161719Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T10:19:36.6162068Z |---|---|---|---|---|---|
-2026-11-02T10:19:36.6162391Z | kabylake-linux | gallery/editor/cpu_p50_ms | 4.000 | 4.000 | +0.0% | ok |
-2026-11-02T10:19:36.6162845Z | kabylake-linux | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok |
-2026-11-02T10:19:36.6163295Z | kabylake-linux | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok |
-2026-11-02T10:19:36.6163667Z perf-budget: within budget
-2026-11-02T10:19:36.6164047Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T10:19:36.6164403Z |---|---|---|---|---|---|
-2026-11-02T10:19:36.6164995Z | kabylake-linux | gallery/editor/cpu_p50_ms | 4.000 | 5.200 | +30.0% | OVER |
-2026-11-02T10:19:36.6165535Z | kabylake-linux | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok |
-2026-11-02T10:19:36.6165977Z | kabylake-linux | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok |
-2026-11-02T10:19:36.6167115Z ##[error]perf-budget: kabylake-linux gallery/editor/cpu_p50_ms: 5.200 ms against 4.000 ms (+30.0%)
-2026-11-02T10:19:36.6168212Z | class | metric | budget ms | now ms | change | verdict (tolerance ±10%) |
-2026-11-02T10:19:36.6168576Z |---|---|---|---|---|---|
-2026-11-02T10:19:36.6168898Z | kabylake-linux | gallery/editor/cpu_p50_ms | 4.000 | 4.300 | +7.5% | ok |
-2026-11-02T10:19:36.6169350Z | kabylake-linux | gallery/list/cpu_p50_ms | 2.000 | 2.000 | +0.0% | ok |
-2026-11-02T10:19:36.6169806Z | kabylake-linux | gallery/list/gpu_best_ms | 1.000 | 1.000 | +0.0% | ok |
-2026-11-02T10:19:36.6170181Z perf-budget: within budget
-2026-11-02T10:19:36.6177315Z 
-2026-11-02T10:19:36.6177821Z ==> crash symbol ids (ci/release/module_id.py reads what raw_frames writes)
-2026-11-02T10:19:36.6653670Z /home/runner/work/vieww_prod/vieww_prod/vieww_base/ci/release/test_module_id.py:28: ResourceWarning: unclosed file <_io.BufferedReader name='/usr/bin/python3'>
-2026-11-02T10:19:36.6655352Z   if not sys.executable or not open(sys.executable, "rb").read(4) == b"\x7fELF":
-2026-11-02T10:19:36.6656117Z ResourceWarning: Enable tracemalloc to get the object allocation traceback
-2026-11-02T10:19:36.7246069Z ....
-2026-11-02T10:19:36.7246795Z ----------------------------------------------------------------------
-2026-11-02T10:19:36.7255844Z Ran 4 tests in 0.062s
-2026-11-02T10:19:36.7256074Z 
-2026-11-02T10:19:36.7256192Z OK
-2026-11-02T10:19:36.7357089Z 
-2026-11-02T10:19:36.7357973Z ==> crash symbols (a stripped release crash decoded to function and line)
-2026-11-02T10:19:45.5952363Z symbols.sh: crash_symbols (elf) id feabd4d316a97a9b38d5ebb6ec67ffa8845a6123 -> /tmp/tmp.mT3CzG7ugN/symbols/feabd4d316a97a9b38d5ebb6ec67ffa8845a6123.debug (2004464 bytes); shipping binary 352328 bytes
-2026-11-02T10:19:45.6759535Z ci/check/crash-symbols.sh: line 56: 36813 Aborted                 (core dumped) VIEWW_CRASH_DIR="$work/crashes" "$bin" extra 2> /dev/null
-2026-11-02T10:19:45.6796445Z message: a crash for the symbols check, at depth 3
-2026-11-02T10:19:45.6819398Z frame: #0 0x00005621e81e2590 crash_symbols+0x51590 build-id=feabd4d316a97a9b38d5ebb6ec67ffa8845a6123
-2026-11-02T10:19:45.6836293Z frame: #1 0x00005621e81b3d93 crash_symbols+0x22d93 build-id=feabd4d316a97a9b38d5ebb6ec67ffa8845a6123
-2026-11-02T10:19:45.6837550Z frame: #2 0x00005621e81dbdf1 crash_symbols+0x4adf1 build-id=feabd4d316a97a9b38d5ebb6ec67ffa8845a6123
-2026-11-02T10:19:46.0082479Z #0   <vieww_foundation::crash::Crashes>::install::{closure#0}  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x51590]
-2026-11-02T10:19:46.0083868Z #1   std::panicking::panic_with_hook  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x22d93]
-2026-11-02T10:19:46.0085684Z #2   std::panicking::panic_handler::{closure#0}  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x4adf1]
-2026-11-02T10:19:46.0087050Z #3   std::sys::backtrace::__rust_end_short_backtrace::<std::panicking::panic_handler::{closure#0}, !>  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x4ada9]
-2026-11-02T10:19:46.0088303Z #4   __rustc::rust_begin_unwind  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x4b28c]
-2026-11-02T10:19:46.0089215Z #5   core::panicking::panic_fmt  crash_symbols.8296e020613d8f60-cgu.0:?  [crash_symbols+0x1473b]
-2026-11-02T10:19:46.0090511Z #6   crash_symbols::inner_frame  /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation/examples/crash_symbols.rs:12  [crash_symbols+0x12022]
-2026-11-02T10:19:46.0092410Z #7   crash_symbols::outer_frame  /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation/examples/crash_symbols.rs:18  [crash_symbols+0x1203c]
-2026-11-02T10:19:46.0094308Z #8   crash_symbols::main  /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation/examples/crash_symbols.rs:25  [crash_symbols+0x12e12]
-2026-11-02T10:19:46.0096416Z #9   std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>  /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250  [crash_symbols+0x11fd3]
-2026-11-02T10:19:46.0098151Z      __rust_begin_short_backtrace<fn(), ()>  /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/sys/backtrace.rs:166  [crash_symbols+0x11fd3]
-2026-11-02T10:19:46.0099298Z #10  main  ??:?  [crash_symbols+0x138dc]
-2026-11-02T10:19:46.0100199Z #11  libc.so.6+0x2a1ca  (no symbols for build-id a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)  [0x00007f065262a1ca]
-2026-11-02T10:19:46.0101478Z #12  libc.so.6+0x2a28b  (no symbols for build-id a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)  [0x00007f065262a28b]
-2026-11-02T10:19:46.0102390Z #13  _start  ??:?  [crash_symbols+0x11ee5]
-2026-11-02T10:19:46.0102867Z symbolize: 12 of 14 frame(s) resolved
-2026-11-02T10:19:46.0172549Z crash-symbols (linux): a stripped release crash decoded to function and line
-2026-11-02T10:19:46.0196700Z 
-2026-11-02T10:19:46.0197366Z ==> hot reload, end to end (builds the guest crate; slow)
-2026-11-02T10:19:46.2469379Z ^[[1m^[[92m   Compiling^[[0m syn v3.0.6
-2026-11-02T10:19:46.2471901Z ^[[1m^[[92m   Compiling^[[0m ttf-parser v0.25.1
-2026-11-02T10:19:46.2475534Z ^[[1m^[[92m   Compiling^[[0m smallvec v1.16.2
-2026-11-02T10:19:46.2581259Z ^[[1m^[[92m   Compiling^[[0m syn v2.0.119
-2026-11-02T10:19:48.2915480Z ^[[1m^[[92m   Compiling^[[0m fontdb v0.23.0
-2026-11-02T10:19:56.6136320Z ^[[1m^[[92m   Compiling^[[0m bytemuck_derive v1.12.1
-2026-11-02T10:20:02.4740462Z ^[[1m^[[92m   Compiling^[[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
-2026-11-02T10:20:03.4668583Z ^[[1m^[[92m   Compiling^[[0m bytemuck v1.25.2
-2026-11-02T10:20:03.6228762Z ^[[1m^[[92m   Compiling^[[0m font-types v0.12.5
-2026-11-02T10:20:03.6230004Z ^[[1m^[[92m   Compiling^[[0m font-types v0.11.3
-2026-11-02T10:20:03.8571906Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.37.0
-2026-11-02T10:20:03.8862540Z ^[[1m^[[92m   Compiling^[[0m read-fonts v0.41.0
-2026-11-02T10:20:08.6380887Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.40.0
-2026-11-02T10:20:08.6382012Z ^[[1m^[[92m   Compiling^[[0m harfrust v0.5.2
-2026-11-02T10:20:24.5985544Z ^[[1m^[[92m   Compiling^[[0m skrifa v0.44.0
-2026-11-02T10:20:27.3093549Z ^[[1m^[[92m   Compiling^[[0m swash v0.2.10
-2026-11-02T10:20:33.0127372Z ^[[1m^[[92m   Compiling^[[0m cosmic-text v0.19.0
-2026-11-02T10:20:36.8076484Z ^[[1m^[[92m   Compiling^[[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
-2026-11-02T10:20:37.4766682Z ^[[1m^[[92m   Compiling^[[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
-2026-11-02T10:20:41.0656885Z ^[[1m^[[92m   Compiling^[[0m vieww-reload v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-reload)
-2026-11-02T10:20:42.1438866Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized] target(s) in 56.08s
-2026-11-02T10:20:42.1523203Z ^[[1m^[[92m     Running^[[0m tests/end_to_end.rs (target/debug/deps/end_to_end-c193484d1bd3647c)
-2026-11-02T10:20:42.1540831Z 
-2026-11-02T10:20:42.1541103Z running 3 tests
-2026-11-02T10:21:48.5280248Z test a_guest_that_panics_while_building_does_not_take_the_host_down ... ok
-2026-11-02T10:22:53.5081249Z test a_guest_whose_state_changed_shape_forces_a_restart ... ok
-2026-11-02T10:24:00.0021872Z test a_rebuilt_guest_reloads_and_the_tree_is_kept ... ok
-2026-11-02T10:24:00.0022469Z 
-2026-11-02T10:24:00.0023027Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 197.85s
-2026-11-02T10:24:00.0023788Z 
-2026-11-02T10:24:00.0213255Z 
-2026-11-02T10:24:00.0213983Z ==> packaging (layout and a preview compiled against the bundle)
-2026-11-02T10:24:00.1145961Z ==> building viewwstudio 0.1.0 (debug, linux)
-2026-11-02T10:24:00.4573986Z ^[[1m^[[92m   Compiling^[[0m zvariant_utils v4.2.0
-2026-11-02T10:24:00.4656186Z ^[[1m^[[92m   Compiling^[[0m uuid v1.26.1
-2026-11-02T10:24:00.4750695Z ^[[1m^[[92m   Compiling^[[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
-2026-11-02T10:24:00.4759693Z ^[[1m^[[92m   Compiling^[[0m zerocopy v0.8.59
-2026-11-02T10:24:01.2076282Z ^[[1m^[[92m   Compiling^[[0m accesskit v0.25.1
-2026-11-02T10:24:01.6386169Z ^[[1m^[[92m   Compiling^[[0m zvariant v5.15.0
-2026-11-02T10:24:02.5476320Z ^[[1m^[[92m   Compiling^[[0m hashbrown v0.17.1
-2026-11-02T10:24:03.4249134Z ^[[1m^[[92m   Compiling^[[0m accesskit_consumer v0.39.1
-2026-11-02T10:24:05.6666203Z ^[[1m^[[92m   Compiling^[[0m zbus_names v4.3.4
-2026-11-02T10:24:06.9956329Z ^[[1m^[[92m   Compiling^[[0m zbus_xml v5.2.1
-2026-11-02T10:24:07.9716607Z ^[[1m^[[92m   Compiling^[[0m zbus-lockstep v0.5.2
-2026-11-02T10:24:08.2466257Z ^[[1m^[[92m   Compiling^[[0m zbus v5.19.0
-2026-11-02T10:24:11.7118495Z ^[[1m^[[92m   Compiling^[[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
-2026-11-02T10:24:12.1256838Z ^[[1m^[[92m   Compiling^[[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
-2026-11-02T10:24:13.3336406Z ^[[1m^[[92m   Compiling^[[0m ahash v0.8.12
-2026-11-02T10:24:13.6175466Z ^[[1m^[[92m   Compiling^[[0m winit v0.30.13
-2026-11-02T10:24:14.4796635Z ^[[1m^[[92m   Compiling^[[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
-2026-11-02T10:24:15.2937184Z ^[[1m^[[92m   Compiling^[[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
-2026-11-02T10:24:17.6765397Z ^[[1m^[[92m   Compiling^[[0m atspi-common v0.13.0
-2026-11-02T10:24:20.7347007Z ^[[1m^[[92m   Compiling^[[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
-2026-11-02T10:24:25.8966487Z ^[[1m^[[92m   Compiling^[[0m atspi-proxies v0.13.0
-2026-11-02T10:24:28.6436422Z ^[[1m^[[92m   Compiling^[[0m atspi v0.29.0
-2026-11-02T10:24:28.6931409Z ^[[1m^[[92m   Compiling^[[0m accesskit_atspi_common v0.21.0
-2026-11-02T10:24:33.1046307Z ^[[1m^[[92m   Compiling^[[0m accesskit_unix v0.24.0
-2026-11-02T10:24:36.5771706Z ^[[1m^[[92m   Compiling^[[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
-2026-11-02T10:24:36.7422734Z ^[[1m^[[92m   Compiling^[[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
-2026-11-02T10:24:36.8056522Z ^[[1m^[[92m   Compiling^[[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
-2026-11-02T10:24:38.8516476Z ^[[1m^[[92m   Compiling^[[0m accesskit_winit v0.34.1
-2026-11-02T10:24:39.1358303Z ^[[1m^[[92m   Compiling^[[0m vieww-platform-winit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
-2026-11-02T10:24:53.1135333Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 52.96s
-2026-11-02T10:24:53.1536999Z ==> drawing icons
-2026-11-02T10:24:53.4836150Z ^[[1m^[[92m   Compiling^[[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
-2026-11-02T10:24:53.4839095Z ^[[1m^[[92m   Compiling^[[0m vieww-hardware v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
-2026-11-02T10:24:53.4841723Z ^[[1m^[[92m   Compiling^[[0m vieww-test-harness v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-test-harness)
-2026-11-02T10:24:59.2735079Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 6.08s
-2026-11-02T10:24:59.2935114Z ^[[1m^[[92m     Running^[[0m `target/debug/examples/icon /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/icons`
-2026-11-02T10:25:00.5644620Z ==> verifying the bundle compiles a preview
-2026-11-02T10:25:26.5138619Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/viewwstudio-linux-x86_64.tar.gz
-2026-11-02T10:25:26.5165329Z     206M
-2026-11-02T10:25:26.5190646Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/index.html
-2026-11-02T10:25:26.5191859Z     links point at github.com/tejakota/vieww_prod
-2026-11-02T10:25:26.5226113Z done
-2026-11-02T10:25:26.5886235Z 
-2026-11-02T10:25:26.5886804Z --- formatting: its diagnostics ---
-2026-11-02T10:25:26.5887778Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/compose.rs:58:
-2026-11-02T10:25:26.5888719Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/compose.rs:103:
-2026-11-02T10:25:26.5889619Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/compose.rs:124:
-2026-11-02T10:25:26.5890470Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/compose.rs:149:
-2026-11-02T10:25:26.5891311Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/compose.rs:188:
-2026-11-02T10:25:26.5892143Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/compose.rs:242:
-2026-11-02T10:25:26.5893006Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/compose.rs:271:
-2026-11-02T10:25:26.5893876Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:62:
-2026-11-02T10:25:26.5895044Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:96:
-2026-11-02T10:25:26.5895919Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:170:
-2026-11-02T10:25:26.5897304Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:204:
-2026-11-02T10:25:26.5898392Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:211:
-2026-11-02T10:25:26.5899379Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:215:
-2026-11-02T10:25:26.5900547Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:220:
-2026-11-02T10:25:26.5901451Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:241:
-2026-11-02T10:25:26.5902339Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:275:
-2026-11-02T10:25:26.5903201Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:298:
-2026-11-02T10:25:26.5903998Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:333:
-2026-11-02T10:25:26.5905185Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:340:
-2026-11-02T10:25:26.5905958Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:355:
-2026-11-02T10:25:26.5907976Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:368:
-2026-11-02T10:25:26.5909111Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:427:
-2026-11-02T10:25:26.5909831Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:451:
-2026-11-02T10:25:26.5910571Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:460:
-2026-11-02T10:25:26.5911284Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:468:
-2026-11-02T10:25:26.5912057Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:494:
-2026-11-02T10:25:26.5912797Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/interpret.rs:518:
-2026-11-02T10:25:26.5913461Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-decision/src/lib.rs:32:
-2026-11-02T10:25:26.5914124Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-feedback/src/lib.rs:100:
-2026-11-02T10:25:26.5915194Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-feedback/src/lib.rs:115:
-2026-11-02T10:25:26.5915931Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-feedback/src/lib.rs:163:
-2026-11-02T10:25:26.5916619Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-feedback/src/lib.rs:172:
-2026-11-02T10:25:26.5917273Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-feedback/src/lib.rs:192:
-2026-11-02T10:25:26.5917927Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-memory/src/lib.rs:254:
-2026-11-02T10:25:26.5919065Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-memory/src/lib.rs:309:
-2026-11-02T10:25:26.5920210Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-memory/src/lib.rs:344:
-2026-11-02T10:25:26.5921233Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-persona/src/lib.rs:268:
-2026-11-02T10:25:26.5921884Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-persona/src/lib.rs:351:
-2026-11-02T10:25:26.5922533Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-persona/src/lib.rs:371:
-2026-11-02T10:25:26.5923163Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-persona/src/lib.rs:382:
-2026-11-02T10:25:26.5923794Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-persona/src/lib.rs:393:
-2026-11-02T10:25:26.5924421Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-persona/src/lib.rs:427:
-2026-11-02T10:25:26.5925468Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/crates/u-persona/src/lib.rs:444:
-2026-11-02T10:25:26.5926181Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/calib.rs:16:
-2026-11-02T10:25:26.5926986Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/calib.rs:38:
-2026-11-02T10:25:26.5927557Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/calib.rs:54:
-2026-11-02T10:25:26.5928116Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/calib.rs:75:
-2026-11-02T10:25:26.5928708Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/shots.rs:147:
-2026-11-02T10:25:26.5929315Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/shots.rs:197:
-2026-11-02T10:25:26.5929905Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/examples/shots.rs:204:
-2026-11-02T10:25:26.5930511Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/biometrics.rs:51:
-2026-11-02T10:25:26.5931098Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/biometrics.rs:400:
-2026-11-02T10:25:26.5931671Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/controls.rs:57:
-2026-11-02T10:25:26.5932375Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/controls.rs:140:
-2026-11-02T10:25:26.5932950Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/engine.rs:30:
-2026-11-02T10:25:26.5933496Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/history.rs:88:
-2026-11-02T10:25:26.5934066Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/history.rs:236:
-2026-11-02T10:25:26.5934845Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/history.rs:331:
-2026-11-02T10:25:26.5935477Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/home.rs:118:
-2026-11-02T10:25:26.5936014Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/u/src/home.rs:127:
-2026-11-02T10:25:26.5936346Z 
-2026-11-02T10:25:26.5936567Z --- clippy (workspace, all targets, warnings are errors): its diagnostics ---
-2026-11-02T10:25:26.5937028Z error: match can be simplified with `.unwrap_or_default()`
-2026-11-02T10:25:26.5937360Z   --> examples/u/src/history.rs:67:23
-2026-11-02T10:25:26.5937726Z error: useless conversion to the same type: `vieww::WidgetNode`
-2026-11-02T10:25:26.5938103Z    --> examples/u/src/history.rs:204:13
-2026-11-02T10:25:26.5938439Z error: could not compile `u` (lib) due to 2 previous errors
-2026-11-02T10:25:26.5938838Z warning: build failed, waiting for other jobs to finish...
-2026-11-02T10:25:26.5939223Z error: could not compile `u` (lib test) due to 2 previous errors
-2026-11-02T10:25:26.5939687Z error[E0063]: missing field `scratch` in initializer of `native::target::Target`
-2026-11-02T10:25:26.5940118Z    --> crates/vieww-paint/src/native/target.rs:183:9
-2026-11-02T10:25:26.5940555Z error: could not compile `vieww-paint` (lib test) due to 1 previous error
-2026-11-02T10:25:26.5940874Z 
-2026-11-02T10:25:26.5941011Z --- build (workspace, all targets): its diagnostics ---
-2026-11-02T10:25:26.5941451Z error[E0063]: missing field `scratch` in initializer of `target::Target`
-2026-11-02T10:25:26.5941850Z    --> crates/vieww-paint/src/native/target.rs:183:9
-2026-11-02T10:25:26.5942247Z error: could not compile `vieww-paint` (lib test) due to 1 previous error
-2026-11-02T10:25:26.5942661Z warning: build failed, waiting for other jobs to finish...
-2026-11-02T10:25:26.5942894Z 
-2026-11-02T10:25:26.5943098Z --- docs (workspace, broken intra-doc links are errors): its diagnostics ---
-2026-11-02T10:25:26.5943723Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/doc/vieww/index.html
-2026-11-02T10:25:26.5944249Z error: unresolved link to `qwen`
-2026-11-02T10:25:26.5944564Z   --> examples/u/crates/u-ml-runtime/src/lib.rs:29:7
-2026-11-02T10:25:26.5945468Z error: unresolved link to `u_memory`
-2026-11-02T10:25:26.5946078Z    --> examples/u/crates/u-ml-runtime/src/lib.rs:182:62
-2026-11-02T10:25:26.5946910Z error: could not document `u-ml-runtime`
-2026-11-02T10:25:26.5947472Z warning: build failed, waiting for other jobs to finish...
-2026-11-02T10:25:26.5948035Z error: unresolved link to `u-decision`
-2026-11-02T10:25:26.5948565Z    --> examples/u/crates/u-decision/src/lib.rs:228:7
-2026-11-02T10:25:26.5949454Z error: could not document `u-decision`
-2026-11-02T10:25:26.5950073Z error: unresolved link to `AndroidApp::run_on_java_main_thread`
-2026-11-02T10:25:26.5950670Z   --> examples/u/src/biometrics.rs:20:7
-2026-11-02T10:25:26.5951149Z error: unresolved link to `AppState`
-2026-11-02T10:25:26.5951628Z  --> examples/u/src/events.rs:5:66
-2026-11-02T10:25:26.5952256Z error: public documentation for `strands` links to private item `STRANDS`
-2026-11-02T10:25:26.5952957Z    --> examples/u/src/neurons.rs:182:11
-2026-11-02T10:25:26.5953448Z error: unresolved link to `ask::ASKS.len`
-2026-11-02T10:25:26.5953949Z    --> examples/u/src/lib.rs:170:60
-2026-11-02T10:25:26.5954443Z error: unresolved link to `nudge`
-2026-11-02T10:25:26.5955123Z    --> examples/u/src/lib.rs:262:69
-2026-11-02T10:25:26.5955758Z error: redundant explicit link target
-2026-11-02T10:25:26.5956066Z   --> examples/u/src/engine.rs:15:54
-2026-11-02T10:25:26.5956334Z error: could not document `u`
-2026-11-02T10:25:26.5956759Z error: public documentation for `alpha` links to private item `super::linear::coverage_alpha`
-2026-11-02T10:25:26.5957269Z    --> crates/vieww-paint/src/native/glyph_coverage.rs:157:28
-2026-11-02T10:25:26.5957639Z error: could not document `vieww-paint`
-2026-11-02T10:25:26.5957994Z 
-2026-11-02T10:25:26.5958222Z --- tests (workspace): its diagnostics ---
-2026-11-02T10:25:26.5959153Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline
-2026-11-02T10:25:26.5960014Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline.dwp
-2026-11-02T10:25:26.5960819Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench
-2026-11-02T10:25:26.5961616Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench.dwp
-2026-11-02T10:25:26.5962379Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render
-2026-11-02T10:25:26.5963534Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render.dwp
-2026-11-02T10:25:26.5964670Z error[E0063]: missing field `scratch` in initializer of `target::Target`
-2026-11-02T10:25:26.5965713Z    --> crates/vieww-paint/src/native/target.rs:183:9
-2026-11-02T10:25:26.5966506Z error: could not compile `vieww-paint` (lib test) due to 1 previous error
-2026-11-02T10:25:26.5967269Z warning: build failed, waiting for other jobs to finish...
-2026-11-02T10:25:26.5967525Z 
-2026-11-02T10:25:26.5967612Z 5 stage(s) failed:
-2026-11-02T10:25:26.5967827Z   - formatting (exit 1)
-2026-11-02T10:25:26.5968148Z   - clippy (workspace, all targets, warnings are errors) (exit 101)
-2026-11-02T10:25:26.5968538Z   - build (workspace, all targets) (exit 101)
-2026-11-02T10:25:26.5968907Z   - docs (workspace, broken intra-doc links are errors) (exit 101)
-2026-11-02T10:25:26.5969254Z   - tests (workspace) (exit 101)
-2026-11-02T10:25:26.5974388Z ##[error]Process completed with exit code 1.
+===== iOS simulator (tests in the sim, a frame on its screen)	XCUITest accessibility suite (generated project, FW-10) =====
+2026-11-04T11:01:42.4386630Z       Key, 0x10278b630, {{58.7, 622.0}, {39.3, 46.0}}, label: 's'
+2026-11-04T11:01:42.4387810Z       Key, 0x10278af40, {{98.0, 622.0}, {39.3, 46.0}}, label: 'd'
+2026-11-04T11:01:42.4389130Z       Key, 0x10278c760, {{137.3, 622.0}, {39.3, 46.0}}, label: 'f'
+2026-11-04T11:01:42.4390090Z       Key, 0x10277f5d0, {{177.2, 622.0}, {39.3, 46.0}}, label: 'g'
+2026-11-04T11:01:42.4391080Z       Key, 0x102767610, {{216.5, 622.0}, {39.3, 46.0}}, label: 'h'
+2026-11-04T11:01:42.4391940Z       Key, 0x1027775d0, {{255.9, 622.0}, {39.3, 46.0}}, label: 'j'
+2026-11-04T11:01:42.4392920Z       Key, 0x1027672c0, {{295.2, 622.0}, {39.3, 46.0}}, label: 'k'
+2026-11-04T11:01:42.4397210Z       Key, 0x102768490, {{334.5, 622.0}, {39.3, 46.0}}, label: 'l'
+2026-11-04T11:01:42.4398440Z       Button, 0x10236d840, {{0.0, 676.0}, {50.3, 46.0}}, identifier: 'shift', label: 'shift'
+2026-11-04T11:01:42.4399950Z       Key, 0x10236e5c0, {{58.7, 676.0}, {39.3, 46.0}}, label: 'z'
+2026-11-04T11:01:42.4400800Z       Key, 0x1023888f0, {{98.0, 676.0}, {39.3, 46.0}}, label: 'x'
+2026-11-04T11:01:42.4401630Z       Key, 0x102372b30, {{137.3, 676.0}, {39.3, 46.0}}, label: 'c'
+2026-11-04T11:01:42.4402480Z       Key, 0x102387eb0, {{177.2, 676.0}, {39.3, 46.0}}, label: 'v'
+2026-11-04T11:01:42.4452010Z       Key, 0x102389100, {{216.5, 676.0}, {39.3, 46.0}}, label: 'b'
+2026-11-04T11:01:42.4528640Z       Key, 0x1023894f0, {{255.9, 676.0}, {39.3, 46.0}}, label: 'n'
+2026-11-04T11:01:42.4529090Z       Key, 0x102387000, {{295.2, 676.0}, {39.3, 46.0}}, label: 'm'
+2026-11-04T11:01:42.4529610Z       Key, 0x10238a0d0, {{342.7, 676.0}, {50.3, 46.0}}, identifier: 'delete', label: 'delete'
+2026-11-04T11:01:42.4530210Z       Key, 0x102389cb0, {{0.0, 730.0}, {98.7, 46.0}}, identifier: 'more', label: 'numbers'
+2026-11-04T11:01:42.4530740Z       Key, 0x102389890, {{97.3, 730.0}, {197.7, 46.0}}, label: 'space'
+2026-11-04T11:01:42.4542510Z       Button, 0x102388c30, {{295.0, 730.0}, {98.0, 46.0}}, identifier: 'Return', label: 'return'
+2026-11-04T11:01:42.4543020Z     }
+2026-11-04T11:01:42.4543770Z     ↪︎Find: Elements matching predicate 'value == "tap to type"'
+2026-11-04T11:01:42.4544100Z       Output: {
+2026-11-04T11:01:42.4544510Z         Other, 0x1026f03b0, {{36.0, 306.2}, {101.2, 21.6}}, value: tap to type
+2026-11-04T11:01:42.4544930Z       }
+2026-11-04T11:01:42.4545230Z       ↪︎Find: First Match
+2026-11-04T11:01:42.4545480Z         Output: {
+2026-11-04T11:01:42.4545840Z           Other, 0x102648e80, {{36.0, 306.2}, {101.2, 21.6}}, value: tap to type
+2026-11-04T11:01:42.4547160Z         }
+2026-11-04T11:01:42.4547950Z 
+2026-11-04T11:01:42.4548280Z     t =   153.56s         Retrying `Type 'hello' into Any (First Match)` (attempt #3)
+2026-11-04T11:01:42.4548830Z     t =   153.56s             Wait for dev.vieww.demo to idle
+2026-11-04T11:01:42.4549190Z     t =   153.61s             Find the "tap to type" Other
+2026-11-04T11:01:42.4549610Z     t =   153.83s             Check for interrupting elements affecting "tap to type" Other
+2026-11-04T11:01:42.4731080Z     t =   155.82s             Synthesize event
+2026-11-04T11:01:42.4732970Z     t =   155.82s                 Get number of matches for: Elements containing elements matching predicate 'hasKeyboardFocus == 1'
+2026-11-04T11:01:42.4735420Z     t =   155.98s                 Requesting snapshot of accessibility hierarchy for app with pid 28345
+2026-11-04T11:01:42.4742160Z     t =   161.03s                 Requesting snapshot of accessibility hierarchy for app with pid 28345
+2026-11-04T11:01:42.4743720Z     t =   161.42s                 Requesting snapshot of accessibility hierarchy for app with pid 28345
+2026-11-04T11:01:42.4745050Z     t =   161.52s                 Find: Descendants matching type Any
+2026-11-04T11:01:42.4746220Z     t =   161.52s                 Find: Elements matching predicate 'value == "tap to type"'
+2026-11-04T11:01:42.4747680Z     t =   161.54s                 Requesting snapshot of accessibility hierarchy for app with pid 28345
+2026-11-04T11:01:42.4749080Z     t =   161.97s                 Find: Descendants matching type Any
+2026-11-04T11:01:42.4755260Z     t =   161.99s                 Requesting snapshot of accessibility hierarchy for app with pid 28345
+2026-11-04T11:02:24.2803950Z     t =   199.16s                 Requesting snapshot of accessibility hierarchy for app with pid 28345
+2026-11-04T11:02:27.3711580Z     t =   208.02s                 Requesting snapshot of accessibility hierarchy for app with pid 28345
+2026-11-04T11:02:27.3828490Z     t =   208.42s                 Requesting snapshot of accessibility hierarchy for app with pid 28345
+2026-11-04T11:02:27.4288630Z     t =   208.73s                 Find: Descendants matching type Any
+2026-11-04T11:02:28.1066510Z     t =   208.75s                 Find: Elements matching predicate 'value == "tap to type"'
+2026-11-04T11:02:30.4953680Z     t =   208.76s                 Requesting snapshot of accessibility hierarchy for app with pid 28345
+2026-11-04T11:02:30.5497300Z     t =   209.03s                 Find: Descendants matching type Any
+2026-11-04T11:02:30.5976720Z     t =   209.05s                 Requesting snapshot of accessibility hierarchy for app with pid 28345
+2026-11-04T11:03:26.7850210Z     t =   267.29s                 Failed: Neither element nor any descendant has keyboard focus. Event dispatch snapshot: Other, {{36.0, 306.2}, {101.2, 21.6}}, value: tap to type
+2026-11-04T11:03:27.0746150Z Element debug description:
+2026-11-04T11:03:27.0883500Z Attributes: Other, 0x1026dfca0, {{36.0, 306.2}, {101.2, 21.6}}, value: tap to type
+2026-11-04T11:03:27.1742580Z Element subtree:
+2026-11-04T11:03:27.1851740Z  →Other, 0x1026dfca0, {{36.0, 306.2}, {101.2, 21.6}}, value: tap to type
+2026-11-04T11:03:27.1988430Z Path to element:
+2026-11-04T11:03:27.2109080Z  →Application, 0x1026dd9b0, pid: 28345, label: 'vieww'
+2026-11-04T11:03:27.2436790Z   ↳Window (Main), 0x1026d9650, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:27.5008380Z    ↳Other, 0x1026debe0, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:27.5071620Z     ↳Other, 0x1026de7c0, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:27.6410750Z      ↳TextView, 0x1026df000, {{0.0, 0.0}, {393.0, 852.0}}, Keyboard Focused
+2026-11-04T11:03:27.6521880Z       ↳Other, 0x1026df420, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:27.6747770Z        ↳Other, 0x1026dfca0, {{36.0, 306.2}, {101.2, 21.6}}, value: tap to type
+2026-11-04T11:03:27.6938490Z Query chain:
+2026-11-04T11:03:27.7061580Z  →Find: Target Application 'dev.vieww.demo'
+2026-11-04T11:03:27.7973870Z   Output: {
+2026-11-04T11:03:27.8123530Z     Application, 0x1027b2eb0, pid: 28345, label: 'vieww'
+2026-11-04T11:03:27.8588630Z   }
+2026-11-04T11:03:27.8895040Z   ↪︎Find: Descendants matching type Any
+2026-11-04T11:03:27.9612090Z     Output: {
+2026-11-04T11:03:28.0397480Z       Window (Main), 0x1023888f0, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:28.0631350Z       Window, 0x1026e8eb0, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:28.0730370Z       Window, 0x1026db620, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:28.1699850Z       Other, 0x10278cad0, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:28.1841960Z       Other, 0x102645ce0, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:28.2045480Z       Other, 0x1026dade0, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:28.2495060Z       Other, 0x10275d350, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:28.6683810Z       Other, 0x1026ec420, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:28.6871880Z       Other, 0x1026e9a80, {{0.0, 561.0}, {393.0, 291.0}}
+2026-11-04T11:03:28.6975970Z       Other, 0x1026dc280, {{0.0, 561.0}, {393.0, 291.0}}
+2026-11-04T11:03:28.7088130Z       TextView, 0x10275cfe0, {{0.0, 0.0}, {393.0, 852.0}}, Keyboard Focused
+2026-11-04T11:03:28.7190760Z       Other, 0x1026eaf30, {{0.0, 561.0}, {393.0, 233.0}}
+2026-11-04T11:03:28.8343520Z       Other, 0x10264eb30, {{0.0, 561.0}, {393.0, 233.0}}
+2026-11-04T11:03:28.8453680Z       Other, 0x10264dab0, {{0.0, 561.0}, {393.0, 233.0}}
+2026-11-04T11:03:28.8556730Z       Other, 0x1026f38e0, {{0.0, 561.0}, {393.0, 291.0}}
+2026-11-04T11:03:28.8557370Z       Other, 0x10275ddc0, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:28.8660650Z       Other, 0x10264e710, {{0.0, 561.0}, {393.0, 291.0}}
+2026-11-04T11:03:28.8777820Z       Keyboard, 0x10264d690, {{0.0, 561.0}, {393.0, 233.0}}
+2026-11-04T11:03:28.9026410Z       Button, 0x1026f4250, {{8.5, 783.7}, {68.1, 68.7}}, label: 'Emoji'
+2026-11-04T11:03:28.9128220Z       Button, 0x1026571d0, {{316.4, 783.4}, {68.1, 68.7}}, identifier: 'dictation', label: 'Dictate'
+2026-11-04T11:03:28.9275950Z       StaticText, 0x10236d840, {{24.0, 83.0}, {169.0, 57.6}}, label: 'vieww'
+2026-11-04T11:03:28.9377620Z       StaticText, 0x10236e5c0, {{24.0, 152.6}, {159.9, 16.8}}, label: 'A frame, on an iPhone.'
+2026-11-04T11:03:28.9486180Z       Button, 0x102387eb0, {{24.0, 201.4}, {83.0, 44.0}}, label: 'Tap me'
+2026-11-04T11:03:28.9588500Z       StaticText, 0x1023890d0, {{24.0, 261.4}, {105.2, 16.8}}, label: 'Not tapped yet'
+2026-11-04T11:03:28.9691730Z       Other, 0x10275e850, {{36.0, 306.2}, {101.2, 21.6}}, value: tap to type
+2026-11-04T11:03:28.9798880Z       Button, 0x1027a9470, {{24.0, 483.0}, {115.0, 44.0}}, label: 'Day', Selected
+2026-11-04T11:03:28.9901890Z       Button, 0x102764270, {{139.0, 483.0}, {115.0, 44.0}}, label: 'Week'
+2026-11-04T11:03:29.0006540Z       Button, 0x10275a260, {{254.0, 483.0}, {115.0, 44.0}}, label: 'Month'
+2026-11-04T11:03:29.0110220Z       Switch, 0x102761510, {{26.0, 545.0}, {113.7, 44.0}}, label: 'Day', value: 1
+2026-11-04T11:03:29.0207570Z       Switch, 0x102761870, {{139.7, 545.0}, {113.7, 44.0}}, label: 'Week', value: 0
+2026-11-04T11:03:29.0311410Z       Switch, 0x102763ef0, {{253.3, 545.0}, {113.7, 44.0}}, label: 'Month', value: 0
+2026-11-04T11:03:29.0413890Z       Switch, 0x10275baa0, {{24.0, 599.0}, {44.0, 44.0}}, label: 'Day', value: 1
+2026-11-04T11:03:29.0514940Z       StaticText, 0x10275a950, {{68.0, 612.6}, {27.6, 16.8}}, label: 'Day'
+2026-11-04T11:03:29.0615470Z       Switch, 0x1027611b0, {{107.6, 599.0}, {44.0, 44.0}}, label: 'Week', value: 0
+2026-11-04T11:03:29.0719130Z       StaticText, 0x10275fd70, {{151.6, 612.6}, {38.4, 16.8}}, label: 'Week'
+2026-11-04T11:03:29.0821710Z       Switch, 0x10275a5d0, {{202.0, 599.0}, {44.0, 44.0}}, label: 'Month', value: 0
+2026-11-04T11:03:29.0922330Z       StaticText, 0x10275fa00, {{246.0, 612.6}, {43.9, 16.8}}, label: 'Month'
+2026-11-04T11:03:29.1023910Z       Other, 0x102758dd0, {{24.0, 651.0}, {36.0, 36.0}}, label: 'Chosen', value: 33%
+2026-11-04T11:03:29.1124520Z       Other, 0x10275f6b0, {{72.0, 651.0}, {36.0, 36.0}}, value: in progress
+2026-11-04T11:03:29.1224800Z       Other, 0x10275e4f0, {{120.0, 667.0}, {249.0, 4.0}}, label: 'How far along the choice is', value: 33%
+2026-11-04T11:03:29.1327430Z       Button, 0x1026dbf40, {{24.0, 709.9}, {115.0, 52.1}}, label: 'Day', Selected
+2026-11-04T11:03:29.1428960Z       Button, 0x1026e8b50, {{139.0, 709.9}, {115.0, 52.1}}, label: 'Week'
+2026-11-04T11:03:29.1528650Z       Button, 0x1026e7e40, {{254.0, 709.9}, {115.0, 52.1}}, label: 'Month'
+2026-11-04T11:03:29.1631380Z       Button, 0x1026db2a0, {{24.0, 784.0}, {142.6, 44.0}}, label: 'Open the menu'
+2026-11-04T11:03:29.1733470Z       Other, 0x10264e2f0, {{0.0, 561.0}, {393.0, 291.0}}
+2026-11-04T11:03:29.1837060Z       Other, 0x10264d270, {{0.0, 561.0}, {393.0, 233.0}}
+2026-11-04T11:03:29.1942880Z       StaticText, 0x1026f3e30, {{8.5, 783.7}, {0.0, 0.0}}
+2026-11-04T11:03:29.2047430Z       StaticText, 0x1026575f0, {{316.4, 783.4}, {0.0, 0.0}}
+2026-11-04T11:03:29.2150280Z       Other, 0x10264ded0, {{0.0, 561.0}, {393.0, 291.0}}
+2026-11-04T11:03:29.2250700Z       Other, 0x10264ce50, {{0.0, 561.0}, {393.0, 233.0}}
+2026-11-04T11:03:29.2351410Z       Key, 0x10264ca30, {{0.0, 568.0}, {39.3, 46.0}}, label: 'q'
+2026-11-04T11:03:29.2458550Z       Key, 0x10264c610, {{39.3, 568.0}, {39.3, 46.0}}, label: 'w'
+2026-11-04T11:03:29.2566940Z       Key, 0x10264c1f0, {{78.7, 568.0}, {39.3, 46.0}}, label: 'e'
+2026-11-04T11:03:29.2671820Z       Key, 0x10264bdd0, {{118.0, 568.0}, {39.3, 46.0}}, label: 'r'
+2026-11-04T11:03:29.2773120Z       Key, 0x10264b9b0, {{157.3, 568.0}, {39.3, 46.0}}, label: 't'
+2026-11-04T11:03:29.2877250Z       Key, 0x10264b590, {{196.7, 568.0}, {39.0, 46.0}}, label: 'y'
+2026-11-04T11:03:29.2981140Z       Key, 0x102649d00, {{235.7, 568.0}, {39.3, 46.0}}, label: 'u'
+2026-11-04T11:03:29.3082370Z       Key, 0x102647b10, {{275.0, 568.0}, {39.3, 46.0}}, label: 'i'
+2026-11-04T11:03:29.3182140Z       Key, 0x1026458c0, {{314.3, 568.0}, {39.3, 46.0}}, label: 'o'
+2026-11-04T11:03:29.3285910Z       Key, 0x1026454a0, {{353.7, 568.0}, {39.3, 46.0}}, label: 'p'
+2026-11-04T11:03:29.3367850Z       Key, 0x102645080, {{19.3, 622.0}, {39.3, 46.0}}, label: 'a'
+2026-11-04T11:03:29.3472900Z       Key, 0x102644c60, {{58.7, 622.0}, {39.3, 46.0}}, label: 's'
+2026-11-04T11:03:29.3579870Z       Key, 0x102644840, {{98.0, 622.0}, {39.3, 46.0}}, label: 'd'
+2026-11-04T11:03:29.3682070Z       Key, 0x10264a5c0, {{137.3, 622.0}, {39.3, 46.0}}, label: 'f'
+2026-11-04T11:03:29.3784470Z       Key, 0x102646f70, {{177.2, 622.0}, {39.3, 46.0}}, label: 'g'
+2026-11-04T11:03:29.3887470Z       Key, 0x102389830, {{216.5, 622.0}, {39.3, 46.0}}, label: 'h'
+2026-11-04T11:03:29.3989160Z       Key, 0x102387340, {{255.9, 622.0}, {39.3, 46.0}}, label: 'j'
+2026-11-04T11:03:29.4090780Z       Key, 0x102648c30, {{295.2, 622.0}, {39.3, 46.0}}, label: 'k'
+2026-11-04T11:03:29.4193710Z       Key, 0x102648810, {{334.5, 622.0}, {39.3, 46.0}}, label: 'l'
+2026-11-04T11:03:29.4295580Z       Button, 0x1026483f0, {{0.0, 676.0}, {50.3, 46.0}}, identifier: 'shift', label: 'shift'
+2026-11-04T11:03:29.4401820Z       Key, 0x102646980, {{58.7, 676.0}, {39.3, 46.0}}, label: 'z'
+2026-11-04T11:03:29.4509470Z       Key, 0x1026e9240, {{98.0, 676.0}, {39.3, 46.0}}, label: 'x'
+2026-11-04T11:03:29.4611760Z       Key, 0x1026f1c00, {{137.3, 676.0}, {39.3, 46.0}}, label: 'c'
+2026-11-04T11:03:29.4715200Z       Key, 0x1026eab10, {{177.2, 676.0}, {39.3, 46.0}}, label: 'v'
+2026-11-04T11:03:29.4817480Z       Key, 0x1026ea6f0, {{216.5, 676.0}, {39.3, 46.0}}, label: 'b'
+2026-11-04T11:03:29.4923540Z       Key, 0x1026ea2d0, {{255.9, 676.0}, {39.3, 46.0}}, label: 'n'
+2026-11-04T11:03:29.5024230Z       Key, 0x1026f2440, {{295.2, 676.0}, {39.3, 46.0}}, label: 'm'
+2026-11-04T11:03:29.5126420Z       Key, 0x1026f2c80, {{342.7, 676.0}, {50.3, 46.0}}, identifier: 'delete', label: 'delete'
+2026-11-04T11:03:29.5229890Z       Key, 0x1026f2860, {{0.0, 730.0}, {98.7, 46.0}}, identifier: 'more', label: 'numbers'
+2026-11-04T11:03:29.5335080Z       Key, 0x1026f34c0, {{97.3, 730.0}, {197.7, 46.0}}, label: 'space'
+2026-11-04T11:03:29.5438620Z       Button, 0x1026f30a0, {{295.0, 730.0}, {98.0, 46.0}}, identifier: 'Return', label: 'return'
+2026-11-04T11:03:29.5539770Z     }
+2026-11-04T11:03:29.5646060Z     ↪︎Find: Elements matching predicate 'value == "tap to type"'
+2026-11-04T11:03:29.5742630Z       Output: {
+2026-11-04T11:03:29.5844760Z         Other, 0x102385d80, {{36.0, 306.2}, {101.2, 21.6}}, value: tap to type
+2026-11-04T11:03:29.5948170Z       }
+2026-11-04T11:03:29.6047800Z       ↪︎Find: First Match
+2026-11-04T11:03:29.6148750Z         Output: {
+2026-11-04T11:03:29.6250690Z           Other, 0x1026e2740, {{36.0, 306.2}, {101.2, 21.6}}, value: tap to type
+2026-11-04T11:03:29.6351370Z         }
+2026-11-04T11:03:29.6451540Z 
+2026-11-04T11:03:29.6556250Z /Users/runner/work/vieww_prod/vieww_prod/vieww_base/ci/mobile/xcuitest/ViewwA11yTests.swift:162: error: -[ViewwA11yTests.ViewwA11yTests testTypingIntoTheFieldCommitsThroughTheKeyboard] : Failed to synthesize event: Neither element nor any descendant has keyboard focus. Event dispatch snapshot: Other, {{36.0, 306.2}, {101.2, 21.6}}, value: tap to type
+2026-11-04T11:03:29.6653680Z Element debug description:
+2026-11-04T11:03:29.6754820Z Attributes: Other, 0x1026dfca0, {{36.0, 306.2}, {101.2, 21.6}}, value: tap to type
+2026-11-04T11:03:29.6855550Z Element subtree:
+2026-11-04T11:03:29.6956680Z  →Other, 0x1026dfca0, {{36.0, 306.2}, {101.2, 21.6}}, value: tap to type
+2026-11-04T11:03:29.7058810Z Path to element:
+2026-11-04T11:03:29.7159630Z  →Application, 0x1026dd9b0, pid: 28345, label: 'vieww'
+2026-11-04T11:03:29.7268490Z   ↳Window (Main), 0x1026d9650, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:29.7429910Z    ↳Other, 0x1026debe0, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:29.7528350Z     ↳Other, 0x1026de7c0, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:29.7651680Z      ↳TextView, 0x1026df000, {{0.0, 0.0}, {393.0, 852.0}}, Keyboard Focused
+2026-11-04T11:03:29.7753810Z       ↳Other, 0x1026df420, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:29.7854930Z        ↳Other, 0x1026dfca0, {{36.0, 306.2}, {101.2, 21.6}}, value: tap to type
+2026-11-04T11:03:29.7956160Z Query chain:
+2026-11-04T11:03:29.8058290Z  →Find: Target Application 'dev.vieww.demo'
+2026-11-04T11:03:29.8159800Z   Output: {
+2026-11-04T11:03:29.8261400Z     Application, 0x1027b2eb0, pid: 28345, label: 'vieww'
+2026-11-04T11:03:29.8362870Z   }
+2026-11-04T11:03:29.8463270Z   ↪︎Find: Descendants matching type Any
+2026-11-04T11:03:29.8563180Z     Output: {
+2026-11-04T11:03:29.8665180Z       Window (Main), 0x1023888f0, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:29.8767180Z       Window, 0x1026e8eb0, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:29.8866480Z       Window, 0x1026db620, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:29.8968610Z       Other, 0x10278cad0, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:29.9068940Z       Other, 0x102645ce0, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:29.9175890Z       Other, 0x1026dade0, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:29.9271660Z       Other, 0x10275d350, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:29.9372090Z       Other, 0x1026ec420, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:29.9474990Z       Other, 0x1026e9a80, {{0.0, 561.0}, {393.0, 291.0}}
+2026-11-04T11:03:29.9577110Z       Other, 0x1026dc280, {{0.0, 561.0}, {393.0, 291.0}}
+2026-11-04T11:03:29.9677290Z       TextView, 0x10275cfe0, {{0.0, 0.0}, {393.0, 852.0}}, Keyboard Focused
+2026-11-04T11:03:29.9779730Z       Other, 0x1026eaf30, {{0.0, 561.0}, {393.0, 233.0}}
+2026-11-04T11:03:29.9884210Z       Other, 0x10264eb30, {{0.0, 561.0}, {393.0, 233.0}}
+2026-11-04T11:03:29.9986240Z       Other, 0x10264dab0, {{0.0, 561.0}, {393.0, 233.0}}
+2026-11-04T11:03:30.0087010Z       Other, 0x1026f38e0, {{0.0, 561.0}, {393.0, 291.0}}
+2026-11-04T11:03:30.0188030Z       Other, 0x10275ddc0, {{0.0, 0.0}, {393.0, 852.0}}
+2026-11-04T11:03:30.0289670Z       Other, 0x10264e710, {{0.0, 561.0}, {393.0, 291.0}}
+2026-11-04T11:03:30.0393340Z       Keyboard, 0x10264d690, {{0.0, 561.0}, {393.0, 233.0}}
+2026-11-04T11:03:30.0494510Z       Button, 0x1026f4250, {{8.5, 783.7}, {68.1, 68.7}}, label: 'Emoji'
+2026-11-04T11:03:30.0595040Z       Button, 0x1026571d0, {{316.4, 783.4}, {68.1, 68.7}}, identifier: 'dictation', label: 'Dictate'
+2026-11-04T11:03:30.0699220Z       StaticText, 0x10236d840, {{24.0, 83.0}, {169.0, 57.6}}, label: 'vieww'
+2026-11-04T11:03:30.0803690Z       StaticText, 0x10236e5c0, {{24.0, 152.6}, {159.9, 16.8}}, label: 'A frame, on an iPhone.'
+2026-11-04T11:03:30.0906860Z       Button, 0x102387eb0, {{24.0, 201.4}, {83.0, 44.0}}, label: 'Tap me'
+2026-11-04T11:03:30.1009590Z       StaticText, 0x1023890d0, {{24.0, 261.4}, {105.2, 16.8}}, label: 'Not tapped yet'
+2026-11-04T11:03:30.1110310Z       Other, 0x10275e850, {{36.0, 306.2}, {101.2, 21.6}}, value: tap to type
+2026-11-04T11:03:30.1210250Z       Button, 0x1027a9470, {{24.0, 483.0}, {115.0, 44.0}}, label: 'Day', Selected
+2026-11-04T11:03:30.1311800Z       Button, 0x102764270, {{139.0, 483.0}, {115.0, 44.0}}, label: 'Week'
+2026-11-04T11:03:30.1414880Z       Button, 0x10275a260, {{254.0, 483.0}, {115.0, 44.0}}, label: 'Month'
+2026-11-04T11:03:30.1513460Z       Switch, 0x102761510, {{26.0, 545.0}, {113.7, 44.0}}, label: 'Day', value: 1
+2026-11-04T11:03:30.1615500Z       Switch, 0x102761870, {{139.7, 545.0}, {113.7, 44.0}}, label: 'Week', value: 0
+2026-11-04T11:03:30.1716820Z       Switch, 0x102763ef0, {{253.3, 545.0}, {113.7, 44.0}}, label: 'Month', value: 0
+2026-11-04T11:03:30.1817990Z       Switch, 0x10275baa0, {{24.0, 599.0}, {44.0, 44.0}}, label: 'Day', value: 1
+2026-11-04T11:03:30.1919380Z       StaticText, 0x10275a950, {{68.0, 612.6}, {27.6, 16.8}}, label: 'Day'
+2026-11-04T11:03:30.2021510Z       Switch, 0x1027611b0, {{107.6, 599.0}, {44.0, 44.0}}, label: 'Week', value: 0
+2026-11-04T11:03:30.2120170Z       StaticText, 0x10275fd70, {{151.6, 612.6}, {38.4, 16.8}}, label: 'Week'
+2026-11-04T11:03:30.2221710Z       Switch, 0x10275a5d0, {{202.0, 599.0}, {44.0, 44.0}}, label: 'Month', value: 0
+2026-11-04T11:03:30.2323520Z       StaticText, 0x10275fa00, {{246.0, 612.6}, {43.9, 16.8}}, label: 'Month'
+2026-11-04T11:03:30.2424880Z       Other, 0x102758dd0, {{24.0, 651.0}, {36.0, 36.0}}, label: 'Chosen', value: 33%
+2026-11-04T11:03:30.2526130Z       Other, 0x10275f6b0, {{72.0, 651.0}, {36.0, 36.0}}, value: in progress
+2026-11-04T11:03:30.2626630Z       Other, 0x10275e4f0, {{120.0, 667.0}, {249.0, 4.0}}, label: 'How far along the choice is', value: 33%
+2026-11-04T11:03:30.2727490Z       Button, 0x1026dbf40, {{24.0, 709.9}, {115.0, 52.1}}, label: 'Day', Selected
+2026-11-04T11:03:30.2830160Z       Button, 0x1026e8b50, {{139.0, 709.9}, {115.0, 52.1}}, label: 'Week'
+2026-11-04T11:03:30.2930420Z       Button, 0x1026e7e40, {{254.0, 709.9}, {115.0, 52.1}}, label: 'Month'
+2026-11-04T11:03:30.3033540Z       Button, 0x1026db2a0, {{24.0, 784.0}, {142.6, 44.0}}, label: 'Open the menu'
+2026-11-04T11:03:30.3134180Z       Other, 0x10264e2f0, {{0.0, 561.0}, {393.0, 291.0}}
+2026-11-04T11:03:30.3237100Z       Other, 0x10264d270, {{0.0, 561.0}, {393.0, 233.0}}
+2026-11-04T11:03:30.3337270Z       StaticText, 0x1026f3e30, {{8.5, 783.7}, {0.0, 0.0}}
+2026-11-04T11:03:30.3439480Z       StaticText, 0x1026575f0, {{316.4, 783.4}, {0.0, 0.0}}
+2026-11-04T11:03:30.3541680Z       Other, 0x10264ded0, {{0.0, 561.0}, {393.0, 291.0}}
+2026-11-04T11:03:30.3643450Z       Other, 0x10264ce50, {{0.0, 561.0}, {393.0, 233.0}}
+2026-11-04T11:03:30.3743450Z       Key, 0x10264ca30, {{0.0, 568.0}, {39.3, 46.0}}, label: 'q'
+2026-11-04T11:03:30.3854790Z       Key, 0x10264c610, {{39.3, 568.0}, {39.3, 46.0}}, label: 'w'
+2026-11-04T11:03:30.3953460Z       Key, 0x10264c1f0, {{78.7, 568.0}, {39.3, 46.0}}, label: 'e'
+2026-11-04T11:03:30.4056090Z       Key, 0x10264bdd0, {{118.0, 568.0}, {39.3, 46.0}}, label: 'r'
+2026-11-04T11:03:30.4155810Z       Key, 0x10264b9b0, {{157.3, 568.0}, {39.3, 46.0}}, label: 't'
+2026-11-04T11:03:30.4258880Z       Key, 0x10264b590, {{196.7, 568.0}, {39.0, 46.0}}, label: 'y'
+2026-11-04T11:03:30.4360670Z       Key, 0x102649d00, {{235.7, 568.0}, {39.3, 46.0}}, label: 'u'
+2026-11-04T11:03:30.4462160Z       Key, 0x102647b10, {{275.0, 568.0}, {39.3, 46.0}}, label: 'i'
+2026-11-04T11:03:30.4564710Z       Key, 0x1026458c0, {{314.3, 568.0}, {39.3, 46.0}}, label: 'o'
+2026-11-04T11:03:30.4664130Z       Key, 0x1026454a0, {{353.7, 568.0}, {39.3, 46.0}}, label: 'p'
+2026-11-04T11:03:30.4766880Z       Key, 0x102645080, {{19.3, 622.0}, {39.3, 46.0}}, label: 'a'
+2026-11-04T11:03:30.4868120Z       Key, 0x102644c60, {{58.7, 622.0}, {39.3, 46.0}}, label: 's'
+2026-11-04T11:03:30.4967460Z       Key, 0x102644840, {{98.0, 622.0}, {39.3, 46.0}}, label: 'd'
+2026-11-04T11:03:30.5069330Z       Key, 0x10264a5c0, {{137.3, 622.0}, {39.3, 46.0}}, label: 'f'
+2026-11-04T11:03:30.5171340Z       Key, 0x102646f70, {{177.2, 622.0}, {39.3, 46.0}}, label: 'g'
+2026-11-04T11:03:30.5273880Z       Key, 0x102389830, {{216.5, 622.0}, {39.3, 46.0}}, label: 'h'
+2026-11-04T11:03:30.5374470Z       Key, 0x102387340, {{255.9, 622.0}, {39.3, 46.0}}, label: 'j'
+2026-11-04T11:03:30.5474270Z       Key, 0x102648c30, {{295.2, 622.0}, {39.3, 46.0}}, label: 'k'
+2026-11-04T11:03:30.5578570Z       Key, 0x102648810, {{334.5, 622.0}, {39.3, 46.0}}, label: 'l'
+2026-11-04T11:03:30.5681730Z       Button, 0x1026483f0, {{0.0, 676.0}, {50.3, 46.0}}, identifier: 'shift', label: 'shift'
+2026-11-04T11:03:30.5780730Z       Key, 0x102646980, {{58.7, 676.0}, {39.3, 46.0}}, label: 'z'
+2026-11-04T11:03:30.5883500Z       Key, 0x1026e9240, {{98.0, 676.0}, {39.3, 46.0}}, label: 'x'
+2026-11-04T11:03:30.5985690Z       Key, 0x1026f1c00, {{137.3, 676.0}, {39.3, 46.0}}, label: 'c'
+2026-11-04T11:03:30.6087070Z       Key, 0x1026eab10, {{177.2, 676.0}, {39.3, 46.0}}, label: 'v'
+2026-11-04T11:03:30.6187890Z       Key, 0x1026ea6f0, {{216.5, 676.0}, {39.3, 46.0}}, label: 'b'
+2026-11-04T11:03:30.6290990Z       Key, 0x1026ea2d0, {{255.9, 676.0}, {39.3, 46.0}}, label: 'n'
+2026-11-04T11:03:30.6394380Z       Key, 0x1026f2440, {{295.2, 676.0}, {39.3, 46.0}}, label: 'm'
+2026-11-04T11:03:30.6494360Z       Key, 0x1026f2c80, {{342.7, 676.0}, {50.3, 46.0}}, identifier: 'delete', label: 'delete'
+2026-11-04T11:03:30.6597420Z       Key, 0x1026f2860, {{0.0, 730.0}, {98.7, 46.0}}, identifier: 'more', label: 'numbers'
+2026-11-04T11:03:30.6701520Z       Key, 0x1026f34c0, {{97.3, 730.0}, {197.7, 46.0}}, label: 'space'
+2026-11-04T11:03:30.6803650Z       Button, 0x1026f30a0, {{295.0, 730.0}, {98.0, 46.0}}, identifier: 'Return', label: 'return'
+2026-11-04T11:03:30.6904550Z     }
+2026-11-04T11:03:30.7052720Z     ↪︎Find: Elements matching predicate 'value == "tap to type"'
+2026-11-04T11:03:30.7154760Z       Output: {
+2026-11-04T11:03:30.7267990Z         Other, 0x102385d80, {{36.0, 306.2}, {101.2, 21.6}}, value: tap to type
+2026-11-04T11:03:30.7369590Z       }
+2026-11-04T11:03:30.7470560Z       ↪︎Find: First Match
+2026-11-04T11:03:30.7576260Z         Output: {
+2026-11-04T11:03:30.7673130Z           Other, 0x1026e2740, {{36.0, 306.2}, {101.2, 21.6}}, value: tap to type
+2026-11-04T11:03:30.7786950Z         }
+2026-11-04T11:03:30.7791120Z 
+2026-11-04T11:03:30.7892270Z     t =   269.11s Tear Down
+2026-11-04T11:03:30.7993690Z Test Case '-[ViewwA11yTests.ViewwA11yTests testTypingIntoTheFieldCommitsThroughTheKeyboard]' failed (269.836 seconds).
+2026-11-04T11:03:30.8111600Z Test Suite 'ViewwA11yTests' failed at 2026-11-04 11:03:27.836.
+2026-11-04T11:03:30.8218700Z 	 Executed 5 tests, with 1 test skipped and 4 failures (0 unexpected) in 1436.968 (1436.975) seconds
+2026-11-04T11:03:30.8322440Z Test Suite 'ViewwA11yTests.xctest' failed at 2026-11-04 11:03:27.838.
+2026-11-04T11:03:30.8425860Z 	 Executed 5 tests, with 1 test skipped and 4 failures (0 unexpected) in 1436.968 (1436.977) seconds
+2026-11-04T11:03:30.8529990Z Test Suite 'All tests' failed at 2026-11-04 11:03:27.839.
+2026-11-04T11:03:30.8632690Z 	 Executed 5 tests, with 1 test skipped and 4 failures (0 unexpected) in 1436.968 (1436.979) seconds
+2026-11-04T11:04:06.7908710Z 2026-11-04 11:04:06.789 xcodebuild[22734:74875] [MT] IDETestOperationsObserverDebug: 1503.550 elapsed -- Testing started completed.
+2026-11-04T11:04:06.7911500Z 2026-11-04 11:04:06.790 xcodebuild[22734:74875] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-11-04T11:04:06.7920190Z 2026-11-04 11:04:06.790 xcodebuild[22734:74875] [MT] IDETestOperationsObserverDebug: 1503.550 sec, +1503.550 sec -- end
+2026-11-04T11:04:13.3924300Z Failing tests:
+2026-11-04T11:04:13.3925850Z 
+2026-11-04T11:04:13.3926410Z 	ViewwA11yTests.testCJKTypingComposesAndCommits()
+2026-11-04T11:04:13.3937660Z Test session results, code coverage, and logs:
+2026-11-04T11:04:13.3938840Z 	ViewwA11yTests.testEveryPublishedElementCarriesABridgeIdentifier()
+2026-11-04T11:04:13.3940110Z 	/Users/runner/Library/Developer/Xcode/DerivedData/ViewwA11y-bzmmvmchlqrtadgziwafszikmavw/Logs/Test/Test-ViewwA11y-2026.11.04_10-38-39-+0000.xcresult
+2026-11-04T11:04:13.3942180Z 	ViewwA11yTests.testTheButtonIsPresentLabelledAndEnabled()
+2026-11-04T11:04:13.3983350Z 	ViewwA11yTests.testTypingIntoTheFieldCommitsThroughTheKeyboard()
+2026-11-04T11:04:13.3993140Z 
+2026-11-04T11:04:13.4053280Z 
+2026-11-04T11:04:13.4075810Z ** TEST FAILED **
+2026-11-04T11:04:13.4089490Z 
+2026-11-04T11:04:13.4492490Z Testing started
+2026-11-04T11:04:13.4889180Z a11y-ios: FAIL — xcodebuild test failed — a red suite is a finding about the bridge, not a flake (see the suite's header)
+2026-11-04T11:04:13.7803330Z ##[error]Process completed with exit code 1.
 

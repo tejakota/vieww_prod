@@ -1,0 +1,80 @@
+10:36:50.563 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+10:36:50.570 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+10:36:50.573 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+10:36:50.573 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+10:36:50.574 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Launch app "dev.vieww.demo" RUNNING
+10:36:54.732 [ INFO] maestro.Maestro.launchApp$lambda$6: Launching app dev.vieww.demo
+10:36:54.733 [ INFO] maestro.Maestro.launchApp$lambda$6: Stopping dev.vieww.demo app during launch
+10:36:55.027 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Launch app "dev.vieww.demo" COMPLETED
+10:36:55.028 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run flow when "Wait" is visible RUNNING
+10:37:02.298 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandSkipped: null
+10:37:02.300 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run flow when "Wait" is visible SKIPPED
+10:37:02.300 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Tap me" is visible RUNNING
+10:37:02.462 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Tap me" is visible COMPLETED
+10:37:02.462 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 01-launched RUNNING
+10:37:02.465 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+10:37:02.467 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+10:37:02.735 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 01-launched COMPLETED
+10:37:02.736 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run flow when Platform is ANDROID RUNNING
+10:37:02.737 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "1 tap" is visible RUNNING
+10:37:02.848 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "1 tap" is visible COMPLETED
+10:37:02.849 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on "Tap me" RUNNING
+10:37:02.984 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={text=, accessibilityText=Tap me, hintText=, ignoreBoundsFiltering=false, resource-id=, clickable=false, bounds=[24,166][107,214], enabled=true, focused=false, checked=false, scrollable=false, selected=false, class=android.widget.Button, important-for-accessibility=false, error=}, children=[], clickable=false, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=24, y=166, width=83, height=48))
+10:37:04.272 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via settled hierarchy
+10:37:04.276 [ INFO] maestro.Maestro.hierarchyBasedTap-ogj28Uc: Tapping at (65, 190) using hierarchy based logic for wait
+10:37:05.159 [ INFO] maestro.Maestro.hierarchyBasedTap-ogj28Uc: Something has changed in the UI judging by view hierarchy. Proceed.
+10:37:05.160 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on "Tap me" COMPLETED
+10:37:05.160 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "2 taps" is visible RUNNING
+10:37:05.299 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "2 taps" is visible COMPLETED
+10:37:05.302 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on "Tap me" RUNNING
+10:37:05.368 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={text=, accessibilityText=Tap me, hintText=, ignoreBoundsFiltering=false, resource-id=, clickable=false, bounds=[24,166][107,214], enabled=true, focused=true, checked=false, scrollable=false, selected=false, class=android.widget.Button, important-for-accessibility=false, error=}, children=[], clickable=false, enabled=true, focused=true, checked=false, selected=false), bounds=Bounds(x=24, y=166, width=83, height=48))
+10:37:06.623 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via settled hierarchy
+10:37:06.624 [ INFO] maestro.Maestro.hierarchyBasedTap-ogj28Uc: Tapping at (65, 190) using hierarchy based logic for wait
+10:37:07.523 [ INFO] maestro.Maestro.hierarchyBasedTap-ogj28Uc: Something has changed in the UI judging by view hierarchy. Proceed.
+10:37:07.524 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on "Tap me" COMPLETED
+10:37:07.524 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "3 taps" is visible RUNNING
+10:37:07.610 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "3 taps" is visible COMPLETED
+10:37:07.611 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run flow when Platform is ANDROID COMPLETED
+10:37:07.611 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run flow when Platform is IOS RUNNING
+10:37:07.611 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandSkipped: null
+10:37:07.611 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run flow when Platform is IOS SKIPPED
+10:37:07.612 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on "Month", Index: 0 RUNNING
+10:37:07.744 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={text=, accessibilityText=Month, hintText=, ignoreBoundsFiltering=false, resource-id=, clickable=false, bounds=[312,452][456,500], enabled=true, focused=false, checked=false, scrollable=false, selected=false, class=android.view.View, important-for-accessibility=false, error=}, children=[], clickable=false, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=312, y=452, width=144, height=48))
+10:37:08.991 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via settled hierarchy
+10:37:08.992 [ INFO] maestro.Maestro.hierarchyBasedTap-ogj28Uc: Tapping at (384, 476) using hierarchy based logic for wait
+10:37:09.829 [ INFO] maestro.Maestro.hierarchyBasedTap-ogj28Uc: Something has changed in the UI judging by view hierarchy. Proceed.
+10:37:09.829 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on "Month", Index: 0 COMPLETED
+10:37:09.830 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Month", selected is visible RUNNING
+10:37:09.955 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Month", selected is visible COMPLETED
+10:37:09.956 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Day", selected is not visible RUNNING
+10:37:10.572 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Day", selected is not visible COMPLETED
+10:37:10.573 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 02-month-chosen RUNNING
+10:37:10.574 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+10:37:10.574 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+10:37:10.673 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 02-month-chosen COMPLETED
+10:37:10.673 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on "Open the menu" RUNNING
+10:37:10.808 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={text=, accessibilityText=Open the menu, hintText=, ignoreBoundsFiltering=false, resource-id=, clickable=false, bounds=[24,765][166,813], enabled=true, focused=false, checked=false, scrollable=false, selected=false, class=android.widget.Button, important-for-accessibility=false, error=}, children=[], clickable=false, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=24, y=765, width=142, height=48))
+10:37:12.064 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via settled hierarchy
+10:37:12.065 [ INFO] maestro.Maestro.hierarchyBasedTap-ogj28Uc: Tapping at (95, 789) using hierarchy based logic for wait
+10:37:12.898 [ INFO] maestro.Maestro.hierarchyBasedTap-ogj28Uc: Something has changed in the UI judging by view hierarchy. Proceed.
+10:37:12.899 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on "Open the menu" COMPLETED
+10:37:12.899 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Inbox" is visible RUNNING
+10:37:12.989 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Inbox" is visible COMPLETED
+10:37:12.989 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Archive" is visible RUNNING
+10:37:13.089 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Archive" is visible COMPLETED
+10:37:13.089 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Settings" is visible RUNNING
+10:37:13.222 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Settings" is visible COMPLETED
+10:37:13.222 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Tap me" is not visible RUNNING
+10:37:13.893 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Tap me" is not visible COMPLETED
+10:37:13.893 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 03-drawer-open RUNNING
+10:37:13.894 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+10:37:13.894 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+10:37:13.944 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 03-drawer-open COMPLETED
+10:37:13.945 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on point (95%,50%) RUNNING
+10:37:13.956 [ INFO] maestro.Maestro.hierarchyBasedTap-ogj28Uc: Tapping at (456, 480) using hierarchy based logic for wait
+10:37:14.889 [ INFO] maestro.Maestro.hierarchyBasedTap-ogj28Uc: Something has changed in the UI judging by view hierarchy. Proceed.
+10:37:14.889 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on point (95%,50%) COMPLETED
+10:37:14.889 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Tap me" is visible RUNNING
+10:37:14.989 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Tap me" is visible COMPLETED
+10:37:14.989 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "[0-9]+ taps" is visible RUNNING
+10:37:15.108 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "[0-9]+ taps" is visible COMPLETED
