@@ -1,65 +1,64 @@
-===== Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode =====
-﻿2026-11-02T05:14:46.0369642Z ##[group]Run cargo test --release -p vieww-audio --test device_loopback default_device -- --ignored --nocapture
-2026-11-02T05:14:46.0370501Z ^[[36;1mcargo test --release -p vieww-audio --test device_loopback default_device -- --ignored --nocapture^[[0m
-2026-11-02T05:14:46.0390445Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
-2026-11-02T05:14:46.0390843Z env:
-2026-11-02T05:14:46.0391017Z   CARGO_TERM_COLOR: always
-2026-11-02T05:14:46.0391222Z   RUST_BACKTRACE: 1
-2026-11-02T05:14:46.0391422Z   RUST_VERSION: 1.98.1
-2026-11-02T05:14:46.0391620Z   VIEWW_REQUIRE_LOOPBACK: 1
-2026-11-02T05:14:46.0391838Z   VIEWW_LOOP_BACKEND: wasapi
-2026-11-02T05:14:46.0392054Z   VIEWW_LOOP_ATTEMPTS: 3
-2026-11-02T05:14:46.0392265Z ##[endgroup]
-2026-11-02T05:14:46.4908876Z ^[[1m^[[92m   Compiling^[[0m vieww-audio v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio)
-2026-11-02T05:15:35.0092640Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 48.85s
-2026-11-02T05:15:35.0161274Z ^[[1m^[[92m     Running^[[0m tests\device_loopback.rs (target\release\deps\device_loopback-1fa765445b04dd6b.exe)
-2026-11-02T05:15:35.0307893Z 
-2026-11-02T05:15:35.0308230Z running 1 test
-2026-11-02T05:15:38.1228276Z wasapi: output StreamStats { callbacks: 287, frames: 144576, xruns: 0, ended: false, priority: Some(Realtime), render_mean: 18.414µs, render_max: 146.5µs, load_peak: 0.007, late: 0, latency: Some(22ms), exclusive: false, disconnected: false, buffer_frames: Some(1056), period_frames: None }
-2026-11-02T05:15:38.1232149Z wasapi: input StreamStats { callbacks: 300, frames: 143966, xruns: 0, ended: false, priority: None, render_mean: 0ns, render_max: 0ns, load_peak: 0.0, late: 0, latency: Some(22.041666ms), exclusive: false, disconnected: false, buffer_frames: Some(1058), period_frames: None }
-2026-11-02T05:15:38.1284142Z wasapi default loopback left: Report { windows: 284, snr_db: 47.19977839095069, amp_spread_db: 0.013918609836229834, phase_spread: 0.16969330686921902, worst_window_snr_db: 24.970525963212996 }
-2026-11-02T05:15:38.1285427Z 
-2026-11-02T05:15:38.1285992Z thread 'default_device_loopback' (6360) panicked at crates\vieww-audio\tests\device_loopback.rs:136:9:
-2026-11-02T05:15:38.1287296Z wasapi default loopback left: phase moved 0.170 rad — frames were dropped or repeated
-2026-11-02T05:15:38.1288373Z stack backtrace:
-2026-11-02T05:15:38.3017331Z    0: std::panicking::panic_handler
-2026-11-02T05:15:38.3018397Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
-2026-11-02T05:15:38.3019275Z    1: core::panicking::panic_fmt
-2026-11-02T05:15:38.3020007Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
-2026-11-02T05:15:38.3027477Z    2: device_loopback::Report::check
-2026-11-02T05:15:38.3028007Z              at .\tests\device_loopback.rs:136
-2026-11-02T05:15:38.3028705Z    3: device_loopback::check_stereo
-2026-11-02T05:15:38.3029192Z              at .\tests\device_loopback.rs:215
-2026-11-02T05:15:38.3031268Z    4: device_loopback::default_device_loopback
-2026-11-02T05:15:38.3031969Z              at .\tests\device_loopback.rs:582
-2026-11-02T05:15:38.3032725Z    5: device_loopback::default_device_loopback::closure$0
-2026-11-02T05:15:38.3033448Z              at .\tests\device_loopback.rs:518
-2026-11-02T05:15:38.3034539Z    6: core::ops::function::FnOnce::call_once<device_loopback::default_device_loopback::closure_env$0,tuple$<> >
-2026-11-02T05:15:38.3035624Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-11-02T05:15:38.3075190Z    7: core::ops::function::FnOnce::call_once
-2026-11-02T05:15:38.3076044Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
-2026-11-02T05:15:38.3140495Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
-2026-11-02T05:15:38.3150696Z test default_device_loopback ... FAILED
-2026-11-02T05:15:38.3153511Z 
-2026-11-02T05:15:38.3153643Z failures:
-2026-11-02T05:15:38.3153769Z 
-2026-11-02T05:15:38.3153887Z failures:
-2026-11-02T05:15:38.3154134Z     default_device_loopback
-2026-11-02T05:15:38.3154301Z 
-2026-11-02T05:15:38.3154611Z test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 3.28s
-2026-11-02T05:15:38.3155012Z 
-2026-11-02T05:15:38.3186264Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-audio --test device_loopback`
-2026-11-02T05:15:38.3338997Z ##[error]Process completed with exit code 101.
+===== Linux (ALSA and MIDI through kernel loopbacks, in a VM)	ALSA (every format, rate matching both ways) and MIDI, in the VM =====
+﻿2026-11-04T12:45:52.8643307Z ##[group]Run ci/audio/vm-loopback.sh
+2026-11-04T12:45:52.8643766Z ^[[36;1mci/audio/vm-loopback.sh^[[0m
+2026-11-04T12:45:52.8668559Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T12:45:52.8668967Z env:
+2026-11-04T12:45:52.8669212Z   CARGO_TERM_COLOR: always
+2026-11-04T12:45:52.8669534Z   RUST_BACKTRACE: 1
+2026-11-04T12:45:52.8669789Z   RUST_VERSION: 1.98.1
+2026-11-04T12:45:52.8670056Z ##[endgroup]
+2026-11-04T12:45:52.8783638Z ##[error]Process completed with exit code 2.
 
-===== Linux (ALSA and MIDI through kernel loopbacks, in a VM)	Tools, kernel and its sound modules =====
-﻿2026-11-02T05:12:56.4243593Z ##[group]Run ci/audio/vm-loopback.sh --setup
-2026-11-02T05:12:56.4244081Z ^[[36;1mci/audio/vm-loopback.sh --setup^[[0m
-2026-11-02T05:12:56.4257840Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
-2026-11-02T05:12:56.4258310Z env:
-2026-11-02T05:12:56.4258621Z   CARGO_TERM_COLOR: always
-2026-11-02T05:12:56.4258982Z   RUST_BACKTRACE: 1
-2026-11-02T05:12:56.4259281Z   RUST_VERSION: 1.98.1
-2026-11-02T05:12:56.4259586Z ##[endgroup]
-2026-11-02T05:12:56.4294286Z /home/runner/work/_temp/341ed506-6da7-40c9-9a39-9057f78140c0.sh: line 1: ci/audio/vm-loopback.sh: No such file or directory
-2026-11-02T05:12:56.4306620Z ##[error]Process completed with exit code 127.
+===== Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode =====
+﻿2026-11-04T12:46:48.4300702Z ##[group]Run cargo test --release -p vieww-audio --test device_loopback default_device -- --ignored --nocapture
+2026-11-04T12:46:48.4301235Z ^[[36;1mcargo test --release -p vieww-audio --test device_loopback default_device -- --ignored --nocapture^[[0m
+2026-11-04T12:46:48.4309012Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-11-04T12:46:48.4309243Z env:
+2026-11-04T12:46:48.4309364Z   CARGO_TERM_COLOR: always
+2026-11-04T12:46:48.4309501Z   RUST_BACKTRACE: 1
+2026-11-04T12:46:48.4309619Z   RUST_VERSION: 1.98.1
+2026-11-04T12:46:48.4309743Z   VIEWW_REQUIRE_LOOPBACK: 1
+2026-11-04T12:46:48.4309884Z   VIEWW_LOOP_BACKEND: wasapi
+2026-11-04T12:46:48.4310035Z   VIEWW_LOOP_ATTEMPTS: 3
+2026-11-04T12:46:48.4310169Z ##[endgroup]
+2026-11-04T12:46:48.7133409Z ^[[1m^[[92m   Compiling^[[0m vieww-audio v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio)
+2026-11-04T12:47:27.6620613Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 39.15s
+2026-11-04T12:47:27.6687464Z ^[[1m^[[92m     Running^[[0m tests\device_loopback.rs (target\release\deps\device_loopback-1fa765445b04dd6b.exe)
+2026-11-04T12:47:27.6789839Z 
+2026-11-04T12:47:27.6790140Z running 1 test
+2026-11-04T12:47:30.7592596Z wasapi: output StreamStats { callbacks: 299, frames: 145056, xruns: 0, ended: false, priority: Some(Realtime), render_mean: 9.524µs, render_max: 27.7µs, load_peak: 0.002, late: 0, latency: Some(22ms), exclusive: false, disconnected: false, buffer_frames: Some(1056), period_frames: None }
+2026-11-04T12:47:30.7594549Z wasapi: input StreamStats { callbacks: 299, frames: 143486, xruns: 0, ended: false, priority: None, render_mean: 0ns, render_max: 0ns, load_peak: 0.0, late: 0, latency: Some(22.041666ms), exclusive: false, disconnected: false, buffer_frames: Some(1058), period_frames: None }
+2026-11-04T12:47:30.7624070Z wasapi default loopback left: Report { windows: 287, snr_db: 47.209970484742996, amp_spread_db: 0.01390243384714207, phase_spread: 0.18850637850398533, worst_window_snr_db: 24.916209545388817 }
+2026-11-04T12:47:30.7624684Z 
+2026-11-04T12:47:30.7624934Z thread 'default_device_loopback' (8228) panicked at crates\vieww-audio\tests\device_loopback.rs:136:9:
+2026-11-04T12:47:30.7625611Z wasapi default loopback left: phase moved 0.189 rad — frames were dropped or repeated
+2026-11-04T12:47:30.7625944Z stack backtrace:
+2026-11-04T12:47:31.1155787Z    0: std::panicking::panic_handler
+2026-11-04T12:47:31.1156252Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+2026-11-04T12:47:31.1156529Z    1: core::panicking::panic_fmt
+2026-11-04T12:47:31.1156764Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+2026-11-04T12:47:31.1160263Z    2: device_loopback::Report::check
+2026-11-04T12:47:31.1160725Z              at .\tests\device_loopback.rs:136
+2026-11-04T12:47:31.1161037Z    3: device_loopback::check_stereo
+2026-11-04T12:47:31.1161288Z              at .\tests\device_loopback.rs:215
+2026-11-04T12:47:31.1162143Z    4: device_loopback::default_device_loopback
+2026-11-04T12:47:31.1162488Z              at .\tests\device_loopback.rs:582
+2026-11-04T12:47:31.1162805Z    5: device_loopback::default_device_loopback::closure$0
+2026-11-04T12:47:31.1163092Z              at .\tests\device_loopback.rs:518
+2026-11-04T12:47:31.1163526Z    6: core::ops::function::FnOnce::call_once<device_loopback::default_device_loopback::closure_env$0,tuple$<> >
+2026-11-04T12:47:31.1164106Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-11-04T12:47:31.1185310Z    7: core::ops::function::FnOnce::call_once
+2026-11-04T12:47:31.1185695Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-11-04T12:47:31.1220180Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-04T12:47:31.1228962Z test default_device_loopback ... FAILED
+2026-11-04T12:47:31.1231260Z 
+2026-11-04T12:47:31.1231318Z failures:
+2026-11-04T12:47:31.1231382Z 
+2026-11-04T12:47:31.1231430Z failures:
+2026-11-04T12:47:31.1231539Z     default_device_loopback
+2026-11-04T12:47:31.1231633Z 
+2026-11-04T12:47:31.1231785Z test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 3.44s
+2026-11-04T12:47:31.1231994Z 
+2026-11-04T12:47:31.1263654Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-audio --test device_loopback`
+2026-11-04T12:47:31.1401260Z ##[error]Process completed with exit code 101.
 

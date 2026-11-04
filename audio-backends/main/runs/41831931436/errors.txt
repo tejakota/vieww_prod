@@ -1,0 +1,61 @@
+-----
+Linux (ALSA and MIDI through kernel loopbacks, in a VM)	ALSA (every format, rate matching both ways) and MIDI, in the VM	﻿2026-11-04T12:45:52.8643307Z ##[group]Run ci/audio/vm-loopback.sh
+Linux (ALSA and MIDI through kernel loopbacks, in a VM)	ALSA (every format, rate matching both ways) and MIDI, in the VM	2026-11-04T12:45:52.8643766Z ^[[36;1mci/audio/vm-loopback.sh^[[0m
+Linux (ALSA and MIDI through kernel loopbacks, in a VM)	ALSA (every format, rate matching both ways) and MIDI, in the VM	2026-11-04T12:45:52.8668559Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+Linux (ALSA and MIDI through kernel loopbacks, in a VM)	ALSA (every format, rate matching both ways) and MIDI, in the VM	2026-11-04T12:45:52.8668967Z env:
+Linux (ALSA and MIDI through kernel loopbacks, in a VM)	ALSA (every format, rate matching both ways) and MIDI, in the VM	2026-11-04T12:45:52.8669212Z   CARGO_TERM_COLOR: always
+Linux (ALSA and MIDI through kernel loopbacks, in a VM)	ALSA (every format, rate matching both ways) and MIDI, in the VM	2026-11-04T12:45:52.8669534Z   RUST_BACKTRACE: 1
+Linux (ALSA and MIDI through kernel loopbacks, in a VM)	ALSA (every format, rate matching both ways) and MIDI, in the VM	2026-11-04T12:45:52.8669789Z   RUST_VERSION: 1.98.1
+Linux (ALSA and MIDI through kernel loopbacks, in a VM)	ALSA (every format, rate matching both ways) and MIDI, in the VM	2026-11-04T12:45:52.8670056Z ##[endgroup]
+Linux (ALSA and MIDI through kernel loopbacks, in a VM)	ALSA (every format, rate matching both ways) and MIDI, in the VM	2026-11-04T12:45:52.8783638Z ##[error]Process completed with exit code 2.
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	﻿2026-11-04T12:46:48.4300702Z ##[group]Run cargo test --release -p vieww-audio --test device_loopback default_device -- --ignored --nocapture
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:46:48.4301235Z ^[[36;1mcargo test --release -p vieww-audio --test device_loopback default_device -- --ignored --nocapture^[[0m
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:46:48.4309012Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:46:48.4309243Z env:
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:46:48.4309364Z   CARGO_TERM_COLOR: always
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:46:48.4309501Z   RUST_BACKTRACE: 1
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:46:48.4309619Z   RUST_VERSION: 1.98.1
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:46:48.4309743Z   VIEWW_REQUIRE_LOOPBACK: 1
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:46:48.4309884Z   VIEWW_LOOP_BACKEND: wasapi
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:46:48.4310035Z   VIEWW_LOOP_ATTEMPTS: 3
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:46:48.4310169Z ##[endgroup]
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:46:48.7133409Z ^[[1m^[[92m   Compiling^[[0m vieww-audio v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio)
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:27.6620613Z ^[[1m^[[92m    Finished^[[0m `release` profile [optimized + debuginfo] target(s) in 39.15s
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:27.6687464Z ^[[1m^[[92m     Running^[[0m tests\device_loopback.rs (target\release\deps\device_loopback-1fa765445b04dd6b.exe)
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:27.6789839Z 
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:27.6790140Z running 1 test
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:30.7592596Z wasapi: output StreamStats { callbacks: 299, frames: 145056, xruns: 0, ended: false, priority: Some(Realtime), render_mean: 9.524µs, render_max: 27.7µs, load_peak: 0.002, late: 0, latency: Some(22ms), exclusive: false, disconnected: false, buffer_frames: Some(1056), period_frames: None }
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:30.7594549Z wasapi: input StreamStats { callbacks: 299, frames: 143486, xruns: 0, ended: false, priority: None, render_mean: 0ns, render_max: 0ns, load_peak: 0.0, late: 0, latency: Some(22.041666ms), exclusive: false, disconnected: false, buffer_frames: Some(1058), period_frames: None }
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:30.7624070Z wasapi default loopback left: Report { windows: 287, snr_db: 47.209970484742996, amp_spread_db: 0.01390243384714207, phase_spread: 0.18850637850398533, worst_window_snr_db: 24.916209545388817 }
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:30.7624684Z 
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:30.7624934Z thread 'default_device_loopback' (8228) panicked at crates\vieww-audio\tests\device_loopback.rs:136:9:
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:30.7625611Z wasapi default loopback left: phase moved 0.189 rad — frames were dropped or repeated
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:30.7625944Z stack backtrace:
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1155787Z    0: std::panicking::panic_handler
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1156252Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1156529Z    1: core::panicking::panic_fmt
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1156764Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1160263Z    2: device_loopback::Report::check
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1160725Z              at .\tests\device_loopback.rs:136
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1161037Z    3: device_loopback::check_stereo
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1161288Z              at .\tests\device_loopback.rs:215
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1162143Z    4: device_loopback::default_device_loopback
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1162488Z              at .\tests\device_loopback.rs:582
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1162805Z    5: device_loopback::default_device_loopback::closure$0
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1163092Z              at .\tests\device_loopback.rs:518
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1163526Z    6: core::ops::function::FnOnce::call_once<device_loopback::default_device_loopback::closure_env$0,tuple$<> >
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1164106Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1185310Z    7: core::ops::function::FnOnce::call_once
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1185695Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1220180Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1228962Z test default_device_loopback ... FAILED
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1231260Z 
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1231318Z failures:
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1231382Z 
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1231430Z failures:
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1231539Z     default_device_loopback
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1231633Z 
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1231785Z test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 3.44s
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1231994Z 
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1263654Z ^[[1m^[[91merror^[[0m: test failed, to rerun pass `-p vieww-audio --test device_loopback`
+Windows (WASAPI shared and exclusive through VB-CABLE)	Loopback, shared mode	2026-11-04T12:47:31.1401260Z ##[error]Process completed with exit code 101.
