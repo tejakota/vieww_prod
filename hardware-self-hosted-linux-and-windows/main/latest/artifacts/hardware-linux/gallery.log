@@ -1,0 +1,57 @@
+    Finished `release` profile [optimized + debuginfo] target(s) in 20.63s
+     Running `target/release/fixtures /home/teja/actions-runner/_work/_temp/hardware-linux/fixtures --runs 30 --receipt /home/teja/actions-runner/_work/_temp/hardware-linux/fixtures/receipt.json --shadow /home/teja/actions-runner/_work/_temp/hardware-linux/fixtures/shadow.jsonl`
+
+fixture                                 size    cmds      best     worst    us/cmd      fps  what it covers
+----------------------------------------------------------------------------------------------------------------------------------------
+00-fills                            840x560      384     4.15ms     6.22ms      10.8        4  384 plain fills — the control
+00-fills-rounded                    840x560      384     5.12ms     8.88ms      13.3        3  the same fills, rounded — cost of curves
+00-fills-gradient                   840x560      384     7.64ms    13.89ms      19.9        2  the same fills, gradient-shaded — cost of shading
+00-fills-rrect-clip                 840x560      384     6.31ms     7.32ms      16.4        3  the same fills under ONE rounded clip
+00-fills-nested-clips               840x560      384     5.93ms     9.52ms      15.4        3  the same fills, three clips deep
+00-strokes                          840x560      384    13.58ms    14.48ms      35.4        1  stroke expansion: joins, caps
+00-curves                           840x560      384    10.64ms    13.53ms      27.7        2  open cubics — the flattener's real workload
+00-shadows                          840x560      768    13.70ms    14.45ms      17.8        1  384 blurred shadow masks
+00-layers-flat                      840x560     1152     6.70ms    11.59ms       5.8        2  384 sibling isolated layers
+00-layers-nested                    840x560       74    25.06ms    56.99ms     338.7        1  24 layers deep — compositor depth  <-- OVER 16.7ms
+00-blend-modes                      840x560       71     8.05ms    13.09ms     113.4        2  12 blend modes over one backdrop
+00-blurs                            840x560       24    10.63ms    25.40ms     443.1        2  blur at five sigmas, incl. bounds  (noisy: worst is over twice best)
+00-transforms                       840x560       97     5.09ms     8.25ms      52.5        3  96 rotated + scaled boxes
+10-icon-grid                        840x560       46     3.53ms     4.98ms      76.7        5  120 vector icons, four sizes
+10-icon-strokes                     840x560       46     5.23ms    14.91ms     113.7        3  stroked line-art icons at small sizes  (noisy: worst is over twice best)
+11-typography                       840x560       11     3.58ms     6.53ms     325.1        5  a type scale, real glyph outlines
+11-code-block                       840x560       56     3.31ms     3.52ms      59.1        5  syntax-coloured code — many small runs
+12-avatar                           840x560       18    10.06ms    15.92ms     559.1        2  one complex layered vector portrait
+12-avatar-wall                      840x560      362    13.43ms    20.91ms      37.1        1  24 of them, clipped to circles
+20-settings                         840x560       45     7.60ms    12.89ms     168.8        2  a settings form: rows, switches, chrome
+21-dashboard                        840x560       39     6.76ms     9.97ms     173.3        2  cards, charts, elevation, gradients
+22-editor                          1366x679      129    10.10ms    12.87ms      78.3        2  an IDE shell: sidebar, code, panels
+23-editor-glass                    1366x679      149    25.23ms    35.18ms     169.4        1  the same, with blur, shadows and overlays  <-- OVER 16.7ms
+----------------------------------------------------------------------------------------------------------------------------------------
+23 fixtures, 211.4 ms of rendering in total
+drawn across the gallery: 4178 shapes, 2743 glyphs, 449 layers, 394 shadows (0 commands culled)
+over budget: 00-layers-nested, 23-editor-glass
+no fixture's layout overflows
+shadow   : 23 frames planned -> /home/teja/actions-runner/_work/_temp/hardware-linux/fixtures/shadow.jsonl
+shadow   : planned as DESKTOP_DISCRETE; planner agreed with the executor that ran on 0 of 0 frames
+receipt  : /home/teja/actions-runner/_work/_temp/hardware-linux/fixtures/receipt.json
+
+motion                frames       mean      worst   moving   stall  what it covers
+----------------------------------------------------------------------------------------------------------------------
+30-fade-in                24     3.47ms     4.90ms     23/23       0  opacity 0 -> 1: the simplest reveal
+31-stagger                24     4.21ms     5.64ms     15/23       0  five rows revealing in sequence
+32-splash                 24     4.32ms     9.53ms     21/23       2  a launch splash: scale, rise, fade out
+33-sheet                  24    14.57ms    27.40ms     14/23       0  a modal sheet over a blurred backdrop  <-- OVER BUDGET
+34-spinner                24     2.03ms     2.09ms     23/23       0  a continuous sweep — transforms every frame
+35-shared-element         24    12.37ms    24.16ms     23/23       0  a card expanding into a detail view — the hard transition  <-- OVER BUDGET
+36-morph                  24     4.36ms     6.24ms     23/23       0  one vector path morphing into another, stroked and filled
+
+interaction                       damage  full frame    retained  speed-up  identical?
+------------------------------------------------------------------------------------------------
+light row 4                        8.01%     12.31ms      1.78ms      6.9x  yes
+move the light to row 9           16.03%      8.89ms      3.27ms      2.7x  yes
+clear the selection                8.01%      9.41ms      1.72ms      5.5x  yes
+nothing changes at all            -0.00%     12.46ms      0.18ms     68.2x  yes
+glass: highlight moves             0.72%     27.35ms     13.66ms      2.0x  yes  within 60Hz
+glass: highlight clears            0.72%     30.40ms     12.14ms      2.5x  yes  within 60Hz
+
+wrote 23 PNGs to /home/teja/actions-runner/_work/_temp/hardware-linux/fixtures

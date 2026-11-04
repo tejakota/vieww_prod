@@ -2,6 +2,7 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
+| 2026-11-04T15:18:29Z | hardware-self-hosted-linux-and-windows/main | SUCCESS | `e9cff2524bea` | [summary](hardware-self-hosted-linux-and-windows/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41849906938) |
 | 2026-11-04T14:02:34Z | framework-checks/main | SUCCESS | `e9cff2524bea` | [summary](framework-checks/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41841412883) |
 | 2026-11-04T13:11:37Z | pr-quick/main | SUCCESS | `c001ad2bf726` | [summary](pr-quick/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41832081747) |
 | 2026-11-04T12:49:39Z | audio-backends/main | FAILURE | `c001ad2bf726` | [summary](audio-backends/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41831931436) |
@@ -14,7 +15,6 @@
 | 2026-10-30T05:43:43Z | device-farm-android-and-ios-phones/main | FAILURE | `7a9e76951688` | [summary](device-farm-android-and-ios-phones/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41005684768) |
 | 2026-10-29T17:08:11Z | mobile-audio/main | SUCCESS | `866b6ac500d7` | [summary](mobile-audio/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40917953837) |
 | 2026-10-28T13:40:52Z | studio/main | SUCCESS | `c40a7185c063` | [summary](studio/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40697873837) |
-| 2026-10-26T22:45:29Z | hardware-self-hosted-linux-and-windows/main | CANCELLED | `f0e7547cea35` | [summary](hardware-self-hosted-linux-and-windows/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40241626076) |
 | 2026-10-26T12:27:36Z | publish/main | SUCCESS | `35c6b3f65b53` | [summary](publish/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40321754699) |
 | 2026-10-26T10:42:59Z | release-gate/main | SUCCESS | `da72ff4877e7` | [summary](release-gate/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40300437716) |
 | 2026-10-26T00:30:49Z | supply-chain/main | SUCCESS | `f0e7547cea35` | [summary](supply-chain/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40249282660) |
