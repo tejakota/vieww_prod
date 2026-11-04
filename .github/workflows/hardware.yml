@@ -1,7 +1,7 @@
 name: Hardware (self-hosted Linux and Windows)
 
-# The two machines that are actually yours, as self-hosted runners, running
-# `vieww_base/ci/hardware/linux.sh` and `vieww_base/ci/hardware/windows.ps1` —
+# The machines that are actually yours, as self-hosted runners, running
+# `vieww_base/ci/hardware/linux.sh`, `windows.ps1` and `macos.sh` —
 # the same scripts a person runs by hand, so a red step reproduces locally with
 # the command in its log. Setup (labels, prerequisites, why the runner must run
 # inside a desktop session, and the security rule below) is in
@@ -22,6 +22,13 @@ name: Hardware (self-hosted Linux and Windows)
 #   windows  | self-hosted, Windows, X64,           | the same, plus D3D12 on a
 #            |   vieww-windows                      | hardware adapter and the
 #            |                                      | studio's remote preview
+#   macos    | self-hosted, macOS, vieww-macos      | Metal suites on the Mac's own
+#            |   (Apple silicon or Intel)           | GPU (the hosted leg's is a
+#            |                                      | paravirtual one), MoltenVK when
+#            |                                      | installed, baseline window,
+#            |                                      | idle gate, size, stress,
+#            |                                      | desktop, Core Audio
+#            |                                      | (`ci/hardware/macos.sh`)
 #   report   | ubuntu (hosted)                      | publishes every summary,
 #            |                                      | receipt and baseline report to
 #            |                                      | ci-runs/hardware-<branch>
@@ -40,6 +47,10 @@ on:
         description: "Run on the Windows machine (runner label vieww-windows)"
         type: boolean
         default: true
+      macos:
+        description: "Run on the Mac (runner label vieww-macos)"
+        type: boolean
+        default: false
       linux_steps:
         description: "Linux steps (space-separated): env gpu nvidia gallery baseline size stress desktop audio wright-docker"
         type: string
@@ -48,6 +59,10 @@ on:
         description: "Windows steps (comma-separated): env,gpu,d3d12,gallery,baseline,size,pipelines,stress,desktop,remote,audio"
         type: string
         default: "env,gpu,d3d12,gallery,baseline,size,pipelines,stress,desktop,remote,audio"
+      macos_steps:
+        description: "macOS steps (space-separated): env gpu moltenvk gallery baseline size stress desktop audio"
+        type: string
+        default: "env gpu moltenvk gallery baseline size stress desktop audio"
       launches:
         description: "Baseline launches per path (CPU and GPU)"
         type: string
@@ -140,6 +155,35 @@ jobs:
           path: ${{ runner.temp }}\hardware-windows
           if-no-files-found: warn
 
+  macos:
+    name: macOS hardware
+    needs: main-only
+    if: inputs.macos
+    # No architecture label: the script runs on Apple silicon and Intel alike.
+    runs-on: [self-hosted, macOS, vieww-macos]
+    timeout-minutes: 240
+    defaults:
+      run:
+        shell: bash
+        working-directory: vieww_base
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          clean: false
+      - name: Hardware run
+        env:
+          STEPS: ${{ inputs.macos_steps || 'env gpu moltenvk gallery baseline size stress desktop audio' }}
+          VIEWW_HW_LAUNCHES: ${{ inputs.launches || '5' }}
+          VIEWW_HW_OUT: ${{ runner.temp }}/hardware-macos
+        run: ci/hardware/macos.sh $STEPS
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hardware-macos
+          path: ${{ runner.temp }}/hardware-macos
+          if-no-files-found: warn
+
   # **Results where a session without API access can read them**, as
   # framework-checks.yml's report job does: `git fetch origin
   # ci-runs/hardware-<branch>` is all a reader needs. Summaries, receipts,
@@ -149,7 +193,7 @@ jobs:
   report:
     name: Publish to ci-runs/hardware-<branch>
     if: always() && github.ref == 'refs/heads/main'
-    needs: [linux, windows]
+    needs: [linux, windows, macos]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
@@ -172,12 +216,14 @@ jobs:
             echo
             echo "- linux: ${{ needs.linux.result }}"
             echo "- windows: ${{ needs.windows.result }}"
-            if [ "${{ needs.linux.result }}" = cancelled ] || [ "${{ needs.windows.result }}" = cancelled ]; then
+            echo "- macos: ${{ needs.macos.result }}"
+            if [ "${{ needs.linux.result }}" = cancelled ] || [ "${{ needs.windows.result }}" = cancelled ] ||
+               [ "${{ needs.macos.result }}" = cancelled ]; then
               echo
               echo "A cancelled machine usually means no self-hosted runner with its labels"
-              echo "(vieww-linux / vieww-windows) was online: see docs/infra/SELF-HOSTED-SETUP.md."
+              echo "(vieww-linux / vieww-windows / vieww-macos) was online: see docs/infra/SELF-HOSTED-SETUP.md."
             fi
-            for machine in linux windows; do
+            for machine in linux windows macos; do
               f="out/hardware-$machine/summary.txt"
               if [ -f "$f" ]; then
                 echo
