@@ -16,8 +16,9 @@
 //! | AAC in MP4/M4A | yes, access unit by access unit | sample table, exact after one frame's pre-roll |
 //! | AAC in ADTS | yes, frame by frame | frame index, as MP3 |
 //! | ALAC in MP4/M4A | yes, frame by frame | sample table, exact — frames are independent |
-//! | Ogg Opus | container purely; payload via the [`platform`](super::platform) bridge, whole-stream in memory (refused by name without one) | exact |
-//! | Ogg Vorbis, AIFF | whole-file decode behind the same interface | exact |
+//! | Ogg Opus | yes, page by page (SILK/CELT/hybrid, multistream) | bisection on page granules, exact after RFC 7845's 80 ms pre-roll |
+//! | Ogg Vorbis | yes, page by page | bisection on page granules, then exact |
+//! | AIFF | whole-file decode behind the same interface | exact |
 //!
 //! Each streaming decoder is built from the same per-frame functions the
 //! whole-file decoder uses, and the tests hold them to the same output:
@@ -540,9 +541,8 @@ pub fn open(r: Box<dyn ReadSeek>) -> Result<Box<dyn PullDecoder>, CodecError> {
             ))
         }
         Format::Aiff => Box::new(Pull::new_with(input, AiffSource::open)?),
-        // An Ogg stream's first packet names its codec: Opus's container
-        // parses purely and its payload rides the platform bridge;
-        // Vorbis streams as it always has.
+        // An Ogg stream's first packet names its codec: Opus or Vorbis,
+        // both streamed a page at a time.
         Format::Ogg => {
             if super::opus::is_opus(&head) {
                 Box::new(Pull::new_with(input, super::opus::OpusSource::open)?)

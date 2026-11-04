@@ -1,9 +1,12 @@
 # Standard tables and where they came from
 
-The codecs in `src/codec/` are written in this repository. Four of them need
-fixed data that their standards define and no formula reproduces; that data
-was taken from permissively licensed reference code, by the generators in
-this folder, and is credited here and in each generated file's header.
+The codecs in `src/codec/` are written in this repository — with one
+exception, the Opus payload decoder, which is a port of the reference
+implementation and is credited in its own section below. Four of the
+others need fixed data that their standards define and no formula
+reproduces; that data was taken from permissively licensed reference code,
+by the generators in this folder, and is credited here and in each
+generated file's header.
 
 | Generated file | Data | Source | License |
 |---|---|---|---|
@@ -19,6 +22,9 @@ Regenerate with:
     python3 tools/gen_mp3_tables.py tools/mp3_HUFFCODE.txt [path/to/minimp3.h] > src/codec/mp3_tables.rs
     python3 tools/gen_aac_tables.py path/to/aac_rom.c > src/codec/aac_tables.rs
     python3 tools/gen_sbr_tables.py path/to/faad2/libfaad [path/to/fdk-aac] > src/codec/sbr_tables.rs
+    python3 tools/gen_opus_tables.py path/to/libopus celt > src/codec/opusdec/celt/tables.rs
+    gcc -w -DOPUS_BUILD -I$O/include -I$O/silk -I$O/celt -I$O -o /tmp/gen_silk \
+        tools/gen_silk_tables.c && /tmp/gen_silk > src/codec/opusdec/silk/tables.rs   # O=path/to/libopus
 
 The generators check their output (prefix-code completeness, band totals,
 window entries) before writing anything.
@@ -51,13 +57,46 @@ writing down:
   reference decoder (https://github.com/macosforge/alac) — and verified
   bit-exactly against ffmpeg's own decode of the same files. No code or
   table was copied; the reference was the oracle.
-* **Ogg Opus** (`src/codec/opus.rs`) — the container layer only
-  (RFC 7845, a public IETF standard): OpusHead/OpusTags, TOC framing,
-  granule arithmetic. The SILK/CELT payload (RFC 6716 §4-6) is refused
-  by name and handed to the platform bridge instead. Opus is
-  royalty-free under the IETF declarations its contributors filed — the
-  patent posture is in [`../PATENTS.md`](../PATENTS.md) — so the day a
-  pure payload decoder lands, nothing about the licence story changes.
+* **Ogg Opus, the container** (`src/codec/opus.rs`) — RFC 7845, a public
+  IETF standard: OpusHead/OpusTags, TOC and multistream framing, granule
+  arithmetic. Written from the RFC; no code or data copied.
+
+## The Opus payload decoder: a port of libopus
+
+`src/codec/opusdec/` (SILK, CELT, the Opus mode-switching layer and the
+multistream decoder) is a line-by-line Rust port of the **libopus 1.3.1
+decoder** — the reference implementation RFC 6716 itself publishes — as
+vendored by the `audiopus_sys` 0.2.2 crate. It is a derived work of that
+code, not an independent implementation, and is distributed under its
+licence:
+
+* **Licence:** BSD-3-Clause. Copyright 2001-2011 Xiph.Org, Skype Limited,
+  Octasic, Jean-Marc Valin, Timothy B. Terriberry, CSIRO, Gregory Maxwell,
+  Mark Borgerding, Erik de Castro Lopo. The full notice and conditions are
+  reproduced in [`LICENSE-libopus.txt`](LICENSE-libopus.txt); a binary
+  distribution must carry that notice in its documentation (the clause
+  every BSD dependency already imposes — include it with the app's other
+  open-source notices).
+* **What was ported:** the decoder only — `silk/dec_API.c` and the
+  SILK decode path (indices, pulses, NLSF/LPC, LTP synthesis, PLC, CNG,
+  stereo unmixing, the 48 kHz resampler), CELT's `celt_decoder.c` with
+  the range decoder, band/PVQ/allocation code, MDCT and FFT (float build),
+  `opus_decoder.c` and `opus_multistream_decoder.c`. No encoder, no
+  `dnn/`, no SIMD.
+* **Tables:** `opusdec/celt/tables.rs` by `gen_opus_tables.py` and
+  `opusdec/silk/tables.rs` by `gen_silk_tables.c`, both straight from
+  libopus's own sources (the C generator compiles libopus's table files
+  and prints them), so every constant is the reference decoder's.
+* **How it is graded:** `tools/opus-ref` (libopus via `audiopus_sys`,
+  test-only, never linked into the crate) encodes the fixtures and
+  decodes them with `opus_multistream_decode_float`; the tests require
+  every packet's final range-coder state to equal libopus's (RFC 6716
+  §6's conformance fingerprint), SILK output to match sample for sample,
+  and CELT/hybrid output to libopus's own 16-bit rounding. ffmpeg's
+  independent decoder agrees with it at 88 dB on `src.opus`.
+
+Opus is royalty-free under the IETF declarations its contributors filed;
+the patent posture is in [`../PATENTS.md`](../PATENTS.md).
 
 ## Patents
 

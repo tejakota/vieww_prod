@@ -1,9 +1,11 @@
-//! The Ogg-Opus container layer: page CRCs, the OpusHead/OpusTags pair,
-//! TOC framing of every packet — everything the pure side decodes before
-//! it refuses the payload by name (which this target also pins: the
-//! refusal is the contract the platform bridge matches on).
+//! Ogg Opus end to end: page CRCs, the OpusHead/OpusTags pair, TOC and
+//! multistream framing of every packet, then the SILK/CELT/hybrid payload
+//! decoder on whatever survives — hostile bytes must neither panic nor
+//! produce a decode the oracle rejects.
 
 #![no_main]
+
+mod common;
 
 use libfuzzer_sys::fuzz_target;
 use vieww_audio::codec::opus;
@@ -21,11 +23,10 @@ fuzz_target!(|data: &[u8]| {
         if let Some(total) = s.total_pcm {
             assert!(total < 1 << 32, "granule arithmetic ran away: {total}");
         }
-        // A sound container is refused by name — the exact string the
-        // platform fallback keys on.
-        assert_eq!(
-            opus::decode(data).err(),
-            Some(vieww_audio::codec::CodecError::Unsupported(opus::REFUSED_PAYLOAD))
-        );
+        // A sound container decodes; whatever comes out passes the
+        // oracle (finite, bounded, a sane shape).
+        if let Ok(d) = opus::decode(data) {
+            common::check(&d);
+        }
     }
 });

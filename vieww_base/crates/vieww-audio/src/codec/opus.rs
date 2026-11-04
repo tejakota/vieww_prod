@@ -1,28 +1,27 @@
-//! Ogg Opus — the container, durations, gains and seeking; the payload by
-//! platform.
+//! Ogg Opus — the container, durations, gains and seeking, and the
+//! SILK/CELT payload through the pure-Rust decoder.
 //!
 //! What is here, complete and tested: the Ogg-Opus encapsulation of
 //! RFC 7845 — the identification header ([`Head`]: version, channel
 //! count, pre-skip, input sample rate, output gain in Q7.8, channel
-//! mapping families 0/1/2 with their stream/coupled counts and mapping
-//! tables), the comment header (read by [`tags`](super::tags)), packet
+//! mapping families 0/1/2/255 with their stream/coupled counts and
+//! validated mapping tables), the comment header (read by [`tags`](super::tags)), packet
 //! enumeration with the TOC byte's mode/bandwidth/frame-size decode
 //! (RFC 6716 §3.1's Table 2), the four frame-packing codes of §3.2
 //! including code 3's VBR/CBR/padding layout, per-packet duration, and
 //! the granule-position → PCM-sample-position arithmetic (`granule −
 //! pre-skip` at the Ogg Opus clock of 48 kHz) that sample-accurate
 //! seeking rests on. Output-gain application and pre-skip trimming are
-//! pure functions over a decoded stream ([`Head::apply_to`]) so a
-//! platform decode can be finished off exactly as the spec demands.
+//! also pure functions over any decoded stream ([`Head::apply_to`]), for
+//! a decode made elsewhere.
 //!
-//! What is not here, named plainly: the SILK and CELT payload decoders
-//! of RFC 6716 §4–§6 (LP-layer LTP/LPC, shape coding, the MDCT layer's
-//! band algebra, mode coupling). `decode` refuses them by name rather
-//! than guessing, exactly as `aac` refuses Main-profile prediction and LTP.
-//! The player paths
-//! consult [`platform`](super::platform) when this refusal comes back:
-//! Android's MediaCodec and Apple's Core Audio decode Opus natively, and
-//! the parsed head above is what finishes their output.
+//! The payload — SILK, CELT, hybrid, the mode transitions and the
+//! multistream layer of RFC 6716 / RFC 7845 — is decoded purely by
+//! the crate's `opusdec` module, a port of libopus (the RFC's reference decoder)
+//! graded against it bit for bit: SILK sample-exact, CELT and every
+//! mixed-mode transition to float rounding (>130 dB SNR, identical final
+//! range-coder states). [`decode`] is the whole-file path; the streaming
+//! source decodes a page at a time with sample-exact seeking.
 //!
 //! Opus itself is royalty-free: the contributing patent holders
 //! (Xiph, Microsoft, Broadcom and others) made IETF royalty-free
@@ -30,11 +29,6 @@
 
 use super::ogg;
 use super::{CodecError, Decoded};
-
-/// The refusal every Opus payload decode returns — a stable prefix the
-/// platform fallback can match on (see [`super::platform`]).
-pub const REFUSED_PAYLOAD: &str =
-    "Opus: container, durations, gain and seeking decoded; SILK/CELT payload (RFC 6716 §4-6) is not — hand the bytes to a PlatformCodec";
 
 /// The Ogg Opus clock: granule positions and pre-skip are always in
 /// 48 kHz samples, whatever rate the audio was encoded from.
@@ -112,14 +106,14 @@ impl Head {
                 }
                 // The table is omitted; the defaults above are the spec's.
             }
-            1 | 2 => {
+            1 | 2 | 255 => {
                 if mapping_family == 1 && channels > 8 {
                     return Err(CodecError::Malformed(
                         "Opus mapping family 1 with more than 8 channels",
                     ));
                 }
                 if channels > 64 {
-                    // Family 2 permits wide ambisonic orders; this crate's
+                    // Families 2/255 permit wide layouts; this crate's
                     // channel ceiling (MAX_CHANNELS) is the honest bound.
                     return Err(CodecError::Unsupported(
                         "Opus streams of more than 64 channels",
@@ -138,20 +132,26 @@ impl Head {
                         "Opus coupled count above the stream count",
                     ));
                 }
+                if usize::from(head.streams) + usize::from(head.coupled) > 255 {
+                    return Err(CodecError::Malformed("Opus stream counts above 255"));
+                }
                 let want = usize::from(channels);
                 let table = p.get(21..21 + want).ok_or(CodecError::Truncated)?;
+                // RFC 7845 §5.1.1: an index past the coded channels (other
+                // than 255, silence) makes the stream undecodable.
+                let coded = usize::from(head.streams) + usize::from(head.coupled);
+                if table.iter().any(|&m| m != 255 && usize::from(m) >= coded) {
+                    return Err(CodecError::Malformed(
+                        "Opus channel mapping past the coded channels",
+                    ));
+                }
                 head.mapping = table.to_vec();
             }
-            3..=191 | 200..=253 => {
-                return Err(CodecError::Unsupported(
-                    "Opus channel mapping families other than 0/1/2",
-                ));
-            }
             _ => {
-                // 192..199 and 254..255: reserved/undefined in the
-                // registry; a stream using one is not decodable here.
+                // Family 3 (projection: ambisonics through a demixing
+                // matrix) and the reserved/unregistered values.
                 return Err(CodecError::Unsupported(
-                    "Opus channel mapping families other than 0/1/2",
+                    "Opus channel mapping families other than 0/1/2/255",
                 ));
             }
         }
@@ -384,6 +384,44 @@ pub fn packet_info(data: &[u8]) -> Result<PacketInfo, CodecError> {
     Ok(PacketInfo { frames, samples })
 }
 
+/// [`packet_info`] for a packet carrying `streams` multistream streams
+/// (RFC 7845 §5.1.1): every stream but the last is self-delimited
+/// (RFC 6716 Appendix B), and all must last equally long — the checks
+/// `opus_multistream_packet_validate` makes. One stream is
+/// [`packet_info`] itself.
+///
+/// # Errors
+/// Truncated or inconsistent framing, or streams of unequal duration.
+pub fn stream_packet_info(data: &[u8], streams: usize) -> Result<PacketInfo, CodecError> {
+    if streams <= 1 {
+        return packet_info(data);
+    }
+    let mut rest = data;
+    let mut first: Option<PacketInfo> = None;
+    for s in 0..streams {
+        let Some(&toc) = rest.first() else {
+            return Err(CodecError::Truncated);
+        };
+        let p = super::opusdec::parse_packet(rest, s != streams - 1)
+            .map_err(|_| CodecError::Malformed("Opus multistream packet framing"))?;
+        let info = PacketInfo {
+            frames: p.frames.len(),
+            samples: p.frames.len() as u64 * u64::from(Toc::parse(toc).frame_samples()),
+        };
+        match first {
+            None => first = Some(info),
+            Some(f) if f.samples != info.samples => {
+                return Err(CodecError::Malformed(
+                    "Opus multistream streams of unequal duration",
+                ));
+            }
+            Some(_) => {}
+        }
+        rest = &rest[p.packet_len.min(rest.len())..];
+    }
+    first.ok_or(CodecError::Truncated)
+}
+
 /// The one-or-two-byte frame length of §3.2.1: `v` alone for 0..=251,
 /// `v*1 + second*4` when `v` is 252..=255.
 fn frame_len(data: &[u8], at: usize) -> Result<(usize, usize), CodecError> {
@@ -415,6 +453,11 @@ pub struct Stream {
 }
 
 impl Stream {
+    /// One packet's framing under this stream's channel mapping.
+    fn info(&self, p: &[u8]) -> Result<PacketInfo, CodecError> {
+        stream_packet_info(p, usize::from(self.head.streams))
+    }
+
     /// The position (in 48 kHz samples) the packet at `index` starts at
     /// — the arithmetic sample-accurate seeking rests on: trust the page
     /// granules, sum the durations in between.
@@ -426,11 +469,11 @@ impl Stream {
             Some(j) => {
                 u64::try_from(self.packets[j].1).unwrap_or(0)
                     + (j + 1..index).fold(0u64, |at, i| {
-                        at + packet_info(&self.packets[i].0).map_or(0, |p| p.samples)
+                        at + self.info(&self.packets[i].0).map_or(0, |p| p.samples)
                     })
             }
             None => (0..index).fold(0u64, |at, i| {
-                at + packet_info(&self.packets[i].0).map_or(0, |p| p.samples)
+                at + self.info(&self.packets[i].0).map_or(0, |p| p.samples)
             }),
         }
     }
@@ -441,7 +484,7 @@ impl Stream {
     pub fn total_by_durations(&self) -> u64 {
         self.packets
             .iter()
-            .map(|(p, _)| packet_info(p).map_or(0, |i| i.samples))
+            .map(|(p, _)| self.info(p).map_or(0, |i| i.samples))
             .sum()
     }
 }
@@ -493,7 +536,7 @@ pub fn parse(bytes: &[u8]) -> Result<Stream, CodecError> {
     for p in &packets[2..] {
         // Validate every packet's framing now, so a caller that trusts
         // `Stream` never meets a malformed one half-way through playback.
-        packet_info(&p.data)?;
+        stream_packet_info(&p.data, usize::from(head.streams))?;
         out.push((p.data.clone(), p.granule));
     }
     let total_pcm = packets
@@ -508,112 +551,341 @@ pub fn parse(bytes: &[u8]) -> Result<Stream, CodecError> {
     })
 }
 
-/// Decode an Ogg Opus stream. The container is parsed and validated;
-/// the SILK/CELT payload is refused by name (see [`REFUSED_PAYLOAD`]) —
-/// the player paths hand the bytes to [`platform`](super::platform),
-/// which Android and Apple implementations finish with
-/// [`Head::apply_to`].
+/// The payload decoder a stream's head asks for: libopus's multistream
+/// decoder (one stream for mapping family 0), the header's output gain
+/// applied inside it exactly as `OPUS_SET_GAIN` does.
+pub(crate) struct Payload {
+    ms: super::opusdec::MultistreamDecoder,
+    channels: usize,
+    streams: usize,
+    buf: Vec<f32>,
+}
+
+impl Payload {
+    pub(crate) fn new(head: &Head) -> Result<Self, CodecError> {
+        let channels = usize::from(head.channels);
+        let (streams, coupled, mapping) = if head.mapping_family == 0 {
+            (
+                1,
+                usize::from(channels == 2),
+                (0..channels as u8).collect::<Vec<u8>>(),
+            )
+        } else {
+            (
+                usize::from(head.streams),
+                usize::from(head.coupled),
+                head.mapping.clone(),
+            )
+        };
+        let mut ms = super::opusdec::MultistreamDecoder::new(channels, streams, coupled, &mapping)
+            .ok_or(CodecError::Malformed(
+                "Opus channel mapping the decoder cannot route",
+            ))?;
+        ms.set_gain(i32::from(head.output_gain));
+        Ok(Self {
+            ms,
+            channels,
+            streams,
+            buf: vec![0.0; super::opusdec::MAX_FRAME * channels],
+        })
+    }
+
+    /// Decode one packet, appending its samples to `out`. A packet the
+    /// payload decoder rejects (its framing already passed [`parse`], so
+    /// this is a corrupt payload) is concealed for its own duration —
+    /// libopus's packet-loss concealment, as a player would on a lost
+    /// packet — so one bad packet costs its own 2.5–120 ms, not the file.
+    pub(crate) fn packet(&mut self, p: &[u8], out: &mut Vec<f32>) {
+        let max = super::opusdec::MAX_FRAME;
+        let n = match self.ms.decode(Some(p), &mut self.buf, max) {
+            Ok(n) => n,
+            Err(_) => {
+                let dur = stream_packet_info(p, self.streams)
+                    .map_or(960, |i| i.samples as usize)
+                    .clamp(120, max)
+                    / 120
+                    * 120;
+                self.ms
+                    .decode(None, &mut self.buf, dur)
+                    .unwrap_or_else(|_| {
+                        self.buf[..dur * self.channels].fill(0.0);
+                        dur
+                    })
+            }
+        };
+        out.extend_from_slice(&self.buf[..n * self.channels]);
+    }
+}
+
+/// Decode an Ogg Opus stream: the container parsed and validated, every
+/// packet through the pure-Rust SILK/CELT decoder (`codec::opusdec`,
+/// ported from libopus and graded against it), the pre-skip trimmed, the
+/// last page's granule honoured and the output gain applied (RFC 7845
+/// §4.2, §4.4, §5.1). 48 kHz float, all channels in the head's order.
 ///
 /// # Errors
-/// [`CodecError::Unsupported`] naming the missing payload decoder, or
-/// [`parse`]'s errors.
+/// [`parse`]'s errors, or a channel mapping that routes nowhere.
 pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
-    let _ = parse(bytes)?;
-    Err(CodecError::Unsupported(REFUSED_PAYLOAD))
+    let s = parse(bytes)?;
+    let mut payload = Payload::new(&s.head)?;
+    let ch = payload.channels;
+    let mut out = Vec::new();
+    for (p, _) in &s.packets {
+        payload.packet(p, &mut out);
+    }
+    let skip = usize::from(s.head.pre_skip) * ch;
+    if skip > out.len() {
+        return Err(CodecError::Truncated);
+    }
+    out.drain(..skip);
+    if let Some(total) = s.total_pcm {
+        out.truncate(
+            usize::try_from(total)
+                .unwrap_or(usize::MAX)
+                .saturating_mul(ch),
+        );
+    }
+    Decoded {
+        data: out,
+        channels: s.head.channels,
+        rate: CLOCK,
+    }
+    .validated()
 }
 
 // ── streaming (AU-05) ────────────────────────────────────────────────────
 
-/// Ogg Opus behind [`super::stream`]'s interface: the container is parsed
-/// purely — every packet's framing validated, the trim and the seek
-/// arithmetic exact — and the payload is handed whole to the platform
-/// bridge, which serves it back a chunk at a time.
-///
-/// Without a [`PlatformCodec`](super::platform::PlatformCodec) installed,
-/// opening refuses by name, so a caller always learns precisely what is
-/// missing. With one, the whole decode is held in memory: the platform
-/// bridge decodes whole streams (that is its trait), so this source is
-/// the "whole-file decode behind the same interface" row of AU-05's
-/// table, not the bounded-window path the pure decoders have. A pure
-/// payload decoder, when one lands, replaces the bridge here and nothing
-/// else moves.
+use super::ogg::{find_page, page_at};
+
+/// RFC 7845 §4.6 asks for at least 80 ms of decode before a seek target
+/// so the decoder's state has converged when the target plays; 200 ms is
+/// used. Measured on mixed-mode material (tests/fixtures/long.opus), the
+/// 80 ms minimum still left a 1.3e-2 difference from a continuous decode
+/// where a seek landed just past a mode switch; 200 ms keeps every
+/// landing under 1e-3 for ~3 ms more decode per seek.
+const PRE_ROLL: u64 = 9600;
+
+/// Ogg Opus a page at a time, for [`super::stream`]: the bounded-window
+/// path the other pure decoders have. Seeking bisects the pages by
+/// granule, lands at least [`PRE_ROLL`] before the target with a fresh
+/// decoder, and counts the samples exactly from the granules.
 pub(crate) struct OpusSource {
-    pcm: Vec<f32>,
-    channels: usize,
-    rate: u32,
-    at: usize,
+    head: Head,
+    payload: Payload,
+    serial: u32,
+    audio_start: u64,
+    at: u64,
+    partial: Vec<u8>,
+    queue: std::collections::VecDeque<(Vec<u8>, i64, bool)>,
+    drop_continued: bool,
+    ready: Vec<f32>,
+    final_granule: Option<u64>,
 }
 
 impl OpusSource {
-    /// Read the whole stream through the bounded window (the bytes are
-    /// the file's own size; nothing more is held) and hand it over.
     pub(crate) fn open(input: &mut super::stream::Input) -> Result<Self, CodecError> {
-        let len = usize::try_from(input.len()).unwrap_or(usize::MAX);
-        let bytes = input.window(0, len)?.to_vec();
-        if bytes.len() < len {
-            return Err(CodecError::Truncated);
+        let first = page_at(input, 0)?.ok_or(CodecError::NotThisFormat)?;
+        let serial = first.serial;
+        let mut headers: Vec<Vec<u8>> = Vec::new();
+        let mut partial = Vec::new();
+        let mut at = 0u64;
+        while headers.len() < 2 {
+            let (off, p) = find_page(input, at, serial)?.ok_or(CodecError::Truncated)?;
+            at = off + p.len;
+            let mut o = 0;
+            for &l in &p.lacing {
+                partial.extend_from_slice(&p.body[o..o + usize::from(l)]);
+                o += usize::from(l);
+                if l < 255 {
+                    headers.push(std::mem::take(&mut partial));
+                }
+            }
         }
-        Self::from_bytes(&bytes)
+        if !headers[0].starts_with(b"OpusHead") {
+            return Err(CodecError::NotThisFormat);
+        }
+        if !headers[1].starts_with(b"OpusTags") {
+            return Err(CodecError::Malformed("no OpusTags header"));
+        }
+        let head = Head::parse(&headers[0])?;
+        let payload = Payload::new(&head)?;
+        let len = input.len();
+        let mut final_granule = None;
+        let mut t = len.saturating_sub(64 << 10);
+        while let Some((off, p)) = find_page(input, t, serial).ok().flatten() {
+            if p.flags & 4 != 0 && p.granule >= 0 {
+                final_granule = u64::try_from(p.granule).ok();
+            }
+            t = off + p.len;
+        }
+        Ok(Self {
+            head,
+            payload,
+            serial,
+            audio_start: at,
+            at,
+            partial: Vec::new(),
+            queue: std::collections::VecDeque::new(),
+            drop_continued: false,
+            ready: Vec::new(),
+            final_granule,
+        })
     }
 
-    fn from_bytes(bytes: &[u8]) -> Result<Self, CodecError> {
-        // Parse first: the refusal names what is missing only after the
-        // container itself has been proven sound.
-        let _ = parse(bytes)?;
-        let d = super::platform::decode_chunked(bytes)?.0;
-        let channels = usize::from(d.channels.max(1));
-        Ok(Self {
-            pcm: d.data,
-            channels,
-            rate: d.rate,
-            at: 0,
-        })
+    /// Read the next page's packets into the queue; `false` at the end.
+    fn fill(&mut self, input: &mut super::stream::Input) -> Result<bool, CodecError> {
+        let Some((off, p)) = find_page(input, self.at, self.serial)? else {
+            return Ok(false);
+        };
+        self.at = off + p.len;
+        if p.flags & 1 == 0 {
+            self.partial.clear();
+            self.drop_continued = false;
+        }
+        let eos = p.flags & 4 != 0;
+        let last_complete = p.lacing.iter().rposition(|l| *l < 255);
+        let mut o = 0;
+        for (i, &l) in p.lacing.iter().enumerate() {
+            self.partial
+                .extend_from_slice(&p.body[o..o + usize::from(l)]);
+            o += usize::from(l);
+            if l < 255 {
+                let data = std::mem::take(&mut self.partial);
+                if std::mem::take(&mut self.drop_continued) {
+                    continue;
+                }
+                let g = if Some(i) == last_complete {
+                    p.granule
+                } else {
+                    -1
+                };
+                self.queue.push_back((data, g, eos));
+            }
+        }
+        Ok(true)
+    }
+
+    /// Decode the next packet: its samples, its page granule (−1 when not
+    /// the page's last), and whether that page ends the stream.
+    fn decode_next(
+        &mut self,
+        input: &mut super::stream::Input,
+    ) -> Result<Option<(Vec<f32>, i64, bool)>, CodecError> {
+        loop {
+            if let Some((data, g, eos)) = self.queue.pop_front() {
+                // The same framing check the whole-file parse makes.
+                stream_packet_info(&data, usize::from(self.head.streams))?;
+                let mut out = Vec::new();
+                self.payload.packet(&data, &mut out);
+                return Ok(Some((out, g, eos)));
+            }
+            if !self.fill(input)? {
+                return Ok(None);
+            }
+        }
+    }
+
+    fn restart_at(&mut self, at: u64, mid_packet: bool) -> Result<(), CodecError> {
+        self.at = at;
+        self.partial.clear();
+        self.queue.clear();
+        self.ready.clear();
+        self.drop_continued = mid_packet;
+        self.payload = Payload::new(&self.head)?;
+        Ok(())
     }
 }
 
-/// Frames served per chunk: one 20 ms Opus frame's neighbourhood, so the
-/// pull side's buffering stays fine-grained.
-const OPUS_CHUNK: usize = 960;
-
 impl super::stream::FrameSource for OpusSource {
     fn channels(&self) -> usize {
-        self.channels
+        usize::from(self.head.channels)
     }
 
     fn rate(&self) -> u32 {
-        self.rate
+        CLOCK
     }
 
     fn trim(&self) -> (u64, Option<u64>) {
-        // The platform contract already trimmed the pre-skip; the length
-        // is what the decode holds, and the granule cross-check lives in
-        // the tests.
-        (0, Some((self.pcm.len() / self.channels.max(1)) as u64))
+        let skip = u64::from(self.head.pre_skip);
+        (skip, self.final_granule.map(|g| g.saturating_sub(skip)))
     }
 
     fn next(
         &mut self,
-        _input: &mut super::stream::Input,
+        input: &mut super::stream::Input,
     ) -> Result<Option<super::stream::Chunk>, CodecError> {
-        let ch = self.channels.max(1);
-        if self.at >= self.pcm.len() {
-            return Ok(None);
+        if !self.ready.is_empty() {
+            return Ok(Some(super::stream::Chunk {
+                pcm: std::mem::take(&mut self.ready),
+            }));
         }
-        let end = (self.at + OPUS_CHUNK * ch).min(self.pcm.len());
-        let pcm = self.pcm[self.at..end].to_vec();
-        self.at = end;
-        Ok(Some(super::stream::Chunk { pcm }))
+        loop {
+            match self.decode_next(input)? {
+                None => return Ok(None),
+                Some((pcm, _, _)) if pcm.is_empty() => {}
+                Some((pcm, _, _)) => return Ok(Some(super::stream::Chunk { pcm })),
+            }
+        }
     }
 
-    fn seek(&mut self, _input: &mut super::stream::Input, frame: u64) -> Result<u64, CodecError> {
-        // The decode is in memory, so seeking is exact by construction —
-        // the packet-start arithmetic this module publishes is what a
-        // pure payload decoder will use to get here without one.
-        let ch = self.channels.max(1) as u64;
-        self.at = usize::try_from(frame.saturating_mul(ch))
-            .unwrap_or(usize::MAX)
-            .min(self.pcm.len());
-        Ok((self.at / self.channels.max(1)) as u64)
+    fn seek(&mut self, input: &mut super::stream::Input, frame: u64) -> Result<u64, CodecError> {
+        let ch = self.channels().max(1);
+        let want = frame.saturating_sub(PRE_ROLL);
+        if want > 0 {
+            let (mut lo, mut hi) = (self.audio_start, input.len());
+            let mut best: Option<u64> = None;
+            for _ in 0..48 {
+                if hi <= lo + 4096 {
+                    break;
+                }
+                let mid = lo + (hi - lo) / 2;
+                match find_page(input, mid, self.serial)? {
+                    Some((off, p))
+                        if p.granule >= 0 && u64::try_from(p.granule).unwrap_or(0) <= want =>
+                    {
+                        best = Some(off + p.len);
+                        lo = off + p.len;
+                    }
+                    _ => hi = mid,
+                }
+            }
+            // Short files: a linear walk finds the last page at or before
+            // `want` where bisection had too little room to.
+            if best.is_none() {
+                let mut t = self.audio_start;
+                while let Some((off, p)) = find_page(input, t, self.serial)? {
+                    if p.granule < 0 || u64::try_from(p.granule).unwrap_or(0) > want {
+                        break;
+                    }
+                    best = Some(off + p.len);
+                    t = off + p.len;
+                }
+            }
+            if let Some(at) = best {
+                let mid = page_at(input, at)?.is_some_and(|p| p.flags & 1 != 0);
+                self.restart_at(at, mid)?;
+                let mut ready = Vec::new();
+                // The samples' position: the first page granule that is
+                // exact (not the end-trimmed last page's) less what has
+                // been decoded up to and including that page.
+                while let Some((pcm, g, eos)) = self.decode_next(input)? {
+                    ready.extend_from_slice(&pcm);
+                    if g >= 0 && !eos {
+                        let g = u64::try_from(g).unwrap_or(0);
+                        if let Some(start) = g
+                            .checked_sub((ready.len() / ch) as u64)
+                            .filter(|s| *s <= frame)
+                        {
+                            self.ready = ready;
+                            return Ok(start);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        self.restart_at(self.audio_start, false)?;
+        Ok(0)
     }
 }
 
@@ -710,11 +982,32 @@ mod tests {
         assert_eq!(s.total_pcm.unwrap(), reference_len as u64);
     }
 
+    /// The ffmpeg-encoded fixture against ffmpeg's own (independent,
+    /// non-libopus) Opus decoder: a second oracle beside the libopus
+    /// conformance tests in `opusdec`.
     #[test]
-    fn decode_refuses_the_payload_by_name() {
-        let e = decode(include_bytes!("../../tests/fixtures/src.opus")).unwrap_err();
-        assert_eq!(e, CodecError::Unsupported(REFUSED_PAYLOAD));
-        assert!(e.to_string().contains("SILK"));
+    fn decode_agrees_with_ffmpegs_decoder() {
+        let d = decode(include_bytes!("../../tests/fixtures/src.opus")).unwrap();
+        assert_eq!((d.channels, d.rate), (2, 48_000));
+        let r = super::super::s16le(include_bytes!("../../tests/fixtures/src.opus.ref"));
+        assert_eq!(d.data.len(), r.len(), "trimmed to the granule like the ref");
+        let (snr, lag) = super::super::snr_db(&r, &d.data, 2, 0);
+        eprintln!("src.opus vs ffmpeg: {snr:.1} dB (lag {lag})");
+        assert!(snr > 60.0, "{snr:.1} dB");
+    }
+
+    /// The whole-file decode applies the container's rules: pre-skip
+    /// dropped, the last granule honoured, the header gain applied.
+    #[test]
+    fn decode_trims_and_applies_the_gain() {
+        let bytes = include_bytes!("../../tests/fixtures/opus_switch.opus");
+        let s = parse(bytes).unwrap();
+        assert_eq!(s.head.output_gain, 800);
+        let d = decode(bytes).unwrap();
+        assert_eq!(d.data.len() as u64, s.total_pcm.unwrap() * 2);
+        let r = super::super::s16le(include_bytes!("../../tests/fixtures/opus_switch.opus.ref"));
+        let (snr, _) = super::super::snr_db(&r, &d.data, 2, 0);
+        assert!(snr > 80.0, "the gain-scaled ref, {snr:.1} dB");
     }
 
     #[test]
@@ -916,20 +1209,28 @@ mod tests {
         assert_eq!(
             Head::parse(&h3).err(),
             Some(CodecError::Unsupported(
-                "Opus channel mapping families other than 0/1/2"
+                "Opus channel mapping families other than 0/1/2/255"
             ))
         );
         // Family 1 with the mapping table: streams, coupled, then one
-        // table entry per channel.
+        // table entry per channel (255 = silence).
         let mut h8 = opus_head(6, 0, 0);
         h8[18] = 1;
-        h8.extend_from_slice(&[2, 1, 0, 1, 2, 3, 4, 0]);
+        h8.extend_from_slice(&[4, 2, 0, 1, 2, 3, 4, 255]);
         let parsed = Head::parse(&h8).unwrap();
         assert_eq!(
             (parsed.mapping_family, parsed.streams, parsed.coupled),
-            (1, 2, 1)
+            (1, 4, 2)
         );
-        assert_eq!(parsed.mapping, vec![0, 1, 2, 3, 4, 0]);
+        assert_eq!(parsed.mapping, vec![0, 1, 2, 3, 4, 255]);
+        // A table entry past the coded channels (4 + 2 = 6) refuses.
+        let mut bad = h8.clone();
+        bad[21 + 5] = 6;
+        assert!(matches!(Head::parse(&bad), Err(CodecError::Malformed(_))));
+        // Family 255 parses like 1 (no channel meaning implied).
+        let mut h255 = h8.clone();
+        h255[18] = 255;
+        assert_eq!(Head::parse(&h255).unwrap().mapping_family, 255);
         // Family 1 with a truncated table.
         let mut short = h8.clone();
         short.truncate(24);

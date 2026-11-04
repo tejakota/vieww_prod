@@ -1,13 +1,14 @@
 //! The platform escape hatch: decode through the OS what pure Rust refuses.
 //!
-//! Every decoder in this crate is hand-rolled, and two of them refuse part
-//! of their format *by name* — the Opus SILK/CELT payload
-//! ([`opus::REFUSED_PAYLOAD`](super::opus::REFUSED_PAYLOAD)) and AAC's
-//! object types beyond LC — because writing them correctly is a project,
-//! and guessing is worse than refusing. But Android and Apple devices
-//! ship decoders for exactly those: `MediaCodec` (Android 10+ for Opus)
-//! and `ExtAudioFile`/`AudioConverter` (iOS 11+/macOS 10.13+ for Opus),
-//! licensed by the OS vendor. This module is the bridge: an app installs
+//! Every decoder in this crate is hand-rolled, and one of them refuses
+//! part of its format *by name* — AAC's object types beyond LC/HE-AAC
+//! (Main-profile prediction, LTP, SSR gain control, coupling channels),
+//! and every AAC kind while the `aac` feature is off — because guessing
+//! is worse than refusing. (Opus used to ride this bridge too; its
+//! SILK/CELT payload is now decoded purely, so it never refuses.) Android
+//! and Apple devices ship decoders for exactly those AAC cases:
+//! `MediaCodec` and `ExtAudioFile`/`AudioConverter`, licensed by the OS
+//! vendor. This module is the bridge: an app installs
 //! one [`PlatformCodec`] at startup and calls [`decode`] instead of
 //! [`codec::decode`](super::decode); when the pure decoder refuses with
 //! [`CodecError::Unsupported`], the platform gets the bytes, and the
@@ -16,14 +17,9 @@
 //! What each side owns, so a decode is never double-processed:
 //!
 //! * **The platform owns the payload and its priming.** It must return
-//!   the *playable* stream — encoder lookahead already trimmed (Android's
-//!   Opus decoder trims the pre-skip from the `csd-0` the Ogg extractor
-//!   hands it; an implementation that cannot trim must say so by
-//!   refusing, not by returning untrimmed bytes).
-//! * **The pure side owns the container's own arithmetic**, which no
-//!   platform applies: the Ogg-Opus output gain (RFC 7845 §5.1.1 puts it
-//!   on the *container layer*, and MediaCodec does not) is applied here
-//!   from the parsed [`Head`](super::opus::Head) after a platform decode.
+//!   the *playable* stream — encoder delay already trimmed (an
+//!   implementation that cannot trim must say so by refusing, not by
+//!   returning untrimmed bytes).
 //! * A decode the platform returns goes through
 //!   `Decoded::validated` like any other:
 //!   shape limits and runaway-sample concealment are the crate's contract
@@ -64,16 +60,16 @@ use super::{CodecError, Decoded, Format};
 ///
 /// Implementations must be `Send + Sync`: they are stored globally and
 /// called from whatever thread decodes. The contract in the module docs
-/// (the platform trims priming and never applies the Ogg-Opus output
-/// gain) is part of the trait, not of any one implementation.
+/// (the platform trims priming) is part of the trait, not of any one
+/// implementation.
 pub trait PlatformCodec: Send + Sync + 'static {
     /// The implementation's name, for diagnostics ("media-codec",
     /// "ext-audio-file" — or an app's own).
     fn name(&self) -> &'static str;
 
     /// Decode the whole byte stream. `mime` is what the pure layer learned
-    /// from the container before refusing (`"audio/opus"`,
-    /// `"audio/mp4a-latm"`, `"audio/aac"`); an implementation that does
+    /// from the container before refusing (`"audio/mp4a-latm"`,
+    /// `"audio/aac"`); an implementation that does
     /// not recognise one should refuse it, not guess.
     ///
     /// # Errors
@@ -131,14 +127,13 @@ pub fn system() -> Option<Box<dyn PlatformCodec>> {
 
 /// The mime type the pure layer hands a platform for `bytes`, when it
 /// knows one. Only refusals that map to a platform mime consult the
-/// platform: Opus's payload, and AAC (ADTS or MP4) — the object types the
-/// pure decoder refuses by name, including every AAC kind while the
-/// `aac` feature is off. Anything else — a container this crate does not
+/// platform: AAC (ADTS or MP4) — the object types the pure decoder
+/// refuses by name, including every AAC kind while the `aac` feature is
+/// off. Anything else — a container this crate does not
 /// sniff, an MP4 track that is not `mp4a`/`alac` — keeps its own refusal:
 /// the platform cannot be told what it is being handed.
 fn handoff_mime(bytes: &[u8]) -> Option<&'static str> {
     match super::sniff(bytes)? {
-        Format::Ogg if super::opus::is_opus(bytes) => Some("audio/opus"),
         Format::Adts => Some("audio/aac"),
         Format::Mp4 => super::mp4::audio_track(bytes)
             .ok()
@@ -172,8 +167,7 @@ pub fn decode(bytes: &[u8]) -> Result<Decoded, CodecError> {
     }
 }
 
-/// Consult the installed codec for `bytes` and finish its output the
-/// pure way: the Opus output gain, then validation.
+/// Consult the installed codec for `bytes` and validate its output.
 fn hand_off(bytes: &[u8], refused: &'static str) -> Result<Decoded, CodecError> {
     let Some(mime) = handoff_mime(bytes) else {
         return Err(CodecError::Unsupported(refused));
@@ -187,35 +181,7 @@ fn hand_off(bytes: &[u8], refused: &'static str) -> Result<Decoded, CodecError> 
         };
         codec.decode(bytes, mime).map_err(CodecError::Io)?
     };
-    let mut d = decoded;
-    if mime == "audio/opus" {
-        // RFC 7845 §5.1.1: the container layer applies the output gain.
-        // MediaCodec and ExtAudioFile do not — this is the container layer.
-        if let Ok(s) = super::opus::parse(bytes) {
-            if s.head.output_gain != 0 {
-                let g = s.head.gain_factor();
-                for v in &mut d.data {
-                    *v *= g;
-                }
-            }
-        }
-    }
-    d.validated()
-}
-
-/// The same bridge for the streaming side ([`super::stream`]): the
-/// container is parsed and validated by the pure code, the payload is
-/// handed to the installed codec whole, and the result is served a chunk
-/// at a time. Refused by name when nothing is installed.
-pub(crate) fn decode_chunked(bytes: &[u8]) -> Result<(Decoded, Option<u64>), CodecError> {
-    let refused = super::opus::REFUSED_PAYLOAD;
-    let s = super::opus::parse(bytes)?;
-    let d = hand_off(bytes, refused)?;
-    // The stream's own length: the final granule less the pre-skip — the
-    // platform's decode is trimmed, so this is a cross-check the caller
-    // (and the tests) can hold it to.
-    let total = s.total_pcm;
-    Ok((d, total))
+    decoded.validated()
 }
 
 // ── the shipped implementations ──────────────────────────────────────────
@@ -898,7 +864,6 @@ pub use ext_audio_file::ExtAudioFile;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::codec::{opus, stream};
 
     /// The slot is one global, so the tests that install into it run one
     /// at a time — a hand-off proven against another test's codec is no
@@ -908,8 +873,8 @@ mod tests {
 
     /// A platform codec for the tests: it "decodes" whatever it is asked
     /// for into a deterministic signal, proving the plumbing — the
-    /// hand-off, the mime the pure layer derived, the Opus gain applied
-    /// on top, the validation — without pretending a decode happened.
+    /// hand-off, the mime the pure layer derived, the validation —
+    /// without pretending a decode happened.
     struct Fake {
         mime: std::sync::Arc<std::sync::Mutex<Option<String>>>,
     }
@@ -921,91 +886,58 @@ mod tests {
 
         fn decode(&self, _bytes: &[u8], mime: &str) -> Result<Decoded, String> {
             *self.mime.lock().unwrap() = Some(mime.to_owned());
-            // A steady stereo signal at the Opus clock, trimmed like the
-            // contract demands (the platform owns the pre-skip).
             Ok(Decoded {
                 data: vec![0.25; 480 * 2],
                 channels: 2,
-                rate: 48_000,
+                rate: 44_100,
             })
         }
     }
 
-    /// An Ogg page, lacing and CRC included — the opus module's own test
-    /// builder, kept local so this module's tests stand alone.
-    fn page(granule: i64, packets: &[&[u8]], last: bool) -> Vec<u8> {
-        let mut lacing = Vec::new();
-        let mut body = Vec::new();
-        for p in packets {
-            body.extend_from_slice(p);
-            let mut left = p.len();
-            while left >= 255 {
-                lacing.push(255);
-                left -= 255;
-            }
-            lacing.push(u8::try_from(left).unwrap());
-        }
-        let mut b = Vec::with_capacity(27 + lacing.len() + body.len());
-        b.extend_from_slice(b"OggS");
-        b.push(0);
-        b.push(u8::from(last) << 2 | 2);
-        b.extend_from_slice(&granule.to_le_bytes());
-        b.extend_from_slice(&0x1234_5678u32.to_le_bytes());
-        b.extend_from_slice(&0u32.to_le_bytes());
-        b.extend_from_slice(&0u32.to_le_bytes());
-        b.push(u8::try_from(lacing.len()).unwrap());
-        b.extend_from_slice(&lacing);
-        b.extend_from_slice(&body);
-        let crc = super::super::ogg::crc32(&b);
-        b[22..26].copy_from_slice(&crc.to_le_bytes());
-        b
-    }
-
-    /// A hand-built Ogg-Opus stream with an output gain to apply.
-    fn opus_stream(gain: i16) -> Vec<u8> {
-        let mut head = b"OpusHead".to_vec();
-        head.push(1); // version
-        head.push(2); // stereo
-        head.extend_from_slice(&312u16.to_le_bytes()); // pre-skip
-        head.extend_from_slice(&48_000u32.to_le_bytes());
-        head.extend_from_slice(&gain.to_le_bytes());
-        head.push(0); // mapping family 0
-        let mut tags = b"OpusTags".to_vec();
-        tags.extend_from_slice(&0u32.to_le_bytes());
-        tags.extend_from_slice(&0u32.to_le_bytes());
-        let audio = [0x9Cu8, 1, 1, 1]; // 20 ms stereo CELT TOC
-        let mut bytes = page(0, &[&head], false);
-        bytes.extend(page(0, &[&tags], false));
-        bytes.extend(page(960, &[&audio], true));
-        bytes
+    /// One ADTS frame of AAC Main (profile field 0): a profile the pure
+    /// decoder refuses by name, with or without the `aac` feature.
+    fn aac_main() -> Vec<u8> {
+        // sync, MPEG-4, no CRC | profile 0, 44.1 kHz, stereo | length 8.
+        vec![0xFF, 0xF1, 0x10, 0x80, 0x01, 0x1F, 0xFC, 0x00]
     }
 
     #[test]
     fn without_a_codec_the_pure_refusal_comes_back() {
         let _guard = ONE_AT_A_TIME.lock().unwrap_or_else(|e| e.into_inner());
         uninstall(); // whatever a previous test left, start empty
-        let e = decode(&opus_stream(0)).unwrap_err();
-        assert!(matches!(e, CodecError::Unsupported(w) if w.contains("Opus")));
+        let e = decode(&aac_main()).unwrap_err();
+        assert!(
+            matches!(e, CodecError::Unsupported(w) if w.contains("AAC")),
+            "{e:?}"
+        );
         assert!(!is_installed());
-        // Formats the pure side decodes never ask: FLAC decodes as ever.
+        // Formats the pure side decodes never ask: FLAC and Opus decode
+        // as ever.
         let flac = include_bytes!("../../tests/fixtures/src16.flac");
         assert!(decode(flac).is_ok());
+        let opus = include_bytes!("../../tests/fixtures/src.opus");
+        assert_eq!(handoff_mime(opus), None, "Opus decodes purely — no bridge");
+        assert!(decode(opus).is_ok());
     }
 
     #[test]
-    fn a_platform_decode_takes_the_hand_off_and_finishes_it() {
+    fn a_platform_decode_takes_the_hand_off() {
         let _guard = ONE_AT_A_TIME.lock().unwrap_or_else(|e| e.into_inner());
         let mime = std::sync::Arc::new(std::sync::Mutex::new(None));
         install(Box::new(Fake {
             mime: std::sync::Arc::clone(&mime),
         }));
-        // +3.125 dB of output gain: the pure side applies it on top of
-        // the platform's signal, per RFC 7845 — the container's own job.
-        let d = decode(&opus_stream(800)).unwrap();
-        assert_eq!(mime.lock().unwrap().as_deref(), Some("audio/opus"));
-        let g = 10f32.powf(3.125 / 20.0);
-        assert!((d.data[0] - 0.25 * g).abs() < 1e-6, "{}", d.data[0]);
-        assert_eq!((d.channels, d.rate), (2, 48_000));
+        let d = decode(&aac_main()).unwrap();
+        assert_eq!(mime.lock().unwrap().as_deref(), Some("audio/aac"));
+        assert!((d.data[0] - 0.25).abs() < 1e-9, "{}", d.data[0]);
+        assert_eq!((d.channels, d.rate), (2, 44_100));
+        // A format the pure side decodes never reaches the platform, even
+        // with one installed.
+        *mime.lock().unwrap() = None;
+        let opus = include_bytes!("../../tests/fixtures/src.opus");
+        let d = decode(opus).unwrap();
+        assert_eq!(*mime.lock().unwrap(), None);
+        assert_eq!(d.rate, 48_000);
         assert!(uninstall());
     }
 
@@ -1014,7 +946,7 @@ mod tests {
         let _guard = ONE_AT_A_TIME.lock().unwrap_or_else(|e| e.into_inner());
         uninstall(); // whatever a previous test left, start empty
                      // The AAC cases the PATENTS.md alternative describes, and the
-                     // refusal that must not consult a platform at all.
+                     // formats that must not consult a platform at all.
         let m4a = include_bytes!("../../tests/fixtures/src.m4a");
         assert_eq!(handoff_mime(m4a), Some("audio/mp4a-latm"));
         let adts = include_bytes!("../../tests/fixtures/src_mono.aac");
@@ -1044,29 +976,12 @@ mod tests {
                 Ok(d)
             }
         }
+        let _guard = ONE_AT_A_TIME.lock().unwrap_or_else(|e| e.into_inner());
         install(Box::new(Runaway));
-        let d = decode(&opus_stream(0)).unwrap();
+        let d = decode(&aac_main()).unwrap();
         assert!(d.data[..super::super::CONCEAL_FRAMES]
             .iter()
             .all(|v| *v == 0.0));
         assert!(uninstall());
-    }
-
-    #[test]
-    fn the_streaming_side_refuses_without_a_platform() {
-        let _guard = ONE_AT_A_TIME.lock().unwrap_or_else(|e| e.into_inner());
-        // The AU-05 seam honours the same refusal; with a platform
-        // installed it serves chunks — proven in tests/stream_decode.rs,
-        // which installs the same kind of fake.
-        uninstall(); // whatever a previous test left, start empty
-        let bytes = opus_stream(0);
-        let cursor = std::io::Cursor::new(bytes.clone());
-        let e = stream::open(Box::new(cursor))
-            .err()
-            .expect("refuses without a platform");
-        assert!(matches!(e, CodecError::Unsupported(w) if w.contains("Opus")));
-        // The container was still parsed on the way to the refusal: the
-        // pure layer knows exactly what it is refusing.
-        assert!(opus::is_opus(&bytes));
     }
 }

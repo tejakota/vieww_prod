@@ -50,8 +50,8 @@ ff -i source16.wav -c:a pcm_s24be src24.aiff
 # from the 24-bit WAV.
 ff -i source16.wav -c:a alac src_alac.m4a
 ff -i source24m.wav -c:a alac src24m_alac.m4a
-# Ogg Opus — the container fixture: pre-skip, TOC durations, granule
-# arithmetic, and the by-name payload refusal the platform bridge matches.
+# Ogg Opus — ffmpeg's encode, graded against ffmpeg's own decoder (a
+# second oracle beside libopus, below).
 ff -i source16.wav -c:a libopus -b:a 96k src.opus
 # HE-AAC (AU-06): SBR and SBR+PS, ADTS (implicit signalling, as ADTS must)
 # and MP4 (explicit hierarchical signalling — mux_m4a.py keeps the
@@ -79,6 +79,20 @@ for f in src.mp3 src_mono_vbr.mp3 src.ogg src.opus src.m4a src_mono.aac src_mono
   ff -i "$f" -f s16le -c:a pcm_s16le "$f.ref"
 done
 ff -i src24m_alac.m4a -f s24be -c:a pcm_s24be src24m_alac.m4a.ref
+# Opus conformance fixtures (AU-06): encoded by libopus with forced modes,
+# bandwidths and frame sizes, decoded by libopus's float API — `.ref` its
+# output rounded to s16le, `.rng` every packet's final range state (u32le),
+# the bit-exactness fingerprint. tools/opus-ref is its own workspace and
+# fixes the page serial, so these regenerate byte-identically.
+cargo build -q --release --manifest-path ../../tools/opus-ref/Cargo.toml --target-dir ../../../../target/opus-ref
+or=../../../../target/opus-ref/release/opus-ref
+"$or" enc opus_silk.opus 2 "6,silk,nb,12000,20;6,silk,mb,16000,20;6,silk,wb,24000,10;3,silk,wb,24000,40;2,silk,nb,12000,60;5,silk,wb,24000,20,mono;6,silk,wb,24000,20,fec"
+"$or" enc opus_celt.opus 2 "40,celt,fb,64000,2.5;20,celt,swb,48000,5;10,celt,wb,32000,10;5,celt,nb,16000,20;5,celt,fb,256000,20;5,celt,fb,96000,20,mono;5,celt,fb,24000,20,cbr"
+"$or" enc opus_switch.opus 2 "6,hybrid,swb,32000,20;6,hybrid,fb,48000,10;5,celt,fb,64000,20;5,silk,wb,24000,20;5,celt,fb,64000,10;5,hybrid,fb,40000,20,mono;5,silk,nb,12000,20;8,celt,swb,48000,5;5,hybrid,swb,32000,20" 800
+"$or" enc opus_dtx.opus 1 "10,silk,wb,16000,20,dtx;25,silk,wb,16000,20,dtx,silent;10,silk,wb,16000,20,dtx;10,hybrid,swb,24000,20,dtx,silent;5,silk,wb,16000,20"
+"$or" enc opus_51.opus 6 "10,auto,fb,256000,20;5,celt,fb,192000,10"
+"$or" enc long.opus 2 "150,auto,fb,24000,20;100,auto,fb,48000,20;200,celt,fb,32000,10;100,silk,wb,16000,40;150,auto,fb,32000,20"
+for f in opus_silk opus_celt opus_switch opus_dtx opus_51; do "$or" decf $f.opus $f.opus.ref s16; done
 # Tagged files, one per container, for the tag readers (tests/tags.rs):
 # a tenth of a second each, with Unicode text and a custom key.
 ff -t 0.1 -i source16.wav -c:a pcm_s16le tagsrc.wav

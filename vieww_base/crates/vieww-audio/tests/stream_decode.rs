@@ -20,6 +20,13 @@ const FIXTURES: &[&str] = &[
     "src24.aiff",
     "src_alac.m4a",
     "src24m_alac.m4a",
+    // Opus (AU-06): every mode, transitions, DTX and 5.1 multistream.
+    "src.opus",
+    "opus_silk.opus",
+    "opus_celt.opus",
+    "opus_switch.opus",
+    "opus_dtx.opus",
+    "opus_51.opus",
 ];
 
 fn path(n: &str) -> std::path::PathBuf {
@@ -108,7 +115,7 @@ fn a_late_seek_does_not_read_the_whole_file() {
     // Ogg pages are found by bisection, MP3/ADTS frames from an index or a
     // header walk, FLAC frames by bisection, MP4 units from the sample
     // table: none of them decodes from the start to reach the end.
-    for f in ["long.ogg", "long.flac", "long.m4a"] {
+    for f in ["long.ogg", "long.opus", "long.flac", "long.m4a"] {
         let bytes = std::fs::read(path(f)).unwrap();
         let len = bytes.len() as u64;
         let read = std::sync::Arc::new(std::sync::atomic::AtomicU64::new(0));
@@ -249,7 +256,7 @@ fn a_three_hour_stream_stays_small_through_a_seek_storm() {
     }
 }
 
-// ── AU-06: ALAC exactness, and Opus through the platform bridge ──────────
+// ── AU-06: ALAC exactness, and the pure Opus decoder ─────────────────────
 
 /// ALAC is lossless, so the streaming path is held to the same bar as the
 /// whole-file one: bit-exact through the pull seam, and every seek reads
@@ -283,71 +290,39 @@ fn alac_streams_bit_exactly_and_seeks_exactly() {
     }
 }
 
-/// The AU-06 Opus row: the container parses purely, the payload rides the
-/// platform bridge whole, and the pull seam serves it a chunk at a time
-/// with exact seeks — the same kind of fake the platform module's own
-/// tests install, exercised end to end here.
+/// The AU-06 Opus row: a long mixed-mode stream (SILK, hybrid, CELT at
+/// 10/20/40 ms and their switches) streams a page at a time, its length
+/// is the final granule less the pre-skip, and seeks across it land on
+/// the exact frame with audio that has converged to the continuous
+/// decode within the pre-roll.
 #[test]
-fn opus_streams_through_the_platform_bridge() {
-    use std::sync::{Arc, Mutex};
-    use vieww_audio::codec::platform::{self, PlatformCodec};
-    use vieww_audio::codec::Decoded;
-
-    /// The fake platform: a deterministic stereo signal at the Opus
-    /// clock, different every frame so a wrong seek cannot pass.
-    struct Fake {
-        mime: Arc<Mutex<Option<String>>>,
-    }
-    fn fake_sample(frame: usize, ch: usize) -> f32 {
-        ((frame.wrapping_mul(2_654_435_761) ^ ch.wrapping_mul(0x5555)) & 0xFFFF) as f32 / 65_535.0
-            - 0.5
-    }
-    impl PlatformCodec for Fake {
-        fn name(&self) -> &'static str {
-            "fake"
-        }
-        fn decode(&self, _bytes: &[u8], mime: &str) -> Result<Decoded, String> {
-            *self.mime.lock().unwrap() = Some(mime.to_owned());
-            let n = 4800; // five 20 ms frames' worth
-            Ok(Decoded {
-                data: (0..n)
-                    .flat_map(|i| [fake_sample(i, 0), fake_sample(i, 1)])
-                    .collect(),
-                channels: 2,
-                rate: 48_000,
-            })
-        }
-    }
-
-    let mime = Arc::new(Mutex::new(None));
-    platform::install(Box::new(Fake {
-        mime: Arc::clone(&mime),
-    }));
-    let bytes = std::fs::read(path("src.opus")).unwrap();
-    // The whole-file bridge first: the fake's signal comes back untouched
-    // (this fixture's output gain is 0) and validated like any decode.
-    let whole = platform::decode(&bytes).unwrap();
-    assert_eq!(
-        mime.lock().unwrap().as_deref(),
-        Some("audio/opus"),
-        "the pure layer derived the mime from the container"
-    );
-    // And the streaming seam: same bytes, same signal, chunk by chunk.
+fn opus_streams_and_seeks_purely() {
+    let bytes = std::fs::read(path("long.opus")).unwrap();
+    let whole = decode(&bytes).unwrap();
+    let ch = usize::from(whole.channels);
+    let frames = (whole.data.len() / ch) as u64;
+    let parsed = vieww_audio::codec::opus::parse(&bytes).unwrap();
+    assert_eq!(Some(frames), parsed.total_pcm, "trimmed to the granule");
     let mut s = stream::open(Box::new(std::io::Cursor::new(bytes))).unwrap();
     assert_eq!((s.channels(), s.rate()), (2, 48_000));
-    let got = drain(&mut *s);
-    assert_eq!(got, whole.data);
-    assert_eq!(got.len(), 4800 * 2);
-    for t in [0, 1, 959, 960, 4_799] {
+    assert_eq!(s.total_frames(), Some(frames));
+    for k in 1..24 {
+        let t = frames * k / 24 + k * 37; // off any frame boundary
         s.seek(t).unwrap();
         assert_eq!(s.position(), t);
-        let mut buf = vec![0f32; 64 * 2];
+        let mut buf = vec![0f32; 960 * ch];
         let n = s.read(&mut buf).unwrap();
-        assert_eq!(
-            &buf[..n],
-            &whole.data[t as usize * 2..t as usize * 2 + n],
-            "seek to {t}"
-        );
+        assert!(n > 0, "@ {t}");
+        let at = t as usize * ch;
+        let worst = buf[..n]
+            .iter()
+            .zip(&whole.data[at..])
+            .map(|(a, b)| (a - b).abs())
+            .fold(0f32, f32::max);
+        assert!(worst < 2e-3, "@ {t}: max diff {worst}");
     }
-    assert!(platform::uninstall());
+    // The end: a seek to the last frame reads exactly one frame.
+    s.seek(frames - 1).unwrap();
+    let mut buf = vec![0f32; 64 * ch];
+    assert_eq!(s.read(&mut buf).unwrap(), ch);
 }

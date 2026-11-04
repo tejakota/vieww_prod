@@ -116,6 +116,82 @@ pub fn packets(bytes: &[u8]) -> Result<Vec<Packet>, CodecError> {
     Ok(out)
 }
 
+// ── streaming page access (shared by the Vorbis and Opus sources) ───────
+
+/// One Ogg page read from a stream.
+pub(crate) struct Page {
+    pub(crate) granule: i64,
+    pub(crate) serial: u32,
+    pub(crate) flags: u8,
+    pub(crate) lacing: Vec<u8>,
+    pub(crate) body: Vec<u8>,
+    /// Bytes the page occupies.
+    pub(crate) len: u64,
+}
+
+/// The page at `at`, CRC-checked; `None` when there is no page there.
+pub(crate) fn page_at(
+    input: &mut super::stream::Input,
+    at: u64,
+) -> Result<Option<Page>, CodecError> {
+    let h = input.window(at, 27)?;
+    if h.len() < 27 || &h[..4] != b"OggS" {
+        return Ok(None);
+    }
+    let flags = h[5];
+    let granule = i64::from_le_bytes([h[6], h[7], h[8], h[9], h[10], h[11], h[12], h[13]]);
+    let serial = u32::from_le_bytes([h[14], h[15], h[16], h[17]]);
+    let crc = u32::from_le_bytes([h[22], h[23], h[24], h[25]]);
+    let nseg = usize::from(h[26]);
+    let lacing = input.window(at + 27, nseg)?.to_vec();
+    if lacing.len() < nseg {
+        return Ok(None);
+    }
+    let body_len: usize = lacing.iter().map(|v| usize::from(*v)).sum();
+    let total = 27 + nseg + body_len;
+    let mut page = input.window(at, total)?.to_vec();
+    if page.len() < total {
+        return Ok(None);
+    }
+    page[22..26].fill(0);
+    if crc32(&page) != crc {
+        return Err(CodecError::Checksum("Ogg page CRC-32"));
+    }
+    Ok(Some(Page {
+        granule,
+        serial,
+        flags,
+        lacing,
+        body: page[27 + nseg..].to_vec(),
+        len: total as u64,
+    }))
+}
+
+/// The first page of `serial` starting at or after `from` (within 64 KB),
+/// skipping bytes that only look like a page.
+pub(crate) fn find_page(
+    input: &mut super::stream::Input,
+    from: u64,
+    serial: u32,
+) -> Result<Option<(u64, Page)>, CodecError> {
+    let len = input.len();
+    let mut at = from;
+    while at + 27 <= len && at < from + (64 << 10) {
+        let w = input.window(at, 4)?;
+        if w == b"OggS" {
+            if let Ok(Some(p)) = page_at(input, at) {
+                if p.serial == serial {
+                    return Ok(Some((at, p)));
+                }
+                at += p.len;
+                continue;
+            }
+        }
+        at += 1;
+    }
+    Ok(None)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

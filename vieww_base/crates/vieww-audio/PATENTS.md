@@ -30,7 +30,7 @@ this one.
 | Ogg Vorbis | `vorbis` | Xiph.Org format, published as royalty-free. No known licensing programme. |
 | MP3 (MPEG-1/2 Layer III) | `mp3` | The licensing programme run by Technicolor and Fraunhofer IIS ended in April 2017, after the last patents it administered expired. Decoding MP3 is generally regarded as unencumbered. |
 | AAC-LC, HE-AAC v1/v2 (SBR, PS) (ADTS, MP4/M4A) | `aac` (feature `aac`) | **Still covered by an active patent pool in some jurisdictions.** The pool is administered by Via LA (formerly Via Licensing). It licenses AAC encoders and decoders in end products, and its licence covers the HE-AAC tools (SBR, PS) together with AAC-LC — they are not separately optional inside it, and the `aac` feature gates all three. Many early AAC patents have expired, but not all, and not everywhere. |
-| Opus | `opus` — the container (Ogg encapsulation of RFC 7845); the SILK/CELT payload is refused by name and handed to the [`codec::platform`](src/codec/platform.rs) bridge when one is installed | IETF RFC 6716. The patent holders who declared patents offer royalty-free licences under their IETF declarations. |
+| Opus | `opus` — the Ogg encapsulation of RFC 7845 and the full RFC 6716 payload (SILK, CELT, hybrid, multistream), decoded purely by a port of libopus (BSD-3-Clause; see [`tools/THIRD_PARTY.md`](tools/THIRD_PARTY.md)) | IETF RFC 6716. The patent holders who declared patents (Xiph.Org, Microsoft, Broadcom) offer royalty-free licences under their IETF declarations — the same declarations libopus's own licence points to. |
 | ALAC | `alac` | Published by Apple as the Apache-2.0 `ALAC` reference implementation (2011); the format's own codec files carry no patent-licensing programme Apple has announced. |
 
 ## The `aac` feature
