@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tab bar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Silkscreen&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}a{text-decoration:none}</style>
+</helmet>
+<nav aria-label="Main" style="width: 390px; height: 76px; box-sizing: border-box; background: #0D121C; border-top: 1px solid #1B2438; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 6px 8px 14px; font-family: Inter, system-ui, sans-serif">
+<a href="Main.dc.html" aria-current="{{home.cur}}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: {{home.c}}; font-size: 11px; font-weight: 500">
+<svg width="22" height="22" viewBox="0 0 22 22" fill="currentColor" aria-hidden="true"><rect x="9" y="3" width="4" height="2"/><rect x="6" y="5" width="3" height="2"/><rect x="13" y="5" width="3" height="2"/><rect x="3" y="7" width="3" height="2"/><rect x="16" y="7" width="3" height="2"/><rect x="5" y="9" width="2" height="10"/><rect x="15" y="9" width="2" height="10"/><rect x="5" y="17" width="12" height="2"/><rect x="9" y="13" width="4" height="4"/></svg>home</a>
+<a href="World.dc.html" aria-current="{{world.cur}}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: {{world.c}}; font-size: 11px; font-weight: 500">
+<svg width="22" height="22" viewBox="0 0 22 22" fill="currentColor" aria-hidden="true"><rect x="8" y="3" width="6" height="2"/><rect x="5" y="5" width="3" height="2"/><rect x="14" y="5" width="3" height="2"/><rect x="3" y="7" width="2" height="8"/><rect x="17" y="7" width="2" height="8"/><rect x="5" y="15" width="3" height="2"/><rect x="14" y="15" width="3" height="2"/><rect x="8" y="17" width="6" height="2"/><rect x="5" y="10" width="12" height="2"/><rect x="10" y="5" width="2" height="12"/></svg>world</a>
+<a href="Chat.dc.html" aria-current="{{chat.cur}}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: {{chat.c}}; font-size: 11px; font-weight: 500">
+<svg width="22" height="22" viewBox="0 0 22 22" fill="currentColor" aria-hidden="true"><rect x="3" y="4" width="16" height="2"/><rect x="3" y="6" width="2" height="9"/><rect x="17" y="6" width="2" height="9"/><rect x="9" y="13" width="10" height="2"/><rect x="5" y="15" width="4" height="2"/><rect x="5" y="17" width="2" height="2"/><rect x="7" y="9" width="2" height="2"/><rect x="10" y="9" width="2" height="2"/><rect x="13" y="9" width="2" height="2"/></svg>chat</a>
+<a href="Mind.dc.html" aria-current="{{mind.cur}}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: {{mind.c}}; font-size: 11px; font-weight: 500">
+<svg width="22" height="22" viewBox="0 0 22 22" fill="currentColor" aria-hidden="true"><rect x="9" y="9" width="4" height="4"/><rect x="3" y="3" width="4" height="4"/><rect x="15" y="3" width="4" height="4"/><rect x="3" y="15" width="4" height="4"/><rect x="15" y="15" width="4" height="4"/><rect x="7" y="7" width="2" height="2"/><rect x="13" y="7" width="2" height="2"/><rect x="7" y="13" width="2" height="2"/><rect x="13" y="13" width="2" height="2"/></svg>mind</a>
+<a href="Teach.dc.html" aria-current="{{teach.cur}}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: {{teach.c}}; font-size: 11px; font-weight: 500">
+<svg width="22" height="22" viewBox="0 0 22 22" fill="currentColor" aria-hidden="true"><rect x="4" y="5" width="5" height="2"/><rect x="13" y="5" width="5" height="2"/><rect x="2" y="7" width="2" height="5"/><rect x="18" y="7" width="2" height="5"/><rect x="9" y="7" width="4" height="2"/><rect x="4" y="12" width="2" height="2"/><rect x="16" y="12" width="2" height="2"/><rect x="6" y="14" width="2" height="2"/><rect x="14" y="14" width="2" height="2"/><rect x="8" y="16" width="2" height="2"/><rect x="12" y="16" width="2" height="2"/><rect x="10" y="18" width="2" height="2"/></svg>teach</a>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"active":{"editor":"enum","options":["home","world","chat","mind","teach","none"],"default":"home"},"$preview":{"width":390,"height":76}}'>
+class Component extends DCLogic {
+renderVals() {
+const active = this.props.active ?? 'home';
+const tab = (name) => ({ c: name === active ? '#5EEAB5' : '#94A0B6', cur: name === active ? 'page' : 'false' });
+return { home: tab('home'), world: tab('world'), chat: tab('chat'), mind: tab('mind'), teach: tab('teach') };
+}
+}
+</script>
+</body>
+</html>

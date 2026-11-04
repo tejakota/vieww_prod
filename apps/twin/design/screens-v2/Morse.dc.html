@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Morse strip</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>body{margin:0}</style>
+</helmet>
+<div role="img" aria-label="{{label}}" style="display: flex; align-items: center; height: {{h}}">
+<sc-for list="{{segs}}" as="s" hint-placeholder-count="20">
+<div style="width: {{s.w}}; height: {{h}}; background: {{s.bg}}; flex-shrink: 0"></div>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"text":{"editor":"text","default":"MARA K7"},"unit":{"editor":"int","default":3,"min":1,"max":8},"color":{"editor":"color","default":"#F6B95A","options":["#F6B95A","#5EEAB5","#7AA7FF","#94A0B6"]},"$preview":{"width":240,"height":40}}'>
+class Component extends DCLogic {
+renderVals() {
+const codes = {A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..','0':'-----','1':'.----','2':'..---','3':'...--','4':'....-','5':'.....','6':'-....','7':'--...','8':'---..','9':'----.'};
+const u = this.props.unit ?? 3;
+const color = this.props.color ?? '#F6B95A';
+const text = String(this.props.text ?? 'MARA K7').toUpperCase();
+const segs = [];
+const gap = (n) => segs.push({ w: (n * u) + 'px', bg: 'transparent' });
+const words = text.split(/\s+/).filter(Boolean);
+words.forEach((word, wi) => {
+if (wi > 0) gap(5);
+[...word].forEach((ch, ci) => {
+const code = codes[ch];
+if (!code) return;
+if (ci > 0) gap(3);
+[...code].forEach((sym, si) => {
+if (si > 0) gap(1);
+segs.push({ w: ((sym === '-' ? 3 : 1) * u) + 'px', bg: color });
+});
+});
+});
+return { segs, h: u + 'px', label: 'Morse: ' + text };
+}
+}
+</script>
+</body>
+</html>

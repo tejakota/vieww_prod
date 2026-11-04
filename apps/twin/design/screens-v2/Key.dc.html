@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>twin — your key</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Silkscreen&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}a{color:#5EEAB5;text-decoration:none}a:hover{color:#9FF5D4}</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0A0E15; color: #E8EDF6; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column; gap: 14px; padding: 16px 20px 24px; overflow: hidden">
+
+<header style="display: flex; align-items: center; justify-content: space-between">
+<a href="Main.dc.html" aria-label="Back to home" style="width: 44px; height: 44px; box-sizing: border-box; border-radius: 12px; border: 1px solid #22304A; background: #111826; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#E8EDF6" stroke-width="1.8" aria-hidden="true"><path d="M11 3L5 9l6 6"/></svg></a>
+<span style="font-family: Silkscreen, monospace; font-size: 14px; color: #94A0B6">your key</span>
+<span style="width: 44px"></span>
+</header>
+
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+<dc-import name="Avatar" px="{{6}}" label="Mara — the collar carries your key's fingerprint" hint-size="60px,96px"></dc-import>
+<h1 style="margin: 4px 0 0; font-size: 22px; font-weight: 600">Only you hold the key</h1>
+<p style="margin: 0; max-width: 300px; font-size: 13px; line-height: 19px; color: #94A0B6">Mara lives as sealed ciphertext. No one — not even twin's creators — can read it.</p>
+</div>
+
+<section aria-labelledby="safety" style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px; border-radius: 16px; background: #111826; border: 1px solid #22304A">
+<h2 id="safety" style="margin: 0; font-size: 12px; font-weight: 500; color: #94A0B6">Your safety number, as mara's pixels</h2>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 6px 0">
+<dc-import name="Morse" text="K7QF 2MXA" unit="{{4}}" color="#F6B95A" hint-size="300px,4px"></dc-import>
+<dc-import name="Morse" text="N8RD 4LTE" unit="{{4}}" color="#F6B95A" hint-size="300px,4px"></dc-import>
+<dc-import name="Morse" text="W3HC 9PUJ" unit="{{4}}" color="#F6B95A" hint-size="300px,4px"></dc-import>
+</div>
+<p style="margin: 0; font-size: 12px; color: #94A0B6; text-align: center">Stand your twins side by side — the pixels match, or they don't.</p>
+</section>
+
+<section aria-labelledby="devices" style="display: flex; flex-direction: column; gap: 8px">
+<h2 id="devices" style="margin: 0; font-family: Silkscreen, monospace; font-weight: 400; font-size: 11px; letter-spacing: 1px; color: #94A0B6">devices that hold the key</h2>
+<div style="display: flex; flex-direction: column; border-radius: 14px; background: #111826; border: 1px solid #22304A">
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #1B2438">
+<span aria-hidden="true" style="width: 8px; height: 8px; background: #5EEAB5"></span>
+<div style="flex-grow: 1; min-width: 0"><div style="font-size: 14px; font-weight: 500">This phone</div><div style="font-size: 12px; color: #94A0B6">Brain node · keeps mara awake</div></div>
+<span style="font-size: 12px; color: #5EEAB5">Awake</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #1B2438">
+<span aria-hidden="true" style="width: 8px; height: 8px; border: 2px solid #FF8A7A; box-sizing: border-box"></span>
+<div style="flex-grow: 1; min-width: 0"><div style="font-size: 14px; font-weight: 500">Old laptop</div><div style="font-size: 12px; color: #94A0B6">Revoked after it was lost</div></div>
+<span style="font-size: 12px; color: #FF8A7A">Revoked</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px">
+<span aria-hidden="true" style="width: 8px; height: 8px; background: #3A4560"></span>
+<div style="flex-grow: 1; min-width: 0"><div style="font-size: 14px; font-weight: 500">Twin daemon</div><div style="font-size: 12px; color: #94A0B6">Self-hosted · keeps mara awake while you sleep</div></div>
+<button type="button" style="height: 36px; padding: 0 12px; border-radius: 10px; border: 1px solid #2B4A40; background: transparent; color: #5EEAB5; font: 600 12px Inter, system-ui, sans-serif; cursor: pointer">Set up</button>
+</div>
+</div>
+</section>
+
+<div style="flex-grow: 1"></div>
+<button type="button" style="height: 52px; border: 0; border-radius: 14px; background: #5EEAB5; color: #07130E; font: 600 14px Inter, system-ui, sans-serif; cursor: pointer">Export recovery key</button>
+<p style="margin: 0; font-size: 12px; color: #94A0B6; text-align: center">Mara sleeps when no key is awake — and wakes wherever your keys are.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

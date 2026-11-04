@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>twin — teach</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Silkscreen&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}a{color:#5EEAB5;text-decoration:none}a:hover{color:#9FF5D4}input[type=range]{accent-color:#5EEAB5}</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0A0E15; color: #E8EDF6; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 14px; padding: 20px 20px 16px">
+
+<header>
+<h1 style="margin: 0; font-family: Silkscreen, monospace; font-weight: 400; font-size: 24px">teach</h1>
+<p style="margin: 4px 0 0; font-size: 13px; color: #94A0B6">You're shaping who mara becomes.</p>
+</header>
+
+<section aria-labelledby="dims" style="padding: 14px 16px 6px; border-radius: 16px; background: #111826; border: 1px solid #22304A">
+<div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px">
+<h2 id="dims" style="margin: 0; font-size: 14px; font-weight: 600">Persona</h2>
+<span style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #94A0B6"><span aria-hidden="true" style="display: flex; gap: 2px"><span style="width: 4px; height: 4px; background: #F6B95A"></span><span style="width: 4px; height: 4px; background: #F6B95A"></span></span>how sure mara is</span>
+</div>
+<sc-for list="{{dims}}" as="d" hint-placeholder-count="5">
+<div style="padding: 9px 0; border-top: 1px solid #1B2438">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px">
+<label for="{{d.id}}" style="font-size: 14px; font-weight: 500">{{d.name}}</label>
+<span style="font-size: 12px; color: #5EEAB5">{{d.desc}}</span>
+</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<input id="{{d.id}}" type="range" min="0" max="100" value="{{d.value}}" onChange="{{d.set}}" style="flex-grow: 1; margin: 0; height: 28px">
+<span aria-label="{{d.confLabel}}" style="display: flex; gap: 3px">
+<sc-for list="{{d.dots}}" as="dot" hint-placeholder-count="5">
+<span style="width: 5px; height: 5px; background: {{dot.c}}"></span>
+</sc-for>
+</span>
+</div>
+</div>
+</sc-for>
+</section>
+
+<section aria-labelledby="week" style="display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 16px; background: #111826; border: 1px solid #22304A">
+<h2 id="week" style="margin: 0; font-size: 14px; font-weight: 600">This week</h2>
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="#5EEAB5" aria-hidden="true"><path d="M8 14S2 10.5 2 6.2A3.2 3.2 0 0 1 8 4.4a3.2 3.2 0 0 1 6 1.8C14 10.5 8 14 8 14z"/></svg>
+<span style="flex-grow: 1; font-size: 13px">You praised: asking before answering</span>
+<span style="font-size: 11px; padding: 3px 7px; border-radius: 6px; background: #12271F; color: #5EEAB5">+ curiosity</span>
+</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#F6B95A" stroke-width="2" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+<span style="flex-grow: 1; font-size: 13px">You corrected: agreeing too fast</span>
+<span style="font-size: 11px; padding: 3px 7px; border-radius: 6px; background: #2A2113; color: #F6B95A">+ candour</span>
+</div>
+</section>
+
+<section aria-labelledby="ideal" style="padding: 14px 16px; border-radius: 16px; background: #111826; border: 1px solid #22304A">
+<h2 id="ideal" style="margin: 0 0 4px; font-size: 14px; font-weight: 600">The ideal you</h2>
+<p style="margin: 0; font-size: 13px; line-height: 19px; color: #94A0B6">Mara grows toward the you you describe — not the you on a bad day.</p>
+</section>
+
+<a href="Chat.dc.html" style="height: 52px; border-radius: 14px; background: #5EEAB5; color: #07130E; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600">Ask me a question to learn from me</a>
+</div>
+<dc-import name="Nav" active="teach" hint-size="390px,76px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { warmth: 72, curiosity: 86, wit: 58, candour: 64, ambition: 38 };
+}
+renderVals() {
+const meta = [
+['warmth', 'Warmth', 'warm, not a pushover', 3],
+['curiosity', 'Curiosity', 'asks before answering', 5],
+['wit', 'Wit', 'playful, dry', 2],
+['candour', 'Candour', 'the hard thing, kindly', 4],
+['ambition', 'Ambition', 'steady, patient', 2]
+];
+const dims = meta.map(([key, name, desc, conf]) => ({
+id: 'dim-' + key,
+name,
+desc,
+value: this.state[key],
+set: (e) => this.setState({ [key]: Number(e.target.value) }),
+confLabel: 'Confidence ' + conf + ' of 5',
+dots: [0, 1, 2, 3, 4].map((i) => ({ c: i < conf ? '#F6B95A' : '#2A3448' }))
+}));
+return { dims };
+}
+}
+</script>
+</body>
+</html>

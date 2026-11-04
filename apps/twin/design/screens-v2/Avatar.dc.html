@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pixel twin</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>body{margin:0}</style>
+</helmet>
+<div role="img" aria-label="{{label}}" style="display: grid; grid-template-columns: {{cols}}; grid-auto-rows: {{rowh}}; width: {{w}}; height: {{h}}">
+<sc-for list="{{cells}}" as="c" hint-placeholder-count="160">
+<div style="background: {{c.color}}"></div>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"px":{"editor":"int","default":6,"min":2,"max":16},"hair":{"editor":"color","default":"#3B2A22"},"skin":{"editor":"color","default":"#F2C9A0"},"shirt":{"editor":"color","default":"#2B3A5C"},"pants":{"editor":"color","default":"#1E2638"},"morse":{"editor":"color","default":"#F6B95A"},"collar":{"editor":"color","default":"#5EEAB5"},"label":{"editor":"text","default":"A pixel twin"},"$preview":{"width":60,"height":96}}'>
+class Component extends DCLogic {
+renderVals() {
+const px = this.props.px ?? 6;
+const pal = {
+'.': 'transparent',
+h: this.props.hair ?? '#3B2A22',
+s: this.props.skin ?? '#F2C9A0',
+e: '#141018',
+m: '#C98E72',
+c: this.props.collar ?? '#5EEAB5',
+k: this.props.morse ?? '#F6B95A',
+b: this.props.shirt ?? this.props.jacket ?? '#2B3A5C',
+p: this.props.pants ?? '#1E2638',
+f: '#0E121B'
+};
+const map = [
+'..hhhhhh..',
+'.hhhhhhhh.',
+'.hssssssh.',
+'.sesssses.',
+'.ssssssss.',
+'.sssmmsss.',
+'..ssssss..',
+'.ckckkckc.',
+'bbbbbbbbbb',
+'bbbbbbbbbb',
+'sbbbbbbbbs',
+'sbbbkkbbbs',
+'.pppppppp.',
+'.ppp..ppp.',
+'.ppp..ppp.',
+'.fff..fff.'
+];
+const cells = [];
+map.forEach((row) => { for (const ch of row) cells.push({ color: pal[ch] || 'transparent' }); });
+return {
+cells,
+cols: 'repeat(10, ' + px + 'px)',
+rowh: px + 'px',
+w: (px * 10) + 'px',
+h: (px * 16) + 'px',
+label: this.props.label ?? 'A pixel twin'
+};
+}
+}
+</script>
+</body>
+</html>
