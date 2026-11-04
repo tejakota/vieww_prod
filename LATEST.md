@@ -2,6 +2,7 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
+| 2026-11-04T12:48:13Z | wright-sandbox-suites/main | FAILURE | `c001ad2bf726` | [summary](wright-sandbox-suites/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41832133674) |
 | 2026-11-04T12:25:58Z | framework-checks/main | SUCCESS | `c001ad2bf726` | [summary](framework-checks/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41825281151) |
 | 2026-11-03T16:52:27Z | framework-checks/close-open-gaps | SUCCESS | `8cc565fd17fa` | [summary](framework-checks/close-open-gaps/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41666216725) |
 | 2026-11-03T13:35:58Z | goldens/close-open-gaps | SUCCESS | `32e1431638e7` | [summary](goldens/close-open-gaps/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41644702338) |
@@ -13,7 +14,6 @@
 | 2026-10-30T05:43:43Z | device-farm-android-and-ios-phones/main | FAILURE | `7a9e76951688` | [summary](device-farm-android-and-ios-phones/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41005684768) |
 | 2026-10-29T17:08:11Z | mobile-audio/main | SUCCESS | `866b6ac500d7` | [summary](mobile-audio/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40917953837) |
 | 2026-10-28T13:40:52Z | studio/main | SUCCESS | `c40a7185c063` | [summary](studio/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40697873837) |
-| 2026-10-27T15:43:13Z | wright-sandbox-suites/main | SUCCESS | `7cd114dc558e` | [summary](wright-sandbox-suites/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40532711825) |
 | 2026-10-26T22:45:29Z | hardware-self-hosted-linux-and-windows/main | CANCELLED | `f0e7547cea35` | [summary](hardware-self-hosted-linux-and-windows/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40241626076) |
 | 2026-10-26T12:27:36Z | publish/main | SUCCESS | `35c6b3f65b53` | [summary](publish/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40321754699) |
 | 2026-10-26T10:42:59Z | release-gate/main | SUCCESS | `da72ff4877e7` | [summary](release-gate/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/40300437716) |
