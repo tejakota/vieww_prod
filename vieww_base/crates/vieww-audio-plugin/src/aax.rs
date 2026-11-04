@@ -23,8 +23,8 @@
 //!   even a meaningful milestone for AAX; nothing short of the
 //!   licensed SDK and signer can run there.
 //!
-//! This is the same discipline as the AAC decoder's refusal of HE-AAC
-//! SBR/PS by *name* with a precise error, or the Opus decoder's
+//! This is the same discipline as the AAC decoder's refusal of Main-profile
+//! prediction and LTP by *name* with a precise error, or the Opus decoder's
 //! `REFUSED_PAYLOAD`: what is not done is stated, not hidden. A host or
 //! tool asking this crate for AAX gets [`REFUSED`] — a `&'static str`
 //! reason, not a silent empty format list.

@@ -2500,6 +2500,9 @@ fn run(
     extensions: Option<&[&'static std::ffi::CStr]>,
 ) -> (Prewarmed, Option<vieww_hal::vulkan::VulkanInstance>) {
     let mut what = Prewarmed::default();
+    // Assigned below everywhere but iOS, which keeps the loader on the
+    // main thread.
+    #[cfg_attr(target_os = "ios", allow(unused_mut))]
     let mut made = None;
 
     // Not on iOS: `load_entry` sets an environment variable on the simulator

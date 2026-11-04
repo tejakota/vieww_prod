@@ -515,7 +515,7 @@ pub fn open(r: Box<dyn ReadSeek>) -> Result<Box<dyn PullDecoder>, CodecError> {
                 }
                 #[cfg(feature = "aac")]
                 b"mp4a" => {
-                    let src = super::aac::Mp4Source::from_track(track)?;
+                    let src = super::aac::Mp4Source::from_track(track, &mut input)?;
                     Box::new(Pull::new_with(input, |_| Ok(src))?)
                 }
                 #[cfg(not(feature = "aac"))]

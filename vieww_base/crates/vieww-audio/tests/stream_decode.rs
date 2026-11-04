@@ -10,6 +10,12 @@ const FIXTURES: &[&str] = &[
     "src_mono_vbr.mp3",
     "src.m4a",
     "src_mono.aac",
+    // HE-AAC (AU-06): explicit and implicit SBR, SBR+PS, a mono core.
+    "src_he.m4a",
+    "src_he.aac",
+    "src_hev2.m4a",
+    "src_hev2.aac",
+    "src_he_mono.aac",
     "src.ogg",
     "src24.aiff",
     "src_alac.m4a",

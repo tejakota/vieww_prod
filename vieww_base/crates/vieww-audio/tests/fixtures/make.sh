@@ -53,7 +53,29 @@ ff -i source24m.wav -c:a alac src24m_alac.m4a
 # Ogg Opus — the container fixture: pre-skip, TOC durations, granule
 # arithmetic, and the by-name payload refusal the platform bridge matches.
 ff -i source16.wav -c:a libopus -b:a 96k src.opus
-for f in src.mp3 src_mono_vbr.mp3 src.ogg src.opus src.m4a src_mono.aac src_mono_pns.aac src_alac.m4a; do
+# HE-AAC (AU-06): SBR and SBR+PS, ADTS (implicit signalling, as ADTS must)
+# and MP4 (explicit hierarchical signalling — mux_m4a.py keeps the
+# encoder's AudioSpecificConfig, where ffmpeg's ADTS->MP4 path would
+# rewrite it as implicit LC). FDK is deterministic, so these regenerate
+# byte-identically. The refs are ffmpeg's decodes like every other `.ref`;
+# tools/he-aac-enc's `he-aac-dec` is the FDK decoder, a second oracle
+# (it agrees with ffmpeg's PS decode to ~75 dB).
+cargo build -q --release --manifest-path ../../tools/he-aac-enc/Cargo.toml --target-dir ../../../../target/he-aac-enc
+he=../../../../target/he-aac-enc/release/he-aac-enc
+ff -i source16.wav -ac 1 he_mono.wav
+"$he" source16.wav src_he.aac 5 48000 adts
+"$he" source16.wav src_hev2.aac 29 32000 adts
+"$he" he_mono.wav src_he_mono.aac 5 32000 adts
+for p in "src_he 5 48000" "src_hev2 29 32000"; do
+  set -- $p
+  "$he" source16.wav "$1.raw" "$2" "$3" asc
+  python3 ../../tools/mux_m4a.py "$1.raw" "$1.raw.asc" "$1.m4a" 44100 2 -1 17640
+  rm "$1.raw" "$1.raw.asc"
+done
+rm he_mono.wav
+ff -i src_he_mono.aac -ac 1 -f s16le -c:a pcm_s16le src_he_mono.aac.ref
+for f in src.mp3 src_mono_vbr.mp3 src.ogg src.opus src.m4a src_mono.aac src_mono_pns.aac src_alac.m4a \
+         src_he.aac src_hev2.aac src_he.m4a src_hev2.m4a; do
   ff -i "$f" -f s16le -c:a pcm_s16le "$f.ref"
 done
 ff -i src24m_alac.m4a -f s24be -c:a pcm_s24be src24m_alac.m4a.ref

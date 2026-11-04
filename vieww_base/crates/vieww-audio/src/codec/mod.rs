@@ -7,15 +7,16 @@
 //! | FLAC | [`flac`] | yes | all subframe types, all stereo modes, MD5-verified |
 //! | MP3 | [`mp3`] | — | MPEG-1/2/2.5 Layer III, joint stereo, gapless (LAME tag) |
 //! | Ogg Vorbis | [`vorbis`] | — | floor 1, residue 0/1/2, coupling; granule trimming |
-//! | AAC-LC | `aac` (feature `aac`, default on; see PATENTS.md) | — | ADTS and MP4/M4A (with edit-list priming removal) |
+//! | AAC-LC, HE-AAC v1/v2 | `aac` (feature `aac`, default on; see PATENTS.md) | — | ADTS and MP4/M4A (with edit-list priming removal); SBR and PS, explicit or implicit signalling |
 //! | ALAC | [`alac`] | — | MP4/M4A; lossless — graded bit-exact |
 //! | Ogg Opus | [`opus`] (container; see the module's refusal note) | — | OpusHead/Tags, TOC durations, gain, seeking; payload via [`platform`] |
 //!
 //! Every decoder returns [`Decoded`]: interleaved `f32` at the stream's own
 //! rate. [`decode`] sniffs the container and dispatches. Each decoder is
 //! tested against files made by an independent encoder (ffmpeg with LAME,
-//! libvorbis, its FLAC and AAC encoders) and against that tool's own decode
-//! of the same file — see `tests/fixtures/make.sh`.
+//! libvorbis, its FLAC and AAC encoders; the Fraunhofer FDK encoder for
+//! HE-AAC) and against ffmpeg's own decode of the same file — see
+//! `tests/fixtures/make.sh`.
 //!
 //! [`tags`] reads title, artist and the rest from every one of these
 //! containers (ID3, Vorbis comments, RIFF INFO, AIFF text, MP4 atoms) and
@@ -36,6 +37,12 @@ pub mod mp4;
 pub mod ogg;
 pub mod opus;
 pub mod platform;
+#[cfg(feature = "aac")]
+mod ps;
+#[cfg(feature = "aac")]
+mod sbr;
+#[cfg(feature = "aac")]
+mod sbr_tables;
 pub mod stream;
 pub mod tags;
 pub mod vorbis;
@@ -420,7 +427,7 @@ mod tests {
     #[test]
     fn the_patent_page_exists_and_is_referenced() {
         let patents = include_str!("../../PATENTS.md");
-        for format in ["FLAC", "Vorbis", "MP3", "AAC", "not legal advice"] {
+        for format in ["FLAC", "Vorbis", "MP3", "AAC", "HE-AAC", "not legal advice"] {
             assert!(
                 patents.contains(format),
                 "PATENTS.md does not mention {format}"

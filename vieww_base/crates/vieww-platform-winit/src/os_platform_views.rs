@@ -22,6 +22,9 @@
 //! connection is made until then, and a Wayland window (or no X11 at all)
 //! leaves the service refusing with the reason, never failing the start-up.
 
+// Android hosts no backend here (its views come through the JNI layer), so
+// the registration and anchoring calls are compiled out there.
+#![cfg_attr(target_os = "android", allow(dead_code))]
 use std::cell::RefCell;
 use std::rc::Rc;
 

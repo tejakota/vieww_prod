@@ -18,7 +18,8 @@
 //! What is not here, named plainly: the SILK and CELT payload decoders
 //! of RFC 6716 §4–§6 (LP-layer LTP/LPC, shape coding, the MDCT layer's
 //! band algebra, mode coupling). `decode` refuses them by name rather
-//! than guessing, exactly as `aac` refuses SBR/PS. The player paths
+//! than guessing, exactly as `aac` refuses Main-profile prediction and LTP.
+//! The player paths
 //! consult [`platform`](super::platform) when this refusal comes back:
 //! Android's MediaCodec and Apple's Core Audio decode Opus natively, and
 //! the parsed head above is what finishes their output.
