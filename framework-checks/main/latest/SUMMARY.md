@@ -1,25 +1,25 @@
 # Framework checks — SUCCESS
 
 - branch: `main`  sha: `c001ad2bf72684e16de21adf50a55d4ac673e284`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/41825281151
+- run: https://github.com/tejakota/vieww_prod/actions/runs/41833204258
 
 | job | verdict | failed steps |
 |---|---|---|
 | Wire check (root ↔ vieww_base) | PASS |  |
 | iOS simulator (tests in the sim, a frame on its screen) | FAIL | XCUITest accessibility suite (generated project, FW-10) |
-| GPU on software Vulkan (lavapipe) | PASS |  |
-| Coverage floor | skipped |  |
-| Android emulator (APK, device and accessibility suites) | skipped |  |
-| Type-check for macOS, iOS, Windows, Android (from Linux) | skipped |  |
-| Plugin compatibility matrix (FW-17) | skipped |  |
-| checks.sh (Linux) | skipped |  |
-| Web (wasm32; Chromium, Firefox, WebKit) | skipped |  |
-| Windows (D3D12 on WARP) | skipped |  |
 | Android device suite (self-hosted) | skipped |  |
 | macOS and iOS (Metal) | skipped |  |
-| Android (compile) | skipped |  |
-| Accessibility gallery + AT-SPI dry-run (Linux) | skipped |  |
+| GPU on software Vulkan (lavapipe) | skipped |  |
+| Web (wasm32; Chromium, Firefox, WebKit) | skipped |  |
 | Audio decoders under cargo-fuzz (nightly) | skipped |  |
+| Accessibility gallery + AT-SPI dry-run (Linux) | skipped |  |
+| Type-check for macOS, iOS, Windows, Android (from Linux) | skipped |  |
+| Windows (D3D12 on WARP) | skipped |  |
+| checks.sh (Linux) | skipped |  |
+| Coverage floor | skipped |  |
+| Plugin compatibility matrix (FW-17) | skipped |  |
+| Android emulator (APK, device and accessibility suites) | skipped |  |
+| Android (compile) | skipped |  |
 | Publish results to ci-runs/<branch> | PASS |  |
 
 ## Steps
@@ -45,44 +45,31 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### GPU on software Vulkan (lavapipe) — PASS
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Toolchain
-- PASS: Mesa Vulkan, Xvfb
-- PASS: Adapter
-- PASS: Vulkan suites (headless)
-- PASS: Parity certificate (vulkan-lavapipe, FW-26)
-- PASS: Upload the parity certificate (vulkan-lavapipe)
-- PASS: 3D GPU parity suite (headless)
-- PASS: A GPU frame presented to a real window
-- PASS: Platform views under a real X server (FW-20)
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### Coverage floor — skipped
-
-### Android emulator (APK, device and accessibility suites) — skipped
-
-### Type-check for macOS, iOS, Windows, Android (from Linux) — skipped
-
-### Plugin compatibility matrix (FW-17) — skipped
-
-### checks.sh (Linux) — skipped
-
-### Web (wasm32; Chromium, Firefox, WebKit) — skipped
-
-### Windows (D3D12 on WARP) — skipped
-
 ### Android device suite (self-hosted) — skipped
 
 ### macOS and iOS (Metal) — skipped
 
-### Android (compile) — skipped
+### GPU on software Vulkan (lavapipe) — skipped
+
+### Web (wasm32; Chromium, Firefox, WebKit) — skipped
+
+### Audio decoders under cargo-fuzz (nightly) — skipped
 
 ### Accessibility gallery + AT-SPI dry-run (Linux) — skipped
 
-### Audio decoders under cargo-fuzz (nightly) — skipped
+### Type-check for macOS, iOS, Windows, Android (from Linux) — skipped
+
+### Windows (D3D12 on WARP) — skipped
+
+### checks.sh (Linux) — skipped
+
+### Coverage floor — skipped
+
+### Plugin compatibility matrix (FW-17) — skipped
+
+### Android emulator (APK, device and accessibility suites) — skipped
+
+### Android (compile) — skipped
 
 ### Publish results to ci-runs/<branch> — PASS
 - PASS: Set up job
@@ -91,4 +78,4 @@
 - PASS: Push to ci-runs/<branch>
 - PASS: Complete job
 
-- artifacts: ios-simulator parity-certificate-vulkan-lavapipe 
+- artifacts: ios-simulator 
