@@ -5,18 +5,13 @@
 
 | job | verdict | failed steps |
 |---|---|---|
-| Only from main | PASS |  |
 | Windows hardware | FAIL | Run actions/checkout@v4 |
+| Only from main | PASS |  |
 | Linux hardware | skipped |  |
 | macOS hardware | skipped |  |
 | Publish to ci-runs/hardware-<branch> | PASS |  |
 
 ## Steps
-
-### Only from main — PASS
-- PASS: Set up job
-- skipped: Refuse other branches
-- PASS: Complete job
 
 ### Windows hardware — FAIL
 - PASS: Set up job
@@ -24,6 +19,11 @@
 - skipped: Hardware run
 - PASS: Upload results
 - PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### Only from main — PASS
+- PASS: Set up job
+- skipped: Refuse other branches
 - PASS: Complete job
 
 ### Linux hardware — skipped
