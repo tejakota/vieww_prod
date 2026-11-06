@@ -7,12 +7,12 @@
 #
 # Steps, and what each closes (PENDING.md / the audit's P0 list):
 #   env       the machine, GPU, driver, power state and toolchain, recorded first
-#   gpu       §1.1/§1.3  Vulkan suites, vieww-3d GPU parity and a GPU frame in a
+#   gpu       sec 1.1/sec 1.3  Vulkan suites, vieww-3d GPU parity and a GPU frame in a
 #             real window, on this PC's own driver
-#   d3d12     §1.3  the D3D12 suite on a HARDWARE adapter (CI only ever had
+#   d3d12     sec 1.3  the D3D12 suite on a HARDWARE adapter (CI only ever had
 #             WARP). Correctness/bring-up only: the D3D12 backend does not
 #             execute a ScenePlan yet, so there is no D3D12 frame to time
-#   gallery   §1.1 §2.3 §4.1  CPU gallery + GPU census (Vulkan), 30 runs each,
+#   gallery   sec 1.1 sec 2.3 sec 4.1  CPU gallery + GPU census (Vulkan), 30 runs each,
 #             with receipts and planner shadow logs
 #   baseline  P0    a real window, launched N times on the CPU path and N on the
 #             GPU path: launch-to-first-frame, working set, idle frames and
@@ -20,16 +20,16 @@
 #             Energy is not measured on Windows and is reported as null
 #   size      P0    size of that windowed app as shipped (`--profile dist`)
 #   pipelines FW-05 the GPU pipeline-cache proof: the baseline app launched
-#             twice against a cache this step owns — the second launch
+#             twice against a cache this step owns -- the second launch
 #             must start from the bytes the first saved and reach its
 #             first frame sooner (the hit-rate a user gets from day two);
 #             FW-16: the warm first frame must also clear the absolute
 #             350 ms gate, and both receipts' startup census is asserted
 #             (first-frame mark present, every stage carries a time)
-#   stress    —     the animation stress suite five times: one reproducible p95
-#   desktop   —     the on-desktop suite, through Git Bash
-#   remote    §3.3  the studio's out-of-process preview tests
-#   audio     —     vieww-audio on this PC's real sound card: WASAPI endpoint
+#   stress    --     the animation stress suite five times: one reproducible p95
+#   desktop   --     the on-desktop suite, through Git Bash
+#   remote    sec 3.3  the studio's out-of-process preview tests
+#   audio     --     vieww-audio on this PC's real sound card: WASAPI endpoint
 #             lists, a soak on the default output under full-core load
 #             (shared, then exclusive); with a loopback cable, every
 #             frame checked both ways; with a MIDI cable, a WinMM round
@@ -42,7 +42,7 @@
 # vendor's driver (it ships the Vulkan driver; the Vulkan SDK adds vulkaninfo),
 # Git for Windows (bash, for `desktop`), Python 3 for the baseline summary.
 # Run from an interactive desktop session: a GitHub runner installed as a
-# Windows *service* runs in session 0 and cannot open a window — start it with
+# Windows *service* runs in session 0 and cannot open a window -- start it with
 # `run.cmd` from a logged-in desktop instead.
 #
 # Every step runs even when an earlier one failed. Exit status is non-zero if
@@ -50,13 +50,24 @@
 #
 # # Why `pwsh` and not `powershell` in the usage above
 #
-# This file is UTF-8 and uses §, — and ─. Windows PowerShell 5.1 reads a
-# BOM-less script as the system ANSI codepage, which turns every one of those
-# into mojibake (`Â§`, `â€”`) in the output and in summary.txt — `Add-Content`
-# in 5.1 writes ANSI too, so it is wrong going out as well as coming in. The
-# file now carries a UTF-8 BOM, which makes 5.1 read it correctly, and `pwsh`
-# is named here anyway because it is what `ci/certify/certify-windows.ps1`
-# already uses and one host for both is one less thing to be wrong about.
+# This file is deliberately ASCII-only, and that is a correctness rule rather
+# than a style one.
+#
+# Windows PowerShell 5.1 reads a BOM-less script as the system ANSI codepage.
+# A UTF-8 em-dash is the three bytes E2 80 94, and cp1252 reads them as three
+# characters -- the last being 0x94, which is U+201D RIGHT DOUBLE QUOTATION
+# MARK. PowerShell accepts smart quotes as string delimiters (so that code
+# pasted out of Word still parses), so that byte CLOSES THE STRING. One
+# em-dash inside a double-quoted Say line therefore ends the string early,
+# turns the rest of the line into stray tokens, and takes brace tracking down
+# with it -- which is the eight phantom "Missing closing '}'" errors the gate
+# reported on 2026-11-06, none of them in a line that was wrong.
+#
+# A BOM fixes it, and the file carries one. But a BOM only has to be lost
+# once -- by an editor, a copy-paste, a zip, a checkout filter -- for the
+# whole file to stop parsing. ASCII cannot be lost. Keep it that way: no
+# em-dashes, no section signs, no box drawing. `ci/hardware/linux.sh` has no
+# such constraint and may keep its typography.
 
 param(
   [string[]]$Steps = @('env','gpu','d3d12','gallery','baseline','size','pipelines','stress','desktop','remote','audio'),
@@ -65,7 +76,7 @@ param(
 )
 
 $ErrorActionPreference = 'Continue'
-# `-File script.ps1 -Steps a,b` hands the script ONE string, "a,b" — the array
+# `-File script.ps1 -Steps a,b` hands the script ONE string, "a,b" -- the array
 # syntax only works when the script is invoked from inside PowerShell. Split
 # either form the same way so both mean what they say.
 $Steps = @($Steps | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
@@ -135,7 +146,7 @@ function Skip-Step([string]$Name, [string]$Reason) { Say "SKIP  $Name ($Reason)"
 #     Microsoft Store...
 #
 # and exit non-zero. It is a real file on PATH, so `Get-Command python`
-# **succeeds** — and the loop this replaced took that as the answer, set
+# **succeeds** -- and the loop this replaced took that as the answer, set
 # `python`, stopped looking, and never tried `py`. The first real run on a
 # machine with the alias enabled therefore skipped `perf_budget.py` and
 # `summarize_baseline.py` silently while printing the Store's advertisement
@@ -153,7 +164,7 @@ function Find-Python {
   return $null
 }
 
-# ── header ────────────────────────────────────────────────────────────────
+# -- header ----------------------------------------------------------------
 $commit = $null; $dirty = $null
 if (Get-Command git -ErrorAction SilentlyContinue) {
   $commit = (git rev-parse HEAD 2>$null)
@@ -211,7 +222,7 @@ if (Want 'env') {
   Say '      energy: not measured on Windows (no package energy counter without a driver); reported as null'
 }
 
-# ── GPU (Vulkan on this PC's driver) ───────────────────────────────────────
+# -- GPU (Vulkan on this PC's driver) ---------------------------------------
 if (Want 'gpu') {
   if ($hasVulkan) {
     Run-Step 'gpu-hal' @{ VIEWW_REQUIRE_HARDWARE = 'gpu' } 'cargo' @('test','--release','-p','vieww-hal','--features','vulkan','--','--ignored','--test-threads=1') | Out-Null
@@ -220,7 +231,7 @@ if (Want 'gpu') {
   } else { Skip-Step 'gpu' 'no Vulkan loader' }
 }
 
-# ── D3D12 on a hardware adapter ────────────────────────────────────────────
+# -- D3D12 on a hardware adapter --------------------------------------------
 if (Want 'd3d12') {
   # No VIEWW_D3D12_ALLOW_WARP: this must be the real adapter, which is the
   # whole difference from the hosted CI leg.
@@ -228,7 +239,7 @@ if (Want 'd3d12') {
   Say '      d3d12: bring-up and smoke suite only - the backend does not execute a ScenePlan yet (PENDING 1.3)'
 }
 
-# ── gallery and census ─────────────────────────────────────────────────────
+# -- gallery and census -----------------------------------------------------
 if (Want 'gallery') {
   $fx = Join-Path $OutDir 'fixtures'
   $cs = Join-Path $OutDir 'census'
@@ -255,7 +266,7 @@ if (Want 'gallery') {
   }
 }
 
-# ── baseline: a real window, launched N times per path ─────────────────────
+# -- baseline: a real window, launched N times per path ---------------------
 $python = Find-Python
 if (Want 'baseline') {
   if (Run-Step 'baseline-build' @{} 'cargo' @('build','--release','-p','vieww-platform-winit','--example','baseline')) {
@@ -304,7 +315,7 @@ if (Want 'baseline') {
   }
 }
 
-# ── size of what ships ─────────────────────────────────────────────────────
+# -- size of what ships -----------------------------------------------------
 if (Want 'size') {
   # `dist` (Cargo.toml): LTO, stripped, dependencies at opt-level "s".
   if (Run-Step 'size-build' @{} 'cargo' @('build','--profile','dist','-p','vieww-platform-winit','--example','baseline','--target-dir','target\size')) {
@@ -317,11 +328,11 @@ if (Want 'size') {
   }
 }
 
-# ── pipeline-cache hit-rate: the second launch must be cheaper ─────────────
+# -- pipeline-cache hit-rate: the second launch must be cheaper -------------
 # FW-05: the cache exists (vieww_hal::vulkan::pipeline_cache) and every GPU
 # launch seeds from it, but nothing on Windows had ever *proved* the seed
-# survives a process boundary. So this step owns a cache file — deleted
-# first, so run 1 is cold whatever ran before — launches the baseline app
+# survives a process boundary. So this step owns a cache file -- deleted
+# first, so run 1 is cold whatever ran before -- launches the baseline app
 # twice, and reads both reports back: run 1 must start from 0 bytes, run 2
 # from the bytes run 1 saved, and run 2's first frame must arrive sooner.
 # The drop is what the Device Farm paid for starting it: 1463 ms on a Stylo 5
@@ -371,7 +382,7 @@ if (Want 'pipelines') {
             break
           }
           $seed[$run] = [long]$m.Groups[1].Value
-          # `${run}:` and not `$run:` — in a double-quoted string PowerShell
+          # `${run}:` and not `$run:` -- in a double-quoted string PowerShell
           # reads `run:` as a drive/scope qualifier (the `$env:`/`$script:`
           # syntax), fails to find a `run:` drive, and rejects the whole file
           # with "Variable reference is not valid", taking brace tracking with
@@ -385,21 +396,21 @@ if (Want 'pipelines') {
         # FW-16: the receipt's startup census is asserted, not just printed.
         # The first frame's mark must be there (a run that presented has one),
         # the census must have enough stages to be one, and every stage must
-        # carry a time — a malformed line is a broken receipt, not a style
+        # carry a time -- a malformed line is a broken receipt, not a style
         # problem, and every later gate reads this receipt.
         if ($ok) {
           $stages = [string]$report[2].startup_stages
           if ([string]::IsNullOrWhiteSpace($stages)) {
-            Say 'FAIL  pipelines (run 2 reported no startup_stages — the receipt must carry the startup census)'
+            Say 'FAIL  pipelines (run 2 reported no startup_stages -- the receipt must carry the startup census)'
             $ok = $false
           } else {
             if (-not ($stages.Contains('first raster and present'))) {
-              Say 'FAIL  pipelines (run 2 startup_stages has no "first raster and present" mark — did the first frame actually present?)'
+              Say 'FAIL  pipelines (run 2 startup_stages has no "first raster and present" mark -- did the first frame actually present?)'
               $ok = $false
             }
             $segs = $stages.Split('|')
             if ($segs.Count -lt 5) {
-              Say "FAIL  pipelines (run 2 startup_stages carries only $($segs.Count) segment(s) — the census is incomplete)"
+              Say "FAIL  pipelines (run 2 startup_stages carries only $($segs.Count) segment(s) -- the census is incomplete)"
               $ok = $false
             }
             foreach ($seg in $segs) {
@@ -413,17 +424,17 @@ if (Want 'pipelines') {
         }
         if ($ok) {
           if ($seed[1] -ne 0) {
-            Say "FAIL  pipelines (run 1 started from $($seed[1]) bytes — the cache was not cold; this step's own setup failed)"
+            Say "FAIL  pipelines (run 1 started from $($seed[1]) bytes -- the cache was not cold; this step's own setup failed)"
             $script:Failed = $true
           } elseif ($seed[2] -le 0) {
-            Say 'FAIL  pipelines (run 2 started from 0 bytes — what run 1 saved did not seed it: cache not written, or the header no longer matches this GPU/driver)'
+            Say 'FAIL  pipelines (run 2 started from 0 bytes -- what run 1 saved did not seed it: cache not written, or the header no longer matches this GPU/driver)'
             $script:Failed = $true
           } elseif ($report[2].main_to_first_frame_ms -ge $report[1].main_to_first_frame_ms) {
             Say ("FAIL  pipelines (warm first frame {0:N1} ms is not under the cold {1:N1} ms)" -f $report[2].main_to_first_frame_ms, $report[1].main_to_first_frame_ms)
             $script:Failed = $true
           } elseif ($report[2].main_to_first_frame_ms -gt 350) {
             # FW-16's absolute gate: the warm cache may not merely be faster
-            # than this machine's cold start — a person still waited for it.
+            # than this machine's cold start -- a person still waited for it.
             # 350 ms is the receipt-based budget the report names; the relative
             # win above does not excuse the absolute number.
             Say ("FAIL  pipelines (warm first frame {0:N1} ms is over FW-16's 350 ms gate)" -f $report[2].main_to_first_frame_ms)
@@ -443,7 +454,7 @@ if (Want 'pipelines') {
   }
 }
 
-# ── animation stress, five times ───────────────────────────────────────────
+# -- animation stress, five times -------------------------------------------
 if (Want 'stress') {
   $p95s = @()
   for ($i = 1; $i -le 5; $i++) {
@@ -460,10 +471,10 @@ if (Want 'stress') {
   }
 }
 
-# ── the on-desktop suite ───────────────────────────────────────────────────
+# -- the on-desktop suite ---------------------------------------------------
 # Git Bash, found the way Git for Windows actually installs it: only
 # `git.exe` (from Git\cmd) goes on PATH by default, while bash.exe is in
-# Git\bin — so "git is installed" and "bash is not on PATH" are both true on
+# Git\bin -- so "git is installed" and "bash is not on PATH" are both true on
 # a normal machine, which is what the first real run hit. Never
 # System32\bash.exe: that is WSL's, and it would run the suite in Linux.
 function Find-GitBash {
@@ -495,12 +506,12 @@ if (Want 'desktop') {
   } else { Skip-Step 'desktop' 'Git Bash not found (looked next to git.exe and in Program Files\Git\bin)' }
 }
 
-# ── the studio's out-of-process preview ────────────────────────────────────
+# -- the studio's out-of-process preview ------------------------------------
 if (Want 'remote') {
   Run-Step 'remote' @{} 'cargo' @('test','-p','viewwstudio','--test','remote','--','--test-threads=1') | Out-Null
 }
 
-# ── audio on the real sound card ───────────────────────────────────────────
+# -- audio on the real sound card -------------------------------------------
 if (Want 'audio') {
   $soak = if ($env:VIEWW_HW_AUDIO_SOAK) { $env:VIEWW_HW_AUDIO_SOAK } else { '600' }
   $gain = if ($env:VIEWW_HW_AUDIO_GAIN) { $env:VIEWW_HW_AUDIO_GAIN } else { '0' }
@@ -542,12 +553,12 @@ if (Want 'audio') {
   }
 }
 
-# ── summary ────────────────────────────────────────────────────────────────
+# -- summary ----------------------------------------------------------------
 #
 # **After every step, which it was not.** This block sat above the `audio`
 # section, so `Get-Content $Summary` ran before a single audio step had, and
 # the printed summary ended at `remote` on every run that included audio. The
-# lines were in summary.txt — `Say` had written them — just not in the output
+# lines were in summary.txt -- `Say` had written them -- just not in the output
 # anybody actually reads. Nothing below this line may run a step.
 Write-Host ''
 Write-Host '================ summary ================'
