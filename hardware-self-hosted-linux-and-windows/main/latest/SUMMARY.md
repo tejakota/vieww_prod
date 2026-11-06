@@ -1,7 +1,7 @@
 # Hardware (self-hosted Linux and Windows) — FAILURE
 
-- branch: `main`  sha: `b22e7c57ba9579a5f549cbfd4f6a89b4cb9a7c47`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/42194835380
+- branch: `main`  sha: `4bdbe6ceac53361aad1f06502519b8b80251d3af`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/42241236915
 
 | job | verdict | failed steps |
 |---|---|---|
@@ -20,6 +20,7 @@
 
 ### Windows hardware — FAIL
 - PASS: Set up job
+- PASS: Add Cargo to PATH (Absolute)
 - PASS: Run actions/checkout@v4
 - FAIL: Hardware run
 - PASS: Upload results
