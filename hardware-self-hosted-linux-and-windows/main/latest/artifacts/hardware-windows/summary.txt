@@ -1,0 +1,32 @@
+vieww Windows hardware run 20261106-215410
+commit: be1763b94829df5c335fc44380f0135b5dfddc98
+host: TEJA22 - Microsoft Windows NT 10.0.19045.0
+cpu: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
+rustc: NOT RESOLVED - no rustc on PATH, or rustup could not provide the pinned toolchain (pinned: 1.98.1)
+
+FAIL  toolchain (cargo is not on PATH; every step below needs it)
+      rustup installs cargo into %USERPROFILE%\.cargo\bin and puts that on
+      the *user* PATH. A GitHub runner registered as a Windows service runs
+      as another account, never sees it, and -- being in session 0 -- cannot
+      open a window either, which the gpu, baseline and desktop steps need.
+      Stop the service and start the runner with run.cmd from a logged-in
+      desktop; or, if Rust is installed for the service account, add that
+      directory to the runner PATH.
+gpu: Intel(R) HD Graphics 620 (driver 26.20.100.6859)
+gpu: NVIDIA GeForce 920MX (driver 32.0.15.7652)
+power: on mains
+power plan: Balanced
+vulkan: NVIDIA GeForce 920MX
+vulkan: Intel(R) HD Graphics 620
+      WARNING: no rustc on PATH - nothing below can produce a number at all
+      energy: not measured on Windows (no package energy counter without a driver); reported as null
+SKIP  gpu (cargo is not on PATH -- see the toolchain line above)
+SKIP  d3d12 (cargo is not on PATH -- see the toolchain line above)
+SKIP  gallery (cargo is not on PATH -- see the toolchain line above)
+SKIP  baseline (cargo is not on PATH -- see the toolchain line above)
+SKIP  size (cargo is not on PATH -- see the toolchain line above)
+SKIP  pipelines (cargo is not on PATH -- see the toolchain line above)
+SKIP  stress (cargo is not on PATH -- see the toolchain line above)
+SKIP  desktop (cargo is not on PATH -- see the toolchain line above)
+SKIP  remote (cargo is not on PATH -- see the toolchain line above)
+SKIP  audio (cargo is not on PATH -- see the toolchain line above)
