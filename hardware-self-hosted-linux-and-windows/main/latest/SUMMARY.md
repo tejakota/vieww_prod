@@ -1,7 +1,7 @@
 # Hardware (self-hosted Linux and Windows) — FAILURE
 
-- branch: `main`  sha: `7c3595fa89c83d768ec89f32ee0f64545ed15051`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/42190401576
+- branch: `main`  sha: `257d876040373f821d7f5a43bd64fbb8e25d1330`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/42192802500
 
 | job | verdict | failed steps |
 |---|---|---|
