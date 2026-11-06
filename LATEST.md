@@ -2,7 +2,7 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
-| 2026-11-06T16:51:52Z | hardware-self-hosted-linux-and-windows/main | FAILURE | `26bbb1f1f041` | [summary](hardware-self-hosted-linux-and-windows/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/42255762102) |
+| 2026-11-06T17:05:19Z | hardware-self-hosted-linux-and-windows/main | FAILURE | `26bbb1f1f041` | [summary](hardware-self-hosted-linux-and-windows/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/42258171765) |
 | 2026-11-04T14:02:34Z | framework-checks/main | SUCCESS | `e9cff2524bea` | [summary](framework-checks/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41841412883) |
 | 2026-11-04T13:11:37Z | pr-quick/main | SUCCESS | `c001ad2bf726` | [summary](pr-quick/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41832081747) |
 | 2026-11-04T12:49:39Z | audio-backends/main | FAILURE | `c001ad2bf726` | [summary](audio-backends/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/41831931436) |
