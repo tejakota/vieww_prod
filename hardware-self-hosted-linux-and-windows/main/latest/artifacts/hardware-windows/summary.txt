@@ -1,8 +1,8 @@
-vieww Windows hardware run 20261106-144052
-commit: 257d876040373f821d7f5a43bd64fbb8e25d1330
+vieww Windows hardware run 20261106-145508
+commit: b22e7c57ba9579a5f549cbfd4f6a89b4cb9a7c47
 host: TEJA22 - Microsoft Windows NT 10.0.19045.0
 cpu: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
-rustc: NOT RESOLVED - rustup could not provide the pinned toolchain (pinned: 1.98.1)
+rustc: NOT RESOLVED - no rustc on PATH, or rustup could not provide the pinned toolchain (pinned: 1.98.1)
 
 FAIL  toolchain (cargo is not on PATH; every step below needs it)
       rustup installs cargo into %USERPROFILE%\.cargo\bin and puts that on
@@ -18,7 +18,7 @@ power: on mains
 power plan: Balanced
 vulkan: NVIDIA GeForce 920MX
 vulkan: Intel(R) HD Graphics 620
-      WARNING: rustc is not the pinned 1.98.1 - numbers are for a different compiler
+      WARNING: no rustc on PATH - nothing below can produce a number at all
       energy: not measured on Windows (no package energy counter without a driver); reported as null
 SKIP  gpu (cargo is not on PATH -- see the toolchain line above)
 SKIP  d3d12 (cargo is not on PATH -- see the toolchain line above)

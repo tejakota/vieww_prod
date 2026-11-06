@@ -1,12 +1,13 @@
 # Hardware (self-hosted Linux and Windows) — FAILURE
 
-- branch: `main`  sha: `257d876040373f821d7f5a43bd64fbb8e25d1330`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/42192802500
+- branch: `main`  sha: `b22e7c57ba9579a5f549cbfd4f6a89b4cb9a7c47`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/42194835380
 
 | job | verdict | failed steps |
 |---|---|---|
 | Only from main | PASS |  |
 | Windows hardware | FAIL | Hardware run |
+| macOS hardware | skipped |  |
 | Linux hardware | skipped |  |
 | Publish to ci-runs/hardware-<branch> | PASS |  |
 
@@ -24,6 +25,8 @@
 - PASS: Upload results
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
+
+### macOS hardware — skipped
 
 ### Linux hardware — skipped
 

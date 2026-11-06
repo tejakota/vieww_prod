@@ -1,82 +1,74 @@
 ===== Windows hardware	Hardware run =====
-﻿2026-11-06T09:10:51.0477923Z ##[group]Run powershell -NoProfile -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps "$env:STEPS" -Launches ([int]$env:LAUNCHES) -OutDir "$env:OUT"
-2026-11-06T09:10:51.0481233Z ^[[36;1mpowershell -NoProfile -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps "$env:STEPS" -Launches ([int]$env:LAUNCHES) -OutDir "$env:OUT"^[[0m
-2026-11-06T09:10:51.0482947Z ^[[36;1mexit $LASTEXITCODE^[[0m
-2026-11-06T09:10:51.0643162Z shell: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.EXE -command ". '{0}'"
-2026-11-06T09:10:51.0643723Z env:
-2026-11-06T09:10:51.0644193Z   STEPS: env,gpu,d3d12,gallery,baseline,size,pipelines,stress,desktop,remote,audio
-2026-11-06T09:10:51.0644761Z   LAUNCHES: 5
-2026-11-06T09:10:51.0645045Z   OUT: C:\actions-runner\_work\_temp\hardware-windows
-2026-11-06T09:10:51.0645410Z ##[endgroup]
-2026-11-06T09:10:53.8724366Z rustc : The term 'rustc' is not recognized as the name of a cmdlet, function, script file, or operable program. Check 
-2026-11-06T09:10:53.8726288Z the spelling of the name, or if a path was included, verify that the path is correct and try again.
-2026-11-06T09:10:53.8727686Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:217 char:11
-2026-11-06T09:10:53.8728694Z + $rustc = (rustc -V 2>$null)
-2026-11-06T09:10:53.8729135Z +           ~~~~~
-2026-11-06T09:10:53.8741439Z     + CategoryInfo          : ObjectNotFound: (rustc:String) [], CommandNotFoundException
-2026-11-06T09:10:53.8742849Z     + FullyQualifiedErrorId : CommandNotFoundException
-2026-11-06T09:10:53.8743529Z  
-2026-11-06T09:10:55.6101451Z FAIL  toolchain (cargo is not on PATH; every step below needs it)
-2026-11-06T09:10:55.6150646Z       rustup installs cargo into %USERPROFILE%\.cargo\bin and puts that on
-2026-11-06T09:10:55.6228171Z       the *user* PATH. A GitHub runner registered as a Windows service runs
-2026-11-06T09:10:55.6300957Z       as another account, never sees it, and -- being in session 0 -- cannot
-2026-11-06T09:10:55.6382994Z       open a window either, which the gpu, baseline and desktop steps need.
-2026-11-06T09:10:55.6455601Z       Stop the service and start the runner with run.cmd from a logged-in
-2026-11-06T09:10:55.6661774Z       desktop; or, if Rust is installed for the service account, add that
-2026-11-06T09:10:55.6744577Z       directory to the runner PATH.
-2026-11-06T09:10:56.6605944Z gpu: Intel(R) HD Graphics 620 (driver 26.20.100.6859)
-2026-11-06T09:10:56.6632057Z gpu: NVIDIA GeForce 920MX (driver 32.0.15.7652)
-2026-11-06T09:10:56.8454398Z power: on mains
-2026-11-06T09:10:56.8764064Z power plan: Balanced
-2026-11-06T09:10:56.8899635Z vulkan: NVIDIA GeForce 920MX
-2026-11-06T09:10:56.8924567Z vulkan: Intel(R) HD Graphics 620
-2026-11-06T09:10:56.9032071Z       WARNING: rustc is not the pinned 1.98.1 - numbers are for a different compiler
-2026-11-06T09:10:56.9086937Z       energy: not measured on Windows (no package energy counter without a driver); reported as null
-2026-11-06T09:10:56.9222125Z SKIP  gpu (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:56.9274981Z SKIP  d3d12 (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:56.9351120Z SKIP  gallery (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.1078002Z SKIP  baseline (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.1105342Z SKIP  size (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.1182786Z SKIP  pipelines (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.1274813Z SKIP  stress (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.6610279Z SKIP  desktop (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.6699170Z SKIP  remote (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.6835483Z SKIP  audio (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.6855835Z 
-2026-11-06T09:10:57.6867064Z ================ summary ================
-2026-11-06T09:10:57.6941142Z vieww Windows hardware run 20261106-144052
-2026-11-06T09:10:57.6941874Z commit: 257d876040373f821d7f5a43bd64fbb8e25d1330
-2026-11-06T09:10:57.6942845Z host: TEJA22 - Microsoft Windows NT 10.0.19045.0
-2026-11-06T09:10:57.6943948Z cpu: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
-2026-11-06T09:10:57.6945643Z rustc: NOT RESOLVED - rustup could not provide the pinned toolchain (pinned: 1.98.1)
-2026-11-06T09:10:57.6946521Z 
-2026-11-06T09:10:57.6947572Z FAIL  toolchain (cargo is not on PATH; every step below needs it)
-2026-11-06T09:10:57.6948876Z       rustup installs cargo into %USERPROFILE%\.cargo\bin and puts that on
-2026-11-06T09:10:57.6950188Z       the *user* PATH. A GitHub runner registered as a Windows service runs
-2026-11-06T09:10:57.6951547Z       as another account, never sees it, and -- being in session 0 -- cannot
-2026-11-06T09:10:57.6952972Z       open a window either, which the gpu, baseline and desktop steps need.
-2026-11-06T09:10:57.6954287Z       Stop the service and start the runner with run.cmd from a logged-in
-2026-11-06T09:10:57.6955617Z       desktop; or, if Rust is installed for the service account, add that
-2026-11-06T09:10:57.6956663Z       directory to the runner PATH.
-2026-11-06T09:10:57.6957706Z gpu: Intel(R) HD Graphics 620 (driver 26.20.100.6859)
-2026-11-06T09:10:57.6958704Z gpu: NVIDIA GeForce 920MX (driver 32.0.15.7652)
-2026-11-06T09:10:57.6959641Z power: on mains
-2026-11-06T09:10:57.6961322Z power plan: Balanced
-2026-11-06T09:10:57.6961976Z vulkan: NVIDIA GeForce 920MX
-2026-11-06T09:10:57.6963936Z vulkan: Intel(R) HD Graphics 620
-2026-11-06T09:10:57.6964948Z       WARNING: rustc is not the pinned 1.98.1 - numbers are for a different compiler
-2026-11-06T09:10:57.6966591Z       energy: not measured on Windows (no package energy counter without a driver); reported as null
-2026-11-06T09:10:57.6968111Z SKIP  gpu (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.6969321Z SKIP  d3d12 (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.6970551Z SKIP  gallery (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.6971801Z SKIP  baseline (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.6982506Z SKIP  size (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.6985834Z SKIP  pipelines (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.6988199Z SKIP  stress (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.6989626Z SKIP  desktop (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.6991141Z SKIP  remote (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.6992198Z SKIP  audio (cargo is not on PATH -- see the toolchain line above)
-2026-11-06T09:10:57.6992903Z 
-2026-11-06T09:10:57.6995826Z results: C:\actions-runner\_work\_temp\hardware-windows
-2026-11-06T09:10:57.7395661Z ##[error]Process completed with exit code 1.
+﻿2026-11-06T09:25:07.9383450Z ##[group]Run powershell -NoProfile -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps "$env:STEPS" -Launches ([int]$env:LAUNCHES) -OutDir "$env:OUT"
+2026-11-06T09:25:07.9395957Z ^[[36;1mpowershell -NoProfile -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps "$env:STEPS" -Launches ([int]$env:LAUNCHES) -OutDir "$env:OUT"^[[0m
+2026-11-06T09:25:07.9398293Z ^[[36;1mexit $LASTEXITCODE^[[0m
+2026-11-06T09:25:07.9636645Z shell: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.EXE -command ". '{0}'"
+2026-11-06T09:25:07.9637546Z env:
+2026-11-06T09:25:07.9638204Z   STEPS: env,gpu,d3d12,gallery,baseline,size,pipelines,stress,desktop,remote,audio
+2026-11-06T09:25:07.9639090Z   LAUNCHES: 5
+2026-11-06T09:25:07.9639479Z   OUT: C:\actions-runner\_work\_temp\hardware-windows
+2026-11-06T09:25:07.9640030Z ##[endgroup]
+2026-11-06T09:25:10.9565342Z FAIL  toolchain (cargo is not on PATH; every step below needs it)
+2026-11-06T09:25:10.9604944Z       rustup installs cargo into %USERPROFILE%\.cargo\bin and puts that on
+2026-11-06T09:25:10.9674494Z       the *user* PATH. A GitHub runner registered as a Windows service runs
+2026-11-06T09:25:10.9755021Z       as another account, never sees it, and -- being in session 0 -- cannot
+2026-11-06T09:25:10.9826944Z       open a window either, which the gpu, baseline and desktop steps need.
+2026-11-06T09:25:10.9909396Z       Stop the service and start the runner with run.cmd from a logged-in
+2026-11-06T09:25:10.9990314Z       desktop; or, if Rust is installed for the service account, add that
+2026-11-06T09:25:11.0073088Z       directory to the runner PATH.
+2026-11-06T09:25:12.0013798Z gpu: Intel(R) HD Graphics 620 (driver 26.20.100.6859)
+2026-11-06T09:25:12.0039469Z gpu: NVIDIA GeForce 920MX (driver 32.0.15.7652)
+2026-11-06T09:25:12.1810911Z power: on mains
+2026-11-06T09:25:12.2101487Z power plan: Balanced
+2026-11-06T09:25:12.2239525Z vulkan: NVIDIA GeForce 920MX
+2026-11-06T09:25:12.2267708Z vulkan: Intel(R) HD Graphics 620
+2026-11-06T09:25:12.2355418Z       WARNING: no rustc on PATH - nothing below can produce a number at all
+2026-11-06T09:25:12.2431082Z       energy: not measured on Windows (no package energy counter without a driver); reported as null
+2026-11-06T09:25:12.2552676Z SKIP  gpu (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.2618095Z SKIP  d3d12 (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.2701074Z SKIP  gallery (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.4422252Z SKIP  baseline (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.4450674Z SKIP  size (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.4529099Z SKIP  pipelines (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.4613550Z SKIP  stress (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.4693556Z SKIP  desktop (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.4778527Z SKIP  remote (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.6032737Z SKIP  audio (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.6148242Z 
+2026-11-06T09:25:12.6160682Z ================ summary ================
+2026-11-06T09:25:12.6239862Z vieww Windows hardware run 20261106-145508
+2026-11-06T09:25:12.6240783Z commit: b22e7c57ba9579a5f549cbfd4f6a89b4cb9a7c47
+2026-11-06T09:25:12.6241863Z host: TEJA22 - Microsoft Windows NT 10.0.19045.0
+2026-11-06T09:25:12.6242979Z cpu: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
+2026-11-06T09:25:12.6245097Z rustc: NOT RESOLVED - no rustc on PATH, or rustup could not provide the pinned toolchain (pinned: 1.98.1)
+2026-11-06T09:25:12.6246215Z 
+2026-11-06T09:25:12.6247564Z FAIL  toolchain (cargo is not on PATH; every step below needs it)
+2026-11-06T09:25:12.6249939Z       rustup installs cargo into %USERPROFILE%\.cargo\bin and puts that on
+2026-11-06T09:25:12.6251471Z       the *user* PATH. A GitHub runner registered as a Windows service runs
+2026-11-06T09:25:12.6256334Z       as another account, never sees it, and -- being in session 0 -- cannot
+2026-11-06T09:25:12.6257457Z       open a window either, which the gpu, baseline and desktop steps need.
+2026-11-06T09:25:12.6258571Z       Stop the service and start the runner with run.cmd from a logged-in
+2026-11-06T09:25:12.6259688Z       desktop; or, if Rust is installed for the service account, add that
+2026-11-06T09:25:12.6260604Z       directory to the runner PATH.
+2026-11-06T09:25:12.6261311Z gpu: Intel(R) HD Graphics 620 (driver 26.20.100.6859)
+2026-11-06T09:25:12.6262101Z gpu: NVIDIA GeForce 920MX (driver 32.0.15.7652)
+2026-11-06T09:25:12.6262778Z power: on mains
+2026-11-06T09:25:12.6263229Z power plan: Balanced
+2026-11-06T09:25:12.6264810Z vulkan: NVIDIA GeForce 920MX
+2026-11-06T09:25:12.6266087Z vulkan: Intel(R) HD Graphics 620
+2026-11-06T09:25:12.6267603Z       WARNING: no rustc on PATH - nothing below can produce a number at all
+2026-11-06T09:25:12.6269089Z       energy: not measured on Windows (no package energy counter without a driver); reported as null
+2026-11-06T09:25:12.6270531Z SKIP  gpu (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.6271620Z SKIP  d3d12 (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.6272758Z SKIP  gallery (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.6273989Z SKIP  baseline (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.6276282Z SKIP  size (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.6277393Z SKIP  pipelines (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.6278612Z SKIP  stress (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.6279836Z SKIP  desktop (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.6281034Z SKIP  remote (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.6282234Z SKIP  audio (cargo is not on PATH -- see the toolchain line above)
+2026-11-06T09:25:12.6290545Z 
+2026-11-06T09:25:12.6306484Z results: C:\actions-runner\_work\_temp\hardware-windows
+2026-11-06T09:25:12.6717438Z ##[error]Process completed with exit code 1.
 
