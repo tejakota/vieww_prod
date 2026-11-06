@@ -2,41 +2,41 @@
 # unattended run. The Linux twin is `ci/hardware/linux.sh`; both write their
 # results in the same shape (receipts, baseline reports, summary.txt).
 #
-#   powershell -ExecutionPolicy Bypass -File ci\hardware\windows.ps1
-#   powershell -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps baseline,stress
+#   pwsh -ExecutionPolicy Bypass -File ci\hardware\windows.ps1
+#   pwsh -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps baseline,stress
 #
 # Steps, and what each closes (PENDING.md / the audit's P0 list):
 #   env       the machine, GPU, driver, power state and toolchain, recorded first
 #   gpu       §1.1/§1.3  Vulkan suites, vieww-3d GPU parity and a GPU frame in a
-#                   real window, on this PC's own driver
+#             real window, on this PC's own driver
 #   d3d12     §1.3  the D3D12 suite on a HARDWARE adapter (CI only ever had
-#                   WARP). Correctness/bring-up only: the D3D12 backend does not
-#                   execute a ScenePlan yet, so there is no D3D12 frame to time
+#             WARP). Correctness/bring-up only: the D3D12 backend does not
+#             execute a ScenePlan yet, so there is no D3D12 frame to time
 #   gallery   §1.1 §2.3 §4.1  CPU gallery + GPU census (Vulkan), 30 runs each,
-#                   with receipts and planner shadow logs
+#             with receipts and planner shadow logs
 #   baseline  P0    a real window, launched N times on the CPU path and N on the
-#                   GPU path: launch-to-first-frame, working set, idle frames and
-#                   CPU, animated fps, frame-stage medians (examples/baseline.rs).
-#                   Energy is not measured on Windows and is reported as null
+#             GPU path: launch-to-first-frame, working set, idle frames and
+#             CPU, animated fps, frame-stage medians (examples/baseline.rs).
+#             Energy is not measured on Windows and is reported as null
 #   size      P0    size of that windowed app as shipped (`--profile dist`)
 #   pipelines FW-05 the GPU pipeline-cache proof: the baseline app launched
-#                   twice against a cache this step owns — the second launch
-#                   must start from the bytes the first saved and reach its
-#                   first frame sooner (the hit-rate a user gets from day two);
-#                   FW-16: the warm first frame must also clear the absolute
-#                   350 ms gate, and both receipts' startup census is asserted
-#                   (first-frame mark present, every stage carries a time)
+#             twice against a cache this step owns — the second launch
+#             must start from the bytes the first saved and reach its
+#             first frame sooner (the hit-rate a user gets from day two);
+#             FW-16: the warm first frame must also clear the absolute
+#             350 ms gate, and both receipts' startup census is asserted
+#             (first-frame mark present, every stage carries a time)
 #   stress    —     the animation stress suite five times: one reproducible p95
 #   desktop   —     the on-desktop suite, through Git Bash
 #   remote    §3.3  the studio's out-of-process preview tests
 #   audio     —     vieww-audio on this PC's real sound card: WASAPI endpoint
-#                   lists, a soak on the default output under full-core load
-#                   (shared, then exclusive); with a loopback cable, every
-#                   frame checked both ways; with a MIDI cable, a WinMM round
-#                   trip. Environment: VIEWW_HW_AUDIO_SOAK (seconds, default
-#                   600), VIEWW_HW_AUDIO_GAIN (default 0 = silent but
-#                   streamed), VIEWW_HW_AUDIO_LOOP=1 (line out wired to line
-#                   in, both defaults), VIEWW_MIDI_LOOP='<out id>><in id>'
+#             lists, a soak on the default output under full-core load
+#             (shared, then exclusive); with a loopback cable, every
+#             frame checked both ways; with a MIDI cable, a WinMM round
+#             trip. Environment: VIEWW_HW_AUDIO_SOAK (seconds, default
+#             600), VIEWW_HW_AUDIO_GAIN (default 0 = silent but
+#             streamed), VIEWW_HW_AUDIO_LOOP=1 (line out wired to line
+#             in, both defaults), VIEWW_MIDI_LOOP='<out id>><in id>'
 #
 # Needs: the pinned Rust toolchain (MSVC), Visual Studio Build Tools, the GPU
 # vendor's driver (it ships the Vulkan driver; the Vulkan SDK adds vulkaninfo),
@@ -47,6 +47,16 @@
 #
 # Every step runs even when an earlier one failed. Exit status is non-zero if
 # any step failed; a step this machine cannot run is SKIP, never PASS.
+#
+# # Why `pwsh` and not `powershell` in the usage above
+#
+# This file is UTF-8 and uses §, — and ─. Windows PowerShell 5.1 reads a
+# BOM-less script as the system ANSI codepage, which turns every one of those
+# into mojibake (`Â§`, `â€”`) in the output and in summary.txt — `Add-Content`
+# in 5.1 writes ANSI too, so it is wrong going out as well as coming in. The
+# file now carries a UTF-8 BOM, which makes 5.1 read it correctly, and `pwsh`
+# is named here anyway because it is what `ci/certify/certify-windows.ps1`
+# already uses and one host for both is one less thing to be wrong about.
 
 param(
   [string[]]$Steps = @('env','gpu','d3d12','gallery','baseline','size','pipelines','stress','desktop','remote','audio'),
@@ -113,7 +123,37 @@ function Run-Step([string]$Name, [hashtable]$Env, [string]$Exe, [string[]]$ArgLi
 
 function Skip-Step([string]$Name, [string]$Reason) { Say "SKIP  $Name ($Reason)" }
 
-# ── header ──────────────────────────────────────────────────────────────────
+# A Python that actually runs, or $null.
+#
+# # Why `Get-Command` on its own is the wrong question
+#
+# Windows ships an **App Execution Alias** at
+# `%LOCALAPPDATA%\Microsoft\WindowsApps\python.exe`: a stub whose whole job is
+# to print
+#
+#     Python was not found; run without arguments to install from the
+#     Microsoft Store...
+#
+# and exit non-zero. It is a real file on PATH, so `Get-Command python`
+# **succeeds** — and the loop this replaced took that as the answer, set
+# `python`, stopped looking, and never tried `py`. The first real run on a
+# machine with the alias enabled therefore skipped `perf_budget.py` and
+# `summarize_baseline.py` silently while printing the Store's advertisement
+# into the middle of the gate's output.
+#
+# So this asks the only question that distinguishes a Python from a stub: it
+# runs one. `py` first because the launcher is what a real install puts there,
+# and because it is the one name the alias never takes.
+function Find-Python {
+  foreach ($candidate in 'py','python3','python') {
+    if (-not (Get-Command $candidate -ErrorAction SilentlyContinue)) { continue }
+    & $candidate -c 'import sys' 2>$null | Out-Null
+    if ($LASTEXITCODE -eq 0) { return $candidate }
+  }
+  return $null
+}
+
+# ── header ────────────────────────────────────────────────────────────────
 $commit = $null; $dirty = $null
 if (Get-Command git -ErrorAction SilentlyContinue) {
   $commit = (git rev-parse HEAD 2>$null)
@@ -171,7 +211,7 @@ if (Want 'env') {
   Say '      energy: not measured on Windows (no package energy counter without a driver); reported as null'
 }
 
-# ── GPU (Vulkan on this PC's driver) ────────────────────────────────────────
+# ── GPU (Vulkan on this PC's driver) ───────────────────────────────────────
 if (Want 'gpu') {
   if ($hasVulkan) {
     Run-Step 'gpu-hal' @{ VIEWW_REQUIRE_HARDWARE = 'gpu' } 'cargo' @('test','--release','-p','vieww-hal','--features','vulkan','--','--ignored','--test-threads=1') | Out-Null
@@ -180,7 +220,7 @@ if (Want 'gpu') {
   } else { Skip-Step 'gpu' 'no Vulkan loader' }
 }
 
-# ── D3D12 on a hardware adapter ─────────────────────────────────────────────
+# ── D3D12 on a hardware adapter ────────────────────────────────────────────
 if (Want 'd3d12') {
   # No VIEWW_D3D12_ALLOW_WARP: this must be the real adapter, which is the
   # whole difference from the hosted CI leg.
@@ -188,7 +228,7 @@ if (Want 'd3d12') {
   Say '      d3d12: bring-up and smoke suite only - the backend does not execute a ScenePlan yet (PENDING 1.3)'
 }
 
-# ── gallery and census ──────────────────────────────────────────────────────
+# ── gallery and census ─────────────────────────────────────────────────────
 if (Want 'gallery') {
   $fx = Join-Path $OutDir 'fixtures'
   $cs = Join-Path $OutDir 'census'
@@ -197,16 +237,15 @@ if (Want 'gallery') {
   # FW-08: this machine's figures against ci/check/perf-budgets.json, or,
   # for a class with no committed budget, against its previous run (as
   # linux.sh does); this run's figures become the next run's baseline.
-  $py = $null
-  foreach ($candidate in 'python','py','python3') {
-    if (Get-Command $candidate -ErrorAction SilentlyContinue) { $py = $candidate; break }
-  }
+  $py = Find-Python
   $fxr = Join-Path $fx 'receipt.json'
   $csr = Join-Path $cs 'receipt.json'
   if ($py -and (Test-Path $fxr) -and (Test-Path $csr)) {
     $base = Join-Path $OutDir 'perf-baseline.json'
     & $py -I ci\check\perf_baseline.py hardware-self-hosted-linux-and-windows hardware-windows $base | Out-Host
     Run-Step 'perf-budget' @{} $py @('-I','ci\check\perf_budget.py','check','ci\check\perf-budgets.json',$fxr,$csr,'--baseline',$base,'--write-measured',(Join-Path $OutDir 'perf-measured.json')) | Out-Null
+  } elseif (-not $py) {
+    Skip-Step 'perf-budget' 'no working Python (the Store alias is not one; install from python.org or disable the alias)'
   }
   $receipt = Join-Path $cs 'receipt.json'
   if (Test-Path $receipt) {
@@ -216,11 +255,8 @@ if (Want 'gallery') {
   }
 }
 
-# ── baseline: a real window, launched N times per path ──────────────────────
-$python = $null
-foreach ($candidate in 'python','py','python3') {
-  if (Get-Command $candidate -ErrorAction SilentlyContinue) { $python = $candidate; break }
-}
+# ── baseline: a real window, launched N times per path ─────────────────────
+$python = Find-Python
 if (Want 'baseline') {
   if (Run-Step 'baseline-build' @{} 'cargo' @('build','--release','-p','vieww-platform-winit','--example','baseline')) {
     $bin = Join-Path $Root 'target\release\examples\baseline.exe'
@@ -247,7 +283,7 @@ if (Want 'baseline') {
         $p = Start-Process -FilePath $bin -ArgumentList $argList -NoNewWindow -PassThru `
           -RedirectStandardOutput (Join-Path $OutDir "baseline-$mode-$i.out.log") `
           -RedirectStandardError (Join-Path $OutDir "baseline-$mode-$i.err.log")
-        $null = $p.Handle  # keeps ExitCode readable after exit
+        $null = $p.Handle # keeps ExitCode readable after exit
         if (-not $p.WaitForExit(120000)) {
           $p.Kill()
           Add-Content (Join-Path $OutDir "baseline-$mode-$i.err.log") 'baseline: killed after 120 s'
@@ -264,11 +300,11 @@ if (Want 'baseline') {
       $text = & $python (Join-Path $Root 'ci\hardware\summarize_baseline.py') $dir 2>&1 | ForEach-Object { "$_" }
       Set-Content -Path (Join-Path $dir 'summary.txt') -Value $text
       foreach ($line in $text) { Say "      $line" }
-    } else { Say '      (no Python: baseline/*.json are the raw reports; summarize_baseline.py was not run)' }
+    } else { Say '      (no working Python: baseline/*.json are the raw reports; summarize_baseline.py was not run)' }
   }
 }
 
-# ── size of what ships ──────────────────────────────────────────────────────
+# ── size of what ships ─────────────────────────────────────────────────────
 if (Want 'size') {
   # `dist` (Cargo.toml): LTO, stripped, dependencies at opt-level "s".
   if (Run-Step 'size-build' @{} 'cargo' @('build','--profile','dist','-p','vieww-platform-winit','--example','baseline','--target-dir','target\size')) {
@@ -281,7 +317,7 @@ if (Want 'size') {
   }
 }
 
-# ── pipeline-cache hit-rate: the second launch must be cheaper ────────────
+# ── pipeline-cache hit-rate: the second launch must be cheaper ─────────────
 # FW-05: the cache exists (vieww_hal::vulkan::pipeline_cache) and every GPU
 # launch seeds from it, but nothing on Windows had ever *proved* the seed
 # survives a process boundary. So this step owns a cache file — deleted
@@ -335,7 +371,13 @@ if (Want 'pipelines') {
             break
           }
           $seed[$run] = [long]$m.Groups[1].Value
-          Say "      pipelines run $run: started from $($seed[$run]) bytes; first frame $($report[$run].main_to_first_frame_ms) ms"
+          # `${run}:` and not `$run:` — in a double-quoted string PowerShell
+          # reads `run:` as a drive/scope qualifier (the `$env:`/`$script:`
+          # syntax), fails to find a `run:` drive, and rejects the whole file
+          # with "Variable reference is not valid", taking brace tracking with
+          # it and reporting eight phantom "Missing closing '}'" errors in
+          # lines that are fine. `Run-Step` above already writes `${Name}:`.
+          Say "      pipelines run ${run}: started from $($seed[$run]) bytes; first frame $($report[$run].main_to_first_frame_ms) ms"
           if ($report[$run].startup_stages) {
             Say "      pipelines run $run stages: $($report[$run].startup_stages)"
           }
@@ -401,7 +443,7 @@ if (Want 'pipelines') {
   }
 }
 
-# ── animation stress, five times ────────────────────────────────────────────
+# ── animation stress, five times ───────────────────────────────────────────
 if (Want 'stress') {
   $p95s = @()
   for ($i = 1; $i -le 5; $i++) {
@@ -418,7 +460,7 @@ if (Want 'stress') {
   }
 }
 
-# ── the on-desktop suite ────────────────────────────────────────────────────
+# ── the on-desktop suite ───────────────────────────────────────────────────
 # Git Bash, found the way Git for Windows actually installs it: only
 # `git.exe` (from Git\cmd) goes on PATH by default, while bash.exe is in
 # Git\bin — so "git is installed" and "bash is not on PATH" are both true on
@@ -453,17 +495,12 @@ if (Want 'desktop') {
   } else { Skip-Step 'desktop' 'Git Bash not found (looked next to git.exe and in Program Files\Git\bin)' }
 }
 
-# ── the studio's out-of-process preview ─────────────────────────────────────
+# ── the studio's out-of-process preview ────────────────────────────────────
 if (Want 'remote') {
   Run-Step 'remote' @{} 'cargo' @('test','-p','viewwstudio','--test','remote','--','--test-threads=1') | Out-Null
 }
 
-Write-Host ''
-Write-Host '================ summary ================'
-Get-Content $Summary
-Write-Host ''
-Write-Host "results: $OutDir"
-# ── audio on the real sound card ──────────────────────────────────────────────
+# ── audio on the real sound card ───────────────────────────────────────────
 if (Want 'audio') {
   $soak = if ($env:VIEWW_HW_AUDIO_SOAK) { $env:VIEWW_HW_AUDIO_SOAK } else { '600' }
   $gain = if ($env:VIEWW_HW_AUDIO_GAIN) { $env:VIEWW_HW_AUDIO_GAIN } else { '0' }
@@ -504,5 +541,18 @@ if (Want 'audio') {
     }
   }
 }
+
+# ── summary ────────────────────────────────────────────────────────────────
+#
+# **After every step, which it was not.** This block sat above the `audio`
+# section, so `Get-Content $Summary` ran before a single audio step had, and
+# the printed summary ended at `remote` on every run that included audio. The
+# lines were in summary.txt — `Say` had written them — just not in the output
+# anybody actually reads. Nothing below this line may run a step.
+Write-Host ''
+Write-Host '================ summary ================'
+Get-Content $Summary
+Write-Host ''
+Write-Host "results: $OutDir"
 
 if ($script:Failed) { exit 1 } else { exit 0 }
