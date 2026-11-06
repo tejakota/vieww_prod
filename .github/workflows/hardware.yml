@@ -136,6 +136,9 @@ jobs:
         shell: powershell
         working-directory: vieww_base
     steps:
+      - name: Add Cargo to PATH (Absolute)
+        run: echo "C:\Users\Teja\.cargo\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
       - uses: actions/checkout@v4
         with:
           clean: false
