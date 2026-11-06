@@ -145,6 +145,8 @@ jobs:
           LAUNCHES: ${{ inputs.launches || '5' }}
           OUT: ${{ runner.temp }}\hardware-windows
         run: |
+          # Explicitly append Teja's cargo binaries to the active process PATH 
+          $env:PATH = "C:\Users\Teja\.cargo\bin;" + $env:PATH
           powershell -NoProfile -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps "$env:STEPS" -Launches ([int]$env:LAUNCHES) -OutDir "$env:OUT"
           exit $LASTEXITCODE
       - name: Upload results
