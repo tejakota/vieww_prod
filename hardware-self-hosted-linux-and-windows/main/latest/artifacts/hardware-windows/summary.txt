@@ -1,0 +1,43 @@
+vieww Windows hardware run 20261106-142149
+commit: 7c3595fa89c83d768ec89f32ee0f64545ed15051
+host: TEJA22 - Microsoft Windows NT 10.0.19045.0
+cpu: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
+rustc: NOT RESOLVED - rustup could not provide the pinned toolchain (pinned: 1.98.1)
+
+gpu: Intel(R) HD Graphics 620 (driver 26.20.100.6859)
+gpu: NVIDIA GeForce 920MX (driver 32.0.15.7652)
+power: on mains
+power plan: Balanced
+vulkan: NVIDIA GeForce 920MX
+vulkan: Intel(R) HD Graphics 620
+      WARNING: rustc is not the pinned 1.98.1 - numbers are for a different compiler
+      energy: not measured on Windows (no package energy counter without a driver); reported as null
+FAIL  gpu-hal (exit ; see gpu-hal.log)
+FAIL  gpu-3d (exit ; see gpu-3d.log)
+FAIL  gpu-window (exit ; see gpu-window.log)
+FAIL  d3d12-hardware (exit ; see d3d12-hardware.log)
+      d3d12: bring-up and smoke suite only - the backend does not execute a ScenePlan yet (PENDING 1.3)
+FAIL  gallery (exit ; see gallery.log)
+FAIL  census (exit ; see census.log)
+SKIP  perf-budget (no working Python (the Store alias is not one; install from python.org or disable the alias))
+FAIL  baseline-build (exit ; see baseline-build.log)
+FAIL  size-build (exit ; see size-build.log)
+FAIL  pipelines-build (exit ; see pipelines-build.log)
+FAIL  pipelines (pipelines-build failed)
+FAIL  stress-1 (exit ; see stress-1.log)
+FAIL  stress-2 (exit ; see stress-2.log)
+FAIL  stress-3 (exit ; see stress-3.log)
+FAIL  stress-4 (exit ; see stress-4.log)
+FAIL  stress-5 (exit ; see stress-5.log)
+      desktop: using C:\Program Files\Git\bin\bash.exe
+FAIL  desktop (exit 127; see desktop.log)
+FAIL  remote (exit ; see remote.log)
+      audio endpoints: Microphone (Realtek High Definition Audio); Speakers (Realtek High Definition Audio)
+FAIL  audio-devices (exit ; see audio-devices.log)
+FAIL  audio-player (exit ; see audio-player.log)
+FAIL  audio-low-latency-shared (exit ; see audio-low-latency-shared.log)
+SKIP  audio-default-flip (one render endpoint (install VB-CABLE for a second))
+FAIL  audio-soak-wasapi (exit ; see audio-soak-wasapi.log)
+FAIL  audio-soak-wasapi-exclusive (exit ; see audio-soak-wasapi-exclusive.log)
+SKIP  audio-loopback (VIEWW_HW_AUDIO_LOOP not set (needs a line-out to line-in cable))
+SKIP  audio-midi (VIEWW_MIDI_LOOP not set (needs a MIDI cable between two ports))

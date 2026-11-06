@@ -1,56 +1,302 @@
 ===== Windows hardware	Hardware run =====
-﻿2026-11-06T08:00:19.7161850Z ##[group]Run powershell -NoProfile -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps "$env:STEPS" -Launches ([int]$env:LAUNCHES) -OutDir "$env:OUT"
-2026-11-06T08:00:19.7165997Z ^[[36;1mpowershell -NoProfile -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps "$env:STEPS" -Launches ([int]$env:LAUNCHES) -OutDir "$env:OUT"^[[0m
-2026-11-06T08:00:19.7167793Z ^[[36;1mexit $LASTEXITCODE^[[0m
-2026-11-06T08:00:19.7320868Z shell: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.EXE -command ". '{0}'"
-2026-11-06T08:00:19.7321464Z env:
-2026-11-06T08:00:19.7321962Z   STEPS: env,gpu,d3d12,gallery,baseline,size,pipelines,stress,desktop,remote,audio
-2026-11-06T08:00:19.7322560Z   LAUNCHES: 5
-2026-11-06T08:00:19.7322863Z   OUT: C:\actions-runner\_work\_temp\hardware-windows
-2026-11-06T08:00:19.7323252Z ##[endgroup]
-2026-11-06T08:00:21.2409403Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:401 char:36
-2026-11-06T08:00:21.2410994Z +             if ($segs.Count -lt 5) {
-2026-11-06T08:00:21.2411873Z +                                    ~
-2026-11-06T08:00:21.2412910Z Missing closing '}' in statement block or type definition.
-2026-11-06T08:00:21.2414465Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:395 char:18
-2026-11-06T08:00:21.2415485Z +           } else {
-2026-11-06T08:00:21.2415870Z +                  ~
-2026-11-06T08:00:21.2416435Z Missing closing '}' in statement block or type definition.
-2026-11-06T08:00:21.2417547Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:390 char:18
-2026-11-06T08:00:21.2418945Z +         if ($ok) {
-2026-11-06T08:00:21.2419532Z +                  ~
-2026-11-06T08:00:21.2420396Z Missing closing '}' in statement block or type definition.
-2026-11-06T08:00:21.2422045Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:363 char:41
-2026-11-06T08:00:21.2423625Z +       if ($ok -and $report.Count -eq 2) {
-2026-11-06T08:00:21.2424463Z +                                         ~
-2026-11-06T08:00:21.2425448Z Missing closing '}' in statement block or type definition.
-2026-11-06T08:00:21.2427012Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:337 char:12
-2026-11-06T08:00:21.2428199Z +     } else {
-2026-11-06T08:00:21.2428465Z +            ~
-2026-11-06T08:00:21.2428914Z Missing closing '}' in statement block or type definition.
-2026-11-06T08:00:21.2429973Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:332 char:127
-2026-11-06T08:00:21.2431166Z + ... d','--release','-p','vieww-platform-winit','--example','baseline')) {
-2026-11-06T08:00:21.2431952Z +                                                                         ~
-2026-11-06T08:00:21.2432700Z Missing closing '}' in statement block or type definition.
-2026-11-06T08:00:21.2433829Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:329 char:23
-2026-11-06T08:00:21.2434844Z + if (Want 'pipelines') {
-2026-11-06T08:00:21.2435209Z +                       ~
-2026-11-06T08:00:21.2436225Z Missing closing '}' in statement block or type definition.
-2026-11-06T08:00:21.2437280Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:402 char:125
-2026-11-06T08:00:21.2438909Z + ... carries only $($segs.Count) segment(s) â€” the census is incomplete)"
-2026-11-06T08:00:21.2439693Z +                                                                        ~
-2026-11-06T08:00:21.2440331Z Unexpected token ')' in expression or statement.
-2026-11-06T08:00:21.2441362Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:408 char:22
-2026-11-06T08:00:21.2443016Z +                 Say "FAIL  pipelines (run 2 startup stage carries no  ...
-2026-11-06T08:00:21.2443742Z +                      ~~~~
-2026-11-06T08:00:21.2444203Z Unexpected token 'FAIL' in expression or statement.
-2026-11-06T08:00:21.2445227Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:416 char:130
-2026-11-06T08:00:21.2449366Z + ... [1]) bytes â€” the cache was not cold; this step's own setup failed)"
-2026-11-06T08:00:21.2450172Z +                                                                          ~
-2026-11-06T08:00:21.2451009Z Missing closing ')' in expression.
-2026-11-06T08:00:21.2452193Z Not all parse errors were reported.  Correct the reported errors and try again.
-2026-11-06T08:00:21.2453725Z     + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
-2026-11-06T08:00:21.2454971Z     + FullyQualifiedErrorId : MissingEndCurlyBrace
-2026-11-06T08:00:21.2456249Z  
-2026-11-06T08:00:21.2800640Z ##[error]Process completed with exit code 1.
+2026-11-06T08:51:33.9166098Z   STEPS: env,gpu,d3d12,gallery,baseline,size,pipelines,stress,desktop,remote,audio
+2026-11-06T08:51:33.9166760Z   LAUNCHES: 5
+2026-11-06T08:51:33.9167118Z   OUT: C:\actions-runner\_work\_temp\hardware-windows
+2026-11-06T08:51:33.9167567Z ##[endgroup]
+2026-11-06T08:53:26.8352863Z rustc : The term 'rustc' is not recognized as the name of a cmdlet, function, script file, or operable program. Check 
+2026-11-06T08:53:26.8354639Z the spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:26.8356128Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:177 char:11
+2026-11-06T08:53:26.8357145Z + $rustc = (rustc -V 2>$null)
+2026-11-06T08:53:26.8357605Z +           ~~~~~
+2026-11-06T08:53:26.8358331Z     + CategoryInfo          : ObjectNotFound: (rustc:String) [], CommandNotFoundException
+2026-11-06T08:53:26.8359434Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:26.8360134Z  
+2026-11-06T08:53:36.2191060Z gpu: Intel(R) HD Graphics 620 (driver 26.20.100.6859)
+2026-11-06T08:53:36.2232037Z gpu: NVIDIA GeForce 920MX (driver 32.0.15.7652)
+2026-11-06T08:53:36.4161996Z power: on mains
+2026-11-06T08:53:36.5578585Z power plan: Balanced
+2026-11-06T08:53:36.6315900Z vulkan: NVIDIA GeForce 920MX
+2026-11-06T08:53:36.6345113Z vulkan: Intel(R) HD Graphics 620
+2026-11-06T08:53:36.6510441Z       WARNING: rustc is not the pinned 1.98.1 - numbers are for a different compiler
+2026-11-06T08:53:36.6754186Z       energy: not measured on Windows (no package energy counter without a driver); reported as null
+2026-11-06T08:53:36.7160870Z 
+2026-11-06T08:53:36.7177173Z ==> gpu-hal: cargo test --release -p vieww-hal --features vulkan -- --ignored --test-threads=1
+2026-11-06T08:53:36.7901147Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:36.7903135Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:36.7904511Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:36.7905560Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:36.7906183Z +       ~~~~
+2026-11-06T08:53:36.7906940Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:36.7907980Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:36.7908759Z  
+2026-11-06T08:53:36.7920822Z FAIL  gpu-hal (exit ; see gpu-hal.log)
+2026-11-06T08:53:36.7945715Z 
+2026-11-06T08:53:36.7957330Z ==> gpu-3d: cargo test --release -p vieww-3d --features vulkan -- --ignored --test-threads=1
+2026-11-06T08:53:36.8499782Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:36.8501799Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:36.8503229Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:36.8504376Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:36.8505026Z +       ~~~~
+2026-11-06T08:53:36.8506023Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:36.8507136Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:36.8511891Z  
+2026-11-06T08:53:36.8513820Z FAIL  gpu-3d (exit ; see gpu-3d.log)
+2026-11-06T08:53:36.8547107Z 
+2026-11-06T08:53:36.8558445Z ==> gpu-window: cargo test --release -p vieww-platform-winit --test wait_loop
+2026-11-06T08:53:36.9117476Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:36.9119542Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:36.9120953Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:36.9121995Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:36.9122677Z +       ~~~~
+2026-11-06T08:53:36.9123350Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:36.9124382Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:36.9124983Z  
+2026-11-06T08:53:36.9129015Z FAIL  gpu-window (exit ; see gpu-window.log)
+2026-11-06T08:53:36.9155874Z 
+2026-11-06T08:53:36.9167581Z ==> d3d12-hardware: cargo test --release -p vieww-hal --features d3d12 -- --ignored --test-threads=1
+2026-11-06T08:53:36.9869308Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:36.9871182Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:36.9872661Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:36.9873888Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:36.9874430Z +       ~~~~
+2026-11-06T08:53:36.9875293Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:36.9876298Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:36.9876867Z  
+2026-11-06T08:53:36.9883432Z FAIL  d3d12-hardware (exit ; see d3d12-hardware.log)
+2026-11-06T08:53:36.9910068Z       d3d12: bring-up and smoke suite only - the backend does not execute a ScenePlan yet (PENDING 1.3)
+2026-11-06T08:53:37.0010068Z 
+2026-11-06T08:53:37.0023399Z ==> gallery: cargo run --release -p fixtures -- C:\actions-runner\_work\_temp\hardware-windows\fixtures --runs 30 --receipt C:\actions-runner\_work\_temp\hardware-windows\fixtures\receipt.json --shadow C:\actions-runner\_work\_temp\hardware-windows\fixtures\shadow.jsonl
+2026-11-06T08:53:37.0554785Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:37.0556684Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:37.0558064Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:37.0559138Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:37.0559761Z +       ~~~~
+2026-11-06T08:53:37.0560414Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:37.0562866Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:37.0563440Z  
+2026-11-06T08:53:37.0566744Z FAIL  gallery (exit ; see gallery.log)
+2026-11-06T08:53:37.0593950Z 
+2026-11-06T08:53:37.0608627Z ==> census: cargo run --release -p fixtures -- C:\actions-runner\_work\_temp\hardware-windows\census --census --runs 30 --receipt C:\actions-runner\_work\_temp\hardware-windows\census\receipt.json --shadow C:\actions-runner\_work\_temp\hardware-windows\census\shadow.jsonl
+2026-11-06T08:53:37.1152589Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:37.1154570Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:37.1156275Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:37.1158925Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:37.1159479Z +       ~~~~
+2026-11-06T08:53:37.1160129Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:37.1161423Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:37.1161986Z  
+2026-11-06T08:53:37.1164548Z FAIL  census (exit ; see census.log)
+2026-11-06T08:53:37.2986498Z SKIP  perf-budget (no working Python (the Store alias is not one; install from python.org or disable the alias))
+2026-11-06T08:53:37.4670273Z 
+2026-11-06T08:53:37.4681098Z ==> baseline-build: cargo build --release -p vieww-platform-winit --example baseline
+2026-11-06T08:53:37.5242542Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:37.5244584Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:37.5245999Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:37.5247188Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:37.5247741Z +       ~~~~
+2026-11-06T08:53:37.5248390Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:37.5249405Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:37.5249976Z  
+2026-11-06T08:53:37.5253443Z FAIL  baseline-build (exit ; see baseline-build.log)
+2026-11-06T08:53:37.5279226Z 
+2026-11-06T08:53:37.5290864Z ==> size-build: cargo build --profile dist -p vieww-platform-winit --example baseline --target-dir target\size
+2026-11-06T08:53:37.5839000Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:37.5841143Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:37.5842470Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:37.5843490Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:37.5844088Z +       ~~~~
+2026-11-06T08:53:37.5844765Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:37.5845931Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:37.5846627Z  
+2026-11-06T08:53:37.5853600Z FAIL  size-build (exit ; see size-build.log)
+2026-11-06T08:53:37.5911284Z 
+2026-11-06T08:53:37.5949254Z ==> pipelines-build: cargo build --release -p vieww-platform-winit --example baseline
+2026-11-06T08:53:37.6523856Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:37.6525716Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:37.6527062Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:37.6528197Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:37.6529402Z +       ~~~~
+2026-11-06T08:53:37.6530047Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:37.6531461Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:37.6532062Z  
+2026-11-06T08:53:37.6536201Z FAIL  pipelines-build (exit ; see pipelines-build.log)
+2026-11-06T08:53:37.6562032Z FAIL  pipelines (pipelines-build failed)
+2026-11-06T08:53:37.6655396Z 
+2026-11-06T08:53:37.6666472Z ==> stress-1: cargo run --release -p test-animation-stress -- C:\actions-runner\_work\_temp\hardware-windows\stress-1
+2026-11-06T08:53:37.7216927Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:37.7219023Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:37.7220885Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:37.7221917Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:37.7222444Z +       ~~~~
+2026-11-06T08:53:37.7223105Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:37.7224130Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:37.7224712Z  
+2026-11-06T08:53:37.7228166Z FAIL  stress-1 (exit ; see stress-1.log)
+2026-11-06T08:53:37.7277296Z 
+2026-11-06T08:53:37.7288544Z ==> stress-2: cargo run --release -p test-animation-stress -- C:\actions-runner\_work\_temp\hardware-windows\stress-2
+2026-11-06T08:53:37.7818261Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:37.7820373Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:37.7822121Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:37.7823271Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:37.7823796Z +       ~~~~
+2026-11-06T08:53:37.7824439Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:37.7825446Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:37.7826014Z  
+2026-11-06T08:53:37.7832059Z FAIL  stress-2 (exit ; see stress-2.log)
+2026-11-06T08:53:37.7869991Z 
+2026-11-06T08:53:37.7880781Z ==> stress-3: cargo run --release -p test-animation-stress -- C:\actions-runner\_work\_temp\hardware-windows\stress-3
+2026-11-06T08:53:38.0544632Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:38.0547747Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:38.0549566Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:38.0550781Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:38.0551438Z +       ~~~~
+2026-11-06T08:53:38.0552159Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:38.0553286Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:38.0554328Z  
+2026-11-06T08:53:38.0565533Z FAIL  stress-3 (exit ; see stress-3.log)
+2026-11-06T08:53:38.0606922Z 
+2026-11-06T08:53:38.0619453Z ==> stress-4: cargo run --release -p test-animation-stress -- C:\actions-runner\_work\_temp\hardware-windows\stress-4
+2026-11-06T08:53:38.1196346Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:38.1203141Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:38.1204839Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:38.1206425Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:38.1206979Z +       ~~~~
+2026-11-06T08:53:38.1207670Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:38.1208745Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:38.1209346Z  
+2026-11-06T08:53:38.1215519Z FAIL  stress-4 (exit ; see stress-4.log)
+2026-11-06T08:53:38.1247096Z 
+2026-11-06T08:53:38.1258745Z ==> stress-5: cargo run --release -p test-animation-stress -- C:\actions-runner\_work\_temp\hardware-windows\stress-5
+2026-11-06T08:53:38.1801395Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:38.1803334Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:38.1805407Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:38.1806763Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:38.1807436Z +       ~~~~
+2026-11-06T08:53:38.1808288Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:38.1809672Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:38.1810460Z  
+2026-11-06T08:53:38.1814355Z FAIL  stress-5 (exit ; see stress-5.log)
+2026-11-06T08:53:38.2854463Z       desktop: using C:\Program Files\Git\bin\bash.exe
+2026-11-06T08:53:38.2878577Z 
+2026-11-06T08:53:38.2890044Z ==> desktop: C:\Program Files\Git\bin\bash.exe ci/certify/desktop-suite.sh --log C:\actions-runner\_work\_temp\hardware-windows\desktop-app.log
+2026-11-06T08:53:39.0099536Z desktop-suite: cargo not found.
+2026-11-06T08:53:39.0137833Z FAIL  desktop (exit 127; see desktop.log)
+2026-11-06T08:53:39.0157101Z 
+2026-11-06T08:53:39.0167663Z ==> remote: cargo test -p viewwstudio --test remote -- --test-threads=1
+2026-11-06T08:53:39.0723236Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:39.0725443Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:39.0726855Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:39.0727883Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:39.0728407Z +       ~~~~
+2026-11-06T08:53:39.0729071Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:39.0730117Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:39.0730712Z  
+2026-11-06T08:53:39.0734387Z FAIL  remote (exit ; see remote.log)
+2026-11-06T08:53:39.9761346Z       audio endpoints: Microphone (Realtek High Definition Audio); Speakers (Realtek High Definition Audio)
+2026-11-06T08:53:39.9786235Z 
+2026-11-06T08:53:39.9805280Z ==> audio-devices: cargo test --release -p vieww-audio --lib backend::wasapi -- --nocapture
+2026-11-06T08:53:40.0433376Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:40.0435248Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:40.0436637Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:40.0437676Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:40.0438190Z +       ~~~~
+2026-11-06T08:53:40.0438814Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:40.0439875Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:40.0440509Z  
+2026-11-06T08:53:40.0445314Z FAIL  audio-devices (exit ; see audio-devices.log)
+2026-11-06T08:53:40.0471220Z 
+2026-11-06T08:53:40.0482985Z ==> audio-player: cargo test --release -p vieww-audio --test player_smoke -- --ignored --nocapture
+2026-11-06T08:53:40.1029782Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:40.1031749Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:40.1033155Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:40.1034186Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:40.1034702Z +       ~~~~
+2026-11-06T08:53:40.1035350Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:40.1036427Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:40.1037035Z  
+2026-11-06T08:53:40.1041240Z FAIL  audio-player (exit ; see audio-player.log)
+2026-11-06T08:53:40.1066664Z 
+2026-11-06T08:53:40.1079310Z ==> audio-low-latency-shared: cargo test --release -p vieww-audio --lib low_latency_shared_on_a_real_endpoint -- --ignored --nocapture
+2026-11-06T08:53:40.1623560Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:40.1625461Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:40.1626876Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:40.1627910Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:40.1628433Z +       ~~~~
+2026-11-06T08:53:40.1629069Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:40.1630157Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:40.1630778Z  
+2026-11-06T08:53:40.1635264Z FAIL  audio-low-latency-shared (exit ; see audio-low-latency-shared.log)
+2026-11-06T08:53:40.1817073Z SKIP  audio-default-flip (one render endpoint (install VB-CABLE for a second))
+2026-11-06T08:53:40.1844199Z 
+2026-11-06T08:53:40.1855836Z ==> audio-soak-wasapi: cargo test --release -p vieww-audio --test device_loopback default_output_soak -- --ignored --nocapture
+2026-11-06T08:53:40.2489973Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:40.2491912Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:40.2493318Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:40.2494358Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:40.2494876Z +       ~~~~
+2026-11-06T08:53:40.2495519Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:40.2496609Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:40.2497239Z  
+2026-11-06T08:53:40.2501632Z FAIL  audio-soak-wasapi (exit ; see audio-soak-wasapi.log)
+2026-11-06T08:53:40.2525521Z 
+2026-11-06T08:53:40.2536855Z ==> audio-soak-wasapi-exclusive: cargo test --release -p vieww-audio --test device_loopback default_output_soak -- --ignored --nocapture
+2026-11-06T08:53:40.3078144Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+2026-11-06T08:53:40.3080081Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+2026-11-06T08:53:40.3081818Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+2026-11-06T08:53:40.3082878Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+2026-11-06T08:53:40.3083405Z +       ~~~~
+2026-11-06T08:53:40.3091185Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+2026-11-06T08:53:40.3092389Z     + FullyQualifiedErrorId : CommandNotFoundException
+2026-11-06T08:53:40.3092961Z  
+2026-11-06T08:53:40.3093612Z FAIL  audio-soak-wasapi-exclusive (exit ; see audio-soak-wasapi-exclusive.log)
+2026-11-06T08:53:40.3120101Z SKIP  audio-loopback (VIEWW_HW_AUDIO_LOOP not set (needs a line-out to line-in cable))
+2026-11-06T08:53:40.3212013Z SKIP  audio-midi (VIEWW_MIDI_LOOP not set (needs a MIDI cable between two ports))
+2026-11-06T08:53:40.3492502Z 
+2026-11-06T08:53:40.3502509Z ================ summary ================
+2026-11-06T08:53:40.3570700Z vieww Windows hardware run 20261106-142149
+2026-11-06T08:53:40.3571511Z commit: 7c3595fa89c83d768ec89f32ee0f64545ed15051
+2026-11-06T08:53:40.3572677Z host: TEJA22 - Microsoft Windows NT 10.0.19045.0
+2026-11-06T08:53:40.3573707Z cpu: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
+2026-11-06T08:53:40.3575058Z rustc: NOT RESOLVED - rustup could not provide the pinned toolchain (pinned: 1.98.1)
+2026-11-06T08:53:40.3576052Z 
+2026-11-06T08:53:40.3577038Z gpu: Intel(R) HD Graphics 620 (driver 26.20.100.6859)
+2026-11-06T08:53:40.3578420Z gpu: NVIDIA GeForce 920MX (driver 32.0.15.7652)
+2026-11-06T08:53:40.3579284Z power: on mains
+2026-11-06T08:53:40.3580872Z power plan: Balanced
+2026-11-06T08:53:40.3581380Z vulkan: NVIDIA GeForce 920MX
+2026-11-06T08:53:40.3582831Z vulkan: Intel(R) HD Graphics 620
+2026-11-06T08:53:40.3584429Z       WARNING: rustc is not the pinned 1.98.1 - numbers are for a different compiler
+2026-11-06T08:53:40.3585891Z       energy: not measured on Windows (no package energy counter without a driver); reported as null
+2026-11-06T08:53:40.3586996Z FAIL  gpu-hal (exit ; see gpu-hal.log)
+2026-11-06T08:53:40.3587826Z FAIL  gpu-3d (exit ; see gpu-3d.log)
+2026-11-06T08:53:40.3589213Z FAIL  gpu-window (exit ; see gpu-window.log)
+2026-11-06T08:53:40.3590419Z FAIL  d3d12-hardware (exit ; see d3d12-hardware.log)
+2026-11-06T08:53:40.3592096Z       d3d12: bring-up and smoke suite only - the backend does not execute a ScenePlan yet (PENDING 1.3)
+2026-11-06T08:53:40.3593456Z FAIL  gallery (exit ; see gallery.log)
+2026-11-06T08:53:40.3594861Z FAIL  census (exit ; see census.log)
+2026-11-06T08:53:40.3596993Z SKIP  perf-budget (no working Python (the Store alias is not one; install from python.org or disable the alias))
+2026-11-06T08:53:40.3598805Z FAIL  baseline-build (exit ; see baseline-build.log)
+2026-11-06T08:53:40.3599549Z FAIL  size-build (exit ; see size-build.log)
+2026-11-06T08:53:40.3600503Z FAIL  pipelines-build (exit ; see pipelines-build.log)
+2026-11-06T08:53:40.3601529Z FAIL  pipelines (pipelines-build failed)
+2026-11-06T08:53:40.3602313Z FAIL  stress-1 (exit ; see stress-1.log)
+2026-11-06T08:53:40.3603549Z FAIL  stress-2 (exit ; see stress-2.log)
+2026-11-06T08:53:40.3604738Z FAIL  stress-3 (exit ; see stress-3.log)
+2026-11-06T08:53:40.3605704Z FAIL  stress-4 (exit ; see stress-4.log)
+2026-11-06T08:53:40.3606947Z FAIL  stress-5 (exit ; see stress-5.log)
+2026-11-06T08:53:40.3608220Z       desktop: using C:\Program Files\Git\bin\bash.exe
+2026-11-06T08:53:40.3609670Z FAIL  desktop (exit 127; see desktop.log)
+2026-11-06T08:53:40.3610915Z FAIL  remote (exit ; see remote.log)
+2026-11-06T08:53:40.3612664Z       audio endpoints: Microphone (Realtek High Definition Audio); Speakers (Realtek High Definition Audio)
+2026-11-06T08:53:40.3614089Z FAIL  audio-devices (exit ; see audio-devices.log)
+2026-11-06T08:53:40.3615001Z FAIL  audio-player (exit ; see audio-player.log)
+2026-11-06T08:53:40.3616176Z FAIL  audio-low-latency-shared (exit ; see audio-low-latency-shared.log)
+2026-11-06T08:53:40.3617508Z SKIP  audio-default-flip (one render endpoint (install VB-CABLE for a second))
+2026-11-06T08:53:40.3618832Z FAIL  audio-soak-wasapi (exit ; see audio-soak-wasapi.log)
+2026-11-06T08:53:40.3620143Z FAIL  audio-soak-wasapi-exclusive (exit ; see audio-soak-wasapi-exclusive.log)
+2026-11-06T08:53:40.3621751Z SKIP  audio-loopback (VIEWW_HW_AUDIO_LOOP not set (needs a line-out to line-in cable))
+2026-11-06T08:53:40.3623138Z SKIP  audio-midi (VIEWW_MIDI_LOOP not set (needs a MIDI cable between two ports))
+2026-11-06T08:53:40.3630750Z 
+2026-11-06T08:53:40.3646632Z results: C:\actions-runner\_work\_temp\hardware-windows
+2026-11-06T08:53:40.4932979Z ##[error]Process completed with exit code 1.
 

@@ -1,0 +1,59 @@
+-----
+Windows hardware	Hardware run	2026-11-06T08:53:37.5844765Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+Windows hardware	Hardware run	2026-11-06T08:53:37.5845931Z     + FullyQualifiedErrorId : CommandNotFoundException
+Windows hardware	Hardware run	2026-11-06T08:53:37.5846627Z  
+Windows hardware	Hardware run	2026-11-06T08:53:37.5853600Z FAIL  size-build (exit ; see size-build.log)
+Windows hardware	Hardware run	2026-11-06T08:53:37.5911284Z 
+Windows hardware	Hardware run	2026-11-06T08:53:37.5949254Z ==> pipelines-build: cargo build --release -p vieww-platform-winit --example baseline
+Windows hardware	Hardware run	2026-11-06T08:53:37.6523856Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+Windows hardware	Hardware run	2026-11-06T08:53:37.6525716Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+Windows hardware	Hardware run	2026-11-06T08:53:37.6527062Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+Windows hardware	Hardware run	2026-11-06T08:53:37.6528197Z +     & $Exe @ArgList 2>&1 | ForEach-Object { "$_" } |
+Windows hardware	Hardware run	2026-11-06T08:53:37.6529402Z +       ~~~~
+Windows hardware	Hardware run	2026-11-06T08:53:37.6530047Z     + CategoryInfo          : ObjectNotFound: (cargo:String) [], CommandNotFoundException
+Windows hardware	Hardware run	2026-11-06T08:53:37.6531461Z     + FullyQualifiedErrorId : CommandNotFoundException
+Windows hardware	Hardware run	2026-11-06T08:53:37.6532062Z  
+Windows hardware	Hardware run	2026-11-06T08:53:37.6536201Z FAIL  pipelines-build (exit ; see pipelines-build.log)
+Windows hardware	Hardware run	2026-11-06T08:53:37.6562032Z FAIL  pipelines (pipelines-build failed)
+Windows hardware	Hardware run	2026-11-06T08:53:37.6655396Z 
+Windows hardware	Hardware run	2026-11-06T08:53:37.6666472Z ==> stress-1: cargo run --release -p test-animation-stress -- C:\actions-runner\_work\_temp\hardware-windows\stress-1
+Windows hardware	Hardware run	2026-11-06T08:53:37.7216927Z & : The term 'cargo' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+Windows hardware	Hardware run	2026-11-06T08:53:37.7219023Z spelling of the name, or if a path was included, verify that the path is correct and try again.
+Windows hardware	Hardware run	2026-11-06T08:53:37.7220885Z At C:\actions-runner\_work\vieww_prod\vieww_prod\vieww_base\ci\hardware\windows.ps1:120 char:7
+-----
+Windows hardware	Hardware run	2026-11-06T08:53:40.3581380Z vulkan: NVIDIA GeForce 920MX
+Windows hardware	Hardware run	2026-11-06T08:53:40.3582831Z vulkan: Intel(R) HD Graphics 620
+Windows hardware	Hardware run	2026-11-06T08:53:40.3584429Z       WARNING: rustc is not the pinned 1.98.1 - numbers are for a different compiler
+Windows hardware	Hardware run	2026-11-06T08:53:40.3585891Z       energy: not measured on Windows (no package energy counter without a driver); reported as null
+Windows hardware	Hardware run	2026-11-06T08:53:40.3586996Z FAIL  gpu-hal (exit ; see gpu-hal.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3587826Z FAIL  gpu-3d (exit ; see gpu-3d.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3589213Z FAIL  gpu-window (exit ; see gpu-window.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3590419Z FAIL  d3d12-hardware (exit ; see d3d12-hardware.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3592096Z       d3d12: bring-up and smoke suite only - the backend does not execute a ScenePlan yet (PENDING 1.3)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3593456Z FAIL  gallery (exit ; see gallery.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3594861Z FAIL  census (exit ; see census.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3596993Z SKIP  perf-budget (no working Python (the Store alias is not one; install from python.org or disable the alias))
+Windows hardware	Hardware run	2026-11-06T08:53:40.3598805Z FAIL  baseline-build (exit ; see baseline-build.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3599549Z FAIL  size-build (exit ; see size-build.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3600503Z FAIL  pipelines-build (exit ; see pipelines-build.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3601529Z FAIL  pipelines (pipelines-build failed)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3602313Z FAIL  stress-1 (exit ; see stress-1.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3603549Z FAIL  stress-2 (exit ; see stress-2.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3604738Z FAIL  stress-3 (exit ; see stress-3.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3605704Z FAIL  stress-4 (exit ; see stress-4.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3606947Z FAIL  stress-5 (exit ; see stress-5.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3608220Z       desktop: using C:\Program Files\Git\bin\bash.exe
+Windows hardware	Hardware run	2026-11-06T08:53:40.3609670Z FAIL  desktop (exit 127; see desktop.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3610915Z FAIL  remote (exit ; see remote.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3612664Z       audio endpoints: Microphone (Realtek High Definition Audio); Speakers (Realtek High Definition Audio)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3614089Z FAIL  audio-devices (exit ; see audio-devices.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3615001Z FAIL  audio-player (exit ; see audio-player.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3616176Z FAIL  audio-low-latency-shared (exit ; see audio-low-latency-shared.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3617508Z SKIP  audio-default-flip (one render endpoint (install VB-CABLE for a second))
+Windows hardware	Hardware run	2026-11-06T08:53:40.3618832Z FAIL  audio-soak-wasapi (exit ; see audio-soak-wasapi.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3620143Z FAIL  audio-soak-wasapi-exclusive (exit ; see audio-soak-wasapi-exclusive.log)
+Windows hardware	Hardware run	2026-11-06T08:53:40.3621751Z SKIP  audio-loopback (VIEWW_HW_AUDIO_LOOP not set (needs a line-out to line-in cable))
+Windows hardware	Hardware run	2026-11-06T08:53:40.3623138Z SKIP  audio-midi (VIEWW_MIDI_LOOP not set (needs a MIDI cable between two ports))
+Windows hardware	Hardware run	2026-11-06T08:53:40.3630750Z 
+Windows hardware	Hardware run	2026-11-06T08:53:40.3646632Z results: C:\actions-runner\_work\_temp\hardware-windows
+Windows hardware	Hardware run	2026-11-06T08:53:40.4932979Z ##[error]Process completed with exit code 1.
