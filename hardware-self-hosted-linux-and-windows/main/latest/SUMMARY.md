@@ -1,12 +1,12 @@
-# Hardware (self-hosted Linux and Windows) — FAILURE
+# Hardware (self-hosted Linux and Windows) — CANCELLED
 
-- branch: `main`  sha: `4bdbe6ceac53361aad1f06502519b8b80251d3af`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/42241236915
+- branch: `main`  sha: `8050dd0ba460ee14d854d417cfcfc2a7011de51f`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/42243833499
 
 | job | verdict | failed steps |
 |---|---|---|
 | Only from main | PASS |  |
-| Windows hardware | FAIL | Hardware run |
+| Windows hardware | CANCELLED |  |
 | macOS hardware | skipped |  |
 | Linux hardware | skipped |  |
 | Publish to ci-runs/hardware-<branch> | PASS |  |
@@ -18,11 +18,10 @@
 - skipped: Refuse other branches
 - PASS: Complete job
 
-### Windows hardware — FAIL
+### Windows hardware — CANCELLED
 - PASS: Set up job
-- PASS: Add Cargo to PATH (Absolute)
 - PASS: Run actions/checkout@v4
-- FAIL: Hardware run
+- CANCELLED: Hardware run via Interactive SSH Loopback
 - PASS: Upload results
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
@@ -38,4 +37,4 @@
 - PASS: Push to ci-runs/hardware-<branch>
 - PASS: Complete job
 
-- artifacts: hardware-windows 
+- artifacts: 
