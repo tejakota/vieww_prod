@@ -131,32 +131,22 @@ jobs:
     timeout-minutes: 240
     defaults:
       run:
+        # Windows PowerShell 5.1 ships with every Windows; the script runs
+        # under it and under PowerShell 7 alike.
         shell: powershell
         working-directory: vieww_base
     steps:
       - uses: actions/checkout@v4
         with:
           clean: false
-
-      - name: Hardware run via Interactive SSH Loopback
+      - name: Hardware run
         env:
           STEPS: ${{ inputs.windows_steps || 'env,gpu,d3d12,gallery,baseline,size,pipelines,stress,desktop,remote,audio' }}
           LAUNCHES: ${{ inputs.launches || '5' }}
           OUT: ${{ runner.temp }}\hardware-windows
-          # Pass Windows account password securely if using password auth, 
-          # or configure SSH Key-Based authentication for Teja account
-          SSH_PASS: ${{ secrets.WINDOWS_TEJA_PASSWORD }} 
         run: |
-          # Use Posh-SSH or native ssh link to execute within Teja's desktop context
-          # This automatically loads C:\Users\Teja\.cargo\bin and provides the GPU context
-          
-          $sshCommand = "cd vieww_base; powershell -NoProfile -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps '$env:STEPS' -Launches ([int]$env:LAUNCHES) -OutDir '$env:OUT'"
-          
-          # Executing via SSH loopback to break out of Windows Service Session 0 isolation
-          ssh -o StrictHostKeyChecking=no Teja@localhost "$sshCommand"
-          
+          powershell -NoProfile -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps "$env:STEPS" -Launches ([int]$env:LAUNCHES) -OutDir "$env:OUT"
           exit $LASTEXITCODE
-
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
@@ -164,7 +154,6 @@ jobs:
           name: hardware-windows
           path: ${{ runner.temp }}\hardware-windows
           if-no-files-found: warn
-
 
   macos:
     name: macOS hardware
