@@ -214,8 +214,14 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
 # shell's PATH (Git for Windows installs it on the PATH only if asked).
 if (-not $commit) { $commit = 'unknown (git not on PATH, or not a git checkout)' }
 $pinned = ((Get-Content rust-toolchain.toml | Select-String '^channel').Line -split '"')[1]
-$rustc = (rustc -V 2>$null)
-if (-not $rustc) { $rustc = 'NOT RESOLVED - rustup could not provide the pinned toolchain' }
+# Guarded, like the `git` probe above it. `2>$null` redirects a native
+# command's stderr, but a command that does not exist never gets to have
+# stderr -- PowerShell raises CommandNotFoundException instead, and that is an
+# error record, not a stream, so it printed in red above the report on
+# 2026-11-06 and no redirection could have stopped it.
+$rustc = $null
+if (Get-Command rustc -ErrorAction SilentlyContinue) { $rustc = (rustc -V 2>$null) }
+if (-not $rustc) { $rustc = 'NOT RESOLVED - no rustc on PATH, or rustup could not provide the pinned toolchain' }
 Set-Content -Path $Summary -Value @(
   "vieww Windows hardware run $stamp",
   "commit: $commit$(if ($dirty) { ' (dirty)' })",
@@ -278,7 +284,12 @@ if (Want 'env') {
   } else {
     Say 'vulkan: NO LOADER - the gpu, gallery and baseline steps will fail'
   }
-  if ($rustc -notmatch " $([regex]::Escape($pinned)) ") {
+  if ($rustc -like 'NOT RESOLVED*') {
+    # Not "a different compiler" -- there is no compiler. Saying the wrong one
+    # of these sends the reader looking for a toolchain mismatch that is not
+    # the problem.
+    Say "      WARNING: no rustc on PATH - nothing below can produce a number at all"
+  } elseif ($rustc -notmatch " $([regex]::Escape($pinned)) ") {
     Say "      WARNING: rustc is not the pinned $pinned - numbers are for a different compiler"
   }
   Say '      energy: not measured on Windows (no package energy counter without a driver); reported as null'
