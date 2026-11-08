@@ -1,0 +1,16 @@
+===== Against llama.cpp and whisper.cpp	Make the fixtures =====
+﻿2026-11-08T13:10:02.1283451Z ##[group]Run bash scripts/models/fixtures.sh "$RUNNER_TEMP/ref" "$RUNNER_TEMP/fixtures"
+2026-11-08T13:10:02.1284014Z ^[[36;1mbash scripts/models/fixtures.sh "$RUNNER_TEMP/ref" "$RUNNER_TEMP/fixtures"^[[0m
+2026-11-08T13:10:02.1317145Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-08T13:10:02.1317542Z env:
+2026-11-08T13:10:02.1317855Z   CARGO_TERM_COLOR: always
+2026-11-08T13:10:02.1318129Z   RUST_BACKTRACE: 1
+2026-11-08T13:10:02.1318439Z   RUST_VERSION: 1.98.1
+2026-11-08T13:10:02.1318930Z   JFK_URL: https://raw.githubusercontent.com/ggml-org/whisper.cpp/231638a0717b7822784297e5980965ffcec05810/samples/jfk.wav
+2026-11-08T13:10:02.1319429Z ##[endgroup]
+2026-11-08T13:10:02.1951375Z Traceback (most recent call last):
+2026-11-08T13:10:02.1952129Z   File "/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/scripts/models/make_tiny_qwen3.py", line 3, in <module>
+2026-11-08T13:10:02.1952668Z     import sys, numpy as np, gguf
+2026-11-08T13:10:02.1952974Z ModuleNotFoundError: No module named 'numpy'
+2026-11-08T13:10:02.2052082Z ##[error]Process completed with exit code 1.
+
