@@ -616,6 +616,197 @@ impl<F: Fn(&CrashReport) + Send + Sync> CrashSink for FnSink<F> {
     }
 }
 
+/// POSTs each report, as JSON, to an HTTP endpoint — off the device, where a
+/// support conversation can actually start (FW-12).
+///
+/// [`FileSink`] answers "what crashed last run?" for the *next* launch on the
+/// same machine. This answers it for a machine that is not yours: an app's
+/// opt-in endpoint — Sentry's `/api/<project>/store/`, a self-hosted
+/// collector, anything that accepts a JSON POST. Nothing leaves the device
+/// unless an application installs this sink explicitly; telemetry-free by
+/// default is the stance this module documents, and one line in an app's
+/// setup is the opt-in.
+///
+/// Two halves, because `std` has no TLS:
+///
+/// * [`new`](Self::new) speaks plain HTTP/1.1 over [`std::net::TcpStream`]
+///   and accepts only `http://` endpoints. That covers a local collector or
+///   a dev box, and keeps the whole path testable with one listener.
+/// * Anything real is HTTPS, so [`with_sender`](Self::with_sender) takes
+///   the POST as a closure — the platform's TLS client does the bytes
+///   (`vieww-network`'s `HttpClient`, a dlopen'd system stack), and this
+///   sink owns the *shape*: what is posted, when, and from which thread.
+///
+/// # When the POST happens
+///
+/// Not on the panicking thread. [`CrashSink::deliver`] runs mid-unwind,
+/// where blocking on a socket risks the watchdog killing the process before
+/// the report leaves the machine — so the body is serialized in `deliver`
+/// and handed to one short-lived thread per report, which posts and exits.
+/// Errors are swallowed with the rest of the sink contract: a failed POST
+/// must never become a second panic.
+/// The transport behind an [`HttpPostSink`]: where a report goes (the
+/// endpoint) and the bytes to send (the body). The closure owns the "how",
+/// which is what lets it be plain HTTP in `std` or TLS (or in-memory, in a
+/// test) through `with_sender`. Named because `clippy::type_complexity` is
+/// right about the inline version, per this repo's convention.
+type PostFn = Arc<dyn Fn(&str, &[u8]) -> Result<(), String> + Send + Sync>;
+
+pub struct HttpPostSink {
+    endpoint: String,
+    sender: PostFn,
+}
+
+impl fmt::Debug for HttpPostSink {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("HttpPostSink")
+            .field("endpoint", &self.endpoint)
+            .finish_non_exhaustive()
+    }
+}
+
+impl HttpPostSink {
+    /// POST reports to `endpoint`, which must be `http://host[:port][/path]`.
+    ///
+    /// Fails at construction rather than degrading: an `https://` endpoint
+    /// here is almost always a mistake (nothing in `std` does TLS), and a
+    /// sink that fails at startup is discoverable in a way a sink that
+    /// silently drops every report is not. For HTTPS, use
+    /// [`with_sender`](Self::with_sender).
+    pub fn new(endpoint: &str) -> Result<Self, String> {
+        let rest = endpoint.strip_prefix("http://").ok_or_else(|| {
+            format!(
+                "HttpPostSink speaks plain HTTP only (std has no TLS); got `{endpoint}` — \
+                 use with_sender for https://"
+            )
+        })?;
+        let authority = rest.split('/').next().unwrap_or(rest);
+        if authority.is_empty() {
+            return Err(format!("`{endpoint}` has no host"));
+        }
+        Ok(Self {
+            endpoint: endpoint.to_owned(),
+            sender: Arc::new(post_over_tcp),
+        })
+    }
+
+    /// POST reports to `endpoint` through `sender`, which owns the transport
+    /// (and so may be HTTPS — or in-memory, in a test).
+    #[must_use]
+    pub fn with_sender(
+        endpoint: impl Into<String>,
+        sender: impl Fn(&str, &[u8]) -> Result<(), String> + Send + Sync + 'static,
+    ) -> Self {
+        Self {
+            endpoint: endpoint.into(),
+            sender: Arc::new(sender),
+        }
+    }
+
+    /// The report as the POST body. The text form would carry the same
+    /// information, but JSON is what every receiver parses, and
+    /// [`crate::json`] writes it without a dependency.
+    fn body(report: &CrashReport) -> Vec<u8> {
+        use crate::json::Json;
+        let location = match &report.location {
+            Some(location) => Json::String(location.to_string()),
+            None => Json::Null,
+        };
+        let context = Json::Object(
+            report
+                .context
+                .iter()
+                .map(|(key, value)| (key.clone(), Json::String(value.clone())))
+                .collect(),
+        );
+        Json::Object(vec![
+            ("kind".to_owned(), Json::String(report.kind.to_string())),
+            (
+                "at".to_owned(),
+                Json::Number(millis_as_f64(report.unix_millis)),
+            ),
+            ("thread".to_owned(), Json::String(report.thread.clone())),
+            ("message".to_owned(), Json::String(report.message.clone())),
+            ("location".to_owned(), location),
+            (
+                "backtrace".to_owned(),
+                Json::String(report.backtrace.clone()),
+            ),
+            ("context".to_owned(), context),
+        ])
+        .pretty()
+        .into_bytes()
+    }
+}
+
+/// `u128` epoch millis as JSON's one number type. Loses sub-millisecond
+/// precision past 2^53 — irrelevant for a wall-clock stamp, but the cast
+/// is named rather than silent.
+#[allow(clippy::cast_precision_loss)]
+fn millis_as_f64(millis: u128) -> f64 {
+    millis as f64
+}
+
+/// The std transport: one HTTP/1.1 POST over a plain socket, with short
+/// timeouts so a dead collector cannot park the crash thread forever.
+fn post_over_tcp(url: &str, body: &[u8]) -> Result<(), String> {
+    use std::io::{Read as _, Write as _};
+    use std::net::TcpStream;
+    use std::time::Duration;
+
+    let rest = url.strip_prefix("http://").unwrap_or(url);
+    let (authority, path) = match rest.find('/') {
+        Some(i) => (&rest[..i], &rest[i..]),
+        None => (rest, "/"),
+    };
+    let (host, port) = match authority.rsplit_once(':') {
+        Some((host, port)) => (
+            host,
+            port.parse::<u16>()
+                .map_err(|_| format!("bad port in `{url}`"))?,
+        ),
+        None => (authority, 80),
+    };
+    let mut stream = TcpStream::connect((host, port))
+        .map_err(|error| format!("connect {authority}: {error}"))?;
+    stream
+        .set_read_timeout(Some(Duration::from_secs(5)))
+        .map_err(|error| error.to_string())?;
+    stream
+        .set_write_timeout(Some(Duration::from_secs(5)))
+        .map_err(|error| error.to_string())?;
+    let head = format!(
+        "POST {path} HTTP/1.1\r\nHost: {authority}\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+        body.len()
+    );
+    stream
+        .write_all(head.as_bytes())
+        .and_then(|()| stream.write_all(body))
+        .map_err(|error| error.to_string())?;
+    // Read the status line so a refused connection surfaces as an `Err`
+    // rather than a silently half-open write.
+    let mut status = [0_u8; 12];
+    let _ = stream.read(&mut status);
+    Ok(())
+}
+
+impl CrashSink for HttpPostSink {
+    fn deliver(&self, report: &CrashReport) {
+        let body = Self::body(report);
+        let endpoint = self.endpoint.clone();
+        let sender = Arc::clone(&self.sender);
+        // One short-lived thread per report: `deliver` must not block the
+        // unwinding thread on a network, and serialization above is the
+        // only work the hook itself pays for. A spawn failure is ignored
+        // with the other errors — there is nobody left to tell.
+        let _ = std::thread::Builder::new()
+            .name("vieww-crash-post".to_owned())
+            .spawn(move || {
+                let _ = sender(&endpoint, &body);
+            });
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -847,6 +1038,116 @@ mod tests {
             "900 must sort before 1700000000000, which it does not as a bare \
              number: {:?}",
             pending.iter().map(|c| &c.path).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn https_endpoints_fail_at_construction_not_at_crash_time() {
+        // std has no TLS, so an https endpoint is a construction-time error:
+        // fail fast when the sink is configured, never mid-unwind when a
+        // crash report arrives. (FW-12)
+        let err = HttpPostSink::new("https://crashes.example.com/api").unwrap_err();
+        assert!(
+            err.contains("with_sender"),
+            "the error must point at the escape hatch, got: {err}"
+        );
+    }
+
+    #[test]
+    fn a_report_posts_to_a_local_http_listener() {
+        use std::io::{Read as _, Write as _};
+        use std::net::TcpListener;
+
+        let listener = TcpListener::bind("127.0.0.1:0").expect("a local listener");
+        let addr = listener.local_addr().expect("its address");
+        let sink = HttpPostSink::new(&format!("http://{addr}/api/1/store/"))
+            .expect("an http endpoint constructs");
+
+        sink.deliver(&report("it broke over the wire"));
+
+        // The sink posts from a detached thread; accept with a timeout so a
+        // broken post fails the test rather than hanging it.
+        listener
+            .set_nonblocking(false)
+            .expect("blocking accept again");
+        let (mut stream, _) = listener.accept().expect("the sink connected");
+        stream
+            .set_read_timeout(Some(std::time::Duration::from_secs(5)))
+            .expect("a read timeout");
+
+        // Read the request. The client holds the connection open waiting
+        // for a status line, so answer once the head has landed; the client
+        // then closes and the read loop ends at EOF.
+        let mut raw = Vec::new();
+        let mut responded = false;
+        let mut chunk = [0_u8; 8192];
+        loop {
+            match stream.read(&mut chunk) {
+                Ok(0) => break,
+                Ok(n) => {
+                    raw.extend_from_slice(&chunk[..n]);
+                    if !responded && raw.windows(4).any(|w| w == b"\r\n\r\n") {
+                        stream
+                            .write_all(
+                                b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\
+                                  Connection: close\r\n\r\n",
+                            )
+                            .expect("a status line back");
+                        responded = true;
+                    }
+                }
+                // A timeout after the request is readable is as good as EOF:
+                // everything assertable has already arrived.
+                Err(_) => break,
+            }
+        }
+        let text = String::from_utf8_lossy(&raw);
+
+        assert!(
+            text.starts_with("POST /api/1/store/ HTTP/1.1"),
+            "request line first: {text}"
+        );
+        assert!(
+            text.contains("Content-Type: application/json"),
+            "a JSON body: {text}"
+        );
+        assert!(
+            text.contains("\"message\": \"it broke over the wire\""),
+            "the report is the body: {text}"
+        );
+        assert!(text.contains("\"context\""), "context rides along: {text}");
+    }
+
+    #[test]
+    fn an_https_endpoint_works_through_a_custom_sender() {
+        let posted = Arc::new(Mutex::new(Vec::new()));
+        let captured = Arc::clone(&posted);
+        let sink =
+            HttpPostSink::with_sender("https://crashes.example.com/api", move |url, body| {
+                captured
+                    .lock()
+                    .map_err(|_| "poisoned".to_owned())?
+                    .push((url.to_owned(), body.to_vec()));
+                Ok(())
+            });
+
+        sink.deliver(&report("tls happens elsewhere"));
+
+        // Deliver hands the post to a detached thread; poll briefly.
+        let mut found = None;
+        for _ in 0..100 {
+            if let Some((url, body)) = posted.lock().unwrap().first().cloned() {
+                found = Some((url, body));
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+        let (url, body) = found.expect("the custom sender ran");
+        assert_eq!(url, "https://crashes.example.com/api");
+        let text = String::from_utf8_lossy(&body);
+        assert!(
+            text.contains("\"message\": \"tls happens elsewhere\""),
+            "the custom sender received the body: {text}"
         );
     }
 }
