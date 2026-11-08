@@ -97,6 +97,19 @@ function Say([string]$Line) {
 
 function Skip-Step([string]$Name, [string]$Reason) { Say "SKIP  $Name ($Reason)" }
 
+# One stage's time out of a `startup_stages` line, as text, or '?'.
+#
+# The line is `name 1.2 | name 3.4 | ... = total ms from App::run`, so a stage
+# is found by its name and read up to the next separator. Used to report the
+# prewarm on its own, which is the number FW-05 is actually about -- the whole
+# first frame is FW-16's business and they now have separate verdicts.
+function Stage-Ms([string]$Stages, [string]$Stage) {
+  if (-not $Stages) { return '?' }
+  $m = [regex]::Match($Stages, [regex]::Escape($Stage) + '\s+([0-9.]+)')
+  if ($m.Success) { return ($m.Groups[1].Value + ' ms') }
+  return '?'
+}
+
 # Whether this run asked for $Step -- and whether this machine can attempt it.
 #
 # # Why the toolchain question lives here
@@ -205,14 +218,46 @@ function Find-Python {
 }
 
 # -- header ----------------------------------------------------------------
+# `git.exe` where Git for Windows actually puts it.
+#
+# Git installs `git.exe` into `Git\cmd` and only adds it to PATH if the
+# installer was asked to -- so a shell can have no `git` while the machine
+# plainly has one, which is the same trap Find-GitBash exists for. The run of
+# 2026-11-06 recorded `commit: unknown` for that reason, and a run with no
+# commit cannot be merged into CHECKLIST.md at all: G0.12 compares source
+# digests across runs, so the evidence was unusable for a reason that had
+# nothing to do with the evidence.
+function Find-Git {
+  $onPath = Get-Command git -ErrorAction SilentlyContinue
+  if ($onPath) { return $onPath.Source }
+  $roots = @($env:ProgramFiles, ${env:ProgramFiles(x86)})
+  if ($env:LOCALAPPDATA) { $roots += (Join-Path $env:LOCALAPPDATA 'Programs') }
+  foreach ($root in $roots) {
+    if (-not $root) { continue }
+    foreach ($leaf in 'Git\cmd\git.exe', 'Git\bin\git.exe') {
+      $c = Join-Path $root $leaf
+      if (Test-Path $c) { return (Resolve-Path $c).Path }
+    }
+  }
+  return $null
+}
+
 $commit = $null; $dirty = $null
-if (Get-Command git -ErrorAction SilentlyContinue) {
-  $commit = (git rev-parse HEAD 2>$null)
-  $dirty = (git status --porcelain --untracked-files=no 2>$null)
+$gitExe = Find-Git
+if ($gitExe) {
+  $commit = (& $gitExe rev-parse HEAD 2>$null)
+  $dirty = (& $gitExe status --porcelain --untracked-files=no 2>$null)
 }
 # The first real run printed an empty commit line: git was not on this
 # shell's PATH (Git for Windows installs it on the PATH only if asked).
-if (-not $commit) { $commit = 'unknown (git not on PATH, or not a git checkout)' }
+# **Flagged, not Say'd.** `Set-Content -Path $Summary` a few lines below
+# rewrites the file from scratch, so anything appended before it is thrown
+# away. The warning goes out with the preflight, after the header exists.
+$script:NoCommit = $false
+if (-not $commit) {
+  $commit = 'unknown (no git.exe found, or not a git checkout)'
+  $script:NoCommit = $true
+}
 $pinned = ((Get-Content rust-toolchain.toml | Select-String '^channel').Line -split '"')[1]
 # Guarded, like the `git` probe above it. `2>$null` redirects a native
 # command's stderr, but a command that does not exist never gets to have
@@ -240,6 +285,16 @@ Set-Content -Path $Summary -Value @(
 # honestly lacks, so every step is recorded SKIP -- nothing may claim PASS --
 # while the run as a whole still exits non-zero. A gate reporting success here
 # would be reporting that nothing was tested.
+if ($script:NoCommit) {
+  # Without a commit this run is evidence of nothing in particular: G0.12
+  # compares source digests across runs, and a row with no digest cannot be
+  # merged into CHECKLIST.md however good its numbers are.
+  Say 'WARN  no commit recorded - this run cannot be merged into CHECKLIST.md (G0.12)'
+  Say '      git.exe was not found. Git for Windows puts it in Git\cmd and only'
+  Say '      adds it to PATH when the installer is asked to; run from a shell that'
+  Say '      has it, or from a checkout made by actions/checkout.'
+}
+
 $script:NoCargo = -not (Get-Command cargo -ErrorAction SilentlyContinue)
 if ($script:NoCargo) {
   Say 'FAIL  toolchain (cargo is not on PATH; every step below needs it)'
@@ -503,17 +558,33 @@ if (Want 'pipelines') {
             Say 'FAIL  pipelines (run 2 started from 0 bytes -- what run 1 saved did not seed it: cache not written, or the header no longer matches this GPU/driver)'
             $script:Failed = $true
           } elseif ($report[2].main_to_first_frame_ms -ge $report[1].main_to_first_frame_ms) {
-            Say ("FAIL  pipelines (warm first frame {0:N1} ms is not under the cold {1:N1} ms)" -f $report[2].main_to_first_frame_ms, $report[1].main_to_first_frame_ms)
+            Say ("FAIL  pipelines-cache (warm first frame {0:N1} ms is not under the cold {1:N1} ms)" -f $report[2].main_to_first_frame_ms, $report[1].main_to_first_frame_ms)
             $script:Failed = $true
-          } elseif ($report[2].main_to_first_frame_ms -gt 350) {
+          } else {
+            # **Two claims, two verdicts.** They were one, and the run of
+            # 2026-11-06 is why they are not: the cache did everything FW-05
+            # asks -- cold prewarm 2084 ms against warm 156 ms, seeded from
+            # 78,707 bytes -- and the step still reported FAIL, because the
+            # warm first frame missed FW-16's absolute budget on time spent
+            # somewhere else entirely (`until first draw`, `present ready`,
+            # `first raster and present`). One line cannot say "the feature
+            # works and the startup is too slow", and a checklist cannot
+            # record FW-05 as closed from a row that says FAIL.
+            Say ("PASS  pipelines-cache (cold {0:N1} ms -> warm {1:N1} ms, seeded from {2} bytes)" -f $report[1].main_to_first_frame_ms, $report[2].main_to_first_frame_ms, $seed[2])
+            Say ("      prewarm alone: cold {0} -> warm {1}" -f (Stage-Ms $report[1].startup_stages 'vulkan prewarmed'), (Stage-Ms $report[2].startup_stages 'vulkan prewarmed'))
+
             # FW-16's absolute gate: the warm cache may not merely be faster
             # than this machine's cold start -- a person still waited for it.
             # 350 ms is the receipt-based budget the report names; the relative
-            # win above does not excuse the absolute number.
-            Say ("FAIL  pipelines (warm first frame {0:N1} ms is over FW-16's 350 ms gate)" -f $report[2].main_to_first_frame_ms)
-            $script:Failed = $true
-          } else {
-            Say ("PASS  pipelines (cold {0:N1} ms -> warm {1:N1} ms, under the 350 ms gate, seeded from {2} bytes)" -f $report[1].main_to_first_frame_ms, $report[2].main_to_first_frame_ms, $seed[2])
+            # win above does not excuse the absolute number. Judged on its own
+            # so that a slow startup cannot be read as a broken cache.
+            if ($report[2].main_to_first_frame_ms -gt 350) {
+              Say ("FAIL  pipelines-first-frame (warm {0:N1} ms is over FW-16's 350 ms gate)" -f $report[2].main_to_first_frame_ms)
+              Say "      the cache is not where the time goes; the stages above say where"
+              $script:Failed = $true
+            } else {
+              Say ("PASS  pipelines-first-frame (warm {0:N1} ms, under the 350 ms gate)" -f $report[2].main_to_first_frame_ms)
+            }
           }
         } else { $script:Failed = $true }
       } else {
