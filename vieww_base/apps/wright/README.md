@@ -15,7 +15,7 @@ affected work runs again.
 
 ## Status: v1.0.1 — trust before reach, recipes at the end — the receipt in the window
 
-| Area | v0.2 | Notes |
+| Area | v1.0.2 | Notes |
 |---|---|---|
 | Blueprint: parse, validate, canonical form, diff, refire plan | ✅ | 84 core tests; every refire rule pinned |
 | Compiler: stages, checks-before-delivery, tier-weighted budgets | ✅ | nothing touches the world before Testwright + Reviewer |
@@ -23,15 +23,15 @@ affected work runs again.
 | Task cache with freshness rules | ✅ | live-data and delivery steps are never served from cache |
 | Durable run store, resume after crash, receipts | ✅ | fsynced event log, BLAKE3 content-addressed objects |
 | Tools: files, edit, apply-patch, git, run-tests, shell, http, browser | ✅ | `browser`: render / screenshot-project / assert-visual; the render loop needs a real browser (CI/self-hosted), refusal-first without one |
-| Command sandbox: Linux Landlock; Windows WSL 2 + Bubblewrap for POSIX shell/git/tests | Implemented; Windows runtime validation pending | Windows requires WSL 2 + Bubblewrap; native worker CLIs use the clearly labelled workspace-copy fallback (no OS sandbox); macOS sandboxed commands still fail closed |
+| Command sandbox: Linux Landlock + seccomp + PID namespace; macOS Seatbelt; Windows WSL 2 + Bubblewrap for POSIX shell/git/tests | ✅ | Linux adds a seccomp-BPF filter and an unconditional PID namespace (WR-02), and never makes `$HOME` or a PATH entry's parent a root (WR-01); macOS uses Seatbelt with the same policy and still fails closed if it is unavailable (`sandbox_macos.rs`, WR-03); Windows requires WSL 2 + Bubblewrap, and native worker CLIs run on the containment ladder (tier 2 AppContainer for `.exe`s, tier 1 Job object for `.cmd` shims) — reported as DEGRADED, never silently unsandboxed (WR-05) |
 | TLS: OS OpenSSL via dlopen, Linux; HTTP CONNECT proxies | ✅ | macOS/Windows: through the system curl (ADR-023); native FFI is W-6b |
 | Built-in models: Qwen3-1.7B (text, tools), Whisper base (voice), run in-process | ✅ | checked against llama.cpp / whisper.cpp; `docs/MODELS.md` |
 | Schedules: cron + IANA time zones (TZif), background daemon | ✅ | systemd / launchd unit installer |
 | Interview → Confirm Gate → blueprint | ✅ | the summary is code-generated |
 | Universal project convention (python, node, react, rust, shell) | ✅ | every skeleton's own tests pass with no installs |
 | vieww window: sessions, swipe, overview, live engine, settings, voice, files | ✅ | driven end to end headlessly; see "The window" |
-| Installers: Windows, macOS, Linux | ✅ | `.github/workflows/wright-release.yml` (ADR-020) |
-| Secrets: OS keychain via `security` / `secret-tool`, env for CI | ✅ | Windows Credential Manager: not yet |
+| Installers: Windows, macOS, Linux — signed, plus a signed update channel | ✅ | `.github/workflows/wright-release.yml` (ADR-020): Authenticode (SHA-256 + RFC3161 timestamp) on Windows, Developer ID + `notarytool` staple on macOS; a publish without its signing secrets fails rather than shipping unsigned (WR-04). `wright update check` reads one static Ed25519-signed manifest, and only when a channel is configured |
+| Secrets: OS keychain via `security` / `secret-tool` / Windows Credential Manager, env for CI | ✅ | Windows goes through Credential Manager in-process (`runtime/src/wincred.rs`, WR-06) — no value ever appears in a command line |
 | Rule of Two: typed legs, taint fixpoint, validator + gate enforcement | ✅ | ADR-024; 3-leg agents need a human approval, and the gate asks anyway |
 | Signed receipts + `wright verify` (Ed25519, SHA-512 reference ports) | ✅ | ADR-025; seven checks, inputs' hashes, acceptance verdicts |
 | Workers: claude-code / codex / kimi-code / zcode steps, sandboxed copy, all-or-nothing | ✅ | ADR-026 |
@@ -43,7 +43,7 @@ affected work runs again.
 | Exports: zip/wheel/crate/web, plus docker/systemd/gh-actions packagings | ✅ | WR-15; each export is signed into `<out>/receipt.json` — `wright verify` checks it; Docker base images pinned by digest from the project's `export.kdl` (ADR-046), and the docker build itself is the hardware workflow's `wright-docker` step |
 | Server mode, tenanted accounts | ❌ | by choice — the shared-store team mode is the audit story without the attack surface (ADR-045) |
 
-**380+ tests passing (plus the live-network opt-in set), clippy clean. Twelve failures on kernels before 5.13 are the sandbox failing closed (Landlock needs 5.13+) — the same tests pass on 5.13+; the new trust suite (`engine/tests/trust.rs`) runs everywhere.** Eight of them compare the built-in engine with llama.cpp and whisper.cpp, or run the real models; they need fixtures (`scripts/models/`) and skip without them — CI provides them (`docs/MODELS.md`). The headless binary has **zero**
+**420+ tests passing (plus the live-network opt-in set), clippy clean — `cargo test --release --workspace` on Linux 6.x reports 422 passed, 0 failed. Twelve failures on kernels before 5.13 are the sandbox failing closed (Landlock needs 5.13+) — the same tests pass on 5.13+; the new trust suite (`engine/tests/trust.rs`) runs everywhere.** Eight of them compare the built-in engine with llama.cpp and whisper.cpp, or run the real models; they need fixtures (`scripts/models/`) and skip without them — CI provides them (`docs/MODELS.md`). The headless binary has **zero**
 external crates; the `ui` feature adds exactly one dependency — vieww, from
 the repository Wright lives in, by path (ADR-002, ADR-011).
 
@@ -84,8 +84,9 @@ project's test runner run under the Windows containment ladder (tier 2:
 AppContainer for `.exe`s; tier 1: Job object, no filesystem sandbox, for `.cmd`
 shims), REPORTED as DEGRADED in every tool report — `wright shell` never takes
 that path. `wright doctor` prints the isolation matrix: where every class of
-command runs on this machine. macOS still fails closed until its native sandbox
-is implemented. Windows-native agent CLIs are run only against a throwaway
+command runs on this machine. macOS runs the same policy through Seatbelt
+(`tools/src/sandbox_macos.rs`), and still fails closed if Seatbelt is
+unavailable. Windows-native agent CLIs are run only against a throwaway
 workspace copy and are reported as lacking OS-level isolation.
 
 ## Quick start (no key needed)

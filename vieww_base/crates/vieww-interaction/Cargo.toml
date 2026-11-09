@@ -22,6 +22,17 @@ workspace = true
 # diligence `vieww-hal`'s d3d12 feature list documents, and for the same
 # reason: an omitted one is an unresolved import on the only target that
 # compiles this module, which is a target this container is not.
+#
+# KNOWN DUPLICATE: this 0.58 pin (shared with `vieww-hal`'s optional d3d12
+# feature) does not unify with the 0.62.2 that `accesskit` requires, so a
+# Windows build links two copies of `windows`/`windows-core`. It is sound
+# — the two never exchange types across the boundary — but it is dead
+# weight in the binary, and two FFI surfaces is the wrong number for a
+# repo that pins everything else. Deduplicating means moving this crate
+# to 0.62, which is NOT a version-number change: `windows-core` 0.62
+# reworks `#[implement]` and the `Ref`/`IUnknown` borrowing that
+# `src/drag_out_windows.rs`'s `IDropSource` impl is written against.
+# Do it behind a real Windows CI run, never on inspection alone.
 [target.'cfg(target_os = "windows")'.dependencies]
 windows = { version = "0.58", features = [
     "Win32_Foundation",

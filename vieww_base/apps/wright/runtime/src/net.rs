@@ -267,6 +267,30 @@ fn tcp_connect_to(
     Err(last)
 }
 
+/// Read a proxy's CONNECT answer byte-by-byte up to the blank line, so
+/// not one byte of the tunnelled TLS stream is swallowed by a buffer.
+///
+/// `EINTR` is retried, never reported: a signal (a reaped child, a
+/// timer) can land mid-handshake, and `write_all` already retries it for
+/// us, so a bare `read` that surfaced it would tear down an otherwise
+/// healthy tunnel.
+fn read_connect_head(s: &mut impl Read) -> Result<Vec<u8>, String> {
+    let mut head = Vec::new();
+    let mut b = [0u8; 1];
+    while !head.ends_with(b"\r\n\r\n") {
+        if head.len() > 16 * 1024 {
+            return Err("proxy CONNECT response too large".into());
+        }
+        match s.read(&mut b) {
+            Ok(0) => return Err("proxy closed the connection during CONNECT".into()),
+            Ok(_) => head.push(b[0]),
+            Err(e) if e.kind() == std::io::ErrorKind::Interrupted => continue,
+            Err(e) => return Err(format!("proxy CONNECT: {e}")),
+        }
+    }
+    Ok(head)
+}
+
 /// Open a CONNECT tunnel through `proxy` to `url`'s authority.
 fn tunnel(proxy: &Proxy, url: &Url, cfg: &NetConfig) -> Result<TcpStream, String> {
     let mut s = tcp_connect(&proxy.host, proxy.port, cfg)?;
@@ -277,20 +301,7 @@ fn tunnel(proxy: &Proxy, url: &Url, cfg: &NetConfig) -> Result<TcpStream, String
     req.push_str("\r\n");
     s.write_all(req.as_bytes())
         .map_err(|e| format!("proxy CONNECT: {e}"))?;
-    // Read the proxy's answer byte-by-byte up to the blank line, so not
-    // one byte of the tunnelled TLS stream is swallowed by a buffer.
-    let mut head = Vec::new();
-    let mut b = [0u8; 1];
-    while !head.ends_with(b"\r\n\r\n") {
-        if head.len() > 16 * 1024 {
-            return Err("proxy CONNECT response too large".into());
-        }
-        match s.read(&mut b) {
-            Ok(0) => return Err("proxy closed the connection during CONNECT".into()),
-            Ok(_) => head.push(b[0]),
-            Err(e) => return Err(format!("proxy CONNECT: {e}")),
-        }
-    }
+    let head = read_connect_head(&mut s)?;
     let status_line = String::from_utf8_lossy(&head);
     let status = status_line.split_whitespace().nth(1).unwrap_or("");
     if status != "200" {
@@ -410,6 +421,60 @@ mod tests {
     use super::*;
     use std::net::TcpListener;
     use wright_core::wire::http::parse_url;
+
+    /// A reader that returns `EINTR` before each real byte, the way a
+    /// signal landing mid-handshake does.
+    struct Interrupting {
+        bytes: std::collections::VecDeque<u8>,
+        armed: bool,
+    }
+
+    impl Read for Interrupting {
+        fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+            if self.armed {
+                self.armed = false;
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::Interrupted,
+                    "Interrupted system call",
+                ));
+            }
+            self.armed = true;
+            match self.bytes.pop_front() {
+                Some(b) => {
+                    buf[0] = b;
+                    Ok(1)
+                }
+                None => Ok(0),
+            }
+        }
+    }
+
+    /// A signal arriving mid-CONNECT is transient: the handshake must
+    /// ride it out, not fail the tunnel with "Interrupted system call
+    /// (os error 4)".
+    #[test]
+    fn connect_head_retries_interrupted_reads() {
+        let mut s = Interrupting {
+            bytes: b"HTTP/1.1 200 Connection established\r\n\r\n"
+                .iter()
+                .copied()
+                .collect(),
+            armed: true,
+        };
+        let head = read_connect_head(&mut s).expect("EINTR must be retried, never reported");
+        assert!(String::from_utf8_lossy(&head).starts_with("HTTP/1.1 200"));
+    }
+
+    /// A proxy hanging up mid-handshake is still a real failure.
+    #[test]
+    fn connect_head_reports_a_closed_proxy() {
+        let mut s = Interrupting {
+            bytes: b"HTTP/1.1 200".iter().copied().collect(),
+            armed: false,
+        };
+        let err = read_connect_head(&mut s).unwrap_err();
+        assert!(err.contains("closed the connection"), "{err}");
+    }
 
     #[test]
     fn base64_matches_rfc4648() {
