@@ -81,6 +81,16 @@ struct BoundaryCache {
 
 struct Node {
     object: Option<Box<dyn RenderObject>>,
+    /// The object's `debug_name`, kept on the node rather than read from
+    /// the object.
+    ///
+    /// Layout takes each object out of its slot while it runs, so during a
+    /// layout pass every ancestor of the object currently being laid out has
+    /// `object == None`. That is exactly the moment an overflow is reported,
+    /// and exactly the chain the report wants to name — read from the
+    /// objects it would be a row of `?`. The name is fixed for the life of
+    /// the node, so a copy here costs one pointer and is always readable.
+    name: &'static str,
     parent: Option<RenderId>,
     children: ChildIds,
     /// Position relative to the parent, assigned by the parent after layout.
@@ -427,6 +437,7 @@ impl RenderTree {
 
         self.slots[id.index as usize].node = Some(Node {
             is_boundary: object.is_repaint_boundary(),
+            name: object.debug_name(),
             object: Some(object),
             children: ChildIds::new(),
             parent: None,
@@ -652,6 +663,17 @@ impl RenderTree {
             .filter(|slot| slot.generation == id.generation)
             .and_then(|slot| slot.node.as_ref())
             .and_then(|node| node.object.as_deref())
+    }
+
+    /// The `debug_name` of the object in a slot, readable while that object
+    /// is out of the tree being laid out. See [`Node::name`].
+    #[must_use]
+    pub fn object_name(&self, id: RenderId) -> Option<&'static str> {
+        self.slots
+            .get(id.index as usize)
+            .filter(|slot| slot.generation == id.generation)
+            .and_then(|slot| slot.node.as_ref())
+            .map(|node| node.name)
     }
 
     /// Mutably borrow the object in a slot, marking it for relayout.

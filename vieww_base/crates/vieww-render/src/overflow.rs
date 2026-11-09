@@ -30,6 +30,7 @@
 
 use std::cell::RefCell;
 
+
 use vieww_foundation::Axis;
 
 /// Sub-pixel differences are rounding, not overflow.
@@ -50,6 +51,8 @@ pub(crate) fn beyond(used: f32, available: f32) -> Option<f32> {
 thread_local! {
     /// How many overflow reports this thread has produced.
     static REPORTED: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+    /// Set by `report` when a message actually printed (see `report_in`).
+    static PRINTED: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
 }
 
 /// How many times something has overflowed on this thread.
@@ -97,6 +100,61 @@ pub fn forget_reported() {
     REPORTED.with(|count| count.set(0));
 }
 
+/// The chain of render objects from the root down to `id`, as one line.
+///
+/// **An overflow message that names only the type is a riddle.** "RenderColumn
+/// overflowed" is true of any of the dozens of columns a real screen builds,
+/// and the shortfall alone does not say which — so the search starts by
+/// guessing, and a wrong guess costs a rebuild. The ancestry is the part that
+/// identifies it: `RenderOpacity > RenderPadding > RenderAlign >
+/// RenderConstrainedBox > RenderColumn` is one specific place in one widget.
+///
+/// Built only when something has already overflowed, so the walk costs nothing
+/// on a frame that fits. Depth is capped: the useful part of the chain is the
+/// end nearest the overflow, and a deep tree would otherwise print a paragraph.
+fn ancestry(tree: &crate::tree::RenderTree, id: crate::id::RenderId) -> String {
+    const MAX_DEPTH: usize = 10;
+    let mut names = Vec::new();
+    let mut cursor = tree.parent(id);
+    while let Some(current) = cursor {
+        if names.len() == MAX_DEPTH {
+            names.push("…");
+            break;
+        }
+        // From the node, not the object: every ancestor is out of its slot
+        // while layout runs. See `Node::name`.
+        names.push(tree.object_name(current).unwrap_or("?"));
+        cursor = tree.parent(current);
+    }
+    // Collected leaf-first and capped there, so the nearest ancestors — the
+    // ones that identify the overflow — always survive the cap.
+    names.reverse();
+    names.join(" > ")
+}
+
+/// Say that `object` did not fit, naming where in the tree it sits.
+///
+/// The counting and deduplication of [`report`] apply unchanged; this only
+/// adds the ancestry line, which is what turns a type name into an address.
+pub(crate) fn report_in(
+    tree: &crate::tree::RenderTree,
+    id: crate::id::RenderId,
+    object: &'static str,
+    axis: Axis,
+    used: f32,
+    available: f32,
+    over: f32,
+) {
+    let before = REPORTED.with(std::cell::Cell::get);
+    report(object, axis, used, available, over);
+    // Only when `report` actually printed: it deduplicates, and a path
+    // repeated every frame is the noise the deduplication exists to stop.
+    if PRINTED.with(std::cell::Cell::take) {
+        let _ = before;
+        eprintln!("vieww:   in {}", ancestry(tree, id));
+    }
+}
+
 /// Say that `object` did not fit, once per distinct report.
 ///
 /// **Layout runs every frame**, so an unconditional print here would be one line
@@ -120,6 +178,9 @@ pub(crate) fn report(object: &'static str, axis: Axis, used: f32, available: f32
         return;
     }
     LAST.with_borrow_mut(|last| *last = Some(now));
+    // Tells `report_in` this one got past the deduplication, so the
+    // ancestry line goes with the message it belongs to and nowhere else.
+    PRINTED.with(|p| p.set(true));
 
     let axis = match axis {
         Axis::Vertical => "vertical",

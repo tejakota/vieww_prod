@@ -412,7 +412,9 @@ impl RenderObject for RenderFlex {
         // report: a viewport hands its child infinite room on the scroll axis,
         // so `main_used` and `main_span` agree however long the content is.
         if let Some(over) = crate::overflow::beyond(main_used, main_span) {
-            crate::overflow::report(
+            crate::overflow::report_in(
+                ctx.tree,
+                ctx.id,
                 self.debug_name(),
                 self.direction,
                 main_used,
