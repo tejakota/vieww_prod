@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>mytlabs — meet your thoughts labs</title>
+<meta name="description" content="mytlabs builds next-age products that turn what people imagine into things they can use — viewwstudio, wright, upxcale, snapsearch, three, vavlt and twin — and ships vieww, the Rust UI framework every product runs on, so that anyone can create products of their own.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="mytlabs — meet your thoughts labs">
+<meta property="og:description" content="Products anyone can use, and a framework anyone can create with. Every product runs on vieww — one Rust framework, one tree, every screen.">
+<meta name="theme-color" content="#0C0C16" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F7F7FC" media="(prefers-color-scheme: light)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%238B7CF6'/%3E%3Cstop offset='1' stop-color='%235A48E0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='30' fill='url(%23g)'/%3E%3Cg fill='%23FFFFFF'%3E%3Ccircle cx='26' cy='74' r='7'/%3E%3Ccircle cx='42' cy='59' r='9'/%3E%3Ccircle cx='61' cy='41' r='11'/%3E%3Cpath d='M80 12 L83 21 L92 24 L83 27 L80 36 L77 27 L68 24 L77 21 Z'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Geist-Regular.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="fonts/Geist-Bold.ttf" as="font" type="font/ttf" crossorigin>
+
+<style>
+        /*
+                The stylesheet is the half of this page a rasteriser cannot do:
+                `backdrop-filter`, which needs the pixels already composited
+                behind a box; `background-clip: text`, which needs glyph
+                coverage as a mask; `:hover` and `:focus-visible`, which are
+                states no widget tree holds; scroll-driven animation the
+                browser runs without waking this application at all; and the
+                splash, where the thought-trail draws itself.
+
+                Everything else — the structure, the spacing, the type scale,
+                the colours — comes from the vieww tree in `src/lib.rs`,
+                through `vieww-platform-web-dom`.
+        */
+
+        /* SIL Open Font Licence 1.1. The same faces, subsets and licence the
+           studio's and Wright's pages ship, served as files rather than
+           compiled into the WebAssembly: the browser caches them separately,
+           and the wasm is smaller for it. */
+        @font-face { font-family: 'Geist'; src: url('fonts/Geist-Regular.ttf') format('truetype');
+                     font-weight: 400; font-display: swap; }
+        @font-face { font-family: 'Geist'; src: url('fonts/Geist-Medium.ttf') format('truetype');
+                     font-weight: 500; font-display: swap; }
+        @font-face { font-family: 'Geist'; src: url('fonts/Geist-Bold.ttf') format('truetype');
+                     font-weight: 600 700; font-display: swap; }
+        @font-face { font-family: 'Geist Mono'; src: url('fonts/GeistMono-Regular.ttf') format('truetype');
+                     font-weight: 400; font-display: swap; }
+        @font-face { font-family: 'Geist Mono'; src: url('fonts/GeistMono-Medium.ttf') format('truetype');
+                     font-weight: 500 700; font-display: swap; }
+
+        :root {
+                color-scheme: dark light;
+                /* The channels of the page's glass: borders and surface washes
+                   are `rgba(var(--glass), a)`, white over the dark ground and
+                   dark ink over the light one. */
+                --glass: 255,255,255;
+                --live: #7FE8C8;
+                --ground: #0C0C16;
+                --ink: #ECEBF6;
+                --ink-2: #A6A4C0;
+                --ink-3: #73718E;
+                --accent: #A79BFF;
+                --accent-deep: #6C5CE7;
+                /* The seven product tints, registered as tokens by the tree;
+                   the light block below darkens each for the day. */
+                --violet: #A79BFF;
+                --cyan: #56CCF2;
+                --mint: #7FE8C8;
+                --amber: #F5C26B;
+                --rose: #F49BC1;
+                --peach: #FFB88C;
+                --lilac: #C9B8FF;
+                --line: rgba(var(--glass),0.09);
+                --shadow: rgba(0,0,0,0.30);
+                --nav-glass: rgba(12,12,22,0.72);
+                --cell: rgba(17,17,32,0.82);
+                --pill: rgba(24,23,44,0.5);
+                --shadow-deep: rgba(0,0,0,0.35);
+                /* One easing for the whole page. Motion that all decelerates
+                   the same way is most of what reads as "fluid" rather than
+                   "animated". */
+                --ease: cubic-bezier(0.22, 1, 0.36, 1);
+                --ease-spring: cubic-bezier(0.34, 1.4, 0.44, 1);
+        }
+
+        * { box-sizing: border-box; }
+        html {
+                scroll-behavior: smooth;
+                /* **Do not let the browser resize the type.** iOS Safari
+                   inflates text in any block it judges too wide, and the code
+                   sample is `white-space: pre` lines. `100%` means "render it
+                   at the size I asked for" — not a zoom lock. */
+                -webkit-text-size-adjust: 100%;
+                        text-size-adjust: 100%;
+        }
+        body {
+                margin: 0;
+                background: var(--ground);
+                color: var(--ink);
+                font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+                -webkit-font-smoothing: antialiased;
+                text-rendering: optimizeLegibility;
+                overflow-x: hidden;
+        }
+        a { color: inherit; }
+        h1, h2, h3, p, figure { margin: 0; }
+        ::selection { background: rgba(167, 155, 255, 0.30); color: #fff; }
+
+        /* Keyboard users get a ring; mouse users never see one. */
+        :focus-visible {
+                outline: 2px solid var(--accent);
+                outline-offset: 3px;
+                border-radius: 6px;
+        }
+
+        /* ── the splash ─────────────────────────────────────────────────────
+           Covers the boot, so nobody sees the fallback content swap for the
+           built page. The mark is the lab's own opening move: the
+           thought-trail assembles — three dots landing one after another, the
+           spark they become popping in above them — then the wordmark lands
+           and the whole veil dissolves upward into a hero that is already
+           standing in the same place.
+
+           Held until the page is actually built (`.done` is added from the
+           module below), so on a slow connection it waits rather than
+           blinking. */
+        #mt-splash {
+                position: fixed; inset: 0; z-index: 200;
+                background: var(--ground);
+                transition: opacity .42s var(--ease), transform .42s var(--ease),
+                            visibility 0s linear .42s;
+        }
+        #mt-splash.done { opacity: 0; visibility: hidden; }
+        /* The mark at **84 points, in the hero's own position** — the same
+           size, the same place, so the dismissal is a match cut: the veil
+           fades and the mark does not move. */
+        #mt-splash .glyph {
+                position: absolute; left: 50%; margin-left: -42px;
+                top: calc(64px + clamp(56px, 11vw, 104px));
+                width: 84px; height: 84px; border-radius: 25.2px;
+                background: linear-gradient(180deg, #8B7CF6, #5A48E0);
+                box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14), 0 4px 12px rgba(0,0,0,0.51);
+                animation: mt-glyph-in .38s var(--ease) both;
+        }
+        #mt-splash .glyph svg {
+                position: absolute; inset: 0; margin: auto;
+                width: 62%; height: 62%;
+        }
+        /* The trail assembles: each dot lands after the one below it, and the
+           spark arrives last — a thought, and then the thing it becomes. */
+        #mt-splash .glyph circle {
+                transform-origin: center; transform-box: fill-box;
+                animation: mt-dot-in .34s var(--ease-spring) both;
+        }
+        #mt-splash .glyph circle:nth-child(1) { animation-delay: .18s }
+        #mt-splash .glyph circle:nth-child(2) { animation-delay: .34s }
+        #mt-splash .glyph circle:nth-child(3) { animation-delay: .50s }
+        #mt-splash .glyph path {
+                transform-origin: center; transform-box: fill-box;
+                animation: mt-spark-in .5s .72s var(--ease-spring) both;
+        }
+        /* The bloom under the mark, the same violet the page's glow carries. */
+        #mt-splash .glow {
+                position: absolute; left: 50%; margin-left: -68px;
+                top: calc(64px + clamp(56px, 11vw, 104px) - 26px);
+                width: 136px; height: 136px; border-radius: 999px;
+                background: rgba(124,106,246,0.38); filter: blur(30px);
+                animation: mt-bloom .8s .1s var(--ease) both;
+        }
+        /* The wordmark sits where the status pill will be, and hands over to
+           it. */
+        #mt-splash .word {
+                position: absolute; left: 0; right: 0; text-align: center;
+                top: calc(64px + clamp(56px, 11vw, 104px) + 108px);
+                font: 500 11.5px/1 'Geist Mono', ui-monospace, monospace;
+                letter-spacing: .34em; text-indent: .34em; color: var(--ink-3);
+                animation: mt-word .38s .92s var(--ease) both;
+        }
+        @keyframes mt-glyph-in {
+                from { opacity: 0; transform: scale(.78); }
+                to   { opacity: 1; transform: none; }
+        }
+        @keyframes mt-dot-in { from { opacity: 0; transform: scale(0); } to { opacity: 1; } }
+        @keyframes mt-spark-in {
+                from { opacity: 0; transform: scale(0) rotate(-40deg); }
+                to   { opacity: 1; transform: none; }
+        }
+        @keyframes mt-word { from { opacity: 0; letter-spacing: .5em; } to { opacity: 1; } }
+        @keyframes mt-bloom { from { opacity: 0; transform: scale(.7); } to { opacity: 1; } }
+
+        /* ── the hero's staged arrival ──────────────────────────────────────
+           One shape, seven delays. The page settles from the mark outward,
+           which is the same order the splash assembled in. */
+        .mt-rise { animation: mt-rise-in .8s var(--ease) both; }
+        .mt-d0 { animation-delay: .05s } .mt-d1 { animation-delay: .12s }
+        .mt-d2 { animation-delay: .19s } .mt-d3 { animation-delay: .25s }
+        .mt-d4 { animation-delay: .32s } .mt-d5 { animation-delay: .39s }
+        .mt-d6 { animation-delay: .47s }
+        @keyframes mt-rise-in {
+                from { opacity: 0; transform: translateY(20px); filter: blur(6px); }
+                to   { opacity: 1; transform: none; filter: none; }
+        }
+
+        /* The mark's own glow breathes, forever. Six seconds of travel,
+           which reads as alive rather than as animation. */
+        .mt-markglow { position: relative; }
+        .mt-markglow::before {
+                content: ''; position: absolute; inset: -26px; border-radius: 999px; z-index: -1;
+                background: rgba(124,106,246,0.30); filter: blur(30px);
+                animation: mt-breathe 7s ease-in-out infinite;
+        }
+        @keyframes mt-breathe { 50% { opacity: .6; transform: scale(1.08); } }
+
+        /* The lit backdrop behind the hero. One violet bloom centred on the
+           mark, and a faint cyan one beside it: the night, lit. */
+        .mt-hero-glow {
+                background:
+                        radial-gradient(52% 46% at 50% 24%, rgba(124,106,246,0.26) 0%, transparent 72%),
+                        radial-gradient(30% 26% at 74% 42%, rgba(86,204,242,0.10) 0%, transparent 70%);
+        }
+        .mt-gradient-text, .mt-gradient-text * {
+                background: linear-gradient(180deg, var(--ink) 0%, var(--accent) 100%);
+                -webkit-background-clip: text; background-clip: text;
+                -webkit-text-fill-color: transparent; color: transparent;
+        }
+        .mt-h1 { margin: 0 !important; }
+
+        .mt-live { animation: mt-pulse 2.4s infinite; }
+        @keyframes mt-pulse {
+                0%   { box-shadow: 0 0 0 0 rgba(127,232,200,0.65); }
+                70%  { box-shadow: 0 0 0 7px rgba(127,232,200,0); }
+                100% { box-shadow: 0 0 0 0 rgba(127,232,200,0); }
+        }
+
+        /* Scroll-driven reveal. No observer, no listener, no per-frame work. */
+        .mt-reveal { opacity: 1; }
+        @supports (animation-timeline: view()) {
+                .mt-reveal {
+                        animation: mt-rise-in linear both;
+                        animation-timeline: view();
+                        animation-range: entry 0% entry 46%;
+                }
+        }
+
+        /* ── the nav ───────────────────────────────────────────────────────── */
+        .mt-nav {
+                position: sticky; top: 0; z-index: 50;
+                border-bottom: 1px solid transparent;
+                background: rgba(12,12,22,0);
+                transition: background .3s var(--ease), border-color .3s var(--ease),
+                            backdrop-filter .3s var(--ease);
+        }
+        .mt-nav.stuck {
+                border-bottom-color: rgba(var(--glass),0.08);
+                background: var(--nav-glass);
+                backdrop-filter: blur(18px) saturate(160%);
+                -webkit-backdrop-filter: blur(18px) saturate(160%);
+        }
+        .mt-navlink {
+                text-decoration: none; position: relative;
+                transition: color .2s var(--ease);
+        }
+        .mt-navlink::after {
+                content: ''; position: absolute; left: 0; right: 0; bottom: -7px; height: 1.5px;
+                background: var(--accent); border-radius: 2px;
+                transform: scaleX(0); transform-origin: left;
+                transition: transform .28s var(--ease);
+        }
+        .mt-navlink:hover, .mt-navlink:hover *,
+        .mt-navlink.active, .mt-navlink.active * { color: var(--ink) !important; }
+        .mt-navlink:hover::after, .mt-navlink.active::after { transform: scaleX(1); }
+
+        .mt-btn {
+                transition: transform .25s var(--ease-spring), box-shadow .25s var(--ease),
+                            background .2s var(--ease);
+        }
+        .mt-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(124,106,246,0.45); }
+        .mt-btn:active { transform: translateY(0) scale(.985); }
+
+        /* ── surfaces ──────────────────────────────────────────────────────── */
+        .mt-card, .mt-code, .mt-term, .mt-closing {
+                position: relative; overflow: hidden;
+                border: 1px solid var(--line);
+                border-radius: 16px;
+                background: linear-gradient(180deg, rgba(var(--glass),0.035), rgba(var(--glass),0.012));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 14px 34px var(--shadow);
+        }
+        .mt-card { transition: border-color .25s var(--ease), transform .25s var(--ease), box-shadow .25s var(--ease); }
+        .mt-card:hover {
+                border-color: rgba(167,155,255,0.32);
+                transform: translateY(-3px);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 22px 50px rgba(0,0,0,0.40);
+        }
+        .mt-card::after {
+                content: ''; position: absolute; right: -30px; top: -30px;
+                width: 130px; height: 130px; border-radius: 999px;
+                background: rgba(124,106,246,0); filter: blur(32px);
+                transition: background .3s var(--ease); pointer-events: none;
+        }
+        .mt-card:hover::after { background: rgba(124,106,246,0.20); }
+
+        /* A product card is one big link, so it says so. */
+        .mt-pcard { text-decoration: none; display: block; }
+
+        .mt-closing {
+                padding: 64px 32px;
+                background:
+                        radial-gradient(70% 130% at 50% 0%, rgba(124,106,246,0.16) 0%, transparent 65%),
+                        linear-gradient(180deg, rgba(var(--glass),0.035), rgba(var(--glass),0.012));
+        }
+
+        /* Code does not wrap. A long line scrolls its own block, which is
+           what an editor does and what makes a sample readable as source. */
+        .mt-code span { white-space: pre !important; }
+
+        /* **No ligatures in code.** Geist Mono draws `->` as a single arrow;
+           in source, the characters that were typed are the ones that should
+           be on screen. */
+        .mt-code, .mt-code *, .mt-term, .mt-term * { font-variant-ligatures: none; }
+
+        .mt-copy { transition: border-color .2s var(--ease), background .2s var(--ease); }
+        .mt-copy:hover { border-color: rgba(167,155,255,0.45); background: rgba(167,155,255,0.10); }
+        button.mt-copy { background: none; color: inherit; font: inherit; margin: 0; }
+
+        /* ── scale ──────────────────────────────────────────────────────────
+           The tree sets one size per thing; this makes those sizes fluid.
+           `clamp()` rather than a breakpoint: a single step meant a 68px
+           headline became 40px the moment the window crossed a line, and
+           every width either side of it was wrong by a different amount.
+           These interpolate, so 320px, 390px, 768px and 1440px are all
+           deliberate.
+
+           `!important` throughout, and on the element *and* its descendants,
+           because the size the tree chose arrives as an inline declaration. */
+        .mt-section {
+                padding-top: clamp(56px, 9vw, 120px);
+                padding-bottom: clamp(56px, 9vw, 120px);
+                scroll-margin-top: 64px;
+        }
+        .mt-hero {
+                position: relative; overflow: hidden;
+                padding-top: clamp(56px, 11vw, 104px);
+                padding-bottom: clamp(48px, 9vw, 88px);
+        }
+        .mt-h1, .mt-h1 * { font-size: clamp(33px, 7vw, 68px) !important; }
+        .mt-h2, .mt-h2 * { font-size: clamp(25px, 4.5vw, 42px) !important; }
+        .mt-lead, .mt-lead * { font-size: clamp(15px, 2.2vw, 17.5px) !important; }
+        .mt-lead-hero, .mt-lead-hero * { font-size: clamp(15.5px, 2.5vw, 19px) !important; }
+
+        /* `balance` on headings, `pretty` on prose — the browser knows the
+           widths; let it break them. */
+        .mt-h1, .mt-h2, .mt-h1 *, .mt-h2 * { text-wrap: balance; }
+        .mt-lead, .mt-lead-hero, .mt-lead *, .mt-lead-hero * { text-wrap: pretty; }
+
+        /* The status pill carries the whole company on one line. It may wrap
+           on a narrow screen; what wraps should stay centred. */
+        .mt-pill > * { flex-wrap: wrap !important; justify-content: center !important; }
+
+        /* The stat strip. `stretch` is what a grid does by default and what
+           this always wanted; the values never wrap. */
+        .mt-stats { align-items: stretch !important; display: grid !important;
+                    grid-template-columns: repeat(4, 1fr); gap: 1px; }
+        .mt-stat {
+                background: var(--cell);
+                backdrop-filter: blur(8px);
+                padding: clamp(14px, 3vw, 18px) 10px;
+                display: flex !important;
+        }
+        .mt-stat-v, .mt-stat-v * {
+                font-size: clamp(19px, 4.6vw, 25px) !important;
+                white-space: nowrap !important;
+        }
+        .mt-stat-n, .mt-stat-n * { font-size: clamp(10.5px, 2.4vw, 11.5px) !important; }
+
+        /* ── grids ───────────────────────────────────────────────────────────
+           `align-items:start` throughout: a grid stretches by default, so a
+           short card next to a tall one grows to match and its content
+           floats in the middle of the space. */
+        .mt-grid2 { display: grid !important; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start !important; }
+        .mt-grid3 { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start !important; }
+        .mt-footgrid { display: grid !important; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px;
+                       align-items: start !important; }
+
+        /* The two vision cards, joined by a hairline that reads as a fork in
+           the road: use it, or build it. */
+        .mt-grid2 .mt-step { position: relative; }
+        @media (min-width: 881px) {
+                .mt-grid2 .mt-step + .mt-step::before {
+                        content: ''; position: absolute; left: -17px; top: 42px;
+                        width: 18px; height: 1px;
+                        background: linear-gradient(90deg, transparent, rgba(167,155,255,0.55));
+                }
+        }
+
+        .mt-foot { text-decoration: none; transition: color .18s var(--ease); }
+        .mt-foot:hover, .mt-foot:hover * { color: var(--ink) !important; }
+
+        @media (max-width: 1080px) {
+                .mt-footgrid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 880px) {
+                .mt-grid2, .mt-grid3 { grid-template-columns: 1fr; }
+                .mt-stats { grid-template-columns: 1fr 1fr; }
+                .mt-navlinks { display: none !important; }
+                .mt-cta { flex-direction: column !important; align-items: stretch !important; }
+                .mt-footbottom { flex-direction: column !important; gap: 10px; align-items: flex-start !important; }
+        }
+
+        /* Everything above is motion; this turns all of it off for anyone who
+           asked the OS not to see it. The splash is skipped outright. */
+        @media (prefers-reduced-motion: reduce) {
+                html { scroll-behavior: auto; }
+                *, *::before, *::after {
+                        animation-duration: .001ms !important;
+                        animation-delay: 0s !important;
+                        transition-duration: .001ms !important;
+                }
+                #mt-splash { display: none; }
+        }
+
+        #boot { padding: 110px 24px; text-align: center; color: var(--ink-2);
+                font: 400 15px/1.65 ui-sans-serif, system-ui, sans-serif; }
+        #boot h1 { font-size: 26px; color: var(--ink); margin: 0 0 12px; }
+        #boot p { margin: 0 auto 8px; max-width: 640px; }
+
+        /*
+                Light, for a reader whose system asks for it. The vieww tree
+                writes its palette as these variables (`COLOR_TOKENS`, through
+                `vieww_platform_web_dom::set_color_tokens`), so redefining
+                them here re-themes every text run and box — no second palette
+                in Rust. The product tints darken for the day, because on a
+                light ground a washed tint is a whisper. Code panels and the
+                terminal stay dark: syntax colours are chosen against a dark
+                ground.
+        */
+        @media (prefers-color-scheme: light) {
+                :root {
+                        --ground: #F7F7FC;
+                        --ink: #33314A;
+                        --ink-2: #5F5D7A;
+                        --ink-3: #74728E;
+                        --accent: #5A48E0;
+                        --accent-deep: #5A48E0;
+                        --live: #0E8F6C;
+                        --violet: #6C5CE7;
+                        --cyan: #0E7FB8;
+                        --mint: #0E8F6C;
+                        --amber: #B07818;
+                        --rose: #C4507E;
+                        --peach: #C06A38;
+                        --lilac: #7A5FD8;
+                        --glass: 60,60,72;
+                        --shadow: rgba(40,40,60,0.10);
+                        --nav-glass: rgba(247,247,252,0.78);
+                        --cell: rgba(255,255,255,0.86);
+                        --pill: rgba(255,255,255,0.72);
+                        --shadow-deep: rgba(40,40,60,0.12);
+                }
+                ::selection { background: rgba(90,72,224,0.22); color: inherit; }
+                .mt-code, .mt-term {
+                        --ink: #ECEBF6; --ink-2: #A6A4C0; --ink-3: #73718E; --accent: #A79BFF;
+                        --lilac: #C9B8FF; --amber: #F5C26B; --cyan: #56CCF2;
+                        --glass: 255,255,255;
+                        background: #14142A !important;
+                }
+                .mt-hero-glow {
+                        background:
+                                radial-gradient(52% 46% at 50% 24%, rgba(124,106,246,0.14) 0%, transparent 72%),
+                                radial-gradient(30% 26% at 74% 42%, rgba(86,204,242,0.07) 0%, transparent 70%);
+                }
+                #mt-splash .word { color: var(--ink-3); }
+        }
+</style>
+</head>
+<body>
+
+<div id="mt-splash" aria-hidden="true">
+        <div class="glow"></div>
+        <div class="glyph">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="4.6" cy="18.6" r="1.8" fill="#FFFFFF"/>
+                        <circle cx="9.6" cy="14.4" r="2.5" fill="#FFFFFF"/>
+                        <circle cx="15.4" cy="9.4" r="3.2" fill="#FFFFFF"/>
+                        <path d="M20 0.5 L21.02 2.88 L23.4 3.9 L21.02 4.92 L20 7.3 L18.98 4.92 L16.6 3.9 L18.98 2.88 Z" fill="#FFFFFF"/>
+                </svg>
+        </div>
+        <div class="word">MYTLABS</div>
+</div>
+
+<!--
+        The page is built into this element. Until the module arrives, this is
+        what a reader and a crawler see: the same claims, in plain HTML. The
+        snapshot example (`examples/snapshot.rs`) splices the built tree in
+        between here and the marker below, for review and for crawlers.
+-->
+<div id="app">
+        <div id="boot">
+                <h1>mytlabs</h1>
+                <p><strong>meet your thoughts labs — products anyone can use, and a framework
+                   anyone can create with.</strong></p>
+                <p>mytlabs builds next-age products that turn what people imagine into things
+                   they can use — viewwstudio, wright, upxcale, snapsearch, three, vavlt and
+                   twin — and ships vieww, the Rust UI framework every product runs on, so
+                   that anyone can create products of their own.</p>
+                <p>Every product runs on vieww — one Rust framework, one widget tree, every
+                   screen: Linux, Android, iOS, macOS, Windows and the web.</p>
+                <noscript><p>This page builds itself with WebAssembly, so it needs JavaScript enabled.</p></noscript>
+        </div>
+</div>
+<!-- app-end -->
+
+<script type="module">
+        const splash = document.getElementById('mt-splash');
+        const boot = document.getElementById('boot');
+
+        // Dynamic `import()` rather than a static one: a static import is
+        // hoisted out of the try block and its failure cannot be caught, so
+        // a 404 on the module left the page sitting on its fallback with
+        // nothing in the console.
+        try {
+                const wasm = await import('./mytlabs.js');
+                await wasm.default();
+        } catch (error) {
+                if (boot) {
+                        const line = document.createElement('p');
+                        line.style.color = '#F14C4C';
+                        line.textContent = 'The page could not start: ' + error;
+                        boot.append(line);
+                }
+                splash?.classList.add('done');
+                throw error;
+        }
+
+        // Hold the splash for the rest of the trail, then dissolve. The page
+        // is already built underneath, so the hero's staged arrival runs into
+        // view rather than starting after a blank frame.
+        const MINIMUM = 1400;
+        setTimeout(() => splash?.classList.add('done'), Math.max(0, MINIMUM - performance.now()));
+
+        // Which section the reader is in. `rootMargin` puts the trigger line
+        // under the sticky bar, so the link lights up as its heading arrives.
+        const links = new Map(
+                [...document.querySelectorAll('.mt-navlink')].map(a => [a.getAttribute('href').slice(1), a])
+        );
+        const spy = new IntersectionObserver(entries => {
+                for (const entry of entries) {
+                        if (!entry.isIntersecting) continue;
+                        for (const a of links.values()) a.classList.remove('active');
+                        links.get(entry.target.id)?.classList.add('active');
+                }
+        }, { rootMargin: '-64px 0px -70% 0px' });
+        for (const id of links.keys()) {
+                const section = document.getElementById(id);
+                if (section) spy.observe(section);
+        }
+
+        // The nav earns its blur only once there is something behind it.
+        const nav = document.querySelector('.mt-nav');
+        const onScroll = () => nav?.classList.toggle('stuck', window.scrollY > 8);
+        addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        // Copy the command lines. The terminal block owns its own button, and
+        // the button copies its own block — a reader takes away the lines
+        // they were looking at, not every `$` on the page.
+        for (const copy of document.querySelectorAll('button.mt-copy')) {
+                copy.addEventListener('click', async () => {
+                        const block = copy.closest('.mt-term');
+                        if (!block) return;
+                        const lines = [...block.querySelectorAll('.mt-cmd')]
+                                .map(node => node.textContent);
+                        if (!lines.length) return;
+                        try {
+                                await navigator.clipboard.writeText(lines.join('\n'));
+                                const label = copy.querySelector('span') ?? copy;
+                                const was = label.textContent;
+                                label.textContent = 'Copied';
+                                setTimeout(() => { label.textContent = was; }, 1600);
+                        } catch { /* clipboard denied; the text is selectable anyway */ }
+                });
+        }
+</script>
+
+</body>
+</html>

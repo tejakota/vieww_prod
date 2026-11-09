@@ -1,0 +1,35 @@
+[package]
+name = "mytlabs"
+description = "mytlabs — meet your thoughts labs: the company page, a vieww widget tree rendered to DOM."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+# **Not published, and not a library.** It is one page, built for one target.
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+# The page builds everywhere. That is deliberate: `examples/snapshot.rs` walks
+# the same tree with `vieww-platform-web-dom` on the host and writes static
+# HTML — no browser, no wasm toolchain — which is how a copy change is
+# reviewed in seconds rather than a two-minute wasm build and a reload.
+[dependencies]
+vieww = { workspace = true }
+vieww-platform-web-dom = { workspace = true }
+vieww-element = { workspace = true }
+
+# The browser half, and only it. On any other target this crate still builds —
+# it just has no `start` to call.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+vieww-platform-web = { workspace = true }
+
+wasm-bindgen = "0.2"
+
+[lints]
+workspace = true
