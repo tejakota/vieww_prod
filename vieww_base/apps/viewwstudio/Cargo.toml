@@ -51,6 +51,12 @@ vieww-animation.workspace = true
 # JSONL to `<workspace>/.vieww/collab.log`; named here for the same reason
 # every other direct call is named.
 vieww-collab.workspace = true
+# The DOM backend, for `viewwstudio-cli html`: the same walk `mytlabs`
+# ships its static snapshot through, pointed at a compiled screen instead
+# of an in-crate page. Not a new dependency in the tree — `vieww-element`
+# and `vieww-widget` already compile it — and nothing the windowed studio
+# links changes: only the CLI names it.
+vieww-platform-web-dom.workspace = true
 
 # The only third-party dependency in the studio, and it is here because the
 # alternative is `dlopen` through `libc` by hand. Pinned loosely: the surface

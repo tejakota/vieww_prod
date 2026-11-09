@@ -55,6 +55,7 @@ pub mod buffer;
 pub mod builds;
 pub mod caret;
 pub mod cargo;
+pub mod cli;
 pub mod command;
 pub mod compile;
 pub mod component_libraries;
