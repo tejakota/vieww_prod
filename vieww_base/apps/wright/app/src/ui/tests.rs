@@ -218,12 +218,17 @@ fn open_folder_follows_the_latest_successful_export() {
         path: PathBuf::from("Exports/demo/old.zip"),
         bytes: 12,
         sha256: "older".into(),
+        // Docker-only (ADR-046); a zip export pins no base image.
+        base_image: None,
+        digest: None,
     };
     let latest = Exported {
         kind: Kind::Zip,
         path: PathBuf::from("Exports/demo/source.zip"),
         bytes: 24,
         sha256: "latest".into(),
+        base_image: None,
+        digest: None,
     };
     let exports = vec![
         Err("one export attempt failed".into()),
