@@ -1,0 +1,19 @@
+// Repositories are declared here rather than in each module, which is what
+// Gradle 7+ expects and what `dependencyResolutionManagement` enforces.
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "wright-flow"
+include ":app"

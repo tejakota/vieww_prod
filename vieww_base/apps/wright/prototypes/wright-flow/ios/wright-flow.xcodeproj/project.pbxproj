@@ -1,0 +1,239 @@
+// !$*UTF8*$!
+{
+        archiveVersion = 1;
+        classes = {
+        };
+        objectVersion = 56;
+        objects = {
+
+/* Begin PBXBuildFile section */
+                BA156739C97F67F4069613DE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 30E6A0ED2FA063ACE8F80261 /* main.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+                5BE92C96F5855EBF48FBE96D /* wright-flow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "wright-flow.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+                30E6A0ED2FA063ACE8F80261 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+                1156E6FFBF44F3FE58B8D153 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+                D293180E7E3528482EA48D6E /* Frameworks */ = {
+                        isa = PBXFrameworksBuildPhase;
+                        buildActionMask = 2147483647;
+                        files = (
+                        );
+                        runOnlyForDeploymentPostprocessing = 0;
+                };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+                BD9298D071EDDDF1CA0EA6D4 = {
+                        isa = PBXGroup;
+                        children = (
+                                1F2796A7D5C8D5387FB8EB77 /* App */,
+                                88D0D3CED41F1031F47C0190 /* Products */,
+                        );
+                        sourceTree = "<group>";
+                };
+                1F2796A7D5C8D5387FB8EB77 /* App */ = {
+                        isa = PBXGroup;
+                        children = (
+                                30E6A0ED2FA063ACE8F80261 /* main.m */,
+                                1156E6FFBF44F3FE58B8D153 /* Info.plist */,
+                        );
+                        path = App;
+                        sourceTree = "<group>";
+                };
+                88D0D3CED41F1031F47C0190 /* Products */ = {
+                        isa = PBXGroup;
+                        children = (
+                                5BE92C96F5855EBF48FBE96D /* wright-flow.app */,
+                        );
+                        name = Products;
+                        sourceTree = "<group>";
+                };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+                52A10F7E35D229B966A08CFB /* wright-flow */ = {
+                        isa = PBXNativeTarget;
+                        buildConfigurationList = 823F027506BC20DF470324A1 /* Build configuration list for PBXNativeTarget "wright-flow" */;
+                        buildPhases = (
+                                894A06765BD7895149749BC5 /* Sources */,
+                                D293180E7E3528482EA48D6E /* Frameworks */,
+                        );
+                        buildRules = (
+                        );
+                        dependencies = (
+                        );
+                        name = "wright-flow";
+                        productName = "wright-flow";
+                        productReference = 5BE92C96F5855EBF48FBE96D /* wright-flow.app */;
+                        productType = "com.apple.product-type.application";
+                };
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+                04A9B41FA5753935D71F3066 /* Project object */ = {
+                        isa = PBXProject;
+                        attributes = {
+                                BuildIndependentTargetsInParallel = 1;
+                                LastUpgradeCheck = 1500;
+                                TargetAttributes = {
+                                        52A10F7E35D229B966A08CFB = {
+                                                CreatedOnToolsVersion = 15.0;
+                                        };
+                                };
+                        };
+                        buildConfigurationList = EE936BE7119E946F39414949 /* Build configuration list for PBXProject "wright-flow" */;
+                        compatibilityVersion = "Xcode 14.0";
+                        developmentRegion = en;
+                        hasScannedForEncodings = 0;
+                        knownRegions = (
+                                en,
+                                Base,
+                        );
+                        mainGroup = BD9298D071EDDDF1CA0EA6D4;
+                        productRefGroup = 88D0D3CED41F1031F47C0190 /* Products */;
+                        projectDirPath = "";
+                        projectRoot = "";
+                        targets = (
+                                52A10F7E35D229B966A08CFB /* wright-flow */,
+                        );
+                };
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+                894A06765BD7895149749BC5 /* Sources */ = {
+                        isa = PBXSourcesBuildPhase;
+                        buildActionMask = 2147483647;
+                        files = (
+                                BA156739C97F67F4069613DE /* main.m in Sources */,
+                        );
+                        runOnlyForDeploymentPostprocessing = 0;
+                };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+                A075A06E78D5568CD5CC1667 /* Debug */ = {
+                        isa = XCBuildConfiguration;
+                        buildSettings = {
+                                ALWAYS_SEARCH_USER_PATHS = NO;
+                                ARCHS = arm64;
+                                CLANG_ENABLE_OBJC_ARC = YES;
+                                ENABLE_BITCODE = NO;
+                                GCC_OPTIMIZATION_LEVEL = 0;
+                                ONLY_ACTIVE_ARCH = YES;
+                                SDKROOT = iphoneos;
+                        };
+                        name = Debug;
+                };
+                02741B5525204142A7A445AA /* Release */ = {
+                        isa = XCBuildConfiguration;
+                        buildSettings = {
+                                ALWAYS_SEARCH_USER_PATHS = NO;
+                                ARCHS = arm64;
+                                CLANG_ENABLE_OBJC_ARC = YES;
+                                ENABLE_BITCODE = NO;
+                                SDKROOT = iphoneos;
+                                VALIDATE_PRODUCT = YES;
+                        };
+                        name = Release;
+                };
+                6DF25369094DB51C63756EF8 /* Debug */ = {
+                        isa = XCBuildConfiguration;
+                        buildSettings = {
+                         CODE_SIGN_STYLE = Automatic;
+                                CURRENT_PROJECT_VERSION = 1;
+                                GENERATE_INFOPLIST_FILE = NO;
+                                INFOPLIST_FILE = App/Info.plist;
+                                IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+                                MARKETING_VERSION = 0.1.0;
+                                PRODUCT_BUNDLE_IDENTIFIER = "com.example.wright_flow";
+                                PRODUCT_NAME = "$(TARGET_NAME)";
+                             "RUST_TARGET[sdk=iphoneos*]" = "aarch64-apple-ios";
+                                "RUST_TARGET[sdk=iphonesimulator*]" = "aarch64-apple-ios-sim";
+                                LIBRARY_SEARCH_PATHS = (
+                                        "$(inherited)",
+                                        "$(PROJECT_DIR)/../target/$(RUST_TARGET)/release",
+                                );
+                                OTHER_LDFLAGS = (
+                                        "-lwright_flow",
+                                        "-lc++",
+                                        "-framework",
+                                        UIKit,
+                                        "-framework",
+                                        Foundation,
+                                        "-framework",
+                                        Metal,
+                                        "-framework",
+                                        QuartzCore,
+                                        "-framework",
+                                        CoreGraphics,
+                                );
+                                SWIFT_VERSION = 5.0;
+                                TARGETED_DEVICE_FAMILY = "1,2";
+                        };
+                        name = Debug;
+                };
+                7071D737D6D97E722A3D9E91 /* Release */ = {
+                        isa = XCBuildConfiguration;
+                        buildSettings = {
+                         CODE_SIGN_STYLE = Automatic;
+                                CURRENT_PROJECT_VERSION = 1;
+                                GENERATE_INFOPLIST_FILE = NO;
+                                INFOPLIST_FILE = App/Info.plist;
+                                IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+                                MARKETING_VERSION = 0.1.0;
+                                PRODUCT_BUNDLE_IDENTIFIER = "com.example.wright_flow";
+                                PRODUCT_NAME = "$(TARGET_NAME)";
+                             "RUST_TARGET[sdk=iphoneos*]" = "aarch64-apple-ios";
+                                "RUST_TARGET[sdk=iphonesimulator*]" = "aarch64-apple-ios-sim";
+                                LIBRARY_SEARCH_PATHS = (
+                                        "$(inherited)",
+                                        "$(PROJECT_DIR)/../target/$(RUST_TARGET)/release",
+                                );
+                                OTHER_LDFLAGS = (
+                                        "-lwright_flow",
+                                        "-lc++",
+                                        "-framework",
+                                        UIKit,
+                                        "-framework",
+                                        Foundation,
+                                        "-framework",
+                                        Metal,
+                                        "-framework",
+                                        QuartzCore,
+                                        "-framework",
+                                        CoreGraphics,
+                                );
+                                SWIFT_VERSION = 5.0;
+                                TARGETED_DEVICE_FAMILY = "1,2";
+                        };
+                        name = Release;
+                };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+                EE936BE7119E946F39414949 /* Build configuration list for PBXProject "wright-flow" */ = {
+                        isa = XCConfigurationList;
+                        buildConfigurations = (
+                                A075A06E78D5568CD5CC1667 /* Debug */,
+                                02741B5525204142A7A445AA /* Release */,
+                        );
+                        defaultConfigurationIsVisible = 0;
+                        defaultConfigurationName = Release;
+                };
+                823F027506BC20DF470324A1 /* Build configuration list for PBXNativeTarget "wright-flow" */ = {
+                        isa = XCConfigurationList;
+                        buildConfigurations = (
+                                6DF25369094DB51C63756EF8 /* Debug */,
+                                7071D737D6D97E722A3D9E91 /* Release */,
+                        );
+                        defaultConfigurationIsVisible = 0;
+                        defaultConfigurationName = Release;
+                };
+/* End XCConfigurationList section */
+        };
+        rootObject = 04A9B41FA5753935D71F3066 /* Project object */;
+}

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  No Java or Kotlin anywhere in this project, which `android:hasCode="false"`
+  states: the activity is the platform's own `NativeActivity` and the whole
+  application is the Rust library it loads.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- vello renders through Vulkan or GLES 3; a device with neither cannot
+         run this, and saying so here keeps it out of the Play Store listing for
+         those devices rather than crashing on them. -->
+    <uses-feature
+        android:glEsVersion="0x00030000"
+        android:required="true" />
+
+    <application
+        android:label="wright-flow"
+        android:hasCode="false"
+        android:extractNativeLibs="true"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+
+        <activity
+            android:name="android.app.NativeActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|smallestScreenSize|keyboardHidden|screenLayout|density">
+
+            <!-- The name of the `cdylib` in `Cargo.toml`, without `lib` or
+                 `.so`. If this and the crate's library name disagree the app
+                 installs cleanly and dies on launch. -->
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="wright_flow" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

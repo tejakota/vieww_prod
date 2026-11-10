@@ -1,0 +1,87 @@
+plugins {
+    id "com.android.application"
+}
+
+android {
+    namespace "com.example.wright_flow"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.example.wright_flow"
+        // 24 is the floor the framework's own NDK linker and device scripts
+        // already target, so the APK and the Rust are built against one.
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "0.1.0"
+
+        ndk {
+            // One architecture, matching `cargo ndk -t arm64-v8a` in the export
+            // plan. Every phone shipped since 2017 is arm64; adding armeabi-v7a
+            // here without adding it there produces an APK whose 32-bit slice is
+            // empty, which fails at launch rather than at build.
+            abiFilters "arm64-v8a"
+        }
+    }
+
+    sourceSets {
+        main {
+            // **Where `cargo ndk -o target/android/jniLibs` puts the library.**
+            // Two levels up because this file is `android/app/`, and the Rust
+            // target directory belongs to the crate at the project root.
+            jniLibs.srcDirs = ["../../target/android/jniLibs"]
+        }
+    }
+
+    packaging {
+        jniLibs {
+            // `NativeActivity` resolves `android.app.lib_name` through
+            // `System.loadLibrary`, which wants a real file on disk. Modern AGP
+            // defaults to leaving `.so` files compressed inside the APK, and the
+            // symptom is `dlopen failed: library "libwright_flow.so" not found` on a
+            // device while every build step reported success.
+            useLegacyPackaging true
+        }
+    }
+
+    // **The release signing configuration is assembled from the environment,
+    // and never from this file.** A signing key's password written into a
+    // generated file is a signing key given away with the project, so
+    // `export::android_release` (ST-07) refuses to start until the keystore
+    // path and key alias are set in the studio's settings, then hands Gradle
+    // `VIEWW_KEYSTORE`, `VIEWW_KEYSTORE_ALIAS` and `VIEWW_KEYSTORE_PASSWORD`
+    // as the child process's environment — this block reads exactly those
+    // three, and the password never touches a file the studio writes. Without
+    // `VIEWW_KEYSTORE` the block is inert and the release build is unsigned,
+    // which is a build Gradle completes and a store refuses — the honest
+    // outcome for somebody who has not configured signing, rather than a
+    // generated file full of placeholders that fail a build instead.
+    signingConfigs {
+        release {
+            def store = System.getenv("VIEWW_KEYSTORE")
+            if (store != null) {
+                storeFile file(store)
+                storePassword System.getenv("VIEWW_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("VIEWW_KEYSTORE_ALIAS")
+                keyPassword System.getenv("VIEWW_KEYSTORE_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            // Debug-signed with the key every Android SDK ships, which is what
+            // makes `adb install` work without a keystore.
+            debuggable true
+        }
+        release {
+            minifyEnabled false
+            // Signed when the environment names a keystore, unsigned when it
+            // does not — see the `signingConfigs` block above for where those
+            // values come from and why none of them is here.
+            if (System.getenv("VIEWW_KEYSTORE") != null) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+}

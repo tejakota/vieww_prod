@@ -1,0 +1,129 @@
+[package]
+name = "wright-flow"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# **An empty `[workspace]` table is the load-bearing line in this file.**
+#
+# A scaffolded project has no control over where it lands on disk. The studio's
+# `new_project` puts it beside the open folder, which is the right default for
+# an isolated project — but it is *also* the right default when the open folder
+# is itself inside another workspace (like this very checkout), and in that case
+# the new project's `Cargo.toml` lands inside a parent workspace's directory
+# tree without being listed in its `members`.
+#
+# Without this empty table, Cargo walks up from the new project, finds the
+# parent workspace, and errors:
+#
+#     error: current package believes it's in a workspace when it's not:
+#            current:  …/vieww-app-2/Cargo.toml
+#            workspace: …/vieww/Cargo.toml
+#
+# The empty `[workspace]` table tells Cargo "this package is its own workspace
+# root, do not look further up the tree", which is the standard Cargo idiom for
+# a sub-package that is standalone inside a larger repo — used by `rust-analyzer`'s
+# examples, Bevy's examples, and the cargo book's own nested-package
+# documentation. Removing it makes the scaffold fail inside any checkout of
+# vieww itself, which is exactly the place a vieww user is most likely to be
+# standing when they press New Project.
+[workspace]
+
+[dependencies]
+# The umbrella crate: widgets, layout, painting and the element tree.
+vieww = { path = "../../../../crates/vieww" }
+
+# The window, the event loop and the GPU surface. Separate from `vieww` because
+# a vieww tree can be driven headlessly — by a test, or by another host — and
+# only an application needs a platform.
+#
+# **Gated off wasm32** (ST-07): there is no window to own and no process to
+# loop in inside a browser — the page is the host — and `vieww-platform-winit`
+# does not build there. The platform for that target is the one in the
+# `cfg(target_arch = "wasm32")` table below, and moving this line back to the
+# plain `[dependencies]` table is what makes `cargo build --target
+# wasm32-unknown-unknown` fail inside winit rather than inside your code.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+vieww-platform-winit = { path = "../../../../crates/vieww-platform-winit" }
+
+# The browser half, and only it. `vieww` itself compiles everywhere — `native`
+# is a feature nothing here turns on — and the web platform brings its own
+# rasteriser, which is the same CPU one the studio's preview draws with
+# (`examples/test-web` certifies the two produce equal bytes).
+#
+# `wasm-bindgen` is a *library* on this side of the build and a *CLI* on the
+# export side, and the two have to be the same version — see the studio's
+# Web export refusal for the command that installs the matching one.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+vieww-platform-web = { path = "../../../../crates/vieww-platform-web" }
+wasm-bindgen = "0.2"
+
+# `android_main` in `src/lib.rs` reports a failed start through `log`, which on
+# a phone is the only output there is (`vieww-platform-winit` routes it to
+# logcat). Android-only, because nowhere else calls it.
+[target.'cfg(target_os = "android")'.dependencies]
+log = "0.4"
+
+# **One crate, three shapes, and none of them is optional.**
+#
+# `rlib` is the desktop binary below and anything that tests this crate.
+# `cdylib` is Android: the activity loads a shared library and calls
+# `android_main` inside it, so there is no `main` for a binary to be.
+# `staticlib` is iOS: `UIApplicationMain` has to own the process before any
+# window exists, so the entry point is `ios/App/main.m` and this is what it
+# links against.
+#
+# The library's name is what the Android manifest's `android.app.lib_name` and
+# the Xcode project's `-l` flag both say. Renaming it means renaming those.
+[lib]
+name = "wright_flow"
+crate-type = ["rlib", "cdylib", "staticlib"]
+path = "src/lib.rs"
+
+[[bin]]
+name = "wright-flow"
+path = "src/main.rs"
+
+# **Debug information for your code, not for two hundred dependencies.**
+#
+# Cargo's default is full debug info for everything in the build, and on a
+# graphical application that is most of what the binary weighs. Measured on this
+# very template, before these four lines:
+#
+#     saydemo (debug binary)   260.5 MB
+#       of which .text            17.4 MB   <- the actual code
+#       of which .debug_*        234.0 MB
+#
+# Ninety percent of it was symbols, and almost all of those belonged to
+# dependencies you are not stepping through. `debug = 1` keeps line tables for
+# your own crate — so a panic still names your file and line, and a debugger
+# still breaks where you ask — and the dependency override drops the rest.
+#
+#     saydemo (debug binary)    40.4 MB     <- with these lines
+#
+# Set `debug = 2` here if you need to step *into* a dependency; it is a slower,
+# fatter build and it is occasionally the only way to see what is happening.
+[profile.dev]
+debug = 1
+
+[profile.dev.package."*"]
+debug = false
+
+# **What ships.** The same application as above, built with this profile, is
+# 7.6 MB.
+#
+# `strip` removes the symbol table — a release binary is not something anyone
+# debugs from a backtrace, and the 20 MB it saves is 20 MB every user downloads.
+# `lto = "thin"` lets the optimiser work across crate boundaries, which is where
+# most of a widget tree's inlining is. `codegen-units = 1` gives it the whole
+# crate to look at instead of sixteen slices. `panic = "abort"` removes the
+# unwinding tables: a released GUI application has no `catch_unwind` boundary to
+# unwind *to*, so the machinery is weight with nothing on the other end.
+#
+# Building for iOS or Android? Keep `panic = "abort"` in mind if you add a
+# `catch_unwind` of your own — with it set, a panic ends the process.
+[profile.release]
+strip = true
+lto = "thin"
+codegen-units = 1
+panic = "abort"

@@ -1,0 +1,15 @@
+# dpkg-deb assembles the package from this; `dpkg -i` checks
+# the Architecture against the machine. It was written for amd64 —
+# change it when you package from a different machine, or `dpkg -i`
+# refuses with "package architecture does not match system".
+Package: wright_flow
+Version: 0.1.0
+Section: utils
+Priority: optional
+Architecture: amd64
+# A gnu-target binary links glibc; drop this line for a musl build,
+# which is static and needs nothing.
+Depends: libc6
+Maintainer: wright-flow <you@example.com>
+Description: wright-flow, built by vieww Studio
+Homepage: https://example.com/
