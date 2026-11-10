@@ -1,14 +1,14 @@
 # Wright - desktop installers — FAILURE
 
-- branch: `main`  sha: `778520b46c9913f3e622a81039bb8c86ac79603e`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/42802012443
+- branch: `main`  sha: `66e6cbf7fd52b95c5224d58f3bed3d4c6ce53a99`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/42839439904
 
 | job | verdict | failed steps |
 |---|---|---|
 | linux-x64 | FAIL |  |
-| Update channel tests (WR-04) | FAIL | The signed-manifest suite |
 | macos-universal | CANCELLED |  |
 | windows-x64 | PASS |  |
+| Update channel tests (WR-04) | FAIL | The signed-manifest suite |
 | Publish release | skipped |  |
 
 ## Steps
@@ -34,14 +34,6 @@
 - running: Post Run actions/cache@v4
 - running: Post Run actions/checkout@v4
 
-### Update channel tests (WR-04) — FAIL
-- PASS: Set up job
-- PASS: Run actions/checkout@v4
-- PASS: Rust toolchain (from rust-toolchain.toml)
-- FAIL: The signed-manifest suite
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
 ### macos-universal — CANCELLED
 
 ### windows-x64 — PASS
@@ -66,6 +58,14 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
+### Update channel tests (WR-04) — FAIL
+- PASS: Set up job
+- PASS: Run actions/checkout@v4
+- PASS: Rust toolchain (from rust-toolchain.toml)
+- FAIL: The signed-manifest suite
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
 ### Publish release — skipped
 
-- artifacts: wright-1.0.0-windows-x64 screens-windows-x64 
+- artifacts: screens-windows-x64 wright-1.0.0-windows-x64 
