@@ -16,6 +16,44 @@ use vieww::widget::BuildContext as Ctx;
 
 use super::theme::Pal;
 
+// ── scales ───────────────────────────────────────────────────────
+
+/// Type sizes, by role. Every text size on screen is one of these; a size
+/// between two of them is a sign that a new role is wanted, not a new
+/// number. (The splash wordmark is the one exception: it is the logo's
+/// lettering, not text.)
+pub mod size {
+    /// Overlines and fine print: "SAVED", hashes, counters.
+    pub const CAPTION: f32 = 11.0;
+    /// Secondary lines: hints, metadata, the status bar.
+    pub const SMALL: f32 = 12.0;
+    /// Controls: button and tab labels, chips, list rows.
+    pub const UI: f32 = 13.0;
+    /// Descriptions and dense paragraphs inside cards.
+    pub const BODY: f32 = 14.0;
+    /// Reading text and card names: the conversation, the composer.
+    pub const LEAD: f32 = 16.0;
+    /// Panel and sheet titles.
+    pub const TITLE: f32 = 20.0;
+    /// A page's own heading.
+    pub const HEADLINE: f32 = 32.0;
+    /// The one question on Home.
+    pub const DISPLAY: f32 = 46.0;
+}
+
+/// Gaps between siblings, on a 4px grid (with a 2px step for the hairline
+/// gap between an icon and its label). Same rule as [`size`]: pick the
+/// role, not the number.
+pub mod space {
+    pub const HAIR: f32 = 2.0;
+    pub const XS: f32 = 4.0;
+    pub const S: f32 = 8.0;
+    pub const M: f32 = 12.0;
+    pub const L: f32 = 16.0;
+    pub const XL: f32 = 24.0;
+    pub const XXL: f32 = 32.0;
+}
+
 // ── text ─────────────────────────────────────────────────────────
 
 pub fn t(s: impl Into<String>, size: f32, color: Color) -> WidgetNode {
@@ -154,6 +192,29 @@ pub fn at(left: f32, top: f32, w: f32, h: f32, child: impl Into<WidgetNode>) -> 
         .into()
 }
 
+/// [`at`] with a reconciliation key, for a stack whose children come and
+/// go. Unkeyed, a stack's children are matched to the last frame's by
+/// index, so inserting one shifts every slot after it: a page can be laid
+/// out for a frame in the slot (and size) of the caption that used to be
+/// there. Keyed, each layer keeps its own slot whatever is inserted.
+pub fn at_keyed(
+    key: impl Into<String>,
+    left: f32,
+    top: f32,
+    w: f32,
+    h: f32,
+    child: impl Into<WidgetNode>,
+) -> WidgetNode {
+    Positioned::new()
+        .key(key.into())
+        .left(left)
+        .top(top)
+        .width(w)
+        .height(h)
+        .child(child)
+        .into()
+}
+
 pub fn layer(child: impl Into<WidgetNode>) -> WidgetNode {
     Positioned::fill().child(child).into()
 }
@@ -241,7 +302,7 @@ pub fn pill(label: impl Into<String>, fg: Color, bg: Color) -> WidgetNode {
         .color(bg)
         .radius(corner::CHIP)
         .padding(EdgeInsets::symmetric(10.0, 3.0))
-        .child(line(label, 11.5, fg))
+        .child(line(label, size::CAPTION, fg))
         .into()
 }
 
@@ -328,7 +389,7 @@ pub fn copyable(s: impl Into<String>, size: f32, color: Color) -> WidgetNode {
 pub fn copyable_mono(s: impl Into<String>, size: f32, color: Color) -> WidgetNode {
     let text: String = s.into();
     row(
-        6.0,
+        space::S,
         vec![
             grow(mono(text.clone(), size, color)),
             copy_icon(color, text),
@@ -373,7 +434,7 @@ pub fn markdown(p: &Pal, text: impl Into<String>) -> WidgetNode {
     // paragraph's own line height, in the theme's ink.
     let mut data = ThemeData::from_colors(scheme);
     data.text = Typography::scale(p.ink);
-    data.text.body = TextStyle::new(15.0).color(p.ink).line_height(1.45);
+    data.text.body = TextStyle::new(size::LEAD).color(p.ink).line_height(1.45);
     Theme::new(data).child(Markdown::new(text)).into()
 }
 
@@ -387,7 +448,7 @@ pub fn copy_icon(color: Color, text: String) -> WidgetNode {
                     .padding(EdgeInsets::symmetric(6.0, 2.0))
                     .radius(corner::SMALL)
                     .color(color.with_alpha((s.hover * 30.0) as u8))
-                    .child(line("Copy", 11.5, color))
+                    .child(line("Copy", size::CAPTION, color))
                     .into()
             })
             .on_tap(move || {
@@ -441,7 +502,7 @@ pub fn button(
             .radius(corner::PILL)
             .border(Border::new(edge, 1.0))
             .padding(EdgeInsets::symmetric(18.0, 8.0))
-            .child(t(label.clone(), 13.0, fg))
+            .child(t(label.clone(), size::UI, fg))
             .into()
     });
     let node: WidgetNode = if enabled {
@@ -507,7 +568,7 @@ pub fn tool_button(
         } else {
             (p.surface.lerp(p.surface2, s.hover), p.ink, p.line)
         };
-        let mut items = vec![glyph.draw(15.0, fg), t(label.clone(), 12.5, fg)];
+        let mut items = vec![glyph.draw(15.0, fg), t(label.clone(), size::SMALL, fg)];
         if let Some(n) = &badge {
             items.push(
                 Container::new()
@@ -519,8 +580,7 @@ pub fn tool_button(
                     .radius(9.0)
                     .padding(EdgeInsets::symmetric(7.0, 1.0))
                     .child(t(
-                        n.clone(),
-                        10.5,
+                        n.clone(), size::CAPTION,
                         if active { p.on_accent } else { p.accent_ink },
                     ))
                     .into(),
@@ -531,7 +591,7 @@ pub fn tool_button(
             .radius(16.0)
             .border(Border::new(edge, 1.0))
             .padding(EdgeInsets::symmetric(14.0, 7.0))
-            .child(row(7.0, items))
+            .child(row(space::S, items))
             .into()
     })
     .on_tap(on_tap)

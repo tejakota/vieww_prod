@@ -102,10 +102,10 @@ pub fn page(ui: &Ui, s: &Session) -> WidgetNode {
                     ))
                     .padding(EdgeInsets::symmetric(14.0, 7.0))
                     .child(row(
-                        7.0,
+                        space::S,
                         vec![
                             Glyph::Down.draw(13.0, p.accent_ink),
-                            t("Jump to the latest", 12.5, p.ink),
+                            t("Jump to the latest", size::SMALL, p.ink),
                         ],
                     ))
                     .into()
@@ -163,9 +163,9 @@ fn body(ui: &Ui, s: &Session) -> WidgetNode {
 
     match &request {
         Some(r) => items.push(bubble(&p, r)),
-        None => items.push(column(10.0, vec![
-            Text::new("What should exist?").size(34.0).color(p.ink).weight(FontWeight::Bold).into(),
-            para("Describe the outcome in your own words. Wright drafts a plan, shows what it will touch and cost, and runs nothing until you approve.", 15.0, p.muted),
+        None => items.push(column(space::M, vec![
+            Text::new("What should exist?").size(size::HEADLINE).color(p.ink).weight(FontWeight::Bold).into(),
+            para("Describe the outcome in your own words. Wright drafts a plan, shows what it will touch and cost, and runs nothing until you approve.", size::LEAD, p.muted),
         ])),
     }
 
@@ -230,9 +230,9 @@ fn body(ui: &Ui, s: &Session) -> WidgetNode {
     }
     let notice = s.notice.get();
     if !notice.is_empty() {
-        items.push(copyable(notice, 13.0, p.wait));
+        items.push(copyable(notice, size::UI, p.wait));
     }
-    stretch(16.0, items)
+    stretch(space::L, items)
 }
 
 /// A reply on its way: the words so far, rendered as they will land
@@ -260,17 +260,17 @@ fn pending(ui: &Ui, s: &Session) -> Option<WidgetNode> {
             let secs = since.elapsed().as_secs();
             let mut parts = vec![
                 Glyph::spinner(16.0, p.accent_ink, u.clock.get()),
-                t(format!("{what}…"), 13.0, p.muted),
+                t(format!("{what}…"), size::UI, p.muted),
             ];
             if secs >= 2 {
-                parts.push(t(format!("{secs}s"), 12.0, p.muted));
+                parts.push(t(format!("{secs}s"), size::SMALL, p.muted));
             }
-            row(8.0, parts)
+            row(space::S, parts)
         })
         .into()
     };
     rows.push(status);
-    Some(column(8.0, rows))
+    Some(column(space::S, rows))
 }
 
 /// Wright's reply: rendered markdown — the smaller models answer in
@@ -278,7 +278,7 @@ fn pending(ui: &Ui, s: &Session) -> Option<WidgetNode> {
 /// source included.
 fn reply(p: &Pal, text: &str) -> WidgetNode {
     column(
-        4.0,
+        space::XS,
         vec![
             markdown(p, text.to_string()),
             copy_icon(p.muted, text.to_string()),
@@ -297,7 +297,7 @@ fn bubble(p: &Pal, text: &str) -> WidgetNode {
                     .color(p.bubble)
                     .radius(20.0)
                     .padding(EdgeInsets::symmetric(16.0, 11.0))
-                    .child(copyable(text.to_string(), 15.0, p.ink)),
+                    .child(copyable(text.to_string(), size::LEAD, p.ink)),
             ),
         )
         .into()
@@ -306,10 +306,9 @@ fn bubble(p: &Pal, text: &str) -> WidgetNode {
 fn confirm_card(p: &Pal, s: &Session, lines: &[wright_core::confirm::Line]) -> WidgetNode {
     let (yes, no) = (s.clone(), s.clone());
     let mut rows = vec![
-        b("This is exactly what will exist", 17.0, p.ink),
+        b("This is exactly what will exist", size::LEAD, p.ink),
         t(
-            "Written from the blueprint by Wright, not by a model.",
-            12.5,
+            "Written from the blueprint by Wright, not by a model.", size::SMALL,
             p.muted,
         ),
     ];
@@ -322,8 +321,7 @@ fn confirm_card(p: &Pal, s: &Session, lines: &[wright_core::confirm::Line]) -> W
                 "… and {} more line{} — all of them on the Copy button",
                 lines.len() - 16,
                 if lines.len() - 16 == 1 { "" } else { "s" }
-            ),
-            12.5,
+            ), size::SMALL,
             p.muted,
         ));
     }
@@ -333,7 +331,7 @@ fn confirm_card(p: &Pal, s: &Session, lines: &[wright_core::confirm::Line]) -> W
         .collect::<Vec<_>>()
         .join("\n");
     rows.push(row(
-        10.0,
+        space::M,
         vec![
             button(p, "Build this", Look::Primary, true, move || {
                 yes.answer_confirm(true)
@@ -345,7 +343,7 @@ fn confirm_card(p: &Pal, s: &Session, lines: &[wright_core::confirm::Line]) -> W
             copy_icon(p.muted, all),
         ],
     ));
-    card(p, column(8.0, rows))
+    card(p, column(space::S, rows))
 }
 
 fn plan_line(p: &Pal, l: &wright_core::confirm::Line) -> WidgetNode {
@@ -373,7 +371,7 @@ fn plan_line(p: &Pal, l: &wright_core::confirm::Line) -> WidgetNode {
             // The CLI indents sub-points with spaces; here the mark column
             // already says it, and the spaces would push the first line
             // right of the lines it wraps onto.
-            grow(copyable(l.text.trim().to_string(), 14.0, p.ink)),
+            grow(copyable(l.text.trim().to_string(), size::BODY, p.ink)),
         ])
         .into()
 }
@@ -399,7 +397,7 @@ fn plan_card(ui: &Ui, p: &Pal, s: &Session, pl: &super::session::PlanView) -> Wi
                 _ => pill("sandboxed", p.good, p.good_soft),
             };
             row(
-                12.0,
+                space::M,
                 vec![
                     Container::new()
                         .width(24.0)
@@ -407,9 +405,9 @@ fn plan_card(ui: &Ui, p: &Pal, s: &Session, pl: &super::session::PlanView) -> Wi
                         .radius(12.0)
                         .color(p.accent_soft)
                         .alignment(Alignment::CENTER)
-                        .child(t(format!("{}", i + 1), 12.0, p.accent_ink))
+                        .child(t(format!("{}", i + 1), size::SMALL, p.accent_ink))
                         .into(),
-                    fill(names.join("  ·  "), 14.5, p.ink),
+                    fill(names.join("  ·  "), size::BODY, p.ink),
                     chip,
                 ],
             )
@@ -424,9 +422,9 @@ fn plan_card(ui: &Ui, p: &Pal, s: &Session, pl: &super::session::PlanView) -> Wi
         .collect();
     let mut items = vec![
         row(
-            10.0,
+            space::M,
             vec![
-                b(pl.name.clone(), 18.0, p.ink),
+                b(pl.name.clone(), size::TITLE, p.ink),
                 pill(format!("blueprint {}", pl.commit), p.muted, p.surface2),
                 gap(),
             ],
@@ -437,19 +435,18 @@ fn plan_card(ui: &Ui, p: &Pal, s: &Session, pl: &super::session::PlanView) -> Wi
                 pl.stages.len(),
                 pl.per_run,
                 pl.per_day
-            ),
-            13.0,
+            ), size::UI,
             p.muted,
         ),
-        stretch(8.0, steps),
+        stretch(space::S, steps),
     ];
     if !what.is_empty() {
         items.push(divider(p));
-        items.push(t("Worth a look before you approve", 12.5, p.muted));
+        items.push(t("Worth a look before you approve", size::SMALL, p.muted));
         items.extend(what);
     }
     items.push(row(
-        10.0,
+        space::M,
         vec![
             button(p, "Approve & run", Look::Primary, true, move || {
                 go.start_run()
@@ -467,7 +464,7 @@ fn plan_card(ui: &Ui, p: &Pal, s: &Session, pl: &super::session::PlanView) -> Wi
             }),
         ],
     ));
-    card(p, stretch(12.0, items))
+    card(p, stretch(space::M, items))
 }
 
 fn state_icon(p: &Pal, st: State, clock: f32) -> WidgetNode {
@@ -555,17 +552,17 @@ fn run_card(
             .into();
             let label_color = if st == State::Queued { p.muted } else { p.ink };
             row(
-                12.0,
+                space::M,
                 vec![
                     icon,
                     grow(column(
-                        2.0,
+                        space::HAIR,
                         vec![
-                            b(names.join("  ·  "), 14.5, label_color),
+                            b(names.join("  ·  "), size::BODY, label_color),
                             if note.is_empty() || st == State::Queued {
                                 SizedBox::shrink().into()
                             } else {
-                                line(note, 12.0, p.muted)
+                                line(note, size::SMALL, p.muted)
                             },
                         ],
                     )),
@@ -573,8 +570,7 @@ fn run_card(
                         SizedBox::shrink().into()
                     } else {
                         mono(
-                            meta,
-                            12.5,
+                            meta, size::SMALL,
                             if st == State::Waiting {
                                 p.wait
                             } else {
@@ -590,23 +586,21 @@ fn run_card(
     card(
         p,
         stretch(
-            10.0,
+            space::M,
             vec![
                 row(
-                    10.0,
+                    space::M,
                     vec![
                         b(
                             if running {
                                 format!("Run {run_no} · running")
                             } else {
                                 format!("Run {run_no}")
-                            },
-                            16.0,
+                            }, size::LEAD,
                             p.ink,
                         ),
                         t(
-                            format!("${:.4} so far", progress.spent as f64 / 1e6),
-                            12.5,
+                            format!("${:.4} so far", progress.spent as f64 / 1e6), size::SMALL,
                             p.muted,
                         ),
                         gap(),
@@ -615,7 +609,7 @@ fn run_card(
                         }),
                     ],
                 ),
-                stretch(12.0, rows),
+                stretch(space::M, rows),
             ],
         ),
     )
@@ -637,21 +631,20 @@ fn approval(
         p.surface,
         p.wait,
         stretch(
-            10.0,
+            space::M,
             vec![
                 b(
-                    format!("{agent} is asking before it touches the world"),
-                    16.0,
+                    format!("{agent} is asking before it touches the world"), size::LEAD,
                     p.ink,
                 ),
                 Container::new()
                     .color(p.surface2)
                     .radius(corner::FIELD)
                     .padding(EdgeInsets::all(12.0))
-                    .child(para(reason.to_string(), 13.5, p.ink))
+                    .child(para(reason.to_string(), size::BODY, p.ink))
                     .into(),
                 row(
-                    10.0,
+                    space::M,
                     vec![
                         button(p, "Allow", Look::Primary, true, move || {
                             y.answer_approval(run, n, true)
@@ -661,8 +654,7 @@ fn approval(
                         }),
                         gap(),
                         t(
-                            "or drag this card: right allows, left refuses",
-                            12.0,
+                            "or drag this card: right allows, left refuses", size::SMALL,
                             p.muted,
                         ),
                     ],
@@ -694,9 +686,9 @@ fn approval(
         .child(row(
             0.0,
             vec![
-                fade(allow, b("Allow", 15.0, p.good)),
+                fade(allow, b("Allow", size::LEAD, p.good)),
                 gap(),
-                fade(refuse, b("Don't allow", 15.0, p.muted)),
+                fade(refuse, b("Don't allow", size::LEAD, p.muted)),
             ],
         ));
     Stack::new().children(vec![layer(under), dragged]).into()
@@ -739,11 +731,11 @@ fn result_card(ui: &Ui, p: &Pal, s: &Session, r: &super::session::ResultView) ->
         .take(6)
         .map(|(name, size)| {
             row(
-                10.0,
+                space::M,
                 vec![
                     Glyph::File.draw(15.0, p.muted),
-                    fill(name.clone(), 13.5, p.ink),
-                    t(human_size(*size), 12.0, p.muted),
+                    fill(name.clone(), size::BODY, p.ink),
+                    t(human_size(*size), size::SMALL, p.muted),
                 ],
             )
         })
@@ -753,27 +745,26 @@ fn result_card(ui: &Ui, p: &Pal, s: &Session, r: &super::session::ResultView) ->
     let more_made = r.artifacts.len().saturating_sub(6);
     let mut items = vec![
         row(
-            12.0,
+            space::M,
             vec![
                 icon,
-                b(title, 18.0, p.ink),
+                b(title, size::TITLE, p.ink),
                 gap(),
-                t(format!("run {} · ${:.4}", r.run, r.cost), 12.5, p.muted),
+                t(format!("run {} · ${:.4}", r.run, r.cost), size::SMALL, p.muted),
             ],
         ),
-        copyable(r.headline.clone(), 13.5, p.muted),
-        row(8.0, chips),
+        copyable(r.headline.clone(), size::BODY, p.muted),
+        row(space::S, chips),
     ];
     if !made.is_empty() {
         let mut made_items = made;
         if more_made > 0 {
             made_items.push(t(
-                format!("… and {more_made} more in the folder"),
-                12.5,
+                format!("… and {more_made} more in the folder"), size::SMALL,
                 p.muted,
             ));
         }
-        items.push(stretch(6.0, made_items));
+        items.push(stretch(space::S, made_items));
     }
     // A scheduled plan waits for the person's go-ahead to run unattended.
     // After a passing run is exactly when to offer it.
@@ -784,13 +775,12 @@ fn result_card(ui: &Ui, p: &Pal, s: &Session, r: &super::session::ResultView) ->
         let mut line_items =
             vec![Glyph::Waiting.draw(15.0, if held.is_none() { p.good } else { p.wait })];
         line_items.push(grow(match (&held, &trust) {
-            (None, Some(a)) => copyable(wright_engine::unattended::describe(a), 13.0, p.good),
+            (None, Some(a)) => copyable(wright_engine::unattended::describe(a), size::UI, p.good),
             (Some(why), _) => copyable(
-                format!("On its schedule ({} {}): {why}.", entry.cron, entry.tz),
-                13.0,
+                format!("On its schedule ({} {}): {why}.", entry.cron, entry.tz), size::UI,
                 p.muted,
             ),
-            (None, None) => copyable("Runs on its schedule.".to_string(), 13.0, p.muted),
+            (None, None) => copyable("Runs on its schedule.".to_string(), size::UI, p.muted),
         }));
         if trust.is_none() && r.ok {
             line_items.push(button(
@@ -806,7 +796,7 @@ fn result_card(ui: &Ui, p: &Pal, s: &Session, r: &super::session::ResultView) ->
                 },
             ));
         }
-        items.push(row(10.0, line_items));
+        items.push(row(space::M, line_items));
     }
     let menu = s.export_menu.clone();
     let receipt = s.receipt_open.clone();
@@ -814,7 +804,7 @@ fn result_card(ui: &Ui, p: &Pal, s: &Session, r: &super::session::ResultView) ->
     // trust it. One row of six buttons did not fit the reading column
     // and overflowed by its last word.
     items.push(row(
-        10.0,
+        space::M,
         vec![
             button(p, "Run again", Look::Secondary, true, move || {
                 again.start_run()
@@ -842,7 +832,7 @@ fn result_card(ui: &Ui, p: &Pal, s: &Session, r: &super::session::ResultView) ->
         ],
     ));
     items.push(row(
-        10.0,
+        space::M,
         vec![
             button(
                 p,
@@ -860,7 +850,7 @@ fn result_card(ui: &Ui, p: &Pal, s: &Session, r: &super::session::ResultView) ->
         items.push(export_menu(p, s, r.ok));
     }
     items.extend(export_status(ui, p, s));
-    card(p, stretch(12.0, items))
+    card(p, stretch(space::M, items))
 }
 
 /// The receipt, over the page: every check in `wright verify`'s own
@@ -876,31 +866,29 @@ fn receipt_overlay(p: &Pal, s: &Session) -> WidgetNode {
     let report = r.report.clone();
     let mut items = vec![
         row(
-            10.0,
+            space::M,
             vec![
                 if r.ok {
                     Glyph::Done.draw(22.0, p.good)
                 } else {
                     Glyph::Failed.draw(22.0, p.bad)
                 },
-                b(format!("The receipt · run {}", r.run), 18.0, p.ink),
+                b(format!("The receipt · run {}", r.run), size::TITLE, p.ink),
                 gap(),
                 t(
-                    if r.ok { "verified" } else { "NOT verified" },
-                    13.0,
+                    if r.ok { "verified" } else { "NOT verified" }, size::UI,
                     if r.ok { p.good } else { p.bad },
                 ),
             ],
         ),
         t(
-            "Every check over the signed receipt, in verify's own words:",
-            13.0,
+            "Every check over the signed receipt, in verify's own words:", size::UI,
             p.muted,
         ),
     ];
     for (name, ok, note) in &r.checks {
         items.push(row(
-            10.0,
+            space::M,
             vec![
                 if *ok {
                     Glyph::Done.draw(15.0, p.good)
@@ -908,13 +896,13 @@ fn receipt_overlay(p: &Pal, s: &Session) -> WidgetNode {
                     Glyph::Failed.draw(15.0, p.bad)
                 },
                 grow(column(
-                    2.0,
+                    space::HAIR,
                     vec![
-                        line(name.clone(), 13.5, p.ink),
+                        line(name.clone(), size::BODY, p.ink),
                         if note.is_empty() {
                             SizedBox::shrink().into()
                         } else {
-                            copyable(note.clone(), 12.5, p.muted)
+                            copyable(note.clone(), size::SMALL, p.muted)
                         },
                     ],
                 )),
@@ -923,13 +911,12 @@ fn receipt_overlay(p: &Pal, s: &Session) -> WidgetNode {
     }
     if let Some(verdict) = r.report.lines().rev().find(|l| !l.trim().is_empty()) {
         items.push(copyable(
-            verdict.to_string(),
-            13.0,
+            verdict.to_string(), size::UI,
             if r.ok { p.good } else { p.bad },
         ));
     }
     items.push(row(
-        10.0,
+        space::M,
         vec![
             button(p, "Copy the report", Look::Secondary, true, move || {
                 super::kit::copy_text(&report);
@@ -944,7 +931,7 @@ fn receipt_overlay(p: &Pal, s: &Session) -> WidgetNode {
             Container::new().color(Color::rgba(0, 0, 0, 110)),
             move || scrim_close.set(false),
         )),
-        layer(Center::new().child(sized(620.0, 660.0, card(p, stretch(12.0, items))))),
+        layer(Center::new().child(sized(620.0, 660.0, card(p, stretch(space::M, items))))),
     ])
 }
 
@@ -1006,14 +993,14 @@ fn export_menu(p: &Pal, s: &Session, verified: bool) -> WidgetNode {
                     .radius(corner::SMALL)
                     .padding(EdgeInsets::symmetric(12.0, 8.0))
                     .child(row(
-                        10.0,
+                        space::M,
                         vec![
                             Glyph::File.draw(15.0, if allowed { p.ink } else { p.muted }),
                             column(
                                 1.0,
                                 vec![
-                                    t(kind.label(), 13.5, if allowed { p.ink } else { p.muted }),
-                                    t(why.clone(), 12.0, p.muted),
+                                    t(kind.label(), size::BODY, if allowed { p.ink } else { p.muted }),
+                                    t(why.clone(), size::SMALL, p.muted),
                                 ],
                             ),
                         ],
@@ -1032,7 +1019,7 @@ fn export_menu(p: &Pal, s: &Session, verified: bool) -> WidgetNode {
         .radius(corner::CARD)
         .border(Border::new(p.line_strong, 1.0))
         .padding(EdgeInsets::all(6.0))
-        .child(stretch(2.0, rows))
+        .child(stretch(space::HAIR, rows))
         .into()
 }
 
@@ -1046,12 +1033,11 @@ fn export_status(ui: &Ui, p: &Pal, s: &Session) -> Vec<WidgetNode> {
         })
         .into();
         out.push(row(
-            8.0,
+            space::S,
             vec![
                 spin,
                 t(
-                    format!("Making the {}…", kind.label().to_lowercase()),
-                    13.0,
+                    format!("Making the {}…", kind.label().to_lowercase()), size::UI,
                     p.muted,
                 ),
             ],
@@ -1071,10 +1057,10 @@ fn export_status(ui: &Ui, p: &Pal, s: &Session) -> Vec<WidgetNode> {
                     .map(|n| n.to_string_lossy().to_string())
                     .unwrap_or_default();
                 row(
-                    10.0,
+                    space::M,
                     vec![
                         Glyph::Done.draw(16.0, p.good),
-                        fill(format!("{name} · {}", human_size(e.bytes)), 13.0, p.ink),
+                        fill(format!("{name} · {}", human_size(e.bytes)), size::UI, p.ink),
                         {
                             let notice = s.notice.clone();
                             button(p, "Show in folder", Look::Quiet, true, move || {
@@ -1090,10 +1076,10 @@ fn export_status(ui: &Ui, p: &Pal, s: &Session) -> Vec<WidgetNode> {
                 )
             }
             Err(why) => row(
-                10.0,
+                space::M,
                 vec![
                     Glyph::Failed.draw(16.0, p.bad),
-                    grow(copyable(why, 12.5, p.bad)),
+                    grow(copyable(why, size::SMALL, p.bad)),
                 ],
             ),
         });
@@ -1151,7 +1137,7 @@ pub fn composer(
                 .border(Border::new(p.line_strong, 1.0))
                 .padding(EdgeInsets::all(6.0))
                 .child(column(
-                    2.0,
+                    space::HAIR,
                     vec![
                         menu_item(&p, Glyph::File, "Add files…", move || u1.pick(&c1, false)),
                         menu_item(&p, Glyph::Folder, "Add a folder…", move || {
@@ -1167,7 +1153,7 @@ pub fn composer(
     let files = c.files.get();
     if !files.is_empty() {
         items.push(row(
-            8.0,
+            space::S,
             files.iter().map(|f| file_chip(&p, c, f)).collect(),
         ));
     }
@@ -1201,7 +1187,7 @@ pub fn composer(
                     let level = ui.mic_level.get();
                     let (u, cc) = (ui.clone(), c.clone());
                     row(
-                        8.0,
+                        space::S,
                         vec![
                             meter(&p, level, ui.clock.get()),
                             icon_button(&p, Glyph::Stop, "Stop and transcribe", true, move || {
@@ -1211,10 +1197,10 @@ pub fn composer(
                     )
                 }
                 Voice::Transcribing => row(
-                    6.0,
+                    space::S,
                     vec![
                         Glyph::spinner(16.0, p.accent_ink, ui.clock.get()),
-                        t("Writing it down…", 12.0, p.muted),
+                        t("Writing it down…", size::SMALL, p.muted),
                     ],
                 ),
                 _ => {
@@ -1280,7 +1266,7 @@ pub fn composer(
                 if big { 12.0 } else { 6.0 },
             ))
             .child(row(
-                8.0,
+                space::S,
                 vec![
                     plus,
                     grow(
@@ -1295,9 +1281,9 @@ pub fn composer(
             .into(),
     );
     if let Voice::Failed(why) = c.voice.get() {
-        items.push(copyable(why, 12.0, p.wait));
+        items.push(copyable(why, size::SMALL, p.wait));
     }
-    stretch(8.0, items)
+    stretch(space::S, items)
 }
 
 fn menu_item(p: &Pal, glyph: Glyph, label: &str, on_tap: impl Fn() + 'static) -> WidgetNode {
@@ -1309,8 +1295,8 @@ fn menu_item(p: &Pal, glyph: Glyph, label: &str, on_tap: impl Fn() + 'static) ->
             .radius(corner::SMALL)
             .padding(EdgeInsets::symmetric(10.0, 7.0))
             .child(row(
-                10.0,
-                vec![glyph.draw(15.0, p.ink), t(label.clone(), 13.5, p.ink)],
+                space::M,
+                vec![glyph.draw(15.0, p.ink), t(label.clone(), size::BODY, p.ink)],
             ))
             .into()
     })
@@ -1335,10 +1321,10 @@ fn file_chip(p: &Pal, c: &Composer, f: &std::path::Path) -> WidgetNode {
         .border(Border::new(p.line, 1.0))
         .padding(EdgeInsets::only(10.0, 4.0, 4.0, 4.0))
         .child(row(
-            6.0,
+            space::S,
             vec![
                 glyph.draw(14.0, p.muted),
-                t(name, 12.5, p.ink),
+                t(name, size::SMALL, p.ink),
                 tap(
                     Container::new()
                         .width(20.0)
@@ -1366,7 +1352,7 @@ pub(crate) fn meter(p: &Pal, level: f32, clock: f32) -> WidgetNode {
                 .into()
         })
         .collect();
-    sized(32.0, 24.0, row(3.0, bars))
+    sized(32.0, 24.0, row(space::XS, bars))
 }
 
 /// For the home and new-session pages: the status line of each session.

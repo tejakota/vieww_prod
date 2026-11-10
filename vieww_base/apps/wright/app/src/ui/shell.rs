@@ -213,7 +213,7 @@ pub(crate) fn top_bar(ui: &Ui) -> WidgetNode {
                     // the toggles on the right, the dots keep the middle.
                     grow(
                         SizedBox::width(300.0).child(
-                            Align::new(Alignment::CENTER_LEFT).child(line(title, 13.5, p.ink)),
+                            Align::new(Alignment::CENTER_LEFT).child(line(title, size::BODY, p.ink)),
                         ),
                     ),
                     row(0.0, dots),
@@ -285,10 +285,10 @@ fn stop_banner(ui: &Ui) -> WidgetNode {
             .color(p.bad.with_alpha(40))
             .border(Border::new(p.bad, 1.0))
             .padding(EdgeInsets::symmetric(18.0, 8.0))
-            .child(row(12.0, vec![
+            .child(row(space::M, vec![
                 Glyph::Stop.draw(16.0, p.bad),
-                b("Everything is stopped", 13.5, p.ink),
-                fill(format!("{reason} · nothing runs, sends or fetches on this computer until you start again"), 13.0, p.muted),
+                b("Everything is stopped", size::BODY, p.ink),
+                fill(format!("{reason} · nothing runs, sends or fetches on this computer until you start again"), size::UI, p.muted),
                 button(&p, "Start again", Look::Primary, true, move || go.start_again()),
             ]))
             .into()
@@ -349,21 +349,20 @@ fn status_bar(ui: &Ui) -> WidgetNode {
                 .color(p.accent)
                 .padding(EdgeInsets::symmetric(12.0, 0.0))
                 .child(Center::new().child(row(
-                    3.0,
+                    space::XS,
                     vec![
                         Mark::solid(p.on_accent).widget(13.0),
-                        b("wright", 12.0, p.on_accent),
+                        b("wright", size::SMALL, p.on_accent),
                     ],
                 )))
                 .into(),
-            line(where_, 12.0, p.ink),
+            line(where_, size::SMALL, p.ink),
             dot,
-            fill(status, 12.0, p.muted),
+            fill(status, size::SMALL, p.muted),
         ];
         if let Some(micro) = spent {
             items.push(t(
-                format!("${:.4} today", micro as f64 / 1e6),
-                12.0,
+                format!("${:.4} today", micro as f64 / 1e6), size::SMALL,
                 p.muted,
             ));
         }
@@ -414,8 +413,8 @@ fn status_button(p: &Pal, glyph: Glyph, label: &str, on_tap: impl Fn() + 'static
             .radius(corner::SMALL)
             .padding(EdgeInsets::symmetric(8.0, 3.0))
             .child(row(
-                5.0,
-                vec![glyph.draw(12.0, p.muted), t(label.clone(), 12.0, p.muted)],
+                space::XS,
+                vec![glyph.draw(12.0, p.muted), t(label.clone(), size::SMALL, p.muted)],
             ))
             .into()
     })
@@ -508,7 +507,8 @@ fn track(ui: &Ui, pages: &[WidgetNode], w: f32, h: f32, o: f32, x: f32) -> Widge
             if left > w || left + w < 0.0 {
                 continue; // off screen: nothing to draw
             }
-            layers.push(at(
+            layers.push(at_keyed(
+                format!("page-{i}"),
                 left,
                 0.0,
                 w,
@@ -547,7 +547,8 @@ fn track(ui: &Ui, pages: &[WidgetNode], w: f32, h: f32, o: f32, x: f32) -> Widge
         let go = ui.clone();
         // Sized explicitly: a tap target loosens its child's constraints,
         // and a card of only layered children would shrink to nothing.
-        layers.push(at(
+        layers.push(at_keyed(
+            format!("card-{i}"),
             left,
             top,
             cw,
@@ -565,7 +566,7 @@ fn track(ui: &Ui, pages: &[WidgetNode], w: f32, h: f32, o: f32, x: f32) -> Widge
             k if k <= sessions.len() => sessions[k - 1].title(),
             _ => "New session".to_string(),
         };
-        let mut caption = vec![fill(title, 13.0, if on { p.ink } else { p.muted })];
+        let mut caption = vec![fill(title, size::UI, if on { p.ink } else { p.muted })];
         if i >= 1 && i <= sessions.len() {
             let close = ui.clone();
             caption.push(icon_button(
@@ -576,21 +577,23 @@ fn track(ui: &Ui, pages: &[WidgetNode], w: f32, h: f32, o: f32, x: f32) -> Widge
                 move || close.close_session(i - 1),
             ));
         }
-        layers.push(at(
+        layers.push(at_keyed(
+            format!("caption-{i}"),
             left,
             top + ch + 8.0,
             cw,
             30.0,
-            fade(phase(o, 0.6, 1.0), row(6.0, caption)),
+            fade(phase(o, 0.6, 1.0), row(space::S, caption)),
         ));
     }
     let saved = ui.saved.get();
     if !saved.is_empty() {
         let shelf = row(
-            12.0,
-            vec![b("SAVED", 11.0, p.muted), home::saved_chips(ui, &saved)],
+            space::M,
+            vec![b("SAVED", size::CAPTION, p.muted), home::saved_chips(ui, &saved)],
         );
-        layers.push(at(
+        layers.push(at_keyed(
+            "saved",
             0.0,
             h - 70.0,
             w,
@@ -598,7 +601,8 @@ fn track(ui: &Ui, pages: &[WidgetNode], w: f32, h: f32, o: f32, x: f32) -> Widge
             fade(phase(o, 0.6, 1.0), Center::new().child(shelf)),
         ));
     }
-    layers.push(at(
+    layers.push(at_keyed(
+        "hint",
         0.0,
         18.0,
         w,
@@ -606,8 +610,7 @@ fn track(ui: &Ui, pages: &[WidgetNode], w: f32, h: f32, o: f32, x: f32) -> Widge
         fade(
             phase(o, 0.6, 1.0),
             Center::new().child(t(
-                "Click a session to open it · × closes it into Saved · Esc goes back",
-                12.5,
+                "Click a session to open it · × closes it into Saved · Esc goes back", size::SMALL,
                 p.muted,
             )),
         ),
@@ -629,9 +632,9 @@ fn mini(ui: &Ui, p: &Pal, i: usize, words: bool) -> WidgetNode {
     }
     let body: WidgetNode = match i {
         0 => column(
-            8.0,
+            space::S,
             vec![
-                b("What should exist?", 16.0, p.ink),
+                b("What should exist?", size::LEAD, p.ink),
                 Container::new()
                     .height(26.0)
                     .color(p.surface)
@@ -643,8 +646,7 @@ fn mini(ui: &Ui, p: &Pal, i: usize, words: bool) -> WidgetNode {
                         "{} · {} saved",
                         plural(sessions.len(), "session"),
                         ui.saved.get().len()
-                    ),
-                    11.0,
+                    ), size::CAPTION,
                     p.muted,
                 ),
             ],
@@ -661,16 +663,16 @@ fn mini(ui: &Ui, p: &Pal, i: usize, words: bool) -> WidgetNode {
             });
             let share = s.done_share();
             column(
-                8.0,
+                space::S,
                 vec![
-                    line(s.title(), 15.0, p.ink),
+                    line(s.title(), size::LEAD, p.ink),
                     Container::new()
                         .color(p.bubble)
                         .radius(corner::FIELD)
                         .padding(EdgeInsets::symmetric(9.0, 5.0))
-                        .child(Text::new(request).size(10.5).color(p.ink).max_lines(2))
+                        .child(Text::new(request).size(size::CAPTION).color(p.ink).max_lines(2))
                         .into(),
-                    line(status, 11.0, tone_color(p, tone)),
+                    line(status, size::CAPTION, tone_color(p, tone)),
                     Container::new()
                         .height(3.0)
                         .radius(1.5)
@@ -688,11 +690,11 @@ fn mini(ui: &Ui, p: &Pal, i: usize, words: bool) -> WidgetNode {
             )
         }
         _ => column(
-            8.0,
+            space::S,
             vec![
                 Glyph::Plus.draw(22.0, p.muted),
-                b("A new session", 14.0, p.ink),
-                t("Describe what should exist", 11.0, p.muted),
+                b("A new session", size::BODY, p.ink),
+                t("Describe what should exist", size::CAPTION, p.muted),
             ],
         ),
     };
@@ -744,7 +746,7 @@ fn overlays(ui: &Ui) -> WidgetNode {
         ))));
     }
     if let Some(toast) = ui.toast.get() {
-        let mut items = vec![t(toast.text.clone(), 13.0, p.ground)];
+        let mut items = vec![t(toast.text.clone(), size::UI, p.ground)];
         if let Some(path) = toast.undo.clone() {
             let u = ui.clone();
             items.push(button(&p, "Undo", Look::Primary, true, move || {
@@ -766,7 +768,7 @@ fn overlays(ui: &Ui) -> WidgetNode {
                             .color(p.ink)
                             .radius(corner::PILL)
                             .padding(EdgeInsets::only(18.0, 6.0, 12.0, 6.0))
-                            .child(row(12.0, items)),
+                            .child(row(space::M, items)),
                     ),
                 )
                 .into(),
@@ -784,17 +786,17 @@ fn help(ui: &Ui, p: &Pal) -> WidgetNode {
     let list = ui.clone();
     let entry = |k: &str, v: &str| -> WidgetNode {
         row(
-            14.0,
+            space::L,
             vec![
                 SizedBox::width(150.0)
-                    .child(b(k.to_string(), 13.5, p.ink))
+                    .child(b(k.to_string(), size::BODY, p.ink))
                     .into(),
-                grow(para(v.to_string(), 13.5, p.muted)),
+                grow(para(v.to_string(), size::BODY, p.muted)),
             ],
         )
     };
-    card(p, stretch(12.0, vec![
-        b("Gestures and shortcuts", 18.0, p.ink),
+    card(p, stretch(space::M, vec![
+        b("Gestures and shortcuts", size::TITLE, p.ink),
         entry("Two-finger swipe", "Swipe left or right to change page. Vertical scrolling stays in the conversation; arrow keys work too."),
         entry("Swipe past the last", "The final dot opens a fresh session. The highlighted dot always follows your page."),
         entry("Pinch (or O)", "Pinch in to see all sessions; pinch out to return to your page. × saves a session from the overview."),
@@ -804,7 +806,7 @@ fn help(ui: &Ui, p: &Pal) -> WidgetNode {
         entry("Ctrl/Cmd + Shift + T", "Reopen the last closed session."),
         entry("Ctrl/Cmd + ,", "Open Settings. Esc backs out of an overlay; gestures resume when it closes."),
         entry("Agents & tools", "Wright's built-in agents and every tool a plan can grant, in Settings."),
-        row(10.0, vec![
+        row(space::M, vec![
             button(p, "Agents & tools", Look::Secondary, true, move || list.open_agents_and_tools()),
             button(p, "Replay the opening", Look::Secondary, true, move || {
                 replay.help.set(false);

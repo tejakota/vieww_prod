@@ -32,10 +32,10 @@ pub fn layer(ui: &Ui) -> WidgetNode {
     Live::new("engine", move || {
         let p = ui.pal();
         let Some(s) = ui.current_session() else {
-            return frame(&ui, &p, "Engine", String::new(), false, Center::new().child(para("No agents here yet. Describe what should exist, and Wright drafts the workforce for you to approve.", 15.0, p.muted)).into());
+            return frame(&ui, &p, "Engine", String::new(), false, Center::new().child(para("No agents here yet. Describe what should exist, and Wright drafts the workforce for you to approve.", size::LEAD, p.muted)).into());
         };
         let Some(plan) = s.plan.get() else {
-            return frame(&ui, &p, &s.title(), String::new(), false, Center::new().child(para("The agents appear once the plan is drafted.", 15.0, p.muted)).into());
+            return frame(&ui, &p, &s.title(), String::new(), false, Center::new().child(para("The agents appear once the plan is drafted.", size::LEAD, p.muted)).into());
         };
         let events = s.events.get();
         let progress = Progress::of(&events);
@@ -68,7 +68,7 @@ pub fn layer(ui: &Ui) -> WidgetNode {
                 body.push(SizedBox::width(INSPECTOR_W).child(inspector(&ui, &p, &s, card, &events, &progress)).into());
             }
         }
-        let content = stretch(14.0, vec![
+        let content = stretch(space::L, vec![
             grow(Flex::row().cross_axis_alignment(CrossAxisAlignment::Start).spacing(18.0).children(body)),
             ticker(&p, &events, &progress),
         ]);
@@ -87,7 +87,7 @@ fn frame(
 ) -> WidgetNode {
     let close = ui.clone();
     let peek = ui.engine.get() == EngineView::Peek;
-    let mut head = vec![b(title.to_string(), 20.0, p.ink)];
+    let mut head = vec![b(title.to_string(), size::TITLE, p.ink)];
     if live {
         let u = ui.clone();
         head.push(
@@ -95,7 +95,7 @@ fn frame(
                 let p = u.pal();
                 let pulse = (u.clock.get() * 3.0).sin() * 0.5 + 0.5;
                 row(
-                    6.0,
+                    space::S,
                     vec![
                         Container::new()
                             .width(7.0)
@@ -103,19 +103,18 @@ fn frame(
                             .radius(3.5)
                             .color(p.accent_ink.with_alpha((120.0 + 135.0 * pulse) as u8))
                             .into(),
-                        b("LIVE", 11.0, p.accent_ink),
+                        b("LIVE", size::CAPTION, p.accent_ink),
                     ],
                 )
             })
             .into(),
         );
     }
-    head.push(t(meta, 12.5, p.muted));
+    head.push(t(meta, size::SMALL, p.muted));
     head.push(gap());
     if peek {
         head.push(t(
-            "Let go of Space to hide · E keeps it open",
-            12.0,
+            "Let go of Space to hide · E keeps it open", size::SMALL,
             p.muted,
         ));
     } else {
@@ -130,7 +129,7 @@ fn frame(
     }
     pad(
         EdgeInsets::only(28.0, 14.0, 28.0, 18.0),
-        stretch(16.0, vec![row(12.0, head), grow(content)]),
+        stretch(space::L, vec![row(space::M, head), grow(content)]),
     )
 }
 
@@ -300,15 +299,14 @@ fn node(
                 .border(Border::new(if on { p.accent } else { p.line }, 1.0))
                 .padding(EdgeInsets::symmetric(6.0, 1.0))
                 .child(mono(
-                    tool.clone(),
-                    10.5,
+                    tool.clone(), size::CAPTION,
                     if on { p.on_accent } else { p.muted },
                 ))
                 .into()
         })
         .collect();
     if rest > 0 {
-        chips.push(t(format!("+{rest}"), 10.5, p.muted));
+        chips.push(t(format!("+{rest}"), size::CAPTION, p.muted));
     }
     // A queued card is quieter — its words fade, its surface does not: a
     // see-through card let the page behind the engine view read through
@@ -329,12 +327,12 @@ fn node(
         .child(fade(
             faded,
             stretch(
-                4.0,
+                space::XS,
                 vec![
                     row(
-                        6.0,
+                        space::S,
                         vec![
-                            fill(card.name.clone(), 13.5, p.ink),
+                            fill(card.name.clone(), size::BODY, p.ink),
                             pill(state.label(), pill_fg, pill_bg),
                         ],
                     ),
@@ -347,13 +345,13 @@ fn node(
                             &card.model
                         }
                     ))
-                    .size(11.5)
+                    .size(size::CAPTION)
                     .color(p.muted)
                     .max_lines(2)
                     .overflow(vieww::text::TextOverflow::Ellipsis)
                     .into(),
                     gap(),
-                    row(4.0, chips),
+                    row(space::XS, chips),
                 ],
             ),
         ));
@@ -390,16 +388,15 @@ fn inspector(
         .rev()
         .map(|e| {
             row(
-                8.0,
+                space::S,
                 vec![
                     SizedBox::width(52.0)
                         .child(mono(
-                            format!("+{:.1}s", e.at_ms.saturating_sub(start) as f64 / 1000.0),
-                            11.0,
+                            format!("+{:.1}s", e.at_ms.saturating_sub(start) as f64 / 1000.0), size::CAPTION,
                             p.muted,
                         ))
                         .into(),
-                    grow(copyable(e.note.clone(), 12.0, p.ink)),
+                    grow(copyable(e.note.clone(), size::SMALL, p.ink)),
                 ],
             )
         })
@@ -428,12 +425,12 @@ fn inspector(
     card_box(
         p,
         stretch(
-            10.0,
+            space::M,
             vec![
                 row(
-                    8.0,
+                    space::S,
                     vec![
-                        fill(card.name.clone(), 16.0, p.ink),
+                        fill(card.name.clone(), size::LEAD, p.ink),
                         icon_button(p, Glyph::Close, "Close", false, move || close.set(None)),
                     ],
                 ),
@@ -446,8 +443,7 @@ fn inspector(
                         } else {
                             &card.model
                         }
-                    ),
-                    12.5,
+                    ), size::SMALL,
                     p.muted,
                 ),
                 kv(p, "State", state.label()),
@@ -463,9 +459,9 @@ fn inspector(
                 ),
                 kv(p, "Time", &time),
                 row(
-                    8.0,
+                    space::S,
                     vec![
-                        t("Live log", 12.0, p.muted),
+                        t("Live log", size::SMALL, p.muted),
                         gap(),
                         if full_log.is_empty() {
                             SizedBox::shrink().into()
@@ -479,9 +475,9 @@ fn inspector(
                     .radius(corner::FIELD)
                     .padding(EdgeInsets::all(10.0))
                     .child(if log.is_empty() {
-                        t("Nothing yet. Lines appear here as it works.", 12.0, p.muted)
+                        t("Nothing yet. Lines appear here as it works.", size::SMALL, p.muted)
                     } else {
-                        stretch(5.0, log)
+                        stretch(space::XS, log)
                     })
                     .into(),
             ],
@@ -501,12 +497,12 @@ fn card_box(p: &Pal, child: WidgetNode) -> WidgetNode {
 
 fn kv(p: &Pal, k: &str, v: &str) -> WidgetNode {
     row(
-        8.0,
+        space::S,
         vec![
             SizedBox::width(78.0)
-                .child(line(k.to_string(), 12.5, p.muted))
+                .child(line(k.to_string(), size::SMALL, p.muted))
                 .into(),
-            grow(copyable(v.to_string(), 12.5, p.ink)),
+            grow(copyable(v.to_string(), size::SMALL, p.ink)),
         ],
     )
 }
@@ -527,32 +523,30 @@ fn ticker(p: &Pal, events: &[Event], progress: &Progress) -> WidgetNode {
             fade(
                 alpha,
                 row(
-                    10.0,
+                    space::M,
                     vec![
                         SizedBox::width(56.0)
                             .child(mono(
                                 format!(
                                     "+{:.1}s",
                                     e.at_ms.saturating_sub(progress.started_ms) as f64 / 1000.0
-                                ),
-                                11.5,
+                                ), size::CAPTION,
                                 p.muted,
                             ))
                             .into(),
                         SizedBox::width(110.0)
                             .child(line(
-                                e.agent.clone().unwrap_or_else(|| "wright".into()),
-                                12.0,
+                                e.agent.clone().unwrap_or_else(|| "wright".into()), size::SMALL,
                                 p.ink,
                             ))
                             .into(),
-                        fill(e.note.clone(), 12.0, p.muted),
+                        fill(e.note.clone(), size::SMALL, p.muted),
                     ],
                 ),
             )
         })
         .collect();
-    sized(f32::INFINITY, 62.0, stretch(3.0, lines))
+    sized(f32::INFINITY, 62.0, stretch(space::XS, lines))
 }
 
 // ── edges ────────────────────────────────────────────────────────

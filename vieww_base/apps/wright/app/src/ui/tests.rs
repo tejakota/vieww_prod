@@ -1052,6 +1052,44 @@ fn pinching_opens_and_closes_the_overview() {
     assert!(!pinch(-0.5, PinchPhase::Moved), "not while a panel is open");
 }
 
+/// Leaving the overview puts the live pages back under the cards while
+/// both are still on screen. The pages are inserted ahead of the cards
+/// in one stack, so an unkeyed stack matched them to the previous
+/// frame's children by index and laid "A new session" out for a frame in
+/// a 30px caption slot: 237px of page into 0px of room. Every frame of
+/// the way out must fit.
+#[test]
+fn leaving_the_overview_never_overflows() {
+    let size = Size::new(1280.0, 800.0);
+    let mut driver = FrameDriver::new(size);
+    shell::register(&mut driver);
+    let ui = Ui::new(
+        driver.elements().runtime(),
+        None,
+        std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false)),
+    );
+    driver.set_root(shell::root(&ui));
+    ui.splash.set(false);
+    let mut clock = 0u64;
+    let mut frames = |driver: &mut FrameDriver, ms: u64| {
+        for _ in 0..ms / 16 {
+            clock += 16;
+            driver.draw_frame_at(Duration::from_millis(clock));
+        }
+    };
+    frames(&mut driver, 300);
+    ui.set_overview(true);
+    frames(&mut driver, 900);
+    vieww::render::overflow::forget_reported();
+    ui.set_overview(false);
+    frames(&mut driver, 900);
+    assert_eq!(
+        vieww::render::overflow::reported(),
+        0,
+        "a frame of the overview's exit did not fit (its report is printed above)"
+    );
+}
+
 #[test]
 fn speech_alone_starts_a_session_on_home() {
     let _home = home_lock();
