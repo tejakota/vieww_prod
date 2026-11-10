@@ -990,18 +990,26 @@ mod tests {
 
     #[test]
     fn browser_refuses_loudly() {
+        let _guard = crate::browser::tests::ENV_LOCK
+            .lock()
+            .unwrap_or_else(|p| p.into_inner());
         let c = ctx("browser");
-        // No browser on this machine (CI and this sandbox have none):
-        // the refusal names what to install. A machine WITH one is
+        // Through the dispatcher, a browser that is not there is a refusal
+        // that says what to fix. Pinned to a path that does not exist:
+        // this used to rely on the machine having no browser, and GitHub's
+        // Ubuntu runners ship Chrome — so it launched a real one at a
+        // public address and waited on it. A machine WITH a browser is
         // exercised by the self-hosted render loop, not here.
+        std::env::set_var("WRIGHT_BROWSER_BIN", "/no/such/browser/chrome");
         let r = call(
             "browser",
             r#"{"action":"render","url":"http://93.184.216.34/"}"#,
             &c,
         );
+        std::env::remove_var("WRIGHT_BROWSER_BIN");
         match r {
             Err(ToolError::Failed(msg)) => assert!(
-                msg.contains("headless browser"),
+                msg.contains("WRIGHT_BROWSER_BIN") && msg.contains("not a file"),
                 "a refusal that names the problem: {msg}"
             ),
             other => panic!("expected a refusal, got {other:?}"),

@@ -266,9 +266,23 @@ fn screenshot_url(
         format!("--screenshot={}", out_png.display()),
     ]);
     cmd.arg(url);
-    cmd.stdin(Stdio::null())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped());
+    // Chrome's output goes to a file, never a pipe. A pipe has two ways to
+    // hang this call: Chrome blocks once it fills (nothing reads it while
+    // we wait), and reading it to the end waits for every process holding
+    // it — and Chrome leaves helpers (crashpad, the zygote) holding its
+    // stderr after the main process exits. On a CI runner where Chrome's
+    // own sandbox cannot start, that read never returned.
+    let log_path = profile.with_extension("stderr.log");
+    let log = std::fs::File::create(&log_path)
+        .map_err(|e| ToolError::Failed(format!("could not create the browser log: {e}")))?;
+    cmd.stdin(Stdio::null()).stdout(Stdio::null()).stderr(log);
+    // Its own process group, so the clock (and the cleanup after a normal
+    // exit) takes the helpers with it instead of leaving them running.
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::CommandExt;
+        cmd.process_group(0);
+    }
     // The browser never needs wright's own environment.
     for (k, _) in std::env::vars() {
         if k.starts_with("WRIGHT_") {
@@ -284,7 +298,7 @@ fn screenshot_url(
             Ok(Some(status)) => break status,
             Ok(None) => {
                 if started.elapsed() > BROWSER_TIMEOUT {
-                    let _ = child.kill();
+                    crate::worker::kill_group(&mut child);
                     let _ = child.wait();
                     return Err(ToolError::Failed(format!(
                         "the headless browser did not finish within {} seconds and was killed",
@@ -296,13 +310,12 @@ fn screenshot_url(
             Err(e) => return Err(ToolError::Failed(e.to_string())),
         }
     };
+    // The main process is done; whatever it left behind goes too.
+    crate::worker::kill_group(&mut child);
     if !status.success() {
-        let mut err = String::new();
-        if let Some(e) = child.stderr.take() {
-            let mut buf = Vec::new();
-            let _ = e.take(4096).read_to_end(&mut buf);
-            err = String::from_utf8_lossy(&buf).to_string();
-        }
+        let buf = std::fs::read(&log_path).unwrap_or_default();
+        let tail = &buf[buf.len().saturating_sub(4096)..];
+        let err = String::from_utf8_lossy(tail).to_string();
         return Err(ToolError::Failed(format!(
             "the headless browser exited with {}: {}",
             status.code().unwrap_or(-1),
@@ -733,14 +746,16 @@ fn respond(stream: &mut TcpStream, code: u16, ctype: &str, body: &[u8]) -> std::
 // ── tests ─────────────────────────────────────────────────────────
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use wright_core::wire::json;
 
     /// Env vars are process-wide and tests run in parallel: every test
     /// that flips WRIGHT_BROWSER_BIN takes this lock (the repo's
     /// signing.rs pattern).
-    static ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    /// Serialises tests that set WRIGHT_BROWSER_* (the env is process-wide;
+    /// `tests::browser_refuses_loudly` in lib.rs takes it too).
+    pub(crate) static ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
     fn ctx(name: &str) -> ToolCtx {
         let d = std::env::temp_dir().join(format!("wright-browser-{name}-{}", std::process::id()));
@@ -793,6 +808,43 @@ mod tests {
         .to_string();
         std::env::remove_var("WRIGHT_BROWSER_BIN");
         assert!(err.contains("WRIGHT_BROWSER_BIN"), "{err}");
+    }
+
+    /// A browser that fails while a helper it started keeps running must
+    /// not hang the call. The old code piped stderr and read it to the end
+    /// after a failed exit — which waits for every holder of the pipe, so a
+    /// lingering Chrome helper (crashpad, the zygote) blocked it forever on
+    /// CI. The stand-in fails at once and leaves a 30s sleeper behind.
+    #[cfg(unix)]
+    #[test]
+    fn a_failing_browser_with_a_lingering_helper_does_not_hang() {
+        use std::os::unix::fs::PermissionsExt;
+        let dir = scratch("lingering").unwrap();
+        let fake = dir.join("fake-chrome");
+        std::fs::write(
+            &fake,
+            "#!/bin/sh\nsleep 30 &\necho 'No usable sandbox!' >&2\nexit 1\n",
+        )
+        .unwrap();
+        std::fs::set_permissions(&fake, std::fs::Permissions::from_mode(0o755)).unwrap();
+        let started = Instant::now();
+        let err = screenshot_url(
+            &fake,
+            "http://127.0.0.1:9/",
+            (400, 300),
+            &dir.join("shot.png"),
+            &dir.join("profile"),
+        )
+        .unwrap_err()
+        .to_string();
+        assert!(
+            started.elapsed() < Duration::from_secs(10),
+            "returned only after {:?}",
+            started.elapsed()
+        );
+        assert!(err.contains("exited with 1"), "{err}");
+        assert!(err.contains("No usable sandbox!"), "its last words: {err}");
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]

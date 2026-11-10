@@ -673,7 +673,9 @@ fn direct_run(
 /// Stop the worker and everything it started. On Unix the worker leads
 /// its own process group, so the group goes (through the system `kill`:
 /// this file stays free of unsafe); elsewhere the process itself.
-fn kill_group(child: &mut std::process::Child) {
+/// Kill `child` and everything in its process group (it must have been
+/// spawned with `process_group(0)` on unix). Also used by the browser tool.
+pub(crate) fn kill_group(child: &mut std::process::Child) {
     #[cfg(unix)]
     {
         let _ = std::process::Command::new("kill")
