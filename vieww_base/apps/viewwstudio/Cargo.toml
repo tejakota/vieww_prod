@@ -57,6 +57,12 @@ vieww-collab.workspace = true
 # and `vieww-widget` already compile it — and nothing the windowed studio
 # links changes: only the CLI names it.
 vieww-platform-web-dom.workspace = true
+# The studio's own codecs, for `viewwstudio-cli animate` and `preview`: the
+# workspace's GIF encoder turns a frame sequence into a looping animation
+# without ffmpeg, and the PNG encoder wraps the remote preview child's raw
+# RGBA into something a browser's <img> can load. Not a new dependency in
+# the tree either — `vieww-asset` already compiles it for decoding.
+vieww-image.workspace = true
 
 # The only third-party dependency in the studio, and it is here because the
 # alternative is `dlopen` through `libc` by hand. Pinned loosely: the surface

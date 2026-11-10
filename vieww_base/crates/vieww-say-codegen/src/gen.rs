@@ -30,6 +30,11 @@ use crate::parse::{
 pub(crate) struct GenOptions {
     /// Where `an image` paths are read from; empty is the working folder.
     pub asset_root: String,
+    /// The screen the app starts on, when not the first — validated by the
+    /// caller against the program's titles, so `None` reaches a file whose
+    /// screens it names. Seeded into the navigation stack rather than
+    /// reordering the screens, so `go back` still lands on the home screen.
+    pub initial_screen: Option<String>,
 }
 
 /// A piece of per-screen interface state a widget needs and the `.say`
@@ -72,6 +77,7 @@ pub(crate) fn generate(
         theme: &program.theme,
         rust_items: &program.rust_items,
         asset_root: options.asset_root.clone(),
+        initial_screen: options.initial_screen.clone(),
         uses_images,
         uses_transitions,
         ui,
@@ -117,6 +123,9 @@ struct Gen<'a> {
     theme: &'a [ThemeEntry],
     rust_items: &'a [RustBlock],
     asset_root: String,
+    /// The screen the app starts on, when not the first — see
+    /// [`GenOptions::initial_screen`]. Seeded into `SayState`'s stack.
+    initial_screen: Option<String>,
     uses_images: bool,
     uses_transitions: bool,
     ui: Vec<UiField>,
@@ -293,7 +302,22 @@ impl<'a> Gen<'a> {
             ));
         }
         if self.multi_screen {
-            self.push("            stack: Vec::new(),");
+            // The stack, seeded with a start screen when one was named —
+            // `render --screen "Settings"` mounts with Settings on top and
+            // the home screen still the floor, so `go back` from a
+            // deep-linked render does what it does in the app. An empty
+            // stack means "the first screen", the default.
+            match self
+                .initial_screen
+                .as_deref()
+                .and_then(|title| self.screens.iter().find(|s| s.title == title))
+            {
+                Some(screen) => {
+                    let v = variant(&screen.title);
+                    self.push(format!("            stack: vec![SayScreens::{v}],"));
+                }
+                None => self.push("            stack: Vec::new(),"),
+            }
         }
         if self.uses_dialog {
             self.push("            modal: None,");
@@ -2699,6 +2723,8 @@ pub(crate) fn generate_component(
         theme: &[],
         rust_items: &[],
         asset_root: options.asset_root.clone(),
+        // A component has no screens and no navigation; nothing to start on.
+        initial_screen: None,
         uses_images,
         uses_transitions: false,
         ui: Vec::new(),

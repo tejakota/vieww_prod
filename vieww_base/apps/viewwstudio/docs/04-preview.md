@@ -48,3 +48,34 @@ built and looked at with these missing — pass in sample
 data the way `LandingScreen` does above — but the preview
 will not exercise the real service underneath. That is what
 **Build and Run**, on the next page, is for.
+
+## The same preview, from the command line
+
+Everything this page describes is the studio's *engine*, and
+the engine has a second door: `viewwstudio-cli`. The same
+compile, the same device table, the same out-of-process
+preview — behind commands a script can drive:
+
+```console
+$ viewwstudio-cli render src/screens/home.say --device mobile
+wrote target/render/home.png (393×852, rustc 0.3s)
+
+$ viewwstudio-cli preview --device android --landscape
+previewing src/screens/home.say as Android phone (915 × 412) at http://127.0.0.1:8788
+
+$ viewwstudio-cli render flow.say --all-screens
+$ viewwstudio-cli animate flow.say --fps 60 --duration 5s
+$ viewwstudio-cli test
+```
+
+`render` is the frame at a size; `preview` serves the live
+screen for a browser and forwards your pointer, scroll and
+key events into the same event path the pane uses;
+`--device` is the switcher above the frame, as a name;
+`--all-screens` is one screenshot per screen the file
+defines; `test` is the pane's eyeball check made mechanical
+— deterministic render, no overflow, inputs the screen must
+survive, and a golden to compare against. `viewwstudio-cli`
+with no arguments prints the whole surface, and
+`viewwstudio::cli`'s module doc is the honest table of what
+is shared with the app and what the honest limits are.

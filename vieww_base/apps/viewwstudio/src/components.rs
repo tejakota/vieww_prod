@@ -302,6 +302,8 @@ pub fn extract(studio: &Studio, name: &str) {
             .and_then(Path::parent)
             .map(|dir| dir.to_string_lossy().into_owned())
             .unwrap_or_default(),
+        // A component is one subtree, not an app — no screens to choose.
+        initial_screen: None,
     };
     let generated =
         match vieww_say_codegen::compile_component(&buffer.name, name, &subtree, &options) {
@@ -428,6 +430,8 @@ pub fn scaffold(studio: &Studio, component: &Component) {
                 .and_then(Path::parent)
                 .map(|dir| dir.to_string_lossy().into_owned())
                 .unwrap_or_default(),
+            // A component is one subtree, not an app — no screens to choose.
+            initial_screen: None,
         };
         let generated = match vieww_say_codegen::compile_component(
             &buffer.name,

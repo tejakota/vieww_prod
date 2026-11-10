@@ -86,6 +86,20 @@ pub struct Options {
     /// reads them from the working folder. Written into the generated file,
     /// so the same source and the same options give the same bytes.
     pub asset_root: String,
+    /// The screen the compiled app **starts on**, when it is not the first
+    /// one — a title exactly as `screen "…":` wrote it.
+    ///
+    /// This is the studio CLI's door (`render --screen`, `animate --screen`,
+    /// `preview --screen`, and one render per screen for `--all-screens` and
+    /// `test`): the same compile, the same navigation, with the stack seeded
+    /// so `go back` still lands on the home screen — deep-linked, in the
+    /// navigator's own vocabulary. `None` (the default) starts on the first
+    /// screen, which is the preview pane's behaviour and the built app's.
+    ///
+    /// A title no `screen` block carries is a compile error (E090), not a
+    /// silent fall-back to the first screen: a render asked for "Settings"
+    /// that quietly shows Home is the confidently wrong answer.
+    pub initial_screen: Option<String>,
 }
 
 /// [`compile`], with [`Options`].
@@ -102,16 +116,45 @@ pub fn compile_with(
     let lines = lex::lex(source);
     let program = parse::parse(&file, &lines);
     match program {
-        Ok(program) => Ok(Generated {
-            rust: gen::generate(
-                &file,
-                &program,
-                &gen::GenOptions {
-                    asset_root: options.asset_root.clone(),
-                },
-            ),
-            warnings: program.warnings,
-        }),
+        Ok(program) => {
+            // **A named start screen is checked against the source, here.**
+            // The alternative — ignoring a title nothing carries — is a
+            // `render --screen "Settings"` that quietly draws Home, which
+            // is worse than an error: it looks like the screen is empty.
+            // E090, the navigation code, because this is a navigation
+            // question: `open the screen "X"` with no screen "X".
+            if let Some(title) = &options.initial_screen {
+                if !program.screens.iter().any(|s| &s.title == title) {
+                    let known: Vec<&str> =
+                        program.screens.iter().map(|s| s.title.as_str()).collect();
+                    return Err(vec![Diagnostic::error(
+                        &file,
+                        program.screens.first().map_or(1, |s| s.line),
+                        1,
+                        crate::diag::codes::E090,
+                        format!(
+                            "there is no screen called \"{title}\" — this file defines {}",
+                            known
+                                .iter()
+                                .map(|t| format!("\"{t}\""))
+                                .collect::<Vec<_>>()
+                                .join(", ")
+                        ),
+                    )]);
+                }
+            }
+            Ok(Generated {
+                rust: gen::generate(
+                    &file,
+                    &program,
+                    &gen::GenOptions {
+                        asset_root: options.asset_root.clone(),
+                        initial_screen: options.initial_screen.clone(),
+                    },
+                ),
+                warnings: program.warnings,
+            })
+        }
         Err(diagnostics) => Err(diagnostics),
     }
 }
@@ -231,6 +274,9 @@ pub fn compile_component(
             body,
             &gen::GenOptions {
                 asset_root: options.asset_root.clone(),
+                // A component is one subtree, not an app; it has no screens
+                // to choose between.
+                initial_screen: None,
             },
         ),
         warnings: Vec::new(),
@@ -508,6 +554,7 @@ mod tests {
         let source = include_str!("../tests/fixtures/image.say");
         let options = crate::Options {
             asset_root: "/work/app/screens".to_owned(),
+            ..Default::default()
         };
         let rust = crate::compile_with("image.say", source, &options)
             .unwrap()
@@ -650,5 +697,64 @@ mod tests {
     fn the_counter_parses_without_diagnostics() {
         let source = include_str!("../tests/fixtures/counter.say");
         assert!(crate::compile("counter.say", source).is_ok());
+    }
+
+    /// A named start screen seeds the navigation stack — the CLI's
+    /// `--screen` door. The floor stays the first screen (`current`'s
+    /// `unwrap_or`), so `go back` from a deep-linked render lands on Home
+    /// exactly as it does in the running app.
+    #[test]
+    fn a_named_start_screen_seeds_the_stack() {
+        let source = include_str!("../tests/fixtures/transition.say");
+        let options = crate::Options {
+            initial_screen: Some("Settings".to_owned()),
+            ..Default::default()
+        };
+        let rust = crate::compile_with("transition.say", source, &options)
+            .expect("the fixture names the screen")
+            .rust;
+        assert!(
+            rust.contains("stack: vec![SayScreens::Settings],"),
+            "the stack starts on Settings"
+        );
+        // And the floor is untouched: `current`'s fallback is still the
+        // first screen, which is what `go back` pops down to.
+        assert!(
+            rust.contains("unwrap_or(&SayScreens::Home)"),
+            "Home stays the floor"
+        );
+    }
+
+    /// Without the option, the stack starts empty — which is what every
+    /// committed `*_gen.rs` fixture says, so this is the guard that the new
+    /// option cannot change the default output by one byte.
+    #[test]
+    fn without_a_named_start_screen_nothing_changes() {
+        let source = include_str!("../tests/fixtures/transition.say");
+        let rust = crate::compile("transition.say", source).unwrap().rust;
+        assert!(
+            rust.contains("stack: Vec::new(),"),
+            "the default starts on the first screen, via an empty stack"
+        );
+    }
+
+    /// A title no `screen` block carries is a refusal that names the ones
+    /// that exist — E090, the navigation code, because this is
+    /// `open the screen "X"` with no screen "X" wearing a command-line hat.
+    #[test]
+    fn an_unknown_start_screen_is_refused_with_the_known_ones() {
+        let source = include_str!("../tests/fixtures/transition.say");
+        let options = crate::Options {
+            initial_screen: Some("Nowhere".to_owned()),
+            ..Default::default()
+        };
+        let diagnostics =
+            crate::compile_with("transition.say", source, &options).expect_err("no such screen");
+        assert!(
+            diagnostics
+                .iter()
+                .any(|d| d.code == "E090" && d.message.contains("\"Settings\"")),
+            "the refusal names the screens that do exist: {diagnostics:?}"
+        );
     }
 }

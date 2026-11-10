@@ -3264,6 +3264,9 @@ impl Studio {
                     .and_then(std::path::Path::parent)
                     .map(|dir| dir.to_string_lossy().into_owned())
                     .unwrap_or_default(),
+                // The preview pane always starts on the first screen; the
+                // CLI's `--screen` is the door that names one.
+                initial_screen: None,
             };
             match vieww_say_codegen::compile_with(&buffer.name, &buffer.value.text, &options) {
                 Ok(generated) => {

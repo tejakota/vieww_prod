@@ -43,6 +43,9 @@ fn say_case(name: &'static str, source: &'static str) -> Case {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../crates/vieww-say-codegen");
     let options = vieww_say_codegen::Options {
         asset_root: root.to_string_lossy().into_owned(),
+        // The matrix renders the first screen of each fixture, which is the
+        // preview pane's choice too; the CLI's `--screen` is the other one.
+        initial_screen: None,
     };
     let generated = vieww_say_codegen::compile_with(name, source, &options)
         .unwrap_or_else(|d| panic!("{name}: {d:?}"));
