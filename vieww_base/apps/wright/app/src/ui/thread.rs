@@ -29,7 +29,7 @@ pub fn page(ui: &Ui, s: &Session) -> WidgetNode {
         ui,
         &s.scroll,
         pad(
-            EdgeInsets::only(24.0, 28.0, 24.0, 150.0),
+            EdgeInsets::only(space::XL, space::XXL, space::XL, 150.0),
             chat_column(content),
         ),
     );
@@ -61,7 +61,7 @@ pub fn page(ui: &Ui, s: &Session) -> WidgetNode {
             };
             Container::new()
                 .color(p.ground.with_alpha(235))
-                .padding(EdgeInsets::only(24.0, 10.0, 24.0, 16.0))
+                .padding(EdgeInsets::only(space::XL, 10.0, space::XL, space::L))
                 .child(chat_column(composer(
                     &ui,
                     &s.composer,
@@ -100,7 +100,7 @@ pub fn page(ui: &Ui, s: &Session) -> WidgetNode {
                         Offset::new(0.0, 4.0),
                         12.0,
                     ))
-                    .padding(EdgeInsets::symmetric(14.0, 7.0))
+                    .padding(EdgeInsets::symmetric(space::L, 7.0))
                     .child(row(
                         space::S,
                         vec![
@@ -296,7 +296,7 @@ fn bubble(p: &Pal, text: &str) -> WidgetNode {
                 Container::new()
                     .color(p.bubble)
                     .radius(20.0)
-                    .padding(EdgeInsets::symmetric(16.0, 11.0))
+                    .padding(EdgeInsets::symmetric(space::L, 11.0))
                     .child(copyable(text.to_string(), size::LEAD, p.ink)),
             ),
         )
@@ -640,7 +640,7 @@ fn approval(
                 Container::new()
                     .color(p.surface2)
                     .radius(corner::FIELD)
-                    .padding(EdgeInsets::all(12.0))
+                    .padding(EdgeInsets::all(space::M))
                     .child(para(reason.to_string(), size::BODY, p.ink))
                     .into(),
                 row(
@@ -682,7 +682,7 @@ fn approval(
     let under = Container::new()
         .color(if drag >= 0.0 { p.good_soft } else { p.surface2 })
         .radius(corner::CARD)
-        .padding(EdgeInsets::symmetric(24.0, 0.0))
+        .padding(EdgeInsets::symmetric(space::XL, 0.0))
         .child(row(
             0.0,
             vec![
@@ -991,7 +991,7 @@ fn export_menu(p: &Pal, s: &Session, verified: bool) -> WidgetNode {
                         p.surface
                     })
                     .radius(corner::SMALL)
-                    .padding(EdgeInsets::symmetric(12.0, 8.0))
+                    .padding(EdgeInsets::symmetric(space::M, 8.0))
                     .child(row(
                         space::M,
                         vec![
@@ -1261,9 +1261,9 @@ pub fn composer(
             ))
             .padding(EdgeInsets::only(
                 8.0,
-                if big { 12.0 } else { 6.0 },
+                if big { space::M } else { 6.0 },
                 6.0,
-                if big { 12.0 } else { 6.0 },
+                if big { space::M } else { 6.0 },
             ))
             .child(row(
                 space::S,

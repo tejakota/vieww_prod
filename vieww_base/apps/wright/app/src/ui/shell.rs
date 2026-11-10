@@ -205,7 +205,7 @@ pub(crate) fn top_bar(ui: &Ui) -> WidgetNode {
         let overview_on = ui.overview.get();
         let (a, b2, c, d) = (ui.clone(), ui.clone(), ui.clone(), ui.clone());
         Container::new()
-            .padding(EdgeInsets::symmetric(16.0, 10.0))
+            .padding(EdgeInsets::symmetric(space::L, 10.0))
             .child(row(
                 0.0,
                 vec![
@@ -284,7 +284,7 @@ fn stop_banner(ui: &Ui) -> WidgetNode {
         Container::new()
             .color(p.bad.with_alpha(40))
             .border(Border::new(p.bad, 1.0))
-            .padding(EdgeInsets::symmetric(18.0, 8.0))
+            .padding(EdgeInsets::symmetric(space::L, 8.0))
             .child(row(space::M, vec![
                 Glyph::Stop.draw(16.0, p.bad),
                 b("Everything is stopped", size::BODY, p.ink),
@@ -347,7 +347,7 @@ fn status_bar(ui: &Ui) -> WidgetNode {
         let mut items = vec![
             Container::new()
                 .color(p.accent)
-                .padding(EdgeInsets::symmetric(12.0, 0.0))
+                .padding(EdgeInsets::symmetric(space::M, 0.0))
                 .child(Center::new().child(row(
                     space::XS,
                     vec![
@@ -358,7 +358,7 @@ fn status_bar(ui: &Ui) -> WidgetNode {
                 .into(),
             line(where_, size::SMALL, p.ink),
             dot,
-            fill(status, size::SMALL, p.muted),
+            line(status, size::SMALL, p.muted),
         ];
         if let Some(micro) = spent {
             items.push(t(
@@ -366,24 +366,43 @@ fn status_bar(ui: &Ui) -> WidgetNode {
                 p.muted,
             ));
         }
+        // Right-hand side: the look, Settings, then — set apart at the
+        // far edge, in the alarm colour on hover — the kill switch. It used
+        // to sit between the status and the theme toggle at the same
+        // weight as both, one slip of the pointer from either.
+        let mut right = vec![
+            status_button(
+                &p,
+                Glyph::Theme,
+                if mode == Mode::Dark { "Dark" } else { "Light" },
+                false,
+                move || flip.set_look(flip.mode.get().flip(), flip.accent.get()),
+            ),
+            status_button(&p, Glyph::Gear, "Settings", false, move || {
+                gear.open_settings()
+            }),
+        ];
         if ui.stopped.get().is_none() {
             let stop = ui.clone();
-            items.push(status_button(
+            right.push(Container::new().width(1.0).height(14.0).color(p.line_strong).into());
+            right.push(status_button(
                 &p,
                 Glyph::Stop,
                 "Stop everything",
+                true,
                 move || stop.stop_everything("stopped from the window"),
             ));
         }
-        items.push(status_button(
-            &p,
-            Glyph::Theme,
-            if mode == Mode::Dark { "Dark" } else { "Light" },
-            move || flip.set_look(flip.mode.get().flip(), flip.accent.get()),
+        let center = |w: WidgetNode| -> WidgetNode { Align::new(Alignment::CENTER_LEFT).child(w).into() };
+        let mut children: Vec<WidgetNode> = items.into_iter().map(center).collect();
+        // The status takes the slack, so the right group sits at the edge.
+        let status_at = children.len() - if spent.is_some() { 2 } else { 1 };
+        let status_node = children.remove(status_at);
+        children.insert(status_at, grow(status_node));
+        children.push(pad(
+            EdgeInsets::only(0.0, 0.0, space::XS, 0.0),
+            Align::new(Alignment::CENTER_RIGHT).child(row(space::XS, right)),
         ));
-        items.push(status_button(&p, Glyph::Gear, "Settings", move || {
-            gear.open_settings()
-        }));
         Container::new()
             .height(26.0)
             .color(p.status)
@@ -391,30 +410,36 @@ fn status_bar(ui: &Ui) -> WidgetNode {
             .child(
                 Flex::row()
                     .cross_axis_alignment(CrossAxisAlignment::Stretch)
-                    .spacing(12.0)
-                    .children(
-                        items
-                            .into_iter()
-                            .map(|w| Align::new(Alignment::CENTER_LEFT).child(w).into())
-                            .collect::<Vec<WidgetNode>>(),
-                    ),
+                    .spacing(space::M)
+                    .children(children),
             )
             .into()
     })
     .into()
 }
 
-fn status_button(p: &Pal, glyph: Glyph, label: &str, on_tap: impl Fn() + 'static) -> WidgetNode {
+fn status_button(
+    p: &Pal,
+    glyph: Glyph,
+    label: &str,
+    danger: bool,
+    on_tap: impl Fn() + 'static,
+) -> WidgetNode {
     let p = *p;
     let label = label.to_string();
     Pressable::sensed(move |s: Sense| {
+        let (fill, ink) = if danger {
+            (p.status.lerp(p.bad, 0.85 * s.hover), p.muted.lerp(p.on_accent, s.hover))
+        } else {
+            (p.status.lerp(p.surface2, s.hover), p.muted)
+        };
         Container::new()
-            .color(p.status.lerp(p.surface2, s.hover))
+            .color(fill)
             .radius(corner::SMALL)
-            .padding(EdgeInsets::symmetric(8.0, 3.0))
+            .padding(EdgeInsets::symmetric(space::S, 3.0))
             .child(row(
                 space::XS,
-                vec![glyph.draw(12.0, p.muted), t(label.clone(), size::SMALL, p.muted)],
+                vec![glyph.draw(12.0, ink), t(label.clone(), size::SMALL, ink)],
             ))
             .into()
     })
@@ -664,8 +689,10 @@ fn mini(ui: &Ui, p: &Pal, i: usize, words: bool) -> WidgetNode {
             let share = s.done_share();
             column(
                 space::S,
+                // No title here: the caption under the card already
+                // carries it (with the close button), and saying it twice
+                // costs the miniature its most useful line.
                 vec![
-                    line(s.title(), size::LEAD, p.ink),
                     Container::new()
                         .color(p.bubble)
                         .radius(corner::FIELD)
@@ -673,19 +700,7 @@ fn mini(ui: &Ui, p: &Pal, i: usize, words: bool) -> WidgetNode {
                         .child(Text::new(request).size(size::CAPTION).color(p.ink).max_lines(2))
                         .into(),
                     line(status, size::CAPTION, tone_color(p, tone)),
-                    Container::new()
-                        .height(3.0)
-                        .radius(1.5)
-                        .color(p.surface2)
-                        .alignment(Alignment::CENTER_LEFT)
-                        .child(
-                            Container::new()
-                                .width(160.0 * share)
-                                .height(3.0)
-                                .radius(1.5)
-                                .color(tone_color(p, tone)),
-                        )
-                        .into(),
+                    meter_bar(p.surface2, tone_color(p, tone), share, 3.0),
                 ],
             )
         }
@@ -693,8 +708,7 @@ fn mini(ui: &Ui, p: &Pal, i: usize, words: bool) -> WidgetNode {
             space::S,
             vec![
                 Glyph::Plus.draw(22.0, p.muted),
-                b("A new session", size::BODY, p.ink),
-                t("Describe what should exist", size::CAPTION, p.muted),
+                t("Describe what should exist", size::SMALL, p.muted),
             ],
         ),
     };
@@ -706,7 +720,7 @@ fn mini(ui: &Ui, p: &Pal, i: usize, words: bool) -> WidgetNode {
         .children(vec![
             Center::new().child(mark.widget(150.0)).into(),
             pad(
-                EdgeInsets::all(14.0),
+                EdgeInsets::all(space::L),
                 Align::new(Alignment::TOP_LEFT).child(body),
             ),
         ])
@@ -767,7 +781,7 @@ fn overlays(ui: &Ui) -> WidgetNode {
                         Container::new()
                             .color(p.ink)
                             .radius(corner::PILL)
-                            .padding(EdgeInsets::only(18.0, 6.0, 12.0, 6.0))
+                            .padding(EdgeInsets::only(space::L, 6.0, space::M, 6.0))
                             .child(row(space::M, items)),
                     ),
                 )

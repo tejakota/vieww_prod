@@ -948,9 +948,15 @@ fn scrolling_moves_the_page_as_one_piece() {
     let (a, b) = (frame_at(100.0), frame_at(100.6));
     // Inside the settings page's scrolling column.
     let row = |img: &[u8], y: usize| img[(y * 1280 + 360) * 4..(y * 1280 + 1100) * 4].to_vec();
+    // Equal to within one level of 255 per channel: an antialiased edge
+    // that sits at a fractional y can round one level differently after
+    // the shift (a pill's rim, 51 vs 50). The failure this guards against
+    // — each line of text snapping on its own — moves whole glyph rows,
+    // which is tens of levels across many pixels.
+    let same = |x: &[u8], y: &[u8]| x.iter().zip(y).all(|(p, q)| p.abs_diff(*q) <= 1);
     for y in 140..700 {
         assert!(
-            row(&a, y + 1) == row(&b, y),
+            same(&row(&a, y + 1), &row(&b, y)),
             "row {y} of the page did not move by exactly one pixel"
         );
     }

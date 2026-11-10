@@ -128,7 +128,7 @@ fn frame(
         ));
     }
     pad(
-        EdgeInsets::only(28.0, 14.0, 28.0, 18.0),
+        EdgeInsets::only(space::XXL, space::L, space::XXL, space::L),
         stretch(space::L, vec![row(space::M, head), grow(content)]),
     )
 }
@@ -490,7 +490,7 @@ fn card_box(p: &Pal, child: WidgetNode) -> WidgetNode {
         .color(p.surface)
         .radius(corner::CARD)
         .border(Border::new(p.line, 1.0))
-        .padding(EdgeInsets::all(16.0))
+        .padding(EdgeInsets::all(space::L))
         .child(child)
         .into()
 }

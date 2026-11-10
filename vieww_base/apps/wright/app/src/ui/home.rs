@@ -22,6 +22,9 @@ const STARTERS: [(&str, &str, &str); 3] = [
     ("Weekly report", "From a folder of CSV files", "Every Monday, read the CSV files in my sales folder and email me a one-page summary."),
 ];
 
+/// Tall enough for a starter's title and a two-line subtitle.
+const STARTER_MIN_H: f32 = 82.0;
+
 pub fn home(ui: &Ui) -> WidgetNode {
     let ui2 = ui.clone();
     let ui = ui.clone();
@@ -37,12 +40,19 @@ pub fn home(ui: &Ui) -> WidgetNode {
                 let prompt = ui.home.prompt.clone();
                 let (title, sub, text) = (title.to_string(), sub.to_string(), text.to_string());
                 grow(Pressable::sensed(move |s: Sense| {
-                    Container::new()
+                    // One height for all three: a tap target loosens its
+                    // child's constraints, so a row's Stretch cannot reach
+                    // the card, and a one-line subtitle would leave its card
+                    // shorter than its neighbours. The floor fits a title
+                    // and two lines of subtitle.
+                    Constrained::new(Constraints::new(0.0, f32::INFINITY, STARTER_MIN_H, f32::INFINITY))
+                        .child(Container::new()
                         .color(p.surface.lerp(p.surface2, s.hover))
                         .radius(corner::CARD)
                         .border(Border::new(if s.hover > 0.0 { p.line_strong } else { p.line }, 1.0))
-                        .padding(EdgeInsets::all(14.0))
+                        .padding(EdgeInsets::all(space::L))
                         .child(column(space::XS, vec![b(title.clone(), size::BODY, p.ink), t(sub.clone(), size::SMALL, p.muted)]))
+                        )
                         .into()
                 })
                 .on_tap(move || prompt.set(TextEditingValue::new(text.clone()))))
@@ -65,13 +75,11 @@ pub fn home(ui: &Ui) -> WidgetNode {
                         .color(p.surface)
                         .radius(corner::CARD)
                         .border(Border::new(if st.hover > 0.0 { p.line_strong } else { p.line }, 1.0))
-                        .padding(EdgeInsets::all(16.0))
+                        .padding(EdgeInsets::all(space::L))
                         .child(stretch(space::S, vec![
                             line(title.clone(), size::LEAD, p.ink),
                             line(status.clone(), size::SMALL, color),
-                            Container::new().height(4.0).radius(2.0).color(p.surface2).alignment(Alignment::CENTER_LEFT).child(
-                                Container::new().width(298.0 * share).height(4.0).radius(2.0).color(color),
-                            ).into(),
+                            meter_bar(p.surface2, color, share, 4.0),
                         ]))
                         .into()
                 })
@@ -88,7 +96,10 @@ pub fn home(ui: &Ui) -> WidgetNode {
             composer(&ui, &ui.home, send, "Every Monday, read the CSVs in my sales folder and email me a one-page summary", true, false, Rc::new(|| ())),
             // Stretch: the three cards stand as tall as the tallest, so a
             // shorter subtitle does not leave one card floating in the row.
-            Flex::row().cross_axis_alignment(CrossAxisAlignment::Stretch).spacing(10.0).children(starters).into(),
+            stretch(space::S, vec![
+                b("OR START FROM ONE", size::CAPTION, p.muted),
+                Flex::row().cross_axis_alignment(CrossAxisAlignment::Start).spacing(space::M).children(starters).into(),
+            ]),
             {
                 let u = ui.clone();
                 row(space::S, vec![
@@ -113,7 +124,7 @@ pub fn home(ui: &Ui) -> WidgetNode {
         &ui2,
         &ui2.home_scroll,
         pad(
-            EdgeInsets::only(32.0, 12.0, 32.0, 60.0),
+            EdgeInsets::only(space::XXL, space::M, space::XXL, 60.0),
             reading(720.0, content),
         ),
     )
@@ -140,7 +151,7 @@ fn speak_hero(ui: &Ui) -> WidgetNode {
                     .color(p.accent_soft)
                     .radius(corner::CARD)
                     .border(Border::new(p.accent, 1.0 + s.hover))
-                    .padding(EdgeInsets::all(14.0))
+                    .padding(EdgeInsets::all(space::L))
                     .child(row(
                         space::M,
                         vec![
@@ -173,7 +184,7 @@ fn speak_hero(ui: &Ui) -> WidgetNode {
                 .color(p.surface)
                 .radius(corner::CARD)
                 .border(Border::new(p.line_strong, 1.5))
-                .padding(EdgeInsets::all(14.0))
+                .padding(EdgeInsets::all(space::L))
                 .child(row(
                     space::M,
                     vec![
@@ -189,10 +200,13 @@ fn speak_hero(ui: &Ui) -> WidgetNode {
             Pressable::sensed(move |s: Sense| {
             Container::new()
                 .width(520.0)
-                .color(p.surface.lerp(p.accent_soft, s.hover))
+                // Tinted, not outlined like the composer under it: speaking
+                // is the way in this page leads with, so it should not read
+                // as one more box of the same kind.
+                .color(p.accent_soft.lerp(p.surface, 0.35 - 0.35 * s.hover))
                 .radius(corner::CARD)
-                .border(Border::new(if s.hover > 0.0 { p.accent } else { p.line_strong }, 1.5))
-                .padding(EdgeInsets::all(14.0))
+                .border(Border::new(p.accent.with_alpha((90.0 + 165.0 * s.hover) as u8), 1.0))
+                .padding(EdgeInsets::all(space::L))
                 .child(row(space::M, vec![
                     Glyph::Mic.draw(22.0, p.accent_ink),
                     grow(column(space::XS, vec![
@@ -268,7 +282,7 @@ pub fn saved_shelf(ui: &Ui, saved: &[std::path::PathBuf]) -> WidgetNode {
                         },
                         1.0,
                     ))
-                    .padding(EdgeInsets::all(14.0))
+                    .padding(EdgeInsets::all(space::L))
                     .child(stretch(space::XS, rows))
                     .into()
             })
@@ -294,7 +308,7 @@ pub fn saved_chips(ui: &Ui, saved: &[std::path::PathBuf]) -> WidgetNode {
                     .color(p.surface.lerp(p.surface2, s.hover))
                     .radius(16.0)
                     .border(Border::new(p.line_strong, 1.0))
-                    .padding(EdgeInsets::only(10.0, 5.0, 12.0, 5.0))
+                    .padding(EdgeInsets::only(10.0, 5.0, space::M, 5.0))
                     .child(row(
                         space::S,
                         vec![
@@ -330,7 +344,7 @@ pub fn fresh(ui: &Ui) -> WidgetNode {
             .alignment(Alignment::CENTER)
             .child(Glyph::Plus.draw(26.0, p.muted.lerp(p.accent_ink, pull)));
         pad(
-            EdgeInsets::only(32.0, 60.0, 32.0, 40.0),
+            EdgeInsets::only(space::XXL, 60.0, space::XXL, 40.0),
             reading(680.0, stretch(space::L, vec![
                 Center::new().child(ring).into(),
                 Center::new().child(Text::new("A new session").size(size::HEADLINE).color(p.ink).weight(FontWeight::Bold)).into(),

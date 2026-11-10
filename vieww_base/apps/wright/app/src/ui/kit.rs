@@ -275,7 +275,7 @@ pub fn card(p: &Pal, child: impl Into<WidgetNode>) -> WidgetNode {
                 .color(p.surface)
                 .radius(corner::CARD)
                 .border(Border::new(p.line, 1.0))
-                .padding(EdgeInsets::symmetric(20.0, 18.0))
+                .padding(EdgeInsets::symmetric(space::XL, space::L))
                 .child(child),
         )
         .into()
@@ -288,8 +288,50 @@ pub fn tinted(fill: Color, edge: Color, child: impl Into<WidgetNode>) -> WidgetN
                 .color(fill)
                 .radius(corner::CARD)
                 .border(Border::new(edge, 1.0))
-                .padding(EdgeInsets::symmetric(20.0, 18.0))
+                .padding(EdgeInsets::symmetric(space::XL, space::L))
                 .child(child),
+        )
+        .into()
+}
+
+/// How serious a [`notice`] is.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum Severity {
+    /// Something to do before this works (a missing key, a failed download).
+    Warn,
+    /// Something that went wrong.
+    Error,
+}
+
+/// A problem, said as a problem: a tinted callout with a mark in the
+/// severity's colour and the words in ink, so a long explanation stays
+/// readable instead of being a paragraph of yellow or red text. The words
+/// stay selectable — they usually contain the command that fixes it.
+pub fn notice(p: &Pal, severity: Severity, text: impl Into<String>) -> WidgetNode {
+    let hue = match severity {
+        Severity::Warn => p.wait,
+        Severity::Error => p.bad,
+    };
+    let fill = match severity {
+        Severity::Warn => p.wait_soft,
+        Severity::Error => p.surface.lerp(p.bad, 0.12),
+    };
+    Container::new()
+        .color(fill)
+        .radius(corner::SMALL)
+        .border(Border::new(hue.with_alpha(90), 1.0))
+        .padding(EdgeInsets::symmetric(space::M, space::S))
+        .child(
+            Flex::row()
+                .cross_axis_alignment(CrossAxisAlignment::Start)
+                .spacing(space::S)
+                .children(vec![
+                    pad(
+                        EdgeInsets::only(0.0, 5.0, 0.0, 0.0),
+                        Container::new().width(6.0).height(6.0).radius(3.0).color(hue),
+                    ),
+                    grow(copyable(text, size::SMALL, p.ink)),
+                ]),
         )
         .into()
 }
@@ -312,6 +354,29 @@ pub fn pill(label: impl Into<String>, fg: Color, bg: Color) -> WidgetNode {
 pub fn at_least(min: f32, child: impl Into<WidgetNode>) -> WidgetNode {
     Constrained::new(Constraints::new(min, f32::INFINITY, 0.0, f32::INFINITY))
         .child(child)
+        .into()
+}
+
+/// A thin progress bar that fills `share` (0..1) of whatever width it
+/// is given — the fill is a share of the track, never a guessed width.
+pub fn meter_bar(track: Color, fill: Color, share: f32, height: f32) -> WidgetNode {
+    let done = (share.clamp(0.0, 1.0) * 1000.0).round() as u16;
+    let mut parts: Vec<WidgetNode> = Vec::new();
+    if done > 0 {
+        parts.push(
+            Flexible::expanded(done)
+                .child(Container::new().height(height).radius(height / 2.0).color(fill))
+                .into(),
+        );
+    }
+    if done < 1000 {
+        parts.push(Flexible::expanded(1000 - done).child(SizedBox::height(height)).into());
+    }
+    Container::new()
+        .height(height)
+        .radius(height / 2.0)
+        .color(track)
+        .child(Flex::row().children(parts))
         .into()
 }
 
@@ -501,7 +566,7 @@ pub fn button(
             .color(bg)
             .radius(corner::PILL)
             .border(Border::new(edge, 1.0))
-            .padding(EdgeInsets::symmetric(18.0, 8.0))
+            .padding(EdgeInsets::symmetric(space::L, 8.0))
             .child(t(label.clone(), size::UI, fg))
             .into()
     });
@@ -590,7 +655,7 @@ pub fn tool_button(
             .color(bg)
             .radius(16.0)
             .border(Border::new(edge, 1.0))
-            .padding(EdgeInsets::symmetric(14.0, 7.0))
+            .padding(EdgeInsets::symmetric(space::L, 7.0))
             .child(row(space::S, items))
             .into()
     })

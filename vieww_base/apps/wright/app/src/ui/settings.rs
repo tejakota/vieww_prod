@@ -329,7 +329,7 @@ pub fn page(ui: &Ui) -> WidgetNode {
                             p.surface.lerp(p.surface2, s.hover)
                         })
                         .radius(corner::SMALL)
-                        .padding(EdgeInsets::symmetric(12.0, 8.0))
+                        .padding(EdgeInsets::symmetric(space::M, 8.0))
                         .child(t(tb.label(), size::BODY, if on { p.ink } else { p.muted }))
                         .into()
                 })
@@ -365,7 +365,7 @@ pub fn page(ui: &Ui) -> WidgetNode {
                 Offset::new(0.0, 20.0),
                 60.0,
             ))
-            .padding(EdgeInsets::all(22.0))
+            .padding(EdgeInsets::all(space::XL))
             .child(stretch(
                 space::L,
                 vec![
@@ -390,7 +390,7 @@ pub fn page(ui: &Ui) -> WidgetNode {
                                 grow(scroll_area(
                                     &ui,
                                     &f.scroll,
-                                    pad(EdgeInsets::only(0.0, 0.0, 14.0, 0.0), body),
+                                    pad(EdgeInsets::only(0.0, 0.0, space::L, 0.0), body),
                                 )),
                             ]),
                     ),
@@ -425,7 +425,7 @@ fn field(
                 .color(p.surface2)
                 .radius(corner::FIELD)
                 .border(Border::new(p.line_strong, 1.0))
-                .padding(EdgeInsets::symmetric(12.0, 8.0))
+                .padding(EdgeInsets::symmetric(space::M, 8.0))
                 .child(
                     TextField::new(value.get())
                         .show_cursor(ui.is_typing_in(placeholder))
@@ -548,7 +548,7 @@ fn builtin(ui: &Ui, p: &Pal, cfg: &Config) -> Vec<WidgetNode> {
                 block.push(progress_bar(p, *percent as f32 / 100.0));
                 block.push(t(line.clone(), size::CAPTION, p.muted));
             }
-            Some(Pull::Failed(e)) => block.push(copyable(e.clone(), size::CAPTION, p.wait)),
+            Some(Pull::Failed(e)) => block.push(notice(p, Severity::Warn, e.clone())),
             _ => {}
         }
         rows.push(
@@ -556,7 +556,7 @@ fn builtin(ui: &Ui, p: &Pal, cfg: &Config) -> Vec<WidgetNode> {
                 .color(p.surface2.with_alpha(110))
                 .radius(corner::CARD)
                 .border(Border::new(p.line, 1.0))
-                .padding(EdgeInsets::all(14.0))
+                .padding(EdgeInsets::all(space::L))
                 .child(stretch(space::S, block))
                 .into(),
         );
@@ -691,7 +691,7 @@ fn models(ui: &Ui, p: &Pal) -> WidgetNode {
             ),
         ];
         if let KeyState::Missing(why) = &state {
-            block.push(copyable(why.clone(), size::CAPTION, p.muted));
+            block.push(notice(p, Severity::Warn, why.clone()));
         }
         if editing.as_deref() == Some(prov.name.as_str()) {
             let (form, reference) = (f.clone(), prov.key.clone().unwrap_or_default());
@@ -722,7 +722,7 @@ fn models(ui: &Ui, p: &Pal) -> WidgetNode {
                 .color(p.surface2.with_alpha(110))
                 .radius(corner::CARD)
                 .border(Border::new(p.line, 1.0))
-                .padding(EdgeInsets::all(14.0))
+                .padding(EdgeInsets::all(space::L))
                 .child(stretch(space::S, block))
                 .into(),
         );
@@ -1015,7 +1015,7 @@ fn network(ui: &Ui, p: &Pal) -> WidgetNode {
                     grow(t("found in this file", size::SMALL, p.muted)),
                 ],
             ),
-            Err(e) => copyable(e, size::SMALL, p.wait),
+            Err(e) => notice(p, Severity::Warn, e),
         }
     };
     let (choose, save, clear) = (f.clone(), f.clone(), f.clone());
@@ -1100,7 +1100,7 @@ fn network(ui: &Ui, p: &Pal) -> WidgetNode {
                 .color(p.surface2.with_alpha(110))
                 .radius(corner::FIELD)
                 .border(Border::new(p.line, 1.0))
-                .padding(EdgeInsets::symmetric(12.0, 8.0))
+                .padding(EdgeInsets::symmetric(space::M, 8.0))
                 .child(row(
                     space::M,
                     vec![
@@ -1356,7 +1356,7 @@ fn fleet(ui: &Ui, p: &Pal) -> WidgetNode {
             ),
         ];
         if let Some(why) = &r.held {
-            block.push(copyable(why.clone(), size::SMALL, p.wait));
+            block.push(notice(p, Severity::Warn, why.clone()));
         }
         match &r.last {
             Some(l) => block.push(copyable(
@@ -1393,7 +1393,7 @@ fn fleet(ui: &Ui, p: &Pal) -> WidgetNode {
                 .color(p.surface2.with_alpha(110))
                 .radius(corner::CARD)
                 .border(Border::new(p.line, 1.0))
-                .padding(EdgeInsets::all(14.0))
+                .padding(EdgeInsets::all(space::L))
                 .child(stretch(space::S, block))
                 .into(),
         );
@@ -1429,7 +1429,7 @@ fn organization(ui: &Ui, p: &Pal) -> WidgetNode {
                 rows.push(copyable_mono(c, size::SMALL, p.ink));
             }
         }
-        Some(Err(e)) => rows.push(copyable(e, size::UI, p.bad)),
+        Some(Err(e)) => rows.push(notice(p, Severity::Error, e)),
         Some(Ok(lines)) => {
             for l in lines {
                 rows.push(row(
@@ -1453,10 +1453,10 @@ fn organization(ui: &Ui, p: &Pal) -> WidgetNode {
                     format!("{}'s policy allows this plan.", pol.org), size::SMALL,
                     p.good,
                 ),
-                Err(e) => copyable(e, size::SMALL, p.bad),
+                Err(e) => notice(p, Severity::Error, e),
             });
             if let Err(e) = wright_engine::org::approval(&s.project) {
-                rows.push(copyable(format!("Unattended runs: {e}."), size::SMALL, p.wait));
+                rows.push(notice(p, Severity::Warn, format!("Unattended runs: {e}.")));
             }
         }
     }
@@ -1556,7 +1556,7 @@ fn project(ui: &Ui, p: &Pal) -> WidgetNode {
                     .color(p.surface2)
                     .radius(corner::FIELD)
                     .border(Border::new(p.line_strong, 1.0))
-                    .padding(EdgeInsets::symmetric(12.0, 8.0))
+                    .padding(EdgeInsets::symmetric(space::M, 8.0))
                     .child(
                         TextField::new(v)
                             .show_cursor(ui.is_typing_in(ph))
