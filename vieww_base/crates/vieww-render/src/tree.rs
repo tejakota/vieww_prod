@@ -59,6 +59,21 @@ struct Boundary {
     /// layer trees — which is what lets an unchanged frame skip reconciliation
     /// altogether.
     origin: Offset,
+    /// What non-boundary ancestors between the enclosing boundary and this one
+    /// declared through [`RenderObject::transform`], composed — in the
+    /// enclosing boundary's space, applied after `origin`.
+    ///
+    /// # Why a boundary needs this when `paint` does not
+    ///
+    /// On the direct path a `RenderTransform` changes the canvas and every
+    /// descendant is drawn through it. On the layered path a descendant that
+    /// is a repaint boundary is *not* drawn through the enclosing layer's
+    /// canvas — it is a layer of its own, placed by its layer transform — so
+    /// without this the transform never reached it: a screen sliding in under
+    /// `Transformed::translate` stayed exactly where it was the moment it held
+    /// a scroll view (a `RenderViewport` is a boundary), while the same screen
+    /// without one slid.
+    transform: Transform,
 }
 
 /// The retained boundary list for one subtree, with the inputs it was built
@@ -75,6 +90,9 @@ struct BoundaryCache {
     /// The origin in the enclosing boundary's space. A clip's `bounds` is
     /// `Rect::from_origin_size(origin, size)`, so a matching origin is needed.
     origin: Offset,
+    /// The ancestors' transform reaching this subtree, which every boundary
+    /// in it composes into its own — so a matching one is needed too.
+    matrix: Transform,
     /// The boundaries collected under this subtree, in paint order.
     boundaries: Vec<Boundary>,
 }
@@ -1398,6 +1416,7 @@ impl RenderTree {
             None,
             LayerEffect::default(),
             Offset::ZERO,
+            Transform::IDENTITY,
             &mut out,
             &mut cache,
             &mut misses,
@@ -1430,6 +1449,7 @@ impl RenderTree {
                 None,
                 LayerEffect::default(),
                 Offset::ZERO,
+                Transform::IDENTITY,
                 &mut out,
                 &mut ctx,
                 &mut misses,
@@ -1523,6 +1543,7 @@ impl RenderTree {
         enclosing: Option<RenderId>,
         effect: LayerEffect,
         origin: Offset,
+        matrix: Transform,
         out: &mut Vec<Boundary>,
         ctx: &mut FastMap<RenderId, BoundaryCache>,
         misses: &mut usize,
@@ -1531,7 +1552,11 @@ impl RenderTree {
         // reaching it are both unchanged, so its boundary list is identical.
         let stamp = self.node(id).subtree_revision;
         if let Some(cached) = ctx.get(&id) {
-            if cached.stamp == stamp && cached.effect == effect && cached.origin == origin {
+            if cached.stamp == stamp
+                && cached.effect == effect
+                && cached.origin == origin
+                && cached.matrix == matrix
+            {
                 out.extend_from_slice(&cached.boundaries);
                 return;
             }
@@ -1541,7 +1566,7 @@ impl RenderTree {
         // starts so it can be cached at the end.
         *misses += 1;
         let start = out.len();
-        self.collect_boundaries_uncached(id, enclosing, effect, origin, out, ctx, misses);
+        self.collect_boundaries_uncached(id, enclosing, effect, origin, matrix, out, ctx, misses);
 
         // Record this subtree's slice for next time. A subtree that produced no
         // boundaries still caches (an empty slice), so an unchanged empty
@@ -1554,6 +1579,7 @@ impl RenderTree {
                 entry.stamp = stamp;
                 entry.effect = effect;
                 entry.origin = origin;
+                entry.matrix = matrix;
                 entry.boundaries.clear();
                 entry.boundaries.extend_from_slice(&out[start..]);
             }
@@ -1564,6 +1590,7 @@ impl RenderTree {
                         stamp,
                         effect,
                         origin,
+                        matrix,
                         boundaries: out[start..].to_vec(),
                     },
                 );
@@ -1588,24 +1615,31 @@ impl RenderTree {
         enclosing: Option<RenderId>,
         effect: LayerEffect,
         origin: Offset,
+        matrix: Transform,
         out: &mut Vec<Boundary>,
         ctx: &mut FastMap<RenderId, BoundaryCache>,
         misses: &mut usize,
     ) {
-        let (enclosing, effect, origin) = if self.is_repaint_boundary(id) {
+        let (enclosing, effect, origin, matrix) = if self.is_repaint_boundary(id) {
             out.push(Boundary {
                 id,
                 enclosing,
                 effect,
                 origin,
+                transform: matrix,
             });
             // Reset *before* this object's own declarations are read, which is
             // what makes a `RenderViewport` — a boundary that also clips — come
             // out right: it composites into its parent under whatever was
             // declared above it, and its own clip binds the boundaries below.
-            (Some(id), LayerEffect::default(), Offset::ZERO)
+            (
+                Some(id),
+                LayerEffect::default(),
+                Offset::ZERO,
+                Transform::IDENTITY,
+            )
         } else {
-            (enclosing, effect, origin)
+            (enclosing, effect, origin, matrix)
         };
 
         if self.skips_children(id) {
@@ -1636,6 +1670,17 @@ impl RenderTree {
             None => effect,
         };
 
+        // This object's transform, about its own origin — the same sandwich
+        // `RenderTransform::paint` puts on the canvas — composed inside the
+        // ancestors' for everything below it. See `Boundary::transform`.
+        let matrix = match object.and_then(|o| o.transform()) {
+            Some(mine) => Transform::translate(Offset::new(-origin.dx, -origin.dy))
+                .then(mine)
+                .then(Transform::translate(origin))
+                .then(matrix),
+            None => matrix,
+        };
+
         for &child in &node.children {
             // Recurse through the cached entry point so each child's own subtree
             // is cached independently — the whole point. `boundaries_uncached`
@@ -1646,6 +1691,7 @@ impl RenderTree {
                 enclosing,
                 effect,
                 origin + self.node(child).offset,
+                matrix,
                 out,
                 ctx,
                 misses,
@@ -1717,6 +1763,7 @@ impl RenderTree {
             enclosing,
             effect,
             origin,
+            transform: between,
         } in boundaries
         {
             // A layer records in its *parent layer's* space, not the screen's —
@@ -1724,7 +1771,12 @@ impl RenderTree {
             // the offset from the enclosing boundary. `origin` is already
             // exactly that, measured by the walk that found this boundary; the
             // two `global_offset` calls this replaced were re-deriving it.
-            let transform = Transform::translate(origin);
+            //
+            // Then whatever non-boundary ancestors in between transformed —
+            // see `Boundary::transform`. Identity for almost every boundary,
+            // and `then` with identity is exact, so those layers' transforms
+            // are bit-for-bit what they were.
+            let transform = Transform::translate(origin).then(between);
 
             let reparented = self
                 .layers
@@ -2597,6 +2649,52 @@ mod boundary_cache_tests {
             Transform::translate(Offset::new(47.0, 11.0)),
             "the layer is at the wrong place, not merely at a different one"
         );
+    }
+
+    /// A transform between two boundaries reaches the inner one's layer, and
+    /// follows the transform when it changes — a slide whose screen holds a
+    /// scroll view (a boundary) has to move the scroll view's layer too.
+    #[test]
+    fn a_transform_above_a_boundary_moves_its_layer() {
+        let mut t = RenderTree::new();
+        let root = t.insert(None, Stub::boundary());
+        let slide = t.insert(
+            Some(root),
+            Box::new(crate::objects::RenderTransform::translate(Offset::new(
+                25.0, 0.0,
+            ))),
+        );
+        let b = t.insert(Some(slide), Stub::boundary());
+        let leaf = t.insert(Some(b), Stub::leaf());
+        t.set_children(root, vec![slide]);
+        t.set_children(slide, vec![b]);
+        t.set_children(b, vec![leaf]);
+        t.set_offset(slide, Offset::new(0.0, 7.0));
+        t.layout(root, Constraints::tight(Size::new(100.0, 100.0)));
+
+        let mut layers = LayerTree::with_root();
+        t.paint_layers(&mut layers);
+        assert_eq!(
+            layers.layer(t.layers[&b].layer).transform(),
+            Transform::translate(Offset::new(25.0, 7.0)),
+            "the boundary under the transform was placed as if it were not there"
+        );
+        assert_eq!(t.boundaries(), t.boundaries_uncached());
+
+        // The next frame of the slide.
+        t.replace_object(
+            slide,
+            Box::new(crate::objects::RenderTransform::translate(Offset::new(
+                50.0, 0.0,
+            ))),
+        );
+        t.paint_layers(&mut layers);
+        assert_eq!(
+            layers.layer(t.layers[&b].layer).transform(),
+            Transform::translate(Offset::new(50.0, 7.0)),
+            "a changed transform must not be answered from the cache"
+        );
+        assert_eq!(t.boundaries(), t.boundaries_uncached());
     }
 
     #[test]

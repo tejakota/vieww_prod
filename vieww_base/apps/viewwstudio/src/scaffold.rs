@@ -402,11 +402,20 @@ impl ProjectKind {
 ///
 /// Kept inside the codegen subset by construction: the scaffold's Say screen
 /// must render on the first Render, or the kind card lied.
-pub const HOME_SAY: &str =
-    include_str!("../../../crates/vieww-say-codegen/tests/fixtures/counter.say");
+///
+/// A designed starter, not the codegen's `counter.say` test fixture it used
+/// to be: the fixture has no outer padding (it exists to pin generated Rust,
+/// not to look like an app), so every new project's first render had its
+/// heading against the left edge of the phone and under the notch. This one
+/// pads its content, scrolls, and has a second screen with a transition so
+/// `animate --tap "Details"` and the framed renders have something to show
+/// from the first minute.
+pub const HOME_SAY: &str = include_str!("../templates/home.say");
 
-/// The buffer the welcome card's first row opens.
-pub const SAY_COUNTER: &str = HOME_SAY;
+/// The buffer the welcome card's first row opens: still the counter fixture,
+/// the smallest screen that renders, which is that card's whole promise.
+pub const SAY_COUNTER: &str =
+    include_str!("../../../crates/vieww-say-codegen/tests/fixtures/counter.say");
 
 /// Every file a new project starts with, as `(relative path, contents)`.
 ///

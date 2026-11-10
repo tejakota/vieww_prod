@@ -57,14 +57,21 @@ compile, the same device table, the same out-of-process
 preview — behind commands a script can drive:
 
 ```console
-$ viewwstudio-cli render src/screens/home.say --device mobile
-wrote target/render/home.png (393×852, rustc 0.3s)
+$ viewwstudio-cli render \
+    src/screens/home.say --device mobile
+wrote target/render/home.png
+  (393×852, rustc 0.3s)
 
-$ viewwstudio-cli preview --device android --landscape
-previewing src/screens/home.say as Android phone (915 × 412) at http://127.0.0.1:8788
+$ viewwstudio-cli preview \
+    --device android --landscape
+previewing src/screens/home.say
+  as Android phone (915 × 412)
+  at http://127.0.0.1:8788
 
-$ viewwstudio-cli render flow.say --all-screens
-$ viewwstudio-cli animate flow.say --fps 60 --duration 5s
+$ viewwstudio-cli render flow.say \
+    --all-screens
+$ viewwstudio-cli animate flow.say \
+    --fps 60 --duration 5s
 $ viewwstudio-cli test
 ```
 
@@ -79,3 +86,54 @@ survive, and a golden to compare against. `viewwstudio-cli`
 with no arguments prints the whole surface, and
 `viewwstudio::cli`'s module doc is the honest table of what
 is shared with the app and what the honest limits are.
+
+## Showing it to someone
+
+Four things turn a preview into something you can hand over. Each is a
+command in the studio (Render menu, or the palette) and a flag on the CLI —
+the studio runs the CLI to do them, so the two always agree.
+
+| In the studio (Render menu)        | On the command line                                 |
+|------------------------------------|-----------------------------------------------------|
+| Preview: Save Framed Screenshot    | `render home.say --device phone --frame`            |
+| Preview: Save Device Matrix Image  | `render home.say --matrix` (or `--devices a,b,c`)   |
+| Preview: Start or Stop Recording   | `animate home.say --device phone --frame --script recording.script` |
+| Preview: Share on Network (QR Code)| `preview home.say --share`                          |
+
+**Frames.** `--frame` draws the pane's own device around the screen — the
+same bezel, notch, punch hole and home indicator — into the PNG or GIF.
+A PNG keeps a transparent margin for the shadow; `--background #ffffff`
+puts it on a colour.
+
+**Interaction.** `render` and `animate` take steps that happen before the
+picture, or during the animation:
+
+```console
+$ viewwstudio-cli render home.say \
+    --device phone --frame --tap Details
+$ viewwstudio-cli animate home.say \
+    --device android --frame \
+    --do 'tap "Add one" @0.5s' \
+    --do 'tap "Add one"' \
+    --do 'tap "Details"'
+```
+
+A target is a label (what a screen reader would say — a button's text) or
+a point in device points (`120,300`). Steps are `tap`, `hold … for 800ms`,
+`drag 200,600 -> 200,200 over 300ms`, `scroll -300 [at x,y]`,
+`key enter|tab|escape|…` and `type "text"`, each with an optional `@time`.
+`--script file` reads one step per line.
+
+**Recording.** Start Recording in the studio, use the preview, and Stop:
+the studio writes `.vieww/recordings/recording-<time>.gif` (framed) and a
+`.script` beside it in the syntax above — so the same interaction can be
+replayed at any device, theme or frame rate with `animate --script`.
+Recording keeps what the isolated preview draws, so starting one turns
+isolation on.
+
+**Sharing.** `--share` serves the preview to your local network as well as
+to this machine, and shows a QR code — in the terminal, in Output, and in
+the browser page. A phone on the same Wi-Fi scans it and gets the screen
+edge to edge, driven by touch. Everyone who opens the link drives the same
+preview. For a link that works anywhere, export the web build
+(`export --format web`) and host it.

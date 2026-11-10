@@ -605,6 +605,10 @@ impl Studio {
             C::ToggleSafeArea => self.show_insets.set(!self.show_insets.peek()),
             C::ToggleDeviceMatrix => self.toggle_device_matrix(),
             C::MatrixAddDevice => self.matrix_add_device(),
+            C::ExportFramedScreenshot => self.export_framed_screenshot(),
+            C::ExportDeviceMatrix => self.export_device_matrix(),
+            C::ToggleRecording => self.toggle_recording(),
+            C::SharePreview => self.share_preview(),
             C::TogglePerfOverlay => self.toggle_perf_overlay(),
             C::AttributeFrame => self.request_attribution(),
             C::TogglePreviewDark => {

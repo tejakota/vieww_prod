@@ -1190,3 +1190,44 @@ fn preview_and_build_are_never_the_same_control() {
     assert_eq!(Command::Render.menu(), Menu::Render);
     assert_eq!(Command::Build.menu(), Menu::Build);
 }
+
+/// The presentation commands live on the Render menu, have no chord of their
+/// own, and refuse — in words — to export a buffer that is not a saved
+/// screen rather than handing the CLI a path that does not exist.
+#[test]
+fn presentation_commands_refuse_an_unsaved_buffer_by_name() {
+    let (_runtime, studio) = studio_with(&[("home.say", "screen \"Home\":\n    a text \"hi\"\n")]);
+    for command in [
+        Command::ExportFramedScreenshot,
+        Command::ExportDeviceMatrix,
+        Command::SharePreview,
+    ] {
+        assert_eq!(command.menu(), Menu::Render, "{command:?}");
+        assert_eq!(command.chord(), None, "{command:?}");
+        studio.notice.set(None);
+        studio.run(command);
+        let notice = studio.notice.get().unwrap_or_default();
+        assert!(
+            notice.contains("Save"),
+            "{command:?} on a scratch buffer says to save it: {notice}"
+        );
+    }
+    assert!(studio.share_job.get().is_none(), "nothing was started");
+}
+
+/// Recording starts and stops as one toggle; a recording that captured
+/// nothing still writes its script, so a stop is never silent.
+#[test]
+fn recording_toggles() {
+    let (_runtime, studio) = studio();
+    assert!(!studio.is_recording());
+    viewwstudio::showcase::start_recording();
+    assert!(studio.is_recording());
+    let recording = viewwstudio::showcase::stop_recording().expect("one was running");
+    assert!(!studio.is_recording());
+    assert!(recording.script.is_empty());
+    assert!(
+        recording.gif(None, vieww_foundation::Color::WHITE).is_err(),
+        "an empty recording says so rather than writing an empty GIF"
+    );
+}

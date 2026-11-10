@@ -1387,6 +1387,20 @@ pub struct Frame<'a> {
 /// tree.
 pub const PERF_OVERLAY: &str = "PerformanceOverlay";
 
+/// The device shell's corner radius and bezel width, in device points.
+///
+/// One table, shared with [`crate::showcase`], which draws the same shell
+/// around exported stills, animations and the device matrix — a framed PNG
+/// is the pane's frame, not a second drawing of one.
+#[must_use]
+pub(crate) const fn shell_metrics(platform: Platform) -> (f32, f32) {
+    match platform {
+        Platform::Ios => (56.0, 14.0),
+        Platform::Android => (34.0, 12.0),
+        Platform::Desktop => (12.0, 0.0),
+    }
+}
+
 fn device(frame: Frame<'_>) -> WidgetNode {
     let Frame {
         colors,
@@ -1412,11 +1426,7 @@ fn device(frame: Frame<'_>) -> WidgetNode {
     let (device_width, device_height) = viewport;
 
     // Device points, so a 55-point corner really is an iPhone's corner.
-    let (corner, bezel): (f32, f32) = match platform {
-        Platform::Ios => (56.0, 14.0),
-        Platform::Android => (34.0, 12.0),
-        Platform::Desktop => (12.0, 0.0),
-    };
+    let (corner, bezel) = shell_metrics(platform);
 
     // **One simulation, not two.** The frame used to reserve opaque bars at the
     // top and bottom *and* publish the same insets in `ViewMetrics`, so a guest
@@ -1846,7 +1856,7 @@ pub fn simulated_metrics(
 /// result is the same at every `Stack` alignment and at every device preset:
 /// a cutout centred on the edge a real device carries it on, always inside
 /// the safe area the simulation publishes for it.
-fn cutouts(
+pub(crate) fn cutouts(
     colors: ColorScheme,
     platform: Platform,
     landscape: bool,
@@ -2303,8 +2313,11 @@ impl Widget for RemoteScreen {
             }
         };
         with_remote_state(handle.as_ref(), |s| s.animating = frame.wants_frame);
+        // The recorder keeps what the pane shows, when a recording runs.
+        crate::showcase::record_frame(frame.width, frame.height, &frame.rgba);
         let push = move |handle: &Option<std::rc::Rc<std::cell::RefCell<dyn ElementState>>>,
                          event: crate::remote::RemoteEvent| {
+            crate::showcase::record_event(&event);
             with_remote_state(handle.as_ref(), |s| {
                 // Every event that knows where it happened also knows where
                 // the cursor is.
@@ -2451,6 +2464,7 @@ impl std::fmt::Debug for RenderForwardInput {
 
 impl RenderForwardInput {
     fn queue(&self, event: crate::remote::RemoteEvent) {
+        crate::showcase::record_event(&event);
         let Some(handle) = self.handle.as_ref() else {
             return;
         };
@@ -2813,11 +2827,11 @@ widget_node_from!(GuestRoot);
 /// Nesting four containers would work and would put four boxes in the tree per
 /// frame of a preview that is already the most expensive region in the window.
 #[derive(Debug)]
-struct DeviceShell {
-    corner: f32,
-    bezel: f32,
+pub(crate) struct DeviceShell {
+    pub(crate) corner: f32,
+    pub(crate) bezel: f32,
     /// Desktop frames have no bezel and so no side buttons.
-    buttons: bool,
+    pub(crate) buttons: bool,
 }
 
 impl vieww_widget::Painter for DeviceShell {

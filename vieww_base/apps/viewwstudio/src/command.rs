@@ -236,6 +236,16 @@ pub enum Command {
     ToggleDeviceMatrix,
     /// Add the next device not already shown to the matrix.
     MatrixAddDevice,
+    /// Save the previewed screen, framed in its device, as a PNG.
+    ExportFramedScreenshot,
+    /// Save the screen on every matrix device, framed, side by side, as a PNG.
+    ExportDeviceMatrix,
+    /// Start recording the preview — what it draws and the input that drove
+    /// it — or stop and save the recording as a GIF and a replayable script.
+    ToggleRecording,
+    /// Serve the previewed screen to the local network, with a QR code for a
+    /// phone — or stop sharing it.
+    SharePreview,
     /// ST-09: the performance overlay over the previewed screen.
     TogglePerfOverlay,
     /// ST-09: measure where the next frame's milliseconds go.
@@ -484,7 +494,7 @@ pub enum Command {
 
 impl Command {
     /// Every command, in palette order.
-    pub const ALL: [Self; 126] = [
+    pub const ALL: [Self; 130] = [
         Self::Render,
         Self::CancelRender,
         Self::Build,
@@ -540,6 +550,10 @@ impl Command {
         Self::TogglePreviewDark,
         Self::ToggleDeviceMatrix,
         Self::MatrixAddDevice,
+        Self::ExportFramedScreenshot,
+        Self::ExportDeviceMatrix,
+        Self::ToggleRecording,
+        Self::SharePreview,
         Self::TogglePerfOverlay,
         Self::AttributeFrame,
         Self::LivePreview,
@@ -637,6 +651,10 @@ impl Command {
             Self::ToggleSafeArea => "Toggle Safe-Area Overlay",
             Self::TogglePreviewDark => "Toggle Preview Dark Mode",
             Self::ToggleDeviceMatrix => "Preview: Several Devices Side by Side",
+            Self::ExportFramedScreenshot => "Preview: Save Framed Screenshot",
+            Self::ExportDeviceMatrix => "Preview: Save Device Matrix Image",
+            Self::ToggleRecording => "Preview: Start or Stop Recording",
+            Self::SharePreview => "Preview: Share on Network (QR Code)",
             Self::MatrixAddDevice => "Preview: Add a Device to the Row",
             Self::TogglePerfOverlay => "Preview: Performance Overlay",
             Self::AttributeFrame => "Preview: Attribute This Frame",
@@ -848,6 +866,10 @@ impl Command {
             | Self::TogglePreviewDark
             | Self::ToggleDeviceMatrix
             | Self::MatrixAddDevice
+            | Self::ExportFramedScreenshot
+            | Self::ExportDeviceMatrix
+            | Self::ToggleRecording
+            | Self::SharePreview
             | Self::TogglePerfOverlay
             | Self::AttributeFrame
             | Self::LivePreview
@@ -985,6 +1007,10 @@ impl Command {
             | Self::TogglePreviewDark
             | Self::ToggleDeviceMatrix
             | Self::MatrixAddDevice
+            | Self::ExportFramedScreenshot
+            | Self::ExportDeviceMatrix
+            | Self::ToggleRecording
+            | Self::SharePreview
             | Self::TogglePerfOverlay
             | Self::AttributeFrame
             | Self::LivePreview

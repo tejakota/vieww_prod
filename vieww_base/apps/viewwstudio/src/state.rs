@@ -57,6 +57,7 @@ mod panels;
 mod picker;
 mod plugins;
 mod session;
+mod showcase;
 mod update;
 mod vcs;
 
@@ -2518,6 +2519,8 @@ pub struct Studio {
     /// `dlopen`ing it into the studio. On by default on Windows, where the
     /// in-process panic boundary cannot work (`PENDING.md` §3.3).
     pub isolated_preview: Signal<bool>,
+    /// The running "Share on Network" job, so the command can stop it.
+    pub share_job: std::cell::Cell<Option<u64>>,
     /// `rustc`'s side of the conversation, for the Output panel.
     pub output: Signal<Rc<Vec<String>>>,
     /// What the last Render cost, for the Timings panel.
@@ -3053,6 +3056,7 @@ impl Studio {
             preview_screen: runtime.signal(None),
             preview_remote: runtime.signal(None),
             isolated_preview: runtime.signal(cfg!(windows) || cfg!(panic = "abort")),
+            share_job: std::cell::Cell::new(None),
             output: runtime.signal(Rc::new(Vec::new())),
             timings: runtime.signal(Rc::new(Vec::new())),
             rendered_at: runtime.signal(None),

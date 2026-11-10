@@ -1,0 +1,28 @@
+-- say-language: 1
+-- Your first screen. Change anything below and the preview follows.
+-- `viewwstudio-cli render . --device phone --frame` puts it in a device frame.
+
+keep a whole number called count starting at 0
+
+screen "Home":
+    a scroll view:
+        a column, spaced 20, padded 24, children aligned to the start:
+            a heading "Welcome", size 30, bold
+            a text "This screen is src/screens/home.say — change it and see it here.", color #6B6B76
+            a card, padded 20, radius 16:
+                a column, spaced 12, children aligned to the start:
+                    a text "Taps so far", bold
+                    a heading "\(count)", size 40, bold
+                    a row, spaced 12:
+                        a button "Add one" which when tapped:
+                            add 1 to count
+                        a button "Details" which when tapped:
+                            open the screen "Details"
+
+screen "Details" with a slide transition:
+    a scroll view:
+        a column, spaced 16, padded 24, children aligned to the start:
+            a heading "Details", size 30, bold
+            a text "A second screen, opened with a slide transition.", color #6B6B76
+            a button "Back" which when tapped:
+                go back

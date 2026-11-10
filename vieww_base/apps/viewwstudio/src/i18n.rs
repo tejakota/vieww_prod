@@ -227,6 +227,21 @@ pub fn has_entry(language: Language, english: &str) -> bool {
 }
 
 const SPANISH: &[(&str, &str)] = &[
+    // Presentation: framed screenshots, the device matrix image, recording
+    // and sharing (state/showcase.rs).
+    ("Could not save the recording: {}", "No se pudo guardar la grabación: {}"),
+    ("Open a screen first — a .say or .rs file", "Abre primero una pantalla: un archivo .say o .rs"),
+    ("Recording needs the isolated preview, and `{}` is not next to the studio — build it with cargo build -p viewwstudio --bins", "Grabar necesita la vista previa aislada y `{}` no está junto al estudio: compílalo con cargo build -p viewwstudio --bins"),
+    ("Recording saved: {} ({} steps) and its replayable .script beside it", "Grabación guardada: {} ({} pasos) y su .script reproducible al lado"),
+    ("Recording the preview — use it, then run Start or Stop Recording again", "Grabando la vista previa: úsala y vuelve a ejecutar Iniciar o detener la grabación"),
+    ("Save first — the export renders what is on disk", "Guarda primero: la exportación usa lo que está en el disco"),
+    ("Save this buffer first — the export renders the file on disk", "Guarda primero este búfer: la exportación usa el archivo en el disco"),
+    ("Saving a framed screenshot — the path is in Output", "Guardando una captura con marco: la ruta está en Salida"),
+    ("Saving the device matrix — the path is in Output", "Guardando la imagen de varios dispositivos: la ruta está en Salida"),
+    ("Sharing the preview on your network — scan the QR code in the browser page or in Output; run the command again to stop", "Compartiendo la vista previa en tu red: escanea el código QR en la página del navegador o en Salida; ejecuta el comando de nuevo para detenerlo"),
+    ("Stopped sharing the preview", "Se dejó de compartir la vista previa"),
+    ("That is not a screen — open a .say or .rs file", "Eso no es una pantalla: abre un archivo .say o .rs"),
+    ("viewwstudio-cli is not next to the studio — build it with cargo build -p viewwstudio --bins", "viewwstudio-cli no está junto al estudio: compílalo con cargo build -p viewwstudio --bins"),
     // ST-10: sharing a buffer (state/collab).
     ("Share This Buffer for Collaboration", "Compartir este búfer para colaborar"),
     // ST-13: plugins (plugin.rs / state/plugins.rs).
@@ -344,6 +359,10 @@ const SPANISH: &[(&str, &str)] = &[
     ("Preview note hidden. Bring it back from this palette.", "Nota de la vista previa oculta. Recupérala desde esta paleta."),
     ("Preview: Add a Device to the Row", "Vista previa: añadir un dispositivo a la fila"),
     ("Preview: Several Devices Side by Side", "Vista previa: varios dispositivos lado a lado"),
+    ("Preview: Save Framed Screenshot", "Vista previa: guardar captura con marco"),
+    ("Preview: Save Device Matrix Image", "Vista previa: guardar imagen de varios dispositivos"),
+    ("Preview: Start or Stop Recording", "Vista previa: iniciar o detener la grabación"),
+    ("Preview: Share on Network (QR Code)", "Vista previa: compartir en la red (código QR)"),
     ("Preview: dark", "Vista previa: oscura"),
     ("Preview: light", "Vista previa: clara"),
     ("Preview: one device", "Vista previa: un dispositivo"),
@@ -703,6 +722,21 @@ const SPANISH: &[(&str, &str)] = &[
 ];
 
 const FRENCH: &[(&str, &str)] = &[
+    // Presentation: framed screenshots, the device matrix image, recording
+    // and sharing (state/showcase.rs).
+    ("Could not save the recording: {}", "Impossible d’enregistrer l’enregistrement : {}"),
+    ("Open a screen first — a .say or .rs file", "Ouvrez d’abord un écran — un fichier .say ou .rs"),
+    ("Recording needs the isolated preview, and `{}` is not next to the studio — build it with cargo build -p viewwstudio --bins", "L’enregistrement nécessite l’aperçu isolé, et `{}` n’est pas à côté du studio — compilez-le avec cargo build -p viewwstudio --bins"),
+    ("Recording saved: {} ({} steps) and its replayable .script beside it", "Enregistrement sauvegardé : {} ({} étapes) et son .script rejouable à côté"),
+    ("Recording the preview — use it, then run Start or Stop Recording again", "Enregistrement de l’aperçu — utilisez-le, puis relancez Démarrer ou arrêter l’enregistrement"),
+    ("Save first — the export renders what is on disk", "Enregistrez d’abord — l’export utilise ce qui est sur le disque"),
+    ("Save this buffer first — the export renders the file on disk", "Enregistrez d’abord ce tampon — l’export utilise le fichier sur le disque"),
+    ("Saving a framed screenshot — the path is in Output", "Enregistrement d’une capture encadrée — le chemin est dans Sortie"),
+    ("Saving the device matrix — the path is in Output", "Enregistrement de l’image multi-appareils — le chemin est dans Sortie"),
+    ("Sharing the preview on your network — scan the QR code in the browser page or in Output; run the command again to stop", "Aperçu partagé sur votre réseau — scannez le code QR dans la page du navigateur ou dans Sortie ; relancez la commande pour arrêter"),
+    ("Stopped sharing the preview", "Partage de l’aperçu arrêté"),
+    ("That is not a screen — open a .say or .rs file", "Ce n’est pas un écran — ouvrez un fichier .say ou .rs"),
+    ("viewwstudio-cli is not next to the studio — build it with cargo build -p viewwstudio --bins", "viewwstudio-cli n’est pas à côté du studio — compilez-le avec cargo build -p viewwstudio --bins"),
     // ST-10 : partage d'un tampon (state/collab).
     ("Share This Buffer for Collaboration", "Partager ce tampon pour collaborer"),
     // ST-13 : plugins (plugin.rs / state/plugins.rs).
@@ -865,6 +899,10 @@ const FRENCH: &[(&str, &str)] = &[
     ("Preview note hidden. Bring it back from this palette.", "Note de l’aperçu masquée. Rétablissez-la depuis cette palette."),
     ("Preview: Add a Device to the Row", "Aperçu : ajouter un appareil à la rangée"),
     ("Preview: Several Devices Side by Side", "Aperçu : plusieurs appareils côte à côte"),
+    ("Preview: Save Framed Screenshot", "Aperçu : enregistrer une capture encadrée"),
+    ("Preview: Save Device Matrix Image", "Aperçu : enregistrer l’image multi-appareils"),
+    ("Preview: Start or Stop Recording", "Aperçu : démarrer ou arrêter l’enregistrement"),
+    ("Preview: Share on Network (QR Code)", "Aperçu : partager sur le réseau (code QR)"),
     ("Preview: dark", "Aperçu : sombre"),
     ("Preview: light", "Aperçu : clair"),
     ("Preview: one device", "Aperçu : un appareil"),
@@ -1130,6 +1168,21 @@ const FRENCH: &[(&str, &str)] = &[
 ];
 
 const GERMAN: &[(&str, &str)] = &[
+    // Presentation: framed screenshots, the device matrix image, recording
+    // and sharing (state/showcase.rs).
+    ("Could not save the recording: {}", "Die Aufnahme konnte nicht gespeichert werden: {}"),
+    ("Open a screen first — a .say or .rs file", "Öffne zuerst einen Bildschirm – eine .say- oder .rs-Datei"),
+    ("Recording needs the isolated preview, and `{}` is not next to the studio — build it with cargo build -p viewwstudio --bins", "Die Aufnahme braucht die isolierte Vorschau, und `{}` liegt nicht neben dem Studio – baue es mit cargo build -p viewwstudio --bins"),
+    ("Recording saved: {} ({} steps) and its replayable .script beside it", "Aufnahme gespeichert: {} ({} Schritte) und ihr abspielbares .script daneben"),
+    ("Recording the preview — use it, then run Start or Stop Recording again", "Die Vorschau wird aufgenommen – benutze sie und führe dann Aufnahme starten oder beenden erneut aus"),
+    ("Save first — the export renders what is on disk", "Zuerst speichern – der Export verwendet, was auf der Festplatte ist"),
+    ("Save this buffer first — the export renders the file on disk", "Speichere diesen Puffer zuerst – der Export verwendet die Datei auf der Festplatte"),
+    ("Saving a framed screenshot — the path is in Output", "Screenshot mit Rahmen wird gespeichert – der Pfad steht in der Ausgabe"),
+    ("Saving the device matrix — the path is in Output", "Bild mehrerer Geräte wird gespeichert – der Pfad steht in der Ausgabe"),
+    ("Sharing the preview on your network — scan the QR code in the browser page or in Output; run the command again to stop", "Die Vorschau wird in deinem Netzwerk geteilt – scanne den QR-Code auf der Browserseite oder in der Ausgabe; führe den Befehl erneut aus, um aufzuhören"),
+    ("Stopped sharing the preview", "Teilen der Vorschau beendet"),
+    ("That is not a screen — open a .say or .rs file", "Das ist kein Bildschirm – öffne eine .say- oder .rs-Datei"),
+    ("viewwstudio-cli is not next to the studio — build it with cargo build -p viewwstudio --bins", "viewwstudio-cli liegt nicht neben dem Studio – baue es mit cargo build -p viewwstudio --bins"),
     // ST-10: einen Puffer teilen (state/collab).
     ("Share This Buffer for Collaboration", "Diesen Puffer zur Zusammenarbeit teilen"),
     // ST-13: Plugins (plugin.rs / state/plugins.rs).
@@ -1292,6 +1345,10 @@ const GERMAN: &[(&str, &str)] = &[
     ("Preview note hidden. Bring it back from this palette.", "Vorschauhinweis ausgeblendet. Holen Sie ihn über diese Palette zurück."),
     ("Preview: Add a Device to the Row", "Vorschau: ein Gerät zur Reihe hinzufügen"),
     ("Preview: Several Devices Side by Side", "Vorschau: mehrere Geräte nebeneinander"),
+    ("Preview: Save Framed Screenshot", "Vorschau: Screenshot mit Rahmen speichern"),
+    ("Preview: Save Device Matrix Image", "Vorschau: Bild mehrerer Geräte speichern"),
+    ("Preview: Start or Stop Recording", "Vorschau: Aufnahme starten oder beenden"),
+    ("Preview: Share on Network (QR Code)", "Vorschau: im Netzwerk teilen (QR-Code)"),
     ("Preview: dark", "Vorschau: dunkel"),
     ("Preview: light", "Vorschau: hell"),
     ("Preview: one device", "Vorschau: ein Gerät"),

@@ -35,8 +35,8 @@ use vieww_image::codec::gif;
 use vieww_paint::native::NativeRenderer;
 
 use super::{
-    compile_screen, default_output, mount_driver, resolve_input, theme_data, write_out, Screen,
-    Viewport,
+    compile_screen, default_output, frame_for, mount_driver, resolve_input, theme_data, write_out,
+    Presentation, Screen, Viewport,
 };
 
 /// The sample rate when nobody chose one. 25 rather than the more obvious
@@ -120,6 +120,7 @@ pub fn run_animate(
     fps: u32,
     duration: Duration,
     frames_dir: Option<&Path>,
+    present: &Presentation,
 ) -> Result<String, String> {
     let screen: Screen = resolve_input(input)?;
     let mounted = compile_screen(&screen, screen_name)?;
@@ -129,13 +130,27 @@ pub fn run_animate(
     );
 
     let (width, height) = (viewport.size.0.max(1), viewport.size.1.max(1));
+    // A script longer than the window would be cut off mid-gesture; the
+    // window grows to hold it (plus a second to see where it lands) rather
+    // than silently dropping the steps a person wrote.
+    let duration = if present.script.is_empty() {
+        duration
+    } else {
+        duration.max(present.script.end() + Duration::from_secs(1))
+    };
+    let framer = if present.frame {
+        Some(frame_for(viewport, dark)?)
+    } else {
+        None
+    };
+    let (out_w, out_h) = framer.as_ref().map_or((width, height), |f| f.size());
     let seconds = duration.as_secs_f64();
     let samples = (seconds * f64::from(fps)).round() as usize;
     // The sample at t=0 plus the sample at t=duration, and every tick
     // between: `--duration 3s --fps 25` is 76 frames, not 75, because the
     // last frame is the point of a window that ends.
     let frames = samples + 1;
-    let frame_bytes = width as usize * height as usize * 4;
+    let frame_bytes = out_w as usize * out_h as usize * 4;
     if frames * frame_bytes > FRAME_BUDGET_BYTES {
         return Err(format!(
             "{frames} frames at {width}×{height} is {} MiB of RGBA held before the encode \
@@ -146,6 +161,12 @@ pub fn run_animate(
 
     let theme = theme_data(dark);
     let base: Color = theme.colors.surface;
+    // A GIF has no partial transparency, so a framed one sits on the stage
+    // unless a background was named; an unframed one is opaque already.
+    let backdrop = present
+        .background
+        .unwrap_or(Some(crate::showcase::STAGE))
+        .unwrap_or(crate::showcase::STAGE);
     let mut driver = mount_driver(viewport, dark, mounted.preview.node());
 
     // The first draw decides the note: a tree that reports nothing
@@ -153,10 +174,11 @@ pub fn run_animate(
     // asking for animation deserves to be told why they got a still.
     driver.draw_frame();
     let animating = driver.is_animating();
-    if !animating {
+    if !animating && present.script.is_empty() {
         eprintln!(
             "note: {} reports no animation of its own — a Say screen's motion is in its \
-             transitions (see `preview`, which sends events); a held frame is the truth",
+             transitions — give it some input with --tap/--do/--script, or use `preview`; a \
+             held frame is the truth",
             screen.path.file_name().map_or_else(
                 || "the screen".to_owned(),
                 |n| n.to_string_lossy().into_owned()
@@ -176,6 +198,16 @@ pub fn run_animate(
             .map_err(|error| format!("cannot create {} — {error}", dir.display()))?;
     }
 
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "u32 pixel sizes are exact in f32"
+    )]
+    let mut player = crate::showcase::Player::new(
+        &present.script,
+        vieww_foundation::Size::new(width as f32, height as f32),
+    );
+    let mut first: Option<Vec<u8>> = None;
+    let mut moved = false;
     let mut clock = 0.0_f64;
     for frame in 0..frames {
         #[expect(
@@ -188,39 +220,65 @@ pub fn run_animate(
         // here and there is a different system.
         while clock < due {
             clock = (clock + STEP).min(due);
-            driver.draw_frame_at(Duration::from_secs_f64(clock));
+            let now = Duration::from_secs_f64(clock);
+            player.advance(&mut driver, now)?;
+            driver.draw_frame_at(now);
         }
+        player.advance(&mut driver, Duration::from_secs_f64(due))?;
         driver.draw_frame_at(Duration::from_secs_f64(due));
         let (pixels, _) = renderer
             .render_to_pixels(driver.scene(), width, height, base)
             .map_err(|error| format!("the headless render failed: {error}"))?;
-        encoded.push((pixels.data().to_vec(), delay_cs));
+        let screen = crate::showcase::Rgba {
+            width,
+            height,
+            data: pixels.data().to_vec(),
+        };
+        match &first {
+            None => first = Some(screen.data.clone()),
+            Some(start) => moved |= *start != screen.data,
+        }
+        let picture = match &framer {
+            Some(framer) => framer.frame(&screen, Some(backdrop))?,
+            None => screen,
+        };
         if let Some(dir) = frames_dir {
-            let png = vieww_image::codec::png::encode(width, height, pixels.data());
+            let png = vieww_image::codec::png::encode(out_w, out_h, &picture.data);
             let path = dir.join(format!("frame_{frame:04}.png"));
             write_out(&path, &png)?;
         }
+        encoded.push((picture.data, delay_cs));
     }
 
     // The encoder takes u16 dimensions; every preset and every sane explicit
     // size is far inside that, and the try_into says so if one is not.
     let (gif_w, gif_h) = (
-        u16::try_from(width).map_err(|_| format!("{width} is wider than a GIF can be"))?,
-        u16::try_from(height).map_err(|_| format!("{height} is taller than a GIF can be"))?,
+        u16::try_from(out_w).map_err(|_| format!("{out_w} is wider than a GIF can be"))?,
+        u16::try_from(out_h).map_err(|_| format!("{out_h} is taller than a GIF can be"))?,
     );
     let bytes = gif::encode(gif_w, gif_h, &encoded, 0);
     write_out(&out, &bytes)?;
     let frames_written = encoded.len();
     Ok(format!(
-        "wrote {} ({} frames, {:.1}s at {} fps, {}×{}, rustc {:.1?}){}",
+        "wrote {} ({} frames, {:.1}s at {} fps, {}×{}{}{}, rustc {:.1?}){}",
         out.display(),
         frames_written,
         seconds,
         fps,
-        width,
-        height,
+        out_w,
+        out_h,
+        if framer.is_some() { ", framed" } else { "" },
+        if present.script.is_empty() {
+            String::new()
+        } else {
+            format!(", {} steps played", present.script.steps.len())
+        },
         mounted.rustc,
-        if animating { "" } else { ", held still" }
+        if moved || animating {
+            ""
+        } else {
+            ", held still"
+        }
     ))
 }
 

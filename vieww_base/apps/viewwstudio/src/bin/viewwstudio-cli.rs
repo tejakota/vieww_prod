@@ -44,6 +44,7 @@ fn main() -> ExitCode {
             dark,
             screen,
             all_screens,
+            present,
         } => viewwstudio::cli::run_render(
             input,
             out.as_deref(),
@@ -51,6 +52,7 @@ fn main() -> ExitCode {
             *dark,
             screen.as_deref(),
             *all_screens,
+            present,
         ),
         Command::Html {
             input,
@@ -68,6 +70,7 @@ fn main() -> ExitCode {
             fps,
             duration,
             frames_dir,
+            present,
         } => viewwstudio::cli::run_animate(
             input,
             out.as_deref(),
@@ -77,6 +80,7 @@ fn main() -> ExitCode {
             *fps,
             *duration,
             frames_dir.as_deref(),
+            present,
         ),
         Command::Preview {
             input,
@@ -86,6 +90,7 @@ fn main() -> ExitCode {
             port,
             scale,
             open,
+            share,
         } => viewwstudio::cli::run_preview(
             input.as_deref(),
             *device,
@@ -94,6 +99,7 @@ fn main() -> ExitCode {
             *port,
             *scale,
             *open,
+            *share,
         ),
         Command::Export {
             project,

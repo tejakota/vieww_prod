@@ -108,7 +108,15 @@ fn render_writes_a_png_of_the_scaffolded_home_screen() {
     let dir = scratch("render-scaffolded");
     let project = scaffolded_project(&dir);
 
-    let summary = match cli::run_render(&project, None, &phone(), false, None, false) {
+    let summary = match cli::run_render(
+        &project,
+        None,
+        &phone(),
+        false,
+        None,
+        false,
+        &cli::Presentation::default(),
+    ) {
         Ok(summary) => summary,
         Err(error) => {
             // The stated skip, as `canvas_edit` prints it — not a silent pass.
@@ -157,7 +165,15 @@ pub fn screen() -> impl Widget { Hello }
         device: None,
         size: (240, 80),
     };
-    match cli::run_render(&file, Some(&out), &size, false, None, false) {
+    match cli::run_render(
+        &file,
+        Some(&out),
+        &size,
+        false,
+        None,
+        false,
+        &cli::Presentation::default(),
+    ) {
         Ok(summary) => assert!(summary.contains("hello.png"), "{summary}"),
         Err(error) => eprintln!("skipping: {error}"),
     }
@@ -180,7 +196,15 @@ fn render_as_a_device_uses_the_presets_size() {
         true,
     );
     let out = dir.join("device.png");
-    match cli::run_render(&project, Some(&out), &viewport, false, None, false) {
+    match cli::run_render(
+        &project,
+        Some(&out),
+        &viewport,
+        false,
+        None,
+        false,
+        &cli::Presentation::default(),
+    ) {
         Ok(_) => {}
         Err(error) => {
             eprintln!("skipping: {error}");
@@ -211,6 +235,7 @@ fn render_all_screens_writes_one_png_per_screen() {
         false,
         None,
         true,
+        &cli::Presentation::default(),
     ) {
         Ok(summary) => summary,
         Err(error) => {
@@ -240,6 +265,7 @@ fn render_all_screens_writes_one_png_per_screen() {
         false,
         Some("Settings"),
         false,
+        &cli::Presentation::default(),
     )
     .expect("the named screen renders");
     assert!(
@@ -255,6 +281,7 @@ fn render_all_screens_writes_one_png_per_screen() {
         false,
         Some("Nowhere"),
         false,
+        &cli::Presentation::default(),
     )
     .expect_err("no such screen");
     assert!(
@@ -278,6 +305,7 @@ fn animate_writes_a_gif_of_the_scaffolded_home_screen() {
         10,
         std::time::Duration::from_millis(600),
         None,
+        &cli::Presentation::default(),
     ) {
         Ok(summary) => summary,
         Err(error) => {
@@ -317,16 +345,13 @@ fn html_carries_the_screens_text_as_real_dom() {
     }
     let page = std::fs::read_to_string(&out).unwrap();
     assert!(page.starts_with("<!doctype html>"));
-    // The counter's own words, as text a browser can select and a crawler
-    // can read — the whole point of the DOM backend over a canvas.
+    // The starter screen's own words, as text a browser can select and a
+    // crawler can read — the whole point of the DOM backend over a canvas.
     assert!(
-        page.contains(">Counter<"),
+        page.contains(">Welcome<"),
         "the heading is an element's text"
     );
-    assert!(
-        page.contains(">Tapped 0 times<"),
-        "the label rendered its state"
-    );
+    assert!(page.contains(">0<"), "the count rendered its state");
     assert!(page.contains(">Add one<"), "the button's label");
     // And the walk's keyboard semantics, which a `<canvas>` cannot offer.
     assert!(page.contains("tabindex=\"0\""), "the button is a tab stop");
@@ -339,8 +364,16 @@ fn a_broken_say_file_reports_its_own_line() {
     let file = dir.join("broken.say");
     std::fs::write(&file, "screen \"Broken\":\n    a label that never ends\n").unwrap();
 
-    let error = cli::run_render(&file, None, &phone(), false, None, false)
-        .expect_err("this file does not compile");
+    let error = cli::run_render(
+        &file,
+        None,
+        &phone(),
+        false,
+        None,
+        false,
+        &cli::Presentation::default(),
+    )
+    .expect_err("this file does not compile");
     assert!(
         error.contains("broken.say:"),
         "the diagnostic names the file and line: {error}"
@@ -353,8 +386,16 @@ fn a_rust_screen_without_an_entry_point_is_refused_before_rustc() {
     let file = dir.join("widget.rs");
     std::fs::write(&file, "pub struct NotAScreen;\n").unwrap();
 
-    let error = cli::run_render(&file, None, &phone(), false, None, false)
-        .expect_err("no screen() to mount");
+    let error = cli::run_render(
+        &file,
+        None,
+        &phone(),
+        false,
+        None,
+        false,
+        &cli::Presentation::default(),
+    )
+    .expect_err("no screen() to mount");
     assert!(
         error.contains("screen()"),
         "the refusal names what is missing: {error}"

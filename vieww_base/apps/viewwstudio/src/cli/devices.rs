@@ -15,6 +15,35 @@ use crate::state::{Device, Platform};
 /// `393×852` every default render uses.
 pub(crate) const PREVIEW_DEFAULT: &str = "mobile";
 
+/// The `--device` value that reproduces `device` on the command line — how
+/// the studio hands its previewed device to a `viewwstudio-cli` job.
+///
+/// The preset's own name when it is one; otherwise (the platform's default
+/// screen, which the pane names after the platform) the preset with the same
+/// platform and size, and failing that the platform's everyday preset.
+#[must_use]
+pub fn device_flag(device: Device) -> String {
+    let upright = if device.landscape {
+        device.rotated()
+    } else {
+        device
+    };
+    if by_name(&cli_name(upright)).is_ok() {
+        return cli_name(upright);
+    }
+    let same = Device::ALL.iter().find(|d| {
+        d.platform == upright.platform
+            && (d.width - upright.width).abs() < 0.5
+            && (d.height - upright.height).abs() < 0.5
+    });
+    match (same, upright.platform) {
+        (Some(d), _) => cli_name(*d),
+        (None, Platform::Ios) => "phone".to_owned(),
+        (None, Platform::Android) => "android".to_owned(),
+        (None, Platform::Desktop) => "desktop".to_owned(),
+    }
+}
+
 /// The CLI's name for a preset: lowercase, spaces and parentheses to dashes,
 /// the dashes collapsed and trimmed — `Phone (small)` → `phone-small`,
 /// `Android tablet` → `android-tablet`.

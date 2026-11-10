@@ -146,7 +146,7 @@ fn a_scaffolded_project_builds() {
 /// finished, built, runnable application said when you ran it.
 ///
 /// So this compiles the Say template for real and then greps the binary for a
-/// string that exists **only** in `home.say` — "Tapped" — and asserts the
+/// string that exists **only** in `home.say` — "Taps so far" — and asserts the
 /// placeholder's text is *not* there. Building is not enough on its own: the
 /// old scaffold built perfectly and shipped the wrong screen.
 #[test]
@@ -205,7 +205,7 @@ fn a_scaffolded_say_project_builds_and_contains_its_screen() {
     let bytes = std::fs::read(&binary).expect("the built binary should exist");
 
     assert!(
-        contains(&bytes, b"Tapped"),
+        contains(&bytes, b"Taps so far"),
         "the built binary does not contain the screen's own text — \
          `home.say` was not compiled into it"
     );

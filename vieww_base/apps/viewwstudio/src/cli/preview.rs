@@ -148,6 +148,11 @@ impl Served {
 ///
 /// The compile (as every render path), the missing preview child, or the
 /// port being taken — each named, each with its remedy.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "one parameter per command-line flag, the shape `run_animate` \
+             already has; a struct would only rename them"
+)]
 pub fn run_preview(
     input: Option<&Path>,
     device: Device,
@@ -156,6 +161,7 @@ pub fn run_preview(
     port: u16,
     scale: f32,
     open: bool,
+    share: bool,
 ) -> Result<String, String> {
     let input = match input {
         Some(path) => path.to_path_buf(),
@@ -228,19 +234,43 @@ pub fn run_preview(
         frames: RefCell::new(0),
     };
 
-    let listener = TcpListener::bind(("127.0.0.1", port)).map_err(|error| {
+    // Local only unless sharing was asked for: a preview on every interface
+    // is a preview anyone on the café's network can tap through, and that
+    // is a choice for the person at the keyboard to make, by name.
+    let host = if share { "0.0.0.0" } else { "127.0.0.1" };
+    let listener = TcpListener::bind((host, port)).map_err(|error| {
         format!("cannot listen on port {port} — is another preview there? {error}")
     })?;
     let address = listener
         .local_addr()
         .map_err(|error| format!("bound, but cannot say where — {error}"))?;
-    let url = format!("http://{address}");
+    let url = format!("http://127.0.0.1:{}", address.port());
+    let shared = if share {
+        let lan = crate::showcase::lan_address().ok_or_else(|| {
+            "--share serves to the local network, and this machine is not on one — \
+             connect to Wi-Fi (the phone must be on the same network)"
+                .to_owned()
+        })?;
+        let shared = format!("http://{lan}:{}", address.port());
+        let code = crate::qr::QrCode::encode(shared.as_bytes())?;
+        Some((shared, code))
+    } else {
+        None
+    };
 
     let title = screen
         .path
         .file_stem()
         .map_or_else(|| "screen".to_owned(), |s| s.to_string_lossy().into_owned());
-    let page = preview_page(&title, &device, scale, screen_name, theme.colors.surface);
+    let page = preview_page(
+        &title,
+        &device,
+        scale,
+        screen_name,
+        theme.colors.surface,
+        shared.as_ref().map(|(link, _)| link.as_str()),
+    );
+    let qr_svg = shared.as_ref().map(|(_, code)| code.to_svg());
 
     let summary = format!(
         "previewing {} as {} ({}) at {url} — Ctrl-C to stop (rustc {:.1?})",
@@ -250,6 +280,13 @@ pub fn run_preview(
         rustc,
     );
     println!("{summary}");
+    if let Some((link, code)) = &shared {
+        println!(
+            "\nshared on your network at {link} — scan this on a phone on the same Wi-Fi.\n\
+             Everyone who opens it drives the same preview.\n\n{}",
+            code.to_text()
+        );
+    }
 
     if open {
         open_browser(&url);
@@ -261,7 +298,7 @@ pub fn run_preview(
             .map_err(|error| format!("cannot accept a connection — {error}"))?;
         let _ = stream.set_nodelay(true);
         let _ = stream.set_read_timeout(Some(Duration::from_secs(10)));
-        if let Err(error) = handle(&mut stream, &mut served, &page) {
+        if let Err(error) = handle(&mut stream, &mut served, &page, qr_svg.as_deref()) {
             // A browser that hangs up mid-request is not the server's
             // problem; a sentence on stderr is the whole cost.
             eprintln!("preview: {error}");
@@ -275,7 +312,12 @@ pub fn run_preview(
 ///
 /// Split out from the accept loop so a test can drive the routing with an
 /// in-memory pair instead of a socket.
-fn handle(stream: &mut TcpStream, served: &mut Served, page: &str) -> Result<(), String> {
+fn handle(
+    stream: &mut TcpStream,
+    served: &mut Served,
+    page: &str,
+    qr_svg: Option<&str>,
+) -> Result<(), String> {
     let mut reader = std::io::BufReader::new(stream);
     let request = read_request(&mut reader)?;
     let stream = reader.into_inner();
@@ -310,6 +352,16 @@ fn handle(stream: &mut TcpStream, served: &mut Served, page: &str) -> Result<(),
             }
             respond(stream, "204 No Content", "text/plain", &[], &[])
         }
+        ("GET", "/qr.svg") => match qr_svg {
+            Some(svg) => respond(stream, "200 OK", "image/svg+xml", &[], svg.as_bytes()),
+            None => respond(
+                stream,
+                "404 Not Found",
+                "text/plain",
+                &[],
+                b"this preview is not shared - run it with --share",
+            ),
+        },
         ("GET", "/favicon.ico") => respond(stream, "404 Not Found", "text/plain", &[], b"no icon"),
         (method, path) => respond(
             stream,
@@ -538,6 +590,7 @@ pub(super) fn preview_page(
     scale: f32,
     screen: Option<&str>,
     surface: Color,
+    share: Option<&str>,
 ) -> String {
     let width = device.width.round() as u32;
     let height = device.height.round() as u32;
@@ -572,7 +625,21 @@ pub(super) fn preview_page(
             box-shadow: 0 0 0 8px #232227, 0 0 0 9px #33323a, 0 30px 60px rgba(0,0,0,.55);
             overflow: hidden; }
   canvas { display: block; width: __W__px; height: __H__px; background: __SURFACE__;
-           outline: none; }
+           outline: none; touch-action: none; }
+  #share { display: flex; align-items: center; gap: 14px; padding: 12px 16px;
+           background: #232227; border-radius: 12px; max-width: 520px; }
+  #share[hidden] { display: none; }
+  #share img { width: 132px; height: 132px; border-radius: 6px; flex: none; }
+  #share a { color: #a5b4fc; word-break: break-all; }
+  /* On a phone the page *is* the device: no stage, no frame, the screen
+     edge to edge, so a shared preview feels like the app rather than a
+     picture of one. */
+  @media (max-width: 560px) {
+    body { padding: 0; gap: 0; }
+    header, #share, .notch { display: none; }
+    .device { box-shadow: none; border-radius: 0; }
+    canvas { width: 100vw; height: auto; }
+  }
   .notch { position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
            width: 125px; height: 36px; border-radius: 18px; background: #17161a;
            pointer-events: none; display: __NOTCH__; }
@@ -588,6 +655,11 @@ pub(super) fn preview_page(
   <div class="notch"></div>
 </div>
 <p class="error" id="error"></p>
+<aside id="share" __SHARE_HIDDEN__>
+  <img src="/qr.svg" alt="QR code for the shared preview">
+  <div>Scan on a phone on the same Wi-Fi, or open<br><a href="__SHARE_URL__">__SHARE_URL__</a><br>
+  <span style="opacity:.7">Everyone who opens it drives the same preview.</span></div>
+</aside>
 <script>
 const W = __W__, H = __H__, RATE = 1000 / 30, IDLE = 350;
 const c = document.getElementById('c'), x = c.getContext('2d');
@@ -663,6 +735,11 @@ poll();
     .replace("__RASTERW__", &(width * scale as u32).to_string())
     .replace("__RASTERH__", &(height * scale as u32).to_string())
     .replace("__RADIUS__", &radius.to_string())
+    .replace(
+        "__SHARE_HIDDEN__",
+        if share.is_some() { "" } else { "hidden" },
+    )
+    .replace("__SHARE_URL__", &super::escape_html(share.unwrap_or("")))
     .replace("__NOTCH__", notch_on)
     .replace(
         "__SURFACE__",
@@ -733,7 +810,7 @@ mod tests {
             .find(|d| d.name == "Phone")
             .copied()
             .unwrap();
-        let page = preview_page("home", &device, 2.0, Some("Settings"), Color::WHITE);
+        let page = preview_page("home", &device, 2.0, Some("Settings"), Color::WHITE, None);
         assert!(page.contains("home — Settings"), "{page}");
         assert!(page.contains("width: 393px"), "{page}");
         assert!(
@@ -757,7 +834,32 @@ mod tests {
             .find(|d| d.name == "Desktop")
             .copied()
             .unwrap();
-        let page = preview_page("home", &device, 1.0, None, Color::WHITE);
+        let page = preview_page("home", &device, 1.0, None, Color::WHITE, None);
         assert!(page.contains("display: none"), "{page}");
+    }
+
+    #[test]
+    fn a_shared_page_shows_its_link_and_code() {
+        let device = crate::state::Device::ALL[1];
+        let local = preview_page("home", &device, 1.0, None, Color::WHITE, None);
+        assert!(local.contains("<aside id=\"share\" hidden>"), "{local}");
+        let shared = preview_page(
+            "home",
+            &device,
+            1.0,
+            None,
+            Color::WHITE,
+            Some("http://192.168.1.5:7878"),
+        );
+        assert!(shared.contains("<aside id=\"share\" >"), "{shared}");
+        assert!(
+            shared.contains("href=\"http://192.168.1.5:7878\""),
+            "{shared}"
+        );
+        assert!(shared.contains("/qr.svg"));
+        assert!(
+            shared.contains("touch-action: none"),
+            "a phone's finger drives, not scrolls"
+        );
     }
 }

@@ -14,8 +14,10 @@
 //! | Create projects      | New Project dialog            | `new` / `create`                     |
 //! | New screens/widgets  | New Screen/Widget from Template | `screen` / `widget`                |
 //! | Frames and screenshots | Preview, export             | `render` (one screen or `--all-screens`) |
-//! | Animation            | the preview, live             | `animate` — the same tree over time, as a GIF |
-//! | Interactive HTML     | the wasm export               | `preview` (served, live) and `export --format web` |
+//! | Device frames        | the pane's bezel, Save Framed Screenshot | `--frame` on `render`/`animate` |
+//! | Device matrix        | Several Devices Side by Side, Save Device Matrix Image | `render --matrix` / `--devices` |
+//! | Animation            | the preview, live; Start/Stop Recording | `animate` — the same tree over time, as a GIF, driven by `--tap`/`--do`/`--script` |
+//! | Interactive HTML     | the wasm export; Share on Network | `preview` (served, live; `--share` for a phone, with a QR code) and `export --format web` |
 //! | Static HTML          | — (the DOM walk)              | `html` — selectable, searchable DOM |
 //! | Mobile interfaces    | the device row                | `--device`, on every visual command |
 //! | Gestures             | the preview pane              | `preview` (real events) and `test` (injected ones) |
@@ -50,8 +52,13 @@
 //! * `animate` is time passing over the mounted tree. A Say screen has no
 //!   time-driven vocabulary (no tickers — which is why `test`'s determinism
 //!   check works), so its animation is in its *transitions*, which need
-//!   events; a Rust screen with a `Ticker`, a spring or a scroll-driven
-//!   animation animates for real. `preview` exercises both.
+//!   events: give it them with `--tap`, `--do` or `--script` (the studio's
+//!   recorder writes those scripts), and the GIF shows the transition. A Rust
+//!   screen with a `Ticker`, a spring or a scroll-driven animation animates
+//!   with or without them.
+//! * `preview --share` serves one shared session: everyone who opens the
+//!   link drives the same preview, and only machines on the same network can
+//!   reach it. A link for anyone, anywhere is the web export, hosted.
 //! * `preview` serves the compiled screen at `http://127.0.0.1:<port>` —
 //!   pointer, scroll and key events flow from the browser into the same
 //!   event path the window uses, and frames flow back. It needs the
@@ -74,7 +81,7 @@ mod project_cmd;
 mod test_cmd;
 
 pub use animate::run_animate;
-pub use devices::run_devices;
+pub use devices::{device_flag, run_devices};
 pub use export_cmd::{run_export, run_web, ExportName};
 pub use preview::run_preview;
 pub use project_cmd::{run_assets, run_screen, run_screen_from, run_widget, run_widget_from};
@@ -140,6 +147,8 @@ pub enum Command {
         screen: Option<String>,
         /// One PNG per screen the file defines.
         all_screens: bool,
+        /// Frame, background, interaction and matrix.
+        present: Presentation,
     },
     /// `html` — the same tree as a static DOM page.
     Html {
@@ -172,6 +181,8 @@ pub enum Command {
         duration: Duration,
         /// Also write the PNG frames here, for video encoders.
         frames_dir: Option<PathBuf>,
+        /// Frame, background and interaction.
+        present: Presentation,
     },
     /// `preview` — the interactive preview, served for a browser.
     Preview {
@@ -191,6 +202,8 @@ pub enum Command {
         scale: f32,
         /// Try to open a browser at the served URL.
         open: bool,
+        /// Serve to the local network, with a QR code for a phone.
+        share: bool,
     },
     /// `export` — the export sheet, run for real.
     Export {
@@ -255,6 +268,7 @@ USAGE:
     viewwstudio-cli widget <name>                a new widget file, from the template
     viewwstudio-cli render <path> [options]      a .say screen (or project) to a PNG
     viewwstudio-cli render <path> --all-screens  one PNG per screen the file defines
+    viewwstudio-cli render <path> --matrix       the screen on several devices, side by side
     viewwstudio-cli html <path> [options]        the same screen as static HTML
     viewwstudio-cli animate <path> [options]     the screen over time, as a GIF
     viewwstudio-cli preview [path] [options]     the interactive preview, in a browser
@@ -286,6 +300,29 @@ RENDER/HTML:
     --out <file>      where the result lands
                       (default: <project>/target/render/<name>.png|.html)
 
+PRESENTATION (render/animate):
+    --frame           draw the device around the screen — the preview pane's
+                      own bezel, notch and home indicator (needs --device)
+    --background <c>  #RRGGBB, or transparent (default: transparent for a
+                      PNG, the preview stage for a GIF or a matrix)
+    --matrix          render: the screen on the pane's matrix devices (phone,
+                      tablet, desktop), each framed, side by side in one PNG
+    --devices <a,b>   render: which devices the matrix shows (implies --matrix)
+    --settle <t>      render: how long to wait after the last step (default 800ms)
+
+INTERACTION (render/animate) — what happens before the picture, or during
+the animation. Steps run in order; a step with no @time comes 800ms after
+the one before it:
+    --tap <target>    tap a label (Details, or \"Add one\") or a point (120,300)
+    --do <step>       any step: tap \"Add one\" @1s
+                                hold \"Item\" for 800ms @2s
+                                drag 200,600 -> 200,200 over 400ms @3s
+                                scroll -300 [at 200,400] @4s
+                                key enter|tab|escape|backspace|left|... @5s
+                                type \"hello\" @6s
+    --script <file>   one step per line, the same syntax; the studio's
+                      Record command writes these
+
 ANIMATE:
     --fps <n>         frames per second to sample at (default 25; a number
                       that divides 100 keeps GIF timing exact)
@@ -297,6 +334,8 @@ PREVIEW:
     --port <n>        the port to serve on (default {port})
     --scale <n>       the raster scale of served frames (default 1)
     --no-open         do not try to open a browser
+    --share           serve to the local network too, and show a QR code a
+                      phone on the same Wi-Fi can scan
 
 EXPORT:
     --format <name>   desktop, mac-app, deb, windows, web, apk, apk-release,
@@ -386,8 +425,42 @@ pub fn parse(args: &[String]) -> Result<Command, String> {
 /// The first argument that is not a flag — the path or name a command
 /// acts on, in the position the usage shows it.
 fn positional(rest: &[String]) -> Option<String> {
-    rest.iter().find(|a| !a.starts_with("--")).cloned()
+    let mut args = rest.iter();
+    while let Some(arg) = args.next() {
+        if arg.starts_with("--") {
+            // A value-taking flag's value is not the positional, even when
+            // it comes first: `render --do 'tap "A"' home.say`.
+            if VALUE_FLAGS.contains(&arg.as_str()) {
+                args.next();
+            }
+            continue;
+        }
+        return Some(arg.clone());
+    }
+    None
 }
+
+/// Every flag that consumes the argument after it, across all commands.
+const VALUE_FLAGS: [&str; 18] = [
+    "--out",
+    "--device",
+    "--devices",
+    "--width",
+    "--height",
+    "--screen",
+    "--fps",
+    "--duration",
+    "--frames-dir",
+    "--port",
+    "--scale",
+    "--format",
+    "--goldens",
+    "--background",
+    "--do",
+    "--tap",
+    "--script",
+    "--settle",
+];
 
 /// A path as an absolute one, resolved against where the user stands — so a
 /// relative `--out` and a relative input mean the same thing to the writer
@@ -489,6 +562,33 @@ impl Viewport {
     }
 }
 
+/// How a visual result is presented, beyond the screen itself: in a device
+/// frame, on a background, after an interaction, across several devices.
+///
+/// One struct for the flags `render` and `animate` share, so their command
+/// variants and run functions grow by one field rather than five.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Presentation {
+    /// Draw the preview pane's device frame around the screen (`--frame`).
+    pub frame: bool,
+    /// `--background`: `None` for the default (transparent for a PNG, the
+    /// stage colour for a GIF or a matrix), `Some(None)` for transparent.
+    pub background: Option<Option<Color>>,
+    /// The interaction to play (`--do`, `--tap`, `--script`).
+    pub script: crate::showcase::Script,
+    /// `--matrix`: render on each of these devices, framed, side by side.
+    pub matrix: Option<Vec<crate::state::Device>>,
+    /// How long to let the screen settle after the script's last step
+    /// before a still is taken (`--settle`).
+    pub settle: Duration,
+}
+
+impl Presentation {
+    /// The settle when nobody chose one: long enough for a 300 ms transition
+    /// and a spring's tail.
+    pub const DEFAULT_SETTLE: Duration = Duration::from_millis(800);
+}
+
 /// Parse the flags `render`, `html` and `animate` share, plus each one's
 /// own.
 fn parse_visual(command: &str, rest: &[String]) -> Result<Command, String> {
@@ -508,6 +608,12 @@ fn parse_visual(command: &str, rest: &[String]) -> Result<Command, String> {
     let mut fps = animate::DEFAULT_FPS;
     let mut duration = animate::DEFAULT_DURATION;
     let mut frames_dir = None;
+    let mut present = Presentation {
+        settle: Presentation::DEFAULT_SETTLE,
+        ..Presentation::default()
+    };
+    let mut matrix = false;
+    let mut matrix_devices: Option<String> = None;
 
     let mut flags = Flags::new(rest);
     while let Some(flag) = flags.next() {
@@ -525,6 +631,53 @@ fn parse_visual(command: &str, rest: &[String]) -> Result<Command, String> {
             "--fps" => fps = flags.number("--fps", 1.0, 60.0)? as u32,
             "--duration" => duration = animate::parse_duration(flags.value("--duration")?)?,
             "--frames-dir" => frames_dir = Some(absolute(flags.value("--frames-dir")?)?),
+            "--frame" if command != "html" => present.frame = true,
+            "--background" if command != "html" => {
+                present.background = Some(crate::showcase::parse_background(
+                    flags.value("--background")?,
+                )?);
+            }
+            "--matrix" if command == "render" => matrix = true,
+            "--devices" if command == "render" => {
+                matrix = true;
+                matrix_devices = Some(flags.value("--devices")?.to_owned());
+            }
+            "--do" if command != "html" => present.script.push_line(flags.value("--do")?)?,
+            "--tap" if command != "html" => {
+                let target = flags.value("--tap")?;
+                // A bare word is a label: `--tap Details` means the button,
+                // and only a quoted or x,y target is passed through as is.
+                let target = if target.starts_with('"') || target.contains(',') {
+                    target.to_owned()
+                } else {
+                    format!("\"{target}\"")
+                };
+                present.script.push_line(&format!("tap {target}"))?;
+            }
+            "--script" if command != "html" => {
+                let path = absolute(flags.value("--script")?)?;
+                let text = std::fs::read_to_string(&path)
+                    .map_err(|error| format!("cannot read {} — {error}", path.display()))?;
+                let script = crate::showcase::Script::parse(&text)
+                    .map_err(|error| format!("{}: {error}", path.display()))?;
+                for step in script.steps {
+                    if present
+                        .script
+                        .steps
+                        .last()
+                        .is_some_and(|last| step.at < last.at)
+                    {
+                        return Err(format!(
+                            "{} starts before the steps given ahead of it — put --script first",
+                            path.display()
+                        ));
+                    }
+                    present.script.steps.push(step);
+                }
+            }
+            "--settle" if command == "render" => {
+                present.settle = animate::parse_duration(flags.value("--settle")?)?;
+            }
             other => return Err(format!("{command} does not take {other}")),
         }
     }
@@ -558,6 +711,37 @@ fn parse_visual(command: &str, rest: &[String]) -> Result<Command, String> {
         }
     };
 
+    if matrix {
+        if device.is_some() {
+            return Err(
+                "--matrix renders on several devices — name them with --devices, not --device"
+                    .to_owned(),
+            );
+        }
+        if all_screens {
+            return Err("--matrix and --all-screens each make many pictures — pick one".to_owned());
+        }
+        let devices = match &matrix_devices {
+            Some(list) => list
+                .split(',')
+                .map(str::trim)
+                .filter(|n| !n.is_empty())
+                .map(|name| devices::by_name(name).map(|d| if landscape { d.rotated() } else { d }))
+                .collect::<Result<Vec<_>, _>>()?,
+            None => crate::state::Studio::default_matrix(),
+        };
+        if devices.is_empty() {
+            return Err("--devices needs at least one device — `devices` lists them".to_owned());
+        }
+        present.matrix = Some(devices);
+        present.frame = true;
+    }
+    if present.frame && viewport.device.is_none() && present.matrix.is_none() {
+        return Err(
+            "--frame draws a device around the screen — it needs --device to know which".to_owned(),
+        );
+    }
+
     Ok(match command {
         "render" => Command::Render {
             input,
@@ -566,6 +750,7 @@ fn parse_visual(command: &str, rest: &[String]) -> Result<Command, String> {
             dark,
             screen,
             all_screens,
+            present,
         },
         "html" => Command::Html {
             input,
@@ -583,6 +768,7 @@ fn parse_visual(command: &str, rest: &[String]) -> Result<Command, String> {
             fps,
             duration,
             frames_dir,
+            present,
         },
     })
 }
@@ -602,6 +788,7 @@ fn parse_preview(rest: &[String]) -> Result<Command, String> {
     let mut port = preview::DEFAULT_PORT;
     let mut scale = 1.0_f32;
     let mut open = true;
+    let mut share = false;
 
     let mut flags = Flags::new(rest);
     while let Some(flag) = flags.next() {
@@ -609,6 +796,7 @@ fn parse_preview(rest: &[String]) -> Result<Command, String> {
             "--dark" => dark = true,
             "--landscape" => landscape = true,
             "--no-open" => open = false,
+            "--share" => share = true,
             "--device" => device = flags.value("--device")?.to_owned(),
             "--screen" => screen = Some(flags.value("--screen")?.to_owned()),
             "--port" => port = flags.number("--port", 1.0, 65_535.0)? as u16,
@@ -635,6 +823,7 @@ fn parse_preview(rest: &[String]) -> Result<Command, String> {
         port,
         scale,
         open,
+        share,
     })
 }
 
@@ -1217,6 +1406,69 @@ pub fn run_new(parent: &Path, name: &str, rust: bool) -> Result<String, String> 
 
 // ---- render (PNG) and html --------------------------------------------------
 
+/// The screen as it stands after `script` has played, rasterised at the
+/// viewport's size: the one picture `render`, `render --frame` and
+/// `render --matrix` all start from.
+///
+/// With no script it is the first frame, exactly the picture `render` has
+/// always produced. With one, the clock steps at 60 fps through every step
+/// and `settle` past the last, so transitions finish and springs come to
+/// rest before the picture is taken.
+pub(crate) fn shoot(
+    node: WidgetNode,
+    viewport: &Viewport,
+    dark: bool,
+    script: &crate::showcase::Script,
+    settle: Duration,
+) -> Result<crate::showcase::Rgba, String> {
+    let (width, height) = (viewport.size.0.max(1), viewport.size.1.max(1));
+    let theme = theme_data(dark);
+    let mut driver = mount_driver(viewport, dark, node);
+    driver.draw_frame();
+    if !script.is_empty() {
+        #[expect(
+            clippy::cast_precision_loss,
+            reason = "u32 pixel sizes are exact in f32"
+        )]
+        let size = Size::new(width as f32, height as f32);
+        let mut player = crate::showcase::Player::new(script, size);
+        let end = (script.end() + settle).as_secs_f64();
+        let mut clock = 0.0_f64;
+        while clock < end || !player.is_done() {
+            clock += 1.0 / 60.0;
+            let now = Duration::from_secs_f64(clock);
+            player.advance(&mut driver, now)?;
+            driver.draw_frame_at(now);
+            if clock > end + 60.0 {
+                break;
+            }
+        }
+    }
+    let mut renderer = NativeRenderer::new();
+    let (pixels, _) = renderer
+        .render_to_pixels(driver.scene(), width, height, theme.colors.surface)
+        .map_err(|error| format!("the headless render failed: {error}"))?;
+    Ok(crate::showcase::Rgba {
+        width,
+        height,
+        data: pixels.data().to_vec(),
+    })
+}
+
+/// The device a framed picture is framed as: the viewport's own.
+fn frame_for(viewport: &Viewport, dark: bool) -> Result<crate::showcase::Framer, String> {
+    let device = viewport
+        .device
+        .ok_or_else(|| "--frame needs --device to know which device to draw".to_owned())?;
+    crate::showcase::Framer::new(
+        device.platform,
+        device.landscape,
+        dark,
+        viewport.size.0.max(1),
+        viewport.size.1.max(1),
+    )
+}
+
 /// One screen, one PNG — the unit `render` and `render --all-screens` share.
 fn render_one(
     screen: &Screen,
@@ -1224,23 +1476,89 @@ fn render_one(
     viewport: &Viewport,
     dark: bool,
     initial: Option<&str>,
+    present: &Presentation,
 ) -> Result<String, String> {
     let mounted = compile_screen(screen, initial)?;
     let out = out.map_or_else(|| default_output(screen, "png", initial), Path::to_path_buf);
-    let (width, height) = (viewport.size.0.max(1), viewport.size.1.max(1));
-    let theme = theme_data(dark);
-    let mut driver = mount_driver(viewport, dark, mounted.preview.node());
-    driver.draw_frame();
-    let mut renderer = NativeRenderer::new();
-    let (png, _) = renderer
-        .render_to_png(driver.scene(), width, height, theme.colors.surface)
-        .map_err(|error| format!("the headless render failed: {error}"))?;
-    write_out(&out, &png)?;
+    let shot = shoot(
+        mounted.preview.node(),
+        viewport,
+        dark,
+        &present.script,
+        present.settle,
+    )?;
+    let picture = if present.frame {
+        let framer = frame_for(viewport, dark)?;
+        framer.frame(&shot, present.background.flatten())?
+    } else {
+        match present.background.flatten() {
+            Some(color) => shot.flattened(color),
+            None => shot,
+        }
+    };
+    write_out(&out, &picture.png())?;
     Ok(format!(
-        "wrote {} ({}×{}, rustc {:.1?})",
+        "wrote {} ({}×{}{}{}, rustc {:.1?})",
         out.display(),
-        width,
-        height,
+        picture.width,
+        picture.height,
+        if present.frame { ", framed" } else { "" },
+        if present.script.is_empty() {
+            String::new()
+        } else {
+            format!(", after {} steps", present.script.steps.len())
+        },
+        mounted.rustc
+    ))
+}
+
+/// `render --matrix`: one compile, the screen mounted on every device in
+/// turn, each framed, laid side by side on one sheet with its name under it
+/// — the preview pane's device matrix (ST-21) as a picture.
+fn render_matrix(
+    screen: &Screen,
+    out: Option<&Path>,
+    devices: &[crate::state::Device],
+    dark: bool,
+    initial: Option<&str>,
+    present: &Presentation,
+) -> Result<String, String> {
+    let mounted = compile_screen(screen, initial)?;
+    let out = out.map_or_else(
+        || {
+            let named = default_output(screen, "png", initial);
+            let stem = named
+                .file_stem()
+                .map_or_else(|| "screen".to_owned(), |s| s.to_string_lossy().into_owned());
+            named.with_file_name(format!("{stem}-matrix.png"))
+        },
+        Path::to_path_buf,
+    );
+    let mut items = Vec::with_capacity(devices.len());
+    for device in devices {
+        let viewport = Viewport::of_device(*device, false);
+        let shot = shoot(
+            mounted.preview.node(),
+            &viewport,
+            dark,
+            &present.script,
+            present.settle,
+        )?;
+        let framed = frame_for(&viewport, dark)?.frame(&shot, None)?;
+        items.push((format!("{} · {}", device.name, device.size_label()), framed));
+    }
+    let background = present
+        .background
+        .unwrap_or(Some(crate::showcase::STAGE))
+        .unwrap_or(Color::rgba(0, 0, 0, 0));
+    let sheet = crate::showcase::matrix_sheet(&items, background)?;
+    write_out(&out, &sheet.png())?;
+    Ok(format!(
+        "wrote {} ({} devices side by side, {}×{}, rustc {:.1?})",
+        out.display(),
+        devices.len(),
+        sheet.width,
+        sheet.height,
         mounted.rustc
     ))
 }
@@ -1265,6 +1583,7 @@ pub fn run_render(
     dark: bool,
     screen_name: Option<&str>,
     all_screens: bool,
+    present: &Presentation,
 ) -> Result<String, String> {
     let screen = resolve_input(input)?;
     if screen_name.is_some() && all_screens {
@@ -1281,7 +1600,14 @@ pub fn run_render(
         let titles = titles_of(&screen)?;
         let mut lines = Vec::with_capacity(titles.len());
         for title in &titles {
-            lines.push(render_one(&screen, None, viewport, dark, Some(title))?);
+            lines.push(render_one(
+                &screen,
+                None,
+                viewport,
+                dark,
+                Some(title),
+                present,
+            )?);
         }
         return Ok(lines.join("\n"));
     }
@@ -1301,7 +1627,10 @@ pub fn run_render(
             ));
         }
     }
-    render_one(&screen, out, viewport, dark, screen_name)
+    if let Some(devices) = &present.matrix {
+        return render_matrix(&screen, out, devices, dark, screen_name, present);
+    }
+    render_one(&screen, out, viewport, dark, screen_name, present)
 }
 
 /// The screens the resolved file defines, with the `.rs` refusal in the
@@ -1624,7 +1953,16 @@ mod tests {
                 dark,
                 screen,
                 all_screens,
+                present,
             } => {
+                assert_eq!(
+                    present,
+                    Presentation {
+                        settle: Presentation::DEFAULT_SETTLE,
+                        ..Presentation::default()
+                    },
+                    "no presentation flags, the plain render"
+                );
                 assert!(input.ends_with("home.say"));
                 assert!(
                     input.is_absolute(),
@@ -1790,6 +2128,84 @@ mod tests {
             other => panic!("a preview, not {other:?}"),
         }
         assert!(parse(&arg(&["preview", "--out", "x.png"])).is_err());
+    }
+
+    #[test]
+    fn presentation_flags_parse() {
+        match parse(&arg(&[
+            "render",
+            "--do",
+            "tap \"Details\" @1s",
+            "home.say",
+            "--device",
+            "phone",
+            "--frame",
+            "--background",
+            "transparent",
+            "--tap",
+            "Back",
+        ]))
+        .unwrap()
+        {
+            Command::Render { input, present, .. } => {
+                assert!(input.ends_with("home.say"), "a --do value is not the input");
+                assert!(present.frame);
+                assert_eq!(present.background, Some(None));
+                assert_eq!(present.script.steps.len(), 2);
+                assert_eq!(
+                    present.script.steps[1].action,
+                    crate::showcase::Action::Tap(crate::showcase::Target::Label("Back".into())),
+                    "a bare --tap word is a label"
+                );
+            }
+            other => panic!("a render, not {other:?}"),
+        }
+        assert!(
+            parse(&arg(&["render", "h.say", "--frame"]))
+                .unwrap_err()
+                .contains("--device"),
+            "a frame needs a device"
+        );
+        assert!(
+            parse(&arg(&["html", "h.say", "--frame"])).is_err(),
+            "html has no frame"
+        );
+    }
+
+    #[test]
+    fn a_matrix_is_framed_and_defaults_to_the_panes_devices() {
+        match parse(&arg(&["render", "h.say", "--matrix"])).unwrap() {
+            Command::Render { present, .. } => {
+                assert!(present.frame);
+                let names: Vec<_> = present.matrix.unwrap().iter().map(|d| d.name).collect();
+                assert_eq!(names, ["Phone", "Tablet", "Desktop"]);
+            }
+            other => panic!("a render, not {other:?}"),
+        }
+        match parse(&arg(&[
+            "render",
+            "h.say",
+            "--devices",
+            "phone-small,android",
+        ]))
+        .unwrap()
+        {
+            Command::Render { present, .. } => assert_eq!(present.matrix.unwrap().len(), 2),
+            other => panic!("a render, not {other:?}"),
+        }
+        assert!(parse(&arg(&["render", "h.say", "--matrix", "--device", "phone"])).is_err());
+    }
+
+    #[test]
+    fn preview_shares_only_when_asked() {
+        match parse(&arg(&["preview", "--share"])).unwrap() {
+            Command::Preview { share, .. } => assert!(share),
+            other => panic!("a preview, not {other:?}"),
+        }
+        match parse(&arg(&["preview"])).unwrap() {
+            Command::Preview { share, .. } => assert!(!share, "local only by default"),
+            other => panic!("a preview, not {other:?}"),
+        }
     }
 
     #[test]

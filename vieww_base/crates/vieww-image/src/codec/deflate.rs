@@ -452,6 +452,36 @@ fn lengths(freq: &[u32], limit: u8) -> Vec<u8> {
                 }
             }
         }
+        // **And then make the code complete again.** Lengthening overshoots:
+        // the Kraft sum ends *below* the cap, which leaves an incomplete
+        // prefix code. This crate's own `inflate` decodes one, but zlib (and
+        // so every browser, image viewer and `PIL`) refuses an incomplete
+        // set outright — "invalid code lengths set" — which is how a large
+        // PNG from this encoder came out unreadable everywhere but here.
+        // Shorten the most frequent symbols' codes while the slack allows,
+        // until the sum is exactly the cap.
+        let mut sum = kraft(&lens);
+        let mut by_weight: Vec<usize> = (0..n).filter(|&i| lens[i] > 0).collect();
+        by_weight.sort_by_key(|&i| (std::cmp::Reverse(freq[i]), lens[i]));
+        while sum < cap {
+            let mut changed = false;
+            for &i in &by_weight {
+                if lens[i] > 1 {
+                    let gain = 1u64 << (limit - lens[i]);
+                    if sum + gain <= cap {
+                        lens[i] -= 1;
+                        sum += gain;
+                        changed = true;
+                        if sum == cap {
+                            break;
+                        }
+                    }
+                }
+            }
+            if !changed {
+                break;
+            }
+        }
     }
     lens
 }
@@ -734,6 +764,29 @@ mod tests {
             let c = deflate(&s);
             assert_eq!(inflate(&c).unwrap(), s, "len {}", s.len());
             assert_eq!(zlib_decompress(&zlib_compress(&s)).unwrap(), s);
+        }
+    }
+
+    /// zlib refuses an incomplete prefix code, so every code this encoder
+    /// writes must fill the Kraft sum exactly — including after the length
+    /// limit has had to step in, which a Fibonacci-like distribution forces.
+    #[test]
+    fn limited_codes_are_complete() {
+        let mut freq = vec![0u32; 286];
+        let (mut a, mut b) = (1u32, 1u32);
+        for f in freq.iter_mut().take(30) {
+            *f = a;
+            (a, b) = (b, a.saturating_add(b));
+        }
+        for limit in [7u8, 15] {
+            let lens = lengths(&freq, limit);
+            assert!(lens.iter().all(|&l| l <= limit), "limit {limit}: {lens:?}");
+            let sum: u64 = lens
+                .iter()
+                .filter(|&&l| l > 0)
+                .map(|&l| 1u64 << (limit - l))
+                .sum();
+            assert_eq!(sum, 1u64 << limit, "limit {limit}: an incomplete code");
         }
     }
 
