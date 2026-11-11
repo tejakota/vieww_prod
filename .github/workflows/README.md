@@ -44,3 +44,31 @@ main's "Increase timeout for Linux test job to 30 minutes" change, so its
    git commit -m "Restore GitHub Actions workflows"
    git push origin main
    ```
+
+## Feature runs on the self-hosted machine (`feature-runs.yml`)
+
+The release gate proves a release; `feature-runs` proves a branch. It
+diffs the branch against `main` and runs only what the change touches, on
+the self-hosted Linux machine:
+
+| Changed | Runs |
+|---|---|
+| `vieww_base/crates/**` | `ci/vieww checks`, then Wright, Studio and the prototype |
+| `vieww_base/apps/wright/**` | clippy `-D warnings` (UI included), tests, UI snapshots |
+| `vieww_base/apps/wright/prototypes/**` | the Wright Flow walkthrough GIFs; on `full`, its web build |
+| `vieww_base/apps/viewwstudio/**` | Studio's headless release check |
+| `vieww_base/ci/**`, `.github/**` | the quick framework checks |
+
+- **Run it:** Actions → feature-runs → Run workflow, pick the branch,
+  `areas` (`auto`, or e.g. `wright,prototype`) and `depth` (`quick`/`full`).
+- **On every push to a branch (opt in):** set the repository variable
+  `FEATURE_RUNS_ON_PUSH` to `true`. Unset, pushes start nothing, which keeps
+  the manual-only owner rule as the default. Pull requests never trigger it.
+- **Which machine:** repository variable `FEATURE_RUNNER`, a JSON list of
+  labels; default `["self-hosted","Linux","X64","vieww-linux"]`.
+- **Warm builds:** each area keeps its `target/` under
+  `~/.cache/vieww-feature-runs/<area>` (override with `FEATURE_CACHE`), so a
+  second run of a branch only rebuilds what changed.
+- **Web build on `full`:** needs `rustup target add wasm32-unknown-unknown`
+  and the `wasm-bindgen-cli` version the prototype's `Cargo.lock` resolves;
+  without them the step is recorded as SKIPPED with the install line.
