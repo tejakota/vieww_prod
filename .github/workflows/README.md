@@ -1,104 +1,150 @@
 # Workflows
 
-Everything runs from **two entry points**, and only by hand:
+Everything runs from **four forms**, and only by hand: Actions → pick a form
+→ **Run workflow**. Nothing starts on a push, a pull request, a schedule or
+another workflow finishing.
 
-| Run workflow on | Runs on | Groups |
+| Form | Runs on |
+|---|---|
+| **Cloud VM · Machines** (`entry-cloud-machines.yml`) | GitHub's hosted Linux, macOS and Windows machines |
+| **Cloud VM · Mobile** (`entry-cloud-mobile.yml`) | GitHub's hosted machines, building and testing for phones |
+| **Device · Machines** (`entry-device-machines.yml`) | your own Linux, Windows and macOS machines |
+| **Device · Mobile** (`entry-device-mobile.yml`) | real phones: the phone farm and your own Android phone |
+
+Every other file here is a **part** (`cloud-machines-*`, `cloud-mobile-*`,
+`device-machines-*`, `device-mobile-*`, and `shared-*` for the pieces two
+forms use). Parts have only `workflow_call`, so they have no Run workflow
+button; a form calls a part when its box is ticked.
+
+## Choosing what runs
+
+Every choice is a checkbox or a dropdown. An item's box runs it; the fields
+marked `└` under it choose its steps and options. Choosing a step also runs
+the steps it needs (the phone farm's `phones` builds the APK first). The run's
+summary page starts with a table of exactly what was chosen.
+
+`advanced` is the one text field, optional, for what the boxes don't offer:
+`item:step step key=value; item2:…`, for example `release_gate:windows-cpu`
+(one hosted leg) or `phone_farm:devices=A14,Pixel` (phones by part of their
+name; no spaces). An unknown item, step or option fails the run's first job
+with the valid list.
+
+**save results** (on by default) writes the run to the `ci-results` branch.
+
+### Cloud VM · Machines
+
+| Field | Kind | Choices |
 |---|---|---|
-| **Cloud VM** (`cloud-vm.yml`) | GitHub's hosted virtual machines | Machines · Mobile |
-| **Device** (`device.yml`) | Your own machines and phones (self-hosted runners, the phone farm) | Machines · Mobile |
+| Quick checks: fmt, clippy, workflow lint, Wright sandbox smoke | ☐ box |  |
+| Framework checks | ☐ box |  |
+| └ which framework checks | dropdown | all / core (gate, coverage, cross) / gpu (lavapipe) / platforms (macOS, Windows, web) / extras (audio fuzz, a11y, plugins) |
+| Studio suite (Linux, macOS, Windows) | ☐ box |  |
+| Wright sandbox suites | ☐ box |  |
+| └ build profile | dropdown | debug / release |
+| Wright built-in models | ☐ box |  |
+| Wright desktop installers | ☐ box |  |
+| └ version to stamp (no leading v) | text |  |
+| └ build only, or publish | dropdown | build only / publish as pre-release / publish as release |
+| Audio | ☐ box |  |
+| └ which audio | dropdown | all / ci (tests, fuzz) / backends (servers, loopback, targets) / plugins (CLAP, VST3, LV2) |
+| Release gate, hosted legs (Windows, macOS, Linux export) | ☐ box |  |
+| └ scope | dropdown | gate / checks / screenshots |
+| └ rerun | dropdown | failed / all |
+| └ build installers | ☐ box | on by default |
+| Supply chain: advisories, SBOM, reproducible build | ☐ box |  |
+| Golden screenshots | ☐ box |  |
+| └ capture a new baseline instead of comparing | ☐ box |  |
+| Crates: check, verify (publishes only on a v* tag) | ☐ box |  |
+| Optional, for what the boxes don't offer: item:step key=value; … (see .github/workflows/README.md) | text |  |
+| Save this run's results to the ci-results branch | ☐ box | on by default |
 
-Nothing starts on a push, a pull request, a schedule or another workflow
-finishing. Every other file here is a **part**: it has only `workflow_call`,
-so it has no Run workflow button of its own, and an entry point calls it
-when its item is ticked.
+### Cloud VM · Mobile
 
-## Running something
+| Field | Kind | Choices |
+|---|---|---|
+| Build the mobile apps | ☐ box |  |
+| └ platform | dropdown | both / android / ios |
+| U APK | ☐ box |  |
+| U model runtime | ☐ box |  |
+| Mobile audio | ☐ box |  |
+| └ which | dropdown | all / logic / android / ios |
+| Framework: Android build | ☐ box |  |
+| Framework: Android emulator | ☐ box |  |
+| Framework: iOS simulator | ☐ box |  |
+| Optional, for what the boxes don't offer: item:step key=value; … (see .github/workflows/README.md) | text |  |
+| Save this run's results to the ci-results branch | ☐ box | on by default |
 
-1. Actions → **Cloud VM** or **Device** → **Run workflow**.
-2. Pick the branch in the dropdown.
-3. Tick the items to run. Each description starts with its group,
-   **Machines ·** or **Mobile ·**.
-4. Optionally narrow or tune them in **steps**: items separated by `;`,
-   each `item:` followed by step names and `key=value` options.
+### Device · Machines
 
-   ```text
-   audio:fuzz test; release_gate:windows-cpu rerun=all
-   wright_installers:version=1.2.0 publish=true
-   hardware_linux:gpu stress launches=3; feature:areas=wright depth=full
-   ```
+| Field | Kind | Choices |
+|---|---|---|
+| Feature run: the checks for what this branch changed | ☐ box |  |
+| └ areas | dropdown | auto (from the branch's changes) / framework / wright / studio / prototype / all |
+| └ depth | dropdown | quick / full |
+| Hardware: Linux | ☐ box |  |
+| Hardware: Windows | ☐ box |  |
+| Hardware: macOS | ☐ box |  |
+| └ which hardware steps | dropdown | all / gpu / visual (gallery, baseline) / performance (size, stress) / desktop (windows, audio) |
+| └ launches per timing | dropdown | 5 / 3 / 1 / 10 |
+| Release gate on your machines | ☐ box |  |
+| └ Linux CPU | ☐ box | on by default |
+| └ Linux GPU | ☐ box | on by default |
+| └ Windows GPU | ☐ box | on by default |
+| └ scope | dropdown | gate / checks / screenshots |
+| └ rerun | dropdown | failed / all |
+| └ build installers | ☐ box | on by default |
+| Optional, for what the boxes don't offer: item:step key=value; … (see .github/workflows/README.md) | text |  |
+| Save this run's results to the ci-results branch | ☐ box | on by default |
 
-   An item named in `steps` runs even if its box is not ticked. Choosing a
-   step also runs the steps it needs (for example `phone_farm:phones` builds
-   the APK first). An unknown item, step or option fails the run's first job
-   with the list of valid ones, so a typo never runs a check that tests
-   nothing.
-5. **save results** (on by default) writes the run to the `ci-results`
-   branch when everything else has finished.
+### Device · Mobile
 
-The run's summary page starts with a table of exactly what was chosen.
+| Field | Kind | Choices |
+|---|---|---|
+| Phone farm: run on real phones | ☐ box |  |
+| └ low-end phone | ☐ box | on by default |
+| └ mid-range phone | ☐ box | on by default |
+| └ high-end phone | ☐ box | on by default |
+| └ platform | dropdown | android / ios / both |
+| └ phones spread from cheapest to most capable (before tiers) | dropdown | 3 / 5 / 8 |
+| └ APK build profile | dropdown | dist / release |
+| └ record video of each phone | ☐ box |  |
+| Your Android phone (USB): the device suite | ☐ box |  |
+| Optional, for what the boxes don't offer: item:step key=value; … (see .github/workflows/README.md) | text |  |
+| Save this run's results to the ci-results branch | ☐ box | on by default |
 
-## What each item runs
+## Changing a form
 
-### Cloud VM
+The forms are generated. Edit `.github/entry/plan.py` (the fields, and what
+each choice runs), then:
 
-| Group | Item | Part | Steps · options |
-|---|---|---|---|
-| Machines | `quick` | `cloud-machines-quick.yml` | quick workflows wright-sandbox |
-| Machines | `framework` | `shared-framework-checks.yml` | gate coverage cross gpu-lavapipe macos windows web audio-fuzz a11y-gallery plugin-compat |
-| Machines | `studio` | `cloud-machines-studio.yml` | suite |
-| Machines | `wright_sandbox` | `cloud-machines-wright-sandbox.yml` | linux-escape-suite macos-seatbelt-suite windows-fail-closed windows-doctor-fix · profile=debug\|release |
-| Machines | `wright_models` | `cloud-machines-wright-models.yml` | reference platforms |
-| Machines | `wright_installers` | `cloud-machines-wright-installers.yml` | build release update-channel-tests · version= publish=false prerelease=true |
-| Machines | `audio` | `cloud-machines-audio-{ci,backends,plugins}.yml` | test fuzz linux-servers linux-alsa-loopback windows-loopback macos-loopback desktop targets plugins |
-| Machines | `release_gate` | `shared-release-gate.yml` (hosted legs) | windows-cpu macos-cpu macos-gpu linux-export · scope= rerun= package= |
-| Machines | `supply_chain` | `cloud-machines-supply-chain.yml` | advisories sbom repro |
-| Machines | `goldens` | `cloud-machines-goldens.yml` | shots · update=false |
-| Machines | `publish_crates` | `cloud-machines-publish.yml` | check verify scaffold-external publish (publishes only on a `v*` tag) |
-| Mobile | `mobile_apps` | `cloud-mobile-apps.yml` | android ios |
-| Mobile | `u_apk` | `cloud-mobile-u-apk.yml` | apk |
-| Mobile | `u_models` | `cloud-mobile-u-models.yml` | model |
-| Mobile | `mobile_audio` | `cloud-mobile-audio.yml` | logic android ios |
-| Mobile | `framework_mobile` | `shared-framework-checks.yml` | android ios-simulator android-emulator |
+```bash
+python3 .github/entry/entries.py          # rewrite the four entry-*.yml
+python3 -I .github/entry/test_plan.py    # what each choice runs; forms match the parts
+```
 
-### Device
-
-| Group | Item | Part | Steps · options |
-|---|---|---|---|
-| Machines | `feature` | `device-machines-feature.yml` | areas=auto\|framework,wright,studio,prototype depth=quick\|full |
-| Machines | `hardware_linux` | `device-machines-hardware.yml` | env gpu nvidia gallery baseline size stress desktop audio wright-docker · launches=5 |
-| Machines | `hardware_windows` | `device-machines-hardware.yml` | env gpu d3d12 gallery baseline size pipelines stress desktop remote audio · launches=5 |
-| Machines | `hardware_macos` | `device-machines-hardware.yml` | env gpu moltenvk gallery baseline size stress desktop audio · launches=5 |
-| Machines | `release_gate_device` | `shared-release-gate.yml` (self-hosted legs) | linux-cpu linux-gpu windows-gpu · scope= rerun= package= |
-| Mobile | `phone_farm` | `device-mobile-phone-farm.yml` | apk phones ipa iphones · platform=android\|ios\|both profile=dist\|release devices= count=3 video=false |
-| Mobile | `android_phone` | `shared-framework-checks.yml` (android-device leg) | — |
-
-`hardware` and the phone farm refuse to run from any branch but `main`, as
-before. Device's machine items need the self-hosted runners registered with
-their labels (`vieww-linux`, `vieww-windows`, `vieww-macos`, `vieww-gate`,
-`android`); `feature` uses the repository variable `FEATURE_RUNNER` to
-pick its machine.
+Cloud VM · Machines → quick checks runs both, so a stale form or a step the
+parts no longer have fails CI. Adding a job to a part means adding its id to
+`ITEMS` in `plan.py` (the test names the mismatch).
 
 ## How the files fit together
 
 ```text
-cloud-vm.yml ─┬─ plan  (.github/entry/plan.py cloud: reads the form)
-              ├─ cloud-machines-*.yml   cloud-mobile-*.yml
-              ├─ shared-framework-checks.yml   shared-release-gate.yml
-              └─ shared-results.yml     (last, if save results)
-device.yml ───┬─ plan  (.github/entry/plan.py device)
-              ├─ device-machines-*.yml  device-mobile-*.yml
-              ├─ shared-framework-checks.yml   shared-release-gate.yml
-              └─ shared-results.yml
+entry-<form>.yml ─┬─ plan            .github/entry/plan.py <form>: reads the form
+                  ├─ <its parts>     cloud-machines-*.yml, device-mobile-*.yml, …
+                  ├─ shared-*.yml    framework checks, release gate (hosted legs on
+                  │                  Cloud VM, self-hosted legs on Device)
+                  └─ shared-results.yml   last, if save results
 ```
 
-- `.github/entry/plan.py` holds the catalogue: every item, its steps and
-  options. Adding a job to a part means adding its id there too.
-- Each part's header names its entry point, group, item and steps.
-- Secrets reach the parts through `secrets: inherit`; each call grants the
-  permissions its part needs (for example `contents: write` for the parts
-  that publish).
-- Parts' concurrency groups start with the entry's name, so a Cloud VM run
-  and a Device run never cancel each other.
+- Secrets reach parts through `secrets: inherit`; each call grants only the
+  permissions its part needs.
+- Parts' concurrency groups start with the form's name, so runs of two forms
+  never cancel each other.
+- `hardware` and the phone farm still refuse any branch but `main`.
+- Device · Machines needs the self-hosted runners registered with their
+  labels (`vieww-linux`, `vieww-windows`, `vieww-macos`, `vieww-gate`,
+  `android`); the feature run's machine is the repository variable
+  `FEATURE_RUNNER`.
 
 ## Renamed from
 
@@ -116,7 +162,7 @@ device.yml ───┬─ plan  (.github/entry/plan.py device)
 | feature-runs | device-machines-feature |
 | hardware | device-machines-hardware |
 | device-farm | device-mobile-phone-farm |
-| ci-results (ran after other workflows) | shared-results (the entries' last job) |
+| ci-results (ran after other workflows) | shared-results (each form's last job) |
 
 `feature_branch_variants/` keeps reference copies from the old
 `feature/main_fixes` branch; GitHub does not read subfolders.

@@ -42,6 +42,10 @@ on:
         description: "How many phones when picking automatically (spread from cheapest to most capable)"
         type: string
         default: "3"
+      tiers:
+        description: "Which tiers of the picked spread to keep: low, mid, high (comma list)"
+        type: string
+        default: "low,mid,high"
       video:
         description: "Record video of each phone (larger artifacts)"
         type: boolean
@@ -180,6 +184,7 @@ jobs:
         env:
           DEVICES: ${{ inputs.devices }}
           COUNT: ${{ inputs.count }}
+          TIERS: ${{ inputs.tiers }}
           VIDEO: ${{ inputs.video }}
           OUT: ${{ runner.temp }}/device-farm
         run: |
@@ -191,7 +196,7 @@ jobs:
           # ci-results with nothing but "phones: failure".
           mkdir -p "$OUT"
           python3 ci/mobile/device_farm.py --apk ../dist/vieww-devicefarm.apk --out "$OUT" \
-            --devices "$DEVICES" --count "$COUNT" "${video[@]}" 2>&1 | tee "$OUT/device_farm.log"
+            --devices "$DEVICES" --count "$COUNT" --tiers "$TIERS" "${video[@]}" 2>&1 | tee "$OUT/device_farm.log"
           status=${PIPESTATUS[0]}
           echo "device_farm.py exited $status" >> "$OUT/device_farm.log"
           [ -f "$OUT/SUMMARY.md" ] && cat "$OUT/SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
@@ -307,6 +312,7 @@ jobs:
         env:
           DEVICES: ${{ inputs.devices }}
           COUNT: ${{ inputs.count }}
+          TIERS: ${{ inputs.tiers }}
           VIDEO: ${{ inputs.video }}
           OUT: ${{ runner.temp }}/device-farm-ios
         run: |
@@ -318,7 +324,7 @@ jobs:
           # uploaded and nothing published.
           mkdir -p "$OUT"
           python3 ci/mobile/device_farm.py --platform ios --ipa ../dist/vieww.ipa --out "$OUT" \
-            --devices "$DEVICES" --count "$COUNT" $video 2>&1 | tee "$OUT/device_farm.log"
+            --devices "$DEVICES" --count "$COUNT" --tiers "$TIERS" $video 2>&1 | tee "$OUT/device_farm.log"
           status=${PIPESTATUS[0]}
           echo "device_farm.py exited $status" >> "$OUT/device_farm.log"
           [ -f "$OUT/SUMMARY.md" ] && cat "$OUT/SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"

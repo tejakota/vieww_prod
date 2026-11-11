@@ -84,6 +84,10 @@ jobs:
         run: |
           pip install --quiet actionlint-py
           actionlint -shellcheck= .github/workflows/*.yml
+      - name: The four Run workflow forms match plan.py
+        run: |
+          python3 .github/entry/entries.py --check
+          python3 -I .github/entry/test_plan.py
 
   # WR-01/02/10/16: the sandbox escape suite, both with and without a PID
   # namespace (Ubuntu 24.04 hosted runners restrict unprivileged user

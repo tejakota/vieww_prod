@@ -6,6 +6,7 @@
         [--project-arn ARN]          default: $DEVICE_FARM_PROJECT_ARN
         [--devices "Pixel 8,Galaxy A14"]  name substrings; default: picked by tier
         [--count 3]                  phones when picking by tier (low ... high)
+        [--tiers low,mid,high]       keep only these tiers of the picked spread
         [--region us-west-2] [--timeout-min 120] [--video]
 
 What happens:
@@ -14,6 +15,8 @@ What happens:
    phones (Android 7.0+, the app's minSdk 24) are ranked by memory, then CPU
    clock, and `--count` are taken evenly from the cheapest to the most capable
    — so the default of three is one low-end, one mid-range, one high-end.
+   `--tiers` then keeps only the tiers asked for (`--tiers low,high` is the
+   cheapest and the most capable phone); named `--devices` ignore it.
 2. **Uploads.** The APK, the test package (`device-farm/package.sh`) and the
    test spec (`device-farm/testspec-android.yml`), each waited on until Device
    Farm has validated it. A validation failure prints Device Farm's own reason.
@@ -73,7 +76,7 @@ def version_tuple(text):
     return tuple(int(p) for p in re.findall(r"\d+", text or "0")[:3]) or (0,)
 
 
-def pick_devices(aws, names, count, platform="ANDROID"):
+def pick_devices(aws, names, count, platform="ANDROID", tiers=("low", "mid", "high")):
     min_os = (7,) if platform == "ANDROID" else (16,)
     filters = [
         {"attribute": "PLATFORM", "operator": "EQUALS", "values": [platform]},
@@ -121,8 +124,14 @@ def pick_devices(aws, names, count, platform="ANDROID"):
         picks = [len(usable) // 2]
     else:
         picks = sorted({round(i * (len(usable) - 1) / (count - 1)) for i in range(count)})
-    tiers = ["low"] + ["mid"] * (len(picks) - 2) + ["high"] if len(picks) > 1 else ["mid"]
-    return [dict(usable[i], tier=tier) for i, tier in zip(picks, tiers)]
+    labels = ["low"] + ["mid"] * (len(picks) - 2) + ["high"] if len(picks) > 1 else ["mid"]
+    chosen = [dict(usable[i], tier=tier) for i, tier in zip(picks, labels) if tier in tiers]
+    if not chosen:
+        raise SystemExit(
+            f"device_farm: --tiers {','.join(tiers)} matches none of the {len(picks)} phone(s) picked "
+            f"({', '.join(labels)}); a mid-range phone needs --count 3 or more"
+        )
+    return chosen
 
 
 def upload(aws, project_arn, path, kind, name=None):
@@ -452,6 +461,8 @@ def main():
     parser.add_argument("--project-arn", default=os.environ.get("DEVICE_FARM_PROJECT_ARN"))
     parser.add_argument("--devices", default="")
     parser.add_argument("--count", type=int, default=3)
+    parser.add_argument("--tiers", default="low,mid,high",
+                        help="comma list of low, mid, high: which of the picked spread to keep")
     parser.add_argument("--region", default=os.environ.get("DEVICE_FARM_REGION", "us-west-2"))
     parser.add_argument("--timeout-min", type=int, default=120)
     parser.add_argument("--video", action="store_true")
@@ -470,7 +481,11 @@ def main():
         print(f"device_farm: --{'ipa' if ios else 'apk'} is required for --platform {args.platform}", file=sys.stderr)
         return 2
     names = [n.strip() for n in args.devices.split(",") if n.strip()]
-    devices = pick_devices(aws, names, args.count, "IOS" if ios else "ANDROID")
+    tiers = tuple(t.strip() for t in args.tiers.split(",") if t.strip())
+    unknown = [t for t in tiers if t not in ("low", "mid", "high")]
+    if unknown or not tiers:
+        raise SystemExit(f"device_farm: --tiers takes low, mid and/or high (got {args.tiers!r})")
+    devices = pick_devices(aws, names, args.count, "IOS" if ios else "ANDROID", tiers)
     for d in devices:
         say(f"phone: {d['name']} ({'iOS' if ios else 'Android'} {d.get('os')}, {(d.get('memory') or 0) / 2**30:.1f} GB, {d['tier']})")
 
