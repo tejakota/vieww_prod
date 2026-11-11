@@ -29,7 +29,7 @@ android_env device-farm
 mkdir -p ../dist
 marker="$(mktemp)"
 cargo apk build -p market-watch --example android --profile dist --target aarch64-linux-android
-apk="$(find target -path '*/apk/*' -name 'vieww-market-watch*.apk' -newer "$marker" | head -1)"
+apk="$(find target -path '*/apk/*' -name 'vieww-market-watch*.apk' -newer "$marker" -print -quit)"
 [ -n "$apk" ] || { echo "::error::no Market Watch APK was built"; exit 1; }
 ci/mobile/apk-add-code.sh "$apk" ../dist/vieww-market-watch.apk
 ls -l ../dist

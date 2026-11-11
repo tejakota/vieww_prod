@@ -69,7 +69,10 @@ for s in window_animation_scale transition_animation_scale animator_duration_sca
 done
 
 # ── install ──────────────────────────────────────────────────────────────────
-if ! sh_ pm list packages | grep -q "^package:$VIEWW_PKG$"; then
+# Listed first, matched after: `pm list | grep -q` can fail under pipefail
+# when grep exits at the match, which would read as "not installed".
+packages="$(sh_ pm list packages)"
+if ! grep -q "^package:$VIEWW_PKG$" <<< "$packages"; then
     [ -n "${DEVICEFARM_APP_PATH:-}" ] && adb install -r -g "$DEVICEFARM_APP_PATH" >> "$out/install.log" 2>&1
 fi
 adb install -r -g "$VALDI_APK" >> "$out/install.log" 2>&1
