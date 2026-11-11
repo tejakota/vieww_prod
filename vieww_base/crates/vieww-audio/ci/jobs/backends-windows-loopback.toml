@@ -1,0 +1,56 @@
+# Windows (WASAPI shared and exclusive through VB-CABLE)
+# Moved from .github/workflows/cloud-machines-audio-backends.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Windows (WASAPI shared and exclusive through VB-CABLE)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Install Rust toolchain"
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal
+rustup default "$RUST_VERSION"
+'''
+
+[[step]]
+name = "Install VB-CABLE"
+shell = "pwsh"
+run = '''
+git clone --depth 1 https://github.com/LABSN/sound-ci-helpers "$env:RUNNER_TEMP\sch"
+powershell -ExecutionPolicy Bypass -File "$env:RUNNER_TEMP\sch\windows\setup_sound.ps1"
+Get-PnpDevice -Class AudioEndpoint | Format-Table -AutoSize
+'''
+
+[[step]]
+name = "Allow microphone access (capture)"
+shell = "pwsh"
+run = '''
+New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy\" -Force | Out-Null
+New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy" -Name "LetAppsAccessMicrophone" -Value 1 -PropertyType DWord -Force
+'''
+
+[[step]]
+name = "Endpoints list and open by id"
+run = "cargo test --release -p vieww-audio --lib backend::wasapi -- --nocapture"
+
+[[step]]
+name = "Loopback, shared mode"
+env = { VIEWW_REQUIRE_LOOPBACK = "1", VIEWW_LOOP_BACKEND = "wasapi", VIEWW_LOOP_ATTEMPTS = "3" }
+run = "cargo test --release -p vieww-audio --test device_loopback default_device -- --ignored --nocapture"
+
+[[step]]
+name = "Loopback, exclusive mode"
+env = { VIEWW_REQUIRE_LOOPBACK = "1", VIEWW_LOOP_BACKEND = "wasapi-exclusive", VIEWW_LOOP_ATTEMPTS = "3", VIEWW_AUDIO_DEBUG = "1" }
+run = "cargo test --release -p vieww-audio --test device_loopback default_device -- --ignored --nocapture"
+
+[[step]]
+name = "MIDI ports list (WinMM)"
+run = "cargo test --release -p vieww-audio --lib midi_io -- --nocapture"

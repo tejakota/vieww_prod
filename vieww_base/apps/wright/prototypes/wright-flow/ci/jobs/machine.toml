@@ -1,0 +1,53 @@
+# prototype ()
+# Moved from .github/workflows/device-machines-feature.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "prototype ()"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+FEATURE_CACHE = "${{ vars.FEATURE_CACHE || '~/.cache/vieww-feature-runs' }}"
+
+[[step]]
+name = "Warm build directory"
+run = "bash ../ci/lib/warm-target.sh studio target"
+
+[[step]]
+name = "Build viewwstudio-cli"
+run = "cargo build --release -p viewwstudio --bin viewwstudio-cli"
+
+[[step]]
+name = "Walkthroughs"
+run = "bash apps/wright/prototypes/wright-flow/walkthrough.sh \"${{ github.workspace }}/wright-flow-walkthrough\""
+
+[[step]]
+name = "Interactive web build"
+if = "inputs.depth == 'full'"
+working-directory = "vieww_base/apps/wright/prototypes/wright-flow"
+run = '''
+# The export needs the wasm target and the wasm-bindgen CLI at the
+# version the lockfile resolves. Missing is a SKIP with the install
+# line, never a pass.
+want="$(grep -A1 '^name = "wasm-bindgen"$' Cargo.lock | sed -n 's/^version = "\(.*\)"/\1/p')"
+have="$(wasm-bindgen --version 2>/dev/null | awk '{print $2}')"
+if ! rustup target list --installed | grep -q wasm32-unknown-unknown || [ "$have" != "$want" ]; then
+  echo "SKIPPED: needs \`rustup target add wasm32-unknown-unknown\` and \`cargo install wasm-bindgen-cli --version $want --locked\` (have: ${have:-none})" | tee -a "$GITHUB_STEP_SUMMARY"
+  exit 0
+fi
+../../../../target/release/viewwstudio-cli web .
+mkdir -p "${{ github.workspace }}/wright-flow-web"
+cp target/export/web/* "${{ github.workspace }}/wright-flow-web/"
+'''
+
+[[step]]
+name = "mark: upload wright-flow"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

@@ -1,0 +1,58 @@
+# Android bridge and APK packaging
+# Moved from .github/workflows/cloud-mobile-audio.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Android bridge and APK packaging"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+CARGO_PROFILE_DEV_DEBUG = "0"
+CARGO_INCREMENTAL = "0"
+
+[[step]]
+name = "Toolchain and target"
+run = '''
+rustup show active-toolchain || rustup toolchain install
+rustup target add aarch64-linux-android
+'''
+
+[[step]]
+name = "Type-check for Android"
+run = '''
+cargo check -p vieww-platform-winit --lib --target aarch64-linux-android
+cargo clippy -p vieww-audio --lib --target aarch64-linux-android -- -D warnings
+'''
+
+[[step]]
+name = "APK with the audio classes and the playback service"
+env = { ANDROID_NDK_HOME = "${{ env.ANDROID_NDK_LATEST_HOME }}" }
+run = '''
+. ci/mobile/android-env.sh
+android_env mobile-audio
+marker="$(mktemp)"
+cargo apk build -p vieww-platform-winit --example android --target aarch64-linux-android
+apk="$(find target -path '*/apk/*' -name '*.apk' -newer "$marker" | head -1)"
+[ -n "$apk" ] || { echo "::error::no APK was built"; exit 1; }
+mkdir -p ../dist
+ci/mobile/apk-add-code.sh "$apk" ../dist/vieww-audio.apk --background-audio
+ci/mobile/lint-background-audio.sh --apk ../dist/vieww-audio.apk
+aapt2="$(find "$ANDROID_HOME/build-tools" -name aapt2 | sort -V | tail -1)"
+"$aapt2" dump xmltree --file AndroidManifest.xml ../dist/vieww-audio.apk | tee ../dist/manifest.txt
+grep -q 'dev.vieww.audio.PlaybackService' ../dist/manifest.txt
+grep -q 'FOREGROUND_SERVICE_MEDIA_PLAYBACK' ../dist/manifest.txt
+"$aapt2" dump badging ../dist/vieww-audio.apk | head -5
+'''
+
+[[step]]
+name = "mark: upload vieww-audio-apk"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

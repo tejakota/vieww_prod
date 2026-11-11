@@ -1,0 +1,23 @@
+# macOS hardware
+# Moved from .github/workflows/device-machines-hardware.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "macOS hardware"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[[step]]
+name = "Hardware run"
+env = { STEPS = "${{ inputs.macos_steps || 'env gpu moltenvk gallery baseline size stress desktop audio' }}", VIEWW_HW_LAUNCHES = "${{ inputs.launches || '5' }}", VIEWW_HW_OUT = "${{ runner.temp }}/hardware-macos" }
+run = "ci/hardware/macos.sh $STEPS"
+
+[[step]]
+name = "mark: upload hardware-macos"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

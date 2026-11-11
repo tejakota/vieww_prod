@@ -1,0 +1,93 @@
+# 5 · Housekeeping — run by hand: Actions → 5 · Housekeeping → Run workflow.
+#
+# Chores that change stored state: refresh the golden screenshots, refresh
+# the reference models.
+#
+# What runs comes from the projects' ci.toml files (ci/README.md); this
+# file only holds the form. _plan reads it, _job runs the picked jobs in
+# up to three phases (a phase starts when the one before has finished),
+# _results files the run on the ci-results branch.
+name: "5 · Housekeeping"
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "Task"
+        type: choice
+        default: everything
+        options: ["everything", "goldens", "models"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: housekeeping-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    uses: ./.github/workflows/_plan.yml
+    with:
+      workflow: housekeeping
+      form: ${{ toJSON(inputs) }}
+
+  phase-1:
+    needs: [plan]
+    if: ${{ needs.plan.result == 'success' && (needs.plan.outputs.p1 != '[]' || needs.plan.outputs.p1w != '[]') }}
+    uses: ./.github/workflows/_job.yml
+    secrets: inherit
+    permissions:
+      contents: write
+      actions: read
+      id-token: write
+      attestations: write
+    with:
+      jobs: ${{ needs.plan.outputs.p1 }}
+      write_jobs: ${{ needs.plan.outputs.p1w }}
+      approval: ${{ needs.plan.outputs.p1a == 'true' }}
+      vars: ${{ toJSON(vars) }}
+
+  phase-2:
+    needs: [plan, phase-1]
+    if: ${{ !cancelled() && needs.plan.result == 'success' && (needs.plan.outputs.p2 != '[]' || needs.plan.outputs.p2w != '[]') }}
+    uses: ./.github/workflows/_job.yml
+    secrets: inherit
+    permissions:
+      contents: write
+      actions: read
+      id-token: write
+      attestations: write
+    with:
+      jobs: ${{ needs.plan.outputs.p2 }}
+      write_jobs: ${{ needs.plan.outputs.p2w }}
+      approval: ${{ needs.plan.outputs.p2a == 'true' }}
+      vars: ${{ toJSON(vars) }}
+
+  phase-3:
+    needs: [plan, phase-2]
+    if: ${{ !cancelled() && needs.plan.result == 'success' && (needs.plan.outputs.p3 != '[]' || needs.plan.outputs.p3w != '[]') }}
+    uses: ./.github/workflows/_job.yml
+    secrets: inherit
+    permissions:
+      contents: write
+      actions: read
+      id-token: write
+      attestations: write
+    with:
+      jobs: ${{ needs.plan.outputs.p3 }}
+      write_jobs: ${{ needs.plan.outputs.p3w }}
+      approval: ${{ needs.plan.outputs.p3a == 'true' }}
+      vars: ${{ toJSON(vars) }}
+
+  results:
+    needs: [plan, phase-1, phase-2, phase-3]
+    if: ${{ always() && needs.plan.result != 'skipped' }}
+    uses: ./.github/workflows/_results.yml
+    permissions:
+      contents: write
+      actions: read
+    with:
+      run_id: ${{ github.run_id }}
+      workflow: ${{ github.workflow }}
+      conclusion: ${{ (contains(needs.*.result, 'failure') && 'failure') || (contains(needs.*.result, 'cancelled') && 'cancelled') || 'success' }}

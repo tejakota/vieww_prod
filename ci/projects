@@ -1,0 +1,711 @@
+#!/usr/bin/env python3
+"""The projects CI knows about, and what a run of each workflow runs.
+
+    ci/projects list                 every project: path, kind, jobs per stage
+    ci/projects check                manifests valid, workflow dropdowns in sync
+    ci/projects sync                 rewrite the workflows' Project dropdowns
+    ci/projects new PATH KIND [NAME] write PATH/ci.toml from ci/templates, then sync
+    ci/projects plan WORKFLOW        (in CI) the jobs a run starts, per phase
+    ci/projects plan WORKFLOW --dry  the same, printed, with FORM='{"…"}' as the form
+
+A project is a folder with a ci.toml (ci/README.md describes the file).
+A file belongs to the deepest project folder that contains it, so a new
+crate without its own ci.toml is checked as part of the project around it.
+
+Standard library only (Python 3.11+): it runs on GitHub's machines and on
+the self-hosted ones.
+"""
+import fnmatch
+import json
+import os
+import re
+import subprocess
+import sys
+import tomllib
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT, "ci", "lib"))
+import expr  # noqa: E402
+
+KINDS = ("library", "desktop-app", "mobile-app", "site")
+STAGES = ("check", "devices", "build", "release", "publish", "housekeeping")
+PLATFORMS = ("linux", "macos", "windows", "android", "ios", "web")
+WORKFLOWS = {"check": "1-check.yml", "devices": "2-devices.yml", "build": "3-build.yml",
+             "release": "4-release.yml", "housekeeping": "5-housekeeping.yml"}
+CHANGED, ALL = "What this branch changed", "All projects"
+SKIP_DIRS = {".git", "target", "node_modules", ".gradle", "build", "dist", "feature_branch_variants", "__pycache__"}
+PHASES = 3
+MACHINE = ["self-hosted", "Linux", "X64", "vieww-linux"]
+
+# Devices → Suite: which hardware steps each choice runs, per machine.
+SUITES = {
+    "everything": None,
+    "quick look (env, gpu)": "env gpu",
+    "gpu": "env gpu nvidia d3d12 moltenvk",
+    "gallery": "gallery",
+    "baseline": "baseline",
+    "size": "size",
+    "stress": "stress",
+    "desktop": "desktop remote",
+    "audio": "audio",
+    "wright docker suite (Linux)": "wright-docker",
+}
+HW_STEPS = {
+    "linux": "env gpu nvidia gallery baseline size stress desktop audio wright-docker".split(),
+    "windows": "env gpu d3d12 gallery baseline size pipelines stress desktop remote audio".split(),
+    "macos": "env gpu moltenvk gallery baseline size stress desktop audio".split(),
+}
+
+
+def die(msg):
+    print(f"::error::{msg}", file=sys.stderr)
+    sys.exit(1)
+
+
+def rel(p):
+    return os.path.relpath(p, ROOT).replace(os.sep, "/")
+
+
+# ── manifests ────────────────────────────────────────────────────────────
+
+def find_manifests():
+    found = []
+    for d, dirs, files in os.walk(ROOT):
+        dirs[:] = sorted(x for x in dirs if x not in SKIP_DIRS and not x.startswith("."))
+        if "ci.toml" in files and d != ROOT:
+            found.append(os.path.join(d, "ci.toml"))
+    return found
+
+
+def nearest(path, name):
+    d = os.path.join(ROOT, path)
+    while True:
+        if os.path.exists(os.path.join(d, name)):
+            return rel(d)
+        if os.path.abspath(d) == ROOT:
+            return None
+        d = os.path.dirname(d)
+
+
+def load_projects():
+    projects = {}
+    for f in find_manifests():
+        with open(f, "rb") as fh:
+            try:
+                m = tomllib.load(fh)
+            except tomllib.TOMLDecodeError as e:
+                die(f"{rel(f)}: {e}")
+        m["path"] = rel(os.path.dirname(f))
+        m["manifest"] = rel(f)
+        name = m.get("name")
+        if not name:
+            die(f"{rel(f)}: no name")
+        if name in projects:
+            die(f"two projects are called {name}: {projects[name]['manifest']} and {rel(f)}")
+        projects[name] = m
+    for m in projects.values():
+        ws = nearest(m["path"], "Cargo.lock") or m["path"]
+        m.setdefault("workspace", ws)
+        m["dir"] = os.path.relpath(os.path.join(ROOT, m["path"]), os.path.join(ROOT, m["workspace"])).replace(os.sep, "/")
+        if "package" not in m:
+            try:
+                with open(os.path.join(ROOT, m["path"], "Cargo.toml"), "rb") as fh:
+                    m["package"] = tomllib.load(fh).get("package", {}).get("name", m["name"])
+            except OSError:
+                m["package"] = m["name"]
+        m["wasm_bindgen"] = lock_version(m["workspace"], "wasm-bindgen")
+    return projects
+
+
+def lock_version(ws, crate):
+    try:
+        text = open(os.path.join(ROOT, ws, "Cargo.lock"), encoding="utf-8").read()
+    except OSError:
+        return ""
+    m = re.search(r'name = "' + re.escape(crate) + r'"\nversion = "([^"]+)"', text)
+    return m.group(1) if m else ""
+
+
+def load_kind(kind):
+    with open(os.path.join(ROOT, "ci", "kinds", f"{kind}.toml"), "rb") as fh:
+        return tomllib.load(fh)
+
+
+def dotted(m, path):
+    v = m
+    for part in path.split("."):
+        if not isinstance(v, dict) or part not in v:
+            return None
+        v = v[part]
+    return v
+
+
+def jobs_of(m):
+    """The project's own jobs plus its kind's, for stages it has none of."""
+    own = [dict(j, _kind=False) for j in m.get("job", [])]
+    keep = m.get("kind_jobs", True)
+    if keep is False:
+        return own
+    have = set()
+    for j in own:
+        have.add(j["stage"])
+        have.update(s.split(":")[0] for s in j.get("also", []))
+    out = list(own)
+    for j in load_kind(m["kind"]).get("job", []):
+        stages = {j["stage"], *j.get("also", [])}
+        named = isinstance(keep, list) and j["id"] in keep
+        if stages & have and not named:
+            continue
+        if j.get("requires") and dotted(m, j["requires"]) is None:
+            continue
+        if isinstance(keep, list) and j["id"] not in keep:
+            continue
+        out.append(dict(j, _kind=True))
+    return out
+
+
+# ── check / sync ─────────────────────────────────────────────────────────
+
+def validate(projects):
+    problems = []
+    for name, m in sorted(projects.items()):
+        where = m["manifest"]
+        if m.get("kind") not in KINDS:
+            problems.append(f"{where}: kind must be one of {', '.join(KINDS)}")
+            continue
+        for p in m.get("platforms", []):
+            if p not in PLATFORMS:
+                problems.append(f"{where}: unknown platform {p!r}")
+        for u in m.get("uses", []):
+            if u not in projects:
+                problems.append(f"{where}: uses {u!r}, which is no project")
+        ids = set()
+        for j in jobs_of(m):
+            jid = j.get("id")
+            if not jid:
+                problems.append(f"{where}: a job has no id")
+                continue
+            if jid in ids:
+                problems.append(f"{where}: two jobs are called {jid}")
+            ids.add(jid)
+            base = ROOT if j["_kind"] else os.path.join(ROOT, m["path"])
+            if not os.path.exists(os.path.join(base, j.get("file", "?"))):
+                problems.append(f"{where}: job {jid}: no file {j.get('file')}")
+            else:
+                try:
+                    with open(os.path.join(base, j["file"]), "rb") as fh:
+                        spec = tomllib.load(fh)
+                    for s in spec.get("step", []):
+                        if "run" not in s:
+                            problems.append(f"{j['file']}: a step has no run")
+                except tomllib.TOMLDecodeError as e:
+                    problems.append(f"{j['file']}: {e}")
+            if j.get("stage") not in STAGES:
+                problems.append(f"{where}: job {jid}: stage must be one of {', '.join(STAGES)}")
+            for s in j.get("also", []):
+                if s.split(":")[0] not in STAGES:
+                    problems.append(f"{where}: job {jid}: also {s!r} is no stage")
+            if j.get("depth", "quick") not in ("quick", "thorough"):
+                problems.append(f"{where}: job {jid}: depth is quick or thorough")
+            if not 1 <= int(j.get("phase", 1)) <= PHASES:
+                problems.append(f"{where}: job {jid}: phase is 1 to {PHASES}")
+            if j.get("expand") and not os.path.exists(os.path.join(base, j["expand"])):
+                problems.append(f"{where}: job {jid}: no file {j['expand']}")
+        for j in jobs_of(m):
+            for n in j.get("needs", []):
+                if n not in ids:
+                    problems.append(f"{where}: job {j.get('id')} needs {n!r}, which this project has no job called")
+    return problems
+
+
+def dropdown(projects):
+    return [CHANGED, ALL] + sorted(projects, key=str.lower)
+
+
+BEGIN = re.compile(r"^(\s*)# projects: begin.*$")
+
+
+def sync_text(text, options):
+    lines, out, i = text.split("\n"), [], 0
+    while i < len(lines):
+        out.append(lines[i])
+        m = BEGIN.match(lines[i])
+        i += 1
+        if not m:
+            continue
+        indent = m.group(1)
+        while i < len(lines) and "# projects: end" not in lines[i]:
+            i += 1
+        out += [f"{indent}- {o}" for o in options]
+        if i < len(lines):
+            out.append(lines[i])
+            i += 1
+    return "\n".join(out)
+
+
+def workflow_files():
+    return [os.path.join(ROOT, ".github", "workflows", f) for f in WORKFLOWS.values()]
+
+
+def cmd_check(projects, quiet=False):
+    problems = validate(projects)
+    options = dropdown(projects)
+    for f in workflow_files():
+        if not os.path.exists(f):
+            continue
+        text = open(f, encoding="utf-8").read()
+        if "# projects: begin" in text and sync_text(text, options) != text:
+            problems.append(f"{rel(f)}: the Project dropdown is out of date — run ci/projects sync")
+    eng = subprocess.run([sys.executable, os.path.join(ROOT, "ci", "lib", "make_engine.py"), "--check"],
+                         capture_output=True, text=True)
+    if eng.returncode:
+        problems.append(eng.stdout.strip().replace("::error::", ""))
+    for p in problems:
+        print(f"::error::{p}")
+    if problems:
+        sys.exit(1)
+    if not quiet:
+        print(f"{len(projects)} projects, manifests valid, dropdowns in sync")
+
+
+def cmd_sync(projects):
+    problems = validate(projects)
+    if problems:
+        for p in problems:
+            print(f"::error::{p}")
+        sys.exit(1)
+    options = dropdown(projects)
+    for f in workflow_files():
+        if not os.path.exists(f):
+            continue
+        text = open(f, encoding="utf-8").read()
+        new = sync_text(text, options)
+        if new != text:
+            open(f, "w", encoding="utf-8").write(new)
+            print(f"updated {rel(f)}")
+    subprocess.run([sys.executable, os.path.join(ROOT, "ci", "lib", "make_engine.py")], check=True)
+    print(f"dropdown: {', '.join(options)}")
+
+
+def cmd_list(projects):
+    print(f"{'project':20} {'kind':12} {'path':48} jobs")
+    for name, m in sorted(projects.items(), key=lambda x: x[1]["path"]):
+        per = {}
+        for j in jobs_of(m):
+            for s in [j["stage"], *[a.split(":")[0] for a in j.get("also", [])]]:
+                per[s] = per.get(s, 0) + 1
+        jobs = " ".join(f"{s}:{per[s]}" for s in STAGES if s in per)
+        print(f"{name:20} {m['kind']:12} {m['path']:48} {jobs}")
+
+
+def cmd_new(projects, args):
+    if len(args) < 2:
+        die("usage: ci/projects new PATH KIND [NAME]")
+    path, kind = args[0].rstrip("/"), args[1]
+    name = args[2] if len(args) > 2 else os.path.basename(path)
+    if kind not in KINDS:
+        die(f"kind must be one of {', '.join(KINDS)}")
+    target = os.path.join(ROOT, path, "ci.toml")
+    if os.path.exists(target):
+        die(f"{path}/ci.toml exists")
+    text = open(os.path.join(ROOT, "ci", "templates", f"{kind}.toml"), encoding="utf-8").read()
+    text = text.replace("{name}", name).replace("{package}", name)
+    os.makedirs(os.path.dirname(target), exist_ok=True)
+    open(target, "w", encoding="utf-8").write(text)
+    print(f"wrote {path}/ci.toml ({kind})")
+    cmd_sync(load_projects())
+
+
+# ── plan ─────────────────────────────────────────────────────────────────
+
+def owner(projects, path):
+    best, depth = None, -1
+    for name, m in projects.items():
+        p = m["path"] + "/"
+        if path.startswith(p) and p.count("/") > depth:
+            best, depth = name, p.count("/")
+    return best
+
+
+def changed_projects(projects):
+    def git(*a):
+        return subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    base = git("merge-base", "origin/main", "HEAD")
+    if not base or base == git("rev-parse", "HEAD"):
+        return set(projects), "on main (or no shared history with it): every project"
+    files = [f for f in git("diff", "--name-only", base, "HEAD").splitlines() if f]
+    hit = set()
+    for f in files:
+        if f.startswith("ci/kinds/"):
+            kind = f.split("/")[2].split(".")[0]
+            hit |= {n for n, m in projects.items() if m["kind"] == kind}
+        elif f.startswith(("ci/", ".github/")):
+            hit.add("vieww")
+        o = owner(projects, f)
+        if o:
+            hit.add(o)
+    # and everything that uses a changed project, transitively
+    grew = True
+    while grew:
+        grew = False
+        for n, m in projects.items():
+            if n not in hit and set(m.get("uses", [])) & hit:
+                hit.add(n)
+                grew = True
+    return hit, f"{len(files)} file(s) changed since {base[:10]}"
+
+
+def matrix_rows(matrix):
+    if not matrix:
+        return [{}]
+    if isinstance(matrix, str):
+        die(f"a matrix must be a table in ci.toml, not {matrix!r}")
+    base = {k: v for k, v in matrix.items() if k not in ("include", "exclude")}
+    rows = [{}]
+    for k, vals in base.items():
+        rows = [dict(r, **{k: v}) for r in rows for v in vals]
+    if not base:
+        rows = []
+    for inc in matrix.get("include", []):
+        merged = False
+        for r in (rows if base else []):
+            if all(r.get(k) == v for k, v in inc.items() if k in base):
+                if not any(k in base and r.get(k) != v for k, v in inc.items()):
+                    r.update({k: v for k, v in inc.items() if k not in base})
+                    merged = True
+        if not merged:
+            rows.append(dict(inc))
+    for exc in matrix.get("exclude", []):
+        rows = [r for r in rows if not all(r.get(k) == v for k, v in exc.items())]
+    return rows or [{}]
+
+
+def os_of(runs_on):
+    labels = runs_on if isinstance(runs_on, list) else [runs_on]
+    text = " ".join(str(x).lower() for x in labels)
+    if "windows" in text:
+        return "windows"
+    if "macos" in text or "macOS" in text:
+        return "macos"
+    return "linux"
+
+
+PLACE = re.compile(r"\{([a-z_][a-z0-9_.]*)\}")
+
+
+def make_filler(m, flags, extra=None):
+    def look(key):
+        if extra and key in extra:
+            return extra[key]
+        if key in flags:
+            return flags[key]
+        if key in ("name", "path", "workspace", "dir", "package", "wasm_bindgen", "build"):
+            return m.get(key, "")
+        v = dotted(m, key)
+        if v is None:
+            die(f"{m['manifest']}: {{{key}}} is not set")
+        return v
+
+    def fill(v):
+        if isinstance(v, str):
+            whole = PLACE.fullmatch(v)
+            if whole:
+                return look(whole.group(1))
+            return PLACE.sub(lambda x: expr.to_str(look(x.group(1))), v)
+        if isinstance(v, list):
+            return [fill(x) for x in v]
+        if isinstance(v, dict):
+            return {k: fill(x) for k, x in v.items()}
+        return v
+    return fill
+
+
+def form_flags(workflow, form, vars_):
+    """Everything a manifest's {…} and `when` can refer to."""
+    f = {f"form.{k}": v for k, v in form.items()}
+    b = lambda k: form.get(k) in (True, "true")  # noqa: E731
+    flags = dict(f)
+    version = (form.get("version") or "1.0.0").strip()
+    flags["form.version"] = version
+    flags.setdefault("form.prerelease", True)
+    flags["form.prerelease"] = b("prerelease") if "prerelease" in form else True
+    flags["form.launches"] = "5"
+    flags["form.machine_depth"] = "full" if form.get("depth") == "thorough" else "quick"
+    mode = form.get("mode", "")
+    flags["release.publish"] = mode == "publish"
+    flags["release.rerun"] = "failed" if mode.startswith("rehearse") else "all"
+    flags["release.legs"] = "all" if b("include_machines") else "hosted"
+    farm = form.get("farm", "off")
+    flags["farm.android"] = farm in ("Android", "both")
+    flags["farm.ios"] = farm in ("iPhone", "both")
+    flags["farm.any"] = flags["farm.android"] or flags["farm.ios"]
+    flags["farm.platform"] = {"Android": "android", "iPhone": "ios", "both": "both"}.get(farm, "android")
+    tiers = [t for t in ("low", "mid", "high") if b(f"farm_{t}")]
+    flags["farm.tiers"] = ",".join(tiers) or "low,mid,high"
+    suite = SUITES.get(form.get("suite", "everything"), None)
+    for o, steps in HW_STEPS.items():
+        picked = steps if suite is None else [s for s in steps if s in suite.split()]
+        sep = "," if o == "windows" else " "
+        flags[f"suite.{o}"] = sep.join(picked) if picked else "-"
+    for k in ("linux", "windows", "mac", "usb_phone", "video"):
+        flags[f"form.{k}"] = b(k)
+    flags["machine"] = vars_.get("FEATURE_RUNNER") or ""
+    return flags
+
+
+def plan(workflow, form, vars_, ref):
+    projects = load_projects()
+    problems = validate(projects)
+    if problems:
+        die("; ".join(problems))
+    flags = form_flags(workflow, form, vars_)
+    summary = []
+    notes = []
+
+    # which projects
+    choice = form.get("project", ALL)
+    if workflow in ("release", "housekeeping", "devices"):
+        choice = ALL
+    if choice == CHANGED:
+        chosen, why = changed_projects(projects)
+        summary.append(f"Projects: what this branch changed — {why}")
+    elif choice == ALL:
+        chosen = set(projects)
+    elif choice in projects:
+        chosen = {choice}
+    else:
+        die(f"unknown project {choice!r}; run ci/projects sync")
+
+    # which stages, depth, platforms
+    stage_set, depth, where = set(), None, "github"
+    platforms = set(PLATFORMS)
+    approval = False
+    if workflow == "check":
+        stage_set = {"check"}
+        depth = form.get("depth", "quick")
+        where = "machine" if str(form.get("run_on", "")).startswith("My") else "github"
+    elif workflow == "devices":
+        stage_set = {"devices"}
+    elif workflow == "build":
+        stage_set = {"build"}
+        platforms = {p for p in PLATFORMS if form.get(p) in (True, "true")}
+        if not platforms:
+            die("Build: tick at least one platform")
+    elif workflow == "release":
+        mode = form.get("mode", "rehearse")
+        stage_set = {"release"}
+        if not mode.startswith("rehearse"):
+            stage_set.add("build")
+        if mode == "publish":
+            stage_set.add("publish")
+            approval = True
+    elif workflow == "housekeeping":
+        stage_set = {"housekeeping"}
+    else:
+        die(f"unknown workflow {workflow}")
+    task = form.get("task", "everything")
+
+    machine = vars_.get("FEATURE_RUNNER")
+    try:
+        machine = json.loads(machine) if machine else MACHINE
+    except json.JSONDecodeError:
+        machine = machine
+    phases = {p: {"read": [], "write": []} for p in range(1, PHASES + 1)}
+    picked_rows = []
+
+    for name in sorted(chosen):
+        m = projects[name]
+        js = jobs_of(m)
+        # Check on my machine: a project's machine jobs; else its Linux jobs moved there.
+        if workflow == "check":
+            mine = [j for j in js if j.get("where") == "machine"]
+        for j in js:
+            stages = {j["stage"], *[a.split(":")[0] for a in j.get("also", [])]}
+            if not stages & stage_set:
+                continue
+            if workflow == "check":
+                jw = j.get("where", "github")
+                if where == "github" and jw == "machine":
+                    continue
+                if where == "machine" and mine and jw != "machine":
+                    continue
+                if jw != "machine" and j.get("depth", "quick") == "thorough" and depth == "quick":
+                    continue
+            if workflow == "housekeeping" and task != "everything" and j.get("task") != task:
+                continue
+            if j.get("when") and not flags.get(j["when"]):
+                continue
+            if j.get("main_only") and ref != "refs/heads/main":
+                notes.append(f"{name} · {j['id']}: runs from main only (this run is {ref})")
+                continue
+            for e in instances(m, j, flags, platforms if "build" in stage_set and j["stage"] == "build" else None,
+                               workflow, where, machine, ref):
+                ph = int(j.get("phase", 1))
+                if j["stage"] == "publish":
+                    e["approval"] = approval
+                kind = "write" if j.get("write") or e.get("approval") else "read"
+                phases[ph][kind].append(e)
+                picked_rows.append((ph, e["title"], e["runs_on"]))
+
+    # A job that only follows others (a report) goes when none of them runs.
+    while True:
+        planned = {(e["project"], e["id"]) for ph in phases.values() for k in ph.values() for e in k}
+        gone = False
+        for ph in phases.values():
+            for kind in ph:
+                keep = []
+                for e in ph[kind]:
+                    needs = json.loads(e["job"])["needs"]
+                    if needs and not any((e["project"], n) in planned for n in needs):
+                        gone = True
+                        continue
+                    keep.append(e)
+                ph[kind] = keep
+        if not gone:
+            break
+    picked_rows = [(p, e["title"], e["runs_on"]) for p, ph in phases.items() for k in ph.values() for e in k]
+    if not picked_rows:
+        die("Nothing to run for these choices." + (" " + " ".join(notes) if notes else ""))
+    return phases, picked_rows, summary, notes, approval
+
+
+def instances(m, j, flags, platforms, workflow, where, machine, ref):
+    path = m["path"]
+    base = ROOT if j["_kind"] else os.path.join(ROOT, path)
+    job_file = rel(os.path.join(base, j["file"]))
+    rows = []
+    if j.get("per_platform"):
+        for p in m.get("platforms", []):
+            if p in j["per_platform"]:
+                fill = make_filler(m, flags, {"platform": p})
+                rows.append((fill(j.get("row", {})), j["per_platform"][p], p, fill))
+    elif j.get("row"):
+        fill = make_filler(m, flags)
+        rows.append((fill(j["row"]), j.get("runs_on"), None, fill))
+    elif j.get("expand"):
+        fill = make_filler(m, flags)
+        inputs = fill(j.get("inputs", {}))
+        env = dict(os.environ, EVENT="workflow_dispatch", REF=ref, LEGS=str(inputs.get("legs", "")),
+                   RERUN=str(inputs.get("rerun", "")), SCOPE_IN=str(inputs.get("scope", "")),
+                   GITHUB_STEP_SUMMARY=os.environ.get("GITHUB_STEP_SUMMARY", os.devnull))
+        r = subprocess.run([sys.executable, os.path.join(base, j["expand"])], env=env, capture_output=True, text=True)
+        if r.returncode:
+            die(f"{j['expand']}: {r.stderr.strip()}")
+        line = next((x for x in r.stdout.splitlines() if x.startswith("matrix=")), None)
+        if not line:
+            die(f"{j['expand']} printed no matrix= line")
+        for row in json.loads(line[len("matrix="):])["include"]:
+            rows.append((row, row.get("runner"), None, fill))
+    else:
+        fill = make_filler(m, flags)
+        for row in matrix_rows(j.get("matrix")):
+            rows.append((row, j.get("runs_on"), None, fill))
+
+    out = []
+    for row, runs_on, platform, fill in rows:
+        ctx = {"matrix": row, "inputs": {}, "github": {"ref": ref, "event_name": "workflow_dispatch"},
+               "env": {}, "vars": {}, "secrets": {}, "runner": {}}
+        if isinstance(runs_on, str):
+            runs_on = expr.interpolate(runs_on, ctx)
+            if runs_on.startswith("["):
+                runs_on = json.loads(runs_on)
+        if runs_on == "machine":
+            runs_on = machine
+        # platform filter (Build)
+        if platforms is not None:
+            plat = platform
+            if j.get("platforms_from"):
+                plat = expr.to_str(expr.evaluate(j["platforms_from"], ctx)).split("-")[0]
+            elif j.get("platforms") and not plat:
+                plat = j["platforms"][0]
+            if plat and plat not in platforms:
+                continue
+        # Check on my machine: Linux jobs of projects without machine jobs move there.
+        if workflow == "check" and where == "machine" and j.get("where") != "machine" and os_of(runs_on) == "linux":
+            runs_on = machine
+        inputs = fill(j.get("inputs", {}))
+        if any(v == "-" for v in inputs.values()):
+            continue  # a hardware suite this machine has no step for
+        label = platform or ""
+        if row and not j["_kind"]:
+            label = row.get("name") or row.get("id") or row.get("app") or row.get("site") or row.get("os") \
+                or row.get("platform") or " ".join(expr.to_str(v) for v in row.values() if not isinstance(v, (dict, list)))[:40]
+        title = f"{m['name']} · {j['id']}" + (f" ({label})" if label else "")
+        co = j.get("checkout") or {}
+        sparse = co.get("sparse-checkout", "")
+        if sparse:
+            sparse = sparse.rstrip("\n") + "\nci\n" + os.path.dirname(job_file) + "\n"
+        secrets = sorted(set(j.get("secrets", [])))
+        e = {
+            "title": title, "project": m["name"], "id": j["id"], "file": job_file,
+            "runs_on": runs_on, "timeout": int(j.get("timeout") or 360),
+            "continue_on_error": bool(j.get("continue_on_error", False)),
+            "if": j.get("if") or "", "needs": j.get("needs", []),
+            "matrix": json.dumps(row), "inputs": json.dumps(inputs),
+            "secret_names": "," + ",".join(secrets) + ",", "secret_list": ",".join(secrets),
+            "checkout": {"fetch_depth": int(co.get("fetch-depth", 1)), "persist": bool(co.get("persist-credentials", True)),
+                         "clean": bool(co.get("clean", True)), "sparse": sparse},
+            "setup": fill(j.get("setup", [])), "uploads": fill(j.get("upload", [])),
+            "downloads": fill(j.get("download", [])), "approval": False,
+        }
+        e["job"] = json.dumps({k: e[k] for k in ("title", "project", "id", "file", "if", "needs", "setup", "uploads", "downloads")})
+        for k in ("setup", "uploads", "downloads", "if", "needs"):
+            del e[k]
+        out.append(e)
+    return out
+
+
+def cmd_plan(args):
+    if not args:
+        die("usage: ci/projects plan WORKFLOW [--dry]")
+    workflow, dry = args[0], "--dry" in args
+    form = json.loads(os.environ.get("FORM") or "{}")
+    vars_ = json.loads(os.environ.get("VARS") or "{}")
+    ref = os.environ.get("GITHUB_REF", "refs/heads/main")
+    phases, rows, summary, notes, approval = plan(workflow, form, vars_, ref)
+    outputs = {}
+    for p, kinds in phases.items():
+        outputs[f"p{p}"] = json.dumps(kinds["read"])
+        outputs[f"p{p}w"] = json.dumps(kinds["write"])
+        outputs[f"p{p}a"] = "true" if any(e["approval"] for e in kinds["write"]) else "false"
+    if dry:
+        for ph, title, runs_on in sorted(rows):
+            print(f"phase {ph}  {title:60} {json.dumps(runs_on)}")
+        for n in notes:
+            print("note:", n)
+        print(f"{len(rows)} jobs" + (" · publishing waits for approval" if approval else ""))
+        return
+    with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+        for k, v in outputs.items():
+            f.write(f"{k}<<__CI_EOF__\n{v}\n__CI_EOF__\n")
+    with open(os.environ.get("GITHUB_STEP_SUMMARY", os.devnull), "a", encoding="utf-8") as f:
+        f.write(f"### {WORKFLOWS[workflow][:-4]} · what runs\n\n")
+        for s in summary:
+            f.write(s + "\n\n")
+        f.write("| phase | job | machine |\n|---|---|---|\n")
+        for ph, title, runs_on in sorted(rows):
+            f.write(f"| {ph} | {title} | `{json.dumps(runs_on) if isinstance(runs_on, list) else runs_on}` |\n")
+        for n in notes:
+            f.write(f"\n> {n}\n")
+        if approval:
+            f.write("\nPublishing waits for approval in the `release` environment.\n")
+        f.write("\n")
+
+
+def main():
+    args = sys.argv[1:]
+    if not args or args[0] in ("-h", "--help", "help"):
+        print(__doc__)
+        return
+    cmd, rest = args[0], args[1:]
+    if cmd == "plan":
+        cmd_plan(rest)
+        return
+    projects = load_projects()
+    {"list": lambda: cmd_list(projects), "check": lambda: cmd_check(projects),
+     "sync": lambda: cmd_sync(projects), "new": lambda: cmd_new(projects, rest)}.get(
+        cmd, lambda: die(f"unknown command {cmd}; see ci/projects --help"))()
+
+
+if __name__ == "__main__":
+    main()

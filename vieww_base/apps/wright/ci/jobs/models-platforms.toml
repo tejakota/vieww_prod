@@ -1,0 +1,84 @@
+# Real models on
+# Moved from .github/workflows/cloud-machines-wright-models.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Real models on"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base/apps/wright"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+JFK_URL = "https://raw.githubusercontent.com/ggml-org/whisper.cpp/231638a0717b7822784297e5980965ffcec05810/samples/jfk.wav"
+
+[[step]]
+name = "Allow long paths (Windows)"
+if = "runner.os == 'Windows'"
+working-directory = "."
+run = "git config --global core.longpaths true"
+
+[[step]]
+name = "Rust ${{ env.RUST_VERSION }}"
+working-directory = "."
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal
+rustup default "$RUST_VERSION"
+'''
+
+[[step]]
+name = "Build"
+env = { RUSTFLAGS = "${{ runner.os == 'macOS' && '-C target-cpu=apple-m1' || '-C target-cpu=x86-64-v2' }}" }
+run = '''
+cargo build --release -p wright
+cargo build --release -p wright-infer --examples
+'''
+
+[[step]]
+name = "Doctor (https transport, models)"
+run = '''
+export WRIGHT_HOME="$RUNNER_TEMP/wright-home"
+./target/release/wright doctor || true
+'''
+
+[[step]]
+name = "Download and verify the models"
+run = '''
+export WRIGHT_HOME="$RUNNER_TEMP/wright-home"
+./target/release/wright model pull
+./target/release/wright model list
+'''
+
+[[step]]
+name = "Listen"
+run = '''
+export WRIGHT_HOME="$RUNNER_TEMP/wright-home"
+curl -sSfL -o "$RUNNER_TEMP/jfk.wav" "$JFK_URL"
+./target/release/wright model listen "$RUNNER_TEMP/jfk.wav" | tee "$RUNNER_TEMP/heard.txt"
+grep -qi "ask not what your country can do for you" "$RUNNER_TEMP/heard.txt"
+'''
+
+[[step]]
+name = "Ask"
+run = '''
+export WRIGHT_HOME="$RUNNER_TEMP/wright-home"
+./target/release/wright model ask "In one sentence: why do tests matter?"
+'''
+
+[[step]]
+name = "Tool calls and transcripts (greedy)"
+env = { RUSTFLAGS = "${{ runner.os == 'macOS' && '-C target-cpu=apple-m1' || '-C target-cpu=x86-64-v2' }}" }
+run = '''
+export WRIGHT_HOME="$RUNNER_TEMP/wright-home" WRIGHT_REAL_MODELS=1 WRIGHT_REAL_JFK="$RUNNER_TEMP/jfk.wav"
+cargo test --release -p wright-infer --test real -- --nocapture --test-threads 1
+'''
+
+[[step]]
+name = "Timings"
+run = '''
+export WRIGHT_HOME="$RUNNER_TEMP/wright-home"
+./target/release/examples/bench "$WRIGHT_HOME/models/Qwen3-1.7B-Q8_0.gguf" 300 32
+./target/release/examples/listen "$WRIGHT_HOME/models/ggml-base.bin" "$RUNNER_TEMP/jfk.wav"
+'''

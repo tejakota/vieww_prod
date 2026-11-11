@@ -1,0 +1,122 @@
+# Windows (D3D12 on WARP)
+# Moved from .github/workflows/shared-framework-checks.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Windows (D3D12 on WARP)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Toolchain"
+run = "rustup toolchain install \"$RUST_VERSION\" --profile minimal --component clippy"
+
+[[step]]
+name = "platform-check windows"
+run = "ci/check/platform-check.sh windows"
+
+[[step]]
+name = "D3D12 suite (WARP when there is no hardware adapter)"
+shell = "bash"
+env = { VIEWW_D3D12_ALLOW_WARP = "1", VIEWW_REQUIRE_HARDWARE = "gpu", VIEWW_D3D12_DEBUG = "1", RUST_BACKTRACE = "1", VIEWW_PARITY_OUT = "${{ runner.temp }}/parity", VIEWW_PARITY_ADAPTER = "WARP" }
+run = '''
+cargo test -p vieww-hal --features d3d12 --no-run
+failed=()
+for bin in d3d12_scene d3d12_smoke; do
+  [ -f "crates/vieww-hal/tests/$bin.rs" ] || continue
+  for t in $(cargo test -q -p vieww-hal --features d3d12 --test "$bin" -- --ignored --list 2>/dev/null | sed -n 's/: test$//p'); do
+    echo "::group::$bin::$t"
+    if cargo test -q -p vieww-hal --features d3d12 --test "$bin" -- --ignored --exact "$t" --nocapture; then
+      echo "::endgroup::"
+    else
+      echo "::endgroup::"
+      echo "FAILED-TEST $bin::$t"
+      failed+=("$bin::$t")
+    fi
+  done
+done
+cargo test -p vieww-hal --features d3d12 --lib -- --ignored --test-threads=1 || failed+=(lib)
+if [ ${#failed[@]} -gt 0 ]; then
+  printf 'failed: %s\n' "${failed[@]}"
+  exit 1
+fi
+'''
+
+[[step]]
+name = "HLSL that FXC refused (numbered, for the failure report)"
+if = "failure()"
+shell = "bash"
+run = '''
+for f in "$RUNNER_TEMP"/../vieww-fxc-*.hlsl "$TEMP"/vieww-fxc-*.hlsl; do
+  [ -f "$f" ] || continue
+  echo "::group::$f"
+  echo "FXC-REFUSED $(basename "$f")"
+  cat -n "$f"
+  echo "::endgroup::"
+done
+'''
+
+[[step]]
+name = "Parity certificate (d3d12-warp, FW-26)"
+if = "always()"
+shell = "bash"
+run = '''
+PY=$(command -v python3 || command -v python)
+"$PY" ci/check/parity-certificate.py "$RUNNER_TEMP/parity" -o "parity-certificate-d3d12-warp.json" --markdown "$RUNNER_TEMP/parity.md"
+status=$?
+cat "$RUNNER_TEMP/parity.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+exit $status
+'''
+
+[[step]]
+name = "mark: upload parity-certificate-d3d12-warp"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "Clippy for the Windows backends"
+run = '''
+cargo clippy -p vieww-hal --features d3d12 --all-targets -- -D warnings
+cargo clippy -p vieww-audio --all-targets -- -D warnings
+'''
+
+[[step]]
+name = "Studio out-of-process preview (PENDING §3.3)"
+run = "cargo test -p viewwstudio --test remote -- --test-threads=1"
+
+[[step]]
+name = "Crash symbols (PE/PDB, FW-12)"
+run = '''
+export PATH="$PATH:/c/Program Files/LLVM/bin"
+command -v llvm-symbolizer
+bash ci/check/crash-symbols.sh
+'''
+
+[[step]]
+name = "Performance budget (advisory, FW-08)"
+if = "always()"
+run = '''
+py="$(command -v python3 || command -v python)"
+"$py" -I ci/check/perf_baseline.py framework-checks perf-windows "$RUNNER_TEMP/perf-baseline.json"
+bash ci/check/perf-budget.sh --advisory --baseline "$RUNNER_TEMP/perf-baseline.json" \
+  --write-measured "$RUNNER_TEMP/perf/perf-measured.json"
+'''
+
+[[step]]
+name = "mark: upload perf-windows"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_1=yes" >> "$GITHUB_ENV"
+'''

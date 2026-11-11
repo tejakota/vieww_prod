@@ -1,0 +1,36 @@
+# merged checklist
+# Moved from .github/workflows/shared-release-gate.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "merged checklist"
+
+[[step]]
+name = "Fill the checklist from both runs"
+run = '''
+cd vieww_base && ln -sfn ../runs runs
+shopt -s nullglob
+dirs=(runs/gate-*)
+if ((${#dirs[@]} == 0)); then echo "no run folders to merge"; exit 0; fi
+python3 ci/release/fill-checklist.py "${dirs[@]}" -o CHECKLIST-ci.md || true
+python3 ci/release/report-failures.py "${dirs[@]}" -o FAILURES.md
+# Failures first: they are what a person opens this for.
+cat FAILURES.md >> "$GITHUB_STEP_SUMMARY"
+{ echo; cat FAILURES.md; } >> CHECKLIST-ci.md
+# Every log of every run, without the images, in the same artifact as
+# the checklist (the one that is easy to find and download).
+mkdir -p logs
+for d in "${dirs[@]}"; do
+  name=$(basename "$d")
+  (cd "$d" && find . \( -name '*.txt' -o -name '*.tsv' -o -name '*.json' -o -name '*.md' -o -name '*.log' \) -print) |
+    while read -r f; do mkdir -p "logs/$name/$(dirname "$f")"; cp "$d/$f" "logs/$name/$f"; done
+done
+'''
+
+[[step]]
+name = "mark: upload checklist-ci"
+if = "success()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

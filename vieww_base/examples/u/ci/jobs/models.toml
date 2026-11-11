@@ -1,0 +1,54 @@
+# Real weights, real decisions
+# Moved from .github/workflows/cloud-mobile-u-models.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Real weights, real decisions"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base/examples/u/crates/u-ml-runtime"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+U_MODELS_DIR = "${{ github.workspace }}/u-models"
+
+[[step]]
+name = "Rust ${{ env.RUST_VERSION }}"
+working-directory = "."
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal
+rustup default "$RUST_VERSION"
+'''
+
+[[step]]
+name = "Fetch the pinned files the manifests name"
+working-directory = "."
+run = '''
+mkdir -p "$U_MODELS_DIR"
+cd "$U_MODELS_DIR"
+curl -fL --retry 3 -o tokenizer.json \
+  https://huggingface.co/Qwen/Qwen3-0.6B/resolve/main/tokenizer.json
+curl -fL --retry 3 -o Qwen_Qwen3-0.6B-Q2_K.gguf \
+  https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen_Qwen3-0.6B-Q2_K.gguf
+curl -fL --retry 3 -o Qwen_Qwen3-0.6B-Q3_K_M.gguf \
+  https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen_Qwen3-0.6B-Q3_K_M.gguf
+curl -fL --retry 3 -o Qwen_Qwen3-0.6B-Q4_K_M.gguf \
+  https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen_Qwen3-0.6B-Q4_K_M.gguf
+'''
+
+[[step]]
+name = "Tests (with the real model)"
+run = "cargo test --release --features model"
+
+[[step]]
+name = "The Q2_K / Q3_K / Q4_K benchmark"
+run = '''
+cargo run --release --features model --example bench -- \
+  --models "$U_MODELS_DIR" | tee "$GITHUB_STEP_SUMMARY"
+'''
+
+[[step]]
+name = "Also check the default build resolves no model at all"
+run = "cargo check --quiet"

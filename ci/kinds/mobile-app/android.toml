@@ -1,0 +1,236 @@
+# android build
+# Moved from .github/workflows/cloud-mobile-apps.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "android build"
+
+[defaults]
+shell = "bash"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+ANDROID_NDK_VERSION = "27.3.13750724"
+ANDROID_PLATFORM = "34"
+ANDROID_BUILD_TOOLS = "34.0.0"
+
+[[step]]
+name = "Install Rust toolchain"
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal
+rustup default "$RUST_VERSION"
+rustup target add --toolchain "$RUST_VERSION" aarch64-linux-android
+rustc --version
+cargo --version
+'''
+
+[[step]]
+name = "Configure Android SDK"
+run = '''
+set -e
+export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+# ANDROID_SDK_ROOT is deprecated (cargo-apk warns about it). Unset
+# it so only ANDROID_HOME is used.
+unset ANDROID_SDK_ROOT || true
+
+# Find the sdkmanager binary — the runner may have it under
+# cmdline-tools/latest or cmdline-tools/<version>.
+sdkmanager=""
+for candidate in \
+  "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+  "$ANDROID_HOME/cmdline-tools/16.0/bin/sdkmanager" \
+  "$ANDROID_HOME/cmdline-tools/12.0/bin/sdkmanager"; do
+  if [ -x "$candidate" ]; then
+    sdkmanager="$candidate"
+    break
+  fi
+done
+if [ -z "$sdkmanager" ]; then
+  echo "::error::No sdkmanager found under $ANDROID_HOME/cmdline-tools."
+  find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f 2>/dev/null || true
+  exit 1
+fi
+echo "Using sdkmanager: $sdkmanager"
+
+# Accept licenses non-interactively (yes | ... handles the prompts).
+yes | "$sdkmanager" --licenses >/dev/null 2>&1 || true
+
+# Install only the components this build needs. Do NOT install the
+# legacy `tools` package — it was removed from the repository and
+# its absence is what breaks setup-android@v3.
+#
+# Only android-34 is needed: all four apps now declare
+# min_sdk_version = 24 and target_sdk_version = 34 in their
+# [package.metadata.android.sdk], so cargo-apk no longer falls back
+# to its default min_sdk_version = 30.
+"$sdkmanager" \
+  "platform-tools" \
+  "platforms;android-${ANDROID_PLATFORM}" \
+  "build-tools;${ANDROID_BUILD_TOOLS}" \
+  "ndk;${ANDROID_NDK_VERSION}"
+
+{
+  echo "ANDROID_HOME=$ANDROID_HOME"
+} >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "Install cargo-apk"
+run = "cargo install cargo-apk --locked"
+
+[[step]]
+name = "Resolve Android environment and keystore"
+working-directory = "${{ matrix.workdir }}"
+env = { ANDROID_KEYSTORE = "${{ secrets.ANDROID_KEYSTORE }}", ANDROID_KEYSTORE_PASSWORD = "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}", ANDROID_KEY_ALIAS = "${{ secrets.ANDROID_KEY_ALIAS }}", ANDROID_KEY_PASSWORD = "${{ secrets.ANDROID_KEY_PASSWORD }}" }
+run = '''
+# vavlt ships its own ci/android-env.sh; for the other apps we
+# replicate the essential resolution inline so the build does not
+# depend on a script that lives in another app's tree.
+export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
+export ANDROID_NDK_ROOT="$ANDROID_HOME/ndk/${ANDROID_NDK_VERSION}"
+export ANDROID_NDK_HOME="$ANDROID_NDK_ROOT"
+
+if [ -f ci/android-env.sh ]; then
+  # shellcheck disable=SC1091
+  source ci/android-env.sh
+  android_env "github-actions" || true
+fi
+
+# cargo-apk refuses to guess a release keystore and dies with
+# `java.io.FileNotFoundException: ` (empty path) if none is set.
+# The ubuntu runner does not ship with a debug.keystore by default,
+# so generate one with keytool (ships with the JDK). The debug
+# keystore's well-known alias/password (androiddebugkey/android)
+# is what cargo-apk and the Android build tools expect.
+keystore="$HOME/.android/debug.keystore"
+if [ ! -f "$keystore" ]; then
+  mkdir -p "$(dirname "$keystore")"
+  echo "Generating debug keystore at $keystore..."
+  keytool -genkey -v \
+    -keystore "$keystore" \
+    -storepass android \
+    -alias androiddebugkey \
+    -keypass android \
+    -keyalg RSA \
+    -keysize 2048 \
+    -validity 10000 \
+    -dname "CN=Android Debug,O=Android,C=US"
+else
+  echo "Using existing debug keystore at $keystore"
+fi
+
+export CARGO_APK_RELEASE_KEYSTORE="$keystore"
+export CARGO_APK_RELEASE_KEYSTORE_PASSWORD="android"
+# cargo-apk also reads the key alias and password; the debug
+# keystore's well-known values are androiddebugkey/android.
+export CARGO_APK_RELEASE_KEY_ALIAS="androiddebugkey"
+export CARGO_APK_RELEASE_KEY_PASSWORD="android"
+# FW-06: the release upload key, when the repository has one. The
+# APK is then signed for real (Play / direct install), not with the
+# debug key every Android machine shares.
+if [ -n "$ANDROID_KEYSTORE" ] && [ -n "$ANDROID_KEYSTORE_PASSWORD" ] && [ -n "$ANDROID_KEY_ALIAS" ]; then
+  echo "Using the release keystore from repository secrets"
+  umask 077
+  printf '%s' "$ANDROID_KEYSTORE" | base64 --decode > "$RUNNER_TEMP/release.jks"
+  export CARGO_APK_RELEASE_KEYSTORE="$RUNNER_TEMP/release.jks"
+  export CARGO_APK_RELEASE_KEYSTORE_PASSWORD="$ANDROID_KEYSTORE_PASSWORD"
+  export CARGO_APK_RELEASE_KEY_ALIAS="$ANDROID_KEY_ALIAS"
+  export CARGO_APK_RELEASE_KEY_PASSWORD="${ANDROID_KEY_PASSWORD:-$ANDROID_KEYSTORE_PASSWORD}"
+else
+  echo "::notice::No ANDROID_KEYSTORE secret: APKs are signed with a debug key (not installable from Play)"
+fi
+
+{
+  echo "ANDROID_HOME=$ANDROID_HOME"
+  echo "ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT"
+  echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME"
+  echo "CARGO_APK_RELEASE_KEYSTORE=$CARGO_APK_RELEASE_KEYSTORE"
+  echo "CARGO_APK_RELEASE_KEYSTORE_PASSWORD=$CARGO_APK_RELEASE_KEYSTORE_PASSWORD"
+  echo "CARGO_APK_RELEASE_KEY_ALIAS=$CARGO_APK_RELEASE_KEY_ALIAS"
+  echo "CARGO_APK_RELEASE_KEY_PASSWORD=$CARGO_APK_RELEASE_KEY_PASSWORD"
+} >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "Build Android APK"
+id = "build_apk"
+working-directory = "${{ matrix.workdir }}"
+run = '''
+# --lib tells cargo-apk to build only the library target (the
+# cdylib). Without it, cargo-apk sees both the [[bin]] and [lib]
+# targets in packages like three-social-app and upxcale, picks the
+# bin, and panics with "Bin is not compatible with Cdylib".
+cargo apk build -p ${{ matrix.package }} --lib --release
+'''
+
+[[step]]
+name = "Locate and stage APK"
+if = "${{ success() }}"
+working-directory = "${{ matrix.workdir }}"
+run = '''
+set -e
+
+echo "APK files produced:"
+find target -type f -name "*.apk" -print 2>/dev/null || true
+
+apk="$(find target -type f -name "*.apk" 2>/dev/null | head -n 1)"
+
+if [ -z "$apk" ]; then
+  echo "::error::No APK was generated for ${{ matrix.app }}."
+  exit 1
+fi
+
+stage="$RUNNER_TEMP/${{ matrix.app }}-android"
+mkdir -p "$stage"
+cp "$apk" "$stage/${{ matrix.apk_name }}.apk"
+(cd "$stage" && sha256sum "${{ matrix.apk_name }}.apk" > SHA256SUMS)
+# Which key signed it, in the artifact (FW-06).
+"$ANDROID_HOME/build-tools/$ANDROID_BUILD_TOOLS/apksigner" verify --print-certs \
+  "$stage/${{ matrix.apk_name }}.apk" | tee "$stage/SIGNER.txt"
+ls -lah "$stage"
+'''
+
+[[step]]
+name = "mark: upload ${{ matrix.app }}-android-apk"
+if = "${{ always() }}"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "Cleanup Android build memory"
+if = "always()"
+run = '''
+echo "Cleaning Android/Rust build data for ${{ matrix.app }}..."
+
+# The cargo target directory is by far the largest consumer — a
+# release APK build leaves several GB of intermediate artifacts.
+rm -rf ${{ matrix.workdir }}/target
+
+# Gradle caches appear even though there is no Gradle project;
+# cargo-apk shells out to the Android build tools which use them.
+rm -rf "$HOME/.gradle/caches" "$HOME/.gradle/wrapper"
+
+# The staged artifact was already uploaded; remove the local copy.
+rm -rf "$RUNNER_TEMP/${{ matrix.app }}-android"
+
+# Cargo's own download/checkout caches grow fast across multiple
+# workspace builds and are not worth keeping between jobs.
+rm -rf "$HOME/.cargo/registry/cache"
+rm -rf "$HOME/.cargo/git/checkouts"
+
+# The Android SDK manager cache and NDK build caches can be large
+# after a release build; the SDK itself stays for the next job
+# because setup-android caches it, but the per-build spillover does
+# not need to.
+rm -rf "$HOME/.android/build-cache" 2>/dev/null || true
+
+sync
+
+echo "Remaining workspace:"
+du -sh . 2>/dev/null || true
+echo "Cleanup complete."
+'''

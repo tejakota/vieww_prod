@@ -1,0 +1,59 @@
+# Studio suite ()
+# Moved from .github/workflows/cloud-machines-studio.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Studio suite ()"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+CARGO_PROFILE_DEV_DEBUG = "0"
+CARGO_INCREMENTAL = "0"
+
+[[step]]
+name = "Linux libraries the window code links"
+if = "runner.os == 'Linux'"
+run = '''
+sudo apt-get update -q
+sudo apt-get install -y -q libx11-dev libxkbcommon-dev libxkbcommon-x11-0 libwayland-dev libfontconfig1-dev
+'''
+
+[[step]]
+name = "Toolchain"
+run = "rustup show active-toolchain || rustup toolchain install"
+
+[[step]]
+name = "Unit and integration tests"
+run = "cargo test -p viewwstudio --lib --tests -- --test-threads=4"
+
+[[step]]
+name = "The std-only modules with rustc alone"
+if = "runner.os != 'Windows'"
+run = "bash apps/viewwstudio/ci/standalone.sh"
+
+[[step]]
+name = "Screenshot, English and Spanish"
+run = '''
+out="$RUNNER_TEMP/studio-shots"
+mkdir -p "$out"
+cargo run -q -p viewwstudio --example screenshot -- "$out/studio-en.png"
+VIEWWSTUDIO_LANG=es cargo run -q -p viewwstudio --example screenshot -- "$out/studio-es.png"
+for f in "$out"/studio-en.png "$out"/studio-es.png; do
+  test -s "$f" || { echo "::error::$f was not written"; exit 1; }
+  head -c 8 "$f" | od -An -tx1 | tr -d " \n" | grep -q "89504e470d0a1a0a" || { echo "::error::$f is not a PNG"; exit 1; }
+done
+cmp -s "$out/studio-en.png" "$out/studio-es.png" && echo "::warning::the Spanish capture is identical to the English one (does the captured screen show translated chrome?)" || true
+'''
+
+[[step]]
+name = "mark: upload studio-screenshots-${{ matrix.os }}"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

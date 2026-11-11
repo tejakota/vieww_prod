@@ -1,0 +1,28 @@
+# (native backend)
+# Moved from .github/workflows/cloud-machines-audio-backends.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "(native backend)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Install Rust toolchain"
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal --component clippy
+rustup default "$RUST_VERSION"
+'''
+
+[[step]]
+name = "Tests and clippy"
+run = '''
+cargo test -p vieww-audio --lib backend::
+cargo clippy -p vieww-audio --all-targets -- -D warnings
+'''

@@ -1,0 +1,73 @@
+# Against llama.cpp and whisper.cpp
+# Moved from .github/workflows/cloud-machines-wright-models.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Against llama.cpp and whisper.cpp"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base/apps/wright"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+JFK_URL = "https://raw.githubusercontent.com/ggml-org/whisper.cpp/231638a0717b7822784297e5980965ffcec05810/samples/jfk.wav"
+
+[[step]]
+name = "Rust ${{ env.RUST_VERSION }}"
+working-directory = "."
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal
+rustup default "$RUST_VERSION"
+'''
+
+[[step]]
+name = "Python tools for the test models"
+run = "python3 -m pip install --quiet gguf numpy"
+
+[[step]]
+name = "Build llama.cpp and whisper.cpp (pinned)"
+run = "bash scripts/models/references.sh \"$RUNNER_TEMP/ref\""
+
+[[step]]
+name = "Make the fixtures"
+run = "bash scripts/models/fixtures.sh \"$RUNNER_TEMP/ref\" \"$RUNNER_TEMP/fixtures\""
+
+[[step]]
+name = "Tiny models, token for token"
+run = '''
+export WRIGHT_TINY_DIR="$RUNNER_TEMP/fixtures"
+export WRIGHT_VOCAB_DIR="$RUNNER_TEMP/ref/llama.cpp/models"
+export WRIGHT_LLAMA_TOKENIZE="$RUNNER_TEMP/ref/llama.cpp/build/bin/llama-tokenize"
+export LD_LIBRARY_PATH="$RUNNER_TEMP/ref/llama.cpp/build/bin"
+cargo test --release -p wright-infer
+'''
+
+[[step]]
+name = "Download the real models"
+run = '''
+export WRIGHT_HOME="$RUNNER_TEMP/wright-home"
+cargo build --release -p wright
+./target/release/wright model pull
+./target/release/wright model list
+'''
+
+[[step]]
+name = "Real models against the references"
+run = '''
+export WRIGHT_HOME="$RUNNER_TEMP/wright-home"
+models="$WRIGHT_HOME/models"
+ref="$RUNNER_TEMP/ref"
+export LD_LIBRARY_PATH="$ref/llama.cpp/build/bin:$ref/whisper.cpp/build/bin"
+P="The three most important rules for writing maintainable software are"
+got="$("$ref/llama.cpp/build/bin/llama-simple" -m "$models/Qwen3-1.7B-Q8_0.gguf" -n 32 "$P" 2>/dev/null)"
+printf '%s\n%s\n' "$P" "${got#"$P"}" > "$RUNNER_TEMP/qwen.expect"
+cat "$RUNNER_TEMP/qwen.expect"
+curl -sSfL -o "$RUNNER_TEMP/jfk.wav" "$JFK_URL"
+"$ref/whisper.cpp/build/bin/whisper-cli" -m "$models/ggml-base.bin" -f "$RUNNER_TEMP/jfk.wav" -l auto -nt -bs 1 -bo 1 -otxt -of "$RUNNER_TEMP/jfk" >/dev/null 2>&1
+cat "$RUNNER_TEMP/jfk.txt"
+export WRIGHT_REAL_MODELS=1 WRIGHT_REAL_JFK="$RUNNER_TEMP/jfk.wav"
+export WRIGHT_REAL_QWEN_EXPECT="$RUNNER_TEMP/qwen.expect" WRIGHT_REAL_WHISPER_EXPECT="$RUNNER_TEMP/jfk.txt"
+cargo test --release -p wright-infer --test real -- --nocapture --test-threads 1
+'''

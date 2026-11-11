@@ -1,0 +1,48 @@
+# shots vs baseline (linux-cpu)
+# Moved from .github/workflows/cloud-machines-goldens.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "shots vs baseline (linux-cpu)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[[step]]
+name = "System packages"
+run = '''
+sudo apt-get update -q
+sudo apt-get install -y --no-install-recommends \
+  libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev pkg-config
+'''
+
+[[step]]
+run = "rustup toolchain install"
+
+[[step]]
+name = "Capture and compare"
+if = "${{ !inputs.update }}"
+run = "bash ci/certify/shot-suite.sh --out target/goldens/run --against examples/shots/baseline"
+
+[[step]]
+name = "Capture new baseline"
+if = "${{ inputs.update }}"
+run = "bash ci/certify/shot-suite.sh --out target/goldens/run"
+
+[[step]]
+name = "mark: upload goldens-diff"
+if = "failure() && !inputs.update"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "mark: upload goldens-new-baseline"
+if = "${{ inputs.update }}"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_1=yes" >> "$GITHUB_ENV"
+'''

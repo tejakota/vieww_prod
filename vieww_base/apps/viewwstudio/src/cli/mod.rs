@@ -1387,19 +1387,65 @@ pub fn run_new(parent: &Path, name: &str, rust: bool) -> Result<String, String> 
     let root = parent.join(name);
     let written =
         scaffold::create_for(&root, name, &dependency, kind).map_err(|error| error.to_string())?;
+    let ci = register_with_ci(&root, name)
+        .map(|line| format!("\n{line}"))
+        .unwrap_or_default();
     Ok(if dependency.previewable() {
         format!(
             "created {} ({} files, {}) — vieww is a path dependency, so render works",
             root.display(),
             written.len(),
             kind.title()
-        )
+        ) + &ci
     } else {
         format!(
             "created {} ({} files, {}) — vieww is a published version, so web works and render will refuse",
             root.display(),
             written.len(),
             kind.title()
+        ) + &ci
+    })
+}
+
+/// Inside a checkout of this repository, give a new project its CI
+/// manifest: `ci.toml` from `ci/templates/desktop-app.toml`, then
+/// `ci/projects sync`, which adds it to the Run workflow forms' Project
+/// dropdown. Without the sync the next CI run would fail on the stale
+/// dropdown, which is the point: no project goes unchecked by accident.
+///
+/// `None` outside such a checkout (or when `ci.toml` exists), else the line
+/// to print. Writing the manifest is the part that matters; a sync that
+/// cannot run (no `python3`) says so and leaves it to the user.
+pub fn register_with_ci(root: &Path, name: &str) -> Option<String> {
+    let repo = root
+        .ancestors()
+        .skip(1)
+        .find(|dir| dir.join("ci").join("projects").is_file())?;
+    let manifest = root.join("ci.toml");
+    if manifest.exists() {
+        return None;
+    }
+    let template =
+        std::fs::read_to_string(repo.join("ci").join("templates").join("desktop-app.toml")).ok()?;
+    let text = template.replace("{name}", name).replace("{package}", name);
+    if let Err(error) = std::fs::write(&manifest, text) {
+        return Some(format!("ci: could not write {}: {error}", manifest.display()));
+    }
+    let synced = Process::new("python3")
+        .arg(repo.join("ci").join("projects"))
+        .arg("sync")
+        .current_dir(repo)
+        .output()
+        .is_ok_and(|out| out.status.success());
+    Some(if synced {
+        format!(
+            "ci: wrote {} (desktop-app) and added {name} to the workflows' Project dropdown",
+            manifest.display()
+        )
+    } else {
+        format!(
+            "ci: wrote {} (desktop-app); run `ci/projects sync` to add {name} to the workflows",
+            manifest.display()
         )
     })
 }
@@ -1919,6 +1965,33 @@ mod tests {
             })
         );
         assert!(parse(&arg(&["new"])).is_err());
+    }
+
+    #[test]
+    fn a_new_project_in_the_repository_gets_a_ci_manifest() {
+        let repo = std::env::temp_dir().join("vieww-cli-ci-register");
+        let _ = std::fs::remove_dir_all(&repo);
+        std::fs::create_dir_all(repo.join("ci/templates")).unwrap();
+        std::fs::write(repo.join("ci/projects"), "").unwrap();
+        std::fs::write(
+            repo.join("ci/templates/desktop-app.toml"),
+            "name = \"{name}\"\nkind = \"desktop-app\"\n",
+        )
+        .unwrap();
+        let root = repo.join("apps/demo");
+        std::fs::create_dir_all(&root).unwrap();
+        let line = register_with_ci(&root, "demo").expect("inside the checkout");
+        assert!(line.starts_with("ci: wrote"), "{line}");
+        assert_eq!(
+            std::fs::read_to_string(root.join("ci.toml")).unwrap(),
+            "name = \"demo\"\nkind = \"desktop-app\"\n"
+        );
+        // Not twice, and not outside a checkout.
+        assert!(register_with_ci(&root, "demo").is_none());
+        let elsewhere = std::env::temp_dir().join("vieww-cli-ci-none/demo");
+        std::fs::create_dir_all(&elsewhere).unwrap();
+        assert!(register_with_ci(&elsewhere, "demo").is_none());
+        let _ = std::fs::remove_dir_all(&repo);
     }
 
     #[test]

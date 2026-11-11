@@ -1,0 +1,13 @@
+# CI manifest: what this project is and what CI runs for it.
+# ci/README.md explains every field; `ci/projects check` validates it.
+
+name = "{name}"
+kind = "mobile-app"
+platforms = ["android", "ios"]
+uses = ["vieww"]
+
+# The mobile-app kind builds an APK and an IPA from these (3 · Build, and
+# 1 · Check thorough). Drop a line to skip that platform.
+[build]
+android = { package = "{package}", apk = "{name}" }
+ios = { package = "{package}", bundle_id = "dev.{name}.app", binary = "{package}" }

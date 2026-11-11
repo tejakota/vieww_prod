@@ -1,0 +1,31 @@
+# deny + audit ()
+# Moved from .github/workflows/cloud-machines-supply-chain.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "deny + audit ()"
+
+[defaults]
+working-directory = "${{ matrix.workspace }}"
+
+[[step]]
+name = "cargo deny (the gate)"
+run = '''
+[ -f deny.toml ] || cp "$GITHUB_WORKSPACE/vieww_base/deny.toml" deny.toml
+cargo deny --locked check advisories bans sources
+'''
+
+[[step]]
+name = "cargo audit (report)"
+continue-on-error = true
+run = '''
+ignores=$(python3 - <<'PY2'
+import tomllib
+d = tomllib.load(open("deny.toml", "rb"))
+ids = [i if isinstance(i, str) else i.get("id", "") for i in d.get("advisories", {}).get("ignore", [])]
+print(" ".join(f"--ignore {i}" for i in ids if i))
+PY2
+)
+# shellcheck disable=SC2086
+cargo audit $ignores | tee audit.txt
+{ echo "### cargo audit (${{ matrix.workspace }})"; echo '```'; grep -E "^(Crate|ID|Title|Warning):" audit.txt || echo "nothing"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+'''

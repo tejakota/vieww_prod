@@ -1,0 +1,169 @@
+# CI manifest: what this project is and what CI runs for it.
+# ci/README.md explains every field; `ci/projects check` validates it.
+
+name = "vieww-audio"
+kind = "library"
+uses = ["vieww"]
+
+[[job]]
+id = "backends-linux-servers"
+title = "Linux (PipeWire, JACK, PulseAudio)"
+file = "ci/jobs/backends-linux-servers.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-24.04"
+timeout = 60
+
+[[job]]
+id = "backends-linux-alsa-loopback"
+title = "Linux (ALSA and MIDI through kernel loopbacks, in a VM)"
+file = "ci/jobs/backends-linux-alsa-loopback.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-24.04"
+timeout = 60
+[[job.setup]]
+uses = "cache"
+with = { path = "~/kpkg", key = "ubuntu-stock-kernel-${{ steps.kernel.outputs.version }}" }
+
+[[job]]
+id = "backends-windows-loopback"
+title = "Windows (WASAPI shared and exclusive through VB-CABLE)"
+file = "ci/jobs/backends-windows-loopback.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "windows-2025"
+timeout = 45
+
+[[job]]
+id = "backends-macos-loopback"
+title = "macOS (Core Audio through BlackHole, CoreMIDI virtual ports)"
+file = "ci/jobs/backends-macos-loopback.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "macos-14"
+timeout = 45
+
+[[job]]
+id = "backends-desktop"
+title = "(native backend)"
+file = "ci/jobs/backends-desktop.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "${{ matrix.os }}"
+matrix = { os = ["macos-latest", "windows-latest"] }
+timeout = 60
+
+[[job]]
+id = "backends-targets"
+title = "Android and web"
+file = "ci/jobs/backends-targets.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-latest"
+timeout = 45
+[[job.setup]]
+uses = "node"
+with = { node-version = "22" }
+
+[[job]]
+id = "test"
+title = "Audio and music crates (tests + clippy)"
+file = "ci/jobs/test.toml"
+stage = "check"
+depth = "quick"
+if = "github.event_name != 'schedule'"
+runs_on = "ubuntu-24.04"
+timeout = 40
+[[job.setup]]
+uses = "cache"
+with = { path = '''
+~/.cargo/registry
+~/.cargo/git
+vieww_base/target
+''', key = "audio-ci-${{ runner.os }}-${{ hashFiles('vieww_base/Cargo.lock') }}" }
+
+[[job]]
+id = "fuzz"
+title = "Audio decoders under cargo-fuzz (nightly, blocking)"
+file = "ci/jobs/fuzz.toml"
+stage = "check"
+depth = "thorough"
+if = "github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'"
+runs_on = "ubuntu-24.04"
+timeout = 75
+[[job.upload]]
+name = "audio-fuzz-findings"
+path = "vieww_base/crates/vieww-audio/fuzz/artifacts/"
+
+[[job]]
+id = "mobile-logic"
+title = "Focus and session logic (Linux)"
+file = "ci/jobs/mobile-logic.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-24.04"
+timeout = 45
+[[job.setup]]
+uses = "cache"
+with = { path = '''
+~/.cargo/registry
+~/.cargo/git
+vieww_base/target
+''', key = "mobile-audio-logic-${{ hashFiles('vieww_base/Cargo.lock') }}" }
+
+[[job]]
+id = "mobile-android"
+title = "Android bridge and APK packaging"
+file = "ci/jobs/mobile-android.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-24.04"
+timeout = 75
+[[job.setup]]
+uses = "tools"
+with = { tool = "cargo-apk" }
+[[job.setup]]
+uses = "cache"
+with = { path = '''
+~/.cargo/registry
+~/.cargo/git
+vieww_base/target
+''', key = "mobile-audio-android-${{ hashFiles('vieww_base/Cargo.lock') }}" }
+[[job.upload]]
+name = "vieww-audio-apk"
+path = '''
+dist/vieww-audio.apk
+dist/manifest.txt
+'''
+if-no-files-found = "ignore"
+
+[[job]]
+id = "mobile-ios"
+title = "iOS bridge (macOS)"
+file = "ci/jobs/mobile-ios.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "macos-14"
+timeout = 60
+[[job.setup]]
+uses = "cache"
+with = { path = '''
+~/.cargo/registry
+~/.cargo/git
+vieww_base/target
+''', key = "mobile-audio-ios-${{ hashFiles('vieww_base/Cargo.lock') }}" }
+
+[[job]]
+id = "framework-audio-fuzz"
+title = "Audio decoders under cargo-fuzz (nightly)"
+file = "ci/jobs/framework-audio-fuzz.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-24.04"
+timeout = 60
+continue_on_error = true
+[[job.upload]]
+name = "audio-fuzz-findings"
+path = "vieww_base/crates/vieww-audio/fuzz/artifacts/"
+if-no-files-found = "ignore"

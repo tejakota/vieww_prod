@@ -1,0 +1,100 @@
+# Publish release
+# Moved from .github/workflows/cloud-machines-wright-installers.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Publish release"
+
+[defaults]
+shell = "bash"
+working-directory = "."
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+VERSION = "${{ inputs.version }}"
+
+[[step]]
+name = "Checksums and notes"
+run = '''
+(cd release && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt)
+sed "s/@VERSION@/$VERSION/g" vieww_base/apps/wright/packaging/RELEASE-NOTES.md > notes.md
+'''
+
+[[step]]
+name = "Signing secrets gate (WR-04)"
+env = { WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING = "${{ secrets.WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING }}", WRIGHT_SECRET_WINDOWS_PFX = "${{ secrets.WRIGHT_SECRET_WINDOWS_PFX }}", WRIGHT_SECRET_MACOS_P12 = "${{ secrets.WRIGHT_SECRET_MACOS_P12 }}" }
+run = '''
+missing=0
+for name in WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING WRIGHT_SECRET_WINDOWS_PFX WRIGHT_SECRET_MACOS_P12; do
+  if [ -z "${!name}" ]; then
+    echo "MISSING SECRET: $name"
+    missing=1
+  fi
+done
+if [ "$missing" = 1 ]; then
+  echo ""
+  echo "A published Wright release must be signed (WR-04): the update manifest"
+  echo "with the Ed25519 release key, Windows installers with Authenticode, macOS"
+  echo "with Developer ID + notarization. Set the WRIGHT_SECRET_* secrets listed"
+  echo "at the top of this workflow and dispatch again. Unsigned artifacts are"
+  echo "fine with publish=false (a draft run)."
+  exit 1
+fi
+echo "all signing secrets present."
+'''
+
+[[step]]
+name = "Emit and sign the update manifest (WR-04)"
+env = { WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING = "${{ secrets.WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING }}" }
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal
+rustup default "$RUST_VERSION"
+cd vieww_base/apps/wright
+cargo build -p wright --quiet
+bin=target/debug/wright
+cd ../../..
+manifest="release/wright-v$VERSION.manifest.json"
+# The unsigned manifest: every release asset with its sha256,
+# straight from SHA256SUMS.txt. `wright update sign` adds sizes,
+# per-asset signatures, the signer and its provenance, and signs
+# the whole thing; it refuses a file that changed under it.
+python3 - "$VERSION" <<'EOF'
+import json, sys
+version = sys.argv[1]
+assets = []
+for line in open("release/SHA256SUMS.txt"):
+  digest, name = line.split(maxsplit=1)
+  name = name.strip()
+  if name == "SHA256SUMS.txt" or name.endswith(".manifest.json"):
+    continue
+  assets.append({"name": name, "sha256": digest})
+notes = open("notes.md").read().strip().replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ")
+doc = {
+  "format": "wright.update-manifest/1",
+  "version": version,
+  "notes": notes[:400],
+  "assets": assets,
+}
+open("release/wright-v%s.manifest.json" % version, "w").write(json.dumps(doc, indent=2))
+EOF
+"$bin" update sign "$manifest" --assets-dir release
+# The fixed alias, so `releases/latest/download/wright-latest.manifest.json`
+# resolves for machines on the channel.
+cp "$manifest" "release/wright-latest.manifest.json"
+cat "$manifest"
+'''
+
+[[step]]
+name = "Create the release"
+env = { GH_TOKEN = "${{ github.token }}" }
+run = '''
+flags=()
+if [ "${{ inputs.prerelease }}" = "true" ]; then flags+=(--prerelease); fi
+gh release create "wright-v$VERSION" release/* \
+  --repo "$GITHUB_REPOSITORY" \
+  --target "$GITHUB_SHA" \
+  --title "Wright $VERSION" \
+  --notes-file notes.md \
+  "${flags[@]}"
+'''

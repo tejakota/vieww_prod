@@ -1,0 +1,519 @@
+# CI manifest: what this project is and what CI runs for it.
+# ci/README.md explains every field; `ci/projects check` validates it.
+
+# The vieww framework: the workspace in vieww_base/ and everything in it
+# that has no ci.toml of its own (crates/, examples/, ci/, docs/).
+name = "vieww"
+kind = "library"
+
+[[job]]
+id = "goldens"
+title = "shots vs baseline (linux-cpu)"
+file = "ci/jobs/goldens.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-latest"
+timeout = 90
+inputs = { update = false }
+checkout = { persist-credentials = false }
+[[job.setup]]
+uses = "rust-cache"
+with = { workspaces = "vieww_base", key = "goldens" }
+[[job.upload]]
+name = "goldens-diff"
+path = '''
+vieww_base/target/goldens/run/diff/
+vieww_base/target/goldens/run/manifest.txt
+vieww_base/target/goldens/run/stderr.txt
+'''
+[[job.upload]]
+name = "goldens-new-baseline"
+path = '''
+vieww_base/target/goldens/run/*.png
+vieww_base/target/goldens/run/manifest.txt
+'''
+
+[[job]]
+id = "goldens-refresh"
+title = "shots vs baseline (linux-cpu)"
+file = "ci/jobs/goldens.toml"
+stage = "housekeeping"
+depth = "thorough"
+task = "goldens"
+runs_on = "ubuntu-latest"
+timeout = 90
+inputs = { update = true }
+checkout = { persist-credentials = false }
+[[job.setup]]
+uses = "rust-cache"
+with = { workspaces = "vieww_base", key = "goldens" }
+[[job.upload]]
+name = "goldens-diff"
+path = '''
+vieww_base/target/goldens/run/diff/
+vieww_base/target/goldens/run/manifest.txt
+vieww_base/target/goldens/run/stderr.txt
+'''
+[[job.upload]]
+name = "goldens-new-baseline"
+path = '''
+vieww_base/target/goldens/run/*.png
+vieww_base/target/goldens/run/manifest.txt
+'''
+
+[[job]]
+id = "crates-check"
+title = "check"
+file = "ci/jobs/crates-check.toml"
+stage = "release"
+runs_on = "ubuntu-latest"
+timeout = 30
+checkout = { persist-credentials = false }
+
+[[job]]
+id = "crates-verify"
+title = "verify"
+file = "ci/jobs/crates-verify.toml"
+stage = "release"
+if = "github.event_name != 'pull_request'"
+runs_on = "ubuntu-latest"
+timeout = 180
+checkout = { persist-credentials = false }
+[[job.setup]]
+uses = "rust-cache"
+with = { workspaces = "vieww_base" }
+
+[[job]]
+id = "crates-scaffold-external"
+title = "scaffold-external"
+file = "ci/jobs/crates-scaffold-external.toml"
+stage = "release"
+runs_on = "ubuntu-latest"
+timeout = 90
+checkout = { persist-credentials = false }
+[[job.setup]]
+uses = "rust-cache"
+with = { workspaces = "vieww_base" }
+
+[[job]]
+id = "crates-publish"
+title = "publish"
+file = "ci/jobs/crates-publish.toml"
+stage = "publish"
+phase = 2
+needs = ["crates-check", "crates-verify", "crates-scaffold-external"]
+if = "startsWith(github.ref, 'refs/tags/v')"
+runs_on = "ubuntu-latest"
+timeout = 120
+secrets = ["CARGO_REGISTRY_TOKEN"]
+checkout = { persist-credentials = false }
+
+[[job]]
+id = "quick"
+title = "checks --quick (linux-cpu)"
+file = "ci/jobs/quick.toml"
+stage = "check"
+depth = "quick"
+runs_on = "ubuntu-latest"
+timeout = 90
+checkout = { persist-credentials = false }
+[[job.setup]]
+uses = "rust-cache"
+with = { workspaces = "vieww_base" }
+[[job.setup]]
+uses = "tools"
+with = { tool = "cargo-deny" }
+
+[[job]]
+id = "workflows"
+title = "actionlint"
+file = "ci/jobs/workflows.toml"
+stage = "check"
+depth = "quick"
+runs_on = "ubuntu-latest"
+timeout = 10
+checkout = { persist-credentials = false }
+
+[[job]]
+id = "advisories"
+title = "deny + audit ()"
+file = "ci/jobs/advisories.toml"
+stage = "check"
+also = ["release"]
+depth = "thorough"
+runs_on = "ubuntu-latest"
+matrix = { workspace = ["vieww_base", "vieww_base/apps/wright"] }
+timeout = 30
+checkout = { persist-credentials = false }
+[[job.setup]]
+uses = "tools"
+with = { tool = "cargo-deny,cargo-audit" }
+
+[[job]]
+id = "sbom"
+title = "sbom"
+file = "ci/jobs/sbom.toml"
+stage = "release"
+runs_on = "ubuntu-latest"
+timeout = 15
+checkout = { persist-credentials = false }
+[[job.upload]]
+name = "sbom"
+path = "vieww_base/target/sbom/"
+
+[[job]]
+id = "repro"
+title = "repro"
+file = "ci/jobs/repro.toml"
+stage = "release"
+if = "github.event_name != 'pull_request'"
+runs_on = "ubuntu-latest"
+timeout = 60
+checkout = { persist-credentials = false }
+
+[[job]]
+id = "machine"
+title = "framework ()"
+file = "ci/jobs/machine.toml"
+stage = "check"
+where = "machine"
+runs_on = "machine"
+timeout = 120
+inputs = { depth = "{form.machine_depth}" }
+checkout = { persist-credentials = false }
+
+[[job]]
+id = "hardware-linux"
+title = "Linux hardware"
+file = "ci/jobs/hardware-linux.toml"
+stage = "devices"
+when = "form.linux"
+if = "github.event_name == 'schedule' || inputs.linux"
+runs_on = ["self-hosted", "Linux", "X64", "vieww-linux"]
+timeout = 240
+main_only = true
+inputs = { linux = "{form.linux}", windows = "{form.windows}", macos = "{form.mac}", linux_steps = "{suite.linux}", launches = "{form.launches}" }
+checkout = { clean = false }
+[[job.upload]]
+name = "hardware-linux"
+path = "${{ runner.temp }}/hardware-linux"
+if-no-files-found = "warn"
+
+[[job]]
+id = "hardware-windows"
+title = "Windows hardware"
+file = "ci/jobs/hardware-windows.toml"
+stage = "devices"
+when = "form.windows"
+if = "github.event_name == 'schedule' || inputs.windows"
+runs_on = ["self-hosted", "Windows", "X64", "vieww-windows"]
+timeout = 240
+main_only = true
+inputs = { linux = "{form.linux}", windows = "{form.windows}", macos = "{form.mac}", windows_steps = "{suite.windows}", launches = "{form.launches}" }
+checkout = { clean = false }
+[[job.upload]]
+name = "hardware-windows"
+path = "${{ runner.temp }}\\hardware-windows"
+if-no-files-found = "warn"
+
+[[job]]
+id = "hardware-macos"
+title = "macOS hardware"
+file = "ci/jobs/hardware-macos.toml"
+stage = "devices"
+when = "form.mac"
+if = "inputs.macos"
+runs_on = ["self-hosted", "macOS", "vieww-macos"]
+timeout = 240
+main_only = true
+inputs = { linux = "{form.linux}", windows = "{form.windows}", macos = "{form.mac}", macos_steps = "{suite.macos}", launches = "{form.launches}" }
+checkout = { clean = false }
+[[job.upload]]
+name = "hardware-macos"
+path = "${{ runner.temp }}/hardware-macos"
+if-no-files-found = "warn"
+
+[[job]]
+id = "hardware-report"
+title = "Publish to ci-runs/hardware-<branch>"
+file = "ci/jobs/hardware-report.toml"
+stage = "devices"
+phase = 2
+needs = ["hardware-linux", "hardware-windows", "hardware-macos"]
+if = "always() && github.ref == 'refs/heads/main'"
+runs_on = "ubuntu-24.04"
+timeout = 15
+write = true
+[[job.download]]
+path = "out"
+continue-on-error = true
+
+[[job]]
+id = "framework-gate"
+title = "checks.sh (Linux)"
+file = "ci/jobs/framework-gate.toml"
+stage = "check"
+depth = "quick"
+runs_on = "ubuntu-24.04"
+timeout = 150
+[[job.upload]]
+name = "perf-linux"
+path = "${{ runner.temp }}/perf"
+if-no-files-found = "ignore"
+
+[[job]]
+id = "framework-coverage"
+title = "Coverage floor"
+file = "ci/jobs/framework-coverage.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-24.04"
+timeout = 120
+
+[[job]]
+id = "framework-cross"
+title = "Type-check for macOS, iOS, Windows, Android (from Linux)"
+file = "ci/jobs/framework-cross.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-24.04"
+timeout = 90
+
+[[job]]
+id = "framework-gpu-lavapipe"
+title = "GPU on software Vulkan (lavapipe)"
+file = "ci/jobs/framework-gpu-lavapipe.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-24.04"
+timeout = 90
+[[job.upload]]
+name = "parity-certificate-vulkan-lavapipe"
+path = "vieww_base/parity-certificate-vulkan-lavapipe.json"
+if-no-files-found = "ignore"
+
+[[job]]
+id = "framework-macos"
+title = "macOS and iOS (Metal)"
+file = "ci/jobs/framework-macos.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "macos-14"
+timeout = 90
+[[job.upload]]
+name = "parity-certificate-metal-paravirtual"
+path = "vieww_base/parity-certificate-metal-paravirtual.json"
+if-no-files-found = "ignore"
+[[job.upload]]
+name = "perf-macos"
+path = "${{ runner.temp }}/perf"
+if-no-files-found = "ignore"
+
+[[job]]
+id = "framework-windows"
+title = "Windows (D3D12 on WARP)"
+file = "ci/jobs/framework-windows.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "windows-2022"
+timeout = 90
+[[job.upload]]
+name = "parity-certificate-d3d12-warp"
+path = "vieww_base/parity-certificate-d3d12-warp.json"
+if-no-files-found = "ignore"
+[[job.upload]]
+name = "perf-windows"
+path = "${{ runner.temp }}/perf"
+if-no-files-found = "ignore"
+
+[[job]]
+id = "framework-android"
+title = "Android (compile)"
+file = "ci/jobs/framework-android.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-24.04"
+timeout = 60
+
+[[job]]
+id = "framework-web"
+title = "Web (wasm32; Chromium, Firefox, WebKit)"
+file = "ci/jobs/framework-web.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-24.04"
+timeout = 90
+[[job.upload]]
+name = "web-readbacks"
+path = "${{ runner.temp }}/web/out"
+
+[[job]]
+id = "usb-phone"
+title = "Android device suite (self-hosted)"
+file = "ci/jobs/usb-phone.toml"
+stage = "devices"
+when = "form.usb_phone"
+if = "github.event_name == 'workflow_dispatch' && inputs.device"
+runs_on = ["self-hosted", "android"]
+timeout = 90
+inputs = { device = "{form.usb_phone}" }
+
+[[job]]
+id = "framework-ios-simulator"
+title = "iOS simulator (tests in the sim, a frame on its screen)"
+file = "ci/jobs/framework-ios-simulator.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "macos-14"
+timeout = 90
+continue_on_error = true
+[[job.upload]]
+name = "ios-simulator"
+path = "ci-artifacts/"
+if-no-files-found = "ignore"
+
+[[job]]
+id = "framework-android-emulator"
+title = "Android emulator (APK, device and accessibility suites)"
+file = "ci/jobs/framework-android-emulator.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-24.04"
+timeout = 120
+continue_on_error = true
+[[job.setup]]
+uses = "emulator"
+with = { api-level = 34, arch = "x86_64", target = "google_apis", emulator-options = "-no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -skin 480x960" }
+[[job.upload]]
+name = "maestro-android"
+path = "ci-artifacts/maestro-android/"
+if-no-files-found = "ignore"
+
+[[job]]
+id = "framework-a11y-gallery"
+title = "Accessibility gallery + AT-SPI dry-run (Linux)"
+file = "ci/jobs/framework-a11y-gallery.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-24.04"
+timeout = 90
+
+[[job]]
+id = "framework-plugin-compat"
+title = "Plugin compatibility matrix (FW-17)"
+file = "ci/jobs/framework-plugin-compat.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-24.04"
+timeout = 30
+
+[[job]]
+id = "framework-report"
+title = "Publish results to ci-runs/<branch>"
+file = "ci/jobs/framework-report.toml"
+stage = "check"
+depth = "thorough"
+phase = 2
+needs = ["framework-gate", "framework-coverage", "framework-cross", "framework-gpu-lavapipe", "framework-macos", "framework-windows", "framework-android", "framework-web", "framework-ios-simulator", "framework-android-emulator", "framework-a11y-gallery", "framework-plugin-compat"]
+if = "always()"
+runs_on = "ubuntu-24.04"
+timeout = 15
+write = true
+inputs = { legs = "all" }
+[[job.download]]
+path = "out/artifacts"
+continue-on-error = true
+
+[[job]]
+id = "gate"
+title = "gate ()"
+file = "ci/jobs/gate.toml"
+stage = "release"
+runs_on = "${{ matrix.runner }}"
+expand = "ci/jobs/gate-legs.py"
+timeout = 350
+secrets = ["APPLE_DEVELOPER_ID_P12", "APPLE_NOTARY_ISSUER", "APPLE_NOTARY_KEY", "APPLE_NOTARY_KEY_ID", "APPLE_P12_PASSWORD", "APPLE_SIGNING_IDENTITY", "WINDOWS_CERT_PASSWORD", "WINDOWS_CERT_PFX"]
+inputs = { scope = "gate", rerun = "{release.rerun}", package = true, legs = "{release.legs}" }
+checkout = { persist-credentials = false }
+[[job.setup]]
+uses = "tools"
+with = { tool = "cargo-deny" }
+if = "matrix.hosted && env.SCOPE != 'screenshots'"
+[[job.setup]]
+uses = "java"
+with = { distribution = "temurin", java-version = "17" }
+if = "matrix.mode == 'cpu' && matrix.hosted && env.SCOPE != 'screenshots'"
+[[job.setup]]
+uses = "gradle"
+with = { gradle-version = "8.9" }
+if = "matrix.mode == 'cpu' && matrix.hosted && env.SCOPE != 'screenshots'"
+[[job.setup]]
+uses = "tools"
+with = { tool = "cargo-ndk" }
+if = "matrix.mode == 'cpu' && matrix.hosted && env.SCOPE != 'screenshots'"
+[[job.upload]]
+name = "screenshots-${{ matrix.id }}"
+path = "vieww_base/target/screenshots/${{ matrix.id }}"
+retention-days = 30
+if-no-files-found = "warn"
+[[job.upload]]
+name = "gate-${{ matrix.id }}"
+path = "vieww_base/target/release-gate/${{ matrix.id }}"
+include-hidden-files = true
+retention-days = 30
+if-no-files-found = "warn"
+[[job.upload]]
+name = "installers-${{ matrix.id }}"
+path = '''
+vieww_base/target/package/viewwstudio-*
+vieww_base/target/package/viewwstudio.cdx.json
+vieww_base/target/package/SHA256SUMS
+vieww_base/target/package/MANIFEST.txt
+'''
+retention-days = 30
+if-no-files-found = "warn"
+
+[[job]]
+id = "gate-checklist"
+title = "merged checklist"
+file = "ci/jobs/gate-checklist.toml"
+stage = "release"
+phase = 2
+needs = ["gate"]
+if = "always() && (github.event_name == 'push' || inputs.scope == 'gate')"
+runs_on = "ubuntu-latest"
+inputs = { scope = "gate", rerun = "{release.rerun}", package = true, legs = "{release.legs}" }
+checkout = { persist-credentials = false }
+[[job.upload]]
+name = "checklist-ci"
+path = '''
+vieww_base/CHECKLIST-ci.md
+vieww_base/FAILURES.md
+vieww_base/logs/
+'''
+if-no-files-found = "warn"
+[[job.download]]
+pattern = "gate-*"
+path = "runs"
+
+[[job]]
+id = "gate-release"
+title = "draft GitHub Release"
+file = "ci/jobs/gate-release.toml"
+stage = "publish"
+phase = 3
+needs = ["gate", "gate-checklist"]
+if = "startsWith(github.ref, 'refs/tags/v') && !cancelled()"
+runs_on = "ubuntu-latest"
+write = true
+id_token = true
+checkout = { persist-credentials = false }
+[[job.setup]]
+uses = "attest"
+with = { subject-path = "dist/*" }
+[[job.download]]
+pattern = "installers-*"
+path = "dist-in"
+[[job.download]]
+name = "checklist-ci"
+path = "checklist"

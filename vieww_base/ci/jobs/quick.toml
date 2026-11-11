@@ -1,0 +1,28 @@
+# checks --quick (linux-cpu)
+# Moved from .github/workflows/cloud-machines-quick.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "checks --quick (linux-cpu)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+
+[[step]]
+name = "System packages"
+run = '''
+sudo apt-get update -q
+sudo apt-get install -y --no-install-recommends \
+  libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev pkg-config
+'''
+
+[[step]]
+name = "Rust toolchain (from rust-toolchain.toml)"
+run = "rustup toolchain install"
+
+[[step]]
+name = "Quick checks"
+run = "bash ci/vieww checks --quick"

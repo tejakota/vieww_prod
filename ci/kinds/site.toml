@@ -1,0 +1,55 @@
+# Jobs every site gets: its build-site.sh builds it to wasm + HTML (a
+# check, and in Build the dist/ folder as an artifact), and Release →
+# Publish deploys that folder to the Cloudflare Pages project named in
+#
+#   [deploy]
+#   cloudflare_pages = "viewwsite"
+#
+# Deploying needs the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID
+# secrets. {wasm_bindgen} is the wasm-bindgen version the workspace's
+# Cargo.lock pins, which build-site.sh insists on.
+description = "A web page built from Rust to wasm and served as static files."
+
+[[job]]
+id = "site"
+title = "build the site"
+file = "ci/kinds/site/build.toml"
+row = { site = "{name}", dir = "{dir}", workspace = "{workspace}", script = "{build}" }
+stage = "build"
+also = ["check"]
+depth = "quick"
+platforms = ["web"]
+runs_on = "ubuntu-24.04"
+timeout = 45
+checkout = { persist-credentials = false }
+[[job.setup]]
+uses = "tools"
+with = { tool = "wasm-bindgen@{wasm_bindgen}" }
+[[job.setup]]
+uses = "rust-cache"
+with = { workspaces = "{workspace}" }
+[[job.upload]]
+name = "site-{name}"
+path = "{path}/dist/"
+if-no-files-found = "error"
+
+[[job]]
+id = "deploy"
+title = "deploy to Cloudflare Pages"
+file = "ci/kinds/site/deploy.toml"
+requires = "deploy.cloudflare_pages"
+row = { site = "{name}", pages = "{deploy.cloudflare_pages}" }
+stage = "publish"
+phase = 2
+needs = ["site"]
+runs_on = "ubuntu-24.04"
+timeout = 15
+write = true
+secrets = ["CLOUDFLARE_API_TOKEN", "CLOUDFLARE_ACCOUNT_ID"]
+checkout = { persist-credentials = false, sparse-checkout = "ci" }
+[[job.setup]]
+uses = "node"
+with = { node-version = "20" }
+[[job.download]]
+name = "site-{name}"
+path = "site-dist"

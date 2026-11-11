@@ -1,0 +1,54 @@
+# Jobs every mobile app gets, from the app's ci.toml:
+#
+#   [build]
+#   android = { package = "vavlt-android", apk = "vavlt" }
+#   ios     = { package = "vavlt-ios", bundle_id = "dev.vavlt.app", binary = "vavlt-ios" }
+#
+# `row` becomes the job's matrix: the job files read ${{ matrix.app }},
+# ${{ matrix.package }} and so on, exactly as the old "Build Mobile Apps"
+# workflow's matrix rows did. A job runs only for apps whose ci.toml has
+# its `requires` table. `{name}`, `{path}` and `{build.*}` come from the
+# app's manifest.
+description = "An app for Android and/or iOS built with the vieww mobile toolchain."
+
+[[job]]
+id = "android"
+title = "android build"
+file = "ci/kinds/mobile-app/android.toml"
+requires = "build.android"
+row = { app = "{name}", package = "{build.android.package}", workdir = "{path}", apk_name = "{build.android.apk}" }
+stage = "build"
+also = ["check"]
+depth = "thorough"
+runs_on = "ubuntu-latest"
+platforms = ["android"]
+timeout = 90
+secrets = ["ANDROID_KEYSTORE", "ANDROID_KEYSTORE_PASSWORD", "ANDROID_KEY_ALIAS", "ANDROID_KEY_PASSWORD"]
+checkout = { persist-credentials = false, fetch-depth = 1 }
+[[job.setup]]
+uses = "java"
+with = { distribution = "temurin", java-version = "17" }
+[[job.upload]]
+name = "${{ matrix.app }}-android-apk"
+path = "${{ runner.temp }}/${{ matrix.app }}-android/"
+if-no-files-found = "warn"
+retention-days = 30
+
+[[job]]
+id = "ios"
+title = "ios build"
+file = "ci/kinds/mobile-app/ios.toml"
+requires = "build.ios"
+row = { app = "{name}", package = "{build.ios.package}", workdir = "{path}", bundle_id = "{build.ios.bundle_id}", binary = "{build.ios.binary}", app_name = "{name}" }
+stage = "build"
+also = ["check"]
+depth = "thorough"
+runs_on = "macos-latest"
+platforms = ["ios"]
+timeout = 90
+checkout = { persist-credentials = false, fetch-depth = 1 }
+[[job.upload]]
+name = "${{ matrix.app }}-ios-ipa"
+path = "${{ runner.temp }}/${{ matrix.app }}-ios/"
+if-no-files-found = "error"
+retention-days = 30

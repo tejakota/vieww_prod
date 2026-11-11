@@ -1,0 +1,42 @@
+# Plugins
+# Moved from .github/workflows/cloud-machines-audio-plugins.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Plugins"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Install Rust toolchain"
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal --component clippy
+rustup default "$RUST_VERSION"
+'''
+
+[[step]]
+name = "Unit tests and clippy"
+run = '''
+cargo test -p vieww-audio-plugin --lib
+cargo clippy -p vieww-audio-plugin --all-targets -- -D warnings
+'''
+
+[[step]]
+name = "Build, bundle and validate (CLAP + VST3 + LV2)"
+env = { WORK = "${{ runner.temp }}/plugin-check" }
+run = "crates/vieww-audio-plugin/tools/check-plugins.sh --full"
+
+[[step]]
+name = "mark: upload vieww-plugins-${{ matrix.os }}"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

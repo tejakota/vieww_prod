@@ -1,0 +1,39 @@
+# CI manifest: what this project is and what CI runs for it.
+# ci/README.md explains every field; `ci/projects check` validates it.
+
+name = "viewwstudio"
+kind = "desktop-app"
+platforms = ["linux", "macos", "windows"]
+uses = ["vieww"]
+
+[[job]]
+id = "suite"
+title = "Studio suite ()"
+file = "ci/jobs/suite.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "${{ matrix.os }}"
+matrix = { os = ["ubuntu-24.04", "macos-14", "windows-2022"] }
+timeout = 90
+[[job.setup]]
+uses = "cache"
+with = { path = '''
+~/.cargo/registry
+~/.cargo/git
+vieww_base/target
+''', key = "studio-${{ runner.os }}-${{ hashFiles('vieww_base/Cargo.lock') }}" }
+[[job.upload]]
+name = "studio-screenshots-${{ matrix.os }}"
+path = "${{ runner.temp }}/studio-shots"
+if-no-files-found = "ignore"
+
+[[job]]
+id = "machine"
+title = "studio ()"
+file = "ci/jobs/machine.toml"
+stage = "check"
+where = "machine"
+runs_on = "machine"
+timeout = 120
+inputs = { depth = "{form.machine_depth}" }
+checkout = { persist-credentials = false }

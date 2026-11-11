@@ -1,0 +1,23 @@
+# verify
+# Moved from .github/workflows/cloud-machines-publish.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "verify"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[[step]]
+name = "System packages"
+run = '''
+sudo apt-get update -q
+sudo apt-get install -y --no-install-recommends \
+  libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev pkg-config
+'''
+
+[[step]]
+run = "rustup toolchain install"
+
+[[step]]
+run = "bash ci/release/publish-check.sh --verify"

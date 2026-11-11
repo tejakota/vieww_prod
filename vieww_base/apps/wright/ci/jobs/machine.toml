@@ -1,0 +1,53 @@
+# wright ()
+# Moved from .github/workflows/device-machines-feature.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "wright ()"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base/apps/wright"
+
+[env]
+CARGO_TERM_COLOR = "always"
+FEATURE_CACHE = "${{ vars.FEATURE_CACHE || '~/.cache/vieww-feature-runs' }}"
+WRIGHT_HOME = "${{ github.workspace }}/.wright-home"
+
+[[step]]
+name = "Warm build directory"
+run = "bash ../../../ci/lib/warm-target.sh wright target"
+
+[[step]]
+name = "Clippy (zero warnings, UI included)"
+run = "cargo clippy --workspace --all-targets --features wright/ui -- -D warnings"
+
+[[step]]
+name = "Tests"
+run = '''
+if [ "${{ inputs.depth }}" = full ]; then
+  cargo test --release --workspace
+else
+  # The window's suite (it also renders every screen) and the
+  # libraries a UI or feature change most often touches.
+  cargo test --release -p wright --features ui
+  cargo test --release -p wright-core -p wright-tools
+fi
+'''
+
+[[step]]
+name = "UI snapshots"
+if = "always()"
+run = '''
+cargo build --release -p wright --features ui
+rm -rf "$WRIGHT_HOME" && mkdir -p "$WRIGHT_HOME"
+./target/release/wright ui --snapshot "${{ github.workspace }}/wright-snapshots"
+'''
+
+[[step]]
+name = "mark: upload wright-snapshots"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

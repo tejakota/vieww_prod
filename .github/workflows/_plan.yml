@@ -1,0 +1,70 @@
+# ─────────────────────────────────────────────────────────────────────
+# Engine: the first job of every numbered workflow. Reads the Run workflow
+# form and every project's ci.toml (ci/projects plan) and decides which
+# jobs run, per phase. Fails before anything starts if a manifest is
+# invalid or a Project dropdown is stale (ci/projects check), so a new
+# crate or app without `ci/projects sync` cannot run silently unchecked.
+# ─────────────────────────────────────────────────────────────────────
+name: _plan
+
+on:
+  workflow_call:
+    inputs:
+      workflow:
+        description: "check | devices | build | release | housekeeping"
+        type: string
+        required: true
+      form:
+        description: "The caller's toJSON(inputs)"
+        type: string
+        required: true
+    outputs:
+      p1:
+        value: ${{ jobs.plan.outputs.p1 }}
+      p1w:
+        value: ${{ jobs.plan.outputs.p1w }}
+      p1a:
+        value: ${{ jobs.plan.outputs.p1a }}
+      p2:
+        value: ${{ jobs.plan.outputs.p2 }}
+      p2w:
+        value: ${{ jobs.plan.outputs.p2w }}
+      p2a:
+        value: ${{ jobs.plan.outputs.p2a }}
+      p3:
+        value: ${{ jobs.plan.outputs.p3 }}
+      p3w:
+        value: ${{ jobs.plan.outputs.p3w }}
+      p3a:
+        value: ${{ jobs.plan.outputs.p3a }}
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      p1: ${{ steps.plan.outputs.p1 }}
+      p1w: ${{ steps.plan.outputs.p1w }}
+      p1a: ${{ steps.plan.outputs.p1a }}
+      p2: ${{ steps.plan.outputs.p2 }}
+      p2w: ${{ steps.plan.outputs.p2w }}
+      p2a: ${{ steps.plan.outputs.p2a }}
+      p3: ${{ steps.plan.outputs.p3 }}
+      p3w: ${{ steps.plan.outputs.p3w }}
+      p3a: ${{ steps.plan.outputs.p3a }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Manifests valid, dropdowns in sync
+        run: python3 ci/projects check
+      - name: What runs
+        id: plan
+        env:
+          FORM: ${{ inputs.form }}
+          VARS: ${{ toJSON(vars) }}
+        run: python3 ci/projects plan "${{ inputs.workflow }}"

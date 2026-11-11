@@ -1,0 +1,55 @@
+# Linux (ALSA and MIDI through kernel loopbacks, in a VM)
+# Moved from .github/workflows/cloud-machines-audio-backends.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Linux (ALSA and MIDI through kernel loopbacks, in a VM)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Install Rust toolchain"
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal
+rustup default "$RUST_VERSION"
+'''
+
+[[step]]
+name = "Let the runner user use KVM"
+run = '''
+if [ -e /dev/kvm ]; then
+  echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+  sudo udevadm control --reload-rules
+  sudo udevadm trigger --name-match=kvm
+else
+  echo "::warning::no /dev/kvm on this runner: the VM runs emulated (slower; a missed deadline is reported as one)"
+fi
+'''
+
+[[step]]
+name = "Which stock kernel"
+id = "kernel"
+run = '''
+sudo apt-get update -q
+v="$(apt-cache search --names-only '^linux-modules-extra-[0-9.]+-[0-9]+-generic$' |
+     sed -E 's/^linux-modules-extra-([0-9.]+-[0-9]+)-generic.*/\1/' | sort -V | tail -1)"
+echo "version=$v" >> "$GITHUB_OUTPUT"
+'''
+
+[[step]]
+name = "Tools, kernel and its sound modules"
+run = "ci/audio/vm-loopback.sh --setup"
+
+[[step]]
+name = "ALSA (every format, rate matching both ways) and MIDI, in the VM"
+run = "ci/audio/vm-loopback.sh"
+
+[[step]]
+name = "ALSA sequencer virtual ports, in the VM (AU-19)"
+run = "ci/audio/vm-loopback.sh --seq"

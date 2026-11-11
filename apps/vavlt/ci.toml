@@ -1,0 +1,11 @@
+# CI manifest: what this project is and what CI runs for it.
+# ci/README.md explains every field; `ci/projects check` validates it.
+
+name = "vavlt"
+kind = "mobile-app"
+platforms = ["android", "ios"]
+uses = ["vieww"]
+
+[build]
+android = { package = "vavlt-android", apk = "vavlt" }
+ios = { package = "vavlt-ios", bundle_id = "dev.vavlt.app", binary = "vavlt-ios" }

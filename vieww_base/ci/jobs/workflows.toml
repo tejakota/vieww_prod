@@ -1,0 +1,28 @@
+# actionlint
+# Moved from .github/workflows/cloud-machines-quick.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "actionlint"
+
+[defaults]
+shell = "bash"
+working-directory = "."
+
+[[step]]
+name = "Lint every workflow"
+run = '''
+pip install --quiet actionlint-py
+actionlint -shellcheck= .github/workflows/*.yml
+'''
+
+[[step]]
+name = "Projects: manifests valid, dropdowns and engine in sync"
+run = '''
+python3 ci/projects check
+'''
+
+[[step]]
+name = "The CI runner, planner and expression tests"
+run = '''
+python3 -m unittest discover -s ci/tests -v
+'''

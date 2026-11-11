@@ -1,0 +1,46 @@
+# Build the arm64 APK
+# Moved from .github/workflows/device-mobile-phone-farm.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Build the arm64 APK"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_VERSION = "1.98.1"
+AWS_REGION = "us-west-2"
+
+[[step]]
+name = "Toolchain, target and cargo-apk"
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal
+rustup target add --toolchain "$RUST_VERSION" aarch64-linux-android
+'''
+
+[[step]]
+name = "Shipping (dist) APK, with the classes.dex device clouds expect"
+env = { ANDROID_NDK_HOME = "${{ env.ANDROID_NDK_LATEST_HOME }}" }
+run = '''
+. ci/mobile/android-env.sh
+android_env device-farm
+mkdir -p ../dist
+marker="$(mktemp)"
+cargo apk build -p vieww-platform-winit --example android --profile "${{ inputs.profile }}" --target aarch64-linux-android
+apk="$(find target -path '*/apk/*' -name '*.apk' -newer "$marker" | head -1)"
+[ -n "$apk" ] || { echo "::error::no APK was built"; exit 1; }
+ci/mobile/apk-add-code.sh "$apk" ../dist/vieww-devicefarm.apk --background-audio
+ls -l ../dist
+unzip -lv ../dist/vieww-devicefarm.apk | sort -k1 -n -r | head -8
+'''
+
+[[step]]
+name = "mark: upload vieww-devicefarm-apk"
+if = "success()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

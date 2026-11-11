@@ -1,0 +1,15 @@
+# check
+# Moved from .github/workflows/cloud-machines-publish.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "check"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[[step]]
+run = "rustup toolchain install"
+
+[[step]]
+run = "bash ci/release/publish-check.sh"

@@ -1,0 +1,54 @@
+# scaffold-external
+# Moved from .github/workflows/cloud-machines-publish.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "scaffold-external"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[[step]]
+name = "System packages"
+run = '''
+sudo apt-get update -q
+sudo apt-get install -y --no-install-recommends \
+  libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev pkg-config
+'''
+
+[[step]]
+run = "rustup toolchain install"
+
+[[step]]
+name = "vieww new, outside the checkout"
+run = '''
+# Built the way an installed CLI ships: standard library linked in.
+# (The workspace's .cargo/config.toml links desktop binaries to the
+# toolchain's shared libstd for Studio's preview ABI; setting
+# RUSTFLAGS replaces that, and a user's machine has no toolchain
+# libstd to find - the nightly failed exactly so.)
+RUSTFLAGS="-C debuginfo=0" cargo build --release --locked -p vieww-cli --target-dir target/static-cli
+cli="$PWD/target/static-cli/release/vieww"
+if ldd "$cli" | grep -q libstd; then
+  echo "the CLI still needs the toolchain's libstd" >&2; exit 1
+fi
+src="$PWD"
+mkdir -p "$RUNNER_TEMP/outside" && cd "$RUNNER_TEMP/outside"
+VIEWW_SCAFFOLD_FROM=registry "$cli" new demo
+cd demo
+# Dependency lines only: `[[bin]] path = "src/main.rs"` is not one.
+if grep -nE '^vieww[a-z-]* *= *\{[^}]*path *=' Cargo.toml; then
+  echo "scaffold wrote a path dependency outside the checkout" >&2; exit 1
+fi
+grep -nE '^vieww[a-z-]* *= *"' Cargo.toml
+# Resolve the version dependency against these sources, exactly as
+# crates.io would serve them after `cargo publish`.
+{
+  echo
+  echo "[patch.crates-io]"
+  grep -v '^#' "$src/ci/release/publish-order.txt" | while read -r c; do
+    echo "$c = { path = \"$src/crates/$c\" }"
+  done
+} >> Cargo.toml
+cargo build
+'''

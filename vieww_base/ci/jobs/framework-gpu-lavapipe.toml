@@ -1,0 +1,75 @@
+# GPU on software Vulkan (lavapipe)
+# Moved from .github/workflows/shared-framework-checks.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "GPU on software Vulkan (lavapipe)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Toolchain"
+run = "rustup toolchain install \"$RUST_VERSION\" --profile minimal"
+
+[[step]]
+name = "Mesa Vulkan, Xvfb"
+run = '''
+sudo apt-get update -q
+# libxkbcommon-x11-0: winit's X11 backend dlopens
+# libxkbcommon-x11.so at runtime, and libxkbcommon-dev does not pull
+# it in. Without it every wait_loop scenario panicked before its
+# window opened (run 39243920376, xkbcommon-dl x11.rs:59).
+sudo apt-get install -y -q mesa-vulkan-drivers vulkan-tools libvulkan-dev xvfb \
+  libx11-dev libxkbcommon-dev libxkbcommon-x11-0 libwayland-dev
+echo "VK_ICD_FILENAMES=$(ls /usr/share/vulkan/icd.d/lvp_icd*.json | head -1)" >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "Adapter"
+run = "vulkaninfo --summary"
+
+[[step]]
+name = "Vulkan suites (headless)"
+env = { VIEWW_PARITY_OUT = "${{ runner.temp }}/parity", VIEWW_PARITY_ADAPTER = "lavapipe" }
+run = "cargo test --release -p vieww-hal --features vulkan -- --ignored --test-threads=1"
+
+[[step]]
+name = "Parity certificate (vulkan-lavapipe, FW-26)"
+if = "always()"
+shell = "bash"
+run = '''
+PY=$(command -v python3 || command -v python)
+"$PY" ci/check/parity-certificate.py "$RUNNER_TEMP/parity" -o "parity-certificate-vulkan-lavapipe.json" --markdown "$RUNNER_TEMP/parity.md"
+status=$?
+cat "$RUNNER_TEMP/parity.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+exit $status
+'''
+
+[[step]]
+name = "mark: upload parity-certificate-vulkan-lavapipe"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "3D GPU parity suite (headless)"
+run = "cargo test --release -p vieww-3d --features vulkan -- --ignored --test-threads=1"
+
+[[step]]
+name = "A GPU frame presented to a real window"
+env = { VIEWW_REQUIRE_HARDWARE = "display,gpu" }
+run = "xvfb-run -a -s \"-screen 0 1366x768x24\" cargo test --release -p vieww-platform-winit --test wait_loop"
+
+[[step]]
+name = "Platform views under a real X server (FW-20)"
+env = { VIEWW_REQUIRE_HARDWARE = "display" }
+run = "xvfb-run -a -s \"-screen 0 1366x768x24\" cargo test --release -p vieww-platform-winit --lib platform_views"

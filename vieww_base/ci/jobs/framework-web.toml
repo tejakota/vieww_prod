@@ -1,0 +1,101 @@
+# Web (wasm32; Chromium, Firefox, WebKit)
+# Moved from .github/workflows/shared-framework-checks.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Web (wasm32; Chromium, Firefox, WebKit)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Toolchain and target"
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal --component clippy
+rustup target add --toolchain "$RUST_VERSION" wasm32-unknown-unknown
+'''
+
+[[step]]
+name = "wasm-check"
+run = "ci/check/wasm-check.sh"
+
+[[step]]
+name = "wasm-bindgen matching Cargo.lock"
+run = '''
+v="$(sed -n '/^name = "wasm-bindgen"$/,/^version/ s/^version = "\(.*\)"/\1/p' Cargo.lock | head -1)"
+cargo install wasm-bindgen-cli --version "$v" --locked
+'''
+
+[[step]]
+name = "Build the page and the native baseline"
+run = '''
+bash examples/test-web/build-web.sh "$RUNNER_TEMP/web/dist"
+cargo run --release -p test-web --example baseline -- "$RUNNER_TEMP/web/baseline"
+'''
+
+[[step]]
+name = "Playwright with all three engines"
+run = '''
+python3 -m pip install --user playwright
+python3 -m playwright install --with-deps chromium firefox webkit
+'''
+
+[[step]]
+name = "Canvas parity per engine"
+env = { PLAYWRIGHT_BROWSERS_PATH = "" }
+run = '''
+status=0
+for engine in chromium firefox webkit; do
+  VIEWW_WEB_BROWSER=$engine python3 examples/test-web/verify_web.py \
+    "$RUNNER_TEMP/web/dist" "$RUNNER_TEMP/web/baseline" "$RUNNER_TEMP/web/out" || status=1
+done
+exit $status
+'''
+
+[[step]]
+name = "Web audio player in Chromium (AU-01)"
+env = { PLAYWRIGHT_BROWSERS_PATH = "" }
+run = '''
+cargo build --release --target wasm32-unknown-unknown -p vieww-platform-web --example audio_smoke
+python3 crates/vieww-platform-web/web-test/audio_smoke.py
+'''
+
+[[step]]
+name = "WebGPU backend clippy (native, then wasm)"
+run = '''
+cargo clippy -p vieww-hal --features webgpu --all-targets -- -D warnings
+cargo clippy -p vieww-hal --features webgpu --all-targets \
+  --target wasm32-unknown-unknown -- -D warnings
+'''
+
+[[step]]
+name = "WebGPU scene parity per engine (FW-09)"
+env = { PLAYWRIGHT_BROWSERS_PATH = "" }
+run = '''
+cargo build --release --target wasm32-unknown-unknown \
+  -p vieww-hal --example webgpu_scene --features webgpu
+status=0
+for engine in chromium firefox webkit; do
+  # `|| rc=$?`, not a bare `rc=$?` after it: the step runs under
+  # `bash -e`, which ended the step on the skip code (3) before
+  # this line could read it — Firefox has no navigator.gpu.
+  rc=0
+  VIEWW_WEB_BROWSER=$engine python3 crates/vieww-hal/web-test/webgpu_parity.py || rc=$?
+  if [ "$rc" -ne 0 ] && [ "$rc" -ne 3 ]; then status=1; fi
+done
+exit $status
+'''
+
+[[step]]
+name = "mark: upload web-readbacks"
+if = "failure()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

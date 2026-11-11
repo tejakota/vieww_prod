@@ -1,0 +1,68 @@
+# Build the iOS .ipa
+# Moved from .github/workflows/device-mobile-phone-farm.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Build the iOS .ipa"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_VERSION = "1.98.1"
+AWS_REGION = "us-west-2"
+HAS_CERT = "${{ secrets.IOS_CERT_P12 != '' }}"
+
+[[step]]
+name = "Toolchain and the iOS device target"
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal
+rustup target add --toolchain "$RUST_VERSION" aarch64-apple-ios
+'''
+
+[[step]]
+name = "MoltenVK (device slice)"
+run = '''
+curl -fsSL -o "$RUNNER_TEMP/mvk.tar" \
+  https://github.com/KhronosGroup/MoltenVK/releases/download/v1.4.2/MoltenVK-all.tar
+mkdir -p "$RUNNER_TEMP/mvk" && tar -xf "$RUNNER_TEMP/mvk.tar" -C "$RUNNER_TEMP/mvk"
+dev=$(find "$RUNNER_TEMP/mvk" -path '*dynamic/MoltenVK.xcframework/ios-arm64/MoltenVK.framework' -type d | head -1)
+[ -n "$dev" ] || { echo "::error::MoltenVK device slice not found"; exit 1; }
+echo "MVK_DEVICE=$dev" >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "Signing identity into a temporary keychain (when the secrets exist)"
+if = "env.HAS_CERT == 'true'"
+env = { IOS_CERT_P12 = "${{ secrets.IOS_CERT_P12 }}", IOS_CERT_PASSWORD = "${{ secrets.IOS_CERT_PASSWORD }}", IOS_PROFILE = "${{ secrets.IOS_PROFILE }}", IOS_IDENTITY = "${{ secrets.IOS_IDENTITY }}" }
+run = '''
+keychain="$RUNNER_TEMP/vieww.keychain-db"
+security create-keychain -p ci "$keychain"
+security set-keychain-settings -lut 3600 "$keychain"
+security unlock-keychain -p ci "$keychain"
+echo "$IOS_CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+security import "$RUNNER_TEMP/cert.p12" -k "$keychain" -P "$IOS_CERT_PASSWORD" -T /usr/bin/codesign
+security set-key-partition-list -S apple-tool:,apple: -s -k ci "$keychain"
+security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
+echo "$IOS_PROFILE" | base64 --decode > "$RUNNER_TEMP/vieww.mobileprovision"
+echo "VIEWW_IOS_PROFILE=$RUNNER_TEMP/vieww.mobileprovision" >> "$GITHUB_ENV"
+echo "VIEWW_IOS_IDENTITY=$IOS_IDENTITY" >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "Device .ipa"
+run = '''
+VIEWW_BACKGROUND_AUDIO=1 VIEWW_MOLTENVK="$MVK_DEVICE" ci/mobile/ios-app.sh --ipa
+mkdir -p ../dist && cp target/ios/vieww.ipa ../dist/vieww.ipa
+ls -l ../dist
+'''
+
+[[step]]
+name = "mark: upload vieww-devicefarm-ipa"
+if = "success()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

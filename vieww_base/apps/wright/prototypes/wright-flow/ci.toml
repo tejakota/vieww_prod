@@ -1,0 +1,30 @@
+# CI manifest: what this project is and what CI runs for it.
+# ci/README.md explains every field; `ci/projects check` validates it.
+
+# The Flow prototype of Wright's screens (viewwstudio-cli project).
+name = "wright-flow"
+kind = "desktop-app"
+platforms = ["linux", "macos", "windows"]
+uses = ["viewwstudio", "wright"]
+# Its checks run on the self-hosted machine (job `machine` below); on
+# GitHub it gets the kind's clippy-and-tests check, and no release build.
+kind_jobs = ["check"]
+
+[[job]]
+id = "machine"
+title = "prototype ()"
+file = "ci/jobs/machine.toml"
+stage = "check"
+where = "machine"
+runs_on = "machine"
+timeout = 90
+inputs = { depth = "{form.machine_depth}" }
+checkout = { persist-credentials = false }
+[[job.upload]]
+name = "wright-flow"
+path = '''
+wright-flow-walkthrough/
+wright-flow-web/
+'''
+if-no-files-found = "ignore"
+retention-days = 14

@@ -1,0 +1,223 @@
+# build
+# Moved from .github/workflows/cloud-machines-wright-installers.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "build"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base/apps/wright"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+VERSION = "${{ inputs.version }}"
+
+[[step]]
+name = "Allow long paths (Windows)"
+if = "runner.os == 'Windows'"
+working-directory = "."
+run = "git config --global core.longpaths true"
+
+[[step]]
+name = "Rust ${{ env.RUST_VERSION }}"
+working-directory = "."
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal
+rustup default "$RUST_VERSION"
+if [ "$RUNNER_OS" = "macOS" ]; then
+  rustup target add --toolchain "$RUST_VERSION" aarch64-apple-darwin x86_64-apple-darwin
+fi
+'''
+
+[[step]]
+name = "Linux build libraries"
+if = "runner.os == 'Linux'"
+working-directory = "."
+run = '''
+sudo apt-get update -q
+sudo apt-get install -y -q pkg-config libx11-dev libxkbcommon-dev libwayland-dev libasound2-dev dpkg-dev
+'''
+
+[[step]]
+name = "Test (Linux)"
+if = "runner.os == 'Linux'"
+timeout-minutes = 30
+run = '''
+cargo clippy --workspace --all-targets --features wright/ui -- -D warnings
+cargo test --workspace --features wright/ui
+'''
+
+[[step]]
+name = "Build (Windows, Linux)"
+if = "runner.os != 'macOS'"
+env = { RUSTFLAGS = "-C target-cpu=x86-64-v2" }
+run = '''
+cargo build --profile dist -p wright --features ui
+mkdir -p ../../../out
+if [ "$RUNNER_OS" = "Windows" ]; then cp target/dist/wright.exe ../../../out/; else cp target/dist/wright ../../../out/; fi
+'''
+
+[[step]]
+name = "Build (macOS, both architectures)"
+if = "runner.os == 'macOS'"
+run = '''
+RUSTFLAGS="-C target-cpu=apple-m1" cargo build --profile dist -p wright --features ui --target aarch64-apple-darwin
+RUSTFLAGS="-C target-cpu=x86-64-v2" cargo build --profile dist -p wright --features ui --target x86_64-apple-darwin
+mkdir -p ../../../out
+lipo -create -output ../../../out/wright target/aarch64-apple-darwin/dist/wright target/x86_64-apple-darwin/dist/wright
+lipo -info ../../../out/wright
+'''
+
+[[step]]
+name = "Smoke test the shipped binary"
+run = '''
+bin=../../../out/wright
+[ "$RUNNER_OS" = "Windows" ] && bin=../../../out/wright.exe
+"$bin" --version
+"$bin" doctor || true
+"$bin" plan examples/hn-digest
+export WRIGHT_HOME="$RUNNER_TEMP/wright-home"
+"$bin" ui examples/hn-digest --snapshot "$RUNNER_TEMP/screens"
+ls "$RUNNER_TEMP/screens"
+if [ "$RUNNER_OS" = "Linux" ]; then
+  # Static Rust: nothing from the toolchain may be needed at run time.
+  ! ldd "$bin" | grep -E 'libstd-|librustc' || { echo "binary links the Rust standard library dynamically"; exit 1; }
+fi
+'''
+
+[[step]]
+name = "Package (Windows)"
+if = "runner.os == 'Windows'"
+run = '''
+dist="$(cd ../../.. && pwd)/out/dist"
+mkdir -p "$dist"
+cp ../../../out/wright.exe README.md LICENSE CHANGELOG.md "$dist/"
+cp -r examples "$dist/examples"
+../../../out/wright.exe ui --icon "$RUNNER_TEMP/icon-256.png" --size 256
+python -m pip install --quiet pillow
+python packaging/make-ico.py "$RUNNER_TEMP/icon-256.png" "$dist/wright.ico"
+iscc="/c/Program Files (x86)/Inno Setup 6/ISCC.exe"
+if [ ! -f "$iscc" ]; then choco install innosetup --no-progress -y; fi
+"$iscc" //Q "//DAppVersion=$VERSION" "//DDist=$(cygpath -w "$dist")" packaging/windows/wright.iss
+(cd "$dist" && 7z a -tzip "../wright-$VERSION-windows-x64.zip" . >/dev/null)
+mkdir -p ../../../release
+mv ../../../out/out/Wright-Setup-*.exe ../../../out/wright-*-windows-x64.zip ../../../release/
+'''
+
+[[step]]
+name = "Sign (Windows, Authenticode — WR-04)"
+if = "runner.os == 'Windows'"
+env = { WRIGHT_SECRET_WINDOWS_PFX = "${{ secrets.WRIGHT_SECRET_WINDOWS_PFX }}", WRIGHT_SECRET_WINDOWS_PFX_PASSWORD = "${{ secrets.WRIGHT_SECRET_WINDOWS_PFX_PASSWORD }}" }
+run = '''
+if [ -z "$WRIGHT_SECRET_WINDOWS_PFX" ]; then
+  echo "publish=${{ inputs.publish }}"
+  if [ "${{ inputs.publish }}" = 'true' ]; then
+    echo "PUBLISH REQUIRES SIGNING: WRIGHT_SECRET_WINDOWS_PFX (base64 certificate) and"
+    echo "WRIGHT_SECRET_WINDOWS_PFX_PASSWORD are not set. Unsigned installers are"
+    echo "SmartScreen bait, and a trust product does not ship them. Set the secrets"
+    echo "or run with publish=false for unsigned artifacts."
+    exit 1
+  fi
+  echo "no Authenticode certificate configured; artifacts stay unsigned (publish=false)"
+  exit 0
+fi
+cert="$RUNNER_TEMP/wright-codesign.pfx"
+printf '%s' "$WRIGHT_SECRET_WINDOWS_PFX" | base64 -d > "$cert"
+# Windows runner signtool, SHA256 + RFC3161 timestamp.
+signtool="$(ls "/c/Program Files (x86)/Windows Kits/10/bin"/10.*/x64/signtool.exe 2>/dev/null | sort | tail -1)"
+sign() {
+  "$signtool" sign //fd SHA256 //td SHA256 \
+    //tr http://timestamp.digicert.com \
+    //f "$(cygpath -w "$cert")" \
+    //p "$WRIGHT_SECRET_WINDOWS_PFX_PASSWORD" \
+    "$(cygpath -w "$1")"
+}
+for exe in ../../../release/Wright-Setup-*.exe; do sign "$exe"; done
+ls -la ../../../release/
+'''
+
+[[step]]
+name = "Package (macOS)"
+if = "runner.os == 'macOS'"
+run = '''
+bash packaging/macos/build-app.sh "$VERSION" target/aarch64-apple-darwin/dist/wright target/x86_64-apple-darwin/dist/wright "$(cd ../../.. && pwd)/release"
+'''
+
+[[step]]
+name = "Sign and notarize (macOS, Developer ID — WR-04)"
+if = "runner.os == 'macOS'"
+env = { WRIGHT_SECRET_MACOS_P12 = "${{ secrets.WRIGHT_SECRET_MACOS_P12 }}", WRIGHT_SECRET_MACOS_P12_PASSWORD = "${{ secrets.WRIGHT_SECRET_MACOS_P12_PASSWORD }}", WRIGHT_SECRET_MACOS_SIGNING_IDENTITY = "${{ secrets.WRIGHT_SECRET_MACOS_SIGNING_IDENTITY }}", WRIGHT_SECRET_MACOS_NOTARY_KEY = "${{ secrets.WRIGHT_SECRET_MACOS_NOTARY_KEY }}", WRIGHT_SECRET_MACOS_NOTARY_KEY_ID = "${{ secrets.WRIGHT_SECRET_MACOS_NOTARY_KEY_ID }}", WRIGHT_SECRET_MACOS_TEAM_ID = "${{ secrets.WRIGHT_SECRET_MACOS_TEAM_ID }}" }
+run = '''
+if [ -z "$WRIGHT_SECRET_MACOS_P12" ]; then
+  if [ "${{ inputs.publish }}" = 'true' ]; then
+    echo "PUBLISH REQUIRES SIGNING: the WRIGHT_SECRET_MACOS_* secrets (p12, password,"
+    echo "signing identity, notary key, key id, team id) are not set. An un-notarized"
+    echo "dmg is a Gatekeeper warning on first run, and a trust product does not"
+    echo "ship that. Set the secrets or run with publish=false."
+    exit 1
+  fi
+  echo "no Developer ID certificate configured; the app stays ad-hoc signed (publish=false)"
+  exit 0
+fi
+keychain="$RUNNER_TEMP/wright-signing.keychain-db"
+security create-keychain -p "wright-ci" "$keychain"
+security set-key-partition-list -S apple-tool:,apple: -s -k "wright-ci" "$keychain"
+security unlock-keychain -p "wright-ci" "$keychain"
+printf '%s' "$WRIGHT_SECRET_MACOS_P12" | base64 -d > "$RUNNER_TEMP/wright-dev-id.p12"
+security import "$RUNNER_TEMP/wright-dev-id.p12" -k "$keychain" -P "$WRIGHT_SECRET_MACOS_P12_PASSWORD" -T /usr/bin/codesign
+printf '%s' "$WRIGHT_SECRET_MACOS_NOTARY_KEY" | base64 -d > "$RUNNER_TEMP/notary.p8"
+# notarytool's stored-credentials profile (the key never appears
+# on a command line after this).
+xcrun notarytool store-credentials wright-notary \
+  --apple-id "-" --team-id "$WRIGHT_SECRET_MACOS_TEAM_ID" \
+  --key-id "$WRIGHT_SECRET_MACOS_NOTARY_KEY_ID" --key "$RUNNER_TEMP/notary.p8" \
+  --keychain "$keychain" || true
+# Re-sign everything the app bundle and dmg contain, then staple.
+identity="$WRIGHT_SECRET_MACOS_SIGNING_IDENTITY"
+app="$(ls ../../../release/*.app.zip || true)"
+codesign --force --options runtime --timestamp --sign "$identity" \
+  --keychain "$keychain" ../../../out/wright || true
+for f in ../../../release/*; do
+  case "$f" in
+    *.dmg)
+      xcrun notarytool submit "$f" --keychain-profile wright-notary --wait
+      xcrun stapler staple "$f"
+      ;;
+    *.app.zip)
+      mkdir -p "$RUNNER_TEMP/unzipped" && (cd "$RUNNER_TEMP/unzipped" && unzip -o -q "$PWD/$f")
+      codesign --force --deep --options runtime --timestamp --sign "$identity" --keychain "$keychain" "$RUNNER_TEMP/unzipped"/*.app
+      (cd "$RUNNER_TEMP/unzipped" && zip -r -q "$OLDPWD/$f" *.app)
+      xcrun notarytool submit "$f" --keychain-profile wright-notary --wait
+      xcrun stapler staple "$f"
+      ;;
+  esac
+done
+security delete-keychain "$keychain"
+'''
+
+[[step]]
+name = "Package (Linux)"
+if = "runner.os == 'Linux'"
+run = '''
+bash packaging/linux/build-deb.sh "$VERSION" ../../../out/wright "$(cd ../../.. && pwd)/release"
+'''
+
+[[step]]
+name = "mark: upload wright-${{ env.VERSION }}-${{ matrix.name }}"
+if = "success()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "mark: upload screens-${{ matrix.name }}"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_1=yes" >> "$GITHUB_ENV"
+'''

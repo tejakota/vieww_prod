@@ -1,0 +1,26 @@
+# Accessibility gallery + AT-SPI dry-run (Linux)
+# Moved from .github/workflows/shared-framework-checks.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Accessibility gallery + AT-SPI dry-run (Linux)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Toolchain"
+run = "rustup toolchain install \"$RUST_VERSION\" --profile minimal"
+
+[[step]]
+name = "The gallery audit (VIEWW_AUDIT over every feature example)"
+run = "ci/check/feature-a11y.sh"
+
+[[step]]
+name = "AT-SPI harness dry-run"
+run = "ci/check/a11y-linux.sh --dry-run"

@@ -1,0 +1,23 @@
+# studio ()
+# Moved from .github/workflows/device-machines-feature.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "studio ()"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+FEATURE_CACHE = "${{ vars.FEATURE_CACHE || '~/.cache/vieww-feature-runs' }}"
+
+[[step]]
+name = "Warm build directory"
+run = "bash ../ci/lib/warm-target.sh studio target"
+
+[[step]]
+name = "Studio release check (headless)"
+run = '''
+if [ "${{ inputs.depth }}" = full ]; then ci/vieww studio; else ci/vieww studio --quick; fi
+'''

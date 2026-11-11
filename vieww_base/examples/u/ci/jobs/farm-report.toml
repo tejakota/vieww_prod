@@ -1,0 +1,51 @@
+# Publish to ci-runs/device-farm-<branch>
+# Moved from .github/workflows/device-mobile-phone-farm.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Publish to ci-runs/device-farm-<branch>"
+
+[defaults]
+shell = "bash"
+working-directory = "."
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_VERSION = "1.98.1"
+AWS_REGION = "us-west-2"
+
+[[step]]
+name = "Push to ci-runs/device-farm-<branch>"
+env = { TOKEN = "${{ github.token }}", REPO = "${{ github.repository }}" }
+run = '''
+mkdir -p out
+find out -type f \( -name '*.png' -o -name '*.mp4' -o -name '*.zip' \) -delete
+# **Device logs are cut down to our own lines.** An iPhone's whole
+# syslog was 70-100 MB per phone on the first iOS run (2026-10-16),
+# past GitHub's 100 MB file limit, and the push was refused. Any
+# file over 5 MB keeps only the lines that mention vieww (the
+# app's own log and the suite's sentinels), capped at 20,000; the
+# full files stay in the run's artifacts.
+find out -type f -size +5M | while read -r big; do
+kept="$(grep -a -i 'vieww' "$big" | head -20000 || true)"
+{
+  echo "# cut by the report job: $(stat -c %s "$big") bytes in full, lines mentioning vieww only (first 20000)."
+  echo "# The whole file is in this run's artifacts."
+  printf '%s\n' "$kept"
+} > "$big.vieww.txt"
+rm -f "$big"
+done
+{
+  echo "profile: ${{ inputs.profile }}"
+  echo "apk: ${{ needs.farm-apk.result }} · phones: ${{ needs.farm-phones.result }} · ipa: ${{ needs.farm-ipa.result }} · iphones: ${{ needs.farm-iphones.result }}"
+  echo "run: ${GITHUB_SERVER_URL}/${REPO}/actions/runs/${GITHUB_RUN_ID} @ ${GITHUB_SHA}"
+} > out/RUN.txt
+branch="ci-runs/device-farm-${GITHUB_REF_NAME//\//-}"
+cd out
+git init -q
+git checkout -q -b "$branch"
+git config user.name "vieww-ci"
+git config user.email "vieww-ci@users.noreply.github.com"
+git add -A
+git commit -q -m "Device Farm results for ${GITHUB_SHA} (${GITHUB_REF_NAME})"
+git push -q -f "https://x-access-token:${TOKEN}@github.com/${REPO}.git" "HEAD:refs/heads/$branch"
+'''

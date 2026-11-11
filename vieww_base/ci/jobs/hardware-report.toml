@@ -1,0 +1,56 @@
+# Publish to ci-runs/hardware-<branch>
+# Moved from .github/workflows/device-machines-hardware.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Publish to ci-runs/hardware-<branch>"
+
+[[step]]
+name = "Keep the text, drop the pictures"
+run = '''
+# Neither machine may have produced anything (cancelled, or no
+# runner registered with these labels): still publish what happened.
+mkdir -p out
+find out -type f \( -name '*.png' -o -name '*.gif' -o -name '*.ppm' \) -delete
+{
+  echo "# Hardware run · ${GITHUB_REF_NAME} @ ${GITHUB_SHA}"
+  echo
+  echo "run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+  echo
+  echo "- linux: ${{ needs.hardware-linux.result }}"
+  echo "- windows: ${{ needs.hardware-windows.result }}"
+  echo "- macos: ${{ needs.hardware-macos.result }}"
+  if [ "${{ needs.hardware-linux.result }}" = cancelled ] || [ "${{ needs.hardware-windows.result }}" = cancelled ] ||
+     [ "${{ needs.hardware-macos.result }}" = cancelled ]; then
+    echo
+    echo "A cancelled machine usually means no self-hosted runner with its labels"
+    echo "(vieww-linux / vieww-windows / vieww-macos) was online: see docs/infra/SELF-HOSTED-SETUP.md."
+  fi
+  for machine in linux windows macos; do
+    f="out/hardware-$machine/summary.txt"
+    if [ -f "$f" ]; then
+      echo
+      echo "## $machine"
+      echo
+      echo '```'
+      cat "$f"
+      echo '```'
+    fi
+  done
+} > out/SUMMARY.md
+cat out/SUMMARY.md
+'''
+
+[[step]]
+name = "Push to ci-runs/hardware-<branch>"
+env = { TOKEN = "${{ github.token }}", REPO = "${{ github.repository }}" }
+run = '''
+branch="ci-runs/hardware-${GITHUB_REF_NAME//\//-}"
+cd out
+git init -q
+git checkout -q -b "$branch"
+git config user.name "vieww-ci"
+git config user.email "vieww-ci@users.noreply.github.com"
+git add -A
+git commit -q -m "Hardware results for ${GITHUB_SHA} (${GITHUB_REF_NAME})"
+git push -q -f "https://x-access-token:${TOKEN}@github.com/${REPO}.git" "HEAD:refs/heads/$branch"
+'''

@@ -1,7 +1,7 @@
 # Hardware runs
 
 Four scripts, one per kind of machine, each runnable by hand or by the
-`Hardware (self-hosted Linux and Windows)` workflow — `.github/workflows/device-machines-hardware.yml`
+**2 · Devices** workflow — vieww's `hardware-linux`, `hardware-windows`, `hardware-macos` jobs (`vieww_base/ci.toml`)
 at the repository root once placed; until a token with `workflow` scope
 pushes it, it waits in `.github/workflows-pending/` (`restore.sh device-machines-hardware.yml`):
 
@@ -12,7 +12,7 @@ pushes it, it waits in `.github/workflows-pending/` (`restore.sh device-machines
 | `macos.sh` | your Mac (Apple silicon or Intel), runner in the logged-in user's session | no | Metal suites on the real GPU, Vulkan through MoltenVK when installed, the `baseline` window and FW-15's idle gate, size (`otool -L`), stress p95 ×5, desktop suite, Core Audio (BlackHole loopback with `VIEWW_HW_AUDIO_LOOP=coreaudio`) — dispatch with `macos: true` |
 
 All three also have an `audio` step: vieww-audio on the machine's **real sound
-card** — what CI's virtual devices (`cloud-machines-audio-backends.yml`) cannot prove. It
+card** — what CI's virtual devices (vieww-audio's `backends-*` jobs) cannot prove. It
 lists devices and soaks the default output under full-core load (silent by
 default: `VIEWW_HW_AUDIO_GAIN=0` streams every frame without sound;
 `VIEWW_HW_AUDIO_SOAK=86400` makes it the 24-hour soak). Two optional

@@ -1,0 +1,109 @@
+# 4 · Release — run by hand: Actions → 4 · Release → Run workflow.
+#
+# Rehearse: the release gate's outstanding rows, supply chain and the crate
+# checks, on everything. Gate and build: the whole gate plus every build.
+# Publish: all of that, then publishing (crates.io, GitHub releases, site
+# deploys) after approval in the `release` environment. Run Publish from
+# the version tag (v1.2.3): crates and the gate's release publish only from
+# a tag, as before.
+#
+# What runs comes from the projects' ci.toml files (ci/README.md); this
+# file only holds the form. _plan reads it, _job runs the picked jobs in
+# up to three phases (a phase starts when the one before has finished),
+# _results files the run on the ci-results branch.
+name: "4 · Release"
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Mode"
+        type: choice
+        default: rehearse
+        options: ["rehearse", "gate and build", "publish"]
+      include_machines:
+        description: "Include my machines (the gate's self-hosted legs)"
+        type: boolean
+        default: false
+      version:
+        description: "Version"
+        type: string
+        default: "1.0.0"
+      prerelease:
+        description: "Mark the GitHub release a pre-release"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    uses: ./.github/workflows/_plan.yml
+    with:
+      workflow: release
+      form: ${{ toJSON(inputs) }}
+
+  phase-1:
+    needs: [plan]
+    if: ${{ needs.plan.result == 'success' && (needs.plan.outputs.p1 != '[]' || needs.plan.outputs.p1w != '[]') }}
+    uses: ./.github/workflows/_job.yml
+    secrets: inherit
+    permissions:
+      contents: write
+      actions: read
+      id-token: write
+      attestations: write
+    with:
+      jobs: ${{ needs.plan.outputs.p1 }}
+      write_jobs: ${{ needs.plan.outputs.p1w }}
+      approval: ${{ needs.plan.outputs.p1a == 'true' }}
+      vars: ${{ toJSON(vars) }}
+
+  phase-2:
+    needs: [plan, phase-1]
+    if: ${{ !cancelled() && needs.plan.result == 'success' && (needs.plan.outputs.p2 != '[]' || needs.plan.outputs.p2w != '[]') }}
+    uses: ./.github/workflows/_job.yml
+    secrets: inherit
+    permissions:
+      contents: write
+      actions: read
+      id-token: write
+      attestations: write
+    with:
+      jobs: ${{ needs.plan.outputs.p2 }}
+      write_jobs: ${{ needs.plan.outputs.p2w }}
+      approval: ${{ needs.plan.outputs.p2a == 'true' }}
+      vars: ${{ toJSON(vars) }}
+
+  phase-3:
+    needs: [plan, phase-2]
+    if: ${{ !cancelled() && needs.plan.result == 'success' && (needs.plan.outputs.p3 != '[]' || needs.plan.outputs.p3w != '[]') }}
+    uses: ./.github/workflows/_job.yml
+    secrets: inherit
+    permissions:
+      contents: write
+      actions: read
+      id-token: write
+      attestations: write
+    with:
+      jobs: ${{ needs.plan.outputs.p3 }}
+      write_jobs: ${{ needs.plan.outputs.p3w }}
+      approval: ${{ needs.plan.outputs.p3a == 'true' }}
+      vars: ${{ toJSON(vars) }}
+
+  results:
+    needs: [plan, phase-1, phase-2, phase-3]
+    if: ${{ always() && needs.plan.result != 'skipped' }}
+    uses: ./.github/workflows/_results.yml
+    permissions:
+      contents: write
+      actions: read
+    with:
+      run_id: ${{ github.run_id }}
+      workflow: ${{ github.workflow }}
+      conclusion: ${{ (contains(needs.*.result, 'failure') && 'failure') || (contains(needs.*.result, 'cancelled') && 'cancelled') || 'success' }}

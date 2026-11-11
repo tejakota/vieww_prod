@@ -1,0 +1,50 @@
+# Audio and music crates (tests + clippy)
+# Moved from .github/workflows/cloud-machines-audio-ci.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Audio and music crates (tests + clippy)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Toolchain"
+run = "rustup toolchain install \"$RUST_VERSION\" --profile minimal --component clippy"
+
+[[step]]
+name = "Tests (release)"
+run = "cargo test --release -p vieww-audio -p vieww-audio-plugin -p vieww-music"
+
+[[step]]
+name = "Clippy"
+run = "cargo clippy -p vieww-audio -p vieww-audio-plugin -p vieww-music --all-targets -- -D warnings"
+
+[[step]]
+name = "Real-time checks with a static std (AU-18)"
+env = { RUSTFLAGS = "-Cprefer-dynamic=no", CARGO_TARGET_DIR = "target/static" }
+run = '''
+cargo test -p vieww-audio --test realtime_attr
+cargo test --release -p vieww-audio --test realtime_no_alloc
+cargo test --release -p vieww-audio-plugin --test realtime_no_alloc
+cargo test --release -p vieww-music --test realtime_no_alloc
+'''
+
+[[step]]
+name = "Notation export, validated (MusicXML XSD, LilyPond)"
+run = '''
+sudo apt-get update -q
+sudo apt-get install -y -q --no-install-recommends lilypond libxml2-utils
+ci/check/notation.sh
+'''
+
+[[step]]
+name = "Without the AAC decoder (AU-07, the distributor opt-out)"
+run = '''
+cargo clippy -p vieww-audio --no-default-features --all-targets -- -D warnings
+cargo test --release -p vieww-audio --no-default-features --test aac_feature_off --test hostile_inputs
+'''

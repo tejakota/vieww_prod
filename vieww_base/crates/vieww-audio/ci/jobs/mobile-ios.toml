@@ -1,0 +1,45 @@
+# iOS bridge (macOS)
+# Moved from .github/workflows/cloud-mobile-audio.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "iOS bridge (macOS)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+CARGO_PROFILE_DEV_DEBUG = "0"
+CARGO_INCREMENTAL = "0"
+
+[[step]]
+name = "Toolchain and target"
+run = '''
+rustup show active-toolchain || rustup toolchain install
+rustup target add aarch64-apple-ios aarch64-apple-ios-sim
+'''
+
+[[step]]
+name = "Type-check and lint for iOS"
+run = "cargo clippy -p vieww-platform-winit --lib --target aarch64-apple-ios -- -D warnings"
+
+[[step]]
+name = "Link the iOS example (frameworks and extern statics resolve)"
+run = "cargo build -p vieww-platform-winit --example ios --target aarch64-apple-ios-sim"
+
+[[step]]
+name = "Background-audio plist opt-in lints"
+run = '''
+out="$RUNNER_TEMP/plist"
+mkdir -p "$out"
+cat > "$out/Info.plist" <<'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0"><dict>
+<key>UIBackgroundModes</key><array><string>audio</string></array>
+</dict></plist>
+PLIST
+plutil -lint "$out/Info.plist"
+ci/mobile/lint-background-audio.sh --plist "$out/Info.plist"
+'''

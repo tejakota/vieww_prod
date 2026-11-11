@@ -1,0 +1,30 @@
+# sbom
+# Moved from .github/workflows/cloud-machines-supply-chain.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "sbom"
+
+[defaults]
+working-directory = "vieww_base"
+
+[[step]]
+run = "rustup toolchain install"
+
+[[step]]
+name = "Generate"
+run = '''
+export SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
+mkdir -p target/sbom
+python3 ci/release/sbom.py --bin viewwstudio -o target/sbom/viewwstudio.cdx.json
+python3 ci/release/sbom.py -o target/sbom/vieww-workspace.cdx.json
+python3 ci/release/sbom.py --manifest apps/wright/Cargo.toml -o target/sbom/wright.cdx.json
+'''
+
+[[step]]
+name = "mark: upload sbom"
+if = "success()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

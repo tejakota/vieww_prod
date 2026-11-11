@@ -1,0 +1,41 @@
+# wright sandbox escape suite
+# Moved from .github/workflows/cloud-machines-quick.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "wright sandbox escape suite"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base/apps/wright"
+
+[[step]]
+name = "Rust toolchain"
+run = "rustup toolchain install"
+
+[[step]]
+name = "Sandbox capabilities on this runner"
+run = '''
+uname -r
+cat /sys/kernel/security/lsm || true
+sysctl kernel.apparmor_restrict_unprivileged_userns 2>/dev/null || true
+'''
+
+[[step]]
+name = "Tools + runtime tests (default path)"
+run = "cargo test -p wright-tools -p wright-runtime"
+
+[[step]]
+name = "The rest of wright (core, engine incl. WR-08/09/13 end-to-end, agents)"
+run = "cargo test --workspace --exclude wright-tools --exclude wright-runtime"
+
+[[step]]
+name = "Sandbox tests (no PID namespace)"
+env = { WRIGHT_SANDBOX_NO_PIDNS = "1" }
+run = "cargo test -p wright-tools --lib sandbox"
+
+[[step]]
+name = "Sandbox tests with user namespaces enabled"
+run = '''
+sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+cargo test -p wright-tools --lib sandbox
+'''

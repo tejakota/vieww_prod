@@ -1,0 +1,204 @@
+# Android APK (arm64)
+# Moved from .github/workflows/cloud-mobile-u-apk.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Android APK (arm64)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+CARGO_INCREMENTAL = "0"
+ANDROID_NDK_VERSION = "27.3.13750724"
+ANDROID_PLATFORM = "34"
+ANDROID_BUILD_TOOLS = "34.0.0"
+
+[[step]]
+name = "Rust toolchain"
+run = '''
+rustup show active-toolchain || rustup toolchain install
+rustup target add aarch64-linux-android
+rustc --version
+'''
+
+[[step]]
+name = "Configure Android SDK"
+run = '''
+set -e
+export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+# ANDROID_SDK_ROOT is deprecated (cargo-apk warns about it). Unset
+# it so only ANDROID_HOME is used.
+unset ANDROID_SDK_ROOT || true
+
+# The runner may keep sdkmanager under cmdline-tools/latest or
+# cmdline-tools/<version>.
+sdkmanager=""
+for candidate in \
+  "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+  "$ANDROID_HOME/cmdline-tools/16.0/bin/sdkmanager" \
+  "$ANDROID_HOME/cmdline-tools/12.0/bin/sdkmanager"; do
+  if [ -x "$candidate" ]; then
+    sdkmanager="$candidate"
+    break
+  fi
+done
+if [ -z "$sdkmanager" ]; then
+  echo "::error::No sdkmanager found under $ANDROID_HOME/cmdline-tools."
+  find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f 2>/dev/null || true
+  exit 1
+fi
+echo "Using sdkmanager: $sdkmanager"
+
+# Accept licenses non-interactively, then install only what this
+# build needs. Never the legacy `tools` package (see above).
+# android-34 matches the app's target_sdk_version; the platform
+# and build-tools come from the same line.
+yes | "$sdkmanager" --licenses >/dev/null 2>&1 || true
+"$sdkmanager" \
+  "platform-tools" \
+  "platforms;android-${ANDROID_PLATFORM}" \
+  "build-tools;${ANDROID_BUILD_TOOLS}" \
+  "ndk;${ANDROID_NDK_VERSION}"
+
+{
+  echo "ANDROID_HOME=$ANDROID_HOME"
+} >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "Install cargo-apk"
+run = "cargo install cargo-apk --locked"
+
+[[step]]
+name = "Resolve Android environment and signing key"
+env = { ANDROID_KEYSTORE = "${{ secrets.ANDROID_KEYSTORE }}", ANDROID_KEYSTORE_PASSWORD = "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}", ANDROID_KEY_ALIAS = "${{ secrets.ANDROID_KEY_ALIAS }}", ANDROID_KEY_PASSWORD = "${{ secrets.ANDROID_KEY_PASSWORD }}" }
+run = '''
+export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+export ANDROID_NDK_ROOT="$ANDROID_HOME/ndk/${ANDROID_NDK_VERSION}"
+export ANDROID_NDK_HOME="$ANDROID_NDK_ROOT"
+
+# cargo-apk refuses to guess a release keystore and dies with an
+# empty-path FileNotFoundException if none is set, so generate the
+# well-known debug one (alias androiddebugkey, password android)
+# with the keytool the JDK provides.
+keystore="$HOME/.android/debug.keystore"
+if [ ! -f "$keystore" ]; then
+  mkdir -p "$(dirname "$keystore")"
+  keytool -genkey -v \
+    -keystore "$keystore" \
+    -storepass android \
+    -alias androiddebugkey \
+    -keypass android \
+    -keyalg RSA \
+    -keysize 2048 \
+    -validity 10000 \
+    -dname "CN=Android Debug,O=Android,C=US"
+else
+  echo "Using existing debug keystore at $keystore"
+fi
+export CARGO_APK_RELEASE_KEYSTORE="$keystore"
+export CARGO_APK_RELEASE_KEYSTORE_PASSWORD="android"
+export CARGO_APK_RELEASE_KEY_ALIAS="androiddebugkey"
+export CARGO_APK_RELEASE_KEY_PASSWORD="android"
+
+# FW-06, same policy as the shipped apps: when the repository
+# carries a release keystore in secrets, sign with that instead.
+if [ -n "$ANDROID_KEYSTORE" ] && [ -n "$ANDROID_KEYSTORE_PASSWORD" ] && [ -n "$ANDROID_KEY_ALIAS" ]; then
+  echo "Using the release keystore from repository secrets"
+  umask 077
+  printf '%s' "$ANDROID_KEYSTORE" | base64 --decode > "$RUNNER_TEMP/release.jks"
+  export CARGO_APK_RELEASE_KEYSTORE="$RUNNER_TEMP/release.jks"
+  export CARGO_APK_RELEASE_KEYSTORE_PASSWORD="$ANDROID_KEYSTORE_PASSWORD"
+  export CARGO_APK_RELEASE_KEY_ALIAS="$ANDROID_KEY_ALIAS"
+  export CARGO_APK_RELEASE_KEY_PASSWORD="${ANDROID_KEY_PASSWORD:-$ANDROID_KEYSTORE_PASSWORD}"
+else
+  echo "::notice::No ANDROID_KEYSTORE secrets: the APK is debug-signed (fine for adb install; not for Play)"
+fi
+
+{
+  echo "ANDROID_HOME=$ANDROID_HOME"
+  echo "ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT"
+  echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME"
+  echo "CARGO_APK_RELEASE_KEYSTORE=$CARGO_APK_RELEASE_KEYSTORE"
+  echo "CARGO_APK_RELEASE_KEYSTORE_PASSWORD=$CARGO_APK_RELEASE_KEYSTORE_PASSWORD"
+  echo "CARGO_APK_RELEASE_KEY_ALIAS=$CARGO_APK_RELEASE_KEY_ALIAS"
+  echo "CARGO_APK_RELEASE_KEY_PASSWORD=$CARGO_APK_RELEASE_KEY_PASSWORD"
+} >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "Build the APK"
+run = "cargo apk build -p u --lib --release"
+
+[[step]]
+name = "Stage, verify and summarise the APK"
+run = '''
+set -e
+
+# cargo-apk's output path depends on how the target is chosen:
+# under target/<triple>/release/apk/ with an explicit --target
+# flag, under target/release/apk/ when it builds for the
+# [package.metadata.android] build_targets as it does here. So
+# search the whole target tree rather than guessing a layout.
+echo "APK files produced:"
+find target -type f -name '*.apk' -print || true
+
+apk="$(find target -type f -name '*.apk' | head -n 1)"
+if [ -z "$apk" ]; then
+  echo "::error::No APK was produced anywhere under target/"
+  exit 1
+fi
+
+stage="$RUNNER_TEMP/U-android"
+rm -rf "$stage"
+mkdir -p "$stage"
+cp "$apk" "$stage/U.apk"
+(cd "$stage" && sha256sum U.apk > SHA256SUMS)
+
+bt="$ANDROID_HOME/build-tools/$ANDROID_BUILD_TOOLS"
+"$bt/apksigner" verify --print-certs "$stage/U.apk" | tee "$stage/SIGNER.txt"
+"$bt/aapt2" dump badging "$stage/U.apk" | tee "$stage/BADGING.txt"
+
+# U is offline by design. If this fires, something in the tree
+# started demanding the network, and that is a prototype-ending
+# bug — fail rather than ship it.
+if grep -q 'android.permission.INTERNET' "$stage/BADGING.txt"; then
+  echo "::error::U requested android.permission.INTERNET — offline by design; this is a bug"
+  exit 1
+fi
+
+size="$(du -h "$stage/U.apk" | cut -f1)"
+sha="$(cut -d' ' -f1 "$stage/SHA256SUMS")"
+{
+  echo "## U APK"
+  echo ""
+  echo "* **U.apk** — ${size}, arm64-v8a, minSdk 24 / targetSdk 34, package \`dev.vieww.u\`"
+  echo "* sha256 \`${sha}\` — full digest in SHA256SUMS, signer in SIGNER.txt, manifest in BADGING.txt"
+  echo "* Download from this run's **Artifacts** (\`U-android-apk\`, kept 30 days), then \`adb install U.apk\`"
+} >> "$GITHUB_STEP_SUMMARY"
+ls -lah "$stage"
+'''
+
+[[step]]
+name = "mark: upload U-android-apk"
+if = "${{ always() }}"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "Clean up build memory"
+if = "always()"
+run = '''
+rm -rf target
+rm -rf "$HOME/.gradle/caches" "$HOME/.gradle/wrapper"
+rm -rf "$HOME/.cargo/registry/cache"
+rm -rf "$HOME/.cargo/registry/git/checkouts"
+rm -rf "$HOME/.android/build-cache" 2>/dev/null || true
+sync
+'''

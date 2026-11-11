@@ -1,0 +1,26 @@
+# Android (compile)
+# Moved from .github/workflows/shared-framework-checks.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Android (compile)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Toolchain and target"
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal --component clippy
+rustup target add --toolchain "$RUST_VERSION" aarch64-linux-android
+'''
+
+[[step]]
+name = "platform-check android"
+env = { ANDROID_NDK_HOME = "${{ env.ANDROID_NDK_LATEST_HOME }}" }
+run = "ci/check/platform-check.sh android"

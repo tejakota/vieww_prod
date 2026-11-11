@@ -1,0 +1,38 @@
+# Android and web
+# Moved from .github/workflows/cloud-machines-audio-backends.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Android and web"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Install Rust toolchain and targets"
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal --component clippy
+rustup default "$RUST_VERSION"
+rustup target add aarch64-linux-android wasm32-unknown-unknown
+'''
+
+[[step]]
+name = "AAudio (Android)"
+run = "cargo clippy -p vieww-audio --lib --target aarch64-linux-android -- -D warnings"
+
+[[step]]
+name = "Web Audio (wasm32)"
+run = '''
+cargo clippy -p vieww-audio --lib --target wasm32-unknown-unknown -- -D warnings
+# The Web MIDI backend is opt-in (feature web-midi); lint it too.
+cargo clippy -p vieww-audio --lib --target wasm32-unknown-unknown --features web-midi -- -D warnings
+'''
+
+[[step]]
+name = "Web Audio shim (Node, simulated browser)"
+run = "node crates/vieww-audio/web/test.mjs"

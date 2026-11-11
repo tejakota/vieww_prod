@@ -1,0 +1,85 @@
+# Linux (PipeWire, JACK, PulseAudio)
+# Moved from .github/workflows/cloud-machines-audio-backends.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Linux (PipeWire, JACK, PulseAudio)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Install Rust toolchain"
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal --component clippy
+rustup default "$RUST_VERSION"
+'''
+
+[[step]]
+name = "Install audio servers"
+run = '''
+sudo apt-get update -q
+sudo apt-get install -y -q jackd2 pulseaudio pipewire pipewire-bin wireplumber dbus-x11
+'''
+
+[[step]]
+name = "Start servers"
+run = '''
+export XDG_RUNTIME_DIR="$RUNNER_TEMP/xdg"
+mkdir -p "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
+echo "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" >> "$GITHUB_ENV"
+jackd -n vieww-ci -d dummy -r 48000 -p 256 > "$RUNNER_TEMP/jackd.log" 2>&1 &
+echo "JACK_DEFAULT_SERVER=vieww-ci" >> "$GITHUB_ENV"
+pulseaudio --daemonize=yes --exit-idle-time=-1 -n \
+  --load="module-null-sink sink_name=null" --load="module-native-protocol-unix"
+pipewire > "$RUNNER_TEMP/pipewire.log" 2>&1 &
+sleep 1
+dbus-run-session -- bash -c "wireplumber > $RUNNER_TEMP/wireplumber.log 2>&1 & sleep 7200" &
+sleep 3
+pw-cli create-node adapter '{ factory.name=support.null-audio-sink node.name=vieww-null media.class=Audio/Sink object.linger=true audio.position=[FL FR] }'
+sleep 1
+JACK_DEFAULT_SERVER=vieww-ci jack_lsp
+pactl info | grep -E "Server Name|Default Sink"
+pw-cli ls Node | grep node.name
+'''
+
+[[step]]
+name = "Backend tests against the running servers"
+env = { VIEWW_EXPECT_BACKENDS = "jack,pulse,pipewire" }
+run = "cargo test -p vieww-audio --lib backend::"
+
+[[step]]
+name = "Whole crate"
+run = '''
+cargo test -p vieww-audio
+cargo clippy -p vieww-audio --all-targets -- -D warnings
+'''
+
+[[step]]
+name = "Every platform's backend type-checks and lints here"
+env = { RUSTFLAGS = "--cfg vieww_check_all", CARGO_TARGET_DIR = "target/check-all" }
+run = '''
+cargo clippy -p vieww-audio --lib --tests -- -D warnings
+cargo test -p vieww-audio --lib backend::
+'''
+
+[[step]]
+name = "Live tests (load, hot-plug) and a PulseAudio loopback"
+env = { VIEWW_REQUIRE_LOOPBACK = "1", VIEWW_LOOP_BACKEND = "pulse" }
+run = '''
+cargo test --release -p vieww-audio --test live_backends -- --ignored --nocapture --test-threads=1
+# AU-01: the registered player (EnginePlayer) on the live server.
+cargo test --release -p vieww-audio --test player_smoke -- --ignored --nocapture
+pactl set-default-source null.monitor
+cargo test --release -p vieww-audio --test device_loopback default_device -- --ignored --nocapture
+'''
+
+[[step]]
+name = "Server logs"
+if = "failure()"
+run = "tail -n 50 \"$RUNNER_TEMP\"/*.log"

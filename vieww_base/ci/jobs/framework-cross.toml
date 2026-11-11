@@ -1,0 +1,22 @@
+# Type-check for macOS, iOS, Windows, Android (from Linux)
+# Moved from .github/workflows/shared-framework-checks.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Type-check for macOS, iOS, Windows, Android (from Linux)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Toolchain with std sources"
+run = "rustup toolchain install \"$RUST_VERSION\" --profile minimal --component rust-src"
+
+[[step]]
+name = "Cross type-check"
+run = "ci/check/cross-check.sh"

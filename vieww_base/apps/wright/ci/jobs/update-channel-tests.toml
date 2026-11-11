@@ -1,0 +1,25 @@
+# Update channel tests (WR-04)
+# Moved from .github/workflows/cloud-machines-wright-installers.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Update channel tests (WR-04)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base/apps/wright"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+VERSION = "${{ inputs.version }}"
+
+[[step]]
+name = "Rust toolchain (from rust-toolchain.toml)"
+working-directory = "vieww_base/apps/wright"
+run = "rustup show active-toolchain || rustup toolchain install"
+
+[[step]]
+name = "The signed-manifest suite"
+working-directory = "vieww_base/apps/wright"
+run = "cargo test -p wright-runtime update"

@@ -1,0 +1,49 @@
+# macOS (Core Audio through BlackHole, CoreMIDI virtual ports)
+# Moved from .github/workflows/cloud-machines-audio-backends.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "macOS (Core Audio through BlackHole, CoreMIDI virtual ports)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Install Rust toolchain"
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal
+rustup default "$RUST_VERSION"
+'''
+
+[[step]]
+name = "Install BlackHole and make it both defaults"
+run = '''
+brew install switchaudio-osx blackhole-2ch
+sudo kill -9 "$(pgrep coreaudiod)"
+sleep 10
+SwitchAudioSource -s "BlackHole 2ch" -t input
+SwitchAudioSource -s "BlackHole 2ch" -t output
+SwitchAudioSource -a
+'''
+
+[[step]]
+name = "Allow microphone access (capture)"
+run = "sqlite3 \"$HOME/Library/Application Support/com.apple.TCC/TCC.db\" \"INSERT OR IGNORE INTO access VALUES ('kTCCServiceMicrophone','/usr/local/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159,NULL,NULL,'UNUSED',1687786159);\""
+
+[[step]]
+name = "Devices list and open by UID"
+run = "cargo test --release -p vieww-audio --lib backend::coreaudio -- --nocapture"
+
+[[step]]
+name = "Loopback through BlackHole"
+env = { VIEWW_REQUIRE_LOOPBACK = "1", VIEWW_LOOP_BACKEND = "coreaudio", VIEWW_LOOP_ATTEMPTS = "3" }
+run = "cargo test --release -p vieww-audio --test device_loopback default_device -- --ignored --nocapture"
+
+[[step]]
+name = "CoreMIDI virtual endpoints round trip"
+run = "cargo test --release -p vieww-audio --test device_loopback coremidi -- --ignored --nocapture"

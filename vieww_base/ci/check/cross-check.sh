@@ -28,7 +28,7 @@
 # Every crate, test, example and bench compiles for that target, with rustc's
 # own warnings treated as errors. It does not mean anything links, runs, or
 # draws: that is `platform-check.sh` on the real machine and the workflow
-# legs in `.github/workflows/shared-framework-checks.yml` that run on GitHub's macOS
+# legs in `vieww_base/ci/jobs/framework-*.toml` (1 · Check) that run on GitHub's macOS
 # and Windows runners. Clippy is not run here — under `-Zbuild-std` it
 # reports `thread_local!` initialisers that are already `const` (a clippy
 # false positive specific to a from-source `std`), so the lint pass belongs on

@@ -1,0 +1,210 @@
+# ─────────────────────────────────────────────────────────────────────
+# Engine: the last job of every numbered workflow (1-check … 5-housekeeping)
+# calls this with its own run id once every phase has finished.
+# ─────────────────────────────────────────────────────────────────────
+
+# Every CI run's results, written to the branch `ci-results`, so anyone (or a
+# session that can `git fetch` but not call the GitHub API) can read them:
+#
+#   git fetch origin ci-results && git checkout FETCH_HEAD -- .   (or git show)
+#
+# Layout on the branch:
+#   LATEST.md                               newest run of every workflow × branch
+#   <workflow>/<branch>/latest/             the newest run (overwritten)
+#     SUMMARY.md                            conclusion, sha, every job + step verdict
+#     failed-logs.txt                       tail of each failed step's log
+#     errors.txt                            every error line in the full log, with context
+#   <workflow>/<branch>/runs/<run_id>/      SUMMARY.md (+ errors.txt) of every run
+#     artifacts/<name>/...                  text artifacts (md/txt/json/tsv/log/html, <2 MB each)
+#   <workflow>/<branch>/history.tsv         one line per run
+#
+# Called as the last job of every numbered workflow, once every phase of
+# that run has finished. They run only by hand,
+# from this repository's own branches, so nothing from a fork reaches it.
+# It reads the run through the API and writes only to `ci-results`.
+name: _results
+
+on:
+  workflow_call:
+    inputs:
+      run_id:
+        description: "The run to record (the caller's own run id)"
+        type: string
+      workflow:
+        description: "The workflow name the record is filed under"
+        type: string
+      conclusion:
+        description: "success | failure | cancelled, from the caller's phases"
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+# One writer at a time; runs queue rather than race on the branch.
+concurrency:
+  group: ci-results-writer
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      RUN_ID: ${{ inputs.run_id }}
+      WF: ${{ inputs.workflow }}
+      BRANCH: ${{ github.ref_name }}
+      SHA: ${{ github.sha }}
+      EVENT: ${{ github.event_name }}
+      CONCLUSION: ${{ inputs.conclusion }}
+      URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ inputs.run_id }}
+    steps:
+      - name: Collect the run
+        run: |
+          set -euo pipefail
+          slug() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9._-]+/-/g; s/^-+|-+$//g'; }
+          wf=$(slug "$WF"); br=$(slug "${BRANCH:-detached}")
+          out="$RUNNER_TEMP/out/$wf/$br/latest"
+          mkdir -p "$out/artifacts"
+          echo "WF_SLUG=$wf" >> "$GITHUB_ENV"; echo "BR_SLUG=$br" >> "$GITHUB_ENV"
+
+          gh api --paginate "repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100" > jobs.json
+          python3 - "$out/SUMMARY.md" <<'PY'
+          import json, os, sys
+          pages = [json.loads(l) for l in open("jobs.json").read().replace("}{", "}\n{").splitlines() if l.strip()]
+          jobs = [j for p in pages for j in p["jobs"]]
+          e = os.environ
+          icon = {"success": "PASS", "failure": "FAIL", "cancelled": "CANCELLED", "skipped": "skipped", None: "running"}
+          lines = [f"# {e['WF']} — {e['CONCLUSION'].upper()}", "",
+                   f"- branch: `{e['BRANCH']}`  sha: `{e['SHA']}`  event: {e['EVENT']}",
+                   f"- run: {e['URL']}", "",
+                   "| job | verdict | failed steps |", "|---|---|---|"]
+          for j in jobs:
+              bad = [s["name"] for s in j.get("steps", []) if s.get("conclusion") == "failure"]
+              lines.append(f"| {j['name']} | {icon.get(j['conclusion'], j['conclusion'])} | {'; '.join(bad)} |")
+          lines += ["", "## Steps", ""]
+          for j in jobs:
+              lines.append(f"### {j['name']} — {icon.get(j['conclusion'], j['conclusion'])}")
+              for s in j.get("steps", []):
+                  lines.append(f"- {icon.get(s.get('conclusion'), s.get('conclusion'))}: {s['name']}")
+              lines.append("")
+          open(sys.argv[1], "w").write("\n".join(lines) + "\n")
+          PY
+
+          # Failed steps' logs, last 300 lines each (the end is where errors are).
+          if [ "$CONCLUSION" != "success" ]; then
+            # The run is still going (this job is its last), so `gh run view
+            # --log-failed` would refuse; each failed job's log is final already.
+            python3 - > failed.log <<'PY' || true
+          import json, os, subprocess
+          pages = [json.loads(l) for l in open("jobs.json").read().replace("}{", "}\n{").splitlines() if l.strip()]
+          for j in (j for p in pages for j in p["jobs"]):
+              if j.get("conclusion") != "failure":
+                  continue
+              log = subprocess.run(["gh", "api", f"repos/{os.environ['REPO']}/actions/jobs/{j['id']}/logs"],
+                                   capture_output=True, text=True).stdout
+              for line in log.splitlines():
+                  print(f"{j['name']}\tlog\t{line}")
+          PY
+            python3 - "$out/failed-logs.txt" <<'PY'
+          import sys, collections
+          per = collections.OrderedDict()
+          for line in open("failed.log", errors="replace"):
+              parts = line.split("\t", 2)
+              key = "\t".join(parts[:2]) if len(parts) == 3 else "log"
+              per.setdefault(key, collections.deque(maxlen=300)).append(parts[-1])
+          with open(sys.argv[1], "w") as f:
+              for k, v in per.items():
+                  f.write(f"===== {k} =====\n"); f.writelines(v); f.write("\n")
+          # errors.txt: every error-looking line in the WHOLE failed log with
+          # 15 lines of context before and 5 after — a failure early in a
+          # long step (one fuzz target of eight) is not in the tail.
+          import re
+          pat = re.compile(r"(error(\[|:)|panicked at|FAILED|##\[error\]|==\d+==ERROR|SUMMARY: \w+Sanitizer|deadly signal|Test unit written|FUZZ-FINDING|^failures:|assertion .* failed)", re.I)
+          lines = open("failed.log", errors="replace").read().splitlines()
+          keep = set()
+          for i, l in enumerate(lines):
+              if pat.search(l):
+                  keep.update(range(max(0, i - 15), min(len(lines), i + 6)))
+          with open(sys.argv[1].replace("failed-logs.txt", "errors.txt"), "w") as f:
+              last = -2
+              for i in sorted(keep)[:4000]:
+                  if i != last + 1:
+                      f.write("-----\n")
+                  f.write(lines[i] + "\n")
+                  last = i
+          PY
+          fi
+
+          # Text artifacts (summaries, checklists, diff reports — not binaries).
+          gh api "repos/$REPO/actions/runs/$RUN_ID/artifacts?per_page=100" \
+            --jq '.artifacts[] | select(.expired|not) | select(.size_in_bytes < 200000000) | .name' > names.txt || true
+          while read -r name; do
+            [ -n "$name" ] || continue
+            tmp="$RUNNER_TEMP/a/$name"; mkdir -p "$tmp"
+            gh run download "$RUN_ID" -R "$REPO" -n "$name" -D "$tmp" 2>/dev/null || continue
+            (cd "$tmp" && find . -type f \( -name '*.md' -o -name '*.txt' -o -name '*.json' -o -name '*.tsv' \
+                -o -name '*.log' -o -name '*.html' -o -name 'SHA256SUMS' \) -size -2M -print) |
+              while read -r f; do mkdir -p "$out/artifacts/$name/$(dirname "$f")"; cp "$tmp/$f" "$out/artifacts/$name/$f"; done
+            # Fuzz findings / crash inputs are binary but tiny, and they are
+            # the only way to reproduce the failure: keep them whole.
+            case "$name" in
+              *finding*|*crash*|*repro*)
+                (cd "$tmp" && find . -type f -size -1M -print) |
+                  while read -r f; do mkdir -p "$out/artifacts/$name/$(dirname "$f")"; cp "$tmp/$f" "$out/artifacts/$name/$f"; done ;;
+            esac
+          done < names.txt
+          echo "- artifacts: $(tr '\n' ' ' < names.txt)" >> "$out/SUMMARY.md"
+
+      - uses: actions/checkout@v4
+        with:
+          path: results
+          fetch-depth: 1
+      - name: Write to the ci-results branch
+        working-directory: results
+        run: |
+          set -euo pipefail
+          git config user.name "ci-results"
+          git config user.email "ci-results@users.noreply.github.com"
+          write() {
+            dest="$WF_SLUG/$BR_SLUG"
+            rm -rf "$dest/latest"; mkdir -p "$dest"
+            cp -R "$RUNNER_TEMP/out/$dest/latest" "$dest/latest"
+            printf '%s\t%s\t%s\t%s\t%s\n' "$(date -u +%FT%TZ)" "$CONCLUSION" "${SHA:0:12}" "$EVENT" "$URL" >> "$dest/history.tsv"
+            # Every run's summary and error extract stay, not only the latest.
+            mkdir -p "$dest/runs/$RUN_ID"
+            cp "$dest/latest/SUMMARY.md" "$dest/runs/$RUN_ID/"
+            [ -f "$dest/latest/errors.txt" ] && cp "$dest/latest/errors.txt" "$dest/runs/$RUN_ID/"
+            # LATEST.md: one row per workflow x branch, newest first.
+            {
+              echo "# Latest CI results"; echo
+              echo "| when (UTC) | workflow / branch | verdict | sha | details |"; echo "|---|---|---|---|---|"
+              for h in */*/history.tsv; do
+                IFS=$'\t' read -r when concl sha _ url < <(tail -1 "$h")
+                d=$(dirname "$h")
+                printf '%s\t| %s | %s | %s | `%s` | [summary](%s/latest/SUMMARY.md) / [run](%s) |\n' "$when" "$when" "$d" "${concl^^}" "$sha" "$d" "$url"
+              done | sort -r | cut -f2-
+            } > LATEST.md
+            git add -A
+            git commit -qm "$WF ($BRANCH @ ${SHA:0:12}): $CONCLUSION"
+          }
+          # Each attempt starts from the branch's current tip and rewrites,
+          # so a concurrent writer never needs a merge.
+          for _ in 1 2 3 4 5; do
+            if git ls-remote --exit-code origin ci-results >/dev/null; then
+              git fetch -q --depth 1 origin ci-results
+              git checkout -q -f -B ci-results FETCH_HEAD
+              git clean -fdxq
+            else
+              git checkout -q --orphan ci-results
+              git rm -rq --cached . >/dev/null 2>&1 || true
+              git clean -fdxq
+              printf '# CI results\n\nWritten by .github/workflows/shared-results.yml. Start at LATEST.md.\n' > README.md
+            fi
+            write
+            if git push -q origin HEAD:ci-results; then exit 0; fi
+            sleep 5
+          done
+          echo "could not push to ci-results" >&2; exit 1

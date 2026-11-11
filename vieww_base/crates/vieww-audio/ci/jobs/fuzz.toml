@@ -1,0 +1,65 @@
+# Audio decoders under cargo-fuzz (nightly, blocking)
+# Moved from .github/workflows/cloud-machines-audio-ci.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Audio decoders under cargo-fuzz (nightly, blocking)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base/crates/vieww-audio"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_VERSION = "1.98.1"
+FUZZ_SECONDS = "180"
+
+[[step]]
+name = "Nightly and cargo-fuzz"
+run = '''
+rustup toolchain install nightly --profile minimal
+cargo +nightly install cargo-fuzz --locked
+'''
+
+[[step]]
+name = "Seed each target's corpus"
+run = '''
+for t in $(cargo +nightly fuzz list); do
+  mkdir -p "fuzz/corpus/$t"
+  cp tests/fixtures/*.{wav,flac,mp3,ogg,aac,m4a,aiff} "fuzz/corpus/$t/" 2>/dev/null || true
+  cp tests/hostile/*.bin "fuzz/corpus/$t/"
+done
+'''
+
+[[step]]
+name = "Fuzz every target"
+run = '''
+status=0
+for t in $(cargo +nightly fuzz list); do
+  echo "::group::$t"
+  if ! cargo +nightly fuzz run "$t" "fuzz/corpus/$t" -s none -- \
+    -max_total_time="$FUZZ_SECONDS" -rss_limit_mb=2048 -timeout=20; then
+    status=1
+    echo "::endgroup::"
+    echo "::error::fuzz target $t failed"
+    # The input that failed, in the log too (it is also uploaded):
+    # small enough to rebuild with xxd -r if the artifact expires.
+    for f in fuzz/artifacts/"$t"/*; do
+      [ -f "$f" ] || continue
+      echo "FUZZ-FINDING $t $(basename "$f") $(wc -c < "$f") bytes"
+      xxd "$f" | head -n 256
+    done
+    continue
+  fi
+  echo "::endgroup::"
+done
+exit $status
+'''
+
+[[step]]
+name = "mark: upload audio-fuzz-findings"
+if = "failure()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

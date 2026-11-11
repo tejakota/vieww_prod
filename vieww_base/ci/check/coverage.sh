@@ -7,7 +7,7 @@
 # # The exclusions, and why each one
 #
 # The tested set matches the `checks` job in
-# `.github/workflows/shared-framework-checks.yml` (through its `ci/check/checks.sh`
+# `vieww_base/ci/jobs/framework-*.toml` (1 · Check) (through its `ci/check/checks.sh`
 # stage, which runs `cargo test --workspace --features vieww-paint/native`)
 # exactly, and for that job's reasons rather than for coverage's:
 #

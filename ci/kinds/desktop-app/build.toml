@@ -1,0 +1,42 @@
+# The default release build for a desktop app: `cargo build --release`
+# on the platform's runner, and its binaries in target/ci-dist/ for the
+# artifact.
+
+name = "release build"
+
+[defaults]
+shell = "bash"
+working-directory = "${{ matrix.workspace }}"
+
+[env]
+CARGO_TERM_COLOR = "always"
+
+[[step]]
+name = "Rust toolchain"
+run = '''
+rustup show active-toolchain || rustup toolchain install
+'''
+
+[[step]]
+name = "Linux build libraries"
+if = "runner.os == 'Linux'"
+run = '''
+sudo apt-get update -qq
+sudo apt-get install -y -qq libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev libxrandr-dev libxi-dev libvulkan-dev pkg-config >/dev/null
+'''
+
+[[step]]
+name = "cargo build --release -p ${{ matrix.package }}"
+run = '''
+cargo build --release -p "${{ matrix.package }}" --message-format=json-render-diagnostics > target/ci-build.json
+mkdir -p target/ci-dist
+# Every binary the package produced (bins and examples are not shipped).
+python3 - <<'PY'
+import json, shutil
+for line in open("target/ci-build.json"):
+    m = json.loads(line)
+    if m.get("reason") == "compiler-artifact" and m.get("executable") and "bin" in m["target"]["kind"]:
+        shutil.copy2(m["executable"], "target/ci-dist/")
+        print("dist:", m["executable"])
+PY
+'''

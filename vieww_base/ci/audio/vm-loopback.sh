@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ALSA and MIDI through the kernel's own loopback devices, in a VM on a
-# stock kernel (cloud-machines-audio-backends.yml's linux-alsa-loopback leg).
+# stock kernel (vieww-audio's `backends-linux-alsa-loopback` job).
 #
 # Why a VM: GitHub's Azure runners run a kernel built without sound
 # support — there is no snd-aloop, snd-seq or snd-virtmidi to load, in

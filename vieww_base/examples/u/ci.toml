@@ -1,0 +1,156 @@
+# CI manifest: what this project is and what CI runs for it.
+# ci/README.md explains every field; `ci/projects check` validates it.
+
+name = "U"
+kind = "mobile-app"
+platforms = ["android"]
+uses = ["vieww"]
+# U builds through its own jobs below, not the kind's android/ios builds.
+kind_jobs = false
+
+[[job]]
+id = "apk"
+title = "Android APK (arm64)"
+file = "ci/jobs/apk.toml"
+stage = "build"
+runs_on = "ubuntu-latest"
+platforms = ["android"]
+timeout = 90
+secrets = ["ANDROID_KEYSTORE", "ANDROID_KEYSTORE_PASSWORD", "ANDROID_KEY_ALIAS", "ANDROID_KEY_PASSWORD"]
+checkout = { persist-credentials = false, fetch-depth = 1 }
+[[job.setup]]
+uses = "java"
+with = { distribution = "temurin", java-version = "17" }
+[[job.upload]]
+name = "U-android-apk"
+path = "${{ runner.temp }}/U-android/"
+if-no-files-found = "error"
+retention-days = 30
+
+[[job]]
+id = "models"
+title = "Real weights, real decisions"
+file = "ci/jobs/models.toml"
+stage = "housekeeping"
+task = "models"
+runs_on = "ubuntu-22.04"
+timeout = 90
+checkout = { fetch-depth = 1 }
+
+[[job]]
+id = "farm-apk"
+title = "Build the arm64 APK"
+file = "ci/jobs/farm-apk.toml"
+stage = "devices"
+when = "farm.android"
+if = "inputs.platform != 'ios'"
+runs_on = "ubuntu-24.04"
+timeout = 60
+main_only = true
+inputs = { platform = "{farm.platform}", profile = "dist", devices = "", count = "3", tiers = "{farm.tiers}", video = "{form.video}" }
+[[job.setup]]
+uses = "rust-cache"
+with = { workspaces = "vieww_base -> target" }
+[[job.setup]]
+uses = "tools"
+with = { tool = "cargo-apk" }
+[[job.upload]]
+name = "vieww-devicefarm-apk"
+path = "dist/vieww-devicefarm.apk"
+
+[[job]]
+id = "farm-phones"
+title = "Device suite on Device Farm phones"
+file = "ci/jobs/farm-phones.toml"
+stage = "devices"
+phase = 2
+needs = ["farm-apk"]
+when = "farm.android"
+if = "inputs.platform != 'ios'"
+runs_on = "ubuntu-24.04"
+timeout = 150
+id_token = true
+secrets = ["AWS_ACCESS_KEY_ID", "AWS_ROLE_ARN", "AWS_SECRET_ACCESS_KEY", "DEVICE_FARM_PROJECT_ARN"]
+inputs = { platform = "{farm.platform}", profile = "dist", devices = "", count = "3", tiers = "{farm.tiers}", video = "{form.video}" }
+[[job.setup]]
+uses = "aws"
+with = { aws-region = "${{ env.AWS_REGION }}" }
+[[job.setup]]
+uses = "aws"
+with = { aws-region = "${{ env.AWS_REGION }}" }
+[[job.upload]]
+name = "device-farm-results"
+path = "${{ runner.temp }}/device-farm"
+if-no-files-found = "warn"
+[[job.download]]
+name = "vieww-devicefarm-apk"
+path = "dist"
+
+[[job]]
+id = "farm-ipa"
+title = "Build the iOS .ipa"
+file = "ci/jobs/farm-ipa.toml"
+stage = "devices"
+when = "farm.ios"
+if = "inputs.platform != 'android'"
+runs_on = "macos-14"
+timeout = 90
+main_only = true
+secrets = ["IOS_CERT_P12", "IOS_CERT_PASSWORD", "IOS_IDENTITY", "IOS_PROFILE"]
+inputs = { platform = "{farm.platform}", profile = "dist", devices = "", count = "3", tiers = "{farm.tiers}", video = "{form.video}" }
+[[job.setup]]
+uses = "rust-cache"
+with = { workspaces = "vieww_base -> target" }
+[[job.upload]]
+name = "vieww-devicefarm-ipa"
+path = "dist/vieww.ipa"
+
+[[job]]
+id = "farm-iphones"
+title = "Device suite on Device Farm iPhones"
+file = "ci/jobs/farm-iphones.toml"
+stage = "devices"
+phase = 2
+needs = ["farm-ipa"]
+when = "farm.ios"
+if = "inputs.platform != 'android'"
+runs_on = "ubuntu-24.04"
+timeout = 150
+id_token = true
+secrets = ["AWS_ACCESS_KEY_ID", "AWS_ROLE_ARN", "AWS_SECRET_ACCESS_KEY", "DEVICE_FARM_PROJECT_ARN"]
+inputs = { platform = "{farm.platform}", profile = "dist", devices = "", count = "3", tiers = "{farm.tiers}", video = "{form.video}" }
+[[job.setup]]
+uses = "aws"
+with = { aws-region = "${{ env.AWS_REGION }}" }
+[[job.setup]]
+uses = "aws"
+with = { aws-region = "${{ env.AWS_REGION }}" }
+[[job.upload]]
+name = "device-farm-ios-results"
+path = "${{ runner.temp }}/device-farm-ios"
+if-no-files-found = "warn"
+[[job.download]]
+name = "vieww-devicefarm-ipa"
+path = "dist"
+
+[[job]]
+id = "farm-report"
+title = "Publish to ci-runs/device-farm-<branch>"
+file = "ci/jobs/farm-report.toml"
+stage = "devices"
+phase = 3
+needs = ["farm-apk", "farm-phones", "farm-ipa", "farm-iphones"]
+when = "farm.any"
+if = "always() && github.ref == 'refs/heads/main'"
+runs_on = "ubuntu-24.04"
+timeout = 15
+write = true
+inputs = { platform = "{farm.platform}", profile = "dist", devices = "", count = "3", tiers = "{farm.tiers}", video = "{form.video}" }
+[[job.download]]
+name = "device-farm-results"
+path = "out/android"
+continue-on-error = true
+[[job.download]]
+name = "device-farm-ios-results"
+path = "out/ios"
+continue-on-error = true

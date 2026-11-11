@@ -1,7 +1,7 @@
 # AWS Device Farm
 
 The on-device suite (`ci/mobile/device-suite.sh`) on real phones in Device
-Farm, from the manual-only workflow `.github/workflows/device-mobile-phone-farm.yml`
+Farm, from the manual-only workflow **2 · Devices** (U's `farm-*` jobs in `vieww_base/examples/u/ci.toml`)
 (pending placement: `.github/workflows-pending/`).
 
 | File | Runs where | Does |

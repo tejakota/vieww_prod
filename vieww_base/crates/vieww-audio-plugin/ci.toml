@@ -1,0 +1,20 @@
+# CI manifest: what this project is and what CI runs for it.
+# ci/README.md explains every field; `ci/projects check` validates it.
+
+name = "vieww-audio-plugin"
+kind = "library"
+uses = ["vieww-audio"]
+
+[[job]]
+id = "plugins"
+title = "Plugins"
+file = "ci/jobs/plugins.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "${{ matrix.os }}"
+matrix = { os = ["ubuntu-latest", "ubuntu-24.04-arm", "macos-latest", "windows-latest"] }
+timeout = 90
+[[job.upload]]
+name = "vieww-plugins-${{ matrix.os }}"
+path = "vieww_base/target/plugins/bundles"
+if-no-files-found = "ignore"

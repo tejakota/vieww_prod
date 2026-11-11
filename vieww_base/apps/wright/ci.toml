@@ -1,0 +1,152 @@
+# CI manifest: what this project is and what CI runs for it.
+# ci/README.md explains every field; `ci/projects check` validates it.
+
+name = "wright"
+kind = "desktop-app"
+platforms = ["linux", "macos", "windows"]
+uses = ["vieww"]
+
+[[job]]
+id = "sandbox-quick"
+title = "wright sandbox escape suite"
+file = "ci/jobs/sandbox-quick.toml"
+stage = "check"
+depth = "quick"
+runs_on = "ubuntu-latest"
+timeout = 30
+checkout = { persist-credentials = false }
+[[job.setup]]
+uses = "rust-cache"
+with = { workspaces = "vieww_base/apps/wright" }
+
+[[job]]
+id = "installers"
+title = "build"
+file = "ci/jobs/installers.toml"
+stage = "build"
+runs_on = "${{ matrix.os }}"
+platforms_from = "matrix.name"
+matrix = { include = [{ name = "windows-x64", os = "windows-2022" }, { name = "macos-universal", os = "macos-14" }, { name = "linux-x64", os = "ubuntu-22.04" }] }
+timeout = 120
+secrets = ["WRIGHT_SECRET_MACOS_NOTARY_KEY", "WRIGHT_SECRET_MACOS_NOTARY_KEY_ID", "WRIGHT_SECRET_MACOS_P12", "WRIGHT_SECRET_MACOS_P12_PASSWORD", "WRIGHT_SECRET_MACOS_SIGNING_IDENTITY", "WRIGHT_SECRET_MACOS_TEAM_ID", "WRIGHT_SECRET_WINDOWS_PFX", "WRIGHT_SECRET_WINDOWS_PFX_PASSWORD"]
+inputs = { version = "{form.version}", publish = "{release.publish}", prerelease = "{form.prerelease}" }
+checkout = { fetch-depth = 1 }
+[[job.setup]]
+uses = "cache"
+with = { path = '''
+~/.cargo/registry/index
+~/.cargo/registry/cache
+~/.cargo/git/db
+vieww_base/apps/wright/target
+''', key = "wright-${{ matrix.name }}-${{ env.RUST_VERSION }}-${{ hashFiles('vieww_base/apps/wright/Cargo.lock') }}", restore-keys = "wright-${{ matrix.name }}-${{ env.RUST_VERSION }}-" }
+[[job.upload]]
+name = "wright-${{ env.VERSION }}-${{ matrix.name }}"
+path = "release/*"
+if-no-files-found = "error"
+[[job.upload]]
+name = "screens-${{ matrix.name }}"
+path = "${{ runner.temp }}/screens"
+
+[[job]]
+id = "installers-release"
+title = "Publish release"
+file = "ci/jobs/installers-release.toml"
+stage = "publish"
+phase = 2
+needs = ["installers"]
+if = "inputs.publish"
+runs_on = "ubuntu-22.04"
+write = true
+secrets = ["WRIGHT_SECRET_MACOS_P12", "WRIGHT_SECRET_WINDOWS_PFX", "WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING"]
+inputs = { version = "{form.version}", publish = true, prerelease = "{form.prerelease}" }
+checkout = { fetch-depth = 1, sparse-checkout = "vieww_base/apps/wright" }
+[[job.download]]
+pattern = "wright-${{ env.VERSION }}-*"
+path = "release"
+merge-multiple = true
+
+[[job]]
+id = "update-channel-tests"
+title = "Update channel tests (WR-04)"
+file = "ci/jobs/update-channel-tests.toml"
+stage = "check"
+also = ["release"]
+depth = "thorough"
+runs_on = "ubuntu-22.04"
+checkout = { sparse-checkout = "vieww_base/apps/wright" }
+
+[[job]]
+id = "models-reference"
+title = "Against llama.cpp and whisper.cpp"
+file = "ci/jobs/models-reference.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-22.04"
+timeout = 90
+checkout = { fetch-depth = 1 }
+[[job.setup]]
+uses = "cache"
+with = { path = "${{ runner.temp }}/ref", key = "wright-refs-${{ hashFiles('vieww_base/apps/wright/scripts/models/references.sh') }}" }
+
+[[job]]
+id = "models-platforms"
+title = "Real models on"
+file = "ci/jobs/models-platforms.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "${{ matrix.os }}"
+matrix = { include = [{ name = "windows-x64", os = "windows-2022" }, { name = "macos-arm64", os = "macos-14" }, { name = "linux-x64", os = "ubuntu-22.04" }] }
+timeout = 90
+checkout = { fetch-depth = 1 }
+
+[[job]]
+id = "sandbox-linux-escape-suite"
+title = "Linux — full escape suite (Landlock + seccomp)"
+file = "ci/jobs/sandbox-linux-escape-suite.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-24.04"
+inputs = { profile = "debug" }
+
+[[job]]
+id = "sandbox-macos-seatbelt-suite"
+title = "macOS — Seatbelt suite (WR-03)"
+file = "ci/jobs/sandbox-macos-seatbelt-suite.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "macos-14"
+inputs = { profile = "debug" }
+
+[[job]]
+id = "sandbox-windows-fail-closed"
+title = "Windows — probe fail-closed (no WSL on the runner)"
+file = "ci/jobs/sandbox-windows-fail-closed.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "windows-2022"
+inputs = { profile = "debug" }
+
+[[job]]
+id = "sandbox-windows-doctor-fix"
+title = "Windows — doctor --fix machinery + degraded tiers (WR-14)"
+file = "ci/jobs/sandbox-windows-doctor-fix.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "windows-2022"
+inputs = { profile = "debug" }
+
+[[job]]
+id = "machine"
+title = "wright ()"
+file = "ci/jobs/machine.toml"
+stage = "check"
+where = "machine"
+runs_on = "machine"
+timeout = 120
+inputs = { depth = "{form.machine_depth}" }
+checkout = { persist-credentials = false }
+[[job.upload]]
+name = "wright-snapshots"
+path = "wright-snapshots/"
+if-no-files-found = "ignore"
+retention-days = 14

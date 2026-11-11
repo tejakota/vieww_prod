@@ -1,0 +1,35 @@
+# Jobs every desktop app gets for each stage its ci.toml defines no jobs
+# for (or none, with kind_jobs = false): a check on Linux and a release
+# build on each of the app's platforms.
+description = "A windowed app for Linux, macOS and/or Windows."
+
+[[job]]
+id = "check"
+title = "clippy and tests"
+file = "ci/kinds/library/check.toml"
+row = { package = "{package}", workspace = "{workspace}" }
+stage = "check"
+depth = "quick"
+runs_on = "ubuntu-24.04"
+timeout = 45
+checkout = { persist-credentials = false }
+[[job.setup]]
+uses = "rust-cache"
+with = { workspaces = "{workspace}" }
+
+[[job]]
+id = "build"
+title = "release build"
+file = "ci/kinds/desktop-app/build.toml"
+row = { package = "{package}", workspace = "{workspace}", platform = "{platform}" }
+per_platform = { linux = "ubuntu-24.04", macos = "macos-14", windows = "windows-2022" }
+stage = "build"
+timeout = 60
+checkout = { persist-credentials = false }
+[[job.setup]]
+uses = "rust-cache"
+with = { workspaces = "{workspace}" }
+[[job.upload]]
+name = "{name}-{platform}"
+path = "{workspace}/target/ci-dist/"
+if-no-files-found = "error"

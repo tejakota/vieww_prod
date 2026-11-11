@@ -1,0 +1,22 @@
+# Plugin compatibility matrix (FW-17)
+# Moved from .github/workflows/shared-framework-checks.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Plugin compatibility matrix (FW-17)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Toolchain"
+run = "rustup toolchain install \"$RUST_VERSION\" --profile minimal --component clippy"
+
+[[step]]
+name = "The matrix (path deps, current host, last published)"
+run = "ci/check/plugin-compat.sh"

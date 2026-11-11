@@ -1,0 +1,68 @@
+# iOS simulator (tests in the sim, a frame on its screen)
+# Moved from .github/workflows/shared-framework-checks.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "iOS simulator (tests in the sim, a frame on its screen)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Toolchain and simulator target"
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal
+rustup target add --toolchain "$RUST_VERSION" aarch64-apple-ios-sim aarch64-apple-ios
+'''
+
+[[step]]
+name = "Boot a simulator"
+run = '''
+udid=$(xcrun simctl list devices available -j \
+  | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for r,v in d.items() if 'iOS' in r for x in v if 'iPhone' in x['name']))")
+xcrun simctl boot "$udid" || true
+xcrun simctl bootstatus "$udid" -b
+echo "VIEWW_SIM_DEVICE=$udid" >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "Unit tests inside the simulator (simctl-runner)"
+run = "cargo test -p vieww-foundation -p vieww-text --target aarch64-apple-ios-sim"
+
+[[step]]
+name = "The ios example on the simulator's screen"
+run = "ci/mobile/ios-app.sh --sim"
+
+[[step]]
+name = "XCUITest accessibility suite (generated project, FW-10)"
+run = '''
+brew install xcodegen
+ci/mobile/a11y-ios.sh --xcuitest
+'''
+
+[[step]]
+name = "Maestro flows on the simulator (ci/mobile/maestro/)"
+run = "ci/mobile/maestro.sh ios"
+
+[[step]]
+name = "Screenshot"
+if = "always()"
+run = '''
+sleep 5
+mkdir -p ../ci-artifacts
+xcrun simctl io booted screenshot ../ci-artifacts/ios-simulator.png || true
+'''
+
+[[step]]
+name = "mark: upload ios-simulator"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

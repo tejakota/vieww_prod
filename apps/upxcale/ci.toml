@@ -1,0 +1,11 @@
+# CI manifest: what this project is and what CI runs for it.
+# ci/README.md explains every field; `ci/projects check` validates it.
+
+name = "upxcale"
+kind = "mobile-app"
+platforms = ["android", "ios"]
+uses = ["vieww"]
+
+[build]
+android = { package = "upxcale", apk = "upxcale" }
+ios = { package = "upxcale", bundle_id = "dev.upxcale.app", binary = "upxcale" }

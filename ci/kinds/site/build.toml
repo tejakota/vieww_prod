@@ -1,0 +1,31 @@
+# Build a site with its build-site.sh into <site>/dist/, the folder the
+# deploy job publishes.
+
+name = "build the site"
+
+[defaults]
+shell = "bash"
+working-directory = "${{ matrix.workspace }}"
+
+[env]
+CARGO_TERM_COLOR = "always"
+VIEWW_REPO = "${{ github.repository }}"
+
+[[step]]
+name = "Rust toolchain and the wasm target"
+run = '''
+rustup show active-toolchain || rustup toolchain install
+rustup target add wasm32-unknown-unknown
+'''
+
+[[step]]
+name = "${{ matrix.script }}"
+run = '''
+"${{ matrix.dir }}/${{ matrix.script }}" "${{ matrix.dir }}/dist"
+ls -la "${{ matrix.dir }}/dist"
+{
+  echo "### ${{ matrix.site }}"
+  echo
+  echo "Built \`${{ matrix.dir }}/dist\` ($(du -sh "${{ matrix.dir }}/dist" | cut -f1)); artifact \`site-${{ matrix.site }}\`."
+} >> "$GITHUB_STEP_SUMMARY"
+'''

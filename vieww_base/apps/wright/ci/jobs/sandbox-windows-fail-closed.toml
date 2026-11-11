@@ -1,0 +1,38 @@
+# Windows — probe fail-closed (no WSL on the runner)
+# Moved from .github/workflows/cloud-machines-wright-sandbox.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Windows — probe fail-closed (no WSL on the runner)"
+
+[defaults]
+shell = "bash"
+
+[[step]]
+name = "Rust toolchain"
+working-directory = "vieww_base/apps/wright"
+run = "rustup show active-toolchain || rustup toolchain install"
+
+[[step]]
+name = "Sandbox refuses cleanly without WSL2"
+working-directory = "vieww_base/apps/wright"
+run = "cargo test -p wright-tools --lib sandbox_windows -- --ignored --test-threads=1 || cargo test -p wright-tools --lib sandbox"
+
+[[step]]
+name = "Credential Manager round trip (WR-06)"
+working-directory = "vieww_base/apps/wright"
+run = "cargo test -p wright-runtime wincred -- --test-threads=1"
+
+[[step]]
+name = "Worker Job objects (WR-05) — tree killed with the job, process cap"
+working-directory = "vieww_base/apps/wright"
+run = "cargo test -p wright-tools winjob -- --test-threads=1"
+
+[[step]]
+name = "Worker AppContainer (WR-05 tier 2) — escape suite, env, timeout"
+working-directory = "vieww_base/apps/wright"
+run = "cargo test -p wright-tools appcontainer -- --test-threads=1"
+
+[[step]]
+name = "Worker tier report (WR-05) — .cmd shims say tier 1, never silently unsandboxed"
+working-directory = "vieww_base/apps/wright"
+run = "cargo test -p wright-tools worker -- --test-threads=1"

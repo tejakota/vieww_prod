@@ -1,0 +1,47 @@
+# Windows — doctor --fix machinery + degraded tiers (WR-14)
+# Moved from .github/workflows/cloud-machines-wright-sandbox.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Windows — doctor --fix machinery + degraded tiers (WR-14)"
+
+[defaults]
+shell = "bash"
+
+[[step]]
+name = "Rust toolchain"
+working-directory = "vieww_base/apps/wright"
+run = "rustup show active-toolchain || rustup toolchain install"
+
+[[step]]
+name = "The fix plan, matrix and script pin (WR-14a/c)"
+working-directory = "vieww_base/apps/wright"
+run = "cargo test -p wright-tools --lib setup -- --test-threads=1"
+
+[[step]]
+name = "The degraded native tiers (WR-14b) — resolution + vocabulary"
+working-directory = "vieww_base/apps/wright"
+run = "cargo test -p wright-tools --lib degraded -- --test-threads=1"
+
+[[step]]
+name = "The bootstrap script parses under Windows PowerShell"
+shell = "powershell"
+working-directory = "vieww_base/apps/wright/packaging/windows"
+run = '''
+$tokens = $null; $errors = $null
+[System.Management.Automation.Language.Parser]::ParseFile(
+    (Resolve-Path './bootstrap-wsl.ps1'), [ref]$tokens, [ref]$errors) | Out-Null
+if ($errors.Count -ne 0) {
+  $errors | ForEach-Object { Write-Host ("parse error: " + $_.Message) }
+  exit 1
+}
+Write-Host 'bootstrap-wsl.ps1 parses cleanly'
+'''
+
+[[step]]
+name = "doctor prints the isolation matrix (WR-14c)"
+working-directory = "vieww_base/apps/wright"
+run = '''
+cargo run -q -p wright -- doctor > doctor.txt || true
+grep -c 'isolation matrix' doctor.txt
+grep -E 'shell|git|run-tests' doctor.txt | head -5
+'''

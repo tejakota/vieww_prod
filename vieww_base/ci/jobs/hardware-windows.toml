@@ -1,0 +1,28 @@
+# Windows hardware
+# Moved from .github/workflows/device-machines-hardware.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Windows hardware"
+
+[defaults]
+shell = "powershell"
+working-directory = "vieww_base"
+
+[[step]]
+name = "Hardware run"
+env = { STEPS = "${{ inputs.windows_steps || 'env,gpu,d3d12,gallery,baseline,size,pipelines,stress,desktop,remote,audio' }}", LAUNCHES = "${{ inputs.launches || '5' }}", OUT = "${{ runner.temp }}\\hardware-windows" }
+run = '''
+# Explicitly append Teja's cargo binaries to the active process PATH 
+$env:PATH = "C:\Users\Teja\.cargo\bin;" + $env:PATH
+powershell -NoProfile -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps "$env:STEPS" -Launches ([int]$env:LAUNCHES) -OutDir "$env:OUT"
+exit $LASTEXITCODE
+'''
+
+[[step]]
+name = "mark: upload hardware-windows"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

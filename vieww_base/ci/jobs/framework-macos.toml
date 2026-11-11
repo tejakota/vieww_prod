@@ -1,0 +1,117 @@
+# macOS and iOS (Metal)
+# Moved from .github/workflows/shared-framework-checks.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "macOS and iOS (Metal)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Toolchain and iOS targets"
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal --component clippy
+rustup target add --toolchain "$RUST_VERSION" aarch64-apple-ios aarch64-apple-ios-sim
+'''
+
+[[step]]
+name = "platform-check macos"
+run = "ci/check/platform-check.sh macos"
+
+[[step]]
+name = "platform-check ios"
+run = "ci/check/platform-check.sh ios"
+
+[[step]]
+name = "NEON compositing loops, bit for bit (aarch64)"
+run = '''
+test "$(uname -m)" = arm64
+cargo test -p vieww-paint --features native --lib simd -- --nocapture
+'''
+
+[[step]]
+name = "Audio flush-to-zero on aarch64 (FPCR)"
+run = "cargo test -p vieww-audio --lib -- denormal every_worker_adopts_the_callers_flush_mode"
+
+[[step]]
+name = "Metal suite on the runner's GPU"
+env = { VIEWW_REQUIRE_HARDWARE = "gpu", MTL_DEBUG_LAYER = "1", VIEWW_PARITY_OUT = "${{ runner.temp }}/parity", VIEWW_PARITY_ADAPTER = "macos-14 paravirtual GPU" }
+run = '''
+set +e
+cargo test -p vieww-hal --features metal -- --ignored --test-threads=1 --nocapture
+status=$?
+if [ $status -ne 0 ]; then
+  # A crashed test binary prints nothing useful; run each suite
+  # that failed under lldb for a backtrace of every thread.
+  for t in $(cargo test -p vieww-hal --features metal --no-run --message-format=json 2>/dev/null |
+      python3 -c 'import sys,json
+for l in sys.stdin:
+    m=json.loads(l)
+    if m.get("reason")=="compiler-artifact" and m.get("executable") and "test" in m.get("target",{}).get("kind",[]):
+        print(m["executable"])'); do
+    "$t" --ignored --test-threads=1 >/dev/null 2>&1 && continue
+    echo "::group::lldb backtrace: $(basename "$t")"
+    lldb --batch -o "run" -k "thread backtrace all" -k "quit 1" -- "$t" --ignored --test-threads=1 --nocapture 2>&1 | tail -n 400
+    echo "::endgroup::"
+  done
+fi
+exit $status
+'''
+
+[[step]]
+name = "Parity certificate (metal-paravirtual, FW-26)"
+if = "always()"
+shell = "bash"
+run = '''
+PY=$(command -v python3 || command -v python)
+"$PY" ci/check/parity-certificate.py "$RUNNER_TEMP/parity" -o "parity-certificate-metal-paravirtual.json" --markdown "$RUNNER_TEMP/parity.md"
+status=$?
+cat "$RUNNER_TEMP/parity.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+exit $status
+'''
+
+[[step]]
+name = "mark: upload parity-certificate-metal-paravirtual"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "Clippy for the Apple backends"
+run = '''
+cargo clippy -p vieww-hal --features metal --all-targets -- -D warnings
+cargo clippy -p vieww-audio --all-targets -- -D warnings
+cargo clippy -p vieww-hal --features metal --target aarch64-apple-ios -- -D warnings
+'''
+
+[[step]]
+name = "Crash symbols (Mach-O, FW-12)"
+run = "bash ci/check/crash-symbols.sh"
+
+[[step]]
+name = "Performance budget (advisory, FW-08)"
+if = "always()"
+run = '''
+py="$(command -v python3 || command -v python)"
+"$py" -I ci/check/perf_baseline.py framework-checks perf-macos "$RUNNER_TEMP/perf-baseline.json"
+bash ci/check/perf-budget.sh --advisory --baseline "$RUNNER_TEMP/perf-baseline.json" \
+  --write-measured "$RUNNER_TEMP/perf/perf-measured.json"
+'''
+
+[[step]]
+name = "mark: upload perf-macos"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_1=yes" >> "$GITHUB_ENV"
+'''

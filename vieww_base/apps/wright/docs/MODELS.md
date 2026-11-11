@@ -120,7 +120,7 @@ Against the reference implementations, built at pinned commits by
 | Real models (CI, `Wright - built-in models`) | llama.cpp and whisper.cpp on the real weights; a real tool call; JFK | see the workflow run |
 
 Random weights test the arithmetic; the real-weights job tests that the
-arithmetic is the model. Both run in `.github/workflows/cloud-machines-wright-models.yml`
+arithmetic is the model. Both run in wright's `models-*` jobs (1 · Check, thorough)
 (manual), on Windows, macOS and Linux.
 
 ## Speed

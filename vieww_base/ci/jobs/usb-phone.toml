@@ -1,0 +1,30 @@
+# Android device suite (self-hosted)
+# Moved from .github/workflows/shared-framework-checks.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Android device suite (self-hosted)"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Environment"
+run = ". ci/mobile/android-env.sh && android_env device-suite"
+
+[[step]]
+name = "APK"
+run = "ci/mobile/apk.sh --example android"
+
+[[step]]
+name = "Device suite"
+run = "ci/mobile/device-suite.sh --ime"
+
+[[step]]
+name = "Accessibility suite"
+run = "ci/mobile/a11y-android.sh"

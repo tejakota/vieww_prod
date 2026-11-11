@@ -1,0 +1,176 @@
+# ios build
+# Moved from .github/workflows/cloud-mobile-apps.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "ios build"
+
+[defaults]
+shell = "bash"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_BACKTRACE = "1"
+RUST_VERSION = "1.98.1"
+ANDROID_NDK_VERSION = "27.3.13750724"
+ANDROID_PLATFORM = "34"
+ANDROID_BUILD_TOOLS = "34.0.0"
+
+[[step]]
+name = "Install Rust toolchain"
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal
+rustup default "$RUST_VERSION"
+rustup target add \
+  --toolchain "$RUST_VERSION" \
+  aarch64-apple-ios \
+  aarch64-apple-ios-sim
+rustc --version
+cargo --version
+'''
+
+[[step]]
+name = "Verify Xcode"
+run = '''
+xcode-select -p
+xcodebuild -version
+xcrun --sdk iphoneos --show-sdk-path
+'''
+
+[[step]]
+name = "Build iOS binary"
+working-directory = "${{ matrix.workdir }}"
+run = '''
+cargo build \
+  -p ${{ matrix.package }} \
+  --target aarch64-apple-ios \
+  --release
+'''
+
+[[step]]
+name = "Bundle and sign IPA"
+working-directory = "${{ matrix.workdir }}"
+env = { APP_NAME = "${{ matrix.app_name }}", BUNDLE_ID = "${{ matrix.bundle_id }}", BINARY = "${{ matrix.binary }}" }
+run = '''
+set -euo pipefail
+
+triple="aarch64-apple-ios"
+profile="release"
+binary="target/$triple/$profile/$BINARY"
+
+if [ ! -f "$binary" ]; then
+  echo "::error::Expected binary at $binary and there is none."
+  echo "  Contents of target/$triple/$profile:"
+  find "target/$triple/$profile" -maxdepth 2 -type f -perm /111 2>/dev/null | head -20 || true
+  exit 1
+fi
+
+app_dir="target/ios/$APP_NAME.app"
+rm -rf "$app_dir"
+mkdir -p "$app_dir"
+
+# The executable's name inside the bundle must match CFBundleExecutable.
+cp "$binary" "$app_dir/$APP_NAME"
+
+# UILaunchScreen is mandatory: without it iOS runs in a compatibility
+# mode with black bars, which looks like a layout bug but is not.
+printf '%s\n' \
+  '<?xml version="1.0" encoding="UTF-8"?>' \
+  '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' \
+  '<plist version="1.0">' \
+  '<dict>' \
+  "    <key>CFBundleName</key><string>$APP_NAME</string>" \
+  "    <key>CFBundleDisplayName</key><string>$APP_NAME</string>" \
+  "    <key>CFBundleIdentifier</key><string>$BUNDLE_ID</string>" \
+  "    <key>CFBundleExecutable</key><string>$APP_NAME</string>" \
+  '    <key>CFBundlePackageType</key><string>APPL</string>' \
+  '    <key>CFBundleVersion</key><string>1</string>' \
+  '    <key>CFBundleShortVersionString</key><string>0.1</string>' \
+  '    <key>LSRequiresIPhoneOS</key><true/>' \
+  '    <key>MinimumOSVersion</key><string>13.0</string>' \
+  '    <key>UILaunchScreen</key><dict/>' \
+  '    <key>UIRequiredDeviceCapabilities</key><array><string>arm64</string></array>' \
+  '    <key>UISupportedInterfaceOrientations</key>' \
+  '    <array><string>UIInterfaceOrientationPortrait</string></array>' \
+  '</dict>' \
+  '</plist>' \
+  > "$app_dir/Info.plist"
+
+echo "==> bundled $app_dir"
+
+# Ad-hoc sign: available on any Mac with Xcode, no Apple account
+# needed. A device cloud re-signs this on upload.
+codesign --force --sign - --timestamp=none "$app_dir"
+echo "==> ad-hoc signed (a device cloud will re-sign this)"
+
+# An .ipa is a zip with the bundle under Payload/.
+payload="target/ios/Payload"
+ipa="target/ios/$APP_NAME.ipa"
+rm -rf "$payload" "$ipa"
+mkdir -p "$payload"
+cp -R "$app_dir" "$payload/"
+(cd target/ios && zip -qry "$APP_NAME.ipa" Payload)
+rm -rf "$payload"
+
+echo "==> $ipa"
+'''
+
+[[step]]
+name = "Locate and stage IPA"
+working-directory = "${{ matrix.workdir }}"
+run = '''
+set -e
+
+ipa="target/ios/${{ matrix.app_name }}.ipa"
+if [ ! -f "$ipa" ]; then
+  echo "::error::$ipa was not generated."
+  find target/ios -maxdepth 3 -print 2>/dev/null || true
+  exit 1
+fi
+
+stage="$RUNNER_TEMP/${{ matrix.app }}-ios"
+mkdir -p "$stage"
+cp "$ipa" "$stage/${{ matrix.app_name }}.ipa"
+(cd "$stage" && shasum -a 256 "${{ matrix.app_name }}.ipa" > SHA256SUMS)
+ls -lah "$stage"
+'''
+
+[[step]]
+name = "mark: upload ${{ matrix.app }}-ios-ipa"
+if = "success()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "Cleanup iOS build memory"
+if = "always()"
+run = '''
+echo "Cleaning iOS/Rust build data for ${{ matrix.app }}..."
+
+# The cargo target directory — a release iOS build of the vieww
+# framework + app leaves several GB here.
+rm -rf ${{ matrix.workdir }}/target
+
+# The staged artifact was already uploaded.
+rm -rf "$RUNNER_TEMP/${{ matrix.app }}-ios"
+
+# Xcode's DerivedData accumulates across builds and is not needed
+# after the .ipa is staged.
+rm -rf "$HOME/Library/Developer/Xcode/DerivedData"
+
+# Cargo's download/checkout caches.
+rm -rf "$HOME/.cargo/registry/cache"
+rm -rf "$HOME/.cargo/git/checkouts"
+
+# The cargo-apk and rustup component caches are not used on the iOS
+# job but may exist from a shared runner image; safe to remove.
+rm -rf "$HOME/.rustup/downloads" 2>/dev/null || true
+
+sync
+
+echo "Remaining workspace:"
+du -sh . 2>/dev/null || true
+echo "Cleanup complete."
+'''

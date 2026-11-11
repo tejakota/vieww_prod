@@ -1,0 +1,18 @@
+# Jobs every library crate gets unless its ci.toml defines check jobs of
+# its own (or sets kind_jobs = false). {package} is the crate's name from
+# its Cargo.toml; {workspace} the nearest folder above it with a Cargo.lock.
+description = "A Rust crate other projects build on."
+
+[[job]]
+id = "check"
+title = "clippy and tests"
+file = "ci/kinds/library/check.toml"
+row = { package = "{package}", workspace = "{workspace}" }
+stage = "check"
+depth = "quick"
+runs_on = "ubuntu-24.04"
+timeout = 45
+checkout = { persist-credentials = false }
+[[job.setup]]
+uses = "rust-cache"
+with = { workspaces = "{workspace}" }

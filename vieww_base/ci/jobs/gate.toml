@@ -1,0 +1,227 @@
+# gate ()
+# Moved from .github/workflows/shared-release-gate.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "gate ()"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+VIEWW_CERT_NO_DESKTOP = "${{ matrix.headless }}"
+VIEWW_VK_DEVICE = "${{ matrix.vk_device }}"
+VIEWW_TIMINGS_ADVISORY = "${{ matrix.hosted && '1' || '' }}"
+VIEWW_EXPORT_INSTALL_TARGETS = "${{ matrix.hosted && '1' || '' }}"
+SCOPE = "${{ github.event_name == 'push' && 'gate' || inputs.scope }}"
+PACKAGE = "${{ matrix.mode == 'cpu' && !matrix.export_only && (github.event_name == 'push' && 'true' || inputs.package) || 'false' }}"
+ONLY = "${{ matrix.only }}"
+APPLE_DEVELOPER_ID_P12 = "${{ secrets.APPLE_DEVELOPER_ID_P12 }}"
+APPLE_P12_PASSWORD = "${{ secrets.APPLE_P12_PASSWORD }}"
+APPLE_SIGNING_IDENTITY = "${{ secrets.APPLE_SIGNING_IDENTITY }}"
+APPLE_NOTARY_KEY = "${{ secrets.APPLE_NOTARY_KEY }}"
+APPLE_NOTARY_KEY_ID = "${{ secrets.APPLE_NOTARY_KEY_ID }}"
+APPLE_NOTARY_ISSUER = "${{ secrets.APPLE_NOTARY_ISSUER }}"
+WINDOWS_CERT_PFX = "${{ secrets.WINDOWS_CERT_PFX }}"
+WINDOWS_CERT_PASSWORD = "${{ secrets.WINDOWS_CERT_PASSWORD }}"
+
+[[step]]
+name = "Make disk space"
+if = "matrix.hosted"
+run = "bash ci/tools/ci-runner-prep.sh"
+
+[[step]]
+name = "Rust toolchain (from rust-toolchain.toml)"
+if = "matrix.hosted"
+run = '''
+rustup toolchain install   # reads rust-toolchain.toml (channel + components)
+rustc --version
+cargo --version
+'''
+
+[[step]]
+name = "WiX (Windows installer)"
+if = "matrix.os == 'windows' && env.PACKAGE == 'true' && env.SCOPE != 'screenshots'"
+run = '''
+dotnet tool install --global wix --version 5.0.2
+echo "$USERPROFILE/.dotnet/tools" >> "$GITHUB_PATH"
+'''
+
+[[step]]
+name = "MinGW-w64 (Windows .exe cross-build from Linux)"
+if = "matrix.mode == 'cpu' && matrix.os == 'linux' && matrix.hosted && env.SCOPE != 'screenshots'"
+run = "sudo apt-get update -qq && sudo apt-get install -y -qq gcc-mingw-w64-x86-64"
+
+[[step]]
+name = "Android environment"
+if = "matrix.mode == 'cpu' && matrix.hosted && env.SCOPE != 'screenshots'"
+run = '''
+# The newest NDK the image has; cargo-ndk and Studio both read
+# ANDROID_NDK_HOME, which some images point at an older one.
+ndk="${ANDROID_NDK_LATEST_HOME:-${ANDROID_NDK_HOME:-}}"
+echo "ANDROID_NDK_HOME=$ndk" >> "$GITHUB_ENV"
+echo "ANDROID_HOME=${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}" >> "$GITHUB_ENV"
+echo "NDK: $ndk"; echo "SDK: ${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+'''
+
+[[step]]
+name = "Vulkan loader + MoltenVK (macOS; stages skip if no device)"
+if = "matrix.os == 'macos' && matrix.hosted && env.SCOPE != 'screenshots'"
+run = "brew install molten-vk vulkan-loader vulkan-tools || true"
+
+[[step]]
+name = "Release gate"
+if = "env.SCOPE == 'gate'"
+run = '''
+args=(--mode "${{ matrix.mode }}" --out "target/release-gate/${{ matrix.id }}")
+[[ "$PACKAGE" == true ]] || args+=(--skip-package)
+if [[ -n "$ONLY" ]]; then
+  echo "rerunning only: $ONLY"
+  args+=(--only "$ONLY")
+  [[ ",$ONLY," == *",G3.1,"* ]] || args+=(--skip-package)
+fi
+bash ci/vieww gate "${args[@]}"
+'''
+
+[[step]]
+name = "MoltenVK in the shipped .app + launch smoke (FW-04)"
+if = "matrix.os == 'macos' && env.PACKAGE == 'true' && env.SCOPE == 'gate'"
+run = '''
+set -euo pipefail
+dmg=$(ls target/package/viewwstudio-macos-*.dmg 2>/dev/null | head -1)
+[[ -n "$dmg" ]] || { echo "FW-04: no macOS .dmg in target/package" >&2; exit 1; }
+mount="$RUNNER_TEMP/fw04-dmg"
+rm -rf "$mount"; mkdir -p "$mount"
+hdiutil attach -readonly -nobrowse -mountpoint "$mount" "$dmg" >/dev/null
+app="$mount/vieww Studio.app"
+fail() { hdiutil detach "$mount" >/dev/null 2>&1 || true; echo "FW-04: $1" >&2; exit 1; }
+[[ -d "$app" ]] || fail "no vieww Studio.app inside $dmg"
+# The two files a clean-machine launch cannot open the GPU without
+# (ls assertions, per the FW-04 plan):
+[[ -f "$app/Contents/Frameworks/libMoltenVK.dylib" ]] ||
+  fail "Contents/Frameworks/libMoltenVK.dylib is missing from the .app"
+[[ -f "$app/Contents/Resources/vulkan/icd.d/MoltenVK_icd.json" ]] ||
+  fail "Contents/Resources/vulkan/icd.d/MoltenVK_icd.json is missing from the .app"
+# plutil assertions: the plist this bundle will be launched through
+# parses, and so does the ICD json the Vulkan loader reads.
+plutil -lint "$app/Contents/Info.plist"
+plutil -p "$app/Contents/Resources/vulkan/icd.d/MoltenVK_icd.json" | grep -q '../../Frameworks/libMoltenVK.dylib' ||
+  fail "MoltenVK_icd.json's library_path does not point at the bundle's own dylib"
+echo "FW-04: $dmg carries MoltenVK (Frameworks dylib + icd.d json, library_path rewritten)"
+hdiutil detach "$mount" >/dev/null
+# Launch smoke: open the packaged executable for real, give it 20 s,
+# and it must still be running (a crash inside the window is the
+# failure this exists to catch). Kill it afterwards — the studio
+# has no auto-quit, by design.
+smoke="$RUNNER_TEMP/fw04-smoke"
+rm -rf "$smoke"; mkdir -p "$smoke"
+hdiutil attach -readonly -nobrowse -mountpoint "$mount" "$dmg" >/dev/null
+cp -R "$app" "$smoke/vieww Studio.app"
+hdiutil detach "$mount" >/dev/null
+"$smoke/vieww Studio.app/Contents/MacOS/viewwstudio" >"$RUNNER_TEMP/fw04-smoke.log" 2>&1 &
+pid=$!
+sleep 20
+if ! kill -0 "$pid" 2>/dev/null; then
+  wait "$pid" || true
+  echo "FW-04: the packaged studio exited within 20 s — log:" >&2
+  cat "$RUNNER_TEMP/fw04-smoke.log" >&2 || true
+  exit 1
+fi
+kill "$pid" 2>/dev/null || true
+wait "$pid" 2>/dev/null || true
+echo "FW-04: launch smoke passed (opened, 20 s, quit)"
+rm -rf "$smoke"
+'''
+
+[[step]]
+name = "MSI smoke (FW-05)"
+if = "matrix.os == 'windows' && env.PACKAGE == 'true' && env.SCOPE == 'gate'"
+run = '''
+set -euo pipefail
+msi=$(ls target/package/viewwstudio-windows-*.msi 2>/dev/null | head -1)
+[[ -n "$msi" ]] || { echo "FW-05: no viewwstudio-windows-*.msi in target/package" >&2; exit 1; }
+dir="$RUNNER_TEMP/fw05-msi"
+rm -rf "$dir"; mkdir -p "$dir"
+# /qn: no UI on the runner. Exit 0 = installed, 3010 = installed with
+# a reboot pending; both are the installer succeeding.
+# `cmd //c` + cygpath: Git Bash rewrites a bare `/a` into a path,
+# and msiexec wants Windows paths in TARGETDIR.
+wmsi=$(cygpath -w "$msi")
+wdir=$(cygpath -w "$dir")
+rc=0
+cmd //c "msiexec /a \"$wmsi\" /qn TARGETDIR=\"$wdir\"" >/dev/null || rc=$?
+if [[ $rc -ne 0 && $rc -ne 3010 ]]; then
+  echo "FW-05: msiexec /a exited $rc" >&2; exit 1
+fi
+exe=$(find "$dir" -name viewwstudio.exe -type f | head -1)
+[[ -n "$exe" ]] || { echo "FW-05: no viewwstudio.exe under the installed tree $dir" >&2; exit 1; }
+echo "FW-05: $msi installed to temp; payload: $exe"
+# Launch smoke: 20 s alive, then quit (killed — no auto-quit).
+"$exe" >"$RUNNER_TEMP/fw05-msi-smoke.log" 2>&1 &
+pid=$!
+sleep 20
+if ! kill -0 "$pid" 2>/dev/null; then
+  wait "$pid" || true
+  echo "FW-05: the installed studio exited within 20 s — log:" >&2
+  cat "$RUNNER_TEMP/fw05-msi-smoke.log" >&2 || true
+  exit 1
+fi
+kill "$pid" 2>/dev/null || true
+wait "$pid" 2>/dev/null || true
+echo "FW-05: MSI smoke passed (installed to temp, opened, 20 s, quit)"
+rm -rf "$dir"
+'''
+
+[[step]]
+name = "Failures with logs"
+if = "always() && env.SCOPE == 'gate'"
+run = '''
+run="target/release-gate/${{ matrix.id }}"
+[[ -f "$run/rows.tsv" ]] || { echo "no run folder"; exit 0; }
+py=$(command -v python3 || command -v python)
+"$py" ci/release/report-failures.py "$run" -o "$run/FAILURES.md"
+cat "$run/FAILURES.md"
+{
+  echo "# ${{ matrix.id }}"
+  cat "$run/FAILURES.md"
+} >> "$GITHUB_STEP_SUMMARY"
+'''
+
+[[step]]
+name = "Screenshots"
+if = "always() && (env.SCOPE == 'gate' || env.SCOPE == 'screenshots') && matrix.mode == 'cpu' && !matrix.export_only"
+continue-on-error = true
+run = "bash ci/tools/screenshots.sh \"target/screenshots/${{ matrix.id }}\""
+
+[[step]]
+name = "mark: upload screenshots-${{ matrix.id }}"
+if = "always() && (env.SCOPE == 'gate' || env.SCOPE == 'screenshots') && matrix.mode == 'cpu' && !matrix.export_only"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "Checks only"
+if = "env.SCOPE == 'checks' && matrix.mode == 'cpu'"
+run = "bash ci/vieww checks"
+
+[[step]]
+name = "mark: upload gate-${{ matrix.id }}"
+if = "always() && env.SCOPE == 'gate'"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_1=yes" >> "$GITHUB_ENV"
+'''
+
+[[step]]
+name = "mark: upload installers-${{ matrix.id }}"
+if = "always() && env.SCOPE == 'gate' && env.PACKAGE == 'true'"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_2=yes" >> "$GITHUB_ENV"
+'''

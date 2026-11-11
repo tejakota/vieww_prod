@@ -1,0 +1,39 @@
+# Linux — full escape suite (Landlock + seccomp)
+# Moved from .github/workflows/cloud-machines-wright-sandbox.yml. Run by ci/lib/run.py;
+# checkout, toolchain actions, caches and artifacts come from ci.toml.
+
+name = "Linux — full escape suite (Landlock + seccomp)"
+
+[defaults]
+shell = "bash"
+
+[[step]]
+name = "Rust toolchain (from rust-toolchain.toml)"
+working-directory = "vieww_base/apps/wright"
+run = "rustup show active-toolchain || rustup toolchain install"
+
+[[step]]
+name = "Landlock ABI guard"
+run = '''
+# ubuntu-24.04 kernels (6.8) carry Landlock ABI 4+ (network rules).
+uname -r
+'''
+
+[[step]]
+name = "Sandbox escape suite"
+working-directory = "vieww_base/apps/wright"
+run = "cargo test -p wright-tools --lib sandbox"
+
+[[step]]
+name = "The same suite without user namespaces (the fallback path)"
+working-directory = "vieww_base/apps/wright"
+env = { WRIGHT_SANDBOX_NO_PIDNS = "1" }
+run = "cargo test -p wright-tools --lib sandbox"
+
+[[step]]
+name = "Escape suite receipts"
+if = "always()"
+run = '''
+mkdir -p receipts/wright/linux
+printf 'linux escape suite: see the job log\n' > receipts/wright/linux/SUMMARY.txt
+'''
