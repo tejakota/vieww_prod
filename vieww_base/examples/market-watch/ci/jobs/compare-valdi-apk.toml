@@ -26,7 +26,17 @@ echo "Valdi's release flags at $VALDI_REF:"; cat "$RUNNER_TEMP/valdi-release-fla
 [[step]]
 name = "Bazel"
 run = '''
-npm install -g @bazel/bazelisk >/dev/null
+# GitHub's Ubuntu images ship Bazelisk as `bazel`, installed globally as root:
+# use it. `npm install -g` over it fails with EACCES (/usr/local/lib is root's).
+# Anywhere it is missing, install it under $HOME, which this user owns.
+if ! command -v bazel >/dev/null; then
+  npm install --prefix "$HOME/.bazelisk" @bazel/bazelisk >/dev/null
+  ln -sf "$HOME/.bazelisk/node_modules/.bin/bazelisk" "$HOME/.bazelisk/bazel"
+  echo "$HOME/.bazelisk" >> "$GITHUB_PATH"
+  export PATH="$HOME/.bazelisk:$PATH"
+fi
+# Bazelisk reads .bazelversion in the Valdi checkout and fetches that Bazel.
+(cd "$VALDI" && bazel version | head -1)
 # Bazel is memory-hungry on Android builds (Valdi's docs ask for 8 GB of swap).
 sudo fallocate -l 8G /swapfile2 && sudo chmod 600 /swapfile2 && sudo mkswap /swapfile2 >/dev/null && sudo swapon /swapfile2 || true
 '''
