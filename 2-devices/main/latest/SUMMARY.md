@@ -1,7 +1,7 @@
 # 2 · Devices — FAILURE
 
-- branch: `main`  sha: `cf8f67c814e7c3cb6d9f15833690a3ecbe254ca9`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/43054571751
+- branch: `main`  sha: `f25b672a86b74081ee768045ad27ddf4c7c6fabf`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/43056734685
 
 | job | verdict | failed steps |
 |---|---|---|
@@ -14,8 +14,8 @@
 | phase-2 / approve | skipped |  |
 | phase-2 / matrix.title | skipped |  |
 | phase-3 / Market Watch · compare-report | PASS |  |
-| phase-3 / approve | skipped |  |
 | phase-3 / matrix.title | skipped |  |
+| phase-3 / approve | skipped |  |
 | results / publish | running |  |
 
 ## Steps
@@ -150,11 +150,14 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-3 / approve — skipped
-
 ### phase-3 / matrix.title — skipped
 
+### phase-3 / approve — skipped
+
 ### results / publish — running
-- running: Set up job
+- PASS: Set up job
+- running: Collect the run
+- running: Run actions/checkout@v4
+- running: Write to the ci-results branch
 
 - artifacts: compare-vieww-apk 
