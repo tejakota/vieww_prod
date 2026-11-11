@@ -1,0 +1,8 @@
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.38s
+     Running `target/release/test-animation-stress /home/teja/actions-runner/_work/_temp/hardware-linux/stress-3`
+frames: 72, moving: 71/71
+  render mean: 14.88 ms, p95: 17.70 ms, worst: 45.39 ms, over 16.6 ms budget: 11
+wrote /home/teja/actions-runner/_work/_temp/hardware-linux/stress-3
+FAIL: p95 frame time 17.70 ms exceeds the 16.6 ms budget
+FAIL: 11 of 72 frames over budget — the 200-tile animation is not sustainable at 60 Hz
+Error: "2 animation-stress check(s) failed"

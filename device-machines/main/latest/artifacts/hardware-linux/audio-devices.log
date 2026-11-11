@@ -1,0 +1,55 @@
+   Compiling vieww-audio v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+    Finished `release` profile [optimized + debuginfo] target(s) in 1m 43s
+     Running unittests src/lib.rs (target/release/deps/vieww_audio-b84c8f34a6fd833e)
+
+running 23 tests
+test backend::alsa::tests::a_named_device_that_is_absent_refuses ... ok
+test backend::alsa::tests::a_missing_card_is_unavailable_not_a_crash ... ok
+test backend::alsa::tests::the_pcm_list_parses ... ok
+test backend::pipewire::tests::captures_through_a_running_daemon_or_refuses_cleanly ... ok
+test backend::pipewire::tests::plays_through_a_running_daemon_or_refuses_cleanly ... ok
+test backend::pipewire::tests::the_buffer_structs_have_the_header_layouts ... ok
+test backend::pipewire::tests::the_format_pod_matches_spa_byte_for_byte ... ok
+Cannot connect to server socket err = No such file or directory
+Cannot connect to server request channel
+jack server is not running or cannot be started
+JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+test backend::jack::tests::renders_through_a_running_server_or_refuses_cleanly ... ok
+Cannot connect to server socket err = No such file or directory
+Cannot connect to server request channel
+jack server is not running or cannot be started
+JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+test backend::jack::tests::captures_from_a_running_server_or_refuses_cleanly ... ok
+Cannot connect to server socket err = No such file or directory
+Cannot connect to server request channel
+jack server is not running or cannot be started
+JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+test backend::jack::tests::lists_devices_and_routes_to_named_ports_or_refuses_cleanly ... ok
+test backend::resilient::tests::a_first_open_that_fails_is_an_error ... ok
+
+thread '<unnamed>' (198724) panicked at crates/vieww-audio/src/backend/resilient.rs:722:17:
+a bug in the app's render
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test backend::pulse::tests::records_or_refuses_cleanly ... ok
+test backend::pulse::tests::lists_and_opens_a_named_sink_or_refuses_cleanly ... ok
+test backend::pulse::tests::plays_at_the_servers_pace_or_refuses_cleanly ... ok
+test backend::resilient::tests::an_interruption_holds_reopening_without_a_retry_storm ... ok
+test backend::resilient::tests::a_route_notification_follows_the_default_at_once ... ok
+test backend::tests::an_isolated_capture_callback_ends_the_stream ... ok
+test backend::tests::an_isolated_render_callback_panics_once_then_goes_silent ... ok
+test backend::resilient::tests::a_session_route_change_wakes_the_supervisor ... ok
+test backend::tests::the_platform_lists_its_backends ... ok
+Cannot connect to server socket err = No such file or directory
+Cannot connect to server request channel
+jack server is not running or cannot be started
+JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+test backend::tests::opening_with_nothing_available_reports_every_attempt ... ok
+test backend::resilient::tests::a_panicked_closure_is_never_run_again ... ok
+test backend::resilient::tests::the_closure_survives_unplug_and_replug ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 589 filtered out; finished in 6.07s
+

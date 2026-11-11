@@ -2,6 +2,7 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
+| 2026-11-11T11:49:36Z | device-machines/main | FAILURE | `4b530c174275` | [summary](device-machines/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/43011466669) |
 | 2026-11-10T15:47:23Z | wright---desktop-installers/main | FAILURE | `66e6cbf7fd52` | [summary](wright---desktop-installers/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/42839439904) |
 | 2026-11-08T13:14:15Z | wright-sandbox-suites/main | CANCELLED | `b2dae67e9841` | [summary](wright-sandbox-suites/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/42483848200) |
 | 2026-11-08T13:10:27Z | wright---built-in-models/main | CANCELLED | `b2dae67e9841` | [summary](wright---built-in-models/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/42483359023) |

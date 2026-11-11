@@ -1,0 +1,15 @@
+   Compiling vieww-audio v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.59s
+     Running tests/player_smoke.rs (target/release/deps/player_smoke-130c23868b9ca4d1)
+
+running 1 test
+Cannot connect to server socket err = No such file or directory
+Cannot connect to server request channel
+jack server is not running or cannot be started
+JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+player_smoke on alsa: StreamStats { callbacks: 514, frames: 131584, xruns: 0, ended: false, priority: Some(Normal), render_mean: 4.537µs, render_max: 38.982µs, load_peak: 0.007, late: 0, latency: Some(42.5625ms), exclusive: false, disconnected: false, buffer_frames: None, period_frames: None }
+test twenty_tones_through_the_registered_player ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.92s
+
