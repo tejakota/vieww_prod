@@ -1,15 +1,25 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml (Cloud VM) · Machines · `goldens`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Steps for the entry's `steps` field: shots
+# ─────────────────────────────────────────────────────────────────────
+
 # FW-14: golden screenshots with PR-level teeth. Every feature example is
 # re-captured and compared byte-for-byte against examples/shots/baseline;
 # a difference fails the run and uploads the shot-diff report.
 name: goldens
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       update:
         description: "Capture a new baseline and upload it as an artifact (no comparison)"
         type: boolean
         default: false
+      only:
+        description: "Steps (job ids) to run, space-separated; empty = all. Jobs a chosen step needs run too."
+        type: string
+        default: ""
 
 # Owner rule (2026-10-24): manual only. The pull_request + push triggers
 # are gone; the goldens gate runs when you dispatch it (a pre-merge step
@@ -19,7 +29,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: goldens-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-goldens-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 defaults:
@@ -29,6 +39,7 @@ defaults:
 
 jobs:
   shots:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' shots '))
     name: shots vs baseline (linux-cpu)
     runs-on: ubuntu-latest
     timeout-minutes: 90

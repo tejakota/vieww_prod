@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml (Cloud VM) · Machines · `audio`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Steps for the entry's `steps` field: desktop linux-alsa-loopback linux-servers macos-loopback targets windows-loopback
+# ─────────────────────────────────────────────────────────────────────
+
 name: Audio backends
 
 # vieww-audio's device backends, each on the platform it targets:
@@ -27,19 +33,24 @@ name: Audio backends
 #       - macOS: the BlackHole virtual device through Core Audio, and
 #         CoreMIDI virtual endpoints.
 #     Virtual devices exercise the real OS audio stacks, not real sound
-#     cards: those are the self-hosted `hardware.yml` machines' `audio`
+#     cards: those are the self-hosted `device-machines-hardware.yml` machines' `audio`
 #     step (ci/hardware/README.md).
 
 # Manual only (Actions → this workflow → Run workflow): no push or
 # pull_request trigger, by the repository owner's choice (2026-10-15).
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      only:
+        description: "Steps (job ids) to run, space-separated; empty = all. Jobs a chosen step needs run too."
+        type: string
+        default: ""
 
 permissions:
   contents: read
 
 concurrency:
-  group: audio-backends-${{ github.ref }}
+  group: ${{ github.workflow }}-audio-backends-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -54,6 +65,7 @@ defaults:
 
 jobs:
   linux-servers:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' linux-servers '))
     name: Linux (PipeWire, JACK, PulseAudio)
     runs-on: ubuntu-24.04
     timeout-minutes: 60
@@ -115,6 +127,7 @@ jobs:
         run: tail -n 50 "$RUNNER_TEMP"/*.log
 
   linux-alsa-loopback:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' linux-alsa-loopback '))
     name: Linux (ALSA and MIDI through kernel loopbacks, in a VM)
     runs-on: ubuntu-24.04
     timeout-minutes: 60
@@ -158,6 +171,7 @@ jobs:
         run: ci/audio/vm-loopback.sh --seq
 
   windows-loopback:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' windows-loopback '))
     name: Windows (WASAPI shared and exclusive through VB-CABLE)
     runs-on: windows-2025
     timeout-minutes: 45
@@ -201,6 +215,7 @@ jobs:
         run: cargo test --release -p vieww-audio --lib midi_io -- --nocapture
 
   macos-loopback:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' macos-loopback '))
     name: macOS (Core Audio through BlackHole, CoreMIDI virtual ports)
     # macos-14: the TCC grant below is the layout this image uses (as in
     # Mozilla's cubeb CI); a newer image may need its columns updated.
@@ -236,6 +251,7 @@ jobs:
         run: cargo test --release -p vieww-audio --test device_loopback coremidi -- --ignored --nocapture
 
   desktop:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' desktop '))
     name: ${{ matrix.os }} (native backend)
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
@@ -255,6 +271,7 @@ jobs:
           cargo clippy -p vieww-audio --all-targets -- -D warnings
 
   targets:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' targets '))
     name: Android and web
     runs-on: ubuntu-latest
     timeout-minutes: 45

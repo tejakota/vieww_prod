@@ -30,7 +30,7 @@ affected work runs again.
 | Interview → Confirm Gate → blueprint | ✅ | the summary is code-generated |
 | Universal project convention (python, node, react, rust, shell) | ✅ | every skeleton's own tests pass with no installs |
 | vieww window: sessions, swipe, overview, live engine, settings, voice, files | ✅ | driven end to end headlessly; see "The window" |
-| Installers: Windows, macOS, Linux — signed, plus a signed update channel | ✅ | `.github/workflows/wright-release.yml` (ADR-020): Authenticode (SHA-256 + RFC3161 timestamp) on Windows, Developer ID + `notarytool` staple on macOS; a publish without its signing secrets fails rather than shipping unsigned (WR-04). `wright update check` reads one static Ed25519-signed manifest, and only when a channel is configured |
+| Installers: Windows, macOS, Linux — signed, plus a signed update channel | ✅ | `.github/workflows/cloud-machines-wright-installers.yml` (ADR-020): Authenticode (SHA-256 + RFC3161 timestamp) on Windows, Developer ID + `notarytool` staple on macOS; a publish without its signing secrets fails rather than shipping unsigned (WR-04). `wright update check` reads one static Ed25519-signed manifest, and only when a channel is configured |
 | Secrets: OS keychain via `security` / `secret-tool` / Windows Credential Manager, env for CI | ✅ | Windows goes through Credential Manager in-process (`runtime/src/wincred.rs`, WR-06) — no value ever appears in a command line |
 | Rule of Two: typed legs, taint fixpoint, validator + gate enforcement | ✅ | ADR-024; 3-leg agents need a human approval, and the gate asks anyway |
 | Signed receipts + `wright verify` (Ed25519, SHA-512 reference ports) | ✅ | ADR-025; seven checks, inputs' hashes, acceptance verdicts |

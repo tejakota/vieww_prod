@@ -1,0 +1,330 @@
+# Cloud VM: everything that runs on GitHub's hosted virtual machines, in one Run workflow form.
+#
+# The only way anything in this repository runs: Actions → Cloud VM → Run
+# workflow (the other entry is device.yml, Device).
+# Nothing starts on a push, a pull request, a schedule or another run.
+#
+# Tick items (Machines · / Mobile ·), optionally narrow them in `steps`,
+# and pick the branch in the form's dropdown. The plan job checks the
+# form (an unknown item, step or option fails it, naming what is valid)
+# and the run's summary lists exactly what was chosen. Each item is a
+# part file beside this one; its header lists its steps.
+
+name: Cloud VM
+
+on:
+  workflow_dispatch:
+    inputs:
+      steps:
+        description: "Optional: narrow or tune items, e.g. audio:fuzz test; release_gate:windows-cpu rerun=all; wright_installers:version=1.2.0 publish=true"
+        type: string
+        default: ""
+      quick:
+        description: "Machines · Quick checks: fmt, clippy, workflow lint, Wright sandbox smoke"
+        type: boolean
+        default: false
+      framework:
+        description: "Machines · Framework checks: gate, coverage, cross, GPU (lavapipe), macOS, Windows, web, a11y"
+        type: boolean
+        default: false
+      studio:
+        description: "Machines · Studio suite on Linux, macOS and Windows"
+        type: boolean
+        default: false
+      wright_sandbox:
+        description: "Machines · Wright sandbox suites (Linux escape, macOS Seatbelt, Windows)"
+        type: boolean
+        default: false
+      wright_models:
+        description: "Machines · Wright built-in models: reference and per-platform"
+        type: boolean
+        default: false
+      wright_installers:
+        description: "Machines · Wright desktop installers (not published unless steps say publish=true)"
+        type: boolean
+        default: false
+      audio:
+        description: "Machines · Audio: CI, backends, plugins (CLAP/VST3/LV2)"
+        type: boolean
+        default: false
+      release_gate:
+        description: "Machines · Release gate, hosted legs (Windows, macOS, Linux export)"
+        type: boolean
+        default: false
+      supply_chain:
+        description: "Machines · Supply chain: advisories, SBOM, reproducible build"
+        type: boolean
+        default: false
+      goldens:
+        description: "Machines · Golden screenshots"
+        type: boolean
+        default: false
+      publish_crates:
+        description: "Machines · Crates: check, verify, and publish on a v* tag"
+        type: boolean
+        default: false
+      mobile_apps:
+        description: "Mobile · Build the mobile apps (Android APKs, iOS)"
+        type: boolean
+        default: false
+      u_apk:
+        description: "Mobile · U APK"
+        type: boolean
+        default: false
+      u_models:
+        description: "Mobile · U model runtime"
+        type: boolean
+        default: false
+      mobile_audio:
+        description: "Mobile · Mobile audio (logic, Android, iOS)"
+        type: boolean
+        default: false
+      framework_mobile:
+        description: "Mobile · Framework on Android build, Android emulator, iOS simulator"
+        type: boolean
+        default: false
+      save_results:
+        description: "Save this run's results to the ci-results branch"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    name: plan
+    runs-on: ubuntu-latest
+    outputs:
+      audio: ${{ steps.plan.outputs.audio }}
+      audio_only: ${{ steps.plan.outputs.audio_only }}
+      framework_any: ${{ steps.plan.outputs.framework_any }}
+      framework_legs: ${{ steps.plan.outputs.framework_legs }}
+      goldens: ${{ steps.plan.outputs.goldens }}
+      goldens_only: ${{ steps.plan.outputs.goldens_only }}
+      goldens_update: ${{ steps.plan.outputs.goldens_update }}
+      mobile_apps: ${{ steps.plan.outputs.mobile_apps }}
+      mobile_apps_only: ${{ steps.plan.outputs.mobile_apps_only }}
+      mobile_audio: ${{ steps.plan.outputs.mobile_audio }}
+      mobile_audio_only: ${{ steps.plan.outputs.mobile_audio_only }}
+      publish_crates: ${{ steps.plan.outputs.publish_crates }}
+      publish_crates_only: ${{ steps.plan.outputs.publish_crates_only }}
+      quick: ${{ steps.plan.outputs.quick }}
+      quick_only: ${{ steps.plan.outputs.quick_only }}
+      release_gate: ${{ steps.plan.outputs.release_gate }}
+      release_gate_legs: ${{ steps.plan.outputs.release_gate_legs }}
+      release_gate_package: ${{ steps.plan.outputs.release_gate_package }}
+      release_gate_rerun: ${{ steps.plan.outputs.release_gate_rerun }}
+      release_gate_scope: ${{ steps.plan.outputs.release_gate_scope }}
+      save_results: ${{ steps.plan.outputs.save_results }}
+      studio: ${{ steps.plan.outputs.studio }}
+      studio_only: ${{ steps.plan.outputs.studio_only }}
+      supply_chain: ${{ steps.plan.outputs.supply_chain }}
+      supply_chain_only: ${{ steps.plan.outputs.supply_chain_only }}
+      u_apk: ${{ steps.plan.outputs.u_apk }}
+      u_apk_only: ${{ steps.plan.outputs.u_apk_only }}
+      u_models: ${{ steps.plan.outputs.u_models }}
+      u_models_only: ${{ steps.plan.outputs.u_models_only }}
+      wright_installers: ${{ steps.plan.outputs.wright_installers }}
+      wright_installers_only: ${{ steps.plan.outputs.wright_installers_only }}
+      wright_installers_prerelease: ${{ steps.plan.outputs.wright_installers_prerelease }}
+      wright_installers_publish: ${{ steps.plan.outputs.wright_installers_publish }}
+      wright_installers_version: ${{ steps.plan.outputs.wright_installers_version }}
+      wright_models: ${{ steps.plan.outputs.wright_models }}
+      wright_models_only: ${{ steps.plan.outputs.wright_models_only }}
+      wright_sandbox: ${{ steps.plan.outputs.wright_sandbox }}
+      wright_sandbox_only: ${{ steps.plan.outputs.wright_sandbox_only }}
+      wright_sandbox_profile: ${{ steps.plan.outputs.wright_sandbox_profile }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/entry
+      - id: plan
+        env:
+          INPUTS: ${{ toJSON(inputs) }}
+        run: python3 .github/entry/plan.py cloud
+
+  quick:
+    name: "Machines · quick"
+    needs: plan
+    if: needs.plan.outputs.quick == 'true'
+    uses: ./.github/workflows/cloud-machines-quick.yml
+    with:
+      only: ${{ needs.plan.outputs.quick_only }}
+    secrets: inherit
+
+  framework:
+    name: "Machines + Mobile · framework"
+    needs: plan
+    if: needs.plan.outputs.framework_any == 'true'
+    uses: ./.github/workflows/shared-framework-checks.yml
+    with:
+      legs: ${{ needs.plan.outputs.framework_legs }}
+      device: false
+    secrets: inherit
+    permissions:
+      contents: write
+      actions: read
+
+  studio:
+    name: "Machines · studio"
+    needs: plan
+    if: needs.plan.outputs.studio == 'true'
+    uses: ./.github/workflows/cloud-machines-studio.yml
+    with:
+      only: ${{ needs.plan.outputs.studio_only }}
+    secrets: inherit
+
+  wright_sandbox:
+    name: "Machines · wright sandbox"
+    needs: plan
+    if: needs.plan.outputs.wright_sandbox == 'true'
+    uses: ./.github/workflows/cloud-machines-wright-sandbox.yml
+    with:
+      only: ${{ needs.plan.outputs.wright_sandbox_only }}
+      profile: ${{ needs.plan.outputs.wright_sandbox_profile }}
+    secrets: inherit
+
+  wright_models:
+    name: "Machines · wright models"
+    needs: plan
+    if: needs.plan.outputs.wright_models == 'true'
+    uses: ./.github/workflows/cloud-machines-wright-models.yml
+    with:
+      only: ${{ needs.plan.outputs.wright_models_only }}
+    secrets: inherit
+
+  wright_installers:
+    name: "Machines · wright installers"
+    needs: plan
+    if: needs.plan.outputs.wright_installers == 'true'
+    uses: ./.github/workflows/cloud-machines-wright-installers.yml
+    with:
+      only: ${{ needs.plan.outputs.wright_installers_only }}
+      version: ${{ needs.plan.outputs.wright_installers_version }}
+      publish: ${{ needs.plan.outputs.wright_installers_publish == 'true' }}
+      prerelease: ${{ needs.plan.outputs.wright_installers_prerelease == 'true' }}
+    secrets: inherit
+    permissions:
+      contents: write
+
+  audio_ci:
+    name: "Machines · audio CI"
+    needs: plan
+    if: needs.plan.outputs.audio == 'true'
+    uses: ./.github/workflows/cloud-machines-audio-ci.yml
+    with:
+      only: ${{ needs.plan.outputs.audio_only }}
+    secrets: inherit
+
+  audio_backends:
+    name: "Machines · audio backends"
+    needs: plan
+    if: needs.plan.outputs.audio == 'true'
+    uses: ./.github/workflows/cloud-machines-audio-backends.yml
+    with:
+      only: ${{ needs.plan.outputs.audio_only }}
+    secrets: inherit
+
+  audio_plugins:
+    name: "Machines · audio plugins"
+    needs: plan
+    if: needs.plan.outputs.audio == 'true'
+    uses: ./.github/workflows/cloud-machines-audio-plugins.yml
+    with:
+      only: ${{ needs.plan.outputs.audio_only }}
+    secrets: inherit
+
+  release_gate:
+    name: "Machines · release gate (hosted)"
+    needs: plan
+    if: needs.plan.outputs.release_gate == 'true'
+    uses: ./.github/workflows/shared-release-gate.yml
+    with:
+      legs: ${{ needs.plan.outputs.release_gate_legs }}
+      scope: ${{ needs.plan.outputs.release_gate_scope }}
+      rerun: ${{ needs.plan.outputs.release_gate_rerun }}
+      package: ${{ needs.plan.outputs.release_gate_package == 'true' }}
+    secrets: inherit
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+
+  supply_chain:
+    name: "Machines · supply chain"
+    needs: plan
+    if: needs.plan.outputs.supply_chain == 'true'
+    uses: ./.github/workflows/cloud-machines-supply-chain.yml
+    with:
+      only: ${{ needs.plan.outputs.supply_chain_only }}
+    secrets: inherit
+
+  goldens:
+    name: "Machines · goldens"
+    needs: plan
+    if: needs.plan.outputs.goldens == 'true'
+    uses: ./.github/workflows/cloud-machines-goldens.yml
+    with:
+      only: ${{ needs.plan.outputs.goldens_only }}
+      update: ${{ needs.plan.outputs.goldens_update == 'true' }}
+    secrets: inherit
+
+  publish_crates:
+    name: "Machines · crates"
+    needs: plan
+    if: needs.plan.outputs.publish_crates == 'true'
+    uses: ./.github/workflows/cloud-machines-publish.yml
+    with:
+      only: ${{ needs.plan.outputs.publish_crates_only }}
+    secrets: inherit
+
+  mobile_apps:
+    name: "Mobile · apps"
+    needs: plan
+    if: needs.plan.outputs.mobile_apps == 'true'
+    uses: ./.github/workflows/cloud-mobile-apps.yml
+    with:
+      only: ${{ needs.plan.outputs.mobile_apps_only }}
+    secrets: inherit
+
+  u_apk:
+    name: "Mobile · U APK"
+    needs: plan
+    if: needs.plan.outputs.u_apk == 'true'
+    uses: ./.github/workflows/cloud-mobile-u-apk.yml
+    with:
+      only: ${{ needs.plan.outputs.u_apk_only }}
+    secrets: inherit
+
+  u_models:
+    name: "Mobile · U models"
+    needs: plan
+    if: needs.plan.outputs.u_models == 'true'
+    uses: ./.github/workflows/cloud-mobile-u-models.yml
+    with:
+      only: ${{ needs.plan.outputs.u_models_only }}
+    secrets: inherit
+
+  mobile_audio:
+    name: "Mobile · audio"
+    needs: plan
+    if: needs.plan.outputs.mobile_audio == 'true'
+    uses: ./.github/workflows/cloud-mobile-audio.yml
+    with:
+      only: ${{ needs.plan.outputs.mobile_audio_only }}
+    secrets: inherit
+
+  results:
+    name: save results
+    needs: [plan, quick, framework, studio, wright_sandbox, wright_models, wright_installers, audio_ci, audio_backends, audio_plugins, release_gate, supply_chain, goldens, publish_crates, mobile_apps, u_apk, u_models, mobile_audio]
+    if: always() && needs.plan.result == 'success' && needs.plan.outputs.save_results == 'true'
+    uses: ./.github/workflows/shared-results.yml
+    with:
+      run_id: ${{ github.run_id }}
+      workflow: ${{ github.workflow }}
+      conclusion: ${{ contains(needs.*.result, 'failure') && 'failure' || (contains(needs.*.result, 'cancelled') && 'cancelled' || 'success') }}
+    permissions:
+      contents: write
+      actions: read

@@ -1,9 +1,17 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml and device.yml · Machines · `release_gate*`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Cloud VM's `release_gate` runs the hosted legs, Device's
+# `release_gate_device` the self-hosted ones. Steps are leg ids, plus
+# scope=gate|checks|screenshots rerun=failed|all package=true|false.
+# ─────────────────────────────────────────────────────────────────────
+
 # ROOT COPY (FW-02). GitHub only reads workflows from the repository root, so
 # the release gate that used to sit, unread, at
 # vieww_base/.github/workflows/ci.yml lives here. Differences from that file:
 # every `run:` executes inside vieww_base/ and artifact paths carry the
-# vieww_base/ prefix. Named release-gate.yml so it does not collide with the
-# root ci.yml ("Build Mobile Apps").
+# vieww_base/ prefix. Named shared-release-gate.yml so it does not collide with the
+# root cloud-mobile-apps.yml ("Build Mobile Apps").
 #
 # Windows and macOS legs of the beta release gate, on GitHub-hosted runners.
 #
@@ -45,18 +53,16 @@ name: release-gate
 # Manual only, by the owner's rule (2026-10-26): no push, pull_request,
 # tag or schedule trigger. Actions -> this workflow -> Run workflow.
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       scope:
         description: "gate = everything; checks = fmt/clippy/docs/tests only; screenshots = just the ten pictures (minutes, no gate)"
-        type: choice
-        options: [gate, checks, screenshots]
-        default: gate
+        type: string
+        default: "gate"
       rerun:
         description: "failed = only the rows that failed last time (see RERUN LISTS below); all = full gate"
-        type: choice
-        options: [failed, all]
-        default: failed
+        type: string
+        default: "failed"
       package:
         description: "Build installers"
         type: boolean
@@ -70,7 +76,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: release-gate-${{ github.ref }}
+  group: ${{ github.workflow }}-release-gate-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

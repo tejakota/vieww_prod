@@ -1,6 +1,12 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of device.yml (Device) · Machines · `feature`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Steps: areas=framework,wright,studio,prototype (or auto) depth=quick|full.
+# ─────────────────────────────────────────────────────────────────────
+
 # Feature runs on the self-hosted machine.
 #
-# The release gate (release-gate.yml) proves a release. This proves a
+# The release gate (shared-release-gate.yml) proves a release. This proves a
 # branch: it looks at what the branch changed against main and runs only the
 # checks for those parts, on the owner's own Linux machine, where builds are
 # warm (each area keeps its own target directory between runs), the kernel
@@ -16,53 +22,35 @@
 #   apps/viewwstudio/**         Studio's headless release check
 #   ci/**, .github/**           the quick framework checks
 #
-# When it runs — the owner rule (2026-10-24) is that every workflow runs
-# manually, so by default this does too:
-#
-#   Run workflow                pick the branch, `areas` (auto = from the
-#                               diff) and `depth` (quick | full)
-#   push to a branch            only when the repository variable
-#                               FEATURE_RUNS_ON_PUSH is "true"; otherwise
-#                               the plan job is skipped and no machine is used
-#
-# Never on pull requests: this repository is public, and a pull request
-# from a fork must not run code on the owner's machine. A push can only
-# come from someone with write access, so a push-triggered run executes
-# only branches of this repository.
+# When it runs: only from Device → Run workflow with `feature` ticked
+# (options in the `steps` field: `feature:areas=wright,prototype depth=full`).
+# Never on a push or a pull request: this repository is public, and code
+# from a fork must not run on the owner's machine.
 #
 # Which machine: the repository variable FEATURE_RUNNER, as a JSON list of
 # labels (default ["self-hosted","Linux","X64","vieww-linux"], the machine
-# hardware.yml uses). One runner takes one job at a time, so the areas run
-# in turn; a branch pushed again cancels its run in progress.
+# device-machines-hardware.yml uses). One runner takes one job at a time, so the areas run
+# in turn.
 
 name: feature-runs
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       areas:
         description: "auto = from the branch's diff against main; or a comma list: framework, wright, studio, prototype"
         type: string
-        default: auto
+        default: "auto"
       depth:
         description: "quick = the checks a feature needs; full = whole test suites, plus the prototype's web build"
-        type: choice
-        options: [quick, full]
-        default: quick
-  push:
-    branches-ignore: [main]
-    paths:
-      - "vieww_base/crates/**"
-      - "vieww_base/apps/wright/**"
-      - "vieww_base/apps/viewwstudio/**"
-      - "vieww_base/ci/**"
-      - ".github/workflows/feature-runs.yml"
+        type: string
+        default: "quick"
 
 permissions:
   contents: read
 
 concurrency:
-  group: feature-runs-${{ github.ref }}
+  group: ${{ github.workflow }}-feature-runs-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -75,7 +63,6 @@ env:
 jobs:
   plan:
     name: plan
-    if: github.event_name == 'workflow_dispatch' || vars.FEATURE_RUNS_ON_PUSH == 'true'
     runs-on: ubuntu-latest
     outputs:
       framework: ${{ steps.plan.outputs.framework }}

@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml (Cloud VM) · Mobile · `u_models`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Steps for the entry's `steps` field: model
+# ─────────────────────────────────────────────────────────────────────
+
 name: U - model runtime
 
 # Phase 2's gate for U's model runtime (vieww_base/examples/u):
@@ -17,7 +23,12 @@ name: U - model runtime
 # Actions -> "U - model runtime" -> Run workflow.
 
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      only:
+        description: "Steps (job ids) to run, space-separated; empty = all. Jobs a chosen step needs run too."
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -35,6 +46,7 @@ defaults:
 
 jobs:
   model:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' model '))
     name: Real weights, real decisions
     runs-on: ubuntu-22.04
     timeout-minutes: 90

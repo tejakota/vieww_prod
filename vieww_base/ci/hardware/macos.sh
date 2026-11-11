@@ -2,7 +2,7 @@
 #
 # Everything a Mac with a real GPU and a logged-in desktop can close, in one
 # unattended run — the macOS twin of `ci/hardware/linux.sh` and
-# `ci/hardware/windows.ps1`, run by `hardware.yml`'s `macos` job or by hand.
+# `ci/hardware/windows.ps1`, run by `device-machines-hardware.yml`'s `macos` job or by hand.
 #
 #   ci/hardware/macos.sh                    # every step
 #   ci/hardware/macos.sh baseline stress    # only some

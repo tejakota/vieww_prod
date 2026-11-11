@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml (Cloud VM) · Machines · `supply_chain`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Steps for the entry's `steps` field: advisories repro sbom
+# ─────────────────────────────────────────────────────────────────────
+
 # FW-23: the supply chain, checked every night and on every lockfile change.
 #
 #   advisories  cargo-deny (advisories, bans, licenses, sources) against
@@ -13,17 +19,23 @@ name: supply-chain
 # Manual only, by the owner's rule (2026-10-26): no push, pull_request,
 # tag or schedule trigger. Actions -> this workflow -> Run workflow.
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      only:
+        description: "Steps (job ids) to run, space-separated; empty = all. Jobs a chosen step needs run too."
+        type: string
+        default: ""
 
 permissions:
   contents: read
 
 concurrency:
-  group: supply-chain-${{ github.ref }}
+  group: ${{ github.workflow }}-supply-chain-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   advisories:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' advisories '))
     name: deny + audit (${{ matrix.workspace }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -65,6 +77,7 @@ jobs:
           { echo "### cargo audit (${{ matrix.workspace }})"; echo '```'; grep -E "^(Crate|ID|Title|Warning):" audit.txt || echo "nothing"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
 
   sbom:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' sbom '))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -89,7 +102,7 @@ jobs:
 
   repro:
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
+    if: (github.event_name != 'pull_request') && (inputs.only == '' || contains(format(' {0} ', inputs.only), ' repro '))
     timeout-minutes: 60
     defaults:
       run:

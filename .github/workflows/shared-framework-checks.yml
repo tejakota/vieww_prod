@@ -1,6 +1,14 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml and device.yml · Machines and Mobile · `framework*`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Cloud VM ticks `framework` (machine legs) and `framework_mobile`
+# (android, ios-simulator, android-emulator); Device ticks `android_phone`
+# (the android-device leg). Steps are leg ids.
+# ─────────────────────────────────────────────────────────────────────
+
 name: Framework checks
 
-# The framework's own gate, beside "Build Mobile Apps" (ci.yml), which builds
+# The framework's own gate, beside "Build Mobile Apps" (cloud-mobile-apps.yml), which builds
 # the four apps. Every leg runs a script that already exists under
 # vieww_base/ci/, so a red leg is reproducible locally with the same command.
 #
@@ -52,7 +60,7 @@ name: Framework checks
 # self-hosted leg is "not run", never "passed".
 
 # **Manual only, like every other workflow at this repository's root**
-# (ci.yml, device-farm.yml, hardware.yml). Until 2026-10-19 this file lived at
+# (cloud-mobile-apps.yml, device-mobile-phone-farm.yml, device-machines-hardware.yml). Until 2026-10-19 this file lived at
 # `vieww_base/.github/workflows/`, where GitHub never looks — GitHub reads
 # workflows from the repository root only — so on `main` none of these legs
 # could run, and the referees PENDING names for the NEON compositing loops,
@@ -75,22 +83,12 @@ name: Framework checks
 # fails the run the moment they drift, and the fix is to mirror the changed
 # side into the other and push again.
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      # Which legs to run. `all` (the default) is the full gate. Otherwise
-      # name jobs by their id, separated by spaces or commas — `cross`, or
-      # `cross macos` — to re-run just the ones that went red against the
-      # current commit. (GitHub's own "Re-run failed jobs" re-runs the *old*
-      # commit, so it cannot pick up a fix.) Ids: audio-fuzz gate coverage cross
-      # gpu-lavapipe macos windows android web ios-simulator android-emulator
-      # a11y-gallery plugin-compat.
-      # The wire check always runs (a few seconds, and it guards the two
-      # copies of this file); the report always publishes, listing the legs
-      # not asked for as skipped.
       legs:
         description: "Legs to run: all, or job ids separated by spaces/commas (e.g. cross macos)"
         type: string
-        default: all
+        default: "all"
       device:
         description: "Also run the Android device suite on a self-hosted runner labelled 'android'"
         type: boolean
@@ -100,7 +98,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: framework-checks-${{ github.ref }}
+  group: ${{ github.workflow }}-framework-checks-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -135,9 +133,9 @@ jobs:
       - name: The root file and the vieww_base copy are byte-identical
         run: |
           if ! diff -u vieww_base/.github/workflows/framework-checks.yml \
-                        .github/workflows/framework-checks.yml; then
+                        .github/workflows/shared-framework-checks.yml; then
             echo
-            echo "::error::framework-checks.yml drifted between the repository root and vieww_base/.github/workflows/. GitHub runs the root file; the copy under vieww_base/ is the one sessions without the workflow scope can edit. Mirror the changed side into the other and push again."
+            echo "::error::shared-framework-checks.yml drifted between the repository root and vieww_base/.github/workflows/. GitHub runs the root file; the copy under vieww_base/ is the one sessions without the workflow scope can edit. Mirror the changed side into the other and push again."
             exit 1
           fi
           echo "root and vieww_base copies are byte-identical"

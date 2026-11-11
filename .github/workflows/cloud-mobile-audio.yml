@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml (Cloud VM) · Mobile · `mobile_audio`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Steps for the entry's `steps` field: android ios logic
+# ─────────────────────────────────────────────────────────────────────
+
 # Mobile audio: focus, interruptions, background playback (AU-02, AU-03, AU-04).
 #
 # What hosted runners can check without a phone:
@@ -25,13 +31,18 @@
 name: Mobile audio
 
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      only:
+        description: "Steps (job ids) to run, space-separated; empty = all. Jobs a chosen step needs run too."
+        type: string
+        default: ""
 
 permissions:
   contents: read
 
 concurrency:
-  group: mobile-audio-${{ github.ref }}
+  group: ${{ github.workflow }}-mobile-audio-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -47,6 +58,7 @@ defaults:
 
 jobs:
   logic:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' logic '))
     name: Focus and session logic (Linux)
     runs-on: ubuntu-24.04
     timeout-minutes: 45
@@ -69,6 +81,7 @@ jobs:
         run: python3 -I ci/mobile/test_axml.py
 
   android:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' android '))
     name: Android bridge and APK packaging
     runs-on: ubuntu-24.04
     timeout-minutes: 75
@@ -91,7 +104,7 @@ jobs:
       # The platform crate is type-checked, not linted, for Android: clippy
       # 1.98 reports `missing_const_for_thread_local` on thread-locals that
       # are already `const` in code this workflow does not own. vieww-audio
-      # is linted, as audio-backends.yml does.
+      # is linted, as cloud-machines-audio-backends.yml does.
       - name: Type-check for Android
         run: |
           cargo check -p vieww-platform-winit --lib --target aarch64-linux-android
@@ -124,6 +137,7 @@ jobs:
           if-no-files-found: ignore
 
   ios:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' ios '))
     name: iOS bridge (macOS)
     runs-on: macos-14
     timeout-minutes: 60

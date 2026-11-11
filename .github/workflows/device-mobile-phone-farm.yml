@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of device.yml (Device) · Mobile · `phone_farm`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Steps for the entry's `steps` field: apk ipa iphones phones
+# ─────────────────────────────────────────────────────────────────────
+
 name: Device Farm (Android and iOS phones)
 
 # vieww's on-device suite on real Android phones in AWS Device Farm: low-end,
@@ -18,18 +24,16 @@ name: Device Farm (Android and iOS phones)
 #   AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY  an IAM user's keys
 # The identity needs devicefarm:* on the project (or AWSDeviceFarmFullAccess).
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       platform:
         description: "Which phones"
-        type: choice
-        options: [android, ios, both]
-        default: android
+        type: string
+        default: "android"
       profile:
-        description: "Cargo profile of the APK: dist (what ships: LTO, deps at opt-level s) or release (no LTO, deps at 3) — for A/B runs"
-        type: choice
-        options: [dist, release]
-        default: dist
+        description: "Cargo profile of the APK: dist (what ships: LTO, deps at opt-level s) or release (no LTO, deps at 3) \u2014 for A/B runs"
+        type: string
+        default: "dist"
       devices:
         description: "Phones by name, comma-separated (e.g. 'Pixel 8, Galaxy A14'). Empty = pick low / mid / high automatically"
         type: string
@@ -42,12 +46,16 @@ on:
         description: "Record video of each phone (larger artifacts)"
         type: boolean
         default: false
+      only:
+        description: "Steps (job ids) to run, space-separated; empty = all. Jobs a chosen step needs run too."
+        type: string
+        default: ""
 
 permissions:
   contents: read
 
 concurrency:
-  group: device-farm-${{ github.ref }}
+  group: ${{ github.workflow }}-device-farm-${{ github.ref }}
   cancel-in-progress: false
 
 env:
@@ -80,7 +88,7 @@ jobs:
   apk:
     name: Build the arm64 APK
     needs: main-only
-    if: inputs.platform != 'ios'
+    if: (inputs.platform != 'ios') && (inputs.only == '' || contains(format(' {0} ', inputs.only), ' apk ') || contains(format(' {0} ', inputs.only), ' phones '))
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
@@ -120,7 +128,7 @@ jobs:
   phones:
     name: Device suite on Device Farm phones
     needs: apk
-    if: inputs.platform != 'ios'
+    if: (inputs.platform != 'ios') && (inputs.only == '' || contains(format(' {0} ', inputs.only), ' phones '))
     runs-on: ubuntu-24.04
     timeout-minutes: 150
     permissions:
@@ -213,7 +221,7 @@ jobs:
   ipa:
     name: Build the iOS .ipa
     needs: main-only
-    if: inputs.platform != 'android'
+    if: (inputs.platform != 'android') && (inputs.only == '' || contains(format(' {0} ', inputs.only), ' ipa ') || contains(format(' {0} ', inputs.only), ' iphones '))
     runs-on: macos-14
     timeout-minutes: 90
     env:
@@ -267,7 +275,7 @@ jobs:
   iphones:
     name: Device suite on Device Farm iPhones
     needs: ipa
-    if: inputs.platform != 'android'
+    if: (inputs.platform != 'android') && (inputs.only == '' || contains(format(' {0} ', inputs.only), ' iphones '))
     runs-on: ubuntu-24.04
     timeout-minutes: 150
     permissions:

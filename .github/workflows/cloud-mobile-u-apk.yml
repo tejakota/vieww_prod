@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml (Cloud VM) · Mobile · `u_apk`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Steps for the entry's `steps` field: apk
+# ─────────────────────────────────────────────────────────────────────
+
 name: U APK
 
 # Builds the U prototype (vieww_base/examples/u) into a signed, installable
@@ -16,7 +22,7 @@ name: U APK
 # aapt2 manifest dump), so the download can be verified before
 # `adb install U.apk`.
 #
-# Everything here mirrors the Android half of ci.yml's app builds — the
+# Everything here mirrors the Android half of cloud-mobile-apps.yml's app builds — the
 # pinned toolchain, the pinned SDK/NDK versions, and the debug keystore
 # generated on the runner unless the repository carries ANDROID_KEYSTORE
 # secrets (FW-06). No cargo cache: the first run clocked the cold release
@@ -26,15 +32,18 @@ name: U APK
 # that twenty other workflows share.
 
 on:
-  push:
-    branches: [feature/U]
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      only:
+        description: "Steps (job ids) to run, space-separated; empty = all. Jobs a chosen step needs run too."
+        type: string
+        default: ""
 
 permissions:
   contents: read
 
 concurrency:
-  group: u-apk-${{ github.ref }}
+  group: ${{ github.workflow }}-u-apk-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -47,6 +56,7 @@ env:
 
 jobs:
   apk:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' apk '))
     name: Android APK (arm64)
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -77,7 +87,7 @@ jobs:
       # /usr/local/lib/android/sdk with a working sdkmanager. Components are
       # installed directly — android-actions/setup-android@v3 is skipped
       # because it tries to install the legacy `tools` package Google
-      # removed, and fails. The versions match ci.yml's app builds so an
+      # removed, and fails. The versions match cloud-mobile-apps.yml's app builds so an
       # APK from here and an APK from there are built by the same world.
       - name: Configure Android SDK
         run: |
@@ -255,7 +265,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      # Free the build memory before the runner shuts down, as ci.yml
+      # Free the build memory before the runner shuts down, as cloud-mobile-apps.yml
       # does: the cargo target directory is by far the largest consumer,
       # and gradle appears even though there is no gradle project because
       # cargo-apk shells out to Android build tools that use it.

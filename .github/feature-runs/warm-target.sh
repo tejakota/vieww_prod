@@ -4,7 +4,7 @@
 #
 #   warm-target.sh AREA LINK
 #
-# feature-runs.yml checks out a clean tree every run, so that files left by
+# device-machines-feature.yml checks out a clean tree every run, so that files left by
 # another branch are never compiled, and that clean wipes target/. On the
 # self-hosted machine the build is the expensive part, so each area keeps
 # its target directory under $FEATURE_CACHE/AREA and LINK (relative to the

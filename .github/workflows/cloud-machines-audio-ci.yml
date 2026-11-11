@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml (Cloud VM) · Machines · `audio`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Steps for the entry's `steps` field: fuzz test
+# ─────────────────────────────────────────────────────────────────────
+
 # Audio and music gate — started by hand, like every workflow here.
 #
 # By the repository owner's rule (2026-10-26) no workflow runs on push,
@@ -11,7 +17,7 @@
 #               `-D warnings`.
 #   * `fuzz`  — every vieww-audio decoder under cargo-fuzz, and
 #               BLOCKING: a crash fails the run and uploads the input. (The
-#               `audio-fuzz` leg in framework-checks.yml is the report-only
+#               `audio-fuzz` leg in shared-framework-checks.yml is the report-only
 #               twin.)
 #
 # Mirrored byte-for-byte at vieww_base/.github/workflows/audio-ci.yml, like
@@ -21,13 +27,18 @@ name: Audio CI
 
 # AU-15: Actions -> Audio CI -> Run workflow.
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      only:
+        description: "Steps (job ids) to run, space-separated; empty = all. Jobs a chosen step needs run too."
+        type: string
+        default: ""
 
 permissions:
   contents: read
 
 concurrency:
-  group: audio-ci-${{ github.ref }}
+  group: ${{ github.workflow }}-audio-ci-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -43,7 +54,7 @@ defaults:
 jobs:
   test:
     name: Audio and music crates (tests + clippy)
-    if: github.event_name != 'schedule'
+    if: (github.event_name != 'schedule') && (inputs.only == '' || contains(format(' {0} ', inputs.only), ' test '))
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
@@ -88,7 +99,7 @@ jobs:
 
   fuzz:
     name: Audio decoders under cargo-fuzz (nightly, blocking)
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && (inputs.only == '' || contains(format(' {0} ', inputs.only), ' fuzz '))
     runs-on: ubuntu-24.04
     # 13 targets x FUZZ_SECONDS plus the build must fit: 13 x 3 min + build.
     timeout-minutes: 75

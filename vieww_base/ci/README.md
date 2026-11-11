@@ -62,7 +62,7 @@ app test with `vieww-arm64.apk`.
 
 ## The GitHub workflow
 
-`.github/workflows/framework-checks.yml` (at the repository root) is
+`.github/workflows/shared-framework-checks.yml` (at the repository root) is
 **manual-only**: Actions → Framework checks → Run workflow. Inputs:
 
 | Input | Default | Runs |
@@ -109,7 +109,7 @@ Options:
 |---|---|---|
 | Linux CPU | Local machine | `ci/vieww gate --mode cpu` |
 | Linux GPU | Same machine, afterwards | `ci/vieww gate --mode gpu`. Only the GPU-dependent rows: device class, Vulkan parity suite, GPU workload, census, desktop suite. It builds a small slice of the workspace. |
-| Windows / macOS CPU, macOS GPU (paravirtual, via MoltenVK), Linux export route (Android SDK/NDK preinstalled) | GitHub-hosted runners | `.github/workflows/release-gate.yml`: run it manually, or push a `v*` tag. It never runs on pull requests. |
+| Windows / macOS CPU, macOS GPU (paravirtual, via MoltenVK), Linux export route (Android SDK/NDK preinstalled) | GitHub-hosted runners | `.github/workflows/shared-release-gate.yml`: run it manually, or push a `v*` tag. It never runs on pull requests. |
 
 Hosted runners have much less free disk than a gate needs, so the workflow first runs `tools/ci-runner-prep.sh`. That script deletes unused SDKs and, on Windows, moves `target/` to the drive with the most room. It refuses to run outside GitHub Actions.
 
@@ -129,4 +129,4 @@ The certification scripts read three environment variables. `gate --mode` sets t
 ## Known gaps in this folder
 
 - `tools/patch-winit.sh` expects `ci/tools/winit-hover.patch`. That file is not in the tree, so the Android hover patch cannot be applied. This does not affect desktop.
-- Hosted CI (`.github/workflows/release-gate.yml`) covers the Windows and macOS CPU passes only. Its runners have no GPU and no display, so GPU and real-window rows need real machines. (`framework-checks.yml` does run the Metal suite on the macOS runner's paravirtual GPU and D3D12 on WARP — correctness, not performance.)
+- Hosted CI (`.github/workflows/shared-release-gate.yml`) covers the Windows and macOS CPU passes only. Its runners have no GPU and no display, so GPU and real-window rows need real machines. (`shared-framework-checks.yml` does run the Metal suite on the macOS runner's paravirtual GPU and D3D12 on WARP — correctness, not performance.)

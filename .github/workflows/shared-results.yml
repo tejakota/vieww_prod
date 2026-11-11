@@ -1,3 +1,10 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml and device.yml · Machines and Mobile · `save_results`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Ticked by `save_results` on either entry: the entry's last job calls it
+# with its own run id, once every part has finished.
+# ─────────────────────────────────────────────────────────────────────
+
 # Every CI run's results, written to the branch `ci-results`, so anyone (or a
 # session that can `git fetch` but not call the GitHub API) can read them:
 #
@@ -13,33 +20,24 @@
 #     artifacts/<name>/...                  text artifacts (md/txt/json/tsv/log/html, <2 MB each)
 #   <workflow>/<branch>/history.tsv         one line per run
 #
-# Triggered by `workflow_run`, so it always runs the default branch's copy of
-# this file with a token scoped to this repository — a pull request from a
-# fork cannot change what it does. It reads the finished run through the API
-# and writes only to `ci-results`.
+# Called as the last job of Cloud VM or Device (with `save_results` ticked),
+# once every part of that run has finished. Both entries run only by hand,
+# from this repository's own branches, so nothing from a fork reaches it.
+# It reads the run through the API and writes only to `ci-results`.
 name: ci-results
 
 on:
-  workflow_run:
-    workflows:
-      - pr-quick
-      - release-gate
-      - goldens
-      - supply-chain
-      - publish
-      - Audio CI
-      - Audio backends
-      - Audio plugins (CLAP / VST3)
-      - Hardware (self-hosted Linux and Windows)
-      - Device Farm (Android and iOS phones)
-      - Build Mobile Apps
-      - Framework checks
-      - Wright - built-in models
-      - Wright - desktop installers
-      - Wright sandbox suites
-      - Studio
-      - Mobile audio
-    types: [completed]
+  workflow_call:
+    inputs:
+      run_id:
+        description: "The run to record (the caller's own run id)"
+        type: string
+      workflow:
+        description: "The workflow name the record is filed under"
+        type: string
+      conclusion:
+        description: "success | failure | cancelled, from the caller's parts"
+        type: string
 
 permissions:
   contents: write
@@ -57,13 +55,13 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       REPO: ${{ github.repository }}
-      RUN_ID: ${{ github.event.workflow_run.id }}
-      WF: ${{ github.event.workflow_run.name }}
-      BRANCH: ${{ github.event.workflow_run.head_branch }}
-      SHA: ${{ github.event.workflow_run.head_sha }}
-      EVENT: ${{ github.event.workflow_run.event }}
-      CONCLUSION: ${{ github.event.workflow_run.conclusion }}
-      URL: ${{ github.event.workflow_run.html_url }}
+      RUN_ID: ${{ inputs.run_id }}
+      WF: ${{ inputs.workflow }}
+      BRANCH: ${{ github.ref_name }}
+      SHA: ${{ github.sha }}
+      EVENT: ${{ github.event_name }}
+      CONCLUSION: ${{ inputs.conclusion }}
+      URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ inputs.run_id }}
     steps:
       - name: Collect the run
         run: |
@@ -99,7 +97,19 @@ jobs:
 
           # Failed steps' logs, last 300 lines each (the end is where errors are).
           if [ "$CONCLUSION" != "success" ]; then
-            gh run view "$RUN_ID" -R "$REPO" --log-failed > failed.log 2>/dev/null || true
+            # The run is still going (this job is its last), so `gh run view
+            # --log-failed` would refuse; each failed job's log is final already.
+            python3 - > failed.log <<'PY' || true
+          import json, os, subprocess
+          pages = [json.loads(l) for l in open("jobs.json").read().replace("}{", "}\n{").splitlines() if l.strip()]
+          for j in (j for p in pages for j in p["jobs"]):
+              if j.get("conclusion") != "failure":
+                  continue
+              log = subprocess.run(["gh", "api", f"repos/{os.environ['REPO']}/actions/jobs/{j['id']}/logs"],
+                                   capture_output=True, text=True).stdout
+              for line in log.splitlines():
+                  print(f"{j['name']}\tlog\t{line}")
+          PY
             python3 - "$out/failed-logs.txt" <<'PY'
           import sys, collections
           per = collections.OrderedDict()
@@ -193,7 +203,7 @@ jobs:
               git checkout -q --orphan ci-results
               git rm -rq --cached . >/dev/null 2>&1 || true
               git clean -fdxq
-              printf '# CI results\n\nWritten by .github/workflows/ci-results.yml. Start at LATEST.md.\n' > README.md
+              printf '# CI results\n\nWritten by .github/workflows/shared-results.yml. Start at LATEST.md.\n' > README.md
             fi
             write
             if git push -q origin HEAD:ci-results; then exit 0; fi

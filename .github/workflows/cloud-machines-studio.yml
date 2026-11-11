@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml (Cloud VM) · Machines · `studio`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Steps for the entry's `steps` field: suite
+# ─────────────────────────────────────────────────────────────────────
+
 # vieww Studio's own suite on every desktop OS (ST-12).
 #
 # Before this, one Studio test file (`--test remote`) ran in CI, on one OS.
@@ -18,13 +24,18 @@
 name: Studio
 
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      only:
+        description: "Steps (job ids) to run, space-separated; empty = all. Jobs a chosen step needs run too."
+        type: string
+        default: ""
 
 permissions:
   contents: read
 
 concurrency:
-  group: studio-${{ github.ref }}
+  group: ${{ github.workflow }}-studio-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -41,6 +52,7 @@ defaults:
 
 jobs:
   suite:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' suite '))
     name: Studio suite (${{ matrix.os }})
     strategy:
       fail-fast: false

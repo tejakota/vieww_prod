@@ -5,7 +5,7 @@ profile, Linux x86_64, vieww's own CPU rasterizer, embedded fonts first).
 `docs/RELEASE-CHECK.md`'s claim is that these bytes are the same on every OS,
 so the comparison is exact — no tolerance.
 
-* `.github/workflows/goldens.yml` re-captures on every PR that touches
+* `.github/workflows/cloud-machines-goldens.yml` re-captures on every PR that touches
   rendering code and on every push to main, runs
   `shot-suite.sh --against examples/shots/baseline`, and uploads the
   `shot-diff` report (PNG diffs + index.html) when anything differs.

@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml (Cloud VM) · Machines · `wright_models`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Steps for the entry's `steps` field: platforms reference
+# ─────────────────────────────────────────────────────────────────────
+
 name: Wright - built-in models
 
 # Checks Wright's own inference engine (vieww_base/apps/wright/infer):
@@ -16,7 +22,12 @@ name: Wright - built-in models
 # Actions -> "Wright - built-in models" -> Run workflow.
 
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      only:
+        description: "Steps (job ids) to run, space-separated; empty = all. Jobs a chosen step needs run too."
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -35,6 +46,7 @@ defaults:
 
 jobs:
   reference:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' reference '))
     name: Against llama.cpp and whisper.cpp
     runs-on: ubuntu-22.04
     timeout-minutes: 90
@@ -96,6 +108,7 @@ jobs:
           cargo test --release -p wright-infer --test real -- --nocapture --test-threads 1
 
   platforms:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' platforms '))
     name: Real models on ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90

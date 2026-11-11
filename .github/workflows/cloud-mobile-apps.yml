@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml (Cloud VM) · Mobile · `mobile_apps`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Steps for the entry's `steps` field: android ios
+# ─────────────────────────────────────────────────────────────────────
+
 name: Build Mobile Apps
 
 # Builds the four real apps under ./apps/ — vavlt, snapsearch, upxcale, three —
@@ -22,13 +28,18 @@ name: Build Mobile Apps
 # Manual only (Actions → this workflow → Run workflow). It used to run on every
 # push to feature/vieww_code_base; builds now start when someone asks for one.
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      only:
+        description: "Steps (job ids) to run, space-separated; empty = all. Jobs a chosen step needs run too."
+        type: string
+        default: ""
 
 permissions:
   contents: read
 
 concurrency:
-  group: mobile-build-${{ github.ref }}
+  group: ${{ github.workflow }}-mobile-build-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -44,6 +55,7 @@ jobs:
   # Android APKs — one per app
   # ============================================================
   android:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' android '))
     name: Android APK - ${{ matrix.app }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -326,6 +338,7 @@ jobs:
   # iOS IPAs — one per app
   # ============================================================
   ios:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' ios '))
     name: iOS IPA - ${{ matrix.app }}
     runs-on: macos-latest
     timeout-minutes: 90

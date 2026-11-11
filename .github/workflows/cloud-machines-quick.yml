@@ -1,14 +1,25 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml (Cloud VM) · Machines · `quick`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Steps for the entry's `steps` field: quick workflows wright-sandbox
+# ─────────────────────────────────────────────────────────────────────
+
 # FW-02: signal on every pull request and every branch push, without burning
 # the full matrix. Runs `ci/vieww checks --quick` (fmt, clippy, check, docs,
 # deny, fast tests) on one hosted Linux runner.
 #
 # Safe for a public repository: hosted runner only, read-only token, no
 # secrets, and `pull_request` (not `pull_request_target`) so fork code never
-# sees write access. Self-hosted legs stay in hardware.yml (manual).
+# sees write access. Self-hosted legs stay in device-machines-hardware.yml (manual).
 name: pr-quick
 
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      only:
+        description: "Steps (job ids) to run, space-separated; empty = all. Jobs a chosen step needs run too."
+        type: string
+        default: ""
 
 # Owner rule (2026-10-24): every workflow in this repository runs
 # manually. The pull_request/push triggers this file carried are gone;
@@ -21,7 +32,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: pr-quick-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-pr-quick-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 defaults:
@@ -31,6 +42,7 @@ defaults:
 
 jobs:
   quick:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' quick '))
     name: checks --quick (linux-cpu)
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -57,6 +69,7 @@ jobs:
         run: bash ci/vieww checks --quick
 
   workflows:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' workflows '))
     name: actionlint
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -77,6 +90,7 @@ jobs:
   # namespaces, so the default run exercises the fallback; the second run
   # forces it explicitly so the result never depends on runner policy).
   wright-sandbox:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' wright-sandbox '))
     name: wright sandbox escape suite
     runs-on: ubuntu-latest
     timeout-minutes: 30

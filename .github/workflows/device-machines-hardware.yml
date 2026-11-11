@@ -1,3 +1,10 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of device.yml (Device) · Machines · `hardware_*`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Items hardware_linux / hardware_windows / hardware_macos; their steps are
+# this file's linux_steps / windows_steps / macos_steps words, plus launches=N.
+# ─────────────────────────────────────────────────────────────────────
+
 name: Hardware (self-hosted Linux and Windows)
 
 # The machines that are actually yours, as self-hosted runners, running
@@ -37,7 +44,7 @@ name: Hardware (self-hosted Linux and Windows)
 # to on your machine, so this workflow has no push, pull_request or schedule
 # trigger: nothing a contributor pushes can start it. Keep it so.
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       linux:
         description: "Run on the Linux machine (runner label vieww-linux)"
@@ -74,7 +81,7 @@ permissions:
 # Never cancel a hardware run part-way: a half-finished run leaves a window
 # open on somebody's desktop and measurements that look complete.
 concurrency:
-  group: hardware-${{ github.ref }}
+  group: ${{ github.workflow }}-hardware-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -187,7 +194,7 @@ jobs:
           if-no-files-found: warn
 
   # **Results where a session without API access can read them**, as
-  # framework-checks.yml's report job does: `git fetch origin
+  # shared-framework-checks.yml's report job does: `git fetch origin
   # ci-runs/hardware-<branch>` is all a reader needs. Summaries, receipts,
   # baseline reports and shadow logs are committed; PNGs, GIFs and PPM diff
   # triptychs stay in the run's artifacts (90 days), because they are tens of

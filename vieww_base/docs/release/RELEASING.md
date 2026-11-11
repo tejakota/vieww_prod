@@ -39,7 +39,7 @@ How a version is chosen, cut, checked and shipped (FW-01, FW-03, FW-06).
    * `publish`: package check, `cargo publish --dry-run`, the
      outside-a-checkout scaffold build, then `cargo publish --workspace` if
      the `CARGO_REGISTRY_TOKEN` secret is set (the tag must equal the version).
-5. Run the self-hosted legs on the tag (`hardware.yml` → Run workflow) and
+5. Run the self-hosted legs on the tag (`device-machines-hardware.yml` → Run workflow) and
    merge their run folders into the checklist
    (`ci/vieww checklist ... -o CHECKLIST.md`).
 6. Read the checklist. Every row PASS or an accepted, written exception →

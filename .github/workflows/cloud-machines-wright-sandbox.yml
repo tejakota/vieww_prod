@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml (Cloud VM) · Machines · `wright_sandbox`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Steps for the entry's `steps` field: linux-escape-suite macos-seatbelt-suite windows-doctor-fix windows-fail-closed
+# ─────────────────────────────────────────────────────────────────────
+
 # wright(WR-03/WR-05): the sandbox suites on every OS they can run on.
 #
 # The macOS Seatbelt backend (sandbox_macos.rs) is written-not-run by the
@@ -18,13 +24,16 @@
 name: Wright sandbox suites
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       profile:
         description: "Cargo profile for the Linux leg"
-        type: choice
-        options: [debug, release]
-        default: debug
+        type: string
+        default: "debug"
+      only:
+        description: "Steps (job ids) to run, space-separated; empty = all. Jobs a chosen step needs run too."
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -35,6 +44,7 @@ defaults:
 
 jobs:
   linux-escape-suite:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' linux-escape-suite '))
     name: Linux — full escape suite (Landlock + seccomp)
     runs-on: ubuntu-24.04
     steps:
@@ -61,6 +71,7 @@ jobs:
           printf 'linux escape suite: see the job log\n' > receipts/wright/linux/SUMMARY.txt
 
   macos-seatbelt-suite:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' macos-seatbelt-suite '))
     name: macOS — Seatbelt suite (WR-03)
     runs-on: macos-14
     steps:
@@ -78,6 +89,7 @@ jobs:
         run: cargo run -p wright -- doctor || true
 
   windows-fail-closed:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' windows-fail-closed '))
     name: Windows — probe fail-closed (no WSL on the runner)
     runs-on: windows-2022
     steps:
@@ -107,6 +119,7 @@ jobs:
         run: cargo test -p wright-tools worker -- --test-threads=1
 
   windows-doctor-fix:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' windows-doctor-fix '))
     # WR-14: the doctor --fix machinery and the degraded native tiers.
     # The plan/matrix/script-pinning tests run on every OS, but this leg
     # is where resolve_native actually resolves Windows binaries (git.exe

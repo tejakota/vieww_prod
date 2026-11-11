@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml (Cloud VM) · Machines · `audio`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Steps for the entry's `steps` field: plugins
+# ─────────────────────────────────────────────────────────────────────
+
 name: Audio plugins (CLAP / VST3 / LV2)
 
 # Builds vieww-audio-plugin's example plugins on every desktop platform and
@@ -16,13 +22,18 @@ name: Audio plugins (CLAP / VST3 / LV2)
 # Manual only (Actions → this workflow → Run workflow): no push or
 # pull_request trigger, by the repository owner's choice (2026-10-15).
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      only:
+        description: "Steps (job ids) to run, space-separated; empty = all. Jobs a chosen step needs run too."
+        type: string
+        default: ""
 
 permissions:
   contents: read
 
 concurrency:
-  group: audio-plugins-${{ github.ref }}
+  group: ${{ github.workflow }}-audio-plugins-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -32,6 +43,7 @@ env:
 
 jobs:
   plugins:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' plugins '))
     name: Plugins - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90

@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────────────────────────────
+# Part of cloud-vm.yml (Cloud VM) · Machines · `wright_installers`.
+# No trigger of its own: tick it on the entry's Run workflow form.
+# Steps for the entry's `steps` field: build release update-channel-tests
+# ─────────────────────────────────────────────────────────────────────
+
 name: Wright - desktop installers
 
 # Builds Wright (vieww_base/apps/wright) for Windows, macOS and Linux,
@@ -33,11 +39,11 @@ name: Wright - desktop installers
 # Actions -> "Wright - desktop installers" -> Run workflow.
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       version:
         description: "Version to stamp on the installers (no leading v), e.g. 0.3.0"
-        required: true
+        type: string
         default: "1.0.0"
       publish:
         description: "Publish a GitHub release (tag wright-v<version>). Off = artifacts only."
@@ -47,12 +53,16 @@ on:
         description: "Mark the release as a pre-release"
         type: boolean
         default: true
+      only:
+        description: "Steps (job ids) to run, space-separated; empty = all. Jobs a chosen step needs run too."
+        type: string
+        default: ""
 
 permissions:
   contents: read
 
 concurrency:
-  group: wright-release-${{ github.ref }}
+  group: ${{ github.workflow }}-wright-release-${{ github.ref }}
   cancel-in-progress: false
 
 env:
@@ -69,6 +79,7 @@ defaults:
 
 jobs:
   build:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' build ') || contains(format(' {0} ', inputs.only), ' release '))
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
@@ -309,7 +320,7 @@ jobs:
   release:
     name: Publish release
     needs: build
-    if: ${{ inputs.publish }}
+    if: (inputs.publish) && (inputs.only == '' || contains(format(' {0} ', inputs.only), ' release '))
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -420,9 +431,10 @@ jobs:
 
   # WR-04: the update channel's own tests — fake manifest, tampered
   # asset, stranger key: `wright update check` must refuse each one.
-  # Runs on every dispatch (publish or not); pr-quick.yml runs the same
+  # Runs on every dispatch (publish or not); cloud-machines-quick.yml runs the same
   # suite on every push leg.
   update-channel-tests:
+    if: (inputs.only == '' || contains(format(' {0} ', inputs.only), ' update-channel-tests '))
     name: Update channel tests (WR-04)
     runs-on: ubuntu-22.04
     steps:
