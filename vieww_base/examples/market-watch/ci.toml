@@ -1,0 +1,110 @@
+# CI manifest: Market Watch, the Valdi-vs-Vieww comparison.
+# ci/README.md explains every field; `ci/projects check` validates it.
+#
+# Run it from Actions → 2 · Devices → Run workflow, with
+# "Phone farm" set to "Valdi vs Vieww (Android)" and the tiers you want:
+#
+#   phase 1  compare-vieww-apk   Vieww's Market Watch APK
+#            compare-valdi-apk   Valdi's Market Watch APK, built as Valdi ships it
+#   phase 2  compare-farm        both APKs on every picked phone, 3 configs each
+#   phase 3  compare-report      one table: COMPARE.md, compare.json
+#
+# Both apps are compared as they ship on phones: Valdi as native Android views
+# from a release build made with its own CLI's flags (compare/valdi/), Vieww
+# as its APK. The Valdi side is dropped into a Valdi checkout by
+# compare/valdi/checkout.sh; valdi_ref below pins which one.
+
+name = "Market Watch"
+kind = "mobile-app"
+platforms = ["android"]
+uses = ["vieww"]
+# Its own jobs only: a comparison, not a product to build or release.
+kind_jobs = false
+
+[[job]]
+id = "compare-vieww-apk"
+title = "Valdi vs Vieww · Vieww APK"
+file = "ci/jobs/compare-vieww-apk.toml"
+stage = "devices"
+when = "farm.compare"
+runs_on = "ubuntu-24.04"
+timeout = 60
+main_only = true
+checkout = { persist-credentials = false, fetch-depth = 1 }
+[[job.setup]]
+uses = "rust-cache"
+with = { workspaces = "vieww_base -> target" }
+[[job.setup]]
+uses = "tools"
+with = { tool = "cargo-apk" }
+[[job.upload]]
+name = "compare-vieww-apk"
+path = "dist/vieww-market-watch.apk"
+if-no-files-found = "error"
+
+[[job]]
+id = "compare-valdi-apk"
+title = "Valdi vs Vieww · Valdi APK"
+file = "ci/jobs/compare-valdi-apk.toml"
+stage = "devices"
+when = "farm.compare"
+runs_on = "ubuntu-24.04"
+timeout = 120
+main_only = true
+inputs = { valdi_ref = "e90a983749b384ba403c3bcdd40f7d0432404694" }
+checkout = { persist-credentials = false, fetch-depth = 1 }
+[[job.setup]]
+uses = "java"
+with = { distribution = "temurin", java-version = "17" }
+[[job.upload]]
+name = "compare-valdi-apk"
+path = "dist/valdi-*"
+if-no-files-found = "error"
+
+[[job]]
+id = "compare-farm"
+title = "Valdi vs Vieww · Device Farm phones"
+file = "ci/jobs/compare-farm.toml"
+stage = "devices"
+phase = 2
+needs = ["compare-vieww-apk", "compare-valdi-apk"]
+when = "farm.compare"
+runs_on = "ubuntu-24.04"
+timeout = 180
+main_only = true
+id_token = true
+secrets = ["AWS_ACCESS_KEY_ID", "AWS_ROLE_ARN", "AWS_SECRET_ACCESS_KEY", "DEVICE_FARM_PROJECT_ARN"]
+inputs = { devices = "", count = "3", tiers = "{farm.tiers}", video = "{form.video}" }
+checkout = { persist-credentials = false, fetch-depth = 1 }
+[[job.setup]]
+uses = "aws"
+with = { aws-region = "${{ env.AWS_REGION }}" }
+[[job.upload]]
+name = "compare-farm"
+path = "${{ runner.temp }}/compare-farm"
+if-no-files-found = "warn"
+[[job.download]]
+name = "compare-vieww-apk"
+path = "dist"
+[[job.download]]
+name = "compare-valdi-apk"
+path = "dist"
+
+[[job]]
+id = "compare-report"
+title = "Valdi vs Vieww · report"
+file = "ci/jobs/compare-report.toml"
+stage = "devices"
+phase = 3
+needs = ["compare-farm"]
+when = "farm.compare"
+if = "always()"
+runs_on = "ubuntu-24.04"
+timeout = 15
+write = true
+inputs = { valdi_ref = "e90a983749b384ba403c3bcdd40f7d0432404694" }
+checkout = { persist-credentials = false, fetch-depth = 1 }
+[[job.download]]
+name = "compare-farm"
+path = "in/farm"
+continue-on-error = true

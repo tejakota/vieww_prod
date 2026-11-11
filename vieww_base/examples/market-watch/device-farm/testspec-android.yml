@@ -1,0 +1,25 @@
+# AWS Device Farm custom test spec: Valdi vs Vieww, Market Watch.
+# Uploaded by ci/mobile/device_farm.py (--testspec); the package built by
+# package.sh is unpacked into $DEVICEFARM_TEST_PACKAGE_PATH. As with the
+# device suite, no Appium session runs: the package is Appium-Python-shaped
+# only because that is the upload type a custom spec rides on.
+version: 0.1
+
+android_test_host: amazon_linux_2
+
+phases:
+  install:
+    commands:
+      - adb version
+  pre_test:
+    commands:
+      - adb devices -l
+  test:
+    commands:
+      - bash $DEVICEFARM_TEST_PACKAGE_PATH/run-android.sh
+  post_test:
+    commands:
+      - ls -la $DEVICEFARM_LOG_DIR/mw || true
+
+artifacts:
+  - $DEVICEFARM_LOG_DIR

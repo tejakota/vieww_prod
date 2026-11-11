@@ -1,0 +1,44 @@
+# Valdi vs Vieww · one report
+# The phones' results as one table: COMPARE.md and compare.json, into the job
+# summary and onto ci-runs/compare-<branch> (raw logs and screenshots stay in
+# the run's artifacts).
+
+name = "Valdi vs Vieww · report"
+
+[defaults]
+shell = "bash"
+working-directory = "."
+
+[[step]]
+name = "Report"
+env = { REPO = "${{ github.repository }}" }
+run = '''
+mkdir -p in/farm report
+header="run: ${GITHUB_SERVER_URL}/${REPO}/actions/runs/${GITHUB_RUN_ID} · vieww ${GITHUB_SHA:0:10} · valdi ${{ inputs.valdi_ref }} · phones: ${{ needs.compare-farm.result }}"
+python3 vieww_base/examples/market-watch/compare_report.py --farm in/farm \
+  --out report --header "$header" > /dev/null
+cat report/COMPARE.md >> "$GITHUB_STEP_SUMMARY"
+'''
+
+[[step]]
+name = "Push to ci-runs/compare-<branch>"
+if = "github.ref == 'refs/heads/main'"
+env = { TOKEN = "${{ github.token }}", REPO = "${{ github.repository }}" }
+run = '''
+# The report plus the screenshots; device logs are left in the artifacts,
+# where an iPhone-sized syslog cannot trip GitHub's 100 MB file limit.
+mkdir -p publish/shots
+cp report/COMPARE.md report/compare.json publish/
+find in -name 'shot-*.png' -size -3M | while read -r f; do
+  cp "$f" "publish/shots/$(echo "$f" | tr '/ ' '__' | sed 's/^in__//')"
+done
+branch="ci-runs/compare-${GITHUB_REF_NAME//\//-}"
+cd publish
+git init -q
+git checkout -q -b "$branch"
+git config user.name "vieww-ci"
+git config user.email "vieww-ci@users.noreply.github.com"
+git add -A
+git commit -q -m "Valdi vs Vieww for ${GITHUB_SHA} (${GITHUB_REF_NAME})"
+git push -q -f "https://x-access-token:${TOKEN}@github.com/${REPO}.git" "HEAD:refs/heads/$branch"
+'''

@@ -1,0 +1,45 @@
+# Valdi vs Vieww · the Vieww APK
+# Market Watch's Android example, packaged as its own app
+# (dev.vieww.marketwatch) so it installs beside the Valdi one. Built the way
+# the device suite's APK is (vieww_base/examples/u/ci/jobs/farm-apk.toml).
+
+name = "Valdi vs Vieww · Vieww APK"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_VERSION = "1.98.1"
+
+[[step]]
+name = "Toolchain, target and cargo-apk"
+run = '''
+rustup toolchain install "$RUST_VERSION" --profile minimal
+rustup target add --toolchain "$RUST_VERSION" aarch64-linux-android
+'''
+
+[[step]]
+name = "Shipping (dist) APK, with the classes.dex device clouds expect"
+env = { ANDROID_NDK_HOME = "${{ env.ANDROID_NDK_LATEST_HOME }}" }
+run = '''
+. ci/mobile/android-env.sh
+android_env device-farm
+mkdir -p ../dist
+marker="$(mktemp)"
+cargo apk build -p market-watch --example android --profile dist --target aarch64-linux-android
+apk="$(find target -path '*/apk/*' -name 'vieww-market-watch*.apk' -newer "$marker" | head -1)"
+[ -n "$apk" ] || { echo "::error::no Market Watch APK was built"; exit 1; }
+ci/mobile/apk-add-code.sh "$apk" ../dist/vieww-market-watch.apk
+ls -l ../dist
+'''
+
+[[step]]
+name = "mark: upload compare-vieww-apk"
+if = "success()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

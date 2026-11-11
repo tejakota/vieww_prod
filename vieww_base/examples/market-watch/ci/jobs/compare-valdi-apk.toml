@@ -1,0 +1,81 @@
+# Valdi vs Vieww · the Valdi APK, built the way Valdi ships
+# The same screen in Valdi (compare/valdi/apps/market_watch), in a Valdi
+# checkout pinned to inputs.valdi_ref, built with exactly the flags Valdi's own
+# CLI uses for `valdi package android --build_config release` on an arm64
+# phone (compare/valdi/release-flags.mjs reads them from that checkout), then
+# checked: arm64, Hermes, not debuggable.
+
+name = "Valdi vs Vieww · Valdi APK"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+VALDI = "${{ runner.temp }}/valdi"
+VALDI_REF = "${{ inputs.valdi_ref }}"
+
+[[step]]
+name = "Valdi checkout with Market Watch"
+run = '''
+examples/market-watch/compare/valdi/checkout.sh "$VALDI" "$VALDI_REF"
+node examples/market-watch/compare/valdi/release-flags.mjs "$VALDI" > "$RUNNER_TEMP/valdi-release-flags.txt"
+echo "Valdi's release flags at $VALDI_REF:"; cat "$RUNNER_TEMP/valdi-release-flags.txt"
+'''
+
+[[step]]
+name = "Bazel"
+run = '''
+npm install -g @bazel/bazelisk >/dev/null
+# Bazel is memory-hungry on Android builds (Valdi's docs ask for 8 GB of swap).
+sudo fallocate -l 8G /swapfile2 && sudo chmod 600 /swapfile2 && sudo mkswap /swapfile2 >/dev/null && sudo swapon /swapfile2 || true
+'''
+
+[[step]]
+name = "Release APK, as Valdi's CLI builds it"
+working-directory = "${{ runner.temp }}/valdi"
+run = '''
+# Word splitting is intended: one flag per line, and "-c opt" is two words.
+# shellcheck disable=SC2046
+bazel build $(cat "$RUNNER_TEMP/valdi-release-flags.txt") //apps/market_watch:market_watch_app_android
+apk="$(find -L bazel-bin/apps/market_watch -maxdepth 1 -name '*.apk' ! -name '*unsigned*' | head -1)"
+[ -n "$apk" ] || { echo "::error::no Valdi APK was built"; find -L bazel-bin/apps/market_watch -maxdepth 2 -name '*.apk'; exit 1; }
+mkdir -p "$GITHUB_WORKSPACE/dist"
+cp "$apk" "$GITHUB_WORKSPACE/dist/valdi-market-watch.apk"
+{
+  echo "valdi_ref=$(git rev-parse HEAD)"
+  echo "flags=$(tr '\n' ' ' < "$RUNNER_TEMP/valdi-release-flags.txt")"
+} > "$GITHUB_WORKSPACE/dist/valdi-build.txt"
+ls -l "$GITHUB_WORKSPACE/dist"
+'''
+
+[[step]]
+name = "It is what ships: arm64, Hermes, not debuggable"
+working-directory = "."
+run = '''
+apk=dist/valdi-market-watch.apk
+libs="$(unzip -l "$apk" | awk '{print $4}' | grep '^lib/' || true)"
+echo "$libs"
+grep -q '^lib/arm64-v8a/' <<< "$libs" || { echo "::error::no arm64-v8a libraries: not a phone build"; exit 1; }
+grep -qi 'hermes' <<< "$libs" || { echo "::error::no Hermes in the APK: not the engine Valdi defaults to"; exit 1; }
+aapt2="$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)"
+if "$aapt2" dump xmltree --file AndroidManifest.xml "$apk" | grep -q 'android:debuggable.*=0xffffffff'; then
+  echo "::error::the APK is debuggable: a development build, not a release one"; exit 1
+fi
+{
+  echo "abi=arm64-v8a"
+  echo "engine=hermes"
+  echo "debuggable=false"
+  echo "apk_bytes=$(stat -c %s "$apk")"
+} >> dist/valdi-build.txt
+cat dist/valdi-build.txt | tee -a "$GITHUB_STEP_SUMMARY"
+'''
+
+[[step]]
+name = "mark: upload compare-valdi-apk"
+if = "success()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

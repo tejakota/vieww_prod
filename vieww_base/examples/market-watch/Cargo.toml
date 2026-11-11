@@ -1,0 +1,57 @@
+[package]
+name = "market-watch"
+description = "The Valdi-vs-Vieww comparison screen: a virtualised live-ticker feed, headless and on Android."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "market-watch"
+path = "src/main.rs"
+
+# The phone app: `cargo apk build -p market-watch --example android`.
+[[example]]
+name = "android"
+crate-type = ["cdylib"]
+
+[dependencies]
+vieww-element.workspace = true
+vieww = { workspace = true, features = ["native"] }
+vieww-foundation.workspace = true
+vieww-paint = { workspace = true, features = ["native"] }
+vieww-render.workspace = true
+vieww-widget.workspace = true
+vieww-animation.workspace = true
+
+[target.'cfg(target_os = "android")'.dependencies]
+vieww-platform-winit.workspace = true
+android_logger = "0.14"
+log = "0.4"
+
+# Read by `cargo apk`, ignored by every other build. Its own package, so it
+# installs beside the demo app and the Valdi app without replacing either.
+[package.metadata.android]
+package = "dev.vieww.marketwatch"
+build_targets = ["aarch64-linux-android"]
+apk_name = "vieww-market-watch"
+
+[package.metadata.android.sdk]
+min_sdk_version = 24
+target_sdk_version = 34
+
+[package.metadata.android.application]
+label = "Vieww Market Watch"
+theme = "@android:style/Theme.DeviceDefault.NoActionBar"
+
+[package.metadata.android.application.activity]
+orientation = "portrait"
+config_changes = "orientation|screenSize|smallestScreenSize|keyboardHidden|screenLayout|density"
+
+[[package.metadata.android.application.activity.intent_filter]]
+actions = ["android.intent.action.MAIN"]
+categories = ["android.intent.category.LAUNCHER"]

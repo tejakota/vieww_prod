@@ -467,6 +467,15 @@ def main():
     parser.add_argument("--timeout-min", type=int, default=120)
     parser.add_argument("--video", action="store_true")
     parser.add_argument("--run-name", default=os.environ.get("GITHUB_SHA", "local")[:12])
+    # Another suite on the same machinery (the Valdi-vs-Vieww comparison,
+    # examples/market-watch/device-farm): its own package builder and spec.
+    # The defaults are the device suite's, so existing callers are unchanged.
+    parser.add_argument("--package-script", default=None,
+                        help="builds the test package: called as SCRIPT OUT.zip (default: device-farm/package.sh)")
+    parser.add_argument("--testspec", default=None,
+                        help="the custom test spec to upload (default: device-farm/testspec-<platform>.yml)")
+    parser.add_argument("--job-timeout-min", type=int, default=75,
+                        help="Device Farm's per-phone limit (default 75)")
     args = parser.parse_args()
     if not args.project_arn:
         print("device_farm: no project ARN (--project-arn or DEVICE_FARM_PROJECT_ARN)", file=sys.stderr)
@@ -490,13 +499,15 @@ def main():
         say(f"phone: {d['name']} ({'iOS' if ios else 'Android'} {d.get('os')}, {(d.get('memory') or 0) / 2**30:.1f} GB, {d['tier']})")
 
     package = out / "vieww-device-farm-tests.zip"
-    subprocess.run(["bash", str(HERE / "device-farm" / "package.sh"), str(package)], check=True)
+    package_script = pathlib.Path(args.package_script) if args.package_script else HERE / "device-farm" / "package.sh"
+    subprocess.run(["bash", str(package_script), str(package)], check=True)
     app_arn = upload(aws, args.project_arn, app_path, "IOS_APP" if ios else "ANDROID_APP")
     package_arn = upload(aws, args.project_arn, package, "APPIUM_PYTHON_TEST_PACKAGE")
     spec_arn = upload(
         aws,
         args.project_arn,
-        HERE / "device-farm" / ("testspec-ios.yml" if ios else "testspec-android.yml"),
+        pathlib.Path(args.testspec) if args.testspec
+        else HERE / "device-farm" / ("testspec-ios.yml" if ios else "testspec-android.yml"),
         "APPIUM_PYTHON_TEST_SPEC",
     )
 
@@ -514,7 +525,7 @@ def main():
             }
         ),
         "--execution-configuration",
-        json.dumps({"jobTimeoutMinutes": 75, "videoCapture": bool(args.video)}),
+        json.dumps({"jobTimeoutMinutes": args.job_timeout_min, "videoCapture": bool(args.video)}),
     )["run"]
     say(f"scheduled {run['arn']}")
     (out / "run-arn.txt").write_text(run["arn"] + "\n")

@@ -436,6 +436,9 @@ def form_flags(workflow, form, vars_):
     flags["release.rerun"] = "failed" if mode.startswith("rehearse") else "all"
     flags["release.legs"] = "all" if b("include_machines") else "hosted"
     farm = form.get("farm", "off")
+    # The Valdi-vs-Vieww comparison (vieww_base/examples/market-watch) is its
+    # own farm choice: its phones run both frameworks, not the device suite.
+    flags["farm.compare"] = farm == "Valdi vs Vieww (Android)"
     flags["farm.android"] = farm in ("Android", "both")
     flags["farm.ios"] = farm in ("iPhone", "both")
     flags["farm.any"] = flags["farm.android"] or flags["farm.ios"]

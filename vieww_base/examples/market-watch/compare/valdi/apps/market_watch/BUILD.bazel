@@ -1,0 +1,32 @@
+# Market Watch — copied into a Valdi checkout by vieww's comparison CI
+# (vieww_base/examples/market-watch/ci/jobs/compare-valdi.toml), together with
+# app_assets/ from apps/helloworld for the launch theme and icon.
+load("//bzl/valdi:valdi_application.bzl", "valdi_application", "valdi_application_icons")
+load("//bzl/valdi:valdi_module.bzl", "valdi_module")
+
+valdi_module(
+    name = "market_watch",
+    srcs = glob([
+        "src/**/*.ts",
+        "src/**/*.tsx",
+    ]) + ["tsconfig.json"],
+    ios_module_name = "MarketWatch",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/valdi_modules/src/valdi/valdi_core",
+        "//src/valdi_modules/src/valdi/valdi_tsx",
+    ],
+)
+
+# bazel build -c opt //apps/market_watch:market_watch_app_android
+valdi_application(
+    name = "market_watch_app",
+    android_activity_theme_name = "Theme.MyApp.Launch",
+    android_package = "com.snap.valdi.marketwatch",
+    android_resource_files = glob(["app_assets/android/**"]),
+    icons = valdi_application_icons(src = "app_assets/icon.png"),
+    root_component_path = "MarketWatch@market_watch/src/MarketWatch",
+    title = "Valdi Market Watch",
+    version = "1.0.0",
+    deps = [":market_watch"],
+)

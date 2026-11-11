@@ -1,0 +1,56 @@
+# Valdi vs Vieww · on Device Farm phones
+# One Device Farm run: the Vieww APK is the run's app, the Valdi APK rides in
+# the test package, and device-farm/run-android.sh runs Vieww CPU, Valdi and
+# Vieww GPU through the full schedule on every phone picked (low / mid / high
+# tier, from the form). Same secrets and OIDC role as the device suite.
+
+name = "Valdi vs Vieww · Device Farm phones"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+AWS_REGION = "us-west-2"
+DEVICE_FARM_PROJECT_ARN = "${{ secrets.DEVICE_FARM_PROJECT_ARN }}"
+
+[[step]]
+name = "Check the secrets are there"
+run = '''
+[ -n "$DEVICE_FARM_PROJECT_ARN" ] || { echo "::error::secret DEVICE_FARM_PROJECT_ARN is not set"; exit 1; }
+ls -l ../dist
+'''
+
+[[step]]
+name = "Run on phones"
+env = { DEVICES = "${{ inputs.devices }}", COUNT = "${{ inputs.count }}", TIERS = "${{ inputs.tiers }}", VIDEO = "${{ inputs.video }}", OUT = "${{ runner.temp }}/compare-farm" }
+run = '''
+video=(); [ "$VIDEO" = true ] && video=(--video)
+mkdir -p "$OUT"
+# How Valdi was built (its CLI's release flags, arm64, Hermes, not debuggable),
+# beside the results so the report can say so.
+cp ../dist/valdi-build.txt "$OUT/" 2>/dev/null || true
+set +e
+# Three configurations x (5 cold starts + ~2.5 min schedule) + rests: about
+# 15 minutes a phone. 45 leaves room for a slow low-tier phone.
+VALDI_APK="$PWD/../dist/valdi-market-watch.apk" \
+python3 ci/mobile/device_farm.py --apk ../dist/vieww-market-watch.apk --out "$OUT" \
+  --package-script examples/market-watch/device-farm/package.sh \
+  --testspec examples/market-watch/device-farm/testspec-android.yml \
+  --job-timeout-min 45 --timeout-min 120 --run-name "mw-${GITHUB_SHA:0:10}" \
+  --devices "$DEVICES" --count "$COUNT" --tiers "$TIERS" "${video[@]}" 2>&1 | tee "$OUT/device_farm.log"
+status=${PIPESTATUS[0]}
+echo "device_farm.py exited $status" >> "$OUT/device_farm.log"
+python3 examples/market-watch/compare_report.py --farm "$OUT" --out "$OUT/report" > /dev/null
+[ -f "$OUT/report/COMPARE.md" ] && cat "$OUT/report/COMPARE.md" >> "$GITHUB_STEP_SUMMARY"
+exit $status
+'''
+
+[[step]]
+name = "mark: upload compare-farm"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''
