@@ -121,12 +121,44 @@ du -sh "$CACHE/disk" "$CACHE/repo"
 '''
 
 [[step]]
-name = "The APK and its build record"
+name = "The APK, signed, and its build record"
 working-directory = "."
+env = { ANDROID_KEYSTORE = "${{ secrets.ANDROID_KEYSTORE }}", ANDROID_KEYSTORE_PASSWORD = "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}", ANDROID_KEY_ALIAS = "${{ secrets.ANDROID_KEY_ALIAS }}", ANDROID_KEY_PASSWORD = "${{ secrets.ANDROID_KEY_PASSWORD }}" }
 run = '''
 mkdir -p dist
-cp "$CACHE/apk/valdi-market-watch.apk" "$CACHE/apk/valdi-build.txt" dist/
+cp "$CACHE/apk/valdi-build.txt" dist/
 echo "cached=${{ steps.cached.outputs.hit }}" >> dist/valdi-build.txt
+
+# A production Valdi build comes out unsigned: Valdi's android_binary is given
+# no key, and `valdi package` leaves release signing to the developer, as any
+# Android release does. Phones refuse an unsigned APK ("No JAR signatures"),
+# so sign it the standard way — zipalign, then apksigner (v1 + v2 + v3).
+# Signing does not touch code or resources, so the app runs as it would
+# from a store.
+#
+# The key follows vieww's own APK jobs (examples/u/ci/jobs/apk.toml): the
+# repository's release keystore when the ANDROID_KEYSTORE secrets exist,
+# otherwise a debug key (fine for adb install, which is all the farm does).
+bt="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)"
+if [ -n "$ANDROID_KEYSTORE" ] && [ -n "$ANDROID_KEYSTORE_PASSWORD" ] && [ -n "$ANDROID_KEY_ALIAS" ]; then
+  echo "Signing with the release keystore from repository secrets"
+  umask 077
+  printf '%s' "$ANDROID_KEYSTORE" | base64 --decode > "$RUNNER_TEMP/release.jks"
+  ks="$RUNNER_TEMP/release.jks"; ks_pass="$ANDROID_KEYSTORE_PASSWORD"
+  alias="$ANDROID_KEY_ALIAS"; key_pass="${ANDROID_KEY_PASSWORD:-$ANDROID_KEYSTORE_PASSWORD}"
+  echo "signed_with=release keystore (repository secrets)" >> dist/valdi-build.txt
+else
+  echo "::notice::No ANDROID_KEYSTORE secrets: the Valdi APK is debug-signed (fine for adb install; not for Play)"
+  ks="$RUNNER_TEMP/debug.keystore"; ks_pass=android; alias=androiddebugkey; key_pass=android
+  rm -f "$ks"
+  keytool -genkeypair -keystore "$ks" -storepass "$ks_pass" -keypass "$key_pass" -alias "$alias" \
+    -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" >/dev/null 2>&1
+  echo "signed_with=debug key" >> dist/valdi-build.txt
+fi
+"$bt/zipalign" -p -f 4 "$CACHE/apk/valdi-market-watch.apk" "$RUNNER_TEMP/aligned.apk"
+"$bt/apksigner" sign --ks "$ks" --ks-pass "pass:$ks_pass" --ks-key-alias "$alias" --key-pass "pass:$key_pass" \
+  --out dist/valdi-market-watch.apk "$RUNNER_TEMP/aligned.apk"
+rm -f "$RUNNER_TEMP/release.jks" "$RUNNER_TEMP/aligned.apk"
 ls -l dist
 '''
 

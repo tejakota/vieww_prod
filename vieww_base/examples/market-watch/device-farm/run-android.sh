@@ -87,6 +87,13 @@ else
 fi
 valdi_install="$(adb install -r -g "$VALDI_APK" 2>&1)"
 printf '%s\n' "$valdi_install" >> "$out/install.log"
+# A copy from an earlier run, signed with a different key, blocks `install -r`
+# (the CI's debug key is new each run). Remove it and install fresh, once.
+if grep -q 'INSTALL_FAILED_UPDATE_INCOMPATIBLE' <<< "$valdi_install"; then
+    sh_ pm uninstall "$VALDI_PKG" >> "$out/install.log"
+    valdi_install="$(adb install -g "$VALDI_APK" 2>&1)"
+    printf 'retry after uninstall:\n%s\n' "$valdi_install" >> "$out/install.log"
+fi
 
 # One line per app, in result.txt itself: the reason a phone refused an APK
 # (INSTALL_FAILED_…, INSTALL_PARSE_FAILED_…) reaches the report, not only the

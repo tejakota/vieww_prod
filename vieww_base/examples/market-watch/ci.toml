@@ -51,6 +51,8 @@ when = "farm.compare"
 runs_on = "ubuntu-24.04"
 timeout = 120
 main_only = true
+# Signing, as vieww's own APK jobs do: the release keystore when present.
+secrets = ["ANDROID_KEYSTORE", "ANDROID_KEYSTORE_PASSWORD", "ANDROID_KEY_ALIAS", "ANDROID_KEY_PASSWORD"]
 inputs = { valdi_ref = "e90a983749b384ba403c3bcdd40f7d0432404694" }
 checkout = { persist-credentials = false, fetch-depth = 1 }
 [[job.setup]]
