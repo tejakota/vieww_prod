@@ -57,10 +57,18 @@ def steps(kind):
           update-environment: false""")
     a("""      - name: Python for the runner (self-host machines)
         id: py_self_host
+        if: runner.os != 'macOS'
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           update-environment: false""")
+    a("""      - name: Python for the runner (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew list python@3.12 >/dev/null 2>&1 || brew install python@3.12
+          echo "$(brew --prefix python@3.12)/libexec/bin" >> "$GITHUB_PATH"
+          python3 -V
+          python3 -c 'import tomllib; print("tomllib ok")'""")
     a("""      - name: Plan this job
         id: prep
         shell: bash
