@@ -1,0 +1,84 @@
+{
+  "run": {
+    "arn": "arn:aws:devicefarm:us-west-2:278061313767:run:393108fd-d195-4dad-acb4-12581f7a212f/07169879-fb2a-48c1-b93a-cc5769958d1d",
+    "status": "COMPLETED",
+    "result": "FAILED",
+    "counters": {
+      "total": 9,
+      "passed": 6,
+      "failed": 3,
+      "warned": 0,
+      "errored": 0,
+      "stopped": 0,
+      "skipped": 0
+    }
+  },
+  "devices": [
+    {
+      "device": "LG Stylo 5",
+      "os": "9",
+      "tier": "low",
+      "job_result": "FAILED",
+      "folder": "LG_Stylo_5-9",
+      "result": {
+        "device_name": "LMQ7201bd50691",
+        "model": "LM-Q720",
+        "android": "9",
+        "sdk": "28",
+        "soc": "msm8953",
+        "cpu_cores": "8",
+        "mem_total_kb": "2878756",
+        "display": "1080x2160",
+        "density": "420",
+        "refresh_hz": "60.000004",
+        "apk_bytes_dev.vieww.marketwatch": "2752928",
+        "missing_com.snap.valdi.marketwatch": "yes",
+        "status": "FAIL"
+      }
+    },
+    {
+      "device": "Samsung Galaxy A36",
+      "os": "16",
+      "tier": "mid",
+      "job_result": "FAILED",
+      "folder": "Samsung_Galaxy_A36-16",
+      "result": {
+        "device_name": "RZCY80L23GJ",
+        "model": "SM-A366U1",
+        "android": "16",
+        "sdk": "36",
+        "soc": "SM6475",
+        "cpu_cores": "8",
+        "mem_total_kb": "5510448",
+        "display": "1080x2340",
+        "density": "450",
+        "refresh_hz": "120.00001",
+        "apk_bytes_dev.vieww.marketwatch": "2752928",
+        "missing_com.snap.valdi.marketwatch": "yes",
+        "status": "FAIL"
+      }
+    },
+    {
+      "device": "Samsung Galaxy S26 Ultra",
+      "os": "16",
+      "tier": "high",
+      "job_result": "FAILED",
+      "folder": "Samsung_Galaxy_S26_Ultra-16",
+      "result": {
+        "device_name": "RFGL126LSST",
+        "model": "SM-S948U1",
+        "android": "16",
+        "sdk": "36",
+        "soc": "SM8850",
+        "cpu_cores": "8",
+        "mem_total_kb": "11389632",
+        "display": "1080x2340",
+        "density": "450",
+        "refresh_hz": "120.00001",
+        "apk_bytes_dev.vieww.marketwatch": "2752928",
+        "missing_com.snap.valdi.marketwatch": "yes",
+        "status": "FAIL"
+      }
+    }
+  ]
+}

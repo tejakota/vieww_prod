@@ -1,21 +1,21 @@
 # 2 · Devices — FAILURE
 
-- branch: `main`  sha: `a548cd2186ad6c50266f561499ad561530db9ef7`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/43057735818
+- branch: `main`  sha: `e2f49f27a23b82843a67ad3c3127f86dff6f32c9`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/43172769702
 
 | job | verdict | failed steps |
 |---|---|---|
 | plan / plan | PASS |  |
 | phase-1 / Market Watch · compare-vieww-apk | PASS |  |
-| phase-1 / Market Watch · compare-valdi-apk | FAIL | Market Watch · compare-valdi-apk |
+| phase-1 / Market Watch · compare-valdi-apk | PASS |  |
 | phase-1 / approve | skipped |  |
 | phase-1 / matrix.title | skipped |  |
-| phase-2 / Market Watch · compare-farm | PASS |  |
+| phase-2 / Market Watch · compare-farm | FAIL | Market Watch · compare-farm |
 | phase-2 / approve | skipped |  |
 | phase-2 / matrix.title | skipped |  |
 | phase-3 / Market Watch · compare-report | PASS |  |
-| phase-3 / matrix.title | skipped |  |
 | phase-3 / approve | skipped |  |
+| phase-3 / matrix.title | skipped |  |
 | results / publish | running |  |
 
 ## Steps
@@ -57,7 +57,7 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-1 / Market Watch · compare-valdi-apk — FAIL
+### phase-1 / Market Watch · compare-valdi-apk — PASS
 - PASS: Set up job
 - skipped: Long paths (Windows)
 - PASS: Run actions/checkout@v4
@@ -68,21 +68,22 @@
 - skipped: Run gradle/actions/setup-gradle@v4
 - skipped: Run taiki-e/install-action@v2
 - skipped: Run Swatinem/rust-cache@v2
-- skipped: Run actions/cache@v4
+- PASS: Run actions/cache@v4
 - skipped: AWS credentials (OIDC role)
 - skipped: AWS credentials (access keys)
 - skipped: Run actions/download-artifact@v4
 - skipped: Run actions/download-artifact@v4
-- FAIL: Market Watch · compare-valdi-apk
+- PASS: Market Watch · compare-valdi-apk
 - skipped: Android emulator
 - skipped: Build provenance (Sigstore, keyless)
 - skipped: After
+- PASS: Run actions/upload-artifact@v4
 - skipped: Run actions/upload-artifact@v4
 - skipped: Run actions/upload-artifact@v4
 - skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
+- PASS: Post Run actions/cache@v4
 - PASS: Post Run actions/setup-java@v4
-- skipped: Post Python for the runner (GitHub's machines)
+- PASS: Post Python for the runner (GitHub's machines)
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
@@ -90,7 +91,7 @@
 
 ### phase-1 / matrix.title — skipped
 
-### phase-2 / Market Watch · compare-farm — PASS
+### phase-2 / Market Watch · compare-farm — FAIL
 - PASS: Set up job
 - skipped: Long paths (Windows)
 - PASS: Run actions/checkout@v4
@@ -102,19 +103,20 @@
 - skipped: Run taiki-e/install-action@v2
 - skipped: Run Swatinem/rust-cache@v2
 - skipped: Run actions/cache@v4
-- skipped: AWS credentials (OIDC role)
+- PASS: AWS credentials (OIDC role)
 - skipped: AWS credentials (access keys)
-- skipped: Run actions/download-artifact@v4
-- skipped: Run actions/download-artifact@v4
-- skipped: Market Watch · compare-farm
+- PASS: Run actions/download-artifact@v4
+- PASS: Run actions/download-artifact@v4
+- FAIL: Market Watch · compare-farm
 - skipped: Android emulator
 - skipped: Build provenance (Sigstore, keyless)
 - skipped: After
+- PASS: Run actions/upload-artifact@v4
 - skipped: Run actions/upload-artifact@v4
 - skipped: Run actions/upload-artifact@v4
 - skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- PASS: Post Python for the runner (GitHub's machines)
+- PASS: Post AWS credentials (OIDC role)
+- skipped: Post Python for the runner (GitHub's machines)
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
@@ -150,14 +152,11 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-3 / matrix.title — skipped
-
 ### phase-3 / approve — skipped
 
-### results / publish — running
-- PASS: Set up job
-- running: Collect the run
-- running: Run actions/checkout@v4
-- running: Write to the ci-results branch
+### phase-3 / matrix.title — skipped
 
-- artifacts: compare-vieww-apk 
+### results / publish — running
+- running: Set up job
+
+- artifacts: compare-farm compare-valdi-apk compare-vieww-apk 
