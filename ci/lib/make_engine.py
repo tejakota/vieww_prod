@@ -66,7 +66,20 @@ def steps(kind):
         if: runner.os == 'macOS'
         run: |
           brew list python@3.12 >/dev/null 2>&1 || brew install python@3.12
-          echo "$(brew --prefix python@3.12)/libexec/bin" >> "$GITHUB_PATH"
+
+          PY="$(brew --prefix python@3.12)/bin/python3.12"
+          [ -x "$PY" ] || { echo "::error::no python3.12 at $PY"; exit 1; }
+          "$PY" -c 'import tomllib' || { echo "::error::$PY has no tomllib"; exit 1; }
+
+          # Our own bin dir, so `python3` means 3.12 without relying on where
+          # Homebrew puts its unversioned symlinks for a keg-only formula.
+          mkdir -p "$RUNNER_TEMP/pybin"
+          ln -sf "$PY" "$RUNNER_TEMP/pybin/python3"
+          ln -sf "$PY" "$RUNNER_TEMP/pybin/python"
+
+          echo "$RUNNER_TEMP/pybin" >> "$GITHUB_PATH"   # later steps
+          export PATH="$RUNNER_TEMP/pybin:$PATH"        # this step
+
           python3 -V
           python3 -c 'import tomllib; print("tomllib ok")'""")
     a("""      - name: Plan this job
