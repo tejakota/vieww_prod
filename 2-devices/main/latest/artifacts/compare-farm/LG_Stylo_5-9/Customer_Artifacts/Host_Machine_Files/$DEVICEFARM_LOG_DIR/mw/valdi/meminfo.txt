@@ -1,0 +1,55 @@
+Applications Memory Usage (in Kilobytes):
+Uptime: 15477780 Realtime: 15477780
+
+** MEMINFO in pid 26108 [com.snap.valdi.marketwatch] **
+                   Pss  Private  Private  SwapPss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------
+  Native Heap     2928     2860        0      113    12288     8977     3310
+  Dalvik Heap      958      756        0     1138    13939     1651    12288
+ Dalvik Other      567      560        0       46                           
+        Stack       44       44        0        0                           
+       Ashmem        8        0        8        0                           
+     .so mmap     5509      420     4080       29                           
+    .apk mmap      870        0      520        0                           
+    .dex mmap     5492        4     4732        0                           
+    .oat mmap      795        0      268        0                           
+    .art mmap      944      480       36        7                           
+   Other mmap        7        4        0        0                           
+      Unknown      402      396        0        3                           
+        TOTAL    19860     5524     9644     1336    26227    10628    15598
+ 
+ App Summary
+                       Pss(KB)
+                        ------
+           Java Heap:     1272
+         Native Heap:     2860
+                Code:    10024
+               Stack:       44
+            Graphics:        0
+       Private Other:      968
+              System:     4692
+ 
+               TOTAL:    19860       TOTAL SWAP PSS:     1336
+ 
+ Objects
+               Views:        9         ViewRootImpl:        1
+         AppContexts:        6           Activities:        1
+              Assets:       13        AssetManagers:        0
+       Local Binders:        7        Proxy Binders:       26
+       Parcel memory:        2         Parcel count:        8
+    Death Recipients:        0      OpenSSL Sockets:        0
+            WebViews:        0
+ 
+ SQL
+         MEMORY_USED:        0
+  PAGECACHE_OVERFLOW:        0          MALLOC_SIZE:        0
+ 
+ 
+ Asset Allocations
+    : 196K
+    : 124K
+    : 196K
+    : 196K
+    : 196K
+    : 123K

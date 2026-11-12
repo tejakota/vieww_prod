@@ -1,0 +1,848 @@
+--------- beginning of system
+11-12 10:41:04.941   706   706 D io_stats: !@ 179,0 r 2112 25784 w 244 2082 d 0 0 f 0 0 iot 1312 0 th 0 0 0 pt 0 inp 0 0 33975.821
+--------- beginning of main
+11-12 10:41:05.143  1141  3245 D TimeStats: Cleared global stats
+11-12 10:41:05.143  1141  3245 D TimeStats: Cleared layer stats
+11-12 10:41:05.286  1141  3245 D TimeStats: Enabled
+11-12 10:41:05.397  1449  2328 I bauth_FPBAuthService: pcf : 0x1012, 0 ,3 ,0 ,0 ,0 ,0, 7.0.0.0
+11-12 10:41:05.397  1449  2328 I bauth_FPBAuthService: thread id : 3, preenroll_flag : 0, nd cnt : 0, cso : 0, et : 0
+11-12 10:41:05.397  1449  2328 I bauth_FPBAuthService: FPBAuthService, 11511
+11-12 10:41:05.468  1281  1642 I SemDvfsHyPerManager: acquire hyper - APP_LAUNCH/1281@27, type = -999
+11-12 10:41:05.469  1281  5623 D ActivityTaskManager: startActivityAsUser: callingPid=22440, callingUid=2000, caller=com.android.server.wm.ActivityTaskManagerService.startActivityAsUser:1816 com.android.server.am.ActivityManagerService.startActivityAsUserWithFeature:3747 com.android.server.am.ActivityManagerShellCommand.runStartActivity:656 com.android.server.am.ActivityManagerShellCommand.onCommand:222 com.android.modules.utils.BasicShellCommandHandler.exec:97 android.os.ShellCommand.exec:38 com.android.server.am.ActivityManagerService.onShellCommand:11276 
+11-12 10:41:05.469  1007  1047 I HYPER-HAL: [RequestManager.cpp]acquire(): Acquired ID : 856113  [1281 / 27]    HINT : APP_LAUNCH    list : 
+11-12 10:41:05.469  1007  1047 I HYPER-HAL: [ResourceManager.cpp]updateResource(): [CPULittleMinFreq] UpdateResource Request ID : 856113    Value : 1804800
+11-12 10:41:05.470  4185  4185 I SemDvfsHyPerManager: acquire hyper - APP_START_SHORT/4185@12, type = -999
+11-12 10:41:05.471  1281  5623 D CompatibilityChangeReporter: Compat change id reported: 161252188; UID 10319; state: DISABLED
+11-12 10:41:05.471  1281  1604 I ChimeraSystemEventListener: appLaunchIntent package name is: dev.vieww.marketwatch
+11-12 10:41:05.472  1281  5623 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=dev.vieww.marketwatch/android.app.NativeActivity} from uid 2000
+11-12 10:41:05.473  1281  5623 D ActivityTaskManager: TaskLaunchParamsModifier:task=null activity=ActivityRecord{37a6750 u0 dev.vieww.marketwatch/android.app.NativeActivity} display-id=0 display-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@238346774
+11-12 10:41:05.473  1281  5623 D [secipm]: mSecIpmManager Preload dev.vieww.marketwatch dex files
+11-12 10:41:05.474  1281  5623 D ActivityTaskManager: TaskLaunchParamsModifier:task=null activity=ActivityRecord{37a6750 u0 dev.vieww.marketwatch/android.app.NativeActivity} t-1} display-id=0 display-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@238346774 non-freeform-display display-area=DefaultTaskDisplayArea@238346774 maximized-bounds
+11-12 10:41:05.474  1007  1047 I HYPER-HAL: [ResourceManager.cpp]updateResource(): [CPUMinFreq] UpdateResource Request ID : 856113    Value : 2841600
+11-12 10:41:05.474  1007  1047 I HYPER-HAL: [RequestManager.cpp]acquire(): Acquired ID : 8809515  [4185 / 12]    HINT : APP_START    list : [TIMEOUT / 1500] 
+11-12 10:41:05.475  1007  1047 I HYPER-HAL: [ResourceManager.cpp]updateResource(): [CPUMaxFreq] UpdateResource Request ID : 8809515    Value : 2841600
+11-12 10:41:05.475  1281  3153 I SemDvfsHyPerManager: acquire hyper - AMS_APP_SWITCH/1281@28, type = -999
+11-12 10:41:05.475  1007  1047 I HYPER-HAL: [RequestManager.cpp]acquire(): Acquired ID : 857423  [1281 / 28]    HINT : AMS_APP_SWITCH    list : 
+11-12 10:41:05.476  1007  1047 I HYPER-HAL: [ResourceManager.cpp]updateResource(): [CPULittleMinFreq] UpdateResource Request ID : 857423    Value : 1804800
+11-12 10:41:05.476  1141  3245 I SurfaceFlinger: id=1371 createSurf, flag=24004, Task=55765#1371
+11-12 10:41:05.476  4185  4185 I SemDvfsHyPerManager: acquire hyper - APP_START_SHORT/4185@12, type = -999
+11-12 10:41:05.476  1281  3153 D ActivityManagerPerformance: AMP_acquire() APP_SWITCH
+11-12 10:41:05.477  1281  5623 D ActivityTaskManager: TaskLaunchParamsModifier:task=Task{833b505 #55765 type=standard A=10319:dev.vieww.marketwatch U=0 visible=false visibleRequested=false mode=fullscreen translucent=true sz=0} activity=ActivityRecord{37a6750 u0 dev.vieww.marketwatch/android.app.NativeActivity} t-1} display-from-task=0 display-id=0 display-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@238346774 non-freeform-display display-area=DefaultTaskDisplayArea@238346774 maximized-bounds
+11-12 10:41:05.477  1141  3245 I SurfaceFlinger: id=1372 createSurf, flag=80004, ActivityRecord{37a6750 u0 dev.vieww.marketwatch/android.app.NativeActivity} t55765}#1372
+11-12 10:41:05.478  1281  5623 D ActivityTaskManager: scheduleTopResumedActivityChanged, onTop=false r=ActivityRecord{5833a0e u0 com.sec.android.app.launcher/.activities.LauncherActivity} t55728} caller=com.android.server.wm.ActivityTaskSupervisor.updateTopResumedActivityIfNeeded:2510 com.android.server.wm.TaskDisplayArea.positionChildTaskAt:602 com.android.server.wm.TaskDisplayArea.positionChildAt:537 com.android.server.wm.Task.moveToFrontInner:6053 com.android.server.wm.Task.moveToFront:6019 com.android.server.wm.ActivityStarter.startActivityInner:2924 
+11-12 10:41:05.478  1281  5623 W WindowManager: Prepare app transition: mNextAppTransitionRequests=[TRANSIT_OPEN], mNextAppTransitionFlags=, displayId: 0 Callers=com.android.server.wm.DisplayContent.prepareAppTransition:6493 com.android.server.wm.DisplayContent.prepareAppTransition:6484 com.android.server.wm.Task.startActivityLocked:6595 com.android.server.wm.ActivityStarter.startActivityInner:2980 com.android.server.wm.ActivityStarter.startActivityUnchecked:2470 
+11-12 10:41:05.478  1281  5623 V WindowManager: Checking theme of starting window: 0x1030129
+11-12 10:41:05.478  1281  5623 V WindowManager: Translucent=false Floating=false ShowWallpaper=false Disable=false
+11-12 10:41:05.478  1281  5623 V WindowManager: Creating SplashScreenStartingData
+11-12 10:41:05.478  1281  5623 D ActivityTaskManager: Add starting com.android.server.wm.ActivityRecord$AddStartingWindow@320578b: typeParam=139
+11-12 10:41:05.478  1281  5623 V WindowManager: Add starting com.android.server.wm.ActivityRecord$AddStartingWindow@320578b: startingData=com.android.server.wm.SplashScreenStartingData@ff3d068
+11-12 10:41:05.478  1007  1047 I HYPER-HAL: [ResourceManager.cpp]updateResource(): [CPUMinFreq] UpdateResource Request ID : 857423    Value : 2841600
+11-12 10:41:05.479  1007  1047 I HYPER-HAL: [RequestManager.cpp]acquire(): Acquired ID : 8809515  [4185 / 12]    HINT : APP_START    list : [TIMEOUT / 1500] 
+11-12 10:41:05.479  1007  1047 I HYPER-HAL: [ResourceManager.cpp]updateResource(): [CPUMaxFreq] UpdateResource Request ID : 8809515    Value : 2841600
+11-12 10:41:05.479  1281  5623 V WindowManager: Added starting ActivityRecord{37a6750 u0 dev.vieww.marketwatch/android.app.NativeActivity} t55765}: startingWindow=null startingView=com.android.server.wm.StartingSurfaceController$StartingSurface@cbf9c81
+11-12 10:41:05.480  1281  4218 I AppOps  : updateUidProcState uid: 10041 procState: 1 capability:15
+11-12 10:41:05.481  1293  7275 I CameraService: onUidStateChanged: uid=10041, procState is changed. (0 -> 1)
+11-12 10:41:05.481  2486  2556 D NativeCustomFrequencyManager: [NativeCFMS] BpCustomFrequencyManager::BpCustomFrequencyManager()
+11-12 10:41:05.481  1281  5623 I Pageboost: stop alp
+11-12 10:41:05.481  1281  5623 I SemDvfsHyPerManager: acquire hyper - AMS_APP_LAUNCH/1281@18, type = -999
+11-12 10:41:05.482  3503  3503 E pageboostd: Received HALT command code 2
+11-12 10:41:05.482  1007  1047 I HYPER-HAL: [RequestManager.cpp]acquire(): Acquired ID : 844368  [1281 / 18]    HINT : AMS_APP_LAUNCH    list : 
+11-12 10:41:05.482  1007  1047 I HYPER-HAL: [ResourceManager.cpp]updateResource(): [CPULittleMinFreq] UpdateResource Request ID : 844368    Value : 1804800
+11-12 10:41:05.483  3045  3045 I BaseActivity: removeActivityFlags, flags : 16
+11-12 10:41:05.483  3045  3045 I BaseActivity: removeActivityFlags, flags : 6
+11-12 10:41:05.483  3045  3045 I DragController: endDrag
+11-12 10:41:05.483  3045  3045 W LauncherAppWidgetHost: setShouldListenFlag, mFlags:15 flag:resume on:false isFront:false
+11-12 10:41:05.483  3045  3045 I SPayUpdater: updateSpayHandler launcher activity is paused false
+11-12 10:41:05.483  1281  2675 D MARsPolicyManager: onPackageResumedFG pkgName = dev.vieww.marketwatch, userId = 0
+11-12 10:41:05.484  4185  4185 I SemDvfsHyPerManager: acquire hyper - APP_START/4185@14, type = -999
+11-12 10:41:05.484  1141  1185 I VSyncReactor: Current= 60, TransitioningTo= 60, hwcPeriod= 60, Distance= 0
+11-12 10:41:05.484  1281  2675 W WindowManager: Prepare app transition: mNextAppTransitionRequests=[TRANSIT_OPEN, TRANSIT_OPEN], mNextAppTransitionFlags=, displayId: 0 Callers=com.android.server.wm.DisplayContent.prepareAppTransition:6493 com.android.server.wm.TaskFragment.resumeTopActivity:1573 com.android.server.wm.TaskFragment.resumeTopActivity:1307 com.android.server.wm.Task.resumeTopActivityInnerLocked:6451 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:6352 
+11-12 10:41:05.485  1281  2675 D WindowManagerServiceExt: notifyOccludeChangeNotice: cn=ComponentInfo{dev.vieww.marketwatch/android.app.NativeActivity} occludesParent=true inMultiWindow=false styleFloating=false caller=com.android.server.wm.WindowManagerServiceExt.updateOccludeTargetIfNeeded:1402 com.android.server.wm.DisplayContent.ensureActivitiesVisible:7532 com.android.server.wm.RootWindowContainer.ensureActivitiesVisible:2248 com.android.server.wm.RootWindowContainer.ensureActivitiesVisible:2229 com.android.server.wm.TaskFragment.completePause:2076 
+11-12 10:41:05.486  3045  3045 I TopTaskTracker: onTaskMovedToFront : taskId = 55765
+11-12 10:41:05.486  1007  1047 I HYPER-HAL: [ResourceManager.cpp]updateResource(): [CPUMinFreq] UpdateResource Request ID : 844368    Value : 2841600
+11-12 10:41:05.486  1007  1047 I HYPER-HAL: [RequestManager.cpp]acquire(): Acquired ID : 8817914  [4185 / 14]    HINT : APP_START    list : 
+11-12 10:41:05.486  1281  4735 D InputTransport: Input channel constructed: 'c698b14', fd=995
+11-12 10:41:05.486  1281  4735 D InputTransport: Input channel constructed: 'c698b14', fd=997
+11-12 10:41:05.486  1281  4735 D InputTransport: Input channel constructed: 'c698b14', fd=1004
+11-12 10:41:05.486  1141  3245 I SurfaceFlinger: id=1373 createSurf, flag=80004, c698b14 Splash Screen dev.vieww.marketwatch#1373
+11-12 10:41:05.487  1007  1047 I HYPER-HAL: [ResourceManager.cpp]updateResource(): [CPUMaxFreq] UpdateResource Request ID : 8817914    Value : 2841600
+11-12 10:41:05.487  1281  4735 V WindowManager: addWindow: ActivityRecord{37a6750 u0 dev.vieww.marketwatch/android.app.NativeActivity} t55765} startingWindow=Window{c698b14 u0 Splash Screen dev.vieww.marketwatch}
+11-12 10:41:05.487  1281  4735 V WindowManager: rotationForOrientation(orient=SCREEN_ORIENTATION_PORTRAIT (1), last=ROTATION_0 (0)); user=ROTATION_0 (0) USER_ROTATION_LOCKED
+11-12 10:41:05.487  1281  4735 D WindowManager: rotationForOrientation, orientationSource=ActivityRecord{37a6750 u0 dev.vieww.marketwatch/android.app.NativeActivity} t55765}
+11-12 10:41:05.487  1281  4735 V WindowManager: Computed rotation=ROTATION_0 (0) for display id=0 based on lastOrientation=SCREEN_ORIENTATION_PORTRAIT (1) and oldRotation=ROTATION_0 (0), caller=com.android.server.wm.DisplayRotation.updateOrientation:414 com.android.server.wm.DisplayContent.updateOrientation:1990 com.android.server.wm.DisplayContent.updateOrientation:1872 com.android.server.wm.WindowManagerService.addWindow:2091 com.android.server.wm.Session.addToDisplayAsUser:222 android.view.IWindowSession$Stub.onTransact:711 
+11-12 10:41:05.487  1281  4735 D InputTransport: Input channel destroyed: 'c698b14', fd=1004
+11-12 10:41:05.488  1281  1604 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10319; state: DISABLED
+11-12 10:41:05.488  1281  1604 D CompatibilityChangeReporter: Compat change id reported: 177438394; UID 10319; state: DISABLED
+11-12 10:41:05.488  2486  2546 D InsetsController: onStateChanged: InsetsState: {mDisplayFrame=Rect(0, 0 - 1440, 3200), mDisplayCutout=DisplayCutout{insets=Rect(0, 104 - 0, 0) waterfall=Insets{left=0, top=0, right=0, bottom=0} boundingRect={Bounds=[Rect(0, 0 - 0, 0), Rect(680, 0 - 760, 104), Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0)]} cutoutPathParserInfo={CutoutPathParserInfo{displayWidth=1440 displayHeight=3200 physicalDisplayWidth=1440 physicalDisplayHeight=3200 density={4.0} cutoutSpec={M 0,0 H -10 V 26 H 10 V 0 H 0 Z @dp} rotation={0} scale={1.0} physicalPixelDisplaySizeRatio={1.0}}}}, mRoundedCorners=RoundedCorners{[RoundedCorner{position=TopLeft, radius=96, center=Point(96, 96)}, RoundedCorner{position=TopRight, radius=96, center=Point(1344, 96)}, RoundedCorner{position=BottomRight, radius=96, center=Point(1344, 3104)}, RoundedCorner{position=BottomLeft, radius=96, center=Point(96, 3104)}]}  mRoundedCornerFrame=Rect(0, 0 - 1440, 3200), mPrivacyIndicatorBounds=PrivacyIndicatorBounds {static bounds=Rect(948, 0 - 1080, 78) rotation=0}, mSources= { InsetsSource: {mType=ITYPE_STATUS_BAR, mFrame=[0,0][1440,104], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_NAVIGATION_BAR, mFrame=[0,3056][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_LEFT_GESTURES, mFrame=[0,0][0,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_RIGHT_GESTURES, mFrame=[1440,0][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_TOP_MANDATORY_GESTURES, mFrame=[0,0][1440,140], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_BOTTOM_MANDATORY_GESTURES, mFrame=[0,3056][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_LEFT_DISPLAY_CUTOUT, mFrame=[0,0][-100000,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_TOP_DISPLAY_CUTOUT, mFrame=[0,0][1440,104], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_RIGHT_DISPLAY_CUTOUT, mFrame=[100000,0][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_BOTTOM_DISPLAY_CUTOUT, mFrame=[0,100000][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_TOP_TAPPABLE_ELEMENT, mFrame=[0,0][1440,104], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_BOTTOM_TAPPABLE_ELEMENT, mFrame=[0,3056][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_IME, mFrame=[0,0][0,0], mVisibleFrame=[0,1924][1440,3200], mVisible=false, mInsetsRoundedCornerFrame=false} } host=Splash Screen dev.vieww.marketwatch from=android.view.ViewRootImpl.setView:1732
+11-12 10:41:05.488  1281  1604 D CompatibilityChangeReporter: Compat change id reported: 135772972; UID 10319; state: DISABLED
+11-12 10:41:05.488  1281  1604 D CompatibilityChangeReporter: Compat change id reported: 135754954; UID 10319; state: ENABLED
+11-12 10:41:05.489  1281  5623 D CoreBackPreview: Window{c698b14 u0 Splash Screen dev.vieww.marketwatch}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@5825ab9, mPriority=0}
+11-12 10:41:05.489  2486  2546 I ViewRootImpl@d1645db[marketwatch]: setView = android.widget.FrameLayout@ea964b7 TM=false
+11-12 10:41:05.489  1281  1643 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10319; state: ENABLED
+11-12 10:41:05.489  1281  1604 D SGM:FgCheckThread: notePauseComponent(), received pkgName: com.sec.android.app.launcher, userId: 0
+11-12 10:41:05.490  1281  1281 I CocktailBarManagerServiceContainer: handleMessage: entry what = 6
+11-12 10:41:05.492  2486  2546 I ViewRootImpl@d1645db[marketwatch]: performTraversals params={(0,0)(fillxfill) sim={adjust=pan} ty=APPLICATION_STARTING fmt=TRANSLUCENT wanim=0x10302f4
+11-12 10:41:05.492  2486  2546 I ViewRootImpl@d1645db[marketwatch]:   fl=81030118
+11-12 10:41:05.492  2486  2546 I ViewRootImpl@d1645db[marketwatch]:   pfl=16000010
+11-12 10:41:05.492  2486  2546 I ViewRootImpl@d1645db[marketwatch]:   bhv=DEFAULT
+11-12 10:41:05.492  2486  2546 I ViewRootImpl@d1645db[marketwatch]:   fitSides= naviIconColor=0}
+11-12 10:41:05.493  2486  2546 I ViewRootImpl@d1645db[marketwatch]: performTraversals mFirst=true windowShouldResize=true viewVisibilityChanged=false mForceNextWindowRelayout=false params={(0,0)(fillxfill) sim={adjust=pan} ty=APPLICATION_STARTING fmt=TRANSLUCENT wanim=0x10302f4
+11-12 10:41:05.493  2486  2546 I ViewRootImpl@d1645db[marketwatch]:   fl=81030118
+11-12 10:41:05.493  2486  2546 I ViewRootImpl@d1645db[marketwatch]:   pfl=16000010
+11-12 10:41:05.493  2486  2546 I ViewRootImpl@d1645db[marketwatch]:   bhv=DEFAULT
+11-12 10:41:05.493  2486  2546 I ViewRootImpl@d1645db[marketwatch]:   fitSides= naviIconColor=0}
+11-12 10:41:05.493  1281  4735 V WindowManager: Relayout Window{c698b14 u0 Splash Screen dev.vieww.marketwatch}: viewVisibility=0 req=1440x3200 d0
+11-12 10:41:05.493  1141  1141 D SurfaceFlinger: GPIS:: requestGPIS
+11-12 10:41:05.493  1281  4735 D RestrictionPolicy: isScreenCaptureEnabled : ret=true userId=0
+11-12 10:41:05.493  1141  1187 I SurfaceFlinger: id=1374 createSurf, flag=40004, Splash Screen dev.vieww.marketwatch$_2486#1374
+11-12 10:41:05.494  1281  4735 D WindowManager: makeSurface duration=0 name=Splash Screen dev.vieww.marketwatch$_2486
+11-12 10:41:05.495  1281  4735 V WindowManager: Changing focus from Window{f26af41 u0 com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity} to null displayId=0 Callers=com.android.server.wm.RootWindowContainer.updateFocusedWindowLocked:595 com.android.server.wm.WindowManagerService.updateFocusedWindowLocked:6810 com.android.server.wm.WindowManagerService.relayoutWindow:2820 com.android.server.wm.Session.relayout:274 
+11-12 10:41:05.495  1281  4735 D MARsPolicyManager: onPackageResumedFG pkgName = com.sec.android.app.launcher, userId = 0
+11-12 10:41:05.495   921   921 D Zygote  : Forked child process 22449
+11-12 10:41:05.495  1281  1643 I ActivityManager: Start proc 22449:dev.vieww.marketwatch/u0a319 for next-top-activity {dev.vieww.marketwatch/android.app.NativeActivity}
+11-12 10:41:05.496  1281  4735 D StatusBarManagerService: notifyRequestedSystemKey recent=false home=false
+11-12 10:41:05.497  1281  4735 V WindowManager: Relayout hash=c698b14, pid=2486, syncId=-1: mAttrs={(0,0)(fillxfill) sim={adjust=pan} ty=APPLICATION_STARTING fmt=TRANSLUCENT wanim=0x10302f4
+11-12 10:41:05.497  1281  4735 V WindowManager:   fl=81030118
+11-12 10:41:05.497  1281  4735 V WindowManager:   pfl=16000010
+11-12 10:41:05.497  1281  4735 V WindowManager:   bhv=DEFAULT
+11-12 10:41:05.497  1281  4735 V WindowManager:   fitSides= naviIconColor=0}
+11-12 10:41:05.497  2486  2546 I ViewRootImpl@d1645db[marketwatch]: updateBlastSurfaceIfNeeded mBlastBufferQueue=null isSameSurfaceControl=false
+11-12 10:41:05.497  1281  6587 D SGM:GameManager: identifyGamePackage. com.sec.android.app.launcher, mCurrentUserId: 0, callerUserId: 0, callingMethodInfo: com.android.server.ssrm.SortingMachine.isGame(SortingMachine.java:162)
+11-12 10:41:05.497  1281  6587 D SGM:PkgDataHelper: getGamePkgData(). com.sec.android.app.launcher
+11-12 10:41:05.498  2486  2546 I BLASTBufferQueue: new BLASTBufferQueue, mName= ViewRootImpl@d1645db[marketwatch] mNativeObject= 0xb400006ebc2fbcf0 sc.mNativeObject= 0xb400006e4c2c8bd0 caller= android.view.ViewRootImpl.updateBlastSurfaceIfNeeded:2909 android.view.ViewRootImpl.relayoutWindow:9847 android.view.ViewRootImpl.performTraversals:3884 android.view.ViewRootImpl.doTraversal:3116 android.view.ViewRootImpl$TraversalRunnable.run:10885 android.view.Choreographer$CallbackRecord.run:1301 android.view.Choreographer$CallbackRecord.run:1309 android.view.Choreographer.doCallbacks:923 android.view.Choreographer.doFrame:852 android.view.Choreographer$FrameDisplayEventReceiver.run:1283 
+11-12 10:41:05.498  2486  2546 I BLASTBufferQueue: update, w= 1440 h= 3200 mName = ViewRootImpl@d1645db[marketwatch] mNativeObject= 0xb400006ebc2fbcf0 sc.mNativeObject= 0xb400006e4c2c8bd0 format= -3 caller= android.graphics.BLASTBufferQueue.<init>:84 android.view.ViewRootImpl.updateBlastSurfaceIfNeeded:2909 android.view.ViewRootImpl.relayoutWindow:9847 android.view.ViewRootImpl.performTraversals:3884 android.view.ViewRootImpl.doTraversal:3116 android.view.ViewRootImpl$TraversalRunnable.run:10885 
+11-12 10:41:05.498  2486  2546 I ViewRootImpl@d1645db[marketwatch]: Relayout returned: old=(0,0,1440,3200) new=(0,0,1440,3200) req=(1440,3200)0 dur=4 res=0x3 s={true 0xb400006f4c41d1b0} ch=true seqId=0
+11-12 10:41:05.498  2486  2546 I ViewRootImpl@d1645db[marketwatch]: mThreadedRenderer.initialize() mSurface={isValid=true 0xb400006f4c41d1b0} hwInitialized=true
+11-12 10:41:05.498  2486  2556 D OpenGLRenderer: eglCreateWindowSurface
+11-12 10:41:05.498  2486  2546 I ViewRootImpl@d1645db[marketwatch]: reportNextDraw android.view.ViewRootImpl.performTraversals:4438 android.view.ViewRootImpl.doTraversal:3116 android.view.ViewRootImpl$TraversalRunnable.run:10885 android.view.Choreographer$CallbackRecord.run:1301 android.view.Choreographer$CallbackRecord.run:1309 
+11-12 10:41:05.498  2486  2546 I ViewRootImpl@d1645db[marketwatch]: Setup new sync id=0
+11-12 10:41:05.498  2486  2546 I ViewRootImpl@d1645db[marketwatch]: Setting syncFrameCallback
+11-12 10:41:05.498  2486  2546 I ViewRootImpl@d1645db[marketwatch]: registerCallbacksForSync syncBuffer=false
+11-12 10:41:05.499  2486  2604 I ViewRootImpl@d1645db[marketwatch]: Received frameDrawingCallback syncResult=0 frameNum=1.
+11-12 10:41:05.499  2486  2604 I ViewRootImpl@d1645db[marketwatch]: Setting up sync and frameCommitCallback
+11-12 10:41:05.500  2486  2556 I BLASTBufferQueue: [ViewRootImpl@d1645db[marketwatch]#45](f:0,a:0) onFrameAvailable the first frame is available
+11-12 10:41:05.500  2486  2556 I ViewRootImpl@d1645db[marketwatch]: Received frameCommittedCallback lastAttemptedDrawFrameNum=1 didProduceBuffer=true
+11-12 10:41:05.501  2486  2556 D OpenGLRenderer: CFMS:: SetUp Pid : 2486    Tid : 2556
+11-12 10:41:05.501  2486  2556 W Parcel  : Expecting binder but got null!
+11-12 10:41:05.501  2486  2546 I ViewRootImpl@d1645db[marketwatch]: onSyncComplete
+11-12 10:41:05.501  2486  2546 I ViewRootImpl@d1645db[marketwatch]: setupSync seqId=0 mSyncId=0 fn=1 caller=android.view.ViewRootImpl$$ExternalSyntheticLambda11.accept:6 android.window.SurfaceSyncer.lambda$setupSync$1$android-window-SurfaceSyncer:128 android.window.SurfaceSyncer$$ExternalSyntheticLambda1.accept:8 android.window.SurfaceSyncer$SyncSet.checkIfSyncIsComplete:382 android.window.SurfaceSyncer$SyncSet.markSyncReady:359 android.window.SurfaceSyncer.markSyncReady:151 android.view.ViewRootImpl.performTraversals:4503 
+11-12 10:41:05.501  2486  2546 I ViewRootImpl@d1645db[marketwatch]: reportDrawFinished seqId=0 mSyncId=-1 fn=1 mSurfaceChangedTransaction=0xb400006e7c31fdf0
+11-12 10:41:05.501  1281  5623 D WindowManager: finishDrawingWindow: Window{c698b14 u0 Splash Screen dev.vieww.marketwatch} mDrawState=DRAW_PENDING seqId=0
+11-12 10:41:05.501  1281  5623 V WindowManager: Finishing drawing window Window{c698b14 u0 Splash Screen dev.vieww.marketwatch}: mDrawState=DRAW_PENDING
+11-12 10:41:05.501  1281  5623 V WindowManager: Draw state now committed in Window{c698b14 u0 Splash Screen dev.vieww.marketwatch}
+11-12 10:41:05.502  1281  1605 W WindowManager: Execute app transition: mNextAppTransitionRequests=[TRANSIT_OPEN, TRANSIT_OPEN], mNextAppTransitionFlags=, displayId: 0 Callers=com.android.server.wm.ActivityRecord.onStartingWindowDrawn:7496 com.android.server.wm.WindowState.performShowLocked:5504 com.android.server.wm.WindowStateAnimator.commitFinishDrawingLocked:351 com.android.server.wm.DisplayContent.lambda$new$8:1189 com.android.server.wm.DisplayContent.$r8$lambda$OtLCIQFjCt9o-SYztyeDUcWUwGs:0 
+11-12 10:41:05.502  1281  1605 D WindowManager: performShow logReadyForDisplay win=Window{c698b14 u0 Splash Screen dev.vieww.marketwatch} mToken.waitingToShow:true isTransitionSet:true
+11-12 10:41:05.502  1281  1605 D WindowManager: Loading animation for app transition. transit=TRANSIT_OLD_WALLPAPER_CLOSE enter=false frame=Rect(0, 0 - 1440, 2952) insets=Rect(0, 0 - 0, 0) surfaceInsets=Rect(0, 0 - 0, 0)
+11-12 10:41:05.503  1281  1605 I WindowManager: Reparenting to leash, surface=Surface(name=Task=1)/@0xdfa17c6, leashParent=Surface(name=DefaultTaskDisplayArea)/@0xcdce8c4
+11-12 10:41:05.503  1141  1187 I SurfaceFlinger: id=1375 createSurf, flag=24000, Surface(name=Task=1)/@0xdfa17c6 - animation-leash of app_transition#1375
+11-12 10:41:05.503  1281  1605 D WindowManager: makeSurface duration=1 leash=Surface(name=Surface(name=Task=1)/@0xdfa17c6 - animation-leash of app_transition)/@0x126429
+11-12 10:41:05.503  1281  1605 D WindowManager: Loading animation for app transition. transit=TRANSIT_OLD_WALLPAPER_CLOSE enter=true frame=Rect(0, 0 - 1440, 3200) insets=Rect(0, 104 - 0, 144) surfaceInsets=Rect(0, 0 - 0, 0)
+11-12 10:41:05.504  1281  1605 I WindowManager: Reparenting to leash, surface=Surface(name=Task=55765)/@0x4ffa2c8, leashParent=Surface(name=DefaultTaskDisplayArea)/@0xcdce8c4
+11-12 10:41:05.504  1141  1187 I SurfaceFlinger: id=1376 createSurf, flag=24004, Surface(name=Task=55765)/@0x4ffa2c8 - animation-leash of app_transition#1376
+11-12 10:41:05.504  1281  1605 D WindowManager: makeSurface duration=1 leash=Surface(name=Surface(name=Task=55765)/@0x4ffa2c8 - animation-leash of app_transition)/@0x3216f61
+11-12 10:41:05.505  1281  1605 V WindowManager: performShowLocked: mDrawState=HAS_DRAWN in Window{c698b14 u0 Splash Screen dev.vieww.marketwatch}
+11-12 10:41:05.505  1141  1141 I SurfaceFlinger: [f26af41 com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity#143] FrameRatePriority: -1
+11-12 10:41:05.506  1141  1187 I SurfaceFlinger: id=1377 createSurf, flag=80000, 168d913 ActivityRecordInputSink dev.vieww.marketwatch/android.app.NativeActivity#1377
+11-12 10:41:05.507  1281  3505 D FreecessController: com.snap.valdi.marketwatch is top app, skip to freeze
+11-12 10:41:05.508  2486  2540 D Bubbles : onLocusVisibilityChanged: LocusId[17_chars] visible=false
+11-12 10:41:05.508  1281  5623 D InputDispatcher: Focus left window (0): f26af41 com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity
+11-12 10:41:05.509 22449 22449 I eww.marketwatch: Using CollectorTypeCC GC.
+11-12 10:41:05.509  3045  3045 I ViewRootImpl@3152e8f[LauncherActivity]: MSG_WINDOW_FOCUS_CHANGED 0 0
+11-12 10:41:05.509  3045  3045 I BaseActivity: removeActivityFlags, flags : 8
+11-12 10:41:05.511 22449 22449 E eww.marketwatch: Not starting debugger since process cannot load the jdwp agent.
+11-12 10:41:05.512  1341 22168 I OMX-VENC: venc_dev: stats: avg. fps 1.35, bitrate 156499
+11-12 10:41:05.515 22449 22449 D ActivityThread: setConscryptValidator
+11-12 10:41:05.515 22449 22449 D ActivityThread: setConscryptValidator - put
+11-12 10:41:05.516 22138 22159 I MediaCodec: setCodecState state(1), called in 6
+11-12 10:41:05.516  1281  5623 V ResourceManagerHelper-JNI: JNIMediaResourceHelper::notify eventType : 3, ext1 : 0, ext2 : 0
+11-12 10:41:05.516  1281  5623 V ResourceManagerHelper-JNI: notify eventType : 3, ext1 : 0, ext2 : 0
+11-12 10:41:05.516  1281  2148 I SemMediaResourceHelper: onState
+11-12 10:41:05.516  4185  4185 I SemMediaResourceHelper: onState
+11-12 10:41:05.516 10323 10341 V ResourceManagerHelper-JNI: JNIMediaResourceHelper::notify eventType : 3, ext1 : 0, ext2 : 0
+11-12 10:41:05.516 10323 10341 V ResourceManagerHelper-JNI: notify eventType : 3, ext1 : 0, ext2 : 0
+11-12 10:41:05.516 10323 10345 I SemMediaResourceHelper: onState
+11-12 10:41:05.516 10323 10345 I DrmMediaResourceHelper: onStateChanged size = 1
+11-12 10:41:05.517 10323 10345 I DrmMediaResourceHelper: resource type: 2,,,isSecured :  falseIsEncoder : truegetCodecState : 1getpid : 22138
+11-12 10:41:05.517  1281  5623 I ActivityManager: DSS OFF for dev.vieww.marketwatch
+11-12 10:41:05.517  1141  1141 I Layer   : Layer [Splash Screen dev.vieww.marketwatch$_2486#1374] hidden!! flag(0)
+11-12 10:41:05.518  1007  1047 I HYPER-HAL: [RequestManager.cpp]releaseLocked(): Released ID : 8826317
+11-12 10:41:05.518  1281  1605 I WindowManager: Reparenting to original parent: Surface(name=DefaultTaskDisplayArea)/@0xcdce8c4, destroy=true, surface=Surface(name=Task=1)/@0xdfa17c6
+11-12 10:41:05.518  1281  1605 V WindowManager: Setting visibility of Window{f26af41 u0 com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity}: false, caller=com.android.server.wm.WindowContainer.sendAppVisibilityToClients:1246 com.android.server.wm.WindowToken.setClientVisible:431 com.android.server.wm.ActivityRecord.setClientVisible:7691 com.android.server.wm.ActivityRecord.onAnimationFinished:8590 com.android.server.wm.WindowContainer.doAnimationFinished:3483 
+11-12 10:41:05.518  1281  1605 I WindowManager: Reparenting to original parent: Surface(name=DefaultTaskDisplayArea)/@0xcdce8c4, destroy=true, surface=Surface(name=Task=55765)/@0x4ffa2c8
+11-12 10:41:05.518  3045  3045 I ViewRootImpl@3152e8f[LauncherActivity]: handleAppVisibility mAppVisible = true visible = false
+11-12 10:41:05.518  1281  1605 V WindowManager: Setting visibility of Window{4ed668c u0 com.android.systemui.ImageWallpaper}: false, caller=com.android.server.wm.WindowContainer.sendAppVisibilityToClients:1246 com.android.server.wm.WindowToken.setClientVisible:431 com.android.server.wm.WallpaperWindowToken.setVisible:160 com.android.server.wm.WallpaperWindowToken.updateWallpaperWindows:154 com.android.server.wm.WallpaperController.updateWallpaperTokens:676 
+11-12 10:41:05.519  2486  4733 D WallpaperService: dispatchAppVisibility onVisibilityChanged(): false
+11-12 10:41:05.519  2486  2486 D WallpaperService: reportVisibility onVisibilityChanged visible: false
+11-12 10:41:05.519  2486  2679 I ImageWallpaper[GLEngine]:  onVisibilityChanged false , 0
+11-12 10:41:05.521  1281  5623 I DexController: getTaskHasActivityIsWaitingToRun: r=ActivityRecord{37a6750 u0 dev.vieww.marketwatch/android.app.NativeActivity} t55765}, app=ProcessRecord{6c87fbd 22449:dev.vieww.marketwatch/u0a319}
+11-12 10:41:05.522  1281  5623 V WindowManager: rotationForOrientation(orient=SCREEN_ORIENTATION_PORTRAIT (1), last=ROTATION_0 (0)); user=ROTATION_0 (0) USER_ROTATION_LOCKED
+11-12 10:41:05.522  1281  5623 D WindowManager: rotationForOrientation, orientationSource=ActivityRecord{37a6750 u0 dev.vieww.marketwatch/android.app.NativeActivity} t55765}
+11-12 10:41:05.522  1281  5623 V WindowManager: Computed rotation=ROTATION_0 (0) for display id=0 based on lastOrientation=SCREEN_ORIENTATION_PORTRAIT (1) and oldRotation=ROTATION_0 (0), caller=com.android.server.wm.DisplayRotation.updateOrientation:414 com.android.server.wm.DisplayContent.updateOrientation:1990 com.android.server.wm.DisplayContent.updateOrientation:1891 com.android.server.wm.RootWindowContainer.ensureVisibilityAndConfig:2139 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:913 com.android.server.wm.RootWindowContainer$AttachApplicationHelper.test:4288 
+11-12 10:41:05.523  1281  5623 D TspStateManager: updateCustomValue customSetting=
+11-12 10:41:05.523  1281  5623 D TspStateManager: updateCustomValue customSetting=
+11-12 10:41:05.523  1281  5623 D SGM:PkgDataHelper: notifyAppCreate(), pkgName: dev.vieww.marketwatch, userId: 0, sendRet: true
+11-12 10:41:05.523  1281  2194 D SGM:FgCheckThread: onLooperPrepared(), msg: MSG_APP_CREATE, pkgName: dev.vieww.marketwatch, userId: 0
+11-12 10:41:05.524  1281  5623 D MARsPolicyManager: onPackageResumedFG pkgName = dev.vieww.marketwatch, userId = 0
+11-12 10:41:05.524  1281  5623 D ActivityTaskManager: scheduleTopResumedActivityChanged, onTop=true r=ActivityRecord{37a6750 u0 dev.vieww.marketwatch/android.app.NativeActivity} t55765} caller=com.android.server.wm.ActivityTaskSupervisor.scheduleTopResumedActivityStateIfNeeded:2535 com.android.server.wm.ActivityTaskSupervisor.updateTopResumedActivityIfNeeded:2527 com.android.server.wm.TaskFragment.setResumedActivity:493 com.android.server.wm.TaskFragment.onActivityStateChanged:805 com.android.server.wm.ActivityRecord.setState:6406 com.android.server.wm.Task.minimalResumeActivityLocked:6155 
+11-12 10:41:05.524  1281  5623 D InputDispatcher: Focused application(0): ActivityRecord{37a6750 u0 dev.vieww.marketwatch/android.app.NativeActivity} t55765}
+11-12 10:41:05.524  1281  5623 D SGM:FgCheckThread: TaskStackListener.onTaskFocusChanged(), taskId=55728, focused=false
+11-12 10:41:05.524  1281  5623 D SGM:FgCheckThread: TaskStackListener.onTaskFocusChanged(), taskId=55765, focused=true
+11-12 10:41:05.524  1281  5623 D SGM:FgCheckThread:   sendRunningComponentFocus(), pkgName: dev.vieww.marketwatch, userId: 0
+11-12 10:41:05.525  1281  2194 D SGM:FgCheckThread: onLooperPrepared(), msg: MSG_TASK_FOCUSED, pkgName: dev.vieww.marketwatch, userId: 0
+11-12 10:41:05.525  1281  2194 D SGM:FgCheckThread: handleTaskFocused().
+11-12 10:41:05.525  1281  2194 D SGM:FgCheckThread:   handleTaskFocused(), pkgName: dev.vieww.marketwatch, userID:0
+11-12 10:41:05.525  1281  2194 D SGM:FgCheckThread: handleResume().
+11-12 10:41:05.526  1281  2194 D SGM:FgCheckThread: sendFocusOutConditionally() - mPrevNotiPkg: (unknown), userId: 0
+11-12 10:41:05.526  1281  2194 D SGM:FgCheckThread:   handleResume(). pkgName: dev.vieww.marketwatch, userId: 0, isTunableApp: null
+11-12 10:41:05.526  1281  2194 D SGM:FgCheckThread: notifyFocusInOut(). of pkg: dev.vieww.marketwatch, type: 4, isTunableApp: false, userId: 0
+11-12 10:41:05.526  1281  2194 D SGM:FgCheckThread:   notifyFocusInOut(). unexpected mPrevNotiType: -1
+11-12 10:41:05.526  1281  2194 D SGM:SystemHelper: callReleaseBlock needReleaseBlock:false
+11-12 10:41:05.526  1141  1141 D SurfaceFlinger: Display 4630947232161729153 HWC layers:
+11-12 10:41:05.526  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f404770 | 0100 | RGBx_8888    |  660.0    0.0 1740.0 2400.0 |    0    0 1440 3200 | Wallpaper BBQ wrapper#84
+11-12 10:41:05.526  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f40c570 | 0100 | RGBA_8888    |    0.0    0.0 1440.0 3200.0 |    0    0 1440 3200 | com.sec.android.app.launcher/com.sec[...]tivities.LauncherActivity$_3045#1366
+11-12 10:41:05.526  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f425e60 | 0100 | RGBA_8888    |    0.0    0.0 1440.0 3200.0 |    0    0 1440 3200 | Splash Screen dev.vieww.marketwatch$_2486#1374
+11-12 10:41:05.526  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f3e1c40 | 0100 | RGBA_8888    |    0.0    0.0 1440.0  104.0 |    0    0 1440  104 | StatusBar$_2486#81
+11-12 10:41:05.526  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f403210 | 0100 | RGBA_8888    |    0.0    0.0   67.0  342.0 | 1373  725 1440 1067 | com.samsung.android.app.cocktailbars[...]ervice.CocktailBarService$_15932#661
+11-12 10:41:05.526  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f4160b0 | 0100 | RGBA_8888    |    0.0    0.0 1440.0  144.0 |    0 3056 1440 3200 | NavigationBar0$_2486#149
+11-12 10:41:05.526  1141  1141 D SurfaceFlinger: 
+11-12 10:41:05.526  1281  2241 D AS.MultiSoundManager: mForegroundUid = 10319
+11-12 10:41:05.526  1281  1604 I ActivityManager: Changes in 10319 19 to 2, 0 to 15
+11-12 10:41:05.527  1281  1604 I AppOps  : updateUidProcState uid: 10319 procState: 2 capability:15
+11-12 10:41:05.527  1281  1604 I ActivityManager: updateOomAdj start time is before than pendingPid added, don't delete it
+11-12 10:41:05.527 22449 22449 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10319; state: ENABLED
+11-12 10:41:05.528  1281  1602 D Native_CFMS: CFMS Delete Task Tid(3045)
+11-12 10:41:05.528  1281  1602 D Native_CFMS: CFMS Delete Task Tid(4379)
+11-12 10:41:05.528  1281  1602 D Native_CFMS: CFMS Delete Task Tid(4604)
+11-12 10:41:05.529  1281  1602 D Native_CFMS: CFMS Delete Task Tid(4605)
+11-12 10:41:05.529  1115  1163 I heimdall: insert_task_to_group:67, insert tgid 22449 to group dev.vieww.marketwatch, ret = 0
+11-12 10:41:05.529  1281  1602 D Native_CFMS: CFMS Add Task Tid(22449)
+11-12 10:41:05.529  1281  1602 D Native_CFMS: CFMS Add Task Tid(3045)
+11-12 10:41:05.529  1281  1602 D Native_CFMS: CFMS Add Task Tid(4379)
+11-12 10:41:05.529  1281  1602 D Native_CFMS: CFMS Add Task Tid(4605)
+11-12 10:41:05.529  1281  1602 D Native_CFMS: CFMS Add Task Tid(4604)
+11-12 10:41:05.531 22449 22449 D nativeloader: Configuring classloader-namespace for other apk /data/app/~~wwmQZwRWNUfpBf-a6QK9Ng==/dev.vieww.marketwatch-qdJX49G7qEUrH-EBcJlENw==/base.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~wwmQZwRWNUfpBf-a6QK9Ng==/dev.vieww.marketwatch-qdJX49G7qEUrH-EBcJlENw==/lib/arm64:/data/app/~~wwmQZwRWNUfpBf-a6QK9Ng==/dev.vieww.marketwatch-qdJX49G7qEUrH-EBcJlENw==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand:/data/user/0/dev.vieww.marketwatch
+11-12 10:41:05.533  1281  1604 W DeviceAdminInfo: Unknown tag under uses-policies of ComponentInfo{com.airwatch.androidagent/com.airwatch.agent.DeviceAdministratorReceiver}: require-device-encryption
+11-12 10:41:05.533  1281  1604 W DeviceAdminInfo: Unknown tag under uses-policies of ComponentInfo{com.airwatch.androidagent/com.airwatch.agent.DeviceAdministratorReceiver}: lenovo-policy
+11-12 10:41:05.533  1281  1604 W DeviceAdminInfo: Unknown tag under uses-policies of ComponentInfo{com.airwatch.androidagent/com.airwatch.agent.DeviceAdministratorReceiver}: lenovo-config
+11-12 10:41:05.534  1141  1141 I Layer   : id=1375 removedFromDrawingState Surface(name=Task=1)/@0xdfa17c6 - animation-leash of app_transition#1375 (122)
+11-12 10:41:05.534  1141  1141 I Layer   : id=1376 removedFromDrawingState Surface(name=Task=55765)/@0x4ffa2c8 - animation-leash of app_transition#1376 (122)
+11-12 10:41:05.534  1141  1141 I Layer   : Layer [com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity$_3045#1366] hidden!! flag(1)
+11-12 10:41:05.534  1141  1141 I SurfaceFlinger: id=1376 Removed Surface(name=Task=55765)/@0x4ffa2c8 - animation-leash of app_transition#1376 (122)
+11-12 10:41:05.534  1141  1141 I SurfaceFlinger: id=1375 Removed Surface(name=Task=1)/@0xdfa17c6 - animation-leash of app_transition#1375 (122)
+11-12 10:41:05.534  1141  1141 I Layer   : id=1375 Destroyed Surface(name=Task=1)/@0xdfa17c6 - animation-leash of app_transition#1375
+11-12 10:41:05.534  1141  1141 I Layer   : id=1376 Destroyed Surface(name=Task=55765)/@0x4ffa2c8 - animation-leash of app_transition#1376
+11-12 10:41:05.537  3045  3045 I ViewRootImpl@3152e8f[LauncherActivity]: performTraversals mFirst=false windowShouldResize=false viewVisibilityChanged=true mForceNextWindowRelayout=false params=null
+11-12 10:41:05.537  1281  2675 V WindowManager: Relayout Window{f26af41 u0 com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity}: viewVisibility=8 req=1440x3200 d0
+11-12 10:41:05.538  1281  2675 V WindowManager: Relayout hash=f26af41, pid=3045, syncId=-1: mAttrs={(0,0)(fillxfill) sim={adjust=nothing forwardNavigation} layoutInDisplayCutoutMode=shortEdges ty=BASE_APPLICATION fmt=TRANSPARENT wanim=0x10302f4
+11-12 10:41:05.538  1281  2675 V WindowManager:   fl=81910100
+11-12 10:41:05.538  1281  2675 V WindowManager:   pfl=1e020040
+11-12 10:41:05.538  1281  2675 V WindowManager:   vsysui=1700
+11-12 10:41:05.538  1281  2675 V WindowManager:   bhv=SHOW_TRANSIENT_BARS_BY_SWIPE
+11-12 10:41:05.538  1281  2675 V WindowManager:   fitSides= naviIconColor=0}
+11-12 10:41:05.539 22449 22449 V GraphicsEnvironment: ANGLE Developer option for 'dev.vieww.marketwatch' set to: 'default'
+11-12 10:41:05.539 22449 22449 V GraphicsEnvironment: ANGLE GameManagerService for dev.vieww.marketwatch: false
+11-12 10:41:05.539  1281  1604 D EnterpriseLicenseService: getPermissions() - deserializeObject
+11-12 10:41:05.539  3045  3045 I ViewRootImpl@3152e8f[LauncherActivity]: Relayout returned: old=(0,0,1440,3200) new=(0,0,1440,3200) req=(1440,3200)8 dur=2 res=0x2 s={false 0x0} ch=true seqId=0
+11-12 10:41:05.539 22449 22449 V GraphicsEnvironment: App is not on the allowlist for updatable production driver.
+11-12 10:41:05.539  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.mdm.permission.MDM_SSO,com.samsung.android.knox.permission.KNOX_SSO
+11-12 10:41:05.539  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_DEX
+11-12 10:41:05.539  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_APN
+11-12 10:41:05.539  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_APP_MGMT
+11-12 10:41:05.539  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_BLUETOOTH
+11-12 10:41:05.539  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_BLUETOOTH_SECUREMODE
+11-12 10:41:05.539  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_BROWSER_PROXY
+11-12 10:41:05.539  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_BROWSER_SETTINGS
+11-12 10:41:05.539  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_CERT_PROVISIONING
+11-12 10:41:05.539  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_CLIPBOARD
+11-12 10:41:05.539  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_DATE_TIME
+11-12 10:41:05.539  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_DUAL_SIM
+11-12 10:41:05.539  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_EMAIL
+11-12 10:41:05.539  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_ENTERPRISE_DEVICE_ADMIN
+11-12 10:41:05.539  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_EXCHANGE
+11-12 10:41:05.539  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_FIREWALL
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_GEOFENCING
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_GLOBALPROXY
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_HW_CONTROL
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_INVENTORY
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_KIOSK_MODE
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_LDAP
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_LICENSE_LOG
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_LOCATION
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_LOCKSCREEN
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_MULTI_USER_MGMT
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_PHONE_RESTRICTION
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_REMOTE_CONTROL
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_RESTRICTION_MGMT
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_ROAMING
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_SECURITY
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_SENSITIVE_DATA_PROTECTION
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_VPN
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_WIFI
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_NDA_DEVICE_SETTINGS
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_NDA_PERIPHERAL
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_NDA_DATA_ANALYTICS
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_NDA_AI
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_ENHANCED_ATTESTATION
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_DEACTIVATE_LICENSE
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_RCP_SYNC_MGMT,com.samsung.android.knox.permission.KNOX_CONTAINER_RCP
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_SEAMS,com.samsung.android.knox.permission.KNOX_SEAMS_MGMT
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_KEYSTORE,com.samsung.android.knox.permission.KNOX_TIMA_KEYSTORE
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_CERTENROLL,com.samsung.android.knox.permission.KNOX_CERTIFICATE_ENROLLMENT
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_CCM,com.samsung.android.knox.permission.KNOX_CCM_KEYSTORE
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_SEAMS_SEPOLICY
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_ADVANCED_APP_MGMT
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_ADVANCED_RESTRICTION
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_ADVANCED_SECURITY
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_AUDIT_LOG
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_CCM,com.samsung.android.knox.permission.KNOX_CCM_KEYSTORE
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_CERTIFICATE
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_CERTENROLL,com.samsung.android.knox.permission.KNOX_CERTIFICATE_ENROLLMENT
+11-12 10:41:05.540  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_CONTAINER
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_RCP_SYNC_MGMT,com.samsung.android.knox.permission.KNOX_CONTAINER_RCP
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_EBILLING
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_NPA
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_SEAMS,com.samsung.android.knox.permission.KNOX_SEAMS_MGMT
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_KEYSTORE,com.samsung.android.knox.permission.KNOX_TIMA_KEYSTORE
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_TIMA_KEYSTORE_PER_APP
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_VPN_CONTAINER
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_VPN_GENERIC
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_DEVICE_CONFIGURATION
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_MOBILE_THREAT_DEFENSE
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_APP_SEPARATION
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.CUSTOM_SETTING,com.samsung.android.knox.permission.KNOX_CUSTOM_SETTING
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.CUSTOM_SYSTEM,com.samsung.android.knox.permission.KNOX_CUSTOM_SYSTEM
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.CUSTOM_SEALEDMODE,com.samsung.android.knox.permission.KNOX_CUSTOM_SEALEDMODE
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_CUSTOM_DEX
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_CUSTOM_PROKIOSK
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.CUSTOM_SETTING,com.samsung.android.knox.permission.KNOX_CUSTOM_SETTING
+11-12 10:41:05.541  1141  1141 D SurfaceFlinger: Display 4630947232161729153 HWC layers:
+11-12 10:41:05.541  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f425e60 | 0100 | RGBA_8888    |    0.0    0.0 1440.0 3200.0 |    0    0 1440 3200 | Splash Screen dev.vieww.marketwatch$_2486#1374
+11-12 10:41:05.541  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f3e1c40 | 0100 | RGBA_8888    |    0.0    0.0 1440.0  104.0 |    0    0 1440  104 | StatusBar$_2486#81
+11-12 10:41:05.541  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f403210 | 0100 | RGBA_8888    |    0.0    0.0   67.0  342.0 | 1373  725 1440 1067 | com.samsung.android.app.cocktailbars[...]ervice.CocktailBarService$_15932#661
+11-12 10:41:05.541  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f4160b0 | 0100 | RGBA_8888    |    0.0    0.0 1440.0  144.0 |    0 3056 1440 3200 | NavigationBar0$_2486#149
+11-12 10:41:05.541  1141  1141 D SurfaceFlinger: 
+11-12 10:41:05.541 22449 22449 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-12 10:41:05.541  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.CUSTOM_SYSTEM,com.samsung.android.knox.permission.KNOX_CUSTOM_SYSTEM
+11-12 10:41:05.541  1281  1604 W DeviceAdminInfo: Unknown tag under uses-policies of ComponentInfo{com.airwatch.androidagent/com.airwatch.agent.DeviceAdministratorReceiver}: require-device-encryption
+11-12 10:41:05.541  1281  1604 W DeviceAdminInfo: Unknown tag under uses-policies of ComponentInfo{com.airwatch.androidagent/com.airwatch.agent.DeviceAdministratorReceiver}: lenovo-policy
+11-12 10:41:05.541  1281  1604 W DeviceAdminInfo: Unknown tag under uses-policies of ComponentInfo{com.airwatch.androidagent/com.airwatch.agent.DeviceAdministratorReceiver}: lenovo-config
+11-12 10:41:05.542 22449 22449 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-12 10:41:05.545  1281  1604 D EnterpriseLicenseService: getPermissions() - deserializeObject
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.mdm.permission.MDM_SSO,com.samsung.android.knox.permission.KNOX_SSO
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_DEX
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_APN
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_APP_MGMT
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_BLUETOOTH
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_BLUETOOTH_SECUREMODE
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_BROWSER_PROXY
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_BROWSER_SETTINGS
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_CERT_PROVISIONING
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_CLIPBOARD
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_DATE_TIME
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_DUAL_SIM
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_EMAIL
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_ENTERPRISE_DEVICE_ADMIN
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_EXCHANGE
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_FIREWALL
+11-12 10:41:05.545 22449 22467 D OpenGLRenderer: RenderThread::requireGlContext()
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_GEOFENCING
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_GLOBALPROXY
+11-12 10:41:05.545  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_HW_CONTROL
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_INVENTORY
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_KIOSK_MODE
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_LDAP
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_LICENSE_LOG
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_LOCATION
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_LOCKSCREEN
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_MULTI_USER_MGMT
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_PHONE_RESTRICTION
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_REMOTE_CONTROL
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_RESTRICTION_MGMT
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_ROAMING
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_SECURITY
+11-12 10:41:05.546 22449 22467 I AdrenoGLES-0: QUALCOMM build                   : 193b2ee, I593c16c433
+11-12 10:41:05.546 22449 22467 I AdrenoGLES-0: Build Date                       : 10/07/21
+11-12 10:41:05.546 22449 22467 I AdrenoGLES-0: OpenGL ES Shader Compiler Version: EV031.32.02.10
+11-12 10:41:05.546 22449 22467 I AdrenoGLES-0: Local Branch                     : Test-lib-SR05432264
+11-12 10:41:05.546 22449 22467 I AdrenoGLES-0: Remote Branch                    : 
+11-12 10:41:05.546 22449 22467 I AdrenoGLES-0: Remote Branch                    : 
+11-12 10:41:05.546 22449 22467 I AdrenoGLES-0: Reconstruct Branch               : 
+11-12 10:41:05.546 22449 22467 I AdrenoGLES-0: Build Config                     : S P 10.0.5 AArch64
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_SENSITIVE_DATA_PROTECTION
+11-12 10:41:05.546 22449 22467 I AdrenoGLES-0: Driver Path                      : /vendor/lib64/egl/libGLESv2_adreno.so
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_VPN
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_WIFI
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_NDA_DEVICE_SETTINGS
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_NDA_PERIPHERAL
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_NDA_DATA_ANALYTICS
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_NDA_AI
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_ENHANCED_ATTESTATION
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_DEACTIVATE_LICENSE
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_RCP_SYNC_MGMT,com.samsung.android.knox.permission.KNOX_CONTAINER_RCP
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_SEAMS,com.samsung.android.knox.permission.KNOX_SEAMS_MGMT
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_KEYSTORE,com.samsung.android.knox.permission.KNOX_TIMA_KEYSTORE
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_CERTENROLL,com.samsung.android.knox.permission.KNOX_CERTIFICATE_ENROLLMENT
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_CCM,com.samsung.android.knox.permission.KNOX_CCM_KEYSTORE
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_SEAMS_SEPOLICY
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_ADVANCED_APP_MGMT
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_ADVANCED_RESTRICTION
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_ADVANCED_SECURITY
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_AUDIT_LOG
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_CCM,com.samsung.android.knox.permission.KNOX_CCM_KEYSTORE
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_CERTIFICATE
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_CERTENROLL,com.samsung.android.knox.permission.KNOX_CERTIFICATE_ENROLLMENT
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_CONTAINER
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_RCP_SYNC_MGMT,com.samsung.android.knox.permission.KNOX_CONTAINER_RCP
+11-12 10:41:05.546  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_EBILLING
+11-12 10:41:05.547  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_NPA
+11-12 10:41:05.547  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_SEAMS,com.samsung.android.knox.permission.KNOX_SEAMS_MGMT
+11-12 10:41:05.547  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.KNOX_KEYSTORE,com.samsung.android.knox.permission.KNOX_TIMA_KEYSTORE
+11-12 10:41:05.547  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_TIMA_KEYSTORE_PER_APP
+11-12 10:41:05.547  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_VPN_CONTAINER
+11-12 10:41:05.547  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_VPN_GENERIC
+11-12 10:41:05.547  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_DEVICE_CONFIGURATION
+11-12 10:41:05.547  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_MOBILE_THREAT_DEFENSE
+11-12 10:41:05.547  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_APP_SEPARATION
+11-12 10:41:05.547  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.CUSTOM_SETTING,com.samsung.android.knox.permission.KNOX_CUSTOM_SETTING
+11-12 10:41:05.547  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.CUSTOM_SYSTEM,com.samsung.android.knox.permission.KNOX_CUSTOM_SYSTEM
+11-12 10:41:05.547  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.CUSTOM_SEALEDMODE,com.samsung.android.knox.permission.KNOX_CUSTOM_SEALEDMODE
+11-12 10:41:05.547  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_CUSTOM_DEX
+11-12 10:41:05.547  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.samsung.android.knox.permission.KNOX_CUSTOM_PROKIOSK
+11-12 10:41:05.547  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.CUSTOM_SETTING,com.samsung.android.knox.permission.KNOX_CUSTOM_SETTING
+11-12 10:41:05.547  1281  1604 I EnterpriseDeviceAdminInfo: Add Granted permission : com.sec.enterprise.knox.permission.CUSTOM_SYSTEM,com.samsung.android.knox.permission.KNOX_CUSTOM_SYSTEM
+11-12 10:41:05.547  1281  1604 D EnterpriseDeviceManagerService: isMdmAdminPresentInternal() : MDM Admin Found - com.airwatch.androidagent
+11-12 10:41:05.547  1281  5623 I GenerationRegistry: mBackingStore.isClosed() : false
+11-12 10:41:05.547  1281  1604 D SGM:FgCheckThread: noteResumeComponent(), received pkgName: dev.vieww.marketwatch, userId: 0
+11-12 10:41:05.547  1281  1604 I GameSDK@LifeCycle: noteResumeComponent(): package name  : dev.vieww.marketwatch
+11-12 10:41:05.547  1281  2194 D SGM:FgCheckThread: onLooperPrepared(), msg: MSG_APP_RESUME, pkgName: dev.vieww.marketwatch, userid: 0
+11-12 10:41:05.547  1281  2194 D SGM:FgCheckThread: handleResume().
+11-12 10:41:05.547  1281  2194 D SGM:FgCheckThread: sendFocusOutConditionally() - mPrevNotiPkg: (unknown), userId: 0
+11-12 10:41:05.547  1281  2194 D SGM:FgCheckThread:   handleResume(). pkgName: dev.vieww.marketwatch, userId: 0, isTunableApp: null
+11-12 10:41:05.547  1281  2194 D SGM:FgCheckThread: notifyFocusInOut(). of pkg: dev.vieww.marketwatch, type: 4, isTunableApp: false, userId: 0
+11-12 10:41:05.548  1281  2194 D SGM:FgCheckThread:   notifyFocusInOut(). unexpected mPrevNotiType: -1
+11-12 10:41:05.548  1281  2194 D SGM:SystemHelper: callReleaseBlock needReleaseBlock:false
+11-12 10:41:05.548  1281  1281 I CocktailBarManagerServiceContainer: handleMessage: entry what = 5
+11-12 10:41:05.549  1281  1604 D SGM:GameManager: identifyGamePackage. dev.vieww.marketwatch, mCurrentUserId: 0, callerUserId: 0, callingMethodInfo: com.android.server.ssrm.SortingMachine.isGame(SortingMachine.java:162)
+11-12 10:41:05.549  1281  1604 D SGM:PkgDataHelper: getGamePkgData(). dev.vieww.marketwatch
+11-12 10:41:05.549  1281  2213 V NetworkPolicy: getFirewallRuleWifi UID:10319 policy:0
+11-12 10:41:05.549 15932 15932 I ActivityUtils: HomePackage : com.sec.android.app.launcher, resumePackageName : dev.vieww.marketwatch
+11-12 10:41:05.550 22449 22467 I AdrenoGLES-0: PFP: 0x016dd093, ME: 0x00000000
+11-12 10:41:05.553 22449 22449 I DecorView: [INFO] isPopOver=false config=true
+11-12 10:41:05.553 22449 22449 I DecorView: updateCaptionType: isFloating=false isApplication=true hasWindowDecorCaption=false this=DecorView@6c3110a[]
+11-12 10:41:05.553 22449 22449 D DecorView: setCaptionType = 0, this = DecorView@6c3110a[]
+11-12 10:41:05.554 22449 22449 I DecorView: getCurrentDensityDpi: from real metrics. densityDpi=480 msg=resources_loaded
+11-12 10:41:05.554 22449 22449 I DecorView: setWindowBackground: isPopOver=false color=ff171717 d=android.graphics.drawable.GradientDrawable@e721798
+11-12 10:41:05.555  1281  1604 D SGM:GameManager: identifyGamePackage. dev.vieww.marketwatch, mCurrentUserId: 0, callerUserId: 0, callingMethodInfo: com.samsung.android.game.SemGameManager.isGamePackage(SemGameManager.java:104)
+11-12 10:41:05.555  1281  1604 D SGM:PkgDataHelper: getGamePkgData(). dev.vieww.marketwatch
+11-12 10:41:05.555  1281  1604 D SGM:SemGameManager: isGamePackage(), pkgName=dev.vieww.marketwatch, ret=false
+11-12 10:41:05.556  1281  3532 I MediaSessionMonitor: Media session stopped : controllerList empty
+11-12 10:41:05.559 22449 22449 I android-activity: Creating: Activity = 0x2e86, saved state size = 0
+11-12 10:41:05.562  1141  1187 D TimeStats: Disabled
+11-12 10:41:05.566 22449 22467 D OpenGLRenderer: RenderThread::setGrContext()
+11-12 10:41:05.584  3045  3086 I RecentModel: onTaskStackChangedBackground
+11-12 10:41:05.585 22449 22472 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"start","path":"gpu","phases":16}
+11-12 10:41:05.586  3045  3227 I RecentTasksList: loadTasksInBackground : groupTask = GroupTask{task1=[id=55745 windowingMode=1 user=0 lastActiveTime=463866] null, task2=null, task3=null, mStagedSplitBounds=null}
+11-12 10:41:05.586  3045  3227 I RecentTasksList: loadTasksInBackground : groupTask = GroupTask{task1=[id=55759 windowingMode=1 user=0 lastActiveTime=33893379] null, task2=null, task3=null, mStagedSplitBounds=null}
+11-12 10:41:05.586  3045  3227 I RecentTasksList: loadTasksInBackground : groupTask = GroupTask{task1=[id=55765 windowingMode=1 user=0 lastActiveTime=33976464] null, task2=null, task3=null, mStagedSplitBounds=null}
+11-12 10:41:05.587  3045  3045 I TaskThumbnailCache: handleResult: taskId = 55745, taskThumbnail = null
+11-12 10:41:05.587 22449 22449 I MSHandlerLifeCycle: check: return. pkg=dev.vieww.marketwatch parent=null callers=com.android.internal.policy.DecorView.setVisibility:4412 android.app.ActivityThread.handleResumeActivity:5476 android.app.servertransaction.ResumeActivityItem.execute:54 android.app.servertransaction.ActivityTransactionItem.execute:45 android.app.servertransaction.TransactionExecutor.executeLifecycleState:176 
+11-12 10:41:05.587 22449 22449 I MSHandlerLifeCycle: removeMultiSplitHandler: no exist. decor=DecorView@6c3110a[]
+11-12 10:41:05.587  3045  3045 I TaskThumbnailCache: handleResult: taskId = 55759, taskThumbnail = null
+11-12 10:41:05.590  1281  5623 D InputTransport: Input channel constructed: '1c7d872', fd=1022
+11-12 10:41:05.590  1281  5623 D InputTransport: Input channel constructed: '1c7d872', fd=1023
+11-12 10:41:05.590  1281  5623 D InputTransport: Input channel constructed: '1c7d872', fd=1024
+11-12 10:41:05.591  1141  3245 I SurfaceFlinger: id=1378 createSurf, flag=80004, 1c7d872 dev.vieww.marketwatch/android.app.NativeActivity#1378
+11-12 10:41:05.591  1281  5623 D RestrictionPolicy: isScreenCaptureEnabled : ret=true userId=0
+11-12 10:41:05.591  1281  5623 D InputTransport: Input channel destroyed: '1c7d872', fd=1024
+11-12 10:41:05.592 22449 22449 D InsetsController: onStateChanged: InsetsState: {mDisplayFrame=Rect(0, 0 - 1440, 3200), mDisplayCutout=DisplayCutout{insets=Rect(0, 104 - 0, 0) waterfall=Insets{left=0, top=0, right=0, bottom=0} boundingRect={Bounds=[Rect(0, 0 - 0, 0), Rect(680, 0 - 760, 104), Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0)]} cutoutPathParserInfo={CutoutPathParserInfo{displayWidth=1440 displayHeight=3200 physicalDisplayWidth=1440 physicalDisplayHeight=3200 density={4.0} cutoutSpec={M 0,0 H -10 V 26 H 10 V 0 H 0 Z @dp} rotation={0} scale={1.0} physicalPixelDisplaySizeRatio={1.0}}}}, mRoundedCorners=RoundedCorners{[RoundedCorner{position=TopLeft, radius=96, center=Point(96, 96)}, RoundedCorner{position=TopRight, radius=96, center=Point(1344, 96)}, RoundedCorner{position=BottomRight, radius=96, center=Point(1344, 3104)}, RoundedCorner{position=BottomLeft, radius=96, center=Point(96, 3104)}]}  mRoundedCornerFrame=Rect(0, 0 - 1440, 3200), mPrivacyIndicatorBounds=PrivacyIndicatorBounds {static bounds=Rect(948, 0 - 1080, 78) rotation=0}, mSources= { InsetsSource: {mType=ITYPE_STATUS_BAR, mFrame=[0,0][1440,104], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_NAVIGATION_BAR, mFrame=[0,3056][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_LEFT_GESTURES, mFrame=[0,0][0,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_RIGHT_GESTURES, mFrame=[1440,0][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_TOP_MANDATORY_GESTURES, mFrame=[0,0][1440,140], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_BOTTOM_MANDATORY_GESTURES, mFrame=[0,3056][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_LEFT_DISPLAY_CUTOUT, mFrame=[0,0][-100000,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_TOP_DISPLAY_CUTOUT, mFrame=[0,0][1440,104], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_RIGHT_DISPLAY_CUTOUT, mFrame=[100000,0][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_BOTTOM_DISPLAY_CUTOUT, mFrame=[0,100000][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_TOP_TAPPABLE_ELEMENT, mFrame=[0,0][1440,104], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_BOTTOM_TAPPABLE_ELEMENT, mFrame=[0,3056][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false} } host=dev.vieww.marketwatch/android.app.NativeActivity from=android.view.ViewRootImpl.setView:1732
+11-12 10:41:05.593  1281  5070 D CoreBackPreview: Window{1c7d872 u0 dev.vieww.marketwatch/android.app.NativeActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@32c7140, mPriority=0}
+11-12 10:41:05.593 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]: setView = com.android.internal.policy.DecorView@6c3110a TM=false
+11-12 10:41:05.594 22449 22449 I MSHandlerLifeCycle: removeMultiSplitHandler: no exist. decor=DecorView@6c3110a[NativeActivity]
+11-12 10:41:05.595  1281  1711 D AnalyticsContainerHandler: handleMessage : { when=0 what=1 target=com.android.server.knox.KnoxAnalyticsContainer$AnalyticsHandler }
+11-12 10:41:05.596 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]: performTraversals params={(0,0)(fillxfill) sim={adjust=resize forwardNavigation} ty=BASE_APPLICATION fmt=RGB_565 wanim=0x10302f4
+11-12 10:41:05.596 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]:   fl=81810100
+11-12 10:41:05.596 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]:   pfl=12020040
+11-12 10:41:05.596 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]:   bhv=DEFAULT
+11-12 10:41:05.596 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]:   fitSides= naviIconColor=0
+11-12 10:41:05.596 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]:   sfl=100000}
+11-12 10:41:05.596 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]: performTraversals mFirst=true windowShouldResize=true viewVisibilityChanged=false mForceNextWindowRelayout=false params={(0,0)(fillxfill) sim={adjust=resize forwardNavigation} ty=BASE_APPLICATION fmt=RGB_565 wanim=0x10302f4
+11-12 10:41:05.596 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]:   fl=81810100
+11-12 10:41:05.596 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]:   pfl=12020040
+11-12 10:41:05.596 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]:   bhv=DEFAULT
+11-12 10:41:05.596 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]:   fitSides= naviIconColor=0
+11-12 10:41:05.596 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]:   sfl=100000}
+11-12 10:41:05.596  1281  5623 V WindowManager: Relayout Window{1c7d872 u0 dev.vieww.marketwatch/android.app.NativeActivity}: viewVisibility=0 req=1440x3200 d0
+11-12 10:41:05.596  1281  5623 D RestrictionPolicy: isScreenCaptureEnabled : ret=true userId=0
+11-12 10:41:05.597  1141  3245 I SurfaceFlinger: id=1379 createSurf, flag=40004, dev.vieww.marketwatch/android.app.NativeActivity$_22449#1379
+11-12 10:41:05.597  1281  5623 D WindowManager: makeSurface duration=0 name=dev.vieww.marketwatch/android.app.NativeActivity$_22449
+11-12 10:41:05.598  1281  5623 V WindowManager: Changing focus from null to Window{1c7d872 u0 dev.vieww.marketwatch/android.app.NativeActivity} displayId=0 Callers=com.android.server.wm.RootWindowContainer.updateFocusedWindowLocked:595 com.android.server.wm.WindowManagerService.updateFocusedWindowLocked:6810 com.android.server.wm.WindowManagerService.relayoutWindow:2820 com.android.server.wm.Session.relayout:274 
+11-12 10:41:05.598  1281  5623 I WindowManager: Cancelling animation restarting=true, leash=Surface(name=Surface(name=d067e99 StatusBar)/@0xd0ac96a - animation-leash of insets_animation)/@0x27a8cf9
+11-12 10:41:05.598  1281  5623 I WindowManager: Reparenting to original parent: Surface(name=WindowToken{cf0be0 type=2000 android.os.BinderProxy@1c0a12})/@0x8f23e5b, destroy=false, surface=Surface(name=d067e99 StatusBar)/@0xd0ac96a
+11-12 10:41:05.598  1281  5623 I WindowManager: Reparenting to leash, surface=Surface(name=d067e99 StatusBar)/@0xd0ac96a, leashParent=Surface(name=WindowToken{cf0be0 type=2000 android.os.BinderProxy@1c0a12})/@0x8f23e5b
+11-12 10:41:05.598  1141  3245 I SurfaceFlinger: id=1380 createSurf, flag=24000, Surface(name=d067e99 StatusBar)/@0xd0ac96a - animation-leash of insets_animation#1380
+11-12 10:41:05.598  1281  5623 D WindowManager: makeSurface duration=1 leash=Surface(name=Surface(name=d067e99 StatusBar)/@0xd0ac96a - animation-leash of insets_animation)/@0x4db3a1f
+11-12 10:41:05.598  1281  5623 I WindowManager: Cancelling animation restarting=true, leash=Surface(name=Surface(name=4d67c8c NavigationBar0)/@0xfd9a451 - animation-leash of insets_animation)/@0x87fb29f
+11-12 10:41:05.598  1281  5623 I WindowManager: Reparenting to original parent: Surface(name=WindowToken{2974dbf type=2019 android.os.BinderProxy@f46ab19})/@0x761d4b6, destroy=false, surface=Surface(name=4d67c8c NavigationBar0)/@0xfd9a451
+11-12 10:41:05.598  1281  5623 I WindowManager: Reparenting to leash, surface=Surface(name=4d67c8c NavigationBar0)/@0xfd9a451, leashParent=Surface(name=WindowToken{2974dbf type=2019 android.os.BinderProxy@f46ab19})/@0x761d4b6
+11-12 10:41:05.598  1141  3245 I SurfaceFlinger: id=1381 createSurf, flag=24000, Surface(name=4d67c8c NavigationBar0)/@0xfd9a451 - animation-leash of insets_animation#1381
+11-12 10:41:05.599  1281  5623 D WindowManager: makeSurface duration=0 leash=Surface(name=Surface(name=4d67c8c NavigationBar0)/@0xfd9a451 - animation-leash of insets_animation)/@0x85b9335
+11-12 10:41:05.599  1281  5623 D WindowManager: updateSystemBarAttributes: displayId=0, win=Window{1c7d872 u0 dev.vieww.marketwatch/android.app.NativeActivity}, navColorWin=Window{c698b14 u0 Splash Screen dev.vieww.marketwatch}, focusedCanBeNavColorWin=false, behavior=1, appearance=0, statusBarAppearanceRegions=[AppearanceRegion{ bounds=[0,0][1440,3200]}], requestedVisibilities=, from=com.android.server.wm.DisplayPolicy.focusChangedLw:3247 com.android.server.wm.DisplayContent.updateFocusedWindowLocked:4632 com.android.server.wm.RootWindowContainer.updateFocusedWindowLocked:595 
+11-12 10:41:05.599  1281  5623 D StatusBarManagerService: notifyRequestedSystemKey recent=false home=false
+11-12 10:41:05.599  3045  3086 I TouchInteractionService: onSystemUiStateChanged, stateFlags : 131072 |allow_gesture|
+11-12 10:41:05.599  1281  5623 V WindowManager: Relayout hash=1c7d872, pid=22449, syncId=-1: mAttrs={(0,0)(fillxfill) sim={adjust=resize forwardNavigation} ty=BASE_APPLICATION fmt=RGB_565 wanim=0x10302f4
+11-12 10:41:05.599  1281  5623 V WindowManager:   fl=81810100
+11-12 10:41:05.599  1281  5623 V WindowManager:   pfl=12020040
+11-12 10:41:05.599  1281  5623 V WindowManager:   apr=LIGHT_NAVIGATION_BARS
+11-12 10:41:05.599  1281  5623 V WindowManager:   bhv=DEFAULT
+11-12 10:41:05.599  1281  5623 V WindowManager:   fitSides= naviIconColor=0
+11-12 10:41:05.599  1281  5623 V WindowManager:   sfl=100000}
+11-12 10:41:05.599  3045  3045 I RecentsAnimationDeviceState: setSystemUiFlags, stateFlags : 131072
+11-12 10:41:05.599  3045  3045 I TouchInteractionService: onSystemUiFlagsChanged, lastSysUIFlags : 0
+11-12 10:41:05.600 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]: updateBlastSurfaceIfNeeded mBlastBufferQueue=null isSameSurfaceControl=false
+11-12 10:41:05.600 22449 22449 E BufferQueueProducer: Unable to open libpenguin.so: dlopen failed: library "libpenguin.so" not found.
+11-12 10:41:05.600 22449 22449 I BLASTBufferQueue: new BLASTBufferQueue, mName= ViewRootImpl@c3a7657[NativeActivity] mNativeObject= 0xb400006ebc25bd90 sc.mNativeObject= 0xb400006e4c283160 caller= android.view.ViewRootImpl.updateBlastSurfaceIfNeeded:2909 android.view.ViewRootImpl.relayoutWindow:9847 android.view.ViewRootImpl.performTraversals:3884 android.view.ViewRootImpl.doTraversal:3116 android.view.ViewRootImpl$TraversalRunnable.run:10885 android.view.Choreographer$CallbackRecord.run:1301 android.view.Choreographer$CallbackRecord.run:1309 android.view.Choreographer.doCallbacks:923 android.view.Choreographer.doFrame:852 android.view.Choreographer$FrameDisplayEventReceiver.run:1283 
+11-12 10:41:05.600 22449 22449 I BLASTBufferQueue: update, w= 1440 h= 3200 mName = ViewRootImpl@c3a7657[NativeActivity] mNativeObject= 0xb400006ebc25bd90 sc.mNativeObject= 0xb400006e4c283160 format= 4 caller= android.graphics.BLASTBufferQueue.<init>:84 android.view.ViewRootImpl.updateBlastSurfaceIfNeeded:2909 android.view.ViewRootImpl.relayoutWindow:9847 android.view.ViewRootImpl.performTraversals:3884 android.view.ViewRootImpl.doTraversal:3116 android.view.ViewRootImpl$TraversalRunnable.run:10885 
+11-12 10:41:05.600 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]: Relayout returned: old=(0,0,1440,3200) new=(0,0,1440,3200) req=(1440,3200)0 dur=4 res=0x3 s={true 0xb400006f4c26acf0} ch=true seqId=0
+11-12 10:41:05.601 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]: ViewRootImpl >> surfaceCreated
+11-12 10:41:05.601 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]: ViewRootImpl >> surfaceChanged W=1440, H=3200)
+11-12 10:41:05.601 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]: reportNextDraw android.view.ViewRootImpl.performTraversals:4438 android.view.ViewRootImpl.doTraversal:3116 android.view.ViewRootImpl$TraversalRunnable.run:10885 android.view.Choreographer$CallbackRecord.run:1301 android.view.Choreographer$CallbackRecord.run:1309 
+11-12 10:41:05.601 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]: Setup new sync id=0
+11-12 10:41:05.601 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]: Setting syncFrameCallback
+11-12 10:41:05.602 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]: onSyncComplete
+11-12 10:41:05.602 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]: setupSync seqId=0 mSyncId=-1 fn=0 caller=android.view.ViewRootImpl$$ExternalSyntheticLambda11.accept:6 android.window.SurfaceSyncer.lambda$setupSync$1$android-window-SurfaceSyncer:128 android.window.SurfaceSyncer$$ExternalSyntheticLambda1.accept:8 android.window.SurfaceSyncer$SyncSet.checkIfSyncIsComplete:382 android.window.SurfaceSyncer$SyncSet.-$$Nest$mcheckIfSyncIsComplete:0 android.window.SurfaceSyncer$SyncSet$1.onBufferReady:338 android.view.ViewRootImpl.lambda$performDraw$7:5373 
+11-12 10:41:05.602 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]: reportDrawFinished seqId=0 mSyncId=-1 fn=0 mSurfaceChangedTransaction=0xb400006e7c25a6f0
+11-12 10:41:05.602  1281  5623 D WindowManager: finishDrawingWindow: Window{1c7d872 u0 dev.vieww.marketwatch/android.app.NativeActivity} mDrawState=DRAW_PENDING seqId=0
+11-12 10:41:05.604  1281  1605 V WindowManager: Finish starting ActivityRecord{37a6750 u0 dev.vieww.marketwatch/android.app.NativeActivity} t55765}: first real window is shown, no animation
+11-12 10:41:05.604  1281  1605 V WindowManager: Schedule remove starting ActivityRecord{37a6750 u0 dev.vieww.marketwatch/android.app.NativeActivity} t55765} startingWindow=null startingView=null Callers=com.android.server.wm.ActivityRecord.removeStartingWindow:3233 com.android.server.wm.ActivityRecord.onFirstWindowDrawn:7460 com.android.server.wm.WindowState.performShowLocked:5502 com.android.server.wm.WindowStateAnimator.commitFinishDrawingLocked:351 com.android.server.wm.DisplayContent.lambda$new$8:1189 
+11-12 10:41:05.604  1281  1605 I SemDvfsHyPerManager: acquire hyper - AMS_RESUME_TAIL/1281@19, type = -999
+11-12 10:41:05.604  1281  1605 I SemDvfsHyPerManager: acquire hyper - AMS_ACT_LAZY/1281@20, type = -999
+11-12 10:41:05.604  1281  1605 D ActivityManagerPerformance: AMP_acquire() TAIL
+11-12 10:41:05.604  1281  1605 D ActivityManagerPerformance: AMP_release() APP_SWITCH
+11-12 10:41:05.604  1281  1605 V WindowManager: performShowLocked: mDrawState=HAS_DRAWN in Window{1c7d872 u0 dev.vieww.marketwatch/android.app.NativeActivity}
+11-12 10:41:05.604  1007  1047 I HYPER-HAL: [RequestManager.cpp]acquire(): Acquired ID : 845669  [1281 / 19]    HINT : AMS_RESUME_TAIL    list : 
+11-12 10:41:05.605  1281  1605 V WindowManager: Removing startingView=com.android.server.wm.StartingSurfaceController$StartingSurface@cbf9c81
+11-12 10:41:05.605  1281  1605 D TaskOrganizerController: applyStartingWindowAnimation, window=Window{1c7d872 u0 dev.vieww.marketwatch/android.app.NativeActivity}, caller=com.android.server.wm.TaskOrganizerController.removeStartingWindow:573 com.android.server.wm.StartingSurfaceController$StartingSurface.remove:287 com.android.server.wm.ActivityRecord.lambda$removeStartingWindowAnimation$6:3295 
+11-12 10:41:05.605  1281  1605 I WindowManager: Reparenting to leash, surface=Surface(name=1c7d872 dev.vieww.marketwatch/android.app.NativeActivity)/@0x983593b, leashParent=Surface(name=ActivityRecord{37a6750 u0 dev.vieww.marketwatch/android.app.NativeActivity} t55765})/@0xbf2858
+11-12 10:41:05.605  1141  2551 I SurfaceFlinger: id=1382 createSurf, flag=24000, Surface(name=1c7d872 dev.vieww.marketwatch/android.app.NativeActivity)/@0x983593b - animation-leash of starting_reveal#1382
+11-12 10:41:05.606  1281  1605 D WindowManager: makeSurface duration=0 leash=Surface(name=Surface(name=1c7d872 dev.vieww.marketwatch/android.app.NativeActivity)/@0x983593b - animation-leash of starting_reveal)/@0x8389296
+11-12 10:41:05.606  1007  1047 I HYPER-HAL: [ResourceManager.cpp]updateResource(): [CPUMinFreq] UpdateResource Request ID : 845669    Value : 1747200
+11-12 10:41:05.606  1007  1047 I HYPER-HAL: [RequestManager.cpp]acquire(): Acquired ID : 846971  [1281 / 20]    HINT : AMS_ACT_LAZY    list : 
+11-12 10:41:05.606  1007  1047 I HYPER-HAL: [ResourceManager.cpp]removeResource(): [CPULittleMinFreq] RemoveResource Request ID : 857423
+11-12 10:41:05.608  3045  3045 I ViewRootImpl@3152e8f[LauncherActivity]: stopped(true) old = false
+11-12 10:41:05.608  3045  3045 I ViewRootImpl@3152e8f[LauncherActivity]: WindowStopped on com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity set to true
+11-12 10:41:05.608  3045  3045 I Launcher: !@Boot_DEBUG: Launcher.onStop()
+11-12 10:41:05.609  3045  3045 I Launcher: !@Boot_EBS_D: Launcher.onStop()
+11-12 10:41:05.609  3045  3045 I BaseActivity: removeActivityFlags, flags : 17
+11-12 10:41:05.609  3045  3045 I WallpaperBlurController: dispatchTransactionSurface: mCurrentBlur = 0
+11-12 10:41:05.609  3045  3045 I StateManager: goToState isInState Normal
+11-12 10:41:05.609  3045  3227 I IMM_LC  : hsifw() - flag : 0
+11-12 10:41:05.609  3045  3045 W LauncherAppWidgetHost: setShouldListenFlag, mFlags:7 flag:start on:false isFront:false
+11-12 10:41:05.609  3045  3227 I IMM_LC  : hsifw() - mService.hideSoftInput
+11-12 10:41:05.609  1281  5070 I AppWidgetServiceImpl: stopListening callbacks : null
+11-12 10:41:05.609  3045  3045 W LauncherAppWidgetHost: stopListening, mFlags:2 isFront:false
+11-12 10:41:05.609  3045  3045 W Launcher.NotificationListener: removeNotificationsChangedListener
+11-12 10:41:05.609  3045  3045 I Launcher.NotificationListener: unregisterObserver, this is not notificationService!!
+11-12 10:41:05.609  3045  3045 I BadgeCountUpdaterImpl: onNotificationsChangedDisConnected
+11-12 10:41:05.610  1007  1047 I HYPER-HAL: [ResourceManager.cpp]removeResource(): [CPUMinFreq] RemoveResource Request ID : 857423
+11-12 10:41:05.610  1007  1047 I HYPER-HAL: [RequestManager.cpp]releaseLocked(): Released ID : 857423
+11-12 10:41:05.610  3045  3045 I MSHandlerLifeCycle: removeMultiSplitHandler: no exist. decor=DecorView@31f1f9f[LauncherActivity]
+11-12 10:41:05.610  1281  1601 D [secipm]: mSecIpmManager report to nap
+11-12 10:41:05.610  1281  1601 I PkgPredictorService-SecIpmManagerServiceImpl: reportToNAP uid:10319 dev.vieww.marketwatch/android.app.NativeActivity thisTime:133
+11-12 10:41:05.611  1281  1601 I ActivityTaskManager: Displayed dev.vieww.marketwatch/android.app.NativeActivity: +133ms
+11-12 10:41:05.611  1281  1601 I Pageboost: Launch time gathered : pid 22449 dev.vieww.marketwatch 133
+11-12 10:41:05.611  1281  5623 D InputMethodManagerService: hideSoftInput
+11-12 10:41:05.612  1281  5623 V InputMethodManagerService: Client requesting input be hidden
+11-12 10:41:05.612  1281  5623 V InputMethodManagerService: hideCurrentInputLocked : canceled, shouldHideSoftInput=false, mInputShown=false, mImeWindowVis=0
+11-12 10:41:05.612  1281  5623 I InputMethodBindingController: setCurrentMethodNotVisible: mVisibleBound=false, mHasConnection=true, caller = com.android.server.inputmethod.InputMethodManagerService.hideCurrentInputLocked:4356 com.android.server.inputmethod.InputMethodManagerService.hideSoftInput:4294 com.android.internal.view.IInputMethodManager$Stub.onTransact:488 com.android.server.inputmethod.InputMethodManagerService.onTransact:2302 android.os.Binder.execTransactInternal:1316 android.os.Binder.execTransact:1280 <bottom of call stack> <bottom of call stack> <bottom of call stack> <bottom of call stack> 
+11-12 10:41:05.612  3503  3503 E pageboostd: Received HALT command code 2
+11-12 10:41:05.613 22449 22478 D vulkan  : searching for layers in '/data/app/~~wwmQZwRWNUfpBf-a6QK9Ng==/dev.vieww.marketwatch-qdJX49G7qEUrH-EBcJlENw==/lib/arm64'
+11-12 10:41:05.614 22449 22478 D vulkan  : searching for layers in '/data/app/~~wwmQZwRWNUfpBf-a6QK9Ng==/dev.vieww.marketwatch-qdJX49G7qEUrH-EBcJlENw==/base.apk!/lib/arm64-v8a'
+11-12 10:41:05.614  1141  1141 I Layer   : id=1367 removedFromDrawingState Surface(name=d067e99 StatusBar)/@0xd0ac96a - animation-leash of insets_animation#1367 (125)
+11-12 10:41:05.614  1141  1141 I Layer   : id=1368 removedFromDrawingState Surface(name=4d67c8c NavigationBar0)/@0xfd9a451 - animation-leash of insets_animation#1368 (125)
+11-12 10:41:05.614  1141  1141 I SurfaceFlinger: [1c7d872 dev.vieww.marketwatch/android.app.NativeActivity#1378] FrameRatePriority: 1
+11-12 10:41:05.615  1141  1141 I SurfaceFlinger: id=1367 Removed Surface(name=d067e99 StatusBar)/@0xd0ac96a - animation-leash of insets_animation#1367 (125)
+11-12 10:41:05.615  1141  1141 I SurfaceFlinger: id=1368 Removed Surface(name=4d67c8c NavigationBar0)/@0xfd9a451 - animation-leash of insets_animation#1368 (125)
+11-12 10:41:05.615  2486  2556 D OpenGLRenderer: setSurface called with nullptr
+11-12 10:41:05.615  2486  2556 D OpenGLRenderer: setSurface() destroyed EGLSurface
+11-12 10:41:05.615  2486  2556 D OpenGLRenderer: destroyEglSurface
+11-12 10:41:05.615  1141  1141 I Layer   : id=1367 Destroyed Surface(name=d067e99 StatusBar)/@0xd0ac96a - animation-leash of insets_animation#1367
+11-12 10:41:05.615  1141  1141 I Layer   : id=1368 Destroyed Surface(name=4d67c8c NavigationBar0)/@0xfd9a451 - animation-leash of insets_animation#1368
+11-12 10:41:05.615  1281  1605 D ActivityTaskManager: mStartingWindow and mStartingData is null for token=ActivityRecord{37a6750 u0 dev.vieww.marketwatch/android.app.NativeActivity} t55765}
+11-12 10:41:05.616  2486  2546 I ViewRootImpl@d1645db[marketwatch]: performTraversals params={(0,0)(fillxfill) sim={adjust=pan} ty=APPLICATION_STARTING fmt=TRANSLUCENT wanim=0x10302f4 alpha=0.0
+11-12 10:41:05.616  2486  2546 I ViewRootImpl@d1645db[marketwatch]:   fl=81030118
+11-12 10:41:05.616  2486  2546 I ViewRootImpl@d1645db[marketwatch]:   pfl=16000010
+11-12 10:41:05.616  2486  2546 I ViewRootImpl@d1645db[marketwatch]:   bhv=DEFAULT
+11-12 10:41:05.616  2486  2546 I ViewRootImpl@d1645db[marketwatch]:   fitSides= naviIconColor=0}
+11-12 10:41:05.616  2486  2546 I ViewRootImpl@d1645db[marketwatch]: performTraversals mFirst=false windowShouldResize=false viewVisibilityChanged=true mForceNextWindowRelayout=false params={(0,0)(fillxfill) sim={adjust=pan} ty=APPLICATION_STARTING fmt=TRANSLUCENT wanim=0x10302f4 alpha=0.0
+11-12 10:41:05.616  2486  2546 I ViewRootImpl@d1645db[marketwatch]:   fl=81030118
+11-12 10:41:05.616  2486  2546 I ViewRootImpl@d1645db[marketwatch]:   pfl=16000010
+11-12 10:41:05.616  2486  2546 I ViewRootImpl@d1645db[marketwatch]:   bhv=DEFAULT
+11-12 10:41:05.616  2486  2546 I ViewRootImpl@d1645db[marketwatch]:   fitSides= naviIconColor=0}
+11-12 10:41:05.616 28100 30069 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-12 10:41:05.616  1281  4735 D InputDispatcher: Focus request (0): 1c7d872 dev.vieww.marketwatch/android.app.NativeActivity but waiting because NO_WINDOW
+11-12 10:41:05.616 28100 30069 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-12 10:41:05.617 28100 30069 I FusedLocation: (REDACTED) location delivery to %s blocked - too fast
+11-12 10:41:05.617  1281  3043 D InputDispatcher: Focus entered window (0): 1c7d872 dev.vieww.marketwatch/android.app.NativeActivity
+11-12 10:41:05.617 22449 22449 I ViewRootImpl@c3a7657[NativeActivity]: MSG_WINDOW_FOCUS_CHANGED 1 0
+11-12 10:41:05.617 28100 30069 I FusedLocation: (REDACTED) location delivery to %s blocked - too fast
+11-12 10:41:05.617  1281  2675 E WindowManager: win=Window{f26af41 u0 com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity} destroySurfaces: appStopped=true cleanupOnResume=false win.mWindowRemovalAllowed=false win.mRemoveOnExit=false win.mViewVisibility=8 caller=com.android.server.wm.ActivityRecord.destroySurfaces:6539 com.android.server.wm.ActivityRecord.destroySurfaces:6520 com.android.server.wm.ActivityRecord.notifyAppStopped:6584 com.android.server.wm.ActivityRecord.activityStopped:7172 com.android.server.wm.ActivityClientController.activityStopped:269 android.app.IActivityClientController$Stub.onTransact:613 com.android.server.wm.ActivityClientController.onTransact:147 
+11-12 10:41:05.617 22449 22449 D InputMethodManager: startInputInner - Id : 0
+11-12 10:41:05.617 22449 22449 I InputMethodManager: startInputInner - mService.startInputOrWindowGainedFocus
+11-12 10:41:05.617  1281  2675 I WindowManager: Destroying surface Surface(name=com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity$_3045)/@0x51530a3 called by com.android.server.wm.WindowStateAnimator.destroySurface:942 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:536 com.android.server.wm.WindowState.destroySurfaceUnchecked:4309 com.android.server.wm.WindowState.destroySurface:4283 com.android.server.wm.ActivityRecord.destroySurfaces:6539 com.android.server.wm.ActivityRecord.destroySurfaces:6520 com.android.server.wm.ActivityRecord.notifyAppStopped:6584 com.android.server.wm.ActivityRecord.activityStopped:7172 
+11-12 10:41:05.617 28100 30069 I FusedLocation: (REDACTED) location delivery to %s blocked - too fast
+11-12 10:41:05.618  1281  2675 D ActivityTaskManager: mStartingWindow and mStartingData is null for token=ActivityRecord{5833a0e u0 com.sec.android.app.launcher/.activities.LauncherActivity} t55728}
+11-12 10:41:05.618  1281  5623 V WindowManager: Relayout Window{c698b14 u0 Splash Screen dev.vieww.marketwatch}: viewVisibility=8 req=1440x3200 d0
+11-12 10:41:05.618  1281  1604 I AppOps  : updateUidProcState uid: 10236 procState: 4 capability:14
+11-12 10:41:05.618  1281  5623 D WindowManager: updateSystemBarAttributes: displayId=0, win=Window{1c7d872 u0 dev.vieww.marketwatch/android.app.NativeActivity}, navColorWin=Window{1c7d872 u0 dev.vieww.marketwatch/android.app.NativeActivity}, focusedCanBeNavColorWin=false, behavior=1, appearance=16, statusBarAppearanceRegions=[AppearanceRegion{ bounds=[0,0][1440,3200]}], requestedVisibilities=, from=com.android.server.wm.DisplayPolicy.finishPostLayoutPolicyLw:2527 com.android.server.wm.DisplayContent.applySurfaceChangesTransaction:5713 com.android.server.wm.RootWindowContainer.applySurfaceChangesTransaction:1234 
+11-12 10:41:05.619  1281  1604 I ActivityManager: Changes in 10131 2 to 5, 15 to 8
+11-12 10:41:05.620  1281  4735 V LocationManagerService: passive provider registration 1000/android[SensorNotificationService]/52F5845B dropped delivery - too fast
+11-12 10:41:05.620  1281  2724 D SLocation: PositionManager - PassiveonLocationChanged fused 1794480065612
+11-12 10:41:05.620  1281  2724 W SLocation: PositionManager - do not refresh last location about fused location
+11-12 10:41:05.620  1281  2724 D SLocation: ARDistanceBigData - BIGDATA ARD - receive location
+11-12 10:41:05.620  1281  2724 D SLocation: ARDistanceBigData - BIGDATA ARD disabled, onReceiveLocation
+11-12 10:41:05.620  1281  5623 V WindowManager: Relayout hash=c698b14, pid=2486, syncId=-1: mAttrs={(0,0)(fillxfill) sim={adjust=pan} ty=APPLICATION_STARTING fmt=TRANSLUCENT wanim=0x10302f4 alpha=0.0
+11-12 10:41:05.620  1281  5623 V WindowManager:   fl=81030118
+11-12 10:41:05.620  1281  5623 V WindowManager:   pfl=16000010
+11-12 10:41:05.620  1281  5623 V WindowManager:   bhv=DEFAULT
+11-12 10:41:05.620  1281  5623 V WindowManager:   fitSides= naviIconColor=0}
+11-12 10:41:05.620  1281  2724 D SLocation: ARDistanceLibManager - request distance diff to AR Distance Library
+11-12 10:41:05.620  1281  2724 D SLocation: SLocationCoreSem - send to coreSem, packet length : 1 / [34]
+11-12 10:41:05.620  1281  2724 D SemContextLocationCoreAttribute: setAttribute() mode : 0 action : 23
+11-12 10:41:05.620  1281  2724 D SemContextService: lock : changeParameters
+11-12 10:41:05.620  1281  2724 D SemContext.CaeProvider.LocationCoreImpl: setAttribute() mode : 0 action : 23
+11-12 10:41:05.620  1281  3043 D CompatibilityChangeReporter: Compat change id reported: 214016041; UID 10319; state: ENABLED
+11-12 10:41:05.620  1281  3043 V InputMethodManagerService: Unspecified window will hide input
+11-12 10:41:05.620 22449 22478 I AdrenoVK-0: ===== BEGIN DUMP OF OVERRIDDEN SETTINGS =====
+11-12 10:41:05.620 22449 22478 I AdrenoVK-0: ===== END DUMP OF OVERRIDDEN SETTINGS =====
+11-12 10:41:05.620  1281  3043 V InputMethodManagerService: hideCurrentInputLocked : canceled, shouldHideSoftInput=false, mInputShown=false, mImeWindowVis=0
+11-12 10:41:05.621  1281  3043 I InputMethodBindingController: setCurrentMethodNotVisible: mVisibleBound=false, mHasConnection=true, caller = com.android.server.inputmethod.InputMethodManagerService.hideCurrentInputLocked:4356 com.android.server.inputmethod.InputMethodManagerService.startInputOrWindowGainedFocusInternalLocked:4662 com.android.server.inputmethod.InputMethodManagerService.startInputOrWindowGainedFocusInternal:4440 com.android.server.inputmethod.InputMethodManagerService.startInputOrWindowGainedFocus:4379 com.android.internal.view.IInputMethodManager$Stub.onTransact:518 com.android.server.inputmethod.InputMethodManagerService.onTransact:2302 android.os.Binder.execTransactInternal:1316 android.os.Binder.execTransact:1280 <bottom of call stack> <bottom of call stack> 
+11-12 10:41:05.621  1281  2724 W CAE     : setCAProperty(ContextAwareService.java:513) - [setProperty 01] Mutex is locked for SLOCATION_RUNNER
+11-12 10:41:05.621  1281  3043 D InputMethodManagerService: DESKTOP MODE! : 2
+11-12 10:41:05.621  1281  3043 D InputMethodManagerService: NOT IN KNOX DESKTOP MODE!
+11-12 10:41:05.621  1281  3043 V InputMethodManagerService: getDisplayIdOfInputMethodWindowToBeAdded: displayId=0
+11-12 10:41:05.621  2486  2546 D InsetsController: onStateChanged: InsetsState: {mDisplayFrame=Rect(0, 0 - 1440, 3200), mDisplayCutout=DisplayCutout{insets=Rect(0, 104 - 0, 0) waterfall=Insets{left=0, top=0, right=0, bottom=0} boundingRect={Bounds=[Rect(0, 0 - 0, 0), Rect(680, 0 - 760, 104), Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0)]} cutoutPathParserInfo={CutoutPathParserInfo{displayWidth=1440 displayHeight=3200 physicalDisplayWidth=1440 physicalDisplayHeight=3200 density={4.0} cutoutSpec={M 0,0 H -10 V 26 H 10 V 0 H 0 Z @dp} rotation={0} scale={1.0} physicalPixelDisplaySizeRatio={1.0}}}}, mRoundedCorners=RoundedCorners{[RoundedCorner{position=TopLeft, radius=96, center=Point(96, 96)}, RoundedCorner{position=TopRight, radius=96, center=Point(1344, 96)}, RoundedCorner{position=BottomRight, radius=96, center=Point(1344, 3104)}, RoundedCorner{position=BottomLeft, radius=96, center=Point(96, 3104)}]}  mRoundedCornerFrame=Rect(0, 0 - 1440, 3200), mPrivacyIndicatorBounds=PrivacyIndicatorBounds {static bounds=Rect(948, 0 - 1080, 78) rotation=0}, mSources= { InsetsSource: {mType=ITYPE_STATUS_BAR, mFrame=[0,0][1440,104], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_NAVIGATION_BAR, mFrame=[0,3056][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_LEFT_GESTURES, mFrame=[0,0][0,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_RIGHT_GESTURES, mFrame=[1440,0][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_TOP_MANDATORY_GESTURES, mFrame=[0,0][1440,140], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_BOTTOM_MANDATORY_GESTURES, mFrame=[0,3056][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_LEFT_DISPLAY_CUTOUT, mFrame=[0,0][-100000,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_TOP_DISPLAY_CUTOUT, mFrame=[0,0][1440,104], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_RIGHT_DISPLAY_CUTOUT, mFrame=[100000,0][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_BOTTOM_DISPLAY_CUTOUT, mFrame=[0,100000][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_TOP_TAPPABLE_ELEMENT, mFrame=[0,0][1440,104], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_BOTTOM_TAPPABLE_ELEMENT, mFrame=[0,3056][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false} } host=Splash Screen dev.vieww.marketwatch from=android.view.ViewRootImpl.relayoutWindow:9802
+11-12 10:41:05.621  1281  2724 I CAE     : setPropertyValue(SLocationRunner.java:116) - SLocationRunner setProperty header : 34, len : 1
+11-12 10:41:05.621  1281  3043 V InputMethodManagerService: Creating new session for client ClientState{5f51759 uid=10319 pid=22449 displayId=0}
+11-12 10:41:05.621  1281  3043 D InputTransport: Input channel constructed: 'ClientS', fd=1025
+11-12 10:41:05.621  1281  3043 D InputTransport: Input channel constructed: 'ClientS', fd=1026
+11-12 10:41:05.621  1281  2146 D SensorService: setSContextDataLocked ints length 2 , byte length 4
+11-12 10:41:05.621  1281  2146 D SensorService: setSContextDataLocked 223717c1
+11-12 10:41:05.621 22449 22478 I AdrenoVK-0: QUALCOMM build          : 193b2ee, I593c16c433
+11-12 10:41:05.621 22449 22478 I AdrenoVK-0: Build Date              : 10/07/21
+11-12 10:41:05.621 22449 22478 I AdrenoVK-0: Shader Compiler Version : EV031.32.02.10
+11-12 10:41:05.621 22449 22478 I AdrenoVK-0: Local Branch            : Test-lib-SR05432264
+11-12 10:41:05.621 22449 22478 I AdrenoVK-0: Remote Branch           : 
+11-12 10:41:05.621 22449 22478 I AdrenoVK-0: Remote Branch           : 
+11-12 10:41:05.621 22449 22478 I AdrenoVK-0: Reconstruct Branch      : 
+11-12 10:41:05.621 22449 22478 I AdrenoVK-0: Build Config            : S P 10.0.5 AArch64
+11-12 10:41:05.621 22449 22478 I AdrenoVK-0: Driver Path             : /vendor/lib64/hw/vulkan.adreno.so
+11-12 10:41:05.621  1004  1004 I sensors-hal: inject_sensor_data:407, handle 1501 send inject
+11-12 10:41:05.621  1004  1004 I sensors-hal: sendContextData:286, sensor hal 4, (0xc1, 0x17, 0x37, 0x22)
+11-12 10:41:05.621  1004  1004 E sensors-hal: sendContextData:132, slocationcore h 193 m 23 s 55
+11-12 10:41:05.621  1004  1004 I sensors-hal: sendUserData:118, slocationcore sendUserData
+11-12 10:41:05.621  1004  1004 E sensors-hal: create_send_context_data:63, slocationcore create_send_context_data
+11-12 10:41:05.621  1281  3043 D InputTransport: Input channel destroyed: 'ClientS', fd=1026
+11-12 10:41:05.621  1004  1004 I sensors-hal: send_context_data:632, slocationcore, 4986366670857974562, 1320970896291267344, msgid:700
+11-12 10:41:05.621  2486  2546 I ViewRootImpl@d1645db[marketwatch]: Relayout returned: old=(0,0,1440,3200) new=(0,0,1440,3200) req=(1440,3200)8 dur=5 res=0x2 s={false 0x0} ch=true seqId=0
+11-12 10:41:05.622  2486  2546 I ViewRootImpl@d1645db[marketwatch]: dispatchDetachedFromWindow
+11-12 10:41:05.622  1281  3043 D CoreBackPreview: Window{c698b14 u0 Splash Screen dev.vieww.marketwatch}: Setting back callback null
+11-12 10:41:05.622  1281  5623 D WindowManager: Starting window removed Window{c698b14 u0 Splash Screen dev.vieww.marketwatch}
+11-12 10:41:05.622  1281  5623 I WindowManager: Cancelling animation restarting=false, leash=Surface(name=Surface(name=1c7d872 dev.vieww.marketwatch/android.app.NativeActivity)/@0x983593b - animation-leash of starting_reveal)/@0x8389296
+11-12 10:41:05.622  1281  5623 I WindowManager: Reparenting to original parent: Surface(name=ActivityRecord{37a6750 u0 dev.vieww.marketwatch/android.app.NativeActivity} t55765})/@0xbf2858, destroy=false, surface=Surface(name=1c7d872 dev.vieww.marketwatch/android.app.NativeActivity)/@0x983593b
+11-12 10:41:05.622  1281  5623 D InputTransport: Input channel destroyed: 'c698b14', fd=995
+11-12 10:41:05.622  1281  5623 W InputManager-JNI: Input channel object 'c698b14 Splash Screen dev.vieww.marketwatch (client)' was disposed without first being removed with the input manager!
+11-12 10:41:05.622  1281  5623 D InputTransport: Input channel destroyed: 'c698b14', fd=997
+11-12 10:41:05.622  1281  5623 V WindowManager: Remove Window{c698b14 u0 Splash Screen dev.vieww.marketwatch}: mSurfaceController=Surface(name=Splash Screen dev.vieww.marketwatch$_2486)/@0xdc033ff mAnimatingExit=false mRemoveOnExit=false mHasSurface=true surfaceShowing=false animating=false app-animation=false mWillReplaceWindow=false mDisplayFrozen=false callers=com.android.server.wm.WindowState.removeIfPossible:3041 com.android.server.wm.WindowManagerService.removeWindow:2289 com.android.server.wm.Session.remove:236 android.view.IWindowSession$Stub.onTransact:743 com.android.server.wm.Session.onTransact:188 android.os.Binder.execTransactInternal:1321 
+11-12 10:41:05.622  1281  5623 I WindowManager: Destroying surface Surface(name=Splash Screen dev.vieww.marketwatch$_2486)/@0xdc033ff called by com.android.server.wm.WindowStateAnimator.destroySurface:942 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:536 com.android.server.wm.WindowState.removeImmediately:2969 com.android.server.wm.WindowState.removeIfPossible:3228 com.android.server.wm.WindowState.removeIfPossible:3041 com.android.server.wm.WindowManagerService.removeWindow:2289 com.android.server.wm.Session.remove:236 android.view.IWindowSession$Stub.onTransact:743 
+11-12 10:41:05.623  1281  3043 D InputMethodManagerService: isImeSwitcherDisabledPackage : false
+11-12 10:41:05.623  1004 19909 E sensors-hal: handle_sns_client_event:77, slocationcore_event: msgid:1025
+11-12 10:41:05.624  1281  2724 W CAE     : setCAProperty(ContextAwareService.java:519) - [setProperty 02] Mutex is unlocked for SLOCATION_RUNNER
+11-12 10:41:05.624  1281  2724 D SemContextService: unlock : changeParameters
+11-12 10:41:05.624  1281  2724 D SemContextManager:   .changeParameters : listener = com.samsung.android.location.semcontext.a@b4746b5, service=SLocation Core
+11-12 10:41:05.624  1281  2724 D SLocation: PositionManager - receive fused location
+11-12 10:41:05.624  1281  5070 I AppOps  : updateUidProcState uid: 10041 procState: 0 capability:15
+11-12 10:41:05.624  1293  5209 I CameraService: onUidStateChanged: uid=10041, procState is changed. (1 -> 0)
+11-12 10:41:05.624  1004 19909 E sensors-hal: handle_sns_client_event:77, slocationcore_event: msgid:1025
+11-12 10:41:05.624  2486  2546 D InputTransport: Input channel destroyed: 'c698b14', fd=270
+11-12 10:41:05.625  1281  3043 D InputMethodManagerService: shouldShowImeSwitcherLocked : checking vis : 3
+11-12 10:41:05.626  1281  3043 D InputMethodManagerService: checkDisplayOfStartInputAndUpdateKeyboard: displayId=0, mFocusedDisplayId=0
+11-12 10:41:05.626  1281  3043 D InputTransport: Input channel constructed: 'ClientS', fd=995
+11-12 10:41:05.626  2486  2486 D NavigationBar: onSystemBarAttributesChanged() -  displayId:0, appearance:16, packageName: dev.vieww.marketwatch (APPEARANCE_LIGHT_NAVIGATION_BARS ), navbarColorManagedByIme:false
+11-12 10:41:05.626  1281  2138 D CAE     : onGetSensorHubData(SensorHubParserProvider.java:89) - onGetSensorHubData Event [event buffer len :38], AP_WAKEUP
+11-12 10:41:05.626  1281  3043 D InputTransport: Input channel destroyed: 'ClientS', fd=995
+11-12 10:41:05.626  1281  2138 I CAE     : parse(SensorHubParserProvider.java:190) - buffer size = 38
+11-12 10:41:05.626  1281  2138 I CAE     : parse(SensorHubParserProvider.java:201) - 1, 1, 55, 0, 33, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 119, 53, -108, 0, 119, 53, -108, 0, 0, 0, 0, 0, 2, 6, 36, -120, 0, 0, 0, 0,
+11-12 10:41:05.626  2486  2486 D SamsungLightBarControlHelper: updateNavigation(Black button) isLightBar:false, hasLightBarNavigationBarFlag:true, packageName:dev.vieww.marketwatch, DirectReplying:false, NavBarColorManagerdByIme:false, ForceDarkForScrim:false, QsCustomizing:false, PanelHasWhiteBg:true
+11-12 10:41:05.626  1281  2138 I CAE     : parse(SLocationRunner.java:88) - SLocationRunner parse start : 3
+11-12 10:41:05.626  1281  2138 D CAE     : display(ContextProvider.java:375) - ================= SLOCATION_RUNNER =================
+11-12 10:41:05.626  1281  2138 I CAE     : display(ContextProvider.java:391) - ExtraDataArray=[1, 1, 55, 0, 33, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 119, 53, -108, 0, 119, 53, -108, 0, 0, 0, 0, 0, 2, 6, 36, -120, 0, 0, 0, 0]
+11-12 10:41:05.626  1281  2138 I CAE     : parse(SLocationRunner.java:96) - SLocationRunner parse end:38
+11-12 10:41:05.627  1281  2138 D CAE     : onGetSensorHubData(SensorHubParserProvider.java:89) - onGetSensorHubData Event [event buffer len :10], AP_WAKEUP
+11-12 10:41:05.627  1281  2135 D SemContextService: Service.updateContext() : service = SLocation Core
+11-12 10:41:05.627  1281  2138 I CAE     : parse(SensorHubParserProvider.java:190) - buffer size = 10
+11-12 10:41:05.627  1281  2138 I CAE     : parse(SensorHubParserProvider.java:201) - 1, 1, 55, 0, 5, 2, 34, 0, 0, 0,
+11-12 10:41:05.627  1281  2138 I CAE     : parse(SLocationRunner.java:88) - SLocationRunner parse start : 3
+11-12 10:41:05.627  1281  2138 D CAE     : display(ContextProvider.java:375) - ================= SLOCATION_RUNNER =================
+11-12 10:41:05.627  1281  2138 I CAE     : display(ContextProvider.java:391) - ExtraDataArray=[1, 1, 55, 0, 5, 2, 34, 0, 0, 0]
+11-12 10:41:05.627  1281  2138 I CAE     : parse(SLocationRunner.java:96) - SLocationRunner parse end:10
+11-12 10:41:05.627  1281  2135 D SemContextService: Service.updateContext() : service = SLocation Core
+11-12 10:41:05.627  1281  1602 D Native_CFMS: CFMS Delete Task Tid(22449)
+11-12 10:41:05.627  1281  1281 D SemContextManager: onSemContextChanged() : event = SLocation Core
+11-12 10:41:05.627  1281  1281 D SLocation: SLocationCoreSem - SemContextChanged type = 47, packet received
+11-12 10:41:05.627  1281  1281 D SemContextManager: onSemContextChanged() : event = SLocation Core
+11-12 10:41:05.627  1281  1281 D SLocation: SLocationCoreSem - SemContextChanged type = 47, packet received
+11-12 10:41:05.627  1281  2724 I SLocation: SemContextParser -  parse start : 3
+11-12 10:41:05.627  1281  2724 I SLocation: SemContextParser -  packet Length : 33packet total size : 38
+11-12 10:41:05.627  1281  2724 I SLocation: SemContextParser - packet : [33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 119, 53, -108, 0, 119, 53, -108, 0, 0, 0, 0, 0, 2, 6, 36, -120, 0, 0, 0, 0]
+11-12 10:41:05.627  1281  2724 I SLocation: SemContextParser -  parse start : 3
+11-12 10:41:05.627  1281  2724 I SLocation: SemContextParser -  packet Length : 5packet total size : 10
+11-12 10:41:05.627  1281  2724 I SLocation: SemContextParser - packet : [2, 34, 0, 0, 0]
+11-12 10:41:05.628  1281  2724 D SLocation: ARDistanceGetARDistance - convertSensorHubTimeToElapsedTime -1794446089121
+11-12 10:41:05.628  1281  2724 D SLocation: ARDistanceGetARDistance - no location from core pvt, only use distance info
+11-12 10:41:05.628  1281  2724 D SLocation: CommonCoreManager - received Extra Data from core, len : 33
+11-12 10:41:05.628  1281  2724 D SLocation: ARDistanceLibManager - command callback received - CURRENT_LOCATION_REQUEST_DISTANCE ERROR CODE : ERROR_NONE
+11-12 10:41:05.628  1281  2724 D SLocation: CommonCoreManager - received Extra Data from core, len : 5
+11-12 10:41:05.628  1281  2724 D SLocation: SCurrentLocationManager - handleCurrentLocationCoreDistance 0.0
+11-12 10:41:05.628  1281  2724 D SLocation: TrackingReceiverFilterFmm - sum of ar distance : 0.0, update time : 33976507, gps loc time : 0
+11-12 10:41:05.628 22884 22884 I HBD     : HoneyBoardService onFinishInput 
+11-12 10:41:05.628  1281  5070 D RestrictionPolicy: isScreenCaptureEnabled : ret=true userId=0
+11-12 10:41:05.628  1281  2724 D SLocation: SingleLastLocation - last locations is fused/1.337/1.337
+11-12 10:41:05.628  1281  2724 D SLocation: TrackingReceiverFilter - sum of ar distance : 0.0, update time : 33976507, gps loc time : 20992
+11-12 10:41:05.628  1281  2724 D SLocation: SingleLastLocation - handleOnUpdateLastLocation 1
+11-12 10:41:05.628  1281  5070 I WindowManager: Cancelling animation restarting=true, leash=Surface(name=Surface(name=9171d22 InputMethod)/@0x9617d70 - animation-leash of insets_animation)/@0x6bd1387
+11-12 10:41:05.628  1281  5070 I WindowManager: Reparenting to original parent: Surface(name=WindowToken{bf066aa type=2011 android.os.Binder@d683595})/@0x75ab8e9, destroy=false, surface=Surface(name=9171d22 InputMethod)/@0x9617d70
+11-12 10:41:05.628  1281  5070 I WindowManager: Reparenting to leash, surface=Surface(name=9171d22 InputMethod)/@0x9617d70, leashParent=Surface(name=WindowToken{bf066aa type=2011 android.os.Binder@d683595})/@0x75ab8e9
+11-12 10:41:05.628  1141  2551 I SurfaceFlinger: id=1383 createSurf, flag=24004, Surface(name=9171d22 InputMethod)/@0x9617d70 - animation-leash of insets_animation#1383
+11-12 10:41:05.628 22884 22884 I HBD     : a IC have been unbinding,  RemoteInputConnection{idHash=#9b7c26a}
+11-12 10:41:05.628 22884 22884 I HBD     : HoneyBoardService [PF_CL][onFinishInput]  0 ms 
+11-12 10:41:05.628 22449 22449 D InputMethodManager: startInputInner - Id : 0
+11-12 10:41:05.629 22884 22884 I HBD     : HoneyBoardService [IMI] onStartInput - caller pid : 22449 , caller uid : 10319 
+11-12 10:41:05.629 22884 22884 I HBD     : j updateConfigs 
+11-12 10:41:05.629 22884 22884 I HBD     : j isEnabledNightMode : false 
+11-12 10:41:05.629  1281  5070 D WindowManager: makeSurface duration=0 leash=Surface(name=Surface(name=9171d22 InputMethod)/@0x9617d70 - animation-leash of insets_animation)/@0x3ee111b
+11-12 10:41:05.629 22884 22884 I HBD     : a IC have been binding, RemoteInputConnection{idHash=#876435b} 
+11-12 10:41:05.629 22884 22884 I HBD     : h [EditorInputType]setPrivateImeOptionsToTable privateImeOptions ( null )
+11-12 10:41:05.629 22884 22884 I HBD     : b incognitoMode : false 
+11-12 10:41:05.629 22884 22884 I HBD     : b needOff = true , isForceOff = false, isNullInputClass : true 
+11-12 10:41:05.629 22884 22884 I HBD     : h getDefaultInputRange : UNKNOWN 
+11-12 10:41:05.629 22884 22884 I HBD     : h getDefaultInputRange : UNKNOWN 
+11-12 10:41:05.629 22884 22884 I HBD     : h getDefaultInputRange : UNKNOWN 
+11-12 10:41:05.630  1281  1602 D Native_CFMS: CFMS Delete Task Tid(3045)
+11-12 10:41:05.630  1281  1602 D Native_CFMS: CFMS Delete Task Tid(4379)
+11-12 10:41:05.630 22449 22449 D InsetsController: onStateChanged: InsetsState: {mDisplayFrame=Rect(0, 0 - 1440, 3200), mDisplayCutout=DisplayCutout{insets=Rect(0, 104 - 0, 0) waterfall=Insets{left=0, top=0, right=0, bottom=0} boundingRect={Bounds=[Rect(0, 0 - 0, 0), Rect(680, 0 - 760, 104), Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0)]} cutoutPathParserInfo={CutoutPathParserInfo{displayWidth=1440 displayHeight=3200 physicalDisplayWidth=1440 physicalDisplayHeight=3200 density={4.0} cutoutSpec={M 0,0 H -10 V 26 H 10 V 0 H 0 Z @dp} rotation={0} scale={1.0} physicalPixelDisplaySizeRatio={1.0}}}}, mRoundedCorners=RoundedCorners{[RoundedCorner{position=TopLeft, radius=96, center=Point(96, 96)}, RoundedCorner{position=TopRight, radius=96, center=Point(1344, 96)}, RoundedCorner{position=BottomRight, radius=96, center=Point(1344, 3104)}, RoundedCorner{position=BottomLeft, radius=96, center=Point(96, 3104)}]}  mRoundedCornerFrame=Rect(0, 0 - 1440, 3200), mPrivacyIndicatorBounds=PrivacyIndicatorBounds {static bounds=Rect(948, 0 - 1080, 78) rotation=0}, mSources= { InsetsSource: {mType=ITYPE_STATUS_BAR, mFrame=[0,0][1440,104], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_NAVIGATION_BAR, mFrame=[0,3056][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_LEFT_GESTURES, mFrame=[0,0][0,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_RIGHT_GESTURES, mFrame=[1440,0][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_TOP_MANDATORY_GESTURES, mFrame=[0,0][1440,140], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_BOTTOM_MANDATORY_GESTURES, mFrame=[0,3056][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_LEFT_DISPLAY_CUTOUT, mFrame=[0,0][-100000,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_TOP_DISPLAY_CUTOUT, mFrame=[0,0][1440,104], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_RIGHT_DISPLAY_CUTOUT, mFrame=[100000,0][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_BOTTOM_DISPLAY_CUTOUT, mFrame=[0,100000][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_TOP_TAPPABLE_ELEMENT, mFrame=[0,0][1440,104], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_BOTTOM_TAPPABLE_ELEMENT, mFrame=[0,3056][1440,3200], mVisible=true, mInsetsRoundedCornerFrame=false}, InsetsSource: {mType=ITYPE_IME, mFrame=[0,0][0,0], mVisibleFrame=[0,1924][1440,3200], mVisible=false, mInsetsRoundedCornerFrame=false} } host=dev.vieww.marketwatch/android.app.NativeActivity from=android.view.ViewRootImpl$ViewRootHandler.handleMessageImpl:6740
+11-12 10:41:05.631  1281  1602 D Native_CFMS: CFMS Delete Task Tid(4604)
+11-12 10:41:05.631  1141  1141 I Layer   : id=1366 removedFromDrawingState com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity$_3045#1366 (124)
+11-12 10:41:05.631  1281  1602 D Native_CFMS: CFMS Delete Task Tid(4605)
+11-12 10:41:05.631 22884 22884 I HBD     : b needOff = true , isForceOff = false, isNullInputClass : true 
+11-12 10:41:05.631 22884 22884 I HBD     : b update cached prediction status : false 
+11-12 10:41:05.631  1141  1141 I Layer   : Layer [Splash Screen dev.vieww.marketwatch$_2486#1374] hidden!! flag(1)
+11-12 10:41:05.631  1141  1141 I Layer   : id=1373 removedFromDrawingState c698b14 Splash Screen dev.vieww.marketwatch#1373 (124)
+11-12 10:41:05.631  1141  1141 I Layer   : id=1374 removedFromDrawingState Splash Screen dev.vieww.marketwatch$_2486#1374 (124)
+11-12 10:41:05.631 22884 22884 I HBD     : h getDefaultInputRange : UNKNOWN 
+11-12 10:41:05.631  1141  1141 I Layer   : id=1382 removedFromDrawingState Surface(name=1c7d872 dev.vieww.marketwatch/android.app.NativeActivity)/@0x983593b - animation-leash of starting_reveal#1382 (124)
+11-12 10:41:05.631  1141  1141 I Layer   : id=1374 removedFromDrawingState Splash Screen dev.vieww.marketwatch$_2486#1374 (124)
+11-12 10:41:05.631  1141  1141 I Layer   : id=1370 removedFromDrawingState Surface(name=9171d22 InputMethod)/@0x9617d70 - animation-leash of insets_animation#1370 (124)
+11-12 10:41:05.631  1141  1141 I Layer   : id=444 removedFromDrawingState 9171d22 InputMethod#444 (124)
+11-12 10:41:05.631 22884 22884 I HBD     : a currentState : 0 
+11-12 10:41:05.631  1141  1141 I Layer   : id=444 addToCurrentState 9171d22 InputMethod#444 (124)
+11-12 10:41:05.631  1281  1602 D Native_CFMS: CFMS Add Task Tid(22449)
+11-12 10:41:05.631  1141  1141 I SurfaceFlinger: id=1370 Removed Surface(name=9171d22 InputMethod)/@0x9617d70 - animation-leash of insets_animation#1370 (124)
+11-12 10:41:05.632  1141  1141 I SurfaceFlinger: id=1366 Removed com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity$_3045#1366 (124)
+11-12 10:41:05.632  1141  1141 I SurfaceFlinger: id=1374 Removed Splash Screen dev.vieww.marketwatch$_2486#1374 (124)
+11-12 10:41:05.632  1141  1141 I SurfaceFlinger: id=1373 Removed c698b14 Splash Screen dev.vieww.marketwatch#1373 (124)
+11-12 10:41:05.632 22884 22884 I HBD     : a [UpdatePolicy] [post] a: 0 cl: 65537 kit: [0/0] vt: 0 ir: 1 
+11-12 10:41:05.632 22884 22884 I HBD     : a [NRIC] resetNoResponseState 
+11-12 10:41:05.632 22884 22884 I HBD     : b needOff = true , isForceOff = false, isNullInputClass : true 
+11-12 10:41:05.632 22884 22884 I HBD     : b update cached prediction status : false 
+11-12 10:41:05.633  1141  1141 I Layer   : id=1366 Destroyed com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity$_3045#1366
+11-12 10:41:05.633 22884 22884 I HBD     : HoneyBoardService [PF_OP][onStartInput]  5 ms 
+11-12 10:41:05.633  1281  4735 D InputMethodManagerService: isImeSwitcherDisabledPackage : false
+11-12 10:41:05.633  1141  1141 I Layer   : id=1370 Destroyed Surface(name=9171d22 InputMethod)/@0x9617d70 - animation-leash of insets_animation#1370
+11-12 10:41:05.633  1141  1141 I Layer   : id=1373 Destroyed c698b14 Splash Screen dev.vieww.marketwatch#1373
+11-12 10:41:05.633 22884 22884 I InputMethodService: removeImeSurface
+11-12 10:41:05.634 22884 22884 I MSHandlerLifeCycle: check: return. pkg=com.samsung.android.honeyboard isActivity=false callers=com.android.internal.policy.DecorView.setVisibility:4412 android.app.Dialog.hide:767 android.inputmethodservice.InputMethodService.removeImeSurface:1290 android.inputmethodservice.InputMethodService.scheduleImeSurfaceRemoval:1279 android.inputmethodservice.InputMethodService.-$$Nest$mscheduleImeSurfaceRemoval:0 
+11-12 10:41:05.634 22884 22884 I MSHandlerLifeCycle: removeMultiSplitHandler: no exist. decor=DecorView@5669d7f[InputMethod]
+11-12 10:41:05.635  1141  1141 I Layer   : id=1374 Destroyed Splash Screen dev.vieww.marketwatch$_2486#1374
+11-12 10:41:05.635   635   646 I servicemanager: Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest.
+11-12 10:41:05.637 22449 22472 E qdgralloc: GetGpuPixelFormat: No map for format: 0x38
+11-12 10:41:05.637 22449 22472 E AdrenoUtils: <validate_memory_layout_input_parmas:1973>: Unknown Format 0
+11-12 10:41:05.637 22449 22472 E AdrenoUtils: <adreno_init_memory_layout:4706>: Memory Layout input parameter validation failed!
+11-12 10:41:05.637 22449 22472 E qdgralloc: GetGpuResourceSizeAndDimensions Graphics metadata init failed
+11-12 10:41:05.637 22449 22472 E Gralloc4: isSupported(1, 1, 56, 1, ...) failed with 1
+11-12 10:41:05.639  1141  1141 D SurfaceFlinger: Display 4630947232161729153 HWC layers:
+11-12 10:41:05.639  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f3e1c40 | 0100 | RGBA_8888    |    0.0    0.0 1440.0  104.0 |    0    0 1440  104 | StatusBar$_2486#81
+11-12 10:41:05.639  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f403210 | 0100 | RGBA_8888    |    0.0    0.0   67.0  342.0 | 1373  725 1440 1067 | com.samsung.android.app.cocktailbars[...]ervice.CocktailBarService$_15932#661
+11-12 10:41:05.639  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f4160b0 | 0100 | RGBA_8888    |    0.0    0.0 1440.0  144.0 |    0 3056 1440 3200 | NavigationBar0$_2486#149
+11-12 10:41:05.639  1141  1141 D SurfaceFlinger: 
+11-12 10:41:05.641  1016  1073 E qdgralloc: GetGpuPixelFormat: No map for format: 0x38
+11-12 10:41:05.642  1016  1073 E AdrenoUtils: <validate_memory_layout_input_parmas:1973>: Unknown Format 0
+11-12 10:41:05.642  1016  1073 E AdrenoUtils: <adreno_init_memory_layout:4706>: Memory Layout input parameter validation failed!
+11-12 10:41:05.642  1016  1073 E qdgralloc: GetGpuResourceSizeAndDimensions Graphics metadata init failed
+11-12 10:41:05.642 22449 22472 E GraphicBufferAllocator: Failed to allocate (4 x 4) layerCount 1 format 56 usage b00: 1
+11-12 10:41:05.642 22449 22472 E AHardwareBuffer: GraphicBuffer(w=4, h=4, lc=1) failed (Unknown error -1), handle=0x0
+11-12 10:41:05.642 22449 22472 E qdgralloc: GetGpuPixelFormat: No map for format: 0x38
+11-12 10:41:05.642 22449 22472 E AdrenoUtils: <validate_memory_layout_input_parmas:1973>: Unknown Format 0
+11-12 10:41:05.642 22449 22472 E AdrenoUtils: <adreno_init_memory_layout:4706>: Memory Layout input parameter validation failed!
+11-12 10:41:05.642 22449 22472 E qdgralloc: GetGpuResourceSizeAndDimensions Graphics metadata init failed
+11-12 10:41:05.642 22449 22472 E Gralloc4: isSupported(1, 1, 56, 1, ...) failed with 1
+11-12 10:41:05.642  1016  1073 E qdgralloc: GetGpuPixelFormat: No map for format: 0x38
+11-12 10:41:05.642  1016  1073 E AdrenoUtils: <validate_memory_layout_input_parmas:1973>: Unknown Format 0
+11-12 10:41:05.642  1016  1073 E AdrenoUtils: <adreno_init_memory_layout:4706>: Memory Layout input parameter validation failed!
+11-12 10:41:05.642  1016  1073 E qdgralloc: GetGpuResourceSizeAndDimensions Graphics metadata init failed
+11-12 10:41:05.642 22449 22472 E GraphicBufferAllocator: Failed to allocate (4 x 4) layerCount 1 format 56 usage b00: 1
+11-12 10:41:05.642 22449 22472 E AHardwareBuffer: GraphicBuffer(w=4, h=4, lc=1) failed (Unknown error -1), handle=0x0
+11-12 10:41:05.646 22449 22472 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"surface","w":480,"h":1067,"t":60.7}
+11-12 10:41:05.646 22449 22472 I vieww   : vieww_platform_winit::insets: display refresh: 60.0Hz from Display.getRefreshRate()
+11-12 10:41:05.646 22449 22472 I vieww   : vieww_platform_winit::app: vieww: window#primary reports 60.0Hz; frame budget follows it
+11-12 10:41:05.647 22449 22472 I vieww   : vieww_platform_winit::insets: window insets: bars [0, 104, 0, 144] ime [0, 0, 0, 0] physical at 3x -> SystemInsets { safe_area: EdgeInsets { left: 0.0, top: 34.666668, right: 0.0, bottom: 48.0 }, keyboard: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } }
+11-12 10:41:05.647 22449 22472 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load2k","t":61.7}
+11-12 10:41:05.653 22449 22471 I RustStdoutStderr: vieww: RenderColumn overflowed by 10px on the vertical axis — 50 of children into 40 of space
+11-12 10:41:05.653 22449 22471 I RustStdoutStderr: vieww:   in … > RenderGestureDetector > RenderMeasuredConstraints > RenderViewport > RenderColumn > RenderRepaintBoundary > RenderPadding > RenderDecoratedBox > RenderPadding > RenderRow > RenderConstrainedBox
+11-12 10:41:05.677 22449 22476 I eww.marketwatch: Explicit concurrent copying GC freed 11681(734KB) AllocSpace objects, 0(0B) LOS objects, 74% free, 2095KB/8239KB, paused 48us,9us total 5.102ms
+11-12 10:41:05.688 22449 22472 I BLASTBufferQueue: [ViewRootImpl@c3a7657[NativeActivity]#0](f:0,a:0) onFrameAvailable the first frame is available
+11-12 10:41:05.700 22449 22472 I vieww   : vieww_platform_winit::a11y_android: a11y: host is the activity's content view
+11-12 10:41:05.700 22449 22472 I vieww   : vieww_platform_winit::a11y_android: a11y: the host sits at (0, 104) inside the window, so bounds are corrected by that much
+11-12 10:41:05.701 22449 22472 I vieww   : vieww_platform_winit::a11y_android: a11y: injected an AccessKit delegate into the activity's view
+11-12 10:41:05.702 22449 22472 E qdgralloc: GetGpuPixelFormat: No map for format: 0x38
+11-12 10:41:05.702 22449 22472 E AdrenoUtils: <validate_memory_layout_input_parmas:1973>: Unknown Format 0
+11-12 10:41:05.702 22449 22472 E AdrenoUtils: <adreno_init_memory_layout:4706>: Memory Layout input parameter validation failed!
+11-12 10:41:05.702 22449 22472 E qdgralloc: GetGpuResourceSizeAndDimensions Graphics metadata init failed
+11-12 10:41:05.702 22449 22472 E Gralloc4: isSupported(1, 1, 56, 1, ...) failed with 1
+11-12 10:41:05.702  1016  1073 E qdgralloc: GetGpuPixelFormat: No map for format: 0x38
+11-12 10:41:05.702  1016  1073 E AdrenoUtils: <validate_memory_layout_input_parmas:1973>: Unknown Format 0
+11-12 10:41:05.702  1016  1073 E AdrenoUtils: <adreno_init_memory_layout:4706>: Memory Layout input parameter validation failed!
+11-12 10:41:05.702  1016  1073 E qdgralloc: GetGpuResourceSizeAndDimensions Graphics metadata init failed
+11-12 10:41:05.702 22449 22472 E GraphicBufferAllocator: Failed to allocate (4 x 4) layerCount 1 format 56 usage b00: 1
+11-12 10:41:05.702 22449 22472 E AHardwareBuffer: GraphicBuffer(w=4, h=4, lc=1) failed (Unknown error -1), handle=0x0
+11-12 10:41:05.703 22449 22472 E qdgralloc: GetGpuPixelFormat: No map for format: 0x38
+11-12 10:41:05.703 22449 22472 E AdrenoUtils: <validate_memory_layout_input_parmas:1973>: Unknown Format 0
+11-12 10:41:05.703 22449 22472 E AdrenoUtils: <adreno_init_memory_layout:4706>: Memory Layout input parameter validation failed!
+11-12 10:41:05.703 22449 22472 E qdgralloc: GetGpuResourceSizeAndDimensions Graphics metadata init failed
+11-12 10:41:05.703 22449 22472 E Gralloc4: isSupported(1, 1, 56, 1, ...) failed with 1
+11-12 10:41:05.703  1016  1073 E qdgralloc: GetGpuPixelFormat: No map for format: 0x38
+11-12 10:41:05.703  1016  1073 E AdrenoUtils: <validate_memory_layout_input_parmas:1973>: Unknown Format 0
+11-12 10:41:05.703  1016  1073 E AdrenoUtils: <adreno_init_memory_layout:4706>: Memory Layout input parameter validation failed!
+11-12 10:41:05.703  1016  1073 E qdgralloc: GetGpuResourceSizeAndDimensions Graphics metadata init failed
+11-12 10:41:05.703 22449 22472 E GraphicBufferAllocator: Failed to allocate (4 x 4) layerCount 1 format 56 usage b00: 1
+11-12 10:41:05.703 22449 22472 E AHardwareBuffer: GraphicBuffer(w=4, h=4, lc=1) failed (Unknown error -1), handle=0x0
+11-12 10:41:05.705  1141  1141 D SurfaceFlinger: Display 4630947232161729153 HWC layers:
+11-12 10:41:05.705  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f420a00 | 0102 | RGBA_8888    |    0.0    0.0 1440.0 3200.0 |    0    0 1440 3200 | dev.vieww.marketwatch/android.app.NativeActivity$_22449#1379
+11-12 10:41:05.705  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f3e1c40 | 0100 | RGBA_8888    |    0.0    0.0 1440.0  104.0 |    0    0 1440  104 | StatusBar$_2486#81
+11-12 10:41:05.705  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f403210 | 0100 | RGBA_8888    |    0.0    0.0   67.0  342.0 | 1373  725 1440 1067 | com.samsung.android.app.cocktailbars[...]ervice.CocktailBarService$_15932#661
+11-12 10:41:05.705  1141  1141 D SurfaceFlinger:      DEVICE | 0xb400006f1f3fc610 | 0100 | RGBA_8888    |    0.0    0.0 1440.0  144.0 |    0 3056 1440 3200 | NavigationBar0$_2486#149
+11-12 10:41:05.705  1141  1141 D SurfaceFlinger: 
+11-12 10:41:05.762  1281  2757 D MdnieScenarioControlService:  packageName : dev.vieww.marketwatch    className : android.app.NativeActivity
+11-12 10:41:05.762  1281  2757 V MdnieScenarioControlService: setUIMode from UI function(3)
+11-12 10:41:05.827  1281  5070 E ThermalHalWrapper: Couldn't get cooling device because of HAL error: no cooling device for cooling type 
+11-12 10:41:05.827  1281  5070 E ThermalHalWrapper: Couldn't get temperature thresholds because of HAL error: no threshold data for temperature type 
+11-12 10:41:05.850 15932 15932 I Utils   : isCurrentUser current = 0, ownerId = 0
+11-12 10:41:05.850 15932 15932 I TrayVisibilityController: getComputedTrayVisible : keyguardState = 1
+11-12 10:41:05.850 15932 15932 I TrayVisibilityController: updateTrayVisible: State=1 visible=1 mCurrentVisible=1 specificMode=0
+11-12 10:41:05.851 15932 15932 I TrayStateController: onNotifyUpdateTray: state=0
+11-12 10:41:05.863  1281  2757 V MdnieScenarioControlService: mAclOffEnabled : false mAclPreviewState : false mAclCompensationState : false
+11-12 10:41:05.908  1007 22479 I HYPER-HAL: [ResourceManager.cpp]removeResource(): [CPUMinFreq] RemoveResource Request ID : 845669
+11-12 10:41:05.908  1007 22479 I HYPER-HAL: [RequestManager.cpp]releaseLocked(): Released ID : 845669
+11-12 10:41:05.984 18830 18830 I bnew    : onPause
+11-12 10:41:06.011  1281  5070 I ActivityManager: Changes in 10237 5 to 17, 8 to 0
+11-12 10:41:06.012  1281  5070 W ProcessStats: Tracking association SourceState{856dd6d system/1000 BTopFgs #44712} whose proc state 2 is better than process ProcessState{e8ecb80 com.google.android.gms/10236 pkg=com.google.android.gms} proc state 3 (17 skipped)
+11-12 10:41:06.012 18830 18830 I bnew    : onStop

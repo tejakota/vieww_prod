@@ -1,0 +1,47 @@
+Applications Memory Usage (in Kilobytes):
+Uptime: 15391602 Realtime: 15391602
+
+** MEMINFO in pid 25392 [dev.vieww.marketwatch] **
+                   Pss  Private  Private  SwapPss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------
+  Native Heap     1823     1760        0      113    10240     7461     2778
+  Dalvik Heap      738      580        0     1138    13436     1148    12288
+ Dalvik Other      192      188        0       46                           
+        Stack       28       28        0        0                           
+       Ashmem        4        0        4        0                           
+     .so mmap     2275      276     1148       29                           
+    .apk mmap      277        0       32        0                           
+    .dex mmap     1184        4      468        0                           
+    .oat mmap      685        0      108        0                           
+    .art mmap      986      536       28        7                           
+   Other mmap        7        4        0        0                           
+      Unknown      361      356        0        3                           
+        TOTAL     9896     3732     1788     1336    23676     8609    15066
+ 
+ App Summary
+                       Pss(KB)
+                        ------
+           Java Heap:     1144
+         Native Heap:     1760
+                Code:     2036
+               Stack:       28
+            Graphics:        0
+       Private Other:      552
+              System:     4376
+ 
+               TOTAL:     9896       TOTAL SWAP PSS:     1336
+ 
+ Objects
+               Views:        7         ViewRootImpl:        1
+         AppContexts:        6           Activities:        1
+              Assets:        6        AssetManagers:        0
+       Local Binders:        7        Proxy Binders:       27
+       Parcel memory:        2         Parcel count:       11
+    Death Recipients:        0      OpenSSL Sockets:        0
+            WebViews:        0
+ 
+ SQL
+         MEMORY_USED:        0
+  PAGECACHE_OVERFLOW:        0          MALLOC_SIZE:        0
+ 
