@@ -103,12 +103,6 @@ jobs:
           python-version: '3.12'
           update-environment: false
 
-      - name: Python for self-hosted runner
-        id: py_self_hosted
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
       - name: Plan this job
         id: prep
         shell: bash
