@@ -1,7 +1,7 @@
 # 2 · Devices — FAILURE
 
 - branch: `main`  sha: `55c9c2126bb9138c4f24d38d8df38f10ef7a8467`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/43271094023
+- run: https://github.com/tejakota/vieww_prod/actions/runs/43271931880
 
 | job | verdict | failed steps |
 |---|---|---|
@@ -10,10 +10,10 @@
 | phase-1 / approve | skipped |  |
 | phase-1 / matrix.title | skipped |  |
 | phase-2 / vieww · hardware-report | PASS |  |
-| phase-2 / approve | skipped |  |
 | phase-2 / matrix.title | skipped |  |
-| phase-3 | skipped |  |
+| phase-2 / approve | skipped |  |
 | results / publish | running |  |
+| phase-3 | skipped |  |
 
 ## Steps
 
@@ -89,16 +89,13 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-2 / approve — skipped
-
 ### phase-2 / matrix.title — skipped
 
-### phase-3 — skipped
+### phase-2 / approve — skipped
 
 ### results / publish — running
-- PASS: Set up job
-- running: Collect the run
-- running: Run actions/checkout@v4
-- running: Write to the ci-results branch
+- running: Set up job
+
+### phase-3 — skipped
 
 - artifacts: hardware-macos 

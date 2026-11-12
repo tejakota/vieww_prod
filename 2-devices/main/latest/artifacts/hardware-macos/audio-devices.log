@@ -1,0 +1,28 @@
+   Compiling vieww-audio v0.1.0 (/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+    Finished `release` profile [optimized + debuginfo] target(s) in 38.68s
+     Running unittests src/lib.rs (target/release/deps/vieww_audio-3d456713750e6369)
+
+running 16 tests
+test backend::coreaudio::tests::four_char_codes_and_layouts ... ok
+test backend::resilient::tests::a_first_open_that_fails_is_an_error ... ok
+test backend::jack::tests::lists_devices_and_routes_to_named_ports_or_refuses_cleanly ... ok
+test backend::tests::an_isolated_capture_callback_ends_the_stream ... ok
+test backend::tests::an_isolated_render_callback_panics_once_then_goes_silent ... ok
+test backend::jack::tests::captures_from_a_running_server_or_refuses_cleanly ... ok
+test backend::tests::the_platform_lists_its_backends ... ok
+test backend::jack::tests::renders_through_a_running_server_or_refuses_cleanly ... ok
+
+thread '<unnamed>' (493122) panicked at crates/vieww-audio/src/backend/resilient.rs:722:17:
+a bug in the app's render
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test backend::coreaudio::tests::route_listeners_register_and_unregister ... ok
+test backend::tests::opening_with_nothing_available_reports_every_attempt ... ok
+test backend::coreaudio::tests::plays_on_the_default_output_or_refuses_cleanly ... ok
+test backend::resilient::tests::an_interruption_holds_reopening_without_a_retry_storm ... ok
+test backend::resilient::tests::a_route_notification_follows_the_default_at_once ... ok
+test backend::resilient::tests::a_session_route_change_wakes_the_supervisor ... ok
+test backend::resilient::tests::a_panicked_closure_is_never_run_again ... ok
+test backend::resilient::tests::the_closure_survives_unplug_and_replug ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 584 filtered out; finished in 3.85s
+

@@ -1,4 +1,4 @@
-vieww macOS hardware run 20261112-230639
+vieww macOS hardware run 20261112-231136
 commit: 55c9c2126bb9138c4f24d38d8df38f10ef7a8467
 host: Varuns-MacBook-Pro · macOS 26.1 (25B78) · arm64
 cpu: Apple M1 Pro
@@ -13,3 +13,27 @@ vulkan (MoltenVK): absent
 energy: not sampled on macOS (no unprivileged per-package counter) — energy will be null
 PASS  gpu-metal
 FAIL  gpu-window (see gpu-window.log)
+SKIP  moltenvk (no Vulkan loader / MoltenVK ICD (brew install molten-vk vulkan-loader vulkan-tools))
+PASS  gallery
+PASS  perf-budget
+PASS  baseline-build
+      baseline start-up is warm-cache (macOS has no unprivileged page-cache drop)
+FAIL  baseline-cpu (see baseline-cpu.log)
+FAIL  baseline-gpu (see baseline-gpu.log)
+FAIL  idle-gate (the wakeup launch itself failed; see baseline-wakeup.log)
+FAIL  size-build (see size-build.log)
+PASS  size-budget
+PASS  stress-1
+PASS  stress-2
+PASS  stress-3
+PASS  stress-4
+PASS  stress-5
+      animation stress p95 over 5 runs (ms): 3.115 3.205 3.217 3.223 3.494 
+PASS  desktop
+      audio devices: MacBook Pro Microphone;MacBook Pro Speakers;Microsoft Teams Audio;
+PASS  audio-devices
+PASS  audio-live
+PASS  audio-player
+PASS  audio-soak
+SKIP  audio-loopback (VIEWW_HW_AUDIO_LOOP not set (BlackHole 2ch as default output and input, then =coreaudio))
+SKIP  audio-midi (VIEWW_MIDI_LOOP not set (a MIDI cable, or an IAC bus, between two ports))
