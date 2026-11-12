@@ -156,6 +156,19 @@ manifest="$("$aapt2" dump xmltree --file AndroidManifest.xml "$apk")"
 if grep -qE 'android:debuggable\(0x0101000f\)=\(type 0x12\)0xffffffff' <<< "$manifest"; then
   fail "the APK is debuggable: a development build, not a release one"
 fi
+
+# Installable, checked here rather than discovered on a phone: the package the
+# runner looks for, a native-code entry for arm64, and a signature apksigner
+# verifies with a v2 or later scheme (Android 11+ refuses v1-only APKs that
+# target SDK 30 or higher, which this one does).
+badging="$("$aapt2" dump badging "$apk")"
+grep -E "^(package|sdkVersion|targetSdkVersion|native-code)" <<< "$badging"
+grep -q "^package: name='com.snap.valdi.marketwatch'" <<< "$badging" || fail "the APK's package is not com.snap.valdi.marketwatch, which the phone runner installs and looks for"
+grep -qE "^native-code:.*'arm64-v8a'" <<< "$badging" || fail "aapt2 sees no arm64-v8a native code: phones would refuse it (INSTALL_FAILED_NO_MATCHING_ABIS)"
+apksigner="$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)"
+signing="$("$apksigner" verify --verbose "$apk" 2>&1)" || { echo "$signing"; fail "apksigner does not verify the APK: phones would refuse it"; }
+echo "$signing" | grep -E "^Verified using" || true
+grep -qE "^Verified using v[2-4] scheme.*: true" <<< "$signing" || fail "the APK has no v2+ signature: Android 11+ refuses it at target SDK 30+"
 {
   echo "abi=arm64-v8a"
   echo "engine=quickjs"

@@ -247,8 +247,19 @@ def render(farm, meta):
                   f"{fmt(float(info['mem_total_kb']) / 2**20 if info.get('mem_total_kb') else None, ' GB')} · "
                   f"{info.get('refresh_hz') or '?'} Hz")
         md.append("")
-        statuses = ", ".join(f"{c}: {cfg[c]['status']}" for c in CONFIGS if c in cfg)
-        md.append(f"Runs — {statuses or 'none'}")
+        # Statuses come from result.txt, which names a configuration even when
+        # it never started (an app that did not install is "SKIPPED").
+        statuses = ", ".join(f"{c}: {info[f'{c}_status']}" for c in CONFIGS if info.get(f"{c}_status"))
+        md.append(f"Runs — {statuses or 'none started'}")
+        for pkg, label in (("com.snap.valdi.marketwatch", "Valdi"), ("dev.vieww.marketwatch", "Vieww")):
+            if info.get(f"missing_{pkg}"):
+                why = info.get("install_error_valdi") if label == "Valdi" else None
+                md.append("")
+                md.append(f"> **{label} app not installed on this phone**"
+                          + (f": `{why}`" if why else " (reason in the run artifact's install.log)"))
+        if info.get("valdi_apk_on_host"):
+            md.append("")
+            md.append(f"> Valdi APK not found on the Device Farm host: `{info['valdi_apk_on_host']}`")
         md.append("")
         md.append("| | Vieww CPU / Vieww GPU / Valdi |")
         md.append("|---|---|")
@@ -410,7 +421,17 @@ def self_test():
     assert live["cpu_pct"] == 50.0, live  # 400 ticks = 4000 ms over 8000 ms
     assert farm[0]["configs"]["valdi"]["phases"]["live2k"]["hwui"]["p95_ms"] == 15
     assert farm[0]["configs"]["vieww-cpu"]["cold_start_median"] == 310
+    # A phone where the Valdi app was refused: the reason reaches the report.
+    bad = tmp / "farm" / "Galaxy-16" / "mw"
+    bad.mkdir(parents=True)
+    (bad / "result.txt").write_text(
+        "device_name=Galaxy\nandroid=16\nmissing_com.snap.valdi.marketwatch=yes\n"
+        "install_error_valdi=Failure [INSTALL_FAILED_NO_MATCHING_ABIS]\n"
+        "vieww-cpu_status=PASS\nvaldi_status=SKIPPED (not installed)\nstatus=FAIL\n")
+    farm = parse_farm(tmp / "farm")
+    assert len(farm) == 2, farm
     md = render(farm, {"valdi_build": build})
+    assert "valdi: SKIPPED (not installed)" in md and "INSTALL_FAILED_NO_MATCHING_ABIS" in md, md
     assert "| live2k |" in md and "**310**" in md, md
     assert "--snap_flavor=production" in md and "quickjs" in md, md
     print("compare_report self-test: ok")

@@ -75,18 +75,42 @@ packages="$(sh_ pm list packages)"
 if ! grep -q "^package:$VIEWW_PKG$" <<< "$packages"; then
     [ -n "${DEVICEFARM_APP_PATH:-}" ] && adb install -r -g "$DEVICEFARM_APP_PATH" >> "$out/install.log" 2>&1
 fi
-adb install -r -g "$VALDI_APK" >> "$out/install.log" 2>&1
+# The Valdi APK rides in the test package. Say what the host has before
+# installing it, so a missing or truncated file is not mistaken for a phone
+# refusing a good APK.
+if [ -f "$VALDI_APK" ]; then
+    kv apk_file_bytes_valdi "$(stat -c %s "$VALDI_APK")"
+    kv valdi_apk_sha256 "$(sha256sum "$VALDI_APK" | cut -c1-16)"
+else
+    kv valdi_apk_on_host "missing: $VALDI_APK"
+    ls -la "$here" > "$out/package-listing.txt" 2>&1
+fi
+valdi_install="$(adb install -r -g "$VALDI_APK" 2>&1)"
+printf '%s\n' "$valdi_install" >> "$out/install.log"
+
+# One line per app, in result.txt itself: the reason a phone refused an APK
+# (INSTALL_FAILED_…, INSTALL_PARSE_FAILED_…) reaches the report, not only the
+# artifact. An app that is not there skips its configurations; the others
+# still run, so one failed install does not cost the whole phone.
+installed() { # $1 package → prints the on-device path, if installed
+    sh_ pm path "$1" | sed -n 's/^package://p' | sed -n 1p
+}
+declare -A have=()
 for pkg in "$VIEWW_PKG" "$VALDI_PKG"; do
-    path="$(sh_ pm path "$pkg" | head -1 | cut -d: -f2)"
-    if [ -z "$path" ]; then
+    path="$(installed "$pkg")"
+    if [ -n "$path" ]; then
+        have[$pkg]=yes
+        kv "apk_bytes_$pkg" "$(sh_ stat -c %s "$path")"
+    else
+        have[$pkg]=no
         kv "missing_$pkg" yes
-        echo "status=FAIL" >> "$result"
-        exit 1
     fi
-    kv "apk_bytes_$pkg" "$(sh_ stat -c %s "$path")"
 done
+if [ "${have[$VALDI_PKG]}" = no ]; then
+    reason="$(grep -oE '(INSTALL_[A-Z_]+|Failure \[[^]]*\]|adb: [^\n]*|error: [^\n]*)' <<< "$valdi_install" | tail -1)"
+    kv install_error_valdi "${reason:-$(tail -1 <<< "$valdi_install")}"
+fi
 [ -n "${DEVICEFARM_APP_PATH:-}" ] && kv apk_file_bytes_vieww "$(stat -c %s "$DEVICEFARM_APP_PATH")"
-kv apk_file_bytes_valdi "$(stat -c %s "$VALDI_APK")"
 
 component() {
     local c
@@ -191,11 +215,20 @@ run_config() {
 overall=PASS
 # A minute of rest between configurations, so one run's heat is not the
 # next run's throttle. The order alternates frameworks for the same reason.
-run_config vieww-cpu "$VIEWW_PKG" 0 vieww || overall=FAIL
-sleep 60
-run_config valdi "$VALDI_PKG" 0 Valdi || overall=FAIL
-sleep 60
-run_config vieww-gpu "$VIEWW_PKG" 1 vieww || overall=FAIL
+# A configuration whose app did not install is recorded as SKIPPED and fails
+# the phone (the comparison is incomplete), but the others still run.
+first=yes
+for spec in "vieww-cpu $VIEWW_PKG 0 vieww" "valdi $VALDI_PKG 0 Valdi" "vieww-gpu $VIEWW_PKG 1 vieww"; do
+    read -r name pkg gpu tag <<< "$spec"
+    if [ "${have[$pkg]}" != yes ]; then
+        kv "${name}_status" "SKIPPED (not installed)"
+        overall=FAIL
+        continue
+    fi
+    [ "$first" = yes ] || sleep 60
+    first=no
+    run_config "$name" "$pkg" "$gpu" "$tag" || overall=FAIL
+done
 sh_ setprop debug.mw.gpu 0 >/dev/null
 
 echo "status=$overall" >> "$result"
