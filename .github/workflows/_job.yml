@@ -102,9 +102,9 @@ jobs:
         with:
           python-version: '3.12'
           update-environment: false
-          
-      - name: Python for the runner (self host machines)
-        id: py_self
+
+      - name: Python for the runner (self-host machines)
+        id: py_self_host
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -339,6 +339,13 @@ jobs:
       - name: Python for the runner (GitHub's machines)
         id: py
         if: runner.environment == 'github-hosted'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          update-environment: false
+
+      - name: Python for the runner (self-host machines)
+        id: py_self_host
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
