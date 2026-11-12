@@ -398,7 +398,7 @@ def self_test():
         "vieww-cpu_status=PASS\nvaldi_status=PASS\nvieww-cpu_pss_kb=80000\nvaldi_pss_kb=120000\n"
         "apk_file_bytes_vieww=5000000\napk_file_bytes_valdi=12000000\nstatus=PASS\n")
     (tmp / "farm" / "valdi-build.txt").write_text(
-        "valdi_ref=e90a983749b3\nflags=--snap_flavor=production -c opt\nabi=arm64-v8a\nengine=hermes\ndebuggable=false\n")
+        "valdi_ref=e90a983749b3\nflags=--snap_flavor=production -c opt\nabi=arm64-v8a\nengine=quickjs\ndebuggable=false\n")
     farm = parse_farm(tmp / "farm")
     build = kv_file(tmp / "farm" / "valdi-build.txt")
     assert len(farm) == 1, farm
@@ -412,7 +412,7 @@ def self_test():
     assert farm[0]["configs"]["vieww-cpu"]["cold_start_median"] == 310
     md = render(farm, {"valdi_build": build})
     assert "| live2k |" in md and "**310**" in md, md
-    assert "--snap_flavor=production" in md and "hermes" in md, md
+    assert "--snap_flavor=production" in md and "quickjs" in md, md
     print("compare_report self-test: ok")
     return 0
 

@@ -31,10 +31,34 @@ The way a Valdi developer ships an app: `valdi package android
 --build_config release` for an arm64 phone. `compare/valdi/release-flags.mjs`
 reads that command's flags from the pinned checkout's own CLI source
 (`--snap_flavor=production -c opt`, the Android and arm64 flags), so the APK
-follows Valdi if those flags change. The JS engine is the workspace default,
-Hermes, which is also what `valdi bootstrap` writes for new apps. The job then
-checks the APK: arm64 libraries, Hermes inside, not debuggable. It records all
-of this in `valdi-build.txt`, which the report prints at the top.
+follows Valdi if those flags change.
+
+The JS engine is **QuickJS**. Valdi's workspace asks for Hermes, but Valdi
+links Hermes only into debug-flavor and desktop builds, and JavaScriptCore only
+on Apple platforms (`valdi/BUILD.bazel`), so a production Android build runs
+QuickJS. The job asks Bazel's build graph which engines the APK links, rather
+than reading strings in the binary, and fails if QuickJS is missing or Hermes is
+present. It also checks for `lib/arm64-v8a/libvaldi.so` and that the APK is not
+debuggable. It records all of this in `valdi-build.txt`, which the report
+prints at the top.
+
+### Build time
+
+A cold build compiles Valdi's whole native stack from source: about 12,500
+Bazel actions on a 4-core runner, about 80 minutes. Bazel's critical path is
+under 6 minutes, so the rest is waiting for cores. The job keeps one cache
+(`~/.cache/valdi-mw`):
+
+- When Valdi's commit and `compare/valdi/` are unchanged, it reuses the built
+  APK, and no build runs.
+- When only the app changed, or Valdi moved, it warms Bazel's action and
+  download caches, so only what changed is rebuilt. The action cache is capped
+  at 3 GB to leave room for vieww's own caches.
+
+The cache is saved when a job succeeds, so the first successful run pays the
+80 minutes once. A bigger runner shortens that first build roughly in
+proportion to its cores; set `runs_on` for `compare-valdi-apk` in `ci.toml`
+to a larger runner label if your organisation has one.
 
 ## What each phone runs
 

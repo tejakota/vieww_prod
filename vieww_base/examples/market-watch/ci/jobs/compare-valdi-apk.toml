@@ -3,7 +3,20 @@
 # checkout pinned to inputs.valdi_ref, built with exactly the flags Valdi's own
 # CLI uses for `valdi package android --build_config release` on an arm64
 # phone (compare/valdi/release-flags.mjs reads them from that checkout), then
-# checked: arm64, Hermes, not debuggable.
+# checked: arm64, the JS engine a production build links, not debuggable.
+#
+# # Why the first build is slow, and the rest are not
+#
+# A cold build compiles Valdi's whole native stack from source: about 12,500
+# Bazel actions (QuickJS, Skia, protobuf, BoringSSL, the JNI layer, …) on a
+# 4-core runner, about 80 minutes. Bazel's critical path is under 6 minutes;
+# the rest is the runner's cores. ../../ci.toml keeps one cache,
+# ~/.cache/valdi-mw, holding:
+#   apk/   the finished APK, stamped with what built it — when Valdi's ref and
+#          compare/valdi/ are unchanged, no build runs at all
+#   disk/  Bazel's action cache, capped at 3 GB — when only the app changed,
+#          or Valdi moved a little, only what changed is rebuilt
+#   repo/  Bazel's download cache — toolchains and archives are not re-fetched
 
 name = "Valdi vs Vieww · Valdi APK"
 
@@ -14,9 +27,32 @@ working-directory = "vieww_base"
 [env]
 VALDI = "${{ runner.temp }}/valdi"
 VALDI_REF = "${{ inputs.valdi_ref }}"
+# What the APK depends on: Valdi's commit and everything under compare/valdi/
+# (the app, checkout.sh, release-flags.mjs). The cache key in ci.toml is
+# built from the same two things.
+STAMP = "${{ inputs.valdi_ref }}-${{ hashFiles('vieww_base/examples/market-watch/compare/valdi/**') }}"
+
+[[step]]
+name = "A cached APK for this Valdi and this app?"
+id = "cached"
+run = '''
+# The path ci.toml's cache setup restores and saves (~/.cache/valdi-mw).
+CACHE="$HOME/.cache/valdi-mw"
+echo "CACHE=$CACHE" >> "$GITHUB_ENV"
+mkdir -p "$CACHE/apk" "$CACHE/disk" "$CACHE/repo"
+if [ -f "$CACHE/apk/valdi-market-watch.apk" ] && [ "$(cat "$CACHE/apk/stamp" 2>/dev/null)" = "$STAMP" ]; then
+  echo "hit=true" >> "$GITHUB_OUTPUT"
+  echo "Reusing the APK built for $STAMP — no build needed."
+else
+  echo "hit=false" >> "$GITHUB_OUTPUT"
+  echo "No APK for $STAMP yet; building (the Bazel caches make this incremental when they are warm)."
+  du -sh "$CACHE/disk" "$CACHE/repo" 2>/dev/null || true
+fi
+'''
 
 [[step]]
 name = "Valdi checkout with Market Watch"
+if = "steps.cached.outputs.hit != 'true'"
 run = '''
 examples/market-watch/compare/valdi/checkout.sh "$VALDI" "$VALDI_REF"
 node examples/market-watch/compare/valdi/release-flags.mjs "$VALDI" > "$RUNNER_TEMP/valdi-release-flags.txt"
@@ -25,6 +61,7 @@ echo "Valdi's release flags at $VALDI_REF:"; cat "$RUNNER_TEMP/valdi-release-fla
 
 [[step]]
 name = "Bazel"
+if = "steps.cached.outputs.hit != 'true'"
 run = '''
 # GitHub's Ubuntu images ship Bazelisk as `bazel`, installed globally as root:
 # use it. `npm install -g` over it fails with EACCES (/usr/local/lib is root's).
@@ -45,31 +82,71 @@ sudo fallocate -l 8G /swapfile2 && sudo chmod 600 /swapfile2 && sudo mkswap /swa
 
 [[step]]
 name = "Release APK, as Valdi's CLI builds it"
+if = "steps.cached.outputs.hit != 'true'"
 working-directory = "${{ runner.temp }}/valdi"
 run = '''
+# Valdi's .bazelrc sets --disk_cache=""; flags on the command line win.
+caches=(--disk_cache="$CACHE/disk" --experimental_disk_cache_gc_max_size=3G --repository_cache="$CACHE/repo")
 # Word splitting is intended: one flag per line, and "-c opt" is two words.
 # shellcheck disable=SC2046
-bazel build $(cat "$RUNNER_TEMP/valdi-release-flags.txt") //apps/market_watch:market_watch_app_android
+flags=($(cat "$RUNNER_TEMP/valdi-release-flags.txt"))
+bazel build "${flags[@]}" "${caches[@]}" //apps/market_watch:market_watch_app_android
 apk="$(find -L bazel-bin/apps/market_watch -maxdepth 1 -name '*.apk' ! -name '*unsigned*' -print -quit)"
 [ -n "$apk" ] || { echo "::error::no Valdi APK was built"; find -L bazel-bin/apps/market_watch -maxdepth 2 -name '*.apk'; exit 1; }
-mkdir -p "$GITHUB_WORKSPACE/dist"
-cp "$apk" "$GITHUB_WORKSPACE/dist/valdi-market-watch.apk"
+
+# Which JS engine the shipped APK links, from the build graph rather than
+# from strings in the binary (Valdi's own error text names every engine).
+# Valdi enables Hermes for debug flavors and desktop only, JavaScriptCore for
+# Apple platforms, QuickJS everywhere else: a production Android build is
+# QuickJS, whatever --valdi_js_engine says.
+linked() {
+  local path
+  path="$(bazel cquery "${flags[@]}" "${caches[@]}" --output=label \
+    "somepath(//apps/market_watch:market_watch_app_android, //valdi:$1)" 2>/dev/null)"
+  [ -n "$path" ] && echo yes || echo no
+}
+quickjs="$(linked valdi_quickjs)"; hermes="$(linked valdi_hermes)"; jscore="$(linked valdi_jscore)"
+echo "linked engines: quickjs=$quickjs hermes=$hermes jscore=$jscore"
+
+cp "$apk" "$CACHE/apk/valdi-market-watch.apk"
 {
   echo "valdi_ref=$(git rev-parse HEAD)"
-  echo "flags=$(tr '\n' ' ' < "$RUNNER_TEMP/valdi-release-flags.txt")"
-} > "$GITHUB_WORKSPACE/dist/valdi-build.txt"
-ls -l "$GITHUB_WORKSPACE/dist"
+  echo "flags=${flags[*]}"
+  echo "engine_quickjs=$quickjs"
+  echo "engine_hermes=$hermes"
+  echo "engine_jscore=$jscore"
+} > "$CACHE/apk/valdi-build.txt"
+echo "$STAMP" > "$CACHE/apk/stamp"
+du -sh "$CACHE/disk" "$CACHE/repo"
 '''
 
 [[step]]
-name = "It is what ships: arm64, Hermes, not debuggable"
+name = "The APK and its build record"
+working-directory = "."
+run = '''
+mkdir -p dist
+cp "$CACHE/apk/valdi-market-watch.apk" "$CACHE/apk/valdi-build.txt" dist/
+echo "cached=${{ steps.cached.outputs.hit }}" >> dist/valdi-build.txt
+ls -l dist
+'''
+
+[[step]]
+name = "It is what ships: arm64, production engine, not debuggable"
 working-directory = "."
 run = '''
 apk=dist/valdi-market-watch.apk
-libs="$(unzip -l "$apk" | awk '{print $4}' | grep '^lib/' || true)"
-echo "$libs"
-grep -q '^lib/arm64-v8a/' <<< "$libs" || { echo "::error::no arm64-v8a libraries: not a phone build"; exit 1; }
-grep -qi 'hermes' <<< "$libs" || { echo "::error::no Hermes in the APK: not the engine Valdi defaults to"; exit 1; }
+fail() { echo "::error::$1"; echo "FAILED: $1"; exit 1; }   # the annotation, and the same line in the log
+
+# Valdi links everything native into one libvaldi.so per ABI.
+libs="$(unzip -Z1 "$apk" | grep '^lib/' || true)"
+echo "native libraries:"; echo "$libs"
+grep -qx 'lib/arm64-v8a/libvaldi.so' <<< "$libs" || fail "no lib/arm64-v8a/libvaldi.so: not an arm64 phone build"
+
+engines="$(grep '^engine_' dist/valdi-build.txt)"
+echo "$engines"
+grep -qx 'engine_quickjs=yes' <<< "$engines" || fail "QuickJS is not linked: not what a production Android build runs"
+grep -qx 'engine_hermes=no' <<< "$engines" || fail "Hermes is linked: that is a debug-flavor build"
+
 aapt2="$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)"
 # Read the whole manifest first: `aapt2 … | grep -q` lets grep exit at the
 # match, aapt2 then dies writing, and pipefail turns a debuggable APK into a pass.
@@ -77,15 +154,15 @@ manifest="$("$aapt2" dump xmltree --file AndroidManifest.xml "$apk")"
 # aapt2 prints a boolean as `android:debuggable(0x0101000f)=(type 0x12)0xffffffff`:
 # true is 0xffffffff after the type, not straight after the `=`.
 if grep -qE 'android:debuggable\(0x0101000f\)=\(type 0x12\)0xffffffff' <<< "$manifest"; then
-  echo "::error::the APK is debuggable: a development build, not a release one"; exit 1
+  fail "the APK is debuggable: a development build, not a release one"
 fi
 {
   echo "abi=arm64-v8a"
-  echo "engine=hermes"
+  echo "engine=quickjs"
   echo "debuggable=false"
   echo "apk_bytes=$(stat -c %s "$apk")"
 } >> dist/valdi-build.txt
-cat dist/valdi-build.txt | tee -a "$GITHUB_STEP_SUMMARY"
+tee -a "$GITHUB_STEP_SUMMARY" < dist/valdi-build.txt
 '''
 
 [[step]]

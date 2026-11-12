@@ -10,9 +10,10 @@
 //
 // Mirrors resolveBazelBuildArgs (npm_modules/cli/src/utils/applicationUtils.ts):
 // RELEASE_BUILD_FLAGS, then ANDROID_BUILD_FLAGS, then the arm64 defines, then
-// --android_platforms for arm64. The JS engine is the workspace's own default
-// (.bazelrc: Hermes, as in the template `valdi bootstrap` writes), and the
-// runtime-logs and runtime-traces flags stay off, as they are by default.
+// --android_platforms for arm64. The runtime-logs and runtime-traces flags stay
+// off, as they are by default. The JS engine follows from the flavor: a
+// production Android build links QuickJS only (Hermes is for debug flavors
+// and desktop), which compare-valdi-apk checks in the build graph.
 
 import fs from 'node:fs';
 import path from 'node:path';

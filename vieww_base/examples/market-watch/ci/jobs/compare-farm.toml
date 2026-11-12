@@ -27,7 +27,7 @@ env = { DEVICES = "${{ inputs.devices }}", COUNT = "${{ inputs.count }}", TIERS 
 run = '''
 video=(); [ "$VIDEO" = true ] && video=(--video)
 mkdir -p "$OUT"
-# How Valdi was built (its CLI's release flags, arm64, Hermes, not debuggable),
+# How Valdi was built (its CLI's release flags, arm64, QuickJS, not debuggable),
 # beside the results so the report can say so.
 cp ../dist/valdi-build.txt "$OUT/" 2>/dev/null || true
 set +e

@@ -56,6 +56,16 @@ checkout = { persist-credentials = false, fetch-depth = 1 }
 [[job.setup]]
 uses = "java"
 with = { distribution = "temurin", java-version = "17" }
+# The APK, Bazel's action cache and its download cache (see the job file).
+# An exact hit means this Valdi ref and these app sources were built before:
+# no build. Otherwise the newest cache for this ref, then for any ref, warms
+# Bazel, so only what changed is rebuilt.
+[[job.setup]]
+uses = "cache"
+with = { path = "~/.cache/valdi-mw", key = "valdi-mw-${{ inputs.valdi_ref }}-${{ hashFiles('vieww_base/examples/market-watch/compare/valdi/**') }}", restore-keys = """
+valdi-mw-${{ inputs.valdi_ref }}-
+valdi-mw-
+""" }
 [[job.upload]]
 name = "compare-valdi-apk"
 path = "dist/valdi-*"
