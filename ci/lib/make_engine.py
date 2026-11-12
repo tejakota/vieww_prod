@@ -55,6 +55,12 @@ def steps(kind):
         with:
           python-version: '3.12'
           update-environment: false""")
+    a("""      - name: Python for the runner (self-host machines)
+        id: py_self_host
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          update-environment: false""")
     a("""      - name: Plan this job
         id: prep
         shell: bash
