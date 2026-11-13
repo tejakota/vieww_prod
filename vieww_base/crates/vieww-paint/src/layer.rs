@@ -25,9 +25,10 @@
 
 use std::fmt;
 
-use vieww_foundation::{BlendMode, Rect, Transform};
+use vieww_foundation::{BlendMode, Color, Offset, Rect, Transform};
 
-use crate::{Canvas, Damage, Scene};
+use crate::damage::AA_BLEED;
+use crate::{Canvas, Command, CopyRegion, Damage, Scene};
 use vieww_foundation::FastSet;
 
 /// A handle to a layer in a [`LayerTree`].
@@ -248,6 +249,15 @@ pub struct Layer {
     /// reorder among siblings. The recording is identical, so the diff finds
     /// nothing, and the layer has to damage its bounds outright.
     bounds_damage: bool,
+    /// How many times this layer had been re-recorded when the last frame
+    /// settled.
+    ///
+    /// [`paint_count`](Self::paint_count) counting past this is how damage
+    /// tells a layer that *only moved* (same recording, new transform) from one
+    /// that moved **and** re-recorded — a carried re-record, whose recording
+    /// diff has to be replayed at the new position on top of the pixels the
+    /// copy just carried in.
+    settled_paint_count: u32,
     /// How many times this layer has been re-recorded. Not used by the
     /// framework — it is what turns "only the necessary layers repaint" into
     /// something a test can measure.
@@ -439,6 +449,7 @@ impl LayerTree {
             last_screen_bounds: Rect::ZERO,
             last_screen_transform: Transform::IDENTITY,
             bounds_damage: false,
+            settled_paint_count: 0,
             paint_count: 0,
         });
 
@@ -821,22 +832,71 @@ impl LayerTree {
     /// - **It moved** — its transform to the screen changed, or an ancestor's
     ///   did. The recording is untouched, so a diff would report nothing while
     ///   every pixel under it changed. Both the old and the new bounds are
-    ///   damaged: the first to erase, the second to draw.
+    ///   damaged: the first to erase, the second to draw — **unless** the move
+    ///   qualifies as a copy, in which case the pixels themselves travel and
+    ///   only the vacated and exposed strips repaint.
     /// - **It was re-recorded in place** — the difference between the two
     ///   recordings is the damage, which is very much smaller than the layer for
     ///   the changes that actually dominate. Taking the whole bounds here instead
     ///   would make the root layer report the whole screen for a blinking caret,
     ///   and no amount of layering below would recover it.
+    ///
+    /// # The grant-or-refuse test, in one paragraph
+    ///
+    /// A mover qualifies when its recording is untouched, its transform changed
+    /// by a pure whole-pixel translation, and its carried pixels land inside the
+    /// clip its ancestors declare. The grant then survives one test: **every ink
+    /// reaching the swept rectangle either moves by the same delta — lockstep —
+    /// or is a flat opaque fill spanning it.** Overlapping lockstep clusters copy
+    /// together, and same-delta blocks bridge through interstices when the bridged
+    /// union re-validates, which is what keeps a scrolling list to one memmove
+    /// rather than one per row. Anything else — a static overlay, a shadow
+    /// crossing the swept area, removed ink — refuses, and the refusal ladder
+    /// falls back to both-bounds damage through the painted extent, shadow
+    /// fringes included.
     #[must_use]
     pub fn damage(&self, surface: Rect) -> Damage {
         let mut damage = Damage::new(surface);
         for &rect in &self.vacated {
             damage.add(rect);
         }
+
+        // Partition the pending layers into movers and everything else. A mover
+        // is a pending layer whose recording is where it was and whose position
+        // is not; everything else keeps the treatment above.
+        let mut movers: Vec<Mover> = Vec::new();
+        let mut repainted: Vec<LayerId> = Vec::new();
         for &id in &self.pending {
             if !self.is_alive(id) {
                 continue;
             }
+            let layer = self.layer(id);
+            let transform = self.screen_transform(id);
+            let re_recorded = layer.paint_count != layer.settled_paint_count;
+            if !layer.bounds_damage {
+                if let Some(delta) = whole_pixel_delta(layer.last_screen_transform, transform) {
+                    let old = self.painted_extent_at(id, re_recorded, &layer.last_screen_transform);
+                    let new = self.painted_extent_at(id, false, &transform);
+                    // The carried pixels have to land inside the clip the
+                    // ancestors declare — the copy writes pixels directly, and
+                    // no command's clip is going to hold it back. A row sliding
+                    // out of the viewport refuses here and damages both bounds.
+                    let lands_in_clip = match self.ancestor_clip(id) {
+                        Some(clip) => clip.intersect(CopyRegion::new(old, delta).dst) == CopyRegion::new(old, delta).dst,
+                        None => true,
+                    };
+                    if lands_in_clip {
+                        movers.push(Mover { id, delta, re_recorded, old, new });
+                        continue;
+                    }
+                }
+            }
+            repainted.push(id);
+        }
+
+        self.grant_or_refuse(&movers, &mut damage);
+
+        for id in repainted {
             let layer = self.layer(id);
             let transform = self.screen_transform(id);
             if layer.bounds_damage || transform != layer.last_screen_transform {
@@ -847,6 +907,344 @@ impl LayerTree {
             }
         }
         damage
+    }
+
+    /// Where `id`'s recording sits on screen under `to_screen`, fringe included.
+    ///
+    /// `old_recording` picks which recording to measure: the one the surface
+    /// actually holds for a mover that re-recorded this frame, the current one
+    /// for a layer that did not.
+    ///
+    /// The clip-aware bounds of the recording, grown by the antialiasing bleed —
+    /// a whole-pixel translation moves the fringe exactly with the geometry, so
+    /// carrying it is as cheap and as correct as carrying the interior — and
+    /// confined to the clip the layer's ancestors declare, which is the box the
+    /// copy is allowed to write inside. Shadow fringes are inside the command
+    /// bounds already, which is why a refused mover damages the painted extent
+    /// and not the geometric one.
+    fn painted_extent_at(&self, id: LayerId, old_recording: bool, to_screen: &Transform) -> Rect {
+        let layer = self.layer(id);
+        let bounds = if old_recording {
+            layer.previous.bounds()
+        } else {
+            layer.scene.bounds()
+        };
+        if bounds.is_empty() {
+            return Rect::ZERO;
+        }
+        let extent = to_screen.apply_rect(bounds).inflate(AA_BLEED);
+        match self.ancestor_clip(id) {
+            Some(clip) => extent.intersect(clip),
+            None => extent,
+        }
+    }
+
+    /// The clip `id`'s ancestors declare, in screen space, or `None` when none
+    /// of them does.
+    ///
+    /// This is the clip that does **not** move when `id`'s own transform does —
+    /// the viewport a scrolled list's rows travel inside. A copy has to stay
+    /// inside it, because the copy writes pixels directly and no command's clip
+    /// will hold it back.
+    fn ancestor_clip(&self, id: LayerId) -> Option<Rect> {
+        // The chain from the root down to `id`, so the fold can map each declared
+        // clip out of the space it was declared in.
+        let mut chain = vec![id];
+        let mut current = self.layer(id).parent;
+        while let Some(parent) = current {
+            chain.push(parent);
+            current = self.layer(parent).parent;
+        }
+        chain.reverse();
+
+        let mut inherited = Transform::IDENTITY;
+        let mut clip: Option<Rect> = None;
+        for &layer_id in &chain {
+            let layer = self.layer(layer_id);
+            if let Some(declared) = layer.effect.clip {
+                // Declared in the enclosing layer's space, which `inherited`
+                // maps to the screen right now.
+                let mapped = inherited.apply_rect(declared);
+                clip = Some(clip.map_or(mapped, |outer| outer.intersect(mapped)));
+            }
+            inherited = layer.transform.then(inherited);
+        }
+        clip
+    }
+
+    /// Grant or refuse the copies the movers ask for.
+    ///
+    /// Movers of one delta first cluster by overlap — two overlapping copies
+    /// read each other's half-written sources, so they carry as one — and the
+    /// clusters then bridge through interstices whose ink the sweep test
+    /// already approves. Each surviving cluster faces the grant test; a granted
+    /// cluster emits one copy plus its exact strips, a refused one falls back to
+    /// both-bounds damage for every mover in it.
+    fn grant_or_refuse(&self, movers: &[Mover], damage: &mut Damage) {
+        if movers.is_empty() {
+            return;
+        }
+        // Every layer that qualified as a mover of *any* delta: their pixels
+        // ride their own copies rather than any both-bounds fallback, so the
+        // sweep has to treat a different delta's mover as staying ink.
+        let qualified_all: Vec<LayerId> = movers.iter().map(|m| m.id).collect();
+
+        // One pass per distinct delta: only movers of the same delta can cluster.
+        let mut remaining: Vec<&Mover> = movers.iter().collect();
+        while !remaining.is_empty() {
+            let delta = remaining[0].delta;
+            let group: Vec<&Mover> = remaining
+                .iter()
+                .copied()
+                .filter(|m| m.delta == delta)
+                .collect();
+            remaining.retain(|m| m.delta != delta);
+            let mover_ids: Vec<LayerId> = group.iter().map(|m| m.id).collect();
+            let mover_extents: Vec<Rect> = group
+                .iter()
+                .flat_map(|m| [m.old, m.new])
+                .collect();
+
+            // Cluster by overlap of what is carried. Extents that overlap —
+            // shadow fringes reach into the neighbour below — must copy as one,
+            // because two applied separately read each other's half-written
+            // sources.
+            let mut clusters: Vec<Vec<&Mover>> = Vec::new();
+            for mover in &group {
+                let mut joined: Vec<usize> = Vec::new();
+                for (index, cluster) in clusters.iter().enumerate() {
+                    if cluster.iter().any(|m| m.old.overlaps(mover.old)) {
+                        joined.push(index);
+                    }
+                }
+                // Removed from the back so the retained indices stay valid.
+                let mut merged: Vec<&Mover> = vec![mover];
+                for index in joined.into_iter().rev() {
+                    merged.extend(clusters.swap_remove(index));
+                }
+                clusters.push(merged);
+            }
+
+            // Bridge through interstices: two clusters of one delta whose gap
+            // contains nothing the sweep test disapproves of carry as one bigger
+            // copy. Bridging is what keeps a scrolling list to one memmove rather
+            // than one per row — the gaps between rows are background, and
+            // background can be carried as surely as the rows above it.
+            let mut bridged = true;
+            while bridged && clusters.len() > 1 {
+                bridged = false;
+                'attempt: for i in 0..clusters.len() {
+                    for j in (i + 1)..clusters.len() {
+                        let src_i: Rect =
+                            clusters[i].iter().fold(Rect::ZERO, |acc, m| acc.union(m.old));
+                        let src_j: Rect =
+                            clusters[j].iter().fold(Rect::ZERO, |acc, m| acc.union(m.old));
+                        let bridged_src = src_i.union(src_j);
+                        let swept = bridged_src.union(CopyRegion::new(bridged_src, delta).dst);
+                        if self.swept_rect_is_grantable(swept, &mover_ids, &mover_extents, &qualified_all) {
+                            let mut merged = clusters.swap_remove(j);
+                            merged.extend(clusters.swap_remove(i));
+                            clusters.push(merged);
+                            bridged = true;
+                            break 'attempt;
+                        }
+                    }
+                }
+            }
+
+            for cluster in clusters {
+                let src: Rect = cluster.iter().fold(Rect::ZERO, |acc, m| acc.union(m.old));
+                let dst = CopyRegion::new(src, delta).dst;
+                let swept = src.union(dst);
+                if self.swept_rect_is_grantable(swept, &mover_ids, &mover_extents, &qualified_all) {
+                    damage.add_copy(CopyRegion::new(src, delta));
+                    // The strips a translation vacates and exposes, exact: the
+                    // copy already carries the interior's pixels, fringes
+                    // included, so growing the strips would only repaint what is
+                    // already correct and merge a ring around every mover into
+                    // its bounding box.
+                    //
+                    // What the copy *delivers* is its destination clipped to
+                    // the surface — a row sliding past the bottom edge carries
+                    // only the part of itself that lands somewhere — so the
+                    // strips are measured against that, not against the
+                    // unclipped rectangle: vacated, what the mover's old
+                    // on-surface pixels covered and the copy does not write;
+                    // exposed, what the new frame wants on-surface and the
+                    // copy did not deliver — the band a clipped mover revealed,
+                    // which is empty for a mover that moved wholly inside both
+                    // its clip and the surface.
+                    let surface = damage.surface();
+                    let src_on = src.intersect(surface);
+                    let delivered = CopyRegion::new(src_on, delta).dst.intersect(surface);
+                    for strip in rect_minus(src_on, delivered) {
+                        damage.add_strip(strip);
+                    }
+                    let new_on: Rect = cluster
+                        .iter()
+                        .fold(Rect::ZERO, |acc, m| acc.union(m.new))
+                        .intersect(surface);
+                    for strip in rect_minus(new_on, delivered) {
+                        damage.add_strip(strip);
+                    }
+                    // A carried re-record: the recording changed *and* moved, so
+                    // the diff between the two recordings replays on top of the
+                    // carried pixels, mapped where the recording sits now.
+                    for mover in &cluster {
+                        if mover.re_recorded {
+                            let layer = self.layer(mover.id);
+                            damage.add_between(
+                                &layer.previous,
+                                &layer.scene,
+                                self.screen_transform(mover.id),
+                            );
+                        }
+                    }
+                } else {
+                    for mover in &cluster {
+                        damage.add(mover.old);
+                        damage.add(mover.new);
+                        if mover.re_recorded {
+                            let layer = self.layer(mover.id);
+                            damage.add_between(
+                                &layer.previous,
+                                &layer.scene,
+                                self.screen_transform(mover.id),
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// Whether every ink reaching `swept` either moves lockstep or is a flat
+    /// opaque fill spanning it.
+    ///
+    /// The walk considers only ink that stays put *and* keeps its recording —
+    /// a layer that moved by any delta is carried or fully repainted by its own
+    /// damage, and either way the copy cannot strand it: lockstep pixels ride
+    /// the copy, and a refused mover's both-bounds damage repaints exactly where
+    /// it landed. What the copy must be judged against is the ink that did not
+    /// change at all, from both directions: the recordings the surface holds at
+    /// where they sat, and the current recordings at where they sit now — a
+    /// command seen in only one of the two walks is ink that appeared or
+    /// vanished, and either refuses.
+    fn swept_rect_is_grantable(
+        &self,
+        swept: Rect,
+        mover_ids: &[LayerId],
+        mover_extents: &[Rect],
+        qualified_all: &[LayerId],
+    ) -> bool {
+        // Ink the surface holds.
+        let mut held_fills: Vec<(Rect, Color)> = Vec::new();
+        for index in 0..self.slots.len() {
+            let Some(id) = self.live_id(index) else {
+                continue;
+            };
+            if mover_ids.contains(&id) {
+                continue;
+            }
+            let layer = self.layer(id);
+            // What the copy cannot strand: a layer that moved but failed to
+            // qualify as a mover fell to the repainted path, whose both-bounds
+            // damage repaints exactly where the copy lands. A mover of a
+            // different delta is the one kind of moving ink that stays: its
+            // pixels ride its own copy and nothing repaints them here, so its
+            // ink reaching this swept rectangle is two copies disagreeing about
+            // the same pixels, and it refuses.
+            let transform_moved =
+                self.screen_transform(id) != layer.last_screen_transform;
+            if !qualified_all.contains(&id) && (layer.bounds_damage || transform_moved) {
+                continue;
+            }
+            let old_bounds = layer.last_screen_transform.apply_rect(
+                if layer.paint_count != layer.settled_paint_count {
+                    &layer.previous
+                } else {
+                    &layer.scene
+                }
+                .bounds(),
+            );
+            if !old_bounds.overlaps(swept) {
+                continue;
+            }
+            let old_recording = if layer.paint_count != layer.settled_paint_count {
+                &layer.previous
+            } else {
+                &layer.scene
+            };
+            let transform = layer.last_screen_transform;
+            for command in old_recording.commands() {
+                let bounds = transform.apply_rect(command.bounds());
+                if bounds.is_empty() || !bounds.overlaps(swept) {
+                    continue;
+                }
+                match flat_opaque_fill(command) {
+                    Some(color) => held_fills.push((bounds, color)),
+                    None => return false,
+                }
+            }
+        }
+        if !flat_fills_span(&held_fills, swept, mover_extents) {
+            return false;
+        }
+
+        // Ink the new frame wants.
+        let mut wanted_fills: Vec<(Rect, Color)> = Vec::new();
+        for index in 0..self.slots.len() {
+            let Some(id) = self.live_id(index) else {
+                continue;
+            };
+            if mover_ids.contains(&id) {
+                continue;
+            }
+            let layer = self.layer(id);
+            let transform_moving =
+                layer.bounds_damage || self.screen_transform(id) != layer.last_screen_transform;
+            if !qualified_all.contains(&id) && transform_moving {
+                continue;
+            }
+            let new_bounds = self.screen_transform(id).apply_rect(layer.scene.bounds());
+            if !new_bounds.overlaps(swept) && !transform_moving {
+                continue;
+            }
+            let transform = self.screen_transform(id);
+            for command in layer.scene.commands() {
+                let bounds = transform.apply_rect(command.bounds());
+                if bounds.is_empty() || !bounds.overlaps(swept) {
+                    continue;
+                }
+                match flat_opaque_fill(command) {
+                    Some(color) => wanted_fills.push((bounds, color)),
+                    None => return false,
+                }
+            }
+        }
+        if !flat_fills_span(&wanted_fills, swept, mover_extents) {
+            return false;
+        }
+
+        // Ink that left with a removed subtree: the surface holds it, the new
+        // frame wants nothing there, and a copy would carry it somewhere it
+        // should not be.
+        if self.vacated.iter().any(|rect| rect.overlaps(swept)) {
+            return false;
+        }
+
+        true
+    }
+
+    /// The `LayerId` living in slot `index`, if any.
+    fn live_id(&self, index: usize) -> Option<LayerId> {
+        let slot = &self.slots[index];
+        slot.layer.as_ref().map(|_| {
+            LayerId::new(
+                u32::try_from(index).expect("layer arena overflowed u32"),
+                slot.generation,
+            )
+        })
     }
 
     /// Settle the tree after a frame is presented.
@@ -872,10 +1270,140 @@ impl LayerTree {
             layer.last_screen_bounds = bounds;
             layer.last_screen_transform = transform;
             layer.bounds_damage = false;
+            layer.settled_paint_count = layer.paint_count;
         }
         self.pending.clear();
         self.vacated.clear();
     }
+}
+
+/// One pending layer whose position changed this frame and whose pixels, by
+/// everything the tree knows, are entitled to travel rather than repaint.
+///
+/// Not a public type: this exists for one call of [`LayerTree::damage`] and
+/// never leaves it.
+struct Mover {
+    id: LayerId,
+    /// The whole-pixel translation the layer underwent.
+    delta: Offset,
+    /// The painted extent where the recording sat at the end of the last frame.
+    old: Rect,
+    /// The painted extent where the recording sits now.
+    new: Rect,
+    /// Whether the recording was replaced this frame too — a carried re-record.
+    re_recorded: bool,
+}
+
+/// The translation between two transforms, when that is all that differs —
+/// and something did.
+///
+/// A scaled or rotated move re-samples every pixel — there is nothing to carry
+/// and no command diff to find, so the caller damages both bounds. A fractional
+/// translation would resample too, and a hair off the pixel grid rejects it:
+/// the epsilon covers the f32 representation of offsets that were computed to
+/// land on whole pixels, and nothing wider than that.
+///
+/// An unchanged transform answers `None` too, deliberately: a layer that
+/// re-recorded without moving has nothing to carry and a diff to report, which
+/// is the `repainted` half of the partition — treating it as a mover of zero
+/// would hand the grant a swept rectangle the size of the layer for a copy
+/// that carries nothing anywhere.
+fn whole_pixel_delta(old: Transform, new: Transform) -> Option<Offset> {
+    if old == new {
+        return None;
+    }
+    if old.a != new.a || old.b != new.b || old.c != new.c || old.d != new.d {
+        return None;
+    }
+    let dx = new.tx - old.tx;
+    let dy = new.ty - old.ty;
+    if dx == 0.0 && dy == 0.0 {
+        return None;
+    }
+    let on_grid = |v: f32| (v - v.round()).abs() <= 1e-3;
+    if !on_grid(dx) || !on_grid(dy) {
+        return None;
+    }
+    Some(Offset::new(dx.round(), dy.round()))
+}
+
+/// `a` minus `b`, as at most four disjoint rectangles.
+///
+/// Top and bottom bands first, then the left and right bands between them —
+/// disjoint by construction, so a caller summing them cannot double-count a
+/// corner.
+fn rect_minus(a: Rect, b: Rect) -> Vec<Rect> {
+    let inter = a.intersect(b);
+    if inter.is_empty() {
+        return vec![a];
+    }
+    let mut out = Vec::with_capacity(4);
+    if inter.top > a.top {
+        out.push(Rect::new(a.left, a.top, a.right, inter.top));
+    }
+    if inter.bottom < a.bottom {
+        out.push(Rect::new(a.left, inter.bottom, a.right, a.bottom));
+    }
+    if inter.left > a.left {
+        out.push(Rect::new(a.left, inter.top, inter.left, inter.bottom));
+    }
+    if inter.right < a.right {
+        out.push(Rect::new(inter.right, inter.top, a.right, inter.bottom));
+    }
+    out.into_iter().filter(|r| !r.is_empty()).collect()
+}
+
+/// The flat, opaque colour a command paints with, when it is exactly that.
+///
+/// A gradient is not flat — its ramp resolves against the shape's own bounds,
+/// which sit still while the copy's pixels move, and shifted ramp pixels are
+/// wrong ones. A translucent fill is not opaque — the ink under it shows, and
+/// if that ink does not travel with the copy the blend comes out different.
+fn flat_opaque_fill(command: &Command) -> Option<Color> {
+    match command {
+        Command::FillRect { paint, .. } if paint.gradient.is_none() && paint.color.a == 255 => {
+            Some(paint.color)
+        }
+        _ => None,
+    }
+}
+
+/// Whether the flat fills, with the movers' own extents, cover `swept` in one
+/// colour.
+///
+/// Every pixel of the swept rectangle has to hold either a mover's ink — which
+/// travels — or one flat colour — which the copy moves onto itself and nothing
+/// changes. Two colours cannot do that: a pixel of one colour would be carried
+/// onto the other's ground wherever the delta crosses the seam, and a gap in
+/// the coverage is the same fault with the base colour standing in for the
+/// second ink. Coverage is measured by subtraction rather than by unions,
+/// because a union's bounding box covers gaps its rectangles do not.
+fn flat_fills_span(fills: &[(Rect, Color)], swept: Rect, movers: &[Rect]) -> bool {
+    if let Some(color) = fills.first().map(|(_, color)| *color) {
+        if fills.iter().any(|(_, other)| *other != color) {
+            return false;
+        }
+    }
+    let mut uncovered = vec![swept];
+    for (rect, _) in fills {
+        uncovered = uncovered
+            .iter()
+            .flat_map(|fragment| rect_minus(*fragment, *rect))
+            .collect();
+        if uncovered.is_empty() {
+            return true;
+        }
+    }
+    for rect in movers {
+        uncovered = uncovered
+            .iter()
+            .flat_map(|fragment| rect_minus(*fragment, *rect))
+            .collect();
+        if uncovered.is_empty() {
+            return true;
+        }
+    }
+    uncovered.is_empty()
 }
 
 impl fmt::Debug for LayerTree {
@@ -1772,5 +2300,199 @@ mod tests {
             Rect::ZERO,
             "an empty layer must not damage the point its origin maps to"
         );
+    }
+
+    // ------------------------------------------------- the copy machinery
+
+    /// One mover over a flat, opaque, spanning fill, moved by whole pixels:
+    /// the frame every scroll of every list is.
+    fn scrolled_tree() -> (LayerTree, LayerId) {
+        let mut tree = LayerTree::with_root();
+        let root = tree.root().expect("root");
+        paint(&mut tree, root, SURFACE, Color::rgb(18, 18, 18));
+        let child = tree.insert(Some(root), Transform::IDENTITY);
+        paint(&mut tree, child, Rect::new(20.0, 100.0, 280.0, 160.0), Color::rgb(230, 230, 230));
+        tree.end_frame();
+        (tree, child)
+    }
+
+    #[test]
+    fn a_whole_pixel_move_over_a_flat_fill_is_granted_as_a_copy() {
+        let (mut tree, child) = scrolled_tree();
+        tree.set_transform(child, Transform::translate(Offset::new(0.0, 8.0)));
+        let damage = tree.damage(SURFACE);
+
+        assert_eq!(damage.copies().len(), 1, "{damage}");
+        assert_eq!(damage.copies()[0].delta(), Offset::new(0.0, 8.0));
+        // The carried extent is the mover's old painted extent, fringe
+        // included: one pixel of bleed either side of a 260x60 card.
+        let src = damage.copies()[0].src;
+        assert!(src.left <= 19.0 && src.right >= 281.0, "{src}");
+        assert!(src.top <= 99.0 && src.bottom >= 161.0, "{src}");
+        // The vacated strip is the eight pixels the card left behind, exact —
+        // not a bled ring, and nowhere near the whole surface.
+        assert!(damage.covered_area() < SURFACE.area() * 0.2, "{damage}");
+    }
+
+    #[test]
+    fn a_fractional_move_refuses_and_damages_both_bounds() {
+        let (mut tree, child) = scrolled_tree();
+        tree.set_transform(child, Transform::translate(Offset::new(0.0, 8.5)));
+        let damage = tree.damage(SURFACE);
+
+        assert!(damage.copies().is_empty(), "{damage}");
+        // Both where it sat and where it sits: the diff finds nothing in an
+        // untouched recording, so the extents are the only honest report.
+        assert!(damage.intersects(Rect::new(20.0, 100.0, 280.0, 160.0)), "{damage}");
+        assert!(damage.intersects(Rect::new(20.0, 108.5, 280.0, 168.5)), "{damage}");
+    }
+
+    #[test]
+    fn a_scaled_move_refuses() {
+        let (mut tree, child) = scrolled_tree();
+        tree.set_transform(
+            child,
+            Transform::new(2.0, 0.0, 0.0, 2.0, 0.0, 8.0),
+        );
+        let damage = tree.damage(SURFACE);
+
+        assert!(damage.copies().is_empty(), "{damage}");
+        assert!(damage.intersects(Rect::new(40.0, 200.0, 560.0, 320.0)), "{damage}");
+    }
+
+    #[test]
+    fn static_ink_over_the_swept_rectangle_refuses_the_copy() {
+        let (mut tree, child) = scrolled_tree();
+        let root = tree.root().expect("root");
+        // An overlay above the mover: static ink reaching the swept rectangle.
+        // Appended after the first frame settled, so nothing about the
+        // mover's own state — `bounds_damage`, a re-record — refuses it; the
+        // ink has to be what does.
+        let overlay = tree.insert(Some(root), Transform::IDENTITY);
+        paint(&mut tree, overlay, Rect::new(0.0, 120.0, 90.0, 140.0), Color::rgb(200, 60, 60));
+        tree.end_frame();
+
+        tree.set_transform(child, Transform::translate(Offset::new(0.0, 8.0)));
+        let damage = tree.damage(SURFACE);
+
+        // Copying would read the overlay's pixels as if they belonged to the
+        // mover and land them eight pixels from where the overlay still is.
+        assert!(damage.copies().is_empty(), "{damage}");
+        assert!(damage.intersects(Rect::new(20.0, 100.0, 280.0, 160.0)), "{damage}");
+    }
+
+    #[test]
+    fn lockstep_movers_with_a_gap_bridge_into_one_copy() {
+        let mut tree = LayerTree::with_root();
+        let root = tree.root().expect("root");
+        paint(&mut tree, root, SURFACE, Color::rgb(18, 18, 18));
+        let a = tree.insert(Some(root), Transform::IDENTITY);
+        paint(&mut tree, a, Rect::new(20.0, 100.0, 280.0, 160.0), Color::rgb(230, 230, 230));
+        let b = tree.insert(Some(root), Transform::IDENTITY);
+        paint(&mut tree, b, Rect::new(20.0, 220.0, 280.0, 280.0), Color::rgb(210, 210, 210));
+        tree.end_frame();
+
+        tree.set_transform(a, Transform::translate(Offset::new(0.0, 8.0)));
+        tree.set_transform(b, Transform::translate(Offset::new(0.0, 8.0)));
+        let damage = tree.damage(SURFACE);
+
+        // Two movers, one delta, a gap of flat fill between them: the bridged
+        // union re-validates, and the frame carries one block, not two.
+        assert_eq!(damage.copies().len(), 1, "{damage}");
+        let src = damage.copies()[0].src;
+        assert!(src.top <= 99.0 && src.bottom >= 281.0, "{src}: the bridge spanned the gap");
+    }
+
+    #[test]
+    fn a_carried_rerecord_rides_the_copy_and_pays_only_its_diff() {
+        let (mut tree, child) = scrolled_tree();
+        // The move AND a repaint: the recording changed while it travelled.
+        tree.set_transform(child, Transform::translate(Offset::new(0.0, 8.0)));
+        paint(&mut tree, child, Rect::new(20.0, 100.0, 280.0, 160.0), Color::rgb(120, 200, 120));
+        let damage = tree.damage(SURFACE);
+
+        assert_eq!(damage.copies().len(), 1, "{damage}");
+        // The diff between the two recordings is repainted on top of the
+        // carried pixels: the whole card is not.
+        assert!(damage.intersects(Rect::new(20.0, 108.0, 280.0, 168.0)), "{damage}");
+        assert!(damage.covered_area() < SURFACE.area() * 0.2, "{damage}");
+    }
+
+    #[test]
+    fn a_move_whose_landing_leaves_the_clip_refuses() {
+        let mut tree = LayerTree::with_root();
+        let root = tree.root().expect("root");
+        paint(&mut tree, root, SURFACE, Color::rgb(18, 18, 18));
+        // The viewport the rows scroll inside.
+        tree.set_effect(root, LayerEffect::new(1.0).clipped_to(Rect::new(0.0, 0.0, 1000.0, 500.0)));
+        let child = tree.insert(Some(root), Transform::IDENTITY);
+        paint(&mut tree, child, Rect::new(20.0, 460.0, 280.0, 520.0), Color::rgb(230, 230, 230));
+        tree.end_frame();
+
+        // Down by eight: the carried pixels would land past the clip's floor,
+        // and a copy writes pixels directly — no command's clip holds it back.
+        tree.set_transform(child, Transform::translate(Offset::new(0.0, 8.0)));
+        let damage = tree.damage(SURFACE);
+
+        assert!(damage.copies().is_empty(), "{damage}");
+        assert!(damage.intersects(Rect::new(20.0, 460.0, 280.0, 520.0)), "{damage}");
+    }
+
+    #[test]
+    fn a_move_whose_landing_stays_inside_the_clip_is_granted() {
+        let mut tree = LayerTree::with_root();
+        let root = tree.root().expect("root");
+        paint(&mut tree, root, SURFACE, Color::rgb(18, 18, 18));
+        tree.set_effect(root, LayerEffect::new(1.0).clipped_to(Rect::new(0.0, 0.0, 1000.0, 500.0)));
+        let child = tree.insert(Some(root), Transform::IDENTITY);
+        paint(&mut tree, child, Rect::new(20.0, 380.0, 280.0, 440.0), Color::rgb(230, 230, 230));
+        tree.end_frame();
+
+        // Up by eight, wholly inside the clip: the row slid into view.
+        tree.set_transform(child, Transform::translate(Offset::new(0.0, -8.0)));
+        let damage = tree.damage(SURFACE);
+
+        assert_eq!(damage.copies().len(), 1, "{damage}");
+        // The vacated strip: the eight pixels at the bottom the mover left
+        // behind, exact — the move itself exposed nothing new, because the
+        // copy's destination is exactly the new extent.
+        assert!(damage.intersects(Rect::new(20.0, 432.0, 280.0, 440.0)), "{damage}");
+    }
+
+    #[test]
+    fn a_reshaped_clip_refuses_the_movers_it_now_cuts() {
+        let (mut tree, child) = scrolled_tree();
+        let root = tree.root().expect("root");
+        // The clip narrows to end above the mover's landing: same move, but the
+        // pixels it would carry now belong to a clip that refuses them.
+        tree.set_effect(root, LayerEffect::new(1.0).clipped_to(Rect::new(0.0, 0.0, 1000.0, 120.0)));
+        tree.set_transform(child, Transform::translate(Offset::new(0.0, 8.0)));
+        let damage = tree.damage(SURFACE);
+
+        assert!(damage.copies().is_empty(), "{damage}");
+        assert!(damage.intersects(Rect::new(20.0, 100.0, 280.0, 160.0)), "{damage}");
+    }
+
+    #[test]
+    fn a_copy_that_runs_off_the_surface_is_clipped_to_what_is_there() {
+        let mut tree = LayerTree::with_root();
+        let root = tree.root().expect("root");
+        paint(&mut tree, root, SURFACE, Color::rgb(18, 18, 18));
+        let child = tree.insert(Some(root), Transform::IDENTITY);
+        paint(&mut tree, child, Rect::new(20.0, 960.0, 280.0, 1020.0), Color::rgb(230, 230, 230));
+        tree.end_frame();
+
+        tree.set_transform(child, Transform::translate(Offset::new(0.0, 8.0)));
+        let damage = tree.damage(SURFACE);
+
+        assert_eq!(damage.copies().len(), 1, "{damage}");
+        // The source is clipped to what is on the surface; the destination is
+        // derived from that clipped source plus the delta, so it may run off
+        // the surface — the backends carry only the rows that land somewhere,
+        // and a copy that slid by its own clipping would smear instead.
+        let copy = damage.copies()[0];
+        assert!(copy.src.bottom <= 1000.0, "{copy:?}");
+        assert_eq!(copy.delta(), Offset::new(0.0, 8.0), "{copy:?}");
+        assert_eq!(copy.src.bottom + 8.0, copy.dst.bottom, "{copy:?}");
     }
 }

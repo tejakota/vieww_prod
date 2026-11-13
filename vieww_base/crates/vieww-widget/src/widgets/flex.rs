@@ -326,6 +326,30 @@ impl Widget for Flex {
         }
     }
 
+    /// The scroll path opts in: an unchanged subtree re-built by a parent that
+    /// *did* change costs a pointer comparison here instead of a rebuild.
+    ///
+    /// See [`Widget::same_configuration`] for the contract; every field is
+    /// compared, and the child through [`WidgetNode::interchangeable`], which
+    /// answers the same question reconciliation asks.
+    fn same_configuration(&self, other: &crate::WidgetNode) -> bool {
+        let Some(other) = other.downcast_ref::<Self>() else {
+            return false;
+        };
+        self.direction == other.direction
+            && self.main_axis_alignment == other.main_axis_alignment
+            && self.cross_axis_alignment == other.cross_axis_alignment
+            && self.main_axis_size == other.main_axis_size
+            && self.spacing == other.spacing
+            && self.text_direction == other.text_direction
+            && self.children.len() == other.children.len()
+            && self
+                .children
+                .iter()
+                .zip(&other.children)
+                .all(|(a, b)| a.interchangeable(b))
+    }
+
     fn kind(&self) -> WidgetKind<'_> {
         WidgetKind::RenderMultiChild(&self.children)
     }

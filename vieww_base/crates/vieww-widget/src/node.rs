@@ -197,6 +197,27 @@ impl WidgetNode {
         self.0.same_configuration(other)
     }
 
+    /// The whole reconciliation question for one child: the same key, and then
+    /// the same allocation — nothing changed — or a description that claims to
+    /// be the same thing.
+    ///
+    /// What [`same_configuration`](Self::same_configuration) alone misses: an
+    /// unchanged subtree that was *cloned* rather than rebuilt constructs a new
+    /// `Rc` for every widget in it, and comparing descriptions alone would
+    /// walk the whole tree to answer what one pointer equality already did.
+    /// And what a description alone must never be allowed to answer: two
+    /// widgets under **different keys** are two different things however
+    /// alike their fields, so the key is settled first, exactly as
+    /// [`can_update`](Self::can_update) settles it before reconciliation asks
+    /// a live element anything. A widget comparing its children in
+    /// [`same_configuration`](Widget::same_configuration) that skipped this
+    /// would let a keyed child swap through as "unchanged", and the element
+    /// would keep the old child's state under the new child's name.
+    #[must_use]
+    pub fn interchangeable(&self, other: &Self) -> bool {
+        self.key() == other.key() && (self.ptr_eq(other) || self.same_configuration(other))
+    }
+
     /// Downcast to a concrete widget type.
     #[must_use]
     pub fn downcast_ref<W: Widget>(&self) -> Option<&W> {
@@ -210,6 +231,21 @@ impl Deref for WidgetNode {
 
     fn deref(&self) -> &Self::Target {
         &*self.0
+    }
+}
+
+/// The child half of a [`same_configuration`](Widget::same_configuration)
+/// comparison: present on both sides and interchangeable, or absent on both.
+///
+/// A private helper, because every composed widget's comparison ends in this
+/// same three-line match and the match is exactly the kind of thing a copy-paste
+/// gets subtly wrong — swapped `None` arms are still `true`, and a `false`
+/// swapped into one of them silently rebuilds a subtree that never changes.
+pub(crate) fn interchangeable_children(a: &Option<WidgetNode>, b: &Option<WidgetNode>) -> bool {
+    match (a, b) {
+        (Some(a), Some(b)) => a.interchangeable(b),
+        (None, None) => true,
+        _ => false,
     }
 }
 

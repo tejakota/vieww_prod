@@ -64,7 +64,6 @@ impl fmt::Display for RendererError {
 
 impl std::error::Error for RendererError {}
 
-/// Hits and misses on the rasterised-glyph cache — see
 /// Merge damage regions for the CPU's retained repaint.
 ///
 /// # Why the renderer merges what `Damage` kept apart
@@ -161,6 +160,11 @@ pub enum AaMode {
 pub struct SceneReport {
     pub translated_commands: usize,
     pub skipped_commands: usize,
+    /// Pixel-carrying copies applied before any region replayed — the work a
+    /// scrolled frame did instead of rasterizing, one per [`CopyRegion`].
+    /// Counted so a benchmark can tell "the rows moved" from "the rows were
+    /// repainted", which a frame time alone never can.
+    pub carried_regions: usize,
     pub filtered_layers: usize,
     pub shapes: usize,
     /// `fill` commands whose path carried open subpaths — the 99%-correct
@@ -357,6 +361,47 @@ struct LayerFrame {
     /// see the `PopLayer` handler for why it happens there rather than at
     /// push.
     clip: Clip,
+}
+
+/// Carry a rectangle of straight-alpha RGBA8 bytes to a new place.
+///
+/// The same row-disciplined move [`Target::move_region`] applies to the
+/// premultiplied working target, for the RGBA8 output a presenter reads — both
+/// pictures have to agree, or the next region that converts only its own rows
+/// leaves the seam between carried and repainted pixels showing last frame's
+/// arrangement. Within a row, `copy_within` is a memmove and the column order
+/// needs no discipline.
+fn move_rgba8_region(
+    out: &mut [u8],
+    width: u32,
+    src: (i32, i32, i32, i32),
+    dst: (i32, i32, i32, i32),
+) {
+    let height = (out.len() / (width as usize * 4)) as i32;
+    let (sx0, sy0, sx1, sy1) = src;
+    let (dx0, dy0, dx1, dy1) = dst;
+    let rows_total = (sy1 - sy0).min(dy1 - dy0);
+    let cols_total = (sx1 - sx0).min(dx1 - dx0);
+    // Row and column indices, relative to the rectangles' own origins, where
+    // both sides are inside — clipping one side without the other would slide
+    // the carried content, so the intersection is taken jointly.
+    let r0 = (0 - sy0).max(0 - dy0).max(0);
+    let r1 = (height - sy0).min(height - dy0).min(rows_total);
+    let c0 = (0 - sx0).max(0 - dx0).max(0);
+    let c1 = (width as i32 - sx0).min(width as i32 - dx0).min(cols_total);
+    if r1 <= r0 || c1 <= c0 {
+        return;
+    }
+
+    let stride = width as usize * 4;
+    let descending = dy0 > sy0;
+    for row in r0..r1 {
+        let r = if descending { r1 - 1 - (row - r0) } else { row };
+        let src_start = (sy0 + r) as usize * stride + (sx0 + c0) as usize * 4;
+        let src_end = src_start + (c1 - c0) as usize * 4;
+        let dst_start = (dy0 + r) as usize * stride + (dx0 + c0) as usize * 4;
+        out.copy_within(src_start..src_end, dst_start);
+    }
 }
 
 impl NativeRenderer {
@@ -833,16 +878,57 @@ impl NativeRenderer {
         let regions = coalesce_for_replay(damage.repaint_regions());
         let mut report = SceneReport::default();
         self.kind_times = RasterKindTimes::default();
+
+        let mut root = std::mem::replace(&mut self.root, Target::new(0, 0));
+        let mut output = std::mem::take(&mut self.output);
+
+        // **Copies first, always before any region replays.** The pixels a
+        // frame moved travel into both the premultiplied working target and
+        // the RGBA8 output while both still hold last frame's picture, so a
+        // region's clear-and-redraw lands *on top of* what was carried — and a
+        // copy's source is read before anything repaints it. Reversing that
+        // order strands both: a region would erase ink a copy had not yet
+        // delivered, and a copy would read pixels a region had already drawn.
+        for copy in damage.copies() {
+            // **The LCD-phase guard.** Subpixel-antialiased text resolves its
+            // RGB fringes against the pixel grid modulo three columns, so a
+            // horizontal move not a multiple of three carries every glyph's
+            // fringes onto the wrong subpixel phase — colour rain along the
+            // leading edge of text in a scrolled list. The honest answer is to
+            // not carry at all: repaint in full, once, at the frame's real
+            // geometry. Vertical moves carry fringes exactly (the phase
+            // depends on `x` alone), and `dx == 0` is a multiple of three.
+            if self.lcd_frame && copy.delta().dx.rem_euclid(3.0) != 0.0 {
+                self.root = root;
+                self.output = output;
+                return self.render_in_place(scene, width, height, base);
+            }
+            let px = |rect: Rect| {
+                (
+                    rect.left.floor() as i32,
+                    rect.top.floor() as i32,
+                    rect.right.ceil() as i32,
+                    rect.bottom.ceil() as i32,
+                )
+            };
+            let src = px(copy.src);
+            let dst = px(copy.dst);
+            root.move_region(src, dst);
+            move_rgba8_region(&mut output, width, src, dst);
+            report.carried_regions += 1;
+        }
+
         if regions.is_empty() {
-            // Nothing changed. The buffer already holds the right picture and
+            // Nothing repaints. The buffer already holds the right picture and
             // the output already holds the right bytes — this is the case a
-            // full-frame renderer spends its whole floor on.
+            // full-frame renderer spends its whole floor on. A frame that only
+            // copied has finished here: the moves above were the entire frame.
+            self.root = root;
+            self.output = output;
             report.skipped_commands = scene.len();
             return Ok(report);
         }
 
-        let mut root = std::mem::replace(&mut self.root, Target::new(0, 0));
-        let mut output = std::mem::take(&mut self.output);
         let clear = Premul::from_straight(base);
         let mut failure = None;
 

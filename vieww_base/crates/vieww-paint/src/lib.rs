@@ -104,7 +104,7 @@ pub mod native;
 pub use canvas::{Canvas, Image, Paint, Stroke};
 // The public door to glyph outlines (todo-upgrades U-03): text as geometry,
 // extracted by the same layer the rasterizer uses, no re-parsing above it.
-pub use damage::{Damage, AA_BLEED, MAX_REGIONS, REPAINT_ALL_THRESHOLD};
+pub use damage::{CopyRegion, Damage, AA_BLEED, MAX_REGIONS, REPAINT_ALL_THRESHOLD};
 pub use flatten::{FlattenStats, SceneFlattener};
 pub use graph::{Pass, PassGraph, PassId, PassLayer};
 pub use layer::{Layer, LayerEffect, LayerId, LayerTree};

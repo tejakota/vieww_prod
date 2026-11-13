@@ -33,6 +33,7 @@ use std::path::{Path, PathBuf};
 
 use vieww_foundation::{Color, Rect, Size};
 use vieww_paint::native::NativeRenderer;
+use vieww_paint::CopyRegion;
 use vieww_paint::Damage;
 use vieww_render::FrameDriver;
 
@@ -246,16 +247,83 @@ impl Persistent {
 
     /// Composite this frame's damage onto the target.
     ///
-    /// Region by region, each rasterised on its own and blitted back — not one
-    /// union of them all. The distinction is the point: a union is more generous
-    /// than what a GPU backend actually does, so an oracle built on one would
-    /// pass against damage that the real backend under-repaints.
+    /// The frame's [`copies`](Damage::copies) move first, exactly as a retained
+    /// backend applies them before any region replays — the moved pixels are
+    /// read while the target still holds last frame's picture, and every region
+    /// that lands on top of carried ink repaints it afterwards. Reversing that
+    /// order strands both: a region would erase ink a copy had not yet
+    /// delivered, and a copy would read pixels a region had already drawn.
+    ///
+    /// Then region by region, each rasterised on its own and blitted back — not
+    /// one union of them all. The distinction is the point: a union is more
+    /// generous than what a GPU backend actually does, so an oracle built on
+    /// one would pass against damage that the real backend under-repaints.
     pub fn advance(&mut self, driver: &FrameDriver) {
+        for copy in driver.damage().copies() {
+            self.carry(copy);
+        }
         for region in driver.damage().repaint_regions() {
             let mut one = Damage::new(driver.surface());
             one.add(region);
             let tile = render_damaged(driver, &one, self.size, self.base);
             self.blit(&tile, region);
+        }
+    }
+
+    /// Move one copy's pixels within the target, row-disciplined.
+    ///
+    /// A move with the row order the direction demands — bottom-up for a move
+    /// down — so overlapping rows of one copy never read what an earlier row
+    /// already wrote. The same discipline `NativeRenderer`'s retained path
+    /// applies to its own buffers; this is the oracle's copy of it, and the
+    /// frames it leaves behind are what `assert_partial_repaint_is_complete`
+    /// holds to a full repaint's agreement.
+    ///
+    /// Rows and columns move only where **both** sides are on the target:
+    /// clipping the source to the target and the destination to the target
+    /// separately would slide the carried content by whatever one side lost —
+    /// the copy would land whole pixels away from where they belong, which is
+    /// precisely the smearing this oracle exists to catch.
+    fn carry(&mut self, copy: &CopyRegion) {
+        #[expect(
+            clippy::cast_possible_truncation,
+            clippy::cast_sign_loss,
+            reason = "copy regions are whole-pixel and jointly clamped below"
+        )]
+        let (sx0, sy0, sx1, sy1) = (
+            copy.src.left.round() as i32,
+            copy.src.top.round() as i32,
+            copy.src.right.round() as i32,
+            copy.src.bottom.round() as i32,
+        );
+        let (dx0, dy0, dx1, dy1) = (
+            copy.dst.left.round() as i32,
+            copy.dst.top.round() as i32,
+            copy.dst.right.round() as i32,
+            copy.dst.bottom.round() as i32,
+        );
+        let (w, h) = (self.frame.width as i32, self.frame.height as i32);
+        let rows_total = (sy1 - sy0).min(dy1 - dy0);
+        let cols_total = (sx1 - sx0).min(dx1 - dx0);
+        // Row and column indices, relative to the rectangles' own origins,
+        // where both sides are on the target.
+        let r0 = (0 - sy0).max(0 - dy0).max(0);
+        let r1 = (h - sy0).min(h - dy0).min(rows_total);
+        let c0 = (0 - sx0).max(0 - dx0).max(0);
+        let c1 = (w - sx0).min(w - dx0).min(cols_total);
+        if r1 <= r0 || c1 <= c0 {
+            return;
+        }
+
+        let width = self.frame.width as usize;
+        let descending = dy0 > sy0;
+        for row in r0..r1 {
+            let r = if descending { r1 - 1 - (row - r0) } else { row };
+            for c in c0..c1 {
+                let src = ((sy0 + r) as usize * width + (sx0 + c) as usize) * 4;
+                let dst = ((dy0 + r) as usize * width + (dx0 + c) as usize) * 4;
+                self.frame.data.copy_within(src..src + 4, dst);
+            }
         }
     }
 

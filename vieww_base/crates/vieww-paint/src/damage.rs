@@ -17,7 +17,7 @@
 
 use std::fmt;
 
-use vieww_foundation::{Rect, Transform};
+use vieww_foundation::{Offset, Rect, Transform};
 
 use crate::Scene;
 
@@ -44,6 +44,63 @@ pub const MAX_REGIONS: usize = 16;
 /// small amount of redundant fill.
 pub const REPAINT_ALL_THRESHOLD: f32 = 0.65;
 
+/// A rectangle of pixels that **moved** rather than changed.
+///
+/// A scroll does not repaint what it carries: the pixels a row occupied last
+/// frame are the pixels it occupies this frame, shifted. [`CopyRegion`] says so
+/// — `src` is where they are, `dst` is where they go, and `dst` is always
+/// `src` by the same whole-pixel [`Offset`] throughout the region's life.
+///
+/// # Why the delta must be whole-pixel
+///
+/// A copy moves *samples*, not geometry. A fractional shift would need to
+/// resample every pixel; a whole-pixel shift is a row-disciplined memmove that
+/// the CPU can do at memory speed. The grant that decides this lives in
+/// [`LayerTree::damage`](crate::LayerTree::damage); everything here trusts it.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CopyRegion {
+    /// The pixels to carry, pixel-aligned and on the surface.
+    pub src: Rect,
+    /// Where they land: `src` translated by the region's delta.
+    pub dst: Rect,
+}
+
+impl CopyRegion {
+    /// A region carrying `src` by `delta`.
+    #[must_use]
+    pub fn new(src: Rect, delta: Offset) -> Self {
+        Self {
+            src,
+            dst: Rect::new(
+                src.left + delta.dx,
+                src.top + delta.dy,
+                src.right + delta.dx,
+                src.bottom + delta.dy,
+            ),
+        }
+    }
+
+    /// The translation this region carries by.
+    #[must_use]
+    pub fn delta(&self) -> Offset {
+        Offset::new(
+            self.dst.left - self.src.left,
+            self.dst.top - self.src.top,
+        )
+    }
+
+    /// `true` when the two regions carry overlapping pixels the same way.
+    ///
+    /// Two copies of the *same* delta whose sources overlap must be one copy
+    /// — applied separately, the first would read the second's half-written
+    /// sources. Two of *different* deltas cannot both be right about the same
+    /// pixels, so the grant is what keeps them apart and this answers `false`.
+    fn overlaps_in_lockstep(&self, other: &Self) -> bool {
+        self.delta() == other.delta()
+            && (self.src.overlaps(other.src) || self.dst.overlaps(other.dst))
+    }
+}
+
 /// The regions of a surface that need repainting this frame.
 ///
 /// # Invariants
@@ -53,10 +110,16 @@ pub const REPAINT_ALL_THRESHOLD: f32 = 0.65;
 /// [`covered_area`](Self::covered_area) an exact sum rather than an
 /// over-estimate, and stops a hot region from being repainted several times in
 /// one frame.
+///
+/// A [`CopyRegion`](CopyRegion) is *not* repaint work — it is work already done
+/// — so copies never count toward [`covered_area`](Self::covered_area) or the
+/// repaint-everything threshold. They do count toward
+/// [`is_clean`](Self::is_clean): a frame with only copies still has to run.
 #[derive(Debug, Clone)]
 pub struct Damage {
     surface: Rect,
     regions: Vec<Rect>,
+    copies: Vec<CopyRegion>,
     everything: bool,
 }
 
@@ -67,6 +130,7 @@ impl Damage {
         Self {
             surface: surface.round_out(),
             regions: Vec::new(),
+            copies: Vec::new(),
             everything: false,
         }
     }
@@ -75,12 +139,13 @@ impl Damage {
     ///
     /// This is the correct starting state for the first frame, and after any
     /// event that invalidates the previous contents — a resize, a device loss, a
-    /// backend swap.
+    /// backend swap. There is nothing to carry and nothing to keep.
     #[must_use]
     pub fn everything(surface: Rect) -> Self {
         Self {
             surface: surface.round_out(),
             regions: Vec::new(),
+            copies: Vec::new(),
             everything: true,
         }
     }
@@ -159,7 +224,7 @@ impl Damage {
         if self.everything || rect.is_empty() {
             return;
         }
-        let mut rect = rect
+        let rect = rect
             .inflate(AA_BLEED)
             .round_out()
             .intersect(self.surface)
@@ -167,7 +232,36 @@ impl Damage {
         if rect.is_empty() {
             return;
         }
+        self.add_bled(rect);
+    }
 
+    /// [`add`](Self::add) for a rectangle that is already the exact ink extent.
+    ///
+    /// A translation vacates and exposes strips whose edges are the mover's own
+    /// pixel-aligned bounds — there is no antialiasing to bleed *inward from*.
+    /// Growing such a strip by [`AA_BLEED`] would push a one-pixel ring *into* the
+    /// copy that already carries those pixels correctly, and enough adjacent
+    /// strips' rings would merge into the mover's bounding box — past
+    /// [`REPAINT_ALL_THRESHOLD`], and the scroll that moved pixels starts
+    /// repainting them instead. The strips are exact; the bleed is for ink whose
+    /// reach runs past its geometry, not for geometry that already agrees with
+    /// the pixel grid.
+    ///
+    /// Still merged, still clipped, still counted toward the threshold — a strip
+    /// is real repaint work, just no wider than it has to be.
+    pub fn add_strip(&mut self, rect: Rect) {
+        if self.everything || rect.is_empty() {
+            return;
+        }
+        let rect = rect.round_out().intersect(self.surface).round_out();
+        if rect.is_empty() {
+            return;
+        }
+        self.add_bled(rect);
+    }
+
+    /// The shared tail of `add` and `add_strip`: merge, cap, and maybe abandon.
+    fn add_bled(&mut self, mut rect: Rect) {
         // Absorb every region this one touches. A union can reach a region the
         // original rectangle missed, so this repeats until nothing more merges.
         while let Some(index) = self.regions.iter().position(|region| region.overlaps(rect)) {
@@ -193,10 +287,62 @@ impl Damage {
         }
     }
 
+    /// Mark a region of pixels as carried to a new place rather than repainted.
+    ///
+    /// The source is clipped to the surface and the destination is **derived
+    /// from the clipped source plus the delta** — never clipped on its own:
+    /// clipping both sides independently slides the carried content by
+    /// whatever one side lost, and a copy that lands its rows a pixel off is
+    /// the smearing this whole mechanism exists to prevent. The destination is
+    /// then allowed to run off the surface; the backends clip the pair
+    /// jointly, carrying exactly the rows that land somewhere.
+    ///
+    /// Overlapping copies of the same delta are merged into one here, because
+    /// two applied separately read each other's half-written sources — the
+    /// union carries every pixel either would have, in one pass.
+    pub fn add_copy(&mut self, copy: CopyRegion) {
+        if self.everything || copy.src.is_empty() {
+            return;
+        }
+        let delta = copy.delta();
+        let src = copy.src.round_out().intersect(self.surface).round_out();
+        if src.is_empty() {
+            return;
+        }
+        let mut copy = CopyRegion::new(src, delta);
+        if copy.dst.is_empty() {
+            return;
+        }
+
+        // Absorb every lockstep copy this one touches, exactly as `add` absorbs
+        // regions — and for the same reason: never paint (or carry) the same
+        // pixels twice.
+        while let Some(index) = self
+            .copies
+            .iter()
+            .position(|existing| existing.overlaps_in_lockstep(&copy))
+        {
+            let existing = self.copies.swap_remove(index);
+            let src = copy.src.union(existing.src);
+            copy = CopyRegion::new(src, copy.delta());
+        }
+        self.copies.push(copy);
+    }
+
+    /// The copies to apply **before** repainting [`regions`](Self::regions).
+    ///
+    /// Empty exactly when a full repaint is pending — there is nothing to carry
+    /// onto a surface that is being redrawn whole.
+    #[must_use]
+    pub fn copies(&self) -> &[CopyRegion] {
+        &self.copies
+    }
+
     /// Abandon per-region tracking and repaint the whole surface.
     pub fn add_everything(&mut self) {
         self.everything = true;
         self.regions.clear();
+        self.copies.clear();
     }
 
     /// The regions to repaint, or the whole surface if tracking was abandoned.
@@ -246,9 +392,12 @@ impl Damage {
     }
 
     /// `true` if nothing needs repainting and the frame can be skipped entirely.
+    ///
+    /// A frame whose only change is a copy is *not* clean: the copy still has
+    /// to reach the backend, or the surface keeps last frame's arrangement.
     #[must_use]
     pub fn is_clean(&self) -> bool {
-        !self.everything && self.regions.is_empty()
+        !self.everything && self.regions.is_empty() && self.copies.is_empty()
     }
 
     /// `true` if the whole surface is being repainted.
@@ -271,6 +420,7 @@ impl Damage {
     /// Reset to clean, keeping the surface. Call once a frame is presented.
     pub fn clear(&mut self) {
         self.regions.clear();
+        self.copies.clear();
         self.everything = false;
     }
 
@@ -313,17 +463,21 @@ impl fmt::Display for Damage {
         if self.everything {
             return write!(f, "everything {}", self.surface);
         }
-        if self.regions.is_empty() {
+        if self.regions.is_empty() && self.copies.is_empty() {
             return f.write_str("clean");
         }
         let percent = 100.0 * self.covered_area() / self.surface.area().max(1.0);
         write!(
             f,
-            "{} region(s), {percent:.1}% of surface",
-            self.regions.len()
+            "{} region(s), {percent:.1}% of surface, {} copy(ies)",
+            self.regions.len(),
+            self.copies.len()
         )?;
         for region in &self.regions {
-            write!(f, "\n  {region}")?;
+            write!(f, "\n  repaint {region}")?;
+        }
+        for copy in &self.copies {
+            write!(f, "\n  carry {} -> {}", copy.src, copy.dst)?;
         }
         Ok(())
     }
@@ -669,5 +823,119 @@ mod tests {
         ]));
 
         assert_eq!(damage.regions().len(), 2, "{damage}");
+    }
+
+    // ---------------------------------------------------------- copies
+
+    #[test]
+    fn a_copy_is_real_work_but_not_repaint_area() {
+        let mut damage = damage();
+        damage.add_copy(CopyRegion::new(
+            Rect::new(0.0, 0.0, 100.0, 100.0),
+            Offset::new(0.0, 8.0),
+        ));
+
+        assert!(!damage.is_clean(), "the copy still has to reach the backend");
+        assert_eq!(damage.covered_area(), 0.0, "nothing is repainted");
+        assert_eq!(damage.regions().len(), 0);
+        assert_eq!(damage.copies().len(), 1);
+        assert_eq!(damage.copies()[0].dst, Rect::new(0.0, 8.0, 100.0, 108.0));
+    }
+
+    #[test]
+    fn overlapping_lockstep_copies_carry_together() {
+        let mut damage = damage();
+        damage.add_copy(CopyRegion::new(Rect::new(0.0, 0.0, 60.0, 40.0), Offset::new(0.0, 8.0)));
+        damage.add_copy(CopyRegion::new(Rect::new(0.0, 30.0, 60.0, 70.0), Offset::new(0.0, 8.0)));
+
+        assert_eq!(damage.copies().len(), 1, "{damage}");
+        assert_eq!(damage.copies()[0].src, Rect::new(0.0, 0.0, 60.0, 70.0));
+        assert_eq!(damage.copies()[0].delta(), Offset::new(0.0, 8.0));
+    }
+
+    #[test]
+    fn copies_of_different_deltas_never_merge() {
+        let mut damage = damage();
+        damage.add_copy(CopyRegion::new(Rect::new(0.0, 0.0, 60.0, 40.0), Offset::new(0.0, 8.0)));
+        damage.add_copy(CopyRegion::new(Rect::new(10.0, 10.0, 70.0, 50.0), Offset::new(8.0, 0.0)));
+
+        assert_eq!(damage.copies().len(), 2, "{damage}");
+    }
+
+    #[test]
+    fn a_copy_does_not_collapse_the_frame_into_a_full_repaint() {
+        let mut damage = damage();
+        // Carrying the whole surface is a memmove, not a raster: the threshold
+        // exists to drop per-region *repaint* overhead, which this has none of.
+        damage.add_copy(CopyRegion::new(SURFACE, Offset::new(0.0, 8.0)));
+
+        assert!(!damage.is_everything(), "{damage}");
+    }
+
+    #[test]
+    fn abandoning_tracking_drops_the_copies() {
+        let mut damage = damage();
+        damage.add_copy(CopyRegion::new(Rect::new(0.0, 0.0, 60.0, 40.0), Offset::new(0.0, 8.0)));
+        damage.add_everything();
+
+        assert!(damage.is_everything());
+        assert!(damage.copies().is_empty(), "{damage}");
+    }
+
+    #[test]
+    fn clearing_returns_copies_to_a_clean_frame() {
+        let mut damage = damage();
+        damage.add_copy(CopyRegion::new(Rect::new(0.0, 0.0, 60.0, 40.0), Offset::new(0.0, 8.0)));
+        damage.clear();
+
+        assert!(damage.is_clean(), "{damage}");
+    }
+
+    #[test]
+    fn a_copy_landing_off_surface_is_dropped_and_one_on_the_edge_is_clipped() {
+        let mut damage = damage();
+        // Entirely below the surface: nothing to carry to or from.
+        damage.add_copy(CopyRegion::new(
+            Rect::new(0.0, 2000.0, 100.0, 2040.0),
+            Offset::new(0.0, 8.0),
+        ));
+        assert!(damage.copies().is_empty(), "{damage}");
+
+        // Half off the right edge: the on-surface half still carries.
+        damage.add_copy(CopyRegion::new(Rect::new(950.0, 0.0, 1050.0, 40.0), Offset::new(0.0, 8.0)));
+        assert_eq!(damage.copies().len(), 1, "{damage}");
+        assert!(damage.copies()[0].src.right <= 1000.0, "{damage}");
+    }
+
+    // ---------------------------------------------------------- strips
+
+    #[test]
+    fn a_strip_is_exact_the_ink_itself_not_the_bleed() {
+        let mut damage = damage();
+        damage.add_strip(Rect::new(10.0, 10.0, 20.0, 20.0));
+
+        let region = damage.regions()[0];
+        assert_eq!(region, Rect::new(10.0, 10.0, 20.0, 20.0), "{damage}");
+    }
+
+    #[test]
+    fn strips_merge_and_clip_like_any_other_region() {
+        let mut damage = damage();
+        damage.add_strip(Rect::new(0.0, 0.0, 100.0, 8.0));
+        damage.add_strip(Rect::new(0.0, 6.0, 100.0, 14.0));
+        damage.add_strip(Rect::new(-50.0, 0.0, 40.0, 8.0));
+
+        assert_eq!(damage.regions().len(), 1, "{damage}");
+        assert_eq!(damage.regions()[0].left, 0.0, "clipped to the surface");
+        assert_eq!(damage.regions()[0].bottom, 14.0, "merged the touching strip");
+    }
+
+    #[test]
+    fn enough_strips_still_abandon_tracking() {
+        let mut damage = damage();
+        // 70% of the surface in strips is 70% of the surface to repaint.
+        damage.add_strip(Rect::new(0.0, 0.0, 1000.0, 700.0));
+
+        assert!(damage.is_everything(), "{damage}");
     }
 }

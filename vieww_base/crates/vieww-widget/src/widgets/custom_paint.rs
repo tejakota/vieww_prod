@@ -185,6 +185,20 @@ impl Widget for CustomPaint {
         "CustomPaint"
     }
 
+    /// The painter's own [`should_repaint`](CustomPainter::should_repaint) is
+    /// the comparison — a painter that carries its data in an `Rc` (an
+    /// identity-checked sparkline) compares by pointer in one `Rc::ptr_eq`,
+    /// and everything else answers honestly for itself. `false` means the
+    /// element keeps the painter it already has and nothing re-renders.
+    fn same_configuration(&self, other: &crate::WidgetNode) -> bool {
+        let Some(other) = other.downcast_ref::<Self>() else {
+            return false;
+        };
+        self.size == other.size
+            && (std::rc::Rc::ptr_eq(&self.painter, &other.painter)
+                || !other.painter.should_repaint(&*self.painter))
+    }
+
     fn kind(&self) -> WidgetKind<'_> {
         WidgetKind::Composed
     }

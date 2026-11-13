@@ -50,6 +50,20 @@ impl Widget for Constrained {
         "Constrained"
     }
 
+    /// The scroll path opts in: an unchanged subtree re-built by a parent that
+    /// *did* change costs a pointer comparison here instead of a rebuild.
+    ///
+    /// See [`Widget::same_configuration`] for the contract; every field is
+    /// compared, and the child through [`WidgetNode::interchangeable`], which
+    /// answers the same question reconciliation asks.
+    fn same_configuration(&self, other: &crate::WidgetNode) -> bool {
+        let Some(other) = other.downcast_ref::<Self>() else {
+            return false;
+        };
+        self.constraints == other.constraints
+            && crate::node::interchangeable_children(&self.child, &other.child)
+    }
+
     fn kind(&self) -> WidgetKind<'_> {
         match &self.child {
             Some(child) => WidgetKind::RenderSingleChild(child),
@@ -171,6 +185,21 @@ impl Default for SizedBox {
 impl Widget for SizedBox {
     fn debug_name(&self) -> &'static str {
         "SizedBox"
+    }
+
+    /// The scroll path opts in: an unchanged subtree re-built by a parent that
+    /// *did* change costs a pointer comparison here instead of a rebuild.
+    ///
+    /// See [`Widget::same_configuration`] for the contract; every field is
+    /// compared, and the child through [`WidgetNode::interchangeable`], which
+    /// answers the same question reconciliation asks.
+    fn same_configuration(&self, other: &crate::WidgetNode) -> bool {
+        let Some(other) = other.downcast_ref::<Self>() else {
+            return false;
+        };
+        self.width == other.width
+            && self.height == other.height
+            && crate::node::interchangeable_children(&self.child, &other.child)
     }
 
     fn kind(&self) -> WidgetKind<'_> {

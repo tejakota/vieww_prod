@@ -257,6 +257,51 @@ impl Target {
         });
     }
 
+    /// Carry a rectangle of this buffer's pixels to where it now belongs.
+    ///
+    /// The row-disciplined memmove: when the destination sits below the source
+    /// the rows move bottom-up, and top-down otherwise, so a move whose source
+    /// and destination overlap never reads a row an earlier row already wrote.
+    /// Within a row, `copy_within` makes the same guarantee for the columns.
+    ///
+    /// Both rectangles are the same size — a
+    /// [`CopyRegion`](super::super::CopyRegion) translates — and either side
+    /// may run off this buffer. The rows and columns that move are the ones
+    /// where **both** sides are inside: clipping source and destination
+    /// independently would slide the carried content by the amount one side
+    /// was trimmed, and a copy that lands its rows eight pixels from where
+    /// they belong is worse than no copy at all.
+    pub(crate) fn move_region(&mut self, src: (i32, i32, i32, i32), dst: (i32, i32, i32, i32)) {
+        let (sx0, sy0, sx1, sy1) = src;
+        let (dx0, dy0, dx1, dy1) = dst;
+        let rows_total = (sy1 - sy0).min(dy1 - dy0);
+        let cols_total = (sx1 - sx0).min(dx1 - dx0);
+        let (w, h) = (self.width as i32, self.height as i32);
+        // Row and column indices, relative to the rectangles' own origins,
+        // where both the source and the destination are on this buffer.
+        let r0 = (0 - sy0).max(0 - dy0).max(0);
+        let r1 = (h - sy0).min(h - dy0).min(rows_total);
+        let c0 = (0 - sx0).max(0 - dx0).max(0);
+        let c1 = (w - sx0).min(w - dx0).min(cols_total);
+        if r1 <= r0 || c1 <= c0 {
+            return;
+        }
+
+        let width = self.width as usize;
+        // Bottom-up when the rows move down: a row written early would be the
+        // source of a later one. Within a row, `copy_within` is a memmove and
+        // needs no help with columns.
+        let descending = dy0 > sy0;
+        for row in r0..r1 {
+            let r = if descending { r1 - 1 - (row - r0) } else { row };
+            let src_start = (sy0 + r) as usize * width + (sx0 + c0) as usize;
+            let src_end = src_start + (c1 - c0) as usize;
+            let dst_start = (dy0 + r) as usize * width + (dx0 + c0) as usize;
+            self.pixels.copy_within(src_start..src_end, dst_start);
+        }
+        self.mark_ink(dx0 + c0, dy0 + r0, dx0 + c1, dy0 + r1);
+    }
+
     /// Declare that every pixel of this buffer now counts as written — what
     /// the two layer filters do, since both read across the whole buffer and
     /// can turn a transparent pixel into a visible one.
