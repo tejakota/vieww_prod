@@ -392,3 +392,196 @@ fn the_oracle_catches_damage_that_is_too_small() {
 
     let _ = Offset::ZERO;
 }
+
+/// **A scroll that moves rows as pixels.** The copy machinery's own oracle:
+/// whole-pixel rows over a flat ground, eight pixels a frame, every row a
+/// repaint boundary. The grant fires — the rows are carried, only the vacated
+/// and exposed strips repaint — and the carried frame has to agree with a
+/// full repaint pixel for pixel, which is the property that makes carrying
+/// pixels legal at all.
+#[derive(Debug)]
+struct Scroller {
+    offset: Signal<f32>,
+}
+
+/// Row pitch: taller than the step, so the rows overlap their own trails.
+const SCROLL_ROW_H: f32 = 72.0;
+/// Pixels a frame: the whole-pixel step the grant requires.
+const SCROLL_STEP: f32 = 8.0;
+
+impl Widget for Scroller {
+    fn debug_name(&self) -> &'static str {
+        "Scroller"
+    }
+
+    fn kind(&self) -> WidgetKind<'_> {
+        WidgetKind::Composed
+    }
+
+    fn build(&self, _ctx: &BuildContext) -> WidgetNode {
+        let dy = self.offset.get();
+        let mut rows = Vec::new();
+        for i in 0..6usize {
+            let top = i as f32 * SCROLL_ROW_H - dy;
+            if top > -SCROLL_ROW_H && top < SURFACE.height {
+                rows.push(
+                    Positioned::new()
+                        .left(16.0)
+                        .top(top)
+                        .child(
+                            RepaintBoundary::new().child(
+                                ColoredBox::new(if i % 2 == 0 {
+                                    Color::rgb(235, 235, 235)
+                                } else {
+                                    Color::rgb(200, 205, 215)
+                                })
+                                .child(SizedBox::from_size(Size::new(
+                                    SURFACE.width - 32.0,
+                                    SCROLL_ROW_H - 8.0,
+                                ))),
+                            ),
+                        )
+                        .into(),
+                );
+            }
+        }
+        Container::new()
+            .color(GROUND)
+            .child(Stack::new().fit(StackFit::Expand).children(rows))
+            .into()
+    }
+}
+
+vieww::widget::widget_node_from!(Scroller);
+
+#[test]
+fn a_scroll_that_moves_rows_as_pixels_is_complete() {
+    let mut driver = FrameDriver::new(SURFACE);
+    let offset = driver.elements().runtime().signal(0.0f32);
+    driver.set_root(Scroller {
+        offset: offset.clone(),
+    });
+    driver.draw_frame();
+
+    let mut carried = 0usize;
+    let mut repainted_rows = 0usize;
+    assert_partial_repaint_is_complete(&mut driver, SURFACE, GROUND, 24, |driver, frame| {
+        offset.set(frame as f32 * SCROLL_STEP);
+        driver.draw_frame();
+        // The point of the frame: the rows travelled rather than repainted.
+        if driver.damage().copies().is_empty() {
+            repainted_rows += 1;
+        } else {
+            carried += 1;
+        }
+    });
+
+    assert!(
+        carried > 0,
+        "a whole-pixel scroll over a flat ground has to carry, or the grant never engaged"
+    );
+    // The frames that do not carry are structural, not refusals: frame zero
+    // sets the offset to the value it already has, and a row mounting or
+    // unmounting at the viewport's edge brings ink that has no last frame to
+    // carry from. Everything else — the long steady stretch of the scroll —
+    // moves as pixels.
+    assert_eq!(
+        repainted_rows, 3,
+        "the no-op first frame and the row entering and leaving the viewport are the only frames without a copy"
+    );
+}
+
+/// **A scroll under a static overlay.** The same scroll with one opaque bar
+/// parked across it: the overlay's ink reaches the swept rectangle and stays
+/// put, so the grant refuses and every frame repaints. The refusal is the safe
+/// direction, and the oracle here holds it to the same agreement a granted
+/// copy is held to — refused or carried, the screen must end up right.
+#[derive(Debug)]
+struct ScrollerUnderOverlay {
+    offset: Signal<f32>,
+}
+
+impl Widget for ScrollerUnderOverlay {
+    fn debug_name(&self) -> &'static str {
+        "ScrollerUnderOverlay"
+    }
+
+    fn kind(&self) -> WidgetKind<'_> {
+        WidgetKind::Composed
+    }
+
+    fn build(&self, _ctx: &BuildContext) -> WidgetNode {
+        let dy = self.offset.get();
+        let mut rows = Vec::new();
+        for i in 0..6usize {
+            let top = i as f32 * SCROLL_ROW_H - dy;
+            if top > -SCROLL_ROW_H && top < SURFACE.height {
+                rows.push(
+                    Positioned::new()
+                        .left(16.0)
+                        .top(top)
+                        .child(
+                            RepaintBoundary::new().child(
+                                ColoredBox::new(if i % 2 == 0 {
+                                    Color::rgb(235, 235, 235)
+                                } else {
+                                    Color::rgb(200, 205, 215)
+                                })
+                                .child(SizedBox::from_size(Size::new(
+                                    SURFACE.width - 32.0,
+                                    SCROLL_ROW_H - 8.0,
+                                ))),
+                            ),
+                        )
+                        .into(),
+                );
+            }
+        }
+        // The overlay: static ink across the rows' swept rectangle, painted
+        // above them and never moving — full height, so every row's swept
+        // rectangle reaches it and the grant has nothing it can honestly
+        // carry anywhere.
+        rows.push(
+            Positioned::new()
+                .left(40.0)
+                .top(0.0)
+                .child(
+                    ColoredBox::new(Color::rgb(240, 160, 90)).child(SizedBox::from_size(Size::new(
+                        120.0,
+                        SURFACE.height,
+                    ))),
+                )
+                .into(),
+        );
+        Container::new()
+            .color(GROUND)
+            .child(Stack::new().fit(StackFit::Expand).children(rows))
+            .into()
+    }
+}
+
+vieww::widget::widget_node_from!(ScrollerUnderOverlay);
+
+#[test]
+fn a_scroll_under_a_static_overlay_refuses_and_still_repaints_completely() {
+    let mut driver = FrameDriver::new(SURFACE);
+    let offset = driver.elements().runtime().signal(0.0f32);
+    driver.set_root(ScrollerUnderOverlay {
+        offset: offset.clone(),
+    });
+    driver.draw_frame();
+
+    let mut refused = 0usize;
+    assert_partial_repaint_is_complete(&mut driver, SURFACE, GROUND, 24, |driver, frame| {
+        offset.set(frame as f32 * SCROLL_STEP);
+        driver.draw_frame();
+        if driver.damage().copies().is_empty() {
+            refused += 1;
+        }
+    });
+
+    assert_eq!(
+        refused, 24,
+        "the overlay's ink reaches the swept rectangle and stays put: every frame refuses"
+    );
+}

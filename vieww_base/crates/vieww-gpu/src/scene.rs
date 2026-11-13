@@ -69,7 +69,7 @@ use crate::atlas::{Atlas, AtlasKey};
 use crate::image_atlas::{ImageAtlas, ImageSlot};
 use crate::mask_atlas::{MaskAtlas, MaskKey, MaskSlot};
 use crate::ramp_atlas::RampAtlas;
-use crate::tessellate::{tessellate_fill, tessellate_stroke};
+use crate::tessellate::{tessellate_fill, tessellate_stroke, TessellationCache};
 
 /// What a vertex's fragment computes. Carried in [`Vertex::texture_kind`].
 pub mod material {
@@ -527,6 +527,7 @@ pub struct Planner {
     ramps: RampAtlas,
     glyphs: GlyphCoverage,
     seam: GpuSeam,
+    tessellation: TessellationCache,
 }
 
 impl Planner {
@@ -557,6 +558,20 @@ impl Planner {
     #[must_use]
     pub const fn ramp_atlas(&self) -> &RampAtlas {
         &self.ramps
+    }
+
+    /// The tessellation cache's counters, so a test or a benchmark can see
+    /// whether lyon actually ran. A steady frame's whole claim is that it did
+    /// not.
+    #[must_use]
+    pub fn tessellation_stats(&self) -> (u64, u64, u64, usize, usize) {
+        (
+            self.tessellation.hits(),
+            self.tessellation.misses(),
+            self.tessellation.evictions(),
+            self.tessellation.bytes(),
+            self.tessellation.len(),
+        )
     }
 
     /// Plan `scene` for execution at `width` x `height` device pixels.
@@ -1193,7 +1208,11 @@ fn plan_primitive(
                     return;
                 }
             }
-            let mesh = tessellate_fill(&rect_path(*rect, *transform), TOLERANCE);
+            let path = rect_path(*rect, *transform);
+            let mesh = match planner.as_deref_mut() {
+                Some(p) => p.tessellation.fill(&path, TOLERANCE),
+                None => tessellate_fill(&path, TOLERANCE),
+            };
             emit_painted(
                 out,
                 planner,
@@ -1250,7 +1269,15 @@ fn plan_primitive(
                     return;
                 }
             }
-            let mesh = tessellate_fill(&transformed(path, *transform), TOLERANCE);
+            // The transform is baked into the path before tessellating, so the
+            // cache key is the device-space geometry — and the stroke's key
+            // stays transform-free because its site tessellates in local space
+            // instead. One convention per site, each for the cache's benefit.
+            let device_path = transformed(path, *transform);
+            let mesh = match planner.as_deref_mut() {
+                Some(p) => p.tessellation.fill(&device_path, TOLERANCE),
+                None => tessellate_fill(&device_path, TOLERANCE),
+            };
             emit_painted(
                 out,
                 planner,
@@ -1307,7 +1334,15 @@ fn plan_primitive(
                 .abs()
                 .sqrt()
                 .max(1e-3);
-            let mut mesh = tessellate_stroke(local, stroke, TOLERANCE / scale);
+            // **Local space is what makes this a cache hit under a scroll**: the
+            // key is the path and the stroke in the space the stroker works in,
+            // with no transform folded into either, so the same sparkline
+            // moving eight pixels a frame is the same key every frame and lyon
+            // runs once for the whole scroll.
+            let mut mesh = match planner.as_deref_mut() {
+                Some(p) => p.tessellation.stroke(local, stroke, TOLERANCE / scale),
+                None => tessellate_stroke(local, stroke, TOLERANCE / scale),
+            };
             for p in &mut mesh.positions {
                 let d = transform.apply(Offset::new(p[0], p[1]));
                 *p = [d.dx, d.dy];

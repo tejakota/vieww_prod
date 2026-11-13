@@ -51,6 +51,197 @@ impl Mesh {
     pub fn triangle_count(&self) -> usize {
         self.indices.len() / 3
     }
+
+    fn bytes(&self) -> usize {
+        self.positions.len() * 8 + self.indices.len() * 4
+    }
+}
+
+/// The byte budget a [`TessellationCache`] holds itself to.
+///
+/// Large enough that a full screen of rounded cards and sparklines is a
+/// rounding error against it, small enough that a pathological scene — an
+/// animated blob morphing ten thousand vertices a frame — cannot turn the
+/// planner into a memory leak with a lid on. A steady frame re-plans the
+/// same paths; the cache's job is to make that free, not to be infinite.
+pub const TESSELLATION_BUDGET: usize = 8 * 1024 * 1024;
+
+/// Every entry the cache can hold before the least recently used start
+/// leaving. The byte budget is the real ceiling; this is the floor that keeps
+/// the linear search a linear search and not a stroll.
+const MAX_ENTRIES: usize = 128;
+
+/// An LRU-budgeted memo of lyon's answers, keyed on everything lyon reads.
+///
+/// A steady frame re-plans the same paths — the sparkline that ticked, the
+/// card that did not — and lyon is the expensive thing in the planner.
+/// Keying on `(path, stroke, tolerance)` exactly makes a hit a proof rather
+/// than an approximation: the mesh a hit returns is the mesh the miss would
+/// have computed, because not one input differs.
+///
+/// # Why the key is the whole input, tolerance included
+///
+/// `tessellate_stroke` takes its tolerance scaled by the transform
+/// (`TOLERANCE / scale`), so a zoom changes the key and the cache answers
+/// honestly with a miss. Two scales, two meshes — the cache never returns a
+/// mesh computed at a coarser tolerance than the caller asked for.
+///
+/// # Why the stroke key is transform-free and the fill key is not
+///
+/// The stroke site tessellates in **local** space and transforms the vertices
+/// afterwards, so the same path under a translation or a steady scroll is the
+/// same key and the cache hits for every frame of the scroll — lyon never
+/// runs, which is the point. The fill sites bake the transform into the path
+/// before tessellating, so a fill's key moves with its geometry; a scrolled
+/// fill misses, and that is accepted, because a fill that reaches the
+/// tessellation fallback at all is the rare case — the analytic paths take
+/// the rectangles and the rounded cards long before this.
+#[derive(Debug)]
+pub struct TessellationCache {
+    /// Most recently used first.
+    entries: Vec<Entry>,
+    bytes: usize,
+    budget: usize,
+    hits: u64,
+    misses: u64,
+    evictions: u64,
+}
+
+#[derive(Debug)]
+struct Entry {
+    path: Path,
+    stroke: Option<Stroke>,
+    tolerance: f32,
+    mesh: Mesh,
+}
+
+impl Default for TessellationCache {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl TessellationCache {
+    /// A cache at the default [`TESSELLATION_BUDGET`].
+    #[must_use]
+    pub fn new() -> Self {
+        Self::with_budget(TESSELLATION_BUDGET)
+    }
+
+    /// A cache holding at most `budget` bytes of mesh.
+    #[must_use]
+    pub fn with_budget(budget: usize) -> Self {
+        Self {
+            entries: Vec::new(),
+            bytes: 0,
+            budget,
+            hits: 0,
+            misses: 0,
+            evictions: 0,
+        }
+    }
+
+    /// The fill mesh for `path` at `tolerance` — lyon's answer, or the one it
+    /// gave last time asked the identical question.
+    pub fn fill(&mut self, path: &Path, tolerance: f32) -> Mesh {
+        self.lookup(path, None, tolerance, tessellate_fill)
+    }
+
+    /// The stroke mesh for `path` under `stroke` at `tolerance`.
+    pub fn stroke(&mut self, path: &Path, stroke: &Stroke, tolerance: f32) -> Mesh {
+        self.lookup(path, Some(stroke), tolerance, |path, tolerance| {
+            tessellate_stroke(path, stroke, tolerance)
+        })
+    }
+
+    /// The shared shape of both entry points: find, promote, or compute and
+    /// admit with eviction.
+    fn lookup(
+        &mut self,
+        path: &Path,
+        stroke: Option<&Stroke>,
+        tolerance: f32,
+        compute: impl FnOnce(&Path, f32) -> Mesh,
+    ) -> Mesh {
+        if let Some(index) = self.entries.iter().position(|entry| {
+            &entry.path == path
+                && entry.stroke.as_ref() == stroke
+                && entry.tolerance == tolerance
+        }) {
+            self.hits += 1;
+            let mesh = self.entries[index].mesh.clone();
+            // Promote to the front, where the next probe's comparison starts.
+            let entry = self.entries.remove(index);
+            self.entries.insert(0, entry);
+            return mesh;
+        }
+
+        self.misses += 1;
+        let mesh = compute(path, tolerance);
+        let entry = Entry {
+            path: path.clone(),
+            stroke: stroke.cloned(),
+            tolerance,
+            mesh: mesh.clone(),
+        };
+        self.admit(entry);
+        mesh
+    }
+
+    /// Admit `entry`, evicting least-recently-used entries until the budget
+    /// holds. A single entry above the budget is kept rather than dropped —
+    /// an empty cache that misses every probe is a cache that exists only to
+    /// count failures, and the next distinct shape admits again and evicts
+    /// this one in the ordinary way.
+    fn admit(&mut self, entry: Entry) {
+        self.bytes += entry.mesh.bytes();
+        self.entries.insert(0, entry);
+        while (self.bytes > self.budget || self.entries.len() > MAX_ENTRIES)
+            && self.entries.len() > 1
+        {
+            let Some(evicted) = self.entries.pop() else {
+                break;
+            };
+            self.bytes = self.bytes.saturating_sub(evicted.mesh.bytes());
+            self.evictions += 1;
+        }
+    }
+
+    /// How many probes were answered without lyon running.
+    #[must_use]
+    pub const fn hits(&self) -> u64 {
+        self.hits
+    }
+
+    /// How many probes ran lyon.
+    #[must_use]
+    pub const fn misses(&self) -> u64 {
+        self.misses
+    }
+
+    /// How many entries the budget has retired.
+    #[must_use]
+    pub const fn evictions(&self) -> u64 {
+        self.evictions
+    }
+
+    /// The mesh bytes currently held.
+    #[must_use]
+    pub const fn bytes(&self) -> usize {
+        self.bytes
+    }
+
+    /// How many meshes are held.
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.entries.len()
+    }
+
+    /// Whether no mesh is held.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.entries.is_empty()
+    }
 }
 
 fn to_lyon_path(path: &Path) -> lyon::path::Path {
@@ -269,5 +460,100 @@ mod tests {
         );
         assert_eq!(points.first().copied(), Some(Offset::new(0.0, 0.0)));
         assert_eq!(points.last().copied(), Some(Offset::new(10.0, 0.0)));
+    }
+
+    // ------------------------------------------------- the cache
+
+    fn zigzag() -> Path {
+        let mut path = Path::new();
+        path.move_to(Offset::new(0.0, 0.0));
+        path.line_to(Offset::new(10.0, 6.0));
+        path.line_to(Offset::new(20.0, 0.0));
+        path.line_to(Offset::new(30.0, 6.0));
+        path
+    }
+
+    #[test]
+    fn a_steady_frame_is_a_cache_hit_and_lyon_does_not_run_again() {
+        let mut cache = TessellationCache::new();
+        let first = cache.fill(&square(), 0.1);
+        let second = cache.fill(&square(), 0.1);
+
+        assert_eq!(first, second, "a hit must return the miss's own mesh");
+        assert_eq!((cache.hits(), cache.misses()), (1, 1));
+    }
+
+    #[test]
+    fn a_changed_tolerance_is_an_honest_miss() {
+        let mut cache = TessellationCache::new();
+        let _ = cache.stroke(&zigzag(), &Stroke::new(2.0), 0.1);
+        let _ = cache.stroke(&zigzag(), &Stroke::new(2.0), 0.05);
+
+        // The zoom's coarser answer cannot stand in for the finer one, so the
+        // tolerance is part of the key and the cache says so.
+        assert_eq!((cache.hits(), cache.misses()), (0, 2));
+        assert_eq!(cache.len(), 2);
+    }
+
+    #[test]
+    fn the_stroke_key_is_transform_free() {
+        // The stroke site tessellates in local space and transforms the
+        // vertices afterwards — which is the whole reason a scrolling
+        // sparkline is a hit every frame. The cache cannot see the transform
+        // at all, and these two probes prove it: same path, same stroke, two
+        // different callers, one mesh.
+        let mut cache = TessellationCache::new();
+        let a = cache.stroke(&zigzag(), &Stroke::new(2.0), 0.1);
+        let b = cache.stroke(&zigzag(), &Stroke::new(2.0), 0.1);
+        assert_eq!((cache.hits(), cache.misses()), (1, 1));
+        assert_eq!(a, b);
+    }
+
+    #[test]
+    fn a_different_stroke_width_is_a_miss() {
+        let mut cache = TessellationCache::new();
+        let _ = cache.stroke(&zigzag(), &Stroke::new(2.0), 0.1);
+        let _ = cache.stroke(
+            &zigzag(),
+            &Stroke {
+                width: 4.0,
+                style: StrokeStyle::default(),
+            },
+            0.1,
+        );
+
+        assert_eq!((cache.hits(), cache.misses()), (0, 2));
+    }
+
+    #[test]
+    fn a_budget_evicts_the_least_recently_used() {
+        let mut cache = TessellationCache::with_budget(1);
+        let _ = cache.fill(&square(), 0.1);
+        assert_eq!(cache.len(), 1, "a lone entry above the budget is kept");
+        let _ = cache.fill(&zigzag(), 0.1);
+        assert_eq!(cache.len(), 1, "the second entry evicted the first");
+        assert_eq!(cache.evictions(), 1);
+    }
+
+    #[test]
+    fn an_entry_evicted_by_the_budget_is_an_honest_miss_again() {
+        let mut cache = TessellationCache::with_budget(1);
+        // A lone entry above the budget is kept rather than dropped.
+        let _ = cache.fill(&square(), 0.1);
+        assert_eq!(cache.len(), 1);
+        // Probing it is still a hit: the budget never evicted it.
+        let _ = cache.fill(&square(), 0.1);
+        assert_eq!(cache.hits(), 1);
+
+        // A second shape does not fit, and the first has to go — so asking
+        // for the first again is a miss, not a hit on an entry that is no
+        // longer held. An LRU that answered from an evicted mesh would be a
+        // cache that invents geometry.
+        let _ = cache.fill(&zigzag(), 0.1);
+        assert_eq!(cache.len(), 1);
+        assert_eq!(cache.evictions(), 1);
+        let _ = cache.fill(&square(), 0.1);
+        assert_eq!((cache.hits(), cache.misses()), (1, 3));
+        assert_eq!(cache.evictions(), 2);
     }
 }

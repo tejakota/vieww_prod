@@ -9,7 +9,10 @@
 //! continuous phase is `seconds × 60` frames, an event phase one frame, and an
 //! idle phase checks that nothing is rebuilt. Every frame is timed in two
 //! parts — build (rebuild + layout + flatten into a scene) and raster (the
-//! scene to pixels) — so the numbers say where a frame's cost is.
+//! damaged scene regions into the renderer's retained pixels) — so the numbers
+//! say where a frame's cost is. This is the same `render_retained_in_place`
+//! path Android uses, rather than a full-surface raster that hides the value
+//! of repaint boundaries and damage tracking.
 //!
 //! A development tool: the phone run (`examples/android.rs`) is the comparison.
 //! Writes `OUT_DIR/vieww-desktop.jsonl` (one JSON object per phase),
@@ -54,14 +57,15 @@ fn main() {
 
     let mut jsonl = String::new();
     println!(
-        "{:<15} {:>6} {:>22} {:>22} {:>9} {:>9}",
-        "phase", "frames", "build ms med/p95/max", "raster ms med/p95/max", "fps@cpu", "rebuilt%"
+        "{:<15} {:>6} {:>22} {:>22} {:>9} {:>9} {:>9}",
+        "phase", "frames", "build ms med/p95/max", "raster ms med/p95/max", "fps@cpu", "rebuilt%", "damage%"
     );
     for (name, load, seconds) in schedule(thermal) {
         let frames = if load.continuous() { (seconds * HZ) as usize } else { 1 };
         let rebuilds_before = driver.scene_rebuilds();
         let mut build = Vec::with_capacity(frames);
         let mut raster = Vec::with_capacity(frames);
+        let mut damaged = Vec::with_capacity(frames);
         let mut built = 0usize;
         let mut total = 0usize;
         let wall = Instant::now();
@@ -82,9 +86,13 @@ fn main() {
                 continue; // nothing to raster: the point is that nothing ran
             }
             let t = Instant::now();
+            let damage = driver.damage();
+            damaged.push(f64::from(
+                100.0 * damage.covered_area() / damage.surface().area().max(1.0),
+            ));
             renderer
-                .render_in_place(driver.scene(), w, h, Color::WHITE)
-                .expect("rasterising through vieww's own renderer");
+                .render_retained_in_place(driver.scene(), damage, w, h, Color::WHITE)
+                .expect("rasterising damaged regions through vieww's retained renderer");
             raster.push(t.elapsed().as_secs_f64() * 1e3);
         }
         let wall = wall.elapsed().as_secs_f64();
@@ -100,8 +108,9 @@ fn main() {
         let work: f64 = build.iter().sum::<f64>() + raster.iter().sum::<f64>();
         let fps = if work > 0.0 { frames as f64 / (work / 1e3) } else { 0.0 };
         let rebuilt = if total > 0 { 100.0 * built as f64 / total as f64 } else { 0.0 };
+        let damage = if damaged.is_empty() { 0.0 } else { damaged.iter().sum::<f64>() / damaged.len() as f64 };
         println!(
-            "{name:<15} {frames:>6} {:>22} {:>22} {fps:>9.1} {rebuilt:>8.1}%{}",
+            "{name:<15} {frames:>6} {:>22} {:>22} {fps:>9.1} {rebuilt:>8.1}% {damage:>8.1}%{}",
             format!("{bm:.2}/{b95:.2}/{bmax:.2}"),
             if raster.is_empty() { "-".into() } else { format!("{rm:.2}/{r95:.2}/{rmax:.2}") },
             if load == Load::Idle { format!("  (scene rebuilds while idle: {idle_rebuilds})") } else { String::new() }
@@ -110,7 +119,7 @@ fn main() {
             jsonl,
             "{{\"framework\":\"vieww\",\"leg\":\"desktop-cpu\",\"phase\":\"{name}\",\"rows\":{},\"frames\":{frames},\
 \"build_ms\":[{bm:.3},{b95:.3},{b99:.3},{bmax:.3}],\"raster_ms\":[{rm:.3},{r95:.3},{r99:.3},{rmax:.3}],\
-\"work_fps\":{fps:.2},\"rebuilt_pct\":{rebuilt:.2},\"idle_rebuilds\":{idle_rebuilds},\"wall_s\":{wall:.3}}}",
+\"work_fps\":{fps:.2},\"rebuilt_pct\":{rebuilt:.2},\"damage_pct\":{damage:.2},\"idle_rebuilds\":{idle_rebuilds},\"wall_s\":{wall:.3}}}",
             model.rows()
         );
     }

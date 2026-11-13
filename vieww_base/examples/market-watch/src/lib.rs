@@ -15,9 +15,12 @@ use std::cell::Cell;
 use std::rc::Rc;
 
 use vieww_element::{Runtime, Signal};
-use vieww_foundation::{Color, Constraints, EdgeInsets, Gradient, Offset, Shadow, Size};
+use vieww_foundation::{
+    Color, Constraints, EdgeInsets, Gradient, Offset, Path, Shadow, Size, Sketchbook, StrokeStyle,
+};
+use vieww_text::TextOverflow;
 use vieww_widget::prelude::*;
-use vieww_widget::{CustomPaint, CustomPainter, DrawInstruction, ListView, Scrollable};
+use vieww_widget::{ListView, Painter, Painting, Scrollable};
 
 /// Row pitch: a 70px card plus 5px above and below.
 pub const ROW_H: f32 = 80.0;
@@ -110,9 +113,12 @@ pub fn tick_quote(q: &mut Quote, index: usize) {
     let n = h.len();
     let rose = h[n - 1] >= h[n - 2];
     let last = h[n - 1];
-    h.remove(0);
+    // Keep the allocation and pointer replacement (the painter uses `Rc`
+    // identity for invalidation), but avoid `remove(0)` + `push`: one in-place
+    // move and one overwrite, with no length/capacity bookkeeping between them.
+    h.copy_within(1.., 0);
     let size = 1.0 + (index % 3) as f32 * 0.01; // 1.00, 1.01, 1.02
-    h.push(if rose { last * (0.95 / size) } else { last * (1.06 * size) });
+    h[n - 1] = if rose { last * (0.95 / size) } else { last * (1.06 * size) };
     q.hist = Rc::new(h);
 }
 
@@ -125,6 +131,11 @@ pub struct Model {
     pub quotes: Signal<Rc<Vec<Signal<Quote>>>>,
     pub total: Signal<f32>,
     pub offset: Signal<f32>,
+    /// The row count, written by `load` alone. The screen `peek`s the list
+    /// itself — the count is the only part of it the header shows — so this is
+    /// the narrow signal that keeps "2000 live tickers" true without the
+    /// screen subscribing to every tick of the list it holds.
+    pub count: Signal<usize>,
     ticks: Rc<Cell<usize>>,
 }
 
@@ -136,6 +147,7 @@ impl Model {
             quotes: runtime.signal(Rc::new(Vec::new())),
             total: runtime.signal(0.0),
             offset: runtime.signal(0.0),
+            count: runtime.signal(0),
             ticks: Rc::new(Cell::new(0)),
         };
         model.load(rows);
@@ -150,6 +162,7 @@ impl Model {
         self.total.set(quotes.iter().map(|q| q.with(Quote::price)).sum());
         self.quotes.set(Rc::new(quotes));
         self.offset.set(0.0);
+        self.count.set(rows);
         self.ticks.set(0);
     }
 
@@ -209,13 +222,33 @@ impl Model {
 
 // ---------------------------------------------------------- sparkline
 
+/// The sparkline as one stroked path: round joins, round caps, a single
+/// stroke through the [`Painting`] widget.
+///
+/// It used to be thirty-one segment rectangles with their joints showing —
+/// the `DrawLine` fan a `CustomPaint` composes to — and the build cost of a
+/// row carried all thirty-one of them. One path is one record and one draw,
+/// and `should_repaint` by `Rc` identity means a scroll that did not tick the
+/// row re-records nothing at all.
 struct Spark {
     hist: Rc<Vec<f32>>,
     color: Color,
 }
 
-impl CustomPainter for Spark {
-    fn paint(&self, size: Size) -> Vec<DrawInstruction> {
+// By hand, like `CustomPaint`'s own: `dyn Painter` is not `Debug`, and the
+// history is the whole payload — printing 32 numbers where an identity check
+// suffices would just be noise.
+impl std::fmt::Debug for Spark {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Spark")
+            .field("hist", &self.hist.len())
+            .field("color", &self.color)
+            .finish()
+    }
+}
+
+impl Painter for Spark {
+    fn paint(&self, book: &mut Sketchbook, size: Size) {
         let (lo, hi) = self
             .hist
             .iter()
@@ -228,21 +261,202 @@ impl CustomPainter for Spark {
                 size.height - (self.hist[i] - lo) / span * (size.height - 2.0) - 1.0,
             )
         };
-        (1..self.hist.len())
-            .map(|i| DrawInstruction::DrawLine { from: pt(i - 1), to: pt(i), color: self.color, width: 1.6 })
-            .collect()
+        let mut path = Path::new();
+        path.move_to(pt(0));
+        for i in 1..self.hist.len() {
+            path.line_to(pt(i));
+        }
+        book.stroke_styled(path, self.color, 1.6, StrokeStyle::rounded());
     }
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-    fn should_repaint(&self, prev: &dyn CustomPainter) -> bool {
+
+    fn should_repaint(&self, prev: &dyn Painter) -> bool {
         prev.as_any()
             .downcast_ref::<Spark>()
             .is_none_or(|p| !Rc::ptr_eq(&p.hist, &self.hist))
     }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 // --------------------------------------------------------------- row
+
+/// The avatar and company labels do not subscribe to the quote. A live price
+/// update therefore leaves this static half of the row out of reconciliation,
+/// like a Valdi child component whose view model did not change.
+#[derive(Debug)]
+struct RowAvatar {
+    quote: Signal<Quote>,
+    compact: bool,
+}
+
+impl Widget for RowAvatar {
+    fn debug_name(&self) -> &'static str {
+        "RowAvatar"
+    }
+
+    fn kind(&self) -> WidgetKind<'_> {
+        WidgetKind::Composed
+    }
+
+    fn build(&self, _ctx: &BuildContext) -> WidgetNode {
+        // `peek`, deliberately: identity is replaced with the row, not ticked.
+        let q = self.quote.peek();
+        let side = if self.compact { 36.0 } else { 40.0 };
+        Clip::rounded(side / 2.0)
+            .child(Container::new().color(q.hue).child(SizedBox::square(side).child(
+                Center::new().child(
+                    Text::new(&q.symbol[..2])
+                        .color(Color::WHITE)
+                        .size(if self.compact { 13.0 } else { 14.0 })
+                        .bold(),
+                ),
+            )))
+            .into()
+    }
+
+    fn same_configuration(&self, other: &WidgetNode) -> bool {
+        let Some(other) = other.downcast_ref::<Self>() else {
+            return false;
+        };
+        self.quote.id() == other.quote.id() && self.compact == other.compact
+    }
+}
+vieww::widget::widget_node_from!(RowAvatar);
+
+#[derive(Debug)]
+struct RowIdentity {
+    quote: Signal<Quote>,
+}
+
+impl Widget for RowIdentity {
+    fn debug_name(&self) -> &'static str {
+        "RowIdentity"
+    }
+
+    fn kind(&self) -> WidgetKind<'_> {
+        WidgetKind::Composed
+    }
+
+    fn build(&self, _ctx: &BuildContext) -> WidgetNode {
+        let q = self.quote.peek();
+        // This must remain the Flexible's composed parent: Flexible only works
+        // as a direct child of the row's RenderFlex.
+        Flexible::expanded(1)
+            .child(Constrained::new(Constraints::tight_for_height(40.0)).child(
+                Flex::column()
+                    .cross_axis_alignment(CrossAxisAlignment::Start)
+                    .spacing(2.0)
+                    .children(children![
+                        Text::new(&q.symbol)
+                            .color(INK)
+                            .size(16.0)
+                            .bold()
+                            .max_lines(1)
+                            .overflow(TextOverflow::Ellipsis),
+                        Text::new(&q.name)
+                            .color(MUTED)
+                            .size(12.0)
+                            .max_lines(1)
+                            .overflow(TextOverflow::Ellipsis),
+                    ]),
+            ))
+            .into()
+    }
+
+    fn same_configuration(&self, other: &WidgetNode) -> bool {
+        let Some(other) = other.downcast_ref::<Self>() else {
+            return false;
+        };
+        self.quote.id() == other.quote.id()
+    }
+}
+vieww::widget::widget_node_from!(RowIdentity);
+
+#[derive(Debug)]
+struct LiveSpark {
+    quote: Signal<Quote>,
+    width: f32,
+}
+
+impl Widget for LiveSpark {
+    fn debug_name(&self) -> &'static str {
+        "LiveSpark"
+    }
+
+    fn kind(&self) -> WidgetKind<'_> {
+        WidgetKind::Composed
+    }
+
+    fn build(&self, _ctx: &BuildContext) -> WidgetNode {
+        let q = self.quote.get();
+        let tone = if q.change() >= 0.0 { UP } else { DOWN };
+        // One stroked path, not thirty-one rectangles: the build cost of a row
+        // drops with the fan, and the painter's `Rc` identity check keeps a
+        // scroll that did not tick this row from re-recording it.
+        Painting::sized(Size::new(self.width, 36.0), Spark { hist: q.hist.clone(), color: tone })
+            .into()
+    }
+
+    fn same_configuration(&self, other: &WidgetNode) -> bool {
+        let Some(other) = other.downcast_ref::<Self>() else {
+            return false;
+        };
+        self.quote.id() == other.quote.id() && self.width == other.width
+    }
+}
+vieww::widget::widget_node_from!(LiveSpark);
+
+#[derive(Debug)]
+struct LiveMoney {
+    quote: Signal<Quote>,
+    compact: bool,
+}
+
+impl Widget for LiveMoney {
+    fn debug_name(&self) -> &'static str {
+        "LiveMoney"
+    }
+
+    fn kind(&self) -> WidgetKind<'_> {
+        WidgetKind::Composed
+    }
+
+    fn build(&self, _ctx: &BuildContext) -> WidgetNode {
+        let q = self.quote.get();
+        let ch = q.change();
+        let tone = if ch >= 0.0 { UP } else { DOWN };
+        let pill = Container::new()
+            .decoration(BoxDecoration::new().color(tone).radius(8.0))
+            .padding(EdgeInsets::symmetric(if self.compact { 6.0 } else { 8.0 }, 3.0))
+            .child(Text::new(format!("{ch:+.2}%")).color(Color::WHITE).size(12.0));
+        SizedBox::from_size(Size::new(if self.compact { 96.0 } else { 120.0 }, 46.0))
+            .child(
+                Flex::column()
+                    .cross_axis_alignment(CrossAxisAlignment::End)
+                    .spacing(4.0)
+                    .children(children![
+                        Text::new(format!("${:.2}", q.price()))
+                            .color(INK)
+                            .size(if self.compact { 15.0 } else { 16.0 })
+                            .bold()
+                            .max_lines(1)
+                            .overflow(TextOverflow::Ellipsis),
+                        pill,
+                    ]),
+            )
+            .into()
+    }
+
+    fn same_configuration(&self, other: &WidgetNode) -> bool {
+        let Some(other) = other.downcast_ref::<Self>() else {
+            return false;
+        };
+        self.quote.id() == other.quote.id() && self.compact == other.compact
+    }
+}
+vieww::widget::widget_node_from!(LiveMoney);
 
 #[derive(Debug)]
 struct Row {
@@ -254,45 +468,17 @@ impl Widget for Row {
     fn debug_name(&self) -> &'static str {
         "Row"
     }
+
     fn kind(&self) -> WidgetKind<'_> {
         WidgetKind::Composed
     }
+
     fn build(&self, _ctx: &BuildContext) -> WidgetNode {
-        let q = self.quote.get(); // subscribes this row, and only this row
-        let ch = q.change();
-        let tone = if ch >= 0.0 { UP } else { DOWN };
-        // The middle column takes what the fixed parts leave, so the row fits
-        // a 360dp phone as well as the 720px headless frame.
-        let fixed = 28.0 + 40.0 + 120.0 + 120.0 + 3.0 * 12.0;
-        let names_w = (self.width - fixed).max(60.0);
-        let avatar = Clip::rounded(20.0).child(Container::new().color(q.hue).child(
-            SizedBox::square(40.0).child(
-                Center::new().child(Text::new(&q.symbol[..2]).color(Color::WHITE).size(14.0).bold()),
-            ),
-        ));
-        let names = SizedBox::from_size(Size::new(names_w, 40.0)).child(
-            Flex::column()
-                .cross_axis_alignment(CrossAxisAlignment::Start)
-                .spacing(2.0)
-                .children(children![
-                    Text::new(&q.symbol).color(INK).size(16.0).bold(),
-                    Text::new(&q.name).color(MUTED).size(12.0),
-                ]),
-        );
-        let spark = CustomPaint::sized(Size::new(120.0, 36.0), Spark { hist: q.hist.clone(), color: tone });
-        let pill = Container::new()
-            .decoration(BoxDecoration::new().color(tone).radius(8.0))
-            .padding(EdgeInsets::symmetric(8.0, 3.0))
-            .child(Text::new(format!("{ch:+.2}%")).color(Color::WHITE).size(12.0));
-        let money = SizedBox::from_size(Size::new(120.0, 46.0)).child(
-            Flex::column()
-                .cross_axis_alignment(CrossAxisAlignment::End)
-                .spacing(4.0)
-                .children(children![
-                    Text::new(format!("${:.2}", q.price())).color(INK).size(16.0).bold(),
-                    pill,
-                ]),
-        );
+        // A fixed-width centre column used to force a 60px minimum and overflow
+        // the 393dp phone by exactly 51px. Flexible gives the centre only the
+        // space that remains; the compact fixed columns leave it useful width.
+        let compact = self.width < 500.0;
+        let gap = if compact { 8.0 } else { 12.0 };
         Padding::new(EdgeInsets::symmetric(0.0, 5.0))
             .child(
                 Container::new()
@@ -306,11 +492,23 @@ impl Widget for Row {
                     .child(
                         Flex::row()
                             .cross_axis_alignment(CrossAxisAlignment::Center)
-                            .spacing(12.0)
-                            .children(children![avatar, names, spark, money]),
+                            .spacing(gap)
+                            .children(children![
+                                RowAvatar { quote: self.quote.clone(), compact },
+                                RowIdentity { quote: self.quote.clone() },
+                                LiveSpark { quote: self.quote.clone(), width: if compact { 72.0 } else { 120.0 } },
+                                LiveMoney { quote: self.quote.clone(), compact },
+                            ]),
                     ),
             )
             .into()
+    }
+
+    fn same_configuration(&self, other: &WidgetNode) -> bool {
+        let Some(other) = other.downcast_ref::<Self>() else {
+            return false;
+        };
+        self.quote.id() == other.quote.id() && self.width == other.width
     }
 }
 vieww::widget::widget_node_from!(Row);
@@ -318,9 +516,43 @@ vieww::widget::widget_node_from!(Row);
 // ------------------------------------------------------------ header
 
 #[derive(Debug)]
+struct PortfolioValue {
+    total: Signal<f32>,
+}
+
+impl Widget for PortfolioValue {
+    fn debug_name(&self) -> &'static str {
+        "PortfolioValue"
+    }
+
+    fn kind(&self) -> WidgetKind<'_> {
+        WidgetKind::Composed
+    }
+
+    fn build(&self, _ctx: &BuildContext) -> WidgetNode {
+        Text::new(format!("${:.2}", self.total.get()))
+            .color(Color::WHITE)
+            .size(32.0)
+            .bold()
+            .into()
+    }
+
+    fn same_configuration(&self, other: &WidgetNode) -> bool {
+        let Some(other) = other.downcast_ref::<Self>() else {
+            return false;
+        };
+        self.total.id() == other.total.id()
+    }
+}
+vieww::widget::widget_node_from!(PortfolioValue);
+
+#[derive(Debug)]
 struct Header {
     total: Signal<f32>,
-    rows: usize,
+    /// The row count, as its own narrow signal — written by `load` alone, so
+    /// a tick that moves the total never wakes the line that shows the count,
+    /// and a load that changes it never has to wake the screen.
+    count: Signal<usize>,
 }
 impl Widget for Header {
     fn debug_name(&self) -> &'static str {
@@ -346,11 +578,18 @@ impl Widget for Header {
                     .spacing(6.0)
                     .children(children![
                         Text::new("Portfolio value").color(soft).size(13.0),
-                        Text::new(format!("${:.2}", self.total.get())).color(Color::WHITE).size(32.0).bold(),
-                        Text::new(format!("{} live tickers · virtualised", self.rows)).color(soft).size(12.0),
+                        PortfolioValue { total: self.total.clone() },
+                        Text::new(format!("{} live tickers · virtualised", self.count.get())).color(soft).size(12.0),
                     ]),
             )
             .into()
+    }
+
+    fn same_configuration(&self, other: &WidgetNode) -> bool {
+        let Some(other) = other.downcast_ref::<Self>() else {
+            return false;
+        };
+        self.total.id() == other.total.id() && self.count.id() == other.count.id()
     }
 }
 vieww::widget::widget_node_from!(Header);
@@ -365,6 +604,7 @@ pub struct Screen {
     model_quotes: Signal<Rc<Vec<Signal<Quote>>>>,
     total: Signal<f32>,
     offset: Signal<f32>,
+    count: Signal<usize>,
     size: Size,
 }
 
@@ -374,7 +614,13 @@ pub const CHROME_H: f32 = 170.0;
 impl Screen {
     #[must_use]
     pub fn new(model: &Model, size: Size) -> Self {
-        Self { model_quotes: model.quotes.clone(), total: model.total.clone(), offset: model.offset.clone(), size }
+        Self {
+            model_quotes: model.quotes.clone(),
+            total: model.total.clone(),
+            offset: model.offset.clone(),
+            count: model.count.clone(),
+            size,
+        }
     }
     /// The list's viewport height, for [`Model::visible`].
     #[must_use]
@@ -397,18 +643,19 @@ impl Widget for Screen {
         WidgetKind::Composed
     }
     fn build(&self, _ctx: &BuildContext) -> WidgetNode {
-        let quotes = self.model_quotes.get();
-        let rows = quotes.len();
+        // The screen subscribes to nothing. The row count travels in the
+        // header's own narrow signal, the scrolling and the quotes belong to
+        // [`ScrolledList`], and the total to the number under it. A scrolled
+        // frame rebuilds the list and nothing above it; a tick rebuilds its
+        // row; a load wakes the header's count line, the total and the list,
+        // and never the screen itself.
         let width = self.size.width - 40.0;
-        let list = Constrained::new(Constraints::tight(Size::new(width, Self::viewport(self.size)))).child(
-            Scrollable::vertical(self.offset.get()).child(ListView::new(
-                rows,
-                ROW_H,
-                Rc::new(move |i: usize| {
-                    RepaintBoundary::new().child(Row { quote: quotes[i].clone(), width }).into()
-                }),
-            )),
-        );
+        let list = ScrolledList {
+            quotes: self.model_quotes.clone(),
+            offset: self.offset.clone(),
+            width,
+            viewport: Self::viewport(self.size),
+        };
         Container::new()
             .color(BG)
             .padding(EdgeInsets::all(20.0))
@@ -416,12 +663,79 @@ impl Widget for Screen {
                 Flex::column()
                     .cross_axis_alignment(CrossAxisAlignment::Stretch)
                     .spacing(16.0)
-                    .children(children![Header { total: self.total.clone(), rows }, list]),
+                    .children(children![
+                        Header { total: self.total.clone(), count: self.count.clone() },
+                        list,
+                    ]),
             )
             .into()
     }
+
+    fn same_configuration(&self, other: &WidgetNode) -> bool {
+        let Some(other) = other.downcast_ref::<Self>() else {
+            return false;
+        };
+        self.model_quotes.id() == other.model_quotes.id()
+            && self.total.id() == other.total.id()
+            && self.offset.id() == other.offset.id()
+            && self.count.id() == other.count.id()
+            && self.size == other.size
+    }
 }
 vieww::widget::widget_node_from!(Screen);
+
+/// The list and its scroll, as one subscription boundary.
+///
+/// Owning the offset signal is the whole point: before it lived here it woke
+/// the entire screen for every eight-pixel step — the header rebuilt, the
+/// screen's `Flex` and `Container` descriptions churned, and every row's
+/// widget allocation was reconstructed only to be recognised as the same
+/// thing. Now a scroll wakes exactly this element, and the rows beneath it
+/// hold still through [`same_configuration`](Widget::same_configuration).
+#[derive(Debug)]
+struct ScrolledList {
+    quotes: Signal<Rc<Vec<Signal<Quote>>>>,
+    offset: Signal<f32>,
+    width: f32,
+    viewport: f32,
+}
+
+impl Widget for ScrolledList {
+    fn debug_name(&self) -> &'static str {
+        "ScrolledList"
+    }
+
+    fn kind(&self) -> WidgetKind<'_> {
+        WidgetKind::Composed
+    }
+
+    fn build(&self, _ctx: &BuildContext) -> WidgetNode {
+        let quotes = self.quotes.get();
+        let rows = quotes.len();
+        let width = self.width;
+        Constrained::new(Constraints::tight(Size::new(self.width, self.viewport))).child(
+            Scrollable::vertical(self.offset.get()).child(ListView::new(
+                rows,
+                ROW_H,
+                Rc::new(move |i: usize| {
+                    RepaintBoundary::new().child(Row { quote: quotes[i].clone(), width }).into()
+                }),
+            )),
+        )
+        .into()
+    }
+
+    fn same_configuration(&self, other: &WidgetNode) -> bool {
+        let Some(other) = other.downcast_ref::<Self>() else {
+            return false;
+        };
+        self.quotes.id() == other.quotes.id()
+            && self.offset.id() == other.offset.id()
+            && self.width == other.width
+            && self.viewport == other.viewport
+    }
+}
+vieww::widget::widget_node_from!(ScrolledList);
 
 // ---------------------------------------------------------- scripted load
 
@@ -535,5 +849,43 @@ mod tests {
             assert_eq!(q[i].symbol, symbol, "row {i} symbol");
             assert!((q[i].price() - price).abs() < 0.006, "row {i}: {} vs Valdi's {price}", q[i].price());
         }
+    }
+
+    #[test]
+    fn a_tick_preserves_history_length_and_signal_identity_semantics() {
+        let mut rng = Lcg::new();
+        let mut q = make_quote(7, &mut rng);
+        let old = q.hist.clone();
+        let price = q.price();
+        let rose = price >= old[old.len() - 2];
+
+        tick_quote(&mut q, 7);
+
+        assert_eq!(q.hist.len(), POINTS);
+        assert!(!Rc::ptr_eq(&old, &q.hist), "the painter must see a new history");
+        assert_eq!(&q.hist[..POINTS - 1], &old[1..]);
+        let size = 1.0 + (7 % 3) as f32 * 0.01;
+        let expected = if rose { price * (0.95 / size) } else { price * (1.06 * size) };
+        assert!((q.price() - expected).abs() < f32::EPSILON * expected.abs().max(1.0));
+    }
+
+    #[test]
+    fn phone_rows_do_not_overflow() {
+        use vieww_render::{overflow, FrameDriver};
+
+        // 320: the narrow phone; 393: the Redmi the comparison runs on; 411:
+        // the widest common phone. The Flexible centre column has to keep the
+        // row inside all three, or the layout gate is a coincidence of two
+        // widths rather than a gate.
+        for width in [393.0, 320.0, 411.0] {
+            overflow::forget_reported();
+            let size = Size::new(width, 851.0);
+            let mut driver = FrameDriver::new(size);
+            let model = Model::new(driver.elements().runtime(), 2);
+            driver.elements().set_root(Screen::new(&model, size));
+            driver.draw_frame();
+            assert_eq!(overflow::reported(), 0, "row overflow at {width}dp");
+        }
+        overflow::forget_reported();
     }
 }
