@@ -108,6 +108,10 @@ struct Report {
     amp_spread_db: f64,
     phase_spread: f64,
     worst_window_snr_db: f64,
+    /// The loop's two clock rates, as a phase slope: rad/s at the test
+    /// tone. A few tens of ppm through a shared-mode virtual cable is
+    /// the device being a device; whole rad/s is a rate mismatch.
+    drift_rad_s: f64,
 }
 
 impl Report {
@@ -135,8 +139,14 @@ impl Report {
         );
         assert!(
             self.phase_spread < 0.05,
-            "{what}: phase moved {:.3} rad — frames were dropped or repeated",
+            "{what}: phase jumped {:.3} rad — frames were dropped or repeated",
             self.phase_spread
+        );
+        assert!(
+            self.drift_rad_s.abs() < 1.0,
+            "{what}: the loop's clocks drift {:.3} rad/s — a rate mismatch, not a \
+             clean loop (48 k heard as 44.1 k is ~5 rad/s at 997 Hz)",
+            self.drift_rad_s
         );
     }
 }
@@ -180,6 +190,7 @@ fn analyze(data: &[f32], channels: usize, ch: usize, hz: f64, rate: u32) -> Repo
             amp_spread_db: f64::INFINITY,
             phase_spread: f64::INFINITY,
             worst_window_snr_db: 0.0,
+            drift_rad_s: f64::INFINITY,
         };
     }
     let db = |a: f64| 20.0 * a.max(1e-12).log10();
@@ -195,6 +206,28 @@ fn analyze(data: &[f32], channels: usize, ch: usize, hz: f64, rate: u32) -> Repo
             (d + std::f64::consts::PI).rem_euclid(TAU) - std::f64::consts::PI
         })
         .collect();
+    // A loop's two ends run on independent clocks: WASAPI shared mode
+    // through VB-CABLE drifts a few tens of ppm, which is a slow linear
+    // phase ramp — the device, not a dropped frame (0.189 rad over ~3 s,
+    // cloud-vm 2026-11-11, with SNR and level both clean). Remove the
+    // best-fit line before measuring; what is left is the discontinuity
+    // the spread is for (a dropped frame is a step), and the slope itself
+    // is bounded by `check`, so a rate mismatch still fails loudly.
+    let n = dev.len() as f64;
+    let mean_i = (n - 1.0) / 2.0;
+    let mean_d: f64 = dev.iter().sum::<f64>() / n;
+    let (mut num, mut den) = (0.0, 0.0);
+    for (i, d) in dev.iter().enumerate() {
+        let di = i as f64 - mean_i;
+        num += di * (d - mean_d);
+        den += di * di;
+    }
+    let slope = if den > 0.0 { num / den } else { 0.0 };
+    let detrended: Vec<f64> = dev
+        .iter()
+        .enumerate()
+        .map(|(i, d)| d - mean_d - slope * (i as f64 - mean_i))
+        .collect();
     let spread = |v: &[f64]| {
         v.iter().copied().fold(f64::MIN, f64::max) - v.iter().copied().fold(f64::MAX, f64::min)
     };
@@ -202,11 +235,13 @@ fn analyze(data: &[f32], channels: usize, ch: usize, hz: f64, rate: u32) -> Repo
         windows: fits.len(),
         snr_db: 10.0 * (sig / res.max(1e-300)).log10(),
         amp_spread_db: spread(&amps),
-        phase_spread: spread(&dev),
+        phase_spread: spread(&detrended),
         worst_window_snr_db: fits
             .iter()
             .map(|f| 10.0 * (f.signal / f.residual.max(1e-300)).log10())
             .fold(f64::MAX, f64::min),
+        // Each window is 10 ms, so a per-window slope is 100 windows/s.
+        drift_rad_s: slope * 100.0,
     }
 }
 
@@ -235,9 +270,40 @@ fn the_analyzer_passes_a_clean_loop() {
 fn the_analyzer_catches_a_dropped_frame() {
     let mut v = synthetic(48_000, 3_000, 48_000);
     let at = (3_000 + 24_000) * 2;
-    v.drain(at..at + 2);
+    // Two frames: the analyzer detrends a linear clock-skew ramp before
+    // measuring, and a single dropped frame at the midpoint leaves only
+    // half its step as residual (0.13 rad step → ~0.065 rad spread).
+    // Two frames keep the step twice that, clear of the 0.05 gate the
+    // device tests hold, and of this test's own 0.1.
+    v.drain(at..at + 4);
     let r = analyze(&v, 2, 0, LEFT_HZ, 48_000);
     assert!(r.phase_spread > 0.1, "{r:?}");
+}
+
+#[test]
+fn the_analyzer_tolerates_a_slow_clock_skew() {
+    // The other side of the detrend: a capture whose clock runs slow
+    // (here 100 ppm — VB-CABLE measured ~10 ppm) accrues a real phase
+    // ramp (0.63 rad over the second) and must NOT read as dropped
+    // frames. SNR, level and the detrended phase all stay clean, and
+    // the drift itself lands inside `check`'s bound.
+    let rate = 48_000u32;
+    let lead = 3_000usize;
+    let frames = 48_000usize;
+    let slow = 0.999_9_f64; // 100 ppm slow
+    let mut v: Vec<f32> = vec![0.0; lead * 2];
+    let r = f64::from(rate);
+    for i in 0..frames {
+        let t = (i as f64 * slow) / r;
+        v.push(((TAU * LEFT_HZ * t).sin() as f32) * LEVEL);
+        v.push(((TAU * RIGHT_HZ * t).sin() as f32) * LEVEL);
+    }
+    let rep = analyze(&v, 2, 0, LEFT_HZ, rate);
+    assert!(rep.phase_spread < 0.05, "{rep:?}");
+    assert!(
+        0.05 < rep.drift_rad_s.abs() && rep.drift_rad_s.abs() < 1.0,
+        "{rep:?}"
+    );
 }
 
 #[test]

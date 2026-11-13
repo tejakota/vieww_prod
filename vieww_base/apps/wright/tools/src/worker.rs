@@ -234,7 +234,40 @@ fn run_external(
     copy_dir: &Path,
     timeout: Duration,
 ) -> Result<(String, &'static str), ToolError> {
-    let mut args: Vec<String> = entry.args.clone();
+    // A POSIX script cannot be CreateProcess'd on Windows: the OS error is
+    // the unhelpful "%1 is not a valid Win32 application", and every
+    // `.sh` worker died on that before doing a thing (the sandbox suite's
+    // Windows leg, 2026-11-08). Run script workers through Git Bash's
+    // bash.exe — the same binary the CI runner's own `shell: bash` steps
+    // use — and refuse with a sentence when no bash exists: a worker that
+    // cannot start is a failed run, never a silently-empty one.
+    #[cfg(windows)]
+    let mut program = program.to_path_buf();
+    #[cfg(not(windows))]
+    let program = program.to_path_buf();
+    #[cfg(windows)]
+    let mut leading: Vec<String> = Vec::new();
+    #[cfg(not(windows))]
+    let leading: Vec<String> = Vec::new();
+    #[cfg(windows)]
+    if is_posix_script(&program) {
+        match git_bash() {
+            Some(bash) => {
+                leading.push(program.to_string_lossy().into_owned());
+                program = bash;
+            }
+            None => {
+                return Err(ToolError::Failed(format!(
+                    "the worker '{}' is a POSIX script and no bash was found on this \
+                     machine — install Git for Windows (or a WSL distro), or point the \
+                     worker at a Windows executable. Nothing was run.",
+                    entry.name
+                )));
+            }
+        }
+    }
+    let mut args: Vec<String> = leading;
+    args.extend(entry.args.clone());
     args.push(prompt.to_string());
     let arg_refs: Vec<&str> = args.iter().map(|s| s.as_str()).collect();
     let program_str = program.to_string_lossy().to_string();
@@ -255,7 +288,7 @@ fn run_external(
         // user-local npm or pipx install): its directory, and the
         // directory of whatever its link points at, become readable
         // and executable — nothing else of the home directory does.
-        policy.extra_ro.extend(program_dirs(program));
+        policy.extra_ro.extend(program_dirs(&program));
         policy.env = worker_env.to_vec();
         match sandbox::run(&program_str, &arg_refs, &policy) {
             Ok(out) => {
@@ -302,12 +335,21 @@ fn run_external(
     // The tier is REPORTED, never silent: a tier-1 run says so in the
     // worker's own report (the escape suite on Windows asserts it —
     // wright-sandbox.yml, `Worker tier report`).
+    // A worker routed through bash is a tier-1 run by construction: the
+    // Job object bounds the tree, and the report says so (an AppContainer
+    // would have to carry bash's whole install tree to be honest about
+    // tier 2 — not a promise this makes).
     #[cfg(windows)]
-    if crate::appcontainer::can_contain(program) {
-        let out = contained_run(entry, program, worker_env, &arg_refs, copy_dir, timeout)?;
+    let routed_through_bash = !leading.is_empty();
+    #[cfg(not(windows))]
+    let routed_through_bash = false;
+    let _ = routed_through_bash; // the non-Windows build never reads it
+    #[cfg(windows)]
+    if !routed_through_bash && crate::appcontainer::can_contain(program) {
+        let out = contained_run(entry, &program, worker_env, &arg_refs, copy_dir, timeout)?;
         return Ok((out, TIER2_APPCONTAINER));
     }
-    let out = direct_run(entry, program, worker_env, &arg_refs, copy_dir, timeout)?;
+    let out = direct_run(entry, &program, worker_env, &arg_refs, copy_dir, timeout)?;
     let isolation = if cfg!(windows) {
         TIER1_JOB_OBJECT
     } else {
@@ -321,6 +363,55 @@ fn run_external(
 /// process and memory caps) and nothing else — no filesystem sandbox.
 /// This is where npm `.cmd` shims run, and the report says so.
 pub(crate) const TIER1_JOB_OBJECT: &str = "tier 1: Job object (workspace copy; process tree, memory and process-count bounded; NO filesystem sandbox — point the worker at its .exe for tier 2)";
+
+/// On Windows, the bash that can run a POSIX script: Git for Windows'
+/// bash.exe. Never `System32\bash.exe` — that one is the WSL launcher,
+/// which with no distro installed fails before the script's first line
+/// (the very premise of the "no WSL on the runner" job).
+#[cfg(windows)]
+fn git_bash() -> Option<PathBuf> {
+    let mut cands: Vec<PathBuf> = Vec::new();
+    for var in ["ProgramFiles", "ProgramFiles(x86)"] {
+        if let Some(dir) = std::env::var_os(var) {
+            let mut p = PathBuf::from(dir);
+            p.push("Git");
+            p.push("bin");
+            p.push("bash.exe");
+            cands.push(p);
+        }
+    }
+    if let Some(path) = std::env::var_os("PATH") {
+        for dir in std::env::split_paths(&path) {
+            let p = dir.join("bash.exe");
+            let low = p.to_string_lossy().to_ascii_lowercase();
+            if low.contains("system32") || low.contains("sysnative") || low.contains("wsl") {
+                continue; // the WSL launcher, or its kin
+            }
+            cands.push(p);
+        }
+    }
+    cands.into_iter().find(|p| p.is_file())
+}
+
+/// A file the Windows loader cannot start but a shell can: `.sh`/`.bash`
+/// by extension, or any file whose first two bytes are a shebang (and
+/// that is not a Windows-executable extension).
+#[cfg(windows)]
+fn is_posix_script(program: &Path) -> bool {
+    let ext = program
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| e.to_ascii_lowercase());
+    match ext.as_deref() {
+        Some("sh") | Some("bash") => return true,
+        Some("exe") | Some("cmd") | Some("bat") | Some("ps1") | Some("com") => return false,
+        _ => {}
+    }
+    let mut head = [0u8; 2];
+    std::fs::File::open(program)
+        .and_then(|mut f| std::io::Read::read_exact(&mut f, &mut head))
+        .is_ok_and(|()| &head == b"#!")
+}
 
 /// WR-05 tier 2: the `wright.worker` AppContainer inside a Job object —
 /// the copy is the only writable folder, the profile is unreadable,

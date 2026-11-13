@@ -139,11 +139,36 @@ fn open(
     // `pa_simple_new` with an unknown sink name is refused by PulseAudio but
     // quietly routed to the default sink by `pipewire-pulse`, so the same call
     // meant two things. A named *playback* device is checked against the
-    // server's own sink list first, which is the same answer on both. If the
-    // list itself cannot be read, fall through and let the open decide.
+    // server's own sink list first, which is the same answer on both.
+    //
+    // The list is a fresh connection every call; under load (a parallel test
+    // run, a busy desktop) that connection can fail while the server is
+    // perfectly alive — and falling through then would silently route an
+    // unknown sink to the default, exactly what the guard exists to stop.
+    // Ask twice more before giving up on the check: a server that is truly
+    // absent fails the open below anyway, so the retries only ever matter
+    // when the server IS there.
     if let (Some(name), Callback::Render(_)) = (device.as_ref(), &callback) {
-        if let Ok(sinks) = list::sinks() {
-            let wanted = name.to_string_lossy();
+        let wanted = name.to_string_lossy();
+        let mut listed: Option<Vec<DeviceInfo>> = None;
+        for attempt in 0..3 {
+            match list::sinks() {
+                Ok(sinks) => {
+                    listed = Some(sinks);
+                    break;
+                }
+                Err(e) if attempt < 2 => {
+                    let ms = 150 * (attempt as u64 + 1);
+                    eprintln!(
+                        "vieww-pulse: sink list unreadable (attempt {}: {e:?}); retrying",
+                        attempt + 1
+                    );
+                    std::thread::sleep(std::time::Duration::from_millis(ms));
+                }
+                Err(_) => break,
+            }
+        }
+        if let Some(sinks) = listed {
             if !sinks.iter().any(|s| s.id == wanted) {
                 return Err(BackendError::Refused(format!(
                     "no sink named {wanted:?} on this server"

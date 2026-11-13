@@ -1107,15 +1107,25 @@ impl Instance<'_> {
             return false;
         }
         let a = a.unwrap();
-        let window = clap_window {
+        let mut window = clap_window {
             api: a.as_ptr(),
-            // The handle is written as the x11 member (an integer, the
-            // same width as the union) so no pointer value is ever
-            // formed from a number.
-            handle: clap_window_handle {
-                x11: handle as std::ffi::c_ulong,
-            },
+            handle: clap_window_handle { x11: 0 },
         };
+        // `c_ulong` is 32-bit on Windows while the union is pointer-wide, so
+        // writing only the x11 member leaves bytes of the union uninitialized
+        // — and the plugin side reads the handle as pointer-width bytes, so
+        // even "no handle" read back as garbage and `set_parent` refused
+        // (the Windows leg of the plugin suite, 2026-11-11). Zero the whole
+        // union first — writing zeroes as bytes never forms a pointer value
+        // — then set the integer member: every byte is defined, everywhere.
+        // SAFETY: the union is plain old memory; writing zeroes to all of it
+        // is valid whatever member is live afterwards.
+        unsafe {
+            std::ptr::addr_of_mut!(window.handle)
+                .cast::<u8>()
+                .write_bytes(0, std::mem::size_of::<clap_window_handle>());
+        }
+        window.handle.x11 = handle as std::ffi::c_ulong;
         // SAFETY: a valid extension and a valid window for the call.
         unsafe {
             (*self.gui)
