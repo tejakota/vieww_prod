@@ -93,6 +93,14 @@ tmo() {
 }
 # A WindowServer session this process can draw into: the console user is us.
 has_gui() { [ "$(stat -f %Su /dev/console 2>/dev/null)" = "$(id -un)" ]; }
+for _p in /opt/homebrew /usr/local; do
+    if [ -f "$_p/share/vulkan/icd.d/MoltenVK_icd.json" ]; then
+        export VK_ICD_FILENAMES="$_p/share/vulkan/icd.d/MoltenVK_icd.json"
+        export DYLD_FALLBACK_LIBRARY_PATH="$_p/lib${DYLD_FALLBACK_LIBRARY_PATH:+:$DYLD_FALLBACK_LIBRARY_PATH}"
+        export PATH="$_p/bin:$PATH"
+        break
+    fi
+done
 has_vulkan() { command -v vulkaninfo >/dev/null 2>&1 && vulkaninfo --summary >/dev/null 2>&1; }
 
 {
@@ -127,7 +135,10 @@ fi
 if want gpu; then
     run gpu-metal cargo test --release -p vieww-hal --features metal -- --ignored --test-threads=1
     if has_gui; then
-        run gpu-window env VIEWW_REQUIRE_HARDWARE=display,gpu \
+        # The `gpu` capability probes Vulkan only; Metal is proven by gpu-metal
+        # above, so require `gpu` here only when MoltenVK is really present.
+        req=display; has_vulkan && req=display,gpu
+        run gpu-window env VIEWW_REQUIRE_HARDWARE="$req" \
             cargo test --release -p vieww-platform-winit --test wait_loop
     else
         skip gpu-window "no GUI session for this user"
@@ -171,8 +182,10 @@ if want baseline; then
                     flag=(--gpu)
                     env_extra=(VIEWW_PLANNER_SHADOW="$out/baseline/gpu-shadow.jsonl")
                 fi
-                if ! env ${env_extra[@]+"${env_extra[@]}"} VIEWW_BASELINE_LAUNCH_UNIX_NS="$(now_ns)" \
-                    tmo 120 "$bin" ${flag[@]+"${flag[@]}"} --out "$out/baseline/$mode-$i.json" \
+                # tmo is a shell function, so it must come first: `env ... tmo`
+                # made env look for an executable named tmo (it does not exist).
+                if ! tmo 120 env ${env_extra[@]+"${env_extra[@]}"} VIEWW_BASELINE_LAUNCH_UNIX_NS="$(now_ns)" \
+                    "$bin" ${flag[@]+"${flag[@]}"} --out "$out/baseline/$mode-$i.json" \
                     >> "$out/baseline-$mode.log" 2>&1; then
                     ok=0
                 fi
@@ -186,7 +199,7 @@ if want baseline; then
         # FW-15's idle gate and RSS budget, the same thresholds as linux.sh.
         idle_secs="${VIEWW_HW_IDLE_SECS:-60}"
         wake="$out/baseline/wakeup.json"
-        if env VIEWW_BASELINE_LAUNCH_UNIX_NS="$(now_ns)" tmo $((idle_secs + 120)) "$bin" \
+        if tmo $((idle_secs + 120)) env VIEWW_BASELINE_LAUNCH_UNIX_NS="$(now_ns)" "$bin" \
             --settle 1 --idle "$idle_secs" --animate 1 --out "$wake" \
             >> "$out/baseline-wakeup.log" 2>&1; then
             run idle-gate python3 -I - "$wake" <<'PY'
@@ -223,7 +236,13 @@ PY
 fi
 
 if want size; then
-    run size-build cargo build --profile dist -p vieww-platform-winit --example baseline --target-dir target/size
+    # `dist` is panic=abort + LTO, which cannot link against the shared dynamic
+    # std that .cargo/config.toml's macOS block adds. Exporting RUSTFLAGS
+    # replaces that block (Cargo.toml, "Why dist and not release"), as
+    # linux.sh does; the flag only has to be non-empty and harmless.
+    case "$(uname -m)" in arm64) size_cpu=apple-m1 ;; *) size_cpu=x86-64-v2 ;; esac
+    run size-build env RUSTFLAGS="-C target-cpu=$size_cpu" \
+        cargo build --profile dist -p vieww-platform-winit --example baseline --target-dir target/size
     app="$root/target/size/dist/examples/baseline"
     if [ -f "$app" ]; then
         bytes="$(stat -f %z "$app")"
