@@ -105,14 +105,14 @@ case "${1:-}" in
         mkdir -p "$KPKG"
         if ls "$KPKG"/linux-image-"$V"-generic_*.deb >/dev/null 2>&1; then
             echo "kernel: installing the cached .debs from $KPKG"
-            sudo apt-get install -y -q "$KPKG"/linux-{"image,modules,modules-extra}-"$V"-generic_*.deb
+            sudo apt-get install -y -q "$KPKG"/linux-{image,modules,modules-extra}-"$V"-generic_*.deb
         else
             echo "kernel: installing $V from the archive"
             sudo apt-get install -y -q \
                 linux-image-"$V"-generic linux-modules-"$V"-generic \
                 linux-modules-extra-"$V"-generic
             # Keep the .debs for the cache (the archive prunes them).
-            cp /var/cache/apt/archives/linux-{"image,modules,modules-extra}-"$V"-generic_*.deb \
+            cp /var/cache/apt/archives/linux-{image,modules,modules-extra}-"$V"-generic_*.deb \
                 "$KPKG"/ 2>/dev/null || true
         fi
         # The proof the setup happened: the test step boots exactly this

@@ -117,6 +117,21 @@ struct Report {
 impl Report {
     fn check(&self, what: &str, min_snr_db: f64) {
         eprintln!("{what}: {self:?}");
+        // Shared-mode virtual cables carry the audio engine's own clock
+        // management: WASAPI through VB-CABLE moves the captured phase by
+        // a fifth of a radian — about 1.4 samples at 997 Hz — over a 3 s
+        // capture, deterministically (0.188 and 0.189 rad on 2026-11-04
+        // and 2026-11-13, with SNR and level clean and zero xruns on
+        // both sides: the device's pacing, not a backend that dropped a
+        // frame). The kernel's snd-aloop is sample-exact and keeps the
+        // strict 0.05. VIEWW_LOOP_PHASE_GATE widens the gate for the legs
+        // whose device is known to wobble — and stays below two whole
+        // frames (0.26 rad) on purpose, so a backend that drops a pair
+        // of frames still fails it.
+        let phase_gate: f64 = std::env::var("VIEWW_LOOP_PHASE_GATE")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(0.05);
         assert!(
             self.windows >= 50,
             "{what}: only {} windows of signal",
@@ -138,8 +153,8 @@ impl Report {
             self.amp_spread_db
         );
         assert!(
-            self.phase_spread < 0.05,
-            "{what}: phase jumped {:.3} rad — frames were dropped or repeated",
+            self.phase_spread < phase_gate,
+            "{what}: phase jumped {:.3} rad (gate {phase_gate}) — frames were dropped or repeated",
             self.phase_spread
         );
         assert!(

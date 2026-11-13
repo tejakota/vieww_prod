@@ -43,7 +43,13 @@ run = "cargo test --release -p vieww-audio --lib backend::wasapi -- --nocapture"
 
 [[step]]
 name = "Loopback, shared mode"
-env = { VIEWW_REQUIRE_LOOPBACK = "1", VIEWW_LOOP_BACKEND = "wasapi", VIEWW_LOOP_ATTEMPTS = "3" }
+# VIEWW_LOOP_PHASE_GATE=0.25: WASAPI shared mode through VB-CABLE carries
+# the engine's own clock management — a deterministic ~0.19 rad (≈1.4
+# samples at 997 Hz) of phase wobble over a 3 s capture, SNR and level
+# clean, zero xruns (2026-11-04, 2026-11-13). The gate stays under two
+# whole frames (0.26 rad): a backend that drops a pair of frames still
+# fails. The exclusive-mode leg below keeps the strict default.
+env = { VIEWW_REQUIRE_LOOPBACK = "1", VIEWW_LOOP_BACKEND = "wasapi", VIEWW_LOOP_ATTEMPTS = "3", VIEWW_LOOP_PHASE_GATE = "0.25" }
 run = "cargo test --release -p vieww-audio --test device_loopback default_device -- --ignored --nocapture"
 
 [[step]]
