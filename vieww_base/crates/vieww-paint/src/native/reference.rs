@@ -1262,7 +1262,7 @@ impl NativeRenderer {
                 // transform never qualifies (the interior is not two
                 // axis-aligned bands); and the skip is inset a pixel from
                 // every edge so the fill's antialiased rim is never inside it.
-                let skip = if *covered && !shadow.is_inset {
+                let skip = if *covered && !shadow.is_inset && clip.shapes().is_empty() {
                     covered_bands(*rect, *radius, *transform)
                 } else {
                     None
@@ -1284,6 +1284,21 @@ impl NativeRenderer {
                         (py0 + patch.height as i32) as f32,
                     );
                     let resolved = resolve_clip_cached(clips, clip, *transform, surface, need);
+                    // The face only replaces what lies beneath it where its
+                    // clip coverage is exactly one: the clip rectangle's
+                    // whole-pixel interior. Along a clip edge (a card half
+                    // out of the list viewport) the face is partial and the
+                    // shadow under it still shows, so the carve stops there.
+                    let skip = skip.map(|bands| {
+                        let c = clip_bounds(clip, surface);
+                        let (cx0, cy0) = (c.left.ceil() as i32, c.top.ceil() as i32);
+                        let (cx1, cy1) = (c.right.floor() as i32, c.bottom.floor() as i32);
+                        let cut = |(x0, y0, x1, y1): (i32, i32, i32, i32)| {
+                            let b = (x0.max(cx0), y0.max(cy0), x1.min(cx1), y1.min(cy1));
+                            if b.0 < b.2 && b.1 < b.3 { b } else { (0, 0, 0, 0) }
+                        };
+                        [cut(bands[0]), cut(bands[1])]
+                    });
                     let (target, origin) = match stack.last_mut() {
                         Some(frame) => (&mut frame.target, frame.origin),
                         None => (&mut *root, (0, 0)),
@@ -1291,7 +1306,14 @@ impl NativeRenderer {
                     // The patch is the shadow's whole extent (the same bytes
                     // wherever the card is, so the cache keeps it as the card
                     // moves); the surface cuts it here, where it is drawn.
-                    let (sx0, sy0, sx1, sy1) = super::shadow::pixel_bounds(local_surface);
+                    // ...and the clip's rectangle cuts it too. A plain
+                    // rectangular clip carries no mask, so nothing downstream
+                    // would otherwise apply it: a card scrolled out of its
+                    // list viewport kept painting its shadow over whatever
+                    // sat above the list.
+                    let drawn = local_surface.intersect(clip_bounds(clip, surface));
+                    let (sx0, sy0, sx1, sy1) = super::shadow::pixel_bounds(drawn);
+                    let (sx1, sy1) = (sx1.max(sx0), sy1.max(sy0));
                     let within = (
                         sx0 - origin.0,
                         sy0 - origin.1,
@@ -2245,6 +2267,74 @@ mod tests {
                      offset {offset:?} blur {blur}"
                 );
             }
+        }
+    }
+
+    /// A shadow honours a plain **rectangular** clip. Such a clip carries no
+    /// mask, so before this was checked a card scrolled out of its list
+    /// viewport still painted its whole shadow over whatever sat above the
+    /// list (market-watch's header). Covered or not, nothing may land
+    /// outside the clip.
+    #[test]
+    fn a_shadow_outside_its_rect_clip_draws_nothing() {
+        use vieww_foundation::{Offset, Shadow};
+        let shadow = Shadow::new(Color::rgba(20, 26, 38, 70), Offset::new(0.0, 3.0), 8.0);
+        for covered in [false, true] {
+            let mut scene = Scene::new();
+            scene.fill_rect(Rect::new(0.0, 0.0, 400.0, 300.0), Color::WHITE.into());
+            scene.save();
+            scene.clip_rect(Rect::new(0.0, 160.4, 400.0, 300.0));
+            let rect = Rect::new(20.0, 5.4, 380.0, 75.4); // wholly above the clip
+            if covered {
+                scene.draw_shadow_under(rect, 14.0, shadow);
+            } else {
+                scene.draw_shadow(rect, 14.0, shadow);
+            }
+            scene.fill_path(&Path::rounded_rect(rect, 14.0), Paint::solid(Color::WHITE));
+            scene.restore();
+            let (px, _) = NativeRenderer::new()
+                .render_to_pixels(&scene, 400, 300, Color::WHITE)
+                .expect("render");
+            assert!(
+                px.data().iter().all(|&b| b == 255),
+                "a clipped-out shadow (covered: {covered}) leaked onto the frame"
+            );
+        }
+    }
+
+    /// The covered promise along a **clip edge**: a card half out of its
+    /// viewport has a face whose coverage drops below one in the edge row,
+    /// so the shadow beneath must still be blended there. Covered and
+    /// uncovered draw the same bytes with the clip cutting through the card
+    /// at a fractional row — the case market-watch's bottom row hits.
+    #[test]
+    fn a_covered_shadow_cut_by_its_clip_is_still_the_uncovered_frame() {
+        use vieww_foundation::{Offset, Shadow};
+        let rect = Rect::new(37.25, 51.5, 310.75, 214.25);
+        let shadow = Shadow::new(Color::rgba(20, 26, 38, 70), Offset::new(0.0, 3.0), 8.0);
+        for clip in [
+            Rect::new(0.0, 0.0, 400.0, 130.4),
+            Rect::new(0.0, 100.6, 400.0, 300.0),
+            Rect::new(150.3, 0.0, 400.0, 300.0),
+        ] {
+            let build = |covered: bool| {
+                let mut scene = Scene::new();
+                scene.fill_rect(Rect::new(0.0, 0.0, 400.0, 300.0), Color::rgb(243, 245, 249).into());
+                scene.save();
+                scene.clip_rect(clip);
+                if covered {
+                    scene.draw_shadow_under(rect, 14.0, shadow);
+                } else {
+                    scene.draw_shadow(rect, 14.0, shadow);
+                }
+                scene.fill_path(&Path::rounded_rect(rect, 14.0), Paint::solid(Color::WHITE));
+                scene.restore();
+                scene
+            };
+            let mut renderer = NativeRenderer::new();
+            let (plain, _) = renderer.render_to_pixels(&build(false), 400, 300, Color::WHITE).expect("render");
+            let (covered, _) = renderer.render_to_pixels(&build(true), 400, 300, Color::WHITE).expect("render");
+            assert!(plain.data() == covered.data(), "covered differs from uncovered under clip {clip:?}");
         }
     }
 
