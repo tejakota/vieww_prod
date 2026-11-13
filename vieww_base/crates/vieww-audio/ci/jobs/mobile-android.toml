@@ -45,7 +45,10 @@ aapt2="$(find "$ANDROID_HOME/build-tools" -name aapt2 | sort -V | tail -1)"
 "$aapt2" dump xmltree --file AndroidManifest.xml ../dist/vieww-audio.apk | tee ../dist/manifest.txt
 grep -q 'dev.vieww.audio.PlaybackService' ../dist/manifest.txt
 grep -q 'FOREGROUND_SERVICE_MEDIA_PLAYBACK' ../dist/manifest.txt
-"$aapt2" dump badging ../dist/vieww-audio.apk | head -5
+# sed, not head: `| head -5` closes the pipe after five lines and, under
+# pipefail, aapt2's SIGPIPE (exit 141) fails the whole step — a race that
+# slept for weeks and fired on 2026-11-13. sed reads the stream to the end.
+"$aapt2" dump badging ../dist/vieww-audio.apk | sed -n '1,5p'
 '''
 
 [[step]]

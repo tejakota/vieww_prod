@@ -46,7 +46,10 @@ for t in $(cargo +nightly fuzz list); do
     for f in fuzz/artifacts/"$t"/*; do
       [ -f "$f" ] || continue
       echo "FUZZ-FINDING $t $(basename "$f") $(wc -c < "$f") bytes"
-      xxd "$f" | head -n 256
+      # `|| true`: under pipefail, head closing at 256 lines SIGPIPEs xxd
+      # (exit 141) and the finding-printout would fail the step it is
+      # already failing, mid-diagnosis.
+      xxd "$f" | head -n 256 || true
     done
     continue
   fi
