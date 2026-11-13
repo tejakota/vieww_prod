@@ -1,0 +1,16 @@
+   Compiling vieww-audio v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+    Finished `release` profile [optimized + debuginfo] target(s) in 4.14s
+     Running tests/device_loopback.rs (target/release/deps/device_loopback-4dbb1a6e58ea84ae)
+
+running 1 test
+Cannot connect to server socket err = No such file or directory
+Cannot connect to server request channel
+jack server is not running or cannot be started
+JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+test default_output_soak has been running for over 60 seconds
+soak alsa: 600 s | 112521 callbacks, 600.1 s of audio | thread Some(Normal) | render mean 22.405µs, max 9.613514ms, peak load 180% | 2 late | 0 xruns | latency Some(42.729166ms)
+test default_output_soak ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 600.20s
+
