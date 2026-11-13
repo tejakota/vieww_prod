@@ -1,70 +1,46 @@
 -----
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:41:50.9407803Z [1m[92m   Compiling[0m vieww-scene v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-scene)
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:41:51.4229374Z [1m[92m   Compiling[0m vieww-element v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-element)
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:41:52.0014031Z [1m[92m   Compiling[0m wright-runtime v1.0.2 (D:\a\vieww_prod\vieww_prod\vieww_base\apps\wright\runtime)
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:41:52.9742747Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-macros)
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:01.0487553Z [1m[92m   Compiling[0m vieww-render v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-render)
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:05.2102915Z [1m[92m   Compiling[0m vieww-render-graph v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-render-graph)
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:05.7814005Z [1m[92m   Compiling[0m vieww-gpu v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-gpu)
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:07.9073466Z [1m[92m   Compiling[0m vieww-asset v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-asset)
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:10.4483219Z [1m[92m   Compiling[0m vieww-image v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-image)
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:12.1025858Z [1m[92m   Compiling[0m vieww-video v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-video)
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:13.9082364Z [1m[92m   Compiling[0m vieww-hal v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-hal)
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:18.7994458Z [1m[92m   Compiling[0m vieww-interaction v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-interaction)
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:19.1864882Z [1m[92m   Compiling[0m vieww-render-planner v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-render-planner)
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:19.1980677Z [1m[92m   Compiling[0m wright-tools v1.0.2 (D:\a\vieww_prod\vieww_prod\vieww_base\apps\wright\tools)
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:19.6034603Z [1m[92m   Compiling[0m vieww-effects v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-effects)
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:19.7488183Z [1m[91merror[E0308][0m[1m[97m: mismatched types[0m
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:19.7490629Z    [1m[96m--> [0mtools\src\worker.rs:348:65
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:19.7491780Z     [1m[96m|[0m
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:19.7840965Z [1m[96m348[0m [1m[96m|[0m     if !routed_through_bash && crate::appcontainer::can_contain(program) {
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:19.7997542Z     [1m[96m|[0m                                [1m[96m--------------------------------[0m [1m[91m^^^^^^^[0m [1m[91mexpected `&Path`, found `PathBuf`[0m
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:19.8151746Z     [1m[96m|[0m                                [1m[96m|[0m
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:19.9402734Z     [1m[96m|[0m                                [1m[96marguments to this function are incorrect[0m
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:19.9870611Z     [1m[96m|[0m
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:20.0026696Z [1m[92mnote[0m: function defined here
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:20.0183310Z    [1m[96m--> [0mtools\src\appcontainer.rs:424:8
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:20.1432490Z     [1m[96m|[0m
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:20.1910832Z [1m[96m424[0m [1m[96m|[0m pub fn can_contain(program: &Path) -> bool {
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:20.2066060Z     [1m[96m|[0m        [1m[92m^^^^^^^^^^^[0m [1m[96m--------------[0m
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:20.3473009Z [1m[96mhelp[0m: consider borrowing here
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:20.3747428Z     [1m[96m|[0m
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:20.3776027Z [1m[96m348[0m [1m[96m| [0m    if !routed_through_bash && crate::appcontainer::can_contain([92m&[0mprogram) {
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:20.3781753Z     [1m[96m|[0m                                                                 [92m+[0m
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:20.3901008Z 
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:20.4101058Z [1m[97mFor more information about this error, try `rustc --explain E0308`.[0m
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:20.4212594Z [1m[91merror[0m: could not compile `wright-tools` (lib) due to 1 previous error
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:20.4236693Z [1m[93mwarning[0m: build failed, waiting for other jobs to finish...
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:38.9570613Z ##[endgroup]
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:38.9629376Z ##[error]Build (Windows, Linux) failed (exit 101)
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:38.9639217Z ##[group]mark: upload screens-${{ matrix.name }}
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:38.9906571Z ##[endgroup]
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:39.0075025Z ##[error]Process completed with exit code 1.
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:39.0266532Z ##[group]Run actions/upload-artifact@v4
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:39.0266896Z with:
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:39.0267112Z   name: screens-windows-x64
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:39.0267382Z   path: D:\a\_temp/screens
-phase-1 / wright · installers (windows-x64)	log	2026-11-13T13:42:39.0267623Z   if-no-files-found: warn
------
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.2124587Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.2124771Z   WRIGHT_SECRET_WINDOWS_PFX: 
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.2124961Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.2125160Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.2125409Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.2125665Z   CACHE_ON_FAILURE: false
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.2125833Z   CARGO_INCREMENTAL: 0
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.2125986Z   CI_PART: main
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.2126129Z ##[endgroup]
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.7185667Z ##[group]Rust toolchain
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.8329090Z 1.98.1-x86_64-pc-windows-msvc (overridden by 'D:\a\vieww_prod\vieww_prod\vieww_base\rust-toolchain.toml')
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.8375934Z ##[endgroup]
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.8394067Z ##[group]cargo build --release -p ${{ matrix.package }}
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.8721967Z D:\a\_temp\ci-steps-my_zq5as\3.sh: line 1: target/ci-build.json: No such file or directory
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.8747359Z ##[endgroup]
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.8768371Z ##[error]cargo build --release -p ${{ matrix.package }} failed (exit 1)
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.9026861Z ##[error]Process completed with exit code 1.
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:42.9237673Z Post job cleanup.
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:43.0497686Z [command]"C:\Program Files\Git\bin\git.exe" version
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:43.0730819Z git version 2.56.1.windows.1
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:43.0779451Z Temporarily overriding HOME='D:\a\_temp\007f95a0-fe04-4be9-a792-bfd1519c7dae' before making global git config changes
-phase-1 / viewwstudio · build (windows)	log	2026-11-13T13:41:43.0780380Z Adding repository directory to the temporary git global config as a safe directory
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:32:42.8232454Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio)
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:32:43.1624186Z [1m[92m   Compiling[0m vieww-element v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-element)
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:32:43.8182126Z [1m[92m   Compiling[0m vieww-scene v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-scene)
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:32:44.3977842Z [1m[92m   Compiling[0m wright-runtime v1.0.2 (D:\a\vieww_prod\vieww_prod\vieww_base\apps\wright\runtime)
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:32:44.8421253Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-macros)
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:32:52.8211262Z [1m[92m   Compiling[0m vieww-render v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-render)
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:32:56.7023806Z [1m[92m   Compiling[0m vieww-render-graph v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-render-graph)
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:32:58.1470876Z [1m[92m   Compiling[0m vieww-gpu v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-gpu)
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:32:59.4515173Z [1m[92m   Compiling[0m vieww-image v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-image)
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:02.8157970Z [1m[92m   Compiling[0m vieww-asset v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-asset)
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:05.3748894Z [1m[92m   Compiling[0m vieww-video v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-video)
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:06.9804445Z [1m[92m   Compiling[0m vieww-hal v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-hal)
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:07.6694959Z [1m[92m   Compiling[0m vieww-interaction v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-interaction)
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:08.4694235Z [1m[92m   Compiling[0m vieww-render-planner v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-render-planner)
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:10.2305580Z [1m[92m   Compiling[0m wright-tools v1.0.2 (D:\a\vieww_prod\vieww_prod\vieww_base\apps\wright\tools)
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.2291454Z [1m[91merror[E0382][0m[1m[97m: borrow of moved value: `leading`[0m
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.2760230Z    [1m[96m--> [0mtools\src\worker.rs:343:32
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.2761029Z     [1m[96m|[0m
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.3701725Z [1m[96m249[0m [1m[96m|[0m     let mut leading: Vec<String> = Vec::new();
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.3734283Z     [1m[96m|[0m         [1m[96m-----------[0m [1m[96mmove occurs because `leading` has type `Vec<String>`, which does not implement the `Copy` trait[0m
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.4201493Z [1m[96m...[0m
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.4204160Z [1m[96m269[0m [1m[96m|[0m     let mut args: Vec<String> = leading;
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.4322260Z     [1m[96m|[0m                                 [1m[96m-------[0m [1m[96mvalue moved here[0m
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.4483456Z [1m[96m...[0m
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.4641951Z [1m[96m343[0m [1m[96m|[0m     let routed_through_bash = !leading.is_empty();
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.4736212Z     [1m[96m|[0m                                [1m[91m^^^^^^^[0m [1m[91mvalue borrowed here after move[0m
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.4737386Z     [1m[96m|[0m
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.4738163Z [1m[96mhelp[0m: consider cloning the value if the performance cost is acceptable
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.4738987Z     [1m[96m|[0m
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.4739670Z [1m[96m269[0m [1m[96m| [0m    let mut args: Vec<String> = leading[92m.clone()[0m;
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.4740600Z     [1m[96m|[0m                                        [92m++++++++[0m
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.4752051Z 
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.4878133Z [1m[97mFor more information about this error, try `rustc --explain E0382`.[0m
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.4880544Z [1m[91merror[0m: could not compile `wright-tools` (lib) due to 1 previous error
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:11.5172196Z [1m[93mwarning[0m: build failed, waiting for other jobs to finish...
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:29.8496864Z ##[endgroup]
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:29.8554669Z ##[error]Build (Windows, Linux) failed (exit 101)
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:29.8561761Z ##[group]mark: upload screens-${{ matrix.name }}
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:29.8860905Z ##[endgroup]
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:29.9076338Z ##[error]Process completed with exit code 1.
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:29.9297682Z ##[group]Run actions/upload-artifact@v4
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:29.9298043Z with:
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:29.9298256Z   name: screens-windows-x64
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:29.9298508Z   path: D:\a\_temp/screens
+phase-1 / wright · installers (windows-x64)	log	2026-11-13T15:33:29.9298761Z   if-no-files-found: warn
