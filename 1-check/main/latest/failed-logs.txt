@@ -1,302 +1,916 @@
-===== phase-1 / vieww-audio-plugin · plugins (windows-latest)	log =====
-2026-11-13T13:56:12.5412408Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
-2026-11-13T13:56:12.5412559Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
-2026-11-13T13:56:12.5412746Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
-2026-11-13T13:56:12.5412928Z   CI_PART: main
-2026-11-13T13:56:12.5413038Z ##[endgroup]
-2026-11-13T13:56:12.6669092Z ##[group]Install Rust toolchain
-2026-11-13T13:56:13.3663742Z info: syncing channel updates for 1.98.1-x86_64-pc-windows-msvc
-2026-11-13T13:56:13.8731185Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
-2026-11-13T13:56:13.8869959Z info: downloading 4 components
-2026-11-13T13:56:20.7468569Z 
-2026-11-13T13:56:20.7754782Z   1.98.1-x86_64-pc-windows-msvc installed - rustc 1.98.1 (48a229cea 2026-09-01)
-2026-11-13T13:56:20.7755031Z 
-2026-11-13T13:56:20.7998845Z info: using existing install for 1.98.1-x86_64-pc-windows-msvc
-2026-11-13T13:56:20.8057335Z info: default toolchain set to 1.98.1-x86_64-pc-windows-msvc
-2026-11-13T13:56:20.8057669Z 
-2026-11-13T13:56:20.8209578Z   1.98.1-x86_64-pc-windows-msvc unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
-2026-11-13T13:56:20.8209894Z 
-2026-11-13T13:56:20.8252228Z info: note that the toolchain '1.98.1-x86_64-pc-windows-msvc' is currently in use (overridden by 'D:\a\vieww_prod\vieww_prod\vieww_base\rust-toolchain.toml')
-2026-11-13T13:56:20.8304176Z ##[endgroup]
-2026-11-13T13:56:20.8319225Z ##[group]Unit tests and clippy
-2026-11-13T13:56:21.6148169Z info: syncing channel updates for 1.98.1-x86_64-pc-windows-msvc
-2026-11-13T13:56:22.1169687Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
-2026-11-13T13:56:22.1306464Z info: component clippy is up to date
-2026-11-13T13:56:22.1387100Z info: downloading 2 components
-2026-11-13T13:56:25.5975830Z [1m[92m    Updating[0m crates.io index
-2026-11-13T13:56:26.9226061Z [1m[92m Downloading[0m crates ...
-2026-11-13T13:56:27.0858474Z [1m[92m  Downloaded[0m adler2 v2.0.1
-2026-11-13T13:56:27.1165698Z [1m[92m  Downloaded[0m fdeflate v0.3.7
-2026-11-13T13:56:27.1301932Z [1m[92m  Downloaded[0m miniz_oxide v0.8.9
-2026-11-13T13:56:27.1531136Z [1m[92m  Downloaded[0m cfg-if v1.0.5
-2026-11-13T13:56:27.1614847Z [1m[92m  Downloaded[0m bytemuck_derive v1.12.1
-2026-11-13T13:56:27.1723652Z [1m[92m  Downloaded[0m simd-adler32 v0.3.10
-2026-11-13T13:56:27.1863728Z [1m[92m  Downloaded[0m font-types v0.12.5
-2026-11-13T13:56:27.1992697Z [1m[92m  Downloaded[0m crc32fast v1.5.2
-2026-11-13T13:56:27.2129299Z [1m[92m  Downloaded[0m once_cell v1.21.4
-2026-11-13T13:56:27.2300131Z [1m[92m  Downloaded[0m quote v1.0.47
-2026-11-13T13:56:27.2518933Z [1m[92m  Downloaded[0m unicode-ident v1.0.26
-2026-11-13T13:56:27.2736968Z [1m[92m  Downloaded[0m proc-macro2 v1.0.107
-2026-11-13T13:56:27.2954016Z [1m[92m  Downloaded[0m bitflags v2.13.2
-2026-11-13T13:56:27.3350589Z [1m[92m  Downloaded[0m bytemuck v1.25.2
-2026-11-13T13:56:27.3619709Z [1m[92m  Downloaded[0m miniz_oxide v0.9.1
-2026-11-13T13:56:27.3734485Z [1m[92m  Downloaded[0m flate2 v1.1.10
-2026-11-13T13:56:27.4144153Z [1m[92m  Downloaded[0m unicode-segmentation v1.13.3
-2026-11-13T13:56:27.4269214Z [1m[92m  Downloaded[0m png v0.18.1
-2026-11-13T13:56:27.4547975Z [1m[92m  Downloaded[0m ttf-parser v0.25.1
-2026-11-13T13:56:27.5254057Z [1m[92m  Downloaded[0m skrifa v0.44.0
-2026-11-13T13:56:27.5813334Z [1m[92m  Downloaded[0m zlib-rs v0.6.8
-2026-11-13T13:56:27.6153652Z [1m[92m  Downloaded[0m syn v3.0.6
-2026-11-13T13:56:27.6829639Z [1m[92m  Downloaded[0m read-fonts v0.41.0
-2026-11-13T13:56:27.9498366Z [1m[92m   Compiling[0m proc-macro2 v1.0.107
-2026-11-13T13:56:27.9498802Z [1m[92m   Compiling[0m unicode-ident v1.0.26
-2026-11-13T13:56:27.9499115Z [1m[92m   Compiling[0m quote v1.0.47
-2026-11-13T13:56:27.9499405Z [1m[92m   Compiling[0m simd-adler32 v0.3.10
-2026-11-13T13:56:28.0681090Z [1m[92m   Compiling[0m crc32fast v1.5.2
-2026-11-13T13:56:28.3913892Z [1m[92m   Compiling[0m adler2 v2.0.1
-2026-11-13T13:56:28.5134762Z [1m[92m   Compiling[0m cfg-if v1.0.5
-2026-11-13T13:56:28.5461525Z [1m[92m   Compiling[0m miniz_oxide v0.9.1
-2026-11-13T13:56:30.3529975Z [1m[92m   Compiling[0m unicode-segmentation v1.13.3
-2026-11-13T13:56:30.4416003Z [1m[92m   Compiling[0m once_cell v1.21.4
-2026-11-13T13:56:30.5883707Z [1m[92m   Compiling[0m flate2 v1.1.10
-2026-11-13T13:56:30.8709729Z [1m[92m   Compiling[0m vieww-foundation v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-foundation)
-2026-11-13T13:56:31.4375025Z [1m[92m   Compiling[0m miniz_oxide v0.8.9
-2026-11-13T13:56:32.3252240Z [1m[92m   Compiling[0m syn v3.0.6
-2026-11-13T13:56:33.5468575Z [1m[92m   Compiling[0m fdeflate v0.3.7
-2026-11-13T13:56:34.1556898Z [1m[92m   Compiling[0m bitflags v2.13.2
-2026-11-13T13:56:34.6431337Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio)
-2026-11-13T13:56:34.8204022Z [1m[92m   Compiling[0m png v0.18.1
-2026-11-13T13:56:34.9690599Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-macros)
-2026-11-13T13:56:35.6149827Z [1m[92m   Compiling[0m ttf-parser v0.25.1
-2026-11-13T13:56:49.4314266Z [1m[92m   Compiling[0m bytemuck_derive v1.12.1
-2026-11-13T13:56:56.7109822Z [1m[92m   Compiling[0m bytemuck v1.25.2
-2026-11-13T13:56:56.8639228Z [1m[92m   Compiling[0m font-types v0.12.5
-2026-11-13T13:56:57.1946727Z [1m[92m   Compiling[0m read-fonts v0.41.0
-2026-11-13T13:57:01.9788914Z [1m[92m   Compiling[0m skrifa v0.44.0
-2026-11-13T13:57:05.1338446Z [1m[92m   Compiling[0m vieww-paint v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-paint)
-2026-11-13T13:57:25.6088469Z [1m[92m   Compiling[0m vieww-audio-plugin v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-plugin)
-2026-11-13T13:57:28.5237634Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 1m 03s
-2026-11-13T13:57:28.5903962Z [1m[92m     Running[0m unittests src\lib.rs (target\debug\deps\vieww_audio_plugin-a0407d24a1b5c5dd.exe)
-2026-11-13T13:57:28.5987682Z 
-2026-11-13T13:57:28.5988040Z running 76 tests
-2026-11-13T13:57:28.5993221Z test aax::tests::the_refusal_is_named_and_precise ... ok
-2026-11-13T13:57:28.5994265Z test auv3::events::tests::a_long_sysex_spans_start_continue_end_packets ... ok
-2026-11-13T13:57:28.5994887Z test auv3::events::tests::a_short_sysex_is_one_complete_packet ... ok
-2026-11-13T13:57:28.5996532Z test auv3::events::tests::an_empty_render_event_list_delivers_nothing ... ok
-2026-11-13T13:57:28.5997571Z test auv3::events::tests::a_full_or_overlong_schedule_drops_and_counts ... ok
-2026-11-13T13:57:28.5998431Z test auv3::events::tests::an_immediate_window_event_lands_at_frame_zero ... ok
-2026-11-13T13:57:28.5999889Z test auv3::events::tests::channel_voice_round_trips ... ok
-2026-11-13T13:57:28.6000259Z test auv3::events::tests::clear_empties_the_ring ... ok
-2026-11-13T13:57:28.6000887Z test auv3::events::tests::immediate_events_land_at_frame_zero_and_past_events_clamp ... ok
-2026-11-13T13:57:28.6002036Z test auv3::events::tests::render_event_layout_offsets_match_the_header ... ok
-2026-11-13T13:57:28.6003784Z test auv3::events::tests::system_common_round_trips ... ok
-2026-11-13T13:57:28.6004241Z test auv3::events::tests::the_immediate_constant_is_the_headers_and_forms_a_window ... ok
-2026-11-13T13:57:28.6004743Z test auv3::events::tests::the_render_event_walk_delivers_midi_parameters_and_sysex ... ok
-2026-11-13T13:57:28.6005245Z test auv3::events::tests::the_schedule_delivers_due_events_in_time_order ... ok
-2026-11-13T13:57:28.6005734Z test auv3::events::tests::unknown_render_event_types_are_skipped_not_guessed ... ok
-2026-11-13T13:57:28.6006605Z test auv3::events::tests::zero_word_counts_and_overruns_are_refused ... ok
-2026-11-13T13:57:28.6007293Z test auv3::manifest::tests::codes_derive_from_the_id_and_vendor ... ok
-2026-11-13T13:57:28.6007735Z test auv3::manifest::tests::tags_map_to_apples_vocabulary_with_a_default ... ok
-2026-11-13T13:57:28.6008875Z test auv3::manifest::tests::versions_pack_and_refuse_to_guess ... ok
-2026-11-13T13:57:28.6009308Z test auv3::tests::descriptions_carry_the_kind_and_derivation ... ok
-2026-11-13T13:57:28.6009848Z test auv3::tests::four_char_codes_are_big_endian ... ok
-2026-11-13T13:57:28.6010249Z test auv3::manifest::tests::the_entry_and_the_snippet_agree ... ok
-2026-11-13T13:57:28.6013308Z test auv3::view::tests::the_queue_coalesces_at_capacity ... ok
-2026-11-13T13:57:28.6014113Z test clap::sys::layout::sizes_and_offsets_match_the_headers ... ok
-2026-11-13T13:57:28.6019666Z test clap::tests::an_effect_processes_automates_and_reports_through_extensions ... ok
-2026-11-13T13:57:28.6020560Z test clap::tests::an_instrument_receives_notes_and_transport ... ok
-2026-11-13T13:57:28.6025178Z test clap::tests::state_round_trips_through_clap_streams ... ok
-2026-11-13T13:57:28.6027520Z test clap::tests::the_factory_lists_both_plugins_with_their_features ... ok
-2026-11-13T13:57:28.6029901Z test auv3::view::tests::the_panel_attaches_offscreen_and_renders_deterministically ... ok
-2026-11-13T13:57:28.6032193Z test gui::tests::frames_read_pixels_and_refuse_outside ... ok
-2026-11-13T13:57:28.6038128Z test gui::tests::parents_report_what_they_carry ... ok
-2026-11-13T13:57:28.6039022Z test clap::tests::gui_edits_reach_the_plugin_and_automation_reaches_the_panel ... ok
-2026-11-13T13:57:28.6041888Z test auv3::view::tests::a_drag_round_trips_into_the_edit_queue ... ok
-2026-11-13T13:57:28.6042763Z test gui::tests::pointer_positions_read_back ... ok
-2026-11-13T13:57:28.6052790Z test gui::vieww::tests::a_press_outside_the_rows_edits_nothing ... ok
-2026-11-13T13:57:28.6056522Z test gui::vieww::tests::degenerate_ranges_render_and_hit_at_the_middle ... ok
-2026-11-13T13:57:28.6064315Z test gui::vieww::tests::drags_clamp_and_snap_to_the_taper ... ok
-2026-11-13T13:57:28.6076211Z test gui::vieww::tests::a_drag_round_trips_through_the_host_and_back ... ok
-2026-11-13T13:57:28.6078180Z test gui::vieww::tests::readout_digits_are_the_classic_patterns ... ok
-2026-11-13T13:57:28.6092408Z test gui::vieww::tests::native_parents_are_refused_and_close_notifies ... ok
-2026-11-13T13:57:28.6124811Z test clap::tests::the_gui_extension_lives_the_clap_lifecycle_offscreen ... ok
-2026-11-13T13:57:28.6127293Z test lv2::sys::layout::sizes_and_offsets_match_the_headers ... ok
-2026-11-13T13:57:28.6127854Z test gui::vieww::tests::frames_are_deterministic ... ok
-2026-11-13T13:57:28.6129702Z test lv2::tests::a_corrupt_sequence_is_ignored_rather_than_read_past ... ok
-2026-11-13T13:57:28.6135425Z test lv2::tests::an_instrument_receives_midi_notes_and_folds_them_into_events ... ok
-2026-11-13T13:57:28.6136224Z test lv2::tests::an_effect_automates_sample_accurately_and_reports_latency ... ok
-2026-11-13T13:57:28.6137702Z test lv2::tests::descriptors_list_their_uris_and_refuse_unknown_ones ... ok
-2026-11-13T13:57:28.6138197Z test lv2::tests::instantiate_refuses_without_a_urid_map ... ok
-2026-11-13T13:57:28.6139739Z test lv2::tests::midi_note_on_velocity_zero_is_a_note_off ... ok
-2026-11-13T13:57:28.6183040Z test lv2::tests::parameters_round_trip_through_patch_messages ... ok
-2026-11-13T13:57:28.6184293Z test lv2::tests::state_round_trips_through_the_extension ... ok
-2026-11-13T13:57:28.6184900Z test lv2::ttl::tests::effect_ttl_matches_the_wrapper_layout ... ok
-2026-11-13T13:57:28.6185690Z test lv2::ttl::tests::instrument_ttl_supports_midi_and_has_no_audio_inputs ... ok
-2026-11-13T13:57:28.6187142Z test lv2::ttl::tests::manifest_names_the_uri_binary_and_tll ... ok
-2026-11-13T13:57:28.6187623Z test lv2::ttl::tests::bundle_files_land_on_disk_with_the_generated_text ... ok
-2026-11-13T13:57:28.6188020Z test lv2::ttl::tests::numbers_and_versions_are_plain_turtle ... ok
-2026-11-13T13:57:28.6189377Z test lv2::ttl::tests::plugin_class_comes_from_kind_and_features ... ok
-2026-11-13T13:57:28.6189808Z test sanitize_tests::non_finite_plugin_output_becomes_silence ... ok
-2026-11-13T13:57:28.6190153Z test tests::automation_is_sample_accurate ... ok
-2026-11-13T13:57:28.6190476Z test tests::buffers_window_and_pass_through ... ok
-2026-11-13T13:57:28.6190800Z test tests::c_strings_truncate_on_char_boundaries ... ok
-2026-11-13T13:57:28.6191452Z test tests::default_state_round_trips_parameters ... ok
-2026-11-13T13:57:28.6191926Z test tests::denormals_flush_inside_the_guard_and_return_after ... ok
-2026-11-13T13:57:28.6192286Z test tests::events_arrive_relative_to_their_slice ... ok
-2026-11-13T13:57:28.6195073Z test vst3::sys::layout::sizes_and_offsets_match_the_headers ... ok
-2026-11-13T13:57:28.6195561Z test vst3::sys::layout::uids_use_the_platform_byte_order ... ok
-2026-11-13T13:57:28.6195995Z test vst3::sys::layout::utf16_buffers ... ok
-2026-11-13T13:57:28.6196453Z test vst3::tests::an_effect_processes_with_sample_accurate_automation ... ok
-2026-11-13T13:57:28.6198227Z test vst3::tests::midi_parameter_values_become_midi_bytes ... ok
-2026-11-13T13:57:28.6202433Z test vst3::tests::process_context_becomes_transport ... ok
-2026-11-13T13:57:28.6206242Z test vst3::tests::state_moves_between_instances_and_the_controller_follows ... ok
-2026-11-13T13:57:28.6208611Z test vst3::tests::subcategories_follow_features ... ok
-2026-11-13T13:57:28.6213057Z test vst3::tests::the_factory_describes_both_classes ... ok
-2026-11-13T13:57:28.6216644Z test gui::vieww::tests::resize_and_scale_change_the_frame_and_geometry_keeps_working ... ok
-2026-11-13T13:57:28.6237340Z test vst3::tests::an_instrument_gets_notes_cc_parameters_and_context ... ok
-2026-11-13T13:57:28.6266102Z test gui::vieww::tests::the_frame_is_sized_and_opaque ... ok
-2026-11-13T13:57:28.6266345Z 
-2026-11-13T13:57:28.6266570Z test result: ok. 76 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
-2026-11-13T13:57:28.6266812Z 
-2026-11-13T13:57:29.4837846Z [1m[92m    Checking[0m simd-adler32 v0.3.10
-2026-11-13T13:57:29.4839670Z [1m[92m    Checking[0m adler2 v2.0.1
-2026-11-13T13:57:29.4840404Z [1m[92m    Checking[0m cfg-if v1.0.5
-2026-11-13T13:57:29.4842308Z [1m[92m    Checking[0m bytemuck v1.25.2
-2026-11-13T13:57:29.5179750Z [1m[92m    Checking[0m crc32fast v1.5.2
-2026-11-13T13:57:29.5516953Z [1m[92m    Checking[0m unicode-segmentation v1.13.3
-2026-11-13T13:57:29.5935776Z [1m[92m    Checking[0m miniz_oxide v0.9.1
-2026-11-13T13:57:29.6324554Z [1m[92m    Checking[0m once_cell v1.21.4
-2026-11-13T13:57:29.6484829Z [1m[92m    Checking[0m font-types v0.12.5
-2026-11-13T13:57:29.7239406Z [1m[92m    Checking[0m miniz_oxide v0.8.9
-2026-11-13T13:57:29.9061620Z [1m[92m    Checking[0m vieww-foundation v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-foundation)
-2026-11-13T13:57:29.9673103Z [1m[92m    Checking[0m read-fonts v0.41.0
-2026-11-13T13:57:30.0319007Z [1m[92m    Checking[0m flate2 v1.1.10
-2026-11-13T13:57:30.1547920Z [1m[92m    Checking[0m fdeflate v0.3.7
-2026-11-13T13:57:30.3481431Z [1m[92m    Checking[0m bitflags v2.13.2
-2026-11-13T13:57:30.4335700Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio)
-2026-11-13T13:57:30.4676489Z [1m[92m    Checking[0m png v0.18.1
-2026-11-13T13:57:30.6366303Z [1m[92m    Checking[0m ttf-parser v0.25.1
-2026-11-13T13:57:31.2557278Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-macros)
-2026-11-13T13:57:35.1425475Z [1m[92m    Checking[0m skrifa v0.44.0
-2026-11-13T13:57:36.7422586Z [1m[92m    Checking[0m vieww-paint v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-paint)
-2026-11-13T13:57:37.6753432Z [1m[92m    Checking[0m vieww-audio-plugin v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-plugin)
-2026-11-13T13:57:39.0167087Z [1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 9.82s
-2026-11-13T13:57:39.0791385Z ##[endgroup]
-2026-11-13T13:57:39.0805696Z ##[group]Build, bundle and validate (CLAP + VST3 + LV2)
-2026-11-13T13:57:39.2641223Z == building the example plugins (static std, release)
-2026-11-13T13:58:29.4149312Z == bundling
-2026-11-13T13:58:29.5800211Z   /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_gain.clap  /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_gain.vst3  /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_gain.lv2
-2026-11-13T13:58:29.6462165Z   /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_synth.clap  /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_synth.vst3  /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_synth.lv2
-2026-11-13T13:58:29.6469180Z == Rust hosts loading the built plugins
-2026-11-13T13:58:32.3063492Z 
-2026-11-13T13:58:32.3063994Z running 2 tests
-2026-11-13T13:58:32.3166428Z ..
-2026-11-13T13:58:32.3166780Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
-2026-11-13T13:58:32.3166989Z 
-2026-11-13T13:58:32.3290082Z == Rust LV2 host writing and loading the built bundles
-2026-11-13T13:58:34.2195257Z 
-2026-11-13T13:58:34.2195972Z running 1 test
-2026-11-13T13:58:34.2225789Z .
-2026-11-13T13:58:34.2227430Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-2026-11-13T13:58:34.2227702Z 
-2026-11-13T13:58:34.2305739Z 
-2026-11-13T13:58:34.2305939Z running 1 test
-2026-11-13T13:58:34.2356312Z .
-2026-11-13T13:58:34.2356628Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
-2026-11-13T13:58:34.2356864Z 
-2026-11-13T13:58:34.2570143Z == C/C++ hosts compiled against the official headers
-2026-11-13T13:58:46.6477641Z C:/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\Users\RUNNER~1\AppData\Local\Temp\ccSYDOw8.o:funknown.cpp:(.text+0x162): undefined reference to `__imp_CoCreateGuid'
-2026-11-13T13:58:46.6616004Z collect2.exe: error: ld returned 1 exit status
-2026-11-13T13:58:46.6727067Z ##[endgroup]
-2026-11-13T13:58:46.6759042Z ##[error]Build, bundle and validate (CLAP + VST3 + LV2) failed (exit 1)
-2026-11-13T13:58:46.6763916Z ##[group]mark: upload vieww-plugins-${{ matrix.os }}
-2026-11-13T13:58:46.7016361Z ##[endgroup]
-2026-11-13T13:58:46.7188912Z ##[error]Process completed with exit code 1.
-2026-11-13T13:58:46.7354693Z ##[group]Run actions/upload-artifact@v4
-2026-11-13T13:58:46.7354998Z with:
-2026-11-13T13:58:46.7355178Z   name: vieww-plugins-windows-latest
-2026-11-13T13:58:46.7355393Z   path: vieww_base/target/plugins/bundles
-2026-11-13T13:58:46.7355607Z   if-no-files-found: ignore
-2026-11-13T13:58:46.7355986Z   include-hidden-files: false
-2026-11-13T13:58:46.7356175Z   compression-level: 6
-2026-11-13T13:58:46.7356342Z   overwrite: false
-2026-11-13T13:58:46.7356498Z env:
-2026-11-13T13:58:46.7356668Z   CI_INPUTS: {}
-2026-11-13T13:58:46.7356817Z   CI_MATRIX: {"os": "windows-latest"}
-2026-11-13T13:58:46.7357577Z   CI_JOB: {"title": "vieww-audio-plugin \u00b7 plugins (windows-latest)", "project": "vieww-audio-plugin", "id": "plugins", "file": "vieww_base/crates/vieww-audio-plugin/ci/jobs/plugins.toml", "if": "", "needs": [], "setup": [], "uploads": [{"name": "vieww-plugins-${{ matrix.os }}", "path": "vieww_base/target/plugins/bundles", "if-no-files-found": "ignore"}], "downloads": []}
-2026-11-13T13:58:46.7358418Z   CI_PROJECT: vieww-audio-plugin
-2026-11-13T13:58:46.7359054Z   CI_VARS: {
+===== phase-1 / vieww-audio · backends-macos-loopback	log =====
+﻿<?xml version="1.0" encoding="utf-8"?><Error><Code>BlobNotFound</Code><Message>The specified blob does not exist.
+RequestId:5a01aea4-d01e-007a-7b80-73aa9e000000
+Time:2026-11-13T15:07:28.5585444Z</Message></Error>
+
+===== phase-1 / vieww-audio · backends-windows-loopback	log =====
+2026-11-13T14:17:59.6977727Z ##[endgroup]
+2026-11-13T14:17:59.7325627Z ##[group]Run actions/setup-python@v5
+2026-11-13T14:17:59.7325980Z with:
+2026-11-13T14:17:59.7326176Z   python-version: 3.12
+2026-11-13T14:17:59.7326403Z   update-environment: false
+2026-11-13T14:17:59.7326628Z   check-latest: false
+2026-11-13T14:17:59.7328991Z   token: ***
+2026-11-13T14:17:59.7329191Z   allow-prereleases: false
+2026-11-13T14:17:59.7329425Z   freethreaded: false
+2026-11-13T14:17:59.7329614Z env:
+2026-11-13T14:17:59.7329776Z   CI_INPUTS: {}
+2026-11-13T14:17:59.7329950Z   CI_MATRIX: {}
+2026-11-13T14:17:59.7330913Z   CI_JOB: {"title": "vieww-audio \u00b7 backends-windows-loopback", "project": "vieww-audio", "id": "backends-windows-loopback", "file": "vieww_base/crates/vieww-audio/ci/jobs/backends-windows-loopback.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []}
+2026-11-13T14:17:59.7332203Z   CI_PROJECT: vieww-audio
+2026-11-13T14:17:59.7333119Z   CI_VARS: {
   "AWS_REGION": "us-west-2",
   "AWS_ROLE_ARN": "***",
   "DEVICE_FARM_PROJECT_ARN": "***"
 }
-2026-11-13T13:58:46.7360501Z   CI_GITHUB_TOKEN: ***
-2026-11-13T13:58:46.7360916Z   CI_SECRET_NAMES: 
-2026-11-13T13:58:46.7361127Z   CI_HAS_AWS_ROLE: true
-2026-11-13T13:58:46.7361324Z   ANDROID_KEYSTORE: 
-2026-11-13T13:58:46.7361496Z   ANDROID_KEYSTORE_PASSWORD: 
-2026-11-13T13:58:46.7361677Z   ANDROID_KEY_ALIAS: 
-2026-11-13T13:58:46.7361849Z   ANDROID_KEY_PASSWORD: 
-2026-11-13T13:58:46.7362043Z   APPLE_DEVELOPER_ID_P12: 
-2026-11-13T13:58:46.7362221Z   APPLE_NOTARY_ISSUER: 
-2026-11-13T13:58:46.7362392Z   APPLE_NOTARY_KEY: 
-2026-11-13T13:58:46.7362560Z   APPLE_NOTARY_KEY_ID: 
-2026-11-13T13:58:46.7362748Z   APPLE_P12_PASSWORD: 
-2026-11-13T13:58:46.7362916Z   APPLE_SIGNING_IDENTITY: 
-2026-11-13T13:58:46.7363083Z   AWS_ACCESS_KEY_ID: 
-2026-11-13T13:58:46.7363242Z   AWS_ROLE_ARN: 
-2026-11-13T13:58:46.7363426Z   AWS_SECRET_ACCESS_KEY: 
-2026-11-13T13:58:46.7363599Z   CARGO_REGISTRY_TOKEN: 
-2026-11-13T13:58:46.7363769Z   CLOUDFLARE_ACCOUNT_ID: 
-2026-11-13T13:58:46.7363937Z   CLOUDFLARE_API_TOKEN: 
-2026-11-13T13:58:46.7364123Z   DEVICE_FARM_PROJECT_ARN: 
-2026-11-13T13:58:46.7364290Z   IOS_CERT_P12: 
-2026-11-13T13:58:46.7364438Z   IOS_CERT_PASSWORD: 
-2026-11-13T13:58:46.7364596Z   IOS_IDENTITY: 
-2026-11-13T13:58:46.7364766Z   IOS_PROFILE: 
-2026-11-13T13:58:46.7364902Z   WINDOWS_CERT_PASSWORD: 
-2026-11-13T13:58:46.7365069Z   WINDOWS_CERT_PFX: 
-2026-11-13T13:58:46.7365244Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
-2026-11-13T13:58:46.7365461Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
-2026-11-13T13:58:46.7365655Z   WRIGHT_SECRET_MACOS_P12: 
-2026-11-13T13:58:46.7365838Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
-2026-11-13T13:58:46.7366036Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
-2026-11-13T13:58:46.7366264Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
-2026-11-13T13:58:46.7366452Z   WRIGHT_SECRET_WINDOWS_PFX: 
-2026-11-13T13:58:46.7366642Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
-2026-11-13T13:58:46.7366844Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
-2026-11-13T13:58:46.7367102Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
-2026-11-13T13:58:46.7367335Z   CI_UPLOAD_0: yes
-2026-11-13T13:58:46.7367498Z ##[endgroup]
-2026-11-13T13:58:46.8675575Z (node:1244) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-2026-11-13T13:58:46.8676084Z (Use `node --trace-deprecation ...` to show where the warning was created)
-2026-11-13T13:58:46.8753157Z With the provided path, there will be 10 files uploaded
-2026-11-13T13:58:46.8756545Z Artifact name is valid!
-2026-11-13T13:58:46.8757407Z Root directory input is valid!
-2026-11-13T13:58:47.1772980Z Beginning upload of artifact content to blob storage
-2026-11-13T13:58:47.2535382Z (node:1244) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
-2026-11-13T13:58:47.5621341Z Uploaded bytes 1050635
-2026-11-13T13:58:47.5982243Z Finished uploading artifact content to blob storage!
-2026-11-13T13:58:47.5983031Z SHA256 digest of uploaded artifact zip is 94b4b7c3df2788a3fd27d43acc12f420dcaf2cffe76731dca38cb9542dcd36ca
-2026-11-13T13:58:47.5984462Z Finalizing artifact upload
-2026-11-13T13:58:47.9612867Z Artifact vieww-plugins-windows-latest.zip successfully finalized. Artifact ID 14045025728
-2026-11-13T13:58:47.9613637Z Artifact vieww-plugins-windows-latest has been successfully uploaded! Final size is 1050635 bytes. Artifact ID is 14045025728
-2026-11-13T13:58:47.9622304Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/43435624878/artifacts/14045025728
-2026-11-13T13:58:47.9930835Z Post job cleanup.
-2026-11-13T13:58:48.0985634Z [command]"C:\Program Files\Git\bin\git.exe" version
-2026-11-13T13:58:48.1249165Z git version 2.56.0.windows.4
-2026-11-13T13:58:48.1303032Z Temporarily overriding HOME='D:\a\_temp\06ee6667-052f-4ba4-bdfd-8b5efc573387' before making global git config changes
-2026-11-13T13:58:48.1303716Z Adding repository directory to the temporary git global config as a safe directory
-2026-11-13T13:58:48.1312218Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\vieww_prod\vieww_prod
-2026-11-13T13:58:48.1606804Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
-2026-11-13T13:58:48.1895711Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
-2026-11-13T13:58:48.6091574Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
-2026-11-13T13:58:48.6333769Z http.https://github.com/.extraheader
-2026-11-13T13:58:48.6370772Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
-2026-11-13T13:58:48.6665070Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
-2026-11-13T13:58:49.0956057Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
-2026-11-13T13:58:49.1248750Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
-2026-11-13T13:58:49.5536278Z Cleaning up orphan processes
-2026-11-13T13:58:49.5734304Z Terminate orphan process: pid (1060) (vctip)
-2026-11-13T13:58:49.5782709Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-11-13T14:17:59.7335655Z   CI_GITHUB_TOKEN: ***
+2026-11-13T14:17:59.7335858Z   CI_SECRET_NAMES: 
+2026-11-13T14:17:59.7336042Z   CI_HAS_AWS_ROLE: true
+2026-11-13T14:17:59.7336231Z   ANDROID_KEYSTORE: 
+2026-11-13T14:17:59.7336431Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-13T14:17:59.7336644Z   ANDROID_KEY_ALIAS: 
+2026-11-13T14:17:59.7336831Z   ANDROID_KEY_PASSWORD: 
+2026-11-13T14:17:59.7337223Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-13T14:17:59.7337439Z   APPLE_NOTARY_ISSUER: 
+2026-11-13T14:17:59.7337629Z   APPLE_NOTARY_KEY: 
+2026-11-13T14:17:59.7337815Z   APPLE_NOTARY_KEY_ID: 
+2026-11-13T14:17:59.7338000Z   APPLE_P12_PASSWORD: 
+2026-11-13T14:17:59.7338434Z   APPLE_SIGNING_IDENTITY: 
+2026-11-13T14:17:59.7338633Z   AWS_ACCESS_KEY_ID: 
+2026-11-13T14:17:59.7338813Z   AWS_ROLE_ARN: 
+2026-11-13T14:17:59.7338991Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-13T14:17:59.7339956Z   CARGO_REGISTRY_TOKEN: 
+2026-11-13T14:17:59.7340166Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-13T14:17:59.7340388Z   CLOUDFLARE_API_TOKEN: 
+2026-11-13T14:17:59.7340595Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-13T14:17:59.7340801Z   IOS_CERT_P12: 
+2026-11-13T14:17:59.7340975Z   IOS_CERT_PASSWORD: 
+2026-11-13T14:17:59.7341155Z   IOS_IDENTITY: 
+2026-11-13T14:17:59.7341344Z   IOS_PROFILE: 
+2026-11-13T14:17:59.7341520Z   WINDOWS_CERT_PASSWORD: 
+2026-11-13T14:17:59.7341719Z   WINDOWS_CERT_PFX: 
+2026-11-13T14:17:59.7341913Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-13T14:17:59.7342169Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-13T14:17:59.7342414Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-13T14:17:59.7342631Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-13T14:17:59.7342889Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-13T14:17:59.7343155Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-13T14:17:59.7343386Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-13T14:17:59.7343612Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T14:17:59.7343866Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T14:17:59.7344107Z ##[endgroup]
+2026-11-13T14:17:59.9054080Z ##[group]Installed versions
+2026-11-13T14:17:59.9148895Z (node:1436) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T14:17:59.9149920Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T14:17:59.9152059Z Successfully set up CPython (3.12.10)
+2026-11-13T14:17:59.9152782Z ##[endgroup]
+2026-11-13T14:17:59.9458309Z ##[group]Run [ -n "$CI_PY" ] && echo "CI_PY=$CI_PY" >> "$GITHUB_ENV"
+2026-11-13T14:17:59.9458890Z [36;1m[ -n "$CI_PY" ] && echo "CI_PY=$CI_PY" >> "$GITHUB_ENV"[0m
+2026-11-13T14:17:59.9459253Z [36;1m"${CI_PY:-python3}" ci/lib/prepare.py[0m
+2026-11-13T14:17:59.9476752Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-11-13T14:17:59.9477154Z env:
+2026-11-13T14:17:59.9477321Z   CI_INPUTS: {}
+2026-11-13T14:17:59.9477513Z   CI_MATRIX: {}
+2026-11-13T14:17:59.9478486Z   CI_JOB: {"title": "vieww-audio \u00b7 backends-windows-loopback", "project": "vieww-audio", "id": "backends-windows-loopback", "file": "vieww_base/crates/vieww-audio/ci/jobs/backends-windows-loopback.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []}
+2026-11-13T14:17:59.9479524Z   CI_PROJECT: vieww-audio
+2026-11-13T14:17:59.9480461Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-13T14:17:59.9483059Z   CI_GITHUB_TOKEN: ***
+2026-11-13T14:17:59.9483346Z   CI_SECRET_NAMES: 
+2026-11-13T14:17:59.9483543Z   CI_HAS_AWS_ROLE: true
+2026-11-13T14:17:59.9483761Z   ANDROID_KEYSTORE: 
+2026-11-13T14:17:59.9483976Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-13T14:17:59.9484627Z   ANDROID_KEY_ALIAS: 
+2026-11-13T14:17:59.9484834Z   ANDROID_KEY_PASSWORD: 
+2026-11-13T14:17:59.9485050Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-13T14:17:59.9485264Z   APPLE_NOTARY_ISSUER: 
+2026-11-13T14:17:59.9485466Z   APPLE_NOTARY_KEY: 
+2026-11-13T14:17:59.9485656Z   APPLE_NOTARY_KEY_ID: 
+2026-11-13T14:17:59.9485849Z   APPLE_P12_PASSWORD: 
+2026-11-13T14:17:59.9486063Z   APPLE_SIGNING_IDENTITY: 
+2026-11-13T14:17:59.9497581Z   AWS_ACCESS_KEY_ID: 
+2026-11-13T14:17:59.9497808Z   AWS_ROLE_ARN: 
+2026-11-13T14:17:59.9498021Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-13T14:17:59.9498257Z   CARGO_REGISTRY_TOKEN: 
+2026-11-13T14:17:59.9498486Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-13T14:17:59.9498703Z   CLOUDFLARE_API_TOKEN: 
+2026-11-13T14:17:59.9498934Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-13T14:17:59.9499159Z   IOS_CERT_P12: 
+2026-11-13T14:17:59.9499354Z   IOS_CERT_PASSWORD: 
+2026-11-13T14:17:59.9499546Z   IOS_IDENTITY: 
+2026-11-13T14:17:59.9499716Z   IOS_PROFILE: 
+2026-11-13T14:17:59.9499894Z   WINDOWS_CERT_PASSWORD: 
+2026-11-13T14:17:59.9500094Z   WINDOWS_CERT_PFX: 
+2026-11-13T14:17:59.9500304Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-13T14:17:59.9500568Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-13T14:17:59.9501112Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-13T14:17:59.9501337Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-13T14:17:59.9501620Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-13T14:17:59.9501893Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-13T14:17:59.9502133Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-13T14:17:59.9502381Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T14:17:59.9502643Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T14:17:59.9502970Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-13T14:17:59.9503315Z ##[endgroup]
+2026-11-13T14:18:01.9146380Z {
+2026-11-13T14:18:01.9146764Z  "go": "true",
+2026-11-13T14:18:01.9147203Z  "tools": "",
+2026-11-13T14:18:01.9147437Z  "has_final": "false"
+2026-11-13T14:18:01.9147657Z }
+2026-11-13T14:18:01.9885903Z ##[group]Run "${CI_PY:-python3}" ci/lib/run.py "vieww_base/crates/vieww-audio/ci/jobs/backends-windows-loopback.toml"
+2026-11-13T14:18:01.9886830Z [36;1m"${CI_PY:-python3}" ci/lib/run.py "vieww_base/crates/vieww-audio/ci/jobs/backends-windows-loopback.toml"[0m
+2026-11-13T14:18:01.9904340Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-11-13T14:18:01.9904736Z env:
+2026-11-13T14:18:01.9904900Z   CI_INPUTS: {}
+2026-11-13T14:18:01.9905080Z   CI_MATRIX: {}
+2026-11-13T14:18:01.9906033Z   CI_JOB: {"title": "vieww-audio \u00b7 backends-windows-loopback", "project": "vieww-audio", "id": "backends-windows-loopback", "file": "vieww_base/crates/vieww-audio/ci/jobs/backends-windows-loopback.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []}
+2026-11-13T14:18:01.9907067Z   CI_PROJECT: vieww-audio
+2026-11-13T14:18:01.9908062Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-13T14:18:01.9910644Z   CI_GITHUB_TOKEN: ***
+2026-11-13T14:18:01.9910859Z   CI_SECRET_NAMES: 
+2026-11-13T14:18:01.9911046Z   CI_HAS_AWS_ROLE: true
+2026-11-13T14:18:01.9911244Z   ANDROID_KEYSTORE: 
+2026-11-13T14:18:01.9911451Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-13T14:18:01.9911675Z   ANDROID_KEY_ALIAS: 
+2026-11-13T14:18:01.9911863Z   ANDROID_KEY_PASSWORD: 
+2026-11-13T14:18:01.9912079Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-13T14:18:01.9912286Z   APPLE_NOTARY_ISSUER: 
+2026-11-13T14:18:01.9912483Z   APPLE_NOTARY_KEY: 
+2026-11-13T14:18:01.9912668Z   APPLE_NOTARY_KEY_ID: 
+2026-11-13T14:18:01.9912859Z   APPLE_P12_PASSWORD: 
+2026-11-13T14:18:01.9913069Z   APPLE_SIGNING_IDENTITY: 
+2026-11-13T14:18:01.9913280Z   AWS_ACCESS_KEY_ID: 
+2026-11-13T14:18:01.9913469Z   AWS_ROLE_ARN: 
+2026-11-13T14:18:01.9913653Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-13T14:18:01.9913859Z   CARGO_REGISTRY_TOKEN: 
+2026-11-13T14:18:01.9914074Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-13T14:18:01.9914283Z   CLOUDFLARE_API_TOKEN: 
+2026-11-13T14:18:01.9914491Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-13T14:18:01.9914694Z   IOS_CERT_P12: 
+2026-11-13T14:18:01.9914884Z   IOS_CERT_PASSWORD: 
+2026-11-13T14:18:01.9915065Z   IOS_IDENTITY: 
+2026-11-13T14:18:01.9915240Z   IOS_PROFILE: 
+2026-11-13T14:18:01.9915417Z   WINDOWS_CERT_PASSWORD: 
+2026-11-13T14:18:01.9916051Z   WINDOWS_CERT_PFX: 
+2026-11-13T14:18:01.9916308Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-13T14:18:01.9916558Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-13T14:18:01.9916802Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-13T14:18:01.9917024Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-13T14:18:01.9917276Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-13T14:18:01.9917527Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-13T14:18:01.9917752Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-13T14:18:01.9917987Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T14:18:01.9918243Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T14:18:01.9918574Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-13T14:18:01.9918894Z   CI_PART: main
+2026-11-13T14:18:01.9919073Z ##[endgroup]
+2026-11-13T14:18:02.1813023Z ##[group]Install Rust toolchain
+2026-11-13T14:18:03.0054757Z info: syncing channel updates for 1.98.1-x86_64-pc-windows-msvc
+2026-11-13T14:18:03.7222732Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-13T14:18:03.7367049Z info: downloading 3 components
+2026-11-13T14:18:12.9535214Z 
+2026-11-13T14:18:12.9944965Z   1.98.1-x86_64-pc-windows-msvc installed - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-13T14:18:12.9945596Z 
+2026-11-13T14:18:13.0384502Z info: using existing install for 1.98.1-x86_64-pc-windows-msvc
+2026-11-13T14:18:13.0601908Z info: default toolchain set to 1.98.1-x86_64-pc-windows-msvc
+2026-11-13T14:18:13.0602491Z 
+2026-11-13T14:18:13.0861805Z   1.98.1-x86_64-pc-windows-msvc unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-13T14:18:13.0862271Z 
+2026-11-13T14:18:13.0871500Z info: note that the toolchain '1.98.1-x86_64-pc-windows-msvc' is currently in use (overridden by 'D:\a\vieww_prod\vieww_prod\vieww_base\rust-toolchain.toml')
+2026-11-13T14:18:13.0948165Z ##[endgroup]
+2026-11-13T14:18:13.0971728Z ##[group]Install VB-CABLE
+2026-11-13T14:18:13.5224054Z Cloning into 'D:\a\_temp\sch'...
+2026-11-13T14:18:14.7975970Z Downloading https://download.vb-audio.com/Download_CABLE/VBCABLE_Driver_Pack43.zip
+2026-11-13T14:18:15.3571481Z File saved at D:\a\_temp\sch\windows\vbcable.zip
+2026-11-13T14:18:16.7588589Z TrustedPublisher "Trusted Publishers"
+2026-11-13T14:18:16.7672822Z Certificate "Vincent Burel" added to store.
+2026-11-13T14:18:16.7673299Z CertUtil: -addstore command completed successfully.
+2026-11-13T14:18:17.6115052Z Device node created. Install is complete when drivers are installed...
+2026-11-13T14:18:17.6116263Z Updating drivers for VBAudioVACWDM from D:\a\_temp\sch\windows\vbcable\vbMmeCable64_win7.inf.
+2026-11-13T14:18:17.6118144Z Drivers installed successfully.
+2026-11-13T14:18:18.8243566Z 
+2026-11-13T14:18:18.8307082Z [32;1mStatus[0m[32;1m Class        [0m[32;1m FriendlyName                         [0m[32;1m InstanceId[0m
+2026-11-13T14:18:18.8308698Z [32;1m------[0m [32;1m-----        [0m [32;1m------------                         [0m [32;1m----------[0m
+2026-11-13T14:18:18.8310815Z OK     AudioEndpoint Speakers (VB-Audio Virtual Cable)     SWD\MMDEVAPI\{0.0.0.00000000}.{60F47F7E-6825-4C0D-9BC9-DC8E…
+2026-11-13T14:18:18.8311903Z OK     AudioEndpoint CABLE Output (VB-Audio Virtual Cable) SWD\MMDEVAPI\{0.0.1.00000000}.{2D800DDB-9D10-4056-901C-ACC0…
+2026-11-13T14:18:18.8313178Z 
+2026-11-13T14:18:18.9129086Z ##[endgroup]
+2026-11-13T14:18:18.9148214Z ##[group]Allow microphone access (capture)
+2026-11-13T14:18:19.2731408Z 
+2026-11-13T14:18:19.2738647Z [32;1mLetAppsAccessMicrophone : [0m1
+2026-11-13T14:18:19.2740905Z [32;1mPSPath                  : [0mMicrosoft.PowerShell.Core\Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Ap
+2026-11-13T14:18:19.2741963Z                           pPrivacy
+2026-11-13T14:18:19.2743149Z [32;1mPSParentPath            : [0mMicrosoft.PowerShell.Core\Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows
+2026-11-13T14:18:19.2744219Z [32;1mPSChildName             : [0mAppPrivacy
+2026-11-13T14:18:19.2744859Z [32;1mPSDrive                 : [0mHKLM
+2026-11-13T14:18:19.2745599Z [32;1mPSProvider              : [0mMicrosoft.PowerShell.Core\Registry
+2026-11-13T14:18:19.2746097Z 
+2026-11-13T14:18:19.3227438Z ##[endgroup]
+2026-11-13T14:18:19.3247087Z ##[group]Endpoints list and open by id
+2026-11-13T14:18:20.1824444Z info: syncing channel updates for 1.98.1-x86_64-pc-windows-msvc
+2026-11-13T14:18:20.8420906Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-13T14:18:20.8694987Z info: downloading 3 components
+2026-11-13T14:18:25.5439883Z [1m[92m    Updating[0m crates.io index
+2026-11-13T14:18:27.3391286Z [1m[92m Downloading[0m crates ...
+2026-11-13T14:18:27.6003896Z [1m[92m  Downloaded[0m unicode-segmentation v1.13.3
+2026-11-13T14:18:27.7434327Z [1m[92m   Compiling[0m unicode-segmentation v1.13.3
+2026-11-13T14:18:27.7437397Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio)
+2026-11-13T14:18:27.7448070Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-macros)
+2026-11-13T14:18:28.2219728Z [1m[92m   Compiling[0m vieww-foundation v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-foundation)
+2026-11-13T14:20:18.2584332Z [1m[92m    Finished[0m `release` profile [optimized + debuginfo] target(s) in 1m 52s
+2026-11-13T14:20:18.3308655Z [1m[92m     Running[0m unittests src\lib.rs (target\release\deps\vieww_audio-e2dc310f7f7e1a80.exe)
+2026-11-13T14:20:18.3468112Z 
+2026-11-13T14:20:18.3468932Z running 11 tests
+2026-11-13T14:20:18.3475506Z test backend::wasapi::tests::a_default_endpoint_flip_is_followed_at_once ... ignored, needs two render endpoints (self-hosted Windows)
+2026-11-13T14:20:18.3477310Z test backend::wasapi::tests::exclusive_formats_describe_what_is_written ... ok
+2026-11-13T14:20:18.3478902Z test backend::wasapi::tests::low_latency_shared_on_a_real_endpoint ... ignored, needs a real render endpoint (self-hosted Windows)
+2026-11-13T14:20:18.3492280Z test backend::wasapi::tests::mix_format_float_detection ... ok
+2026-11-13T14:20:18.3550912Z test backend::wasapi::tests::endpoint_notifications_register_and_unregister ... ok
+2026-11-13T14:20:18.3558301Z test backend::wasapi::tests::the_format_struct_has_the_sdk_layout ... ok
+2026-11-13T14:20:18.3562804Z test backend::wasapi::tests::the_notification_client_answers_its_interfaces_only ... ok
+2026-11-13T14:20:18.3566369Z test backend::wasapi::tests::the_property_structs_have_the_sdk_layout ... ok
+2026-11-13T14:20:18.7004985Z test backend::wasapi::tests::plays_on_the_default_endpoint_or_refuses_cleanly ... ok
+2026-11-13T14:20:18.7008188Z test backend::wasapi::tests::lists_endpoints_and_opens_one_by_id_or_refuses_cleanly ... ok
+2026-11-13T14:20:18.9380953Z wasapi shared: buffer Some(1056) frames, latency Some(22ms), callbacks 28
+2026-11-13T14:20:18.9509661Z test backend::wasapi::tests::a_small_block_shared_stream_reports_buffer_and_latency ... ok
+2026-11-13T14:20:18.9510781Z 
+2026-11-13T14:20:18.9511317Z test result: ok. 9 passed; 0 failed; 2 ignored; 0 measured; 599 filtered out; finished in 0.60s
+2026-11-13T14:20:18.9511988Z 
+2026-11-13T14:20:18.9812826Z ##[endgroup]
+2026-11-13T14:20:18.9842992Z ##[group]Loopback, shared mode
+2026-11-13T14:20:19.4375400Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio)
+2026-11-13T14:21:21.1618243Z [1m[92m    Finished[0m `release` profile [optimized + debuginfo] target(s) in 1m 02s
+2026-11-13T14:21:21.1703731Z [1m[92m     Running[0m tests\device_loopback.rs (target\release\deps\device_loopback-1fa765445b04dd6b.exe)
+2026-11-13T14:21:21.1864813Z 
+2026-11-13T14:21:21.1865462Z running 1 test
+2026-11-13T14:21:24.3035262Z wasapi: output StreamStats { callbacks: 297, frames: 145056, xruns: 0, ended: false, priority: Some(Realtime), render_mean: 20.775µs, render_max: 47.1µs, load_peak: 0.002, late: 0, latency: Some(22ms), exclusive: false, disconnected: false, buffer_frames: Some(1056), period_frames: None }
+2026-11-13T14:21:24.3039074Z wasapi: input StreamStats { callbacks: 300, frames: 143966, xruns: 0, ended: false, priority: None, render_mean: 0ns, render_max: 0ns, load_peak: 0.0, late: 0, latency: Some(22.041666ms), exclusive: false, disconnected: false, buffer_frames: Some(1058), period_frames: None }
+2026-11-13T14:21:24.3135287Z wasapi default loopback left: Report { windows: 287, snr_db: 47.2085037717509, amp_spread_db: 0.013776595007853665, phase_spread: 0.18789785451030785, worst_window_snr_db: 24.916240664743214, drift_rad_s: -0.030083781719490704 }
+2026-11-13T14:21:24.3138095Z 
+2026-11-13T14:21:24.3139560Z thread 'default_device_loopback' (712) panicked at crates\vieww-audio\tests\device_loopback.rs:140:9:
+2026-11-13T14:21:24.3141893Z wasapi default loopback left: phase jumped 0.188 rad — frames were dropped or repeated
+2026-11-13T14:21:24.3143118Z stack backtrace:
+2026-11-13T14:21:24.6748485Z    0: std::panicking::panic_handler
+2026-11-13T14:21:24.6749551Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+2026-11-13T14:21:24.6750364Z    1: core::panicking::panic_fmt
+2026-11-13T14:21:24.6750930Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+2026-11-13T14:21:24.6758149Z    2: device_loopback::Report::check
+2026-11-13T14:21:24.6758692Z              at .\tests\device_loopback.rs:140
+2026-11-13T14:21:24.6759316Z    3: device_loopback::check_stereo
+2026-11-13T14:21:24.6759868Z              at .\tests\device_loopback.rs:250
+2026-11-13T14:21:24.6761777Z    4: device_loopback::default_device_loopback
+2026-11-13T14:21:24.6762386Z              at .\tests\device_loopback.rs:648
+2026-11-13T14:21:24.6763603Z    5: device_loopback::default_device_loopback::closure$0
+2026-11-13T14:21:24.6764371Z              at .\tests\device_loopback.rs:584
+2026-11-13T14:21:24.6765191Z    6: core::ops::function::FnOnce::call_once<device_loopback::default_device_loopback::closure_env$0,tuple$<> >
+2026-11-13T14:21:24.6766211Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-11-13T14:21:24.6803643Z    7: core::ops::function::FnOnce::call_once
+2026-11-13T14:21:24.6804699Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-11-13T14:21:24.6874350Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-13T14:21:24.6991606Z test default_device_loopback ... FAILED
+2026-11-13T14:21:24.6992164Z 
+2026-11-13T14:21:24.6992409Z failures:
+2026-11-13T14:21:24.6992661Z 
+2026-11-13T14:21:24.6992820Z failures:
+2026-11-13T14:21:24.6993314Z     default_device_loopback
+2026-11-13T14:21:24.6993629Z 
+2026-11-13T14:21:24.6994386Z test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 3.51s
+2026-11-13T14:21:24.6995180Z 
+2026-11-13T14:21:24.7033911Z [1m[91merror[0m: test failed, to rerun pass `-p vieww-audio --test device_loopback`
+2026-11-13T14:21:24.7227059Z ##[endgroup]
+2026-11-13T14:21:24.7276383Z ##[error]Loopback, shared mode failed (exit 101)
+2026-11-13T14:21:24.7505022Z ##[error]Process completed with exit code 1.
+2026-11-13T14:21:24.7868696Z Post job cleanup.
+2026-11-13T14:21:25.0121963Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-13T14:21:25.0510445Z git version 2.56.0.windows.4
+2026-11-13T14:21:25.0587800Z Temporarily overriding HOME='D:\a\_temp\5ba0a466-bddd-472b-9ef0-6a022a55d0ad' before making global git config changes
+2026-11-13T14:21:25.0588884Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T14:21:25.0601582Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\vieww_prod\vieww_prod
+2026-11-13T14:21:25.1020952Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T14:21:25.1453401Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-13T14:21:26.0836264Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T14:21:26.1478796Z http.https://github.com/.extraheader
+2026-11-13T14:21:26.1556349Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-11-13T14:21:26.2024780Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-13T14:21:26.8584986Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T14:21:26.8986021Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-13T14:21:27.5766887Z Cleaning up orphan processes
+2026-11-13T14:21:27.6140611Z Terminate orphan process: pid (7528) (vctip)
+2026-11-13T14:21:27.6751320Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== phase-1 / vieww-audio · mobile-ios	log =====
+﻿<?xml version="1.0" encoding="utf-8"?><Error><Code>BlobNotFound</Code><Message>The specified blob does not exist.
+RequestId:2d24d42f-a01e-003d-4580-73c1c5000000
+Time:2026-11-13T15:07:29.4074453Z</Message></Error>
+
+===== phase-1 / vieww-audio · backends-linux-alsa-loopback	log =====
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-13T14:17:44.9681373Z   CI_GITHUB_TOKEN: ***
+2026-11-13T14:17:44.9681743Z   CI_SECRET_NAMES: 
+2026-11-13T14:17:44.9682096Z   CI_HAS_AWS_ROLE: true
+2026-11-13T14:17:44.9682466Z   ANDROID_KEYSTORE: 
+2026-11-13T14:17:44.9682832Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-13T14:17:44.9683236Z   ANDROID_KEY_ALIAS: 
+2026-11-13T14:17:44.9683604Z   ANDROID_KEY_PASSWORD: 
+2026-11-13T14:17:44.9684002Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-13T14:17:44.9684391Z   APPLE_NOTARY_ISSUER: 
+2026-11-13T14:17:44.9684754Z   APPLE_NOTARY_KEY: 
+2026-11-13T14:17:44.9685117Z   APPLE_NOTARY_KEY_ID: 
+2026-11-13T14:17:44.9685480Z   APPLE_P12_PASSWORD: 
+2026-11-13T14:17:44.9685844Z   APPLE_SIGNING_IDENTITY: 
+2026-11-13T14:17:44.9686218Z   AWS_ACCESS_KEY_ID: 
+2026-11-13T14:17:44.9686569Z   AWS_ROLE_ARN: 
+2026-11-13T14:17:44.9686952Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-13T14:17:44.9687297Z   CARGO_REGISTRY_TOKEN: 
+2026-11-13T14:17:44.9687653Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-13T14:17:44.9688072Z   CLOUDFLARE_API_TOKEN: 
+2026-11-13T14:17:44.9688479Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-13T14:17:44.9688873Z   IOS_CERT_P12: 
+2026-11-13T14:17:44.9689445Z   IOS_CERT_PASSWORD: 
+2026-11-13T14:17:44.9689826Z   IOS_IDENTITY: 
+2026-11-13T14:17:44.9690161Z   IOS_PROFILE: 
+2026-11-13T14:17:44.9690514Z   WINDOWS_CERT_PASSWORD: 
+2026-11-13T14:17:44.9690908Z   WINDOWS_CERT_PFX: 
+2026-11-13T14:17:44.9691302Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-13T14:17:44.9691772Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-13T14:17:44.9692234Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-13T14:17:44.9692659Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-13T14:17:44.9693153Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-13T14:17:44.9693628Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-13T14:17:44.9694061Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-13T14:17:44.9694517Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T14:17:44.9695022Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T14:17:44.9695483Z ##[endgroup]
+2026-11-13T14:17:45.1150032Z ##[group]Installed versions
+2026-11-13T14:17:45.1217723Z (node:2379) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T14:17:45.1218907Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T14:17:45.1219851Z Successfully set up CPython (3.12.16)
+2026-11-13T14:17:45.1220603Z ##[endgroup]
+2026-11-13T14:17:45.1423516Z ##[group]Run [ -n "$CI_PY" ] && echo "CI_PY=$CI_PY" >> "$GITHUB_ENV"
+2026-11-13T14:17:45.1424308Z [36;1m[ -n "$CI_PY" ] && echo "CI_PY=$CI_PY" >> "$GITHUB_ENV"[0m
+2026-11-13T14:17:45.1424937Z [36;1m"${CI_PY:-python3}" ci/lib/prepare.py[0m
+2026-11-13T14:17:45.1455597Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-13T14:17:45.1456175Z env:
+2026-11-13T14:17:45.1456481Z   CI_INPUTS: {}
+2026-11-13T14:17:45.1456901Z   CI_MATRIX: {}
+2026-11-13T14:17:45.1459445Z   CI_JOB: {"title": "vieww-audio \u00b7 backends-linux-alsa-loopback", "project": "vieww-audio", "id": "backends-linux-alsa-loopback", "file": "vieww_base/crates/vieww-audio/ci/jobs/backends-linux-alsa-loopback.toml", "if": "", "needs": [], "setup": [{"uses": "cache", "with": {"path": "~/kpkg", "key": "ubuntu-stock-kernel-${{ steps.kernel.outputs.version }}"}}], "uploads": [], "downloads": []}
+2026-11-13T14:17:45.1461861Z   CI_PROJECT: vieww-audio
+2026-11-13T14:17:45.1463481Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-13T14:17:45.1468467Z   CI_GITHUB_TOKEN: ***
+2026-11-13T14:17:45.1468931Z   CI_SECRET_NAMES: 
+2026-11-13T14:17:45.1469594Z   CI_HAS_AWS_ROLE: true
+2026-11-13T14:17:45.1470025Z   ANDROID_KEYSTORE: 
+2026-11-13T14:17:45.1470427Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-13T14:17:45.1470852Z   ANDROID_KEY_ALIAS: 
+2026-11-13T14:17:45.1471227Z   ANDROID_KEY_PASSWORD: 
+2026-11-13T14:17:45.1471634Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-13T14:17:45.1472023Z   APPLE_NOTARY_ISSUER: 
+2026-11-13T14:17:45.1472387Z   APPLE_NOTARY_KEY: 
+2026-11-13T14:17:45.1472713Z   APPLE_NOTARY_KEY_ID: 
+2026-11-13T14:17:45.1473101Z   APPLE_P12_PASSWORD: 
+2026-11-13T14:17:45.1473470Z   APPLE_SIGNING_IDENTITY: 
+2026-11-13T14:17:45.1473862Z   AWS_ACCESS_KEY_ID: 
+2026-11-13T14:17:45.1474209Z   AWS_ROLE_ARN: 
+2026-11-13T14:17:45.1474550Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-13T14:17:45.1474934Z   CARGO_REGISTRY_TOKEN: 
+2026-11-13T14:17:45.1475316Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-13T14:17:45.1475711Z   CLOUDFLARE_API_TOKEN: 
+2026-11-13T14:17:45.1476096Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-13T14:17:45.1476469Z   IOS_CERT_P12: 
+2026-11-13T14:17:45.1476804Z   IOS_CERT_PASSWORD: 
+2026-11-13T14:17:45.1477147Z   IOS_IDENTITY: 
+2026-11-13T14:17:45.1477481Z   IOS_PROFILE: 
+2026-11-13T14:17:45.1477813Z   WINDOWS_CERT_PASSWORD: 
+2026-11-13T14:17:45.1478188Z   WINDOWS_CERT_PFX: 
+2026-11-13T14:17:45.1478552Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-13T14:17:45.1479001Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-13T14:17:45.1479654Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-13T14:17:45.1480064Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-13T14:17:45.1480519Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-13T14:17:45.1480996Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-13T14:17:45.1481423Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-13T14:17:45.1481873Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T14:17:45.1482342Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T14:17:45.1482896Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-13T14:17:45.1483442Z ##[endgroup]
+2026-11-13T14:17:46.1455458Z {
+2026-11-13T14:17:46.1455847Z  "go": "true",
+2026-11-13T14:17:46.1456245Z  "cache_path": "~/kpkg",
+2026-11-13T14:17:46.1456689Z  "cache_key": "ubuntu-stock-kernel-",
+2026-11-13T14:17:46.1457136Z  "cache_restore": "",
+2026-11-13T14:17:46.1457489Z  "tools": "",
+2026-11-13T14:17:46.1457805Z  "has_final": "false"
+2026-11-13T14:17:46.1458137Z }
+2026-11-13T14:17:46.1661869Z ##[group]Run actions/cache@v4
+2026-11-13T14:17:46.1662148Z with:
+2026-11-13T14:17:46.1662345Z   path: ~/kpkg
+2026-11-13T14:17:46.1662571Z   key: ubuntu-stock-kernel-
+2026-11-13T14:17:46.1662834Z   enableCrossOsArchive: false
+2026-11-13T14:17:46.1663096Z   fail-on-cache-miss: false
+2026-11-13T14:17:46.1663331Z   lookup-only: false
+2026-11-13T14:17:46.1663552Z   save-always: false
+2026-11-13T14:17:46.1663750Z env:
+2026-11-13T14:17:46.1663934Z   CI_INPUTS: {}
+2026-11-13T14:17:46.1664130Z   CI_MATRIX: {}
+2026-11-13T14:17:46.1665457Z   CI_JOB: {"title": "vieww-audio \u00b7 backends-linux-alsa-loopback", "project": "vieww-audio", "id": "backends-linux-alsa-loopback", "file": "vieww_base/crates/vieww-audio/ci/jobs/backends-linux-alsa-loopback.toml", "if": "", "needs": [], "setup": [{"uses": "cache", "with": {"path": "~/kpkg", "key": "ubuntu-stock-kernel-${{ steps.kernel.outputs.version }}"}}], "uploads": [], "downloads": []}
+2026-11-13T14:17:46.1666848Z   CI_PROJECT: vieww-audio
+2026-11-13T14:17:46.1667852Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-13T14:17:46.1670798Z   CI_GITHUB_TOKEN: ***
+2026-11-13T14:17:46.1671041Z   CI_SECRET_NAMES: 
+2026-11-13T14:17:46.1671259Z   CI_HAS_AWS_ROLE: true
+2026-11-13T14:17:46.1671476Z   ANDROID_KEYSTORE: 
+2026-11-13T14:17:46.1671700Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-13T14:17:46.1671939Z   ANDROID_KEY_ALIAS: 
+2026-11-13T14:17:46.1672160Z   ANDROID_KEY_PASSWORD: 
+2026-11-13T14:17:46.1672393Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-13T14:17:46.1672628Z   APPLE_NOTARY_ISSUER: 
+2026-11-13T14:17:46.1673084Z   APPLE_NOTARY_KEY: 
+2026-11-13T14:17:46.1673311Z   APPLE_NOTARY_KEY_ID: 
+2026-11-13T14:17:46.1673532Z   APPLE_P12_PASSWORD: 
+2026-11-13T14:17:46.1673754Z   APPLE_SIGNING_IDENTITY: 
+2026-11-13T14:17:46.1673983Z   AWS_ACCESS_KEY_ID: 
+2026-11-13T14:17:46.1674199Z   AWS_ROLE_ARN: 
+2026-11-13T14:17:46.1674424Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-13T14:17:46.1674657Z   CARGO_REGISTRY_TOKEN: 
+2026-11-13T14:17:46.1674893Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-13T14:17:46.1675129Z   CLOUDFLARE_API_TOKEN: 
+2026-11-13T14:17:46.1675362Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-13T14:17:46.1675594Z   IOS_CERT_P12: 
+2026-11-13T14:17:46.1675799Z   IOS_CERT_PASSWORD: 
+2026-11-13T14:17:46.1676017Z   IOS_IDENTITY: 
+2026-11-13T14:17:46.1676217Z   IOS_PROFILE: 
+2026-11-13T14:17:46.1676423Z   WINDOWS_CERT_PASSWORD: 
+2026-11-13T14:17:46.1676644Z   WINDOWS_CERT_PFX: 
+2026-11-13T14:17:46.1676874Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-13T14:17:46.1677145Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-13T14:17:46.1677421Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-13T14:17:46.1677665Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-13T14:17:46.1677942Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-13T14:17:46.1678218Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-13T14:17:46.1678468Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-13T14:17:46.1678725Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T14:17:46.1679013Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T14:17:46.1679636Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-13T14:17:46.1679971Z ##[endgroup]
+2026-11-13T14:17:46.2846611Z (node:2389) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T14:17:46.2847350Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T14:17:46.3729456Z Cache not found for input keys: ubuntu-stock-kernel-
+2026-11-13T14:17:46.3958704Z ##[group]Run "${CI_PY:-python3}" ci/lib/run.py "vieww_base/crates/vieww-audio/ci/jobs/backends-linux-alsa-loopback.toml"
+2026-11-13T14:17:46.3960194Z [36;1m"${CI_PY:-python3}" ci/lib/run.py "vieww_base/crates/vieww-audio/ci/jobs/backends-linux-alsa-loopback.toml"[0m
+2026-11-13T14:17:46.3980667Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-13T14:17:46.3981100Z env:
+2026-11-13T14:17:46.3981529Z   CI_INPUTS: {}
+2026-11-13T14:17:46.3996315Z   CI_MATRIX: {}
+2026-11-13T14:17:46.3997790Z   CI_JOB: {"title": "vieww-audio \u00b7 backends-linux-alsa-loopback", "project": "vieww-audio", "id": "backends-linux-alsa-loopback", "file": "vieww_base/crates/vieww-audio/ci/jobs/backends-linux-alsa-loopback.toml", "if": "", "needs": [], "setup": [{"uses": "cache", "with": {"path": "~/kpkg", "key": "ubuntu-stock-kernel-${{ steps.kernel.outputs.version }}"}}], "uploads": [], "downloads": []}
+2026-11-13T14:17:46.3999538Z   CI_PROJECT: vieww-audio
+2026-11-13T14:17:46.4000543Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-13T14:17:46.4003217Z   CI_GITHUB_TOKEN: ***
+2026-11-13T14:17:46.4003457Z   CI_SECRET_NAMES: 
+2026-11-13T14:17:46.4003686Z   CI_HAS_AWS_ROLE: true
+2026-11-13T14:17:46.4003911Z   ANDROID_KEYSTORE: 
+2026-11-13T14:17:46.4004138Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-13T14:17:46.4004380Z   ANDROID_KEY_ALIAS: 
+2026-11-13T14:17:46.4004600Z   ANDROID_KEY_PASSWORD: 
+2026-11-13T14:17:46.4004832Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-13T14:17:46.4005066Z   APPLE_NOTARY_ISSUER: 
+2026-11-13T14:17:46.4005284Z   APPLE_NOTARY_KEY: 
+2026-11-13T14:17:46.4005501Z   APPLE_NOTARY_KEY_ID: 
+2026-11-13T14:17:46.4005720Z   APPLE_P12_PASSWORD: 
+2026-11-13T14:17:46.4005941Z   APPLE_SIGNING_IDENTITY: 
+2026-11-13T14:17:46.4006168Z   AWS_ACCESS_KEY_ID: 
+2026-11-13T14:17:46.4006389Z   AWS_ROLE_ARN: 
+2026-11-13T14:17:46.4006601Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-13T14:17:46.4006831Z   CARGO_REGISTRY_TOKEN: 
+2026-11-13T14:17:46.4007062Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-13T14:17:46.4007294Z   CLOUDFLARE_API_TOKEN: 
+2026-11-13T14:17:46.4007522Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-13T14:17:46.4007984Z   IOS_CERT_P12: 
+2026-11-13T14:17:46.4008194Z   IOS_CERT_PASSWORD: 
+2026-11-13T14:17:46.4008414Z   IOS_IDENTITY: 
+2026-11-13T14:17:46.4008610Z   IOS_PROFILE: 
+2026-11-13T14:17:46.4008817Z   WINDOWS_CERT_PASSWORD: 
+2026-11-13T14:17:46.4009052Z   WINDOWS_CERT_PFX: 
+2026-11-13T14:17:46.4009441Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-13T14:17:46.4009713Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-13T14:17:46.4010015Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-13T14:17:46.4010260Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-13T14:17:46.4010539Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-13T14:17:46.4010817Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-13T14:17:46.4011069Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-13T14:17:46.4011324Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T14:17:46.4011607Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T14:17:46.4011944Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-13T14:17:46.4012270Z   CI_PART: main
+2026-11-13T14:17:46.4012480Z ##[endgroup]
+2026-11-13T14:17:46.4706936Z ##[group]Install Rust toolchain
+2026-11-13T14:17:46.6367208Z info: syncing channel updates for 1.98.1-x86_64-unknown-linux-gnu
+2026-11-13T14:17:47.0048004Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-13T14:17:47.0048690Z info: downloading 3 components
+2026-11-13T14:17:54.6891248Z 
+2026-11-13T14:17:54.6967769Z   1.98.1-x86_64-unknown-linux-gnu installed - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-13T14:17:54.6968392Z 
+2026-11-13T14:17:54.7123310Z info: using existing install for 1.98.1-x86_64-unknown-linux-gnu
+2026-11-13T14:17:54.7129681Z info: default toolchain set to 1.98.1-x86_64-unknown-linux-gnu
+2026-11-13T14:17:54.7130176Z 
+2026-11-13T14:17:54.7196482Z   1.98.1-x86_64-unknown-linux-gnu unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-13T14:17:54.7196872Z 
+2026-11-13T14:17:54.7258383Z info: note that the toolchain '1.98.1-x86_64-unknown-linux-gnu' is currently in use (overridden by '/home/runner/work/vieww_prod/vieww_prod/vieww_base/rust-toolchain.toml')
+2026-11-13T14:17:54.7272825Z ##[endgroup]
+2026-11-13T14:17:54.7282100Z ##[group]Let the runner user use KVM
+2026-11-13T14:17:54.7367613Z KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"
+2026-11-13T14:17:54.7691603Z ##[endgroup]
+2026-11-13T14:17:54.7700069Z ##[group]Which stock kernel
+2026-11-13T14:17:54.8384843Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-11-13T14:17:54.8695855Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2026-11-13T14:17:54.8705117Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-11-13T14:17:54.8712557Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-11-13T14:17:54.8741799Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-11-13T14:17:54.8779845Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-11-13T14:17:55.0089610Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [697 kB]
+2026-11-13T14:17:55.0249762Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [767 kB]
+2026-11-13T14:17:55.0599114Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1450 kB]
+2026-11-13T14:17:55.0671053Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [315 kB]
+2026-11-13T14:17:55.0710749Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1713 kB]
+2026-11-13T14:17:55.0771859Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [345 kB]
+2026-11-13T14:17:55.0804147Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1883 kB]
+2026-11-13T14:17:55.0884835Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [430 kB]
+2026-11-13T14:17:55.0928213Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.6 kB]
+2026-11-13T14:17:55.1690968Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1195 kB]
+2026-11-13T14:17:55.1742065Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [238 kB]
+2026-11-13T14:17:55.1761148Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1228 kB]
+2026-11-13T14:17:55.2234280Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [248 kB]
+2026-11-13T14:17:55.2253940Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1788 kB]
+2026-11-13T14:17:55.2332638Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [411 kB]
+2026-11-13T14:17:58.8251454Z Fetched 13.1 MB in 1s (10.2 MB/s)
+2026-11-13T14:17:59.9991901Z Reading package lists...
+2026-11-13T14:18:00.1284326Z ##[endgroup]
+2026-11-13T14:18:00.1293118Z ##[group]Tools, kernel and its sound modules
+2026-11-13T14:18:00.1958644Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-11-13T14:18:00.2270834Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2026-11-13T14:18:00.2271811Z Hit:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
+2026-11-13T14:18:00.2320224Z Hit:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease
+2026-11-13T14:18:00.2321475Z Hit:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease
+2026-11-13T14:18:00.2350259Z Hit:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease
+2026-11-13T14:18:01.8067694Z Reading package lists...
+2026-11-13T14:18:01.9207704Z stock kernel: 6.17.0-42
+2026-11-13T14:18:01.9258079Z ##[error]the kernel packages ran, but /boot/vmlinuz-6.17.0-42-generic is not there.
+2026-11-13T14:18:01.9267813Z   /boot contains:
+2026-11-13T14:18:01.9268221Z total 75585
+2026-11-13T14:18:01.9268985Z drwxr-xr-x  5 root root     4096 Oct 25 04:20 .
+2026-11-13T14:18:01.9269882Z drwxr-xr-x 23 root root     4096 Nov 13 14:17 ..
+2026-11-13T14:18:01.9270566Z -rw-------  1 root root 10542716 Sep 24 16:46 System.map-7.0.0-1017-azure
+2026-11-13T14:18:01.9271072Z -rw-r--r--  1 root root   280800 Sep 24 16:46 config-7.0.0-1017-azure
+2026-11-13T14:18:01.9271473Z drwx------  3 root root      512 Jan  1  1970 efi
+2026-11-13T14:18:01.9271809Z drwxr-xr-x  6 root root     4096 Nov 11 10:31 grub
+2026-11-13T14:18:01.9272247Z lrwxrwxrwx  1 root root       27 Oct 25 04:19 initrd.img -> initrd.img-7.0.0-1017-azure
+2026-11-13T14:18:01.9272748Z -rw-r--r--  1 root root 49349753 Oct 25 04:20 initrd.img-7.0.0-1017-azure
+2026-11-13T14:18:01.9273248Z lrwxrwxrwx  1 root root       27 Oct 25 04:19 initrd.img.old -> initrd.img-7.0.0-1017-azure
+2026-11-13T14:18:01.9273707Z drwx------  2 root root    16384 Oct 25 04:18 lost+found
+2026-11-13T14:18:01.9274362Z lrwxrwxrwx  1 root root       24 Oct 25 04:19 vmlinuz -> vmlinuz-7.0.0-1017-azure
+2026-11-13T14:18:01.9274832Z -rw-------  1 root root 17189256 Sep 24 16:49 vmlinuz-7.0.0-1017-azure
+2026-11-13T14:18:01.9275293Z lrwxrwxrwx  1 root root       24 Oct 25 04:19 vmlinuz.old -> vmlinuz-7.0.0-1017-azure
+2026-11-13T14:18:01.9275691Z   dpkg knows:
+2026-11-13T14:18:01.9404824Z ##[endgroup]
+2026-11-13T14:18:01.9415390Z ##[error]Tools, kernel and its sound modules failed (exit 1)
+2026-11-13T14:18:01.9514068Z ##[error]Process completed with exit code 1.
+2026-11-13T14:18:01.9688487Z Post job cleanup.
+2026-11-13T14:18:02.0585569Z [command]/usr/bin/git version
+2026-11-13T14:18:02.0633234Z git version 2.56.1
+2026-11-13T14:18:02.0676666Z Temporarily overriding HOME='/home/runner/work/_temp/d252b472-69df-4feb-8aa7-47badfe859d5' before making global git config changes
+2026-11-13T14:18:02.0678007Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T14:18:02.0685282Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-13T14:18:02.0728259Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T14:18:02.0768754Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T14:18:02.1089051Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T14:18:02.1130099Z http.https://github.com/.extraheader
+2026-11-13T14:18:02.1150466Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-13T14:18:02.1188811Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T14:18:02.1550983Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T14:18:02.1614746Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T14:18:02.2081793Z Cleaning up orphan processes
+2026-11-13T14:18:02.2620795Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== phase-1 / vieww-audio · mobile-android	log =====
+2026-11-13T14:19:23.9277612Z [1m[92m    Checking[0m accesskit_winit v0.34.1
+2026-11-13T14:19:29.8122025Z [1m[92m   Compiling[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+2026-11-13T14:19:30.0892712Z [1m[92m    Checking[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-13T14:19:30.5967446Z [1m[92m    Checking[0m vieww-platform-winit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
+2026-11-13T14:19:31.2787028Z [1m[92m    Finished[0m `dev` profile [unoptimized] target(s) in 1m 23s
+2026-11-13T14:19:31.5811600Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-13T14:19:31.5813052Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-13T14:19:31.5814153Z [1m[92m    Checking[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-13T14:19:35.7399160Z [1m[92m    Finished[0m `dev` profile [unoptimized] target(s) in 4.32s
+2026-11-13T14:19:35.7537906Z ##[endgroup]
+2026-11-13T14:19:35.7546235Z ##[group]APK with the audio classes and the playback service
+2026-11-13T14:19:36.4740630Z mobile-audio: created ~/.android/debug.keystore for release signing
+2026-11-13T14:19:36.4810505Z mobile-audio: SDK /usr/local/lib/android/sdk, NDK 27.3.13750724 at /usr/local/lib/android/sdk/ndk/27.3.13750724
+2026-11-13T14:19:36.5185648Z Warning: Environment variable ANDROID_SDK_ROOT is deprecated (https://developer.android.com/studio/command-line/variables#envar). It will be used until it is unset and replaced by ANDROID_HOME.
+2026-11-13T14:19:36.5186635Z Using package `vieww-platform-winit` in `/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit/Cargo.toml`
+2026-11-13T14:19:37.0667737Z [1m[92m   Compiling[0m libm v0.2.16
+2026-11-13T14:19:37.0669292Z [1m[92m   Compiling[0m cfg-if v1.0.5
+2026-11-13T14:19:37.0669854Z [1m[92m   Compiling[0m bitflags v2.13.2
+2026-11-13T14:19:37.0670319Z [1m[92m   Compiling[0m bytemuck v1.25.2
+2026-11-13T14:19:37.1003570Z [1m[92m   Compiling[0m unicode-segmentation v1.13.3
+2026-11-13T14:19:37.2883417Z [1m[92m   Compiling[0m font-types v0.12.5
+2026-11-13T14:19:37.3553061Z [1m[92m   Compiling[0m simd-adler32 v0.3.10
+2026-11-13T14:19:37.4973579Z [1m[92m   Compiling[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-13T14:19:37.6503227Z [1m[92m   Compiling[0m log v0.4.34
+2026-11-13T14:19:37.6706535Z [1m[92m   Compiling[0m once_cell v1.21.4
+2026-11-13T14:19:37.7684037Z [1m[92m   Compiling[0m read-fonts v0.41.0
+2026-11-13T14:19:37.8242488Z [1m[92m   Compiling[0m adler2 v2.0.1
+2026-11-13T14:19:37.9283245Z [1m[92m   Compiling[0m crc32fast v1.5.2
+2026-11-13T14:19:37.9432930Z [1m[92m   Compiling[0m core_maths v0.1.1
+2026-11-13T14:19:37.9976960Z [1m[92m   Compiling[0m ttf-parser v0.25.1
+2026-11-13T14:19:39.2713476Z [1m[92m   Compiling[0m miniz_oxide v0.9.1
+2026-11-13T14:19:41.0563931Z [1m[92m   Compiling[0m libc v0.2.189
+2026-11-13T14:19:41.0753003Z [1m[92m   Compiling[0m num-traits v0.2.19
+2026-11-13T14:19:41.5994728Z [1m[92m   Compiling[0m flate2 v1.1.10
+2026-11-13T14:19:42.1093816Z [1m[92m   Compiling[0m miniz_oxide v0.8.9
+2026-11-13T14:19:43.8478652Z [1m[92m   Compiling[0m fdeflate v0.3.7
+2026-11-13T14:19:44.0566430Z [1m[92m   Compiling[0m memchr v2.8.3
+2026-11-13T14:19:44.8163273Z [1m[92m   Compiling[0m skrifa v0.44.0
+2026-11-13T14:19:44.8343350Z [1m[92m   Compiling[0m png v0.18.1
+2026-11-13T14:19:48.6343460Z [1m[92m   Compiling[0m jni-sys v0.4.1
+2026-11-13T14:19:48.8423805Z [1m[92m   Compiling[0m font-types v0.11.3
+2026-11-13T14:19:49.2103401Z [1m[92m   Compiling[0m jni-sys v0.3.1
+2026-11-13T14:19:49.2183074Z [1m[92m   Compiling[0m read-fonts v0.37.0
+2026-11-13T14:19:51.4904116Z [1m[92m   Compiling[0m slotmap v1.1.1
+2026-11-13T14:19:51.5233764Z [1m[92m   Compiling[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-13T14:20:00.4433419Z [1m[92m   Compiling[0m thiserror v1.0.69
+2026-11-13T14:20:00.9103152Z [1m[92m   Compiling[0m euclid v0.22.14
+2026-11-13T14:20:01.6223843Z [1m[92m   Compiling[0m memmap2 v0.9.11
+2026-11-13T14:20:01.8454171Z [1m[92m   Compiling[0m tinyvec v1.13.3
+2026-11-13T14:20:02.2543874Z [1m[92m   Compiling[0m raw-window-handle v0.6.2
+2026-11-13T14:20:02.4683814Z [1m[92m   Compiling[0m zeno v0.3.3
+2026-11-13T14:20:03.4613500Z [1m[92m   Compiling[0m smallvec v1.16.2
+2026-11-13T14:20:03.6663292Z [1m[92m   Compiling[0m yazi v0.2.1
+2026-11-13T14:20:04.6203763Z [1m[92m   Compiling[0m bytes v1.12.1
+2026-11-13T14:20:05.4853396Z [1m[92m   Compiling[0m arrayvec v0.7.8
+2026-11-13T14:20:05.6413282Z [1m[92m   Compiling[0m combine v4.6.8
+2026-11-13T14:20:05.6692976Z [1m[92m   Compiling[0m lyon_geom v1.0.19
+2026-11-13T14:20:06.0863365Z [1m[92m   Compiling[0m swash v0.2.10
+2026-11-13T14:20:07.9773325Z [1m[92m   Compiling[0m harfrust v0.5.2
+2026-11-13T14:20:09.7453486Z [1m[92m   Compiling[0m fontdb v0.23.0
+2026-11-13T14:20:10.6863510Z [1m[92m   Compiling[0m skrifa v0.40.0
+2026-11-13T14:20:11.2533407Z [1m[92m   Compiling[0m sys-locale v0.3.2
+2026-11-13T14:20:11.3763356Z [1m[92m   Compiling[0m rangemap v1.8.0
+2026-11-13T14:20:11.6503630Z [1m[92m   Compiling[0m linebender_resource_handle v0.1.1
+2026-11-13T14:20:11.7073422Z [1m[92m   Compiling[0m unicode-bidi v0.3.18
+2026-11-13T14:20:12.9850731Z [1m[92m   Compiling[0m unicode-script v0.5.8
+2026-11-13T14:20:13.4293292Z [1m[92m   Compiling[0m self_cell v1.3.0
+2026-11-13T14:20:13.4823384Z [1m[92m   Compiling[0m rustc-hash v2.1.3
+2026-11-13T14:20:13.5274567Z [1m[92m   Compiling[0m unicode-linebreak v0.1.5
+2026-11-13T14:20:13.7304510Z [1m[92m   Compiling[0m smol_str v0.3.6
+2026-11-13T14:20:14.0073398Z [1m[92m   Compiling[0m cosmic-text v0.19.0
+2026-11-13T14:20:22.2154062Z [1m[92m   Compiling[0m thiserror v2.0.21
+2026-11-13T14:20:22.2564123Z [1m[92m   Compiling[0m lyon_path v1.0.19
+2026-11-13T14:20:23.0983741Z [1m[92m   Compiling[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+2026-11-13T14:20:24.4013394Z [1m[92m   Compiling[0m simdutf8 v0.1.5
+2026-11-13T14:20:24.6169356Z [1m[92m   Compiling[0m float_next_after v1.0.0
+2026-11-13T14:20:24.6553179Z [1m[92m   Compiling[0m ash v0.38.0+1.3.281
+2026-11-13T14:20:24.6613097Z [1m[92m   Compiling[0m lyon_tessellation v1.0.22
+2026-11-13T14:20:26.1656978Z [1m[92m   Compiling[0m simd_cesu8 v1.2.0
+2026-11-13T14:20:26.2743300Z [1m[92m   Compiling[0m num_enum v0.7.6
+2026-11-13T14:20:26.3221285Z [1m[92m   Compiling[0m jni v0.22.4
+2026-11-13T14:20:26.3727899Z [1m[92m   Compiling[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-13T14:20:26.4233005Z [1m[92m   Compiling[0m ndk-sys v0.6.0+11769913
+2026-11-13T14:20:27.0573400Z [1m[92m   Compiling[0m aho-corasick v1.1.5
+2026-11-13T14:20:27.1903136Z [1m[92m   Compiling[0m libloading v0.8.9
+2026-11-13T14:20:27.3473446Z [1m[92m   Compiling[0m regex-syntax v0.8.11
+2026-11-13T14:20:27.7263391Z [1m[92m   Compiling[0m uuid v1.26.1
+2026-11-13T14:20:28.1324203Z [1m[92m   Compiling[0m accesskit v0.25.1
+2026-11-13T14:20:29.0903500Z [1m[92m   Compiling[0m regex-automata v0.4.18
+2026-11-13T14:20:30.5613725Z [1m[92m   Compiling[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-13T14:20:34.8913543Z [1m[92m   Compiling[0m ndk v0.9.0
+2026-11-13T14:20:35.1883753Z [1m[92m   Compiling[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+2026-11-13T14:20:35.2143229Z [1m[92m   Compiling[0m android-activity v0.6.1
+2026-11-13T14:20:35.9194125Z [1m[92m   Compiling[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+2026-11-13T14:20:37.0073839Z [1m[92m   Compiling[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+2026-11-13T14:20:37.4743660Z [1m[92m   Compiling[0m vieww-scene v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
+2026-11-13T14:20:37.8543489Z [1m[92m   Compiling[0m foldhash v0.2.0
+2026-11-13T14:20:37.9864086Z [1m[92m   Compiling[0m pxfm v0.1.30
+2026-11-13T14:20:43.5243796Z [1m[92m   Compiling[0m ndk-context v0.1.1
+2026-11-13T14:20:43.5813967Z [1m[92m   Compiling[0m tracing-core v0.1.36
+2026-11-13T14:20:44.3413556Z [1m[92m   Compiling[0m android-properties v0.2.2
+2026-11-13T14:20:44.5283874Z [1m[92m   Compiling[0m pin-project-lite v0.2.17
+2026-11-13T14:20:44.5643361Z [1m[92m   Compiling[0m zune-core v0.5.3
+2026-11-13T14:20:44.7923741Z [1m[92m   Compiling[0m zune-jpeg v0.5.15
+2026-11-13T14:20:45.4934186Z [1m[92m   Compiling[0m tracing v0.1.44
+2026-11-13T14:20:45.6923463Z [1m[92m   Compiling[0m ash-window v0.13.0
+2026-11-13T14:20:45.7782596Z [1m[92m   Compiling[0m moxcms v0.8.1
+2026-11-13T14:20:46.0653680Z [1m[92m   Compiling[0m hashbrown v0.17.1
+2026-11-13T14:20:46.4254075Z [1m[92m   Compiling[0m winit v0.30.13
+2026-11-13T14:20:46.4353542Z [1m[92m   Compiling[0m vieww-render-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
+2026-11-13T14:20:46.7293903Z [1m[92m   Compiling[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-13T14:20:47.0493920Z [1m[92m   Compiling[0m regex v1.13.1
+2026-11-13T14:20:48.6791691Z [1m[92m   Compiling[0m cesu8 v1.1.0
+2026-11-13T14:20:48.6907045Z [1m[92m   Compiling[0m dpi v0.1.2
+2026-11-13T14:20:48.8143535Z [1m[92m   Compiling[0m byteorder-lite v0.1.0
+2026-11-13T14:20:48.8735141Z [1m[92m   Compiling[0m cursor-icon v1.2.0
+2026-11-13T14:20:48.9480917Z [1m[92m   Compiling[0m smol_str v0.2.2
+2026-11-13T14:20:49.0492853Z [1m[92m   Compiling[0m image v0.25.10
+2026-11-13T14:20:51.2884183Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-13T14:20:51.2913070Z [1m[92m   Compiling[0m jni v0.21.1
+2026-11-13T14:20:51.3426702Z [1m[92m   Compiling[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-13T14:20:54.3123277Z [1m[92m   Compiling[0m env_filter v0.1.4
+2026-11-13T14:20:55.5453628Z [1m[92m   Compiling[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-13T14:20:56.7133412Z [1m[92m   Compiling[0m accesskit_consumer v0.39.1
+2026-11-13T14:21:00.4893715Z [1m[92m   Compiling[0m android_log-sys v0.3.2
+2026-11-13T14:21:00.9993288Z [1m[92m   Compiling[0m android_logger v0.14.1
+2026-11-13T14:21:01.4033302Z [1m[92m   Compiling[0m accesskit_android v0.9.0
+2026-11-13T14:21:04.2733869Z [1m[92m   Compiling[0m vieww-asset v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
+2026-11-13T14:21:04.9273834Z [1m[92m   Compiling[0m accesskit_winit v0.34.1
+2026-11-13T14:21:05.0003870Z [1m[92m   Compiling[0m vieww-render-planner v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
+2026-11-13T14:21:05.4033921Z [1m[92m   Compiling[0m vieww-interaction v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-interaction)
+2026-11-13T14:21:05.5683762Z [1m[92m   Compiling[0m vieww-image v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-image)
+2026-11-13T14:21:06.6924790Z [1m[92m   Compiling[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
+2026-11-13T14:21:06.8603724Z [1m[92m   Compiling[0m vieww-devtools v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-devtools)
+2026-11-13T14:21:07.2814246Z [1m[92m   Compiling[0m vieww-platform-winit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
+2026-11-13T14:21:07.4093823Z [1m[92m   Compiling[0m vieww-hardware v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
+2026-11-13T14:21:18.1478191Z [1m[92m    Finished[0m `dev` profile [unoptimized] target(s) in 1m 41s
+2026-11-13T14:21:18.6732821Z  'lib/arm64-v8a/libandroid.so'...
+2026-11-13T14:21:18.7381338Z Verifying alignment of /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/apk/examples/vieww.apk (4)...
+2026-11-13T14:21:18.7382171Z       49 AndroidManifest.xml (OK - compressed)
+2026-11-13T14:21:18.7382462Z     1052 lib/arm64-v8a/libandroid.so (OK)
+2026-11-13T14:21:18.7382734Z Verification successful
+2026-11-13T14:21:18.7383253Z Signing `/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/apk/examples/vieww.apk` with keystore `/home/runner/.android/debug.keystore`
+2026-11-13T14:21:21.2079291Z Note: /home/runner/work/vieww_prod/vieww_prod/vieww_base/ci/mobile/../../crates/vieww-platform-winit/android/java/dev/vieww/audio/PlaybackService.java uses or overrides a deprecated API.
+2026-11-13T14:21:21.2084392Z Note: Recompile with -Xlint:deprecation for details.
+2026-11-13T14:21:21.2287472Z apk-add-code: audio classes compiled against /usr/local/lib/android/sdk/platforms/android-37.2/android.jar
+2026-11-13T14:21:24.3339671Z apk_add_code: hasCode false -> true
+2026-11-13T14:21:24.3340593Z apk_add_code: added uses-permission android.permission.FOREGROUND_SERVICE
+2026-11-13T14:21:24.3341389Z apk_add_code: added uses-permission android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK
+2026-11-13T14:21:24.3342292Z apk_add_code: added uses-permission android.permission.WAKE_LOCK
+2026-11-13T14:21:24.3342945Z apk_add_code: added service dev.vieww.audio.PlaybackService (mediaPlayback)
+2026-11-13T14:21:25.2015115Z apk-add-code: ../dist/vieww-audio.apk has classes.dex and hasCode=true (build-tools 37.0.0)
+2026-11-13T14:21:25.2373930Z lint-background-audio: ../dist/vieww-audio.apk: playback service, type and permissions declared
+2026-11-13T14:21:25.9675073Z N: android=http://schemas.android.com/apk/res/android (line=1)
+2026-11-13T14:21:25.9675671Z   E: manifest (line=1)
+2026-11-13T14:21:25.9676094Z     A: http://schemas.android.com/apk/res/android:versionCode(0x0101021b)=16777472
+2026-11-13T14:21:25.9676772Z     A: http://schemas.android.com/apk/res/android:versionName(0x0101021c)="0.1.0" (Raw: "0.1.0")
+2026-11-13T14:21:25.9677530Z     A: http://schemas.android.com/apk/res/android:compileSdkVersion(0x01010572)=34
+2026-11-13T14:21:25.9678260Z     A: http://schemas.android.com/apk/res/android:compileSdkVersionCodename(0x01010573)="14" (Raw: "14")
+2026-11-13T14:21:25.9679204Z     A: package="dev.vieww.demo" (Raw: "dev.vieww.demo")
+2026-11-13T14:21:25.9679660Z     A: platformBuildVersionCode=34 (Raw: "34")
+2026-11-13T14:21:25.9680051Z     A: platformBuildVersionName=14 (Raw: "14")
+2026-11-13T14:21:25.9680418Z       E: uses-sdk (line=1)
+2026-11-13T14:21:25.9680869Z         A: http://schemas.android.com/apk/res/android:minSdkVersion(0x0101020c)=24
+2026-11-13T14:21:25.9681497Z         A: http://schemas.android.com/apk/res/android:targetSdkVersion(0x01010270)=34
+2026-11-13T14:21:25.9682098Z       E: uses-permission (line=1)
+2026-11-13T14:21:25.9682684Z         A: http://schemas.android.com/apk/res/android:name(0x01010003)="android.permission.FOREGROUND_SERVICE" (Raw: "android.permission.FOREGROUND_SERVICE")
+2026-11-13T14:21:25.9683258Z       E: uses-permission (line=1)
+2026-11-13T14:21:25.9683915Z         A: http://schemas.android.com/apk/res/android:name(0x01010003)="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" (Raw: "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK")
+2026-11-13T14:21:25.9684591Z       E: uses-permission (line=1)
+2026-11-13T14:21:25.9685106Z         A: http://schemas.android.com/apk/res/android:name(0x01010003)="android.permission.WAKE_LOCK" (Raw: "android.permission.WAKE_LOCK")
+2026-11-13T14:21:25.9685867Z       E: application (line=1)
+2026-11-13T14:21:25.9686334Z         A: http://schemas.android.com/apk/res/android:theme(0x01010000)=@0x01030129
+2026-11-13T14:21:25.9686850Z         A: http://schemas.android.com/apk/res/android:label(0x01010001)="vieww" (Raw: "vieww")
+2026-11-13T14:21:25.9687332Z         A: http://schemas.android.com/apk/res/android:hasCode(0x0101000c)=true
+2026-11-13T14:21:25.9687752Z         A: http://schemas.android.com/apk/res/android:debuggable(0x0101000f)=true
+2026-11-13T14:21:25.9688096Z           E: activity (line=1)
+2026-11-13T14:21:25.9688721Z             A: http://schemas.android.com/apk/res/android:name(0x01010003)="android.app.NativeActivity" (Raw: "android.app.NativeActivity")
+2026-11-13T14:21:25.9689351Z             A: http://schemas.android.com/apk/res/android:exported(0x01010010)=true
+2026-11-13T14:21:25.9689817Z             A: http://schemas.android.com/apk/res/android:screenOrientation(0x0101001e)=1
+2026-11-13T14:21:25.9690306Z             A: http://schemas.android.com/apk/res/android:configChanges(0x0101001f)=0x00001da0
+2026-11-13T14:21:25.9690701Z               E: meta-data (line=1)
+2026-11-13T14:21:25.9691175Z                 A: http://schemas.android.com/apk/res/android:name(0x01010003)="android.app.lib_name" (Raw: "android.app.lib_name")
+2026-11-13T14:21:25.9691990Z                 A: http://schemas.android.com/apk/res/android:value(0x01010024)="android" (Raw: "android")
+2026-11-13T14:21:25.9692424Z               E: intent-filter (line=1)
+2026-11-13T14:21:25.9692694Z                   E: action (line=1)
+2026-11-13T14:21:25.9693232Z                     A: http://schemas.android.com/apk/res/android:name(0x01010003)="android.intent.action.MAIN" (Raw: "android.intent.action.MAIN")
+2026-11-13T14:21:25.9693755Z                   E: category (line=1)
+2026-11-13T14:21:25.9694331Z                     A: http://schemas.android.com/apk/res/android:name(0x01010003)="android.intent.category.LAUNCHER" (Raw: "android.intent.category.LAUNCHER")
+2026-11-13T14:21:25.9694906Z               E: intent-filter (line=1)
+2026-11-13T14:21:25.9695159Z                   E: action (line=1)
+2026-11-13T14:21:25.9695721Z                     A: http://schemas.android.com/apk/res/android:name(0x01010003)="com.google.intent.action.TEST_LOOP" (Raw: "com.google.intent.action.TEST_LOOP")
+2026-11-13T14:21:25.9696285Z                   E: category (line=1)
+2026-11-13T14:21:25.9696830Z                     A: http://schemas.android.com/apk/res/android:name(0x01010003)="android.intent.category.DEFAULT" (Raw: "android.intent.category.DEFAULT")
+2026-11-13T14:21:25.9697390Z                   E: data (line=1)
+2026-11-13T14:21:25.9697940Z                     A: http://schemas.android.com/apk/res/android:mimeType(0x01010026)="application/javascript" (Raw: "application/javascript")
+2026-11-13T14:21:25.9698539Z           E: service (line=1)
+2026-11-13T14:21:25.9699251Z             A: http://schemas.android.com/apk/res/android:name(0x01010003)="dev.vieww.audio.PlaybackService" (Raw: "dev.vieww.audio.PlaybackService")
+2026-11-13T14:21:25.9700083Z             A: http://schemas.android.com/apk/res/android:exported(0x01010010)=false
+2026-11-13T14:21:25.9700646Z             A: http://schemas.android.com/apk/res/android:foregroundServiceType(0x01010599)=0x00000002
+2026-11-13T14:21:25.9949608Z package: name='dev.vieww.demo' versionCode='16777472' versionName='0.1.0' platformBuildVersionName='14' platformBuildVersionCode='34' compileSdkVersion='34' compileSdkVersionCodename='14'
+2026-11-13T14:21:25.9950879Z minSdkVersion:'24'
+2026-11-13T14:21:25.9951526Z targetSdkVersion:'34'
+2026-11-13T14:21:25.9952121Z uses-permission: name='android.permission.FOREGROUND_SERVICE'
+2026-11-13T14:21:25.9952741Z uses-permission: name='android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK'
+2026-11-13T14:21:25.9953773Z ##[endgroup]
+2026-11-13T14:21:25.9984057Z ##[error]APK with the audio classes and the playback service failed (exit 141)
+2026-11-13T14:21:25.9994408Z ##[group]mark: upload vieww-audio-apk
+2026-11-13T14:21:25.9994952Z ##[endgroup]
+2026-11-13T14:21:26.0085315Z ##[error]Process completed with exit code 1.
+2026-11-13T14:21:26.0163615Z ##[group]Run actions/upload-artifact@v4
+2026-11-13T14:21:26.0163862Z with:
+2026-11-13T14:21:26.0164047Z   name: vieww-audio-apk
+2026-11-13T14:21:26.0164293Z   path: dist/vieww-audio.apk
+dist/manifest.txt
+
+2026-11-13T14:21:26.0164556Z   if-no-files-found: ignore
+2026-11-13T14:21:26.0164777Z   include-hidden-files: false
+2026-11-13T14:21:26.0164998Z   compression-level: 6
+2026-11-13T14:21:26.0165187Z   overwrite: false
+2026-11-13T14:21:26.0165361Z env:
+2026-11-13T14:21:26.0165527Z   CI_INPUTS: {}
+2026-11-13T14:21:26.0165729Z   CI_MATRIX: {}
+2026-11-13T14:21:26.0167161Z   CI_JOB: {"title": "vieww-audio \u00b7 mobile-android", "project": "vieww-audio", "id": "mobile-android", "file": "vieww_base/crates/vieww-audio/ci/jobs/mobile-android.toml", "if": "", "needs": [], "setup": [{"uses": "tools", "with": {"tool": "cargo-apk"}}, {"uses": "cache", "with": {"path": "~/.cargo/registry\n~/.cargo/git\nvieww_base/target\n", "key": "mobile-audio-android-${{ hashFiles('vieww_base/Cargo.lock') }}"}}], "uploads": [{"name": "vieww-audio-apk", "path": "dist/vieww-audio.apk\ndist/manifest.txt\n", "if-no-files-found": "ignore"}], "downloads": []}
+2026-11-13T14:21:26.0168602Z   CI_PROJECT: vieww-audio
+2026-11-13T14:21:26.0169366Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-13T14:21:26.0171439Z   CI_GITHUB_TOKEN: ***
+2026-11-13T14:21:26.0171642Z   CI_SECRET_NAMES: 
+2026-11-13T14:21:26.0171967Z   CI_HAS_AWS_ROLE: true
+2026-11-13T14:21:26.0172169Z   ANDROID_KEYSTORE: 
+2026-11-13T14:21:26.0172371Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-13T14:21:26.0172593Z   ANDROID_KEY_ALIAS: 
+2026-11-13T14:21:26.0172791Z   ANDROID_KEY_PASSWORD: 
+2026-11-13T14:21:26.0172997Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-13T14:21:26.0173201Z   APPLE_NOTARY_ISSUER: 
+2026-11-13T14:21:26.0173411Z   APPLE_NOTARY_KEY: 
+2026-11-13T14:21:26.0173609Z   APPLE_NOTARY_KEY_ID: 
+2026-11-13T14:21:26.0173803Z   APPLE_P12_PASSWORD: 
+2026-11-13T14:21:26.0173995Z   APPLE_SIGNING_IDENTITY: 
+2026-11-13T14:21:26.0174201Z   AWS_ACCESS_KEY_ID: 
+2026-11-13T14:21:26.0174387Z   AWS_ROLE_ARN: 
+2026-11-13T14:21:26.0174633Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-13T14:21:26.0174833Z   CARGO_REGISTRY_TOKEN: 
+2026-11-13T14:21:26.0175039Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-13T14:21:26.0175239Z   CLOUDFLARE_API_TOKEN: 
+2026-11-13T14:21:26.0175437Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-13T14:21:26.0175642Z   IOS_CERT_P12: 
+2026-11-13T14:21:26.0175830Z   IOS_CERT_PASSWORD: 
+2026-11-13T14:21:26.0176013Z   IOS_IDENTITY: 
+2026-11-13T14:21:26.0176189Z   IOS_PROFILE: 
+2026-11-13T14:21:26.0176368Z   WINDOWS_CERT_PASSWORD: 
+2026-11-13T14:21:26.0176571Z   WINDOWS_CERT_PFX: 
+2026-11-13T14:21:26.0176888Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-13T14:21:26.0177124Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-13T14:21:26.0177352Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-13T14:21:26.0177578Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-13T14:21:26.0177821Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-13T14:21:26.0178065Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-13T14:21:26.0178286Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-13T14:21:26.0178520Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T14:21:26.0178759Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T14:21:26.0179041Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-13T14:21:26.0179325Z   CI_UPLOAD_0: yes
+2026-11-13T14:21:26.0179509Z ##[endgroup]
+2026-11-13T14:21:26.1702498Z (node:7083) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T14:21:26.1703449Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T14:21:26.1751841Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-11-13T14:21:26.1757467Z The least common ancestor is /home/runner/work/vieww_prod/vieww_prod/dist. This will be the root directory of the artifact
+2026-11-13T14:21:26.1758602Z With the provided path, there will be 2 files uploaded
+2026-11-13T14:21:26.1762652Z Artifact name is valid!
+2026-11-13T14:21:26.1763433Z Root directory input is valid!
+2026-11-13T14:21:26.4644222Z Beginning upload of artifact content to blob storage
+2026-11-13T14:21:27.0261484Z (node:7083) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-13T14:21:27.4377026Z Uploaded bytes 6877659
+2026-11-13T14:21:27.4758953Z Finished uploading artifact content to blob storage!
+2026-11-13T14:21:27.4759792Z SHA256 digest of uploaded artifact zip is 6e607c88ac69b47bf48854bc3eb8adedbcb4b173306cdf4213cdc24424bb212c
+2026-11-13T14:21:27.4762018Z Finalizing artifact upload
+2026-11-13T14:21:27.8431224Z Artifact vieww-audio-apk.zip successfully finalized. Artifact ID 14044439813
+2026-11-13T14:21:27.8432306Z Artifact vieww-audio-apk has been successfully uploaded! Final size is 6877659 bytes. Artifact ID is 14044439813
+2026-11-13T14:21:27.8438349Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/43441241721/artifacts/14044439813
+2026-11-13T14:21:27.8674148Z Post job cleanup.
+2026-11-13T14:21:27.9441108Z [command]/usr/bin/git version
+2026-11-13T14:21:27.9479473Z git version 2.56.1
+2026-11-13T14:21:27.9512523Z Temporarily overriding HOME='/home/runner/work/_temp/ab24c07e-bfb7-42ff-8d97-9c200402f8e0' before making global git config changes
+2026-11-13T14:21:27.9513808Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T14:21:27.9519671Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-13T14:21:27.9554503Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T14:21:27.9586155Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T14:21:27.9791097Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T14:21:27.9813760Z http.https://github.com/.extraheader
+2026-11-13T14:21:27.9824416Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-13T14:21:27.9857735Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T14:21:28.0072349Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T14:21:28.0102779Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T14:21:28.0461564Z Cleaning up orphan processes
+2026-11-13T14:21:28.0700964Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
 
