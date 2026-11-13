@@ -2,9 +2,9 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
+| 2026-11-13T14:29:04Z | 3-build/main | CANCELLED | `63370c179e7e` | [summary](3-build/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/43435613614) |
 | 2026-11-13T14:01:37Z | 1-check/main | FAILURE | `63370c179e7e` | [summary](1-check/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/43435624878) |
 | 2026-11-13T13:46:35Z | 2-devices/main | CANCELLED | `63370c179e7e` | [summary](2-devices/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/43435609668) |
-| 2026-11-13T12:44:18Z | 3-build/main | CANCELLED | `93e4e8e4f671` | [summary](3-build/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/43426720553) |
 | 2026-11-11T12:02:38Z | cloud-vm/main | FAILURE | `cbc073a283fc` | [summary](cloud-vm/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/43009865183) |
 | 2026-11-11T11:49:36Z | device-machines/main | FAILURE | `4b530c174275` | [summary](device-machines/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/43011466669) |
 | 2026-11-10T15:47:23Z | wright---desktop-installers/main | FAILURE | `66e6cbf7fd52` | [summary](wright---desktop-installers/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/42839439904) |

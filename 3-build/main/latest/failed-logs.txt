@@ -1,0 +1,619 @@
+===== phase-1 / viewwstudio · build (macos)	log =====
+﻿<?xml version="1.0" encoding="utf-8"?><Error><Code>BlobNotFound</Code><Message>The specified blob does not exist.
+RequestId:819c35fc-001e-00ce-1a7b-735407000000
+Time:2026-11-13T14:28:38.9029445Z</Message></Error>
+
+===== phase-1 / wright · installers (linux-x64)	log =====
+﻿<?xml version="1.0" encoding="utf-8"?><Error><Code>BlobNotFound</Code><Message>The specified blob does not exist.
+RequestId:7c2fca9c-601e-00d5-6e7b-737a95000000
+Time:2026-11-13T14:28:39.4073784Z</Message></Error>
+
+===== phase-1 / wright · installers (macos-universal)	log =====
+﻿<?xml version="1.0" encoding="utf-8"?><Error><Code>BlobNotFound</Code><Message>The specified blob does not exist.
+RequestId:8f1082f0-a01e-0076-4c7b-7350e9000000
+Time:2026-11-13T14:28:39.9794593Z</Message></Error>
+
+===== phase-1 / wright · installers (windows-x64)	log =====
+2026-11-13T13:40:54.9680063Z   IOS_PROFILE: 
+2026-11-13T13:40:54.9680255Z   WINDOWS_CERT_PASSWORD: 
+2026-11-13T13:40:54.9680460Z   WINDOWS_CERT_PFX: 
+2026-11-13T13:40:54.9680671Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-13T13:40:54.9680922Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-13T13:40:54.9681181Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-13T13:40:54.9681406Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-13T13:40:54.9681665Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-13T13:40:54.9681923Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-13T13:40:54.9682152Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-13T13:40:54.9682384Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T13:40:54.9682651Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T13:40:54.9682975Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-13T13:40:54.9683296Z ##[endgroup]
+2026-11-13T13:40:57.0780640Z {
+2026-11-13T13:40:57.0780998Z  "go": "true",
+2026-11-13T13:40:57.0783961Z  "cache_path": "~/.cargo/registry/index\n~/.cargo/registry/cache\n~/.cargo/git/db\nvieww_base/apps/wright/target\n",
+2026-11-13T13:40:57.0785006Z  "cache_key": "wright-windows-x64-1.98.1-cde965390418a249b2365efbba74099281271bc5fe2a69f28d3749d3faebf21b",
+2026-11-13T13:40:57.0785644Z  "cache_restore": "wright-windows-x64-1.98.1-",
+2026-11-13T13:40:57.0785975Z  "tools": "",
+2026-11-13T13:40:57.0786173Z  "has_final": "false",
+2026-11-13T13:40:57.0786411Z  "up0_name": "wright-1.0.0-windows-x64",
+2026-11-13T13:40:57.0786702Z  "up0_path": "release/*",
+2026-11-13T13:40:57.0786926Z  "up0_ifnf": "error",
+2026-11-13T13:40:57.0787131Z  "up0_days": "",
+2026-11-13T13:40:57.0787331Z  "up0_hidden": "false",
+2026-11-13T13:40:57.0787573Z  "up1_name": "screens-windows-x64",
+2026-11-13T13:40:57.0787849Z  "up1_path": "D:\\a\\_temp/screens",
+2026-11-13T13:40:57.0788111Z  "up1_ifnf": "warn",
+2026-11-13T13:40:57.0788315Z  "up1_days": "",
+2026-11-13T13:40:57.0788522Z  "up1_hidden": "false"
+2026-11-13T13:40:57.0788729Z }
+2026-11-13T13:40:57.1124068Z ##[group]Run actions/cache@v4
+2026-11-13T13:40:57.1124399Z with:
+2026-11-13T13:40:57.1124806Z   path: ~/.cargo/registry/index
+~/.cargo/registry/cache
+~/.cargo/git/db
+vieww_base/apps/wright/target
+
+2026-11-13T13:40:57.1125521Z   key: wright-windows-x64-1.98.1-cde965390418a249b2365efbba74099281271bc5fe2a69f28d3749d3faebf21b
+2026-11-13T13:40:57.1126045Z   restore-keys: wright-windows-x64-1.98.1-
+2026-11-13T13:40:57.1126340Z   enableCrossOsArchive: false
+2026-11-13T13:40:57.1126569Z   fail-on-cache-miss: false
+2026-11-13T13:40:57.1126786Z   lookup-only: false
+2026-11-13T13:40:57.1126990Z   save-always: false
+2026-11-13T13:40:57.1127185Z env:
+2026-11-13T13:40:57.1127453Z   CI_INPUTS: {"version": "1.0.0", "publish": false, "prerelease": true}
+2026-11-13T13:40:57.1127864Z   CI_MATRIX: {"name": "windows-x64", "os": "windows-2022"}
+2026-11-13T13:40:57.1130246Z   CI_JOB: {"title": "wright \u00b7 installers (windows-x64)", "project": "wright", "id": "installers", "file": "vieww_base/apps/wright/ci/jobs/installers.toml", "if": "", "needs": [], "setup": [{"uses": "cache", "with": {"path": "~/.cargo/registry/index\n~/.cargo/registry/cache\n~/.cargo/git/db\nvieww_base/apps/wright/target\n", "key": "wright-${{ matrix.name }}-${{ env.RUST_VERSION }}-${{ hashFiles('vieww_base/apps/wright/Cargo.lock') }}", "restore-keys": "wright-${{ matrix.name }}-${{ env.RUST_VERSION }}-"}}], "uploads": [{"name": "wright-${{ env.VERSION }}-${{ matrix.name }}", "path": "release/*", "if-no-files-found": "error"}, {"name": "screens-${{ matrix.name }}", "path": "${{ runner.temp }}/screens"}], "downloads": []}
+2026-11-13T13:40:57.1132740Z   CI_PROJECT: wright
+2026-11-13T13:40:57.1133656Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-13T13:40:57.1136414Z   CI_GITHUB_TOKEN: ***
+2026-11-13T13:40:57.1137385Z   CI_SECRET_NAMES: WRIGHT_SECRET_MACOS_NOTARY_KEY,WRIGHT_SECRET_MACOS_NOTARY_KEY_ID,WRIGHT_SECRET_MACOS_P12,WRIGHT_SECRET_MACOS_P12_PASSWORD,WRIGHT_SECRET_MACOS_SIGNING_IDENTITY,WRIGHT_SECRET_MACOS_TEAM_ID,WRIGHT_SECRET_WINDOWS_PFX,WRIGHT_SECRET_WINDOWS_PFX_PASSWORD
+2026-11-13T13:40:57.1138395Z   CI_HAS_AWS_ROLE: true
+2026-11-13T13:40:57.1138594Z   ANDROID_KEYSTORE: 
+2026-11-13T13:40:57.1138788Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-13T13:40:57.1139012Z   ANDROID_KEY_ALIAS: 
+2026-11-13T13:40:57.1139199Z   ANDROID_KEY_PASSWORD: 
+2026-11-13T13:40:57.1139409Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-13T13:40:57.1139613Z   APPLE_NOTARY_ISSUER: 
+2026-11-13T13:40:57.1139808Z   APPLE_NOTARY_KEY: 
+2026-11-13T13:40:57.1139994Z   APPLE_NOTARY_KEY_ID: 
+2026-11-13T13:40:57.1140187Z   APPLE_P12_PASSWORD: 
+2026-11-13T13:40:57.1140374Z   APPLE_SIGNING_IDENTITY: 
+2026-11-13T13:40:57.1140571Z   AWS_ACCESS_KEY_ID: 
+2026-11-13T13:40:57.1140749Z   AWS_ROLE_ARN: 
+2026-11-13T13:40:57.1140934Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-13T13:40:57.1141130Z   CARGO_REGISTRY_TOKEN: 
+2026-11-13T13:40:57.1141331Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-13T13:40:57.1141537Z   CLOUDFLARE_API_TOKEN: 
+2026-11-13T13:40:57.1141743Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-13T13:40:57.1141942Z   IOS_CERT_P12: 
+2026-11-13T13:40:57.1142117Z   IOS_CERT_PASSWORD: 
+2026-11-13T13:40:57.1142297Z   IOS_IDENTITY: 
+2026-11-13T13:40:57.1142469Z   IOS_PROFILE: 
+2026-11-13T13:40:57.1142648Z   WINDOWS_CERT_PASSWORD: 
+2026-11-13T13:40:57.1142849Z   WINDOWS_CERT_PFX: 
+2026-11-13T13:40:57.1143043Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-13T13:40:57.1143291Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-13T13:40:57.1143530Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-13T13:40:57.1143745Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-13T13:40:57.1143995Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-13T13:40:57.1144249Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-13T13:40:57.1144477Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-13T13:40:57.1144706Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T13:40:57.1144977Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T13:40:57.1146818Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-13T13:40:57.1147216Z ##[endgroup]
+2026-11-13T13:40:57.2429730Z (node:4360) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T13:40:57.2430547Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T13:40:57.4893586Z Cache hit for: wright-windows-x64-1.98.1-cde965390418a249b2365efbba74099281271bc5fe2a69f28d3749d3faebf21b
+2026-11-13T13:40:57.5012749Z (node:4360) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-13T13:40:58.5506765Z Received 159383552 of 276942307 (57.6%), 151.1 MBs/sec
+2026-11-13T13:40:59.1667087Z Received 276942307 of 276942307 (100.0%), 162.8 MBs/sec
+2026-11-13T13:40:59.1673500Z Cache Size: ~264 MB (276942307 B)
+2026-11-13T13:40:59.1811823Z [command]"C:\Program Files\Git\usr\bin\tar.exe" -xf D:/a/_temp/2d0b5345-78b5-478e-b439-92abf075be3d/cache.tzst -P -C D:/a/vieww_prod/vieww_prod --force-local --use-compress-program "zstd -d"
+2026-11-13T13:41:01.9496375Z Cache restored successfully
+2026-11-13T13:41:01.9728939Z Cache restored from key: wright-windows-x64-1.98.1-cde965390418a249b2365efbba74099281271bc5fe2a69f28d3749d3faebf21b
+2026-11-13T13:41:02.0049990Z ##[group]Run "${CI_PY:-python3}" ci/lib/run.py "vieww_base/apps/wright/ci/jobs/installers.toml"
+2026-11-13T13:41:02.0050767Z [36;1m"${CI_PY:-python3}" ci/lib/run.py "vieww_base/apps/wright/ci/jobs/installers.toml"[0m
+2026-11-13T13:41:02.0063259Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-11-13T13:41:02.0063663Z env:
+2026-11-13T13:41:02.0063951Z   CI_INPUTS: {"version": "1.0.0", "publish": false, "prerelease": true}
+2026-11-13T13:41:02.0064366Z   CI_MATRIX: {"name": "windows-x64", "os": "windows-2022"}
+2026-11-13T13:41:02.0066763Z   CI_JOB: {"title": "wright \u00b7 installers (windows-x64)", "project": "wright", "id": "installers", "file": "vieww_base/apps/wright/ci/jobs/installers.toml", "if": "", "needs": [], "setup": [{"uses": "cache", "with": {"path": "~/.cargo/registry/index\n~/.cargo/registry/cache\n~/.cargo/git/db\nvieww_base/apps/wright/target\n", "key": "wright-${{ matrix.name }}-${{ env.RUST_VERSION }}-${{ hashFiles('vieww_base/apps/wright/Cargo.lock') }}", "restore-keys": "wright-${{ matrix.name }}-${{ env.RUST_VERSION }}-"}}], "uploads": [{"name": "wright-${{ env.VERSION }}-${{ matrix.name }}", "path": "release/*", "if-no-files-found": "error"}, {"name": "screens-${{ matrix.name }}", "path": "${{ runner.temp }}/screens"}], "downloads": []}
+2026-11-13T13:41:02.0069063Z   CI_PROJECT: wright
+2026-11-13T13:41:02.0069985Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-13T13:41:02.0072728Z   CI_GITHUB_TOKEN: ***
+2026-11-13T13:41:02.0073702Z   CI_SECRET_NAMES: WRIGHT_SECRET_MACOS_NOTARY_KEY,WRIGHT_SECRET_MACOS_NOTARY_KEY_ID,WRIGHT_SECRET_MACOS_P12,WRIGHT_SECRET_MACOS_P12_PASSWORD,WRIGHT_SECRET_MACOS_SIGNING_IDENTITY,WRIGHT_SECRET_MACOS_TEAM_ID,WRIGHT_SECRET_WINDOWS_PFX,WRIGHT_SECRET_WINDOWS_PFX_PASSWORD
+2026-11-13T13:41:02.0074723Z   CI_HAS_AWS_ROLE: true
+2026-11-13T13:41:02.0074922Z   ANDROID_KEYSTORE: 
+2026-11-13T13:41:02.0075144Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-13T13:41:02.0075361Z   ANDROID_KEY_ALIAS: 
+2026-11-13T13:41:02.0075550Z   ANDROID_KEY_PASSWORD: 
+2026-11-13T13:41:02.0075770Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-13T13:41:02.0075982Z   APPLE_NOTARY_ISSUER: 
+2026-11-13T13:41:02.0076180Z   APPLE_NOTARY_KEY: 
+2026-11-13T13:41:02.0076369Z   APPLE_NOTARY_KEY_ID: 
+2026-11-13T13:41:02.0076561Z   APPLE_P12_PASSWORD: 
+2026-11-13T13:41:02.0076765Z   APPLE_SIGNING_IDENTITY: 
+2026-11-13T13:41:02.0076971Z   AWS_ACCESS_KEY_ID: 
+2026-11-13T13:41:02.0077154Z   AWS_ROLE_ARN: 
+2026-11-13T13:41:02.0077342Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-13T13:41:02.0077550Z   CARGO_REGISTRY_TOKEN: 
+2026-11-13T13:41:02.0077759Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-13T13:41:02.0077962Z   CLOUDFLARE_API_TOKEN: 
+2026-11-13T13:41:02.0078166Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-13T13:41:02.0078375Z   IOS_CERT_P12: 
+2026-11-13T13:41:02.0078555Z   IOS_CERT_PASSWORD: 
+2026-11-13T13:41:02.0078742Z   IOS_IDENTITY: 
+2026-11-13T13:41:02.0078918Z   IOS_PROFILE: 
+2026-11-13T13:41:02.0079110Z   WINDOWS_CERT_PASSWORD: 
+2026-11-13T13:41:02.0079319Z   WINDOWS_CERT_PFX: 
+2026-11-13T13:41:02.0079525Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-13T13:41:02.0079773Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-13T13:41:02.0080027Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-13T13:41:02.0080253Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-13T13:41:02.0080516Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-13T13:41:02.0080770Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-13T13:41:02.0080996Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-13T13:41:02.0081241Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T13:41:02.0081496Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T13:41:02.0081827Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-13T13:41:02.0082145Z   CI_PART: main
+2026-11-13T13:41:02.0082319Z ##[endgroup]
+2026-11-13T13:41:02.1696859Z ##[group]Allow long paths (Windows)
+2026-11-13T13:41:02.2384370Z ##[endgroup]
+2026-11-13T13:41:02.2403625Z ##[group]Rust ${{ env.RUST_VERSION }}
+2026-11-13T13:41:03.2736579Z info: syncing channel updates for 1.98.1-x86_64-pc-windows-msvc
+2026-11-13T13:41:03.7691910Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-13T13:41:03.7880852Z info: downloading 3 components
+2026-11-13T13:41:10.8646586Z 
+2026-11-13T13:41:11.9265528Z   1.98.1-x86_64-pc-windows-msvc installed - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-13T13:41:11.9266178Z 
+2026-11-13T13:41:11.9669222Z info: using existing install for 1.98.1-x86_64-pc-windows-msvc
+2026-11-13T13:41:11.9943695Z info: default toolchain set to 1.98.1-x86_64-pc-windows-msvc
+2026-11-13T13:41:11.9944154Z 
+2026-11-13T13:41:12.0114487Z   1.98.1-x86_64-pc-windows-msvc unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-13T13:41:12.0115017Z 
+2026-11-13T13:41:12.0234927Z ##[endgroup]
+2026-11-13T13:41:12.0260990Z ##[group]Build (Windows, Linux)
+2026-11-13T13:41:13.0006112Z info: syncing channel updates for 1.98.1-x86_64-pc-windows-msvc
+2026-11-13T13:41:13.5411634Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-13T13:41:13.5671464Z info: downloading 3 components
+2026-11-13T13:41:32.7048184Z [1m[92m   Compiling[0m vieww-foundation v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-foundation)
+2026-11-13T13:41:32.7129708Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-widget-macros)
+2026-11-13T13:41:32.7148880Z [1m[92m   Compiling[0m wright-core v1.0.2 (D:\a\vieww_prod\vieww_prod\vieww_base\apps\wright\core)
+2026-11-13T13:41:32.7162115Z [1m[92m   Compiling[0m vieww-shaders v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-shaders)
+2026-11-13T13:41:36.4417326Z [1m[92m   Compiling[0m vieww-animation v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-animation)
+2026-11-13T13:41:36.4431588Z [1m[92m   Compiling[0m vieww-paint v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-paint)
+2026-11-13T13:41:44.9616325Z [1m[92m   Compiling[0m vieww-text v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-text)
+2026-11-13T13:41:46.8141373Z [1m[92m   Compiling[0m vieww-widget v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-widget)
+2026-11-13T13:41:48.7952679Z [1m[92m   Compiling[0m vieww-gestures v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-gestures)
+2026-11-13T13:41:50.7179363Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio)
+2026-11-13T13:41:50.9407803Z [1m[92m   Compiling[0m vieww-scene v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-scene)
+2026-11-13T13:41:51.4229374Z [1m[92m   Compiling[0m vieww-element v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-element)
+2026-11-13T13:41:52.0014031Z [1m[92m   Compiling[0m wright-runtime v1.0.2 (D:\a\vieww_prod\vieww_prod\vieww_base\apps\wright\runtime)
+2026-11-13T13:41:52.9742747Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-macros)
+2026-11-13T13:42:01.0487553Z [1m[92m   Compiling[0m vieww-render v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-render)
+2026-11-13T13:42:05.2102915Z [1m[92m   Compiling[0m vieww-render-graph v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-render-graph)
+2026-11-13T13:42:05.7814005Z [1m[92m   Compiling[0m vieww-gpu v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-gpu)
+2026-11-13T13:42:07.9073466Z [1m[92m   Compiling[0m vieww-asset v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-asset)
+2026-11-13T13:42:10.4483219Z [1m[92m   Compiling[0m vieww-image v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-image)
+2026-11-13T13:42:12.1025858Z [1m[92m   Compiling[0m vieww-video v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-video)
+2026-11-13T13:42:13.9082364Z [1m[92m   Compiling[0m vieww-hal v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-hal)
+2026-11-13T13:42:18.7994458Z [1m[92m   Compiling[0m vieww-interaction v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-interaction)
+2026-11-13T13:42:19.1864882Z [1m[92m   Compiling[0m vieww-render-planner v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-render-planner)
+2026-11-13T13:42:19.1980677Z [1m[92m   Compiling[0m wright-tools v1.0.2 (D:\a\vieww_prod\vieww_prod\vieww_base\apps\wright\tools)
+2026-11-13T13:42:19.6034603Z [1m[92m   Compiling[0m vieww-effects v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-effects)
+2026-11-13T13:42:19.7488183Z [1m[91merror[E0308][0m[1m[97m: mismatched types[0m
+2026-11-13T13:42:19.7490629Z    [1m[96m--> [0mtools\src\worker.rs:348:65
+2026-11-13T13:42:19.7491780Z     [1m[96m|[0m
+2026-11-13T13:42:19.7840965Z [1m[96m348[0m [1m[96m|[0m     if !routed_through_bash && crate::appcontainer::can_contain(program) {
+2026-11-13T13:42:19.7997542Z     [1m[96m|[0m                                [1m[96m--------------------------------[0m [1m[91m^^^^^^^[0m [1m[91mexpected `&Path`, found `PathBuf`[0m
+2026-11-13T13:42:19.8151746Z     [1m[96m|[0m                                [1m[96m|[0m
+2026-11-13T13:42:19.9402734Z     [1m[96m|[0m                                [1m[96marguments to this function are incorrect[0m
+2026-11-13T13:42:19.9870611Z     [1m[96m|[0m
+2026-11-13T13:42:20.0026696Z [1m[92mnote[0m: function defined here
+2026-11-13T13:42:20.0183310Z    [1m[96m--> [0mtools\src\appcontainer.rs:424:8
+2026-11-13T13:42:20.1432490Z     [1m[96m|[0m
+2026-11-13T13:42:20.1910832Z [1m[96m424[0m [1m[96m|[0m pub fn can_contain(program: &Path) -> bool {
+2026-11-13T13:42:20.2066060Z     [1m[96m|[0m        [1m[92m^^^^^^^^^^^[0m [1m[96m--------------[0m
+2026-11-13T13:42:20.3473009Z [1m[96mhelp[0m: consider borrowing here
+2026-11-13T13:42:20.3747428Z     [1m[96m|[0m
+2026-11-13T13:42:20.3776027Z [1m[96m348[0m [1m[96m| [0m    if !routed_through_bash && crate::appcontainer::can_contain([92m&[0mprogram) {
+2026-11-13T13:42:20.3781753Z     [1m[96m|[0m                                                                 [92m+[0m
+2026-11-13T13:42:20.3901008Z 
+2026-11-13T13:42:20.4101058Z [1m[97mFor more information about this error, try `rustc --explain E0308`.[0m
+2026-11-13T13:42:20.4212594Z [1m[91merror[0m: could not compile `wright-tools` (lib) due to 1 previous error
+2026-11-13T13:42:20.4236693Z [1m[93mwarning[0m: build failed, waiting for other jobs to finish...
+2026-11-13T13:42:38.9570613Z ##[endgroup]
+2026-11-13T13:42:38.9629376Z ##[error]Build (Windows, Linux) failed (exit 101)
+2026-11-13T13:42:38.9639217Z ##[group]mark: upload screens-${{ matrix.name }}
+2026-11-13T13:42:38.9906571Z ##[endgroup]
+2026-11-13T13:42:39.0075025Z ##[error]Process completed with exit code 1.
+2026-11-13T13:42:39.0266532Z ##[group]Run actions/upload-artifact@v4
+2026-11-13T13:42:39.0266896Z with:
+2026-11-13T13:42:39.0267112Z   name: screens-windows-x64
+2026-11-13T13:42:39.0267382Z   path: D:\a\_temp/screens
+2026-11-13T13:42:39.0267623Z   if-no-files-found: warn
+2026-11-13T13:42:39.0267871Z   include-hidden-files: false
+2026-11-13T13:42:39.0268104Z   compression-level: 6
+2026-11-13T13:42:39.0268318Z   overwrite: false
+2026-11-13T13:42:39.0268515Z env:
+2026-11-13T13:42:39.0268787Z   CI_INPUTS: {"version": "1.0.0", "publish": false, "prerelease": true}
+2026-11-13T13:42:39.0269202Z   CI_MATRIX: {"name": "windows-x64", "os": "windows-2022"}
+2026-11-13T13:42:39.0271589Z   CI_JOB: {"title": "wright \u00b7 installers (windows-x64)", "project": "wright", "id": "installers", "file": "vieww_base/apps/wright/ci/jobs/installers.toml", "if": "", "needs": [], "setup": [{"uses": "cache", "with": {"path": "~/.cargo/registry/index\n~/.cargo/registry/cache\n~/.cargo/git/db\nvieww_base/apps/wright/target\n", "key": "wright-${{ matrix.name }}-${{ env.RUST_VERSION }}-${{ hashFiles('vieww_base/apps/wright/Cargo.lock') }}", "restore-keys": "wright-${{ matrix.name }}-${{ env.RUST_VERSION }}-"}}], "uploads": [{"name": "wright-${{ env.VERSION }}-${{ matrix.name }}", "path": "release/*", "if-no-files-found": "error"}, {"name": "screens-${{ matrix.name }}", "path": "${{ runner.temp }}/screens"}], "downloads": []}
+2026-11-13T13:42:39.0274074Z   CI_PROJECT: wright
+2026-11-13T13:42:39.0275006Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-13T13:42:39.0277789Z   CI_GITHUB_TOKEN: ***
+2026-11-13T13:42:39.0278776Z   CI_SECRET_NAMES: WRIGHT_SECRET_MACOS_NOTARY_KEY,WRIGHT_SECRET_MACOS_NOTARY_KEY_ID,WRIGHT_SECRET_MACOS_P12,WRIGHT_SECRET_MACOS_P12_PASSWORD,WRIGHT_SECRET_MACOS_SIGNING_IDENTITY,WRIGHT_SECRET_MACOS_TEAM_ID,WRIGHT_SECRET_WINDOWS_PFX,WRIGHT_SECRET_WINDOWS_PFX_PASSWORD
+2026-11-13T13:42:39.0279792Z   CI_HAS_AWS_ROLE: true
+2026-11-13T13:42:39.0280013Z   ANDROID_KEYSTORE: 
+2026-11-13T13:42:39.0280220Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-13T13:42:39.0280445Z   ANDROID_KEY_ALIAS: 
+2026-11-13T13:42:39.0280651Z   ANDROID_KEY_PASSWORD: 
+2026-11-13T13:42:39.0280873Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-13T13:42:39.0281092Z   APPLE_NOTARY_ISSUER: 
+2026-11-13T13:42:39.0281295Z   APPLE_NOTARY_KEY: 
+2026-11-13T13:42:39.0281487Z   APPLE_NOTARY_KEY_ID: 
+2026-11-13T13:42:39.0281688Z   APPLE_P12_PASSWORD: 
+2026-11-13T13:42:39.0281886Z   APPLE_SIGNING_IDENTITY: 
+2026-11-13T13:42:39.0282090Z   AWS_ACCESS_KEY_ID: 
+2026-11-13T13:42:39.0282282Z   AWS_ROLE_ARN: 
+2026-11-13T13:42:39.0282471Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-13T13:42:39.0282690Z   CARGO_REGISTRY_TOKEN: 
+2026-11-13T13:42:39.0282900Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-13T13:42:39.0283112Z   CLOUDFLARE_API_TOKEN: 
+2026-11-13T13:42:39.0283330Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-13T13:42:39.0283545Z   IOS_CERT_P12: 
+2026-11-13T13:42:39.0283730Z   IOS_CERT_PASSWORD: 
+2026-11-13T13:42:39.0283931Z   IOS_IDENTITY: 
+2026-11-13T13:42:39.0284108Z   IOS_PROFILE: 
+2026-11-13T13:42:39.0284301Z   WINDOWS_CERT_PASSWORD: 
+2026-11-13T13:42:39.0284520Z   WINDOWS_CERT_PFX: 
+2026-11-13T13:42:39.0284735Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-13T13:42:39.0284997Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-13T13:42:39.0285252Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-13T13:42:39.0285492Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-13T13:42:39.0285749Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-13T13:42:39.0286014Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-13T13:42:39.0286259Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-13T13:42:39.0286501Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T13:42:39.0286776Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T13:42:39.0287101Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-13T13:42:39.0287447Z   CI_UPLOAD_1: yes
+2026-11-13T13:42:39.0287656Z ##[endgroup]
+2026-11-13T13:42:39.2151941Z (node:5928) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T13:42:39.2152818Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T13:42:39.2193595Z ##[warning]No files were found with the provided path: D:\a\_temp/screens. No artifacts will be uploaded.
+2026-11-13T13:42:39.2529791Z Post job cleanup.
+2026-11-13T13:42:39.4473572Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-13T13:42:39.4781428Z git version 2.56.0.windows.4
+2026-11-13T13:42:39.4851084Z Copying 'C:\Users\runneradmin\.gitconfig' to 'D:\a\_temp\ae6c05cc-36f3-4ded-8544-e0cde701109a\.gitconfig'
+2026-11-13T13:42:39.4876489Z Temporarily overriding HOME='D:\a\_temp\ae6c05cc-36f3-4ded-8544-e0cde701109a' before making global git config changes
+2026-11-13T13:42:39.4877994Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T13:42:39.4890426Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\vieww_prod\vieww_prod
+2026-11-13T13:42:39.5232575Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T13:42:39.5552273Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-13T13:42:40.0752242Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T13:42:40.1111577Z http.https://github.com/.extraheader
+2026-11-13T13:42:40.1157348Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-11-13T13:42:40.1541370Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-13T13:42:40.6800210Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T13:42:40.7108829Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-13T13:42:41.2166324Z Cleaning up orphan processes
+2026-11-13T13:42:41.2458714Z Terminate orphan process: pid (4444) (vctip)
+2026-11-13T13:42:41.2561249Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== phase-1 / viewwstudio · build (windows)	log =====
+2026-11-13T13:41:14.2762429Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-13T13:41:14.2762628Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-13T13:41:14.2762806Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-13T13:41:14.2762990Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T13:41:14.2763192Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T13:41:14.2763452Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-13T13:41:14.2763883Z ##[endgroup]
+2026-11-13T13:41:41.7926751Z ##[group]Cache Configuration
+2026-11-13T13:41:41.7927167Z Cache Provider:
+2026-11-13T13:41:41.7927394Z     github
+2026-11-13T13:41:41.7927604Z Workspaces:
+2026-11-13T13:41:41.7927873Z     D:\a\vieww_prod\vieww_prod\vieww_base
+2026-11-13T13:41:41.7928210Z Cache Paths:
+2026-11-13T13:41:41.7928451Z     C:\Users\runneradmin\.cargo\bin
+2026-11-13T13:41:41.7928788Z     C:\Users\runneradmin\.cargo\.crates.toml
+2026-11-13T13:41:41.7931829Z     C:\Users\runneradmin\.cargo\.crates2.json
+2026-11-13T13:41:41.7932318Z     C:\Users\runneradmin\.cargo\registry
+2026-11-13T13:41:41.7932631Z     C:\Users\runneradmin\.cargo\git
+2026-11-13T13:41:41.7932934Z     D:\a\vieww_prod\vieww_prod\vieww_base\target
+2026-11-13T13:41:41.7933215Z Restore Key:
+2026-11-13T13:41:41.7933450Z     v0-rust-run-Windows_NT-x64-15d0a0c1
+2026-11-13T13:41:41.7933721Z Cache Key:
+2026-11-13T13:41:41.7933952Z     v0-rust-run-Windows_NT-x64-15d0a0c1-65a8006b
+2026-11-13T13:41:41.7934265Z .. Prefix:
+2026-11-13T13:41:41.7934477Z   - v0-rust-run-Windows_NT-x64
+2026-11-13T13:41:41.7934726Z .. Environment considered:
+2026-11-13T13:41:41.7934961Z   - Rust Versions:
+2026-11-13T13:41:41.7935290Z     - 1.99.1 x86_64-pc-windows-msvc 58cf8f9c35b355199727627d07ae34a4e2846d67
+2026-11-13T13:41:41.7935693Z   - CARGO_INCREMENTAL
+2026-11-13T13:41:41.7935918Z .. Lockfiles considered:
+2026-11-13T13:41:41.7936224Z   - D:\a\vieww_prod\vieww_prod\vieww_base\.cargo\config.toml
+2026-11-13T13:41:41.7936691Z   - D:\a\vieww_prod\vieww_prod\vieww_base\apps\mytlabs\Cargo.toml
+2026-11-13T13:41:41.7937132Z   - D:\a\vieww_prod\vieww_prod\vieww_base\apps\viewwsite\Cargo.toml
+2026-11-13T13:41:41.7937585Z   - D:\a\vieww_prod\vieww_prod\vieww_base\apps\viewwstudio\Cargo.toml
+2026-11-13T13:41:41.7938382Z   - D:\a\vieww_prod\vieww_prod\vieww_base\apps\viewwstudio\plugins\example\Cargo.toml
+2026-11-13T13:41:41.7938982Z   - D:\a\vieww_prod\vieww_prod\vieww_base\apps\wright\.cargo\config.toml
+2026-11-13T13:41:41.7939580Z   - D:\a\vieww_prod\vieww_prod\vieww_base\apps\wright\prototypes\wright-flow\rust-toolchain.toml
+2026-11-13T13:41:41.7940158Z   - D:\a\vieww_prod\vieww_prod\vieww_base\apps\wrightsite\Cargo.toml
+2026-11-13T13:41:41.7940583Z   - D:\a\vieww_prod\vieww_prod\vieww_base\Cargo.lock
+2026-11-13T13:41:41.7940978Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-3d\Cargo.toml
+2026-11-13T13:41:41.7941466Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-accessibility\Cargo.toml
+2026-11-13T13:41:41.7941991Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-animation\Cargo.toml
+2026-11-13T13:41:41.7942471Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-asset\Cargo.toml
+2026-11-13T13:41:41.7942967Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-macros\Cargo.toml
+2026-11-13T13:41:41.7943487Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-plugin\Cargo.toml
+2026-11-13T13:41:41.7943981Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio\Cargo.toml
+2026-11-13T13:41:41.7944442Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-build\Cargo.toml
+2026-11-13T13:41:41.7944929Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-canvas\Cargo.toml
+2026-11-13T13:41:41.7945430Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-cli\Cargo.toml
+2026-11-13T13:41:41.7945924Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-collab\Cargo.toml
+2026-11-13T13:41:41.7946431Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-dataviz\Cargo.toml
+2026-11-13T13:41:41.7946869Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-devtools\Cargo.toml
+2026-11-13T13:41:41.7947208Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-effects\Cargo.toml
+2026-11-13T13:41:41.7947540Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-element\Cargo.toml
+2026-11-13T13:41:41.7947980Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-embed\Cargo.toml
+2026-11-13T13:41:41.7948405Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-foundation\Cargo.toml
+2026-11-13T13:41:41.7948949Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-game\Cargo.toml
+2026-11-13T13:41:41.7949279Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-gestures\Cargo.toml
+2026-11-13T13:41:41.7949605Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-gpu\Cargo.toml
+2026-11-13T13:41:41.7949923Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-graph\Cargo.toml
+2026-11-13T13:41:41.7950943Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-hal\Cargo.toml
+2026-11-13T13:41:41.7951338Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-hardware\Cargo.toml
+2026-11-13T13:41:41.7951677Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-image\Cargo.toml
+2026-11-13T13:41:41.7952025Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-interaction\Cargo.toml
+2026-11-13T13:41:41.7952364Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-lottie\Cargo.toml
+2026-11-13T13:41:41.7952677Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-mesh\Cargo.toml
+2026-11-13T13:41:41.7952997Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-music\Cargo.toml
+2026-11-13T13:41:41.7953312Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-network\Cargo.toml
+2026-11-13T13:41:41.7953634Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-paint\Cargo.toml
+2026-11-13T13:41:41.7953956Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-physics\Cargo.toml
+2026-11-13T13:41:41.7954316Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-platform-web-dom\Cargo.toml
+2026-11-13T13:41:41.7954684Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-platform-web\Cargo.toml
+2026-11-13T13:41:41.7955115Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-platform-winit\Cargo.toml
+2026-11-13T13:41:41.7955496Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-platform\Cargo.toml
+2026-11-13T13:41:41.7955844Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-plugin-macros\Cargo.toml
+2026-11-13T13:41:41.7956173Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-plugin\Cargo.toml
+2026-11-13T13:41:41.7956501Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-reload\Cargo.toml
+2026-11-13T13:41:41.7956863Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-render-graph\Cargo.toml
+2026-11-13T13:41:41.7957371Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-render-planner\Cargo.toml
+2026-11-13T13:41:41.7957729Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-render\Cargo.toml
+2026-11-13T13:41:41.7958062Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-runtime\Cargo.toml
+2026-11-13T13:41:41.7958404Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-say-codegen\Cargo.toml
+2026-11-13T13:41:41.7958730Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-scene\Cargo.toml
+2026-11-13T13:41:41.7959046Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-scroll\Cargo.toml
+2026-11-13T13:41:41.7959362Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-shaders\Cargo.toml
+2026-11-13T13:41:41.7959681Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-spatial\Cargo.toml
+2026-11-13T13:41:41.7960016Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-test-harness\Cargo.toml
+2026-11-13T13:41:41.7960665Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-text\Cargo.toml
+2026-11-13T13:41:41.7961174Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-update\Cargo.toml
+2026-11-13T13:41:41.7961696Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-video\Cargo.toml
+2026-11-13T13:41:41.7962261Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-widget-macros\Cargo.toml
+2026-11-13T13:41:41.7962723Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-widget\Cargo.toml
+2026-11-13T13:41:41.7963036Z   - D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww\Cargo.toml
+2026-11-13T13:41:41.7963377Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\animation-showcase\Cargo.toml
+2026-11-13T13:41:41.7963920Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\audit-sheets\Cargo.toml
+2026-11-13T13:41:41.7964477Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\editor\Cargo.toml
+2026-11-13T13:41:41.7964821Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\00-rectangle\Cargo.toml
+2026-11-13T13:41:41.7965198Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\01-circle\Cargo.toml
+2026-11-13T13:41:41.7965579Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\02-text-display\Cargo.toml
+2026-11-13T13:41:41.7966038Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\03-text-box\Cargo.toml
+2026-11-13T13:41:41.7966428Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\04-decoration\Cargo.toml
+2026-11-13T13:41:41.7966836Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\05-rectangle-animation\Cargo.toml
+2026-11-13T13:41:41.7967257Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\06-transition-fade\Cargo.toml
+2026-11-13T13:41:41.7967665Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\07-transition-slide\Cargo.toml
+2026-11-13T13:41:41.7968077Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\08-splash-screen\Cargo.toml
+2026-11-13T13:41:41.7968467Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\09-colors-rgb\Cargo.toml
+2026-11-13T13:41:41.7968844Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\10-colors-rgba\Cargo.toml
+2026-11-13T13:41:41.7969247Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\11-container-padding\Cargo.toml
+2026-11-13T13:41:41.7969644Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\12-flex-row\Cargo.toml
+2026-11-13T13:41:41.7970017Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\13-flex-column\Cargo.toml
+2026-11-13T13:41:41.7970413Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\14-stack-positioned\Cargo.toml
+2026-11-13T13:41:41.7970801Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\15-opacity\Cargo.toml
+2026-11-13T13:41:41.7971175Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\16-clip-rounded\Cargo.toml
+2026-11-13T13:41:41.7971552Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\17-sized-box\Cargo.toml
+2026-11-13T13:41:41.7971940Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\18-image-display\Cargo.toml
+2026-11-13T13:41:41.7972341Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\19-box-fit\Cargo.toml
+2026-11-13T13:41:41.7972852Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\20-transform-translate\Cargo.toml
+2026-11-13T13:41:41.7973412Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\21-theme-light-dark\Cargo.toml
+2026-11-13T13:41:41.7973899Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\22-directionality-rtl\Cargo.toml
+2026-11-13T13:41:41.7974354Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\23-bar-chart\Cargo.toml
+2026-11-13T13:41:41.7974812Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\24-line-chart\Cargo.toml
+2026-11-13T13:41:41.7996636Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\25-button-pressable\Cargo.toml
+2026-11-13T13:41:41.7997229Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\26-checkbox\Cargo.toml
+2026-11-13T13:41:41.7997625Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\27-switch\Cargo.toml
+2026-11-13T13:41:41.7998044Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\28-radio\Cargo.toml
+2026-11-13T13:41:41.7998660Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\29-linear-progress\Cargo.toml
+2026-11-13T13:41:41.7999186Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\30-chip-badge\Cargo.toml
+2026-11-13T13:41:41.7999600Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\31-circular-progress\Cargo.toml
+2026-11-13T13:41:41.8000228Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\32-blur-effect\Cargo.toml
+2026-11-13T13:41:41.8000820Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\33-grayscale\Cargo.toml
+2026-11-13T13:41:41.8002958Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\34-sepia\Cargo.toml
+2026-11-13T13:41:41.8003432Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\35-custom-paint\Cargo.toml
+2026-11-13T13:41:41.8003993Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\36-tint-frosted\Cargo.toml
+2026-11-13T13:41:41.8004555Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\37-spring-animation\Cargo.toml
+2026-11-13T13:41:41.8005201Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\38-animated-container\Cargo.toml
+2026-11-13T13:41:41.8005705Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\39-tween\Cargo.toml
+2026-11-13T13:41:41.8006259Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\40-curves\Cargo.toml
+2026-11-13T13:41:41.8006833Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\41-timeline-stagger\Cargo.toml
+2026-11-13T13:41:41.8007370Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\42-list-view\Cargo.toml
+2026-11-13T13:41:41.8008297Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\43-scroll-driven\Cargo.toml
+2026-11-13T13:41:41.8009062Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\44-grid-view\Cargo.toml
+2026-11-13T13:41:41.8009653Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\46-motion-tokens\Cargo.toml
+2026-11-13T13:41:41.8010198Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\47-form-controls\Cargo.toml
+2026-11-13T13:41:41.8010734Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\48-data-table\Cargo.toml
+2026-11-13T13:41:41.8011150Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\49-markdown\Cargo.toml
+2026-11-13T13:41:41.8011564Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\50-baseline-alignment\Cargo.toml
+2026-11-13T13:41:41.8011996Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\51-locale-formatting\Cargo.toml
+2026-11-13T13:41:41.8012413Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\52-blend-modes\Cargo.toml
+2026-11-13T13:41:41.8012839Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\53-wide-gamut-color\Cargo.toml
+2026-11-13T13:41:41.8013269Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\54-image-mipmaps-atlas\Cargo.toml
+2026-11-13T13:41:41.8013712Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\55-accessibility-audit\Cargo.toml
+2026-11-13T13:41:41.8014141Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\56-keyframes\Cargo.toml
+2026-11-13T13:41:41.8014533Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\57-state-machine\Cargo.toml
+2026-11-13T13:41:41.8014917Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\58-skeletal\Cargo.toml
+2026-11-13T13:41:41.8015299Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\59-blend-tree\Cargo.toml
+2026-11-13T13:41:41.8015675Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\60-particles\Cargo.toml
+2026-11-13T13:41:41.8016041Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\61-noise\Cargo.toml
+2026-11-13T13:41:41.8016399Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\62-lfo\Cargo.toml
+2026-11-13T13:41:41.8016781Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\63-easing-presets\Cargo.toml
+2026-11-13T13:41:41.8017188Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\64-audio-waveform\Cargo.toml
+2026-11-13T13:41:41.8017584Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\65-audio-reactive\Cargo.toml
+2026-11-13T13:41:41.8017991Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\66-video-filmstrip\Cargo.toml
+2026-11-13T13:41:41.8018390Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\67-mesh\Cargo.toml
+2026-11-13T13:41:41.8018778Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\68-physics\Cargo.toml
+2026-11-13T13:41:41.8019167Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\69-physics-joint\Cargo.toml
+2026-11-13T13:41:41.8019547Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\70-network\Cargo.toml
+2026-11-13T13:41:41.8020051Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\71-embed\Cargo.toml
+2026-11-13T13:41:41.8020430Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\72-scatter-chart\Cargo.toml
+2026-11-13T13:41:41.8020823Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\73-pie-chart\Cargo.toml
+2026-11-13T13:41:41.8021687Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\74-donut-chart\Cargo.toml
+2026-11-13T13:41:41.8022101Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\75-function-graph\Cargo.toml
+2026-11-13T13:41:41.8022502Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\76-math-text\Cargo.toml
+2026-11-13T13:41:41.8022878Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\77-split-text\Cargo.toml
+2026-11-13T13:41:41.8023260Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\78-shape-morph\Cargo.toml
+2026-11-13T13:41:41.8023633Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\79-ik\Cargo.toml
+2026-11-13T13:41:41.8023998Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\80-3d-scene\Cargo.toml
+2026-11-13T13:41:41.8024373Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\81-path-ops\Cargo.toml
+2026-11-13T13:41:41.8024744Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\82-timelines\Cargo.toml
+2026-11-13T13:41:41.8025126Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\83-rigging\Cargo.toml
+2026-11-13T13:41:41.8025522Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\84-particles-retarget\Cargo.toml
+2026-11-13T13:41:41.8025930Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\85-3d-advanced\Cargo.toml
+2026-11-13T13:41:41.8026296Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\86-physics\Cargo.toml
+2026-11-13T13:41:41.8026667Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\87-canvas-dataviz\Cargo.toml
+2026-11-13T13:41:41.8027110Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\88-graph-game-collab-lottie\Cargo.toml
+2026-11-13T13:41:41.8027540Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\89-video-effects\Cargo.toml
+2026-11-13T13:41:41.8027932Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\90-midi-dsp-osc\Cargo.toml
+2026-11-13T13:41:41.8028347Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\91-code-binding-sprites\Cargo.toml
+2026-11-13T13:41:41.8028745Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\92-media-player\Cargo.toml
+2026-11-13T13:41:41.8029111Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\features\harness\Cargo.toml
+2026-11-13T13:41:41.8029449Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\film_lab\Cargo.toml
+2026-11-13T13:41:41.8029760Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\fixtures\Cargo.toml
+2026-11-13T13:41:41.8030081Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\full-showcase\Cargo.toml
+2026-11-13T13:41:41.8030427Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\guide-counter\Cargo.toml
+2026-11-13T13:41:41.8030746Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\keynote\Cargo.toml
+2026-11-13T13:41:41.8031053Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\lumen\Cargo.toml
+2026-11-13T13:41:41.8031390Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\market-watch\Cargo.toml
+2026-11-13T13:41:41.8031744Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\reload-android\Cargo.toml
+2026-11-13T13:41:41.8032082Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\reload-guest\Cargo.toml
+2026-11-13T13:41:41.8032412Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\reload-host\Cargo.toml
+2026-11-13T13:41:41.8032746Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\screenshot\Cargo.toml
+2026-11-13T13:41:41.8033091Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\shot-diff\Cargo.toml
+2026-11-13T13:41:41.8033444Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\test-animation-stress\Cargo.toml
+2026-11-13T13:41:41.8033888Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\test-gpu-work\Cargo.toml
+2026-11-13T13:41:41.8034241Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\test-image-effects\Cargo.toml
+2026-11-13T13:41:41.8034606Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\test-layout-stress\Cargo.toml
+2026-11-13T13:41:41.8034969Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\test-native-surface\Cargo.toml
+2026-11-13T13:41:41.8035386Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\test-premium-ui\Cargo.toml
+2026-11-13T13:41:41.8035749Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\test-scroll-stress\Cargo.toml
+2026-11-13T13:41:41.8036111Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\test-text-fidelity\Cargo.toml
+2026-11-13T13:41:41.8036449Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\test-web\Cargo.toml
+2026-11-13T13:41:41.8036751Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\u\Cargo.toml
+2026-11-13T13:41:41.8037078Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\u\crates\u-core\Cargo.toml
+2026-11-13T13:41:41.8037434Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\u\crates\u-decision\Cargo.toml
+2026-11-13T13:41:41.8037797Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\u\crates\u-feedback\Cargo.toml
+2026-11-13T13:41:41.8038151Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\u\crates\u-memory\Cargo.toml
+2026-11-13T13:41:41.8038517Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\u\crates\u-ml-runtime\Cargo.toml
+2026-11-13T13:41:41.8038881Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\u\crates\u-persona\Cargo.toml
+2026-11-13T13:41:41.8039222Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\vector-probe\Cargo.toml
+2026-11-13T13:41:41.8039567Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\vieww-standard\Cargo.toml
+2026-11-13T13:41:41.8039906Z   - D:\a\vieww_prod\vieww_prod\vieww_base\examples\wright_film\Cargo.toml
+2026-11-13T13:41:41.8040221Z   - D:\a\vieww_prod\vieww_prod\vieww_base\rust-toolchain.toml
+2026-11-13T13:41:41.8040682Z ##[endgroup]
+2026-11-13T13:41:41.8040771Z 
+2026-11-13T13:41:41.8040840Z ... Restoring cache ...
+2026-11-13T13:41:42.1862920Z No cache found.
+2026-11-13T13:41:42.2104501Z ##[group]Run "${CI_PY:-python3}" ci/lib/run.py "ci/kinds/desktop-app/build.toml"
+2026-11-13T13:41:42.2104996Z [36;1m"${CI_PY:-python3}" ci/lib/run.py "ci/kinds/desktop-app/build.toml"[0m
+2026-11-13T13:41:42.2113626Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-11-13T13:41:42.2113922Z env:
+2026-11-13T13:41:42.2114064Z   CI_INPUTS: {}
+2026-11-13T13:41:42.2114334Z   CI_MATRIX: {"package": "viewwstudio", "workspace": "vieww_base", "platform": "windows"}
+2026-11-13T13:41:42.2115367Z   CI_JOB: {"title": "viewwstudio \u00b7 build (windows)", "project": "viewwstudio", "id": "build", "file": "ci/kinds/desktop-app/build.toml", "if": "", "needs": [], "setup": [{"uses": "rust-cache", "with": {"workspaces": "vieww_base"}}], "uploads": [{"name": "viewwstudio-windows", "path": "vieww_base/target/ci-dist/", "if-no-files-found": "error"}], "downloads": []}
+2026-11-13T13:41:42.2116314Z   CI_PROJECT: viewwstudio
+2026-11-13T13:41:42.2117081Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-13T13:41:42.2119334Z   CI_GITHUB_TOKEN: ***
+2026-11-13T13:41:42.2119520Z   CI_SECRET_NAMES: 
+2026-11-13T13:41:42.2119678Z   CI_HAS_AWS_ROLE: true
+2026-11-13T13:41:42.2119840Z   ANDROID_KEYSTORE: 
+2026-11-13T13:41:42.2120001Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-13T13:41:42.2120179Z   ANDROID_KEY_ALIAS: 
+2026-11-13T13:41:42.2120333Z   ANDROID_KEY_PASSWORD: 
+2026-11-13T13:41:42.2120503Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-13T13:41:42.2120673Z   APPLE_NOTARY_ISSUER: 
+2026-11-13T13:41:42.2120837Z   APPLE_NOTARY_KEY: 
+2026-11-13T13:41:42.2120987Z   APPLE_NOTARY_KEY_ID: 
+2026-11-13T13:41:42.2121141Z   APPLE_P12_PASSWORD: 
+2026-11-13T13:41:42.2121297Z   APPLE_SIGNING_IDENTITY: 
+2026-11-13T13:41:42.2121461Z   AWS_ACCESS_KEY_ID: 
+2026-11-13T13:41:42.2121744Z   AWS_ROLE_ARN: 
+2026-11-13T13:41:42.2121891Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-13T13:41:42.2122056Z   CARGO_REGISTRY_TOKEN: 
+2026-11-13T13:41:42.2122227Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-13T13:41:42.2122388Z   CLOUDFLARE_API_TOKEN: 
+2026-11-13T13:41:42.2122547Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-13T13:41:42.2122714Z   IOS_CERT_P12: 
+2026-11-13T13:41:42.2122861Z   IOS_CERT_PASSWORD: 
+2026-11-13T13:41:42.2123009Z   IOS_IDENTITY: 
+2026-11-13T13:41:42.2123144Z   IOS_PROFILE: 
+2026-11-13T13:41:42.2123287Z   WINDOWS_CERT_PASSWORD: 
+2026-11-13T13:41:42.2123455Z   WINDOWS_CERT_PFX: 
+2026-11-13T13:41:42.2123612Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-13T13:41:42.2123812Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-13T13:41:42.2124007Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-13T13:41:42.2124191Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-13T13:41:42.2124389Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-13T13:41:42.2124587Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-13T13:41:42.2124771Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-13T13:41:42.2124961Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T13:41:42.2125160Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T13:41:42.2125409Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-13T13:41:42.2125665Z   CACHE_ON_FAILURE: false
+2026-11-13T13:41:42.2125833Z   CARGO_INCREMENTAL: 0
+2026-11-13T13:41:42.2125986Z   CI_PART: main
+2026-11-13T13:41:42.2126129Z ##[endgroup]
+2026-11-13T13:41:42.7185667Z ##[group]Rust toolchain
+2026-11-13T13:41:42.8329090Z 1.98.1-x86_64-pc-windows-msvc (overridden by 'D:\a\vieww_prod\vieww_prod\vieww_base\rust-toolchain.toml')
+2026-11-13T13:41:42.8375934Z ##[endgroup]
+2026-11-13T13:41:42.8394067Z ##[group]cargo build --release -p ${{ matrix.package }}
+2026-11-13T13:41:42.8721967Z D:\a\_temp\ci-steps-my_zq5as\3.sh: line 1: target/ci-build.json: No such file or directory
+2026-11-13T13:41:42.8747359Z ##[endgroup]
+2026-11-13T13:41:42.8768371Z ##[error]cargo build --release -p ${{ matrix.package }} failed (exit 1)
+2026-11-13T13:41:42.9026861Z ##[error]Process completed with exit code 1.
+2026-11-13T13:41:42.9237673Z Post job cleanup.
+2026-11-13T13:41:43.0497686Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-13T13:41:43.0730819Z git version 2.56.1.windows.1
+2026-11-13T13:41:43.0779451Z Temporarily overriding HOME='D:\a\_temp\007f95a0-fe04-4be9-a792-bfd1519c7dae' before making global git config changes
+2026-11-13T13:41:43.0780380Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T13:41:43.0789229Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\vieww_prod\vieww_prod
+2026-11-13T13:41:43.1073707Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T13:41:43.1347280Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-13T13:41:43.5810868Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T13:41:43.6063211Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-13T13:41:44.0488565Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T13:41:44.0736665Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-13T13:41:44.5335780Z Cleaning up orphan processes
+2026-11-13T13:41:44.5539795Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
