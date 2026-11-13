@@ -1,0 +1,346 @@
+-----
+phase-1 / wright · machine	log	2026-11-13T13:48:10.4198856Z [1m[92m    Checking[0m vieww v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
+phase-1 / wright · machine	log	2026-11-13T13:48:19.2318047Z [1m[92m    Checking[0m wright v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/app)
+phase-1 / wright · machine	log	2026-11-13T13:48:23.2590582Z [1m[92m    Finished[0m ]8;;https://doc.rust-lang.org/cargo/reference/profiles.html#default-profiles\`dev` profile [unoptimized + debuginfo]]8;;\ target(s) in 56.02s
+phase-1 / wright · machine	log	2026-11-13T13:48:23.7537121Z ##[endgroup]
+phase-1 / wright · machine	log	2026-11-13T13:48:23.7551208Z ##[group]Tests
+phase-1 / wright · machine	log	2026-11-13T13:48:33.5564653Z [1m[92m   Compiling[0m wright-runtime v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/runtime)
+phase-1 / wright · machine	log	2026-11-13T13:48:36.8977571Z [1m[92m   Compiling[0m wright-tools v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/tools)
+phase-1 / wright · machine	log	2026-11-13T13:48:36.8992893Z [1m[92m   Compiling[0m wright-infer v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/infer)
+phase-1 / wright · machine	log	2026-11-13T13:49:07.2738170Z [1m[92m   Compiling[0m wright-engine v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/engine)
+phase-1 / wright · machine	log	2026-11-13T13:49:14.6727016Z [1m[92m   Compiling[0m wright v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/app)
+phase-1 / wright · machine	log	2026-11-13T13:50:04.4031350Z [1m[92m    Finished[0m ]8;;https://doc.rust-lang.org/cargo/reference/profiles.html#default-profiles\`release` profile [optimized]]8;;\ target(s) in 1m 40s
+phase-1 / wright · machine	log	2026-11-13T13:50:04.6302753Z [1m[92m     Running[0m unittests src/lib.rs (target/release/deps/wright-0cf233cb649540af)
+phase-1 / wright · machine	log	2026-11-13T13:50:04.6662175Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:04.6663386Z running 0 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:04.6667096Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:04.6670179Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+phase-1 / wright · machine	log	2026-11-13T13:50:04.6673715Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:04.6679295Z [1m[92m     Running[0m unittests src/main.rs (target/release/deps/wright-3ba21526e68b05d3)
+phase-1 / wright · machine	log	2026-11-13T13:50:04.6737784Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:04.6739790Z running 0 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:04.6742150Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:04.6744513Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+phase-1 / wright · machine	log	2026-11-13T13:50:04.6747549Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:04.6751114Z [1m[92m     Running[0m unittests src/lib.rs (target/release/deps/wright_agents-63f6e2e76aee0b1b)
+phase-1 / wright · machine	log	2026-11-13T13:50:04.7181019Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:04.7182992Z running 6 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:04.7219831Z [1m[92m     Running[0m unittests src/lib.rs (target/release/deps/wright_core-5d38c13835353f9e)
+phase-1 / wright · machine	log	2026-11-13T13:50:04.7225543Z test data_marking_tests::inputs_are_fenced_and_marked ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.7228708Z test data_marking_tests::content_cannot_forge_the_fence ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.7233467Z test tests::accept_lines_parse_strictly ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.7235754Z test tests::every_kind_has_a_spec ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.7238720Z test tests::prompts_state_the_definition_of_done_or_a_contract ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.7246558Z test tests::verdict_lines_parse ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.7247459Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:04.7248697Z test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+phase-1 / wright · machine	log	2026-11-13T13:50:04.7250701Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:04.7596686Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:04.7600236Z running 134 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:04.7623855Z test blueprint::canon::tests::agent_order_canonicalizes ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.7628901Z test blueprint::canon::tests::canonical_text_round_trips_through_the_parser ... ok
+-----
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8413029Z test wire::json::tests::numeric_keys_index_arrays ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8414519Z test wire::json::tests::round_trip ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8416325Z test wire::json::tests::trailing_data_is_an_error ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8418427Z test wire::json::tests::unicode_escapes_and_surrogates ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8420865Z test wire::sse::tests::chunk_boundaries_do_not_split_messages ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8423212Z test wire::sse::tests::comments_and_crlf_are_tolerated ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8424996Z test wire::sse::tests::complete_messages_parse ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8426565Z test wire::sse::tests::finish_flushes_trailing_block ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8430088Z test sha256::tests::nist_vectors ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8433605Z test wire::sse::tests::multi_line_data_joins_with_newlines ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8435194Z test zip::tests::crc32_check_value ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8436612Z test zip::tests::unsafe_paths_are_refused ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8441049Z test zip::tests::the_same_files_make_the_same_bytes ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8508168Z test sha512::tests::one_million_a_characters_streamed_and_one_shot ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8509715Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8511168Z test result: ok. 134 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8512269Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8521617Z [1m[92m     Running[0m unittests src/lib.rs (target/release/deps/wright_engine-3fdaf12434ad357d)
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8537269Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8537896Z running 27 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8543115Z test bench::tests::a_run_without_outcomes_says_so ... ok
+-----
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8572446Z test mock::tests::flaky_and_down_models_fail_the_way_they_say ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8580615Z test mock::tests::the_mock_streams_tool_calls_the_real_client_understands ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.8583344Z test recipe::tests::a_recipe_cannot_name_a_folder_outside_the_target ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.9132981Z test handoff::tests::a_project_with_a_run_hands_off_its_three_things ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.9144096Z test handoff::tests::a_project_without_runs_refuses_with_a_sentence ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.9148265Z test recipe::tests::an_unsigned_recipe_is_refused_install_with_the_adr_sentence ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.9150619Z test scheduler::tests::registry_round_trips_and_is_idempotent ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.9152687Z test spend::tests::cost_lands_on_the_agent_that_spent_it ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.9155862Z test unattended::tests::durations_read_like_a_person_wrote_them ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.9159310Z test verify::docs_agree::architecture_does_not_promise_what_the_code_refuses ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.9163445Z test verify::docs_agree::the_check_count_is_the_same_in_code_module_doc_and_readme ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:04.9848248Z test recipe::tests::the_gallery_lists_only_parsable_recipes_and_names_the_broken ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:05.0722540Z test interview::tests::the_reference_mentions_every_implemented_tool ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:05.3330015Z test recipe::tests::a_signed_recipe_installs_into_a_fresh_folder ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:05.3333700Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:05.3336868Z test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.48s
+phase-1 / wright · machine	log	2026-11-13T13:50:05.3341761Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:05.3363524Z [1m[92m     Running[0m tests/browser.rs (target/release/deps/browser-fdf26ad5ce7827fb)
+phase-1 / wright · machine	log	2026-11-13T13:50:05.3415052Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:05.3416452Z running 2 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:05.3429035Z test the_validator_refuses_browser_without_the_network_permission ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:05.4734691Z test a_render_call_flows_to_the_refusal_and_the_receipt_records_it ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:05.4738279Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:05.4741079Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+phase-1 / wright · machine	log	2026-11-13T13:50:05.4744198Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:05.4747858Z [1m[92m     Running[0m tests/builtin.rs (target/release/deps/builtin-7de572b77baf97e0)
+phase-1 / wright · machine	log	2026-11-13T13:50:05.4815199Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:05.4816513Z running 1 test
+phase-1 / wright · machine	log	2026-11-13T13:50:05.6435080Z test no_key_falls_back_to_the_builtin_model_and_says_so ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:05.6436353Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:05.6437598Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+phase-1 / wright · machine	log	2026-11-13T13:50:05.6439343Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:05.6440999Z [1m[92m     Running[0m tests/e2e.rs (target/release/deps/e2e-3c63effe61609ac1)
+phase-1 / wright · machine	log	2026-11-13T13:50:05.6469713Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:05.6470745Z running 7 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:05.6526042Z test declining_the_confirm_gate_writes_nothing ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:06.3343004Z test interview_to_confirmed_blueprint_to_working_project ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:06.3818852Z test the_budget_stops_a_firing_cleanly ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:23.7816308Z test failing_tests_stop_delivery ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:30.0371504Z test a_crashed_firing_resumes_without_redoing_finished_work ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:35.0712252Z test a_cached_approval_never_outlives_a_new_test_failure ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:44.8708918Z test the_digest_fires_end_to_end_then_the_cache_and_freshness_rules_hold ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:44.8711196Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:44.8712835Z test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 39.22s
+phase-1 / wright · machine	log	2026-11-13T13:50:44.8715139Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:44.8723685Z [1m[92m     Running[0m tests/export.rs (target/release/deps/export-e00f4593e0df6e0b)
+phase-1 / wright · machine	log	2026-11-13T13:50:44.8744650Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:44.8745136Z running 4 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:45.0372762Z test deployment_packagings_come_from_the_blueprint ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:45.0389988Z test docker_digests_come_from_the_export_config_or_the_export_refuses ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:45.1729339Z test the_export_receipt_is_signed_evidence ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:49.7164477Z test exports_are_what_other_tools_expect ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:49.7165622Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:49.7166702Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.84s
+phase-1 / wright · machine	log	2026-11-13T13:50:49.7167260Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:49.7169055Z [1m[92m     Running[0m tests/fleet.rs (target/release/deps/fleet-854190c9162fa3ee)
+phase-1 / wright · machine	log	2026-11-13T13:50:49.7187841Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:49.7188391Z running 1 test
+phase-1 / wright · machine	log	2026-11-13T13:50:49.7356724Z test stop_everything_then_earn_trust_then_change_the_plan ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:49.7357909Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:49.7358916Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+phase-1 / wright · machine	log	2026-11-13T13:50:49.7360444Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:49.7361907Z [1m[92m     Running[0m tests/fork.rs (target/release/deps/fork-192c4f2b710b4f48)
+phase-1 / wright · machine	log	2026-11-13T13:50:49.7380431Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:49.7381005Z running 1 test
+phase-1 / wright · machine	log	2026-11-13T13:50:49.8394830Z test a_fork_at_an_event_carries_exactly_that_state_and_fires_on_its_own ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:49.8395846Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:49.8396844Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+phase-1 / wright · machine	log	2026-11-13T13:50:49.8398114Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:49.8400765Z [1m[92m     Running[0m tests/injection.rs (target/release/deps/injection-fe57fddcab3f5eb5)
+phase-1 / wright · machine	log	2026-11-13T13:50:49.8420714Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:49.8421507Z running 1 test
+phase-1 / wright · machine	log	2026-11-13T13:50:49.8870752Z test a_hostile_page_reaches_the_next_agent_fenced_and_marked_untrusted ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:49.8871287Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:49.8871693Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+phase-1 / wright · machine	log	2026-11-13T13:50:49.8872219Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:49.8878775Z [1m[92m     Running[0m tests/org.rs (target/release/deps/org-a2d3e700fe9cc954)
+phase-1 / wright · machine	log	2026-11-13T13:50:49.8897156Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:49.8897736Z running 1 test
+phase-1 / wright · machine	log	2026-11-13T13:50:49.9398671Z test a_signed_policy_governs_plans_network_and_unattended_runs ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:49.9400003Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:49.9400941Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+phase-1 / wright · machine	log	2026-11-13T13:50:49.9401492Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:49.9405991Z [1m[92m     Running[0m tests/sampling.rs (target/release/deps/sampling-367f1a6882c1ce66)
+phase-1 / wright · machine	log	2026-11-13T13:50:49.9429907Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:49.9430565Z running 2 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:50.0222400Z test pinned_sampling_reaches_the_provider_and_the_signed_receipt ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:50.0406395Z test unpinned_sampling_sends_nothing_and_reproducible_pins_zero ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:50.0412532Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:50.0413356Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+phase-1 / wright · machine	log	2026-11-13T13:50:50.0415794Z [1m[92m     Running[0m tests/skeletons.rs (target/release/deps/skeletons-d1d83244d38c5a0e)
+phase-1 / wright · machine	log	2026-11-13T13:50:50.0417415Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:50.0436786Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:50.0437598Z running 5 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:50.2249890Z test python_skeleton_runs_and_tests_green ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:50.5778609Z test shell_skeleton_runs_and_tests_green ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.1812736Z test rust_skeleton_runs_and_tests_green ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.6394693Z test react_skeleton_tests_green_without_installs ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.8321060Z test node_skeleton_runs_and_tests_green ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.8322200Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:54.8323230Z test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.79s
+phase-1 / wright · machine	log	2026-11-13T13:50:54.8323777Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:54.8325019Z [1m[92m     Running[0m tests/team.rs (target/release/deps/team-d7d637aaa747f12c)
+phase-1 / wright · machine	log	2026-11-13T13:50:54.8345509Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:54.8346228Z running 3 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:54.8744464Z test a_receipt_from_a_verifies_on_b_through_the_roster ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9049998Z test two_machines_converge_on_one_shared_store ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9051584Z test the_shared_store_suitability_probe_is_honest ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9052498Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9053269Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9054691Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9058922Z [1m[92m     Running[0m tests/trust.rs (target/release/deps/trust-b4cc94d817eb32c4)
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9077400Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9077907Z running 8 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9121447Z test a_worker_plan_without_an_approval_is_refused_by_the_rule_of_two ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9222476Z test a_worker_step_asks_first_and_a_refusal_applies_nothing ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9255579Z test a_broken_handoff_stops_the_plan_before_the_consumer_runs ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9272141Z test the_rule_of_two_refuses_a_three_leg_plan_without_an_approval ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9309150Z test the_interviewer_hands_coding_to_an_installed_worker ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9398146Z test the_store_keeps_every_receipt_verifiable_after_the_run ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9591779Z test a_checked_outcome_signs_its_receipt_and_verifies ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9661351Z test a_worker_step_runs_an_external_agent_and_applies_whole ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9669416Z [1m[92m     Running[0m unittests src/lib.rs (target/release/deps/wright_infer-ca3db60fd7e66055)
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9670720Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9671127Z test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9671948Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9689032Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9689798Z running 21 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9694644Z test chat::tests::a_later_turn_extends_the_earlier_prompt ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9699657Z test audio::tests::wav_decodes_to_16k_mono ... ok
+-----
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9733535Z test linear::tests::ranges_cover_everything_once ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9734779Z test llm::tests::tool_names_are_spotted_early ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9735946Z test num::tests::half_floats_round_trip ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9737062Z test num::tests::q8_dot_matches_float_dot ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9747802Z test qwen3::tests::rope_at_zero_is_identity_and_preserves_length ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9749389Z test sample::tests::greedy_takes_the_best_and_top_k_one_is_greedy ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9751133Z test tokenizer::tests::pieces_follow_the_qwen_regex ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9752925Z test sample::tests::sampling_stays_inside_the_nucleus ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9753994Z test whisper::tests::im2col_pads_and_strides ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9754879Z test whisper::tests::gelu_is_gelu ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9755860Z test linear::tests::threaded_products_match_the_obvious_loop ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9757390Z test whisper::tests::special_tokens_follow_the_vocabulary_size ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9758611Z test whisper::tests::one_query_matches_the_batched_path ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9958330Z test audio::tests::a_tone_lights_up_its_mel_band ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9959564Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9960898Z test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9961484Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9962845Z [1m[92m     Running[0m tests/qwen3.rs (target/release/deps/qwen3-743b28bf82b727bb)
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9983178Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9983753Z running 2 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9989261Z test greedy_text_matches_llama_cpp ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9990780Z test logits_match_llama_cpp_with_strong_attention ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9991713Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9992725Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9994155Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:54.9994934Z [1m[92m     Running[0m tests/real.rs (target/release/deps/real-69bc51edd2919add)
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0009692Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0011474Z running 2 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0014041Z test whisper_hears_jfk ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0014539Z test qwen3_agrees_with_llama_cpp_and_calls_tools ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0014904Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0015287Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0015818Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0018916Z [1m[92m     Running[0m tests/tokenizer.rs (target/release/deps/tokenizer-28e186820fae6b18)
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0036741Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0037443Z running 3 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0040047Z test control_tokens_only_on_request ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0041492Z test fuzz_against_llama_tokenize ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0043136Z test matches_llama_cpp_on_its_qwen2_cases ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0044007Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0044782Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0046177Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0047517Z [1m[92m     Running[0m tests/whisper.rs (target/release/deps/whisper-272fa414cb43e999)
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0065107Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0074483Z running 1 test
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0076416Z [1m[92m     Running[0m unittests src/lib.rs (target/release/deps/wright_runtime-67d69e821948230d)
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0078738Z test logits_and_language_match_whisper_cpp ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0079667Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0080828Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0081399Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0093823Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0094368Z running 105 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0099431Z test cache::tests::goal_change_invalidates ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.0101279Z test cache::tests::input_hash_change_invalidates ... ok
+-----
+phase-1 / wright · machine	log	2026-11-13T13:50:55.4680747Z test update::tests::check_reads_one_get_through_the_real_net_stack ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.4721577Z test update::tests::check_with_reports_an_update_only_when_newer ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.4752015Z test update::tests::manifest_round_trips_through_canonical_json ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.4841446Z test update::tests::sign_file_signs_assets_and_the_manifest ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.5064138Z test update::tests::the_release_key_never_generates_silently ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.5124478Z test update::tests::unsigned_and_foreign_manifests_are_refused_in_plain_words ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.5127276Z test update::tests::versions_compare_numerically ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.5135345Z test voice::tests::a_missing_provider_says_how_to_fix_it ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.5139215Z test voice::tests::multipart_carries_the_model_and_the_file ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.5142989Z test voice::tests::stereo_48k_becomes_mono_16k ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.5145390Z test voice::tests::the_wav_header_is_what_a_decoder_expects ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:55.6184678Z test team::tests::the_pointer_directs_the_store ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1433786Z test curl::tests::curl_errors_surface ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1597498Z test curl::tests::round_trip_through_curl ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1599318Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1601652Z test result: ok. 104 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 1.15s
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1605041Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1642345Z [1m[92m     Running[0m unittests src/lib.rs (target/release/deps/wright_tools-b12bed4b3c7e3136)
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1685863Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1686451Z running 88 tests
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1700860Z test browser::tests::names_and_pages_are_checked ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1703914Z test browser::tests::private_urls_are_refused_like_http_read ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1705405Z test browser::tests::assert_visual_compares_goldens ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1726175Z test browser::tests::screenshot_project_refuses_without_a_built_site ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1742386Z test browser::tests::render_refuses_when_no_browser_is_found ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1746153Z test browser::tests::the_dispatch_names_its_three_actions ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1749561Z test browser::tests::screenshot_project_refuses_without_the_loopback_opt_in ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1752466Z test degraded::tests::clipping_is_boundary_safe ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1755181Z test degraded::tests::shell_syntax_is_refused_not_guessed ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1757788Z test degraded::tests::resolution_marks_pe_vs_shim ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1761088Z test degraded::tests::the_degraded_tiers_are_named_not_silent ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1764279Z test mcp::tests::a_tampered_server_is_refused_by_the_pin ... FAILED
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1768049Z test mcp::tests::a_tool_not_on_the_card_does_not_exist ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.1771539Z test mcp::tests::a_wrong_server_name_is_refused_by_the_card ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.2457620Z test mcp::tests::an_allowed_call_on_a_pinned_server_answers ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.2469092Z test mcp::tests::a_tree_pin_covers_the_servers_code_not_just_its_launcher ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.2473711Z test mcp::tests::pinning_helpers_reach_the_file_through_path_or_slash ... ok
+-----
+phase-1 / wright · machine	log	2026-11-13T13:50:56.5801624Z test worker::tests::a_chatty_worker_is_not_stalled_by_its_own_output ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.6009237Z test worker::tests::a_worker_that_writes_a_file_gets_it_applied ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.6201989Z test worker::tests::deletions_in_scope_are_applied_and_reported ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.6203140Z test worker::tests::scope_matching_treats_dirs_and_files_fairly ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.6391681Z test worker::tests::the_real_project_never_gains_the_worker_copy ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.6394085Z test worker::tests::the_tier_ladder_is_named_not_silent ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.6615228Z test worker::tests::the_worker_gets_its_own_sign_in_and_nothing_else ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.7578453Z test sandbox::tests::timeouts_kill_the_whole_process_group ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:56.8666065Z test sandbox::tests::network_is_off_unless_granted ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5858561Z test worker::tests::a_slow_worker_is_killed_by_its_clock ... ok
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5861341Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5862322Z failures:
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5863497Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5865380Z ---- mcp::tests::a_tampered_server_is_refused_by_the_pin stdout ----
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5867997Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5869474Z thread 'mcp::tests::a_tampered_server_is_refused_by_the_pin' (150883) panicked at tools/src/mcp.rs:489:46:
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5874823Z called `Result::unwrap()` on an `Err` value: "project dir /tmp/wright-mcp-ctx-150865: No such file or directory (os error 2)"
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5878901Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5881434Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5881454Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5882026Z failures:
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5882786Z     mcp::tests::a_tampered_server_is_refused_by_the_pin
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5883464Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5884250Z test result: FAILED. 87 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.42s
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5885343Z 
+phase-1 / wright · machine	log	2026-11-13T13:50:57.5886300Z [1m[91merror[0m: test failed, to rerun pass `-p wright-tools --lib`
+phase-1 / wright · machine	log	2026-11-13T13:50:57.6013546Z ##[endgroup]
+phase-1 / wright · machine	log	2026-11-13T13:50:57.6067294Z ##[error]Tests failed (exit 101)
+phase-1 / wright · machine	log	2026-11-13T13:50:57.6081315Z ##[group]UI snapshots
+phase-1 / wright · machine	log	2026-11-13T13:51:07.9216957Z [1m[92m   Compiling[0m vieww-foundation v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+phase-1 / wright · machine	log	2026-11-13T13:51:07.9455589Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+phase-1 / wright · machine	log	2026-11-13T13:51:07.9460087Z [1m[92m   Compiling[0m wright-runtime v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/runtime)
+phase-1 / wright · machine	log	2026-11-13T13:51:10.3504124Z [1m[92m   Compiling[0m wright-tools v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/tools)
+-----
+phase-1 / wright · machine	log	2026-11-13T13:52:41.0661490Z [1m[92m   Compiling[0m vieww-effects v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
+phase-1 / wright · machine	log	2026-11-13T13:52:49.5491058Z [1m[92m   Compiling[0m vieww-embed v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
+phase-1 / wright · machine	log	2026-11-13T13:52:50.5287425Z [1m[92m   Compiling[0m vieww-video v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-video)
+phase-1 / wright · machine	log	2026-11-13T13:52:50.9283137Z [1m[92m   Compiling[0m vieww-spatial v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-spatial)
+phase-1 / wright · machine	log	2026-11-13T13:52:51.7294404Z [1m[92m   Compiling[0m vieww-interaction v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-interaction)
+phase-1 / wright · machine	log	2026-11-13T13:52:53.0863197Z [1m[92m   Compiling[0m vieww-network v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-network)
+phase-1 / wright · machine	log	2026-11-13T13:53:01.4875550Z [1m[92m   Compiling[0m vieww-mesh v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-mesh)
+phase-1 / wright · machine	log	2026-11-13T13:53:02.4778199Z [1m[92m   Compiling[0m vieww-physics v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-physics)
+phase-1 / wright · machine	log	2026-11-13T13:53:10.8933555Z [1m[92m   Compiling[0m vieww v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
+phase-1 / wright · machine	log	2026-11-13T13:53:10.9970607Z [1m[92m   Compiling[0m vieww-platform-winit v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
+phase-1 / wright · machine	log	2026-11-13T13:53:16.1113304Z [1m[92m   Compiling[0m wright-engine v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/engine)
+phase-1 / wright · machine	log	2026-11-13T13:53:26.9995199Z [1m[92m   Compiling[0m wright v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/app)
+phase-1 / wright · machine	log	2026-11-13T13:54:30.7636507Z [1m[92m    Finished[0m ]8;;https://doc.rust-lang.org/cargo/reference/profiles.html#default-profiles\`release` profile [optimized]]8;;\ target(s) in 3m 33s
+phase-1 / wright · machine	log	2026-11-13T13:54:31.9440023Z ./target/release/wright: error while loading shared libraries: libstd-64f5f36fb0927694.so: cannot open shared object file: No such file or directory
+phase-1 / wright · machine	log	2026-11-13T13:54:31.9456986Z ##[endgroup]
+phase-1 / wright · machine	log	2026-11-13T13:54:31.9552591Z ##[error]UI snapshots failed (exit 127)
+phase-1 / wright · machine	log	2026-11-13T13:54:31.9558132Z ##[group]mark: upload wright-snapshots
+phase-1 / wright · machine	log	2026-11-13T13:54:32.0251735Z ##[endgroup]
+phase-1 / wright · machine	log	2026-11-13T13:54:32.0427192Z ##[error]Process completed with exit code 1.
+phase-1 / wright · machine	log	2026-11-13T13:54:32.1692615Z ##[group]Run actions/upload-artifact@v4
+phase-1 / wright · machine	log	2026-11-13T13:54:32.1693329Z with:
+phase-1 / wright · machine	log	2026-11-13T13:54:32.1693792Z   name: wright-snapshots
+phase-1 / wright · machine	log	2026-11-13T13:54:32.1694368Z   path: wright-snapshots/
+phase-1 / wright · machine	log	2026-11-13T13:54:32.1694948Z   if-no-files-found: ignore

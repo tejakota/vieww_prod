@@ -1,0 +1,302 @@
+===== phase-1 / wright · machine	log =====
+2026-11-13T13:50:55.0363210Z test gate::tests::approval_policy_is_read_by_the_gate_not_the_caller ... ok
+2026-11-13T13:50:55.0364558Z test gate::tests::budget_exhaustion_denies ... ok
+2026-11-13T13:50:55.0366989Z test gate::tests::output_contract_tool_is_always_available_to_producers ... ok
+2026-11-13T13:50:55.0368762Z test gate::tests::system_agents_get_their_own_grants ... ok
+2026-11-13T13:50:55.0370747Z test gate::tests::the_rule_of_two_asks_on_every_outbound_step_of_a_three_leg_agent ... ok
+2026-11-13T13:50:55.0372894Z test gate::tests::tool_calls_spend_the_budget_until_it_runs_out ... ok
+2026-11-13T13:50:55.0374322Z test gate::tests::tool_not_on_the_card_is_denied ... ok
+2026-11-13T13:50:55.0375643Z test gate::tests::two_leg_agents_do_not_hit_the_rule_ask ... ok
+2026-11-13T13:50:55.0377000Z test gate::tests::unknown_agent_has_no_grants ... ok
+2026-11-13T13:50:55.0389638Z test identity::tests::an_expired_identity_is_refused ... ok
+2026-11-13T13:50:55.0451488Z test identity::tests::issued_checked_scoped_revoked_and_verifiable ... ok
+2026-11-13T13:50:55.0465373Z test killswitch::tests::stop_and_start_round_trip_and_fail_safe ... ok
+2026-11-13T13:50:55.1139022Z test executor::tests::parallel_blocking_work_overlaps ... ok
+2026-11-13T13:50:55.1140724Z test local::tests::the_catalog_is_well_formed ... ok
+2026-11-13T13:50:55.1141879Z test models::tests::anthropic_request_shape ... ok
+2026-11-13T13:50:55.1143391Z test models::tests::anthropic_stream_assembles_text_and_tool_use ... ok
+2026-11-13T13:50:55.1145076Z test models::tests::non_streaming_bodies_parse ... ok
+2026-11-13T13:50:55.1146245Z test models::tests::openai_request_carries_tools_and_results ... ok
+2026-11-13T13:50:55.1147356Z test models::tests::openai_stream_assembles_text_and_tool_calls ... ok
+2026-11-13T13:50:55.1155270Z test models::tests::provider_error_messages_are_extracted ... ok
+2026-11-13T13:50:55.1157546Z test models::tests::truncated_stream_is_an_error_not_a_silent_success ... ok
+2026-11-13T13:50:55.1159584Z test net::tests::base64_matches_rfc4648 ... ok
+2026-11-13T13:50:55.1169157Z test net::tests::connect_head_reports_a_closed_proxy ... ok
+2026-11-13T13:50:55.1170612Z test net::tests::connect_head_retries_interrupted_reads ... ok
+2026-11-13T13:50:55.1172720Z test net::tests::live_https_direct_and_proxied ... ignored
+2026-11-13T13:50:55.1175692Z test net::tests::no_proxy_rules ... ok
+2026-11-13T13:50:55.1177650Z test net::tests::pinned_addresses_skip_resolution ... ok
+2026-11-13T13:50:55.1179169Z test net::tests::plain_http_round_trip_against_a_local_server ... ok
+2026-11-13T13:50:55.1181115Z test net::tests::proxy_urls_parse_with_hidden_credentials ... ok
+2026-11-13T13:50:55.1182619Z test local::tests::downloads_resume_verify_and_refuse_bad_files ... ok
+2026-11-13T13:50:55.1188338Z test policy::tests::a_signed_policy_loads_and_says_its_rules ... ok
+2026-11-13T13:50:55.1190479Z test policy::tests::hosts_match_like_a_person_expects ... ok
+2026-11-13T13:50:55.1192462Z test secrets::tests::env_names_are_derived_from_paths ... ok
+2026-11-13T13:50:55.1194861Z test secrets::tests::env_override_resolves_and_never_prints ... ok
+2026-11-13T13:50:55.1196996Z test secrets::tests::macos_command_quotes_the_value ... ok
+2026-11-13T13:50:55.1214056Z test policy::tests::an_untrusted_policy_fails_closed ... ok
+2026-11-13T13:50:55.1883983Z test secrets::tests::missing_secrets_say_how_to_fix_it ... ok
+2026-11-13T13:50:55.2484352Z test signing::tests::concurrent_first_use_agrees_on_one_key ... ok
+2026-11-13T13:50:55.2533629Z test signing::tests::ephemeral_mode_is_honest_and_generate_works ... ok
+2026-11-13T13:50:55.2562543Z test signing::tests::hex_round_trips_and_bad_lengths_are_refused ... ok
+2026-11-13T13:50:55.2564604Z test signing::tests::sign_and_verify_with_the_public_key ... ok
+2026-11-13T13:50:55.2566611Z test store::tests::approvals_round_trip_across_handles ... ok
+2026-11-13T13:50:55.2568219Z test store::tests::blueprint_commits_dedupe_and_list ... ok
+2026-11-13T13:50:55.2569715Z test store::tests::cache_entries_round_trip ... ok
+2026-11-13T13:50:55.2575296Z test store::tests::events_survive_reopen_and_torn_tails ... ok
+2026-11-13T13:50:55.2588119Z test store::tests::objects_are_content_addressed ... ok
+2026-11-13T13:50:55.2594711Z test store::tests::spend_is_summed_per_day ... ok
+2026-11-13T13:50:55.2600271Z test store::tests::workspace_hash_ignores_state_and_follows_content ... ok
+2026-11-13T13:50:55.2613366Z test team::tests::pins_are_hex_public_keys ... ok
+2026-11-13T13:50:55.2619441Z test team::tests::suitability_refuses_overlap_with_the_project ... ok
+2026-11-13T13:50:55.3192021Z test signing::tests::generated_file_key_persists_under_wright_home ... ok
+2026-11-13T13:50:55.3849715Z test team::tests::the_env_overrides_the_pointer ... ok
+2026-11-13T13:50:55.3852120Z test team::tests::the_roster_dedups_by_did ... ok
+2026-11-13T13:50:55.4010143Z test tls::tests::handshake_against_a_non_tls_server_fails_cleanly ... ok
+2026-11-13T13:50:55.4012481Z test tls::tests::openssl_loads_from_the_system ... ok
+2026-11-13T13:50:55.4013931Z test tz::tests::hostile_names_never_touch_the_filesystem ... ok
+2026-11-13T13:50:55.4541131Z test tz::tests::real_zone_files_agree_with_the_rules ... ok
+2026-11-13T13:50:55.4586654Z test update::tests::apply_swaps_atomically_and_refuses_tampered_assets ... ok
+2026-11-13T13:50:55.4589823Z test update::tests::asset_names_cannot_escape ... ok
+2026-11-13T13:50:55.4636463Z test update::tests::assets_are_verified_by_hash_and_signature ... ok
+2026-11-13T13:50:55.4645676Z test update::tests::channels_need_both_a_url_and_a_key ... ok
+2026-11-13T13:50:55.4680747Z test update::tests::check_reads_one_get_through_the_real_net_stack ... ok
+2026-11-13T13:50:55.4721577Z test update::tests::check_with_reports_an_update_only_when_newer ... ok
+2026-11-13T13:50:55.4752015Z test update::tests::manifest_round_trips_through_canonical_json ... ok
+2026-11-13T13:50:55.4841446Z test update::tests::sign_file_signs_assets_and_the_manifest ... ok
+2026-11-13T13:50:55.5064138Z test update::tests::the_release_key_never_generates_silently ... ok
+2026-11-13T13:50:55.5124478Z test update::tests::unsigned_and_foreign_manifests_are_refused_in_plain_words ... ok
+2026-11-13T13:50:55.5127276Z test update::tests::versions_compare_numerically ... ok
+2026-11-13T13:50:55.5135345Z test voice::tests::a_missing_provider_says_how_to_fix_it ... ok
+2026-11-13T13:50:55.5139215Z test voice::tests::multipart_carries_the_model_and_the_file ... ok
+2026-11-13T13:50:55.5142989Z test voice::tests::stereo_48k_becomes_mono_16k ... ok
+2026-11-13T13:50:55.5145390Z test voice::tests::the_wav_header_is_what_a_decoder_expects ... ok
+2026-11-13T13:50:55.6184678Z test team::tests::the_pointer_directs_the_store ... ok
+2026-11-13T13:50:56.1433786Z test curl::tests::curl_errors_surface ... ok
+2026-11-13T13:50:56.1597498Z test curl::tests::round_trip_through_curl ... ok
+2026-11-13T13:50:56.1599318Z 
+2026-11-13T13:50:56.1601652Z test result: ok. 104 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 1.15s
+2026-11-13T13:50:56.1605041Z 
+2026-11-13T13:50:56.1642345Z [1m[92m     Running[0m unittests src/lib.rs (target/release/deps/wright_tools-b12bed4b3c7e3136)
+2026-11-13T13:50:56.1685863Z 
+2026-11-13T13:50:56.1686451Z running 88 tests
+2026-11-13T13:50:56.1700860Z test browser::tests::names_and_pages_are_checked ... ok
+2026-11-13T13:50:56.1703914Z test browser::tests::private_urls_are_refused_like_http_read ... ok
+2026-11-13T13:50:56.1705405Z test browser::tests::assert_visual_compares_goldens ... ok
+2026-11-13T13:50:56.1726175Z test browser::tests::screenshot_project_refuses_without_a_built_site ... ok
+2026-11-13T13:50:56.1742386Z test browser::tests::render_refuses_when_no_browser_is_found ... ok
+2026-11-13T13:50:56.1746153Z test browser::tests::the_dispatch_names_its_three_actions ... ok
+2026-11-13T13:50:56.1749561Z test browser::tests::screenshot_project_refuses_without_the_loopback_opt_in ... ok
+2026-11-13T13:50:56.1752466Z test degraded::tests::clipping_is_boundary_safe ... ok
+2026-11-13T13:50:56.1755181Z test degraded::tests::shell_syntax_is_refused_not_guessed ... ok
+2026-11-13T13:50:56.1757788Z test degraded::tests::resolution_marks_pe_vs_shim ... ok
+2026-11-13T13:50:56.1761088Z test degraded::tests::the_degraded_tiers_are_named_not_silent ... ok
+2026-11-13T13:50:56.1764279Z test mcp::tests::a_tampered_server_is_refused_by_the_pin ... FAILED
+2026-11-13T13:50:56.1768049Z test mcp::tests::a_tool_not_on_the_card_does_not_exist ... ok
+2026-11-13T13:50:56.1771539Z test mcp::tests::a_wrong_server_name_is_refused_by_the_card ... ok
+2026-11-13T13:50:56.2457620Z test mcp::tests::an_allowed_call_on_a_pinned_server_answers ... ok
+2026-11-13T13:50:56.2469092Z test mcp::tests::a_tree_pin_covers_the_servers_code_not_just_its_launcher ... ok
+2026-11-13T13:50:56.2473711Z test mcp::tests::pinning_helpers_reach_the_file_through_path_or_slash ... ok
+2026-11-13T13:50:56.2482521Z test mcp_install::tests::a_tree_pin_sees_every_file_but_not_bytecode ... ok
+2026-11-13T13:50:56.2485088Z test mcp_install::tests::only_exact_versions_are_installed ... ok
+2026-11-13T13:50:56.2486990Z test patch::tests::create_and_delete ... ok
+2026-11-13T13:50:56.2488563Z test patch::tests::mismatch_is_an_error_with_a_reason ... ok
+2026-11-13T13:50:56.2490239Z test patch::tests::modifies_with_context ... ok
+2026-11-13T13:50:56.2492314Z test patch::tests::multiple_hunks_track_offsets ... ok
+2026-11-13T13:50:56.2493932Z test patch::tests::wrong_line_numbers_still_apply_by_content ... ok
+2026-11-13T13:50:56.2494799Z test paths::tests::escapes_are_refused ... ok
+2026-11-13T13:50:56.2496847Z test paths::tests::final_link_is_replaced_not_followed ... ok
+2026-11-13T13:50:56.2498973Z test paths::tests::parents_are_created_but_never_through_links ... ok
+2026-11-13T13:50:56.2503346Z test paths::tests::pinned_writes_create_parents_and_replace_atomically ... ok
+2026-11-13T13:50:56.2505529Z test paths::tests::pinned_writes_never_go_through_a_swapped_link ... ok
+2026-11-13T13:50:56.2507467Z test paths::tests::plain_paths_resolve_inside ... ok
+2026-11-13T13:50:56.2510884Z test paths::tests::planted_temp_link_is_not_followed ... ok
+2026-11-13T13:50:56.2512641Z test paths::tests::symlink_escape_is_refused ... ok
+2026-11-13T13:50:56.2514289Z test png::tests::a_real_zlib_png_decodes_byte_for_byte ... ok
+2026-11-13T13:50:56.2516022Z test png::tests::average_and_paeth_filters_decode ... ok
+2026-11-13T13:50:56.2518596Z test png::tests::decodes_a_stored_png_with_the_none_sub_up_filters ... ok
+2026-11-13T13:50:56.2520829Z test png::tests::tampering_is_caught_by_a_checksum ... ok
+2026-11-13T13:50:56.2522542Z test png::tests::the_diff_counts_beyond_tolerance ... ok
+2026-11-13T13:50:56.2524833Z test png::tests::unsupported_pngs_are_refused_with_sentences ... ok
+2026-11-13T13:50:56.2527238Z test sandbox::macos::tests::home_path_entries_are_entries_not_parents ... ok
+2026-11-13T13:50:56.2529414Z test sandbox::macos::tests::profile_shapes ... ok
+2026-11-13T13:50:56.2671261Z test browser::tests::a_failing_browser_with_a_lingering_helper_does_not_hang ... ok
+2026-11-13T13:50:56.2823187Z test mcp::tests::an_allowed_tool_the_server_does_not_offer_is_an_error ... ok
+2026-11-13T13:50:56.2862062Z test sandbox::tests::commands_run_and_can_write_the_project ... ok
+2026-11-13T13:50:56.3001322Z test sandbox::tests::environment_is_scrubbed ... ok
+2026-11-13T13:50:56.3176460Z test sandbox::tests::home_paths_are_not_roots ... ok
+2026-11-13T13:50:56.3219429Z test sandbox::tests::exit_codes_and_signals_pass_through ... ok
+2026-11-13T13:50:56.3356975Z test sandbox::tests::home_secrets_are_invisible ... ok
+2026-11-13T13:50:56.3513950Z test sandbox::tests::host_processes_cannot_be_signalled ... ok
+2026-11-13T13:50:56.3575128Z test browser::tests::the_loopback_server_serves_a_built_site ... ok
+2026-11-13T13:50:56.3761822Z test sandbox::tests::kill_switch_is_out_of_reach ... ok
+2026-11-13T13:50:56.3796632Z test sandbox::tests::path_parents_are_never_roots ... ok
+2026-11-13T13:50:56.4295791Z test sandbox::tests::scratch_home_is_0700 ... ok
+2026-11-13T13:50:56.4509714Z test sandbox::tests::the_kill_switch_is_out_of_a_sandboxed_commands_reach ... ok
+2026-11-13T13:50:56.4523272Z test sandbox::tests::other_processes_proc_is_hidden ... ok
+2026-11-13T13:50:56.4552275Z test sandbox::tests::dangerous_syscalls_are_refused ... ok
+2026-11-13T13:50:56.4559410Z test setup::tests::tails_are_bounded ... ok
+2026-11-13T13:50:56.4567787Z test setup::tests::the_fix_is_honest_off_windows ... ok
+2026-11-13T13:50:56.4569662Z test setup::tests::the_matrix_names_every_state ... ok
+2026-11-13T13:50:56.4571532Z test setup::tests::the_plan_is_ordered_and_complete ... ok
+2026-11-13T13:50:56.4573226Z test setup::tests::the_script_carries_every_plan_step ... ok
+2026-11-13T13:50:56.4704170Z test sandbox::tests::writes_outside_the_project_are_blocked ... ok
+2026-11-13T13:50:56.4816191Z test setup::tests::the_shipped_script_is_the_generated_one ... ok
+2026-11-13T13:50:56.4817812Z test tests::any_private_answer_refuses_the_host ... ok
+2026-11-13T13:50:56.4819273Z test tests::browser_refuses_loudly ... ok
+2026-11-13T13:50:56.4820826Z test tests::dns_rebinding_cannot_swap_the_address ... ok
+2026-11-13T13:50:56.4941085Z test tests::an_oversized_post_body_is_refused ... ok
+2026-11-13T13:50:56.4945997Z test tests::patches_apply_all_or_nothing ... ok
+2026-11-13T13:50:56.4948297Z test tests::private_addresses_are_refused_by_default ... ok
+2026-11-13T13:50:56.4953342Z test tests::read_write_edit_list ... ok
+2026-11-13T13:50:56.4957284Z test tests::reads_are_paged_not_slurped ... ok
+2026-11-13T13:50:56.5131340Z test tests::run_tests_reports_failures_as_results ... ok
+2026-11-13T13:50:56.5139535Z test tests::symlink_reads_are_refused ... ok
+2026-11-13T13:50:56.5149101Z test tests::text_is_judged_by_its_bytes_too ... ok
+2026-11-13T13:50:56.5151625Z test tests::write_output_is_limited_to_declared_names ... ok
+2026-11-13T13:50:56.5358300Z test worker::tests::a_change_outside_the_worker_scope_applies_nothing ... ok
+2026-11-13T13:50:56.5551157Z test tests::git_runs_sandboxed_with_a_flag_allowlist ... ok
+2026-11-13T13:50:56.5749429Z test worker::tests::a_failing_worker_changes_nothing ... ok
+2026-11-13T13:50:56.5759916Z test worker::tests::a_missing_program_is_named_before_anything_is_copied ... ok
+2026-11-13T13:50:56.5801624Z test worker::tests::a_chatty_worker_is_not_stalled_by_its_own_output ... ok
+2026-11-13T13:50:56.6009237Z test worker::tests::a_worker_that_writes_a_file_gets_it_applied ... ok
+2026-11-13T13:50:56.6201989Z test worker::tests::deletions_in_scope_are_applied_and_reported ... ok
+2026-11-13T13:50:56.6203140Z test worker::tests::scope_matching_treats_dirs_and_files_fairly ... ok
+2026-11-13T13:50:56.6391681Z test worker::tests::the_real_project_never_gains_the_worker_copy ... ok
+2026-11-13T13:50:56.6394085Z test worker::tests::the_tier_ladder_is_named_not_silent ... ok
+2026-11-13T13:50:56.6615228Z test worker::tests::the_worker_gets_its_own_sign_in_and_nothing_else ... ok
+2026-11-13T13:50:56.7578453Z test sandbox::tests::timeouts_kill_the_whole_process_group ... ok
+2026-11-13T13:50:56.8666065Z test sandbox::tests::network_is_off_unless_granted ... ok
+2026-11-13T13:50:57.5858561Z test worker::tests::a_slow_worker_is_killed_by_its_clock ... ok
+2026-11-13T13:50:57.5861341Z 
+2026-11-13T13:50:57.5862322Z failures:
+2026-11-13T13:50:57.5863497Z 
+2026-11-13T13:50:57.5865380Z ---- mcp::tests::a_tampered_server_is_refused_by_the_pin stdout ----
+2026-11-13T13:50:57.5867997Z 
+2026-11-13T13:50:57.5869474Z thread 'mcp::tests::a_tampered_server_is_refused_by_the_pin' (150883) panicked at tools/src/mcp.rs:489:46:
+2026-11-13T13:50:57.5874823Z called `Result::unwrap()` on an `Err` value: "project dir /tmp/wright-mcp-ctx-150865: No such file or directory (os error 2)"
+2026-11-13T13:50:57.5878901Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2026-11-13T13:50:57.5881434Z 
+2026-11-13T13:50:57.5881454Z 
+2026-11-13T13:50:57.5882026Z failures:
+2026-11-13T13:50:57.5882786Z     mcp::tests::a_tampered_server_is_refused_by_the_pin
+2026-11-13T13:50:57.5883464Z 
+2026-11-13T13:50:57.5884250Z test result: FAILED. 87 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.42s
+2026-11-13T13:50:57.5885343Z 
+2026-11-13T13:50:57.5886300Z [1m[91merror[0m: test failed, to rerun pass `-p wright-tools --lib`
+2026-11-13T13:50:57.6013546Z ##[endgroup]
+2026-11-13T13:50:57.6067294Z ##[error]Tests failed (exit 101)
+2026-11-13T13:50:57.6081315Z ##[group]UI snapshots
+2026-11-13T13:51:07.9216957Z [1m[92m   Compiling[0m vieww-foundation v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-13T13:51:07.9455589Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-13T13:51:07.9460087Z [1m[92m   Compiling[0m wright-runtime v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/runtime)
+2026-11-13T13:51:10.3504124Z [1m[92m   Compiling[0m wright-tools v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/tools)
+2026-11-13T13:51:10.3508824Z [1m[92m   Compiling[0m wright-infer v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/infer)
+2026-11-13T13:51:33.9784444Z [1m[92m   Compiling[0m vieww-animation v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+2026-11-13T13:51:36.3126340Z [1m[92m   Compiling[0m vieww-paint v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-13T13:51:36.7173927Z [1m[92m   Compiling[0m vieww-text v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-13T13:51:40.6017217Z [1m[92m   Compiling[0m vieww-image v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-image)
+2026-11-13T13:51:52.3782057Z [1m[92m   Compiling[0m vieww-widget v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-13T13:52:08.5708761Z [1m[92m   Compiling[0m vieww-gestures v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+2026-11-13T13:52:13.6995605Z [1m[92m   Compiling[0m vieww-element v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-13T13:52:14.5093241Z [1m[92m   Compiling[0m vieww-scene v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
+2026-11-13T13:52:15.3647738Z [1m[92m   Compiling[0m vieww-render-graph v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
+2026-11-13T13:52:19.9153945Z [1m[92m   Compiling[0m vieww-render v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-13T13:52:20.8613181Z [1m[92m   Compiling[0m vieww-gpu v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+2026-11-13T13:52:31.3863243Z [1m[92m   Compiling[0m vieww-asset v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
+2026-11-13T13:52:37.6613896Z [1m[92m   Compiling[0m vieww-hal v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-13T13:52:37.6756236Z [1m[92m   Compiling[0m vieww-render-planner v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
+2026-11-13T13:52:41.0661490Z [1m[92m   Compiling[0m vieww-effects v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
+2026-11-13T13:52:49.5491058Z [1m[92m   Compiling[0m vieww-embed v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
+2026-11-13T13:52:50.5287425Z [1m[92m   Compiling[0m vieww-video v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-video)
+2026-11-13T13:52:50.9283137Z [1m[92m   Compiling[0m vieww-spatial v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-spatial)
+2026-11-13T13:52:51.7294404Z [1m[92m   Compiling[0m vieww-interaction v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-interaction)
+2026-11-13T13:52:53.0863197Z [1m[92m   Compiling[0m vieww-network v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-network)
+2026-11-13T13:53:01.4875550Z [1m[92m   Compiling[0m vieww-mesh v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-mesh)
+2026-11-13T13:53:02.4778199Z [1m[92m   Compiling[0m vieww-physics v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-physics)
+2026-11-13T13:53:10.8933555Z [1m[92m   Compiling[0m vieww v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
+2026-11-13T13:53:10.9970607Z [1m[92m   Compiling[0m vieww-platform-winit v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
+2026-11-13T13:53:16.1113304Z [1m[92m   Compiling[0m wright-engine v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/engine)
+2026-11-13T13:53:26.9995199Z [1m[92m   Compiling[0m wright v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/app)
+2026-11-13T13:54:30.7636507Z [1m[92m    Finished[0m ]8;;https://doc.rust-lang.org/cargo/reference/profiles.html#default-profiles\`release` profile [optimized]]8;;\ target(s) in 3m 33s
+2026-11-13T13:54:31.9440023Z ./target/release/wright: error while loading shared libraries: libstd-64f5f36fb0927694.so: cannot open shared object file: No such file or directory
+2026-11-13T13:54:31.9456986Z ##[endgroup]
+2026-11-13T13:54:31.9552591Z ##[error]UI snapshots failed (exit 127)
+2026-11-13T13:54:31.9558132Z ##[group]mark: upload wright-snapshots
+2026-11-13T13:54:32.0251735Z ##[endgroup]
+2026-11-13T13:54:32.0427192Z ##[error]Process completed with exit code 1.
+2026-11-13T13:54:32.1692615Z ##[group]Run actions/upload-artifact@v4
+2026-11-13T13:54:32.1693329Z with:
+2026-11-13T13:54:32.1693792Z   name: wright-snapshots
+2026-11-13T13:54:32.1694368Z   path: wright-snapshots/
+2026-11-13T13:54:32.1694948Z   if-no-files-found: ignore
+2026-11-13T13:54:32.1695518Z   retention-days: 14
+2026-11-13T13:54:32.1696057Z   include-hidden-files: false
+2026-11-13T13:54:32.1697191Z   compression-level: 6
+2026-11-13T13:54:32.1697723Z   overwrite: false
+2026-11-13T13:54:32.1698195Z env:
+2026-11-13T13:54:32.1698642Z   CI_INPUTS: {"depth": "full"}
+2026-11-13T13:54:32.1699206Z   CI_MATRIX: {}
+2026-11-13T13:54:32.1701951Z   CI_JOB: {"title": "wright \u00b7 machine", "project": "wright", "id": "machine", "file": "vieww_base/apps/wright/ci/jobs/machine.toml", "if": "", "needs": [], "setup": [], "uploads": [{"name": "wright-snapshots", "path": "wright-snapshots/", "if-no-files-found": "ignore", "retention-days": 14}], "downloads": []}
+2026-11-13T13:54:32.1704768Z   CI_PROJECT: wright
+2026-11-13T13:54:32.1707083Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-13T13:54:32.1713903Z   CI_GITHUB_TOKEN: ***
+2026-11-13T13:54:32.1726849Z   CI_SECRET_NAMES: 
+2026-11-13T13:54:32.1727401Z   CI_HAS_AWS_ROLE: true
+2026-11-13T13:54:32.1727935Z   ANDROID_KEYSTORE: 
+2026-11-13T13:54:32.1728475Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-13T13:54:32.1729087Z   ANDROID_KEY_ALIAS: 
+2026-11-13T13:54:32.1729614Z   ANDROID_KEY_PASSWORD: 
+2026-11-13T13:54:32.1730168Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-13T13:54:32.1730836Z   APPLE_NOTARY_ISSUER: 
+2026-11-13T13:54:32.1731364Z   APPLE_NOTARY_KEY: 
+2026-11-13T13:54:32.1731887Z   APPLE_NOTARY_KEY_ID: 
+2026-11-13T13:54:32.1732416Z   APPLE_P12_PASSWORD: 
+2026-11-13T13:54:32.1732950Z   APPLE_SIGNING_IDENTITY: 
+2026-11-13T13:54:32.1733498Z   AWS_ACCESS_KEY_ID: 
+2026-11-13T13:54:32.1734006Z   AWS_ROLE_ARN: 
+2026-11-13T13:54:32.1734500Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-13T13:54:32.1735045Z   CARGO_REGISTRY_TOKEN: 
+2026-11-13T13:54:32.1735605Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-13T13:54:32.1736175Z   CLOUDFLARE_API_TOKEN: 
+2026-11-13T13:54:32.1736732Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-13T13:54:32.1737282Z   IOS_CERT_P12: 
+2026-11-13T13:54:32.1737767Z   IOS_CERT_PASSWORD: 
+2026-11-13T13:54:32.1738274Z   IOS_IDENTITY: 
+2026-11-13T13:54:32.1738745Z   IOS_PROFILE: 
+2026-11-13T13:54:32.1739233Z   WINDOWS_CERT_PASSWORD: 
+2026-11-13T13:54:32.1739784Z   WINDOWS_CERT_PFX: 
+2026-11-13T13:54:32.1740396Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-13T13:54:32.1741053Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-13T13:54:32.1741699Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-13T13:54:32.1742285Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-13T13:54:32.1742961Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-13T13:54:32.1743627Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-13T13:54:32.1744233Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-13T13:54:32.1744849Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T13:54:32.1745541Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T13:54:32.1746188Z   CI_UPLOAD_0: yes
+2026-11-13T13:54:32.1746680Z ##[endgroup]
+2026-11-13T13:54:33.8451135Z (node:152517) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T13:54:33.8453045Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T13:54:33.8481658Z No files were found with the provided path: wright-snapshots/. No artifacts will be uploaded.
+2026-11-13T13:54:33.9093390Z Post job cleanup.
+2026-11-13T13:54:34.1415762Z [command]/usr/bin/git version
+2026-11-13T13:54:34.2307887Z git version 2.53.0
+2026-11-13T13:54:34.2381104Z Copying '/home/teja/.gitconfig' to '/home/teja/actions-runner/_work/_temp/554a1f14-4dd7-4099-9ef1-1576b4313ad3/.gitconfig'
+2026-11-13T13:54:34.2397019Z Temporarily overriding HOME='/home/teja/actions-runner/_work/_temp/554a1f14-4dd7-4099-9ef1-1576b4313ad3' before making global git config changes
+2026-11-13T13:54:34.2399916Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T13:54:34.2412141Z [command]/usr/bin/git config --global --add safe.directory /home/teja/actions-runner/_work/vieww_prod/vieww_prod
+2026-11-13T13:54:34.3080783Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T13:54:34.3155348Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T13:54:34.7759836Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T13:54:34.7870715Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T13:54:34.8302278Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T13:54:34.8361415Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T13:54:34.9542505Z Cleaning up orphan processes
+2026-11-13T13:54:35.3174595Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+

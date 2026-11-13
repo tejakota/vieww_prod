@@ -1,7 +1,7 @@
 # 1 · Check — FAILURE
 
-- branch: `main`  sha: `498b17da854667c935b4365e18ab11b41324d149`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/43018857689
+- branch: `main`  sha: `63370c179e7e034785eb244d4e08dbe031c5cb92`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/43435617441
 
 | job | verdict | failed steps |
 |---|---|---|
@@ -9,8 +9,8 @@
 | phase-1 / wright · machine | FAIL | wright · machine |
 | phase-1 / approve | skipped |  |
 | phase-1 / matrix.title | skipped |  |
-| phase-2 | skipped |  |
 | results / publish | running |  |
+| phase-2 | skipped |  |
 | phase-3 | skipped |  |
 
 ## Steps
@@ -28,6 +28,8 @@
 - skipped: Long paths (Windows)
 - PASS: Run actions/checkout@v4
 - skipped: Python for the runner (GitHub's machines)
+- PASS: Python for the runner (self-host machines)
+- skipped: Python for the runner (macOS)
 - PASS: Plan this job
 - skipped: Run actions/setup-java@v4
 - skipped: Run actions/setup-node@v4
@@ -47,6 +49,7 @@
 - skipped: Run actions/upload-artifact@v4
 - skipped: Run actions/upload-artifact@v4
 - skipped: Run actions/upload-artifact@v4
+- skipped: Post Python for the runner (self-host machines)
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
@@ -54,13 +57,10 @@
 
 ### phase-1 / matrix.title — skipped
 
-### phase-2 — skipped
-
 ### results / publish — running
 - running: Set up job
-- running: Collect the run
-- running: Run actions/checkout@v4
-- running: Write to the ci-results branch
+
+### phase-2 — skipped
 
 ### phase-3 — skipped
 
