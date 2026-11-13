@@ -275,6 +275,7 @@ mod tests {
             },
             transform: Transform::IDENTITY,
             clip: vieww_paint::Clip::NONE,
+            covered: false,
         });
         assert_eq!(hint.gpu_affinity, Affinity::GpuOnly);
     }

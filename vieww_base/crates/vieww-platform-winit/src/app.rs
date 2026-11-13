@@ -1200,8 +1200,9 @@ struct Gpu {
     planned: bool,
     /// This launch's rasterizer measurement, until it finishes.
     measuring: Option<Measuring>,
-    /// The Android performance-hint session over the UI thread, under
-    /// `VIEWW_PERF_HINT=1` — see `crate::perf_hint`. Started on the first
+    /// The Android performance-hint session over the UI thread, on by default
+    /// there and `VIEWW_PERF_HINT=0` to refuse — see `crate::perf_hint`.
+    /// Started on the first
     /// presented frame, once the budget is known.
     hint: Option<PerfHint>,
     hint_tried: bool,

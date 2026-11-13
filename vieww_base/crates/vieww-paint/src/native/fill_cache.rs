@@ -175,6 +175,37 @@ impl FillCache {
             .clone()
     }
 
+    /// [`coverage`](Self::coverage) for a rounded rectangle recognized before
+    /// it was flattened — see [`rrect_mask`].
+    ///
+    /// The key is the same one `coverage` would build — the flattened
+    /// polylines' bits and the clip — so a caller that routes a recognized
+    /// rounded rect here and an unrecognized one to `coverage` keeps one
+    /// entry per shape either way, and a hit is a hit for both. Only what a
+    /// miss computes differs: the closed-form mask, which is the walk's own
+    /// bytes for the same input (`the_rounded_rect_fast_path_matches_the
+    /// _scanline_pass`, in `geometry/fill.rs`), so the cache's "a hit is
+    /// definitionally the same bytes a miss would have produced" holds
+    /// unchanged.
+    pub(crate) fn coverage_rrect(
+        &mut self,
+        polylines: &[Polyline],
+        clip: Rect,
+        rrect: super::geometry::fill::RoundedRect,
+    ) -> super::geometry::fill::CoverageMask {
+        if !self.enabled {
+            return super::geometry::fill::rrect_mask(rrect, polylines, clip);
+        }
+        let key = FillKey::new(polylines, clip);
+        self.inner
+            .get_or_insert_with(
+                key,
+                || super::geometry::fill::rrect_mask(rrect, polylines, clip),
+                |mask| mask.data.len() * std::mem::size_of::<f32>(),
+            )
+            .clone()
+    }
+
     /// Hits, misses and evictions over this cache's lifetime.
     pub(crate) fn stats(&self) -> super::residency::ResidencyStats {
         self.inner.stats()

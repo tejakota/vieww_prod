@@ -28,7 +28,7 @@ use std::fmt;
 use std::time::Duration;
 
 use crate::{Clip, Command, Damage, Scene};
-use vieww_foundation::{Color, MemoryPressure, Rect, Transform, Trim};
+use vieww_foundation::{Color, MemoryPressure, Offset, Rect, Transform, Trim};
 
 use super::clip::{clip_bounds, resolve_clip_cached, ClipCache};
 use super::color::Premul;
@@ -1124,6 +1124,7 @@ impl NativeRenderer {
                     paint,
                     clip,
                     surface,
+                    None,
                 );
                 report.shapes += 1;
                 // Shaped clips are counted work on shapes exactly as they
@@ -1143,6 +1144,15 @@ impl NativeRenderer {
                 clip,
             } => {
                 let polylines = flatten_path(path, *transform);
+                // **A rounded rectangle recognized from its verbs skips the
+                // scanline walk over its middle.** The cards, pills, avatars
+                // and panels of a marketwatch-class screen are exactly this
+                // shape, and the walk spent most of its time on the rows
+                // between the corner zones, crossing the same two vertical
+                // edges four times per row to compute the same span — the
+                // closed-form mask is that span, built once, byte for byte
+                // (see `geometry/fill.rs`).
+                let rrect = device_rrect(path, *transform);
                 let (target, origin) = current!();
                 self.paint_shape(
                     target,
@@ -1153,6 +1163,7 @@ impl NativeRenderer {
                     paint,
                     clip,
                     surface,
+                    rrect,
                 );
                 report.shapes += 1;
                 // The open-subpath census — counted at the verb that would
@@ -1204,6 +1215,7 @@ impl NativeRenderer {
                     &paint_used,
                     clip,
                     surface,
+                    None,
                 );
                 report.shapes += 1;
                 if !clip.shapes().is_empty() {
@@ -1217,6 +1229,7 @@ impl NativeRenderer {
                 shadow,
                 transform,
                 clip,
+                covered,
             } => {
                 let (target, origin) = current!();
                 let local_surface = Rect::new(
@@ -1235,6 +1248,25 @@ impl NativeRenderer {
                 // panel's patch is panel-sized plus the blur's reach on every
                 // side; copying one out of the cache on every frame would give
                 // back a good part of what caching it saved.
+                //
+                // **A covered shadow blends only its fringe.** The command
+                // promises an opaque fill of the same rectangle follows under
+                // the same clip and transform (`Canvas::draw_shadow_under`),
+                // and an opaque fill at full coverage replaces whatever it
+                // lands on — so the pixels this shadow would leave under the
+                // card are pixels nobody will ever read. Skipping them is
+                // byte-identical, not approximate: the fill writes the same
+                // value over the blended shadow it would have written over
+                // plain background. An inset shadow never qualifies (its ink
+                // is inside the box, over the fill); a rotated or skewed
+                // transform never qualifies (the interior is not two
+                // axis-aligned bands); and the skip is inset a pixel from
+                // every edge so the fill's antialiased rim is never inside it.
+                let skip = if *covered && !shadow.is_inset {
+                    covered_bands(*rect, *radius, *transform)
+                } else {
+                    None
+                };
                 let Self {
                     shadows,
                     clips,
@@ -1271,6 +1303,8 @@ impl NativeRenderer {
                     // leaves every pixel at full coverage; only a shape clip
                     // scales the coverage, pixel by pixel.
                     let clip_coverage = |x: i32, y: i32| resolved.coverage_at(px0 + x, py0 + y);
+                    // The skip bands are target-absolute; the composite takes
+                    // them in that space and carves them out per row.
                     target.composite_tinted_within(
                         &patch.alpha,
                         (patch.width, patch.height),
@@ -1281,6 +1315,7 @@ impl NativeRenderer {
                             .then_some(&clip_coverage as &dyn Fn(i32, i32) -> f32),
                         pipeline,
                         within,
+                        skip.map(|bands| (bands, origin)),
                     );
                 }
                 report.shadows += 1;
@@ -1867,6 +1902,7 @@ impl NativeRenderer {
         paint: &crate::Paint,
         clip: &Clip,
         surface: Rect,
+        rrect: Option<super::geometry::fill::RoundedRect>,
     ) {
         if paint.is_invisible() {
             return;
@@ -1879,8 +1915,17 @@ impl NativeRenderer {
         // bits and the clip, so a hit is the same bytes the walk would have
         // produced — see `native/fill_cache.rs`. The rectangle fast path
         // inside `rasterize` still runs first for axis-aligned panels; this
-        // is the irregular-shape cost being memoised.
-        let mask = self.fills.coverage(polylines, clip_bounds(clip, surface));
+        // is the irregular-shape cost being memoised. A shape recognized as
+        // a rounded rectangle takes its closed-form mask instead — the same
+        // bytes, the middle band computed as spans rather than walked
+        // (`geometry/fill.rs` holds the equivalence oracle).
+        let mask = match rrect {
+            Some(rr) => {
+                self.fills
+                    .coverage_rrect(polylines, clip_bounds(clip, surface), rr)
+            }
+            None => self.fills.coverage(polylines, clip_bounds(clip, surface)),
+        };
         if mask.is_empty() {
             return;
         }
@@ -1991,6 +2036,106 @@ fn rect_polygon(rect: Rect, transform: Transform) -> super::geometry::flatten::P
     rounded_rect_polygon_transformed(rect, 0.0, transform)
 }
 
+/// The two bands of a rounded rectangle's guaranteed-full-coverage interior,
+/// in device pixels, inset a pixel for the antialiased rim — or `None`.
+///
+/// This is what a **covered** shadow does not blend: the region the opaque
+/// fill that follows it is about to replace wholesale. The two bands are the
+/// "plus" a rounded rect covers at coverage exactly one — a horizontal strip
+/// across the full width between the corner zones, and a vertical strip down
+/// the full height between them — each pulled in a device pixel so the fill's
+/// antialiased rim, where its coverage is fractional and the shadow beneath
+/// would show through the blend, is never skipped.
+///
+/// `None` when the transform is not axis-aligned (the interior is not two
+/// axis-aligned bands), or the rectangle is too small to leave anything worth
+/// skipping — the caller then blends the whole patch, which is what every
+/// shadow was before `covered` existed.
+///
+/// The bands' x-ranges are nested by construction — the horizontal strip
+/// spans `[left + rx, right - rx]`, the vertical one the wider
+/// `[left, right]` — so for any row the union of the bands that contain it
+/// is one contiguous run, which is the shape [`Target::composite_tinted_within`]
+/// carves out of each row.
+fn covered_bands(
+    rect: Rect,
+    radius: f32,
+    transform: Transform,
+) -> Option<[(i32, i32, i32, i32); 2]> {
+    if transform.b != 0.0 || transform.c != 0.0 {
+        return None;
+    }
+    let corners = [
+        transform.apply(Offset::new(rect.left, rect.top)),
+        transform.apply(Offset::new(rect.right, rect.top)),
+        transform.apply(Offset::new(rect.right, rect.bottom)),
+        transform.apply(Offset::new(rect.left, rect.bottom)),
+    ];
+    let (mut l, mut t) = (f32::INFINITY, f32::INFINITY);
+    let (mut r, mut b) = (f32::NEG_INFINITY, f32::NEG_INFINITY);
+    for c in corners {
+        l = l.min(c.dx);
+        r = r.max(c.dx);
+        t = t.min(c.dy);
+        b = b.max(c.dy);
+    }
+    if !(r - l).is_finite() || !(b - t).is_finite() || r - l <= 3.0 || b - t <= 3.0 {
+        return None;
+    }
+    let rx = (radius * transform.a.abs()).clamp(0.0, (r - l) / 2.0);
+    let ry = (radius * transform.d.abs()).clamp(0.0, (b - t) / 2.0);
+    // A band is whole pixels: floor the low edges, ceil the high ones, and
+    // drop it if nothing survives the one-pixel inset.
+    let band = |x_lo: f32, y_lo: f32, x_hi: f32, y_hi: f32| -> Option<(i32, i32, i32, i32)> {
+        let (x0, y0) = (x_lo.floor() as i32, y_lo.floor() as i32);
+        let (x1, y1) = (x_hi.ceil() as i32, y_hi.ceil() as i32);
+        (x0 < x1 && y0 < y1).then_some((x0, y0, x1, y1))
+    };
+    let horizontal =
+        band(l + rx + 1.0, t + 1.0, r - rx - 1.0, b - 1.0)?;
+    let vertical = band(l + 1.0, t + ry + 1.0, r - 1.0, b - ry - 1.0);
+    Some([horizontal, vertical.unwrap_or(horizontal)])
+}
+
+/// The device-space form of a path recognized as a rounded rectangle, or
+/// `None` — see [`paint_shape`]'s use of it.
+///
+/// `None` whenever the transform is not axis-aligned (skew or rotation turns
+/// the straight edges away from the axes, and the closed form's whole
+/// premise is that the device edges are vertical and horizontal), and for a
+/// shape that collapses to nothing under the transform. The caller then takes
+/// the general walk, which is always right.
+fn device_rrect(path: &crate::Path, transform: Transform) -> Option<super::geometry::fill::RoundedRect> {
+    let (rect, radius) = path.as_rounded_rect()?;
+    if transform.b != 0.0 || transform.c != 0.0 {
+        return None;
+    }
+    let corners = [
+        transform.apply(Offset::new(rect.left, rect.top)),
+        transform.apply(Offset::new(rect.right, rect.top)),
+        transform.apply(Offset::new(rect.right, rect.bottom)),
+        transform.apply(Offset::new(rect.left, rect.bottom)),
+    ];
+    let (mut l, mut t) = (f32::INFINITY, f32::INFINITY);
+    let (mut r, mut b) = (f32::NEG_INFINITY, f32::NEG_INFINITY);
+    for c in corners {
+        l = l.min(c.dx);
+        r = r.max(c.dx);
+        t = t.min(c.dy);
+        b = b.max(c.dy);
+    }
+    if !(r - l).is_finite() || !(b - t).is_finite() || r - l <= 0.0 || b - t <= 0.0 {
+        return None;
+    }
+    Some(super::geometry::fill::RoundedRect {
+        left: l,
+        top: t,
+        right: r,
+        bottom: b,
+        ry: radius * transform.d.abs(),
+    })
+}
+
 pub(crate) fn invert(t: Transform) -> Option<Transform> {
     let det = t.a * t.d - t.b * t.c;
     if det.abs() < 1e-9 {
@@ -2022,7 +2167,7 @@ thread_local! {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Canvas;
+    use crate::{Canvas, Paint};
     use vieww_foundation::{BlendMode, ImageFilter, Path};
 
     #[test]
@@ -2049,6 +2194,112 @@ mod tests {
         ]);
         assert_eq!(apart.len(), 2);
         assert!(coalesce_for_replay(Vec::new()).is_empty());
+    }
+
+
+    /// **The covered promise's whole licence to exist**: a shadow recorded as
+    /// covered, behind an opaque card face, draws the frame the uncovered
+    /// shadow draws — pixel for pixel, by byte comparison — because the pixels
+    /// the skip does not blend are pixels the opaque fill replaces at full
+    /// coverage anyway. Swept over a background (so the shadow blends over
+    /// something), an offset shadow (so the fringe peeks out on one side), and
+    /// a sub-pixel-placed card, because the skip bands are carved in whole
+    /// device pixels.
+    #[test]
+    fn a_covered_shadow_is_the_frame_an_uncovered_one_draws() {
+        use vieww_foundation::{Offset, Shadow};
+        for (bg, card, offset, blur) in [
+            (Color::WHITE, Color::rgb(250, 251, 253), Offset::new(0.0, 3.0), 8.0),
+            (Color::rgb(30, 34, 40), Color::WHITE, Offset::new(0.0, 0.0), 12.0),
+            (Color::WHITE, Color::rgb(64, 180, 150), Offset::new(2.5, 5.0), 4.0),
+        ] {
+            let rect = Rect::new(37.25, 51.5, 310.75, 214.25);
+            let shadow = Shadow::new(Color::rgba(20, 26, 38, 70), offset, blur);
+            let build = |covered: bool| {
+                let mut scene = Scene::new();
+                scene.fill_rect(Rect::new(0.0, 0.0, 400.0, 300.0), bg.into());
+                if covered {
+                    scene.draw_shadow_under(rect, 14.0, shadow);
+                } else {
+                    scene.draw_shadow(rect, 14.0, shadow);
+                }
+                scene.fill_path(
+                    &Path::rounded_rect(rect, 14.0),
+                    Paint::solid(card),
+                );
+                scene
+            };
+            let mut renderer = NativeRenderer::new();
+            let (plain, _) = renderer
+                .render_to_pixels(&build(false), 400, 300, Color::WHITE)
+                .expect("render");
+            let (covered, _) = renderer
+                .render_to_pixels(&build(true), 400, 300, Color::WHITE)
+                .expect("render");
+            let (a, b) = (plain.data(), covered.data());
+            assert_eq!(a.len(), b.len());
+            for (i, (x, y)) in a.iter().zip(b.iter()).enumerate() {
+                assert_eq!(
+                    x, y,
+                    "covered and uncovered differ at byte {i} for card {card:?} \
+                     offset {offset:?} blur {blur}"
+                );
+            }
+        }
+    }
+
+    /// A covered shadow under a **translucent** face is nobody's promise: the
+    /// recorder of such a scene must not claim coverage, and this test holds
+    /// the line — the translucent scene drawn through `draw_shadow_under`
+    /// anyway is *wrong*, and the framework's own decoration never records it.
+    #[test]
+    fn an_uncovered_shadow_under_a_translucent_face_is_the_truth() {
+        use vieww_foundation::{Offset, Shadow};
+        let rect = Rect::new(37.0, 51.0, 310.0, 214.0);
+        let shadow = Shadow::new(Color::rgba(20, 26, 38, 70), Offset::new(0.0, 3.0), 8.0);
+        let build = |under: bool| {
+            let mut scene = Scene::new();
+            scene.fill_rect(Rect::new(0.0, 0.0, 400.0, 300.0), Color::WHITE.into());
+            if under {
+                scene.draw_shadow_under(rect, 14.0, shadow);
+            } else {
+                scene.draw_shadow(rect, 14.0, shadow);
+            }
+            scene.fill_path(
+                &Path::rounded_rect(rect, 14.0),
+                Paint::solid(Color::rgba(255, 255, 255, 128)),
+            );
+            scene
+        };
+        let mut renderer = NativeRenderer::new();
+        let (plain, _) = renderer
+            .render_to_pixels(&build(false), 400, 300, Color::WHITE)
+            .expect("render");
+        let (under, _) = renderer
+            .render_to_pixels(&build(true), 400, 300, Color::WHITE)
+            .expect("render");
+        // The two differ — the covered one has holes under the translucent
+        // card — which is exactly why `RenderDecoratedBox` only claims
+        // coverage for an opaque face. The oracle is that the difference
+        // exists (the skip is real work being skipped) and lives inside the
+        // card's interior, where the promise would have applied.
+        let (a, b) = (plain.data(), under.data());
+        let mut differing = 0usize;
+        let mut outside = 0usize;
+        for (i, (x, y)) in a.iter().zip(b.iter()).enumerate() {
+            if x != y {
+                differing += 1;
+                let px = i / 4;
+                #[expect(clippy::cast_possible_truncation, reason = "a pixel index")]
+                let (dx, dy) = ((px % 400) as f32, (px / 400) as f32);
+                let inside = dx >= 38.0 && dy >= 52.0 && dx < 310.0 && dy < 214.0;
+                if !inside {
+                    outside += 1;
+                }
+            }
+        }
+        assert!(differing > 1000, "the skip must actually skip something");
+        assert_eq!(outside, 0, "the fringe outside the card must not differ");
     }
 
     /// A window-sized shadow and a small one, frame after frame, on a large

@@ -446,6 +446,7 @@ fn shadow_scene(shadow: Shadow, transform: Transform, clip: Clip) -> Scene {
         shadow,
         transform,
         clip,
+        covered: false,
     });
     scene
 }
@@ -530,6 +531,7 @@ fn a_shadow_inside_a_translucent_layer_matches() {
         shadow: Shadow::new(Color::rgba(0, 0, 0, 180), Offset::new(0.0, 6.0), 18.0),
         transform: Transform::IDENTITY,
         clip: Clip::NONE,
+        covered: false,
     });
     fill(
         &mut scene,

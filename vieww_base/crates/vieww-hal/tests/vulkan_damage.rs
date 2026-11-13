@@ -134,6 +134,7 @@ fn scene(chip: Rect, backdrop: Option<Rect>) -> Scene {
         shadow: Shadow::new(Color::rgba(10, 20, 40, 160), Offset::new(0.0, 6.0), 10.0),
         transform: Transform::IDENTITY,
         clip: Clip::NONE,
+        covered: false,
     });
 
     // A blend-mode layer, which snapshots the frame and reads it back.

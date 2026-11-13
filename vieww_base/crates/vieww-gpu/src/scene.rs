@@ -783,6 +783,7 @@ fn plan_with(
                 shadow,
                 transform,
                 clip,
+                ..
             } => {
                 let Some(p) = planner.as_mut() else {
                     out.plan.note(Unsupported::Shadow);
@@ -2756,6 +2757,7 @@ mod tests {
                 shadow,
                 transform,
                 clip: Clip::NONE,
+                covered: false,
             });
             let mut planner = Planner::new();
             let plan = planner.plan(&scene, 100.0, 100.0);
@@ -2789,6 +2791,7 @@ mod tests {
                     shadow: Shadow::new(Color::BLACK, Offset::new(0.0, 4.0), 10.0),
                     transform: Transform::IDENTITY,
                     clip: Clip::NONE,
+                    covered: false,
                 });
             }
             scene

@@ -28,6 +28,11 @@
 //! [`decode`] reads [`VERSION`] and every earlier version. A file from a
 //! newer vieww is refused by name, not misread. Golden fixtures under
 //! `tests/ir/` pin each version's bytes.
+//!
+//! * **1** — the format as it shipped (FW-25).
+//! * **2** — `DrawShadow` gained its `covered` flag, written as one `u8`
+//!   after `is_inset`. A version-1 shadow decodes as `covered: false`, which
+//!   is what every shadow was before the flag existed: drawn whole.
 
 use std::rc::Rc;
 
@@ -40,7 +45,7 @@ use crate::scene::{Clip, Command, Scene};
 use crate::{Image, Paint, Path, Stroke};
 
 /// The version [`encode`] writes.
-pub const VERSION: u16 = 1;
+pub const VERSION: u16 = 2;
 const MAGIC: &[u8; 4] = b"VWIR";
 
 /// Why bytes are not a scene.
@@ -347,6 +352,7 @@ pub fn encode(scene: &Scene) -> Vec<u8> {
                 shadow,
                 transform,
                 clip,
+                covered,
             } => {
                 body.u8(3);
                 body.rect(*rect);
@@ -356,6 +362,7 @@ pub fn encode(scene: &Scene) -> Vec<u8> {
                 body.f32(shadow.blur);
                 body.f32(shadow.spread);
                 body.bool(shadow.is_inset);
+                body.bool(*covered);
                 body.transform(*transform);
                 body.clip(clip);
             }
@@ -729,12 +736,16 @@ pub fn decode(bytes: &[u8]) -> Result<Scene, IrError> {
                     spread: r.f32()?,
                     is_inset: r.bool()?,
                 };
+                // Version 2 added `covered`; a version-1 file carries only the
+                // six shadow fields, and every shadow it drew was drawn whole.
+                let covered = version >= 2 && r.bool()?;
                 Command::DrawShadow {
                     rect,
                     radius,
                     shadow,
                     transform: r.transform()?,
                     clip: r.clip()?,
+                    covered,
                 }
             }
             4 => {

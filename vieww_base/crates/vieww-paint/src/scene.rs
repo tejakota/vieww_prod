@@ -264,12 +264,22 @@ pub enum Command {
     /// a backend with a closed-form blurred-box primitive wants exactly this and
     /// deriving it back out of a pre-offset rectangle loses which part was the
     /// spread.
+    ///
+    /// `covered` is the promise, made by whoever recorded the command, that an
+    /// **opaque** fill of this same rectangle follows under the same clip and
+    /// transform — see [`Canvas::draw_shadow_under`]. The CPU rasterizer blends
+    /// only the fringe such a shadow casts, because the pixels under the card
+    /// are about to be replaced wholesale; a backend that cannot use the hint
+    /// ignores it and draws the whole patch, which is what every shadow was
+    /// before the field existed.
     DrawShadow {
         rect: Rect,
         radius: f32,
         shadow: Shadow,
         transform: Transform,
         clip: Clip,
+        /// The caster will be opaquely filled over this shadow's interior.
+        covered: bool,
     },
     DrawGlyphs {
         run: GlyphRun,
@@ -610,12 +620,14 @@ impl Scene {
                     shadow,
                     transform,
                     clip,
+                    covered,
                 } => Command::DrawShadow {
                     rect,
                     radius,
                     shadow,
                     transform: transform.then(matrix),
                     clip: clip.scaled(factor),
+                    covered,
                 },
                 Command::DrawGlyphs {
                     run,
@@ -1225,6 +1237,29 @@ impl Canvas for Scene {
             shadow,
             transform,
             clip,
+            covered: false,
+        });
+    }
+
+    /// [`Canvas::draw_shadow_under`] — the same shadow, with the promise that
+    /// its caster's opaque fill follows. Recorded as [`Command::DrawShadow`]
+    /// with `covered: true`.
+    fn draw_shadow_under(&mut self, rect: Rect, radius: f32, shadow: Shadow) {
+        let shadow = Shadow {
+            color: self.state.faded(shadow.color),
+            ..shadow
+        };
+        if shadow.is_invisible() || self.fully_clipped() {
+            return;
+        }
+        let (transform, clip) = (self.state.transform, self.state.clip.clone());
+        self.push(Command::DrawShadow {
+            rect,
+            radius,
+            shadow,
+            transform,
+            clip,
+            covered: true,
         });
     }
 

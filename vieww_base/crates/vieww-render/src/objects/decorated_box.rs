@@ -56,11 +56,22 @@ impl RenderObject for RenderDecoratedBox {
         // Behind everything, including the fill — a shadow the box then covers
         // most of is the whole idea, and drawing it after would put the blur on
         // top of the surface it is meant to lift off the page.
+        //
+        // When the fill is opaque, the shadow is recorded as *covered*: the
+        // rasterizer then blends only the fringe, because the card face is
+        // about to replace every pixel beneath it — same final pixels, most
+        // of the blending never spent. A transparent fill shows the shadow
+        // through, an inset shadow's ink sits over the fill, and neither can
+        // promise anything, so both record plainly.
         if let Some(shadow) = decoration
             .visible_shadow()
             .filter(|shadow| !shadow.is_inset)
         {
-            ctx.canvas().draw_shadow(bounds, decoration.radius, shadow);
+            if decoration.color.a == 255 && !decoration.color.is_transparent() {
+                ctx.canvas().draw_shadow_under(bounds, decoration.radius, shadow);
+            } else {
+                ctx.canvas().draw_shadow(bounds, decoration.radius, shadow);
+            }
         }
 
         if !decoration.color.is_transparent() {
@@ -198,6 +209,49 @@ mod tests {
         assert!(matches!(
             inset.commands(),
             [Command::FillRect { .. }, Command::DrawShadow { .. }]
+        ));
+    }
+
+    /// The covered promise is made exactly when the fill that makes it true is
+    /// there: an opaque face covers the shadow's interior, and nothing else —
+    /// not a translucent face, not a border standing alone — may claim it.
+    #[test]
+    fn an_opaque_fill_covers_its_shadow_and_nothing_else_does() {
+        use vieww_foundation::{Offset as Off, Shadow};
+
+        let shadow = Shadow::new(Color::BLACK, Off::ZERO, 4.0);
+        let covered = |decoration: BoxDecoration| {
+            painted(decoration).commands().iter().any(|command| {
+                matches!(
+                    command,
+                    Command::DrawShadow { covered: true, .. }
+                )
+            })
+        };
+
+        // An opaque face: the promise holds.
+        assert!(covered(
+            BoxDecoration::filled(Color::RED).radius(6.0).shadow(shadow)
+        ));
+        // A translucent face: the shadow shows through it; the promise would
+        // leave holes where the shadow belonged.
+        assert!(!covered(
+            BoxDecoration::filled(Color::rgba(255, 0, 0, 128))
+                .radius(6.0)
+                .shadow(shadow)
+        ));
+        // A border with no face: nothing covers the interior at all.
+        assert!(!covered(
+            BoxDecoration::default()
+                .radius(6.0)
+                .shadow(shadow)
+                .border(vieww_foundation::Border::thin(Color::BLACK))
+        ));
+        // An inset shadow: its ink is inside the box, over the fill.
+        assert!(!covered(
+            BoxDecoration::filled(Color::RED)
+                .radius(6.0)
+                .shadow(Shadow::inset(Color::BLACK, Off::ZERO, 4.0))
         ));
     }
 

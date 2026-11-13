@@ -274,6 +274,119 @@ impl Path {
         path
     }
 
+    /// A rounded rectangle read back out of its verbs, or `None`.
+    ///
+    /// [`Self::rounded_rect`] is the only producer of the exact verb pattern
+    /// this matches — one `MoveTo`, four `LineTo`/`CubicTo` pairs, one `Close` —
+    /// so this answers "was this path *built* as a rounded rectangle", not
+    /// "does this path look like one". The answer is what lets the CPU
+    /// rasterizer take its closed-form fill for a shape whose corners it can
+    /// place exactly, rather than the scanline walk over the whole card.
+    ///
+    /// # Why the control points are only *bounded*, not matched
+    ///
+    /// The straight-edge verbs carry the rectangle exactly (their
+    /// coordinates are `l`, `r`, `t`, `b` bit for bit), and the radius is read
+    /// off them: the first `LineTo` sits at `r - radius` on the top edge. The
+    /// cubics' control points are checked only for lying **inside their
+    /// corner squares** — `r - radius ..= r` across, `t ..= t + radius` down —
+    /// because that is the property the closed-form fill needs to be right:
+    /// a Bézier never leaves the convex hull of its control points, so a
+    /// cubic whose four control points sit in the corner square cannot reach
+    /// into the middle band the fast path fills as spans. A hand-written path
+    /// with a slightly different kappa still qualifies, and still fills
+    /// correctly; one with a control point pulled out of the square — a
+    /// bulging corner — is refused, because its curve really does go where
+    /// the fast path would not.
+    #[must_use]
+    pub fn as_rounded_rect(&self) -> Option<(Rect, f32)> {
+        let verbs = self.verbs();
+        if verbs.len() != 10 {
+            return None;
+        }
+        use PathVerb::{Close, CubicTo, LineTo, MoveTo};
+        let (l, t, r, b, corner, straight, cubics) = match verbs {
+            [MoveTo(a), LineTo(top_end), CubicTo(c1, c2, c3), LineTo(d), CubicTo(e1, e2, e3),
+             LineTo(f), CubicTo(g1, g2, g3), LineTo(h), CubicTo(i1, i2, i3), Close] => {
+                // The straight edges: `a` to `top_end` across the top, `d`
+                // down the right, `f` across the bottom, `h` up the left.
+                // Each states two sides of the rectangle exactly, and the
+                // radius is the top edge's inset from either end.
+                let (l, t) = (h.dx, a.dy);
+                let (r, b) = (d.dx, f.dy);
+                let radius = a.dx - l;
+                // The top edge is horizontal, and the radius agrees at every
+                // place the verbs state it — the ends of all four straight
+                // edges sit `radius` in from the corners they serve.
+                let consistent = a.dy == top_end.dy
+                    && (r - top_end.dx - radius).abs() <= 1e-3
+                    && (f.dx - l - radius).abs() <= 1e-3
+                    && (b - d.dy - radius).abs() <= 1e-3
+                    && (h.dy - t - radius).abs() <= 1e-3
+                    && radius > 0.0
+                    && 2.0 * radius <= r - l + 1e-3
+                    && 2.0 * radius <= b - t + 1e-3
+                    && (r - l).is_finite()
+                    && (b - t).is_finite();
+                if !consistent {
+                    return None;
+                }
+                (
+                    l,
+                    t,
+                    r,
+                    b,
+                    // **The corner extents, read off the corners' own
+                    // straight-edge endpoints rather than recomputed from
+                    // `radius`.** `l + radius` and `r - radius` differ by a
+                    // unit in the last place, so a bound built from either
+                    // one can sit a fraction of a pixel inside the corner the
+                    // verbs actually describe and refuse the constructor's
+                    // own output. The right edge's start `d.dy` and the left
+                    // edge's start `h.dy` are exactly the top corners'
+                    // deepest reach; the right edge's start `d.dy` and the
+                    // bottom-left cubic's end `g3.dy` are exactly the bottom
+                    // corners' shallowest.
+                    (c3.dy.max(h.dy), d.dy.min(g3.dy)),
+                    [a, top_end, d, f, h],
+                    [(c1, c2, c3), (e1, e2, e3), (g1, g2, g3), (i1, i2, i3)],
+                )
+            }
+            _ => return None,
+        };
+        // Each cubic's control points — its two handles and its end point —
+        // confined to the corner square it belongs to, **with the square's
+        // bounds taken from that corner's own verb endpoints**: the top-right
+        // square runs from the top edge's end to the right edge's start, and
+        // so on around. A Bézier stays in the convex hull of its control
+        // points, so a cubic whose controls sit in its square cannot reach
+        // into the middle band the caller fills as spans. That is the whole
+        // safety property: see the doc comment above.
+        let [a, top_end, d, f, h] = straight;
+        let (_, _, c3) = cubics[0];
+        let (_, _, e3) = cubics[1];
+        let (_, _, g3) = cubics[2];
+        let (_, _, i3) = cubics[3];
+        let corners = [
+            (top_end.dx, d.dx, a.dy, c3.dy),        // top-right
+            (e3.dx, d.dx, d.dy, f.dy),              // bottom-right
+            (h.dx, f.dx, g3.dy, f.dy),              // bottom-left
+            (h.dx, i3.dx, a.dy, h.dy),              // top-left
+        ];
+        for (index, &(p1, p2, p3)) in cubics.iter().enumerate() {
+            let (x0, x1, y0, y1) = corners[index];
+            for p in [p1, p2, p3] {
+                if !(p.dx >= x0 && p.dx <= x1 && p.dy >= y0 && p.dy <= y1) {
+                    return None;
+                }
+            }
+        }
+        // The radius reported is the deepest corner extent on either band, so
+        // the middle band it carves never begins or ends inside a corner.
+        let radius = (corner.0 - t).max(b - corner.1);
+        Some((Rect::new(l, t, r, b), radius))
+    }
+
     /// A rounded rectangle with a rounded rectangle cut out of it: the border of
     /// a box, `width` logical pixels thick, drawn *inside* `outer`.
     ///
@@ -975,6 +1088,86 @@ fn reverse_subpath(verbs: &[PathVerb]) -> Path {
 mod tests {
     use super::*;
 
+    /// A rounded rectangle reads itself back out of its verbs exactly — the
+    /// rectangle bit for bit, the radius clamped the way `rounded_rect`
+    /// clamped it when it built the corners.
+    #[test]
+    fn a_rounded_rect_reads_back_exactly() {
+        for (rect, radius) in [
+            (Rect::new(0.0, 0.0, 100.0, 70.0), 14.0f32),
+            (Rect::new(3.5, 2.25, 51.75, 29.5), 0.5),
+            (Rect::new(-20.0, -10.0, 20.0, 10.0), 4.0),
+            (Rect::new(0.0, 0.0, 60.0, 24.0), 12.0), // a stadium: radius = half the height
+            (Rect::new(0.0, 0.0, 24.0, 60.0), 40.0), // clamped to half the width
+        ] {
+            let clamped = radius.min(rect.width() / 2.0).min(rect.height() / 2.0);
+            let path = Path::rounded_rect(rect, radius);
+            let Some((back, back_radius)) = path.as_rounded_rect() else {
+                panic!("a rounded rect of {rect:?} r{radius} was not recognized");
+            };
+            assert_eq!(back, rect, "the rectangle must read back exactly");
+            assert!(
+                (back_radius - clamped).abs() < 1e-4,
+                "radius {back_radius} against the clamped {clamped}"
+            );
+        }
+    }
+
+    /// Anything that is not exactly the verb pattern is refused: a plain
+    /// rectangle, a border ring, an arbitrary path with the same point count.
+    #[test]
+    fn nothing_else_is_taken_for_a_rounded_rect() {
+        assert!(Path::rect(Rect::new(0.0, 0.0, 40.0, 20.0)).as_rounded_rect().is_none());
+        assert!(
+            Path::rounded_ring(Rect::new(0.0, 0.0, 40.0, 20.0), 6.0, 2.0)
+                .as_rounded_rect()
+                .is_none()
+        );
+        let mut stray = Path::rounded_rect(Rect::new(0.0, 0.0, 40.0, 20.0), 6.0);
+        stray.line_to(Offset::new(39.0, 19.0)); // one verb too many
+        assert!(stray.as_rounded_rect().is_none());
+    }
+
+    /// A control point pulled outside its corner square is refused: the curve
+    /// genuinely reaches where the closed-form fill would not, so recognizing
+    /// it anyway would draw the wrong shape, faster.
+    #[test]
+    fn a_bulging_corner_is_refused() {
+        let rect = Rect::new(0.0, 0.0, 100.0, 70.0);
+        let radius = 14.0;
+        let k = radius * 0.552_284_8;
+        let (l, t, r, b) = (rect.left, rect.top, rect.right, rect.bottom);
+        let mut bulging = Path::new();
+        bulging
+            .move_to(Offset::new(l + radius, t))
+            .line_to(Offset::new(r - radius, t))
+            .cubic_to(
+                Offset::new(r + 6.0, t), // outside the corner square: past the right edge
+                Offset::new(r, t + radius - k),
+                Offset::new(r, t + radius),
+            )
+            .line_to(Offset::new(r, b - radius))
+            .cubic_to(
+                Offset::new(r, b - radius + k),
+                Offset::new(r - radius + k, b),
+                Offset::new(r - radius, b),
+            )
+            .line_to(Offset::new(l + radius, b))
+            .cubic_to(
+                Offset::new(l + radius - k, b),
+                Offset::new(l, b - radius + k),
+                Offset::new(l, b - radius),
+            )
+            .line_to(Offset::new(l, t + radius))
+            .cubic_to(
+                Offset::new(l, t + radius - k),
+                Offset::new(l + radius - k, t),
+                Offset::new(l + radius, t),
+            )
+            .close();
+        assert!(bulging.as_rounded_rect().is_none());
+    }
+
     #[test]
     fn a_rect_path_bounds_itself() {
         let rect = Rect::new(1.0, 2.0, 11.0, 22.0);
@@ -1501,3 +1694,4 @@ mod tests {
         );
     }
 }
+

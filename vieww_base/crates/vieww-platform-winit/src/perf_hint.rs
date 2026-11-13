@@ -16,12 +16,16 @@
 //!
 //! # What it is not
 //!
-//! Not on by default yet: `VIEWW_PERF_HINT=1` turns it on, and Device Farm runs
-//! it as its own diagnostic pass beside the plain CPU path. Below Android 13
-//! the functions do not exist — the LG Stylo 5 is Android 9 — and they are
-//! looked up at run time rather than linked, because a link against a symbol
-//! the phone's `libandroid.so` does not have stops the library from loading at
-//! all.
+//! No longer opt-in: on Android the session starts unless
+//! `VIEWW_PERF_HINT=0` asks it not to — a rasterizer that misses vsync is
+//! the workload the hint exists for, and an opt-in that a shipping app never
+//! hears about is a boost nobody gets. The value that turns it on for
+//! off-Android diagnostic runs is unchanged (`VIEWW_PERF_HINT=1`); Device
+//! Farm keeps its plain-clock pass with `VIEWW_PERF_HINT=0`. Below Android
+//! 13 the functions do not exist — the LG Stylo 5 is Android 9 — and they
+//! are looked up at run time rather than linked, because a link against a
+//! symbol the phone's `libandroid.so` does not have stops the library from
+//! loading at all.
 
 use std::sync::Mutex;
 use std::time::Duration;
@@ -43,8 +47,29 @@ pub fn perf_hint_status() -> Option<String> {
 }
 
 /// Whether the application asked for a performance-hint session.
+///
+/// On Android the answer is **yes unless the application says no**: the
+/// session is how the app tells the scheduler its frame budget, and a
+/// rasterizer that misses vsync is the exact workload the hint exists for —
+/// leaving it opt-in meant every app that never heard of `VIEWW_PERF_HINT`
+/// ran at whatever clock the system guessed. `VIEWW_PERF_HINT=0` turns it
+/// off (a diagnostic run that wants the unprompted clocks back); anywhere
+/// but Android there is nothing to start, and the answer is no.
 pub(crate) fn requested() -> bool {
-    std::env::var_os("VIEWW_PERF_HINT").is_some_and(|v| v == "1")
+    resolve_request(
+        cfg!(target_os = "android"),
+        std::env::var_os("VIEWW_PERF_HINT").as_deref(),
+    )
+}
+
+/// The policy above, as a pure function so a test can exercise both sides of
+/// the platform flag without a target rebuild.
+fn resolve_request(android_default: bool, env: Option<&std::ffi::OsStr>) -> bool {
+    match env {
+        Some(value) if value == "0" => false,
+        Some(_) => true,
+        None => android_default,
+    }
 }
 
 #[cfg(target_os = "android")]
@@ -210,5 +235,23 @@ pub(crate) fn start(target: Duration) -> Option<PerfHint> {
             set_status(why);
             None
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::resolve_request;
+    use std::ffi::OsStr;
+
+    /// The default per platform, and the two ways an environment variable
+    /// overrides it. A test rather than a table because the policy is the
+    /// whole change: Android on unless told off, everything else off unless
+    /// told on.
+    #[test]
+    fn the_hint_is_androids_default_and_the_env_overrides_both_ways() {
+        assert!(resolve_request(true, None), "Android: on by default");
+        assert!(!resolve_request(false, None), "everywhere else: off by default");
+        assert!(!resolve_request(true, Some(OsStr::new("0"))), "off asked for");
+        assert!(resolve_request(false, Some(OsStr::new("1"))), "on asked for");
     }
 }

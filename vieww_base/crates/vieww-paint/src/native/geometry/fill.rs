@@ -380,6 +380,26 @@ pub(crate) fn reset_rasterize_call_count() {
     RASTERIZE_CALLS.with(|c| c.set(0));
 }
 
+/// A rounded rectangle in device space, recognized before rasterization —
+/// see [`rrect_mask`] for what it is used for.
+///
+/// `ry` is the corner extent **in the y axis** (device pixels), because that
+/// is the axis the middle-band split is measured along: rows between the
+/// corner zones cross only the two vertical straight edges. A transform that
+/// scales the axes differently makes the corners elliptical and the extent
+/// per axis different, and the y extent is the one this struct exists to
+/// carry; the x extent only decides where the corner bands' walk wanders,
+/// which is the walk's own business.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct RoundedRect {
+    pub(crate) left: f32,
+    pub(crate) top: f32,
+    pub(crate) right: f32,
+    pub(crate) bottom: f32,
+    /// Corner extent, device pixels, measured down the y axis.
+    pub(crate) ry: f32,
+}
+
 /// Rasterize `polylines` (device space) into a coverage mask, clipped to
 /// `clip_bounds` (also device space, already the intersection of every clip
 /// and the target surface — see `compositor::ClipStack`).
@@ -407,6 +427,158 @@ pub(crate) fn rasterize(polylines: &[Polyline], clip_bounds: Rect) -> CoverageMa
         return rect_mask(rect, clip_bounds);
     }
     rasterize_general(polylines, clip_bounds, process_raster_thread_request())
+}
+
+/// A rounded rectangle's mask, closed-form in the middle and walked at the
+/// corners — see [`rasterize`]'s module-level note and the `RoundedRect` doc.
+///
+/// # What this is
+///
+/// A rounded rect is a rectangle with four short busy rows top and bottom:
+/// every row between the corner zones crosses exactly the two vertical
+/// straight edges, so its four subsamples each accumulate the same `[left,
+/// right]` span. Walking those rows — the active-edge table, the crossings
+/// sort, four `accumulate_span` passes over the row's whole width, then the
+/// quartering pass — computes a function that is one row of horizontal
+/// coverage, computed once and copied. That row is built by running
+/// `accumulate_span` four times into a scratch row and quartering it, **the
+/// same operations in the same order the walk performs them**, so a middle row
+/// produced here is bit-for-bit the row the walk would have written; the
+/// corner-band rows are not reproduced at all — they *are* the walk, run over
+/// just those rows through [`rasterize_row_range`].
+///
+/// # Why the whole mask still matches the general walk
+///
+/// The guarantee is structural, not approximate:
+///
+/// * the rectangle and the corner radii come from
+///   [`Path::as_rounded_rect`](vieww_foundation::Path::as_rounded_rect),
+///   which read them off the straight-edge verbs exactly and verified the
+///   corner cubics' control points stay inside their corner squares — so the
+/// * middle rows are exactly the four-subsamples-inside-the-corner-zones
+///   rows, each of which crosses the two vertical edges at `left` and
+///   `right` bit for bit (they are the flattened straight-edge points), and
+///
+/// * the corner bands are computed by the walk on the same edges with the
+///   same admission order, which is what `rasterize_row_range` with
+///   `pending = 0` is.
+///
+/// `the_rounded_rect_fast_path_matches_the_scanline_pass` below asserts the
+/// whole-mask byte equality over a sweep of sizes, radii and sub-pixel
+/// offsets, for exactly the reason `the_rect_fast_path_matches_the_scanline
+/// _pass` does for rectangles.
+pub(crate) fn rrect_mask(
+    rrect: RoundedRect,
+    polylines: &[Polyline],
+    clip_bounds: Rect,
+) -> CoverageMask {
+    #[cfg(test)]
+    RASTERIZE_CALLS.with(|c| c.set(c.get() + 1));
+    let edges = edges_from(polylines);
+    if edges.is_empty() || clip_bounds.is_empty() {
+        return CoverageMask::empty();
+    }
+
+    let mut min_x = f32::INFINITY;
+    let mut max_x = f32::NEG_INFINITY;
+    let mut min_y = f32::INFINITY;
+    let mut max_y = f32::NEG_INFINITY;
+    for edge in &edges {
+        min_x = min_x.min(edge.x0).min(edge.x1);
+        max_x = max_x.max(edge.x0).max(edge.x1);
+        min_y = min_y.min(edge.y0).min(edge.y1);
+        max_y = max_y.max(edge.y0).max(edge.y1);
+    }
+
+    let bx0 = min_x.floor().max(clip_bounds.left) as i32;
+    let bx1 = max_x.ceil().min(clip_bounds.right) as i32;
+    let by0 = min_y.floor().max(clip_bounds.top) as i32;
+    let by1 = max_y.ceil().min(clip_bounds.bottom) as i32;
+    if bx1 <= bx0 || by1 <= by0 {
+        return CoverageMask::empty();
+    }
+    let width = (bx1 - bx0) as u32;
+    let height = (by1 - by0) as u32;
+    let mut data = vec![0.0f32; (width as usize) * (height as usize)];
+
+    // **The full row, exactly as the walk writes it.** The walk zeroes its row
+    // buffer, accumulates the `[left, right]` span once per subsample, then
+    // quarters and clamps; running the same accumulation the same number of
+    // times over the same scratch and then quartering is the same sequence of
+    // float operations on the same values, so the bytes cannot differ. (For
+    // the interior pixels this is `1.0` after four exact `+1.0`s — the case
+    // `accumulate_span` already specialises with a slice add.)
+    let mut hrow = vec![0.0f32; width as usize];
+    for _ in 0..SUBSAMPLES {
+        accumulate_span(&mut hrow, bx0, width, rrect.left, rrect.right);
+    }
+    let full: Vec<f32> = hrow
+        .iter()
+        .map(|c| (c * SUBSAMPLE_WEIGHT).clamp(0.0, 1.0))
+        .collect();
+
+    // **The middle band.** A row belongs to it when every one of its four
+    // subsamples lies at or beyond the corner zones' edge — `py + 0.125 >=
+    // top + ry` and `py + 0.875 <= bottom - ry` — because there, and only
+    // there, the shape's boundary is exactly the two vertical straight edges
+    // and the span is `[left, right]`.
+    let mid0 = ((((rrect.top + rrect.ry) - SUBSAMPLE_OFFSETS[0]).ceil()) as i32)
+        .max(by0)
+        .min(by1);
+    let mid1 = ((((rrect.bottom - rrect.ry) - SUBSAMPLE_OFFSETS[SUBSAMPLES - 1]).floor()) as i32)
+        .max(by0 - 1)
+        .min(by1)
+        + 1;
+    let mid1 = mid1.max(mid0).min(by1);
+    for py in mid0..mid1 {
+        let row = &mut data[(py - by0) as usize * width as usize..][..width as usize];
+        row.copy_from_slice(&full);
+    }
+
+    // **The corner bands: the walk itself**, over just those rows. `pending =
+    // 0` re-admits the edges from scratch, which is the membership and order
+    // the serial walk would have had at those rows anyway (the `retain` below
+    // the admission loop retires the same edges it retires); the serial path
+    // calls this with `pending = 0` for the same reason.
+    let mut order: Vec<usize> = (0..edges.len()).collect();
+    order.sort_unstable_by(|&a, &b| edges[a].ymin.total_cmp(&edges[b].ymin));
+    let table = EdgeTable {
+        edges: &edges,
+        order: &order,
+    };
+    let geometry = RowGeometry { bx0, width };
+    let top_rows = by0..mid0;
+    if !top_rows.is_empty() {
+        let mut scratch = RowScratch::new(width);
+        rasterize_row_range(
+            top_rows,
+            &table,
+            0,
+            &geometry,
+            &mut data[..(mid0 - by0) as usize * width as usize],
+            &mut scratch,
+        );
+    }
+    let bottom_rows = mid1..by1;
+    if !bottom_rows.is_empty() {
+        let mut scratch = RowScratch::new(width);
+        rasterize_row_range(
+            bottom_rows,
+            &table,
+            0,
+            &geometry,
+            &mut data[(mid1 - by0) as usize * width as usize..],
+            &mut scratch,
+        );
+    }
+
+    CoverageMask {
+        x0: bx0,
+        y0: by0,
+        width,
+        height,
+        data,
+    }
 }
 
 /// [`raster_thread_request`] for this process, worked out once.
@@ -1121,6 +1293,141 @@ mod tests {
         assert!((mask.coverage_at(3, 3) - 1.0).abs() < 1e-4);
         assert_eq!(mask.coverage_at(0, 0), 0.0);
         assert_eq!(mask.coverage_at(9, 9), 0.0);
+    }
+
+    /// The rounded-rect fast path's whole licence to exist, held to the same
+    /// bar the rectangle fast path holds itself to — and one higher: the
+    /// bytes are asserted equal **by bit pattern**, because this fast path
+    /// claims to perform the walk's own operations in the walk's own order
+    /// over the middle band rather than to approximate them.
+    ///
+    /// Swept over sub-pixel offsets, sizes from a few pixels to most of the
+    /// clip, radii from a fraction of a pixel to a stadium, and the two
+    /// transforms a screen actually applies — identity, a non-uniform scale
+    /// (elliptical corners), and a mirrored one.
+    #[test]
+    fn the_rounded_rect_fast_path_matches_the_scanline_pass() {
+        use crate::native::geometry::flatten::flatten_path;
+        use vieww_foundation::{Path, Transform};
+
+        let clip = Rect::new(0.0, 0.0, 24.0, 24.0);
+        let steps = [0.0, 0.1, 0.25, 0.5, 0.6, 0.75, 0.9];
+        for &ox in &steps {
+            for &oy in &steps {
+                for &(w, h) in &[(4.0f32, 3.0), (12.0, 2.25), (20.0, 18.75), (6.5, 6.5)] {
+                    for &radius in &[0.5f32, 2.0, 3.25, 6.0] {
+                        let rect = Rect::new(2.0 + ox, 2.0 + oy, 2.0 + ox + w, 2.0 + oy + h);
+                        let path = Path::rounded_rect(rect, radius);
+                        for transform in [
+                            Transform::IDENTITY,
+                            Transform::new(1.5, 0.0, 0.0, 2.0, 3.0, 7.0),
+                            Transform::new(-1.25, 0.0, 0.0, 1.0, 40.0, 1.5),
+                        ] {
+                            let polylines = flatten_path(&path, transform);
+                            let Some((back, back_radius)) = path.as_rounded_rect() else {
+                                panic!("a rounded rect of {rect:?} r{radius} was not recognized");
+                            };
+                            // The device rectangle under an axis-aligned
+                            // transform: the corners' extrema.
+                            let corners = [
+                                transform.apply(vieww_foundation::Offset::new(
+                                    back.left,
+                                    back.top,
+                                )),
+                                transform.apply(vieww_foundation::Offset::new(
+                                    back.right,
+                                    back.top,
+                                )),
+                                transform.apply(vieww_foundation::Offset::new(
+                                    back.right,
+                                    back.bottom,
+                                )),
+                                transform.apply(vieww_foundation::Offset::new(
+                                    back.left,
+                                    back.bottom,
+                                )),
+                            ];
+                            let (mut dl, mut dt) = (f32::INFINITY, f32::INFINITY);
+                            let (mut dr, mut db) = (f32::NEG_INFINITY, f32::NEG_INFINITY);
+                            for c in corners {
+                                dl = dl.min(c.dx);
+                                dr = dr.max(c.dx);
+                                dt = dt.min(c.dy);
+                                db = db.max(c.dy);
+                            }
+                            let scale_y = transform.d.abs();
+                            let rrect = RoundedRect {
+                                left: dl,
+                                top: dt,
+                                right: dr,
+                                bottom: db,
+                                ry: back_radius * scale_y,
+                            };
+                            let fast = rrect_mask(rrect, &polylines, clip);
+                            let general = rasterize_general(&polylines, clip, 1);
+                            assert_eq!(
+                                (fast.x0, fast.y0, fast.width, fast.height),
+                                (general.x0, general.y0, general.width, general.height),
+                                "bounds differ at {rect:?} r{radius} under {transform:?}"
+                            );
+                            for (i, (f, g)) in
+                                fast.data.iter().zip(general.data.iter()).enumerate()
+                            {
+                                assert_eq!(
+                                    f.to_bits(),
+                                    g.to_bits(),
+                                    "coverage differs at index {i} for {rect:?} r{radius} \
+                                     under {transform:?}: fast={f} general={g}"
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// A rounded rectangle the clip cuts to a corner: the fast path's band
+    /// walk and the general walk agree there too, over the bytes, because a
+    /// clip that bites the corner band is exactly the case where the middle
+    /// band is empty and the fast path is the walk and nothing else.
+    #[test]
+    fn a_clipped_rounded_rect_matches_the_scanline_pass_by_bits() {
+        use crate::native::geometry::flatten::flatten_path;
+        use vieww_foundation::{Path, Transform};
+
+        let rect = Rect::new(2.0, 2.0, 18.0, 14.0);
+        let path = Path::rounded_rect(rect, 5.0);
+        let polylines = flatten_path(&path, Transform::IDENTITY);
+        let (back, radius) = path.as_rounded_rect().expect("recognized");
+        let rrect = RoundedRect {
+            left: back.left,
+            top: back.top,
+            right: back.right,
+            bottom: back.bottom,
+            ry: radius,
+        };
+        for clip in [
+            Rect::new(0.0, 0.0, 24.0, 24.0),
+            Rect::new(4.0, 3.0, 24.0, 24.0), // cuts the top-left corner band
+            Rect::new(0.0, 0.0, 6.5, 24.0),  // cuts the right side entirely
+            Rect::new(3.3, 8.8, 9.9, 24.0),  // cuts both bands and the middle
+        ] {
+            let fast = rrect_mask(rrect, &polylines, clip);
+            let general = rasterize_general(&polylines, clip, 1);
+            assert_eq!(
+                (fast.x0, fast.y0, fast.width, fast.height),
+                (general.x0, general.y0, general.width, general.height),
+                "bounds differ under clip {clip:?}"
+            );
+            for (i, (f, g)) in fast.data.iter().zip(general.data.iter()).enumerate() {
+                assert_eq!(
+                    f.to_bits(),
+                    g.to_bits(),
+                    "coverage differs at index {i} under clip {clip:?}: fast={f} general={g}"
+                );
+            }
+        }
     }
 
     #[test]

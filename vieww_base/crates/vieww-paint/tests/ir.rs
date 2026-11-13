@@ -98,11 +98,17 @@ fn random_scene(seed: u64, image: &Image) -> Scene {
                     r.paint(),
                 );
             }
-            3 => s.draw_shadow(
-                r.rect(),
-                r.f(0.0, 8.0),
-                Shadow::new(r.color(), Offset::new(2.0, 3.0), r.f(0.0, 6.0)),
-            ),
+            3 => {
+                // A covered shadow half the time, so the round trip carries
+                // the promise the way a decoration records it — and the
+                // version-2 byte that holds it is exercised every seed.
+                let shadow = Shadow::new(r.color(), Offset::new(2.0, 3.0), r.f(0.0, 6.0));
+                if r.next().is_multiple_of(2) {
+                    s.draw_shadow_under(r.rect(), r.f(0.0, 8.0), shadow);
+                } else {
+                    s.draw_shadow(r.rect(), r.f(0.0, 8.0), shadow);
+                }
+            }
             4 => s.draw_image(r.rect(), image),
             5 => {
                 s.save();
@@ -242,30 +248,53 @@ fn fonts_and_images_are_stored_once_and_shared_after_decoding() {
     assert_eq!(ir::encode(&back), bytes);
 }
 
-/// The golden fixture: a scene with one of every command, its v1 bytes
-/// committed. A change that alters the encoding fails here and must bump
-/// `VERSION` (keeping a decoder for this one).
+/// The golden fixture: a scene with one of every command, its version's
+/// bytes committed. A change that alters the encoding fails here and must
+/// bump `VERSION` (keeping a decoder for the earlier one).
 #[test]
-fn the_version_1_fixture_is_stable() {
-    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/ir/v1.bin");
+fn the_version_2_fixture_is_stable() {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/ir/v2.bin");
     let scene = random_scene(0xF1C5_7A1D_5EED, &image());
     let bytes = ir::encode(&scene);
     if std::env::var_os("VIEWW_IR_BLESS").is_some() {
         std::fs::create_dir_all(path.parent().unwrap()).unwrap();
         std::fs::write(&path, &bytes).unwrap();
     }
-    let golden = std::fs::read(&path).expect("tests/ir/v1.bin (VIEWW_IR_BLESS=1 writes it)");
+    let golden = std::fs::read(&path).expect("tests/ir/v2.bin (VIEWW_IR_BLESS=1 writes it)");
     assert_eq!(
         &golden[4..6],
-        &1u16.to_le_bytes(),
-        "the fixture is version 1"
+        &2u16.to_le_bytes(),
+        "the fixture is version 2"
     );
     assert!(
         bytes == golden,
-        "the v1 encoding changed: bump ir::VERSION and add a fixture"
+        "the v2 encoding changed: bump ir::VERSION and add a fixture"
     );
     let back = ir::decode(&golden).unwrap();
     assert_eq!(ir::encode(&back), golden);
+}
+
+/// The version-1 fixture — the bytes as the format shipped, before a shadow
+/// carried a covered promise — still decodes, and every shadow it holds
+/// reads back uncovered: a version-1 shadow was always drawn whole, which is
+/// what `covered: false` means.
+#[test]
+fn the_version_1_fixture_decodes_with_every_shadow_uncovered() {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/ir/v1.bin");
+    let golden = std::fs::read(&path).expect("tests/ir/v1.bin");
+    assert_eq!(&golden[4..6], &1u16.to_le_bytes(), "the fixture is version 1");
+    let scene = ir::decode(&golden).expect("a version-1 file still decodes");
+    let shadows = scene
+        .commands()
+        .iter()
+        .filter(|c| matches!(c, Command::DrawShadow { .. }))
+        .count();
+    assert!(shadows > 0, "the fixture must carry a shadow to test the field");
+    for command in scene.commands() {
+        if let Command::DrawShadow { covered, .. } = command {
+            assert!(!covered, "a version-1 shadow cannot claim coverage");
+        }
+    }
 }
 
 #[test]

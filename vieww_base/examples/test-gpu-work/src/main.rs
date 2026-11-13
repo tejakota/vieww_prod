@@ -342,6 +342,7 @@ fn gpu_scene(t: f32) -> Scene {
         shadow: Shadow::new(Color::rgba(0, 0, 0, 120), Offset::new(0.0, 10.0), 18.0),
         transform: Transform::IDENTITY,
         clip: Clip::NONE,
+        covered: false,
     });
     let card = Rect::new(36.0, 34.0, 604.0, 366.0);
     scene.push_command(Command::FillRect {
@@ -460,6 +461,7 @@ fn gpu_scene(t: f32) -> Scene {
         shadow: Shadow::inset(Color::rgba(0, 0, 0, 200), Offset::new(0.0, 4.0), 12.0),
         transform: Transform::IDENTITY,
         clip: Clip::NONE,
+        covered: false,
     });
     let dial = Rect::new(90.0, 284.0, 138.0, 332.0);
     let mut dial_clip = Clip::NONE;
@@ -502,6 +504,7 @@ fn gpu_scene(t: f32) -> Scene {
         shadow: Shadow::new(Color::rgba(0, 0, 0, 150), Offset::new(0.0, 6.0), 10.0),
         transform: spin,
         clip: Clip::NONE,
+        covered: false,
     });
     push_layer_in(
         &mut scene,
@@ -554,6 +557,7 @@ fn capability_probes() -> Vec<(&'static str, Scene)> {
                 shadow,
                 transform,
                 clip: Clip::NONE,
+                covered: false,
             });
         })
     };

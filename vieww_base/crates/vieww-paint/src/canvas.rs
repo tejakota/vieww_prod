@@ -365,6 +365,26 @@ pub trait Canvas {
         let (_, _, _) = (rect, radius, shadow);
     }
 
+    /// A shadow whose caster is about to be **opaquely** filled.
+    ///
+    /// Same shape, same parameters, same draw order as
+    /// [`draw_shadow`](Self::draw_shadow) — the only difference is the
+    /// promise, which belongs to the recorder because only it knows what it
+    /// draws next. A decoration that paints a shadow and then a solid card
+    /// face over it knows the shadow's interior is replaceable before the
+    /// rasterizer ever blends it; the rasterizer spends nothing under the card
+    /// and the pixels come out identical, because an opaque fill's coverage
+    /// replaces whatever was beneath it. A canvas that cannot use the promise
+    /// draws the whole shadow — exactly what every shadow was before this
+    /// method existed — so the default is a plain `draw_shadow`.
+    ///
+    /// The promise is only ever the recorder's to make. A caller that draws a
+    /// shadow without a following opaque fill of the same rectangle, under the
+    /// same clip and transform, must keep using [`draw_shadow`](Self::draw_shadow).
+    fn draw_shadow_under(&mut self, rect: Rect, radius: f32, shadow: Shadow) {
+        self.draw_shadow(rect, radius, shadow);
+    }
+
     /// Draw a run of already-shaped glyphs.
     ///
     /// Takes positioned glyphs rather than a string because by this point every

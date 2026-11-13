@@ -76,6 +76,12 @@ pub(crate) struct Target {
     ink: Option<(i32, i32, i32, i32)>,
 }
 
+/// A covered shadow's skip: the two whole-pixel interior bands, each
+/// `(x0, y0, x1, y1)` in device coordinates, and the origin that translates
+/// device coordinates into the drawing buffer's. See `covered_bands` in
+/// `native/reference.rs`.
+type CoveredSkip = ([(i32, i32, i32, i32); 2], (i32, i32));
+
 /// One `composite_flat` draw's per-row work, shared by the serial walk and
 /// the row-parallel one so both are the same code.
 #[derive(Clone, Copy)]
@@ -927,6 +933,17 @@ impl Target {
     /// a scratch row (`tint.scaled(a)`, exactly what a tinted patch held) and
     /// blended by the same row function a layer is, so the pixels are the
     /// ones the tinted patch produced.
+    ///
+    /// `skip` is the interior a **covered** shadow does not blend — two whole
+    /// pixel bands in device coordinates (see `covered_bands` in
+    /// `reference.rs`), with the origin that translates device coordinates
+    /// into this buffer's. The bands' x-ranges are nested, so the bands that
+    /// contain any one row union to a single contiguous run; that run is
+    /// carved out of the row and the segments either side of it are blended
+    /// separately. Rows and pixels outside the skip are blended exactly as
+    /// they always were — same tint, same coverage scaling, same row function
+    /// — so the skip cannot change anything it does not delete, and what it
+    /// deletes is pixels the caller has promised an opaque fill will replace.
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn composite_tinted_within(
         &mut self,
@@ -937,6 +954,7 @@ impl Target {
         coverage: Option<&dyn Fn(i32, i32) -> f32>,
         pipeline: ColorPipeline,
         within: (i32, i32, i32, i32),
+        skip: Option<CoveredSkip>,
     ) {
         let (wx0, wy0, wx1, wy1) = self.writable();
         let x_start = (wx0 - ox).max(within.0 - ox).max(0);
@@ -950,29 +968,60 @@ impl Target {
         let normal = matches!(pipeline, ColorPipeline::GammaSpace);
         let mut row: Vec<Premul> = Vec::with_capacity((x_end - x_start) as usize);
         for y in y_start..y_end {
-            row.clear();
-            let src_row = y as usize * width as usize;
-            for x in x_start..x_end {
-                let mut pixel = tint.scaled(alpha[src_row + x as usize]);
-                if let Some(coverage) = coverage {
-                    let c = coverage(x, y);
-                    if c < 1.0 {
-                        pixel = pixel.scaled(c);
+            // The run this row skips: the union of the skip bands containing
+            // the row, which the bands' nested x-ranges make one contiguous
+            // run. Patch-local, half-open, already clamped into the row.
+            let mut skip_run: Option<(i32, i32)> = None;
+            if let Some((bands, (ox_skip, oy_skip))) = skip {
+                let ty = y + oy - oy_skip;
+                let (mut lo, mut hi) = (i32::MAX, i32::MIN);
+                let mut any = false;
+                for &(x0, y0, x1, y1) in &bands {
+                    if ty >= y0 && ty < y1 {
+                        any = true;
+                        lo = lo.min(x0);
+                        hi = hi.max(x1);
                     }
                 }
-                row.push(pixel);
-            }
-            let dst_row = (y + oy) as usize * self.width as usize;
-            let dst = &mut self.pixels
-                [dst_row + (x_start + ox) as usize..dst_row + (x_end + ox) as usize];
-            if normal {
-                super::simd::over_layer_row(dst, &row, 1.0, true);
-            } else {
-                for (d, s) in dst.iter_mut().zip(&row) {
-                    if s.a <= 0.0 {
-                        continue;
+                if any && hi > lo {
+                    // Device x into this buffer's coordinates, then into the
+                    // patch's, and clamped into the row's span.
+                    let lo = (lo - ox_skip - ox).max(x_start);
+                    let hi = (hi - ox_skip - ox).min(x_end);
+                    if hi > lo {
+                        skip_run = Some((lo, hi));
                     }
-                    *d = blend_with_pipeline(pipeline, BlendMode::Normal, *s, *d);
+                }
+            }
+            let segments: [(i32, i32); 3] = match skip_run {
+                Some((lo, hi)) => [(x_start, lo), (hi, x_end), (0, 0)],
+                None => [(x_start, x_end), (0, 0), (0, 0)],
+            };
+            for &(seg_start, seg_end) in segments.iter().filter(|&(s, e)| e > s) {
+                row.clear();
+                let src_row = y as usize * width as usize;
+                for x in seg_start..seg_end {
+                    let mut pixel = tint.scaled(alpha[src_row + x as usize]);
+                    if let Some(coverage) = coverage {
+                        let c = coverage(x, y);
+                        if c < 1.0 {
+                            pixel = pixel.scaled(c);
+                        }
+                    }
+                    row.push(pixel);
+                }
+                let dst_row = (y + oy) as usize * self.width as usize;
+                let dst = &mut self.pixels[dst_row + (seg_start + ox) as usize
+                    ..dst_row + (seg_end + ox) as usize];
+                if normal {
+                    super::simd::over_layer_row(dst, &row, 1.0, true);
+                } else {
+                    for (d, s) in dst.iter_mut().zip(&row) {
+                        if s.a <= 0.0 {
+                            continue;
+                        }
+                        *d = blend_with_pipeline(pipeline, BlendMode::Normal, *s, *d);
+                    }
                 }
             }
         }
