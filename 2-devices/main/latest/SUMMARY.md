@@ -1,12 +1,12 @@
-# 2 · Devices — FAILURE
+# 2 · Devices — SUCCESS
 
-- branch: `main`  sha: `f6c26e64d440cd92eb830b6c747e3140295f05b8`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/43403943485
+- branch: `main`  sha: `37ae02292bb6fbd53906d85a1b6848e762636196`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/43410487442
 
 | job | verdict | failed steps |
 |---|---|---|
 | plan / plan | PASS |  |
-| phase-1 / vieww · hardware-macos | FAIL | vieww · hardware-macos |
+| phase-1 / vieww · hardware-macos | PASS |  |
 | phase-1 / approve | skipped |  |
 | phase-1 / matrix.title | skipped |  |
 | phase-2 / vieww · hardware-report | PASS |  |
@@ -25,7 +25,7 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-1 / vieww · hardware-macos — FAIL
+### phase-1 / vieww · hardware-macos — PASS
 - PASS: Set up job
 - skipped: Long paths (Windows)
 - PASS: Run actions/checkout@v4
@@ -43,7 +43,7 @@
 - skipped: AWS credentials (access keys)
 - skipped: Run actions/download-artifact@v4
 - skipped: Run actions/download-artifact@v4
-- FAIL: vieww · hardware-macos
+- PASS: vieww · hardware-macos
 - skipped: Android emulator
 - skipped: Build provenance (Sigstore, keyless)
 - skipped: After
@@ -94,7 +94,10 @@
 ### phase-2 / matrix.title — skipped
 
 ### results / publish — running
-- running: Set up job
+- PASS: Set up job
+- running: Collect the run
+- running: Run actions/checkout@v4
+- running: Write to the ci-results branch
 
 ### phase-3 — skipped
 

@@ -1,6 +1,6 @@
 __VIEWW_PROGRESS__ frames=0
-__VIEWW_TAPS__ button=66,164 field=87,258 menu=95,748
-__VIEWW_TAPS_PT__ scale=1 button=66,164 field=87,258
+__VIEWW_TAPS__ button=131,329 field=173,516 menu=191,1496
+__VIEWW_TAPS_PT__ scale=2 button=66,165 field=87,258
 __VIEWW_IME__ text=74617020746f2074797065 composing=none
 __VIEWW_PROGRESS__ frames=60
 __VIEWW_PROGRESS__ frames=120
@@ -16,19 +16,19 @@ __VIEWW_SUITE__ begin
 __VIEWW_SUITE__ ok   the_target_platform_matches_the_operating_system: TargetPlatform::current() is macos and target_os is macos
 __VIEWW_SUITE__ ok   the_shortcut_modifier_matches_the_platform: Command/Super on macos, expected Command/Super
 __VIEWW_SUITE__ --   data_dir: /Users/varunkommuri/Library/Application Support/vieww
-__VIEWW_SUITE__ ok   the_platform_gave_us_a_writable_data_directory: /Users/varunkommuri/Library/Application Support/vieww round-tripped Some("desktop-suite-25427")
+__VIEWW_SUITE__ ok   the_platform_gave_us_a_writable_data_directory: /Users/varunkommuri/Library/Application Support/vieww round-tripped Some("desktop-suite-27242")
 __VIEWW_SUITE__ ok   the_data_directory_follows_this_platform_s_convention: expected Library/Application Support in /Users/varunkommuri/Library/Application Support/vieww
 __VIEWW_SUITE__ ok   the_data_directory_is_not_the_no_home_fallback: /Users/varunkommuri/Library/Application Support/vieww is not under the temporary directory /var/folders/kv/x4kmck0n4fd5kncbw3l1_dxr0000gn/T/
 __VIEWW_SUITE__ --   system_locale: Locale { language: [101, 110, 0], region: [73, 78] }
 __VIEWW_SUITE__ --   preferred_locales: [Locale { language: [101, 110, 0], region: [73, 78] }]
 __VIEWW_SUITE__ ok   view_metrics_reached_the_tree: 420x880 logical
-__VIEWW_SUITE__ ok   the_display_density_is_plausible: 1x
+__VIEWW_SUITE__ ok   the_display_density_is_plausible: 2x
 __VIEWW_SUITE__ ok   the_safe_area_fits_inside_the_surface: l0 t0 r0 b0
-__VIEWW_SUITE__ --   safe_area: l0 t0 r0 b0 on a 420x880 surface at 1x
+__VIEWW_SUITE__ --   safe_area: l0 t0 r0 b0 on a 420x880 surface at 2x
 __VIEWW_SUITE__ ok   the_keyboard_inset_is_a_plausible_bottom_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } on a 880-tall surface
 __VIEWW_SUITE__ --   keyboard_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } at the moment of the report
-__VIEWW_SUITE__ ok   the_pasteboard_round_trips: wrote "vieww-desktop-suite-25427" and read back Some("vieww-desktop-suite-25427")
-__VIEWW_SUITE__ --   surface: asked for 420x880, got 420x880 logical at 1x
+__VIEWW_SUITE__ ok   the_pasteboard_round_trips: wrote "vieww-desktop-suite-27242" and read back Some("vieww-desktop-suite-27242")
+__VIEWW_SUITE__ --   surface: asked for 420x880, got 420x880 logical at 2x
 __VIEWW_SUITE__ ok   a_modal_silences_the_screen_behind_it: 3 of 3 panel item(s) reachable, and nothing is behind the scrim (3 labelled node(s) in the tree)
 __VIEWW_SUITE__ ok   a_dialog_whose_parent_is_not_open_is_refused: failed: the parent window is not open, so its dialog could never be closed with it
 __VIEWW_SUITE__ ok   a_second_window_opens: WindowKey(1) is open
@@ -36,24 +36,24 @@ __VIEWW_SUITE__ ok   a_dialog_opens_on_a_live_parent: WindowKey(2) belongs to Wi
 __VIEWW_SUITE__ --   dialog_key: WindowKey(2)
 __VIEWW_SUITE__ ok   closing_a_window_closes_its_dialog: WindowKey(1) is closed and 1 window(s) remain: [WindowKey(0)]
 __VIEWW_SUITE__ ok   frames_were_presented: 600 frames
-__VIEWW_SUITE__ ok   the_typical_frame_is_inside_its_budget: median 7.982334ms against a budget of 16.666668ms
-__VIEWW_SUITE__ ok   frames_inside_their_budget: 0 of 240 frames over a budget of 16.666668ms (at most 1 in 20)
-__VIEWW_SUITE__ ok   no_frame_stalled: worst 13.719792ms against a stall line of 66.666672ms (max of 4x budget, 3x median), 0 of 240 over budget
-__VIEWW_SUITE__ --   frame_time: median 7.982334ms, worst 13.719792ms, budget 16.666668ms (240 samples)
-__VIEWW_SUITE__ --   startup_stages: before run 558 ms | app setup 47.9 | event loop started 39.8 | resumed 0.0 | window created 62.1 | present ready 0.6 | accessibility and show 8.1 | tree built 3.3 | window ready 0.3 | until first draw 16.4 | app before-frame hooks 1.1 | first build and layout 1.1 | first raster and present 2.7 = 741.7 ms from process start
-__VIEWW_SUITE__ --   frame_stages: medians ms: scale 0.00 plan 0.00 cpu 1.29 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.03 present 5.59
-__VIEWW_SUITE__ --   frame_stages_p95: p95 ms: scale 0.00 plan 0.00 cpu 2.14 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.09 present 8.04
+__VIEWW_SUITE__ ok   the_typical_frame_is_inside_its_budget: median 6.003458ms against a budget of 8.333334ms
+__VIEWW_SUITE__ ok   frames_inside_their_budget: 0 of 240 frames over a budget of 8.333334ms (at most 1 in 20)
+__VIEWW_SUITE__ ok   no_frame_stalled: worst 6.468042ms against a stall line of 33.333336ms (max of 4x budget, 3x median), 0 of 240 over budget
+__VIEWW_SUITE__ --   frame_time: median 6.003458ms, worst 6.468042ms, budget 8.333334ms (240 samples)
+__VIEWW_SUITE__ --   startup_stages: before run 601 ms | app setup 58.1 | event loop started 28.6 | resumed 0.0 | window created 46.1 | present ready 1.1 | accessibility and show 10.9 | tree built 2.3 | window ready 0.2 | until first draw 9.9 | app before-frame hooks 1.2 | first build and layout 1.1 | first raster and present 6.7 = 766.9 ms from process start
+__VIEWW_SUITE__ --   frame_stages: medians ms: scale 0.01 plan 0.00 cpu 1.06 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.06 present 4.79
+__VIEWW_SUITE__ --   frame_stages_p95: p95 ms: scale 0.01 plan 0.00 cpu 1.08 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.06 present 5.02
 __VIEWW_SUITE__ --   input_latency: no input reached this window
-__VIEWW_SUITE__ --   raster_by_kind: medians ms: text 0.00 shadows 0.00 paths 0.09 rects 0.89 images 0.00 layers 0.00 composite 0.00 total 0.97; p95 ms: text 0.00 shadows 0.00 paths 0.18 rects 1.46 images 0.00 layers 0.00 composite 0.00 total 1.63
-__VIEWW_SUITE__ --   worst_frame: work 13.72 ms, outside the renderer 2.22 ms; stages ms: scale 0.00 plan 0.00 cpu 1.39 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.03 present 10.07
+__VIEWW_SUITE__ --   raster_by_kind: medians ms: text 0.00 shadows 0.00 paths 0.02 rects 0.81 images 0.00 layers 0.00 composite 0.00 total 0.83; p95 ms: text 0.00 shadows 0.00 paths 0.03 rects 0.83 images 0.00 layers 0.00 composite 0.00 total 0.86
+__VIEWW_SUITE__ --   worst_frame: work 6.47 ms, outside the renderer 0.09 ms; stages ms: scale 0.01 plan 0.00 cpu 1.07 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.06 present 5.24
 __VIEWW_SUITE__ --   device: tier medium, RAM unreadable, 10 cores
 __VIEWW_SUITE__ --   cache_budgets: blur off (tier medium), fill off (tier medium), raster threads up to 8 workers per large mask
-__VIEWW_SUITE__ --   quality_overlay: tier medium · median 7.919859ms / p95 10.54875ms / worst 13.719792ms vs budget 16.666668ms · 0/240 over
-__VIEWW_SUITE__ ok   damage_tracking_costs_a_fraction_of_a_full_repaint: 0.060 full repaints per frame over 600 frames, against a 369600px surface
+__VIEWW_SUITE__ --   quality_overlay: tier medium · median 6.023372ms / p95 6.23375ms / worst 6.468042ms vs budget 8.333334ms · 0/240 over
+__VIEWW_SUITE__ ok   damage_tracking_costs_a_fraction_of_a_full_repaint: 0.059 full repaints per frame over 600 frames, against a 1478400px surface
 __VIEWW_SUITE__ --   full_repaints: 4 of 600 frames cost a whole surface, 1 of those after the loop slept
 __VIEWW_SUITE__ ok   idle_frames_do_not_repaint_the_whole_surface: 1 idle full repaint(s) over 600 frames, against a budget of 12
-__VIEWW_SUITE__ ok   the_full_repaint_counter_saw_the_first_frame: 4 full repaint(s) over 600 frames against a 369600px surface
-__VIEWW_SUITE__ --   frame_report: 600 frames in 11.20s — 53.5fps (no continuous run to measure); work median 7.98ms, worst 13.72ms; 1 over a 16.67ms budget; rasterised 35.95 full repaints (4 frame(s) cost a whole surface, 1 of them idle); stage medians: scale 0.00 plan 0.00 cpu 1.29 gpu[upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00] acquire 0.03 present 5.59 ms
+__VIEWW_SUITE__ ok   the_full_repaint_counter_saw_the_first_frame: 4 full repaint(s) over 600 frames against a 1478400px surface
+__VIEWW_SUITE__ --   frame_report: 600 frames in 5.73s — 104.6fps (no continuous run to measure); work median 6.00ms, worst 6.47ms; 2 over a 8.33ms budget; rasterised 35.69 full repaints (4 frame(s) cost a whole surface, 1 of them idle); stage medians: scale 0.01 plan 0.00 cpu 1.06 gpu[upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00] acquire 0.06 present 4.79 ms
 __VIEWW_SUITE__ --   gpu_frames: 0 of 600 drawn by the GPU rasterizer (0 straight into the swapchain)
 __VIEWW_SUITE__ --   thermal: not reported by this device
 __VIEWW_SUITE__ --   shadow_blurs: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all

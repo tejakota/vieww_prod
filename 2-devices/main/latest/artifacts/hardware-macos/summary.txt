@@ -1,5 +1,5 @@
-vieww macOS hardware run 20261113-151627
-commit: f6c26e64d440cd92eb830b6c747e3140295f05b8
+vieww macOS hardware run 20261113-160815
+commit: 37ae02292bb6fbd53906d85a1b6848e762636196
 host: Varuns-MacBook-Pro · macOS 26.1 (25B78) · arm64
 cpu: Apple M1 Pro
 rustc: rustc 1.98.1 (48a229cea 2026-09-01) (pinned: 1.98.1)
@@ -19,44 +19,45 @@ PASS  perf-budget
 PASS  baseline-build
       baseline start-up is warm-cache (macOS has no unprivileged page-cache drop)
 PASS  baseline-cpu (5 launches)
-FAIL  baseline-gpu (see baseline-gpu.log)
+PASS  baseline-gpu (5 launches)
       CPU path, 5 launches (medians):
-        launch to first frame                180.89 ms
-        main() to first frame                163.06 ms
+        launch to first frame                133.96 ms
+        main() to first frame                123.07 ms
         RSS at first frame                   n/a
         peak RSS                             n/a
         idle: frames presented               0   [meets: 0 frames presented while nothing changes]
         idle: pixels rasterised              0   [meets: 0 pixels rasterised while nothing changes]
         idle: CPU                            n/a
         idle: package power                  n/a
-        animate: fps                         54.535
+        animate: fps                         107.02
         animate: GPU-drawn frames            0
-        animate: frame work median           8.04 ms
-        animate: frame work p95              11.04 ms
+        animate: frame work median           6.30 ms
+        animate: frame work p95              6.59 ms
         animate: CPU                         n/a
         animate: marginal energy / frame     n/a
-        frame stages (median ms): cpu_raster 0.60, acquire 0.03, present 7.13
+        frame stages (median ms): scale 0.00, cpu_raster 0.47, acquire 0.07, present 5.75
         energy: not measured on this machine (see the env step)
-      GPU path, 4 launches (medians):
-        launch to first frame                262.69 ms
-        main() to first frame                244.98 ms
+      GPU path, 5 launches (medians):
+        launch to first frame                151.01 ms
+        main() to first frame                134.44 ms
         RSS at first frame                   n/a
         peak RSS                             n/a
         idle: frames presented               0   [meets: 0 frames presented while nothing changes]
         idle: pixels rasterised              0   [meets: 0 pixels rasterised while nothing changes]
         idle: CPU                            n/a
         idle: package power                  n/a
-        animate: fps                         60.845
-        animate: GPU-drawn frames            304.5
-        animate: frame work median           15.83 ms
-        animate: frame work p95              18.57 ms
+        animate: fps                         992.29
+        animate: GPU-drawn frames            4971
+        animate: frame work median           0.87 ms
+        animate: frame work p95              1.21 ms
         animate: CPU                         n/a
         animate: marginal energy / frame     n/a
-        frame stages (median ms): plan 0.24, gpu_upload 0.01, gpu_record 0.05, gpu_submit 14.39, gpu_wait 0.00, acquire 0.06, present 0.08
+        frame stages (median ms): scale 0.00, plan 0.14, gpu_upload 0.01, gpu_record 0.01, gpu_submit 0.20, gpu_wait 0.32, acquire 0.04, present 0.01
         energy: not measured on this machine (see the env step)
-FAIL  idle-gate (the wakeup launch itself failed; see baseline-wakeup.log)
+PASS  idle-gate
+PASS  rss-budget
 PASS  size-build
-      windowed baseline app, dist profile: 4835472 bytes
+      windowed baseline app, dist profile: 4852032 bytes
       dynamic libraries it loads: 16 (see size-baseline-otool.txt)
 PASS  size-budget
 PASS  stress-1
@@ -64,7 +65,7 @@ PASS  stress-2
 PASS  stress-3
 PASS  stress-4
 PASS  stress-5
-      animation stress p95 over 5 runs (ms): 2.551 2.930 3.212 3.252 3.459 
+      animation stress p95 over 5 runs (ms): 3.107 3.179 3.222 3.301 3.363 
 PASS  desktop
       audio devices: MacBook Pro Microphone;MacBook Pro Speakers;Microsoft Teams Audio;
 PASS  audio-devices

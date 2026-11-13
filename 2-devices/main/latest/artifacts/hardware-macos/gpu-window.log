@@ -1,4 +1,16 @@
-    Finished `release` profile [optimized + debuginfo] target(s) in 0.26s
+   Compiling vieww-paint v0.1.0 (/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+   Compiling vieww-widget v0.1.0 (/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+   Compiling vieww-gpu v0.1.0 (/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+   Compiling vieww-scene v0.1.0 (/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
+   Compiling vieww-render-graph v0.1.0 (/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
+   Compiling vieww-render-planner v0.1.0 (/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
+   Compiling vieww-hal v0.1.0 (/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+   Compiling vieww-element v0.1.0 (/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+   Compiling vieww-hardware v0.1.0 (/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
+   Compiling vieww-render v0.1.0 (/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+   Compiling vieww-devtools v0.1.0 (/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-devtools)
+   Compiling vieww-platform-winit v0.1.0 (/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
+    Finished `release` profile [optimized + debuginfo] target(s) in 15.49s
 warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
 note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
      Running tests/wait_loop.rs (target/release/deps/wait_loop-50d1946632220d41)
@@ -17,7 +29,7 @@ wait_loop: gpu_damage
 wait_loop: no `import` (ImageMagick) — screen contents not checked
 wait_loop: gpu_damage ok
 wait_loop: gpu_overlap
-wait_loop: gpu_overlap: median fence wait 0.78 ms serial, 0.00 ms overlapped; median present 0.04 ms serial, 0.02 ms overlapped (a present that blocks on rendering, as lavapipe's X11 one does, takes the GPU's time instead)
+wait_loop: gpu_overlap: median fence wait 1.34 ms serial, 0.00 ms overlapped; median present 0.01 ms serial, 0.00 ms overlapped (a present that blocks on rendering, as lavapipe's X11 one does, takes the GPU's time instead)
 wait_loop: gpu_overlap ok
 wait_loop: gpu_cpu_mix
 wait_loop: gpu_cpu_mix: 20 of 40 frames on the GPU, the rest on the CPU
