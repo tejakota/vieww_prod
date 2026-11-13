@@ -357,7 +357,12 @@ fi
 
 if want stress; then
     p95s=()
+    # Back-to-back CPU-rendered runs heat a 15 W laptop: p95 climbed 10.7 -> 18.2 ms
+    # over five runs with nothing else changed. A pause between runs lets the
+    # package cool so the gate measures the code; VIEWW_HW_STRESS_COOL=0 disables it.
+    cool="${VIEWW_HW_STRESS_COOL:-30}"
     for i in 1 2 3 4 5; do
+        [ "$i" -gt 1 ] && [ "$cool" -gt 0 ] && sleep "$cool"
         run "stress-$i" cargo run --release -p test-animation-stress -- "$out/stress-$i"
         v="$(grep -m1 '^render_p95_ms=' "$out/stress-$i/metrics.txt" 2>/dev/null | cut -d= -f2)"
         [ -n "$v" ] && p95s+=("$v")

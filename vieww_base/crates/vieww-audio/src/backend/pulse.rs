@@ -136,6 +136,21 @@ fn open(
         .map(CString::new)
         .transpose()
         .map_err(|_| BackendError::Refused("a device name with a NUL byte".into()))?;
+    // `pa_simple_new` with an unknown sink name is refused by PulseAudio but
+    // quietly routed to the default sink by `pipewire-pulse`, so the same call
+    // meant two things. A named *playback* device is checked against the
+    // server's own sink list first, which is the same answer on both. If the
+    // list itself cannot be read, fall through and let the open decide.
+    if let (Some(name), Callback::Render(_)) = (device.as_ref(), &callback) {
+        if let Ok(sinks) = list::sinks() {
+            let wanted = name.to_string_lossy();
+            if !sinks.iter().any(|s| s.id == wanted) {
+                return Err(BackendError::Refused(format!(
+                    "no sink named {wanted:?} on this server"
+                )));
+            }
+        }
+    }
     let api = Arc::new(Api::load().map_err(BackendError::Unavailable)?);
     let ch = config.channels.clamp(1, 32);
     let spec = SampleSpec {
