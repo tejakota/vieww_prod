@@ -24,7 +24,18 @@ rustup default "$RUST_VERSION"
 
 [[step]]
 name = "Python tools for the test models"
-run = "python3 -m pip install --quiet gguf numpy"
+# A venv, not `pip install` into the interpreter: the fixtures script runs
+# its helpers with `python3 -I`, whose isolated mode ignores the user
+# site-packages a plain pip install lands in — numpy was installed and
+# then "No module named 'numpy'" anyway (wright models, 2026-11-08). A
+# venv's own site-packages survive `-I`, and the interpreter goes on PATH
+# for every later step.
+run = '''
+python3 -m venv "$RUNNER_TEMP/py"
+"$RUNNER_TEMP/py/bin/python" -m pip install --quiet gguf numpy
+"$RUNNER_TEMP/py/bin/python" -c "import gguf, numpy; print('gguf', gguf.__version__ if hasattr(gguf, '__version__') else 'ok', '| numpy', numpy.__version__)"
+echo "$RUNNER_TEMP/py/bin" >> "$GITHUB_PATH"
+'''
 
 [[step]]
 name = "Build llama.cpp and whisper.cpp (pinned)"

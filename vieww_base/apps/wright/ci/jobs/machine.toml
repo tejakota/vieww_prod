@@ -39,6 +39,18 @@ name = "UI snapshots"
 if = "always()"
 run = '''
 cargo build --release -p wright --features ui
+# A --release host build links the toolchain's dynamic libstd
+# (.cargo/config.toml: prefer-dynamic + rpath). The embedded $ORIGIN
+# rpath is computed from the path rustc was given — and warm-target.sh
+# symlinks target/ at a cache directory, so at run time the loader's
+# $ORIGIN is the cache path and the relative rpath points at the wrong
+# depth: "libstd-*.so: cannot open shared object file" (1-check,
+# 2026-11-11). Give the loader the toolchain's lib dir explicitly; the
+# shipped dist-profile binary is static and needs none of this.
+if [ "$(uname -s)" = "Linux" ]; then
+  tc_lib="$(dirname "$(dirname "$(rustup which rustc)")")/lib"
+  export LD_LIBRARY_PATH="$tc_lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+fi
 rm -rf "$WRIGHT_HOME" && mkdir -p "$WRIGHT_HOME"
 ./target/release/wright ui --snapshot "${{ github.workspace }}/wright-snapshots"
 '''

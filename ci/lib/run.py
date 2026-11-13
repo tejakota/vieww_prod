@@ -28,6 +28,7 @@ import json
 import os
 import platform
 import shlex
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -39,6 +40,43 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import expr  # noqa: E402
 
 WINDOWS = os.name == "nt"
+
+
+def _which_bash():
+    """The bash that runs GitHub-flavoured shell steps.
+
+    On Windows, a bare `bash` on PATH resolves to
+    `C:\\Windows\\System32\\bash.exe`, the *WSL launcher* — with no
+    distro installed (GitHub's hosted Windows runners ship none) every
+    step dies with "Windows Subsystem for Linux has no installed
+    distributions" before the script's first line runs (run 2026-11-13,
+    3-build: `Rust toolchain`, `Allow long paths (Windows)`). The
+    runner's own `shell: bash` uses Git's bash; resolve the same binary
+    explicitly, skipping anything that smells like WSL.
+    """
+    if not WINDOWS:
+        return "bash"
+    for cand in (
+        os.environ.get("CI_BASH"),
+        r"C:\Program Files\Git\bin\bash.exe",
+        r"C:\Program Files (x86)\Git\bin\bash.exe",
+        r"C:\Program Files\Git\usr\bin\bash.exe",
+    ):
+        if cand and os.path.isfile(cand):
+            return cand
+    for p in os.environ.get("PATH", "").split(os.pathsep):
+        if not p:
+            continue
+        cand = os.path.join(p, "bash.exe")
+        low = cand.lower()
+        if ("system32" in low or "sysnative" in low or "wsl" in low
+                or not os.path.isfile(cand)):
+            continue
+        return cand
+    return "bash"  # let the OS say it cannot find it, in its own words
+
+
+BASH = _which_bash()
 
 
 def _json_env(name):
@@ -158,10 +196,12 @@ def shell_command(shell, path):
     if shell is None:
         shell = "pwsh" if WINDOWS else "bash-default"
     if shell == "bash-default":
-        return ["bash", "-e", path]
+        return [BASH, "-e", path]
     if shell == "bash":
-        return ["bash", "--noprofile", "--norc", "-eo", "pipefail", path]
+        return [BASH, "--noprofile", "--norc", "-eo", "pipefail", path]
     if shell == "sh":
+        if WINDOWS:
+            return [BASH, "--noprofile", "--norc", "-e", path]
         return ["sh", "-e", path]
     if shell in ("pwsh", "powershell"):
         exe = "pwsh" if shell == "pwsh" else "powershell"

@@ -90,13 +90,24 @@ VM
 case "${1:-}" in
     --setup)
         sudo apt-get update -q
-        V="$(kernel_version)"
+        # `|| true` inside the substitution: with `set -o pipefail` a failed
+        # command anywhere in the pipeline makes the *assignment* exit
+        # non-zero, and `set -e` then kills the script with that status
+        # without a word — exit 2, twelve milliseconds in (audio-backends
+        # 2026-11-04 and 2026-11-11: every "in the VM" leg died before its
+        # own error message could run).
+        V="$(kernel_version || true)"
+        if [ -z "$V" ]; then
+            echo "::error::no stock kernel found in the archive (apt-cache search said nothing)" >&2
+            exit 1
+        fi
         echo "stock kernel: $V"
         mkdir -p "$KPKG"
         if ls "$KPKG"/linux-image-"$V"-generic_*.deb >/dev/null 2>&1; then
-            # Restored from the workflow's cache: install what is there.
+            echo "kernel: installing the cached .debs from $KPKG"
             sudo apt-get install -y -q "$KPKG"/linux-{"image,modules,modules-extra}-"$V"-generic_*.deb
         else
+            echo "kernel: installing $V from the archive"
             sudo apt-get install -y -q \
                 linux-image-"$V"-generic linux-modules-"$V"-generic \
                 linux-modules-extra-"$V"-generic
@@ -104,6 +115,18 @@ case "${1:-}" in
             cp /var/cache/apt/archives/linux-{"image,modules,modules-extra}-"$V"-generic_*.deb \
                 "$KPKG"/ 2>/dev/null || true
         fi
+        # The proof the setup happened: the test step boots exactly this
+        # file, and an install that silently did nothing must not be
+        # discovered 300 ms later as "exit code 2" with no words in the log.
+        if [ ! -e "/boot/vmlinuz-$V-generic" ]; then
+            echo "::error::the kernel packages ran, but /boot/vmlinuz-$V-generic is not there." >&2
+            echo "  /boot contains:" >&2
+            ls -la /boot >&2 || true
+            echo "  dpkg knows:" >&2
+            dpkg -l "linux*$V*" 2>/dev/null | tail -5 >&2 || true
+            exit 1
+        fi
+        echo "kernel ready: /boot/vmlinuz-$V-generic"
         # virtme-ng: packaged where the archive has it, pip where not.
         if ! sudo apt-get install -y -q virtme-ng qemu-system-x86; then
             sudo apt-get install -y -q qemu-system-x86
@@ -112,10 +135,16 @@ case "${1:-}" in
         ;;
 
     ""|--seq)
-        # The kernel the setup installed (or the newest present).
+        # The kernel the setup installed (or the newest present). `|| true`
+        # for the same pipefail-through-the-assignment reason as --setup.
         KERNEL="$(ls /boot/vmlinuz-*-generic 2>/dev/null |
-            sed -E 's|.*/vmlinuz-(.*)-generic|\1|' | sort -V | tail -1)"
-        [ -n "$KERNEL" ] || { echo "::error::no stock kernel installed (run --setup)"; exit 1; }
+            sed -E 's|.*/vmlinuz-(.*)-generic|\1|' | sort -V | tail -1 || true)"
+        [ -n "$KERNEL" ] || {
+            echo "::error::no stock kernel installed (run --setup)" >&2
+            echo "  /boot contains:" >&2
+            ls -la /boot >&2 || true
+            exit 1
+        }
         : "${RUNNER_TEMP:=$(mktemp -d)}"
         export RUNNER_TEMP
         if [ "${1:-}" = "--seq" ]; then

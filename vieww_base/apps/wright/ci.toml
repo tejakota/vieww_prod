@@ -59,7 +59,11 @@ runs_on = "ubuntu-22.04"
 write = true
 secrets = ["WRIGHT_SECRET_MACOS_P12", "WRIGHT_SECRET_WINDOWS_PFX", "WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING"]
 inputs = { version = "{form.version}", publish = true, prerelease = "{form.prerelease}" }
-checkout = { fetch-depth = 1, sparse-checkout = "vieww_base/apps/wright" }
+# No sparse-checkout: `cargo build -p wright` loads the wright workspace,
+# whose members path-depend on vieww_base/crates — a cone without them
+# fails at "failed to read vieww_base/crates/vieww/Cargo.toml" before a
+# single line of the job runs (wright installers, 2026-11-10).
+checkout = { fetch-depth = 1 }
 [[job.download]]
 pattern = "wright-${{ env.VERSION }}-*"
 path = "release"
@@ -73,7 +77,11 @@ stage = "check"
 also = ["release"]
 depth = "thorough"
 runs_on = "ubuntu-22.04"
-checkout = { sparse-checkout = "vieww_base/apps/wright" }
+# No sparse-checkout: `cargo test -p wright-runtime` loads the wright
+# workspace, which path-depends on vieww_base/crates — the old cone could
+# not see it and the suite died at manifest load (2026-11-10). A full
+# shallow checkout costs seconds and always works.
+checkout = { fetch-depth = 1 }
 
 [[job]]
 id = "models-reference"

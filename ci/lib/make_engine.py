@@ -58,6 +58,12 @@ def steps(kind):
     a("""      - name: Python for the runner (self-host machines)
         id: py_self_host
         if: runner.os != 'macOS'
+        # Self-hosted: setup-python may fail there (a tool cache the runner
+        # account cannot write — the macOS legs died on exactly that before
+        # the brew step existed, 2026-11-12). Continue and fall back to the
+        # machine's own python3; if there is none either, the job's own first
+        # line says so instead of a preflight dying for the machine's sake.
+        continue-on-error: true
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'

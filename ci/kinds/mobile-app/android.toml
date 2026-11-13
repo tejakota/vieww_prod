@@ -174,7 +174,11 @@ set -e
 echo "APK files produced:"
 find target -type f -name "*.apk" -print 2>/dev/null || true
 
-apk="$(find target -type f -name "*.apk" 2>/dev/null | head -n 1)"
+# `-unaligned.apk` is cargo-apk's intermediate — pre-zipalign, no v1 JAR
+# signature — and `find | head -1` happily picked it over the signed final
+# (3-build 2026-11-13: every Android app failed `apksigner verify` with
+# "Missing META-INF/MANIFEST.MF" on the file it should never have chosen).
+apk="$(find target -type f -name "*.apk" ! -name "*-unaligned.apk" 2>/dev/null | head -n 1)"
 
 if [ -z "$apk" ]; then
   echo "::error::No APK was generated for ${{ matrix.app }}."
@@ -214,8 +218,10 @@ rm -rf ${{ matrix.workdir }}/target
 # cargo-apk shells out to the Android build tools which use them.
 rm -rf "$HOME/.gradle/caches" "$HOME/.gradle/wrapper"
 
-# The staged artifact was already uploaded; remove the local copy.
-rm -rf "$RUNNER_TEMP/${{ matrix.app }}-android"
+# NOT the staged artifact: the engine uploads artifacts after the whole
+# job file has run (the old workflow uploaded between the steps; the new
+# one cannot — deleting the stage dir here made every upload fail with
+# "No files were found with the provided path", 3-build 2026-11-13).
 
 # Cargo's own download/checkout caches grow fast across multiple
 # workspace builds and are not worth keeping between jobs.

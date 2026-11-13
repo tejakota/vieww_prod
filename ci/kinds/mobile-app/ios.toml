@@ -153,8 +153,10 @@ echo "Cleaning iOS/Rust build data for ${{ matrix.app }}..."
 # framework + app leaves several GB here.
 rm -rf ${{ matrix.workdir }}/target
 
-# The staged artifact was already uploaded.
-rm -rf "$RUNNER_TEMP/${{ matrix.app }}-ios"
+# NOT the staged artifact: the engine uploads artifacts after the whole
+# job file has run (the old workflow uploaded between the steps; the new
+# one cannot — deleting the stage dir here made every upload fail with
+# "No files were found with the provided path", 3-build 2026-11-13).
 
 # Xcode's DerivedData accumulates across builds and is not needed
 # after the .ipa is staged.

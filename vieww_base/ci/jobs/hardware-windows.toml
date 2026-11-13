@@ -12,8 +12,14 @@ working-directory = "vieww_base"
 name = "Hardware run"
 env = { STEPS = "${{ inputs.windows_steps || 'env,gpu,d3d12,gallery,baseline,size,pipelines,stress,desktop,remote,audio' }}", LAUNCHES = "${{ inputs.launches || '5' }}", OUT = "${{ runner.temp }}\\hardware-windows" }
 run = '''
-# Explicitly append Teja's cargo binaries to the active process PATH 
-$env:PATH = "C:\Users\Teja\.cargo\bin;" + $env:PATH
+# rustup's bin dir is on the *user* PATH; a runner registered as a Windows
+# service runs as another account and never sees it — windows.ps1's preflight
+# explains the whole story. Probe the account running this job and the
+# machine's interactive user before giving up (the hardcoded Teja path only
+# worked while the usernames lined up).
+foreach ($p in @("$env:USERPROFILE\.cargo\bin", "C:\Users\Teja\.cargo\bin")) {
+  if (Test-Path "$p\rustc.exe") { $env:PATH = "$p;" + $env:PATH; break }
+}
 powershell -NoProfile -ExecutionPolicy Bypass -File ci\hardware\windows.ps1 -Steps "$env:STEPS" -Launches ([int]$env:LAUNCHES) -OutDir "$env:OUT"
 exit $LASTEXITCODE
 '''

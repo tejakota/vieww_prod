@@ -87,9 +87,14 @@ if command -v cc >/dev/null && command -v c++ >/dev/null; then
   fetch https://github.com/lv2/lv2 "$LV2_REV" lv2
   mkdir -p "$WORK/inc"; ln -sfn ../vst3_pluginterfaces "$WORK/inc/pluginterfaces"
   DL=""; [[ $OS == linux ]] && DL="-ldl"
+  # Steinberg's funknown.cpp generates FUIDs through CoreFoundation on
+  # macOS; without the framework the link dies on _CFRelease/_CFUUIDCreate
+  # (the macOS leg, cloud-vm 2026-11-11: "Undefined symbols for architecture
+  # arm64"). Linux and Windows need nothing of the sort.
+  FW=""; [[ $OS == macos ]] && FW="-framework CoreFoundation"
   cc -std=c11 -O1 -I"$WORK/clap/include" "$CRATE/tools/clap_host.c" -o "$WORK/clap_host" $DL -lm
   c++ -std=c++17 -O1 -I"$WORK/inc" "$CRATE/tools/vst3_host.cpp" \
-    "$WORK/vst3_pluginterfaces/base/funknown.cpp" -o "$WORK/vst3_host" $DL
+    "$WORK/vst3_pluginterfaces/base/funknown.cpp" -o "$WORK/vst3_host" $DL $FW
   cc -std=c11 -O1 -I"$WORK/lv2/include" "$CRATE/tools/lv2_host.c" -o "$WORK/lv2_host" $DL -lm
   cc -std=c11 -I"$WORK/clap/include" "$CRATE/tools/clap_layout.c" -o "$WORK/clap_layout"
   c++ -std=c++17 -I"$WORK/inc" "$CRATE/tools/vst3_layout.cpp" -o "$WORK/vst3_layout"

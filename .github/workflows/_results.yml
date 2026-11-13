@@ -94,17 +94,33 @@ jobs:
           PY
 
           # Failed steps' logs, last 300 lines each (the end is where errors are).
+          # Since 2026-11-10 or so the jobs-logs endpoint 302-redirects to a
+          # signed blob URL, and `gh api` returns an empty body for the
+          # redirect — every run after that published an empty errors.txt and
+          # failed-logs.txt while the logs themselves were perfectly fetchable
+          # (1-check, 2-devices, 3-build, cloud-vm, device-machines on main,
+          # 2026-11-11..13). Fetch with curl instead: -L follows the redirect,
+          # and (unlike --location-trusted) it drops the Authorization header
+          # on the cross-host hop, which the signed URL requires. Cancelled
+          # jobs' logs are collected too — a cancelled run is usually
+          # cancelled *for* a reason that lives in some job's log.
           if [ "$CONCLUSION" != "success" ]; then
-            # The run is still going (this job is its last), so `gh run view
-            # --log-failed` would refuse; each failed job's log is final already.
             python3 - > failed.log <<'PY' || true
           import json, os, subprocess
           pages = [json.loads(l) for l in open("jobs.json").read().replace("}{", "}\n{").splitlines() if l.strip()]
           for j in (j for p in pages for j in p["jobs"]):
-              if j.get("conclusion") != "failure":
+              if j.get("conclusion") not in ("failure", "cancelled"):
                   continue
-              log = subprocess.run(["gh", "api", f"repos/{os.environ['REPO']}/actions/jobs/{j['id']}/logs"],
-                                   capture_output=True, text=True).stdout
+              url = f"{os.environ.get('GITHUB_API_URL', 'https://api.github.com')}/repos/{os.environ['REPO']}/actions/jobs/{j['id']}/logs"
+              p = subprocess.run(
+                  ["curl", "-sL", "--max-time", "180",
+                   "-H", f"Authorization: Bearer {os.environ['GH_TOKEN']}", url],
+                  capture_output=True, text=True)
+              log = p.stdout
+              if not log.strip():
+                  print(f"{j['name']}\tlog\t::warning::ci-results could not fetch this job's log "
+                        f"(curl exit {p.returncode}); read it at the run's page")
+                  continue
               for line in log.splitlines():
                   print(f"{j['name']}\tlog\t{line}")
           PY
