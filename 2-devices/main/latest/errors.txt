@@ -1,0 +1,243 @@
+-----
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:41:29.1489636Z vulkan: 	deviceName         = Intel(R) HD Graphics 620 (KBL GT2)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:41:29.1490658Z vulkan: 	driverName         = Intel open-source Mesa driver
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:41:29.1491677Z vulkan: 	deviceName         = NVIDIA GeForce 920MX
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:41:30.1326054Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:41:30.1331615Z ==> gpu-hal: cargo test --release -p vieww-hal --features vulkan -- --ignored --test-threads=1
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:41:46.2723519Z    Compiling vieww-foundation v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:41:52.4072286Z    Compiling vieww-paint v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:41:52.4081815Z    Compiling vieww-text v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:41:59.5474980Z    Compiling vieww-gpu v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:06.8933737Z    Compiling vieww-hal v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:37.9704195Z     Finished `release` profile [optimized + debuginfo] target(s) in 1m 07s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.0382953Z      Running unittests src/lib.rs (target/release/deps/vieww_hal-580b85ab69c42af4)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1497403Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1505259Z running 0 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1507091Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1518350Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 28 filtered out; finished in 0.00s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1521008Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1527521Z      Running tests/d3d12_scene.rs (target/release/deps/d3d12_scene-91a0c204fd4f12b9)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1529848Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1531722Z running 0 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1532782Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1534494Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1543072Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1545914Z      Running tests/d3d12_smoke.rs (target/release/deps/d3d12_smoke-9ff8aabd1a8e5a50)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1565763Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1567331Z running 0 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1569058Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1571412Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1573316Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1575701Z      Running tests/metal_scene.rs (target/release/deps/metal_scene-7aeb38028bfbe9a0)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1597837Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1599162Z running 0 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1600840Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1603545Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1605923Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1616404Z      Running tests/metal_smoke.rs (target/release/deps/metal_smoke-2887965f97008a09)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1634489Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1636187Z running 0 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1637555Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1639768Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1642845Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1646136Z      Running tests/vulkan_compositor.rs (target/release/deps/vulkan_compositor-0b092c34640282d6)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1671377Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:38.1673610Z running 17 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:41.4884463Z test a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp ... ok
+-----
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:42.0905849Z test a_dashed_stroke_under_a_scale_matches_width_and_pattern ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:42.4044506Z test a_renderer_shared_between_planners_never_draws_a_stale_atlas ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:42.6804456Z test a_shadow_inside_a_translucent_layer_matches ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:42.9043978Z test a_steady_frame_uploads_nothing_new_and_reuses_every_target ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:43.1022023Z test a_transparent_clear_reads_back_straight_alpha_like_the_cpu ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:48.0028081Z test all_twenty_eight_blend_modes_match ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:49.3635706Z test every_shadow_variant_matches ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:49.5714945Z test group_opacity_composites_the_group_not_each_child ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:50.3224748Z test images_magnified_rotated_and_minified_match ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:51.9260192Z test linear_radial_and_sweep_gradients_match_per_pixel ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:52.1125034Z test nested_layers_with_mixed_effects_match ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:52.2923261Z test overlapping_subpaths_fill_under_non_zero_winding ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:52.4647337Z test shaped_clips_on_draws_and_on_layers_match ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:52.6580479Z test sharp_miter_joins_reach_as_far_as_the_cpu_allows ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:52.6581443Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:52.6582344Z test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.49s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:52.6583559Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:52.6624883Z      Running tests/vulkan_compute.rs (target/release/deps/vulkan_compute-c3f3666073fed599)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:52.6654228Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:52.6655037Z running 0 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:52.6655977Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:52.6657039Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:52.6658221Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:52.6672189Z      Running tests/vulkan_damage.rs (target/release/deps/vulkan_damage-43b3721de4514216)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:52.6691012Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:52.6702086Z running 7 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:53.1289458Z test a_backdrop_filter_inside_the_damage_keeps_it ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:53.4921732Z test a_backdrop_filter_reaching_outside_the_damage_redraws_everything ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:53.8171805Z test a_damaged_frame_is_the_full_frame_through_blurs_shadows_and_blends ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:53.9718259Z test a_new_clear_colour_or_size_redraws_everything ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.1219281Z test gpu_time_is_split_by_the_kind_of_work_that_spent_it ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.4579895Z test overlapping_damage_rectangles_draw_each_pixel_once ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.6258112Z test pixels_outside_the_damage_are_last_frames ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.6259857Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.6261352Z test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.96s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.6262879Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.6345001Z      Running tests/vulkan_mesh_smoke.rs (target/release/deps/vulkan_mesh_smoke-5319fbf691c4fdf5)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.6376110Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.6377050Z running 2 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.8392519Z test a_tessellated_square_rasterizes_into_its_own_bounds ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.9555497Z test an_empty_mesh_draws_a_fully_transparent_frame ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.9556770Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.9559731Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.9561628Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.9613587Z      Running tests/vulkan_pipeline_cache.rs (target/release/deps/vulkan_pipeline_cache-6000ef7783391fa5)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.9639900Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:54.9640620Z running 1 test
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:55.3782015Z test a_second_device_starts_from_the_first_ones_pipelines ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:55.3783623Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:55.3785578Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:55.3786639Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:55.3829970Z      Running tests/vulkan_scene.rs (target/release/deps/vulkan_scene-fc135ed1b193b94a)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:55.3853286Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:55.3854444Z running 11 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:55.6164501Z test a_rectangular_clip_becomes_a_scissor_and_cuts_the_same_way ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:55.7965795Z test a_transformed_path_and_a_stroke_match_the_cpu_rasterizer ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:55.9436907Z test an_empty_scene_is_the_clear_colour_exactly ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:56.0971699Z test arbitrary_paths_and_strokes_are_antialiased_like_the_cpu_everywhere ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:56.2487955Z test fractional_and_rounded_rects_have_antialiased_edges_like_the_cpu ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:56.4173506Z test many_shapes_stay_one_draw_call_and_still_match_the_cpu ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:56.5937980Z test one_rectangle_lands_where_the_geometry_says ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:56.7546504Z test overlapping_translucent_fills_composite_like_the_cpu_rasterizer ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:57.7282336Z test partial_mask_uploads_match_full_uploads_frame_for_frame ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:57.9035661Z test the_renderer_is_reusable_across_frames_and_sizes ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.0607671Z test the_renderer_refuses_a_plan_it_cannot_draw ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.0608825Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.0610860Z test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.68s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.0612485Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.0701582Z      Running tests/vulkan_smoke.rs (target/release/deps/vulkan_smoke-e7e7ac564140c643)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.0727072Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.0728199Z running 3 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.3097054Z test vulkan_device_reports_an_adapter ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.4530991Z test vulkan_device_survives_three_consecutive_frames ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.5991398Z test vulkan_render_clear_matches_the_requested_colour_exactly ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.5992381Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.5993152Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.5994268Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.6057121Z      Running tests/vulkan_text.rs (target/release/deps/vulkan_text-7dcf63a88ae5f3ac)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.6091161Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.6097577Z running 7 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:58.8481968Z test a_clip_cuts_text_where_the_cpu_cuts_it ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:59.0622589Z test a_label_on_a_panel_is_one_batch_and_still_matches ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:59.2249707Z test a_line_of_text_matches_the_cpu_rasterizer ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:59.3852387Z test a_repeated_frame_reuses_the_atlas_and_a_new_glyph_grows_it ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:59.5289330Z test half_transparent_text_matches_the_cpu ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:59.6697633Z test text_near_the_top_edge_is_not_vertically_mirrored ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:59.8200822Z test two_colours_share_one_atlas_patch ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:59.8202484Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:59.8203888Z test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.21s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:59.8205317Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:42:59.8294691Z    Doc-tests vieww_hal
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:43:00.2726847Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:43:00.2728161Z running 0 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:43:00.2728876Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:43:00.2730025Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:43:00.2731749Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:43:00.3496158Z PASS  gpu-hal
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:43:00.3641356Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:43:00.3643048Z ==> gpu-3d: cargo test --release -p vieww-3d --features vulkan -- --ignored --test-threads=1
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:43:13.8219788Z    Compiling vieww-animation v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:43:13.8225209Z    Compiling vieww-mesh v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-mesh)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:43:18.0445601Z    Compiling vieww-widget v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:43:26.8095104Z    Compiling vieww-3d v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-3d)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:08.5662272Z     Finished `release` profile [optimized + debuginfo] target(s) in 1m 07s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:08.5984638Z      Running unittests src/lib.rs (target/release/deps/vieww_3d-8b674c6f0c451674)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:08.6378414Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:08.6379150Z running 0 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:08.6379839Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:08.6698255Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 82 filtered out; finished in 0.00s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:08.6699857Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:08.6713460Z      Running tests/content_kinds.rs (target/release/deps/content_kinds-7d66223175c6b9a6)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:08.6747248Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:08.6747970Z running 0 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:08.6754727Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:08.6756125Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:08.6758410Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:08.6759650Z      Running tests/gpu_ibl.rs (target/release/deps/gpu_ibl-7bc855d93370eb99)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:08.6786298Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:08.6787117Z running 3 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:10.4602107Z test every_prefiltered_level_matches_the_cpu_oracle ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:10.7719560Z test the_prefilter_pass_is_deterministic_on_the_device ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.0772770Z test the_tolerance_notices_a_wrong_roughness ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.0785968Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.0787531Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.40s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.0789260Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.0839847Z      Running tests/gpu_lit.rs (target/release/deps/gpu_lit-806839368c00da41)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.0872470Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.0873579Z running 5 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.3281220Z test a_shadow_falls_where_the_cpu_says ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.4693995Z test back_faces_are_culled_or_flipped_as_on_the_cpu ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.6318283Z test lambert_under_ambient_hemisphere_and_directional_matches_the_cpu ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.8032588Z test phong_specular_matches_the_cpu ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.9471932Z test point_and_spot_lights_match_the_cpu ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.9473764Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.9475256Z test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.86s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.9477402Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.9558303Z      Running tests/gpu_textured.rs (target/release/deps/gpu_textured-cb176870931ee78e)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.9587597Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:11.9589052Z running 4 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:12.1933008Z test a_bilinear_textured_lambert_plane_matches_the_cpu ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:12.3447101Z test a_nearest_filtered_texture_matches_the_cpu ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:12.5002042Z test a_textured_basic_material_matches_the_cpu ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:12.6732931Z test an_alpha_cutout_map_writes_depth_where_the_cpu_does ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:12.6734247Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:12.6735809Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.71s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:12.6749202Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:12.6782783Z      Running tests/gpu_transparent.rs (target/release/deps/gpu_transparent-76ef028d0f0492a3)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:12.6821379Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:12.6822830Z running 3 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:12.8922314Z test a_translucent_pane_blends_over_the_opaque_scene_like_the_cpu ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.0558610Z test a_translucent_surface_does_not_write_depth_but_its_opaque_parts_do ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.1912131Z test stacked_translucent_panes_composite_in_depth_order_like_the_cpu ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.1913252Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.1914094Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.51s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.1915276Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.1994159Z      Running tests/gpu_unlit.rs (target/release/deps/gpu_unlit-e9784eca5237431e)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.2028936Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.2071691Z running 3 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.3738024Z test an_empty_scene_is_the_encoded_background ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.5391810Z test frustum_culled_geometry_is_not_packed_but_still_matches ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.7063993Z test the_unlit_pass_matches_the_cpu_oracle_in_interiors ... ok
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.7065231Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.7066576Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.7068036Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.7121631Z    Doc-tests vieww_3d
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.9093796Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.9094558Z running 0 tests
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.9095009Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.9095873Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:13.9097047Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:14.0362273Z PASS  gpu-3d
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:14.0370845Z 
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:14.0393319Z ==> gpu-window: env VIEWW_REQUIRE_HARDWARE=display,gpu cargo test --release -p vieww-platform-winit --test wait_loop
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:21.1881121Z    Compiling vieww-paint v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+-----
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:21.2928198Z    Compiling vieww-audio v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:24.6782501Z    Compiling vieww-widget v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:35.3452358Z    Compiling vieww-gpu v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:52.2572536Z    Compiling vieww-scene v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:44:54.2957628Z    Compiling vieww-render-graph v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:45:02.1552546Z    Compiling vieww-element v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:45:09.4013148Z    Compiling vieww-render v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:45:11.6482963Z    Compiling vieww-hal v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:45:24.9263236Z    Compiling vieww-render-planner v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:45:25.2957731Z    Compiling vieww-asset v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:45:29.5823508Z    Compiling vieww-image v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-image)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:45:32.9087456Z    Compiling vieww-interaction v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-interaction)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:45:33.6382694Z    Compiling vieww-devtools v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-devtools)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:45:37.7879415Z    Compiling vieww-platform-winit v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:45:40.9623767Z    Compiling vieww-hardware v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:46:07.4843692Z ##[error]The operation was canceled.
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:46:08.1081568Z Post job cleanup.
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:46:10.6162614Z [command]/usr/bin/git version
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:46:10.7811604Z git version 2.53.0
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:46:10.8489180Z Copying '/home/teja/.gitconfig' to '/home/teja/actions-runner/_work/_temp/9d2eaf0a-b773-43ad-8fbe-fb69cfd743f3/.gitconfig'
+phase-1 / vieww · hardware-linux	log	2026-11-13T13:46:10.8512299Z Temporarily overriding HOME='/home/teja/actions-runner/_work/_temp/9d2eaf0a-b773-43ad-8fbe-fb69cfd743f3' before making global git config changes
