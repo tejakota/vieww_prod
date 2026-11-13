@@ -1,5 +1,5 @@
-vieww macOS hardware run 20261112-231136
-commit: 55c9c2126bb9138c4f24d38d8df38f10ef7a8467
+vieww macOS hardware run 20261113-151627
+commit: f6c26e64d440cd92eb830b6c747e3140295f05b8
 host: Varuns-MacBook-Pro · macOS 26.1 (25B78) · arm64
 cpu: Apple M1 Pro
 rustc: rustc 1.98.1 (48a229cea 2026-09-01) (pinned: 1.98.1)
@@ -12,23 +12,59 @@ gui session: yes
 vulkan (MoltenVK): absent
 energy: not sampled on macOS (no unprivileged per-package counter) — energy will be null
 PASS  gpu-metal
-FAIL  gpu-window (see gpu-window.log)
+PASS  gpu-window
 SKIP  moltenvk (no Vulkan loader / MoltenVK ICD (brew install molten-vk vulkan-loader vulkan-tools))
 PASS  gallery
 PASS  perf-budget
 PASS  baseline-build
       baseline start-up is warm-cache (macOS has no unprivileged page-cache drop)
-FAIL  baseline-cpu (see baseline-cpu.log)
+PASS  baseline-cpu (5 launches)
 FAIL  baseline-gpu (see baseline-gpu.log)
+      CPU path, 5 launches (medians):
+        launch to first frame                180.89 ms
+        main() to first frame                163.06 ms
+        RSS at first frame                   n/a
+        peak RSS                             n/a
+        idle: frames presented               0   [meets: 0 frames presented while nothing changes]
+        idle: pixels rasterised              0   [meets: 0 pixels rasterised while nothing changes]
+        idle: CPU                            n/a
+        idle: package power                  n/a
+        animate: fps                         54.535
+        animate: GPU-drawn frames            0
+        animate: frame work median           8.04 ms
+        animate: frame work p95              11.04 ms
+        animate: CPU                         n/a
+        animate: marginal energy / frame     n/a
+        frame stages (median ms): cpu_raster 0.60, acquire 0.03, present 7.13
+        energy: not measured on this machine (see the env step)
+      GPU path, 4 launches (medians):
+        launch to first frame                262.69 ms
+        main() to first frame                244.98 ms
+        RSS at first frame                   n/a
+        peak RSS                             n/a
+        idle: frames presented               0   [meets: 0 frames presented while nothing changes]
+        idle: pixels rasterised              0   [meets: 0 pixels rasterised while nothing changes]
+        idle: CPU                            n/a
+        idle: package power                  n/a
+        animate: fps                         60.845
+        animate: GPU-drawn frames            304.5
+        animate: frame work median           15.83 ms
+        animate: frame work p95              18.57 ms
+        animate: CPU                         n/a
+        animate: marginal energy / frame     n/a
+        frame stages (median ms): plan 0.24, gpu_upload 0.01, gpu_record 0.05, gpu_submit 14.39, gpu_wait 0.00, acquire 0.06, present 0.08
+        energy: not measured on this machine (see the env step)
 FAIL  idle-gate (the wakeup launch itself failed; see baseline-wakeup.log)
-FAIL  size-build (see size-build.log)
+PASS  size-build
+      windowed baseline app, dist profile: 4835472 bytes
+      dynamic libraries it loads: 16 (see size-baseline-otool.txt)
 PASS  size-budget
 PASS  stress-1
 PASS  stress-2
 PASS  stress-3
 PASS  stress-4
 PASS  stress-5
-      animation stress p95 over 5 runs (ms): 3.115 3.205 3.217 3.223 3.494 
+      animation stress p95 over 5 runs (ms): 2.551 2.930 3.212 3.252 3.459 
 PASS  desktop
       audio devices: MacBook Pro Microphone;MacBook Pro Speakers;Microsoft Teams Audio;
 PASS  audio-devices

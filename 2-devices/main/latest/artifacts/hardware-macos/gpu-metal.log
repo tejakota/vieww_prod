@@ -1,4 +1,4 @@
-    Finished `release` profile [optimized + debuginfo] target(s) in 0.27s
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.48s
 warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
 note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
      Running unittests src/lib.rs (target/release/deps/vieww_hal-78df57fd4dd69174)
@@ -30,7 +30,7 @@ test overlapping_translucent_fills_composite_like_the_cpu_rasterizer ... ok
 test the_renderer_is_reusable_across_frames_and_sizes ... ok
 test the_renderer_refuses_a_plan_it_cannot_draw ... ok
 
-test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
 
      Running tests/metal_smoke.rs (target/release/deps/metal_smoke-57a3f715e26f5e74)
 
@@ -43,7 +43,7 @@ test reports_an_adapter ... ok
 test several_frames_on_one_device ... ok
 test the_mesh_path_agrees_with_vulkans_pixel_rule ... ok
 
-test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
 
      Running tests/vulkan_compositor.rs (target/release/deps/vulkan_compositor-ec79406ca8eba0c8)
 

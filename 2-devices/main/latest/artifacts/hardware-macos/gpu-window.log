@@ -1,9 +1,25 @@
-    Finished `release` profile [optimized + debuginfo] target(s) in 0.19s
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.26s
 warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
 note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
      Running tests/wait_loop.rs (target/release/deps/wait_loop-50d1946632220d41)
-
-thread 'main' (442096) panicked at crates/vieww-hardware/src/lib.rs:322:17:
-VIEWW_REQUIRE_HARDWARE requires `gpu`, and it is not here: no Vulkan device: loading Vulkan: dlopen(libvulkan.dylib, 0x0005): tried: 'libvulkan.dylib' (no such file), '/System/Volumes/Preboot/Cryptexes/OSlibvulkan.dylib' (no such file), '/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/target/release/deps/../../../../../../../../.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/lib/libvulkan.dylib' (no such file), '/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/target/release/deps/../../../../../../../../.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/lib/libvulkan.dylib' (no such file), '/usr/lib/libvulkan.dylib' (no such file, not in dyld cache), 'libvulkan.dylib' (no such file), '/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/target/release/libvulkan.dylib' (no such file), '/Users/varunkommuri/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/target/release/deps/libvulkan.dylib' (no such file), '/Users/varunkommuri/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/lib/libvulkan.dylib' (no such file), '/Users/varunkommuri/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/libvulkan.dylib' (no such file), '/Users/varunkommuri/lib/libvulkan.dylib' (no such file), '/usr/local/lib/libvulkan.dylib' (no such file), '/usr/lib/libvulkan.dylib' (no such file, not in dyld cache); no Vulkan loader or MoltenVK found in the app bundle, $VULKAN_SDK, /opt/homebrew/lib or /usr/local/lib (install the Vulkan SDK, or `brew install vulkan-loader molten-vk`) (needs a Vulkan loader and an ICD — a real GPU's driver, or software Vulkan such as lavapipe)
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-error: test failed, to rerun pass `-p vieww-platform-winit --test wait_loop`
+wait_loop: idle
+wait_loop: idle ok
+wait_loop: wake
+wait_loop: wake ok
+wait_loop: accounting
+wait_loop: accounting ok
+wait_loop: self_close
+wait_loop: self_close ok
+wait_loop: gpu_frame
+wait_loop: no `import` (ImageMagick) — screen contents not checked
+wait_loop: gpu_frame ok
+wait_loop: gpu_damage
+wait_loop: no `import` (ImageMagick) — screen contents not checked
+wait_loop: gpu_damage ok
+wait_loop: gpu_overlap
+wait_loop: gpu_overlap: median fence wait 0.78 ms serial, 0.00 ms overlapped; median present 0.04 ms serial, 0.02 ms overlapped (a present that blocks on rendering, as lavapipe's X11 one does, takes the GPU's time instead)
+wait_loop: gpu_overlap ok
+wait_loop: gpu_cpu_mix
+wait_loop: gpu_cpu_mix: 20 of 40 frames on the GPU, the rest on the CPU
+wait_loop: gpu_cpu_mix ok
+wait_loop: 8 scenarios ok
