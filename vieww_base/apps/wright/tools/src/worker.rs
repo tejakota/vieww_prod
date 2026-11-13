@@ -345,7 +345,7 @@ fn run_external(
     let routed_through_bash = false;
     let _ = routed_through_bash; // the non-Windows build never reads it
     #[cfg(windows)]
-    if !routed_through_bash && crate::appcontainer::can_contain(program) {
+    if !routed_through_bash && crate::appcontainer::can_contain(&program) {
         let out = contained_run(entry, &program, worker_env, &arg_refs, copy_dir, timeout)?;
         return Ok((out, TIER2_APPCONTAINER));
     }

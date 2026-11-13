@@ -26,8 +26,14 @@ sudo apt-get install -y -qq libasound2-dev libudev-dev libxkbcommon-dev libwayla
 '''
 
 [[step]]
-name = "cargo build --release -p ${{ matrix.package }}"
+name = "cargo build --release (the matrix's package)"
 run = '''
+# `target/` first: the redirect below opens the file before cargo ever
+# runs, so a fresh checkout with no cache to restore fails the step at
+# "target/ci-build.json: No such file or directory" (viewwstudio's Windows
+# leg, 3-build 2026-11-13 — the Linux leg only worked because its cache
+# had restored a target/ directory).
+mkdir -p target
 cargo build --release -p "${{ matrix.package }}" --message-format=json-render-diagnostics > target/ci-build.json
 mkdir -p target/ci-dist
 # Every binary the package produced (bins and examples are not shipped).
