@@ -1,302 +1,302 @@
-===== phase-1 / wright · machine	log =====
-2026-11-13T13:50:55.0363210Z test gate::tests::approval_policy_is_read_by_the_gate_not_the_caller ... ok
-2026-11-13T13:50:55.0364558Z test gate::tests::budget_exhaustion_denies ... ok
-2026-11-13T13:50:55.0366989Z test gate::tests::output_contract_tool_is_always_available_to_producers ... ok
-2026-11-13T13:50:55.0368762Z test gate::tests::system_agents_get_their_own_grants ... ok
-2026-11-13T13:50:55.0370747Z test gate::tests::the_rule_of_two_asks_on_every_outbound_step_of_a_three_leg_agent ... ok
-2026-11-13T13:50:55.0372894Z test gate::tests::tool_calls_spend_the_budget_until_it_runs_out ... ok
-2026-11-13T13:50:55.0374322Z test gate::tests::tool_not_on_the_card_is_denied ... ok
-2026-11-13T13:50:55.0375643Z test gate::tests::two_leg_agents_do_not_hit_the_rule_ask ... ok
-2026-11-13T13:50:55.0377000Z test gate::tests::unknown_agent_has_no_grants ... ok
-2026-11-13T13:50:55.0389638Z test identity::tests::an_expired_identity_is_refused ... ok
-2026-11-13T13:50:55.0451488Z test identity::tests::issued_checked_scoped_revoked_and_verifiable ... ok
-2026-11-13T13:50:55.0465373Z test killswitch::tests::stop_and_start_round_trip_and_fail_safe ... ok
-2026-11-13T13:50:55.1139022Z test executor::tests::parallel_blocking_work_overlaps ... ok
-2026-11-13T13:50:55.1140724Z test local::tests::the_catalog_is_well_formed ... ok
-2026-11-13T13:50:55.1141879Z test models::tests::anthropic_request_shape ... ok
-2026-11-13T13:50:55.1143391Z test models::tests::anthropic_stream_assembles_text_and_tool_use ... ok
-2026-11-13T13:50:55.1145076Z test models::tests::non_streaming_bodies_parse ... ok
-2026-11-13T13:50:55.1146245Z test models::tests::openai_request_carries_tools_and_results ... ok
-2026-11-13T13:50:55.1147356Z test models::tests::openai_stream_assembles_text_and_tool_calls ... ok
-2026-11-13T13:50:55.1155270Z test models::tests::provider_error_messages_are_extracted ... ok
-2026-11-13T13:50:55.1157546Z test models::tests::truncated_stream_is_an_error_not_a_silent_success ... ok
-2026-11-13T13:50:55.1159584Z test net::tests::base64_matches_rfc4648 ... ok
-2026-11-13T13:50:55.1169157Z test net::tests::connect_head_reports_a_closed_proxy ... ok
-2026-11-13T13:50:55.1170612Z test net::tests::connect_head_retries_interrupted_reads ... ok
-2026-11-13T13:50:55.1172720Z test net::tests::live_https_direct_and_proxied ... ignored
-2026-11-13T13:50:55.1175692Z test net::tests::no_proxy_rules ... ok
-2026-11-13T13:50:55.1177650Z test net::tests::pinned_addresses_skip_resolution ... ok
-2026-11-13T13:50:55.1179169Z test net::tests::plain_http_round_trip_against_a_local_server ... ok
-2026-11-13T13:50:55.1181115Z test net::tests::proxy_urls_parse_with_hidden_credentials ... ok
-2026-11-13T13:50:55.1182619Z test local::tests::downloads_resume_verify_and_refuse_bad_files ... ok
-2026-11-13T13:50:55.1188338Z test policy::tests::a_signed_policy_loads_and_says_its_rules ... ok
-2026-11-13T13:50:55.1190479Z test policy::tests::hosts_match_like_a_person_expects ... ok
-2026-11-13T13:50:55.1192462Z test secrets::tests::env_names_are_derived_from_paths ... ok
-2026-11-13T13:50:55.1194861Z test secrets::tests::env_override_resolves_and_never_prints ... ok
-2026-11-13T13:50:55.1196996Z test secrets::tests::macos_command_quotes_the_value ... ok
-2026-11-13T13:50:55.1214056Z test policy::tests::an_untrusted_policy_fails_closed ... ok
-2026-11-13T13:50:55.1883983Z test secrets::tests::missing_secrets_say_how_to_fix_it ... ok
-2026-11-13T13:50:55.2484352Z test signing::tests::concurrent_first_use_agrees_on_one_key ... ok
-2026-11-13T13:50:55.2533629Z test signing::tests::ephemeral_mode_is_honest_and_generate_works ... ok
-2026-11-13T13:50:55.2562543Z test signing::tests::hex_round_trips_and_bad_lengths_are_refused ... ok
-2026-11-13T13:50:55.2564604Z test signing::tests::sign_and_verify_with_the_public_key ... ok
-2026-11-13T13:50:55.2566611Z test store::tests::approvals_round_trip_across_handles ... ok
-2026-11-13T13:50:55.2568219Z test store::tests::blueprint_commits_dedupe_and_list ... ok
-2026-11-13T13:50:55.2569715Z test store::tests::cache_entries_round_trip ... ok
-2026-11-13T13:50:55.2575296Z test store::tests::events_survive_reopen_and_torn_tails ... ok
-2026-11-13T13:50:55.2588119Z test store::tests::objects_are_content_addressed ... ok
-2026-11-13T13:50:55.2594711Z test store::tests::spend_is_summed_per_day ... ok
-2026-11-13T13:50:55.2600271Z test store::tests::workspace_hash_ignores_state_and_follows_content ... ok
-2026-11-13T13:50:55.2613366Z test team::tests::pins_are_hex_public_keys ... ok
-2026-11-13T13:50:55.2619441Z test team::tests::suitability_refuses_overlap_with_the_project ... ok
-2026-11-13T13:50:55.3192021Z test signing::tests::generated_file_key_persists_under_wright_home ... ok
-2026-11-13T13:50:55.3849715Z test team::tests::the_env_overrides_the_pointer ... ok
-2026-11-13T13:50:55.3852120Z test team::tests::the_roster_dedups_by_did ... ok
-2026-11-13T13:50:55.4010143Z test tls::tests::handshake_against_a_non_tls_server_fails_cleanly ... ok
-2026-11-13T13:50:55.4012481Z test tls::tests::openssl_loads_from_the_system ... ok
-2026-11-13T13:50:55.4013931Z test tz::tests::hostile_names_never_touch_the_filesystem ... ok
-2026-11-13T13:50:55.4541131Z test tz::tests::real_zone_files_agree_with_the_rules ... ok
-2026-11-13T13:50:55.4586654Z test update::tests::apply_swaps_atomically_and_refuses_tampered_assets ... ok
-2026-11-13T13:50:55.4589823Z test update::tests::asset_names_cannot_escape ... ok
-2026-11-13T13:50:55.4636463Z test update::tests::assets_are_verified_by_hash_and_signature ... ok
-2026-11-13T13:50:55.4645676Z test update::tests::channels_need_both_a_url_and_a_key ... ok
-2026-11-13T13:50:55.4680747Z test update::tests::check_reads_one_get_through_the_real_net_stack ... ok
-2026-11-13T13:50:55.4721577Z test update::tests::check_with_reports_an_update_only_when_newer ... ok
-2026-11-13T13:50:55.4752015Z test update::tests::manifest_round_trips_through_canonical_json ... ok
-2026-11-13T13:50:55.4841446Z test update::tests::sign_file_signs_assets_and_the_manifest ... ok
-2026-11-13T13:50:55.5064138Z test update::tests::the_release_key_never_generates_silently ... ok
-2026-11-13T13:50:55.5124478Z test update::tests::unsigned_and_foreign_manifests_are_refused_in_plain_words ... ok
-2026-11-13T13:50:55.5127276Z test update::tests::versions_compare_numerically ... ok
-2026-11-13T13:50:55.5135345Z test voice::tests::a_missing_provider_says_how_to_fix_it ... ok
-2026-11-13T13:50:55.5139215Z test voice::tests::multipart_carries_the_model_and_the_file ... ok
-2026-11-13T13:50:55.5142989Z test voice::tests::stereo_48k_becomes_mono_16k ... ok
-2026-11-13T13:50:55.5145390Z test voice::tests::the_wav_header_is_what_a_decoder_expects ... ok
-2026-11-13T13:50:55.6184678Z test team::tests::the_pointer_directs_the_store ... ok
-2026-11-13T13:50:56.1433786Z test curl::tests::curl_errors_surface ... ok
-2026-11-13T13:50:56.1597498Z test curl::tests::round_trip_through_curl ... ok
-2026-11-13T13:50:56.1599318Z 
-2026-11-13T13:50:56.1601652Z test result: ok. 104 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 1.15s
-2026-11-13T13:50:56.1605041Z 
-2026-11-13T13:50:56.1642345Z [1m[92m     Running[0m unittests src/lib.rs (target/release/deps/wright_tools-b12bed4b3c7e3136)
-2026-11-13T13:50:56.1685863Z 
-2026-11-13T13:50:56.1686451Z running 88 tests
-2026-11-13T13:50:56.1700860Z test browser::tests::names_and_pages_are_checked ... ok
-2026-11-13T13:50:56.1703914Z test browser::tests::private_urls_are_refused_like_http_read ... ok
-2026-11-13T13:50:56.1705405Z test browser::tests::assert_visual_compares_goldens ... ok
-2026-11-13T13:50:56.1726175Z test browser::tests::screenshot_project_refuses_without_a_built_site ... ok
-2026-11-13T13:50:56.1742386Z test browser::tests::render_refuses_when_no_browser_is_found ... ok
-2026-11-13T13:50:56.1746153Z test browser::tests::the_dispatch_names_its_three_actions ... ok
-2026-11-13T13:50:56.1749561Z test browser::tests::screenshot_project_refuses_without_the_loopback_opt_in ... ok
-2026-11-13T13:50:56.1752466Z test degraded::tests::clipping_is_boundary_safe ... ok
-2026-11-13T13:50:56.1755181Z test degraded::tests::shell_syntax_is_refused_not_guessed ... ok
-2026-11-13T13:50:56.1757788Z test degraded::tests::resolution_marks_pe_vs_shim ... ok
-2026-11-13T13:50:56.1761088Z test degraded::tests::the_degraded_tiers_are_named_not_silent ... ok
-2026-11-13T13:50:56.1764279Z test mcp::tests::a_tampered_server_is_refused_by_the_pin ... FAILED
-2026-11-13T13:50:56.1768049Z test mcp::tests::a_tool_not_on_the_card_does_not_exist ... ok
-2026-11-13T13:50:56.1771539Z test mcp::tests::a_wrong_server_name_is_refused_by_the_card ... ok
-2026-11-13T13:50:56.2457620Z test mcp::tests::an_allowed_call_on_a_pinned_server_answers ... ok
-2026-11-13T13:50:56.2469092Z test mcp::tests::a_tree_pin_covers_the_servers_code_not_just_its_launcher ... ok
-2026-11-13T13:50:56.2473711Z test mcp::tests::pinning_helpers_reach_the_file_through_path_or_slash ... ok
-2026-11-13T13:50:56.2482521Z test mcp_install::tests::a_tree_pin_sees_every_file_but_not_bytecode ... ok
-2026-11-13T13:50:56.2485088Z test mcp_install::tests::only_exact_versions_are_installed ... ok
-2026-11-13T13:50:56.2486990Z test patch::tests::create_and_delete ... ok
-2026-11-13T13:50:56.2488563Z test patch::tests::mismatch_is_an_error_with_a_reason ... ok
-2026-11-13T13:50:56.2490239Z test patch::tests::modifies_with_context ... ok
-2026-11-13T13:50:56.2492314Z test patch::tests::multiple_hunks_track_offsets ... ok
-2026-11-13T13:50:56.2493932Z test patch::tests::wrong_line_numbers_still_apply_by_content ... ok
-2026-11-13T13:50:56.2494799Z test paths::tests::escapes_are_refused ... ok
-2026-11-13T13:50:56.2496847Z test paths::tests::final_link_is_replaced_not_followed ... ok
-2026-11-13T13:50:56.2498973Z test paths::tests::parents_are_created_but_never_through_links ... ok
-2026-11-13T13:50:56.2503346Z test paths::tests::pinned_writes_create_parents_and_replace_atomically ... ok
-2026-11-13T13:50:56.2505529Z test paths::tests::pinned_writes_never_go_through_a_swapped_link ... ok
-2026-11-13T13:50:56.2507467Z test paths::tests::plain_paths_resolve_inside ... ok
-2026-11-13T13:50:56.2510884Z test paths::tests::planted_temp_link_is_not_followed ... ok
-2026-11-13T13:50:56.2512641Z test paths::tests::symlink_escape_is_refused ... ok
-2026-11-13T13:50:56.2514289Z test png::tests::a_real_zlib_png_decodes_byte_for_byte ... ok
-2026-11-13T13:50:56.2516022Z test png::tests::average_and_paeth_filters_decode ... ok
-2026-11-13T13:50:56.2518596Z test png::tests::decodes_a_stored_png_with_the_none_sub_up_filters ... ok
-2026-11-13T13:50:56.2520829Z test png::tests::tampering_is_caught_by_a_checksum ... ok
-2026-11-13T13:50:56.2522542Z test png::tests::the_diff_counts_beyond_tolerance ... ok
-2026-11-13T13:50:56.2524833Z test png::tests::unsupported_pngs_are_refused_with_sentences ... ok
-2026-11-13T13:50:56.2527238Z test sandbox::macos::tests::home_path_entries_are_entries_not_parents ... ok
-2026-11-13T13:50:56.2529414Z test sandbox::macos::tests::profile_shapes ... ok
-2026-11-13T13:50:56.2671261Z test browser::tests::a_failing_browser_with_a_lingering_helper_does_not_hang ... ok
-2026-11-13T13:50:56.2823187Z test mcp::tests::an_allowed_tool_the_server_does_not_offer_is_an_error ... ok
-2026-11-13T13:50:56.2862062Z test sandbox::tests::commands_run_and_can_write_the_project ... ok
-2026-11-13T13:50:56.3001322Z test sandbox::tests::environment_is_scrubbed ... ok
-2026-11-13T13:50:56.3176460Z test sandbox::tests::home_paths_are_not_roots ... ok
-2026-11-13T13:50:56.3219429Z test sandbox::tests::exit_codes_and_signals_pass_through ... ok
-2026-11-13T13:50:56.3356975Z test sandbox::tests::home_secrets_are_invisible ... ok
-2026-11-13T13:50:56.3513950Z test sandbox::tests::host_processes_cannot_be_signalled ... ok
-2026-11-13T13:50:56.3575128Z test browser::tests::the_loopback_server_serves_a_built_site ... ok
-2026-11-13T13:50:56.3761822Z test sandbox::tests::kill_switch_is_out_of_reach ... ok
-2026-11-13T13:50:56.3796632Z test sandbox::tests::path_parents_are_never_roots ... ok
-2026-11-13T13:50:56.4295791Z test sandbox::tests::scratch_home_is_0700 ... ok
-2026-11-13T13:50:56.4509714Z test sandbox::tests::the_kill_switch_is_out_of_a_sandboxed_commands_reach ... ok
-2026-11-13T13:50:56.4523272Z test sandbox::tests::other_processes_proc_is_hidden ... ok
-2026-11-13T13:50:56.4552275Z test sandbox::tests::dangerous_syscalls_are_refused ... ok
-2026-11-13T13:50:56.4559410Z test setup::tests::tails_are_bounded ... ok
-2026-11-13T13:50:56.4567787Z test setup::tests::the_fix_is_honest_off_windows ... ok
-2026-11-13T13:50:56.4569662Z test setup::tests::the_matrix_names_every_state ... ok
-2026-11-13T13:50:56.4571532Z test setup::tests::the_plan_is_ordered_and_complete ... ok
-2026-11-13T13:50:56.4573226Z test setup::tests::the_script_carries_every_plan_step ... ok
-2026-11-13T13:50:56.4704170Z test sandbox::tests::writes_outside_the_project_are_blocked ... ok
-2026-11-13T13:50:56.4816191Z test setup::tests::the_shipped_script_is_the_generated_one ... ok
-2026-11-13T13:50:56.4817812Z test tests::any_private_answer_refuses_the_host ... ok
-2026-11-13T13:50:56.4819273Z test tests::browser_refuses_loudly ... ok
-2026-11-13T13:50:56.4820826Z test tests::dns_rebinding_cannot_swap_the_address ... ok
-2026-11-13T13:50:56.4941085Z test tests::an_oversized_post_body_is_refused ... ok
-2026-11-13T13:50:56.4945997Z test tests::patches_apply_all_or_nothing ... ok
-2026-11-13T13:50:56.4948297Z test tests::private_addresses_are_refused_by_default ... ok
-2026-11-13T13:50:56.4953342Z test tests::read_write_edit_list ... ok
-2026-11-13T13:50:56.4957284Z test tests::reads_are_paged_not_slurped ... ok
-2026-11-13T13:50:56.5131340Z test tests::run_tests_reports_failures_as_results ... ok
-2026-11-13T13:50:56.5139535Z test tests::symlink_reads_are_refused ... ok
-2026-11-13T13:50:56.5149101Z test tests::text_is_judged_by_its_bytes_too ... ok
-2026-11-13T13:50:56.5151625Z test tests::write_output_is_limited_to_declared_names ... ok
-2026-11-13T13:50:56.5358300Z test worker::tests::a_change_outside_the_worker_scope_applies_nothing ... ok
-2026-11-13T13:50:56.5551157Z test tests::git_runs_sandboxed_with_a_flag_allowlist ... ok
-2026-11-13T13:50:56.5749429Z test worker::tests::a_failing_worker_changes_nothing ... ok
-2026-11-13T13:50:56.5759916Z test worker::tests::a_missing_program_is_named_before_anything_is_copied ... ok
-2026-11-13T13:50:56.5801624Z test worker::tests::a_chatty_worker_is_not_stalled_by_its_own_output ... ok
-2026-11-13T13:50:56.6009237Z test worker::tests::a_worker_that_writes_a_file_gets_it_applied ... ok
-2026-11-13T13:50:56.6201989Z test worker::tests::deletions_in_scope_are_applied_and_reported ... ok
-2026-11-13T13:50:56.6203140Z test worker::tests::scope_matching_treats_dirs_and_files_fairly ... ok
-2026-11-13T13:50:56.6391681Z test worker::tests::the_real_project_never_gains_the_worker_copy ... ok
-2026-11-13T13:50:56.6394085Z test worker::tests::the_tier_ladder_is_named_not_silent ... ok
-2026-11-13T13:50:56.6615228Z test worker::tests::the_worker_gets_its_own_sign_in_and_nothing_else ... ok
-2026-11-13T13:50:56.7578453Z test sandbox::tests::timeouts_kill_the_whole_process_group ... ok
-2026-11-13T13:50:56.8666065Z test sandbox::tests::network_is_off_unless_granted ... ok
-2026-11-13T13:50:57.5858561Z test worker::tests::a_slow_worker_is_killed_by_its_clock ... ok
-2026-11-13T13:50:57.5861341Z 
-2026-11-13T13:50:57.5862322Z failures:
-2026-11-13T13:50:57.5863497Z 
-2026-11-13T13:50:57.5865380Z ---- mcp::tests::a_tampered_server_is_refused_by_the_pin stdout ----
-2026-11-13T13:50:57.5867997Z 
-2026-11-13T13:50:57.5869474Z thread 'mcp::tests::a_tampered_server_is_refused_by_the_pin' (150883) panicked at tools/src/mcp.rs:489:46:
-2026-11-13T13:50:57.5874823Z called `Result::unwrap()` on an `Err` value: "project dir /tmp/wright-mcp-ctx-150865: No such file or directory (os error 2)"
-2026-11-13T13:50:57.5878901Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-2026-11-13T13:50:57.5881434Z 
-2026-11-13T13:50:57.5881454Z 
-2026-11-13T13:50:57.5882026Z failures:
-2026-11-13T13:50:57.5882786Z     mcp::tests::a_tampered_server_is_refused_by_the_pin
-2026-11-13T13:50:57.5883464Z 
-2026-11-13T13:50:57.5884250Z test result: FAILED. 87 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.42s
-2026-11-13T13:50:57.5885343Z 
-2026-11-13T13:50:57.5886300Z [1m[91merror[0m: test failed, to rerun pass `-p wright-tools --lib`
-2026-11-13T13:50:57.6013546Z ##[endgroup]
-2026-11-13T13:50:57.6067294Z ##[error]Tests failed (exit 101)
-2026-11-13T13:50:57.6081315Z ##[group]UI snapshots
-2026-11-13T13:51:07.9216957Z [1m[92m   Compiling[0m vieww-foundation v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
-2026-11-13T13:51:07.9455589Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
-2026-11-13T13:51:07.9460087Z [1m[92m   Compiling[0m wright-runtime v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/runtime)
-2026-11-13T13:51:10.3504124Z [1m[92m   Compiling[0m wright-tools v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/tools)
-2026-11-13T13:51:10.3508824Z [1m[92m   Compiling[0m wright-infer v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/infer)
-2026-11-13T13:51:33.9784444Z [1m[92m   Compiling[0m vieww-animation v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
-2026-11-13T13:51:36.3126340Z [1m[92m   Compiling[0m vieww-paint v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
-2026-11-13T13:51:36.7173927Z [1m[92m   Compiling[0m vieww-text v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
-2026-11-13T13:51:40.6017217Z [1m[92m   Compiling[0m vieww-image v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-image)
-2026-11-13T13:51:52.3782057Z [1m[92m   Compiling[0m vieww-widget v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
-2026-11-13T13:52:08.5708761Z [1m[92m   Compiling[0m vieww-gestures v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
-2026-11-13T13:52:13.6995605Z [1m[92m   Compiling[0m vieww-element v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
-2026-11-13T13:52:14.5093241Z [1m[92m   Compiling[0m vieww-scene v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
-2026-11-13T13:52:15.3647738Z [1m[92m   Compiling[0m vieww-render-graph v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
-2026-11-13T13:52:19.9153945Z [1m[92m   Compiling[0m vieww-render v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
-2026-11-13T13:52:20.8613181Z [1m[92m   Compiling[0m vieww-gpu v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
-2026-11-13T13:52:31.3863243Z [1m[92m   Compiling[0m vieww-asset v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
-2026-11-13T13:52:37.6613896Z [1m[92m   Compiling[0m vieww-hal v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
-2026-11-13T13:52:37.6756236Z [1m[92m   Compiling[0m vieww-render-planner v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
-2026-11-13T13:52:41.0661490Z [1m[92m   Compiling[0m vieww-effects v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
-2026-11-13T13:52:49.5491058Z [1m[92m   Compiling[0m vieww-embed v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
-2026-11-13T13:52:50.5287425Z [1m[92m   Compiling[0m vieww-video v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-video)
-2026-11-13T13:52:50.9283137Z [1m[92m   Compiling[0m vieww-spatial v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-spatial)
-2026-11-13T13:52:51.7294404Z [1m[92m   Compiling[0m vieww-interaction v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-interaction)
-2026-11-13T13:52:53.0863197Z [1m[92m   Compiling[0m vieww-network v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-network)
-2026-11-13T13:53:01.4875550Z [1m[92m   Compiling[0m vieww-mesh v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-mesh)
-2026-11-13T13:53:02.4778199Z [1m[92m   Compiling[0m vieww-physics v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-physics)
-2026-11-13T13:53:10.8933555Z [1m[92m   Compiling[0m vieww v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
-2026-11-13T13:53:10.9970607Z [1m[92m   Compiling[0m vieww-platform-winit v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
-2026-11-13T13:53:16.1113304Z [1m[92m   Compiling[0m wright-engine v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/engine)
-2026-11-13T13:53:26.9995199Z [1m[92m   Compiling[0m wright v1.0.2 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/apps/wright/app)
-2026-11-13T13:54:30.7636507Z [1m[92m    Finished[0m ]8;;https://doc.rust-lang.org/cargo/reference/profiles.html#default-profiles\`release` profile [optimized]]8;;\ target(s) in 3m 33s
-2026-11-13T13:54:31.9440023Z ./target/release/wright: error while loading shared libraries: libstd-64f5f36fb0927694.so: cannot open shared object file: No such file or directory
-2026-11-13T13:54:31.9456986Z ##[endgroup]
-2026-11-13T13:54:31.9552591Z ##[error]UI snapshots failed (exit 127)
-2026-11-13T13:54:31.9558132Z ##[group]mark: upload wright-snapshots
-2026-11-13T13:54:32.0251735Z ##[endgroup]
-2026-11-13T13:54:32.0427192Z ##[error]Process completed with exit code 1.
-2026-11-13T13:54:32.1692615Z ##[group]Run actions/upload-artifact@v4
-2026-11-13T13:54:32.1693329Z with:
-2026-11-13T13:54:32.1693792Z   name: wright-snapshots
-2026-11-13T13:54:32.1694368Z   path: wright-snapshots/
-2026-11-13T13:54:32.1694948Z   if-no-files-found: ignore
-2026-11-13T13:54:32.1695518Z   retention-days: 14
-2026-11-13T13:54:32.1696057Z   include-hidden-files: false
-2026-11-13T13:54:32.1697191Z   compression-level: 6
-2026-11-13T13:54:32.1697723Z   overwrite: false
-2026-11-13T13:54:32.1698195Z env:
-2026-11-13T13:54:32.1698642Z   CI_INPUTS: {"depth": "full"}
-2026-11-13T13:54:32.1699206Z   CI_MATRIX: {}
-2026-11-13T13:54:32.1701951Z   CI_JOB: {"title": "wright \u00b7 machine", "project": "wright", "id": "machine", "file": "vieww_base/apps/wright/ci/jobs/machine.toml", "if": "", "needs": [], "setup": [], "uploads": [{"name": "wright-snapshots", "path": "wright-snapshots/", "if-no-files-found": "ignore", "retention-days": 14}], "downloads": []}
-2026-11-13T13:54:32.1704768Z   CI_PROJECT: wright
-2026-11-13T13:54:32.1707083Z   CI_VARS: {
+===== phase-1 / vieww-audio-plugin · plugins (windows-latest)	log =====
+2026-11-13T13:56:12.5412408Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T13:56:12.5412559Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T13:56:12.5412746Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-13T13:56:12.5412928Z   CI_PART: main
+2026-11-13T13:56:12.5413038Z ##[endgroup]
+2026-11-13T13:56:12.6669092Z ##[group]Install Rust toolchain
+2026-11-13T13:56:13.3663742Z info: syncing channel updates for 1.98.1-x86_64-pc-windows-msvc
+2026-11-13T13:56:13.8731185Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-13T13:56:13.8869959Z info: downloading 4 components
+2026-11-13T13:56:20.7468569Z 
+2026-11-13T13:56:20.7754782Z   1.98.1-x86_64-pc-windows-msvc installed - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-13T13:56:20.7755031Z 
+2026-11-13T13:56:20.7998845Z info: using existing install for 1.98.1-x86_64-pc-windows-msvc
+2026-11-13T13:56:20.8057335Z info: default toolchain set to 1.98.1-x86_64-pc-windows-msvc
+2026-11-13T13:56:20.8057669Z 
+2026-11-13T13:56:20.8209578Z   1.98.1-x86_64-pc-windows-msvc unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-13T13:56:20.8209894Z 
+2026-11-13T13:56:20.8252228Z info: note that the toolchain '1.98.1-x86_64-pc-windows-msvc' is currently in use (overridden by 'D:\a\vieww_prod\vieww_prod\vieww_base\rust-toolchain.toml')
+2026-11-13T13:56:20.8304176Z ##[endgroup]
+2026-11-13T13:56:20.8319225Z ##[group]Unit tests and clippy
+2026-11-13T13:56:21.6148169Z info: syncing channel updates for 1.98.1-x86_64-pc-windows-msvc
+2026-11-13T13:56:22.1169687Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-13T13:56:22.1306464Z info: component clippy is up to date
+2026-11-13T13:56:22.1387100Z info: downloading 2 components
+2026-11-13T13:56:25.5975830Z [1m[92m    Updating[0m crates.io index
+2026-11-13T13:56:26.9226061Z [1m[92m Downloading[0m crates ...
+2026-11-13T13:56:27.0858474Z [1m[92m  Downloaded[0m adler2 v2.0.1
+2026-11-13T13:56:27.1165698Z [1m[92m  Downloaded[0m fdeflate v0.3.7
+2026-11-13T13:56:27.1301932Z [1m[92m  Downloaded[0m miniz_oxide v0.8.9
+2026-11-13T13:56:27.1531136Z [1m[92m  Downloaded[0m cfg-if v1.0.5
+2026-11-13T13:56:27.1614847Z [1m[92m  Downloaded[0m bytemuck_derive v1.12.1
+2026-11-13T13:56:27.1723652Z [1m[92m  Downloaded[0m simd-adler32 v0.3.10
+2026-11-13T13:56:27.1863728Z [1m[92m  Downloaded[0m font-types v0.12.5
+2026-11-13T13:56:27.1992697Z [1m[92m  Downloaded[0m crc32fast v1.5.2
+2026-11-13T13:56:27.2129299Z [1m[92m  Downloaded[0m once_cell v1.21.4
+2026-11-13T13:56:27.2300131Z [1m[92m  Downloaded[0m quote v1.0.47
+2026-11-13T13:56:27.2518933Z [1m[92m  Downloaded[0m unicode-ident v1.0.26
+2026-11-13T13:56:27.2736968Z [1m[92m  Downloaded[0m proc-macro2 v1.0.107
+2026-11-13T13:56:27.2954016Z [1m[92m  Downloaded[0m bitflags v2.13.2
+2026-11-13T13:56:27.3350589Z [1m[92m  Downloaded[0m bytemuck v1.25.2
+2026-11-13T13:56:27.3619709Z [1m[92m  Downloaded[0m miniz_oxide v0.9.1
+2026-11-13T13:56:27.3734485Z [1m[92m  Downloaded[0m flate2 v1.1.10
+2026-11-13T13:56:27.4144153Z [1m[92m  Downloaded[0m unicode-segmentation v1.13.3
+2026-11-13T13:56:27.4269214Z [1m[92m  Downloaded[0m png v0.18.1
+2026-11-13T13:56:27.4547975Z [1m[92m  Downloaded[0m ttf-parser v0.25.1
+2026-11-13T13:56:27.5254057Z [1m[92m  Downloaded[0m skrifa v0.44.0
+2026-11-13T13:56:27.5813334Z [1m[92m  Downloaded[0m zlib-rs v0.6.8
+2026-11-13T13:56:27.6153652Z [1m[92m  Downloaded[0m syn v3.0.6
+2026-11-13T13:56:27.6829639Z [1m[92m  Downloaded[0m read-fonts v0.41.0
+2026-11-13T13:56:27.9498366Z [1m[92m   Compiling[0m proc-macro2 v1.0.107
+2026-11-13T13:56:27.9498802Z [1m[92m   Compiling[0m unicode-ident v1.0.26
+2026-11-13T13:56:27.9499115Z [1m[92m   Compiling[0m quote v1.0.47
+2026-11-13T13:56:27.9499405Z [1m[92m   Compiling[0m simd-adler32 v0.3.10
+2026-11-13T13:56:28.0681090Z [1m[92m   Compiling[0m crc32fast v1.5.2
+2026-11-13T13:56:28.3913892Z [1m[92m   Compiling[0m adler2 v2.0.1
+2026-11-13T13:56:28.5134762Z [1m[92m   Compiling[0m cfg-if v1.0.5
+2026-11-13T13:56:28.5461525Z [1m[92m   Compiling[0m miniz_oxide v0.9.1
+2026-11-13T13:56:30.3529975Z [1m[92m   Compiling[0m unicode-segmentation v1.13.3
+2026-11-13T13:56:30.4416003Z [1m[92m   Compiling[0m once_cell v1.21.4
+2026-11-13T13:56:30.5883707Z [1m[92m   Compiling[0m flate2 v1.1.10
+2026-11-13T13:56:30.8709729Z [1m[92m   Compiling[0m vieww-foundation v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-foundation)
+2026-11-13T13:56:31.4375025Z [1m[92m   Compiling[0m miniz_oxide v0.8.9
+2026-11-13T13:56:32.3252240Z [1m[92m   Compiling[0m syn v3.0.6
+2026-11-13T13:56:33.5468575Z [1m[92m   Compiling[0m fdeflate v0.3.7
+2026-11-13T13:56:34.1556898Z [1m[92m   Compiling[0m bitflags v2.13.2
+2026-11-13T13:56:34.6431337Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio)
+2026-11-13T13:56:34.8204022Z [1m[92m   Compiling[0m png v0.18.1
+2026-11-13T13:56:34.9690599Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-macros)
+2026-11-13T13:56:35.6149827Z [1m[92m   Compiling[0m ttf-parser v0.25.1
+2026-11-13T13:56:49.4314266Z [1m[92m   Compiling[0m bytemuck_derive v1.12.1
+2026-11-13T13:56:56.7109822Z [1m[92m   Compiling[0m bytemuck v1.25.2
+2026-11-13T13:56:56.8639228Z [1m[92m   Compiling[0m font-types v0.12.5
+2026-11-13T13:56:57.1946727Z [1m[92m   Compiling[0m read-fonts v0.41.0
+2026-11-13T13:57:01.9788914Z [1m[92m   Compiling[0m skrifa v0.44.0
+2026-11-13T13:57:05.1338446Z [1m[92m   Compiling[0m vieww-paint v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-paint)
+2026-11-13T13:57:25.6088469Z [1m[92m   Compiling[0m vieww-audio-plugin v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-plugin)
+2026-11-13T13:57:28.5237634Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 1m 03s
+2026-11-13T13:57:28.5903962Z [1m[92m     Running[0m unittests src\lib.rs (target\debug\deps\vieww_audio_plugin-a0407d24a1b5c5dd.exe)
+2026-11-13T13:57:28.5987682Z 
+2026-11-13T13:57:28.5988040Z running 76 tests
+2026-11-13T13:57:28.5993221Z test aax::tests::the_refusal_is_named_and_precise ... ok
+2026-11-13T13:57:28.5994265Z test auv3::events::tests::a_long_sysex_spans_start_continue_end_packets ... ok
+2026-11-13T13:57:28.5994887Z test auv3::events::tests::a_short_sysex_is_one_complete_packet ... ok
+2026-11-13T13:57:28.5996532Z test auv3::events::tests::an_empty_render_event_list_delivers_nothing ... ok
+2026-11-13T13:57:28.5997571Z test auv3::events::tests::a_full_or_overlong_schedule_drops_and_counts ... ok
+2026-11-13T13:57:28.5998431Z test auv3::events::tests::an_immediate_window_event_lands_at_frame_zero ... ok
+2026-11-13T13:57:28.5999889Z test auv3::events::tests::channel_voice_round_trips ... ok
+2026-11-13T13:57:28.6000259Z test auv3::events::tests::clear_empties_the_ring ... ok
+2026-11-13T13:57:28.6000887Z test auv3::events::tests::immediate_events_land_at_frame_zero_and_past_events_clamp ... ok
+2026-11-13T13:57:28.6002036Z test auv3::events::tests::render_event_layout_offsets_match_the_header ... ok
+2026-11-13T13:57:28.6003784Z test auv3::events::tests::system_common_round_trips ... ok
+2026-11-13T13:57:28.6004241Z test auv3::events::tests::the_immediate_constant_is_the_headers_and_forms_a_window ... ok
+2026-11-13T13:57:28.6004743Z test auv3::events::tests::the_render_event_walk_delivers_midi_parameters_and_sysex ... ok
+2026-11-13T13:57:28.6005245Z test auv3::events::tests::the_schedule_delivers_due_events_in_time_order ... ok
+2026-11-13T13:57:28.6005734Z test auv3::events::tests::unknown_render_event_types_are_skipped_not_guessed ... ok
+2026-11-13T13:57:28.6006605Z test auv3::events::tests::zero_word_counts_and_overruns_are_refused ... ok
+2026-11-13T13:57:28.6007293Z test auv3::manifest::tests::codes_derive_from_the_id_and_vendor ... ok
+2026-11-13T13:57:28.6007735Z test auv3::manifest::tests::tags_map_to_apples_vocabulary_with_a_default ... ok
+2026-11-13T13:57:28.6008875Z test auv3::manifest::tests::versions_pack_and_refuse_to_guess ... ok
+2026-11-13T13:57:28.6009308Z test auv3::tests::descriptions_carry_the_kind_and_derivation ... ok
+2026-11-13T13:57:28.6009848Z test auv3::tests::four_char_codes_are_big_endian ... ok
+2026-11-13T13:57:28.6010249Z test auv3::manifest::tests::the_entry_and_the_snippet_agree ... ok
+2026-11-13T13:57:28.6013308Z test auv3::view::tests::the_queue_coalesces_at_capacity ... ok
+2026-11-13T13:57:28.6014113Z test clap::sys::layout::sizes_and_offsets_match_the_headers ... ok
+2026-11-13T13:57:28.6019666Z test clap::tests::an_effect_processes_automates_and_reports_through_extensions ... ok
+2026-11-13T13:57:28.6020560Z test clap::tests::an_instrument_receives_notes_and_transport ... ok
+2026-11-13T13:57:28.6025178Z test clap::tests::state_round_trips_through_clap_streams ... ok
+2026-11-13T13:57:28.6027520Z test clap::tests::the_factory_lists_both_plugins_with_their_features ... ok
+2026-11-13T13:57:28.6029901Z test auv3::view::tests::the_panel_attaches_offscreen_and_renders_deterministically ... ok
+2026-11-13T13:57:28.6032193Z test gui::tests::frames_read_pixels_and_refuse_outside ... ok
+2026-11-13T13:57:28.6038128Z test gui::tests::parents_report_what_they_carry ... ok
+2026-11-13T13:57:28.6039022Z test clap::tests::gui_edits_reach_the_plugin_and_automation_reaches_the_panel ... ok
+2026-11-13T13:57:28.6041888Z test auv3::view::tests::a_drag_round_trips_into_the_edit_queue ... ok
+2026-11-13T13:57:28.6042763Z test gui::tests::pointer_positions_read_back ... ok
+2026-11-13T13:57:28.6052790Z test gui::vieww::tests::a_press_outside_the_rows_edits_nothing ... ok
+2026-11-13T13:57:28.6056522Z test gui::vieww::tests::degenerate_ranges_render_and_hit_at_the_middle ... ok
+2026-11-13T13:57:28.6064315Z test gui::vieww::tests::drags_clamp_and_snap_to_the_taper ... ok
+2026-11-13T13:57:28.6076211Z test gui::vieww::tests::a_drag_round_trips_through_the_host_and_back ... ok
+2026-11-13T13:57:28.6078180Z test gui::vieww::tests::readout_digits_are_the_classic_patterns ... ok
+2026-11-13T13:57:28.6092408Z test gui::vieww::tests::native_parents_are_refused_and_close_notifies ... ok
+2026-11-13T13:57:28.6124811Z test clap::tests::the_gui_extension_lives_the_clap_lifecycle_offscreen ... ok
+2026-11-13T13:57:28.6127293Z test lv2::sys::layout::sizes_and_offsets_match_the_headers ... ok
+2026-11-13T13:57:28.6127854Z test gui::vieww::tests::frames_are_deterministic ... ok
+2026-11-13T13:57:28.6129702Z test lv2::tests::a_corrupt_sequence_is_ignored_rather_than_read_past ... ok
+2026-11-13T13:57:28.6135425Z test lv2::tests::an_instrument_receives_midi_notes_and_folds_them_into_events ... ok
+2026-11-13T13:57:28.6136224Z test lv2::tests::an_effect_automates_sample_accurately_and_reports_latency ... ok
+2026-11-13T13:57:28.6137702Z test lv2::tests::descriptors_list_their_uris_and_refuse_unknown_ones ... ok
+2026-11-13T13:57:28.6138197Z test lv2::tests::instantiate_refuses_without_a_urid_map ... ok
+2026-11-13T13:57:28.6139739Z test lv2::tests::midi_note_on_velocity_zero_is_a_note_off ... ok
+2026-11-13T13:57:28.6183040Z test lv2::tests::parameters_round_trip_through_patch_messages ... ok
+2026-11-13T13:57:28.6184293Z test lv2::tests::state_round_trips_through_the_extension ... ok
+2026-11-13T13:57:28.6184900Z test lv2::ttl::tests::effect_ttl_matches_the_wrapper_layout ... ok
+2026-11-13T13:57:28.6185690Z test lv2::ttl::tests::instrument_ttl_supports_midi_and_has_no_audio_inputs ... ok
+2026-11-13T13:57:28.6187142Z test lv2::ttl::tests::manifest_names_the_uri_binary_and_tll ... ok
+2026-11-13T13:57:28.6187623Z test lv2::ttl::tests::bundle_files_land_on_disk_with_the_generated_text ... ok
+2026-11-13T13:57:28.6188020Z test lv2::ttl::tests::numbers_and_versions_are_plain_turtle ... ok
+2026-11-13T13:57:28.6189377Z test lv2::ttl::tests::plugin_class_comes_from_kind_and_features ... ok
+2026-11-13T13:57:28.6189808Z test sanitize_tests::non_finite_plugin_output_becomes_silence ... ok
+2026-11-13T13:57:28.6190153Z test tests::automation_is_sample_accurate ... ok
+2026-11-13T13:57:28.6190476Z test tests::buffers_window_and_pass_through ... ok
+2026-11-13T13:57:28.6190800Z test tests::c_strings_truncate_on_char_boundaries ... ok
+2026-11-13T13:57:28.6191452Z test tests::default_state_round_trips_parameters ... ok
+2026-11-13T13:57:28.6191926Z test tests::denormals_flush_inside_the_guard_and_return_after ... ok
+2026-11-13T13:57:28.6192286Z test tests::events_arrive_relative_to_their_slice ... ok
+2026-11-13T13:57:28.6195073Z test vst3::sys::layout::sizes_and_offsets_match_the_headers ... ok
+2026-11-13T13:57:28.6195561Z test vst3::sys::layout::uids_use_the_platform_byte_order ... ok
+2026-11-13T13:57:28.6195995Z test vst3::sys::layout::utf16_buffers ... ok
+2026-11-13T13:57:28.6196453Z test vst3::tests::an_effect_processes_with_sample_accurate_automation ... ok
+2026-11-13T13:57:28.6198227Z test vst3::tests::midi_parameter_values_become_midi_bytes ... ok
+2026-11-13T13:57:28.6202433Z test vst3::tests::process_context_becomes_transport ... ok
+2026-11-13T13:57:28.6206242Z test vst3::tests::state_moves_between_instances_and_the_controller_follows ... ok
+2026-11-13T13:57:28.6208611Z test vst3::tests::subcategories_follow_features ... ok
+2026-11-13T13:57:28.6213057Z test vst3::tests::the_factory_describes_both_classes ... ok
+2026-11-13T13:57:28.6216644Z test gui::vieww::tests::resize_and_scale_change_the_frame_and_geometry_keeps_working ... ok
+2026-11-13T13:57:28.6237340Z test vst3::tests::an_instrument_gets_notes_cc_parameters_and_context ... ok
+2026-11-13T13:57:28.6266102Z test gui::vieww::tests::the_frame_is_sized_and_opaque ... ok
+2026-11-13T13:57:28.6266345Z 
+2026-11-13T13:57:28.6266570Z test result: ok. 76 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+2026-11-13T13:57:28.6266812Z 
+2026-11-13T13:57:29.4837846Z [1m[92m    Checking[0m simd-adler32 v0.3.10
+2026-11-13T13:57:29.4839670Z [1m[92m    Checking[0m adler2 v2.0.1
+2026-11-13T13:57:29.4840404Z [1m[92m    Checking[0m cfg-if v1.0.5
+2026-11-13T13:57:29.4842308Z [1m[92m    Checking[0m bytemuck v1.25.2
+2026-11-13T13:57:29.5179750Z [1m[92m    Checking[0m crc32fast v1.5.2
+2026-11-13T13:57:29.5516953Z [1m[92m    Checking[0m unicode-segmentation v1.13.3
+2026-11-13T13:57:29.5935776Z [1m[92m    Checking[0m miniz_oxide v0.9.1
+2026-11-13T13:57:29.6324554Z [1m[92m    Checking[0m once_cell v1.21.4
+2026-11-13T13:57:29.6484829Z [1m[92m    Checking[0m font-types v0.12.5
+2026-11-13T13:57:29.7239406Z [1m[92m    Checking[0m miniz_oxide v0.8.9
+2026-11-13T13:57:29.9061620Z [1m[92m    Checking[0m vieww-foundation v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-foundation)
+2026-11-13T13:57:29.9673103Z [1m[92m    Checking[0m read-fonts v0.41.0
+2026-11-13T13:57:30.0319007Z [1m[92m    Checking[0m flate2 v1.1.10
+2026-11-13T13:57:30.1547920Z [1m[92m    Checking[0m fdeflate v0.3.7
+2026-11-13T13:57:30.3481431Z [1m[92m    Checking[0m bitflags v2.13.2
+2026-11-13T13:57:30.4335700Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio)
+2026-11-13T13:57:30.4676489Z [1m[92m    Checking[0m png v0.18.1
+2026-11-13T13:57:30.6366303Z [1m[92m    Checking[0m ttf-parser v0.25.1
+2026-11-13T13:57:31.2557278Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-macros)
+2026-11-13T13:57:35.1425475Z [1m[92m    Checking[0m skrifa v0.44.0
+2026-11-13T13:57:36.7422586Z [1m[92m    Checking[0m vieww-paint v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-paint)
+2026-11-13T13:57:37.6753432Z [1m[92m    Checking[0m vieww-audio-plugin v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-plugin)
+2026-11-13T13:57:39.0167087Z [1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 9.82s
+2026-11-13T13:57:39.0791385Z ##[endgroup]
+2026-11-13T13:57:39.0805696Z ##[group]Build, bundle and validate (CLAP + VST3 + LV2)
+2026-11-13T13:57:39.2641223Z == building the example plugins (static std, release)
+2026-11-13T13:58:29.4149312Z == bundling
+2026-11-13T13:58:29.5800211Z   /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_gain.clap  /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_gain.vst3  /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_gain.lv2
+2026-11-13T13:58:29.6462165Z   /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_synth.clap  /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_synth.vst3  /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_synth.lv2
+2026-11-13T13:58:29.6469180Z == Rust hosts loading the built plugins
+2026-11-13T13:58:32.3063492Z 
+2026-11-13T13:58:32.3063994Z running 2 tests
+2026-11-13T13:58:32.3166428Z ..
+2026-11-13T13:58:32.3166780Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-11-13T13:58:32.3166989Z 
+2026-11-13T13:58:32.3290082Z == Rust LV2 host writing and loading the built bundles
+2026-11-13T13:58:34.2195257Z 
+2026-11-13T13:58:34.2195972Z running 1 test
+2026-11-13T13:58:34.2225789Z .
+2026-11-13T13:58:34.2227430Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-13T13:58:34.2227702Z 
+2026-11-13T13:58:34.2305739Z 
+2026-11-13T13:58:34.2305939Z running 1 test
+2026-11-13T13:58:34.2356312Z .
+2026-11-13T13:58:34.2356628Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-11-13T13:58:34.2356864Z 
+2026-11-13T13:58:34.2570143Z == C/C++ hosts compiled against the official headers
+2026-11-13T13:58:46.6477641Z C:/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\Users\RUNNER~1\AppData\Local\Temp\ccSYDOw8.o:funknown.cpp:(.text+0x162): undefined reference to `__imp_CoCreateGuid'
+2026-11-13T13:58:46.6616004Z collect2.exe: error: ld returned 1 exit status
+2026-11-13T13:58:46.6727067Z ##[endgroup]
+2026-11-13T13:58:46.6759042Z ##[error]Build, bundle and validate (CLAP + VST3 + LV2) failed (exit 1)
+2026-11-13T13:58:46.6763916Z ##[group]mark: upload vieww-plugins-${{ matrix.os }}
+2026-11-13T13:58:46.7016361Z ##[endgroup]
+2026-11-13T13:58:46.7188912Z ##[error]Process completed with exit code 1.
+2026-11-13T13:58:46.7354693Z ##[group]Run actions/upload-artifact@v4
+2026-11-13T13:58:46.7354998Z with:
+2026-11-13T13:58:46.7355178Z   name: vieww-plugins-windows-latest
+2026-11-13T13:58:46.7355393Z   path: vieww_base/target/plugins/bundles
+2026-11-13T13:58:46.7355607Z   if-no-files-found: ignore
+2026-11-13T13:58:46.7355986Z   include-hidden-files: false
+2026-11-13T13:58:46.7356175Z   compression-level: 6
+2026-11-13T13:58:46.7356342Z   overwrite: false
+2026-11-13T13:58:46.7356498Z env:
+2026-11-13T13:58:46.7356668Z   CI_INPUTS: {}
+2026-11-13T13:58:46.7356817Z   CI_MATRIX: {"os": "windows-latest"}
+2026-11-13T13:58:46.7357577Z   CI_JOB: {"title": "vieww-audio-plugin \u00b7 plugins (windows-latest)", "project": "vieww-audio-plugin", "id": "plugins", "file": "vieww_base/crates/vieww-audio-plugin/ci/jobs/plugins.toml", "if": "", "needs": [], "setup": [], "uploads": [{"name": "vieww-plugins-${{ matrix.os }}", "path": "vieww_base/target/plugins/bundles", "if-no-files-found": "ignore"}], "downloads": []}
+2026-11-13T13:58:46.7358418Z   CI_PROJECT: vieww-audio-plugin
+2026-11-13T13:58:46.7359054Z   CI_VARS: {
   "AWS_REGION": "us-west-2",
   "AWS_ROLE_ARN": "***",
   "DEVICE_FARM_PROJECT_ARN": "***"
 }
-2026-11-13T13:54:32.1713903Z   CI_GITHUB_TOKEN: ***
-2026-11-13T13:54:32.1726849Z   CI_SECRET_NAMES: 
-2026-11-13T13:54:32.1727401Z   CI_HAS_AWS_ROLE: true
-2026-11-13T13:54:32.1727935Z   ANDROID_KEYSTORE: 
-2026-11-13T13:54:32.1728475Z   ANDROID_KEYSTORE_PASSWORD: 
-2026-11-13T13:54:32.1729087Z   ANDROID_KEY_ALIAS: 
-2026-11-13T13:54:32.1729614Z   ANDROID_KEY_PASSWORD: 
-2026-11-13T13:54:32.1730168Z   APPLE_DEVELOPER_ID_P12: 
-2026-11-13T13:54:32.1730836Z   APPLE_NOTARY_ISSUER: 
-2026-11-13T13:54:32.1731364Z   APPLE_NOTARY_KEY: 
-2026-11-13T13:54:32.1731887Z   APPLE_NOTARY_KEY_ID: 
-2026-11-13T13:54:32.1732416Z   APPLE_P12_PASSWORD: 
-2026-11-13T13:54:32.1732950Z   APPLE_SIGNING_IDENTITY: 
-2026-11-13T13:54:32.1733498Z   AWS_ACCESS_KEY_ID: 
-2026-11-13T13:54:32.1734006Z   AWS_ROLE_ARN: 
-2026-11-13T13:54:32.1734500Z   AWS_SECRET_ACCESS_KEY: 
-2026-11-13T13:54:32.1735045Z   CARGO_REGISTRY_TOKEN: 
-2026-11-13T13:54:32.1735605Z   CLOUDFLARE_ACCOUNT_ID: 
-2026-11-13T13:54:32.1736175Z   CLOUDFLARE_API_TOKEN: 
-2026-11-13T13:54:32.1736732Z   DEVICE_FARM_PROJECT_ARN: 
-2026-11-13T13:54:32.1737282Z   IOS_CERT_P12: 
-2026-11-13T13:54:32.1737767Z   IOS_CERT_PASSWORD: 
-2026-11-13T13:54:32.1738274Z   IOS_IDENTITY: 
-2026-11-13T13:54:32.1738745Z   IOS_PROFILE: 
-2026-11-13T13:54:32.1739233Z   WINDOWS_CERT_PASSWORD: 
-2026-11-13T13:54:32.1739784Z   WINDOWS_CERT_PFX: 
-2026-11-13T13:54:32.1740396Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
-2026-11-13T13:54:32.1741053Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
-2026-11-13T13:54:32.1741699Z   WRIGHT_SECRET_MACOS_P12: 
-2026-11-13T13:54:32.1742285Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
-2026-11-13T13:54:32.1742961Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
-2026-11-13T13:54:32.1743627Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
-2026-11-13T13:54:32.1744233Z   WRIGHT_SECRET_WINDOWS_PFX: 
-2026-11-13T13:54:32.1744849Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
-2026-11-13T13:54:32.1745541Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
-2026-11-13T13:54:32.1746188Z   CI_UPLOAD_0: yes
-2026-11-13T13:54:32.1746680Z ##[endgroup]
-2026-11-13T13:54:33.8451135Z (node:152517) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-2026-11-13T13:54:33.8453045Z (Use `node --trace-deprecation ...` to show where the warning was created)
-2026-11-13T13:54:33.8481658Z No files were found with the provided path: wright-snapshots/. No artifacts will be uploaded.
-2026-11-13T13:54:33.9093390Z Post job cleanup.
-2026-11-13T13:54:34.1415762Z [command]/usr/bin/git version
-2026-11-13T13:54:34.2307887Z git version 2.53.0
-2026-11-13T13:54:34.2381104Z Copying '/home/teja/.gitconfig' to '/home/teja/actions-runner/_work/_temp/554a1f14-4dd7-4099-9ef1-1576b4313ad3/.gitconfig'
-2026-11-13T13:54:34.2397019Z Temporarily overriding HOME='/home/teja/actions-runner/_work/_temp/554a1f14-4dd7-4099-9ef1-1576b4313ad3' before making global git config changes
-2026-11-13T13:54:34.2399916Z Adding repository directory to the temporary git global config as a safe directory
-2026-11-13T13:54:34.2412141Z [command]/usr/bin/git config --global --add safe.directory /home/teja/actions-runner/_work/vieww_prod/vieww_prod
-2026-11-13T13:54:34.3080783Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
-2026-11-13T13:54:34.3155348Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
-2026-11-13T13:54:34.7759836Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
-2026-11-13T13:54:34.7870715Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
-2026-11-13T13:54:34.8302278Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
-2026-11-13T13:54:34.8361415Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
-2026-11-13T13:54:34.9542505Z Cleaning up orphan processes
-2026-11-13T13:54:35.3174595Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-11-13T13:58:46.7360501Z   CI_GITHUB_TOKEN: ***
+2026-11-13T13:58:46.7360916Z   CI_SECRET_NAMES: 
+2026-11-13T13:58:46.7361127Z   CI_HAS_AWS_ROLE: true
+2026-11-13T13:58:46.7361324Z   ANDROID_KEYSTORE: 
+2026-11-13T13:58:46.7361496Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-13T13:58:46.7361677Z   ANDROID_KEY_ALIAS: 
+2026-11-13T13:58:46.7361849Z   ANDROID_KEY_PASSWORD: 
+2026-11-13T13:58:46.7362043Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-13T13:58:46.7362221Z   APPLE_NOTARY_ISSUER: 
+2026-11-13T13:58:46.7362392Z   APPLE_NOTARY_KEY: 
+2026-11-13T13:58:46.7362560Z   APPLE_NOTARY_KEY_ID: 
+2026-11-13T13:58:46.7362748Z   APPLE_P12_PASSWORD: 
+2026-11-13T13:58:46.7362916Z   APPLE_SIGNING_IDENTITY: 
+2026-11-13T13:58:46.7363083Z   AWS_ACCESS_KEY_ID: 
+2026-11-13T13:58:46.7363242Z   AWS_ROLE_ARN: 
+2026-11-13T13:58:46.7363426Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-13T13:58:46.7363599Z   CARGO_REGISTRY_TOKEN: 
+2026-11-13T13:58:46.7363769Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-13T13:58:46.7363937Z   CLOUDFLARE_API_TOKEN: 
+2026-11-13T13:58:46.7364123Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-13T13:58:46.7364290Z   IOS_CERT_P12: 
+2026-11-13T13:58:46.7364438Z   IOS_CERT_PASSWORD: 
+2026-11-13T13:58:46.7364596Z   IOS_IDENTITY: 
+2026-11-13T13:58:46.7364766Z   IOS_PROFILE: 
+2026-11-13T13:58:46.7364902Z   WINDOWS_CERT_PASSWORD: 
+2026-11-13T13:58:46.7365069Z   WINDOWS_CERT_PFX: 
+2026-11-13T13:58:46.7365244Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-13T13:58:46.7365461Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-13T13:58:46.7365655Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-13T13:58:46.7365838Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-13T13:58:46.7366036Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-13T13:58:46.7366264Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-13T13:58:46.7366452Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-13T13:58:46.7366642Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-13T13:58:46.7366844Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-13T13:58:46.7367102Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-13T13:58:46.7367335Z   CI_UPLOAD_0: yes
+2026-11-13T13:58:46.7367498Z ##[endgroup]
+2026-11-13T13:58:46.8675575Z (node:1244) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T13:58:46.8676084Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T13:58:46.8753157Z With the provided path, there will be 10 files uploaded
+2026-11-13T13:58:46.8756545Z Artifact name is valid!
+2026-11-13T13:58:46.8757407Z Root directory input is valid!
+2026-11-13T13:58:47.1772980Z Beginning upload of artifact content to blob storage
+2026-11-13T13:58:47.2535382Z (node:1244) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-13T13:58:47.5621341Z Uploaded bytes 1050635
+2026-11-13T13:58:47.5982243Z Finished uploading artifact content to blob storage!
+2026-11-13T13:58:47.5983031Z SHA256 digest of uploaded artifact zip is 94b4b7c3df2788a3fd27d43acc12f420dcaf2cffe76731dca38cb9542dcd36ca
+2026-11-13T13:58:47.5984462Z Finalizing artifact upload
+2026-11-13T13:58:47.9612867Z Artifact vieww-plugins-windows-latest.zip successfully finalized. Artifact ID 14045025728
+2026-11-13T13:58:47.9613637Z Artifact vieww-plugins-windows-latest has been successfully uploaded! Final size is 1050635 bytes. Artifact ID is 14045025728
+2026-11-13T13:58:47.9622304Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/43435624878/artifacts/14045025728
+2026-11-13T13:58:47.9930835Z Post job cleanup.
+2026-11-13T13:58:48.0985634Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-13T13:58:48.1249165Z git version 2.56.0.windows.4
+2026-11-13T13:58:48.1303032Z Temporarily overriding HOME='D:\a\_temp\06ee6667-052f-4ba4-bdfd-8b5efc573387' before making global git config changes
+2026-11-13T13:58:48.1303716Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T13:58:48.1312218Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\vieww_prod\vieww_prod
+2026-11-13T13:58:48.1606804Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T13:58:48.1895711Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-13T13:58:48.6091574Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T13:58:48.6333769Z http.https://github.com/.extraheader
+2026-11-13T13:58:48.6370772Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-11-13T13:58:48.6665070Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-13T13:58:49.0956057Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T13:58:49.1248750Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-13T13:58:49.5536278Z Cleaning up orphan processes
+2026-11-13T13:58:49.5734304Z Terminate orphan process: pid (1060) (vctip)
+2026-11-13T13:58:49.5782709Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
 

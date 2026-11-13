@@ -1,0 +1,64 @@
+-----
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6191926Z test tests::denormals_flush_inside_the_guard_and_return_after ... ok
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6192286Z test tests::events_arrive_relative_to_their_slice ... ok
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6195073Z test vst3::sys::layout::sizes_and_offsets_match_the_headers ... ok
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6195561Z test vst3::sys::layout::uids_use_the_platform_byte_order ... ok
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6195995Z test vst3::sys::layout::utf16_buffers ... ok
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6196453Z test vst3::tests::an_effect_processes_with_sample_accurate_automation ... ok
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6198227Z test vst3::tests::midi_parameter_values_become_midi_bytes ... ok
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6202433Z test vst3::tests::process_context_becomes_transport ... ok
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6206242Z test vst3::tests::state_moves_between_instances_and_the_controller_follows ... ok
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6208611Z test vst3::tests::subcategories_follow_features ... ok
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6213057Z test vst3::tests::the_factory_describes_both_classes ... ok
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6216644Z test gui::vieww::tests::resize_and_scale_change_the_frame_and_geometry_keeps_working ... ok
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6237340Z test vst3::tests::an_instrument_gets_notes_cc_parameters_and_context ... ok
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6266102Z test gui::vieww::tests::the_frame_is_sized_and_opaque ... ok
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6266345Z 
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6266570Z test result: ok. 76 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:28.6266812Z 
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:29.4837846Z [1m[92m    Checking[0m simd-adler32 v0.3.10
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:29.4839670Z [1m[92m    Checking[0m adler2 v2.0.1
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:29.4840404Z [1m[92m    Checking[0m cfg-if v1.0.5
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:29.4842308Z [1m[92m    Checking[0m bytemuck v1.25.2
+-----
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:31.2557278Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-macros)
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:35.1425475Z [1m[92m    Checking[0m skrifa v0.44.0
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:36.7422586Z [1m[92m    Checking[0m vieww-paint v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-paint)
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:37.6753432Z [1m[92m    Checking[0m vieww-audio-plugin v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-plugin)
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:39.0167087Z [1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 9.82s
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:39.0791385Z ##[endgroup]
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:39.0805696Z ##[group]Build, bundle and validate (CLAP + VST3 + LV2)
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:57:39.2641223Z == building the example plugins (static std, release)
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:29.4149312Z == bundling
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:29.5800211Z   /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_gain.clap  /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_gain.vst3  /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_gain.lv2
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:29.6462165Z   /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_synth.clap  /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_synth.vst3  /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_synth.lv2
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:29.6469180Z == Rust hosts loading the built plugins
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:32.3063492Z 
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:32.3063994Z running 2 tests
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:32.3166428Z ..
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:32.3166780Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:32.3166989Z 
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:32.3290082Z == Rust LV2 host writing and loading the built bundles
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:34.2195257Z 
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:34.2195972Z running 1 test
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:34.2225789Z .
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:34.2227430Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:34.2227702Z 
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:34.2305739Z 
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:34.2305939Z running 1 test
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:34.2356312Z .
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:34.2356628Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:34.2356864Z 
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:34.2570143Z == C/C++ hosts compiled against the official headers
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:46.6477641Z C:/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/15.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\Users\RUNNER~1\AppData\Local\Temp\ccSYDOw8.o:funknown.cpp:(.text+0x162): undefined reference to `__imp_CoCreateGuid'
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:46.6616004Z collect2.exe: error: ld returned 1 exit status
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:46.6727067Z ##[endgroup]
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:46.6759042Z ##[error]Build, bundle and validate (CLAP + VST3 + LV2) failed (exit 1)
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:46.6763916Z ##[group]mark: upload vieww-plugins-${{ matrix.os }}
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:46.7016361Z ##[endgroup]
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:46.7188912Z ##[error]Process completed with exit code 1.
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:46.7354693Z ##[group]Run actions/upload-artifact@v4
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:46.7354998Z with:
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:46.7355178Z   name: vieww-plugins-windows-latest
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:46.7355393Z   path: vieww_base/target/plugins/bundles
+phase-1 / vieww-audio-plugin · plugins (windows-latest)	log	2026-11-13T13:58:46.7355607Z   if-no-files-found: ignore
