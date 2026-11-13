@@ -209,6 +209,22 @@ fn drive_phases(shared: &Shared, waker: &Waker, config: &Config) {
     shared.mark("animate_end");
     shared.phase.store(DONE, Ordering::Release);
     waker.wake();
+    // The report is written by the frame callback, so a window the OS is not
+    // redrawing (occluded, minimised, a locked screen) never gets to write it
+    // and the process sits until a harness alarm kills it, saying nothing. Keep
+    // nudging the loop, and after a grace period fail loudly and quickly with
+    // the cause instead of hanging. Reaching this point means the measurement
+    // ran but was never reported; exit 4 is distinct from 1-3.
+    for _ in 0..20 {
+        std::thread::sleep(Duration::from_millis(500));
+        waker.wake();
+    }
+    eprintln!(
+        "baseline: the measurement finished but no frame was drawn to report it \
+         for 10 s - the window is probably occluded, minimised or on a locked \
+         screen; keep it visible and rerun"
+    );
+    std::process::exit(4);
 }
 
 /// The band the animated phase moves — `examples/shared/screen.rs`' `Pulse`,
