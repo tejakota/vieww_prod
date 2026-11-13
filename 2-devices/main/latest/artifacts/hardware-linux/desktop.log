@@ -1,0 +1,60 @@
+desktop-suite: linux, x86_64
+desktop-suite: the OS reports 1 display(s)
+   Compiling vieww-platform-winit v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
+    Finished `release` profile [optimized + debuginfo] target(s) in 23.00s
+desktop-suite: app output -> /home/teja/actions-runner/_work/_temp/hardware-linux/desktop-app.log
+desktop-suite: running (up to 90s; a window will open)
+
+begin
+ok   the_target_platform_matches_the_operating_system: TargetPlatform::current() is linux and target_os is linux
+ok   the_shortcut_modifier_matches_the_platform: Control on linux, expected Control
+--   data_dir: /home/teja/.local/share/vieww
+ok   the_platform_gave_us_a_writable_data_directory: /home/teja/.local/share/vieww round-tripped Some("desktop-suite-140554")
+ok   the_data_directory_follows_this_platform_s_convention: expected .local/share in /home/teja/.local/share/vieww
+ok   the_data_directory_is_not_the_no_home_fallback: /home/teja/.local/share/vieww is not under the temporary directory /tmp
+--   system_locale: Locale { language: [101, 110, 0], region: [85, 83] }
+--   preferred_locales: [Locale { language: [101, 110, 0], region: [85, 83] }]
+ok   view_metrics_reached_the_tree: 420x701 logical
+ok   the_display_density_is_plausible: 1x
+ok   the_safe_area_fits_inside_the_surface: l0 t0 r0 b0
+--   safe_area: l0 t0 r0 b0 on a 420x701 surface at 1x
+ok   the_keyboard_inset_is_a_plausible_bottom_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } on a 701-tall surface
+--   keyboard_inset: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } at the moment of the report
+ok   the_pasteboard_round_trips: wrote "vieww-desktop-suite-140554" and read back Some("vieww-desktop-suite-140554")
+--   surface: asked for 420x880, got 420x701 logical at 1x
+ok   a_modal_silences_the_screen_behind_it: 3 of 3 panel item(s) reachable, and nothing is behind the scrim (3 labelled node(s) in the tree)
+ok   a_dialog_whose_parent_is_not_open_is_refused: failed: the parent window is not open, so its dialog could never be closed with it
+ok   a_second_window_opens: WindowKey(1) is open
+ok   a_dialog_opens_on_a_live_parent: WindowKey(2) belongs to WindowKey(1)
+--   dialog_key: WindowKey(2)
+ok   closing_a_window_closes_its_dialog: WindowKey(1) is closed and 1 window(s) remain: [WindowKey(0)]
+ok   frames_were_presented: 600 frames
+ok   the_typical_frame_is_inside_its_budget: median 1.963743ms against a budget of 16.665833ms
+ok   frames_inside_their_budget: 0 of 240 frames over a budget of 16.665833ms (at most 1 in 20)
+ok   no_frame_stalled: worst 4.013185ms against a stall line of 66.663332ms (max of 4x budget, 3x median), 0 of 240 over budget
+--   frame_time: median 1.963743ms, worst 4.013185ms, budget 16.665833ms (240 samples)
+--   startup_stages: before run 79 ms | app setup 5.9 | event loop started 0.0 | resumed 0.0 | window created 84.6 | present ready 12.3 | accessibility and show 0.1 | tree built 8.5 | window ready 0.0 | until first draw 2.4 | app before-frame hooks 140.7 | first build and layout 179.9 | first raster and present 9.4 = 522.9 ms from process start
+--   frame_stages: medians ms: scale 0.00 plan 0.00 cpu 1.26 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 0.16
+--   frame_stages_p95: p95 ms: scale 0.00 plan 0.00 cpu 1.86 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 0.23
+--   input_latency: no input reached this window
+--   raster_by_kind: medians ms: text 0.00 shadows 0.00 paths 0.22 rects 0.84 images 0.00 layers 0.00 composite 0.00 total 1.06; p95 ms: text 0.00 shadows 0.00 paths 0.40 rects 1.14 images 0.00 layers 0.00 composite 0.00 total 1.54
+--   worst_frame: work 4.01 ms, outside the renderer 0.46 ms, on cpu1; stages ms: scale 0.00 plan 0.00 cpu 1.59 gpu_upload 0.00 gpu_record 0.00 gpu_submit 0.00 gpu_wait 0.00 gpu_readback 0.00 acquire 0.00 present 1.96
+--   raster_by_core: cpu0 91 frames 1.26 ms | cpu3 62 frames 1.38 ms | cpu1 55 frames 1.14 ms | cpu2 32 frames 1.30 ms
+--   cpu_clocks: cpu0 0.80/3.10 GHz | cpu1 0.80/3.10 GHz | cpu2 0.80/3.10 GHz | cpu3 0.80/3.10 GHz
+--   device: tier low, 7.0 GB, 4 cores, Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
+--   cache_budgets: blur off (tier low), fill off (tier low), raster threads up to 4 workers per large mask
+--   quality_overlay: tier low · median 1.984191ms / p95 2.741156ms / worst 4.013185ms vs budget 16.665833ms · 0/240 over
+ok   damage_tracking_costs_a_fraction_of_a_full_repaint: 0.042 full repaints per frame over 600 frames, against a 294420px surface
+--   full_repaints: 3 of 600 frames cost a whole surface, 1 of those after the loop slept
+ok   idle_frames_do_not_repaint_the_whole_surface: 1 idle full repaint(s) over 600 frames, against a budget of 12
+ok   the_full_repaint_counter_saw_the_first_frame: 3 full repaint(s) over 600 frames against a 294420px surface
+--   frame_report: 600 frames in 10.14s — 59.1fps (no continuous run to measure); work median 1.96ms, worst 4.01ms; 1 over a 16.67ms budget; rasterised 25.31 full repaints (3 frame(s) cost a whole surface, 1 of them idle); stage medians: scale 0.00 plan 0.00 cpu 1.26 gpu[upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00] acquire 0.00 present 0.16 ms
+--   gpu_frames: 0 of 600 drawn by the GPU rasterizer (0 straight into the swapchain)
+--   cpu_time: process CPU 2.33 ms per frame over the last 240 frames, every thread (14% of one core)
+--   thermal: hottest zone 65.0 -> 52.0 °C (peak 65.0) over 10 s
+--   shadow_blurs: 0 over 600 frames (0.00 a frame), 0.0 Mpx in all
+end 22 checks, 0 failed
+result PASS
+
+desktop-suite: the window reported a density of 1x
+desktop-suite: PASS

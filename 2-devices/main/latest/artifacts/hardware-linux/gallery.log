@@ -1,35 +1,35 @@
-    Finished `release` profile [optimized + debuginfo] target(s) in 14.93s
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.36s
      Running `target/release/fixtures /home/teja/actions-runner/_work/_temp/hardware-linux/fixtures --runs 30 --receipt /home/teja/actions-runner/_work/_temp/hardware-linux/fixtures/receipt.json --shadow /home/teja/actions-runner/_work/_temp/hardware-linux/fixtures/shadow.jsonl`
 
 fixture                                 size    cmds      best     worst    us/cmd      fps  what it covers
 ----------------------------------------------------------------------------------------------------------------------------------------
-00-fills                            840x560      384     3.83ms     4.92ms      10.0        4  384 plain fills — the control
-00-fills-rounded                    840x560      384     5.11ms     6.56ms      13.3        3  the same fills, rounded — cost of curves
-00-fills-gradient                   840x560      384     7.37ms     9.67ms      19.2        2  the same fills, gradient-shaded — cost of shading
-00-fills-rrect-clip                 840x560      384     6.08ms     7.95ms      15.8        3  the same fills under ONE rounded clip
-00-fills-nested-clips               840x560      384     5.64ms     7.21ms      14.7        3  the same fills, three clips deep
-00-strokes                          840x560      384    14.39ms    18.29ms      37.5        1  stroke expansion: joins, caps
-00-curves                           840x560      384    11.28ms    14.06ms      29.4        1  open cubics — the flattener's real workload
-00-shadows                          840x560      768    11.27ms    13.55ms      14.7        1  384 blurred shadow masks
-00-layers-flat                      840x560     1152     5.45ms     8.21ms       4.7        3  384 sibling isolated layers
-00-layers-nested                    840x560       74    24.75ms    32.25ms     334.4        1  24 layers deep — compositor depth  <-- OVER 16.7ms
-00-blend-modes                      840x560       71     8.10ms    10.07ms     114.1        2  12 blend modes over one backdrop
-00-blurs                            840x560       24     9.86ms    12.10ms     410.7        2  blur at five sigmas, incl. bounds
-00-transforms                       840x560       97     4.64ms     6.89ms      47.8        4  96 rotated + scaled boxes
-10-icon-grid                        840x560       46     3.59ms     6.47ms      78.0        5  120 vector icons, four sizes
-10-icon-strokes                     840x560       46     5.28ms     6.85ms     114.9        3  stroked line-art icons at small sizes
-11-typography                       840x560       11     3.63ms     5.46ms     330.0        5  a type scale, real glyph outlines
-11-code-block                       840x560       56     3.31ms     5.86ms      59.0        5  syntax-coloured code — many small runs
-12-avatar                           840x560       18    10.23ms    13.17ms     568.3        2  one complex layered vector portrait
-12-avatar-wall                      840x560      362    13.59ms    16.30ms      37.5        1  24 of them, clipped to circles
-20-settings                         840x560       45     7.31ms     9.63ms     162.4        2  a settings form: rows, switches, chrome
-21-dashboard                        840x560       39     6.52ms     8.45ms     167.2        3  cards, charts, elevation, gradients
-22-editor                          1366x679      129     9.61ms    14.25ms      74.5        2  an IDE shell: sidebar, code, panels
-23-editor-glass                    1366x679      149    26.30ms    38.66ms     176.5        1  the same, with blur, shadows and overlays  <-- OVER 16.7ms
+00-fills                            840x560      384     5.48ms    16.51ms      14.3        3  384 plain fills — the control  (noisy: worst is over twice best)
+00-fills-rounded                    840x560      384     6.21ms    14.67ms      16.2        3  the same fills, rounded — cost of curves  (noisy: worst is over twice best)
+00-fills-gradient                   840x560      384     9.21ms    18.13ms      24.0        2  the same fills, gradient-shaded — cost of shading
+00-fills-rrect-clip                 840x560      384     7.51ms    10.40ms      19.5        2  the same fills under ONE rounded clip
+00-fills-nested-clips               840x560      384     6.90ms    12.53ms      18.0        2  the same fills, three clips deep
+00-strokes                          840x560      384    18.10ms    28.85ms      47.1        1  stroke expansion: joins, caps  <-- OVER 16.7ms
+00-curves                           840x560      384    14.62ms    23.75ms      38.1        1  open cubics — the flattener's real workload
+00-shadows                          840x560      768    13.96ms    27.27ms      18.2        1  384 blurred shadow masks
+00-layers-flat                      840x560     1152     7.06ms    12.23ms       6.1        2  384 sibling isolated layers
+00-layers-nested                    840x560       74    27.43ms    43.26ms     370.6        1  24 layers deep — compositor depth  <-- OVER 16.7ms
+00-blend-modes                      840x560       71     8.77ms    17.47ms     123.5        2  12 blend modes over one backdrop
+00-blurs                            840x560       24    11.14ms    17.79ms     464.1        1  blur at five sigmas, incl. bounds
+00-transforms                       840x560       97     5.22ms     7.56ms      53.8        3  96 rotated + scaled boxes
+10-icon-grid                        840x560       46     4.13ms     6.75ms      89.7        4  120 vector icons, four sizes
+10-icon-strokes                     840x560       46     5.36ms     8.21ms     116.5        3  stroked line-art icons at small sizes
+11-typography                       840x560       11     3.64ms     5.08ms     330.6        5  a type scale, real glyph outlines
+11-code-block                       840x560       56     3.31ms     5.43ms      59.1        5  syntax-coloured code — many small runs
+12-avatar                           840x560       18    10.30ms    15.24ms     572.3        2  one complex layered vector portrait
+12-avatar-wall                      840x560      362    13.93ms    21.80ms      38.5        1  24 of them, clipped to circles
+20-settings                         840x560       45     7.68ms    12.52ms     170.6        2  a settings form: rows, switches, chrome
+21-dashboard                        840x560       39     7.38ms    10.80ms     189.1        2  cards, charts, elevation, gradients
+22-editor                          1366x679      129     9.60ms    19.67ms      74.4        2  an IDE shell: sidebar, code, panels  (noisy: worst is over twice best)
+23-editor-glass                    1366x679      149    29.12ms    44.52ms     195.4        1  the same, with blur, shadows and overlays  <-- OVER 16.7ms
 ----------------------------------------------------------------------------------------------------------------------------------------
-23 fixtures, 207.1 ms of rendering in total
+23 fixtures, 236.0 ms of rendering in total
 drawn across the gallery: 4178 shapes, 2743 glyphs, 449 layers, 394 shadows (0 commands culled)
-over budget: 00-layers-nested, 23-editor-glass
+over budget: 00-strokes, 00-layers-nested, 23-editor-glass
 no fixture's layout overflows
 shadow   : 23 frames planned -> /home/teja/actions-runner/_work/_temp/hardware-linux/fixtures/shadow.jsonl
 shadow   : planned as DESKTOP_DISCRETE; planner agreed with the executor that ran on 0 of 0 frames
@@ -37,21 +37,21 @@ receipt  : /home/teja/actions-runner/_work/_temp/hardware-linux/fixtures/receipt
 
 motion                frames       mean      worst   moving   stall  what it covers
 ----------------------------------------------------------------------------------------------------------------------
-30-fade-in                24     2.95ms     4.34ms     23/23       0  opacity 0 -> 1: the simplest reveal
-31-stagger                24     4.16ms     6.78ms     15/23       0  five rows revealing in sequence
-32-splash                 24     3.23ms     6.09ms     21/23       2  a launch splash: scale, rise, fade out
-33-sheet                  24    14.94ms    21.95ms     14/23       0  a modal sheet over a blurred backdrop  <-- OVER BUDGET
-34-spinner                24     2.33ms     3.57ms     23/23       0  a continuous sweep — transforms every frame
-35-shared-element         24    10.85ms    16.79ms     23/23       0  a card expanding into a detail view — the hard transition  <-- OVER BUDGET
-36-morph                  24     3.72ms     5.10ms     23/23       0  one vector path morphing into another, stroked and filled
+30-fade-in                24     3.89ms     6.62ms     23/23       0  opacity 0 -> 1: the simplest reveal
+31-stagger                24     6.01ms    10.43ms     15/23       0  five rows revealing in sequence
+32-splash                 24     3.68ms     6.26ms     21/23       2  a launch splash: scale, rise, fade out
+33-sheet                  24    18.07ms    31.14ms     14/23       0  a modal sheet over a blurred backdrop  <-- OVER BUDGET
+34-spinner                24     3.03ms     4.46ms     23/23       0  a continuous sweep — transforms every frame
+35-shared-element         24    13.66ms    25.98ms     23/23       0  a card expanding into a detail view — the hard transition  <-- OVER BUDGET
+36-morph                  24     4.88ms     7.10ms     23/23       0  one vector path morphing into another, stroked and filled
 
 interaction                       damage  full frame    retained  speed-up  identical?
 ------------------------------------------------------------------------------------------------
-light row 4                        8.01%      9.16ms      1.64ms      5.6x  yes
-move the light to row 9           16.03%      9.19ms      3.06ms      3.0x  yes
-clear the selection                8.01%      9.27ms      2.12ms      4.4x  yes
-nothing changes at all            -0.00%      8.37ms      0.19ms     44.6x  yes
-glass: highlight moves             0.72%     26.48ms     12.70ms      2.1x  yes  within 60Hz
-glass: highlight clears            0.72%     27.98ms     12.77ms      2.2x  yes  within 60Hz
+light row 4                        8.01%     10.88ms      2.19ms      5.0x  yes
+move the light to row 9           16.03%     11.38ms      4.08ms      2.8x  yes
+clear the selection                8.01%     13.27ms      1.74ms      7.6x  yes
+nothing changes at all            -0.00%      9.94ms      0.19ms     53.3x  yes
+glass: highlight moves             0.72%     30.21ms     13.61ms      2.2x  yes  within 60Hz
+glass: highlight clears            0.72%     38.49ms     13.01ms      3.0x  yes  within 60Hz
 
 wrote 23 PNGs to /home/teja/actions-runner/_work/_temp/hardware-linux/fixtures

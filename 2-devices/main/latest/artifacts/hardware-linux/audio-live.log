@@ -1,5 +1,4 @@
-   Compiling vieww-audio v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
-    Finished `release` profile [optimized + debuginfo] target(s) in 2.74s
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.26s
      Running tests/live_backends.rs (target/release/deps/live_backends-709b22943b158b93)
 
 running 5 tests
@@ -17,8 +16,8 @@ test pulse_default_sink_change_is_an_event ... no pactl / server — skipped
 ok
 test pulse_sink_unplug_and_replug ... no pactl / server — skipped
 ok
-test pulse_under_load ... pulse: unavailable (Unavailable("Connection refused")) — skipped
+test pulse_under_load ...  pulse: 1878 callbacks, 10.0 s of audio | callback thread Some(Normal) | render mean 796.231µs, max 3.762711ms, peak load 70% | 0 late renders | 0 xruns
 ok
 
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.45s
 

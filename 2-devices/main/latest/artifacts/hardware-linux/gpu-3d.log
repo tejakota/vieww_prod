@@ -1,9 +1,4 @@
-   Compiling vieww-animation v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
-   Compiling vieww-widget-macros v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
-   Compiling vieww-mesh v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-mesh)
-   Compiling vieww-widget v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
-   Compiling vieww-3d v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-3d)
-    Finished `release` profile [optimized + debuginfo] target(s) in 57.15s
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.50s
      Running unittests src/lib.rs (target/release/deps/vieww_3d-8b674c6f0c451674)
 
 running 0 tests
@@ -23,7 +18,7 @@ test every_prefiltered_level_matches_the_cpu_oracle ... ok
 test the_prefilter_pass_is_deterministic_on_the_device ... ok
 test the_tolerance_notices_a_wrong_roughness ... ok
 
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.58s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.33s
 
      Running tests/gpu_lit.rs (target/release/deps/gpu_lit-806839368c00da41)
 
@@ -34,7 +29,7 @@ test lambert_under_ambient_hemisphere_and_directional_matches_the_cpu ... ok
 test phong_specular_matches_the_cpu ... ok
 test point_and_spot_lights_match_the_cpu ... ok
 
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.80s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.93s
 
      Running tests/gpu_textured.rs (target/release/deps/gpu_textured-cb176870931ee78e)
 
@@ -44,7 +39,7 @@ test a_nearest_filtered_texture_matches_the_cpu ... ok
 test a_textured_basic_material_matches_the_cpu ... ok
 test an_alpha_cutout_map_writes_depth_where_the_cpu_does ... ok
 
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.57s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.82s
 
      Running tests/gpu_transparent.rs (target/release/deps/gpu_transparent-76ef028d0f0492a3)
 
@@ -53,7 +48,7 @@ test a_translucent_pane_blends_over_the_opaque_scene_like_the_cpu ... ok
 test a_translucent_surface_does_not_write_depth_but_its_opaque_parts_do ... ok
 test stacked_translucent_panes_composite_in_depth_order_like_the_cpu ... ok
 
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
 
      Running tests/gpu_unlit.rs (target/release/deps/gpu_unlit-e9784eca5237431e)
 
@@ -62,7 +57,7 @@ test an_empty_scene_is_the_encoded_background ... ok
 test frustum_culled_geometry_is_not_packed_but_still_matches ... ok
 test the_unlit_pass_matches_the_cpu_oracle_in_interiors ... ok
 
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.45s
 
    Doc-tests vieww_3d
 

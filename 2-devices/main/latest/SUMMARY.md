@@ -1,17 +1,17 @@
 # 2 · Devices — FAILURE
 
 - branch: `main`  sha: `37ae02292bb6fbd53906d85a1b6848e762636196`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/43411340952
+- run: https://github.com/tejakota/vieww_prod/actions/runs/43419285613
 
 | job | verdict | failed steps |
 |---|---|---|
 | plan / plan | PASS |  |
 | phase-1 / vieww · hardware-linux | FAIL | vieww · hardware-linux |
-| phase-1 / matrix.title | skipped |  |
 | phase-1 / approve | skipped |  |
+| phase-1 / matrix.title | skipped |  |
 | phase-2 / vieww · hardware-report | PASS |  |
-| phase-2 / matrix.title | skipped |  |
 | phase-2 / approve | skipped |  |
+| phase-2 / matrix.title | skipped |  |
 | results / publish | running |  |
 | phase-3 | skipped |  |
 
@@ -55,9 +55,9 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-1 / matrix.title — skipped
-
 ### phase-1 / approve — skipped
+
+### phase-1 / matrix.title — skipped
 
 ### phase-2 / vieww · hardware-report — PASS
 - PASS: Set up job
@@ -90,9 +90,9 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-2 / matrix.title — skipped
-
 ### phase-2 / approve — skipped
+
+### phase-2 / matrix.title — skipped
 
 ### results / publish — running
 - PASS: Set up job

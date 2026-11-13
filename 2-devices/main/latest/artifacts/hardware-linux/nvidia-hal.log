@@ -1,4 +1,4 @@
-    Finished `release` profile [optimized + debuginfo] target(s) in 0.25s
+    Finished `release` profile [optimized + debuginfo] target(s) in 15.53s
      Running unittests src/lib.rs (target/release/deps/vieww_hal-580b85ab69c42af4)
 
 running 0 tests
@@ -50,7 +50,7 @@ test overlapping_subpaths_fill_under_non_zero_winding ... ok
 test shaped_clips_on_draws_and_on_layers_match ... ok
 test sharp_miter_joins_reach_as_far_as_the_cpu_allows ... ok
 
-test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.77s
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.95s
 
      Running tests/vulkan_compute.rs (target/release/deps/vulkan_compute-c3f3666073fed599)
 
@@ -69,7 +69,7 @@ test gpu_time_is_split_by_the_kind_of_work_that_spent_it ... ok
 test overlapping_damage_rectangles_draw_each_pixel_once ... ok
 test pixels_outside_the_damage_are_last_frames ... ok
 
-test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.57s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.89s
 
      Running tests/vulkan_mesh_smoke.rs (target/release/deps/vulkan_mesh_smoke-5319fbf691c4fdf5)
 
@@ -77,14 +77,14 @@ running 2 tests
 test a_tessellated_square_rasterizes_into_its_own_bounds ... ok
 test an_empty_mesh_draws_a_fully_transparent_frame ... ok
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s
 
      Running tests/vulkan_pipeline_cache.rs (target/release/deps/vulkan_pipeline_cache-6000ef7783391fa5)
 
 running 1 test
 test a_second_device_starts_from_the_first_ones_pipelines ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.52s
 
      Running tests/vulkan_scene.rs (target/release/deps/vulkan_scene-fc135ed1b193b94a)
 
@@ -101,7 +101,7 @@ test partial_mask_uploads_match_full_uploads_frame_for_frame ... ok
 test the_renderer_is_reusable_across_frames_and_sizes ... ok
 test the_renderer_refuses_a_plan_it_cannot_draw ... ok
 
-test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.27s
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.13s
 
      Running tests/vulkan_smoke.rs (target/release/deps/vulkan_smoke-e7e7ac564140c643)
 
@@ -110,7 +110,7 @@ test vulkan_device_reports_an_adapter ... ok
 test vulkan_device_survives_three_consecutive_frames ... ok
 test vulkan_render_clear_matches_the_requested_colour_exactly ... ok
 
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.46s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.57s
 
      Running tests/vulkan_text.rs (target/release/deps/vulkan_text-7dcf63a88ae5f3ac)
 
@@ -123,7 +123,7 @@ test half_transparent_text_matches_the_cpu ... ok
 test text_near_the_top_edge_is_not_vertically_mirrored ... ok
 test two_colours_share_one_atlas_patch ... ok
 
-test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.22s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.25s
 
    Doc-tests vieww_hal
 
