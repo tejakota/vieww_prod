@@ -1,0 +1,23 @@
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.26s
+     Running tests/live_backends.rs (target/release/deps/live_backends-709b22943b158b93)
+
+running 5 tests
+test alsa_seq_virtual_ports_round_trip ... ALSA lib seq.c:1011:(snd_seq_open_noupdate) [error.sequencer] Unknown SEQ vieww-audio
+no ALSA sequencer — skipped (no ALSA sequencer (snd_seq_open: No such file or directory))
+ok
+test jack_under_load ... Cannot connect to server socket err = No such file or directory
+Cannot connect to server request channel
+jack server is not running or cannot be started
+JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
+jack: unavailable (Unavailable("no JACK server running (status 0x11)")) — skipped
+ok
+test pulse_default_sink_change_is_an_event ... no pactl / server — skipped
+ok
+test pulse_sink_unplug_and_replug ... no pactl / server — skipped
+ok
+test pulse_under_load ...  pulse: 1878 callbacks, 10.0 s of audio | callback thread Some(Normal) | render mean 796.231µs, max 3.762711ms, peak load 70% | 0 late renders | 0 xruns
+ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.45s
+
