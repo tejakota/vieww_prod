@@ -48,8 +48,17 @@ cargo build --release -p wright --features ui
 # 2026-11-11). Give the loader the toolchain's lib dir explicitly; the
 # shipped dist-profile binary is static and needs none of this.
 if [ "$(uname -s)" = "Linux" ]; then
-  tc_lib="$(dirname "$(dirname "$(rustup which rustc)")")/lib"
-  export LD_LIBRARY_PATH="$tc_lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+  # `--print target-libdir` is the dylib dir itself (…/lib/rustlib/<host>/lib),
+  # not the toolchain's lib/ — guessing the latter left the loader looking in
+  # the wrong place and the run failed exactly as before (wright · machine,
+  # 2026-11-13, second attempt).
+  tc_lib="$(rustc --print target-libdir 2>/dev/null || true)"
+  if [ -n "$tc_lib" ] && ls "$tc_lib"/libstd-*.so >/dev/null 2>&1; then
+    export LD_LIBRARY_PATH="$tc_lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+    echo "libstd from: $tc_lib"
+  else
+    echo "::warning::no libstd-*.so in \"$tc_lib\"; the snapshots may not start" >&2
+  fi
 fi
 rm -rf "$WRIGHT_HOME" && mkdir -p "$WRIGHT_HOME"
 ./target/release/wright ui --snapshot "${{ github.workspace }}/wright-snapshots"

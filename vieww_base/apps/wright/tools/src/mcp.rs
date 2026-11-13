@@ -459,7 +459,20 @@ for line in sys.stdin:
 "#;
 
     fn tmp(name: &str) -> std::path::PathBuf {
-        let d = std::env::temp_dir().join(format!("wright-mcp-{name}-{}", std::process::id()));
+        // Unique per call: several tests call `ctx_with` → `tmp("ctx")`
+        // concurrently, and a shared-by-pid directory means one test's
+        // remove_dir_all races another's create_dir_all — "project dir
+        // ...: No such file or directory", once in a while, on a loaded
+        // machine (wright · machine, 2026-11-13). The pid alone is not
+        // an identity; the nanos make it one.
+        let nanos = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_nanos();
+        let d = std::env::temp_dir().join(format!(
+            "wright-mcp-{name}-{}-{nanos}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&d);
         std::fs::create_dir_all(&d).unwrap();
         d
