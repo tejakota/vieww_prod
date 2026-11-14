@@ -92,9 +92,18 @@ frames presented and the gap between them. Alongside that: each app's own
 frame cost, HWUI's gfxinfo (Valdi), process CPU time, RSS and PSS, battery
 temperature and thermal status, APK size, and a screenshot after each event.
 
-Valdi's numbers reach the runner as `console.log` lines in logcat. That still
-works in a release build: Valdi's Android `DefaultLogger` enables every log
-level, so the release-build gate on console output lets them through.
+A narrating app's numbers reach the runner as `__MW__` lines in logcat — one
+line per event, which is why the app's emitter writes each as a single line.
+A production Valdi narrates nothing at all: `--snap_flavor=production`
+compiles its runtime logging out, and the 2026-11-14 run watched three phones
+play the whole schedule without one `__MW__` line reaching logcat. So the
+on-phone runner also carries the schedule itself and closes Valdi's phases at
+the same wall-clock boundaries the app plays them by (both apps settle 1.5 s,
+then the same lengths) — narration stays primary for an app that has it, and
+a PASS asks the compositor for frames in the last phase, so a dead app cannot
+pass the clock. Valdi's JS-side numbers (`render_ms`) are unobservable in a
+build that ships; its columns come from SurfaceFlinger, `gfxinfo`, and the
+runner's own per-phase measurements.
 
 ## Files
 
