@@ -181,31 +181,62 @@ run_config() {
     }
 
     local status="TIMEOUT"
-    while IFS= read -r -t 30 line || [ $? -gt 128 ]; do
+    # The event stream, followed through a file. Reading `adb logcat` through
+    # a process substitution with `read -t 30` — the first version of this —
+    # never worked on the farm's Amazon Linux 2 host: its bash is 4.2, where
+    # `read -t` against a process substitution's pipe leaves the loop the
+    # instant it starts, so every configuration timed out with an empty
+    # events.jsonl while the app played its whole schedule unheard (the
+    # 2026-11-14 run: all nine, both frameworks, every phone). A background
+    # stream into a file — restarted if it dies — followed by polling, asks
+    # nothing of `read -t`: whatever the host's bash does with a timeout,
+    # the lines arrive.
+    local stream="$dir/stream.txt" stop="$dir/stream.stop"
+    local seen=0
+    : > "$stream"; rm -f "$stop"
+    (
+        # The supervisor: keep one live `adb logcat` writing into the stream
+        # until the stop flag appears; a stream that dies is restarted a
+        # second later rather than ending the run's hearing.
+        while [ ! -e "$stop" ]; do
+            adb logcat -v raw -s "$tag:I" >> "$stream" 2>/dev/null || true
+            [ -e "$stop" ] || sleep 1
+        done
+    ) &
+    local supervisor=$!
+    while :; do
         [ "$(date +%s)" -gt "$deadline" ] && break
-        case "$line" in *__MW__*) ;; *) continue ;; esac
-        json="${line#*__MW__ }"
-        echo "$json" >> "$events"
-        case "$json" in
-            *'"ev":"start"'*)
-                pid="$(sh_ pidof "$pkg")"
-                kv "${name}_pid" "$pid"
-                ;;
-            *'"ev":"phase"'*)
-                [ -n "$phase" ] && close_phase "$phase"
-                phase="$(sed -E 's/.*"phase":"([^"]+)".*/\1/' <<< "$json")"
-                [ -z "$layer" ] && layer="$(layer_of "$pkg")"
-                [ -z "$pid" ] && pid="$(sh_ pidof "$pkg")"
-                t_phase="$(now_ms)"; cpu_phase="$(cpu_ticks "$pid")"
-                [ "$phase" = thermal ] && sh_ dumpsys thermalservice > "$dir/thermal-before.txt"
-                ;;
-            *'"ev":"done"'*)
-                [ -n "$phase" ] && close_phase "$phase"
-                status="PASS"
-                break
-                ;;
-        esac
-    done < <(adb logcat -v raw -s "$tag:I")
+        local total; total="$(wc -l < "$stream" 2>/dev/null || echo 0)"
+        while [ "$seen" -lt "$total" ]; do
+            seen=$((seen + 1))
+            local line; line="$(sed -n "${seen}p" "$stream")"
+            case "$line" in *__MW__*) ;; *) continue ;; esac
+            json="${line#*__MW__ }"
+            echo "$json" >> "$events"
+            case "$json" in
+                *'"ev":"start"'*)
+                    pid="$(sh_ pidof "$pkg")"
+                    kv "${name}_pid" "$pid"
+                    ;;
+                *'"ev":"phase"'*)
+                    [ -n "$phase" ] && close_phase "$phase"
+                    phase="$(sed -E 's/.*"phase":"([^"]+)".*/\1/' <<< "$json")"
+                    [ -z "$layer" ] && layer="$(layer_of "$pkg")"
+                    [ -z "$pid" ] && pid="$(sh_ pidof "$pkg")"
+                    t_phase="$(now_ms)"; cpu_phase="$(cpu_ticks "$pid")"
+                    [ "$phase" = thermal ] && sh_ dumpsys thermalservice > "$dir/thermal-before.txt"
+                    ;;
+                *'"ev":"done"'*)
+                    [ -n "$phase" ] && close_phase "$phase"
+                    status="PASS"
+                    break
+                    ;;
+            esac
+        done
+        [ "$status" = PASS ] && break
+        sleep 0.2
+    done
+    touch "$stop"; kill "$supervisor" 2>/dev/null || true; wait "$supervisor" 2>/dev/null || true
     sh_ dumpsys SurfaceFlinger --timestats -disable >/dev/null
 
     # 3. after the run
