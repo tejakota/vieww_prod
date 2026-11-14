@@ -373,13 +373,30 @@ run_config() {
     sh_ dumpsys SurfaceFlinger --timestats -disable >/dev/null
 
     # A schedule that ran with the app dead still passes the clock above, so
-    # a PASS also asks the compositor: the app's layer must have presented
-    # frames in the schedule's last phase — 60 s of live load, so a live app
-    # presents thousands; a crashed one, none.
+    # a PASS also asks the phone for evidence the app is alive:
+    #
+    # - On Android 10+ SurfaceFlinger's per-layer timestats say whether the
+    #   app's layer presented frames in the schedule's last phase — 60 s of
+    #   live load, so a live app presents thousands; a crashed one none, and
+    #   a wedged one — the JS clock still ticking, the screen frozen, the
+    #   2026-11-14 S20 run's Valdi with its 15-second Davey! frames — presents
+    #   none either.
+    # - Android 9 and earlier has no per-layer timestats (the dump comes back
+    #   empty, and the report's presented-fps columns are blank there too —
+    #   the README's known limits), so the compositor cannot vouch. The CPU
+    #   can, as far as it goes: a schedule played with the app alive leaves
+    #   clock ticks in the last phase, and a dead process leaves none.
     if [ "$status" = PASS ] && [ -n "$m_last" ]; then
-        frames="$(layer_frames "$dir/timestats-$m_last.txt" "$pkg")"
-        if [ "${frames:-0}" -eq 0 ]; then
-            status="FAIL (no frames presented in $m_last: the app is not drawing)"
+        if [ -s "$dir/timestats-$m_last.txt" ]; then
+            frames="$(layer_frames "$dir/timestats-$m_last.txt" "$pkg")"
+            if [ "${frames:-0}" -eq 0 ]; then
+                status="FAIL (no frames presented in $m_last: the app is not drawing)"
+            fi
+        else
+            ticks="$(sed -nE "s/.*\"phase\":\"$m_last\"[^}]*\"cpu_ticks\":([0-9]+).*/\1/p" "$runner" | tail -1)"
+            if [ "${ticks:-0}" -eq 0 ]; then
+                status="FAIL (no CPU ticks in $m_last on a phone without per-layer timestats: the app is not running)"
+            fi
         fi
     fi
 
