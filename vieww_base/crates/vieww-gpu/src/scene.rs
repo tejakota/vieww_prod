@@ -1275,11 +1275,24 @@ fn plan_primitive(
                     return;
                 }
             }
-            let path = rect_path(*rect, *transform);
-            let mesh = match planner.as_deref_mut() {
+            // The rect is baked into a path under the transform's sub-pixel
+            // phase alone, the whole-pixel shift added to the mesh after the
+            // lookup — the FillPath site's own convention, for the same
+            // reason: a rect that only moved by whole pixels is the same key.
+            let (sx, sy) = device_shift(*transform);
+            let phase = Transform {
+                tx: transform.tx - sx,
+                ty: transform.ty - sy,
+                ..*transform
+            };
+            let path = rect_path(*rect, phase);
+            let mut mesh = match planner.as_deref_mut() {
                 Some(p) => p.tessellation.fill(&path, TOLERANCE),
                 None => tessellate_fill(&path, TOLERANCE),
             };
+            for p in &mut mesh.positions {
+                *p = [p[0] + sx, p[1] + sy];
+            }
             emit_painted(
                 out,
                 planner,
@@ -1340,11 +1353,29 @@ fn plan_primitive(
             // cache key is the device-space geometry — and the stroke's key
             // stays transform-free because its site tessellates in local space
             // instead. One convention per site, each for the cache's benefit.
-            let device_path = transformed(path, *transform);
-            let mesh = match planner.as_deref_mut() {
+            //
+            // **Baked without the translation's whole-pixel part, which is
+            // added to the mesh after the lookup.** The key is then the linear
+            // part and the sub-pixel phase, so a fill moved by whole pixels —
+            // a scroll — is the same key at every step and lyon runs once for
+            // the whole scroll: the mask key's own trick, for the mesh. A fill
+            // that reaches this fallback at all is the rare case, and a rare
+            // case that misses on every scroll step is a rare case that keeps
+            // paying for itself.
+            let (sx, sy) = device_shift(*transform);
+            let phase = Transform {
+                tx: transform.tx - sx,
+                ty: transform.ty - sy,
+                ..*transform
+            };
+            let device_path = transformed(path, phase);
+            let mut mesh = match planner.as_deref_mut() {
                 Some(p) => p.tessellation.fill(&device_path, TOLERANCE),
                 None => tessellate_fill(&device_path, TOLERANCE),
             };
+            for p in &mut mesh.positions {
+                *p = [p[0] + sx, p[1] + sy];
+            }
             emit_painted(
                 out,
                 planner,
@@ -2044,6 +2075,26 @@ fn rect_path(rect: Rect, transform: Transform) -> Path {
     path.line_to(transform.apply(Offset::new(rect.left, rect.bottom)));
     path.close();
     path
+}
+
+/// A transform's translation, as its whole-pixel part: the part a mesh
+/// tessellated without it is the same mesh at, moved. `(0.0, 0.0)` when the
+/// translation is not a small finite number, where no shift is worth keying
+/// around.
+///
+/// The fill sites bake `transform - shift` into the path before the
+/// tessellation cache, and add `shift` to the mesh's positions after it, so
+/// the key holds the linear part and the sub-pixel phase alone — a fill
+/// scrolled by whole pixels is the same key at every step. The mask key
+/// ([`Planner::shape_mask`]) splits the translation the same way, for the
+/// same reason.
+fn device_shift(transform: Transform) -> (f32, f32) {
+    let (tx, ty) = (transform.tx.floor(), transform.ty.floor());
+    if tx.abs() < 1.0e6 && ty.abs() < 1.0e6 {
+        (tx, ty)
+    } else {
+        (0.0, 0.0)
+    }
 }
 
 /// `path` with `transform` applied to every point.
@@ -3077,6 +3128,39 @@ mod tests {
         assert!(masks > 0, "the stroke must go through a coverage mask");
         let moved = planner.plan(&at(40.25), 200.0, 200.0);
         assert_eq!(planner.mask_atlas().len(), masks, "moved by whole pixels: no new mask");
+        let top = |p: &ScenePlan| p.vertices.iter().map(|v| v.position[1]).fold(f32::INFINITY, f32::min);
+        assert!((top(&moved) - top(&first) - 40.0).abs() < 1e-3);
+    }
+
+    /// A fill moved by whole pixels reuses its mesh: the tessellation key
+    /// holds the linear part and the sub-pixel phase, not the position — the
+    /// mask key's own trick, for lyon's mesh. A fill that reaches the
+    /// tessellation fallback is too big for a coverage mask, so this one is.
+    #[test]
+    fn a_fill_moved_by_whole_pixels_reuses_its_mesh() {
+        let mut planner = Planner::new();
+        let at = |dy: f32| {
+            let mut blob = Path::new();
+            blob.move_to(Offset::new(100.0, 100.0));
+            blob.line_to(Offset::new(2300.0, 300.0));
+            blob.line_to(Offset::new(1200.0, 1300.0));
+            blob.close();
+            let mut scene = Scene::default();
+            scene.push_command(Command::FillPath {
+                path: blob,
+                paint: Paint::solid(opaque()),
+                transform: Transform::translate(Offset::new(0.0, dy)),
+                clip: Clip::NONE,
+            });
+            scene
+        };
+        let first = planner.plan(&at(0.25), 2400.0, 1400.0);
+        let (_, misses, _, _, _) = planner.tessellation_stats();
+        assert!(misses > 0, "the oversized fill must have tessellated");
+        assert!(first.triangle_count() >= 1);
+        let moved = planner.plan(&at(40.25), 2400.0, 1400.0);
+        let (_, misses_moved, _, _, _) = planner.tessellation_stats();
+        assert_eq!(misses_moved, misses, "moved by whole pixels: no new tessellation");
         let top = |p: &ScenePlan| p.vertices.iter().map(|v| v.position[1]).fold(f32::INFINITY, f32::min);
         assert!((top(&moved) - top(&first) - 40.0).abs() < 1e-3);
     }
