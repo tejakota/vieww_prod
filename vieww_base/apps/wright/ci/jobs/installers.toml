@@ -46,7 +46,7 @@ if = "runner.os == 'Linux'"
 timeout-minutes = 30
 run = '''
 cargo clippy --workspace --all-targets --features wright/ui -- -D warnings
-cargo test --workspace --features wright/ui
+cargo test --workspace --features wright/ui --no-fail-fast -- --test-threads=1
 '''
 
 [[step]]

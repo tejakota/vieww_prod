@@ -266,6 +266,16 @@ fn run_external(
             }
         }
     }
+    // Read before `leading` is moved into `args` below: the Windows-only
+    // `routed_through_bash` check at the fallback asks it again, and a
+    // borrow-after-move there is exactly what the windows-x64 installer
+    // leg's E0382 was (3-build, 2026-11-13 — Linux never compiled the arm,
+    // so only that leg saw it).
+    #[cfg(windows)]
+    let routed_through_bash = !leading.is_empty();
+    #[cfg(not(windows))]
+    let routed_through_bash = false;
+    let _ = routed_through_bash; // the non-Windows build never reads it
     let mut args: Vec<String> = leading;
     args.extend(entry.args.clone());
     args.push(prompt.to_string());
@@ -339,11 +349,6 @@ fn run_external(
     // Job object bounds the tree, and the report says so (an AppContainer
     // would have to carry bash's whole install tree to be honest about
     // tier 2 — not a promise this makes).
-    #[cfg(windows)]
-    let routed_through_bash = !leading.is_empty();
-    #[cfg(not(windows))]
-    let routed_through_bash = false;
-    let _ = routed_through_bash; // the non-Windows build never reads it
     #[cfg(windows)]
     if !routed_through_bash && crate::appcontainer::can_contain(&program) {
         let out = contained_run(entry, &program, worker_env, &arg_refs, copy_dir, timeout)?;

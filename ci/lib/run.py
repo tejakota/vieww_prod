@@ -29,6 +29,7 @@ import os
 import platform
 import shlex
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -77,6 +78,30 @@ def _which_bash():
 
 
 BASH = _which_bash()
+
+
+def _kill_tree(proc):
+    """Kill a step's whole process tree and reap it.
+
+    POSIX: the step runs in its own session (`start_new_session=True`),
+    so killpg reaches the shell, cargo, the test binary and anything it
+    spawned in one signal. Windows has no process groups: `taskkill /T`
+    walks the tree instead. Either way the port is reaped afterwards, so
+    the engine — not a surviving grandchild — decides when the step ends.
+    """
+    if WINDOWS:
+        subprocess.run(["taskkill", "/T", "/F", "/PID", str(proc.pid)],
+                       capture_output=True)
+    else:
+        try:
+            os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+        except (ProcessLookupError, PermissionError):
+            pass
+    try:
+        proc.wait(timeout=30)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait()
 
 
 def _json_env(name):
@@ -298,11 +323,23 @@ def main():
         print(f"::group::{name}", flush=True)
         t0 = time.time()
         try:
-            rc = subprocess.run(shell_command(shell, path), cwd=cwd, env=env,
-                                timeout=float(timeout) * 60 if timeout else None).returncode
-        except subprocess.TimeoutExpired:
-            print(f"::error::{name}: timed out after {timeout} minutes")
-            rc = 124
+            # `start_new_session` puts the step's whole tree in its own
+            # process group, so a timeout can kill it as a group. A plain
+            # `subprocess.run(..., timeout=...)` kills only the shell it
+            # spawned: the command's real work (cargo, a test binary, an
+            # emulator) is a grandchild that survives the kill, keeps the
+            # runner's log stream open and the job runs on forever — the
+            # 3-build linux-x64 leg burned fifty minutes on exactly that
+            # (2026-11-13: Test (Linux), timeout-minutes 30, cancelled by
+            # hand at 50).
+            proc = subprocess.Popen(shell_command(shell, path), cwd=cwd, env=env,
+                                    start_new_session=not WINDOWS)
+            try:
+                rc = proc.wait(timeout=float(timeout) * 60 if timeout else None)
+            except subprocess.TimeoutExpired:
+                _kill_tree(proc)
+                print(f"::error::{name}: timed out after {timeout} minutes")
+                rc = 124
         except FileNotFoundError as e:
             print(f"::error::{name}: {e}")
             rc = 127
