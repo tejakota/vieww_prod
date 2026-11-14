@@ -125,14 +125,10 @@ impl<'a> Physical<'a> {
         // Built from the regions rather than scaled in place, because a
         // `Damage` is defined against a surface and this one belongs to a
         // different, larger surface than the frame's did.
-        let mut regions = Damage::new(surface);
-        if damage.is_everything() {
-            regions.add_everything();
-        } else {
-            for region in damage.regions() {
-                regions.add(scale.to_physical_rect(*region));
-            }
-        }
+        // Built from the regions rather than scaled in place, because a
+        // `Damage` is defined against a surface and this one belongs to a
+        // different, larger surface than the frame's did.
+        let regions = damage.scaled(scale.factor(), surface);
 
         Self {
             scene,

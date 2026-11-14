@@ -269,7 +269,14 @@ enum Changed {
 }
 
 impl Changed {
-    fn from_damage(damage: &Damage, (width, height): (u32, u32)) -> Self {
+    fn from_damage(damage: &Damage, extent: (u32, u32)) -> Self {
+        Self::from_damage_with(damage, extent, true)
+    }
+
+    /// [`from_damage`](Self::from_damage), with `moved` saying whether the
+    /// copies' destinations count. A renderer that carries the copies itself
+    /// (the GPU path at full resolution) redraws only the regions.
+    fn from_damage_with(damage: &Damage, (width, height): (u32, u32), moved: bool) -> Self {
         if damage.is_everything() {
             return Self::All;
         }
@@ -279,7 +286,18 @@ impl Changed {
         )]
         let full = Rect::new(0.0, 0.0, width as f32, height as f32);
         let mut regions = Vec::new();
-        for region in damage.regions() {
+        // A copy's destination changed too: its pixels were carried there
+        // rather than repainted, but they are new on screen all the same. A
+        // presenter converting only `regions` — and the GPU path, which cannot
+        // carry pixels and must redraw what moved — left last frame's rows
+        // standing wherever a scroll had moved content (the glitch on the
+        // Redmi, on both paths).
+        let moved: Vec<Rect> = if moved {
+            damage.copies().iter().map(|copy| copy.dst).collect()
+        } else {
+            Vec::new()
+        };
+        for region in damage.regions().iter().chain(moved.iter()) {
             let region = region.intersect(full);
             if region.is_empty() {
                 continue;
@@ -1568,6 +1586,11 @@ impl NativeRenderer {
         // resolution the rectangles shrink with it, rounded outwards. Only
         // when the screen shows the GPU's own last frame at this same scale;
         // anything else redraws everything, as before.
+        // At full resolution the GPU carries a scroll's copies itself
+        // (`SceneRenderer::set_pending_copies`) and redraws only what
+        // changed; at a reduced one the copies' destinations redraw instead.
+        let carry = render_scale >= 1.0;
+        let mut gpu_copies: Vec<(PixelRect, i32, i32)> = Vec::new();
         let gpu_damage: Option<Vec<PixelRect>> = match damage {
             Some(logical)
                 if previous_gpu_scale.map(f32::to_bits) == Some(render_scale.to_bits()) =>
@@ -1579,7 +1602,10 @@ impl NativeRenderer {
                 let surface_rect =
                     Rect::new(0.0, 0.0, physical_width as f32, physical_height as f32);
                 let physical = Physical::new(full_scene, logical, scale, surface_rect);
-                match Changed::from_damage(physical.damage(), extent) {
+                if carry {
+                    gpu_copies = gpu_copies_of(physical.damage());
+                }
+                match Changed::from_damage_with(physical.damage(), extent, !carry) {
                     Changed::All => None,
                     Changed::Regions(regions) => Some(
                         regions
@@ -1769,6 +1795,7 @@ impl NativeRenderer {
                             gpu_redrawn: None,
                         });
                     };
+                    renderer.set_pending_copies(std::mem::take(&mut gpu_copies));
                     let redrawn = match renderer.render_planned_to(
                         planner,
                         &plan,
@@ -1909,6 +1936,24 @@ const GPU_DAMAGE_MARGIN: i32 = 2;
 fn planner_calibration() -> bool {
     static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
     *ON.get_or_init(|| std::env::var("VIEWW_PLANNER_CALIBRATE").is_ok_and(|v| v.trim() == "1"))
+}
+
+/// A damage's copies as the GPU renderer carries them: whole device pixels,
+/// source and delta.
+#[expect(
+    clippy::cast_possible_truncation,
+    reason = "device pixel coordinates are small"
+)]
+fn gpu_copies_of(damage: &Damage) -> Vec<(PixelRect, i32, i32)> {
+    damage
+        .copies()
+        .iter()
+        .map(|copy| {
+            let d = copy.delta();
+            let src = PixelRect::round_out(copy.src);
+            (src, d.dx.round() as i32, d.dy.round() as i32)
+        })
+        .collect()
 }
 
 /// A damaged region from [`Changed::from_damage`], grown by
@@ -2106,6 +2151,23 @@ mod tests {
         assert_eq!(ages.plan(0x1000, regions(&[a])), None);
         assert_eq!(ages.plan(0x1000, regions(&[a])), Some(vec![a]));
         assert_eq!(ages.plan(0x1000, regions(&[])), Some(vec![]));
+    }
+
+    /// A scroll's carried pixels changed on screen: a copy's destination is
+    /// in what the presenter converts and the GPU path redraws. Without it,
+    /// rows a scroll moved kept last frame's pixels on the phone.
+    #[test]
+    fn a_copy_destination_counts_as_changed() {
+        let surface = Rect::new(0.0, 0.0, 100.0, 100.0);
+        let mut damage = Damage::new(surface);
+        damage.add_copy(vieww_paint::CopyRegion::new(
+            Rect::new(0.0, 20.0, 100.0, 80.0),
+            vieww_foundation::Offset::new(0.0, -8.0),
+        ));
+        let Changed::Regions(got) = Changed::from_damage(&damage, (100, 100)) else {
+            panic!("partial damage is regions");
+        };
+        assert!(got.contains(&(0, 12, 100, 72)), "{got:?}");
     }
 
     /// Damage rounds out to whole pixels, clamps to the surface, and drops

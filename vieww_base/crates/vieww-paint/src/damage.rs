@@ -329,6 +329,59 @@ impl Damage {
         self.copies.push(copy);
     }
 
+    /// This damage on a surface `k` times larger: the same frame's changes in
+    /// device pixels, for a renderer that rasterizes the scene scaled by `k`.
+    ///
+    /// Regions scale and round out. **Copies scale too** — dropping them is
+    /// what left last frame's rows on a phone's screen after a scroll (every
+    /// display that is not 1:1). A copy survives only while its delta stays
+    /// whole pixels: it then carries the scaled source's whole-pixel
+    /// interior, and the sliver between that and the scaled destination's
+    /// outer edge repaints. A delta that scaling makes fractional cannot be
+    /// carried exactly, so the scaled destination repaints outright.
+    #[must_use]
+    pub fn scaled(&self, k: f32, surface: Rect) -> Self {
+        let mut out = Self::new(surface);
+        if self.everything {
+            out.add_everything();
+            return out;
+        }
+        let scale = |r: Rect| Rect::new(r.left * k, r.top * k, r.right * k, r.bottom * k);
+        for region in &self.regions {
+            out.add(scale(*region));
+        }
+        let whole = |v: f32| (v - v.round()).abs() < 1e-3;
+        for copy in &self.copies {
+            let delta = copy.delta();
+            let (dx, dy) = (delta.dx * k, delta.dy * k);
+            let dst_out = scale(copy.dst).round_out();
+            if !(whole(dx) && whole(dy)) {
+                out.add(dst_out);
+                continue;
+            }
+            let s = scale(copy.src);
+            let src_in = Rect::new(s.left.ceil(), s.top.ceil(), s.right.floor(), s.bottom.floor());
+            if src_in.is_empty() {
+                out.add(dst_out);
+                continue;
+            }
+            let delta = Offset::new(dx.round(), dy.round());
+            let dst_in = CopyRegion::new(src_in, delta).dst;
+            out.add_copy(CopyRegion::new(src_in, delta));
+            for strip in [
+                Rect::new(dst_out.left, dst_out.top, dst_out.right, dst_in.top),
+                Rect::new(dst_out.left, dst_in.bottom, dst_out.right, dst_out.bottom),
+                Rect::new(dst_out.left, dst_in.top, dst_in.left, dst_in.bottom),
+                Rect::new(dst_in.right, dst_in.top, dst_out.right, dst_in.bottom),
+            ] {
+                if !strip.is_empty() {
+                    out.add(strip);
+                }
+            }
+        }
+        out
+    }
+
     /// The copies to apply **before** repainting [`regions`](Self::regions).
     ///
     /// Empty exactly when a full repaint is pending — there is nothing to carry
@@ -491,6 +544,25 @@ mod tests {
     use crate::Canvas;
 
     const SURFACE: Rect = Rect::new(0.0, 0.0, 1000.0, 1000.0);
+
+    /// Scaling keeps a copy whose delta stays whole and repaints its rim;
+    /// a delta scaling makes fractional repaints instead. Dropping copies
+    /// here was the phone's stale-rows-after-scroll glitch.
+    #[test]
+    fn scaling_keeps_whole_pixel_copies_and_repaints_the_rest() {
+        let mut d = Damage::new(Rect::new(0.0, 0.0, 400.0, 400.0));
+        d.add_copy(CopyRegion::new(Rect::new(0.0, 10.0, 400.0, 300.0), Offset::new(0.0, -4.0)));
+        let s = d.scaled(2.75, Rect::new(0.0, 0.0, 1100.0, 1100.0));
+        assert_eq!(s.copies().len(), 1, "{s}");
+        assert_eq!(s.copies()[0].delta(), Offset::new(0.0, -11.0));
+        let src = s.copies()[0].src;
+        assert_eq!((src.top, src.bottom), (28.0, 825.0)); // 27.5 -> 28, 825
+        let mut d = Damage::new(Rect::new(0.0, 0.0, 400.0, 400.0));
+        d.add_copy(CopyRegion::new(Rect::new(0.0, 10.0, 400.0, 300.0), Offset::new(0.0, -1.5)));
+        let s = d.scaled(2.75, Rect::new(0.0, 0.0, 1100.0, 1100.0));
+        assert!(s.copies().is_empty());
+        assert!(!s.regions().is_empty() || s.is_everything());
+    }
 
     fn damage() -> Damage {
         Damage::new(SURFACE)

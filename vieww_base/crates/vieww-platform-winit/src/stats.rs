@@ -526,6 +526,23 @@ impl FrameLog {
         self.recent.iter().map(|frame| frame.work).collect()
     }
 
+    /// The stage breakdown of the frame most recently recorded — the one a
+    /// per-frame hook (a `FrameLog`, not a renderer) can still be told apart.
+    ///
+    /// `None` when the frame recorded no breakdown: production
+    /// [`note_stages`](Self::note_stages) calls sit on the GPU present path,
+    /// so a CPU-rasterized frame keeps the default all-zero stages, and a
+    /// stage sample of all zeros is not a frame that went nowhere — it is
+    /// no sample at all. The percentiles ([`stage_medians`](Self::stage_medians))
+    /// filter the same way.
+    #[must_use]
+    pub fn last_stages(&self) -> Option<FrameStages> {
+        self.recent
+            .back()
+            .map(|frame| frame.stages)
+            .filter(|stages| !stages.total().is_zero())
+    }
+
     /// The per-frame budget these samples are measured against.
     #[must_use]
     pub const fn budget(&self) -> Duration {

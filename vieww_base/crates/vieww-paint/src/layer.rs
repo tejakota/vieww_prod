@@ -856,6 +856,21 @@ impl LayerTree {
     /// fringes included.
     #[must_use]
     pub fn damage(&self, surface: Rect) -> Damage {
+        self.damage_at_ratio(surface, 1.0)
+    }
+
+    /// [`damage`](Self::damage) for a surface shown at `ratio` device pixels
+    /// per logical one.
+    ///
+    /// A move can be carried when it is whole **device** pixels — on a
+    /// 2.75x phone a scroll snapped to the device grid moves by `n / 2.75`
+    /// logical px, which [`damage`](Self::damage) refused as fractional, so
+    /// every scrolled row repainted instead of being carried. The copies this
+    /// grants are in logical units; `Damage::scaled` turns them into the
+    /// whole-pixel copies the device-resolution renderer applies.
+    #[must_use]
+    pub fn damage_at_ratio(&self, surface: Rect, ratio: f32) -> Damage {
+        let ratio = if ratio.is_finite() && ratio > 0.0 { ratio } else { 1.0 };
         let mut damage = Damage::new(surface);
         for &rect in &self.vacated {
             damage.add(rect);
@@ -874,7 +889,7 @@ impl LayerTree {
             let transform = self.screen_transform(id);
             let re_recorded = layer.paint_count != layer.settled_paint_count;
             if !layer.bounds_damage {
-                if let Some(delta) = whole_pixel_delta(layer.last_screen_transform, transform) {
+                if let Some(delta) = whole_pixel_delta(layer.last_screen_transform, transform, ratio) {
                     let old = self.painted_extent_at(id, re_recorded, &layer.last_screen_transform);
                     let new = self.painted_extent_at(id, false, &transform);
                     // The carried pixels have to land inside the clip the
@@ -1308,7 +1323,7 @@ struct Mover {
 /// is the `repainted` half of the partition — treating it as a mover of zero
 /// would hand the grant a swept rectangle the size of the layer for a copy
 /// that carries nothing anywhere.
-fn whole_pixel_delta(old: Transform, new: Transform) -> Option<Offset> {
+fn whole_pixel_delta(old: Transform, new: Transform, ratio: f32) -> Option<Offset> {
     if old == new {
         return None;
     }
@@ -1320,11 +1335,12 @@ fn whole_pixel_delta(old: Transform, new: Transform) -> Option<Offset> {
     if dx == 0.0 && dy == 0.0 {
         return None;
     }
-    let on_grid = |v: f32| (v - v.round()).abs() <= 1e-3;
+    let on_grid = |v: f32| (v * ratio - (v * ratio).round()).abs() <= 1e-3;
     if !on_grid(dx) || !on_grid(dy) {
         return None;
     }
-    Some(Offset::new(dx.round(), dy.round()))
+    let snap = |v: f32| (v * ratio).round() / ratio;
+    Some(Offset::new(snap(dx), snap(dy)))
 }
 
 /// `a` minus `b`, as at most four disjoint rectangles.

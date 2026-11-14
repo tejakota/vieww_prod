@@ -106,9 +106,38 @@ fn system_fallback_database() -> fontdb::Database {
     let mut db = fontdb::Database::new();
     register_embedded(&mut db);
     db.load_system_fonts();
-    db.set_sans_serif_family(EMBEDDED_FAMILY);
+    #[cfg(target_os = "android")]
+    db.load_fonts_dir("/system/fonts");
+    db.set_sans_serif_family(platform_sans(&db).unwrap_or(EMBEDDED_FAMILY));
     db.set_monospace_family(EMBEDDED_MONO_FAMILY);
     db
+}
+
+/// The platform's own UI face, where the platform has one an app is expected
+/// to look like — Roboto on Android. Next to native apps on the same phone
+/// (Valdi draws through Android's text stack), DejaVu reads heavy and dated:
+/// the paint-quality gap on the Redmi was mostly this.
+///
+/// Taken only when the family has a real regular **and** bold face, so
+/// `bold()` keeps meaning bold rather than falling across to another
+/// family mid-row. Elsewhere — desktops, tests, golden images — `None`:
+/// the embedded face stays the deterministic default.
+fn platform_sans(db: &fontdb::Database) -> Option<&'static str> {
+    if !cfg!(target_os = "android") {
+        return None;
+    }
+    ["Roboto", "Roboto Static", "Google Sans Text", "Noto Sans"]
+        .into_iter()
+        .find(|family| {
+            let has = |weight: u16| {
+                db.faces().any(|face| {
+                    face.families.iter().any(|(name, _)| name == family)
+                        && face.weight.0 == weight
+                        && face.style == fontdb::Style::Normal
+                })
+            };
+            has(400) && has(700)
+        })
 }
 
 /// A system font scan in progress — see

@@ -387,13 +387,33 @@ pub fn frame_passes(
                 let clip = if depth == 0 { clip.as_deref() } else { None };
                 for run in &plan.runs[first_run..first_run + run_count] {
                     let scissor = run.scissor.map_or(frame, |r| scissor_of(r, width, height));
-                    for s in clipped(scissor, clip) {
-                        ops.push(SceneOp::DrawRun {
-                            target: TargetId::Level(depth),
-                            first_index: run.first_index,
-                            index_count: run.index_count,
-                            scissor: s,
-                        });
+                    let regions = clipped(scissor, clip);
+                    // Under damage, each region draws only the triangles that
+                    // reach it. Drawing the whole run under every region's
+                    // scissor made a live update that touched eight rows
+                    // process every triangle on screen eight times — ~30 ms
+                    // of GPU on the Redmi whatever the damage was.
+                    let chunks = (clip.is_some() && run.index_count > CULL_CHUNK)
+                        .then(|| chunk_bounds(plan, run.first_index, run.index_count));
+                    for s in regions {
+                        match &chunks {
+                            Some(chunks) => {
+                                for (first_index, index_count) in spans_touching(chunks, s) {
+                                    ops.push(SceneOp::DrawRun {
+                                        target: TargetId::Level(depth),
+                                        first_index,
+                                        index_count,
+                                        scissor: s,
+                                    });
+                                }
+                            }
+                            None => ops.push(SceneOp::DrawRun {
+                                target: TargetId::Level(depth),
+                                first_index: run.first_index,
+                                index_count: run.index_count,
+                                scissor: s,
+                            }),
+                        }
                     }
                 }
             }
@@ -846,6 +866,58 @@ fn skippable_layers(
     skip
 }
 
+/// Indices per culling chunk: 32 triangles. Small enough that a chunk's
+/// bounds stay near one row's content, large enough that the bounds pass is
+/// cheap next to the draw it saves.
+const CULL_CHUNK: u32 = 96;
+
+/// A run's indices in chunks of [`CULL_CHUNK`], each with the device-pixel
+/// bounds of its triangles' vertices — the pixels any of them can cover.
+fn chunk_bounds(plan: &ScenePlan, first_index: u32, index_count: u32) -> Vec<(u32, u32, PixelRect)> {
+    let mut out = Vec::with_capacity((index_count / CULL_CHUNK + 1) as usize);
+    let end = first_index + index_count;
+    let mut start = first_index;
+    while start < end {
+        let count = CULL_CHUNK.min(end - start);
+        let (mut x0, mut y0, mut x1, mut y1) = (f32::INFINITY, f32::INFINITY, f32::NEG_INFINITY, f32::NEG_INFINITY);
+        for &i in &plan.indices[start as usize..(start + count) as usize] {
+            if let Some(v) = plan.vertices.get(i as usize) {
+                x0 = x0.min(v.position[0]);
+                y0 = y0.min(v.position[1]);
+                x1 = x1.max(v.position[0]);
+                y1 = y1.max(v.position[1]);
+            }
+        }
+        let bounds = if x0 <= x1 && y0 <= y1 {
+            // Out a pixel either way: rounding is the rasterizer's, and a
+            // chunk dropped wrongly is a hole, a chunk kept wrongly is only
+            // a little work.
+            PixelRect::round_out(Rect::new(x0 - 1.0, y0 - 1.0, x1 + 1.0, y1 + 1.0))
+        } else {
+            PixelRect::EMPTY
+        };
+        out.push((start, count, bounds));
+        start += count;
+    }
+    out
+}
+
+/// The index spans of `chunks` whose bounds reach `region`, adjacent chunks
+/// merged, in paint order.
+fn spans_touching(chunks: &[(u32, u32, PixelRect)], region: PixelRect) -> Vec<(u32, u32)> {
+    let mut spans: Vec<(u32, u32)> = Vec::new();
+    for &(start, count, bounds) in chunks {
+        if bounds.intersect(region).is_empty() {
+            continue;
+        }
+        match spans.last_mut() {
+            Some((first, len)) if *first + *len == start => *len += count,
+            _ => spans.push((start, count)),
+        }
+    }
+    spans
+}
+
 /// A run's `Rect` scissor, clamped to the frame — the floor/ceil/`max(0)`
 /// rounding `NativeRenderer` sizes its own buffers with.
 #[expect(
@@ -995,6 +1067,37 @@ mod tests {
                 _ => None,
             })
             .collect()
+    }
+
+    /// Under damage, a region draws only the triangles that reach it: two
+    /// chunks of quads far apart, damage over the second, and the draw
+    /// covers the second chunk's indices alone — not the whole run.
+    #[test]
+    fn a_damaged_frame_draws_only_the_triangles_its_damage_reaches() {
+        let v = |x: f32, y: f32| vieww_gpu::Vertex { position: [x, y], ..plan(vec![], 1).vertices[0] };
+        let mut p = plan(vec![Step::Draw { first_run: 0, run_count: 1 }], 1);
+        // 64 triangles near the top, 64 near the bottom.
+        let (mut vertices, mut indices) = (Vec::new(), Vec::new());
+        for i in 0..128u32 {
+            let y = if i < 64 { 5.0 } else { 90.0 };
+            let base = vertices.len() as u32;
+            vertices.extend([v(10.0, y), v(20.0, y), v(10.0, y + 4.0)]);
+            indices.extend([base, base + 1, base + 2]);
+        }
+        p.vertices = vertices;
+        p.indices = indices;
+        p.runs[0].index_count = 384;
+        let retained = Some(Retained { size: (W, H), clear: CLEAR });
+        let frame = frame_passes(&p, W, H, CLEAR, Some(&[rect(0, 85, 100, 100)]), retained);
+        let draws: Vec<(u32, u32)> = frame
+            .ops
+            .iter()
+            .filter_map(|op| match op {
+                SceneOp::DrawRun { first_index, index_count, .. } => Some((*first_index, *index_count)),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(draws, vec![(192, 192)], "{:?}", frame.ops);
     }
 
     #[test]

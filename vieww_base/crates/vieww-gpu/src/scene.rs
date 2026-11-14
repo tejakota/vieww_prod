@@ -950,6 +950,40 @@ impl Planner {
         clip: &Clip,
         clip_mask: Option<[f32; 2]>,
     ) -> Option<(MaskRef, PixelRect)> {
+        // **Translation-invariant when it can be.** A shape's coverage
+        // depends on its geometry, the transform's linear part, the
+        // sub-pixel phase of its position and — only where the clip cuts it —
+        // the clip. Keyed by the absolute position, every scroll step missed
+        // for every shape on screen and re-rasterised it on the CPU (85% of
+        // the planner's time, ~13 ms a frame on the Redmi). Keyed by phase,
+        // the same mask comes back one whole-pixel shift later, and is placed
+        // there by moving the slot. A shaped clip folds its own coverage in,
+        // so it keeps the exact key.
+        let shift = if clip_mask.is_none() {
+            let (ix, iy) = (transform.tx.floor(), transform.ty.floor());
+            let fits = ix.abs() < 1.0e6 && iy.abs() < 1.0e6;
+            fits.then(|| {
+                #[expect(clippy::cast_possible_truncation, reason = "bounded above")]
+                let (ix, iy) = (ix as i32, iy as i32);
+                (ix, iy)
+            })
+        } else {
+            None
+        };
+        let contained = shift.is_some() && {
+            let linear = (transform.a.abs() + transform.c.abs()).max(transform.b.abs() + transform.d.abs());
+            let local = match shape {
+                SeamShape::Rect(r) => r,
+                SeamShape::Fill(path) => path.bounds(),
+                SeamShape::Stroke(path, stroke) => {
+                    let reach = stroke.reach();
+                    path.bounds().inflate(reach)
+                }
+            };
+            let device = transform.apply_rect(local).inflate(2.0 + linear);
+            let r = region.to_rect();
+            device.left >= r.left && device.top >= r.top && device.right <= r.right && device.bottom <= r.bottom
+        };
         let key = {
             let mut h = std::hash::DefaultHasher::new();
             "shape".hash(&mut h);
@@ -969,17 +1003,39 @@ impl Planner {
                     format!("{stroke:?}").hash(&mut h);
                 }
             }
-            [
-                transform.a,
-                transform.b,
-                transform.c,
-                transform.d,
-                transform.tx,
-                transform.ty,
-            ]
-            .map(f32::to_bits)
-            .hash(&mut h);
-            region.hash(&mut h);
+            match shift {
+                Some((ix, iy)) => {
+                    #[expect(clippy::cast_precision_loss, reason = "bounded integer shift")]
+                    let phase = [transform.tx - ix as f32, transform.ty - iy as f32];
+                    [transform.a, transform.b, transform.c, transform.d, phase[0], phase[1]]
+                        .map(f32::to_bits)
+                        .hash(&mut h);
+                    if contained {
+                        "contained".hash(&mut h);
+                    } else {
+                        PixelRect {
+                            x0: region.x0 - ix,
+                            y0: region.y0 - iy,
+                            x1: region.x1 - ix,
+                            y1: region.y1 - iy,
+                        }
+                        .hash(&mut h);
+                    }
+                }
+                None => {
+                    [
+                        transform.a,
+                        transform.b,
+                        transform.c,
+                        transform.d,
+                        transform.tx,
+                        transform.ty,
+                    ]
+                    .map(f32::to_bits)
+                    .hash(&mut h);
+                    region.hash(&mut h);
+                }
+            }
             if clip_mask.is_some() {
                 ClipMaskKey(clip, region).hash(&mut h);
             }
@@ -991,7 +1047,16 @@ impl Planner {
             x1: slot.device_x + i32::try_from(slot.width).unwrap_or(i32::MAX),
             y1: slot.device_y + i32::try_from(slot.height).unwrap_or(i32::MAX),
         };
+        // Slots of a shifted key hold their device position relative to the
+        // whole-pixel shift; this puts one back where the shape is now.
+        let (sx, sy) = shift.unwrap_or((0, 0));
+        let placed = move |mut slot: MaskSlot| {
+            slot.device_x += sx;
+            slot.device_y += sy;
+            slot
+        };
         if let Some(slot) = self.masks.get(key) {
+            let slot = placed(slot);
             return Some((MaskRef::from(slot), rect_of(slot)));
         }
         // On a miss, the clip's coverage over `region`, read out of the atlas
@@ -1038,8 +1103,9 @@ impl Planner {
                     }
                 }
             }
-            Some((patch.x, patch.y, patch.width, patch.height, patch.alpha))
+            Some((patch.x - sx, patch.y - sy, patch.width, patch.height, patch.alpha))
         })?;
+        let slot = placed(slot);
         Some((MaskRef::from(slot), rect_of(slot)))
     }
 
@@ -2983,6 +3049,36 @@ mod tests {
             .vertices
             .iter()
             .all(|v| (39.0..=51.0).contains(&v.position[1])));
+    }
+
+    /// A shape moved by whole pixels reuses its coverage mask: the scroll
+    /// case. The atlas keeps one mask, not one per position, and the quad
+    /// lands at the new place.
+    #[test]
+    fn a_shape_moved_by_whole_pixels_reuses_its_mask() {
+        let mut planner = Planner::new();
+        let at = |dy: f32| {
+            let mut line = Path::new();
+            line.move_to(Offset::new(10.3, 10.0));
+            line.line_to(Offset::new(40.0, 25.0));
+            line.line_to(Offset::new(80.0, 12.0));
+            let mut scene = Scene::default();
+            scene.push_command(Command::StrokePath {
+                path: line,
+                stroke: Stroke::new(2.5),
+                paint: Paint::solid(opaque()),
+                transform: Transform::translate(Offset::new(0.0, dy)),
+                clip: Clip::NONE,
+            });
+            scene
+        };
+        let first = planner.plan(&at(0.25), 200.0, 200.0);
+        let masks = planner.mask_atlas().len();
+        assert!(masks > 0, "the stroke must go through a coverage mask");
+        let moved = planner.plan(&at(40.25), 200.0, 200.0);
+        assert_eq!(planner.mask_atlas().len(), masks, "moved by whole pixels: no new mask");
+        let top = |p: &ScenePlan| p.vertices.iter().map(|v| v.position[1]).fold(f32::INFINITY, f32::min);
+        assert!((top(&moved) - top(&first) - 40.0).abs() < 1e-3);
     }
 
     #[test]

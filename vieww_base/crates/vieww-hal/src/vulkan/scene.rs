@@ -183,6 +183,10 @@ pub struct SceneRenderer {
     /// The rectangles of `L[0]` the frame being recorded redraws; `None`
     /// redraws all of it. Set by `execute` for the length of one frame.
     frame_clip: Option<Vec<PixelRect>>,
+    /// Pixels the next damaged frame carries inside `L[0]` before it
+    /// redraws anything: `(src, dx, dy)` in render pixels — a scroll's
+    /// moved rows. See [`set_pending_copies`](Self::set_pending_copies).
+    pending_copies: Vec<(PixelRect, i32, i32)>,
     /// Timestamp queries, when the queue can record them — see
     /// [`GpuPassTimes`].
     queries: Option<Queries>,
@@ -699,6 +703,7 @@ impl SceneRenderer {
             timings: GpuFrameTimings::default(),
             retained: None,
             frame_clip: None,
+            pending_copies: Vec::new(),
             queries,
             pass_times: None,
             in_flight: false,
@@ -1073,6 +1078,15 @@ impl SceneRenderer {
         Ok((pixels, redrawn))
     }
 
+    /// Carry these blocks of the kept frame by whole pixels at the start of
+    /// the next frame that redraws only its damage — the GPU half of a
+    /// scroll's copies (`vieww_paint::Damage::copies`). Before this, the GPU
+    /// path could not carry pixels and had to redraw every row a scroll
+    /// moved. Ignored, and dropped, by a frame that redraws in full.
+    pub fn set_pending_copies(&mut self, copies: Vec<(PixelRect, i32, i32)>) {
+        self.pending_copies = copies;
+    }
+
     /// Execute a complete `plan` straight into an acquired swapchain image,
     /// leaving it ready to present — no readback, no host copy, no upload.
     /// `planner`'s atlases are uploaded first, as in
@@ -1240,6 +1254,43 @@ impl SceneRenderer {
             }
         }
         self.submit_and_wait(None).map(|_| ())
+    }
+
+    /// Move `(src, dst)` blocks of `L[0]` through `S[0]` — a copy within one
+    /// image may not overlap itself, and a scroll's always does. Both
+    /// targets rest in `SHADER_READ_ONLY_OPTIMAL` and return to it.
+    fn carry(&self, copies: &[(PixelRect, PixelRect)]) {
+        let cmd = self.command_buffer;
+        let (frame, scratch) = (self.levels[0].image, self.scratch[0].image);
+        let region = |src: PixelRect, dst: PixelRect| vk::ImageCopy {
+            src_subresource: color_layers(),
+            src_offset: vk::Offset3D { x: src.x0, y: src.y0, z: 0 },
+            dst_subresource: color_layers(),
+            dst_offset: vk::Offset3D { x: dst.x0, y: dst.y0, z: 0 },
+            #[expect(clippy::cast_sign_loss, reason = "non-empty after clamping")]
+            extent: vk::Extent3D {
+                width: (src.x1 - src.x0) as u32,
+                height: (src.y1 - src.y0) as u32,
+                depth: 1,
+            },
+        };
+        let to_scratch: Vec<vk::ImageCopy> = copies.iter().map(|(s, _)| region(*s, *s)).collect();
+        let back: Vec<vk::ImageCopy> = copies.iter().map(|(s, d)| region(*s, *d)).collect();
+        let (sro, ts, td) = (
+            vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
+            vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
+            vk::ImageLayout::TRANSFER_DST_OPTIMAL,
+        );
+        unsafe {
+            transition(&self.device, cmd, frame, sro, ts);
+            transition(&self.device, cmd, scratch, sro, td);
+            self.device.cmd_copy_image(cmd, frame, ts, scratch, td, &to_scratch);
+            transition(&self.device, cmd, frame, ts, td);
+            transition(&self.device, cmd, scratch, td, ts);
+            self.device.cmd_copy_image(cmd, scratch, ts, frame, td, &back);
+            transition(&self.device, cmd, frame, td, sro);
+            transition(&self.device, cmd, scratch, ts, sro);
+        }
     }
 
     fn target(&self, id: TargetId) -> &Target {
@@ -1617,11 +1668,24 @@ impl SceneRenderer {
         // keep it.
         self.retained = None;
         self.frame_clip = exec.frame_clip;
+        let copies = std::mem::take(&mut self.pending_copies);
+        let copies: Vec<(PixelRect, PixelRect)> = if self.frame_clip.is_some() {
+            carried_pairs(&copies, width, height)
+        } else {
+            Vec::new()
+        };
         // Every frame changes `L[0]`, whether or not it reaches a swapchain
-        // image; an image written later has to catch up on all of them.
-        self.presents.record_change(self.frame_clip.as_deref());
+        // image; an image written later has to catch up on all of them —
+        // the carried rows included.
+        let changed: Option<Vec<PixelRect>> = self.frame_clip.as_ref().map(|clip| {
+            clip.iter().copied().chain(copies.iter().map(|(_, dst)| *dst)).collect()
+        });
+        self.presents.record_change(changed.as_deref());
         self.begin_commands()?;
         self.begin_marks();
+        if !copies.is_empty() {
+            self.carry(&copies);
+        }
         let mut rec = Recorder {
             open: None,
             width,
@@ -2737,6 +2801,27 @@ const fn full_rect(width: u32, height: u32) -> vk::Rect2D {
     }
 }
 
+/// Each `(src, dx, dy)` as a `(src, dst)` pair clipped jointly to the frame:
+/// the source shrinks to the rows that land somewhere, and the destination is
+/// always that source moved — never clipped on its own, which would slide
+/// the carried rows.
+fn carried_pairs(copies: &[(PixelRect, i32, i32)], width: u32, height: u32) -> Vec<(PixelRect, PixelRect)> {
+    #[expect(clippy::cast_possible_wrap, reason = "frame extents are small")]
+    let frame = PixelRect { x0: 0, y0: 0, x1: width as i32, y1: height as i32 };
+    copies
+        .iter()
+        .filter_map(|&(src, dx, dy)| {
+            let landing = PixelRect { x0: frame.x0 - dx, y0: frame.y0 - dy, x1: frame.x1 - dx, y1: frame.y1 - dy };
+            let src = src.intersect(frame).intersect(landing);
+            if src.is_empty() || (dx == 0 && dy == 0) {
+                return None;
+            }
+            let dst = PixelRect { x0: src.x0 + dx, y0: src.y0 + dy, x1: src.x1 + dx, y1: src.y1 + dy };
+            Some((src, dst))
+        })
+        .collect()
+}
+
 /// `rect` (already inside the frame) as a scissor.
 const fn pixel_scissor(rect: PixelRect) -> vk::Rect2D {
     vk::Rect2D {
@@ -2859,6 +2944,19 @@ fn pick_memory_type(
 #[cfg(test)]
 mod tests {
     use crate::scene_exec::half_to_f32;
+
+    /// A scroll's copy keeps its delta when the frame edge cuts it: the
+    /// source shrinks to the rows that land on the frame, the destination is
+    /// that source moved, and a copy that lands nowhere is dropped.
+    #[test]
+    fn carried_pairs_clip_source_and_destination_together() {
+        use super::{carried_pairs, PixelRect};
+        let r = |x0, y0, x1, y1| PixelRect { x0, y0, x1, y1 };
+        let pairs = carried_pairs(&[(r(0, 10, 100, 200), 0, -30)], 100, 150);
+        assert_eq!(pairs, vec![(r(0, 30, 100, 150), r(0, 0, 100, 120))]);
+        assert!(carried_pairs(&[(r(0, 0, 10, 10), 0, 500)], 100, 150).is_empty());
+        assert!(carried_pairs(&[(r(0, 0, 10, 10), 0, 0)], 100, 150).is_empty());
+    }
 
     #[test]
     fn damage_becomes_disjoint_and_keeps_its_union() {

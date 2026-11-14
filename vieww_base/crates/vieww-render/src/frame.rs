@@ -2189,7 +2189,8 @@ impl FrameSink for FrameDriver {
         self.damage = if full_repaint {
             Damage::everything(self.surface)
         } else {
-            self.layers.damage(self.surface)
+            self.layers
+                .damage_at_ratio(self.surface, self.metrics.device_pixel_ratio)
         };
 
         // A requested frame does not necessarily mean the visual layer tree
