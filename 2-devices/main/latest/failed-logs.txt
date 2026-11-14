@@ -1,307 +1,302 @@
-===== phase-1 / vieww · hardware-linux	log =====
-2026-11-14T17:46:45.7376426Z ALL ANIMATION-STRESS CHECKS PASSED
-2026-11-14T17:46:45.7743403Z PASS  stress-2
-2026-11-14T17:47:15.7885427Z 
-2026-11-14T17:47:15.7888487Z ==> stress-3: cargo run --release -p test-animation-stress -- /home/teja/actions-runner/_work/_temp/hardware-linux/stress-3
-2026-11-14T17:47:16.0689697Z     Finished `release` profile [optimized + debuginfo] target(s) in 0.24s
-2026-11-14T17:47:16.0763172Z      Running `target/release/test-animation-stress /home/teja/actions-runner/_work/_temp/hardware-linux/stress-3`
-2026-11-14T17:47:16.8639897Z frames: 72, moving: 71/71
-2026-11-14T17:47:16.8641293Z   render mean: 7.95 ms, p95: 10.03 ms, worst: 23.07 ms, over 16.6 ms budget: 1
-2026-11-14T17:47:26.5896355Z wrote /home/teja/actions-runner/_work/_temp/hardware-linux/stress-3
-2026-11-14T17:47:26.5897772Z ALL ANIMATION-STRESS CHECKS PASSED
-2026-11-14T17:47:26.6298824Z PASS  stress-3
-2026-11-14T17:47:56.6410950Z 
-2026-11-14T17:47:56.6415213Z ==> stress-4: cargo run --release -p test-animation-stress -- /home/teja/actions-runner/_work/_temp/hardware-linux/stress-4
-2026-11-14T17:47:56.9160452Z     Finished `release` profile [optimized + debuginfo] target(s) in 0.23s
-2026-11-14T17:47:56.9234508Z      Running `target/release/test-animation-stress /home/teja/actions-runner/_work/_temp/hardware-linux/stress-4`
-2026-11-14T17:47:57.8110804Z frames: 72, moving: 71/71
-2026-11-14T17:47:57.8112093Z   render mean: 8.10 ms, p95: 9.97 ms, worst: 38.79 ms, over 16.6 ms budget: 1
-2026-11-14T17:48:06.9751949Z wrote /home/teja/actions-runner/_work/_temp/hardware-linux/stress-4
-2026-11-14T17:48:06.9753108Z ALL ANIMATION-STRESS CHECKS PASSED
-2026-11-14T17:48:06.9992457Z PASS  stress-4
-2026-11-14T17:48:37.0101021Z 
-2026-11-14T17:48:37.0107977Z ==> stress-5: cargo run --release -p test-animation-stress -- /home/teja/actions-runner/_work/_temp/hardware-linux/stress-5
-2026-11-14T17:48:37.3155293Z     Finished `release` profile [optimized + debuginfo] target(s) in 0.23s
-2026-11-14T17:48:37.3226912Z      Running `target/release/test-animation-stress /home/teja/actions-runner/_work/_temp/hardware-linux/stress-5`
-2026-11-14T17:48:38.1206905Z frames: 72, moving: 71/71
-2026-11-14T17:48:38.1207888Z   render mean: 8.15 ms, p95: 10.29 ms, worst: 28.43 ms, over 16.6 ms budget: 1
-2026-11-14T17:48:47.2580755Z wrote /home/teja/actions-runner/_work/_temp/hardware-linux/stress-5
-2026-11-14T17:48:47.2582011Z ALL ANIMATION-STRESS CHECKS PASSED
-2026-11-14T17:48:47.2833494Z PASS  stress-5
-2026-11-14T17:48:47.2990774Z       animation stress p95 over 5 runs (ms): 9.967 10.027 10.286 15.889 16.994 
-2026-11-14T17:48:47.3031355Z SKIP  desktop (no DISPLAY or WAYLAND_DISPLAY)
-2026-11-14T17:48:47.3912056Z       sound cards:  0 [PCH ]: HDA-Intel - HDA Intel PCH;
-2026-11-14T17:48:47.3942511Z 
-2026-11-14T17:48:47.3946307Z ==> audio-devices: cargo test --release -p vieww-audio --lib backend:: -- --nocapture
-2026-11-14T17:48:47.6963660Z    Compiling vieww-audio v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
-2026-11-14T17:50:02.7678785Z     Finished `release` profile [optimized + debuginfo] target(s) in 1m 15s
-2026-11-14T17:50:02.7745961Z      Running unittests src/lib.rs (target/release/deps/vieww_audio-b84c8f34a6fd833e)
-2026-11-14T17:50:02.7768370Z 
-2026-11-14T17:50:02.7773040Z running 23 tests
-2026-11-14T17:50:02.7774611Z test backend::alsa::tests::a_missing_card_is_unavailable_not_a_crash ... ok
-2026-11-14T17:50:02.7777958Z test backend::alsa::tests::the_pcm_list_parses ... ok
-2026-11-14T17:50:02.7892487Z test backend::alsa::tests::a_named_device_that_is_absent_refuses ... ok
-2026-11-14T17:50:02.7893707Z test backend::pipewire::tests::captures_through_a_running_daemon_or_refuses_cleanly ... ok
-2026-11-14T17:50:02.7896358Z test backend::pipewire::tests::plays_through_a_running_daemon_or_refuses_cleanly ... ok
-2026-11-14T17:50:02.7897982Z test backend::pipewire::tests::the_buffer_structs_have_the_header_layouts ... ok
-2026-11-14T17:50:02.7898764Z test backend::pipewire::tests::the_format_pod_matches_spa_byte_for_byte ... ok
-2026-11-14T17:50:02.8115670Z Cannot connect to server socket err = No such file or directory
-2026-11-14T17:50:02.8116412Z Cannot connect to server request channel
-2026-11-14T17:50:02.8135248Z jack server is not running or cannot be started
-2026-11-14T17:50:03.1373997Z JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
-2026-11-14T17:50:03.1382585Z JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
-2026-11-14T17:50:03.1385799Z test backend::jack::tests::captures_from_a_running_server_or_refuses_cleanly ... ok
-2026-11-14T17:50:03.1394256Z Cannot connect to server socket err = No such file or directory
-2026-11-14T17:50:03.1397022Z Cannot connect to server request channel
-2026-11-14T17:50:03.1419351Z jack server is not running or cannot be started
-2026-11-14T17:50:03.1425327Z JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
-2026-11-14T17:50:03.1428760Z JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
-2026-11-14T17:50:03.1886269Z test backend::jack::tests::renders_through_a_running_server_or_refuses_cleanly ... ok
-2026-11-14T17:50:03.1899411Z Cannot connect to server socket err = No such file or directory
-2026-11-14T17:50:03.1902963Z Cannot connect to server request channel
-2026-11-14T17:50:03.1919564Z jack server is not running or cannot be started
-2026-11-14T17:50:03.1926024Z JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
-2026-11-14T17:50:03.1934375Z JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
-2026-11-14T17:50:03.1939360Z test backend::jack::tests::lists_devices_and_routes_to_named_ports_or_refuses_cleanly ... ok
-2026-11-14T17:50:03.1943351Z test backend::resilient::tests::a_first_open_that_fails_is_an_error ... ok
-2026-11-14T17:50:03.2158536Z 
-2026-11-14T17:50:03.2160664Z thread '<unnamed>' (73211) panicked at crates/vieww-audio/src/backend/resilient.rs:722:17:
-2026-11-14T17:50:03.2163101Z a bug in the app's render
-2026-11-14T17:50:03.2164703Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-2026-11-14T17:50:03.3246191Z test backend::pulse::tests::plays_at_the_servers_pace_or_refuses_cleanly ... ok
-2026-11-14T17:50:03.3254037Z test backend::pulse::tests::records_or_refuses_cleanly ... ok
-2026-11-14T17:50:03.3352304Z vieww-pulse: sink list unreadable (attempt 1: Unavailable("no PulseAudio server")); retrying
-2026-11-14T17:50:03.4861270Z vieww-pulse: sink list unreadable (attempt 2: Unavailable("no PulseAudio server")); retrying
-2026-11-14T17:50:03.7879479Z test backend::pulse::tests::lists_and_opens_a_named_sink_or_refuses_cleanly ... ok
-2026-11-14T17:50:04.7784501Z test backend::resilient::tests::a_route_notification_follows_the_default_at_once ... ok
-2026-11-14T17:50:04.7793626Z test backend::resilient::tests::a_session_route_change_wakes_the_supervisor ... ok
-2026-11-14T17:50:04.7799326Z test backend::tests::an_isolated_capture_callback_ends_the_stream ... ok
-2026-11-14T17:50:04.7835998Z test backend::tests::an_isolated_render_callback_panics_once_then_goes_silent ... ok
-2026-11-14T17:50:04.7841969Z Cannot connect to server socket err = No such file or directory
-2026-11-14T17:50:04.7844480Z Cannot connect to server request channel
-2026-11-14T17:50:04.7846542Z jack server is not running or cannot be started
-2026-11-14T17:50:04.7853865Z JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
-2026-11-14T17:50:04.7861890Z JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
-2026-11-14T17:50:04.8516540Z test backend::tests::opening_with_nothing_available_reports_every_attempt ... ok
-2026-11-14T17:50:04.8519036Z test backend::tests::the_platform_lists_its_backends ... ok
-2026-11-14T17:50:04.8968519Z test backend::resilient::tests::a_panicked_closure_is_never_run_again ... ok
-2026-11-14T17:50:05.1913693Z test backend::resilient::tests::an_interruption_holds_reopening_without_a_retry_storm ... ok
-2026-11-14T17:50:08.5844682Z test backend::resilient::tests::the_closure_survives_unplug_and_replug ... ok
-2026-11-14T17:50:08.5846526Z 
-2026-11-14T17:50:08.5848015Z test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 589 filtered out; finished in 5.81s
-2026-11-14T17:50:08.5849958Z 
-2026-11-14T17:50:08.6526556Z PASS  audio-devices
-2026-11-14T17:50:08.6533768Z 
-2026-11-14T17:50:08.6536584Z ==> audio-live: env VIEWW_LIVE_GAIN=0 VIEWW_SOAK_SECS=10 cargo test --release -p vieww-audio --test live_backends -- --ignored --nocapture --test-threads=1
-2026-11-14T17:50:09.0166835Z    Compiling vieww-audio v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
-2026-11-14T17:50:11.2867227Z     Finished `release` profile [optimized + debuginfo] target(s) in 2.52s
-2026-11-14T17:50:11.2942964Z      Running tests/live_backends.rs (target/release/deps/live_backends-709b22943b158b93)
-2026-11-14T17:50:11.2964488Z 
-2026-11-14T17:50:11.2965496Z running 5 tests
-2026-11-14T17:50:11.4778355Z test alsa_seq_virtual_ports_round_trip ... ALSA lib seq.c:1011:(snd_seq_open_noupdate) [error.sequencer] Unknown SEQ vieww-audio
-2026-11-14T17:50:11.4784753Z no ALSA sequencer — skipped (no ALSA sequencer (snd_seq_open: No such file or directory))
-2026-11-14T17:50:11.4787876Z ok
-2026-11-14T17:50:11.4853924Z test jack_under_load ... Cannot connect to server socket err = No such file or directory
-2026-11-14T17:50:11.4857069Z Cannot connect to server request channel
-2026-11-14T17:50:11.4874524Z jack server is not running or cannot be started
-2026-11-14T17:50:11.4880202Z JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
-2026-11-14T17:50:11.4888298Z JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
-2026-11-14T17:50:11.4896491Z jack: unavailable (Unavailable("no JACK server running (status 0x11)")) — skipped
-2026-11-14T17:50:11.4901851Z ok
-2026-11-14T17:50:11.4906332Z test pulse_default_sink_change_is_an_event ... no pactl / server — skipped
-2026-11-14T17:50:11.4910982Z ok
-2026-11-14T17:50:11.4915713Z test pulse_sink_unplug_and_replug ... no pactl / server — skipped
-2026-11-14T17:50:11.4919574Z ok
-2026-11-14T17:50:11.5131864Z test pulse_under_load ... pulse: unavailable (Unavailable("Connection refused")) — skipped
-2026-11-14T17:50:11.5136309Z ok
-2026-11-14T17:50:11.5137572Z 
-2026-11-14T17:50:11.5140765Z test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
-2026-11-14T17:50:11.5147132Z 
-2026-11-14T17:50:11.5473336Z PASS  audio-live
-2026-11-14T17:50:11.5484114Z 
-2026-11-14T17:50:11.5486183Z ==> audio-player: env VIEWW_LIVE_GAIN=0 cargo test --release -p vieww-audio --test player_smoke -- --ignored --nocapture
-2026-11-14T17:50:11.8135811Z    Compiling vieww-audio v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
-2026-11-14T17:50:12.1133261Z     Finished `release` profile [optimized + debuginfo] target(s) in 0.52s
-2026-11-14T17:50:12.1201012Z      Running tests/player_smoke.rs (target/release/deps/player_smoke-130c23868b9ca4d1)
-2026-11-14T17:50:12.1219538Z 
-2026-11-14T17:50:12.1220099Z running 1 test
-2026-11-14T17:50:12.1249553Z Cannot connect to server socket err = No such file or directory
-2026-11-14T17:50:12.1251058Z Cannot connect to server request channel
-2026-11-14T17:50:12.1270920Z jack server is not running or cannot be started
-2026-11-14T17:50:12.1273676Z JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
-2026-11-14T17:50:12.1276320Z JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
-2026-11-14T17:50:14.9104202Z player_smoke on alsa: StreamStats { callbacks: 514, frames: 131584, xruns: 0, ended: false, priority: Some(Normal), render_mean: 8.375µs, render_max: 51.232µs, load_peak: 0.009, late: 0, latency: Some(42.208333ms), exclusive: false, disconnected: false, buffer_frames: None, period_frames: None }
-2026-11-14T17:50:15.0450352Z test twenty_tones_through_the_registered_player ... ok
-2026-11-14T17:50:15.0455349Z 
-2026-11-14T17:50:15.0460224Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.92s
-2026-11-14T17:50:15.0501747Z 
-2026-11-14T17:50:15.1008825Z PASS  audio-player
-2026-11-14T17:50:15.1022690Z 
-2026-11-14T17:50:15.1028729Z ==> audio-soak: env VIEWW_REQUIRE_LOOPBACK=1 VIEWW_LIVE_GAIN=0 VIEWW_SOAK_SECS=600 cargo test --release -p vieww-audio --test device_loopback default_output_soak -- --ignored --nocapture
-2026-11-14T17:50:15.3664133Z    Compiling vieww-audio v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
-2026-11-14T17:50:18.5544371Z     Finished `release` profile [optimized + debuginfo] target(s) in 3.40s
-2026-11-14T17:50:18.5617246Z      Running tests/device_loopback.rs (target/release/deps/device_loopback-4dbb1a6e58ea84ae)
-2026-11-14T17:50:18.5635759Z 
-2026-11-14T17:50:18.5636356Z running 1 test
-2026-11-14T17:50:18.5668908Z Cannot connect to server socket err = No such file or directory
-2026-11-14T17:50:18.5670916Z Cannot connect to server request channel
-2026-11-14T17:50:18.5691162Z jack server is not running or cannot be started
-2026-11-14T17:50:18.5692851Z JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
-2026-11-14T17:50:18.5693743Z JackShmReadWritePtr::~JackShmReadWritePtr - Init not done for -1, skipping unlock
-2026-11-14T17:51:18.5652523Z test default_output_soak has been running for over 60 seconds
-2026-11-14T18:00:18.8239401Z soak alsa: 600 s | 112533 callbacks, 600.2 s of audio | thread Some(Normal) | render mean 20.975µs, max 3.182023ms, peak load 60% | 0 late | 0 xruns | latency Some(42.0625ms)
-2026-11-14T18:00:18.8242700Z test default_output_soak ... ok
-2026-11-14T18:00:18.8243093Z 
-2026-11-14T18:00:18.8243684Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 600.26s
-2026-11-14T18:00:18.8244498Z 
-2026-11-14T18:00:18.8534827Z PASS  audio-soak
-2026-11-14T18:00:18.8632903Z SKIP  audio-loopback (VIEWW_HW_AUDIO_LOOP not set (needs a line-out → line-in cable))
-2026-11-14T18:00:18.8724827Z SKIP  audio-midi (VIEWW_MIDI_LOOP not set (needs a MIDI cable between two ports))
-2026-11-14T18:00:18.8826366Z SKIP  wright-docker (no docker daemon on this machine)
-2026-11-14T18:00:18.8841917Z 
-2026-11-14T18:00:18.8844740Z ================ summary ================
-2026-11-14T18:00:18.8919585Z vieww Linux hardware run 20261114-224742
-2026-11-14T18:00:18.8926466Z commit: 64e7beedf7373e1c0ea2c68adc461f41d577c255
-2026-11-14T18:00:18.8932025Z host: teja-Lenovo-ideapad-320-15IKB · kernel 7.0.0-43-generic
-2026-11-14T18:00:18.8934767Z cpu: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
-2026-11-14T18:00:18.8936689Z session: none 
-2026-11-14T18:00:18.8937732Z rustc: rustc 1.98.1 (48a229cea 2026-09-01) (pinned: 1.98.1)
-2026-11-14T18:00:18.8938685Z 
-2026-11-14T18:00:18.8939030Z governor: powersave
-2026-11-14T18:00:18.8939847Z power: on mains
-2026-11-14T18:00:18.8941432Z rapl: present but root-only — energy will be null. To enable for this boot:
-2026-11-14T18:00:18.8943499Z       sudo chmod o+r /sys/class/powercap/intel-rapl:*/energy_uj
-2026-11-14T18:00:18.8946015Z vulkan: 	deviceName         = Intel(R) HD Graphics 620 (KBL GT2)
-2026-11-14T18:00:18.8947674Z vulkan: 	driverName         = Intel open-source Mesa driver
-2026-11-14T18:00:18.8949116Z vulkan: 	deviceName         = NVIDIA GeForce 920MX
-2026-11-14T18:00:18.8950319Z PASS  gpu-hal
-2026-11-14T18:00:18.8951739Z PASS  gpu-3d
-2026-11-14T18:00:18.8952679Z SKIP  gpu-window (no DISPLAY or WAYLAND_DISPLAY)
-2026-11-14T18:00:18.8953867Z PASS  nvidia-hal
-2026-11-14T18:00:18.8954670Z PASS  nvidia-census
-2026-11-14T18:00:18.8957219Z PASS  gallery
-2026-11-14T18:00:18.8959762Z PASS  census
-2026-11-14T18:00:18.8962609Z PASS  perf-budget
-2026-11-14T18:00:18.8966903Z       census: gpu=NVIDIA GeForce 920MX [DISCRETE_GPU] rendered_on_gpu=23/23 parity=pass
-2026-11-14T18:00:18.8975259Z       census: over GPU-drawn fixtures cpu 271.6 ms vs gpu 1017.4 ms (gpu includes readback) = 0.27x
-2026-11-14T18:00:18.8984180Z SKIP  baseline (no DISPLAY or WAYLAND_DISPLAY — run the runner inside the desktop session)
-2026-11-14T18:00:18.8989811Z PASS  size-build
-2026-11-14T18:00:18.8993944Z       windowed baseline app, dist profile, static std: 8842024 bytes (8.5M)
-2026-11-14T18:00:18.8999649Z       dynamic libraries it loads: 3 (see size-baseline-ldd.txt)
-2026-11-14T18:00:18.9004130Z PASS  size-budget
-2026-11-14T18:00:18.9007068Z FAIL  stress-1 (see stress-1.log)
-2026-11-14T18:00:18.9010411Z PASS  stress-2
-2026-11-14T18:00:18.9013290Z PASS  stress-3
-2026-11-14T18:00:18.9015859Z PASS  stress-4
-2026-11-14T18:00:18.9018506Z PASS  stress-5
-2026-11-14T18:00:18.9022732Z       animation stress p95 over 5 runs (ms): 9.967 10.027 10.286 15.889 16.994 
-2026-11-14T18:00:18.9027930Z SKIP  desktop (no DISPLAY or WAYLAND_DISPLAY)
-2026-11-14T18:00:18.9032499Z       sound cards:  0 [PCH ]: HDA-Intel - HDA Intel PCH;
-2026-11-14T18:00:18.9036637Z PASS  audio-devices
-2026-11-14T18:00:18.9039628Z PASS  audio-live
-2026-11-14T18:00:18.9042626Z PASS  audio-player
-2026-11-14T18:00:18.9045583Z PASS  audio-soak
-2026-11-14T18:00:18.9051163Z SKIP  audio-loopback (VIEWW_HW_AUDIO_LOOP not set (needs a line-out → line-in cable))
-2026-11-14T18:00:18.9058270Z SKIP  audio-midi (VIEWW_MIDI_LOOP not set (needs a MIDI cable between two ports))
-2026-11-14T18:00:18.9063988Z SKIP  wright-docker (no docker daemon on this machine)
-2026-11-14T18:00:18.9067017Z 
-2026-11-14T18:00:18.9069122Z results: /home/teja/actions-runner/_work/_temp/hardware-linux
-2026-11-14T18:00:18.9079833Z ##[endgroup]
-2026-11-14T18:00:19.2956083Z ##[error]Hardware run failed (exit 1)
-2026-11-14T18:00:19.3090687Z ##[group]mark: upload hardware-linux
-2026-11-14T18:00:19.3096152Z ##[endgroup]
-2026-11-14T18:00:20.0579521Z ##[error]Process completed with exit code 1.
-2026-11-14T18:00:20.5499322Z ##[group]Run actions/upload-artifact@v4
-2026-11-14T18:00:20.5506339Z with:
-2026-11-14T18:00:20.5511445Z   name: hardware-linux
-2026-11-14T18:00:20.5515765Z   path: /home/teja/actions-runner/_work/_temp/hardware-linux
-2026-11-14T18:00:20.5519462Z   if-no-files-found: warn
-2026-11-14T18:00:20.5522926Z   include-hidden-files: false
-2026-11-14T18:00:20.5525737Z   compression-level: 6
-2026-11-14T18:00:20.5528150Z   overwrite: false
-2026-11-14T18:00:20.5530261Z env:
-2026-11-14T18:00:20.5537879Z   CI_INPUTS: {"linux": true, "windows": true, "macos": false, "linux_steps": "env gpu nvidia gallery baseline size stress desktop audio wright-docker", "launches": "5"}
-2026-11-14T18:00:20.5545768Z   CI_MATRIX: {}
-2026-11-14T18:00:20.5559021Z   CI_JOB: {"title": "vieww \u00b7 hardware-linux", "project": "vieww", "id": "hardware-linux", "file": "vieww_base/ci/jobs/hardware-linux.toml", "if": "github.event_name == 'schedule' || inputs.linux", "needs": [], "setup": [], "uploads": [{"name": "hardware-linux", "path": "${{ runner.temp }}/hardware-linux", "if-no-files-found": "warn"}], "downloads": []}
-2026-11-14T18:00:20.5727990Z   CI_PROJECT: vieww
-2026-11-14T18:00:20.5770152Z   CI_VARS: {
+===== phase-2 / Market Watch · compare-farm	log =====
+2026-11-14T18:15:20.5942704Z   WINDOWS_CERT_PASSWORD: 
+2026-11-14T18:15:20.5942956Z   WINDOWS_CERT_PFX: 
+2026-11-14T18:15:20.5943222Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-14T18:15:20.5943517Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-14T18:15:20.5943801Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-14T18:15:20.5944061Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-14T18:15:20.5944359Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-14T18:15:20.5944638Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-14T18:15:20.5944907Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-14T18:15:20.5945171Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-14T18:15:20.5945474Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-14T18:15:20.5945803Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-14T18:15:20.5946136Z   AWS_DEFAULT_REGION: us-west-2
+2026-11-14T18:15:20.5946394Z   AWS_REGION: us-west-2
+2026-11-14T18:15:20.5950852Z   AWS_SESSION_TOKEN: ***
+2026-11-14T18:15:20.5951094Z ##[endgroup]
+2026-11-14T18:15:20.7472418Z Downloading single artifact
+2026-11-14T18:15:20.7622147Z (node:2491) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-14T18:15:20.7623620Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-14T18:15:20.8735159Z Preparing to download the following artifacts:
+2026-11-14T18:15:20.8736449Z - compare-vieww-apk (ID: 14125582571, Size: 2770712, Expected Digest: sha256:3423b0284fce59edda64a2d78319df2f5e70e90fe923e4af0ffb1cda202afbd1)
+2026-11-14T18:15:21.0095260Z Redirecting to blob download url: https://productionresultssa14.blob.core.windows.net/actions-results/b888c94b-56b3-44dc-a59d-8e81e2e969dd/workflow-job-run-e04ab441-e0df-5aa5-96de-19896bb1ec46/artifacts/ab5fc56eb26ea0efd623189b12fe58fb33637c39f60646bc504c809ae0d96cc8.zip
+2026-11-14T18:15:21.0096514Z Starting download of artifact to: /home/runner/work/vieww_prod/vieww_prod/dist
+2026-11-14T18:15:21.1371683Z (node:2491) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-11-14T18:15:21.2858953Z SHA256 digest of downloaded artifact is 3423b0284fce59edda64a2d78319df2f5e70e90fe923e4af0ffb1cda202afbd1
+2026-11-14T18:15:21.2860227Z Artifact download completed successfully.
+2026-11-14T18:15:21.2860797Z Total of 1 artifact(s) downloaded
+2026-11-14T18:15:21.2865320Z Download artifact has finished successfully
+2026-11-14T18:15:21.3002131Z ##[group]Run actions/download-artifact@v4
+2026-11-14T18:15:21.3002808Z with:
+2026-11-14T18:15:21.3003059Z   name: compare-valdi-apk
+2026-11-14T18:15:21.3003333Z   path: dist
+2026-11-14T18:15:21.3003605Z   merge-multiple: false
+2026-11-14T18:15:21.3003890Z   repository: tejakota/vieww_prod
+2026-11-14T18:15:21.3004181Z   run-id: 43625220878
+2026-11-14T18:15:21.3004417Z env:
+2026-11-14T18:15:21.3004827Z   CI_INPUTS: {"devices": "", "count": "3", "tiers": "low,mid,high", "video": false}
+2026-11-14T18:15:21.3005354Z   CI_MATRIX: {}
+2026-11-14T18:15:21.3007447Z   CI_JOB: {"title": "Market Watch \u00b7 compare-farm", "project": "Market Watch", "id": "compare-farm", "file": "vieww_base/examples/market-watch/ci/jobs/compare-farm.toml", "if": "", "needs": ["compare-vieww-apk", "compare-valdi-apk"], "setup": [{"uses": "aws", "with": {"aws-region": "${{ env.AWS_REGION }}"}}], "uploads": [{"name": "compare-farm", "path": "${{ runner.temp }}/compare-farm", "if-no-files-found": "warn"}], "downloads": [{"name": "compare-vieww-apk", "path": "dist"}, {"name": "compare-valdi-apk", "path": "dist"}]}
+2026-11-14T18:15:21.3009441Z   CI_PROJECT: Market Watch
+2026-11-14T18:15:21.3010884Z   CI_VARS: {
   "AWS_REGION": "us-west-2",
   "AWS_ROLE_ARN": "***",
   "DEVICE_FARM_PROJECT_ARN": "***"
 }
-2026-11-14T18:00:20.5839376Z   CI_GITHUB_TOKEN: ***
-2026-11-14T18:00:20.5844528Z   CI_SECRET_NAMES: 
-2026-11-14T18:00:20.5848824Z   CI_HAS_AWS_ROLE: true
-2026-11-14T18:00:20.5854561Z   ANDROID_KEYSTORE: 
-2026-11-14T18:00:20.5858922Z   ANDROID_KEYSTORE_PASSWORD: 
-2026-11-14T18:00:20.5864498Z   ANDROID_KEY_ALIAS: 
-2026-11-14T18:00:20.5868757Z   ANDROID_KEY_PASSWORD: 
-2026-11-14T18:00:20.5876915Z   APPLE_DEVELOPER_ID_P12: 
-2026-11-14T18:00:20.5882044Z   APPLE_NOTARY_ISSUER: 
-2026-11-14T18:00:20.5886440Z   APPLE_NOTARY_KEY: 
-2026-11-14T18:00:20.5890913Z   APPLE_NOTARY_KEY_ID: 
-2026-11-14T18:00:20.5896459Z   APPLE_P12_PASSWORD: 
-2026-11-14T18:00:20.5900665Z   APPLE_SIGNING_IDENTITY: 
-2026-11-14T18:00:20.5905558Z   AWS_ACCESS_KEY_ID: 
-2026-11-14T18:00:20.5910264Z   AWS_ROLE_ARN: 
-2026-11-14T18:00:20.5914887Z   AWS_SECRET_ACCESS_KEY: 
-2026-11-14T18:00:20.5919189Z   CARGO_REGISTRY_TOKEN: 
-2026-11-14T18:00:20.5924120Z   CLOUDFLARE_ACCOUNT_ID: 
-2026-11-14T18:00:20.5928623Z   CLOUDFLARE_API_TOKEN: 
-2026-11-14T18:00:20.5934493Z   DEVICE_FARM_PROJECT_ARN: 
-2026-11-14T18:00:20.5939230Z   IOS_CERT_P12: 
-2026-11-14T18:00:20.5943276Z   IOS_CERT_PASSWORD: 
-2026-11-14T18:00:20.5947479Z   IOS_IDENTITY: 
-2026-11-14T18:00:20.5951464Z   IOS_PROFILE: 
-2026-11-14T18:00:20.5955568Z   WINDOWS_CERT_PASSWORD: 
-2026-11-14T18:00:20.5959911Z   WINDOWS_CERT_PFX: 
-2026-11-14T18:00:20.5964725Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
-2026-11-14T18:00:20.5970059Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
-2026-11-14T18:00:20.5976709Z   WRIGHT_SECRET_MACOS_P12: 
-2026-11-14T18:00:20.5982643Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
-2026-11-14T18:00:20.5988356Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
-2026-11-14T18:00:20.5994470Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
-2026-11-14T18:00:20.6000098Z   WRIGHT_SECRET_WINDOWS_PFX: 
-2026-11-14T18:00:20.6005821Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
-2026-11-14T18:00:20.6011356Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
-2026-11-14T18:00:20.6017963Z   CI_UPLOAD_0: yes
-2026-11-14T18:00:20.6020149Z ##[endgroup]
-2026-11-14T18:00:24.0018945Z (node:73629) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-2026-11-14T18:00:24.0021667Z (Use `node --trace-deprecation ...` to show where the warning was created)
-2026-11-14T18:00:24.2387194Z With the provided path, there will be 81 files uploaded
-2026-11-14T18:00:24.2391447Z Artifact name is valid!
-2026-11-14T18:00:24.2394067Z Root directory input is valid!
-2026-11-14T18:00:25.2631113Z Beginning upload of artifact content to blob storage
-2026-11-14T18:00:30.4623668Z (node:73629) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
-2026-11-14T18:00:34.4583584Z Uploaded bytes 8388608
-2026-11-14T18:00:43.8504175Z Uploaded bytes 16777216
-2026-11-14T18:00:44.5223660Z Uploaded bytes 17538560
-2026-11-14T18:00:44.7607409Z Finished uploading artifact content to blob storage!
-2026-11-14T18:00:44.7615873Z SHA256 digest of uploaded artifact zip is 74475a35b291113842e03c581ab50146585dce323953364942769a34eb76a00f
-2026-11-14T18:00:44.7633604Z Finalizing artifact upload
-2026-11-14T18:00:45.7556706Z Artifact hardware-linux.zip successfully finalized. Artifact ID 14125322592
-2026-11-14T18:00:45.7563587Z Artifact hardware-linux has been successfully uploaded! Final size is 17538560 bytes. Artifact ID is 14125322592
-2026-11-14T18:00:45.7612361Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/43620201298/artifacts/14125322592
-2026-11-14T18:00:45.9111418Z Post job cleanup.
-2026-11-14T18:00:46.1129148Z [command]/usr/bin/git version
-2026-11-14T18:00:46.3070895Z git version 2.53.0
-2026-11-14T18:00:46.3130837Z Copying '/home/teja/.gitconfig' to '/home/teja/actions-runner/_work/_temp/8422933c-a56a-4244-9bcc-987d8313b281/.gitconfig'
-2026-11-14T18:00:46.3152523Z Temporarily overriding HOME='/home/teja/actions-runner/_work/_temp/8422933c-a56a-4244-9bcc-987d8313b281' before making global git config changes
-2026-11-14T18:00:46.3155693Z Adding repository directory to the temporary git global config as a safe directory
-2026-11-14T18:00:46.3163435Z [command]/usr/bin/git config --global --add safe.directory /home/teja/actions-runner/_work/vieww_prod/vieww_prod
-2026-11-14T18:00:46.3239387Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
-2026-11-14T18:00:46.3297752Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
-2026-11-14T18:00:46.8067328Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
-2026-11-14T18:00:46.8089204Z http.https://github.com/.extraheader
-2026-11-14T18:00:46.8107145Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
-2026-11-14T18:00:46.8291915Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
-2026-11-14T18:00:46.8646715Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
-2026-11-14T18:00:46.8690424Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
-2026-11-14T18:00:46.9238262Z Cleaning up orphan processes
-2026-11-14T18:00:47.6362538Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-
-===== phase-1 / vieww · hardware-windows	log =====
-﻿<?xml version="1.0" encoding="utf-8"?><Error><Code>BlobNotFound</Code><Message>The specified blob does not exist.
-RequestId:a7dbde82-b01e-00b2-3063-74649b000000
-Time:2026-11-14T18:11:46.5974295Z</Message></Error>
+2026-11-14T18:15:21.3014242Z   CI_GITHUB_TOKEN: ***
+2026-11-14T18:15:21.3014658Z   CI_SECRET_NAMES: AWS_ACCESS_KEY_ID,AWS_ROLE_ARN,AWS_SECRET_ACCESS_KEY,DEVICE_FARM_PROJECT_ARN
+2026-11-14T18:15:21.3015314Z   CI_HAS_AWS_ROLE: true
+2026-11-14T18:15:21.3015574Z   ANDROID_KEYSTORE: 
+2026-11-14T18:15:21.3016103Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-14T18:15:21.3016384Z   ANDROID_KEY_ALIAS: 
+2026-11-14T18:15:21.3016632Z   ANDROID_KEY_PASSWORD: 
+2026-11-14T18:15:21.3017000Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-14T18:15:21.3017265Z   APPLE_NOTARY_ISSUER: 
+2026-11-14T18:15:21.3017516Z   APPLE_NOTARY_KEY: 
+2026-11-14T18:15:21.3017758Z   APPLE_NOTARY_KEY_ID: 
+2026-11-14T18:15:21.3018242Z   APPLE_P12_PASSWORD: 
+2026-11-14T18:15:21.3018504Z   APPLE_SIGNING_IDENTITY: 
+2026-11-14T18:15:21.3018902Z   AWS_ACCESS_KEY_ID: ***
+2026-11-14T18:15:21.3019456Z   AWS_ROLE_ARN: ***
+2026-11-14T18:15:21.3020213Z   AWS_SECRET_ACCESS_KEY: ***
+2026-11-14T18:15:21.3020493Z   CARGO_REGISTRY_TOKEN: 
+2026-11-14T18:15:21.3020751Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-14T18:15:21.3021102Z   CLOUDFLARE_API_TOKEN: 
+2026-11-14T18:15:21.3021582Z   DEVICE_FARM_PROJECT_ARN: ***
+2026-11-14T18:15:21.3021859Z   IOS_CERT_P12: 
+2026-11-14T18:15:21.3022127Z   IOS_CERT_PASSWORD: 
+2026-11-14T18:15:21.3022375Z   IOS_IDENTITY: 
+2026-11-14T18:15:21.3022820Z   IOS_PROFILE: 
+2026-11-14T18:15:21.3023066Z   WINDOWS_CERT_PASSWORD: 
+2026-11-14T18:15:21.3023326Z   WINDOWS_CERT_PFX: 
+2026-11-14T18:15:21.3023963Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-14T18:15:21.3024258Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-14T18:15:21.3024635Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-14T18:15:21.3025064Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-14T18:15:21.3025700Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-14T18:15:21.3026011Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-14T18:15:21.3026295Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-14T18:15:21.3026640Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-14T18:15:21.3026945Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-14T18:15:21.3027296Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-14T18:15:21.3027744Z   AWS_DEFAULT_REGION: us-west-2
+2026-11-14T18:15:21.3028013Z   AWS_REGION: us-west-2
+2026-11-14T18:15:21.3033336Z   AWS_SESSION_TOKEN: ***
+2026-11-14T18:15:21.3033609Z ##[endgroup]
+2026-11-14T18:15:21.4652006Z Downloading single artifact
+2026-11-14T18:15:21.4799072Z (node:2503) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-14T18:15:21.4800363Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-14T18:15:21.6037677Z Preparing to download the following artifacts:
+2026-11-14T18:15:21.6038902Z - compare-valdi-apk (ID: 14125838170, Size: 9094044, Expected Digest: sha256:47e17e8f97cc18e546425e581c292be1c98942278da2ec89fcb0958423ac708b)
+2026-11-14T18:15:21.7428362Z Redirecting to blob download url: https://productionresultssa14.blob.core.windows.net/actions-results/b888c94b-56b3-44dc-a59d-8e81e2e969dd/workflow-job-run-b540ebfd-1222-55bf-9f7b-c8db54c0a3b5/artifacts/5d8125f5ff8798ebc0aec460580ceaf83ac9e02dde9c838d043cb9df72dcebe9.zip
+2026-11-14T18:15:21.7430376Z Starting download of artifact to: /home/runner/work/vieww_prod/vieww_prod/dist
+2026-11-14T18:15:21.9384942Z (node:2503) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-11-14T18:15:22.1873738Z SHA256 digest of downloaded artifact is 47e17e8f97cc18e546425e581c292be1c98942278da2ec89fcb0958423ac708b
+2026-11-14T18:15:22.1874630Z Artifact download completed successfully.
+2026-11-14T18:15:22.1875265Z Total of 1 artifact(s) downloaded
+2026-11-14T18:15:22.1880405Z Download artifact has finished successfully
+2026-11-14T18:15:22.2055726Z ##[group]Run "${CI_PY:-python3}" ci/lib/run.py "vieww_base/examples/market-watch/ci/jobs/compare-farm.toml"
+2026-11-14T18:15:22.2056481Z [36;1m"${CI_PY:-python3}" ci/lib/run.py "vieww_base/examples/market-watch/ci/jobs/compare-farm.toml"[0m
+2026-11-14T18:15:22.2070184Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-14T18:15:22.2070557Z env:
+2026-11-14T18:15:22.2070922Z   CI_INPUTS: {"devices": "", "count": "3", "tiers": "low,mid,high", "video": false}
+2026-11-14T18:15:22.2071333Z   CI_MATRIX: {}
+2026-11-14T18:15:22.2072913Z   CI_JOB: {"title": "Market Watch \u00b7 compare-farm", "project": "Market Watch", "id": "compare-farm", "file": "vieww_base/examples/market-watch/ci/jobs/compare-farm.toml", "if": "", "needs": ["compare-vieww-apk", "compare-valdi-apk"], "setup": [{"uses": "aws", "with": {"aws-region": "${{ env.AWS_REGION }}"}}], "uploads": [{"name": "compare-farm", "path": "${{ runner.temp }}/compare-farm", "if-no-files-found": "warn"}], "downloads": [{"name": "compare-vieww-apk", "path": "dist"}, {"name": "compare-valdi-apk", "path": "dist"}]}
+2026-11-14T18:15:22.2074466Z   CI_PROJECT: Market Watch
+2026-11-14T18:15:22.2075368Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-14T18:15:22.2078098Z   CI_GITHUB_TOKEN: ***
+2026-11-14T18:15:22.2078513Z   CI_SECRET_NAMES: AWS_ACCESS_KEY_ID,AWS_ROLE_ARN,AWS_SECRET_ACCESS_KEY,DEVICE_FARM_PROJECT_ARN
+2026-11-14T18:15:22.2078961Z   CI_HAS_AWS_ROLE: true
+2026-11-14T18:15:22.2079230Z   ANDROID_KEYSTORE: 
+2026-11-14T18:15:22.2079502Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-14T18:15:22.2079885Z   ANDROID_KEY_ALIAS: 
+2026-11-14T18:15:22.2080295Z   ANDROID_KEY_PASSWORD: 
+2026-11-14T18:15:22.2080577Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-14T18:15:22.2080844Z   APPLE_NOTARY_ISSUER: 
+2026-11-14T18:15:22.2081106Z   APPLE_NOTARY_KEY: 
+2026-11-14T18:15:22.2081361Z   APPLE_NOTARY_KEY_ID: 
+2026-11-14T18:15:22.2081623Z   APPLE_P12_PASSWORD: 
+2026-11-14T18:15:22.2081890Z   APPLE_SIGNING_IDENTITY: 
+2026-11-14T18:15:22.2082198Z   AWS_ACCESS_KEY_ID: ***
+2026-11-14T18:15:22.2082556Z   AWS_ROLE_ARN: ***
+2026-11-14T18:15:22.2082903Z   AWS_SECRET_ACCESS_KEY: ***
+2026-11-14T18:15:22.2083187Z   CARGO_REGISTRY_TOKEN: 
+2026-11-14T18:15:22.2083460Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-14T18:15:22.2083735Z   CLOUDFLARE_API_TOKEN: 
+2026-11-14T18:15:22.2084251Z   DEVICE_FARM_PROJECT_ARN: ***
+2026-11-14T18:15:22.2084534Z   IOS_CERT_P12: 
+2026-11-14T18:15:22.2084779Z   IOS_CERT_PASSWORD: 
+2026-11-14T18:15:22.2085033Z   IOS_IDENTITY: 
+2026-11-14T18:15:22.2085271Z   IOS_PROFILE: 
+2026-11-14T18:15:22.2086001Z   WINDOWS_CERT_PASSWORD: 
+2026-11-14T18:15:22.2086278Z   WINDOWS_CERT_PFX: 
+2026-11-14T18:15:22.2086532Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-14T18:15:22.2086843Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-14T18:15:22.2087141Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-14T18:15:22.2087423Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-14T18:15:22.2087726Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-14T18:15:22.2088039Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-14T18:15:22.2088317Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-14T18:15:22.2088604Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-14T18:15:22.2088914Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-14T18:15:22.2089271Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-14T18:15:22.2089759Z   AWS_DEFAULT_REGION: us-west-2
+2026-11-14T18:15:22.2090035Z   AWS_REGION: us-west-2
+2026-11-14T18:15:22.2094358Z   AWS_SESSION_TOKEN: ***
+2026-11-14T18:15:22.2094621Z   CI_PART: main
+2026-11-14T18:15:22.2094873Z ##[endgroup]
+2026-11-14T18:15:22.2727077Z ##[group]Check the secrets are there
+2026-11-14T18:15:22.2756344Z total 12272
+2026-11-14T18:15:22.2756840Z -rw-r--r-- 1 runner runner     399 Nov 14 18:15 valdi-build.txt
+2026-11-14T18:15:22.2757410Z -rw-r--r-- 1 runner runner 9688517 Nov 14 18:15 valdi-market-watch.apk
+2026-11-14T18:15:22.2758037Z -rw-r--r-- 1 runner runner   83378 Nov 14 18:15 valdi-market-watch.apk.idsig
+2026-11-14T18:15:22.2759106Z -rw-r--r-- 1 runner runner 2781600 Nov 14 18:15 vieww-market-watch.apk
+2026-11-14T18:15:22.2760447Z ##[endgroup]
+2026-11-14T18:15:22.2777942Z ##[group]Run on phones
+2026-11-14T18:15:26.0775690Z device_farm: phone: LG Stylo 5 (Android 9, 29.8 GB, low)
+2026-11-14T18:15:26.0776452Z device_farm: phone: Samsung Galaxy S20 (Unlocked) (Android 13, 119.2 GB, mid)
+2026-11-14T18:15:26.0776957Z device_farm: phone: Samsung Galaxy S26 Ultra (Android 16, 238.4 GB, high)
+2026-11-14T18:15:28.7642599Z package.sh: 10 files -> /home/runner/work/_temp/compare-farm/vieww-device-farm-tests.zip
+2026-11-14T18:15:37.4083643Z device_farm: uploaded vieww-market-watch.apk as ANDROID_APP
+2026-11-14T18:15:46.5248849Z device_farm: uploaded vieww-device-farm-tests.zip as APPIUM_PYTHON_TEST_PACKAGE
+2026-11-14T18:15:49.2192213Z device_farm: uploaded testspec-android.yml as APPIUM_PYTHON_TEST_SPEC
+2026-11-14T18:15:50.5863117Z device_farm: scheduled arn:aws:devicefarm:us-west-2:278061313767:run:393108fd-d195-4dad-acb4-12581f7a212f/090e94e6-4776-41a9-8df1-3ad36e5815bb
+2026-11-14T18:16:21.3964778Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:16:52.2736861Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:17:23.1203554Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:17:54.0689065Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:18:24.9078526Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:18:55.7516830Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:19:26.6004358Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:19:57.4601587Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:20:28.3146533Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:20:59.1507336Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:21:29.9600855Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:22:00.8766076Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:22:31.7621690Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:23:02.6256537Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:23:33.4656691Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:24:04.3213457Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:24:35.1604435Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:25:06.0220818Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:25:36.8743762Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:26:07.7528207Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:26:38.6255880Z device_farm: run RUNNING {'total': 6, 'passed': 5, 'failed': 1, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:27:09.4930505Z device_farm: run RUNNING {'total': 9, 'passed': 7, 'failed': 2, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:27:40.3301465Z device_farm: run COMPLETED {'total': 9, 'passed': 7, 'failed': 2, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T18:27:59.1810893Z # vieww on AWS Device Farm
+2026-11-14T18:27:59.1811212Z 
+2026-11-14T18:27:59.1812037Z run: `arn:aws:devicefarm:us-west-2:278061313767:run:393108fd-d195-4dad-acb4-12581f7a212f/090e94e6-4776-41a9-8df1-3ad36e5815bb` — FAILED
+2026-11-14T18:27:59.1812583Z 
+2026-11-14T18:27:59.1813243Z | phone | tier | Android | SoC / GPU | RAM | APK | cold start cpu / gpu (ms, median of 3) | frame time cpu | frame time gpu | frames drawn by the GPU, cpu pass / gpu pass | PSS cpu / gpu (MB) | suite cpu / gpu / auto |
+2026-11-14T18:27:59.1814088Z |---|---|---|---|---|---|---|---|---|---|---|---|
+2026-11-14T18:27:59.1814702Z | LG Stylo 5 | low | 9 | msm8953<br>? | 2.7 GB | – | – / – | – | – | – / – | – / – | – / – / – |
+2026-11-14T18:27:59.1815428Z | Samsung Galaxy S20 (Unlocked) | mid | 13 | SM8250<br>? | 10.4 GB | – | – / – | – | – | – / – | – / – | – / – / – |
+2026-11-14T18:27:59.1816145Z | Samsung Galaxy S26 Ultra | high | 16 | SM8850<br>? | 10.9 GB | – | – / – | – | – | – / – | – / – | – / – / – |
+2026-11-14T18:27:59.1816494Z 
+2026-11-14T18:27:59.1817000Z Targets from the audit, for reading the table: product UI p95 under 15 ms and cold start under 120 ms on a mid-tier phone; release APK under 6 MB.
+2026-11-14T18:27:59.2501357Z ##[endgroup]
+2026-11-14T18:27:59.2527575Z ##[error]Run on phones failed (exit 1)
+2026-11-14T18:27:59.2535008Z ##[group]mark: upload compare-farm
+2026-11-14T18:27:59.2535618Z ##[endgroup]
+2026-11-14T18:27:59.2634695Z ##[error]Process completed with exit code 1.
+2026-11-14T18:27:59.2748431Z ##[group]Run actions/upload-artifact@v4
+2026-11-14T18:27:59.2748750Z with:
+2026-11-14T18:27:59.2748975Z   name: compare-farm
+2026-11-14T18:27:59.2749261Z   path: /home/runner/work/_temp/compare-farm
+2026-11-14T18:27:59.2749734Z   if-no-files-found: warn
+2026-11-14T18:27:59.2750032Z   include-hidden-files: false
+2026-11-14T18:27:59.2750326Z   compression-level: 6
+2026-11-14T18:27:59.2750582Z   overwrite: false
+2026-11-14T18:27:59.2750829Z env:
+2026-11-14T18:27:59.2751170Z   CI_INPUTS: {"devices": "", "count": "3", "tiers": "low,mid,high", "video": false}
+2026-11-14T18:27:59.2751558Z   CI_MATRIX: {}
+2026-11-14T18:27:59.2753028Z   CI_JOB: {"title": "Market Watch \u00b7 compare-farm", "project": "Market Watch", "id": "compare-farm", "file": "vieww_base/examples/market-watch/ci/jobs/compare-farm.toml", "if": "", "needs": ["compare-vieww-apk", "compare-valdi-apk"], "setup": [{"uses": "aws", "with": {"aws-region": "${{ env.AWS_REGION }}"}}], "uploads": [{"name": "compare-farm", "path": "${{ runner.temp }}/compare-farm", "if-no-files-found": "warn"}], "downloads": [{"name": "compare-vieww-apk", "path": "dist"}, {"name": "compare-valdi-apk", "path": "dist"}]}
+2026-11-14T18:27:59.2754495Z   CI_PROJECT: Market Watch
+2026-11-14T18:27:59.2755330Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-14T18:27:59.2757882Z   CI_GITHUB_TOKEN: ***
+2026-11-14T18:27:59.2758278Z   CI_SECRET_NAMES: AWS_ACCESS_KEY_ID,AWS_ROLE_ARN,AWS_SECRET_ACCESS_KEY,DEVICE_FARM_PROJECT_ARN
+2026-11-14T18:27:59.2758716Z   CI_HAS_AWS_ROLE: true
+2026-11-14T18:27:59.2758975Z   ANDROID_KEYSTORE: 
+2026-11-14T18:27:59.2759224Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-14T18:27:59.2759494Z   ANDROID_KEY_ALIAS: 
+2026-11-14T18:27:59.2759835Z   ANDROID_KEY_PASSWORD: 
+2026-11-14T18:27:59.2760106Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-14T18:27:59.2760368Z   APPLE_NOTARY_ISSUER: 
+2026-11-14T18:27:59.2760608Z   APPLE_NOTARY_KEY: 
+2026-11-14T18:27:59.2760850Z   APPLE_NOTARY_KEY_ID: 
+2026-11-14T18:27:59.2761109Z   APPLE_P12_PASSWORD: 
+2026-11-14T18:27:59.2761362Z   APPLE_SIGNING_IDENTITY: 
+2026-11-14T18:27:59.2761655Z   AWS_ACCESS_KEY_ID: ***
+2026-11-14T18:27:59.2762005Z   AWS_ROLE_ARN: ***
+2026-11-14T18:27:59.2762331Z   AWS_SECRET_ACCESS_KEY: ***
+2026-11-14T18:27:59.2762604Z   CARGO_REGISTRY_TOKEN: 
+2026-11-14T18:27:59.2762855Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-14T18:27:59.2763118Z   CLOUDFLARE_API_TOKEN: 
+2026-11-14T18:27:59.2763575Z   DEVICE_FARM_PROJECT_ARN: ***
+2026-11-14T18:27:59.2763848Z   IOS_CERT_P12: 
+2026-11-14T18:27:59.2764084Z   IOS_CERT_PASSWORD: 
+2026-11-14T18:27:59.2764321Z   IOS_IDENTITY: 
+2026-11-14T18:27:59.2764616Z   IOS_PROFILE: 
+2026-11-14T18:27:59.2764864Z   WINDOWS_CERT_PASSWORD: 
+2026-11-14T18:27:59.2765122Z   WINDOWS_CERT_PFX: 
+2026-11-14T18:27:59.2765379Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-14T18:27:59.2765682Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-14T18:27:59.2765971Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-14T18:27:59.2766260Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-14T18:27:59.2766564Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-14T18:27:59.2766863Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-14T18:27:59.2767145Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-14T18:27:59.2767421Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-14T18:27:59.2767724Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-14T18:27:59.2768074Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-14T18:27:59.2768422Z   AWS_DEFAULT_REGION: us-west-2
+2026-11-14T18:27:59.2768693Z   AWS_REGION: us-west-2
+2026-11-14T18:27:59.2773167Z   AWS_SESSION_TOKEN: ***
+2026-11-14T18:27:59.2773445Z   CI_UPLOAD_0: yes
+2026-11-14T18:27:59.2773703Z ##[endgroup]
+2026-11-14T18:27:59.4446022Z (node:3504) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-14T18:27:59.4447746Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-14T18:27:59.5331027Z With the provided path, there will be 455 files uploaded
+2026-11-14T18:27:59.5332317Z Artifact name is valid!
+2026-11-14T18:27:59.5332804Z Root directory input is valid!
+2026-11-14T18:27:59.8016617Z Beginning upload of artifact content to blob storage
+2026-11-14T18:28:00.1915463Z (node:3504) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-14T18:28:00.5412439Z Uploaded bytes 8388608
+2026-11-14T18:28:00.8333891Z Uploaded bytes 16777216
+2026-11-14T18:28:01.0093649Z Uploaded bytes 25165824
+2026-11-14T18:28:01.2724962Z Uploaded bytes 33554432
+2026-11-14T18:28:01.6274042Z Uploaded bytes 41943040
+2026-11-14T18:28:01.8972742Z Uploaded bytes 50331648
+2026-11-14T18:28:02.1106595Z Uploaded bytes 56803627
+2026-11-14T18:28:02.1408537Z Finished uploading artifact content to blob storage!
+2026-11-14T18:28:02.1411760Z SHA256 digest of uploaded artifact zip is 0b97de763dc5aaf7a1ebc5c42bb273403eb4190beb920f22e282243c82ba9a68
+2026-11-14T18:28:02.1413890Z Finalizing artifact upload
+2026-11-14T18:28:02.4837735Z Artifact compare-farm.zip successfully finalized. Artifact ID 14126955518
+2026-11-14T18:28:02.4838862Z Artifact compare-farm has been successfully uploaded! Final size is 56803627 bytes. Artifact ID is 14126955518
+2026-11-14T18:28:02.4846872Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/43625220878/artifacts/14126955518
+2026-11-14T18:28:02.5088992Z Post job cleanup.
+2026-11-14T18:28:02.6246664Z Post job cleanup.
+2026-11-14T18:28:02.7160699Z [command]/usr/bin/git version
+2026-11-14T18:28:02.7197762Z git version 2.56.1
+2026-11-14T18:28:02.7251279Z Temporarily overriding HOME='/home/runner/work/_temp/ed0c07b9-6297-4250-8f6d-fd35b3432b50' before making global git config changes
+2026-11-14T18:28:02.7253120Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-14T18:28:02.7254170Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-14T18:28:02.7294692Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-14T18:28:02.7333224Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-14T18:28:02.7568793Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-14T18:28:02.7606724Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-14T18:28:02.7847508Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T18:28:02.7926908Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-14T18:28:02.8280184Z Cleaning up orphan processes
+2026-11-14T18:28:02.8558541Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/setup-python@v5, actions/upload-artifact@v4, aws-actions/configure-aws-credentials@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
 
