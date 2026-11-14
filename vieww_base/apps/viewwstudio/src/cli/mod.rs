@@ -28,7 +28,7 @@
 //! | Devices              | the device picker             | `devices`                            |
 //!
 //! The architectural rule the table encodes: **there is one engine, and two
-//! ways to drive it.** The compile is the studio's own [`compile`] door —
+//! ways to drive it.** The compile is the studio's own `compile` door —
 //! the ABI fingerprint guard, `-C prefer-dynamic`, the candidate search and
 //! the project-rlib link all behave exactly as they do behind the Render
 //! button — the scaffold is the same files the New Project dialog writes,
@@ -1429,7 +1429,10 @@ pub fn register_with_ci(root: &Path, name: &str) -> Option<String> {
         std::fs::read_to_string(repo.join("ci").join("templates").join("desktop-app.toml")).ok()?;
     let text = template.replace("{name}", name).replace("{package}", name);
     if let Err(error) = std::fs::write(&manifest, text) {
-        return Some(format!("ci: could not write {}: {error}", manifest.display()));
+        return Some(format!(
+            "ci: could not write {}: {error}",
+            manifest.display()
+        ));
     }
     let synced = Process::new("python3")
         .arg(repo.join("ci").join("projects"))
@@ -1611,7 +1614,7 @@ fn render_matrix(
 
 /// `render`: the loaded screen through the studio's own rasteriser.
 ///
-/// `FrameDriver` + [`crate::install`] + a `Theme` wrapper is the exact mount
+/// `FrameDriver` + `crate::install` + a `Theme` wrapper is the exact mount
 /// `say_ai::renders_stably` and `tests/canvas_edit.rs` both use — the one
 /// render path the studio has, with its panic policy and its CPU scene.
 ///
@@ -1702,7 +1705,7 @@ fn titles_of(screen: &Screen) -> Result<Vec<String>, String> {
 ///
 /// # Errors
 ///
-/// As [`compile_screen`], or the page could not be written.
+/// As `compile_screen`, or the page could not be written.
 pub fn run_html(
     input: &Path,
     out: Option<&Path>,

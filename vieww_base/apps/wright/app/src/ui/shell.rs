@@ -211,11 +211,9 @@ pub(crate) fn top_bar(ui: &Ui) -> WidgetNode {
                 vec![
                     // Equal flanks: whatever the title weighs on the left and
                     // the toggles on the right, the dots keep the middle.
-                    grow(
-                        SizedBox::width(300.0).child(
-                            Align::new(Alignment::CENTER_LEFT).child(line(title, size::BODY, p.ink)),
-                        ),
-                    ),
+                    grow(SizedBox::width(300.0).child(
+                        Align::new(Alignment::CENTER_LEFT).child(line(title, size::BODY, p.ink)),
+                    )),
                     row(0.0, dots),
                     // The toggles hug the window's right edge, not the dots:
                     // the row fills its flank and packs from the end, so the
@@ -362,7 +360,8 @@ fn status_bar(ui: &Ui) -> WidgetNode {
         ];
         if let Some(micro) = spent {
             items.push(t(
-                format!("${:.4} today", micro as f64 / 1e6), size::SMALL,
+                format!("${:.4} today", micro as f64 / 1e6),
+                size::SMALL,
                 p.muted,
             ));
         }
@@ -384,7 +383,13 @@ fn status_bar(ui: &Ui) -> WidgetNode {
         ];
         if ui.stopped.get().is_none() {
             let stop = ui.clone();
-            right.push(Container::new().width(1.0).height(14.0).color(p.line_strong).into());
+            right.push(
+                Container::new()
+                    .width(1.0)
+                    .height(14.0)
+                    .color(p.line_strong)
+                    .into(),
+            );
             right.push(status_button(
                 &p,
                 Glyph::Stop,
@@ -393,7 +398,8 @@ fn status_bar(ui: &Ui) -> WidgetNode {
                 move || stop.stop_everything("stopped from the window"),
             ));
         }
-        let center = |w: WidgetNode| -> WidgetNode { Align::new(Alignment::CENTER_LEFT).child(w).into() };
+        let center =
+            |w: WidgetNode| -> WidgetNode { Align::new(Alignment::CENTER_LEFT).child(w).into() };
         let mut children: Vec<WidgetNode> = items.into_iter().map(center).collect();
         // The status takes the slack, so the right group sits at the edge.
         let status_at = children.len() - if spent.is_some() { 2 } else { 1 };
@@ -429,7 +435,10 @@ fn status_button(
     let label = label.to_string();
     Pressable::sensed(move |s: Sense| {
         let (fill, ink) = if danger {
-            (p.status.lerp(p.bad, 0.85 * s.hover), p.muted.lerp(p.on_accent, s.hover))
+            (
+                p.status.lerp(p.bad, 0.85 * s.hover),
+                p.muted.lerp(p.on_accent, s.hover),
+            )
         } else {
             (p.status.lerp(p.surface2, s.hover), p.muted)
         };
@@ -615,7 +624,10 @@ fn track(ui: &Ui, pages: &[WidgetNode], w: f32, h: f32, o: f32, x: f32) -> Widge
     if !saved.is_empty() {
         let shelf = row(
             space::M,
-            vec![b("SAVED", size::CAPTION, p.muted), home::saved_chips(ui, &saved)],
+            vec![
+                b("SAVED", size::CAPTION, p.muted),
+                home::saved_chips(ui, &saved),
+            ],
         );
         layers.push(at_keyed(
             "saved",
@@ -635,7 +647,8 @@ fn track(ui: &Ui, pages: &[WidgetNode], w: f32, h: f32, o: f32, x: f32) -> Widge
         fade(
             phase(o, 0.6, 1.0),
             Center::new().child(t(
-                "Click a session to open it · × closes it into Saved · Esc goes back", size::SMALL,
+                "Click a session to open it · × closes it into Saved · Esc goes back",
+                size::SMALL,
                 p.muted,
             )),
         ),
@@ -671,7 +684,8 @@ fn mini(ui: &Ui, p: &Pal, i: usize, words: bool) -> WidgetNode {
                         "{} · {} saved",
                         plural(sessions.len(), "session"),
                         ui.saved.get().len()
-                    ), size::CAPTION,
+                    ),
+                    size::CAPTION,
                     p.muted,
                 ),
             ],
@@ -697,7 +711,12 @@ fn mini(ui: &Ui, p: &Pal, i: usize, words: bool) -> WidgetNode {
                         .color(p.bubble)
                         .radius(corner::FIELD)
                         .padding(EdgeInsets::symmetric(9.0, 5.0))
-                        .child(Text::new(request).size(size::CAPTION).color(p.ink).max_lines(2))
+                        .child(
+                            Text::new(request)
+                                .size(size::CAPTION)
+                                .color(p.ink)
+                                .max_lines(2),
+                        )
                         .into(),
                     line(status, size::CAPTION, tone_color(p, tone)),
                     meter_bar(p.surface2, tone_color(p, tone), share, 3.0),

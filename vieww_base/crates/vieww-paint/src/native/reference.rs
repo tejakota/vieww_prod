@@ -161,7 +161,7 @@ pub struct SceneReport {
     pub translated_commands: usize,
     pub skipped_commands: usize,
     /// Pixel-carrying copies applied before any region replayed — the work a
-    /// scrolled frame did instead of rasterizing, one per [`CopyRegion`].
+    /// scrolled frame did instead of rasterizing, one per [`CopyRegion`](crate::CopyRegion).
     /// Counted so a benchmark can tell "the rows moved" from "the rows were
     /// repainted", which a frame time alone never can.
     pub carried_regions: usize,
@@ -1295,7 +1295,11 @@ impl NativeRenderer {
                         let (cx1, cy1) = (c.right.floor() as i32, c.bottom.floor() as i32);
                         let cut = |(x0, y0, x1, y1): (i32, i32, i32, i32)| {
                             let b = (x0.max(cx0), y0.max(cy0), x1.min(cx1), y1.min(cy1));
-                            if b.0 < b.2 && b.1 < b.3 { b } else { (0, 0, 0, 0) }
+                            if b.0 < b.2 && b.1 < b.3 {
+                                b
+                            } else {
+                                (0, 0, 0, 0)
+                            }
                         };
                         [cut(bands[0]), cut(bands[1])]
                     });
@@ -1942,10 +1946,9 @@ impl NativeRenderer {
         // bytes, the middle band computed as spans rather than walked
         // (`geometry/fill.rs` holds the equivalence oracle).
         let mask = match rrect {
-            Some(rr) => {
-                self.fills
-                    .coverage_rrect(polylines, clip_bounds(clip, surface), rr)
-            }
+            Some(rr) => self
+                .fills
+                .coverage_rrect(polylines, clip_bounds(clip, surface), rr),
             None => self.fills.coverage(polylines, clip_bounds(clip, surface)),
         };
         if mask.is_empty() {
@@ -2113,8 +2116,7 @@ fn covered_bands(
         let (x1, y1) = (x_hi.ceil() as i32, y_hi.ceil() as i32);
         (x0 < x1 && y0 < y1).then_some((x0, y0, x1, y1))
     };
-    let horizontal =
-        band(l + rx + 1.0, t + 1.0, r - rx - 1.0, b - 1.0)?;
+    let horizontal = band(l + rx + 1.0, t + 1.0, r - rx - 1.0, b - 1.0)?;
     let vertical = band(l + 1.0, t + ry + 1.0, r - 1.0, b - ry - 1.0);
     Some([horizontal, vertical.unwrap_or(horizontal)])
 }
@@ -2127,7 +2129,10 @@ fn covered_bands(
 /// premise is that the device edges are vertical and horizontal), and for a
 /// shape that collapses to nothing under the transform. The caller then takes
 /// the general walk, which is always right.
-fn device_rrect(path: &crate::Path, transform: Transform) -> Option<super::geometry::fill::RoundedRect> {
+fn device_rrect(
+    path: &crate::Path,
+    transform: Transform,
+) -> Option<super::geometry::fill::RoundedRect> {
     let (rect, radius) = path.as_rounded_rect()?;
     if transform.b != 0.0 || transform.c != 0.0 {
         return None;
@@ -2218,7 +2223,6 @@ mod tests {
         assert!(coalesce_for_replay(Vec::new()).is_empty());
     }
 
-
     /// **The covered promise's whole licence to exist**: a shadow recorded as
     /// covered, behind an opaque card face, draws the frame the uncovered
     /// shadow draws — pixel for pixel, by byte comparison — because the pixels
@@ -2231,9 +2235,24 @@ mod tests {
     fn a_covered_shadow_is_the_frame_an_uncovered_one_draws() {
         use vieww_foundation::{Offset, Shadow};
         for (bg, card, offset, blur) in [
-            (Color::WHITE, Color::rgb(250, 251, 253), Offset::new(0.0, 3.0), 8.0),
-            (Color::rgb(30, 34, 40), Color::WHITE, Offset::new(0.0, 0.0), 12.0),
-            (Color::WHITE, Color::rgb(64, 180, 150), Offset::new(2.5, 5.0), 4.0),
+            (
+                Color::WHITE,
+                Color::rgb(250, 251, 253),
+                Offset::new(0.0, 3.0),
+                8.0,
+            ),
+            (
+                Color::rgb(30, 34, 40),
+                Color::WHITE,
+                Offset::new(0.0, 0.0),
+                12.0,
+            ),
+            (
+                Color::WHITE,
+                Color::rgb(64, 180, 150),
+                Offset::new(2.5, 5.0),
+                4.0,
+            ),
         ] {
             let rect = Rect::new(37.25, 51.5, 310.75, 214.25);
             let shadow = Shadow::new(Color::rgba(20, 26, 38, 70), offset, blur);
@@ -2245,10 +2264,7 @@ mod tests {
                 } else {
                     scene.draw_shadow(rect, 14.0, shadow);
                 }
-                scene.fill_path(
-                    &Path::rounded_rect(rect, 14.0),
-                    Paint::solid(card),
-                );
+                scene.fill_path(&Path::rounded_rect(rect, 14.0), Paint::solid(card));
                 scene
             };
             let mut renderer = NativeRenderer::new();
@@ -2319,7 +2335,10 @@ mod tests {
         ] {
             let build = |covered: bool| {
                 let mut scene = Scene::new();
-                scene.fill_rect(Rect::new(0.0, 0.0, 400.0, 300.0), Color::rgb(243, 245, 249).into());
+                scene.fill_rect(
+                    Rect::new(0.0, 0.0, 400.0, 300.0),
+                    Color::rgb(243, 245, 249).into(),
+                );
                 scene.save();
                 scene.clip_rect(clip);
                 if covered {
@@ -2332,9 +2351,16 @@ mod tests {
                 scene
             };
             let mut renderer = NativeRenderer::new();
-            let (plain, _) = renderer.render_to_pixels(&build(false), 400, 300, Color::WHITE).expect("render");
-            let (covered, _) = renderer.render_to_pixels(&build(true), 400, 300, Color::WHITE).expect("render");
-            assert!(plain.data() == covered.data(), "covered differs from uncovered under clip {clip:?}");
+            let (plain, _) = renderer
+                .render_to_pixels(&build(false), 400, 300, Color::WHITE)
+                .expect("render");
+            let (covered, _) = renderer
+                .render_to_pixels(&build(true), 400, 300, Color::WHITE)
+                .expect("render");
+            assert!(
+                plain.data() == covered.data(),
+                "covered differs from uncovered under clip {clip:?}"
+            );
         }
     }
 
@@ -2380,7 +2406,9 @@ mod tests {
             if x != y {
                 differing += 1;
                 let px = i / 4;
-                #[expect(clippy::cast_possible_truncation, reason = "a pixel index")]
+                // `usize as f32` is a precision loss, not a truncation — the
+                // expectation named the wrong lint and was unfulfilled.
+                #[expect(clippy::cast_precision_loss, reason = "a pixel index")]
                 let (dx, dy) = ((px % 400) as f32, (px / 400) as f32);
                 let inside = dx >= 38.0 && dy >= 52.0 && dx < 310.0 && dy < 214.0;
                 if !inside {

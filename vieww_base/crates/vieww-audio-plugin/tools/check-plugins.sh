@@ -93,8 +93,14 @@ if command -v cc >/dev/null && command -v c++ >/dev/null; then
   # mingw toolchain this script runs under does not link uuid for you the
   # way MSVC's SDK pragmas do (__imp_CoCreateGuid, 1-check 2026-11-13).
   # Linux needs nothing of the sort.
+  #
+  # -luuid alone was tried on 2026-11-13 and never validated — the check run
+  # that would have seen it was cancelled, and mingw-w64's libuuid.a holds
+  # GUID constants, not import thunks: CoCreateGuid is exported by ole32
+  # (MSVC's Ole32.lib), so the link needs -lole32, with -luuid for the
+  # constants the headers' __declspec(selectany) GUIDs fall back on.
   FW=""; [[ $OS == macos ]] && FW="-framework CoreFoundation"
-  UUID=""; [[ $OS == windows ]] && UUID="-luuid"
+  UUID=""; [[ $OS == windows ]] && UUID="-luuid -lole32"
   cc -std=c11 -O1 -I"$WORK/clap/include" "$CRATE/tools/clap_host.c" -o "$WORK/clap_host" $DL -lm
   c++ -std=c++17 -O1 -I"$WORK/inc" "$CRATE/tools/vst3_host.cpp" \
     "$WORK/vst3_pluginterfaces/base/funknown.cpp" -o "$WORK/vst3_host" $DL $UUID $FW

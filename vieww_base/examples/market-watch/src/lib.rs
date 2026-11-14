@@ -67,7 +67,9 @@ impl Lcg {
     pub const fn new() -> Self {
         Self(0x9e37_79b9)
     }
-    pub fn next(&mut self) -> f32 {
+    /// The next draw: a unit float in `[0, 1)`, ten-thousandths exactly. Named
+    /// `next01` rather than `next` so it does not read as `Iterator::next`.
+    pub fn next01(&mut self) -> f32 {
         self.0 = self.0.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
         (self.0 % 10_000) as f32 / 10_000.0
     }
@@ -81,14 +83,16 @@ impl Default for Lcg {
 #[must_use]
 pub fn make_quote(i: usize, rng: &mut Lcg) -> Quote {
     const L: &[u8; 26] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let mut p = 20.0 + rng.next() * 400.0;
+    let mut p = 20.0 + rng.next01() * 400.0;
     let hist = (0..POINTS)
         .map(|_| {
-            p *= 1.0 + (rng.next() - 0.48) * 0.04;
+            p *= 1.0 + (rng.next01() - 0.48) * 0.04;
             p
         })
         .collect();
-    let symbol = (0..4).map(|k| L[(i * 7 + k * 11 + i / 26) % 26] as char).collect();
+    let symbol = (0..4)
+        .map(|k| L[(i * 7 + k * 11 + i / 26) % 26] as char)
+        .collect();
     let palette = [
         Color::rgb(93, 120, 246),
         Color::rgb(239, 108, 96),
@@ -118,7 +122,11 @@ pub fn tick_quote(q: &mut Quote, index: usize) {
     // move and one overwrite, with no length/capacity bookkeeping between them.
     h.copy_within(1.., 0);
     let size = 1.0 + (index % 3) as f32 * 0.01; // 1.00, 1.01, 1.02
-    h[n - 1] = if rose { last * (0.95 / size) } else { last * (1.06 * size) };
+    h[n - 1] = if rose {
+        last * (0.95 / size)
+    } else {
+        last * (1.06 * size)
+    };
     q.hist = Rc::new(h);
 }
 
@@ -157,9 +165,11 @@ impl Model {
     /// Replace the whole list with `rows` fresh quotes, back at the top.
     pub fn load(&self, rows: usize) {
         let mut rng = Lcg::new();
-        let quotes: Vec<Signal<Quote>> =
-            (0..rows).map(|i| self.runtime.signal(make_quote(i, &mut rng))).collect();
-        self.total.set(quotes.iter().map(|q| q.with(Quote::price)).sum());
+        let quotes: Vec<Signal<Quote>> = (0..rows)
+            .map(|i| self.runtime.signal(make_quote(i, &mut rng)))
+            .collect();
+        self.total
+            .set(quotes.iter().map(|q| q.with(Quote::price)).sum());
         self.quotes.set(Rc::new(quotes));
         self.offset.set(0.0);
         self.count.set(rows);
@@ -305,14 +315,18 @@ impl Widget for RowAvatar {
         let q = self.quote.peek();
         let side = if self.compact { 36.0 } else { 40.0 };
         Clip::rounded(side / 2.0)
-            .child(Container::new().color(q.hue).child(SizedBox::square(side).child(
-                Center::new().child(
-                    Text::new(&q.symbol[..2])
-                        .color(Color::WHITE)
-                        .size(if self.compact { 13.0 } else { 14.0 })
-                        .bold(),
+            .child(
+                Container::new().color(q.hue).child(
+                    SizedBox::square(side).child(
+                        Center::new().child(
+                            Text::new(&q.symbol[..2])
+                                .color(Color::WHITE)
+                                .size(if self.compact { 13.0 } else { 14.0 })
+                                .bold(),
+                        ),
+                    ),
                 ),
-            )))
+            )
             .into()
     }
 
@@ -344,24 +358,26 @@ impl Widget for RowIdentity {
         // This must remain the Flexible's composed parent: Flexible only works
         // as a direct child of the row's RenderFlex.
         Flexible::expanded(1)
-            .child(Constrained::new(Constraints::tight_for_height(40.0)).child(
-                Flex::column()
-                    .cross_axis_alignment(CrossAxisAlignment::Start)
-                    .spacing(2.0)
-                    .children(children![
-                        Text::new(&q.symbol)
-                            .color(INK)
-                            .size(16.0)
-                            .bold()
-                            .max_lines(1)
-                            .overflow(TextOverflow::Ellipsis),
-                        Text::new(&q.name)
-                            .color(MUTED)
-                            .size(12.0)
-                            .max_lines(1)
-                            .overflow(TextOverflow::Ellipsis),
-                    ]),
-            ))
+            .child(
+                Constrained::new(Constraints::tight_for_height(40.0)).child(
+                    Flex::column()
+                        .cross_axis_alignment(CrossAxisAlignment::Start)
+                        .spacing(2.0)
+                        .children(children![
+                            Text::new(&q.symbol)
+                                .color(INK)
+                                .size(16.0)
+                                .bold()
+                                .max_lines(1)
+                                .overflow(TextOverflow::Ellipsis),
+                            Text::new(&q.name)
+                                .color(MUTED)
+                                .size(12.0)
+                                .max_lines(1)
+                                .overflow(TextOverflow::Ellipsis),
+                        ]),
+                ),
+            )
             .into()
     }
 
@@ -395,8 +411,14 @@ impl Widget for LiveSpark {
         // One stroked path, not thirty-one rectangles: the build cost of a row
         // drops with the fan, and the painter's `Rc` identity check keeps a
         // scroll that did not tick this row from re-recording it.
-        Painting::sized(Size::new(self.width, 36.0), Spark { hist: q.hist.clone(), color: tone })
-            .into()
+        Painting::sized(
+            Size::new(self.width, 36.0),
+            Spark {
+                hist: q.hist.clone(),
+                color: tone,
+            },
+        )
+        .into()
     }
 
     fn same_configuration(&self, other: &WidgetNode) -> bool {
@@ -429,8 +451,15 @@ impl Widget for LiveMoney {
         let tone = if ch >= 0.0 { UP } else { DOWN };
         let pill = Container::new()
             .decoration(BoxDecoration::new().color(tone).radius(8.0))
-            .padding(EdgeInsets::symmetric(if self.compact { 6.0 } else { 8.0 }, 3.0))
-            .child(Text::new(format!("{ch:+.2}%")).color(Color::WHITE).size(12.0));
+            .padding(EdgeInsets::symmetric(
+                if self.compact { 6.0 } else { 8.0 },
+                3.0,
+            ))
+            .child(
+                Text::new(format!("{ch:+.2}%"))
+                    .color(Color::WHITE)
+                    .size(12.0),
+            );
         SizedBox::from_size(Size::new(if self.compact { 96.0 } else { 120.0 }, 46.0))
             .child(
                 Flex::column()
@@ -486,7 +515,11 @@ impl Widget for Row {
                         BoxDecoration::new()
                             .color(Color::WHITE)
                             .radius(14.0)
-                            .shadow(Shadow::new(Color::rgba(20, 26, 38, 30), Offset::new(0.0, 3.0), 8.0)),
+                            .shadow(Shadow::new(
+                                Color::rgba(20, 26, 38, 30),
+                                Offset::new(0.0, 3.0),
+                                8.0,
+                            )),
                     )
                     .padding(EdgeInsets::symmetric(14.0, 12.0))
                     .child(
@@ -494,10 +527,21 @@ impl Widget for Row {
                             .cross_axis_alignment(CrossAxisAlignment::Center)
                             .spacing(gap)
                             .children(children![
-                                RowAvatar { quote: self.quote.clone(), compact },
-                                RowIdentity { quote: self.quote.clone() },
-                                LiveSpark { quote: self.quote.clone(), width: if compact { 72.0 } else { 120.0 } },
-                                LiveMoney { quote: self.quote.clone(), compact },
+                                RowAvatar {
+                                    quote: self.quote.clone(),
+                                    compact
+                                },
+                                RowIdentity {
+                                    quote: self.quote.clone()
+                                },
+                                LiveSpark {
+                                    quote: self.quote.clone(),
+                                    width: if compact { 72.0 } else { 120.0 }
+                                },
+                                LiveMoney {
+                                    quote: self.quote.clone(),
+                                    compact
+                                },
                             ]),
                     ),
             )
@@ -567,7 +611,9 @@ impl Widget for Header {
             .decoration(
                 BoxDecoration::new()
                     .gradient(
-                        Gradient::vertical().with_dither().between(Color::rgb(58, 92, 246), Color::rgb(140, 72, 230)),
+                        Gradient::vertical()
+                            .with_dither()
+                            .between(Color::rgb(58, 92, 246), Color::rgb(140, 72, 230)),
                     )
                     .radius(20.0),
             )
@@ -578,8 +624,12 @@ impl Widget for Header {
                     .spacing(6.0)
                     .children(children![
                         Text::new("Portfolio value").color(soft).size(13.0),
-                        PortfolioValue { total: self.total.clone() },
-                        Text::new(format!("{} live tickers · virtualised", self.count.get())).color(soft).size(12.0),
+                        PortfolioValue {
+                            total: self.total.clone()
+                        },
+                        Text::new(format!("{} live tickers · virtualised", self.count.get()))
+                            .color(soft)
+                            .size(12.0),
                     ]),
             )
             .into()
@@ -664,7 +714,10 @@ impl Widget for Screen {
                     .cross_axis_alignment(CrossAxisAlignment::Stretch)
                     .spacing(16.0)
                     .children(children![
-                        Header { total: self.total.clone(), count: self.count.clone() },
+                        Header {
+                            total: self.total.clone(),
+                            count: self.count.clone()
+                        },
                         list,
                     ]),
             )
@@ -713,16 +766,20 @@ impl Widget for ScrolledList {
         let quotes = self.quotes.get();
         let rows = quotes.len();
         let width = self.width;
-        Constrained::new(Constraints::tight(Size::new(self.width, self.viewport))).child(
-            Scrollable::vertical(self.offset.get()).child(ListView::new(
+        Constrained::new(Constraints::tight(Size::new(self.width, self.viewport)))
+            .child(Scrollable::vertical(self.offset.get()).child(ListView::new(
                 rows,
                 ROW_H,
                 Rc::new(move |i: usize| {
-                    RepaintBoundary::new().child(Row { quote: quotes[i].clone(), width }).into()
+                    RepaintBoundary::new()
+                        .child(Row {
+                            quote: quotes[i].clone(),
+                            width,
+                        })
+                        .into()
                 }),
-            )),
-        )
-        .into()
+            )))
+            .into()
     }
 
     fn same_configuration(&self, other: &WidgetNode) -> bool {
@@ -845,9 +902,18 @@ mod tests {
     fn quotes_match_the_valdi_generator() {
         let mut rng = Lcg::new();
         let q: Vec<Quote> = (0..2000).map(|i| make_quote(i, &mut rng)).collect();
-        for (i, symbol, price) in [(0, "ALWH", 135.65), (1, "HSDO", 268.20), (999, "LWHS", 348.06), (1999, "DOZK", 33.36)] {
+        for (i, symbol, price) in [
+            (0, "ALWH", 135.65),
+            (1, "HSDO", 268.20),
+            (999, "LWHS", 348.06),
+            (1999, "DOZK", 33.36),
+        ] {
             assert_eq!(q[i].symbol, symbol, "row {i} symbol");
-            assert!((q[i].price() - price).abs() < 0.006, "row {i}: {} vs Valdi's {price}", q[i].price());
+            assert!(
+                (q[i].price() - price).abs() < 0.006,
+                "row {i}: {} vs Valdi's {price}",
+                q[i].price()
+            );
         }
     }
 
@@ -862,10 +928,17 @@ mod tests {
         tick_quote(&mut q, 7);
 
         assert_eq!(q.hist.len(), POINTS);
-        assert!(!Rc::ptr_eq(&old, &q.hist), "the painter must see a new history");
+        assert!(
+            !Rc::ptr_eq(&old, &q.hist),
+            "the painter must see a new history"
+        );
         assert_eq!(&q.hist[..POINTS - 1], &old[1..]);
         let size = 1.0 + (7 % 3) as f32 * 0.01;
-        let expected = if rose { price * (0.95 / size) } else { price * (1.06 * size) };
+        let expected = if rose {
+            price * (0.95 / size)
+        } else {
+            price * (1.06 * size)
+        };
         assert!((q.price() - expected).abs() < f32::EPSILON * expected.abs().max(1.0));
     }
 

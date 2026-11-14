@@ -308,7 +308,8 @@ fn confirm_card(p: &Pal, s: &Session, lines: &[wright_core::confirm::Line]) -> W
     let mut rows = vec![
         b("This is exactly what will exist", size::LEAD, p.ink),
         t(
-            "Written from the blueprint by Wright, not by a model.", size::SMALL,
+            "Written from the blueprint by Wright, not by a model.",
+            size::SMALL,
             p.muted,
         ),
     ];
@@ -321,7 +322,8 @@ fn confirm_card(p: &Pal, s: &Session, lines: &[wright_core::confirm::Line]) -> W
                 "… and {} more line{} — all of them on the Copy button",
                 lines.len() - 16,
                 if lines.len() - 16 == 1 { "" } else { "s" }
-            ), size::SMALL,
+            ),
+            size::SMALL,
             p.muted,
         ));
     }
@@ -435,7 +437,8 @@ fn plan_card(ui: &Ui, p: &Pal, s: &Session, pl: &super::session::PlanView) -> Wi
                 pl.stages.len(),
                 pl.per_run,
                 pl.per_day
-            ), size::UI,
+            ),
+            size::UI,
             p.muted,
         ),
         stretch(space::S, steps),
@@ -570,7 +573,8 @@ fn run_card(
                         SizedBox::shrink().into()
                     } else {
                         mono(
-                            meta, size::SMALL,
+                            meta,
+                            size::SMALL,
                             if st == State::Waiting {
                                 p.wait
                             } else {
@@ -596,11 +600,13 @@ fn run_card(
                                 format!("Run {run_no} · running")
                             } else {
                                 format!("Run {run_no}")
-                            }, size::LEAD,
+                            },
+                            size::LEAD,
                             p.ink,
                         ),
                         t(
-                            format!("${:.4} so far", progress.spent as f64 / 1e6), size::SMALL,
+                            format!("${:.4} so far", progress.spent as f64 / 1e6),
+                            size::SMALL,
                             p.muted,
                         ),
                         gap(),
@@ -634,7 +640,8 @@ fn approval(
             space::M,
             vec![
                 b(
-                    format!("{agent} is asking before it touches the world"), size::LEAD,
+                    format!("{agent} is asking before it touches the world"),
+                    size::LEAD,
                     p.ink,
                 ),
                 Container::new()
@@ -654,7 +661,8 @@ fn approval(
                         }),
                         gap(),
                         t(
-                            "or drag this card: right allows, left refuses", size::SMALL,
+                            "or drag this card: right allows, left refuses",
+                            size::SMALL,
                             p.muted,
                         ),
                     ],
@@ -750,7 +758,11 @@ fn result_card(ui: &Ui, p: &Pal, s: &Session, r: &super::session::ResultView) ->
                 icon,
                 b(title, size::TITLE, p.ink),
                 gap(),
-                t(format!("run {} · ${:.4}", r.run, r.cost), size::SMALL, p.muted),
+                t(
+                    format!("run {} · ${:.4}", r.run, r.cost),
+                    size::SMALL,
+                    p.muted,
+                ),
             ],
         ),
         copyable(r.headline.clone(), size::BODY, p.muted),
@@ -760,7 +772,8 @@ fn result_card(ui: &Ui, p: &Pal, s: &Session, r: &super::session::ResultView) ->
         let mut made_items = made;
         if more_made > 0 {
             made_items.push(t(
-                format!("… and {more_made} more in the folder"), size::SMALL,
+                format!("… and {more_made} more in the folder"),
+                size::SMALL,
                 p.muted,
             ));
         }
@@ -777,7 +790,8 @@ fn result_card(ui: &Ui, p: &Pal, s: &Session, r: &super::session::ResultView) ->
         line_items.push(grow(match (&held, &trust) {
             (None, Some(a)) => copyable(wright_engine::unattended::describe(a), size::UI, p.good),
             (Some(why), _) => copyable(
-                format!("On its schedule ({} {}): {why}.", entry.cron, entry.tz), size::UI,
+                format!("On its schedule ({} {}): {why}.", entry.cron, entry.tz),
+                size::UI,
                 p.muted,
             ),
             (None, None) => copyable("Runs on its schedule.".to_string(), size::UI, p.muted),
@@ -876,13 +890,15 @@ fn receipt_overlay(p: &Pal, s: &Session) -> WidgetNode {
                 b(format!("The receipt · run {}", r.run), size::TITLE, p.ink),
                 gap(),
                 t(
-                    if r.ok { "verified" } else { "NOT verified" }, size::UI,
+                    if r.ok { "verified" } else { "NOT verified" },
+                    size::UI,
                     if r.ok { p.good } else { p.bad },
                 ),
             ],
         ),
         t(
-            "Every check over the signed receipt, in verify's own words:", size::UI,
+            "Every check over the signed receipt, in verify's own words:",
+            size::UI,
             p.muted,
         ),
     ];
@@ -911,7 +927,8 @@ fn receipt_overlay(p: &Pal, s: &Session) -> WidgetNode {
     }
     if let Some(verdict) = r.report.lines().rev().find(|l| !l.trim().is_empty()) {
         items.push(copyable(
-            verdict.to_string(), size::UI,
+            verdict.to_string(),
+            size::UI,
             if r.ok { p.good } else { p.bad },
         ));
     }
@@ -999,7 +1016,11 @@ fn export_menu(p: &Pal, s: &Session, verified: bool) -> WidgetNode {
                             column(
                                 1.0,
                                 vec![
-                                    t(kind.label(), size::BODY, if allowed { p.ink } else { p.muted }),
+                                    t(
+                                        kind.label(),
+                                        size::BODY,
+                                        if allowed { p.ink } else { p.muted },
+                                    ),
                                     t(why.clone(), size::SMALL, p.muted),
                                 ],
                             ),
@@ -1037,7 +1058,8 @@ fn export_status(ui: &Ui, p: &Pal, s: &Session) -> Vec<WidgetNode> {
             vec![
                 spin,
                 t(
-                    format!("Making the {}…", kind.label().to_lowercase()), size::UI,
+                    format!("Making the {}…", kind.label().to_lowercase()),
+                    size::UI,
                     p.muted,
                 ),
             ],

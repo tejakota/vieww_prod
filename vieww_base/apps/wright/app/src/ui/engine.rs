@@ -114,7 +114,8 @@ fn frame(
     head.push(gap());
     if peek {
         head.push(t(
-            "Let go of Space to hide · E keeps it open", size::SMALL,
+            "Let go of Space to hide · E keeps it open",
+            size::SMALL,
             p.muted,
         ));
     } else {
@@ -299,7 +300,8 @@ fn node(
                 .border(Border::new(if on { p.accent } else { p.line }, 1.0))
                 .padding(EdgeInsets::symmetric(6.0, 1.0))
                 .child(mono(
-                    tool.clone(), size::CAPTION,
+                    tool.clone(),
+                    size::CAPTION,
                     if on { p.on_accent } else { p.muted },
                 ))
                 .into()
@@ -392,7 +394,8 @@ fn inspector(
                 vec![
                     SizedBox::width(52.0)
                         .child(mono(
-                            format!("+{:.1}s", e.at_ms.saturating_sub(start) as f64 / 1000.0), size::CAPTION,
+                            format!("+{:.1}s", e.at_ms.saturating_sub(start) as f64 / 1000.0),
+                            size::CAPTION,
                             p.muted,
                         ))
                         .into(),
@@ -443,7 +446,8 @@ fn inspector(
                         } else {
                             &card.model
                         }
-                    ), size::SMALL,
+                    ),
+                    size::SMALL,
                     p.muted,
                 ),
                 kv(p, "State", state.label()),
@@ -475,7 +479,11 @@ fn inspector(
                     .radius(corner::FIELD)
                     .padding(EdgeInsets::all(10.0))
                     .child(if log.is_empty() {
-                        t("Nothing yet. Lines appear here as it works.", size::SMALL, p.muted)
+                        t(
+                            "Nothing yet. Lines appear here as it works.",
+                            size::SMALL,
+                            p.muted,
+                        )
                     } else {
                         stretch(space::XS, log)
                     })
@@ -530,13 +538,15 @@ fn ticker(p: &Pal, events: &[Event], progress: &Progress) -> WidgetNode {
                                 format!(
                                     "+{:.1}s",
                                     e.at_ms.saturating_sub(progress.started_ms) as f64 / 1000.0
-                                ), size::CAPTION,
+                                ),
+                                size::CAPTION,
                                 p.muted,
                             ))
                             .into(),
                         SizedBox::width(110.0)
                             .child(line(
-                                e.agent.clone().unwrap_or_else(|| "wright".into()), size::SMALL,
+                                e.agent.clone().unwrap_or_else(|| "wright".into()),
+                                size::SMALL,
                                 p.ink,
                             ))
                             .into(),

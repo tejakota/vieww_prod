@@ -873,13 +873,22 @@ const CULL_CHUNK: u32 = 96;
 
 /// A run's indices in chunks of [`CULL_CHUNK`], each with the device-pixel
 /// bounds of its triangles' vertices — the pixels any of them can cover.
-fn chunk_bounds(plan: &ScenePlan, first_index: u32, index_count: u32) -> Vec<(u32, u32, PixelRect)> {
+fn chunk_bounds(
+    plan: &ScenePlan,
+    first_index: u32,
+    index_count: u32,
+) -> Vec<(u32, u32, PixelRect)> {
     let mut out = Vec::with_capacity((index_count / CULL_CHUNK + 1) as usize);
     let end = first_index + index_count;
     let mut start = first_index;
     while start < end {
         let count = CULL_CHUNK.min(end - start);
-        let (mut x0, mut y0, mut x1, mut y1) = (f32::INFINITY, f32::INFINITY, f32::NEG_INFINITY, f32::NEG_INFINITY);
+        let (mut x0, mut y0, mut x1, mut y1) = (
+            f32::INFINITY,
+            f32::INFINITY,
+            f32::NEG_INFINITY,
+            f32::NEG_INFINITY,
+        );
         for &i in &plan.indices[start as usize..(start + count) as usize] {
             if let Some(v) = plan.vertices.get(i as usize) {
                 x0 = x0.min(v.position[0]);
@@ -1074,8 +1083,17 @@ mod tests {
     /// covers the second chunk's indices alone — not the whole run.
     #[test]
     fn a_damaged_frame_draws_only_the_triangles_its_damage_reaches() {
-        let v = |x: f32, y: f32| vieww_gpu::Vertex { position: [x, y], ..plan(vec![], 1).vertices[0] };
-        let mut p = plan(vec![Step::Draw { first_run: 0, run_count: 1 }], 1);
+        let v = |x: f32, y: f32| vieww_gpu::Vertex {
+            position: [x, y],
+            ..plan(vec![], 1).vertices[0]
+        };
+        let mut p = plan(
+            vec![Step::Draw {
+                first_run: 0,
+                run_count: 1,
+            }],
+            1,
+        );
         // 64 triangles near the top, 64 near the bottom.
         let (mut vertices, mut indices) = (Vec::new(), Vec::new());
         for i in 0..128u32 {
@@ -1087,13 +1105,20 @@ mod tests {
         p.vertices = vertices;
         p.indices = indices;
         p.runs[0].index_count = 384;
-        let retained = Some(Retained { size: (W, H), clear: CLEAR });
+        let retained = Some(Retained {
+            size: (W, H),
+            clear: CLEAR,
+        });
         let frame = frame_passes(&p, W, H, CLEAR, Some(&[rect(0, 85, 100, 100)]), retained);
         let draws: Vec<(u32, u32)> = frame
             .ops
             .iter()
             .filter_map(|op| match op {
-                SceneOp::DrawRun { first_index, index_count, .. } => Some((*first_index, *index_count)),
+                SceneOp::DrawRun {
+                    first_index,
+                    index_count,
+                    ..
+                } => Some((*first_index, *index_count)),
                 _ => None,
             })
             .collect();

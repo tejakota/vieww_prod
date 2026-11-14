@@ -435,10 +435,9 @@ impl Widget for Scroller {
                                 } else {
                                     Color::rgb(200, 205, 215)
                                 })
-                                .child(SizedBox::from_size(Size::new(
-                                    SURFACE.width - 32.0,
-                                    SCROLL_ROW_H - 8.0,
-                                ))),
+                                .child(SizedBox::from_size(
+                                    Size::new(SURFACE.width - 32.0, SCROLL_ROW_H - 8.0),
+                                )),
                             ),
                         )
                         .into(),
@@ -527,10 +526,9 @@ impl Widget for ScrollerUnderOverlay {
                                 } else {
                                     Color::rgb(200, 205, 215)
                                 })
-                                .child(SizedBox::from_size(Size::new(
-                                    SURFACE.width - 32.0,
-                                    SCROLL_ROW_H - 8.0,
-                                ))),
+                                .child(SizedBox::from_size(
+                                    Size::new(SURFACE.width - 32.0, SCROLL_ROW_H - 8.0),
+                                )),
                             ),
                         )
                         .into(),
@@ -546,10 +544,8 @@ impl Widget for ScrollerUnderOverlay {
                 .left(40.0)
                 .top(0.0)
                 .child(
-                    ColoredBox::new(Color::rgb(240, 160, 90)).child(SizedBox::from_size(Size::new(
-                        120.0,
-                        SURFACE.height,
-                    ))),
+                    ColoredBox::new(Color::rgb(240, 160, 90))
+                        .child(SizedBox::from_size(Size::new(120.0, SURFACE.height))),
                 )
                 .into(),
         );

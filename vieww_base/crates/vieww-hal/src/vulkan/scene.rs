@@ -1264,9 +1264,17 @@ impl SceneRenderer {
         let (frame, scratch) = (self.levels[0].image, self.scratch[0].image);
         let region = |src: PixelRect, dst: PixelRect| vk::ImageCopy {
             src_subresource: color_layers(),
-            src_offset: vk::Offset3D { x: src.x0, y: src.y0, z: 0 },
+            src_offset: vk::Offset3D {
+                x: src.x0,
+                y: src.y0,
+                z: 0,
+            },
             dst_subresource: color_layers(),
-            dst_offset: vk::Offset3D { x: dst.x0, y: dst.y0, z: 0 },
+            dst_offset: vk::Offset3D {
+                x: dst.x0,
+                y: dst.y0,
+                z: 0,
+            },
             #[expect(clippy::cast_sign_loss, reason = "non-empty after clamping")]
             extent: vk::Extent3D {
                 width: (src.x1 - src.x0) as u32,
@@ -1284,10 +1292,12 @@ impl SceneRenderer {
         unsafe {
             transition(&self.device, cmd, frame, sro, ts);
             transition(&self.device, cmd, scratch, sro, td);
-            self.device.cmd_copy_image(cmd, frame, ts, scratch, td, &to_scratch);
+            self.device
+                .cmd_copy_image(cmd, frame, ts, scratch, td, &to_scratch);
             transition(&self.device, cmd, frame, ts, td);
             transition(&self.device, cmd, scratch, td, ts);
-            self.device.cmd_copy_image(cmd, scratch, ts, frame, td, &back);
+            self.device
+                .cmd_copy_image(cmd, scratch, ts, frame, td, &back);
             transition(&self.device, cmd, frame, td, sro);
             transition(&self.device, cmd, scratch, ts, sro);
         }
@@ -1678,7 +1688,10 @@ impl SceneRenderer {
         // image; an image written later has to catch up on all of them —
         // the carried rows included.
         let changed: Option<Vec<PixelRect>> = self.frame_clip.as_ref().map(|clip| {
-            clip.iter().copied().chain(copies.iter().map(|(_, dst)| *dst)).collect()
+            clip.iter()
+                .copied()
+                .chain(copies.iter().map(|(_, dst)| *dst))
+                .collect()
         });
         self.presents.record_change(changed.as_deref());
         self.begin_commands()?;
@@ -2805,18 +2818,37 @@ const fn full_rect(width: u32, height: u32) -> vk::Rect2D {
 /// the source shrinks to the rows that land somewhere, and the destination is
 /// always that source moved — never clipped on its own, which would slide
 /// the carried rows.
-fn carried_pairs(copies: &[(PixelRect, i32, i32)], width: u32, height: u32) -> Vec<(PixelRect, PixelRect)> {
+fn carried_pairs(
+    copies: &[(PixelRect, i32, i32)],
+    width: u32,
+    height: u32,
+) -> Vec<(PixelRect, PixelRect)> {
     #[expect(clippy::cast_possible_wrap, reason = "frame extents are small")]
-    let frame = PixelRect { x0: 0, y0: 0, x1: width as i32, y1: height as i32 };
+    let frame = PixelRect {
+        x0: 0,
+        y0: 0,
+        x1: width as i32,
+        y1: height as i32,
+    };
     copies
         .iter()
         .filter_map(|&(src, dx, dy)| {
-            let landing = PixelRect { x0: frame.x0 - dx, y0: frame.y0 - dy, x1: frame.x1 - dx, y1: frame.y1 - dy };
+            let landing = PixelRect {
+                x0: frame.x0 - dx,
+                y0: frame.y0 - dy,
+                x1: frame.x1 - dx,
+                y1: frame.y1 - dy,
+            };
             let src = src.intersect(frame).intersect(landing);
             if src.is_empty() || (dx == 0 && dy == 0) {
                 return None;
             }
-            let dst = PixelRect { x0: src.x0 + dx, y0: src.y0 + dy, x1: src.x1 + dx, y1: src.y1 + dy };
+            let dst = PixelRect {
+                x0: src.x0 + dx,
+                y0: src.y0 + dy,
+                x1: src.x1 + dx,
+                y1: src.y1 + dy,
+            };
             Some((src, dst))
         })
         .collect()

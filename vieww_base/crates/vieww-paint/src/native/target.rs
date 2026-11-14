@@ -1011,8 +1011,8 @@ impl Target {
                     row.push(pixel);
                 }
                 let dst_row = (y + oy) as usize * self.width as usize;
-                let dst = &mut self.pixels[dst_row + (seg_start + ox) as usize
-                    ..dst_row + (seg_end + ox) as usize];
+                let dst = &mut self.pixels
+                    [dst_row + (seg_start + ox) as usize..dst_row + (seg_end + ox) as usize];
                 if normal {
                     super::simd::over_layer_row(dst, &row, 1.0, true);
                 } else {

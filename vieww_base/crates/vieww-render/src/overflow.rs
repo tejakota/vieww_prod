@@ -30,7 +30,6 @@
 
 use std::cell::RefCell;
 
-
 use vieww_foundation::Axis;
 
 /// Sub-pixel differences are rounding, not overflow.

@@ -306,8 +306,8 @@ impl Path {
         }
         use PathVerb::{Close, CubicTo, LineTo, MoveTo};
         let (l, t, r, b, corner, straight, cubics) = match verbs {
-            [MoveTo(a), LineTo(top_end), CubicTo(c1, c2, c3), LineTo(d), CubicTo(e1, e2, e3),
-             LineTo(f), CubicTo(g1, g2, g3), LineTo(h), CubicTo(i1, i2, i3), Close] => {
+            [MoveTo(a), LineTo(top_end), CubicTo(c1, c2, c3), LineTo(d), CubicTo(e1, e2, e3), LineTo(f), CubicTo(g1, g2, g3), LineTo(h), CubicTo(i1, i2, i3), Close] =>
+            {
                 // The straight edges: `a` to `top_end` across the top, `d`
                 // down the right, `f` across the bottom, `h` up the left.
                 // Each states two sides of the rectangle exactly, and the
@@ -368,10 +368,10 @@ impl Path {
         let (_, _, g3) = cubics[2];
         let (_, _, i3) = cubics[3];
         let corners = [
-            (top_end.dx, d.dx, a.dy, c3.dy),        // top-right
-            (e3.dx, d.dx, d.dy, f.dy),              // bottom-right
-            (h.dx, f.dx, g3.dy, f.dy),              // bottom-left
-            (h.dx, i3.dx, a.dy, h.dy),              // top-left
+            (top_end.dx, d.dx, a.dy, c3.dy), // top-right
+            (e3.dx, d.dx, d.dy, f.dy),       // bottom-right
+            (h.dx, f.dx, g3.dy, f.dy),       // bottom-left
+            (h.dx, i3.dx, a.dy, h.dy),       // top-left
         ];
         for (index, &(p1, p2, p3)) in cubics.iter().enumerate() {
             let (x0, x1, y0, y1) = corners[index];
@@ -1117,7 +1117,9 @@ mod tests {
     /// rectangle, a border ring, an arbitrary path with the same point count.
     #[test]
     fn nothing_else_is_taken_for_a_rounded_rect() {
-        assert!(Path::rect(Rect::new(0.0, 0.0, 40.0, 20.0)).as_rounded_rect().is_none());
+        assert!(Path::rect(Rect::new(0.0, 0.0, 40.0, 20.0))
+            .as_rounded_rect()
+            .is_none());
         assert!(
             Path::rounded_ring(Rect::new(0.0, 0.0, 40.0, 20.0), 6.0, 2.0)
                 .as_rounded_rect()
@@ -1694,4 +1696,3 @@ mod tests {
         );
     }
 }
-

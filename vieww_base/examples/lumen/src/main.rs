@@ -77,7 +77,11 @@ fn cast(elevation: f32, strength: u8) -> Shadow {
 
 /// The rim the light catches along a surface's upper edge.
 fn rim(alpha: u8) -> Shadow {
-    Shadow::inset(Color::rgba(255, 255, 255, alpha), Offset::new(0.0, HAIR * 2.0), 0.0)
+    Shadow::inset(
+        Color::rgba(255, 255, 255, alpha),
+        Offset::new(0.0, HAIR * 2.0),
+        0.0,
+    )
 }
 
 fn text(s: &str, size: f32, weight: FontWeight, color: Color) -> WidgetNode {
@@ -96,9 +100,10 @@ fn lumen_ground() -> WidgetNode {
             Positioned::new().left(-140.0).top(-120.0).child(
                 Container::new()
                     .gradient(
-                        Gradient::radial_fill()
-                            .with_dither()
-                            .with_stops(&[(0.0, p3a(124, 92, 255, 150)), (1.0, p3a(124, 92, 255, 0))]),
+                        Gradient::radial_fill().with_dither().with_stops(&[
+                            (0.0, p3a(124, 92, 255, 150)),
+                            (1.0, p3a(124, 92, 255, 0)),
+                        ]),
                     )
                     .size(520.0, 520.0),
             ),
@@ -107,9 +112,10 @@ fn lumen_ground() -> WidgetNode {
             Positioned::new().left(150.0).top(150.0).child(
                 Container::new()
                     .gradient(
-                        Gradient::radial_fill()
-                            .with_dither()
-                            .with_stops(&[(0.0, p3a(40, 210, 255, 120)), (1.0, p3a(40, 210, 255, 0))]),
+                        Gradient::radial_fill().with_dither().with_stops(&[
+                            (0.0, p3a(40, 210, 255, 120)),
+                            (1.0, p3a(40, 210, 255, 0)),
+                        ]),
                     )
                     .size(420.0, 420.0),
             ),
@@ -118,9 +124,10 @@ fn lumen_ground() -> WidgetNode {
             Positioned::new().left(-60.0).top(520.0).child(
                 Container::new()
                     .gradient(
-                        Gradient::radial_fill()
-                            .with_dither()
-                            .with_stops(&[(0.0, p3a(255, 70, 160, 70)), (1.0, p3a(255, 70, 160, 0))]),
+                        Gradient::radial_fill().with_dither().with_stops(&[
+                            (0.0, p3a(255, 70, 160, 70)),
+                            (1.0, p3a(255, 70, 160, 0)),
+                        ]),
                     )
                     .size(380.0, 380.0),
             ),
@@ -132,27 +139,37 @@ fn lumen_ground() -> WidgetNode {
 /// top-left — brighter where the light lands, a hairline rim on top.
 fn glass(radius: f32, elevation: f32, child: impl Into<WidgetNode>) -> WidgetNode {
     Container::new()
-        .decoration(BoxDecoration::new().radius(radius).shadow(cast(elevation, 110)))
+        .decoration(
+            BoxDecoration::new()
+                .radius(radius)
+                .shadow(cast(elevation, 110)),
+        )
         .child(
             Clip::rounded(radius).child(
-                Filtered::blur(26.0).with_backdrop().tint(GROUND, 0.28).child(
-                    Container::new()
-                        .decoration(
-                            BoxDecoration::new()
-                                .radius(radius)
-                                .gradient(
-                                    Gradient::linear(Offset::new(0.0, 0.0), Offset::new(1.0, 1.0))
+                Filtered::blur(26.0)
+                    .with_backdrop()
+                    .tint(GROUND, 0.28)
+                    .child(
+                        Container::new()
+                            .decoration(
+                                BoxDecoration::new()
+                                    .radius(radius)
+                                    .gradient(
+                                        Gradient::linear(
+                                            Offset::new(0.0, 0.0),
+                                            Offset::new(1.0, 1.0),
+                                        )
                                         .with_dither()
                                         .with_stops(&[
                                             (0.0, Color::rgba(255, 255, 255, 16)),
                                             (1.0, Color::rgba(255, 255, 255, 3)),
                                         ]),
-                                )
-                                .border(Border::new(Color::rgba(255, 255, 255, 30), HAIR))
-                                .shadow(rim(70)),
-                        )
-                        .child(child),
-                ),
+                                    )
+                                    .border(Border::new(Color::rgba(255, 255, 255, 30), HAIR))
+                                    .shadow(rim(70)),
+                            )
+                            .child(child),
+                    ),
             ),
         )
         .into()
@@ -160,15 +177,11 @@ fn glass(radius: f32, elevation: f32, child: impl Into<WidgetNode>) -> WidgetNod
 
 fn lumen_button(label: &str) -> WidgetNode {
     Container::new()
-        .decoration(
-            BoxDecoration::new()
-                .stadium()
-                .shadow(Shadow::new(
-                    p3a(124, 92, 255, 120),
-                    Offset::new(-LIGHT.dx * 4.0, -LIGHT.dy * 8.0),
-                    26.0,
-                )),
-        )
+        .decoration(BoxDecoration::new().stadium().shadow(Shadow::new(
+            p3a(124, 92, 255, 120),
+            Offset::new(-LIGHT.dx * 4.0, -LIGHT.dy * 8.0),
+            26.0,
+        )))
         .child(
             Container::new()
                 .decoration(
@@ -239,7 +252,11 @@ fn lumen_toggle(on: bool) -> WidgetNode {
         .decoration(track)
         .size(52.0, 32.0)
         .padding(EdgeInsets::all(3.0))
-        .alignment(if on { Alignment::CENTER_RIGHT } else { Alignment::CENTER_LEFT })
+        .alignment(if on {
+            Alignment::CENTER_RIGHT
+        } else {
+            Alignment::CENTER_LEFT
+        })
         .child(
             Container::new()
                 .decoration(
@@ -247,7 +264,10 @@ fn lumen_toggle(on: bool) -> WidgetNode {
                         .stadium()
                         .gradient(
                             Gradient::linear(Offset::new(0.0, 0.0), Offset::new(0.6, 1.0))
-                                .with_stops(&[(0.0, Color::WHITE), (1.0, Color::rgb(214, 220, 236))]),
+                                .with_stops(&[
+                                    (0.0, Color::WHITE),
+                                    (1.0, Color::rgb(214, 220, 236)),
+                                ]),
                         )
                         .shadow(cast(3.0, 120)),
                 )
@@ -266,7 +286,11 @@ fn lumen_slider(value: f32) -> WidgetNode {
                         BoxDecoration::new()
                             .stadium()
                             .color(Color::rgba(255, 255, 255, 26))
-                            .shadow(Shadow::inset(Color::rgba(0, 0, 0, 140), Offset::new(0.0, 1.0), 2.0)),
+                            .shadow(Shadow::inset(
+                                Color::rgba(0, 0, 0, 140),
+                                Offset::new(0.0, 1.0),
+                                2.0,
+                            )),
                     )
                     .size(width, 6.0),
             ),
@@ -274,11 +298,9 @@ fn lumen_slider(value: f32) -> WidgetNode {
         .push(
             Positioned::new().left(0.0).top(13.0).child(
                 Container::new()
-                    .decoration(
-                        BoxDecoration::new().stadium().gradient(
-                            Gradient::horizontal().with_stops(&[(0.0, accent()), (1.0, accent_hi())]),
-                        ),
-                    )
+                    .decoration(BoxDecoration::new().stadium().gradient(
+                        Gradient::horizontal().with_stops(&[(0.0, accent()), (1.0, accent_hi())]),
+                    ))
                     .size(width * value, 6.0),
             ),
         )
@@ -304,7 +326,12 @@ fn lumen_segmented(labels: &[&str], selected: usize) -> WidgetNode {
         let cell = Container::new()
             .height(36.0)
             .alignment(Alignment::CENTER)
-            .child(text(label, 14.0, FontWeight::Medium, if i == selected { INK } else { MUTED }));
+            .child(text(
+                label,
+                14.0,
+                FontWeight::Medium,
+                if i == selected { INK } else { MUTED },
+            ));
         let cell = if i == selected {
             cell.decoration(
                 BoxDecoration::new()
@@ -330,23 +357,41 @@ fn lumen_tab_bar(active: usize) -> WidgetNode {
             .decoration(if on {
                 BoxDecoration::new()
                     .stadium()
-                    .gradient(Gradient::horizontal().with_stops(&[(0.0, accent()), (1.0, accent_hi())]))
+                    .gradient(
+                        Gradient::horizontal().with_stops(&[(0.0, accent()), (1.0, accent_hi())]),
+                    )
                     .shadow(Shadow::new(p3a(124, 92, 255, 160), Offset::ZERO, 10.0))
             } else {
-                BoxDecoration::new().stadium().color(Color::rgba(255, 255, 255, 90))
+                BoxDecoration::new()
+                    .stadium()
+                    .color(Color::rgba(255, 255, 255, 90))
             })
             .size(if on { 22.0 } else { 6.0 }, 6.0);
-        row = row.push(Flexible::expanded(1).child(
-            Flex::column()
-                .cross_axis_alignment(CrossAxisAlignment::Center)
-                .spacing(8.0)
-                .children(children![
-                    dot,
-                    text(label, 12.0, FontWeight::Medium, if on { INK } else { MUTED }),
-                ]),
-        ));
+        row = row.push(
+            Flexible::expanded(1).child(
+                Flex::column()
+                    .cross_axis_alignment(CrossAxisAlignment::Center)
+                    .spacing(8.0)
+                    .children(children![
+                        dot,
+                        text(
+                            label,
+                            12.0,
+                            FontWeight::Medium,
+                            if on { INK } else { MUTED }
+                        ),
+                    ]),
+            ),
+        );
     }
-    glass(26.0, 10.0, Container::new().height(68.0).alignment(Alignment::CENTER).child(row))
+    glass(
+        26.0,
+        10.0,
+        Container::new()
+            .height(68.0)
+            .alignment(Alignment::CENTER)
+            .child(row),
+    )
 }
 
 fn lumen_screen() -> WidgetNode {
@@ -381,7 +426,9 @@ fn lumen_screen() -> WidgetNode {
                 .cross_axis_alignment(CrossAxisAlignment::Stretch)
                 .children(children![
                     setting_row("Focus mode", "Silence everything but calls", true),
-                    Container::new().color(Color::rgba(255, 255, 255, 22)).height(HAIR),
+                    Container::new()
+                        .color(Color::rgba(255, 255, 255, 22))
+                        .height(HAIR),
                     setting_row("Ambient light", "Follow the time of day", false),
                 ]),
         ),
@@ -408,7 +455,13 @@ fn lumen_screen() -> WidgetNode {
                 ),
             ),
         )
-        .push(Positioned::new().left(16.0).right(16.0).bottom(24.0).child(lumen_tab_bar(0)))
+        .push(
+            Positioned::new()
+                .left(16.0)
+                .right(16.0)
+                .bottom(24.0)
+                .child(lumen_tab_bar(0)),
+        )
         .into()
 }
 
@@ -440,7 +493,11 @@ fn setting_row(title: &str, detail: &str, on: bool) -> WidgetNode {
 fn platform_screen() -> WidgetNode {
     let card = |child: WidgetNode| -> WidgetNode {
         Container::new()
-            .decoration(BoxDecoration::new().radius(16.0).color(Color::rgb(30, 33, 40)))
+            .decoration(
+                BoxDecoration::new()
+                    .radius(16.0)
+                    .color(Color::rgb(30, 33, 40)),
+            )
             .padding(EdgeInsets::all(18.0))
             .child(child)
             .into()
@@ -458,8 +515,18 @@ fn platform_screen() -> WidgetNode {
                                 .cross_axis_alignment(CrossAxisAlignment::Start)
                                 .spacing(3.0)
                                 .children(children![
-                                    text(title, 15.0, FontWeight::Medium, Color::rgb(236, 238, 242)),
-                                    text(detail, 12.0, FontWeight::Regular, Color::rgb(150, 156, 168)),
+                                    text(
+                                        title,
+                                        15.0,
+                                        FontWeight::Medium,
+                                        Color::rgb(236, 238, 242)
+                                    ),
+                                    text(
+                                        detail,
+                                        12.0,
+                                        FontWeight::Regular,
+                                        Color::rgb(150, 156, 168)
+                                    ),
                                 ]),
                         ),
                         Switch::new(on).on_changed(std::rc::Rc::new(|_| {})),
@@ -485,14 +552,24 @@ fn platform_screen() -> WidgetNode {
                 .cross_axis_alignment(CrossAxisAlignment::Stretch)
                 .spacing(18.0)
                 .children(children![
-                    text("Good evening, Teja", 30.0, FontWeight::Bold, Color::rgb(236, 238, 242)),
+                    text(
+                        "Good evening, Teja",
+                        30.0,
+                        FontWeight::Bold,
+                        Color::rgb(236, 238, 242)
+                    ),
                     card(
                         Flex::column()
                             .cross_axis_alignment(CrossAxisAlignment::Start)
                             .spacing(6.0)
                             .children(children![
                                 text("TONIGHT", 11.0, FontWeight::Bold, Color::rgb(120, 160, 255)),
-                                text("Your evening, in focus", 22.0, FontWeight::Bold, Color::rgb(236, 238, 242)),
+                                text(
+                                    "Your evening, in focus",
+                                    22.0,
+                                    FontWeight::Bold,
+                                    Color::rgb(236, 238, 242)
+                                ),
                                 text(
                                     "Three things left, one call at 9. Everything else can wait.",
                                     14.0,
@@ -500,12 +577,19 @@ fn platform_screen() -> WidgetNode {
                                     Color::rgb(150, 156, 168),
                                 ),
                                 SizedBox::height(10.0),
-                                SizedBox::from_size(Size::new(310.0, 32.0)).child(Slider::new(0.62).on_changed(std::rc::Rc::new(|_| {}))),
-                                text("62% of today done", 12.0, FontWeight::Medium, Color::rgb(150, 156, 168)),
+                                SizedBox::from_size(Size::new(310.0, 32.0))
+                                    .child(Slider::new(0.62).on_changed(std::rc::Rc::new(|_| {}))),
+                                text(
+                                    "62% of today done",
+                                    12.0,
+                                    FontWeight::Medium,
+                                    Color::rgb(150, 156, 168)
+                                ),
                             ])
                             .into(),
                     ),
-                    SegmentedControl::new(["Day", "Week", "Month"], 1).on_selected(std::rc::Rc::new(|_| {})),
+                    SegmentedControl::new(["Day", "Week", "Month"], 1)
+                        .on_selected(std::rc::Rc::new(|_| {})),
                     field("Search", "Find anything…"),
                     field("Note", "Call the studio about Friday"),
                     card(
@@ -517,7 +601,8 @@ fn platform_screen() -> WidgetNode {
                             ])
                             .into(),
                     ),
-                    SizedBox::height(50.0).child(Button::new("Start focus session").on_pressed(|| {})),
+                    SizedBox::height(50.0)
+                        .child(Button::new("Start focus session").on_pressed(|| {})),
                 ]),
         )
         .into()
@@ -556,39 +641,60 @@ fn render_at(
     // The whole tree laid out at the logical size and drawn through one
     // scale — vector all the way down, so the density is a number, not a
     // second set of assets.
+    driver.set_root(Theme::new(ThemeData::dark()).child(
+        Transformed::new(Transform::scale(density, density)).child(
+            Align::new(Alignment::TOP_LEFT).child(SizedBox::from_size(SCREEN).child(screen)),
+        ),
+    ));
+    for frame in 1..=3_u64 {
+        driver.draw_frame_at(std::time::Duration::from_millis(16 * frame));
+    }
+    let mut renderer = NativeRenderer::with_color_pipeline(pipeline);
+    let (pixels, _) = renderer.render_to_pixels(
+        driver.scene(),
+        device.width as u32,
+        device.height as u32,
+        base,
+    )?;
+    image::RgbaImage::from_raw(
+        device.width as u32,
+        device.height as u32,
+        pixels.data().to_vec(),
+    )
+    .ok_or_else(|| "invalid RGBA frame".into())
+}
+
+fn render_sized(
+    screen: WidgetNode,
+    size: Size,
+    density: f32,
+) -> Result<image::RgbaImage, Box<dyn std::error::Error>> {
+    let device = Size::new(size.width * density, size.height * density);
+    let mut driver = FrameDriver::new(device);
+    driver.set_fonts(fonts());
     driver.set_root(
         Theme::new(ThemeData::dark()).child(
             Transformed::new(Transform::scale(density, density)).child(
-                Align::new(Alignment::TOP_LEFT).child(SizedBox::from_size(SCREEN).child(screen)),
+                Align::new(Alignment::TOP_LEFT).child(SizedBox::from_size(size).child(screen)),
             ),
         ),
     );
     for frame in 1..=3_u64 {
         driver.draw_frame_at(std::time::Duration::from_millis(16 * frame));
     }
-    let mut renderer = NativeRenderer::with_color_pipeline(pipeline);
-    let (pixels, _) =
-        renderer.render_to_pixels(driver.scene(), device.width as u32, device.height as u32, base)?;
-    image::RgbaImage::from_raw(device.width as u32, device.height as u32, pixels.data().to_vec())
-        .ok_or_else(|| "invalid RGBA frame".into())
-}
-
-fn render_sized(screen: WidgetNode, size: Size, density: f32) -> Result<image::RgbaImage, Box<dyn std::error::Error>> {
-    let device = Size::new(size.width * density, size.height * density);
-    let mut driver = FrameDriver::new(device);
-    driver.set_fonts(fonts());
-    driver.set_root(
-        Theme::new(ThemeData::dark()).child(
-            Transformed::new(Transform::scale(density, density))
-                .child(Align::new(Alignment::TOP_LEFT).child(SizedBox::from_size(size).child(screen))),
-        ),
-    );
-    for frame in 1..=3_u64 {
-        driver.draw_frame_at(std::time::Duration::from_millis(16 * frame));
-    }
     let mut renderer = NativeRenderer::with_color_pipeline(ColorPipeline::LinearLight);
-    let (pixels, _) = renderer.render_to_pixels(driver.scene(), device.width as u32, device.height as u32, Color::rgb(4, 5, 8))?;
-    image::RgbaImage::from_raw(device.width as u32, device.height as u32, pixels.data().to_vec()).ok_or_else(|| "invalid RGBA frame".into())
+    let (pixels, _) = renderer.render_to_pixels(
+        driver.scene(),
+        device.width as u32,
+        device.height as u32,
+        Color::rgb(4, 5, 8),
+    )?;
+    image::RgbaImage::from_raw(
+        device.width as u32,
+        device.height as u32,
+        pixels.data().to_vec(),
+    )
+    .ok_or_else(|| "invalid RGBA frame".into())
 }
 
 /// How much light a frame asks an OLED panel to emit, as a percentage of an
@@ -598,7 +704,11 @@ fn render_sized(screen: WidgetNode, size: Size, density: f32) -> Result<image::R
 fn emission(image: &image::RgbaImage) -> f64 {
     let lin = |c: u8| {
         let c = f64::from(c) / 255.0;
-        if c <= 0.04045 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) }
+        if c <= 0.04045 {
+            c / 12.92
+        } else {
+            ((c + 0.055) / 1.055).powf(2.4)
+        }
     };
     let mut sum = 0.0;
     for p in image.pixels() {
@@ -617,7 +727,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if mode.as_deref() == Some("--colors") {
         // Every palette under every light, at 2x, and every text pairing
         // measured against WCAG's 4.5:1.
-        let times = [("dawn", 0.06_f32), ("noon", 0.5), ("dusk", 0.94), ("night", 1.5)];
+        let times = [
+            ("dawn", 0.06_f32),
+            ("noon", 0.5),
+            ("dusk", 0.94),
+            ("night", 1.5),
+        ];
         let mut rows = Vec::new();
         let mut worst = (f32::MAX, String::new());
         println!("lowest text contrast per palette and light (WCAG AA needs 4.5):");
@@ -626,9 +741,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let mut line = format!("  {:<15}", pal.name);
             for (name, t) in times {
                 let l = light::Light::at(t);
-                row.push(render_at(light::screen(l, 0.0, pal), ColorPipeline::LinearLight, Color::rgb(4, 5, 8), 2.0)?);
+                row.push(render_at(
+                    light::screen(l, 0.0, pal),
+                    ColorPipeline::LinearLight,
+                    Color::rgb(4, 5, 8),
+                    2.0,
+                )?);
                 let checks = light::checks(l, pal);
-                let low = checks.iter().min_by(|a, b| a.ratio.total_cmp(&b.ratio)).unwrap();
+                let low = checks
+                    .iter()
+                    .min_by(|a, b| a.ratio.total_cmp(&b.ratio))
+                    .unwrap();
                 line.push_str(&format!(" {name} {:>5.2} ({})", low.ratio, low.place));
                 if low.ratio < worst.0 {
                     worst = (low.ratio, format!("{} at {name}: {}", pal.name, low.place));
@@ -647,8 +770,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
         for (r, row) in rows.iter().enumerate() {
             for (c, img) in row.iter().enumerate() {
-                let small = image::imageops::resize(img, w, h, image::imageops::FilterType::Triangle);
-                image::imageops::overlay(&mut sheet, &small, i64::from((w + gap) * c as u32), i64::from((h + gap) * r as u32));
+                let small =
+                    image::imageops::resize(img, w, h, image::imageops::FilterType::Triangle);
+                image::imageops::overlay(
+                    &mut sheet,
+                    &small,
+                    i64::from((w + gap) * c as u32),
+                    i64::from((h + gap) * r as u32),
+                );
             }
         }
         sheet.save(format!("{out}/colors.png"))?;
@@ -660,7 +789,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // viewwstudio's shell, rebuilt in the lit theme at its own 1440x900,
         // dark and light.
         let l = light::Light::at(0.94);
-        for (name, pal) in [("studio-dark", light::PALETTES[0]), ("studio-light", light::PALETTES[1])] {
+        for (name, pal) in [
+            ("studio-dark", light::PALETTES[0]),
+            ("studio-light", light::PALETTES[1]),
+        ] {
             let image = render_sized(light::studio_screen(l, pal), Size::new(1440.0, 900.0), 1.0)?;
             image.save(format!("{out}/{name}.png"))?;
         }
@@ -675,15 +807,29 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut shots = Vec::new();
         for pal in [light::PALETTES[0], light::PALETTES[1]] {
             for v in 0..3 {
-                shots.push(render_at(light::flex_screen(l, 0.0, pal, v), ColorPipeline::LinearLight, Color::rgb(4, 5, 8), 2.0)?);
+                shots.push(render_at(
+                    light::flex_screen(l, 0.0, pal, v),
+                    ColorPipeline::LinearLight,
+                    Color::rgb(4, 5, 8),
+                    2.0,
+                )?);
             }
         }
         let (w, h) = (shots[0].width() / 2, shots[0].height() / 2);
         let gap = 24;
-        let mut sheet = image::RgbaImage::from_pixel((w + gap) * 3 - gap, (h + gap) * 2 - gap, image::Rgba([255, 255, 255, 255]));
+        let mut sheet = image::RgbaImage::from_pixel(
+            (w + gap) * 3 - gap,
+            (h + gap) * 2 - gap,
+            image::Rgba([255, 255, 255, 255]),
+        );
         for (i, img) in shots.iter().enumerate() {
             let small = image::imageops::resize(img, w, h, image::imageops::FilterType::Triangle);
-            image::imageops::overlay(&mut sheet, &small, i64::from((w + gap) * (i as u32 % 3)), i64::from((h + gap) * (i as u32 / 3)));
+            image::imageops::overlay(
+                &mut sheet,
+                &small,
+                i64::from((w + gap) * (i as u32 % 3)),
+                i64::from((h + gap) * (i as u32 / 3)),
+            );
         }
         sheet.save(format!("{out}/flex.png"))?;
         println!("flex -> {out}/flex.png");
@@ -694,17 +840,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // A photo-sharing app in the same theme: feed, profile, comments,
         // dark and light, in the evening light.
         let l = light::Light::at(0.94);
-        let make: [fn(light::Light, f32, light::Palette) -> WidgetNode; 3] =
-            [light::glimpse_feed, light::glimpse_profile, light::glimpse_comments];
+        let make: [fn(light::Light, f32, light::Palette) -> WidgetNode; 3] = [
+            light::glimpse_feed,
+            light::glimpse_profile,
+            light::glimpse_comments,
+        ];
         let mut shots = Vec::new();
         for pal in [light::PALETTES[0], light::PALETTES[1]] {
             for f in make {
-                shots.push(render_at(f(l, 0.0, pal), ColorPipeline::LinearLight, Color::rgb(4, 5, 8), 2.0)?);
+                shots.push(render_at(
+                    f(l, 0.0, pal),
+                    ColorPipeline::LinearLight,
+                    Color::rgb(4, 5, 8),
+                    2.0,
+                )?);
             }
         }
         let (w, h) = (shots[0].width() / 2, shots[0].height() / 2);
         let gap = 24;
-        let mut sheet = image::RgbaImage::from_pixel((w + gap) * 6 - gap, h, image::Rgba([255, 255, 255, 255]));
+        let mut sheet =
+            image::RgbaImage::from_pixel((w + gap) * 6 - gap, h, image::Rgba([255, 255, 255, 255]));
         for (i, img) in shots.iter().enumerate() {
             let small = image::imageops::resize(img, w, h, image::imageops::FilterType::Triangle);
             image::imageops::overlay(&mut sheet, &small, i64::from((w + gap) * i as u32), 0);
@@ -720,23 +875,43 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // The same rules on five different screens, dark and light, in the
         // evening light.
         let l = light::Light::at(0.94);
-        let make: [fn(light::Light, f32, light::Palette) -> WidgetNode; 5] =
-            [light::screen, light::list_screen, light::settings_screen, light::chat_screen, light::dialog_screen];
+        let make: [fn(light::Light, f32, light::Palette) -> WidgetNode; 5] = [
+            light::screen,
+            light::list_screen,
+            light::settings_screen,
+            light::chat_screen,
+            light::dialog_screen,
+        ];
         let mut rows = Vec::new();
         for pal in [light::PALETTES[0], light::PALETTES[1]] {
             let mut row = Vec::new();
             for f in make {
-                row.push(render_at(f(l, 0.0, pal), ColorPipeline::LinearLight, Color::rgb(4, 5, 8), 2.0)?);
+                row.push(render_at(
+                    f(l, 0.0, pal),
+                    ColorPipeline::LinearLight,
+                    Color::rgb(4, 5, 8),
+                    2.0,
+                )?);
             }
             rows.push(row);
         }
         let (w, h) = (rows[0][0].width() / 2, rows[0][0].height() / 2);
         let gap = 24;
-        let mut sheet = image::RgbaImage::from_pixel((w + gap) * 5 - gap, (h + gap) * 2 - gap, image::Rgba([255, 255, 255, 255]));
+        let mut sheet = image::RgbaImage::from_pixel(
+            (w + gap) * 5 - gap,
+            (h + gap) * 2 - gap,
+            image::Rgba([255, 255, 255, 255]),
+        );
         for (r, row) in rows.iter().enumerate() {
             for (c, img) in row.iter().enumerate() {
-                let small = image::imageops::resize(img, w, h, image::imageops::FilterType::Triangle);
-                image::imageops::overlay(&mut sheet, &small, i64::from((w + gap) * c as u32), i64::from((h + gap) * r as u32));
+                let small =
+                    image::imageops::resize(img, w, h, image::imageops::FilterType::Triangle);
+                image::imageops::overlay(
+                    &mut sheet,
+                    &small,
+                    i64::from((w + gap) * c as u32),
+                    i64::from((h + gap) * r as u32),
+                );
             }
         }
         sheet.save(format!("{out}/screens.png"))?;
@@ -747,17 +922,30 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if mode.as_deref() == Some("--light") {
         // The same screen at four times of day, then a reel of the sun
         // crossing it (dawn to dusk) and the lamp coming on.
-        let times = [("dawn", 0.06_f32), ("noon", 0.5), ("dusk", 0.94), ("night", 1.5)];
+        let times = [
+            ("dawn", 0.06_f32),
+            ("noon", 0.5),
+            ("dusk", 0.94),
+            ("night", 1.5),
+        ];
         let mut stills = Vec::new();
         for (name, t) in times {
-            let image = render(light::screen(light::Light::at(t), 0.0, light::PALETTES[0]), ColorPipeline::LinearLight, Color::rgb(4, 5, 8))?;
+            let image = render(
+                light::screen(light::Light::at(t), 0.0, light::PALETTES[0]),
+                ColorPipeline::LinearLight,
+                Color::rgb(4, 5, 8),
+            )?;
             image.save(format!("{out}/light-{name}.png"))?;
             println!("  {name:<6} emitted {:5.2}%", emission(&image));
             stills.push(image);
         }
         let gap = 60;
         let w = stills[0].width();
-        let mut sheet = image::RgbaImage::from_pixel(w * 4 + gap * 3, stills[0].height(), image::Rgba([255, 255, 255, 255]));
+        let mut sheet = image::RgbaImage::from_pixel(
+            w * 4 + gap * 3,
+            stills[0].height(),
+            image::Rgba([255, 255, 255, 255]),
+        );
         for (i, still) in stills.iter().enumerate() {
             image::imageops::overlay(&mut sheet, still, i64::from((w + gap) * i as u32), 0);
         }
@@ -768,7 +956,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         for i in 0..total {
             let t = if i < 100 { i as f32 / 99.0 } else { 1.5 };
             let tilt = (i as f32 / 40.0 * std::f32::consts::TAU).sin();
-            let image = render_at(light::screen(light::Light::at(t), tilt, light::PALETTES[0]), ColorPipeline::LinearLight, Color::rgb(4, 5, 8), 2.0)?;
+            let image = render_at(
+                light::screen(light::Light::at(t), tilt, light::PALETTES[0]),
+                ColorPipeline::LinearLight,
+                Color::rgb(4, 5, 8),
+                2.0,
+            )?;
             image.save(format!("{dir}/{i:03}.png"))?;
         }
         println!("light -> {out}");
@@ -776,23 +969,62 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     use depth::{Frame, Power};
-    let still = Frame { tilt: 0.0, dialog: 0.0, power: Power::Full };
+    let still = Frame {
+        tilt: 0.0,
+        dialog: 0.0,
+        power: Power::Full,
+    };
 
     let shots = [
-        ("platform", render(platform_screen(), ColorPipeline::GammaSpace, Color::rgb(18, 20, 24))?),
-        ("lumen", render(lumen_screen(), ColorPipeline::LinearLight, GROUND)?),
-        ("depth", render(depth::screen(still), ColorPipeline::LinearLight, depth::GROUND)?),
+        (
+            "platform",
+            render(
+                platform_screen(),
+                ColorPipeline::GammaSpace,
+                Color::rgb(18, 20, 24),
+            )?,
+        ),
+        (
+            "lumen",
+            render(lumen_screen(), ColorPipeline::LinearLight, GROUND)?,
+        ),
+        (
+            "depth",
+            render(
+                depth::screen(still),
+                ColorPipeline::LinearLight,
+                depth::GROUND,
+            )?,
+        ),
         (
             "depth-tilted",
-            render(depth::screen(Frame { tilt: 1.0, ..still }), ColorPipeline::LinearLight, depth::GROUND)?,
+            render(
+                depth::screen(Frame { tilt: 1.0, ..still }),
+                ColorPipeline::LinearLight,
+                depth::GROUND,
+            )?,
         ),
         (
             "depth-dialog",
-            render(depth::screen(Frame { dialog: 1.0, ..still }), ColorPipeline::LinearLight, depth::GROUND)?,
+            render(
+                depth::screen(Frame {
+                    dialog: 1.0,
+                    ..still
+                }),
+                ColorPipeline::LinearLight,
+                depth::GROUND,
+            )?,
         ),
         (
             "depth-saver",
-            render(depth::screen(Frame { power: Power::Saver, ..still }), ColorPipeline::LinearLight, depth::GROUND)?,
+            render(
+                depth::screen(Frame {
+                    power: Power::Saver,
+                    ..still
+                }),
+                ColorPipeline::LinearLight,
+                depth::GROUND,
+            )?,
         ),
     ];
     println!("emitted light, % of an all-white screen (OLED display power share):");
@@ -803,7 +1035,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let side = |a: &image::RgbaImage, b: &image::RgbaImage, c: &image::RgbaImage| {
         let gap = 60;
-        let mut all = image::RgbaImage::from_pixel(a.width() * 3 + gap * 2, a.height(), image::Rgba([255, 255, 255, 255]));
+        let mut all = image::RgbaImage::from_pixel(
+            a.width() * 3 + gap * 2,
+            a.height(),
+            image::Rgba([255, 255, 255, 255]),
+        );
         image::imageops::overlay(&mut all, a, 0, 0);
         image::imageops::overlay(&mut all, b, i64::from(a.width() + gap), 0);
         image::imageops::overlay(&mut all, c, i64::from((a.width() + gap) * 2), 0);
@@ -821,13 +1057,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         for i in 0..total {
             let f = i as f32;
             let frame = if i < 48 {
-                Frame { tilt: (f / 48.0 * std::f32::consts::TAU).sin(), dialog: 0.0, power: Power::Full }
+                Frame {
+                    tilt: (f / 48.0 * std::f32::consts::TAU).sin(),
+                    dialog: 0.0,
+                    power: Power::Full,
+                }
             } else {
                 let t = ((f - 48.0) / 18.0).min(1.0);
                 let ease = 1.0 - (1.0 - t).powi(3);
-                Frame { tilt: 0.0, dialog: ease, power: Power::Full }
+                Frame {
+                    tilt: 0.0,
+                    dialog: ease,
+                    power: Power::Full,
+                }
             };
-            let image = render_at(depth::screen(frame), ColorPipeline::LinearLight, depth::GROUND, 2.0)?;
+            let image = render_at(
+                depth::screen(frame),
+                ColorPipeline::LinearLight,
+                depth::GROUND,
+                2.0,
+            )?;
             image.save(format!("{dir}/{i:03}.png"))?;
         }
         println!("frames -> {dir}");

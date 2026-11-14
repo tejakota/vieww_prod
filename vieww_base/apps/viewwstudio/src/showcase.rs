@@ -6,8 +6,8 @@
 //! The pieces both faces of the studio need to turn a rendered screen into
 //! something a person shows someone else:
 //!
-//! * [`Framer`] — the preview pane's own device shell (its [`DeviceShell`]
-//!   painter, its [`cutouts`], its [`shell_metrics`]) drawn *around* a
+//! * [`Framer`] — the preview pane's own device shell (its `DeviceShell`
+//!   painter, its `cutouts`, its `shell_metrics`) drawn *around* a
 //!   rendered screen. The shell and the cutouts are rasterised once per
 //!   device by the same `NativeRenderer` every render uses, and each frame of
 //!   an animation is only a paste between them — so framing a 75-frame GIF
@@ -151,7 +151,7 @@ fn over(dst: &mut [u8], src: [u8; 4], coverage: f32) {
 }
 
 /// Rasterise a widget tree at `width`×`height` over transparency, through the
-/// studio's own mount ([`crate::install`]) and its one rasteriser.
+/// studio's own mount (`crate::install`) and its one rasteriser.
 ///
 /// # Errors
 ///

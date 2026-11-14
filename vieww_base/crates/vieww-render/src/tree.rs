@@ -684,7 +684,8 @@ impl RenderTree {
     }
 
     /// The `debug_name` of the object in a slot, readable while that object
-    /// is out of the tree being laid out. See [`Node::name`].
+    /// is out of the tree being laid out — the node's `name` field, which
+    /// `Node` keeps private to itself.
     #[must_use]
     pub fn object_name(&self, id: RenderId) -> Option<&'static str> {
         self.slots

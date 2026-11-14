@@ -870,7 +870,11 @@ impl LayerTree {
     /// whole-pixel copies the device-resolution renderer applies.
     #[must_use]
     pub fn damage_at_ratio(&self, surface: Rect, ratio: f32) -> Damage {
-        let ratio = if ratio.is_finite() && ratio > 0.0 { ratio } else { 1.0 };
+        let ratio = if ratio.is_finite() && ratio > 0.0 {
+            ratio
+        } else {
+            1.0
+        };
         let mut damage = Damage::new(surface);
         for &rect in &self.vacated {
             damage.add(rect);
@@ -889,7 +893,9 @@ impl LayerTree {
             let transform = self.screen_transform(id);
             let re_recorded = layer.paint_count != layer.settled_paint_count;
             if !layer.bounds_damage {
-                if let Some(delta) = whole_pixel_delta(layer.last_screen_transform, transform, ratio) {
+                if let Some(delta) =
+                    whole_pixel_delta(layer.last_screen_transform, transform, ratio)
+                {
                     let old = self.painted_extent_at(id, re_recorded, &layer.last_screen_transform);
                     let new = self.painted_extent_at(id, false, &transform);
                     // The carried pixels have to land inside the clip the
@@ -897,11 +903,20 @@ impl LayerTree {
                     // no command's clip is going to hold it back. A row sliding
                     // out of the viewport refuses here and damages both bounds.
                     let lands_in_clip = match self.ancestor_clip(id) {
-                        Some(clip) => clip.intersect(CopyRegion::new(old, delta).dst) == CopyRegion::new(old, delta).dst,
+                        Some(clip) => {
+                            clip.intersect(CopyRegion::new(old, delta).dst)
+                                == CopyRegion::new(old, delta).dst
+                        }
                         None => true,
                     };
                     if lands_in_clip {
-                        movers.push(Mover { id, delta, re_recorded, old, new });
+                        movers.push(Mover {
+                            id,
+                            delta,
+                            re_recorded,
+                            old,
+                            new,
+                        });
                         continue;
                     }
                 }
@@ -1015,10 +1030,7 @@ impl LayerTree {
                 .collect();
             remaining.retain(|m| m.delta != delta);
             let mover_ids: Vec<LayerId> = group.iter().map(|m| m.id).collect();
-            let mover_extents: Vec<Rect> = group
-                .iter()
-                .flat_map(|m| [m.old, m.new])
-                .collect();
+            let mover_extents: Vec<Rect> = group.iter().flat_map(|m| [m.old, m.new]).collect();
 
             // Cluster by overlap of what is carried. Extents that overlap —
             // shadow fringes reach into the neighbour below — must copy as one,
@@ -1050,13 +1062,20 @@ impl LayerTree {
                 bridged = false;
                 'attempt: for i in 0..clusters.len() {
                     for j in (i + 1)..clusters.len() {
-                        let src_i: Rect =
-                            clusters[i].iter().fold(Rect::ZERO, |acc, m| acc.union(m.old));
-                        let src_j: Rect =
-                            clusters[j].iter().fold(Rect::ZERO, |acc, m| acc.union(m.old));
+                        let src_i: Rect = clusters[i]
+                            .iter()
+                            .fold(Rect::ZERO, |acc, m| acc.union(m.old));
+                        let src_j: Rect = clusters[j]
+                            .iter()
+                            .fold(Rect::ZERO, |acc, m| acc.union(m.old));
                         let bridged_src = src_i.union(src_j);
                         let swept = bridged_src.union(CopyRegion::new(bridged_src, delta).dst);
-                        if self.swept_rect_is_grantable(swept, &mover_ids, &mover_extents, &qualified_all) {
+                        if self.swept_rect_is_grantable(
+                            swept,
+                            &mover_ids,
+                            &mover_extents,
+                            &qualified_all,
+                        ) {
                             let mut merged = clusters.swap_remove(j);
                             merged.extend(clusters.swap_remove(i));
                             clusters.push(merged);
@@ -1169,8 +1188,7 @@ impl LayerTree {
             // pixels ride its own copy and nothing repaints them here, so its
             // ink reaching this swept rectangle is two copies disagreeing about
             // the same pixels, and it refuses.
-            let transform_moved =
-                self.screen_transform(id) != layer.last_screen_transform;
+            let transform_moved = self.screen_transform(id) != layer.last_screen_transform;
             if !qualified_all.contains(&id) && (layer.bounds_damage || transform_moved) {
                 continue;
             }
@@ -2327,7 +2345,12 @@ mod tests {
         let root = tree.root().expect("root");
         paint(&mut tree, root, SURFACE, Color::rgb(18, 18, 18));
         let child = tree.insert(Some(root), Transform::IDENTITY);
-        paint(&mut tree, child, Rect::new(20.0, 100.0, 280.0, 160.0), Color::rgb(230, 230, 230));
+        paint(
+            &mut tree,
+            child,
+            Rect::new(20.0, 100.0, 280.0, 160.0),
+            Color::rgb(230, 230, 230),
+        );
         tree.end_frame();
         (tree, child)
     }
@@ -2359,21 +2382,27 @@ mod tests {
         assert!(damage.copies().is_empty(), "{damage}");
         // Both where it sat and where it sits: the diff finds nothing in an
         // untouched recording, so the extents are the only honest report.
-        assert!(damage.intersects(Rect::new(20.0, 100.0, 280.0, 160.0)), "{damage}");
-        assert!(damage.intersects(Rect::new(20.0, 108.5, 280.0, 168.5)), "{damage}");
+        assert!(
+            damage.intersects(Rect::new(20.0, 100.0, 280.0, 160.0)),
+            "{damage}"
+        );
+        assert!(
+            damage.intersects(Rect::new(20.0, 108.5, 280.0, 168.5)),
+            "{damage}"
+        );
     }
 
     #[test]
     fn a_scaled_move_refuses() {
         let (mut tree, child) = scrolled_tree();
-        tree.set_transform(
-            child,
-            Transform::new(2.0, 0.0, 0.0, 2.0, 0.0, 8.0),
-        );
+        tree.set_transform(child, Transform::new(2.0, 0.0, 0.0, 2.0, 0.0, 8.0));
         let damage = tree.damage(SURFACE);
 
         assert!(damage.copies().is_empty(), "{damage}");
-        assert!(damage.intersects(Rect::new(40.0, 200.0, 560.0, 320.0)), "{damage}");
+        assert!(
+            damage.intersects(Rect::new(40.0, 200.0, 560.0, 320.0)),
+            "{damage}"
+        );
     }
 
     #[test]
@@ -2385,7 +2414,12 @@ mod tests {
         // mover's own state — `bounds_damage`, a re-record — refuses it; the
         // ink has to be what does.
         let overlay = tree.insert(Some(root), Transform::IDENTITY);
-        paint(&mut tree, overlay, Rect::new(0.0, 120.0, 90.0, 140.0), Color::rgb(200, 60, 60));
+        paint(
+            &mut tree,
+            overlay,
+            Rect::new(0.0, 120.0, 90.0, 140.0),
+            Color::rgb(200, 60, 60),
+        );
         tree.end_frame();
 
         tree.set_transform(child, Transform::translate(Offset::new(0.0, 8.0)));
@@ -2394,7 +2428,10 @@ mod tests {
         // Copying would read the overlay's pixels as if they belonged to the
         // mover and land them eight pixels from where the overlay still is.
         assert!(damage.copies().is_empty(), "{damage}");
-        assert!(damage.intersects(Rect::new(20.0, 100.0, 280.0, 160.0)), "{damage}");
+        assert!(
+            damage.intersects(Rect::new(20.0, 100.0, 280.0, 160.0)),
+            "{damage}"
+        );
     }
 
     #[test]
@@ -2403,9 +2440,19 @@ mod tests {
         let root = tree.root().expect("root");
         paint(&mut tree, root, SURFACE, Color::rgb(18, 18, 18));
         let a = tree.insert(Some(root), Transform::IDENTITY);
-        paint(&mut tree, a, Rect::new(20.0, 100.0, 280.0, 160.0), Color::rgb(230, 230, 230));
+        paint(
+            &mut tree,
+            a,
+            Rect::new(20.0, 100.0, 280.0, 160.0),
+            Color::rgb(230, 230, 230),
+        );
         let b = tree.insert(Some(root), Transform::IDENTITY);
-        paint(&mut tree, b, Rect::new(20.0, 220.0, 280.0, 280.0), Color::rgb(210, 210, 210));
+        paint(
+            &mut tree,
+            b,
+            Rect::new(20.0, 220.0, 280.0, 280.0),
+            Color::rgb(210, 210, 210),
+        );
         tree.end_frame();
 
         tree.set_transform(a, Transform::translate(Offset::new(0.0, 8.0)));
@@ -2416,7 +2463,10 @@ mod tests {
         // union re-validates, and the frame carries one block, not two.
         assert_eq!(damage.copies().len(), 1, "{damage}");
         let src = damage.copies()[0].src;
-        assert!(src.top <= 99.0 && src.bottom >= 281.0, "{src}: the bridge spanned the gap");
+        assert!(
+            src.top <= 99.0 && src.bottom >= 281.0,
+            "{src}: the bridge spanned the gap"
+        );
     }
 
     #[test]
@@ -2424,13 +2474,21 @@ mod tests {
         let (mut tree, child) = scrolled_tree();
         // The move AND a repaint: the recording changed while it travelled.
         tree.set_transform(child, Transform::translate(Offset::new(0.0, 8.0)));
-        paint(&mut tree, child, Rect::new(20.0, 100.0, 280.0, 160.0), Color::rgb(120, 200, 120));
+        paint(
+            &mut tree,
+            child,
+            Rect::new(20.0, 100.0, 280.0, 160.0),
+            Color::rgb(120, 200, 120),
+        );
         let damage = tree.damage(SURFACE);
 
         assert_eq!(damage.copies().len(), 1, "{damage}");
         // The diff between the two recordings is repainted on top of the
         // carried pixels: the whole card is not.
-        assert!(damage.intersects(Rect::new(20.0, 108.0, 280.0, 168.0)), "{damage}");
+        assert!(
+            damage.intersects(Rect::new(20.0, 108.0, 280.0, 168.0)),
+            "{damage}"
+        );
         assert!(damage.covered_area() < SURFACE.area() * 0.2, "{damage}");
     }
 
@@ -2440,9 +2498,17 @@ mod tests {
         let root = tree.root().expect("root");
         paint(&mut tree, root, SURFACE, Color::rgb(18, 18, 18));
         // The viewport the rows scroll inside.
-        tree.set_effect(root, LayerEffect::new(1.0).clipped_to(Rect::new(0.0, 0.0, 1000.0, 500.0)));
+        tree.set_effect(
+            root,
+            LayerEffect::new(1.0).clipped_to(Rect::new(0.0, 0.0, 1000.0, 500.0)),
+        );
         let child = tree.insert(Some(root), Transform::IDENTITY);
-        paint(&mut tree, child, Rect::new(20.0, 460.0, 280.0, 520.0), Color::rgb(230, 230, 230));
+        paint(
+            &mut tree,
+            child,
+            Rect::new(20.0, 460.0, 280.0, 520.0),
+            Color::rgb(230, 230, 230),
+        );
         tree.end_frame();
 
         // Down by eight: the carried pixels would land past the clip's floor,
@@ -2451,7 +2517,10 @@ mod tests {
         let damage = tree.damage(SURFACE);
 
         assert!(damage.copies().is_empty(), "{damage}");
-        assert!(damage.intersects(Rect::new(20.0, 460.0, 280.0, 520.0)), "{damage}");
+        assert!(
+            damage.intersects(Rect::new(20.0, 460.0, 280.0, 520.0)),
+            "{damage}"
+        );
     }
 
     #[test]
@@ -2459,9 +2528,17 @@ mod tests {
         let mut tree = LayerTree::with_root();
         let root = tree.root().expect("root");
         paint(&mut tree, root, SURFACE, Color::rgb(18, 18, 18));
-        tree.set_effect(root, LayerEffect::new(1.0).clipped_to(Rect::new(0.0, 0.0, 1000.0, 500.0)));
+        tree.set_effect(
+            root,
+            LayerEffect::new(1.0).clipped_to(Rect::new(0.0, 0.0, 1000.0, 500.0)),
+        );
         let child = tree.insert(Some(root), Transform::IDENTITY);
-        paint(&mut tree, child, Rect::new(20.0, 380.0, 280.0, 440.0), Color::rgb(230, 230, 230));
+        paint(
+            &mut tree,
+            child,
+            Rect::new(20.0, 380.0, 280.0, 440.0),
+            Color::rgb(230, 230, 230),
+        );
         tree.end_frame();
 
         // Up by eight, wholly inside the clip: the row slid into view.
@@ -2472,7 +2549,10 @@ mod tests {
         // The vacated strip: the eight pixels at the bottom the mover left
         // behind, exact — the move itself exposed nothing new, because the
         // copy's destination is exactly the new extent.
-        assert!(damage.intersects(Rect::new(20.0, 432.0, 280.0, 440.0)), "{damage}");
+        assert!(
+            damage.intersects(Rect::new(20.0, 432.0, 280.0, 440.0)),
+            "{damage}"
+        );
     }
 
     #[test]
@@ -2481,12 +2561,18 @@ mod tests {
         let root = tree.root().expect("root");
         // The clip narrows to end above the mover's landing: same move, but the
         // pixels it would carry now belong to a clip that refuses them.
-        tree.set_effect(root, LayerEffect::new(1.0).clipped_to(Rect::new(0.0, 0.0, 1000.0, 120.0)));
+        tree.set_effect(
+            root,
+            LayerEffect::new(1.0).clipped_to(Rect::new(0.0, 0.0, 1000.0, 120.0)),
+        );
         tree.set_transform(child, Transform::translate(Offset::new(0.0, 8.0)));
         let damage = tree.damage(SURFACE);
 
         assert!(damage.copies().is_empty(), "{damage}");
-        assert!(damage.intersects(Rect::new(20.0, 100.0, 280.0, 160.0)), "{damage}");
+        assert!(
+            damage.intersects(Rect::new(20.0, 100.0, 280.0, 160.0)),
+            "{damage}"
+        );
     }
 
     #[test]
@@ -2495,7 +2581,12 @@ mod tests {
         let root = tree.root().expect("root");
         paint(&mut tree, root, SURFACE, Color::rgb(18, 18, 18));
         let child = tree.insert(Some(root), Transform::IDENTITY);
-        paint(&mut tree, child, Rect::new(20.0, 960.0, 280.0, 1020.0), Color::rgb(230, 230, 230));
+        paint(
+            &mut tree,
+            child,
+            Rect::new(20.0, 960.0, 280.0, 1020.0),
+            Color::rgb(230, 230, 230),
+        );
         tree.end_frame();
 
         tree.set_transform(child, Transform::translate(Offset::new(0.0, 8.0)));

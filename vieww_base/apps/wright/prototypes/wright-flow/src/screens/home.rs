@@ -222,7 +222,7 @@ fn status_bar(p: &Pal, act: &Act, st: &FlowState) -> WidgetNode {
                 .child(row(6.0, vec![icon.widget(12.0, pp.muted), text(label.clone(), 12.0, pp.muted)]))
                 .into()
         })
-        .on_tap(move || f())
+        .on_tap(f)
         .into()
     };
     let mut right: Vec<WidgetNode> = Vec::new();
@@ -280,7 +280,7 @@ fn attach_menu(p: &Pal, act: &Act) -> WidgetNode {
                 .child(row(10.0, vec![icon.widget(18.0, pp.ink), text(label, 14.0, pp.ink)]))
                 .into()
         })
-        .on_tap(move || f())
+        .on_tap(f)
         .into()
     };
     let scrim = Pressable::new(|_| SizedBox::expand().into()).on_tap(act.on(|s| s.attach_open = false));
@@ -475,7 +475,7 @@ fn home_page(p: &Pal, act: &Act, st: &FlowState) -> WidgetNode {
         row(8.0, vec![
             Container::new().width(8.0).height(8.0).radius(4.0).color(p.good).shadow(Shadow::new(p.good.with_alpha(170), Offset::ZERO, 10.0)).into(),
             text(format!("{} agents of Wright's own · {} tools a plan can hand out · runs on this machine", WORKFORCE.len(), TOOLS.len()), 13.0, p.muted),
-            Pressable::new({ let pp = *p; move |_| bold("See agents & tools", 13.0, pp.live).into() }).on_tap(act.on(|s| { s.settings = true; s.tab = 1; })).into(),
+            Pressable::new({ let pp = *p; move |_| bold("See agents & tools", 13.0, pp.live) }).on_tap(act.on(|s| { s.settings = true; s.tab = 1; })).into(),
         ]),
         bold("What should exist?", 54.0, p.ink),
         text("Describe the outcome in your own words. Wright drafts a plan, shows what it will touch and what it costs, and runs nothing until you approve.", 17.0, p.muted),
@@ -2313,7 +2313,7 @@ fn card(
             Pressable::sensed(move |h: Sense| {
                 Container::new().width(28.0).height(28.0).radius(14.0).color(pp.wash.lerp(pp.edge, h.hover)).child(Glyph::Close.widget(28.0, pp.muted.lerp(pp.ink, h.hover))).into()
             })
-            .on_tap(move || f())
+            .on_tap(f)
             .into(),
         );
     }

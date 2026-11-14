@@ -250,8 +250,17 @@ mod tests {
     #[test]
     fn the_hint_is_androids_default_and_the_env_overrides_both_ways() {
         assert!(resolve_request(true, None), "Android: on by default");
-        assert!(!resolve_request(false, None), "everywhere else: off by default");
-        assert!(!resolve_request(true, Some(OsStr::new("0"))), "off asked for");
-        assert!(resolve_request(false, Some(OsStr::new("1"))), "on asked for");
+        assert!(
+            !resolve_request(false, None),
+            "everywhere else: off by default"
+        );
+        assert!(
+            !resolve_request(true, Some(OsStr::new("0"))),
+            "off asked for"
+        );
+        assert!(
+            resolve_request(false, Some(OsStr::new("1"))),
+            "on asked for"
+        );
     }
 }

@@ -68,7 +68,8 @@ impl RenderObject for RenderDecoratedBox {
             .filter(|shadow| !shadow.is_inset)
         {
             if decoration.color.a == 255 && !decoration.color.is_transparent() {
-                ctx.canvas().draw_shadow_under(bounds, decoration.radius, shadow);
+                ctx.canvas()
+                    .draw_shadow_under(bounds, decoration.radius, shadow);
             } else {
                 ctx.canvas().draw_shadow(bounds, decoration.radius, shadow);
             }
@@ -221,12 +222,10 @@ mod tests {
 
         let shadow = Shadow::new(Color::BLACK, Off::ZERO, 4.0);
         let covered = |decoration: BoxDecoration| {
-            painted(decoration).commands().iter().any(|command| {
-                matches!(
-                    command,
-                    Command::DrawShadow { covered: true, .. }
-                )
-            })
+            painted(decoration)
+                .commands()
+                .iter()
+                .any(|command| matches!(command, Command::DrawShadow { covered: true, .. }))
         };
 
         // An opaque face: the promise holds.

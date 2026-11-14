@@ -83,10 +83,7 @@ impl CopyRegion {
     /// The translation this region carries by.
     #[must_use]
     pub fn delta(&self) -> Offset {
-        Offset::new(
-            self.dst.left - self.src.left,
-            self.dst.top - self.src.top,
-        )
+        Offset::new(self.dst.left - self.src.left, self.dst.top - self.src.top)
     }
 
     /// `true` when the two regions carry overlapping pixels the same way.
@@ -360,7 +357,12 @@ impl Damage {
                 continue;
             }
             let s = scale(copy.src);
-            let src_in = Rect::new(s.left.ceil(), s.top.ceil(), s.right.floor(), s.bottom.floor());
+            let src_in = Rect::new(
+                s.left.ceil(),
+                s.top.ceil(),
+                s.right.floor(),
+                s.bottom.floor(),
+            );
             if src_in.is_empty() {
                 out.add(dst_out);
                 continue;
@@ -551,14 +553,20 @@ mod tests {
     #[test]
     fn scaling_keeps_whole_pixel_copies_and_repaints_the_rest() {
         let mut d = Damage::new(Rect::new(0.0, 0.0, 400.0, 400.0));
-        d.add_copy(CopyRegion::new(Rect::new(0.0, 10.0, 400.0, 300.0), Offset::new(0.0, -4.0)));
+        d.add_copy(CopyRegion::new(
+            Rect::new(0.0, 10.0, 400.0, 300.0),
+            Offset::new(0.0, -4.0),
+        ));
         let s = d.scaled(2.75, Rect::new(0.0, 0.0, 1100.0, 1100.0));
         assert_eq!(s.copies().len(), 1, "{s}");
         assert_eq!(s.copies()[0].delta(), Offset::new(0.0, -11.0));
         let src = s.copies()[0].src;
         assert_eq!((src.top, src.bottom), (28.0, 825.0)); // 27.5 -> 28, 825
         let mut d = Damage::new(Rect::new(0.0, 0.0, 400.0, 400.0));
-        d.add_copy(CopyRegion::new(Rect::new(0.0, 10.0, 400.0, 300.0), Offset::new(0.0, -1.5)));
+        d.add_copy(CopyRegion::new(
+            Rect::new(0.0, 10.0, 400.0, 300.0),
+            Offset::new(0.0, -1.5),
+        ));
         let s = d.scaled(2.75, Rect::new(0.0, 0.0, 1100.0, 1100.0));
         assert!(s.copies().is_empty());
         assert!(!s.regions().is_empty() || s.is_everything());
@@ -907,7 +915,10 @@ mod tests {
             Offset::new(0.0, 8.0),
         ));
 
-        assert!(!damage.is_clean(), "the copy still has to reach the backend");
+        assert!(
+            !damage.is_clean(),
+            "the copy still has to reach the backend"
+        );
         assert_eq!(damage.covered_area(), 0.0, "nothing is repainted");
         assert_eq!(damage.regions().len(), 0);
         assert_eq!(damage.copies().len(), 1);
@@ -917,8 +928,14 @@ mod tests {
     #[test]
     fn overlapping_lockstep_copies_carry_together() {
         let mut damage = damage();
-        damage.add_copy(CopyRegion::new(Rect::new(0.0, 0.0, 60.0, 40.0), Offset::new(0.0, 8.0)));
-        damage.add_copy(CopyRegion::new(Rect::new(0.0, 30.0, 60.0, 70.0), Offset::new(0.0, 8.0)));
+        damage.add_copy(CopyRegion::new(
+            Rect::new(0.0, 0.0, 60.0, 40.0),
+            Offset::new(0.0, 8.0),
+        ));
+        damage.add_copy(CopyRegion::new(
+            Rect::new(0.0, 30.0, 60.0, 70.0),
+            Offset::new(0.0, 8.0),
+        ));
 
         assert_eq!(damage.copies().len(), 1, "{damage}");
         assert_eq!(damage.copies()[0].src, Rect::new(0.0, 0.0, 60.0, 70.0));
@@ -928,8 +945,14 @@ mod tests {
     #[test]
     fn copies_of_different_deltas_never_merge() {
         let mut damage = damage();
-        damage.add_copy(CopyRegion::new(Rect::new(0.0, 0.0, 60.0, 40.0), Offset::new(0.0, 8.0)));
-        damage.add_copy(CopyRegion::new(Rect::new(10.0, 10.0, 70.0, 50.0), Offset::new(8.0, 0.0)));
+        damage.add_copy(CopyRegion::new(
+            Rect::new(0.0, 0.0, 60.0, 40.0),
+            Offset::new(0.0, 8.0),
+        ));
+        damage.add_copy(CopyRegion::new(
+            Rect::new(10.0, 10.0, 70.0, 50.0),
+            Offset::new(8.0, 0.0),
+        ));
 
         assert_eq!(damage.copies().len(), 2, "{damage}");
     }
@@ -947,7 +970,10 @@ mod tests {
     #[test]
     fn abandoning_tracking_drops_the_copies() {
         let mut damage = damage();
-        damage.add_copy(CopyRegion::new(Rect::new(0.0, 0.0, 60.0, 40.0), Offset::new(0.0, 8.0)));
+        damage.add_copy(CopyRegion::new(
+            Rect::new(0.0, 0.0, 60.0, 40.0),
+            Offset::new(0.0, 8.0),
+        ));
         damage.add_everything();
 
         assert!(damage.is_everything());
@@ -957,7 +983,10 @@ mod tests {
     #[test]
     fn clearing_returns_copies_to_a_clean_frame() {
         let mut damage = damage();
-        damage.add_copy(CopyRegion::new(Rect::new(0.0, 0.0, 60.0, 40.0), Offset::new(0.0, 8.0)));
+        damage.add_copy(CopyRegion::new(
+            Rect::new(0.0, 0.0, 60.0, 40.0),
+            Offset::new(0.0, 8.0),
+        ));
         damage.clear();
 
         assert!(damage.is_clean(), "{damage}");
@@ -974,7 +1003,10 @@ mod tests {
         assert!(damage.copies().is_empty(), "{damage}");
 
         // Half off the right edge: the on-surface half still carries.
-        damage.add_copy(CopyRegion::new(Rect::new(950.0, 0.0, 1050.0, 40.0), Offset::new(0.0, 8.0)));
+        damage.add_copy(CopyRegion::new(
+            Rect::new(950.0, 0.0, 1050.0, 40.0),
+            Offset::new(0.0, 8.0),
+        ));
         assert_eq!(damage.copies().len(), 1, "{damage}");
         assert!(damage.copies()[0].src.right <= 1000.0, "{damage}");
     }
@@ -999,7 +1031,11 @@ mod tests {
 
         assert_eq!(damage.regions().len(), 1, "{damage}");
         assert_eq!(damage.regions()[0].left, 0.0, "clipped to the surface");
-        assert_eq!(damage.regions()[0].bottom, 14.0, "merged the touching strip");
+        assert_eq!(
+            damage.regions()[0].bottom,
+            14.0,
+            "merged the touching strip"
+        );
     }
 
     #[test]

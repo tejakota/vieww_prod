@@ -24,7 +24,9 @@
 //! both and keeps every other cue, so the screen still reads in depth.
 
 use vieww::prelude::*;
-use vieww_foundation::{Border, BoxDecoration, Color, FontWeight, Gradient, Offset, Shadow, Size, Transform};
+use vieww_foundation::{
+    Border, BoxDecoration, Color, FontWeight, Gradient, Offset, Shadow, Size, Transform,
+};
 
 use super::{accent, accent_hi, p3a, text, HAIR, INK, LIGHT, MUTED};
 
@@ -89,17 +91,25 @@ fn parallax(z: f32, frame: Frame) -> Offset {
 pub fn surface(z: f32, radius: f32, frame: Frame, child: impl Into<WidgetNode>) -> WidgetNode {
     let face = BoxDecoration::new()
         .radius(radius)
-        .border(Border::new(Color::rgba(255, 255, 255, (8.0 + z * 4.0) as u8), HAIR))
+        .border(Border::new(
+            Color::rgba(255, 255, 255, (8.0 + z * 4.0) as u8),
+            HAIR,
+        ))
         .shadow(rim(z));
     let body: WidgetNode = match frame.power {
         Power::Full => Clip::rounded(radius)
             .child(
-                Filtered::blur(4.0 + z * 4.0)
-                    .with_backdrop()
-                    .child(Container::new().decoration(face.color(lift(z).with_alpha(225))).child(child)),
+                Filtered::blur(4.0 + z * 4.0).with_backdrop().child(
+                    Container::new()
+                        .decoration(face.color(lift(z).with_alpha(225)))
+                        .child(child),
+                ),
             )
             .into(),
-        Power::Saver => Container::new().decoration(face.color(lift(z))).child(child).into(),
+        Power::Saver => Container::new()
+            .decoration(face.color(lift(z)))
+            .child(child)
+            .into(),
     };
     Transformed::new(Transform::translate(parallax(z, frame)))
         .child(
@@ -118,7 +128,11 @@ fn action(label: &str, frame: Frame) -> WidgetNode {
             .with_dither()
             .with_stops(&[(0.0, accent()), (1.0, accent_hi())]),
     );
-    deco = deco.shadow(Shadow::inset(Color::rgba(255, 255, 255, 110), Offset::new(0.0, HAIR * 2.0), 0.0));
+    deco = deco.shadow(Shadow::inset(
+        Color::rgba(255, 255, 255, 110),
+        Offset::new(0.0, HAIR * 2.0),
+        0.0,
+    ));
     let glow = if frame.power == Power::Full {
         Shadow::new(p3a(124, 92, 255, 90), Offset::new(0.0, 6.0), 18.0)
     } else {
@@ -148,13 +162,21 @@ fn toggle(on: bool) -> WidgetNode {
         BoxDecoration::new()
             .stadium()
             .color(Color::rgb(10, 12, 18))
-            .shadow(Shadow::inset(Color::rgba(0, 0, 0, 200), Offset::new(0.0, 2.0), 4.0))
+            .shadow(Shadow::inset(
+                Color::rgba(0, 0, 0, 200),
+                Offset::new(0.0, 2.0),
+                4.0,
+            ))
     };
     Container::new()
         .decoration(track)
         .size(52.0, 32.0)
         .padding(EdgeInsets::all(3.0))
-        .alignment(if on { Alignment::CENTER_RIGHT } else { Alignment::CENTER_LEFT })
+        .alignment(if on {
+            Alignment::CENTER_RIGHT
+        } else {
+            Alignment::CENTER_LEFT
+        })
         .child(
             Container::new()
                 .decoration(
@@ -162,7 +184,10 @@ fn toggle(on: bool) -> WidgetNode {
                         .stadium()
                         .gradient(
                             Gradient::linear(Offset::new(0.0, 0.0), Offset::new(0.6, 1.0))
-                                .with_stops(&[(0.0, Color::rgb(236, 239, 246)), (1.0, Color::rgb(170, 178, 196))]),
+                                .with_stops(&[
+                                    (0.0, Color::rgb(236, 239, 246)),
+                                    (1.0, Color::rgb(170, 178, 196)),
+                                ]),
                         )
                         .shadow(shadow(1.5)),
                 )
@@ -208,7 +233,11 @@ fn well(label: &str, value: &str) -> WidgetNode {
                         .radius(14.0)
                         .color(Color::rgb(2, 3, 6))
                         .border(Border::new(Color::rgba(255, 255, 255, 14), HAIR))
-                        .shadow(Shadow::inset(Color::rgba(0, 0, 0, 255), Offset::new(1.0, 3.0), 6.0)),
+                        .shadow(Shadow::inset(
+                            Color::rgba(0, 0, 0, 255),
+                            Offset::new(1.0, 3.0),
+                            6.0
+                        )),
                 )
                 .height(46.0)
                 .padding(EdgeInsets::symmetric(16.0, 0.0))
@@ -228,7 +257,11 @@ fn far(frame: Frame) -> WidgetNode {
             .child(
                 Transformed::new(Transform::translate(parallax(z, frame))).child(
                     Container::new()
-                        .decoration(BoxDecoration::new().radius(28.0).color(Color::rgb(9, 11, 18)))
+                        .decoration(
+                            BoxDecoration::new()
+                                .radius(28.0)
+                                .color(Color::rgb(9, 11, 18)),
+                        )
                         .size(w, h),
                 ),
             )
@@ -255,7 +288,12 @@ fn content(frame: Frame) -> WidgetNode {
                 .children(children![
                     text("TONIGHT", 11.0, FontWeight::Bold, accent_hi()),
                     text("Your evening, in focus", 22.0, FontWeight::Bold, INK),
-                    text("Three things left, one call at 9. Everything else can wait.", 14.0, FontWeight::Regular, MUTED),
+                    text(
+                        "Three things left, one call at 9. Everything else can wait.",
+                        14.0,
+                        FontWeight::Regular,
+                        MUTED
+                    ),
                     SizedBox::height(8.0),
                     progress(0.62),
                     text("62% of today done", 12.0, FontWeight::Medium, MUTED),
@@ -271,7 +309,9 @@ fn content(frame: Frame) -> WidgetNode {
                 .cross_axis_alignment(CrossAxisAlignment::Stretch)
                 .children(children![
                     row("Focus mode", "Silence everything but calls", true),
-                    Container::new().color(Color::rgba(255, 255, 255, 16)).height(HAIR),
+                    Container::new()
+                        .color(Color::rgba(255, 255, 255, 16))
+                        .height(HAIR),
                     row("Ambient light", "Follow the time of day", false),
                 ]),
         ),
@@ -302,17 +342,19 @@ fn progress(value: f32) -> WidgetNode {
                     BoxDecoration::new()
                         .stadium()
                         .color(Color::rgb(4, 5, 9))
-                        .shadow(Shadow::inset(Color::rgba(0, 0, 0, 255), Offset::new(0.0, 1.0), 2.0)),
+                        .shadow(Shadow::inset(
+                            Color::rgba(0, 0, 0, 255),
+                            Offset::new(0.0, 1.0),
+                            2.0,
+                        )),
                 )
                 .size(width, 8.0),
         )
         .push(
             Container::new()
-                .decoration(
-                    BoxDecoration::new()
-                        .stadium()
-                        .gradient(Gradient::horizontal().with_stops(&[(0.0, accent()), (1.0, accent_hi())])),
-                )
+                .decoration(BoxDecoration::new().stadium().gradient(
+                    Gradient::horizontal().with_stops(&[(0.0, accent()), (1.0, accent_hi())]),
+                ))
                 .size(width * value, 8.0),
         )
         .into()
@@ -323,25 +365,41 @@ fn tab_bar(frame: Frame) -> WidgetNode {
     let mut row = Flex::row();
     for (i, label) in tabs.iter().enumerate() {
         let on = i == 0;
-        row = row.push(Flexible::expanded(1).child(
-            Flex::column()
-                .cross_axis_alignment(CrossAxisAlignment::Center)
-                .spacing(8.0)
-                .children(children![
-                    Container::new()
-                        .decoration(if on {
-                            BoxDecoration::new()
-                                .stadium()
-                                .gradient(Gradient::horizontal().with_stops(&[(0.0, accent()), (1.0, accent_hi())]))
-                        } else {
-                            BoxDecoration::new().stadium().color(Color::rgb(70, 78, 96))
-                        })
-                        .size(if on { 22.0 } else { 6.0 }, 6.0),
-                    text(label, 12.0, FontWeight::Medium, if on { INK } else { MUTED }),
-                ]),
-        ));
+        row = row.push(
+            Flexible::expanded(1).child(
+                Flex::column()
+                    .cross_axis_alignment(CrossAxisAlignment::Center)
+                    .spacing(8.0)
+                    .children(children![
+                        Container::new()
+                            .decoration(if on {
+                                BoxDecoration::new().stadium().gradient(
+                                    Gradient::horizontal()
+                                        .with_stops(&[(0.0, accent()), (1.0, accent_hi())]),
+                                )
+                            } else {
+                                BoxDecoration::new().stadium().color(Color::rgb(70, 78, 96))
+                            })
+                            .size(if on { 22.0 } else { 6.0 }, 6.0),
+                        text(
+                            label,
+                            12.0,
+                            FontWeight::Medium,
+                            if on { INK } else { MUTED }
+                        ),
+                    ]),
+            ),
+        );
     }
-    surface(3.0, 26.0, frame, Container::new().height(68.0).alignment(Alignment::CENTER).child(row))
+    surface(
+        3.0,
+        26.0,
+        frame,
+        Container::new()
+            .height(68.0)
+            .alignment(Alignment::CENTER)
+            .child(row),
+    )
 }
 
 /// The dialog, at z = 5. Opening it moves it *forward* — up from smaller and
@@ -353,7 +411,10 @@ fn dialog(frame: Frame) -> WidgetNode {
     let card = surface(
         5.0,
         26.0,
-        Frame { tilt: frame.tilt, ..frame },
+        Frame {
+            tilt: frame.tilt,
+            ..frame
+        },
         Padding::new(EdgeInsets::all(22.0)).child(
             Flex::column()
                 .cross_axis_alignment(CrossAxisAlignment::Stretch)
@@ -396,10 +457,20 @@ pub fn screen(frame: Frame) -> WidgetNode {
     let base = Stack::new()
         .fit(StackFit::Expand)
         .push(Positioned::fill().child(content(frame)))
-        .push(Positioned::new().left(16.0).right(16.0).bottom(24.0).child(tab_bar(frame)));
-    let base: WidgetNode = Transformed::new(Transform::scale_around(Offset::new(195.0, 422.0), back, back))
-        .child(base)
-        .into();
+        .push(
+            Positioned::new()
+                .left(16.0)
+                .right(16.0)
+                .bottom(24.0)
+                .child(tab_bar(frame)),
+        );
+    let base: WidgetNode = Transformed::new(Transform::scale_around(
+        Offset::new(195.0, 422.0),
+        back,
+        back,
+    ))
+    .child(base)
+    .into();
     let base: WidgetNode = if frame.power == Power::Full && t > 0.0 {
         Filtered::blur(6.0 * t).child(base).into()
     } else {
@@ -413,10 +484,21 @@ pub fn screen(frame: Frame) -> WidgetNode {
     if t > 0.0 {
         stack = stack
             .push(
-                Positioned::fill()
-                    .child(Container::new().color(Color::rgba(0, 0, 0, (150.0 * t) as u8)).child(SizedBox::expand())),
+                Positioned::fill().child(
+                    Container::new()
+                        .color(Color::rgba(0, 0, 0, (150.0 * t) as u8))
+                        .child(SizedBox::expand()),
+                ),
             )
-            .push(Positioned::new().left(20.0).right(20.0).top(250.0).child(dialog(frame)));
+            .push(
+                Positioned::new()
+                    .left(20.0)
+                    .right(20.0)
+                    .top(250.0)
+                    .child(dialog(frame)),
+            );
     }
-    SizedBox::from_size(Size::new(390.0, 844.0)).child(stack).into()
+    SizedBox::from_size(Size::new(390.0, 844.0))
+        .child(stack)
+        .into()
 }

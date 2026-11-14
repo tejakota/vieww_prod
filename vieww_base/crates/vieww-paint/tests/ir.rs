@@ -282,14 +282,21 @@ fn the_version_2_fixture_is_stable() {
 fn the_version_1_fixture_decodes_with_every_shadow_uncovered() {
     let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/ir/v1.bin");
     let golden = std::fs::read(&path).expect("tests/ir/v1.bin");
-    assert_eq!(&golden[4..6], &1u16.to_le_bytes(), "the fixture is version 1");
+    assert_eq!(
+        &golden[4..6],
+        &1u16.to_le_bytes(),
+        "the fixture is version 1"
+    );
     let scene = ir::decode(&golden).expect("a version-1 file still decodes");
     let shadows = scene
         .commands()
         .iter()
         .filter(|c| matches!(c, Command::DrawShadow { .. }))
         .count();
-    assert!(shadows > 0, "the fixture must carry a shadow to test the field");
+    assert!(
+        shadows > 0,
+        "the fixture must carry a shadow to test the field"
+    );
     for command in scene.commands() {
         if let Command::DrawShadow { covered, .. } = command {
             assert!(!covered, "a version-1 shadow cannot claim coverage");

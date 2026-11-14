@@ -539,7 +539,8 @@ fn builtin(ui: &Ui, p: &Pal, cfg: &Config) -> Vec<WidgetNode> {
                     m.size_text(),
                     m.license,
                     &m.sha256[..12]
-                ), size::CAPTION,
+                ),
+                size::CAPTION,
                 p.muted,
             ),
         ];
@@ -686,7 +687,8 @@ fn models(ui: &Ui, p: &Pal) -> WidgetNode {
                 ],
             ),
             copyable_mono(
-                format!("{}  ·  {}", prov.base_url, prov.models.join(", ")), size::CAPTION,
+                format!("{}  ·  {}", prov.base_url, prov.models.join(", ")),
+                size::CAPTION,
                 p.muted,
             ),
         ];
@@ -833,7 +835,8 @@ fn models(ui: &Ui, p: &Pal) -> WidgetNode {
                 form.reload(project.as_deref());
             }),
             t(
-                "Local addresses need no key; anything else gets a keychain entry to fill in.", size::SMALL,
+                "Local addresses need no key; anything else gets a keychain entry to fill in.",
+                size::SMALL,
                 p.muted,
             ),
         ],
@@ -902,9 +905,16 @@ fn agents_and_tools(ui: &Ui, p: &Pal) -> WidgetNode {
         if !tool.implemented {
             head.push(pill("not yet", p.bad, p.surface2));
         }
-        let mut lines = vec![row(space::S, head), para(tool.summary, size::SMALL, p.muted)];
+        let mut lines = vec![
+            row(space::S, head),
+            para(tool.summary, size::SMALL, p.muted),
+        ];
         if !needs.is_empty() {
-            lines.push(t(format!("Needs: {}", needs.join(", ")), size::CAPTION, p.muted));
+            lines.push(t(
+                format!("Needs: {}", needs.join(", ")),
+                size::CAPTION,
+                p.muted,
+            ));
         }
         rows.push(column(space::XS, lines));
     }
@@ -999,7 +1009,8 @@ fn network(ui: &Ui, p: &Pal) -> WidgetNode {
     let typed = f.ca_path.get().text.trim().to_string();
     let status: WidgetNode = if typed.is_empty() {
         t(
-            "No extra certificates. This computer's own trust store is used.", size::SMALL,
+            "No extra certificates. This computer's own trust store is used.",
+            size::SMALL,
             p.muted,
         )
     } else {
@@ -1075,7 +1086,8 @@ fn network(ui: &Ui, p: &Pal) -> WidgetNode {
             format!(
                 "{} is set in your environment, so that file is in use for this session.",
                 rc::CA_ENV
-            ), size::SMALL,
+            ),
+            size::SMALL,
             p.muted,
         ));
     }
@@ -1270,7 +1282,11 @@ fn fleet(ui: &Ui, p: &Pal) -> WidgetNode {
     });
     let list = f.fleet.get();
     if list.is_empty() {
-        rows.push(t("Nothing is scheduled on this computer.", size::UI, p.muted));
+        rows.push(t(
+            "Nothing is scheduled on this computer.",
+            size::UI,
+            p.muted,
+        ));
     }
     for r in list {
         let (label, fg, bg) = if r.firing_now {
@@ -1351,7 +1367,8 @@ fn fleet(ui: &Ui, p: &Pal) -> WidgetNode {
                     r.tz,
                     r.next,
                     r.dir.display()
-                ), size::CAPTION,
+                ),
+                size::CAPTION,
                 p.muted,
             ),
         ];
@@ -1371,7 +1388,8 @@ fn fleet(ui: &Ui, p: &Pal) -> WidgetNode {
                     } else {
                         "does NOT verify"
                     }
-                ), size::SMALL,
+                ),
+                size::SMALL,
                 if l.ok && l.verified { p.ink } else { p.bad },
             )),
             None => block.push(t("Never run yet.", size::SMALL, p.muted)),
@@ -1384,7 +1402,8 @@ fn fleet(ui: &Ui, p: &Pal) -> WidgetNode {
                 format!(
                     "{} approval(s) waiting on you in its session.",
                     r.waiting_on_you
-                ), size::SMALL,
+                ),
+                size::SMALL,
                 p.wait,
             ));
         }
@@ -1415,10 +1434,15 @@ fn organization(ui: &Ui, p: &Pal) -> WidgetNode {
                 format!(
                     "No organization policy on this computer (IT installs one in {}).",
                     wright_runtime::policy::system_dir().display()
-                ), size::UI,
+                ),
+                size::UI,
                 p.muted,
             ));
-            rows.push(t("For administrators, from a terminal:", size::SMALL, p.muted));
+            rows.push(t(
+                "For administrators, from a terminal:",
+                size::SMALL,
+                p.muted,
+            ));
             for c in [
                 "wright admin keygen --name \"IT security\"",
                 "wright admin policy init policy.kdl",
@@ -1445,12 +1469,17 @@ fn organization(ui: &Ui, p: &Pal) -> WidgetNode {
     if let Some(s) = ui.current_session() {
         if let Ok(bp) = wright_engine::load_blueprint(&s.project) {
             rows.push(divider(p));
-            rows.push(b(format!("This project: {}", bp.meta.name), size::BODY, p.ink));
+            rows.push(b(
+                format!("This project: {}", bp.meta.name),
+                size::BODY,
+                p.ink,
+            ));
             let cfg = Config::load().unwrap_or_else(|_| Config::builtin());
             rows.push(match wright_engine::org::enforce(&bp, &cfg) {
                 Ok(None) => t("No policy to check it against.", size::SMALL, p.muted),
                 Ok(Some(pol)) => t(
-                    format!("{}'s policy allows this plan.", pol.org), size::SMALL,
+                    format!("{}'s policy allows this plan.", pol.org),
+                    size::SMALL,
                     p.good,
                 ),
                 Err(e) => notice(p, Severity::Error, e),
@@ -1481,7 +1510,8 @@ fn organization(ui: &Ui, p: &Pal) -> WidgetNode {
         let report = wright_engine::org::fleet_report(&checks, false);
         let all_ok = checks.iter().all(|c| c.ok);
         rows.push(copyable(
-            report.trim_end().to_string(), size::SMALL,
+            report.trim_end().to_string(),
+            size::SMALL,
             if all_ok { p.good } else { p.bad },
         ));
     }

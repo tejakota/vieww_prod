@@ -469,10 +469,8 @@ for line in sys.stdin:
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap_or_default()
             .as_nanos();
-        let d = std::env::temp_dir().join(format!(
-            "wright-mcp-{name}-{}-{nanos}",
-            std::process::id()
-        ));
+        let d =
+            std::env::temp_dir().join(format!("wright-mcp-{name}-{}-{nanos}", std::process::id()));
         let _ = std::fs::remove_dir_all(&d);
         std::fs::create_dir_all(&d).unwrap();
         d

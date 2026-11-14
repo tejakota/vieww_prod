@@ -129,7 +129,8 @@ fn run_template_in(root: &Path, template: Template, name: &str) -> Result<String
 
 /// `assets`: the project's asset bundle as a listing — every file under
 /// `assets/`, recursive, with sizes, which is the same directory
-/// [`WorkspaceBundle`] resolves `an image "…"` against first (the studio's
+/// [`WorkspaceBundle`](crate::assets::WorkspaceBundle) resolves
+/// `an image "…"` against first (the studio's
 /// own bundle second — noted, because that is the answer to "why doesn't my
 /// fallback image load").
 ///

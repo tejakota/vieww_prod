@@ -160,11 +160,13 @@ fn speak_hero(ui: &Ui) -> WidgetNode {
                                 space::XS,
                                 vec![
                                     b(
-                                        "Listening — say what should exist.".to_string(), size::LEAD,
+                                        "Listening — say what should exist.".to_string(),
+                                        size::LEAD,
                                         p.ink,
                                     ),
                                     t(
-                                        "Tap to stop; Wright writes it down and starts.", size::SMALL,
+                                        "Tap to stop; Wright writes it down and starts.",
+                                        size::SMALL,
                                         p.muted,
                                     ),
                                 ],
@@ -264,11 +266,16 @@ pub fn saved_shelf(ui: &Ui, saved: &[std::path::PathBuf]) -> WidgetNode {
                                 "{} message{} · open to continue",
                                 sum.messages,
                                 if sum.messages == 1 { "" } else { "s" }
-                            ), size::CAPTION,
+                            ),
+                            size::CAPTION,
                             p.muted,
                         ));
                     }
-                    None => rows.push(t("No conversation kept · open to continue", size::SMALL, p.muted)),
+                    None => rows.push(t(
+                        "No conversation kept · open to continue",
+                        size::SMALL,
+                        p.muted,
+                    )),
                 }
                 Container::new()
                     .width(330.0)

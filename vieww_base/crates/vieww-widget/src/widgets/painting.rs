@@ -164,7 +164,7 @@ impl Widget for Painting {
         "Painting"
     }
 
-    /// The painter's own [`should_repaint`](CustomPainter::should_repaint) is
+    /// The painter's own [`should_repaint`](Painter::should_repaint) is
     /// the comparison — a painter that carries its data in an `Rc` (an
     /// identity-checked sparkline) compares by pointer in one `Rc::ptr_eq`,
     /// and everything else answers honestly for itself. `false` means the

@@ -1330,22 +1330,13 @@ mod tests {
                             // The device rectangle under an axis-aligned
                             // transform: the corners' extrema.
                             let corners = [
-                                transform.apply(vieww_foundation::Offset::new(
-                                    back.left,
-                                    back.top,
-                                )),
-                                transform.apply(vieww_foundation::Offset::new(
-                                    back.right,
-                                    back.top,
-                                )),
-                                transform.apply(vieww_foundation::Offset::new(
-                                    back.right,
-                                    back.bottom,
-                                )),
-                                transform.apply(vieww_foundation::Offset::new(
-                                    back.left,
-                                    back.bottom,
-                                )),
+                                transform.apply(vieww_foundation::Offset::new(back.left, back.top)),
+                                transform
+                                    .apply(vieww_foundation::Offset::new(back.right, back.top)),
+                                transform
+                                    .apply(vieww_foundation::Offset::new(back.right, back.bottom)),
+                                transform
+                                    .apply(vieww_foundation::Offset::new(back.left, back.bottom)),
                             ];
                             let (mut dl, mut dt) = (f32::INFINITY, f32::INFINITY);
                             let (mut dr, mut db) = (f32::NEG_INFINITY, f32::NEG_INFINITY);
@@ -1370,8 +1361,7 @@ mod tests {
                                 (general.x0, general.y0, general.width, general.height),
                                 "bounds differ at {rect:?} r{radius} under {transform:?}"
                             );
-                            for (i, (f, g)) in
-                                fast.data.iter().zip(general.data.iter()).enumerate()
+                            for (i, (f, g)) in fast.data.iter().zip(general.data.iter()).enumerate()
                             {
                                 assert_eq!(
                                     f.to_bits(),

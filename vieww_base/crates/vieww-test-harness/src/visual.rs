@@ -285,9 +285,11 @@ impl Persistent {
     /// the copy would land whole pixels away from where they belong, which is
     /// precisely the smearing this oracle exists to catch.
     fn carry(&mut self, copy: &CopyRegion) {
+        // `cast_sign_loss` never fires here: an `f32 as i32` cast lands in a
+        // signed type, so there is no sign to lose — the expectation listed it
+        // anyway and clippy refused to stay quiet about an unfulfilled one.
         #[expect(
             clippy::cast_possible_truncation,
-            clippy::cast_sign_loss,
             reason = "copy regions are whole-pixel and jointly clamped below"
         )]
         let (sx0, sy0, sx1, sy1) = (

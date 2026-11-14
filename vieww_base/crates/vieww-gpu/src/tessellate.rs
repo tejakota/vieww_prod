@@ -164,9 +164,7 @@ impl TessellationCache {
         compute: impl FnOnce(&Path, f32) -> Mesh,
     ) -> Mesh {
         if let Some(index) = self.entries.iter().position(|entry| {
-            &entry.path == path
-                && entry.stroke.as_ref() == stroke
-                && entry.tolerance == tolerance
+            &entry.path == path && entry.stroke.as_ref() == stroke && entry.tolerance == tolerance
         }) {
             self.hits += 1;
             let mesh = self.entries[index].mesh.clone();

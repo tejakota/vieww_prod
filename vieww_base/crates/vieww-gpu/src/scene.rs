@@ -971,7 +971,8 @@ impl Planner {
             None
         };
         let contained = shift.is_some() && {
-            let linear = (transform.a.abs() + transform.c.abs()).max(transform.b.abs() + transform.d.abs());
+            let linear =
+                (transform.a.abs() + transform.c.abs()).max(transform.b.abs() + transform.d.abs());
             let local = match shape {
                 SeamShape::Rect(r) => r,
                 SeamShape::Fill(path) => path.bounds(),
@@ -982,7 +983,10 @@ impl Planner {
             };
             let device = transform.apply_rect(local).inflate(2.0 + linear);
             let r = region.to_rect();
-            device.left >= r.left && device.top >= r.top && device.right <= r.right && device.bottom <= r.bottom
+            device.left >= r.left
+                && device.top >= r.top
+                && device.right <= r.right
+                && device.bottom <= r.bottom
         };
         let key = {
             let mut h = std::hash::DefaultHasher::new();
@@ -1007,9 +1011,16 @@ impl Planner {
                 Some((ix, iy)) => {
                     #[expect(clippy::cast_precision_loss, reason = "bounded integer shift")]
                     let phase = [transform.tx - ix as f32, transform.ty - iy as f32];
-                    [transform.a, transform.b, transform.c, transform.d, phase[0], phase[1]]
-                        .map(f32::to_bits)
-                        .hash(&mut h);
+                    [
+                        transform.a,
+                        transform.b,
+                        transform.c,
+                        transform.d,
+                        phase[0],
+                        phase[1],
+                    ]
+                    .map(f32::to_bits)
+                    .hash(&mut h);
                     if contained {
                         "contained".hash(&mut h);
                     } else {
@@ -1103,7 +1114,13 @@ impl Planner {
                     }
                 }
             }
-            Some((patch.x - sx, patch.y - sy, patch.width, patch.height, patch.alpha))
+            Some((
+                patch.x - sx,
+                patch.y - sy,
+                patch.width,
+                patch.height,
+                patch.alpha,
+            ))
         })?;
         let slot = placed(slot);
         Some((MaskRef::from(slot), rect_of(slot)))
@@ -3127,8 +3144,17 @@ mod tests {
         let masks = planner.mask_atlas().len();
         assert!(masks > 0, "the stroke must go through a coverage mask");
         let moved = planner.plan(&at(40.25), 200.0, 200.0);
-        assert_eq!(planner.mask_atlas().len(), masks, "moved by whole pixels: no new mask");
-        let top = |p: &ScenePlan| p.vertices.iter().map(|v| v.position[1]).fold(f32::INFINITY, f32::min);
+        assert_eq!(
+            planner.mask_atlas().len(),
+            masks,
+            "moved by whole pixels: no new mask"
+        );
+        let top = |p: &ScenePlan| {
+            p.vertices
+                .iter()
+                .map(|v| v.position[1])
+                .fold(f32::INFINITY, f32::min)
+        };
         assert!((top(&moved) - top(&first) - 40.0).abs() < 1e-3);
     }
 
@@ -3160,8 +3186,16 @@ mod tests {
         assert!(first.triangle_count() >= 1);
         let moved = planner.plan(&at(40.25), 2400.0, 1400.0);
         let (_, misses_moved, _, _, _) = planner.tessellation_stats();
-        assert_eq!(misses_moved, misses, "moved by whole pixels: no new tessellation");
-        let top = |p: &ScenePlan| p.vertices.iter().map(|v| v.position[1]).fold(f32::INFINITY, f32::min);
+        assert_eq!(
+            misses_moved, misses,
+            "moved by whole pixels: no new tessellation"
+        );
+        let top = |p: &ScenePlan| {
+            p.vertices
+                .iter()
+                .map(|v| v.position[1])
+                .fold(f32::INFINITY, f32::min)
+        };
         assert!((top(&moved) - top(&first) - 40.0).abs() < 1e-3);
     }
 

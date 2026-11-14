@@ -328,7 +328,11 @@ pub fn notice(p: &Pal, severity: Severity, text: impl Into<String>) -> WidgetNod
                 .children(vec![
                     pad(
                         EdgeInsets::only(0.0, 5.0, 0.0, 0.0),
-                        Container::new().width(6.0).height(6.0).radius(3.0).color(hue),
+                        Container::new()
+                            .width(6.0)
+                            .height(6.0)
+                            .radius(3.0)
+                            .color(hue),
                     ),
                     grow(copyable(text, size::SMALL, p.ink)),
                 ]),
@@ -365,12 +369,21 @@ pub fn meter_bar(track: Color, fill: Color, share: f32, height: f32) -> WidgetNo
     if done > 0 {
         parts.push(
             Flexible::expanded(done)
-                .child(Container::new().height(height).radius(height / 2.0).color(fill))
+                .child(
+                    Container::new()
+                        .height(height)
+                        .radius(height / 2.0)
+                        .color(fill),
+                )
                 .into(),
         );
     }
     if done < 1000 {
-        parts.push(Flexible::expanded(1000 - done).child(SizedBox::height(height)).into());
+        parts.push(
+            Flexible::expanded(1000 - done)
+                .child(SizedBox::height(height))
+                .into(),
+        );
     }
     Container::new()
         .height(height)
@@ -645,7 +658,8 @@ pub fn tool_button(
                     .radius(9.0)
                     .padding(EdgeInsets::symmetric(7.0, 1.0))
                     .child(t(
-                        n.clone(), size::CAPTION,
+                        n.clone(),
+                        size::CAPTION,
                         if active { p.on_accent } else { p.accent_ink },
                     ))
                     .into(),

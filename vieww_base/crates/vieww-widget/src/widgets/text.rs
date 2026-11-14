@@ -172,7 +172,8 @@ impl Widget for Text {
     /// *did* change costs a pointer comparison here instead of a rebuild.
     ///
     /// See [`Widget::same_configuration`] for the contract; every field is
-    /// compared, and the child through [`WidgetNode::interchangeable`], which
+    /// compared, and the child through
+    /// [`interchangeable`](crate::node::WidgetNode::interchangeable), which
     /// answers the same question reconciliation asks.
     fn same_configuration(&self, other: &crate::WidgetNode) -> bool {
         let Some(other) = other.downcast_ref::<Self>() else {

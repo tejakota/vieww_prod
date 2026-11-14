@@ -58,10 +58,20 @@ fn main() {
     let mut jsonl = String::new();
     println!(
         "{:<15} {:>6} {:>22} {:>22} {:>9} {:>9} {:>9}",
-        "phase", "frames", "build ms med/p95/max", "raster ms med/p95/max", "fps@cpu", "rebuilt%", "damage%"
+        "phase",
+        "frames",
+        "build ms med/p95/max",
+        "raster ms med/p95/max",
+        "fps@cpu",
+        "rebuilt%",
+        "damage%"
     );
     for (name, load, seconds) in schedule(thermal) {
-        let frames = if load.continuous() { (seconds * HZ) as usize } else { 1 };
+        let frames = if load.continuous() {
+            (seconds * HZ) as usize
+        } else {
+            1
+        };
         let rebuilds_before = driver.scene_rebuilds();
         let mut build = Vec::with_capacity(frames);
         let mut raster = Vec::with_capacity(frames);
@@ -98,7 +108,9 @@ fn main() {
         let wall = wall.elapsed().as_secs_f64();
         let idle_rebuilds = driver.scene_rebuilds() - rebuilds_before;
         if matches!(load, Load::Load(_) | Load::Tick | Load::Jump) {
-            let (png, _) = renderer.render_to_png(driver.scene(), w, h, Color::WHITE).expect("png");
+            let (png, _) = renderer
+                .render_to_png(driver.scene(), w, h, Color::WHITE)
+                .expect("png");
             std::fs::write(out.join(format!("vieww-{name}.png")), png).expect("writing png");
         }
         let (bm, b95, b99, bmax) = summary(&build);
@@ -106,14 +118,34 @@ fn main() {
         // What a CPU-bound loop would sustain on this machine: frames over
         // the time build + raster took, not over the 60 Hz the script assumes.
         let work: f64 = build.iter().sum::<f64>() + raster.iter().sum::<f64>();
-        let fps = if work > 0.0 { frames as f64 / (work / 1e3) } else { 0.0 };
-        let rebuilt = if total > 0 { 100.0 * built as f64 / total as f64 } else { 0.0 };
-        let damage = if damaged.is_empty() { 0.0 } else { damaged.iter().sum::<f64>() / damaged.len() as f64 };
+        let fps = if work > 0.0 {
+            frames as f64 / (work / 1e3)
+        } else {
+            0.0
+        };
+        let rebuilt = if total > 0 {
+            100.0 * built as f64 / total as f64
+        } else {
+            0.0
+        };
+        let damage = if damaged.is_empty() {
+            0.0
+        } else {
+            damaged.iter().sum::<f64>() / damaged.len() as f64
+        };
         println!(
             "{name:<15} {frames:>6} {:>22} {:>22} {fps:>9.1} {rebuilt:>8.1}% {damage:>8.1}%{}",
             format!("{bm:.2}/{b95:.2}/{bmax:.2}"),
-            if raster.is_empty() { "-".into() } else { format!("{rm:.2}/{r95:.2}/{rmax:.2}") },
-            if load == Load::Idle { format!("  (scene rebuilds while idle: {idle_rebuilds})") } else { String::new() }
+            if raster.is_empty() {
+                "-".into()
+            } else {
+                format!("{rm:.2}/{r95:.2}/{rmax:.2}")
+            },
+            if load == Load::Idle {
+                format!("  (scene rebuilds while idle: {idle_rebuilds})")
+            } else {
+                String::new()
+            }
         );
         let _ = writeln!(
             jsonl,
