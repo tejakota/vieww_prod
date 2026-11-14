@@ -1,36 +1,37 @@
 Applications Memory Usage (in Kilobytes):
-Uptime: 28042214 Realtime: 28042214
+Uptime: 9575401 Realtime: 9575401
 
-** MEMINFO in pid 31533 [dev.vieww.marketwatch] **
+** MEMINFO in pid 20491 [dev.vieww.marketwatch] **
                    Pss  Private  Private  SwapPss     Heap     Heap     Heap
                  Total    Dirty    Clean    Dirty     Size    Alloc     Free
                 ------   ------   ------   ------   ------   ------   ------
-  Native Heap     1818     1764        0      120     8192     5234     2957
-  Dalvik Heap      533      316        0      843    13483     1195    12288
- Dalvik Other      174      160        0       60                           
-        Stack       28       28        0        0                           
-       Ashmem        4        0        4        0                           
-     .so mmap     3532      276     1752       33                           
-    .apk mmap      216        0        0        0                           
-    .dex mmap     1192        4      296        0                           
-    .oat mmap      700        0       68        0                           
-    .art mmap      750        4        0       16                           
-   Other mmap        9        4        0        0                           
-      Unknown      344      344        0        4                           
-        TOTAL    10376     2900     2120     1076    21675     6429    15245
+  Native Heap    77500    77444        0      121    81920    72695     9224
+  Dalvik Heap      731      628        0     1204    13405     1117    12288
+ Dalvik Other      200      196        0       46                           
+        Stack       32       32        0        0                           
+       Ashmem        8        0        8        0                           
+     .so mmap     5566      328     4008       33                           
+    .apk mmap      251        0        4        0                           
+    .ttf mmap      518        0      504        0                           
+    .dex mmap     1311        4      316        0                           
+    .oat mmap      806        0       80        0                           
+    .art mmap     1177      624       36       19                           
+   Other mmap        8        4        0        0                           
+      Unknown      478      472        0        4                           
+        TOTAL    90013    79732     4956     1427    95325    73812    21512
  
  App Summary
                        Pss(KB)
                         ------
-           Java Heap:      320
-         Native Heap:     1764
-                Code:     2396
-               Stack:       28
+           Java Heap:     1288
+         Native Heap:    77444
+                Code:     5244
+               Stack:       32
             Graphics:        0
-       Private Other:      512
-              System:     5356
+       Private Other:      680
+              System:     5325
  
-               TOTAL:    10376       TOTAL SWAP PSS:     1076
+               TOTAL:    90013       TOTAL SWAP PSS:     1427
  
  Objects
                Views:        7         ViewRootImpl:        1

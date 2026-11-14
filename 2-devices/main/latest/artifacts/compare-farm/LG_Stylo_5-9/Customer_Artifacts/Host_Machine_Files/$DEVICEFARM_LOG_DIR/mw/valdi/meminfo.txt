@@ -1,43 +1,48 @@
 Applications Memory Usage (in Kilobytes):
-Uptime: 28127826 Realtime: 28127826
+Uptime: 10082381 Realtime: 10082381
 
-** MEMINFO in pid 32041 [com.snap.valdi.marketwatch] **
+** MEMINFO in pid 30969 [com.snap.valdi.marketwatch] **
                    Pss  Private  Private  SwapPss     Heap     Heap     Heap
                  Total    Dirty    Clean    Dirty     Size    Alloc     Free
                 ------   ------   ------   ------   ------   ------   ------
-  Native Heap     2976     2880        0      117    10240     8519     1720
-  Dalvik Heap      857      680        0     1236    13948     1660    12288
- Dalvik Other      478      472        0       60                           
-        Stack       44       44        0        0                           
+  Native Heap   300946   300868        0       44   308224   298318     9905
+  Dalvik Heap     4451     4436        0       54    14255     1967    12288
+ Dalvik Other     1096     1096        0        0                           
+        Stack       56       56        0        0                           
        Ashmem       12        0       12        0                           
-     .so mmap     6762      420     4756       33                           
-    .apk mmap      390        0       12        0                           
-    .dex mmap     4933        4     4056        0                           
-    .oat mmap      776        0      224        0                           
-    .art mmap     1023      480       48       18                           
-   Other mmap        8        4        0        0                           
-      Unknown      402      400        0        4                           
-        TOTAL    20129     5384     9108     1468    24188    10179    14008
+      Gfx dev     5140     5140        0        0                           
+    Other dev        2        0        0        0                           
+     .so mmap    11353      564     8448       28                           
+    .apk mmap     1024        0      492        0                           
+    .ttf mmap      178        0      164        0                           
+    .dex mmap     6216        4     5176        0                           
+    .oat mmap     1355        0      532        0                           
+    .art mmap     1480      780      176       12                           
+   Other mmap       62        4       24        0                           
+   EGL mtrack    27744    27744        0        0                           
+    GL mtrack     4020     4020        0        0                           
+      Unknown      908      896        0        2                           
+        TOTAL   366183   345608    15024      140   322479   300285    22193
  
  App Summary
                        Pss(KB)
                         ------
-           Java Heap:     1208
-         Native Heap:     2880
-                Code:     9472
-               Stack:       44
-            Graphics:        0
-       Private Other:      888
-              System:     5637
+           Java Heap:     5392
+         Native Heap:   300868
+                Code:    15380
+               Stack:       56
+            Graphics:    36904
+       Private Other:     2032
+              System:     5551
  
-               TOTAL:    20129       TOTAL SWAP PSS:     1468
+               TOTAL:   366183       TOTAL SWAP PSS:      140
  
  Objects
-               Views:        9         ViewRootImpl:        0
+               Views:      151         ViewRootImpl:        1
          AppContexts:        6           Activities:        1
               Assets:       13        AssetManagers:        0
-       Local Binders:        4        Proxy Binders:       25
-       Parcel memory:        2         Parcel count:       11
+       Local Binders:        9        Proxy Binders:       27
+       Parcel memory:        3         Parcel count:       12
     Death Recipients:        0      OpenSSL Sockets:        0
             WebViews:        0
  

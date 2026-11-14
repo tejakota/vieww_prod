@@ -8,14 +8,14 @@ Valdi built as it ships: `--snap_flavor=production -c opt --copt=-DANDROID_WITH_
 
 ## Phones (AWS Device Farm)
 
-### LMQ7201b75907a · Android 9 · msm8953 · 2.7 GB · 60.000004 Hz
+### LMQ7201bd5075a · Android 9 · msm8953 · 2.7 GB · 60.000004 Hz
 
 Runs — vieww-cpu: TIMEOUT, vieww-gpu: TIMEOUT, valdi: TIMEOUT
 
 | | Vieww CPU / Vieww GPU / Valdi |
 |---|---|
-| cold start, median of 5 (ms) | 263 / 274 / 484 |
-| memory after the run, PSS (MB) | **10.1** / 10.7 / 19.7 |
+| cold start, median of 5 (ms) | 265 / 258 / 470 |
+| memory after the run, PSS (MB) | **87.9** / 177.4 / 357.6 |
 | APK (MB) | 2.7 / 2.7 / 9.2 |
 
 | phase | presented fps | frame gap p95 (ms) | jank % | app work p95 (ms) | CPU % |
@@ -24,14 +24,14 @@ Runs — vieww-cpu: TIMEOUT, vieww-gpu: TIMEOUT, valdi: TIMEOUT
 | event | app time (ms) | frames presented | CPU % |
 |---|---|---|---|
 
-### RFCN304T60B · Android 13 · SM8250 · 10.4 GB · 60.000004 Hz
+### RFCN101PZRR · Android 13 · SM8250 · 10.4 GB · 60.000004 Hz
 
 Runs — vieww-cpu: TIMEOUT, vieww-gpu: TIMEOUT, valdi: TIMEOUT
 
 | | Vieww CPU / Vieww GPU / Valdi |
 |---|---|
-| cold start, median of 5 (ms) | 139 / 139 / 165 |
-| memory after the run, PSS (MB) | 114.5 / 132.3 / **69.6** |
+| cold start, median of 5 (ms) | 137 / **129** / 161 |
+| memory after the run, PSS (MB) | **164.7** / 214.6 / 798.2 |
 | APK (MB) | 2.7 / 2.7 / 9.2 |
 
 | phase | presented fps | frame gap p95 (ms) | jank % | app work p95 (ms) | CPU % |
@@ -40,14 +40,14 @@ Runs — vieww-cpu: TIMEOUT, vieww-gpu: TIMEOUT, valdi: TIMEOUT
 | event | app time (ms) | frames presented | CPU % |
 |---|---|---|---|
 
-### RFGL126NDYT · Android 16 · SM8850 · 10.9 GB · 120.00001 Hz
+### R3GYC0JRP5F · Android 16 · SM8850 · 10.9 GB · 120.00001 Hz
 
 Runs — vieww-cpu: TIMEOUT, vieww-gpu: TIMEOUT, valdi: TIMEOUT
 
 | | Vieww CPU / Vieww GPU / Valdi |
 |---|---|
-| cold start, median of 5 (ms) | 77 / **73** / 128 |
-| memory after the run, PSS (MB) | 79.8 / 199.7 / **69.5** |
+| cold start, median of 5 (ms) | 79 / 80 / 128 |
+| memory after the run, PSS (MB) | **99.6** / 280.2 / 617.3 |
 | APK (MB) | 2.7 / 2.7 / 9.2 |
 
 | phase | presented fps | frame gap p95 (ms) | jank % | app work p95 (ms) | CPU % |
@@ -58,7 +58,7 @@ Runs — vieww-cpu: TIMEOUT, vieww-gpu: TIMEOUT, valdi: TIMEOUT
 
 ### Across phones · median presented fps
 
-| phase | LMQ7201b75907a | RFCN304T60B | RFGL126NDYT |
+| phase | LMQ7201bd5075a | RFCN101PZRR | R3GYC0JRP5F |
 |---|---|---|---|
 | scroll2k | – / – / – | – / – / – | – / – / – |
 | live2k | – / – / – | – / – / – | – / – / – |
