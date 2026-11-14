@@ -182,19 +182,25 @@ mod app {
                 .iter()
                 .filter(|&&v| v > self.budget_ms * 1.5)
                 .count();
+            // One line per event, through and through: a message the app's
+            // logger splits over several logcat entries (an escape pair and
+            // a raw newline did exactly that — the 2026-11-14 farm run's
+            // events.jsonl holds the phase and done lines, and every stats,
+            // stages and touch line was left behind in a dump as fragments
+            // no reader could reassemble) never reaches a follower that
+            // greps `__MW__`, whatever it carries.
             emit(&format!(
-                "{{\"fw\":\"vieww\",\"ev\":\"stats\",\"phase\":\"{name}\",\"frames\":{},\\
-\"work_ms\":[{wm:.3},{w95:.3},{w99:.3},{wmax:.3}],\"interval_ms\":[{im:.3},{i95:.3},{i99:.3},{imax:.3}],\\
-\"jank\":{jank},\"budget_ms\":{:.2},\"t\":{:.1}}}",
+                "{{\"fw\":\"vieww\",\"ev\":\"stats\",\"phase\":\"{name}\",\"frames\":{},\
+\"work_ms\":[{wm:.3},{w95:.3},{w99:.3},{wmax:.3}],\"interval_ms\":[{im:.3},{i95:.3},{i99:.3},{imax:.3}],\"jank\":{jank},\"budget_ms\":{:.2},\"t\":{:.1}}}",
                 self.work.len(),
                 self.budget_ms,
                 self.t()
             ));
             let s = std::mem::take(&mut self.split);
             emit(&format!(
-                "{{\"fw\":\"vieww\",\"ev\":\"stages\",\"phase\":\"{name}\",\"frames\":{},\\
-\"build_ms\":{},\"raster_ms\":{},\"gpu_cpu_ms\":{},\"fence_ms\":{},\"acquire_ms\":{},\\
-\"present_ms\":{},\"gpu_ms\":{},\"budget_ms_end\":{:.2},\"scale_ms\":{},\"plan_ms\":{},\\
+                "{{\"fw\":\"vieww\",\"ev\":\"stages\",\"phase\":\"{name}\",\"frames\":{},\
+\"build_ms\":{},\"raster_ms\":{},\"gpu_cpu_ms\":{},\"fence_ms\":{},\"acquire_ms\":{},\
+\"present_ms\":{},\"gpu_ms\":{},\"budget_ms_end\":{:.2},\"scale_ms\":{},\"plan_ms\":{},\
 \"gpu_draw_ms\":{},\"gpu_layers_ms\":{},\"gpu_filters_ms\":{},\"gpu_shadows_ms\":{},\"gpu_blit_ms\":{},\"t\":{:.1}}}",
                 s.build.len(),
                 p50_90_max(&s.build),
