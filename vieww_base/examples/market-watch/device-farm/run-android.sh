@@ -181,43 +181,61 @@ run_config() {
     }
 
     local status="TIMEOUT"
-    # The event stream, followed through a file. Reading `adb logcat` through
-    # a process substitution with `read -t 30` — the first version of this —
-    # never worked on the farm's Amazon Linux 2 host: its bash is 4.2, where
-    # `read -t` against a process substitution's pipe leaves the loop the
-    # instant it starts, so every configuration timed out with an empty
-    # events.jsonl while the app played its whole schedule unheard (the
-    # 2026-11-14 run: all nine, both frameworks, every phone). A background
-    # stream into a file — restarted if it dies — followed by polling, asks
-    # nothing of `read -t`: whatever the host's bash does with a timeout,
-    # the lines arrive.
-    local stream="$dir/stream.txt" stop="$dir/stream.stop"
-    local seen=0
-    : > "$stream"; rm -f "$stop"
-    (
-        # The supervisor: keep one live `adb logcat` writing into the stream
-        # until the stop flag appears; a stream that dies is restarted a
-        # second later rather than ending the run's hearing.
-        while [ ! -e "$stop" ]; do
-            adb logcat -v raw -s "$tag:I" >> "$stream" 2>/dev/null || true
-            [ -e "$stop" ] || sleep 1
-        done
-    ) &
-    local supervisor=$!
+    # The event stream, followed through polls of the logcat dump. The farm
+    # host's adb is a wrapper that refuses what it has not whitelisted: this
+    # first read `adb logcat -v raw` — every poll answered "`adb raw` is not
+    # permitted" (419 of them on the 2026-11-14 run) while the apps played
+    # their schedules unheard, and the run before that fed the same refusal
+    # to a `read -t` loop that treated it as end-of-stream. The dump is the
+    # form the device suite has always used on the same host.
+    #
+    # Consecutive dumps overlap — the buffer keeps its lines until they roll
+    # — so a recurring line is recognised by its "t" (the app's own
+    # monotonic milliseconds, which both apps put at the end of exactly the
+    # lines that recur) and taken once; the one-time `start` line carries no
+    # t and is taken once by flag.
+    local last_t="-1" seen_start=false seen_at=""
     while :; do
         [ "$(date +%s)" -gt "$deadline" ] && break
-        local total; total="$(wc -l < "$stream" 2>/dev/null || echo 0)"
-        while [ "$seen" -lt "$total" ]; do
-            seen=$((seen + 1))
-            local line; line="$(sed -n "${seen}p" "$stream")"
+        [ -n "$pid" ] || pid="$(sh_ pidof "$pkg")"
+        local dump="$dir/dump.txt"
+        if [ -n "$pid" ]; then
+            adb logcat -d --pid="$pid" > "$dump" 2>/dev/null || true
+        else
+            adb logcat -d > "$dump" 2>/dev/null || true
+        fi
+        while IFS= read -r line; do
             case "$line" in *__MW__*) ;; *) continue ;; esac
             json="${line#*__MW__ }"
-            echo "$json" >> "$events"
             case "$json" in
                 *'"ev":"start"'*)
+                    # The one line with no t: once, by flag.
+                    [ "$seen_start" = true ] && continue
+                    seen_start=true
                     pid="$(sh_ pidof "$pkg")"
                     kv "${name}_pid" "$pid"
                     ;;
+                *)
+                    # Once, by t: this dump and every later one hold it. Two
+                    # distinct lines can share a t — a boundary's stats and
+                    # its phase are microseconds apart — so a tie also has
+                    # to name an event kind not yet taken at that t.
+                    local t ev
+                    t="$(sed -nE 's/.*"t":([0-9]+(\.[0-9]+)?).*/\1/p' <<< "$json" | head -1)"
+                    [ -n "$t" ] || continue
+                    ev="$(sed -nE 's/.*"ev":"([a-z]+)".*/\1/p' <<< "$json" | head -1)"
+                    if awk -v a="$t" -v b="$last_t" 'BEGIN { exit (a > b) ? 0 : 1 }'; then
+                        last_t="$t"; seen_at="|$ev|"
+                    elif awk -v a="$t" -v b="$last_t" 'BEGIN { exit (a == b) ? 0 : 1 }' \
+                        && ! grep -q "|$ev|" <<< "$seen_at"; then
+                        seen_at="$seen_at$ev|"
+                    else
+                        continue
+                    fi
+                    ;;
+            esac
+            echo "$json" >> "$events"
+            case "$json" in
                 *'"ev":"phase"'*)
                     [ -n "$phase" ] && close_phase "$phase"
                     phase="$(sed -E 's/.*"phase":"([^"]+)".*/\1/' <<< "$json")"
@@ -232,11 +250,10 @@ run_config() {
                     break
                     ;;
             esac
-        done
+        done < <(tr -d '\r' < "$dump" | grep '__MW__' || true)
         [ "$status" = PASS ] && break
-        sleep 0.2
+        sleep 0.3
     done
-    touch "$stop"; kill "$supervisor" 2>/dev/null || true; wait "$supervisor" 2>/dev/null || true
     sh_ dumpsys SurfaceFlinger --timestats -disable >/dev/null
 
     # 3. after the run

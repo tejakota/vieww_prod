@@ -195,7 +195,7 @@ mod app {
                 "{{\"fw\":\"vieww\",\"ev\":\"stages\",\"phase\":\"{name}\",\"frames\":{},\\
 \"build_ms\":{},\"raster_ms\":{},\"gpu_cpu_ms\":{},\"fence_ms\":{},\"acquire_ms\":{},\\
 \"present_ms\":{},\"gpu_ms\":{},\"budget_ms_end\":{:.2},\"scale_ms\":{},\"plan_ms\":{},\\
-\"gpu_draw_ms\":{},\"gpu_layers_ms\":{},\"gpu_filters_ms\":{},\"gpu_shadows_ms\":{},\"gpu_blit_ms\":{}}}",
+\"gpu_draw_ms\":{},\"gpu_layers_ms\":{},\"gpu_filters_ms\":{},\"gpu_shadows_ms\":{},\"gpu_blit_ms\":{},\"t\":{:.1}}}",
                 s.build.len(),
                 p50_90_max(&s.build),
                 p50_90_max(&s.raster),
@@ -211,7 +211,8 @@ mod app {
                 p50_90_max(&s.g_layers),
                 p50_90_max(&s.g_filters),
                 p50_90_max(&s.g_shadows),
-                p50_90_max(&s.g_blit)
+                p50_90_max(&s.g_blit),
+                self.t()
             ));
             self.work.clear();
             self.interval.clear();
