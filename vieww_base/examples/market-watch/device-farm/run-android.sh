@@ -408,7 +408,18 @@ run_config() {
     adb logcat -d -v threadtime > "$dir/logcat.txt"
     sh_ am force-stop "$pkg" >/dev/null
     kv "${name}_status" "$status"
-    [ "$status" = PASS ]
+    # The harness certifies vieww and measures Valdi. A verdict against
+    # vieww — the app we ship — is a regression, and it fails the run. A
+    # verdict against Valdi is a finding: the 2026-11-14 runs froze Valdi's
+    # screen on both mid-tier phones picked (the S20 and the A36 — the JS
+    # clock still ticking, the process a full core, not one frame presented
+    # after the 20,000-row load), and the comparison reading red over it
+    # said "our CI is broken" where the finding was "Valdi does not survive
+    # this screen on those phones". The verdict is recorded in result.txt
+    # and the report either way; only the runner's own failures — an app
+    # that never installed, a schedule the runner could not follow — fail
+    # the run, and those already do.
+    [ "$status" = PASS ] || [ "$tag" = Valdi ]
 }
 
 overall=PASS
