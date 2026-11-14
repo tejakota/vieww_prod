@@ -238,6 +238,10 @@ fn range(m: Material, light: Light, inks: &[[f32; 3]]) -> ([f32; 3], [f32; 3], [
     (lit, lit, lit)
 }
 
+/// A sheen with no text to keep legible — the API's ink-free half, kept
+/// beside `sheen_for` the same way `surface` is, for surfaces the app does
+/// not happen to build yet.
+#[expect(dead_code, reason = "the ink-free half of `sheen_for`, unwired")]
 fn sheen(m: Material, light: Light) -> Gradient {
     sheen_for(m, light, &[])
 }
@@ -256,6 +260,10 @@ fn sheen_for(m: Material, light: Light, inks: &[[f32; 3]]) -> Gradient {
 }
 
 /// A surface of material `m` under `light`.
+///
+/// The ink-free half of [`surface_for`], unwired: every surface the app
+/// builds carries text, so this one has no caller yet.
+#[expect(dead_code, reason = "the ink-free half of `surface_for`, unwired")]
 pub fn surface(m: Material, light: Light, radius: f32, child: impl Into<WidgetNode>) -> WidgetNode {
     surface_for(m, light, radius, &[], child)
 }
@@ -1450,7 +1458,9 @@ pub enum Depth {
     Raise(f32),
     /// Lower than the role, by this much.
     Lower(f32),
-    /// Exactly here, role or not.
+    /// Exactly here, role or not. The API's even step — the app places every
+    /// surface by role, so nothing constructs this variant yet.
+    #[expect(dead_code, reason = "the API's absolute step, unwired")]
     At(f32),
 }
 
@@ -1470,6 +1480,9 @@ impl Material {
     pub const fn satin() -> Self {
         SATIN
     }
+    /// The second material, unwired: the app settles on satin, and `MATTE` is
+    /// the API's other step for a surface it does not build yet.
+    #[expect(dead_code, reason = "the API's second material, unwired")]
     pub const fn matte() -> Self {
         MATTE
     }
