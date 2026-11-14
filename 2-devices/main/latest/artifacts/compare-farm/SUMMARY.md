@@ -1,6 +1,6 @@
 # vieww on AWS Device Farm
 
-run: `arn:aws:devicefarm:us-west-2:278061313767:run:393108fd-d195-4dad-acb4-12581f7a212f/73c00f81-4bdc-43fc-b466-0422eabc2a22` — FAILED
+run: `arn:aws:devicefarm:us-west-2:278061313767:run:393108fd-d195-4dad-acb4-12581f7a212f/d1edc335-1a63-4bfb-a2cd-d48339579588` — PASSED
 
 | phone | tier | Android | SoC / GPU | RAM | APK | cold start cpu / gpu (ms, median of 3) | frame time cpu | frame time gpu | frames drawn by the GPU, cpu pass / gpu pass | PSS cpu / gpu (MB) | suite cpu / gpu / auto |
 |---|---|---|---|---|---|---|---|---|---|---|---|
