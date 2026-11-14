@@ -1,0 +1,14 @@
+   Compiling num-traits v0.2.19
+   Compiling moxcms v0.8.1
+   Compiling image v0.25.10
+   Compiling vieww-asset v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
+   Compiling vieww v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
+   Compiling test-animation-stress v0.1.0 (/home/teja/actions-runner/_work/vieww_prod/vieww_prod/vieww_base/examples/test-animation-stress)
+    Finished `release` profile [optimized + debuginfo] target(s) in 55.73s
+     Running `target/release/test-animation-stress /home/teja/actions-runner/_work/_temp/hardware-linux/stress-1`
+frames: 72, moving: 71/71
+  render mean: 12.58 ms, p95: 16.99 ms, worst: 24.68 ms, over 16.6 ms budget: 7
+wrote /home/teja/actions-runner/_work/_temp/hardware-linux/stress-1
+FAIL: p95 frame time 16.99 ms exceeds the 16.6 ms budget
+FAIL: 7 of 72 frames over budget — the 200-tile animation is not sustainable at 60 Hz
+Error: "2 animation-stress check(s) failed"
