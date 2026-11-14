@@ -767,18 +767,29 @@ fn direct_run(
 }
 
 /// Stop the worker and everything it started. On Unix the worker leads
-/// its own process group, so the group goes (through the system `kill`:
-/// this file stays free of unsafe); elsewhere the process itself.
+/// its own process group, so the group goes; elsewhere the process itself.
 /// Kill `child` and everything in its process group (it must have been
 /// spawned with `process_group(0)` on unix). Also used by the browser tool.
 pub(crate) fn kill_group(child: &mut std::process::Child) {
     #[cfg(unix)]
     {
-        let _ = std::process::Command::new("kill")
-            .args(["-KILL", &format!("-{}", child.id())])
-            .stdout(std::process::Stdio::null())
-            .stderr(std::process::Stdio::null())
-            .status();
+        // kill(2) directly, not `/usr/bin/kill`. The command form hands the
+        // pid list to whatever `kill` resolves to on PATH, and procps
+        // 3.3.17 (ubuntu-22.04 — the CI runners) parses `kill -KILL -PID`
+        // through getopt: the leading digit hits the '?' arm, which reads
+        // the pid from `argv[optind-1]` — the *program name* once "-KILL"
+        // has been stripped — and atoi("kill") is 0. kill(0, SIGKILL) then
+        // signals the caller's own process group, which on a CI runner is
+        // the whole step: the linux-x64 installers leg died of exactly
+        // that ("Test (Linux) failed (exit -9)", 3-build 2026-11-14),
+        // while the lingering helper this exists to reap survived it.
+        extern "C" {
+            fn kill(pid: i32, sig: i32) -> i32;
+        }
+        const SIGKILL: i32 = 9;
+        // SAFETY: a negative pid addresses the child's process group; the
+        // child leads it (`process_group(0)` at spawn). ESRCH is harmless.
+        unsafe { kill(-(child.id() as i32), SIGKILL) };
     }
     let _ = child.kill();
 }
