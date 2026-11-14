@@ -1,39 +1,39 @@
-[2026-11-14 15:18:32.563573] [DEVICEFARM] ########### Start executing testspec ###########
-[2026-11-14 15:18:32.563616]  
-[2026-11-14 15:18:32.572867]  
-[2026-11-14 15:18:32.572922] [DEVICEFARM] ########### Entering phase install ###########
-[2026-11-14 15:18:32.572949]  
-[2026-11-14 15:18:32.572971] [DeviceFarm] adb version
-[2026-11-14 15:18:32.602990] Android Debug Bridge version 1.0.39
-[2026-11-14 15:18:32.603014] Version 0.0.1-4500957
-[2026-11-14 15:18:32.603026] Installed as /tmp/devicefarm-workspace/execution-963j62db/shared-n6pv6f_n/android-home-2j8jxhbo/platform-tools/adb_binary
-[2026-11-14 15:18:32.604705]  
-[2026-11-14 15:18:32.604727] [DEVICEFARM] ########### Entering phase pre_test ###########
-[2026-11-14 15:18:32.604743]  
-[2026-11-14 15:18:32.604753] [DeviceFarm] adb devices -l
-[2026-11-14 15:18:32.669750] List of devices attached
-[2026-11-14 15:18:32.669787] R3GYC0JRP5F            device usb:1-1.2 product:m3quew model:SM_S948U1 device:m3q transport_id:2
-[2026-11-14 15:18:32.669801] 
-[2026-11-14 15:18:32.671638]  
-[2026-11-14 15:18:32.671663] [DEVICEFARM] ########### Entering phase test ###########
-[2026-11-14 15:18:32.671678]  
-[2026-11-14 15:18:32.671688] [DeviceFarm] bash $DEVICEFARM_TEST_PACKAGE_PATH/run-android.sh
-[2026-11-14 15:42:45.045079]  
-[2026-11-14 15:42:45.045124] [DEVICEFARM] ########### Entering phase post_test ###########
-[2026-11-14 15:42:45.045162]  
-[2026-11-14 15:42:45.045187] [DeviceFarm] ls -la $DEVICEFARM_LOG_DIR/mw || true
-[2026-11-14 15:42:45.046384] total 32
-[2026-11-14 15:42:45.046419] drwxr-xr-x 5 device-farm root   109 Nov 14 15:42 .
-[2026-11-14 15:42:45.046444] drwxrwxrwx 3         995 1001    16 Nov 14 15:18 ..
-[2026-11-14 15:42:45.046470] -rw-r--r-- 1 device-farm root     8 Nov 14 15:18 install.log
-[2026-11-14 15:42:45.046493] -rw-r--r-- 1 device-farm root   467 Nov 14 15:42 listing.txt
-[2026-11-14 15:42:45.046514] -rw-r--r-- 1 device-farm root 21783 Nov 14 15:42 result.txt
-[2026-11-14 15:42:45.046534] drwxr-xr-x 2 device-farm root   145 Nov 14 15:34 valdi
-[2026-11-14 15:42:45.046555] drwxr-xr-x 2 device-farm root   145 Nov 14 15:25 vieww-cpu
-[2026-11-14 15:42:45.046576] drwxr-xr-x 2 device-farm root   145 Nov 14 15:42 vieww-gpu
-[2026-11-14 15:42:45.079608]  
-[2026-11-14 15:42:45.079661] [DEVICEFARM] ########### Finish executing testspec ###########
-[2026-11-14 15:42:45.079686]  
-[2026-11-14 15:42:45.083098] [DEVICEFARM] ########### Setting upload permissions ###########
-[2026-11-14 15:42:45.083135]  
-[2026-11-14 15:42:45.084739]  
+[2026-11-14 16:00:42.640656] [DEVICEFARM] ########### Start executing testspec ###########
+[2026-11-14 16:00:42.640708]  
+[2026-11-14 16:00:42.650114]  
+[2026-11-14 16:00:42.650153] [DEVICEFARM] ########### Entering phase install ###########
+[2026-11-14 16:00:42.650173]  
+[2026-11-14 16:00:42.650191] [DeviceFarm] adb version
+[2026-11-14 16:00:42.679201] Android Debug Bridge version 1.0.39
+[2026-11-14 16:00:42.679230] Version 0.0.1-4500957
+[2026-11-14 16:00:42.679246] Installed as /tmp/devicefarm-workspace/execution-9bg2mbnx/shared-xehjdx4s/android-home-up3zvgyd/platform-tools/adb_binary
+[2026-11-14 16:00:42.680916]  
+[2026-11-14 16:00:42.680947] [DEVICEFARM] ########### Entering phase pre_test ###########
+[2026-11-14 16:00:42.680965]  
+[2026-11-14 16:00:42.680981] [DeviceFarm] adb devices -l
+[2026-11-14 16:00:42.698278] List of devices attached
+[2026-11-14 16:00:42.698302] R3GL10AHD8A            device usb:1-1.2 product:m3quew model:SM_S948U1 device:m3q transport_id:2
+[2026-11-14 16:00:42.698316] 
+[2026-11-14 16:00:42.700160]  
+[2026-11-14 16:00:42.700220] [DEVICEFARM] ########### Entering phase test ###########
+[2026-11-14 16:00:42.700244]  
+[2026-11-14 16:00:42.700261] [DeviceFarm] bash $DEVICEFARM_TEST_PACKAGE_PATH/run-android.sh
+[2026-11-14 16:15:00.096616]  
+[2026-11-14 16:15:00.096679] [DEVICEFARM] ########### Entering phase post_test ###########
+[2026-11-14 16:15:00.096716]  
+[2026-11-14 16:15:00.096752] [DeviceFarm] ls -la $DEVICEFARM_LOG_DIR/mw || true
+[2026-11-14 16:15:00.097851] total 40
+[2026-11-14 16:15:00.097885] drwxr-xr-x 5 device-farm root   109 Nov 14 16:15 .
+[2026-11-14 16:15:00.097908] drwxrwxrwx 3         995 1001    16 Nov 14 16:00 ..
+[2026-11-14 16:15:00.097929] -rw-r--r-- 1 device-farm root     8 Nov 14 16:00 install.log
+[2026-11-14 16:15:00.097950] -rw-r--r-- 1 device-farm root   467 Nov 14 16:15 listing.txt
+[2026-11-14 16:15:00.097970] -rw-r--r-- 1 device-farm root 21805 Nov 14 16:15 result.txt
+[2026-11-14 16:15:00.097989] drwxr-xr-x 2 device-farm root   124 Nov 14 16:11 valdi
+[2026-11-14 16:15:00.098009] drwxr-xr-x 2 device-farm root  4096 Nov 14 16:03 vieww-cpu
+[2026-11-14 16:15:00.098028] drwxr-xr-x 2 device-farm root  4096 Nov 14 16:14 vieww-gpu
+[2026-11-14 16:15:00.132240]  
+[2026-11-14 16:15:00.132289] [DEVICEFARM] ########### Finish executing testspec ###########
+[2026-11-14 16:15:00.132328]  
+[2026-11-14 16:15:00.136253] [DEVICEFARM] ########### Setting upload permissions ###########
+[2026-11-14 16:15:00.136293]  
+[2026-11-14 16:15:00.138387]  

@@ -7,13 +7,13 @@
 [DeviceFarm] adb version
 Android Debug Bridge version 1.0.39
 Version 0.0.1-4500957
-Installed as /tmp/devicefarm-workspace/execution-963j62db/shared-n6pv6f_n/android-home-2j8jxhbo/platform-tools/adb_binary
+Installed as /tmp/devicefarm-workspace/execution-9bg2mbnx/shared-xehjdx4s/android-home-up3zvgyd/platform-tools/adb_binary
  
 [DEVICEFARM] ########### Entering phase pre_test ###########
  
 [DeviceFarm] adb devices -l
 List of devices attached
-R3GYC0JRP5F            device usb:1-1.2 product:m3quew model:SM_S948U1 device:m3q transport_id:2
+R3GL10AHD8A            device usb:1-1.2 product:m3quew model:SM_S948U1 device:m3q transport_id:2
 
  
 [DEVICEFARM] ########### Entering phase test ###########
@@ -23,15 +23,15 @@ R3GYC0JRP5F            device usb:1-1.2 product:m3quew model:SM_S948U1 device:m3
 [DEVICEFARM] ########### Entering phase post_test ###########
  
 [DeviceFarm] ls -la $DEVICEFARM_LOG_DIR/mw || true
-total 32
-drwxr-xr-x 5 device-farm root   109 Nov 14 15:42 .
-drwxrwxrwx 3         995 1001    16 Nov 14 15:18 ..
--rw-r--r-- 1 device-farm root     8 Nov 14 15:18 install.log
--rw-r--r-- 1 device-farm root   467 Nov 14 15:42 listing.txt
--rw-r--r-- 1 device-farm root 21783 Nov 14 15:42 result.txt
-drwxr-xr-x 2 device-farm root   145 Nov 14 15:34 valdi
-drwxr-xr-x 2 device-farm root   145 Nov 14 15:25 vieww-cpu
-drwxr-xr-x 2 device-farm root   145 Nov 14 15:42 vieww-gpu
+total 40
+drwxr-xr-x 5 device-farm root   109 Nov 14 16:15 .
+drwxrwxrwx 3         995 1001    16 Nov 14 16:00 ..
+-rw-r--r-- 1 device-farm root     8 Nov 14 16:00 install.log
+-rw-r--r-- 1 device-farm root   467 Nov 14 16:15 listing.txt
+-rw-r--r-- 1 device-farm root 21805 Nov 14 16:15 result.txt
+drwxr-xr-x 2 device-farm root   124 Nov 14 16:11 valdi
+drwxr-xr-x 2 device-farm root  4096 Nov 14 16:03 vieww-cpu
+drwxr-xr-x 2 device-farm root  4096 Nov 14 16:14 vieww-gpu
  
 [DEVICEFARM] ########### Finish executing testspec ###########
  

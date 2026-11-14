@@ -2,7 +2,7 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
-| 2026-11-14T15:47:06Z | 2-devices/main | FAILURE | `1e8b4925054e` | [summary](2-devices/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/43609112541) |
+| 2026-11-14T16:18:07Z | 2-devices/main | FAILURE | `ea1535622887` | [summary](2-devices/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/43612904937) |
 | 2026-11-14T14:41:32Z | 1-check/main | CANCELLED | `0c2895aea042` | [summary](1-check/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/43602967242) |
 | 2026-11-14T09:05:30Z | 3-build/main | SUCCESS | `36a4eb79c844` | [summary](3-build/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/43577988171) |
 | 2026-11-11T12:02:38Z | cloud-vm/main | FAILURE | `cbc073a283fc` | [summary](cloud-vm/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/43009865183) |

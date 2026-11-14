@@ -1,7 +1,7 @@
 # 2 · Devices — FAILURE
 
-- branch: `main`  sha: `1e8b4925054ec4301042049fa2e12fa78f4e4c21`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/43609112541
+- branch: `main`  sha: `ea1535622887998c02028ba4bdf2ffc95ff29c4c`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/43612904937
 
 | job | verdict | failed steps |
 |---|---|---|
@@ -11,11 +11,11 @@
 | phase-1 / approve | skipped |  |
 | phase-1 / matrix.title | skipped |  |
 | phase-2 / Market Watch · compare-farm | FAIL | Market Watch · compare-farm |
-| phase-2 / approve | skipped |  |
 | phase-2 / matrix.title | skipped |  |
+| phase-2 / approve | skipped |  |
 | phase-3 / Market Watch · compare-report | PASS |  |
-| phase-3 / matrix.title | skipped |  |
 | phase-3 / approve | skipped |  |
+| phase-3 / matrix.title | skipped |  |
 | results / publish | running |  |
 
 ## Steps
@@ -129,9 +129,9 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-2 / approve — skipped
-
 ### phase-2 / matrix.title — skipped
+
+### phase-2 / approve — skipped
 
 ### phase-3 / Market Watch · compare-report — PASS
 - PASS: Set up job
@@ -164,9 +164,9 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-3 / matrix.title — skipped
-
 ### phase-3 / approve — skipped
+
+### phase-3 / matrix.title — skipped
 
 ### results / publish — running
 - running: Set up job

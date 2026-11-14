@@ -1,0 +1,146 @@
+--------- beginning of main
+11-14 16:01:18.612 15854 15854 E eww.marketwatc: Not starting debugger since process cannot load the jdwp agent.
+11-14 16:01:18.659 15854 15854 E DisplayManagerHelper: ISmartCoverManager is null
+11-14 16:01:18.731 15854 15854 D PhoneWindow: windowLightStatusBar : false, disable View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+11-14 16:01:18.742 15854 15854 I android-activity: Creating: Activity = 0x287a, saved state size = 0
+11-14 16:01:18.797 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"start","path":"cpu","phases":16}
+11-14 16:01:18.800 15854 15854 D OpenGLRenderer: Skia GL Pipeline
+11-14 16:01:18.811 15854 15854 I TouchFilterInputStageHelper: [needTouchEventFilter] Displayid : 0
+11-14 16:01:18.815 15854 15854 D BezellessGripSuppressionFilter: getdisplaysize, x : 1080 y : 2160
+11-14 16:01:18.832 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"surface","w":411,"h":823,"t":35.3}
+11-14 16:01:18.832 15854 15875 I vieww   : vieww_platform_winit::insets: display refresh: no display, or below API 30
+11-14 16:01:18.832 15854 15875 I vieww   : vieww_platform_winit::app: vieww: window#primary is on Android Device, which reports no refresh rate; keeping the current budget
+11-14 16:01:18.833 15854 15875 I vieww   : vieww_platform_winit::insets: window insets: device is below API 30, reporting none (asked once)
+11-14 16:01:18.833 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load2k","t":36.1}
+--------- beginning of system
+11-14 16:01:18.838 15854 15854 I Timeline: Timeline: Activity_idle id: android.os.BinderProxy@3d628f1 time:1089673
+11-14 16:01:19.072 15854 15875 I vieww   : vieww_platform_winit::perf_hint: vieww: performance hint unavailable (Android 12 or older: no APerformanceHint)
+11-14 16:01:19.072 15854 15875 I vieww   : vieww_platform_winit::a11y_android: a11y: device is API 28, and the injected delegate needs 29; TalkBack will not see this tree
+11-14 16:01:22.298 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load2k","frames":3,\
+11-14 16:01:22.298 15854 15875 I vieww   : "work_ms":[201.102,231.220,231.220,231.220],"interval_ms":[3023.969,3023.969,3023.969,3023.969],\
+11-14 16:01:22.298 15854 15875 I vieww   : "jank":2,"budget_ms":16.67,"t":3501.4}
+11-14 16:01:22.298 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load2k","frames":3,\
+11-14 16:01:22.298 15854 15875 I vieww   : "build_ms":[21.69,21.89,21.89],"raster_ms":[117.97,194.18,194.18],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[6.00,52.44,52.44],\
+11-14 16:01:22.298 15854 15875 I vieww   : "present_ms":[8.94,8.99,8.99],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.16,0.37,0.37],"plan_ms":[0.00,0.00,0.00],\
+11-14 16:01:22.298 15854 15875 I vieww   : "gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"t":3501.6}
+11-14 16:01:22.298 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"idle2k","t":3501.6}
+11-14 16:01:24.299 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"idle2k","frames":1,\
+11-14 16:01:24.299 15854 15875 I vieww   : "work_ms":[0.386,0.386,0.386,0.386],"interval_ms":[0.000,0.000,0.000,0.000],\
+11-14 16:01:24.299 15854 15875 I vieww   : "jank":0,"budget_ms":16.67,"t":5501.7}
+11-14 16:01:24.299 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"idle2k","frames":1,\
+11-14 16:01:24.299 15854 15875 I vieww   : "build_ms":[0.24,0.24,0.24],"raster_ms":[0.03,0.03,0.03],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.00,0.00,0.00],\
+11-14 16:01:24.299 15854 15875 I vieww   : "present_ms":[0.00,0.00,0.00],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.12,0.12,0.12],"plan_ms":[0.00,0.00,0.00],\
+11-14 16:01:24.299 15854 15875 I vieww   : "gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"t":5502.0}
+11-14 16:01:24.299 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"tick2k","t":5502.1}
+11-14 16:01:25.300 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"tick2k","frames":1,\
+11-14 16:01:25.300 15854 15875 I vieww   : "work_ms":[70.488,70.488,70.488,70.488],"interval_ms":[0.000,0.000,0.000,0.000],\
+11-14 16:01:25.300 15854 15875 I vieww   : "jank":0,"budget_ms":16.67,"t":6502.8}
+11-14 16:01:25.300 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"tick2k","frames":1,\
+11-14 16:01:25.300 15854 15875 I vieww   : "build_ms":[9.45,9.45,9.45],"raster_ms":[52.91,52.91,52.91],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.38,0.38,0.38],\
+11-14 16:01:25.300 15854 15875 I vieww   : "present_ms":[7.52,7.52,7.52],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.23,0.23,0.23],"plan_ms":[0.00,0.00,0.00],\
+11-14 16:01:25.300 15854 15875 I vieww   : "gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"t":6503.1}
+11-14 16:01:25.300 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"jump2k","t":6503.1}
+11-14 16:01:26.300 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"jump2k","frames":1,\
+11-14 16:01:26.300 15854 15875 I vieww   : "work_ms":[161.230,161.230,161.230,161.230],"interval_ms":[0.000,0.000,0.000,0.000],\
+11-14 16:01:26.300 15854 15875 I vieww   : "jank":0,"budget_ms":16.67,"t":7503.3}
+11-14 16:01:26.301 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"jump2k","frames":1,\
+11-14 16:01:26.301 15854 15875 I vieww   : "build_ms":[32.31,32.31,32.31],"raster_ms":[121.31,121.31,121.31],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.33,0.33,0.33],\
+11-14 16:01:26.301 15854 15875 I vieww   : "present_ms":[7.15,7.15,7.15],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.12,0.12,0.12],"plan_ms":[0.00,0.00,0.00],\
+11-14 16:01:26.301 15854 15875 I vieww   : "gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"t":7503.6}
+11-14 16:01:26.301 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"scroll2k","t":7503.7}
+11-14 16:01:34.398 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"scroll2k","frames":66,\
+11-14 16:01:34.398 15854 15875 I vieww   : "work_ms":[122.544,126.381,128.499,138.869],"interval_ms":[122.476,126.135,128.061,128.693],\
+11-14 16:01:34.398 15854 15875 I vieww   : "jank":65,"budget_ms":16.67,"t":15601.2}
+11-14 16:01:34.398 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"scroll2k","frames":66,\
+11-14 16:01:34.398 15854 15875 I vieww   : "build_ms":[1.00,4.80,11.30],"raster_ms":[113.32,116.46,119.51],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.33,0.39,0.46],\
+11-14 16:01:34.398 15854 15875 I vieww   : "present_ms":[7.01,7.47,8.49],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.08,0.11,0.27],"plan_ms":[0.00,0.00,0.00],\
+11-14 16:01:34.398 15854 15875 I vieww   : "gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"t":15601.3}
+11-14 16:01:34.398 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"live2k","t":15601.4}
+11-14 16:01:42.421 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"live2k","frames":64,\
+11-14 16:01:42.421 15854 15875 I vieww   : "work_ms":[125.112,130.367,132.230,133.248],"interval_ms":[125.167,130.472,132.352,133.358],\
+11-14 16:01:42.421 15854 15875 I vieww   : "jank":63,"budget_ms":16.67,"t":23624.3}
+11-14 16:01:42.421 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"live2k","frames":64,\
+11-14 16:01:42.421 15854 15875 I vieww   : "build_ms":[2.11,5.68,11.54],"raster_ms":[114.72,117.44,120.21],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.32,0.35,0.44],\
+11-14 16:01:42.421 15854 15875 I vieww   : "present_ms":[6.96,7.27,7.76],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.08,0.10,0.14],"plan_ms":[0.00,0.00,0.00],\
+11-14 16:01:42.421 15854 15875 I vieww   : "gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"t":23624.4}
+11-14 16:01:42.421 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"storm2k","t":23624.4}
+11-14 16:01:50.335 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"storm2k","frames":88,\
+11-14 16:01:50.335 15854 15875 I vieww   : "work_ms":[84.896,96.764,109.786,401.628],"interval_ms":[85.024,96.906,109.938,401.756],\
+11-14 16:01:50.335 15854 15875 I vieww   : "jank":87,"budget_ms":16.67,"t":31538.1}
+11-14 16:01:50.335 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"storm2k","frames":88,\
+11-14 16:01:50.335 15854 15875 I vieww   : "build_ms":[3.12,3.53,4.16],"raster_ms":[74.84,80.03,101.26],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.39,0.46,319.45],\
+11-14 16:01:50.335 15854 15875 I vieww   : "present_ms":[6.56,7.18,9.55],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.08,0.09,0.12],"plan_ms":[0.00,0.00,0.00],\
+11-14 16:01:50.335 15854 15875 I vieww   : "gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"t":31538.2}
+11-14 16:01:50.335 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load20k","t":31538.3}
+11-14 16:01:52.302 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load20k","frames":1,\
+11-14 16:01:52.302 15854 15875 I vieww   : "work_ms":[146.136,146.136,146.136,146.136],"interval_ms":[0.000,0.000,0.000,0.000],\
+11-14 16:01:52.302 15854 15875 I vieww   : "jank":0,"budget_ms":16.67,"t":33504.7}
+11-14 16:01:52.302 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load20k","frames":1,\
+11-14 16:01:52.302 15854 15875 I vieww   : "build_ms":[15.17,15.17,15.17],"raster_ms":[121.76,121.76,121.76],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.40,0.40,0.40],\
+11-14 16:01:52.302 15854 15875 I vieww   : "present_ms":[8.73,8.73,8.73],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.08,0.08,0.08],"plan_ms":[0.00,0.00,0.00],\
+11-14 16:01:52.302 15854 15875 I vieww   : "gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"t":33504.9}
+11-14 16:01:52.302 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"idle20k","t":33504.9}
+11-14 16:01:54.302 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"idle20k","frames":1,\
+11-14 16:01:54.302 15854 15875 I vieww   : "work_ms":[0.673,0.673,0.673,0.673],"interval_ms":[0.000,0.000,0.000,0.000],\
+11-14 16:01:54.302 15854 15875 I vieww   : "jank":0,"budget_ms":16.67,"t":35504.7}
+11-14 16:01:54.302 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"idle20k","frames":1,\
+11-14 16:01:54.302 15854 15875 I vieww   : "build_ms":[0.39,0.39,0.39],"raster_ms":[0.06,0.06,0.06],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.00,0.00,0.00],\
+11-14 16:01:54.302 15854 15875 I vieww   : "present_ms":[0.00,0.00,0.00],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.21,0.21,0.21],"plan_ms":[0.00,0.00,0.00],\
+11-14 16:01:54.302 15854 15875 I vieww   : "gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"t":35504.9}
+11-14 16:01:54.302 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"tick20k","t":35504.9}
+11-14 16:01:55.302 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"tick20k","frames":1,\
+11-14 16:01:55.302 15854 15875 I vieww   : "work_ms":[59.931,59.931,59.931,59.931],"interval_ms":[0.000,0.000,0.000,0.000],\
+11-14 16:01:55.302 15854 15875 I vieww   : "jank":0,"budget_ms":16.67,"t":36505.5}
+11-14 16:01:55.303 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"tick20k","frames":1,\
+11-14 16:01:55.303 15854 15875 I vieww   : "build_ms":[1.78,1.78,1.78],"raster_ms":[48.69,48.69,48.69],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.40,0.40,0.40],\
+11-14 16:01:55.303 15854 15875 I vieww   : "present_ms":[8.97,8.97,8.97],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.09,0.09,0.09],"plan_ms":[0.00,0.00,0.00],\
+11-14 16:01:55.303 15854 15875 I vieww   : "gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"t":36505.8}
+11-14 16:01:55.303 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"jump20k","t":36505.8}
+11-14 16:01:56.304 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"jump20k","frames":1,\
+11-14 16:01:56.304 15854 15875 I vieww   : "work_ms":[154.181,154.181,154.181,154.181],"interval_ms":[0.000,0.000,0.000,0.000],\
+11-14 16:01:56.304 15854 15875 I vieww   : "jank":0,"budget_ms":16.67,"t":37507.2}
+11-14 16:01:56.304 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"jump20k","frames":1,\
+11-14 16:01:56.304 15854 15875 I vieww   : "build_ms":[21.78,21.78,21.78],"raster_ms":[124.44,124.44,124.44],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.38,0.38,0.38],\
+11-14 16:01:56.304 15854 15875 I vieww   : "present_ms":[7.46,7.46,7.46],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.11,0.11,0.11],"plan_ms":[0.00,0.00,0.00],\
+11-14 16:01:56.304 15854 15875 I vieww   : "gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"t":37507.4}
+11-14 16:01:56.304 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"scroll20k","t":37507.5}
+11-14 16:02:04.405 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"scroll20k","frames":66,\
+11-14 16:02:04.405 15854 15875 I vieww   : "work_ms":[121.386,127.773,131.646,141.170],"interval_ms":[121.437,127.880,128.484,131.766],\
+11-14 16:02:04.405 15854 15875 I vieww   : "jank":65,"budget_ms":16.67,"t":45608.3}
+11-14 16:02:04.405 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"scroll20k","frames":66,\
+11-14 16:02:04.405 15854 15875 I vieww   : "build_ms":[1.02,4.65,10.84],"raster_ms":[112.82,117.04,122.52],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.34,0.38,0.49],\
+11-14 16:02:04.405 15854 15875 I vieww   : "present_ms":[7.08,7.45,8.48],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.08,0.10,0.42],"plan_ms":[0.00,0.00,0.00],\
+11-14 16:02:04.405 15854 15875 I vieww   : "gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"t":45608.5}
+11-14 16:02:04.405 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"live20k","t":45608.5}
+11-14 16:02:12.436 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"live20k","frames":64,\
+11-14 16:02:12.436 15854 15875 I vieww   : "work_ms":[124.785,132.833,133.670,135.052],"interval_ms":[124.868,132.958,133.797,135.188],\
+11-14 16:02:12.436 15854 15875 I vieww   : "jank":63,"budget_ms":16.67,"t":53638.8}
+11-14 16:02:12.436 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"live20k","frames":64,\
+11-14 16:02:12.436 15854 15875 I vieww   : "build_ms":[2.09,6.38,11.68],"raster_ms":[114.94,117.67,123.47],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.34,0.38,0.52],\
+11-14 16:02:12.436 15854 15875 I vieww   : "present_ms":[7.06,7.30,8.46],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.08,0.10,0.16],"plan_ms":[0.00,0.00,0.00],\
+11-14 16:02:12.436 15854 15875 I vieww   : "gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"t":53638.9}
+11-14 16:02:12.436 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"storm20k","t":53639.0}
+11-14 16:02:20.315 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"storm20k","frames":91,\
+11-14 16:02:20.315 15854 15875 I vieww   : "work_ms":[86.227,91.053,95.353,97.467],"interval_ms":[86.371,91.185,95.482,97.603],\
+11-14 16:02:20.315 15854 15875 I vieww   : "jank":90,"budget_ms":16.67,"t":61518.3}
+11-14 16:02:20.315 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"storm20k","frames":91,\
+11-14 16:02:20.315 15854 15875 I vieww   : "build_ms":[3.04,3.38,6.26],"raster_ms":[75.63,79.29,86.83],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.39,0.40,0.57],\
+11-14 16:02:20.315 15854 15875 I vieww   : "present_ms":[6.69,7.03,8.19],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.07,0.09,0.16],"plan_ms":[0.00,0.00,0.00],\
+11-14 16:02:20.315 15854 15875 I vieww   : "gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"t":61518.4}
+11-14 16:02:20.315 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load2k-thermal","t":61518.4}
+11-14 16:02:22.308 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load2k-thermal","frames":1,\
+11-14 16:02:22.308 15854 15875 I vieww   : "work_ms":[166.056,166.056,166.056,166.056],"interval_ms":[0.000,0.000,0.000,0.000],\
+11-14 16:02:22.308 15854 15875 I vieww   : "jank":0,"budget_ms":16.67,"t":63510.9}
+11-14 16:02:22.308 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load2k-thermal","frames":1,\
+11-14 16:02:22.308 15854 15875 I vieww   : "build_ms":[39.88,39.88,39.88],"raster_ms":[117.19,117.19,117.19],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.39,0.39,0.39],\
+11-14 16:02:22.308 15854 15875 I vieww   : "present_ms":[8.51,8.51,8.51],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.08,0.08,0.08],"plan_ms":[0.00,0.00,0.00],\
+11-14 16:02:22.308 15854 15875 I vieww   : "gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"t":63511.1}
+11-14 16:02:22.308 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"thermal","t":63511.2}
+11-14 16:03:22.391 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"thermal","frames":476,\
+11-14 16:03:22.391 15854 15875 I vieww   : "work_ms":[125.373,132.388,134.758,162.223],"interval_ms":[125.493,132.384,134.847,162.353],\
+11-14 16:03:22.391 15854 15875 I vieww   : "jank":475,"budget_ms":16.67,"t":123593.6}
+11-14 16:03:22.391 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"thermal","frames":476,\
+11-14 16:03:22.391 15854 15875 I vieww   : "build_ms":[2.08,3.56,12.73],"raster_ms":[115.54,118.25,145.58],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.34,0.38,0.90],\
+11-14 16:03:22.391 15854 15875 I vieww   : "present_ms":[6.99,7.35,8.55],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.08,0.09,0.25],"plan_ms":[0.00,0.00,0.00],\
+11-14 16:03:22.391 15854 15875 I vieww   : "gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"t":123593.9}
+11-14 16:03:22.391 15854 15875 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"done","t":123593.9}

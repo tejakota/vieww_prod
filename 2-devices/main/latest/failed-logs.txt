@@ -1,302 +1,302 @@
 ===== phase-2 / Market Watch · compare-farm	log =====
-2026-11-14T15:17:43.1240734Z Total of 1 artifact(s) downloaded
-2026-11-14T15:17:43.1244455Z Download artifact has finished successfully
-2026-11-14T15:17:43.1348997Z ##[group]Run actions/download-artifact@v4
-2026-11-14T15:17:43.1349256Z with:
-2026-11-14T15:17:43.1349433Z   name: compare-valdi-apk
-2026-11-14T15:17:43.1349637Z   path: dist
-2026-11-14T15:17:43.1349818Z   merge-multiple: false
-2026-11-14T15:17:43.1350020Z   repository: tejakota/vieww_prod
-2026-11-14T15:17:43.1350234Z   run-id: 43609112541
-2026-11-14T15:17:43.1350413Z env:
-2026-11-14T15:17:43.1350660Z   CI_INPUTS: {"devices": "", "count": "3", "tiers": "low,mid,high", "video": false}
-2026-11-14T15:17:43.1350956Z   CI_MATRIX: {}
-2026-11-14T15:17:43.1352211Z   CI_JOB: {"title": "Market Watch \u00b7 compare-farm", "project": "Market Watch", "id": "compare-farm", "file": "vieww_base/examples/market-watch/ci/jobs/compare-farm.toml", "if": "", "needs": ["compare-vieww-apk", "compare-valdi-apk"], "setup": [{"uses": "aws", "with": {"aws-region": "${{ env.AWS_REGION }}"}}], "uploads": [{"name": "compare-farm", "path": "${{ runner.temp }}/compare-farm", "if-no-files-found": "warn"}], "downloads": [{"name": "compare-vieww-apk", "path": "dist"}, {"name": "compare-valdi-apk", "path": "dist"}]}
-2026-11-14T15:17:43.1353501Z   CI_PROJECT: Market Watch
-2026-11-14T15:17:43.1354207Z   CI_VARS: {
+2026-11-14T15:59:53.4110392Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-14T15:59:53.4110589Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-14T15:59:53.4110814Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-14T15:59:53.4111070Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-14T15:59:53.4111339Z   AWS_DEFAULT_REGION: us-west-2
+2026-11-14T15:59:53.4111535Z   AWS_REGION: us-west-2
+2026-11-14T15:59:53.4114851Z   AWS_SESSION_TOKEN: ***
+2026-11-14T15:59:53.4115049Z ##[endgroup]
+2026-11-14T15:59:53.5271185Z Downloading single artifact
+2026-11-14T15:59:53.5392020Z (node:2308) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-14T15:59:53.5393186Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-14T15:59:53.6128539Z Preparing to download the following artifacts:
+2026-11-14T15:59:53.6129983Z - compare-vieww-apk (ID: 14120658122, Size: 2770777, Expected Digest: sha256:9d347f0f9edddedad9652f5aac6c85d3b19465b787a0eb8f374d26f140546876)
+2026-11-14T15:59:53.8830630Z Redirecting to blob download url: https://productionresultssa7.blob.core.windows.net/actions-results/944792c2-18d6-4571-aa81-41e8651d3497/workflow-job-run-63882df3-3324-5a56-98f3-fae46a004c61/artifacts/ab5fc56eb26ea0efd623189b12fe58fb33637c39f60646bc504c809ae0d96cc8.zip
+2026-11-14T15:59:53.8831974Z Starting download of artifact to: /home/runner/work/vieww_prod/vieww_prod/dist
+2026-11-14T15:59:54.0178655Z (node:2308) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-11-14T15:59:54.1097202Z SHA256 digest of downloaded artifact is 9d347f0f9edddedad9652f5aac6c85d3b19465b787a0eb8f374d26f140546876
+2026-11-14T15:59:54.1097707Z Artifact download completed successfully.
+2026-11-14T15:59:54.1097952Z Total of 1 artifact(s) downloaded
+2026-11-14T15:59:54.1101271Z Download artifact has finished successfully
+2026-11-14T15:59:54.1213708Z ##[group]Run actions/download-artifact@v4
+2026-11-14T15:59:54.1213964Z with:
+2026-11-14T15:59:54.1214180Z   name: compare-valdi-apk
+2026-11-14T15:59:54.1214377Z   path: dist
+2026-11-14T15:59:54.1214550Z   merge-multiple: false
+2026-11-14T15:59:54.1214742Z   repository: tejakota/vieww_prod
+2026-11-14T15:59:54.1214947Z   run-id: 43612904937
+2026-11-14T15:59:54.1215111Z env:
+2026-11-14T15:59:54.1215351Z   CI_INPUTS: {"devices": "", "count": "3", "tiers": "low,mid,high", "video": false}
+2026-11-14T15:59:54.1215643Z   CI_MATRIX: {}
+2026-11-14T15:59:54.1216828Z   CI_JOB: {"title": "Market Watch \u00b7 compare-farm", "project": "Market Watch", "id": "compare-farm", "file": "vieww_base/examples/market-watch/ci/jobs/compare-farm.toml", "if": "", "needs": ["compare-vieww-apk", "compare-valdi-apk"], "setup": [{"uses": "aws", "with": {"aws-region": "${{ env.AWS_REGION }}"}}], "uploads": [{"name": "compare-farm", "path": "${{ runner.temp }}/compare-farm", "if-no-files-found": "warn"}], "downloads": [{"name": "compare-vieww-apk", "path": "dist"}, {"name": "compare-valdi-apk", "path": "dist"}]}
+2026-11-14T15:59:54.1218022Z   CI_PROJECT: Market Watch
+2026-11-14T15:59:54.1218696Z   CI_VARS: {
   "AWS_REGION": "us-west-2",
   "AWS_ROLE_ARN": "***",
   "DEVICE_FARM_PROJECT_ARN": "***"
 }
-2026-11-14T15:17:43.1356390Z   CI_GITHUB_TOKEN: ***
-2026-11-14T15:17:43.1356714Z   CI_SECRET_NAMES: AWS_ACCESS_KEY_ID,AWS_ROLE_ARN,AWS_SECRET_ACCESS_KEY,DEVICE_FARM_PROJECT_ARN
-2026-11-14T15:17:43.1357063Z   CI_HAS_AWS_ROLE: true
-2026-11-14T15:17:43.1357257Z   ANDROID_KEYSTORE: 
-2026-11-14T15:17:43.1357448Z   ANDROID_KEYSTORE_PASSWORD: 
-2026-11-14T15:17:43.1357645Z   ANDROID_KEY_ALIAS: 
-2026-11-14T15:17:43.1357837Z   ANDROID_KEY_PASSWORD: 
-2026-11-14T15:17:43.1358051Z   APPLE_DEVELOPER_ID_P12: 
-2026-11-14T15:17:43.1358244Z   APPLE_NOTARY_ISSUER: 
-2026-11-14T15:17:43.1358432Z   APPLE_NOTARY_KEY: 
-2026-11-14T15:17:43.1358615Z   APPLE_NOTARY_KEY_ID: 
-2026-11-14T15:17:43.1358797Z   APPLE_P12_PASSWORD: 
-2026-11-14T15:17:43.1358993Z   APPLE_SIGNING_IDENTITY: 
-2026-11-14T15:17:43.1359214Z   AWS_ACCESS_KEY_ID: ***
-2026-11-14T15:17:43.1359477Z   AWS_ROLE_ARN: ***
-2026-11-14T15:17:43.1359723Z   AWS_SECRET_ACCESS_KEY: ***
-2026-11-14T15:17:43.1359925Z   CARGO_REGISTRY_TOKEN: 
-2026-11-14T15:17:43.1360116Z   CLOUDFLARE_ACCOUNT_ID: 
-2026-11-14T15:17:43.1360303Z   CLOUDFLARE_API_TOKEN: 
-2026-11-14T15:17:43.1360669Z   DEVICE_FARM_PROJECT_ARN: ***
-2026-11-14T15:17:43.1360876Z   IOS_CERT_P12: 
-2026-11-14T15:17:43.1361055Z   IOS_CERT_PASSWORD: 
-2026-11-14T15:17:43.1361230Z   IOS_IDENTITY: 
-2026-11-14T15:17:43.1361403Z   IOS_PROFILE: 
-2026-11-14T15:17:43.1361576Z   WINDOWS_CERT_PASSWORD: 
-2026-11-14T15:17:43.1361769Z   WINDOWS_CERT_PFX: 
-2026-11-14T15:17:43.1362082Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
-2026-11-14T15:17:43.1362312Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
-2026-11-14T15:17:43.1362554Z   WRIGHT_SECRET_MACOS_P12: 
-2026-11-14T15:17:43.1362771Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
-2026-11-14T15:17:43.1363011Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
-2026-11-14T15:17:43.1363239Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
-2026-11-14T15:17:43.1363450Z   WRIGHT_SECRET_WINDOWS_PFX: 
-2026-11-14T15:17:43.1363668Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
-2026-11-14T15:17:43.1363942Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
-2026-11-14T15:17:43.1364204Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
-2026-11-14T15:17:43.1364475Z   AWS_DEFAULT_REGION: us-west-2
-2026-11-14T15:17:43.1364992Z   AWS_REGION: us-west-2
-2026-11-14T15:17:43.1368733Z   AWS_SESSION_TOKEN: ***
-2026-11-14T15:17:43.1368933Z ##[endgroup]
-2026-11-14T15:17:43.2538807Z Downloading single artifact
-2026-11-14T15:17:43.2677263Z (node:2307) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-2026-11-14T15:17:43.2677862Z (Use `node --trace-deprecation ...` to show where the warning was created)
-2026-11-14T15:17:43.3357683Z Preparing to download the following artifacts:
-2026-11-14T15:17:43.3359120Z - compare-valdi-apk (ID: 14119219465, Size: 9094046, Expected Digest: sha256:3b10a87557d6bdb00b61e8418068be393fa94e04205d9f6fdee7be88ff30e43e)
-2026-11-14T15:17:43.4363645Z Redirecting to blob download url: https://productionresultssa32.blob.core.windows.net/actions-results/9e501d53-40da-49cc-b74d-2a742cce9d1b/workflow-job-run-3bddf707-0ef6-5f1e-bd60-9632748676a2/artifacts/5d8125f5ff8798ebc0aec460580ceaf83ac9e02dde9c838d043cb9df72dcebe9.zip
-2026-11-14T15:17:43.4364813Z Starting download of artifact to: /home/runner/work/vieww_prod/vieww_prod/dist
-2026-11-14T15:17:43.5383217Z (node:2307) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
-2026-11-14T15:17:43.6716088Z SHA256 digest of downloaded artifact is 3b10a87557d6bdb00b61e8418068be393fa94e04205d9f6fdee7be88ff30e43e
-2026-11-14T15:17:43.6716677Z Artifact download completed successfully.
-2026-11-14T15:17:43.6716972Z Total of 1 artifact(s) downloaded
-2026-11-14T15:17:43.6721139Z Download artifact has finished successfully
-2026-11-14T15:17:43.6845162Z ##[group]Run "${CI_PY:-python3}" ci/lib/run.py "vieww_base/examples/market-watch/ci/jobs/compare-farm.toml"
-2026-11-14T15:17:43.6845743Z [36;1m"${CI_PY:-python3}" ci/lib/run.py "vieww_base/examples/market-watch/ci/jobs/compare-farm.toml"[0m
-2026-11-14T15:17:43.6872533Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
-2026-11-14T15:17:43.6872808Z env:
-2026-11-14T15:17:43.6873090Z   CI_INPUTS: {"devices": "", "count": "3", "tiers": "low,mid,high", "video": false}
-2026-11-14T15:17:43.6873404Z   CI_MATRIX: {}
-2026-11-14T15:17:43.6874850Z   CI_JOB: {"title": "Market Watch \u00b7 compare-farm", "project": "Market Watch", "id": "compare-farm", "file": "vieww_base/examples/market-watch/ci/jobs/compare-farm.toml", "if": "", "needs": ["compare-vieww-apk", "compare-valdi-apk"], "setup": [{"uses": "aws", "with": {"aws-region": "${{ env.AWS_REGION }}"}}], "uploads": [{"name": "compare-farm", "path": "${{ runner.temp }}/compare-farm", "if-no-files-found": "warn"}], "downloads": [{"name": "compare-vieww-apk", "path": "dist"}, {"name": "compare-valdi-apk", "path": "dist"}]}
-2026-11-14T15:17:43.6876142Z   CI_PROJECT: Market Watch
-2026-11-14T15:17:43.6876846Z   CI_VARS: {
+2026-11-14T15:59:54.1220581Z   CI_GITHUB_TOKEN: ***
+2026-11-14T15:59:54.1220876Z   CI_SECRET_NAMES: AWS_ACCESS_KEY_ID,AWS_ROLE_ARN,AWS_SECRET_ACCESS_KEY,DEVICE_FARM_PROJECT_ARN
+2026-11-14T15:59:54.1221209Z   CI_HAS_AWS_ROLE: true
+2026-11-14T15:59:54.1221397Z   ANDROID_KEYSTORE: 
+2026-11-14T15:59:54.1221578Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-14T15:59:54.1221782Z   ANDROID_KEY_ALIAS: 
+2026-11-14T15:59:54.1221962Z   ANDROID_KEY_PASSWORD: 
+2026-11-14T15:59:54.1222152Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-14T15:59:54.1222347Z   APPLE_NOTARY_ISSUER: 
+2026-11-14T15:59:54.1222527Z   APPLE_NOTARY_KEY: 
+2026-11-14T15:59:54.1222701Z   APPLE_NOTARY_KEY_ID: 
+2026-11-14T15:59:54.1222885Z   APPLE_P12_PASSWORD: 
+2026-11-14T15:59:54.1223068Z   APPLE_SIGNING_IDENTITY: 
+2026-11-14T15:59:54.1223268Z   AWS_ACCESS_KEY_ID: ***
+2026-11-14T15:59:54.1224148Z   AWS_ROLE_ARN: ***
+2026-11-14T15:59:54.1224415Z   AWS_SECRET_ACCESS_KEY: ***
+2026-11-14T15:59:54.1224616Z   CARGO_REGISTRY_TOKEN: 
+2026-11-14T15:59:54.1224796Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-14T15:59:54.1224987Z   CLOUDFLARE_API_TOKEN: 
+2026-11-14T15:59:54.1225383Z   DEVICE_FARM_PROJECT_ARN: ***
+2026-11-14T15:59:54.1225584Z   IOS_CERT_P12: 
+2026-11-14T15:59:54.1225748Z   IOS_CERT_PASSWORD: 
+2026-11-14T15:59:54.1225925Z   IOS_IDENTITY: 
+2026-11-14T15:59:54.1226083Z   IOS_PROFILE: 
+2026-11-14T15:59:54.1226254Z   WINDOWS_CERT_PASSWORD: 
+2026-11-14T15:59:54.1226440Z   WINDOWS_CERT_PFX: 
+2026-11-14T15:59:54.1226766Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-14T15:59:54.1226992Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-14T15:59:54.1227211Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-14T15:59:54.1227423Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-14T15:59:54.1227645Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-14T15:59:54.1227871Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-14T15:59:54.1228078Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-14T15:59:54.1228283Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-14T15:59:54.1228507Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-14T15:59:54.1228759Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-14T15:59:54.1229006Z   AWS_DEFAULT_REGION: us-west-2
+2026-11-14T15:59:54.1229203Z   AWS_REGION: us-west-2
+2026-11-14T15:59:54.1232285Z   AWS_SESSION_TOKEN: ***
+2026-11-14T15:59:54.1232477Z ##[endgroup]
+2026-11-14T15:59:54.2395422Z Downloading single artifact
+2026-11-14T15:59:54.2513177Z (node:2320) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-14T15:59:54.2514225Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-14T15:59:54.3428541Z Preparing to download the following artifacts:
+2026-11-14T15:59:54.3429878Z - compare-valdi-apk (ID: 14120433573, Size: 9094036, Expected Digest: sha256:00a6e51c43c723de5e49646a774b14dd817d77346e3d818d58398e8aa3340889)
+2026-11-14T15:59:54.4461979Z Redirecting to blob download url: https://productionresultssa7.blob.core.windows.net/actions-results/944792c2-18d6-4571-aa81-41e8651d3497/workflow-job-run-ba55ac3d-3d33-58b5-b6d3-e65f79c99fa4/artifacts/5d8125f5ff8798ebc0aec460580ceaf83ac9e02dde9c838d043cb9df72dcebe9.zip
+2026-11-14T15:59:54.4463333Z Starting download of artifact to: /home/runner/work/vieww_prod/vieww_prod/dist
+2026-11-14T15:59:54.5745121Z (node:2320) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-11-14T15:59:54.6914234Z SHA256 digest of downloaded artifact is 00a6e51c43c723de5e49646a774b14dd817d77346e3d818d58398e8aa3340889
+2026-11-14T15:59:54.6914868Z Artifact download completed successfully.
+2026-11-14T15:59:54.6915216Z Total of 1 artifact(s) downloaded
+2026-11-14T15:59:54.6918210Z Download artifact has finished successfully
+2026-11-14T15:59:54.7038989Z ##[group]Run "${CI_PY:-python3}" ci/lib/run.py "vieww_base/examples/market-watch/ci/jobs/compare-farm.toml"
+2026-11-14T15:59:54.7039545Z [36;1m"${CI_PY:-python3}" ci/lib/run.py "vieww_base/examples/market-watch/ci/jobs/compare-farm.toml"[0m
+2026-11-14T15:59:54.7065314Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-14T15:59:54.7065603Z env:
+2026-11-14T15:59:54.7065867Z   CI_INPUTS: {"devices": "", "count": "3", "tiers": "low,mid,high", "video": false}
+2026-11-14T15:59:54.7066165Z   CI_MATRIX: {}
+2026-11-14T15:59:54.7067368Z   CI_JOB: {"title": "Market Watch \u00b7 compare-farm", "project": "Market Watch", "id": "compare-farm", "file": "vieww_base/examples/market-watch/ci/jobs/compare-farm.toml", "if": "", "needs": ["compare-vieww-apk", "compare-valdi-apk"], "setup": [{"uses": "aws", "with": {"aws-region": "${{ env.AWS_REGION }}"}}], "uploads": [{"name": "compare-farm", "path": "${{ runner.temp }}/compare-farm", "if-no-files-found": "warn"}], "downloads": [{"name": "compare-vieww-apk", "path": "dist"}, {"name": "compare-valdi-apk", "path": "dist"}]}
+2026-11-14T15:59:54.7068563Z   CI_PROJECT: Market Watch
+2026-11-14T15:59:54.7069264Z   CI_VARS: {
   "AWS_REGION": "us-west-2",
   "AWS_ROLE_ARN": "***",
   "DEVICE_FARM_PROJECT_ARN": "***"
 }
-2026-11-14T15:17:43.6878840Z   CI_GITHUB_TOKEN: ***
-2026-11-14T15:17:43.6879157Z   CI_SECRET_NAMES: AWS_ACCESS_KEY_ID,AWS_ROLE_ARN,AWS_SECRET_ACCESS_KEY,DEVICE_FARM_PROJECT_ARN
-2026-11-14T15:17:43.6879502Z   CI_HAS_AWS_ROLE: true
-2026-11-14T15:17:43.6879698Z   ANDROID_KEYSTORE: 
-2026-11-14T15:17:43.6879898Z   ANDROID_KEYSTORE_PASSWORD: 
-2026-11-14T15:17:43.6880141Z   ANDROID_KEY_ALIAS: 
-2026-11-14T15:17:43.6880465Z   ANDROID_KEY_PASSWORD: 
-2026-11-14T15:17:43.6880674Z   APPLE_DEVELOPER_ID_P12: 
-2026-11-14T15:17:43.6880883Z   APPLE_NOTARY_ISSUER: 
-2026-11-14T15:17:43.6881070Z   APPLE_NOTARY_KEY: 
-2026-11-14T15:17:43.6881259Z   APPLE_NOTARY_KEY_ID: 
-2026-11-14T15:17:43.6881454Z   APPLE_P12_PASSWORD: 
-2026-11-14T15:17:43.6881652Z   APPLE_SIGNING_IDENTITY: 
-2026-11-14T15:17:43.6881881Z   AWS_ACCESS_KEY_ID: ***
-2026-11-14T15:17:43.6882154Z   AWS_ROLE_ARN: ***
-2026-11-14T15:17:43.6882421Z   AWS_SECRET_ACCESS_KEY: ***
-2026-11-14T15:17:43.6882633Z   CARGO_REGISTRY_TOKEN: 
-2026-11-14T15:17:43.6882836Z   CLOUDFLARE_ACCOUNT_ID: 
-2026-11-14T15:17:43.6883032Z   CLOUDFLARE_API_TOKEN: 
-2026-11-14T15:17:43.6883413Z   DEVICE_FARM_PROJECT_ARN: ***
-2026-11-14T15:17:43.6883625Z   IOS_CERT_P12: 
-2026-11-14T15:17:43.6883811Z   IOS_CERT_PASSWORD: 
-2026-11-14T15:17:43.6883997Z   IOS_IDENTITY: 
-2026-11-14T15:17:43.6884176Z   IOS_PROFILE: 
-2026-11-14T15:17:43.6884351Z   WINDOWS_CERT_PASSWORD: 
-2026-11-14T15:17:43.6884690Z   WINDOWS_CERT_PFX: 
-2026-11-14T15:17:43.6884901Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
-2026-11-14T15:17:43.6885132Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
-2026-11-14T15:17:43.6885362Z   WRIGHT_SECRET_MACOS_P12: 
-2026-11-14T15:17:43.6885565Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
-2026-11-14T15:17:43.6885804Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
-2026-11-14T15:17:43.6886040Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
-2026-11-14T15:17:43.6886263Z   WRIGHT_SECRET_WINDOWS_PFX: 
-2026-11-14T15:17:43.6886483Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
-2026-11-14T15:17:43.6886717Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
-2026-11-14T15:17:43.6886980Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
-2026-11-14T15:17:43.6887244Z   AWS_DEFAULT_REGION: us-west-2
-2026-11-14T15:17:43.6887456Z   AWS_REGION: us-west-2
-2026-11-14T15:17:43.6891045Z   AWS_SESSION_TOKEN: ***
-2026-11-14T15:17:43.6891244Z   CI_PART: main
-2026-11-14T15:17:43.6891424Z ##[endgroup]
-2026-11-14T15:17:43.7404347Z ##[group]Check the secrets are there
-2026-11-14T15:17:43.7427998Z total 12272
-2026-11-14T15:17:43.7428342Z -rw-r--r-- 1 runner runner     399 Nov 14 15:17 valdi-build.txt
-2026-11-14T15:17:43.7428794Z -rw-r--r-- 1 runner runner 9688517 Nov 14 15:17 valdi-market-watch.apk
-2026-11-14T15:17:43.7429260Z -rw-r--r-- 1 runner runner   83379 Nov 14 15:17 valdi-market-watch.apk.idsig
-2026-11-14T15:17:43.7430037Z -rw-r--r-- 1 runner runner 2781600 Nov 14 15:17 vieww-market-watch.apk
-2026-11-14T15:17:43.7430676Z ##[endgroup]
-2026-11-14T15:17:43.7443027Z ##[group]Run on phones
-2026-11-14T15:17:48.0247900Z device_farm: phone: LG Stylo 5 (Android 9, 29.8 GB, low)
-2026-11-14T15:17:48.0248411Z device_farm: phone: Samsung Galaxy S20 (Unlocked) (Android 13, 119.2 GB, mid)
-2026-11-14T15:17:48.0248855Z device_farm: phone: Samsung Galaxy S26 Ultra (Android 16, 238.4 GB, high)
-2026-11-14T15:17:51.3444479Z package.sh: 10 files -> /home/runner/work/_temp/compare-farm/vieww-device-farm-tests.zip
-2026-11-14T15:17:59.1310930Z device_farm: uploaded vieww-market-watch.apk as ANDROID_APP
-2026-11-14T15:18:07.2789024Z device_farm: uploaded vieww-device-farm-tests.zip as APPIUM_PYTHON_TEST_PACKAGE
-2026-11-14T15:18:14.5053049Z device_farm: uploaded testspec-android.yml as APPIUM_PYTHON_TEST_SPEC
-2026-11-14T15:18:15.6340482Z device_farm: scheduled arn:aws:devicefarm:us-west-2:278061313767:run:393108fd-d195-4dad-acb4-12581f7a212f/421e0bc4-08f8-4b07-a55e-672d3fea06b5
-2026-11-14T15:18:46.3656862Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:19:17.0665027Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:19:47.7642422Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:20:18.4839841Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:20:49.2064922Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:21:19.9170162Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:21:50.6265602Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:22:21.3267240Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:22:52.0263649Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:23:22.7537408Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:23:53.4358307Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:24:24.1264171Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:24:54.8011108Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:25:25.4730143Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:25:56.1602212Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:26:26.8117124Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:26:57.5066889Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:27:28.1879117Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:27:58.8745669Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:28:29.5569618Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:29:00.2623054Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:29:30.9634951Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:30:01.6533889Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:30:32.3476078Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:31:03.0193949Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:31:33.7003089Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:32:04.3933676Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:32:35.0928140Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:33:05.7858905Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:33:36.4730540Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:34:07.1542095Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:34:37.8534194Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:35:08.5414254Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:35:39.2336940Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:36:09.9439634Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:36:40.6416165Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:37:11.3674491Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:37:42.0498743Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:38:12.7481103Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:38:43.4435831Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:39:14.1214021Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:39:44.8005491Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:40:15.5104423Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:40:46.1934286Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:41:16.8752106Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:41:47.5539122Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:42:18.2451630Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:42:48.9382112Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:43:19.6304490Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:43:50.3239540Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:44:21.0066472Z device_farm: run RUNNING {'total': 6, 'passed': 4, 'failed': 2, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:44:51.7060102Z device_farm: run RUNNING {'total': 6, 'passed': 4, 'failed': 2, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:45:22.3630343Z device_farm: run RUNNING {'total': 9, 'passed': 6, 'failed': 3, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:45:53.0497345Z device_farm: run COMPLETED {'total': 9, 'passed': 6, 'failed': 3, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
-2026-11-14T15:46:09.4257929Z # vieww on AWS Device Farm
-2026-11-14T15:46:09.4258283Z 
-2026-11-14T15:46:09.4259565Z run: `arn:aws:devicefarm:us-west-2:278061313767:run:393108fd-d195-4dad-acb4-12581f7a212f/421e0bc4-08f8-4b07-a55e-672d3fea06b5` — FAILED
-2026-11-14T15:46:09.4260288Z 
-2026-11-14T15:46:09.4260918Z | phone | tier | Android | SoC / GPU | RAM | APK | cold start cpu / gpu (ms, median of 3) | frame time cpu | frame time gpu | frames drawn by the GPU, cpu pass / gpu pass | PSS cpu / gpu (MB) | suite cpu / gpu / auto |
-2026-11-14T15:46:09.4261692Z |---|---|---|---|---|---|---|---|---|---|---|---|
-2026-11-14T15:46:09.4262228Z | LG Stylo 5 | low | 9 | msm8953<br>? | 2.7 GB | – | – / – | – | – | – / – | – / – | – / – / – |
-2026-11-14T15:46:09.4262876Z | Samsung Galaxy S20 (Unlocked) | mid | 13 | SM8250<br>? | 10.4 GB | – | – / – | – | – | – / – | – / – | – / – / – |
-2026-11-14T15:46:09.4263928Z | Samsung Galaxy S26 Ultra | high | 16 | SM8850<br>? | 10.9 GB | – | – / – | – | – | – / – | – / – | – / – / – |
-2026-11-14T15:46:09.4264275Z 
-2026-11-14T15:46:09.4264907Z Targets from the audit, for reading the table: product UI p95 under 15 ms and cold start under 120 ms on a mid-tier phone; release APK under 6 MB.
-2026-11-14T15:46:09.4664175Z ##[endgroup]
-2026-11-14T15:46:09.4691390Z ##[error]Run on phones failed (exit 1)
-2026-11-14T15:46:09.4698969Z ##[group]mark: upload compare-farm
-2026-11-14T15:46:09.4699455Z ##[endgroup]
-2026-11-14T15:46:09.4787313Z ##[error]Process completed with exit code 1.
-2026-11-14T15:46:09.4866184Z ##[group]Run actions/upload-artifact@v4
-2026-11-14T15:46:09.4866438Z with:
-2026-11-14T15:46:09.4866616Z   name: compare-farm
-2026-11-14T15:46:09.4866835Z   path: /home/runner/work/_temp/compare-farm
-2026-11-14T15:46:09.4867102Z   if-no-files-found: warn
-2026-11-14T15:46:09.4867323Z   include-hidden-files: false
-2026-11-14T15:46:09.4867561Z   compression-level: 6
-2026-11-14T15:46:09.4867745Z   overwrite: false
-2026-11-14T15:46:09.4867922Z env:
-2026-11-14T15:46:09.4868178Z   CI_INPUTS: {"devices": "", "count": "3", "tiers": "low,mid,high", "video": false}
-2026-11-14T15:46:09.4868517Z   CI_MATRIX: {}
-2026-11-14T15:46:09.4869818Z   CI_JOB: {"title": "Market Watch \u00b7 compare-farm", "project": "Market Watch", "id": "compare-farm", "file": "vieww_base/examples/market-watch/ci/jobs/compare-farm.toml", "if": "", "needs": ["compare-vieww-apk", "compare-valdi-apk"], "setup": [{"uses": "aws", "with": {"aws-region": "${{ env.AWS_REGION }}"}}], "uploads": [{"name": "compare-farm", "path": "${{ runner.temp }}/compare-farm", "if-no-files-found": "warn"}], "downloads": [{"name": "compare-vieww-apk", "path": "dist"}, {"name": "compare-valdi-apk", "path": "dist"}]}
-2026-11-14T15:46:09.4871102Z   CI_PROJECT: Market Watch
-2026-11-14T15:46:09.4871815Z   CI_VARS: {
+2026-11-14T15:59:54.7071297Z   CI_GITHUB_TOKEN: ***
+2026-11-14T15:59:54.7071615Z   CI_SECRET_NAMES: AWS_ACCESS_KEY_ID,AWS_ROLE_ARN,AWS_SECRET_ACCESS_KEY,DEVICE_FARM_PROJECT_ARN
+2026-11-14T15:59:54.7071961Z   CI_HAS_AWS_ROLE: true
+2026-11-14T15:59:54.7072148Z   ANDROID_KEYSTORE: 
+2026-11-14T15:59:54.7072345Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-14T15:59:54.7072555Z   ANDROID_KEY_ALIAS: 
+2026-11-14T15:59:54.7072889Z   ANDROID_KEY_PASSWORD: 
+2026-11-14T15:59:54.7073095Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-14T15:59:54.7073293Z   APPLE_NOTARY_ISSUER: 
+2026-11-14T15:59:54.7073631Z   APPLE_NOTARY_KEY: 
+2026-11-14T15:59:54.7073825Z   APPLE_NOTARY_KEY_ID: 
+2026-11-14T15:59:54.7074012Z   APPLE_P12_PASSWORD: 
+2026-11-14T15:59:54.7074210Z   APPLE_SIGNING_IDENTITY: 
+2026-11-14T15:59:54.7074437Z   AWS_ACCESS_KEY_ID: ***
+2026-11-14T15:59:54.7074695Z   AWS_ROLE_ARN: ***
+2026-11-14T15:59:54.7074950Z   AWS_SECRET_ACCESS_KEY: ***
+2026-11-14T15:59:54.7075156Z   CARGO_REGISTRY_TOKEN: 
+2026-11-14T15:59:54.7075393Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-14T15:59:54.7075593Z   CLOUDFLARE_API_TOKEN: 
+2026-11-14T15:59:54.7075958Z   DEVICE_FARM_PROJECT_ARN: ***
+2026-11-14T15:59:54.7076166Z   IOS_CERT_P12: 
+2026-11-14T15:59:54.7076333Z   IOS_CERT_PASSWORD: 
+2026-11-14T15:59:54.7076517Z   IOS_IDENTITY: 
+2026-11-14T15:59:54.7076689Z   IOS_PROFILE: 
+2026-11-14T15:59:54.7076863Z   WINDOWS_CERT_PASSWORD: 
+2026-11-14T15:59:54.7077055Z   WINDOWS_CERT_PFX: 
+2026-11-14T15:59:54.7077237Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-14T15:59:54.7077457Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-14T15:59:54.7077677Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-14T15:59:54.7077886Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-14T15:59:54.7078119Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-14T15:59:54.7078345Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-14T15:59:54.7078550Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-14T15:59:54.7078762Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-14T15:59:54.7078984Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-14T15:59:54.7079245Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-14T15:59:54.7079506Z   AWS_DEFAULT_REGION: us-west-2
+2026-11-14T15:59:54.7079704Z   AWS_REGION: us-west-2
+2026-11-14T15:59:54.7082785Z   AWS_SESSION_TOKEN: ***
+2026-11-14T15:59:54.7082963Z   CI_PART: main
+2026-11-14T15:59:54.7083137Z ##[endgroup]
+2026-11-14T15:59:54.7590423Z ##[group]Check the secrets are there
+2026-11-14T15:59:54.7615104Z total 12272
+2026-11-14T15:59:54.7615777Z -rw-r--r-- 1 runner runner     399 Nov 14 15:59 valdi-build.txt
+2026-11-14T15:59:54.7616278Z -rw-r--r-- 1 runner runner 9688517 Nov 14 15:59 valdi-market-watch.apk
+2026-11-14T15:59:54.7616863Z -rw-r--r-- 1 runner runner   83378 Nov 14 15:59 valdi-market-watch.apk.idsig
+2026-11-14T15:59:54.7617859Z -rw-r--r-- 1 runner runner 2781600 Nov 14 15:59 vieww-market-watch.apk
+2026-11-14T15:59:54.7618792Z ##[endgroup]
+2026-11-14T15:59:54.7630992Z ##[group]Run on phones
+2026-11-14T16:00:00.5805040Z device_farm: phone: LG Stylo 5 (Android 9, 29.8 GB, low)
+2026-11-14T16:00:00.5805449Z device_farm: phone: Samsung Galaxy S20 (Unlocked) (Android 13, 119.2 GB, mid)
+2026-11-14T16:00:00.5805821Z device_farm: phone: Samsung Galaxy S26 Ultra (Android 16, 238.4 GB, high)
+2026-11-14T16:00:03.7822644Z package.sh: 10 files -> /home/runner/work/_temp/compare-farm/vieww-device-farm-tests.zip
+2026-11-14T16:00:11.7158339Z device_farm: uploaded vieww-market-watch.apk as ANDROID_APP
+2026-11-14T16:00:19.7067274Z device_farm: uploaded vieww-device-farm-tests.zip as APPIUM_PYTHON_TEST_PACKAGE
+2026-11-14T16:00:26.9546248Z device_farm: uploaded testspec-android.yml as APPIUM_PYTHON_TEST_SPEC
+2026-11-14T16:00:28.0522264Z device_farm: scheduled arn:aws:devicefarm:us-west-2:278061313767:run:393108fd-d195-4dad-acb4-12581f7a212f/ee81a9ed-a69e-4d12-9df3-2df473027dda
+2026-11-14T16:00:58.7306787Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:01:29.4016767Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:02:00.0820956Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:02:30.7447170Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:03:01.4148289Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:03:32.1118953Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:04:02.7971405Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:04:33.4677957Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:05:04.1251856Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:05:34.7993303Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:06:05.4606100Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:06:36.1130986Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:07:06.7708763Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:07:37.4248176Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:08:08.1029618Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:08:38.7809630Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:09:09.4794236Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:09:40.1581771Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:10:10.8312996Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:10:41.4972891Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:11:12.1657601Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:11:42.8229135Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:12:13.4967936Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:12:44.1846232Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:13:14.8693777Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:13:45.5352950Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:14:16.2178311Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:14:46.8846068Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:15:17.5671852Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:15:48.2475125Z device_farm: run RUNNING {'total': 0, 'passed': 0, 'failed': 0, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:16:18.9432454Z device_farm: run RUNNING {'total': 9, 'passed': 6, 'failed': 3, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:16:49.6318735Z device_farm: run COMPLETED {'total': 9, 'passed': 6, 'failed': 3, 'warned': 0, 'errored': 0, 'stopped': 0, 'skipped': 0}
+2026-11-14T16:17:07.0072897Z # vieww on AWS Device Farm
+2026-11-14T16:17:07.0073273Z 
+2026-11-14T16:17:07.0074733Z run: `arn:aws:devicefarm:us-west-2:278061313767:run:393108fd-d195-4dad-acb4-12581f7a212f/ee81a9ed-a69e-4d12-9df3-2df473027dda` — FAILED
+2026-11-14T16:17:07.0075664Z 
+2026-11-14T16:17:07.0076810Z | phone | tier | Android | SoC / GPU | RAM | APK | cold start cpu / gpu (ms, median of 3) | frame time cpu | frame time gpu | frames drawn by the GPU, cpu pass / gpu pass | PSS cpu / gpu (MB) | suite cpu / gpu / auto |
+2026-11-14T16:17:07.0077787Z |---|---|---|---|---|---|---|---|---|---|---|---|
+2026-11-14T16:17:07.0078343Z | LG Stylo 5 | low | 9 | msm8953<br>? | 2.7 GB | – | – / – | – | – | – / – | – / – | – / – / – |
+2026-11-14T16:17:07.0078966Z | Samsung Galaxy S20 (Unlocked) | mid | 13 | SM8250<br>? | 10.4 GB | – | – / – | – | – | – / – | – / – | – / – / – |
+2026-11-14T16:17:07.0079624Z | Samsung Galaxy S26 Ultra | high | 16 | SM8850<br>? | 10.9 GB | – | – / – | – | – | – / – | – / – | – / – / – |
+2026-11-14T16:17:07.0079975Z 
+2026-11-14T16:17:07.0080364Z Targets from the audit, for reading the table: product UI p95 under 15 ms and cold start under 120 ms on a mid-tier phone; release APK under 6 MB.
+2026-11-14T16:17:07.0576256Z ##[endgroup]
+2026-11-14T16:17:07.0600908Z ##[error]Run on phones failed (exit 1)
+2026-11-14T16:17:07.0608609Z ##[group]mark: upload compare-farm
+2026-11-14T16:17:07.0609089Z ##[endgroup]
+2026-11-14T16:17:07.0698007Z ##[error]Process completed with exit code 1.
+2026-11-14T16:17:07.0783763Z ##[group]Run actions/upload-artifact@v4
+2026-11-14T16:17:07.0784018Z with:
+2026-11-14T16:17:07.0784201Z   name: compare-farm
+2026-11-14T16:17:07.0784415Z   path: /home/runner/work/_temp/compare-farm
+2026-11-14T16:17:07.0784665Z   if-no-files-found: warn
+2026-11-14T16:17:07.0784883Z   include-hidden-files: false
+2026-11-14T16:17:07.0785104Z   compression-level: 6
+2026-11-14T16:17:07.0785302Z   overwrite: false
+2026-11-14T16:17:07.0785486Z env:
+2026-11-14T16:17:07.0785741Z   CI_INPUTS: {"devices": "", "count": "3", "tiers": "low,mid,high", "video": false}
+2026-11-14T16:17:07.0786069Z   CI_MATRIX: {}
+2026-11-14T16:17:07.0787304Z   CI_JOB: {"title": "Market Watch \u00b7 compare-farm", "project": "Market Watch", "id": "compare-farm", "file": "vieww_base/examples/market-watch/ci/jobs/compare-farm.toml", "if": "", "needs": ["compare-vieww-apk", "compare-valdi-apk"], "setup": [{"uses": "aws", "with": {"aws-region": "${{ env.AWS_REGION }}"}}], "uploads": [{"name": "compare-farm", "path": "${{ runner.temp }}/compare-farm", "if-no-files-found": "warn"}], "downloads": [{"name": "compare-vieww-apk", "path": "dist"}, {"name": "compare-valdi-apk", "path": "dist"}]}
+2026-11-14T16:17:07.0788545Z   CI_PROJECT: Market Watch
+2026-11-14T16:17:07.0789244Z   CI_VARS: {
   "AWS_REGION": "us-west-2",
   "AWS_ROLE_ARN": "***",
   "DEVICE_FARM_PROJECT_ARN": "***"
 }
-2026-11-14T15:46:09.4873847Z   CI_GITHUB_TOKEN: ***
-2026-11-14T15:46:09.4874168Z   CI_SECRET_NAMES: AWS_ACCESS_KEY_ID,AWS_ROLE_ARN,AWS_SECRET_ACCESS_KEY,DEVICE_FARM_PROJECT_ARN
-2026-11-14T15:46:09.4874524Z   CI_HAS_AWS_ROLE: true
-2026-11-14T15:46:09.4875030Z   ANDROID_KEYSTORE: 
-2026-11-14T15:46:09.4875229Z   ANDROID_KEYSTORE_PASSWORD: 
-2026-11-14T15:46:09.4875440Z   ANDROID_KEY_ALIAS: 
-2026-11-14T15:46:09.4875639Z   ANDROID_KEY_PASSWORD: 
-2026-11-14T15:46:09.4875848Z   APPLE_DEVELOPER_ID_P12: 
-2026-11-14T15:46:09.4876057Z   APPLE_NOTARY_ISSUER: 
-2026-11-14T15:46:09.4876255Z   APPLE_NOTARY_KEY: 
-2026-11-14T15:46:09.4876435Z   APPLE_NOTARY_KEY_ID: 
-2026-11-14T15:46:09.4876631Z   APPLE_P12_PASSWORD: 
-2026-11-14T15:46:09.4876821Z   APPLE_SIGNING_IDENTITY: 
-2026-11-14T15:46:09.4877047Z   AWS_ACCESS_KEY_ID: ***
-2026-11-14T15:46:09.4877318Z   AWS_ROLE_ARN: ***
-2026-11-14T15:46:09.4877581Z   AWS_SECRET_ACCESS_KEY: ***
-2026-11-14T15:46:09.4877787Z   CARGO_REGISTRY_TOKEN: 
-2026-11-14T15:46:09.4877983Z   CLOUDFLARE_ACCOUNT_ID: 
-2026-11-14T15:46:09.4878182Z   CLOUDFLARE_API_TOKEN: 
-2026-11-14T15:46:09.4878539Z   DEVICE_FARM_PROJECT_ARN: ***
-2026-11-14T15:46:09.4878744Z   IOS_CERT_P12: 
-2026-11-14T15:46:09.4878928Z   IOS_CERT_PASSWORD: 
-2026-11-14T15:46:09.4879113Z   IOS_IDENTITY: 
-2026-11-14T15:46:09.4879278Z   IOS_PROFILE: 
-2026-11-14T15:46:09.4879456Z   WINDOWS_CERT_PASSWORD: 
-2026-11-14T15:46:09.4879650Z   WINDOWS_CERT_PFX: 
-2026-11-14T15:46:09.4879843Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
-2026-11-14T15:46:09.4880071Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
-2026-11-14T15:46:09.4880288Z   WRIGHT_SECRET_MACOS_P12: 
-2026-11-14T15:46:09.4880505Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
-2026-11-14T15:46:09.4880731Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
-2026-11-14T15:46:09.4880957Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
-2026-11-14T15:46:09.4881170Z   WRIGHT_SECRET_WINDOWS_PFX: 
-2026-11-14T15:46:09.4881380Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
-2026-11-14T15:46:09.4881617Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
-2026-11-14T15:46:09.4882029Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
-2026-11-14T15:46:09.4882311Z   AWS_DEFAULT_REGION: us-west-2
-2026-11-14T15:46:09.4882525Z   AWS_REGION: us-west-2
-2026-11-14T15:46:09.4886295Z   AWS_SESSION_TOKEN: ***
-2026-11-14T15:46:09.4886505Z   CI_UPLOAD_0: yes
-2026-11-14T15:46:09.4886692Z ##[endgroup]
-2026-11-14T15:46:09.6128516Z (node:4034) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-2026-11-14T15:46:09.6129213Z (Use `node --trace-deprecation ...` to show where the warning was created)
-2026-11-14T15:46:09.6357716Z With the provided path, there will be 104 files uploaded
-2026-11-14T15:46:09.6358554Z Artifact name is valid!
-2026-11-14T15:46:09.6358915Z Root directory input is valid!
-2026-11-14T15:46:09.8397002Z Beginning upload of artifact content to blob storage
-2026-11-14T15:46:10.3123039Z (node:4034) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
-2026-11-14T15:46:10.5309030Z Uploaded bytes 8388608
-2026-11-14T15:46:10.7512544Z Uploaded bytes 16037836
-2026-11-14T15:46:10.7709064Z Finished uploading artifact content to blob storage!
-2026-11-14T15:46:10.7709636Z SHA256 digest of uploaded artifact zip is 39897f1c72ae8021ae526c6c70e2ad1ad2f08a46a967a99f4170a6289b5d40e5
-2026-11-14T15:46:10.7710056Z Finalizing artifact upload
-2026-11-14T15:46:11.0931374Z Artifact compare-farm.zip successfully finalized. Artifact ID 14119794902
-2026-11-14T15:46:11.0932130Z Artifact compare-farm has been successfully uploaded! Final size is 16037836 bytes. Artifact ID is 14119794902
-2026-11-14T15:46:11.0937078Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/43609112541/artifacts/14119794902
-2026-11-14T15:46:11.1131698Z Post job cleanup.
-2026-11-14T15:46:11.1961233Z Post job cleanup.
-2026-11-14T15:46:11.2626569Z [command]/usr/bin/git version
-2026-11-14T15:46:11.2655014Z git version 2.56.1
-2026-11-14T15:46:11.2683088Z Temporarily overriding HOME='/home/runner/work/_temp/7f42c8dc-5b8f-4f4f-aec8-6dc545975fbe' before making global git config changes
-2026-11-14T15:46:11.2684197Z Adding repository directory to the temporary git global config as a safe directory
-2026-11-14T15:46:11.2687420Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
-2026-11-14T15:46:11.2714909Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
-2026-11-14T15:46:11.2739412Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
-2026-11-14T15:46:11.2946724Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
-2026-11-14T15:46:11.2969141Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
-2026-11-14T15:46:11.3175991Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
-2026-11-14T15:46:11.3218546Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
-2026-11-14T15:46:11.3522386Z Cleaning up orphan processes
-2026-11-14T15:46:11.3743323Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/setup-python@v5, actions/upload-artifact@v4, aws-actions/configure-aws-credentials@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-11-14T16:17:07.0791200Z   CI_GITHUB_TOKEN: ***
+2026-11-14T16:17:07.0791523Z   CI_SECRET_NAMES: AWS_ACCESS_KEY_ID,AWS_ROLE_ARN,AWS_SECRET_ACCESS_KEY,DEVICE_FARM_PROJECT_ARN
+2026-11-14T16:17:07.0791879Z   CI_HAS_AWS_ROLE: true
+2026-11-14T16:17:07.0792074Z   ANDROID_KEYSTORE: 
+2026-11-14T16:17:07.0792268Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-14T16:17:07.0792484Z   ANDROID_KEY_ALIAS: 
+2026-11-14T16:17:07.0792678Z   ANDROID_KEY_PASSWORD: 
+2026-11-14T16:17:07.0792889Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-14T16:17:07.0793096Z   APPLE_NOTARY_ISSUER: 
+2026-11-14T16:17:07.0793294Z   APPLE_NOTARY_KEY: 
+2026-11-14T16:17:07.0793646Z   APPLE_NOTARY_KEY_ID: 
+2026-11-14T16:17:07.0793892Z   APPLE_P12_PASSWORD: 
+2026-11-14T16:17:07.0794094Z   APPLE_SIGNING_IDENTITY: 
+2026-11-14T16:17:07.0794330Z   AWS_ACCESS_KEY_ID: ***
+2026-11-14T16:17:07.0794603Z   AWS_ROLE_ARN: ***
+2026-11-14T16:17:07.0794878Z   AWS_SECRET_ACCESS_KEY: ***
+2026-11-14T16:17:07.0795085Z   CARGO_REGISTRY_TOKEN: 
+2026-11-14T16:17:07.0795274Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-14T16:17:07.0795474Z   CLOUDFLARE_API_TOKEN: 
+2026-11-14T16:17:07.0795838Z   DEVICE_FARM_PROJECT_ARN: ***
+2026-11-14T16:17:07.0796048Z   IOS_CERT_P12: 
+2026-11-14T16:17:07.0796368Z   IOS_CERT_PASSWORD: 
+2026-11-14T16:17:07.0796555Z   IOS_IDENTITY: 
+2026-11-14T16:17:07.0796726Z   IOS_PROFILE: 
+2026-11-14T16:17:07.0796907Z   WINDOWS_CERT_PASSWORD: 
+2026-11-14T16:17:07.0797107Z   WINDOWS_CERT_PFX: 
+2026-11-14T16:17:07.0797301Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-14T16:17:07.0797524Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-14T16:17:07.0797740Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-14T16:17:07.0797953Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-14T16:17:07.0798180Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-14T16:17:07.0798407Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-14T16:17:07.0798619Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-14T16:17:07.0798830Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-14T16:17:07.0799063Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-14T16:17:07.0799331Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-14T16:17:07.0799600Z   AWS_DEFAULT_REGION: us-west-2
+2026-11-14T16:17:07.0799807Z   AWS_REGION: us-west-2
+2026-11-14T16:17:07.0802927Z   AWS_SESSION_TOKEN: ***
+2026-11-14T16:17:07.0803126Z   CI_UPLOAD_0: yes
+2026-11-14T16:17:07.0803313Z ##[endgroup]
+2026-11-14T16:17:07.2049672Z (node:3567) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-14T16:17:07.2050225Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-14T16:17:07.2337161Z With the provided path, there will be 335 files uploaded
+2026-11-14T16:17:07.2338952Z Artifact name is valid!
+2026-11-14T16:17:07.2339665Z Root directory input is valid!
+2026-11-14T16:17:07.4352031Z Beginning upload of artifact content to blob storage
+2026-11-14T16:17:07.7316322Z (node:3567) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-14T16:17:07.8828873Z Uploaded bytes 8388608
+2026-11-14T16:17:08.1695045Z Uploaded bytes 16777216
+2026-11-14T16:17:08.3881315Z Uploaded bytes 25165824
+2026-11-14T16:17:08.6703295Z Uploaded bytes 33554432
+2026-11-14T16:17:08.9476692Z Uploaded bytes 41943040
+2026-11-14T16:17:09.0395167Z Uploaded bytes 47477849
+2026-11-14T16:17:09.0568121Z Finished uploading artifact content to blob storage!
+2026-11-14T16:17:09.0568836Z SHA256 digest of uploaded artifact zip is 9d89a847253cd9a0f15181828087658555cd24cc6653c131550beec5d00d2c09
+2026-11-14T16:17:09.0569487Z Finalizing artifact upload
+2026-11-14T16:17:09.4270040Z Artifact compare-farm.zip successfully finalized. Artifact ID 14120879208
+2026-11-14T16:17:09.4270776Z Artifact compare-farm has been successfully uploaded! Final size is 47477849 bytes. Artifact ID is 14120879208
+2026-11-14T16:17:09.4273320Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/43612904937/artifacts/14120879208
+2026-11-14T16:17:09.4466839Z Post job cleanup.
+2026-11-14T16:17:09.5324351Z Post job cleanup.
+2026-11-14T16:17:09.5984681Z [command]/usr/bin/git version
+2026-11-14T16:17:09.6016745Z git version 2.56.1
+2026-11-14T16:17:09.6042194Z Temporarily overriding HOME='/home/runner/work/_temp/e32837fe-e1ad-4603-89fc-5a49a91175b8' before making global git config changes
+2026-11-14T16:17:09.6043128Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-14T16:17:09.6047191Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-14T16:17:09.6084487Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-14T16:17:09.6102557Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-14T16:17:09.6275269Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-14T16:17:09.6297776Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-14T16:17:09.6492549Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T16:17:09.6528015Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-14T16:17:09.6864119Z Cleaning up orphan processes
+2026-11-14T16:17:09.7091067Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/setup-python@v5, actions/upload-artifact@v4, aws-actions/configure-aws-credentials@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
 
