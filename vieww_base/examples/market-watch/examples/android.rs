@@ -286,11 +286,14 @@ mod app {
             }
             // One sample per presented frame: the hook runs between frames,
             // and the frame count says whether one was presented since the
-            // last call.
+            // last call. The stage sample is its own condition — a frame
+            // with no stage breakdown still counts in `work`.
             if log.frames() > self.seen_frames {
                 self.seen_frames = log.frames();
-                if let (Some(w), Some(st)) = (log.work_samples().last(), log.last_stages()) {
-                    self.split.record(&st, *w);
+                if let Some(w) = log.work_samples().last() {
+                    if let Some(st) = log.last_stages() {
+                        self.split.record(&st, *w);
+                    }
                     self.work.push(w.as_secs_f64() * 1e3);
                 }
                 let now = Instant::now();
