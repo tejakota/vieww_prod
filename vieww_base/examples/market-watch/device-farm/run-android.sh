@@ -14,7 +14,11 @@
 #      launch-to-first-frame figure, the same for both frameworks
 #   2. one full run of the comparison schedule, which the app plays itself and
 #      narrates as `__MW__ {json}` lines in logcat. This script follows logcat,
-#      and at every phase boundary closes the phase it measured:
+#      and at every phase boundary closes the phase it measured. A production
+#      Valdi narrates nothing (its runtime logs are compiled out under
+#      --snap_flavor=production), so the runner also carries the schedule
+#      itself and closes the same boundaries by its own clock — see the long
+#      comment inside run_config. Either way, at every boundary:
 #        - SurfaceFlinger timestats for the app's layer (frames presented,
 #          frame-to-frame histogram): the one yardstick that times a
 #          NativeActivity surface (Vieww) and HWUI views (Valdi) the same way
@@ -132,6 +136,36 @@ cpu_ticks() { # utime + stime of a pid, in clock ticks
     sh_ cat "/proc/$1/stat" | awk '{print $14 + $15}'
 }
 
+# ── the schedule both apps play ─────────────────────────────────────────────
+# market_watch::schedule (examples/market-watch/src/lib.rs), mirrored by the
+# Valdi app's schedule() in compare/valdi/apps/market_watch/src/MarketWatch.tsx
+# — `cargo test -p market-watch` checks the two agree. After a 1500 ms settle
+# (both apps sleep exactly that before load2k) these are the phases and their
+# lengths in seconds. The runner keeps it as a clock: a configuration that
+# narrates nothing still gets its phases closed at the boundaries the app
+# itself is closing them at.
+MW_SETTLE_MS=1500
+mw_schedule() { # $1 = thermal pass included → "name seconds" per line
+    local rows k
+    for rows in 2000 20000; do
+        k=$(( rows / 1000 ))k
+        printf 'load%s 2\nidle%s 2\ntick%s 1\njump%s 1\nscroll%s 8\nlive%s 8\nstorm%s 8\n' \
+            "$k" "$k" "$k" "$k" "$k" "$k" "$k"
+    done
+    [ "${1:-0}" = 1 ] && printf 'load2k-thermal 2\nthermal 60\n'
+    return 0
+}
+
+layer_frames() { # $1 timestats dump, $2 package → frames the package's layers presented
+    [ -f "$1" ] || { echo 0; return; }
+    awk -v pkg="$2" '
+        /^layerName = / { inlayer = index($0, pkg) > 0 }
+        inlayer && /totalFrames = / {
+            for (i = 1; i <= NF; i++) if ($i == "totalFrames") { sum += $(i + 2); break }
+        }
+        END { print sum + 0 }' "$1"
+}
+
 # ── one configuration ────────────────────────────────────────────────────────
 run_config() {
     local name="$1" pkg="$2" gpu="$3" tag="$4"
@@ -165,6 +199,17 @@ run_config() {
     local events="$dir/events.jsonl" runner="$dir/runner.jsonl"
     : > "$events"; : > "$runner"
     local deadline=$(( $(date +%s) + RUN_TIMEOUT ))
+    # The schedule the app plays, as a cursor: m_off is where the app is in
+    # it, in ms since the launch. m_last is the schedule's final phase, whose
+    # timestats the health check reads.
+    local -a sched=()
+    local launch_ms; launch_ms="$(now_ms)"
+    local m_idx=0 m_off="$MW_SETTLE_MS" m_name="" m_secs=0 m_last=""
+    while IFS= read -r line; do sched+=("$line"); done < <(mw_schedule 1)
+    m_last="$(cut -d' ' -f1 <<< "${sched[${#sched[@]}-1]}")"
+    # A phase closes exactly once — by its event, or by the clock, whichever
+    # lands first; the two agree to well inside a poll.
+    local -A closed=()
 
     close_phase() { # $1 = phase that just ended
         local p="$1" t_end cpu_end rss
@@ -180,14 +225,38 @@ run_config() {
             "$p" "$(( t_end - t_phase ))" "$(( cpu_end - cpu_phase ))" "${rss:-0}" "$layer" >> "$runner"
     }
 
+    enter_phase() { # $1 = phase name, starting now
+        phase="$1"
+        [ -z "$layer" ] && layer="$(layer_of "$pkg")"
+        [ -z "$pid" ] && pid="$(sh_ pidof "$pkg")"
+        t_phase="$(now_ms)"; cpu_phase="$(cpu_ticks "$pid")"
+        [ "$phase" = thermal ] && sh_ dumpsys thermalservice > "$dir/thermal-before.txt"
+    }
+
     local status="TIMEOUT"
-    # The event stream, followed through polls of the logcat dump. The farm
-    # host's adb is a wrapper that refuses what it has not whitelisted: this
-    # first read `adb logcat -v raw` — every poll answered "`adb raw` is not
-    # permitted" (419 of them on the 2026-11-14 run) while the apps played
-    # their schedules unheard, and the run before that fed the same refusal
-    # to a `read -t` loop that treated it as end-of-stream. The dump is the
-    # form the device suite has always used on the same host.
+    # Two clocks close the same boundaries.
+    #
+    # The first is the apps' own narration: every phase boundary is an
+    # `__MW__ {json}` line in logcat, followed through polls of the dump —
+    # the farm host's adb is a wrapper that refuses what it has not
+    # whitelisted: a first attempt read `adb logcat -v raw`, and every poll
+    # answered "`adb raw` is not permitted" (419 of them on the 2026-11-14
+    # run) while the apps played their schedules unheard, and the run before
+    # that fed the same refusal to a `read -t` loop that treated it as
+    # end-of-stream. The dump is the form the device suite has always used
+    # on the same host.
+    #
+    # The second is the schedule itself, kept as a clock: a production Valdi
+    # narrates nothing — its runtime logs are compiled out
+    # (--snap_flavor=production leaves SC_LOGGING_COMPILED_IN() false and the
+    # JS console gate shut), and the 2026-11-14 run watched all three phones
+    # play the whole schedule to its last frame — drawing stopped exactly at
+    # the thermal phase's end — without one `__MW__` line ever reaching
+    # logcat; vieww PASSED on the same phones while valdi timed out on every
+    # one. So a phase whose window has passed closes at the same offset from
+    # the launch at which the app itself closes it (both apps settle 1.5 s,
+    # then the same lengths). Narration stays primary where it exists — an
+    # event also re-aligns the cursor — and the clock only fills the silence.
     #
     # Consecutive dumps overlap — the buffer keeps its lines until they roll
     # — so a recurring line is recognised by its "t" (the app's own
@@ -195,10 +264,12 @@ run_config() {
     # lines that recur) and taken once; the one-time `start` line carries no
     # t and is taken once by flag.
     local last_t="-1" seen_start=false seen_at=""
-    while :; do
-        [ "$(date +%s)" -gt "$deadline" ] && break
-        [ -n "$pid" ] || pid="$(sh_ pidof "$pkg")"
-        local dump="$dir/dump.txt"
+    # One poll's worth of the narration, from the logcat dump. A function so
+    # the loop's last act — after the clock has played the whole schedule —
+    # can still drain the final boundary's `stats` and `done` lines, which
+    # otherwise land in a dump nobody reads.
+    scan_dump() {
+        local dump="$dir/dump.txt" line json t ev ev_phase i off sn ss
         if [ -n "$pid" ]; then
             adb logcat -d --pid="$pid" > "$dump" 2>/dev/null || true
         else
@@ -220,7 +291,6 @@ run_config() {
                     # distinct lines can share a t — a boundary's stats and
                     # its phase are microseconds apart — so a tie also has
                     # to name an event kind not yet taken at that t.
-                    local t ev
                     t="$(sed -nE 's/.*"t":([0-9]+(\.[0-9]+)?).*/\1/p' <<< "$json" | head -1)"
                     [ -n "$t" ] || continue
                     ev="$(sed -nE 's/.*"ev":"([a-z]+)".*/\1/p' <<< "$json" | head -1)"
@@ -237,24 +307,81 @@ run_config() {
             echo "$json" >> "$events"
             case "$json" in
                 *'"ev":"phase"'*)
-                    [ -n "$phase" ] && close_phase "$phase"
-                    phase="$(sed -E 's/.*"phase":"([^"]+)".*/\1/' <<< "$json")"
-                    [ -z "$layer" ] && layer="$(layer_of "$pkg")"
-                    [ -z "$pid" ] && pid="$(sh_ pidof "$pkg")"
-                    t_phase="$(now_ms)"; cpu_phase="$(cpu_ticks "$pid")"
-                    [ "$phase" = thermal ] && sh_ dumpsys thermalservice > "$dir/thermal-before.txt"
+                    ev_phase="$(sed -E 's/.*"phase":"([^"]+)".*/\1/' <<< "$json")"
+                    if [ "$ev_phase" != "$phase" ] && [ -z "${closed[$ev_phase]:-}" ]; then
+                        if [ -n "$phase" ] && [ -z "${closed[$phase]:-}" ]; then
+                            close_phase "$phase"; closed["$phase"]=1
+                        fi
+                        enter_phase "$ev_phase"
+                        kv "${name}_pid" "$pid"
+                        # Keep the clock cursor with the app: an event is the
+                        # app's own statement of where it is.
+                        i=0; off="$MW_SETTLE_MS"
+                        while [ "$i" -lt "${#sched[@]}" ]; do
+                            read -r sn ss <<< "${sched[$i]}"
+                            if [ "$sn" = "$ev_phase" ]; then m_idx="$i"; m_off="$off"; break; fi
+                            off=$(( off + ss * 1000 )); i=$(( i + 1 ))
+                        done
+                    fi
                     ;;
                 *'"ev":"done"'*)
-                    [ -n "$phase" ] && close_phase "$phase"
+                    if [ -n "$phase" ] && [ -z "${closed[$phase]:-}" ]; then
+                        close_phase "$phase"; closed["$phase"]=1
+                    fi
                     status="PASS"
                     break
                     ;;
             esac
         done < <(tr -d '\r' < "$dump" | grep '__MW__' || true)
+    }
+    while :; do
+        [ "$(date +%s)" -gt "$deadline" ] && break
+        [ -n "$pid" ] || pid="$(sh_ pidof "$pkg")"
+
+        # (a) the mirrored clock: enter a phase whose window has begun, close
+        #     one whose window has ended — catching up over stalled polls.
+        while [ "$m_idx" -lt "${#sched[@]}" ]; do
+            read -r m_name m_secs <<< "${sched[$m_idx]}"
+            [ $(( $(now_ms) - launch_ms )) -ge "$m_off" ] || break
+            if [ "$phase" != "$m_name" ] && [ -z "${closed[$m_name]:-}" ]; then
+                if [ -n "$phase" ] && [ -z "${closed[$phase]:-}" ]; then
+                    close_phase "$phase"; closed["$phase"]=1
+                fi
+                enter_phase "$m_name"
+            fi
+            if [ $(( $(now_ms) - launch_ms )) -ge $(( m_off + m_secs * 1000 )) ]; then
+                [ -z "${closed[$m_name]:-}" ] && { close_phase "$m_name"; closed["$m_name"]=1; }
+                m_off=$(( m_off + m_secs * 1000 )); m_idx=$(( m_idx + 1 ))
+                if [ "$m_idx" -ge "${#sched[@]}" ]; then status="PASS"; break; fi
+            else
+                break
+            fi
+        done
+        if [ "$status" = PASS ]; then
+            # The clock played the whole schedule. An app that narrates is
+            # still finishing the last boundary: one final scan drains its
+            # `stats` and `done` lines into events.jsonl before we go.
+            scan_dump
+            break
+        fi
+
+        # (b) the narration
+        scan_dump
         [ "$status" = PASS ] && break
         sleep 0.3
     done
     sh_ dumpsys SurfaceFlinger --timestats -disable >/dev/null
+
+    # A schedule that ran with the app dead still passes the clock above, so
+    # a PASS also asks the compositor: the app's layer must have presented
+    # frames in the schedule's last phase — 60 s of live load, so a live app
+    # presents thousands; a crashed one, none.
+    if [ "$status" = PASS ] && [ -n "$m_last" ]; then
+        frames="$(layer_frames "$dir/timestats-$m_last.txt" "$pkg")"
+        if [ "${frames:-0}" -eq 0 ]; then
+            status="FAIL (no frames presented in $m_last: the app is not drawing)"
+        fi
+    fi
 
     # 3. after the run
     sh_ dumpsys meminfo "$pkg" > "$dir/meminfo.txt"
