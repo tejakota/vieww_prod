@@ -1,0 +1,251 @@
+{
+ "valdi_build": {
+  "valdi_ref": "e90a983749b384ba403c3bcdd40f7d0432404694",
+  "flags": "--snap_flavor=production -c opt --copt=-DANDROID_WITH_JNI --repo_env=VALDI_PLATFORM_DEPENDENCIES=android --define=client_repo_arm64=true --android_platforms=@snap_platforms//os:android_arm64",
+  "engine_quickjs": "yes",
+  "engine_hermes": "no",
+  "engine_jscore": "no",
+  "cached": "false",
+  "signed_with": "debug key",
+  "abi": "arm64-v8a",
+  "engine": "quickjs",
+  "debuggable": "false",
+  "apk_bytes": "9688517"
+ },
+ "phones": [
+  {
+   "device": "LMQ7201b75907a",
+   "info": {
+    "device_name": "LMQ7201b75907a",
+    "model": "LM-Q720",
+    "android": "9",
+    "sdk": "28",
+    "soc": "msm8953",
+    "cpu_cores": "8",
+    "mem_total_kb": "2878756",
+    "display": "1080x2160",
+    "density": "420",
+    "refresh_hz": "60.000004",
+    "apk_file_bytes_valdi": "9688517",
+    "valdi_apk_sha256": "f6e528390237a92b",
+    "apk_bytes_dev.vieww.marketwatch": "2785696",
+    "apk_bytes_com.snap.valdi.marketwatch": "9688517",
+    "apk_file_bytes_vieww": "2785696",
+    "vieww-cpu_cold_start_ms": "304 271 256 263 254",
+    "vieww-cpu_battery_temp_dC": "165",
+    "vieww-cpu_pss_kb": "10376",
+    "vieww-cpu_status": "TIMEOUT",
+    "valdi_cold_start_ms": "680 515 484 453 459",
+    "valdi_battery_temp_dC": "167",
+    "valdi_pss_kb": "20129",
+    "valdi_status": "TIMEOUT",
+    "vieww-gpu_cold_start_ms": "307 252 274 280 265",
+    "vieww-gpu_battery_temp_dC": "168",
+    "vieww-gpu_pss_kb": "10972",
+    "vieww-gpu_status": "TIMEOUT",
+    "status": "FAIL"
+   },
+   "budget_ms": 16.67,
+   "configs": {
+    "vieww-cpu": {
+     "status": "TIMEOUT",
+     "cold_start_ms": [
+      304.0,
+      271.0,
+      256.0,
+      263.0,
+      254.0
+     ],
+     "cold_start_median": 263.0,
+     "pss_kb": "10376",
+     "battery_temp_dC": "165",
+     "phases": {}
+    },
+    "vieww-gpu": {
+     "status": "TIMEOUT",
+     "cold_start_ms": [
+      307.0,
+      252.0,
+      274.0,
+      280.0,
+      265.0
+     ],
+     "cold_start_median": 274.0,
+     "pss_kb": "10972",
+     "battery_temp_dC": "168",
+     "phases": {}
+    },
+    "valdi": {
+     "status": "TIMEOUT",
+     "cold_start_ms": [
+      680.0,
+      515.0,
+      484.0,
+      453.0,
+      459.0
+     ],
+     "cold_start_median": 484.0,
+     "pss_kb": "20129",
+     "battery_temp_dC": "167",
+     "phases": {}
+    }
+   }
+  },
+  {
+   "device": "RFCN304T60B",
+   "info": {
+    "device_name": "RFCN304T60B",
+    "model": "SM-G981U1",
+    "android": "13",
+    "sdk": "33",
+    "soc": "SM8250",
+    "cpu_cores": "8",
+    "mem_total_kb": "10856364",
+    "display": "1440x3200",
+    "density": "480",
+    "refresh_hz": "60.000004",
+    "apk_file_bytes_valdi": "9688517",
+    "valdi_apk_sha256": "f6e528390237a92b",
+    "apk_bytes_dev.vieww.marketwatch": "2785696",
+    "apk_bytes_com.snap.valdi.marketwatch": "9688517",
+    "apk_file_bytes_vieww": "2785696",
+    "vieww-cpu_cold_start_ms": "166 143 133 129 139",
+    "vieww-cpu_battery_temp_dC": "189",
+    "vieww-cpu_pss_kb": "117272",
+    "vieww-cpu_status": "TIMEOUT",
+    "valdi_cold_start_ms": "165 168 162 161 168",
+    "valdi_battery_temp_dC": "192",
+    "valdi_pss_kb": "71285",
+    "valdi_status": "TIMEOUT",
+    "vieww-gpu_cold_start_ms": "139 138 134 146 142",
+    "vieww-gpu_battery_temp_dC": "194",
+    "vieww-gpu_pss_kb": "135437",
+    "vieww-gpu_status": "TIMEOUT",
+    "status": "FAIL"
+   },
+   "budget_ms": 16.67,
+   "configs": {
+    "vieww-cpu": {
+     "status": "TIMEOUT",
+     "cold_start_ms": [
+      166.0,
+      143.0,
+      133.0,
+      129.0,
+      139.0
+     ],
+     "cold_start_median": 139.0,
+     "pss_kb": "117272",
+     "battery_temp_dC": "189",
+     "phases": {}
+    },
+    "vieww-gpu": {
+     "status": "TIMEOUT",
+     "cold_start_ms": [
+      139.0,
+      138.0,
+      134.0,
+      146.0,
+      142.0
+     ],
+     "cold_start_median": 139.0,
+     "pss_kb": "135437",
+     "battery_temp_dC": "194",
+     "phases": {}
+    },
+    "valdi": {
+     "status": "TIMEOUT",
+     "cold_start_ms": [
+      165.0,
+      168.0,
+      162.0,
+      161.0,
+      168.0
+     ],
+     "cold_start_median": 165.0,
+     "pss_kb": "71285",
+     "battery_temp_dC": "192",
+     "phases": {}
+    }
+   }
+  },
+  {
+   "device": "RFGL126NDYT",
+   "info": {
+    "device_name": "RFGL126NDYT",
+    "model": "SM-S948U1",
+    "android": "16",
+    "sdk": "36",
+    "soc": "SM8850",
+    "cpu_cores": "8",
+    "mem_total_kb": "11389632",
+    "display": "1080x2340",
+    "density": "450",
+    "refresh_hz": "120.00001",
+    "apk_file_bytes_valdi": "9688517",
+    "valdi_apk_sha256": "f6e528390237a92b",
+    "apk_bytes_dev.vieww.marketwatch": "2785696",
+    "apk_bytes_com.snap.valdi.marketwatch": "9688517",
+    "apk_file_bytes_vieww": "2785696",
+    "vieww-cpu_cold_start_ms": "79 77 74 76 78",
+    "vieww-cpu_battery_temp_dC": "200",
+    "vieww-cpu_pss_kb": "81763",
+    "vieww-cpu_status": "TIMEOUT",
+    "valdi_cold_start_ms": "129 125 131 128 128",
+    "valdi_battery_temp_dC": "200",
+    "valdi_pss_kb": "71151",
+    "valdi_status": "TIMEOUT",
+    "vieww-gpu_cold_start_ms": "82 73 82 71 72",
+    "vieww-gpu_battery_temp_dC": "200",
+    "vieww-gpu_pss_kb": "204517",
+    "vieww-gpu_status": "TIMEOUT",
+    "status": "FAIL"
+   },
+   "budget_ms": 8.33,
+   "configs": {
+    "vieww-cpu": {
+     "status": "TIMEOUT",
+     "cold_start_ms": [
+      79.0,
+      77.0,
+      74.0,
+      76.0,
+      78.0
+     ],
+     "cold_start_median": 77.0,
+     "pss_kb": "81763",
+     "battery_temp_dC": "200",
+     "phases": {}
+    },
+    "vieww-gpu": {
+     "status": "TIMEOUT",
+     "cold_start_ms": [
+      82.0,
+      73.0,
+      82.0,
+      71.0,
+      72.0
+     ],
+     "cold_start_median": 73.0,
+     "pss_kb": "204517",
+     "battery_temp_dC": "200",
+     "phases": {}
+    },
+    "valdi": {
+     "status": "TIMEOUT",
+     "cold_start_ms": [
+      129.0,
+      125.0,
+      131.0,
+      128.0,
+      128.0
+     ],
+     "cold_start_median": 128.0,
+     "pss_kb": "71151",
+     "battery_temp_dC": "200",
+     "phases": {}
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,390 @@
+--------- beginning of main
+11-14 15:03:39.401   717   717 I SurfaceFlinger: Removed(0x7766e77000) ContainerLayer Stack=33#0 (1080 x 2160)
+11-14 15:03:39.401   717   717 I SurfaceFlinger: Removed(0x7766e7a000) BlurLayer animation background stackId=33#0 (4320 x 4320)
+11-14 15:03:39.402  1578  1656 W libprocessgroup: kill(-32403, 9) failed: No such process
+11-14 15:03:39.411   678   678 W PHHandler: [PH] hint not found.
+11-14 15:03:39.412  2084  2084 I GameToolsDBManager: Failed to find provider: com.lge.gametuner, do not register observer
+11-14 15:03:39.412   697   709 E ANDR-PERF-MPCTL: Invalid profile no. 0, total profiles 0 only
+11-14 15:03:39.413  2084  2084 I GameToolsDBManager: Failed to find provider: com.lge.gametuner, do not register observer
+11-14 15:03:39.415  2084  2084 I chatty  : uid=10117(com.android.systemui) identical 2 lines
+11-14 15:03:39.417  2084  2084 I GameToolsDBManager: Failed to find provider: com.lge.gametuner, do not register observer
+11-14 15:03:39.419   713   835 V AudioFlinger: AudioFlinger::setRecordSilenced(uid:10237, silenced:1)
+11-14 15:03:39.420  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{3b55a0a u0 dev.vieww.marketwatch/android.app.NativeActivity}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:39.420  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:39.420  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:39.424  2084  2084 I GameToolsDBManager: Failed to find provider: com.lge.gametuner, do not register observer
+11-14 15:03:39.424  2084  2084 I GameSoundHandler: setSoundMode mDBStatus = false / status = false
+11-14 15:03:39.424  8770  8770 I [LGHome6]Launcher: mBindOnResumeCallbacks.size() : 0
+11-14 15:03:39.424  2084  2084 I GameToolsDBManager: Failed to find provider: com.lge.gametuner, do not register observer
+11-14 15:03:39.425  2084  2084 I chatty  : uid=10117(com.android.systemui) identical 1 line
+11-14 15:03:39.425  2084  2084 I GameToolsDBManager: Failed to find provider: com.lge.gametuner, do not register observer
+11-14 15:03:39.432  3088  3088 D FRW_LGBroadcastRadioServiceStub: onReceive
+11-14 15:03:39.432  3088  3088 D FRW_LGBroadcastRadioServiceStub: android.intent.action.PACKAGE_RESTARTED
+11-14 15:03:39.432  3088  3088 D FRW_LGBroadcastRadioServiceStub: pkgName : dev.vieww.marketwatchmClientPackagename :null
+11-14 15:03:39.432  3088  3088 D FRW_LGBroadcastRadioServiceStub: getState
+11-14 15:03:39.432  3088  3088 D FMFRW_QctFmRadio: getState >>>
+11-14 15:03:39.432  3088  3088 E FMFRW_QctFmRadio: getState <<< mReceiver is null.
+11-14 15:03:39.433  1578  1578 V LGSettingsProvider: call_put(secure:enabled_notification_listeners=com.lge.coneshortcut/com.lge.coneshortcut.NotificationListener:com.lge.easyhome/com.lge.easyhome.notification.NotificationListener:com.nttdocomo.android.devicehelp/com.nttdocomo.android.devicehelp.service.NotificationService:com.nttdocomo.android.dhome/com.nttdocomo.android.dhome.home.notification.NotificationListener)  calling package = android  callingUserId : 0
+11-14 15:03:39.434  1578  1578 V LGSettingsProvider: call_put(secure:enabled_notification_assistant=)  calling package = android  callingUserId : 0
+11-14 15:03:39.434  1578  1578 V LGSettingsProvider: call_put(secure:enabled_notification_policy_access_packages=com.google.android.apps.wellbeing)  calling package = android  callingUserId : 0
+11-14 15:03:39.435  2566  2566 D CarrierSvcBindHelper: No carrier app for: 0
+--------- beginning of system
+11-14 15:03:39.403  1578  3419 D ActivityManager: setVisibility true ActivityRecord{5ac73f5 u0 com.lge.launcher3/.LauncherExtension t91}
+11-14 15:03:39.435  1578  1653 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_RESTARTED dat=package:dev.vieww.marketwatch flg=0x10 (has extras) } to com.airwatch.androidagent/com.airwatch.agent.Receiver
+11-14 15:03:39.436 13342 30463 I WS1_AfwUtils: Hub app user id: 0
+11-14 15:03:39.436 13342 30463 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-14 15:03:39.438  3151  3151 D RegisteredNfcFServicesCache: Service unchanged, not updating
+11-14 15:03:39.439 13342 30463 I WS1_Receiver: Received intent: android.intent.action.PACKAGE_RESTARTED
+11-14 15:03:39.439  1578  1656 W libprocessgroup: kill(-32403, 9) failed: No such process
+11-14 15:03:39.439 13342 30463 I WS1_BroadcastIntentService: Delegating broadcast to WorkManager for action: android.intent.action.PACKAGE_RESTARTED
+11-14 15:03:39.444  3151  3151 D [NFC]LCardEmulationManager:488: initDefaultRoutePath() - route : 0
+11-14 15:03:39.444 13342 30463 I WS1_IntentProcessorWorkManager: Enqueuing work for intent action: android.intent.action.PACKAGE_RESTARTED
+11-14 15:03:39.445  3151  3151 E [NFC]LCardEmulationManager:760: Default payment service unexpectedly removed or payment category removed.(.cardemulation.CardEmulationManager.verifyDefaults()-.cardemulation.LCardEmulationManager.onServicesUpdated()-.cardemulation.LCardEmulationManager.onServicesUpdated()-
+11-14 15:03:39.446  3151  3151 D RegisteredAidCache:  AID power state199
+11-14 15:03:39.447  3151  3151 D RegisteredAidCache:  AID power state199
+11-14 15:03:39.448  8770  8770 I [LGHome6]StaticBlurEngine: getBlurImage 270 x 540 -> (0,0)
+11-14 15:03:39.450  8770  8770 I [LGHome6]HomescreenBlurManager: updateBackgroundViewContents() : mBackgroundViewImage(android.graphics.Bitmap@9e71080)
+11-14 15:03:39.450  8770  8770 I [LGHome6]HomescreenBlurManager: mBackgroundView size : android.widget.ImageView{750cedb G.ED..... ......I. 0,0-0,0 #7f09002b app:id/blur_background_in_bottom_of_rootview}
+11-14 15:03:39.452  8770  8770 I [LGHome6]LauncherCallbacksImpl: Launcher.onResume // 7.20.51(72005100) this:com.lge.launcher3.LauncherExtension$LauncherCallbacksImpl@64ac8e1
+11-14 15:03:39.456 12992 12992 W SearchServiceClient: Starting with NO_SESSION handoverId is deprecated. Just don't. You will break.
+11-14 15:03:39.456 12992 12992 W SearchServiceClient: com.google.android.apps.gsa.shared.util.a.g: SearchServiceClient: Starting with NO_SESSION handoverId is deprecated. Just don't. You will break.
+11-14 15:03:39.456 12992 12992 W SearchServiceClient: 	at com.google.android.apps.gsa.shared.util.a.d.a(SourceFile:40)
+11-14 15:03:39.456 12992 12992 W SearchServiceClient: 	at com.google.android.apps.gsa.shared.util.a.d.d(SourceFile:6)
+11-14 15:03:39.456 12992 12992 W SearchServiceClient: 	at com.google.android.apps.gsa.search.shared.service.ab.a(SourceFile:110)
+11-14 15:03:39.456 12992 12992 W SearchServiceClient: 	at com.google.android.apps.gsa.search.shared.service.ab.d(SourceFile:96)
+11-14 15:03:39.456 12992 12992 W SearchServiceClient: 	at com.google.android.apps.gsa.nowoverlayservice.as.a(SourceFile:15)
+11-14 15:03:39.456 12992 12992 W SearchServiceClient: 	at com.google.android.libraries.gsa.f.b.n.a(SourceFile:20)
+11-14 15:03:39.456 12992 12992 W SearchServiceClient: 	at com.google.android.libraries.gsa.f.b.n.handleMessage(SourceFile:25)
+11-14 15:03:39.456 12992 12992 W SearchServiceClient: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+11-14 15:03:39.456 12992 12992 W SearchServiceClient: 	at android.os.Looper.loop(Looper.java:205)
+11-14 15:03:39.456 12992 12992 W SearchServiceClient: 	at android.app.ActivityThread.main(ActivityThread.java:6991)
+11-14 15:03:39.456 12992 12992 W SearchServiceClient: 	at java.lang.reflect.Method.invoke(Native Method)
+11-14 15:03:39.456 12992 12992 W SearchServiceClient: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:493)
+11-14 15:03:39.456 12992 12992 W SearchServiceClient: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:884)
+11-14 15:03:39.456 12992 13067 W SessionLifecycleManager: Handover failed. Creating new session controller.
+11-14 15:03:39.461 12992 13067 E PBSessionCacheImpl: sessionId[57141214913092466] not persisted.
+11-14 15:03:39.465 12992 13076 I PBSessionCacheImpl: Deleted sessionId[57141214913092466] from persistence.
+11-14 15:03:39.473   717   817 I SurfaceFlinger: create BufferLayer(0x7766fdf000) com.lge.launcher3/com.lge.launcher3.LauncherExtension (1080 x 2160)
+11-14 15:03:39.475  1578  1654 D LGPhoneWindowManager: [LGPWM] 1.notifyNavigationBarColor => mLastColorNavigationBar=0x0
+11-14 15:03:39.476  1578  2118 D InputDispatcher: Focus entered window: Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}
+11-14 15:03:39.476 13342 13769 D WM-SystemJobScheduler: Scheduling work ID 2ec010ea-ab96-482c-bad7-062dc0241952Job ID 302108
+11-14 15:03:39.477  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:39.477  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:39.477  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=1
+11-14 15:03:39.477  1578  1654 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@d7bc3fc
+11-14 15:03:39.478  2084  2084 I NavigationThemeResource: notify navigation bar color(0x0)
+11-14 15:03:39.478  2084  2084 I NavigationThemeResource: NavigationKey Color is changed(BLACK -> WHITE_WITH_BORDER)
+11-14 15:03:39.478  2084  2084 I NavigationThemeResource:  BarMode=4, Theme=WHITE, LightBackground=false (Transparent)
+11-14 15:03:39.478  2084  2084 I NavigationThemeResource: , Keyguard show=false, IME shown=false, Bar vertical=false, Panel expanded=false
+11-14 15:03:39.478  2084  2084 D StatusBar: setSystemUiVisibility vis=8708 mask=ffffffff oldVal=8008 newVal=8708 diff=700
+11-14 15:03:39.479  8770  8811 I [LGHome6]OverviewFlags: applyBackButtonAlpha(): alpha = 1.00, animate = true
+11-14 15:03:39.440 13342 30463 I chatty  : uid=10233(com.airwatch.androidagent) Q-IntentProcess identical 2 lines
+11-14 15:03:39.445 13342 30463 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-14 15:03:39.479  1578  3129 D DisplayManagerService: Display listener for pid 32403 died.
+11-14 15:03:39.480 10754 10768 D ViewRootImpl: onChangedNavigationGuardColor(), color: 0
+11-14 15:03:39.481  1112  1112 I Zygote  : Process 32403 exited due to signal (9)
+11-14 15:03:39.482 10754 10754 D DecorView: updateNavigationGuardColor navigationGuardColor=0xff000000
+11-14 15:03:39.484  1578  1656 W libprocessgroup: kill(-32403, 9) failed: No such process
+11-14 15:03:39.485  1578  1656 I libprocessgroup: Successfully killed process cgroup uid 10237 pid 32403 in 124ms
+11-14 15:03:39.486  8770  8770 I [LGHome6]BadgeFolderIcon: drawBadge() : mAppNotifierDrawable(null), mDrawAppNotifier(true)
+11-14 15:03:39.489  1578  1665 W ActivityManager: setHasOverlayUi called on unknown pid: 32403
+11-14 15:03:39.489  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:39.489  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:39.489  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:39.490 13342 13769 D WM-GreedyScheduler: Starting work for 2ec010ea-ab96-482c-bad7-062dc0241952
+11-14 15:03:39.490  2084  2084 D OverviewProxyService: notifyBackButtonAlphaChanged() : mConnectionCallbacks.size() = 1
+11-14 15:03:39.490  2084  2084 I NavigationBar: onBackButtonAlphaChanged(): alpha = 1.00, animate = true
+11-14 15:03:39.495 13342 13769 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=2ec010ea-ab96-482c-bad7-062dc0241952, generation=0)
+11-14 15:03:39.496  8770  8811 I [LGHome6]OverviewFlags: applyBackButtonAlpha(): alpha = 1.00, animate = true
+11-14 15:03:39.496  8770  8770 I Timeline: Timeline: Activity_idle id: android.os.BinderProxy@5adf53 time:28208617
+11-14 15:03:39.498  2084  2084 D ImageWallpaper: onVisibilityChanged: mVisible, visible=false, true
+11-14 15:03:39.498  2084  2084 D ImageWallpaper: Visibility changed to visible=true
+11-14 15:03:39.499 13342 13342 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=2ec010ea-ab96-482c-bad7-062dc0241952, generation=0)
+11-14 15:03:39.500 13342 13769 W WS1_SE_SmpWrkFct_WW1O54: com.airwatch.agent.intent.processors.IntentProcessorWorker not resolved in SamplingWorkerFactory
+11-14 15:03:39.500  2084  2084 D ImageWallpaper: Suppressed drawFrame since redraw is not needed and offsets have not changed.
+11-14 15:03:39.500 13342 13769 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-14 15:03:39.500  2084  2084 D OverviewProxyService: notifyBackButtonAlphaChanged() : mConnectionCallbacks.size() = 1
+11-14 15:03:39.501  2084  2084 I NavigationBar: onBackButtonAlphaChanged(): alpha = 1.00, animate = true
+11-14 15:03:39.504  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:39.504  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:39.504  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=1
+11-14 15:03:39.504  1578  1654 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@d7bc3fc
+11-14 15:03:39.507   717  1942 I SurfaceFlinger: create ContainerLayer(0x7766f52000) Surface(name=d418450 com.android.systemui.ImageWallpaper)/@0xd1dae5a - animation-leash (4320 x 4320)
+11-14 15:03:39.507  1578  3416 D OverlayManager: setEnabled packageName=com.android.systemui.theme.dark enable=true userId=0
+11-14 15:03:39.508 13342 13342 D WM-WorkerWrapper: Starting work for com.airwatch.agent.intent.processors.IntentProcessorWorker
+11-14 15:03:39.508   717  1942 I SurfaceFlinger: create ContainerLayer(0x7766f5b000) Surface(name=AppWindowToken{6307fb token=Token{a40358a ActivityRecord{5ac73f5 u0 com.lge.launcher3/.LauncherExtension t91}}})/@0x108459e - animation-leash (4320 x 4320)
+11-14 15:03:39.509 13342 13792 I WS1_IntentProcessorWorker: doWork started for intent action: android.intent.action.PACKAGE_RESTARTED
+11-14 15:03:39.509 13342 13792 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-14 15:03:39.514 13342 13769 D WM-Processor: Work WorkGenerationalId(workSpecId=2ec010ea-ab96-482c-bad7-062dc0241952, generation=0) is already enqueued for processing
+11-14 15:03:39.515  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:39.515  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:39.515  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:39.518  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:39.518  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:39.518  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=1
+11-14 15:03:39.518  1578  1654 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@d7bc3fc
+11-14 15:03:39.523  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:39.523  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:39.523  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:39.526  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:39.526  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:39.526  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=1
+11-14 15:03:39.526  1578  1654 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@d7bc3fc
+11-14 15:03:39.529  2084  2293 D PhoneStatusBarPolicy: updateManagedProfile userId = 0
+11-14 15:03:39.531 13342 13768 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=2ec010ea-ab96-482c-bad7-062dc0241952, tags={ com.airwatch.agent.intent.processors.IntentProcessorWorker,intent_processor_work,android.intent.action.PACKAGE_RESTARTED } ]
+11-14 15:03:39.534   717   717 I SurfaceFlinger: Removed(0x7766f52000) ContainerLayer Surface(name=d418450 com.android.systemui.ImageWallpaper)/@0xd1dae5a - animation-leash#0 (4320 x 4320)
+11-14 15:03:39.534   717   717 I SurfaceFlinger: Removed(0x7766f5b000) ContainerLayer Surface(name=AppWindowToken{6307fb token=Token{a40358a ActivityRecord{5ac73f5 u0 com.lge.launcher3/.LauncherExtension t91}}})/@0x108459e - animation-leash#0 (4320 x 4320)
+11-14 15:03:39.535 13342 13342 D WM-Processor: Processor 2ec010ea-ab96-482c-bad7-062dc0241952 executed; reschedule = false
+11-14 15:03:39.535 13342 13342 D WM-SystemJobService: 2ec010ea-ab96-482c-bad7-062dc0241952 executed on JobScheduler
+11-14 15:03:39.538  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:39.538  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:39.538  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:39.542 13342 13778 D WM-GreedyScheduler: Cancelling work ID 2ec010ea-ab96-482c-bad7-062dc0241952
+11-14 15:03:39.544  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:39.544  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:39.544  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=1
+11-14 15:03:39.544  1578  1654 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@d7bc3fc
+11-14 15:03:39.785 13342 13352 I ch.androidagen: Background concurrent copying GC freed 401072(13MB) AllocSpace objects, 2(40KB) LOS objects, 57% free, 8MB/20MB, paused 175us total 233.489ms
+11-14 15:03:39.887  2084  2084 I VoicePrintManager: service is null
+11-14 15:03:39.887  2084  2084 W VoicePrintManager: [mgr] registerStateCallback is failed and retrying (count=56111)
+11-14 15:03:39.954  1578  1986 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-44 threshold=-100
+11-14 15:03:39.997  8770 10090 W OpenGLRenderer: Incorrectly called buildLayer on View: ShortcutAndWidgetContainer, destroying layer...
+11-14 15:03:39.997  8770 10090 W OpenGLRenderer: Incorrectly called buildLayer on View: ShortcutAndWidgetContainer, destroying layer...
+11-14 15:03:40.130 13002 13300 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-14 15:03:40.134  1578  2463 D LocationManagerService: incoming location: fused
+11-14 15:03:40.135  1578  2463 D LocationManagerService: incoming location: fused
+11-14 15:03:40.389  2084  2084 I VoicePrintManager: service is null
+11-14 15:03:40.389  2084  2084 W VoicePrintManager: [mgr] registerStateCallback is failed and retrying (count=56112)
+11-14 15:03:40.892  2084  2084 I VoicePrintManager: service is null
+11-14 15:03:40.892  2084  2084 W VoicePrintManager: [mgr] registerStateCallback is failed and retrying (count=56113)
+11-14 15:03:41.140 13002 13213 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-14 15:03:41.147  1578  2463 D LocationManagerService: incoming location: fused
+11-14 15:03:41.148  1578  2463 D LocationManagerService: incoming location: fused
+11-14 15:03:41.395  2084  2084 I VoicePrintManager: service is null
+11-14 15:03:41.395  2084  2084 W VoicePrintManager: [mgr] registerStateCallback is failed and retrying (count=56114)
+11-14 15:03:41.610  1578  1662 V WallpaperManagerService: Wallpaper file change: evt=128 path=package-restrictions-backup.xml sys=false lock=false imagePending=false whichPending=0x0 written=true
+11-14 15:03:41.697  1578  1662 V WallpaperManagerService: Wallpaper file change: evt=8 path=package-restrictions.xml sys=false lock=false imagePending=false whichPending=0x0 written=true
+11-14 15:03:41.697  1578  1662 V WallpaperManagerService: Wallpaper file change: evt=512 path=package-restrictions-backup.xml sys=false lock=false imagePending=false whichPending=0x0 written=false
+11-14 15:03:41.897  2084  2084 I VoicePrintManager: service is null
+11-14 15:03:41.897  2084  2084 W VoicePrintManager: [mgr] registerStateCallback is failed and retrying (count=56115)
+11-14 15:03:42.074  1578  3416 E Parcel  : Attempt to read from protected data in Parcel 0x71eb4c7228
+11-14 15:03:42.074  1578  3416 I chatty  : uid=1000(system) Binder:1578_F identical 1 line
+11-14 15:03:42.074  1578  3416 E Parcel  : Attempt to read from protected data in Parcel 0x71eb4c7228
+11-14 15:03:42.149 13002 13300 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-14 15:03:42.154  1578  2463 D LocationManagerService: incoming location: fused
+11-14 15:03:42.155  1578  2463 D LocationManagerService: incoming location: fused
+11-14 15:03:42.400  2084  2084 I VoicePrintManager: service is null
+11-14 15:03:42.400  2084  2084 W VoicePrintManager: [mgr] registerStateCallback is failed and retrying (count=56116)
+11-14 15:03:42.777   717   817 D TimeStats: Cleared
+11-14 15:03:42.902  2084  2084 I VoicePrintManager: service is null
+11-14 15:03:42.902  2084  2084 W VoicePrintManager: [mgr] registerStateCallback is failed and retrying (count=56117)
+11-14 15:03:42.956  1578  1986 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-43 threshold=-100
+11-14 15:03:43.059  1578  3416 E Parcel  : Attempt to read from protected data in Parcel 0x71eb4c7228
+11-14 15:03:43.061  1578  3416 I ActivityManager: START u0 {flg=0x10000000 cmp=dev.vieww.marketwatch/android.app.NativeActivity} from uid 2000
+11-14 15:03:43.059  1578  3416 I chatty  : uid=1000(system) Binder:1578_F identical 1 line
+11-14 15:03:43.059  1578  3416 E Parcel  : Attempt to read from protected data in Parcel 0x71eb4c7228
+11-14 15:03:43.064   678   678 W PHHandler: [PH] hint not found.
+11-14 15:03:43.065   697   709 E ANDR-PERF-MPCTL: Invalid profile no. 0, total profiles 0 only
+11-14 15:03:43.066   717  1942 I SurfaceFlinger: create ContainerLayer(0x7766f68000) Stack=34 (4320 x 4320)
+11-14 15:03:43.068   717   817 I SurfaceFlinger: create BlurLayer(0x7766fe2000) animation background stackId=34 (4320 x 4320)
+11-14 15:03:43.071   717   817 I SurfaceFlinger: create ContainerLayer(0x7766fe5000) Task=125 (4320 x 4320)
+11-14 15:03:43.075   717   817 I SurfaceFlinger: create ContainerLayer(0x7766ff0000) AppWindowToken{5e7b2f8 token=Token{762ea5b ActivityRecord{962a56a u0 dev.vieww.marketwatch/android.app.NativeActivity t125}}} (4320 x 4320)
+11-14 15:03:43.081  8770  8770 I [LGHome6]LauncherCallbacksImpl: Launcher.onPause // 7.20.51(72005100) this:com.lge.launcher3.LauncherExtension$LauncherCallbacksImpl@64ac8e1
+11-14 15:03:43.085  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.085  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.085  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:43.088  1578  1921 D PhoneWindow: windowLightStatusBar : false, disable View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+11-14 15:03:43.092  1578  2381 D ActivityManager: setVisibility true ActivityRecord{962a56a u0 dev.vieww.marketwatch/android.app.NativeActivity t125}
+11-14 15:03:43.092  1578  2381 D ActivityManager: setVisibility false ActivityRecord{5ac73f5 u0 com.lge.launcher3/.LauncherExtension t91}
+11-14 15:03:43.093   717   817 I SurfaceFlinger: create ContainerLayer(0x7766ec3000) dcb4c09 Splash Screen dev.vieww.marketwatch (4320 x 4320)
+11-14 15:03:43.096  1578  1921 I TouchFilterInputStageHelper: [needTouchEventFilter] Displayid : 0
+11-14 15:03:43.097  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.097  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.097  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=1
+11-14 15:03:43.097  1578  1654 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@d7bc3fc
+11-14 15:03:43.099  1578  1921 D BezellessGripSuppressionFilter: getdisplaysize, x : 1080 y : 2160
+11-14 15:03:43.105  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.105  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.105  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:43.107   717   817 I SurfaceFlinger: create BufferLayer(0x7766ec6000) Splash Screen dev.vieww.marketwatch (1080 x 2160)
+11-14 15:03:43.109  1578  1921 D InputDispatcher: Focus left window: Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}
+11-14 15:03:43.111  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.111  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.111  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=1
+11-14 15:03:43.111  1578  1654 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@d7bc3fc
+11-14 15:03:43.113  8770  8811 I [LGHome6]OverviewFlags: applyBackButtonAlpha(): alpha = 1.00, animate = true
+11-14 15:03:43.114  2084  2084 D OverviewProxyService: notifyBackButtonAlphaChanged() : mConnectionCallbacks.size() = 1
+11-14 15:03:43.114  2084  2084 I NavigationBar: onBackButtonAlphaChanged(): alpha = 1.00, animate = true
+11-14 15:03:43.126  1578  1655 I ActivityManager: Start proc 32460:dev.vieww.marketwatch/u0a237 for activity dev.vieww.marketwatch/android.app.NativeActivity
+11-14 15:03:43.127  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.128  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.128  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:43.135 32460 32460 E eww.marketwatc: Not starting debugger since process cannot load the jdwp agent.
+11-14 15:03:43.155  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.155  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.155  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=1
+11-14 15:03:43.155  1578  1654 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@d7bc3fc
+11-14 15:03:43.161 13002 13213 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-14 15:03:43.163  1578  3419 D ActivityManager: setVisibility true ActivityRecord{962a56a u0 dev.vieww.marketwatch/android.app.NativeActivity t125}
+11-14 15:03:43.167  1578  2463 D LocationManagerService: incoming location: fused
+11-14 15:03:43.167  1578  2463 D LocationManagerService: incoming location: fused
+11-14 15:03:43.170  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{b3c772c u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.170  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.170  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:43.170   713   713 V AudioFlinger: AudioFlinger::setRecordSilenced(uid:10237, silenced:0)
+11-14 15:03:43.171   717   817 I SurfaceFlinger: create ContainerLayer(0x7766ee5000) Surface(name=d418450 com.android.systemui.ImageWallpaper)/@0xd1dae5a - animation-leash (4320 x 4320)
+11-14 15:03:43.172  2084  2084 I GameToolsDBManager: Failed to find provider: com.lge.gametuner, do not register observer
+11-14 15:03:43.172   717   817 I SurfaceFlinger: create ContainerLayer(0x7766ee8000) Surface(name=AppWindowToken{6307fb token=Token{a40358a ActivityRecord{5ac73f5 u0 com.lge.launcher3/.LauncherExtension t91}}})/@0x108459e - animation-leash (4320 x 4320)
+11-14 15:03:43.172  2084  2084 I GameToolsDBManager: Failed to find provider: com.lge.gametuner, do not register observer
+11-14 15:03:43.173  2084  2084 I GameToolsDBManager: Failed to find provider: com.lge.gametuner, do not register observer
+11-14 15:03:43.173 32460 32460 E DisplayManagerHelper: ISmartCoverManager is null
+11-14 15:03:43.173  2084  2084 I GameToolsDBManager: Failed to find provider: com.lge.gametuner, do not register observer
+11-14 15:03:43.174   717   817 D SurfaceFlinger: duplicate layer name: changing Surface(name=d418450 com.android.systemui.ImageWallpaper)/@0xd1dae5a - animation-leash to Surface(name=d418450 com.android.systemui.ImageWallpaper)/@0xd1dae5a - animation-leash#1
+11-14 15:03:43.174   717   817 I SurfaceFlinger: create ContainerLayer(0x7766eeb000) Surface(name=d418450 com.android.systemui.ImageWallpaper)/@0xd1dae5a - animation-leash (4320 x 4320)
+11-14 15:03:43.175  2084  2084 I GameToolsDBManager: Failed to find provider: com.lge.gametuner, do not register observer
+11-14 15:03:43.177   717   817 I SurfaceFlinger: create ContainerLayer(0x7766f7d000) Surface(name=AppWindowToken{5e7b2f8 token=Token{762ea5b ActivityRecord{962a56a u0 dev.vieww.marketwatch/android.app.NativeActivity t125}}})/@0x8d7627 - animation-leash (4320 x 4320)
+11-14 15:03:43.166  1578  3419 D ActivityManager: setVisibility true ActivityRecord{962a56a u0 dev.vieww.marketwatch/android.app.NativeActivity t125}
+11-14 15:03:43.179  1578  1921 I WindowManager: Starting window displayed
+11-14 15:03:43.183  1578  1654 D LGPhoneWindowManager: [LGPWM] 1.notifyNavigationBarColor => mLastColorNavigationBar=0xffffffff
+11-14 15:03:43.185  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{dcb4c09 u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.185  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.185  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=1
+11-14 15:03:43.185  1578  1654 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@d7bc3fc
+11-14 15:03:43.189  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{dcb4c09 u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.189  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.189  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:43.189  2084  2084 I GameToolsDBManager: Failed to find provider: com.lge.gametuner, do not register observer
+11-14 15:03:43.189  2084  2084 I GameSoundHandler: setSoundMode mDBStatus = false / status = false
+11-14 15:03:43.190   717   717 I SurfaceFlinger: Removed(0x7766ee5000) ContainerLayer Surface(name=d418450 com.android.systemui.ImageWallpaper)/@0xd1dae5a - animation-leash#0 (4320 x 4320)
+11-14 15:03:43.190 12992 13076 I PBSessionCacheImpl: Deleted sessionId[57141214913092466] from persistence.
+11-14 15:03:43.192  2084  2084 I GameToolsDBManager: Failed to find provider: com.lge.gametuner, do not register observer
+11-14 15:03:43.192  2084  2084 I chatty  : uid=10117(com.android.systemui) identical 1 line
+11-14 15:03:43.193  2084  2084 I GameToolsDBManager: Failed to find provider: com.lge.gametuner, do not register observer
+11-14 15:03:43.197  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{dcb4c09 u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.197  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.197  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=1
+11-14 15:03:43.197  1578  1654 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@d7bc3fc
+11-14 15:03:43.201  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{dcb4c09 u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.201  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.201  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:43.202  2084  2293 D PhoneStatusBarPolicy: updateManagedProfile userId = 0
+11-14 15:03:43.203 12992 13067 W SearchServiceCore: Abort, client detached.
+11-14 15:03:43.203  2084  2084 I NavigationThemeResource: notify navigation bar color(0xffffffff)
+11-14 15:03:43.203  2084  2084 I NavigationThemeResource: NavigationKey Color is changed(WHITE_WITH_BORDER -> BLACK)
+11-14 15:03:43.203  2084  2084 I NavigationThemeResource:  BarMode=4, Theme=WHITE, LightBackground=true (NOT Transparent)
+11-14 15:03:43.203  2084  2084 I NavigationThemeResource: , Keyguard show=false, IME shown=false, Bar vertical=false, Panel expanded=false
+11-14 15:03:43.203  2084  2084 D StatusBar: setSystemUiVisibility vis=8008 mask=ffffffff oldVal=8708 newVal=8008 diff=700
+11-14 15:03:43.206  2084  2084 D ImageWallpaper: onVisibilityChanged: mVisible, visible=true, false
+11-14 15:03:43.206  2084  2084 D ImageWallpaper: Visibility changed to visible=false
+11-14 15:03:43.207   717   717 I SurfaceFlinger: Removed(0x7766ee8000) ContainerLayer Surface(name=AppWindowToken{6307fb token=Token{a40358a ActivityRecord{5ac73f5 u0 com.lge.launcher3/.LauncherExtension t91}}})/@0x108459e - animation-leash#0 (4320 x 4320)
+11-14 15:03:43.207   717   717 I SurfaceFlinger: Removed(0x7766eeb000) ContainerLayer Surface(name=d418450 com.android.systemui.ImageWallpaper)/@0xd1dae5a - animation-leash#1 (4320 x 4320)
+11-14 15:03:43.207   717   717 I SurfaceFlinger: Removed(0x7766f7d000) ContainerLayer Surface(name=AppWindowToken{5e7b2f8 token=Token{762ea5b ActivityRecord{962a56a u0 dev.vieww.marketwatch/android.app.NativeActivity t125}}})/@0x8d7627 - animation-leash#0 (4320 x 4320)
+11-14 15:03:43.211  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{dcb4c09 u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.211  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.211  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=1
+11-14 15:03:43.211  1578  1654 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@d7bc3fc
+11-14 15:03:43.217  1578  3147 D OverlayManager: setEnabled packageName=com.android.systemui.theme.dark enable=true userId=0
+11-14 15:03:43.219  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{dcb4c09 u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.219  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.219  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:43.224  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{dcb4c09 u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.224  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.224  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=1
+11-14 15:03:43.224  1578  1654 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@d7bc3fc
+11-14 15:03:43.229  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{dcb4c09 u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.229  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.229  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:43.238 32460 32460 D PhoneWindow: windowLightStatusBar : false, disable View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+11-14 15:03:43.238 10754 10768 D ViewRootImpl: onChangedNavigationGuardColor(), color: ffffffff
+11-14 15:03:43.238 10754 10754 D DecorView: updateNavigationGuardColor navigationGuardColor=0xffffffff
+11-14 15:03:43.249 32460 32460 I android-activity: Creating: Activity = 0x2872, saved state size = 0
+11-14 15:03:43.306 32460 32482 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"start","path":"gpu","phases":16}
+11-14 15:03:43.310 32460 32460 D OpenGLRenderer: Skia GL Pipeline
+11-14 15:03:43.318   717   817 I SurfaceFlinger: create ContainerLayer(0x7766f80000) cacb23b dev.vieww.marketwatch/android.app.NativeActivity (4320 x 4320)
+11-14 15:03:43.321 32460 32460 I TouchFilterInputStageHelper: [needTouchEventFilter] Displayid : 0
+11-14 15:03:43.325 32460 32460 D BezellessGripSuppressionFilter: getdisplaysize, x : 1080 y : 2160
+11-14 15:03:43.330  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{dcb4c09 u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.330  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.330  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=1
+11-14 15:03:43.330  1578  1654 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@d7bc3fc
+11-14 15:03:43.332   717   818 I SurfaceFlinger: create BufferLayer(0x7766f43000) dev.vieww.marketwatch/android.app.NativeActivity (1080 x 2160)
+11-14 15:03:43.334  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{cacb23b u0 dev.vieww.marketwatch/android.app.NativeActivity}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.335  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.335  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:43.335  1578  3147 D InputDispatcher: Focus entered window: Window{cacb23b u0 dev.vieww.marketwatch/android.app.NativeActivity}
+11-14 15:03:43.340 10754 10768 D ViewRootImpl: onChangedNavigationGuardColor(), color: ffffffff
+11-14 15:03:43.341 10754 10754 D DecorView: updateNavigationGuardColor navigationGuardColor=0xffffffff
+11-14 15:03:43.348 32460 32460 I Timeline: Timeline: Activity_idle id: android.os.BinderProxy@e9a8bcf time:28212469
+11-14 15:03:43.348  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{cacb23b u0 dev.vieww.marketwatch/android.app.NativeActivity}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.348  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.348  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=1
+11-14 15:03:43.348  1578  1654 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@d7bc3fc
+11-14 15:03:43.352  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{cacb23b u0 dev.vieww.marketwatch/android.app.NativeActivity}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.352  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.352  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:43.357  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{cacb23b u0 dev.vieww.marketwatch/android.app.NativeActivity}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.357  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.357  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=1
+11-14 15:03:43.357  1578  1654 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@d7bc3fc
+11-14 15:03:43.361   717   817 I SurfaceFlinger: create ContainerLayer(0x7766f83000) Surface(name=dcb4c09 Splash Screen dev.vieww.marketwatch)/@0x50ca704 - animation-leash (4320 x 4320)
+11-14 15:03:43.365  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{cacb23b u0 dev.vieww.marketwatch/android.app.NativeActivity}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.365  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.365  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:43.366  1578  1921 D InputDispatcher: Window went away: Window{dcb4c09 u0 Splash Screen dev.vieww.marketwatch}
+11-14 15:03:43.368 32460 32488 D vulkan  : searching for layers in '/data/app/dev.vieww.marketwatch-XvNwJVdUa26TAZec3ru5tQ==/lib/arm64'
+11-14 15:03:43.368 32460 32488 D vulkan  : searching for layers in '/data/app/dev.vieww.marketwatch-XvNwJVdUa26TAZec3ru5tQ==/base.apk!/lib/arm64-v8a'
+11-14 15:03:43.368  1578  1665 I ActivityManager: Displayed dev.vieww.marketwatch/android.app.NativeActivity: +262ms
+11-14 15:03:43.373  1578  1653 D ActivityManager: setVisibility false ActivityRecord{5ac73f5 u0 com.lge.launcher3/.LauncherExtension t91}
+11-14 15:03:43.376 32460 32474 I eww.marketwatc: Explicit concurrent copying GC freed 26705(8MB) AllocSpace objects, 1(20KB) LOS objects, 91% free, 1179KB/13MB, paused 189us total 36.897ms
+11-14 15:03:43.379  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{cacb23b u0 dev.vieww.marketwatch/android.app.NativeActivity}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.379  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.379  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=1
+11-14 15:03:43.379  1578  1654 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@d7bc3fc
+11-14 15:03:43.379   717   818 W SurfaceFlinger: Attempting to set client state on removed layer: Splash Screen dev.vieww.marketwatch#0
+11-14 15:03:43.379   717   818 W SurfaceFlinger: Attempting to destroy on removed layer: Splash Screen dev.vieww.marketwatch#0
+11-14 15:03:43.379 32460 32488 I Adreno  : QUALCOMM build          : 50f1b2d, I1b05bd271c
+11-14 15:03:43.379 32460 32488 I Adreno  : Build Date              : 03/26/19
+11-14 15:03:43.379 32460 32488 I Adreno  : Shader Compiler Version : EV031.25.03.03
+11-14 15:03:43.379 32460 32488 I Adreno  : Local Branch            : 
+11-14 15:03:43.379 32460 32488 I Adreno  : Remote Branch           : 
+11-14 15:03:43.379 32460 32488 I Adreno  : Remote Branch           : 
+11-14 15:03:43.379 32460 32488 I Adreno  : Reconstruct Branch      : 
+11-14 15:03:43.379 32460 32488 I Adreno  : Build Config                     : S L 6.0.7 AArch64
+11-14 15:03:43.386   538   538 W hwservicemanager: getTransport: Cannot find entry vendor.display.config@1.7::IDisplayConfig/default in either framework or device manifest.
+11-14 15:03:43.386 32460 32482 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+11-14 15:03:43.386 32460 32482 I chatty  : uid=10237(dev.vieww.marketwatch) android_main identical 2 lines
+11-14 15:03:43.386 32460 32482 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+11-14 15:03:43.389   717   717 I SurfaceFlinger: Removed(0x7766ec3000) ContainerLayer dcb4c09 Splash Screen dev.vieww.marketwatch#0 (4320 x 4320)
+11-14 15:03:43.389   717   717 I SurfaceFlinger: Removed(0x7766ec6000) BufferLayer Splash Screen dev.vieww.marketwatch#0 (1080 x 2160)
+11-14 15:03:43.389   717   717 I SurfaceFlinger: Removed(0x7766f83000) ContainerLayer Surface(name=dcb4c09 Splash Screen dev.vieww.marketwatch)/@0x50ca704 - animation-leash#0 (4320 x 4320)
+11-14 15:03:43.389  8770  8770 I [LGHome6]EditModeOffManager: EditModeOffManager is not running
+11-14 15:03:43.389  8770  8770 I [LGHome6]StateManager: goToState(): LauncherState - 0(0), animated=false, delay=0, onCompleteRunnable=null
+11-14 15:03:43.391  8770  8811 I [LGHome6]OverviewFlags: applyBackButtonAlpha(): alpha = 1.00, animate = true
+11-14 15:03:43.392  2084  2084 D OverviewProxyService: notifyBackButtonAlphaChanged() : mConnectionCallbacks.size() = 1
+11-14 15:03:43.392  2084  2084 I NavigationBar: onBackButtonAlphaChanged(): alpha = 1.00, animate = true
+11-14 15:03:43.393  1578  1654 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@d7bc3fc, pkg=Window{cacb23b u0 dev.vieww.marketwatch/android.app.NativeActivity}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@3951b10
+11-14 15:03:43.393  1578  1654 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-14 15:03:43.393  1578  1654 I SystemUI[Framework]:   mDisableRecords.size=0
+11-14 15:03:43.393   645   645 I SDM     : HWCDisplay::GetColorModeCount: Supported color mode count = 1
+11-14 15:03:43.393   645   645 I SDM     : HWCDisplay::GetColorModes: Supports color mode[0] = 0
+11-14 15:03:43.395   538   538 W hwservicemanager: getTransport: Cannot find entry vendor.display.config@1.7::IDisplayConfig/default in either framework or device manifest.
+11-14 15:03:43.396 32460 32482 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+11-14 15:03:43.396   645   645 I SDM     : HWCDisplay::GetColorModeCount: Supported color mode count = 1
+11-14 15:03:43.396   645   645 I SDM     : HWCDisplay::GetColorModes: Supports color mode[0] = 0
+11-14 15:03:43.396 32460 32482 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+11-14 15:03:43.402  2084  2084 I VoicePrintManager: service is null
+11-14 15:03:43.402  2084  2084 W VoicePrintManager: [mgr] registerStateCallback is failed and retrying (count=56118)
+11-14 15:03:43.422   717   717 I SurfaceFlinger: Removed(0x7766fdf000) BufferLayer com.lge.launcher3/com.lge.launcher3.LauncherExtension#0 (1080 x 2160)
+11-14 15:03:43.434 32460 32482 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"surface","w":411,"h":823,"t":127.4}
+11-14 15:03:43.435 32460 32482 I vieww   : vieww_platform_winit::insets: display refresh: no display, or below API 30
+11-14 15:03:43.435 32460 32482 I vieww   : vieww_platform_winit::app: vieww: window#primary is on Android Device, which reports no refresh rate; keeping the current budget
+11-14 15:03:43.435 32460 32482 I vieww   : vieww_platform_winit::insets: window insets: device is below API 30, reporting none (asked once)
+11-14 15:03:43.436 32460 32482 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load2k","t":129.4}
+11-14 15:03:43.572 32460 32482 I vieww   : vieww_platform_winit::perf_hint: vieww: performance hint unavailable (Android 12 or older: no APerformanceHint)
+11-14 15:03:43.572 32460 32482 I vieww   : vieww_platform_winit::a11y_android: a11y: device is API 28, and the injected delegate needs 29; TalkBack will not see this tree
+11-14 15:03:43.677   645   645 I SDM     : HWCDisplay::GetColorModeCount: Supported color mode count = 1
+11-14 15:03:43.677   645   645 I SDM     : HWCDisplay::GetColorModes: Supports color mode[0] = 0
+11-14 15:03:43.677 32460 32482 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+11-14 15:03:43.678   645   645 I SDM     : HWCDisplay::GetColorModeCount: Supported color mode count = 1
+11-14 15:03:43.678   645   645 I SDM     : HWCDisplay::GetColorModes: Supports color mode[0] = 0
+11-14 15:03:43.678 32460 32482 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
