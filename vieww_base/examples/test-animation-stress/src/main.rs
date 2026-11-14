@@ -31,6 +31,18 @@ const HEIGHT: f32 = 760.0;
 const FRAMES: usize = 72;
 const FRAME_MS: u16 = 40;
 
+/// Frames rendered and discarded before the measured `FRAMES`, so the
+/// measurement is the sustained behaviour the budget certifies and not the
+/// machine's first contact with the binary: the first render pays the
+/// NativeRenderer's one-time setup, the allocator's growth and the page
+/// faults of a cold binary, and the CPU governor is still ramping. The
+/// 2026-11-14 Linux leg's first run measured p95 16.99 ms against a 16.6 ms
+/// budget while the identical second run a minute later measured 15.89 —
+/// nothing in the code changed between them. Twelve frames (about a fifth
+/// of a second at the stress cadence) absorbs that; the machine's
+/// performance, not its wake-up, is what the gate should fail.
+const WARMUP_FRAMES: usize = 12;
+
 /// The 60 Hz frame budget, in milliseconds — the number every measured
 /// frame is held against. Debug-profile render times are measured with the
 /// pixel-facing crates compiled optimised (the workspace profile does
@@ -71,6 +83,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut renderer = NativeRenderer::new();
     let mut frames: Vec<Vec<u8>> = Vec::with_capacity(FRAMES);
     let mut frame_times: Vec<f64> = Vec::with_capacity(FRAMES);
+
+    // The warm-up: the same animation, the same render path, discarded.
+    // Only the frames after this are measured, kept and compared.
+    for frame in 0..WARMUP_FRAMES {
+        let t = frame as f32 / WARMUP_FRAMES as f32;
+        clock.set(t);
+        for (index, phase) in phases.iter().enumerate() {
+            if (index + frame) % 4 == 0 {
+                phase.set((t * PI * 2.0 + index as f32 * 0.13).sin());
+            }
+        }
+        driver.draw_frame_at(Duration::from_secs_f32(t * 2.4));
+        let _ = renderer.render_to_pixels(driver.scene(), WIDTH as u32, HEIGHT as u32, BG)?;
+    }
 
     for frame in 0..FRAMES {
         let t = frame as f32 / FRAMES as f32;
