@@ -1,12 +1,12 @@
 # 3 · Build — SUCCESS
 
-- branch: `main`  sha: `88be52575ccfb92e8fbeaf4d4c48792a26f2e854`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/43576335670
+- branch: `main`  sha: `36a4eb79c844acfaf95caa26e9895aac77f55896`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/43577988171
 
 | job | verdict | failed steps |
 |---|---|---|
 | plan / plan | PASS |  |
-| phase-1 / wright · installers (windows-x64) | PASS |  |
+| phase-1 / wright · installers (linux-x64) | PASS |  |
 | phase-1 / approve | skipped |  |
 | phase-1 / matrix.title | skipped |  |
 | results / publish | running |  |
@@ -23,9 +23,9 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-1 / wright · installers (windows-x64) — PASS
+### phase-1 / wright · installers (linux-x64) — PASS
 - PASS: Set up job
-- PASS: Long paths (Windows)
+- skipped: Long paths (Windows)
 - PASS: Run actions/checkout@v4
 - PASS: Python for the runner (GitHub's machines)
 - PASS: Python for the runner (self-host machines)
@@ -41,7 +41,7 @@
 - skipped: AWS credentials (access keys)
 - skipped: Run actions/download-artifact@v4
 - skipped: Run actions/download-artifact@v4
-- PASS: wright · installers (windows-x64)
+- PASS: wright · installers (linux-x64)
 - skipped: Android emulator
 - skipped: Build provenance (Sigstore, keyless)
 - skipped: After
@@ -66,4 +66,4 @@
 
 ### phase-3 — skipped
 
-- artifacts: screens-windows-x64 wright-1.0.0-windows-x64 
+- artifacts: screens-linux-x64 wright-1.0.0-linux-x64 
