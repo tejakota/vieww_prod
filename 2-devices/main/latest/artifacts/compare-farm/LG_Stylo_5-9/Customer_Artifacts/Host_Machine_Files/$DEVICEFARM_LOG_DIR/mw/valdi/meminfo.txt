@@ -1,48 +1,48 @@
 Applications Memory Usage (in Kilobytes):
-Uptime: 11414377 Realtime: 11414377
+Uptime: 8738990 Realtime: 8738990
 
-** MEMINFO in pid 32334 [com.snap.valdi.marketwatch] **
+** MEMINFO in pid 30359 [com.snap.valdi.marketwatch] **
                    Pss  Private  Private  SwapPss     Heap     Heap     Heap
                  Total    Dirty    Clean    Dirty     Size    Alloc     Free
                 ------   ------   ------   ------   ------   ------   ------
-  Native Heap   193204   193164        0       41   202752   192495    10256
-  Dalvik Heap     4757     4744        0       38    14282     1994    12288
- Dalvik Other     1096     1096        0        0                           
+  Native Heap   190816   190744        0       53   198656   190633     8022
+  Dalvik Heap     4363     4348        0       57    14250     1962    12288
+ Dalvik Other     1080     1080        0        1                           
         Stack       56       56        0        0                           
        Ashmem       12        0       12        0                           
-      Gfx dev     5040     5040        0        0                           
+      Gfx dev     5160     5160        0        0                           
     Other dev        2        0        0        0                           
-     .so mmap    13263      552     9668       25                           
-    .apk mmap     1329        0      988        0                           
-    .ttf mmap      159        0      140        0                           
-    .dex mmap     6463        4     5452        0                           
-    .oat mmap     1471        0      668        0                           
-    .art mmap     1865      792      500        5                           
-   Other mmap      113        4       76        0                           
+     .so mmap    10983      524     7236       28                           
+    .apk mmap      505        0       48        0                           
+    .ttf mmap      140        0      112        0                           
+    .dex mmap     5006        4     3924        0                           
+    .oat mmap     1312        0      472        0                           
+    .art mmap     1427      788      116       10                           
+   Other mmap       72        4       24        0                           
    EGL mtrack    27744    27744        0        0                           
-    GL mtrack     3896     3896        0        0                           
-      Unknown      913      904        0        1                           
-        TOTAL   261493   237996    17504      110   217034   194489    22544
+    GL mtrack     3968     3968        0        0                           
+      Unknown      931      920        0        1                           
+        TOTAL   253727   235340    11944      150   212906   192595    20310
  
  App Summary
                        Pss(KB)
                         ------
-           Java Heap:     6036
-         Native Heap:   193164
-                Code:    17472
+           Java Heap:     5252
+         Native Heap:   190744
+                Code:    12320
                Stack:       56
-            Graphics:    36680
-       Private Other:     2092
-              System:     5993
+            Graphics:    36872
+       Private Other:     2040
+              System:     6443
  
-               TOTAL:   261493       TOTAL SWAP PSS:      110
+               TOTAL:   253727       TOTAL SWAP PSS:      150
  
  Objects
                Views:      151         ViewRootImpl:        1
          AppContexts:        6           Activities:        1
-              Assets:       13        AssetManagers:        0
+              Assets:        7        AssetManagers:        0
        Local Binders:        9        Proxy Binders:       27
-       Parcel memory:        2         Parcel count:       10
+       Parcel memory:        3         Parcel count:       12
     Death Recipients:        0      OpenSSL Sockets:        0
             WebViews:        0
  
@@ -50,11 +50,3 @@ Uptime: 11414377 Realtime: 11414377
          MEMORY_USED:        0
   PAGECACHE_OVERFLOW:        0          MALLOC_SIZE:        0
  
- 
- Asset Allocations
-    : 196K
-    : 124K
-    : 196K
-    : 196K
-    : 196K
-    : 123K

@@ -1,7 +1,7 @@
 # 2 · Devices — FAILURE
 
-- branch: `main`  sha: `5044be2a0ca47e7073c8d9b26635d11a49960b16`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/43625220878
+- branch: `main`  sha: `3a884f1abb62f29531e7e930988aee7eab157153`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/43628077956
 
 | job | verdict | failed steps |
 |---|---|---|
@@ -11,8 +11,8 @@
 | phase-1 / matrix.title | skipped |  |
 | phase-1 / approve | skipped |  |
 | phase-2 / Market Watch · compare-farm | FAIL | Market Watch · compare-farm |
-| phase-2 / matrix.title | skipped |  |
 | phase-2 / approve | skipped |  |
+| phase-2 / matrix.title | skipped |  |
 | phase-3 / Market Watch · compare-report | PASS |  |
 | phase-3 / matrix.title | skipped |  |
 | phase-3 / approve | skipped |  |
@@ -129,9 +129,9 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-2 / matrix.title — skipped
-
 ### phase-2 / approve — skipped
+
+### phase-2 / matrix.title — skipped
 
 ### phase-3 / Market Watch · compare-report — PASS
 - PASS: Set up job
@@ -169,9 +169,9 @@
 ### phase-3 / approve — skipped
 
 ### results / publish — running
-- PASS: Set up job
+- running: Set up job
 - running: Collect the run
 - running: Run actions/checkout@v4
 - running: Write to the ci-results branch
 
-- artifacts: compare-farm compare-valdi-apk compare-vieww-apk 
+- artifacts: compare-farm compare-vieww-apk compare-valdi-apk 
