@@ -1,12 +1,12 @@
-# 3 · Build — FAILURE
+# 3 · Build — SUCCESS
 
 - branch: `main`  sha: `88be52575ccfb92e8fbeaf4d4c48792a26f2e854`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/43576232538
+- run: https://github.com/tejakota/vieww_prod/actions/runs/43576335670
 
 | job | verdict | failed steps |
 |---|---|---|
 | plan / plan | PASS |  |
-| phase-1 / wright · installers (linux-x64) | FAIL | wright · installers (linux-x64) |
+| phase-1 / wright · installers (windows-x64) | PASS |  |
 | phase-1 / approve | skipped |  |
 | phase-1 / matrix.title | skipped |  |
 | results / publish | running |  |
@@ -23,9 +23,9 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-1 / wright · installers (linux-x64) — FAIL
+### phase-1 / wright · installers (windows-x64) — PASS
 - PASS: Set up job
-- skipped: Long paths (Windows)
+- PASS: Long paths (Windows)
 - PASS: Run actions/checkout@v4
 - PASS: Python for the runner (GitHub's machines)
 - PASS: Python for the runner (self-host machines)
@@ -41,17 +41,17 @@
 - skipped: AWS credentials (access keys)
 - skipped: Run actions/download-artifact@v4
 - skipped: Run actions/download-artifact@v4
-- FAIL: wright · installers (linux-x64)
+- PASS: wright · installers (windows-x64)
 - skipped: Android emulator
 - skipped: Build provenance (Sigstore, keyless)
 - skipped: After
-- skipped: Run actions/upload-artifact@v4
+- PASS: Run actions/upload-artifact@v4
 - PASS: Run actions/upload-artifact@v4
 - skipped: Run actions/upload-artifact@v4
 - skipped: Run actions/upload-artifact@v4
-- skipped: Post Run actions/cache@v4
-- skipped: Post Python for the runner (self-host machines)
-- skipped: Post Python for the runner (GitHub's machines)
+- PASS: Post Run actions/cache@v4
+- PASS: Post Python for the runner (self-host machines)
+- PASS: Post Python for the runner (GitHub's machines)
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
@@ -60,13 +60,10 @@
 ### phase-1 / matrix.title — skipped
 
 ### results / publish — running
-- PASS: Set up job
-- running: Collect the run
-- running: Run actions/checkout@v4
-- running: Write to the ci-results branch
+- running: Set up job
 
 ### phase-2 — skipped
 
 ### phase-3 — skipped
 
-- artifacts: 
+- artifacts: screens-windows-x64 wright-1.0.0-windows-x64 
