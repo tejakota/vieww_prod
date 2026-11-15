@@ -1703,6 +1703,11 @@ impl SceneRenderer {
             open: None,
             width,
             height,
+            frame_area: self
+                .frame_clip
+                .as_deref()
+                .and_then(|clip| damage_area(clip, width, height))
+                .unwrap_or_else(|| full_rect(width, height)),
         };
         // Which pipeline (and its descriptor set and buffers) is bound, so a
         // run of same-kind ops binds once — the dedup the traversal's single
@@ -2336,6 +2341,16 @@ struct Recorder {
     open: Option<TargetId>,
     width: u32,
     height: u32,
+    /// The render area of a pass into `L[0]`: the bounds of the frame's
+    /// damage when it redraws only that, the whole frame otherwise.
+    ///
+    /// On a tiled GPU (every phone) the render area is what a pass loads
+    /// from and stores back to memory, tile by tile. Full-frame, a pass over
+    /// the RGBA16F frame moved ~20 MB each way however little it drew —
+    /// ~30 ms of "draw" on the Redmi's Adreno 612 for one changed row, the
+    /// same as for a whole screen. Everything a damaged frame draws into
+    /// `L[0]` is scissored inside the damage, so the area loses nothing.
+    frame_area: vk::Rect2D,
 }
 
 impl Recorder {
@@ -2353,7 +2368,11 @@ impl Recorder {
                 renderer.rp_load
             })
             .framebuffer(renderer.target(target).framebuffer)
-            .render_area(full_rect(self.width, self.height))
+            .render_area(if target == TargetId::Level(0) {
+                self.frame_area
+            } else {
+                full_rect(self.width, self.height)
+            })
             .clear_values(&clear_values);
         #[allow(clippy::cast_precision_loss)]
         let viewport = vk::Viewport {
@@ -2854,6 +2873,25 @@ fn carried_pairs(
         .collect()
 }
 
+/// The bounds of `clip`, clamped to the frame, as a render area — `None`
+/// when nothing is left, which leaves the area whole (a damaged frame with
+/// no damage draws nothing into it either way).
+fn damage_area(clip: &[PixelRect], width: u32, height: u32) -> Option<vk::Rect2D> {
+    #[expect(clippy::cast_possible_wrap, reason = "frame extents are small")]
+    let frame = PixelRect { x0: 0, y0: 0, x1: width as i32, y1: height as i32 };
+    let bounds = clip
+        .iter()
+        .map(|r| r.intersect(frame))
+        .filter(|r| !r.is_empty())
+        .reduce(|a, b| PixelRect {
+            x0: a.x0.min(b.x0),
+            y0: a.y0.min(b.y0),
+            x1: a.x1.max(b.x1),
+            y1: a.y1.max(b.y1),
+        })?;
+    Some(pixel_scissor(bounds))
+}
+
 /// `rect` (already inside the frame) as a scissor.
 const fn pixel_scissor(rect: PixelRect) -> vk::Rect2D {
     vk::Rect2D {
@@ -2976,6 +3014,18 @@ fn pick_memory_type(
 #[cfg(test)]
 mod tests {
     use crate::scene_exec::half_to_f32;
+
+    /// A damaged frame's passes into `L[0]` load and store only the damage's
+    /// bounds, clamped to the frame — on a tiled GPU, that is the cost.
+    #[test]
+    fn the_frame_render_area_is_the_damage_bounds() {
+        use super::{damage_area, PixelRect};
+        let r = |x0, y0, x1, y1| PixelRect { x0, y0, x1, y1 };
+        let area = damage_area(&[r(10, 100, 50, 140), r(-5, 300, 2000, 320)], 1080, 2340).unwrap();
+        assert_eq!((area.offset.x, area.offset.y), (0, 100));
+        assert_eq!((area.extent.width, area.extent.height), (1080, 220));
+        assert!(damage_area(&[r(2000, 0, 2100, 10)], 1080, 2340).is_none());
+    }
 
     /// A scroll's copy keeps its delta when the frame edge cuts it: the
     /// source shrinks to the rows that land on the frame, the destination is

@@ -216,6 +216,12 @@ impl Target {
         self.write_mask = region;
     }
 
+    /// The region writes are confined to, when a damaged frame is replaying
+    /// one: a caller that knows it need not compute what cannot land.
+    pub(crate) const fn write_mask(&self) -> Option<(i32, i32, i32, i32)> {
+        self.write_mask
+    }
+
     /// The horizontal and vertical ranges a write may land in.
     fn writable(&self) -> (i32, i32, i32, i32) {
         match self.write_mask {

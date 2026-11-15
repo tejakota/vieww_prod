@@ -771,7 +771,15 @@ impl Widget for ScrolledList {
                 rows,
                 ROW_H,
                 Rc::new(move |i: usize| {
+                    // Keyed by index: the list reconciles rows by position,
+                    // and the row at each position changes every time one
+                    // scrolls out. Unkeyed, that frame — one in ten of a
+                    // scroll — re-described every visible row as its
+                    // neighbour: every price cell and sparkline re-recorded
+                    // and 40% of the screen repainted, for a list that had
+                    // moved eight pixels.
                     RepaintBoundary::new()
+                        .key(vieww_foundation::Key::Int(i as i64))
                         .child(Row {
                             quote: quotes[i].clone(),
                             width,

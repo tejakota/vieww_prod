@@ -929,9 +929,30 @@ impl LayerTree {
         for id in repainted {
             let layer = self.layer(id);
             let transform = self.screen_transform(id);
-            if layer.bounds_damage || transform != layer.last_screen_transform {
+            if layer.bounds_damage {
                 damage.add(layer.last_screen_bounds);
                 damage.add(self.screen_bounds(id));
+            } else if transform != layer.last_screen_transform {
+                // A layer that moved without being carried shows only what
+                // its ancestors' clip lets through, so that is all it can
+                // have changed. Unclipped, a virtualised list's cache rows —
+                // parked above and below the viewport, sliding with every
+                // scroll step and never once visible — damaged the header
+                // over them and the strip under the list on every frame of
+                // a scroll: a quarter of the phone's screen redrawn for
+                // pixels no row drew.
+                //
+                // Where it sits now is held to the clip as it is now. Where
+                // it sat is held to it only while that clip is known to be
+                // where it was — no ancestor moved or changed its effect.
+                let clip = self.ancestor_clip(id);
+                let held = |rect: Rect| clip.map_or(rect, |clip| rect.intersect(clip));
+                if self.ancestors_settled(id) {
+                    damage.add(held(layer.last_screen_bounds));
+                } else {
+                    damage.add(layer.last_screen_bounds);
+                }
+                damage.add(held(self.screen_bounds(id)));
             } else {
                 damage.add_between(&layer.previous, &layer.scene, transform);
             }
@@ -967,6 +988,22 @@ impl LayerTree {
             Some(clip) => extent.intersect(clip),
             None => extent,
         }
+    }
+
+    /// Whether every ancestor of `id` is where the last frame left it, with
+    /// the effect it had: the condition under which
+    /// [`ancestor_clip`](Self::ancestor_clip) also describes the clip the
+    /// *previous* frame drew `id` through.
+    fn ancestors_settled(&self, id: LayerId) -> bool {
+        let mut current = self.layer(id).parent;
+        while let Some(parent) = current {
+            let layer = self.layer(parent);
+            if layer.bounds_damage || self.screen_transform(parent) != layer.last_screen_transform {
+                return false;
+            }
+            current = layer.parent;
+        }
+        true
     }
 
     /// The clip `id`'s ancestors declare, in screen space, or `None` when none

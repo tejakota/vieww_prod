@@ -112,6 +112,8 @@ runner's own per-phase measurements.
 | `src/lib.rs` | the Vieww screen, model, schedule |
 | `src/main.rs` | a development tool: the schedule headless, `cargo run --release -p market-watch -- OUT [--thermal]` |
 | `examples/android.rs` | the Vieww phone app |
+| `examples/gpu_plan.rs` | a development tool: what the GPU path is asked to redraw, carry and overdraw per phase at a phone's size and density, with no GPU — `cargo run --release -p market-watch --example gpu_plan -- [--size 393x851] [--dpr 2.75]` |
+| `tests/retained_scroll.rs` | a scroll drawn by its damage shows the full frames, at 1x and 2.75x, and does carry |
 | `compare/valdi/` | the Valdi app, `checkout.sh` (pins and prepares a Valdi tree), `release-flags.mjs` (Valdi's release flags) |
 | `device-farm/` | the farm's test spec, the on-phone runner, the package builder |
 | `compare_report.py` | raw output → `COMPARE.md`; `--self-test` checks its parsers |

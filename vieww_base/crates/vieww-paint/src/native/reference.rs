@@ -64,6 +64,12 @@ impl fmt::Display for RendererError {
 
 impl std::error::Error for RendererError {}
 
+/// The pixels one more region replay is worth: the fixed cost of walking
+/// the scene and setting up the commands a small region touches, in units of
+/// repainted pixels. Measured on market-watch at 1081x2340 — a thin region's
+/// replay ~0.1-0.2 ms, repainting ~14 ns a pixel.
+const REPLAY_WORTH_PX: f32 = 16_384.0;
+
 /// Merge damage regions for the CPU's retained repaint.
 ///
 /// # Why the renderer merges what `Damage` kept apart
@@ -78,10 +84,21 @@ impl std::error::Error for RendererError {}
 /// replays: measured at 1280x800, 171 ms against 31 ms for the whole window
 /// from scratch, and 926 ms at a device ratio of 2.
 ///
-/// So regions are merged while the union is no bigger than the two pieces
-/// together, twice over: the pixels wasted are at most the pixels repainted,
-/// and one replay is saved per merge. Neighbouring strips (the usual case)
-/// merge for a few slivers of waste; two changes in far corners stay apart.
+/// So regions are merged while the pixels the merge wastes are few: at most
+/// a quarter of the two pieces, plus what one replay is worth. Neighbouring
+/// strips (the usual case) merge for a few slivers of waste; two changes in
+/// far corners stay apart.
+///
+/// The allowance was "the union is at most twice the pieces" until a replay
+/// stopped rasterising shapes outside its region (`paint_shape`) and stopped
+/// opening layers that miss it (`skippable_layers`). With replays that
+/// expensive, doubling the pixels to save one was a bargain; it also
+/// compounded — each merge made a bigger piece that licensed a bigger next
+/// one — and a live list's frame (the band a row leaves through, a strip,
+/// six price cells) snowballed into one region over 86% of the screen on
+/// six frames in ten, costing more than a full repaint. A replay now costs
+/// about what [`REPLAY_WORTH_PX`] pixels do, so that is what a merge may
+/// spend to save one.
 fn coalesce_for_replay(mut regions: Vec<Rect>) -> Vec<Rect> {
     loop {
         let mut best: Option<(usize, usize, f32)> = None;
@@ -89,7 +106,10 @@ fn coalesce_for_replay(mut regions: Vec<Rect>) -> Vec<Rect> {
             for j in (i + 1)..regions.len() {
                 let (a, b) = (regions[i], regions[j]);
                 let union = a.union(b).area();
-                if union <= 2.0 * (a.area() + b.area()) && best.is_none_or(|(_, _, u)| union < u) {
+                let pieces = a.area() + b.area();
+                if union - pieces <= 0.25 * pieces + REPLAY_WORTH_PX
+                    && best.is_none_or(|(_, _, u)| union < u)
+                {
                     best = Some((i, j, union));
                 }
             }
@@ -101,6 +121,46 @@ fn coalesce_for_replay(mut regions: Vec<Rect>) -> Vec<Rect> {
         let a = regions.swap_remove(i);
         regions.push(a.union(b));
     }
+}
+
+/// For each `PushLayer` a region replay may skip when the layer's bounds miss
+/// the region, the index of its `PopLayer`; `None` everywhere else.
+///
+/// A replay used to open, clear and composite every layer in the scene for
+/// every region, whether or not the layer came near it — on a list whose
+/// rows are layers, each region cost most of a frame, and a live feed's ten
+/// small regions cost more than repainting the screen (the Redmi's CPU path,
+/// 2026-11-15: 63 ms a frame for a fifth of the pixels, against 55 ms in
+/// full).
+///
+/// Only a plain group qualifies: source-over and unfiltered, where
+/// compositing nothing changes nothing. A filter reaches past the bounds it
+/// was given, and the other blend modes can change the destination with an
+/// empty source, so those are always replayed, as before. A layer's bounds
+/// are the union of what it encloses, so missing the region means every
+/// command inside misses it too.
+fn skippable_layers(commands: &[Command]) -> Vec<Option<usize>> {
+    let mut ends = vec![None; commands.len()];
+    let mut open: Vec<(usize, bool)> = Vec::new();
+    for (index, command) in commands.iter().enumerate() {
+        match command {
+            Command::PushLayer { blend, filter, .. } => {
+                open.push((
+                    index,
+                    *blend == vieww_foundation::BlendMode::Normal && filter.is_noop(),
+                ));
+            }
+            Command::PopLayer => {
+                if let Some((push, plain)) = open.pop() {
+                    if plain {
+                        ends[push] = Some(index);
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    ends
 }
 
 /// [`NativeRenderer::glyph_raster_cache_stats`].
@@ -931,6 +991,7 @@ impl NativeRenderer {
 
         let clear = Premul::from_straight(base);
         let mut failure = None;
+        let layer_ends = skippable_layers(scene.commands());
 
         for region in regions {
             let region = region.intersect(full);
@@ -964,7 +1025,20 @@ impl NativeRenderer {
             // Commands that cannot reach this region at all are skipped —
             // this is the work a damaged frame actually saves.
             let mut stack: Vec<LayerFrame> = Vec::new();
-            for command in scene.commands() {
+            let commands = scene.commands();
+            let mut index = 0;
+            while index < commands.len() {
+                let command = &commands[index];
+                // A plain group that cannot reach this region is skipped
+                // whole, its target never acquired — see `skippable_layers`.
+                if let Some(pop) = layer_ends[index] {
+                    if command.bounds().intersect(region_rect).is_empty() {
+                        report.skipped_commands += pop - index + 1;
+                        index = pop + 1;
+                        continue;
+                    }
+                }
+                index += 1;
                 let is_layer = matches!(command, Command::PushLayer { .. } | Command::PopLayer);
                 if !is_layer && command.bounds().intersect(region_rect).is_empty() {
                     report.skipped_commands += 1;
@@ -1945,11 +2019,34 @@ impl NativeRenderer {
         // a rounded rectangle takes its closed-form mask instead — the same
         // bytes, the middle band computed as spans rather than walked
         // (`geometry/fill.rs` holds the equivalence oracle).
+        //
+        // **Under a region replay, only the region is rasterised.** The
+        // write mask already stops a shape's pixels landing outside the
+        // region being repainted; until this, the shape's whole coverage was
+        // still walked and composited first. A row's card is a few hundred
+        // thousand device pixels and a ticking price cell inside it a few
+        // thousand, so a live feed's ten small regions each paid for a whole
+        // card — the replay cost more than the full frame it was avoiding
+        // (the Redmi's CPU path, 2026-11-15). Coverage is per pixel, so the
+        // narrower box yields the same values where the two overlap. It
+        // bypasses the fill cache: a region is not a key worth keeping.
+        let mut bound = clip_bounds(clip, surface);
+        let mut narrowed = false;
+        if let (Some((x0, y0, x1, y1)), (0, 0)) = (target.write_mask(), origin) {
+            #[expect(clippy::cast_precision_loss, reason = "surface pixel coordinates")]
+            let region = Rect::new(x0 as f32, y0 as f32, x1 as f32, y1 as f32);
+            let held = bound.intersect(region);
+            if held.is_empty() {
+                return;
+            }
+            narrowed = held != bound;
+            bound = held;
+        }
         let mask = match rrect {
-            Some(rr) => self
-                .fills
-                .coverage_rrect(polylines, clip_bounds(clip, surface), rr),
-            None => self.fills.coverage(polylines, clip_bounds(clip, surface)),
+            Some(rr) if narrowed => super::geometry::fill::rrect_mask(rr, polylines, bound),
+            None if narrowed => super::geometry::fill::rasterize(polylines, bound),
+            Some(rr) => self.fills.coverage_rrect(polylines, bound, rr),
+            None => self.fills.coverage(polylines, bound),
         };
         if mask.is_empty() {
             return;

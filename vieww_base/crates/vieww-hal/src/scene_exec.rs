@@ -291,11 +291,52 @@ pub struct Retained {
     pub clear: Color,
 }
 
-/// More damage rectangles than this and the frame redraws their bounding
-/// box instead: every rectangle repeats each top-level draw call under its
-/// own scissor, and past a handful the repeated vertex work costs more than
-/// the pixels saved.
+/// More damage rectangles than this and the closest ones are merged until
+/// this many are left ([`reduce_clip`]): every rectangle repeats each
+/// top-level draw call under its own scissor, and past a handful the
+/// repeated vertex work costs more than the pixels saved.
 const MAX_CLIP_RECTS: usize = 8;
+
+/// Bring a disjoint `clip` down to at most `max` rectangles by merging the
+/// pair whose union adds the fewest pixels, again and again, absorbing
+/// whatever each union comes to overlap so the result stays disjoint.
+///
+/// This used to be "more than `max`, so the bounding box of all of them".
+/// On a fill-bound phone that is the expensive answer to a cheap question: a
+/// live feed's frame is a scrolled-in strip, a rim and three ticking rows'
+/// price cells — ten small rectangles spread over the list — and their
+/// bounding box is the whole list, so one rectangle too many turned a frame
+/// that changed a tenth of the screen into one that redrew all of it.
+fn reduce_clip(clip: &mut Vec<PixelRect>, max: usize) {
+    let area = |r: PixelRect| i64::from(r.width()) * i64::from(r.height());
+    let union = |a: PixelRect, b: PixelRect| PixelRect {
+        x0: a.x0.min(b.x0),
+        y0: a.y0.min(b.y0),
+        x1: a.x1.max(b.x1),
+        y1: a.y1.max(b.y1),
+    };
+    while clip.len() > max.max(1) {
+        let mut best: Option<(usize, usize, i64)> = None;
+        for i in 0..clip.len() {
+            for j in i + 1..clip.len() {
+                let waste = area(union(clip[i], clip[j])) - area(clip[i]) - area(clip[j]);
+                if best.is_none_or(|(_, _, w)| waste < w) {
+                    best = Some((i, j, waste));
+                }
+            }
+        }
+        let Some((i, j, _)) = best else { break };
+        let b = clip.swap_remove(j);
+        let a = clip.swap_remove(i);
+        let mut merged = union(a, b);
+        // A union can reach rectangles neither half touched; they join it,
+        // which only ever shortens the list.
+        while let Some(k) = clip.iter().position(|r| !r.intersect(merged).is_empty()) {
+            merged = union(merged, clip.swap_remove(k));
+        }
+        clip.push(merged);
+    }
+}
 
 /// Turn `plan` into the ordered operations of one frame at `width x height`
 /// over `clear`.
@@ -813,15 +854,7 @@ fn usable_clip(
             .map(|rect| rect.intersect(frame))
             .filter(|rect| !rect.is_empty()),
     );
-    if clip.len() > MAX_CLIP_RECTS {
-        let bounds = clip.iter().fold(clip[0], |a, b| PixelRect {
-            x0: a.x0.min(b.x0),
-            y0: a.y0.min(b.y0),
-            x1: a.x1.max(b.x1),
-            y1: a.y1.max(b.y1),
-        });
-        clip = vec![bounds];
-    }
+    reduce_clip(&mut clip, MAX_CLIP_RECTS);
     let mut depth = 0usize;
     for step in &plan.steps {
         match *step {

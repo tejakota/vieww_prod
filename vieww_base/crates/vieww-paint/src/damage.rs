@@ -377,11 +377,50 @@ impl Damage {
                 Rect::new(dst_in.right, dst_in.top, dst_out.right, dst_in.bottom),
             ] {
                 if !strip.is_empty() {
-                    out.add(strip);
+                    out.add_sliver(strip);
                 }
             }
         }
         out
+    }
+
+    /// Mark a pixel-exact sliver pending **without merging it into what it
+    /// crosses**: only the parts no region already covers are added.
+    ///
+    /// [`add`](Self::add) unions a rectangle with every region it overlaps,
+    /// which is right for two blobs of ink and wrong for the rim of a carried
+    /// block. At a fractional device ratio that rim is a one-pixel column the
+    /// height of the scrolled list; it crosses the row strip the scroll
+    /// exposed, the union of the two is the list's bounding box, and a frame
+    /// that carried 70% of the screen is promoted to a full repaint — every
+    /// scroll frame on a 2.75x phone, which is what
+    /// `examples/market-watch`'s `gpu_plan` showed the GPU path being asked
+    /// for. Subtracting keeps the regions disjoint, as the invariant asks,
+    /// at the cost of a few thin rectangles.
+    fn add_sliver(&mut self, rect: Rect) {
+        if self.everything {
+            return;
+        }
+        let rect = rect.round_out().intersect(self.surface).round_out();
+        if rect.is_empty() {
+            return;
+        }
+        let mut pieces = vec![rect];
+        for taken in &self.regions {
+            pieces = pieces
+                .into_iter()
+                .flat_map(|piece| minus(piece, *taken))
+                .collect();
+        }
+        for piece in pieces {
+            self.regions.push(piece);
+            if self.regions.len() > MAX_REGIONS {
+                self.merge_cheapest_pair();
+            }
+        }
+        if self.covered_area() >= self.surface.area() * REPAINT_ALL_THRESHOLD {
+            self.add_everything();
+        }
     }
 
     /// The copies to apply **before** repainting [`regions`](Self::regions).
@@ -513,6 +552,24 @@ impl Damage {
     }
 }
 
+/// `a` minus `b`: what is left of `a`, as up to four non-overlapping bands
+/// (above, below, then left and right of the overlap).
+fn minus(a: Rect, b: Rect) -> Vec<Rect> {
+    let o = a.intersect(b);
+    if o.is_empty() {
+        return vec![a];
+    }
+    [
+        Rect::new(a.left, a.top, a.right, o.top),
+        Rect::new(a.left, o.bottom, a.right, a.bottom),
+        Rect::new(a.left, o.top, o.left, o.bottom),
+        Rect::new(o.right, o.top, a.right, o.bottom),
+    ]
+    .into_iter()
+    .filter(|band| !band.is_empty())
+    .collect()
+}
+
 impl fmt::Display for Damage {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.everything {
@@ -570,6 +627,44 @@ mod tests {
         let s = d.scaled(2.75, Rect::new(0.0, 0.0, 1100.0, 1100.0));
         assert!(s.copies().is_empty());
         assert!(!s.regions().is_empty() || s.is_everything());
+    }
+
+    /// A scroll frame of the market-watch list on the 2.75x Redmi, as the
+    /// frame driver reports it: the list carried up by 8 px, the strip that
+    /// scrolled in, and the header above it. The carried block's right edge
+    /// lands on a fractional device pixel, so its rim is a one-pixel column
+    /// the height of the list — which used to merge with the strip and the
+    /// header into nearly the whole surface, and every scroll frame on the
+    /// phone redrew in full with nothing carried.
+    #[test]
+    fn a_fractional_rim_does_not_turn_a_scroll_into_a_full_repaint() {
+        let logical = Rect::new(0.0, 0.0, 393.0, 851.0);
+        let surface = Rect::new(0.0, 0.0, 1081.0, 2340.0);
+        let mut d = Damage::new(logical);
+        d.add_strip(Rect::new(20.0, 813.0, 373.0, 822.0));
+        d.add_strip(Rect::new(7.0, 0.0, 386.0, 212.0));
+        d.add_copy(CopyRegion::new(
+            Rect::new(20.0, 195.0, 373.0, 822.0),
+            Offset::new(0.0, -8.0),
+        ));
+        let s = d.scaled(2.75, surface);
+        assert!(!s.is_everything(), "{s}");
+        assert_eq!(s.copies().len(), 1, "{s}");
+        assert_eq!(s.copies()[0].delta(), Offset::new(0.0, -22.0));
+        assert!(
+            s.covered_area() < 0.35 * surface.area(),
+            "the rim and the strip, not the list: {s}"
+        );
+        // Still disjoint, and the rim column is still repainted.
+        for (i, a) in s.regions().iter().enumerate() {
+            for b in &s.regions()[i + 1..] {
+                assert!(!a.overlaps(*b), "{a} overlaps {b}");
+            }
+        }
+        assert!(
+            s.intersects(Rect::new(1025.0, 1000.0, 1026.0, 1001.0)),
+            "{s}"
+        );
     }
 
     fn damage() -> Damage {
