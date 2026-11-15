@@ -1,7 +1,7 @@
 # 2 · Devices — SUCCESS
 
-- branch: `main`  sha: `6c89af66ee5a404809258f2fb2298cbf9d6ca39a`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/43712000396
+- branch: `main`  sha: `fb38a5d5be61d7bc7021c3d59cc98550e3b35ebb`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/43714067671
 
 | job | verdict | failed steps |
 |---|---|---|
@@ -11,11 +11,11 @@
 | phase-1 / approve | skipped |  |
 | phase-1 / matrix.title | skipped |  |
 | phase-2 / Market Watch · compare-farm | PASS |  |
-| phase-2 / matrix.title | skipped |  |
 | phase-2 / approve | skipped |  |
+| phase-2 / matrix.title | skipped |  |
 | phase-3 / Market Watch · compare-report | PASS |  |
-| phase-3 / approve | skipped |  |
 | phase-3 / matrix.title | skipped |  |
+| phase-3 / approve | skipped |  |
 | results / publish | running |  |
 
 ## Steps
@@ -129,9 +129,9 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-2 / matrix.title — skipped
-
 ### phase-2 / approve — skipped
+
+### phase-2 / matrix.title — skipped
 
 ### phase-3 / Market Watch · compare-report — PASS
 - PASS: Set up job
@@ -164,9 +164,9 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-3 / approve — skipped
-
 ### phase-3 / matrix.title — skipped
+
+### phase-3 / approve — skipped
 
 ### results / publish — running
 - PASS: Set up job
@@ -174,4 +174,4 @@
 - running: Run actions/checkout@v4
 - running: Write to the ci-results branch
 
-- artifacts: compare-farm compare-vieww-apk compare-valdi-apk 
+- artifacts: compare-farm compare-valdi-apk compare-vieww-apk 
