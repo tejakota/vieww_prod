@@ -119,6 +119,10 @@ impl CpuPresenter {
         let plan = self.ages.plan(bits as usize, changed);
         let full = [(0, 0, cols as u32, rows as u32)];
         let regions: &[(u32, u32, u32, u32)] = plan.as_deref().unwrap_or(&full);
+        // The row jobs, flattened: (source byte index, destination address,
+        // bytes). Plain `usize`s, so the parallel copy below can hand them to
+        // threads without a raw-pointer `Send` dance.
+        let mut jobs: Vec<(usize, usize, usize)> = Vec::new();
         for &(l, t, r, b) in regions {
             let (left, right) = ((l as usize).min(cols), (r as usize).min(cols));
             let (top, bottom) = ((t as usize).min(rows), (b as usize).min(rows));
@@ -126,20 +130,49 @@ impl CpuPresenter {
                 continue;
             }
             for y in top..bottom {
-                let src = &frame[(y * width + left) * 4..(y * width + right) * 4];
-                // SAFETY: `bits` is `stride * height * 4` bytes (a 4-byte
-                // format, checked at creation), `y < buffer.height()` and
-                // `right <= buffer.width() <= stride`, so the row's span is in
-                // bounds; the source is our own frame, which cannot overlap
-                // the window's buffer.
-                unsafe {
-                    std::ptr::copy_nonoverlapping(
-                        src.as_ptr(),
-                        bits.add((y * stride + left) * 4),
-                        src.len(),
-                    );
-                }
+                jobs.push((
+                    (y * width + left) * 4,
+                    (bits as usize) + (y * stride + left) * 4,
+                    (right - left) * 4,
+                ));
             }
+        }
+        let copy = |(src, dst, len): &(usize, usize, usize)| {
+            // SAFETY: `bits` is `stride * height * 4` bytes (a 4-byte format,
+            // checked at creation), every job's `y < buffer.height()` and
+            // `right <= buffer.width() <= stride`, so each row's span is in
+            // bounds; the source is our own frame, which cannot overlap the
+            // window's buffer; and the jobs' rows are disjoint, so the
+            // threads below never race.
+            unsafe {
+                std::ptr::copy_nonoverlapping(
+                    frame.as_ptr().add(*src),
+                    *dst as *mut u8,
+                    *len,
+                );
+            }
+        };
+        // A window buffer is uncached memory, and the rows are independent —
+        // several cores' pending stores fill its bandwidth in a way one
+        // core's cannot. On the phones that need this most (a scroll's carry
+        // plus damage is most of the screen) that is the difference between a
+        // present that eats the frame's budget and one that does not.
+        let workers = std::thread::available_parallelism()
+            .map_or(1, std::num::NonZeroUsize::get)
+            .min(8)
+            .min(jobs.len().div_ceil(16).max(1));
+        if workers <= 1 {
+            jobs.iter().for_each(copy);
+        } else {
+            let chunk = jobs.len().div_ceil(workers);
+            std::thread::scope(|scope| {
+                for piece in jobs.chunks(chunk).skip(1) {
+                    scope.spawn(move || piece.iter().for_each(copy));
+                }
+                if let Some(piece) = jobs.chunks(chunk).next() {
+                    piece.iter().for_each(copy);
+                }
+            });
         }
         // Dropping the guard unlocks and posts.
         drop(buffer);
