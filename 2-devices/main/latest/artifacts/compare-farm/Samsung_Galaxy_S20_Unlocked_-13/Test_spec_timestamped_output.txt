@@ -1,0 +1,39 @@
+[2026-11-15 11:36:31.498127] [DEVICEFARM] ########### Start executing testspec ###########
+[2026-11-15 11:36:31.498189]  
+[2026-11-15 11:36:31.507165]  
+[2026-11-15 11:36:31.507196] [DEVICEFARM] ########### Entering phase install ###########
+[2026-11-15 11:36:31.507210]  
+[2026-11-15 11:36:31.507221] [DeviceFarm] adb version
+[2026-11-15 11:36:31.537144] Android Debug Bridge version 1.0.39
+[2026-11-15 11:36:31.537195] Version 0.0.1-4500957
+[2026-11-15 11:36:31.537213] Installed as /tmp/devicefarm-workspace/execution-byqgm41h/shared-05mml5ke/android-home-1vfm_d0d/platform-tools/adb_binary
+[2026-11-15 11:36:31.538846]  
+[2026-11-15 11:36:31.538870] [DEVICEFARM] ########### Entering phase pre_test ###########
+[2026-11-15 11:36:31.538886]  
+[2026-11-15 11:36:31.538896] [DeviceFarm] adb devices -l
+[2026-11-15 11:36:31.580061] List of devices attached
+[2026-11-15 11:36:31.580092] RFCN704NGCP            device usb:1-1.2 product:x1quex model:SM_G981U1 device:x1q transport_id:4
+[2026-11-15 11:36:31.580107] 
+[2026-11-15 11:36:31.581915]  
+[2026-11-15 11:36:31.581937] [DEVICEFARM] ########### Entering phase test ###########
+[2026-11-15 11:36:31.581952]  
+[2026-11-15 11:36:31.581962] [DeviceFarm] bash $DEVICEFARM_TEST_PACKAGE_PATH/run-android.sh
+[2026-11-15 11:46:10.456914]  
+[2026-11-15 11:46:10.456967] [DEVICEFARM] ########### Entering phase post_test ###########
+[2026-11-15 11:46:10.456994]  
+[2026-11-15 11:46:10.457015] [DeviceFarm] ls -la $DEVICEFARM_LOG_DIR/mw || true
+[2026-11-15 11:46:10.458133] total 24
+[2026-11-15 11:46:10.458157] drwxr-xr-x 5 device-farm root  109 Nov 15 11:46 .
+[2026-11-15 11:46:10.458186] drwxrwxrwx 3         995 1001   16 Nov 15 11:36 ..
+[2026-11-15 11:46:10.458205] -rw-r--r-- 1 device-farm root    8 Nov 15 11:36 install.log
+[2026-11-15 11:46:10.458225] -rw-r--r-- 1 device-farm root  459 Nov 15 11:46 listing.txt
+[2026-11-15 11:46:10.458245] -rw-r--r-- 1 device-farm root  933 Nov 15 11:46 result.txt
+[2026-11-15 11:46:10.458264] drwxr-xr-x 2 device-farm root 4096 Nov 15 11:42 valdi
+[2026-11-15 11:46:10.458283] drwxr-xr-x 2 device-farm root 4096 Nov 15 11:39 vieww-cpu
+[2026-11-15 11:46:10.458296] drwxr-xr-x 2 device-farm root 4096 Nov 15 11:46 vieww-gpu
+[2026-11-15 11:46:10.491960]  
+[2026-11-15 11:46:10.492172] [DEVICEFARM] ########### Finish executing testspec ###########
+[2026-11-15 11:46:10.492246]  
+[2026-11-15 11:46:10.495552] [DEVICEFARM] ########### Setting upload permissions ###########
+[2026-11-15 11:46:10.495590]  
+[2026-11-15 11:46:10.498495]  
