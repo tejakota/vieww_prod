@@ -686,7 +686,14 @@ fn run_row_chunk(job: &RowJob, chunk: usize) {
     // from `split_at_mut`, and no other chunk touches it.
     let data = unsafe { std::slice::from_raw_parts_mut(pointer, length) };
     let mut scratch = RowScratch::new(job.width);
-    rasterize_row_range(start..end, job.table, pending, job.geometry, data, &mut scratch);
+    rasterize_row_range(
+        start..end,
+        job.table,
+        pending,
+        job.geometry,
+        data,
+        &mut scratch,
+    );
 }
 
 pub(crate) fn rasterize_general(
@@ -728,7 +735,7 @@ pub(crate) fn rasterize_general(
     let mut order: Vec<usize> = (0..edges.len()).collect();
     order.sort_unstable_by(|&a, &b| edges[a].ymin.total_cmp(&edges[b].ymin));
 
-    let workers = thread_workers_for(threads_request, width, height);
+    let workers = thread_workers_for(threads_request, width, height, raster_min_parallel_dim());
     let table = EdgeTable {
         edges: &edges,
         order: &order,
@@ -773,12 +780,7 @@ pub(crate) fn rasterize_general(
             spans,
             width,
         };
-        crate::native::raster_pool::run_chunks(
-            &job,
-            job.spans.len(),
-            workers,
-            run_row_chunk,
-        );
+        crate::native::raster_pool::run_chunks(&job, job.spans.len(), workers, run_row_chunk);
     }
 
     CoverageMask {
@@ -929,12 +931,60 @@ const RASTER_MIN_CHUNK_ROWS: u32 = 16;
 /// small mask out of parallelism altogether — and a 2.75x-density
 /// sparkline's stroke coverage, 198×99, is exactly the shape that priced
 /// out: thirteen of them a frame, serial, were the biggest CPU cost of a
-/// live storm on both render paths. 48 keeps a margin over the hand-off
-/// while letting those in.
+/// live storm on the GPU path. 48 keeps a margin over the hand-off while
+/// letting those in — see [`RASTER_MIN_PARALLEL_DIM_SERIAL_SMALL`], the
+/// gate the CPU present path keeps.
 const RASTER_MIN_PARALLEL_DIM: u32 = 48;
+/// The gate a process whose frames composite **on the CPU** keeps: masks
+/// under 128 device pixels on either axis stay serial there, as they were
+/// before the pool. The one phone that runs both policies back to back —
+/// the LG Stylo 5, eight Cortex-A53s, the tier whose raster walk is
+/// parallel — measured the difference (Device Farm runs 43714067671 and
+/// 43722791555, same schedule): the 48 gate cost its CPU pass 23 ms p95 on
+/// live and 48 ms on storm (sixteen-row chunks of a 198×99 sparkline are
+/// a broadcast and a mutex claim apiece, thirteen a frame, on cores whose
+/// bandwidth the frame's composite and present copy were already filling),
+/// while the same gate won its GPU pass 6-8 ms (the atlas mask build is
+/// all that path rasters, so the sparkline walks are its long poles).
+/// The GPU planner's mask build and the CPU rasterizer's walk run this
+/// same code; the platform layer picks the gate by which of the two a
+/// process's frames take — see [`set_process_raster_small_masks`].
+const RASTER_MIN_PARALLEL_DIM_SERIAL_SMALL: u32 = 128;
 /// The hard ceiling. Scaling past it buys nothing on the shapes that matter
 /// (their row spans saturate a handful of cores) and costs a spawn apiece.
 const RASTER_MAX_THREADS: usize = 8;
+
+/// Whether the platform layer allowed small masks (≥48 px, <
+/// [`RASTER_MIN_PARALLEL_DIM_SERIAL_SMALL`]) into the pool — the GPU
+/// present path does; the CPU present path does not. Read per fill: one
+/// relaxed load, against the ~15 µs an environment read cost when this
+/// policy lived in a variable.
+static SMALL_MASK_PARALLEL: std::sync::atomic::AtomicBool =
+    std::sync::atomic::AtomicBool::new(false);
+
+/// Let masks from 48 pixels up into the parallel walk (`on`, the GPU
+/// present path's gate) or keep them serial (`off`, the CPU present path's:
+/// everything under the private `RASTER_MIN_PARALLEL_DIM_SERIAL_SMALL`
+/// floor, spelled out here because a public doc cannot link a private
+/// const). Pixels cannot move either way: the walk is
+/// row-parallel and its scratch is per-worker, so a row is the same
+/// function of the outline however many hands it passes through. The
+/// platform layer calls this when a window's present path is settled —
+/// see `vieww-platform-winit`'s `quality::apply_cache_budgets`.
+pub fn set_process_raster_small_masks(on: bool) {
+    SMALL_MASK_PARALLEL.store(on, std::sync::atomic::Ordering::Relaxed);
+}
+
+/// The size gate this process's fills use: 48 px with small masks allowed,
+/// [`RASTER_MIN_PARALLEL_DIM_SERIAL_SMALL`] without. (Private, so the
+/// public entry points above spell their numbers out.)
+fn raster_min_parallel_dim() -> u32 {
+    if SMALL_MASK_PARALLEL.load(std::sync::atomic::Ordering::Relaxed) {
+        RASTER_MIN_PARALLEL_DIM
+    } else {
+        RASTER_MIN_PARALLEL_DIM_SERIAL_SMALL
+    }
+}
 
 /// The worker count for one mask: `request`, but never more than the rows
 /// can divide usefully or the ceiling, and never any at all for a mask too
@@ -943,14 +993,19 @@ const RASTER_MAX_THREADS: usize = 8;
 /// request and size gate, so one knob (`VIEWW_RASTER_THREADS`) governs both
 /// halves of a fill.
 pub(crate) fn composite_workers(width: u32, height: u32) -> usize {
-    thread_workers_for(process_raster_thread_request(), width, height)
+    thread_workers_for(
+        process_raster_thread_request(),
+        width,
+        height,
+        raster_min_parallel_dim(),
+    )
 }
 
-fn thread_workers_for(request: usize, width: u32, height: u32) -> usize {
+fn thread_workers_for(request: usize, width: u32, height: u32, min_dim: u32) -> usize {
     if request <= 1 {
         return 1;
     }
-    if width < RASTER_MIN_PARALLEL_DIM || height < RASTER_MIN_PARALLEL_DIM {
+    if width < min_dim || height < min_dim {
         return 1;
     }
     let by_rows = (height / RASTER_MIN_CHUNK_ROWS).max(1) as usize;
@@ -1778,28 +1833,53 @@ mod tests {
 
     #[test]
     fn the_thread_decision_gates_on_size_and_ceiling() {
+        // Both gates, named: the GPU present path's 48 and the CPU present
+        // path's 128 — `raster_min_parallel_dim` picks between them by the
+        // process-wide small-mask setting, and these assertions pin each.
+        let small = RASTER_MIN_PARALLEL_DIM;
+        let serial_small = RASTER_MIN_PARALLEL_DIM_SERIAL_SMALL;
         // Small on either axis: serial, whatever was asked. The gate is
-        // 48 now the workers are a persistent pool rather than a spawn per
-        // mask — a sparkline's 198x99 coverage qualifies, a glyph-sized
-        // mask does not.
-        assert_eq!(thread_workers_for(4, 32, 300), 1);
-        assert_eq!(thread_workers_for(4, 300, 32), 1);
-        assert_eq!(thread_workers_for(4, 47, 4096), 1);
-        // A sparkline-sized mask is parallel now.
-        assert_eq!(thread_workers_for(4, 198, 99), 4);
+        // 48 on the GPU path now the workers are a persistent pool rather
+        // than a spawn per mask — a sparkline's 198x99 coverage qualifies,
+        // a glyph-sized mask does not.
+        assert_eq!(thread_workers_for(4, 32, 300, small), 1);
+        assert_eq!(thread_workers_for(4, 300, 32, small), 1);
+        assert_eq!(thread_workers_for(4, 47, 4096, small), 1);
+        // A sparkline-sized mask is parallel on the GPU path's gate...
+        assert_eq!(thread_workers_for(4, 198, 99, small), 4);
+        // ...and serial on the CPU path's, whose floor it sits under.
+        assert_eq!(thread_workers_for(4, 198, 99, serial_small), 1);
+        assert_eq!(thread_workers_for(4, 127, 4096, serial_small), 1);
+        assert_eq!(thread_workers_for(4, 4096, 127, serial_small), 1);
         // A serial request stays serial on any mask.
-        assert_eq!(thread_workers_for(1, 800, 600), 1);
+        assert_eq!(thread_workers_for(1, 800, 600, small), 1);
         // A big mask gets the request, capped by the rows' granularity
         // (600 rows / 16) and then by the hard ceiling.
-        assert_eq!(thread_workers_for(3, 800, 600), 3);
-        assert_eq!(thread_workers_for(18, 800, 600), 8);
-        assert_eq!(thread_workers_for(64, 800, 600), 8);
+        assert_eq!(thread_workers_for(3, 800, 600, small), 3);
+        assert_eq!(thread_workers_for(18, 800, 600, small), 8);
+        assert_eq!(thread_workers_for(64, 800, 600, small), 8);
         // Both axes must clear the floor — a wide-but-short mask stays
         // serial, predictably, because the gate is a conjunction.
-        assert_eq!(thread_workers_for(4, 4096, 32), 1);
+        assert_eq!(thread_workers_for(4, 4096, 32, small), 1);
         // Just over the floor on both axes: the granularity cap (130/16
         // = 8) admits the request.
-        assert_eq!(thread_workers_for(4, 800, 130), 4);
+        assert_eq!(thread_workers_for(4, 800, 130, small), 4);
+    }
+
+    #[test]
+    fn the_small_mask_gate_defaults_to_the_cpu_present_path_s() {
+        // A process that never says which present path it runs is one whose
+        // compositing we cannot vouch for: the default keeps small masks
+        // serial, the CPU path's gate. The set side of the setting is not
+        // exercised here — flipping a process-wide switch from inside a
+        // parallel test run races the timing tests that measure the raster
+        // kinds (`native::reference`'s `raster_time_by_kind...`), and the
+        // two gates themselves are pinned above, by name, through
+        // `thread_workers_for`.
+        assert_eq!(
+            raster_min_parallel_dim(),
+            RASTER_MIN_PARALLEL_DIM_SERIAL_SMALL
+        );
     }
 
     #[test]

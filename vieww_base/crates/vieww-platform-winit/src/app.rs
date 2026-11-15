@@ -2606,8 +2606,10 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
         // (`vieww_hal::vulkan::pipeline_cache`).
         vieww_hal::vulkan::set_pipeline_cache_file(self.pipeline_cache_file());
         // And before the first renderer, so its blur and fill caches start at
-        // this device tier's budgets (`quality::cache_budgets_for`).
-        crate::quality::apply_cache_budgets();
+        // this device tier's budgets (`quality::cache_budgets_for`) and the
+        // scanline walk's small-mask gate follows this window's present path
+        // (`quality::apply_cache_budgets`).
+        crate::quality::apply_cache_budgets(path);
         // The prewarm has had the window's creation, the calibration read and
         // the cache budgets to run beside; the device open is the first thing
         // that genuinely needs its results, so it joins here. The mark says
@@ -2637,6 +2639,11 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
                     "vieww: the GPU path could not be opened ({error}); keeping the CPU path"
                 );
                 calibration.settle(Rasterizer::Cpu);
+                // The scanline walk's small-mask gate was set for the GPU
+                // path above; a process whose frames composite on the CPU
+                // keeps its small masks serial, so re-tell it which path
+                // this window actually settled on.
+                crate::quality::apply_cache_budgets(PresentPath::Cpu);
                 (
                     NativeRenderer::for_window_on(&window, width, height, PresentPath::Cpu),
                     false,

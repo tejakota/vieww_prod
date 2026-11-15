@@ -101,7 +101,8 @@ mod target;
 
 pub use cache_budgets::{process_cache_budgets, set_process_cache_budgets, CacheBudgets};
 pub use geometry::fill::{
-    raster_threads_set_by_platform, raster_worker_limit, set_process_raster_threads,
+    raster_threads_set_by_platform, raster_worker_limit, set_process_raster_small_masks,
+    set_process_raster_threads,
 };
 pub use glyph::{outline_glyph, units_per_em};
 pub use glyph_coverage::{GlyphAlpha, GlyphCoverage, InkedGlyph};

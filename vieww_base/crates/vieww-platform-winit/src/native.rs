@@ -211,6 +211,13 @@ pub struct NativeSurface {
     kind: SurfaceKind,
 }
 
+// A swapchain is inline on purpose: one surface per window, held for the
+// window's life and moved only by a rebuild, so the 272-byte `Vulkan`
+// variant's size over `Cpu` never copies anywhere hot. Boxing it would
+// thread a deref through every present, resize and rebuild match below
+// for no measured gain (the lint fired when the two-frames-in-flight ring
+// added its acquire semaphores to `VulkanSwapchain`).
+#[allow(clippy::large_enum_variant)]
 enum SurfaceKind {
     /// See [`vieww_hal::vulkan::VulkanSwapchain`] for the Vulkan object this
     /// owns.
@@ -1818,11 +1825,15 @@ impl NativeRenderer {
                     let direct =
                         image.color_attachment() && plan.target_depth == 0 && render_scale == 1.0;
                     if direct {
-                        note_gpu_route("direct: depth-0 opaque frame rendered into the swapchain image");
+                        note_gpu_route(
+                            "direct: depth-0 opaque frame rendered into the swapchain image",
+                        );
                     } else if !image.color_attachment() {
                         note_gpu_route("blit: the surface reports its swapchain images cannot be colour attachments");
                     } else if plan.target_depth != 0 {
-                        note_gpu_route("blit: the plan has layers, so it renders into the intermediate");
+                        note_gpu_route(
+                            "blit: the plan has layers, so it renders into the intermediate",
+                        );
                     } else {
                         note_gpu_route("blit: a resolution scale is set, so the frame renders small and enlarges");
                     }
@@ -1929,7 +1940,9 @@ impl NativeRenderer {
         }
         note_gpu_route(&format!(
             "cpu fallback: {}",
-            fallback.as_deref().unwrap_or("the rasterizer choice said CPU")
+            fallback
+                .as_deref()
+                .unwrap_or("the rasterizer choice said CPU")
         ));
         let rasterising = Instant::now();
         let report =

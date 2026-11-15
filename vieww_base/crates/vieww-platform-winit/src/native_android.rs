@@ -145,11 +145,7 @@ impl CpuPresenter {
             // window's buffer; and the jobs' rows are disjoint, so the
             // threads below never race.
             unsafe {
-                std::ptr::copy_nonoverlapping(
-                    frame.as_ptr().add(*src),
-                    *dst as *mut u8,
-                    *len,
-                );
+                std::ptr::copy_nonoverlapping(frame.as_ptr().add(*src), *dst as *mut u8, *len);
             }
         };
         // A window buffer is uncached memory, and the rows are independent —

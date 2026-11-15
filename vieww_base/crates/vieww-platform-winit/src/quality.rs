@@ -196,9 +196,19 @@ pub(crate) const fn raster_threads_for(tier: DeviceTier, mobile: bool) -> Option
 
 /// Applies the probed tier's cache budgets and raster-thread default to the
 /// process, once, before the first renderer is built (the caches read the
-/// setting at construction, the scanline walk at its first fill).
-pub(crate) fn apply_cache_budgets() {
+/// setting at construction, the scanline walk at its first fill), and the
+/// present path's small-mask gate — every call, because a window whose
+/// Vulkan open failed falls back to the CPU path after the first call.
+pub(crate) fn apply_cache_budgets(path: crate::native::PresentPath) {
     static APPLIED: OnceLock<()> = OnceLock::new();
+    // The GPU present path rasters only the atlases its planner builds, so
+    // a 48-px mask handed to the pool is work off its critical path; the
+    // CPU present path composites the frame itself, and the same hand-off
+    // measured 23-48 ms p95 against it on the Stylo's eight A53s (runs
+    // 43714067671 / 43722791555) while winning the GPU pass 6-8 ms. The
+    // gate therefore follows the path — `set_process_raster_small_masks`'
+    // docs in `vieww_paint::native` have the numbers.
+    vieww_paint::native::set_process_raster_small_masks(path == crate::native::PresentPath::Vulkan);
     APPLIED.get_or_init(|| {
         let tier = device_facts().tier;
         vieww_paint::native::set_process_cache_budgets(cache_budgets_for(tier));

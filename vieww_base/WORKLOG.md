@@ -12,8 +12,9 @@ It sits beside two older files and does not replace them:
 This file is the short version for a new session. When an item here turns out
 to be large, it belongs in `PENDING.md` with a pointer from here.
 
-Last updated: 2026-11-15, after the frames-in-flight ring, the pooled raster
-walk and the route narration (the Redmi Note 7 Pro's own measurements, below)
+Last updated: 2026-11-15 (later), after the flight ring's first farm verdict:
+the pool the ring overdrawn, the gate the CPU path keeps, and the gate itself
+back to green (run `43722791555`, below)
 
 ---
 
@@ -26,7 +27,58 @@ phones, with every claim backed by a Device Farm number or a test. The
 standing instruction is to finish what is started. A slow loop is fine; leaving
 work half-done is not.
 
-### This round: the Redmi Note 7 Pro's numbers, and what they said
+### This round: run `43722791555`'s verdict on the ring, and the two fixes it earned
+
+The ring (`0ce1f08e`) ran on the Stylo 5 (low) and — a new mid-pool device —
+the Galaxy S26 Ultra (Android 16, SM8850, 120.00001 Hz). Three findings:
+
+1. **The GPU pass died at startup on the S26 Ultra** — one logcat line:
+   `market-watch failed: opening a Vulkan device/surface: Vulkan:
+   ERROR_OUT_OF_POOL_MEMORY`, zero frames the whole run. The flight ring
+doubled the scene descriptor *sets* but left the pool's `SAMPLED_IMAGE`
+count at 4 — one set's worth; two sets bind eight. The S26 Ultra's Adreno
+(build 11/20/25) enforces a pool's declared counts; the Stylo's older one
+let the overdrawn pool pass, which is why the Stylo's GPU pass was green.
+   Fix: the pool is sized `4 * FLIGHT_SLOTS`, with the arithmetic at the
+   allocation site so the two cannot drift apart again.
+2. **The 48-px small-mask gate is a GPU-path win and a CPU-path loss** on
+   the one phone that runs both policies back to back — the Stylo, eight
+   Cortex-A53s, the tier whose walk is parallel. Against `fb38a5d5`
+   (run `43714067671`), the CPU pass paid 23 ms p95 on live (64.03 →
+   87.16) and 48 ms on storm (107.66 → 155.85) for thirteen pool
+dispatches a frame; the GPU pass on the same phone *won* 6-8 ms (live
+   70.85 → 62.30, storm 67.62 → 61.19) — its only CPU-side raster is the
+   atlas mask build, so the sparkline walks are that path's long poles.
+   Fix: the gate follows the present path (`set_process_raster_small_masks`):
+   Vulkan keeps 48, the CPU path keeps 128 — the pool and its big-mask
+   walk are shared, pixels cannot move either way, and the tier policy
+   (serial on Medium/High phones) is unchanged.
+3. **The S26 Ultra's CPU pass reads terribly in the table and that is the
+   panel, not the frame**: 62-65 presented fps, 100% jank — the cadence
+   policy's steady 60 on a panel the OS kept at 120 Hz, where every
+   16.7 ms gap is a miss against 8.33. Valdi presents 118.9-124.1 there
+   (native views on HWUI — a GPU path). The GPU pass is vieww's answer on
+   that class of phone; it presents again once (1) lands.
+
+And the framework gate itself was red on `0ce1f08e` — pushed without it, a
+mistake: fmt; clippy's `large_enum_variant` (the ring's acquire semaphores
+grew `VulkanSwapchain` past the `SurfaceKind` threshold — allowed inline with
+a reason, one surface per window); two doc links to private items and two to
+the `vulkan-swapchain`-gated `render_planned_to`/`AcquiredImage` (the docs
+stage does not enable that feature); and the cross-check's headless shape
+(`vulkan` without the swapchain), where the direct route's dormant items are
+dead code — `cfg_attr`'d `expect(dead_code)` with reasons. Every stage re-run
+green: fmt, clippy, build, docs, the three touched crates' tests
+(348 + 225 + 31), the headless shape, the wasm audit and the fixture gallery.
+
+Expected on the next run: the S26 Ultra's GPU pass presents, and holds the
+panel's 120 where its frame fits 8.33 ms (the S20-class app work p95 was
+6.9-7.5 ms); the Stylo's CPU pass returns to `fb38a5d5`'s shape (live ~64,
+storm ~107) while its GPU pass keeps the gate's win (storm ~61); the Redmi
+Note 7 Pro — the phone the ring was built for — is Medium tier, so its own
+numbers move only through the ring, not the gate.
+
+### The round before: the Redmi Note 7 Pro's numbers, and what they said
 
 The user's own phone (SM6150, Adreno 612, Android 16, 1080x2340 at 2.75x)
 against the farm's S20 (SM8250), same APK, same schedule:

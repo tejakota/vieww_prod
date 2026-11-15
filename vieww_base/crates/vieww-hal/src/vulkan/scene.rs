@@ -35,7 +35,9 @@
 //! # Damage: redrawing only what changed
 //!
 //! `L[0]` is kept between frames, so a frame that names its damage
-//! ([`SceneRenderer::render_planned_to`], [`SceneRenderer::render_planned_damaged`])
+//! ([`SceneRenderer::render_planned_damaged`], and `render_planned_to` —
+//! the swapchain-image form, behind the `vulkan-swapchain` feature and so
+//! spelled rather than linked, this doc builds without it)
 //! redraws only those rectangles of it and leaves the rest as the previous
 //! frame finished it. What is clipped is narrow on purpose: **only writes
 //! into `L[0]` (and its scratch `S[0]`)**. Layers, blurs and shadow work run
@@ -106,6 +108,10 @@ struct DirectFrame {
 /// rendered this way blends in 8 bits per channel, which every `u8` surface
 /// UI stack does, and skips the `L[0]` load/store, the carry copies and the
 /// f16→UNORM blit that dominated the frame's bandwidth on low-end GPUs.
+#[cfg_attr(
+    not(feature = "vulkan-swapchain"),
+    expect(dead_code, reason = "the direct route renders into swapchain images")
+)]
 struct DirectRoute {
     format: vk::Format,
     /// Load-carrying pass (a pass re-opened without a clear).
@@ -173,7 +179,18 @@ const TARGET_FORMAT: vk::Format = vk::Format::R16G16B16A16_SFLOAT;
 /// Where a rendered frame ends up: copied back to host memory, blitted from
 /// `L[0]` into a swapchain image, or — for a depth-0 opaque frame — rendered
 /// straight into the swapchain image with no intermediate target at all.
+///
+/// `Blit` and `Direct` are only ever constructed by the
+/// `vulkan-swapchain`-gated submits; `execute`'s match arms stay compiled so
+/// the enum's one shape serves both builds.
 #[derive(Clone, Copy)]
+#[cfg_attr(
+    not(feature = "vulkan-swapchain"),
+    expect(
+        dead_code,
+        reason = "only the swapchain submits construct Blit and Direct"
+    )
+)]
 enum Out {
     Readback,
     Blit(BlitTarget),
@@ -242,6 +259,10 @@ pub struct SceneRenderer {
     timestamps: Option<(f32, u64)>,
     /// The device's pipeline cache — shared by the direct route's lazily
     /// built pipelines, so a format's first frame pays the compile once.
+    #[cfg_attr(
+        not(feature = "vulkan-swapchain"),
+        expect(dead_code, reason = "only the direct route's pipelines read it")
+    )]
     pipeline_cache: vk::PipelineCache,
 
     glyphs: Texture,
@@ -600,11 +621,25 @@ impl SceneRenderer {
                     .pool_sizes(&[
                         vk::DescriptorPoolSize {
                             ty: vk::DescriptorType::UNIFORM_BUFFER,
+                            // One uniform per set, one set per flight slot.
                             descriptor_count: FLIGHT_SLOTS as u32,
                         },
                         vk::DescriptorPoolSize {
                             ty: vk::DescriptorType::SAMPLED_IMAGE,
-                            descriptor_count: 4,
+                            // The scene set binds four sampled images
+                            // (bindings 1..4), so `FLIGHT_SLOTS` sets draw
+                            // `4 * FLIGHT_SLOTS` of them from the pool. This
+                            // said `4` when the ring held one frame, and the
+                            // second slot's allocation made
+                            // `vkAllocateDescriptorSets` answer
+                            // `VK_ERROR_OUT_OF_POOL_MEMORY` on the drivers
+                            // that enforce a pool's declared counts — the
+                            // S26 Ultra's Adreno (Device Farm run 43722791555:
+                            // the GPU pass presented nothing, its logcat one
+                            // line: "opening a Vulkan device/surface: Vulkan:
+                            // ERROR_OUT_OF_POOL_MEMORY"), while the Stylo's
+                            // older driver let the overdrawn pool pass.
+                            descriptor_count: 4 * FLIGHT_SLOTS as u32,
                         },
                     ])
                     .max_sets(FLIGHT_SLOTS as u32),
@@ -734,9 +769,8 @@ impl SceneRenderer {
         let chain: [vk::Semaphore; 2] = {
             let mut chain = [vk::Semaphore::null(); 2];
             for semaphore in &mut chain {
-                *semaphore = unsafe {
-                    handle.create_semaphore(&vk::SemaphoreCreateInfo::default(), None)?
-                };
+                *semaphore =
+                    unsafe { handle.create_semaphore(&vk::SemaphoreCreateInfo::default(), None)? };
             }
             chain
         };
@@ -892,7 +926,9 @@ impl SceneRenderer {
 
     /// Whether the probe awaiting collection came from `index`'s slot.
     fn pending_probe_is(&self, index: usize) -> bool {
-        self.pending_probe.as_ref().is_some_and(|probe| probe.slot == index)
+        self.pending_probe
+            .as_ref()
+            .is_some_and(|probe| probe.slot == index)
     }
 
     /// The command buffer of the slot being recorded.
@@ -1454,9 +1490,12 @@ impl SceneRenderer {
     /// memory traffic for the same drawing.
     ///
     /// The frame always redraws in full: a swapchain image is one of several,
-    /// so the kept-`L[0]` damage model does not describe it (see
-    /// [`Out::Direct`]). `L[0]`'s retained state is invalidated, so a later
-    /// frame that falls back to [`render_planned_to`](Self::render_planned_to)
+    /// so the kept-`L[0]` damage model does not describe it — the `Direct`
+    /// arm `execute` carries no damage, and it is private, which is why this
+    /// paragraph spells it out instead of linking it. `L[0]`'s retained state
+    /// is invalidated, so a later
+    /// frame that falls back to `render_planned_to` (the blit route, behind
+    /// the `vulkan-swapchain` feature and so spelled rather than linked)
     /// — a plan with layers, a translucent window, a resolution scale —
     /// redraws in full too.
     ///
@@ -1526,6 +1565,10 @@ impl SceneRenderer {
     /// Build the direct route for `bgra`'s swapchain format, if it is not
     /// built already. One set of render passes and pipelines per format;
     /// `settle` has already run, so anything replaced is idle.
+    #[cfg_attr(
+        not(feature = "vulkan-swapchain"),
+        expect(dead_code, reason = "only the swapchain submits take the direct route")
+    )]
     fn ensure_direct(&mut self, bgra: bool) -> Result<(), VulkanError> {
         let format = if bgra {
             vk::Format::B8G8R8A8_UNORM
@@ -1959,8 +2002,7 @@ impl SceneRenderer {
         let needed = bytes.len() as u64;
         let flight = self.recording;
         if self.texture(slot).staging[flight].capacity < needed {
-            let old =
-                std::mem::replace(&mut self.texture_mut(slot).staging[flight], Buffer::EMPTY);
+            let old = std::mem::replace(&mut self.texture_mut(slot).staging[flight], Buffer::EMPTY);
             unsafe { destroy_buffer(&self.device, old) };
             let staging = allocate_buffer(
                 &self.device,
@@ -1970,7 +2012,11 @@ impl SceneRenderer {
             )?;
             self.texture_mut(slot).staging[flight] = staging;
         }
-        write_bytes(&self.device, self.texture(slot).staging[flight].memory, bytes)?;
+        write_bytes(
+            &self.device,
+            self.texture(slot).staging[flight].memory,
+            bytes,
+        )?;
 
         let (image, staging) = {
             let t = self.texture(slot);
@@ -2062,11 +2108,7 @@ impl SceneRenderer {
             self.host_visible_memory,
             index_bytes.len() as u64,
         )?;
-        write_bytes(
-            &self.device,
-            self.slots[slot].vertices.memory,
-            vertex_bytes,
-        )?;
+        write_bytes(&self.device, self.slots[slot].vertices.memory, vertex_bytes)?;
         write_bytes(&self.device, self.slots[slot].indices.memory, index_bytes)?;
         Ok(())
     }
@@ -2368,11 +2410,8 @@ impl SceneRenderer {
                         bound = Bound::Scene;
                     }
                     unsafe {
-                        self.device.cmd_set_scissor(
-                            self.cmd(),
-                            0,
-                            &[pixel_scissor(*scissor)],
-                        );
+                        self.device
+                            .cmd_set_scissor(self.cmd(), 0, &[pixel_scissor(*scissor)]);
                         self.device.cmd_draw_indexed(
                             self.cmd(),
                             *index_count,
@@ -2422,11 +2461,8 @@ impl SceneRenderer {
                             as_bytes(std::slice::from_ref(&pass.push)),
                         );
                         for scissor in scissors {
-                            self.device.cmd_set_scissor(
-                                self.cmd(),
-                                0,
-                                &[pixel_scissor(*scissor)],
-                            );
+                            self.device
+                                .cmd_set_scissor(self.cmd(), 0, &[pixel_scissor(*scissor)]);
                             self.device.cmd_draw(self.cmd(), 3, 1, 0, 0);
                         }
                     }
@@ -2835,9 +2871,12 @@ impl SceneRenderer {
     ///
     /// # Frames in flight
     ///
-    /// [`render_planned_to`](Self::render_planned_to) submits a frame into a
+    /// `render_planned_to` (the swapchain-image submit, behind the
+    /// `vulkan-swapchain` feature — this doc builds without it, so the name
+    /// is spelled rather than linked) submits a frame into a
     /// swapchain image and returns without waiting for it: the present waits
-    /// on the GPU instead ([`AcquiredImage`]'s `done` semaphore), and the
+    /// on the GPU instead (`AcquiredImage`'s `done` semaphore — the type is
+    /// the swapchain module's, likewise behind the feature), and the
     /// application builds, lays out and plans its next frame while the GPU
     /// draws this one. That is the overlap Flutter's raster thread and Qt's
     /// render thread exist for, and the LG Stylo 5 is why it matters: about
@@ -2845,7 +2884,7 @@ impl SceneRenderer {
     /// other, were a 17.3 ms frame against a 16.7 ms budget (Device Farm run
     /// 39538891917).
     ///
-    /// Up to [`FLIGHT_SLOTS`] frames are in flight. A frame's own resources
+    /// Up to `FLIGHT_SLOTS` frames are in flight. A frame's own resources
     /// are per slot, so the frame after it records and submits while the GPU
     /// still draws it; the GPU halves of the two run one after the other,
     /// ordered by the internal chain (see [`SceneRenderer`]'s field docs),
@@ -3145,7 +3184,10 @@ impl Drop for SceneRenderer {
                 destroy_texture(&self.device, texture);
             }
             for flight in self.slots.iter_mut() {
-                destroy_buffer(&self.device, std::mem::replace(&mut flight.uniform, Buffer::EMPTY));
+                destroy_buffer(
+                    &self.device,
+                    std::mem::replace(&mut flight.uniform, Buffer::EMPTY),
+                );
                 destroy_buffer(
                     &self.device,
                     std::mem::replace(&mut flight.vertices, Buffer::EMPTY),
