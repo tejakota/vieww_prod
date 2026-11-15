@@ -42,8 +42,25 @@
 
 use std::sync::{Condvar, Mutex, OnceLock};
 
+/// Issues batch identities: a submitter only claims and retires chunks of
+/// the batch *it* installed. See `Batch::id` for the race that makes that
+/// check load-bearing.
+static BATCH_IDS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
+
 /// One batch of chunks over a caller's stack `Job`.
 struct Batch {
+    /// Which submission this is — `BATCH_IDS`'s counter at install. The
+    /// submitting thread keeps the id of its own batch and claims and
+    /// decrements only against it, because a batch can be drained and a
+    /// *foreign* one installed in the window between the submitter's own
+    /// last chunk finishing and its next claim: without the check, the
+    /// submitter would take the foreign batch's next index, run **its own**
+    /// `data` at that index, and decrement the foreign batch's `remaining`
+    /// for a chunk that never ran on the foreign data — the foreign batch
+    /// would retire with a span of its output missing. Found by
+    /// `concurrent_submitters_get_their_own_chunks`, which fails within
+    /// seconds without this field on a 2-core machine.
+    id: u64,
     /// The caller's `Job`, on the submitting thread's frame.
     job: *const (),
     /// How many chunks the batch counts, `0..count`.
@@ -207,7 +224,9 @@ unsafe fn scoped<T: Sync>(data: &T, count: usize, workers: usize, run: fn(&T, us
     while guard.batch.is_some() {
         guard = pool.finished.wait(guard).expect("raster pool submit waits");
     }
+    let id = BATCH_IDS.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     guard.batch = Some(Batch {
+        id,
         job: &job as *const Job<'_, T> as *const (),
         count,
         run: trampoline::<T>,
@@ -217,13 +236,17 @@ unsafe fn scoped<T: Sync>(data: &T, count: usize, workers: usize, run: fn(&T, us
     drop(guard);
     pool.work.notify_all();
 
-    // The submitting thread works too — it is one of the pool's workers
-    // for the length of this call.
+    // The submitting thread works too — it is one of the pool's workers for
+    // the length of this call, but **of its own batch only**: a claim or a
+    // retirement against whatever happens to be installed could land on a
+    // foreign batch installed in the window after this one drained (see
+    // `Batch::id`), running this call's data at the foreign batch's index
+    // and retiring a chunk that never ran there.
     loop {
         let index = {
             let mut guard = pool.state.lock().expect("raster pool submit");
             match guard.batch.as_mut() {
-                Some(batch) if batch.next < batch.count => {
+                Some(batch) if batch.id == id && batch.next < batch.count => {
                     let index = batch.next;
                     batch.next += 1;
                     index
@@ -234,11 +257,13 @@ unsafe fn scoped<T: Sync>(data: &T, count: usize, workers: usize, run: fn(&T, us
         run(data, index);
         let mut guard = pool.state.lock().expect("raster pool submit");
         let done = match guard.batch.as_mut() {
-            Some(batch) => {
+            Some(batch) if batch.id == id => {
                 batch.remaining -= 1;
                 batch.remaining == 0
             }
-            None => true,
+            // Not ours: ours drained while this chunk ran — some other
+            // thread took the last retirement. Nothing left to wait for.
+            _ => return,
         };
         if done {
             guard.batch = None;
@@ -246,9 +271,10 @@ unsafe fn scoped<T: Sync>(data: &T, count: usize, workers: usize, run: fn(&T, us
             return;
         }
     }
-    // Every chunk claimed: wait for the workers' last ones.
+    // Every chunk of ours claimed: wait for the workers' last ones — which
+    // is to say, wait while *our* batch is still the one installed.
     let mut guard = pool.state.lock().expect("raster pool submit");
-    while guard.batch.is_some() {
+    while guard.batch.as_ref().is_some_and(|batch| batch.id == id) {
         guard = pool.finished.wait(guard).expect("raster pool submit waits");
     }
 }
@@ -311,5 +337,52 @@ mod tests {
         super::run_chunks(&Marker, 9, 3, run);
         super::run_chunks(&Marker, 5, 3, run);
         assert_eq!(SEEN.load(Ordering::SeqCst), 14);
+    }
+
+    /// Eight submitters at once, each verifying every chunk of its own
+    /// batch landed its own data. This is the test `Batch::id` exists for:
+    /// before the id check, a submitter whose batch drained while it ran
+    /// its last chunk would claim from the next batch installed, run *its
+    /// own* data at that index, and retire a chunk the foreign batch never
+    /// ran — one of the foreign batch's chunks simply missing from its
+    /// output. It failed within seconds on a 2-core machine, and it is the
+    /// pool's only test that exercises `scoped` from more than one thread
+    /// at a time — which is also why nothing else caught it: the studio's
+    /// repaint tests were its first concurrent callers, flaking about two
+    /// runs in five until `VIEWW_RASTER_THREADS=1` isolated the pool.
+    #[test]
+    fn concurrent_submitters_get_their_own_chunks() {
+        const SUBMITTERS: usize = 8;
+        const CHUNKS: usize = 1024;
+        const ROUNDS: usize = 300;
+        let want: Vec<Vec<usize>> = (0..SUBMITTERS)
+            .map(|submitter| (0..CHUNKS).map(|i| i * 31 + submitter).collect())
+            .collect();
+        struct Job<'a> {
+            want: &'a [usize],
+            got: &'a [AtomicUsize],
+        }
+        fn run(job: &Job, index: usize) {
+            job.got[index].store(job.want[index], Ordering::Relaxed);
+        }
+        std::thread::scope(|scope| {
+            for want in &want {
+                scope.spawn(move || {
+                    for round in 0..ROUNDS {
+                        let got: Vec<AtomicUsize> =
+                            (0..CHUNKS).map(|_| AtomicUsize::new(usize::MAX)).collect();
+                        let job = Job { want, got: &got };
+                        super::run_chunks(&job, CHUNKS, 4, run);
+                        for (index, cell) in got.iter().enumerate() {
+                            assert_eq!(
+                                cell.load(Ordering::Relaxed),
+                                want[index],
+                                "round {round}: chunk {index} never ran its own data"
+                            );
+                        }
+                    }
+                });
+            }
+        });
     }
 }
