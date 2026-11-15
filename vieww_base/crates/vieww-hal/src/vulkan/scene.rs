@@ -82,6 +82,46 @@ use super::{translate_wgsl_to_spirv, Stage, VulkanDevice, VulkanError};
 pub(super) use crate::scene_exec::disjoint;
 pub use crate::scene_exec::Redrawn;
 
+/// The swapchain image a depth-0 frame renders into directly — see
+/// [`SceneRenderer::render_planned_direct`]. No `L[0]`, no carry, no blit:
+/// the render pass's own final layout hands the image to the present.
+#[derive(Clone, Copy)]
+struct DirectFrame {
+    /// A framebuffer over the swapchain image, from
+    /// [`SceneRenderer::direct_framebuffer`].
+    framebuffer: vk::Framebuffer,
+    /// Signalled by the presentation engine when the image may be written;
+    /// the render pass waits on it at `COLOR_ATTACHMENT_OUTPUT`.
+    ready: vk::Semaphore,
+    /// Signalled when the frame's commands finish; the present waits on it.
+    done: vk::Semaphore,
+}
+
+/// Pipelines, render passes and per-image framebuffers for rendering
+/// depth-0 opaque frames straight into swapchain images — built once per
+/// swapchain format, on the first frame that wants the route.
+///
+/// The scene and post pipelines are the same shaders and layouts as the
+/// `RGBA16F` set, compiled against the swapchain's 8-bit format: a frame
+/// rendered this way blends in 8 bits per channel, which every `u8` surface
+/// UI stack does, and skips the `L[0]` load/store, the carry copies and the
+/// f16→UNORM blit that dominated the frame's bandwidth on low-end GPUs.
+struct DirectRoute {
+    format: vk::Format,
+    /// Load-carrying pass (a pass re-opened without a clear).
+    rp_load: vk::RenderPass,
+    /// Clearing pass; `initialLayout` `UNDEFINED`, `finalLayout`
+    /// `PRESENT_SRC_KHR`, so the pass itself performs the layout the present
+    /// needs.
+    rp_clear: vk::RenderPass,
+    scene_pipeline: vk::Pipeline,
+    post_replace: vk::Pipeline,
+    post_over: vk::Pipeline,
+    /// `(index, generation, view, framebuffer)` per swapchain image of the
+    /// current generation; stale generations are pruned as new ones appear.
+    frames: Vec<(u32, u64, vk::ImageView, vk::Framebuffer)>,
+}
+
 /// Where `execute` sends the finished frame instead of the readback buffer:
 /// a presentable image, and the semaphore the blit into it must wait on.
 #[derive(Clone, Copy)]
@@ -127,6 +167,16 @@ struct PendingProbe {
 /// Colour format of every render target.
 const TARGET_FORMAT: vk::Format = vk::Format::R16G16B16A16_SFLOAT;
 
+/// Where a rendered frame ends up: copied back to host memory, blitted from
+/// `L[0]` into a swapchain image, or — for a depth-0 opaque frame — rendered
+/// straight into the swapchain image with no intermediate target at all.
+#[derive(Clone, Copy)]
+enum Out {
+    Readback,
+    Blit(BlitTarget),
+    Direct(DirectFrame),
+}
+
 /// A persistent Vulkan executor for [`ScenePlan`]s. See the module doc.
 pub struct SceneRenderer {
     /// A clone of the device handle (function table + `VkDevice`). The
@@ -159,6 +209,9 @@ pub struct SceneRenderer {
     command_pool: vk::CommandPool,
     command_buffer: vk::CommandBuffer,
     fence: vk::Fence,
+    /// The device's pipeline cache — shared by the direct route's lazily
+    /// built pipelines, so a format's first frame pays the compile once.
+    pipeline_cache: vk::PipelineCache,
 
     glyphs: Texture,
     images: Texture,
@@ -204,6 +257,9 @@ pub struct SceneRenderer {
     /// What each swapchain image holds, so a frame copies only what changed
     /// — see `present_history`.
     presents: PresentHistory,
+    /// The direct route's resources, built on the first frame that wants it
+    /// — see [`DirectRoute`].
+    direct: Option<DirectRoute>,
     /// Host-visible buffers a swapchain image is read into, before and
     /// after a frame's copy, while partial copies are being verified.
     probe_before: Buffer,
@@ -430,8 +486,18 @@ impl SceneRenderer {
         )?;
         let mem_props = device.memory_properties();
 
-        let rp_load = create_render_pass(&handle, vk::AttachmentLoadOp::LOAD)?;
-        let rp_clear = create_render_pass(&handle, vk::AttachmentLoadOp::CLEAR)?;
+        let rp_load = create_render_pass(
+            &handle,
+            vk::AttachmentLoadOp::LOAD,
+            TARGET_FORMAT,
+            vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
+        )?;
+        let rp_clear = create_render_pass(
+            &handle,
+            vk::AttachmentLoadOp::CLEAR,
+            TARGET_FORMAT,
+            vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
+        )?;
 
         // ── descriptor layouts ──────────────────────────────────────────────
         let scene_bindings: Vec<_> = (0..5u32)
@@ -544,49 +610,19 @@ impl SceneRenderer {
         }?;
 
         let f = std::mem::size_of::<f32>() as u32;
-        let attribute =
-            |location: u32, components: u32, offset: u32| vk::VertexInputAttributeDescription {
-                location,
-                binding: 0,
-                format: match components {
-                    1 => vk::Format::R32_SFLOAT,
-                    2 => vk::Format::R32G32_SFLOAT,
-                    _ => vk::Format::R32G32B32A32_SFLOAT,
-                },
-                offset: offset * f,
-            };
-        // `vieww_gpu::Vertex`, field by field: 2 + 4 + 2 + 1 + 4 + 2 + 4 + 4 + 4.
-        // Offsets in floats: position 0, color 2, uv 6, kind 8, params 9,
-        // local 13, extra 15, shape 19, mask 23 — WGSL location 7 is `mask`
-        // (23), location 8 is `shape` (19).
-        let scene_attributes = [
-            attribute(0, 2, 0),
-            attribute(1, 4, 2),
-            attribute(2, 2, 6),
-            attribute(3, 1, 8),
-            attribute(4, 4, 9),
-            attribute(5, 2, 13),
-            attribute(6, 4, 15),
-            attribute(7, 4, 23),
-            attribute(8, 4, 19),
-        ];
+        let (scene_binding, scene_attributes) = scene_vertex_layout();
         assert_eq!(
             std::mem::size_of::<Vertex>() as u32,
             27 * f,
             "vertex layout drifted"
         );
-        let scene_binding = [vk::VertexInputBindingDescription {
-            binding: 0,
-            stride: std::mem::size_of::<Vertex>() as u32,
-            input_rate: vk::VertexInputRate::VERTEX,
-        }];
 
         let scene_pipeline = create_pipeline(
             (&handle, device.pipeline_cache()),
             rp_load,
             scene_layout,
             (shaders[0], shaders[1]),
-            &scene_binding,
+            &[scene_binding],
             &scene_attributes,
             true,
         )?;
@@ -688,6 +724,7 @@ impl SceneRenderer {
             command_pool,
             command_buffer,
             fence,
+            pipeline_cache: device.pipeline_cache(),
             glyphs,
             images,
             masks,
@@ -710,6 +747,7 @@ impl SceneRenderer {
             overlap: true,
             settled_wait: Duration::ZERO,
             presents: PresentHistory::new(),
+            direct: None,
             probe_before: Buffer::EMPTY,
             probe_after: Buffer::EMPTY,
             pending_probe: None,
@@ -764,16 +802,45 @@ impl SceneRenderer {
         )
     }
 
-    /// Upload every atlas `planner` holds that changed since the last upload.
+    /// Upload every atlas `planner` holds that changed since the last upload,
+    /// as **one submission of their own** — for callers that upload without
+    /// rendering a frame straight after.
     ///
     /// # Errors
     ///
     /// Any Vulkan call failing.
     pub fn upload_planner(&mut self, planner: &Planner) -> Result<(), VulkanError> {
         self.settle()?;
-        self.upload_atlas(planner.atlas())?;
+        self.begin_commands()?;
+        self.record_planner_uploads(planner)?;
+        self.submit_and_wait(None).map(|_| ())
+    }
+
+    /// Record every changed atlas `planner` holds into the **open** command
+    /// buffer, so the frame that follows records around it and the whole
+    /// frame — uploads, geometry, passes, blit — is one submission.
+    ///
+    /// Each changed atlas used to be its own `submit_and_wait`: a mid-frame
+    /// CPU block and pipeline drain apiece, which a storm of new sparkline
+    /// masks paid every frame. Recorded instead, the copies' own barriers
+    /// order them ahead of the render pass that samples them, and the frame
+    /// pays one submit.
+    ///
+    /// # Errors
+    ///
+    /// Any Vulkan call failing.
+    fn record_planner_uploads(&mut self, planner: &Planner) -> Result<(), VulkanError> {
+        let atlas = planner.atlas();
+        self.record_upload(
+            Slot::Glyphs,
+            atlas.texels(),
+            atlas.side(),
+            atlas.side(),
+            Some(atlas.version()),
+            false,
+        )?;
         let images = planner.image_atlas();
-        self.upload(
+        self.record_upload(
             Slot::Images,
             images.texels(),
             images.side(),
@@ -781,9 +848,9 @@ impl SceneRenderer {
             Some(images.version()),
             false,
         )?;
-        self.upload_masks(planner.mask_atlas())?;
+        self.record_masks(planner.mask_atlas())?;
         let ramps = planner.ramp_atlas();
-        self.upload(
+        self.record_upload(
             Slot::Ramps,
             as_bytes(ramps.texels()),
             vieww_gpu::RampAtlas::WIDTH,
@@ -814,6 +881,18 @@ impl SceneRenderer {
     /// Any Vulkan call failing.
     pub fn upload_masks(&mut self, masks: &vieww_gpu::MaskAtlas) -> Result<(), VulkanError> {
         self.settle()?;
+        self.begin_commands()?;
+        self.record_masks(masks)?;
+        self.submit_and_wait(None).map(|_| ())
+    }
+
+    /// [`Self::upload_masks`], recorded into the open command buffer — the
+    /// folded form [`Self::record_planner_uploads`] uses.
+    ///
+    /// # Errors
+    ///
+    /// Any Vulkan call failing.
+    fn record_masks(&mut self, masks: &vieww_gpu::MaskAtlas) -> Result<(), VulkanError> {
         let held = self.texture(Slot::Masks).version;
         let side = masks.side();
         let same_size = {
@@ -825,7 +904,7 @@ impl SceneRenderer {
             vieww_gpu::MaskChanges::None => return Ok(()),
             vieww_gpu::MaskChanges::Regions(rects) if same_size => rects,
             _ => {
-                self.upload(
+                self.record_upload(
                     Slot::Masks,
                     masks.texels(),
                     side,
@@ -892,7 +971,6 @@ impl SceneRenderer {
             let t = self.texture(Slot::Masks);
             (t.image, t.staging.handle)
         };
-        self.begin_commands()?;
         let cmd = self.command_buffer;
         unsafe {
             // From the layout the last upload left it in, so the texels
@@ -919,7 +997,6 @@ impl SceneRenderer {
                 vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
             );
         }
-        self.submit_and_wait(None)?;
         self.texture_mut(Slot::Masks).version = version;
         self.mask_upload_bytes = needed;
         Ok(())
@@ -1066,12 +1143,13 @@ impl SceneRenderer {
         self.timings = GpuFrameTimings::default();
         let started = Instant::now();
         self.ensure_targets(width, height, plan.target_depth + 1)?;
+        self.begin_commands()?;
         #[allow(clippy::cast_precision_loss)]
         let viewport = [width as f32, height as f32, 0.0, 0.0];
         write_bytes(&self.device, self.uniform.memory, as_bytes(&viewport))?;
         self.upload_geometry(plan)?;
         self.timings.upload = started.elapsed();
-        let redrawn = self.execute(plan, width, height, clear, None, damage)?;
+        let redrawn = self.execute(plan, width, height, clear, Out::Readback, damage)?;
         let started = Instant::now();
         let pixels = self.read_back(width, height)?;
         self.timings.readback = started.elapsed();
@@ -1149,8 +1227,14 @@ impl SceneRenderer {
         };
         self.timings = GpuFrameTimings::default();
         let started = Instant::now();
-        self.upload_planner(planner)?;
+        // Targets first: a resize re-begins the command buffer of its own
+        // (`initialise_targets`), and the uploads below must not be recorded
+        // into a buffer that is about to be reset.
         self.ensure_targets(render_width, render_height, plan.target_depth + 1)?;
+        // One submission for the whole frame: the changed atlases record
+        // first, the frame's passes around them.
+        self.begin_commands()?;
+        self.record_planner_uploads(planner)?;
         #[expect(clippy::cast_precision_loss, reason = "frame extents")]
         let viewport = [render_width as f32, render_height as f32, 0.0, 0.0];
         write_bytes(&self.device, self.uniform.memory, as_bytes(&viewport))?;
@@ -1172,7 +1256,245 @@ impl SceneRenderer {
             partial: target.partial,
             bgra: target.bgra,
         };
-        self.execute(plan, render_width, render_height, clear, Some(blit), damage)
+        self.execute(
+            plan,
+            render_width,
+            render_height,
+            clear,
+            Out::Blit(blit),
+            damage,
+        )
+    }
+
+    /// Execute a complete **depth-0** `plan` straight into `target`'s
+    /// swapchain image — no `L[0]`, no carry, no blit.
+    ///
+    /// The route exists for the frame a low-end GPU spends most of its
+    /// bandwidth on: an opaque, layer-less screen. There the `RGBA16F`
+    /// route's costs are all overhead — a full-frame render pass over an
+    /// 8-bytes-per-pixel target that loads and stores the damage's bounding
+    /// box, carry copies through a scratch image, and an f16→8-bit blit of
+    /// the whole screen every frame — while the direct route is one render
+    /// pass into the image the compositor reads, blending in its own 8-bit
+    /// format. On an Adreno 612 at 1080x2340 that is roughly a quarter of the
+    /// memory traffic for the same drawing.
+    ///
+    /// The frame always redraws in full: a swapchain image is one of several,
+    /// so the kept-`L[0]` damage model does not describe it (see
+    /// [`Out::Direct`]). `L[0]`'s retained state is invalidated, so a later
+    /// frame that falls back to [`render_planned_to`](Self::render_planned_to)
+    /// — a plan with layers, a translucent window, a resolution scale —
+    /// redraws in full too.
+    ///
+    /// Only for an **opaque** frame (`clear.a == 255`) at the image's own
+    /// extent, as the blit route also requires; the caller checks
+    /// [`AcquiredImage::color_attachment`] before choosing this route.
+    ///
+    /// # Errors
+    ///
+    /// An incomplete plan, a plan with layers, a translucent clear, or any
+    /// Vulkan call failing. On error `target` is still the caller's to
+    /// present or abandon.
+    #[cfg(feature = "vulkan-swapchain")]
+    pub fn render_planned_direct(
+        &mut self,
+        planner: &Planner,
+        plan: &ScenePlan,
+        clear: Color,
+        target: &AcquiredImage,
+    ) -> Result<Redrawn, VulkanError> {
+        self.settle()?;
+        if !plan.is_complete() {
+            return Err(VulkanError::Vulkan("incomplete plan".into()));
+        }
+        if plan.target_depth != 0 {
+            return Err(VulkanError::Vulkan(
+                "render_planned_direct needs a depth-0 plan; use render_planned_to".into(),
+            ));
+        }
+        if clear.a != 255 {
+            return Err(VulkanError::Vulkan(
+                "render_planned_direct needs an opaque clear; use render_planned".into(),
+            ));
+        }
+        let (width, height) = target.extent();
+        if width == 0 || height == 0 {
+            return Err(VulkanError::Vulkan("zero-sized swapchain image".into()));
+        }
+        self.timings = GpuFrameTimings::default();
+        let started = Instant::now();
+        self.ensure_direct(target.bgra)?;
+        let framebuffer = self.direct_framebuffer(target, width, height)?;
+        // One submission for the whole frame: the changed atlases record
+        // first, the frame's passes around them.
+        self.begin_commands()?;
+        self.record_planner_uploads(planner)?;
+        #[expect(clippy::cast_precision_loss, reason = "frame extents")]
+        let viewport = [width as f32, height as f32, 0.0, 0.0];
+        write_bytes(&self.device, self.uniform.memory, as_bytes(&viewport))?;
+        self.upload_geometry(plan)?;
+        self.timings.upload = started.elapsed();
+        let frame = DirectFrame {
+            framebuffer,
+            ready: target.ready,
+            done: target.done,
+        };
+        self.execute(plan, width, height, clear, Out::Direct(frame), None)
+    }
+
+    /// Build the direct route for `bgra`'s swapchain format, if it is not
+    /// built already. One set of render passes and pipelines per format;
+    /// `settle` has already run, so anything replaced is idle.
+    fn ensure_direct(&mut self, bgra: bool) -> Result<(), VulkanError> {
+        let format = if bgra {
+            vk::Format::B8G8R8A8_UNORM
+        } else {
+            vk::Format::R8G8B8A8_UNORM
+        };
+        if self
+            .direct
+            .as_ref()
+            .is_some_and(|route| route.format == format)
+        {
+            return Ok(());
+        }
+        let rp_clear = create_render_pass(
+            &self.device,
+            vk::AttachmentLoadOp::CLEAR,
+            format,
+            vk::ImageLayout::PRESENT_SRC_KHR,
+        )?;
+        let rp_load = create_render_pass(
+            &self.device,
+            vk::AttachmentLoadOp::LOAD,
+            format,
+            vk::ImageLayout::PRESENT_SRC_KHR,
+        )?;
+        let (binding, attributes) = scene_vertex_layout();
+        let (shaders, scene_layout, post_layout, cache) = (
+            &self.shaders,
+            self.scene_layout,
+            self.post_layout,
+            self.pipeline_cache,
+        );
+        let scene_pipeline = create_pipeline(
+            (&self.device, cache),
+            rp_clear,
+            scene_layout,
+            (shaders[0], shaders[1]),
+            &[binding],
+            &attributes,
+            true,
+        )?;
+        let post_replace = create_pipeline(
+            (&self.device, cache),
+            rp_clear,
+            post_layout,
+            (shaders[2], shaders[3]),
+            &[],
+            &[],
+            false,
+        )?;
+        let post_over = create_pipeline(
+            (&self.device, cache),
+            rp_clear,
+            post_layout,
+            (shaders[2], shaders[3]),
+            &[],
+            &[],
+            true,
+        )?;
+        if let Some(old) = self.direct.take() {
+            for (_, _, view, framebuffer) in old.frames {
+                unsafe {
+                    self.device.destroy_image_view(view, None);
+                    self.device.destroy_framebuffer(framebuffer, None);
+                }
+            }
+            unsafe {
+                self.device.destroy_render_pass(old.rp_load, None);
+                self.device.destroy_render_pass(old.rp_clear, None);
+                for pipeline in [old.scene_pipeline, old.post_replace, old.post_over] {
+                    self.device.destroy_pipeline(pipeline, None);
+                }
+            }
+        }
+        self.direct = Some(DirectRoute {
+            format,
+            rp_load,
+            rp_clear,
+            scene_pipeline,
+            post_replace,
+            post_over,
+            frames: Vec::new(),
+        });
+        Ok(())
+    }
+
+    /// The framebuffer over `target`'s image, creating it (and dropping
+    /// another generation's stale ones) on first sight.
+    #[cfg(feature = "vulkan-swapchain")]
+    fn direct_framebuffer(
+        &mut self,
+        target: &AcquiredImage,
+        width: u32,
+        height: u32,
+    ) -> Result<vk::Framebuffer, VulkanError> {
+        let route = self
+            .direct
+            .as_mut()
+            .expect("ensure_direct ran before direct_framebuffer");
+        if let Some(&(_, _, _, framebuffer)) =
+            route.frames.iter().find(|&&(index, generation, _, _)| {
+                index == target.index && generation == target.generation
+            })
+        {
+            return Ok(framebuffer);
+        }
+        let view = unsafe {
+            self.device.create_image_view(
+                &vk::ImageViewCreateInfo::default()
+                    .image(target.image)
+                    .view_type(vk::ImageViewType::TYPE_2D)
+                    .format(route.format)
+                    .subresource_range(color_range()),
+                None,
+            )?
+        };
+        let rp = route.rp_clear;
+        let framebuffer = unsafe {
+            self.device.create_framebuffer(
+                &vk::FramebufferCreateInfo::default()
+                    .render_pass(rp)
+                    .attachments(&[view])
+                    .width(width)
+                    .height(height)
+                    .layers(1),
+                None,
+            )?
+        };
+        // Another generation's views and framebuffers can no longer be
+        // reached — `settle` has run, no frame can still be using them. The
+        // other images of this generation stay: the next frame wants them.
+        let stale: Vec<(u32, u64, vk::ImageView, vk::Framebuffer)> = route
+            .frames
+            .iter()
+            .filter(|&&(_, generation, _, _)| generation != target.generation)
+            .copied()
+            .collect();
+        route
+            .frames
+            .retain(|&(_, generation, _, _)| generation == target.generation);
+        for (_, _, view, framebuffer) in stale {
+            unsafe {
+                self.device.destroy_image_view(view, None);
+                self.device.destroy_framebuffer(framebuffer, None);
+            }
+        }
+        route
+            .frames
+            .push((target.index, target.generation, view, framebuffer));
+        Ok(framebuffer)
     }
 
     // ── targets ────────────────────────────────────────────────────────────
@@ -1391,6 +1713,26 @@ impl SceneRenderer {
         version: Option<u64>,
         force: bool,
     ) -> Result<(), VulkanError> {
+        self.begin_commands()?;
+        self.record_upload(slot, bytes, width, height, version, force)?;
+        self.submit_and_wait(None).map(|_| ())
+    }
+
+    /// [`Self::upload`], recorded into the open command buffer instead of a
+    /// submission of its own — the folded form every frame render uses.
+    ///
+    /// # Errors
+    ///
+    /// Any Vulkan call failing.
+    fn record_upload(
+        &mut self,
+        slot: Slot,
+        bytes: &[u8],
+        width: u32,
+        height: u32,
+        version: Option<u64>,
+        force: bool,
+    ) -> Result<(), VulkanError> {
         let (format, resized, current) = {
             let t = self.texture(slot);
             (
@@ -1431,7 +1773,6 @@ impl SceneRenderer {
             let t = self.texture(slot);
             (t.image, t.staging.handle)
         };
-        self.begin_commands()?;
         let cmd = self.command_buffer;
         unsafe {
             // UNDEFINED as the old layout on purpose: the whole image is being
@@ -1469,7 +1810,6 @@ impl SceneRenderer {
                 vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
             );
         }
-        self.submit_and_wait(None)?;
 
         if resized || force {
             let info = [vk::DescriptorImageInfo {
@@ -1669,13 +2009,26 @@ impl SceneRenderer {
         width: u32,
         height: u32,
         clear: Color,
-        out: Option<BlitTarget>,
+        out: Out,
         damage: Option<&[PixelRect]>,
     ) -> Result<Redrawn, VulkanError> {
         let recording = Instant::now();
-        let exec = frame_passes(plan, width, height, clear, damage, self.retained);
+        // The direct route always redraws in full: a swapchain image is one of
+        // several, so the kept-`L[0]` damage model does not describe it, and
+        // the bandwidth the route exists to save would be spent again on
+        // per-image catch-up instead.
+        let direct = matches!(out, Out::Direct(_));
+        let exec = frame_passes(
+            plan,
+            width,
+            height,
+            clear,
+            if direct { None } else { damage },
+            if direct { None } else { self.retained },
+        );
         // Until this frame finishes, `L[0]` is half-drawn: no later frame may
-        // keep it.
+        // keep it. A direct frame never touches `L[0]`, but the screen has
+        // moved on from what it holds all the same.
         self.retained = None;
         self.frame_clip = exec.frame_clip;
         let copies = std::mem::take(&mut self.pending_copies);
@@ -1686,19 +2039,38 @@ impl SceneRenderer {
         };
         // Every frame changes `L[0]`, whether or not it reaches a swapchain
         // image; an image written later has to catch up on all of them —
-        // the carried rows included.
-        let changed: Option<Vec<PixelRect>> = self.frame_clip.as_ref().map(|clip| {
-            clip.iter()
-                .copied()
-                .chain(copies.iter().map(|(_, dst)| *dst))
-                .collect()
-        });
+        // the carried rows included. A direct frame writes a whole swapchain
+        // image, so every image has catching up to do.
+        let changed: Option<Vec<PixelRect>> = if direct {
+            None
+        } else {
+            self.frame_clip.as_ref().map(|clip| {
+                clip.iter()
+                    .copied()
+                    .chain(copies.iter().map(|(_, dst)| *dst))
+                    .collect()
+            })
+        };
         self.presents.record_change(changed.as_deref());
-        self.begin_commands()?;
         self.begin_marks();
         if !copies.is_empty() {
             self.carry(&copies);
         }
+        let direct_frame = match out {
+            Out::Direct(frame) => Some(frame),
+            _ => None,
+        };
+        // The pipelines this frame binds: the swapchain-format set on the
+        // direct route, the `RGBA16F` set on every other.
+        let (scene_pipeline, post_replace, post_over) = if direct_frame.is_some() {
+            let route = self
+                .direct
+                .as_ref()
+                .expect("a direct frame means the route exists");
+            (route.scene_pipeline, route.post_replace, route.post_over)
+        } else {
+            (self.scene_pipeline, self.post_replace, self.post_over)
+        };
         let mut rec = Recorder {
             open: None,
             width,
@@ -1708,6 +2080,10 @@ impl SceneRenderer {
                 .as_deref()
                 .and_then(|clip| damage_area(clip, width, height))
                 .unwrap_or_else(|| full_rect(width, height)),
+            direct: direct_frame,
+            scene_pipeline,
+            post_replace,
+            post_over,
         };
         // Which pipeline (and its descriptor set and buffers) is bound, so a
         // run of same-kind ops binds once — the dedup the traversal's single
@@ -1760,7 +2136,7 @@ impl SceneRenderer {
                     self.mark(PassKind::Draw);
                     rec.ensure_open(self, *target);
                     if bound != Bound::Scene {
-                        self.bind_scene();
+                        self.bind_scene(rec.scene_pipeline);
                         bound = Bound::Scene;
                     }
                     unsafe {
@@ -1793,9 +2169,9 @@ impl SceneRenderer {
                                 self.command_buffer,
                                 vk::PipelineBindPoint::GRAPHICS,
                                 if pass.over {
-                                    self.post_over
+                                    rec.post_over
                                 } else {
-                                    self.post_replace
+                                    rec.post_replace
                                 },
                             );
                         }
@@ -1833,230 +2209,241 @@ impl SceneRenderer {
         self.mark(PassKind::Blit);
 
         let cmd = self.command_buffer;
-        let frame = self.levels[0].image;
-        unsafe {
-            transition(
-                &self.device,
-                cmd,
-                frame,
-                vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
-                vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
-            );
-        }
-        match out {
-            None => unsafe {
-                self.device.cmd_copy_image_to_buffer(
+        // A direct frame's render pass already left its image in
+        // `PRESENT_SRC_KHR`; there is nothing to copy out or blit. (The blit
+        // mark stays, so a frame's GPU attribution still adds up — the
+        // interval it opens is simply empty.)
+        if !direct {
+            let frame = self.levels[0].image;
+            unsafe {
+                transition(
+                    &self.device,
                     cmd,
                     frame,
+                    vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
                     vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
-                    self.readback.handle,
-                    &[vk::BufferImageCopy {
+                );
+            }
+            match out {
+                Out::Readback => unsafe {
+                    self.device.cmd_copy_image_to_buffer(
+                        cmd,
+                        frame,
+                        vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
+                        self.readback.handle,
+                        &[vk::BufferImageCopy {
+                            buffer_offset: 0,
+                            buffer_row_length: 0,
+                            buffer_image_height: 0,
+                            image_subresource: color_layers(),
+                            image_offset: vk::Offset3D::default(),
+                            image_extent: vk::Extent3D {
+                                width,
+                                height,
+                                depth: 1,
+                            },
+                        }],
+                    );
+                },
+                Out::Direct(_) => {}
+                Out::Blit(target) => unsafe {
+                    // The frame straight into the presentable image. The blit
+                    // converts RGBA16F to the swapchain's 8-bit UNORM (and to
+                    // BGRA order when that is the format) on the GPU; the frame
+                    // is opaque (see `render_planned_to`), so premultiplied and
+                    // straight are the same numbers and nothing is lost. The
+                    // source corner is the render extent, the destination the
+                    // swapchain image's — the same numbers at full resolution,
+                    // an enlargement when a resolution scale is on.
+                    //
+                    // **Only what changed since this image was last written**,
+                    // once this device has shown that its images keep what was
+                    // written to them (`present_history`); until then, and on a
+                    // scaled frame, all of it.
+                    let [dst_width, dst_height] = target.dst_extent;
+                    let plan = self.presents.plan(
+                        target.index,
+                        target.generation,
+                        (dst_width, dst_height),
+                        target.partial,
+                        target.src_extent == target.dst_extent,
+                    );
+                    if plan.read_before || plan.read_after {
+                        self.ensure_probe_buffers(
+                            u64::from(dst_width) * u64::from(dst_height) * 4,
+                        )?;
+                    }
+                    let image_copy = vk::BufferImageCopy {
                         buffer_offset: 0,
                         buffer_row_length: 0,
                         buffer_image_height: 0,
                         image_subresource: color_layers(),
                         image_offset: vk::Offset3D::default(),
                         image_extent: vk::Extent3D {
-                            width,
-                            height,
+                            width: dst_width,
+                            height: dst_height,
                             depth: 1,
                         },
-                    }],
+                    };
+                    if plan.read_before {
+                        // What the image kept since it was last written.
+                        transition(
+                            &self.device,
+                            cmd,
+                            target.image,
+                            vk::ImageLayout::PRESENT_SRC_KHR,
+                            vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
+                        );
+                        self.device.cmd_copy_image_to_buffer(
+                            cmd,
+                            target.image,
+                            vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
+                            self.probe_before.handle,
+                            &[image_copy],
+                        );
+                        transition(
+                            &self.device,
+                            cmd,
+                            target.image,
+                            vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
+                            vk::ImageLayout::TRANSFER_DST_OPTIMAL,
+                        );
+                    } else {
+                        // A partial copy keeps the image's pixels, so its layout
+                        // moves on from where the last present left it; a full
+                        // one lets the driver discard them.
+                        transition(
+                            &self.device,
+                            cmd,
+                            target.image,
+                            if plan.region.is_some() {
+                                vk::ImageLayout::PRESENT_SRC_KHR
+                            } else {
+                                vk::ImageLayout::UNDEFINED
+                            },
+                            vk::ImageLayout::TRANSFER_DST_OPTIMAL,
+                        );
+                    }
+                    #[expect(clippy::cast_possible_wrap, reason = "frame extents")]
+                    let corner = |extent: [u32; 2]| vk::Offset3D {
+                        x: extent[0] as i32,
+                        y: extent[1] as i32,
+                        z: 1,
+                    };
+                    let regions: Vec<vk::ImageBlit> = match &plan.region {
+                        None => vec![vk::ImageBlit {
+                            src_subresource: color_layers(),
+                            src_offsets: [vk::Offset3D::default(), corner(target.src_extent)],
+                            dst_subresource: color_layers(),
+                            dst_offsets: [vk::Offset3D::default(), corner(target.dst_extent)],
+                        }],
+                        Some(rects) => rects
+                            .iter()
+                            .map(|r| {
+                                let offsets = [
+                                    vk::Offset3D {
+                                        x: r.x0,
+                                        y: r.y0,
+                                        z: 0,
+                                    },
+                                    vk::Offset3D {
+                                        x: r.x1,
+                                        y: r.y1,
+                                        z: 1,
+                                    },
+                                ];
+                                vk::ImageBlit {
+                                    src_subresource: color_layers(),
+                                    src_offsets: offsets,
+                                    dst_subresource: color_layers(),
+                                    dst_offsets: offsets,
+                                }
+                            })
+                            .collect(),
+                    };
+                    if !regions.is_empty() {
+                        self.device.cmd_blit_image(
+                            cmd,
+                            frame,
+                            vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
+                            target.image,
+                            vk::ImageLayout::TRANSFER_DST_OPTIMAL,
+                            &regions,
+                            target.filter,
+                        );
+                    }
+                    if plan.read_after {
+                        // What the image now holds, for the next frame that
+                        // writes it to check against.
+                        transition(
+                            &self.device,
+                            cmd,
+                            target.image,
+                            vk::ImageLayout::TRANSFER_DST_OPTIMAL,
+                            vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
+                        );
+                        self.device.cmd_copy_image_to_buffer(
+                            cmd,
+                            target.image,
+                            vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
+                            self.probe_after.handle,
+                            &[image_copy],
+                        );
+                        transition(
+                            &self.device,
+                            cmd,
+                            target.image,
+                            vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
+                            vk::ImageLayout::PRESENT_SRC_KHR,
+                        );
+                    } else {
+                        transition(
+                            &self.device,
+                            cmd,
+                            target.image,
+                            vk::ImageLayout::TRANSFER_DST_OPTIMAL,
+                            vk::ImageLayout::PRESENT_SRC_KHR,
+                        );
+                    }
+                    if plan.compare_frame {
+                        // The frame itself, to compare the image with.
+                        self.device.cmd_copy_image_to_buffer(
+                            cmd,
+                            frame,
+                            vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
+                            self.readback.handle,
+                            &[image_copy],
+                        );
+                    }
+                    present_history::count_copy(
+                        &plan,
+                        (dst_width, dst_height),
+                        self.presents.trust(),
+                        target.partial,
+                    );
+                    if plan.read_before || plan.read_after || plan.compare_frame {
+                        self.pending_probe = Some(PendingProbe {
+                            index: target.index,
+                            before: plan.read_before,
+                            after: plan.read_after,
+                            compare: plan.compare_frame,
+                            extent: (dst_width, dst_height),
+                            bgra: target.bgra,
+                        });
+                    }
+                },
+            }
+            // `L[0]` returns to the layout every target rests in.
+            let frame = self.levels[0].image;
+            unsafe {
+                transition(
+                    &self.device,
+                    cmd,
+                    frame,
+                    vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
+                    vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
                 );
-            },
-            Some(target) => unsafe {
-                // The frame straight into the presentable image. The blit
-                // converts RGBA16F to the swapchain's 8-bit UNORM (and to
-                // BGRA order when that is the format) on the GPU; the frame
-                // is opaque (see `render_planned_to`), so premultiplied and
-                // straight are the same numbers and nothing is lost. The
-                // source corner is the render extent, the destination the
-                // swapchain image's — the same numbers at full resolution,
-                // an enlargement when a resolution scale is on.
-                //
-                // **Only what changed since this image was last written**,
-                // once this device has shown that its images keep what was
-                // written to them (`present_history`); until then, and on a
-                // scaled frame, all of it.
-                let [dst_width, dst_height] = target.dst_extent;
-                let plan = self.presents.plan(
-                    target.index,
-                    target.generation,
-                    (dst_width, dst_height),
-                    target.partial,
-                    target.src_extent == target.dst_extent,
-                );
-                if plan.read_before || plan.read_after {
-                    self.ensure_probe_buffers(u64::from(dst_width) * u64::from(dst_height) * 4)?;
-                }
-                let image_copy = vk::BufferImageCopy {
-                    buffer_offset: 0,
-                    buffer_row_length: 0,
-                    buffer_image_height: 0,
-                    image_subresource: color_layers(),
-                    image_offset: vk::Offset3D::default(),
-                    image_extent: vk::Extent3D {
-                        width: dst_width,
-                        height: dst_height,
-                        depth: 1,
-                    },
-                };
-                if plan.read_before {
-                    // What the image kept since it was last written.
-                    transition(
-                        &self.device,
-                        cmd,
-                        target.image,
-                        vk::ImageLayout::PRESENT_SRC_KHR,
-                        vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
-                    );
-                    self.device.cmd_copy_image_to_buffer(
-                        cmd,
-                        target.image,
-                        vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
-                        self.probe_before.handle,
-                        &[image_copy],
-                    );
-                    transition(
-                        &self.device,
-                        cmd,
-                        target.image,
-                        vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
-                        vk::ImageLayout::TRANSFER_DST_OPTIMAL,
-                    );
-                } else {
-                    // A partial copy keeps the image's pixels, so its layout
-                    // moves on from where the last present left it; a full
-                    // one lets the driver discard them.
-                    transition(
-                        &self.device,
-                        cmd,
-                        target.image,
-                        if plan.region.is_some() {
-                            vk::ImageLayout::PRESENT_SRC_KHR
-                        } else {
-                            vk::ImageLayout::UNDEFINED
-                        },
-                        vk::ImageLayout::TRANSFER_DST_OPTIMAL,
-                    );
-                }
-                #[expect(clippy::cast_possible_wrap, reason = "frame extents")]
-                let corner = |extent: [u32; 2]| vk::Offset3D {
-                    x: extent[0] as i32,
-                    y: extent[1] as i32,
-                    z: 1,
-                };
-                let regions: Vec<vk::ImageBlit> = match &plan.region {
-                    None => vec![vk::ImageBlit {
-                        src_subresource: color_layers(),
-                        src_offsets: [vk::Offset3D::default(), corner(target.src_extent)],
-                        dst_subresource: color_layers(),
-                        dst_offsets: [vk::Offset3D::default(), corner(target.dst_extent)],
-                    }],
-                    Some(rects) => rects
-                        .iter()
-                        .map(|r| {
-                            let offsets = [
-                                vk::Offset3D {
-                                    x: r.x0,
-                                    y: r.y0,
-                                    z: 0,
-                                },
-                                vk::Offset3D {
-                                    x: r.x1,
-                                    y: r.y1,
-                                    z: 1,
-                                },
-                            ];
-                            vk::ImageBlit {
-                                src_subresource: color_layers(),
-                                src_offsets: offsets,
-                                dst_subresource: color_layers(),
-                                dst_offsets: offsets,
-                            }
-                        })
-                        .collect(),
-                };
-                if !regions.is_empty() {
-                    self.device.cmd_blit_image(
-                        cmd,
-                        frame,
-                        vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
-                        target.image,
-                        vk::ImageLayout::TRANSFER_DST_OPTIMAL,
-                        &regions,
-                        target.filter,
-                    );
-                }
-                if plan.read_after {
-                    // What the image now holds, for the next frame that
-                    // writes it to check against.
-                    transition(
-                        &self.device,
-                        cmd,
-                        target.image,
-                        vk::ImageLayout::TRANSFER_DST_OPTIMAL,
-                        vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
-                    );
-                    self.device.cmd_copy_image_to_buffer(
-                        cmd,
-                        target.image,
-                        vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
-                        self.probe_after.handle,
-                        &[image_copy],
-                    );
-                    transition(
-                        &self.device,
-                        cmd,
-                        target.image,
-                        vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
-                        vk::ImageLayout::PRESENT_SRC_KHR,
-                    );
-                } else {
-                    transition(
-                        &self.device,
-                        cmd,
-                        target.image,
-                        vk::ImageLayout::TRANSFER_DST_OPTIMAL,
-                        vk::ImageLayout::PRESENT_SRC_KHR,
-                    );
-                }
-                if plan.compare_frame {
-                    // The frame itself, to compare the image with.
-                    self.device.cmd_copy_image_to_buffer(
-                        cmd,
-                        frame,
-                        vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
-                        self.readback.handle,
-                        &[image_copy],
-                    );
-                }
-                present_history::count_copy(
-                    &plan,
-                    (dst_width, dst_height),
-                    self.presents.trust(),
-                    target.partial,
-                );
-                if plan.read_before || plan.read_after || plan.compare_frame {
-                    self.pending_probe = Some(PendingProbe {
-                        index: target.index,
-                        before: plan.read_before,
-                        after: plan.read_after,
-                        compare: plan.compare_frame,
-                        extent: (dst_width, dst_height),
-                        bgra: target.bgra,
-                    });
-                }
-            },
-        }
-        unsafe {
-            transition(
-                &self.device,
-                cmd,
-                frame,
-                vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
-                vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
-            );
+            }
         }
         self.end_marks();
         self.timings.record = recording.elapsed();
@@ -2064,33 +2451,45 @@ impl SceneRenderer {
         // What waiting for the previous frame cost this one, when they
         // overlap — see `settle`.
         let carried = std::mem::take(&mut self.settled_wait);
-        match out {
-            Some(target) if self.overlap => {
-                self.timings.submit = self.submit(Some(target.ready), Some(target.done))?;
-                self.timings.wait = carried;
-                self.in_flight = true;
-            }
-            _ => {
-                self.timings.submit = self.submit(out.map(|t| t.ready), out.map(|t| t.done))?;
-                self.timings.wait = carried + self.wait_for_fence()?;
-                self.collect_marks();
-                self.collect_probe()?;
-            }
+        // The direct route's render pass is the first thing to touch the
+        // swapchain image, so the acquire semaphore is waited where that
+        // pass begins; the blit waits at `TRANSFER`, as it always did.
+        let (wait, signal, stage) = match out {
+            Out::Readback => (None, None, vk::PipelineStageFlags::TRANSFER),
+            Out::Blit(target) => (
+                Some(target.ready),
+                Some(target.done),
+                vk::PipelineStageFlags::TRANSFER,
+            ),
+            Out::Direct(frame) => (
+                Some(frame.ready),
+                Some(frame.done),
+                vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT,
+            ),
+        };
+        if self.overlap && !matches!(out, Out::Readback) {
+            self.timings.submit = self.submit(wait, signal, stage)?;
+            self.timings.wait = carried;
+            self.in_flight = true;
+        } else {
+            self.timings.submit = self.submit(wait, signal, stage)?;
+            self.timings.wait = carried + self.wait_for_fence()?;
+            self.collect_marks();
+            self.collect_probe()?;
         }
-        self.retained = Some(exec.retained);
+        if !direct {
+            self.retained = Some(exec.retained);
+        }
         Ok(exec.redrawn)
     }
 
     /// Bind the scene pipeline, its descriptor set and the geometry buffers —
     /// the one bind a run of [`SceneOp::DrawRun`] shares.
-    fn bind_scene(&self) {
+    fn bind_scene(&self, pipeline: vk::Pipeline) {
         let cmd = self.command_buffer;
         unsafe {
-            self.device.cmd_bind_pipeline(
-                cmd,
-                vk::PipelineBindPoint::GRAPHICS,
-                self.scene_pipeline,
-            );
+            self.device
+                .cmd_bind_pipeline(cmd, vk::PipelineBindPoint::GRAPHICS, pipeline);
             self.device.cmd_bind_descriptor_sets(
                 cmd,
                 vk::PipelineBindPoint::GRAPHICS,
@@ -2114,17 +2513,19 @@ impl SceneRenderer {
         &self,
         wait: Option<vk::Semaphore>,
     ) -> Result<(Duration, Duration), VulkanError> {
-        let submitted = self.submit(wait, None)?;
+        let submitted = self.submit(wait, None, vk::PipelineStageFlags::TRANSFER)?;
         Ok((submitted, self.wait_for_fence()?))
     }
 
     /// Submit the recorded command buffer against the fence, waiting on
-    /// `wait` before its transfers and signalling `signal` when it is done.
-    /// Returns how long the submit took.
+    /// `wait` before the pipeline `stage` names — the blit's transfers, or a
+    /// direct frame's first colour writes — and signalling `signal` when it
+    /// is done. Returns how long the submit took.
     fn submit(
         &self,
         wait: Option<vk::Semaphore>,
         signal: Option<vk::Semaphore>,
+        stage: vk::PipelineStageFlags,
     ) -> Result<Duration, VulkanError> {
         debug_assert!(
             !self.in_flight,
@@ -2134,9 +2535,7 @@ impl SceneRenderer {
         let cmds = [cmd];
         let waits: Vec<vk::Semaphore> = wait.into_iter().collect();
         let signals: Vec<vk::Semaphore> = signal.into_iter().collect();
-        // The whole program may run before the swapchain image is free; only
-        // the blit into it must wait.
-        let stages = vec![vk::PipelineStageFlags::TRANSFER; waits.len()];
+        let stages = vec![stage; waits.len()];
         let submitting = Instant::now();
         unsafe {
             self.device.end_command_buffer(cmd)?;
@@ -2351,6 +2750,15 @@ struct Recorder {
     /// same as for a whole screen. Everything a damaged frame draws into
     /// `L[0]` is scissored inside the damage, so the area loses nothing.
     frame_area: vk::Rect2D,
+    /// The swapchain image a direct frame renders `Level(0)` into, with the
+    /// render passes and pipelines for its format — `None` on the `L[0]`
+    /// routes, where `Recorder` draws into the renderer's own targets.
+    direct: Option<DirectFrame>,
+    /// The scene pipeline this frame binds: the swapchain-format one when
+    /// `direct`, the `RGBA16F` one otherwise.
+    scene_pipeline: vk::Pipeline,
+    post_replace: vk::Pipeline,
+    post_over: vk::Pipeline,
 }
 
 impl Recorder {
@@ -2361,18 +2769,48 @@ impl Recorder {
                 float32: clear.unwrap_or([0.0; 4]),
             },
         }];
+        let (render_pass, framebuffer, area) = if target == TargetId::Level(0) {
+            match self.direct {
+                Some(frame) => {
+                    let route = renderer
+                        .direct
+                        .as_ref()
+                        .expect("a direct frame means the route exists");
+                    (
+                        if clear.is_some() {
+                            route.rp_clear
+                        } else {
+                            route.rp_load
+                        },
+                        frame.framebuffer,
+                        full_rect(self.width, self.height),
+                    )
+                }
+                None => (
+                    if clear.is_some() {
+                        renderer.rp_clear
+                    } else {
+                        renderer.rp_load
+                    },
+                    renderer.target(target).framebuffer,
+                    self.frame_area,
+                ),
+            }
+        } else {
+            (
+                if clear.is_some() {
+                    renderer.rp_clear
+                } else {
+                    renderer.rp_load
+                },
+                renderer.target(target).framebuffer,
+                full_rect(self.width, self.height),
+            )
+        };
         let info = vk::RenderPassBeginInfo::default()
-            .render_pass(if clear.is_some() {
-                renderer.rp_clear
-            } else {
-                renderer.rp_load
-            })
-            .framebuffer(renderer.target(target).framebuffer)
-            .render_area(if target == TargetId::Level(0) {
-                self.frame_area
-            } else {
-                full_rect(self.width, self.height)
-            })
+            .render_pass(render_pass)
+            .framebuffer(framebuffer)
+            .render_area(area)
             .clear_values(&clear_values);
         #[allow(clippy::cast_precision_loss)]
         let viewport = vk::Viewport {
@@ -2465,19 +2903,75 @@ impl Drop for SceneRenderer {
                 .destroy_descriptor_set_layout(self.post_set_layout, None);
             self.device.destroy_render_pass(self.rp_load, None);
             self.device.destroy_render_pass(self.rp_clear, None);
+            if let Some(direct) = self.direct.take() {
+                for (_, _, view, framebuffer) in direct.frames {
+                    self.device.destroy_image_view(view, None);
+                    self.device.destroy_framebuffer(framebuffer, None);
+                }
+                self.device.destroy_render_pass(direct.rp_load, None);
+                self.device.destroy_render_pass(direct.rp_clear, None);
+                for pipeline in [direct.scene_pipeline, direct.post_replace, direct.post_over] {
+                    self.device.destroy_pipeline(pipeline, None);
+                }
+            }
         }
     }
 }
 
 // ── construction helpers ───────────────────────────────────────────────────
 
+/// `vieww_gpu::Vertex`, field by field: 2 + 4 + 2 + 1 + 4 + 2 + 4 + 4 + 4.
+/// Offsets in floats: position 0, color 2, uv 6, kind 8, params 9,
+/// local 13, extra 15, shape 19, mask 23 — WGSL location 7 is `mask`
+/// (23), location 8 is `shape` (19). One definition, because the direct
+/// route builds the same pipeline against another format.
+fn scene_vertex_layout() -> (
+    vk::VertexInputBindingDescription,
+    [vk::VertexInputAttributeDescription; 9],
+) {
+    let f = std::mem::size_of::<f32>() as u32;
+    let attribute =
+        |location: u32, components: u32, offset: u32| vk::VertexInputAttributeDescription {
+            location,
+            binding: 0,
+            format: match components {
+                1 => vk::Format::R32_SFLOAT,
+                2 => vk::Format::R32G32_SFLOAT,
+                _ => vk::Format::R32G32B32A32_SFLOAT,
+            },
+            offset: offset * f,
+        };
+    (
+        vk::VertexInputBindingDescription {
+            binding: 0,
+            stride: std::mem::size_of::<Vertex>() as u32,
+            input_rate: vk::VertexInputRate::VERTEX,
+        },
+        [
+            attribute(0, 2, 0),
+            attribute(1, 4, 2),
+            attribute(2, 2, 6),
+            attribute(3, 1, 8),
+            attribute(4, 4, 9),
+            attribute(5, 2, 13),
+            attribute(6, 4, 15),
+            attribute(7, 4, 23),
+            attribute(8, 4, 19),
+        ],
+    )
+}
+
 fn create_render_pass(
     device: &ash::Device,
     load: vk::AttachmentLoadOp,
+    format: vk::Format,
+    final_layout: vk::ImageLayout,
 ) -> Result<vk::RenderPass, VulkanError> {
     // Every target rests in SHADER_READ_ONLY_OPTIMAL between passes, so a
     // later pass finds it in the layout it needs. A clearing pass may discard
-    // the old contents (UNDEFINED); a loading pass may not.
+    // the old contents (UNDEFINED); a loading pass may not. The direct
+    // route's passes rest in PRESENT_SRC_KHR instead — the layout the
+    // compositor leaves a swapchain image in and reads it back from.
     //
     // **The layout is not the synchronisation, which is what the two
     // dependencies below are for.** A layer is drawn into its own target in
@@ -2493,18 +2987,20 @@ fn create_render_pass(
     // spread and nested layers came back a few steps off.
     let initial = if load == vk::AttachmentLoadOp::CLEAR {
         vk::ImageLayout::UNDEFINED
+    } else if final_layout == vk::ImageLayout::PRESENT_SRC_KHR {
+        vk::ImageLayout::PRESENT_SRC_KHR
     } else {
         vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL
     };
     let attachments = [vk::AttachmentDescription::default()
-        .format(TARGET_FORMAT)
+        .format(format)
         .samples(vk::SampleCountFlags::TYPE_1)
         .load_op(load)
         .store_op(vk::AttachmentStoreOp::STORE)
         .stencil_load_op(vk::AttachmentLoadOp::DONT_CARE)
         .stencil_store_op(vk::AttachmentStoreOp::DONT_CARE)
         .initial_layout(initial)
-        .final_layout(vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL)];
+        .final_layout(final_layout)];
     let color_ref = [vk::AttachmentReference {
         attachment: 0,
         layout: vk::ImageLayout::COLOR_ATTACHMENT_OPTIMAL,
@@ -2878,7 +3374,12 @@ fn carried_pairs(
 /// no damage draws nothing into it either way).
 fn damage_area(clip: &[PixelRect], width: u32, height: u32) -> Option<vk::Rect2D> {
     #[expect(clippy::cast_possible_wrap, reason = "frame extents are small")]
-    let frame = PixelRect { x0: 0, y0: 0, x1: width as i32, y1: height as i32 };
+    let frame = PixelRect {
+        x0: 0,
+        y0: 0,
+        x1: width as i32,
+        y1: height as i32,
+    };
     let bounds = clip
         .iter()
         .map(|r| r.intersect(frame))

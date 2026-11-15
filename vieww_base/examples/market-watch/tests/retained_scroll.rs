@@ -29,14 +29,17 @@ fn play(dpr: f32) {
     let surface = Rect::new(0.0, 0.0, w as f32, h as f32);
     let viewport = Screen::viewport(size);
     let mut driver = FrameDriver::new(size);
+    let model = Model::new(driver.elements().runtime(), 0);
+    // Through `set_root`, not `elements().set_root`, and **before** the
+    // metrics: a metrics change with nothing mounted reaches nothing, which
+    // `FrameDriver::set_view_metrics` refuses loudly.
+    driver.set_root(Screen::new(&model, size));
     driver.set_view_metrics(ViewMetrics {
         size,
         device_pixel_ratio: dpr,
         safe_area: EdgeInsets::default(),
         view_insets: EdgeInsets::default(),
     });
-    let model = Model::new(driver.elements().runtime(), 0);
-    driver.elements().set_root(Screen::new(&model, size));
     driver.draw_frame();
     let mut retained = NativeRenderer::new();
     let mut full = NativeRenderer::new();

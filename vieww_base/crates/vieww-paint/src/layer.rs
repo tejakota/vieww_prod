@@ -481,9 +481,26 @@ impl LayerTree {
             self.root = None;
         }
 
+        // The pixels a removed subtree drew are recorded as damage, so the next
+        // frame paints over them — but only the pixels its ancestors' clip
+        // ever let reach the screen. A virtualised list's cache rows park
+        // above and below the viewport, and an unclipped `last_screen_bounds`
+        // (shadow fringe and all) made every row that scrolled out of the
+        // cache repaint the header above it — a quarter of the phone's screen
+        // for pixels the clip never showed. The clip is where it was only
+        // while the ancestors are settled, the same condition a moved layer's
+        // old bounds are held to; otherwise the conservative full bounds.
         let vacated = self.layer(id).last_screen_bounds;
         if !vacated.is_empty() {
-            self.vacated.push(vacated);
+            let held = if self.ancestors_settled(id) {
+                self.ancestor_clip(id)
+                    .map_or(vacated, |clip| vacated.intersect(clip))
+            } else {
+                vacated
+            };
+            if !held.is_empty() {
+                self.vacated.push(held);
+            }
         }
         self.pending.remove(&id);
 

@@ -121,6 +121,11 @@ pub struct VulkanSwapchain {
     /// every image owns all its pixels, and `TRANSFER_SRC` usage, so the
     /// renderer can read an image back to verify what it holds.
     pub(crate) partial: bool,
+    /// Whether the images were created with `COLOR_ATTACHMENT` usage — what
+    /// `SceneRenderer::render_planned_direct` needs to render straight into
+    /// them. The surface's `supportedUsageFlags` decides; `false` keeps the
+    /// blit route.
+    pub(crate) color_attachment: bool,
 }
 
 /// A fresh [`VulkanSwapchain::generation`].
@@ -755,6 +760,9 @@ pub struct AcquiredImage {
     /// Whether the image stores blue first — how its bytes compare with a
     /// frame read back as RGBA.
     pub(crate) bgra: bool,
+    /// Whether the image can be rendered into directly — see
+    /// [`SceneRenderer::render_planned_direct`].
+    pub(crate) color_attachment: bool,
 }
 
 impl AcquiredImage {
@@ -762,6 +770,13 @@ impl AcquiredImage {
     #[must_use]
     pub const fn extent(&self) -> (u32, u32) {
         (self.width, self.height)
+    }
+
+    /// Whether this image can be rendered into directly — see
+    /// [`SceneRenderer::render_planned_direct`](super::SceneRenderer::render_planned_direct).
+    #[must_use]
+    pub const fn color_attachment(&self) -> bool {
+        self.color_attachment
     }
 }
 
@@ -857,6 +872,7 @@ impl VulkanDevice {
             generation: swapchain.generation,
             partial: swapchain.partial,
             bgra: matches!(swapchain.order, ChannelOrder::Bgra),
+            color_attachment: swapchain.color_attachment,
         };
         if image.extent() != expected {
             self.abandon_acquired(swapchain, image)?;
@@ -1049,11 +1065,23 @@ impl VulkanSwapchain {
             && capabilities
                 .supported_usage_flags
                 .contains(vk::ImageUsageFlags::TRANSFER_SRC);
-        let usage = if partial {
-            vk::ImageUsageFlags::TRANSFER_DST | vk::ImageUsageFlags::TRANSFER_SRC
-        } else {
-            vk::ImageUsageFlags::TRANSFER_DST
-        };
+        // Rendering straight into a swapchain image needs it to be a colour
+        // attachment; the surface says whether its images can be. Android's
+        // always can (the system compositor's own UI renders this way).
+        let color_attachment = capabilities
+            .supported_usage_flags
+            .contains(vk::ImageUsageFlags::COLOR_ATTACHMENT);
+        let usage = vk::ImageUsageFlags::TRANSFER_DST
+            | if partial {
+                vk::ImageUsageFlags::TRANSFER_SRC
+            } else {
+                vk::ImageUsageFlags::empty()
+            }
+            | if color_attachment {
+                vk::ImageUsageFlags::COLOR_ATTACHMENT
+            } else {
+                vk::ImageUsageFlags::empty()
+            };
         let create_info = vk::SwapchainCreateInfoKHR::default()
             .surface(surface)
             .min_image_count(image_count)
@@ -1100,6 +1128,7 @@ impl VulkanSwapchain {
             command_buffer: vk::CommandBuffer::null(),
             generation: next_generation(),
             partial,
+            color_attachment,
         })
     }
 

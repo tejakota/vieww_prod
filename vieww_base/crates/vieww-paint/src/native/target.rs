@@ -786,54 +786,82 @@ impl Target {
         );
 
         let table = super::linear::coverage_table();
-        for dy in dy_start..dy_end {
-            let y = coverage.y0 + dy;
-            let ty = y - origin.1;
-            let mask_row = coverage.row(dy as u32);
-            // Add-then-cast in `i32`, for the reason `composite_flat`'s own
-            // comment gives: `coverage.x0 - origin.0` can be negative when the
-            // shape starts left of this buffer's origin, and a negative cast
-            // straight to `usize` wraps and overflows. `dx_start`'s clamping
-            // guarantees the sum lands at or right of `wx0`.
-            let x_left = coverage.x0 - origin.0 + dx_start;
-            debug_assert!(
-                ty >= 0 && x_left >= 0,
-                "clamped span must land inside the buffer"
-            );
-            let base = ty as usize * self.width as usize + x_left as usize;
-            // Once per row, not once per pixel.
-            let row = ramp.row(y);
-
-            for dx in dx_start..dx_end {
-                // The coverage gamma — see `linear::coverage_alpha` — for
-                // the same reason the flat-fill loop applies it: coverage
-                // is area, alpha is light.
-                let c = super::linear::coverage_alpha_in(table, mask_row[dx as usize]);
-                if c <= 0.0 {
-                    continue;
+        // **Rows in parallel**, on the same gate and discipline as
+        // [`composite_flat`](Self::composite_flat): a gradient pixel depends
+        // only on its own coverage and destination, so splitting the band
+        // changes which thread computes it, never what. The header card of a
+        // scrolling list is one gradient over most of a phone's width — on a
+        // single core that is a serial millisecond the frame's budget cannot
+        // hide.
+        let width = self.width as usize;
+        let rows = (dy_end - dy_start) as usize;
+        let x_left_i = coverage.x0 - origin.0 + dx_start;
+        let ty0_i = coverage.y0 + dy_start - origin.1;
+        debug_assert!(
+            ty0_i >= 0 && x_left_i >= 0,
+            "clamped span must land inside the buffer"
+        );
+        let x_left = x_left_i as usize;
+        let ty0 = ty0_i as usize;
+        let span = (dx_end - dx_start) as usize;
+        let band = &mut self.pixels[ty0 * width..(ty0 + rows) * width];
+        let paint_rows = |band: &mut [Premul], first: usize| {
+            for (k, line) in band.chunks_exact_mut(width).enumerate() {
+                let dy = dy_start + first as i32 + k as i32;
+                let y = coverage.y0 + dy;
+                let mask_row = coverage.row(dy as u32);
+                // Once per row, not once per pixel.
+                let row = ramp.row(y);
+                let dst_span = &mut line[x_left..x_left + span];
+                for (j, dst) in dst_span.iter_mut().enumerate() {
+                    // The coverage gamma — see `linear::coverage_alpha` — for
+                    // the same reason the flat-fill loop applies it: coverage
+                    // is area, alpha is light.
+                    let c =
+                        super::linear::coverage_alpha_in(table, mask_row[dx_start as usize + j]);
+                    if c <= 0.0 {
+                        continue;
+                    }
+                    let src = ramp
+                        .at(&row, coverage.x0 + dx_start + j as i32, y)
+                        .scaled(c);
+                    if src.a <= 0.0 && normal {
+                        continue;
+                    }
+                    if normal && src.a == 1.0 {
+                        *dst = src;
+                        continue;
+                    }
+                    // `normal` is `mode.is_normal() && GammaSpace`, decided once
+                    // above — so where it holds, the twenty-eight-way match in
+                    // `blend` and the pipeline match in `blend_with_pipeline` have
+                    // only one possible answer and are pure dispatch. See
+                    // `color::over`.
+                    *dst = if normal {
+                        over(src, *dst)
+                    } else {
+                        blend_with_pipeline(pipeline, mode, src, *dst)
+                    };
                 }
-                let src = ramp.at(&row, coverage.x0 + dx, y).scaled(c);
-                if src.a <= 0.0 && normal {
-                    continue;
-                }
-                let index = base + (dx - dx_start) as usize;
-                if normal && src.a == 1.0 {
-                    self.pixels[index] = src;
-                    continue;
-                }
-                let dst = self.pixels[index];
-                // `normal` is `mode.is_normal() && GammaSpace`, decided once
-                // above — so where it holds, the twenty-eight-way match in
-                // `blend` and the pipeline match in `blend_with_pipeline` have
-                // only one possible answer and are pure dispatch. See
-                // `color::over`.
-                self.pixels[index] = if normal {
-                    over(src, dst)
-                } else {
-                    blend_with_pipeline(pipeline, mode, src, dst)
-                };
             }
+        };
+        let workers = super::geometry::fill::composite_workers(span as u32, rows as u32);
+        if workers <= 1 {
+            paint_rows(band, 0);
+            return;
         }
+        let chunk = rows.div_ceil(workers);
+        std::thread::scope(|scope| {
+            let mut pieces = band.chunks_mut(chunk * width).enumerate();
+            let first = pieces.next();
+            for (n, piece) in pieces {
+                let paint_rows = &paint_rows;
+                scope.spawn(move || paint_rows(piece, n * chunk));
+            }
+            if let Some((_, piece)) = first {
+                paint_rows(piece, 0);
+            }
+        });
     }
 
     /// Seed this buffer with a copy of `source`'s pixels underneath this
@@ -972,65 +1000,107 @@ impl Target {
         }
         self.mark_ink(x_start + ox, y_start + oy, x_end + ox, y_end + oy);
         let normal = matches!(pipeline, ColorPipeline::GammaSpace);
-        let mut row: Vec<Premul> = Vec::with_capacity((x_end - x_start) as usize);
-        for y in y_start..y_end {
-            // The run this row skips: the union of the skip bands containing
-            // the row, which the bands' nested x-ranges make one contiguous
-            // run. Patch-local, half-open, already clamped into the row.
-            let mut skip_run: Option<(i32, i32)> = None;
-            if let Some((bands, (ox_skip, oy_skip))) = skip {
-                let ty = y + oy - oy_skip;
-                let (mut lo, mut hi) = (i32::MAX, i32::MIN);
-                let mut any = false;
-                for &(x0, y0, x1, y1) in &bands {
-                    if ty >= y0 && ty < y1 {
-                        any = true;
-                        lo = lo.min(x0);
-                        hi = hi.max(x1);
+        // One tint job per row, independent of every other row. The band and
+        // the clip closure are **parameters**, not captures: a closure that
+        // captured `&mut self.pixels` or `&dyn Fn` could not be shared across
+        // the threads below, and the parallel branch never passes a clip
+        // anyway (`&dyn Fn` is not `Sync`; a shaped clip keeps the serial
+        // walk, which is the rare case). `buf_width` is this buffer's row;
+        // `width`, the parameter, is the patch's — the source and destination
+        // of one row are one `oy` apart.
+        let buf_width = self.width as usize;
+        let rows = (y_end - y_start) as usize;
+        let band = &mut self.pixels[(y_start + oy) as usize * buf_width..][..rows * buf_width];
+        let tint_rows = |band: &mut [Premul],
+                         first: i32,
+                         row: &mut Vec<Premul>,
+                         coverage: Option<&dyn Fn(i32, i32) -> f32>| {
+            for (k, line) in band.chunks_exact_mut(buf_width).enumerate() {
+                let y = y_start + first + k as i32;
+                // The run this row skips: the union of the skip bands containing
+                // the row, which the bands' nested x-ranges make one contiguous
+                // run. Patch-local, half-open, already clamped into the row.
+                let mut skip_run: Option<(i32, i32)> = None;
+                if let Some((bands, (ox_skip, oy_skip))) = skip {
+                    let ty = y + oy - oy_skip;
+                    let (mut lo, mut hi) = (i32::MAX, i32::MIN);
+                    let mut any = false;
+                    for &(x0, y0, x1, y1) in &bands {
+                        if ty >= y0 && ty < y1 {
+                            any = true;
+                            lo = lo.min(x0);
+                            hi = hi.max(x1);
+                        }
+                    }
+                    if any && hi > lo {
+                        // Device x into this buffer's coordinates, then into the
+                        // patch's, and clamped into the row's span.
+                        let lo = (lo - ox_skip - ox).max(x_start);
+                        let hi = (hi - ox_skip - ox).min(x_end);
+                        if hi > lo {
+                            skip_run = Some((lo, hi));
+                        }
                     }
                 }
-                if any && hi > lo {
-                    // Device x into this buffer's coordinates, then into the
-                    // patch's, and clamped into the row's span.
-                    let lo = (lo - ox_skip - ox).max(x_start);
-                    let hi = (hi - ox_skip - ox).min(x_end);
-                    if hi > lo {
-                        skip_run = Some((lo, hi));
+                let segments: [(i32, i32); 3] = match skip_run {
+                    Some((lo, hi)) => [(x_start, lo), (hi, x_end), (0, 0)],
+                    None => [(x_start, x_end), (0, 0), (0, 0)],
+                };
+                for &(seg_start, seg_end) in segments.iter().filter(|&(s, e)| e > s) {
+                    row.clear();
+                    let src_row = y as usize * width as usize;
+                    for x in seg_start..seg_end {
+                        let mut pixel = tint.scaled(alpha[src_row + x as usize]);
+                        if let Some(coverage) = coverage {
+                            let c = coverage(x, y);
+                            if c < 1.0 {
+                                pixel = pixel.scaled(c);
+                            }
+                        }
+                        row.push(pixel);
+                    }
+                    let dst = &mut line[(seg_start + ox) as usize..(seg_end + ox) as usize];
+                    if normal {
+                        super::simd::over_layer_row(dst, row.as_slice(), 1.0, true);
+                    } else {
+                        for (d, s) in dst.iter_mut().zip(row.iter()) {
+                            if s.a <= 0.0 {
+                                continue;
+                            }
+                            *d = blend_with_pipeline(pipeline, BlendMode::Normal, *s, *d);
+                        }
                     }
                 }
             }
-            let segments: [(i32, i32); 3] = match skip_run {
-                Some((lo, hi)) => [(x_start, lo), (hi, x_end), (0, 0)],
-                None => [(x_start, x_end), (0, 0), (0, 0)],
-            };
-            for &(seg_start, seg_end) in segments.iter().filter(|&(s, e)| e > s) {
-                row.clear();
-                let src_row = y as usize * width as usize;
-                for x in seg_start..seg_end {
-                    let mut pixel = tint.scaled(alpha[src_row + x as usize]);
-                    if let Some(coverage) = coverage {
-                        let c = coverage(x, y);
-                        if c < 1.0 {
-                            pixel = pixel.scaled(c);
-                        }
-                    }
-                    row.push(pixel);
-                }
-                let dst_row = (y + oy) as usize * self.width as usize;
-                let dst = &mut self.pixels
-                    [dst_row + (seg_start + ox) as usize..dst_row + (seg_end + ox) as usize];
-                if normal {
-                    super::simd::over_layer_row(dst, &row, 1.0, true);
-                } else {
-                    for (d, s) in dst.iter_mut().zip(&row) {
-                        if s.a <= 0.0 {
-                            continue;
-                        }
-                        *d = blend_with_pipeline(pipeline, BlendMode::Normal, *s, *d);
-                    }
-                }
-            }
+        };
+        let total_rows = (y_end - y_start) as u32;
+        let span = (x_end - x_start) as u32;
+        let workers = if coverage.is_none() {
+            super::geometry::fill::composite_workers(span, total_rows)
+        } else {
+            1
+        };
+        if workers <= 1 {
+            let mut row: Vec<Premul> = Vec::with_capacity((x_end - x_start) as usize);
+            tint_rows(band, 0, &mut row, coverage);
+            return;
         }
+        let chunk = total_rows.div_ceil(workers as u32) as usize;
+        std::thread::scope(|scope| {
+            let mut pieces = band.chunks_mut(chunk * buf_width).enumerate();
+            let first = pieces.next();
+            for (n, piece) in pieces {
+                let tint_rows = &tint_rows;
+                scope.spawn(move || {
+                    let mut row: Vec<Premul> = Vec::with_capacity((x_end - x_start) as usize);
+                    tint_rows(piece, (n * chunk) as i32, &mut row, None);
+                });
+            }
+            if let Some((_, piece)) = first {
+                let mut row: Vec<Premul> = Vec::with_capacity((x_end - x_start) as usize);
+                tint_rows(piece, 0, &mut row, coverage);
+            }
+        });
     }
 
     /// The part of `other` (in its own coordinates, half-open) that
@@ -1270,6 +1340,21 @@ impl Target {
         self.ink = Some((0, 0, width as i32, height as i32));
     }
 
+    /// Resize the buffer **without** filling it — for a frame whose first
+    /// command paints an opaque colour over every pixel (`render_in_place`
+    /// checks), where a fill now would only be filled over again. The bytes
+    /// the buffer already holds are stale by definition; the covering fill
+    /// replaces all of them.
+    pub(crate) fn resize(&mut self, width: u32, height: u32) {
+        let wanted = (width as usize) * (height as usize);
+        if self.pixels.len() != wanted {
+            self.pixels.resize(wanted, Premul::TRANSPARENT);
+        }
+        self.width = width;
+        self.height = height;
+        self.ink = None;
+    }
+
     /// Refill one rectangle with `color`, leaving the rest of the buffer as
     /// it is.
     ///
@@ -1291,9 +1376,33 @@ impl Target {
         if x1 <= x0 || y1 <= y0 {
             return;
         }
-        for y in y0..y1 {
-            let row = y as usize * self.width as usize;
-            self.pixels[row + x0 as usize..row + x1 as usize].fill(color);
+        let width = self.width as usize;
+        let span = (x1 - x0) as usize;
+        let rows = (y1 - y0) as usize;
+        let band = &mut self.pixels[y0 as usize * width..][..rows * width];
+        let clear_rows = |band: &mut [Premul]| {
+            for line in band.chunks_exact_mut(width) {
+                line[x0 as usize..x0 as usize + span].fill(color);
+            }
+        };
+        // Rows in parallel on the rasterizer's own gate — the same discipline
+        // as `composite_flat`, and for the same reason: a damage region's
+        // clear is a row-independent fill of up to a whole screen.
+        let workers = super::geometry::fill::composite_workers(span as u32, rows as u32);
+        if workers <= 1 {
+            clear_rows(band);
+        } else {
+            let chunk = rows.div_ceil(workers);
+            std::thread::scope(|scope| {
+                let mut pieces = band.chunks_mut(chunk * width);
+                let first = pieces.next();
+                for piece in pieces {
+                    scope.spawn(move || clear_rows(piece));
+                }
+                if let Some(piece) = first {
+                    clear_rows(piece);
+                }
+            });
         }
         self.mark_ink(x0, y0, x1, y1);
     }
@@ -1319,11 +1428,41 @@ impl Target {
             return;
         }
         let width = self.width as usize;
-        for y in y0..y1 {
-            let row = y as usize * width;
-            let pixels = &self.pixels[row + x0 as usize..row + x1 as usize];
-            let bytes = &mut out[(row + x0 as usize) * 4..(row + x1 as usize) * 4];
-            write_straight_u8(pixels, bytes);
+        let span = (x1 - x0) as usize;
+        let rows = (y1 - y0) as usize;
+        let pixels = &self.pixels[y0 as usize * width..][..rows * width];
+        let bytes = &mut out[y0 as usize * width * 4..][..rows * width * 4];
+        let write_rows = |pixels: &[Premul], bytes: &mut [u8]| {
+            for (line, out_line) in pixels
+                .chunks_exact(width)
+                .zip(bytes.chunks_exact_mut(width * 4))
+            {
+                write_straight_u8(
+                    &line[x0 as usize..x0 as usize + span],
+                    &mut out_line[x0 as usize * 4..x0 as usize * 4 + span * 4],
+                );
+            }
+        };
+        // Rows in parallel on the rasterizer's own gate: each row converts
+        // independently, so the bytes are identical at any worker count —
+        // and a damaged frame's conversion is otherwise a serial millisecond
+        // per region on a phone.
+        let workers = super::geometry::fill::composite_workers(span as u32, rows as u32);
+        if workers <= 1 {
+            write_rows(pixels, bytes);
+        } else {
+            let chunk = rows.div_ceil(workers);
+            std::thread::scope(|scope| {
+                let mut pixel_pieces = pixels.chunks(chunk * width);
+                let mut byte_pieces = bytes.chunks_mut(chunk * width * 4);
+                let first = pixel_pieces.next().zip(byte_pieces.next());
+                for (p, b) in pixel_pieces.zip(byte_pieces) {
+                    scope.spawn(move || write_rows(p, b));
+                }
+                if let Some((p, b)) = first {
+                    write_rows(p, b);
+                }
+            });
         }
     }
 }

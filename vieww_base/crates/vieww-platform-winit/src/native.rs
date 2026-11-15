@@ -1795,15 +1795,40 @@ impl NativeRenderer {
                             gpu_redrawn: None,
                         });
                     };
-                    renderer.set_pending_copies(std::mem::take(&mut gpu_copies));
-                    let redrawn = match renderer.render_planned_to(
-                        planner,
-                        &plan,
-                        base,
-                        &image,
-                        render_scale,
-                        gpu_damage.as_deref(),
-                    ) {
+                    // Straight into the swapchain image when the frame is
+                    // opaque and the driver can blit the scene's RGBA16F into
+                    // the swapchain's format: the whole frame stays on the
+                    // GPU. A translucent window keeps the readback path,
+                    // because the scene targets are premultiplied and a blit
+                    // cannot divide. (`direct_route` above checked both, plus
+                    // the linear filter the resolution scale's enlarging blit
+                    // needs.)
+                    //
+                    // A **depth-0** plan at full resolution on a swapchain
+                    // whose images can be colour attachments skips even the
+                    // blit: one render pass into the image the compositor
+                    // reads, no RGBA16F intermediate, no carry, no f16→8-bit
+                    // conversion — the route that exists for the low-end GPU,
+                    // where those dominated the frame. Anything else (layers,
+                    // a resolution scale, a surface that refuses the usage)
+                    // keeps the blit path.
+                    let direct =
+                        image.color_attachment() && plan.target_depth == 0 && render_scale == 1.0;
+                    if !direct {
+                        renderer.set_pending_copies(std::mem::take(&mut gpu_copies));
+                    }
+                    let redrawn = match if direct {
+                        renderer.render_planned_direct(planner, &plan, base, &image)
+                    } else {
+                        renderer.render_planned_to(
+                            planner,
+                            &plan,
+                            base,
+                            &image,
+                            render_scale,
+                            gpu_damage.as_deref(),
+                        )
+                    } {
                         Ok(redrawn) => redrawn,
                         Err(error) => {
                             let _ = device.abandon_acquired(swapchain, image);

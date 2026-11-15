@@ -785,7 +785,38 @@ impl NativeRenderer {
         // buffer survives the frame either way, including the error paths
         // below, because it is restored before any of them return.
         let mut root = std::mem::replace(&mut self.root, Target::new(0, 0));
-        root.reset(width, height, Premul::from_straight(base));
+        // The reset lays the window's base colour under everything — unless
+        // the scene's own first command already paints an opaque colour over
+        // every pixel of the surface, which is what a screen with a solid
+        // background always does. At a phone's 1080x2340 that is 40 MB of
+        // f32 pixels filled only to be filled over again a command later.
+        // The bounding box is the conservative test: a fill whose box covers
+        // the surface paints every pixel of it at full coverage, so what the
+        // buffer held underneath cannot reach the result.
+        let rect_covers = |r: Rect| {
+            r.left <= 0.0 && r.top <= 0.0 && r.right >= surface.right && r.bottom >= surface.bottom
+        };
+        let clip_covers = |clip: &Clip| {
+            clip.is_none() || (clip.bounds().is_some_and(rect_covers) && clip.shapes().is_empty())
+        };
+        let covered = scene.commands().first().is_some_and(|command| {
+            matches!(command, Command::FillRect { rect, paint, transform, clip }
+                if paint.gradient.is_none()
+                    && paint.color.a == 255
+                    // Axis-aligned, so the rect's bounding box is the rect:
+                    // a rotated fill's box could cover the surface while the
+                    // fill itself does not.
+                    && transform.b.abs() < f32::EPSILON
+                    && transform.c.abs() < f32::EPSILON
+                    && clip_covers(clip)
+                    && rect_covers(transform.apply_rect(*rect))
+            )
+        });
+        if covered {
+            root.resize(width, height);
+        } else {
+            root.reset(width, height, Premul::from_straight(base));
+        }
         let mut report = SceneReport::default();
 
         let mut stack: Vec<LayerFrame> = Vec::new();
@@ -939,6 +970,18 @@ impl NativeRenderer {
         let mut report = SceneReport::default();
         self.kind_times = RasterKindTimes::default();
 
+        // **The f32 half of a copy is dead weight unless something samples the
+        // backdrop.** A replayed region is reset and rebuilt from its commands,
+        // so the working target's carried pixels are read by nothing else a
+        // frame does — except a backdrop filter, which snapshots the parent
+        // target outside any region. When there is none, the copy moves only
+        // the RGBA8 half: on a 2.75x phone that is a quarter of the bytes
+        // (4 B/px against 16) of what used to be the scroll's biggest cost.
+        let backdrops = scene
+            .commands()
+            .iter()
+            .any(|c| matches!(c, Command::PushLayer { filter, .. } if filter.backdrop));
+
         let mut root = std::mem::replace(&mut self.root, Target::new(0, 0));
         let mut output = std::mem::take(&mut self.output);
 
@@ -973,7 +1016,9 @@ impl NativeRenderer {
             };
             let src = px(copy.src);
             let dst = px(copy.dst);
-            root.move_region(src, dst);
+            if backdrops {
+                root.move_region(src, dst);
+            }
             move_rgba8_region(&mut output, width, src, dst);
             report.carried_regions += 1;
         }
