@@ -12,9 +12,10 @@ It sits beside two older files and does not replace them:
 This file is the short version for a new session. When an item here turns out
 to be large, it belongs in `PENDING.md` with a pointer from here.
 
-Last updated: 2026-11-15 (later), after the flight ring's first farm verdict:
-the pool the ring overdrawn, the gate the CPU path keeps, and the gate itself
-back to green (run `43722791555`, below)
+Last updated: 2026-11-15 (evening), after run `43735160469` answered both
+questions - the S20-class GPU pass now leads Valdi, the Stylo's CPU pass is
+back - and the studio repaint flake turned out to be a real race in the
+raster pool (below)
 
 ---
 
@@ -27,7 +28,59 @@ phones, with every claim backed by a Device Farm number or a test. The
 standing instruction is to finish what is started. A slow loop is fine; leaving
 work half-done is not.
 
-### This round: run `43722791555`'s verdict on the ring, and the two fixes it earned
+### This round: run `43735160469`'s verdict, and the race the studio found
+
+The two fixes above ran on the Stylo 5 (low) and an S20-class SM8250
+(mid). Every pass on both phones:
+
+| | Stylo CPU | Stylo GPU | S20 CPU | S20 GPU | Valdi (S20) |
+|---|---|---|---|---|---|
+| scroll fps / jank | – | – | 69.1 / 3.0% | **71.6 / 0.0%** | 64.5 / 0.0% |
+| live fps / jank | – | – | 53.8 / 22.6% | **65.1 / 0.0%** | 64.7 / 0.4% |
+| storm fps / jank | – | – | 50.9 / 21.7% | 61.5 / 0.0% | **64.6** / 0.2% |
+| thermal | 67.3 ms p95 | **60.8 ms** p95 | 49.2 / 24.9% | **61.4 / 0.0%** | FAIL |
+| app work p95 (live) | 67.7 ms | **62.2 ms** | 21.6 ms | **6.2 ms** | – |
+| memory (MB) | **78.2** | 114.3 | **164.8** | 218.1 | 1037.5 |
+
+- **The Stylo's CPU pass recovered** exactly as the path-split gate promised:
+  live 87.16 → 67.71 ms p95, storm 155.85 → 120.27 (its `fb38a5d5` shape,
+  64/107), while **its GPU pass kept the 48-px gate's win** (storm 61.39,
+  live 62.22 — the best numbers either path has had there). The GPU pass now
+  beats the CPU pass on every phase of that phone, at 56-77% CPU against
+  Valdi's 98-119%.
+- **The S20-class GPU pass leads Valdi**: scroll 71.6 vs 64.5, live 65.1 vs
+  64.7, thermal 61.4 vs a Valdi that stopped drawing (again - the Android 13
+  SM8250's thermal is a recurring Valdi failure), with **0.0% jank on every
+  continuous phase**. Storm is the one column Valdi still takes: 61.5 vs
+  64.6, five per cent.
+- The CPU pass there (53.8 live, 21.7% jank) is the pure rasterizer's known
+  shape; the GPU pass is the answer on that class of phone, and the
+  `auto` policy ships it.
+- The Redmi Note 7 Pro - the phone the flight ring was built for - is Medium
+  tier and not in the farm's pools; its numbers move only through the ring,
+  and the next time the user's phone is on USB is when that gets measured.
+
+**And the framework gate found a real race.** The studio's repaint tests
+flaked on `quick` ("the damaged repaint and a full repaint disagree at N
+pixels") from the day the pool landed; bisected to `0ce1f08e`, isolated with
+`VIEWW_RASTER_THREADS=1`, reproduced by a dedicated stress test in under a
+second: a submitter whose batch drained while it ran its last chunk would
+claim from the *next* batch installed, run its own data at that index, and
+retire a chunk the foreign batch never ran — a lost band of coverage, i.e.
+pixels. No workspace app had ever submitted from two threads at once, which
+is why every other test was blind to it. Fix: `Batch::id` — a submitter
+claims, retires and waits only on the batch it installed
+(`8e939a7f`, with the eight-submitter stress test as its receipt). The
+farm's single-threaded market-watch is unaffected; every multi-window app
+was exposed.
+
+Two smaller gate repairs rode along (`a03d8c21`): `VIEWW_GPU_DIRECT=0`, the
+read-once comparison switch (the damage scenario in `tests/wait_loop.rs` had
+been asserting the blit route's contract on frames the direct route takes by
+design — full redraw into the swapchain image, cheaper there than damage);
+and the route note names the switch when it is the reason a frame blitted.
+
+### The round before: run `43722791555`'s verdict on the ring, and the two fixes it earned
 
 The ring (`0ce1f08e`) ran on the Stylo 5 (low) and — a new mid-pool device —
 the Galaxy S26 Ultra (Android 16, SM8850, 120.00001 Hz). Three findings:
