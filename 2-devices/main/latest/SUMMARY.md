@@ -1,21 +1,21 @@
-# 2 · Devices — FAILURE
+# 2 · Devices — SUCCESS
 
-- branch: `main`  sha: `0ce1f08e3ae24a859ce336be1036e26b81188ef5`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/43722791555
+- branch: `main`  sha: `d0ee9d44d683b24f714b30f4a2416fcf3e734502`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/43735160469
 
 | job | verdict | failed steps |
 |---|---|---|
 | plan / plan | PASS |  |
-| phase-1 / Market Watch · compare-vieww-apk | PASS |  |
 | phase-1 / Market Watch · compare-valdi-apk | PASS |  |
-| phase-1 / matrix.title | skipped |  |
+| phase-1 / Market Watch · compare-vieww-apk | PASS |  |
 | phase-1 / approve | skipped |  |
-| phase-2 / Market Watch · compare-farm | FAIL | Market Watch · compare-farm |
+| phase-1 / matrix.title | skipped |  |
+| phase-2 / Market Watch · compare-farm | PASS |  |
 | phase-2 / approve | skipped |  |
 | phase-2 / matrix.title | skipped |  |
 | phase-3 / Market Watch · compare-report | PASS |  |
-| phase-3 / matrix.title | skipped |  |
 | phase-3 / approve | skipped |  |
+| phase-3 / matrix.title | skipped |  |
 | results / publish | running |  |
 
 ## Steps
@@ -25,38 +25,6 @@
 - PASS: Run actions/checkout@v4
 - PASS: Manifests valid, dropdowns in sync
 - PASS: What runs
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### phase-1 / Market Watch · compare-vieww-apk — PASS
-- PASS: Set up job
-- skipped: Long paths (Windows)
-- PASS: Run actions/checkout@v4
-- PASS: Python for the runner (GitHub's machines)
-- PASS: Python for the runner (self-host machines)
-- skipped: Python for the runner (macOS)
-- PASS: Plan this job
-- skipped: Run actions/setup-java@v4
-- skipped: Run actions/setup-node@v4
-- skipped: Run gradle/actions/setup-gradle@v4
-- PASS: Run taiki-e/install-action@v2
-- PASS: Run Swatinem/rust-cache@v2
-- skipped: Run actions/cache@v4
-- skipped: AWS credentials (OIDC role)
-- skipped: AWS credentials (access keys)
-- skipped: Run actions/download-artifact@v4
-- skipped: Run actions/download-artifact@v4
-- PASS: Market Watch · compare-vieww-apk
-- skipped: Android emulator
-- skipped: Build provenance (Sigstore, keyless)
-- skipped: After
-- PASS: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- PASS: Post Run Swatinem/rust-cache@v2
-- PASS: Post Python for the runner (self-host machines)
-- PASS: Post Python for the runner (GitHub's machines)
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
@@ -93,11 +61,43 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-1 / matrix.title — skipped
+### phase-1 / Market Watch · compare-vieww-apk — PASS
+- PASS: Set up job
+- skipped: Long paths (Windows)
+- PASS: Run actions/checkout@v4
+- PASS: Python for the runner (GitHub's machines)
+- PASS: Python for the runner (self-host machines)
+- skipped: Python for the runner (macOS)
+- PASS: Plan this job
+- skipped: Run actions/setup-java@v4
+- skipped: Run actions/setup-node@v4
+- skipped: Run gradle/actions/setup-gradle@v4
+- PASS: Run taiki-e/install-action@v2
+- PASS: Run Swatinem/rust-cache@v2
+- skipped: Run actions/cache@v4
+- skipped: AWS credentials (OIDC role)
+- skipped: AWS credentials (access keys)
+- skipped: Run actions/download-artifact@v4
+- skipped: Run actions/download-artifact@v4
+- PASS: Market Watch · compare-vieww-apk
+- skipped: Android emulator
+- skipped: Build provenance (Sigstore, keyless)
+- skipped: After
+- PASS: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- PASS: Post Run Swatinem/rust-cache@v2
+- PASS: Post Python for the runner (self-host machines)
+- PASS: Post Python for the runner (GitHub's machines)
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
 
 ### phase-1 / approve — skipped
 
-### phase-2 / Market Watch · compare-farm — FAIL
+### phase-1 / matrix.title — skipped
+
+### phase-2 / Market Watch · compare-farm — PASS
 - PASS: Set up job
 - skipped: Long paths (Windows)
 - PASS: Run actions/checkout@v4
@@ -115,7 +115,7 @@
 - skipped: AWS credentials (access keys)
 - PASS: Run actions/download-artifact@v4
 - PASS: Run actions/download-artifact@v4
-- FAIL: Market Watch · compare-farm
+- PASS: Market Watch · compare-farm
 - skipped: Android emulator
 - skipped: Build provenance (Sigstore, keyless)
 - skipped: After
@@ -124,8 +124,8 @@
 - skipped: Run actions/upload-artifact@v4
 - skipped: Run actions/upload-artifact@v4
 - PASS: Post AWS credentials (OIDC role)
-- skipped: Post Python for the runner (self-host machines)
-- skipped: Post Python for the runner (GitHub's machines)
+- PASS: Post Python for the runner (self-host machines)
+- PASS: Post Python for the runner (GitHub's machines)
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
@@ -164,9 +164,9 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-3 / matrix.title — skipped
-
 ### phase-3 / approve — skipped
+
+### phase-3 / matrix.title — skipped
 
 ### results / publish — running
 - PASS: Set up job
@@ -174,4 +174,4 @@
 - running: Run actions/checkout@v4
 - running: Write to the ci-results branch
 
-- artifacts: compare-valdi-apk compare-vieww-apk compare-farm 
+- artifacts: compare-vieww-apk compare-farm compare-valdi-apk 
