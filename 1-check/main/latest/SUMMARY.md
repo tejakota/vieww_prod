@@ -1,30 +1,30 @@
 # 1 · Check — CANCELLED
 
-- branch: `main`  sha: `d0ee9d44d683b24f714b30f4a2416fcf3e734502`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/43735189711
+- branch: `main`  sha: `8e939a7f7f75c0456f933d1cf2626372fe1d2639`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/43741002736
 
 | job | verdict | failed steps |
 |---|---|---|
 | plan / plan | PASS |  |
-| phase-1 / vieww · advisories (vieww_base) | PASS |  |
+| phase-1 / vieww · framework-gpu-lavapipe | PASS |  |
+| phase-1 / vieww · quick | PASS |  |
 | phase-1 / vieww · framework-macos | CANCELLED |  |
+| phase-1 / vieww · framework-a11y-gallery | PASS |  |
 | phase-1 / vieww · framework-cross | PASS |  |
-| phase-1 / vieww · workflows | PASS |  |
+| phase-1 / vieww · framework-web | PASS |  |
+| phase-1 / vieww · framework-windows | PASS |  |
+| phase-1 / vieww · framework-coverage | PASS |  |
+| phase-1 / vieww · advisories (vieww_base/apps/wright) | PASS |  |
+| phase-1 / vieww · framework-ios-simulator | CANCELLED |  |
 | phase-1 / vieww · framework-gate | FAIL | vieww · framework-gate |
 | phase-1 / vieww · goldens | PASS |  |
-| phase-1 / vieww · quick | FAIL | vieww · quick |
-| phase-1 / vieww · framework-gpu-lavapipe | FAIL | vieww · framework-gpu-lavapipe |
-| phase-1 / vieww · framework-coverage | FAIL | vieww · framework-coverage |
-| phase-1 / vieww · advisories (vieww_base/apps/wright) | PASS |  |
+| phase-1 / vieww · workflows | PASS |  |
 | phase-1 / vieww · framework-android | PASS |  |
-| phase-1 / vieww · framework-web | PASS |  |
-| phase-1 / vieww · framework-android-emulator | PASS |  |
-| phase-1 / vieww · framework-a11y-gallery | PASS |  |
-| phase-1 / vieww · framework-windows | PASS |  |
 | phase-1 / vieww · framework-plugin-compat | PASS |  |
-| phase-1 / vieww · framework-ios-simulator | CANCELLED |  |
-| phase-1 / approve | skipped |  |
+| phase-1 / vieww · framework-android-emulator | FAIL | Android emulator; After |
+| phase-1 / vieww · advisories (vieww_base) | PASS |  |
 | phase-1 / matrix.title | skipped |  |
+| phase-1 / approve | skipped |  |
 | phase-2 / vieww · framework-report | PASS |  |
 | phase-2 / approve | skipped |  |
 | phase-2 / matrix.title | skipped |  |
@@ -41,7 +41,38 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-1 / vieww · advisories (vieww_base) — PASS
+### phase-1 / vieww · framework-gpu-lavapipe — PASS
+- PASS: Set up job
+- skipped: Long paths (Windows)
+- PASS: Run actions/checkout@v4
+- PASS: Python for the runner (GitHub's machines)
+- PASS: Python for the runner (self-host machines)
+- skipped: Python for the runner (macOS)
+- PASS: Plan this job
+- skipped: Run actions/setup-java@v4
+- skipped: Run actions/setup-node@v4
+- skipped: Run gradle/actions/setup-gradle@v4
+- skipped: Run taiki-e/install-action@v2
+- skipped: Run Swatinem/rust-cache@v2
+- skipped: Run actions/cache@v4
+- skipped: AWS credentials (OIDC role)
+- skipped: AWS credentials (access keys)
+- skipped: Run actions/download-artifact@v4
+- skipped: Run actions/download-artifact@v4
+- PASS: vieww · framework-gpu-lavapipe
+- skipped: Android emulator
+- skipped: Build provenance (Sigstore, keyless)
+- skipped: After
+- PASS: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- PASS: Post Python for the runner (self-host machines)
+- PASS: Post Python for the runner (GitHub's machines)
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### phase-1 / vieww · quick — PASS
 - PASS: Set up job
 - skipped: Long paths (Windows)
 - PASS: Run actions/checkout@v4
@@ -53,13 +84,47 @@
 - skipped: Run actions/setup-node@v4
 - skipped: Run gradle/actions/setup-gradle@v4
 - PASS: Run taiki-e/install-action@v2
+- PASS: Run Swatinem/rust-cache@v2
+- skipped: Run actions/cache@v4
+- skipped: AWS credentials (OIDC role)
+- skipped: AWS credentials (access keys)
+- skipped: Run actions/download-artifact@v4
+- skipped: Run actions/download-artifact@v4
+- PASS: vieww · quick
+- skipped: Android emulator
+- skipped: Build provenance (Sigstore, keyless)
+- skipped: After
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- PASS: Post Run Swatinem/rust-cache@v2
+- PASS: Post Python for the runner (self-host machines)
+- PASS: Post Python for the runner (GitHub's machines)
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### phase-1 / vieww · framework-macos — CANCELLED
+
+### phase-1 / vieww · framework-a11y-gallery — PASS
+- PASS: Set up job
+- skipped: Long paths (Windows)
+- PASS: Run actions/checkout@v4
+- PASS: Python for the runner (GitHub's machines)
+- PASS: Python for the runner (self-host machines)
+- skipped: Python for the runner (macOS)
+- PASS: Plan this job
+- skipped: Run actions/setup-java@v4
+- skipped: Run actions/setup-node@v4
+- skipped: Run gradle/actions/setup-gradle@v4
+- skipped: Run taiki-e/install-action@v2
 - skipped: Run Swatinem/rust-cache@v2
 - skipped: Run actions/cache@v4
 - skipped: AWS credentials (OIDC role)
 - skipped: AWS credentials (access keys)
 - skipped: Run actions/download-artifact@v4
 - skipped: Run actions/download-artifact@v4
-- PASS: vieww · advisories (vieww_base)
+- PASS: vieww · framework-a11y-gallery
 - skipped: Android emulator
 - skipped: Build provenance (Sigstore, keyless)
 - skipped: After
@@ -71,8 +136,6 @@
 - PASS: Post Python for the runner (GitHub's machines)
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
-
-### phase-1 / vieww · framework-macos — CANCELLED
 
 ### phase-1 / vieww · framework-cross — PASS
 - PASS: Set up job
@@ -105,7 +168,7 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-1 / vieww · workflows — PASS
+### phase-1 / vieww · framework-web — PASS
 - PASS: Set up job
 - skipped: Long paths (Windows)
 - PASS: Run actions/checkout@v4
@@ -123,7 +186,7 @@
 - skipped: AWS credentials (access keys)
 - skipped: Run actions/download-artifact@v4
 - skipped: Run actions/download-artifact@v4
-- PASS: vieww · workflows
+- PASS: vieww · framework-web
 - skipped: Android emulator
 - skipped: Build provenance (Sigstore, keyless)
 - skipped: After
@@ -135,6 +198,101 @@
 - PASS: Post Python for the runner (GitHub's machines)
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
+
+### phase-1 / vieww · framework-windows — PASS
+- PASS: Set up job
+- PASS: Long paths (Windows)
+- PASS: Run actions/checkout@v4
+- PASS: Python for the runner (GitHub's machines)
+- PASS: Python for the runner (self-host machines)
+- skipped: Python for the runner (macOS)
+- PASS: Plan this job
+- skipped: Run actions/setup-java@v4
+- skipped: Run actions/setup-node@v4
+- skipped: Run gradle/actions/setup-gradle@v4
+- skipped: Run taiki-e/install-action@v2
+- skipped: Run Swatinem/rust-cache@v2
+- skipped: Run actions/cache@v4
+- skipped: AWS credentials (OIDC role)
+- skipped: AWS credentials (access keys)
+- skipped: Run actions/download-artifact@v4
+- skipped: Run actions/download-artifact@v4
+- PASS: vieww · framework-windows
+- skipped: Android emulator
+- skipped: Build provenance (Sigstore, keyless)
+- skipped: After
+- PASS: Run actions/upload-artifact@v4
+- PASS: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- PASS: Post Python for the runner (self-host machines)
+- PASS: Post Python for the runner (GitHub's machines)
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### phase-1 / vieww · framework-coverage — PASS
+- PASS: Set up job
+- skipped: Long paths (Windows)
+- PASS: Run actions/checkout@v4
+- PASS: Python for the runner (GitHub's machines)
+- PASS: Python for the runner (self-host machines)
+- skipped: Python for the runner (macOS)
+- PASS: Plan this job
+- skipped: Run actions/setup-java@v4
+- skipped: Run actions/setup-node@v4
+- skipped: Run gradle/actions/setup-gradle@v4
+- skipped: Run taiki-e/install-action@v2
+- skipped: Run Swatinem/rust-cache@v2
+- skipped: Run actions/cache@v4
+- skipped: AWS credentials (OIDC role)
+- skipped: AWS credentials (access keys)
+- skipped: Run actions/download-artifact@v4
+- skipped: Run actions/download-artifact@v4
+- PASS: vieww · framework-coverage
+- skipped: Android emulator
+- skipped: Build provenance (Sigstore, keyless)
+- skipped: After
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- PASS: Post Python for the runner (self-host machines)
+- PASS: Post Python for the runner (GitHub's machines)
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### phase-1 / vieww · advisories (vieww_base/apps/wright) — PASS
+- PASS: Set up job
+- skipped: Long paths (Windows)
+- PASS: Run actions/checkout@v4
+- PASS: Python for the runner (GitHub's machines)
+- PASS: Python for the runner (self-host machines)
+- skipped: Python for the runner (macOS)
+- PASS: Plan this job
+- skipped: Run actions/setup-java@v4
+- skipped: Run actions/setup-node@v4
+- skipped: Run gradle/actions/setup-gradle@v4
+- PASS: Run taiki-e/install-action@v2
+- skipped: Run Swatinem/rust-cache@v2
+- skipped: Run actions/cache@v4
+- skipped: AWS credentials (OIDC role)
+- skipped: AWS credentials (access keys)
+- skipped: Run actions/download-artifact@v4
+- skipped: Run actions/download-artifact@v4
+- PASS: vieww · advisories (vieww_base/apps/wright)
+- skipped: Android emulator
+- skipped: Build provenance (Sigstore, keyless)
+- skipped: After
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- PASS: Post Python for the runner (self-host machines)
+- PASS: Post Python for the runner (GitHub's machines)
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
+
+### phase-1 / vieww · framework-ios-simulator — CANCELLED
 
 ### phase-1 / vieww · framework-gate — FAIL
 - PASS: Set up job
@@ -199,39 +357,7 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-1 / vieww · quick — FAIL
-- PASS: Set up job
-- skipped: Long paths (Windows)
-- PASS: Run actions/checkout@v4
-- PASS: Python for the runner (GitHub's machines)
-- PASS: Python for the runner (self-host machines)
-- skipped: Python for the runner (macOS)
-- PASS: Plan this job
-- skipped: Run actions/setup-java@v4
-- skipped: Run actions/setup-node@v4
-- skipped: Run gradle/actions/setup-gradle@v4
-- PASS: Run taiki-e/install-action@v2
-- PASS: Run Swatinem/rust-cache@v2
-- skipped: Run actions/cache@v4
-- skipped: AWS credentials (OIDC role)
-- skipped: AWS credentials (access keys)
-- skipped: Run actions/download-artifact@v4
-- skipped: Run actions/download-artifact@v4
-- FAIL: vieww · quick
-- skipped: Android emulator
-- skipped: Build provenance (Sigstore, keyless)
-- skipped: After
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Post Run Swatinem/rust-cache@v2
-- skipped: Post Python for the runner (self-host machines)
-- skipped: Post Python for the runner (GitHub's machines)
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### phase-1 / vieww · framework-gpu-lavapipe — FAIL
+### phase-1 / vieww · workflows — PASS
 - PASS: Set up job
 - skipped: Long paths (Windows)
 - PASS: Run actions/checkout@v4
@@ -249,69 +375,7 @@
 - skipped: AWS credentials (access keys)
 - skipped: Run actions/download-artifact@v4
 - skipped: Run actions/download-artifact@v4
-- FAIL: vieww · framework-gpu-lavapipe
-- skipped: Android emulator
-- skipped: Build provenance (Sigstore, keyless)
-- skipped: After
-- PASS: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Post Python for the runner (self-host machines)
-- skipped: Post Python for the runner (GitHub's machines)
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### phase-1 / vieww · framework-coverage — FAIL
-- PASS: Set up job
-- skipped: Long paths (Windows)
-- PASS: Run actions/checkout@v4
-- PASS: Python for the runner (GitHub's machines)
-- PASS: Python for the runner (self-host machines)
-- skipped: Python for the runner (macOS)
-- PASS: Plan this job
-- skipped: Run actions/setup-java@v4
-- skipped: Run actions/setup-node@v4
-- skipped: Run gradle/actions/setup-gradle@v4
-- skipped: Run taiki-e/install-action@v2
-- skipped: Run Swatinem/rust-cache@v2
-- skipped: Run actions/cache@v4
-- skipped: AWS credentials (OIDC role)
-- skipped: AWS credentials (access keys)
-- skipped: Run actions/download-artifact@v4
-- skipped: Run actions/download-artifact@v4
-- FAIL: vieww · framework-coverage
-- skipped: Android emulator
-- skipped: Build provenance (Sigstore, keyless)
-- skipped: After
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Post Python for the runner (self-host machines)
-- skipped: Post Python for the runner (GitHub's machines)
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### phase-1 / vieww · advisories (vieww_base/apps/wright) — PASS
-- PASS: Set up job
-- skipped: Long paths (Windows)
-- PASS: Run actions/checkout@v4
-- PASS: Python for the runner (GitHub's machines)
-- PASS: Python for the runner (self-host machines)
-- skipped: Python for the runner (macOS)
-- PASS: Plan this job
-- skipped: Run actions/setup-java@v4
-- skipped: Run actions/setup-node@v4
-- skipped: Run gradle/actions/setup-gradle@v4
-- PASS: Run taiki-e/install-action@v2
-- skipped: Run Swatinem/rust-cache@v2
-- skipped: Run actions/cache@v4
-- skipped: AWS credentials (OIDC role)
-- skipped: AWS credentials (access keys)
-- skipped: Run actions/download-artifact@v4
-- skipped: Run actions/download-artifact@v4
-- PASS: vieww · advisories (vieww_base/apps/wright)
+- PASS: vieww · workflows
 - skipped: Android emulator
 - skipped: Build provenance (Sigstore, keyless)
 - skipped: After
@@ -355,130 +419,6 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-1 / vieww · framework-web — PASS
-- PASS: Set up job
-- skipped: Long paths (Windows)
-- PASS: Run actions/checkout@v4
-- PASS: Python for the runner (GitHub's machines)
-- PASS: Python for the runner (self-host machines)
-- skipped: Python for the runner (macOS)
-- PASS: Plan this job
-- skipped: Run actions/setup-java@v4
-- skipped: Run actions/setup-node@v4
-- skipped: Run gradle/actions/setup-gradle@v4
-- skipped: Run taiki-e/install-action@v2
-- skipped: Run Swatinem/rust-cache@v2
-- skipped: Run actions/cache@v4
-- skipped: AWS credentials (OIDC role)
-- skipped: AWS credentials (access keys)
-- skipped: Run actions/download-artifact@v4
-- skipped: Run actions/download-artifact@v4
-- PASS: vieww · framework-web
-- skipped: Android emulator
-- skipped: Build provenance (Sigstore, keyless)
-- skipped: After
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- PASS: Post Python for the runner (self-host machines)
-- PASS: Post Python for the runner (GitHub's machines)
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### phase-1 / vieww · framework-android-emulator — PASS
-- PASS: Set up job
-- skipped: Long paths (Windows)
-- PASS: Run actions/checkout@v4
-- PASS: Python for the runner (GitHub's machines)
-- PASS: Python for the runner (self-host machines)
-- skipped: Python for the runner (macOS)
-- PASS: Plan this job
-- skipped: Run actions/setup-java@v4
-- skipped: Run actions/setup-node@v4
-- skipped: Run gradle/actions/setup-gradle@v4
-- skipped: Run taiki-e/install-action@v2
-- skipped: Run Swatinem/rust-cache@v2
-- skipped: Run actions/cache@v4
-- skipped: AWS credentials (OIDC role)
-- skipped: AWS credentials (access keys)
-- skipped: Run actions/download-artifact@v4
-- skipped: Run actions/download-artifact@v4
-- PASS: vieww · framework-android-emulator
-- PASS: Android emulator
-- skipped: Build provenance (Sigstore, keyless)
-- PASS: After
-- PASS: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- PASS: Post Python for the runner (self-host machines)
-- PASS: Post Python for the runner (GitHub's machines)
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### phase-1 / vieww · framework-a11y-gallery — PASS
-- PASS: Set up job
-- skipped: Long paths (Windows)
-- PASS: Run actions/checkout@v4
-- PASS: Python for the runner (GitHub's machines)
-- PASS: Python for the runner (self-host machines)
-- skipped: Python for the runner (macOS)
-- PASS: Plan this job
-- skipped: Run actions/setup-java@v4
-- skipped: Run actions/setup-node@v4
-- skipped: Run gradle/actions/setup-gradle@v4
-- skipped: Run taiki-e/install-action@v2
-- skipped: Run Swatinem/rust-cache@v2
-- skipped: Run actions/cache@v4
-- skipped: AWS credentials (OIDC role)
-- skipped: AWS credentials (access keys)
-- skipped: Run actions/download-artifact@v4
-- skipped: Run actions/download-artifact@v4
-- PASS: vieww · framework-a11y-gallery
-- skipped: Android emulator
-- skipped: Build provenance (Sigstore, keyless)
-- skipped: After
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- PASS: Post Python for the runner (self-host machines)
-- PASS: Post Python for the runner (GitHub's machines)
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### phase-1 / vieww · framework-windows — PASS
-- PASS: Set up job
-- PASS: Long paths (Windows)
-- PASS: Run actions/checkout@v4
-- PASS: Python for the runner (GitHub's machines)
-- PASS: Python for the runner (self-host machines)
-- skipped: Python for the runner (macOS)
-- PASS: Plan this job
-- skipped: Run actions/setup-java@v4
-- skipped: Run actions/setup-node@v4
-- skipped: Run gradle/actions/setup-gradle@v4
-- skipped: Run taiki-e/install-action@v2
-- skipped: Run Swatinem/rust-cache@v2
-- skipped: Run actions/cache@v4
-- skipped: AWS credentials (OIDC role)
-- skipped: AWS credentials (access keys)
-- skipped: Run actions/download-artifact@v4
-- skipped: Run actions/download-artifact@v4
-- PASS: vieww · framework-windows
-- skipped: Android emulator
-- skipped: Build provenance (Sigstore, keyless)
-- skipped: After
-- PASS: Run actions/upload-artifact@v4
-- PASS: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- PASS: Post Python for the runner (self-host machines)
-- PASS: Post Python for the runner (GitHub's machines)
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
 ### phase-1 / vieww · framework-plugin-compat — PASS
 - PASS: Set up job
 - skipped: Long paths (Windows)
@@ -510,11 +450,71 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-1 / vieww · framework-ios-simulator — CANCELLED
+### phase-1 / vieww · framework-android-emulator — FAIL
+- PASS: Set up job
+- skipped: Long paths (Windows)
+- PASS: Run actions/checkout@v4
+- PASS: Python for the runner (GitHub's machines)
+- PASS: Python for the runner (self-host machines)
+- skipped: Python for the runner (macOS)
+- PASS: Plan this job
+- skipped: Run actions/setup-java@v4
+- skipped: Run actions/setup-node@v4
+- skipped: Run gradle/actions/setup-gradle@v4
+- skipped: Run taiki-e/install-action@v2
+- skipped: Run Swatinem/rust-cache@v2
+- skipped: Run actions/cache@v4
+- skipped: AWS credentials (OIDC role)
+- skipped: AWS credentials (access keys)
+- skipped: Run actions/download-artifact@v4
+- skipped: Run actions/download-artifact@v4
+- PASS: vieww · framework-android-emulator
+- FAIL: Android emulator
+- skipped: Build provenance (Sigstore, keyless)
+- FAIL: After
+- PASS: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- skipped: Post Python for the runner (self-host machines)
+- skipped: Post Python for the runner (GitHub's machines)
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
 
-### phase-1 / approve — skipped
+### phase-1 / vieww · advisories (vieww_base) — PASS
+- PASS: Set up job
+- skipped: Long paths (Windows)
+- PASS: Run actions/checkout@v4
+- PASS: Python for the runner (GitHub's machines)
+- PASS: Python for the runner (self-host machines)
+- skipped: Python for the runner (macOS)
+- PASS: Plan this job
+- skipped: Run actions/setup-java@v4
+- skipped: Run actions/setup-node@v4
+- skipped: Run gradle/actions/setup-gradle@v4
+- PASS: Run taiki-e/install-action@v2
+- skipped: Run Swatinem/rust-cache@v2
+- skipped: Run actions/cache@v4
+- skipped: AWS credentials (OIDC role)
+- skipped: AWS credentials (access keys)
+- skipped: Run actions/download-artifact@v4
+- skipped: Run actions/download-artifact@v4
+- PASS: vieww · advisories (vieww_base)
+- skipped: Android emulator
+- skipped: Build provenance (Sigstore, keyless)
+- skipped: After
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- skipped: Run actions/upload-artifact@v4
+- PASS: Post Python for the runner (self-host machines)
+- PASS: Post Python for the runner (GitHub's machines)
+- PASS: Post Run actions/checkout@v4
+- PASS: Complete job
 
 ### phase-1 / matrix.title — skipped
+
+### phase-1 / approve — skipped
 
 ### phase-2 / vieww · framework-report — PASS
 - PASS: Set up job
@@ -559,4 +559,4 @@
 
 ### phase-3 — skipped
 
-- artifacts: perf-linux maestro-android parity-certificate-vulkan-lavapipe perf-windows parity-certificate-d3d12-warp 
+- artifacts: parity-certificate-d3d12-warp perf-windows perf-linux parity-certificate-vulkan-lavapipe 
