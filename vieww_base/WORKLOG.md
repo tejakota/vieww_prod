@@ -255,9 +255,22 @@ there. 15 of 240 frames were over budget (12 allowed), all of them waiting on
      the Stylo's GPU is not twice as fast at a budget it fits).
    - `shadow_blurs` should appear per pass. Expect about 1.4 a frame on the
      stress screen (the animated floater) and 0 on the demo screen.
-2. **Run the iPhones.** `RUN.txt` says `ipa: skipped · iphones: skipped` for
-   recent runs. The `auto` change applies there too. Expected: the CPU stays,
-   because the iPhone GPU path has been slower (`rasterizer_choice.rs` table).
+2. **Run the iPhones — and find out why the mac legs never start.** `RUN.txt`
+   says `ipa: skipped · iphones: skipped` for recent runs, and every
+   `1 · Check` of 2026-11-15 — including the all-green `43745442356` —
+   shows `framework-macos` and `framework-ios-simulator` *cancelled with
+   no steps and no runner*: they are not failing, they never start. Runner
+   availability or the macOS quota on the account; worth one look before
+   the next thorough check is believed. The `auto` change applies there
+   too. Expected: the CPU stays, because the iPhone GPU path has been
+   slower (`rasterizer_choice.rs` table).
+   Also from `43745442356`'s little brother `43741002736`: the gate's one
+   failure that day was `sdk_bundle`'s
+   `a_packaged_studio_compiles_with_the_compiler_it_ships` dying on
+   `NoRustc("Text file busy")` — the exec of a just-written shell script
+   racing something on the runner. It passed the full gate unchanged on
+   the retry, and 15 local runs are clean; if it comes back, look at
+   write-then-rename in `fake_toolchain` before blaming the code.
 3. **The backdrop blur is now the biggest GPU cost** on the stress screen: 117
    ms on the A73, 830 ms on the Stylo. The GPU box blur (`post.wgsl` modes
    1/2) reads `2r + 1` texels a pixel, three passes each way. The CPU's
