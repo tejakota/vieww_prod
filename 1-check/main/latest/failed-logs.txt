@@ -1,0 +1,1520 @@
+===== phase-1 / vieww · framework-coverage	log =====
+2026-11-15T14:37:15.3745896Z test saving_a_buffer_that_was_never_on_disk_asks_where_to_put_it ... ok
+2026-11-15T14:37:15.3753998Z test the_case_switch_changes_what_is_found ... ok
+2026-11-15T14:37:15.3757455Z test the_caret_readout_follows_an_undo ... ok
+2026-11-15T14:37:15.3760392Z test the_arrows_move_the_palette_highlight_and_wrap ... ok
+2026-11-15T14:37:15.3777914Z test the_comforts_can_be_turned_off ... ok
+2026-11-15T14:37:15.3778798Z test the_last_buffer_closes_and_the_pane_says_so ... ok
+2026-11-15T14:37:15.3780289Z test the_palette_filters_and_runs_what_it_shows ... ok
+2026-11-15T14:37:15.3788109Z test the_palette_owns_enter_while_it_is_open ... ok
+2026-11-15T14:37:15.3790872Z test the_platform_shortcuts_switch_the_preview_and_mark_it_dirty ... ok
+2026-11-15T14:37:15.3828088Z test the_stale_badge_appears_once_there_is_something_to_be_stale ... ok
+2026-11-15T14:37:15.3877758Z test the_shortcut_layer_consumes_what_it_handles ... ok
+2026-11-15T14:37:15.3937826Z test an_ordinary_character_is_not_swallowed_by_the_layer ... ok
+2026-11-15T14:37:15.3956819Z test the_tab_shortcuts_wrap_in_both_directions ... ok
+2026-11-15T14:37:15.3958018Z test the_status_bar_shows_no_render_time_until_there_has_been_a_render ... ok
+2026-11-15T14:37:15.3959510Z test the_trash_button_empties_the_output_panel ... ok
+2026-11-15T14:37:15.3960579Z test the_status_bar_does_not_put_the_frameworks_name_on_the_studios_version ... ok
+2026-11-15T14:37:15.3963802Z test the_status_bar_shows_building_while_a_build_is_running ... ok
+2026-11-15T14:37:15.3968485Z test the_view_shortcuts_move_the_panel_and_the_sidebar ... ok
+2026-11-15T14:37:15.3969480Z test toggle_comment_comments_and_uncomments_the_line ... ok
+2026-11-15T14:37:15.3978438Z test undo_is_offered_only_when_it_would_do_something ... ok
+2026-11-15T14:37:15.3979194Z test typing_an_opening_bracket_brings_its_closer ... ok
+2026-11-15T14:37:15.3979886Z test undo_takes_back_a_word_and_redo_puts_it_back ... ok
+2026-11-15T14:37:15.3983864Z test undo_with_nothing_to_undo_does_not_clear_the_buffer ... ok
+2026-11-15T14:37:15.3984339Z 
+2026-11-15T14:37:15.3985006Z test result: ok. 58 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+2026-11-15T14:37:15.3985616Z 
+2026-11-15T14:37:15.4023190Z [1m[92m     Running[0m tests/journal.rs (target/llvm-cov-target/debug/deps/journal-c8a3ff3d18ca765a)
+2026-11-15T14:37:15.4118622Z 
+2026-11-15T14:37:15.4118792Z running 2 tests
+2026-11-15T14:37:15.4574571Z test an_undo_never_overwrites ... ok
+2026-11-15T14:37:15.4595698Z test file_operations_undo_and_redo_to_identical_trees ... ok
+2026-11-15T14:37:15.4596189Z 
+2026-11-15T14:37:15.4596639Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+2026-11-15T14:37:15.4597469Z 
+2026-11-15T14:37:15.4623352Z [1m[92m     Running[0m tests/keepwarm.rs (target/llvm-cov-target/debug/deps/keepwarm-7f49a50e49728e09)
+2026-11-15T14:37:15.4683256Z 
+2026-11-15T14:37:15.4683499Z running 6 tests
+2026-11-15T14:37:15.5031981Z test keep_warm_refuses_without_a_toolchain_before_anything_spawns ... ok
+2026-11-15T14:37:15.5036474Z test a_warm_up_stand_down_when_a_compile_is_already_running ... ok
+2026-11-15T14:37:15.5046805Z test a_render_preempts_a_running_warm_up_rather_than_racing_it ... ok
+2026-11-15T14:37:15.5133246Z test a_second_ask_while_compiling_is_refused_and_a_dead_rustc_is_failed ... ok
+2026-11-15T14:37:16.8446004Z test keep_warm_walks_the_state_machine_to_warm ... ok
+2026-11-15T14:37:16.8478503Z test the_guest_template_compiles_through_the_real_pipeline ... ok
+2026-11-15T14:37:16.8478969Z 
+2026-11-15T14:37:16.8479299Z test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.38s
+2026-11-15T14:37:16.8479749Z 
+2026-11-15T14:37:16.8497642Z [1m[92m     Running[0m tests/live.rs (target/llvm-cov-target/debug/deps/live-25e690cd642ee303)
+2026-11-15T14:37:16.8598800Z 
+2026-11-15T14:37:16.8599179Z running 7 tests
+2026-11-15T14:37:16.8610970Z test no_island_is_drawn_when_the_safe_area_is_not_simulated ... ok
+2026-11-15T14:37:16.9526019Z test a_workspace_without_the_file_is_told_so ... ok
+2026-11-15T14:37:16.9666262Z test the_demo_insets_itself_by_the_safe_area_it_is_given ... ok
+2026-11-15T14:37:16.9925388Z test a_file_that_does_not_parse_says_which_line ... ok
+2026-11-15T14:37:17.0067546Z test the_preview_draws_the_workspaces_own_live_file ... ok
+2026-11-15T14:37:17.0159183Z test editing_the_buffer_changes_the_frame_without_saving_or_compiling ... ok
+2026-11-15T14:37:17.0223205Z test the_demo_heading_clears_the_island_when_the_island_is_drawn ... ok
+2026-11-15T14:37:17.0223574Z 
+2026-11-15T14:37:17.0223852Z test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+2026-11-15T14:37:17.0224228Z 
+2026-11-15T14:37:17.0258657Z [1m[92m     Running[0m tests/live_materialize.rs (target/llvm-cov-target/debug/deps/live_materialize-539ef0748e33b236)
+2026-11-15T14:37:17.0348651Z 
+2026-11-15T14:37:17.0348978Z running 3 tests
+2026-11-15T14:37:17.0768097Z test materializing_without_a_folder_is_refused ... ok
+2026-11-15T14:37:17.0770119Z test the_command_writes_the_flow_once_and_never_overwrites ... ok
+2026-11-15T14:37:18.3573043Z test the_materialized_flow_compiles_loads_and_renders ... ok
+2026-11-15T14:37:18.3573748Z 
+2026-11-15T14:37:18.3574340Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.32s
+2026-11-15T14:37:18.3574931Z 
+2026-11-15T14:37:18.4124635Z [1m[92m     Running[0m tests/multi_frame.rs (target/llvm-cov-target/debug/deps/multi_frame-207987e8a283eb14)
+2026-11-15T14:37:18.4227403Z 
+2026-11-15T14:37:18.4227640Z running 3 tests
+2026-11-15T14:37:18.4965892Z test three_devices_render_the_same_screen ... ok
+2026-11-15T14:37:18.4994834Z test a_tap_in_one_frame_shows_in_the_others ... ok
+2026-11-15T14:37:18.5039713Z test removing_and_adding_devices ... ok
+2026-11-15T14:37:18.5039973Z 
+2026-11-15T14:37:18.5040256Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+2026-11-15T14:37:18.5070596Z 
+2026-11-15T14:37:18.5071557Z [1m[92m     Running[0m tests/performance.rs (target/llvm-cov-target/debug/deps/performance-4ffbfb6e0518270f)
+2026-11-15T14:37:18.5171517Z 
+2026-11-15T14:37:18.5172072Z running 3 tests
+2026-11-15T14:37:18.5760693Z test attributing_needs_a_rendered_screen ... ok
+2026-11-15T14:37:18.5904758Z test the_overlay_shows_the_frames_it_is_given_and_only_while_on ... ok
+2026-11-15T14:37:18.8369053Z test attributing_a_frame_breaks_the_screen_down_and_annotates_the_rows ... ok
+2026-11-15T14:37:18.8369874Z 
+2026-11-15T14:37:18.8370152Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+2026-11-15T14:37:18.8370514Z 
+2026-11-15T14:37:18.8408250Z [1m[92m     Running[0m tests/persistence.rs (target/llvm-cov-target/debug/deps/persistence-c2c2b1cc91c4398f)
+2026-11-15T14:37:18.8467777Z 
+2026-11-15T14:37:18.8468154Z running 11 tests
+2026-11-15T14:37:18.8803427Z test a_dirty_studio_vetoes_the_close_and_says_what_would_be_lost ... ok
+2026-11-15T14:37:18.8804905Z test a_session_naming_a_view_this_studio_does_not_have_still_restores_the_rest ... ok
+2026-11-15T14:37:18.8818494Z test a_studio_with_no_store_persists_nothing_and_does_not_mind ... ok
+2026-11-15T14:37:18.8819363Z test a_clean_studio_closes_without_asking ... ok
+2026-11-15T14:37:18.8819804Z test answering_the_dialog_lets_the_second_request_through ... ok
+2026-11-15T14:37:18.8828506Z test cancelling_the_dialog_leaves_the_studio_exactly_as_it_was ... ok
+2026-11-15T14:37:18.8829277Z test closing_writes_the_session_out ... ok
+2026-11-15T14:37:18.8845038Z test the_recent_list_is_most_recent_first_and_bounded ... ok
+2026-11-15T14:37:18.8845816Z test the_settings_poll_writes_on_a_change_and_not_on_a_still_frame ... ok
+2026-11-15T14:37:18.8851856Z test the_activity_view_and_panel_tab_come_back ... ok
+2026-11-15T14:37:18.8856078Z test settings_survive_a_relaunch ... ok
+2026-11-15T14:37:18.8856419Z 
+2026-11-15T14:37:18.8856862Z test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+2026-11-15T14:37:18.8857761Z 
+2026-11-15T14:37:18.8875482Z [1m[92m     Running[0m tests/pipeline.rs (target/llvm-cov-target/debug/deps/pipeline-87061af24378d692)
+2026-11-15T14:37:18.8975704Z 
+2026-11-15T14:37:18.8975941Z running 21 tests
+2026-11-15T14:37:19.5336927Z test a_cancelled_job_leaves_no_diagnostic_behind ... ok
+2026-11-15T14:37:19.6119151Z test a_buffer_with_no_screen_function_is_told_so ... ok
+2026-11-15T14:37:20.7109587Z test a_buffer_compiles_loads_and_becomes_a_tree ... ok
+2026-11-15T14:37:20.7248323Z test a_compiled_screen_reaches_the_render_tree ... ok
+2026-11-15T14:37:20.7618563Z test a_missing_toolchain_says_what_to_do_about_it ... ok
+2026-11-15T14:37:20.9128506Z test a_job_compiles_on_a_worker_and_reports_back ... ok
+2026-11-15T14:37:20.9228382Z test a_failure_after_a_success_keeps_the_frame_and_admits_it_is_stale ... ok
+2026-11-15T14:37:20.9908707Z test a_preview_built_against_the_wrong_vieww_is_refused_not_shown_blank ... ok
+2026-11-15T14:37:22.4480606Z test a_preview_resolves_its_libstd_without_the_environment_cargo_sets ... ok
+2026-11-15T14:37:22.5867183Z test a_type_error_comes_back_as_a_diagnostic_at_the_right_line ... ok
+2026-11-15T14:37:23.6250742Z test a_panicking_build_is_caught_too_rather_than_aborting_the_process ... ok
+2026-11-15T14:37:23.6471226Z test a_panicking_build_on_a_later_rebuild_is_caught_by_the_host_not_aborted ... ok
+2026-11-15T14:37:23.7108720Z test a_panicking_screen_is_caught_at_the_boundary_rather_than_taking_the_host_down ... ok
+2026-11-15T14:37:23.8288388Z test the_best_candidate_is_tried_first ... ok
+2026-11-15T14:37:25.3099289Z test the_scratch_buffer_the_studio_opens_with_actually_compiles ... ok
+2026-11-15T14:37:25.3132677Z test the_session_lists_what_it_has_actually_written ... ok
+2026-11-15T14:37:25.3138218Z test the_timeout_is_far_past_an_honest_compile ... ok
+2026-11-15T14:37:25.3721823Z test the_toolchain_guard_refuses_a_different_compiler ... ok
+2026-11-15T14:37:28.2048707Z test every_screen_the_repository_ships_compiles ... ok
+2026-11-15T14:37:28.7818676Z test every_item_snippet_compiles ... ok
+2026-11-15T14:37:35.9339788Z test every_lesson_compiles ... ok
+2026-11-15T14:37:35.9340260Z 
+2026-11-15T14:37:35.9341181Z test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.04s
+2026-11-15T14:37:35.9341750Z 
+2026-11-15T14:37:36.1625052Z [1m[92m     Running[0m tests/release_signing.rs (target/llvm-cov-target/debug/deps/release_signing-f6eb407c409a4e65)
+2026-11-15T14:37:36.1687669Z 
+2026-11-15T14:37:36.1688339Z running 5 tests
+2026-11-15T14:37:36.2028505Z test cancelling_clears_what_was_typed_rather_than_keeping_it ... ok
+2026-11-15T14:37:36.2029646Z test confirming_with_nothing_typed_starts_nothing_and_says_why ... ok
+2026-11-15T14:37:36.2030963Z test a_release_export_asks_for_the_password_before_touching_the_toolchain ... ok
+2026-11-15T14:37:36.2031666Z test the_password_reaches_the_child_and_nothing_else ... ok
+2026-11-15T14:37:36.2041487Z test the_prompt_belongs_to_the_release_format_alone ... ok
+2026-11-15T14:37:36.2041979Z 
+2026-11-15T14:37:36.2042441Z test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+2026-11-15T14:37:36.2043081Z 
+2026-11-15T14:37:36.2056981Z [1m[92m     Running[0m tests/remote.rs (target/llvm-cov-target/debug/deps/remote-48d45b9c49c2efb2)
+2026-11-15T14:37:36.2154615Z 
+2026-11-15T14:37:36.2155156Z running 8 tests
+2026-11-15T14:37:38.3658805Z test a_screen_renders_in_the_child_and_a_tap_reaches_it ... ok
+2026-11-15T14:37:38.4011614Z test a_say_list_scrolls_over_the_wire ... ok
+2026-11-15T14:37:39.6510454Z test a_guest_that_aborts_takes_its_child_and_not_the_studio ... ok
+2026-11-15T14:37:39.8152523Z test say_keep_state_survives_a_remote_re_render ... ok
+2026-11-15T14:37:39.8840351Z test keys_ime_scroll_and_hover_reach_the_guest ... ok
+2026-11-15T14:37:40.9351403Z test the_guest_state_crosses_a_re_render_through_the_child ... ok
+2026-11-15T14:37:40.9497952Z test a_panic_on_a_later_rebuild_is_survived_on_every_platform ... ok
+2026-11-15T14:37:41.0067873Z test the_studio_renders_into_a_child_process_when_isolation_is_on ... ok
+2026-11-15T14:37:41.0068651Z 
+2026-11-15T14:37:41.0069308Z test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.79s
+2026-11-15T14:37:41.0070146Z 
+2026-11-15T14:37:41.0119308Z [1m[92m     Running[0m tests/repaint.rs (target/llvm-cov-target/debug/deps/repaint-ac287711aa000543)
+2026-11-15T14:37:41.0227587Z 
+2026-11-15T14:37:41.0227805Z running 5 tests
+2026-11-15T14:37:41.1718301Z test an_idle_shell_reports_no_damage ... ok
+2026-11-15T14:37:45.6428387Z test the_activity_bar_repaints_completely_in_the_dark_theme ... FAILED
+2026-11-15T14:37:45.6429416Z test switching_views_repaints_completely ... FAILED
+2026-11-15T14:37:50.4801968Z test folding_the_sidebar_repaints_completely ... FAILED
+2026-11-15T14:38:26.8147646Z test the_activity_bar_repaints_completely_in_the_light_theme ... ok
+2026-11-15T14:38:26.8148247Z 
+2026-11-15T14:38:26.8148404Z failures:
+2026-11-15T14:38:26.8148537Z 
+2026-11-15T14:38:26.8148815Z ---- the_activity_bar_repaints_completely_in_the_dark_theme stdout ----
+2026-11-15T14:38:26.8153025Z vieww: RenderRow overflowed by 13px on the horizontal axis — 883 of children into 870 of space
+2026-11-15T14:38:26.8155814Z vieww:   in … > RenderColumn > RenderDecoratedBox > RenderPadding > RenderClip > RenderStack > RenderConstrainedBox > RenderStack > RenderConstrainedBox > RenderColoredBox > RenderPadding
+2026-11-15T14:38:26.8158742Z vieww: RenderRow overflowed by 102px on the horizontal axis — 180 of children into 78 of space
+2026-11-15T14:38:26.8161738Z vieww:   in … > RenderDecoratedBox > RenderPadding > RenderClip > RenderStack > RenderColoredBox > RenderColumn > RenderConstrainedBox > RenderColoredBox > RenderPadding > RenderAlign
+2026-11-15T14:38:26.8163833Z vieww: RenderRow overflowed by 10px on the horizontal axis — 52 of children into 42 of space
+2026-11-15T14:38:26.8165729Z vieww:   in … > RenderFlexible > RenderClip > RenderRow > RenderFlexible > RenderStack > RenderGestureDetector > RenderMeasuredConstraints > RenderViewport > RenderColoredBox > RenderPadding
+2026-11-15T14:38:26.8166930Z 
+2026-11-15T14:38:26.8168332Z thread 'the_activity_bar_repaints_completely_in_the_dark_theme' (97440) panicked at crates/vieww-test-harness/src/visual.rs:395:9:
+2026-11-15T14:38:26.8169940Z frame 0: the damaged repaint and a full repaint disagree at 1324 pixel(s). First: Difference { x: 11, y: 51, left: (37, 37, 37, 255), right: (32, 32, 32, 255) }.
+2026-11-15T14:38:26.8170826Z 
+2026-11-15T14:38:26.8172255Z This means the frame reported less damage than it changed. A backend with a persistent target would keep the previous frame's ink at those pixels, and over an animation that residue accumulates into what gets reported as smearing.
+2026-11-15T14:38:26.8173882Z stack backtrace:
+2026-11-15T14:38:26.8174287Z    0: __rustc::rust_begin_unwind
+2026-11-15T14:38:26.8175043Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-15T14:38:26.8175841Z    1: core::panicking::panic_fmt
+2026-11-15T14:38:26.8176581Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-15T14:38:26.8178014Z    2: vieww_test_harness::visual::assert_partial_repaint_is_complete::<repaint::hover_the_activity_bar::{closure#0}>
+2026-11-15T14:38:26.8179327Z              at /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-test-harness/src/visual.rs:395:9
+2026-11-15T14:38:26.8180219Z    3: repaint::hover_the_activity_bar
+2026-11-15T14:38:26.8180680Z              at ./tests/repaint.rs:61:5
+2026-11-15T14:38:26.8181285Z    4: repaint::the_activity_bar_repaints_completely_in_the_dark_theme
+2026-11-15T14:38:26.8181935Z              at ./tests/repaint.rs:74:5
+2026-11-15T14:38:26.8182642Z    5: repaint::the_activity_bar_repaints_completely_in_the_dark_theme::{closure#0}
+2026-11-15T14:38:26.8183304Z              at ./tests/repaint.rs:73:60
+2026-11-15T14:38:26.8184214Z    6: <repaint::the_activity_bar_repaints_completely_in_the_dark_theme::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+2026-11-15T14:38:26.8185607Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-15T14:38:26.8186717Z    7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-11-15T14:38:26.8187957Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-15T14:38:26.8189022Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-15T14:38:26.8189627Z 
+2026-11-15T14:38:26.8189852Z ---- switching_views_repaints_completely stdout ----
+2026-11-15T14:38:26.8190764Z vieww: RenderRow overflowed by 13px on the horizontal axis — 883 of children into 870 of space
+2026-11-15T14:38:26.8192577Z vieww:   in … > RenderColumn > RenderDecoratedBox > RenderPadding > RenderClip > RenderStack > RenderConstrainedBox > RenderStack > RenderConstrainedBox > RenderColoredBox > RenderPadding
+2026-11-15T14:38:26.8194418Z vieww: RenderRow overflowed by 102px on the horizontal axis — 180 of children into 78 of space
+2026-11-15T14:38:26.8196252Z vieww:   in … > RenderDecoratedBox > RenderPadding > RenderClip > RenderStack > RenderColoredBox > RenderColumn > RenderConstrainedBox > RenderColoredBox > RenderPadding > RenderAlign
+2026-11-15T14:38:26.8198260Z vieww: RenderRow overflowed by 10px on the horizontal axis — 52 of children into 42 of space
+2026-11-15T14:38:26.8200205Z vieww:   in … > RenderFlexible > RenderClip > RenderRow > RenderFlexible > RenderStack > RenderGestureDetector > RenderMeasuredConstraints > RenderViewport > RenderColoredBox > RenderPadding
+2026-11-15T14:38:26.8201458Z 
+2026-11-15T14:38:26.8202058Z thread 'switching_views_repaints_completely' (97439) panicked at crates/vieww-test-harness/src/visual.rs:395:9:
+2026-11-15T14:38:26.8203601Z frame 0: the damaged repaint and a full repaint disagree at 18 pixel(s). First: Difference { x: 319, y: 594, left: (26, 26, 26, 255), right: (30, 30, 30, 255) }.
+2026-11-15T14:38:26.8204547Z 
+2026-11-15T14:38:26.8206013Z This means the frame reported less damage than it changed. A backend with a persistent target would keep the previous frame's ink at those pixels, and over an animation that residue accumulates into what gets reported as smearing.
+2026-11-15T14:38:26.8207826Z stack backtrace:
+2026-11-15T14:38:26.8208189Z    0: __rustc::rust_begin_unwind
+2026-11-15T14:38:26.8208895Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-15T14:38:26.8209846Z    1: core::panicking::panic_fmt
+2026-11-15T14:38:26.8210540Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-15T14:38:26.8211808Z    2: vieww_test_harness::visual::assert_partial_repaint_is_complete::<repaint::switching_views_repaints_completely::{closure#0}>
+2026-11-15T14:38:26.8213211Z              at /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-test-harness/src/visual.rs:395:9
+2026-11-15T14:38:26.8214138Z    3: repaint::switching_views_repaints_completely
+2026-11-15T14:38:26.8214676Z              at ./tests/repaint.rs:89:5
+2026-11-15T14:38:26.8215285Z    4: repaint::switching_views_repaints_completely::{closure#0}
+2026-11-15T14:38:26.8215889Z              at ./tests/repaint.rs:85:41
+2026-11-15T14:38:26.8216708Z    5: <repaint::switching_views_repaints_completely::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+2026-11-15T14:38:26.8218080Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-15T14:38:26.8219200Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-11-15T14:38:26.8220277Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-15T14:38:26.8221329Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-15T14:38:26.8221863Z 
+2026-11-15T14:38:26.8222097Z ---- folding_the_sidebar_repaints_completely stdout ----
+2026-11-15T14:38:26.8223078Z vieww: RenderRow overflowed by 13px on the horizontal axis — 883 of children into 870 of space
+2026-11-15T14:38:26.8225001Z vieww:   in … > RenderColumn > RenderDecoratedBox > RenderPadding > RenderClip > RenderStack > RenderConstrainedBox > RenderStack > RenderConstrainedBox > RenderColoredBox > RenderPadding
+2026-11-15T14:38:26.8226854Z vieww: RenderRow overflowed by 102px on the horizontal axis — 180 of children into 78 of space
+2026-11-15T14:38:26.8228980Z vieww:   in … > RenderDecoratedBox > RenderPadding > RenderClip > RenderStack > RenderColoredBox > RenderColumn > RenderConstrainedBox > RenderColoredBox > RenderPadding > RenderAlign
+2026-11-15T14:38:26.8230784Z vieww: RenderRow overflowed by 10px on the horizontal axis — 52 of children into 42 of space
+2026-11-15T14:38:26.8232669Z vieww:   in … > RenderFlexible > RenderClip > RenderRow > RenderFlexible > RenderStack > RenderGestureDetector > RenderMeasuredConstraints > RenderViewport > RenderColoredBox > RenderPadding
+2026-11-15T14:38:26.8234540Z vieww: RenderRow overflowed by 102px on the horizontal axis — 180 of children into 78 of space
+2026-11-15T14:38:26.8236448Z vieww:   in … > RenderDecoratedBox > RenderPadding > RenderClip > RenderStack > RenderColoredBox > RenderColumn > RenderConstrainedBox > RenderColoredBox > RenderPadding > RenderAlign
+2026-11-15T14:38:26.8238388Z vieww: RenderRow overflowed by 10px on the horizontal axis — 52 of children into 42 of space
+2026-11-15T14:38:26.8240348Z vieww:   in … > RenderFlexible > RenderClip > RenderRow > RenderFlexible > RenderStack > RenderGestureDetector > RenderMeasuredConstraints > RenderViewport > RenderColoredBox > RenderPadding
+2026-11-15T14:38:26.8242149Z vieww: RenderRow overflowed by 102px on the horizontal axis — 180 of children into 78 of space
+2026-11-15T14:38:26.8244040Z vieww:   in … > RenderDecoratedBox > RenderPadding > RenderClip > RenderStack > RenderColoredBox > RenderColumn > RenderConstrainedBox > RenderColoredBox > RenderPadding > RenderAlign
+2026-11-15T14:38:26.8255426Z vieww: RenderRow overflowed by 10px on the horizontal axis — 52 of children into 42 of space
+2026-11-15T14:38:26.8257845Z vieww:   in … > RenderFlexible > RenderClip > RenderRow > RenderFlexible > RenderStack > RenderGestureDetector > RenderMeasuredConstraints > RenderViewport > RenderColoredBox > RenderPadding
+2026-11-15T14:38:26.8259094Z 
+2026-11-15T14:38:26.8259682Z thread 'folding_the_sidebar_repaints_completely' (97438) panicked at crates/vieww-test-harness/src/visual.rs:395:9:
+2026-11-15T14:38:26.8261391Z frame 4: the damaged repaint and a full repaint disagree at 971 pixel(s). First: Difference { x: 8, y: 61, left: (36, 34, 42, 255), right: (37, 34, 44, 255) }.
+2026-11-15T14:38:26.8262265Z 
+2026-11-15T14:38:26.8263485Z This means the frame reported less damage than it changed. A backend with a persistent target would keep the previous frame's ink at those pixels, and over an animation that residue accumulates into what gets reported as smearing.
+2026-11-15T14:38:26.8264991Z stack backtrace:
+2026-11-15T14:38:26.8265361Z    0: __rustc::rust_begin_unwind
+2026-11-15T14:38:26.8266090Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-15T14:38:26.8266851Z    1: core::panicking::panic_fmt
+2026-11-15T14:38:26.8267765Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-15T14:38:26.8269027Z    2: vieww_test_harness::visual::assert_partial_repaint_is_complete::<repaint::folding_the_sidebar_repaints_completely::{closure#0}>
+2026-11-15T14:38:26.8270335Z              at /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-test-harness/src/visual.rs:395:9
+2026-11-15T14:38:26.8271234Z    3: repaint::folding_the_sidebar_repaints_completely
+2026-11-15T14:38:26.8271760Z              at ./tests/repaint.rs:101:5
+2026-11-15T14:38:26.8272328Z    4: repaint::folding_the_sidebar_repaints_completely::{closure#0}
+2026-11-15T14:38:26.8272908Z              at ./tests/repaint.rs:98:45
+2026-11-15T14:38:26.8273760Z    5: <repaint::folding_the_sidebar_repaints_completely::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+2026-11-15T14:38:26.8275042Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-15T14:38:26.8276189Z    6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-11-15T14:38:26.8277471Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-15T14:38:26.8278201Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-15T14:38:26.8278553Z 
+2026-11-15T14:38:26.8278558Z 
+2026-11-15T14:38:26.8278640Z failures:
+2026-11-15T14:38:26.8278873Z     folding_the_sidebar_repaints_completely
+2026-11-15T14:38:26.8279189Z     switching_views_repaints_completely
+2026-11-15T14:38:26.8279536Z     the_activity_bar_repaints_completely_in_the_dark_theme
+2026-11-15T14:38:26.8279780Z 
+2026-11-15T14:38:26.8280045Z test result: FAILED. 2 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 45.79s
+2026-11-15T14:38:26.8280429Z 
+2026-11-15T14:38:26.8596438Z [1m[91merror[0m: test failed, to rerun pass `-p viewwstudio --test repaint`
+2026-11-15T14:38:27.0313267Z error: process didn't exit successfully: `/home/runner/.rustup/toolchains/1.98.1-x86_64-unknown-linux-gnu/bin/cargo test --tests --manifest-path /home/runner/work/vieww_prod/vieww_prod/vieww_base/Cargo.toml --target-dir /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target --workspace --features vieww-paint/native --exclude vieww-platform-winit --exclude reload-host --exclude reload-guest --exclude reload-android` (exit status: 101)
+2026-11-15T14:38:27.0377409Z 
+2026-11-15T14:38:27.0377928Z error: line coverage is below 70%.
+2026-11-15T14:38:27.0378254Z 
+2026-11-15T14:38:27.0378658Z Untested code is not automatically a defect, but it is always a decision. If the
+2026-11-15T14:38:27.0380005Z uncovered lines are a deliberate gap — a platform path this machine cannot run,
+2026-11-15T14:38:27.0381389Z a panic arm that exists to be loud — say so in TRACKER.md rather than lowering
+2026-11-15T14:38:27.0382015Z the floor quietly.
+2026-11-15T14:38:27.0630935Z ##[endgroup]
+2026-11-15T14:38:27.1528090Z ##[error]Coverage failed (exit 1)
+2026-11-15T14:38:27.3533055Z ##[error]Process completed with exit code 1.
+2026-11-15T14:38:27.4586693Z Post job cleanup.
+2026-11-15T14:38:27.7124662Z [command]/usr/bin/git version
+2026-11-15T14:38:27.7182958Z git version 2.56.1
+2026-11-15T14:38:27.7259035Z Temporarily overriding HOME='/home/runner/work/_temp/952f8f81-6268-4910-b12e-24ac133f2954' before making global git config changes
+2026-11-15T14:38:27.7260723Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T14:38:27.7266020Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-15T14:38:27.7316577Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T14:38:27.7357794Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-15T14:38:27.7730828Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T14:38:27.7768218Z http.https://github.com/.extraheader
+2026-11-15T14:38:27.7779306Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-15T14:38:27.7831901Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-15T14:38:27.8158368Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T14:38:27.8210300Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-15T14:38:27.8726447Z Cleaning up orphan processes
+2026-11-15T14:38:27.9628119Z Terminate orphan process: pid (78831) (java)
+2026-11-15T14:38:27.9969966Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== phase-1 / vieww · framework-macos	log =====
+﻿<?xml version="1.0" encoding="utf-8"?><Error><Code>BlobNotFound</Code><Message>The specified blob does not exist.
+RequestId:c6421ec9-601e-009f-6e0f-75a496000000
+Time:2026-11-15T14:39:10.2086768Z</Message></Error>
+
+===== phase-1 / vieww · framework-gpu-lavapipe	log =====
+2026-11-15T14:12:59.8091056Z [1m[92m   Compiling[0m fontdb v0.23.0
+2026-11-15T14:13:01.3048578Z [1m[92m   Compiling[0m zbus v5.19.0
+2026-11-15T14:13:02.7182077Z [1m[92m   Compiling[0m lyon_geom v1.0.19
+2026-11-15T14:13:03.1291379Z [1m[92m   Compiling[0m harfrust v0.5.2
+2026-11-15T14:13:05.9081290Z [1m[92m   Compiling[0m skrifa v0.40.0
+2026-11-15T14:13:12.4091764Z [1m[92m   Compiling[0m zbus-lockstep-macros v0.5.2
+2026-11-15T14:13:12.7131718Z [1m[92m   Compiling[0m wayland-protocols v0.32.13
+2026-11-15T14:13:15.9141429Z [1m[92m   Compiling[0m static_assertions v1.1.0
+2026-11-15T14:13:16.0371451Z [1m[92m   Compiling[0m raw-window-handle v0.6.2
+2026-11-15T14:13:16.2281470Z [1m[92m   Compiling[0m as-raw-xcb-connection v1.0.1
+2026-11-15T14:13:16.2623278Z [1m[92m   Compiling[0m cosmic-text v0.19.0
+2026-11-15T14:13:18.0421386Z [1m[92m   Compiling[0m phf_generator v0.14.0
+2026-11-15T14:13:18.1441321Z [1m[92m   Compiling[0m naga v30.0.1
+2026-11-15T14:13:24.4791337Z [1m[92m   Compiling[0m atspi-common v0.13.0
+2026-11-15T14:13:25.4861494Z [1m[92m   Compiling[0m lyon_path v1.0.19
+2026-11-15T14:13:26.1471501Z [1m[92m   Compiling[0m calloop v0.13.0
+2026-11-15T14:13:27.0481024Z [1m[92m   Compiling[0m gethostname v1.1.0
+2026-11-15T14:13:27.1081587Z [1m[92m   Compiling[0m xcursor v0.3.11
+2026-11-15T14:13:27.6571431Z [1m[92m   Compiling[0m cursor-icon v1.2.0
+2026-11-15T14:13:27.7341111Z [1m[92m   Compiling[0m arrayref v0.3.9
+2026-11-15T14:13:27.7601363Z [1m[92m   Compiling[0m x11rb-protocol v0.13.2
+2026-11-15T14:13:27.7676307Z [1m[92m   Compiling[0m foldhash v0.2.0
+2026-11-15T14:13:27.8898649Z [1m[92m   Compiling[0m strict-num v0.1.1
+2026-11-15T14:13:27.9657782Z [1m[92m   Compiling[0m smithay-client-toolkit v0.19.2
+2026-11-15T14:13:28.0276459Z [1m[92m   Compiling[0m getrandom v0.3.4
+2026-11-15T14:13:28.2872055Z [1m[92m   Compiling[0m xkeysym v0.2.1
+2026-11-15T14:13:30.1762858Z [1m[92m   Compiling[0m tiny-skia-path v0.11.4
+2026-11-15T14:13:31.3061428Z [1m[92m   Compiling[0m lyon_tessellation v1.0.22
+2026-11-15T14:13:31.4841365Z [1m[92m   Compiling[0m hashbrown v0.17.1
+2026-11-15T14:13:32.0637855Z [1m[92m   Compiling[0m wayland-csd-frame v0.3.0
+2026-11-15T14:13:32.3705313Z [1m[92m   Compiling[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+2026-11-15T14:13:32.6211377Z [1m[92m   Compiling[0m wayland-cursor v0.31.14
+2026-11-15T14:13:33.1651547Z [1m[92m   Compiling[0m calloop-wayland-source v0.3.0
+2026-11-15T14:13:33.2222010Z [1m[92m   Compiling[0m phf_macros v0.14.0
+2026-11-15T14:13:33.2417897Z [1m[92m   Compiling[0m wayland-protocols-wlr v0.3.12
+2026-11-15T14:13:33.6741617Z [1m[92m   Compiling[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-15T14:13:36.0811326Z [1m[92m   Compiling[0m accesskit v0.25.1
+2026-11-15T14:13:36.7012126Z [1m[92m   Compiling[0m ahash v0.8.12
+2026-11-15T14:13:36.7934665Z [1m[92m   Compiling[0m owned_ttf_parser v0.25.1
+2026-11-15T14:13:36.8216329Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-15T14:13:37.0231538Z [1m[92m   Compiling[0m x11-dl v2.21.0
+2026-11-15T14:13:37.0751798Z [1m[92m   Compiling[0m ab_glyph_rasterizer v0.1.10
+2026-11-15T14:13:37.1123763Z [1m[92m   Compiling[0m pxfm v0.1.30
+2026-11-15T14:13:37.2506264Z [1m[92m   Compiling[0m parking_lot_core v0.9.12
+2026-11-15T14:13:37.3426176Z [1m[92m   Compiling[0m zune-core v0.5.3
+2026-11-15T14:13:37.5471221Z [1m[92m   Compiling[0m zune-jpeg v0.5.15
+2026-11-15T14:13:38.8971321Z [1m[92m   Compiling[0m x11rb v0.13.2
+2026-11-15T14:13:39.3301310Z [1m[92m   Compiling[0m moxcms v0.8.1
+2026-11-15T14:13:41.4661298Z [1m[92m   Compiling[0m ab_glyph v0.2.32
+2026-11-15T14:13:42.6172383Z [1m[92m   Compiling[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-15T14:13:47.0696910Z [1m[92m   Compiling[0m accesskit_consumer v0.39.1
+2026-11-15T14:13:52.2211850Z [1m[92m   Compiling[0m phf v0.14.0
+2026-11-15T14:13:54.9441336Z [1m[92m   Compiling[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+2026-11-15T14:13:55.9841779Z [1m[92m   Compiling[0m tiny-skia v0.11.4
+2026-11-15T14:13:56.7381794Z [1m[92m   Compiling[0m atspi-proxies v0.13.0
+2026-11-15T14:13:57.9251556Z [1m[92m   Compiling[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+2026-11-15T14:13:57.9781699Z [1m[92m   Compiling[0m vieww-scene v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
+2026-11-15T14:13:58.2991432Z [1m[92m   Compiling[0m winit v0.30.13
+2026-11-15T14:13:58.4891399Z [1m[92m   Compiling[0m futures-macro v0.3.34
+2026-11-15T14:13:58.5351525Z [1m[92m   Compiling[0m tiny-xlib v0.2.5
+2026-11-15T14:13:58.6646155Z [1m[92m   Compiling[0m byteorder-lite v0.1.0
+2026-11-15T14:13:58.8771311Z [1m[92m   Compiling[0m percent-encoding v2.3.2
+2026-11-15T14:13:59.0241341Z [1m[92m   Compiling[0m futures-task v0.3.34
+2026-11-15T14:13:59.0289564Z [1m[92m   Compiling[0m scopeguard v1.2.0
+2026-11-15T14:13:59.0701638Z [1m[92m   Compiling[0m lock_api v0.4.14
+2026-11-15T14:13:59.1152060Z [1m[92m   Compiling[0m futures-util v0.3.34
+2026-11-15T14:13:59.1721266Z [1m[92m   Compiling[0m image v0.25.10
+2026-11-15T14:13:59.2603031Z [1m[92m   Compiling[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-15T14:14:00.2508860Z [1m[92m   Compiling[0m vieww-render-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
+2026-11-15T14:14:00.9001218Z [1m[92m   Compiling[0m atspi v0.29.0
+2026-11-15T14:14:00.9458593Z [1m[92m   Compiling[0m sctk-adwaita v0.10.1
+2026-11-15T14:14:02.0841262Z [1m[92m   Compiling[0m ash-window v0.13.0
+2026-11-15T14:14:02.2921391Z [1m[92m   Compiling[0m accesskit_atspi_common v0.21.0
+2026-11-15T14:14:05.4861257Z [1m[92m   Compiling[0m xkbcommon-dl v0.4.2
+2026-11-15T14:14:05.5571510Z [1m[92m   Compiling[0m wayland-protocols-plasma v0.3.12
+2026-11-15T14:14:06.2801656Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-15T14:14:06.3501277Z [1m[92m   Compiling[0m ctor v0.10.1
+2026-11-15T14:14:06.3901246Z [1m[92m   Compiling[0m dpi v0.1.2
+2026-11-15T14:14:06.5096673Z [1m[92m   Compiling[0m smol_str v0.2.2
+2026-11-15T14:14:07.0525293Z [1m[92m   Compiling[0m parking_lot v0.12.5
+2026-11-15T14:14:07.6861434Z [1m[92m   Compiling[0m accesskit_unix v0.24.0
+2026-11-15T14:14:13.6091856Z [1m[92m   Compiling[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-15T14:14:17.7089247Z [1m[92m   Compiling[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-15T14:14:19.0381770Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-15T14:14:24.6721198Z [1m[92m   Compiling[0m accesskit_winit v0.34.1
+2026-11-15T14:14:24.8711333Z [1m[92m   Compiling[0m arboard v3.6.1
+2026-11-15T14:14:26.1011434Z [1m[92m   Compiling[0m softbuffer v0.4.8
+2026-11-15T14:14:27.0791952Z [1m[92m   Compiling[0m vieww-asset v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
+2026-11-15T14:14:28.8832666Z [1m[92m   Compiling[0m vieww-render-planner v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
+2026-11-15T14:14:29.2871750Z [1m[92m   Compiling[0m vieww-interaction v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-interaction)
+2026-11-15T14:14:29.5416322Z [1m[92m   Compiling[0m vieww-image v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-image)
+2026-11-15T14:14:30.0205041Z [1m[92m   Compiling[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
+2026-11-15T14:14:30.2991588Z [1m[92m   Compiling[0m vieww-devtools v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-devtools)
+2026-11-15T14:14:32.0391824Z [1m[92m   Compiling[0m vieww-platform-winit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
+2026-11-15T14:14:34.3091796Z [1m[92m   Compiling[0m vieww-hardware v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
+2026-11-15T14:15:11.3427940Z [1m[92m    Finished[0m `release` profile [optimized + debuginfo] target(s) in 2m 55s
+2026-11-15T14:15:11.3611617Z [1m[92m     Running[0m tests/wait_loop.rs (target/release/deps/wait_loop-f58436a6787d5668)
+2026-11-15T14:15:11.3884612Z wait_loop: idle
+2026-11-15T14:15:12.0202304Z wait_loop: idle ok
+2026-11-15T14:15:12.0202640Z wait_loop: wake
+2026-11-15T14:15:12.6533439Z wait_loop: wake ok
+2026-11-15T14:15:12.6533786Z wait_loop: accounting
+2026-11-15T14:15:13.2880924Z wait_loop: accounting ok
+2026-11-15T14:15:13.2881365Z wait_loop: self_close
+2026-11-15T14:15:13.9210346Z wait_loop: self_close ok
+2026-11-15T14:15:13.9210714Z wait_loop: gpu_frame
+2026-11-15T14:15:14.5665740Z wait_loop: no `import` (ImageMagick) — screen contents not checked
+2026-11-15T14:15:14.5666270Z wait_loop: gpu_frame ok
+2026-11-15T14:15:14.5666563Z wait_loop: gpu_damage
+2026-11-15T14:15:14.8609140Z wait_loop: gpu_damage FAILED (exit status: 101) — last 80 of 160 trace lines:
+2026-11-15T14:15:14.8609982Z     |    0.152 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.01 wait 0.00 readback 0.00 | acquire 0.00 present 2.01 = 2.02 ms
+2026-11-15T14:15:14.8610917Z     |    0.152 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8611417Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8612214Z     |    0.154 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 2.01 = 2.03 ms
+2026-11-15T14:15:14.8613133Z     |    0.154 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8613621Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8614219Z     |    0.156 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 1.97 = 1.99 ms
+2026-11-15T14:15:14.8614768Z     |    0.157 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8615063Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8615474Z     |    0.159 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 2.06 = 2.07 ms
+2026-11-15T14:15:14.8615993Z     |    0.159 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8616292Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8616738Z     |    0.161 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 2.01 = 2.03 ms
+2026-11-15T14:15:14.8617291Z     |    0.161 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8617605Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8618059Z     |    0.164 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 1.98 = 1.99 ms
+2026-11-15T14:15:14.8618591Z     |    0.164 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8618890Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8619319Z     |    0.166 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 2.03 = 2.04 ms
+2026-11-15T14:15:14.8620033Z     |    0.166 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8620352Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8620782Z     |    0.168 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.01 wait 0.00 readback 0.00 | acquire 0.00 present 1.99 = 2.01 ms
+2026-11-15T14:15:14.8621317Z     |    0.168 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8621611Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8622026Z     |    0.170 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.01 wait 0.00 readback 0.00 | acquire 0.00 present 1.95 = 1.97 ms
+2026-11-15T14:15:14.8622545Z     |    0.171 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8622838Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8623609Z     |    0.173 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 2.02 = 2.03 ms
+2026-11-15T14:15:14.8624126Z     |    0.173 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8624414Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8625044Z     |    0.175 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 2.03 = 2.04 ms
+2026-11-15T14:15:14.8625566Z     |    0.175 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8625849Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8626254Z     |    0.178 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 2.03 = 2.05 ms
+2026-11-15T14:15:14.8626758Z     |    0.178 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8627048Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8627456Z     |    0.180 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 2.00 = 2.02 ms
+2026-11-15T14:15:14.8627960Z     |    0.180 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8628249Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8628657Z     |    0.182 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 2.03 = 2.04 ms
+2026-11-15T14:15:14.8629158Z     |    0.182 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8629442Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8630091Z     |    0.185 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 2.22 = 2.24 ms
+2026-11-15T14:15:14.8630800Z     |    0.185 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8631085Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8631498Z     |    0.187 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 2.02 = 2.03 ms
+2026-11-15T14:15:14.8632002Z     |    0.187 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8632281Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8632697Z     |    0.190 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 2.05 = 2.07 ms
+2026-11-15T14:15:14.8633201Z     |    0.190 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8633493Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8633905Z     |    0.192 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.01 record 0.00 submit 0.01 wait 0.00 readback 0.00 | acquire 0.00 present 2.02 = 2.04 ms
+2026-11-15T14:15:14.8634427Z     |    0.192 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8634714Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8635121Z     |    0.194 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 2.09 = 2.11 ms
+2026-11-15T14:15:14.8635638Z     |    0.195 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8635930Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8636363Z     |    0.197 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.01 record 0.00 submit 0.01 wait 0.00 readback 0.00 | acquire 0.00 present 2.01 = 2.03 ms
+2026-11-15T14:15:14.8636985Z     |    0.197 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8637339Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8637769Z     |    0.199 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.01 record 0.00 submit 0.01 wait 0.00 readback 0.00 | acquire 0.00 present 2.05 = 2.07 ms
+2026-11-15T14:15:14.8638570Z     |    0.199 poll window#primary requested=true pending=false should_draw=true
+2026-11-15T14:15:14.8638958Z     | wait_loop trace: frame
+2026-11-15T14:15:14.8639174Z     | wait_loop trace: closing
+2026-11-15T14:15:14.8639630Z     |    0.202 frame stages (gpu): scale 0.00 plan 0.00 cpu 0.00 | gpu upload 0.00 record 0.00 submit 0.00 wait 0.00 readback 0.00 | acquire 0.00 present 2.04 = 2.06 ms
+2026-11-15T14:15:14.8640491Z     | wait_loop trace: 41 frames (41 on the GPU), 1.0000 full repaints per frame, 41 frame(s) a whole surface
+2026-11-15T14:15:14.8640877Z     | 
+2026-11-15T14:15:14.8641172Z     | thread 'main' (8790) panicked at crates/vieww-platform-winit/tests/wait_loop.rs:818:5:
+2026-11-15T14:15:14.8641588Z     | 41 of 41 frames repainted the whole surface while only a square changed
+2026-11-15T14:15:14.8641882Z     | stack backtrace:
+2026-11-15T14:15:14.8642136Z     |    0: __rustc::rust_begin_unwind
+2026-11-15T14:15:14.8642497Z     |              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-15T14:15:14.8642876Z     |    1: core::panicking::panic_fmt
+2026-11-15T14:15:14.8643405Z     |              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-15T14:15:14.8643786Z     |    2: a_gpu_frame_redraws_only_what_changed
+2026-11-15T14:15:14.8644010Z     |    3: main
+2026-11-15T14:15:14.8644209Z     |              at ./tests/wait_loop.rs:1282:9
+2026-11-15T14:15:14.8644434Z     |    4: call_once<fn(), ()>
+2026-11-15T14:15:14.8644780Z     |              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-15T14:15:14.8645260Z     | note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-15T14:15:14.8645598Z wait_loop: gpu_overlap
+2026-11-15T14:15:17.1267455Z wait_loop: gpu_overlap: median fence wait 2.00 ms serial, 0.00 ms overlapped; median present 0.02 ms serial, 2.04 ms overlapped (a present that blocks on rendering, as lavapipe's X11 one does, takes the GPU's time instead)
+2026-11-15T14:15:17.1268629Z wait_loop: gpu_overlap ok
+2026-11-15T14:15:17.1268929Z wait_loop: gpu_cpu_mix
+2026-11-15T14:15:21.0368042Z wait_loop: gpu_cpu_mix: 20 of 40 frames on the GPU, the rest on the CPU
+2026-11-15T14:15:21.0368552Z wait_loop: gpu_cpu_mix ok
+2026-11-15T14:15:21.0369290Z 
+2026-11-15T14:15:21.0370111Z thread 'main' (8626) panicked at crates/vieww-platform-winit/tests/wait_loop.rs:1337:5:
+2026-11-15T14:15:21.0370733Z wait-loop scenarios failed: ["gpu_damage"]
+2026-11-15T14:15:21.0371137Z stack backtrace:
+2026-11-15T14:15:21.0527544Z    0: __rustc::rust_begin_unwind
+2026-11-15T14:15:21.0528011Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-15T14:15:21.0528403Z    1: core::panicking::panic_fmt
+2026-11-15T14:15:21.0528750Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-15T14:15:21.0772952Z    2: main
+2026-11-15T14:15:21.0775620Z              at ./tests/wait_loop.rs:1337:5
+2026-11-15T14:15:21.0776000Z    3: call_once<fn(), ()>
+2026-11-15T14:15:21.0776554Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-15T14:15:21.0777056Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-15T14:15:21.0848408Z [1m[91merror[0m: test failed, to rerun pass `-p vieww-platform-winit --test wait_loop`
+2026-11-15T14:15:21.1003085Z ##[endgroup]
+2026-11-15T14:15:21.1031887Z ##[error]A GPU frame presented to a real window failed (exit 101)
+2026-11-15T14:15:21.1110709Z ##[error]Process completed with exit code 1.
+2026-11-15T14:15:21.1191131Z ##[group]Run actions/upload-artifact@v4
+2026-11-15T14:15:21.1191374Z with:
+2026-11-15T14:15:21.1191570Z   name: parity-certificate-vulkan-lavapipe
+2026-11-15T14:15:21.1192046Z   path: vieww_base/parity-certificate-vulkan-lavapipe.json
+2026-11-15T14:15:21.1192346Z   if-no-files-found: ignore
+2026-11-15T14:15:21.1192560Z   include-hidden-files: false
+2026-11-15T14:15:21.1192774Z   compression-level: 6
+2026-11-15T14:15:21.1192957Z   overwrite: false
+2026-11-15T14:15:21.1193134Z env:
+2026-11-15T14:15:21.1193300Z   CI_INPUTS: {}
+2026-11-15T14:15:21.1193471Z   CI_MATRIX: {}
+2026-11-15T14:15:21.1194444Z   CI_JOB: {"title": "vieww \u00b7 framework-gpu-lavapipe", "project": "vieww", "id": "framework-gpu-lavapipe", "file": "vieww_base/ci/jobs/framework-gpu-lavapipe.toml", "if": "", "needs": [], "setup": [], "uploads": [{"name": "parity-certificate-vulkan-lavapipe", "path": "vieww_base/parity-certificate-vulkan-lavapipe.json", "if-no-files-found": "ignore"}], "downloads": []}
+2026-11-15T14:15:21.1195563Z   CI_PROJECT: vieww
+2026-11-15T14:15:21.1196297Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-15T14:15:21.1198389Z   CI_GITHUB_TOKEN: ***
+2026-11-15T14:15:21.1198594Z   CI_SECRET_NAMES: 
+2026-11-15T14:15:21.1198779Z   CI_HAS_AWS_ROLE: true
+2026-11-15T14:15:21.1198975Z   ANDROID_KEYSTORE: 
+2026-11-15T14:15:21.1199164Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-15T14:15:21.1199368Z   ANDROID_KEY_ALIAS: 
+2026-11-15T14:15:21.1199551Z   ANDROID_KEY_PASSWORD: 
+2026-11-15T14:15:21.1199754Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-15T14:15:21.1200069Z   APPLE_NOTARY_ISSUER: 
+2026-11-15T14:15:21.1200255Z   APPLE_NOTARY_KEY: 
+2026-11-15T14:15:21.1200439Z   APPLE_NOTARY_KEY_ID: 
+2026-11-15T14:15:21.1200633Z   APPLE_P12_PASSWORD: 
+2026-11-15T14:15:21.1200816Z   APPLE_SIGNING_IDENTITY: 
+2026-11-15T14:15:21.1201004Z   AWS_ACCESS_KEY_ID: 
+2026-11-15T14:15:21.1201178Z   AWS_ROLE_ARN: 
+2026-11-15T14:15:21.1201361Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-15T14:15:21.1201554Z   CARGO_REGISTRY_TOKEN: 
+2026-11-15T14:15:21.1201745Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-15T14:15:21.1201933Z   CLOUDFLARE_API_TOKEN: 
+2026-11-15T14:15:21.1202128Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-15T14:15:21.1202327Z   IOS_CERT_P12: 
+2026-11-15T14:15:21.1202498Z   IOS_CERT_PASSWORD: 
+2026-11-15T14:15:21.1202668Z   IOS_IDENTITY: 
+2026-11-15T14:15:21.1202839Z   IOS_PROFILE: 
+2026-11-15T14:15:21.1203012Z   WINDOWS_CERT_PASSWORD: 
+2026-11-15T14:15:21.1203199Z   WINDOWS_CERT_PFX: 
+2026-11-15T14:15:21.1203385Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-15T14:15:21.1203613Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-15T14:15:21.1203831Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-15T14:15:21.1204033Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-15T14:15:21.1204262Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-15T14:15:21.1204495Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-15T14:15:21.1204704Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-15T14:15:21.1204914Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-15T14:15:21.1205146Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-15T14:15:21.1205414Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-15T14:15:21.1205717Z   VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.json
+2026-11-15T14:15:21.1205970Z   CI_UPLOAD_0: yes
+2026-11-15T14:15:21.1206145Z ##[endgroup]
+2026-11-15T14:15:21.2610392Z (node:11465) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-15T14:15:21.2611049Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-15T14:15:21.2649356Z With the provided path, there will be 1 file uploaded
+2026-11-15T14:15:21.2666398Z Artifact name is valid!
+2026-11-15T14:15:21.2680737Z Root directory input is valid!
+2026-11-15T14:15:21.6315486Z Beginning upload of artifact content to blob storage
+2026-11-15T14:15:21.6479903Z (node:11465) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-15T14:15:21.9193017Z Uploaded bytes 521
+2026-11-15T14:15:21.9927463Z Finished uploading artifact content to blob storage!
+2026-11-15T14:15:21.9928911Z SHA256 digest of uploaded artifact zip is 6b7691645475b47b8ba258ee6b71e5977fe1bd2f2dc0e03b7c25679e22d524d7
+2026-11-15T14:15:21.9929688Z Finalizing artifact upload
+2026-11-15T14:15:22.3604607Z Artifact parity-certificate-vulkan-lavapipe.zip successfully finalized. Artifact ID 14165985100
+2026-11-15T14:15:22.3605662Z Artifact parity-certificate-vulkan-lavapipe has been successfully uploaded! Final size is 521 bytes. Artifact ID is 14165985100
+2026-11-15T14:15:22.3610255Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/43722789399/artifacts/14165985100
+2026-11-15T14:15:22.3800555Z Post job cleanup.
+2026-11-15T14:15:22.4482226Z [command]/usr/bin/git version
+2026-11-15T14:15:22.4549753Z git version 2.56.1
+2026-11-15T14:15:22.4578889Z Temporarily overriding HOME='/home/runner/work/_temp/5b5a4ab7-a073-4bf0-8514-1162e91a5313' before making global git config changes
+2026-11-15T14:15:22.4580042Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T14:15:22.4584031Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-15T14:15:22.4618437Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T14:15:22.4650754Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-15T14:15:22.4882183Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T14:15:22.4908377Z http.https://github.com/.extraheader
+2026-11-15T14:15:22.4921152Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-15T14:15:22.4954431Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-15T14:15:22.5199087Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T14:15:22.5244964Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-15T14:15:22.5601017Z Cleaning up orphan processes
+2026-11-15T14:15:22.5919395Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== phase-1 / vieww · framework-cross	log =====
+2026-11-15T14:10:13.8237510Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-15T14:10:13.8238117Z Successfully set up CPython (3.12.16)
+2026-11-15T14:10:13.8238776Z ##[endgroup]
+2026-11-15T14:10:13.8468375Z ##[group]Run actions/setup-python@v5
+2026-11-15T14:10:13.8468690Z with:
+2026-11-15T14:10:13.8468896Z   python-version: 3.12
+2026-11-15T14:10:13.8469131Z   update-environment: false
+2026-11-15T14:10:13.8469376Z   check-latest: false
+2026-11-15T14:10:13.8472042Z   token: ***
+2026-11-15T14:10:13.8472266Z   allow-prereleases: false
+2026-11-15T14:10:13.8472516Z   freethreaded: false
+2026-11-15T14:10:13.8472722Z env:
+2026-11-15T14:10:13.8472905Z   CI_INPUTS: {}
+2026-11-15T14:10:13.8473105Z   CI_MATRIX: {}
+2026-11-15T14:10:13.8474099Z   CI_JOB: {"title": "vieww \u00b7 framework-cross", "project": "vieww", "id": "framework-cross", "file": "vieww_base/ci/jobs/framework-cross.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []}
+2026-11-15T14:10:13.8474906Z   CI_PROJECT: vieww
+2026-11-15T14:10:13.8475754Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-15T14:10:13.8479358Z   CI_GITHUB_TOKEN: ***
+2026-11-15T14:10:13.8479793Z   CI_SECRET_NAMES: 
+2026-11-15T14:10:13.8480149Z   CI_HAS_AWS_ROLE: true
+2026-11-15T14:10:13.8480518Z   ANDROID_KEYSTORE: 
+2026-11-15T14:10:13.8480892Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-15T14:10:13.8481309Z   ANDROID_KEY_ALIAS: 
+2026-11-15T14:10:13.8481653Z   ANDROID_KEY_PASSWORD: 
+2026-11-15T14:10:13.8482032Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-15T14:10:13.8482421Z   APPLE_NOTARY_ISSUER: 
+2026-11-15T14:10:13.8482768Z   APPLE_NOTARY_KEY: 
+2026-11-15T14:10:13.8483107Z   APPLE_NOTARY_KEY_ID: 
+2026-11-15T14:10:13.8483459Z   APPLE_P12_PASSWORD: 
+2026-11-15T14:10:13.8484076Z   APPLE_SIGNING_IDENTITY: 
+2026-11-15T14:10:13.8484478Z   AWS_ACCESS_KEY_ID: 
+2026-11-15T14:10:13.8484817Z   AWS_ROLE_ARN: 
+2026-11-15T14:10:13.8485168Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-15T14:10:13.8485549Z   CARGO_REGISTRY_TOKEN: 
+2026-11-15T14:10:13.8485937Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-15T14:10:13.8486316Z   CLOUDFLARE_API_TOKEN: 
+2026-11-15T14:10:13.8486690Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-15T14:10:13.8487073Z   IOS_CERT_P12: 
+2026-11-15T14:10:13.8487404Z   IOS_CERT_PASSWORD: 
+2026-11-15T14:10:13.8487743Z   IOS_IDENTITY: 
+2026-11-15T14:10:13.8488065Z   IOS_PROFILE: 
+2026-11-15T14:10:13.8488391Z   WINDOWS_CERT_PASSWORD: 
+2026-11-15T14:10:13.8488760Z   WINDOWS_CERT_PFX: 
+2026-11-15T14:10:13.8489115Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-15T14:10:13.8489562Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-15T14:10:13.8490008Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-15T14:10:13.8490387Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-15T14:10:13.8490665Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-15T14:10:13.8490944Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-15T14:10:13.8491194Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-15T14:10:13.8491460Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-15T14:10:13.8492082Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-15T14:10:13.8492549Z ##[endgroup]
+2026-11-15T14:10:13.9885845Z ##[group]Installed versions
+2026-11-15T14:10:13.9954186Z (node:2339) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-15T14:10:13.9955074Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-15T14:10:13.9955670Z Successfully set up CPython (3.12.16)
+2026-11-15T14:10:13.9956443Z ##[endgroup]
+2026-11-15T14:10:14.0137503Z ##[group]Run [ -n "$CI_PY" ] && echo "CI_PY=$CI_PY" >> "$GITHUB_ENV"
+2026-11-15T14:10:14.0138042Z [36;1m[ -n "$CI_PY" ] && echo "CI_PY=$CI_PY" >> "$GITHUB_ENV"[0m
+2026-11-15T14:10:14.0138426Z [36;1m"${CI_PY:-python3}" ci/lib/prepare.py[0m
+2026-11-15T14:10:14.0168074Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-15T14:10:14.0168601Z env:
+2026-11-15T14:10:14.0168886Z   CI_INPUTS: {}
+2026-11-15T14:10:14.0169218Z   CI_MATRIX: {}
+2026-11-15T14:10:14.0170311Z   CI_JOB: {"title": "vieww \u00b7 framework-cross", "project": "vieww", "id": "framework-cross", "file": "vieww_base/ci/jobs/framework-cross.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []}
+2026-11-15T14:10:14.0171509Z   CI_PROJECT: vieww
+2026-11-15T14:10:14.0173010Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-15T14:10:14.0178910Z   CI_GITHUB_TOKEN: ***
+2026-11-15T14:10:14.0179302Z   CI_SECRET_NAMES: 
+2026-11-15T14:10:14.0179708Z   CI_HAS_AWS_ROLE: true
+2026-11-15T14:10:14.0180086Z   ANDROID_KEYSTORE: 
+2026-11-15T14:10:14.0180461Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-15T14:10:14.0180879Z   ANDROID_KEY_ALIAS: 
+2026-11-15T14:10:14.0181244Z   ANDROID_KEY_PASSWORD: 
+2026-11-15T14:10:14.0181637Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-15T14:10:14.0182042Z   APPLE_NOTARY_ISSUER: 
+2026-11-15T14:10:14.0182412Z   APPLE_NOTARY_KEY: 
+2026-11-15T14:10:14.0182781Z   APPLE_NOTARY_KEY_ID: 
+2026-11-15T14:10:14.0183165Z   APPLE_P12_PASSWORD: 
+2026-11-15T14:10:14.0183536Z   APPLE_SIGNING_IDENTITY: 
+2026-11-15T14:10:14.0184136Z   AWS_ACCESS_KEY_ID: 
+2026-11-15T14:10:14.0184508Z   AWS_ROLE_ARN: 
+2026-11-15T14:10:14.0184866Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-15T14:10:14.0185271Z   CARGO_REGISTRY_TOKEN: 
+2026-11-15T14:10:14.0185669Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-15T14:10:14.0186074Z   CLOUDFLARE_API_TOKEN: 
+2026-11-15T14:10:14.0186444Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-15T14:10:14.0186827Z   IOS_CERT_P12: 
+2026-11-15T14:10:14.0187173Z   IOS_CERT_PASSWORD: 
+2026-11-15T14:10:14.0187521Z   IOS_IDENTITY: 
+2026-11-15T14:10:14.0187837Z   IOS_PROFILE: 
+2026-11-15T14:10:14.0188168Z   WINDOWS_CERT_PASSWORD: 
+2026-11-15T14:10:14.0188537Z   WINDOWS_CERT_PFX: 
+2026-11-15T14:10:14.0188910Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-15T14:10:14.0189347Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-15T14:10:14.0189800Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-15T14:10:14.0190213Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-15T14:10:14.0190664Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-15T14:10:14.0190954Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-15T14:10:14.0191422Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-15T14:10:14.0191687Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-15T14:10:14.0191972Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-15T14:10:14.0192303Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-15T14:10:14.0192810Z ##[endgroup]
+2026-11-15T14:10:14.1708125Z {
+2026-11-15T14:10:14.1708482Z  "go": "true",
+2026-11-15T14:10:14.1708853Z  "tools": "",
+2026-11-15T14:10:14.1709256Z  "has_final": "false"
+2026-11-15T14:10:14.1709611Z }
+2026-11-15T14:10:14.1947794Z ##[group]Run "${CI_PY:-python3}" ci/lib/run.py "vieww_base/ci/jobs/framework-cross.toml"
+2026-11-15T14:10:14.1948410Z [36;1m"${CI_PY:-python3}" ci/lib/run.py "vieww_base/ci/jobs/framework-cross.toml"[0m
+2026-11-15T14:10:14.1968111Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-15T14:10:14.1968633Z env:
+2026-11-15T14:10:14.1968831Z   CI_INPUTS: {}
+2026-11-15T14:10:14.1969042Z   CI_MATRIX: {}
+2026-11-15T14:10:14.1969767Z   CI_JOB: {"title": "vieww \u00b7 framework-cross", "project": "vieww", "id": "framework-cross", "file": "vieww_base/ci/jobs/framework-cross.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []}
+2026-11-15T14:10:14.1970543Z   CI_PROJECT: vieww
+2026-11-15T14:10:14.1971469Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-15T14:10:14.1974595Z   CI_GITHUB_TOKEN: ***
+2026-11-15T14:10:14.1974854Z   CI_SECRET_NAMES: 
+2026-11-15T14:10:14.1975104Z   CI_HAS_AWS_ROLE: true
+2026-11-15T14:10:14.1975326Z   ANDROID_KEYSTORE: 
+2026-11-15T14:10:14.1975554Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-15T14:10:14.1975794Z   ANDROID_KEY_ALIAS: 
+2026-11-15T14:10:14.1976016Z   ANDROID_KEY_PASSWORD: 
+2026-11-15T14:10:14.1976250Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-15T14:10:14.1976483Z   APPLE_NOTARY_ISSUER: 
+2026-11-15T14:10:14.1976702Z   APPLE_NOTARY_KEY: 
+2026-11-15T14:10:14.1976916Z   APPLE_NOTARY_KEY_ID: 
+2026-11-15T14:10:14.1977130Z   APPLE_P12_PASSWORD: 
+2026-11-15T14:10:14.1977350Z   APPLE_SIGNING_IDENTITY: 
+2026-11-15T14:10:14.1977577Z   AWS_ACCESS_KEY_ID: 
+2026-11-15T14:10:14.1977798Z   AWS_ROLE_ARN: 
+2026-11-15T14:10:14.1978009Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-15T14:10:14.1978239Z   CARGO_REGISTRY_TOKEN: 
+2026-11-15T14:10:14.1978467Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-15T14:10:14.1978695Z   CLOUDFLARE_API_TOKEN: 
+2026-11-15T14:10:14.1978925Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-15T14:10:14.1979158Z   IOS_CERT_P12: 
+2026-11-15T14:10:14.1979357Z   IOS_CERT_PASSWORD: 
+2026-11-15T14:10:14.1979568Z   IOS_IDENTITY: 
+2026-11-15T14:10:14.1979761Z   IOS_PROFILE: 
+2026-11-15T14:10:14.1979968Z   WINDOWS_CERT_PASSWORD: 
+2026-11-15T14:10:14.1980186Z   WINDOWS_CERT_PFX: 
+2026-11-15T14:10:14.1980407Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-15T14:10:14.1980674Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-15T14:10:14.1980941Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-15T14:10:14.1981187Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-15T14:10:14.1981455Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-15T14:10:14.1981734Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-15T14:10:14.1981983Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-15T14:10:14.1982233Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-15T14:10:14.1982502Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-15T14:10:14.1982830Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-15T14:10:14.1983147Z   CI_PART: main
+2026-11-15T14:10:14.1983345Z ##[endgroup]
+2026-11-15T14:10:14.2669120Z ##[group]Toolchain with std sources
+2026-11-15T14:10:14.3143933Z info: syncing channel updates for 1.98.1-x86_64-unknown-linux-gnu
+2026-11-15T14:10:14.4162193Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-15T14:10:14.4162784Z info: downloading 4 components
+2026-11-15T14:10:22.6719318Z 
+2026-11-15T14:10:22.6790418Z   1.98.1-x86_64-unknown-linux-gnu installed - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-15T14:10:22.6790945Z 
+2026-11-15T14:10:22.6938839Z ##[endgroup]
+2026-11-15T14:10:22.6947847Z ##[group]Cross type-check
+2026-11-15T14:10:22.7614756Z info: syncing channel updates for 1.98.1-x86_64-unknown-linux-gnu
+2026-11-15T14:10:22.8271475Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-15T14:10:22.8412913Z info: downloading 3 components
+2026-11-15T14:10:26.0173941Z 
+2026-11-15T14:10:26.0174756Z [1m== macos (aarch64-apple-darwin)[0m
+2026-11-15T14:13:33.4071863Z    [32mOK[0m — the workspace type-checks for aarch64-apple-darwin
+2026-11-15T14:13:33.8294173Z 
+2026-11-15T14:13:33.8295902Z [1m== ios (aarch64-apple-ios)[0m
+2026-11-15T14:15:27.2558970Z    [32mOK[0m — the workspace type-checks for aarch64-apple-ios
+2026-11-15T14:15:27.5899194Z 
+2026-11-15T14:15:27.5900116Z [1m== windows (x86_64-pc-windows-msvc)[0m
+2026-11-15T14:17:52.9665829Z [1m[91merror[0m[1m: field `format` is never read[0m
+2026-11-15T14:17:52.9666845Z    [1m[94m--> [0mcrates/vieww-hal/src/vulkan/scene.rs:110:5
+2026-11-15T14:17:52.9667841Z     [1m[94m|[0m
+2026-11-15T14:17:52.9668343Z [1m[94m109[0m [1m[94m|[0m struct DirectRoute {
+2026-11-15T14:17:52.9669103Z     [1m[94m|[0m        [1m[94m-----------[0m [1m[94mfield in this struct[0m
+2026-11-15T14:17:52.9670468Z [1m[94m110[0m [1m[94m|[0m     format: vk::Format,
+2026-11-15T14:17:52.9671078Z     [1m[94m|[0m     [1m[91m^^^^^^[0m
+2026-11-15T14:17:52.9671568Z     [1m[94m|[0m
+2026-11-15T14:17:52.9672150Z     [1m[94m= [0m[1mnote[0m: `-D dead-code` implied by `-D warnings`
+2026-11-15T14:17:52.9673206Z     [1m[94m= [0m[1mhelp[0m: to override `-D warnings` add `#[expect(dead_code)]` or `#[allow(dead_code)]`
+2026-11-15T14:17:52.9674149Z 
+2026-11-15T14:17:52.9674638Z [1m[91merror[0m[1m: variants `Blit` and `Direct` are never constructed[0m
+2026-11-15T14:17:52.9675452Z    [1m[94m--> [0mcrates/vieww-hal/src/vulkan/scene.rs:179:5
+2026-11-15T14:17:52.9676034Z     [1m[94m|[0m
+2026-11-15T14:17:52.9676471Z [1m[94m177[0m [1m[94m|[0m enum Out {
+2026-11-15T14:17:52.9677121Z     [1m[94m|[0m      [1m[94m---[0m [1m[94mvariants in this enum[0m
+2026-11-15T14:17:52.9677776Z [1m[94m178[0m [1m[94m|[0m     Readback,
+2026-11-15T14:17:52.9678374Z [1m[94m179[0m [1m[94m|[0m     Blit(BlitTarget),
+2026-11-15T14:17:52.9678929Z     [1m[94m|[0m     [1m[91m^^^^[0m
+2026-11-15T14:17:52.9679516Z [1m[94m180[0m [1m[94m|[0m     Direct(DirectFrame),
+2026-11-15T14:17:52.9680094Z     [1m[94m|[0m     [1m[91m^^^^^^[0m
+2026-11-15T14:17:52.9680565Z     [1m[94m|[0m
+2026-11-15T14:17:52.9681567Z     [1m[94m= [0m[1mnote[0m: `Out` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+2026-11-15T14:17:52.9682342Z 
+2026-11-15T14:17:52.9682706Z [1m[91merror[0m[1m: field `pipeline_cache` is never read[0m
+2026-11-15T14:17:52.9683459Z    [1m[94m--> [0mcrates/vieww-hal/src/vulkan/scene.rs:245:5
+2026-11-15T14:17:52.9684334Z     [1m[94m|[0m
+2026-11-15T14:17:52.9684847Z [1m[94m184[0m [1m[94m|[0m pub struct SceneRenderer {
+2026-11-15T14:17:52.9685661Z     [1m[94m|[0m            [1m[94m-------------[0m [1m[94mfield in this struct[0m
+2026-11-15T14:17:52.9686258Z [1m[94m...[0m
+2026-11-15T14:17:52.9686957Z [1m[94m245[0m [1m[94m|[0m     pipeline_cache: vk::PipelineCache,
+2026-11-15T14:17:52.9687657Z     [1m[94m|[0m     [1m[91m^^^^^^^^^^^^^^[0m
+2026-11-15T14:17:52.9688018Z 
+2026-11-15T14:17:52.9688409Z [1m[91merror[0m[1m: method `ensure_direct` is never used[0m
+2026-11-15T14:17:52.9689153Z     [1m[94m--> [0mcrates/vieww-hal/src/vulkan/scene.rs:1529:8
+2026-11-15T14:17:52.9689739Z      [1m[94m|[0m
+2026-11-15T14:17:52.9690229Z [1m[94m 529[0m [1m[94m|[0m impl SceneRenderer {
+2026-11-15T14:17:52.9691053Z      [1m[94m|[0m [1m[94m------------------[0m [1m[94mmethod in this implementation[0m
+2026-11-15T14:17:52.9691724Z [1m[94m...[0m
+2026-11-15T14:17:52.9692480Z [1m[94m1529[0m [1m[94m|[0m     fn ensure_direct(&mut self, bgra: bool) -> Result<(), VulkanError> {
+2026-11-15T14:17:52.9693340Z      [1m[94m|[0m        [1m[91m^^^^^^^^^^^^^[0m
+2026-11-15T14:17:52.9693929Z 
+2026-11-15T14:17:53.0124648Z [1m[91merror[0m: could not compile `vieww-hal` (lib) due to 4 previous errors
+2026-11-15T14:17:53.0752080Z [1m[91merror[0m: could not compile `vieww-hal` (lib test) due to 4 previous errors
+2026-11-15T14:17:53.0994175Z    [31mFAILED[0m — see above
+2026-11-15T14:17:53.0994518Z 
+2026-11-15T14:17:53.0994804Z [1m== android (aarch64-linux-android)[0m
+2026-11-15T14:20:29.3875452Z [1m[91merror[0m[1m: field `format` is never read[0m
+2026-11-15T14:20:29.3876850Z    [1m[94m--> [0mcrates/vieww-hal/src/vulkan/scene.rs:110:5
+2026-11-15T14:20:29.3877741Z     [1m[94m|[0m
+2026-11-15T14:20:29.3878413Z [1m[94m109[0m [1m[94m|[0m struct DirectRoute {
+2026-11-15T14:20:29.3879319Z     [1m[94m|[0m        [1m[94m-----------[0m [1m[94mfield in this struct[0m
+2026-11-15T14:20:29.3880829Z [1m[94m110[0m [1m[94m|[0m     format: vk::Format,
+2026-11-15T14:20:29.3881470Z     [1m[94m|[0m     [1m[91m^^^^^^[0m
+2026-11-15T14:20:29.3881968Z     [1m[94m|[0m
+2026-11-15T14:20:29.3882542Z     [1m[94m= [0m[1mnote[0m: `-D dead-code` implied by `-D warnings`
+2026-11-15T14:20:29.3883556Z     [1m[94m= [0m[1mhelp[0m: to override `-D warnings` add `#[expect(dead_code)]` or `#[allow(dead_code)]`
+2026-11-15T14:20:29.3884461Z 
+2026-11-15T14:20:29.3884933Z [1m[91merror[0m[1m: variants `Blit` and `Direct` are never constructed[0m
+2026-11-15T14:20:29.3885759Z    [1m[94m--> [0mcrates/vieww-hal/src/vulkan/scene.rs:179:5
+2026-11-15T14:20:29.3886354Z     [1m[94m|[0m
+2026-11-15T14:20:29.3886799Z [1m[94m177[0m [1m[94m|[0m enum Out {
+2026-11-15T14:20:29.3887456Z     [1m[94m|[0m      [1m[94m---[0m [1m[94mvariants in this enum[0m
+2026-11-15T14:20:29.3888114Z [1m[94m178[0m [1m[94m|[0m     Readback,
+2026-11-15T14:20:29.3888729Z [1m[94m179[0m [1m[94m|[0m     Blit(BlitTarget),
+2026-11-15T14:20:29.3889331Z     [1m[94m|[0m     [1m[91m^^^^[0m
+2026-11-15T14:20:29.3889918Z [1m[94m180[0m [1m[94m|[0m     Direct(DirectFrame),
+2026-11-15T14:20:29.3890509Z     [1m[94m|[0m     [1m[91m^^^^^^[0m
+2026-11-15T14:20:29.3891001Z     [1m[94m|[0m
+2026-11-15T14:20:29.3891964Z     [1m[94m= [0m[1mnote[0m: `Out` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+2026-11-15T14:20:29.3892702Z 
+2026-11-15T14:20:29.3893073Z [1m[91merror[0m[1m: field `pipeline_cache` is never read[0m
+2026-11-15T14:20:29.3895243Z    [1m[94m--> [0mcrates/vieww-hal/src/vulkan/scene.rs:245:5
+2026-11-15T14:20:29.3895897Z     [1m[94m|[0m
+2026-11-15T14:20:29.3896428Z [1m[94m184[0m [1m[94m|[0m pub struct SceneRenderer {
+2026-11-15T14:20:29.3897243Z     [1m[94m|[0m            [1m[94m-------------[0m [1m[94mfield in this struct[0m
+2026-11-15T14:20:29.3897882Z [1m[94m...[0m
+2026-11-15T14:20:29.3898589Z [1m[94m245[0m [1m[94m|[0m     pipeline_cache: vk::PipelineCache,
+2026-11-15T14:20:29.3899291Z     [1m[94m|[0m     [1m[91m^^^^^^^^^^^^^^[0m
+2026-11-15T14:20:29.3899629Z 
+2026-11-15T14:20:29.3899984Z [1m[91merror[0m[1m: method `ensure_direct` is never used[0m
+2026-11-15T14:20:29.3900732Z     [1m[94m--> [0mcrates/vieww-hal/src/vulkan/scene.rs:1529:8
+2026-11-15T14:20:29.3901314Z      [1m[94m|[0m
+2026-11-15T14:20:29.3901800Z [1m[94m 529[0m [1m[94m|[0m impl SceneRenderer {
+2026-11-15T14:20:29.3902624Z      [1m[94m|[0m [1m[94m------------------[0m [1m[94mmethod in this implementation[0m
+2026-11-15T14:20:29.3903475Z [1m[94m...[0m
+2026-11-15T14:20:29.3905102Z [1m[94m1529[0m [1m[94m|[0m     fn ensure_direct(&mut self, bgra: bool) -> Result<(), VulkanError> {
+2026-11-15T14:20:29.3905985Z      [1m[94m|[0m        [1m[91m^^^^^^^^^^^^^[0m
+2026-11-15T14:20:29.3906324Z 
+2026-11-15T14:20:29.4236880Z [1m[91merror[0m: could not compile `vieww-hal` (lib) due to 4 previous errors
+2026-11-15T14:20:29.6494812Z    [31mFAILED[0m — see above
+2026-11-15T14:20:29.6495152Z 
+2026-11-15T14:20:29.6501598Z ##[endgroup]
+2026-11-15T14:20:29.6529103Z ##[error]Cross type-check failed (exit 2)
+2026-11-15T14:20:29.6622551Z ##[error]Process completed with exit code 1.
+2026-11-15T14:20:29.6793284Z Post job cleanup.
+2026-11-15T14:20:29.7696300Z [command]/usr/bin/git version
+2026-11-15T14:20:29.7744927Z git version 2.56.1
+2026-11-15T14:20:29.7789608Z Temporarily overriding HOME='/home/runner/work/_temp/7cf360ea-6a20-4aad-9323-031f4737b562' before making global git config changes
+2026-11-15T14:20:29.7791451Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T14:20:29.7797581Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-15T14:20:29.7842337Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T14:20:29.7881728Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-15T14:20:29.8154652Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T14:20:29.8185344Z http.https://github.com/.extraheader
+2026-11-15T14:20:29.8199054Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-15T14:20:29.8238383Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-15T14:20:29.8563487Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T14:20:29.8633248Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-15T14:20:29.9089808Z Cleaning up orphan processes
+2026-11-15T14:20:29.9458373Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== phase-1 / vieww · framework-gate	log =====
+2026-11-15T14:32:05.0426093Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 146.59s
+2026-11-15T14:32:05.0426347Z 
+2026-11-15T14:32:05.0539661Z 
+2026-11-15T14:32:05.0540010Z ==> packaging (layout and a preview compiled against the bundle)
+2026-11-15T14:32:05.1084052Z ==> building viewwstudio 0.1.0 (debug, linux)
+2026-11-15T14:32:05.3170624Z [1m[92m   Compiling[0m zvariant_utils v4.2.0
+2026-11-15T14:32:05.3206066Z [1m[92m   Compiling[0m uuid v1.26.1
+2026-11-15T14:32:05.3244626Z [1m[92m   Compiling[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-15T14:32:05.3276493Z [1m[92m   Compiling[0m zerocopy v0.8.59
+2026-11-15T14:32:05.8001622Z [1m[92m   Compiling[0m accesskit v0.25.1
+2026-11-15T14:32:06.0718369Z [1m[92m   Compiling[0m zvariant v5.15.0
+2026-11-15T14:32:06.6346651Z [1m[92m   Compiling[0m hashbrown v0.17.1
+2026-11-15T14:32:07.2101618Z [1m[92m   Compiling[0m accesskit_consumer v0.39.1
+2026-11-15T14:32:08.6004083Z [1m[92m   Compiling[0m zbus_names v4.3.4
+2026-11-15T14:32:09.5352085Z [1m[92m   Compiling[0m zbus_xml v5.2.1
+2026-11-15T14:32:10.3422247Z [1m[92m   Compiling[0m zbus-lockstep v0.5.2
+2026-11-15T14:32:10.5228692Z [1m[92m   Compiling[0m zbus v5.19.0
+2026-11-15T14:32:10.6818190Z [1m[92m   Compiling[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-15T14:32:12.0432397Z [1m[92m   Compiling[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+2026-11-15T14:32:13.0792152Z [1m[92m   Compiling[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-15T14:32:15.2187235Z [1m[92m   Compiling[0m ahash v0.8.12
+2026-11-15T14:32:15.2921715Z [1m[92m   Compiling[0m atspi-common v0.13.0
+2026-11-15T14:32:15.3792037Z [1m[92m   Compiling[0m winit v0.30.13
+2026-11-15T14:32:15.7582256Z [1m[92m   Compiling[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
+2026-11-15T14:32:15.8562069Z [1m[92m   Compiling[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-15T14:32:20.4832451Z [1m[92m   Compiling[0m atspi-proxies v0.13.0
+2026-11-15T14:32:22.3761867Z [1m[92m   Compiling[0m atspi v0.29.0
+2026-11-15T14:32:22.4131798Z [1m[92m   Compiling[0m accesskit_atspi_common v0.21.0
+2026-11-15T14:32:25.6452106Z [1m[92m   Compiling[0m accesskit_unix v0.24.0
+2026-11-15T14:32:30.2081893Z [1m[92m   Compiling[0m accesskit_winit v0.34.1
+2026-11-15T14:32:30.3922445Z [1m[92m   Compiling[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
+2026-11-15T14:32:31.8502398Z [1m[92m   Compiling[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
+2026-11-15T14:32:31.8882311Z [1m[92m   Compiling[0m vieww-platform-winit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
+2026-11-15T14:32:34.0802393Z [1m[92m   Compiling[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
+2026-11-15T14:32:34.1199775Z [1m[92m   Compiling[0m vieww-platform-web-dom v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web-dom)
+2026-11-15T14:32:43.3056058Z [1m[92m    Finished[0m `dev` profile [unoptimized] target(s) in 38.17s
+2026-11-15T14:32:43.3366595Z ==> drawing icons
+2026-11-15T14:32:43.5500591Z [1m[92m   Compiling[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
+2026-11-15T14:32:43.5502119Z [1m[92m   Compiling[0m vieww-hardware v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
+2026-11-15T14:32:43.5502841Z [1m[92m   Compiling[0m vieww-test-harness v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-test-harness)
+2026-11-15T14:32:43.5503762Z [1m[92m   Compiling[0m vieww-accessibility v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-accessibility)
+2026-11-15T14:32:49.1517257Z [1m[92m    Finished[0m `dev` profile [unoptimized] target(s) in 5.79s
+2026-11-15T14:32:49.1687461Z [1m[92m     Running[0m `target/debug/examples/icon /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/icons`
+2026-11-15T14:32:50.0076345Z ==> verifying the bundle compiles a preview
+2026-11-15T14:33:11.7889911Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/viewwstudio-linux-x86_64.tar.gz
+2026-11-15T14:33:11.7913169Z     211M
+2026-11-15T14:33:11.9706311Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/SHA256SUMS
+2026-11-15T14:33:11.9721260Z     1 asset(s)
+2026-11-15T14:33:11.9734552Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/index.html
+2026-11-15T14:33:11.9734957Z     links point at github.com/tejakota/vieww_prod
+2026-11-15T14:33:11.9755283Z done
+2026-11-15T14:33:12.0157085Z 
+2026-11-15T14:33:12.0157715Z --- formatting: its diagnostics ---
+2026-11-15T14:33:12.0158303Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:734:
+2026-11-15T14:33:12.0158895Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:892:
+2026-11-15T14:33:12.0159428Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:1959:
+2026-11-15T14:33:12.0159921Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:1970:
+2026-11-15T14:33:12.0160509Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:2062:
+2026-11-15T14:33:12.0160961Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:2368:
+2026-11-15T14:33:12.0161400Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:2422:
+2026-11-15T14:33:12.0161854Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:3145:
+2026-11-15T14:33:12.0162326Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/geometry/fill.rs:686:
+2026-11-15T14:33:12.0162814Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/geometry/fill.rs:773:
+2026-11-15T14:33:12.0163300Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit/src/native.rs:1818:
+2026-11-15T14:33:12.0163774Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit/src/native.rs:1825:
+2026-11-15T14:33:12.0164240Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit/src/native.rs:1929:
+2026-11-15T14:33:12.0164737Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit/src/native_android.rs:145:
+2026-11-15T14:33:12.0165025Z 
+2026-11-15T14:33:12.0165192Z --- clippy (workspace, all targets, warnings are errors): its diagnostics ---
+2026-11-15T14:33:12.0165500Z error: large size difference between variants
+2026-11-15T14:33:12.0165757Z    --> crates/vieww-platform-winit/src/native.rs:214:1
+2026-11-15T14:33:12.0166080Z error: could not compile `vieww-platform-winit` (lib) due to 1 previous error
+2026-11-15T14:33:12.0166408Z warning: build failed, waiting for other jobs to finish...
+2026-11-15T14:33:12.0166734Z error: could not compile `vieww-platform-winit` (lib test) due to 1 previous error
+2026-11-15T14:33:12.0166955Z 
+2026-11-15T14:33:12.0167104Z --- docs (workspace, broken intra-doc links are errors): its diagnostics ---
+2026-11-15T14:33:12.0167582Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/doc/vieww/index.html
+2026-11-15T14:33:12.0168222Z error: public documentation for `render_planned_direct` links to private item `Out::Direct`
+2026-11-15T14:33:12.0169001Z     --> crates/vieww-hal/src/vulkan/scene.rs:1458:11
+2026-11-15T14:33:12.0169400Z error: public documentation for `settle` links to private item `FLIGHT_SLOTS`
+2026-11-15T14:33:12.0169764Z     --> crates/vieww-hal/src/vulkan/scene.rs:2848:17
+2026-11-15T14:33:12.0170116Z error: could not document `vieww-hal`
+2026-11-15T14:33:12.0170556Z warning: build failed, waiting for other jobs to finish...
+2026-11-15T14:33:12.0170724Z 
+2026-11-15T14:33:12.0170822Z --- tests (workspace): its diagnostics ---
+2026-11-15T14:33:12.0171205Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/libandroid.so
+2026-11-15T14:33:12.0171774Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/libandroid.so.dwp
+2026-11-15T14:33:12.0172317Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline
+2026-11-15T14:33:12.0172951Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline.dwp
+2026-11-15T14:33:12.0173503Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/snapshot
+2026-11-15T14:33:12.0174054Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/snapshot.dwp
+2026-11-15T14:33:12.0174587Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench
+2026-11-15T14:33:12.0175156Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench.dwp
+2026-11-15T14:33:12.0175682Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render
+2026-11-15T14:33:12.0176198Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render.dwp
+2026-11-15T14:33:12.0176670Z error: could not find `Cargo.toml` in `/tmp/vieww-cli-dev-fail` or any parent directory
+2026-11-15T14:33:12.0177073Z error: could not find `Cargo.toml` in `/tmp/vieww-cli-cmd-cargo-test` or any parent directory
+2026-11-15T14:33:12.0177497Z test native::geometry::fill::tests::parallel_rows_match_the_serial_walk_bit_for_bit ... FAILED
+2026-11-15T14:33:12.0177914Z ---- native::geometry::fill::tests::parallel_rows_match_the_serial_walk_bit_for_bit stdout ----
+2026-11-15T14:33:12.0178489Z thread 'native::geometry::fill::tests::parallel_rows_match_the_serial_walk_bit_for_bit' (67656) panicked at crates/vieww-paint/src/native/geometry/fill.rs:1725:13:
+2026-11-15T14:33:12.0178985Z error: test failed, to rerun pass `-p vieww-paint --lib`
+2026-11-15T14:33:12.0179154Z 
+2026-11-15T14:33:12.0179220Z 4 stage(s) failed:
+2026-11-15T14:33:12.0179383Z   - formatting (exit 1)
+2026-11-15T14:33:12.0179619Z   - clippy (workspace, all targets, warnings are errors) (exit 101)
+2026-11-15T14:33:12.0179926Z   - docs (workspace, broken intra-doc links are errors) (exit 101)
+2026-11-15T14:33:12.0180185Z   - tests (workspace) (exit 101)
+2026-11-15T14:33:12.0180777Z ##[endgroup]
+2026-11-15T14:33:12.0181905Z ##[error]The gate failed (exit 1)
+2026-11-15T14:33:12.0183860Z ##[group]Performance budget (advisory, FW-08)
+2026-11-15T14:33:12.5643546Z perf-baseline: no previous perf-linux/perf-measured.json under ci-results/framework-checks
+2026-11-15T14:34:36.8082125Z [1m[33mwarning[0m[1m: field `format` is never read[0m
+2026-11-15T14:34:36.8141449Z    [1m[94m--> [0mcrates/vieww-hal/src/vulkan/scene.rs:110:5
+2026-11-15T14:34:36.8201128Z     [1m[94m|[0m
+2026-11-15T14:34:36.8261258Z [1m[94m109[0m [1m[94m|[0m struct DirectRoute {
+2026-11-15T14:34:36.8291365Z     [1m[94m|[0m        [1m[94m-----------[0m [1m[94mfield in this struct[0m
+2026-11-15T14:34:36.8321219Z [1m[94m110[0m [1m[94m|[0m     format: vk::Format,
+2026-11-15T14:34:36.8350965Z     [1m[94m|[0m     [1m[33m^^^^^^[0m
+2026-11-15T14:34:36.8351274Z     [1m[94m|[0m
+2026-11-15T14:34:36.8352250Z     [1m[94m= [0m[1mnote[0m: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+2026-11-15T14:34:36.8357606Z 
+2026-11-15T14:34:36.8381419Z [1m[33mwarning[0m[1m: variants `Blit` and `Direct` are never constructed[0m
+2026-11-15T14:34:36.8401041Z    [1m[94m--> [0mcrates/vieww-hal/src/vulkan/scene.rs:179:5
+2026-11-15T14:34:36.8440867Z     [1m[94m|[0m
+2026-11-15T14:34:36.8461169Z [1m[94m177[0m [1m[94m|[0m enum Out {
+2026-11-15T14:34:36.8501031Z     [1m[94m|[0m      [1m[94m---[0m [1m[94mvariants in this enum[0m
+2026-11-15T14:34:36.8530963Z [1m[94m178[0m [1m[94m|[0m     Readback,
+2026-11-15T14:34:36.8551081Z [1m[94m179[0m [1m[94m|[0m     Blit(BlitTarget),
+2026-11-15T14:34:36.8551506Z     [1m[94m|[0m     [1m[33m^^^^[0m
+2026-11-15T14:34:36.8551883Z [1m[94m180[0m [1m[94m|[0m     Direct(DirectFrame),
+2026-11-15T14:34:36.8552230Z     [1m[94m|[0m     [1m[33m^^^^^^[0m
+2026-11-15T14:34:36.8552526Z     [1m[94m|[0m
+2026-11-15T14:34:36.8553177Z     [1m[94m= [0m[1mnote[0m: `Out` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+2026-11-15T14:34:36.8553636Z 
+2026-11-15T14:34:36.8553862Z [1m[33mwarning[0m[1m: field `pipeline_cache` is never read[0m
+2026-11-15T14:34:36.8554292Z    [1m[94m--> [0mcrates/vieww-hal/src/vulkan/scene.rs:245:5
+2026-11-15T14:34:36.8554655Z     [1m[94m|[0m
+2026-11-15T14:34:36.8554968Z [1m[94m184[0m [1m[94m|[0m pub struct SceneRenderer {
+2026-11-15T14:34:36.8555444Z     [1m[94m|[0m            [1m[94m-------------[0m [1m[94mfield in this struct[0m
+2026-11-15T14:34:36.8555852Z [1m[94m...[0m
+2026-11-15T14:34:36.8556399Z [1m[94m245[0m [1m[94m|[0m     pipeline_cache: vk::PipelineCache,
+2026-11-15T14:34:36.8556815Z     [1m[94m|[0m     [1m[33m^^^^^^^^^^^^^^[0m
+2026-11-15T14:34:36.8557026Z 
+2026-11-15T14:34:36.8557253Z [1m[33mwarning[0m[1m: method `ensure_direct` is never used[0m
+2026-11-15T14:34:36.8557730Z     [1m[94m--> [0mcrates/vieww-hal/src/vulkan/scene.rs:1529:8
+2026-11-15T14:34:36.8558082Z      [1m[94m|[0m
+2026-11-15T14:34:36.8558377Z [1m[94m 529[0m [1m[94m|[0m impl SceneRenderer {
+2026-11-15T14:34:36.8559045Z      [1m[94m|[0m [1m[94m------------------[0m [1m[94mmethod in this implementation[0m
+2026-11-15T14:34:36.8559517Z [1m[94m...[0m
+2026-11-15T14:34:36.8559953Z [1m[94m1529[0m [1m[94m|[0m     fn ensure_direct(&mut self, bgra: bool) -> Result<(), VulkanError> {
+2026-11-15T14:34:36.8560619Z      [1m[94m|[0m        [1m[33m^^^^^^^^^^^^^[0m
+2026-11-15T14:34:36.8560824Z 
+2026-11-15T14:34:56.0329441Z 
+2026-11-15T14:34:56.0330343Z fixture                                 size    cmds      best     worst    us/cmd      fps  what it covers
+2026-11-15T14:34:56.0330985Z ----------------------------------------------------------------------------------------------------------------------------------------
+2026-11-15T14:34:56.0331996Z 00-fills                            840x560      384     2.83ms     3.67ms       7.4        6  384 plain fills — the control
+2026-11-15T14:34:56.0332718Z 00-fills-rounded                    840x560      384     3.19ms     3.34ms       8.3        5  the same fills, rounded — cost of curves
+2026-11-15T14:34:56.0333515Z 00-fills-gradient                   840x560      384     3.91ms     4.21ms      10.2        4  the same fills, gradient-shaded — cost of shading
+2026-11-15T14:34:56.0334202Z 00-fills-rrect-clip                 840x560      384     3.90ms     4.49ms      10.2        4  the same fills under ONE rounded clip
+2026-11-15T14:34:56.0334854Z 00-fills-nested-clips               840x560      384     3.67ms     4.04ms       9.6        5  the same fills, three clips deep
+2026-11-15T14:34:56.0335445Z 00-strokes                          840x560      384     8.25ms     8.46ms      21.5        2  stroke expansion: joins, caps
+2026-11-15T14:34:56.0336166Z 00-curves                           840x560      384     6.67ms     6.92ms      17.4        2  open cubics — the flattener's real workload
+2026-11-15T14:34:56.0337206Z 00-shadows                          840x560      768    20.59ms    21.91ms      26.8        1  384 blurred shadow masks  <-- OVER 16.7ms
+2026-11-15T14:34:56.0337970Z 00-layers-flat                      840x560     1152     3.22ms     3.43ms       2.8        5  384 sibling isolated layers
+2026-11-15T14:34:56.0338770Z 00-layers-nested                    840x560       74     8.90ms    12.46ms     120.2        2  24 layers deep — compositor depth
+2026-11-15T14:34:56.0339466Z 00-blend-modes                      840x560       71     4.37ms     5.06ms      61.5        4  12 blend modes over one backdrop
+2026-11-15T14:34:56.0340023Z 00-blurs                            840x560       24     4.15ms     4.35ms     172.8        4  blur at five sigmas, incl. bounds
+2026-11-15T14:34:56.0340775Z 00-transforms                       840x560       97     1.82ms     2.22ms      18.8        9  96 rotated + scaled boxes
+2026-11-15T14:34:56.0341385Z 10-icon-grid                        840x560       46     1.22ms     1.37ms      26.6       14  120 vector icons, four sizes
+2026-11-15T14:34:56.0341971Z 10-icon-strokes                     840x560       46     2.07ms     2.23ms      45.1        8  stroked line-art icons at small sizes
+2026-11-15T14:34:56.0342574Z 11-typography                       840x560       11     1.23ms     1.37ms     111.5       14  a type scale, real glyph outlines
+2026-11-15T14:34:56.0343298Z 11-code-block                       840x560       56     1.08ms     1.22ms      19.3       15  syntax-coloured code — many small runs
+2026-11-15T14:34:56.0343905Z 12-avatar                           840x560       18     2.77ms     2.90ms     154.1        6  one complex layered vector portrait
+2026-11-15T14:34:56.0344508Z 12-avatar-wall                      840x560      362     4.91ms     5.26ms      13.6        3  24 of them, clipped to circles
+2026-11-15T14:34:56.0345111Z 20-settings                         840x560       45     1.73ms     1.98ms      38.5       10  a settings form: rows, switches, chrome
+2026-11-15T14:34:56.0345731Z 21-dashboard                        840x560       39     2.16ms     2.35ms      55.3        8  cards, charts, elevation, gradients
+2026-11-15T14:34:56.0346341Z 22-editor                          1366x679      129     3.39ms     4.51ms      26.3        5  an IDE shell: sidebar, code, panels
+2026-11-15T14:34:56.0346982Z 23-editor-glass                    1366x679      149    10.31ms    11.13ms      69.2        2  the same, with blur, shadows and overlays
+2026-11-15T14:34:56.0347623Z ----------------------------------------------------------------------------------------------------------------------------------------
+2026-11-15T14:34:56.0348109Z 23 fixtures, 106.3 ms of rendering in total
+2026-11-15T14:34:56.0348581Z drawn across the gallery: 4178 shapes, 2743 glyphs, 449 layers, 394 shadows (0 commands culled)
+2026-11-15T14:34:56.0349058Z over budget: 00-shadows
+2026-11-15T14:34:56.0349333Z no fixture's layout overflows
+2026-11-15T14:34:56.0408597Z receipt  : /tmp/tmp.KhgzmtxKup/receipt.json
+2026-11-15T14:34:56.0409198Z 
+2026-11-15T14:34:56.0409530Z motion                frames       mean      worst   moving   stall  what it covers
+2026-11-15T14:34:56.0410033Z ----------------------------------------------------------------------------------------------------------------------
+2026-11-15T14:34:56.4130651Z 30-fade-in                24     1.10ms     1.71ms     23/23       0  opacity 0 -> 1: the simplest reveal
+2026-11-15T14:34:56.8349183Z 31-stagger                24     1.89ms     2.71ms     15/23       0  five rows revealing in sequence
+2026-11-15T14:34:57.0784583Z 32-splash                 24     1.69ms     2.92ms     21/23       2  a launch splash: scale, rise, fade out
+2026-11-15T14:34:57.7115441Z 33-sheet                  24     7.67ms    11.14ms     14/23       0  a modal sheet over a blurred backdrop
+2026-11-15T14:34:58.0675960Z 34-spinner                24     0.82ms     1.54ms     23/23       0  a continuous sweep — transforms every frame
+2026-11-15T14:34:58.5891571Z 35-shared-element         24     4.47ms     6.18ms     23/23       0  a card expanding into a detail view — the hard transition
+2026-11-15T14:34:58.8948269Z 36-morph                  24     1.28ms     1.79ms     23/23       0  one vector path morphing into another, stroked and filled
+2026-11-15T14:34:58.9040805Z 
+2026-11-15T14:34:58.9041615Z interaction                       damage  full frame    retained  speed-up  identical?
+2026-11-15T14:34:58.9042485Z ------------------------------------------------------------------------------------------------
+2026-11-15T14:34:58.9158707Z light row 4                        8.01%      2.91ms      0.44ms      6.6x  yes
+2026-11-15T14:34:58.9266576Z move the light to row 9           16.03%      2.56ms      0.64ms      4.0x  yes
+2026-11-15T14:34:58.9373437Z clear the selection                8.01%      2.79ms      0.40ms      6.9x  yes
+2026-11-15T14:34:58.9474315Z nothing changes at all            -0.00%      2.53ms      0.13ms     19.7x  yes
+2026-11-15T14:34:59.0101677Z glass: highlight moves             0.72%     11.02ms      6.20ms      1.8x  yes  within 60Hz
+2026-11-15T14:34:59.0475601Z glass: highlight clears            0.72%     10.81ms      6.25ms      1.7x  yes  within 60Hz
+2026-11-15T14:34:59.0478987Z 
+2026-11-15T14:34:59.0479148Z wrote 23 PNGs to /tmp/tmp.KhgzmtxKup/out
+2026-11-15T14:34:59.0719620Z | class | metric | budget | now | change | verdict (tolerance ±10%) |
+2026-11-15T14:34:59.0720060Z |---|---|---|---|---|---|
+2026-11-15T14:34:59.0720984Z perf-budget: no budget and no previous run for class 'ubuntu-24-04-5-lts/x86-64/intel-r-xeon-r-6975p-c': not gated this time (this run is the baseline for the next)
+2026-11-15T14:34:59.0721646Z perf-budget: nothing gated
+2026-11-15T14:34:59.0752695Z ##[endgroup]
+2026-11-15T14:34:59.0759127Z ##[group]mark: upload perf-linux
+2026-11-15T14:34:59.0774838Z ##[endgroup]
+2026-11-15T14:34:59.0869323Z ##[error]Process completed with exit code 1.
+2026-11-15T14:34:59.0943872Z ##[group]Run actions/upload-artifact@v4
+2026-11-15T14:34:59.0944108Z with:
+2026-11-15T14:34:59.0944259Z   name: perf-linux
+2026-11-15T14:34:59.0944431Z   path: /home/runner/work/_temp/perf
+2026-11-15T14:34:59.0944638Z   if-no-files-found: ignore
+2026-11-15T14:34:59.0944835Z   include-hidden-files: false
+2026-11-15T14:34:59.0945022Z   compression-level: 6
+2026-11-15T14:34:59.0945184Z   overwrite: false
+2026-11-15T14:34:59.0945337Z env:
+2026-11-15T14:34:59.0945484Z   CI_INPUTS: {}
+2026-11-15T14:34:59.0945630Z   CI_MATRIX: {}
+2026-11-15T14:34:59.0946276Z   CI_JOB: {"title": "vieww \u00b7 framework-gate", "project": "vieww", "id": "framework-gate", "file": "vieww_base/ci/jobs/framework-gate.toml", "if": "", "needs": [], "setup": [], "uploads": [{"name": "perf-linux", "path": "${{ runner.temp }}/perf", "if-no-files-found": "ignore"}], "downloads": []}
+2026-11-15T14:34:59.0946961Z   CI_PROJECT: vieww
+2026-11-15T14:34:59.0947717Z   CI_VARS: {
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "***",
+  "DEVICE_FARM_PROJECT_ARN": "***"
+}
+2026-11-15T14:34:59.0949560Z   CI_GITHUB_TOKEN: ***
+2026-11-15T14:34:59.0949731Z   CI_SECRET_NAMES: 
+2026-11-15T14:34:59.0949893Z   CI_HAS_AWS_ROLE: true
+2026-11-15T14:34:59.0950057Z   ANDROID_KEYSTORE: 
+2026-11-15T14:34:59.0950430Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-15T14:34:59.0950669Z   ANDROID_KEY_ALIAS: 
+2026-11-15T14:34:59.0950836Z   ANDROID_KEY_PASSWORD: 
+2026-11-15T14:34:59.0951013Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-15T14:34:59.0951198Z   APPLE_NOTARY_ISSUER: 
+2026-11-15T14:34:59.0951360Z   APPLE_NOTARY_KEY: 
+2026-11-15T14:34:59.0951518Z   APPLE_NOTARY_KEY_ID: 
+2026-11-15T14:34:59.0951681Z   APPLE_P12_PASSWORD: 
+2026-11-15T14:34:59.0951852Z   APPLE_SIGNING_IDENTITY: 
+2026-11-15T14:34:59.0952020Z   AWS_ACCESS_KEY_ID: 
+2026-11-15T14:34:59.0952173Z   AWS_ROLE_ARN: 
+2026-11-15T14:34:59.0952328Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-15T14:34:59.0952502Z   CARGO_REGISTRY_TOKEN: 
+2026-11-15T14:34:59.0952669Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-15T14:34:59.0952840Z   CLOUDFLARE_API_TOKEN: 
+2026-11-15T14:34:59.0953153Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-15T14:34:59.0953338Z   IOS_CERT_P12: 
+2026-11-15T14:34:59.0953491Z   IOS_CERT_PASSWORD: 
+2026-11-15T14:34:59.0953650Z   IOS_IDENTITY: 
+2026-11-15T14:34:59.0953802Z   IOS_PROFILE: 
+2026-11-15T14:34:59.0953969Z   WINDOWS_CERT_PASSWORD: 
+2026-11-15T14:34:59.0954140Z   WINDOWS_CERT_PFX: 
+2026-11-15T14:34:59.0954307Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-15T14:34:59.0954506Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-15T14:34:59.0954710Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-15T14:34:59.0954893Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-15T14:34:59.0955094Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-15T14:34:59.0955290Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-15T14:34:59.0955485Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-15T14:34:59.0955675Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-15T14:34:59.0955879Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-15T14:34:59.0956121Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-15T14:34:59.0956362Z   CI_UPLOAD_0: yes
+2026-11-15T14:34:59.0956511Z ##[endgroup]
+2026-11-15T14:34:59.2274242Z (node:126430) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-15T14:34:59.2275055Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-15T14:34:59.2331608Z With the provided path, there will be 1 file uploaded
+2026-11-15T14:34:59.2332412Z Artifact name is valid!
+2026-11-15T14:34:59.2332800Z Root directory input is valid!
+2026-11-15T14:34:59.4334053Z Beginning upload of artifact content to blob storage
+2026-11-15T14:34:59.5211552Z (node:126430) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-15T14:34:59.5558652Z Uploaded bytes 550
+2026-11-15T14:34:59.5787901Z Finished uploading artifact content to blob storage!
+2026-11-15T14:34:59.5788387Z SHA256 digest of uploaded artifact zip is 4dfbc5fa10c59015fd360368b8b32961b47cd87ec1fbfa0bfa28e77f9b24d1e2
+2026-11-15T14:34:59.5789497Z Finalizing artifact upload
+2026-11-15T14:34:59.9217318Z Artifact perf-linux.zip successfully finalized. Artifact ID 14165739366
+2026-11-15T14:34:59.9217987Z Artifact perf-linux has been successfully uploaded! Final size is 550 bytes. Artifact ID is 14165739366
+2026-11-15T14:34:59.9223210Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/43722789399/artifacts/14165739366
+2026-11-15T14:34:59.9394868Z Post job cleanup.
+2026-11-15T14:35:00.0064148Z [command]/usr/bin/git version
+2026-11-15T14:35:00.0104301Z git version 2.56.1
+2026-11-15T14:35:00.0137010Z Temporarily overriding HOME='/home/runner/work/_temp/499cd7fe-5d68-4944-9baa-07ab898ef5f8' before making global git config changes
+2026-11-15T14:35:00.0137763Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T14:35:00.0143692Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-15T14:35:00.0189173Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T14:35:00.0220069Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-15T14:35:00.0499573Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T14:35:00.0519424Z http.https://github.com/.extraheader
+2026-11-15T14:35:00.0534310Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-15T14:35:00.0611661Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-15T14:35:00.0841878Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T14:35:00.0891347Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-15T14:35:00.1175626Z Cleaning up orphan processes
+2026-11-15T14:35:00.1465735Z Terminate orphan process: pid (61900) (java)
+2026-11-15T14:35:00.1549649Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== phase-1 / vieww · framework-ios-simulator	log =====
+﻿<?xml version="1.0" encoding="utf-8"?><Error><Code>BlobNotFound</Code><Message>The specified blob does not exist.
+RequestId:1a2a3bca-a01e-0064-6e0f-75190c000000
+Time:2026-11-15T14:39:11.5497512Z</Message></Error>
+
+===== phase-1 / vieww · quick	log =====
+2026-11-15T14:25:11.3560785Z [1m[92m    Checking[0m flate2 v1.1.10
+2026-11-15T14:25:11.5750989Z [1m[92m    Checking[0m miniz_oxide v0.8.9
+2026-11-15T14:25:11.8966552Z [1m[92m    Checking[0m fdeflate v0.3.7
+2026-11-15T14:25:12.1127186Z [1m[92m    Checking[0m pin-project-lite v0.2.17
+2026-11-15T14:25:12.1452653Z [1m[92m    Checking[0m futures-core v0.3.34
+2026-11-15T14:25:12.1891140Z [1m[92m    Checking[0m slab v0.4.12
+2026-11-15T14:25:12.2728562Z [1m[92m    Checking[0m futures-task v0.3.34
+2026-11-15T14:25:12.3371165Z [1m[92m    Checking[0m futures-util v0.3.34
+2026-11-15T14:25:13.5410933Z [1m[92m    Checking[0m png v0.18.1
+2026-11-15T14:25:14.1121383Z [1m[92m    Checking[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+2026-11-15T14:25:14.2481162Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-15T14:25:14.3221110Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-15T14:25:18.1961425Z [1m[92m    Checking[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
+2026-11-15T14:25:25.9470905Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-15T14:25:30.1801026Z [1m[92m   Compiling[0m bytemuck_derive v1.12.1
+2026-11-15T14:25:38.3851867Z [1m[92m   Compiling[0m wasm-bindgen-macro v0.2.129
+2026-11-15T14:25:38.7527181Z [1m[92m    Checking[0m bytemuck v1.25.2
+2026-11-15T14:25:38.8404147Z [1m[92m    Checking[0m font-types v0.12.5
+2026-11-15T14:25:38.8404934Z [1m[92m    Checking[0m font-types v0.11.3
+2026-11-15T14:25:38.9794817Z [1m[92m    Checking[0m read-fonts v0.37.0
+2026-11-15T14:25:39.0493833Z [1m[92m    Checking[0m read-fonts v0.41.0
+2026-11-15T14:25:39.5233990Z [1m[92m    Checking[0m js-sys v0.3.106
+2026-11-15T14:25:41.9447487Z [1m[92m    Checking[0m harfrust v0.5.2
+2026-11-15T14:25:41.9448294Z [1m[92m    Checking[0m skrifa v0.40.0
+2026-11-15T14:25:43.7565285Z [1m[92m    Checking[0m skrifa v0.44.0
+2026-11-15T14:25:44.8745993Z [1m[92m    Checking[0m swash v0.2.10
+2026-11-15T14:25:44.8747013Z [1m[92m    Checking[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-15T14:25:45.8569400Z [1m[92m    Checking[0m web-sys v0.3.106
+2026-11-15T14:25:46.4624368Z [1m[92m    Checking[0m cosmic-text v0.19.0
+2026-11-15T14:25:47.0588763Z [1m[92m    Checking[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-15T14:25:47.2299803Z [1m[92m    Checking[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-15T14:25:48.1045966Z [1m[92m    Checking[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-15T14:25:48.3961477Z [1m[92m    Checking[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-15T14:25:49.7277254Z [1m[92m    Checking[0m vieww-platform-web v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web)
+2026-11-15T14:25:49.8307394Z [1m[92m    Finished[0m `dev` profile [unoptimized] target(s) in 43.71s
+2026-11-15T14:25:49.8485872Z ==> cargo clippy -p vieww-platform-web --target wasm32-unknown-unknown
+2026-11-15T14:25:50.0408454Z [1m[92m    Checking[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-15T14:25:50.0446908Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-15T14:25:50.0473266Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-15T14:25:50.0475367Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-15T14:25:50.1157739Z [1m[92m    Checking[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
+2026-11-15T14:25:50.9273186Z [1m[92m    Checking[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+2026-11-15T14:25:50.9274355Z [1m[92m    Checking[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-15T14:25:50.9275063Z [1m[92m    Checking[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-15T14:25:51.8007484Z [1m[92m    Checking[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-15T14:25:51.8008600Z [1m[92m    Checking[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+2026-11-15T14:25:52.9107291Z [1m[92m    Checking[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-15T14:25:53.2394883Z [1m[92m    Checking[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-15T14:25:53.8628882Z [1m[92m    Checking[0m vieww-platform-web v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web)
+2026-11-15T14:25:53.9767240Z [1m[92m    Finished[0m `dev` profile [unoptimized] target(s) in 4.09s
+2026-11-15T14:25:53.9962434Z 
+2026-11-15T14:25:53.9963040Z vieww-platform-web compiles for wasm32-unknown-unknown.
+2026-11-15T14:25:53.9963496Z It has also *run*: examples/test-web mounts this crate's WebApp in a
+2026-11-15T14:25:53.9963969Z headless browser and compares the canvas against a native render,
+2026-11-15T14:25:53.9964448Z byte for byte. Re-certify with that example's build-web.sh + the
+2026-11-15T14:25:53.9964923Z certification runner whenever the web-facing code changes.
+2026-11-15T14:25:53.9969945Z 
+2026-11-15T14:25:53.9970349Z ==> fixture gallery (renders every screen; fails on a layout overflow)
+2026-11-15T14:25:54.1881311Z [1m[92m   Compiling[0m proc-macro2 v1.0.107
+2026-11-15T14:25:54.1881796Z [1m[92m   Compiling[0m unicode-ident v1.0.26
+2026-11-15T14:25:54.1882295Z [1m[92m   Compiling[0m quote v1.0.47
+2026-11-15T14:25:54.1882643Z [1m[92m   Compiling[0m libm v0.2.16
+2026-11-15T14:25:54.2351170Z [1m[92m   Compiling[0m unicode-segmentation v1.13.3
+2026-11-15T14:25:54.2803016Z [1m[92m   Compiling[0m autocfg v1.5.1
+2026-11-15T14:25:54.5071058Z [1m[92m   Compiling[0m bitflags v2.13.2
+2026-11-15T14:25:54.7151114Z [1m[92m   Compiling[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-15T14:25:54.7528773Z [1m[92m   Compiling[0m once_cell v1.21.4
+2026-11-15T14:25:54.7983266Z [1m[92m   Compiling[0m syn v3.0.6
+2026-11-15T14:25:54.8384087Z [1m[92m   Compiling[0m syn v2.0.119
+2026-11-15T14:25:55.5991250Z [1m[92m   Compiling[0m core_maths v0.1.1
+2026-11-15T14:25:55.6320572Z [1m[92m   Compiling[0m ttf-parser v0.25.1
+2026-11-15T14:25:56.5060807Z [1m[92m   Compiling[0m bytemuck_derive v1.12.1
+2026-11-15T14:25:57.2580434Z [1m[92m   Compiling[0m bytemuck v1.25.2
+2026-11-15T14:25:57.4311061Z [1m[92m   Compiling[0m font-types v0.12.5
+2026-11-15T14:25:57.4920430Z [1m[92m   Compiling[0m simd-adler32 v0.3.10
+2026-11-15T14:25:57.6781389Z [1m[92m   Compiling[0m cfg-if v1.0.5
+2026-11-15T14:25:57.7009755Z [1m[92m   Compiling[0m read-fonts v0.41.0
+2026-11-15T14:25:57.7330878Z [1m[92m   Compiling[0m adler2 v2.0.1
+2026-11-15T14:25:57.7981075Z [1m[92m   Compiling[0m crc32fast v1.5.2
+2026-11-15T14:25:58.0901207Z [1m[92m   Compiling[0m miniz_oxide v0.9.1
+2026-11-15T14:25:59.2580984Z [1m[92m   Compiling[0m num-traits v0.2.19
+2026-11-15T14:25:59.3040778Z [1m[92m   Compiling[0m libc v0.2.189
+2026-11-15T14:25:59.4490943Z [1m[92m   Compiling[0m version_check v0.9.5
+2026-11-15T14:25:59.6070927Z [1m[92m   Compiling[0m slotmap v1.1.1
+2026-11-15T14:25:59.7060760Z [1m[92m   Compiling[0m flate2 v1.1.10
+2026-11-15T14:25:59.7170966Z [1m[92m   Compiling[0m miniz_oxide v0.8.9
+2026-11-15T14:26:00.0940867Z [1m[92m   Compiling[0m fdeflate v0.3.7
+2026-11-15T14:26:00.7371107Z [1m[92m   Compiling[0m font-types v0.11.3
+2026-11-15T14:26:00.8120955Z [1m[92m   Compiling[0m png v0.18.1
+2026-11-15T14:26:01.0070826Z [1m[92m   Compiling[0m read-fonts v0.37.0
+2026-11-15T14:26:03.2013926Z [1m[92m   Compiling[0m roxmltree v0.20.0
+2026-11-15T14:26:03.4110946Z [1m[92m   Compiling[0m skrifa v0.44.0
+2026-11-15T14:26:04.7031132Z [1m[92m   Compiling[0m fontconfig-parser v0.5.8
+2026-11-15T14:26:06.3145884Z [1m[92m   Compiling[0m memmap2 v0.9.11
+2026-11-15T14:26:06.8271861Z [1m[92m   Compiling[0m smallvec v1.16.2
+2026-11-15T14:26:06.9867233Z [1m[92m   Compiling[0m yazi v0.2.1
+2026-11-15T14:26:08.0462497Z [1m[92m   Compiling[0m tinyvec v1.13.3
+2026-11-15T14:26:08.4040701Z [1m[92m   Compiling[0m zeno v0.3.3
+2026-11-15T14:26:09.2008681Z [1m[92m   Compiling[0m log v0.4.34
+2026-11-15T14:26:09.3230918Z [1m[92m   Compiling[0m fontdb v0.23.0
+2026-11-15T14:26:10.6070482Z [1m[92m   Compiling[0m swash v0.2.10
+2026-11-15T14:26:14.9141023Z [1m[92m   Compiling[0m harfrust v0.5.2
+2026-11-15T14:26:15.5390550Z [1m[92m   Compiling[0m skrifa v0.40.0
+2026-11-15T14:26:17.1733103Z [1m[92m   Compiling[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+2026-11-15T14:26:22.9321373Z [1m[92m   Compiling[0m thiserror v2.0.21
+2026-11-15T14:26:23.0541468Z [1m[92m   Compiling[0m unicode-linebreak v0.1.5
+2026-11-15T14:26:23.2070938Z [1m[92m   Compiling[0m sys-locale v0.3.2
+2026-11-15T14:26:23.3770679Z [1m[92m   Compiling[0m unicode-script v0.5.8
+2026-11-15T14:26:23.6856250Z [1m[92m   Compiling[0m rangemap v1.8.0
+2026-11-15T14:26:23.9290726Z [1m[92m   Compiling[0m smol_str v0.3.6
+2026-11-15T14:26:24.1410965Z [1m[92m   Compiling[0m unicode-bidi v0.3.18
+2026-11-15T14:26:25.0181098Z [1m[92m   Compiling[0m linebender_resource_handle v0.1.1
+2026-11-15T14:26:25.0800629Z [1m[92m   Compiling[0m self_cell v1.3.0
+2026-11-15T14:26:25.1200868Z [1m[92m   Compiling[0m foldhash v0.2.0
+2026-11-15T14:26:25.1800690Z [1m[92m   Compiling[0m zerocopy v0.8.59
+2026-11-15T14:26:25.3270896Z [1m[92m   Compiling[0m rustc-hash v2.1.3
+2026-11-15T14:26:25.3730931Z [1m[92m   Compiling[0m cosmic-text v0.19.0
+2026-11-15T14:26:26.2050904Z [1m[92m   Compiling[0m hashbrown v0.17.1
+2026-11-15T14:26:26.4841259Z [1m[92m   Compiling[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-15T14:26:26.6350704Z [1m[92m   Compiling[0m zerocopy-derive v0.8.59
+2026-11-15T14:26:27.0740791Z [1m[92m   Compiling[0m thiserror-impl v2.0.21
+2026-11-15T14:26:27.8260977Z [1m[92m   Compiling[0m equivalent v1.0.2
+2026-11-15T14:26:27.8499786Z [1m[92m   Compiling[0m cfg_aliases v0.2.2
+2026-11-15T14:26:27.8698640Z [1m[92m   Compiling[0m naga v30.0.1
+2026-11-15T14:26:27.8933502Z [1m[92m   Compiling[0m indexmap v2.14.2
+2026-11-15T14:26:28.8171300Z [1m[92m   Compiling[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-15T14:26:30.9251979Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-15T14:26:30.9910697Z [1m[92m   Compiling[0m rustc-hash v1.1.0
+2026-11-15T14:26:31.0200772Z [1m[92m   Compiling[0m bit-vec v0.9.1
+2026-11-15T14:26:31.0941142Z [1m[92m   Compiling[0m unicode-width v0.2.2
+2026-11-15T14:26:31.2300807Z [1m[92m   Compiling[0m spirv v0.4.0+sdk-1.4.341.0
+2026-11-15T14:26:31.2485016Z [1m[92m   Compiling[0m codespan-reporting v0.13.1
+2026-11-15T14:26:31.5385358Z [1m[92m   Compiling[0m bit-set v0.10.0
+2026-11-15T14:26:31.6169666Z [1m[92m   Compiling[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-15T14:26:32.2320949Z [1m[92m   Compiling[0m naga-types v30.0.1
+2026-11-15T14:26:32.3070938Z [1m[92m   Compiling[0m half v2.7.1
+2026-11-15T14:26:32.4681128Z [1m[92m   Compiling[0m euclid v0.22.14
+2026-11-15T14:26:32.5481133Z [1m[92m   Compiling[0m arrayvec v0.7.8
+2026-11-15T14:26:33.0070594Z [1m[92m   Compiling[0m lyon_geom v1.0.19
+2026-11-15T14:26:33.3783920Z [1m[92m   Compiling[0m pxfm v0.1.30
+2026-11-15T14:26:37.2940722Z [1m[92m   Compiling[0m zune-core v0.5.3
+2026-11-15T14:26:37.4811475Z [1m[92m   Compiling[0m zune-jpeg v0.5.15
+2026-11-15T14:26:38.6500574Z [1m[92m   Compiling[0m moxcms v0.8.1
+2026-11-15T14:26:41.0741046Z [1m[92m   Compiling[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+2026-11-15T14:26:41.2711137Z [1m[92m   Compiling[0m lyon_path v1.0.19
+2026-11-15T14:26:41.8421260Z [1m[92m   Compiling[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+2026-11-15T14:26:42.2020980Z [1m[92m   Compiling[0m float_next_after v1.0.0
+2026-11-15T14:26:42.2443922Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-15T14:26:42.2921186Z [1m[92m   Compiling[0m ash v0.38.0+1.3.281
+2026-11-15T14:26:42.3395619Z [1m[92m   Compiling[0m byteorder-lite v0.1.0
+2026-11-15T14:26:42.5203914Z [1m[92m   Compiling[0m image v0.25.10
+2026-11-15T14:26:42.5436880Z [1m[92m   Compiling[0m lyon_tessellation v1.0.22
+2026-11-15T14:26:42.9377322Z [1m[92m   Compiling[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-15T14:26:44.3592706Z [1m[92m   Compiling[0m vieww-scene v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
+2026-11-15T14:26:44.6330999Z [1m[92m   Compiling[0m libloading v0.8.9
+2026-11-15T14:26:44.7526417Z [1m[92m   Compiling[0m vieww-image v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-image)
+2026-11-15T14:26:48.5581340Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-15T14:26:49.8150793Z [1m[92m   Compiling[0m vieww-video v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-video)
+2026-11-15T14:26:54.1451157Z [1m[92m   Compiling[0m vieww-asset v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
+2026-11-15T14:26:56.0711270Z [1m[92m   Compiling[0m vieww-render-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
+2026-11-15T14:26:57.8923115Z [1m[92m   Compiling[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-15T14:27:00.5191236Z [1m[92m   Compiling[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+2026-11-15T14:27:03.2041760Z [1m[92m   Compiling[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
+2026-11-15T14:27:04.9221217Z [1m[92m   Compiling[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
+2026-11-15T14:27:05.1211249Z [1m[92m   Compiling[0m vieww-spatial v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-spatial)
+2026-11-15T14:27:05.5191184Z [1m[92m   Compiling[0m vieww-network v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-network)
+2026-11-15T14:27:06.1771454Z [1m[92m   Compiling[0m vieww-physics v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-physics)
+2026-11-15T14:27:07.2760841Z [1m[92m   Compiling[0m vieww-mesh v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-mesh)
+2026-11-15T14:27:07.3397271Z [1m[92m   Compiling[0m color_quant v1.1.0
+2026-11-15T14:27:07.5207753Z [1m[92m   Compiling[0m fixtures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/fixtures)
+2026-11-15T14:27:07.6251020Z [1m[92m   Compiling[0m weezl v0.1.12
+2026-11-15T14:27:08.3941151Z [1m[92m   Compiling[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
+2026-11-15T14:27:08.4350384Z [1m[92m   Compiling[0m gif v0.14.2
+2026-11-15T14:27:09.7671364Z [1m[92m   Compiling[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-15T14:27:10.2421471Z [1m[33mwarning[0m[1m: field `format` is never read[0m
+2026-11-15T14:27:10.2430568Z    [1m[94m--> [0mcrates/vieww-hal/src/vulkan/scene.rs:110:5
+2026-11-15T14:27:10.2470186Z     [1m[94m|[0m
+2026-11-15T14:27:10.2470650Z [1m[94m109[0m [1m[94m|[0m struct DirectRoute {
+2026-11-15T14:27:10.2500304Z     [1m[94m|[0m        [1m[94m-----------[0m [1m[94mfield in this struct[0m
+2026-11-15T14:27:10.2530408Z [1m[94m110[0m [1m[94m|[0m     format: vk::Format,
+2026-11-15T14:27:10.2590190Z     [1m[94m|[0m     [1m[33m^^^^^^[0m
+2026-11-15T14:27:10.2620011Z     [1m[94m|[0m
+2026-11-15T14:27:10.2640175Z     [1m[94m= [0m[1mnote[0m: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+2026-11-15T14:27:10.2649840Z 
+2026-11-15T14:27:10.2680182Z [1m[33mwarning[0m[1m: variants `Blit` and `Direct` are never constructed[0m
+2026-11-15T14:27:10.2710114Z    [1m[94m--> [0mcrates/vieww-hal/src/vulkan/scene.rs:179:5
+2026-11-15T14:27:10.2710657Z     [1m[94m|[0m
+2026-11-15T14:27:10.2740080Z [1m[94m177[0m [1m[94m|[0m enum Out {
+2026-11-15T14:27:10.2770000Z     [1m[94m|[0m      [1m[94m---[0m [1m[94mvariants in this enum[0m
+2026-11-15T14:27:10.2785564Z [1m[94m178[0m [1m[94m|[0m     Readback,
+2026-11-15T14:27:10.2800059Z [1m[94m179[0m [1m[94m|[0m     Blit(BlitTarget),
+2026-11-15T14:27:10.2830009Z     [1m[94m|[0m     [1m[33m^^^^[0m
+2026-11-15T14:27:10.2860070Z [1m[94m180[0m [1m[94m|[0m     Direct(DirectFrame),
+2026-11-15T14:27:10.2879904Z     [1m[94m|[0m     [1m[33m^^^^^^[0m
+2026-11-15T14:27:10.2889981Z     [1m[94m|[0m
+2026-11-15T14:27:10.2920360Z     [1m[94m= [0m[1mnote[0m: `Out` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+2026-11-15T14:27:10.2949648Z 
+2026-11-15T14:27:10.2950216Z [1m[33mwarning[0m[1m: field `pipeline_cache` is never read[0m
+2026-11-15T14:27:10.2980068Z    [1m[94m--> [0mcrates/vieww-hal/src/vulkan/scene.rs:245:5
+2026-11-15T14:27:10.3009944Z     [1m[94m|[0m
+2026-11-15T14:27:10.3030118Z [1m[94m184[0m [1m[94m|[0m pub struct SceneRenderer {
+2026-11-15T14:27:10.3040196Z     [1m[94m|[0m            [1m[94m-------------[0m [1m[94mfield in this struct[0m
+2026-11-15T14:27:10.3069982Z [1m[94m...[0m
+2026-11-15T14:27:10.3100342Z [1m[94m245[0m [1m[94m|[0m     pipeline_cache: vk::PipelineCache,
+2026-11-15T14:27:10.3120014Z     [1m[94m|[0m     [1m[33m^^^^^^^^^^^^^^[0m
+2026-11-15T14:27:10.3129700Z 
+2026-11-15T14:27:10.3160137Z [1m[33mwarning[0m[1m: method `ensure_direct` is never used[0m
+2026-11-15T14:27:10.3180032Z     [1m[94m--> [0mcrates/vieww-hal/src/vulkan/scene.rs:1529:8
+2026-11-15T14:27:10.3189914Z      [1m[94m|[0m
+2026-11-15T14:27:10.3220135Z [1m[94m 529[0m [1m[94m|[0m impl SceneRenderer {
+2026-11-15T14:27:10.3250215Z      [1m[94m|[0m [1m[94m------------------[0m [1m[94mmethod in this implementation[0m
+2026-11-15T14:27:10.3261374Z [1m[94m...[0m
+2026-11-15T14:27:10.3279919Z [1m[94m1529[0m [1m[94m|[0m     fn ensure_direct(&mut self, bgra: bool) -> Result<(), VulkanError> {
+2026-11-15T14:27:10.3310037Z      [1m[94m|[0m        [1m[33m^^^^^^^^^^^^^[0m
+2026-11-15T14:27:10.3339653Z 
+2026-11-15T14:27:11.0071920Z [1m[92m   Compiling[0m vieww-render-planner v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
+2026-11-15T14:27:12.5738371Z [1m[33mwarning[0m: `vieww-hal` (lib) generated 4 warnings
+2026-11-15T14:27:25.8839662Z [1m[92m    Finished[0m `release` profile [optimized] target(s) in 1m 31s
+2026-11-15T14:27:25.8940412Z [1m[92m     Running[0m `target/release/fixtures /tmp/tmp.C5gAYj9qAe`
+2026-11-15T14:27:29.7393132Z 
+2026-11-15T14:27:29.7393705Z --- formatting: its diagnostics ---
+2026-11-15T14:27:29.7394854Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:734:
+2026-11-15T14:27:29.7395473Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:892:
+2026-11-15T14:27:29.7395972Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:1959:
+2026-11-15T14:27:29.7396438Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:1970:
+2026-11-15T14:27:29.7396875Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:2062:
+2026-11-15T14:27:29.7397370Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:2368:
+2026-11-15T14:27:29.7397806Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:2422:
+2026-11-15T14:27:29.7398252Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:3145:
+2026-11-15T14:27:29.7398736Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/geometry/fill.rs:686:
+2026-11-15T14:27:29.7399404Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/geometry/fill.rs:773:
+2026-11-15T14:27:29.7399917Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit/src/native.rs:1818:
+2026-11-15T14:27:29.7400547Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit/src/native.rs:1825:
+2026-11-15T14:27:29.7401036Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit/src/native.rs:1929:
+2026-11-15T14:27:29.7401539Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit/src/native_android.rs:145:
+2026-11-15T14:27:29.7401911Z 
+2026-11-15T14:27:29.7402099Z --- clippy (workspace, all targets, warnings are errors): its diagnostics ---
+2026-11-15T14:27:29.7402420Z error: large size difference between variants
+2026-11-15T14:27:29.7402697Z    --> crates/vieww-platform-winit/src/native.rs:214:1
+2026-11-15T14:27:29.7403018Z error: could not compile `vieww-platform-winit` (lib) due to 1 previous error
+2026-11-15T14:27:29.7403347Z warning: build failed, waiting for other jobs to finish...
+2026-11-15T14:27:29.7403690Z error: could not compile `vieww-platform-winit` (lib test) due to 1 previous error
+2026-11-15T14:27:29.7403920Z 
+2026-11-15T14:27:29.7404108Z --- docs (workspace, broken intra-doc links are errors): its diagnostics ---
+2026-11-15T14:27:29.7404683Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/doc/vieww/index.html
+2026-11-15T14:27:29.7405328Z error: public documentation for `render_planned_direct` links to private item `Out::Direct`
+2026-11-15T14:27:29.7405808Z     --> crates/vieww-hal/src/vulkan/scene.rs:1458:11
+2026-11-15T14:27:29.7406222Z error: public documentation for `settle` links to private item `FLIGHT_SLOTS`
+2026-11-15T14:27:29.7406592Z     --> crates/vieww-hal/src/vulkan/scene.rs:2848:17
+2026-11-15T14:27:29.7406843Z error: could not document `vieww-hal`
+2026-11-15T14:27:29.7407095Z warning: build failed, waiting for other jobs to finish...
+2026-11-15T14:27:29.7407310Z 
+2026-11-15T14:27:29.7407461Z --- tests (workspace): its diagnostics ---
+2026-11-15T14:27:29.7407889Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/libandroid.so
+2026-11-15T14:27:29.7408603Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/libandroid.so.dwp
+2026-11-15T14:27:29.7409478Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline
+2026-11-15T14:27:29.7410130Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline.dwp
+2026-11-15T14:27:29.7410944Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/snapshot
+2026-11-15T14:27:29.7411602Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/snapshot.dwp
+2026-11-15T14:27:29.7412283Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench
+2026-11-15T14:27:29.7412906Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench.dwp
+2026-11-15T14:27:29.7413589Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render
+2026-11-15T14:27:29.7414272Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render.dwp
+2026-11-15T14:27:29.7415079Z error: could not find `Cargo.toml` in `/tmp/vieww-cli-dev-fail` or any parent directory
+2026-11-15T14:27:29.7415675Z error: could not find `Cargo.toml` in `/tmp/vieww-cli-cmd-cargo-test` or any parent directory
+2026-11-15T14:27:29.7416187Z thread 'main' (69107) panicked at src/lib.rs:51:24:
+2026-11-15T14:27:29.7416552Z test switching_views_repaints_completely ... FAILED
+2026-11-15T14:27:29.7416963Z test the_activity_bar_repaints_completely_in_the_dark_theme ... FAILED
+2026-11-15T14:27:29.7417413Z test the_activity_bar_repaints_completely_in_the_light_theme ... FAILED
+2026-11-15T14:27:29.7418013Z ---- switching_views_repaints_completely stdout ----
+2026-11-15T14:27:29.7418542Z thread 'switching_views_repaints_completely' (75723) panicked at crates/vieww-test-harness/src/visual.rs:395:9:
+2026-11-15T14:27:29.7419117Z ---- the_activity_bar_repaints_completely_in_the_dark_theme stdout ----
+2026-11-15T14:27:29.7419996Z thread 'the_activity_bar_repaints_completely_in_the_dark_theme' (75724) panicked at crates/vieww-test-harness/src/visual.rs:395:9:
+2026-11-15T14:27:29.7420651Z ---- the_activity_bar_repaints_completely_in_the_light_theme stdout ----
+2026-11-15T14:27:29.7421356Z thread 'the_activity_bar_repaints_completely_in_the_light_theme' (75731) panicked at crates/vieww-test-harness/src/visual.rs:395:9:
+2026-11-15T14:27:29.7421992Z error: test failed, to rerun pass `-p viewwstudio --test repaint`
+2026-11-15T14:27:29.7422268Z 
+2026-11-15T14:27:29.7422357Z 4 stage(s) failed:
+2026-11-15T14:27:29.7422593Z   - formatting (exit 1)
+2026-11-15T14:27:29.7422923Z   - clippy (workspace, all targets, warnings are errors) (exit 101)
+2026-11-15T14:27:29.7423372Z   - docs (workspace, broken intra-doc links are errors) (exit 101)
+2026-11-15T14:27:29.7423772Z   - tests (workspace) (exit 101)
+2026-11-15T14:27:29.7424387Z ##[endgroup]
+2026-11-15T14:27:29.7441230Z ##[error]Quick checks failed (exit 1)
+2026-11-15T14:27:29.7511154Z ##[error]Process completed with exit code 1.
+2026-11-15T14:27:29.7640727Z Post job cleanup.
+2026-11-15T14:27:29.8342364Z [command]/usr/bin/git version
+2026-11-15T14:27:29.8390467Z git version 2.56.1
+2026-11-15T14:27:29.8420404Z Temporarily overriding HOME='/home/runner/work/_temp/a18e98db-8a29-4f2d-94ec-f32cb9d75197' before making global git config changes
+2026-11-15T14:27:29.8421347Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T14:27:29.8426302Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-15T14:27:29.8466186Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T14:27:29.8503423Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-15T14:27:29.8754224Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T14:27:29.8798089Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-15T14:27:29.9023463Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T14:27:29.9051693Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-15T14:27:29.9341534Z Cleaning up orphan processes
+2026-11-15T14:27:29.9644274Z Terminate orphan process: pid (61135) (java)
+2026-11-15T14:27:29.9705661Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
