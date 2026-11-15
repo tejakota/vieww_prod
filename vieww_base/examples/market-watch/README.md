@@ -67,6 +67,13 @@ rasterizer**, **Valdi** (native Android views, drawn by HWUI) and **Vieww on
 its GPU path**. They run in that order, with a minute's rest between them, so
 heat from one run doesn't throttle the next.
 
+The GPU path renders a depth-0 opaque frame — Market Watch's, on phones —
+straight into the acquired swapchain image: one render pass, no `RGBA16F`
+intermediate, no carry copies, no f16→8-bit blit, the planner's changed
+atlases recorded into the frame's single submission. A plan with layers, a
+translucent window, a resolution scale or a surface that refuses
+`COLOR_ATTACHMENT` usage takes the blit route instead.
+
 Per configuration: 5 cold starts (`am start -W`), then this schedule, which
 each app plays by itself:
 
@@ -113,6 +120,7 @@ runner's own per-phase measurements.
 | `src/main.rs` | a development tool: the schedule headless, `cargo run --release -p market-watch -- OUT [--thermal]` |
 | `examples/android.rs` | the Vieww phone app |
 | `examples/gpu_plan.rs` | a development tool: what the GPU path is asked to redraw, carry and overdraw per phase at a phone's size and density, with no GPU — `cargo run --release -p market-watch --example gpu_plan -- [--size 393x851] [--dpr 2.75]` |
+| `examples/kind_profile.rs` | a development tool: where a damaged frame's raster time goes, by kind of command, at 2.75x — `cargo run --release -p market-watch --example kind_profile` |
 | `tests/retained_scroll.rs` | a scroll drawn by its damage shows the full frames, at 1x and 2.75x, and does carry |
 | `compare/valdi/` | the Valdi app, `checkout.sh` (pins and prepares a Valdi tree), `release-flags.mjs` (Valdi's release flags) |
 | `device-farm/` | the farm's test spec, the on-phone runner, the package builder |

@@ -12,7 +12,8 @@ It sits beside two older files and does not replace them:
 This file is the short version for a new session. When an item here turns out
 to be large, it belongs in `PENDING.md` with a pointer from here.
 
-Last updated: 2026-10-23, after Device Farm results for `42c6d92`.
+Last updated: 2026-11-15, after Device Farm runs `43709382309` and `43712000396`
+(Market Watch comparison: the direct route and the lighter CPU raster).
 
 ---
 
@@ -80,7 +81,28 @@ there. 15 of 240 frames were over budget (12 allowed), all of them waiting on
 
 ## 2. What is next, in order
 
-1. **Check the next Device Farm run for the `auto` change.**
+1. **Market Watch after the direct route (runs `43709382309`, `43712000396`).**
+   A depth-0 opaque frame now renders straight into the swapchain image
+   (`SceneRenderer::render_planned_direct`): no `L[0]`, no carry, no blit,
+   uploads folded into the frame's one submission. On the SM8250 at 1440x3200
+   the GPU frame went ~21 ms of GPU to 4.95, jank 91-100% to **0.0%**, and
+   presented fps matched Valdi everywhere but storm (-5%). The CPU rasterizer
+   dropped the f32 half of a scroll's carry (backdrop filters keep it), holds
+   a removed row's vacated damage to its ancestors' clip, skips the full reset
+   under an opaque first fill, and parallises gradient/tint/region-clear/
+   region-convert and the Android window copy. CPU path on the msm8953:
+   work p95 127-133 ms to 43-70. What is left, in order of size:
+   - **Storm's stroke coverage is the biggest CPU cost on both paths**
+     (`examples/kind_profile.rs`, added: paths are 56% of a storm frame's
+     raster, and the same walk is the GPU planner's mask cost). Ten changed
+     sparklines a frame, one 4x4-supersampled scanline walk each. Lowering
+     `RASTER_MIN_PARALLEL_DIM` to 64 measured *worse* on the 2-core box —
+     spawn overhead; a pooled worker or a cheaper walk is what would pay.
+   - The Android window copy is uncached-write bound; cores only bought ~20%
+     (S20 live: 9.9 to 7.7 ms). The floor is the copy itself.
+   - The Stylo (msm8953) is slow on every path, Valdi included (CPU pegged
+     100-130%); both frameworks are 15-25 fps there.
+2. **Check the next Device Farm run for the `auto` change.**
    - The S26's `auto` should now choose the GPU, and its gate should pass.
    - The A73 and the Stylo should be unchanged (the A73's CPU never settled;
      the Stylo's GPU is not twice as fast at a budget it fits).
