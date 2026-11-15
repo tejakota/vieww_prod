@@ -83,6 +83,15 @@ pub struct VulkanSwapchain {
     /// caller's job, which `vieww-platform-winit`'s `NativeRenderer` does.
     /// See the module docs on "simple over fast".
     image_available: vk::Semaphore,
+    /// The acquire semaphores the GPU frame path keys by frame: frame *f*
+    /// signals `ring[f % 2]`, whose previous signal belonged to frame
+    /// *f - 2* — settled before *f* acquires, because a frame waits for
+    /// the slot it shares with the frame two back. An acquire that is
+    /// abandoned (a rebuild under it) consumes its own signal and does not
+    /// advance the frame count, so the pairing survives. `present_pixels`
+    /// keeps the single `image_available`: it consumes its own signal in
+    /// its own submission.
+    acquire_ring: [vk::Semaphore; 2],
     /// One per image, signalled by the submission that renders into it and
     /// waited on by its present — see [`AcquiredImage`]. Per image rather
     /// than one: a present's wait on a semaphore cannot be tracked with a
@@ -840,12 +849,17 @@ impl VulkanDevice {
         &self,
         swapchain: &mut VulkanSwapchain,
         expected: (u32, u32),
+        slot: usize,
     ) -> Result<Option<AcquiredImage>, VulkanError> {
+        // The frame's slot picked this semaphore: frame `slot` and frame
+        // `slot + 2` share it, and the older one has been waited for by the
+        // time the newer one acquires.
+        let semaphore = swapchain.acquire_ring[slot % 2];
         let acquire = |sc: &VulkanSwapchain| unsafe {
             sc.swapchain_loader.acquire_next_image(
                 sc.swapchain,
                 u64::MAX,
-                sc.image_available,
+                semaphore,
                 vk::Fence::null(),
             )
         };
@@ -865,7 +879,7 @@ impl VulkanDevice {
         let image = AcquiredImage {
             index,
             image: swapchain.images[index as usize],
-            ready: swapchain.image_available,
+            ready: semaphore,
             done: swapchain.render_done[index as usize],
             width: swapchain.width,
             height: swapchain.height,
@@ -1103,6 +1117,14 @@ impl VulkanSwapchain {
         let semaphore_info = vk::SemaphoreCreateInfo::default();
         let image_available = unsafe { device.device.create_semaphore(&semaphore_info, None) }
             .map_err(|e| VulkanError::Vulkan(e.to_string()))?;
+        let acquire_ring = {
+            let mut ring = [vk::Semaphore::null(); 2];
+            for semaphore in &mut ring {
+                *semaphore = unsafe { device.device.create_semaphore(&semaphore_info, None) }
+                    .map_err(|e| VulkanError::Vulkan(e.to_string()))?;
+            }
+            ring
+        };
         let render_done = images
             .iter()
             .map(|_| unsafe { device.device.create_semaphore(&semaphore_info, None) })
@@ -1120,6 +1142,7 @@ impl VulkanSwapchain {
             width: extent.width,
             height: extent.height,
             image_available,
+            acquire_ring,
             render_done,
             staging: vk::Buffer::null(),
             staging_memory: vk::DeviceMemory::null(),
@@ -1182,6 +1205,11 @@ impl VulkanSwapchain {
             self.swapchain_loader
                 .destroy_swapchain(self.swapchain, None);
             device.device.destroy_semaphore(self.image_available, None);
+            for semaphore in self.acquire_ring {
+                if semaphore != vk::Semaphore::null() {
+                    device.device.destroy_semaphore(semaphore, None);
+                }
+            }
             // After the swapchain, for the same reason as `image_available`:
             // destroying it ends any present still waiting on one.
             for semaphore in self.render_done.drain(..) {
@@ -1336,6 +1364,7 @@ impl VulkanSwapchain {
             self.destroy_swapchain_only(device);
             self.swapchain = vk::SwapchainKHR::null();
             self.image_available = vk::Semaphore::null();
+            self.acquire_ring = [vk::Semaphore::null(); 2];
             self.images.clear();
         }
         if self.surface != vk::SurfaceKHR::null() {

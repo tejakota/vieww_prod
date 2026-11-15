@@ -158,6 +158,8 @@ mod app {
         /// Touch events seen at the last `touch` line, and when it went out.
         touches_seen: u64,
         touch_emitted: Option<Instant>,
+        /// The renderer's route line, once emitted.
+        route_emitted: Option<String>,
         /// The budget now, which the cadence controller may have lowered.
         budget_now_ms: f64,
         /// The display's frame budget, from the first presented frame.
@@ -297,6 +299,19 @@ mod app {
             // with no stage breakdown still counts in `work`.
             if log.frames() > self.seen_frames {
                 self.seen_frames = log.frames();
+                // The route the renderer took, once it has taken one — the
+                // one-line answer to "which path did these numbers come
+                // through", which the 2026-11-15 Redmi run left as a guess
+                // from the stages.
+                if self.route_emitted.is_none() {
+                    if let Some(route) = vieww_platform_winit::native::gpu_route_status() {
+                        self.route_emitted = Some(route.clone());
+                        emit(&format!(
+                            "{{\"fw\":\"vieww\",\"ev\":\"route\",\"route\":\"{route}\",\"t\":{:.1}}}",
+                            self.t()
+                        ));
+                    }
+                }
                 if let Some(w) = log.work_samples().last() {
                     if let Some(st) = log.last_stages() {
                         self.split.record(&st, *w);
@@ -347,6 +362,7 @@ mod app {
             seen_frames: 0,
             touches_seen: 0,
             touch_emitted: None,
+            route_emitted: None,
             budget_now_ms: 0.0,
             budget_ms: 0.0,
             done: false,

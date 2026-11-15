@@ -1773,15 +1773,18 @@ impl NativeRenderer {
                 // (`direct_route` above checked both, plus the linear filter
                 // the resolution scale's enlarging blit needs.)
                 if base.a == 255 && device.can_blit_scene_frames(swapchain) {
-                    // The previous frame, if still in flight, is done with the
-                    // acquire semaphore and every resource this one writes.
-                    // Planning above ran while it drew; this is the remainder.
-                    renderer
-                        .settle()
+                    // The oldest frame in flight is done with the acquire
+                    // semaphore this one will signal and every resource this
+                    // one records over; the frame just before stays in flight,
+                    // its GPU half overlapping this one's CPU half.
+                    // Planning above ran while they drew; this is the
+                    // remainder.
+                    let flight = renderer
+                        .settle_for_next_frame()
                         .map_err(|error| NativeError::Render(error.to_string()))?;
                     let acquiring = Instant::now();
                     let acquired = device
-                        .acquire_image(swapchain, extent)
+                        .acquire_image(swapchain, extent, flight)
                         .map_err(|error| NativeError::Present(error.to_string()))?;
                     self.stages.acquire = acquiring.elapsed();
                     let Some(image) = acquired else {
@@ -1814,6 +1817,15 @@ impl NativeRenderer {
                     // keeps the blit path.
                     let direct =
                         image.color_attachment() && plan.target_depth == 0 && render_scale == 1.0;
+                    if direct {
+                        note_gpu_route("direct: depth-0 opaque frame rendered into the swapchain image");
+                    } else if !image.color_attachment() {
+                        note_gpu_route("blit: the surface reports its swapchain images cannot be colour attachments");
+                    } else if plan.target_depth != 0 {
+                        note_gpu_route("blit: the plan has layers, so it renders into the intermediate");
+                    } else {
+                        note_gpu_route("blit: a resolution scale is set, so the frame renders small and enlarges");
+                    }
                     if !direct {
                         renderer.set_pending_copies(std::mem::take(&mut gpu_copies));
                     }
@@ -1857,6 +1869,7 @@ impl NativeRenderer {
                         )),
                     });
                 }
+                note_gpu_route("readback: the frame came back through host memory");
                 let (pixels, redrawn) = renderer
                     .render_planned_damaged(
                         planner,
@@ -1914,6 +1927,10 @@ impl NativeRenderer {
             scene = frame_at_device_resolution(full_scene, logical_size, extent, scale);
             self.stages.scale += lifting.elapsed();
         }
+        note_gpu_route(&format!(
+            "cpu fallback: {}",
+            fallback.as_deref().unwrap_or("the rasterizer choice said CPU")
+        ));
         let rasterising = Instant::now();
         let report =
             self.cpu
@@ -1940,6 +1957,31 @@ impl NativeRenderer {
 pub fn gpu_overlap() -> bool {
     static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
     *ON.get_or_init(|| std::env::var("VIEWW_GPU_OVERLAP").map_or(true, |v| v.trim() != "0"))
+}
+
+/// The route the last GPU frame took through the renderer, and why —
+/// for narration (the market-watch comparison prints it as a `__MW__`
+/// event): `direct` rendered the plan straight into the acquired swapchain
+/// image, `blit` rendered into the `RGBA16F` intermediate and blitted,
+/// `readback` brought the pixels through host memory, and `cpu` fell back
+/// to the CPU rasterizer. `None` before the first frame chose one.
+#[must_use]
+pub fn gpu_route_status() -> Option<String> {
+    GPU_ROUTE.lock().expect("gpu route note").clone()
+}
+
+/// The last GPU frame's route, for [`gpu_route_status`]. A note, not a
+/// datum the renderer depends on: it is written once per frame and read by
+/// an app that wants to say which path its numbers came through — the
+/// 2026-11-15 Redmi run's stages showed a blit-route frame (a nonzero
+/// `gpu_blit_ms`, an idle frame's full-screen restore) where the phone's
+/// SurfaceFlinger-era assumption said every Android surface accepts
+/// `COLOR_ATTACHMENT`, and the next farm run should not have to guess.
+static GPU_ROUTE: std::sync::Mutex<Option<String>> = std::sync::Mutex::new(None);
+
+fn note_gpu_route(route: &str) {
+    let mut note = GPU_ROUTE.lock().expect("gpu route note");
+    *note = Some(route.to_owned());
 }
 
 /// Device pixels a GPU frame's damage is grown by on every side — see

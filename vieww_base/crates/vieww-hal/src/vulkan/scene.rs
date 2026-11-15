@@ -162,6 +162,9 @@ struct PendingProbe {
     compare: bool,
     extent: (u32, u32),
     bgra: bool,
+    /// The flight slot the probing frame was submitted on; its fence is
+    /// what makes the probe's reads safe to collect.
+    slot: usize,
 }
 
 /// Colour format of every render target.
@@ -195,7 +198,9 @@ pub struct SceneRenderer {
     scene_layout: vk::PipelineLayout,
     scene_set_layout: vk::DescriptorSetLayout,
     scene_pool: vk::DescriptorPool,
-    scene_set: vk::DescriptorSet,
+    /// The scene pipeline's descriptor set, one per flight slot (each bound
+    /// to its own uniform).
+    scene_sets: [vk::DescriptorSet; FLIGHT_SLOTS],
 
     post_replace: vk::Pipeline,
     post_over: vk::Pipeline,
@@ -205,10 +210,36 @@ pub struct SceneRenderer {
     post_sets: HashMap<(TargetId, TargetId), vk::DescriptorSet>,
 
     shaders: Vec<vk::ShaderModule>,
-    uniform: Buffer,
     command_pool: vk::CommandPool,
-    command_buffer: vk::CommandBuffer,
-    fence: vk::Fence,
+    /// The frames-in-flight ring. A frame rewrites its command buffer, its
+    /// copy of the viewport uniform, its vertex and index buffers and its
+    /// timestamp pool between `settle` and submit — all of it per slot, so
+    /// the frame after it can do the same while the GPU still draws this
+    /// one. See [`FlightSlot`] and [`FLIGHT_SLOTS`].
+    slots: [FlightSlot; FLIGHT_SLOTS],
+    /// Which slot the frame being recorded uses; `begin_commands` sets it.
+    recording: usize,
+    /// How many frames have been submitted. A frame records on slot
+    /// `frames % FLIGHT_SLOTS`, so the slot it waits on held the frame
+    /// `FLIGHT_SLOTS` before — long finished by then, or waited for here.
+    frames: u64,
+    /// The internal ordering chain between submissions: submission *n*
+    /// signals `chain[n % 2]` on completion and submission *n + 1* waits it
+    /// before any colour-attachment work. Every submission joins — frames
+    /// and one-off uploads alike — so a frame's draws, carries, atlas
+    /// uploads and blit never race the submission before them, while the
+    /// CPU-side work (planning, recording, the submit call itself) still
+    /// overlaps the GPU's.
+    chain: [vk::Semaphore; 2],
+    /// The chain semaphore the last submission signalled, for the next one
+    /// to wait on. `None` before the first submission.
+    chain_open: Option<vk::Semaphore>,
+    /// Total submissions, frames and one-off uploads alike — the chain's
+    /// parity, so every submission in queue order both waits and signals.
+    submissions: u64,
+    /// Whether the queue can timestamp, as (nanoseconds per tick,
+    /// valid-bit mask). The pools themselves live per flight slot.
+    timestamps: Option<(f32, u64)>,
     /// The device's pipeline cache — shared by the direct route's lazily
     /// built pipelines, so a format's first frame pays the compile once.
     pipeline_cache: vk::PipelineCache,
@@ -224,9 +255,6 @@ pub struct SceneRenderer {
     levels: Vec<Target>,
     scratch: Vec<Target>,
     readback: Buffer,
-
-    vertices: Buffer,
-    indices: Buffer,
     /// Bytes the last [`SceneRenderer::upload_masks`] sent.
     mask_upload_bytes: u64,
     /// Where the last frame's time went — see [`GpuFrameTimings`].
@@ -240,14 +268,8 @@ pub struct SceneRenderer {
     /// redraws anything: `(src, dx, dy)` in render pixels — a scroll's
     /// moved rows. See [`set_pending_copies`](Self::set_pending_copies).
     pending_copies: Vec<(PixelRect, i32, i32)>,
-    /// Timestamp queries, when the queue can record them — see
-    /// [`GpuPassTimes`].
-    queries: Option<Queries>,
     /// What the last frame whose timestamps were read spent on the GPU.
     pass_times: Option<GpuPassTimes>,
-    /// A submitted frame the CPU has not waited for yet — see
-    /// [`settle`](Self::settle).
-    in_flight: bool,
     /// Whether a frame into a swapchain image is left in flight
     /// ([`set_overlap`](Self::set_overlap)).
     overlap: bool,
@@ -366,13 +388,30 @@ impl GpuPassTimes {
 /// the kind it was in when the slots ran out (`Queries::overflowed`).
 const QUERY_SLOTS: u32 = 128;
 
-/// The timestamp query pool and this frame's marks — see [`GpuPassTimes`].
-struct Queries {
+/// One slot of the frames-in-flight ring: everything a frame rewrites on
+/// the CPU between `settle` and submit. Two frames may be recorded and
+/// submitted back to back; a new frame takes the slot of the frame
+/// [`FLIGHT_SLOTS`] before it and waits for that frame's fence first, so
+/// nothing the GPU may still be reading is rewritten.
+struct FlightSlot {
+    command_buffer: vk::CommandBuffer,
+    fence: vk::Fence,
+    /// This slot's copy of the viewport uniform, and the scene descriptor
+    /// set bound to it — a submission in flight reads its own slot's set.
+    uniform: Buffer,
+    vertices: Buffer,
+    indices: Buffer,
+    /// This slot's timestamp pool, when the queue can timestamp at all.
+    queries: Option<SlotQueries>,
+    /// A frame submitted on this slot that the CPU has not waited for yet.
+    in_flight: bool,
+}
+
+/// The per-slot half of the timestamp queries: one pool reset by the frame
+/// recording on this slot, and that frame's kind list. The period and
+/// valid-bit mask are properties of the queue, held once on the renderer.
+struct SlotQueries {
     pool: vk::QueryPool,
-    /// Nanoseconds per tick (`VkPhysicalDeviceLimits::timestampPeriod`).
-    period: f32,
-    /// `timestampValidBits` as a mask: ticks wrap at it.
-    mask: u64,
     /// The kind each written timestamp begins; the last one ends the frame.
     kinds: Vec<PassKind>,
     /// Whether this frame ran out of slots.
@@ -380,6 +419,19 @@ struct Queries {
     /// A submitted frame whose timestamps have not been read yet.
     pending: bool,
 }
+
+/// How many frames may be recorded and submitted before the oldest has to
+/// be waited for. Two, so a frame's CPU half — planning, atlas uploads,
+/// command recording, the submit call — runs while the GPU draws the frame
+/// before it. The GPU halves still run one after the other (the chain on
+/// the renderer orders every submission against the previous one, because
+/// a retained frame's damage renders into what the previous frame left in
+/// `L[0]` and its atlas uploads overwrite slots the previous frame may
+/// still sample); what overlaps is the CPU's work with the GPU's, which on
+/// the phones that need it — the Redmi's `render_planned_to` route measured
+/// 7.5 ms of planning plus 5 ms of recording after a 12 ms wait for the
+/// previous frame's 21 ms — was most of the frame.
+const FLIGHT_SLOTS: usize = 2;
 
 struct Buffer {
     handle: vk::Buffer,
@@ -422,7 +474,10 @@ struct Texture {
     height: u32,
     /// The atlas version last uploaded; `None` for the initial placeholder.
     version: Option<u64>,
-    staging: Buffer,
+    /// One staging buffer per flight slot: the frame recording an upload
+    /// writes its own while the frame before it may still be copying out of
+    /// its.
+    staging: [Buffer; FLIGHT_SLOTS],
 }
 
 impl Texture {
@@ -434,7 +489,7 @@ impl Texture {
         width: 0,
         height: 0,
         version: None,
-        staging: Buffer::EMPTY,
+        staging: [Buffer::EMPTY; FLIGHT_SLOTS],
     };
 }
 
@@ -545,24 +600,26 @@ impl SceneRenderer {
                     .pool_sizes(&[
                         vk::DescriptorPoolSize {
                             ty: vk::DescriptorType::UNIFORM_BUFFER,
-                            descriptor_count: 1,
+                            descriptor_count: FLIGHT_SLOTS as u32,
                         },
                         vk::DescriptorPoolSize {
                             ty: vk::DescriptorType::SAMPLED_IMAGE,
                             descriptor_count: 4,
                         },
                     ])
-                    .max_sets(1),
+                    .max_sets(FLIGHT_SLOTS as u32),
                 None,
             )
         }?;
-        let scene_set = unsafe {
-            handle.allocate_descriptor_sets(
-                &vk::DescriptorSetAllocateInfo::default()
-                    .descriptor_pool(scene_pool)
-                    .set_layouts(&[scene_set_layout]),
-            )
-        }?[0];
+        let scene_sets: [vk::DescriptorSet; FLIGHT_SLOTS] = unsafe {
+            handle
+                .allocate_descriptor_sets(
+                    &vk::DescriptorSetAllocateInfo::default()
+                        .descriptor_pool(scene_pool)
+                        .set_layouts(&[scene_set_layout; FLIGHT_SLOTS]),
+                )
+                .map(|sets| sets.try_into().expect("one set per flight slot"))
+        }?;
         let post_pool = create_post_pool(&handle)?;
 
         // ── shaders and pipelines ───────────────────────────────────────────
@@ -653,22 +710,45 @@ impl SceneRenderer {
                 None,
             )
         }?;
-        let command_buffer = unsafe {
-            handle.allocate_command_buffers(
-                &vk::CommandBufferAllocateInfo::default()
-                    .command_pool(command_pool)
-                    .level(vk::CommandBufferLevel::PRIMARY)
-                    .command_buffer_count(1),
-            )
-        }?[0];
-        let fence = unsafe { handle.create_fence(&vk::FenceCreateInfo::default(), None) }?;
-
-        let uniform = allocate_buffer(
-            &handle,
-            vk::BufferUsageFlags::UNIFORM_BUFFER,
-            host_visible,
-            std::mem::size_of::<[f32; 4]>() as u64,
-        )?;
+        let command_buffers: [vk::CommandBuffer; FLIGHT_SLOTS] = unsafe {
+            handle
+                .allocate_command_buffers(
+                    &vk::CommandBufferAllocateInfo::default()
+                        .command_pool(command_pool)
+                        .level(vk::CommandBufferLevel::PRIMARY)
+                        .command_buffer_count(FLIGHT_SLOTS as u32),
+                )
+                .map(|buffers| {
+                    buffers
+                        .try_into()
+                        .expect("one command buffer per flight slot")
+                })
+        }?;
+        let fences: [vk::Fence; FLIGHT_SLOTS] = {
+            let mut fences = [vk::Fence::null(); FLIGHT_SLOTS];
+            for fence in &mut fences {
+                *fence = unsafe { handle.create_fence(&vk::FenceCreateInfo::default(), None) }?;
+            }
+            fences
+        };
+        let chain: [vk::Semaphore; 2] = {
+            let mut chain = [vk::Semaphore::null(); 2];
+            for semaphore in &mut chain {
+                *semaphore = unsafe {
+                    handle.create_semaphore(&vk::SemaphoreCreateInfo::default(), None)?
+                };
+            }
+            chain
+        };
+        let mut uniforms = [Buffer::EMPTY; FLIGHT_SLOTS];
+        for uniform in &mut uniforms {
+            *uniform = allocate_buffer(
+                &handle,
+                vk::BufferUsageFlags::UNIFORM_BUFFER,
+                host_visible,
+                std::mem::size_of::<[f32; 4]>() as u64,
+            )?;
+        }
         let glyphs = create_texture(&handle, &mem_props, vk::Format::R8_UNORM, 1, 1)?;
         let images = create_texture(&handle, &mem_props, vk::Format::R8G8B8A8_UNORM, 1, 1)?;
         let masks = create_texture(&handle, &mem_props, vk::Format::R8_UNORM, 1, 1)?;
@@ -676,28 +756,51 @@ impl SceneRenderer {
         let dummy = create_target(&handle, &mem_props, rp_load, 1, 1)?;
         let queries = match device.timestamp_support() {
             Some((period, bits)) => {
-                let pool = unsafe {
-                    handle.create_query_pool(
-                        &vk::QueryPoolCreateInfo::default()
-                            .query_type(vk::QueryType::TIMESTAMP)
-                            .query_count(QUERY_SLOTS),
-                        None,
-                    )
-                }?;
-                Some(Queries {
-                    pool,
-                    period,
-                    mask: if bits >= 64 {
-                        u64::MAX
-                    } else {
-                        (1u64 << bits) - 1
-                    },
-                    kinds: Vec::with_capacity(QUERY_SLOTS as usize),
-                    overflowed: false,
-                    pending: false,
-                })
+                let mask = if bits >= 64 {
+                    u64::MAX
+                } else {
+                    (1u64 << bits) - 1
+                };
+                let mut pools = [const { None }; FLIGHT_SLOTS];
+                for queries in &mut pools {
+                    let pool = unsafe {
+                        handle.create_query_pool(
+                            &vk::QueryPoolCreateInfo::default()
+                                .query_type(vk::QueryType::TIMESTAMP)
+                                .query_count(QUERY_SLOTS),
+                            None,
+                        )
+                    }?;
+                    *queries = Some(SlotQueries {
+                        pool,
+                        kinds: Vec::with_capacity(QUERY_SLOTS as usize),
+                        overflowed: false,
+                        pending: false,
+                    });
+                }
+                Some((period, mask, pools))
             }
             None => None,
+        };
+        let (timestamps, slot_queries) = match queries {
+            Some((period, mask, pools)) => (Some((period, mask)), pools),
+            None => (None, [const { None }; FLIGHT_SLOTS]),
+        };
+        let mut slot_queries = slot_queries;
+        let slots: [FlightSlot; FLIGHT_SLOTS] = {
+            let mut slots = [const { None }; FLIGHT_SLOTS];
+            for (index, slot) in slots.iter_mut().enumerate() {
+                *slot = Some(FlightSlot {
+                    command_buffer: command_buffers[index],
+                    fence: fences[index],
+                    uniform: std::mem::replace(&mut uniforms[index], Buffer::EMPTY),
+                    vertices: Buffer::EMPTY,
+                    indices: Buffer::EMPTY,
+                    queries: slot_queries[index].take(),
+                    in_flight: false,
+                });
+            }
+            slots.map(|slot| slot.expect("every slot was filled above"))
         };
 
         let mut renderer = Self {
@@ -712,7 +815,7 @@ impl SceneRenderer {
             scene_layout,
             scene_set_layout,
             scene_pool,
-            scene_set,
+            scene_sets,
             post_replace,
             post_over,
             post_layout,
@@ -720,10 +823,14 @@ impl SceneRenderer {
             post_pool,
             post_sets: HashMap::new(),
             shaders,
-            uniform,
             command_pool,
-            command_buffer,
-            fence,
+            slots,
+            recording: 0,
+            frames: 0,
+            chain,
+            chain_open: None,
+            submissions: 0,
+            timestamps,
             pipeline_cache: device.pipeline_cache(),
             glyphs,
             images,
@@ -734,16 +841,12 @@ impl SceneRenderer {
             levels: Vec::new(),
             scratch: Vec::new(),
             readback: Buffer::EMPTY,
-            vertices: Buffer::EMPTY,
-            indices: Buffer::EMPTY,
             mask_upload_bytes: 0,
             timings: GpuFrameTimings::default(),
             retained: None,
             frame_clip: None,
             pending_copies: Vec::new(),
-            queries,
             pass_times: None,
-            in_flight: false,
             overlap: true,
             settled_wait: Duration::ZERO,
             presents: PresentHistory::new(),
@@ -753,20 +856,23 @@ impl SceneRenderer {
             pending_probe: None,
         };
 
-        let uniform_info = [vk::DescriptorBufferInfo {
-            buffer: renderer.uniform.handle,
-            offset: 0,
-            range: renderer.uniform.capacity,
-        }];
-        unsafe {
-            renderer.device.update_descriptor_sets(
-                &[vk::WriteDescriptorSet::default()
-                    .dst_set(renderer.scene_set)
-                    .dst_binding(0)
-                    .descriptor_type(vk::DescriptorType::UNIFORM_BUFFER)
-                    .buffer_info(&uniform_info)],
-                &[],
-            );
+        // Each slot's scene set reads its own uniform.
+        for index in 0..FLIGHT_SLOTS {
+            let uniform_info = [vk::DescriptorBufferInfo {
+                buffer: renderer.slots[index].uniform.handle,
+                offset: 0,
+                range: renderer.slots[index].uniform.capacity,
+            }];
+            unsafe {
+                renderer.device.update_descriptor_sets(
+                    &[vk::WriteDescriptorSet::default()
+                        .dst_set(renderer.scene_sets[index])
+                        .dst_binding(0)
+                        .descriptor_type(vk::DescriptorType::UNIFORM_BUFFER)
+                        .buffer_info(&uniform_info)],
+                    &[],
+                );
+            }
         }
         // A new image's contents are undefined; every placeholder is written
         // (zeros) and bound before anything can read it.
@@ -782,6 +888,61 @@ impl SceneRenderer {
     #[must_use]
     pub const fn queue_family(&self) -> u32 {
         self.queue_family
+    }
+
+    /// Whether the probe awaiting collection came from `index`'s slot.
+    fn pending_probe_is(&self, index: usize) -> bool {
+        self.pending_probe.as_ref().is_some_and(|probe| probe.slot == index)
+    }
+
+    /// The command buffer of the slot being recorded.
+    fn cmd(&self) -> vk::CommandBuffer {
+        self.slots[self.recording].command_buffer
+    }
+
+    /// The slot the next frame records on — and therefore the one whose
+    /// frame, `FLIGHT_SLOTS` back, has to be finished before it does.
+    fn next_slot(&self) -> usize {
+        #[expect(clippy::cast_possible_truncation, reason = "two slots")]
+        let index = (self.frames % FLIGHT_SLOTS as u64) as usize;
+        index
+    }
+
+    /// Wait for the frame on `index`'s slot, if there is one, and read its
+    /// GPU timestamps. After this, that slot's command buffer, fence,
+    /// uniform, geometry buffers and query pool are the CPU's again.
+    fn settle_slot(&mut self, index: usize) -> Result<(), VulkanError> {
+        if !self.slots[index].in_flight {
+            return Ok(());
+        }
+        let waiting = Instant::now();
+        unsafe {
+            self.device
+                .wait_for_fences(&[self.slots[index].fence], true, u64::MAX)?;
+        }
+        self.settled_wait += waiting.elapsed();
+        self.slots[index].in_flight = false;
+        self.collect_marks(index);
+        if self.pending_probe_is(index) {
+            self.collect_probe()?;
+        }
+        Ok(())
+    }
+
+    /// Wait for the slot the next frame wants, leaving every other frame
+    /// in flight — the overlap the ring exists for — and return that
+    /// slot's index. A caller about to acquire a swapchain image wants
+    /// exactly this: the acquire semaphore the next frame signals is keyed
+    /// to the slot, and its previous signal belonged to the frame two back,
+    /// which this just finished.
+    ///
+    /// # Errors
+    ///
+    /// The fence wait failing (a lost device).
+    pub fn settle_for_next_frame(&mut self) -> Result<usize, VulkanError> {
+        let index = self.next_slot();
+        self.settle_slot(index)?;
+        Ok(index)
     }
 
     /// Upload the glyph atlas if it changed. For callers that manage a
@@ -811,7 +972,7 @@ impl SceneRenderer {
     /// Any Vulkan call failing.
     pub fn upload_planner(&mut self, planner: &Planner) -> Result<(), VulkanError> {
         self.settle()?;
-        self.begin_commands()?;
+        self.begin_commands(0)?;
         self.record_planner_uploads(planner)?;
         self.submit_and_wait(None).map(|_| ())
     }
@@ -881,7 +1042,7 @@ impl SceneRenderer {
     /// Any Vulkan call failing.
     pub fn upload_masks(&mut self, masks: &vieww_gpu::MaskAtlas) -> Result<(), VulkanError> {
         self.settle()?;
-        self.begin_commands()?;
+        self.begin_commands(0)?;
         self.record_masks(masks)?;
         self.submit_and_wait(None).map(|_| ())
     }
@@ -950,8 +1111,12 @@ impl SceneRenderer {
             }
         }
         let needed = packed.len() as u64;
-        if self.texture(Slot::Masks).staging.capacity < needed {
-            let old = std::mem::replace(&mut self.texture_mut(Slot::Masks).staging, Buffer::EMPTY);
+        let flight = self.recording;
+        if self.texture(Slot::Masks).staging[flight].capacity < needed {
+            let old = std::mem::replace(
+                &mut self.texture_mut(Slot::Masks).staging[flight],
+                Buffer::EMPTY,
+            );
             unsafe { destroy_buffer(&self.device, old) };
             let staging = allocate_buffer(
                 &self.device,
@@ -959,19 +1124,19 @@ impl SceneRenderer {
                 self.host_visible_memory,
                 needed,
             )?;
-            self.texture_mut(Slot::Masks).staging = staging;
+            self.texture_mut(Slot::Masks).staging[flight] = staging;
         }
         write_bytes(
             &self.device,
-            self.texture(Slot::Masks).staging.memory,
+            self.texture(Slot::Masks).staging[flight].memory,
             &packed,
         )?;
 
         let (image, staging) = {
             let t = self.texture(Slot::Masks);
-            (t.image, t.staging.handle)
+            (t.image, t.staging[flight].handle)
         };
-        let cmd = self.command_buffer;
+        let cmd = self.cmd();
         unsafe {
             // From the layout the last upload left it in, so the texels
             // outside `regions` are kept.
@@ -1143,10 +1308,14 @@ impl SceneRenderer {
         self.timings = GpuFrameTimings::default();
         let started = Instant::now();
         self.ensure_targets(width, height, plan.target_depth + 1)?;
-        self.begin_commands()?;
+        self.begin_commands(self.next_slot())?;
         #[allow(clippy::cast_precision_loss)]
         let viewport = [width as f32, height as f32, 0.0, 0.0];
-        write_bytes(&self.device, self.uniform.memory, as_bytes(&viewport))?;
+        write_bytes(
+            &self.device,
+            self.slots[self.recording].uniform.memory,
+            as_bytes(&viewport),
+        )?;
         self.upload_geometry(plan)?;
         self.timings.upload = started.elapsed();
         let redrawn = self.execute(plan, width, height, clear, Out::Readback, damage)?;
@@ -1233,11 +1402,16 @@ impl SceneRenderer {
         self.ensure_targets(render_width, render_height, plan.target_depth + 1)?;
         // One submission for the whole frame: the changed atlases record
         // first, the frame's passes around them.
-        self.begin_commands()?;
+        let flight = self.next_slot();
+        self.begin_commands(flight)?;
         self.record_planner_uploads(planner)?;
         #[expect(clippy::cast_precision_loss, reason = "frame extents")]
         let viewport = [render_width as f32, render_height as f32, 0.0, 0.0];
-        write_bytes(&self.device, self.uniform.memory, as_bytes(&viewport))?;
+        write_bytes(
+            &self.device,
+            self.slots[self.recording].uniform.memory,
+            as_bytes(&viewport),
+        )?;
         self.upload_geometry(plan)?;
         self.timings.upload = started.elapsed();
         let blit = BlitTarget {
@@ -1303,7 +1477,6 @@ impl SceneRenderer {
         clear: Color,
         target: &AcquiredImage,
     ) -> Result<Redrawn, VulkanError> {
-        self.settle()?;
         if !plan.is_complete() {
             return Err(VulkanError::Vulkan("incomplete plan".into()));
         }
@@ -1322,16 +1495,24 @@ impl SceneRenderer {
             return Err(VulkanError::Vulkan("zero-sized swapchain image".into()));
         }
         self.timings = GpuFrameTimings::default();
+        // As `render_planned_to`: the oldest slot is waited for, the frame
+        // before stays in flight.
+        self.settle_for_next_frame()?;
         let started = Instant::now();
         self.ensure_direct(target.bgra)?;
         let framebuffer = self.direct_framebuffer(target, width, height)?;
         // One submission for the whole frame: the changed atlases record
         // first, the frame's passes around them.
-        self.begin_commands()?;
+        let flight = self.next_slot();
+        self.begin_commands(flight)?;
         self.record_planner_uploads(planner)?;
         #[expect(clippy::cast_precision_loss, reason = "frame extents")]
         let viewport = [width as f32, height as f32, 0.0, 0.0];
-        write_bytes(&self.device, self.uniform.memory, as_bytes(&viewport))?;
+        write_bytes(
+            &self.device,
+            self.slots[self.recording].uniform.memory,
+            as_bytes(&viewport),
+        )?;
         self.upload_geometry(plan)?;
         self.timings.upload = started.elapsed();
         let frame = DirectFrame {
@@ -1358,6 +1539,9 @@ impl SceneRenderer {
         {
             return Ok(());
         }
+        // A frame still in flight may be drawing through the route being
+        // replaced; its framebuffers are not the CPU's to destroy yet.
+        self.settle()?;
         let rp_clear = create_render_pass(
             &self.device,
             vk::AttachmentLoadOp::CLEAR,
@@ -1473,9 +1657,9 @@ impl SceneRenderer {
                 None,
             )?
         };
-        // Another generation's views and framebuffers can no longer be
-        // reached — `settle` has run, no frame can still be using them. The
-        // other images of this generation stay: the next frame wants them.
+        // Another generation's views and framebuffers are about to become
+        // unreachable. The other images of this generation stay: the next
+        // frame wants them.
         let stale: Vec<(u32, u64, vk::ImageView, vk::Framebuffer)> = route
             .frames
             .iter()
@@ -1485,15 +1669,24 @@ impl SceneRenderer {
         route
             .frames
             .retain(|&(_, generation, _, _)| generation == target.generation);
-        for (_, _, view, framebuffer) in stale {
-            unsafe {
-                self.device.destroy_image_view(view, None);
-                self.device.destroy_framebuffer(framebuffer, None);
-            }
-        }
         route
             .frames
             .push((target.index, target.generation, view, framebuffer));
+        if !stale.is_empty() {
+            // A frame still in flight may be drawing through the stale
+            // generation's framebuffers — the generation moved under a
+            // rebuild or an abandoned acquire, not necessarily under the
+            // full settle this path once leaned on. Destroying them waits
+            // for it first; a generation change is not a steady-state
+            // event.
+            self.settle()?;
+            for (_, _, view, framebuffer) in stale {
+                unsafe {
+                    self.device.destroy_image_view(view, None);
+                    self.device.destroy_framebuffer(framebuffer, None);
+                }
+            }
+        }
         Ok(framebuffer)
     }
 
@@ -1502,6 +1695,7 @@ impl SceneRenderer {
     fn ensure_targets(&mut self, width: u32, height: u32, depth: usize) -> Result<(), VulkanError> {
         if self.size != (width, height) {
             unsafe { self.device.device_wait_idle() }?;
+            self.settle()?;
             for target in self.levels.drain(..).chain(self.scratch.drain(..)) {
                 unsafe { destroy_target(&self.device, target) };
             }
@@ -1539,6 +1733,13 @@ impl SceneRenderer {
             fresh.push(TargetId::Scratch(level));
         }
         if !fresh.is_empty() {
+            // New targets are cleared by a submission of their own on slot
+            // 0's command buffer; a frame still in flight there owns it,
+            // and the frames before this one may still be sampling the
+            // targets the resize did not replace. Depth growth happens on
+            // the first frames and the first layer of a scene; a full
+            // settle here costs nothing that matters.
+            self.settle()?;
             self.initialise_targets(&fresh)?;
         }
         Ok(())
@@ -1547,8 +1748,8 @@ impl SceneRenderer {
     /// Clear new targets to transparent and leave them in
     /// `SHADER_READ_ONLY_OPTIMAL`, the layout every target rests in.
     fn initialise_targets(&mut self, ids: &[TargetId]) -> Result<(), VulkanError> {
-        self.begin_commands()?;
-        let cmd = self.command_buffer;
+        self.begin_commands(0)?;
+        let cmd = self.cmd();
         for id in ids {
             let image = self.target(*id).image;
             unsafe {
@@ -1582,7 +1783,7 @@ impl SceneRenderer {
     /// image may not overlap itself, and a scroll's always does. Both
     /// targets rest in `SHADER_READ_ONLY_OPTIMAL` and return to it.
     fn carry(&self, copies: &[(PixelRect, PixelRect)]) {
-        let cmd = self.command_buffer;
+        let cmd = self.cmd();
         let (frame, scratch) = (self.levels[0].image, self.scratch[0].image);
         let region = |src: PixelRect, dst: PixelRect| vk::ImageCopy {
             src_subresource: color_layers(),
@@ -1713,7 +1914,7 @@ impl SceneRenderer {
         version: Option<u64>,
         force: bool,
     ) -> Result<(), VulkanError> {
-        self.begin_commands()?;
+        self.begin_commands(0)?;
         self.record_upload(slot, bytes, width, height, version, force)?;
         self.submit_and_wait(None).map(|_| ())
     }
@@ -1756,8 +1957,10 @@ impl SceneRenderer {
         }
 
         let needed = bytes.len() as u64;
-        if self.texture(slot).staging.capacity < needed {
-            let old = std::mem::replace(&mut self.texture_mut(slot).staging, Buffer::EMPTY);
+        let flight = self.recording;
+        if self.texture(slot).staging[flight].capacity < needed {
+            let old =
+                std::mem::replace(&mut self.texture_mut(slot).staging[flight], Buffer::EMPTY);
             unsafe { destroy_buffer(&self.device, old) };
             let staging = allocate_buffer(
                 &self.device,
@@ -1765,15 +1968,15 @@ impl SceneRenderer {
                 self.host_visible_memory,
                 needed,
             )?;
-            self.texture_mut(slot).staging = staging;
+            self.texture_mut(slot).staging[flight] = staging;
         }
-        write_bytes(&self.device, self.texture(slot).staging.memory, bytes)?;
+        write_bytes(&self.device, self.texture(slot).staging[flight].memory, bytes)?;
 
         let (image, staging) = {
             let t = self.texture(slot);
-            (t.image, t.staging.handle)
+            (t.image, t.staging[flight].handle)
         };
-        let cmd = self.command_buffer;
+        let cmd = self.cmd();
         unsafe {
             // UNDEFINED as the old layout on purpose: the whole image is being
             // replaced, so the driver may discard what was there.
@@ -1817,15 +2020,19 @@ impl SceneRenderer {
                 image_view: self.texture(slot).view,
                 image_layout: vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
             }];
-            unsafe {
-                self.device.update_descriptor_sets(
-                    &[vk::WriteDescriptorSet::default()
-                        .dst_set(self.scene_set)
+            let writes: Vec<vk::WriteDescriptorSet> = self
+                .scene_sets
+                .iter()
+                .map(|set| {
+                    vk::WriteDescriptorSet::default()
+                        .dst_set(*set)
                         .dst_binding(slot.binding())
                         .descriptor_type(vk::DescriptorType::SAMPLED_IMAGE)
-                        .image_info(&info)],
-                    &[],
-                );
+                        .image_info(&info)
+                })
+                .collect();
+            unsafe {
+                self.device.update_descriptor_sets(&writes, &[]);
             }
             if slot == Slot::Masks {
                 self.reset_post_sets()?;
@@ -1838,35 +2045,45 @@ impl SceneRenderer {
     fn upload_geometry(&mut self, plan: &ScenePlan) -> Result<(), VulkanError> {
         let vertex_bytes = as_bytes(&plan.vertices);
         let index_bytes = as_bytes(&plan.indices);
-        self.vertices = grow(
+        let slot = self.recording;
+        let old_vertices = std::mem::replace(&mut self.slots[slot].vertices, Buffer::EMPTY);
+        let old_indices = std::mem::replace(&mut self.slots[slot].indices, Buffer::EMPTY);
+        self.slots[slot].vertices = grow(
             &self.device,
-            std::mem::replace(&mut self.vertices, Buffer::EMPTY),
+            old_vertices,
             vk::BufferUsageFlags::VERTEX_BUFFER,
             self.host_visible_memory,
             vertex_bytes.len() as u64,
         )?;
-        self.indices = grow(
+        self.slots[slot].indices = grow(
             &self.device,
-            std::mem::replace(&mut self.indices, Buffer::EMPTY),
+            old_indices,
             vk::BufferUsageFlags::INDEX_BUFFER,
             self.host_visible_memory,
             index_bytes.len() as u64,
         )?;
-        write_bytes(&self.device, self.vertices.memory, vertex_bytes)?;
-        write_bytes(&self.device, self.indices.memory, index_bytes)?;
+        write_bytes(
+            &self.device,
+            self.slots[slot].vertices.memory,
+            vertex_bytes,
+        )?;
+        write_bytes(&self.device, self.slots[slot].indices.memory, index_bytes)?;
         Ok(())
     }
 
     // ── execution ──────────────────────────────────────────────────────────
 
-    /// Start this frame's timestamps: reset the slots (outside any render
-    /// pass, which is where `execute` calls this) and mark the first kind.
+    /// Start this frame's timestamps: reset the recording slot's query pool
+    /// (outside any render pass, which is where `execute` calls this) and
+    /// mark the first kind.
     fn begin_marks(&mut self) {
-        let cmd = self.command_buffer;
-        if let Some(queries) = &mut self.queries {
+        let cmd = self.cmd();
+        if let Some(queries) = self.slots[self.recording].queries.as_mut() {
             queries.kinds.clear();
             queries.overflowed = false;
-            // SAFETY: recording into the frame's command buffer.
+            // SAFETY: recording into this slot's command buffer; the pool is
+            // this slot's own, so a frame still in flight on the other slot
+            // is never reset under it.
             unsafe {
                 self.device
                     .cmd_reset_query_pool(cmd, queries.pool, 0, QUERY_SLOTS);
@@ -1880,8 +2097,8 @@ impl SceneRenderer {
     ///
     /// [`end_marks`]: Self::end_marks
     fn mark(&mut self, kind: PassKind) {
-        let cmd = self.command_buffer;
-        let Some(queries) = &mut self.queries else {
+        let cmd = self.cmd();
+        let Some(queries) = self.slots[self.recording].queries.as_mut() else {
             return;
         };
         if queries.kinds.last() == Some(&kind) {
@@ -1893,8 +2110,8 @@ impl SceneRenderer {
             queries.overflowed = true;
             return;
         }
-        // SAFETY: recording into the frame's command buffer; `slot` was
-        // reset by `begin_marks` and is written once this frame.
+        // SAFETY: recording into this slot's command buffer; `slot` was
+        // reset by this frame's `begin_marks` and is written once this frame.
         unsafe {
             self.device.cmd_write_timestamp(
                 cmd,
@@ -1908,8 +2125,8 @@ impl SceneRenderer {
 
     /// The frame's last timestamp, closing the last interval.
     fn end_marks(&mut self) {
-        let cmd = self.command_buffer;
-        if let Some(queries) = &mut self.queries {
+        let cmd = self.cmd();
+        if let Some(queries) = self.slots[self.recording].queries.as_mut() {
             #[expect(clippy::cast_possible_truncation, reason = "at most QUERY_SLOTS")]
             let slot = queries.kinds.len() as u32;
             // SAFETY: as in `mark`; `mark` always leaves this slot free.
@@ -1925,12 +2142,22 @@ impl SceneRenderer {
         }
     }
 
-    /// Read the timestamps of the frame last submitted, once its fence has
-    /// signalled, into [`last_pass_times`](Self::last_pass_times). Never
-    /// waits: results that are not ready (they always are after the fence)
-    /// leave the previous figures in place.
-    fn collect_marks(&mut self) {
-        let Some(queries) = &mut self.queries else {
+    /// Read the timestamps of the frame submitted on `index`'s slot, once
+    /// its fence has signalled, into
+    /// [`last_pass_times`](Self::last_pass_times). Never waits: results
+    /// that are not ready (they always are after the fence) leave the
+    /// previous figures in place.
+    ///
+    /// With frames in flight the figures are a frame behind the app's own
+    /// progress — the pass times of the frame settled, read when the frame
+    /// two after it records. The per-field percentiles the stages line
+    /// reports are unaffected; only per-frame attribution moves, which the
+    /// stages line already says it cannot promise.
+    fn collect_marks(&mut self, index: usize) {
+        let Some((period, mask)) = self.timestamps else {
+            return;
+        };
+        let Some(queries) = self.slots[index].queries.as_mut() else {
             return;
         };
         if !std::mem::take(&mut queries.pending) || queries.kinds.is_empty() {
@@ -1952,14 +2179,14 @@ impl SceneRenderer {
         }
         let mut times = GpuPassTimes::default();
         for (index, kind) in queries.kinds.iter().enumerate() {
-            let delta = ticks[index + 1].wrapping_sub(ticks[index]) & queries.mask;
+            let delta = ticks[index + 1].wrapping_sub(ticks[index]) & mask;
             #[expect(
                 clippy::cast_precision_loss,
                 clippy::cast_possible_truncation,
                 clippy::cast_sign_loss,
                 reason = "a tick count times nanoseconds per tick, rounded"
             )]
-            let nanos = (delta as f64 * f64::from(queries.period)).round() as u64;
+            let nanos = (delta as f64 * f64::from(period)).round() as u64;
             let spent = Duration::from_nanos(nanos);
             match kind {
                 PassKind::Draw => times.draw += spent,
@@ -1972,12 +2199,13 @@ impl SceneRenderer {
         self.pass_times = Some(times);
     }
 
-    fn begin_commands(&self) -> Result<(), VulkanError> {
+    fn begin_commands(&mut self, slot: usize) -> Result<(), VulkanError> {
         debug_assert!(
-            !self.in_flight,
-            "the command buffer of a frame still in flight was re-recorded; settle() first"
+            !self.slots[slot].in_flight,
+            "the command buffer of a frame still in flight was re-recorded; settle it first"
         );
-        let cmd = self.command_buffer;
+        self.recording = slot;
+        let cmd = self.slots[slot].command_buffer;
         unsafe {
             self.device
                 .reset_command_buffer(cmd, vk::CommandBufferResetFlags::empty())?;
@@ -2114,7 +2342,7 @@ impl SceneRenderer {
                     if !rects.is_empty() {
                         unsafe {
                             self.device.cmd_clear_attachments(
-                                self.command_buffer,
+                                self.cmd(),
                                 &[vk::ClearAttachment {
                                     aspect_mask: vk::ImageAspectFlags::COLOR,
                                     color_attachment: 0,
@@ -2141,12 +2369,12 @@ impl SceneRenderer {
                     }
                     unsafe {
                         self.device.cmd_set_scissor(
-                            self.command_buffer,
+                            self.cmd(),
                             0,
                             &[pixel_scissor(*scissor)],
                         );
                         self.device.cmd_draw_indexed(
-                            self.command_buffer,
+                            self.cmd(),
                             *index_count,
                             1,
                             *first_index,
@@ -2166,7 +2394,7 @@ impl SceneRenderer {
                     if bound != Bound::Post(pass.over) {
                         unsafe {
                             self.device.cmd_bind_pipeline(
-                                self.command_buffer,
+                                self.cmd(),
                                 vk::PipelineBindPoint::GRAPHICS,
                                 if pass.over {
                                     rec.post_over
@@ -2179,7 +2407,7 @@ impl SceneRenderer {
                     }
                     unsafe {
                         self.device.cmd_bind_descriptor_sets(
-                            self.command_buffer,
+                            self.cmd(),
                             vk::PipelineBindPoint::GRAPHICS,
                             self.post_layout,
                             0,
@@ -2187,7 +2415,7 @@ impl SceneRenderer {
                             &[],
                         );
                         self.device.cmd_push_constants(
-                            self.command_buffer,
+                            self.cmd(),
                             self.post_layout,
                             vk::ShaderStageFlags::FRAGMENT,
                             0,
@@ -2195,11 +2423,11 @@ impl SceneRenderer {
                         );
                         for scissor in scissors {
                             self.device.cmd_set_scissor(
-                                self.command_buffer,
+                                self.cmd(),
                                 0,
                                 &[pixel_scissor(*scissor)],
                             );
-                            self.device.cmd_draw(self.command_buffer, 3, 1, 0, 0);
+                            self.device.cmd_draw(self.cmd(), 3, 1, 0, 0);
                         }
                     }
                 }
@@ -2208,7 +2436,7 @@ impl SceneRenderer {
         rec.end(self);
         self.mark(PassKind::Blit);
 
-        let cmd = self.command_buffer;
+        let cmd = self.cmd();
         // A direct frame's render pass already left its image in
         // `PRESENT_SRC_KHR`; there is nothing to copy out or blit. (The blit
         // mark stays, so a frame's GPU attribution still adds up — the
@@ -2268,6 +2496,15 @@ impl SceneRenderer {
                         target.partial,
                         target.src_extent == target.dst_extent,
                     );
+                    if plan.read_before || plan.read_after || plan.compare_frame {
+                        // The probe and readback buffers are one pair, shared
+                        // by every frame: a frame that reads an image waits
+                        // for all earlier frames rather than race another
+                        // probe. Probing runs while trust is being
+                        // established and in check mode; a trusted steady
+                        // frame never takes this.
+                        self.settle()?;
+                    }
                     if plan.read_before || plan.read_after {
                         self.ensure_probe_buffers(
                             u64::from(dst_width) * u64::from(dst_height) * 4,
@@ -2429,6 +2666,7 @@ impl SceneRenderer {
                             compare: plan.compare_frame,
                             extent: (dst_width, dst_height),
                             bgra: target.bgra,
+                            slot: self.recording,
                         });
                     }
                 },
@@ -2470,23 +2708,29 @@ impl SceneRenderer {
         if self.overlap && !matches!(out, Out::Readback) {
             self.timings.submit = self.submit(wait, signal, stage)?;
             self.timings.wait = carried;
-            self.in_flight = true;
+            self.slots[self.recording].in_flight = true;
         } else {
             self.timings.submit = self.submit(wait, signal, stage)?;
+            let slot = self.recording;
+            self.slots[slot].in_flight = true;
             self.timings.wait = carried + self.wait_for_fence()?;
-            self.collect_marks();
+            self.slots[slot].in_flight = false;
+            self.collect_marks(slot);
             self.collect_probe()?;
         }
         if !direct {
             self.retained = Some(exec.retained);
         }
+        self.frames += 1;
         Ok(exec.redrawn)
     }
 
     /// Bind the scene pipeline, its descriptor set and the geometry buffers —
-    /// the one bind a run of [`SceneOp::DrawRun`] shares.
+    /// the one bind a run of [`SceneOp::DrawRun`] shares. The set, the
+    /// vertex buffer and the index buffer are the recording slot's own.
     fn bind_scene(&self, pipeline: vk::Pipeline) {
-        let cmd = self.command_buffer;
+        let cmd = self.cmd();
+        let slot = &self.slots[self.recording];
         unsafe {
             self.device
                 .cmd_bind_pipeline(cmd, vk::PipelineBindPoint::GRAPHICS, pipeline);
@@ -2495,13 +2739,13 @@ impl SceneRenderer {
                 vk::PipelineBindPoint::GRAPHICS,
                 self.scene_layout,
                 0,
-                &[self.scene_set],
+                &[self.scene_sets[self.recording]],
                 &[],
             );
             self.device
-                .cmd_bind_vertex_buffers(cmd, 0, &[self.vertices.handle], &[0]);
+                .cmd_bind_vertex_buffers(cmd, 0, &[slot.vertices.handle], &[0]);
             self.device
-                .cmd_bind_index_buffer(cmd, self.indices.handle, 0, vk::IndexType::UINT32);
+                .cmd_bind_index_buffer(cmd, slot.indices.handle, 0, vk::IndexType::UINT32);
         }
     }
 
@@ -2510,54 +2754,75 @@ impl SceneRenderer {
     /// a frame's caller can attribute them ([`GpuFrameTimings`]); the staging
     /// uploads that share this ignore them.
     fn submit_and_wait(
-        &self,
+        &mut self,
         wait: Option<vk::Semaphore>,
     ) -> Result<(Duration, Duration), VulkanError> {
         let submitted = self.submit(wait, None, vk::PipelineStageFlags::TRANSFER)?;
         Ok((submitted, self.wait_for_fence()?))
     }
 
-    /// Submit the recorded command buffer against the fence, waiting on
-    /// `wait` before the pipeline `stage` names — the blit's transfers, or a
-    /// direct frame's first colour writes — and signalling `signal` when it
-    /// is done. Returns how long the submit took.
+    /// Submit the recorded command buffer against the slot's fence, waiting
+    /// on `wait` before the pipeline `stage` names — the blit's transfers, or
+    /// a direct frame's first colour writes — and signalling `signal` when it
+    /// is done. Every submission also joins the internal ordering chain: it
+    /// waits the semaphore the previous submission signalled at
+    /// `COLOR_ATTACHMENT_OUTPUT` — after which come this frame's carries,
+    /// draws, atlas uploads and blit, everything that reads or writes what a
+    /// previous submission may still be touching — and signals the chain
+    /// slot of its own parity for the next one. Returns how long the submit
+    /// took.
     fn submit(
-        &self,
+        &mut self,
         wait: Option<vk::Semaphore>,
         signal: Option<vk::Semaphore>,
         stage: vk::PipelineStageFlags,
     ) -> Result<Duration, VulkanError> {
+        let slot = self.recording;
         debug_assert!(
-            !self.in_flight,
-            "a submission reused the fence of a frame still in flight; settle() first"
+            !self.slots[slot].in_flight,
+            "a submission reused the fence of a frame still in flight; settle it first"
         );
-        let cmd = self.command_buffer;
-        let cmds = [cmd];
-        let waits: Vec<vk::Semaphore> = wait.into_iter().collect();
-        let signals: Vec<vk::Semaphore> = signal.into_iter().collect();
-        let stages = vec![stage; waits.len()];
+        let cmd = self.slots[slot].command_buffer;
+        let mut waits: Vec<vk::Semaphore> = Vec::with_capacity(2);
+        let mut stages: Vec<vk::PipelineStageFlags> = Vec::with_capacity(2);
+        if let Some(wait) = wait {
+            waits.push(wait);
+            stages.push(stage);
+        }
+        if let Some(chain) = self.chain_open {
+            waits.push(chain);
+            stages.push(vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT);
+        }
+        let parity = usize::try_from(self.submissions % 2).expect("two chain slots");
+        let chain_signal = self.chain[parity];
+        let signals: Vec<vk::Semaphore> = signal.into_iter().chain([chain_signal]).collect();
         let submitting = Instant::now();
-        unsafe {
+        let submitted = unsafe {
             self.device.end_command_buffer(cmd)?;
-            self.device.reset_fences(&[self.fence])?;
+            self.device.reset_fences(&[self.slots[slot].fence])?;
             self.device.queue_submit(
                 self.queue,
                 &[vk::SubmitInfo::default()
-                    .command_buffers(&cmds)
+                    .command_buffers(&[cmd])
                     .wait_semaphores(&waits)
                     .wait_dst_stage_mask(&stages)
                     .signal_semaphores(&signals)],
-                self.fence,
-            )?;
-        }
+                self.slots[slot].fence,
+            )
+        };
+        self.chain_open = Some(chain_signal);
+        self.submissions += 1;
+        submitted?;
         Ok(submitting.elapsed())
     }
 
-    /// Block until the last submission's fence signals; how long it took.
-    fn wait_for_fence(&self) -> Result<Duration, VulkanError> {
+    /// Block until the recording slot's last submission signals; how long it
+    /// took.
+    fn wait_for_fence(&mut self) -> Result<Duration, VulkanError> {
         let waiting = Instant::now();
+        let fence = self.slots[self.recording].fence;
         unsafe {
-            self.device.wait_for_fences(&[self.fence], true, u64::MAX)?;
+            self.device.wait_for_fences(&[fence], true, u64::MAX)?;
         }
         Ok(waiting.elapsed())
     }
@@ -2580,30 +2845,30 @@ impl SceneRenderer {
     /// other, were a 17.3 ms frame against a 16.7 ms budget (Device Farm run
     /// 39538891917).
     ///
-    /// Only one frame is ever in flight, and every method that touches a
-    /// resource calls this first, so nothing the GPU may still be reading is
-    /// written: the overlap is the application's work against the GPU's,
-    /// not two frames' GPU work against each other. **A caller must call it
-    /// before acquiring a swapchain image or presenting by any other path**:
-    /// the swapchain reuses one acquire semaphore, and the frame in flight
-    /// may not have consumed its wait on it yet.
+    /// Up to [`FLIGHT_SLOTS`] frames are in flight. A frame's own resources
+    /// are per slot, so the frame after it records and submits while the GPU
+    /// still draws it; the GPU halves of the two run one after the other,
+    /// ordered by the internal chain (see [`SceneRenderer`]'s field docs),
+    /// because a retained frame's damage renders into what the frame before
+    /// left in `L[0]`. A caller that wants the machine quiet — before
+    /// presenting through any path but the frame's own, before resizing —
+    /// calls this and waits for all of them; a caller about to render the
+    /// next frame calls [`settle_for_next_frame`](Self::settle_for_next_frame)
+    /// and keeps the overlap.
     ///
     /// The time spent here is charged to the next frame's
     /// [`GpuFrameTimings::wait`], which therefore means "waiting for the
-    /// previous frame" while frames overlap; [`GpuPassTimes`] is the GPU's
-    /// own time.
+    /// oldest frame in flight" while frames overlap; [`GpuPassTimes`] is
+    /// the GPU's own time.
     ///
     /// # Errors
     ///
     /// The fence wait failing (a lost device).
     pub fn settle(&mut self) -> Result<(), VulkanError> {
-        if !self.in_flight {
-            return Ok(());
+        for index in 0..FLIGHT_SLOTS {
+            self.settle_slot(index)?;
         }
-        self.settled_wait += self.wait_for_fence()?;
-        self.in_flight = false;
-        self.collect_marks();
-        self.collect_probe()
+        Ok(())
     }
 
     /// Whether a frame into a swapchain image is left in flight
@@ -2823,13 +3088,13 @@ impl Recorder {
         };
         unsafe {
             renderer.device.cmd_begin_render_pass(
-                renderer.command_buffer,
+                renderer.cmd(),
                 &info,
                 vk::SubpassContents::INLINE,
             );
             renderer
                 .device
-                .cmd_set_viewport(renderer.command_buffer, 0, &[viewport]);
+                .cmd_set_viewport(renderer.cmd(), 0, &[viewport]);
         }
         self.open = Some(target);
     }
@@ -2842,7 +3107,7 @@ impl Recorder {
 
     fn end(&mut self, renderer: &SceneRenderer) {
         if self.open.take().is_some() {
-            unsafe { renderer.device.cmd_end_render_pass(renderer.command_buffer) };
+            unsafe { renderer.device.cmd_end_render_pass(renderer.cmd()) };
         }
     }
 }
@@ -2852,7 +3117,7 @@ impl std::fmt::Debug for SceneRenderer {
         f.debug_struct("SceneRenderer")
             .field("size", &self.size)
             .field("targets", &self.levels.len())
-            .field("vertex_capacity", &self.vertices.capacity)
+            .field("vertex_capacity", &self.slots[0].vertices.capacity)
             .finish_non_exhaustive()
     }
 }
@@ -2870,9 +3135,6 @@ impl Drop for SceneRenderer {
             );
             for buffer in [
                 std::mem::replace(&mut self.readback, Buffer::EMPTY),
-                std::mem::replace(&mut self.vertices, Buffer::EMPTY),
-                std::mem::replace(&mut self.indices, Buffer::EMPTY),
-                std::mem::replace(&mut self.uniform, Buffer::EMPTY),
                 std::mem::replace(&mut self.probe_before, Buffer::EMPTY),
                 std::mem::replace(&mut self.probe_after, Buffer::EMPTY),
             ] {
@@ -2882,9 +3144,23 @@ impl Drop for SceneRenderer {
                 let texture = std::mem::replace(self.texture_mut(slot), Texture::NULL);
                 destroy_texture(&self.device, texture);
             }
-            self.device.destroy_fence(self.fence, None);
-            if let Some(queries) = self.queries.take() {
-                self.device.destroy_query_pool(queries.pool, None);
+            for flight in self.slots.iter_mut() {
+                destroy_buffer(&self.device, std::mem::replace(&mut flight.uniform, Buffer::EMPTY));
+                destroy_buffer(
+                    &self.device,
+                    std::mem::replace(&mut flight.vertices, Buffer::EMPTY),
+                );
+                destroy_buffer(
+                    &self.device,
+                    std::mem::replace(&mut flight.indices, Buffer::EMPTY),
+                );
+                self.device.destroy_fence(flight.fence, None);
+                if let Some(queries) = flight.queries.take() {
+                    self.device.destroy_query_pool(queries.pool, None);
+                }
+            }
+            for semaphore in self.chain {
+                self.device.destroy_semaphore(semaphore, None);
             }
             self.device.destroy_command_pool(self.command_pool, None);
             for pipeline in [self.scene_pipeline, self.post_replace, self.post_over] {
@@ -3237,7 +3513,7 @@ fn create_texture(
         width,
         height,
         version: None,
-        staging: Buffer::EMPTY,
+        staging: [Buffer::EMPTY; FLIGHT_SLOTS],
     })
 }
 
@@ -3261,7 +3537,9 @@ unsafe fn destroy_target(device: &ash::Device, target: Target) {
 }
 
 unsafe fn destroy_texture(device: &ash::Device, texture: Texture) {
-    destroy_buffer(device, texture.staging);
+    for buffer in texture.staging {
+        destroy_buffer(device, buffer);
+    }
     if texture.image == vk::Image::null() {
         return;
     }

@@ -59,7 +59,7 @@ fn main() {
         }
         let n = totals.len().max(1) as f64;
         let avg = |pick: fn(&vieww_paint::native::RasterKindTimes) -> f64| {
-            totals.iter().map(|t| pick(t)).sum::<f64>() / n
+            totals.iter().map(&pick).sum::<f64>() / n
         };
         println!("{load:?} over {frames} frames (ms avg per frame):");
         type Pick = fn(&vieww_paint::native::RasterKindTimes) -> f64;

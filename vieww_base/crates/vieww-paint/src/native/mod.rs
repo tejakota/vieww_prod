@@ -91,6 +91,7 @@ mod instancing;
 mod linear;
 mod pixels;
 mod pool;
+mod raster_pool;
 mod reference;
 mod residency;
 mod rounded_rect;

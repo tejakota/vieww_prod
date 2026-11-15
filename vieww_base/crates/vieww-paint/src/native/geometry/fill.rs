@@ -652,6 +652,43 @@ pub fn raster_worker_limit() -> usize {
 /// sequence it was computed with on the calling thread. `bit-for-bit` in the
 /// tests below is a property of the code's structure first and of the test
 /// second.
+/// One chunk of the parallel walk: a row span, its admitted-edge prefix
+/// and its disjoint block of the mask's data. The blocks are the
+/// `split_at_mut` halves of the same `data`, held as raw pointers because
+/// the pool's chunks share the job by reference.
+struct RowJob<'a, 'b> {
+    table: &'a EdgeTable<'b>,
+    geometry: &'a RowGeometry,
+    /// `(pointer, length)` per chunk, disjoint by the splits that made
+    /// them.
+    blocks: Vec<(*mut f32, usize)>,
+    /// `(row start, row end, chunk index)` per chunk.
+    spans: Vec<(i32, i32, usize)>,
+    width: u32,
+}
+
+// SAFETY: the table and the geometry are read-only, shared by every
+// chunk; the blocks are disjoint - the `split_at_mut` calls that produced
+// them guarantee it - and each chunk writes only its own. No chunk reads
+// another's block, so sharing the job across threads is the same
+// disjointness the borrow checker checked before the pointers.
+unsafe impl Sync for RowJob<'_, '_> {}
+
+/// Run one chunk of a [`RowJob`] - the pool's per-chunk function.
+fn run_row_chunk(job: &RowJob, chunk: usize) {
+    let (start, end, block) = job.spans[chunk];
+    let pending = job
+        .table
+        .order
+        .partition_point(|&index| job.table.edges[index].ymin < start as f32 + 1.0);
+    let (pointer, length) = job.blocks[block];
+    // SAFETY: the pointer is one of the job's disjoint blocks, derived
+    // from `split_at_mut`, and no other chunk touches it.
+    let data = unsafe { std::slice::from_raw_parts_mut(pointer, length) };
+    let mut scratch = RowScratch::new(job.width);
+    rasterize_row_range(start..end, job.table, pending, job.geometry, data, &mut scratch);
+}
+
 pub(crate) fn rasterize_general(
     polylines: &[Polyline],
     clip_bounds: Rect,
@@ -706,46 +743,42 @@ pub(crate) fn rasterize_general(
         // shared mutable state, no ordering hazard, no reassociation. A
         // chunk inherits the admitted-edge prefix the serial walk would
         // have built by its first row and continues exactly as the serial
-        // walk continues.
+        // walk continues. The workers are the persistent pool
+        // (`native::raster_pool`): no thread spawn per mask, which is what
+        // lets the size gate admit the storm-of-small-masks shapes.
         let chunk_rows = (height as usize).div_ceil(workers);
-        let mut spans: Vec<(i32, i32)> = Vec::with_capacity(workers);
+        let mut spans: Vec<(i32, i32, usize)> = Vec::with_capacity(workers);
+        let mut blocks: Vec<(*mut f32, usize)> = Vec::with_capacity(workers);
+        let mut pending: Vec<usize> = Vec::with_capacity(workers);
+        let mut rest: &mut [f32] = &mut data;
         let mut start = by0;
         while start < by1 {
             let end = (start + chunk_rows as i32).min(by1);
-            spans.push((start, end));
+            let block = (end - start) as usize * width as usize;
+            let (slice, tail) = rest.split_at_mut(block);
+            rest = tail;
+            pending.push(
+                table
+                    .order
+                    .partition_point(|&index| table.edges[index].ymin < start as f32 + 1.0),
+            );
+            blocks.push((slice.as_mut_ptr(), slice.len()));
+            spans.push((start, end, pending.len() - 1));
             start = end;
         }
-        std::thread::scope(|scope| {
-            // Copy-able reborrowing: a `move` closure must capture the
-            // reference bundle, not the `Vec`s behind it, or the second
-            // spawn would find its edges already moved away.
-            let table = &table;
-            let geometry = &geometry;
-            // The spans carve `data` into disjoint row blocks, and
-            // `split_at_mut` is what makes that provable to the borrow
-            // checker: each spawn moves one block, the walk continues on
-            // the untouched tail.
-            let mut rest: &mut [f32] = &mut data;
-            for (start, end) in spans {
-                let block = (end - start) as usize * width as usize;
-                let (slice, tail) = rest.split_at_mut(block);
-                rest = tail;
-                let pending_start = table
-                    .order
-                    .partition_point(|&index| table.edges[index].ymin < start as f32 + 1.0);
-                scope.spawn(move || {
-                    let mut scratch = RowScratch::new(width);
-                    rasterize_row_range(
-                        start..end,
-                        table,
-                        pending_start,
-                        geometry,
-                        slice,
-                        &mut scratch,
-                    );
-                });
-            }
-        });
+        let job = RowJob {
+            table: &table,
+            geometry: &geometry,
+            blocks,
+            spans,
+            width,
+        };
+        crate::native::raster_pool::run_chunks(
+            &job,
+            job.spans.len(),
+            workers,
+            run_row_chunk,
+        );
     }
 
     CoverageMask {
@@ -884,14 +917,21 @@ fn rasterize_row_range(
     }
 }
 
-/// How many rows a chunk must keep for the spawn to pay for itself: below
-/// this, per-worker scratch allocation and thread start-up cost more than
-/// the rows they divide.
-const RASTER_MIN_CHUNK_ROWS: u32 = 32;
+/// How many rows a chunk must keep for the hand-off to pay for itself:
+/// below this, per-worker scratch allocation costs more than the rows it
+/// divides. There is no thread start-up to amortise any more — the pool's
+/// workers are already running.
+const RASTER_MIN_CHUNK_ROWS: u32 = 16;
 /// A mask smaller than this on either axis is one the serial walk finishes
-/// in well under a millisecond — threading it would measure the spawn, not
-/// the raster.
-const RASTER_MIN_PARALLEL_DIM: u32 = 128;
+/// faster than a pool hand-off: the gate measures the mutex and the
+/// broadcast, not a thread spawn, since the pool kept its workers. It was
+/// 128 when the parallel walk spawned a thread per worker, which priced a
+/// small mask out of parallelism altogether — and a 2.75x-density
+/// sparkline's stroke coverage, 198×99, is exactly the shape that priced
+/// out: thirteen of them a frame, serial, were the biggest CPU cost of a
+/// live storm on both render paths. 48 keeps a margin over the hand-off
+/// while letting those in.
+const RASTER_MIN_PARALLEL_DIM: u32 = 48;
 /// The hard ceiling. Scaling past it buys nothing on the shapes that matter
 /// (their row spans saturate a handful of cores) and costs a spawn apiece.
 const RASTER_MAX_THREADS: usize = 8;
@@ -1738,22 +1778,27 @@ mod tests {
 
     #[test]
     fn the_thread_decision_gates_on_size_and_ceiling() {
-        // Small on either axis: serial, whatever was asked.
-        assert_eq!(thread_workers_for(4, 64, 300), 1);
-        assert_eq!(thread_workers_for(4, 300, 64), 1);
-        assert_eq!(thread_workers_for(4, 127, 4096), 1);
+        // Small on either axis: serial, whatever was asked. The gate is
+        // 48 now the workers are a persistent pool rather than a spawn per
+        // mask — a sparkline's 198x99 coverage qualifies, a glyph-sized
+        // mask does not.
+        assert_eq!(thread_workers_for(4, 32, 300), 1);
+        assert_eq!(thread_workers_for(4, 300, 32), 1);
+        assert_eq!(thread_workers_for(4, 47, 4096), 1);
+        // A sparkline-sized mask is parallel now.
+        assert_eq!(thread_workers_for(4, 198, 99), 4);
         // A serial request stays serial on any mask.
         assert_eq!(thread_workers_for(1, 800, 600), 1);
         // A big mask gets the request, capped by the rows' granularity
-        // (600 rows / 32) and then by the hard ceiling.
+        // (600 rows / 16) and then by the hard ceiling.
         assert_eq!(thread_workers_for(3, 800, 600), 3);
         assert_eq!(thread_workers_for(18, 800, 600), 8);
         assert_eq!(thread_workers_for(64, 800, 600), 8);
         // Both axes must clear the floor — a wide-but-short mask stays
         // serial, predictably, because the gate is a conjunction.
-        assert_eq!(thread_workers_for(4, 4096, 100), 1);
-        // Just over the floor on both axes: the granularity cap (130/32
-        // = 4) admits the request.
+        assert_eq!(thread_workers_for(4, 4096, 32), 1);
+        // Just over the floor on both axes: the granularity cap (130/16
+        // = 8) admits the request.
         assert_eq!(thread_workers_for(4, 800, 130), 4);
     }
 

@@ -12,8 +12,8 @@ It sits beside two older files and does not replace them:
 This file is the short version for a new session. When an item here turns out
 to be large, it belongs in `PENDING.md` with a pointer from here.
 
-Last updated: 2026-11-15, after Device Farm runs `43709382309` and `43712000396`
-(Market Watch comparison: the direct route and the lighter CPU raster).
+Last updated: 2026-11-15, after the frames-in-flight ring, the pooled raster
+walk and the route narration (the Redmi Note 7 Pro's own measurements, below)
 
 ---
 
@@ -25,6 +25,48 @@ The aim is to make vieww measurably the best: fast, light and correct on real
 phones, with every claim backed by a Device Farm number or a test. The
 standing instruction is to finish what is started. A slow loop is fine; leaving
 work half-done is not.
+
+### This round: the Redmi Note 7 Pro's numbers, and what they said
+
+The user's own phone (SM6150, Adreno 612, Android 16, 1080x2340 at 2.75x)
+against the farm's S20 (SM8250), same APK, same schedule:
+
+| stage (p50) | Redmi `render_planned_to` | S20 direct |
+|---|---|---|
+| plan | 7.5-12.1 ms | 2.2-4.7 ms |
+| GPU frame | 20.9-22.5 ms | 4.9-7.3 ms |
+| fence wait | 11.6-16.1 ms | 0-7.3 ms |
+| interval | 25.6-30.8 ms, jank 62-98% | 5.7-8.9 ms, jank 0 |
+
+Valdi on the same phone: p50 23 ms, 14% jank, 404 MB PSS (vieww 106-132 MB).
+The Redmi is **not** on the direct route — its idle frame draws nothing and
+blits 11 ms (a full-screen restore from the intermediate), which only the
+blit route does; the S20's blit column is 0.00. So three fixes:
+
+- **The frames-in-flight ring** (`vieww-hal`): two command buffers, fences,
+  uniforms, geometry buffers, staging and query pools, rotating per frame —
+  a frame's CPU half (plan, record, submit) no longer waits for the GPU to
+  finish the frame before it. An internal semaphore chain orders every
+  submission against the previous one (`COLOR_ATTACHMENT_OUTPUT` and later:
+  carries, draws, atlas uploads, blit), because a retained frame's damage
+  renders into what the previous frame left in `L[0]`. The acquire
+  semaphores are keyed by frame slot; `settle()` still means "all frames";
+  `settle_for_next_frame()` is the overlap-preserving one the render paths
+  take. Model: the Redmi's live interval was plan 7.5 + settle 12.5 +
+  record ~5, GPU-bound at 21 ms underneath; the ring makes it
+  max(CPU, GPU) = 21-22 ms, under the 25 ms jank threshold.
+- **The pooled raster walk** (`vieww-paint`): the row-parallel scanline
+  walk used to spawn a thread per worker per mask, so the size gate (128
+  device pixels both axes) kept a sparkline's 198x99 stroke coverage
+  serial — thirteen of those a frame, on both render paths, was the
+  biggest CPU cost of a storm. A persistent condvar pool
+  (`native/raster_pool.rs`) takes the spawn out; the gate is 48 and the
+  chunk floor 16. Raster identity: all 30 fixture files byte-identical.
+- **Route narration**: `gpu_route_status()` + a `__MW__ {"ev":"route"}`
+  line, because the Redmi's non-direct route is currently a deduction
+  from stages, not a statement — the next farm run says which of the three
+  reasons it was (surface refuses COLOR_ATTACHMENT / plan has layers /
+  resolution scale), and whether the direct route can be brought to it.
 
 ### The list we worked through, and what came of it
 
