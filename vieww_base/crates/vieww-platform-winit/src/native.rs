@@ -1820,13 +1820,20 @@ impl NativeRenderer {
                     // reads, no RGBA16F intermediate, no carry, no f16→8-bit
                     // conversion — the route that exists for the low-end GPU,
                     // where those dominated the frame. Anything else (layers,
-                    // a resolution scale, a surface that refuses the usage)
-                    // keeps the blit path.
-                    let direct =
-                        image.color_attachment() && plan.target_depth == 0 && render_scale == 1.0;
+                    // a resolution scale, a surface that refuses the usage,
+                    // `VIEWW_GPU_DIRECT=0`) keeps the blit path.
+                    let direct = gpu_direct()
+                        && image.color_attachment()
+                        && plan.target_depth == 0
+                        && render_scale == 1.0;
                     if direct {
                         note_gpu_route(
                             "direct: depth-0 opaque frame rendered into the swapchain image",
+                        );
+                    } else if !gpu_direct() {
+                        note_gpu_route(
+                            "blit: VIEWW_GPU_DIRECT=0, the comparison switch (wait_loop's \
+                             damage scenario, or an A/B on one phone)",
                         );
                     } else if !image.color_attachment() {
                         note_gpu_route("blit: the surface reports its swapchain images cannot be colour attachments");
@@ -1970,6 +1977,20 @@ impl NativeRenderer {
 pub fn gpu_overlap() -> bool {
     static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
     *ON.get_or_init(|| std::env::var("VIEWW_GPU_OVERLAP").map_or(true, |v| v.trim() != "0"))
+}
+
+/// Whether depth-0 opaque frames render straight into the swapchain image
+/// (the direct route): on unless `VIEWW_GPU_DIRECT=0`, the switch for
+/// comparing the two routes on one phone — and for `tests/wait_loop.rs`'s
+/// damage scenario, whose subject is the blit route's damage machinery: a
+/// direct-route frame redraws in full by design (each swapchain image is one
+/// of several, so the kept-`L[0]` model does not describe it), which is
+/// cheaper there than tracking damage, not a failure of it. Read once per
+/// process.
+#[must_use]
+pub fn gpu_direct() -> bool {
+    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ON.get_or_init(|| std::env::var("VIEWW_GPU_DIRECT").map_or(true, |v| v.trim() != "0"))
 }
 
 /// The route the last GPU frame took through the renderer, and why —

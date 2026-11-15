@@ -733,6 +733,13 @@ const BLINKS: u32 = 40;
 /// otherwise still window, so all but the first frame should be a sliver of
 /// the surface. `vieww-hal`'s `vulkan_damage` suite is the proof that what
 /// was redrawn is the right picture; this is the proof that the app uses it.
+///
+/// The parent runs this scenario with `VIEWW_GPU_DIRECT=0`, so the blit
+/// route — the one that carries damage — is what is measured. The direct
+/// route (a depth-0 opaque frame straight into the swapchain image) redraws
+/// in full by design, so on a surface that accepts colour attachments it
+/// would turn every frame here into a whole-surface repaint without anything
+/// being wrong; `main`'s spawn loop has the whole story.
 fn a_gpu_frame_redraws_only_what_changed() {
     vieww_hardware::skip_without!(display, gpu);
     arm_deadline("a_gpu_frame_redraws_only_what_changed");
@@ -1302,10 +1309,22 @@ fn main() {
         // are shown when a scenario fails. A passing run prints what it
         // always printed. The event-loop trace is deduplicated by design
         // (see `trace_line` in `src/app.rs`), so it does not change timing.
-        let output = std::process::Command::new(&binary)
+        //
+        // The damage scenario runs with the direct route off: its subject is
+        // the blit route's damage machinery, and a direct-route frame redraws
+        // in full by design (each swapchain image is one of several), which
+        // on a surface that accepts colour attachments — lavapipe's does —
+        // turned all 41 of its frames into whole-surface repaints and the
+        // scenario into a claim the direct route never made.
+        let mut child = std::process::Command::new(&binary);
+        child
             .arg(name)
             .env("VIEWW_TRACE_FRAMES", "1")
-            .env("VIEWW_WAIT_LOOP_TRACE", "1")
+            .env("VIEWW_WAIT_LOOP_TRACE", "1");
+        if *name == "gpu_damage" {
+            child.env("VIEWW_GPU_DIRECT", "0");
+        }
+        let output = child
             .stderr(std::process::Stdio::piped())
             .output()
             .unwrap_or_else(|error| panic!("could not re-execute {binary:?}: {error}"));
