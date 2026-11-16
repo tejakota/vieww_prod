@@ -1,0 +1,1342 @@
+--------- beginning of main
+11-16 16:35:32.280  1565  1642 W libprocessgroup: kill(-25163, 9) failed: No such process
+11-16 16:35:32.280  8824  8824 I [LGHome6]Launcher: mBindOnResumeCallbacks.size() : 0
+11-16 16:35:32.289  8824  8824 I [LGHome6]StaticBlurEngine: getBlurImage 270 x 540 -> (0,0)
+11-16 16:35:32.290  8824  8824 I [LGHome6]HomescreenBlurManager: updateBackgroundViewContents() : mBackgroundViewImage(android.graphics.Bitmap@9832578)
+11-16 16:35:32.291  8824  8824 I [LGHome6]HomescreenBlurManager: mBackgroundView size : android.widget.ImageView{cdfbbd0 G.ED..... ......I. 0,0-0,0 #7f09002b app:id/blur_background_in_bottom_of_rootview}
+11-16 16:35:32.291  8824  8824 I [LGHome6]LauncherCallbacksImpl: Launcher.onResume // 7.20.51(72005100) this:com.lge.launcher3.LauncherExtension$LauncherCallbacksImpl@58121e
+11-16 16:35:32.294 12941 12941 W SearchServiceClient: Starting with NO_SESSION handoverId is deprecated. Just don't. You will break.
+11-16 16:35:32.294 12941 12941 W SearchServiceClient: com.google.android.apps.gsa.shared.util.a.g: SearchServiceClient: Starting with NO_SESSION handoverId is deprecated. Just don't. You will break.
+11-16 16:35:32.294 12941 12941 W SearchServiceClient: 	at com.google.android.apps.gsa.shared.util.a.d.a(SourceFile:40)
+11-16 16:35:32.294 12941 12941 W SearchServiceClient: 	at com.google.android.apps.gsa.shared.util.a.d.d(SourceFile:6)
+11-16 16:35:32.294 12941 12941 W SearchServiceClient: 	at com.google.android.apps.gsa.search.shared.service.ab.a(SourceFile:110)
+11-16 16:35:32.294 12941 12941 W SearchServiceClient: 	at com.google.android.apps.gsa.search.shared.service.ab.d(SourceFile:96)
+11-16 16:35:32.294 12941 12941 W SearchServiceClient: 	at com.google.android.apps.gsa.nowoverlayservice.as.a(SourceFile:15)
+11-16 16:35:32.294 12941 12941 W SearchServiceClient: 	at com.google.android.libraries.gsa.f.b.n.a(SourceFile:20)
+11-16 16:35:32.294 12941 12941 W SearchServiceClient: 	at com.google.android.libraries.gsa.f.b.n.handleMessage(SourceFile:25)
+11-16 16:35:32.294 12941 12941 W SearchServiceClient: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+11-16 16:35:32.294 12941 12941 W SearchServiceClient: 	at android.os.Looper.loop(Looper.java:205)
+11-16 16:35:32.294 12941 12941 W SearchServiceClient: 	at android.app.ActivityThread.main(ActivityThread.java:6991)
+11-16 16:35:32.294 12941 12941 W SearchServiceClient: 	at java.lang.reflect.Method.invoke(Native Method)
+11-16 16:35:32.294 12941 12941 W SearchServiceClient: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:493)
+11-16 16:35:32.294 12941 12941 W SearchServiceClient: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:884)
+11-16 16:35:32.295 12941 13012 W SessionLifecycleManager: Handover failed. Creating new session controller.
+11-16 16:35:32.305 12941 13012 E PBSessionCacheImpl: sessionId[56916914745731431] not persisted.
+11-16 16:35:32.307   719   844 I SurfaceFlinger: create BufferLayer(0x7424502000) com.lge.launcher3/com.lge.launcher3.LauncherExtension (1080 x 2160)
+11-16 16:35:32.308 13336 13837 D WM-SystemJobScheduler: Scheduling work ID 4175b509-73c1-49d6-876c-44012fc3d6efJob ID 301135
+11-16 16:35:32.309  1565  1640 D LGPhoneWindowManager: [LGPWM] 1.notifyNavigationBarColor => mLastColorNavigationBar=0x0
+11-16 16:35:32.310  1565  5609 D InputDispatcher: Focus entered window: Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}
+11-16 16:35:32.310  2052  2052 I NavigationThemeResource: notify navigation bar color(0x0)
+11-16 16:35:32.311  2052  2052 I NavigationThemeResource: NavigationKey Color is changed(BLACK -> WHITE_WITH_BORDER)
+11-16 16:35:32.311  2052  2052 I NavigationThemeResource:  BarMode=4, Theme=WHITE, LightBackground=false (Transparent)
+11-16 16:35:32.311  2052  2052 I NavigationThemeResource: , Keyguard show=false, IME shown=false, Bar vertical=false, Panel expanded=false
+11-16 16:35:32.312  1103  1138 I PowerRM : System FW:1 IC:0 SO:0 GT:0 CAPP:-1 APP:0
+11-16 16:35:32.312  1103  1138 I PowerRM : System FW:0 IC:0 SO:0 GT:0 CAPP:-1 APP:0
+11-16 16:35:32.312  1103  1138 I PowerRM : FIA lock1 unlocked
+11-16 16:35:32.313  2052  2052 D StatusBar: setSystemUiVisibility vis=8708 mask=ffffffff oldVal=8008 newVal=8708 diff=700
+11-16 16:35:32.313  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:32.313  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:32.313  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:32.313  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:32.315  8824  8864 I [LGHome6]OverviewFlags: applyBackButtonAlpha(): alpha = 1.00, animate = true
+11-16 16:35:32.316  2052  2052 D OverviewProxyService: notifyBackButtonAlphaChanged() : mConnectionCallbacks.size() = 1
+11-16 16:35:32.316 13336 13837 D WM-GreedyScheduler: Starting work for 4175b509-73c1-49d6-876c-44012fc3d6ef
+11-16 16:35:32.316  2052  2052 I NavigationBar: onBackButtonAlphaChanged(): alpha = 1.00, animate = true
+11-16 16:35:32.316 10798 10916 D ViewRootImpl: onChangedNavigationGuardColor(), color: 0
+11-16 16:35:32.316 10798 10798 D DecorView: updateNavigationGuardColor navigationGuardColor=0xff000000
+--------- beginning of system
+11-16 16:35:32.318  1565  3717 W InputMethodManagerService: Got RemoteException sending setActive(false) notification to pid 25163 uid 10237
+11-16 16:35:32.321 13336 13837 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=4175b509-73c1-49d6-876c-44012fc3d6ef, generation=0)
+11-16 16:35:32.321 13336 13336 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=4175b509-73c1-49d6-876c-44012fc3d6ef, generation=0)
+11-16 16:35:32.322 12941 13031 I PBSessionCacheImpl: Deleted sessionId[56916914745731431] from persistence.
+11-16 16:35:32.323  1565  1642 W libprocessgroup: kill(-25163, 9) failed: No such process
+11-16 16:35:32.324  8824  8824 I [LGHome6]BadgeFolderIcon: drawBadge() : mAppNotifierDrawable(null), mDrawAppNotifier(true)
+11-16 16:35:32.324  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:32.325  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:32.325  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:32.326 13336 13837 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:35:32.326 13336 13837 W WS1_SE_SmpWrkFct_MGMUVP: com.airwatch.agent.intent.processors.IntentProcessorWorker not resolved in SamplingWorkerFactory
+11-16 16:35:32.330 13336 13336 D WM-WorkerWrapper: Starting work for com.airwatch.agent.intent.processors.IntentProcessorWorker
+11-16 16:35:32.331 13336 14013 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:35:32.332 13336 14013 I WS1_IntentProcessorWorker: doWork started for intent action: android.intent.action.PACKAGE_RESTARTED
+11-16 16:35:32.335  8824  8824 I Timeline: Timeline: Activity_idle id: android.os.BinderProxy@e399001 time:1787305
+11-16 16:35:32.335  2052  2052 D ImageWallpaper: onVisibilityChanged: mVisible, visible=false, true
+11-16 16:35:32.336  2052  2052 D ImageWallpaper: Visibility changed to visible=true
+11-16 16:35:32.336  2052  2052 D ImageWallpaper: Suppressed drawFrame since redraw is not needed and offsets have not changed.
+11-16 16:35:32.336  8824  8864 I [LGHome6]OverviewFlags: applyBackButtonAlpha(): alpha = 1.00, animate = true
+11-16 16:35:32.338  2052  2052 D OverviewProxyService: notifyBackButtonAlphaChanged() : mConnectionCallbacks.size() = 1
+11-16 16:35:32.339  2052  2052 I NavigationBar: onBackButtonAlphaChanged(): alpha = 1.00, animate = true
+11-16 16:35:32.339 13336 13837 D WM-Processor: Work WorkGenerationalId(workSpecId=4175b509-73c1-49d6-876c-44012fc3d6ef, generation=0) is already enqueued for processing
+11-16 16:35:32.342  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:32.342  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:32.342  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:32.342  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:32.343  1565  5609 D OverlayManager: setEnabled packageName=com.android.systemui.theme.dark enable=true userId=0
+11-16 16:35:32.343   719  2876 I SurfaceFlinger: create ContainerLayer(0x74244b8000) Surface(name=c85619f com.android.systemui.ImageWallpaper)/@0x342b4f4 - animation-leash (4320 x 4320)
+11-16 16:35:32.344 13336 13837 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=4175b509-73c1-49d6-876c-44012fc3d6ef, tags={ com.airwatch.agent.intent.processors.IntentProcessorWorker,intent_processor_work,android.intent.action.PACKAGE_RESTARTED } ]
+11-16 16:35:32.344   719  2876 I SurfaceFlinger: create ContainerLayer(0x7424d71000) Surface(name=AppWindowToken{aa2a40 token=Token{ca311c3 ActivityRecord{e06267d u0 com.lge.launcher3/.LauncherExtension t168}}})/@0x69e1dda - animation-leash (4320 x 4320)
+11-16 16:35:32.347 13336 13336 D WM-Processor: Processor 4175b509-73c1-49d6-876c-44012fc3d6ef executed; reschedule = false
+11-16 16:35:32.347 13336 13336 D WM-SystemJobService: 4175b509-73c1-49d6-876c-44012fc3d6ef executed on JobScheduler
+11-16 16:35:32.350  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:32.350  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:32.350  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:32.357  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:32.357  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:32.357  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:32.357  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:32.359  1565  1642 W libprocessgroup: kill(-25163, 9) failed: No such process
+11-16 16:35:32.362  2052  2295 D PhoneStatusBarPolicy: updateManagedProfile userId = 0
+11-16 16:35:32.363  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:32.363  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:32.363  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:32.363 13336 13837 D WM-GreedyScheduler: Cancelling work ID 4175b509-73c1-49d6-876c-44012fc3d6ef
+11-16 16:35:32.366  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:32.367  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:32.367  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:32.367  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:32.369   719   719 I SurfaceFlinger: Removed(0x74244b8000) ContainerLayer Surface(name=c85619f com.android.systemui.ImageWallpaper)/@0x342b4f4 - animation-leash#0 (4320 x 4320)
+11-16 16:35:32.369   719   719 I SurfaceFlinger: Removed(0x7424d71000) ContainerLayer Surface(name=AppWindowToken{aa2a40 token=Token{ca311c3 ActivityRecord{e06267d u0 com.lge.launcher3/.LauncherExtension t168}}})/@0x69e1dda - animation-leash#0 (4320 x 4320)
+11-16 16:35:32.372  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:32.372  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:32.372  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:32.376  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:32.376  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:32.376  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:32.376  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:32.385  1565  1642 W libprocessgroup: kill(-25163, 9) failed: No such process
+11-16 16:35:32.401  1565  5609 D DisplayManagerService: Display listener for pid 25163 died.
+11-16 16:35:32.402  1565  1650 W ActivityManager: setHasOverlayUi called on unknown pid: 25163
+11-16 16:35:32.404  1113  1113 I Zygote  : Process 25163 exited due to signal (9)
+11-16 16:35:32.429  1565  1642 W libprocessgroup: kill(-25163, 9) failed: No such process
+11-16 16:35:32.430  1565  1642 I libprocessgroup: Successfully killed process cgroup uid 10237 pid 25163 in 226ms
+11-16 16:35:32.458  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:35:32.458  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:35:32.458  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:35:32.459  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:35:32.459  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:35:32.459  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:35:32.459  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:35:32.462  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:35:32.462  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:35:32.462  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:35:32.462  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:35:32.463  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:35:32.467  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:35:32.467  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:35:32.617 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:32.620  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:32.620  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:32.620 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:32.832  8824 10136 W OpenGLRenderer: Incorrectly called buildLayer on View: ShortcutAndWidgetContainer, destroying layer...
+11-16 16:35:32.832  8824 10136 W OpenGLRenderer: Incorrectly called buildLayer on View: ShortcutAndWidgetContainer, destroying layer...
+11-16 16:35:33.410  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:35:33.629 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:33.638  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:33.638 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:33.639  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:33.956   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 234
+11-16 16:35:33.962   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 234
+11-16 16:35:34.647 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:34.657 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:34.661  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:35.277  1565  2004 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-16 16:35:34.662  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:35.667 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:35.674 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:35.674  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:35.674  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:35.690   719   843 D TimeStats: Cleared
+11-16 16:35:35.690  1565  1647 V WallpaperManagerService: Wallpaper file change: evt=128 path=package-restrictions-backup.xml sys=false lock=false imagePending=false whichPending=0x0 written=true
+11-16 16:35:35.730  1565  1647 V WallpaperManagerService: Wallpaper file change: evt=8 path=package-restrictions.xml sys=false lock=false imagePending=false whichPending=0x0 written=true
+11-16 16:35:35.730  1565  1647 V WallpaperManagerService: Wallpaper file change: evt=512 path=package-restrictions-backup.xml sys=false lock=false imagePending=false whichPending=0x0 written=false
+11-16 16:35:35.969  1565  3717 E Parcel  : Attempt to read from protected data in Parcel 0x73f7a36228
+11-16 16:35:35.971  1565  3717 I ActivityManager: START u0 {flg=0x10000000 cmp=dev.vieww.marketwatch/android.app.NativeActivity} from uid 2000
+11-16 16:35:35.969  1565  3717 I chatty  : uid=1000(system) Binder:1565_E identical 1 line
+11-16 16:35:35.969  1565  3717 E Parcel  : Attempt to read from protected data in Parcel 0x73f7a36228
+11-16 16:35:35.974   683   683 W PHHandler: [PH] hint not found.
+11-16 16:35:35.975   702   714 E ANDR-PERF-MPCTL: Invalid profile no. 0, total profiles 0 only
+11-16 16:35:35.976   719   843 I SurfaceFlinger: create ContainerLayer(0x7426dac000) Stack=22 (4320 x 4320)
+11-16 16:35:35.976  1103  1138 I PowerRM : System FW:1 IC:0 SO:0 GT:0 CAPP:-1 APP:0
+11-16 16:35:35.976  1103  1138 I PowerRM : FIA lock1 locked
+11-16 16:35:35.977  1103 25219 I Thermal-Lib: Thermal-Lib-Client: Client request sent
+11-16 16:35:35.977  1074  1172 I ThermalEngine: Thermal-Server: Thermal received msg from  tmr_v2
+11-16 16:35:35.977  1074  1172 I ThermalEngine: TMR_APP[1]
+11-16 16:35:35.979   719   843 I SurfaceFlinger: create BlurLayer(0x7426dc3000) animation background stackId=22 (4320 x 4320)
+11-16 16:35:35.982   719   843 I SurfaceFlinger: create ContainerLayer(0x7426dc6000) Task=190 (4320 x 4320)
+11-16 16:35:35.986   719   843 I SurfaceFlinger: create ContainerLayer(0x7426db7000) AppWindowToken{372e2dd token=Token{6c106b4 ActivityRecord{7da8787 u0 dev.vieww.marketwatch/android.app.NativeActivity t190}}} (4320 x 4320)
+11-16 16:35:35.992  2482  6583 D AutoGameModeMonitor: Display : 0  Package : u0 dev.vieww.marketwatch  PrevPackage : u0 com.lge.launcher3
+11-16 16:35:35.993  8824  8824 I [LGHome6]LauncherCallbacksImpl: Launcher.onPause // 7.20.51(72005100) this:com.lge.launcher3.LauncherExtension$LauncherCallbacksImpl@58121e
+11-16 16:35:35.994  1565  1903 D PhoneWindow: windowLightStatusBar : false, disable View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+11-16 16:35:35.996  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:35.996  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:35.996  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:35.999  1565  5609 D WindowManager: un - registerGameMode display ID 0
+11-16 16:35:36.000   719   843 I SurfaceFlinger: create ContainerLayer(0x7426dba000) 64d25aa Splash Screen dev.vieww.marketwatch (4320 x 4320)
+11-16 16:35:36.002  1565  1903 I TouchFilterInputStageHelper: [needTouchEventFilter] Displayid : 0
+11-16 16:35:36.003  1565  1903 D BezellessGripSuppressionFilter: getdisplaysize, x : 1080 y : 2160
+11-16 16:35:36.005  1565  5609 D ActivityManager: setVisibility true ActivityRecord{7da8787 u0 dev.vieww.marketwatch/android.app.NativeActivity t190}
+11-16 16:35:36.005  1565  5609 D ActivityManager: setVisibility false ActivityRecord{e06267d u0 com.lge.launcher3/.LauncherExtension t168}
+11-16 16:35:36.008  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.008  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.008  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:36.008  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:36.014  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.014  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.014  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:36.016   719   843 I SurfaceFlinger: create BufferLayer(0x7426ca8000) Splash Screen dev.vieww.marketwatch (1080 x 2160)
+11-16 16:35:36.019  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.019  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.019  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:36.019  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:36.019  1565  1903 D InputDispatcher: Focus left window: Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}
+11-16 16:35:36.021  8824  8864 I [LGHome6]OverviewFlags: applyBackButtonAlpha(): alpha = 1.00, animate = true
+11-16 16:35:36.023  2052  2052 D OverviewProxyService: notifyBackButtonAlphaChanged() : mConnectionCallbacks.size() = 1
+11-16 16:35:36.023  2052  2052 I NavigationBar: onBackButtonAlphaChanged(): alpha = 1.00, animate = true
+11-16 16:35:36.038  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.038  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.038  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:36.038  1565  1641 I ActivityManager: Start proc 25220:dev.vieww.marketwatch/u0a237 for activity dev.vieww.marketwatch/android.app.NativeActivity
+11-16 16:35:36.047 25220 25220 E eww.marketwatc: Not starting debugger since process cannot load the jdwp agent.
+11-16 16:35:36.063  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.063  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.063  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:36.063  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:36.064  1565  1575 D ActivityManager: setVisibility true ActivityRecord{7da8787 u0 dev.vieww.marketwatch/android.app.NativeActivity t190}
+11-16 16:35:36.073   717 12034 V AudioFlinger: AudioFlinger::setRecordSilenced(uid:10237, silenced:0)
+11-16 16:35:36.082 25220 25220 E DisplayManagerHelper: ISmartCoverManager is null
+11-16 16:35:36.083  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{16cce6a u0 com.lge.launcher3/com.lge.launcher3.LauncherExtension}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.083  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.083  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:36.083   719   843 I SurfaceFlinger: create ContainerLayer(0x7426cae000) Surface(name=c85619f com.android.systemui.ImageWallpaper)/@0x342b4f4 - animation-leash (4320 x 4320)
+11-16 16:35:36.085   719   843 I SurfaceFlinger: create ContainerLayer(0x7426d06000) Surface(name=AppWindowToken{aa2a40 token=Token{ca311c3 ActivityRecord{e06267d u0 com.lge.launcher3/.LauncherExtension t168}}})/@0x69e1dda - animation-leash (4320 x 4320)
+11-16 16:35:36.086  2052  2052 I GameSoundHandler: setSoundMode mDBStatus = false / status = false
+11-16 16:35:36.087   719   843 D SurfaceFlinger: duplicate layer name: changing Surface(name=c85619f com.android.systemui.ImageWallpaper)/@0x342b4f4 - animation-leash to Surface(name=c85619f com.android.systemui.ImageWallpaper)/@0x342b4f4 - animation-leash#1
+11-16 16:35:36.087   719   843 I SurfaceFlinger: create ContainerLayer(0x7426da9000) Surface(name=c85619f com.android.systemui.ImageWallpaper)/@0x342b4f4 - animation-leash (4320 x 4320)
+11-16 16:35:36.089   719   843 I SurfaceFlinger: create ContainerLayer(0x7426dbd000) Surface(name=AppWindowToken{372e2dd token=Token{6c106b4 ActivityRecord{7da8787 u0 dev.vieww.marketwatch/android.app.NativeActivity t190}}})/@0x8900b50 - animation-leash (4320 x 4320)
+11-16 16:35:36.069  1565  1575 D ActivityManager: setVisibility true ActivityRecord{7da8787 u0 dev.vieww.marketwatch/android.app.NativeActivity t190}
+11-16 16:35:36.090  1565  1903 I WindowManager: Starting window displayed
+11-16 16:35:36.094  1565  1640 D LGPhoneWindowManager: [LGPWM] 1.notifyNavigationBarColor => mLastColorNavigationBar=0xffffffff
+11-16 16:35:36.095  2052  2052 I NavigationThemeResource: notify navigation bar color(0xffffffff)
+11-16 16:35:36.095  2052  2052 I NavigationThemeResource: NavigationKey Color is changed(WHITE_WITH_BORDER -> BLACK)
+11-16 16:35:36.095  2052  2052 I NavigationThemeResource:  BarMode=4, Theme=WHITE, LightBackground=true (NOT Transparent)
+11-16 16:35:36.095  2052  2052 I NavigationThemeResource: , Keyguard show=false, IME shown=false, Bar vertical=false, Panel expanded=false
+11-16 16:35:36.096  2052  2295 D PhoneStatusBarPolicy: updateManagedProfile userId = 0
+11-16 16:35:36.096  2052  2052 D StatusBar: setSystemUiVisibility vis=8008 mask=ffffffff oldVal=8708 newVal=8008 diff=700
+11-16 16:35:36.096  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{64d25aa u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.096  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.096  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:36.096  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:36.102  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{64d25aa u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.102  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.102  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:36.105   719   719 I SurfaceFlinger: Removed(0x7426cae000) ContainerLayer Surface(name=c85619f com.android.systemui.ImageWallpaper)/@0x342b4f4 - animation-leash#0 (4320 x 4320)
+11-16 16:35:36.109  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{64d25aa u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.109  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.109  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:36.109  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:36.110 12941 13031 I PBSessionCacheImpl: Deleted sessionId[56916914745731431] from persistence.
+11-16 16:35:36.113  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{64d25aa u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.113  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.113  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:36.118  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{64d25aa u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.118  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.118  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:36.118  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:36.119  2052  2052 D ImageWallpaper: onVisibilityChanged: mVisible, visible=true, false
+11-16 16:35:36.120  2052  2052 D ImageWallpaper: Visibility changed to visible=false
+11-16 16:35:36.122   719   719 I SurfaceFlinger: Removed(0x7426d06000) ContainerLayer Surface(name=AppWindowToken{aa2a40 token=Token{ca311c3 ActivityRecord{e06267d u0 com.lge.launcher3/.LauncherExtension t168}}})/@0x69e1dda - animation-leash#0 (4320 x 4320)
+11-16 16:35:36.122   719   719 I SurfaceFlinger: Removed(0x7426da9000) ContainerLayer Surface(name=c85619f com.android.systemui.ImageWallpaper)/@0x342b4f4 - animation-leash#1 (4320 x 4320)
+11-16 16:35:36.122   719   719 I SurfaceFlinger: Removed(0x7426dbd000) ContainerLayer Surface(name=AppWindowToken{372e2dd token=Token{6c106b4 ActivityRecord{7da8787 u0 dev.vieww.marketwatch/android.app.NativeActivity t190}}})/@0x8900b50 - animation-leash#0 (4320 x 4320)
+11-16 16:35:36.124  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{64d25aa u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.124  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.124  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:36.129  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{64d25aa u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.130  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.130  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:36.130  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:36.135  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{64d25aa u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.135  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.135  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:36.139  1565  1575 D OverlayManager: setEnabled packageName=com.android.systemui.theme.dark enable=true userId=0
+11-16 16:35:36.142  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{64d25aa u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.142  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.142  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:36.142  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:36.143 12941 13012 W SearchServiceCore: Abort, client detached.
+11-16 16:35:36.147  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{64d25aa u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.148  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.148  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:36.153 25220 25220 D PhoneWindow: windowLightStatusBar : false, disable View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+11-16 16:35:36.153 10798 11515 D ViewRootImpl: onChangedNavigationGuardColor(), color: ffffffff
+11-16 16:35:36.153 10798 10798 D DecorView: updateNavigationGuardColor navigationGuardColor=0xffffffff
+11-16 16:35:36.164 25220 25220 I android-activity: Creating: Activity = 0x2876, saved state size = 0
+11-16 16:35:36.297 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"start","path":"gpu","phases":14}
+11-16 16:35:36.300 25220 25220 D OpenGLRenderer: Skia GL Pipeline
+11-16 16:35:36.309   719   843 I SurfaceFlinger: create ContainerLayer(0x7426c88000) 4def14 dev.vieww.marketwatch/android.app.NativeActivity (4320 x 4320)
+11-16 16:35:36.312 25220 25220 I TouchFilterInputStageHelper: [needTouchEventFilter] Displayid : 0
+11-16 16:35:36.315 25220 25220 D BezellessGripSuppressionFilter: getdisplaysize, x : 1080 y : 2160
+11-16 16:35:36.324  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{64d25aa u0 Splash Screen dev.vieww.marketwatch}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.324  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.324  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:36.324  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:36.326   719   843 I SurfaceFlinger: create BufferLayer(0x7426cdf000) dev.vieww.marketwatch/android.app.NativeActivity (1080 x 2160)
+11-16 16:35:36.328  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{4def14 u0 dev.vieww.marketwatch/android.app.NativeActivity}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.328  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.328  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:36.328  1565  1575 D InputDispatcher: Focus entered window: Window{4def14 u0 dev.vieww.marketwatch/android.app.NativeActivity}
+11-16 16:35:36.328  1103  1138 I PowerRM : System FW:1 IC:0 SO:0 GT:0 CAPP:-1 APP:0
+11-16 16:35:36.328  1103  1138 I PowerRM : System FW:0 IC:0 SO:0 GT:0 CAPP:-1 APP:0
+11-16 16:35:36.328  1103  1138 I PowerRM : FIA lock1 unlocked
+11-16 16:35:36.334 10798 11515 D ViewRootImpl: onChangedNavigationGuardColor(), color: ffffffff
+11-16 16:35:36.334 10798 10798 D DecorView: updateNavigationGuardColor navigationGuardColor=0xffffffff
+11-16 16:35:36.339 25220 25220 I Timeline: Timeline: Activity_idle id: android.os.BinderProxy@203a5d time:1791309
+11-16 16:35:36.342  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{4def14 u0 dev.vieww.marketwatch/android.app.NativeActivity}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.343  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.343  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:36.343  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:36.348  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{4def14 u0 dev.vieww.marketwatch/android.app.NativeActivity}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.348  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.348  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:36.352  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{4def14 u0 dev.vieww.marketwatch/android.app.NativeActivity}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.352  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.352  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:36.352  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:36.352 25220 25250 D vulkan  : searching for layers in '/data/app/dev.vieww.marketwatch-ddPvQCej_YtDu9hzoiwN1Q==/lib/arm64'
+11-16 16:35:36.353 25220 25250 D vulkan  : searching for layers in '/data/app/dev.vieww.marketwatch-ddPvQCej_YtDu9hzoiwN1Q==/base.apk!/lib/arm64-v8a'
+11-16 16:35:36.356   719   843 I SurfaceFlinger: create ContainerLayer(0x7426d8a000) Surface(name=64d25aa Splash Screen dev.vieww.marketwatch)/@0x30e2eb9 - animation-leash (4320 x 4320)
+11-16 16:35:36.360  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{4def14 u0 dev.vieww.marketwatch/android.app.NativeActivity}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.360  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.360  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:36.361  1565  1903 D InputDispatcher: Window went away: Window{64d25aa u0 Splash Screen dev.vieww.marketwatch}
+11-16 16:35:36.363  1565  1650 I ActivityManager: Displayed dev.vieww.marketwatch/android.app.NativeActivity: +345ms
+11-16 16:35:36.365 25220 25250 I Adreno  : QUALCOMM build          : 50f1b2d, I1b05bd271c
+11-16 16:35:36.365 25220 25250 I Adreno  : Build Date              : 03/26/19
+11-16 16:35:36.365 25220 25250 I Adreno  : Shader Compiler Version : EV031.25.03.03
+11-16 16:35:36.365 25220 25250 I Adreno  : Local Branch            : 
+11-16 16:35:36.365 25220 25250 I Adreno  : Remote Branch           : 
+11-16 16:35:36.365 25220 25250 I Adreno  : Remote Branch           : 
+11-16 16:35:36.365 25220 25250 I Adreno  : Reconstruct Branch      : 
+11-16 16:35:36.365 25220 25250 I Adreno  : Build Config                     : S L 6.0.7 AArch64
+11-16 16:35:36.374  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{4def14 u0 dev.vieww.marketwatch/android.app.NativeActivity}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.374  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.374  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=1
+11-16 16:35:36.374  1565  1640 I SystemUI[Framework]:   [0] userId=0 what1=0x0 what2=0x0 pkg=null token=android.os.Binder@9a48d73
+11-16 16:35:36.374   539   539 W hwservicemanager: getTransport: Cannot find entry vendor.display.config@1.7::IDisplayConfig/default in either framework or device manifest.
+11-16 16:35:36.374 25220 25239 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+11-16 16:35:36.375 25220 25239 I chatty  : uid=10237(dev.vieww.marketwatch) android_main identical 1 line
+11-16 16:35:36.375 25220 25239 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+11-16 16:35:36.375   719   843 W SurfaceFlinger: Attempting to set client state on removed layer: Splash Screen dev.vieww.marketwatch#0
+11-16 16:35:36.375 25220 25239 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+11-16 16:35:36.375   719   843 W SurfaceFlinger: Attempting to destroy on removed layer: Splash Screen dev.vieww.marketwatch#0
+11-16 16:35:36.377  1565  1639 D ActivityManager: setVisibility false ActivityRecord{e06267d u0 com.lge.launcher3/.LauncherExtension t168}
+11-16 16:35:36.380   650  9402 I SDM     : HWCDisplay::GetColorModeCount: Supported color mode count = 1
+11-16 16:35:36.380   650  9402 I SDM     : HWCDisplay::GetColorModes: Supports color mode[0] = 0
+11-16 16:35:36.382   539   539 W hwservicemanager: getTransport: Cannot find entry vendor.display.config@1.7::IDisplayConfig/default in either framework or device manifest.
+11-16 16:35:36.383 25220 25239 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+11-16 16:35:36.383   650  9402 I SDM     : HWCDisplay::GetColorModeCount: Supported color mode count = 1
+11-16 16:35:36.383   650  9402 I SDM     : HWCDisplay::GetColorModes: Supports color mode[0] = 0
+11-16 16:35:36.384 25220 25239 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+11-16 16:35:36.387   719   719 I SurfaceFlinger: Removed(0x7426ca8000) BufferLayer Splash Screen dev.vieww.marketwatch#0 (1080 x 2160)
+11-16 16:35:36.387   719   719 I SurfaceFlinger: Removed(0x7426d8a000) ContainerLayer Surface(name=64d25aa Splash Screen dev.vieww.marketwatch)/@0x30e2eb9 - animation-leash#0 (4320 x 4320)
+11-16 16:35:36.387   719   719 I SurfaceFlinger: Removed(0x7426dba000) ContainerLayer 64d25aa Splash Screen dev.vieww.marketwatch#0 (4320 x 4320)
+11-16 16:35:36.388  8824  8824 I [LGHome6]EditModeOffManager: EditModeOffManager is not running
+11-16 16:35:36.389  8824  8824 I [LGHome6]StateManager: goToState(): LauncherState - 0(0), animated=false, delay=0, onCompleteRunnable=null
+11-16 16:35:36.392  1565  1640 I SystemUI[Framework]: ==> disableLocked() userId=0, what=0x0, token=android.os.Binder@9a48d73, pkg=Window{4def14 u0 dev.vieww.marketwatch/android.app.NativeActivity}, whichFlag=1, bar=com.android.internal.statusbar.IStatusBar$Stub$Proxy@c94e5ac
+11-16 16:35:36.392  1565  1640 I SystemUI[Framework]: StatusBar disabled: mDisabled1=0x0 mDisabled2=0x0
+11-16 16:35:36.392  1565  1640 I SystemUI[Framework]:   mDisableRecords.size=0
+11-16 16:35:36.394  8824  8864 I [LGHome6]OverviewFlags: applyBackButtonAlpha(): alpha = 1.00, animate = true
+11-16 16:35:36.394  2052  2052 D OverviewProxyService: notifyBackButtonAlphaChanged() : mConnectionCallbacks.size() = 1
+11-16 16:35:36.395  2052  2052 I NavigationBar: onBackButtonAlphaChanged(): alpha = 1.00, animate = true
+11-16 16:35:36.412  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:35:36.420   719   719 I SurfaceFlinger: Removed(0x7424502000) BufferLayer com.lge.launcher3/com.lge.launcher3.LauncherExtension#0 (1080 x 2160)
+11-16 16:35:36.427 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"surface","w":411,"h":823,"t":130.0}
+11-16 16:35:36.428 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"quality","line":"blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask","t":130.9}
+11-16 16:35:36.429 25220 25239 I vieww   : vieww_platform_winit::insets: display refresh: no display, or below API 30
+11-16 16:35:36.429 25220 25239 I vieww   : vieww_platform_winit::app: vieww: window#primary is on Android Device, which reports no refresh rate; keeping the current budget
+11-16 16:35:36.429 25220 25239 I vieww   : vieww_platform_winit::insets: window insets: device is below API 30, reporting none (asked once)
+11-16 16:35:36.429 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load2k","t":131.6}
+11-16 16:35:36.466  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:35:36.467  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:35:36.467  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:35:36.467  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:35:36.468  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:35:36.468  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:35:36.468  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:35:36.471  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:35:36.471  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:35:36.471  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:35:36.471  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:35:36.472  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:35:36.477  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:35:36.477  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:35:36.561 25220 25239 I vieww   : vieww_platform_winit::perf_hint: vieww: performance hint unavailable (Android 12 or older: no APerformanceHint)
+11-16 16:35:36.561 25220 25239 I vieww   : vieww_platform_winit::a11y_android: a11y: device is API 28, and the injected delegate needs 29; TalkBack will not see this tree
+11-16 16:35:36.655   650  9402 I SDM     : HWCDisplay::GetColorModeCount: Supported color mode count = 1
+11-16 16:35:36.655   650  9402 I SDM     : HWCDisplay::GetColorModes: Supports color mode[0] = 0
+11-16 16:35:36.656 25220 25239 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+11-16 16:35:36.656   650  9402 I SDM     : HWCDisplay::GetColorModeCount: Supported color mode count = 1
+11-16 16:35:36.656   650  9402 I SDM     : HWCDisplay::GetColorModes: Supports color mode[0] = 0
+11-16 16:35:36.657 25220 25239 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+11-16 16:35:36.663 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"route","route":"direct: depth-0 opaque frame rendered into the swapchain image; chosen by measurement","t":365.5}
+11-16 16:35:36.678 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:36.680  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:36.681  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:36.686 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:37.464  1565  1575 E Parcel  : Attempt to read from protected data in Parcel 0x740ce11228
+11-16 16:35:37.464  1565  1575 I chatty  : uid=1000(system) Binder:1565_1 identical 1 line
+11-16 16:35:37.464  1565  1575 E Parcel  : Attempt to read from protected data in Parcel 0x740ce11228
+11-16 16:35:37.693   687   862 D sensors_hal_Time: time_service_sensor1_cb: msg_type 2
+11-16 16:35:37.693   687   862 D sensors_hal_Time: time_service_sensor1_cb: Sn 24, msg Id 3, txn Id 0
+11-16 16:35:37.694   687   862 D sensors_hal_Time: rolloverCntIs: Received response 
+11-16 16:35:37.694   687   862 D sensors_hal_Time: rolloverCntIs: android.sensor.significant_motion Received response and re-adjusting dsps_rollover_cnt 0
+11-16 16:35:37.696   687   862 I chatty  : uid=1000(system) sensors@1.0-ser identical 90 lines
+11-16 16:35:37.696   687   862 D sensors_hal_Time: rolloverCntIs: android.sensor.significant_motion Received response and re-adjusting dsps_rollover_cnt 0
+11-16 16:35:37.696   687   862 D sensors_hal_Time: tsOffsetIs: Apps: 1792663364158; DSPS: 58868822; Offset : -3870509441 (diff 4843; elapsed 1792666364783 @5)
+11-16 16:35:37.697 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:37.705  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:37.706 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:37.706  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:37.816 25220 25239 I vieww   : vieww_platform_winit::startup: vieww: pipeline cache started from 37679 bytes; saved 37679 bytes after the first GPU frame
+11-16 16:35:38.716 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:38.727 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:38.728  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:38.728  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:38.963   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 233
+11-16 16:35:38.970   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 233
+11-16 16:35:39.414  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:35:39.737 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:39.746 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:39.747  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:39.748  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:39.799 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load2k","frames":3,"work_ms":[49.360,123.790,123.790,123.790],"interval_ms":[3085.377,3085.377,3085.377,3085.377],"jank":2,"budget_ms":16.67,"t":3501.2}
+11-16 16:35:39.799 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load2k","frames":3,"build_ms":[23.18,32.06,32.06],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[7.22,15.38,15.38],"fence_ms":[0.00,0.02,0.02],"acquire_ms":[0.24,1.08,1.08],"present_ms":[0.59,1.85,1.85],"gpu_ms":[14660154769.43,14660154769.43,14660154769.43],"budget_ms_end":16.67,"scale_ms":[0.16,0.23,0.23],"plan_ms":[21.50,75.53,75.53],"gpu_draw_ms":[14660154751.84,14660154751.84,14660154751.84],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[17.59,17.59,17.59],"gpu_blit_ms":[0.00,0.00,0.00],"t":3501.3}
+11-16 16:35:39.799 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"idle2k","t":3501.4}
+11-16 16:35:40.086   719  2876 D TimeStats: Cleared
+11-16 16:35:40.122  1565  2004 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-16 16:35:40.475  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:35:40.476  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:35:40.476  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:35:40.476  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:35:40.477  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:35:40.477  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:35:40.478  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:35:40.481  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:35:40.481  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:35:40.481  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:35:40.481  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:35:40.482  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:35:40.488  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:35:40.488  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:35:40.751 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:40.754  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:40.755  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:40.759 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:41.412  1074  1184 I ThermalEngine: TMR_APP off
+11-16 16:35:41.766 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:41.774  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:41.774 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:41.775  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:41.799 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"idle2k","frames":1,"work_ms":[7.636,7.636,7.636,7.636],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":16.67,"t":5501.8}
+11-16 16:35:41.800 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"idle2k","frames":1,"build_ms":[0.48,0.48,0.48],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[4.09,4.09,4.09],"fence_ms":[0.03,0.03,0.03],"acquire_ms":[0.56,0.56,0.56],"present_ms":[0.70,0.70,0.70],"gpu_ms":[14660154734.57,14660154734.57,14660154734.57],"budget_ms_end":16.67,"scale_ms":[0.12,0.12,0.12],"plan_ms":[1.66,1.66,1.66],"gpu_draw_ms":[14660154722.85,14660154722.85,14660154722.85],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[11.72,11.72,11.72],"gpu_blit_ms":[0.00,0.00,0.00],"t":5502.1}
+11-16 16:35:41.800 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"tick2k","t":5502.1}
+11-16 16:35:42.285   719  2876 D TimeStats: Cleared
+11-16 16:35:42.415  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:35:42.668  1565  3717 E Parcel  : Attempt to read from protected data in Parcel 0x73f7a36228
+11-16 16:35:42.668  1565  3717 I chatty  : uid=1000(system) Binder:1565_E identical 1 line
+11-16 16:35:42.668  1565  3717 E Parcel  : Attempt to read from protected data in Parcel 0x73f7a36228
+11-16 16:35:42.785 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:42.792  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:42.792 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:42.793  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:42.799 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"tick2k","frames":1,"work_ms":[31.936,31.936,31.936,31.936],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":16.67,"t":6501.8}
+11-16 16:35:42.799 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"tick2k","frames":1,"build_ms":[3.91,3.91,3.91],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[6.04,6.04,6.04],"fence_ms":[0.04,0.04,0.04],"acquire_ms":[0.51,0.51,0.51],"present_ms":[0.78,0.78,0.78],"gpu_ms":[14660154769.69,14660154769.69,14660154769.69],"budget_ms_end":16.67,"scale_ms":[0.15,0.15,0.15],"plan_ms":[20.51,20.51,20.51],"gpu_draw_ms":[14660154751.78,14660154751.78,14660154751.78],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[17.91,17.91,17.91],"gpu_blit_ms":[0.00,0.00,0.00],"t":6502.0}
+11-16 16:35:42.800 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"jump2k","t":6502.1}
+11-16 16:35:43.247   719  2876 D TimeStats: Cleared
+11-16 16:35:43.797 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:43.800 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"jump2k","frames":1,"work_ms":[53.829,53.829,53.829,53.829],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":16.67,"t":7502.1}
+11-16 16:35:43.800 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"jump2k","frames":1,"build_ms":[22.48,22.48,22.48],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[5.54,5.54,5.54],"fence_ms":[0.03,0.03,0.03],"acquire_ms":[0.33,0.33,0.33],"present_ms":[0.71,0.71,0.71],"gpu_ms":[14660154768.83,14660154768.83,14660154768.83],"budget_ms_end":16.67,"scale_ms":[0.10,0.10,0.10],"plan_ms":[24.64,24.64,24.64],"gpu_draw_ms":[14660154751.10,14660154751.10,14660154751.10],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[17.72,17.72,17.72],"gpu_blit_ms":[0.00,0.00,0.00],"t":7502.3}
+11-16 16:35:43.800 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"scroll2k","t":7502.3}
+11-16 16:35:43.802  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:43.802  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:43.808 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:43.968   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 232
+11-16 16:35:43.975   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 232
+11-16 16:35:44.089  1101  1122 I GBMv2   : GBM state [1]
+11-16 16:35:44.486  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:35:44.486  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:35:44.487  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:35:44.487  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:35:44.487  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:35:44.487  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:35:44.488  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:35:44.492  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:35:44.492  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:35:44.492  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:35:44.492  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:35:44.493  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:35:44.499  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:35:44.499  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:35:44.815 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:44.822 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:44.823  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:44.823  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:45.024   719   844 D TimeStats: Cleared
+11-16 16:35:45.070  1565  1653 W ProcessCpuTracker: Skipping unknown process pid 25365
+11-16 16:35:45.134  1565  1963 D WifiServerServiceExt: { when=0 what=131133 target=com.android.internal.util.StateMachine$SmHandler }
+11-16 16:35:45.182  1565  1644 E BatteryExternalStatsWorker: no controller energy info supplied for bluetooth
+11-16 16:35:45.186  2541  2541 D TeleService: PhoneInterfaceManager: [PhoneIntfMgr] handleMessage : 37 CMD_GET_MODEM_ACTIVITY_INFO
+11-16 16:35:45.214  2541  2541 D TeleService: PhoneInterfaceManager: [PhoneIntfMgr] handleMessage : 38 EVENT_GET_MODEM_ACTIVITY_INFO_DONE
+11-16 16:35:45.242  1565  1644 I BatteryStatsImpl: writeLocked() sync : false
+11-16 16:35:45.416  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:35:45.519 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"route","route":"blit: damage into the intermediate; chosen by measurement","t":9221.5}
+11-16 16:35:45.826 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:45.833  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:45.833 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:45.833  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:46.053  1565  1647 V WallpaperManagerService: Wallpaper file change: evt=128 path=package-restrictions-backup.xml sys=false lock=false imagePending=false whichPending=0x0 written=true
+11-16 16:35:46.098  1565  1647 V WallpaperManagerService: Wallpaper file change: evt=8 path=package-restrictions.xml sys=false lock=false imagePending=false whichPending=0x0 written=true
+11-16 16:35:46.098  1565  1647 V WallpaperManagerService: Wallpaper file change: evt=512 path=package-restrictions-backup.xml sys=false lock=false imagePending=false whichPending=0x0 written=false
+11-16 16:35:46.111 12941 13012 I WorkerManager: dispose()
+11-16 16:35:46.112 12941 13012 W ThreadPoolDumper: Queue length for executor EventBus is now 11. Perhaps some tasks are too long, or the pool is too small.
+11-16 16:35:46.837 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:46.839  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:46.839 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:46.839  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:47.845 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:47.848 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:47.853  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:47.853  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:47.873  1565  3717 E Parcel  : Attempt to read from protected data in Parcel 0x73f7a36228
+11-16 16:35:47.873  1565  3717 I chatty  : uid=1000(system) Binder:1565_E identical 1 line
+11-16 16:35:47.873  1565  3717 E Parcel  : Attempt to read from protected data in Parcel 0x73f7a36228
+11-16 16:35:48.094  1101  1122 I GBMv2   : GBM state [10]
+11-16 16:35:48.195  1101  1122 I GBMv2   : GBM state [0]
+11-16 16:35:48.417  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:35:48.464 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"route","route":"direct: depth-0 opaque frame rendered into the swapchain image; chosen by measurement (GPU frame medians: direct 14660154737.5 ms, blit 14660154712.0 ms)","t":12166.8}
+11-16 16:35:48.497  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:35:48.497  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:35:48.497  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:35:48.498  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:35:48.498  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:35:48.498  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:35:48.499  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:35:48.501  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:35:48.501  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:35:48.502  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:35:48.502  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:35:48.503  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:35:48.508  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:35:48.509  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:35:48.856 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:48.862  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:48.862  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:48.865 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:48.973   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 231
+11-16 16:35:48.980   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 231
+11-16 16:35:49.197  1101  1122 I GBMv2   : GBM state [1]
+11-16 16:35:49.870 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:49.875  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:49.876  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:49.881 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:50.727   660   660 D vendor.lge.hardware.battery@1.0-impl: Read value from /proc/lge_power/adc/batt_id, 1
+11-16 16:35:50.727   660   660 D vendor.lge.hardware.battery@1.0-impl: Read value from /proc/lge_power/battery/condition, 1
+11-16 16:35:50.728   663   663 D vendor.lge.hardware.charger@1.0-impl: Read value from /proc/lge_power/battery/time_to_full_now, 1574
+11-16 16:35:50.729   663   663 D vendor.lge.hardware.charger@1.0-impl: Read value from /proc/lge_power/charger/fastchg, 0
+11-16 16:35:50.729   663   663 D vendor.lge.hardware.charger@1.0-impl: Read value from /proc/lge_power/battery/vzw_chg, -1000000
+11-16 16:35:50.729   663   663 D vendor.lge.hardware.charger@1.0-impl: Read value from /proc/lge_power/charger/incompatible, 0
+11-16 16:35:50.729   663   663 D vendor.lge.hardware.charger@1.0-impl: Read value from /proc/lge_power/charger/usbid_type, 2147483647
+11-16 16:35:50.729   663   663 D vendor.lge.hardware.charger@1.0-impl: isExist : /sys/class/qnovo/QNA_METER
+11-16 16:35:50.729   663   663 D vendor.lge.hardware.charger@1.0-impl: checkNodeReadable : ERR_NO_FILE, /sys/class/qnovo/QNA_METER
+11-16 16:35:50.733  2052  2052 D KeyguardUpdateMonitor: received broadcast android.intent.action.BATTERY_CHANGED
+11-16 16:35:50.734  2052  2052 D KeyguardUpdateMonitor: Intent.ACTION_BATTERY_CHANGED status : 2, plugged : 2, charging : true, safe charging : false, level : 94, temperature : 188, temperatureState : 0, EXTRA_CHARGING_CURRENT : 0 / EXTRA_HVDCP_TYPE : false
+11-16 16:35:50.734  2052  2052 D KeyguardUpdateMonitor: handleBatteryUpdate
+11-16 16:35:50.736   663   663 D vendor.lge.hardware.charger@1.0-impl: Read value from /proc/lge_power/battery/time_to_full_now, 1574
+11-16 16:35:50.739  2052  2052 I LGPowerUI: onReceive = android.intent.action.BATTERY_CHANGED
+11-16 16:35:50.740  2052  2052 I LGPowerUI: level = 94, plugType = 2, plugged = true, charging = true, temperature = 188, chargingCurrent = 0, factoryCableItem = 0, isFastCharging = false, batteryID = 1, isSafeCharging = false
+11-16 16:35:50.740  2052  2052 I LGPowerUI: mIsSupportEstimateChargingTime: true
+11-16 16:35:50.746  2541  2541 D TeleService: PhoneGlobalsEx: onReceive: android.intent.action.BATTERY_CHANGED
+11-16 16:35:50.748  2052  2355 I AbsQuickSettingsHandlerBase: Got action android.intent.action.BATTERY_CHANGED for battery
+11-16 16:35:50.754   663   663 D vendor.lge.hardware.charger@1.0-impl: Read value from /proc/lge_power/battery/time_to_full_now, 1574
+11-16 16:35:50.754  2052  2052 I LowBatteryModeManager: applyCmrMode() enabled: false batteryLevel: 94
+11-16 16:35:50.754  1565  3717 I DisplayPowerControllerEx: requested BacklightDimming target[-1]
+11-16 16:35:50.755  2052  2052 I LowBatteryModeManager: setCmrMode(false)
+11-16 16:35:50.887 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:50.891  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:50.892  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:50.900 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:51.418  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:35:51.805 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"scroll2k","frames":118,"work_ms":[59.058,166.358,256.042,261.625],"interval_ms":[59.209,166.494,256.144,261.763],"jank":117,"budget_ms":16.67,"t":15507.8}
+11-16 16:35:51.806 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"scroll2k","frames":118,"build_ms":[2.50,5.68,192.85],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[4.64,8.29,11.36],"fence_ms":[0.04,24.90,69.93],"acquire_ms":[0.51,0.64,0.82],"present_ms":[40.87,49.93,82.73],"gpu_ms":[14660154737.47,14660154738.02,14660154776.92],"budget_ms_end":16.67,"scale_ms":[0.19,0.23,0.52],"plan_ms":[7.90,12.26,16.29],"gpu_draw_ms":[14660154722.98,14660154723.13,14660154753.55],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[14.46,14.86,14660151482.52],"gpu_blit_ms":[0.00,3.68,33.66],"t":15508.4}
+11-16 16:35:51.806 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"live2k","t":15508.5}
+11-16 16:35:51.904 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:51.907 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:51.907  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:51.908  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:52.104   719   844 D TimeStats: Cleared
+11-16 16:35:52.505  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:35:52.505  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:35:52.506  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:35:52.506  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:35:52.506  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:35:52.507  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:35:52.507  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:35:52.511  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:35:52.512  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:35:52.512  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:35:52.512  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:35:52.513  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:35:52.518  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:35:52.518  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:35:52.913 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:52.918  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:52.919  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:52.930 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:53.079  1565  3717 E Parcel  : Attempt to read from protected data in Parcel 0x73f7a36228
+11-16 16:35:53.079  1565  3717 I chatty  : uid=1000(system) Binder:1565_E identical 1 line
+11-16 16:35:53.079  1565  3717 E Parcel  : Attempt to read from protected data in Parcel 0x73f7a36228
+11-16 16:35:53.935 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:53.944  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:53.944  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:53.945 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:53.977   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 231
+11-16 16:35:53.986   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 231
+11-16 16:35:54.051  1210  1232 E /vendor/bin/ccd: vfloat 4430 mV read value 2147483640 mV 
+11-16 16:35:54.420  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:35:54.950 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:54.960  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:54.961  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:54.968 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:55.974 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:55.979 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:55.983  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:55.983  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:56.516  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:35:56.517  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:35:56.517  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:35:56.517  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:35:56.517  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:35:56.518  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:35:56.518  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:35:56.521  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:35:56.521  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:35:56.522  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:35:56.522  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:35:56.523  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:35:56.529  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:35:56.530  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:35:56.985 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:56.990  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:56.991  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:56.991 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:57.421  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:35:57.695   687   862 D sensors_hal_Time: time_service_sensor1_cb: msg_type 2
+11-16 16:35:57.695   687   862 D sensors_hal_Time: time_service_sensor1_cb: Sn 24, msg Id 3, txn Id 0
+11-16 16:35:57.695   687   862 D sensors_hal_Time: rolloverCntIs: Received response 
+11-16 16:35:57.695   687   862 D sensors_hal_Time: rolloverCntIs: android.sensor.significant_motion Received response and re-adjusting dsps_rollover_cnt 0
+11-16 16:35:57.696   687   862 I chatty  : uid=1000(system) sensors@1.0-ser identical 90 lines
+11-16 16:35:57.696   687   862 D sensors_hal_Time: rolloverCntIs: android.sensor.significant_motion Received response and re-adjusting dsps_rollover_cnt 0
+11-16 16:35:57.696   687   862 D sensors_hal_Time: tsOffsetIs: Apps: 1812664777796; DSPS: 59524228; Offset : -3870500081 (diff 2448; elapsed 1812667040140 @5)
+11-16 16:35:57.932  2052  2052 I NetworkController.WifiSignalController: Change in state to: connected=true,enabled=true,level=3,inetCondition=1,iconGroup=IconGroup(Default Wi-Fi Icons),activityIn=true,activityOut=true,rssi=-30,lteadvancedmode=0,ssid="A632AA524C",isTransient=false,statusLabel=null,isGigaWiFi=false,isAttWifiCall=false,detailedState=CONNECTED
+11-16 16:35:57.936  2052  2052 I MSimUtils: getSubId : 1
+11-16 16:35:57.937  2052  2052 I MSimUtils: getSubId : 1
+11-16 16:35:57.995 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:58.000  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:58.000  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:58.003 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:58.029  1565  1638 I ProcessStatsService: Pruning old procstats: /data/system/procstats/state-2026-11-15-20-57-00.bin
+11-16 16:35:58.277  1565  3717 E Parcel  : Attempt to read from protected data in Parcel 0x73f7a36228
+11-16 16:35:58.277  1565  3717 I chatty  : uid=1000(system) Binder:1565_E identical 1 line
+11-16 16:35:58.277  1565  3717 E Parcel  : Attempt to read from protected data in Parcel 0x73f7a36228
+11-16 16:35:58.934  2052  2052 I NetworkController.WifiSignalController: Change in state to: connected=true,enabled=true,level=3,inetCondition=1,iconGroup=IconGroup(Default Wi-Fi Icons),activityIn=false,activityOut=false,rssi=-30,lteadvancedmode=0,ssid="A632AA524C",isTransient=false,statusLabel=null,isGigaWiFi=false,isAttWifiCall=false,detailedState=CONNECTED
+11-16 16:35:58.936  2052  2052 I MSimUtils: getSubId : 1
+11-16 16:35:58.937  2052  2052 I MSimUtils: getSubId : 1
+11-16 16:35:58.982   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 232
+11-16 16:35:58.990   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 232
+11-16 16:35:59.011 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:35:59.021  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:59.021  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:35:59.022 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:35:59.841 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"live2k","frames":132,"work_ms":[60.978,62.546,64.184,65.160],"interval_ms":[61.189,63.054,64.472,65.371],"jank":131,"budget_ms":16.67,"t":23543.6}
+11-16 16:35:59.841 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"live2k","frames":132,"build_ms":[5.04,5.78,8.58],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[4.85,6.54,7.45],"fence_ms":[0.03,0.04,0.23],"acquire_ms":[0.40,0.57,0.83],"present_ms":[29.37,41.88,46.43],"gpu_ms":[14660154737.58,14660154737.91,14660154738.33],"budget_ms_end":16.67,"scale_ms":[0.20,0.23,0.59],"plan_ms":[20.66,26.19,32.73],"gpu_draw_ms":[14660154723.05,14660154723.16,14660154723.32],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[14.54,14.80,15.01],"gpu_blit_ms":[0.00,0.00,0.00],"t":23543.8}
+11-16 16:35:59.841 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"storm2k","t":23543.9}
+11-16 16:36:00.000  1565  1927 D PowerManagerServiceEx: acquireWakeLockInternal: lock=93672908, flags=0x40000001, tag="*alarm*", ws=WorkSource{1000}, historyTag=*alarm*:android.intent.action.TIME_TICK, uid=1000, pid=1565
+11-16 16:36:00.000  1565  1927 V AlarmManager: ELAPSED delivery Alarm{959fbf1 statsTag *alarm*:android.intent.action.TIME_TICK type 3 when 1814970 android} when 1814970
+11-16 16:36:00.002  2052  2448 I LgeClockWidgetControlView: time changed, timezoneChanged : false
+11-16 16:36:00.004  2052  2448 I Clock   : onReceive = android.intent.action.TIME_TICK
+11-16 16:36:00.006  2052  2052 I LgeClockWidgetControlView: handleTimeUpdate , 16:36
+11-16 16:36:00.027 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:00.031  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:00.032  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:00.050 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:00.060  8841  8841 I Weather_WeatherService: TimeTick Intent has been received, Time(hour:min:sec) 16:36:0
+11-16 16:36:00.061  8841  8841 I Weather_WeatherService: Screen On state. refresh widget clock
+11-16 16:36:00.062  1565  1565 D PowerManagerServiceEx: releaseWakeLockInternal: lock=93672908 [*alarm*], flags=0x0
+11-16 16:36:00.063  8841  8841 I Weather_WeatherService: shouldTimeTickRegistered - 4x2 : 0, FphWidget : 0
+11-16 16:36:00.063  8841  8841 I Weather_WeatherService: shouldTimeTickRegistered : true - home screen widget is shown.
+11-16 16:36:00.063  8841  8841 D Weather_WidgetAncestor: timetick doUpdate 2 false
+11-16 16:36:00.067   719   844 D TimeStats: Cleared
+11-16 16:36:00.067  8841  8841 I Weather_WeatherService: TimeTick Intent has been processed, Time(hour:min:sec) 16:36:0
+11-16 16:36:00.074  8841  8841 D Weather_DataCache: changedTime in DB = 0, in Cache : 0
+11-16 16:36:00.075  8841  8841 I Weather_DataCache: return -1 / 0
+11-16 16:36:00.075  8841  8841 I Weather_WidgetCreator: appWidgetId = 3571, cityIndex = -1
+11-16 16:36:00.075  8841  8841 D Weather_Utils: applied_additional_theme : false
+11-16 16:36:00.076  8841  8841 D Weather_Utils: applied_additional_theme : false
+11-16 16:36:00.076  8841  8841 D Weather_WidgetMediumWidget: narrowMode =  0
+11-16 16:36:00.076  8841  8841 E Weather_WidgetCreator: kkh getRemoteViewsForWhole
+11-16 16:36:00.077  8841  8841 D Weather_Utils: applied_additional_theme : false
+11-16 16:36:00.077  8841  8841 D Weather_WidgetCreator: use_homescreen_widget_adaptive_color : true
+11-16 16:36:00.077  8841  8841 D Weather_WidgetCreator: isUsingAdaptiveTextColor = true
+11-16 16:36:00.077  8841  8841 D Weather_WidgetCreator: prepareThemeColor, mIsDynamicTheme = false, mWidgetBasicColor = -1, mWidgetSubColor = -1,applyThemeColor = false
+11-16 16:36:00.077  8841  8841 D Weather_WidgetCreator: setTimeInfo
+11-16 16:36:00.085  8841  8841 D Weather_WidgetMediumWidget: narrowMode = 0
+11-16 16:36:00.088  8841  8841 D Weather_WidgetMediumWidget: densityScale = 1.1428572
+11-16 16:36:00.088  8841  8841 D Weather_WidgetMediumWidget: scaleFactor = 1.1428572
+11-16 16:36:00.089  8841  8841 I Weather_WidgetLarge: Empty view is on creating : 3571
+11-16 16:36:00.092  8841  8841 I Weather_WidgetAncestor: buildUpdate, appWidgetId: 3571
+11-16 16:36:00.096  8824  8824 D Weather_WidgetTextClock: setShadowColor [F@7ec63fa -2147483648
+11-16 16:36:00.096  8824  8824 I chatty  : uid=10135(com.lge.launcher3) identical 2 lines
+11-16 16:36:00.096  8824  8824 D Weather_WidgetTextClock: setShadowColor [F@7ec63fa -2147483648
+11-16 16:36:00.097  8824  8824 D Weather_WidgetTextView: setShadowColor [F@b56b987 -2147483648
+11-16 16:36:00.097  8824  8824 D Weather_WidgetTextClock: setShadowColor [F@7ec63fa -2147483648
+11-16 16:36:00.098  8824  8824 I chatty  : uid=10135(com.lge.launcher3) identical 2 lines
+11-16 16:36:00.098  8824  8824 D Weather_WidgetTextClock: setShadowColor [F@7ec63fa -2147483648
+11-16 16:36:00.098  8824  8824 D Weather_WidgetTextView: setShadowColor [F@b56b987 -2147483648
+11-16 16:36:00.099  8824  8824 D LgeAppWidgetHostView: It's weather widget, invalidate view
+11-16 16:36:00.422  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-29 threshold=-100
+11-16 16:36:00.525  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:36:00.526  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:36:00.528  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:36:00.528  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:36:00.528  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:36:00.528  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:36:00.530  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:36:00.533  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:36:00.533  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:36:00.533  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:36:00.533  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:36:00.534  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:36:00.540  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:36:00.540  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:36:01.059 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:01.065 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:01.065  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:01.113  1195  1279 E storaged: getDiskStats failed with result NOT_SUPPORTED and size 0
+11-16 16:36:01.066  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:02.073 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:02.076 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:02.076  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:03.052  1565  1927 V AlarmManager: ELAPSED delivery Alarm{379e3d6 statsTag *alarm*:com.google.android.gms.vision.DEPENDENCY type 3 when 1687649 com.google.android.gms} when 1687649
+11-16 16:36:03.055  1565  1927 V AlarmManager: ELAPSED delivery Alarm{ba02611 statsTag *alarm*:com.android.server.action.NETWORK_STATS_POLL type 3 when 1818022 android} when 1818022
+11-16 16:36:02.076  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:03.085 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:03.092 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:03.093  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:03.094  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:03.122 13171 25536 I ChimeraConfigurator: Starting update, reason: 4 urgentFeatures: vision.ocr:-1
+11-16 16:36:03.123  1565  1956 V NetworkPolicy: [VT_INTENT_PROC] notifyUnderLimitLocked() : callState = 0
+11-16 16:36:03.133 13171 25536 W FeatureMgr: Attempted to request and unrequest the same feature: appsearch_impl. Ignoring unrequest.
+11-16 16:36:03.162 13171 25536 I ChimeraConfigurator: Detected pending changes for urgent request: [vision.ocr]. Pending module sets: container:2602649100400+mlkit.ocr.common+vision.ocr,tflite_dynamite:2640104055100400+tflite_dynamite
+11-16 16:36:03.182  1565  1575 W ActivityManager: Unable to start service Intent { act=com.google.android.finsky.BIND_PLAY_MODULE_SERVICE pkg=com.android.vending } U=0: not found
+11-16 16:36:03.183 13171 25536 E ZappPhoneskyConn: Unable to bind to Phonesky
+11-16 16:36:03.183 13171 25536 I GmsDebugLogger: [76] 
+11-16 16:36:03.193  1565  5606 W ActivityManager: Unable to start service Intent { act=com.google.android.finsky.BIND_PLAY_MODULE_SERVICE pkg=com.android.vending } U=0: not found
+11-16 16:36:03.193 13171 25536 E ZappPhoneskyConn: Unable to bind to Phonesky
+11-16 16:36:03.193 13171 25536 E DynamicModuleDownloader: Zapp module request failed: null
+11-16 16:36:03.194 13171 25536 W ZappDownloader: No successful Zapp module downloads for requested modules [MlkitOcrCommon.optional:260264100400:permitMetered, TfliteDynamiteDynamite.integ:264010405100400:permitMetered, VisionOcr.optional:260264100000:permitMetered].
+11-16 16:36:03.194 13171 25536 I GmsDebugLogger: [30] [MlkitOcrCommon.optional:260264100400],[TfliteDynamiteDynamite.integ:264010405100400],[VisionOcr.optional:260264100000]
+11-16 16:36:03.201 13171 25536 W ChimeraConfigService: Retry attempt was throttled. [CONTEXT service_id=264 ]
+11-16 16:36:03.201 13171 25536 I GmsDebugLogger: [83] 1 [vision.ocr]
+11-16 16:36:03.205 13171 25535 W Vision  : Request for optional module download of ocr failed. Request again.
+11-16 16:36:03.205 13171 25535 W Vision  : Would have logged:
+11-16 16:36:03.205 13171 25535 W Vision  : # gaue@37884fe7
+11-16 16:36:03.206 13171 25535 I Vision  : Schedule retrying download ocr at 1818176 with backoff 1280 seconds
+11-16 16:36:03.423  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-29 threshold=-100
+11-16 16:36:03.479  1565  5606 E Parcel  : Attempt to read from protected data in Parcel 0x73fc5ff228
+11-16 16:36:03.479  1565  5606 I chatty  : uid=1000(system) Binder:1565_16 identical 1 line
+11-16 16:36:03.479  1565  5606 E Parcel  : Attempt to read from protected data in Parcel 0x73fc5ff228
+11-16 16:36:03.987   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 232
+11-16 16:36:03.995   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 232
+11-16 16:36:04.098 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:04.103 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:04.105  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:04.105  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:04.537  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:36:04.538  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:36:04.539  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:36:04.539  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:36:04.540  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:36:04.540  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:36:04.541  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:36:04.544  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:36:04.544  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:36:04.544  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:36:04.544  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:36:04.545  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:36:04.551  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:36:04.551  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:36:05.108 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:05.113  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:05.114  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:05.122 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:06.128 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:06.133  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:06.133  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:06.135 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:06.423  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-29 threshold=-100
+11-16 16:36:07.139 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:07.142 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:07.143  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:07.143  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:07.812 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"storm2k","frames":134,"work_ms":[59.019,61.451,63.170,63.383],"interval_ms":[59.210,61.689,63.343,63.540],"jank":133,"budget_ms":16.67,"t":31514.6}
+11-16 16:36:07.813 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"storm2k","frames":134,"build_ms":[5.15,7.64,8.82],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[2.65,4.52,6.27],"fence_ms":[0.03,0.03,0.27],"acquire_ms":[0.38,0.46,0.68],"present_ms":[22.58,35.05,39.78],"gpu_ms":[14660154737.54,14660154737.67,14660154738.14],"budget_ms_end":16.67,"scale_ms":[0.15,0.20,0.32],"plan_ms":[27.12,31.02,34.38],"gpu_draw_ms":[14660154723.13,14660154723.18,14660154723.37],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[14.41,14.49,14.87],"gpu_blit_ms":[0.00,0.00,0.00],"t":31515.2}
+11-16 16:36:07.813 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load20k","t":31515.3}
+11-16 16:36:08.129   719  2876 D TimeStats: Cleared
+11-16 16:36:08.145 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:08.148  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:08.148 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:08.148  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:08.549  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:36:08.550  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:36:08.551  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:36:08.552  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:36:08.552  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:36:08.552  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:36:08.555  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:36:08.561  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:36:08.561  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:36:08.561  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:36:08.562  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:36:08.563  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:36:08.570  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:36:08.570  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:36:08.591 13336 20732 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:08.592 13336 20732 I WS1_AfwUtils: Hub app user id: 0
+11-16 16:36:08.594 13336 20732 I WS1_AfwUtils: isWorkHubDiscoverable - false
+11-16 16:36:08.596 13336 20732 I WS1_SDKDataModelImpl: Returning in memory app token data!
+11-16 16:36:08.598 13336 20734 I DynDCD  : EnginePayloadProvider.cpp -> Loading Previously stored payload
+11-16 16:36:08.599 13336 20734 I DynDCD  : EnginePayloadProvider.cpp -> Trying to fetch rules from the Server
+11-16 16:36:08.593 13336 20732 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:08.599 13336 20734 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:08.599 13336 20734 I WS1_DynDCD_DynamicCDD: Trying to fetch rules from default source
+11-16 16:36:08.602 13336 20734 I WS1_AfwUtils: Hub app user id: 0
+11-16 16:36:08.603 13336 20734 I WS1_AfwUtils: isWorkHubDiscoverable - false
+11-16 16:36:08.605 13336 20734 I WS1_BaseMessage: Sending CddNetworkMessage to https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R
+11-16 16:36:08.607 13336 20734 I WS1     : Setting Timeout Values, Connection:30000, SO Timeout:30000
+11-16 16:36:08.609 13336 20734 I WS1_AppPermissionUtil: Getting signature for com.airwatch.androidagent
+11-16 16:36:08.612 13336 20734 I WS1_AppPermissionUtil: App access allowed with 0 for com.airwatch.androidagent
+11-16 16:36:08.616 13336 20734 I WS1_CorrelationLog: CorrelationID:e5017b36-c52a-4d3d-0001-611163608615  for connection https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R
+11-16 16:36:08.618  1187  1259 D BandwidthController: [LG DATA] No such appUid in naughtyAppUids: 10233
+11-16 16:36:08.618  1187  1259 D DnsProxyListener: App 10233 is allowed to send DNS. af=0 protocol=0
+11-16 16:36:08.649 13336 20734 I WS1_ExtendedX509TrustM: TrustMaterialAvailable, check the trust.
+11-16 16:36:08.655 13336 20734 I WS1_ADPublicKeyManager: sdk-config.data.workspaceone-gov.com is trusted by default
+11-16 16:36:08.656 13336 20734 I WS1_PinBasedTrustM: Key match status for sdk-config.data.workspaceone-gov.com/15.200.209.181: true
+11-16 16:36:08.657 13336 20734 I WS1_ExtendedX509TrustM: checkServerTrusted: Server certificate pin match for sdk-config.data.workspaceone-gov.com/15.200.209.181
+11-16 16:36:08.697  1565  5606 E Parcel  : Attempt to read from protected data in Parcel 0x73fc5ff228
+11-16 16:36:08.697  1565  5606 I chatty  : uid=1000(system) Binder:1565_16 identical 1 line
+11-16 16:36:08.697  1565  5606 E Parcel  : Attempt to read from protected data in Parcel 0x73fc5ff228
+11-16 16:36:08.709 13336 20734 I WS1_BaseMessage: Response code for https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R 200
+11-16 16:36:08.709 13336 20734 I WS1     : Response code is: 200
+11-16 16:36:08.714 13336 20734 I WS1_DynDCD_DynamicCDD: Successfully fetched payload rules from WS1 FedRAMP domain
+11-16 16:36:08.714 13336 20734 I DynDCD  : EnginePayloadProvider.cpp -> Server payload is older than bundled payload.
+11-16 16:36:08.714 13336 20734 I DynDCD  : EnginePayloadProvider.cpp -> Bundled Payload last modified time: 1603812484
+11-16 16:36:08.714 13336 20734 I DynDCD  : EnginePayloadProvider.cpp -> Server Payload last received time: 1588786684
+11-16 16:36:08.724 13336 20734 I DynDCD  : Script -> Starting Dynamic Jail Break Check
+11-16 16:36:08.724 13336 20734 I DynDCD  : Script -> Running Checks
+11-16 16:36:08.967 13336 20734 I DynDCD  : Script -> Super User Scan Check : true
+11-16 16:36:08.968 13336 20734 I DynDCD  : Script -> Writable File Paths Check : true
+11-16 16:36:08.993   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 233
+11-16 16:36:08.999   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 233
+11-16 16:36:09.008  1565  5606 E Parcel  : Attempt to read from protected data in Parcel 0x73fc5ff228
+11-16 16:36:09.008  1565  5606 I chatty  : uid=1000(system) Binder:1565_16 identical 1 line
+11-16 16:36:09.008  1565  5606 E Parcel  : Attempt to read from protected data in Parcel 0x73fc5ff228
+11-16 16:36:09.034 13336 20734 I DynDCD  : Script -> Installed Packages Check : true
+11-16 16:36:09.142  2052  2052 I NetworkController.WifiSignalController: Change in state to: connected=true,enabled=true,level=3,inetCondition=1,iconGroup=IconGroup(Default Wi-Fi Icons),activityIn=true,activityOut=true,rssi=-30,lteadvancedmode=0,ssid="A632AA524C",isTransient=false,statusLabel=null,isGigaWiFi=false,isAttWifiCall=false,detailedState=CONNECTED
+11-16 16:36:09.144  2052  2052 I MSimUtils: getSubId : 1
+11-16 16:36:09.145  2052  2052 I MSimUtils: getSubId : 1
+11-16 16:36:09.152 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:09.161  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:09.161  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:09.165 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:09.222  1101  1122 I GBMv2   : GBM state [10]
+11-16 16:36:09.323  1101  1122 I GBMv2   : GBM state [0]
+11-16 16:36:09.409 13336 20734 I DynDCD  : Script -> Super User File Path Check : true
+11-16 16:36:09.425  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-29 threshold=-100
+11-16 16:36:09.455 13336 20734 I DynDCD  : Script -> Super User Check : true
+11-16 16:36:09.462 13336 20734 I DynDCD  : Script -> Xposed Check : true
+11-16 16:36:09.493 13336 20734 I DynDCD  : Script -> Malicious Files Check : true
+11-16 16:36:09.513 13336 20734 I DynDCD  : Script -> Ro Secure Flag Check : true
+11-16 16:36:09.536 13336 20734 I DynDCD  : Script -> Magisk String Check : true
+11-16 16:36:09.536 13336 20734 D DynDCD  : Script -> [{"id":"BundledRules_SDK_20201027"},{"name":"superUserScan","passed":true},{"name":"writableFilePaths","passed":true},{"name":"installedPackages","passed":true},{"name":"superUserFilePath","passed":true},{"name":"superUser","passed":true},{"name":"xposed","passed":true},{"name":"maliciousFiles","passed":true},{"name":"roSecureFlag","passed":true},{"name":"magisk","passed":true},{"failedReasonCodes":[]}]
+11-16 16:36:09.538 13336 20734 I DynDCD  : EngineDelegateImpl.cpp -> Compromised detection successfully completed
+11-16 16:36:09.538 13336 20734 I WS1_DynDCD_DynamicCDD: Dynamic compromise detection is a success for rulesId: BundledRules_SDK_20201027!
+11-16 16:36:08.713 13336 20734 I chatty  : uid=10233(com.airwatch.androidagent) Q-AirWatchDetec identical 14 lines
+11-16 16:36:09.538 13336 20734 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:09.539 13336 13336 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:09.539 13336 13336 E WS1_DetailsLog: runDynamicCompromiseDetection passed SUCCESS
+11-16 16:36:09.540 13336 20734 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:09.540 13336 20734 I WS1_AirWatchApp: AW SDK, ENABLE_SDK_FRIDA_DETECTION: false , ENABLE_SDK_ROOT_DETECTION: false
+11-16 16:36:09.541 13336 20734 I WS1_TamperCheckService: Starting tamper checker!
+11-16 16:36:09.541 13336 20734 I NativeMain: Finding SDK Logger class!
+11-16 16:36:09.542 13336 20734 W NativeMain: SDK Logger class is invalid, logging via android logger!
+11-16 16:36:09.542 13336 20734 D NativeMain: tamper check initiated
+11-16 16:36:09.566 13336 13521 D WM-SystemJobScheduler: Scheduling work ID f260912b-54a3-46e8-a53d-f119948e9391Job ID 301136
+11-16 16:36:09.571 13336 13521 D WM-GreedyScheduler: Starting work for f260912b-54a3-46e8-a53d-f119948e9391
+11-16 16:36:09.574 13336 13336 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=f260912b-54a3-46e8-a53d-f119948e9391, generation=0)
+11-16 16:36:09.576 13336 13521 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=f260912b-54a3-46e8-a53d-f119948e9391, generation=0)
+11-16 16:36:09.579 13336 13521 D WM-Processor: Work WorkGenerationalId(workSpecId=f260912b-54a3-46e8-a53d-f119948e9391, generation=0) is already enqueued for processing
+11-16 16:36:09.541 13336 20734 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:09.583 13336 13521 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:09.583 13336 13521 W WS1_SE_SmpWrkFct_MGMUVP: com.airwatch.app.TamperCheckerWorker not resolved in SamplingWorkerFactory
+11-16 16:36:09.583 13336 13521 W WS1_IntentProcessorWorkerFct: com.airwatch.app.TamperCheckerWorker not resolved
+11-16 16:36:09.583 13336 13521 E WS1_TaskWorkerFactory: Worker class:com.airwatch.app.TamperCheckerWorker not resolved in TaskWorkerFactory
+11-16 16:36:09.589 13336 13336 D WM-WorkerWrapper: Starting work for com.airwatch.app.TamperCheckerWorker
+11-16 16:36:09.602  1176  1176 I keystore: del USRPKEY_27CSRR00O5asMcW91qAIHA== 10233
+11-16 16:36:09.603  1176  1176 I keystore: del USRCERT_27CSRR00O5asMcW91qAIHA== 10233
+11-16 16:36:09.604  1176  1176 I keystore: del CACERT_27CSRR00O5asMcW91qAIHA== 10233
+11-16 16:36:09.583 13336 13521 I chatty  : uid=10233(com.airwatch.androidagent) WM.task-1 identical 1 line
+11-16 16:36:09.583 13336 13521 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:09.610 13336 13847 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:09.610 13336 13847 I WS1_TamperChecker: CompDetectionResponse is 14
+11-16 16:36:09.610 13336 13847 I WS1_TamperChecker: DI status=false
+11-16 16:36:09.610 13336 13847 I WS1_TamperChecker: At launch: Root status=false
+11-16 16:36:09.611 13336 13847 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 16:36:09.611 13336 13847 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 16:36:09.611 13336 13847 I WS1_TamperChecker: Root status=false
+11-16 16:36:09.611 13336 13847 W WS1_SysUtil: There is a tamper in bootloader property androidboot.flash.locked
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: onSDKException: BOOTLOADER_PROPERTY_EXTRACTION_FAILURE
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: com.airwatch.bizlib.exceptions.AWSDKException: [AWSDKException:BOOTLOADER_PROPERTY_EXTRACTION_FAILURE] androidboot.flash.locked is invalid!
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at com.airwatch.agent.AirWatchApp.x(Unknown Source:2)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at mq.o1.b(Unknown Source:6)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at mq.g$a.a(Unknown Source:143)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at mq.y1.a(Unknown Source:114)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at mq.y1.d(Unknown Source:11)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.g(Unknown Source:966)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.d(Unknown Source:11)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.g(Unknown Source:2043)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.appSecurityDebuggerDetectionNonTamperAction(Unknown Source:6)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at java.lang.reflect.Method.invoke(Native Method)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at kk.zG.yh(Unknown Source:373)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at kk.oY.zh(Unknown Source:26)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at com.airwatch.app.TamperCheckerWorker.triggerArxanInitCheck(Unknown Source:271)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at com.airwatch.app.TamperCheckerWorker.doWork(Unknown Source:0)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at androidx.work.Worker.startWork$lambda$0(Unknown Source:0)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at androidx.work.Worker.c(Unknown Source:0)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at androidx.work.j.invoke(Unknown Source:2)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at androidx.work.WorkerKt.future$lambda$2$lambda$1(Unknown Source:7)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at androidx.work.WorkerKt.a(Unknown Source:0)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at androidx.work.m.run(Unknown Source:6)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+11-16 16:36:09.612 13336 13847 E WS1_AirWatchApp: 	at java.lang.Thread.run(Thread.java:764)
+11-16 16:36:09.612 13336 13847 I WS1_TamperCheckService: Beginning of tamper checker operation!
+11-16 16:36:09.613 13336 16098 I WS1_CrittercismWrapper: reportHandledException() com.airwatch.bizlib.exceptions.AWSDKException: [AWSDKException:BOOTLOADER_PROPERTY_EXTRACTION_FAILURE] androidboot.flash.locked is invalid!
+11-16 16:36:09.625 13336 13836 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=f260912b-54a3-46e8-a53d-f119948e9391, tags={ com.airwatch.app.TamperCheckerWorker } ]
+11-16 16:36:09.633 13336 13336 D WM-Processor: Processor f260912b-54a3-46e8-a53d-f119948e9391 executed; reschedule = false
+11-16 16:36:09.634 13336 13336 D WM-SystemJobService: f260912b-54a3-46e8-a53d-f119948e9391 executed on JobScheduler
+11-16 16:36:09.640 13336 13836 D WM-GreedyScheduler: Cancelling work ID f260912b-54a3-46e8-a53d-f119948e9391
+11-16 16:36:09.644  1187  1259 D BandwidthController: [LG DATA] No such appUid in naughtyAppUids: 10233
+11-16 16:36:09.644  1187  1259 D DnsProxyListener: App 10233 is allowed to send DNS. af=0 protocol=0
+11-16 16:36:09.801 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load20k","frames":1,"work_ms":[34.700,34.700,34.700,34.700],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":16.67,"t":33503.2}
+11-16 16:36:09.801 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load20k","frames":1,"build_ms":[15.27,15.27,15.27],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[4.33,4.33,4.33],"fence_ms":[0.02,0.02,0.02],"acquire_ms":[0.32,0.32,0.32],"present_ms":[0.88,0.88,0.88],"gpu_ms":[14660154737.56,14660154737.56,14660154737.56],"budget_ms_end":16.67,"scale_ms":[0.07,0.07,0.07],"plan_ms":[13.80,13.80,13.80],"gpu_draw_ms":[14660154723.13,14660154723.13,14660154723.13],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[14.43,14.43,14.43],"gpu_blit_ms":[0.00,0.00,0.00],"t":33503.4}
+11-16 16:36:09.801 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"idle20k","t":33503.4}
+11-16 16:36:09.840 13336 13346 I ch.androidagen: Background concurrent copying GC freed 360785(13MB) AllocSpace objects, 18(448KB) LOS objects, 49% free, 14MB/28MB, paused 1.035ms total 228.119ms
+11-16 16:36:09.860 13336 25625 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:09.860 13336 25625 I WS1_TamperChecker: CompDetectionResponse is 20
+11-16 16:36:09.860 13336 25625 I WS1_TamperChecker: DI status=false
+11-16 16:36:09.860 13336 25625 I WS1_TamperChecker: At launch: Root status=false
+11-16 16:36:09.860 13336 25625 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 16:36:09.861 13336 25625 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 16:36:09.861 13336 25625 I WS1_TamperChecker: Root status=false
+11-16 16:36:09.861 13336 25625 W WS1_SysUtil: There is a tamper in bootloader property androidboot.flash.locked
+11-16 16:36:09.862 13336 25625 E WS1_AirWatchApp: onSDKException: BOOTLOADER_PROPERTY_EXTRACTION_FAILURE
+11-16 16:36:09.862 13336 25625 E WS1_AirWatchApp: com.airwatch.bizlib.exceptions.AWSDKException: [AWSDKException:BOOTLOADER_PROPERTY_EXTRACTION_FAILURE] androidboot.flash.locked is invalid!
+11-16 16:36:09.862 13336 25625 E WS1_AirWatchApp: 	at com.airwatch.agent.AirWatchApp.x(Unknown Source:2)
+11-16 16:36:09.862 13336 25625 E WS1_AirWatchApp: 	at mq.o1.b(Unknown Source:6)
+11-16 16:36:09.862 13336 25625 E WS1_AirWatchApp: 	at mq.g$a.a(Unknown Source:143)
+11-16 16:36:09.862 13336 25625 E WS1_AirWatchApp: 	at mq.y1.a(Unknown Source:114)
+11-16 16:36:09.862 13336 25625 E WS1_AirWatchApp: 	at mq.y1.d(Unknown Source:11)
+11-16 16:36:09.862 13336 25625 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.g(Unknown Source:966)
+11-16 16:36:09.862 13336 25625 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.d(Unknown Source:11)
+11-16 16:36:09.862 13336 25625 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.g(Unknown Source:1569)
+11-16 16:36:09.862 13336 25625 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.appSecurityRootDetectionNonTamperAction(Unknown Source:6)
+11-16 16:36:09.862 13336 25625 E WS1_AirWatchApp: 	at java.lang.reflect.Method.invoke(Native Method)
+11-16 16:36:09.862 13336 25625 E WS1_AirWatchApp: 	at kk.lY.yh(Unknown Source:1844)
+11-16 16:36:09.862 13336 25625 E WS1_AirWatchApp: 	at java.lang.reflect.Method.invoke(Native Method)
+11-16 16:36:09.862 13336 25625 E WS1_AirWatchApp: 	at kk.UE.Vh(Unknown Source:47)
+11-16 16:36:09.862 13336 25625 E WS1_AirWatchApp: 	at kk.UE.run(Unknown Source:0)
+11-16 16:36:09.861 13336 25625 I chatty  : uid=10233(com.airwatch.androidagent) identical 4 lines
+11-16 16:36:09.861 13336 25625 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:09.862 13336 16098 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:09.862 13336 16098 I WS1_CrittercismWrapper: reportHandledException() com.airwatch.bizlib.exceptions.AWSDKException: [AWSDKException:BOOTLOADER_PROPERTY_EXTRACTION_FAILURE] androidboot.flash.locked is invalid!
+11-16 16:36:09.968   719  2876 D TimeStats: Cleared
+11-16 16:36:10.100  2052  2355 I MSimUtils: getDefaultDataPhoneId : 0
+11-16 16:36:10.106  2052  2355 I chatty  : uid=10116(com.android.systemui) SysUiBg identical 2 lines
+11-16 16:36:10.108  2052  2355 I MSimUtils: getDefaultDataPhoneId : 0
+11-16 16:36:10.170 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:10.172  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:10.172  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:10.175 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:10.530  1176  1176 I keystore: del USRPKEY_27CSRR00O5asMcW91qAIHA== 10233
+11-16 16:36:10.534  1176  1176 I keystore: del USRCERT_27CSRR00O5asMcW91qAIHA== 10233
+11-16 16:36:10.535  1176  1176 I keystore: del CACERT_27CSRR00O5asMcW91qAIHA== 10233
+11-16 16:36:10.535 13336 25623 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:10.536 13336 25623 I WS1_TamperChecker: CompDetectionResponse is 22
+11-16 16:36:10.536 13336 25623 I WS1_TamperChecker: DI status=false
+11-16 16:36:10.536 13336 25623 I WS1_TamperChecker: At launch: Root status=false
+11-16 16:36:10.536 13336 25623 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 16:36:10.536 13336 25623 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 16:36:10.536 13336 25623 I WS1_TamperChecker: Root status=false
+11-16 16:36:10.537 13336 25623 W WS1_SysUtil: There is a tamper in bootloader property androidboot.flash.locked
+11-16 16:36:10.538 13336 25623 E WS1_AirWatchApp: onSDKException: BOOTLOADER_PROPERTY_EXTRACTION_FAILURE
+11-16 16:36:10.538 13336 25623 E WS1_AirWatchApp: com.airwatch.bizlib.exceptions.AWSDKException: [AWSDKException:BOOTLOADER_PROPERTY_EXTRACTION_FAILURE] androidboot.flash.locked is invalid!
+11-16 16:36:10.538 13336 25623 E WS1_AirWatchApp: 	at com.airwatch.agent.AirWatchApp.x(Unknown Source:2)
+11-16 16:36:10.538 13336 25623 E WS1_AirWatchApp: 	at mq.o1.b(Unknown Source:6)
+11-16 16:36:10.538 13336 25623 E WS1_AirWatchApp: 	at mq.g$a.a(Unknown Source:143)
+11-16 16:36:10.538 13336 25623 E WS1_AirWatchApp: 	at mq.y1.a(Unknown Source:114)
+11-16 16:36:10.538 13336 25623 E WS1_AirWatchApp: 	at mq.y1.d(Unknown Source:11)
+11-16 16:36:10.538 13336 25623 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.g(Unknown Source:966)
+11-16 16:36:10.538 13336 25623 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.d(Unknown Source:11)
+11-16 16:36:10.538 13336 25623 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.g(Unknown Source:2408)
+11-16 16:36:10.538 13336 25623 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.appSecurityBootLoaderIntegrityNonTamperAction(Unknown Source:6)
+11-16 16:36:10.538 13336 25623 E WS1_AirWatchApp: 	at java.lang.reflect.Method.invoke(Native Method)
+11-16 16:36:10.538 13336 25623 E WS1_AirWatchApp: 	at kk.ZY.zh(Unknown Source:531)
+11-16 16:36:10.538 13336 25623 E WS1_AirWatchApp: 	at java.lang.reflect.Method.invoke(Native Method)
+11-16 16:36:10.538 13336 25623 E WS1_AirWatchApp: 	at kk.UE.Vh(Unknown Source:47)
+11-16 16:36:10.538 13336 25623 E WS1_AirWatchApp: 	at kk.UE.run(Unknown Source:0)
+11-16 16:36:10.536 13336 25623 I chatty  : uid=10233(com.airwatch.androidagent) identical 2 lines
+11-16 16:36:10.537 13336 25623 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:10.538 13336 16098 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:10.538 13336 16098 I WS1_CrittercismWrapper: reportHandledException() com.airwatch.bizlib.exceptions.AWSDKException: [AWSDKException:BOOTLOADER_PROPERTY_EXTRACTION_FAILURE] androidboot.flash.locked is invalid!
+11-16 16:36:10.601 13336 25624 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:10.601 13336 25624 I WS1_TamperChecker: CompDetectionResponse is 18
+11-16 16:36:10.602 13336 25624 I WS1_TamperChecker: DI status=false
+11-16 16:36:10.602 13336 25624 I WS1_TamperChecker: At launch: Root status=false
+11-16 16:36:10.603 13336 25624 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 16:36:10.603 13336 25624 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 16:36:10.604 13336 25624 I WS1_TamperChecker: Root status=false
+11-16 16:36:10.604 13336 25624 W WS1_SysUtil: There is a tamper in bootloader property androidboot.flash.locked
+11-16 16:36:10.606 13336 25624 E WS1_AirWatchApp: onSDKException: BOOTLOADER_PROPERTY_EXTRACTION_FAILURE
+11-16 16:36:10.606 13336 25624 E WS1_AirWatchApp: com.airwatch.bizlib.exceptions.AWSDKException: [AWSDKException:BOOTLOADER_PROPERTY_EXTRACTION_FAILURE] androidboot.flash.locked is invalid!
+11-16 16:36:10.606 13336 25624 E WS1_AirWatchApp: 	at com.airwatch.agent.AirWatchApp.x(Unknown Source:2)
+11-16 16:36:10.606 13336 25624 E WS1_AirWatchApp: 	at mq.o1.b(Unknown Source:6)
+11-16 16:36:10.606 13336 25624 E WS1_AirWatchApp: 	at mq.g$a.a(Unknown Source:143)
+11-16 16:36:10.606 13336 25624 E WS1_AirWatchApp: 	at mq.y1.a(Unknown Source:114)
+11-16 16:36:10.606 13336 25624 E WS1_AirWatchApp: 	at mq.y1.d(Unknown Source:11)
+11-16 16:36:10.606 13336 25624 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.g(Unknown Source:966)
+11-16 16:36:10.606 13336 25624 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.d(Unknown Source:11)
+11-16 16:36:10.606 13336 25624 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.g(Unknown Source:1913)
+11-16 16:36:10.606 13336 25624 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.appSecurityHookDetectionNonTamperAction(Unknown Source:6)
+11-16 16:36:10.606 13336 25624 E WS1_AirWatchApp: 	at java.lang.reflect.Method.invoke(Native Method)
+11-16 16:36:10.606 13336 25624 E WS1_AirWatchApp: 	at kk.GY.jh(Unknown Source:1849)
+11-16 16:36:10.606 13336 25624 E WS1_AirWatchApp: 	at java.lang.reflect.Method.invoke(Native Method)
+11-16 16:36:10.606 13336 25624 E WS1_AirWatchApp: 	at kk.UE.Vh(Unknown Source:47)
+11-16 16:36:10.606 13336 25624 E WS1_AirWatchApp: 	at kk.UE.run(Unknown Source:0)
+11-16 16:36:10.604 13336 25624 I chatty  : uid=10233(com.airwatch.androidagent) identical 6 lines
+11-16 16:36:10.605 13336 25624 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:10.606 13336 16098 E SchedPolicy: set_timerslack_ns write failed: Operation not permitted
+11-16 16:36:10.606 13336 16098 I WS1_CrittercismWrapper: reportHandledException() com.airwatch.bizlib.exceptions.AWSDKException: [AWSDKException:BOOTLOADER_PROPERTY_EXTRACTION_FAILURE] androidboot.flash.locked is invalid!
+11-16 16:36:11.146  2052  2052 I NetworkController.WifiSignalController: Change in state to: connected=true,enabled=true,level=3,inetCondition=1,iconGroup=IconGroup(Default Wi-Fi Icons),activityIn=false,activityOut=false,rssi=-30,lteadvancedmode=0,ssid="A632AA524C",isTransient=false,statusLabel=null,isGigaWiFi=false,isAttWifiCall=false,detailedState=CONNECTED
+11-16 16:36:11.150  2052  2052 I MSimUtils: getSubId : 1
+11-16 16:36:11.151  2052  2052 I MSimUtils: getSubId : 1
+11-16 16:36:11.181 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:11.184 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:11.184  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:11.184  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:11.801 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"idle20k","frames":1,"work_ms":[272.903,272.903,272.903,272.903],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":16.67,"t":35503.7}
+11-16 16:36:11.801 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"idle20k","frames":1,"build_ms":[0.44,0.44,0.44],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[269.39,269.39,269.39],"fence_ms":[0.02,0.02,0.02],"acquire_ms":[0.68,0.68,0.68],"present_ms":[0.81,0.81,0.81],"gpu_ms":[14660154737.60,14660154737.60,14660154737.60],"budget_ms_end":16.67,"scale_ms":[0.11,0.11,0.11],"plan_ms":[1.45,1.45,1.45],"gpu_draw_ms":[14660154723.15,14660154723.15,14660154723.15],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[14.45,14.45,14.45],"gpu_blit_ms":[0.00,0.00,0.00],"t":35503.8}
+11-16 16:36:11.801 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"tick20k","t":35503.8}
+11-16 16:36:12.191 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:12.195 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:12.195  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:12.195  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:12.206   719  2876 D TimeStats: Cleared
+11-16 16:36:12.426  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-29 threshold=-100
+11-16 16:36:12.562  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:36:12.562  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:36:12.564  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:36:12.564  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:36:12.565  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:36:12.565  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:36:12.567  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:36:12.575  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:36:12.575  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:36:12.575  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:36:12.576  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:36:12.578  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:36:12.586  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:36:12.586  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:36:12.802 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"tick20k","frames":1,"work_ms":[16.860,16.860,16.860,16.860],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":16.67,"t":36504.1}
+11-16 16:36:12.802 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"tick20k","frames":1,"build_ms":[2.52,2.52,2.52],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[5.55,5.55,5.55],"fence_ms":[0.03,0.03,0.03],"acquire_ms":[0.42,0.42,0.42],"present_ms":[0.79,0.79,0.79],"gpu_ms":[14660154734.59,14660154734.59,14660154734.59],"budget_ms_end":16.67,"scale_ms":[0.14,0.14,0.14],"plan_ms":[7.41,7.41,7.41],"gpu_draw_ms":[14660154722.88,14660154722.88,14660154722.88],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[11.71,11.71,11.71],"gpu_blit_ms":[0.00,0.00,0.00],"t":36504.5}
+11-16 16:36:12.802 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"jump20k","t":36504.6}
+11-16 16:36:13.146   719  2876 D TimeStats: Cleared
+11-16 16:36:13.201 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:13.208 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:13.209  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:13.209  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:13.744   700  3574 I LocSvc_libulp: ulp_msg_process_system_update: systemEvent:5 
+11-16 16:36:13.744   700  3574 I LocSvc_libulp: ulp_msg_process_start_req, at ulp state = 1
+11-16 16:36:13.744   700  2454 I LocSvc_api_v02: ---> locClientSendReq line 2154 QMI_LOC_GET_BEST_AVAILABLE_POSITION_REQ_V02
+11-16 16:36:13.748   700  2461 I LocSvc_ApiV02: <--- globalRespCb line 150 QMI_LOC_GET_BEST_AVAILABLE_POSITION_REQ_V02
+11-16 16:36:13.749   700  3574 I LocSvc_libulp: ulp_brain_process_zpp_position_report, report ZPP position to providers,report_position = 1
+11-16 16:36:13.801 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"jump20k","frames":1,"work_ms":[55.916,55.916,55.916,55.916],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":16.67,"t":37503.8}
+11-16 16:36:13.801 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"jump20k","frames":1,"build_ms":[32.46,32.46,32.46],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[3.71,3.71,3.71],"fence_ms":[0.02,0.02,0.02],"acquire_ms":[0.34,0.34,0.34],"present_ms":[0.85,0.85,0.85],"gpu_ms":[14660154768.40,14660154768.40,14660154768.40],"budget_ms_end":16.67,"scale_ms":[0.12,0.12,0.12],"plan_ms":[18.41,18.41,18.41],"gpu_draw_ms":[14660154750.88,14660154750.88,14660154750.88],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[17.52,17.52,17.52],"gpu_blit_ms":[0.00,0.00,0.00],"t":37503.9}
+11-16 16:36:13.801 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"scroll20k","t":37503.9}
+11-16 16:36:13.926  1565  5406 E Parcel  : Attempt to read from protected data in Parcel 0x73fe0d3228
+11-16 16:36:13.926  1565  5406 I chatty  : uid=1000(system) Binder:1565_14 identical 1 line
+11-16 16:36:13.926  1565  5406 E Parcel  : Attempt to read from protected data in Parcel 0x73fe0d3228
+11-16 16:36:13.999   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 234
+11-16 16:36:14.004   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 234
+11-16 16:36:14.212 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:14.219  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:14.219  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:14.222 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:14.330  1101  1122 I GBMv2   : GBM state [1]
+11-16 16:36:15.003   719  2876 D TimeStats: Cleared
+11-16 16:36:15.232 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:15.235 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:15.235  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:15.235  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:15.427  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:36:16.241 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:16.246 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:16.246  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:16.246  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:16.578  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:36:16.578  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:36:16.580  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:36:16.580  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:36:16.580  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:36:16.581  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:36:16.582  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:36:16.586  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:36:16.586  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:36:16.586  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:36:16.587  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:36:16.588  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:36:16.595  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:36:16.596  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:36:17.255 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:17.260  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:17.260 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:17.260  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:17.696   687   862 D sensors_hal_Time: time_service_sensor1_cb: msg_type 2
+11-16 16:36:17.697   687   862 D sensors_hal_Time: time_service_sensor1_cb: Sn 24, msg Id 3, txn Id 0
+11-16 16:36:17.697   687   862 D sensors_hal_Time: rolloverCntIs: Received response 
+11-16 16:36:17.697   687   862 D sensors_hal_Time: rolloverCntIs: android.sensor.significant_motion Received response and re-adjusting dsps_rollover_cnt 0
+11-16 16:36:17.699   687   862 I chatty  : uid=1000(system) sensors@1.0-ser identical 90 lines
+11-16 16:36:17.699   687   862 D sensors_hal_Time: rolloverCntIs: android.sensor.significant_motion Received response and re-adjusting dsps_rollover_cnt 0
+11-16 16:36:17.699   687   862 D sensors_hal_Time: tsOffsetIs: Apps: 1832666543257; DSPS: 60179646; Offset : -3870504587 (diff 3698; elapsed 1832669348518 @5)
+11-16 16:36:18.264 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:18.268  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:18.269  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:18.270 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:18.428  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:36:19.004   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 234
+11-16 16:36:19.011   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 234
+11-16 16:36:19.127  1565  5406 E Parcel  : Attempt to read from protected data in Parcel 0x73fe0d3228
+11-16 16:36:19.127  1565  5406 I chatty  : uid=1000(system) Binder:1565_14 identical 1 line
+11-16 16:36:19.127  1565  5406 E Parcel  : Attempt to read from protected data in Parcel 0x73fe0d3228
+11-16 16:36:19.276 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:19.281  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:19.281 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:19.281  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:20.287 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:20.291  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:20.292 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:20.292  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:20.590  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:36:20.591  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:36:20.592  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:36:20.592  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:36:20.592  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:36:20.593  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:36:20.594  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:36:20.597  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:36:20.598  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:36:20.598  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:36:20.598  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:36:20.600  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:36:20.606  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:36:20.607  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:36:21.297 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:21.302 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:21.304  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:21.305  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:21.429  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:36:21.505 13336 13479 D TaskQueue: removing queue after quit safely success for task queue handler AWService
+11-16 16:36:21.839 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"scroll20k","frames":137,"work_ms":[58.496,59.488,61.733,98.563],"interval_ms":[58.688,59.659,61.862,98.742],"jank":136,"budget_ms":16.67,"t":45541.9}
+11-16 16:36:21.840 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"scroll20k","frames":137,"build_ms":[2.36,3.00,6.16],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[3.19,3.67,4.59],"fence_ms":[0.03,0.04,0.31],"acquire_ms":[0.51,0.63,1.05],"present_ms":[43.94,50.62,88.32],"gpu_ms":[14660154737.57,14660154737.89,14660154772.66],"budget_ms_end":16.67,"scale_ms":[0.19,0.21,0.46],"plan_ms":[8.03,12.82,19.67],"gpu_draw_ms":[14660154723.02,14660154723.14,14660154750.39],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[14.52,14.81,22.27],"gpu_blit_ms":[0.00,0.00,0.00],"t":45542.2}
+11-16 16:36:21.840 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"live20k","t":45542.2}
+11-16 16:36:22.079   719   844 D TimeStats: Cleared
+11-16 16:36:22.308 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:22.312  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:22.312  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:22.318 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:23.322 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:23.325 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:23.325  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:23.325  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:24.011   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 234
+11-16 16:36:24.016   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 234
+11-16 16:36:24.326  1565  5406 E Parcel  : Attempt to read from protected data in Parcel 0x73fe0d3228
+11-16 16:36:24.326  1565  5406 I chatty  : uid=1000(system) Binder:1565_14 identical 1 line
+11-16 16:36:24.326  1565  5406 E Parcel  : Attempt to read from protected data in Parcel 0x73fe0d3228
+11-16 16:36:24.330 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:24.334  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:24.334  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:24.337 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:24.430  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:36:24.600  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:36:24.600  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:36:24.601  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:36:24.602  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:36:24.602  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:36:24.602  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:36:24.603  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:36:24.608  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:36:24.608  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:36:24.608  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:36:24.609  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:36:24.610  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:36:24.615  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:36:24.615  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:36:25.343 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:25.347 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:25.347  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:25.348  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:26.364 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:26.369  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:26.370  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:26.371 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:27.375 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:27.378 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:27.378  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:27.378  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:27.432  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:36:28.388 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:28.395  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:28.395  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:28.398 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:28.610  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:36:28.610  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:36:28.611  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:36:28.611  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:36:28.611  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:36:28.611  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:36:28.612  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:36:28.613  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:36:28.613  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:36:28.614  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:36:28.614  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:36:28.615  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:36:28.620  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:36:28.620  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:36:29.017   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 233
+11-16 16:36:29.025   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 233
+11-16 16:36:29.403 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:29.406 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:29.406  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:29.406  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:29.536  1565  5406 E Parcel  : Attempt to read from protected data in Parcel 0x73fe0d3228
+11-16 16:36:29.536  1565  5406 I chatty  : uid=1000(system) Binder:1565_14 identical 1 line
+11-16 16:36:29.536  1565  5406 E Parcel  : Attempt to read from protected data in Parcel 0x73fe0d3228
+11-16 16:36:29.851 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"live20k","frames":135,"work_ms":[58.836,61.334,61.958,62.530],"interval_ms":[59.033,61.524,62.171,62.781],"jank":134,"budget_ms":16.67,"t":53553.1}
+11-16 16:36:29.851 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"live20k","frames":135,"build_ms":[4.92,5.70,8.54],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[2.84,4.36,6.68],"fence_ms":[0.03,0.04,0.04],"acquire_ms":[0.39,0.56,0.94],"present_ms":[31.38,43.21,46.57],"gpu_ms":[14660154737.57,14660154737.94,14660154738.17],"budget_ms_end":16.67,"scale_ms":[0.20,0.23,0.48],"plan_ms":[18.74,25.80,33.54],"gpu_draw_ms":[14660154723.07,14660154723.16,14660154723.28],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[14.51,14.80,14.96],"gpu_blit_ms":[0.00,0.00,0.00],"t":53553.7}
+11-16 16:36:29.851 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"storm20k","t":53553.7}
+11-16 16:36:30.145   719   844 D TimeStats: Cleared
+11-16 16:36:30.413 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:30.416 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:30.417  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:30.418  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:30.432  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:36:31.426 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:31.431  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:31.432  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:31.433 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:32.438 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:32.443  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:32.443 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:32.443  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:32.617  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:36:32.617  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:36:32.618  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:36:32.618  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:36:32.618  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:36:32.619  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:36:32.619  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:36:32.623  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:36:32.623  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:36:32.623  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:36:32.623  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:36:32.625  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:36:32.628  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:36:32.628  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:36:33.433  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:36:33.448 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:33.451 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:33.452  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:33.452  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:34.024   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 233
+11-16 16:36:34.033   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 233
+11-16 16:36:34.455 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:34.460 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:34.463  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:34.463  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:34.745  1565  3022 E Parcel  : Attempt to read from protected data in Parcel 0x73fd5ff228
+11-16 16:36:34.745  1565  3022 I chatty  : uid=1000(system) Binder:1565_9 identical 1 line
+11-16 16:36:34.745  1565  3022 E Parcel  : Attempt to read from protected data in Parcel 0x73fd5ff228
+11-16 16:36:35.464 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:35.468 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:35.468  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:35.468  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:36.435  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:36:36.473 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:36.479  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:36.479 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:36.480  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:36.627  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1021] handleMessage what = 50
+11-16 16:36:36.627  3325  3325 D wfcservice_TMUS: [IPPolicy$8::handleMessage:1032] EVENT_RADIO_STATUS_CHANGED received
+11-16 16:36:36.628  3325  3325 D wfcservice_TMUS: [IPPolicy::isGbaSupported:1448] gba supported = true
+11-16 16:36:36.628  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2216] wifi state = CONNECTED_ROVE_IN
+11-16 16:36:36.628  3325  3325 D wfcservice_TMUS: [IPPolicy::processWifiRegCheck:2281] registration type = 1
+11-16 16:36:36.628  3325  3325 D wfcservice_TMUS: [IPPolicy::isGsmRadioOn:2470] radio state = 3
+11-16 16:36:36.629  3325  3325 D wfcservice_TMUS: [IPPolicy::radioControl:1195] radio control TurnON/OFF : true force : false
+11-16 16:36:36.632  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2187] need to register = true
+11-16 16:36:36.632  3325  3325 D wfcservice_TMUS: [IPPolicy::processRegCheck:2190] registration regiType = 1, sRegistered = false, mMobileFit = NO_MOBILE, mWifiFit = CONNECTED_ROVE_IN, mProfile: 1, mRtype = 0
+11-16 16:36:36.632  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceUnregistration:1496] sRegistered = false
+11-16 16:36:36.632  3325  3325 D wfcservice_TMUS: [IPPolicy::destroyService:2636] destroyService = false
+11-16 16:36:36.633  3325  3325 D WFC_WfcFeatureUtil: getOperatorInt op : TMO
+11-16 16:36:36.638  3325  3325 I wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1363] gbaInit = true, sim state = SIM_LOADED
+11-16 16:36:36.639  3325  3325 D wfcservice_TMUS: [IPPolicy::doIPServiceRegistration:1380] sRegistered = false, mServerNotify = STOP_RETRY, mBlockReg = false, mReadImpuCount = 0
+11-16 16:36:37.484 12953 13216 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:37.488 12953 13216 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:37.491  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:37.491  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:37.699   687   862 D sensors_hal_Time: time_service_sensor1_cb: msg_type 2
+11-16 16:36:37.699   687   862 D sensors_hal_Time: time_service_sensor1_cb: Sn 24, msg Id 3, txn Id 0
+11-16 16:36:37.699   687   862 D sensors_hal_Time: rolloverCntIs: Received response 
+11-16 16:36:37.699   687   862 D sensors_hal_Time: rolloverCntIs: android.sensor.significant_motion Received response and re-adjusting dsps_rollover_cnt 0
+11-16 16:36:37.701   687   862 I chatty  : uid=1000(system) sensors@1.0-ser identical 90 lines
+11-16 16:36:37.701   687   862 D sensors_hal_Time: rolloverCntIs: android.sensor.significant_motion Received response and re-adjusting dsps_rollover_cnt 0
+11-16 16:36:37.701   687   862 D sensors_hal_Time: tsOffsetIs: Apps: 1852668000697; DSPS: 60835054; Offset : -3870512043 (diff 3489; elapsed 1852671986218 @5)
+11-16 16:36:37.807 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"storm20k","frames":134,"work_ms":[58.913,61.628,62.139,63.479],"interval_ms":[59.080,61.843,62.348,63.797],"jank":133,"budget_ms":16.67,"t":61509.3}
+11-16 16:36:37.807 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"storm20k","frames":134,"build_ms":[5.71,7.76,8.51],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[2.62,4.19,6.18],"fence_ms":[0.03,0.03,0.03],"acquire_ms":[0.38,0.44,0.71],"present_ms":[22.14,33.45,38.51],"gpu_ms":[14660154737.50,14660154737.62,14660154737.80],"budget_ms_end":16.67,"scale_ms":[0.20,0.22,0.42],"plan_ms":[26.88,32.13,36.32],"gpu_draw_ms":[14660154723.10,14660154723.15,14660154723.22],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[14.40,14.47,14.62],"gpu_blit_ms":[0.00,0.00,0.00],"t":61509.6}
+11-16 16:36:37.807 25220 25239 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"done","t":61509.7}
+11-16 16:36:38.406   719  2876 D TimeStats: Cleared
+11-16 16:36:38.499 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:38.508  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:38.509  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:38.513 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 16:36:38.716 12953 13866 D BluetoothAdapter: isBleScanAlwaysAvailable(): callingPackage = com.google.android.gms
+11-16 16:36:38.718 12953 13866 I NearbyDiscovery: FastPair: isDestroyable: Scanner is alive. [CONTEXT service_id=265 ]
+11-16 16:36:38.718 12953 13866 I NearbyDiscovery: DiscoveryService: Skip stopSelf(), fast pair controller is not destroyable. [CONTEXT service_id=265 ]
+11-16 16:36:39.033   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 235
+11-16 16:36:39.041   691   691 D vendor.lge.hardware.thermal@1.0-impl: Read value from /proc/lge_power/adc/vts, 235
+11-16 16:36:39.350 25220 25232 I eww.marketwatc: Explicit concurrent copying GC freed 25323(7MB) AllocSpace objects, 29(580KB) LOS objects, 91% free, 1126KB/13MB, paused 136us total 15.632ms
+11-16 16:36:39.365  1101  1122 I GBMv2   : GBM state [10]
+11-16 16:36:39.437  1565  1969 V WifiServerServiceExt: checkPollTimer Cnt= 0 rssi =-30 threshold=-100
+11-16 16:36:39.466  1101  1122 I GBMv2   : GBM state [0]
+11-16 16:36:39.519 12953 15768 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 16:36:39.524  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:39.525  1565  2451 D LocationManagerService: incoming location: fused
+11-16 16:36:39.525 12953 15768 I FusedLocation: (REDACTED) location delivery to %s blocked - too close

@@ -1,0 +1,5361 @@
+{
+ "valdi_build": {
+  "valdi_ref": "e90a983749b384ba403c3bcdd40f7d0432404694",
+  "flags": "--snap_flavor=production -c opt --copt=-DANDROID_WITH_JNI --repo_env=VALDI_PLATFORM_DEPENDENCIES=android --define=client_repo_arm64=true --android_platforms=@snap_platforms//os:android_arm64",
+  "engine_quickjs": "yes",
+  "engine_hermes": "no",
+  "engine_jscore": "no",
+  "cached": "true",
+  "signed_with": "debug key",
+  "abi": "arm64-v8a",
+  "engine": "quickjs",
+  "debuggable": "false",
+  "apk_bytes": "9688517"
+ },
+ "phones": [
+  {
+   "device": "LMQ72016369a75",
+   "info": {
+    "device_name": "LMQ72016369a75",
+    "model": "LM-Q720",
+    "android": "9",
+    "sdk": "28",
+    "soc": "msm8953",
+    "cpu_cores": "8",
+    "mem_total_kb": "2878756",
+    "display": "1080x2160",
+    "density": "420",
+    "refresh_hz": "60.000004",
+    "apk_file_bytes_valdi": "9688517",
+    "valdi_apk_sha256": "43df96c49c9b6559",
+    "apk_bytes_dev.vieww.marketwatch": "2814368",
+    "apk_bytes_com.snap.valdi.marketwatch": "9688517",
+    "apk_file_bytes_vieww": "2814368",
+    "mode": "quick",
+    "vieww-cpu_cold_start_ms": "413 346",
+    "vieww-cpu_pid": "16192",
+    "vieww-cpu_battery_temp_dC": "186",
+    "vieww-cpu_pss_kb": "81133",
+    "vieww-cpu_status": "PASS",
+    "vieww-gpu_cold_start_ms": "346 342",
+    "vieww-gpu_pid": "25220",
+    "vieww-gpu_battery_temp_dC": "188",
+    "vieww-gpu_pss_kb": "187237",
+    "vieww-gpu_status": "PASS",
+    "status": "PASS"
+   },
+   "budget_ms": 16.67,
+   "configs": {
+    "vieww-cpu": {
+     "status": "PASS",
+     "cold_start_ms": [
+      413.0,
+      346.0
+     ],
+     "cold_start_median": 379.5,
+     "pss_kb": "81133",
+     "battery_temp_dC": "186",
+     "phases": {
+      "idle20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "idle20k",
+        "frames": 1,
+        "work_ms": [
+         0.722,
+         0.722,
+         0.722,
+         0.722
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 16.67,
+        "t": 35505.3
+       },
+       "stages": {
+        "raster_p50": 0.07,
+        "present_p50": 0.0,
+        "acquire_p50": 0.0,
+        "kinds": {
+         "rects": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "paths": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "text": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 676,
+       "cpu_pct": 8.9,
+       "rss_kb": 154224,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "idle2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "idle2k",
+        "frames": 1,
+        "work_ms": [
+         1.058,
+         1.058,
+         1.058,
+         1.058
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 16.67,
+        "t": 5502.6
+       },
+       "stages": {
+        "raster_p50": 0.08,
+        "present_p50": 0.0,
+        "acquire_p50": 0.0,
+        "kinds": {
+         "rects": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "paths": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "text": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 140,
+       "cpu_pct": 35.7,
+       "rss_kb": 143832,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "jump20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "jump20k",
+        "frames": 1,
+        "work_ms": [
+         152.244,
+         152.244,
+         152.244,
+         152.244
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 16.67,
+        "t": 37506.0
+       },
+       "stages": {
+        "raster_p50": 124.32,
+        "present_p50": 10.24,
+        "acquire_p50": 0.32,
+        "kinds": {
+         "rects": [
+          15.77,
+          15.77,
+          15.77
+         ],
+         "paths": [
+          53.18,
+          53.18,
+          53.18
+         ],
+         "text": [
+          7.64,
+          7.64,
+          7.64
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          16.27,
+          16.27,
+          16.27
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 119,
+       "cpu_pct": 142.9,
+       "rss_kb": 154436,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "jump2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "jump2k",
+        "frames": 1,
+        "work_ms": [
+         174.882,
+         174.882,
+         174.882,
+         174.882
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 16.67,
+        "t": 7503.6
+       },
+       "stages": {
+        "raster_p50": 131.77,
+        "present_p50": 7.74,
+        "acquire_p50": 0.35,
+        "kinds": {
+         "rects": [
+          18.22,
+          18.22,
+          18.22
+         ],
+         "paths": [
+          51.04,
+          51.04,
+          51.04
+         ],
+         "text": [
+          14.75,
+          14.75,
+          14.75
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          15.37,
+          15.37,
+          15.37
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 130,
+       "cpu_pct": 146.2,
+       "rss_kb": 145196,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "live20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "live20k",
+        "frames": 165,
+        "work_ms": [
+         48.39,
+         53.739,
+         54.575,
+         54.821
+        ],
+        "interval_ms": [
+         48.629,
+         53.866,
+         54.723,
+         55.069
+        ],
+        "jank": 164,
+        "budget_ms": 16.67,
+        "t": 53525.6
+       },
+       "stages": {
+        "raster_p50": 38.99,
+        "present_p50": 6.61,
+        "acquire_p50": 0.38,
+        "kinds": {
+         "rects": [
+          3.84,
+          4.39,
+          4.67
+         ],
+         "paths": [
+          15.84,
+          17.05,
+          18.13
+         ],
+         "text": [
+          2.66,
+          2.94,
+          3.16
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          2.74,
+          3.86,
+          4.34
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7135,
+       "cpu_pct": 131.7,
+       "rss_kb": 155180,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "live2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "live2k",
+        "frames": 166,
+        "work_ms": [
+         48.803,
+         52.892,
+         53.224,
+         56.291
+        ],
+        "interval_ms": [
+         48.931,
+         53.024,
+         53.358,
+         56.425
+        ],
+        "jank": 165,
+        "budget_ms": 16.67,
+        "t": 23538.9
+       },
+       "stages": {
+        "raster_p50": 39.33,
+        "present_p50": 6.58,
+        "acquire_p50": 0.38,
+        "kinds": {
+         "rects": [
+          3.83,
+          4.32,
+          4.6
+         ],
+         "paths": [
+          15.58,
+          16.79,
+          17.36
+         ],
+         "text": [
+          2.67,
+          3.04,
+          3.83
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          2.79,
+          3.85,
+          4.24
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7462,
+       "cpu_pct": 132.0,
+       "rss_kb": 148120,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "load20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "load20k",
+        "frames": 1,
+        "work_ms": [
+         146.995,
+         146.995,
+         146.995,
+         146.995
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 16.67,
+        "t": 33505.0
+       },
+       "stages": {
+        "raster_p50": 123.07,
+        "present_p50": 8.26,
+        "acquire_p50": 0.47,
+        "kinds": {
+         "rects": [
+          15.39,
+          15.39,
+          15.39
+         ],
+         "paths": [
+          51.47,
+          51.47,
+          51.47
+         ],
+         "text": [
+          8.89,
+          8.89,
+          8.89
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          15.47,
+          15.47,
+          15.47
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 1182,
+       "cpu_pct": 0.0,
+       "rss_kb": 147988,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "load2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "load2k",
+        "frames": 3,
+        "work_ms": [
+         188.44,
+         262.335,
+         262.335,
+         262.335
+        ],
+        "interval_ms": [
+         3000.415,
+         3000.415,
+         3000.415,
+         3000.415
+        ],
+        "jank": 2,
+        "budget_ms": 16.67,
+        "t": 3502.6
+       },
+       "stages": {
+        "raster_p50": 137.54,
+        "present_p50": 9.44,
+        "acquire_p50": 6.35,
+        "kinds": {
+         "rects": [
+          15.25,
+          19.31,
+          19.31
+         ],
+         "paths": [
+          50.12,
+          52.05,
+          52.05
+         ],
+         "text": [
+          24.55,
+          26.97,
+          26.97
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          15.95,
+          53.37,
+          53.37
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 3019,
+       "cpu_pct": 0.0,
+       "rss_kb": 143316,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "scroll20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "scroll20k",
+        "frames": 295,
+        "work_ms": [
+         26.005,
+         31.266,
+         36.295,
+         319.843
+        ],
+        "interval_ms": [
+         26.121,
+         31.076,
+         36.433,
+         319.954
+        ],
+        "jank": 182,
+        "budget_ms": 16.67,
+        "t": 45506.4
+       },
+       "stages": {
+        "raster_p50": 17.81,
+        "present_p50": 6.55,
+        "acquire_p50": 0.38,
+        "kinds": {
+         "rects": [
+          1.71,
+          2.26,
+          2.62
+         ],
+         "paths": [
+          4.23,
+          4.95,
+          5.55
+         ],
+         "text": [
+          0.63,
+          0.79,
+          0.96
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          2.68,
+          3.69,
+          4.18
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 5289,
+       "cpu_pct": 145.4,
+       "rss_kb": 155132,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "scroll2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "scroll2k",
+        "frames": 307,
+        "work_ms": [
+         25.859,
+         31.371,
+         32.451,
+         33.889
+        ],
+        "interval_ms": [
+         25.962,
+         31.449,
+         32.524,
+         32.656
+        ],
+        "jank": 181,
+        "budget_ms": 16.67,
+        "t": 15510.5
+       },
+       "stages": {
+        "raster_p50": 17.77,
+        "present_p50": 6.56,
+        "acquire_p50": 0.37,
+        "kinds": {
+         "rects": [
+          1.73,
+          2.28,
+          2.6
+         ],
+         "paths": [
+          4.18,
+          4.99,
+          5.71
+         ],
+         "text": [
+          0.7,
+          1.01,
+          1.7
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          2.68,
+          3.74,
+          4.64
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 5439,
+       "cpu_pct": 145.8,
+       "rss_kb": 146496,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "storm20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "storm20k",
+        "frames": 118,
+        "work_ms": [
+         69.768,
+         72.124,
+         72.903,
+         74.909
+        ],
+        "interval_ms": [
+         69.914,
+         72.284,
+         73.057,
+         75.059
+        ],
+        "jank": 117,
+        "budget_ms": 16.67,
+        "t": 61563.5
+       },
+       "stages": {
+        "raster_p50": 62.06,
+        "present_p50": 4.32,
+        "acquire_p50": 0.39,
+        "kinds": {
+         "rects": [
+          5.44,
+          5.67,
+          6.14
+         ],
+         "paths": [
+          28.61,
+          29.03,
+          30.63
+         ],
+         "text": [
+          3.0,
+          3.17,
+          3.36
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          6.77,
+          7.03,
+          7.35
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7164,
+       "cpu_pct": 110.1,
+       "rss_kb": 154616,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "storm2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "storm2k",
+        "frames": 110,
+        "work_ms": [
+         72.13,
+         73.531,
+         75.138,
+         76.891
+        ],
+        "interval_ms": [
+         72.264,
+         73.669,
+         75.266,
+         77.04
+        ],
+        "jank": 109,
+        "budget_ms": 16.67,
+        "t": 31509.4
+       },
+       "stages": {
+        "raster_p50": 64.07,
+        "present_p50": 4.37,
+        "acquire_p50": 0.39,
+        "kinds": {
+         "rects": [
+          5.7,
+          5.89,
+          6.24
+         ],
+         "paths": [
+          28.82,
+          29.19,
+          30.2
+         ],
+         "text": [
+          2.94,
+          3.13,
+          3.34
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          7.85,
+          8.05,
+          8.51
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7130,
+       "cpu_pct": 109.1,
+       "rss_kb": 148016,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "tick20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "tick20k",
+        "frames": 1,
+        "work_ms": [
+         48.832,
+         48.832,
+         48.832,
+         48.832
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 16.67,
+        "t": 36505.7
+       },
+       "stages": {
+        "raster_p50": 34.92,
+        "present_p50": 7.96,
+        "acquire_p50": 0.46,
+        "kinds": {
+         "rects": [
+          2.81,
+          2.81,
+          2.81
+         ],
+         "paths": [
+          21.2,
+          21.2,
+          21.2
+         ],
+         "text": [
+          2.97,
+          2.97,
+          2.97
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.14,
+          0.14,
+          0.14
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 101,
+       "cpu_pct": 99.0,
+       "rss_kb": 154312,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "tick2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "tick2k",
+        "frames": 1,
+        "work_ms": [
+         33.001,
+         33.001,
+         33.001,
+         33.001
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 16.67,
+        "t": 6503.4
+       },
+       "stages": {
+        "raster_p50": 23.29,
+        "present_p50": 7.42,
+        "acquire_p50": 0.41,
+        "kinds": {
+         "rects": [
+          1.63,
+          1.63,
+          1.63
+         ],
+         "paths": [
+          12.12,
+          12.12,
+          12.12
+         ],
+         "text": [
+          3.72,
+          3.72,
+          3.72
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.11,
+          0.11,
+          0.11
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 134,
+       "cpu_pct": 37.3,
+       "rss_kb": 144248,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      }
+     },
+     "quality": "blur off (tier low), fill off (tier low), raster threads serial (tier low)"
+    },
+    "vieww-gpu": {
+     "status": "PASS",
+     "cold_start_ms": [
+      346.0,
+      342.0
+     ],
+     "cold_start_median": 344.0,
+     "pss_kb": "187237",
+     "battery_temp_dC": "188",
+     "phases": {
+      "idle20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "idle20k",
+        "frames": 1,
+        "work_ms": [
+         272.903,
+         272.903,
+         272.903,
+         272.903
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 16.67,
+        "t": 35503.7
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.81,
+        "acquire_p50": 0.68,
+        "kinds": null
+       },
+       "wall_ms": 653,
+       "cpu_pct": 0.0,
+       "rss_kb": 158448,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "idle2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "idle2k",
+        "frames": 1,
+        "work_ms": [
+         7.636,
+         7.636,
+         7.636,
+         7.636
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 16.67,
+        "t": 5501.8
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.7,
+        "acquire_p50": 0.56,
+        "kinds": null
+       },
+       "wall_ms": 590,
+       "cpu_pct": 5.1,
+       "rss_kb": 114072,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "jump20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "jump20k",
+        "frames": 1,
+        "work_ms": [
+         55.916,
+         55.916,
+         55.916,
+         55.916
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 16.67,
+        "t": 37503.8
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.85,
+        "acquire_p50": 0.34,
+        "kinds": null
+       },
+       "wall_ms": 136,
+       "cpu_pct": 7.4,
+       "rss_kb": 157544,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "jump2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "jump2k",
+        "frames": 1,
+        "work_ms": [
+         53.829,
+         53.829,
+         53.829,
+         53.829
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 16.67,
+        "t": 7502.1
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.71,
+        "acquire_p50": 0.33,
+        "kinds": null
+       },
+       "wall_ms": 131,
+       "cpu_pct": 15.3,
+       "rss_kb": 116620,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "live20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "live20k",
+        "frames": 135,
+        "work_ms": [
+         58.836,
+         61.334,
+         61.958,
+         62.53
+        ],
+        "interval_ms": [
+         59.033,
+         61.524,
+         62.171,
+         62.781
+        ],
+        "jank": 134,
+        "budget_ms": 16.67,
+        "t": 53553.1
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 31.38,
+        "acquire_p50": 0.39,
+        "kinds": null
+       },
+       "wall_ms": 7333,
+       "cpu_pct": 54.8,
+       "rss_kb": 164204,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "live2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "live2k",
+        "frames": 132,
+        "work_ms": [
+         60.978,
+         62.546,
+         64.184,
+         65.16
+        ],
+        "interval_ms": [
+         61.189,
+         63.054,
+         64.472,
+         65.371
+        ],
+        "jank": 131,
+        "budget_ms": 16.67,
+        "t": 23543.6
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 29.37,
+        "acquire_p50": 0.4,
+        "kinds": null
+       },
+       "wall_ms": 7210,
+       "cpu_pct": 58.7,
+       "rss_kb": 156988,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "load20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "load20k",
+        "frames": 1,
+        "work_ms": [
+         34.7,
+         34.7,
+         34.7,
+         34.7
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 16.67,
+        "t": 33503.2
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.88,
+        "acquire_p50": 0.32,
+        "kinds": null
+       },
+       "wall_ms": 1178,
+       "cpu_pct": 0.0,
+       "rss_kb": 158436,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "load2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "load2k",
+        "frames": 3,
+        "work_ms": [
+         49.36,
+         123.79,
+         123.79,
+         123.79
+        ],
+        "interval_ms": [
+         3085.377,
+         3085.377,
+         3085.377,
+         3085.377
+        ],
+        "jank": 2,
+        "budget_ms": 16.67,
+        "t": 3501.2
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.59,
+        "acquire_p50": 0.24,
+        "kinds": null
+       },
+       "wall_ms": 2645,
+       "cpu_pct": 0.4,
+       "rss_kb": 113016,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "scroll20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "scroll20k",
+        "frames": 137,
+        "work_ms": [
+         58.496,
+         59.488,
+         61.733,
+         98.563
+        ],
+        "interval_ms": [
+         58.688,
+         59.659,
+         61.862,
+         98.742
+        ],
+        "jank": 136,
+        "budget_ms": 16.67,
+        "t": 45541.9
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 43.94,
+        "acquire_p50": 0.51,
+        "kinds": null
+       },
+       "wall_ms": 5435,
+       "cpu_pct": 27.4,
+       "rss_kb": 160268,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "scroll2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "scroll2k",
+        "frames": 118,
+        "work_ms": [
+         59.058,
+         166.358,
+         256.042,
+         261.625
+        ],
+        "interval_ms": [
+         59.209,
+         166.494,
+         256.144,
+         261.763
+        ],
+        "jank": 117,
+        "budget_ms": 16.67,
+        "t": 15507.8
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 40.87,
+        "acquire_p50": 0.51,
+        "kinds": null
+       },
+       "wall_ms": 5498,
+       "cpu_pct": 43.3,
+       "rss_kb": 153976,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "storm20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "storm20k",
+        "frames": 134,
+        "work_ms": [
+         58.913,
+         61.628,
+         62.139,
+         63.479
+        ],
+        "interval_ms": [
+         59.08,
+         61.843,
+         62.348,
+         63.797
+        ],
+        "jank": 133,
+        "budget_ms": 16.67,
+        "t": 61509.3
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 22.14,
+        "acquire_p50": 0.38,
+        "kinds": null
+       },
+       "wall_ms": 7441,
+       "cpu_pct": 76.3,
+       "rss_kb": 163892,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "storm2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "storm2k",
+        "frames": 134,
+        "work_ms": [
+         59.019,
+         61.451,
+         63.17,
+         63.383
+        ],
+        "interval_ms": [
+         59.21,
+         61.689,
+         63.343,
+         63.54
+        ],
+        "jank": 133,
+        "budget_ms": 16.67,
+        "t": 31514.6
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 22.58,
+        "acquire_p50": 0.38,
+        "kinds": null
+       },
+       "wall_ms": 7336,
+       "cpu_pct": 76.6,
+       "rss_kb": 157544,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "tick20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "tick20k",
+        "frames": 1,
+        "work_ms": [
+         16.86,
+         16.86,
+         16.86,
+         16.86
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 16.67,
+        "t": 36504.1
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.79,
+        "acquire_p50": 0.42,
+        "kinds": null
+       },
+       "wall_ms": 124,
+       "cpu_pct": 0.0,
+       "rss_kb": 158756,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "tick2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "tick2k",
+        "frames": 1,
+        "work_ms": [
+         31.936,
+         31.936,
+         31.936,
+         31.936
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 16.67,
+        "t": 6501.8
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.78,
+        "acquire_p50": 0.51,
+        "kinds": null
+       },
+       "wall_ms": 113,
+       "cpu_pct": 17.7,
+       "rss_kb": 114968,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      }
+     },
+     "quality": "blur off (tier low), fill off (tier low), raster threads up to 8 workers per large mask"
+    }
+   }
+  },
+  {
+   "device": "R5CT41Q1P2M",
+   "info": {
+    "device_name": "R5CT41Q1P2M",
+    "model": "SM-A736B",
+    "android": "12",
+    "sdk": "31",
+    "soc": "SM7325",
+    "cpu_cores": "8",
+    "mem_total_kb": "7477188",
+    "display": "1080x2400",
+    "density": "450",
+    "refresh_hz": "120.00001",
+    "apk_file_bytes_valdi": "9688517",
+    "valdi_apk_sha256": "43df96c49c9b6559",
+    "apk_bytes_dev.vieww.marketwatch": "2814368",
+    "apk_bytes_com.snap.valdi.marketwatch": "9688517",
+    "apk_file_bytes_vieww": "2814368",
+    "mode": "quick",
+    "vieww-cpu_cold_start_ms": "211 198",
+    "vieww-cpu_pid": "17844",
+    "vieww-cpu_battery_temp_dC": "210",
+    "vieww-cpu_pss_kb": "96804",
+    "vieww-cpu_status": "PASS",
+    "vieww-gpu_cold_start_ms": "196 187",
+    "vieww-gpu_pid": "4018",
+    "vieww-gpu_battery_temp_dC": "211",
+    "vieww-gpu_pss_kb": "149035",
+    "vieww-gpu_status": "PASS",
+    "status": "PASS"
+   },
+   "budget_ms": 8.33,
+   "configs": {
+    "vieww-cpu": {
+     "status": "PASS",
+     "cold_start_ms": [
+      211.0,
+      198.0
+     ],
+     "cold_start_median": 204.5,
+     "pss_kb": "96804",
+     "battery_temp_dC": "210",
+     "phases": {
+      "idle20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "idle20k",
+        "frames": 1,
+        "work_ms": [
+         0.388,
+         0.388,
+         0.388,
+         0.388
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 35508.5
+       },
+       "stages": {
+        "raster_p50": 0.11,
+        "present_p50": 0.0,
+        "acquire_p50": 0.0,
+        "kinds": {
+         "rects": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "paths": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "text": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 638,
+       "cpu_pct": 4.7,
+       "rss_kb": 157644,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "idle2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "idle2k",
+        "frames": 1,
+        "work_ms": [
+         0.425,
+         0.425,
+         0.425,
+         0.425
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 5505.5
+       },
+       "stages": {
+        "raster_p50": 0.14,
+        "present_p50": 0.0,
+        "acquire_p50": 0.0,
+        "kinds": {
+         "rects": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "paths": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "text": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 914,
+       "cpu_pct": 3.3,
+       "rss_kb": 136000,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "jump20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "jump20k",
+        "frames": 1,
+        "work_ms": [
+         53.914,
+         53.914,
+         53.914,
+         53.914
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 37510.4
+       },
+       "stages": {
+        "raster_p50": 41.6,
+        "present_p50": 4.99,
+        "acquire_p50": 0.2,
+        "kinds": {
+         "rects": [
+          9.03,
+          9.03,
+          9.03
+         ],
+         "paths": [
+          17.42,
+          17.42,
+          17.42
+         ],
+         "text": [
+          2.68,
+          2.68,
+          2.68
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          4.08,
+          4.08,
+          4.08
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 74,
+       "cpu_pct": 148.6,
+       "rss_kb": 158560,
+       "sf_frames": 57,
+       "sf_fps": 770.3,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 24,
+       "sf_gap_p99": 25,
+       "sf_jank_pct": 86.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "jump2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "jump2k",
+        "frames": 1,
+        "work_ms": [
+         42.227,
+         42.227,
+         42.227,
+         42.227
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 7505.2
+       },
+       "stages": {
+        "raster_p50": 35.07,
+        "present_p50": 3.96,
+        "acquire_p50": 0.13,
+        "kinds": {
+         "rects": [
+          5.83,
+          5.83,
+          5.83
+         ],
+         "paths": [
+          13.37,
+          13.37,
+          13.37
+         ],
+         "text": [
+          4.32,
+          4.32,
+          4.32
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          3.5,
+          3.5,
+          3.5
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 125,
+       "cpu_pct": 88.0,
+       "rss_kb": 139720,
+       "sf_frames": 27,
+       "sf_fps": 216.0,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 14.8,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "live20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "live20k",
+        "frames": 477,
+        "work_ms": [
+         16.172,
+         19.14,
+         20.825,
+         23.47
+        ],
+        "interval_ms": [
+         16.666,
+         19.152,
+         20.682,
+         22.175
+        ],
+        "jank": 476,
+        "budget_ms": 8.33,
+        "t": 53525.7
+       },
+       "stages": {
+        "raster_p50": 10.5,
+        "present_p50": 4.69,
+        "acquire_p50": 0.12,
+        "kinds": {
+         "rects": [
+          0.91,
+          1.13,
+          1.75
+         ],
+         "paths": [
+          3.92,
+          4.72,
+          7.15
+         ],
+         "text": [
+          0.84,
+          1.04,
+          1.7
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.6,
+          0.79,
+          1.13
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7576,
+       "cpu_pct": 107.2,
+       "rss_kb": 159804,
+       "sf_frames": 480,
+       "sf_fps": 63.4,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 24,
+       "sf_gap_p99": 25,
+       "sf_jank_pct": 92.5,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "live2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "live2k",
+        "frames": 478,
+        "work_ms": [
+         15.367,
+         18.897,
+         20.991,
+         23.503
+        ],
+        "interval_ms": [
+         16.667,
+         18.93,
+         20.813,
+         22.405
+        ],
+        "jank": 477,
+        "budget_ms": 8.33,
+        "t": 23515.7
+       },
+       "stages": {
+        "raster_p50": 10.22,
+        "present_p50": 4.23,
+        "acquire_p50": 0.12,
+        "kinds": {
+         "rects": [
+          0.91,
+          1.09,
+          1.68
+         ],
+         "paths": [
+          3.75,
+          4.49,
+          6.95
+         ],
+         "text": [
+          0.8,
+          0.99,
+          1.93
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.59,
+          0.79,
+          1.15
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7399,
+       "cpu_pct": 107.4,
+       "rss_kb": 149604,
+       "sf_frames": 473,
+       "sf_fps": 63.9,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 24,
+       "sf_gap_p99": 25,
+       "sf_jank_pct": 94.3,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "load20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "load20k",
+        "frames": 1,
+        "work_ms": [
+         36.424,
+         36.424,
+         36.424,
+         36.424
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 33506.9
+       },
+       "stages": {
+        "raster_p50": 28.98,
+        "present_p50": 4.3,
+        "acquire_p50": 0.14,
+        "kinds": {
+         "rects": [
+          3.83,
+          3.83,
+          3.83
+         ],
+         "paths": [
+          11.32,
+          11.32,
+          11.32
+         ],
+         "text": [
+          2.46,
+          2.46,
+          2.46
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          3.32,
+          3.32,
+          3.32
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 1165,
+       "cpu_pct": 0.0,
+       "rss_kb": 159980,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "load2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "load2k",
+        "frames": 3,
+        "work_ms": [
+         32.907,
+         82.613,
+         82.613,
+         82.613
+        ],
+        "interval_ms": [
+         3352.533,
+         3352.533,
+         3352.533,
+         3352.533
+        ],
+        "jank": 2,
+        "budget_ms": 8.33,
+        "t": 3505.1
+       },
+       "stages": {
+        "raster_p50": 28.58,
+        "present_p50": 3.45,
+        "acquire_p50": 0.63,
+        "kinds": {
+         "rects": [
+          4.16,
+          6.34,
+          6.34
+         ],
+         "paths": [
+          10.92,
+          11.89,
+          11.89
+         ],
+         "text": [
+          2.06,
+          7.49,
+          7.49
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          3.38,
+          7.69,
+          7.69
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 2958,
+       "cpu_pct": 1.0,
+       "rss_kb": 140000,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "scroll20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "scroll20k",
+        "frames": 481,
+        "work_ms": [
+         13.21,
+         17.295,
+         19.771,
+         21.232
+        ],
+        "interval_ms": [
+         16.667,
+         17.432,
+         19.842,
+         21.297
+        ],
+        "jank": 479,
+        "budget_ms": 8.33,
+        "t": 45525.2
+       },
+       "stages": {
+        "raster_p50": 7.56,
+        "present_p50": 4.59,
+        "acquire_p50": 0.15,
+        "kinds": {
+         "rects": [
+          0.76,
+          1.22,
+          1.74
+         ],
+         "paths": [
+          1.82,
+          3.01,
+          3.97
+         ],
+         "text": [
+          0.29,
+          0.68,
+          0.91
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.95,
+          1.68,
+          2.04
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 6316,
+       "cpu_pct": 91.0,
+       "rss_kb": 159240,
+       "sf_frames": 438,
+       "sf_fps": 69.3,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 24,
+       "sf_gap_p99": 25,
+       "sf_jank_pct": 84.5,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "scroll2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "scroll2k",
+        "frames": 533,
+        "work_ms": [
+         12.179,
+         16.883,
+         18.406,
+         20.134
+        ],
+        "interval_ms": [
+         16.665,
+         17.042,
+         18.462,
+         20.191
+        ],
+        "jank": 416,
+        "budget_ms": 8.33,
+        "t": 15508.5
+       },
+       "stages": {
+        "raster_p50": 7.2,
+        "present_p50": 4.03,
+        "acquire_p50": 0.14,
+        "kinds": {
+         "rects": [
+          0.69,
+          1.18,
+          1.7
+         ],
+         "paths": [
+          1.61,
+          2.95,
+          4.58
+         ],
+         "text": [
+          0.33,
+          0.79,
+          1.37
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.89,
+          1.6,
+          2.03
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 6707,
+       "cpu_pct": 89.5,
+       "rss_kb": 146448,
+       "sf_frames": 496,
+       "sf_fps": 74.0,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 24,
+       "sf_gap_p99": 24,
+       "sf_jank_pct": 74.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "storm20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "storm20k",
+        "frames": 477,
+        "work_ms": [
+         16.327,
+         18.276,
+         19.455,
+         20.477
+        ],
+        "interval_ms": [
+         16.667,
+         18.318,
+         19.527,
+         20.537
+        ],
+        "jank": 476,
+        "budget_ms": 8.33,
+        "t": 61525.1
+       },
+       "stages": {
+        "raster_p50": 11.67,
+        "present_p50": 3.23,
+        "acquire_p50": 0.13,
+        "kinds": {
+         "rects": [
+          0.85,
+          0.94,
+          1.51
+         ],
+         "paths": [
+          6.16,
+          6.83,
+          7.76
+         ],
+         "text": [
+          1.06,
+          1.17,
+          1.72
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.05,
+          0.06,
+          0.22
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7176,
+       "cpu_pct": 112.5,
+       "rss_kb": 159320,
+       "sf_frames": 427,
+       "sf_fps": 59.5,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 24,
+       "sf_gap_p99": 24,
+       "sf_jank_pct": 96.5,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "storm2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "storm2k",
+        "frames": 367,
+        "work_ms": [
+         21.766,
+         22.965,
+         23.495,
+         24.084
+        ],
+        "interval_ms": [
+         21.817,
+         23.017,
+         23.543,
+         24.154
+        ],
+        "jank": 366,
+        "budget_ms": 8.33,
+        "t": 31515.0
+       },
+       "stages": {
+        "raster_p50": 17.35,
+        "present_p50": 3.27,
+        "acquire_p50": 0.13,
+        "kinds": {
+         "rects": [
+          1.84,
+          1.98,
+          2.24
+         ],
+         "paths": [
+          6.91,
+          7.26,
+          8.33
+         ],
+         "text": [
+          1.06,
+          1.15,
+          1.41
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          1.81,
+          1.92,
+          2.07
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7610,
+       "cpu_pct": 110.5,
+       "rss_kb": 159840,
+       "sf_frames": 351,
+       "sf_fps": 46.1,
+       "sf_gap_p50": 24,
+       "sf_gap_p95": 24,
+       "sf_gap_p99": 24,
+       "sf_jank_pct": 100.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "tick20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "tick20k",
+        "frames": 1,
+        "work_ms": [
+         22.044,
+         22.044,
+         22.044,
+         22.044
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 36510.0
+       },
+       "stages": {
+        "raster_p50": 13.03,
+        "present_p50": 7.03,
+        "acquire_p50": 0.25,
+        "kinds": {
+         "rects": [
+          0.78,
+          0.78,
+          0.78
+         ],
+         "paths": [
+          7.88,
+          7.88,
+          7.88
+         ],
+         "text": [
+          1.4,
+          1.4,
+          1.4
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.04,
+          0.04,
+          0.04
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 707,
+       "cpu_pct": 9.9,
+       "rss_kb": 159772,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "tick2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "tick2k",
+        "frames": 1,
+        "work_ms": [
+         18.415,
+         18.415,
+         18.415,
+         18.415
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 6505.2
+       },
+       "stages": {
+        "raster_p50": 12.11,
+        "present_p50": 4.83,
+        "acquire_p50": 0.15,
+        "kinds": {
+         "rects": [
+          0.64,
+          0.64,
+          0.64
+         ],
+         "paths": [
+          7.45,
+          7.45,
+          7.45
+         ],
+         "text": [
+          1.81,
+          1.81,
+          1.81
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.03,
+          0.03,
+          0.03
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 129,
+       "cpu_pct": 0.0,
+       "rss_kb": 138600,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      }
+     },
+     "quality": "blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)"
+    },
+    "vieww-gpu": {
+     "status": "PASS",
+     "cold_start_ms": [
+      196.0,
+      187.0
+     ],
+     "cold_start_median": 191.5,
+     "pss_kb": "149035",
+     "battery_temp_dC": "211",
+     "phases": {
+      "idle20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "idle20k",
+        "frames": 1,
+        "work_ms": [
+         6.506,
+         6.506,
+         6.506,
+         6.506
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 35507.7
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 1.08,
+        "acquire_p50": 0.06,
+        "kinds": null
+       },
+       "wall_ms": 635,
+       "cpu_pct": 1.6,
+       "rss_kb": 166160,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "idle2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "idle2k",
+        "frames": 1,
+        "work_ms": [
+         10.744,
+         10.744,
+         10.744,
+         10.744
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 5504.8
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 1.72,
+        "acquire_p50": 0.1,
+        "kinds": null
+       },
+       "wall_ms": 979,
+       "cpu_pct": 2.0,
+       "rss_kb": 98884,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "jump20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "jump20k",
+        "frames": 1,
+        "work_ms": [
+         11.722,
+         11.722,
+         11.722,
+         11.722
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 37508.4
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.91,
+        "acquire_p50": 0.05,
+        "kinds": null
+       },
+       "wall_ms": 78,
+       "cpu_pct": 38.5,
+       "rss_kb": 170144,
+       "sf_frames": 43,
+       "sf_fps": 551.3,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 93.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "jump2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "jump2k",
+        "frames": 1,
+        "work_ms": [
+         30.083,
+         30.083,
+         30.083,
+         30.083
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 7505.6
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.85,
+        "acquire_p50": 0.06,
+        "kinds": null
+       },
+       "wall_ms": 125,
+       "cpu_pct": 56.0,
+       "rss_kb": 118972,
+       "sf_frames": 49,
+       "sf_fps": 392.0,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "live20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "live20k",
+        "frames": 480,
+        "work_ms": [
+         12.078,
+         15.971,
+         17.586,
+         18.654
+        ],
+        "interval_ms": [
+         16.666,
+         17.335,
+         17.869,
+         18.737
+        ],
+        "jank": 479,
+        "budget_ms": 8.33,
+        "t": 53510.2
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 2.34,
+        "acquire_p50": 0.08,
+        "kinds": null
+       },
+       "wall_ms": 7070,
+       "cpu_pct": 76.9,
+       "rss_kb": 171332,
+       "sf_frames": 458,
+       "sf_fps": 64.8,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 24,
+       "sf_gap_p99": 24,
+       "sf_jank_pct": 82.8,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "live2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "live2k",
+        "frames": 480,
+        "work_ms": [
+         12.054,
+         16.288,
+         18.075,
+         28.9
+        ],
+        "interval_ms": [
+         16.668,
+         17.276,
+         18.154,
+         28.984
+        ],
+        "jank": 478,
+        "budget_ms": 8.33,
+        "t": 23510.2
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 2.35,
+        "acquire_p50": 0.07,
+        "kinds": null
+       },
+       "wall_ms": 7443,
+       "cpu_pct": 76.0,
+       "rss_kb": 161360,
+       "sf_frames": 480,
+       "sf_fps": 64.5,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 24,
+       "sf_gap_p99": 24,
+       "sf_jank_pct": 79.4,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "load20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "load20k",
+        "frames": 1,
+        "work_ms": [
+         13.096,
+         13.096,
+         13.096,
+         13.096
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 33506.9
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 2.2,
+        "acquire_p50": 0.04,
+        "kinds": null
+       },
+       "wall_ms": 1612,
+       "cpu_pct": 0.6,
+       "rss_kb": 165924,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "load2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "load2k",
+        "frames": 3,
+        "work_ms": [
+         12.962,
+         32.256,
+         32.256,
+         32.256
+        ],
+        "interval_ms": [
+         3392.946,
+         3392.946,
+         3392.946,
+         3392.946
+        ],
+        "jank": 1,
+        "budget_ms": 8.33,
+        "t": 3504.8
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 1.37,
+        "acquire_p50": 0.03,
+        "kinds": null
+       },
+       "wall_ms": 2925,
+       "cpu_pct": 1.0,
+       "rss_kb": 96520,
+       "sf_frames": 2,
+       "sf_fps": 0.7,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 1000,
+       "sf_gap_p99": 1000,
+       "sf_jank_pct": 100.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "scroll20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "scroll20k",
+        "frames": 481,
+        "work_ms": [
+         6.064,
+         9.682,
+         12.083,
+         13.519
+        ],
+        "interval_ms": [
+         16.667,
+         17.142,
+         17.534,
+         17.697
+        ],
+        "jank": 479,
+        "budget_ms": 8.33,
+        "t": 45510.3
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 1.23,
+        "acquire_p50": 0.09,
+        "kinds": null
+       },
+       "wall_ms": 6888,
+       "cpu_pct": 47.0,
+       "rss_kb": 171012,
+       "sf_frames": 466,
+       "sf_fps": 67.7,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 24,
+       "sf_gap_p99": 24,
+       "sf_jank_pct": 93.1,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "scroll2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "scroll2k",
+        "frames": 840,
+        "work_ms": [
+         8.215,
+         8.839,
+         10.237,
+         24.379
+        ],
+        "interval_ms": [
+         8.338,
+         16.713,
+         17.216,
+         17.9
+        ],
+        "jank": 123,
+        "budget_ms": 8.33,
+        "t": 15510.5
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 2.29,
+        "acquire_p50": 1.63,
+        "kinds": null
+       },
+       "wall_ms": 6675,
+       "cpu_pct": 55.6,
+       "rss_kb": 148240,
+       "sf_frames": 785,
+       "sf_fps": 117.6,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 24,
+       "sf_jank_pct": 15.3,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "storm20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "storm20k",
+        "frames": 480,
+        "work_ms": [
+         13.253,
+         18.265,
+         19.454,
+         21.067
+        ],
+        "interval_ms": [
+         16.667,
+         18.348,
+         19.549,
+         21.163
+        ],
+        "jank": 478,
+        "budget_ms": 8.33,
+        "t": 61510.2
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 2.11,
+        "acquire_p50": 0.06,
+        "kinds": null
+       },
+       "wall_ms": 7270,
+       "cpu_pct": 83.8,
+       "rss_kb": 171260,
+       "sf_frames": 450,
+       "sf_fps": 61.9,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 24,
+       "sf_gap_p99": 33,
+       "sf_jank_pct": 76.9,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "storm2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "storm2k",
+        "frames": 480,
+        "work_ms": [
+         13.389,
+         17.894,
+         19.1,
+         23.192
+        ],
+        "interval_ms": [
+         16.667,
+         18.016,
+         19.19,
+         23.297
+        ],
+        "jank": 478,
+        "budget_ms": 8.33,
+        "t": 31510.2
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 2.17,
+        "acquire_p50": 0.06,
+        "kinds": null
+       },
+       "wall_ms": 7216,
+       "cpu_pct": 84.4,
+       "rss_kb": 170816,
+       "sf_frames": 450,
+       "sf_fps": 62.4,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 24,
+       "sf_gap_p99": 25,
+       "sf_jank_pct": 77.6,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "tick20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "tick20k",
+        "frames": 1,
+        "work_ms": [
+         12.052,
+         12.052,
+         12.052,
+         12.052
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 36508.0
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 1.51,
+        "acquire_p50": 0.07,
+        "kinds": null
+       },
+       "wall_ms": 646,
+       "cpu_pct": 3.1,
+       "rss_kb": 166360,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "tick2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "tick2k",
+        "frames": 1,
+        "work_ms": [
+         15.989,
+         15.989,
+         15.989,
+         15.989
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 6506.9
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 1.15,
+        "acquire_p50": 0.03,
+        "kinds": null
+       },
+       "wall_ms": 121,
+       "cpu_pct": 0.0,
+       "rss_kb": 101932,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      }
+     },
+     "quality": "blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)"
+    }
+   }
+  },
+  {
+   "device": "RFGL126N3TY",
+   "info": {
+    "device_name": "RFGL126N3TY",
+    "model": "SM-S948U1",
+    "android": "16",
+    "sdk": "36",
+    "soc": "SM8850",
+    "cpu_cores": "8",
+    "mem_total_kb": "11389632",
+    "display": "1080x2340",
+    "density": "450",
+    "refresh_hz": "120.00001",
+    "apk_file_bytes_valdi": "9688517",
+    "valdi_apk_sha256": "43df96c49c9b6559",
+    "apk_bytes_dev.vieww.marketwatch": "2814368",
+    "apk_bytes_com.snap.valdi.marketwatch": "9688517",
+    "apk_file_bytes_vieww": "2814368",
+    "mode": "quick",
+    "vieww-cpu_cold_start_ms": "108 103",
+    "vieww-cpu_pid": "27904",
+    "vieww-cpu_battery_temp_dC": "182",
+    "vieww-cpu_pss_kb": "102003",
+    "vieww-cpu_status": "PASS",
+    "vieww-gpu_cold_start_ms": "101 105",
+    "vieww-gpu_pid": "25562",
+    "vieww-gpu_battery_temp_dC": "184",
+    "vieww-gpu_pss_kb": "223017",
+    "vieww-gpu_status": "PASS",
+    "status": "PASS"
+   },
+   "budget_ms": 8.33,
+   "configs": {
+    "vieww-cpu": {
+     "status": "PASS",
+     "cold_start_ms": [
+      108.0,
+      103.0
+     ],
+     "cold_start_median": 105.5,
+     "pss_kb": "102003",
+     "battery_temp_dC": "182",
+     "phases": {
+      "idle20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "idle20k",
+        "frames": 1,
+        "work_ms": [
+         0.232,
+         0.232,
+         0.232,
+         0.232
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 35505.4
+       },
+       "stages": {
+        "raster_p50": 0.01,
+        "present_p50": 0.0,
+        "acquire_p50": 0.0,
+        "kinds": {
+         "rects": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "paths": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "text": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 1138,
+       "cpu_pct": 1.8,
+       "rss_kb": 228680,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "idle2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "idle2k",
+        "frames": 1,
+        "work_ms": [
+         0.24,
+         0.24,
+         0.24,
+         0.24
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 5501.2
+       },
+       "stages": {
+        "raster_p50": 0.02,
+        "present_p50": 0.0,
+        "acquire_p50": 0.0,
+        "kinds": {
+         "rects": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "paths": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "text": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 1255,
+       "cpu_pct": 0.8,
+       "rss_kb": 206432,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "jump20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "jump20k",
+        "frames": 1,
+        "work_ms": [
+         35.652,
+         35.652,
+         35.652,
+         35.652
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 37506.5
+       },
+       "stages": {
+        "raster_p50": 29.68,
+        "present_p50": 1.27,
+        "acquire_p50": 0.07,
+        "kinds": {
+         "rects": [
+          8.78,
+          8.78,
+          8.78
+         ],
+         "paths": [
+          11.95,
+          11.95,
+          11.95
+         ],
+         "text": [
+          1.21,
+          1.21,
+          1.21
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          2.28,
+          2.28,
+          2.28
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 102,
+       "cpu_pct": 19.6,
+       "rss_kb": 229056,
+       "sf_frames": 13,
+       "sf_fps": 127.5,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 100.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "jump2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "jump2k",
+        "frames": 1,
+        "work_ms": [
+         30.223,
+         30.223,
+         30.223,
+         30.223
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 7501.4
+       },
+       "stages": {
+        "raster_p50": 25.96,
+        "present_p50": 1.18,
+        "acquire_p50": 0.06,
+        "kinds": {
+         "rects": [
+          4.64,
+          4.64,
+          4.64
+         ],
+         "paths": [
+          10.34,
+          10.34,
+          10.34
+         ],
+         "text": [
+          3.49,
+          3.49,
+          3.49
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          2.1,
+          2.1,
+          2.1
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 102,
+       "cpu_pct": 68.6,
+       "rss_kb": 209920,
+       "sf_frames": 59,
+       "sf_fps": 578.4,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 1.7,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "live20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "live20k",
+        "frames": 480,
+        "work_ms": [
+         10.785,
+         14.061,
+         15.403,
+         18.608
+        ],
+        "interval_ms": [
+         16.667,
+         16.734,
+         16.785,
+         18.109
+        ],
+        "jank": 479,
+        "budget_ms": 8.33,
+        "t": 53508.0
+       },
+       "stages": {
+        "raster_p50": 8.87,
+        "present_p50": 1.33,
+        "acquire_p50": 0.05,
+        "kinds": {
+         "rects": [
+          1.0,
+          1.32,
+          1.99
+         ],
+         "paths": [
+          3.97,
+          4.8,
+          6.98
+         ],
+         "text": [
+          0.67,
+          0.82,
+          1.35
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.5,
+          0.82,
+          1.39
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7772,
+       "cpu_pct": 73.9,
+       "rss_kb": 230800,
+       "sf_frames": 491,
+       "sf_fps": 63.2,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 100.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "live2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "live2k",
+        "frames": 539,
+        "work_ms": [
+         10.923,
+         14.589,
+         15.923,
+         17.209
+        ],
+        "interval_ms": [
+         16.666,
+         16.721,
+         16.799,
+         17.297
+        ],
+        "jank": 418,
+        "budget_ms": 8.33,
+        "t": 23508.1
+       },
+       "stages": {
+        "raster_p50": 9.02,
+        "present_p50": 1.33,
+        "acquire_p50": 0.05,
+        "kinds": {
+         "rects": [
+          1.03,
+          1.39,
+          1.95
+         ],
+         "paths": [
+          4.04,
+          5.02,
+          6.31
+         ],
+         "text": [
+          0.65,
+          0.85,
+          2.1
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.56,
+          0.75,
+          1.4
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7428,
+       "cpu_pct": 76.2,
+       "rss_kb": 219196,
+       "sf_frames": 490,
+       "sf_fps": 66.0,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 91.8,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "load20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "load20k",
+        "frames": 1,
+        "work_ms": [
+         24.1,
+         24.1,
+         24.1,
+         24.1
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 33505.1
+       },
+       "stages": {
+        "raster_p50": 20.52,
+        "present_p50": 1.19,
+        "acquire_p50": 0.06,
+        "kinds": {
+         "rects": [
+          3.02,
+          3.02,
+          3.02
+         ],
+         "paths": [
+          8.34,
+          8.34,
+          8.34
+         ],
+         "text": [
+          1.51,
+          1.51,
+          1.51
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          2.22,
+          2.22,
+          2.22
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 1657,
+       "cpu_pct": 0.0,
+       "rss_kb": 230876,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "load2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "load2k",
+        "frames": 3,
+        "work_ms": [
+         12.405,
+         20.497,
+         20.497,
+         20.497
+        ],
+        "interval_ms": [
+         3446.291,
+         3446.291,
+         3446.291,
+         3446.291
+        ],
+        "jank": 2,
+        "budget_ms": 8.33,
+        "t": 3502.0
+       },
+       "stages": {
+        "raster_p50": 8.96,
+        "present_p50": 0.95,
+        "acquire_p50": 0.2,
+        "kinds": {
+         "rects": [
+          1.8,
+          2.21,
+          2.21
+         ],
+         "paths": [
+          3.85,
+          4.66,
+          4.66
+         ],
+         "text": [
+          0.61,
+          2.69,
+          2.69
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.81,
+          2.58,
+          2.58
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 3613,
+       "cpu_pct": 0.0,
+       "rss_kb": 208296,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "scroll20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "scroll20k",
+        "frames": 481,
+        "work_ms": [
+         8.861,
+         13.194,
+         14.474,
+         15.308
+        ],
+        "interval_ms": [
+         16.666,
+         16.761,
+         16.837,
+         16.875
+        ],
+        "jank": 479,
+        "budget_ms": 8.33,
+        "t": 45508.1
+       },
+       "stages": {
+        "raster_p50": 5.71,
+        "present_p50": 2.12,
+        "acquire_p50": 0.06,
+        "kinds": {
+         "rects": [
+          0.73,
+          1.27,
+          1.58
+         ],
+         "paths": [
+          1.65,
+          2.68,
+          3.06
+         ],
+         "text": [
+          0.24,
+          0.45,
+          0.59
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.97,
+          1.24,
+          2.25
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7150,
+       "cpu_pct": 61.0,
+       "rss_kb": 230020,
+       "sf_frames": 473,
+       "sf_fps": 66.2,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 100.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "scroll2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "scroll2k",
+        "frames": 957,
+        "work_ms": [
+         6.312,
+         8.24,
+         9.223,
+         11.031
+        ],
+        "interval_ms": [
+         8.334,
+         8.393,
+         9.337,
+         11.091
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 15504.6
+       },
+       "stages": {
+        "raster_p50": 3.26,
+        "present_p50": 1.21,
+        "acquire_p50": 1.16,
+        "kinds": {
+         "rects": [
+          0.43,
+          0.73,
+          1.09
+         ],
+         "paths": [
+          0.96,
+          1.41,
+          2.32
+         ],
+         "text": [
+          0.17,
+          0.31,
+          0.7
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.52,
+          0.88,
+          1.55
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7322,
+       "cpu_pct": 71.3,
+       "rss_kb": 218444,
+       "sf_frames": 954,
+       "sf_fps": 130.3,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.5,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "storm20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "storm20k",
+        "frames": 480,
+        "work_ms": [
+         12.733,
+         16.995,
+         18.144,
+         19.744
+        ],
+        "interval_ms": [
+         16.667,
+         17.277,
+         18.254,
+         19.815
+        ],
+        "jank": 479,
+        "budget_ms": 8.33,
+        "t": 61510.2
+       },
+       "stages": {
+        "raster_p50": 10.72,
+        "present_p50": 1.41,
+        "acquire_p50": 0.06,
+        "kinds": {
+         "rects": [
+          1.44,
+          1.76,
+          3.21
+         ],
+         "paths": [
+          4.93,
+          6.24,
+          7.43
+         ],
+         "text": [
+          0.61,
+          0.75,
+          2.5
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.72,
+          1.32,
+          2.62
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7444,
+       "cpu_pct": 81.9,
+       "rss_kb": 230148,
+       "sf_frames": 437,
+       "sf_fps": 58.7,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 100.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "storm2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "storm2k",
+        "frames": 480,
+        "work_ms": [
+         11.323,
+         13.91,
+         15.385,
+         16.102
+        ],
+        "interval_ms": [
+         16.667,
+         16.717,
+         16.779,
+         16.848
+        ],
+        "jank": 479,
+        "budget_ms": 8.33,
+        "t": 31508.0
+       },
+       "stages": {
+        "raster_p50": 9.71,
+        "present_p50": 0.94,
+        "acquire_p50": 0.04,
+        "kinds": {
+         "rects": [
+          0.91,
+          1.06,
+          1.31
+         ],
+         "paths": [
+          5.46,
+          6.45,
+          8.15
+         ],
+         "text": [
+          0.69,
+          0.81,
+          1.0
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.03,
+          0.03,
+          0.08
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7132,
+       "cpu_pct": 75.0,
+       "rss_kb": 230876,
+       "sf_frames": 440,
+       "sf_fps": 61.7,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 100.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "tick20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "tick20k",
+        "frames": 1,
+        "work_ms": [
+         14.785,
+         14.785,
+         14.785,
+         14.785
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 36505.8
+       },
+       "stages": {
+        "raster_p50": 11.15,
+        "present_p50": 2.1,
+        "acquire_p50": 0.1,
+        "kinds": {
+         "rects": [
+          0.89,
+          0.89,
+          0.89
+         ],
+         "paths": [
+          6.67,
+          6.67,
+          6.67
+         ],
+         "text": [
+          0.81,
+          0.81,
+          0.81
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.03,
+          0.03,
+          0.03
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 102,
+       "cpu_pct": 9.8,
+       "rss_kb": 230540,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "tick2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "tick2k",
+        "frames": 1,
+        "work_ms": [
+         9.466,
+         9.466,
+         9.466,
+         9.466
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 6501.5
+       },
+       "stages": {
+        "raster_p50": 7.47,
+        "present_p50": 1.45,
+        "acquire_p50": 0.11,
+        "kinds": {
+         "rects": [
+          0.68,
+          0.68,
+          0.68
+         ],
+         "paths": [
+          3.06,
+          3.06,
+          3.06
+         ],
+         "text": [
+          2.17,
+          2.17,
+          2.17
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.02,
+          0.02,
+          0.02
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 478,
+       "cpu_pct": 8.4,
+       "rss_kb": 208916,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      }
+     },
+     "quality": "blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)"
+    },
+    "vieww-gpu": {
+     "status": "PASS",
+     "cold_start_ms": [
+      101.0,
+      105.0
+     ],
+     "cold_start_median": 103.0,
+     "pss_kb": "223017",
+     "battery_temp_dC": "184",
+     "phases": {
+      "idle20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "idle20k",
+        "frames": 1,
+        "work_ms": [
+         2.56,
+         2.56,
+         2.56,
+         2.56
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 35503.6
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.35,
+        "acquire_p50": 0.13,
+        "kinds": null
+       },
+       "wall_ms": 1122,
+       "cpu_pct": 1.8,
+       "rss_kb": 232792,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "idle2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "idle2k",
+        "frames": 1,
+        "work_ms": [
+         1.001,
+         1.001,
+         1.001,
+         1.001
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 5501.5
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.19,
+        "acquire_p50": 0.01,
+        "kinds": null
+       },
+       "wall_ms": 965,
+       "cpu_pct": 2.1,
+       "rss_kb": 165928,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "jump20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "jump20k",
+        "frames": 1,
+        "work_ms": [
+         14.714,
+         14.714,
+         14.714,
+         14.714
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 37503.6
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.32,
+        "acquire_p50": 0.11,
+        "kinds": null
+       },
+       "wall_ms": 114,
+       "cpu_pct": 35.1,
+       "rss_kb": 232880,
+       "sf_frames": 32,
+       "sf_fps": 280.7,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 96.9,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "jump2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "jump2k",
+        "frames": 1,
+        "work_ms": [
+         17.551,
+         17.551,
+         17.551,
+         17.551
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 7501.3
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.24,
+        "acquire_p50": 0.02,
+        "kinds": null
+       },
+       "wall_ms": 118,
+       "cpu_pct": 50.8,
+       "rss_kb": 186524,
+       "sf_frames": 59,
+       "sf_fps": 500.0,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "live20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "live20k",
+        "frames": 537,
+        "work_ms": [
+         8.025,
+         12.078,
+         13.215,
+         14.566
+        ],
+        "interval_ms": [
+         16.665,
+         16.812,
+         16.884,
+         16.919
+        ],
+        "jank": 423,
+        "budget_ms": 8.33,
+        "t": 53505.1
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.15,
+        "acquire_p50": 0.02,
+        "kinds": null
+       },
+       "wall_ms": 7444,
+       "cpu_pct": 50.8,
+       "rss_kb": 233312,
+       "sf_frames": 478,
+       "sf_fps": 64.2,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 97.1,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "live2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "live2k",
+        "frames": 480,
+        "work_ms": [
+         8.038,
+         13.055,
+         14.693,
+         23.031
+        ],
+        "interval_ms": [
+         16.667,
+         16.838,
+         16.902,
+         23.074
+        ],
+        "jank": 478,
+        "budget_ms": 8.33,
+        "t": 23515.6
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.15,
+        "acquire_p50": 0.03,
+        "kinds": null
+       },
+       "wall_ms": 7319,
+       "cpu_pct": 54.1,
+       "rss_kb": 222336,
+       "sf_frames": 464,
+       "sf_fps": 63.4,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 100.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "load20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "load20k",
+        "frames": 1,
+        "work_ms": [
+         9.747,
+         9.747,
+         9.747,
+         9.747
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 33501.5
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.1,
+        "acquire_p50": 0.02,
+        "kinds": null
+       },
+       "wall_ms": 1137,
+       "cpu_pct": 0.9,
+       "rss_kb": 232532,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "load2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "load2k",
+        "frames": 3,
+        "work_ms": [
+         3.149,
+         13.251,
+         13.251,
+         13.251
+        ],
+        "interval_ms": [
+         3451.569,
+         3451.569,
+         3451.569,
+         3451.569
+        ],
+        "jank": 1,
+        "budget_ms": 8.33,
+        "t": 3500.8
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.1,
+        "acquire_p50": 0.01,
+        "kinds": null
+       },
+       "wall_ms": 3551,
+       "cpu_pct": 0.0,
+       "rss_kb": 162752,
+       "sf_frames": 2,
+       "sf_fps": 0.6,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 1000,
+       "sf_gap_p99": 1000,
+       "sf_jank_pct": 50.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "scroll20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "scroll20k",
+        "frames": 604,
+        "work_ms": [
+         4.577,
+         8.524,
+         9.982,
+         14.807
+        ],
+        "interval_ms": [
+         16.618,
+         16.807,
+         16.918,
+         17.612
+        ],
+        "jank": 358,
+        "budget_ms": 8.33,
+        "t": 45505.2
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.2,
+        "acquire_p50": 0.04,
+        "kinds": null
+       },
+       "wall_ms": 7241,
+       "cpu_pct": 33.7,
+       "rss_kb": 235012,
+       "sf_frames": 648,
+       "sf_fps": 89.5,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 49.2,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "scroll2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "scroll2k",
+        "frames": 541,
+        "work_ms": [
+         4.165,
+         8.614,
+         10.121,
+         18.898
+        ],
+        "interval_ms": [
+         16.666,
+         16.68,
+         16.771,
+         16.861
+        ],
+        "jank": 422,
+        "budget_ms": 8.33,
+        "t": 15515.7
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.04,
+        "acquire_p50": 0.02,
+        "kinds": null
+       },
+       "wall_ms": 7037,
+       "cpu_pct": 29.6,
+       "rss_kb": 222684,
+       "sf_frames": 490,
+       "sf_fps": 69.6,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 90.2,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "storm20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "storm20k",
+        "frames": 480,
+        "work_ms": [
+         9.968,
+         13.316,
+         14.327,
+         16.248
+        ],
+        "interval_ms": [
+         16.667,
+         16.733,
+         16.825,
+         16.876
+        ],
+        "jank": 479,
+        "budget_ms": 8.33,
+        "t": 61505.1
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.13,
+        "acquire_p50": 0.02,
+        "kinds": null
+       },
+       "wall_ms": 6977,
+       "cpu_pct": 60.6,
+       "rss_kb": 233600,
+       "sf_frames": 432,
+       "sf_fps": 61.9,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 100.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "storm2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "storm2k",
+        "frames": 480,
+        "work_ms": [
+         9.674,
+         13.185,
+         14.027,
+         16.038
+        ],
+        "interval_ms": [
+         16.667,
+         16.745,
+         16.836,
+         17.775
+        ],
+        "jank": 479,
+        "budget_ms": 8.33,
+        "t": 31515.6
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.13,
+        "acquire_p50": 0.02,
+        "kinds": null
+       },
+       "wall_ms": 7853,
+       "cpu_pct": 56.4,
+       "rss_kb": 233724,
+       "sf_frames": 463,
+       "sf_fps": 59.0,
+       "sf_gap_p50": 16,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 100.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "tick20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "tick20k",
+        "frames": 1,
+        "work_ms": [
+         11.381,
+         11.381,
+         11.381,
+         11.381
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 36503.8
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.53,
+        "acquire_p50": 0.14,
+        "kinds": null
+       },
+       "wall_ms": 648,
+       "cpu_pct": 1.5,
+       "rss_kb": 232712,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "tick2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "tick2k",
+        "frames": 1,
+        "work_ms": [
+         12.69,
+         12.69,
+         12.69,
+         12.69
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 6501.3
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.25,
+        "acquire_p50": 0.02,
+        "kinds": null
+       },
+       "wall_ms": 514,
+       "cpu_pct": 3.9,
+       "rss_kb": 168616,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      }
+     },
+     "quality": "blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)"
+    }
+   }
+  }
+ ],
+ "machines": []
+}
