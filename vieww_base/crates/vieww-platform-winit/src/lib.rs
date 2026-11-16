@@ -150,6 +150,7 @@ pub mod desktop;
 mod device_tier;
 pub mod drag;
 mod frame_budget;
+mod gpu_route;
 mod perf_hint;
 mod quality;
 #[cfg(all(

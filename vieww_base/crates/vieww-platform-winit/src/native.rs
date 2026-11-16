@@ -785,6 +785,9 @@ pub struct NativeRenderer {
     /// measured against. (A change of scale is a new target size, which the
     /// renderer would refuse to keep anyway.)
     gpu_frame_current: Option<f32>,
+    /// Which route a frame that may go direct takes — fixed, or measured on
+    /// this device. See [`crate::gpu_route`].
+    gpu_route: crate::gpu_route::RouteChooser,
 }
 
 /// The GPU rasterizer goes before the device it was built on.
@@ -991,6 +994,7 @@ impl NativeRenderer {
             stages: FrameStages::default(),
             shadow: None,
             gpu_frame_current: None,
+            gpu_route: crate::gpu_route::RouteChooser::new(gpu_route_mode()),
         }
     }
 
@@ -1822,15 +1826,44 @@ impl NativeRenderer {
                     // where those dominated the frame. Anything else (layers,
                     // a resolution scale, a surface that refuses the usage,
                     // `VIEWW_GPU_DIRECT=0`) keeps the blit path.
-                    let direct = gpu_direct()
-                        && image.color_attachment()
-                        && plan.target_depth == 0
-                        && render_scale == 1.0;
-                    if direct {
+                    //
+                    // A frame that *may* go direct goes the way the route
+                    // chooser says: direct, unless it is fixed to the blit
+                    // route or has measured the blit route clearly faster on
+                    // this device — the full pass is the whole frame on a
+                    // fill-bound GPU, and the damage is not. See
+                    // `crate::gpu_route`.
+                    let eligible =
+                        image.color_attachment() && plan.target_depth == 0 && render_scale == 1.0;
+                    let chosen = self.gpu_route.route();
+                    let direct = eligible && chosen == crate::gpu_route::Route::Direct;
+                    let measured = || {
+                        self.gpu_route
+                            .compared()
+                            .map_or_else(String::new, |(d, b)| {
+                                format!(
+                                    " (GPU frame medians: direct {:.1} ms, blit {:.1} ms)",
+                                    d.as_secs_f64() * 1e3,
+                                    b.as_secs_f64() * 1e3
+                                )
+                            })
+                    };
+                    if direct && self.gpu_route.is_auto() {
+                        note_gpu_route(&format!(
+                            "direct: depth-0 opaque frame rendered into the swapchain image; \
+                             chosen by measurement{}",
+                            measured()
+                        ));
+                    } else if direct {
                         note_gpu_route(
                             "direct: depth-0 opaque frame rendered into the swapchain image",
                         );
-                    } else if !gpu_direct() {
+                    } else if eligible && self.gpu_route.is_auto() {
+                        note_gpu_route(&format!(
+                            "blit: damage into the intermediate; chosen by measurement{}",
+                            measured()
+                        ));
+                    } else if eligible {
                         note_gpu_route(
                             "blit: VIEWW_GPU_DIRECT=0, the comparison switch (wait_loop's \
                              damage scenario, or an A/B on one phone)",
@@ -1867,6 +1900,13 @@ impl NativeRenderer {
                     };
                     self.stages.gpu = renderer.last_timings();
                     self.stages.gpu_passes = renderer.last_pass_times();
+                    if eligible {
+                        // The latest GPU time the renderer has, for the
+                        // route in use; the chooser skips the frames around
+                        // a switch, where that time is the other route's.
+                        let gpu = self.stages.gpu_passes.map_or(Duration::ZERO, |p| p.total());
+                        self.gpu_route.observe(gpu);
+                    }
                     let presenting = Instant::now();
                     device
                         .present_acquired(swapchain, image)
@@ -1989,8 +2029,25 @@ pub fn gpu_overlap() -> bool {
 /// process.
 #[must_use]
 pub fn gpu_direct() -> bool {
-    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
-    *ON.get_or_init(|| std::env::var("VIEWW_GPU_DIRECT").map_or(true, |v| v.trim() != "0"))
+    gpu_route_mode() != crate::gpu_route::Mode::Fixed(crate::gpu_route::Route::Blit)
+}
+
+/// Who picks the route of a frame that may go direct: `VIEWW_GPU_DIRECT=0`
+/// fixes the blit route and `=1` the direct one; `=auto` measures both on
+/// this device and keeps the faster ([`crate::gpu_route`]). Unset, Android
+/// measures — it is where one phone's direct pass is a quarter of another's
+/// blit frame and a third's is twice it — and every other platform goes
+/// direct, as before. Read once per process.
+fn gpu_route_mode() -> crate::gpu_route::Mode {
+    use crate::gpu_route::{Mode, Route};
+    static MODE: std::sync::OnceLock<Mode> = std::sync::OnceLock::new();
+    *MODE.get_or_init(|| match std::env::var("VIEWW_GPU_DIRECT") {
+        Ok(v) if v.trim() == "0" => Mode::Fixed(Route::Blit),
+        Ok(v) if v.trim().eq_ignore_ascii_case("auto") => Mode::Auto,
+        Ok(_) => Mode::Fixed(Route::Direct),
+        Err(_) if cfg!(target_os = "android") => Mode::Auto,
+        Err(_) => Mode::Fixed(Route::Direct),
+    })
 }
 
 /// The route the last GPU frame took through the renderer, and why —

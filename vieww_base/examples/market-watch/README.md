@@ -91,6 +91,17 @@ each app plays by itself:
 Each continuous phase applies one change per drawn frame: Vieww in
 `before_frame`, Valdi on its platform draw callback (`onNextDraw`).
 
+### The GPU pass's two routes, on one phone
+
+Unset, the renderer measures both routes on the phone and keeps the faster
+one (`vieww-platform-winit`'s `gpu_route`): it starts direct, and where the
+GPU frame does not fit it tries the blit route for thirty frames. `adb shell
+setprop debug.mw.direct 0` pins the blit route and `1` the direct one (the
+app sets `VIEWW_GPU_DIRECT` from it; `adb shell setprop debug.mw.direct ""`
+clears it). The app's `__MW__ {"ev":"route"}` line says which route the
+numbers came through, with the medians it compared, and is printed again
+whenever the route changes.
+
 ## What is measured
 
 SurfaceFlinger's per-layer timestats are the common yardstick. They time

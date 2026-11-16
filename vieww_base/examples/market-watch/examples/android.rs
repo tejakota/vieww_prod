@@ -303,8 +303,12 @@ mod app {
                 // one-line answer to "which path did these numbers come
                 // through", which the 2026-11-15 Redmi run left as a guess
                 // from the stages.
-                if self.route_emitted.is_none() {
-                    if let Some(route) = vieww_platform_winit::native::gpu_route_status() {
+                // Again whenever it changes: the route is measured on the
+                // phone now (`VIEWW_GPU_DIRECT` unset), so a run can start
+                // direct and move to blit, and the numbers after the move
+                // came through the other route.
+                if let Some(route) = vieww_platform_winit::native::gpu_route_status() {
+                    if self.route_emitted.as_deref() != Some(route.as_str()) {
                         self.route_emitted = Some(route.clone());
                         emit(&format!(
                             "{{\"fw\":\"vieww\",\"ev\":\"route\",\"route\":\"{route}\",\"t\":{:.1}}}",
@@ -338,6 +342,21 @@ mod app {
                 .with_tag("vieww"),
         );
         let gpu = prop("debug.mw.gpu") == "1";
+        // `adb shell setprop debug.mw.direct 0` keeps the GPU pass on the
+        // blit route (`VIEWW_GPU_DIRECT=0`), for an A/B of the two routes on
+        // one phone: an app started by the launcher has no environment to
+        // set, and the two routes do different work — direct redraws every
+        // pixel of every frame in one pass, blit redraws and carries only
+        // the damage through the intermediate — so which is cheaper is the
+        // phone's to say. Set before the first window, which is when the
+        // switch is read; the `route` event says what was taken.
+        // Unset, the renderer measures both routes on this phone and keeps
+        // the faster (`vieww_platform_winit`'s `gpu_route`); `1` pins direct.
+        match prop("debug.mw.direct").as_str() {
+            "0" => std::env::set_var("VIEWW_GPU_DIRECT", "0"),
+            "1" => std::env::set_var("VIEWW_GPU_DIRECT", "1"),
+            _ => {}
+        }
         let thermal = prop("debug.mw.thermal") != "0";
         let phases = schedule(thermal);
         emit(&format!(
