@@ -270,37 +270,73 @@ pub(crate) fn request(window: &winit::window::Window, hz: f32) -> &'static str {
     use winit::raw_window_handle::{HasWindowHandle, RawWindowHandle};
 
     type SetFrameRate = unsafe extern "C" fn(*mut c_void, f32, i8) -> i32;
-    static FUNCTION: OnceLock<Option<SetFrameRate>> = OnceLock::new();
-    let function = FUNCTION.get_or_init(|| {
+    type SetFrameRateWithStrategy = unsafe extern "C" fn(*mut c_void, f32, i8, i8) -> i32;
+    struct Functions {
+        plain: Option<SetFrameRate>,
+        strategy: Option<SetFrameRateWithStrategy>,
+    }
+    static FUNCTIONS: OnceLock<Functions> = OnceLock::new();
+    let functions = FUNCTIONS.get_or_init(|| {
         // SAFETY: `dlopen` of a system library by name, never closed.
         let library = unsafe { libc::dlopen(c"libandroid.so".as_ptr(), libc::RTLD_NOW) };
         if library.is_null() {
-            return None;
+            return Functions {
+                plain: None,
+                strategy: None,
+            };
         }
-        // SAFETY: `library` is live and the name is NUL-terminated.
-        let address = unsafe { libc::dlsym(library, c"ANativeWindow_setFrameRate".as_ptr()) };
-        if address.is_null() {
-            return None;
+        // SAFETY: `library` is live and the names are NUL-terminated.
+        let (plain, strategy) = unsafe {
+            (
+                libc::dlsym(library, c"ANativeWindow_setFrameRate".as_ptr()),
+                libc::dlsym(
+                    library,
+                    c"ANativeWindow_setFrameRateWithChangeStrategy".as_ptr(),
+                ),
+            )
+        };
+        // SAFETY: the NDK's signatures (android/native_window.h, API 30 and 31).
+        unsafe {
+            Functions {
+                plain: (!plain.is_null())
+                    .then(|| std::mem::transmute::<*mut c_void, SetFrameRate>(plain)),
+                strategy: (!strategy.is_null()).then(|| {
+                    std::mem::transmute::<*mut c_void, SetFrameRateWithStrategy>(strategy)
+                }),
+            }
         }
-        // SAFETY: the NDK's signature (android/native_window.h, API 30).
-        Some(unsafe { std::mem::transmute::<*mut c_void, SetFrameRate>(address) })
     });
-    let Some(set_frame_rate) = function else {
-        return "not asked (Android 10 or older: no ANativeWindow_setFrameRate)";
-    };
     let Ok(handle) = window.window_handle() else {
         return "not asked (no window handle)";
     };
     let RawWindowHandle::AndroidNdk(handle) = handle.as_raw() else {
         return "not asked (not an Android window)";
     };
+    let native = handle.a_native_window.as_ptr();
     // ANATIVEWINDOW_FRAME_RATE_COMPATIBILITY_DEFAULT: the app's own content
     // rate, which lets the compositor pick a panel mode that divides it.
     const COMPATIBILITY_DEFAULT: i8 = 0;
-    // SAFETY: a live `ANativeWindow*` from winit, owned by the window that
-    // is borrowed for this call.
-    let status =
-        unsafe { set_frame_rate(handle.a_native_window.as_ptr(), hz, COMPATIBILITY_DEFAULT) };
+    // ANATIVEWINDOW_CHANGE_FRAME_RATE_ALWAYS. The plain call means
+    // ONLY_IF_SEAMLESS: the panel switches only when the switch is seamless,
+    // and 60 -> 120 often is not. Run 43907619201 had the SM8850 pacing
+    // every GPU frame at 16.67 ms with the cadence still at 120 Hz (budget
+    // 8.33 ms): the request was made and the panel stayed at 60.
+    const CHANGE_ALWAYS: i8 = 1;
+    if let Some(set) = functions.strategy {
+        // SAFETY: a live `ANativeWindow*` from winit, owned by the window
+        // that is borrowed for this call.
+        let status = unsafe { set(native, hz, COMPATIBILITY_DEFAULT, CHANGE_ALWAYS) };
+        return if status == 0 {
+            "asked (ANativeWindow_setFrameRateWithChangeStrategy, always)"
+        } else {
+            "refused (ANativeWindow_setFrameRateWithChangeStrategy returned an error)"
+        };
+    }
+    let Some(set) = functions.plain else {
+        return "not asked (Android 10 or older: no ANativeWindow_setFrameRate)";
+    };
+    // SAFETY: as above.
+    let status = unsafe { set(native, hz, COMPATIBILITY_DEFAULT) };
     if status == 0 {
         "asked (ANativeWindow_setFrameRate)"
     } else {

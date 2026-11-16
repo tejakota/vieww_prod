@@ -184,6 +184,11 @@ def phase_stats(config_dir, package, budget_ms):
     return phases
 
 
+# Device-log lines about the window's frame rate (`crate::cadence`,
+# `crate::perf_hint`, the refresh-rate report in `crate::app`).
+RATE_LOG_KEYS = ("Hz at start", "frame rate ", "performance hint", "reports ", "Hz;")
+
+
 def parse_farm(root):
     phones = []
     if not root or not root.exists():
@@ -215,6 +220,15 @@ def parse_farm(root):
             quality = next((e.get("line") for e in jsonl(d / "events.jsonl") if e.get("ev") == "quality"), None)
             if quality:
                 stats["quality"] = quality
+            # What the window asked Android for and what its cadence decided:
+            # the lines a frame-rate fix lives or dies by, from the device log.
+            log = d / "logcat.txt"
+            if log.is_file():
+                rate = [line.split("vieww: ", 1)[1].strip()
+                        for line in log.read_text(errors="replace").splitlines()
+                        if "vieww: " in line and any(k in line for k in RATE_LOG_KEYS)]
+                if rate:
+                    stats["rate_log"] = rate[:12]
             phone["configs"][config] = stats
         phones.append(phone)
     return phones
@@ -284,6 +298,10 @@ def render(farm, meta):
         # it never started (an app that did not install is "SKIPPED").
         statuses = ", ".join(f"{c}: {info[f'{c}_status']}" for c in PARSED_CONFIGS if info.get(f"{c}_status"))
         md.append(f"Runs — {statuses or 'none started'}")
+        for c in ("vieww-cpu", "vieww-gpu"):
+            lines = cfg.get(c, {}).get("rate_log")
+            if lines:
+                md.append(f"- {c} frame rate: " + " · ".join(f"`{x}`" for x in lines))
         if info.get("mode") == "quick":
             md.append("")
             md.append("_Quick run: Vieww CPU and GPU only, no thermal pass. Valdi is pinned, "
