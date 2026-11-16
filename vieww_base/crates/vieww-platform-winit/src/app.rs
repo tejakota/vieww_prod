@@ -1899,11 +1899,14 @@ impl WindowState {
                         self.log.note_cadence(hz);
                         self.pace_grid = None;
                         self.cpu_paced_until = None;
-                        let asked = crate::cadence::request(&gpu.window, hz);
+                        // Paced by the window; the panel keeps the rate asked
+                        // for at start (`crate::cadence`'s module docs).
+                        let asked = "paced by the window";
                         log::info!(
-                            "vieww: {} frame rate {from:.0} -> {hz:.0} Hz on a {:.0} Hz panel; {asked}",
+                            "vieww: {} frame rate {from:.0} -> {hz:.0} Hz on a {:.0} Hz panel; {asked}; {}",
                             self.key,
-                            cadence.panel_hz()
+                            cadence.panel_hz(),
+                            cadence.evidence()
                         );
                         trace_line(
                             shared.now(),

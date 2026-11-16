@@ -15,12 +15,23 @@
 //! So a window holds one of two rates — the panel's, or 60 Hz — and moves
 //! between them on evidence:
 //!
-//! - **Down** to 60 when, over about a second of continuous frames at the
-//!   panel's rate, more than [`MAX_OVER_SHARE`] of them miss its budget.
-//! - **Up** to the panel's rate when, over [`UP_WINDOWS`] such windows in a
-//!   row at 60 Hz, the 95th-percentile frame would fit the panel's budget
-//!   with [`UP_HEADROOM`] to spare. The gap between the two thresholds is the
-//!   hysteresis that stops a phone near the line from flapping.
+//! - **Down** to 60 when, for [`DOWN_WINDOWS`] seconds of continuous frames
+//!   in a row at the panel's rate, more than [`MAX_OVER_SHARE`] of them
+//!   **missed a vsync**: came more than [`LATE_FACTOR`] budgets after the
+//!   one before. A frame whose work runs past the budget is not by itself a
+//!   miss. The next frame's work overlaps this one's display, and run
+//!   43879609229's SM8750 drew scroll at 131.5 fps with 0.3% of frames
+//!   missed while its 95th-percentile work was 8.74 ms against 8.33.
+//! - **Up** to the panel's rate when, over [`UP_WINDOWS`] windows in a row at
+//!   60 Hz, the 95th-percentile frame's own work would fit the panel's budget
+//!   with [`UP_HEADROOM`] to spare; or, failing that, as a **probe** after
+//!   [`PROBE_FIRST`] of continuous frames at 60 Hz. A probe that fails, that
+//!   drops again within [`PROBE_FAILED_WITHIN`], doubles the wait for the
+//!   next, up to [`PROBE_MAX`]. The probe exists because work measured at
+//!   60 Hz is work at 60 Hz clocks: the GPU's governor and, without a
+//!   performance hint, the CPU's slow down to fit 16.7 ms. Judged on that
+//!   alone, a phone that holds 120 Hz with room looks like one that cannot,
+//!   and run 43912018582's SM8850 went back up once in four runs.
 //!
 //! What is *never* traded is resolution: rendering the interface below the
 //! panel's pixel density softens text, and a framework that wants to be the
@@ -36,11 +47,12 @@
 //!
 //! # Holding the rate
 //!
-//! The policy only decides. The window asks the platform for the rate
-//! ([`request`]: `ANativeWindow_setFrameRate` on Android 11+, which lets the
-//! compositor switch the panel to 60 Hz) and paces its own frames at it
-//! regardless, so the cadence is steady even where the platform keeps the
-//! panel at 120 — each frame is then simply shown for two vsyncs.
+//! The policy only decides. The window asks the platform for the panel's
+//! rate once, at start ([`request`], seamless switches only), and from then
+//! on paces its own frames at whatever the policy holds. At 60 Hz on a
+//! 120 Hz panel each frame is simply shown for two vsyncs, steadily. It does
+//! not ask the panel to change mode when the policy changes: a probe of the
+//! panel's rate then costs no mode switch, and no switch can blank a frame.
 //!
 //! An application that states its rate (`App::refresh_rate`) is never
 //! adapted, and `VIEWW_CADENCE=panel` (Android: `debug.vieww.cadence`) turns
@@ -59,6 +71,31 @@ pub(crate) const MAX_OVER_SHARE: f64 = 0.05;
 /// At 60 Hz, the 95th-percentile frame must fit this fraction of the panel's
 /// budget before the panel's rate is tried again.
 pub(crate) const UP_HEADROOM: f64 = 0.75;
+
+/// Consecutive windows over [`MAX_OVER_SHARE`] before going down.
+///
+/// One used to be enough, and one heavy second is not a rate a phone cannot
+/// hold: it is a data load, a jump, a list rebuilt. Run 43912018582's frame
+/// rate log had both 120 Hz phones drop to 60 Hz on CPU and GPU alike within
+/// the schedule's first phases, its loads and jumps, before any continuous
+/// work started. Market Watch's tick and jump are a second each, back to
+/// back, so three seconds in a row is the shortest stretch that is
+/// sustained work rather than two bursts; a burst is a dropped frame or two,
+/// the same as on every other toolkit.
+pub(crate) const DOWN_WINDOWS: u32 = 3;
+
+/// A frame came late (missed a vsync) when its interval from the frame
+/// before is more than this many budgets.
+pub(crate) const LATE_FACTOR: f64 = 1.5;
+
+/// Continuous frames at 60 Hz before the first probe of the panel's rate.
+pub(crate) const PROBE_FIRST: Duration = Duration::from_secs(5);
+
+/// The longest wait between probes, however many have failed.
+pub(crate) const PROBE_MAX: Duration = Duration::from_secs(60);
+
+/// A probe that drops again within this was a failed probe.
+pub(crate) const PROBE_FAILED_WITHIN: Duration = Duration::from_secs(10);
 
 /// Consecutive windows that must clear [`UP_HEADROOM`] before going back up.
 pub(crate) const UP_WINDOWS: u32 = 3;
@@ -95,6 +132,18 @@ pub(crate) struct Cadence {
     first: Option<Duration>,
     /// Windows in a row at the fallback that cleared the headroom.
     clear_windows: u32,
+    /// Windows in a row at the panel's rate that were over the allowance.
+    over_windows: u32,
+    /// Each window frame's interval from the frame before, beside `window`.
+    gaps: Vec<Duration>,
+    /// Continuous frame time at the fallback since the last change.
+    at_fallback: Duration,
+    /// How much of that before the next probe.
+    probe_wait: Duration,
+    /// When the last probe went up, if the rate is up because of one.
+    probed_at: Option<Duration>,
+    /// The last window's evidence, for the log line a change writes.
+    evidence: String,
     switches: u32,
     /// Whether the platform has been asked for the starting rate yet.
     asked: bool,
@@ -122,6 +171,12 @@ impl Cadence {
             last: None,
             first: None,
             clear_windows: 0,
+            over_windows: 0,
+            gaps: Vec::with_capacity(window_len),
+            at_fallback: Duration::ZERO,
+            probe_wait: PROBE_FIRST,
+            probed_at: None,
+            evidence: String::new(),
             switches: 0,
             asked: false,
         })
@@ -149,6 +204,12 @@ impl Cadence {
         Some(self.target_hz)
     }
 
+    /// What the last full window measured, for the log.
+    #[must_use]
+    pub(crate) fn evidence(&self) -> &str {
+        &self.evidence
+    }
+
     /// The panel's own rate.
     #[must_use]
     pub(crate) const fn panel_hz(&self) -> f32 {
@@ -169,41 +230,102 @@ impl Cadence {
     /// One drawn frame's `work` (without its wait for a buffer), finished at
     /// `now`. Returns the new rate when this frame decided a change.
     pub(crate) fn observe(&mut self, work: Duration, now: Duration) -> Option<f32> {
-        if let Some(last) = self.last {
-            if now.saturating_sub(last) >= IDLE_RESET {
-                self.window.clear();
-            }
-        }
+        let gap = self.last.map(|last| now.saturating_sub(last));
         self.last = Some(now);
+        let Some(gap) = gap.filter(|&g| g < IDLE_RESET) else {
+            // The first frame, or the first after a pause: no interval to
+            // judge, and the evidence so far describes another stretch.
+            self.window.clear();
+            self.gaps.clear();
+            self.over_windows = 0;
+            self.first.get_or_insert(now);
+            return None;
+        };
         if now.saturating_sub(*self.first.get_or_insert(now)) < WARM_UP {
             return None;
         }
+        let at_panel = self.target_hz >= self.panel_hz;
+        if !at_panel {
+            self.at_fallback += gap;
+        }
         self.window.push(work);
+        self.gaps.push(gap);
         if self.window.len() < self.window_len {
             return None;
         }
         let panel_budget = Self::budget(self.panel_hz);
-        let decision = if self.target_hz >= self.panel_hz {
-            let over = self.window.iter().filter(|&&w| w > panel_budget).count();
+        let late_after = Self::budget(self.target_hz).as_secs_f64() * LATE_FACTOR;
+        let late = self
+            .gaps
+            .iter()
+            .filter(|g| g.as_secs_f64() > late_after)
+            .count();
+        self.window.sort_unstable();
+        let pick = |w: &[Duration], q: usize| w[(w.len() * q / 100).min(w.len() - 1)];
+        let p50 = pick(&self.window, 50);
+        let p95 = pick(&self.window, 95);
+        self.evidence = format!(
+            "last {} frames: {late} missed a vsync at {:.0} Hz; own work p50 {:.2} / p95 {:.2} ms \
+             against the panel's {:.2} ms",
+            self.window.len(),
+            self.target_hz,
+            p50.as_secs_f64() * 1e3,
+            p95.as_secs_f64() * 1e3,
+            panel_budget.as_secs_f64() * 1e3,
+        );
+        let decision = if at_panel {
             #[expect(clippy::cast_precision_loss, reason = "frame counts")]
-            let share = over as f64 / self.window.len() as f64;
-            (share > MAX_OVER_SHARE).then_some(FALLBACK_HZ)
+            let share = late as f64 / self.window.len() as f64;
+            if share > MAX_OVER_SHARE {
+                self.over_windows += 1;
+            } else {
+                self.over_windows = 0;
+            }
+            (self.over_windows >= DOWN_WINDOWS).then_some(FALLBACK_HZ)
         } else {
-            self.window.sort_unstable();
-            let p95 = self.window[(self.window.len() * 95 / 100).min(self.window.len() - 1)];
             if p95.as_secs_f64() <= panel_budget.as_secs_f64() * UP_HEADROOM {
                 self.clear_windows += 1;
             } else {
                 self.clear_windows = 0;
             }
-            (self.clear_windows >= UP_WINDOWS).then_some(self.panel_hz)
+            let probe = self.at_fallback >= self.probe_wait;
+            if probe && self.clear_windows < UP_WINDOWS {
+                self.evidence.push_str("; probing the panel's rate");
+                self.probed_at = Some(now);
+            } else {
+                self.probed_at = None;
+            }
+            (self.clear_windows >= UP_WINDOWS || probe).then_some(self.panel_hz)
         };
         self.window.clear();
+        self.gaps.clear();
         let hz = decision?;
+        if hz < self.target_hz {
+            // Down: a probe that could not hold doubles the next wait;
+            // anything else starts the waits again.
+            let failed = self
+                .probed_at
+                .is_some_and(|at| now.saturating_sub(at) < PROBE_FAILED_WITHIN);
+            self.probe_wait = if failed {
+                (self.probe_wait * 2).min(PROBE_MAX)
+            } else {
+                PROBE_FIRST
+            };
+            self.probed_at = None;
+        }
         self.target_hz = hz;
+        self.at_fallback = Duration::ZERO;
         self.clear_windows = 0;
+        self.over_windows = 0;
         self.switches += 1;
         Some(hz)
+    }
+
+    /// The wait before the next probe, for tests.
+    #[cfg(test)]
+    #[must_use]
+    pub(crate) const fn probe_wait(&self) -> Duration {
+        self.probe_wait
     }
 }
 
@@ -316,18 +438,20 @@ pub(crate) fn request(window: &winit::window::Window, hz: f32) -> &'static str {
     // ANATIVEWINDOW_FRAME_RATE_COMPATIBILITY_DEFAULT: the app's own content
     // rate, which lets the compositor pick a panel mode that divides it.
     const COMPATIBILITY_DEFAULT: i8 = 0;
-    // ANATIVEWINDOW_CHANGE_FRAME_RATE_ALWAYS. The plain call means
-    // ONLY_IF_SEAMLESS: the panel switches only when the switch is seamless,
-    // and 60 -> 120 often is not. Run 43907619201 had the SM8850 pacing
-    // every GPU frame at 16.67 ms with the cadence still at 120 Hz (budget
-    // 8.33 ms): the request was made and the panel stayed at 60.
-    const CHANGE_ALWAYS: i8 = 1;
+    // ANATIVEWINDOW_CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS: never a visible
+    // mode switch. ALWAYS was tried for one run (43912018582) on a misread:
+    // the SM8850's 60 Hz there was Vieww's own cadence dropping (its log
+    // says so), not the panel refusing, and the plain, seamless-only call
+    // had already given it 130 fps scroll (run 43907619201). A switch that
+    // is not seamless can blank the panel for a frame on some phones, a
+    // price the UI never pays for a frame rate.
+    const ONLY_IF_SEAMLESS: i8 = 0;
     if let Some(set) = functions.strategy {
         // SAFETY: a live `ANativeWindow*` from winit, owned by the window
         // that is borrowed for this call.
-        let status = unsafe { set(native, hz, COMPATIBILITY_DEFAULT, CHANGE_ALWAYS) };
+        let status = unsafe { set(native, hz, COMPATIBILITY_DEFAULT, ONLY_IF_SEAMLESS) };
         return if status == 0 {
-            "asked (ANativeWindow_setFrameRateWithChangeStrategy, always)"
+            "asked (ANativeWindow_setFrameRateWithChangeStrategy, seamless only)"
         } else {
             "refused (ANativeWindow_setFrameRateWithChangeStrategy returned an error)"
         };
@@ -395,8 +519,11 @@ mod tests {
         Duration::from_secs_f64(v / 1000.0)
     }
 
-    /// Feed `frames` frames of `work`, one interval apart; return every
-    /// decision made.
+    /// Feed `frames` frames of `work`; return every decision made. Each
+    /// frame lands on the display's next vsync at the current rate that its
+    /// work allows: a frame that takes 1.2 budgets is shown a vsync late.
+    /// That is a display with no overlap between frames, the pessimistic
+    /// case.
     fn run(
         c: &mut Cadence,
         start: &mut Duration,
@@ -405,8 +532,11 @@ mod tests {
     ) -> Vec<f32> {
         let mut out = Vec::new();
         for i in 0..frames {
-            *start += Duration::from_secs_f32(1.0 / c.target_hz());
-            if let Some(hz) = c.observe(ms(work(i)), *start) {
+            let budget = 1000.0 / f64::from(c.target_hz());
+            let w = work(i);
+            let vsyncs = (w / budget).ceil().max(1.0);
+            *start += ms(vsyncs * budget);
+            if let Some(hz) = c.observe(ms(w), *start) {
                 out.push(hz);
             }
         }
@@ -463,43 +593,169 @@ mod tests {
         let mut c = Cadence::new(120.0).unwrap();
         let mut t = Duration::ZERO;
         warmed(&mut c, &mut t);
-        let decisions = run(&mut c, &mut t, 120, |i| if i % 9 < 2 { 10.0 } else { 7.5 });
+        let decisions = run(&mut c, &mut t, 400, |i| if i % 9 < 2 { 10.0 } else { 7.5 });
         assert_eq!(decisions, vec![60.0]);
         assert_eq!(c.switches(), 1);
     }
 
+    /// Down to 60 Hz with sustained 12 ms frames, stopping at the drop.
+    fn dropped(c: &mut Cadence, t: &mut Duration) {
+        warmed(c, t);
+        for _ in 0..120 * 4 {
+            *t += ms(2.0 * 1000.0 / 120.0);
+            if c.observe(ms(12.0), *t) == Some(60.0) {
+                return;
+            }
+        }
+        panic!("sustained 12 ms frames must drop a 120 Hz panel to 60");
+    }
+
     #[test]
-    fn it_comes_back_up_only_with_room_to_spare_and_does_not_flap() {
+    fn room_to_spare_at_60_comes_back_up() {
+        // A window is the panel's frame count (120), two seconds at 60 Hz:
+        // comfortably-under work is back at 120 within three of them, by the
+        // fast path or the probe, whichever is first.
+        let mut c = Cadence::new(120.0).unwrap();
+        let mut t = Duration::ZERO;
+        dropped(&mut c, &mut t);
+        assert_eq!(run(&mut c, &mut t, 120 * 3, |_| 5.0), vec![120.0]);
+        assert!(run(&mut c, &mut t, 120 * 10, |_| 5.0).is_empty());
+    }
+
+    #[test]
+    fn a_probe_finds_a_rate_that_work_at_60_hz_hid() {
+        // 8 ms at 60 Hz is not 25% under 8.33, so the fast path never fires;
+        // at 120 Hz the same 8 ms makes every vsync. The probe finds it.
+        let mut c = Cadence::new(120.0).unwrap();
+        let mut t = Duration::ZERO;
+        dropped(&mut c, &mut t);
+        let decisions = run(&mut c, &mut t, 60 * 6, |_| 8.0);
+        assert_eq!(decisions, vec![120.0], "a probe within about 5 s");
+        let decisions = run(&mut c, &mut t, 120 * 10, |_| 8.0);
+        assert!(decisions.is_empty(), "and it holds: {decisions:?}");
+    }
+
+    #[test]
+    fn a_failed_probe_waits_longer_for_the_next() {
+        let mut c = Cadence::new(120.0).unwrap();
+        let mut t = Duration::ZERO;
+        dropped(&mut c, &mut t);
+        assert_eq!(c.probe_wait(), PROBE_FIRST);
+        // Really 12 ms: the probe goes up, misses, comes down.
+        let decisions = run(&mut c, &mut t, 60 * 6 + 120 * 4, |_| 12.0);
+        assert_eq!(decisions, vec![120.0, 60.0]);
+        assert_eq!(c.probe_wait(), PROBE_FIRST * 2);
+        // And backs off to the cap, never past it.
+        for _ in 0..8 {
+            run(&mut c, &mut t, 60 * 70 + 120 * 4, |_| 12.0);
+        }
+        assert_eq!(c.probe_wait(), PROBE_MAX);
+    }
+
+    #[test]
+    fn one_heavy_second_is_not_a_reason_to_drop() {
+        // A data load: a second of frames over budget, then work that fits.
         let mut c = Cadence::new(120.0).unwrap();
         let mut t = Duration::ZERO;
         warmed(&mut c, &mut t);
-        run(&mut c, &mut t, 120, |_| 12.0);
-        assert!((c.target_hz() - 60.0).abs() < f32::EPSILON);
-        // Just under the panel's budget is not enough room: it would fall
-        // straight back.
-        let decisions = run(&mut c, &mut t, 120 * 6, |_| 8.0);
-        assert!(
-            decisions.is_empty(),
-            "8 ms is not 25% under 8.33: {decisions:?}"
+        let decisions = run(
+            &mut c,
+            &mut t,
+            120 * 5,
+            |i| if i < 120 { 20.0 } else { 4.0 },
         );
-        // Comfortably under for three windows: back to the panel.
-        let decisions = run(&mut c, &mut t, 120 * 3, |_| 5.0);
-        assert_eq!(decisions, vec![120.0]);
-        // One noisy window at 60 resets the streak.
+        assert!(decisions.is_empty(), "{decisions:?}");
+        assert!((c.target_hz() - 120.0).abs() < f32::EPSILON);
+    }
+
+    /// Market Watch's schedule (load 2 s, idle 2 s, tick 1 s, jump 1 s, then
+    /// scroll, live and storm 8 s each), played with frame intervals drawn
+    /// from measured quantiles (p50 / p90 / p95 / p99, ms) and own work.
+    fn replay(phases: &[(f64, [f64; 4], f64)]) -> (Vec<f32>, f32) {
         let mut c = Cadence::new(120.0).unwrap();
-        warmed(&mut c, &mut t);
-        run(&mut c, &mut t, 120, |_| 12.0);
-        let decisions = run(&mut c, &mut t, 120 * 3, |i| {
-            if (120..240).contains(&i) {
-                9.0
-            } else {
-                5.0
+        let mut t = Duration::ZERO;
+        let mut decisions = Vec::new();
+        for &(seconds, q, work) in phases {
+            if seconds == 0.0 {
+                t += Duration::from_secs(2); // the idle phase: no frames
+                continue;
             }
-        });
+            let end = t + Duration::from_secs_f64(seconds);
+            let mut i = 0_u32;
+            while t < end {
+                // 50% at p50, 40% at p90, 5% at p95, 5% at p99.
+                let k = i % 100;
+                let gap = if k < 50 {
+                    q[0]
+                } else if k < 90 {
+                    q[1]
+                } else if k < 95 {
+                    q[2]
+                } else {
+                    q[3]
+                };
+                // At 60 Hz the display paces every frame to 16.67 ms.
+                let gap = gap.max(1000.0 / f64::from(c.target_hz()));
+                t += ms(gap);
+                decisions.extend(c.observe(ms(work), t));
+                i += 1;
+            }
+        }
+        (decisions, c.target_hz())
+    }
+
+    #[test]
+    fn market_watch_on_phones_that_hold_120_stays_at_120() {
+        let burst = [25.0, 30.0, 40.0, 60.0];
+        // SM8750's CPU path, run 43879609229 (131.5 / 127.5 / 123.5 fps,
+        // jank 0.3 / 0.8 / 0.1%): scroll intervals as measured; live and
+        // storm at the fps they presented with the same tail.
+        let sm8750_cpu = [
+            (2.0, burst, 20.0),
+            (0.0, burst, 0.0),
+            (1.0, burst, 20.0),
+            (1.0, burst, 40.0),
+            (8.0, [8.334, 8.389, 8.786, 10.609], 6.0),
+            (8.0, [8.334, 8.40, 8.9, 16.7], 7.0),
+            (8.0, [8.334, 8.40, 8.9, 16.7], 7.5),
+        ];
+        let (decisions, hz) = replay(&sm8750_cpu);
         assert!(
-            decisions.is_empty(),
-            "a bad window in the middle must reset the streak"
+            decisions.is_empty() && (hz - 120.0).abs() < f32::EPSILON,
+            "{decisions:?}"
         );
+        // SM8850's CPU path, run 43907619201's scroll at 130.3 fps.
+        let sm8850_cpu_scroll = [
+            (2.0, burst, 20.0),
+            (0.0, burst, 0.0),
+            (1.0, burst, 20.0),
+            (1.0, burst, 40.0),
+            (8.0, [8.334, 8.393, 9.337, 11.091], 6.3),
+        ];
+        let (decisions, hz) = replay(&sm8850_cpu_scroll);
+        assert!(
+            decisions.is_empty() && (hz - 120.0).abs() < f32::EPSILON,
+            "{decisions:?}"
+        );
+    }
+
+    #[test]
+    fn market_watch_on_a_phone_that_cannot_hold_120_settles_at_60() {
+        // Every third frame a vsync late, sustained: the A73's ragged 120.
+        let burst = [25.0, 30.0, 40.0, 60.0];
+        let ragged = [16.7, 16.7, 16.7, 16.7];
+        let phases = [
+            (2.0, burst, 20.0),
+            (0.0, burst, 0.0),
+            (1.0, burst, 20.0),
+            (1.0, burst, 40.0),
+            (8.0, [8.334, ragged[0], ragged[0], ragged[0]], 10.0),
+            (8.0, [8.334, ragged[0], ragged[0], ragged[0]], 11.0),
+        ];
+        let (decisions, hz) = replay(&phases);
+        assert_eq!(decisions.first(), Some(&60.0), "{decisions:?}");
+        // Probes may go up and come back; it must end where it can hold.
+        assert!((hz - 60.0).abs() < f32::EPSILON, "{decisions:?}");
     }
 
     #[test]
@@ -511,7 +767,7 @@ mod tests {
         // and 3 of every 30 late (10%, twice the allowance). The window
         // fills across bursts, so the rate drops within a few of them.
         let mut decisions = Vec::new();
-        for _ in 0..8 {
+        for _ in 0..20 {
             decisions.extend(run(&mut c, &mut t, 30, |i| {
                 if i % 10 == 0 {
                     12.0
