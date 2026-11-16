@@ -219,21 +219,39 @@ pub const fn cache_budgets_for(tier: DeviceTier) -> vieww_paint::native::CacheBu
 /// cost it raster time it does not need, its frames pass with room — and
 /// iOS stays serial where it always was: no run has ever measured the pool
 /// there, and the iPhone 13's CPU frames already pass at 5.8-7.5 ms.
-/// Desktops keep the core count: a large window's full repaint is exactly
-/// the long raster the walk was built for, and no desktop measurement says
-/// otherwise. Pixels cannot move either way. `VIEWW_RASTER_THREADS` still
-/// overrides.
+/// Desktops: Linux keeps the core count; Windows and macOS walk serially.
+/// The wide comparison (run 43870118033, 2026-11-16) benched the same
+/// frames headless with both walks on GitHub's machines, and the pool only
+/// paid on Linux (storm 7.0-7.4 ms against 8.3-8.4 serial, x64 and arm64).
+/// Windows x64 lost 10.48 against 9.10, Windows arm64 9.30 against 9.01,
+/// macOS arm64 12.13 against 10.60, and scroll and live lost on all three.
+///
+/// Low on the CPU present path walks serially too. In the same run the
+/// msm8953 phone (Low, eight A53s) took 81.7 ms of storm raster with the
+/// pool against 58.7 ms serial, with shadows alone at 26.4 against 6.4, and
+/// lost on every phase. Low on the Vulkan path keeps the pool, because its
+/// small-mask hand-offs are off the critical path and won that pass 6-8 ms
+/// (runs 43714067671 / 43722791555).
+///
+/// Pixels cannot move either way. `VIEWW_RASTER_THREADS` still overrides.
 #[must_use]
-pub(crate) const fn raster_threads_for(tier: DeviceTier, mobile: bool, ios: bool) -> Option<usize> {
+pub(crate) const fn raster_threads_for(
+    tier: DeviceTier,
+    mobile: bool,
+    ios: bool,
+    linux: bool,
+    gpu: bool,
+) -> Option<usize> {
     if !mobile {
-        return None;
+        return if linux { None } else { Some(1) };
     }
     // `ios` is kept in the signature for the day a platform split is
-    // measured; today every phone above Low walks serially on both.
+    // measured; today every phone walks serially on the CPU path.
     let _ = ios;
     match tier {
         DeviceTier::Medium | DeviceTier::High => Some(1),
-        DeviceTier::Low => None,
+        DeviceTier::Low if gpu => None,
+        DeviceTier::Low => Some(1),
     }
 }
 
@@ -257,7 +275,9 @@ pub(crate) fn apply_cache_budgets(path: crate::native::PresentPath) {
         vieww_paint::native::set_process_cache_budgets(cache_budgets_for(tier));
         let mobile = cfg!(any(target_os = "android", target_os = "ios"));
         let ios = cfg!(target_os = "ios");
-        if let Some(request) = raster_threads_for(tier, mobile, ios) {
+        let linux = cfg!(target_os = "linux");
+        let gpu = path == crate::native::PresentPath::Vulkan;
+        if let Some(request) = raster_threads_for(tier, mobile, ios, linux, gpu) {
             vieww_paint::native::set_process_raster_threads(request);
         }
     });
@@ -314,24 +334,31 @@ mod raster_thread_tests {
     use super::*;
 
     #[test]
-    fn phones_above_low_walk_serially_and_everything_else_in_parallel() {
-        // Android: Low parallel; Medium serial (the Redmi's parallel run,
-        // 2026-11-16, was twice as slow); High serial.
-        assert_eq!(raster_threads_for(DeviceTier::Low, true, false), None);
-        assert_eq!(raster_threads_for(DeviceTier::Medium, true, false), Some(1));
-        assert_eq!(raster_threads_for(DeviceTier::High, true, false), Some(1));
-        // iOS: no measurement has ever run the pool there, and iPhones pass
-        // already — everything above Low stays serial.
-        assert_eq!(raster_threads_for(DeviceTier::Low, true, true), None);
-        assert_eq!(raster_threads_for(DeviceTier::Medium, true, true), Some(1));
-        assert_eq!(raster_threads_for(DeviceTier::High, true, true), Some(1));
-        // Desktops keep the core count at every tier.
-        for tier in [DeviceTier::Low, DeviceTier::Medium, DeviceTier::High] {
-            assert_eq!(
-                raster_threads_for(tier, false, false),
-                None,
-                "{tier:?} desktop"
-            );
+    fn only_linux_desktops_and_low_phones_on_vulkan_use_the_pool() {
+        use DeviceTier::{High, Low, Medium};
+        // Phones (Android, then iOS): Low keeps the pool only on Vulkan.
+        for ios in [false, true] {
+            assert_eq!(raster_threads_for(Low, true, ios, false, true), None);
+            assert_eq!(raster_threads_for(Low, true, ios, false, false), Some(1));
+            for gpu in [false, true] {
+                assert_eq!(raster_threads_for(Medium, true, ios, false, gpu), Some(1));
+                assert_eq!(raster_threads_for(High, true, ios, false, gpu), Some(1));
+            }
+        }
+        // Desktops: Linux keeps the core count, Windows and macOS walk serially.
+        for tier in [Low, Medium, High] {
+            for gpu in [false, true] {
+                assert_eq!(
+                    raster_threads_for(tier, false, false, true, gpu),
+                    None,
+                    "{tier:?} linux"
+                );
+                assert_eq!(
+                    raster_threads_for(tier, false, false, false, gpu),
+                    Some(1),
+                    "{tier:?} win/mac"
+                );
+            }
         }
     }
 }
