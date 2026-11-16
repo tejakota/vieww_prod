@@ -171,25 +171,51 @@ pub const fn cache_budgets_for(tier: DeviceTier) -> vieww_paint::native::CacheBu
 
 /// The row-parallel scanline walk's worker request a tier gets, or `None`
 /// for the machine's core count. `mobile` is whether this is a phone or
-/// tablet (Android, iOS).
+/// tablet (Android, iOS); `ios` splits the phones by platform, because the
+/// evidence is Android-only.
 ///
-/// **Serial on Medium and High phones, parallel on Low ones and desktops.**
-/// Device Farm run 39402544760's same-unit A/B (`cpunothreads` against
-/// `cpu`), raster stage medians: LG Stylo 5 (Low) 31.03 ms serial against
-/// 30.35 with threads — and 2.7 ms better with threads in run 39382602099,
-/// so twice in its favour; Galaxy A73 (Medium) 13.61 against 14.36, worst
-/// frame 78.5 ms against 90.6; Galaxy S26 Ultra (High) 5.00 against 5.26,
-/// worst 16.9 against 21.1. Where a frame's raster is long the workers have
-/// something to split; where it is a few milliseconds, waking cores costs
-/// more than it saves, and the worst frames — the cold-core stalls of
-/// `PENDING.md` §4.5 — get worse. Desktops keep the core count: a large
-/// window's full repaint is exactly the long raster the walk was built for,
-/// and no desktop measurement says otherwise. Pixels cannot move either way.
-/// `VIEWW_RASTER_THREADS` still overrides.
+/// **Android Medium phones walk parallel again; iOS and High stay serial;
+/// Low and desktops always walked parallel.** The serial default for
+/// everything above Low came from Device Farm run 39402544760's same-unit
+/// A/B on the demo screen (`cpunothreads` against `cpu`), raster stage
+/// medians: Galaxy A73 (Medium) 13.61 serial against 14.36 with threads,
+/// Galaxy S26 Ultra (High) 5.00 against 5.26, worst frames worse on both.
+/// Two things have changed since that run took its numbers:
+///
+/// - The CPU present path's small-mask gate did not exist yet (it landed
+///   with runs 43714067671 / 43722791555): a Medium phone walking parallel
+///   then handed the pool every 48-px mask, which is the flood those runs
+///   measured at 23-48 ms p95 on the Stylo's CPU pass. Today the same
+///   phone hands the pool nothing under 128 device pixels, so the light
+///   frames that lost 0.75 ms to hand-offs barely engage it at all.
+/// - The Market Watch comparison (2026-11-16, Redmi Note 7 Pro, Medium by
+///   RAM) puts the *product* load's raster medians at 13.8 ms (scroll),
+///   24.4 ms (live) and 36.5 ms (storm) — 65-80% of every frame, the long
+///   raster the walk was built for and the demo screen never showed. Every
+///   parallel half of a damaged CPU frame — the region clears, the RGBA8
+///   converts, the big composites, the large walks — sits behind that same
+///   128-px gate, so a heavy frame splits across the cores while a light
+///   one stays serial by payload size, not by tier.
+///
+/// The comparison carries the same-unit A/B that decides this
+/// (`vieww-cpuserial`, `debug.mw.threads=0`): if the parallel leg does not
+/// beat it on the Redmi's storm and live phases, Medium goes back to serial
+/// with that run's numbers. High stays serial either way — both demo A/Bs
+/// cost it raster time it does not need, its frames pass with room — and
+/// iOS stays serial where it always was: no run has ever measured the pool
+/// there, and the iPhone 13's CPU frames already pass at 5.8-7.5 ms.
+/// Desktops keep the core count: a large window's full repaint is exactly
+/// the long raster the walk was built for, and no desktop measurement says
+/// otherwise. Pixels cannot move either way. `VIEWW_RASTER_THREADS` still
+/// overrides.
 #[must_use]
-pub(crate) const fn raster_threads_for(tier: DeviceTier, mobile: bool) -> Option<usize> {
-    match (mobile, tier) {
-        (true, DeviceTier::Medium | DeviceTier::High) => Some(1),
+pub(crate) const fn raster_threads_for(tier: DeviceTier, mobile: bool, ios: bool) -> Option<usize> {
+    if !mobile {
+        return None;
+    }
+    match (tier, ios) {
+        (DeviceTier::High, _) => Some(1),
+        (DeviceTier::Medium, true) => Some(1),
         _ => None,
     }
 }
@@ -213,7 +239,8 @@ pub(crate) fn apply_cache_budgets(path: crate::native::PresentPath) {
         let tier = device_facts().tier;
         vieww_paint::native::set_process_cache_budgets(cache_budgets_for(tier));
         let mobile = cfg!(any(target_os = "android", target_os = "ios"));
-        if let Some(request) = raster_threads_for(tier, mobile) {
+        let ios = cfg!(target_os = "ios");
+        if let Some(request) = raster_threads_for(tier, mobile, ios) {
             vieww_paint::native::set_process_raster_threads(request);
         }
     });
@@ -270,12 +297,24 @@ mod raster_thread_tests {
     use super::*;
 
     #[test]
-    fn phones_above_low_walk_serially_and_everything_else_in_parallel() {
-        assert_eq!(raster_threads_for(DeviceTier::Low, true), None);
-        assert_eq!(raster_threads_for(DeviceTier::Medium, true), Some(1));
-        assert_eq!(raster_threads_for(DeviceTier::High, true), Some(1));
+    fn android_walks_parallel_below_high_ios_above_low_and_desktops_always() {
+        // Android: Low and Medium parallel (the Market Watch load is the long
+        // raster), High serial (both demo A/Bs cost it time it does not need).
+        assert_eq!(raster_threads_for(DeviceTier::Low, true, false), None);
+        assert_eq!(raster_threads_for(DeviceTier::Medium, true, false), None);
+        assert_eq!(raster_threads_for(DeviceTier::High, true, false), Some(1));
+        // iOS: no measurement has ever run the pool there, and iPhones pass
+        // already — everything above Low stays serial.
+        assert_eq!(raster_threads_for(DeviceTier::Low, true, true), None);
+        assert_eq!(raster_threads_for(DeviceTier::Medium, true, true), Some(1));
+        assert_eq!(raster_threads_for(DeviceTier::High, true, true), Some(1));
+        // Desktops keep the core count at every tier.
         for tier in [DeviceTier::Low, DeviceTier::Medium, DeviceTier::High] {
-            assert_eq!(raster_threads_for(tier, false), None, "{tier:?} desktop");
+            assert_eq!(
+                raster_threads_for(tier, false, false),
+                None,
+                "{tier:?} desktop"
+            );
         }
     }
 }

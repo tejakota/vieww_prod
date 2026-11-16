@@ -34,6 +34,13 @@ CONTINUOUS = ["scroll2k", "live2k", "storm2k", "scroll20k", "live20k", "storm20k
 EVENTS = ["load2k", "tick2k", "jump2k", "load20k", "tick20k", "jump20k"]
 IDLE = ["idle2k", "idle20k"]
 CONFIGS = ["vieww-cpu", "vieww-gpu", "valdi"]
+# The diagnostic leg: parsed and reported in its own A/B block beside the
+# default CPU leg, but kept out of the headline tables, which stay the
+# three-way comparison the legend describes. `vieww-cpuserial` is the same
+# APK with the raster walk pinned serial (`debug.mw.threads=0`) — the
+# same-unit answer to what the row-parallel pool bought on this phone.
+AB_LEG = "vieww-cpuserial"
+PARSED_CONFIGS = CONFIGS + [AB_LEG]
 CLK_TCK = 100  # Android's USER_HZ
 
 
@@ -124,10 +131,23 @@ def phase_stats(config_dir, package, budget_ms):
     events = jsonl(config_dir / "events.jsonl")
     runner = {r["phase"]: r for r in jsonl(config_dir / "runner.jsonl")}
     app = {e["phase"]: e for e in events if e.get("ev") == "stats"}
+    # The stage line the Vieww app emits per phase: where a frame's time
+    # went, as `[p50, p90, max]` per stage — and, on a profiled run, the
+    # `kinds` field splitting the raster stage by command kind. One line per
+    # phase (the last wins), so a rerun's leftover line cannot double-count.
+    stages = {e["phase"]: e for e in events if e.get("ev") == "stages"}
     phases = {}
     for name in sorted(set(runner) | set(app)):
         r, a = runner.get(name, {}), app.get(name, {})
         p = {"app": a}
+        st = stages.get(name)
+        if st:
+            p["stages"] = {
+                "raster_p50": (st.get("raster_ms") or [None])[0],
+                "present_p50": (st.get("present_ms") or [None])[0],
+                "acquire_p50": (st.get("acquire_ms") or [None])[0],
+                "kinds": st.get("kinds"),
+            }
         wall = r.get("wall_ms") or 0
         if wall:
             p["wall_ms"] = wall
@@ -169,13 +189,13 @@ def parse_farm(root):
         budget = 1000.0 / hz
         phone = {"device": info.get("device_name", mw.parent.name), "info": info, "budget_ms": round(budget, 2),
                  "configs": {}}
-        for config in CONFIGS:
+        for config in PARSED_CONFIGS:
             d = mw / config
             if not d.exists():
                 continue
             package = "com.snap.valdi.marketwatch" if config == "valdi" else "dev.vieww.marketwatch"
             starts = [float(x) for x in info.get(f"{config}_cold_start_ms", "").split() if x.replace(".", "").isdigit()]
-            phone["configs"][config] = {
+            stats = {
                 "status": info.get(f"{config}_status", "?"),
                 "cold_start_ms": starts,
                 "cold_start_median": statistics.median(starts) if starts else None,
@@ -183,6 +203,13 @@ def parse_farm(root):
                 "battery_temp_dC": info.get(f"{config}_battery_temp_dC"),
                 "phases": phase_stats(d, package, budget),
             }
+            # The run's own statement of its raster policy (the `quality`
+            # event): which thread request and cache budgets the frames ran
+            # with, straight from the phone.
+            quality = next((e.get("line") for e in jsonl(d / "events.jsonl") if e.get("ev") == "quality"), None)
+            if quality:
+                stats["quality"] = quality
+            phone["configs"][config] = stats
         phones.append(phone)
     return phones
 
@@ -249,8 +276,14 @@ def render(farm, meta):
         md.append("")
         # Statuses come from result.txt, which names a configuration even when
         # it never started (an app that did not install is "SKIPPED").
-        statuses = ", ".join(f"{c}: {info[f'{c}_status']}" for c in CONFIGS if info.get(f"{c}_status"))
+        statuses = ", ".join(f"{c}: {info[f'{c}_status']}" for c in PARSED_CONFIGS if info.get(f"{c}_status"))
         md.append(f"Runs — {statuses or 'none started'}")
+        # Each Vieww leg's own statement of its raster policy, when it said
+        # one: the thread request the frames actually ran with.
+        for c in ["vieww-cpu", AB_LEG]:
+            line = cfg.get(c, {}).get("quality")
+            if line:
+                md.append(f"- {c}: `{line}`")
         for pkg, label in (("com.snap.valdi.marketwatch", "Valdi"), ("dev.vieww.marketwatch", "Vieww")):
             if info.get(f"missing_{pkg}"):
                 why = info.get("install_error_valdi") if label == "Valdi" else None
@@ -287,6 +320,56 @@ def render(farm, meta):
             cpu = {c: p[c].get("cpu_pct") for c in CONFIGS}
             md.append(f"| {name} | {cell(fps, 'fps', True)} | {cell(gap, 'gap', False, '', 0)} | "
                       f"{cell(jank, 'jank', False)} | {cell(work, 'work', False, '', 2)} | {cell(cpu, 'cpu', False)} |")
+        md.append("")
+
+        # The same-unit A/B the fourth leg exists for: the default CPU path
+        # against the same path with the raster walk pinned serial, both
+        # profiled, one phone, one run. Rendered only when the leg ran.
+        if AB_LEG in cfg:
+            md.append("<details open><summary>Vieww CPU · parallel vs serial raster "
+                      "(same phone, same run)</summary>")
+            md.append("")
+            md.append("Cells read parallel / serial; the raster kinds are the p50 of the "
+                      "raster stage split by command kind (a profiled run's `kinds` field).")
+            md.append("")
+            md.append("| phase | raster p50 (ms) | present p50 (ms) | work p95 (ms) | jank % |")
+            md.append("|---|---|---|---|---|")
+            legs = ["vieww-cpu", AB_LEG]
+            for name in CONTINUOUS:
+                p = {c: cfg.get(c, {}).get("phases", {}).get(name, {}) for c in legs}
+                if not any(p.values()):
+                    continue
+
+                def pair(key, nd=2):
+                    vals = [p[c].get("stages", {}).get(key) for c in legs]
+                    return " / ".join(fmt(v, "", nd) for v in vals)
+
+                work = {c: (p[c].get("app", {}).get("work_ms") or [None, None])[1] for c in legs}
+                jank = {c: p[c].get("sf_jank_pct") for c in legs}
+                md.append(f"| {name} | {pair('raster_p50')} | {pair('present_p50')} | "
+                          f"{fmt(work['vieww-cpu'], '', 2)} / {fmt(work[AB_LEG], '', 2)} | "
+                          f"{fmt(jank['vieww-cpu'])} / {fmt(jank[AB_LEG])} |")
+            kinds_rows = [(name, {c: cfg.get(c, {}).get("phases", {}).get(name, {}).get("stages", {}).get("kinds")
+                                  for c in legs})
+                          for name in CONTINUOUS]
+            if any(any(k.values()) for _, k in kinds_rows):
+                md.append("")
+                md.append("| phase | raster kinds, p50 (ms): text / paths / shadows / layers / composite |")
+                md.append("|---|---|")
+                for name, k in kinds_rows:
+                    if not any(k.values()):
+                        continue
+
+                    def leg_kinds(one):
+                        if not one:
+                            return "–"
+                        return " / ".join(fmt((one.get(kind) or [None])[0], "", 2)
+                                           for kind in ("text", "paths", "shadows", "layers", "composite"))
+
+                    md.append(f"| {name} | {leg_kinds(k['vieww-cpu'])} \\n {leg_kinds(k[AB_LEG])} |")
+            md.append("")
+            md.append("</details>")
+            md.append("")
         md.append("")
         md.append("| event | app time (ms) | frames presented | CPU % |")
         md.append("|---|---|---|---|")
@@ -341,8 +424,10 @@ def render(farm, meta):
         "being unobservable in a build that ships; the compositor and HWUI numbers cover it.\n"
         "- Valdi's continuous phases are paced on its platform draw callback (`onNextDraw`), Vieww's on "
         "`before_frame`: one change per drawn frame on both sides.\n"
-        "- Configurations run in the order Vieww CPU → Valdi → Vieww GPU with a minute's rest between, so heat "
-        "from one run does not throttle the next; the thermal phase (60 s of live load) shows sustained behaviour."
+        "- Configurations run in the order Vieww CPU → Valdi → Vieww CPU (serial, the A/B leg) → Vieww GPU with a "
+        "minute's rest between, so heat from one run does not throttle the next; the thermal phase (60 s of live "
+        "load) shows sustained behaviour. The serial leg draws the same screen with the raster walk pinned to one "
+        "core (`debug.mw.threads=0`): the same-unit measure of what the row-parallel walk bought."
     )
     return "\n".join(md) + "\n"
 
@@ -394,13 +479,31 @@ def self_test():
     import tempfile
     tmp = pathlib.Path(tempfile.mkdtemp())
     mw = tmp / "farm" / "Pixel_6-14" / "Customer_Artifacts" / "mw"
-    for c, pkg in (("vieww-cpu", "dev.vieww.marketwatch"), ("valdi", "com.snap.valdi.marketwatch")):
+    for c, pkg in (("vieww-cpu", "dev.vieww.marketwatch"), ("vieww-cpuserial", "dev.vieww.marketwatch"),
+                   ("valdi", "com.snap.valdi.marketwatch")):
         d = mw / c
         d.mkdir(parents=True)
-        (d / "events.jsonl").write_text(
-            json.dumps({"fw": c, "ev": "stats", "phase": "live2k", "frames": 470,
-                        ("work_ms" if c != "valdi" else "render_ms"): [5.0, 9.0, 12.0, 20.0],
-                        "interval_ms": [16.6, 17.0, 33.0, 40.0]}) + "\n")
+        if c != "valdi":
+            # A Vieww leg narrates: the stats line the tables read, the stages
+            # line the A/B block reads (with `kinds`, as a profiled run emits)
+            # and the quality line that says which raster policy it took.
+            (d / "events.jsonl").write_text(
+                json.dumps({"fw": c, "ev": "stats", "phase": "live2k", "frames": 470,
+                            "work_ms": [5.0, 9.0, 12.0, 20.0],
+                            "interval_ms": [16.6, 17.0, 33.0, 40.0]}) + "\n" +
+                json.dumps({"fw": c, "ev": "stages", "phase": "live2k", "frames": 470,
+                            "raster_ms": [4.0, 6.0, 8.0], "present_ms": [2.0, 3.0, 4.0],
+                            "acquire_ms": [1.0, 1.0, 1.0],
+                            "kinds": {"text": [1.5, 2.0, 3.0], "paths": [1.0, 1.0, 1.0],
+                                      "shadows": [0.5, 0.5, 0.5], "layers": [0.0, 0.0, 0.0],
+                                      "composite": [0.5, 0.5, 0.5]}}) + "\n" +
+                json.dumps({"fw": c, "ev": "quality",
+                            "line": f"blur off (tier medium), fill off (tier medium), raster threads {c}"}) + "\n")
+        else:
+            (d / "events.jsonl").write_text(
+                json.dumps({"fw": c, "ev": "stats", "phase": "live2k", "frames": 470,
+                            "render_ms": [5.0, 9.0, 12.0, 20.0],
+                            "interval_ms": [16.6, 17.0, 33.0, 40.0]}) + "\n")
         (d / "runner.jsonl").write_text(json.dumps({"phase": "live2k", "wall_ms": 8000, "cpu_ticks": 400,
                                                     "rss_kb": 90000, "layer": "x"}) + "\n")
         (d / "timestats-live2k.txt").write_text(TIMESTATS.replace("dev.vieww.marketwatch", pkg))
@@ -409,7 +512,8 @@ def self_test():
     (mw / "result.txt").write_text(
         "device_name=Pixel 6\nandroid=14\nsoc=Tensor\nmem_total_kb=8000000\nrefresh_hz=60\n"
         "vieww-cpu_cold_start_ms=300 320 310 305 315\nvaldi_cold_start_ms=420 400 410 430 415\n"
-        "vieww-cpu_status=PASS\nvaldi_status=PASS\nvieww-cpu_pss_kb=80000\nvaldi_pss_kb=120000\n"
+        "vieww-cpu_status=PASS\nvieww-cpuserial_status=PASS\nvaldi_status=PASS\n"
+        "vieww-cpu_pss_kb=80000\nvaldi_pss_kb=120000\n"
         "apk_file_bytes_vieww=5000000\napk_file_bytes_valdi=12000000\nstatus=PASS\n")
     (tmp / "farm" / "valdi-build.txt").write_text(
         "valdi_ref=e90a983749b3\nflags=--snap_flavor=production -c opt\nabi=arm64-v8a\nengine=quickjs\ndebuggable=false\n")
@@ -422,6 +526,12 @@ def self_test():
     assert live["sf_gap_p95"] == 17, live
     assert live["sf_jank_pct"] == round(100 * 10 / 470, 1), live
     assert live["cpu_pct"] == 50.0, live  # 400 ticks = 4000 ms over 8000 ms
+    assert live["stages"]["raster_p50"] == 4.0, live  # the stages line's p50
+    assert live["stages"]["kinds"]["text"] == [1.5, 2.0, 3.0], live
+    assert farm[0]["configs"]["vieww-cpu"]["quality"].endswith("vieww-cpu")
+    # The A/B leg is parsed beside the contenders, cold starts empty.
+    serial = farm[0]["configs"]["vieww-cpuserial"]
+    assert serial["cold_start_median"] is None and serial["phases"]["live2k"]["stages"]["raster_p50"] == 4.0
     assert farm[0]["configs"]["valdi"]["phases"]["live2k"]["hwui"]["p95_ms"] == 15
     assert farm[0]["configs"]["vieww-cpu"]["cold_start_median"] == 310
     # A phone where the Valdi app was refused: the reason reaches the report.
@@ -436,6 +546,12 @@ def self_test():
     md = render(farm, {"valdi_build": build})
     assert "valdi: SKIPPED (not installed)" in md and "INSTALL_FAILED_NO_MATCHING_ABIS" in md, md
     assert "| live2k |" in md and "**310**" in md, md
+    # The A/B block: rendered when the leg ran, with both legs' numbers and
+    # the quality lines that say which policy each took.
+    assert "parallel vs serial raster" in md, md
+    assert "raster threads vieww-cpuserial" in md, md
+    assert "4.00 / 4.00" in md, md  # raster p50, parallel / serial
+    assert md.count("1.50 / 1.00 / 0.50 / 0.00 / 0.50") == 2, md  # kinds p50, both legs
     assert "--snap_flavor=production" in md and "quickjs" in md, md
     print("compare_report self-test: ok")
     return 0

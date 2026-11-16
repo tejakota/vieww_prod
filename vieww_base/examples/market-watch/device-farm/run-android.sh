@@ -4,10 +4,23 @@
 # per device, from testspec-android.yml. Device Farm has installed the Vieww
 # APK (the run's app); the Valdi APK rides in the test package.
 #
-# Three configurations, one after another, on the same phone:
+# Four configurations, one after another, on the same phone — three
+# contenders and one diagnostic:
 #   vieww-cpu  Vieww, its CPU rasterizer (the default)
 #   vieww-gpu  Vieww, its planned GPU path (debug.mw.gpu=1)
 #   valdi      Valdi, native Android views drawn by HWUI
+# and the diagnostic:
+#   vieww-cpuserial  Vieww's CPU rasterizer with the row-parallel walk
+#                    pinned serial (debug.mw.threads=0) — the same-unit A/B
+#                    against vieww-cpu that says what the pool bought on
+#                    this phone, this run, on this schedule. Both CPU legs
+#                    also run with per-kind raster timing on
+#                    (debug.mw.profile=1), so their `stages` lines carry a
+#                    `kinds` field: the raster split by text, paths, shadows
+#                    and composites, the numbers that pick the next
+#                    optimisation. It launches no cold starts — the binary
+#                    is vieww-cpu's — and the report folds it into its own
+#                    A/B block rather than the headline tables.
 #
 # For each one:
 #   1. cold start x5: force-stop, `am start -W`, TotalTime — the platform's own
@@ -168,16 +181,26 @@ layer_frames() { # $1 timestats dump, $2 package → frames the package's layers
 
 # ── one configuration ────────────────────────────────────────────────────────
 run_config() {
-    local name="$1" pkg="$2" gpu="$3" tag="$4"
+    local name="$1" pkg="$2" gpu="$3" tag="$4" threads="${5:-}" colds="${6:-}"
     local dir="$out/$name"
     mkdir -p "$dir"
     local comp; comp="$(component "$pkg")"
     sh_ setprop debug.mw.gpu "$gpu" >/dev/null
     sh_ setprop debug.mw.thermal 1 >/dev/null
+    # The walk's worker count and the per-kind raster timing, per leg:
+    # `threads` is empty (the tier's default), `0` (serial) or a number,
+    # quoted so an empty value survives `setprop`; the kinds timing rides
+    # both CPU legs so their A/B is apples to apples — the GPU and Valdi
+    # legs never read it.
+    sh_ setprop debug.mw.threads "\"$threads\"" >/dev/null
+    local profile=0
+    case "$name" in vieww-cpu*) profile=1 ;; esac
+    sh_ setprop debug.mw.profile "$profile" >/dev/null
 
-    # 1. cold start x5
+    # 1. cold start x5 (the A/B leg skips them: same binary, same launch)
     local starts=()
-    for _ in $(seq "$COLD_STARTS"); do
+    local n="${colds:-$COLD_STARTS}"
+    for _ in $(seq "$n" 2>/dev/null); do
         sh_ am force-stop "$pkg" >/dev/null
         sh_ pm trim-caches 999G >/dev/null 2>&1 || true
         sleep 1
@@ -186,7 +209,7 @@ run_config() {
         sleep 2
     done
     sh_ am force-stop "$pkg" >/dev/null
-    kv "${name}_cold_start_ms" "${starts[*]}"
+    kv "${name}_cold_start_ms" "${starts[*]:-}"
 
     # 2. the schedule
     sleep 3
@@ -427,9 +450,14 @@ overall=PASS
 # next run's throttle. The order alternates frameworks for the same reason.
 # A configuration whose app did not install is recorded as SKIPPED and fails
 # the phone (the comparison is incomplete), but the others still run.
+# The serial A/B leg rides between Valdi and the GPU pass: as far from the
+# CPU pass as this order allows, so neither CPU leg inherits the other's
+# heat. Its fields: name pkg gpu tag threads colds — threads=0 pins the
+# walk serial, colds=0 skips the cold starts the CPU pass already measured.
 first=yes
-for spec in "vieww-cpu $VIEWW_PKG 0 vieww" "valdi $VALDI_PKG 0 Valdi" "vieww-gpu $VIEWW_PKG 1 vieww"; do
-    read -r name pkg gpu tag <<< "$spec"
+for spec in "vieww-cpu $VIEWW_PKG 0 vieww" "valdi $VALDI_PKG 0 Valdi" \
+            "vieww-cpuserial $VIEWW_PKG 0 vieww 0 0" "vieww-gpu $VIEWW_PKG 1 vieww"; do
+    read -r name pkg gpu tag threads colds <<< "$spec"
     if [ "${have[$pkg]}" != yes ]; then
         kv "${name}_status" "SKIPPED (not installed)"
         overall=FAIL
@@ -437,9 +465,11 @@ for spec in "vieww-cpu $VIEWW_PKG 0 vieww" "valdi $VALDI_PKG 0 Valdi" "vieww-gpu
     fi
     [ "$first" = yes ] || sleep 60
     first=no
-    run_config "$name" "$pkg" "$gpu" "$tag" || overall=FAIL
+    run_config "$name" "$pkg" "$gpu" "$tag" "$threads" "$colds" || overall=FAIL
 done
 sh_ setprop debug.mw.gpu 0 >/dev/null
+sh_ setprop debug.mw.threads '""' >/dev/null
+sh_ setprop debug.mw.profile 0 >/dev/null
 
 echo "status=$overall" >> "$result"
 ls -la "$out" > "$out/listing.txt"

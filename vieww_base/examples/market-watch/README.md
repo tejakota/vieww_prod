@@ -62,10 +62,14 @@ to a larger runner label if your organisation has one.
 
 ## What each phone runs
 
-Three configurations, each through the full schedule: **Vieww on its CPU
-rasterizer**, **Valdi** (native Android views, drawn by HWUI) and **Vieww on
-its GPU path**. They run in that order, with a minute's rest between them, so
-heat from one run doesn't throttle the next.
+Four configurations, each through the full schedule: **Vieww on its CPU
+rasterizer**, **Valdi** (native Android views, drawn by HWUI), **Vieww on
+its CPU rasterizer with the row-parallel walk pinned serial** (the A/B leg
+— same phone, same run, so the report can say what the pool bought) and
+**Vieww on its GPU path**. They run in that order, with a minute's rest
+between them, so heat from one run doesn't throttle the next. The A/B leg
+skips its cold starts (the binary is the CPU pass's) and stays out of the
+headline tables, which remain the three-way comparison.
 
 The GPU path renders a depth-0 opaque frame — Market Watch's, on phones —
 straight into the acquired swapchain image: one render pass, no `RGBA16F`
@@ -101,6 +105,24 @@ app sets `VIEWW_GPU_DIRECT` from it; `adb shell setprop debug.mw.direct ""`
 clears it). The app's `__MW__ {"ev":"route"}` line says which route the
 numbers came through, with the medians it compared, and is printed again
 whenever the route changes.
+
+### The CPU pass's raster policy, on one phone
+
+The CPU rasterizer's row-parallel walk (region clears, RGBA8 converts,
+big composites, large scanline walks — everything above 128 device pixels
+on the CPU path) runs on a persistent worker pool whose size the device
+tier picks (`quality::raster_threads_for`). `adb shell setprop
+debug.mw.threads 0` pins it serial and a number pins that many workers — the A/B
+leg sets `0` — and unset leaves the tier's default (the app sets
+`VIEWW_RASTER_THREADS` from it; `setprop debug.mw.threads ""` clears it).
+The app's `__MW__ {"ev":"quality"}` line says what a run took: the thread
+request and the cache budgets, straight from the phone.
+
+`adb shell setprop debug.mw.profile 1` adds a `kinds` field to every
+`stages` line — the raster stage split by command kind (text, paths,
+shadows, layers, composites), the numbers that pick the next optimisation.
+It costs two clock reads a command, so the farm leaves it off except on the
+two CPU legs, whose A/B is then apples to apples.
 
 ## What is measured
 

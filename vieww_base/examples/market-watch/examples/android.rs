@@ -4,6 +4,8 @@
 //! cargo apk build -p market-watch --example android --profile dist --target aarch64-linux-android
 //! adb shell setprop debug.mw.gpu 1     # the planned GPU path (default: CPU rasterizer)
 //! adb shell setprop debug.mw.thermal 0 # skip the 60 s thermal pass
+//! adb shell setprop debug.mw.threads 0 # pin the raster walk serial (A/B leg)
+//! adb shell setprop debug.mw.profile 1 # per-kind raster times in the stages line
 //! ```
 //!
 //! On launch it plays [`market_watch::schedule`]: phases are timed by a clock
@@ -20,10 +22,15 @@
 //! ```text
 //! __MW__ {"fw":"vieww","ev":"phase","phase":"live2k","t":12345.6}
 //! __MW__ {"fw":"vieww","ev":"stats","phase":"live2k","frames":478,"work_ms":[..],"interval_ms":[..],"jank":3}
-//! __MW__ {"fw":"vieww","ev":"stages","phase":"live2k","frames":478,"build_ms":[p50,p90,max],..,"gpu_blit_ms":[..],"budget_ms_end":16.7}
+//! __MW__ {"fw":"vieww","ev":"stages","phase":"live2k","frames":478,"build_ms":[p50,p90,max],..,"gpu_blit_ms":[..],"budget_ms_end":16.7,"kinds":{"rects":[..],"paths":[..],"text":[..],..},"t":…}
 //! __MW__ {"fw":"vieww","ev":"touch","events":212,"latency_ms":[p50,p95,p99,worst],"unanswered":0,"t":…}
 //! __MW__ {"fw":"vieww","ev":"done","t":…}
 //! ```
+//!
+//! The `kinds` half of the `stages` line is there only when
+//! `debug.mw.profile=1` asked for it (`VIEWW_RASTER_PROFILE`): the raster
+//! stage split by command kind, the same p50/p90/max shape — where a heavy
+//! frame's raster time actually goes, which a stage total alone cannot say.
 
 #[cfg(target_os = "android")]
 #[no_mangle]
@@ -100,6 +107,19 @@ mod app {
         g_filters: Vec<f64>,
         g_shadows: Vec<f64>,
         g_blit: Vec<f64>,
+        /// The raster stage by kind of command, filled only when
+        /// `VIEWW_RASTER_PROFILE=1` turned the renderer's kind timing on —
+        /// see [`Split::record`]. `kinds_on` says any sample arrived, so a
+        /// profiled run and an unprofiled one print the same line shape
+        /// minus the `kinds` field.
+        kinds_on: bool,
+        k_rects: Vec<f64>,
+        k_paths: Vec<f64>,
+        k_text: Vec<f64>,
+        k_images: Vec<f64>,
+        k_shadows: Vec<f64>,
+        k_layers: Vec<f64>,
+        k_composite: Vec<f64>,
     }
 
     impl Split {
@@ -113,6 +133,16 @@ mod app {
             self.present.push(ms(st.present));
             self.scale.push(ms(st.scale));
             self.plan.push(ms(st.plan));
+            if let Some(kinds) = &st.cpu_kinds {
+                self.kinds_on = true;
+                self.k_rects.push(ms(kinds.rects));
+                self.k_paths.push(ms(kinds.paths));
+                self.k_text.push(ms(kinds.text));
+                self.k_images.push(ms(kinds.images));
+                self.k_shadows.push(ms(kinds.shadows));
+                self.k_layers.push(ms(kinds.layers));
+                self.k_composite.push(ms(kinds.composite));
+            }
             if let Some(passes) = &st.gpu_passes {
                 self.gpu.push(ms(passes.total()));
                 self.g_draw.push(ms(passes.draw));
@@ -199,11 +229,32 @@ mod app {
                 self.t()
             ));
             let s = std::mem::take(&mut self.split);
+            // The kinds fragment: printed only by a profiled run, after the
+            // first frame taught the renderer to time its commands
+            // (`debug.mw.profile=1`), so every other consumer of the line —
+            // the runner's grep, the report's parser — sees the stages it
+            // always saw. JSON, like the rest of the line, so a reader that
+            // does not know the field skips it as one token.
+            let kinds = if s.kinds_on {
+                format!(
+                    ",\"kinds\":{{\"rects\":{},\"paths\":{},\"text\":{},\
+\"images\":{},\"shadows\":{},\"layers\":{},\"composite\":{}}}",
+                    p50_90_max(&s.k_rects),
+                    p50_90_max(&s.k_paths),
+                    p50_90_max(&s.k_text),
+                    p50_90_max(&s.k_images),
+                    p50_90_max(&s.k_shadows),
+                    p50_90_max(&s.k_layers),
+                    p50_90_max(&s.k_composite)
+                )
+            } else {
+                String::new()
+            };
             emit(&format!(
                 "{{\"fw\":\"vieww\",\"ev\":\"stages\",\"phase\":\"{name}\",\"frames\":{},\
 \"build_ms\":{},\"raster_ms\":{},\"gpu_cpu_ms\":{},\"fence_ms\":{},\"acquire_ms\":{},\
 \"present_ms\":{},\"gpu_ms\":{},\"budget_ms_end\":{:.2},\"scale_ms\":{},\"plan_ms\":{},\
-\"gpu_draw_ms\":{},\"gpu_layers_ms\":{},\"gpu_filters_ms\":{},\"gpu_shadows_ms\":{},\"gpu_blit_ms\":{},\"t\":{:.1}}}",
+\"gpu_draw_ms\":{},\"gpu_layers_ms\":{},\"gpu_filters_ms\":{},\"gpu_shadows_ms\":{},\"gpu_blit_ms\":{}{kinds},\"t\":{:.1}}}",
                 s.build.len(),
                 p50_90_max(&s.build),
                 p50_90_max(&s.raster),
@@ -357,6 +408,26 @@ mod app {
             "1" => std::env::set_var("VIEWW_GPU_DIRECT", "1"),
             _ => {}
         }
+        // The raster walk's worker count, as the comparison's same-unit A/B
+        // (`vieww-cpuserial` pins it back to one): unset leaves the device
+        // tier's default (`quality::raster_threads_for`), `0` is the serial
+        // walk, a number is that many workers. Set before the first window
+        // because the rasterizer reads the environment once, at its first
+        // fill — the same once-per-process moment `debug.mw.direct` aims at.
+        // The value arrives quoted when the runner clears it
+        // (`setprop name ""` is refused bare), so quotes are trimmed first.
+        match prop("debug.mw.threads").trim_matches('"').parse::<usize>() {
+            Ok(0) | Ok(1) => std::env::set_var("VIEWW_RASTER_THREADS", "1"),
+            Ok(workers) => std::env::set_var("VIEWW_RASTER_THREADS", workers.to_string()),
+            Err(_) => {}
+        }
+        // Per-kind raster timings in the `stages` line (`kinds`): two clock
+        // reads a command, so off unless a run wants the breakdown — the
+        // runs that judge the walk read the stage totals, the runs that
+        // decide what to optimise next read the kinds.
+        if prop("debug.mw.profile").trim_matches('"') == "1" {
+            std::env::set_var("VIEWW_RASTER_PROFILE", "1");
+        }
         let thermal = prop("debug.mw.thermal") != "0";
         let phases = schedule(thermal);
         emit(&format!(
@@ -386,6 +457,12 @@ mod app {
             budget_ms: 0.0,
             done: false,
         }));
+        // Which raster policy this process actually took — the tier's thread
+        // request, the cache budgets, any override — is emitted from the
+        // build callback (see below), after the window has applied the
+        // tier's policy: reading it any earlier would freeze the raster
+        // walk's worker request at the core count, before the platform had
+        // its say (`process_raster_thread_request` reads once).
 
         let app = App::new().title("Vieww Market Watch");
         // The clock: sleeps through each phase, then moves the target on and
@@ -424,6 +501,20 @@ mod app {
                 "{{\"fw\":\"vieww\",\"ev\":\"surface\",\"w\":{:.0},\"h\":{:.0},\"t\":{:.1}}}",
                 size.width,
                 size.height,
+                run.t()
+            ));
+            // The window exists, so the tier's raster policy has been applied
+            // (`apply_cache_budgets`, at window creation): this is the first
+            // moment the run's own statement of its thread request and cache
+            // budgets is both final and safe to ask for — asking any earlier
+            // would read the walk's request before the platform set it. One
+            // line, before the numbers that judge it, so a report never has
+            // to guess whether a run's frames walked serially. The status
+            // line is free text; any quote in it is escaped, keeping this
+            // one JSON value.
+            emit(&format!(
+                "{{\"fw\":\"vieww\",\"ev\":\"quality\",\"line\":\"{}\",\"t\":{:.1}}}",
+                vieww_platform_winit::cache_budgets_status().replace('"', "\\\""),
                 run.t()
             ));
         });
