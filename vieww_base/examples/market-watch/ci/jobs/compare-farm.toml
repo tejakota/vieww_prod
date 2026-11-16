@@ -23,7 +23,7 @@ ls -l ../dist
 
 [[step]]
 name = "Run on phones"
-env = { DEVICES = "${{ inputs.devices }}", COUNT = "${{ inputs.count }}", TIERS = "${{ inputs.tiers }}", VIDEO = "${{ inputs.video }}", OUT = "${{ runner.temp }}/compare-farm" }
+env = { DEVICES = "${{ inputs.devices }}", COUNT = "${{ inputs.count }}", TIERS = "${{ inputs.tiers }}", VIDEO = "${{ inputs.video }}", MW_QUICK = "${{ inputs.quick }}", OUT = "${{ runner.temp }}/compare-farm" }
 run = '''
 video=(); [ "$VIDEO" = true ] && video=(--video)
 mkdir -p "$OUT"
@@ -31,7 +31,8 @@ mkdir -p "$OUT"
 # beside the results so the report can say so.
 cp ../dist/valdi-build.txt "$OUT/" 2>/dev/null || true
 set +e
-# Four configurations x (cold starts + ~2.5 min schedule) + rests: about
+# Quick (MW_QUICK=1, package.sh bakes it in): Vieww CPU and GPU only, no
+# thermal pass, about 4 minutes a phone. Otherwise: four configurations x (cold starts + ~2.5 min schedule) + rests: about
 # 20 minutes a phone — the fourth is the serial-walk A/B leg, which skips
 # its cold starts. 60 leaves room for a slow low-tier phone.
 VALDI_APK="$PWD/../dist/valdi-market-watch.apk" \

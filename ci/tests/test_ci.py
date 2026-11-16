@@ -186,6 +186,13 @@ class Planner(unittest.TestCase):
         self.assertNotIn("compare-machines", out)
         self.assertNotIn("compare-usb", out)
 
+    def test_compare_quick(self):
+        rc, out = plan("devices", {"linux": False, "windows": False, "mac": False, "suite": "off",
+                                   "usb_phone": False, "farm": "Valdi vs Vieww · quick (Vieww only, ~$2)"})
+        self.assertEqual(rc, 0, out)
+        self.assertIn("compare-farm", out)
+        self.assertNotIn("compare-machines", out)
+
     def test_release_publish_waits(self):
         rc, out = plan("release", {"mode": "publish", "include_machines": False, "version": "2.0.0"})
         self.assertEqual(rc, 0, out)

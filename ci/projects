@@ -36,6 +36,7 @@ CHANGED, ALL = "What this branch changed", "All projects"
 # Devices ▸ Phone farm's two Market Watch choices (2-devices.yml's options).
 COMPARE = "Valdi vs Vieww (Android)"
 COMPARE_WIDE = "Valdi vs Vieww · wide (phones + machines)"
+COMPARE_QUICK = "Valdi vs Vieww · quick (Vieww only, ~$2)"
 SKIP_DIRS = {".git", "target", "node_modules", ".gradle", "build", "dist", "feature_branch_variants", "__pycache__"}
 PHASES = 3
 MACHINE = ["self-hosted", "Linux", "X64", "vieww-linux"]
@@ -441,11 +442,14 @@ def form_flags(workflow, form, vars_):
     farm = form.get("farm", "off")
     # The Valdi-vs-Vieww comparison (vieww_base/examples/market-watch) is its
     # own farm choice: its phones run both frameworks, not the device suite.
-    flags["farm.compare"] = farm in (COMPARE, COMPARE_WIDE)
+    flags["farm.compare"] = farm in (COMPARE, COMPARE_WIDE, COMPARE_QUICK)
     # The wide comparison: a spread of phones instead of one per tier, the
     # phone on USB when ticked, and the CPU path on machines — GitHub's six
     # OS/CPU pairs and your own Linux / Windows / Mac when ticked.
     flags["farm.wide"] = farm == COMPARE_WIDE
+    # Quick: Vieww's two paths only, no thermal pass, short rests. Valdi is
+    # pinned, so its numbers stand from the last full report.
+    flags["farm.quick"] = "1" if farm == COMPARE_QUICK else "0"
     flags["farm.count"] = "8" if farm == COMPARE_WIDE else "3"
     flags["farm.wide_usb"] = farm == COMPARE_WIDE and b("usb_phone")
     flags["farm.android"] = farm in ("Android", "both")

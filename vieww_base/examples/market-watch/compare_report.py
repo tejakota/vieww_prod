@@ -284,6 +284,10 @@ def render(farm, meta):
         # it never started (an app that did not install is "SKIPPED").
         statuses = ", ".join(f"{c}: {info[f'{c}_status']}" for c in PARSED_CONFIGS if info.get(f"{c}_status"))
         md.append(f"Runs — {statuses or 'none started'}")
+        if info.get("mode") == "quick":
+            md.append("")
+            md.append("_Quick run: Vieww CPU and GPU only, no thermal pass. Valdi is pinned, "
+                      "so its numbers stand from the last full report._")
         # Each Vieww leg's own statement of its raster policy, when it said
         # one: the thread request the frames actually ran with.
         for c in ["vieww-cpu", AB_LEG]:

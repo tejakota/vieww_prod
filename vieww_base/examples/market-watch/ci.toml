@@ -24,6 +24,11 @@
 #                                  the same schedule over adb
 #   phase 3  compare-report      phones and machines in one report
 #
+# "Valdi vs Vieww · quick" is the cheap confirmation run, about $2 on
+# Device Farm: 3 phones, Vieww CPU and GPU only (Valdi is pinned, so its
+# numbers stand from the last full report), no 60 s thermal pass, two cold
+# starts, 15 s rests.
+#
 # Both apps are compared as they ship on phones: Valdi as native Android views
 # from a release build made with its own CLI's flags (compare/valdi/), Vieww
 # as its APK. The Valdi side is dropped into a Valdi checkout by
@@ -101,7 +106,7 @@ timeout = 180
 main_only = true
 id_token = true
 secrets = ["AWS_ACCESS_KEY_ID", "AWS_ROLE_ARN", "AWS_SECRET_ACCESS_KEY", "DEVICE_FARM_PROJECT_ARN"]
-inputs = { devices = "", count = "{farm.count}", tiers = "{farm.tiers}", video = "{form.video}" }
+inputs = { devices = "", count = "{farm.count}", tiers = "{farm.tiers}", video = "{form.video}", quick = "{farm.quick}" }
 checkout = { persist-credentials = false, fetch-depth = 1 }
 [[job.setup]]
 uses = "aws"

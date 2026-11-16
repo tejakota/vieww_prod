@@ -17,6 +17,9 @@ trap 'rm -rf "$work"' EXIT
 mkdir -p "$work/tests" "$work/wheelhouse"
 cp "$here/run-android.sh" "$work/"
 cp "$apk" "$work/valdi-market-watch.apk"
+# The quick run (MW_QUICK=1): the spec cannot carry environment, so the
+# package carries a marker run-android.sh looks for.
+[ "${MW_QUICK:-0}" = 1 ] && : > "$work/quick"
 
 cat > "$work/tests/test_market_watch_package.py" <<'PY'
 """Device Farm requires a collectable pytest file in an Appium Python

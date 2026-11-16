@@ -58,6 +58,13 @@ VIEWW_PKG="dev.vieww.marketwatch"
 VALDI_PKG="com.snap.valdi.marketwatch"
 VALDI_APK="$here/valdi-market-watch.apk"
 COLD_STARTS=5
+# Quick mode (a `quick` file in the package, or MW_QUICK=1 over USB): Vieww
+# CPU then GPU, no Valdi, no serial A/B leg, no thermal pass, two cold
+# starts, 15 s rests. About 4 device-minutes a phone instead of about 20.
+QUICK="${MW_QUICK:-0}"
+[ -f "$here/quick" ] && QUICK=1
+REST=60; THERMAL=1
+if [ "$QUICK" = 1 ]; then COLD_STARTS=2; REST=15; THERMAL=0; fi
 RUN_TIMEOUT=420 # seconds for one schedule, thermal pass included
 
 kv() { echo "$1=$2" >> "$result"; }
@@ -186,7 +193,7 @@ run_config() {
     mkdir -p "$dir"
     local comp; comp="$(component "$pkg")"
     sh_ setprop debug.mw.gpu "$gpu" >/dev/null
-    sh_ setprop debug.mw.thermal 1 >/dev/null
+    sh_ setprop debug.mw.thermal "$THERMAL" >/dev/null
     # The walk's worker count and the per-kind raster timing, per leg:
     # `threads` is empty (the tier's default), `0` (serial) or a number,
     # quoted so an empty value survives `setprop`; the kinds timing rides
@@ -228,7 +235,7 @@ run_config() {
     local -a sched=()
     local launch_ms; launch_ms="$(now_ms)"
     local m_idx=0 m_off="$MW_SETTLE_MS" m_name="" m_secs=0 m_last=""
-    while IFS= read -r line; do sched+=("$line"); done < <(mw_schedule 1)
+    while IFS= read -r line; do sched+=("$line"); done < <(mw_schedule "$THERMAL")
     m_last="$(cut -d' ' -f1 <<< "${sched[${#sched[@]}-1]}")"
     # A phase closes exactly once — by its event, or by the clock, whichever
     # lands first; the two agree to well inside a poll.
@@ -455,15 +462,18 @@ overall=PASS
 # heat. Its fields: name pkg gpu tag threads colds — threads=0 pins the
 # walk serial, colds=0 skips the cold starts the CPU pass already measured.
 first=yes
-for spec in "vieww-cpu $VIEWW_PKG 0 vieww" "valdi $VALDI_PKG 0 Valdi" \
-            "vieww-cpuserial $VIEWW_PKG 0 vieww 0 0" "vieww-gpu $VIEWW_PKG 1 vieww"; do
+specs=("vieww-cpu $VIEWW_PKG 0 vieww" "valdi $VALDI_PKG 0 Valdi"
+       "vieww-cpuserial $VIEWW_PKG 0 vieww 0 0" "vieww-gpu $VIEWW_PKG 1 vieww")
+[ "$QUICK" = 1 ] && specs=("vieww-cpu $VIEWW_PKG 0 vieww" "vieww-gpu $VIEWW_PKG 1 vieww")
+kv mode "$([ "$QUICK" = 1 ] && echo quick || echo full)"
+for spec in "${specs[@]}"; do
     read -r name pkg gpu tag threads colds <<< "$spec"
     if [ "${have[$pkg]}" != yes ]; then
         kv "${name}_status" "SKIPPED (not installed)"
         overall=FAIL
         continue
     fi
-    [ "$first" = yes ] || sleep 60
+    [ "$first" = yes ] || sleep "$REST"
     first=no
     run_config "$name" "$pkg" "$gpu" "$tag" "$threads" "$colds" || overall=FAIL
 done
