@@ -96,6 +96,8 @@ pub(crate) struct Cadence {
     /// Windows in a row at the fallback that cleared the headroom.
     clear_windows: u32,
     switches: u32,
+    /// Whether the platform has been asked for the starting rate yet.
+    asked: bool,
 }
 
 impl Cadence {
@@ -121,6 +123,7 @@ impl Cadence {
             first: None,
             clear_windows: 0,
             switches: 0,
+            asked: false,
         })
     }
 
@@ -128,6 +131,22 @@ impl Cadence {
     #[must_use]
     pub(crate) const fn target_hz(&self) -> f32 {
         self.target_hz
+    }
+
+    /// The rate to ask the platform for before the first frame, once.
+    ///
+    /// The window used to ask only when the rate changed, so at the panel's
+    /// rate it never asked at all. Adaptive panels (Samsung's 120 Hz, the
+    /// Pixel 5's 90 Hz) then run a surface that has voted for nothing at
+    /// 60 Hz. Run 43889062992 measured it: Vieww's frames came 16.67 ms apart
+    /// on all of them while Valdi's views, which HWUI votes for, ran at
+    /// 87-125 fps on the same phones.
+    pub(crate) fn initial_request(&mut self) -> Option<f32> {
+        if self.asked {
+            return None;
+        }
+        self.asked = true;
+        Some(self.target_hz)
     }
 
     /// The panel's own rate.
@@ -186,6 +205,32 @@ impl Cadence {
         self.switches += 1;
         Some(hz)
     }
+}
+
+/// A frame's own work for [`Cadence::observe`]: `work` without the time spent
+/// waiting on the display, which is the pacing itself.
+///
+/// - `acquire` waits for a buffer to render into.
+/// - `gpu_wait` waits on the GPU, and with FIFO presentation also on a
+///   swapchain image coming back from the display.
+///
+/// Counting either pins a lowered rate down. At 60 Hz every frame then looks
+/// like it needs the whole 16.7 ms, so the rate never comes back up. With
+/// MAILBOX nothing waited; with FIFO (run 43889062992) the GPU path's "work"
+/// went from 3.8 ms to 13-16 ms on the 120 Hz Samsungs and dropped them to
+/// 60 Hz for good.
+///
+/// The GPU's own busy time (`gpu_busy`, from timestamp queries) is the floor,
+/// so a frame the GPU really cannot finish in budget still counts as late.
+#[must_use]
+pub(crate) fn own_work(
+    work: Duration,
+    acquire: Duration,
+    gpu_wait: Duration,
+    gpu_busy: Option<Duration>,
+) -> Duration {
+    let cpu = work.saturating_sub(acquire).saturating_sub(gpu_wait);
+    gpu_busy.map_or(cpu, |busy| cpu.max(busy))
 }
 
 /// Whether adaptation is switched off for this process (`VIEWW_CADENCE=panel`).
@@ -255,6 +300,32 @@ pub(crate) const fn request(_window: &winit::window::Window, _hz: f32) -> &'stat
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn own_work_leaves_out_display_waits_but_not_gpu_time() {
+        // A FIFO frame at 60 Hz: 16 ms of work, 12 of it waiting on the
+        // display, the GPU busy 3 ms: 4 ms of its own.
+        assert_eq!(
+            own_work(ms(16.0), ms(1.0), ms(11.0), Some(ms(3.0))),
+            ms(4.0)
+        );
+        // A GPU-bound frame: the GPU's 10 ms is the floor.
+        assert_eq!(
+            own_work(ms(16.0), ms(1.0), ms(11.0), Some(ms(10.0))),
+            ms(10.0)
+        );
+        // No timestamps: the CPU side alone.
+        assert_eq!(own_work(ms(16.0), ms(1.0), ms(11.0), None), ms(4.0));
+        // Waits never take it below zero.
+        assert_eq!(own_work(ms(2.0), ms(3.0), ms(1.0), None), Duration::ZERO);
+    }
+
+    #[test]
+    fn the_starting_rate_is_asked_for_once() {
+        let mut c = Cadence::new(120.0).unwrap();
+        assert_eq!(c.initial_request(), Some(120.0));
+        assert_eq!(c.initial_request(), None);
+    }
 
     fn ms(v: f64) -> Duration {
         Duration::from_secs_f64(v / 1000.0)

@@ -1869,7 +1869,17 @@ impl WindowState {
                 // on the frame's own work: the wait for a buffer is the pacing
                 // itself, and counting it would pin a lowered rate down.
                 if let Some(cadence) = &mut self.cadence {
-                    let own = work.saturating_sub(gpu.renderer.last_stages().acquire);
+                    if let Some(hz) = cadence.initial_request() {
+                        let asked = crate::cadence::request(&gpu.window, hz);
+                        log::info!("vieww: {} asks for {hz:.0} Hz at start; {asked}", self.key);
+                    }
+                    let stages = gpu.renderer.last_stages();
+                    let own = crate::cadence::own_work(
+                        work,
+                        stages.acquire,
+                        stages.gpu.wait,
+                        stages.gpu_passes.as_ref().map(|p| p.total()),
+                    );
                     let from = cadence.target_hz();
                     if let Some(hz) = cadence.observe(own, shared.now()) {
                         self.scheduler.set_refresh_rate(hz);
