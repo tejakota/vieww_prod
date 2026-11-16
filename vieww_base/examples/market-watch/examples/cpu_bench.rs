@@ -3,8 +3,12 @@
 //! raster, and one hash over every byte of every frame it drew.
 //!
 //! ```console
-//! VIEWW_RASTER_THREADS=1 cargo run --release -p market-watch --example cpu_bench -- [--frames 120] [--runs 5]
+//! VIEWW_RASTER_THREADS=1 cargo run --release -p market-watch --example cpu_bench -- [--frames 120] [--runs 5] [--json OUT.json]
 //! ```
+//!
+//! `--json` also writes the numbers as one JSON object — the machine, the
+//! walk, and per phase the median, p90 and byte hash — which is what CI's
+//! machine legs compare and report (`ci/jobs/compare-machines.toml`).
 //!
 //! The hash is the point as much as the times: a speed-up to the rasterizer
 //! must leave it unchanged (`docs/FIDELITY.md` §1), and this checks that on
@@ -33,6 +37,7 @@ fn fold(hash: &mut u64, bytes: &[u8]) {
 fn main() {
     let mut frames = 120usize;
     let mut runs = 5usize;
+    let mut json: Option<String> = None;
     let mut args = std::env::args().skip(1);
     while let Some(a) = args.next() {
         match a.as_str() {
@@ -43,6 +48,7 @@ fn main() {
                     .expect("--frames N")
             }
             "--runs" => runs = args.next().and_then(|v| v.parse().ok()).expect("--runs N"),
+            "--json" => json = Some(args.next().expect("--json PATH")),
             _ => {}
         }
     }
@@ -100,15 +106,38 @@ fn main() {
             }
         }
     }
+    let mut phases = Vec::new();
     for (i, &(load, _)) in schedule.iter().enumerate() {
         let v = &mut times[i];
         v.sort_by(f64::total_cmp);
+        let (median, p90, hash) = (v[v.len() / 2], v[v.len() * 9 / 10], hashes[i].unwrap_or(0));
         println!(
-            "{:<12} raster med {:>6.2} ms  p90 {:>6.2} ms  bytes {:016x}",
+            "{:<12} raster med {median:>6.2} ms  p90 {p90:>6.2} ms  bytes {hash:016x}",
             format!("{load:?}"),
-            v[v.len() / 2],
-            v[v.len() * 9 / 10],
-            hashes[i].unwrap_or(0)
         );
+        let name = match load {
+            Load::Load(_) => "load",
+            Load::Scroll => "scroll",
+            Load::Live => "live",
+            Load::Storm => "storm",
+            _ => "other",
+        };
+        phases.push(format!(
+            "{{\"phase\":\"{name}\",\"median_ms\":{median:.3},\"p90_ms\":{p90:.3},\"hash\":\"{hash:016x}\"}}"
+        ));
+    }
+    if let Some(path) = json {
+        // Hand-written, like every other line this example prints: the
+        // fields are numbers and fixed words, nothing that needs escaping.
+        let walk = std::env::var("VIEWW_RASTER_THREADS").unwrap_or_else(|_| "default".into());
+        let cores = std::thread::available_parallelism().map_or(0, std::num::NonZeroUsize::get);
+        let text = format!(
+            "{{\"os\":\"{}\",\"arch\":\"{}\",\"cores\":{cores},\"walk\":\"{}\",\"size\":\"{w}x{h}\",\"frames\":{frames},\"runs\":{runs},\"phases\":[{}]}}\n",
+            std::env::consts::OS,
+            std::env::consts::ARCH,
+            walk.replace('"', ""),
+            phases.join(",")
+        );
+        std::fs::write(&path, text).expect("writing --json");
     }
 }

@@ -6,7 +6,7 @@ workflows. Nothing runs on a push, a pull request or a schedule.
 | Workflow | Asks | Runs |
 |---|---|---|
 | **1 · Check** | Project · Depth (quick / thorough) · Run on (GitHub's machines / My Linux machine) | the projects' checks |
-| **2 · Devices** | Linux / Windows / Mac machine · what to run · USB phone · phone farm (Android / iPhone / both; low / mid / high-end; video) | hardware suites, the phone on USB, AWS Device Farm (from `main` only) |
+| **2 · Devices** | Linux / Windows / Mac machine · what to run · USB phone · phone farm (Android / iPhone / both; low / mid / high-end; video; Valdi vs Vieww, narrow or wide) | hardware suites, the phone on USB, AWS Device Farm (from `main` only); the wide Valdi comparison adds 8 farm phones, the USB phone and Linux / Windows / macOS × x64 / arm64 machines (GitHub's machines from any branch) |
 | **3 · Build** | Project · platforms (Linux, Windows, macOS, Android, iOS, web) · version | installers, APKs, IPAs, sites, as artifacts |
 | **4 · Release** | Mode (rehearse / gate and build / publish) · include my machines · version · pre-release | the release gate, supply chain, crate checks; then builds; then publishing, after approval |
 | **5 · Housekeeping** | Task (goldens / models / everything) | refresh golden screenshots and reference models |

@@ -1,0 +1,109 @@
+# Valdi vs Vieww · one machine
+# The CPU path of the comparison screen on a desktop or server machine, with
+# no phone and no window: examples/cpu_bench.rs plays load, scroll, live and
+# storm at the Redmi's 1081x2340 @ 2.75 and reports, per phase, the retained
+# raster's median and p90 and a hash of every byte of every frame.
+#
+# Per machine, two walks: `serial` (VIEWW_RASTER_THREADS=1, what Medium and
+# High phones run) and `default` (the machine's own worker count). cpu_bench
+# itself fails if two runs on one machine draw different bytes.
+#
+# On a branch, the same bench is built from main beside this ref, on this
+# machine, and the hashes must match: a speed-up that moves a pixel on any
+# OS or CPU fails here (docs/FIDELITY.md §1). A change meant to move pixels
+# says so with a `Pixels-Changed:` trailer in its commit message, and then
+# the leg reports the difference without failing — the same convention as
+# ci/check/raster-identity.sh. Hashes are never compared across machines:
+# a different OS's maths library may round a sine differently, and that is
+# not this change's doing.
+
+name = "Valdi vs Vieww · machine"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+CARGO_TERM_COLOR = "always"
+RUST_VERSION = "1.98.1"
+LEG = "${{ matrix.name }}"
+OUT = "${{ runner.temp }}/compare-machines/${{ matrix.name }}"
+
+[[step]]
+name = "Toolchain"
+run = '''
+# Some images (Windows on Arm) ship without Rust; install rustup first there.
+if ! command -v rustup > /dev/null 2>&1; then
+  case "$RUNNER_OS" in
+    Windows)
+      arch=x86_64; [ "$RUNNER_ARCH" = ARM64 ] && arch=aarch64
+      curl -sSfL -o "$RUNNER_TEMP/rustup-init.exe" "https://win.rustup.rs/$arch"
+      "$RUNNER_TEMP/rustup-init.exe" -y --profile minimal --default-toolchain none
+      ;;
+    *)
+      curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain none
+      ;;
+  esac
+  echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+  export PATH="$HOME/.cargo/bin:$PATH"
+fi
+rustup toolchain install "$RUST_VERSION" --profile minimal
+rustc --version --verbose
+'''
+
+[[step]]
+name = "Bench this ref"
+run = '''
+mkdir -p "$OUT"
+bench() { # $1 = walk name, $2 = VIEWW_RASTER_THREADS ("" for the default)
+  if [ -n "$2" ]; then export VIEWW_RASTER_THREADS="$2"; else unset VIEWW_RASTER_THREADS; fi
+  cargo run -q --release -p market-watch --example cpu_bench -- \
+    --frames 120 --runs 3 --json "$OUT/head-$1.json"
+}
+bench serial 1
+bench default ""
+'''
+
+[[step]]
+name = "Bench main, on this machine"
+id = "main"
+if = "github.ref != 'refs/heads/main'"
+run = '''
+git fetch -q --depth 1 origin main
+base="$RUNNER_TEMP/mw-main"
+git worktree add -q --detach "$base" FETCH_HEAD
+# The same measuring tool on both sides: this ref's cpu_bench.rs, so a run
+# from a branch whose bench gained a flag still compares like with like.
+cp examples/market-watch/examples/cpu_bench.rs "$base/vieww_base/examples/market-watch/examples/"
+cd "$base/vieww_base"
+git log -1 --format='main is %h %s'
+bench() {
+  if [ -n "$2" ]; then export VIEWW_RASTER_THREADS="$2"; else unset VIEWW_RASTER_THREADS; fi
+  # Its own target directory: a shared one reuses build scripts compiled
+  # with the other checkout's paths baked in (raster-identity.sh's note).
+  CARGO_TARGET_DIR="$RUNNER_TEMP/mw-main-target" cargo run -q --release -p market-watch \
+    --example cpu_bench -- --frames 120 --runs 3 --json "$OUT/main-$1.json"
+}
+bench serial 1
+bench default ""
+'''
+
+[[step]]
+name = "Verdict"
+run = '''
+py="$(command -v python3 || command -v python)"
+allow=()
+git log -1 --format=%B | grep -q '^Pixels-Changed:' && allow=(--allow-changed)
+"$py" examples/market-watch/ci/machine_verdict.py --dir "$OUT" --leg "$LEG" \
+  --runner "${{ runner.os }}/${{ runner.arch }} (${{ matrix.runner }})" "${allow[@]}" \
+  >> "$GITHUB_STEP_SUMMARY"
+'''
+
+[[step]]
+name = "mark: upload compare-machine"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

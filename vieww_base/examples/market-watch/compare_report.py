@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 """Valdi vs Vieww: turn a comparison run's raw output into one report.
 
-    compare_report.py --farm DIR --out DIR
+    compare_report.py --farm DIR [--machines DIR] --out DIR
     compare_report.py --self-test
 
 Input: ci/mobile/device_farm.py's output: one folder per phone, holding the
 job's artifacts with mw/<config>/{events,runner}.jsonl, timestats-<phase>.txt,
 gfxinfo-<phase>.txt and mw/result.txt, as run-android.sh writes them, plus
 valdi-build.txt at the top (how the Valdi APK was built).
+
+--machines, for the wide comparison: a folder holding one verdict.json per
+machine (ci/machine_verdict.py, from the compare-machines legs) — the CPU
+path's headless raster on Linux, Windows and macOS, x64 and arm64, and
+whether any pixel moved against main on that machine. A table of its own:
+those are raster times on a desktop CPU, not frames presented on a phone.
 
 Writes OUT/COMPARE.md (for the job summary and the results branch) and
 OUT/compare.json (every number, for anyone who wants to chart it).
@@ -432,9 +438,52 @@ def render(farm, meta):
     return "\n".join(md) + "\n"
 
 
+def parse_machines(root):
+    """Every machine leg's verdict.json under ROOT, in a stable order."""
+    if not root or not root.exists():
+        return []
+    out = []
+    for path in sorted(root.rglob("verdict.json")):
+        try:
+            out.append(json.loads(path.read_text()))
+        except (OSError, ValueError):
+            out.append({"leg": path.parent.name, "status": "unreadable verdict.json", "walks": {}, "machine": {}})
+    return out
+
+
+def render_machines(machines):
+    """The machines table: per machine and walk, raster p50 per phase and the
+    pixel verdict against main."""
+    if not machines:
+        return ""
+    phases = ("load", "scroll", "live", "storm")
+    lines = [
+        "## Machines · the CPU path, headless",
+        "",
+        "Retained raster per frame at the phone's 1081x2340 @ 2.75 (ms, p50), on each machine's",
+        "CPU with no window: a measure of the rasterizer, not frames presented. `serial` is the",
+        "phones' walk; `default` uses the machine's cores. Pixels are compared with main on the",
+        "same machine only.",
+        "",
+        "| machine | OS / CPU | cores | walk | " + " | ".join(phases) + " | pixels vs main | verdict |",
+        "|---|---|---|---|" + "---|" * len(phases) + "---|---|",
+    ]
+    for m in machines:
+        info = m.get("machine") or {}
+        where = f"{info.get('os', '?')} / {info.get('arch', '?')}"
+        walks = m.get("walks") or {"–": {}}
+        for walk, rows in walks.items():
+            cells = [f"{rows[p]['median_ms']:.2f}" if p in rows else "–" for p in phases]
+            pix = sorted({r.get("pixels", "?") for r in rows.values()}) or ["–"]
+            lines.append(f"| {m.get('leg', '?')} | {where} | {info.get('cores', '?')} | {walk} | "
+                         + " | ".join(cells) + f" | {', '.join(pix)} | {m.get('status', '?')} |")
+    return "\n".join(lines) + "\n"
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--farm", type=pathlib.Path)
+    ap.add_argument("--machines", type=pathlib.Path)
     ap.add_argument("--out", type=pathlib.Path, default=pathlib.Path("."))
     ap.add_argument("--header", default="")
     ap.add_argument("--self-test", action="store_true")
@@ -442,10 +491,18 @@ def main(argv=None):
     if a.self_test:
         return self_test()
     farm = parse_farm(a.farm)
-    build = kv_file(a.farm / "valdi-build.txt") if a.farm else {}
+    # At the top of the farm's folder, or one level down when the report
+    # downloaded several artifacts (the farm's and the USB phone's).
+    found = next(iter(sorted(a.farm.rglob("valdi-build.txt"))), None) if a.farm and a.farm.exists() else None
+    build = kv_file(found) if found else {}
+    machines = parse_machines(a.machines)
     a.out.mkdir(parents=True, exist_ok=True)
-    (a.out / "compare.json").write_text(json.dumps({"valdi_build": build, "phones": farm}, indent=1))
-    md = render(farm, {"header": a.header, "valdi_build": build})
+    (a.out / "compare.json").write_text(
+        json.dumps({"valdi_build": build, "phones": farm, "machines": machines}, indent=1))
+    md = render(farm, {"header": a.header, "valdi_build": build}) if farm or not machines else (
+        f"# Valdi vs Vieww\n\n{a.header}\n\nNo phones in this run.\n" if a.header else "")
+    if machines:
+        md = md.rstrip("\n") + "\n\n" + render_machines(machines)
     (a.out / "COMPARE.md").write_text(md)
     print(md)
     return 0
@@ -553,6 +610,29 @@ def self_test():
     assert "4.00 / 4.00" in md, md  # raster p50, parallel / serial
     assert md.count("1.50 / 1.00 / 0.50 / 0.00 / 0.50") == 2, md  # kinds p50, both legs
     assert "--snap_flavor=production" in md and "quickjs" in md, md
+    # Machines: two legs' verdicts become rows beside the phones.
+    mdir = tmp / "machines"
+    for leg, status, moved in (("linux-x64", "ok", "same"), ("windows-arm64", "pixels moved", "moved")):
+        (mdir / leg).mkdir(parents=True)
+        (mdir / leg / "verdict.json").write_text(json.dumps({
+            "leg": leg, "status": status,
+            "machine": {"os": "linux" if "linux" in leg else "windows", "arch": "x86_64", "cores": 4},
+            "walks": {"serial": {p: {"median_ms": 1.25, "p90_ms": 2.0, "hash": "ab", "pixels": moved}
+                                 for p in ("load", "scroll", "live", "storm")}}}))
+    machines = parse_machines(mdir)
+    assert [m["leg"] for m in machines] == ["linux-x64", "windows-arm64"], machines
+    mmd = render_machines(machines)
+    assert "| linux-x64 | linux / x86_64 | 4 | serial | 1.25 | 1.25 | 1.25 | 1.25 | same | ok |" in mmd, mmd
+    assert "| moved | pixels moved |" in mmd, mmd
+    out = tmp / "out"
+    assert main(["--farm", str(tmp / "farm"), "--machines", str(mdir), "--out", str(out)]) == 0
+    both = (out / "COMPARE.md").read_text()
+    assert "Machines · the CPU path" in both and "| live2k |" in both, both
+    assert len(json.loads((out / "compare.json").read_text())["machines"]) == 2
+    # Machines only (a branch run: no phones): still a report.
+    assert main(["--farm", str(tmp / "none"), "--machines", str(mdir), "--out", str(out),
+                 "--header", "run: x"]) == 0
+    assert "No phones in this run" in (out / "COMPARE.md").read_text()
     print("compare_report self-test: ok")
     return 0
 

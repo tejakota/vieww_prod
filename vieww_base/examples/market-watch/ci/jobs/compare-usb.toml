@@ -1,0 +1,63 @@
+# Valdi vs Vieww · the phone on USB
+# The farm's own on-phone runner (device-farm/run-android.sh) on whatever
+# phone is plugged into the self-hosted `android` runner: the same three
+# configurations (Vieww CPU, Valdi, Vieww GPU) plus the serial-walk A/B leg,
+# the same schedule and the same result files, so compare_report.py puts it
+# in the same table as the farm's phones. The script already drives the phone
+# through adb from the host; on the farm the host is Device Farm's, here it is
+# this runner.
+#
+# One phone at a time: with several attached, set ANDROID_SERIAL on the
+# runner (the script reads DEVICEFARM_DEVICE_UDID for it, as on the farm).
+# The runner needs adb on PATH and GNU date (`date +%s%3N`): a Linux host.
+
+name = "Valdi vs Vieww · phone on USB"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+OUT = "${{ runner.temp }}/compare-usb"
+
+[[step]]
+name = "Phone"
+run = '''
+adb start-server > /dev/null
+count="$(adb devices | awk 'NR > 1 && $2 == "device"' | wc -l)"
+if [ "$count" -eq 0 ]; then echo "::error::no phone on USB (adb devices lists none)"; exit 1; fi
+if [ "$count" -gt 1 ] && [ -z "${ANDROID_SERIAL:-}" ]; then
+  echo "::error::$count phones on USB; set ANDROID_SERIAL on the runner to pick one"; exit 1
+fi
+adb shell getprop ro.product.model | tr -d '\r'
+ls -l ../dist
+'''
+
+[[step]]
+name = "Run the schedule"
+run = '''
+here=examples/market-watch/device-farm
+cp ../dist/valdi-market-watch.apk "$here/"
+model="$(adb shell getprop ro.product.model | tr -d '\r' | tr ' /' '__')"
+dir="$OUT/usb-${model:-phone}"
+mkdir -p "$dir"
+cp ../dist/valdi-build.txt "$OUT/" 2>/dev/null || true
+set +e
+DEVICEFARM_LOG_DIR="$dir" \
+DEVICEFARM_APP_PATH="$PWD/../dist/vieww-market-watch.apk" \
+DEVICEFARM_DEVICE_NAME="USB: ${model:-phone}" \
+DEVICEFARM_DEVICE_UDID="${ANDROID_SERIAL:-}" \
+bash "$here/run-android.sh" 2>&1 | tee "$dir/runner.log"
+status=${PIPESTATUS[0]}
+rm -f "$here/valdi-market-watch.apk"
+exit $status
+'''
+
+[[step]]
+name = "mark: upload compare-farm-usb"
+if = "always()"
+shell = "bash"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

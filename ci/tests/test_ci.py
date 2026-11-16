@@ -166,6 +166,26 @@ class Planner(unittest.TestCase):
         self.assertNotEqual(rc, 0)
         self.assertIn("main only", out)
 
+    def test_compare_wide(self):
+        form = {"linux": False, "windows": False, "mac": False, "suite": "off", "usb_phone": True,
+                "farm": "Valdi vs Vieww · wide (phones + machines)"}
+        rc, out = plan("devices", form)
+        self.assertEqual(rc, 0, out)
+        for leg in ("linux-x64", "linux-arm64", "windows-x64", "windows-arm64", "macos-arm64", "macos-x64"):
+            self.assertIn(f"compare-machines ({leg})", out)
+        for job in ("compare-farm", "compare-usb", "compare-report"):
+            self.assertIn(job, out)
+        # A branch: the hosted machines and the report, nothing self-hosted or paid.
+        rc, out = plan("devices", form, ref="refs/heads/topic")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("compare-machines (windows-arm64)", out)
+        self.assertIn("compare-farm: runs from main only", out)
+        # The narrow comparison stays phones only.
+        rc, out = plan("devices", dict(form, farm="Valdi vs Vieww (Android)", usb_phone=False))
+        self.assertEqual(rc, 0, out)
+        self.assertNotIn("compare-machines", out)
+        self.assertNotIn("compare-usb", out)
+
     def test_release_publish_waits(self):
         rc, out = plan("release", {"mode": "publish", "include_machines": False, "version": "2.0.0"})
         self.assertEqual(rc, 0, out)

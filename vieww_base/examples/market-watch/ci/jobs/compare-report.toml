@@ -1,5 +1,6 @@
 # Valdi vs Vieww · one report
-# The phones' results as one table: COMPARE.md and compare.json, into the job
+# The phones' results (and, in the wide run, each machine's CPU raster and
+# pixel verdict against main) as one report: COMPARE.md and compare.json, into the job
 # summary and onto ci-runs/compare-<branch> (raw logs and screenshots stay in
 # the run's artifacts).
 
@@ -13,9 +14,9 @@ working-directory = "."
 name = "Report"
 env = { REPO = "${{ github.repository }}" }
 run = '''
-mkdir -p in/farm report
-header="run: ${GITHUB_SERVER_URL}/${REPO}/actions/runs/${GITHUB_RUN_ID} · vieww ${GITHUB_SHA:0:10} · valdi ${{ inputs.valdi_ref }} · phones: ${{ needs.compare-farm.result }}"
-python3 vieww_base/examples/market-watch/compare_report.py --farm in/farm \
+mkdir -p in/farm in/machines report
+header="run: ${GITHUB_SERVER_URL}/${REPO}/actions/runs/${GITHUB_RUN_ID} · vieww ${GITHUB_SHA:0:10} · valdi ${{ inputs.valdi_ref }} · phones: ${{ needs.compare-farm.result }} · USB phone: ${{ needs.compare-usb.result }} · machines: ${{ needs.compare-machines.result }}"
+python3 vieww_base/examples/market-watch/compare_report.py --farm in/farm --machines in/machines \
   --out report --header "$header" > /dev/null
 cat report/COMPARE.md >> "$GITHUB_STEP_SUMMARY"
 '''

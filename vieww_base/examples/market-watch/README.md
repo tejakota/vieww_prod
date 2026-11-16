@@ -25,6 +25,31 @@ only, like the rest of the farm, and needs the farm's secrets
 | 2 | `compare-farm` | both APKs on every picked phone |
 | 3 | `compare-report` | `COMPARE.md` + `compare.json` → job summary and `ci-runs/compare-<branch>` |
 
+### Wide: phones and machines
+
+**Phone farm: "Valdi vs Vieww · wide (phones + machines)"** widens the run:
+
+- **More phones.** The farm picks 8 phones spread cheapest → most capable instead of 3.
+- **Your USB phone.** With *USB phone* ticked, `compare-usb` runs the same
+  schedule on the phone plugged into your self-hosted `android` runner. That
+  runner must be a Linux host with `adb`.
+- **Machines.** `compare-machines` runs Vieww's CPU path headless (`cpu_bench`,
+  the phone's 1081×2340 @ 2.75 frame) on GitHub's Linux, Windows and macOS
+  runners, both x64 and arm64. When the *Linux / Windows / Mac* boxes are
+  ticked, it also runs on your own `vieww-linux`, `vieww-windows` and
+  `vieww-macos` machines. Each machine benches this ref and `main` side by
+  side, with the serial walk the phones use and with its default walk. It then
+  compares the pixel hashes per phase. A moved pixel fails the leg unless the
+  commit carries a `Pixels-Changed:` line (docs/FIDELITY.md).
+
+The report adds a machines table: p50 raster per phase, pixels vs main, and
+the verdict. Hashes are only compared on the same machine, never across
+machines.
+
+**Runs from a branch:** only GitHub's machines and the report run. The farm,
+the USB phone and your own machines run from `main` only. On a private repo,
+the arm64, Windows and macOS runners use Actions minutes at their own rates.
+
 ## How Valdi is built
 
 The way a Valdi developer ships an app: `valdi package android

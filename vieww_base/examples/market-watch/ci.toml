@@ -11,6 +11,19 @@
 #                                  serial-walk A/B leg — and vieww-gpu)
 #   phase 3  compare-report      one table: COMPARE.md, compare.json
 #
+# "Valdi vs Vieww · wide (phones + machines)" runs the same, wider:
+#
+#   phase 1  compare-machines    the CPU path on every machine (machines-legs.py):
+#                                  GitHub's Linux, Windows and macOS on x64 and
+#                                  arm64, plus your own machines ticked on the
+#                                  form (from main); on a branch, each machine
+#                                  also checks no pixel moved against main
+#   phase 2  compare-farm        a spread of 8 farm phones, cheapest to most
+#                                  capable, instead of 3
+#            compare-usb         the phone on USB (Android phone on USB ticked),
+#                                  the same schedule over adb
+#   phase 3  compare-report      phones and machines in one report
+#
 # Both apps are compared as they ship on phones: Valdi as native Android views
 # from a release build made with its own CLI's flags (compare/valdi/), Vieww
 # as its APK. The Valdi side is dropped into a Valdi checkout by
@@ -88,7 +101,7 @@ timeout = 180
 main_only = true
 id_token = true
 secrets = ["AWS_ACCESS_KEY_ID", "AWS_ROLE_ARN", "AWS_SECRET_ACCESS_KEY", "DEVICE_FARM_PROJECT_ARN"]
-inputs = { devices = "", count = "3", tiers = "{farm.tiers}", video = "{form.video}" }
+inputs = { devices = "", count = "{farm.count}", tiers = "{farm.tiers}", video = "{form.video}" }
 checkout = { persist-credentials = false, fetch-depth = 1 }
 [[job.setup]]
 uses = "aws"
@@ -105,12 +118,58 @@ name = "compare-valdi-apk"
 path = "dist"
 
 [[job]]
+id = "compare-usb"
+title = "Valdi vs Vieww · phone on USB"
+file = "ci/jobs/compare-usb.toml"
+stage = "devices"
+phase = 2
+needs = ["compare-vieww-apk", "compare-valdi-apk"]
+when = "farm.wide_usb"
+runs_on = ["self-hosted", "android"]
+timeout = 60
+main_only = true
+checkout = { persist-credentials = false, fetch-depth = 1 }
+[[job.upload]]
+name = "compare-farm-usb"
+path = "${{ runner.temp }}/compare-usb"
+if-no-files-found = "warn"
+[[job.download]]
+name = "compare-vieww-apk"
+path = "dist"
+[[job.download]]
+name = "compare-valdi-apk"
+path = "dist"
+
+[[job]]
+id = "compare-machines"
+title = "Valdi vs Vieww · machine"
+file = "ci/jobs/compare-machines.toml"
+stage = "devices"
+when = "farm.wide"
+expand = "ci/machines-legs.py"
+timeout = 120
+continue_on_error = false
+# Not main_only: GitHub's machines are safe to run from a branch, and a
+# branch is where "did this move a pixel on Windows on Arm" is worth asking.
+# machines-legs.py adds your own machines on main only.
+inputs = { legs = "linux={form.linux} windows={form.windows} mac={form.mac}" }
+# The default token, so the leg can fetch main beside this ref.
+checkout = { fetch-depth = 1 }
+[[job.setup]]
+uses = "rust-cache"
+with = { workspaces = "vieww_base -> target", key = "mw-machines-${{ matrix.name }}" }
+[[job.upload]]
+name = "compare-machine-${{ matrix.name }}"
+path = "${{ runner.temp }}/compare-machines/${{ matrix.name }}"
+if-no-files-found = "warn"
+
+[[job]]
 id = "compare-report"
 title = "Valdi vs Vieww · report"
 file = "ci/jobs/compare-report.toml"
 stage = "devices"
 phase = 3
-needs = ["compare-farm"]
+needs = ["compare-farm", "compare-usb", "compare-machines"]
 when = "farm.compare"
 if = "always()"
 runs_on = "ubuntu-24.04"
@@ -119,6 +178,10 @@ write = true
 inputs = { valdi_ref = "e90a983749b384ba403c3bcdd40f7d0432404694" }
 checkout = { persist-credentials = false, fetch-depth = 1 }
 [[job.download]]
-name = "compare-farm"
+pattern = "compare-farm*"
 path = "in/farm"
+continue-on-error = true
+[[job.download]]
+pattern = "compare-machine-*"
+path = "in/machines"
 continue-on-error = true
