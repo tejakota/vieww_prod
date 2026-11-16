@@ -1,21 +1,21 @@
 # 2 · Devices — SUCCESS
 
-- branch: `main`  sha: `08c1714bcbce1d020b911a55b535d7402ce7f459`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/43907619201
+- branch: `main`  sha: `e9a2aaf64e88b68104a16d99d900f065eb55c68d`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/43912018582
 
 | job | verdict | failed steps |
 |---|---|---|
 | plan / plan | PASS |  |
-| phase-1 / approve | skipped |  |
 | phase-1 / Market Watch · compare-valdi-apk | PASS |  |
 | phase-1 / Market Watch · compare-vieww-apk | PASS |  |
+| phase-1 / approve | skipped |  |
 | phase-1 / matrix.title | skipped |  |
-| phase-2 / approve | skipped |  |
 | phase-2 / Market Watch · compare-farm | PASS |  |
 | phase-2 / matrix.title | skipped |  |
-| phase-3 / approve | skipped |  |
-| phase-3 / matrix.title | skipped |  |
+| phase-2 / approve | skipped |  |
 | phase-3 / Market Watch · compare-report | PASS |  |
+| phase-3 / matrix.title | skipped |  |
+| phase-3 / approve | skipped |  |
 | results / publish | running |  |
 
 ## Steps
@@ -27,8 +27,6 @@
 - PASS: What runs
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
-
-### phase-1 / approve — skipped
 
 ### phase-1 / Market Watch · compare-valdi-apk — PASS
 - PASS: Set up job
@@ -95,9 +93,9 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-1 / matrix.title — skipped
+### phase-1 / approve — skipped
 
-### phase-2 / approve — skipped
+### phase-1 / matrix.title — skipped
 
 ### phase-2 / Market Watch · compare-farm — PASS
 - PASS: Set up job
@@ -133,9 +131,7 @@
 
 ### phase-2 / matrix.title — skipped
 
-### phase-3 / approve — skipped
-
-### phase-3 / matrix.title — skipped
+### phase-2 / approve — skipped
 
 ### phase-3 / Market Watch · compare-report — PASS
 - PASS: Set up job
@@ -168,10 +164,14 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
+### phase-3 / matrix.title — skipped
+
+### phase-3 / approve — skipped
+
 ### results / publish — running
-- running: Set up job
+- PASS: Set up job
 - running: Collect the run
 - running: Run actions/checkout@v4
 - running: Write to the ci-results branch
 
-- artifacts: compare-farm compare-vieww-apk compare-valdi-apk 
+- artifacts: compare-vieww-apk compare-valdi-apk compare-farm 

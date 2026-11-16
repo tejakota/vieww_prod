@@ -8,118 +8,124 @@ Valdi built as it ships: `--snap_flavor=production -c opt --copt=-DANDROID_WITH_
 
 ## Phones (AWS Device Farm)
 
-### LMQ72016369a75 · Android 9 · msm8953 · 2.7 GB · 60.000004 Hz
+### LMQ7201bd50691 · Android 9 · msm8953 · 2.7 GB · 60.000004 Hz
 
 Runs — vieww-cpu: PASS, vieww-gpu: PASS
+- vieww-cpu frame rate: `window#primary is on Android Device, which reports no refresh rate; keeping the current budget` · `performance hint unavailable (Android 12 or older: no APerformanceHint)`
+- vieww-gpu frame rate: `window#primary is on Android Device, which reports no refresh rate; keeping the current budget` · `performance hint unavailable (Android 12 or older: no APerformanceHint)`
 
 _Quick run: Vieww CPU and GPU only, no thermal pass. Valdi is pinned, so its numbers stand from the last full report._
 - vieww-cpu: `blur off (tier low), fill off (tier low), raster threads serial (tier low)`
 
 | | Vieww CPU / Vieww GPU / Valdi |
 |---|---|
-| cold start, median of 5 (ms) | 380 / **344** / – |
-| memory after the run, PSS (MB) | **79.2** / 182.8 / – |
+| cold start, median of 5 (ms) | 383 / **334** / – |
+| memory after the run, PSS (MB) | **81.6** / 182.3 / – |
 | APK (MB) | 2.7 / 2.7 / 9.2 |
 
 | phase | presented fps | frame gap p95 (ms) | jank % | app work p95 (ms) | CPU % |
 |---|---|---|---|---|---|
-| scroll2k | – / – / – | – / – / – | – / – / – | **31.37** / 166.36 / – | 145.8 / **43.3** / – |
-| live2k | – / – / – | – / – / – | – / – / – | **52.89** / 62.55 / – | 132.0 / **58.7** / – |
-| storm2k | – / – / – | – / – / – | – / – / – | 73.53 / **61.45** / – | 109.1 / **76.6** / – |
-| scroll20k | – / – / – | – / – / – | – / – / – | **31.27** / 59.49 / – | 145.4 / **27.4** / – |
-| live20k | – / – / – | – / – / – | – / – / – | **53.74** / 61.33 / – | 131.7 / **54.8** / – |
-| storm20k | – / – / – | – / – / – | – / – / – | 72.12 / **61.63** / – | 110.1 / **76.3** / – |
+| scroll2k | – / – / – | – / – / – | – / – / – | **31.43** / 165.53 / – | 146.5 / **43.7** / – |
+| live2k | – / – / – | – / – / – | – / – / – | **53.24** / 63.24 / – | 131.5 / **57.5** / – |
+| storm2k | – / – / – | – / – / – | – / – / – | 73.53 / **61.46** / – | 109.2 / **77.8** / – |
+| scroll20k | – / – / – | – / – / – | – / – / – | **31.49** / 59.52 / – | 144.9 / **27.4** / – |
+| live20k | – / – / – | – / – / – | – / – / – | **53.40** / 61.02 / – | 131.4 / **52.9** / – |
+| storm20k | – / – / – | – / – / – | – / – / – | 77.52 / **61.59** / – | 111.3 / **73.9** / – |
 
 
 | event | app time (ms) | frames presented | CPU % |
 |---|---|---|---|
-| load2k | 188.44 / **49.36** / – | – / – / – | **0.0** / 0.4 / – |
-| tick2k | 33.00 / 31.94 / – | – / – / – | 37.3 / **17.7** / – |
-| jump2k | 174.88 / **53.83** / – | – / – / – | 146.2 / **15.3** / – |
-| load20k | 147.00 / **34.70** / – | – / – / – | **0.0** / 0.0 / – |
-| tick20k | 48.83 / **16.86** / – | – / – / – | 99.0 / **0.0** / – |
-| jump20k | 152.24 / **55.92** / – | – / – / – | 142.9 / **7.4** / – |
-| idle2k | **1.06** / 7.64 / – | – / – / – | 35.7 / **5.1** / – |
-| idle20k | **0.72** / 272.90 / – | – / – / – | 8.9 / **0.0** / – |
+| load2k | 204.32 / **47.12** / – | – / – / – | **0.3** / 0.7 / – |
+| tick2k | 49.65 / **32.76** / – | – / – / – | 18.7 / **9.9** / – |
+| jump2k | 176.84 / **65.58** / – | – / – / – | 135.6 / **26.3** / – |
+| load20k | 223.71 / **35.65** / – | – / – / – | **0.0** / 0.0 / – |
+| tick20k | **53.69** / 513.30 / – | – / – / – | **0.0** / 13.6 / – |
+| jump20k | **144.47** / 194.11 / – | – / – / – | 202.5 / **16.7** / – |
+| idle2k | **0.77** / 12.84 / – | – / – / – | **0.0** / 0.0 / – |
+| idle20k | **0.72** / 804.92 / – | – / – / – | 10.3 / **0.0** / – |
 
-### R5CT41Q1P2M · Android 12 · SM7325 · 7.1 GB · 120.00001 Hz
+### R5CT41PZHLF · Android 12 · SM7325 · 7.1 GB · 120.00001 Hz
 
 Runs — vieww-cpu: PASS, vieww-gpu: PASS
+- vieww-cpu frame rate: `window#primary reports 120.0Hz; frame budget follows it, falling to 60 Hz while it cannot be held` · `performance hint unavailable (the system declined a session)` · `window#primary asks for 120 Hz at start; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)` · `window#primary frame rate 120 -> 60 Hz on a 120 Hz panel; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)`
+- vieww-gpu frame rate: `window#primary reports 120.0Hz; frame budget follows it, falling to 60 Hz while it cannot be held` · `performance hint unavailable (the system declined a session)` · `window#primary asks for 120 Hz at start; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)` · `window#primary frame rate 120 -> 60 Hz on a 120 Hz panel; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)`
 
 _Quick run: Vieww CPU and GPU only, no thermal pass. Valdi is pinned, so its numbers stand from the last full report._
 - vieww-cpu: `blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)`
 
 | | Vieww CPU / Vieww GPU / Valdi |
 |---|---|
-| cold start, median of 5 (ms) | 204 / **192** / – |
-| memory after the run, PSS (MB) | **94.5** / 145.5 / – |
+| cold start, median of 5 (ms) | 222 / **208** / – |
+| memory after the run, PSS (MB) | **96.1** / 145.8 / – |
 | APK (MB) | 2.7 / 2.7 / 9.2 |
 
 | phase | presented fps | frame gap p95 (ms) | jank % | app work p95 (ms) | CPU % |
 |---|---|---|---|---|---|
-| scroll2k | 74.0 / **117.6** / – | 24 / **16** / – | 74.0 / **15.3** / – | 16.88 / **8.84** / – | 89.5 / **55.6** / – |
-| live2k | 63.9 / 64.5 / – | 24 / 24 / – | 94.3 / **79.4** / – | 18.90 / **16.29** / – | 107.4 / **76.0** / – |
-| storm2k | 46.1 / **62.4** / – | 24 / 24 / – | 100.0 / **77.6** / – | 22.96 / **17.89** / – | 110.5 / **84.4** / – |
-| scroll20k | 69.3 / 67.7 / – | 24 / 24 / – | **84.5** / 93.1 / – | 17.30 / **9.68** / – | 91.0 / **47.0** / – |
-| live20k | 63.4 / 64.8 / – | 24 / 24 / – | 92.5 / **82.8** / – | 19.14 / **15.97** / – | 107.2 / **76.9** / – |
-| storm20k | 59.5 / 61.9 / – | 24 / 24 / – | 96.5 / **76.9** / – | 18.28 / 18.27 / – | 112.5 / **83.8** / – |
+| scroll2k | 71.5 / 70.7 / – | 25 / 25 / – | **77.5** / 88.2 / – | 16.33 / **9.31** / – | 87.6 / **45.5** / – |
+| live2k | 63.1 / 64.5 / – | 25 / 25 / – | 93.7 / **77.5** / – | 18.47 / **16.20** / – | 107.1 / **77.0** / – |
+| storm2k | 49.3 / **60.7** / – | 25 / 25 / – | 99.4 / **77.3** / – | 22.73 / **17.74** / – | 110.1 / **81.6** / – |
+| scroll20k | 69.9 / 68.6 / – | 25 / 25 / – | **80.8** / 89.2 / – | 17.60 / **9.98** / – | 90.0 / **48.4** / – |
+| live20k | 64.4 / 64.9 / – | 25 / 25 / – | 90.7 / **80.6** / – | 19.53 / **16.14** / – | 107.1 / **77.0** / – |
+| storm20k | 45.3 / **61.7** / – | 25 / 25 / – | 98.9 / **77.7** / – | 23.02 / **18.10** / – | 106.5 / **83.2** / – |
 
 
 | event | app time (ms) | frames presented | CPU % |
 |---|---|---|---|
-| load2k | 32.91 / **12.96** / – | – / 2 / – | 1.0 / 1.0 / – |
-| tick2k | 18.41 / **15.99** / – | – / – / – | **0.0** / 0.0 / – |
-| jump2k | 42.23 / **30.08** / – | 27 / **49** / – | 88.0 / **56.0** / – |
-| load20k | 36.42 / **13.10** / – | – / – / – | **0.0** / 0.6 / – |
-| tick20k | 22.04 / **12.05** / – | – / – / – | 9.9 / **3.1** / – |
-| jump20k | 53.91 / **11.72** / – | **57** / 43 / – | 148.6 / **38.5** / – |
-| idle2k | **0.42** / 10.74 / – | – / – / – | 3.3 / **2.0** / – |
-| idle20k | **0.39** / 6.51 / – | – / – / – | 4.7 / **1.6** / – |
+| load2k | 39.37 / **9.27** / – | – / 2 / – | **0.4** / 1.0 / – |
+| tick2k | 22.84 / **20.85** / – | – / – / – | 9.4 / **0.0** / – |
+| jump2k | 39.95 / **18.27** / – | 58 / **89** / – | 148.6 / **63.0** / – |
+| load20k | 36.83 / **16.73** / – | – / – / – | **0.0** / 0.9 / – |
+| tick20k | 21.94 / **10.35** / – | – / – / – | **0.0** / 1.6 / – |
+| jump20k | 45.06 / **13.54** / – | **47** / 38 / – | 94.0 / **23.1** / – |
+| idle2k | **0.45** / 10.30 / – | – / – / – | 3.1 / **2.0** / – |
+| idle20k | **0.39** / 13.79 / – | – / – / – | 2.6 / **0.0** / – |
 
-### RFGL126N3TY · Android 16 · SM8850 · 10.9 GB · 120.00001 Hz
+### R3GL105R47R · Android 16 · SM8850 · 10.9 GB · 120.00001 Hz
 
 Runs — vieww-cpu: PASS, vieww-gpu: PASS
+- vieww-cpu frame rate: `window#primary reports 120.0Hz; frame budget follows it, falling to 60 Hz while it cannot be held` · `performance hint on (target 8.33 ms)` · `window#primary asks for 120 Hz at start; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)` · `window#primary frame rate 120 -> 60 Hz on a 120 Hz panel; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)`
+- vieww-gpu frame rate: `window#primary reports 120.0Hz; frame budget follows it, falling to 60 Hz while it cannot be held` · `performance hint on (target 8.33 ms)` · `window#primary asks for 120 Hz at start; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)` · `window#primary frame rate 120 -> 60 Hz on a 120 Hz panel; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)` · `window#primary frame rate 60 -> 120 Hz on a 120 Hz panel; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)` · `window#primary frame rate 120 -> 60 Hz on a 120 Hz panel; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)`
 
 _Quick run: Vieww CPU and GPU only, no thermal pass. Valdi is pinned, so its numbers stand from the last full report._
 - vieww-cpu: `blur 8 MiB (tier high), fill off (tier high), raster threads serial (tier high)`
 
 | | Vieww CPU / Vieww GPU / Valdi |
 |---|---|
-| cold start, median of 5 (ms) | 106 / 103 / – |
+| cold start, median of 5 (ms) | 100 / 100 / – |
 | memory after the run, PSS (MB) | **99.6** / 217.8 / – |
 | APK (MB) | 2.7 / 2.7 / 9.2 |
 
 | phase | presented fps | frame gap p95 (ms) | jank % | app work p95 (ms) | CPU % |
 |---|---|---|---|---|---|
-| scroll2k | **130.3** / 69.6 / – | **8** / 16 / – | **0.5** / 90.2 / – | 8.24 / 8.61 / – | 71.3 / **29.6** / – |
-| live2k | 66.0 / 63.4 / – | 16 / 16 / – | **91.8** / 100.0 / – | 14.59 / **13.05** / – | 76.2 / **54.1** / – |
-| storm2k | 61.7 / 59.0 / – | 16 / 16 / – | 100.0 / 100.0 / – | 13.91 / **13.19** / – | 75.0 / **56.4** / – |
-| scroll20k | 66.2 / **89.5** / – | 16 / 16 / – | 100.0 / **49.2** / – | 13.19 / **8.52** / – | 61.0 / **33.7** / – |
-| live20k | 63.2 / 64.2 / – | 16 / 16 / – | 100.0 / 97.1 / – | 14.06 / **12.08** / – | 73.9 / **50.8** / – |
-| storm20k | 58.7 / **61.9** / – | 16 / 16 / – | 100.0 / 100.0 / – | 17.00 / **13.32** / – | 81.9 / **60.6** / – |
+| scroll2k | **79.3** / 71.2 / – | 16 / 16 / – | **65.4** / 84.6 / – | 12.50 / **8.92** / – | 60.2 / **29.2** / – |
+| live2k | 63.0 / 64.1 / – | 16 / 16 / – | 100.0 / 100.0 / – | 14.50 / **12.82** / – | 75.0 / **54.3** / – |
+| storm2k | 58.9 / 61.3 / – | 16 / 16 / – | 100.0 / 100.0 / – | 14.08 / **12.80** / – | 81.6 / **59.0** / – |
+| scroll20k | 66.1 / **69.8** / – | 16 / 16 / – | 100.0 / **88.8** / – | 12.99 / **5.90** / – | 58.9 / **26.5** / – |
+| live20k | 63.0 / **67.1** / – | 16 / 16 / – | 100.0 / **89.5** / – | 14.08 / **11.75** / – | 73.5 / **51.5** / – |
+| storm20k | 57.8 / 60.0 / – | 16 / 16 / – | 100.0 / 100.0 / – | 17.11 / **12.96** / – | 79.8 / **58.1** / – |
 
 
 | event | app time (ms) | frames presented | CPU % |
 |---|---|---|---|
-| load2k | 12.40 / **3.15** / – | – / 2 / – | **0.0** / 0.0 / – |
-| tick2k | **9.47** / 12.69 / – | – / – / – | 8.4 / **3.9** / – |
-| jump2k | 30.22 / **17.55** / – | 59 / 59 / – | 68.6 / **50.8** / – |
-| load20k | 24.10 / **9.75** / – | – / – / – | **0.0** / 0.9 / – |
-| tick20k | 14.79 / **11.38** / – | – / – / – | 9.8 / **1.5** / – |
-| jump20k | 35.65 / **14.71** / – | 13 / **32** / – | **19.6** / 35.1 / – |
-| idle2k | **0.24** / 1.00 / – | – / – / – | **0.8** / 2.1 / – |
-| idle20k | **0.23** / 2.56 / – | – / – / – | 1.8 / 1.8 / – |
+| load2k | 11.91 / **2.96** / – | – / 2 / – | **0.0** / 0.0 / – |
+| tick2k | 14.63 / **12.04** / – | – / – / – | 7.8 / **1.9** / – |
+| jump2k | 39.85 / **15.09** / – | 25 / 25 / – | 28.8 / 28.8 / – |
+| load20k | 20.27 / **12.55** / – | – / – / – | 0.9 / **0.0** / – |
+| tick20k | 12.69 / **10.65** / – | – / – / – | 4.7 / **3.3** / – |
+| jump20k | 27.07 / **14.35** / – | **35** / 27 / – | 41.7 / **21.5** / – |
+| idle2k | **0.07** / 1.75 / – | – / – / – | 3.2 / **2.1** / – |
+| idle20k | **0.22** / 2.71 / – | – / – / – | 2.5 / **1.9** / – |
 
 ### Across phones · median presented fps
 
-| phase | LMQ72016369a75 | R5CT41Q1P2M | RFGL126N3TY |
+| phase | LMQ7201bd50691 | R5CT41PZHLF | R3GL105R47R |
 |---|---|---|---|
-| scroll2k | – / – / – | 74.0 / **117.6** / – | **130.3** / 69.6 / – |
-| live2k | – / – / – | 63.9 / 64.5 / – | 66.0 / 63.4 / – |
-| storm2k | – / – / – | 46.1 / **62.4** / – | 61.7 / 59.0 / – |
-| scroll20k | – / – / – | 69.3 / 67.7 / – | 66.2 / **89.5** / – |
-| live20k | – / – / – | 63.4 / 64.8 / – | 63.2 / 64.2 / – |
-| storm20k | – / – / – | 59.5 / 61.9 / – | 58.7 / **61.9** / – |
+| scroll2k | – / – / – | 71.5 / 70.7 / – | **79.3** / 71.2 / – |
+| live2k | – / – / – | 63.1 / 64.5 / – | 63.0 / 64.1 / – |
+| storm2k | – / – / – | 49.3 / **60.7** / – | 58.9 / 61.3 / – |
+| scroll20k | – / – / – | 69.9 / 68.6 / – | 66.1 / **69.8** / – |
+| live20k | – / – / – | 64.4 / 64.9 / – | 63.0 / **67.1** / – |
+| storm20k | – / – / – | 45.3 / **61.7** / – | 57.8 / 60.0 / – |
 | thermal | – / – / – | – / – / – | – / – / – |
 
 ## Reading this
