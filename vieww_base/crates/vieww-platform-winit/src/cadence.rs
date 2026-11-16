@@ -233,6 +233,25 @@ pub(crate) fn own_work(
     gpu_busy.map_or(cpu, |busy| cpu.max(busy))
 }
 
+/// The frame budget to give the performance hint (`crate::perf_hint`): the
+/// panel's while there is a panel rate to get back to, whatever the cadence
+/// holds now.
+///
+/// Following the cadence's lowered budget closed a loop. At 60 Hz the hint
+/// said 16.7 ms was fine, so Android let the clocks fall and the raster
+/// took twice as long. The cadence, which goes back up only when the 95th
+/// percentile fits 75% of the panel's budget, then never could. Run
+/// 43870118033's SM8750 drew one leg at 120 fps with a 3.84 ms raster and
+/// the next leg, which fell to 60 Hz, at 7.68 ms: the same phone, build and
+/// frames.
+#[must_use]
+pub(crate) fn hint_budget(current: Duration, panel_hz: Option<f32>) -> Duration {
+    match panel_hz {
+        Some(hz) if hz.is_finite() && hz > 0.0 => current.min(Duration::from_secs_f32(1.0 / hz)),
+        _ => current,
+    }
+}
+
 /// Whether adaptation is switched off for this process (`VIEWW_CADENCE=panel`).
 #[must_use]
 pub(crate) fn disabled() -> bool {
@@ -318,6 +337,15 @@ mod tests {
         assert_eq!(own_work(ms(16.0), ms(1.0), ms(11.0), None), ms(4.0));
         // Waits never take it below zero.
         assert_eq!(own_work(ms(2.0), ms(3.0), ms(1.0), None), Duration::ZERO);
+    }
+
+    #[test]
+    fn the_hint_keeps_the_panels_budget() {
+        let at_60 = Duration::from_secs_f32(1.0 / 60.0);
+        let panel = Duration::from_secs_f32(1.0 / 120.0);
+        assert_eq!(hint_budget(at_60, Some(120.0)), panel);
+        assert_eq!(hint_budget(at_60, None), at_60);
+        assert_eq!(hint_budget(panel, Some(120.0)), panel);
     }
 
     #[test]

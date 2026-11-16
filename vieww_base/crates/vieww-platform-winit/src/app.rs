@@ -1844,10 +1844,22 @@ impl WindowState {
                 }
                 if !gpu.hint_tried {
                     gpu.hint_tried = true;
-                    gpu.hint = crate::perf_hint::start(self.log.budget());
+                    gpu.hint = crate::perf_hint::start(crate::cadence::hint_budget(
+                        self.log.budget(),
+                        self.cadence.as_ref().map(crate::cadence::Cadence::panel_hz),
+                    ));
                 }
+                // The hint's target stays the panel's budget while the cadence
+                // has dropped to 60 Hz. Following the lowered budget told the
+                // system 16.7 ms was fine, so it let the clocks fall. The raster
+                // then took twice as long, which kept the cadence from ever
+                // coming back up (`crate::cadence::hint_budget`).
                 if let Some(hint) = &mut gpu.hint {
-                    hint.frame(work, self.log.budget());
+                    let budget = crate::cadence::hint_budget(
+                        self.log.budget(),
+                        self.cadence.as_ref().map(crate::cadence::Cadence::panel_hz),
+                    );
+                    hint.frame(work, budget);
                 }
                 // The pipelines exist once a GPU frame has drawn, and a phone
                 // app is killed rather than dropped, so the next launch's head
