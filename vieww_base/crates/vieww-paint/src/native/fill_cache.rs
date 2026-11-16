@@ -147,8 +147,9 @@ impl FillCache {
         }
     }
 
-    /// Whether fills go through the cache at all (`false`: budget 0).
-    #[cfg(test)]
+    /// Whether fills go through the cache at all (`false`: budget 0) —
+    /// `paint_shape` composites a rectangle from its bands only when they do
+    /// not, so a cache that is on keeps every hit it had.
     pub(crate) fn is_enabled(&self) -> bool {
         self.enabled
     }

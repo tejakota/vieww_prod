@@ -232,13 +232,89 @@ pub(crate) fn write_straight_u8(pixels: &[Premul], out: &mut [u8]) {
     // that requires it cannot reach a machine without it.
     #[cfg(target_arch = "x86_64")]
     let done = unsafe { sse2::write_straight_u8(pixels, out) };
-    #[cfg(not(target_arch = "x86_64"))]
+    // SAFETY: NEON is part of the aarch64 baseline, as SSE2 is of x86-64's.
+    #[cfg(target_arch = "aarch64")]
+    let done = unsafe { neon::write_straight_u8(pixels, out) };
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
     let done = 0;
     for (pixel, slot) in pixels[done..]
         .iter()
         .zip(out[done * 4..].as_chunks_mut::<4>().0)
     {
         *slot = pixel.to_straight_u8();
+    }
+}
+
+/// The aarch64 half of [`write_straight_u8`]: the phones' way out of every
+/// frame, which ran the scalar loop until 2026-11-16 — the Redmi Note 7 Pro's
+/// CPU pass converts every repainted pixel through it, and on x86 the same
+/// conversion was 11% of a storm frame's raster instructions.
+///
+/// Operation for operation the scalar path, as the SSE2 half is:
+///
+/// - `1.0 / a` by a true division (`vdivq_f32`, `FDIV`, not the estimate
+///   `FRECPE`), zeroed wherever `a > 0.0` is false — `vcgtq_f32` is false
+///   for `NaN`, as the scalar `>` is;
+/// - each colour channel times it, then `* 255.0`, then `+ 0.5`: separate
+///   `FMUL`s and an `FADD`, never fused (Rust does not contract, and these
+///   intrinsics name the unfused instructions);
+/// - alpha's lane multiplied by exactly `1.0` instead, an IEEE identity;
+/// - the saturating `as u8` is `FCVTZU` (truncate toward zero; negatives
+///   and `NaN` to 0; anything past `u32::MAX` to `u32::MAX`) then two
+///   saturating narrows to 16 and 8 bits (anything past 255 to 255). That
+///   is `as u8`'s rule exactly, with no clamp needed before it.
+///
+/// AArch64's Advanced SIMD honours the same `FPCR` as scalar floating point,
+/// so subnormals behave as they do in the scalar loop (unlike 32-bit ARM's
+/// NEON, which always flushed them). `simd_output_matches_scalar_bit_for_bit`
+/// runs against this under `qemu-aarch64` as well as on a phone.
+#[cfg(target_arch = "aarch64")]
+mod neon {
+    use core::arch::aarch64::{
+        float32x4_t, uint32x4_t, vaddq_f32, vandq_u32, vcgtq_f32, vcombine_u16, vcombine_u8,
+        vcvtq_u32_f32, vdivq_f32, vdupq_laneq_f32, vdupq_n_f32, vld1q_f32, vmulq_f32, vqmovn_u16,
+        vqmovn_u32, vreinterpretq_f32_u32, vreinterpretq_u32_f32, vsetq_lane_f32, vst1q_u8,
+    };
+
+    use super::Premul;
+
+    /// One pixel, as four `u32` lanes before the saturating narrows.
+    #[inline]
+    #[target_feature(enable = "neon")]
+    fn convert(p: float32x4_t) -> uint32x4_t {
+        let a = vdupq_laneq_f32::<3>(p);
+        // `if a > 0.0 { 1.0 / a } else { 0.0 }`, all four lanes.
+        let inv = vreinterpretq_f32_u32(vandq_u32(
+            vreinterpretq_u32_f32(vdivq_f32(vdupq_n_f32(1.0), a)),
+            vcgtq_f32(a, vdupq_n_f32(0.0)),
+        ));
+        // The alpha lane is multiplied by exactly 1.0 instead.
+        let k = vsetq_lane_f32::<3>(1.0, inv);
+        let v = vmulq_f32(p, k);
+        let v = vaddq_f32(vmulq_f32(v, vdupq_n_f32(255.0)), vdupq_n_f32(0.5));
+        vcvtq_u32_f32(v)
+    }
+
+    /// Converts whole groups of four pixels and returns how many it did; the
+    /// caller finishes the remainder with the scalar path.
+    #[target_feature(enable = "neon")]
+    pub(super) fn write_straight_u8(pixels: &[Premul], out: &mut [u8]) -> usize {
+        let (groups, _) = pixels.as_chunks::<4>();
+        let (slots, _) = out.as_chunks_mut::<16>();
+        for (group, slot) in groups.iter().zip(slots) {
+            // SAFETY: `Premul` is `repr(C)` with four `f32` fields, so each is
+            // 16 readable bytes; `vld1q_f32` has no alignment requirement.
+            let [p0, p1, p2, p3] = group
+                .each_ref()
+                .map(|p| unsafe { vld1q_f32(std::ptr::from_ref(p).cast::<f32>()) });
+            let lo = vcombine_u16(vqmovn_u32(convert(p0)), vqmovn_u32(convert(p1)));
+            let hi = vcombine_u16(vqmovn_u32(convert(p2)), vqmovn_u32(convert(p3)));
+            let bytes = vcombine_u8(vqmovn_u16(lo), vqmovn_u16(hi));
+            // SAFETY: `slot` is exactly 16 writable bytes; `vst1q_u8` has no
+            // alignment requirement.
+            unsafe { vst1q_u8(slot.as_mut_ptr(), bytes) };
+        }
+        groups.len() * 4
     }
 }
 

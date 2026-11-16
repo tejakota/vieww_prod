@@ -511,6 +511,7 @@ impl BufferAges {
             }
             _ => plan = None,
         }
+        let plan = plan.map(disjoint_regions);
         match self.holds.iter_mut().find(|(a, _)| *a == address) {
             Some(slot) => slot.1 = now,
             None => {
@@ -549,7 +550,60 @@ fn conversion_plan(
             Changed::Regions(r) => regions.extend_from_slice(r),
         }
     }
-    Some(regions)
+    Some(disjoint_regions(regions))
+}
+
+/// `regions` with every pixel in exactly one rectangle: each rectangle keeps
+/// only what the ones before it did not already cover, in order.
+///
+/// A buffer two or three frames old is missing every one of those frames'
+/// changes, and a scroll changes the same place every frame — the list. The
+/// plans above used to hand back the frames' regions end to end, so a
+/// triple-buffered window had the list copied into it three times a frame:
+/// the Redmi Note 7 Pro's CPU pass spent 10-11 ms presenting a scroll whose
+/// raster was 6.6 (2026-11-16), writing some 21 MB to fill a 10 MB buffer.
+/// Disjoint, the rows are also what the parallel copy says they are — no
+/// two workers write the same bytes.
+fn disjoint_regions(regions: Vec<(u32, u32, u32, u32)>) -> Vec<(u32, u32, u32, u32)> {
+    let mut out: Vec<(u32, u32, u32, u32)> = Vec::with_capacity(regions.len());
+    let mut pieces: Vec<(u32, u32, u32, u32)> = Vec::new();
+    let mut next: Vec<(u32, u32, u32, u32)> = Vec::new();
+    for region in regions {
+        if region.0 >= region.2 || region.1 >= region.3 {
+            continue;
+        }
+        pieces.clear();
+        pieces.push(region);
+        for &(l, t, r, b) in &out {
+            next.clear();
+            for &(pl, pt, pr, pb) in &pieces {
+                // The overlap of the piece and a rectangle already kept.
+                let (ol, ot, or, ob) = (pl.max(l), pt.max(t), pr.min(r), pb.min(b));
+                if ol >= or || ot >= ob {
+                    next.push((pl, pt, pr, pb));
+                    continue;
+                }
+                // Up to four bands of the piece survive: above and below
+                // the overlap at full width, left and right of it between.
+                for band in [
+                    (pl, pt, pr, ot),
+                    (pl, ob, pr, pb),
+                    (pl, ot, ol, ob),
+                    (or, ot, pr, ob),
+                ] {
+                    if band.0 < band.2 && band.1 < band.3 {
+                        next.push(band);
+                    }
+                }
+            }
+            std::mem::swap(&mut pieces, &mut next);
+            if pieces.is_empty() {
+                break;
+            }
+        }
+        out.extend_from_slice(&pieces);
+    }
+    out
 }
 
 /// Straight RGBA8 bytes to `0x00RRGGBB` words, for the rows and columns of
@@ -2225,6 +2279,43 @@ mod tests {
         assert_eq!(profile_for("CPU"), DeviceProfile::CPU_ONLY_FALLBACK);
         assert_eq!(profile_for("DISCRETE_GPU"), DeviceProfile::DESKTOP_DISCRETE);
         assert_eq!(profile_for("INTEGRATED_GPU").gpu, GpuKind::Integrated);
+    }
+
+    /// A scroll: the same list changes in each of the frames a buffer
+    /// missed, and is written once — every pixel of the union, none twice.
+    #[test]
+    fn overlapping_changes_are_copied_once() {
+        let list = (55, 449, 1025, 2262);
+        let strip = (54, 2234, 1027, 2262);
+        let cell = (496, 1231, 1005, 1357);
+        let got = disjoint_regions(vec![list, strip, cell, list, strip, list]);
+        let area = |r: &(u32, u32, u32, u32)| u64::from(r.2 - r.0) * u64::from(r.3 - r.1);
+        // Disjoint...
+        for (i, a) in got.iter().enumerate() {
+            for b in &got[i + 1..] {
+                let apart = a.2 <= b.0 || b.2 <= a.0 || a.3 <= b.1 || b.3 <= a.1;
+                assert!(apart, "{a:?} overlaps {b:?}");
+            }
+        }
+        // ...and exactly the union: the list, plus the strip's two columns
+        // either side of it and one to its right.
+        let union = area(&list) + (2262 - 2234) * (1 + 2);
+        assert_eq!(got.iter().map(area).sum::<u64>(), union);
+        assert_eq!(got[0], list, "what came first is kept whole");
+        // Empty rectangles vanish, disjoint ones pass through in order.
+        let (a, b) = ((0, 0, 10, 10), (20, 20, 30, 30));
+        assert_eq!(disjoint_regions(vec![a, (5, 5, 5, 9), b]), vec![a, b]);
+
+        // Through the planner: a buffer three frames old, the list changed
+        // in every one of them.
+        let mut ages = BufferAges::default();
+        for address in [0x1000, 0x2000, 0x3000] {
+            assert_eq!(ages.plan(address, regions(&[list])), None);
+        }
+        assert_eq!(
+            ages.plan(0x1000, regions(&[list, strip])).map(|p| p.len()),
+            Some(3)
+        );
     }
 
     fn regions(r: &[(u32, u32, u32, u32)]) -> Changed {

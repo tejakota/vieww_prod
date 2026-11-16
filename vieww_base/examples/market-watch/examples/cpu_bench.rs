@@ -1,0 +1,114 @@
+//! The CPU path's raster on the comparison schedule, at a phone's size and
+//! density, timed and fingerprinted: each phase's median and p90 retained
+//! raster, and one hash over every byte of every frame it drew.
+//!
+//! ```console
+//! VIEWW_RASTER_THREADS=1 cargo run --release -p market-watch --example cpu_bench -- [--frames 120] [--runs 5]
+//! ```
+//!
+//! The hash is the point as much as the times: a speed-up to the rasterizer
+//! must leave it unchanged (`docs/FIDELITY.md` §1), and this checks that on
+//! the very frames the phone draws — the list, the sparklines, the scroll's
+//! carries — not only on the fixture gallery. `VIEWW_RASTER_THREADS=1` is
+//! the phone's walk (Medium and High tiers are serial).
+//!
+//! Times are this machine's, a development aid: the phone run is the
+//! measurement.
+
+use std::time::Instant;
+
+use market_watch::{Load, Model, Screen};
+use vieww_foundation::{Color, EdgeInsets, Rect, Size, ViewMetrics};
+use vieww_paint::native::NativeRenderer;
+use vieww_render::FrameDriver;
+
+/// FNV-1a over the frame's bytes, folded into the running hash.
+fn fold(hash: &mut u64, bytes: &[u8]) {
+    for &b in bytes {
+        *hash ^= u64::from(b);
+        *hash = hash.wrapping_mul(0x0100_0000_01b3);
+    }
+}
+
+fn main() {
+    let mut frames = 120usize;
+    let mut runs = 5usize;
+    let mut args = std::env::args().skip(1);
+    while let Some(a) = args.next() {
+        match a.as_str() {
+            "--frames" => {
+                frames = args
+                    .next()
+                    .and_then(|v| v.parse().ok())
+                    .expect("--frames N")
+            }
+            "--runs" => runs = args.next().and_then(|v| v.parse().ok()).expect("--runs N"),
+            _ => {}
+        }
+    }
+    let dpr = 2.75_f32;
+    let size = Size::new(393.0, 851.0);
+    let (w, h) = (
+        (size.width * dpr).round() as u32,
+        (size.height * dpr).round() as u32,
+    );
+    let surface = Rect::new(0.0, 0.0, w as f32, h as f32);
+    let viewport = Screen::viewport(size);
+    let schedule = [
+        (Load::Load(2_000), 1),
+        (Load::Scroll, frames),
+        (Load::Live, frames),
+        (Load::Storm, frames),
+    ];
+    // Per phase, every run's samples together; the hash must agree run to run.
+    let mut times: Vec<Vec<f64>> = vec![Vec::new(); schedule.len()];
+    let mut hashes: Vec<Option<u64>> = vec![None; schedule.len()];
+    for _ in 0..runs {
+        let mut driver = FrameDriver::new(size);
+        let model = Model::new(driver.elements().runtime(), 0);
+        driver.set_root(Screen::new(&model, size));
+        driver.set_view_metrics(ViewMetrics {
+            size,
+            device_pixel_ratio: dpr,
+            safe_area: EdgeInsets::default(),
+            view_insets: EdgeInsets::default(),
+        });
+        driver.draw_frame();
+        let mut renderer = NativeRenderer::new();
+        for (i, &(load, n)) in schedule.iter().enumerate() {
+            let mut hash = 0xcbf2_9ce4_8422_2325_u64;
+            for f in 0..n {
+                if f == 0 {
+                    load.enter(&model, viewport);
+                }
+                if load.continuous() {
+                    load.frame(&model, viewport);
+                }
+                driver.draw_frame();
+                let scene = driver.scene().scaled(dpr);
+                let damage = driver.damage().scaled(dpr, surface);
+                let t = Instant::now();
+                renderer
+                    .render_retained_in_place(&scene, &damage, w, h, Color::WHITE)
+                    .expect("retained frame");
+                times[i].push(t.elapsed().as_secs_f64() * 1e3);
+                fold(&mut hash, renderer.last_frame());
+            }
+            match hashes[i] {
+                None => hashes[i] = Some(hash),
+                Some(seen) => assert_eq!(seen, hash, "{load:?}: a run drew different bytes"),
+            }
+        }
+    }
+    for (i, &(load, _)) in schedule.iter().enumerate() {
+        let v = &mut times[i];
+        v.sort_by(f64::total_cmp);
+        println!(
+            "{:<12} raster med {:>6.2} ms  p90 {:>6.2} ms  bytes {:016x}",
+            format!("{load:?}"),
+            v[v.len() / 2],
+            v[v.len() * 9 / 10],
+            hashes[i].unwrap_or(0)
+        );
+    }
+}

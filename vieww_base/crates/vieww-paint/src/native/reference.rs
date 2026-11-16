@@ -2087,21 +2087,38 @@ impl NativeRenderer {
             narrowed = held != bound;
             bound = held;
         }
-        let mask = match rrect {
-            Some(rr) if narrowed => super::geometry::fill::rrect_mask(rr, polylines, bound),
-            None if narrowed => super::geometry::fill::rasterize(polylines, bound),
-            Some(rr) => self.fills.coverage_rrect(polylines, bound, rr),
-            None => self.fills.coverage(polylines, bound),
+        //
+        // **A rectangle or a rounded rectangle comes as bands** where the
+        // fill cache is not in play (off — every tier today — or bypassed by
+        // the region above): its middle rows are one row, and a flat fill
+        // composites them from that row instead of from a materialised mask
+        // (`fill::BandedMask`). Anything else needs the mask, and gets it
+        // assembled from the bands — the same mask `rect_mask` and
+        // `rrect_mask` return, since that is how they build it.
+        use super::geometry::fill;
+        let banded = if narrowed || !self.fills.is_enabled() {
+            match rrect {
+                Some(rr) => Some(fill::rrect_bands(rr, polylines, bound)),
+                None => fill::axis_aligned_rect(polylines).map(|r| fill::rect_bands(r, bound)),
+            }
+        } else {
+            None
         };
-        if mask.is_empty() {
+        let cover = match banded {
+            Some(None) => return,
+            Some(Some(bands)) => Coverage::Banded(bands),
+            None => Coverage::Mask(match rrect {
+                Some(rr) if narrowed => fill::rrect_mask(rr, polylines, bound),
+                None if narrowed => fill::rasterize(polylines, bound),
+                Some(rr) => self.fills.coverage_rrect(polylines, bound, rr),
+                None => self.fills.coverage(polylines, bound),
+            }),
+        };
+        let (nx0, ny0, nx1, ny1) = cover.bounds();
+        if nx1 <= nx0 || ny1 <= ny0 {
             return;
         }
-        let need = Rect::new(
-            mask.x0 as f32,
-            mask.y0 as f32,
-            (mask.x0 + mask.width as i32) as f32,
-            (mask.y0 + mask.height as i32) as f32,
-        );
+        let need = Rect::new(nx0 as f32, ny0 as f32, nx1 as f32, ny1 as f32);
         let resolved = resolve_clip_cached(&mut self.clips, clip, transform, surface, need);
         let inverse = invert(transform);
         let flat = Premul::from_straight(paint.color);
@@ -2118,15 +2135,20 @@ impl NativeRenderer {
         // arithmetic with the three of them hoisted out, so the inner loop is a
         // coverage load, a scale and a blend.
         if paint.gradient.is_none() && !resolved.has_mask() {
-            target.composite_flat(
-                mask.view(),
-                origin,
-                vieww_foundation::BlendMode::Normal,
-                self.pipeline,
-                flat,
-            );
+            let normal = vieww_foundation::BlendMode::Normal;
+            match &cover {
+                Coverage::Mask(mask) => {
+                    target.composite_flat(mask.view(), origin, normal, self.pipeline, flat);
+                }
+                Coverage::Banded(bands) => {
+                    for view in bands.views() {
+                        target.composite_flat(view, origin, normal, self.pipeline, flat);
+                    }
+                }
+            }
             return;
         }
+        let mask = cover.into_mask();
 
         // A gradient's stops, the shape's bounds and the inverse of its
         // transform are all the same for every pixel of the shape. Folding them
@@ -2174,6 +2196,29 @@ impl NativeRenderer {
                 color.scaled(clip_c)
             },
         );
+    }
+}
+
+/// What `paint_shape` composites from: a mask, or a rectangle's bands.
+enum Coverage {
+    Mask(super::geometry::fill::CoverageMask),
+    Banded(super::geometry::fill::BandedMask),
+}
+
+impl Coverage {
+    /// Device bounds, `(x0, y0, x1, y1)` half-open.
+    fn bounds(&self) -> (i32, i32, i32, i32) {
+        match self {
+            Self::Mask(m) => (m.x0, m.y0, m.x0 + m.width as i32, m.y0 + m.height as i32),
+            Self::Banded(b) => b.bounds(),
+        }
+    }
+
+    fn into_mask(self) -> super::geometry::fill::CoverageMask {
+        match self {
+            Self::Mask(m) => m,
+            Self::Banded(b) => b.assemble(),
+        }
     }
 }
 

@@ -174,6 +174,85 @@ impl MaskView<'_> {
     }
 }
 
+/// A rectangle's or rounded rectangle's coverage as three bands: the rows
+/// above and below as ordinary masks, and the middle — every row of which
+/// is the same — as that one row.
+///
+/// The middle band is most of a card, a pill or a row background, and as a
+/// [`CoverageMask`] it was that one row copied `height` times into a fresh
+/// zeroed buffer of `width × height` floats, then read back once by the
+/// composite — 2.3 MB written and read for a 970×600 card at 2.75x, every
+/// time it repainted. Composited straight from the row
+/// ([`views`](Self::views): a view of stride zero), each pixel meets the
+/// same coverage value through the same `composite_flat` arithmetic, so the
+/// bytes are the ones the materialised mask gave. [`assemble`](Self::assemble)
+/// builds that mask, and is what [`rect_mask`] and [`rrect_mask`] return —
+/// so every test of those holds these bands too.
+#[derive(Debug, Clone)]
+pub(crate) struct BandedMask {
+    /// Rows from the mask's top to the middle band's.
+    pub(crate) top: CoverageMask,
+    /// The middle band's one row, `top.width` values.
+    pub(crate) full: Vec<f32>,
+    /// The middle band's rows, half-open, device `y`.
+    pub(crate) middle: (i32, i32),
+    /// Rows from the middle band's bottom to the mask's.
+    pub(crate) bottom: CoverageMask,
+}
+
+impl BandedMask {
+    /// The whole mask's device bounds, `(x0, y0, x1, y1)` half-open.
+    #[must_use]
+    pub(crate) fn bounds(&self) -> (i32, i32, i32, i32) {
+        let x0 = self.top.x0;
+        (
+            x0,
+            self.top.y0,
+            x0 + self.top.width as i32,
+            self.bottom.y0 + self.bottom.height as i32,
+        )
+    }
+
+    /// The three bands as views, top to bottom, the middle one reading its
+    /// single row for every row.
+    #[must_use]
+    pub(crate) fn views(&self) -> [MaskView<'_>; 3] {
+        let middle = MaskView {
+            data: &self.full,
+            stride: 0,
+            offset: 0,
+            x0: self.top.x0,
+            y0: self.middle.0,
+            width: self.top.width,
+            height: (self.middle.1 - self.middle.0).max(0) as u32,
+        };
+        [self.top.view(), middle, self.bottom.view()]
+    }
+
+    /// The mask the bands describe, materialised.
+    #[must_use]
+    pub(crate) fn assemble(self) -> CoverageMask {
+        let width = self.top.width as usize;
+        let (x0, y0, _, y1) = self.bounds();
+        let height = (y1 - y0) as u32;
+        let mut data = vec![0.0f32; width * height as usize];
+        let top = self.top.data.len();
+        data[..top].copy_from_slice(&self.top.data);
+        let middle_rows = (self.middle.1 - self.middle.0).max(0) as usize;
+        for row in data[top..top + middle_rows * width].chunks_exact_mut(width.max(1)) {
+            row.copy_from_slice(&self.full);
+        }
+        data[top + middle_rows * width..].copy_from_slice(&self.bottom.data);
+        CoverageMask {
+            x0,
+            y0,
+            width: width as u32,
+            height,
+            data,
+        }
+    }
+}
+
 /// How many sub-columns one pixel is split into for LCD coverage: the three
 /// RGB stripes a colour display lays out horizontally.
 pub(crate) const LCD_SUBPIXELS: usize = 3;
@@ -359,8 +438,8 @@ fn edges_from(polylines: &[Polyline]) -> Vec<Edge> {
     edges
 }
 
-// How many times `rasterize` has actually run its scanline pass, this
-// thread. Test-only instrumentation: it exists so `native/instancing.rs`'s
+// How many coverage passes have run, this thread: `rasterize`'s scanline
+// walk and the rectangle and rounded-rectangle band builders. Test-only instrumentation: it exists so `native/instancing.rs`'s
 // pillar-D tests can *measure* the rasterization-work reduction batching
 // gives, rather than only asserting it by construction (calling `rasterize`
 // once vs. in a loop). A plain comment, not a doc comment: rustdoc has
@@ -404,8 +483,6 @@ pub(crate) struct RoundedRect {
 /// `clip_bounds` (also device space, already the intersection of every clip
 /// and the target surface — see `compositor::ClipStack`).
 pub(crate) fn rasterize(polylines: &[Polyline], clip_bounds: Rect) -> CoverageMask {
-    #[cfg(test)]
-    RASTERIZE_CALLS.with(|c| c.set(c.get() + 1));
     // **The axis-aligned rectangle does not need a scanline pass.**
     //
     // It is also, by a wide margin, the most common shape a user interface
@@ -423,9 +500,14 @@ pub(crate) fn rasterize(polylines: &[Polyline], clip_bounds: Rect) -> CoverageMa
     // coverage, deliberately, so a rectangle rasterised either way is the same
     // bytes — see `the_rect_fast_path_matches_the_scanline_pass` below, which
     // asserts exactly that over a sweep of sub-pixel offsets.
+    //
+    // A rectangle is counted as a coverage pass by `rect_bands` (which
+    // `paint_shape` may also reach directly), every other shape here.
     if let Some(rect) = axis_aligned_rect(polylines) {
         return rect_mask(rect, clip_bounds);
     }
+    #[cfg(test)]
+    RASTERIZE_CALLS.with(|c| c.set(c.get() + 1));
     rasterize_general(polylines, clip_bounds, process_raster_thread_request())
 }
 
@@ -472,11 +554,22 @@ pub(crate) fn rrect_mask(
     polylines: &[Polyline],
     clip_bounds: Rect,
 ) -> CoverageMask {
+    rrect_bands(rrect, polylines, clip_bounds)
+        .map_or_else(CoverageMask::empty, BandedMask::assemble)
+}
+
+/// [`rrect_mask`] as its three bands, the middle one not materialised —
+/// see [`BandedMask`]. `None` where `rrect_mask` returns an empty mask.
+pub(crate) fn rrect_bands(
+    rrect: RoundedRect,
+    polylines: &[Polyline],
+    clip_bounds: Rect,
+) -> Option<BandedMask> {
     #[cfg(test)]
     RASTERIZE_CALLS.with(|c| c.set(c.get() + 1));
     let edges = edges_from(polylines);
     if edges.is_empty() || clip_bounds.is_empty() {
-        return CoverageMask::empty();
+        return None;
     }
 
     let mut min_x = f32::INFINITY;
@@ -495,11 +588,9 @@ pub(crate) fn rrect_mask(
     let by0 = min_y.floor().max(clip_bounds.top) as i32;
     let by1 = max_y.ceil().min(clip_bounds.bottom) as i32;
     if bx1 <= bx0 || by1 <= by0 {
-        return CoverageMask::empty();
+        return None;
     }
     let width = (bx1 - bx0) as u32;
-    let height = (by1 - by0) as u32;
-    let mut data = vec![0.0f32; (width as usize) * (height as usize)];
 
     // **The full row, exactly as the walk writes it.** The walk zeroes its row
     // buffer, accumulates the `[left, right]` span once per subsample, then
@@ -530,10 +621,6 @@ pub(crate) fn rrect_mask(
         .min(by1)
         + 1;
     let mid1 = mid1.max(mid0).min(by1);
-    for py in mid0..mid1 {
-        let row = &mut data[(py - by0) as usize * width as usize..][..width as usize];
-        row.copy_from_slice(&full);
-    }
 
     // **The corner bands: the walk itself**, over just those rows. `pending =
     // 0` re-admits the edges from scratch, which is the membership and order
@@ -547,38 +634,27 @@ pub(crate) fn rrect_mask(
         order: &order,
     };
     let geometry = RowGeometry { bx0, width };
-    let top_rows = by0..mid0;
-    if !top_rows.is_empty() {
-        let mut scratch = RowScratch::new(width);
-        rasterize_row_range(
-            top_rows,
-            &table,
-            0,
-            &geometry,
-            &mut data[..(mid0 - by0) as usize * width as usize],
-            &mut scratch,
-        );
-    }
-    let bottom_rows = mid1..by1;
-    if !bottom_rows.is_empty() {
-        let mut scratch = RowScratch::new(width);
-        rasterize_row_range(
-            bottom_rows,
-            &table,
-            0,
-            &geometry,
-            &mut data[(mid1 - by0) as usize * width as usize..],
-            &mut scratch,
-        );
-    }
-
-    CoverageMask {
-        x0: bx0,
-        y0: by0,
-        width,
-        height,
-        data,
-    }
+    let band = |rows: std::ops::Range<i32>| {
+        let mut data = vec![0.0f32; rows.len() * width as usize];
+        if !rows.is_empty() {
+            let mut scratch = RowScratch::new(width);
+            rasterize_row_range(rows.clone(), &table, 0, &geometry, &mut data, &mut scratch);
+        }
+        CoverageMask {
+            x0: bx0,
+            y0: rows.start,
+            width,
+            height: rows.len() as u32,
+            data,
+        }
+    };
+    let (top, bottom) = (band(by0..mid0), band(mid1..by1));
+    Some(BandedMask {
+        top,
+        full,
+        middle: (mid0, mid1),
+        bottom,
+    })
 }
 
 /// [`raster_thread_request`] for this process, worked out once.
@@ -796,9 +872,8 @@ pub(crate) fn rasterize_general(
 /// the accumulating row, and the crossing buffer. One per worker — that is
 /// the whole reason the parallel walk is free of synchronisation.
 struct RowScratch {
-    active: Vec<usize>,
+    active: Vec<ActiveEdge>,
     row: Vec<f32>,
-    crossings: Vec<(f32, i32)>,
 }
 
 impl RowScratch {
@@ -806,9 +881,22 @@ impl RowScratch {
         Self {
             active: Vec::new(),
             row: vec![0.0f32; width as usize],
-            crossings: Vec::new(),
         }
     }
+}
+
+/// One admitted edge in [`rasterize_row_range`]'s active list.
+#[derive(Clone, Copy)]
+struct ActiveEdge {
+    /// The edge's position in the admission order (`EdgeTable::order`) —
+    /// the tie-break that makes `(x, rank)` the order the walk used to get
+    /// from a stable sort of crossings collected in admission order.
+    rank: usize,
+    /// Index into `EdgeTable::edges`.
+    edge: usize,
+    /// Where the edge's line meets the current subsample's scanline —
+    /// extrapolated for an edge that does not span it, which only orders it.
+    x: f32,
 }
 
 /// Shape-level facts every row walk shares: the edges in admission order
@@ -858,12 +946,13 @@ fn rasterize_row_range(
     data: &mut [f32],
     scratch: &mut RowScratch,
 ) {
-    let RowScratch {
-        active,
-        row,
-        crossings,
-    } = scratch;
-    active.extend_from_slice(&table.order[..pending]);
+    let RowScratch { active, row } = scratch;
+    active.extend(
+        table.order[..pending]
+            .iter()
+            .enumerate()
+            .map(|(rank, &edge)| ActiveEdge { rank, edge, x: 0.0 }),
+    );
     let bx0 = geometry.bx0;
     let width = geometry.width;
 
@@ -871,10 +960,14 @@ fn rasterize_row_range(
         let row_top = py as f32;
         let row_bottom = row_top + 1.0;
         while pending < table.order.len() && table.edges[table.order[pending]].ymin < row_bottom {
-            active.push(table.order[pending]);
+            active.push(ActiveEdge {
+                rank: pending,
+                edge: table.order[pending],
+                x: 0.0,
+            });
             pending += 1;
         }
-        active.retain(|&index| table.edges[index].ymax > row_top);
+        active.retain(|a| table.edges[a.edge].ymax > row_top);
         if active.is_empty() {
             continue;
         }
@@ -882,24 +975,46 @@ fn rasterize_row_range(
         row.iter_mut().for_each(|c| *c = 0.0);
         for &sub in &SUBSAMPLE_OFFSETS {
             let sy = py as f32 + sub;
-            crossings.clear();
-            for &index in active.iter() {
-                let edge = &table.edges[index];
-                if sy < edge.ymin || sy >= edge.ymax {
-                    continue;
-                }
+            // **The crossings in `x` order without sorting them each time.**
+            // This used to collect the spanning edges' crossings in
+            // admission order and stable-sort them by `x` — four sorts a
+            // row, from scratch, though one subsample's order is almost the
+            // last one's. A stroke expanded into a polygon (a sparkline:
+            // 17-64 crossings a scanline, about half out of admission
+            // order) made that sort ~6% of a storm frame's raster.
+            //
+            // Now every active edge keeps its place from the previous
+            // subsample, gets this scanline's `x`, and an insertion sort
+            // repairs the few that moved. The key is `(x, rank)`: a stable
+            // sort by `x` of a list in admission order *is* the order by
+            // `(x, rank)`, and since `rank` is unique that order is the
+            // same whatever the list started as. Filtering the edges that
+            // span `sy` out of it keeps it — so the crossings, their order
+            // and the arithmetic producing each `x` are exactly the old
+            // walk's (`crossings_come_in_the_stable_sort_order` pins it).
+            for a in active.iter_mut() {
+                let edge = &table.edges[a.edge];
                 let t = (sy - edge.y0) / (edge.y1 - edge.y0);
-                let x = edge.x0 + t * (edge.x1 - edge.x0);
-                crossings.push((x, edge.winding));
+                a.x = edge.x0 + t * (edge.x1 - edge.x0);
             }
-            if crossings.is_empty() {
-                continue;
+            for i in 1..active.len() {
+                let item = active[i];
+                let mut j = i;
+                while j > 0 && after(&active[j - 1], &item) {
+                    active[j] = active[j - 1];
+                    j -= 1;
+                }
+                active[j] = item;
             }
-            crossings.sort_by(|a, b| a.0.total_cmp(&b.0));
 
             let mut winding_number = 0i32;
             let mut span_start: Option<f32> = None;
-            for &(x, w) in crossings.iter() {
+            for a in active.iter() {
+                let edge = &table.edges[a.edge];
+                if sy < edge.ymin || sy >= edge.ymax {
+                    continue;
+                }
+                let (x, w) = (a.x, edge.winding);
                 let was_inside = winding_number != 0;
                 winding_number += w;
                 let is_inside = winding_number != 0;
@@ -916,6 +1031,16 @@ fn rasterize_row_range(
         for (d, s) in dest_row.iter_mut().zip(row.iter()) {
             *d = (*s * SUBSAMPLE_WEIGHT).clamp(0.0, 1.0);
         }
+    }
+}
+
+/// Whether `a` sorts after `b` in the walk's crossing order, `(x, rank)`.
+#[inline]
+fn after(a: &ActiveEdge, b: &ActiveEdge) -> bool {
+    match a.x.total_cmp(&b.x) {
+        std::cmp::Ordering::Greater => true,
+        std::cmp::Ordering::Less => false,
+        std::cmp::Ordering::Equal => a.rank > b.rank,
     }
 }
 
@@ -1158,7 +1283,7 @@ pub(crate) fn rasterize_lcd(polylines: &[Polyline], clip_bounds: Rect) -> LcdMas
 /// general rasterizer, which is always correct. A fast path that is wrong about
 /// what it applies to is worse than no fast path, so this answers `None`
 /// whenever it is not certain.
-fn axis_aligned_rect(polylines: &[Polyline]) -> Option<Rect> {
+pub(crate) fn axis_aligned_rect(polylines: &[Polyline]) -> Option<Rect> {
     let [line] = polylines else { return None };
     let [a, b, c, d] = line.points[..] else {
         return None;
@@ -1194,18 +1319,26 @@ fn axis_aligned_rect(polylines: &[Polyline]) -> Option<Rect> {
 /// single rasterizer exists to prevent. So this counts subsamples, exactly as
 /// the general path does.
 fn rect_mask(rect: Rect, clip_bounds: Rect) -> CoverageMask {
+    rect_bands(rect, clip_bounds).map_or_else(CoverageMask::empty, BandedMask::assemble)
+}
+
+/// [`rect_mask`] as its three bands, the middle one — every row whose four
+/// subsamples are all inside — not materialised; see [`BandedMask`]. `None`
+/// where `rect_mask` returns an empty mask.
+pub(crate) fn rect_bands(rect: Rect, clip_bounds: Rect) -> Option<BandedMask> {
+    #[cfg(test)]
+    RASTERIZE_CALLS.with(|c| c.set(c.get() + 1));
     if clip_bounds.is_empty() {
-        return CoverageMask::empty();
+        return None;
     }
     let bx0 = rect.left.floor().max(clip_bounds.left) as i32;
     let bx1 = rect.right.ceil().min(clip_bounds.right) as i32;
     let by0 = rect.top.floor().max(clip_bounds.top) as i32;
     let by1 = rect.bottom.ceil().min(clip_bounds.bottom) as i32;
     if bx1 <= bx0 || by1 <= by0 {
-        return CoverageMask::empty();
+        return None;
     }
     let width = (bx1 - bx0) as u32;
-    let height = (by1 - by0) as u32;
 
     // One row of horizontal coverage, computed once. Every pixel row of the
     // rectangle has the same horizontal profile — that is what "axis-aligned"
@@ -1228,43 +1361,61 @@ fn rect_mask(rect: Rect, clip_bounds: Rect) -> CoverageMask {
     //
     // Written down because "fewer instructions" was the wrong thing to
     // optimise here and the profile said it was the right thing.
-    let mut data = vec![0.0f32; (width as usize) * (height as usize)];
-    // The fully-covered profile, pre-clamped, so an interior row is a memcpy.
+    // The fully-covered profile, pre-clamped: every middle row is this.
     let full: Vec<f32> = hrow.iter().map(|c| c.clamp(0.0, 1.0)).collect();
 
-    for py in by0..by1 {
+    #[expect(clippy::cast_precision_loss, reason = "subsample count, 0..=4")]
+    let inside = |py: i32| {
         let row_top = py as f32;
-        #[expect(clippy::cast_precision_loss, reason = "subsample count, 0..=4")]
-        let inside = SUBSAMPLE_OFFSETS
+        SUBSAMPLE_OFFSETS
             .iter()
             .filter(|&&off| {
                 let sy = row_top + off;
                 sy >= rect.top && sy < rect.bottom
             })
-            .count() as f32;
-        if inside == 0.0 {
-            // Already zero.
-            continue;
-        }
-        let start = (py - by0) as usize * width as usize;
-        let row = &mut data[start..start + width as usize];
-        if inside == SUBSAMPLES as f32 {
-            row.copy_from_slice(&full);
-        } else {
-            let weight = inside * SUBSAMPLE_WEIGHT;
-            for (d, s) in row.iter_mut().zip(hrow.iter()) {
-                *d = (s * weight).clamp(0.0, 1.0);
+            .count() as f32
+    };
+    // The middle band: the rows with all four subsamples inside, which are
+    // one contiguous run — `sy >= top && sy < bottom` for the first and last
+    // offsets bounds it from both sides. Empty when no row is fully inside.
+    #[expect(clippy::cast_precision_loss, reason = "subsample count")]
+    let all = SUBSAMPLES as f32;
+    let mid0 = (by0..by1).find(|&py| inside(py) == all).unwrap_or(by1);
+    let mid1 = (mid0..by1).find(|&py| inside(py) != all).unwrap_or(by1);
+    // The edge bands, row for row what `rect_mask` always wrote: zero where
+    // no subsample is inside, the profile scaled by the share that is.
+    let band = |rows: std::ops::Range<i32>| {
+        let mut data = vec![0.0f32; rows.len() * width as usize];
+        for (k, py) in rows.clone().enumerate() {
+            let n = inside(py);
+            if n == 0.0 {
+                continue;
+            }
+            let row = &mut data[k * width as usize..][..width as usize];
+            if n == all {
+                row.copy_from_slice(&full);
+            } else {
+                let weight = n * SUBSAMPLE_WEIGHT;
+                for (d, s) in row.iter_mut().zip(hrow.iter()) {
+                    *d = (s * weight).clamp(0.0, 1.0);
+                }
             }
         }
-    }
-
-    CoverageMask {
-        x0: bx0,
-        y0: by0,
-        width,
-        height,
-        data,
-    }
+        CoverageMask {
+            x0: bx0,
+            y0: rows.start,
+            width,
+            height: rows.len() as u32,
+            data,
+        }
+    };
+    let (top, bottom) = (band(by0..mid0), band(mid1..by1));
+    Some(BandedMask {
+        top,
+        full,
+        middle: (mid0, mid1),
+        bottom,
+    })
 }
 
 /// Add exact horizontal coverage for the span `[x_start, x_end)` into `row`,
@@ -1796,6 +1947,150 @@ mod tests {
             for request in [2usize, 4, 7, 64] {
                 let parallel = rasterize_general(&polylines, clip, request);
                 assert_same_mask(&serial, &parallel);
+            }
+        }
+    }
+
+    /// The walk as it was before its active edges kept their `x` order:
+    /// crossings collected in admission order, stable-sorted by `x` four
+    /// times a row. The reference [`crossings_come_in_the_stable_sort_order`]
+    /// holds the walk to, bit for bit.
+    fn reference_walk(polylines: &[Polyline], clip_bounds: Rect) -> CoverageMask {
+        let edges = edges_from(polylines);
+        if edges.is_empty() || clip_bounds.is_empty() {
+            return CoverageMask::empty();
+        }
+        let (mut min_x, mut max_x, mut min_y, mut max_y) = (
+            f32::INFINITY,
+            f32::NEG_INFINITY,
+            f32::INFINITY,
+            f32::NEG_INFINITY,
+        );
+        for edge in &edges {
+            min_x = min_x.min(edge.x0).min(edge.x1);
+            max_x = max_x.max(edge.x0).max(edge.x1);
+            min_y = min_y.min(edge.y0).min(edge.y1);
+            max_y = max_y.max(edge.y0).max(edge.y1);
+        }
+        let bx0 = min_x.floor().max(clip_bounds.left) as i32;
+        let bx1 = max_x.ceil().min(clip_bounds.right) as i32;
+        let by0 = min_y.floor().max(clip_bounds.top) as i32;
+        let by1 = max_y.ceil().min(clip_bounds.bottom) as i32;
+        if bx1 <= bx0 || by1 <= by0 {
+            return CoverageMask::empty();
+        }
+        let width = (bx1 - bx0) as u32;
+        let height = (by1 - by0) as u32;
+        let mut data = vec![0.0f32; (width as usize) * (height as usize)];
+        let mut order: Vec<usize> = (0..edges.len()).collect();
+        order.sort_unstable_by(|&a, &b| edges[a].ymin.total_cmp(&edges[b].ymin));
+        let mut pending = 0;
+        let mut active: Vec<usize> = Vec::new();
+        let mut row = vec![0.0f32; width as usize];
+        let mut crossings: Vec<(f32, i32)> = Vec::new();
+        for py in by0..by1 {
+            let (row_top, row_bottom) = (py as f32, py as f32 + 1.0);
+            while pending < order.len() && edges[order[pending]].ymin < row_bottom {
+                active.push(order[pending]);
+                pending += 1;
+            }
+            active.retain(|&index| edges[index].ymax > row_top);
+            if active.is_empty() {
+                continue;
+            }
+            row.iter_mut().for_each(|c| *c = 0.0);
+            for &sub in &SUBSAMPLE_OFFSETS {
+                let sy = py as f32 + sub;
+                crossings.clear();
+                for &index in &active {
+                    let edge = &edges[index];
+                    if sy < edge.ymin || sy >= edge.ymax {
+                        continue;
+                    }
+                    let t = (sy - edge.y0) / (edge.y1 - edge.y0);
+                    crossings.push((edge.x0 + t * (edge.x1 - edge.x0), edge.winding));
+                }
+                crossings.sort_by(|a, b| a.0.total_cmp(&b.0));
+                let (mut winding, mut start) = (0i32, None);
+                for &(x, w) in &crossings {
+                    let was = winding != 0;
+                    winding += w;
+                    if !was && winding != 0 {
+                        start = Some(x);
+                    } else if was && winding == 0 {
+                        if let Some(s) = start.take() {
+                            accumulate_span(&mut row, bx0, width, s, x);
+                        }
+                    }
+                }
+            }
+            let dest = &mut data[(py - by0) as usize * width as usize..][..width as usize];
+            for (d, s) in dest.iter_mut().zip(row.iter()) {
+                *d = (*s * SUBSAMPLE_WEIGHT).clamp(0.0, 1.0);
+            }
+        }
+        CoverageMask {
+            x0: bx0,
+            y0: by0,
+            width,
+            height,
+            data,
+        }
+    }
+
+    /// The walk keeps its active edges in `x` order instead of sorting
+    /// each subsample's crossings: the masks are the old walk's, bit for
+    /// bit, serial and parallel — on the soup, on long self-crossing
+    /// zig-zags (a sparkline's stroke: dozens of crossings a scanline, far
+    /// from admission order), and on edges that meet at one `x`.
+    #[test]
+    fn crossings_come_in_the_stable_sort_order() {
+        let clip = Rect::new(0.0, 0.0, 220.0, 220.0);
+        let mut shapes: Vec<Vec<Polyline>> =
+            [3u64, 11, 29, 57].iter().map(|&s| soup(30, s)).collect();
+        // Zig-zags: one closed outline back and forth across the clip, so a
+        // scanline crosses many edges whose admission order is unrelated to x.
+        for teeth in [8usize, 24, 40] {
+            let mut points = Vec::new();
+            for k in 0..=teeth {
+                let x = 5.0 + 210.0 * k as f32 / teeth as f32;
+                points.push((x, if k % 2 == 0 { 10.0 } else { 200.0 }));
+            }
+            for k in (0..=teeth).rev() {
+                let x = 9.0 + 200.0 * k as f32 / teeth as f32;
+                points.push((x, if k % 2 == 0 { 30.0 } else { 180.0 }));
+            }
+            shapes.push(vec![Polyline {
+                points,
+                closed: true,
+            }]);
+        }
+        // Coincident crossings: two triangles sharing an edge, and a square
+        // traced twice in opposite directions.
+        shapes.push(vec![
+            Polyline {
+                points: vec![(20.0, 20.0), (100.0, 150.0), (20.0, 150.0)],
+                closed: true,
+            },
+            Polyline {
+                points: vec![(20.0, 20.0), (100.0, 150.0), (180.0, 20.0)],
+                closed: true,
+            },
+        ]);
+        shapes.push(vec![
+            Polyline {
+                points: vec![(40.0, 40.0), (90.0, 40.0), (90.0, 90.0), (40.0, 90.0)],
+                closed: true,
+            },
+            Polyline {
+                points: vec![(40.0, 40.0), (40.0, 90.0), (90.0, 90.0), (90.0, 40.0)],
+                closed: true,
+            },
+        ]);
+        for polylines in &shapes {
+            let want = reference_walk(polylines, clip);
+            for request in [1usize, 3, 8] {
+                assert_same_mask(&want, &rasterize_general(polylines, clip, request));
             }
         }
     }

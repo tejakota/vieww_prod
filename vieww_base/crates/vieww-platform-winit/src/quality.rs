@@ -174,8 +174,23 @@ pub const fn cache_budgets_for(tier: DeviceTier) -> vieww_paint::native::CacheBu
 /// tablet (Android, iOS); `ios` splits the phones by platform, because the
 /// evidence is Android-only.
 ///
-/// **Android Medium phones walk parallel again; iOS and High stay serial;
-/// Low and desktops always walked parallel.** The serial default for
+/// **Serial on Medium and High phones, parallel on Low ones and desktops.**
+///
+/// *2026-11-16, Redmi Note 7 Pro (SM6150, Medium): parallel lost by half.*
+/// `b9a8870` turned the walk parallel on Android Medium phones with the rule
+/// that it goes back to serial if it does not win live and storm. Against
+/// the four serial runs of the same day on the same phone (raster p50 scroll
+/// 6.6-6.7 ms, live 15.3-16.0, storm 30.5-33.1, thermal 16.3-17.5), the
+/// parallel run measured 14.4, 26.7, 65.6 and 28.0 — about twice as slow in
+/// every continuous phase, a gap many times the 1 ms the serial runs moved
+/// between themselves. The SM6150 has two big cores and six little ones; a
+/// chunk on a little core finishes last and the frame waits for it, which
+/// is the likeliest reason, though no run has measured where the workers
+/// ran. The reasoning below is what the change rested on, kept for the
+/// record.
+///
+/// *Previously:* Android Medium phones walk parallel again; iOS and High stay serial;
+/// Low and desktops always walked parallel. The serial default for
 /// everything above Low came from Device Farm run 39402544760's same-unit
 /// A/B on the demo screen (`cpunothreads` against `cpu`), raster stage
 /// medians: Galaxy A73 (Medium) 13.61 serial against 14.36 with threads,
@@ -213,10 +228,12 @@ pub(crate) const fn raster_threads_for(tier: DeviceTier, mobile: bool, ios: bool
     if !mobile {
         return None;
     }
-    match (tier, ios) {
-        (DeviceTier::High, _) => Some(1),
-        (DeviceTier::Medium, true) => Some(1),
-        _ => None,
+    // `ios` is kept in the signature for the day a platform split is
+    // measured; today every phone above Low walks serially on both.
+    let _ = ios;
+    match tier {
+        DeviceTier::Medium | DeviceTier::High => Some(1),
+        DeviceTier::Low => None,
     }
 }
 
@@ -297,11 +314,11 @@ mod raster_thread_tests {
     use super::*;
 
     #[test]
-    fn android_walks_parallel_below_high_ios_above_low_and_desktops_always() {
-        // Android: Low and Medium parallel (the Market Watch load is the long
-        // raster), High serial (both demo A/Bs cost it time it does not need).
+    fn phones_above_low_walk_serially_and_everything_else_in_parallel() {
+        // Android: Low parallel; Medium serial (the Redmi's parallel run,
+        // 2026-11-16, was twice as slow); High serial.
         assert_eq!(raster_threads_for(DeviceTier::Low, true, false), None);
-        assert_eq!(raster_threads_for(DeviceTier::Medium, true, false), None);
+        assert_eq!(raster_threads_for(DeviceTier::Medium, true, false), Some(1));
         assert_eq!(raster_threads_for(DeviceTier::High, true, false), Some(1));
         // iOS: no measurement has ever run the pool there, and iPhones pass
         // already — everything above Low stays serial.
