@@ -14,9 +14,9 @@
  },
  "phones": [
   {
-   "device": "LMQ7201bd50691",
+   "device": "LMQ720163b9ae8",
    "info": {
-    "device_name": "LMQ7201bd50691",
+    "device_name": "LMQ720163b9ae8",
     "model": "LM-Q720",
     "android": "9",
     "sdk": "28",
@@ -27,20 +27,20 @@
     "density": "420",
     "refresh_hz": "60.000004",
     "apk_file_bytes_valdi": "9688517",
-    "valdi_apk_sha256": "764b06bac62e821e",
+    "valdi_apk_sha256": "ba48eb4bf755ef66",
     "apk_bytes_dev.vieww.marketwatch": "2814368",
     "apk_bytes_com.snap.valdi.marketwatch": "9688517",
     "apk_file_bytes_vieww": "2814368",
     "mode": "quick",
-    "vieww-cpu_cold_start_ms": "388 378",
-    "vieww-cpu_pid": "16947",
-    "vieww-cpu_battery_temp_dC": "182",
-    "vieww-cpu_pss_kb": "83594",
+    "vieww-cpu_cold_start_ms": "402 353",
+    "vieww-cpu_pid": "14795",
+    "vieww-cpu_battery_temp_dC": "187",
+    "vieww-cpu_pss_kb": "83649",
     "vieww-cpu_status": "PASS",
-    "vieww-gpu_cold_start_ms": "337 331",
-    "vieww-gpu_pid": "26001",
-    "vieww-gpu_battery_temp_dC": "183",
-    "vieww-gpu_pss_kb": "186713",
+    "vieww-gpu_cold_start_ms": "345 343",
+    "vieww-gpu_pid": "23712",
+    "vieww-gpu_battery_temp_dC": "187",
+    "vieww-gpu_pss_kb": "187360",
     "vieww-gpu_status": "PASS",
     "status": "PASS"
    },
@@ -49,12 +49,12 @@
     "vieww-cpu": {
      "status": "PASS",
      "cold_start_ms": [
-      388.0,
-      378.0
+      402.0,
+      353.0
      ],
-     "cold_start_median": 383.0,
-     "pss_kb": "83594",
-     "battery_temp_dC": "182",
+     "cold_start_median": 377.5,
+     "pss_kb": "83649",
+     "battery_temp_dC": "187",
      "phases": {
       "idle20k": {
        "app": {
@@ -63,10 +63,10 @@
         "phase": "idle20k",
         "frames": 1,
         "work_ms": [
-         0.725,
-         0.725,
-         0.725,
-         0.725
+         0.969,
+         0.969,
+         0.969,
+         0.969
         ],
         "interval_ms": [
          0.0,
@@ -76,10 +76,10 @@
         ],
         "jank": 0,
         "budget_ms": 16.67,
-        "t": 35506.3
+        "t": 35505.5
        },
        "stages": {
-        "raster_p50": 0.07,
+        "raster_p50": 0.08,
         "present_p50": 0.0,
         "acquire_p50": 0.0,
         "kinds": {
@@ -120,9 +120,9 @@
          ]
         }
        },
-       "wall_ms": 680,
-       "cpu_pct": 10.3,
-       "rss_kb": 152260,
+       "wall_ms": 120,
+       "cpu_pct": 0.0,
+       "rss_kb": 153516,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -140,10 +140,10 @@
         "phase": "idle2k",
         "frames": 1,
         "work_ms": [
-         0.771,
-         0.771,
-         0.771,
-         0.771
+         0.482,
+         0.482,
+         0.482,
+         0.482
         ],
         "interval_ms": [
          0.0,
@@ -153,10 +153,10 @@
         ],
         "jank": 0,
         "budget_ms": 16.67,
-        "t": 5503.0
+        "t": 5501.5
        },
        "stages": {
-        "raster_p50": 0.07,
+        "raster_p50": 0.04,
         "present_p50": 0.0,
         "acquire_p50": 0.0,
         "kinds": {
@@ -197,9 +197,9 @@
          ]
         }
        },
-       "wall_ms": 104,
+       "wall_ms": 555,
        "cpu_pct": 0.0,
-       "rss_kb": 142804,
+       "rss_kb": 143304,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -217,10 +217,10 @@
         "phase": "jump20k",
         "frames": 1,
         "work_ms": [
-         144.474,
-         144.474,
-         144.474,
-         144.474
+         148.002,
+         148.002,
+         148.002,
+         148.002
         ],
         "interval_ms": [
          0.0,
@@ -230,27 +230,27 @@
         ],
         "jank": 0,
         "budget_ms": 16.67,
-        "t": 37507.0
+        "t": 37505.8
        },
        "stages": {
-        "raster_p50": 122.94,
-        "present_p50": 7.24,
-        "acquire_p50": 0.35,
+        "raster_p50": 125.16,
+        "present_p50": 7.52,
+        "acquire_p50": 0.34,
         "kinds": {
          "rects": [
-          15.53,
-          15.53,
-          15.53
+          16.62,
+          16.62,
+          16.62
          ],
          "paths": [
-          51.54,
-          51.54,
-          51.54
+          51.64,
+          51.64,
+          51.64
          ],
          "text": [
-          7.79,
-          7.79,
-          7.79
+          7.47,
+          7.47,
+          7.47
          ],
          "images": [
           0.0,
@@ -258,9 +258,9 @@
           0.0
          ],
          "shadows": [
-          15.95,
-          15.95,
-          15.95
+          16.15,
+          16.15,
+          16.15
          ],
          "layers": [
           0.0,
@@ -274,9 +274,9 @@
          ]
         }
        },
-       "wall_ms": 79,
-       "cpu_pct": 202.5,
-       "rss_kb": 152436,
+       "wall_ms": 117,
+       "cpu_pct": 111.1,
+       "rss_kb": 154100,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -294,10 +294,10 @@
         "phase": "jump2k",
         "frames": 1,
         "work_ms": [
-         176.836,
-         176.836,
-         176.836,
-         176.836
+         170.802,
+         170.802,
+         170.802,
+         170.802
         ],
         "interval_ms": [
          0.0,
@@ -307,27 +307,27 @@
         ],
         "jank": 0,
         "budget_ms": 16.67,
-        "t": 7503.8
+        "t": 7502.2
        },
        "stages": {
-        "raster_p50": 134.79,
-        "present_p50": 7.75,
-        "acquire_p50": 0.34,
+        "raster_p50": 136.22,
+        "present_p50": 7.58,
+        "acquire_p50": 0.39,
         "kinds": {
          "rects": [
-          20.4,
-          20.4,
-          20.4
+          18.92,
+          18.92,
+          18.92
          ],
          "paths": [
-          51.89,
-          51.89,
-          51.89
+          53.16,
+          53.16,
+          53.16
          ],
          "text": [
-          15.27,
-          15.27,
-          15.27
+          15.69,
+          15.69,
+          15.69
          ],
          "images": [
           0.0,
@@ -351,9 +351,9 @@
          ]
         }
        },
-       "wall_ms": 118,
-       "cpu_pct": 135.6,
-       "rss_kb": 143860,
+       "wall_ms": 117,
+       "cpu_pct": 153.8,
+       "rss_kb": 144552,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -369,42 +369,42 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "live20k",
-        "frames": 165,
+        "frames": 164,
         "work_ms": [
-         48.391,
-         53.4,
-         54.464,
-         54.677
+         48.511,
+         53.653,
+         54.99,
+         55.71
         ],
         "interval_ms": [
-         48.525,
-         53.537,
-         54.593,
-         54.814
+         48.578,
+         53.811,
+         55.136,
+         55.845
         ],
-        "jank": 164,
+        "jank": 163,
         "budget_ms": 16.67,
-        "t": 53537.7
+        "t": 53513.5
        },
        "stages": {
-        "raster_p50": 38.95,
-        "present_p50": 6.67,
-        "acquire_p50": 0.38,
+        "raster_p50": 39.19,
+        "present_p50": 6.62,
+        "acquire_p50": 0.39,
         "kinds": {
          "rects": [
-          3.85,
+          3.87,
           4.4,
-          4.79
+          4.63
          ],
          "paths": [
-          15.91,
-          17.07,
-          17.73
+          15.92,
+          17.05,
+          18.43
          ],
          "text": [
-          2.66,
-          2.89,
-          3.24
+          2.64,
+          2.88,
+          3.23
          ],
          "images": [
           0.0,
@@ -412,9 +412,9 @@
           0.0
          ],
          "shadows": [
-          2.75,
-          3.87,
-          4.26
+          2.73,
+          3.79,
+          4.08
          ],
          "layers": [
           0.0,
@@ -428,9 +428,9 @@
          ]
         }
        },
-       "wall_ms": 7452,
-       "cpu_pct": 131.4,
-       "rss_kb": 152528,
+       "wall_ms": 7547,
+       "cpu_pct": 132.2,
+       "rss_kb": 154236,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -446,42 +446,42 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "live2k",
-        "frames": 165,
+        "frames": 163,
         "work_ms": [
-         48.093,
-         53.241,
-         54.21,
-         54.949
+         48.722,
+         55.798,
+         61.058,
+         63.569
         ],
         "interval_ms": [
-         48.227,
-         53.384,
-         54.374,
-         55.075
+         48.853,
+         56.001,
+         61.195,
+         63.741
         ],
-        "jank": 164,
+        "jank": 162,
         "budget_ms": 16.67,
-        "t": 23508.8
+        "t": 23522.6
        },
        "stages": {
-        "raster_p50": 38.67,
-        "present_p50": 6.62,
+        "raster_p50": 39.54,
+        "present_p50": 6.56,
         "acquire_p50": 0.38,
         "kinds": {
          "rects": [
-          3.82,
-          4.4,
-          4.75
+          3.88,
+          4.44,
+          5.3
          ],
          "paths": [
-          15.64,
-          16.92,
-          17.63
+          15.75,
+          16.77,
+          18.43
          ],
          "text": [
-          2.64,
-          2.96,
-          3.79
+          2.66,
+          3.04,
+          4.12
          ],
          "images": [
           0.0,
@@ -489,9 +489,9 @@
           0.0
          ],
          "shadows": [
-          2.77,
-          3.98,
-          4.49
+          2.79,
+          3.86,
+          4.99
          ],
          "layers": [
           0.0,
@@ -505,9 +505,9 @@
          ]
         }
        },
-       "wall_ms": 7315,
-       "cpu_pct": 131.5,
-       "rss_kb": 146452,
+       "wall_ms": 7252,
+       "cpu_pct": 131.1,
+       "rss_kb": 147612,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -525,10 +525,10 @@
         "phase": "load20k",
         "frames": 1,
         "work_ms": [
-         223.705,
-         223.705,
-         223.705,
-         223.705
+         148.058,
+         148.058,
+         148.058,
+         148.058
         ],
         "interval_ms": [
          0.0,
@@ -538,27 +538,27 @@
         ],
         "jank": 0,
         "budget_ms": 16.67,
-        "t": 33505.7
+        "t": 33505.2
        },
        "stages": {
-        "raster_p50": 125.43,
-        "present_p50": 82.81,
-        "acquire_p50": 0.38,
+        "raster_p50": 124.12,
+        "present_p50": 7.76,
+        "acquire_p50": 0.33,
         "kinds": {
          "rects": [
-          15.76,
-          15.76,
-          15.76
+          15.81,
+          15.81,
+          15.81
          ],
          "paths": [
-          52.63,
-          52.63,
-          52.63
+          52.03,
+          52.03,
+          52.03
          ],
          "text": [
-          8.99,
-          8.99,
-          8.99
+          9.0,
+          9.0,
+          9.0
          ],
          "images": [
           0.0,
@@ -566,9 +566,9 @@
           0.0
          ],
          "shadows": [
-          16.45,
-          16.45,
-          16.45
+          15.64,
+          15.64,
+          15.64
          ],
          "layers": [
           0.0,
@@ -582,9 +582,9 @@
          ]
         }
        },
-       "wall_ms": 1089,
-       "cpu_pct": 0.0,
-       "rss_kb": 146448,
+       "wall_ms": 1685,
+       "cpu_pct": 0.6,
+       "rss_kb": 147492,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -602,40 +602,40 @@
         "phase": "load2k",
         "frames": 3,
         "work_ms": [
-         204.316,
-         251.298,
-         251.298,
-         251.298
+         192.517,
+         263.976,
+         263.976,
+         263.976
         ],
         "interval_ms": [
-         2994.442,
-         2994.442,
-         2994.442,
-         2994.442
+         2995.611,
+         2995.611,
+         2995.611,
+         2995.611
         ],
         "jank": 2,
         "budget_ms": 16.67,
-        "t": 3502.8
+        "t": 3501.3
        },
        "stages": {
-        "raster_p50": 139.31,
-        "present_p50": 9.28,
-        "acquire_p50": 6.01,
+        "raster_p50": 140.95,
+        "present_p50": 14.91,
+        "acquire_p50": 6.2,
         "kinds": {
          "rects": [
-          15.66,
-          19.29,
-          19.29
+          16.0,
+          18.68,
+          18.68
          ],
          "paths": [
-          50.6,
-          51.58,
-          51.58
+          51.0,
+          51.61,
+          51.61
          ],
          "text": [
-          24.32,
-          26.57,
-          26.57
+          25.74,
+          25.96,
+          25.96
          ],
          "images": [
           0.0,
@@ -643,9 +643,9 @@
           0.0
          ],
          "shadows": [
-          15.53,
-          54.88,
-          54.88
+          15.85,
+          54.23,
+          54.23
          ],
          "layers": [
           0.0,
@@ -659,9 +659,9 @@
          ]
         }
        },
-       "wall_ms": 2941,
-       "cpu_pct": 0.3,
-       "rss_kb": 141700,
+       "wall_ms": 2820,
+       "cpu_pct": 0.0,
+       "rss_kb": 145844,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -677,42 +677,42 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "scroll20k",
-        "frames": 303,
+        "frames": 262,
         "work_ms": [
-         25.791,
-         31.493,
-         36.837,
-         111.48
+         25.687,
+         33.021,
+         41.045,
+         599.315
         ],
         "interval_ms": [
-         25.901,
-         31.473,
-         35.861,
-         111.711
+         25.795,
+         32.344,
+         41.174,
+         599.428
         ],
-        "jank": 175,
+        "jank": 155,
         "budget_ms": 16.67,
-        "t": 45508.0
+        "t": 45528.2
        },
        "stages": {
-        "raster_p50": 17.67,
-        "present_p50": 6.53,
+        "raster_p50": 17.45,
+        "present_p50": 6.57,
         "acquire_p50": 0.38,
         "kinds": {
          "rects": [
-          1.73,
-          2.25,
-          2.68
+          1.72,
+          2.29,
+          2.75
          ],
          "paths": [
-          4.24,
-          4.99,
-          5.56
+          4.17,
+          5.04,
+          5.94
          ],
          "text": [
           0.62,
           0.79,
-          0.99
+          1.02
          ],
          "images": [
           0.0,
@@ -720,9 +720,9 @@
           0.0
          ],
          "shadows": [
-          2.68,
-          3.79,
-          4.45
+          2.66,
+          3.73,
+          4.21
          ],
          "layers": [
           0.0,
@@ -736,9 +736,9 @@
          ]
         }
        },
-       "wall_ms": 5644,
-       "cpu_pct": 144.9,
-       "rss_kb": 152492,
+       "wall_ms": 5710,
+       "cpu_pct": 135.0,
+       "rss_kb": 154360,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -754,40 +754,40 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "scroll2k",
-        "frames": 307,
+        "frames": 304,
         "work_ms": [
-         25.896,
-         31.432,
-         32.808,
-         34.125
+         25.933,
+         32.357,
+         36.79,
+         43.566
         ],
         "interval_ms": [
-         25.991,
-         31.456,
-         32.413,
-         34.235
+         26.028,
+         32.417,
+         36.88,
+         43.683
         ],
-        "jank": 186,
+        "jank": 183,
         "budget_ms": 16.67,
-        "t": 15515.3
+        "t": 15506.0
        },
        "stages": {
-        "raster_p50": 17.89,
-        "present_p50": 6.55,
-        "acquire_p50": 0.38,
+        "raster_p50": 17.79,
+        "present_p50": 6.47,
+        "acquire_p50": 0.37,
         "kinds": {
          "rects": [
           1.73,
-          2.28,
-          2.63
+          2.27,
+          2.99
          ],
          "paths": [
-          4.2,
-          5.01,
-          5.89
+          4.19,
+          5.06,
+          5.95
          ],
          "text": [
-          0.7,
+          0.71,
           0.98,
           1.7
          ],
@@ -797,9 +797,9 @@
           0.0
          ],
          "shadows": [
-          2.7,
-          3.72,
-          4.19
+          2.67,
+          3.76,
+          4.56
          ],
          "layers": [
           0.0,
@@ -813,9 +813,9 @@
          ]
         }
        },
-       "wall_ms": 5290,
-       "cpu_pct": 146.5,
-       "rss_kb": 144888,
+       "wall_ms": 5746,
+       "cpu_pct": 145.3,
+       "rss_kb": 145628,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -831,42 +831,42 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "storm20k",
-        "frames": 113,
+        "frames": 116,
         "work_ms": [
-         69.031,
-         77.524,
-         78.606,
-         80.465
+         67.728,
+         75.653,
+         76.317,
+         77.12
         ],
         "interval_ms": [
-         69.181,
-         77.583,
-         78.745,
-         80.602
+         67.865,
+         75.774,
+         76.382,
+         77.28
         ],
-        "jank": 112,
+        "jank": 115,
         "budget_ms": 16.67,
-        "t": 61549.5
+        "t": 61546.4
        },
        "stages": {
-        "raster_p50": 60.72,
-        "present_p50": 4.52,
-        "acquire_p50": 0.38,
+        "raster_p50": 59.63,
+        "present_p50": 4.46,
+        "acquire_p50": 0.39,
         "kinds": {
          "rects": [
           4.76,
-          5.9,
-          6.23
+          5.25,
+          6.06
          ],
          "paths": [
-          31.01,
-          32.43,
-          33.26
+          29.13,
+          31.92,
+          33.58
          ],
          "text": [
-          2.8,
-          3.14,
-          3.38
+          2.67,
+          3.02,
+          3.42
          ],
          "images": [
           0.0,
@@ -874,9 +874,9 @@
           0.0
          ],
          "shadows": [
-          5.52,
-          7.86,
-          8.2
+          6.31,
+          7.21,
+          8.19
          ],
          "layers": [
           0.0,
@@ -890,9 +890,9 @@
          ]
         }
        },
-       "wall_ms": 7090,
-       "cpu_pct": 111.3,
-       "rss_kb": 152684,
+       "wall_ms": 7119,
+       "cpu_pct": 110.5,
+       "rss_kb": 154304,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -908,42 +908,42 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "storm2k",
-        "frames": 111,
+        "frames": 114,
         "work_ms": [
-         71.937,
-         73.529,
-         74.167,
-         74.227
+         68.98,
+         76.012,
+         76.729,
+         78.329
         ],
         "interval_ms": [
-         72.082,
-         73.668,
-         74.308,
-         74.374
+         69.111,
+         76.166,
+         76.877,
+         78.488
         ],
-        "jank": 110,
+        "jank": 113,
         "budget_ms": 16.67,
-        "t": 31521.7
+        "t": 31532.4
        },
        "stages": {
-        "raster_p50": 63.89,
-        "present_p50": 4.32,
-        "acquire_p50": 0.38,
+        "raster_p50": 60.47,
+        "present_p50": 4.46,
+        "acquire_p50": 0.39,
         "kinds": {
          "rects": [
-          5.68,
-          5.86,
-          6.52
+          4.72,
+          5.94,
+          6.23
          ],
          "paths": [
-          28.81,
-          29.34,
-          30.13
+          30.37,
+          31.56,
+          32.13
          ],
          "text": [
-          2.97,
-          3.09,
-          3.3
+          2.63,
+          2.93,
+          3.18
          ],
          "images": [
           0.0,
@@ -951,9 +951,9 @@
           0.0
          ],
          "shadows": [
-          7.87,
-          8.06,
-          8.3
+          6.36,
+          7.95,
+          8.15
          ],
          "layers": [
           0.0,
@@ -967,9 +967,9 @@
          ]
         }
        },
-       "wall_ms": 7536,
-       "cpu_pct": 109.2,
-       "rss_kb": 146476,
+       "wall_ms": 7476,
+       "cpu_pct": 111.8,
+       "rss_kb": 147520,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -987,10 +987,10 @@
         "phase": "tick20k",
         "frames": 1,
         "work_ms": [
-         53.694,
-         53.694,
-         53.694,
-         53.694
+         31.594,
+         31.594,
+         31.594,
+         31.594
         ],
         "interval_ms": [
          0.0,
@@ -1000,27 +1000,27 @@
         ],
         "jank": 0,
         "budget_ms": 16.67,
-        "t": 36506.5
+        "t": 36505.7
        },
        "stages": {
-        "raster_p50": 38.62,
-        "present_p50": 8.94,
-        "acquire_p50": 0.46,
+        "raster_p50": 20.89,
+        "present_p50": 8.45,
+        "acquire_p50": 0.41,
         "kinds": {
          "rects": [
-          2.99,
-          2.99,
-          2.99
+          1.69,
+          1.69,
+          1.69
          ],
          "paths": [
-          23.51,
-          23.51,
-          23.51
+          12.07,
+          12.07,
+          12.07
          ],
          "text": [
-          3.23,
-          3.23,
-          3.23
+          1.69,
+          1.69,
+          1.69
          ],
          "images": [
           0.0,
@@ -1028,9 +1028,9 @@
           0.0
          ],
          "shadows": [
-          0.16,
-          0.16,
-          0.16
+          0.13,
+          0.13,
+          0.13
          ],
          "layers": [
           0.0,
@@ -1044,9 +1044,9 @@
          ]
         }
        },
-       "wall_ms": 108,
+       "wall_ms": 115,
        "cpu_pct": 0.0,
-       "rss_kb": 152260,
+       "rss_kb": 153516,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1064,10 +1064,10 @@
         "phase": "tick2k",
         "frames": 1,
         "work_ms": [
-         49.649,
-         49.649,
-         49.649,
-         49.649
+         47.555,
+         47.555,
+         47.555,
+         47.555
         ],
         "interval_ms": [
          0.0,
@@ -1077,27 +1077,27 @@
         ],
         "jank": 0,
         "budget_ms": 16.67,
-        "t": 6503.6
+        "t": 6501.9
        },
        "stages": {
-        "raster_p50": 36.43,
-        "present_p50": 8.5,
-        "acquire_p50": 0.51,
+        "raster_p50": 33.25,
+        "present_p50": 8.36,
+        "acquire_p50": 0.61,
         "kinds": {
          "rects": [
-          2.9,
-          2.9,
-          2.9
+          2.29,
+          2.29,
+          2.29
          ],
          "paths": [
-          20.56,
-          20.56,
-          20.56
+          19.95,
+          19.95,
+          19.95
          ],
          "text": [
-          5.0,
-          5.0,
-          5.0
+          4.24,
+          4.24,
+          4.24
          ],
          "images": [
           0.0,
@@ -1105,9 +1105,9 @@
           0.0
          ],
          "shadows": [
-          0.31,
-          0.31,
-          0.31
+          0.13,
+          0.13,
+          0.13
          ],
          "layers": [
           0.0,
@@ -1121,9 +1121,9 @@
          ]
         }
        },
-       "wall_ms": 589,
-       "cpu_pct": 18.7,
-       "rss_kb": 142572,
+       "wall_ms": 122,
+       "cpu_pct": 0.0,
+       "rss_kb": 143304,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1144,12 +1144,12 @@
     "vieww-gpu": {
      "status": "PASS",
      "cold_start_ms": [
-      337.0,
-      331.0
+      345.0,
+      343.0
      ],
-     "cold_start_median": 334.0,
-     "pss_kb": "186713",
-     "battery_temp_dC": "183",
+     "cold_start_median": 344.0,
+     "pss_kb": "187360",
+     "battery_temp_dC": "187",
      "phases": {
       "idle20k": {
        "app": {
@@ -1158,10 +1158,10 @@
         "phase": "idle20k",
         "frames": 1,
         "work_ms": [
-         804.922,
-         804.922,
-         804.922,
-         804.922
+         6.434,
+         6.434,
+         6.434,
+         6.434
         ],
         "interval_ms": [
          0.0,
@@ -1171,17 +1171,17 @@
         ],
         "jank": 0,
         "budget_ms": 16.67,
-        "t": 35508.0
+        "t": 35506.4
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.73,
-        "acquire_p50": 0.36,
+        "present_p50": 0.51,
+        "acquire_p50": 0.39,
         "kinds": null
        },
-       "wall_ms": 653,
-       "cpu_pct": 0.0,
-       "rss_kb": 157996,
+       "wall_ms": 604,
+       "cpu_pct": 6.6,
+       "rss_kb": 159744,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1199,10 +1199,10 @@
         "phase": "idle2k",
         "frames": 1,
         "work_ms": [
-         12.835,
-         12.835,
-         12.835,
-         12.835
+         14.628,
+         14.628,
+         14.628,
+         14.628
         ],
         "interval_ms": [
          0.0,
@@ -1212,17 +1212,17 @@
         ],
         "jank": 0,
         "budget_ms": 16.67,
-        "t": 5504.7
+        "t": 5503.9
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 1.51,
+        "present_p50": 1.39,
         "acquire_p50": 0.61,
         "kinds": null
        },
-       "wall_ms": 104,
-       "cpu_pct": 0.0,
-       "rss_kb": 111808,
+       "wall_ms": 578,
+       "cpu_pct": 5.2,
+       "rss_kb": 113540,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1240,10 +1240,10 @@
         "phase": "jump20k",
         "frames": 1,
         "work_ms": [
-         194.114,
-         194.114,
-         194.114,
-         194.114
+         464.243,
+         464.243,
+         464.243,
+         464.243
         ],
         "interval_ms": [
          0.0,
@@ -1253,17 +1253,17 @@
         ],
         "jank": 0,
         "budget_ms": 16.67,
-        "t": 37508.5
+        "t": 37506.9
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.78,
-        "acquire_p50": 0.35,
+        "present_p50": 0.62,
+        "acquire_p50": 0.38,
         "kinds": null
        },
-       "wall_ms": 120,
-       "cpu_pct": 16.7,
-       "rss_kb": 160980,
+       "wall_ms": 124,
+       "cpu_pct": 32.3,
+       "rss_kb": 162072,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1281,10 +1281,10 @@
         "phase": "jump2k",
         "frames": 1,
         "work_ms": [
-         65.583,
-         65.583,
-         65.583,
-         65.583
+         60.307,
+         60.307,
+         60.307,
+         60.307
         ],
         "interval_ms": [
          0.0,
@@ -1294,17 +1294,17 @@
         ],
         "jank": 0,
         "budget_ms": 16.67,
-        "t": 7506.6
+        "t": 7504.9
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.68,
-        "acquire_p50": 0.43,
+        "present_p50": 0.58,
+        "acquire_p50": 0.29,
         "kinds": null
        },
-       "wall_ms": 114,
-       "cpu_pct": 26.3,
-       "rss_kb": 114860,
+       "wall_ms": 115,
+       "cpu_pct": 17.4,
+       "rss_kb": 116168,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1322,30 +1322,30 @@
         "phase": "live20k",
         "frames": 135,
         "work_ms": [
-         58.911,
-         61.023,
-         61.812,
-         65.262
+         58.934,
+         60.905,
+         61.735,
+         61.767
         ],
         "interval_ms": [
-         59.165,
-         61.264,
-         62.194,
-         65.414
+         59.16,
+         61.116,
+         61.995,
+         62.025
         ],
         "jank": 134,
         "budget_ms": 16.67,
-        "t": 53558.8
+        "t": 53545.4
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 31.92,
-        "acquire_p50": 0.39,
+        "present_p50": 30.41,
+        "acquire_p50": 0.38,
         "kinds": null
        },
-       "wall_ms": 7133,
-       "cpu_pct": 52.9,
-       "rss_kb": 158720,
+       "wall_ms": 7134,
+       "cpu_pct": 56.5,
+       "rss_kb": 164872,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1361,32 +1361,32 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "live2k",
-        "frames": 132,
+        "frames": 131,
         "work_ms": [
-         60.777,
-         63.243,
-         64.723,
-         65.071
+         60.901,
+         62.337,
+         64.011,
+         65.306
         ],
         "interval_ms": [
-         61.062,
-         63.784,
-         65.023,
-         65.313
+         61.156,
+         62.571,
+         64.261,
+         65.543
         ],
-        "jank": 131,
+        "jank": 130,
         "budget_ms": 16.67,
-        "t": 23539.6
+        "t": 23528.9
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 31.1,
+        "present_p50": 31.36,
         "acquire_p50": 0.39,
         "kinds": null
        },
-       "wall_ms": 7409,
-       "cpu_pct": 57.5,
-       "rss_kb": 152044,
+       "wall_ms": 7163,
+       "cpu_pct": 57.0,
+       "rss_kb": 153548,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1404,10 +1404,10 @@
         "phase": "load20k",
         "frames": 1,
         "work_ms": [
-         35.653,
-         35.653,
-         35.653,
-         35.653
+         36.157,
+         36.157,
+         36.157,
+         36.157
         ],
         "interval_ms": [
          0.0,
@@ -1417,17 +1417,17 @@
         ],
         "jank": 0,
         "budget_ms": 16.67,
-        "t": 33507.8
+        "t": 33506.2
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.76,
-        "acquire_p50": 0.31,
+        "present_p50": 0.63,
+        "acquire_p50": 0.33,
         "kinds": null
        },
-       "wall_ms": 1191,
+       "wall_ms": 1206,
        "cpu_pct": 0.0,
-       "rss_kb": 158376,
+       "rss_kb": 159844,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1445,30 +1445,30 @@
         "phase": "load2k",
         "frames": 3,
         "work_ms": [
-         47.12,
-         126.375,
-         126.375,
-         126.375
+         45.134,
+         127.397,
+         127.397,
+         127.397
         ],
         "interval_ms": [
-         3097.207,
-         3097.207,
-         3097.207,
-         3097.207
+         3089.369,
+         3089.369,
+         3089.369,
+         3089.369
         ],
         "jank": 2,
         "budget_ms": 16.67,
-        "t": 3502.9
+        "t": 3502.8
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.61,
-        "acquire_p50": 0.21,
+        "present_p50": 0.69,
+        "acquire_p50": 0.25,
         "kinds": null
        },
-       "wall_ms": 3036,
-       "cpu_pct": 0.7,
-       "rss_kb": 110968,
+       "wall_ms": 2966,
+       "cpu_pct": 1.0,
+       "rss_kb": 112552,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1486,30 +1486,30 @@
         "phase": "scroll20k",
         "frames": 137,
         "work_ms": [
-         58.498,
-         59.523,
-         62.475,
-         93.429
+         58.427,
+         59.601,
+         61.561,
+         93.765
         ],
         "interval_ms": [
-         58.688,
-         59.703,
-         62.666,
-         93.631
+         58.635,
+         59.797,
+         61.758,
+         93.887
         ],
         "jank": 136,
         "budget_ms": 16.67,
-        "t": 45540.6
+        "t": 45538.7
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 44.07,
-        "acquire_p50": 0.49,
+        "present_p50": 43.63,
+        "acquire_p50": 0.53,
         "kinds": null
        },
-       "wall_ms": 5797,
-       "cpu_pct": 27.4,
-       "rss_kb": 162196,
+       "wall_ms": 5984,
+       "cpu_pct": 28.9,
+       "rss_kb": 162028,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1525,32 +1525,32 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "scroll2k",
-        "frames": 118,
+        "frames": 119,
         "work_ms": [
-         58.924,
-         165.529,
-         250.283,
-         256.293
+         59.075,
+         167.417,
+         247.785,
+         248.612
         ],
         "interval_ms": [
-         59.114,
-         165.643,
-         250.382,
-         256.42
+         59.249,
+         167.541,
+         247.884,
+         248.727
         ],
-        "jank": 117,
+        "jank": 118,
         "budget_ms": 16.67,
-        "t": 15507.5
+        "t": 15565.7
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 40.39,
+        "present_p50": 40.9,
         "acquire_p50": 0.51,
         "kinds": null
        },
-       "wall_ms": 5401,
-       "cpu_pct": 43.7,
-       "rss_kb": 149828,
+       "wall_ms": 5955,
+       "cpu_pct": 44.3,
+       "rss_kb": 155128,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1566,32 +1566,32 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "storm20k",
-        "frames": 134,
+        "frames": 135,
         "work_ms": [
-         58.972,
-         61.586,
-         63.045,
-         66.247
+         58.877,
+         61.511,
+         62.414,
+         64.153
         ],
         "interval_ms": [
-         59.167,
-         61.797,
-         63.241,
-         66.506
+         59.088,
+         61.726,
+         62.626,
+         64.472
         ],
-        "jank": 133,
+        "jank": 134,
         "budget_ms": 16.67,
-        "t": 61529.7
+        "t": 61567.1
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 22.5,
-        "acquire_p50": 0.37,
+        "present_p50": 22.19,
+        "acquire_p50": 0.38,
         "kinds": null
        },
-       "wall_ms": 7278,
-       "cpu_pct": 73.9,
-       "rss_kb": 158432,
+       "wall_ms": 7317,
+       "cpu_pct": 75.9,
+       "rss_kb": 161184,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1609,30 +1609,30 @@
         "phase": "storm2k",
         "frames": 135,
         "work_ms": [
-         58.848,
-         61.459,
-         62.532,
-         63.675
+         58.902,
+         61.363,
+         62.9,
+         63.019
         ],
         "interval_ms": [
-         59.092,
-         61.777,
-         62.836,
-         63.871
+         59.109,
+         61.648,
+         63.149,
+         63.243
         ],
         "jank": 134,
         "budget_ms": 16.67,
-        "t": 31560.0
+        "t": 31550.1
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 22.27,
-        "acquire_p50": 0.37,
+        "present_p50": 22.1,
+        "acquire_p50": 0.39,
         "kinds": null
        },
-       "wall_ms": 7181,
-       "cpu_pct": 77.8,
-       "rss_kb": 152680,
+       "wall_ms": 7233,
+       "cpu_pct": 77.7,
+       "rss_kb": 158272,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1650,10 +1650,10 @@
         "phase": "tick20k",
         "frames": 1,
         "work_ms": [
-         513.297,
-         513.297,
-         513.297,
-         513.297
+         611.897,
+         611.897,
+         611.897,
+         611.897
         ],
         "interval_ms": [
          0.0,
@@ -1663,17 +1663,17 @@
         ],
         "jank": 0,
         "budget_ms": 16.67,
-        "t": 36508.1
+        "t": 36506.6
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.64,
-        "acquire_p50": 0.36,
+        "present_p50": 0.8,
+        "acquire_p50": 0.48,
         "kinds": null
        },
-       "wall_ms": 664,
-       "cpu_pct": 13.6,
-       "rss_kb": 158336,
+       "wall_ms": 679,
+       "cpu_pct": 5.9,
+       "rss_kb": 160060,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1691,10 +1691,10 @@
         "phase": "tick2k",
         "frames": 1,
         "work_ms": [
-         32.755,
-         32.755,
-         32.755,
-         32.755
+         29.108,
+         29.108,
+         29.108,
+         29.108
         ],
         "interval_ms": [
          0.0,
@@ -1704,17 +1704,17 @@
         ],
         "jank": 0,
         "budget_ms": 16.67,
-        "t": 6506.3
+        "t": 6505.1
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.83,
-        "acquire_p50": 0.51,
+        "present_p50": 0.85,
+        "acquire_p50": 0.36,
         "kinds": null
        },
-       "wall_ms": 605,
-       "cpu_pct": 9.9,
-       "rss_kb": 113108,
+       "wall_ms": 131,
+       "cpu_pct": 0.0,
+       "rss_kb": 114064,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1735,33 +1735,33 @@
    }
   },
   {
-   "device": "R5CT41PZHLF",
+   "device": "R3CY407X32L",
    "info": {
-    "device_name": "R5CT41PZHLF",
-    "model": "SM-A736B",
-    "android": "12",
-    "sdk": "31",
-    "soc": "SM7325",
+    "device_name": "R3CY407X32L",
+    "model": "SM-A366U1",
+    "android": "15",
+    "sdk": "35",
+    "soc": "SM6475",
     "cpu_cores": "8",
-    "mem_total_kb": "7477180",
-    "display": "1080x2400",
+    "mem_total_kb": "5407940",
+    "display": "1080x2340",
     "density": "450",
     "refresh_hz": "120.00001",
     "apk_file_bytes_valdi": "9688517",
-    "valdi_apk_sha256": "764b06bac62e821e",
+    "valdi_apk_sha256": "ba48eb4bf755ef66",
     "apk_bytes_dev.vieww.marketwatch": "2814368",
     "apk_bytes_com.snap.valdi.marketwatch": "9688517",
     "apk_file_bytes_vieww": "2814368",
     "mode": "quick",
-    "vieww-cpu_cold_start_ms": "239 206",
-    "vieww-cpu_pid": "5639",
-    "vieww-cpu_battery_temp_dC": "263",
-    "vieww-cpu_pss_kb": "98406",
+    "vieww-cpu_cold_start_ms": "323 250",
+    "vieww-cpu_pid": "28279",
+    "vieww-cpu_battery_temp_dC": "271",
+    "vieww-cpu_pss_kb": "94847",
     "vieww-cpu_status": "PASS",
-    "vieww-gpu_cold_start_ms": "210 205",
-    "vieww-gpu_pid": "22416",
-    "vieww-gpu_battery_temp_dC": "264",
-    "vieww-gpu_pss_kb": "149252",
+    "vieww-gpu_cold_start_ms": "252 255",
+    "vieww-gpu_pid": "24652",
+    "vieww-gpu_battery_temp_dC": "272",
+    "vieww-gpu_pss_kb": "156071",
     "vieww-gpu_status": "PASS",
     "status": "PASS"
    },
@@ -1770,12 +1770,12 @@
     "vieww-cpu": {
      "status": "PASS",
      "cold_start_ms": [
-      239.0,
-      206.0
+      323.0,
+      250.0
      ],
-     "cold_start_median": 222.5,
-     "pss_kb": "98406",
-     "battery_temp_dC": "263",
+     "cold_start_median": 286.5,
+     "pss_kb": "94847",
+     "battery_temp_dC": "271",
      "phases": {
       "idle20k": {
        "app": {
@@ -1784,10 +1784,10 @@
         "phase": "idle20k",
         "frames": 1,
         "work_ms": [
-         0.385,
-         0.385,
-         0.385,
-         0.385
+         0.142,
+         0.142,
+         0.142,
+         0.142
         ],
         "interval_ms": [
          0.0,
@@ -1797,10 +1797,10 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 35507.1
+        "t": 35507.5
        },
        "stages": {
-        "raster_p50": 0.09,
+        "raster_p50": 0.03,
         "present_p50": 0.0,
         "acquire_p50": 0.0,
         "kinds": {
@@ -1841,9 +1841,9 @@
          ]
         }
        },
-       "wall_ms": 1171,
-       "cpu_pct": 2.6,
-       "rss_kb": 159892,
+       "wall_ms": 1164,
+       "cpu_pct": 1.7,
+       "rss_kb": 186836,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1861,10 +1861,10 @@
         "phase": "idle2k",
         "frames": 1,
         "work_ms": [
-         0.451,
-         0.451,
-         0.451,
-         0.451
+         0.31,
+         0.31,
+         0.31,
+         0.31
         ],
         "interval_ms": [
          0.0,
@@ -1874,10 +1874,10 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 5503.3
+        "t": 5505.1
        },
        "stages": {
-        "raster_p50": 0.15,
+        "raster_p50": 0.02,
         "present_p50": 0.0,
         "acquire_p50": 0.0,
         "kinds": {
@@ -1918,9 +1918,9 @@
          ]
         }
        },
-       "wall_ms": 965,
-       "cpu_pct": 3.1,
-       "rss_kb": 138412,
+       "wall_ms": 975,
+       "cpu_pct": 2.1,
+       "rss_kb": 168256,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -1938,10 +1938,10 @@
         "phase": "jump20k",
         "frames": 1,
         "work_ms": [
-         45.065,
-         45.065,
-         45.065,
-         45.065
+         50.664,
+         50.664,
+         50.664,
+         50.664
         ],
         "interval_ms": [
          0.0,
@@ -1951,27 +1951,27 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 37508.5
+        "t": 37508.9
        },
        "stages": {
-        "raster_p50": 35.9,
-        "present_p50": 4.24,
-        "acquire_p50": 0.13,
+        "raster_p50": 38.63,
+        "present_p50": 4.35,
+        "acquire_p50": 0.32,
         "kinds": {
          "rects": [
-          6.28,
-          6.28,
-          6.28
+          11.34,
+          11.34,
+          11.34
          ],
          "paths": [
-          15.29,
-          15.29,
-          15.29
+          13.23,
+          13.23,
+          13.23
          ],
          "text": [
-          2.4,
-          2.4,
-          2.4
+          2.41,
+          2.41,
+          2.41
          ],
          "images": [
           0.0,
@@ -1979,9 +1979,9 @@
           0.0
          ],
          "shadows": [
-          3.68,
-          3.68,
-          3.68
+          3.57,
+          3.57,
+          3.57
          ],
          "layers": [
           0.0,
@@ -1995,1052 +1995,15 @@
          ]
         }
        },
-       "wall_ms": 117,
-       "cpu_pct": 94.0,
-       "rss_kb": 160560,
-       "sf_frames": 47,
-       "sf_fps": 401.7,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 25,
-       "sf_gap_p99": 25,
-       "sf_jank_pct": 83.0,
-       "hwui": {
-        "frames": 0,
-        "janky": 0,
-        "janky_pct": 0.0,
-        "p50_ms": 4950,
-        "p90_ms": 4950,
-        "p95_ms": 4950,
-        "p99_ms": 4950
-       }
-      },
-      "jump2k": {
-       "app": {
-        "fw": "vieww",
-        "ev": "stats",
-        "phase": "jump2k",
-        "frames": 1,
-        "work_ms": [
-         39.947,
-         39.947,
-         39.947,
-         39.947
-        ],
-        "interval_ms": [
-         0.0,
-         0.0,
-         0.0,
-         0.0
-        ],
-        "jank": 0,
-        "budget_ms": 8.33,
-        "t": 7503.0
-       },
-       "stages": {
-        "raster_p50": 34.23,
-        "present_p50": 3.1,
-        "acquire_p50": 0.1,
-        "kinds": {
-         "rects": [
-          4.93,
-          4.93,
-          4.93
-         ],
-         "paths": [
-          12.36,
-          12.36,
-          12.36
-         ],
-         "text": [
-          5.29,
-          5.29,
-          5.29
-         ],
-         "images": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "shadows": [
-          3.43,
-          3.43,
-          3.43
-         ],
-         "layers": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "composite": [
-          0.0,
-          0.0,
-          0.0
-         ]
-        }
-       },
-       "wall_ms": 74,
-       "cpu_pct": 148.6,
-       "rss_kb": 142304,
-       "sf_frames": 58,
-       "sf_fps": 783.8,
+       "wall_ms": 81,
+       "cpu_pct": 111.1,
+       "rss_kb": 187224,
+       "sf_frames": 28,
+       "sf_fps": 345.7,
        "sf_gap_p50": 8,
        "sf_gap_p95": 16,
        "sf_gap_p99": 16,
-       "sf_jank_pct": 10.3,
-       "hwui": {
-        "frames": 0,
-        "janky": 0,
-        "janky_pct": 0.0,
-        "p50_ms": 4950,
-        "p90_ms": 4950,
-        "p95_ms": 4950,
-        "p99_ms": 4950
-       }
-      },
-      "live20k": {
-       "app": {
-        "fw": "vieww",
-        "ev": "stats",
-        "phase": "live20k",
-        "frames": 480,
-        "work_ms": [
-         15.949,
-         19.527,
-         21.145,
-         23.159
-        ],
-        "interval_ms": [
-         16.666,
-         19.533,
-         21.031,
-         23.062
-        ],
-        "jank": 479,
-        "budget_ms": 8.33,
-        "t": 53508.8
-       },
-       "stages": {
-        "raster_p50": 10.36,
-        "present_p50": 4.77,
-        "acquire_p50": 0.12,
-        "kinds": {
-         "rects": [
-          0.9,
-          1.12,
-          1.69
-         ],
-         "paths": [
-          3.83,
-          4.66,
-          6.5
-         ],
-         "text": [
-          0.8,
-          1.01,
-          1.6
-         ],
-         "images": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "shadows": [
-          0.58,
-          0.78,
-          1.14
-         ],
-         "layers": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "composite": [
-          0.0,
-          0.0,
-          0.0
-         ]
-        }
-       },
-       "wall_ms": 7023,
-       "cpu_pct": 107.1,
-       "rss_kb": 162064,
-       "sf_frames": 452,
-       "sf_fps": 64.4,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 25,
-       "sf_gap_p99": 25,
-       "sf_jank_pct": 90.7,
-       "hwui": {
-        "frames": 0,
-        "janky": 0,
-        "janky_pct": 0.0,
-        "p50_ms": 4950,
-        "p90_ms": 4950,
-        "p95_ms": 4950,
-        "p99_ms": 4950
-       }
-      },
-      "live2k": {
-       "app": {
-        "fw": "vieww",
-        "ev": "stats",
-        "phase": "live2k",
-        "frames": 479,
-        "work_ms": [
-         15.281,
-         18.466,
-         20.809,
-         28.026
-        ],
-        "interval_ms": [
-         16.667,
-         18.469,
-         20.238,
-         28.084
-        ],
-        "jank": 478,
-        "budget_ms": 8.33,
-        "t": 23508.7
-       },
-       "stages": {
-        "raster_p50": 10.05,
-        "present_p50": 4.31,
-        "acquire_p50": 0.12,
-        "kinds": {
-         "rects": [
-          0.88,
-          1.07,
-          1.97
-         ],
-         "paths": [
-          3.72,
-          4.31,
-          7.66
-         ],
-         "text": [
-          0.77,
-          0.93,
-          1.87
-         ],
-         "images": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "shadows": [
-          0.58,
-          0.78,
-          1.1
-         ],
-         "layers": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "composite": [
-          0.0,
-          0.0,
-          0.0
-         ]
-        }
-       },
-       "wall_ms": 7318,
-       "cpu_pct": 107.1,
-       "rss_kb": 151384,
-       "sf_frames": 462,
-       "sf_fps": 63.1,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 25,
-       "sf_gap_p99": 25,
-       "sf_jank_pct": 93.7,
-       "hwui": {
-        "frames": 0,
-        "janky": 0,
-        "janky_pct": 0.0,
-        "p50_ms": 4950,
-        "p90_ms": 4950,
-        "p95_ms": 4950,
-        "p99_ms": 4950
-       }
-      },
-      "load20k": {
-       "app": {
-        "fw": "vieww",
-        "ev": "stats",
-        "phase": "load20k",
-        "frames": 1,
-        "work_ms": [
-         36.829,
-         36.829,
-         36.829,
-         36.829
-        ],
-        "interval_ms": [
-         0.0,
-         0.0,
-         0.0,
-         0.0
-        ],
-        "jank": 0,
-        "budget_ms": 8.33,
-        "t": 33505.4
-       },
-       "stages": {
-        "raster_p50": 29.33,
-        "present_p50": 4.31,
-        "acquire_p50": 0.14,
-        "kinds": {
-         "rects": [
-          3.62,
-          3.62,
-          3.62
-         ],
-         "paths": [
-          11.54,
-          11.54,
-          11.54
-         ],
-         "text": [
-          2.44,
-          2.44,
-          2.44
-         ],
-         "images": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "shadows": [
-          3.43,
-          3.43,
-          3.43
-         ],
-         "layers": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "composite": [
-          0.0,
-          0.0,
-          0.0
-         ]
-        }
-       },
-       "wall_ms": 1171,
-       "cpu_pct": 0.0,
-       "rss_kb": 162228,
-       "hwui": {
-        "frames": 0,
-        "janky": 0,
-        "janky_pct": 0.0,
-        "p50_ms": 4950,
-        "p90_ms": 4950,
-        "p95_ms": 4950,
-        "p99_ms": 4950
-       }
-      },
-      "load2k": {
-       "app": {
-        "fw": "vieww",
-        "ev": "stats",
-        "phase": "load2k",
-        "frames": 3,
-        "work_ms": [
-         39.371,
-         79.646,
-         79.646,
-         79.646
-        ],
-        "interval_ms": [
-         3350.146,
-         3350.146,
-         3350.146,
-         3350.146
-        ],
-        "jank": 2,
-        "budget_ms": 8.33,
-        "t": 3503.5
-       },
-       "stages": {
-        "raster_p50": 28.91,
-        "present_p50": 3.48,
-        "acquire_p50": 0.68,
-        "kinds": {
-         "rects": [
-          4.09,
-          6.95,
-          6.95
-         ],
-         "paths": [
-          11.15,
-          13.34,
-          13.34
-         ],
-         "text": [
-          1.98,
-          7.95,
-          7.95
-         ],
-         "images": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "shadows": [
-          3.51,
-          9.14,
-          9.14
-         ],
-         "layers": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "composite": [
-          0.0,
-          0.0,
-          0.0
-         ]
-        }
-       },
-       "wall_ms": 2848,
-       "cpu_pct": 0.4,
-       "rss_kb": 140840,
-       "hwui": {
-        "frames": 0,
-        "janky": 0,
-        "janky_pct": 0.0,
-        "p50_ms": 4950,
-        "p90_ms": 4950,
-        "p95_ms": 4950,
-        "p99_ms": 4950
-       }
-      },
-      "scroll20k": {
-       "app": {
-        "fw": "vieww",
-        "ev": "stats",
-        "phase": "scroll20k",
-        "frames": 481,
-        "work_ms": [
-         13.036,
-         17.603,
-         20.1,
-         21.693
-        ],
-        "interval_ms": [
-         16.667,
-         17.662,
-         20.273,
-         21.787
-        ],
-        "jank": 477,
-        "budget_ms": 8.33,
-        "t": 45509.0
-       },
-       "stages": {
-        "raster_p50": 7.6,
-        "present_p50": 4.49,
-        "acquire_p50": 0.15,
-        "kinds": {
-         "rects": [
-          0.75,
-          1.27,
-          1.68
-         ],
-         "paths": [
-          1.86,
-          3.07,
-          3.88
-         ],
-         "text": [
-          0.29,
-          0.64,
-          0.94
-         ],
-         "images": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "shadows": [
-          0.95,
-          1.65,
-          2.24
-         ],
-         "layers": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "composite": [
-          0.0,
-          0.0,
-          0.0
-         ]
-        }
-       },
-       "wall_ms": 6399,
-       "cpu_pct": 90.0,
-       "rss_kb": 161580,
-       "sf_frames": 447,
-       "sf_fps": 69.9,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 25,
-       "sf_gap_p99": 25,
-       "sf_jank_pct": 80.8,
-       "hwui": {
-        "frames": 0,
-        "janky": 0,
-        "janky_pct": 0.0,
-        "p50_ms": 4950,
-        "p90_ms": 4950,
-        "p95_ms": 4950,
-        "p99_ms": 4950
-       }
-      },
-      "scroll2k": {
-       "app": {
-        "fw": "vieww",
-        "ev": "stats",
-        "phase": "scroll2k",
-        "frames": 534,
-        "work_ms": [
-         12.22,
-         16.326,
-         18.766,
-         20.908
-        ],
-        "interval_ms": [
-         16.665,
-         16.803,
-         18.821,
-         20.962
-        ],
-        "jank": 417,
-        "budget_ms": 8.33,
-        "t": 15508.8
-       },
-       "stages": {
-        "raster_p50": 7.34,
-        "present_p50": 3.98,
-        "acquire_p50": 0.14,
-        "kinds": {
-         "rects": [
-          0.69,
-          1.11,
-          1.69
-         ],
-         "paths": [
-          1.67,
-          2.81,
-          4.02
-         ],
-         "text": [
-          0.33,
-          0.74,
-          1.31
-         ],
-         "images": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "shadows": [
-          0.89,
-          1.61,
-          2.32
-         ],
-         "layers": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "composite": [
-          0.0,
-          0.0,
-          0.0
-         ]
-        }
-       },
-       "wall_ms": 6840,
-       "cpu_pct": 87.6,
-       "rss_kb": 150188,
-       "sf_frames": 489,
-       "sf_fps": 71.5,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 25,
-       "sf_gap_p99": 25,
-       "sf_jank_pct": 77.5,
-       "hwui": {
-        "frames": 0,
-        "janky": 0,
-        "janky_pct": 0.0,
-        "p50_ms": 4950,
-        "p90_ms": 4950,
-        "p95_ms": 4950,
-        "p99_ms": 4950
-       }
-      },
-      "storm20k": {
-       "app": {
-        "fw": "vieww",
-        "ev": "stats",
-        "phase": "storm20k",
-        "frames": 366,
-        "work_ms": [
-         21.858,
-         23.016,
-         23.675,
-         24.509
-        ],
-        "interval_ms": [
-         21.912,
-         23.074,
-         23.733,
-         24.58
-        ],
-        "jank": 365,
-        "budget_ms": 8.33,
-        "t": 61525.1
-       },
-       "stages": {
-        "raster_p50": 17.52,
-        "present_p50": 3.3,
-        "acquire_p50": 0.13,
-        "kinds": {
-         "rects": [
-          1.88,
-          2.05,
-          2.37
-         ],
-         "paths": [
-          6.93,
-          7.27,
-          7.84
-         ],
-         "text": [
-          1.05,
-          1.13,
-          1.25
-         ],
-         "images": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "shadows": [
-          1.82,
-          1.92,
-          2.08
-         ],
-         "layers": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "composite": [
-          0.0,
-          0.0,
-          0.0
-         ]
-        }
-       },
-       "wall_ms": 7794,
-       "cpu_pct": 106.5,
-       "rss_kb": 161168,
-       "sf_frames": 353,
-       "sf_fps": 45.3,
-       "sf_gap_p50": 24,
-       "sf_gap_p95": 25,
-       "sf_gap_p99": 33,
-       "sf_jank_pct": 98.9,
-       "hwui": {
-        "frames": 0,
-        "janky": 0,
-        "janky_pct": 0.0,
-        "p50_ms": 4950,
-        "p90_ms": 4950,
-        "p95_ms": 4950,
-        "p99_ms": 4950
-       }
-      },
-      "storm2k": {
-       "app": {
-        "fw": "vieww",
-        "ev": "stats",
-        "phase": "storm2k",
-        "frames": 377,
-        "work_ms": [
-         21.285,
-         22.734,
-         23.544,
-         24.052
-        ],
-        "interval_ms": [
-         21.342,
-         22.769,
-         23.451,
-         24.109
-        ],
-        "jank": 376,
-        "budget_ms": 8.33,
-        "t": 31511.9
-       },
-       "stages": {
-        "raster_p50": 17.18,
-        "present_p50": 2.88,
-        "acquire_p50": 0.12,
-        "kinds": {
-         "rects": [
-          1.81,
-          2.0,
-          2.55
-         ],
-         "paths": [
-          6.86,
-          7.3,
-          8.03
-         ],
-         "text": [
-          1.01,
-          1.12,
-          1.43
-         ],
-         "images": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "shadows": [
-          1.77,
-          1.92,
-          2.68
-         ],
-         "layers": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "composite": [
-          0.0,
-          0.0,
-          0.0
-         ]
-        }
-       },
-       "wall_ms": 7040,
-       "cpu_pct": 110.1,
-       "rss_kb": 162068,
-       "sf_frames": 347,
-       "sf_fps": 49.3,
-       "sf_gap_p50": 24,
-       "sf_gap_p95": 25,
-       "sf_gap_p99": 33,
-       "sf_jank_pct": 99.4,
-       "hwui": {
-        "frames": 0,
-        "janky": 0,
-        "janky_pct": 0.0,
-        "p50_ms": 4950,
-        "p90_ms": 4950,
-        "p95_ms": 4950,
-        "p99_ms": 4950
-       }
-      },
-      "tick20k": {
-       "app": {
-        "fw": "vieww",
-        "ev": "stats",
-        "phase": "tick20k",
-        "frames": 1,
-        "work_ms": [
-         21.939,
-         21.939,
-         21.939,
-         21.939
-        ],
-        "interval_ms": [
-         0.0,
-         0.0,
-         0.0,
-         0.0
-        ],
-        "jank": 0,
-        "budget_ms": 8.33,
-        "t": 36508.1
-       },
-       "stages": {
-        "raster_p50": 12.52,
-        "present_p50": 7.44,
-        "acquire_p50": 0.29,
-        "kinds": {
-         "rects": [
-          0.84,
-          0.84,
-          0.84
-         ],
-         "paths": [
-          7.92,
-          7.92,
-          7.92
-         ],
-         "text": [
-          1.01,
-          1.01,
-          1.01
-         ],
-         "images": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "shadows": [
-          0.04,
-          0.04,
-          0.04
-         ],
-         "layers": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "composite": [
-          0.0,
-          0.0,
-          0.0
-         ]
-        }
-       },
-       "wall_ms": 124,
-       "cpu_pct": 0.0,
-       "rss_kb": 161656,
-       "hwui": {
-        "frames": 0,
-        "janky": 0,
-        "janky_pct": 0.0,
-        "p50_ms": 4950,
-        "p90_ms": 4950,
-        "p95_ms": 4950,
-        "p99_ms": 4950
-       }
-      },
-      "tick2k": {
-       "app": {
-        "fw": "vieww",
-        "ev": "stats",
-        "phase": "tick2k",
-        "frames": 1,
-        "work_ms": [
-         22.844,
-         22.844,
-         22.844,
-         22.844
-        ],
-        "interval_ms": [
-         0.0,
-         0.0,
-         0.0,
-         0.0
-        ],
-        "jank": 0,
-        "budget_ms": 8.33,
-        "t": 6502.6
-       },
-       "stages": {
-        "raster_p50": 17.43,
-        "present_p50": 3.97,
-        "acquire_p50": 0.2,
-        "kinds": {
-         "rects": [
-          1.36,
-          1.36,
-          1.36
-         ],
-         "paths": [
-          6.48,
-          6.48,
-          6.48
-         ],
-         "text": [
-          6.03,
-          6.03,
-          6.03
-         ],
-         "images": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "shadows": [
-          0.04,
-          0.04,
-          0.04
-         ],
-         "layers": [
-          0.0,
-          0.0,
-          0.0
-         ],
-         "composite": [
-          0.0,
-          0.0,
-          0.0
-         ]
-        }
-       },
-       "wall_ms": 533,
-       "cpu_pct": 9.4,
-       "rss_kb": 141248,
-       "hwui": {
-        "frames": 0,
-        "janky": 0,
-        "janky_pct": 0.0,
-        "p50_ms": 4950,
-        "p90_ms": 4950,
-        "p95_ms": 4950,
-        "p99_ms": 4950
-       }
-      }
-     },
-     "quality": "blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)",
-     "rate_log": [
-      "window#primary reports 120.0Hz; frame budget follows it, falling to 60 Hz while it cannot be held",
-      "performance hint unavailable (the system declined a session)",
-      "window#primary asks for 120 Hz at start; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)",
-      "window#primary frame rate 120 -> 60 Hz on a 120 Hz panel; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)"
-     ]
-    },
-    "vieww-gpu": {
-     "status": "PASS",
-     "cold_start_ms": [
-      210.0,
-      205.0
-     ],
-     "cold_start_median": 207.5,
-     "pss_kb": "149252",
-     "battery_temp_dC": "264",
-     "phases": {
-      "idle20k": {
-       "app": {
-        "fw": "vieww",
-        "ev": "stats",
-        "phase": "idle20k",
-        "frames": 1,
-        "work_ms": [
-         13.791,
-         13.791,
-         13.791,
-         13.791
-        ],
-        "interval_ms": [
-         0.0,
-         0.0,
-         0.0,
-         0.0
-        ],
-        "jank": 0,
-        "budget_ms": 8.33,
-        "t": 35508.8
-       },
-       "stages": {
-        "raster_p50": 0.0,
-        "present_p50": 2.5,
-        "acquire_p50": 0.08,
-        "kinds": null
-       },
-       "wall_ms": 622,
-       "cpu_pct": 0.0,
-       "rss_kb": 166440,
-       "hwui": {
-        "frames": 0,
-        "janky": 0,
-        "janky_pct": 0.0,
-        "p50_ms": 4950,
-        "p90_ms": 4950,
-        "p95_ms": 4950,
-        "p99_ms": 4950
-       }
-      },
-      "idle2k": {
-       "app": {
-        "fw": "vieww",
-        "ev": "stats",
-        "phase": "idle2k",
-        "frames": 1,
-        "work_ms": [
-         10.3,
-         10.3,
-         10.3,
-         10.3
-        ],
-        "interval_ms": [
-         0.0,
-         0.0,
-         0.0,
-         0.0
-        ],
-        "jank": 0,
-        "budget_ms": 8.33,
-        "t": 5505.7
-       },
-       "stages": {
-        "raster_p50": 0.0,
-        "present_p50": 1.6,
-        "acquire_p50": 0.05,
-        "kinds": null
-       },
-       "wall_ms": 1019,
-       "cpu_pct": 2.0,
-       "rss_kb": 98688,
-       "hwui": {
-        "frames": 0,
-        "janky": 0,
-        "janky_pct": 0.0,
-        "p50_ms": 4950,
-        "p90_ms": 4950,
-        "p95_ms": 4950,
-        "p99_ms": 4950
-       }
-      },
-      "jump20k": {
-       "app": {
-        "fw": "vieww",
-        "ev": "stats",
-        "phase": "jump20k",
-        "frames": 1,
-        "work_ms": [
-         13.539,
-         13.539,
-         13.539,
-         13.539
-        ],
-        "interval_ms": [
-         0.0,
-         0.0,
-         0.0,
-         0.0
-        ],
-        "jank": 0,
-        "budget_ms": 8.33,
-        "t": 37509.1
-       },
-       "stages": {
-        "raster_p50": 0.0,
-        "present_p50": 0.86,
-        "acquire_p50": 0.04,
-        "kinds": null
-       },
-       "wall_ms": 130,
-       "cpu_pct": 23.1,
-       "rss_kb": 169752,
-       "sf_frames": 38,
-       "sf_fps": 292.3,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 16,
-       "sf_gap_p99": 16,
-       "sf_jank_pct": 89.5,
+       "sf_jank_pct": 7.1,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -3058,10 +2021,10 @@
         "phase": "jump2k",
         "frames": 1,
         "work_ms": [
-         18.271,
-         18.271,
-         18.271,
-         18.271
+         41.513,
+         41.513,
+         41.513,
+         41.513
         ],
         "interval_ms": [
          0.0,
@@ -3071,19 +2034,55 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 7507.0
+        "t": 7504.9
        },
        "stages": {
-        "raster_p50": 0.0,
-        "present_p50": 1.21,
-        "acquire_p50": 0.03,
-        "kinds": null
+        "raster_p50": 35.12,
+        "present_p50": 3.24,
+        "acquire_p50": 0.32,
+        "kinds": {
+         "rects": [
+          5.27,
+          5.27,
+          5.27
+         ],
+         "paths": [
+          13.31,
+          13.31,
+          13.31
+         ],
+         "text": [
+          4.51,
+          4.51,
+          4.51
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          3.79,
+          3.79,
+          3.79
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
        },
-       "wall_ms": 127,
-       "cpu_pct": 63.0,
-       "rss_kb": 122000,
-       "sf_frames": 89,
-       "sf_fps": 700.8,
+       "wall_ms": 108,
+       "cpu_pct": 0.0,
+       "rss_kb": 169492,
+       "sf_frames": 8,
+       "sf_fps": 74.1,
        "sf_gap_p50": 8,
        "sf_gap_p95": 8,
        "sf_gap_p99": 8,
@@ -3103,38 +2102,74 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "live20k",
-        "frames": 480,
+        "frames": 524,
         "work_ms": [
-         12.157,
-         16.137,
-         17.217,
-         18.207
+         14.493,
+         16.062,
+         16.764,
+         17.988
         ],
         "interval_ms": [
-         16.667,
-         17.208,
-         17.507,
-         18.302
+         15.219,
+         16.678,
+         16.849,
+         18.069
         ],
-        "jank": 479,
+        "jank": 518,
         "budget_ms": 8.33,
-        "t": 53513.8
+        "t": 53513.0
        },
        "stages": {
-        "raster_p50": 0.0,
-        "present_p50": 2.36,
-        "acquire_p50": 0.08,
-        "kinds": null
+        "raster_p50": 10.31,
+        "present_p50": 3.24,
+        "acquire_p50": 0.32,
+        "kinds": {
+         "rects": [
+          0.93,
+          1.16,
+          1.43
+         ],
+         "paths": [
+          3.8,
+          4.1,
+          4.99
+         ],
+         "text": [
+          0.79,
+          0.9,
+          1.06
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.56,
+          0.84,
+          1.14
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
        },
-       "wall_ms": 7068,
-       "cpu_pct": 77.0,
-       "rss_kb": 171632,
-       "sf_frames": 459,
-       "sf_fps": 64.9,
+       "wall_ms": 7201,
+       "cpu_pct": 109.6,
+       "rss_kb": 188964,
+       "sf_frames": 494,
+       "sf_fps": 68.6,
        "sf_gap_p50": 16,
-       "sf_gap_p95": 25,
-       "sf_gap_p99": 25,
-       "sf_jank_pct": 80.6,
+       "sf_gap_p95": 24,
+       "sf_gap_p99": 24,
+       "sf_jank_pct": 78.3,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -3150,38 +2185,74 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "live2k",
-        "frames": 480,
+        "frames": 512,
         "work_ms": [
-         12.096,
-         16.202,
-         17.961,
-         29.404
+         14.623,
+         16.689,
+         18.046,
+         19.077
         ],
         "interval_ms": [
-         16.666,
-         17.183,
-         18.042,
-         29.5
+         16.478,
+         16.854,
+         18.127,
+         19.18
         ],
-        "jank": 478,
+        "jank": 509,
         "budget_ms": 8.33,
-        "t": 23513.8
+        "t": 23514.1
        },
        "stages": {
-        "raster_p50": 0.0,
-        "present_p50": 2.24,
-        "acquire_p50": 0.08,
-        "kinds": null
+        "raster_p50": 10.37,
+        "present_p50": 3.31,
+        "acquire_p50": 0.32,
+        "kinds": {
+         "rects": [
+          1.01,
+          1.25,
+          1.76
+         ],
+         "paths": [
+          3.77,
+          4.08,
+          5.62
+         ],
+         "text": [
+          0.8,
+          0.92,
+          1.99
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.6,
+          0.87,
+          1.22
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
        },
-       "wall_ms": 7509,
-       "cpu_pct": 77.0,
-       "rss_kb": 161872,
-       "sf_frames": 484,
-       "sf_fps": 64.5,
+       "wall_ms": 7415,
+       "cpu_pct": 108.8,
+       "rss_kb": 178740,
+       "sf_frames": 494,
+       "sf_fps": 66.6,
        "sf_gap_p50": 16,
-       "sf_gap_p95": 25,
-       "sf_gap_p99": 25,
-       "sf_jank_pct": 77.5,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 24,
+       "sf_jank_pct": 88.1,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -3199,10 +2270,10 @@
         "phase": "load20k",
         "frames": 1,
         "work_ms": [
-         16.732,
-         16.732,
-         16.732,
-         16.732
+         35.461,
+         35.461,
+         35.461,
+         35.461
         ],
         "interval_ms": [
          0.0,
@@ -3212,17 +2283,53 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 33509.5
+        "t": 33505.9
        },
        "stages": {
-        "raster_p50": 0.0,
-        "present_p50": 2.49,
-        "acquire_p50": 0.07,
-        "kinds": null
+        "raster_p50": 28.69,
+        "present_p50": 3.39,
+        "acquire_p50": 0.34,
+        "kinds": {
+         "rects": [
+          3.95,
+          3.95,
+          3.95
+         ],
+         "paths": [
+          11.13,
+          11.13,
+          11.13
+         ],
+         "text": [
+          2.52,
+          2.52,
+          2.52
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          3.06,
+          3.06,
+          3.06
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
        },
-       "wall_ms": 1105,
-       "cpu_pct": 0.9,
-       "rss_kb": 166372,
+       "wall_ms": 1135,
+       "cpu_pct": 0.0,
+       "rss_kb": 188888,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -3240,33 +2347,929 @@
         "phase": "load2k",
         "frames": 3,
         "work_ms": [
-         9.268,
-         32.223,
-         32.223,
-         32.223
+         33.74,
+         87.82,
+         87.82,
+         87.82
         ],
         "interval_ms": [
-         3390.64,
-         3390.64,
-         3390.64,
-         3390.64
+         3330.101,
+         3330.101,
+         3330.101,
+         3330.101
         ],
-        "jank": 1,
+        "jank": 2,
         "budget_ms": 8.33,
-        "t": 3505.1
+        "t": 3506.5
+       },
+       "stages": {
+        "raster_p50": 29.7,
+        "present_p50": 3.31,
+        "acquire_p50": 0.61,
+        "kinds": {
+         "rects": [
+          4.6,
+          7.74,
+          7.74
+         ],
+         "paths": [
+          11.36,
+          14.21,
+          14.21
+         ],
+         "text": [
+          2.26,
+          8.77,
+          8.77
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          3.44,
+          9.26,
+          9.26
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 2827,
+       "cpu_pct": 0.4,
+       "rss_kb": 171820,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "scroll20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "scroll20k",
+        "frames": 845,
+        "work_ms": [
+         9.077,
+         11.511,
+         13.751,
+         17.118
+        ],
+        "interval_ms": [
+         9.158,
+         11.605,
+         13.931,
+         17.21
+        ],
+        "jank": 20,
+        "budget_ms": 8.33,
+        "t": 45515.1
+       },
+       "stages": {
+        "raster_p50": 5.06,
+        "present_p50": 3.36,
+        "acquire_p50": 0.34,
+        "kinds": {
+         "rects": [
+          0.46,
+          0.69,
+          2.18
+         ],
+         "paths": [
+          1.09,
+          1.34,
+          3.35
+         ],
+         "text": [
+          0.19,
+          0.27,
+          1.63
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.57,
+          0.84,
+          3.18
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7108,
+       "cpu_pct": 115.2,
+       "rss_kb": 188404,
+       "sf_frames": 832,
+       "sf_fps": 117.1,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 15.5,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "scroll2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "scroll2k",
+        "frames": 843,
+        "work_ms": [
+         9.097,
+         11.755,
+         13.285,
+         15.287
+        ],
+        "interval_ms": [
+         9.196,
+         11.877,
+         13.545,
+         15.404
+        ],
+        "jank": 23,
+        "budget_ms": 8.33,
+        "t": 15507.6
+       },
+       "stages": {
+        "raster_p50": 5.09,
+        "present_p50": 3.47,
+        "acquire_p50": 0.34,
+        "kinds": {
+         "rects": [
+          0.47,
+          0.69,
+          1.15
+         ],
+         "paths": [
+          1.09,
+          1.36,
+          2.69
+         ],
+         "text": [
+          0.21,
+          0.37,
+          0.88
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.56,
+          0.86,
+          1.5
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7166,
+       "cpu_pct": 116.9,
+       "rss_kb": 177664,
+       "sf_frames": 839,
+       "sf_fps": 117.1,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 16,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 14.5,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "storm20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "storm20k",
+        "frames": 356,
+        "work_ms": [
+         22.305,
+         23.601,
+         23.934,
+         24.389
+        ],
+        "interval_ms": [
+         22.393,
+         23.702,
+         24.042,
+         24.486
+        ],
+        "jank": 355,
+        "budget_ms": 8.33,
+        "t": 61512.7
+       },
+       "stages": {
+        "raster_p50": 19.16,
+        "present_p50": 2.02,
+        "acquire_p50": 0.31,
+        "kinds": {
+         "rects": [
+          2.35,
+          2.7,
+          3.24
+         ],
+         "paths": [
+          7.77,
+          8.01,
+          8.38
+         ],
+         "text": [
+          1.03,
+          1.11,
+          1.26
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          1.81,
+          1.92,
+          2.22
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7570,
+       "cpu_pct": 103.3,
+       "rss_kb": 188196,
+       "sf_frames": 343,
+       "sf_fps": 45.3,
+       "sf_gap_p50": 24,
+       "sf_gap_p95": 24,
+       "sf_gap_p99": 25,
+       "sf_jank_pct": 100.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "storm2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "storm2k",
+        "frames": 376,
+        "work_ms": [
+         21.192,
+         22.281,
+         22.786,
+         25.587
+        ],
+        "interval_ms": [
+         21.274,
+         22.365,
+         22.866,
+         24.045
+        ],
+        "jank": 375,
+        "budget_ms": 8.33,
+        "t": 31526.4
+       },
+       "stages": {
+        "raster_p50": 17.98,
+        "present_p50": 2.02,
+        "acquire_p50": 0.31,
+        "kinds": {
+         "rects": [
+          2.15,
+          2.49,
+          3.08
+         ],
+         "paths": [
+          7.17,
+          7.4,
+          8.1
+         ],
+         "text": [
+          0.97,
+          1.05,
+          1.19
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          1.85,
+          1.97,
+          2.16
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 7625,
+       "cpu_pct": 103.9,
+       "rss_kb": 188888,
+       "sf_frames": 364,
+       "sf_fps": 47.7,
+       "sf_gap_p50": 24,
+       "sf_gap_p95": 24,
+       "sf_gap_p99": 25,
+       "sf_jank_pct": 100.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "tick20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "tick20k",
+        "frames": 1,
+        "work_ms": [
+         20.974,
+         20.974,
+         20.974,
+         20.974
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 36508.6
+       },
+       "stages": {
+        "raster_p50": 12.55,
+        "present_p50": 5.89,
+        "acquire_p50": 0.61,
+        "kinds": {
+         "rects": [
+          0.78,
+          0.78,
+          0.78
+         ],
+         "paths": [
+          7.4,
+          7.4,
+          7.4
+         ],
+         "text": [
+          1.2,
+          1.2,
+          1.2
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.04,
+          0.04,
+          0.04
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 92,
+       "cpu_pct": 0.0,
+       "rss_kb": 188676,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "tick2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "tick2k",
+        "frames": 1,
+        "work_ms": [
+         13.569,
+         13.569,
+         13.569,
+         13.569
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 6504.9
+       },
+       "stages": {
+        "raster_p50": 7.65,
+        "present_p50": 4.21,
+        "acquire_p50": 0.88,
+        "kinds": {
+         "rects": [
+          0.46,
+          0.46,
+          0.46
+         ],
+         "paths": [
+          4.48,
+          4.48,
+          4.48
+         ],
+         "text": [
+          1.04,
+          1.04,
+          1.04
+         ],
+         "images": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "shadows": [
+          0.03,
+          0.03,
+          0.03
+         ],
+         "layers": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "composite": [
+          0.0,
+          0.0,
+          0.0
+         ]
+        }
+       },
+       "wall_ms": 533,
+       "cpu_pct": 7.5,
+       "rss_kb": 169876,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      }
+     },
+     "quality": "blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)",
+     "rate_log": [
+      "window#primary reports 120.0Hz; frame budget follows it, falling to 60 Hz while it cannot be held",
+      "performance hint on (target 8.33 ms)",
+      "window#primary asks for 120 Hz at start; asked (ANativeWindow_setFrameRateWithChangeStrategy, seamless only)",
+      "window#primary frame rate 120 -> 60 Hz on a 120 Hz panel; paced by the window; last 120 frames: 120 missed a vsync at 120 Hz; own work p50 13.94 / p95 15.40 ms against the panel's 8.33 ms",
+      "window#primary frame rate 60 -> 120 Hz on a 120 Hz panel; paced by the window; last 120 frames: 1 missed a vsync at 60 Hz; own work p50 20.68 / p95 22.41 ms against the panel's 8.33 ms; probing the panel's rate",
+      "window#primary frame rate 120 -> 60 Hz on a 120 Hz panel; paced by the window; last 120 frames: 119 missed a vsync at 120 Hz; own work p50 14.30 / p95 15.89 ms against the panel's 8.33 ms",
+      "window#primary frame rate 60 -> 120 Hz on a 120 Hz panel; paced by the window; last 120 frames: 0 missed a vsync at 60 Hz; own work p50 21.98 / p95 23.02 ms against the panel's 8.33 ms; probing the panel's rate"
+     ]
+    },
+    "vieww-gpu": {
+     "status": "PASS",
+     "cold_start_ms": [
+      252.0,
+      255.0
+     ],
+     "cold_start_median": 253.5,
+     "pss_kb": "156071",
+     "battery_temp_dC": "272",
+     "phases": {
+      "idle20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "idle20k",
+        "frames": 1,
+        "work_ms": [
+         2.051,
+         2.051,
+         2.051,
+         2.051
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 35507.4
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 1.11,
+        "present_p50": 0.28,
+        "acquire_p50": 0.05,
+        "kinds": null
+       },
+       "wall_ms": 1109,
+       "cpu_pct": 0.0,
+       "rss_kb": 193984,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "idle2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "idle2k",
+        "frames": 1,
+        "work_ms": [
+         3.078,
+         3.078,
+         3.078,
+         3.078
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 5506.3
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.7,
+        "acquire_p50": 0.05,
+        "kinds": null
+       },
+       "wall_ms": 998,
+       "cpu_pct": 2.0,
+       "rss_kb": 128308,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "jump20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "jump20k",
+        "frames": 1,
+        "work_ms": [
+         18.813,
+         18.813,
+         18.813,
+         18.813
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 37508.5
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.49,
+        "acquire_p50": 0.14,
+        "kinds": null
+       },
+       "wall_ms": 68,
+       "cpu_pct": 58.8,
+       "rss_kb": 198132,
+       "sf_frames": 41,
+       "sf_fps": 602.9,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "jump2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "jump2k",
+        "frames": 1,
+        "work_ms": [
+         23.585,
+         23.585,
+         23.585,
+         23.585
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 7506.2
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.36,
+        "acquire_p50": 0.03,
+        "kinds": null
+       },
+       "wall_ms": 65,
+       "cpu_pct": 61.5,
+       "rss_kb": 152700,
+       "sf_frames": 58,
+       "sf_fps": 892.3,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "live20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "live20k",
+        "frames": 960,
+        "work_ms": [
+         8.221,
+         9.241,
+         10.556,
+         13.659
+        ],
+        "interval_ms": [
+         8.321,
+         9.4,
+         10.857,
+         13.791
+        ],
+        "jank": 1,
+        "budget_ms": 8.33,
+        "t": 53510.2
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 1.7,
+        "acquire_p50": 1.48,
+        "kinds": null
+       },
+       "wall_ms": 7670,
+       "cpu_pct": 71.4,
+       "rss_kb": 200196,
+       "sf_frames": 965,
+       "sf_fps": 125.8,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "live2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "live2k",
+        "frames": 956,
+        "work_ms": [
+         8.225,
+         10.584,
+         12.544,
+         22.639
+        ],
+        "interval_ms": [
+         8.312,
+         10.739,
+         12.745,
+         22.792
+        ],
+        "jank": 13,
+        "budget_ms": 8.33,
+        "t": 23509.5
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 2.53,
+        "acquire_p50": 0.06,
+        "kinds": null
+       },
+       "wall_ms": 7745,
+       "cpu_pct": 74.6,
+       "rss_kb": 190708,
+       "sf_frames": 976,
+       "sf_fps": 126.0,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.3,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "load20k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "load20k",
+        "frames": 1,
+        "work_ms": [
+         11.675,
+         11.675,
+         11.675,
+         11.675
+        ],
+        "interval_ms": [
+         0.0,
+         0.0,
+         0.0,
+         0.0
+        ],
+        "jank": 0,
+        "budget_ms": 8.33,
+        "t": 33506.3
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.31,
+        "acquire_p50": 0.05,
+        "kinds": null
+       },
+       "wall_ms": 1155,
+       "cpu_pct": 0.0,
+       "rss_kb": 199088,
+       "hwui": {
+        "frames": 0,
+        "janky": 0,
+        "janky_pct": 0.0,
+        "p50_ms": 4950,
+        "p90_ms": 4950,
+        "p95_ms": 4950,
+        "p99_ms": 4950
+       }
+      },
+      "load2k": {
+       "app": {
+        "fw": "vieww",
+        "ev": "stats",
+        "phase": "load2k",
+        "frames": 3,
+        "work_ms": [
+         9.611,
+         42.041,
+         42.041,
+         42.041
+        ],
+        "interval_ms": [
+         3378.537,
+         3378.537,
+         3378.537,
+         3378.537
+        ],
+        "jank": 1,
+        "budget_ms": 8.33,
+        "t": 3503.1
+       },
+       "stages": {
+        "raster_p50": 0.0,
+        "present_p50": 0.61,
         "acquire_p50": 0.02,
         "kinds": null
        },
-       "wall_ms": 2976,
-       "cpu_pct": 1.0,
-       "rss_kb": 96116,
+       "wall_ms": 2901,
+       "cpu_pct": 0.7,
+       "rss_kb": 125056,
        "sf_frames": 2,
        "sf_fps": 0.7,
-       "sf_gap_p50": 16,
+       "sf_gap_p50": 24,
        "sf_gap_p95": 1000,
        "sf_gap_p99": 1000,
        "sf_jank_pct": 100.0,
@@ -3285,38 +3288,38 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "scroll20k",
-        "frames": 481,
+        "frames": 961,
         "work_ms": [
-         6.447,
-         9.985,
-         11.475,
-         14.505
+         8.188,
+         8.637,
+         10.321,
+         13.02
         ],
         "interval_ms": [
-         16.667,
-         17.185,
-         17.459,
-         17.754
+         8.314,
+         8.83,
+         10.565,
+         13.13
         ],
-        "jank": 478,
+        "jank": 1,
         "budget_ms": 8.33,
-        "t": 45513.9
+        "t": 45513.1
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 1.37,
-        "acquire_p50": 0.1,
+        "present_p50": 4.3,
+        "acquire_p50": 0.08,
         "kinds": null
        },
-       "wall_ms": 6883,
-       "cpu_pct": 48.4,
-       "rss_kb": 171192,
-       "sf_frames": 472,
-       "sf_fps": 68.6,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 25,
-       "sf_gap_p99": 25,
-       "sf_jank_pct": 89.2,
+       "wall_ms": 6895,
+       "cpu_pct": 57.4,
+       "rss_kb": 199764,
+       "sf_frames": 925,
+       "sf_fps": 134.2,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -3332,38 +3335,38 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "scroll2k",
-        "frames": 539,
+        "frames": 961,
         "work_ms": [
-         7.069,
-         9.307,
-         11.441,
-         16.752
+         8.18,
+         9.314,
+         9.958,
+         16.755
         ],
         "interval_ms": [
-         16.664,
-         16.923,
-         17.205,
-         17.604
+         8.309,
+         9.533,
+         10.193,
+         10.936
         ],
-        "jank": 422,
+        "jank": 0,
         "budget_ms": 8.33,
-        "t": 15514.0
+        "t": 15511.7
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 1.31,
-        "acquire_p50": 0.1,
+        "present_p50": 0.43,
+        "acquire_p50": 3.7,
         "kinds": null
        },
-       "wall_ms": 6376,
-       "cpu_pct": 45.5,
-       "rss_kb": 165436,
-       "sf_frames": 451,
-       "sf_fps": 70.7,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 25,
-       "sf_gap_p99": 25,
-       "sf_jank_pct": 88.2,
+       "wall_ms": 6608,
+       "cpu_pct": 58.9,
+       "rss_kb": 161288,
+       "sf_frames": 889,
+       "sf_fps": 134.5,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -3379,38 +3382,38 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "storm20k",
-        "frames": 480,
+        "frames": 961,
         "work_ms": [
-         13.541,
-         18.104,
-         19.236,
-         21.99
+         8.245,
+         8.82,
+         9.04,
+         13.499
         ],
         "interval_ms": [
-         16.667,
-         18.193,
-         19.329,
-         22.196
+         8.336,
+         8.924,
+         9.149,
+         13.587
         ],
-        "jank": 477,
+        "jank": 1,
         "budget_ms": 8.33,
-        "t": 61513.8
+        "t": 61516.6
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 2.18,
-        "acquire_p50": 0.06,
+        "present_p50": 2.29,
+        "acquire_p50": 0.08,
         "kinds": null
        },
-       "wall_ms": 7175,
-       "cpu_pct": 83.2,
-       "rss_kb": 171688,
-       "sf_frames": 443,
-       "sf_fps": 61.7,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 25,
-       "sf_gap_p99": 25,
-       "sf_jank_pct": 77.7,
+       "wall_ms": 7381,
+       "cpu_pct": 74.0,
+       "rss_kb": 199500,
+       "sf_frames": 913,
+       "sf_fps": 123.7,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -3426,38 +3429,38 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "storm2k",
-        "frames": 480,
+        "frames": 948,
         "work_ms": [
-         13.346,
-         17.738,
-         18.955,
-         19.15
+         8.269,
+         10.999,
+         12.59,
+         14.117
         ],
         "interval_ms": [
-         16.667,
-         17.847,
-         19.064,
-         19.253
+         8.358,
+         11.161,
+         12.741,
+         14.269
         ],
-        "jank": 479,
+        "jank": 20,
         "budget_ms": 8.33,
-        "t": 31513.8
+        "t": 31506.3
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 2.17,
-        "acquire_p50": 0.06,
+        "present_p50": 2.04,
+        "acquire_p50": 0.05,
         "kinds": null
        },
-       "wall_ms": 7202,
-       "cpu_pct": 81.6,
-       "rss_kb": 171792,
-       "sf_frames": 437,
-       "sf_fps": 60.7,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 25,
-       "sf_gap_p99": 25,
-       "sf_jank_pct": 77.3,
+       "wall_ms": 7573,
+       "cpu_pct": 78.4,
+       "rss_kb": 199088,
+       "sf_frames": 906,
+       "sf_fps": 119.6,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 16,
+       "sf_jank_pct": 1.3,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -3475,10 +3478,10 @@
         "phase": "tick20k",
         "frames": 1,
         "work_ms": [
-         10.349,
-         10.349,
-         10.349,
-         10.349
+         4.916,
+         4.916,
+         4.916,
+         4.916
         ],
         "interval_ms": [
          0.0,
@@ -3488,17 +3491,17 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 36508.8
+        "t": 36507.5
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 1.0,
-        "acquire_p50": 0.06,
+        "present_p50": 0.31,
+        "acquire_p50": 0.05,
         "kinds": null
        },
-       "wall_ms": 617,
-       "cpu_pct": 1.6,
-       "rss_kb": 166172,
+       "wall_ms": 689,
+       "cpu_pct": 2.9,
+       "rss_kb": 194220,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -3516,10 +3519,10 @@
         "phase": "tick2k",
         "frames": 1,
         "work_ms": [
-         20.851,
-         20.851,
-         20.851,
-         20.851
+         15.567,
+         15.567,
+         15.567,
+         15.567
         ],
         "interval_ms": [
          0.0,
@@ -3529,17 +3532,17 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 6507.3
+        "t": 6506.5
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 1.24,
+        "present_p50": 0.4,
         "acquire_p50": 0.04,
         "kinds": null
        },
-       "wall_ms": 119,
-       "cpu_pct": 0.0,
-       "rss_kb": 101652,
+       "wall_ms": 485,
+       "cpu_pct": 6.2,
+       "rss_kb": 130868,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -3554,17 +3557,16 @@
      "quality": "blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)",
      "rate_log": [
       "window#primary reports 120.0Hz; frame budget follows it, falling to 60 Hz while it cannot be held",
-      "performance hint unavailable (the system declined a session)",
-      "window#primary asks for 120 Hz at start; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)",
-      "window#primary frame rate 120 -> 60 Hz on a 120 Hz panel; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)"
+      "performance hint on (target 8.33 ms)",
+      "window#primary asks for 120 Hz at start; asked (ANativeWindow_setFrameRateWithChangeStrategy, seamless only)"
      ]
     }
    }
   },
   {
-   "device": "R3GL105R47R",
+   "device": "RFGL1225WVM",
    "info": {
-    "device_name": "R3GL105R47R",
+    "device_name": "RFGL1225WVM",
     "model": "SM-S948U1",
     "android": "16",
     "sdk": "36",
@@ -3575,20 +3577,20 @@
     "density": "450",
     "refresh_hz": "120.00001",
     "apk_file_bytes_valdi": "9688517",
-    "valdi_apk_sha256": "764b06bac62e821e",
+    "valdi_apk_sha256": "ba48eb4bf755ef66",
     "apk_bytes_dev.vieww.marketwatch": "2814368",
     "apk_bytes_com.snap.valdi.marketwatch": "9688517",
     "apk_file_bytes_vieww": "2814368",
     "mode": "quick",
-    "vieww-cpu_cold_start_ms": "100 100",
-    "vieww-cpu_pid": "24958",
-    "vieww-cpu_battery_temp_dC": "191",
-    "vieww-cpu_pss_kb": "101994",
+    "vieww-cpu_cold_start_ms": "108 103",
+    "vieww-cpu_pid": "9322",
+    "vieww-cpu_battery_temp_dC": "221",
+    "vieww-cpu_pss_kb": "102699",
     "vieww-cpu_status": "PASS",
-    "vieww-gpu_cold_start_ms": "106 95",
-    "vieww-gpu_pid": "19423",
-    "vieww-gpu_battery_temp_dC": "193",
-    "vieww-gpu_pss_kb": "223048",
+    "vieww-gpu_cold_start_ms": "108 104",
+    "vieww-gpu_pid": "24824",
+    "vieww-gpu_battery_temp_dC": "216",
+    "vieww-gpu_pss_kb": "222358",
     "vieww-gpu_status": "PASS",
     "status": "PASS"
    },
@@ -3597,12 +3599,12 @@
     "vieww-cpu": {
      "status": "PASS",
      "cold_start_ms": [
-      100.0,
-      100.0
+      108.0,
+      103.0
      ],
-     "cold_start_median": 100.0,
-     "pss_kb": "101994",
-     "battery_temp_dC": "191",
+     "cold_start_median": 105.5,
+     "pss_kb": "102699",
+     "battery_temp_dC": "221",
      "phases": {
       "idle20k": {
        "app": {
@@ -3611,10 +3613,10 @@
         "phase": "idle20k",
         "frames": 1,
         "work_ms": [
-         0.221,
-         0.221,
-         0.221,
-         0.221
+         0.199,
+         0.199,
+         0.199,
+         0.199
         ],
         "interval_ms": [
          0.0,
@@ -3624,7 +3626,7 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 35507.4
+        "t": 35501.8
        },
        "stages": {
         "raster_p50": 0.01,
@@ -3668,9 +3670,9 @@
          ]
         }
        },
-       "wall_ms": 1186,
-       "cpu_pct": 2.5,
-       "rss_kb": 229080,
+       "wall_ms": 619,
+       "cpu_pct": 1.6,
+       "rss_kb": 231244,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -3688,10 +3690,10 @@
         "phase": "idle2k",
         "frames": 1,
         "work_ms": [
-         0.073,
-         0.073,
-         0.073,
-         0.073
+         0.233,
+         0.233,
+         0.233,
+         0.233
         ],
         "interval_ms": [
          0.0,
@@ -3701,10 +3703,10 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 5501.7
+        "t": 5504.2
        },
        "stages": {
-        "raster_p50": 0.0,
+        "raster_p50": 0.02,
         "present_p50": 0.0,
         "acquire_p50": 0.0,
         "kinds": {
@@ -3745,9 +3747,9 @@
          ]
         }
        },
-       "wall_ms": 931,
-       "cpu_pct": 3.2,
-       "rss_kb": 206944,
+       "wall_ms": 1330,
+       "cpu_pct": 1.5,
+       "rss_kb": 207780,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -3765,10 +3767,10 @@
         "phase": "jump20k",
         "frames": 1,
         "work_ms": [
-         27.072,
-         27.072,
-         27.072,
-         27.072
+         24.958,
+         24.958,
+         24.958,
+         24.958
         ],
         "interval_ms": [
          0.0,
@@ -3778,27 +3780,27 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 37514.0
+        "t": 37502.1
        },
        "stages": {
-        "raster_p50": 23.0,
-        "present_p50": 1.17,
+        "raster_p50": 20.93,
+        "present_p50": 1.25,
         "acquire_p50": 0.07,
         "kinds": {
          "rects": [
-          5.28,
-          5.28,
-          5.28
+          4.88,
+          4.88,
+          4.88
          ],
          "paths": [
-          9.17,
-          9.17,
-          9.17
+          8.21,
+          8.21,
+          8.21
          ],
          "text": [
-          1.09,
-          1.09,
-          1.09
+          1.07,
+          1.07,
+          1.07
          ],
          "images": [
           0.0,
@@ -3806,9 +3808,9 @@
           0.0
          ],
          "shadows": [
-          2.23,
-          2.23,
-          2.23
+          1.99,
+          1.99,
+          1.99
          ],
          "layers": [
           0.0,
@@ -3822,15 +3824,15 @@
          ]
         }
        },
-       "wall_ms": 96,
-       "cpu_pct": 41.7,
-       "rss_kb": 229376,
-       "sf_frames": 35,
-       "sf_fps": 364.6,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 16,
-       "sf_gap_p99": 16,
-       "sf_jank_pct": 97.1,
+       "wall_ms": 107,
+       "cpu_pct": 65.4,
+       "rss_kb": 231440,
+       "sf_frames": 58,
+       "sf_fps": 542.1,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -3848,10 +3850,10 @@
         "phase": "jump2k",
         "frames": 1,
         "work_ms": [
-         39.846,
-         39.846,
-         39.846,
-         39.846
+         29.768,
+         29.768,
+         29.768,
+         29.768
         ],
         "interval_ms": [
          0.0,
@@ -3861,27 +3863,27 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 7503.4
+        "t": 7501.3
        },
        "stages": {
-        "raster_p50": 33.09,
-        "present_p50": 1.29,
-        "acquire_p50": 0.06,
+        "raster_p50": 25.56,
+        "present_p50": 1.24,
+        "acquire_p50": 0.1,
         "kinds": {
          "rects": [
-          8.62,
-          8.62,
-          8.62
+          5.6,
+          5.6,
+          5.6
          ],
          "paths": [
-          12.77,
-          12.77,
-          12.77
+          8.7,
+          8.7,
+          8.7
          ],
          "text": [
-          3.73,
-          3.73,
-          3.73
+          3.45,
+          3.45,
+          3.45
          ],
          "images": [
           0.0,
@@ -3889,9 +3891,9 @@
           0.0
          ],
          "shadows": [
-          2.37,
-          2.37,
-          2.37
+          2.27,
+          2.27,
+          2.27
          ],
          "layers": [
           0.0,
@@ -3905,14 +3907,14 @@
          ]
         }
        },
-       "wall_ms": 104,
-       "cpu_pct": 28.8,
-       "rss_kb": 210032,
-       "sf_frames": 25,
-       "sf_fps": 240.4,
+       "wall_ms": 65,
+       "cpu_pct": 61.5,
+       "rss_kb": 210692,
+       "sf_frames": 27,
+       "sf_fps": 415.4,
        "sf_gap_p50": 8,
        "sf_gap_p95": 8,
-       "sf_gap_p99": 8,
+       "sf_gap_p99": 12,
        "sf_jank_pct": 0.0,
        "hwui": {
         "frames": 0,
@@ -3929,42 +3931,42 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "live20k",
-        "frames": 480,
+        "frames": 953,
         "work_ms": [
-         10.608,
-         14.082,
-         18.096,
-         18.763
+         7.005,
+         8.591,
+         9.859,
+         11.564
         ],
         "interval_ms": [
-         16.667,
-         16.729,
-         18.172,
-         18.841
+         8.334,
+         8.604,
+         9.827,
+         10.505
         ],
-        "jank": 479,
+        "jank": 0,
         "budget_ms": 8.33,
-        "t": 53517.5
+        "t": 53505.5
        },
        "stages": {
-        "raster_p50": 8.77,
-        "present_p50": 1.31,
-        "acquire_p50": 0.05,
+        "raster_p50": 4.97,
+        "present_p50": 1.13,
+        "acquire_p50": 0.03,
         "kinds": {
          "rects": [
-          0.95,
-          1.25,
-          2.11
+          0.55,
+          0.75,
+          1.03
          ],
          "paths": [
-          3.94,
-          4.82,
-          7.72
+          2.19,
+          2.83,
+          4.18
          ],
          "text": [
-          0.67,
-          0.84,
-          1.51
+          0.38,
+          0.5,
+          0.83
          ],
          "images": [
           0.0,
@@ -3972,9 +3974,9 @@
           0.0
          ],
          "shadows": [
-          0.5,
-          0.85,
-          1.82
+          0.29,
+          0.46,
+          1.27
          ],
          "layers": [
           0.0,
@@ -3988,15 +3990,15 @@
          ]
         }
        },
-       "wall_ms": 7696,
-       "cpu_pct": 73.5,
-       "rss_kb": 231560,
-       "sf_frames": 485,
-       "sf_fps": 63.0,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 16,
-       "sf_gap_p99": 16,
-       "sf_jank_pct": 100.0,
+       "wall_ms": 7421,
+       "cpu_pct": 90.7,
+       "rss_kb": 232600,
+       "sf_frames": 954,
+       "sf_fps": 128.6,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.7,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -4012,42 +4014,42 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "live2k",
-        "frames": 480,
+        "frames": 953,
         "work_ms": [
-         11.086,
-         14.498,
-         15.763,
-         18.169
+         6.885,
+         8.567,
+         9.578,
+         10.741
         ],
         "interval_ms": [
-         16.667,
-         16.734,
-         16.791,
-         18.237
+         8.334,
+         8.613,
+         9.62,
+         10.506
         ],
-        "jank": 479,
+        "jank": 0,
         "budget_ms": 8.33,
-        "t": 23517.5
+        "t": 23503.7
        },
        "stages": {
-        "raster_p50": 9.04,
-        "present_p50": 1.37,
-        "acquire_p50": 0.05,
+        "raster_p50": 4.87,
+        "present_p50": 1.15,
+        "acquire_p50": 0.02,
         "kinds": {
          "rects": [
-          1.0,
-          1.29,
-          1.72
+          0.56,
+          0.75,
+          1.14
          ],
          "paths": [
-          4.05,
-          5.02,
-          7.25
+          2.16,
+          2.82,
+          3.52
          ],
          "text": [
-          0.68,
-          0.85,
-          1.21
+          0.38,
+          0.5,
+          0.8
          ],
          "images": [
           0.0,
@@ -4055,9 +4057,9 @@
           0.0
          ],
          "shadows": [
-          0.55,
-          0.87,
-          1.41
+          0.22,
+          0.47,
+          0.83
          ],
          "layers": [
           0.0,
@@ -4071,15 +4073,15 @@
          ]
         }
        },
-       "wall_ms": 7773,
-       "cpu_pct": 75.0,
-       "rss_kb": 219548,
-       "sf_frames": 490,
-       "sf_fps": 63.0,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 16,
-       "sf_gap_p99": 16,
-       "sf_jank_pct": 100.0,
+       "wall_ms": 7856,
+       "cpu_pct": 91.8,
+       "rss_kb": 221944,
+       "sf_frames": 990,
+       "sf_fps": 126.0,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.7,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -4097,10 +4099,10 @@
         "phase": "load20k",
         "frames": 1,
         "work_ms": [
-         20.265,
-         20.265,
-         20.265,
-         20.265
+         11.08,
+         11.08,
+         11.08,
+         11.08
         ],
         "interval_ms": [
          0.0,
@@ -4110,27 +4112,27 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 33504.2
+        "t": 33501.7
        },
        "stages": {
-        "raster_p50": 17.32,
-        "present_p50": 1.14,
-        "acquire_p50": 0.05,
+        "raster_p50": 8.84,
+        "present_p50": 1.16,
+        "acquire_p50": 0.03,
         "kinds": {
          "rects": [
-          2.37,
-          2.37,
-          2.37
+          1.45,
+          1.45,
+          1.45
          ],
          "paths": [
-          6.96,
-          6.96,
-          6.96
+          3.88,
+          3.88,
+          3.88
          ],
          "text": [
-          1.32,
-          1.32,
-          1.32
+          0.79,
+          0.79,
+          0.79
          ],
          "images": [
           0.0,
@@ -4138,9 +4140,9 @@
           0.0
          ],
          "shadows": [
-          1.89,
-          1.89,
-          1.89
+          0.81,
+          0.81,
+          0.81
          ],
          "layers": [
           0.0,
@@ -4154,9 +4156,9 @@
          ]
         }
        },
-       "wall_ms": 1114,
-       "cpu_pct": 0.9,
-       "rss_kb": 229988,
+       "wall_ms": 1591,
+       "cpu_pct": 0.0,
+       "rss_kb": 233708,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -4174,40 +4176,40 @@
         "phase": "load2k",
         "frames": 3,
         "work_ms": [
-         11.913,
-         24.565,
-         24.565,
-         24.565
+         12.246,
+         21.252,
+         21.252,
+         21.252
         ],
         "interval_ms": [
-         3443.639,
-         3443.639,
-         3443.639,
-         3443.639
+         3446.164,
+         3446.164,
+         3446.164,
+         3446.164
         ],
-        "jank": 1,
+        "jank": 2,
         "budget_ms": 8.33,
-        "t": 3500.6
+        "t": 3501.4
        },
        "stages": {
-        "raster_p50": 8.56,
-        "present_p50": 0.84,
+        "raster_p50": 8.69,
+        "present_p50": 1.13,
         "acquire_p50": 0.19,
         "kinds": {
          "rects": [
-          1.61,
-          2.09,
-          2.09
+          1.59,
+          2.0,
+          2.0
          ],
          "paths": [
-          3.66,
-          4.82,
-          4.82
+          3.77,
+          4.48,
+          4.48
          ],
          "text": [
-          0.62,
-          2.79,
-          2.79
+          0.61,
+          2.66,
+          2.66
          ],
          "images": [
           0.0,
@@ -4215,9 +4217,9 @@
           0.0
          ],
          "shadows": [
-          0.8,
-          2.69,
-          2.69
+          0.82,
+          2.86,
+          2.86
          ],
          "layers": [
           0.0,
@@ -4231,9 +4233,9 @@
          ]
         }
        },
-       "wall_ms": 3179,
+       "wall_ms": 3287,
        "cpu_pct": 0.0,
-       "rss_kb": 208648,
+       "rss_kb": 209288,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -4249,42 +4251,42 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "scroll20k",
-        "frames": 481,
+        "frames": 957,
         "work_ms": [
-         8.158,
-         12.988,
-         14.05,
-         16.699
+         5.365,
+         8.227,
+         9.041,
+         9.804
         ],
         "interval_ms": [
-         16.667,
-         16.779,
-         16.876,
-         18.118
+         8.334,
+         8.4,
+         9.093,
+         9.854
         ],
-        "jank": 479,
+        "jank": 0,
         "budget_ms": 8.33,
-        "t": 45517.5
+        "t": 45504.6
        },
        "stages": {
-        "raster_p50": 5.45,
-        "present_p50": 1.95,
-        "acquire_p50": 0.05,
+        "raster_p50": 3.14,
+        "present_p50": 1.18,
+        "acquire_p50": 0.06,
         "kinds": {
          "rects": [
-          0.67,
-          1.17,
-          1.51
+          0.4,
+          0.66,
+          0.99
          ],
          "paths": [
-          1.59,
-          2.62,
-          3.27
+          0.92,
+          1.37,
+          2.09
          ],
          "text": [
+          0.14,
           0.23,
-          0.47,
-          0.68
+          0.39
          ],
          "images": [
           0.0,
@@ -4292,9 +4294,9 @@
           0.0
          ],
          "shadows": [
-          0.92,
-          1.24,
-          2.28
+          0.51,
+          0.82,
+          1.53
          ],
          "layers": [
           0.0,
@@ -4308,15 +4310,15 @@
          ]
         }
        },
-       "wall_ms": 7062,
-       "cpu_pct": 58.9,
-       "rss_kb": 230752,
-       "sf_frames": 467,
-       "sf_fps": 66.1,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 16,
-       "sf_gap_p99": 16,
-       "sf_jank_pct": 100.0,
+       "wall_ms": 7204,
+       "cpu_pct": 66.6,
+       "rss_kb": 232464,
+       "sf_frames": 944,
+       "sf_fps": 131.0,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.4,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -4332,42 +4334,42 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "scroll2k",
-        "frames": 599,
+        "frames": 956,
         "work_ms": [
-         7.304,
-         12.501,
-         13.819,
-         16.373
+         5.807,
+         8.384,
+         9.212,
+         13.572
         ],
         "interval_ms": [
-         16.659,
-         16.717,
-         16.805,
-         16.905
+         8.334,
+         8.461,
+         9.27,
+         13.78
         ],
-        "jank": 361,
+        "jank": 1,
         "budget_ms": 8.33,
-        "t": 15517.5
+        "t": 15507.7
        },
        "stages": {
-        "raster_p50": 4.67,
-        "present_p50": 1.5,
-        "acquire_p50": 0.05,
+        "raster_p50": 3.24,
+        "present_p50": 1.22,
+        "acquire_p50": 0.51,
         "kinds": {
          "rects": [
-          0.57,
-          1.1,
-          1.61
+          0.41,
+          0.72,
+          1.06
          ],
          "paths": [
-          1.26,
-          2.47,
-          3.3
+          0.96,
+          1.46,
+          2.11
          ],
          "text": [
-          0.26,
-          0.49,
-          1.09
+          0.17,
+          0.3,
+          0.73
          ],
          "images": [
           0.0,
@@ -4375,9 +4377,9 @@
           0.0
          ],
          "shadows": [
-          0.73,
-          1.2,
-          2.19
+          0.52,
+          0.94,
+          1.5
          ],
          "layers": [
           0.0,
@@ -4391,15 +4393,15 @@
          ]
         }
        },
-       "wall_ms": 7225,
-       "cpu_pct": 60.2,
-       "rss_kb": 217272,
-       "sf_frames": 573,
-       "sf_fps": 79.3,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 16,
-       "sf_gap_p99": 16,
-       "sf_jank_pct": 65.4,
+       "wall_ms": 7194,
+       "cpu_pct": 70.2,
+       "rss_kb": 219192,
+       "sf_frames": 934,
+       "sf_fps": 129.8,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.5,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -4415,42 +4417,42 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "storm20k",
-        "frames": 480,
+        "frames": 940,
         "work_ms": [
-         12.694,
-         17.113,
-         19.058,
-         20.64
+         6.64,
+         9.382,
+         10.173,
+         11.609
         ],
         "interval_ms": [
-         16.667,
-         17.262,
-         19.258,
-         20.713
+         8.334,
+         9.432,
+         10.224,
+         11.663
         ],
-        "jank": 479,
+        "jank": 0,
         "budget_ms": 8.33,
-        "t": 61517.5
+        "t": 61507.4
        },
        "stages": {
-        "raster_p50": 10.99,
-        "present_p50": 1.32,
-        "acquire_p50": 0.05,
+        "raster_p50": 4.85,
+        "present_p50": 0.89,
+        "acquire_p50": 0.03,
         "kinds": {
          "rects": [
-          1.33,
-          1.78,
-          3.51
+          0.49,
+          0.63,
+          0.8
          ],
          "paths": [
-          4.81,
-          6.27,
-          8.16
+          2.78,
+          4.18,
+          5.61
          ],
          "text": [
-          0.62,
-          0.76,
-          2.34
+          0.42,
+          0.59,
+          2.12
          ],
          "images": [
           0.0,
@@ -4458,9 +4460,9 @@
           0.0
          ],
          "shadows": [
-          0.86,
-          1.33,
-          2.85
+          0.01,
+          0.02,
+          0.12
          ],
          "layers": [
           0.0,
@@ -4474,15 +4476,15 @@
          ]
         }
        },
-       "wall_ms": 7456,
-       "cpu_pct": 79.8,
-       "rss_kb": 230500,
-       "sf_frames": 431,
-       "sf_fps": 57.8,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 16,
+       "wall_ms": 7474,
+       "cpu_pct": 85.5,
+       "rss_kb": 231956,
+       "sf_frames": 854,
+       "sf_fps": 114.3,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
        "sf_gap_p99": 16,
-       "sf_jank_pct": 100.0,
+       "sf_jank_pct": 2.2,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -4498,42 +4500,42 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "storm2k",
-        "frames": 480,
+        "frames": 959,
         "work_ms": [
-         13.131,
-         14.078,
-         15.054,
-         17.063
+         7.148,
+         8.036,
+         8.258,
+         13.785
         ],
         "interval_ms": [
-         16.667,
-         16.673,
-         16.718,
-         16.727
+         8.334,
+         8.335,
+         8.384,
+         9.095
         ],
-        "jank": 479,
+        "jank": 0,
         "budget_ms": 8.33,
-        "t": 31517.5
+        "t": 31503.6
        },
        "stages": {
-        "raster_p50": 11.65,
-        "present_p50": 0.87,
-        "acquire_p50": 0.04,
+        "raster_p50": 5.71,
+        "present_p50": 1.03,
+        "acquire_p50": 0.02,
         "kinds": {
          "rects": [
-          1.38,
-          1.52,
-          2.0
+          0.77,
+          0.8,
+          1.37
          ],
          "paths": [
-          5.06,
-          5.4,
-          6.66
+          2.56,
+          2.59,
+          5.12
          ],
          "text": [
-          0.57,
-          0.61,
-          0.75
+          0.32,
+          0.34,
+          0.54
          ],
          "images": [
           0.0,
@@ -4541,9 +4543,9 @@
           0.0
          ],
          "shadows": [
-          0.97,
-          1.03,
-          1.27
+          0.38,
+          0.4,
+          1.08
          ],
          "layers": [
           0.0,
@@ -4557,15 +4559,15 @@
          ]
         }
        },
-       "wall_ms": 7534,
-       "cpu_pct": 81.6,
-       "rss_kb": 229988,
-       "sf_frames": 444,
-       "sf_fps": 58.9,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 16,
-       "sf_gap_p99": 16,
-       "sf_jank_pct": 100.0,
+       "wall_ms": 7363,
+       "cpu_pct": 93.0,
+       "rss_kb": 233708,
+       "sf_frames": 875,
+       "sf_fps": 118.8,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -4583,10 +4585,10 @@
         "phase": "tick20k",
         "frames": 1,
         "work_ms": [
-         12.687,
-         12.687,
-         12.687,
-         12.687
+         14.243,
+         14.243,
+         14.243,
+         14.243
         ],
         "interval_ms": [
          0.0,
@@ -4596,27 +4598,27 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 36510.6
+        "t": 36502.0
        },
        "stages": {
-        "raster_p50": 8.9,
-        "present_p50": 2.31,
-        "acquire_p50": 0.15,
+        "raster_p50": 10.87,
+        "present_p50": 2.02,
+        "acquire_p50": 0.11,
         "kinds": {
          "rects": [
-          0.7,
-          0.7,
-          0.7
+          0.93,
+          0.93,
+          0.93
          ],
          "paths": [
-          5.46,
-          5.46,
-          5.46
+          6.36,
+          6.36,
+          6.36
          ],
          "text": [
-          0.71,
-          0.71,
-          0.71
+          0.9,
+          0.9,
+          0.9
          ],
          "images": [
           0.0,
@@ -4640,9 +4642,9 @@
          ]
         }
        },
-       "wall_ms": 642,
-       "cpu_pct": 4.7,
-       "rss_kb": 230640,
+       "wall_ms": 679,
+       "cpu_pct": 4.4,
+       "rss_kb": 232924,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -4660,10 +4662,10 @@
         "phase": "tick2k",
         "frames": 1,
         "work_ms": [
-         14.632,
-         14.632,
-         14.632,
-         14.632
+         17.041,
+         17.041,
+         17.041,
+         17.041
         ],
         "interval_ms": [
          0.0,
@@ -4673,27 +4675,27 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 6501.6
+        "t": 6501.5
        },
        "stages": {
-        "raster_p50": 11.87,
+        "raster_p50": 13.89,
         "present_p50": 1.68,
-        "acquire_p50": 0.09,
+        "acquire_p50": 0.11,
         "kinds": {
          "rects": [
-          1.19,
-          1.19,
-          1.19
+          1.49,
+          1.49,
+          1.49
          ],
          "paths": [
-          4.76,
-          4.76,
-          4.76
+          5.14,
+          5.14,
+          5.14
          ],
          "text": [
-          3.36,
-          3.36,
-          3.36
+          4.25,
+          4.25,
+          4.25
          ],
          "images": [
           0.0,
@@ -4717,9 +4719,9 @@
          ]
         }
        },
-       "wall_ms": 510,
-       "cpu_pct": 7.8,
-       "rss_kb": 209572,
+       "wall_ms": 553,
+       "cpu_pct": 7.2,
+       "rss_kb": 210336,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -4735,19 +4737,18 @@
      "rate_log": [
       "window#primary reports 120.0Hz; frame budget follows it, falling to 60 Hz while it cannot be held",
       "performance hint on (target 8.33 ms)",
-      "window#primary asks for 120 Hz at start; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)",
-      "window#primary frame rate 120 -> 60 Hz on a 120 Hz panel; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)"
+      "window#primary asks for 120 Hz at start; asked (ANativeWindow_setFrameRateWithChangeStrategy, seamless only)"
      ]
     },
     "vieww-gpu": {
      "status": "PASS",
      "cold_start_ms": [
-      106.0,
-      95.0
+      108.0,
+      104.0
      ],
-     "cold_start_median": 100.5,
-     "pss_kb": "223048",
-     "battery_temp_dC": "193",
+     "cold_start_median": 106.0,
+     "pss_kb": "222358",
+     "battery_temp_dC": "216",
      "phases": {
       "idle20k": {
        "app": {
@@ -4756,10 +4757,10 @@
         "phase": "idle20k",
         "frames": 1,
         "work_ms": [
-         2.706,
-         2.706,
-         2.706,
-         2.706
+         2.181,
+         2.181,
+         2.181,
+         2.181
         ],
         "interval_ms": [
          0.0,
@@ -4769,17 +4770,17 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 35504.9
+        "t": 35501.5
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.45,
-        "acquire_p50": 0.13,
+        "present_p50": 0.29,
+        "acquire_p50": 0.07,
         "kinds": null
        },
-       "wall_ms": 1073,
-       "cpu_pct": 1.9,
-       "rss_kb": 232916,
+       "wall_ms": 1546,
+       "cpu_pct": 0.6,
+       "rss_kb": 232872,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -4797,10 +4798,10 @@
         "phase": "idle2k",
         "frames": 1,
         "work_ms": [
-         1.752,
-         1.752,
-         1.752,
-         1.752
+         1.581,
+         1.581,
+         1.581,
+         1.581
         ],
         "interval_ms": [
          0.0,
@@ -4810,17 +4811,17 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 5501.7
+        "t": 5502.3
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.32,
+        "present_p50": 0.28,
         "acquire_p50": 0.03,
         "kinds": null
        },
-       "wall_ms": 940,
-       "cpu_pct": 2.1,
-       "rss_kb": 167980,
+       "wall_ms": 982,
+       "cpu_pct": 1.0,
+       "rss_kb": 169000,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -4838,10 +4839,10 @@
         "phase": "jump20k",
         "frames": 1,
         "work_ms": [
-         14.346,
-         14.346,
-         14.346,
-         14.346
+         7.299,
+         7.299,
+         7.299,
+         7.299
         ],
         "interval_ms": [
          0.0,
@@ -4851,23 +4852,23 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 37505.1
+        "t": 37501.7
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.35,
-        "acquire_p50": 0.07,
+        "present_p50": 0.17,
+        "acquire_p50": 0.04,
         "kinds": null
        },
-       "wall_ms": 93,
-       "cpu_pct": 21.5,
-       "rss_kb": 232976,
-       "sf_frames": 27,
-       "sf_fps": 290.3,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 16,
-       "sf_gap_p99": 16,
-       "sf_jank_pct": 96.3,
+       "wall_ms": 119,
+       "cpu_pct": 33.6,
+       "rss_kb": 234188,
+       "sf_frames": 56,
+       "sf_fps": 470.6,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -4885,10 +4886,10 @@
         "phase": "jump2k",
         "frames": 1,
         "work_ms": [
-         15.092,
-         15.092,
-         15.092,
-         15.092
+         20.774,
+         20.774,
+         20.774,
+         20.774
         ],
         "interval_ms": [
          0.0,
@@ -4898,19 +4899,19 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 7502.1
+        "t": 7501.0
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.17,
+        "present_p50": 0.25,
         "acquire_p50": 0.02,
         "kinds": null
        },
-       "wall_ms": 104,
-       "cpu_pct": 28.8,
-       "rss_kb": 181144,
-       "sf_frames": 25,
-       "sf_fps": 240.4,
+       "wall_ms": 105,
+       "cpu_pct": 38.1,
+       "rss_kb": 188756,
+       "sf_frames": 49,
+       "sf_fps": 466.7,
        "sf_gap_p50": 8,
        "sf_gap_p95": 8,
        "sf_gap_p99": 8,
@@ -4930,38 +4931,38 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "live20k",
-        "frames": 537,
+        "frames": 960,
         "work_ms": [
-         8.113,
-         11.754,
-         12.842,
-         13.935
+         8.296,
+         9.147,
+         10.318,
+         13.048
         ],
         "interval_ms": [
-         16.665,
-         16.788,
-         16.863,
-         16.9
+         8.334,
+         9.188,
+         10.366,
+         13.09
         ],
-        "jank": 423,
+        "jank": 1,
         "budget_ms": 8.33,
-        "t": 53509.9
+        "t": 53505.8
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.16,
-        "acquire_p50": 0.02,
+        "present_p50": 3.41,
+        "acquire_p50": 0.01,
         "kinds": null
        },
-       "wall_ms": 7411,
-       "cpu_pct": 51.5,
-       "rss_kb": 234064,
-       "sf_frames": 497,
-       "sf_fps": 67.1,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 16,
-       "sf_gap_p99": 16,
-       "sf_jank_pct": 89.5,
+       "wall_ms": 7354,
+       "cpu_pct": 63.6,
+       "rss_kb": 234772,
+       "sf_frames": 931,
+       "sf_fps": 126.6,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -4977,38 +4978,38 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "live2k",
-        "frames": 480,
+        "frames": 961,
         "work_ms": [
-         7.969,
-         12.819,
-         14.272,
-         20.35
+         8.308,
+         9.834,
+         10.416,
+         20.29
         ],
         "interval_ms": [
-         16.667,
-         16.807,
-         16.893,
-         20.392
+         8.341,
+         9.874,
+         10.453,
+         20.333
         ],
-        "jank": 479,
+        "jank": 1,
         "budget_ms": 8.33,
-        "t": 23516.8
+        "t": 23509.1
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.17,
-        "acquire_p50": 0.03,
+        "present_p50": 3.57,
+        "acquire_p50": 0.01,
         "kinds": null
        },
-       "wall_ms": 7237,
-       "cpu_pct": 54.3,
-       "rss_kb": 224128,
-       "sf_frames": 464,
-       "sf_fps": 64.1,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 16,
-       "sf_gap_p99": 16,
-       "sf_jank_pct": 100.0,
+       "wall_ms": 7444,
+       "cpu_pct": 61.3,
+       "rss_kb": 223968,
+       "sf_frames": 945,
+       "sf_fps": 126.9,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -5026,10 +5027,10 @@
         "phase": "load20k",
         "frames": 1,
         "work_ms": [
-         12.552,
-         12.552,
-         12.552,
-         12.552
+         7.657,
+         7.657,
+         7.657,
+         7.657
         ],
         "interval_ms": [
          0.0,
@@ -5039,17 +5040,17 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 33504.9
+        "t": 33501.3
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.1,
-        "acquire_p50": 0.02,
+        "present_p50": 0.07,
+        "acquire_p50": 0.01,
         "kinds": null
        },
-       "wall_ms": 1537,
+       "wall_ms": 1110,
        "cpu_pct": 0.0,
-       "rss_kb": 231504,
+       "rss_kb": 232836,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -5067,30 +5068,30 @@
         "phase": "load2k",
         "frames": 3,
         "work_ms": [
-         2.963,
-         13.899,
-         13.899,
-         13.899
+         3.062,
+         13.246,
+         13.246,
+         13.246
         ],
         "interval_ms": [
-         3459.807,
-         3459.807,
-         3459.807,
-         3459.807
+         3461.912,
+         3461.912,
+         3461.912,
+         3461.912
         ],
         "jank": 1,
         "budget_ms": 8.33,
-        "t": 3501.1
+        "t": 3501.2
        },
        "stages": {
         "raster_p50": 0.0,
         "present_p50": 0.1,
-        "acquire_p50": 0.0,
+        "acquire_p50": 0.01,
         "kinds": null
        },
        "wall_ms": 3510,
        "cpu_pct": 0.0,
-       "rss_kb": 165040,
+       "rss_kb": 166016,
        "sf_frames": 2,
        "sf_fps": 0.6,
        "sf_gap_p50": 8,
@@ -5112,38 +5113,38 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "scroll20k",
-        "frames": 484,
+        "frames": 963,
         "work_ms": [
-         3.302,
-         5.9,
-         9.748,
-         16.119
+         8.279,
+         8.62,
+         9.654,
+         11.938
         ],
         "interval_ms": [
-         16.667,
-         16.727,
-         16.855,
-         16.906
+         8.328,
+         8.678,
+         9.696,
+         12.379
         ],
-        "jank": 478,
+        "jank": 0,
         "budget_ms": 8.33,
-        "t": 45506.3
+        "t": 45506.5
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.15,
+        "present_p50": 5.23,
         "acquire_p50": 0.02,
         "kinds": null
        },
-       "wall_ms": 7161,
-       "cpu_pct": 26.5,
-       "rss_kb": 233640,
-       "sf_frames": 500,
-       "sf_fps": 69.8,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 16,
-       "sf_gap_p99": 16,
-       "sf_jank_pct": 88.8,
+       "wall_ms": 7188,
+       "cpu_pct": 44.4,
+       "rss_kb": 236096,
+       "sf_frames": 951,
+       "sf_fps": 132.3,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -5159,38 +5160,38 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "scroll2k",
-        "frames": 541,
+        "frames": 962,
         "work_ms": [
-         4.352,
-         8.919,
-         10.121,
-         19.616
+         8.283,
+         9.526,
+         10.109,
+         12.216
         ],
         "interval_ms": [
-         16.666,
-         16.738,
-         16.835,
-         16.906
+         8.332,
+         9.566,
+         10.089,
+         12.192
         ],
-        "jank": 422,
+        "jank": 0,
         "budget_ms": 8.33,
-        "t": 15516.9
+        "t": 15501.0
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.18,
-        "acquire_p50": 0.02,
+        "present_p50": 3.89,
+        "acquire_p50": 0.91,
         "kinds": null
        },
-       "wall_ms": 7406,
-       "cpu_pct": 29.2,
-       "rss_kb": 223272,
-       "sf_frames": 527,
-       "sf_fps": 71.2,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 16,
-       "sf_gap_p99": 16,
-       "sf_jank_pct": 84.6,
+       "wall_ms": 7047,
+       "cpu_pct": 45.8,
+       "rss_kb": 223648,
+       "sf_frames": 941,
+       "sf_fps": 133.5,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -5206,38 +5207,38 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "storm20k",
-        "frames": 480,
+        "frames": 960,
         "work_ms": [
-         9.844,
-         12.964,
-         13.635,
-         14.331
+         8.304,
+         8.64,
+         8.858,
+         11.024
         ],
         "interval_ms": [
-         16.667,
-         16.746,
-         16.82,
-         16.848
+         8.33,
+         8.688,
+         8.923,
+         11.068
         ],
-        "jank": 479,
+        "jank": 0,
         "budget_ms": 8.33,
-        "t": 61509.8
+        "t": 61506.2
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.12,
-        "acquire_p50": 0.02,
+        "present_p50": 2.56,
+        "acquire_p50": 0.01,
         "kinds": null
        },
-       "wall_ms": 7570,
-       "cpu_pct": 58.1,
-       "rss_kb": 234096,
-       "sf_frames": 454,
-       "sf_fps": 60.0,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 16,
-       "sf_gap_p99": 16,
-       "sf_jank_pct": 100.0,
+       "wall_ms": 7471,
+       "cpu_pct": 66.9,
+       "rss_kb": 233884,
+       "sf_frames": 903,
+       "sf_fps": 120.9,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -5253,38 +5254,38 @@
         "fw": "vieww",
         "ev": "stats",
         "phase": "storm2k",
-        "frames": 480,
+        "frames": 960,
         "work_ms": [
-         9.479,
-         12.803,
-         13.693,
-         16.035
+         8.306,
+         10.206,
+         10.459,
+         11.794
         ],
         "interval_ms": [
-         16.667,
-         16.753,
-         16.853,
-         16.919
+         8.333,
+         10.228,
+         10.484,
+         11.828
         ],
-        "jank": 479,
+        "jank": 0,
         "budget_ms": 8.33,
-        "t": 31516.8
+        "t": 31508.7
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.13,
-        "acquire_p50": 0.02,
+        "present_p50": 2.97,
+        "acquire_p50": 0.01,
         "kinds": null
        },
-       "wall_ms": 7460,
-       "cpu_pct": 59.0,
-       "rss_kb": 232684,
-       "sf_frames": 457,
-       "sf_fps": 61.3,
-       "sf_gap_p50": 16,
-       "sf_gap_p95": 16,
-       "sf_gap_p99": 16,
-       "sf_jank_pct": 100.0,
+       "wall_ms": 7677,
+       "cpu_pct": 63.4,
+       "rss_kb": 233696,
+       "sf_frames": 908,
+       "sf_fps": 118.3,
+       "sf_gap_p50": 8,
+       "sf_gap_p95": 8,
+       "sf_gap_p99": 8,
+       "sf_jank_pct": 0.0,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -5302,10 +5303,10 @@
         "phase": "tick20k",
         "frames": 1,
         "work_ms": [
-         10.651,
-         10.651,
-         10.651,
-         10.651
+         7.268,
+         7.268,
+         7.268,
+         7.268
         ],
         "interval_ms": [
          0.0,
@@ -5315,17 +5316,17 @@
         ],
         "jank": 0,
         "budget_ms": 8.33,
-        "t": 36505.0
+        "t": 36501.7
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.47,
-        "acquire_p50": 0.09,
+        "present_p50": 0.56,
+        "acquire_p50": 0.08,
         "kinds": null
        },
-       "wall_ms": 598,
-       "cpu_pct": 3.3,
-       "rss_kb": 232876,
+       "wall_ms": 72,
+       "cpu_pct": 0.0,
+       "rss_kb": 233104,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -5343,10 +5344,10 @@
         "phase": "tick2k",
         "frames": 1,
         "work_ms": [
-         12.042,
-         12.042,
-         12.042,
-         12.042
+         13.399,
+         13.399,
+         13.399,
+         13.399
         ],
         "interval_ms": [
          0.0,
@@ -5360,13 +5361,13 @@
        },
        "stages": {
         "raster_p50": 0.0,
-        "present_p50": 0.24,
-        "acquire_p50": 0.03,
+        "present_p50": 0.4,
+        "acquire_p50": 0.05,
         "kinds": null
        },
-       "wall_ms": 535,
-       "cpu_pct": 1.9,
-       "rss_kb": 170872,
+       "wall_ms": 562,
+       "cpu_pct": 3.6,
+       "rss_kb": 171688,
        "hwui": {
         "frames": 0,
         "janky": 0,
@@ -5382,10 +5383,7 @@
      "rate_log": [
       "window#primary reports 120.0Hz; frame budget follows it, falling to 60 Hz while it cannot be held",
       "performance hint on (target 8.33 ms)",
-      "window#primary asks for 120 Hz at start; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)",
-      "window#primary frame rate 120 -> 60 Hz on a 120 Hz panel; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)",
-      "window#primary frame rate 60 -> 120 Hz on a 120 Hz panel; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)",
-      "window#primary frame rate 120 -> 60 Hz on a 120 Hz panel; asked (ANativeWindow_setFrameRateWithChangeStrategy, always)"
+      "window#primary asks for 120 Hz at start; asked (ANativeWindow_setFrameRateWithChangeStrategy, seamless only)"
      ]
     }
    }
