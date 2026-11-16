@@ -1038,16 +1038,7 @@ impl VulkanSwapchain {
                 VulkanError::Vulkan("surface offers no R8G8B8A8/B8G8R8A8 UNORM format".into())
             })?;
 
-        // FIFO is the one present mode every conformant implementation must
-        // support (vsync — a UI has no reason to present faster than the
-        // display refreshes, same choice `vieww_paint::gpu`'s
-        // `PresentMode::AutoVsync` makes); MAILBOX if it happens to be
-        // offered, for lower latency without tearing.
-        let present_mode = present_modes
-            .iter()
-            .copied()
-            .find(|&m| m == vk::PresentModeKHR::MAILBOX)
-            .unwrap_or(vk::PresentModeKHR::FIFO);
+        let present_mode = choose_present_mode(&present_modes);
 
         let extent = if capabilities.current_extent.width != u32::MAX {
             capabilities.current_extent
@@ -1385,4 +1376,42 @@ fn required_extension_names_are_c_strings(names: &[*const c_char]) -> Vec<&CStr>
         .iter()
         .map(|&p| unsafe { CStr::from_ptr(p) })
         .collect()
+}
+
+/// The swapchain's present mode: always FIFO (vsync), the one mode every
+/// conformant implementation must support. This is the same choice
+/// `vieww_paint::gpu`'s `PresentMode::AutoVsync` makes.
+///
+/// MAILBOX was preferred when offered, and that let the frame loop run
+/// unpaced. The wide comparison (run 43879609229, 2026-11-16) measured it:
+/// - Pixel 5, 90 Hz: 1,051 frames rendered in 7 s at 7.5 ms intervals, and
+///   SurfaceFlinger showed 4 of them (0.6 fps).
+/// - SM8850, 120 Hz: about 460 frames a second rendered, 52 shown.
+///
+/// Frames that are replaced in the mailbox are pure waste: battery, heat,
+/// and on those drivers the frames the user should have seen. A UI has no
+/// reason to render faster than the display refreshes. FIFO blocks the
+/// acquire at the panel's rate, which paces the loop for free.
+fn choose_present_mode(offered: &[vk::PresentModeKHR]) -> vk::PresentModeKHR {
+    let _ = offered; // FIFO is guaranteed; the list is kept for the log.
+    vk::PresentModeKHR::FIFO
+}
+
+#[cfg(test)]
+mod present_mode_tests {
+    use super::*;
+
+    #[test]
+    fn fifo_even_when_mailbox_is_offered() {
+        let offered = [
+            vk::PresentModeKHR::MAILBOX,
+            vk::PresentModeKHR::FIFO,
+            vk::PresentModeKHR::IMMEDIATE,
+        ];
+        assert_eq!(choose_present_mode(&offered), vk::PresentModeKHR::FIFO);
+        assert_eq!(
+            choose_present_mode(&[vk::PresentModeKHR::FIFO]),
+            vk::PresentModeKHR::FIFO
+        );
+    }
 }
