@@ -1,0 +1,691 @@
+--------- beginning of main
+11-16 15:02:33.357  2525 24585 I WS1_SecureChannelUtil: Decrypted sc-key successfully! 2317/2355
+11-16 15:02:33.358  2525 24585 I WS1_OpenSSLCryptUtil: Is r-key null ? false
+11-16 15:02:33.358  2525 24585 I WS1_OpenSSLCryptUtil: Length of r-key : 2317
+11-16 15:02:33.356  2525  2525 W Q-Sampler: type=1400 audit(0.0:9623): avc: denied { nlmsg_readpriv } for scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tclass=netlink_route_socket permissive=0 bug=b/155595000 app=com.airwatch.androidagent
+11-16 15:02:33.360  2525 24585 I WS1_TamperChecker: CompDetectionResponse is 4
+11-16 15:02:33.361  2525 24585 I WS1_TamperChecker: DI status=false
+11-16 15:02:33.361  2525 24585 I WS1_TamperChecker: At launch: Root status=false
+11-16 15:02:33.362  2525 24585 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 15:02:33.363  2525 24585 I WS1_TamperChecker: Bootloader tamper status=true
+11-16 15:02:33.363  2525 24585 I WS1_TamperChecker: Root status=false
+11-16 15:02:33.364  2525 24585 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 15:02:33.360  2525  2525 W Q-Sampler: type=1400 audit(0.0:9624): avc: denied { read } for name="u:object_r:build_bootimage_prop:s0" dev="tmpfs" ino=115 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:build_bootimage_prop:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:02:33.364  2525 24585 W libc    : Access denied finding property "ro.product.bootimage.brand"
+11-16 15:02:33.365  2525 24585 I NativeSecChnl: Finding SDK Logger class!
+11-16 15:02:33.365  2525 24585 W NativeSecChnl: SDK Logger class is invalid, logging via android logger!
+11-16 15:02:33.365  2525 24585 D NativeSecChnl: RSA byte array length = 2317
+11-16 15:02:33.366  2525 24585 I NativeSecChnl: Finding SDK Logger class!
+11-16 15:02:33.366  2525 24585 W NativeSecChnl: SDK Logger class is invalid, logging via android logger!
+11-16 15:02:33.366  2525 24585 I NativeSecChnl: CMS Extract enveloped CMS, Decrypt Enveloped Cms Start
+11-16 15:02:33.381  2525 24585 I WS1_AWSecureMsg: SC response is decrypted - size: 22
+11-16 15:02:33.382  2525 24585 I AW_Native: Finding SDK Logger class!
+11-16 15:02:33.382  2525 24585 W AW_Native: SDK Logger class is invalid, logging via android logger!
+11-16 15:02:33.382  2525 24585 I AW_Native: sha1Algo 
+11-16 15:02:33.382  2525 24585 I AW_Native: Finding SDK Logger class!
+11-16 15:02:33.382  2525 24585 W AW_Native: SDK Logger class is invalid, logging via android logger!
+11-16 15:02:33.382  2525 24585 D AW_Native: aw_Generate_Seed_Hash : cleaning up inByte.
+11-16 15:02:33.383  2525 24585 I WS1_SecureChannelUtil: SC: DI thumbprint: FAD65A381031B144F8725AD9F5E5FD169F56DFC7/0C627CC542B18093DDEDA2E92A97776C46108B6EFCE035EC52FD55087A5F4316
+11-16 15:02:33.384  2525 24585 I WS1_SecureChannelUtil: SC: DI cert updated at: 1781397769000, validity: Sun Jun 14 00:42:49 UTC 2026/Wed Jun 11 00:42:49 UTC 2036
+11-16 15:02:33.384  2525 24585 I WS1_SCEventListener: SC Decrypt - Done
+11-16 15:02:33.384  2525 24585 E WS1_InterrogatorMessage: Interrogator not ready. reserved flag: -64
+11-16 15:02:33.385  2525 24585 I WS1_Aggregator: SendHTTP: sample files with status : 200
+11-16 15:02:33.385  2525 24585 W WS1_AndroidEnterpriseMigrationSampleNotifier: No callback set
+11-16 15:02:33.385  2525 24585 I WS1_Aggregator: Clearing reported sample files since data is uploaded to console
+11-16 15:02:33.385  2525 24585 I WS1_Aggregator: All reported sample files cleared
+11-16 15:02:33.392  2525 24585 I WS1_Aggregator: Sample sent, so deleting the cache file sampleCache.1
+11-16 15:02:33.393  2525 24585 I WS1_Aggregator: Aggregator.aggregate END
+11-16 15:02:33.394  2525 24585 I WS1_SamplingExecutionHelper: release WakeLock, Idle mode = false
+11-16 15:02:33.539   522  1616 D TimeStats: Cleared global stats
+11-16 15:02:33.539   522  1616 D TimeStats: Cleared layer stats
+11-16 15:02:33.664   522  1616 D TimeStats: Enabled
+11-16 15:02:33.817 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+--------- beginning of system
+11-16 15:02:33.817  1467  8586 D CompatibilityChangeReporter: Compat change id reported: 161252188; UID 10247; state: ENABLED
+11-16 15:02:33.818  1467  8586 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=dev.vieww.marketwatch/android.app.NativeActivity} from uid 2000
+11-16 15:02:33.838  1467  3945 D CoreBackPreview: Window{8b17191 u0 Splash Screen dev.vieww.marketwatch}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@facef64, mPriority=0}
+11-16 15:02:33.840  1467  1519 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10247; state: DISABLED
+11-16 15:02:33.840  1467  1519 D CompatibilityChangeReporter: Compat change id reported: 177438394; UID 10247; state: DISABLED
+11-16 15:02:33.841  1467  1519 D CompatibilityChangeReporter: Compat change id reported: 135772972; UID 10247; state: DISABLED
+11-16 15:02:33.841  1467  1519 D CompatibilityChangeReporter: Compat change id reported: 135754954; UID 10247; state: ENABLED
+11-16 15:02:33.841  1467  1527 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10247; state: ENABLED
+11-16 15:02:33.847   939   939 D Zygote  : Forked child process 24623
+11-16 15:02:33.849  1467  1527 I ActivityManager: Start proc 24623:dev.vieww.marketwatch/u0a247 for next-top-activity {dev.vieww.marketwatch/android.app.NativeActivity}
+11-16 15:02:33.862 24623 24623 E eww.marketwatch: Not starting debugger since process cannot load the jdwp agent.
+11-16 15:02:33.869 24623 24623 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10247; state: ENABLED
+11-16 15:02:33.875 16074 16074 I chip    : (REDACTED) onApplyWindowInsets: systemWindowInsets=%s
+11-16 15:02:33.875 16074 16074 I chip    : (REDACTED) onApplyWindowInsets: systemWindowInsets=%s
+11-16 15:02:33.881 24623 24623 V GraphicsEnvironment: ANGLE Developer option for 'dev.vieww.marketwatch' set to: 'default'
+11-16 15:02:33.881 24623 24623 V GraphicsEnvironment: ANGLE GameManagerService for dev.vieww.marketwatch: false
+11-16 15:02:33.881 24623 24623 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-16 15:02:33.885 24623 24623 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-16 15:02:33.885 24623 24623 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-16 15:02:33.889 24623 24641 D vulkan  : searching for layers in '/data/app/~~69e4P3RQw4UW2Fqvz_xJNw==/dev.vieww.marketwatch-9ML27r4Mq_RlLB8ryhmboQ==/lib/arm64'
+11-16 15:02:33.889 24623 24641 D vulkan  : searching for layers in '/data/app/~~69e4P3RQw4UW2Fqvz_xJNw==/dev.vieww.marketwatch-9ML27r4Mq_RlLB8ryhmboQ==/base.apk!/lib/arm64-v8a'
+11-16 15:02:33.897 24623 24623 I android-activity: Creating: Activity = 0x2e66, saved state size = 0
+11-16 15:02:33.935 16074 16074 I chpi    : onPause
+11-16 15:02:33.936 16074 16074 W dyej    : measuring already stopped.
+11-16 15:02:33.954 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"start","path":"cpu","phases":16}
+11-16 15:02:33.962  1467  3945 D CoreBackPreview: Window{dc5e72c u0 dev.vieww.marketwatch/android.app.NativeActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@8f05f8a, mPriority=0}
+11-16 15:02:33.984 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"surface","w":411,"h":914,"t":30.5}
+11-16 15:02:33.984 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"quality","line":"blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)","t":30.6}
+11-16 15:02:33.984 24623 24652 I vieww   : vieww_platform_winit::insets: display refresh: 90.0Hz from Display.getRefreshRate()
+11-16 15:02:33.984 24623 24652 I vieww   : vieww_platform_winit::app: vieww: window#primary reports 90.0Hz; frame budget follows it, falling to 60 Hz while it cannot be held
+11-16 15:02:33.988 24623 24652 I vieww   : vieww_platform_winit::insets: window insets: bars [0, 118, 0, 126] ime [0, 0, 0, 0] physical at 2.625x -> SystemInsets { safe_area: EdgeInsets { left: 0.0, top: 44.95238, right: 0.0, bottom: 48.0 }, keyboard: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } }
+11-16 15:02:33.991  1467  1516 I ActivityTaskManager: Displayed dev.vieww.marketwatch/android.app.NativeActivity: +171ms
+11-16 15:02:33.992 16074 16074 I chpi    : onStop
+11-16 15:02:33.994  9285  9367 D OneSearchSuggestProvider: Shut down the binder channel
+11-16 15:02:33.996 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load2k","t":42.5}
+11-16 15:02:33.996  9285 18011 I s.nexuslauncher: oneway function results for code 2 on binder at 0xb400006ff98c9440 will be dropped but finished with status UNKNOWN_TRANSACTION
+11-16 15:02:33.996  1467  5915 D CompatibilityChangeReporter: Compat change id reported: 214016041; UID 10247; state: ENABLED
+11-16 15:02:34.007  1467  5915 D CoreBackPreview: Window{8b17191 u0 Splash Screen dev.vieww.marketwatch EXITING}: Setting back callback null
+11-16 15:02:34.007  1467  8586 W InputManager-JNI: Input channel object '8b17191 Splash Screen dev.vieww.marketwatch (client)' was disposed without first being removed with the input manager!
+11-16 15:02:34.009 14866 14866 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2276 
+11-16 15:02:34.011 14866 24248 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatusInternal():129 repeatCheckTimes = 0, locked = false
+11-16 15:02:34.012 14866 14866 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1460 onStartInput(EditorInfo{EditorInfo{packageName=dev.vieww.marketwatch, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=-1, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+11-16 15:02:34.012 14866 14866 I LatinIMEBase: LatinIMEBase.updateInputViewCoverNavigation():317 Update input view padding, isNavbarOverInputWindow=true, bottom inset=126
+11-16 15:02:34.013 14866 24277 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatusInternal():129 repeatCheckTimes = 1, locked = false
+11-16 15:02:34.060   455   455 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.allocator@4.0::IAllocator/default in either framework or device VINTF manifest.
+11-16 15:02:34.061   454   454 I servicemanager: Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-16 15:02:34.068 24623 24652 I vieww   : vieww_platform_winit::perf_hint: vieww: performance hint on (target 11.11 ms)
+11-16 15:02:34.068 24623 24652 I vieww   : vieww_platform_winit::a11y_android: a11y: host is the activity's content view
+11-16 15:02:34.068 24623 24652 I vieww   : vieww_platform_winit::a11y_android: a11y: the host sits at (0, 118) inside the window, so bounds are corrected by that much
+11-16 15:02:34.069 24623 24652 I vieww   : vieww_platform_winit::a11y_android: a11y: injected an AccessKit delegate into the activity's view
+11-16 15:02:34.825 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:34.920  1467  8586 W ProcessStats: Tracking association SourceState{25398bf system/1000 BTopFgs #24476} whose proc state 2 is better than process ProcessState{990fd32 com.google.android.gms.persistent/10159 pkg=com.google.android.gms} proc state 3 (105 skipped)
+11-16 15:02:35.281 18853 23077 E PlayCommon: [168] Metalog directories were deleted unexpectedly, recreating...
+11-16 15:02:35.313   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:02:35.464   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:02:35.492  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:02:35.837 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:36.844 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:37.459 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load2k","frames":3,"work_ms":[31.538,67.785,67.785,67.785],"interval_ms":[3356.221,3356.221,3356.221,3356.221],"jank":2,"budget_ms":11.11,"t":3504.7}
+11-16 15:02:37.459 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load2k","frames":3,"build_ms":[0.41,8.38,8.38],"raster_ms":[21.94,52.21,52.21],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[1.03,3.22,3.22],"present_ms":[3.89,8.42,8.42],"gpu_ms":[0,0,0],"budget_ms_end":11.11,"scale_ms":[0.08,0.19,0.19],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[3.08,3.74,3.74],"paths":[8.89,9.07,9.07],"text":[1.90,6.66,6.66],"images":[0.00,0.00,0.00],"shadows":[2.80,5.68,5.68],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":3504.8}
+11-16 15:02:37.459 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"idle2k","t":3504.9}
+11-16 15:02:37.803   522  1616 D TimeStats: Dumping TimeStats as text
+11-16 15:02:37.853 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:37.916   522  1616 D TimeStats: Cleared global stats
+11-16 15:02:37.916   522  1616 D TimeStats: Cleared layer stats
+11-16 15:02:38.348 24730 24730 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-16 15:02:38.370   454   454 I servicemanager: Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-16 15:02:38.493   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:02:38.597   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:02:38.630  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:02:38.864 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:39.261 17127 17135 W gle.android.gms: Reducing the number of considered missed Gc histogram windows from 826 to 100
+11-16 15:02:39.462 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"idle2k","frames":1,"work_ms":[0.333,0.333,0.333,0.333],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":5507.8}
+11-16 15:02:39.462 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"idle2k","frames":1,"build_ms":[0.18,0.18,0.18],"raster_ms":[0.06,0.06,0.06],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.00,0.00,0.00],"present_ms":[0.00,0.00,0.00],"gpu_ms":[0,0,0],"budget_ms_end":11.11,"scale_ms":[0.09,0.09,0.09],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[0.00,0.00,0.00],"paths":[0.00,0.00,0.00],"text":[0.00,0.00,0.00],"images":[0.00,0.00,0.00],"shadows":[0.00,0.00,0.00],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":5508.1}
+11-16 15:02:39.462 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"tick2k","t":5508.1}
+11-16 15:02:39.855   522  1616 D TimeStats: Dumping TimeStats as text
+11-16 15:02:39.872 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:39.934   522  1616 D TimeStats: Cleared global stats
+11-16 15:02:39.935   522  1616 D TimeStats: Cleared layer stats
+11-16 15:02:40.461 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"tick2k","frames":1,"work_ms":[32.184,32.184,32.184,32.184],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":6507.3}
+11-16 15:02:40.461 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"tick2k","frames":1,"build_ms":[2.49,2.49,2.49],"raster_ms":[22.90,22.90,22.90],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.74,0.74,0.74],"present_ms":[5.94,5.94,5.94],"gpu_ms":[0,0,0],"budget_ms_end":11.11,"scale_ms":[0.11,0.11,0.11],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[0.92,0.92,0.92],"paths":[14.50,14.50,14.50],"text":[3.64,3.64,3.64],"images":[0.00,0.00,0.00],"shadows":[0.08,0.08,0.08],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":6507.6}
+11-16 15:02:40.461 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"jump2k","t":6507.7}
+11-16 15:02:40.880 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:41.038   522  1616 D TimeStats: Dumping TimeStats as text
+11-16 15:02:41.151   522  1616 D TimeStats: Cleared global stats
+11-16 15:02:41.152   522  1616 D TimeStats: Cleared layer stats
+11-16 15:02:41.461 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"jump2k","frames":1,"work_ms":[101.316,101.316,101.316,101.316],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":7507.1}
+11-16 15:02:41.461 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"jump2k","frames":1,"build_ms":[14.25,14.25,14.25],"raster_ms":[82.90,82.90,82.90],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.43,0.43,0.43],"present_ms":[3.58,3.58,3.58],"gpu_ms":[0,0,0],"budget_ms_end":11.11,"scale_ms":[0.15,0.15,0.15],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[12.46,12.46,12.46],"paths":[36.34,36.34,36.34],"text":[11.26,11.26,11.26],"images":[0.00,0.00,0.00],"shadows":[9.16,9.16,9.16],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":7507.2}
+11-16 15:02:41.461 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"scroll2k","t":7507.2}
+11-16 15:02:41.562 24802 24802 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-16 15:02:41.583   454   454 I servicemanager: Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-16 15:02:41.633   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:02:41.733   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:02:41.761  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:02:41.898 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:42.154   522   557 D TimeStats: Dumping TimeStats as text
+11-16 15:02:42.270   522   557 D TimeStats: Cleared global stats
+11-16 15:02:42.270   522   557 D TimeStats: Cleared layer stats
+11-16 15:02:42.476 24623 24652 I vieww   : vieww_platform_winit::app: vieww: window#primary frame rate 90 -> 60 Hz on a 90 Hz panel; asked (ANativeWindow_setFrameRate)
+11-16 15:02:42.480   524   561 D display : setActiveConfigWithConstraints:: PrimaryDisplay config(35) test(0)
+11-16 15:02:42.486  1467  1519 I DisplayDeviceRepository: Display device changed: DisplayDeviceInfo{"Built-in Screen": uniqueId="local:4619827677550801152", 1080 x 2400, modeId 1, defaultModeId 1, supportedModes [{id=1, width=1080, height=2400, fps=60.0, alternativeRefreshRates=[90.0]}, {id=2, width=1080, height=2400, fps=90.0, alternativeRefreshRates=[60.0]}], colorMode 0, supportedColorModes [0, 7, 9], hdrCapabilities HdrCapabilities{mSupportedHdrTypes=[2, 3, 4], mMaxLuminance=1000.0, mMaxAverageLuminance=120.0, mMinLuminance=5.0E-4}, allmSupported false, gameContentTypeSupported false, density 420, 415.636 x 417.534 dpi, appVsyncOff 6233334, presDeadline 11500000, cutout DisplayCutout{insets=Rect(0, 118 - 0, 0) waterfall=Insets{left=0, top=0, right=0, bottom=0} boundingRect={Bounds=[Rect(0, 0 - 0, 0), Rect(480, 0 - 625, 118), Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0)]} cutoutPathParserInfo={CutoutPathParserInfo{displayWidth=1080 displayHeight=2400 physicalDisplayWidth=1080 physicalDisplayHeight=2400 density={2.625} cutoutSpec={M 506,68 a 34,34 0 1 0 68,0 34,34 0 1 0 -68,0 Z @left} rotation={0} scale={1.0} physicalPixelDisplaySizeRatio={1.0}}}}, touch INTERNAL, rotation 0, type INTERNAL, address {port=0, model=0x401ceccbbbeef1}, deviceProductInfo DeviceProductInfo{name=Common Panel, manufacturerPnpId=GGL, productId=0, modelYear=null, manufactureDate=ManufactureDate{week=1, year=1990}, connectionToSinkType=0}, state ON, frameRateOverride , brightnessMinimum 0.0, brightnessMaximum 1.0, brightnessDefault 0.17429718, roundedCorners RoundedCorners{[RoundedCorner{position=TopLeft, radius=47, center=Point(47, 47)}, RoundedCorner{position=TopRight, radius=47, center=Point(1033, 47)}, RoundedCorner{position=BottomRight, radius=48, center=Point(1032, 2352)}, RoundedCorner{position=BottomLeft, radius=48, center=Point(48, 2352)}]}, FLAG_ALLOWED_TO_BE_DEFAULT_DISPLAY, FLAG_ROTATES_WITH_CONTENT, FLAG_SECURE, FLAG_SUPPORTS_PROTECTED_BUFFERS, installOrientation 0}
+11-16 15:02:42.649 25486 25486 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-16 15:02:42.670   454   454 I servicemanager: Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-16 15:02:42.908 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:43.857   505 24591 I keystore2: keystore2::watchdog: Watchdog thread idle -> terminating. Have a great day.
+11-16 15:02:43.917 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:44.760   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:02:44.866   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:02:44.893  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:02:44.921 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:45.928 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:46.934 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:47.876 17127 17127 W ThreadPoolForeg: type=1400 audit(0.0:9625): avc: denied { write } for name="traced_producer" dev="tmpfs" ino=1090 scontext=u:r:gmscore_app:s0:c512,c768 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0 app=com.google.android.gms
+11-16 15:02:47.895   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:02:47.941 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:48.001   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:02:48.030  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:02:48.828 17059 17059 W ThreadPoolForeg: type=1400 audit(0.0:9626): avc: denied { write } for name="traced_producer" dev="tmpfs" ino=1090 scontext=u:r:gmscore_app:s0:c512,c768 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0 app=com.google.android.gms
+11-16 15:02:48.947 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:49.468 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"scroll2k","frames":508,"work_ms":[10.583,14.038,15.587,17.736],"interval_ms":[16.664,17.083,17.321,17.804],"jank":211,"budget_ms":11.11,"t":15513.9}
+11-16 15:02:49.468 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"scroll2k","frames":508,"build_ms":[0.51,0.85,1.95],"raster_ms":[4.50,6.45,10.00],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.51,3.36,7.00],"present_ms":[3.94,5.54,7.61],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.03,0.04,0.11],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[0.33,0.51,0.90],"paths":[0.94,1.33,1.84],"text":[0.22,0.38,0.84],"images":[0.00,0.00,0.00],"shadows":[0.41,0.66,1.95],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":15514.2}
+11-16 15:02:49.468 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"live2k","t":15514.2}
+11-16 15:02:49.722   522  1616 D TimeStats: Dumping TimeStats as text
+11-16 15:02:49.836   522  1616 D TimeStats: Cleared global stats
+11-16 15:02:49.836   522  1616 D TimeStats: Cleared layer stats
+11-16 15:02:49.950 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:50.955 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:51.033   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:02:51.140   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:02:51.170  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:02:51.963 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:52.967 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:53.973 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:54.174   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:02:54.279   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:02:54.306  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:02:54.979 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:55.983 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:56.991 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:57.309   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:02:57.415   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:02:57.442  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:02:57.468 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"live2k","frames":480,"work_ms":[12.425,16.499,17.410,17.948],"interval_ms":[16.667,16.915,17.527,18.044],"jank":229,"budget_ms":11.11,"t":23513.7}
+11-16 15:02:57.468 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"live2k","frames":480,"build_ms":[0.68,0.90,1.31],"raster_ms":[6.85,7.78,12.09],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.38,4.86,7.06],"present_ms":[3.27,4.23,6.15],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.02,0.02,0.09],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[0.56,0.70,0.98],"paths":[2.59,3.06,4.40],"text":[0.65,0.77,1.10],"images":[0.00,0.00,0.00],"shadows":[0.30,0.51,0.83],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":23513.9}
+11-16 15:02:57.468 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"storm2k","t":23513.9}
+11-16 15:02:57.997 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:02:58.014   522   557 D TimeStats: Dumping TimeStats as text
+11-16 15:02:58.119   522   557 D TimeStats: Cleared global stats
+11-16 15:02:58.119   522   557 D TimeStats: Cleared layer stats
+11-16 15:02:59.001 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:00.004 10272 10292 I AiAiEcho: (REDACTED) Predicting[%d]: %s
+11-16 15:03:00.004 10272 10292 I AiAiEcho: (REDACTED) EchoTargets: %s
+11-16 15:03:00.004 10272 10292 I AiAiEcho: Filtered by AiAi flag check: %s
+11-16 15:03:00.005 10272 10292 I AiAiEcho: (REDACTED) Ranked targets strategy: %s, count: %d, ranking metadata: %s
+11-16 15:03:00.005 10272 10292 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+11-16 15:03:00.005 10272 10292 I AiAiEcho: (REDACTED) Predicting[%d]: %s
+11-16 15:03:00.005 10272 10292 I AiAiEcho: (REDACTED) EchoTargets: %s
+11-16 15:03:00.005 10272 10292 I AiAiEcho: Filtered by AiAi flag check: %s
+11-16 15:03:00.005 10272 10292 I AiAiEcho: (REDACTED) Ranked targets strategy: %s, count: %d, ranking metadata: %s
+11-16 15:03:00.006 10272 10292 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+11-16 15:03:00.008 10272 10292 I AiAiEcho: (REDACTED) #postPredictionTargets: Sending updates to UISurface %s with targets# %s (types=[%s])
+11-16 15:03:00.009 10272 10292 I AiAiEcho: (REDACTED) #postPredictionTargets: Sending updates to UISurface %s with targets# %s (types=[%s])
+11-16 15:03:00.010 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:00.010  9285  9285 E BcSmartspaceCard: No tap action can be set up
+11-16 15:03:00.022 18507 18525 I Finsky  : [55] Stats for Executor: LightweightExecutor ylx@6e455f5[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 959]
+11-16 15:03:00.033 18507 18525 I Finsky  : [55] Stats for Executor: BlockingExecutor ylx@1e76f8a[Running, pool size = 2, active threads = 0, queued tasks = 0, completed tasks = 237]
+11-16 15:03:00.033 18507 18525 I Finsky  : [55] Stats for Executor: bgExecutor ylx@242b9fb[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 2247]
+11-16 15:03:00.102 18507 18525 I Finsky  : [55] Stats for Executor: GrpcBackgroundExecutor ylx@e35da18[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 18]
+11-16 15:03:00.444   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:00.547   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:00.575  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:01.016 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:02.023 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:03.028 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:03.577   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:03.635   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:03.663  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:04.033 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:04.325   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:04.430   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:04.433  1467  1533 W BatteryExternalStatsWorker: error reading Bluetooth stats: 9
+11-16 15:03:04.557  2525  3727 I WS1_AfwUtils: Hub app user id: 0
+11-16 15:03:04.558  2525  3727 I WS1_AfwUtils: isWorkHubDiscoverable - false
+11-16 15:03:04.559  2525  3727 I WS1_SDKDataModelImpl: Returning in memory app token data!
+11-16 15:03:04.563  2525  3746 I DynDCD  : EnginePayloadProvider.cpp -> Loading Previously stored payload
+11-16 15:03:04.563  2525  3746 I DynDCD  : EnginePayloadProvider.cpp -> Trying to fetch rules from the Server
+11-16 15:03:04.563  2525  3746 I WS1_DynDCD_DynamicCDD: Trying to fetch rules from default source
+11-16 15:03:04.565  2525  3746 I WS1_AfwUtils: Hub app user id: 0
+11-16 15:03:04.566  2525  3746 I WS1_AfwUtils: isWorkHubDiscoverable - false
+11-16 15:03:04.566  2525  3746 I WS1_BaseMessage: Sending CddNetworkMessage to https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R
+11-16 15:03:04.567  2525  3746 I WS1     : Setting Timeout Values, Connection:30000, SO Timeout:30000
+11-16 15:03:04.568  2525  3746 I WS1_AppPermissionUtil: Getting signature for com.airwatch.androidagent
+11-16 15:03:04.573  2525  3746 I WS1_AppPermissionUtil: App access allowed with 0 for com.airwatch.androidagent
+11-16 15:03:04.576  2525  3746 I WS1_CorrelationLog: CorrelationID:895b95a5-c1b6-400f-0001-611150304576  for connection https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R
+11-16 15:03:04.594  2525  3746 D TrafficStats: tagSocket(155) with statsTag=0xffffffff, statsUid=-1
+11-16 15:03:04.629  2525  3746 I WS1_ExtendedX509TrustM: TrustMaterialAvailable, check the trust.
+11-16 15:03:04.630  2525  3746 I WS1_ADPublicKeyManager: sdk-config.data.workspaceone-gov.com is trusted by default
+11-16 15:03:04.630  2525  3746 I WS1_PinBasedTrustM: Key match status for sdk-config.data.workspaceone-gov.com/52.61.28.194: true
+11-16 15:03:04.631  2525  3746 I WS1_ExtendedX509TrustM: checkServerTrusted: Server certificate pin match for sdk-config.data.workspaceone-gov.com/52.61.28.194
+11-16 15:03:04.687  2525  3746 I WS1_BaseMessage: Response code for https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R 200
+11-16 15:03:04.688  2525  3746 I WS1     : Response code is: 200
+11-16 15:03:04.691  2525  3746 I WS1_DynDCD_DynamicCDD: Successfully fetched payload rules from WS1 FedRAMP domain
+11-16 15:03:04.692  2525  3746 I DynDCD  : EnginePayloadProvider.cpp -> Server payload is older than bundled payload.
+11-16 15:03:04.692  2525  3746 I DynDCD  : EnginePayloadProvider.cpp -> Bundled Payload last modified time: 1603812484
+11-16 15:03:04.692  2525  3746 I DynDCD  : EnginePayloadProvider.cpp -> Server Payload last received time: 1588786684
+11-16 15:03:04.697  2525  3746 I DynDCD  : Script -> Starting Dynamic Jail Break Check
+11-16 15:03:04.697  2525  3746 I DynDCD  : Script -> Running Checks
+11-16 15:03:04.740  3820  3820 W ls      : type=1400 audit(0.0:9627): avc: denied { getattr } for path="/system/etc/cgroups.json" dev="dm-7" ino=553 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:cgroup_desc_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:03:04.768  3820  3820 W ls      : type=1400 audit(0.0:9628): avc: denied { getattr } for path="/system/etc/selinux/plat_mac_permissions.xml" dev="dm-7" ino=895 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:mac_perms_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:03:04.768  3820  3820 W ls      : type=1400 audit(0.0:9629): avc: denied { getattr } for path="/system/etc/selinux/plat_seapp_contexts" dev="dm-7" ino=897 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:seapp_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:03:04.768  3820  3820 W ls      : type=1400 audit(0.0:9630): avc: denied { getattr } for path="/system/etc/selinux/plat_file_contexts" dev="dm-7" ino=892 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:file_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:03:04.768  3820  3820 W ls      : type=1400 audit(0.0:9631): avc: denied { getattr } for path="/system/etc/selinux/plat_service_contexts" dev="dm-7" ino=900 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:service_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:03:04.768  3820  3820 W ls      : type=1400 audit(0.0:9632): avc: denied { getattr } for path="/system/etc/selinux/plat_keystore2_key_contexts" dev="dm-7" ino=894 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:keystore2_key_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:03:04.768  3820  3820 W ls      : type=1400 audit(0.0:9633): avc: denied { getattr } for path="/system/etc/selinux/plat_sepolicy.cil" dev="dm-7" ino=898 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:sepolicy_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:03:04.768  3820  3820 W ls      : type=1400 audit(0.0:9634): avc: denied { getattr } for path="/system/etc/selinux/plat_hwservice_contexts" dev="dm-7" ino=893 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:hwservice_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:03:04.772  3820  3820 W ls      : type=1400 audit(0.0:9635): avc: denied { getattr } for path="/system/etc/selinux/mapping/29.0.cil" dev="dm-7" ino=883 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:sepolicy_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:03:04.878  1467  1843 I ActivityManager: Killing 21117:com.google.android.apps.carrier.carrierwifi/u0a141 (adj 965): empty for 5900s
+11-16 15:03:04.881  1467  1843 W ProcessStats: Tracking association SourceState{25398bf system/1000 BTopFgs #24479} whose proc state 2 is better than process ProcessState{990fd32 com.google.android.gms.persistent/10159 pkg=com.google.android.gms} proc state 3 (8 skipped)
+11-16 15:03:04.881 23810 23810 I EuiccGoogle: [2] EuiccServiceImpl.onDestroy: onDestroy: EuiccService on destroy.
+11-16 15:03:04.883  1467  1842 I ActivityManager: Killing 16172:com.google.android.googlequicksearchbox:search/u0a155 (adj 965): empty for 2979s
+11-16 15:03:04.885  1467  1528 I libprocessgroup: Successfully killed process cgroup uid 10141 pid 21117 in 6ms
+11-16 15:03:04.917   939   939 I Zygote  : Process 21117 exited due to signal 9 (Killed)
+11-16 15:03:04.918  1467  1528 I libprocessgroup: Successfully killed process cgroup uid 10155 pid 16172 in 0ms
+11-16 15:03:04.961  1467  1843 D ConnectivityService: ConnectivityService NetworkRequestInfo binderDied(uid/pid:10155/16172, [NetworkRequest [ LISTEN id=255, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10155 RequestorUid: 10155 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]], android.os.BinderProxy@6071123)
+11-16 15:03:04.961  1467  1843 D ConnectivityService: ConnectivityService NetworkRequestInfo binderDied(uid/pid:10155/16172, [NetworkRequest [ REQUEST id=254, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10155 RequestorUid: 10155 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]], android.os.BinderProxy@c4d2620)
+11-16 15:03:04.962  1467  1665 D ConnectivityService: releasing NetworkRequest [ REQUEST id=254, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10155 RequestorUid: 10155 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ] (release request)
+11-16 15:03:04.962   939   939 I Zygote  : Process 16172 exited due to signal 9 (Killed)
+11-16 15:03:05.038 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:05.474 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"storm2k","frames":473,"work_ms":[16.461,19.378,20.386,22.179],"interval_ms":[16.554,19.441,20.327,21.122],"jank":209,"budget_ms":11.11,"t":31519.7}
+11-16 15:03:05.474 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"storm2k","frames":473,"build_ms":[0.80,0.90,2.56],"raster_ms":[13.09,14.80,16.98],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.30,0.34,0.51],"present_ms":[2.18,3.26,5.20],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.02,0.02,0.09],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[1.33,1.64,2.03],"paths":[5.20,5.41,6.52],"text":[0.80,0.86,2.21],"images":[0.00,0.00,0.00],"shadows":[1.32,1.67,1.93],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":31519.9}
+11-16 15:03:05.474 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load20k","t":31519.9}
+11-16 15:03:05.750  2525  3746 I DynDCD  : Script -> Super User Scan Check : true
+11-16 15:03:05.750  2525  3746 I DynDCD  : Script -> Writable File Paths Check : true
+11-16 15:03:05.808  2525  3746 I DynDCD  : Script -> Installed Packages Check : true
+11-16 15:03:05.852  4197  4197 W sh      : type=1400 audit(0.0:9648): avc: denied { read } for name="/" dev="dm-7" ino=2 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:rootfs:s0 tclass=dir permissive=0 app=com.airwatch.androidagent
+11-16 15:03:05.876  4195  4195 W ls      : type=1400 audit(0.0:9649): avc: denied { getattr } for path="/system/etc/cgroups.json" dev="dm-7" ino=553 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:cgroup_desc_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:03:06.016  4195  4195 W ls      : type=1400 audit(0.0:9650): avc: denied { getattr } for path="/system/etc/selinux/plat_mac_permissions.xml" dev="dm-7" ino=895 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:mac_perms_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:03:06.016  4195  4195 W ls      : type=1400 audit(0.0:9651): avc: denied { getattr } for path="/system/etc/selinux/plat_seapp_contexts" dev="dm-7" ino=897 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:seapp_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:03:06.016  4195  4195 W ls      : type=1400 audit(0.0:9652): avc: denied { getattr } for path="/system/etc/selinux/plat_file_contexts" dev="dm-7" ino=892 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:file_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:03:06.028   522  1616 D TimeStats: Dumping TimeStats as text
+11-16 15:03:06.044 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:06.090   522  1616 D TimeStats: Cleared global stats
+11-16 15:03:06.090   522  1616 D TimeStats: Cleared layer stats
+11-16 15:03:06.664   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:06.715   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:06.746  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:07.037  2525  3746 I DynDCD  : Script -> Super User File Path Check : true
+11-16 15:03:07.047 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:07.084  2525  3746 I DynDCD  : Script -> Super User Check : true
+11-16 15:03:07.086  2525  3746 I DynDCD  : Script -> Xposed Check : true
+11-16 15:03:07.108  4229  4229 W ps      : type=1400 audit(0.0:9670): avc: denied { read } for name="pid_max" dev="proc" ino=235520 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:proc_pid_max:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:03:07.122  2525  3746 I DynDCD  : Script -> Malicious Files Check : true
+11-16 15:03:07.155  2525  3746 I DynDCD  : Script -> Ro Secure Flag Check : true
+11-16 15:03:07.157  2525  3746 I DynDCD  : Script -> Magisk String Check : true
+11-16 15:03:07.152  2525  2525 W Q-AirWatchDetec: type=1400 audit(0.0:9671): avc: denied { read } for name="unix" dev="proc" ino=4026532035 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:proc_net:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:03:07.158  2525  3746 D DynDCD  : Script -> [{"id":"BundledRules_SDK_20201027"},{"name":"superUserScan","passed":true},{"name":"writableFilePaths","passed":true},{"name":"installedPackages","passed":true},{"name":"superUserFilePath","passed":true},{"name":"superUser","passed":true},{"name":"xposed","passed":true},{"name":"maliciousFiles","passed":true},{"name":"roSecureFlag","passed":true},{"name":"magisk","passed":true},{"failedReasonCodes":[]}]
+11-16 15:03:07.164  2525  3746 I DynDCD  : EngineDelegateImpl.cpp -> Compromised detection successfully completed
+11-16 15:03:07.167  2525  3746 I WS1_DynDCD_DynamicCDD: Dynamic compromise detection is a success for rulesId: BundledRules_SDK_20201027!
+11-16 15:03:07.171  2525  2525 E WS1_DetailsLog: runDynamicCompromiseDetection passed SUCCESS
+11-16 15:03:07.174  2525  3746 I WS1_AirWatchApp: AW SDK, ENABLE_SDK_FRIDA_DETECTION: false , ENABLE_SDK_ROOT_DETECTION: false
+11-16 15:03:07.177  2525  3746 I WS1_TamperCheckService: Starting tamper checker!
+11-16 15:03:07.178  2525  3746 I NativeMain: Finding SDK Logger class!
+11-16 15:03:07.179  2525  3746 W NativeMain: SDK Logger class is invalid, logging via android logger!
+11-16 15:03:07.179  2525  3746 D NativeMain: tamper check initiated
+11-16 15:03:07.198  2525  3603 D WM-SystemJobScheduler: Scheduling work ID 7276d5a5-9123-4a6c-a931-404928e051e7Job ID 850410
+11-16 15:03:07.214  2525  2525 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=7276d5a5-9123-4a6c-a931-404928e051e7, generation=0)
+11-16 15:03:07.218  2525  3603 D WM-GreedyScheduler: Starting work for 7276d5a5-9123-4a6c-a931-404928e051e7
+11-16 15:03:07.221  2525  3612 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=7276d5a5-9123-4a6c-a931-404928e051e7, generation=0)
+11-16 15:03:07.223  2525  3612 D WM-Processor: Work WorkGenerationalId(workSpecId=7276d5a5-9123-4a6c-a931-404928e051e7, generation=0) is already enqueued for processing
+11-16 15:03:07.225  2525  3612 W WS1_SE_SmpWrkFct_BHQUIZ: com.airwatch.app.TamperCheckerWorker not resolved in SamplingWorkerFactory
+11-16 15:03:07.226  2525  3612 W WS1_IntentProcessorWorkerFct: com.airwatch.app.TamperCheckerWorker not resolved
+11-16 15:03:07.226  2525  3612 E WS1_TaskWorkerFactory: Worker class:com.airwatch.app.TamperCheckerWorker not resolved in TaskWorkerFactory
+11-16 15:03:07.230  2525  2525 D WM-WorkerWrapper: Starting work for com.airwatch.app.TamperCheckerWorker
+11-16 15:03:07.232  2525  2525 W Thread-49: type=1400 audit(0.0:9672): avc: denied { read } for name="u:object_r:build_bootimage_prop:s0" dev="tmpfs" ino=115 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:build_bootimage_prop:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 15:03:07.234  2525  4232 I WS1_TamperChecker: CompDetectionResponse is 21
+11-16 15:03:07.235  2525  4232 I WS1_TamperChecker: DI status=false
+11-16 15:03:07.236  2525  4232 I WS1_TamperChecker: At launch: Root status=false
+11-16 15:03:07.236  2525  4232 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 15:03:07.236  2525  4232 I WS1_TamperChecker: Bootloader tamper status=true
+11-16 15:03:07.236  2525  4232 I WS1_TamperChecker: Root status=false
+11-16 15:03:07.237  2525  4232 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 15:03:07.237  2525  4232 W libc    : Access denied finding property "ro.product.bootimage.brand"
+11-16 15:03:07.239  2525  4232 E WS1_AirWatchApp: onSDKException: COMPROMISE_STATUS
+11-16 15:03:07.239  2525  4232 E WS1_AirWatchApp: com.airwatch.bizlib.exceptions.AWSDKException: [AWSDKException:COMPROMISE_STATUS] Root/BL issue detected! codeSuffix=21 BL Unlock=Pair{true ro.boot.flash.locked=0 androidboot.flash.locked= ro.boot.vbmeta.device_state=unlocked}, BL Tamper=Pair{true ro.boot.verifiedbootstate=orange ro.boot.veritymode=enforcing ro.boot.veritymode.managed=yes ro.boot.secure_boot=PRODUCTION ro.product.bootimage.brand=}, firmware=release-keys, type=user, fingerprint=google/panther/panther:13/TD1A.220804.031/9071314:user/release-keys, bootloader=cloudripper-1.0-9070028 from environment ds1688.awmdm.com:443 
+11-16 15:03:07.239  2525  4232 E WS1_AirWatchApp: 	at com.airwatch.agent.AirWatchApp.x(Unknown Source:2)
+11-16 15:03:07.239  2525  4232 E WS1_AirWatchApp: 	at hr.q1.b(Unknown Source:6)
+11-16 15:03:07.239  2525  4232 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.c(Unknown Source:74)
+11-16 15:03:07.239  2525  4232 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.f(Unknown Source:7)
+11-16 15:03:07.239  2525  4232 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.c(Unknown Source:848)
+11-16 15:03:07.239  2525  4232 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.e(Unknown Source:11)
+11-16 15:03:07.239  2525  4232 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.c(Unknown Source:2114)
+11-16 15:03:07.239  2525  4232 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.appSecurityBootLoaderIntegrityTamperAction(Unknown Source:6)
+11-16 15:03:07.239  2525  4232 E WS1_AirWatchApp: 	at java.lang.reflect.Method.invoke(Native Method)
+11-16 15:03:07.239  2525  4232 E WS1_AirWatchApp: 	at kk.Lr.zh(Unknown Source:732)
+11-16 15:03:07.239  2525  4232 E WS1_AirWatchApp: 	at java.lang.reflect.Method.invoke(Native Method)
+11-16 15:03:07.239  2525  4232 E WS1_AirWatchApp: 	at kk.jz.Vh(Unknown Source:413)
+11-16 15:03:07.239  2525  4232 E WS1_AirWatchApp: 	at kk.jz.run(Unknown Source:0)
+11-16 15:03:07.240  2525 23881 I WS1_CrittercismWrapper: reportHandledException() com.airwatch.bizlib.exceptions.AWSDKException: [AWSDKException:COMPROMISE_STATUS] Root/BL issue detected! codeSuffix=21 BL Unlock=Pair{true ro.boot.flash.locked=0 androidboot.flash.locked= ro.boot.vbmeta.device_state=unlocked}, BL Tamper=Pair{true ro.boot.verifiedbootstate=orange ro.boot.veritymode=enforcing ro.boot.veritymode.managed=yes ro.boot.secure_boot=PRODUCTION ro.product.bootimage.brand=}, firmware=release-keys, type=user, fingerprint=google/panther/panther:13/TD1A.220804.031/9071314:user/release-keys, bootloader=cloudripper-1.0-9070028 from environment ds1688.awmdm.com:443 
+11-16 15:03:07.256  2525  2525 W Thread-51: type=1400 audit(0.0:9673): avc: denied { getattr } for path="/system/lib/bootstrap" dev="dm-7" ino=1822 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:system_bootstrap_lib_file:s0 tclass=dir permissive=0 app=com.airwatch.androidagent
+11-16 15:03:07.256  2525  2525 W Thread-51: type=1400 audit(0.0:9674): avc: denied { search } for name="/" dev="dm-8" ino=2 scontext=u:r:untrusted_app:s0:c241,c256,c512,c768 tcontext=u:object_r:system_dlkm_file:s0 tclass=dir permissive=0 app=com.airwatch.androidagent
+11-16 15:03:07.260  2525  3622 I WS1_TamperChecker: CompDetectionResponse is 14
+11-16 15:03:07.260  2525  3622 I WS1_TamperChecker: DI status=false
+11-16 15:03:07.261  2525  3622 I WS1_TamperChecker: At launch: Root status=false
+11-16 15:03:07.261  2525  3622 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 15:03:07.261  2525  3622 I WS1_TamperChecker: Bootloader tamper status=true
+11-16 15:03:07.261  2525  3622 I WS1_TamperChecker: Root status=false
+11-16 15:03:07.261  2525  3622 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 15:03:07.261  2525  3622 W libc    : Access denied finding property "ro.product.bootimage.brand"
+11-16 15:03:07.261  2525  3622 I WS1_TamperCheckService: Beginning of tamper checker operation!
+11-16 15:03:07.264  2525  3602 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=7276d5a5-9123-4a6c-a931-404928e051e7, tags={ com.airwatch.app.TamperCheckerWorker } ]
+11-16 15:03:07.268  2525  2525 D WM-Processor: Processor 7276d5a5-9123-4a6c-a931-404928e051e7 executed; reschedule = false
+11-16 15:03:07.268  2525  2525 D WM-SystemJobService: 7276d5a5-9123-4a6c-a931-404928e051e7 executed on JobScheduler
+11-16 15:03:07.273  2525  3349 D WM-GreedyScheduler: Cancelling work ID 7276d5a5-9123-4a6c-a931-404928e051e7
+11-16 15:03:07.288  2525 19417 D TrafficStats: tagSocket(113) with statsTag=0xffffffff, statsUid=-1
+11-16 15:03:07.331  2525  4234 I WS1_TamperChecker: CompDetectionResponse is 20
+11-16 15:03:07.331  2525  4234 I WS1_TamperChecker: DI status=false
+11-16 15:03:07.332  2525  4234 I WS1_TamperChecker: At launch: Root status=false
+11-16 15:03:07.332  2525  4234 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 15:03:07.332  2525  4234 I WS1_TamperChecker: Bootloader tamper status=true
+11-16 15:03:07.332  2525  4234 I WS1_TamperChecker: Root status=false
+11-16 15:03:07.332  2525  4234 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 15:03:07.333  2525  4234 W libc    : Access denied finding property "ro.product.bootimage.brand"
+11-16 15:03:07.355  2525  2533 W ch.androidagent: Reducing the number of considered missed Gc histogram windows from 823 to 100
+11-16 15:03:07.460 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load20k","frames":1,"work_ms":[25.625,25.625,25.625,25.625],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":33506.0}
+11-16 15:03:07.460 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load20k","frames":1,"build_ms":[3.03,3.03,3.03],"raster_ms":[19.85,19.85,19.85],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.31,0.31,0.31],"present_ms":[2.43,2.43,2.43],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.01,0.01,0.01],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[2.52,2.52,2.52],"paths":[8.17,8.17,8.17],"text":[2.00,2.00,2.00],"images":[0.00,0.00,0.00],"shadows":[2.41,2.41,2.41],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":33506.2}
+11-16 15:03:07.460 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"idle20k","t":33506.2}
+11-16 15:03:07.488  2525  4233 I WS1_TamperChecker: CompDetectionResponse is 18
+11-16 15:03:07.489  2525  4233 I WS1_TamperChecker: DI status=false
+11-16 15:03:07.489  2525  4233 I WS1_TamperChecker: At launch: Root status=false
+11-16 15:03:07.489  2525  4233 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 15:03:07.489  2525  4233 I WS1_TamperChecker: Bootloader tamper status=true
+11-16 15:03:07.489  2525  4233 I WS1_TamperChecker: Root status=false
+11-16 15:03:07.489  2525  4233 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 15:03:07.489  2525  4233 W libc    : Access denied finding property "ro.product.bootimage.brand"
+11-16 15:03:07.727   522  1616 D TimeStats: Dumping TimeStats as text
+11-16 15:03:07.843   522  1616 D TimeStats: Cleared global stats
+11-16 15:03:07.843   522  1616 D TimeStats: Cleared layer stats
+11-16 15:03:08.052 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:08.285  4258  4258 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-16 15:03:08.304   454   454 I servicemanager: Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-16 15:03:09.062 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:09.461 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"idle20k","frames":1,"work_ms":[0.247,0.247,0.247,0.247],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":35507.4}
+11-16 15:03:09.461 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"idle20k","frames":1,"build_ms":[0.16,0.16,0.16],"raster_ms":[0.01,0.01,0.01],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.00,0.00,0.00],"present_ms":[0.00,0.00,0.00],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.07,0.07,0.07],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[0.00,0.00,0.00],"paths":[0.00,0.00,0.00],"text":[0.00,0.00,0.00],"images":[0.00,0.00,0.00],"shadows":[0.00,0.00,0.00],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":35507.6}
+11-16 15:03:09.461 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"tick20k","t":35507.6}
+11-16 15:03:09.602 18853 18961 E PlayCommon: [94] Metalog directories were deleted unexpectedly, recreating...
+11-16 15:03:09.748   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:09.875   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:09.916  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:09.991   522   557 D TimeStats: Dumping TimeStats as text
+11-16 15:03:10.083 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:10.106   522   557 D TimeStats: Cleared global stats
+11-16 15:03:10.106   522   557 D TimeStats: Cleared layer stats
+11-16 15:03:10.450 18853 18902 I Finsky:background: [55] Stats for Executor: bgExecutor ylx@acf0399[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 802]
+11-16 15:03:10.450 18853 18902 I Finsky:background: [55] Stats for Executor: LightweightExecutor ylx@e93565e[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 838]
+11-16 15:03:10.463 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"tick20k","frames":1,"work_ms":[13.089,13.089,13.089,13.089],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":36508.7}
+11-16 15:03:10.463 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"tick20k","frames":1,"build_ms":[0.89,0.89,0.89],"raster_ms":[5.76,5.76,5.76],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.47,0.47,0.47],"present_ms":[5.95,5.95,5.95],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.03,0.03,0.03],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[0.28,0.28,0.28],"paths":[3.85,3.85,3.85],"text":[0.56,0.56,0.56],"images":[0.00,0.00,0.00],"shadows":[0.02,0.02,0.02],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":36508.9}
+11-16 15:03:10.463 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"jump20k","t":36508.9}
+11-16 15:03:10.534 18853 18902 I Finsky:background: [55] Stats for Executor: BlockingExecutor ylx@3c09a3f[Running, pool size = 1, active threads = 0, queued tasks = 0, completed tasks = 141]
+11-16 15:03:10.805   522   557 D TimeStats: Dumping TimeStats as text
+11-16 15:03:10.922   522   557 D TimeStats: Cleared global stats
+11-16 15:03:10.922   522   557 D TimeStats: Cleared layer stats
+11-16 15:03:11.093 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:11.354  4326  4326 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-16 15:03:11.375   454   454 I servicemanager: Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-16 15:03:11.463 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"jump20k","frames":1,"work_ms":[54.243,54.243,54.243,54.243],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":37509.1}
+11-16 15:03:11.463 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"jump20k","frames":1,"build_ms":[8.46,8.46,8.46],"raster_ms":[39.71,39.71,39.71],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.51,0.51,0.51],"present_ms":[5.49,5.49,5.49],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.08,0.08,0.08],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[6.72,6.72,6.72],"paths":[15.92,15.92,15.92],"text":[3.22,3.22,3.22],"images":[0.00,0.00,0.00],"shadows":[4.45,4.45,4.45],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":37509.3}
+11-16 15:03:11.463 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"scroll20k","t":37509.4}
+11-16 15:03:11.498 17127 17127 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS pkg=com.google.android.gms }
+11-16 15:03:11.581 17127 18792 W SQLiteLog: (28) file unlinked while open: /data/user/0/com.google.android.gms/cache/android:/com.google.android.gms/managed/common/shared/cgal.mdi.sync.moonlander.autofill-domain-predictions-prod-spanner/infinite_data_cache
+11-16 15:03:11.582 17127 18792 W SQLiteLog: (28) file unlinked while open: /data/user/0/com.google.android.gms/cache/android:/com.google.android.gms/managed/common/shared/cgal.mdi.sync.moonlander.autofill-domain-predictions-prod-spanner/infinite_data_cache
+11-16 15:03:11.935   522   557 D TimeStats: Dumping TimeStats as text
+11-16 15:03:12.045   522   557 D TimeStats: Cleared global stats
+11-16 15:03:12.045   522   557 D TimeStats: Cleared layer stats
+11-16 15:03:12.100 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:12.432  4733  4733 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-16 15:03:12.453   454   454 I servicemanager: Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-16 15:03:12.913   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:13.014   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:13.056  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:13.104 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:14.112 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:15.118 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:16.056   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:16.121 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:16.155   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:16.182  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:17.125 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:17.908 17127 17127 W ThreadPoolForeg: type=1400 audit(0.0:9683): avc: denied { write } for name="traced_producer" dev="tmpfs" ino=1090 scontext=u:r:gmscore_app:s0:c512,c768 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0 app=com.google.android.gms
+11-16 15:03:18.129 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:18.860 17059 17059 W ThreadPoolForeg: type=1400 audit(0.0:9684): avc: denied { write } for name="traced_producer" dev="tmpfs" ino=1090 scontext=u:r:gmscore_app:s0:c512,c768 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0 app=com.google.android.gms
+11-16 15:03:19.135 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:19.184   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:19.292   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:19.325  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:19.473 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"scroll20k","frames":481,"work_ms":[14.008,17.553,18.792,20.397],"interval_ms":[16.667,17.779,18.911,20.546],"jank":245,"budget_ms":11.11,"t":45518.7}
+11-16 15:03:19.473 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"scroll20k","frames":481,"build_ms":[0.54,0.97,1.72],"raster_ms":[4.55,6.51,9.18],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[3.86,8.13,10.84],"present_ms":[4.05,5.51,8.13],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.03,0.04,1.35],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[0.33,0.50,0.76],"paths":[0.94,1.35,2.47],"text":[0.22,0.33,0.56],"images":[0.00,0.00,0.00],"shadows":[0.41,0.68,1.19],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":45518.9}
+11-16 15:03:19.473 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"live20k","t":45518.9}
+11-16 15:03:19.711   522   557 D TimeStats: Dumping TimeStats as text
+11-16 15:03:19.814   522   557 D TimeStats: Cleared global stats
+11-16 15:03:19.814   522   557 D TimeStats: Cleared layer stats
+11-16 15:03:20.001  1467  1842 W ProcessStats: Tracking association SourceState{25398bf system/1000 BTopFgs #24494} whose proc state 2 is better than process ProcessState{990fd32 com.google.android.gms.persistent/10159 pkg=com.google.android.gms} proc state 3 (29 skipped)
+11-16 15:03:20.138 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:21.140 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:22.147 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:22.323   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:22.423   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:22.450  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:23.151 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:24.155 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:25.161 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:25.452   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:25.560   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:25.588  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:26.165 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:26.364   829   829 E BatteryDefender: Failed to write /mnt/vendor/persist/battery/defender_charger_time
+11-16 15:03:26.370  1731  1731 D DLObserver: onReceive(); android.intent.action.BATTERY_CHANGED
+11-16 15:03:26.370  1731  1731 D DLObserver: plugged=2
+11-16 15:03:26.370  1731  1731 D PowerNotificationWarningsGoogleImpl: onReceive: android.intent.action.BATTERY_CHANGED
+11-16 15:03:26.373  1731  1731 D BatteryInfoBroadcast: onReceive: android.intent.action.BATTERY_CHANGED isPowerSaveMode: false
+11-16 15:03:26.374  1731  1731 D BatteryDefenderNotification: isPlugged: true | isOverheated: false | defenderEnabled: false | isCharged: true
+11-16 15:03:26.375  1731  1731 I ReverseChargingControl: handleIntentForReverseCharging(): rtx=0 wlc=0 plgac=0 ac=0 acrtx=0 extra=2 this=com.google.android.systemui.reversecharging.ReverseChargingController@4761050
+11-16 15:03:26.376  1731  2191 D PowerUI : can't show warning due to - plugged: true status unknown: false
+11-16 15:03:27.172 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:27.464 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"live20k","frames":479,"work_ms":[16.599,17.903,18.792,19.427],"interval_ms":[16.676,18.007,18.883,19.557],"jank":244,"budget_ms":11.11,"t":53510.3}
+11-16 15:03:27.464 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"live20k","frames":479,"build_ms":[0.71,0.93,1.82],"raster_ms":[6.97,8.06,12.68],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[5.51,6.69,8.05],"present_ms":[3.34,4.16,6.08],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.02,0.02,0.18],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[0.57,0.71,0.93],"paths":[2.64,3.19,4.41],"text":[0.66,0.81,1.17],"images":[0.00,0.00,0.00],"shadows":[0.32,0.52,0.93],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":53510.5}
+11-16 15:03:27.464 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"storm20k","t":53510.5}
+11-16 15:03:27.706   522   557 D TimeStats: Dumping TimeStats as text
+11-16 15:03:27.815   522   557 D TimeStats: Cleared global stats
+11-16 15:03:27.815   522   557 D TimeStats: Cleared layer stats
+11-16 15:03:28.176 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:28.587   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:28.693   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:28.718  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:29.180 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:30.186 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:31.192 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:31.293  1731  1731 D DLObserver: onReceive(); android.intent.action.BATTERY_CHANGED
+11-16 15:03:31.293  1731  1731 D DLObserver: plugged=2
+11-16 15:03:31.296  1731  1731 D PowerNotificationWarningsGoogleImpl: onReceive: android.intent.action.BATTERY_CHANGED
+11-16 15:03:31.299  1731  1731 D BatteryInfoBroadcast: onReceive: android.intent.action.BATTERY_CHANGED isPowerSaveMode: false
+11-16 15:03:31.300  1731  1731 D BatteryDefenderNotification: isPlugged: true | isOverheated: false | defenderEnabled: false | isCharged: true
+11-16 15:03:31.301  1731  1731 I ReverseChargingControl: handleIntentForReverseCharging(): rtx=0 wlc=0 plgac=0 ac=0 acrtx=0 extra=2 this=com.google.android.systemui.reversecharging.ReverseChargingController@4761050
+11-16 15:03:31.301  1731  2380 D PowerUI : can't show warning due to - plugged: true status unknown: false
+11-16 15:03:31.720   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:31.821   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:31.849  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:32.199 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:33.203 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:34.208 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:34.853   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:34.955   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:34.981  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:35.213 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:35.475 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"storm20k","frames":480,"work_ms":[16.136,18.511,19.490,20.122],"interval_ms":[16.666,18.601,19.600,20.230],"jank":220,"budget_ms":11.11,"t":61521.6}
+11-16 15:03:35.476 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"storm20k","frames":480,"build_ms":[0.83,0.91,1.17],"raster_ms":[12.28,12.53,14.96],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.34,1.72,2.76],"present_ms":[2.16,3.22,4.71],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.02,0.02,0.13],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[1.26,1.38,1.99],"paths":[4.81,4.94,5.37],"text":[0.79,0.84,0.96],"images":[0.00,0.00,0.00],"shadows":[1.27,1.35,1.72],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":61521.8}
+11-16 15:03:35.476 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load2k-thermal","t":61521.8}
+11-16 15:03:35.934   522  1616 D TimeStats: Dumping TimeStats as text
+11-16 15:03:36.046   522  1616 D TimeStats: Cleared global stats
+11-16 15:03:36.046   522  1616 D TimeStats: Cleared layer stats
+11-16 15:03:36.219 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:37.230 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:37.465 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load2k-thermal","frames":1,"work_ms":[29.161,29.161,29.161,29.161],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":63511.4}
+11-16 15:03:37.465 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load2k-thermal","frames":1,"build_ms":[6.92,6.92,6.92],"raster_ms":[19.58,19.58,19.58],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.27,0.27,0.27],"present_ms":[2.37,2.37,2.37],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.02,0.02,0.02],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[2.52,2.52,2.52],"paths":[8.19,8.19,8.19],"text":[1.73,1.73,1.73],"images":[0.00,0.00,0.00],"shadows":[2.45,2.45,2.45],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":63511.6}
+11-16 15:03:37.465 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"thermal","t":63511.6}
+11-16 15:03:37.899   522   557 D TimeStats: Dumping TimeStats as text
+11-16 15:03:37.981   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:38.000   522   557 D TimeStats: Cleared global stats
+11-16 15:03:38.000   522   557 D TimeStats: Cleared layer stats
+11-16 15:03:38.086   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:38.114  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:38.243 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:38.402 15364 15364 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-16 15:03:38.423   454   454 I servicemanager: Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-16 15:03:39.249 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:40.258 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:41.116   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:41.220   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:41.248  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:41.265 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:42.273 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:43.283 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:44.251   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:44.287 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:44.356   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:44.387  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:45.294 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:46.303 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:47.308 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:47.388   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:47.492   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:47.518  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:47.912 17127 17127 W ThreadPoolForeg: type=1400 audit(0.0:9685): avc: denied { write } for name="traced_producer" dev="tmpfs" ino=1090 scontext=u:r:gmscore_app:s0:c512,c768 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0 app=com.google.android.gms
+11-16 15:03:48.316 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:48.864 17059 17059 W ThreadPoolForeg: type=1400 audit(0.0:9686): avc: denied { write } for name="traced_producer" dev="tmpfs" ino=1090 scontext=u:r:gmscore_app:s0:c512,c768 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0 app=com.google.android.gms
+11-16 15:03:49.324 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:50.328 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:50.419  2525  3273 D TaskQueue: removing queue after quit safely success for task queue handler IntentProcessor
+11-16 15:03:50.420  2525  3273 D TaskQueue: removing queue after quit safely success for task queue handler Sampler
+11-16 15:03:50.420  2525  3273 D TaskQueue: removing queue after quit safely success for task queue handler EnterpriseManager
+11-16 15:03:50.420  2525  3273 D TaskQueue: removing queue after quit safely success for task queue handler AWService
+11-16 15:03:50.521   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:50.629   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:50.656  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:51.337 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:52.155   974   994 D RILClient: [OemClient]IND: (clientId = 0, msgId = 3005, dataLength = 17, channel = 0)
+11-16 15:03:52.155   872  2275 D RILClient: [OemClient]IND: (clientId = 7, msgId = 3005, dataLength = 17, channel = 0)
+11-16 15:03:52.157  1956  1956 I SHANNON_IMS: 9131 [NETW] #:PURP:# UNSOL {RILC_UNSOL_IMS_SUPPORT_SERVICE} : VoPS : 0  EMC : 0  SIM_IDX : 0  RAT : 3  REG_STATE : 0  CELL_ID : 0  LAC/TAC : 0  (NetworkAdaptor$AdaptorChannel%onMessage:298)
+11-16 15:03:52.157  1956  1956 I SHANNON_IMS: 9132 [CONN] #:ORNG:# supportService [VoPS : 0/ EMC : 0/ RAT_INFO : 3/ REG_STATE : 0/ CELL_ID : 0/ LAC-TAC Info : 0]  [SLID:0 ] (ImsConnectivityMgr$Listener%supportService:2679)
+11-16 15:03:52.345 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:52.377  1956  1956 W SHANNON_IMS: 9144 [RULE] isLte: false isHomeSupported: false isRoamingSupported: false isImsPdnConnected: false [CellConnectivity VoPS:0 EMC:0 RAT:RAT_UMTS  RSCP:0  ECNO:0 SLID:0 ] (CellConnectivity%isRegStateSupported:479)
+11-16 15:03:52.377  1956  1956 W SHANNON_IMS: 9145 [RULE] VOC is NOT ready, isRegStateSupported() is false [CellConnectivity VoPS:0 EMC:0 RAT:RAT_UMTS  RSCP:0  ECNO:0 SLID:0 ] (CellConnectivity%isVocReady:396)
+11-16 15:03:52.804   974   994 D RILClient: [OemClient]IND: (clientId = 0, msgId = 3005, dataLength = 17, channel = 0)
+11-16 15:03:52.804   872  2275 D RILClient: [OemClient]IND: (clientId = 7, msgId = 3005, dataLength = 17, channel = 0)
+11-16 15:03:52.806  1956  1956 I SHANNON_IMS: 9152 [NETW] #:PURP:# UNSOL {RILC_UNSOL_IMS_SUPPORT_SERVICE} : VoPS : 0  EMC : 0  SIM_IDX : 0  RAT : 3  REG_STATE : 0  CELL_ID : 0  LAC/TAC : 0  (NetworkAdaptor$AdaptorChannel%onMessage:298)
+11-16 15:03:52.807  1956  1956 I SHANNON_IMS: 9153 [CONN] #:ORNG:# supportService [VoPS : 0/ EMC : 0/ RAT_INFO : 3/ REG_STATE : 0/ CELL_ID : 0/ LAC-TAC Info : 0]  [SLID:0 ] (ImsConnectivityMgr$Listener%supportService:2679)
+11-16 15:03:52.820   974   994 D RILClient: [OemClient]IND: (clientId = 0, msgId = 3005, dataLength = 17, channel = 0)
+11-16 15:03:52.820   872  2275 D RILClient: [OemClient]IND: (clientId = 7, msgId = 3005, dataLength = 17, channel = 0)
+11-16 15:03:52.822  1956  1956 I SHANNON_IMS: 9157 [NETW] #:PURP:# UNSOL {RILC_UNSOL_IMS_SUPPORT_SERVICE} : VoPS : 0  EMC : 0  SIM_IDX : 0  RAT : 3  REG_STATE : 0  CELL_ID : 0  LAC/TAC : 0  (NetworkAdaptor$AdaptorChannel%onMessage:298)
+11-16 15:03:52.822  1956  1956 I SHANNON_IMS: 9158 [CONN] #:ORNG:# supportService [VoPS : 0/ EMC : 0/ RAT_INFO : 3/ REG_STATE : 0/ CELL_ID : 0/ LAC-TAC Info : 0]  [SLID:0 ] (ImsConnectivityMgr$Listener%supportService:2679)
+11-16 15:03:53.351 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:53.364  1956  3527 W SHANNON_IMS: 9164 [CONN] Timer IMS_SUPPORT_SERVICE_TIMER expired (ConnectionTimer$ConnectionTimerTask%run:69)
+11-16 15:03:53.375  1956  3527 W SHANNON_IMS: 9172 [RULE] isLte: false isHomeSupported: false isRoamingSupported: false isImsPdnConnected: false [CellConnectivity VoPS:0 EMC:0 RAT:RAT_UMTS  RSCP:0  ECNO:0 SLID:0 ] (CellConnectivity%isRegStateSupported:479)
+11-16 15:03:53.375  1956  3527 W SHANNON_IMS: 9173 [RULE] VOC is NOT ready, isRegStateSupported() is false [CellConnectivity VoPS:0 EMC:0 RAT:RAT_UMTS  RSCP:0  ECNO:0 SLID:0 ] (CellConnectivity%isVocReady:396)
+11-16 15:03:53.660   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:53.763   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:53.792  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:54.359 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:55.367 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:56.370 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:56.793   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:03:56.895   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:03:56.921  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:03:57.375 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:58.385 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:59.390 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:03:59.923   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:04:00.006 10272 10292 I AiAiEcho: (REDACTED) Predicting[%d]: %s
+11-16 15:04:00.006 10272 10292 I AiAiEcho: (REDACTED) EchoTargets: %s
+11-16 15:04:00.006 10272 10292 I AiAiEcho: Filtered by AiAi flag check: %s
+11-16 15:04:00.006 10272 10292 I AiAiEcho: (REDACTED) Ranked targets strategy: %s, count: %d, ranking metadata: %s
+11-16 15:04:00.007 10272 10292 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+11-16 15:04:00.007 10272 10292 I AiAiEcho: (REDACTED) Predicting[%d]: %s
+11-16 15:04:00.007 10272 10292 I AiAiEcho: (REDACTED) EchoTargets: %s
+11-16 15:04:00.007 10272 10292 I AiAiEcho: Filtered by AiAi flag check: %s
+11-16 15:04:00.007 10272 10292 I AiAiEcho: (REDACTED) Ranked targets strategy: %s, count: %d, ranking metadata: %s
+11-16 15:04:00.007 10272 10292 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+11-16 15:04:00.009 10272 10292 I AiAiEcho: (REDACTED) #postPredictionTargets: Sending updates to UISurface %s with targets# %s (types=[%s])
+11-16 15:04:00.010 10272 10292 I AiAiEcho: (REDACTED) #postPredictionTargets: Sending updates to UISurface %s with targets# %s (types=[%s])
+11-16 15:04:00.012  9285  9285 E BcSmartspaceCard: No tap action can be set up
+11-16 15:04:00.031   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:04:00.065  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:04:00.396 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:01.402 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:02.408 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:03.064   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:04:03.178   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:04:03.206  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:04:03.413 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:04.416 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:05.423 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:06.209   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:04:06.319   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:04:06.350  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:04:06.431 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:07.434 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:08.439 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:09.125  1008  1257 I CHRE    : @ 8874.005: [ip] Peak detected: magnitude = 0.105158 hpa, duration = 119.999997 ms
+11-16 15:04:09.125   850  1513 I suez-nanoapp-clients: Barometric peak detected: magnitude = 0.105159 hPa (bucket: 2), duration = 120.000000 ms (bucket: 11).
+11-16 15:04:09.125   818   847 D ContextHubHal: Got message from nanoapp: ID 0x476f6f676c001022
+11-16 15:04:09.126  1467  1696 E ContextHubClientManager: Cannot send message to unregistered client (host endpoint ID = -28638)
+11-16 15:04:09.127   850  1513 I suez-nanoapp-clients: Vendor atom [id = 100047] reported.
+11-16 15:04:09.353   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:04:09.446 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:09.454   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:04:09.482  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:04:10.449 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:11.453 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:12.459 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:12.485   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:04:12.575   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:04:12.602  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:04:13.466 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:14.470 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:15.477 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:15.604   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:04:15.706   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:04:15.732  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:04:16.482 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:17.484 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:17.940 17127 17127 W ThreadPoolForeg: type=1400 audit(0.0:9687): avc: denied { write } for name="traced_producer" dev="tmpfs" ino=1090 scontext=u:r:gmscore_app:s0:c512,c768 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0 app=com.google.android.gms
+11-16 15:04:18.492 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:18.732   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:04:18.834   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:04:18.862  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:04:18.892 17059 17059 W ThreadPoolForeg: type=1400 audit(0.0:9688): avc: denied { write } for name="traced_producer" dev="tmpfs" ino=1090 scontext=u:r:gmscore_app:s0:c512,c768 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0 app=com.google.android.gms
+11-16 15:04:19.497 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:20.504 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:21.508 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:21.864   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:04:21.965   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:04:21.991  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:04:22.520 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:23.526 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:24.532 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:24.992   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:04:25.096   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:04:25.125  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:04:25.539 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:26.546 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:27.551 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:28.124   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:04:28.230   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:04:28.259  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:04:28.557 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:29.563 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:30.570 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:31.261   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:04:31.293  1731  1731 D DLObserver: onReceive(); android.intent.action.BATTERY_CHANGED
+11-16 15:04:31.293  1731  1731 D DLObserver: plugged=2
+11-16 15:04:31.293  1731  1731 D PowerNotificationWarningsGoogleImpl: onReceive: android.intent.action.BATTERY_CHANGED
+11-16 15:04:31.296  1731  1731 D BatteryInfoBroadcast: onReceive: android.intent.action.BATTERY_CHANGED isPowerSaveMode: false
+11-16 15:04:31.297  1731  1731 D BatteryDefenderNotification: isPlugged: true | isOverheated: false | defenderEnabled: false | isCharged: true
+11-16 15:04:31.298  1731  1731 I ReverseChargingControl: handleIntentForReverseCharging(): rtx=0 wlc=0 plgac=0 ac=0 acrtx=0 extra=2 this=com.google.android.systemui.reversecharging.ReverseChargingController@4761050
+11-16 15:04:31.298  1731  2798 D PowerUI : can't show warning due to - plugged: true status unknown: false
+11-16 15:04:31.365   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:04:31.391  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:04:31.574 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:32.581 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:33.587 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:34.392   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:04:34.497   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:04:34.527  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:04:34.596 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:35.602 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:36.613 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:37.468 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"thermal","frames":3596,"work_ms":[16.438,17.934,18.984,21.204],"interval_ms":[16.667,18.047,19.116,21.306],"jank":1833,"budget_ms":11.11,"t":123513.8}
+11-16 15:04:37.468 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"thermal","frames":3596,"build_ms":[0.71,0.95,1.53],"raster_ms":[6.86,8.00,13.17],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[5.29,6.59,8.13],"present_ms":[3.37,4.26,7.83],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.02,0.02,0.19],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[0.56,0.69,1.44],"paths":[2.58,3.07,5.76],"text":[0.64,0.78,1.61],"images":[0.00,0.00,0.00],"shadows":[0.31,0.51,0.99],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":123514.6}
+11-16 15:04:37.468 24623 24652 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"done","t":123514.6}
+11-16 15:04:37.529   865   865 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 15:04:37.627 17059 17195 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:37.638   865   865 I WifiHAL : In GetLinkStatsCommand::handleResponse
+11-16 15:04:37.678  1467  1665 D ConnectivityService: NetReassign [no changes]
+11-16 15:04:38.055   522  1616 D TimeStats: Dumping TimeStats as text
+11-16 15:04:38.210   522  1616 D TimeStats: Cleared global stats
+11-16 15:04:38.210   522  1616 D TimeStats: Cleared layer stats
+11-16 15:04:38.639 17059 17446 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 15:04:38.905   522  1616 D TimeStats: Disabled
+11-16 15:04:39.097 24623 25455 I eww.marketwatch: Explicit concurrent copying GC freed 4641(312KB) AllocSpace objects, 18(360KB) LOS objects, 92% free, 1982KB/25MB, paused 41us,17us total 6.329ms

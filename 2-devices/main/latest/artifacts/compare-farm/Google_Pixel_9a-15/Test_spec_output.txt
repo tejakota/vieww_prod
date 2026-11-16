@@ -7,13 +7,13 @@
 [DeviceFarm] adb version
 Android Debug Bridge version 1.0.39
 Version 0.0.1-4500957
-Installed as /tmp/devicefarm-workspace/execution-4znbdrtj/shared-aiu31x0u/android-home-eciuy_1w/platform-tools/adb_binary
+Installed as /tmp/devicefarm-workspace/execution-eazwtfwo/shared-89alw6lp/android-home-beskfzfk/platform-tools/adb_binary
  
 [DEVICEFARM] ########### Entering phase pre_test ###########
  
 [DeviceFarm] adb devices -l
 List of devices attached
-4A191JEBF28019         device usb:2-1 product:tegu model:Pixel_9a device:tegu transport_id:2
+54051JEBF02305         device usb:1-1.1 product:tegu model:Pixel_9a device:tegu transport_id:3
 
  
 [DEVICEFARM] ########### Entering phase test ###########
@@ -24,15 +24,15 @@ List of devices attached
  
 [DeviceFarm] ls -la $DEVICEFARM_LOG_DIR/mw || true
 total 28
-drwxr-xr-x 6 device-farm root  132 Nov 16 14:12 .
-drwxrwxrwx 3         995 1001   16 Nov 16 13:59 ..
--rw-r--r-- 1 device-farm root    8 Nov 16 13:59 install.log
--rw-r--r-- 1 device-farm root  523 Nov 16 14:12 listing.txt
--rw-r--r-- 1 device-farm root 1008 Nov 16 14:12 result.txt
-drwxr-xr-x 2 device-farm root 4096 Nov 16 14:05 valdi
-drwxr-xr-x 2 device-farm root 4096 Nov 16 14:02 vieww-cpu
-drwxr-xr-x 2 device-farm root 4096 Nov 16 14:09 vieww-cpuserial
-drwxr-xr-x 2 device-farm root 4096 Nov 16 14:12 vieww-gpu
+drwxr-xr-x 6 device-farm root  132 Nov 16 15:28 .
+drwxrwxrwx 3         995 1001   16 Nov 16 15:16 ..
+-rw-r--r-- 1 device-farm root    8 Nov 16 15:16 install.log
+-rw-r--r-- 1 device-farm root  523 Nov 16 15:28 listing.txt
+-rw-r--r-- 1 device-farm root 1006 Nov 16 15:28 result.txt
+drwxr-xr-x 2 device-farm root 4096 Nov 16 15:22 valdi
+drwxr-xr-x 2 device-farm root 4096 Nov 16 15:18 vieww-cpu
+drwxr-xr-x 2 device-farm root 4096 Nov 16 15:25 vieww-cpuserial
+drwxr-xr-x 2 device-farm root 4096 Nov 16 15:28 vieww-gpu
  
 [DEVICEFARM] ########### Finish executing testspec ###########
  

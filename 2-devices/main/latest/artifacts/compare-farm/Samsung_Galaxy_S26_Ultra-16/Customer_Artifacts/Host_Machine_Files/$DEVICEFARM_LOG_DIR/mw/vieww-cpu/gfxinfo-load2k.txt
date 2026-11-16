@@ -1,9 +1,9 @@
 Applications Graphics Acceleration Info:
-Uptime: 1735398 Realtime: 1735398
+Uptime: 3299613 Realtime: 3299613
 
-** Graphics info for pid 19479 [dev.vieww.marketwatch] **
+** Graphics info for pid 30776 [dev.vieww.marketwatch] **
 
-Stats since: 1731074117515ns
+Stats since: 3295254875720ns
 Total frames rendered: 0
 Janky frames: 0 (0.00%)
 Janky frames (legacy): 0 (0.00%)
@@ -45,20 +45,20 @@ Total GPU memory usage:
 
 GraphicBufferAllocator buffers:
             Handle |         Size |     W (Stride) x H | Layers |   Format |      Usage | Requestor
-0xb400006f87a33760 |  9945.00 KiB | 1080 (1088) x 2340 |      1 |        2 | 0x     933 | VRI[NativeActivity]@6e20843#0(BLAST Consumer)0
-0xb400006f87a34520 |  9945.00 KiB | 1080 (1088) x 2340 |      1 |        2 | 0x     933 | VRI[NativeActivity]@6e20843#0(BLAST Consumer)0
+0xb40000761963d550 |  9945.00 KiB | 1080 (1088) x 2340 |      1 |        2 | 0x     933 | VRI[NativeActivity]@f631c66#0(BLAST Consumer)0
+0xb400007619640f10 |  9945.00 KiB | 1080 (1088) x 2340 |      1 |        2 | 0x     933 | VRI[NativeActivity]@f631c66#0(BLAST Consumer)0
 Total allocated by GraphicBufferAllocator (estimate): 19890.00 KB
 Imported gralloc buffers:
-+ name:VRI[NativeActivity]@6e20843#0(BLAST Consumer)0, id:501, size:10064.00KiB, w/h:1080x2340, usage: 0x933, req fmt:2, fourcc/mod:875709016/0, dataspace: 0x0, compressed: false
-+ name:VRI[NativeActivity]@6e20843#0(BLAST Consumer)0, id:500, size:10064.00KiB, w/h:1080x2340, usage: 0x933, req fmt:2, fourcc/mod:875709016/0, dataspace: 0x0, compressed: false
++ name:VRI[NativeActivity]@f631c66#0(BLAST Consumer)0, id:559, size:10064.00KiB, w/h:1080x2340, usage: 0x933, req fmt:2, fourcc/mod:875709016/0, dataspace: 0x0, compressed: false
++ name:VRI[NativeActivity]@f631c66#0(BLAST Consumer)0, id:558, size:10064.00KiB, w/h:1080x2340, usage: 0x933, req fmt:2, fourcc/mod:875709016/0, dataspace: 0x0, compressed: false
 Total imported by gralloc: 20128.00KiB
 
 Profile data in ms:
 
-	dev.vieww.marketwatch/android.app.NativeActivity/android.view.ViewRootImpl@66e6687 (visibility=0)
+	dev.vieww.marketwatch/android.app.NativeActivity/android.view.ViewRootImpl@74863fa (visibility=0)
 View hierarchy:
 
-  dev.vieww.marketwatch/android.app.NativeActivity/android.view.ViewRootImpl@66e6687
+  dev.vieww.marketwatch/android.app.NativeActivity/android.view.ViewRootImpl@74863fa
   7 views, 8.80 kB of render nodes
 
 
@@ -67,5 +67,5 @@ Total attached Views : 7
 Total RenderNode     : 8.80 kB (used) / 8.80 kB (capacity)
 
 Total STB frames rendered : 0
-  ProcessConfig={1.0 310mcc260mnc [en_US] ldltr sw384dp w384dp h747dp 450dpi nrml long compactNeeded hdr widecg port finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2340) mAppBounds=Rect(0, 104 - 1080, 2205) mMaxBounds=Rect(0, 0 - 1080, 2340) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0 mStageConfig=undefined mEmbedActivityMode=undefined mPopOver=off mOverlappingWithCutout=false} s.713 fontWeightAdjustment=0 ff=0 bf=-1 bts=0 cst=1.0 nightDim=0 themeSeq=0}
-  Application ResourcesConfig={1.0 310mcc260mnc [en_US] ldltr sw384dp w384dp h747dp 450dpi nrml long compactNeeded hdr widecg port finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2340) mAppBounds=Rect(0, 104 - 1080, 2205) mMaxBounds=Rect(0, 0 - 1080, 2340) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0 mStageConfig=undefined mEmbedActivityMode=undefined mPopOver=off mOverlappingWithCutout=false} s.713 fontWeightAdjustment=0 ff=0 bf=-1 bts=0 cst=1.0 nightDim=0 themeSeq=0}
+  ProcessConfig={1.0 310mcc260mnc [en_US] ldltr sw384dp w384dp h780dp 450dpi nrml long compactNeeded hdr widecg port finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2340) mAppBounds=Rect(0, 104 - 1080, 2298) mMaxBounds=Rect(0, 0 - 1080, 2340) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0 mStageConfig=undefined mEmbedActivityMode=undefined mPopOver=off mOverlappingWithCutout=false} s.702 fontWeightAdjustment=0 ff=0 bf=-1 bts=0 cst=1.0 nightDim=0 themeSeq=0}
+  Application ResourcesConfig={1.0 310mcc260mnc [en_US] ldltr sw384dp w384dp h780dp 450dpi nrml long compactNeeded hdr widecg port finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2340) mAppBounds=Rect(0, 104 - 1080, 2298) mMaxBounds=Rect(0, 0 - 1080, 2340) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0 mStageConfig=undefined mEmbedActivityMode=undefined mPopOver=off mOverlappingWithCutout=false} s.702 fontWeightAdjustment=0 ff=0 bf=-1 bts=0 cst=1.0 nightDim=0 themeSeq=0}
