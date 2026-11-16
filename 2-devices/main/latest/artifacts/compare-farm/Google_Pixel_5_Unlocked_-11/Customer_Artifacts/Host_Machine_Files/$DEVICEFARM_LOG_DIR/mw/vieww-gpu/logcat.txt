@@ -1,0 +1,964 @@
+--------- beginning of system
+11-16 14:24:49.618  1563  2588 I ActivityManager: Force stopping dev.vieww.marketwatch appid=10266 user=0: from pid 18608
+11-16 14:24:49.619  1563  2588 I ActivityManager: Killing 18566:dev.vieww.marketwatch/u0a266 (adj 0): stop dev.vieww.marketwatch due to from pid 18608
+11-16 14:24:49.620  1563  2588 W ActivityTaskManager: Force removing ActivityRecord{11ba649 u0 dev.vieww.marketwatch/android.app.NativeActivity t92820 f}}: app died, no saved state
+--------- beginning of main
+11-16 14:24:49.655 17139 17139 I chil    : onStart
+11-16 14:24:49.658  1563  1608 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_RESTARTED dat=package:dev.vieww.marketwatch flg=0x10 (has extras) } to com.airwatch.androidagent/com.airwatch.agent.Receiver
+11-16 14:24:49.658  3090 18091 I WS1_AfwUtils: Hub app user id: 0
+11-16 14:24:49.659   769   769 I Zygote  : Process 18566 exited due to signal 9 (Killed)
+11-16 14:24:49.660 18608 18610 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 14:24:49.662  1563  1591 D ConnectivityService: requestNetwork for uid/pid:10192/17139 NetworkRequest [ TRACK_DEFAULT id=187, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10192 AdministratorUids: [] RequestorUid: 10192 RequestorPackageName: com.google.android.googlequicksearchbox] ]
+11-16 14:24:49.662  3090 18091 I WS1_Receiver: Received intent: android.intent.action.PACKAGE_RESTARTED
+11-16 14:24:49.662  1563  2000 D ConnectivityService: NetReassign [187 : null → 101]
+11-16 14:24:49.663  3090 18091 I WS1_BroadcastIntentService: Delegating broadcast to WorkManager for action: android.intent.action.PACKAGE_RESTARTED
+11-16 14:24:49.663  1563  2031 D Ethernet: got request NetworkRequest [ TRACK_DEFAULT id=187, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10192 AdministratorUids: [] RequestorUid: 10192 RequestorPackageName: com.google.android.googlequicksearchbox] ] with score 60 and providerId 5
+11-16 14:24:49.663  1563  1995 D WifiNetworkFactory: got request NetworkRequest [ TRACK_DEFAULT id=187, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10192 AdministratorUids: [] RequestorUid: 10192 RequestorPackageName: com.google.android.googlequicksearchbox] ] with score 60 and providerId 5
+11-16 14:24:49.663  1563  1995 D UntrustedWifiNetworkFactory: got request NetworkRequest [ TRACK_DEFAULT id=187, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10192 AdministratorUids: [] RequestorUid: 10192 RequestorPackageName: com.google.android.googlequicksearchbox] ] with score 60 and providerId 5
+11-16 14:24:49.663  1563  2030 D WIFI_AWARE_FACTORY: got request NetworkRequest [ TRACK_DEFAULT id=187, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10192 AdministratorUids: [] RequestorUid: 10192 RequestorPackageName: com.google.android.googlequicksearchbox] ] with score 60 and providerId 5
+11-16 14:24:49.665  1563  1599 W ActivityManager: setHasOverlayUi called on unknown pid: 18566
+11-16 14:24:49.666  3090 18091 I WS1_IntentProcessorWorkManager: Enqueuing work for intent action: android.intent.action.PACKAGE_RESTARTED
+11-16 14:24:49.669  8757  8757 D CarrierSvcBindHelper: No carrier app for: 0
+11-16 14:24:49.669  8757  8757 D PhoneSwitcherNetworkRequstListener: got request NetworkRequest [ TRACK_DEFAULT id=187, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10192 AdministratorUids: [] RequestorUid: 10192 RequestorPackageName: com.google.android.googlequicksearchbox] ] with score 60 and providerId 5
+11-16 14:24:49.670 17139 17139 I cezv    : (REDACTED) [%s] onStart()
+11-16 14:24:49.671 17139 17139 E NetworkErrorMessage: (REDACTED) Invalid connectivity state: %s
+11-16 14:24:49.671 17139 17139 I chil    : onResume
+11-16 14:24:49.671 17139 17139 W dxzb    : missing event name
+11-16 14:24:49.685  3090  3936 D WM-SystemJobScheduler: Scheduling work ID c499f5ab-6142-458e-aa17-e76a72d3badbJob ID 1013252
+11-16 14:24:49.688  1563  1615 I libprocessgroup: Successfully killed process cgroup uid 10266 pid 18566 in 68ms
+11-16 14:24:49.692  3197  3197 D RegisteredNfcFServicesCache: Service unchanged, not updating
+11-16 14:24:49.696 10572 10572 I WallpaperService: engine resumed
+11-16 14:24:49.698   894   894 W sensors@2.0-ser: type=1400 audit(0.0:27352): avc: denied { read write } for name="diag" dev="tmpfs" ino=8839 scontext=u:r:hal_sensors_default:s0 tcontext=u:object_r:diag_device:s0 tclass=chr_file permissive=0
+11-16 14:24:49.698   894   894 W sensors@2.0-ser: type=1400 audit(0.0:27353): avc: denied { read write } for name="diag" dev="tmpfs" ino=8839 scontext=u:r:hal_sensors_default:s0 tcontext=u:object_r:diag_device:s0 tclass=chr_file permissive=0
+11-16 14:24:49.698   894   894 I sensors-hal: [hal]batch_physical_sensor:301, android.sensor.gyroscope/41, period=20000000, max_latency=0
+11-16 14:24:49.698   894   894 I sensors-hal: [hal]batch_physical_sensor:310, android.sensor.gyroscope/41, period=20000000, max_latency=0 request completed
+11-16 14:24:49.698   894   894 I sensors-hal: [hal]activate_physical_sensor:238, android.sensor.gyroscope/41 en=1
+11-16 14:24:49.698   894   894 I sensors-hal: [ssc_utils]get_qmi_debug_flag:244, support_qmi_debug : false
+11-16 14:24:49.699  3090  3936 D WM-GreedyScheduler: Starting work for c499f5ab-6142-458e-aa17-e76a72d3badb
+11-16 14:24:49.700  3090  3090 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=c499f5ab-6142-458e-aa17-e76a72d3badb, generation=0)
+11-16 14:24:49.702  3090  3936 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=c499f5ab-6142-458e-aa17-e76a72d3badb, generation=0)
+11-16 14:24:49.702   894   894 D Diag_Lib:  Diag_LSM_Init: Failed to open handle to diag driver, error = 13
+11-16 14:24:49.702   894   894 D Diag_Lib:  Diag_LSM_Init: Failed to open handle to diag driver, error = 13
+11-16 14:24:49.702   894   894 I sensors-hal: [ssc_sensor]update_handle:537, handle=331, type=33, wakeup=0, hwid=0, base=331
+11-16 14:24:49.702  3090  3936 D WM-Processor: Work WorkGenerationalId(workSpecId=c499f5ab-6142-458e-aa17-e76a72d3badb, generation=0) is already enqueued for processing
+11-16 14:24:49.706  3090  3936 W WS1_SE_SmpWrkFct_WV8VHC: com.airwatch.agent.intent.processors.IntentProcessorWorker not resolved in SamplingWorkerFactory
+11-16 14:24:49.706 15508 15508 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2276 
+11-16 14:24:49.707 15508 15508 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1460 onStartInput(EditorInfo{EditorInfo{packageName=com.google.android.apps.nexuslauncher, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=4, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+11-16 14:24:49.708  3090  3090 D WM-WorkerWrapper: Starting work for com.airwatch.agent.intent.processors.IntentProcessorWorker
+11-16 14:24:49.708 15508 15508 I LatinIMEBase: LatinIMEBase.updateInputViewCoverNavigation():317 Update input view padding, isNavbarOverInputWindow=true, bottom inset=132
+11-16 14:24:49.708  3090  4111 I WS1_IntentProcessorWorker: doWork started for intent action: android.intent.action.PACKAGE_RESTARTED
+11-16 14:24:49.711   894   894 I sensors-hal: [ssc_utils]get_qmi_debug_flag:244, support_qmi_debug : false
+11-16 14:24:49.714 15508 18276 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatusInternal():129 repeatCheckTimes = 0, locked = false
+11-16 14:24:49.715 15508 18276 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatusInternal():129 repeatCheckTimes = 1, locked = false
+11-16 14:24:49.718   894   894 I sensors-hal: [ssc_utils]get_qmi_debug_flag:244, support_qmi_debug : false
+11-16 14:24:49.719   894 18618 I sensors-hal: [ssc_sensor]ssc_conn_resp_cb:663, resp_value = 0
+11-16 14:24:49.720  3090  3936 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=c499f5ab-6142-458e-aa17-e76a72d3badb, tags={ com.airwatch.agent.intent.processors.IntentProcessorWorker,intent_processor_work,android.intent.action.PACKAGE_RESTARTED } ]
+11-16 14:24:49.721  3090  3090 D WM-Processor: Processor c499f5ab-6142-458e-aa17-e76a72d3badb executed; reschedule = false
+11-16 14:24:49.721  3090  3090 D WM-SystemJobService: c499f5ab-6142-458e-aa17-e76a72d3badb executed on JobScheduler
+11-16 14:24:49.725   894   894 I sensors-hal: [hal]activate_physical_sensor:249, android.sensor.gyroscope/41 en=1 completed
+11-16 14:24:49.726  3090  3936 D WM-GreedyScheduler: Cancelling work ID c499f5ab-6142-458e-aa17-e76a72d3badb
+11-16 14:24:49.726   894 18621 I sensors-hal: [ssc_sensor]ssc_conn_resp_cb:663, resp_value = 0
+11-16 14:24:50.086 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:24:50.089 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:24:50.526 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:24:50.545  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:24:50.529 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:24:51.096 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:24:51.099 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:24:52.106 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:24:52.108 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:24:52.984   588  1610 D TimeStats: Cleared global stats
+11-16 14:24:52.985   588  1610 D TimeStats: Cleared layer stats
+11-16 14:24:53.074   588  1610 D TimeStats: Enabled
+11-16 14:24:53.114 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:24:53.117 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:24:53.164  1563  2191 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=dev.vieww.marketwatch/android.app.NativeActivity} from uid 2000
+11-16 14:24:53.173 18639 18641 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 14:24:53.175 19267 19432 E PlayCommon: [1060] Metalog directories were deleted unexpectedly, recreating...
+11-16 14:24:53.177  1563  1599 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10266; state: DISABLED
+11-16 14:24:53.177  1563  1599 D CompatibilityChangeReporter: Compat change id reported: 135754954; UID 10266; state: ENABLED
+11-16 14:24:53.178  1563  1609 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10266; state: ENABLED
+11-16 14:24:53.186  1563  1600 W Choreographer: Frame time is 0.03997 ms in the future!  Check that graphics HAL is generating vsync timestamps using the correct timebase.
+11-16 14:24:53.194   769   769 D Zygote  : Forked child process 18642
+11-16 14:24:53.197  1563  1609 I ActivityManager: Start proc 18642:dev.vieww.marketwatch/u0a266 for pre-top-activity {dev.vieww.marketwatch/android.app.NativeActivity}
+11-16 14:24:53.199 18642 18642 E eww.marketwatc: Not starting debugger since process cannot load the jdwp agent.
+11-16 14:24:53.216 10572 10572 I WallpaperService: engine paused
+11-16 14:24:53.217   894   894 I sensors-hal: [hal]activate_physical_sensor:238, android.sensor.gyroscope/41 en=0
+11-16 14:24:53.217 18642 18642 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-16 14:24:53.217 18642 18642 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-16 14:24:53.219   894   894 D Diag_Lib: diag: Diag_LSM_DeInit done for pid: 894
+11-16 14:24:53.221   588  1610 W DisplayIdentification: Invalid EDID: falling back to serial number due to missing display name.
+11-16 14:24:53.221   588  1610 W DisplayIdentification: Invalid EDID: falling back to ASCII text due to missing serial number.
+11-16 14:24:53.221   894   894 D Diag_Lib: diag: Diag_LSM_DeInit done for pid: 894
+11-16 14:24:53.221   894   894 I sensors-hal: [hal]activate_physical_sensor:249, android.sensor.gyroscope/41 en=0 completed
+11-16 14:24:53.237 18642 18642 I android-activity: Creating: Activity = 0x28e6, saved state size = 0
+11-16 14:24:53.274 17139 17139 I chil    : onPause
+11-16 14:24:53.275 17139 17139 W dxzb    : measuring already stopped.
+11-16 14:24:53.307 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"start","path":"gpu","phases":16}
+11-16 14:24:53.325 18642 18642 W android_main: type=1400 audit(0.0:27354): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:24:53.325 18642 18642 W android_main: type=1400 audit(0.0:27355): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:24:53.330 18642 18683 D vulkan  : searching for layers in '/data/app/~~IyOk6q1WVUOuRIHnA-rLVQ==/dev.vieww.marketwatch-9VDswUGw3FtUiBSJwJGR_Q==/lib/arm64'
+11-16 14:24:53.330 18642 18683 D vulkan  : searching for layers in '/data/app/~~IyOk6q1WVUOuRIHnA-rLVQ==/dev.vieww.marketwatch-9VDswUGw3FtUiBSJwJGR_Q==/base.apk!/lib/arm64-v8a'
+11-16 14:24:53.335  1563  1607 I ActivityTaskManager: Displayed dev.vieww.marketwatch/android.app.NativeActivity: +166ms
+11-16 14:24:53.336 17139 17139 I chil    : onStop
+11-16 14:24:53.337 18642 18683 I AdrenoVK-0: ===== BEGIN DUMP OF OVERRIDDEN SETTINGS =====
+11-16 14:24:53.337 18642 18683 I AdrenoVK-0: ===== END DUMP OF OVERRIDDEN SETTINGS =====
+11-16 14:24:53.338 18642 18683 I AdrenoVK-0: QUALCOMM build          : 4783c89, I46ff5fc46f
+11-16 14:24:53.338 18642 18683 I AdrenoVK-0: Build Date              : 11/30/20
+11-16 14:24:53.338 18642 18683 I AdrenoVK-0: Shader Compiler Version : EV031.31.04.01
+11-16 14:24:53.338 18642 18683 I AdrenoVK-0: Local Branch            : QPR2
+11-16 14:24:53.338 18642 18683 I AdrenoVK-0: Remote Branch           : 
+11-16 14:24:53.338 18642 18683 I AdrenoVK-0: Remote Branch           : 
+11-16 14:24:53.338 18642 18683 I AdrenoVK-0: Reconstruct Branch      : 
+11-16 14:24:53.338 18642 18683 I AdrenoVK-0: Build Config            : S P 10.0.4 AArch64
+11-16 14:24:53.338 18642 18683 I AdrenoVK-0: Driver Path             : /vendor/lib64/hw/vulkan.adreno.so
+11-16 14:24:53.339  1563  2000 D ConnectivityService: releasing NetworkRequest [ TRACK_DEFAULT id=187, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10192 AdministratorUids: [] RequestorUid: 10192 RequestorPackageName: com.google.android.googlequicksearchbox] ] (release request)
+11-16 14:24:53.344 18642 18668 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:24:53.344 18642 18668 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:24:53.349 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"surface","w":393,"h":851,"t":42.3}
+11-16 14:24:53.349 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"quality","line":"blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)","t":42.3}
+11-16 14:24:53.350 18642 18668 I vieww   : vieww_platform_winit::insets: display refresh: 90.0Hz from Display.getRefreshRate()
+11-16 14:24:53.350 18642 18668 I vieww   : vieww_platform_winit::app: vieww: window#primary reports 90.0Hz; frame budget follows it, falling to 60 Hz while it cannot be held
+11-16 14:24:53.354 15508 15508 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2276 
+11-16 14:24:53.354 18642 18668 I vieww   : vieww_platform_winit::insets: window insets: bars [0, 145, 0, 44] ime [0, 0, 0, 0] physical at 2.75x -> SystemInsets { safe_area: EdgeInsets { left: 0.0, top: 52.727272, right: 0.0, bottom: 16.0 }, keyboard: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } }
+11-16 14:24:53.357 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load2k","t":49.6}
+11-16 14:24:53.357 15508 15508 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1460 onStartInput(EditorInfo{EditorInfo{packageName=dev.vieww.marketwatch, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=-1, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+11-16 14:24:53.357 15508 15508 I LatinIMEBase: LatinIMEBase.updateInputViewCoverNavigation():317 Update input view padding, isNavbarOverInputWindow=true, bottom inset=132
+11-16 14:24:53.361 15508 18318 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatusInternal():129 repeatCheckTimes = 0, locked = false
+11-16 14:24:53.361 15508 18318 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatusInternal():129 repeatCheckTimes = 1, locked = false
+11-16 14:24:53.401 18642 18668 I vieww   : vieww_platform_winit::perf_hint: vieww: performance hint unavailable (Android 12 or older: no APerformanceHint)
+11-16 14:24:53.401 18642 18668 I vieww   : vieww_platform_winit::a11y_android: a11y: host is the activity's content view
+11-16 14:24:53.401 18642 18668 I vieww   : vieww_platform_winit::a11y_android: a11y: the host sits at (0, 145) inside the window, so bounds are corrected by that much
+11-16 14:24:53.402 18642 18668 I vieww   : vieww_platform_winit::a11y_android: a11y: injected an AccessKit delegate into the activity's view
+11-16 14:24:53.422 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"route","route":"direct: depth-0 opaque frame rendered into the swapchain image; chosen by measurement","t":115.1}
+11-16 14:24:53.425 18642 18668 I vieww   : vieww_platform_winit::startup: vieww: pipeline cache started from 36529 bytes; saved 36529 bytes after the first GPU frame
+11-16 14:24:53.559  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:24:54.126 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:24:54.128 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:24:55.135 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:24:55.138 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:24:55.568 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:24:55.571 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:24:56.146 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:24:56.148 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:24:56.810 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load2k","frames":3,"work_ms":[5.250,40.756,40.756,40.756],"interval_ms":[3383.679,3383.679,3383.679,3383.679],"jank":1,"budget_ms":11.11,"t":3502.9}
+11-16 14:24:56.810 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load2k","frames":3,"build_ms":[0.23,15.06,15.06],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.76,5.45,5.45],"fence_ms":[0.00,0.01,0.01],"acquire_ms":[0.15,0.24,0.24],"present_ms":[0.30,1.83,1.83],"gpu_ms":[14.79,14.79,14.79],"budget_ms_end":11.11,"scale_ms":[0.06,0.07,0.07],"plan_ms":[2.19,19.74,19.74],"gpu_draw_ms":[14.67,14.67,14.67],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.11,0.11,0.11],"gpu_blit_ms":[0.00,0.00,0.00],"t":3503.1}
+11-16 14:24:56.810 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"idle2k","t":3503.1}
+11-16 14:24:56.987   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:24:57.079   588  1611 D TimeStats: Cleared global stats
+11-16 14:24:57.079   588  1611 D TimeStats: Cleared layer stats
+11-16 14:24:57.155 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:24:57.158 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:24:57.403 18749 18749 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:24:57.404 18749 18749 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:24:57.643   900   937 D rlsservice: MonitorDisplayStatus client num 1, display status 1, sensor status 1
+11-16 14:24:58.166 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:24:58.169 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:24:58.813 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"idle2k","frames":1,"work_ms":[2.263,2.263,2.263,2.263],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":5506.0}
+11-16 14:24:58.813 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"idle2k","frames":1,"build_ms":[0.22,0.22,0.22],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.58,0.58,0.58],"fence_ms":[0.01,0.01,0.01],"acquire_ms":[0.21,0.21,0.21],"present_ms":[0.32,0.32,0.32],"gpu_ms":[10.30,10.30,10.30],"budget_ms_end":11.11,"scale_ms":[0.07,0.07,0.07],"plan_ms":[0.85,0.85,0.85],"gpu_draw_ms":[10.22,10.22,10.22],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.08,0.08,0.08],"gpu_blit_ms":[0.00,0.00,0.00],"t":5506.1}
+11-16 14:24:58.813 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"tick2k","t":5506.2}
+11-16 14:24:59.174 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:24:59.178 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:24:59.217   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:24:59.307   588  1611 D TimeStats: Cleared global stats
+11-16 14:24:59.307   588  1611 D TimeStats: Cleared layer stats
+11-16 14:24:59.815 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"tick2k","frames":1,"work_ms":[11.827,11.827,11.827,11.827],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":6507.5}
+11-16 14:24:59.815 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"tick2k","frames":1,"build_ms":[1.28,1.28,1.28],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[1.38,1.38,1.38],"fence_ms":[0.02,0.02,0.02],"acquire_ms":[0.26,0.26,0.26],"present_ms":[1.61,1.61,1.61],"gpu_ms":[14.97,14.97,14.97],"budget_ms_end":11.11,"scale_ms":[0.05,0.05,0.05],"plan_ms":[7.22,7.22,7.22],"gpu_draw_ms":[14.86,14.86,14.86],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.11,0.11,0.11],"gpu_blit_ms":[0.00,0.00,0.00],"t":6507.6}
+11-16 14:24:59.815 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"jump2k","t":6507.6}
+11-16 14:25:00.184 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:00.188 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:00.285   588   628 D TimeStats: Dumping TimeStats as text
+11-16 14:25:00.374   588   628 D TimeStats: Cleared global stats
+11-16 14:25:00.374   588   628 D TimeStats: Cleared layer stats
+11-16 14:25:00.569 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:00.570 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:00.701 18815 18815 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:25:00.701 18815 18815 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:25:00.814 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"jump2k","frames":1,"work_ms":[16.928,16.928,16.928,16.928],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":7507.2}
+11-16 14:25:00.814 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"jump2k","frames":1,"build_ms":[4.98,4.98,4.98],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[1.18,1.18,1.18],"fence_ms":[0.01,0.01,0.01],"acquire_ms":[0.22,0.22,0.22],"present_ms":[1.24,1.24,1.24],"gpu_ms":[14.88,14.88,14.88],"budget_ms_end":11.11,"scale_ms":[0.04,0.04,0.04],"plan_ms":[9.25,9.25,9.25],"gpu_draw_ms":[14.77,14.77,14.77],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.12,0.12,0.12],"gpu_blit_ms":[0.00,0.00,0.00],"t":7507.2}
+11-16 14:25:00.814 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"scroll2k","t":7507.3}
+11-16 14:25:01.193 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:01.197 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:01.304   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:25:01.331   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:01.366   588   628 D TimeStats: Cleared global stats
+11-16 14:25:01.366   588   628 D TimeStats: Cleared layer stats
+11-16 14:25:01.688 18839 18839 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:25:01.688 18839 18839 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:25:01.853   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:02.201 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:02.204 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:02.358   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:02.873   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:03.207 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:03.211 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:03.374   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:03.876   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:04.215 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:04.220 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:04.382   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:04.883   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:05.223 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:05.227 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:05.388   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:05.572 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:05.574 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:05.906   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:06.231 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:06.234 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:06.401   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:06.896   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:07.239 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:07.242 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:07.385   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:07.873   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:08.247 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:08.250 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:08.365   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:08.819 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"scroll2k","frames":1051,"work_ms":[7.434,8.706,10.208,23.282],"interval_ms":[7.515,8.874,10.391,24.974],"jank":1,"budget_ms":11.11,"t":15512.0}
+11-16 14:25:08.820 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"scroll2k","frames":1051,"build_ms":[0.60,1.01,1.95],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.45,1.24,6.10],"fence_ms":[0.01,0.01,0.11],"acquire_ms":[0.22,0.25,2.10],"present_ms":[3.93,5.21,20.86],"gpu_ms":[7.35,7.48,16.16],"budget_ms_end":11.11,"scale_ms":[0.05,0.06,0.14],"plan_ms":[1.72,2.96,7.50],"gpu_draw_ms":[7.29,7.41,16.04],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.07,0.08,0.12],"gpu_blit_ms":[0.00,0.00,0.00],"t":15512.9}
+11-16 14:25:08.820 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"live2k","t":15513.0}
+11-16 14:25:08.883   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:09.151   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:25:09.235   588  1611 D TimeStats: Cleared global stats
+11-16 14:25:09.235   588  1611 D TimeStats: Cleared layer stats
+11-16 14:25:09.254 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:09.256 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:09.762   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:10.260 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:10.262 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:10.274   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:10.594 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:10.597 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:10.782   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:11.265 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:11.267 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:11.292   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:11.802   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:12.271 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:12.275 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:12.304   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:12.806   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:13.279 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:13.281 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:13.317   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:13.825   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:14.285 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:14.289 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:14.326   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:14.824   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:15.293 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:15.296 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:15.330   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:15.597 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:15.600 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:15.830   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:16.300 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:16.302 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:16.328   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:16.820 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"live2k","frames":1033,"work_ms":[7.589,9.003,9.487,10.418],"interval_ms":[7.653,9.064,9.577,10.503],"jank":0,"budget_ms":11.11,"t":23513.0}
+11-16 14:25:16.820 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"live2k","frames":1033,"build_ms":[0.80,1.09,1.56],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.40,1.02,1.81],"fence_ms":[0.01,0.01,0.05],"acquire_ms":[0.16,0.19,0.81],"present_ms":[2.84,3.88,5.93],"gpu_ms":[7.37,7.50,7.78],"budget_ms_end":11.11,"scale_ms":[0.03,0.03,0.09],"plan_ms":[3.33,4.38,7.10],"gpu_draw_ms":[7.31,7.43,7.70],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.07,0.08,0.09],"gpu_blit_ms":[0.00,0.00,0.00],"t":23513.4}
+11-16 14:25:16.821 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"storm2k","t":23513.4}
+11-16 14:25:16.852   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:17.117   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:25:17.202   588  1611 D TimeStats: Cleared global stats
+11-16 14:25:17.202   588  1611 D TimeStats: Cleared layer stats
+11-16 14:25:17.306 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:17.308 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:17.733   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:18.286   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:18.312 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:18.314 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:18.832   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:19.318 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:19.320 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:19.408   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:19.954   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:20.325 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:20.328 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:20.490   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:20.602 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:20.606 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:21.011   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:21.332 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:21.334 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:21.552   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:21.847 17907 27267 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-16 14:25:21.874 17907 27267 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-16 14:25:22.081   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:22.338 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:22.340 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:22.601   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:23.143   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:23.343 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:23.345 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:23.687   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:24.240   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:24.349 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:24.355 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:24.800   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:24.818 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"storm2k","frames":985,"work_ms":[7.932,9.474,9.895,11.080],"interval_ms":[7.988,9.538,9.979,11.144],"jank":0,"budget_ms":11.11,"t":31511.2}
+11-16 14:25:24.819 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"storm2k","frames":985,"build_ms":[0.97,1.14,2.14],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.39,0.98,1.99],"fence_ms":[0.01,0.01,0.05],"acquire_ms":[0.14,0.16,1.06],"present_ms":[1.21,2.18,4.43],"gpu_ms":[7.50,7.55,7.86],"budget_ms_end":11.11,"scale_ms":[0.02,0.02,0.06],"plan_ms":[4.97,6.31,7.09],"gpu_draw_ms":[7.43,7.48,7.79],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.07,0.07,0.09],"gpu_blit_ms":[0.00,0.00,0.00],"t":31511.5}
+11-16 14:25:24.819 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load20k","t":31511.5}
+11-16 14:25:25.344   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:25:25.358 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:25.360 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:25.394   588  1611 D TimeStats: Cleared global stats
+11-16 14:25:25.394   588  1611 D TimeStats: Cleared layer stats
+11-16 14:25:25.614 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:25.618 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:26.368 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:26.371 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:26.619   894  1008 D ASH     : @ 3905.337: AP has been up: last 3604168416, now 3905337307 usec
+11-16 14:25:26.817 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load20k","frames":1,"work_ms":[10.633,10.633,10.633,10.633],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":33510.3}
+11-16 14:25:26.818 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load20k","frames":1,"build_ms":[3.98,3.98,3.98],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[1.18,1.18,1.18],"fence_ms":[0.01,0.01,0.01],"acquire_ms":[0.21,0.21,0.21],"present_ms":[0.29,0.29,0.29],"gpu_ms":[7.52,7.52,7.52],"budget_ms_end":11.11,"scale_ms":[0.02,0.02,0.02],"plan_ms":[4.95,4.95,4.95],"gpu_draw_ms":[7.45,7.45,7.45],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.07,0.07,0.07],"gpu_blit_ms":[0.00,0.00,0.00],"t":33510.4}
+11-16 14:25:26.818 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"idle20k","t":33510.4}
+11-16 14:25:27.379 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:27.381 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:27.422   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:25:27.500  2425  2425 D DeviceStatisticsService: chargerType=2 batteryLevel=78 totalBatteryCapacity=4030400
+11-16 14:25:27.500  2425  2425 D DeviceInfoHidlClient: getPowerInfoSupportStatus()=1
+11-16 14:25:27.500  2425  2425 D DeviceInfoHidlClient: isRadioOn()=true
+11-16 14:25:27.500  2425  2425 I DeviceInfoHidlClient: isPowerInfoNeverSent=false batteryLevel=78 batteryLevelIndex=2 chargingMode=2 totalCapacity=4030400 powerSaveMode=false
+11-16 14:25:27.507   588  1611 D TimeStats: Cleared global stats
+11-16 14:25:27.507   588  1611 D TimeStats: Cleared layer stats
+11-16 14:25:23.749  1563  2000 I chatty  : uid=1000(system) ConnectivitySer identical 10 lines
+11-16 14:25:26.774  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:25:27.509  2050 12927 D PowerUI : can't show warning due to - plugged: true status unknown: false
+11-16 14:25:27.644   900   937 D rlsservice: MonitorDisplayStatus client num 1, display status 1, sensor status 1
+11-16 14:25:27.828 19226 19226 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:25:27.828 19226 19226 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:25:28.389 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:28.393 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:28.819 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"idle20k","frames":1,"work_ms":[2.463,2.463,2.463,2.463],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":35512.2}
+11-16 14:25:28.819 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"idle20k","frames":1,"build_ms":[0.27,0.27,0.27],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.44,0.44,0.44],"fence_ms":[0.01,0.01,0.01],"acquire_ms":[0.28,0.28,0.28],"present_ms":[0.33,0.33,0.33],"gpu_ms":[7.50,7.50,7.50],"budget_ms_end":11.11,"scale_ms":[0.07,0.07,0.07],"plan_ms":[1.06,1.06,1.06],"gpu_draw_ms":[7.44,7.44,7.44],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.07,0.07,0.07],"gpu_blit_ms":[0.00,0.00,0.00],"t":35512.3}
+11-16 14:25:28.819 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"tick20k","t":35512.3}
+11-16 14:25:28.948   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:25:29.044   588  1611 D TimeStats: Cleared global stats
+11-16 14:25:29.044   588  1611 D TimeStats: Cleared layer stats
+11-16 14:25:29.400 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:29.403 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:29.804  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:25:29.821 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"tick20k","frames":1,"work_ms":[6.072,6.072,6.072,6.072],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":36513.8}
+11-16 14:25:29.821 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"tick20k","frames":1,"build_ms":[0.95,0.95,0.95],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[2.08,2.08,2.08],"fence_ms":[0.01,0.01,0.01],"acquire_ms":[0.28,0.28,0.28],"present_ms":[0.31,0.31,0.31],"gpu_ms":[6.71,6.71,6.71],"budget_ms_end":11.11,"scale_ms":[0.03,0.03,0.03],"plan_ms":[2.42,2.42,2.42],"gpu_draw_ms":[6.65,6.65,6.65],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.05,0.05,0.05],"gpu_blit_ms":[0.00,0.00,0.00],"t":36513.9}
+11-16 14:25:29.821 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"jump20k","t":36513.9}
+11-16 14:25:30.129   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:25:30.221   588  1611 D TimeStats: Cleared global stats
+11-16 14:25:30.221   588  1611 D TimeStats: Cleared layer stats
+11-16 14:25:30.408 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:30.410 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:30.552 19320 19320 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:25:30.552 19320 19320 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:25:30.654 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:30.657 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:30.822 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"jump20k","frames":1,"work_ms":[14.059,14.059,14.059,14.059],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":37515.0}
+11-16 14:25:30.822 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"jump20k","frames":1,"build_ms":[5.98,5.98,5.98],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.70,0.70,0.70],"fence_ms":[0.02,0.02,0.02],"acquire_ms":[0.35,0.35,0.35],"present_ms":[0.32,0.32,0.32],"gpu_ms":[14.99,14.99,14.99],"budget_ms_end":11.11,"scale_ms":[0.04,0.04,0.04],"plan_ms":[6.65,6.65,6.65],"gpu_draw_ms":[14.87,14.87,14.87],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.12,0.12,0.12],"gpu_blit_ms":[0.00,0.00,0.00],"t":37515.1}
+11-16 14:25:30.822 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"scroll20k","t":37515.1}
+11-16 14:25:31.170   588   628 D TimeStats: Dumping TimeStats as text
+11-16 14:25:31.257   588   628 D TimeStats: Cleared global stats
+11-16 14:25:31.257   588   628 D TimeStats: Cleared layer stats
+11-16 14:25:31.414 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:31.417 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:31.566 19372 19372 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:25:31.566 19372 19372 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:25:31.739   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:32.232   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:32.306 20868 20868 I EuiccGoogle: [2] EuiccServiceImpl.onDestroy: onDestroy: EuiccService on destroy.
+11-16 14:25:32.308 20868 20868 I EuiccGoogle: [2] EuiccServiceImpl.disposeEuiccCard: disposeEuiccCard.
+11-16 14:25:32.347  3090 18187 I WS1_AfwUtils: Hub app user id: 0
+11-16 14:25:32.348  3090 18187 I WS1_AfwUtils: isWorkHubDiscoverable - false
+11-16 14:25:32.349  3090 18187 I WS1_SDKDataModelImpl: Returning in memory app token data!
+11-16 14:25:32.351  3090 18189 I DynDCD  : EnginePayloadProvider.cpp -> Loading Previously stored payload
+11-16 14:25:32.351  3090 18189 I DynDCD  : EnginePayloadProvider.cpp -> Trying to fetch rules from the Server
+11-16 14:25:32.352  3090 18189 I WS1_DynDCD_DynamicCDD: Trying to fetch rules from default source
+11-16 14:25:32.354  3090 18189 I WS1_AfwUtils: Hub app user id: 0
+11-16 14:25:32.355  3090 18189 I WS1_AfwUtils: isWorkHubDiscoverable - false
+11-16 14:25:32.355  3090 18189 I WS1_BaseMessage: Sending CddNetworkMessage to https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R
+11-16 14:25:32.356  3090 18189 I WS1     : Setting Timeout Values, Connection:30000, SO Timeout:30000
+11-16 14:25:32.357  3090 18189 I WS1_AppPermissionUtil: Getting signature for com.airwatch.androidagent
+11-16 14:25:32.359  3090 18189 I WS1_AppPermissionUtil: App access allowed with 0 for com.airwatch.androidagent
+11-16 14:25:32.362  3090 18189 I WS1_CorrelationLog: CorrelationID:45050656-54c9-43a6-0001-611142532361  for connection https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R
+11-16 14:25:32.414  3090 18189 I WS1_ExtendedX509TrustM: TrustMaterialAvailable, check the trust.
+11-16 14:25:32.417  3090 18189 I WS1_ADPublicKeyManager: sdk-config.data.workspaceone-gov.com is trusted by default
+11-16 14:25:32.417  3090 18189 I WS1_PinBasedTrustM: Key match status for sdk-config.data.workspaceone-gov.com/3.31.158.235: true
+11-16 14:25:32.418  3090 18189 I WS1_ExtendedX509TrustM: checkServerTrusted: Server certificate pin match for sdk-config.data.workspaceone-gov.com/3.31.158.235
+11-16 14:25:32.421 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:32.423 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:32.458  3090 18189 I WS1_BaseMessage: Response code for https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R 200
+11-16 14:25:32.458  3090 18189 I WS1     : Response code is: 200
+11-16 14:25:32.462  3090 18189 I WS1_DynDCD_DynamicCDD: Successfully fetched payload rules from WS1 FedRAMP domain
+11-16 14:25:32.463  3090 18189 I DynDCD  : EnginePayloadProvider.cpp -> Server payload is older than bundled payload.
+11-16 14:25:32.463  3090 18189 I DynDCD  : EnginePayloadProvider.cpp -> Bundled Payload last modified time: 1603812484
+11-16 14:25:32.463  3090 18189 I DynDCD  : EnginePayloadProvider.cpp -> Server Payload last received time: 1588786684
+11-16 14:25:32.480  3090 18189 I DynDCD  : Script -> Starting Dynamic Jail Break Check
+11-16 14:25:32.480  3090 18189 I DynDCD  : Script -> Running Checks
+11-16 14:25:32.508 19386 19386 W ls      : type=1400 audit(0.0:27356): avc: denied { getattr } for path="/system/etc/cgroups.json" dev="dm-8" ino=556 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:cgroup_desc_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:25:32.518 19386 19386 W ls      : type=1400 audit(0.0:27357): avc: denied { getattr } for path="/system/etc/selinux/plat_file_contexts" dev="dm-8" ino=886 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:file_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:25:32.518 19386 19386 W ls      : type=1400 audit(0.0:27358): avc: denied { getattr } for path="/system/etc/selinux/plat_hwservice_contexts" dev="dm-8" ino=887 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:hwservice_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:25:32.518 19386 19386 W ls      : type=1400 audit(0.0:27359): avc: denied { getattr } for path="/system/etc/selinux/plat_mac_permissions.xml" dev="dm-8" ino=888 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:mac_perms_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:25:32.518 19386 19386 W ls      : type=1400 audit(0.0:27360): avc: denied { getattr } for path="/system/etc/selinux/plat_service_contexts" dev="dm-8" ino=893 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:service_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:25:32.518 19386 19386 W ls      : type=1400 audit(0.0:27361): avc: denied { getattr } for path="/system/etc/selinux/plat_seapp_contexts" dev="dm-8" ino=890 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:seapp_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:25:32.518 19386 19386 W ls      : type=1400 audit(0.0:27362): avc: denied { getattr } for path="/system/etc/selinux/plat_sepolicy.cil" dev="dm-8" ino=891 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:sepolicy_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:25:32.522 19386 19386 W ls      : type=1400 audit(0.0:27363): avc: denied { getattr } for path="/system/etc/selinux/mapping/28.0.cil" dev="dm-8" ino=881 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:sepolicy_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:25:32.571  3090 18189 I DynDCD  : Script -> Super User Scan Check : true
+11-16 14:25:32.572  3090 18189 I DynDCD  : Script -> Writable File Paths Check : true
+11-16 14:25:32.610  3090 18189 I DynDCD  : Script -> Installed Packages Check : true
+11-16 14:25:32.679  3090 18189 I DynDCD  : Script -> Super User File Path Check : true
+11-16 14:25:32.708  3090 18189 I DynDCD  : Script -> Super User Check : true
+11-16 14:25:32.720  3090 18189 I DynDCD  : Script -> Xposed Check : true
+11-16 14:25:32.727   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:32.745  3090 18189 I DynDCD  : Script -> Malicious Files Check : true
+11-16 14:25:32.751  3090 18189 I DynDCD  : Script -> Ro Secure Flag Check : true
+11-16 14:25:32.752  3090 18189 I DynDCD  : Script -> Magisk String Check : true
+11-16 14:25:32.752  3090 18189 D DynDCD  : Script -> [{"id":"BundledRules_SDK_20201027"},{"name":"superUserScan","passed":true},{"name":"writableFilePaths","passed":true},{"name":"installedPackages","passed":true},{"name":"superUserFilePath","passed":true},{"name":"superUser","passed":true},{"name":"xposed","passed":true},{"name":"maliciousFiles","passed":true},{"name":"roSecureFlag","passed":true},{"name":"magisk","passed":true},{"failedReasonCodes":[]}]
+11-16 14:25:32.753  3090 18189 I DynDCD  : EngineDelegateImpl.cpp -> Compromised detection successfully completed
+11-16 14:25:32.754  3090 18189 I WS1_DynDCD_DynamicCDD: Dynamic compromise detection is a success for rulesId: BundledRules_SDK_20201027!
+11-16 14:25:32.755  3090  3090 E WS1_DetailsLog: runDynamicCompromiseDetection passed SUCCESS
+11-16 14:25:32.755  3090 18189 I WS1_AirWatchApp: AW SDK, ENABLE_SDK_FRIDA_DETECTION: false , ENABLE_SDK_ROOT_DETECTION: false
+11-16 14:25:32.756  3090 18189 I WS1_TamperCheckService: Starting tamper checker!
+11-16 14:25:32.756  3090 18189 I NativeMain: Finding SDK Logger class!
+11-16 14:25:32.757  3090 18189 W NativeMain: SDK Logger class is invalid, logging via android logger!
+11-16 14:25:32.757  3090 18189 D NativeMain: tamper check initiated
+11-16 14:25:32.795  3090  4103 D WM-SystemJobScheduler: Scheduling work ID 7e2e747f-c27a-4211-97a2-b0e03f1d8b6bJob ID 1013253
+11-16 14:25:32.800  3090  4103 D WM-GreedyScheduler: Starting work for 7e2e747f-c27a-4211-97a2-b0e03f1d8b6b
+11-16 14:25:32.802  3090  3090 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=7e2e747f-c27a-4211-97a2-b0e03f1d8b6b, generation=0)
+11-16 14:25:32.803  3090  4103 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=7e2e747f-c27a-4211-97a2-b0e03f1d8b6b, generation=0)
+11-16 14:25:32.805  3090  4103 D WM-Processor: Work WorkGenerationalId(workSpecId=7e2e747f-c27a-4211-97a2-b0e03f1d8b6b, generation=0) is already enqueued for processing
+11-16 14:25:32.807  3090  4103 W WS1_SE_SmpWrkFct_WV8VHC: com.airwatch.app.TamperCheckerWorker not resolved in SamplingWorkerFactory
+11-16 14:25:32.807  3090  4103 W WS1_IntentProcessorWorkerFct: com.airwatch.app.TamperCheckerWorker not resolved
+11-16 14:25:32.807  3090  4103 E WS1_TaskWorkerFactory: Worker class:com.airwatch.app.TamperCheckerWorker not resolved in TaskWorkerFactory
+11-16 14:25:32.812  3090  3090 D WM-WorkerWrapper: Starting work for com.airwatch.app.TamperCheckerWorker
+11-16 14:25:32.817  1064  1064 I keystore: del USRPKEY_QrgINgdPTMoEoDwJZP4NZg== 10261
+11-16 14:25:32.817  1064  1064 I keystore: del USRSKEY_QrgINgdPTMoEoDwJZP4NZg== 10261
+11-16 14:25:32.817  1064  1064 I keystore: del USRCERT_QrgINgdPTMoEoDwJZP4NZg== 10261
+11-16 14:25:32.817  1064  1064 I keystore: del CACERT_QrgINgdPTMoEoDwJZP4NZg== 10261
+11-16 14:25:32.819   549   569 D DrmLibTime: got the req here! ret=0
+11-16 14:25:32.819   549   569 D DrmLibTime: command id, time_cmd_id = 770
+11-16 14:25:32.819   549   569 D DrmLibTime: time_getutcsec starts!
+11-16 14:25:32.819   549   569 D DrmLibTime: QSEE Time Listener: time_getutcsec
+11-16 14:25:32.819   549   569 D DrmLibTime: QSEE Time Listener: get_utc_seconds
+11-16 14:25:32.819   549   569 D DrmLibTime: QSEE Time Listener: time_get_modem_time
+11-16 14:25:32.819   549   569 D DrmLibTime: QSEE Time Listener: Checking if ATS_MODEM is set or not.
+11-16 14:25:32.819   549   569 D QC-time-services: Lib:time_genoff_operation: pargs->base = 13
+11-16 14:25:32.819   549   569 D QC-time-services: Lib:time_genoff_operation: pargs->operation = 2
+11-16 14:25:32.819   549   569 D QC-time-services: Lib:time_genoff_operation: pargs->ts_val = 0
+11-16 14:25:32.819   549   569 D QC-time-services: Lib:time_genoff_operation: Send to server  passed!!
+11-16 14:25:32.819   761   930 D QC-time-services: Daemon: Connection accepted:time_genoff
+11-16 14:25:32.819   761 19419 D QC-time-services: Daemon:Received base = 13, unit = 1, operation = 2,value = 0
+11-16 14:25:32.819   761 19419 D QC-time-services: Daemon:genoff_opr: Base = 13, val = 0, operation = 2
+11-16 14:25:32.819   761 19419 D QC-time-services: offset is: 1 for base: 13
+11-16 14:25:32.819   549   569 E QC-time-services: Receive Passed == base = 13, unit = 1, operation = 2, result = 0
+11-16 14:25:32.819   549   569 D DrmLibTime: QSEE Time Listener: ATS_MODEM is set. Try to retrieve it.
+11-16 14:25:32.820   761   930 E QC-time-services: Daemon: Time-services: Waiting to acceptconnection
+11-16 14:25:32.820   761   930 D QC-time-services: Daemon: Connection accepted:time_genoff
+11-16 14:25:32.820   761 19420 D QC-time-services: Daemon:Received base = 13, unit = 1, operation = 1,value = 0
+11-16 14:25:32.820   761 19420 D QC-time-services: Daemon:genoff_opr: Base = 13, val = 0, operation = 1
+11-16 14:25:32.820   761 19420 D QC-time-services: Daemon: genoff get for 13
+11-16 14:25:32.820   761 19420 D QC-time-services: Daemon:Value read from QTimer mseconds = 3911540
+11-16 14:25:32.820   761 19420 D QC-time-services: Daemon:Value read from RTC mseconds on boot = 139302101000
+11-16 14:25:32.820   761 19420 D QC-time-services: Daemon:Value read from QTimer mseconds = 3911540
+11-16 14:25:32.820   761 19420 D QC-time-services: Daemon:Value read from generic offset = 1634329500731
+11-16 14:25:32.820   761 19420 D QC-time-services: Daemon:Delta read on boot mseconds = 139302095275
+11-16 14:25:32.820   761 19420 D QC-time-services: Daemon:Final Time = 1773635507546
+11-16 14:25:32.820   549   569 D DrmLibTime: QSEE Time Listener: Time GenOff - seconds: 1773635507
+11-16 14:25:32.820   549   569 D DrmLibTime: time_getutcsec returns 0, sec = 1773635507; nsec = 0
+11-16 14:25:32.820   549   569 D DrmLibTime: time_getutcsec finished! 
+11-16 14:25:32.820   549   569 D DrmLibTime: iotcl_continue_command finished! and return 0 
+11-16 14:25:32.820   549   569 D DrmLibTime: before calling ioctl to read the next time_cmd
+11-16 14:25:32.823   761   930 E QC-time-services: Daemon: Time-services: Waiting to acceptconnection
+11-16 14:25:32.835  3090  4113 I WS1_TamperChecker: CompDetectionResponse is 14
+11-16 14:25:32.836  3090  4113 I WS1_TamperChecker: DI status=false
+11-16 14:25:32.836  3090  4113 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:25:32.836  3090  4113 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:25:32.837  3090  4113 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 14:25:32.837  3090  4113 I WS1_TamperChecker: Root status=false
+11-16 14:25:32.837  3090  4113 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:25:32.838  3090  4113 I WS1_TamperCheckService: Beginning of tamper checker operation!
+11-16 14:25:32.840  3090  4104 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=7e2e747f-c27a-4211-97a2-b0e03f1d8b6b, tags={ com.airwatch.app.TamperCheckerWorker } ]
+11-16 14:25:32.842  3090  3090 D WM-Processor: Processor 7e2e747f-c27a-4211-97a2-b0e03f1d8b6b executed; reschedule = false
+11-16 14:25:32.842  3090  3090 D WM-SystemJobService: 7e2e747f-c27a-4211-97a2-b0e03f1d8b6b executed on JobScheduler
+11-16 14:25:32.845  3090  4104 D WM-GreedyScheduler: Cancelling work ID 7e2e747f-c27a-4211-97a2-b0e03f1d8b6b
+11-16 14:25:32.961  3090 19421 I WS1_TamperChecker: CompDetectionResponse is 20
+11-16 14:25:32.961  3090 19421 I WS1_TamperChecker: DI status=false
+11-16 14:25:32.961  3090 19421 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:25:32.962  3090 19421 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:25:32.962  3090 19421 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 14:25:32.962  3090 19421 I WS1_TamperChecker: Root status=false
+11-16 14:25:32.962  3090 19421 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:25:33.211   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:33.426 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:33.427 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:33.618  3090 19418 I WS1_TamperChecker: CompDetectionResponse is 18
+11-16 14:25:33.618  3090 19418 I WS1_TamperChecker: DI status=false
+11-16 14:25:33.618  3090 19418 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:25:33.618  3090 19418 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:25:33.619  3090 19418 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 14:25:33.619  3090 19418 I WS1_TamperChecker: Root status=false
+11-16 14:25:33.619  3090 19418 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:25:33.703   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:34.085  1064  1064 I keystore: del USRPKEY_QrgINgdPTMoEoDwJZP4NZg== 10261
+11-16 14:25:34.085  1064  1064 I keystore: del USRCERT_QrgINgdPTMoEoDwJZP4NZg== 10261
+11-16 14:25:34.086  1064  1064 I keystore: del CACERT_QrgINgdPTMoEoDwJZP4NZg== 10261
+11-16 14:25:34.088  3090 19416 I WS1_TamperChecker: CompDetectionResponse is 22
+11-16 14:25:34.089  3090 19416 I WS1_TamperChecker: DI status=false
+11-16 14:25:34.090  3090 19416 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:25:34.090  3090 19416 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:25:34.091  3090 19416 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 14:25:34.091  3090 19416 I WS1_TamperChecker: Root status=false
+11-16 14:25:34.092  3090 19416 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:25:34.193   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:34.290  2425  2425 D DeviceStatisticsService: chargerType=2 batteryLevel=77 totalBatteryCapacity=4081700
+11-16 14:25:34.290  2425  2425 D DeviceInfoHidlClient: getPowerInfoSupportStatus()=1
+11-16 14:25:34.290  2425  2425 D DeviceInfoHidlClient: isRadioOn()=true
+11-16 14:25:34.290  2425  2425 I DeviceInfoHidlClient: isPowerInfoNeverSent=false batteryLevel=77 batteryLevelIndex=2 chargingMode=2 totalCapacity=4081700 powerSaveMode=false
+11-16 14:25:32.813  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:25:34.340  1563  1591 W ActivityManager: Slow operation: 55ms so far, now at getContentProviderImpl: after updateOomAdj
+11-16 14:25:34.340  1563  1591 W ActivityManager: Slow operation: 55ms so far, now at getContentProviderImpl: done!
+11-16 14:25:34.342  2050 12956 D PowerUI : can't show warning due to - plugged: true status unknown: false
+11-16 14:25:34.346  2425  2425 D DeviceStatisticsService: chargerType=2 batteryLevel=77 totalBatteryCapacity=4081700
+11-16 14:25:34.347  2050  2665 D PowerUI : can't show warning due to - plugged: true status unknown: false
+11-16 14:25:34.431 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:34.433 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:34.681   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:34.816 19004 19068 E PlayCommon: [1045] Metalog directories were deleted unexpectedly, recreating...
+11-16 14:25:34.884 19004 19103 E PlayCommon: [1072] Metalog directories were deleted unexpectedly, recreating...
+11-16 14:25:35.174   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:35.437 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:35.439 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:35.665   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:35.665 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:35.835  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:25:35.668 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:36.151   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:36.443 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:36.446 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:36.649   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:37.133   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:37.450 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:37.453 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:37.625   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:38.116   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:38.455 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:38.457 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:38.608   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:38.827 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"scroll20k","frames":1070,"work_ms":[7.322,8.439,10.025,22.246],"interval_ms":[7.393,8.504,10.113,22.332],"jank":1,"budget_ms":11.11,"t":45520.2}
+11-16 14:25:38.828 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"scroll20k","frames":1070,"build_ms":[0.60,1.02,1.87],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.43,0.52,1.86],"fence_ms":[0.01,0.01,0.08],"acquire_ms":[0.21,0.25,0.61],"present_ms":[3.99,5.14,18.58],"gpu_ms":[7.35,7.48,16.30],"budget_ms_end":11.11,"scale_ms":[0.05,0.05,0.16],"plan_ms":[1.71,2.94,7.58],"gpu_draw_ms":[7.29,7.41,16.18],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.07,0.08,0.12],"gpu_blit_ms":[0.00,0.00,0.00],"t":45521.1}
+11-16 14:25:38.828 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"live20k","t":45521.2}
+11-16 14:25:39.124   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:39.157   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:25:39.239   588  1611 D TimeStats: Cleared global stats
+11-16 14:25:39.239   588  1611 D TimeStats: Cleared layer stats
+11-16 14:25:39.460 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:39.463 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:39.732   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:40.236   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:40.467 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:40.469 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:40.669 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:40.671 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:40.753   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:41.259   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:41.472 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:41.474 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:41.774   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:42.273   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:42.478 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:42.480 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:42.770   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:43.266   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:43.483 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:43.485 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:43.773   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:44.283   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:44.489 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:44.494 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:44.791   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:45.030  3090  3854 D TaskQueue: removing queue after quit safely success for task queue handler AWService
+11-16 14:25:45.304   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:45.497 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:45.499 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:45.677 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:45.679 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:45.819   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:46.318   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:46.503 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:46.504 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:46.816   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:46.827 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"live20k","frames":1040,"work_ms":[7.539,8.839,9.330,11.101],"interval_ms":[7.596,8.905,9.389,11.186],"jank":0,"budget_ms":11.11,"t":53519.7}
+11-16 14:25:46.827 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"live20k","frames":1040,"build_ms":[0.81,1.09,1.54],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.40,0.49,1.65],"fence_ms":[0.01,0.01,0.03],"acquire_ms":[0.16,0.19,1.04],"present_ms":[2.83,3.85,5.50],"gpu_ms":[7.37,7.51,7.80],"budget_ms_end":11.11,"scale_ms":[0.03,0.03,0.09],"plan_ms":[3.30,4.40,8.00],"gpu_draw_ms":[7.31,7.43,7.72],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.07,0.08,0.09],"gpu_blit_ms":[0.00,0.00,0.00],"t":53520.1}
+11-16 14:25:46.827 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"storm20k","t":53520.2}
+11-16 14:25:46.930   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:25:47.015   588  1611 D TimeStats: Cleared global stats
+11-16 14:25:47.015   588  1611 D TimeStats: Cleared layer stats
+11-16 14:25:47.507 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:47.510 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:47.524   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:48.043   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:48.513 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:48.516 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:48.554   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:49.064   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:49.523 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:49.525 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:49.567   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:50.076   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:50.529 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:50.532 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:50.588   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:50.712 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:50.715 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:51.090   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:51.535 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:51.537 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:51.599   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:52.105   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:52.542 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:52.545 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:52.632   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:53.138   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:53.548 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:53.550 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:53.670   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:54.211   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:54.553 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:54.557 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:54.718   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:54.827 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"storm20k","frames":1032,"work_ms":[7.603,8.842,9.486,10.273],"interval_ms":[7.661,8.943,9.548,10.330],"jank":0,"budget_ms":11.11,"t":61519.9}
+11-16 14:25:54.827 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"storm20k","frames":1032,"build_ms":[0.98,1.08,2.28],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.39,0.91,1.59],"fence_ms":[0.01,0.01,0.03],"acquire_ms":[0.14,0.16,0.58],"present_ms":[1.32,2.20,3.96],"gpu_ms":[7.30,7.34,7.67],"budget_ms_end":11.11,"scale_ms":[0.02,0.02,0.06],"plan_ms":[4.62,5.05,6.83],"gpu_draw_ms":[7.24,7.28,7.61],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.05,0.06,0.07],"gpu_blit_ms":[0.00,0.00,0.00],"t":61520.3}
+11-16 14:25:54.827 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load2k-thermal","t":61520.3}
+11-16 14:25:55.464   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:25:55.556   588  1611 D TimeStats: Cleared global stats
+11-16 14:25:55.557   588  1611 D TimeStats: Cleared layer stats
+11-16 14:25:55.562 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:55.564 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:55.753 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:55.754 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:25:56.571 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:56.574 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:56.824 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load2k-thermal","frames":1,"work_ms":[15.136,15.136,15.136,15.136],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":63517.3}
+11-16 14:25:56.824 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load2k-thermal","frames":1,"build_ms":[8.65,8.65,8.65],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.97,0.97,0.97],"fence_ms":[0.01,0.01,0.01],"acquire_ms":[0.18,0.18,0.18],"present_ms":[0.26,0.26,0.26],"gpu_ms":[7.31,7.31,7.31],"budget_ms_end":11.11,"scale_ms":[0.02,0.02,0.02],"plan_ms":[5.05,5.05,5.05],"gpu_draw_ms":[7.25,7.25,7.25],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.05,0.05,0.05],"gpu_blit_ms":[0.00,0.00,0.00],"t":63517.4}
+11-16 14:25:56.825 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"thermal","t":63517.4}
+11-16 14:25:57.262   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:25:57.332   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:57.344   588  1611 D TimeStats: Cleared global stats
+11-16 14:25:57.344   588  1611 D TimeStats: Cleared layer stats
+11-16 14:25:57.578 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:57.581 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:57.645   900   937 D rlsservice: MonitorDisplayStatus client num 1, display status 1, sensor status 1
+11-16 14:25:57.647 19667 19667 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:25:57.647 19667 19667 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:25:57.842   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:57.945 19669 19669 W df      : type=1400 audit(0.0:27395): avc: denied { getattr } for path="/metadata" dev="sda15" ino=2 scontext=u:r:shell:s0 tcontext=u:object_r:metadata_file:s0 tclass=dir permissive=0
+11-16 14:25:57.945 19669 19669 W df      : type=1400 audit(0.0:27396): avc: denied { getattr } for path="/linkerconfig" dev="tmpfs" ino=13393 scontext=u:r:shell:s0 tcontext=u:object_r:linkerconfig_file:s0 tclass=dir permissive=0
+11-16 14:25:57.945 19669 19669 W df      : type=1400 audit(0.0:27397): avc: denied { search } for name="vendor" dev="tmpfs" ino=8360 scontext=u:r:shell:s0 tcontext=u:object_r:mnt_vendor_file:s0 tclass=dir permissive=0
+11-16 14:25:57.945 19669 19669 W df      : type=1400 audit(0.0:27398): avc: denied { search } for name="vendor" dev="tmpfs" ino=8360 scontext=u:r:shell:s0 tcontext=u:object_r:mnt_vendor_file:s0 tclass=dir permissive=0
+11-16 14:25:57.945 19669 19669 W df      : type=1400 audit(0.0:27399): avc: denied { getattr } for path="/vendor/firmware_mnt" dev="sda13" ino=1 scontext=u:r:shell:s0 tcontext=u:object_r:firmware_file:s0 tclass=dir permissive=0
+11-16 14:25:58.339   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:58.585 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:58.588 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:58.859   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:59.366   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:25:59.591 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:25:59.593 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:25:59.866   588   628 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:00.364   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:00.597 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:00.599 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:00.781 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:00.783 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:00.871   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:01.373   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:01.602 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:01.604 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:01.891   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:02.386   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:02.608 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:02.611 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:02.900   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:03.397   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:03.615 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:03.617 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:03.912   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:04.420   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:04.620 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:04.623 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:04.919   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:04.988   882   882 V ContextHubHal: queryApps
+11-16 14:26:04.990   894  1008 D CHRE    : @ 3943.711: Nanoapp list request from client ID 1
+11-16 14:26:04.994  1563  2191 D ContextHubClientManager: Regenerated client with host endpoint ID 2
+11-16 14:26:04.995   882   882 V ContextHubHal: sendMessageToHub
+11-16 14:26:04.996   894  1008 D CHRE    : @ 3943.716: Parsed nanoapp message from host: app ID 0x476f6f676c001016, endpoint 0x2, msgType 32768, payload size 2
+11-16 14:26:04.996   894  1008 W CHRE    : @ 3943.717: [MotionDetector] Client already registered
+11-16 14:26:04.996   877  1841 I CapoDetector: handleNanoappMessage, Id 5147455389092024342, type 32769, size 3
+11-16 14:26:05.003  2363  2363 D GRIL-S  : [0039]> UPDATE_DEVICE_STATE DeviceState: Usb:0, Wifi: 1, Wifi AP: 0, Earpiece: 0, Bluetooth: 0, Wireless charging: 0, Screen: 1, Camera: 0, 0, -, -, Motion: 0, Bluetooth tethering: 0, Voice: 0, Wifi 2.4G: 0, Radio: 1, Bluetooth connected: 0, Bluetooth media: 0
+11-16 14:26:05.011  2363  4235 D GRIL-S  : [0039]< UPDATE_DEVICE_STATE 
+11-16 14:26:05.443   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:05.627 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:05.629 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:05.811 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:05.813 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:05.948   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:06.465   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:06.633 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:06.637 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:06.966   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:07.467   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:07.640 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:07.643 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:07.965   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:08.467   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:08.647 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:08.650 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:08.962   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:09.480   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:09.654 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:09.656 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:09.968 18893 18893 D ModemService: Received: com.google.android.apps.scone.modem.ATTEMPT_MODEM_RESET
+11-16 14:26:09.978 18893 19166 D ConfigService: onHandleWork
+11-16 14:26:09.980   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:09.981 18893 19166 D ConfigService: onHandleAttemptModemReset
+11-16 14:26:10.479   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:10.661 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:10.663 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:10.813 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:10.817 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:10.987   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:11.501   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:11.669 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:11.672 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:11.998   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:12.513   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:12.676 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:12.679 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:13.010   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:13.516   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:13.683 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:13.686 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:14.023   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:14.525   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:14.690 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:14.692 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:15.033   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:15.530   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:15.696 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:15.698 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:15.822 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:15.826 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:16.056   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:16.556   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:16.702 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:16.704 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:17.054   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:17.382 17907 19138 I AlarmManager: setExactAndAllowWhileIdle [name: GCM_HB_ALARM type: 2 triggerAtMillis: 4313355]
+11-16 14:26:17.386 17907 19138 I AlarmManager: setExactAndAllowWhileIdle [name: GCM_HB_ALARM type: 2 triggerAtMillis: 4313359]
+11-16 14:26:17.464 17907 17907 D BoundBrokerSvc: onBind: Intent { act=com.google.android.contextmanager.service.ContextManagerLogsUploadBoundService.ACTION_TASK_READY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentInternalBoundBrokerService }
+11-16 14:26:17.464 17907 17907 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.contextmanager.service.ContextManagerLogsUploadBoundService.ACTION_TASK_READY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentInternalBoundBrokerService }
+11-16 14:26:17.468 17907 19807 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-16 14:26:17.474 17907 19806 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-16 14:26:17.474 17907 17907 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.contextmanager.service.ContextManagerLogsUploadBoundService.ACTION_TASK_READY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentInternalBoundBrokerService }
+11-16 14:26:17.573   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:17.707 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:17.710 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:18.075   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:18.589   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:18.714 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:18.717 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:19.090   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:19.592   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:19.721 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:19.724 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:20.090   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:20.589   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:20.727 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:20.729 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:20.830 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:20.831 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:21.099   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:21.615   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:21.733 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:21.736 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:22.114   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:22.615   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:22.739 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:22.746 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:23.116   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:23.619   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:23.749 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:23.751 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:24.120   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:24.625   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:24.755 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:24.757 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:25.125   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:25.632   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:25.761 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:25.765 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:25.837 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:25.840 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:26.145   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:26.647   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:26.768 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:26.771 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:27.155   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:27.494  2425  2425 D DeviceStatisticsService: chargerType=2 batteryLevel=77 totalBatteryCapacity=4078500
+11-16 14:26:27.495  2425  2425 D DeviceInfoHidlClient: getPowerInfoSupportStatus()=1
+11-16 14:26:27.495  2425  2425 D DeviceInfoHidlClient: isRadioOn()=true
+11-16 14:26:27.495  2425  2425 I DeviceInfoHidlClient: isPowerInfoNeverSent=false batteryLevel=77 batteryLevelIndex=2 chargingMode=2 totalCapacity=4078500 powerSaveMode=false
+11-16 14:26:24.153  1563  2000 I chatty  : uid=1000(system) ConnectivitySer identical 16 lines
+11-16 14:26:27.173  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:26:27.500  2050  3167 D PowerUI : can't show warning due to - plugged: true status unknown: false
+11-16 14:26:27.646   900   937 D rlsservice: MonitorDisplayStatus client num 1, display status 1, sensor status 1
+11-16 14:26:27.673   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:27.774 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:27.777 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:28.177   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:28.692   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:28.781 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:28.783 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:29.189   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:29.712   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:29.787 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:29.790 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:30.192  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:26:30.228   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:30.736   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:30.793 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:30.795 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:30.878 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:30.881 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:31.248   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:31.750   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:31.799 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:31.802 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:32.193 19004 19026 I Finsky  : [1010] Stats for Executor: LightweightExecutor ynr@cb65f9[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 1776]
+11-16 14:26:32.193 19004 19026 I Finsky  : [1010] Stats for Executor: BlockingExecutor ynr@742793e[Running, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 549]
+11-16 14:26:32.193 19004 19026 I Finsky  : [1010] Stats for Executor: bgExecutor ynr@c32b39f[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 1324]
+11-16 14:26:32.247   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:32.303 19004 19026 I Finsky  : [1010] Stats for Executor: GrpcBackgroundExecutor ynr@4b1cec[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 10]
+11-16 14:26:32.745   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:32.805 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:32.807 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:33.265   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:33.774   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:33.810 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:33.812 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:34.278   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:34.794   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:34.815 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:34.818 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:35.293   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:35.797   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:35.822 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:35.824 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:35.888 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:35.890 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:36.317   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:36.815   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:36.828 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:36.831 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:37.316   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:37.810   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:37.834 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:37.838 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:38.318   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:38.825   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:38.841 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:38.844 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:39.342   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:39.847 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:39.849   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:39.851 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:40.349   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:40.850   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:40.854 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:40.856 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:40.909 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:40.911 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:41.353   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:41.859   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:41.860 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:41.862 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:42.360   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:42.470 19267 19294 I Finsky:background: [1020] Stats for Executor: bgExecutor ynr@3f26e20[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 884]
+11-16 14:26:42.470 19267 19294 I Finsky:background: [1020] Stats for Executor: LightweightExecutor ynr@886d3d9[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 983]
+11-16 14:26:42.564 19267 19294 I Finsky:background: [1020] Stats for Executor: BlockingExecutor ynr@8ca819e[Running, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 132]
+11-16 14:26:42.861   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:42.866 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:42.868 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:43.362   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:43.861   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:43.872 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:43.874 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:44.359   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:44.874   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:44.878 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:44.880 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:45.034  3090  3854 D TaskQueue: removing queue after quit safely success for task queue handler IntentProcessor
+11-16 14:26:45.034  3090  3854 D TaskQueue: removing queue after quit safely success for task queue handler CompromiseDetector
+11-16 14:26:45.035  3090  3854 D TaskQueue: removing queue after quit safely success for task queue handler ROLLING_FILE_QUEUE
+11-16 14:26:45.035  3090  3854 D TaskQueue: removing queue after quit safely success for task queue handler AirWatchDetector
+11-16 14:26:45.036  3090  3854 D TaskQueue: removing queue after quit safely success for task queue handler AWCompromiseChecker
+11-16 14:26:45.374   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:45.872   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:45.884 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:45.886 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:45.915 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:45.917 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:46.379   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:46.885   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:46.890 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:46.892 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:47.383   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:47.889   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:47.895 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:47.897 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:48.395   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:48.892   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:48.901 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:48.903 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:49.396   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:49.894   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:49.906 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:49.908 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:50.404   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:50.912 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:50.914 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:50.925   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:50.938 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:50.940 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:51.434   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:51.918 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:51.920 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:51.945   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:52.452   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:52.923 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:52.926 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:52.951   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:53.473   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:53.928 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:53.930 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:53.982   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:54.489   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:54.933 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:54.936 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:54.989   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:55.497   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:55.939 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:55.941 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:55.954 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:55.957 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:26:55.995   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:56.507   588  1611 E TimeStats: [851]-[dev.vieww.marketwatch/android.app.NativeActivity#0]-timeRecords is at its maximum size[64]. Ignore this when unittesting.
+11-16 14:26:56.830 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"thermal","frames":7811,"work_ms":[7.538,8.812,9.333,20.911],"interval_ms":[7.600,8.879,9.394,20.983],"jank":1,"budget_ms":11.11,"t":123523.2}
+11-16 14:26:56.833 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"thermal","frames":7811,"build_ms":[0.81,1.08,1.61],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.39,0.48,1.98],"fence_ms":[0.01,0.01,0.07],"acquire_ms":[0.16,0.18,1.37],"present_ms":[2.87,3.86,16.16],"gpu_ms":[7.37,7.50,15.00],"budget_ms_end":11.11,"scale_ms":[0.03,0.03,0.11],"plan_ms":[3.31,4.38,7.23],"gpu_draw_ms":[7.30,7.43,14.88],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.07,0.08,0.12],"gpu_blit_ms":[0.00,0.00,0.00],"t":123526.0}
+11-16 14:26:56.833 18642 18668 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"done","t":123526.1}
+11-16 14:26:56.947 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:56.951 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:26:57.075   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:26:57.168   588  1611 D TimeStats: Cleared global stats
+11-16 14:26:57.168   588  1611 D TimeStats: Cleared layer stats
+11-16 14:26:57.648   900   937 D rlsservice: MonitorDisplayStatus client num 1, display status 1, sensor status 1
+11-16 14:26:57.762   588  1611 D TimeStats: Disabled
+11-16 14:26:57.954 18642 18678 I eww.marketwatc: Explicit concurrent copying GC freed 11036(622KB) AllocSpace objects, 32(640KB) LOS objects, 93% free, 1828KB/25MB, paused 59us total 11.107ms
+11-16 14:26:57.955 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:26:57.956 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close

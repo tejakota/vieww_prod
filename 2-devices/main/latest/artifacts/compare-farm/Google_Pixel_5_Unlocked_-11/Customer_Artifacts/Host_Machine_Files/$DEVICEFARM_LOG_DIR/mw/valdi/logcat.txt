@@ -1,0 +1,703 @@
+--------- beginning of system
+11-16 14:18:13.546  1563  3481 I ActivityManager: Force stopping com.snap.valdi.marketwatch appid=10282 user=0: from pid 3176
+11-16 14:18:13.547  1563  3481 I ActivityManager: Killing 3145:com.snap.valdi.marketwatch/u0a282 (adj 0): stop com.snap.valdi.marketwatch due to from pid 3176
+11-16 14:18:13.548  1563  3481 W ActivityTaskManager: Force removing ActivityRecord{af1a096 u0 com.snap.valdi.marketwatch/.StartActivity t92813 f}}: app died, no saved state
+11-16 14:18:13.565  1563  1608 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_RESTARTED dat=package:com.snap.valdi.marketwatch flg=0x10 (has extras) } to com.airwatch.androidagent/com.airwatch.agent.Receiver
+--------- beginning of main
+11-16 14:18:13.567  3090  2684 I WS1_AfwUtils: Hub app user id: 0
+11-16 14:18:13.569  8757  8757 D CarrierSvcBindHelper: No carrier app for: 0
+11-16 14:18:13.570  3090  2684 I WS1_Receiver: Received intent: android.intent.action.PACKAGE_RESTARTED
+11-16 14:18:13.571  3090  2684 I WS1_BroadcastIntentService: Delegating broadcast to WorkManager for action: android.intent.action.PACKAGE_RESTARTED
+11-16 14:18:13.578  3090  2684 I WS1_IntentProcessorWorkManager: Enqueuing work for intent action: android.intent.action.PACKAGE_RESTARTED
+11-16 14:18:13.580  3197  3197 D RegisteredNfcFServicesCache: Service unchanged, not updating
+11-16 14:18:13.587 17139 17139 I chil    : onStart
+11-16 14:18:13.592  1563  1591 D ConnectivityService: requestNetwork for uid/pid:10192/17139 NetworkRequest [ TRACK_DEFAULT id=180, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10192 AdministratorUids: [] RequestorUid: 10192 RequestorPackageName: com.google.android.googlequicksearchbox] ]
+11-16 14:18:13.592  1563  2000 D ConnectivityService: NetReassign [180 : null → 101]
+11-16 14:18:13.592  1563  2031 D Ethernet: got request NetworkRequest [ TRACK_DEFAULT id=180, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10192 AdministratorUids: [] RequestorUid: 10192 RequestorPackageName: com.google.android.googlequicksearchbox] ] with score 60 and providerId 5
+11-16 14:18:13.592  1563  1995 D WifiNetworkFactory: got request NetworkRequest [ TRACK_DEFAULT id=180, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10192 AdministratorUids: [] RequestorUid: 10192 RequestorPackageName: com.google.android.googlequicksearchbox] ] with score 60 and providerId 5
+11-16 14:18:13.592  1563  2030 D WIFI_AWARE_FACTORY: got request NetworkRequest [ TRACK_DEFAULT id=180, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10192 AdministratorUids: [] RequestorUid: 10192 RequestorPackageName: com.google.android.googlequicksearchbox] ] with score 60 and providerId 5
+11-16 14:18:13.592  1563  1995 D UntrustedWifiNetworkFactory: got request NetworkRequest [ TRACK_DEFAULT id=180, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10192 AdministratorUids: [] RequestorUid: 10192 RequestorPackageName: com.google.android.googlequicksearchbox] ] with score 60 and providerId 5
+11-16 14:18:13.593 17139 17139 I cezv    : (REDACTED) [%s] onStart()
+11-16 14:18:13.593  8757  8757 D PhoneSwitcherNetworkRequstListener: got request NetworkRequest [ TRACK_DEFAULT id=180, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10192 AdministratorUids: [] RequestorUid: 10192 RequestorPackageName: com.google.android.googlequicksearchbox] ] with score 60 and providerId 5
+11-16 14:18:13.594 17139 17139 E NetworkErrorMessage: (REDACTED) Invalid connectivity state: %s
+11-16 14:18:13.594 17139 17139 I chil    : onResume
+11-16 14:18:13.594   769   769 I Zygote  : Process 3145 exited due to signal 9 (Killed)
+11-16 14:18:13.594 17139 17139 W dxzb    : missing event name
+11-16 14:18:13.595  3090  4103 D WM-SystemJobScheduler: Scheduling work ID 4386eabd-fb45-45a4-81ef-c30242280656Job ID 1013238
+11-16 14:18:13.595  1563  1599 W ActivityManager: setHasOverlayUi called on unknown pid: 3145
+11-16 14:18:13.598  3090  4103 D WM-GreedyScheduler: Starting work for 4386eabd-fb45-45a4-81ef-c30242280656
+11-16 14:18:13.600  3090  3090 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=4386eabd-fb45-45a4-81ef-c30242280656, generation=0)
+11-16 14:18:13.602  3090  4103 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=4386eabd-fb45-45a4-81ef-c30242280656, generation=0)
+11-16 14:18:13.606  3090  4103 D WM-Processor: Work WorkGenerationalId(workSpecId=4386eabd-fb45-45a4-81ef-c30242280656, generation=0) is already enqueued for processing
+11-16 14:18:13.607 10572 10572 I WallpaperService: engine resumed
+11-16 14:18:13.609   894   894 I sensors-hal: [hal]batch_physical_sensor:301, android.sensor.gyroscope/41, period=20000000, max_latency=0
+11-16 14:18:13.609   894   894 I sensors-hal: [hal]batch_physical_sensor:310, android.sensor.gyroscope/41, period=20000000, max_latency=0 request completed
+11-16 14:18:13.618   894   894 W sensors@2.0-ser: type=1400 audit(0.0:15457): avc: denied { read write } for name="diag" dev="tmpfs" ino=8839 scontext=u:r:hal_sensors_default:s0 tcontext=u:object_r:diag_device:s0 tclass=chr_file permissive=0
+11-16 14:18:13.618   894   894 W sensors@2.0-ser: type=1400 audit(0.0:15458): avc: denied { read write } for name="diag" dev="tmpfs" ino=8839 scontext=u:r:hal_sensors_default:s0 tcontext=u:object_r:diag_device:s0 tclass=chr_file permissive=0
+11-16 14:18:13.610   894   894 I sensors-hal: [hal]activate_physical_sensor:238, android.sensor.gyroscope/41 en=1
+11-16 14:18:13.610   894   894 I sensors-hal: [ssc_utils]get_qmi_debug_flag:244, support_qmi_debug : false
+11-16 14:18:13.611  3090  4103 W WS1_SE_SmpWrkFct_WV8VHC: com.airwatch.agent.intent.processors.IntentProcessorWorker not resolved in SamplingWorkerFactory
+11-16 14:18:13.614  1563  1615 I libprocessgroup: Successfully killed process cgroup uid 10282 pid 3145 in 66ms
+11-16 14:18:13.616  3090  3090 D WM-WorkerWrapper: Starting work for com.airwatch.agent.intent.processors.IntentProcessorWorker
+11-16 14:18:13.617  3090  4112 I WS1_IntentProcessorWorker: doWork started for intent action: android.intent.action.PACKAGE_RESTARTED
+11-16 14:18:13.618 15508 15508 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2276 
+11-16 14:18:13.619 15508  2923 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatusInternal():129 repeatCheckTimes = 0, locked = false
+11-16 14:18:13.620 15508 15508 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1460 onStartInput(EditorInfo{EditorInfo{packageName=com.google.android.apps.nexuslauncher, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=4, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+11-16 14:18:13.620   894   894 D Diag_Lib:  Diag_LSM_Init: Failed to open handle to diag driver, error = 13
+11-16 14:18:13.620 15508 15508 I LatinIMEBase: LatinIMEBase.updateInputViewCoverNavigation():317 Update input view padding, isNavbarOverInputWindow=true, bottom inset=132
+11-16 14:18:13.620   894   894 D Diag_Lib:  Diag_LSM_Init: Failed to open handle to diag driver, error = 13
+11-16 14:18:13.620   894   894 I sensors-hal: [ssc_sensor]update_handle:537, handle=331, type=33, wakeup=0, hwid=0, base=331
+11-16 14:18:13.620   894   894 I sensors-hal: [ssc_utils]get_qmi_debug_flag:244, support_qmi_debug : false
+11-16 14:18:13.625 15508  2925 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatusInternal():129 repeatCheckTimes = 1, locked = false
+11-16 14:18:13.627   894   894 I sensors-hal: [ssc_utils]get_qmi_debug_flag:244, support_qmi_debug : false
+11-16 14:18:13.628   894  3184 I sensors-hal: [ssc_sensor]ssc_conn_resp_cb:663, resp_value = 0
+11-16 14:18:13.628  3090  4103 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=4386eabd-fb45-45a4-81ef-c30242280656, tags={ com.airwatch.agent.intent.processors.IntentProcessorWorker,intent_processor_work,android.intent.action.PACKAGE_RESTARTED } ]
+11-16 14:18:13.629  3090  3090 D WM-Processor: Processor 4386eabd-fb45-45a4-81ef-c30242280656 executed; reschedule = false
+11-16 14:18:13.629  3090  3090 D WM-SystemJobService: 4386eabd-fb45-45a4-81ef-c30242280656 executed on JobScheduler
+11-16 14:18:13.631   894   894 I sensors-hal: [hal]activate_physical_sensor:249, android.sensor.gyroscope/41 en=1 completed
+11-16 14:18:13.633   894  3187 I sensors-hal: [ssc_sensor]ssc_conn_resp_cb:663, resp_value = 0
+11-16 14:18:13.633  3090  4103 D WM-GreedyScheduler: Cancelling work ID 4386eabd-fb45-45a4-81ef-c30242280656
+11-16 14:18:13.892 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:13.895 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:14.095 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:14.754  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:18:14.099 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:14.903 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:14.907 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:15.914 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:15.919 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:16.887   588  1610 D TimeStats: Cleared global stats
+11-16 14:18:16.887   588  1610 D TimeStats: Cleared layer stats
+11-16 14:18:16.926 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:16.930 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:16.967   588  1610 D TimeStats: Enabled
+11-16 14:18:17.066  1563  3481 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.snap.valdi.marketwatch/.StartActivity} from uid 2000
+11-16 14:18:17.078  3210  3213 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 14:18:17.080  1563  1599 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10282; state: DISABLED
+11-16 14:18:17.080  1563  1599 D CompatibilityChangeReporter: Compat change id reported: 135754954; UID 10282; state: ENABLED
+11-16 14:18:17.081  1563  1609 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10282; state: ENABLED
+11-16 14:18:17.115   769   769 D Zygote  : Forked child process 3214
+11-16 14:18:17.117  1563  1609 I ActivityManager: Start proc 3214:com.snap.valdi.marketwatch/u0a282 for pre-top-activity {com.snap.valdi.marketwatch/com.snap.valdi.marketwatch.StartActivity}
+11-16 14:18:17.127  3214  3214 E ldi.marketwatc: Not starting debugger since process cannot load the jdwp agent.
+11-16 14:18:17.146 10572 10572 I WallpaperService: engine paused
+11-16 14:18:17.147   894   894 I sensors-hal: [hal]activate_physical_sensor:238, android.sensor.gyroscope/41 en=0
+11-16 14:18:17.148  3214  3214 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-16 14:18:17.148  3214  3214 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-16 14:18:17.149   894   894 D Diag_Lib: diag: Diag_LSM_DeInit done for pid: 894
+11-16 14:18:17.150   894   894 D Diag_Lib: diag: Diag_LSM_DeInit done for pid: 894
+11-16 14:18:17.150   894   894 I sensors-hal: [hal]activate_physical_sensor:249, android.sensor.gyroscope/41 en=0 completed
+11-16 14:18:17.153   588   629 W DisplayIdentification: Invalid EDID: falling back to serial number due to missing display name.
+11-16 14:18:17.154   588   629 W DisplayIdentification: Invalid EDID: falling back to ASCII text due to missing serial number.
+11-16 14:18:17.181 17139 17139 I chil    : onPause
+11-16 14:18:17.182 17139 17139 W dxzb    : measuring already stopped.
+11-16 14:18:17.215  3214  3252 I AdrenoGLES-0: QUALCOMM build                   : 4783c89, I46ff5fc46f
+11-16 14:18:17.215  3214  3252 I AdrenoGLES-0: Build Date                       : 11/30/20
+11-16 14:18:17.215  3214  3252 I AdrenoGLES-0: OpenGL ES Shader Compiler Version: EV031.31.04.01
+11-16 14:18:17.215  3214  3252 I AdrenoGLES-0: Local Branch                     : QPR2
+11-16 14:18:17.215  3214  3252 I AdrenoGLES-0: Remote Branch                    : 
+11-16 14:18:17.215  3214  3252 I AdrenoGLES-0: Remote Branch                    : 
+11-16 14:18:17.215  3214  3252 I AdrenoGLES-0: Reconstruct Branch               : 
+11-16 14:18:17.215  3214  3252 I AdrenoGLES-0: Build Config                     : S P 10.0.4 AArch64
+11-16 14:18:17.215  3214  3252 I AdrenoGLES-0: Driver Path                      : /vendor/lib64/egl/libGLESv2_adreno.so
+11-16 14:18:17.220  3214  3252 I AdrenoGLES-0: PFP: 0x016dd090, ME: 0x00000000
+11-16 14:18:17.225  3214  3252 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:18:17.225  3214  3252 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:18:17.266  1563  1607 I ActivityTaskManager: Displayed com.snap.valdi.marketwatch/.StartActivity: +196ms
+11-16 14:18:17.269 17139 17139 I chil    : onStop
+11-16 14:18:17.271  1563  2000 D ConnectivityService: releasing NetworkRequest [ TRACK_DEFAULT id=180, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10192 AdministratorUids: [] RequestorUid: 10192 RequestorPackageName: com.google.android.googlequicksearchbox] ] (release request)
+11-16 14:18:17.286 15508 15508 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2276 
+11-16 14:18:17.287 15508  2686 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatusInternal():129 repeatCheckTimes = 0, locked = false
+11-16 14:18:17.288 15508 15508 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1460 onStartInput(EditorInfo{EditorInfo{packageName=com.snap.valdi.marketwatch, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=-1, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+11-16 14:18:17.288 15508 15508 I LatinIMEBase: LatinIMEBase.updateInputViewCoverNavigation():317 Update input view padding, isNavbarOverInputWindow=true, bottom inset=132
+11-16 14:18:17.290 15508  2697 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatusInternal():129 repeatCheckTimes = 1, locked = false
+11-16 14:18:17.770  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:18:17.939 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:17.942 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:18.947 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:18.950 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:19.099 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:19.100 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:19.955 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:19.958 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:20.962 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:20.965 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:21.072   588   629 D TimeStats: Dumping TimeStats as text
+11-16 14:18:21.155   588   629 D TimeStats: Cleared global stats
+11-16 14:18:21.155   588   629 D TimeStats: Cleared layer stats
+11-16 14:18:21.457  3334  3334 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:18:21.457  3334  3334 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:18:21.969 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:21.972 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:22.364  3214  3214 I Choreographer: Skipped 127 frames!  The application may be doing too much work on its main thread.
+11-16 14:18:22.391  3214  3252 I OpenGLRenderer: Davey! duration=1439ms; Flags=0, IntendedVsync=3476924695850, Vsync=3478335806947, OldestInputEvent=9223372036854775807, NewestInputEvent=0, HandleInputStart=3478337895943, AnimationStart=3478337897089, PerformTraversalsStart=3478337918548, DrawStart=3478338004746, SyncQueued=3478342587819, SyncStart=3478342788652, IssueDrawCommandsStart=3478343187975, SwapBuffers=3478364272613, FrameCompleted=3478364871259, DequeueBufferDuration=147136, QueueBufferDuration=322135, GpuCompleted=3473237693248, 
+11-16 14:18:22.977 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:22.982 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:23.166   588   629 D TimeStats: Dumping TimeStats as text
+11-16 14:18:23.260   588   629 D TimeStats: Cleared global stats
+11-16 14:18:23.260   588   629 D TimeStats: Cleared layer stats
+11-16 14:18:23.988 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:23.993 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:24.117   588   629 D TimeStats: Dumping TimeStats as text
+11-16 14:18:24.118 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:24.119 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:24.217   588   629 D TimeStats: Cleared global stats
+11-16 14:18:24.217   588   629 D TimeStats: Cleared layer stats
+11-16 14:18:24.557  3392  3392 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:18:24.557  3392  3392 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:18:25.000 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:25.003 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:25.133   588   629 D TimeStats: Dumping TimeStats as text
+11-16 14:18:25.225   588   629 D TimeStats: Cleared global stats
+11-16 14:18:25.225   588   629 D TimeStats: Cleared layer stats
+11-16 14:18:25.462  3414  3414 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:18:25.462  3414  3414 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:18:26.015 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:26.018 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:27.022 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:27.025 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:27.491  2425  2425 D DeviceStatisticsService: chargerType=2 batteryLevel=78 totalBatteryCapacity=4045200
+11-16 14:18:23.817  1563  2000 I chatty  : uid=1000(system) ConnectivitySer identical 2 lines
+11-16 14:18:26.840  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:18:27.497  2050 12956 D PowerUI : can't show warning due to - plugged: true status unknown: false
+11-16 14:18:27.632   900   937 D rlsservice: MonitorDisplayStatus client num 1, display status 1, sensor status 0
+11-16 14:18:28.030 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:28.033 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:29.038 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:29.041 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:29.118 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:29.860  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:18:29.120 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:30.045 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:30.050 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:31.054 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:31.059 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:32.063 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:32.068 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:32.807  1078  1078 I cnd     :  OperatorLookup Enter : ICCID String Passed : 89012601657623811240
+11-16 14:18:32.807  1078  1078 I cnd     : OperatorLookup: No Match Found for iccid: [89012601657623811240] - Returning default operator: [ROW]
+11-16 14:18:32.807  1078  1078 I cnd     :  OperatorLookup Enter : ICCID String Passed : 89012601657623811240
+11-16 14:18:32.807  1078  1078 I cnd     : OperatorLookup: No Match Found for iccid: [89012601657623811240] - Returning default operator: [ROW]
+11-16 14:18:32.808  1078  1078 D Diag_Lib:  Diag_LSM_Init: Failed to open handle to diag driver, error = 13
+11-16 14:18:32.805  1078  1078 W cnd     : type=1400 audit(0.0:15459): avc: denied { read write } for name="diag" dev="tmpfs" ino=8839 scontext=u:r:cnd:s0 tcontext=u:object_r:diag_device:s0 tclass=chr_file permissive=0
+11-16 14:18:32.845  1098  1098 I cnss-daemon: nl80211 response handler invoked
+11-16 14:18:32.845  1098  1098 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 13  received
+11-16 14:18:32.845   904  2440 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xd
+11-16 14:18:33.023   588  1610 D TimeStats: Dumping TimeStats as text
+11-16 14:18:33.075 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:33.078 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:33.114   588  1610 D TimeStats: Cleared global stats
+11-16 14:18:33.114   588  1610 D TimeStats: Cleared layer stats
+11-16 14:18:34.084 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:34.089 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:34.126 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:34.128 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:35.092 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:35.095 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:36.099 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:36.102 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:37.105 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:37.107 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:38.114 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:38.116 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:39.120 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:39.124 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:39.168 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:39.170 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:39.606   894  1008 I CHRE    : @ 3498.325: [ImuCal] [NanoSensorCal:GYRO_RPS] Offset | Temperature [C]: 0.000318, 0.000199, 0.001235 | 29.11
+11-16 14:18:39.606   894  1008 I CHRE    : @ 3498.326: [ImuCal] [NanoSensorCal:GYRO_RPS] Temp Sensitivity: -0.000031, 0.000000, -0.000055
+11-16 14:18:39.606   894  1008 I CHRE    : @ 3498.326: [ImuCal] [NanoSensorCal:GYRO_RPS] Temp Intercept: 0.001263, 0.000089, 0.002871
+11-16 14:18:40.129 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:40.131 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:40.962   588  1610 D TimeStats: Dumping TimeStats as text
+11-16 14:18:41.057   588  1610 D TimeStats: Cleared global stats
+11-16 14:18:41.057   588  1610 D TimeStats: Cleared layer stats
+11-16 14:18:41.134 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:41.136 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:42.141 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:42.144 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:43.149 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:43.151 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:44.159 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:44.161 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:44.174 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:44.177 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:45.165 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:45.168 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:46.172 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:46.176 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:47.181 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:47.185 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:48.188 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:48.191 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:48.995   588   628 D TimeStats: Dumping TimeStats as text
+11-16 14:18:49.106   588   628 D TimeStats: Cleared global stats
+11-16 14:18:49.106   588   628 D TimeStats: Cleared layer stats
+11-16 14:18:49.181 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:49.183 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:49.194 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:49.195 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:50.199 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:50.202 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:51.130   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:18:51.207 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:51.211 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:51.218   588  1611 D TimeStats: Cleared global stats
+11-16 14:18:51.218   588  1611 D TimeStats: Cleared layer stats
+11-16 14:18:51.521  3747  3747 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:18:51.521  3747  3747 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:18:52.215 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:52.219 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:52.891   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:18:52.895 19267 19432 E PlayCommon: [1060] Metalog directories were deleted unexpectedly, recreating...
+11-16 14:18:52.976   588  1611 D TimeStats: Cleared global stats
+11-16 14:18:52.976   588  1611 D TimeStats: Cleared layer stats
+11-16 14:18:53.223 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:53.225 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:54.174   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:18:54.182 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:54.183 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:54.229 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:54.232 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:54.259   588  1611 D TimeStats: Cleared global stats
+11-16 14:18:54.259   588  1611 D TimeStats: Cleared layer stats
+11-16 14:18:54.571  3800  3800 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:18:54.571  3800  3800 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:18:55.152   588  1611 D TimeStats: Dumping TimeStats as text
+11-16 14:18:55.235 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:55.237 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:55.238   588  1611 D TimeStats: Cleared global stats
+11-16 14:18:55.238   588  1611 D TimeStats: Cleared layer stats
+11-16 14:18:55.554  3823  3823 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:18:55.554  3823  3823 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:18:56.096 20868 20868 I EuiccGoogle: [2] EuiccServiceImpl.onDestroy: onDestroy: EuiccService on destroy.
+11-16 14:18:56.098 20868 20868 I EuiccGoogle: [2] EuiccServiceImpl.disposeEuiccCard: disposeEuiccCard.
+11-16 14:18:56.147  3090  2772 I WS1_AfwUtils: Hub app user id: 0
+11-16 14:18:56.148  3090  2772 I WS1_AfwUtils: isWorkHubDiscoverable - false
+11-16 14:18:56.150  3090  2772 I WS1_SDKDataModelImpl: Returning in memory app token data!
+11-16 14:18:56.152  3090  2774 I DynDCD  : EnginePayloadProvider.cpp -> Loading Previously stored payload
+11-16 14:18:56.152  3090  2774 I DynDCD  : EnginePayloadProvider.cpp -> Trying to fetch rules from the Server
+11-16 14:18:56.152  3090  2774 I WS1_DynDCD_DynamicCDD: Trying to fetch rules from default source
+11-16 14:18:56.154  3090  2774 I WS1_AfwUtils: Hub app user id: 0
+11-16 14:18:56.155  3090  2774 I WS1_AfwUtils: isWorkHubDiscoverable - false
+11-16 14:18:56.155  3090  2774 I WS1_BaseMessage: Sending CddNetworkMessage to https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R
+11-16 14:18:56.156  3090  2774 I WS1     : Setting Timeout Values, Connection:30000, SO Timeout:30000
+11-16 14:18:56.158  3090  2774 I WS1_AppPermissionUtil: Getting signature for com.airwatch.androidagent
+11-16 14:18:56.160  3090  2774 I WS1_AppPermissionUtil: App access allowed with 0 for com.airwatch.androidagent
+11-16 14:18:56.164  3090  2774 I WS1_CorrelationLog: CorrelationID:45050656-54c9-43a6-0001-611141856163  for connection https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R
+11-16 14:18:56.221  3090  2774 I WS1_ExtendedX509TrustM: TrustMaterialAvailable, check the trust.
+11-16 14:18:56.224  3090  2774 I WS1_ADPublicKeyManager: sdk-config.data.workspaceone-gov.com is trusted by default
+11-16 14:18:56.225  3090  2774 I WS1_PinBasedTrustM: Key match status for sdk-config.data.workspaceone-gov.com/3.31.158.235: true
+11-16 14:18:56.225  3090  2774 I WS1_ExtendedX509TrustM: checkServerTrusted: Server certificate pin match for sdk-config.data.workspaceone-gov.com/3.31.158.235
+11-16 14:18:56.240 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:56.244 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:56.277  3090  2774 I WS1_BaseMessage: Response code for https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R 200
+11-16 14:18:56.278  3090  2774 I WS1     : Response code is: 200
+11-16 14:18:56.282  3090  2774 I WS1_DynDCD_DynamicCDD: Successfully fetched payload rules from WS1 FedRAMP domain
+11-16 14:18:56.282  3090  2774 I DynDCD  : EnginePayloadProvider.cpp -> Server payload is older than bundled payload.
+11-16 14:18:56.282  3090  2774 I DynDCD  : EnginePayloadProvider.cpp -> Bundled Payload last modified time: 1603812484
+11-16 14:18:56.282  3090  2774 I DynDCD  : EnginePayloadProvider.cpp -> Server Payload last received time: 1588786684
+11-16 14:18:56.295  3090  2774 I DynDCD  : Script -> Starting Dynamic Jail Break Check
+11-16 14:18:56.295  3090  2774 I DynDCD  : Script -> Running Checks
+11-16 14:18:56.328  3835  3835 W ls      : type=1400 audit(0.0:15460): avc: denied { getattr } for path="/system/etc/cgroups.json" dev="dm-8" ino=556 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:cgroup_desc_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:18:56.338  3835  3835 W ls      : type=1400 audit(0.0:15461): avc: denied { getattr } for path="/system/etc/selinux/plat_file_contexts" dev="dm-8" ino=886 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:file_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:18:56.338  3835  3835 W ls      : type=1400 audit(0.0:15462): avc: denied { getattr } for path="/system/etc/selinux/plat_hwservice_contexts" dev="dm-8" ino=887 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:hwservice_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:18:56.338  3835  3835 W ls      : type=1400 audit(0.0:15463): avc: denied { getattr } for path="/system/etc/selinux/plat_mac_permissions.xml" dev="dm-8" ino=888 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:mac_perms_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:18:56.338  3835  3835 W ls      : type=1400 audit(0.0:15464): avc: denied { getattr } for path="/system/etc/selinux/plat_service_contexts" dev="dm-8" ino=893 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:service_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:18:56.338  3835  3835 W ls      : type=1400 audit(0.0:15465): avc: denied { getattr } for path="/system/etc/selinux/plat_seapp_contexts" dev="dm-8" ino=890 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:seapp_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:18:56.338  3835  3835 W ls      : type=1400 audit(0.0:15466): avc: denied { getattr } for path="/system/etc/selinux/plat_sepolicy.cil" dev="dm-8" ino=891 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:sepolicy_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:18:56.338  3835  3835 W ls      : type=1400 audit(0.0:15467): avc: denied { getattr } for path="/system/etc/selinux/mapping/28.0.cil" dev="dm-8" ino=881 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:sepolicy_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:18:56.338  3835  3835 W ls      : type=1400 audit(0.0:15468): avc: denied { getattr } for path="/system/etc/selinux/mapping/26.0.cil" dev="dm-8" ino=877 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:sepolicy_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:18:56.409  3090  2774 I DynDCD  : Script -> Super User Scan Check : true
+11-16 14:18:56.409  3090  2774 I DynDCD  : Script -> Writable File Paths Check : true
+11-16 14:18:56.464  3839  3841 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 14:18:56.470  3090  2774 I DynDCD  : Script -> Installed Packages Check : true
+11-16 14:18:56.675  3090  2774 I DynDCD  : Script -> Super User File Path Check : true
+11-16 14:18:56.721  3090  2774 I DynDCD  : Script -> Super User Check : true
+11-16 14:18:56.726  3090  2774 I DynDCD  : Script -> Xposed Check : true
+11-16 14:18:56.758  3090  2774 I DynDCD  : Script -> Malicious Files Check : true
+11-16 14:18:56.776  3090  2774 I DynDCD  : Script -> Ro Secure Flag Check : true
+11-16 14:18:56.777  3090  2774 I DynDCD  : Script -> Magisk String Check : true
+11-16 14:18:56.777  3090  2774 D DynDCD  : Script -> [{"id":"BundledRules_SDK_20201027"},{"name":"superUserScan","passed":true},{"name":"writableFilePaths","passed":true},{"name":"installedPackages","passed":true},{"name":"superUserFilePath","passed":true},{"name":"superUser","passed":true},{"name":"xposed","passed":true},{"name":"maliciousFiles","passed":true},{"name":"roSecureFlag","passed":true},{"name":"magisk","passed":true},{"failedReasonCodes":[]}]
+11-16 14:18:56.780  3090  2774 I DynDCD  : EngineDelegateImpl.cpp -> Compromised detection successfully completed
+11-16 14:18:56.781  3090  2774 I WS1_DynDCD_DynamicCDD: Dynamic compromise detection is a success for rulesId: BundledRules_SDK_20201027!
+11-16 14:18:56.783  3090  3090 E WS1_DetailsLog: runDynamicCompromiseDetection passed SUCCESS
+11-16 14:18:56.784  3090  2774 I WS1_AirWatchApp: AW SDK, ENABLE_SDK_FRIDA_DETECTION: false , ENABLE_SDK_ROOT_DETECTION: false
+11-16 14:18:56.786  3090  2774 I WS1_TamperCheckService: Starting tamper checker!
+11-16 14:18:56.787  3090  2774 I NativeMain: Finding SDK Logger class!
+11-16 14:18:56.787  3090  2774 W NativeMain: SDK Logger class is invalid, logging via android logger!
+11-16 14:18:56.787  3090  2774 D NativeMain: tamper check initiated
+11-16 14:18:56.831  3090  4106 D WM-SystemJobScheduler: Scheduling work ID 2f48d0f6-ff46-478c-840f-b08e128f525cJob ID 1013239
+11-16 14:18:56.836  3090  4106 D WM-GreedyScheduler: Starting work for 2f48d0f6-ff46-478c-840f-b08e128f525c
+11-16 14:18:56.838  3090  3090 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=2f48d0f6-ff46-478c-840f-b08e128f525c, generation=0)
+11-16 14:18:56.839  3090  4106 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=2f48d0f6-ff46-478c-840f-b08e128f525c, generation=0)
+11-16 14:18:56.841  3090  4106 D WM-Processor: Work WorkGenerationalId(workSpecId=2f48d0f6-ff46-478c-840f-b08e128f525c, generation=0) is already enqueued for processing
+11-16 14:18:56.844  3090  4106 W WS1_SE_SmpWrkFct_WV8VHC: com.airwatch.app.TamperCheckerWorker not resolved in SamplingWorkerFactory
+11-16 14:18:56.844  3090  4106 W WS1_IntentProcessorWorkerFct: com.airwatch.app.TamperCheckerWorker not resolved
+11-16 14:18:56.844  3090  4106 E WS1_TaskWorkerFactory: Worker class:com.airwatch.app.TamperCheckerWorker not resolved in TaskWorkerFactory
+11-16 14:18:56.847  3090  3090 D WM-WorkerWrapper: Starting work for com.airwatch.app.TamperCheckerWorker
+11-16 14:18:56.853  1064  1064 I keystore: del USRPKEY_FhgLOXgwINEG1Dve+bSwxA== 10261
+11-16 14:18:56.854  1064  1064 I keystore: del USRSKEY_FhgLOXgwINEG1Dve+bSwxA== 10261
+11-16 14:18:56.854  1064  1064 I keystore: del USRCERT_FhgLOXgwINEG1Dve+bSwxA== 10261
+11-16 14:18:56.854  1064  1064 I keystore: del CACERT_FhgLOXgwINEG1Dve+bSwxA== 10261
+11-16 14:18:56.856   549   569 D DrmLibTime: got the req here! ret=0
+11-16 14:18:56.857   549   569 D DrmLibTime: command id, time_cmd_id = 770
+11-16 14:18:56.857   549   569 D DrmLibTime: time_getutcsec starts!
+11-16 14:18:56.857   549   569 D DrmLibTime: QSEE Time Listener: time_getutcsec
+11-16 14:18:56.857   549   569 D DrmLibTime: QSEE Time Listener: get_utc_seconds
+11-16 14:18:56.857   549   569 D DrmLibTime: QSEE Time Listener: time_get_modem_time
+11-16 14:18:56.857   549   569 D DrmLibTime: QSEE Time Listener: Checking if ATS_MODEM is set or not.
+11-16 14:18:56.857   549   569 D QC-time-services: Lib:time_genoff_operation: pargs->base = 13
+11-16 14:18:56.857   549   569 D QC-time-services: Lib:time_genoff_operation: pargs->operation = 2
+11-16 14:18:56.857   549   569 D QC-time-services: Lib:time_genoff_operation: pargs->ts_val = 0
+11-16 14:18:56.857   549   569 D QC-time-services: Lib:time_genoff_operation: Send to server  passed!!
+11-16 14:18:56.857   761   930 D QC-time-services: Daemon: Connection accepted:time_genoff
+11-16 14:18:56.857   761  3862 D QC-time-services: Daemon:Received base = 13, unit = 1, operation = 2,value = 0
+11-16 14:18:56.857   761  3862 D QC-time-services: Daemon:genoff_opr: Base = 13, val = 0, operation = 2
+11-16 14:18:56.857   761  3862 D QC-time-services: offset is: 1 for base: 13
+11-16 14:18:56.857   549   569 E QC-time-services: Receive Passed == base = 13, unit = 1, operation = 2, result = 0
+11-16 14:18:56.857   549   569 D DrmLibTime: QSEE Time Listener: ATS_MODEM is set. Try to retrieve it.
+11-16 14:18:56.857   761   930 E QC-time-services: Daemon: Time-services: Waiting to acceptconnection
+11-16 14:18:56.857   761   930 D QC-time-services: Daemon: Connection accepted:time_genoff
+11-16 14:18:56.858   761  3863 D QC-time-services: Daemon:Received base = 13, unit = 1, operation = 1,value = 0
+11-16 14:18:56.858   761  3863 D QC-time-services: Daemon:genoff_opr: Base = 13, val = 0, operation = 1
+11-16 14:18:56.858   761  3863 D QC-time-services: Daemon: genoff get for 13
+11-16 14:18:56.858   761  3863 D QC-time-services: Daemon:Value read from QTimer mseconds = 3515578
+11-16 14:18:56.858   761  3863 D QC-time-services: Daemon:Value read from RTC mseconds on boot = 139302101000
+11-16 14:18:56.858   761  3863 D QC-time-services: Daemon:Value read from QTimer mseconds = 3515578
+11-16 14:18:56.858   761  3863 D QC-time-services: Daemon:Value read from generic offset = 1634329500731
+11-16 14:18:56.858   761  3863 D QC-time-services: Daemon:Delta read on boot mseconds = 139302095275
+11-16 14:18:56.858   761  3863 D QC-time-services: Daemon:Final Time = 1773635111584
+11-16 14:18:56.858   549   569 D DrmLibTime: QSEE Time Listener: Time GenOff - seconds: 1773635111
+11-16 14:18:56.858   549   569 D DrmLibTime: time_getutcsec returns 0, sec = 1773635111; nsec = 0
+11-16 14:18:56.858   549   569 D DrmLibTime: time_getutcsec finished! 
+11-16 14:18:56.858   549   569 D DrmLibTime: iotcl_continue_command finished! and return 0 
+11-16 14:18:56.858   549   569 D DrmLibTime: before calling ioctl to read the next time_cmd
+11-16 14:18:56.866   761   930 E QC-time-services: Daemon: Time-services: Waiting to acceptconnection
+11-16 14:18:56.875  3090  4111 I WS1_TamperChecker: CompDetectionResponse is 14
+11-16 14:18:56.875  3090  4111 I WS1_TamperChecker: DI status=false
+11-16 14:18:56.875  3090  4111 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:18:56.875  3090  4111 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:18:56.876  3090  4111 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 14:18:56.876  3090  4111 I WS1_TamperChecker: Root status=false
+11-16 14:18:56.878  3090  4111 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:18:56.878  3090  4111 I WS1_TamperCheckService: Beginning of tamper checker operation!
+11-16 14:18:56.880  3090  4104 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=2f48d0f6-ff46-478c-840f-b08e128f525c, tags={ com.airwatch.app.TamperCheckerWorker } ]
+11-16 14:18:56.882  3090  3090 D WM-Processor: Processor 2f48d0f6-ff46-478c-840f-b08e128f525c executed; reschedule = false
+11-16 14:18:56.882  3090  3090 D WM-SystemJobService: 2f48d0f6-ff46-478c-840f-b08e128f525c executed on JobScheduler
+11-16 14:18:56.886  3090  4104 D WM-GreedyScheduler: Cancelling work ID 2f48d0f6-ff46-478c-840f-b08e128f525c
+11-16 14:18:56.995  3090  3864 I WS1_TamperChecker: CompDetectionResponse is 20
+11-16 14:18:56.995  3090  3864 I WS1_TamperChecker: DI status=false
+11-16 14:18:56.995  3090  3864 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:18:56.995  3090  3864 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:18:56.996  3090  3864 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 14:18:56.996  3090  3864 I WS1_TamperChecker: Root status=false
+11-16 14:18:56.996  3090  3864 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:18:57.083  3090  3103 I ch.androidagen: Background young concurrent copying GC freed 641862(21MB) AllocSpace objects, 33(756KB) LOS objects, 60% free, 13MB/34MB, paused 162us total 122.785ms
+11-16 14:18:57.247 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:57.250 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:57.515  3090  3090 W Thread-52: type=1400 audit(0.0:15497): avc: denied { getattr } for path="/system/lib/bootstrap" dev="dm-8" ino=1528 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:system_bootstrap_lib_file:s0 tclass=dir permissive=0 app=com.airwatch.androidagent
+11-16 14:18:57.532  3090  3090 W Thread-52: type=1400 audit(0.0:15498): avc: denied { getattr } for path="/system/lib64/bootstrap" dev="dm-8" ino=1928 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:system_bootstrap_lib_file:s0 tclass=dir permissive=0 app=com.airwatch.androidagent
+11-16 14:18:57.633   900   937 D rlsservice: MonitorDisplayStatus client num 1, display status 1, sensor status 0
+11-16 14:18:57.689  3090  3860 I WS1_TamperChecker: CompDetectionResponse is 18
+11-16 14:18:57.689  3090  3860 I WS1_TamperChecker: DI status=false
+11-16 14:18:57.689  3090  3860 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:18:57.689  3090  3860 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:18:57.690  3090  3860 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 14:18:57.690  3090  3860 I WS1_TamperChecker: Root status=false
+11-16 14:18:57.691  3090  3860 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:18:58.101  1064  1064 I keystore: del USRPKEY_FhgLOXgwINEG1Dve+bSwxA== 10261
+11-16 14:18:58.103  1064  1064 I keystore: del USRCERT_FhgLOXgwINEG1Dve+bSwxA== 10261
+11-16 14:18:58.104  1064  1064 I keystore: del CACERT_FhgLOXgwINEG1Dve+bSwxA== 10261
+11-16 14:18:58.105  3090  3859 I WS1_TamperChecker: CompDetectionResponse is 22
+11-16 14:18:58.106  3090  3859 I WS1_TamperChecker: DI status=false
+11-16 14:18:58.106  3090  3859 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:18:58.107  3090  3859 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:18:58.107  3090  3859 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 14:18:58.108  3090  3859 I WS1_TamperChecker: Root status=false
+11-16 14:18:58.108  3090  3859 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:18:58.253 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:58.255 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:18:59.226 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:59.229 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:18:59.258 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:18:59.261 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:00.265 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:00.268 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:01.272 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:01.275 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:02.280 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:02.284 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:03.018   588   629 D TimeStats: Dumping TimeStats as text
+11-16 14:19:03.104   588   629 D TimeStats: Cleared global stats
+11-16 14:19:03.104   588   629 D TimeStats: Cleared layer stats
+11-16 14:19:03.287 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:03.289 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:04.228 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:04.231 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:04.293 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:04.296 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:05.301 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:05.306 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:06.310 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:06.313 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:06.445 17907 17907 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.play.integrity.api.service.IntegrityApiDisplayListenerApiService.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiServiceNoInstantApps }
+11-16 14:19:07.317 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:07.320 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:08.324 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:08.326 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:09.270 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:09.273 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:09.331 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:09.334 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:10.341 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:10.344 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:11.196   588   629 D TimeStats: Dumping TimeStats as text
+11-16 14:19:11.281   588   629 D TimeStats: Cleared global stats
+11-16 14:19:11.281   588   629 D TimeStats: Cleared layer stats
+11-16 14:19:11.348 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:11.351 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:12.355 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:12.358 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:13.362 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:13.364 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:14.281 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:14.284 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:14.368 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:14.372 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:15.214 19004 21401 E PlayCommon: [1161] Metalog directories were deleted unexpectedly, recreating...
+11-16 14:19:15.375 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:15.378 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:16.382 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:16.386 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:16.939 17907 17907 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.apperrors.service.START_APP_ERROR dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-16 14:19:17.391 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:17.395 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:18.401 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:18.405 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:19.044   588   629 D TimeStats: Dumping TimeStats as text
+11-16 14:19:19.130   588   629 D TimeStats: Cleared global stats
+11-16 14:19:19.130   588   629 D TimeStats: Cleared layer stats
+11-16 14:19:19.312 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:19.314 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:19.410 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:19.415 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:20.420 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:20.424 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:21.119   588   629 D TimeStats: Dumping TimeStats as text
+11-16 14:19:21.206   588   629 D TimeStats: Cleared global stats
+11-16 14:19:21.207   588   629 D TimeStats: Cleared layer stats
+11-16 14:19:21.428 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:21.430 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:21.646  4171  4171 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:19:21.646  4171  4171 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:19:22.435 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:22.439 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:23.444 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:23.448 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:24.357 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:24.361 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:24.452 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:24.456 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:25.461 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:25.464 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:26.470 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:26.473 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:27.478 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:27.483 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:27.513  2425  2425 D DeviceStatisticsService: chargerType=2 batteryLevel=78 totalBatteryCapacity=4042600
+11-16 14:19:27.513  2425  2425 D DeviceInfoHidlClient: getPowerInfoSupportStatus()=1
+11-16 14:19:27.514  2425  2425 D DeviceInfoHidlClient: isRadioOn()=true
+11-16 14:19:27.514  2425  2425 I DeviceInfoHidlClient: isPowerInfoNeverSent=false batteryLevel=78 batteryLevelIndex=2 chargingMode=2 totalCapacity=4042600 powerSaveMode=false
+11-16 14:19:24.246  1563  2000 I chatty  : uid=1000(system) ConnectivitySer identical 18 lines
+11-16 14:19:27.269  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:19:27.522  2050  2665 D PowerUI : can't show warning due to - plugged: true status unknown: false
+11-16 14:19:27.634   900   937 D rlsservice: MonitorDisplayStatus client num 1, display status 1, sensor status 0
+11-16 14:19:28.488 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:28.491 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:29.399 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:29.403 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:29.496 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:29.500 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:30.298  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:19:30.504 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:30.506 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:31.510 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:31.514 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:32.518 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:32.522 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:33.525 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:33.528 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:34.440 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:34.444 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:34.532 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:34.538 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:35.543 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:35.548 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:36.387  3090  3090 D WM-DelayedWorkTracker: Scheduling work 2e282cc1-a1ed-434b-8bb1-6744e009f1ec
+11-16 14:19:36.387  3090  3090 D WM-GreedyScheduler: Starting work for 2e282cc1-a1ed-434b-8bb1-6744e009f1ec
+11-16 14:19:36.391  3090  4103 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=2e282cc1-a1ed-434b-8bb1-6744e009f1ec, generation=9215)
+11-16 14:19:36.393  3090  4103 W WS1_SE_SmpWrkFct_WV8VHC: com.airwatch.agent.scheduler.workmanager.TaskWorker not resolved in SamplingWorkerFactory
+11-16 14:19:36.393  3090  4103 W WS1_IntentProcessorWorkerFct: com.airwatch.agent.scheduler.workmanager.TaskWorker not resolved
+11-16 14:19:36.396  3090  3090 D WM-WorkerWrapper: Starting work for com.airwatch.agent.scheduler.workmanager.TaskWorker
+11-16 14:19:36.397  3090  4009 I WS1_TaskWorker: Started work for key: CertificateSample
+11-16 14:19:36.398  3090  4009 I WS1_TaskWorker: shouldSkipTask(CertificateSample) -> false, unlocked: true, allowedWhileLocked: false
+11-16 14:19:36.398  3090  4009 I WS1_TaskQueueTaskRoster: last_time_processed_CertificateSample recalculateToCoverMissedInterval: freq: 3600000 lastProcessingTime : 12496194
+11-16 14:19:36.399  3090  4009 I WS1_TaskQueueTaskRoster: last_time_processed_CertificateSample recalculateToCoverMissedInterval: diff: -8943823
+11-16 14:19:36.399  3090  4009 I WS1_TaskWorker: Processing task: CertificateSample
+11-16 14:19:36.400  3090  4425 I Log_RollingFileAggr: fileGrowListener is called
+11-16 14:19:36.400  3090  4009 I WS1_scheduler.task.Task: Submitted Task CertificateSample for Processing.
+11-16 14:19:36.402  3090  4305 I WS1_scheduler.task.Task: processing Task CertificateSample
+11-16 14:19:36.413  3090  4305 I WS1_AfwUtils: Hub app user id: 0
+11-16 14:19:36.414  3090  4009 I WS1_AfwUtils: Hub app user id: 0
+11-16 14:19:36.414  3090  4305 I WS1_AfwUtils: isWorkHubDiscoverable - false
+11-16 14:19:36.415  3090  4009 I WS1_AfwUtils: isWorkHubDiscoverable - false
+11-16 14:19:36.416  3090  4009 I WS1_scheduler.task.Task: Periodic scheduler submitted for: CertificateSample
+11-16 14:19:36.416  3090  4305 I WS1_AfwUtils: Hub app user id: 0
+11-16 14:19:36.416  3090  4009 I WS1_WorkManagerTaskRoster: Posting task: CertificateSample
+11-16 14:19:36.416  3090  4305 I WS1_AfwUtils: isWorkHubDiscoverable - false
+11-16 14:19:36.417  3090  4009 I WS1_TaskQueueTaskRoster: last_time_processed_CertificateSample recalculateToCoverMissedInterval: freq: 3600000 lastProcessingTime : 3552374
+11-16 14:19:36.417  3090  4009 I WS1_TaskQueueTaskRoster: last_time_processed_CertificateSample recalculateToCoverMissedInterval: diff: 16
+11-16 14:19:36.417  3090  4305 I WS1_TransmissionManager: isPaused(), trackingUser.getDeferralTrackingUserId  3, deferralTracker false
+11-16 14:19:36.417  3090  4009 I WS1_TaskQueueTaskRoster: For task: CertificateSample, next schedule timestamp chosen: 3599984
+11-16 14:19:36.423  3090  4009 I WS1_TaskQueueTaskRoster: last_time_processed_CertificateSample recalculateToCoverMissedInterval: freq: 3600000 lastProcessingTime : 3552374
+11-16 14:19:36.423  3090  4009 I WS1_TaskQueueTaskRoster: last_time_processed_CertificateSample recalculateToCoverMissedInterval: diff: 22
+11-16 14:19:36.424  3090  4009 I WS1_WorkManagerTaskRoster: Scheduling CertificateSample with interval: 3599984 ms and initial delay: 3599984 ms
+11-16 14:19:36.424  3090  4305 I WS1_NetworkWlanV3UemContract: UEM version check: requiredMin=26.10, comparisonResult=-1, contractReady=false
+11-16 14:19:36.424  3090  4305 I WS1_NetworkWlanV3UemContract: NETWORK_WLANV3 gated off: reportIpv6AddressFF=true, requiredMin=26.10, versionOk=false
+11-16 14:19:36.425  3090  4008 I Log_RollingFileAggr: fileGrowListener is called
+11-16 14:19:36.429  3090  4009 I WS1_WorkManagerWrapper: Work scheduled for CertificateSample: true
+11-16 14:19:36.430  3090  4009 I WS1_WorkManagerWrapper: Enqueue result: IN_PROGRESS for task: CertificateSample
+11-16 14:19:36.453  3090  4305 I WS1_CertificateListSampler: Adding the placeholder cert
+11-16 14:19:36.455  3090  4305 I WS1_CertificateListSampler: addCertDataEntry() CN=AirWatchAgent X.509 1
+11-16 14:19:36.456  3090  4305 I WS1_CertificateListSampler: Certificates count: 1
+11-16 14:19:36.458  3090  4305 I WS1_AfwUtils: Hub app user id: 0
+11-16 14:19:36.459  3090  4305 I WS1_AfwUtils: isWorkHubDiscoverable - false
+11-16 14:19:36.460  3090  4305 I WS1_Module: Persisting sample data into /data/user/0/com.airwatch.androidagent/files/samples/cert.bin
+11-16 14:19:36.465  3090  4305 I WS1_TSSampleFilesManager: startWrite on file: cert.bin
+11-16 14:19:36.471  3090  4305 I WS1_TSSampleFilesManager: finishWrite on file: cert.bin
+11-16 14:19:36.471  3090  4305 I WS1_scheduler.task.Task: completed Task CertificateSample
+11-16 14:19:36.472  3090  4008 I WS1_TaskWorker: Finished work for key: CertificateSample
+11-16 14:19:36.475  3090  4103 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=2e282cc1-a1ed-434b-8bb1-6744e009f1ec, tags={ com.airwatch.agent.scheduler.workmanager.TaskWorker,CertificateSample } ]
+11-16 14:19:36.481  3090  3090 D WM-Processor: Processor 2e282cc1-a1ed-434b-8bb1-6744e009f1ec executed; reschedule = false
+11-16 14:19:36.489  3090  4103 D WM-GreedyScheduler: Cancelling work ID 2e282cc1-a1ed-434b-8bb1-6744e009f1ec
+11-16 14:19:36.523  3090  4103 D WM-SystemJobScheduler: Scheduling work ID 2e282cc1-a1ed-434b-8bb1-6744e009f1ecJob ID 1013240
+11-16 14:19:36.552 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:36.555 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:37.560 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:37.563 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:38.568 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:38.573 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:39.482 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:39.485 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:39.578 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:39.581 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:40.585 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:40.588 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:40.954 17907 17907 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.auth.aang.events.services.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-16 14:19:41.594 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:41.598 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:41.631 21715 21715 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-16 14:19:42.603 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:42.606 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:43.610 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:43.615 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:44.485 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:44.488 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:44.620 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:44.624 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:45.504 21715 21715 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.potokens.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsApiService }
+11-16 14:19:45.510 21715 21715 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.safetynet.service.START pkg=com.google.android.gms }
+11-16 14:19:45.628 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:45.632 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:46.638 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:46.641 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:47.647 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:47.650 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:48.655 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:48.659 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:49.524 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:49.527 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:49.665 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:49.669 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:50.674 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:50.678 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:51.684 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:51.689 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:52.693 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:52.697 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:53.701 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:53.704 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:54.533 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:54.538 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:54.710 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:54.715 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:55.718 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:55.721 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:56.725 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:56.729 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:57.635   900   937 D rlsservice: MonitorDisplayStatus client num 1, display status 1, sensor status 0
+11-16 14:19:57.733 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:57.737 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:58.741 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:58.748 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:19:59.574 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:59.578 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:19:59.754 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:19:59.756 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:00.760 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:00.762 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:01.767 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:01.771 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:02.776 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:02.779 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:03.783 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:03.787 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:04.616 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:20:04.619 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:20:04.792 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:04.796 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:05.801 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:05.805 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:06.809 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:06.812 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:07.819 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:07.822 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:08.827 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:08.831 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:09.657 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:20:09.661 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:20:09.836 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:09.839 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:10.844 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:10.848 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:11.853 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:11.857 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:12.863 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:12.866 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:13.874 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:13.877 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:14.699 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:20:14.703 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:20:14.882 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:14.885 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:15.888 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:15.890 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:16.895 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:16.898 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:17.903 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:17.907 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:18.912 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:18.915 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:19.719 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:20:19.722 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:20:19.920 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:19.925 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:20.930 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:20.934 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:20:21.051   588  1610 D TimeStats: Dumping TimeStats as text
+11-16 14:20:21.137   588  1610 D TimeStats: Cleared global stats
+11-16 14:20:21.137   588  1610 D TimeStats: Cleared layer stats
+11-16 14:20:21.400   588  1610 D TimeStats: Disabled
+11-16 14:20:21.729  3214  3240 I ldi.marketwatc: Explicit concurrent copying GC freed 694113(38MB) AllocSpace objects, 16(320KB) LOS objects, 82% free, 5036KB/28MB, paused 71us total 48.510ms
+11-16 14:20:21.939 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:20:21.941 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close

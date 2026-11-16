@@ -1,0 +1,40 @@
+[2026-11-16 13:59:50.477477] [DEVICEFARM] ########### Start executing testspec ###########
+[2026-11-16 13:59:50.477537]  
+[2026-11-16 13:59:50.487550]  
+[2026-11-16 13:59:50.487583] [DEVICEFARM] ########### Entering phase install ###########
+[2026-11-16 13:59:50.487597]  
+[2026-11-16 13:59:50.487608] [DeviceFarm] adb version
+[2026-11-16 13:59:50.516128] Android Debug Bridge version 1.0.39
+[2026-11-16 13:59:50.516170] Version 0.0.1-4500957
+[2026-11-16 13:59:50.516187] Installed as /tmp/devicefarm-workspace/execution-4znbdrtj/shared-aiu31x0u/android-home-eciuy_1w/platform-tools/adb_binary
+[2026-11-16 13:59:50.517724]  
+[2026-11-16 13:59:50.517749] [DEVICEFARM] ########### Entering phase pre_test ###########
+[2026-11-16 13:59:50.517771]  
+[2026-11-16 13:59:50.517789] [DeviceFarm] adb devices -l
+[2026-11-16 13:59:50.542386] List of devices attached
+[2026-11-16 13:59:50.542442] 4A191JEBF28019         device usb:2-1 product:tegu model:Pixel_9a device:tegu transport_id:2
+[2026-11-16 13:59:50.542470] 
+[2026-11-16 13:59:50.544329]  
+[2026-11-16 13:59:50.544357] [DEVICEFARM] ########### Entering phase test ###########
+[2026-11-16 13:59:50.544378]  
+[2026-11-16 13:59:50.544393] [DeviceFarm] bash $DEVICEFARM_TEST_PACKAGE_PATH/run-android.sh
+[2026-11-16 14:12:28.629030]  
+[2026-11-16 14:12:28.629090] [DEVICEFARM] ########### Entering phase post_test ###########
+[2026-11-16 14:12:28.629114]  
+[2026-11-16 14:12:28.629126] [DeviceFarm] ls -la $DEVICEFARM_LOG_DIR/mw || true
+[2026-11-16 14:12:28.630060] total 28
+[2026-11-16 14:12:28.630074] drwxr-xr-x 6 device-farm root  132 Nov 16 14:12 .
+[2026-11-16 14:12:28.630086] drwxrwxrwx 3         995 1001   16 Nov 16 13:59 ..
+[2026-11-16 14:12:28.630098] -rw-r--r-- 1 device-farm root    8 Nov 16 13:59 install.log
+[2026-11-16 14:12:28.630108] -rw-r--r-- 1 device-farm root  523 Nov 16 14:12 listing.txt
+[2026-11-16 14:12:28.630118] -rw-r--r-- 1 device-farm root 1008 Nov 16 14:12 result.txt
+[2026-11-16 14:12:28.630127] drwxr-xr-x 2 device-farm root 4096 Nov 16 14:05 valdi
+[2026-11-16 14:12:28.630136] drwxr-xr-x 2 device-farm root 4096 Nov 16 14:02 vieww-cpu
+[2026-11-16 14:12:28.630146] drwxr-xr-x 2 device-farm root 4096 Nov 16 14:09 vieww-cpuserial
+[2026-11-16 14:12:28.630155] drwxr-xr-x 2 device-farm root 4096 Nov 16 14:12 vieww-gpu
+[2026-11-16 14:12:28.662996]  
+[2026-11-16 14:12:28.663055] [DEVICEFARM] ########### Finish executing testspec ###########
+[2026-11-16 14:12:28.663067]  
+[2026-11-16 14:12:28.666412] [DEVICEFARM] ########### Setting upload permissions ###########
+[2026-11-16 14:12:28.666440]  
+[2026-11-16 14:12:28.668705]  

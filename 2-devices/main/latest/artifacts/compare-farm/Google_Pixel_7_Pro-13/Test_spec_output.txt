@@ -1,0 +1,42 @@
+[DEVICEFARM] Setting up your device. This usually takes 2-3 minutes.
+[DEVICEFARM] ########### Start executing testspec ###########
+ 
+ 
+[DEVICEFARM] ########### Entering phase install ###########
+ 
+[DeviceFarm] adb version
+Android Debug Bridge version 1.0.39
+Version 0.0.1-4500957
+Installed as /tmp/devicefarm-workspace/execution-ff4eg1sc/shared-lnwbfzwl/android-home-zuvwd54w/platform-tools/adb_binary
+ 
+[DEVICEFARM] ########### Entering phase pre_test ###########
+ 
+[DeviceFarm] adb devices -l
+List of devices attached
+33111FDH300270         device usb:1-1.1 product:cheetah model:Pixel_7_Pro device:cheetah transport_id:4
+
+ 
+[DEVICEFARM] ########### Entering phase test ###########
+ 
+[DeviceFarm] bash $DEVICEFARM_TEST_PACKAGE_PATH/run-android.sh
+ 
+[DEVICEFARM] ########### Entering phase post_test ###########
+ 
+[DeviceFarm] ls -la $DEVICEFARM_LOG_DIR/mw || true
+total 28
+drwxr-xr-x 6 device-farm root  132 Nov 16 14:12 .
+drwxrwxrwx 3         995 1001   16 Nov 16 14:00 ..
+-rw-r--r-- 1 device-farm root    8 Nov 16 14:00 install.log
+-rw-r--r-- 1 device-farm root  523 Nov 16 14:12 listing.txt
+-rw-r--r-- 1 device-farm root 1021 Nov 16 14:12 result.txt
+drwxr-xr-x 2 device-farm root 4096 Nov 16 14:06 valdi
+drwxr-xr-x 2 device-farm root 4096 Nov 16 14:02 vieww-cpu
+drwxr-xr-x 2 device-farm root 4096 Nov 16 14:09 vieww-cpuserial
+drwxr-xr-x 2 device-farm root 4096 Nov 16 14:12 vieww-gpu
+ 
+[DEVICEFARM] ########### Finish executing testspec ###########
+ 
+[DEVICEFARM] ########### Setting upload permissions ###########
+ 
+ 
+[DEVICEFARM] Tearing down your device. Your tests report will come shortly.

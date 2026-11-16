@@ -1,0 +1,1076 @@
+--------- beginning of main
+11-16 14:10:21.665   452  2301 D TimeStats: Cleared global stats
+11-16 14:10:21.665   452  2301 D TimeStats: Cleared layer stats
+11-16 14:10:21.796   452  2301 D TimeStats: Enabled
+--------- beginning of system
+11-16 14:10:21.925  1355  4332 W ActivityTaskManager: callingPackage for (uid=2000, pid=29110) has no WPC
+11-16 14:10:21.926  1355  4332 V GrammaticalInflectionUtils: AttributionSource: android.content.AttributionSource@68117cfc does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-16 14:10:21.926  1355  4332 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+11-16 14:10:21.926  1355  4332 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+11-16 14:10:21.929  1355  4332 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
+11-16 14:10:21.933  1355  4332 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=dev.vieww.marketwatch/android.app.NativeActivity} with LAUNCH_MULTIPLE from uid 2000 (BAL_ALLOW_PERMISSION) result code=0
+11-16 14:10:21.933  1870  1900 V WindowManagerShell: Transition requested (#99): android.os.BinderProxy@25a443b TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=488 effectiveUid=10285 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=dev.vieww.marketwatch/android.app.NativeActivity } baseActivity=ComponentInfo{dev.vieww.marketwatch/android.app.NativeActivity} topActivity=ComponentInfo{dev.vieww.marketwatch/android.app.NativeActivity} origActivity=null realActivity=ComponentInfo{dev.vieww.marketwatch/android.app.NativeActivity} numActivities=1 lastActiveTime=8545449 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@1db3758} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 152 - 0, 0) topActivityInfo=ActivityInfo{b4390b1 android.app.NativeActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isTopActivityStyleFloating=false lastNonFullscreenBounds=Rect(276, 716 - 804, 1796) capturedLink=null capturedLinkTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false isLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=1080 topActivityLetterboxHeight=2424 topActivityLetterboxAppWidth=1080 topActivityLetterboxAppHeight=2209 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 99 }
+11-16 14:10:21.933  1870  1900 D ShellSplitScreen: logExit: no-op, mLoggerSessionId is null
+11-16 14:10:21.935   452   452 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-16 14:10:21.936  9594  9594 W SplitSelectStateCtor: Missing session instanceIds
+11-16 14:10:21.936  9594  9594 D StatsLog: LAUNCHER_SPLIT_SELECTION_EXIT_INTERRUPTED
+11-16 14:10:21.937  1870  1900 D WindowManagerShell: setLauncherKeepClearAreaHeight: visible=false, height=527
+11-16 14:10:21.938  1355 10465 I AppsFilter: interaction: PackageSetting{caaf198 com.google.android.microdroid.empty_payload/10267} -> PackageSetting{58e0902 dev.vieww.marketwatch/10285} BLOCKED
+11-16 14:10:21.940  1355  1507 V GrammaticalInflectionUtils: AttributionSource: android.content.AttributionSource@68117cfc does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-16 14:10:21.943  2809  5556 D ForegroundUtils: Foreground UID status:
+11-16 14:10:21.943  2809  5556 D ForegroundUtils: UID: 1002 is in foreground: true
+11-16 14:10:21.943  2809  5556 D ForegroundUtils: UID: 10156 is in foreground: true
+11-16 14:10:21.943  2809  5556 D ForegroundUtils: UID: 10227 is in foreground: true
+11-16 14:10:21.943  2809  5556 D ForegroundUtils: UID: 10232 is in foreground: true
+11-16 14:10:21.943  2809  5556 D ForegroundUtils: UID: 10271 is in foreground: true
+11-16 14:10:21.943  2809  5556 D ForegroundUtils: UID: 10276 is in foreground: false
+11-16 14:10:21.943  2809  5556 D ForegroundUtils: UID: 10282 is in foreground: false
+11-16 14:10:21.946  1355  1695 D CoreBackPreview: Window{aaab76 u0 Splash Screen dev.vieww.marketwatch}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@ac93605, mPriority=0, mIsAnimationCallback=false}
+11-16 14:10:21.949   741   741 D Zygote  : Forked child process 29113
+11-16 14:10:21.949  1355  1523 I ActivityManager: Start proc 29113:dev.vieww.marketwatch/u0a285 for next-top-activity {dev.vieww.marketwatch/android.app.NativeActivity}
+11-16 14:10:21.953  1870  3625 V WindowManagerShell: onTransitionReady(transaction=5819680690903)
+11-16 14:10:21.953  1870  1900 V WindowManagerShell: onTransitionReady (#99) android.os.BinderProxy@25a443b: {id=99 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@53e6a7a} m=OPEN f=NONE leash=Surface(name=Task=488)/@0x97fe40f sb=Rect(0, 0 - 1080, 2424) eb=Rect(0, 0 - 1080, 2424) epz=Point(1080, 2424) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@460b22b} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=459)/@0x58adc9c sb=Rect(0, 0 - 1080, 2424) eb=Rect(0, 0 - 1080, 2424) epz=Point(1080, 2424) d=0 taskParent=-1}]}
+11-16 14:10:21.953  1355  1504 V WindowManager: Sent Transition (#99) createdAt=11-16 14:10:21.926 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=488 effectiveUid=10285 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=dev.vieww.marketwatch/android.app.NativeActivity } baseActivity=ComponentInfo{dev.vieww.marketwatch/android.app.NativeActivity} topActivity=ComponentInfo{dev.vieww.marketwatch/android.app.NativeActivity} origActivity=null realActivity=ComponentInfo{dev.vieww.marketwatch/android.app.NativeActivity} numActivities=1 lastActiveTime=8545449 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{c7c5a67 Task{75e4eaa #488 type=standard A=10285:dev.vieww.marketwatch isResizeable=true minWidth=-1 minHeight=-1}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 152 - 0, 0) topActivityInfo=ActivityInfo{7281014 android.app.NativeActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isTopActivityStyleFloating=false lastNonFullscreenBounds=Rect(276, 716 - 804, 1796) capturedLink=null capturedLinkTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false isLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=1080 topActivityLetterboxHeight=2424 topActivityLetterboxAppWidth=1080 topActivityLetterboxAppHeight=2209 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 99 }
+11-16 14:10:21.953  1355  1504 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+11-16 14:10:21.953  1870  1900 V WindowManagerShell: Playing animation for (#99) android.os.BinderProxy@25a443b@0
+11-16 14:10:21.953  1870  1900 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@a5d41cc
+11-16 14:10:21.953  1870  1900 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@3895c15
+11-16 14:10:21.953  1870  1900 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@8c8cb2a
+11-16 14:10:21.953  1355  1504 V WindowManager:     info={id=99 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+11-16 14:10:21.953  1355  1504 V WindowManager:         {WCT{RemoteToken{c7c5a67 Task{75e4eaa #488 type=standard A=10285:dev.vieww.marketwatch isResizeable=true minWidth=-1 minHeight=-1}}} m=OPEN f=NONE leash=Surface(name=Task=488)/@0x40c408b sb=Rect(0, 0 - 1080, 2424) eb=Rect(0, 0 - 1080, 2424) epz=Point(1080, 2424) d=0 taskParent=-1},
+11-16 14:10:21.953  1355  1504 V WindowManager:         {WCT{RemoteToken{9d1b9fa Task{916c7e8 #459 type=home isResizeable=true minWidth=-1 minHeight=-1}}} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=459)/@0xb42d9b0 sb=Rect(0, 0 - 1080, 2424) eb=Rect(0, 0 - 1080, 2424) epz=Point(1080, 2424) d=0 taskParent=-1}
+11-16 14:10:21.953  1355  1504 V WindowManager:     ]}
+11-16 14:10:21.953  1870  1900 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@7e17d1b
+11-16 14:10:21.953  1870  1900 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@d02aeb8
+11-16 14:10:21.953  1870  1900 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+11-16 14:10:21.953  1870  1900 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@5b0a491
+11-16 14:10:21.953  1870  1900 V WindowManagerShell:  try handler com.android.wm.shell.back.BackAnimationController$BackTransitionHandler@7806ff6
+11-16 14:10:21.953  1870  1900 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@210cff7
+11-16 14:10:21.953  1870  1900 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=99 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@53e6a7a} m=OPEN f=NONE leash=Surface(name=Task=488)/@0x97fe40f sb=Rect(0, 0 - 1080, 2424) eb=Rect(0, 0 - 1080, 2424) epz=Point(1080, 2424) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@460b22b} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=459)/@0x58adc9c sb=Rect(0, 0 - 1080, 2424) eb=Rect(0, 0 - 1080, 2424) epz=Point(1080, 2424) d=0 taskParent=-1}]}
+11-16 14:10:21.953  1870  1900 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=undefined independent=true modes=[CLOSE,TO_BACK] flags=IN_TASK_WITH_EMBEDDED_ACTIVITY mustBeTask=false order=ANY topActivity=null launchCookie=null taskFragmentToken=android.os.BinderProxy@6b7ffc2}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@e5131d3, appThread = android.app.IApplicationThread$Stub$Proxy@1f2b110, debugName = overlayBackTransition }}
+11-16 14:10:21.953  1870  1900 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=dream independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null},{atype=home independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@8a87409, appThread = android.app.IApplicationThread$Stub$Proxy@b0a560e, debugName = LauncherToDream }}
+11-16 14:10:21.953  1870  1900 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null},{NOT atype=undefined independent=true modes=[] flags=NONE mustBeTask=true order=ANY topActivity=null launchCookie=null customAnim=true}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@673182f, appThread = android.app.IApplicationThread$Stub$Proxy@3b9ce3c, debugName = QuickstepLaunchHome }}
+11-16 14:10:21.953  1870  1900 V WindowManagerShell:  Delegate animation for (#99) to null
+11-16 14:10:21.953  1870  1900 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultTransitionHandler@7abc6ef
+11-16 14:10:21.953  1870  1900 V WindowManagerShell: start default transition animation, info = {id=99 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@53e6a7a} m=OPEN f=NONE leash=Surface(name=Task=488)/@0x97fe40f sb=Rect(0, 0 - 1080, 2424) eb=Rect(0, 0 - 1080, 2424) epz=Point(1080, 2424) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@460b22b} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=459)/@0x58adc9c sb=Rect(0, 0 - 1080, 2424) eb=Rect(0, 0 - 1080, 2424) epz=Point(1080, 2424) d=0 taskParent=-1}]}
+11-16 14:10:21.953  1870  1900 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@bb72688 animAttr=0x13 type=OPEN isEntrance=false
+11-16 14:10:21.953  1870  1900 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@fe90821 animAttr=0x12 type=OPEN isEntrance=true
+11-16 14:10:21.954  1870  1900 V WindowManagerShell:  animated by com.android.wm.shell.transition.DefaultTransitionHandler@7abc6ef
+11-16 14:10:21.954  1355  1695 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 14:10:21.955 29113 29113 I eww.marketwatch: Using CollectorTypeCMC GC.
+11-16 14:10:21.956 29113 29113 E eww.marketwatch: Not starting debugger since process cannot load the jdwp agent.
+11-16 14:10:21.958 29113 29113 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-16 14:10:21.961  1355  1695 W com.android.internal.protolog.LogcatOnlyProtoLogImpl: ProtoLog message not processed. Failed to log it to proto. Logging it below to logcat instead.
+11-16 14:10:21.962  1355  1695 V WindowManager: Binding proc dev.vieww.marketwatch with config {1.0 310mcc260mnc [en_US] ldltr sw411dp w411dp h842dp 420dpi nrml long hdr widecg port finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2424) mAppBounds=Rect(0, 152 - 1080, 2361) mMaxBounds=Rect(0, 0 - 1080, 2424) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.398 fontWeightAdjustment=0}
+11-16 14:10:21.963  1870  1900 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#99) android.os.BinderProxy@25a443b@0
+11-16 14:10:21.964  1355  1504 V WindowManager: Finish Transition (#99): created at 11-16 14:10:21.926 collect-started=0.07ms request-sent=6.538ms started=7.393ms ready=24.853ms sent=25.886ms finished=37.215ms
+11-16 14:10:21.964  2809  5556 D ForegroundUtils: Foreground UID status:
+11-16 14:10:21.964  9594  9594 D VRI[NexusLauncherActivity]: visibilityChanged oldVisibility=true newVisibility=false
+11-16 14:10:21.964  2809  5556 D ForegroundUtils: UID: 1002 is in foreground: true
+11-16 14:10:21.964  2809  5556 D ForegroundUtils: UID: 10156 is in foreground: true
+11-16 14:10:21.964  2809  5556 D ForegroundUtils: UID: 10227 is in foreground: true
+11-16 14:10:21.964  2809  5556 D ForegroundUtils: UID: 10232 is in foreground: true
+11-16 14:10:21.964  2809  5556 D ForegroundUtils: UID: 10271 is in foreground: true
+11-16 14:10:21.964  2809  5556 D ForegroundUtils: UID: 10276 is in foreground: false
+11-16 14:10:21.964  2809  5556 D ForegroundUtils: UID: 10282 is in foreground: false
+11-16 14:10:21.964  2809  5556 D ForegroundUtils: UID: 10285 is in foreground: true
+11-16 14:10:21.964  1870  1900 V WindowManagerShell: Track 0 became idle
+11-16 14:10:21.964  1870  1900 V WindowManagerShell: All active transition animations finished
+11-16 14:10:21.965  1355  1695 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 14:10:21.965 29113 29113 D CompatChangeReporter: Compat change id reported: 242716250; UID 10285; state: ENABLED
+11-16 14:10:21.965  1355  1695 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 14:10:21.968 29113 29113 D nativeloader: Configuring clns-7 for other apk /data/app/~~m5GnKWF83J-ffqXRx3t0iA==/dev.vieww.marketwatch-eZPhRWWHhBX4ML6Nkhs_mA==/base.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~m5GnKWF83J-ffqXRx3t0iA==/dev.vieww.marketwatch-eZPhRWWHhBX4ML6Nkhs_mA==/lib/arm64:/data/app/~~m5GnKWF83J-ffqXRx3t0iA==/dev.vieww.marketwatch-eZPhRWWHhBX4ML6Nkhs_mA==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand:/data/user/0/dev.vieww.marketwatch
+11-16 14:10:21.970 29113 29113 V GraphicsEnvironment: Currently set values for:
+11-16 14:10:21.970 29113 29113 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[com.android.angle, com.linecorp.b612.android, com.campmobile.snow, com.google.android.apps.tachyon]
+11-16 14:10:21.970 29113 29113 V GraphicsEnvironment:   angle_gl_driver_selection_values=[angle, native, native, native]
+11-16 14:10:21.970 29113 29113 V GraphicsEnvironment: dev.vieww.marketwatch is not listed in per-application setting
+11-16 14:10:21.970 29113 29113 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-16 14:10:21.974 29113 29126 D vulkan  : searching for layers in '/data/app/~~m5GnKWF83J-ffqXRx3t0iA==/dev.vieww.marketwatch-eZPhRWWHhBX4ML6Nkhs_mA==/lib/arm64'
+11-16 14:10:21.974 29113 29126 D vulkan  : searching for layers in '/data/app/~~m5GnKWF83J-ffqXRx3t0iA==/dev.vieww.marketwatch-eZPhRWWHhBX4ML6Nkhs_mA==/base.apk!/lib/arm64-v8a'
+11-16 14:10:21.977 29113 29113 D DesktopModeFlagsUtil: Toggle override initialized to: OVERRIDE_UNSET
+11-16 14:10:21.979  9594  9594 D NexusLauncherModelDelegate: notifySmartspaceEvent: SmartspaceTargetEvent{mSmartspaceTarget=null, mSmartspaceActionId='null', mEventType=7}
+11-16 14:10:21.979 29113 29113 D nativeloader: Load /data/app/~~m5GnKWF83J-ffqXRx3t0iA==/dev.vieww.marketwatch-eZPhRWWHhBX4ML6Nkhs_mA==/lib/arm64/libandroid.so using ns clns-7 from class loader (caller=<unknown>): ok
+11-16 14:10:21.979 29113 29113 I android-activity: Creating: Activity = 0x2dc6, saved state size = 0
+11-16 14:10:21.983 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:22.030 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"start","path":"gpu","phases":16}
+11-16 14:10:22.053  1355  1695 D CoreBackPreview: Window{80cb32d u0 dev.vieww.marketwatch/android.app.NativeActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@154a5f3, mPriority=0, mIsAnimationCallback=false}
+11-16 14:10:22.060  9594  9594 D BaseDepthController: setSurface:
+11-16 14:10:22.060  9594  9594 D BaseDepthController: 	mWaitingOnSurfaceValidity: false
+11-16 14:10:22.060  9594  9594 D BaseDepthController: 	mSurface: null
+11-16 14:10:22.060  9594  9594 D BaseDepthController: mSurface is null and mCurrentBlur is: 0
+11-16 14:10:22.060  1355  1504 I ActivityTaskManager: Displayed dev.vieww.marketwatch/android.app.NativeActivity for user 0: +133ms
+11-16 14:10:22.060  9594  9594 D StateManager: goToState - fromState: Normal, toState: Normal, partial trace:
+11-16 14:10:22.060  9594  9594 D StateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(go/retraceme ca135d528cde6c11952e71cb4e9d0c3df88ee3bb21887e4ea0abd79403362ead:5)
+11-16 14:10:22.060  9594  9594 D StateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(go/retraceme ca135d528cde6c11952e71cb4e9d0c3df88ee3bb21887e4ea0abd79403362ead:2)
+11-16 14:10:22.060  9594  9594 D StateManager: 	at com.android.launcher3.statemanager.StatefulActivity.onStop(go/retraceme ca135d528cde6c11952e71cb4e9d0c3df88ee3bb21887e4ea0abd79403362ead:34)
+11-16 14:10:22.060  9594  9594 D StatsLog: LAUNCHER_ONSTOP
+11-16 14:10:22.061  9594  9594 D StatsLog: LAUNCHER_GOOGLE_SEARCH_RESTORE_LIST_SIZE_AFTER_ACTIVITY_RESTART
+11-16 14:10:22.061  2809  5556 D ForegroundUtils: Foreground UID status:
+11-16 14:10:22.061  2809  5556 D ForegroundUtils: UID: 1002 is in foreground: true
+11-16 14:10:22.061  2809  5556 D ForegroundUtils: UID: 10156 is in foreground: true
+11-16 14:10:22.061  2809  5556 D ForegroundUtils: UID: 10227 is in foreground: false
+11-16 14:10:22.061  2809  5556 D ForegroundUtils: UID: 10232 is in foreground: true
+11-16 14:10:22.061  2809  5556 D ForegroundUtils: UID: 10271 is in foreground: true
+11-16 14:10:22.061  2809  5556 D ForegroundUtils: UID: 10276 is in foreground: false
+11-16 14:10:22.061  2809  5556 D ForegroundUtils: UID: 10282 is in foreground: false
+11-16 14:10:22.061  2809  5556 D ForegroundUtils: UID: 10285 is in foreground: true
+11-16 14:10:22.066   453   453 E gralloc5: ERROR: Format allocation info not found for format: 3b
+11-16 14:10:22.066   453   453 E gralloc5: ERROR: Format allocation info not found for format: 0
+11-16 14:10:22.066   453   453 E gralloc5: Invalid base format! req_base_format = (<unrecognized format> 0x0), req_format = (<unrecognized format> 0x3b), type = 0x0
+11-16 14:10:22.066   453   453 E gralloc5: ERROR: Unrecognized and/or unsupported format (<unrecognized format> 0x3b) and usage (CPU_READ_NEVER|CPU_WRITE_NEVER|GPU_TEXTURE|GPU_RENDER_TARGET|COMPOSER_OVERLAY 0xb00)
+11-16 14:10:22.066   453   453 E gralloc5: ERROR: Format allocation info not found for format: 3b
+11-16 14:10:22.066   453   453 E gralloc5: ERROR: Format allocation info not found for format: 0
+11-16 14:10:22.066   453   453 E gralloc5: Invalid base format! req_base_format = (<unrecognized format> 0x0), req_format = (<unrecognized format> 0x3b), type = 0x0
+11-16 14:10:22.066   453   453 E gralloc5: ERROR: Unrecognized and/or unsupported format (<unrecognized format> 0x3b) and usage (CPU_READ_NEVER|CPU_WRITE_NEVER|GPU_TEXTURE|GPU_RENDER_TARGET|COMPOSER_OVERLAY 0xb00)
+11-16 14:10:22.073 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"surface","w":411,"h":923,"t":43.4}
+11-16 14:10:22.073 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"quality","line":"blur off (tier medium), fill off (tier medium), raster threads serial (tier medium)","t":43.5}
+11-16 14:10:22.074 29113 29133 I vieww   : vieww_platform_winit::insets: display refresh: 60.0Hz from Display.getRefreshRate()
+11-16 14:10:22.074 29113 29133 I vieww   : vieww_platform_winit::app: vieww: window#primary reports 60.0Hz; frame budget follows it
+11-16 14:10:22.074  1870  1919 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@7c6d922
+11-16 14:10:22.074 29113 29133 I vieww   : vieww_platform_winit::insets: window insets: bars [0, 152, 0, 63] ime [0, 0, 0, 0] physical at 2.625x -> SystemInsets { safe_area: EdgeInsets { left: 0.0, top: 57.904762, right: 0.0, bottom: 24.0 }, keyboard: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } }
+11-16 14:10:22.074  1355  1695 D CoreBackPreview: Window{aaab76 u0 Splash Screen dev.vieww.marketwatch EXITING}: Setting back callback null
+11-16 14:10:22.076 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load2k","t":45.5}
+11-16 14:10:22.091  1355  1732 I ImeTracker: dev.vieww.marketwatch:9baf1da: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+11-16 14:10:22.091  1355  1732 I ImeTracker: dev.vieww.marketwatch:9baf1da: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-16 14:10:22.094 14590 14590 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2589 
+11-16 14:10:22.095 14590 14590 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():100 repeatCheckTimes = 0, locked = false
+11-16 14:10:22.095 14590 14590 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1568 onStartInput(EditorInfo{EditorInfo{packageName=dev.vieww.marketwatch, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+11-16 14:10:22.096 14590 14590 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():100 repeatCheckTimes = 1, locked = false
+11-16 14:10:22.096 14590 14590 W EmojiCompatManager: EmojiCompatManager.getEmojiCompatIfLoaded():335 EmojiCompat failed to load.
+11-16 14:10:22.096  1355  1695 W PackageConfigPersister: App-specific configuration not found for packageName: dev.vieww.marketwatch and userId: 0
+11-16 14:10:22.096 14590 14590 I AndroidIME: InputBundleManager.loadActiveInputBundleId():407 loadActiveInputBundleId: und-Latn-x-password, password
+11-16 14:10:22.114 29113 29133 I vieww   : vieww_platform_winit::perf_hint: vieww: performance hint on (target 16.67 ms)
+11-16 14:10:22.114 29113 29133 I vieww   : vieww_platform_winit::a11y_android: a11y: host is the activity's content view
+11-16 14:10:22.114 29113 29133 I vieww   : vieww_platform_winit::a11y_android: a11y: the host sits at (0, 152) inside the window, so bounds are corrected by that much
+11-16 14:10:22.115 29113 29133 I vieww   : vieww_platform_winit::a11y_android: a11y: injected an AccessKit delegate into the activity's view
+11-16 14:10:22.117   453   453 E gralloc5: ERROR: Format allocation info not found for format: 3b
+11-16 14:10:22.117   453   453 E gralloc5: ERROR: Format allocation info not found for format: 0
+11-16 14:10:22.117   453   453 E gralloc5: Invalid base format! req_base_format = (<unrecognized format> 0x0), req_format = (<unrecognized format> 0x3b), type = 0x0
+11-16 14:10:22.117   453   453 E gralloc5: ERROR: Unrecognized and/or unsupported format (<unrecognized format> 0x3b) and usage (CPU_READ_NEVER|CPU_WRITE_NEVER|GPU_TEXTURE|GPU_RENDER_TARGET|COMPOSER_OVERLAY 0xb00)
+11-16 14:10:22.117   453   453 E gralloc5: ERROR: Format allocation info not found for format: 3b
+11-16 14:10:22.117   453   453 E gralloc5: ERROR: Format allocation info not found for format: 0
+11-16 14:10:22.117   453   453 E gralloc5: Invalid base format! req_base_format = (<unrecognized format> 0x0), req_format = (<unrecognized format> 0x3b), type = 0x0
+11-16 14:10:22.117   453   453 E gralloc5: ERROR: Unrecognized and/or unsupported format (<unrecognized format> 0x3b) and usage (CPU_READ_NEVER|CPU_WRITE_NEVER|GPU_TEXTURE|GPU_RENDER_TARGET|COMPOSER_OVERLAY 0xb00)
+11-16 14:10:22.128 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"route","route":"direct: depth-0 opaque frame rendered into the swapchain image; chosen by measurement","t":97.6}
+11-16 14:10:22.135 29113 29133 I vieww   : vieww_platform_winit::startup: vieww: pipeline cache started from 19390 bytes; saved 19390 bytes after the first GPU frame
+11-16 14:10:22.961  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:22.992 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:23.593   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:10:24.002 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:24.972  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:25.012 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:25.536 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load2k","frames":3,"work_ms":[6.710,34.376,34.376,34.376],"interval_ms":[3400.087,3400.087,3400.087,3400.087],"jank":1,"budget_ms":16.67,"t":3505.8}
+11-16 14:10:25.536 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load2k","frames":3,"build_ms":[5.34,14.73,14.73],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.69,3.39,3.39],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.04,0.05,0.05],"present_ms":[0.32,0.49,0.49],"gpu_ms":[2.33,2.33,2.33],"budget_ms_end":16.67,"scale_ms":[0.08,0.12,0.12],"plan_ms":[2.79,15.81,15.81],"gpu_draw_ms":[2.32,2.32,2.32],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.01,0.01,0.01],"gpu_blit_ms":[0.01,0.01,0.01],"t":3506.1}
+11-16 14:10:25.536 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"idle2k","t":3506.1}
+11-16 14:10:26.022 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:26.060   452   602 D TimeStats: Dumping TimeStats as text
+11-16 14:10:26.177   452   602 D TimeStats: Cleared global stats
+11-16 14:10:26.177   452   602 D TimeStats: Cleared layer stats
+11-16 14:10:26.554 29208 29208 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-16 14:10:26.556 29208 29208 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-16 14:10:26.669   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:10:26.984  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:27.031 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:27.235 11304 11333 I BistoHotwordHelper: (REDACTED) getHotwordActive::active query: %s, watch: %s, devices connected: %s
+11-16 14:10:27.536 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"idle2k","frames":1,"work_ms":[3.028,3.028,3.028,3.028],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":16.67,"t":5506.2}
+11-16 14:10:27.536 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"idle2k","frames":1,"build_ms":[0.33,0.33,0.33],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.63,0.63,0.63],"fence_ms":[0.01,0.01,0.01],"acquire_ms":[0.05,0.05,0.05],"present_ms":[0.49,0.49,0.49],"gpu_ms":[2.53,2.53,2.53],"budget_ms_end":16.67,"scale_ms":[0.13,0.13,0.13],"plan_ms":[1.39,1.39,1.39],"gpu_draw_ms":[2.51,2.51,2.51],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.02,0.02,0.02],"gpu_blit_ms":[0.01,0.01,0.01],"t":5506.4}
+11-16 14:10:27.536 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"tick2k","t":5506.4}
+11-16 14:10:28.043 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:28.099   452  2468 D TimeStats: Dumping TimeStats as text
+11-16 14:10:28.223  1989  2058 D ImpulseConnection: timeout didn't happen: com.google.android.apps.turbo
+11-16 14:10:28.234   452  2468 D TimeStats: Cleared global stats
+11-16 14:10:28.235   452  2468 D TimeStats: Cleared layer stats
+11-16 14:10:28.241  1989  2228 D TemperatureStateSource: sequence=852 actualDelay=10001
+11-16 14:10:28.241  1989  2228 D TemperatureStateSource: Reading temperature: sequence=853
+11-16 14:10:28.248  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [23333.00 23497.00 23755.00 20473.00 20523.00 20523.00 23497.00 24527.00 ]
+11-16 14:10:28.248  1524  1524 I native  : I0000 00:00:1794838228.248725    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:10:28.249  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [22013.9 ]
+11-16 14:10:28.249  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [22013.9 ]
+11-16 14:10:28.249  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:10:28.249  1524  1524 I pixel-thermal: VIRTUAL-SKIN:22.0811 raw data: VIRTUAL-SKIN:22081.1 VIRTUAL-SKIN-LEGACY:22094.7 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:80.7891 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:22013.9 VIRTUAL-SKIN-MODEL-CLAMPED:22013.9 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:-80.7891 VIRTUAL-SKIN-MODEL-UPDATED:22081.1 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:22013.9 VIRTUAL-SKIN-SUB-0:20997.8 VIRTUAL-SKIN-SUB-1:21439.2 VIRTUAL-SKIN-SUB-2:21826.1 VIRTUAL-SKIN-SUB-3:22094.7 VIRTUAL-SKIN-SUB-4:21645.7 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 battery:21400 btmspkr_therm:20523 charging_therm:23755 disp_therm:20523 north_therm:23497 quiet_therm:23497 rfpa_therm:23333 soc_therm:24527 usb_pwr_therm:20473 
+11-16 14:10:28.250  1989  2228 D TemperatureStateSource: getDeviceTemperatures: sequence=853 deviceTemperatureType=3 temperatureSource=0 temperatures=[22.081053]
+11-16 14:10:28.250  1989  2228 D BusinessScope: Enqueuing the block
+11-16 14:10:28.250  1989  2228 D TemperatureStateSource: sequence=853 waitTime=10000
+11-16 14:10:28.250  1989  2226 D BusinessScope: Start running the #1721 block
+11-16 14:10:28.251  1989  2226 D BusinessScope: Enqueuing the block
+11-16 14:10:28.251  1989  2226 D ImpulseStateSource: Notify clients: 858
+11-16 14:10:28.252  1989  2226 D BusinessScope: Finish running the #1721 block
+11-16 14:10:28.253  1989  2226 D BusinessScope: Start running the #1722 block
+11-16 14:10:28.253  1989  2226 D BusinessScope: Finish running the #1722 block
+11-16 14:10:28.536 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"tick2k","frames":1,"work_ms":[18.651,18.651,18.651,18.651],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":16.67,"t":6506.3}
+11-16 14:10:28.536 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"tick2k","frames":1,"build_ms":[1.33,1.33,1.33],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[1.17,1.17,1.17],"fence_ms":[0.01,0.01,0.01],"acquire_ms":[0.05,0.05,0.05],"present_ms":[0.60,0.60,0.60],"gpu_ms":[7.07,7.07,7.07],"budget_ms_end":16.67,"scale_ms":[0.09,0.09,0.09],"plan_ms":[15.41,15.41,15.41],"gpu_draw_ms":[6.85,6.85,6.85],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.07,0.07,0.07],"gpu_blit_ms":[0.15,0.15,0.15],"t":6506.4}
+11-16 14:10:28.536 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"jump2k","t":6506.4}
+11-16 14:10:28.867   452  2468 D TimeStats: Dumping TimeStats as text
+11-16 14:10:28.984   452  2468 D TimeStats: Cleared global stats
+11-16 14:10:28.984   452  2468 D TimeStats: Cleared layer stats
+11-16 14:10:28.992  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:29.054 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:29.334 29261 29261 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-16 14:10:29.335 29261 29261 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-16 14:10:29.537 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"jump2k","frames":1,"work_ms":[59.193,59.193,59.193,59.193],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":16.67,"t":7507.2}
+11-16 14:10:29.537 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"jump2k","frames":1,"build_ms":[13.23,13.23,13.23],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[3.24,3.24,3.24],"fence_ms":[0.01,0.01,0.01],"acquire_ms":[0.14,0.14,0.14],"present_ms":[0.89,0.89,0.89],"gpu_ms":[3.25,3.25,3.25],"budget_ms_end":16.67,"scale_ms":[0.22,0.22,0.22],"plan_ms":[41.46,41.46,41.46],"gpu_draw_ms":[3.16,3.16,3.16],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.02,0.02,0.02],"gpu_blit_ms":[0.06,0.06,0.06],"t":7507.4}
+11-16 14:10:29.537 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"scroll2k","t":7507.4}
+11-16 14:10:29.801   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:10:29.966   452   602 D TimeStats: Dumping TimeStats as text
+11-16 14:10:30.062 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:30.075   452   602 D TimeStats: Cleared global stats
+11-16 14:10:30.075   452   602 D TimeStats: Cleared layer stats
+11-16 14:10:30.467 29285 29285 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-16 14:10:30.467 29285 29285 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-16 14:10:31.004  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:31.067 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:32.072 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:32.908   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:10:33.012  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:33.078 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:34.084 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:34.196  1023  1023 W TracingMuxer: type=1400 audit(0.0:9464): avc:  denied  { write } for  name="traced_producer" dev="tmpfs" ino=1258 scontext=u:r:gxp_logging:s0 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0
+11-16 14:10:35.021  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:35.089 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:35.536   771   771 W TracingMuxer: type=1400 audit(0.0:9465): avc:  denied  { write } for  name="traced_producer" dev="tmpfs" ino=1258 scontext=u:r:hal_neuralnetworks_darwinn:s0 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0
+11-16 14:10:36.020   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:10:36.096 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:37.028  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:37.102 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:37.537 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"scroll2k","frames":3275,"work_ms":[2.133,3.873,6.076,10.986],"interval_ms":[2.166,3.943,6.120,11.054],"jank":0,"budget_ms":16.67,"t":15506.7}
+11-16 14:10:37.538 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"scroll2k","frames":3275,"build_ms":[0.26,0.55,1.25],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.25,0.42,6.62],"fence_ms":[0.00,0.00,2.01],"acquire_ms":[0.04,0.04,0.36],"present_ms":[0.51,1.21,6.27],"gpu_ms":[1.78,1.92,6.99],"budget_ms_end":16.67,"scale_ms":[0.03,0.04,0.21],"plan_ms":[1.05,1.74,7.15],"gpu_draw_ms":[1.76,1.86,6.82],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.01,0.02,0.85],"gpu_blit_ms":[0.02,0.04,0.98],"t":15508.1}
+11-16 14:10:37.538 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"live2k","t":15508.3}
+11-16 14:10:38.063   452   602 D TimeStats: Dumping TimeStats as text
+11-16 14:10:38.108 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:38.162   452   602 D TimeStats: Cleared global stats
+11-16 14:10:38.162   452   602 D TimeStats: Cleared layer stats
+11-16 14:10:38.239  1989  2058 D ImpulseConnection: timeout didn't happen: com.google.android.apps.turbo
+11-16 14:10:38.251  1989  2227 D TemperatureStateSource: sequence=853 actualDelay=10001
+11-16 14:10:38.251  1989  2227 D TemperatureStateSource: Reading temperature: sequence=854
+11-16 14:10:38.257  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [23380.00 23544.00 24036.00 20448.00 20523.00 20498.00 23520.00 24832.00 ]
+11-16 14:10:38.257  1524  1524 I native  : I0000 00:00:1794838238.257716    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:10:38.257  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [22109.9 ]
+11-16 14:10:38.257  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [22109.9 ]
+11-16 14:10:38.258  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:10:38.258  1524  1524 I pixel-thermal: VIRTUAL-SKIN:22.0926 raw data: VIRTUAL-SKIN:22092.6 VIRTUAL-SKIN-LEGACY:22129.3 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:19.3574 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:22109.9 VIRTUAL-SKIN-MODEL-CLAMPED:22109.9 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:-19.3574 VIRTUAL-SKIN-MODEL-UPDATED:22092.6 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:22109.9 VIRTUAL-SKIN-SUB-0:21099.1 VIRTUAL-SKIN-SUB-1:21446.8 VIRTUAL-SKIN-SUB-2:21879.7 VIRTUAL-SKIN-SUB-3:22129.3 VIRTUAL-SKIN-SUB-4:21659.1 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 battery:21400 btmspkr_therm:20523 charging_therm:24036 disp_therm:20498 north_therm:23520 quiet_therm:23544 rfpa_therm:23380 soc_therm:24832 usb_pwr_therm:20448 
+11-16 14:10:38.258  1989  2227 D TemperatureStateSource: getDeviceTemperatures: sequence=854 deviceTemperatureType=3 temperatureSource=0 temperatures=[22.092602]
+11-16 14:10:38.258  1989  2227 D BusinessScope: Enqueuing the block
+11-16 14:10:38.259  1989  2227 D TemperatureStateSource: sequence=854 waitTime=10000
+11-16 14:10:38.259  1989  2226 D BusinessScope: Start running the #1723 block
+11-16 14:10:38.259  1989  2226 D BusinessScope: Enqueuing the block
+11-16 14:10:38.259  1989  2226 D ImpulseStateSource: Notify clients: 859
+11-16 14:10:38.259  1989  2226 D BusinessScope: Finish running the #1723 block
+11-16 14:10:38.260  1989  2226 D BusinessScope: Start running the #1724 block
+11-16 14:10:38.260  1989  2226 D BusinessScope: Finish running the #1724 block
+11-16 14:10:39.036  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:39.115 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:39.135   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:10:40.124 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:41.048  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:41.130 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:42.136 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:42.261   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:10:43.062  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:43.144 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:44.149 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:45.072  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:45.160 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:45.385   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:10:45.490   826   886 E IPCThreadState: binder thread pool (1 threads) starved for 105 ms
+11-16 14:10:45.537 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"live2k","frames":2941,"work_ms":[2.402,4.595,5.594,9.307],"interval_ms":[2.419,4.621,5.680,9.342],"jank":0,"budget_ms":16.67,"t":23506.7}
+11-16 14:10:45.537 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"live2k","frames":2941,"build_ms":[0.31,0.51,2.00],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.18,0.29,2.58],"fence_ms":[0.00,0.00,2.02],"acquire_ms":[0.02,0.02,0.07],"present_ms":[0.20,0.95,4.57],"gpu_ms":[1.84,2.08,3.39],"budget_ms_end":16.67,"scale_ms":[0.01,0.02,0.12],"plan_ms":[1.55,2.27,7.47],"gpu_draw_ms":[1.80,2.04,3.34],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.01,0.02,0.10],"gpu_blit_ms":[0.02,0.03,0.11],"t":23507.4}
+11-16 14:10:45.537 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"storm2k","t":23507.5}
+11-16 14:10:46.039   452  2468 D TimeStats: Dumping TimeStats as text
+11-16 14:10:46.148   452  2468 D TimeStats: Cleared global stats
+11-16 14:10:46.148   452  2468 D TimeStats: Cleared layer stats
+11-16 14:10:46.165 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:47.083  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:47.170 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:48.175 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:48.250  1989  2058 D ImpulseConnection: timeout happen: com.google.android.apps.turbo
+11-16 14:10:48.251  1989  2058 D ImpulseConnection: unbindService for releasing a CONNECTED connection com.google.android.apps.turbo
+11-16 14:10:48.260  1989  2226 D TemperatureStateSource: sequence=854 actualDelay=10001
+11-16 14:10:48.260  1989  2226 D TemperatureStateSource: Reading temperature: sequence=855
+11-16 14:10:48.265  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [23965.00 23825.00 25839.00 20473.00 20573.00 20523.00 24364.00 28010.00 ]
+11-16 14:10:48.266  1524  1524 I native  : I0000 00:00:1794838248.265659    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:10:48.266  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [22744.7 ]
+11-16 14:10:48.266  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [22744.7 ]
+11-16 14:10:48.267  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:10:48.268  1524  1524 I pixel-thermal: VIRTUAL-SKIN:22.3535 raw data: VIRTUAL-SKIN:22353.5 VIRTUAL-SKIN-LEGACY:22742.3 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:-2.44336 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:22744.7 VIRTUAL-SKIN-MODEL-CLAMPED:22744.7 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:2.44336 VIRTUAL-SKIN-MODEL-UPDATED:22353.5 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:22744.7 VIRTUAL-SKIN-SUB-0:22142.3 VIRTUAL-SKIN-SUB-1:21735.8 VIRTUAL-SKIN-SUB-2:22734.4 VIRTUAL-SKIN-SUB-3:22742.3 VIRTUAL-SKIN-SUB-4:21875 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 battery:21400 btmspkr_therm:20573 charging_therm:25839 disp_therm:20523 north_therm:24364 quiet_therm:23825 rfpa_therm:23965 soc_therm:28010 usb_pwr_therm:20473 
+11-16 14:10:48.269  1989  2226 D TemperatureStateSource: getDeviceTemperatures: sequence=855 deviceTemperatureType=3 temperatureSource=0 temperatures=[22.353456]
+11-16 14:10:48.269  1989  2226 D BusinessScope: Enqueuing the block
+11-16 14:10:48.269  1989  2226 D TemperatureStateSource: sequence=855 waitTime=10000
+11-16 14:10:48.269  1989  2058 D BusinessScope: Start running the #1725 block
+11-16 14:10:48.271  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:10:48.272  1524  1524 I pixel-thermal: VIRTUAL-SKIN:22.3535 raw data: VIRTUAL-SKIN:22353.5 
+11-16 14:10:48.272  1989  2058 I TemperatureStateSource: temperature was set
+11-16 14:10:48.273  1989  2058 D BusinessScope: Enqueuing the block
+11-16 14:10:48.274  1989  2058 D ImpulseStateSource: Notify clients: 860
+11-16 14:10:48.274  1989  2058 D BusinessScope: Finish running the #1725 block
+11-16 14:10:48.274  1989  2058 D BusinessScope: Start running the #1726 block
+11-16 14:10:48.275  1989  2227 D ImpulseConnection: bindService: com.google.android.apps.turbo
+11-16 14:10:48.282  1989  1989 D ImpulseConnection: onServiceConnected: ComponentInfo{com.google.android.apps.turbo/com.google.android.apps.turbo.adaptiveplatform.impulse.ImpulseClientService} service is null false
+11-16 14:10:48.285  1989  2228 D BusinessScope: Finish running the #1726 block
+11-16 14:10:48.512   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:10:49.092  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:49.184 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:50.190 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:51.104  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:51.195 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:51.628   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:10:52.201 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:53.116  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:53.210 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:53.537 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"storm2k","frames":2285,"work_ms":[3.121,5.078,5.835,8.552],"interval_ms":[3.138,5.099,5.891,8.572],"jank":0,"budget_ms":16.67,"t":31507.3}
+11-16 14:10:53.538 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"storm2k","frames":2285,"build_ms":[0.44,0.62,1.29],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.18,0.67,1.79],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.01,0.02,0.04],"present_ms":[0.03,1.18,5.19],"gpu_ms":[2.10,2.50,4.01],"budget_ms_end":16.67,"scale_ms":[0.01,0.01,0.04],"plan_ms":[2.32,3.17,4.72],"gpu_draw_ms":[2.05,2.46,3.99],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.02,0.02,0.10],"gpu_blit_ms":[0.02,0.03,1.00],"t":31507.7}
+11-16 14:10:53.538 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load20k","t":31507.8}
+11-16 14:10:53.641   456   456 E hwc-display: [PrimaryDisplay,pid=789,blob#414,chan#0] HistogramDevice::checkQueryResult: BAD_HIST_DATA, no event is handled
+11-16 14:10:53.642   789  1632 D usf_sensor_hal: [p0]Histogram API error:BAD_HIST_DATA
+11-16 14:10:54.195   452  2468 D TimeStats: Dumping TimeStats as text
+11-16 14:10:54.219 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:54.272   452  2468 D TimeStats: Cleared global stats
+11-16 14:10:54.272   452  2468 D TimeStats: Cleared layer stats
+11-16 14:10:54.741   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:10:54.846   826   886 E IPCThreadState: binder thread pool (1 threads) starved for 104 ms
+11-16 14:10:54.869  1355  4332 W ActivityManager: Unbind failed: could not find connection for android.os.BinderProxy@57ce739
+11-16 14:10:54.873  1355  4332 W ActivityManager: Unable to start service Intent { act=android.telephony.satellite.SatelliteService pkg=com.google.android.satellite } U=0: not found
+11-16 14:10:55.130  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:55.227 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:55.538 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load20k","frames":1,"work_ms":[7.611,7.611,7.611,7.611],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":16.67,"t":33508.0}
+11-16 14:10:55.538 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load20k","frames":1,"build_ms":[3.38,3.38,3.38],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.94,0.94,0.94],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.04,0.04,0.04],"present_ms":[0.05,0.05,0.05],"gpu_ms":[2.17,2.17,2.17],"budget_ms_end":16.67,"scale_ms":[0.02,0.02,0.02],"plan_ms":[3.17,3.17,3.17],"gpu_draw_ms":[2.14,2.14,2.14],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.01,0.01,0.01],"gpu_blit_ms":[0.02,0.02,0.02],"t":33508.2}
+11-16 14:10:55.538 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"idle20k","t":33508.2}
+11-16 14:10:55.926   452   602 D TimeStats: Dumping TimeStats as text
+11-16 14:10:56.036   452   602 D TimeStats: Cleared global stats
+11-16 14:10:56.037   452   602 D TimeStats: Cleared layer stats
+11-16 14:10:56.237 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:56.487 29533 29533 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-16 14:10:56.487 29533 29533 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-16 14:10:57.141  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:57.249 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:57.539 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"idle20k","frames":1,"work_ms":[3.691,3.691,3.691,3.691],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":16.67,"t":35508.6}
+11-16 14:10:57.539 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"idle20k","frames":1,"build_ms":[0.43,0.43,0.43],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.52,0.52,0.52],"fence_ms":[0.01,0.01,0.01],"acquire_ms":[0.10,0.10,0.10],"present_ms":[0.37,0.37,0.37],"gpu_ms":[2.21,2.21,2.21],"budget_ms_end":16.67,"scale_ms":[0.15,0.15,0.15],"plan_ms":[2.12,2.12,2.12],"gpu_draw_ms":[2.17,2.17,2.17],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.02,0.02,0.02],"gpu_blit_ms":[0.03,0.03,0.03],"t":35508.9}
+11-16 14:10:57.539 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"tick20k","t":35508.9}
+11-16 14:10:57.888   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:10:58.261 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:58.270  1989  2058 D TemperatureStateSource: sequence=855 actualDelay=10001
+11-16 14:10:58.270  1989  2058 D TemperatureStateSource: Reading temperature: sequence=856
+11-16 14:10:58.275  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [25043.00 24668.00 27361.00 20498.00 20523.00 20523.00 25441.00 31238.00 ]
+11-16 14:10:58.276  1524  1524 I native  : I0000 00:00:1794838258.276021    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:10:58.276  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [23645.1 ]
+11-16 14:10:58.276  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [23645.1 ]
+11-16 14:10:58.276  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:10:58.276  1524  1524 I pixel-thermal: VIRTUAL-SKIN:22.8701 raw data: VIRTUAL-SKIN:22870.1 VIRTUAL-SKIN-LEGACY:23777.3 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:132.283 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:23645.1 VIRTUAL-SKIN-MODEL-CLAMPED:23645.1 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:-132.283 VIRTUAL-SKIN-MODEL-UPDATED:22870.1 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:23645.1 VIRTUAL-SKIN-SUB-0:23383 VIRTUAL-SKIN-SUB-1:22126.1 VIRTUAL-SKIN-SUB-2:23777.3 VIRTUAL-SKIN-SUB-3:23538.2 VIRTUAL-SKIN-SUB-4:22188.3 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 battery:21600 btmspkr_therm:20523 charging_therm:27361 disp_therm:20523 north_therm:25441 quiet_therm:24668 rfpa_therm:25043 soc_therm:31238 usb_pwr_therm:20498 
+11-16 14:10:58.277  1989  2058 D TemperatureStateSource: getDeviceTemperatures: sequence=856 deviceTemperatureType=3 temperatureSource=0 temperatures=[22.870094]
+11-16 14:10:58.277  1989  2058 D BusinessScope: Enqueuing the block
+11-16 14:10:58.277  1989  2058 D TemperatureStateSource: sequence=856 waitTime=10000
+11-16 14:10:58.277  1989  2058 D BusinessScope: Start running the #1727 block
+11-16 14:10:58.279  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:10:58.279  1524  1524 I pixel-thermal: VIRTUAL-SKIN:22.8701 raw data: VIRTUAL-SKIN:22870.1 
+11-16 14:10:58.279  1989  2058 I TemperatureStateSource: temperature was set
+11-16 14:10:58.280  1989  2058 D BusinessScope: Enqueuing the block
+11-16 14:10:58.280  1989  2058 D ImpulseStateSource: Notify clients: 861
+11-16 14:10:58.280  1989  2058 D BusinessScope: Finish running the #1727 block
+11-16 14:10:58.280  1989  2058 D BusinessScope: Start running the #1728 block
+11-16 14:10:58.281  1989  2226 D BusinessScope: Finish running the #1728 block
+11-16 14:10:58.288   452   602 D TimeStats: Dumping TimeStats as text
+11-16 14:10:58.399   452   602 D TimeStats: Cleared global stats
+11-16 14:10:58.399   452   602 D TimeStats: Cleared layer stats
+11-16 14:10:58.539 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"tick20k","frames":1,"work_ms":[5.586,5.586,5.586,5.586],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":16.67,"t":36508.8}
+11-16 14:10:58.539 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"tick20k","frames":1,"build_ms":[1.92,1.92,1.92],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.62,0.62,0.62],"fence_ms":[0.01,0.01,0.01],"acquire_ms":[0.10,0.10,0.10],"present_ms":[0.32,0.32,0.32],"gpu_ms":[2.05,2.05,2.05],"budget_ms_end":16.67,"scale_ms":[0.03,0.03,0.03],"plan_ms":[2.58,2.58,2.58],"gpu_draw_ms":[2.01,2.01,2.01],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.01,0.01,0.01],"gpu_blit_ms":[0.02,0.02,0.02],"t":36509.1}
+11-16 14:10:58.539 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"jump20k","t":36509.2}
+11-16 14:10:59.068   452   602 D TimeStats: Dumping TimeStats as text
+11-16 14:10:59.151  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:10:59.183   452   602 D TimeStats: Cleared global stats
+11-16 14:10:59.184   452   602 D TimeStats: Cleared layer stats
+11-16 14:10:59.266 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:10:59.538 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"jump20k","frames":1,"work_ms":[13.408,13.408,13.408,13.408],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":16.67,"t":37507.9}
+11-16 14:10:59.538 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"jump20k","frames":1,"build_ms":[6.85,6.85,6.85],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.99,0.99,0.99],"fence_ms":[0.01,0.01,0.01],"acquire_ms":[0.09,0.09,0.09],"present_ms":[0.37,0.37,0.37],"gpu_ms":[4.89,4.89,4.89],"budget_ms_end":16.67,"scale_ms":[0.07,0.07,0.07],"plan_ms":[5.03,5.03,5.03],"gpu_draw_ms":[4.75,4.75,4.75],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.06,0.06,0.06],"gpu_blit_ms":[0.09,0.09,0.09],"t":37508.1}
+11-16 14:10:59.538 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"scroll20k","t":37508.1}
+11-16 14:10:59.562 29589 29589 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-16 14:10:59.562 29589 29589 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-16 14:11:00.154   452   602 D TimeStats: Dumping TimeStats as text
+11-16 14:11:00.261   452   602 D TimeStats: Cleared global stats
+11-16 14:11:00.261   452   602 D TimeStats: Cleared layer stats
+11-16 14:11:00.270 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:00.630 29614 29614 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-16 14:11:00.630 29614 29614 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-16 14:11:00.665  2104  2308 D EuiccConnector: handleMessage: E msg.what=3
+11-16 14:11:00.666  2104  2308 D EuiccConnector: processMsg: ConnectedState
+11-16 14:11:00.667  2104  2308 D EuiccConnector: transitionTo: destState=AvailableState
+11-16 14:11:00.667 21795 21795 I EuiccGoogle: [2] EuiccServiceImpl.onDestroy: onDestroy: EuiccService on destroy.
+11-16 14:11:00.667  2104  2308 D EuiccConnector: handleMessage: new destination call exit/enter
+11-16 14:11:00.667  2104  2308 D EuiccConnector: setupTempStateStackWithStatesToEnter: X mTempStateStackCount=2,curStateInfo: null
+11-16 14:11:00.667  2104  2308 D EuiccConnector: invokeExitMethods: ConnectedState
+11-16 14:11:00.667  2104  2308 D EuiccConnector: invokeExitMethods: DisconnectedState
+11-16 14:11:00.667  2104  2308 D EuiccConnector: moveTempStackToStateStack: i=1,j=0
+11-16 14:11:00.667  2104  2308 D EuiccConnector: moveTempStackToStateStack: i=0,j=1
+11-16 14:11:00.667  2104  2308 D EuiccConnector: moveTempStackToStateStack: X mStateStackTop=1,startingIndex=0,Top=AvailableState
+11-16 14:11:00.667  2104  2308 D EuiccConnector: invokeEnterMethods: UnavailableState
+11-16 14:11:00.667  2104  2308 D EuiccConnector: invokeEnterMethods: AvailableState
+11-16 14:11:00.667  2104  2308 D EuiccConnector: handleMessage: X
+11-16 14:11:01.001   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:01.105  2754 28765 I WS1_AfwUtils: Hub app user id: 0
+11-16 14:11:01.106  2754 28765 I WS1_AfwUtils: isWorkHubDiscoverable - false
+11-16 14:11:01.107  2754 28765 I WS1_SDKDataModelImpl: Returning in memory app token data!
+11-16 14:11:01.110  2754 28767 I DynDCD  : EnginePayloadProvider.cpp -> Loading Previously stored payload
+11-16 14:11:01.110  2754 28767 I DynDCD  : EnginePayloadProvider.cpp -> Trying to fetch rules from the Server
+11-16 14:11:01.110  2754 28767 I WS1_DynDCD_DynamicCDD: Trying to fetch rules from default source
+11-16 14:11:01.112  2754 28767 I WS1_AfwUtils: Hub app user id: 0
+11-16 14:11:01.112  2754 28767 I WS1_AfwUtils: isWorkHubDiscoverable - false
+11-16 14:11:01.112  2754 28767 I WS1_BaseMessage: Sending CddNetworkMessage to https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R
+11-16 14:11:01.113  2754 28767 I WS1     : Setting Timeout Values, Connection:30000, SO Timeout:30000
+11-16 14:11:01.113  2754 28767 I WS1_AppPermissionUtil: Getting signature for com.airwatch.androidagent
+11-16 14:11:01.114  2754 28767 I WS1_AppPermissionUtil: App access allowed with 0 for com.airwatch.androidagent
+11-16 14:11:01.116  2754 28767 I WS1_CorrelationLog: CorrelationID:9ffd5cf1-f675-461d-0001-611141101116  for connection https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R
+11-16 14:11:01.132  2754 28767 D TrafficStats: tagSocket(183) with statsTag=0xffffffff, statsUid=-1
+11-16 14:11:01.160  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:01.162  2754 28767 I WS1_ExtendedX509TrustM: TrustMaterialAvailable, check the trust.
+11-16 14:11:01.163  2754 28767 I WS1_ADPublicKeyManager: sdk-config.data.workspaceone-gov.com is trusted by default
+11-16 14:11:01.164  2754 28767 I WS1_PinBasedTrustM: Key match status for sdk-config.data.workspaceone-gov.com/3.31.158.235: true
+11-16 14:11:01.164  2754 28767 I WS1_ExtendedX509TrustM: checkServerTrusted: Server certificate pin match for sdk-config.data.workspaceone-gov.com/3.31.158.235
+11-16 14:11:01.214  2754 28767 I WS1_BaseMessage: Response code for https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R 200
+11-16 14:11:01.214  2754 28767 I WS1     : Response code is: 200
+11-16 14:11:01.215  2754 28767 I WS1_DynDCD_DynamicCDD: Successfully fetched payload rules from WS1 FedRAMP domain
+11-16 14:11:01.215  2754 28767 I DynDCD  : EnginePayloadProvider.cpp -> Server payload is older than bundled payload.
+11-16 14:11:01.216  2754 28767 I DynDCD  : EnginePayloadProvider.cpp -> Bundled Payload last modified time: 1603812484
+11-16 14:11:01.216  2754 28767 I DynDCD  : EnginePayloadProvider.cpp -> Server Payload last received time: 1588786684
+11-16 14:11:01.220  2754 28767 I DynDCD  : Script -> Starting Dynamic Jail Break Check
+11-16 14:11:01.220  2754 28767 I DynDCD  : Script -> Running Checks
+11-16 14:11:01.244 29625 29625 W ls      : type=1400 audit(0.0:9466): avc:  denied  { getattr } for  path="/system/etc/perfetto" dev="dm-12" ino=698 scontext=u:r:untrusted_app:s0:c25,c257,c512,c768 tcontext=u:object_r:system_perfetto_config_file:s0 tclass=dir permissive=0 app=com.airwatch.androidagent
+11-16 14:11:01.244 29625 29625 W ls      : type=1400 audit(0.0:9467): avc:  denied  { getattr } for  path="/system/etc/font_fallback.xml" dev="dm-12" ino=598 scontext=u:r:untrusted_app:s0:c25,c257,c512,c768 tcontext=u:object_r:system_font_fallback_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:11:01.244 29625 29625 W ls      : type=1400 audit(0.0:9468): avc:  denied  { getattr } for  path="/system/etc/cgroups.json" dev="dm-12" ino=577 scontext=u:r:untrusted_app:s0:c25,c257,c512,c768 tcontext=u:object_r:cgroup_desc_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:11:01.244 29625 29625 W ls      : type=1400 audit(0.0:9469): avc:  denied  { read } for  name="perfetto" dev="dm-12" ino=698 scontext=u:r:untrusted_app:s0:c25,c257,c512,c768 tcontext=u:object_r:system_perfetto_config_file:s0 tclass=dir permissive=0 app=com.airwatch.androidagent
+11-16 14:11:01.248 29625 29625 W ls      : type=1400 audit(0.0:9470): avc:  denied  { getattr } for  path="/system/etc/selinux/plat_file_contexts" dev="dm-12" ino=904 scontext=u:r:untrusted_app:s0:c25,c257,c512,c768 tcontext=u:object_r:file_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:11:01.248 29625 29625 W ls      : type=1400 audit(0.0:9471): avc:  denied  { getattr } for  path="/system/etc/selinux/plat_service_contexts" dev="dm-12" ino=912 scontext=u:r:untrusted_app:s0:c25,c257,c512,c768 tcontext=u:object_r:service_contexts_file:s0 tclass=file permissive=0 app=com.airwatch.androidagent
+11-16 14:11:01.273 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:01.288  2754 28767 I DynDCD  : Script -> Super User Scan Check : true
+11-16 14:11:01.288  2754 28767 I DynDCD  : Script -> Writable File Paths Check : true
+11-16 14:11:01.328  2754 28767 I DynDCD  : Script -> Installed Packages Check : true
+11-16 14:11:01.403  2754 28767 I DynDCD  : Script -> Super User File Path Check : true
+11-16 14:11:01.448  2754 28767 I DynDCD  : Script -> Super User Check : true
+11-16 14:11:01.456  2754 28767 I DynDCD  : Script -> Xposed Check : true
+11-16 14:11:01.485  2754 28767 I DynDCD  : Script -> Malicious Files Check : true
+11-16 14:11:01.508 29641 29641 W libc    : Access denied finding property "ro.secure"
+11-16 14:11:01.509  2754 28767 I DynDCD  : Script -> Ro Secure Flag Check : true
+11-16 14:11:01.509  2754 28767 I DynDCD  : Script -> Magisk String Check : true
+11-16 14:11:01.509  2754 28767 D DynDCD  : Script -> [{"id":"BundledRules_SDK_20201027"},{"name":"superUserScan","passed":true},{"name":"writableFilePaths","passed":true},{"name":"installedPackages","passed":true},{"name":"superUserFilePath","passed":true},{"name":"superUser","passed":true},{"name":"xposed","passed":true},{"name":"maliciousFiles","passed":true},{"name":"roSecureFlag","passed":true},{"name":"magisk","passed":true},{"failedReasonCodes":[]}]
+11-16 14:11:01.510  2754 28767 I DynDCD  : EngineDelegateImpl.cpp -> Compromised detection successfully completed
+11-16 14:11:01.510  2754 28767 I WS1_DynDCD_DynamicCDD: Dynamic compromise detection is a success for rulesId: BundledRules_SDK_20201027!
+11-16 14:11:01.510  2754  2754 E WS1_DetailsLog: runDynamicCompromiseDetection passed SUCCESS
+11-16 14:11:01.511  2754 28767 I WS1_AirWatchApp: AW SDK, ENABLE_SDK_FRIDA_DETECTION: false , ENABLE_SDK_ROOT_DETECTION: false
+11-16 14:11:01.511  2754 28767 I WS1_TamperCheckService: Starting tamper checker!
+11-16 14:11:01.511  2754 28767 I NativeMain: Finding SDK Logger class!
+11-16 14:11:01.511  2754 28767 W NativeMain: SDK Logger class is invalid, logging via android logger!
+11-16 14:11:01.511  2754 28767 D NativeMain: tamper check initiated
+11-16 14:11:01.524  2754  3654 D WM-SystemJobScheduler: Scheduling work ID f08ca7ce-9c82-41e8-a6a3-654784882867Job ID 1450232
+11-16 14:11:01.528  2754  3654 D WM-GreedyScheduler: Starting work for f08ca7ce-9c82-41e8-a6a3-654784882867
+11-16 14:11:01.529  2754  3654 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=f08ca7ce-9c82-41e8-a6a3-654784882867, generation=0)
+11-16 14:11:01.531  2754  2754 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=f08ca7ce-9c82-41e8-a6a3-654784882867, generation=0)
+11-16 14:11:01.533  2754  3654 W WS1_SE_SmpWrkFct_MLBKXG: com.airwatch.app.TamperCheckerWorker not resolved in SamplingWorkerFactory
+11-16 14:11:01.534  2754  3654 W WS1_IntentProcessorWorkerFct: com.airwatch.app.TamperCheckerWorker not resolved
+11-16 14:11:01.534  2754  3654 E WS1_TaskWorkerFactory: Worker class:com.airwatch.app.TamperCheckerWorker not resolved in TaskWorkerFactory
+11-16 14:11:01.535  2754  2754 D WM-WorkerWrapper: Starting work for com.airwatch.app.TamperCheckerWorker
+11-16 14:11:01.538  2754 29644 I WS1_TamperChecker: CompDetectionResponse is 21
+11-16 14:11:01.539  2754 29644 I WS1_TamperChecker: DI status=false
+11-16 14:11:01.539  2754 29644 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:11:01.539  2754 29644 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:11:01.539  2754 29644 I WS1_TamperChecker: Bootloader tamper status=true
+11-16 14:11:01.542  2754 29644 I WS1_TamperChecker: Root status=false
+11-16 14:11:01.542  2754 29644 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:11:01.543  2754 29644 W libc    : Access denied finding property "ro.product.bootimage.brand"
+11-16 14:11:01.543  2754 29644 E WS1_AirWatchApp: onSDKException: COMPROMISE_STATUS
+11-16 14:11:01.543  2754 29644 E WS1_AirWatchApp: com.airwatch.bizlib.exceptions.AWSDKException: [AWSDKException:COMPROMISE_STATUS] Root/BL issue detected! codeSuffix=21 BL Unlock=Pair{true ro.boot.flash.locked=0 androidboot.flash.locked= ro.boot.vbmeta.device_state=unlocked}, BL Tamper=Pair{true ro.boot.verifiedbootstate=orange ro.boot.veritymode=enforcing ro.boot.veritymode.managed=yes ro.boot.secure_boot=PRODUCTION ro.product.bootimage.brand=}, firmware=release-keys, type=user, fingerprint=google/tegu/tegu:15/BD4A.240925.111/12859276:user/release-keys, bootloader=tegu-16.0-12754673 from environment ds1688.awmdm.com:443 
+11-16 14:11:01.543  2754 29644 E WS1_AirWatchApp: 	at com.airwatch.agent.AirWatchApp.x(Unknown Source:2)
+11-16 14:11:01.543  2754 29644 E WS1_AirWatchApp: 	at hr.q1.b(Unknown Source:6)
+11-16 14:11:01.543  2754 29644 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.c(Unknown Source:74)
+11-16 14:11:01.543  2754 29644 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.f(Unknown Source:7)
+11-16 14:11:01.543  2754 29644 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.c(Unknown Source:848)
+11-16 14:11:01.543  2754 29644 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.e(Unknown Source:11)
+11-16 14:11:01.543  2754 29644 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.c(Unknown Source:2114)
+11-16 14:11:01.543  2754 29644 E WS1_AirWatchApp: 	at com.airwatch.core.security.CompromiseDetector.appSecurityBootLoaderIntegrityTamperAction(Unknown Source:6)
+11-16 14:11:01.543  2754 29644 E WS1_AirWatchApp: 	at java.lang.reflect.Method.invoke(Native Method)
+11-16 14:11:01.543  2754 29644 E WS1_AirWatchApp: 	at kk.Lr.zh(Unknown Source:732)
+11-16 14:11:01.543  2754 29644 E WS1_AirWatchApp: 	at java.lang.reflect.Method.invoke(Native Method)
+11-16 14:11:01.543  2754 29644 E WS1_AirWatchApp: 	at kk.jz.Vh(Unknown Source:413)
+11-16 14:11:01.543  2754 29644 E WS1_AirWatchApp: 	at kk.jz.run(Unknown Source:0)
+11-16 14:11:01.544  2754 28802 I WS1_CrittercismWrapper: reportHandledException() com.airwatch.bizlib.exceptions.AWSDKException: [AWSDKException:COMPROMISE_STATUS] Root/BL issue detected! codeSuffix=21 BL Unlock=Pair{true ro.boot.flash.locked=0 androidboot.flash.locked= ro.boot.vbmeta.device_state=unlocked}, BL Tamper=Pair{true ro.boot.verifiedbootstate=orange ro.boot.veritymode=enforcing ro.boot.veritymode.managed=yes ro.boot.secure_boot=PRODUCTION ro.product.bootimage.brand=}, firmware=release-keys, type=user, fingerprint=google/tegu/tegu:15/BD4A.240925.111/12859276:user/release-keys, bootloader=tegu-16.0-12754673 from environment ds1688.awmdm.com:443 
+11-16 14:11:01.544  2754  3974 I WS1_TamperChecker: CompDetectionResponse is 14
+11-16 14:11:01.544  2754  3974 I WS1_TamperChecker: DI status=false
+11-16 14:11:01.544  2754  3654 D WM-Processor: Work WorkGenerationalId(workSpecId=f08ca7ce-9c82-41e8-a6a3-654784882867, generation=0) is already enqueued for processing
+11-16 14:11:01.544  2754  3974 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:11:01.544  2754  3974 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:11:01.544  2754  3974 I WS1_TamperChecker: Bootloader tamper status=true
+11-16 14:11:01.545  2754  3974 I WS1_TamperChecker: Root status=false
+11-16 14:11:01.545  2754  3974 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:11:01.545  2754  3974 W libc    : Access denied finding property "ro.product.bootimage.brand"
+11-16 14:11:01.545  2754  3974 I WS1_TamperCheckService: Beginning of tamper checker operation!
+11-16 14:11:01.548  2754  3926 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=f08ca7ce-9c82-41e8-a6a3-654784882867, tags={ com.airwatch.app.TamperCheckerWorker } ]
+11-16 14:11:01.549  2754  2754 D WM-Processor: Processor f08ca7ce-9c82-41e8-a6a3-654784882867 executed; reschedule = false
+11-16 14:11:01.549  2754  2754 D WM-SystemJobService: f08ca7ce-9c82-41e8-a6a3-654784882867 executed on JobScheduler
+11-16 14:11:01.553  2754  3926 D WM-GreedyScheduler: Cancelling work ID f08ca7ce-9c82-41e8-a6a3-654784882867
+11-16 14:11:01.573  2754 18794 D TrafficStats: tagSocket(180) with statsTag=0xffffffff, statsUid=-1
+11-16 14:11:01.592  2754 29646 I WS1_TamperChecker: CompDetectionResponse is 20
+11-16 14:11:01.592  2754 29646 I WS1_TamperChecker: DI status=false
+11-16 14:11:01.592  2754 29646 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:11:01.592  2754 29646 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:11:01.592  2754 29646 I WS1_TamperChecker: Bootloader tamper status=true
+11-16 14:11:01.592  2754 29646 I WS1_TamperChecker: Root status=false
+11-16 14:11:01.592  2754 29646 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:11:01.593  2754 29646 W libc    : Access denied finding property "ro.product.bootimage.brand"
+11-16 14:11:01.707  2754 29645 I WS1_TamperChecker: CompDetectionResponse is 18
+11-16 14:11:01.708  2754 29645 I WS1_TamperChecker: DI status=false
+11-16 14:11:01.708  2754 29645 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:11:01.708  2754 29645 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:11:01.708  2754 29645 I WS1_TamperChecker: Bootloader tamper status=true
+11-16 14:11:01.708  2754 29645 I WS1_TamperChecker: Root status=false
+11-16 14:11:01.708  2754 29645 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:11:01.708  2754 29645 W libc    : Access denied finding property "ro.product.bootimage.brand"
+11-16 14:11:01.854  1870  1870 D DLObserver: onReceive(); android.intent.action.BATTERY_CHANGED
+11-16 14:11:01.854  1870  1870 D DLObserver: plugged=2
+11-16 14:11:01.855  1870 13347 D PowerUI : can't show warning due to - plugged: true status unknown: false
+11-16 14:11:01.856  1870  1870 D SystemEventDataSource: onReceive: intentAction
+11-16 14:11:01.857  1870  1870 D PowerNotificationWarningsGoogleImpl: onReceive: android.intent.action.BATTERY_CHANGED
+11-16 14:11:01.857  1870  1870 D IncompatibleChargerNotification: dispatchIntent: android.intent.action.BATTERY_CHANGED
+11-16 14:11:01.859  1870  1967 D GoogleBatteryDataSource: fetchDwellDefendStatus: CONNECTED
+11-16 14:11:01.860  1870  1967 D GoogleBatteryDataSource: fetchTempDefendStatus: t_sum=0, time_sum=0 t_avg=0 lst_v=4387890 lst_t=221 lst_u=8442, dt=0, t=0 e=1
+11-16 14:11:01.860  1870  1967 D SystemEventDataSource: updatedEventData: SystemEventData(intentAction=android.intent.action.BATTERY_CHANGED, plugged=EventData(value=2), batteryScale=EventData(value=100), batteryLevel=EventData(value=100), chargingStatus=EventData(value=1), maxChargingCurrent=EventData(value=900000), maxChargingVoltage=EventData(value=5000000), batteryStatus=EventData(value=5), halEventData=HalEventData(dockDefendStatus=EventData(value=-3), tempDefendEventData=EventData(value=false), dwellDefendEventData=EventData(value=false)), settingsEventData=SettingsEventData(dockDefenderBypass=EventData(value=0), chargingLimitSettings=EventData(value=0), dndState=EventData(value=false), airplaneState=EventData(value=false)), frameworkApiEventData=FrameworkApiEventData(batterySaverState=EventData(value=false), extremeBatterySaverState=EventData(value=false)))
+11-16 14:11:01.860  1870  1967 D SystemEventDataSource: extra doesn't changed, no need to onEventSourceUpdate
+11-16 14:11:02.278 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:03.168  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:03.285 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:03.555  1524  1534 I pixel-thermal: soc_therm:31.238 raw data: soc_therm:31238 
+11-16 14:11:03.679  1524  1534 I pixel-thermal: disp_therm:20.523 raw data: disp_therm:20523 
+11-16 14:11:03.680  1524  1534 I pixel-thermal: charging_therm:27.361 raw data: charging_therm:27361 
+11-16 14:11:03.680  1524  1534 I pixel-thermal: north_therm:25.441 raw data: north_therm:25441 
+11-16 14:11:03.680  1524  1534 I pixel-thermal: rfpa_therm:25.043 raw data: rfpa_therm:25043 
+11-16 14:11:03.680  1524  1534 I pixel-thermal: btmspkr_therm:20.523 raw data: btmspkr_therm:20523 
+11-16 14:11:03.681  1524  1534 I pixel-thermal: usb_pwr_therm:20.498 raw data: usb_pwr_therm:20498 
+11-16 14:11:03.681  1524  1534 I pixel-thermal: quiet_therm:24.668 raw data: quiet_therm:24668 
+11-16 14:11:03.681  1524  1534 I pixel-thermal: Power rails total power: 2024.55 mW for 60009 ms
+11-16 14:11:03.681  1524  1534 I pixel-thermal: Power rails [S6M_LLDO1: 121.70 mW] [S4M_VDD_CPUCL0: 142.27 mW] [S3M_VDD_CPUCL2: 584.42 mW] [S1M_VDD_MIF: 79.61 mW] [S5M_VDD_INT: 20.71 mW] [S9M_VDD_CPUCL1_M: 8.66 mW] 
+11-16 14:11:03.681  1524  1534 I pixel-thermal: Power rails [S2M_VDD_CPUCL1: 124.07 mW] [VSYS_PWR_CAMERA: 3.13 mW] [VSYS_PWR_DISPLAY: 124.77 mW] [L21S_VDD2L_MEM: 17.14 mW] [S8M_LLDO2: 66.40 mW] [S3S_LLDO1: 79.38 mW] 
+11-16 14:11:03.681  1524  1534 I pixel-thermal: Power rails [VSYS_PWR_RFFE: 4.28 mW] [VSYS_PWR_WLAN_BT: 21.86 mW] [VSYS_PWR_MODEM: 233.52 mW] [L2S_PLL_MIPI_UFS: 17.73 mW] [S4S_VDD2H_MEM: 42.24 mW] [S9S_VDD_AOC: 7.07 mW] 
+11-16 14:11:03.681  1524  1534 I pixel-thermal: Power rails [S2S_VDD_G3D: 296.22 mW] [S1S_VDD_CAM: 10.78 mW] [S7M_VDD_TPU: 0.00 mW] [L22S_UDFPS: 0.29 mW] [S12S_VDD_AUR: 8.91 mW] [S5S_VDDQ_MEM: 9.38 mW] 
+11-16 14:11:04.052   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:04.224  1023  1023 W TracingMuxer: type=1400 audit(0.0:9535): avc:  denied  { write } for  name="traced_producer" dev="tmpfs" ino=1258 scontext=u:r:gxp_logging:s0 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0
+11-16 14:11:04.294 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:05.173  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:05.301 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:05.564   771   771 W TracingMuxer: type=1400 audit(0.0:9536): avc:  denied  { write } for  name="traced_producer" dev="tmpfs" ino=1258 scontext=u:r:hal_neuralnetworks_darwinn:s0 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0
+11-16 14:11:05.679  1355  1776 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-16 14:11:05.681  1355  1776 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-16 14:11:05.681  1355  1776 D InetDiagMessage: Destroyed live tcp sockets for uids={10118} in 4ms
+11-16 14:11:05.682  1355  1776 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-16 14:11:05.684  1355  1776 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-16 14:11:05.684  1355  1776 D InetDiagMessage: Destroyed live tcp sockets for uids={20118} in 3ms
+11-16 14:11:05.836 18599 18688 E PlayCommon: [96] Metalog directories were deleted unexpectedly, recreating...
+11-16 14:11:06.308 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:07.104   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:07.180  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:07.317 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:07.540 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"scroll20k","frames":3482,"work_ms":[2.103,3.265,5.963,10.386],"interval_ms":[2.133,3.312,5.999,10.531],"jank":0,"budget_ms":16.67,"t":45509.7}
+11-16 14:11:07.541 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"scroll20k","frames":3482,"build_ms":[0.26,0.52,1.63],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.24,0.30,1.96],"fence_ms":[0.00,0.00,2.56],"acquire_ms":[0.04,0.04,0.39],"present_ms":[0.54,1.10,5.28],"gpu_ms":[1.79,1.89,9.31],"budget_ms_end":16.67,"scale_ms":[0.03,0.04,0.50],"plan_ms":[0.98,1.64,5.69],"gpu_draw_ms":[1.76,1.84,9.05],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.01,0.02,0.12],"gpu_blit_ms":[0.02,0.04,0.19],"t":45510.9}
+11-16 14:11:07.541 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"live20k","t":45511.1}
+11-16 14:11:07.912   452   602 D TimeStats: Dumping TimeStats as text
+11-16 14:11:08.022   452   602 D TimeStats: Cleared global stats
+11-16 14:11:08.022   452   602 D TimeStats: Cleared layer stats
+11-16 14:11:08.278  1989  2226 D TemperatureStateSource: sequence=856 actualDelay=10001
+11-16 14:11:08.278  1989  2226 D TemperatureStateSource: Reading temperature: sequence=857
+11-16 14:11:08.287  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [25207.00 25090.00 27150.00 20523.00 20573.00 20573.00 25628.00 30036.00 ]
+11-16 14:11:08.287  1524  1524 I native  : I0000 00:00:1794838268.287669    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:11:08.288  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [23998.8 ]
+11-16 14:11:08.288  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [23998.8 ]
+11-16 14:11:08.288  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:11:08.288  1524  1524 I pixel-thermal: VIRTUAL-SKIN:23.3216 raw data: VIRTUAL-SKIN:23321.6 VIRTUAL-SKIN-LEGACY:23748 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:-250.828 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:23998.8 VIRTUAL-SKIN-MODEL-CLAMPED:23998.8 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:250.828 VIRTUAL-SKIN-MODEL-UPDATED:23321.6 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:23998.8 VIRTUAL-SKIN-SUB-0:23253.9 VIRTUAL-SKIN-SUB-1:22215.8 VIRTUAL-SKIN-SUB-2:23748 VIRTUAL-SKIN-SUB-3:23610.6 VIRTUAL-SKIN-SUB-4:22250.9 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 battery:21800 btmspkr_therm:20573 charging_therm:27150 disp_therm:20573 north_therm:25628 quiet_therm:25090 rfpa_therm:25207 soc_therm:30036 usb_pwr_therm:20523 
+11-16 14:11:08.289  1989  2226 D TemperatureStateSource: getDeviceTemperatures: sequence=857 deviceTemperatureType=3 temperatureSource=0 temperatures=[23.321579]
+11-16 14:11:08.289  1989  2226 D BusinessScope: Enqueuing the block
+11-16 14:11:08.289  1989  2226 D TemperatureStateSource: sequence=857 waitTime=10000
+11-16 14:11:08.289  1989  2058 D BusinessScope: Start running the #1729 block
+11-16 14:11:08.292  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:11:08.292  1524  1524 I pixel-thermal: VIRTUAL-SKIN:23.3216 raw data: VIRTUAL-SKIN:23321.6 
+11-16 14:11:08.293  1989  2058 I TemperatureStateSource: temperature was set
+11-16 14:11:08.294  1989  2058 D BusinessScope: Enqueuing the block
+11-16 14:11:08.294  1989  2058 D ImpulseStateSource: Notify clients: 862
+11-16 14:11:08.294  1989  2058 D BusinessScope: Finish running the #1729 block
+11-16 14:11:08.295  1989  2058 D BusinessScope: Start running the #1730 block
+11-16 14:11:08.296  1989  2228 D BusinessScope: Finish running the #1730 block
+11-16 14:11:08.323 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:09.188  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:09.330 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:10.216   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:10.320   826   886 E IPCThreadState: binder thread pool (1 threads) starved for 104 ms
+11-16 14:11:10.337 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:11.198  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:11.347 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:12.358 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:13.208  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:13.344   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:13.363 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:13.453   826   886 E IPCThreadState: binder thread pool (1 threads) starved for 108 ms
+11-16 14:11:13.774   765   785 I CHRE    : @ 8608.939: [ImuCal] [GYRO_RPS] (s0, c0) Offset | Temp [C] | Quality: 0.000916, 0.000009, -.001692 | 25.57 | 4
+11-16 14:11:13.774   765   785 I CHRE    : @ 8608.940: [ImuCal] [GYRO_RPS] (s0) Temp Sensitivity: -.000126, -.000045, -.000020
+11-16 14:11:13.775   765   785 I CHRE    : @ 8608.940: [ImuCal] [GYRO_RPS] (s0) Temp Intercept: 0.004183, 0.001158, -.001171
+11-16 14:11:14.369 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:15.220  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:15.376 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:15.540 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"live20k","frames":2921,"work_ms":[2.433,4.691,5.516,11.076],"interval_ms":[2.452,4.718,5.542,11.120],"jank":0,"budget_ms":16.67,"t":53509.5}
+11-16 14:11:15.540 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"live20k","frames":2921,"build_ms":[0.31,0.52,2.08],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.18,0.27,1.14],"fence_ms":[0.00,0.00,0.51],"acquire_ms":[0.02,0.02,0.30],"present_ms":[0.28,0.91,8.85],"gpu_ms":[1.87,2.09,3.37],"budget_ms_end":16.67,"scale_ms":[0.01,0.02,0.12],"plan_ms":[1.57,2.24,5.29],"gpu_draw_ms":[1.82,2.05,3.33],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.02,0.02,0.12],"gpu_blit_ms":[0.01,0.03,0.12],"t":53510.4}
+11-16 14:11:15.541 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"storm20k","t":53510.5}
+11-16 14:11:16.065   452  2468 D TimeStats: Dumping TimeStats as text
+11-16 14:11:16.172   452  2468 D TimeStats: Cleared global stats
+11-16 14:11:16.172   452  2468 D TimeStats: Cleared layer stats
+11-16 14:11:16.385 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:16.480   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:17.232  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:17.394 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:18.284  1989  2227 D ImpulseConnection: timeout didn't happen: com.google.android.apps.turbo
+11-16 14:11:18.289  1989  2058 D TemperatureStateSource: sequence=857 actualDelay=10001
+11-16 14:11:18.290  1989  2058 D TemperatureStateSource: Reading temperature: sequence=858
+11-16 14:11:18.296  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [25605.00 25371.00 27988.00 20573.00 20498.00 20523.00 25862.00 30748.00 ]
+11-16 14:11:18.296  1524  1524 I native  : I0000 00:00:1794838278.296563    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:11:18.296  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [24231 ]
+11-16 14:11:18.296  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [24231 ]
+11-16 14:11:18.296  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:11:18.297  1524  1524 I pixel-thermal: VIRTUAL-SKIN:23.6853 raw data: VIRTUAL-SKIN:23685.3 VIRTUAL-SKIN-LEGACY:24003 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:-227.98 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:24231 VIRTUAL-SKIN-MODEL-CLAMPED:24231 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:227.98 VIRTUAL-SKIN-MODEL-UPDATED:23685.3 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:24231 VIRTUAL-SKIN-SUB-0:23608.9 VIRTUAL-SKIN-SUB-1:22328.5 VIRTUAL-SKIN-SUB-2:24003 VIRTUAL-SKIN-SUB-3:23832.9 VIRTUAL-SKIN-SUB-4:22376.5 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 battery:22000 btmspkr_therm:20498 charging_therm:27988 disp_therm:20523 north_therm:25862 quiet_therm:25371 rfpa_therm:25605 soc_therm:30748 usb_pwr_therm:20573 
+11-16 14:11:18.299  1989  2058 D TemperatureStateSource: getDeviceTemperatures: sequence=858 deviceTemperatureType=3 temperatureSource=0 temperatures=[23.685337]
+11-16 14:11:18.299  1989  2058 D BusinessScope: Enqueuing the block
+11-16 14:11:18.299  1989  2058 D TemperatureStateSource: sequence=858 waitTime=10000
+11-16 14:11:18.299  1989  2226 D BusinessScope: Start running the #1731 block
+11-16 14:11:18.302  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:11:18.302  1524  1524 I pixel-thermal: VIRTUAL-SKIN:23.6853 raw data: VIRTUAL-SKIN:23685.3 
+11-16 14:11:18.303  1989  2226 I TemperatureStateSource: temperature was set
+11-16 14:11:18.304  1989  2226 D BusinessScope: Enqueuing the block
+11-16 14:11:18.304  1989  2226 D ImpulseStateSource: Notify clients: 863
+11-16 14:11:18.304  1989  2226 D BusinessScope: Finish running the #1731 block
+11-16 14:11:18.304  1989  2226 D BusinessScope: Start running the #1732 block
+11-16 14:11:18.306  1989  2227 D BusinessScope: Finish running the #1732 block
+11-16 14:11:18.402 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:19.240  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:19.409 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:19.597   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:20.416 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:20.420  2754  3599 D TaskQueue: removing queue after quit safely success for task queue handler IntentProcessor
+11-16 14:11:20.420  2754  3599 D TaskQueue: removing queue after quit safely success for task queue handler AWService
+11-16 14:11:21.248  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:21.423 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:22.226   990  1015 D RILClient: [OemClient]IND: (clientId = 0, msgId = 3005, dataLength = 24, channel = 0)
+11-16 14:11:22.228  2057  2057 I SHANNON_IMS: 3819 [NETW] #:PURP:# UNSOL {RILC_UNSOL_IMS_SUPPORT_SERVICE} : VoPS : 0  EMC : 0  SIM_IDX : 0  RAT : 0  REG_STATE : 0  CELL_ID : 0  LAC/TAC : 0  PLMN :   (NetworkAdaptor$AdaptorChannel%onMessage:306)
+11-16 14:11:22.229  2057  2057 I SHANNON_IMS: 3820 [CONN] #:ORNG:# supportService [VoPS : 0/ EMC : 0/ RAT_INFO : 0/ REG_STATE : 0/ CELL_ID : 0/ LAC-TAC Info : 0/ PLMN : ]  [SLID:0 ] (ImsConnectivityMgr$RegistrationListener%supportService:2888)
+11-16 14:11:22.243   990  1015 D RILClient: [OemClient]IND: (clientId = 0, msgId = 3005, dataLength = 24, channel = 0)
+11-16 14:11:22.245  2057  2057 I SHANNON_IMS: 3824 [NETW] #:PURP:# UNSOL {RILC_UNSOL_IMS_SUPPORT_SERVICE} : VoPS : 0  EMC : 0  SIM_IDX : 0  RAT : 0  REG_STATE : 0  CELL_ID : 0  LAC/TAC : 0  PLMN :   (NetworkAdaptor$AdaptorChannel%onMessage:306)
+11-16 14:11:22.245  2057  2057 I SHANNON_IMS: 3825 [CONN] #:ORNG:# supportService [VoPS : 0/ EMC : 0/ RAT_INFO : 0/ REG_STATE : 0/ CELL_ID : 0/ LAC-TAC Info : 0/ PLMN : ]  [SLID:0 ] (ImsConnectivityMgr$RegistrationListener%supportService:2888)
+11-16 14:11:22.429 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:22.435  2057  2057 W SHANNON_IMS: 3836 [RULE] isLte: false isHomeSupported: false isRoamingSupported: false isImsPdnConnected: false [CellConnectivity VoPS:0 EMC:0 RAT:RAT_UNKNOWN SLID:0 ] (CellConnectivity%isRegStateSupported:444)
+11-16 14:11:22.436  2057  2057 W SHANNON_IMS: 3837 [RULE] VOC is NOT ready, isRegStateSupported() is false [CellConnectivity VoPS:0 EMC:0 RAT:RAT_UNKNOWN SLID:0 ] (CellConnectivity%isVocReady:371)
+11-16 14:11:22.716   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:22.819   826   886 E IPCThreadState: binder thread pool (1 threads) starved for 103 ms
+11-16 14:11:23.260  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:23.431  2057  3962 W SHANNON_IMS: 3847 [CONN] Timer IMS_SUPPORT_SERVICE_TIMER expired (ConnectionTimer$ConnectionTimerTask%run:76)
+11-16 14:11:23.437 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:23.439  2057  3962 W SHANNON_IMS: 3854 [RULE] isLte: false isHomeSupported: false isRoamingSupported: false isImsPdnConnected: false [CellConnectivity VoPS:0 EMC:0 RAT:RAT_UNKNOWN SLID:0 ] (CellConnectivity%isRegStateSupported:444)
+11-16 14:11:23.439  2057  3962 W SHANNON_IMS: 3855 [RULE] VOC is NOT ready, isRegStateSupported() is false [CellConnectivity VoPS:0 EMC:0 RAT:RAT_UNKNOWN SLID:0 ] (CellConnectivity%isVocReady:371)
+11-16 14:11:23.539 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"storm20k","frames":2306,"work_ms":[3.106,4.986,5.583,7.549],"interval_ms":[3.122,5.014,5.624,7.640],"jank":0,"budget_ms":16.67,"t":61509.1}
+11-16 14:11:23.540 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"storm20k","frames":2306,"build_ms":[0.44,0.65,1.33],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.19,0.64,1.81],"fence_ms":[0.00,0.00,0.46],"acquire_ms":[0.01,0.02,0.05],"present_ms":[0.03,1.02,3.12],"gpu_ms":[2.23,2.34,4.11],"budget_ms_end":16.67,"scale_ms":[0.01,0.01,0.04],"plan_ms":[2.36,3.24,5.19],"gpu_draw_ms":[2.20,2.30,4.02],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.02,0.02,0.11],"gpu_blit_ms":[0.02,0.03,0.72],"t":61509.6}
+11-16 14:11:23.540 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load2k-thermal","t":61509.7}
+11-16 14:11:23.805   452  2468 D TimeStats: Dumping TimeStats as text
+11-16 14:11:23.922   452  2468 D TimeStats: Cleared global stats
+11-16 14:11:23.922   452  2468 D TimeStats: Cleared layer stats
+11-16 14:11:24.449 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:25.271  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:25.462 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:25.540 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load2k-thermal","frames":1,"work_ms":[10.751,10.751,10.751,10.751],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":16.67,"t":63509.9}
+11-16 14:11:25.540 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load2k-thermal","frames":1,"build_ms":[7.28,7.28,7.28],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.39,0.39,0.39],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.04,0.04,0.04],"present_ms":[0.06,0.06,0.06],"gpu_ms":[2.45,2.45,2.45],"budget_ms_end":16.67,"scale_ms":[0.02,0.02,0.02],"plan_ms":[2.96,2.96,2.96],"gpu_draw_ms":[2.40,2.40,2.40],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.02,0.02,0.02],"gpu_blit_ms":[0.03,0.03,0.03],"t":63510.0}
+11-16 14:11:25.540 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"thermal","t":63510.0}
+11-16 14:11:25.796   452  2468 D TimeStats: Dumping TimeStats as text
+11-16 14:11:25.848   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:25.906   452  2468 D TimeStats: Cleared global stats
+11-16 14:11:25.906   452  2468 D TimeStats: Cleared layer stats
+11-16 14:11:26.292 29863 29863 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-16 14:11:26.292 29863 29863 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-16 14:11:26.470 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:26.805  1524  1524 I pixel-thermal: VIRTUAL-USB-UI:0 raw data: USB-MINUS-CHARGER:-8266 VIRTUAL-USB-UI:0 charging_therm:28789 usb_pwr_therm:20523 
+11-16 14:11:26.805  1524  1524 I pixel-thermal: VIRTUAL-USB-THROTTLING:0 raw data: USB-MINUS-CHARGER:-8266 VIRTUAL-USB-THROTTLING:0 usb_pwr_therm:20523 
+11-16 14:11:26.805  1524  1524 I pixel-thermal: VIRTUAL-SKIN-CHARGE-WLC:25.7549 raw data: VIRTUAL-SKIN-CHARGE-WLC:25754.9 charging_therm:28789 soc_therm:32930 usb_pwr_therm:20523 
+11-16 14:11:26.805  1524  1524 I pixel-thermal: quiet_therm:25.605 raw data: quiet_therm:25605 
+11-16 14:11:26.805  1524  1524 I pixel-thermal: VIRTUAL-SKIN-CHARGE:23.8939 raw data: VIRTUAL-SKIN-CHARGE:23893.9 VIRTUAL-SKIN-CHARGE-SUB-0:21952.4 VIRTUAL-SKIN-CHARGE-SUB-1:23893.9 btmspkr_therm:20498 charging_therm:28789 disp_therm:20548 north_therm:26401 quiet_therm:25605 rfpa_therm:25862 soc_therm:32930 usb_pwr_therm:20523 
+11-16 14:11:26.805  1524  1524 I pixel-thermal: usb_pwr_therm:20.523 raw data: usb_pwr_therm:20523 
+11-16 14:11:26.806  1524  1524 I pixel-thermal: VIRTUAL-SKIN-SPEAKER-MODEL: model_input: [22200.00 20498.00 28789.00 20548.00 26401.00 25605.00 25862.00 32930.00 20523.00 ]
+11-16 14:11:26.806  1524  1524 I pixel-thermal: Ignoring stale previous samples for VIRTUAL-SKIN-SPEAKER-MODEL
+11-16 14:11:26.806  1524  1524 I native  : I0000 00:00:1794838286.806309    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:11:26.806  1524  1524 I pixel-thermal: VIRTUAL-SKIN-SPEAKER-MODEL: model_output: [24803.9 ]
+11-16 14:11:26.806  1524  1524 I pixel-thermal: VIRTUAL-SKIN-SPEAKER-MODEL: predicted_value: [24803.9 ]
+11-16 14:11:26.806  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [25862.00 25605.00 28789.00 20523.00 20498.00 20548.00 26401.00 32930.00 ]
+11-16 14:11:26.806  1524  1524 I native  : I0000 00:00:1794838286.806632    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:11:26.806  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [24582.8 ]
+11-16 14:11:26.806  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [24582.8 ]
+11-16 14:11:26.806  1524  1524 I pixel-thermal: cellular-emergency:24.0443 raw data: VIRTUAL-SKIN:24044.3 VIRTUAL-SKIN-LEGACY:24553.9 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:-28.877 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:24582.8 VIRTUAL-SKIN-MODEL-CLAMPED:24582.8 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:28.877 VIRTUAL-SKIN-MODEL-UPDATED:24044.3 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:24582.8 VIRTUAL-SKIN-SUB-0:24269.1 VIRTUAL-SKIN-SUB-1:22514 VIRTUAL-SKIN-SUB-2:24553.9 VIRTUAL-SKIN-SUB-3:24211.5 VIRTUAL-SKIN-SUB-4:22567.1 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 battery:22200 btmspkr_therm:20498 cellular-emergency:24044.3 charging_therm:28789 disp_therm:20548 north_therm:26401 quiet_therm:25605 rfpa_therm:25862 soc_therm:32930 usb_pwr_therm:20523 
+11-16 14:11:26.806  1524  1524 I pixel-thermal: VIRTUAL-SKIN-SPEAKER:24.8039 raw data: VIRTUAL-SKIN-SPEAKER:24803.9 VIRTUAL-SKIN-SPEAKER-MODEL:24803.9 
+11-16 14:11:26.806  1524  1524 I pixel-thermal: VIRTUAL-SKIN-ODPM-MODEL: model_input: [25862.00 25605.00 28789.00 20523.00 20498.00 20548.00 26401.00 32930.00 22200.00 1253.26 3.03 123.27 113.40 3.42 23.47 ]
+11-16 14:11:26.806  1524  1524 I pixel-thermal: Ignoring stale previous samples for VIRTUAL-SKIN-ODPM-MODEL
+11-16 14:11:26.806  1524  1524 I native  : I0000 00:00:1794838286.806854    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:11:26.806  1524  1524 I pixel-thermal: VIRTUAL-SKIN-ODPM-MODEL: model_output: [23628.3 ]
+11-16 14:11:26.806  1524  1524 I pixel-thermal: VIRTUAL-SKIN-ODPM-MODEL: predicted_value: [23628.3 ]
+11-16 14:11:26.806  1524  1524 I pixel-thermal: btmspkr_therm:20.498 raw data: btmspkr_therm:20498 
+11-16 14:11:26.806  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:11:26.806  1524  1524 I pixel-thermal: VIRTUAL-SKIN:24.0443 raw data: VIRTUAL-SKIN:24044.3 
+11-16 14:11:26.806  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:11:26.806  1524  1524 I pixel-thermal: VIRTUAL-SKIN-DISPLAY:24.0443 raw data: VIRTUAL-SKIN:24044.3 VIRTUAL-SKIN-DISPLAY:24044.3 
+11-16 14:11:26.807  1524  1524 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:26.807  1524  1524 I pixel-thermal: rfpa_therm:25.862 raw data: rfpa_therm:25862 
+11-16 14:11:26.807  1524  1524 I pixel-thermal: BCL_AUDIO_BAACL:1 raw data: BCL_AUDIO_BAACL:1 battery:22200 soc:1 
+11-16 14:11:26.807  1524  1524 I pixel-thermal: north_therm:26.401 raw data: north_therm:26401 
+11-16 14:11:26.807  1524  1524 I pixel-thermal: charging_therm:28.789 raw data: charging_therm:28789 
+11-16 14:11:26.807  1524  1524 I pixel-thermal: disp_therm:20.548 raw data: disp_therm:20548 
+11-16 14:11:26.807  1524  1524 I pixel-thermal: soc_therm:32.93 raw data: soc_therm:32930 
+11-16 14:11:27.236 11304 11333 I BistoHotwordHelper: (REDACTED) getHotwordActive::active query: %s, watch: %s, devices connected: %s
+11-16 14:11:27.280  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:27.475 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:28.282  1989  2058 D ImpulseConnection: timeout didn't happen: com.google.android.apps.turbo
+11-16 14:11:28.301  1989  2226 D TemperatureStateSource: sequence=858 actualDelay=10002
+11-16 14:11:28.301  1989  2226 D TemperatureStateSource: Reading temperature: sequence=859
+11-16 14:11:28.306  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:11:28.307  1524  1524 I pixel-thermal: VIRTUAL-SKIN:24.0443 raw data: VIRTUAL-SKIN:24044.3 
+11-16 14:11:28.307  1989  2226 D TemperatureStateSource: getDeviceTemperatures: sequence=859 deviceTemperatureType=3 temperatureSource=0 temperatures=[24.044308]
+11-16 14:11:28.307  1989  2226 D BusinessScope: Enqueuing the block
+11-16 14:11:28.307  1989  2226 D TemperatureStateSource: sequence=859 waitTime=10000
+11-16 14:11:28.307  1989  2228 D BusinessScope: Start running the #1733 block
+11-16 14:11:28.311  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:11:28.311  1524  1524 I pixel-thermal: VIRTUAL-SKIN:24.0443 raw data: VIRTUAL-SKIN:24044.3 
+11-16 14:11:28.312  1989  2228 I TemperatureStateSource: temperature was set
+11-16 14:11:28.313  1989  2228 D BusinessScope: Enqueuing the block
+11-16 14:11:28.313  1989  2228 D ImpulseStateSource: Notify clients: 864
+11-16 14:11:28.313  1989  2228 D BusinessScope: Finish running the #1733 block
+11-16 14:11:28.313  1989  2228 D BusinessScope: Start running the #1734 block
+11-16 14:11:28.316  1989  2058 D BusinessScope: Finish running the #1734 block
+11-16 14:11:28.479 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:28.972   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:29.072   826   886 E IPCThreadState: binder thread pool (1 threads) starved for 100 ms
+11-16 14:11:29.288  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:29.487 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:30.493 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:31.297  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:31.501 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:32.097   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:32.206   826   886 E IPCThreadState: binder thread pool (1 threads) starved for 109 ms
+11-16 14:11:32.508 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:32.924  1355  1695 W ActivityManager: Unbind failed: could not find connection for android.os.BinderProxy@b38c2b9
+11-16 14:11:32.930  1355  1695 W ActivityManager: Unable to start service Intent { act=android.telephony.satellite.SatelliteService pkg=com.google.android.satellite } U=0: not found
+11-16 14:11:33.308  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:33.514 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:34.252  1023  1023 W TracingMuxer: type=1400 audit(0.0:9537): avc:  denied  { write } for  name="traced_producer" dev="tmpfs" ino=1258 scontext=u:r:gxp_logging:s0 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0
+11-16 14:11:34.518 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:35.232   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:35.316  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:35.523 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:35.592   771   771 W TracingMuxer: type=1400 audit(0.0:9538): avc:  denied  { write } for  name="traced_producer" dev="tmpfs" ino=1258 scontext=u:r:hal_neuralnetworks_darwinn:s0 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0
+11-16 14:11:36.530 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:37.328  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:37.539 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:38.296  1989  2226 D ImpulseConnection: timeout didn't happen: com.google.android.apps.turbo
+11-16 14:11:38.308  1989  2228 D TemperatureStateSource: sequence=859 actualDelay=10000
+11-16 14:11:38.308  1989  2228 D TemperatureStateSource: Reading temperature: sequence=860
+11-16 14:11:38.315  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [26588.00 25956.00 29591.00 20448.00 20573.00 20448.00 26752.00 33508.00 ]
+11-16 14:11:38.315  1524  1524 I native  : I0000 00:00:1794838298.315742    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:11:38.316  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [24970.1 ]
+11-16 14:11:38.316  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [24970.1 ]
+11-16 14:11:38.316  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:11:38.316  1524  1524 I pixel-thermal: VIRTUAL-SKIN:24.4146 raw data: VIRTUAL-SKIN:24414.6 VIRTUAL-SKIN-LEGACY:24883.1 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:-86.918 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:24970.1 VIRTUAL-SKIN-MODEL-CLAMPED:24970.1 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:86.918 VIRTUAL-SKIN-MODEL-UPDATED:24414.6 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:24970.1 VIRTUAL-SKIN-SUB-0:24674.5 VIRTUAL-SKIN-SUB-1:22695.7 VIRTUAL-SKIN-SUB-2:24883.1 VIRTUAL-SKIN-SUB-3:24498.3 VIRTUAL-SKIN-SUB-4:22732.8 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 battery:22500 btmspkr_therm:20573 charging_therm:29591 disp_therm:20448 north_therm:26752 quiet_therm:25956 rfpa_therm:26588 soc_therm:33508 usb_pwr_therm:20448 
+11-16 14:11:38.316   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:38.318  1989  2228 D TemperatureStateSource: getDeviceTemperatures: sequence=860 deviceTemperatureType=3 temperatureSource=0 temperatures=[24.414608]
+11-16 14:11:38.318  1989  2228 D BusinessScope: Enqueuing the block
+11-16 14:11:38.318  1989  2228 D TemperatureStateSource: sequence=860 waitTime=10000
+11-16 14:11:38.318  1989  2227 D BusinessScope: Start running the #1735 block
+11-16 14:11:38.324  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:11:38.324  1524  1524 I pixel-thermal: VIRTUAL-SKIN:24.4146 raw data: VIRTUAL-SKIN:24414.6 
+11-16 14:11:38.325  1989  2227 I TemperatureStateSource: temperature was set
+11-16 14:11:38.327  1989  2227 D BusinessScope: Enqueuing the block
+11-16 14:11:38.327  1989  2227 D ImpulseStateSource: Notify clients: 865
+11-16 14:11:38.327  1989  2227 D BusinessScope: Finish running the #1735 block
+11-16 14:11:38.327  1989  2227 D BusinessScope: Start running the #1736 block
+11-16 14:11:38.330  1989  2226 D BusinessScope: Finish running the #1736 block
+11-16 14:11:38.547 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:39.336  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:39.563 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:40.574 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:41.347  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:41.429   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:41.581 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:42.591 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:42.875 14590 14697 I PhenotypeProcessReaper: Memory state is: 200
+11-16 14:11:43.359  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:43.597 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:44.536   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:44.604 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:44.654  2057  4019 W SHANNON_IMS: 3864 [CONN] NetworkSpecifier and TransportInfo are not valid (DefaultNetworkCallback%updateSubscriptionId:89)
+11-16 14:11:44.655  2057  4019 I SHANNON_IMS: 3865 [CONN] network:101 WIFI connected, subId: -1 [SLID:0] (DefaultNetworkCallback%onCapabilitiesChanged:71)
+11-16 14:11:44.662 16426 16463 I NullBinder: NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+11-16 14:11:44.654  2043  3516 D SHANNON_RCS: 0396 [0][PROX][TELE] onCapabilitiesChanged, Network: 101, NetworkCapabilities: [ Transports: WIFI Capabilities: NOT_METERED&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&VALIDATED&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED LinkUpBandwidth>=12000Kbps LinkDnBandwidth>=60000Kbps TransportInfo: <SSID: <unknown ssid>, BSSID: 02:00:00:00:00:00, MAC: 02:00:00:00:00:00, IP: /192.168.1.101, Security type: 2, Supplicant state: COMPLETED, Wi-Fi standard: 11ac, RSSI: -35, Link speed: 180Mbps, Tx Link speed: 180Mbps, Max Supported Tx Link speed: 200Mbps, Rx Link speed: 180Mbps, Max Supported Rx Link speed: 200Mbps, Frequency: 5765MHz, Net ID: -1, Metered hint: false, score: 60, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: -1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none><none>MLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>> SignalStrength: -35 UnderlyingNetworks: Null] (DefaultNetworkCallback%onCapabilitiesChanged:76)
+11-16 14:11:44.662 16426 16463 W .gms.persistent: Large reply transaction of 1056768 bytes, interface descriptor , code 1
+11-16 14:11:45.368  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:45.609 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:46.618 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:47.379  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:47.624 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:47.648   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:48.306  1989  2058 D ImpulseConnection: timeout didn't happen: com.google.android.apps.turbo
+11-16 14:11:48.318  1989  2226 D TemperatureStateSource: sequence=860 actualDelay=10000
+11-16 14:11:48.319  1989  2226 D TemperatureStateSource: Reading temperature: sequence=861
+11-16 14:11:48.326  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [26612.00 26003.00 29724.00 20598.00 20748.00 20648.00 26987.00 33686.00 ]
+11-16 14:11:48.326  1524  1524 I native  : I0000 00:00:1794838308.326851    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:11:48.327  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [25225.3 ]
+11-16 14:11:48.327  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [25225.3 ]
+11-16 14:11:48.327  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:11:48.327  1524  1524 I pixel-thermal: VIRTUAL-SKIN:24.7389 raw data: VIRTUAL-SKIN:24738.9 VIRTUAL-SKIN-LEGACY:25057.6 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:-167.676 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:25225.3 VIRTUAL-SKIN-MODEL-CLAMPED:25225.3 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:167.676 VIRTUAL-SKIN-MODEL-UPDATED:24738.9 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:25225.3 VIRTUAL-SKIN-SUB-0:24803.4 VIRTUAL-SKIN-SUB-1:22872.3 VIRTUAL-SKIN-SUB-2:25057.6 VIRTUAL-SKIN-SUB-3:24665.7 VIRTUAL-SKIN-SUB-4:22898.1 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 battery:22700 btmspkr_therm:20748 charging_therm:29724 disp_therm:20648 north_therm:26987 quiet_therm:26003 rfpa_therm:26612 soc_therm:33686 usb_pwr_therm:20598 
+11-16 14:11:48.328  1989  2226 D TemperatureStateSource: getDeviceTemperatures: sequence=861 deviceTemperatureType=3 temperatureSource=0 temperatures=[24.738886]
+11-16 14:11:48.328  1989  2226 D BusinessScope: Enqueuing the block
+11-16 14:11:48.328  1989  2226 D TemperatureStateSource: sequence=861 waitTime=10000
+11-16 14:11:48.328  1989  2226 D BusinessScope: Start running the #1737 block
+11-16 14:11:48.335  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:11:48.335  1524  1524 I pixel-thermal: VIRTUAL-SKIN:24.7389 raw data: VIRTUAL-SKIN:24738.9 
+11-16 14:11:48.335  1989  2226 I TemperatureStateSource: temperature was set
+11-16 14:11:48.337  1989  2226 D BusinessScope: Enqueuing the block
+11-16 14:11:48.337  1989  2226 D ImpulseStateSource: Notify clients: 866
+11-16 14:11:48.337  1989  2226 D BusinessScope: Finish running the #1737 block
+11-16 14:11:48.338  1989  2226 D BusinessScope: Start running the #1738 block
+11-16 14:11:48.339  1989  2058 D BusinessScope: Finish running the #1738 block
+11-16 14:11:48.630 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:49.391  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:49.636 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:50.644 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:50.761   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:50.846  2043  3516 D SHANNON_RCS: 0397 [0][PROX][TELE] onCapabilitiesChanged, Network: 101, NetworkCapabilities: [ Transports: WIFI Capabilities: NOT_METERED&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&VALIDATED&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED LinkUpBandwidth>=12000Kbps LinkDnBandwidth>=60000Kbps TransportInfo: <SSID: <unknown ssid>, BSSID: 02:00:00:00:00:00, MAC: 02:00:00:00:00:00, IP: /192.168.1.101, Security type: 2, Supplicant state: COMPLETED, Wi-Fi standard: 11ac, RSSI: -36, Link speed: 180Mbps, Tx Link speed: 180Mbps, Max Supported Tx Link speed: 200Mbps, Rx Link speed: 200Mbps, Max Supported Rx Link speed: 200Mbps, Frequency: 5765MHz, Net ID: -1, Metered hint: false, score: 60, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: -1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none><none>MLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>> SignalStrength: -36 UnderlyingNetworks: Null] (DefaultNetworkCallback%onCapabilitiesChanged:76)
+11-16 14:11:50.847  2057  4019 W SHANNON_IMS: 3868 [CONN] NetworkSpecifier and TransportInfo are not valid (DefaultNetworkCallback%updateSubscriptionId:89)
+11-16 14:11:50.848 16426 16463 I NullBinder: NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+11-16 14:11:50.848 16426 16463 W .gms.persistent: Large reply transaction of 1056768 bytes, interface descriptor , code 1
+11-16 14:11:50.848  2057  4019 I SHANNON_IMS: 3869 [CONN] network:101 WIFI connected, subId: -1 [SLID:0] (DefaultNetworkCallback%onCapabilitiesChanged:71)
+11-16 14:11:51.401  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:51.651 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:52.281   990  1015 D RILClient: [OemClient]IND: (clientId = 0, msgId = 3005, dataLength = 24, channel = 0)
+11-16 14:11:52.283  2057  2057 I SHANNON_IMS: 3872 [NETW] #:PURP:# UNSOL {RILC_UNSOL_IMS_SUPPORT_SERVICE} : VoPS : 0  EMC : 0  SIM_IDX : 0  RAT : 0  REG_STATE : 0  CELL_ID : 0  LAC/TAC : 0  PLMN :   (NetworkAdaptor$AdaptorChannel%onMessage:306)
+11-16 14:11:52.283  2057  2057 I SHANNON_IMS: 3873 [CONN] #:ORNG:# supportService [VoPS : 0/ EMC : 0/ RAT_INFO : 0/ REG_STATE : 0/ CELL_ID : 0/ LAC-TAC Info : 0/ PLMN : ]  [SLID:0 ] (ImsConnectivityMgr$RegistrationListener%supportService:2888)
+11-16 14:11:52.491  2057  2057 W SHANNON_IMS: 3884 [RULE] isLte: false isHomeSupported: false isRoamingSupported: false isImsPdnConnected: false [CellConnectivity VoPS:0 EMC:0 RAT:RAT_UNKNOWN SLID:0 ] (CellConnectivity%isRegStateSupported:444)
+11-16 14:11:52.492  2057  2057 W SHANNON_IMS: 3885 [RULE] VOC is NOT ready, isRegStateSupported() is false [CellConnectivity VoPS:0 EMC:0 RAT:RAT_UNKNOWN SLID:0 ] (CellConnectivity%isVocReady:371)
+11-16 14:11:52.658 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:53.033   990  1015 D RILClient: [OemClient]IND: (clientId = 0, msgId = 3005, dataLength = 24, channel = 0)
+11-16 14:11:53.034  2057  2057 I SHANNON_IMS: 3894 [NETW] #:PURP:# UNSOL {RILC_UNSOL_IMS_SUPPORT_SERVICE} : VoPS : 0  EMC : 0  SIM_IDX : 0  RAT : 0  REG_STATE : 0  CELL_ID : 0  LAC/TAC : 0  PLMN :   (NetworkAdaptor$AdaptorChannel%onMessage:306)
+11-16 14:11:53.035  2057  2057 I SHANNON_IMS: 3895 [CONN] #:ORNG:# supportService [VoPS : 0/ EMC : 0/ RAT_INFO : 0/ REG_STATE : 0/ CELL_ID : 0/ LAC-TAC Info : 0/ PLMN : ]  [SLID:0 ] (ImsConnectivityMgr$RegistrationListener%supportService:2888)
+11-16 14:11:53.056   990  1015 D RILClient: [OemClient]IND: (clientId = 0, msgId = 3005, dataLength = 24, channel = 0)
+11-16 14:11:53.059  2057  2057 I SHANNON_IMS: 3899 [NETW] #:PURP:# UNSOL {RILC_UNSOL_IMS_SUPPORT_SERVICE} : VoPS : 0  EMC : 0  SIM_IDX : 0  RAT : 0  REG_STATE : 0  CELL_ID : 0  LAC/TAC : 0  PLMN :   (NetworkAdaptor$AdaptorChannel%onMessage:306)
+11-16 14:11:53.059  2057  2057 I SHANNON_IMS: 3900 [CONN] #:ORNG:# supportService [VoPS : 0/ EMC : 0/ RAT_INFO : 0/ REG_STATE : 0/ CELL_ID : 0/ LAC-TAC Info : 0/ PLMN : ]  [SLID:0 ] (ImsConnectivityMgr$RegistrationListener%supportService:2888)
+11-16 14:11:53.412  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:53.491  2057  3962 W SHANNON_IMS: 3906 [CONN] Timer IMS_SUPPORT_SERVICE_TIMER expired (ConnectionTimer$ConnectionTimerTask%run:76)
+11-16 14:11:53.494  2057  3962 W SHANNON_IMS: 3913 [RULE] isLte: false isHomeSupported: false isRoamingSupported: false isImsPdnConnected: false [CellConnectivity VoPS:0 EMC:0 RAT:RAT_UNKNOWN SLID:0 ] (CellConnectivity%isRegStateSupported:444)
+11-16 14:11:53.494  2057  3962 W SHANNON_IMS: 3914 [RULE] VOC is NOT ready, isRegStateSupported() is false [CellConnectivity VoPS:0 EMC:0 RAT:RAT_UNKNOWN SLID:0 ] (CellConnectivity%isVocReady:371)
+11-16 14:11:53.665 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:53.840   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:53.949   826   886 E IPCThreadState: binder thread pool (1 threads) starved for 108 ms
+11-16 14:11:54.673 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:55.424  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:55.681 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:56.689 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:56.972   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:11:57.079   826   886 E IPCThreadState: binder thread pool (1 threads) starved for 106 ms
+11-16 14:11:57.436  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:57.698 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:58.314  1989  2228 D ImpulseConnection: timeout didn't happen: com.google.android.apps.turbo
+11-16 14:11:58.329  1989  2226 D TemperatureStateSource: sequence=861 actualDelay=10001
+11-16 14:11:58.329  1989  2226 D TemperatureStateSource: Reading temperature: sequence=862
+11-16 14:11:58.336  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [27010.00 26542.00 30058.00 20573.00 20648.00 20623.00 27385.00 34020.00 ]
+11-16 14:11:58.336  1524  1524 I native  : I0000 00:00:1794838318.336675    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:11:58.336  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [25454.9 ]
+11-16 14:11:58.336  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [25454.9 ]
+11-16 14:11:58.337  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:11:58.337  1524  1524 I pixel-thermal: VIRTUAL-SKIN:25.0253 raw data: VIRTUAL-SKIN:25025.3 VIRTUAL-SKIN-LEGACY:25332.8 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:-122.064 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:25454.9 VIRTUAL-SKIN-MODEL-CLAMPED:25454.9 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:122.064 VIRTUAL-SKIN-MODEL-UPDATED:25025.3 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:25454.9 VIRTUAL-SKIN-SUB-0:25100.4 VIRTUAL-SKIN-SUB-1:22997 VIRTUAL-SKIN-SUB-2:25332.8 VIRTUAL-SKIN-SUB-3:24922.4 VIRTUAL-SKIN-SUB-4:23001.7 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 battery:22900 btmspkr_therm:20648 charging_therm:30058 disp_therm:20623 north_therm:27385 quiet_therm:26542 rfpa_therm:27010 soc_therm:34020 usb_pwr_therm:20573 
+11-16 14:11:58.338  1989  2226 D TemperatureStateSource: getDeviceTemperatures: sequence=862 deviceTemperatureType=3 temperatureSource=0 temperatures=[25.025278]
+11-16 14:11:58.338  1989  2226 D BusinessScope: Enqueuing the block
+11-16 14:11:58.338  1989  2226 D TemperatureStateSource: sequence=862 waitTime=10000
+11-16 14:11:58.338  1989  2227 D BusinessScope: Start running the #1739 block
+11-16 14:11:58.342  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:11:58.342  1524  1524 I pixel-thermal: VIRTUAL-SKIN:25.0253 raw data: VIRTUAL-SKIN:25025.3 
+11-16 14:11:58.342  1989  2227 I TemperatureStateSource: temperature was set
+11-16 14:11:58.343  1989  2227 D BusinessScope: Enqueuing the block
+11-16 14:11:58.344  1989  2227 D ImpulseStateSource: Notify clients: 867
+11-16 14:11:58.344  1989  2227 D BusinessScope: Finish running the #1739 block
+11-16 14:11:58.344  1989  2227 D BusinessScope: Start running the #1740 block
+11-16 14:11:58.345  1989  2226 D BusinessScope: Finish running the #1740 block
+11-16 14:11:58.705 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:11:59.448  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:11:59.712 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:00.104   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:12:00.722 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:01.464  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:12:01.732 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:01.857  1870  1870 D DLObserver: onReceive(); android.intent.action.BATTERY_CHANGED
+11-16 14:12:01.857  1870  1870 D DLObserver: plugged=2
+11-16 14:12:01.859  1870 15418 D PowerUI : can't show warning due to - plugged: true status unknown: false
+11-16 14:12:01.859  1870  1870 D SystemEventDataSource: onReceive: intentAction
+11-16 14:12:01.860  1870  1870 D PowerNotificationWarningsGoogleImpl: onReceive: android.intent.action.BATTERY_CHANGED
+11-16 14:12:01.860  1870  1870 D IncompatibleChargerNotification: dispatchIntent: android.intent.action.BATTERY_CHANGED
+11-16 14:12:01.865  1870  1968 D GoogleBatteryDataSource: fetchDwellDefendStatus: CONNECTED
+11-16 14:12:01.866  1870  1968 D GoogleBatteryDataSource: fetchTempDefendStatus: t_sum=0, time_sum=0 t_avg=0 lst_v=4387890 lst_t=221 lst_u=8442, dt=0, t=0 e=1
+11-16 14:12:01.867  1870  1968 D SystemEventDataSource: updatedEventData: SystemEventData(intentAction=android.intent.action.BATTERY_CHANGED, plugged=EventData(value=2), batteryScale=EventData(value=100), batteryLevel=EventData(value=100), chargingStatus=EventData(value=1), maxChargingCurrent=EventData(value=900000), maxChargingVoltage=EventData(value=5000000), batteryStatus=EventData(value=5), halEventData=HalEventData(dockDefendStatus=EventData(value=-3), tempDefendEventData=EventData(value=false), dwellDefendEventData=EventData(value=false)), settingsEventData=SettingsEventData(dockDefenderBypass=EventData(value=0), chargingLimitSettings=EventData(value=0), dndState=EventData(value=false), airplaneState=EventData(value=false)), frameworkApiEventData=FrameworkApiEventData(batterySaverState=EventData(value=false), extremeBatterySaverState=EventData(value=false)))
+11-16 14:12:01.867  1870  1968 D SystemEventDataSource: extra doesn't changed, no need to onEventSourceUpdate
+11-16 14:12:02.742 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:03.221   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:12:03.331   826   886 E IPCThreadState: binder thread pool (1 threads) starved for 110 ms
+11-16 14:12:03.477  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:12:03.565  1524  1534 I pixel-thermal: soc_therm:34.043 raw data: soc_therm:34043 
+11-16 14:12:03.681  1524  1534 I pixel-thermal: disp_therm:20.598 raw data: disp_therm:20598 
+11-16 14:12:03.689  1524  1534 I pixel-thermal: charging_therm:30.125 raw data: charging_therm:30125 
+11-16 14:12:03.689  1524  1534 I pixel-thermal: north_therm:27.521 raw data: north_therm:27521 
+11-16 14:12:03.689  1524  1534 I pixel-thermal: rfpa_therm:27.197 raw data: rfpa_therm:27197 
+11-16 14:12:03.690  1524  1534 I pixel-thermal: btmspkr_therm:20.673 raw data: btmspkr_therm:20673 
+11-16 14:12:03.690  1524  1534 I pixel-thermal: usb_pwr_therm:20.648 raw data: usb_pwr_therm:20648 
+11-16 14:12:03.690  1524  1534 I pixel-thermal: quiet_therm:26.635 raw data: quiet_therm:26635 
+11-16 14:12:03.690  1524  1534 I pixel-thermal: Power rails total power: 3219.42 mW for 60126 ms
+11-16 14:12:03.690  1524  1534 I pixel-thermal: Power rails [S6M_LLDO1: 146.50 mW] [S4M_VDD_CPUCL0: 192.15 mW] [S3M_VDD_CPUCL2: 1387.11 mW] [S1M_VDD_MIF: 125.81 mW] [S5M_VDD_INT: 28.08 mW] [S9M_VDD_CPUCL1_M: 10.05 mW] 
+11-16 14:12:03.690  1524  1534 I pixel-thermal: Power rails [S2M_VDD_CPUCL1: 67.37 mW] [VSYS_PWR_CAMERA: 3.02 mW] [VSYS_PWR_DISPLAY: 127.50 mW] [L21S_VDD2L_MEM: 24.53 mW] [S8M_LLDO2: 70.19 mW] [S3S_LLDO1: 131.72 mW] 
+11-16 14:12:03.690  1524  1534 I pixel-thermal: Power rails [VSYS_PWR_RFFE: 3.82 mW] [VSYS_PWR_WLAN_BT: 20.90 mW] [VSYS_PWR_MODEM: 108.88 mW] [L2S_PLL_MIPI_UFS: 25.43 mW] [S4S_VDD2H_MEM: 64.17 mW] [S9S_VDD_AOC: 7.51 mW] 
+11-16 14:12:03.690  1524  1534 I pixel-thermal: Power rails [S2S_VDD_G3D: 631.33 mW] [S1S_VDD_CAM: 18.66 mW] [S7M_VDD_TPU: 0.00 mW] [L22S_UDFPS: 0.33 mW] [S12S_VDD_AUR: 8.84 mW] [S5S_VDDQ_MEM: 15.53 mW] 
+11-16 14:12:03.753 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:04.280  1023  1023 W TracingMuxer: type=1400 audit(0.0:9539): avc:  denied  { write } for  name="traced_producer" dev="tmpfs" ino=1258 scontext=u:r:gxp_logging:s0 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0
+11-16 14:12:04.759 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:05.488  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:12:05.624   771   771 W TracingMuxer: type=1400 audit(0.0:9540): avc:  denied  { write } for  name="traced_producer" dev="tmpfs" ino=1258 scontext=u:r:hal_neuralnetworks_darwinn:s0 tcontext=u:object_r:traced_producer_socket:s0 tclass=sock_file permissive=0
+11-16 14:12:05.766 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:06.360   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:12:06.771 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:07.499  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:12:07.779 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:08.328  1989  2058 D ImpulseConnection: timeout didn't happen: com.google.android.apps.turbo
+11-16 14:12:08.339  1989  2226 D TemperatureStateSource: sequence=862 actualDelay=10001
+11-16 14:12:08.339  1989  2226 D TemperatureStateSource: Reading temperature: sequence=863
+11-16 14:12:08.347  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [27268.00 26823.00 30236.00 20623.00 20648.00 20648.00 27699.00 34087.00 ]
+11-16 14:12:08.347  1524  1524 I native  : I0000 00:00:1794838328.347168    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:12:08.347  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [25720.8 ]
+11-16 14:12:08.347  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [25720.8 ]
+11-16 14:12:08.347  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:12:08.347  1524  1524 I pixel-thermal: VIRTUAL-SKIN:25.3035 raw data: VIRTUAL-SKIN:25303.5 VIRTUAL-SKIN-LEGACY:25523.3 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:-197.5 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:25720.8 VIRTUAL-SKIN-MODEL-CLAMPED:25720.8 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:197.5 VIRTUAL-SKIN-MODEL-UPDATED:25303.5 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:25720.8 VIRTUAL-SKIN-SUB-0:25262 VIRTUAL-SKIN-SUB-1:23123.7 VIRTUAL-SKIN-SUB-2:25523.3 VIRTUAL-SKIN-SUB-3:25113.7 VIRTUAL-SKIN-SUB-4:23112.9 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 battery:23100 btmspkr_therm:20648 charging_therm:30236 disp_therm:20648 north_therm:27699 quiet_therm:26823 rfpa_therm:27268 soc_therm:34087 usb_pwr_therm:20623 
+11-16 14:12:08.348  1989  2226 D TemperatureStateSource: getDeviceTemperatures: sequence=863 deviceTemperatureType=3 temperatureSource=0 temperatures=[25.303493]
+11-16 14:12:08.348  1989  2226 D BusinessScope: Enqueuing the block
+11-16 14:12:08.348  1989  2226 D TemperatureStateSource: sequence=863 waitTime=10000
+11-16 14:12:08.348  1989  2228 D BusinessScope: Start running the #1741 block
+11-16 14:12:08.352  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:12:08.352  1524  1524 I pixel-thermal: VIRTUAL-SKIN:25.3035 raw data: VIRTUAL-SKIN:25303.5 
+11-16 14:12:08.352  1989  2228 I TemperatureStateSource: temperature was set
+11-16 14:12:08.353  1989  2228 D BusinessScope: Enqueuing the block
+11-16 14:12:08.353  1989  2228 D ImpulseStateSource: Notify clients: 868
+11-16 14:12:08.353  1989  2228 D BusinessScope: Finish running the #1741 block
+11-16 14:12:08.354  1989  2228 D BusinessScope: Start running the #1742 block
+11-16 14:12:08.355  1989  2226 D BusinessScope: Finish running the #1742 block
+11-16 14:12:08.787 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:09.476   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:12:09.508  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:12:09.579   826   886 E IPCThreadState: binder thread pool (1 threads) starved for 102 ms
+11-16 14:12:09.794 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:10.802 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:11.528  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:12:11.810 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:12.604   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:12:12.817 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:13.536  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:12:13.826 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:14.831 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:15.547  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:12:15.725   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:12:15.826   826   886 E IPCThreadState: binder thread pool (1 threads) starved for 101 ms
+11-16 14:12:15.838 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:16.846 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:17.556  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:12:17.853 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:18.340  1989  2227 D ImpulseConnection: timeout didn't happen: com.google.android.apps.turbo
+11-16 14:12:18.349  1989  2226 D TemperatureStateSource: sequence=863 actualDelay=10000
+11-16 14:12:18.349  1989  2226 D TemperatureStateSource: Reading temperature: sequence=864
+11-16 14:12:18.353  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [27454.00 26916.00 30348.00 20648.00 20673.00 20673.00 27832.00 34221.00 ]
+11-16 14:12:18.354  1524  1524 I native  : I0000 00:00:1794838338.354019    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:12:18.354  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [25804.9 ]
+11-16 14:12:18.354  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [25804.9 ]
+11-16 14:12:18.354  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:12:18.354  1524  1524 I pixel-thermal: VIRTUAL-SKIN:25.5041 raw data: VIRTUAL-SKIN:25504.1 VIRTUAL-SKIN-LEGACY:25634.5 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:-170.354 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:25804.9 VIRTUAL-SKIN-MODEL-CLAMPED:25804.9 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:170.354 VIRTUAL-SKIN-MODEL-UPDATED:25504.1 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:25804.9 VIRTUAL-SKIN-SUB-0:25369.7 VIRTUAL-SKIN-SUB-1:23198.9 VIRTUAL-SKIN-SUB-2:25634.5 VIRTUAL-SKIN-SUB-3:25214.2 VIRTUAL-SKIN-SUB-4:23176.3 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 battery:23200 btmspkr_therm:20673 charging_therm:30348 disp_therm:20673 north_therm:27832 quiet_therm:26916 rfpa_therm:27454 soc_therm:34221 usb_pwr_therm:20648 
+11-16 14:12:18.355  1989  2226 D TemperatureStateSource: getDeviceTemperatures: sequence=864 deviceTemperatureType=3 temperatureSource=0 temperatures=[25.504055]
+11-16 14:12:18.355  1989  2226 D BusinessScope: Enqueuing the block
+11-16 14:12:18.356  1989  2226 D TemperatureStateSource: sequence=864 waitTime=10000
+11-16 14:12:18.356  1989  2058 D BusinessScope: Start running the #1743 block
+11-16 14:12:18.357  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:12:18.357  1524  1524 I pixel-thermal: VIRTUAL-SKIN:25.5041 raw data: VIRTUAL-SKIN:25504.1 
+11-16 14:12:18.357  1989  2058 I TemperatureStateSource: temperature was set
+11-16 14:12:18.359  1989  2058 D BusinessScope: Enqueuing the block
+11-16 14:12:18.359  1989  2058 D ImpulseStateSource: Notify clients: 869
+11-16 14:12:18.359  1989  2058 D BusinessScope: Finish running the #1743 block
+11-16 14:12:18.359  1989  2058 D BusinessScope: Start running the #1744 block
+11-16 14:12:18.362  1989  2227 D BusinessScope: Finish running the #1744 block
+11-16 14:12:18.856   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:12:18.859 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:19.568  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:12:19.864 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:20.521  2754  3599 D TaskQueue: removing queue after quit safely success for task queue handler CompromiseDetector
+11-16 14:12:20.521  2754  3599 D TaskQueue: removing queue after quit safely success for task queue handler ROLLING_FILE_QUEUE
+11-16 14:12:20.521  2754  3599 D TaskQueue: removing queue after quit safely success for task queue handler AirWatchDetector
+11-16 14:12:20.521  2754  3599 D TaskQueue: removing queue after quit safely success for task queue handler CrittercismWrapper
+11-16 14:12:20.522  2754  3599 D TaskQueue: removing queue after quit safely success for task queue handler AWCompromiseChecker
+11-16 14:12:20.870 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:21.576  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:12:21.875 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:21.968   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:12:22.881 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:23.097   990  1015 D RILClient: [OemClient]IND: (clientId = 0, msgId = 3005, dataLength = 24, channel = 0)
+11-16 14:12:23.099  2057  2057 I SHANNON_IMS: 3923 [NETW] #:PURP:# UNSOL {RILC_UNSOL_IMS_SUPPORT_SERVICE} : VoPS : 0  EMC : 0  SIM_IDX : 0  RAT : 0  REG_STATE : 0  CELL_ID : 0  LAC/TAC : 0  PLMN :   (NetworkAdaptor$AdaptorChannel%onMessage:306)
+11-16 14:12:23.099  2057  2057 I SHANNON_IMS: 3924 [CONN] #:ORNG:# supportService [VoPS : 0/ EMC : 0/ RAT_INFO : 0/ REG_STATE : 0/ CELL_ID : 0/ LAC-TAC Info : 0/ PLMN : ]  [SLID:0 ] (ImsConnectivityMgr$RegistrationListener%supportService:2888)
+11-16 14:12:23.306  2057  2057 W SHANNON_IMS: 3935 [RULE] isLte: false isHomeSupported: false isRoamingSupported: false isImsPdnConnected: false [CellConnectivity VoPS:0 EMC:0 RAT:RAT_UNKNOWN SLID:0 ] (CellConnectivity%isRegStateSupported:444)
+11-16 14:12:23.306  2057  2057 W SHANNON_IMS: 3936 [RULE] VOC is NOT ready, isRegStateSupported() is false [CellConnectivity VoPS:0 EMC:0 RAT:RAT_UNKNOWN SLID:0 ] (CellConnectivity%isVocReady:371)
+11-16 14:12:23.584  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:12:23.731   990  1015 D RILClient: [OemClient]IND: (clientId = 0, msgId = 3005, dataLength = 24, channel = 0)
+11-16 14:12:23.732  2057  2057 I SHANNON_IMS: 3945 [NETW] #:PURP:# UNSOL {RILC_UNSOL_IMS_SUPPORT_SERVICE} : VoPS : 0  EMC : 0  SIM_IDX : 0  RAT : 0  REG_STATE : 0  CELL_ID : 0  LAC/TAC : 0  PLMN :   (NetworkAdaptor$AdaptorChannel%onMessage:306)
+11-16 14:12:23.733  2057  2057 I SHANNON_IMS: 3946 [CONN] #:ORNG:# supportService [VoPS : 0/ EMC : 0/ RAT_INFO : 0/ REG_STATE : 0/ CELL_ID : 0/ LAC-TAC Info : 0/ PLMN : ]  [SLID:0 ] (ImsConnectivityMgr$RegistrationListener%supportService:2888)
+11-16 14:12:23.750   990  1015 D RILClient: [OemClient]IND: (clientId = 0, msgId = 3005, dataLength = 24, channel = 0)
+11-16 14:12:23.750 29113 29132 I RustStdoutStderr: vieww: RenderColumn overflowed by 29px on the vertical axis — 912 of children into 883 of space
+11-16 14:12:23.750 29113 29132 I RustStdoutStderr: vieww:   in RenderColoredBox > RenderPadding
+11-16 14:12:23.752  2057  2057 I SHANNON_IMS: 3950 [NETW] #:PURP:# UNSOL {RILC_UNSOL_IMS_SUPPORT_SERVICE} : VoPS : 0  EMC : 0  SIM_IDX : 0  RAT : 0  REG_STATE : 0  CELL_ID : 0  LAC/TAC : 0  PLMN :   (NetworkAdaptor$AdaptorChannel%onMessage:306)
+11-16 14:12:23.752  2057  2057 I SHANNON_IMS: 3951 [CONN] #:ORNG:# supportService [VoPS : 0/ EMC : 0/ RAT_INFO : 0/ REG_STATE : 0/ CELL_ID : 0/ LAC-TAC Info : 0/ PLMN : ]  [SLID:0 ] (ImsConnectivityMgr$RegistrationListener%supportService:2888)
+11-16 14:12:23.886 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:24.301  2057  3962 W SHANNON_IMS: 3957 [CONN] Timer IMS_SUPPORT_SERVICE_TIMER expired (ConnectionTimer$ConnectionTimerTask%run:76)
+11-16 14:12:24.307  2057  3962 W SHANNON_IMS: 3964 [RULE] isLte: false isHomeSupported: false isRoamingSupported: false isImsPdnConnected: false [CellConnectivity VoPS:0 EMC:0 RAT:RAT_UNKNOWN SLID:0 ] (CellConnectivity%isRegStateSupported:444)
+11-16 14:12:24.308  2057  3962 W SHANNON_IMS: 3965 [RULE] VOC is NOT ready, isRegStateSupported() is false [CellConnectivity VoPS:0 EMC:0 RAT:RAT_UNKNOWN SLID:0 ] (CellConnectivity%isVocReady:371)
+11-16 14:12:24.894 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:25.076   826   886 I WifiHAL : Creating message to get link statistics; iface = 47
+11-16 14:12:25.544 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"thermal","frames":26690,"work_ms":[2.212,4.253,5.162,21.256],"interval_ms":[2.228,4.278,5.193,21.383],"jank":0,"budget_ms":16.67,"t":123513.6}
+11-16 14:12:25.559 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"thermal","frames":26690,"build_ms":[0.29,0.45,2.34],"raster_ms":[0.00,0.00,0.00],"gpu_cpu_ms":[0.18,0.25,14.68],"fence_ms":[0.00,0.00,3.46],"acquire_ms":[0.02,0.04,0.21],"present_ms":[0.29,0.76,7.19],"gpu_ms":[1.78,2.03,6.81],"budget_ms_end":16.67,"scale_ms":[0.01,0.02,0.15],"plan_ms":[1.33,2.05,13.38],"gpu_draw_ms":[1.76,2.00,6.65],"gpu_layers_ms":[0.00,0.00,0.00],"gpu_filters_ms":[0.00,0.00,0.00],"gpu_shadows_ms":[0.01,0.02,0.75],"gpu_blit_ms":[0.01,0.03,1.17],"t":123528.5}
+11-16 14:12:25.559 29113 29133 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"done","t":123528.8}
+11-16 14:12:25.592  1524  1534 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:12:25.903 16426 16550 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:26.066   452   602 D TimeStats: Dumping TimeStats as text
+11-16 14:12:26.185   452   602 D TimeStats: Cleared global stats
+11-16 14:12:26.185   452   602 D TimeStats: Cleared layer stats
+11-16 14:12:26.854   452   602 D TimeStats: Disabled
+11-16 14:12:26.913 16426 16514 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:12:27.013 29113 29139 I eww.marketwatch: Explicit concurrent mark compact GC freed 372KB AllocSpace bytes, 16(320KB) LOS objects, 92% free, 1976KB/25MB, paused 212us,1.719ms total 16.018ms
+11-16 14:12:27.186  1524  1524 I pixel-thermal: VIRTUAL-USB-UI:0 raw data: USB-MINUS-CHARGER:-9491 VIRTUAL-USB-UI:0 charging_therm:30214 usb_pwr_therm:20723 
+11-16 14:12:27.186  1524  1524 I pixel-thermal: VIRTUAL-USB-THROTTLING:0 raw data: USB-MINUS-CHARGER:-9491 VIRTUAL-USB-THROTTLING:0 usb_pwr_therm:20723 
+11-16 14:12:27.186  1524  1524 I pixel-thermal: VIRTUAL-SKIN-CHARGE-WLC:26.3867 raw data: VIRTUAL-SKIN-CHARGE-WLC:26386.7 charging_therm:30214 soc_therm:33709 usb_pwr_therm:20723 
+11-16 14:12:27.186  1524  1524 I pixel-thermal: quiet_therm:27.08 raw data: quiet_therm:27080 
+11-16 14:12:27.186  1524  1524 I pixel-thermal: VIRTUAL-SKIN-CHARGE:24.9169 raw data: VIRTUAL-SKIN-CHARGE:24916.9 VIRTUAL-SKIN-CHARGE-SUB-0:22841.3 VIRTUAL-SKIN-CHARGE-SUB-1:24916.9 btmspkr_therm:20723 charging_therm:30214 disp_therm:20723 north_therm:27854 quiet_therm:27080 rfpa_therm:27476 soc_therm:33709 usb_pwr_therm:20723 
+11-16 14:12:27.186  1524  1524 I pixel-thermal: usb_pwr_therm:20.723 raw data: usb_pwr_therm:20723 
+11-16 14:12:27.187  1524  1524 I pixel-thermal: VIRTUAL-SKIN-SPEAKER-MODEL: model_input: [23300.00 20723.00 30214.00 20723.00 27854.00 27080.00 27476.00 33709.00 20723.00 ]
+11-16 14:12:27.187  1524  1524 I pixel-thermal: Ignoring stale previous samples for VIRTUAL-SKIN-SPEAKER-MODEL
+11-16 14:12:27.187  1524  1524 I native  : I0000 00:00:1794838347.187366    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:12:27.187  1524  1524 I pixel-thermal: VIRTUAL-SKIN-SPEAKER-MODEL: model_output: [25390.5 ]
+11-16 14:12:27.187  1524  1524 I pixel-thermal: VIRTUAL-SKIN-SPEAKER-MODEL: predicted_value: [25390.5 ]
+11-16 14:12:27.187  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_input: [27476.00 27080.00 30214.00 20723.00 20723.00 20723.00 27854.00 33709.00 ]
+11-16 14:12:27.187  1524  1524 I native  : I0000 00:00:1794838347.187906    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:12:27.187  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: model_output: [25790.7 ]
+11-16 14:12:27.187  1524  1524 I pixel-thermal: VIRTUAL-SKIN-MODEL: predicted_value: [25790.7 ]
+11-16 14:12:27.188  1524  1524 I pixel-thermal: cellular-emergency:25.6187 raw data: VIRTUAL-SKIN:25618.7 VIRTUAL-SKIN-LEGACY:25599.8 VIRTUAL-SKIN-LEGACY-MODEL-DIFF:-190.861 VIRTUAL-SKIN-LEGACY-SHUTDOWN:0 VIRTUAL-SKIN-MODEL:25790.7 VIRTUAL-SKIN-MODEL-CLAMPED:25790.7 VIRTUAL-SKIN-MODEL-LEGACY-DIFF:190.861 VIRTUAL-SKIN-MODEL-UPDATED:25618.7 VIRTUAL-SKIN-MODEL-UPPER-CLAMPED:25790.7 VIRTUAL-SKIN-SUB-0:25302.2 VIRTUAL-SKIN-SUB-1:23244.2 VIRTUAL-SKIN-SUB-2:25599.8 VIRTUAL-SKIN-SUB-3:25230 VIRTUAL-SKIN-SUB-4:23229.8 VT_LEGACY_WEIGHT:0 VT_MODEL_WEIGHT:1 battery:23300 btmspkr_therm:20723 cellular-emergency:25618.7 charging_therm:30214 disp_therm:20723 north_therm:27854 quiet_therm:27080 rfpa_therm:27476 soc_therm:33709 usb_pwr_therm:20723 
+11-16 14:12:27.188  1524  1524 I pixel-thermal: VIRTUAL-SKIN-SPEAKER:25.3905 raw data: VIRTUAL-SKIN-SPEAKER:25390.5 VIRTUAL-SKIN-SPEAKER-MODEL:25390.5 
+11-16 14:12:27.188  1524  1524 I pixel-thermal: VIRTUAL-SKIN-ODPM-MODEL: model_input: [27476.00 27080.00 30214.00 20723.00 20723.00 20723.00 27854.00 33709.00 23300.00 1664.72 3.00 124.61 86.46 3.37 23.79 ]
+11-16 14:12:27.188  1524  1524 I pixel-thermal: Ignoring stale previous samples for VIRTUAL-SKIN-ODPM-MODEL
+11-16 14:12:27.188  1524  1524 I native  : I0000 00:00:1794838347.188306    1524 thermal_tflite_wrapper.cc:245] ThermalTfliteInvoke
+11-16 14:12:27.188  1524  1524 I pixel-thermal: VIRTUAL-SKIN-ODPM-MODEL: model_output: [24988.4 ]
+11-16 14:12:27.188  1524  1524 I pixel-thermal: VIRTUAL-SKIN-ODPM-MODEL: predicted_value: [24988.4 ]
+11-16 14:12:27.188  1524  1524 I pixel-thermal: btmspkr_therm:20.723 raw data: btmspkr_therm:20723 
+11-16 14:12:27.188  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:12:27.188  1524  1524 I pixel-thermal: VIRTUAL-SKIN:25.6187 raw data: VIRTUAL-SKIN:25618.7 
+11-16 14:12:27.188  1524  1524 I pixel-thermal: CPU_THROTTLE_SEVERE:0 raw data: CPU_THROTTLE_SEVERE:0 
+11-16 14:12:27.188  1524  1524 I pixel-thermal: VIRTUAL-SKIN-DISPLAY:25.6187 raw data: VIRTUAL-SKIN:25618.7 VIRTUAL-SKIN-DISPLAY:25618.7 
+11-16 14:12:27.188  1524  1524 I pixel-thermal: soc:1 raw data: soc:1 
+11-16 14:12:27.190  1524  1524 I pixel-thermal: rfpa_therm:27.476 raw data: rfpa_therm:27476 
+11-16 14:12:27.190  1524  1524 I pixel-thermal: BCL_AUDIO_BAACL:1 raw data: BCL_AUDIO_BAACL:1 battery:23300 soc:1 
+11-16 14:12:27.192  1524  1524 I pixel-thermal: north_therm:27.854 raw data: north_therm:27854 
+11-16 14:12:27.192  1524  1524 I pixel-thermal: charging_therm:30.214 raw data: charging_therm:30214 
+11-16 14:12:27.192  1524  1524 I pixel-thermal: disp_therm:20.723 raw data: disp_therm:20723 
+11-16 14:12:27.192  1524  1524 I pixel-thermal: soc_therm:33.709 raw data: soc_therm:33709 
+11-16 14:12:27.236 11304 11353 I BistoHotwordHelper: (REDACTED) getHotwordActive::active query: %s, watch: %s, devices connected: %s

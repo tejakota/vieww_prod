@@ -1,0 +1,1138 @@
+--------- beginning of system
+11-16 14:21:22.565  1563  3458 I ActivityManager: Force stopping dev.vieww.marketwatch appid=10266 user=0: from pid 4905
+--------- beginning of main
+11-16 14:21:22.568  4905  4907 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 14:21:22.569  1563  1608 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_RESTARTED dat=package:dev.vieww.marketwatch flg=0x10 (has extras) } to com.airwatch.androidagent/com.airwatch.agent.Receiver
+11-16 14:21:22.569  3090  2684 I WS1_AfwUtils: Hub app user id: 0
+11-16 14:21:22.571  3090  2684 I WS1_Receiver: Received intent: android.intent.action.PACKAGE_RESTARTED
+11-16 14:21:22.571  3090  2684 I WS1_BroadcastIntentService: Delegating broadcast to WorkManager for action: android.intent.action.PACKAGE_RESTARTED
+11-16 14:21:22.571  8757  8757 D CarrierSvcBindHelper: No carrier app for: 0
+11-16 14:21:22.572  3090  2684 I WS1_IntentProcessorWorkManager: Enqueuing work for intent action: android.intent.action.PACKAGE_RESTARTED
+11-16 14:21:22.578  3197  3197 D RegisteredNfcFServicesCache: Service unchanged, not updating
+11-16 14:21:22.579  3090  4908 I XSW     : (CoreOperationalDataProvider.cpp.301) store payload activity.service
+11-16 14:21:22.579  3090  4908 I WS1_ASMLog: (CoreOperationalDataProvider.cpp.301) store payload activity.service
+11-16 14:21:22.580  3090  4908 I XSW     : (CoreOperationalDataProvider.cpp.369) not storing 'store.secure.internal.operationaldata.activity.service' activity: '2026-11-16T00:00:00Z' lastUpdated: '2026-11-16T00:00:00Z' since activities are stored once per day (time is 0'd)
+11-16 14:21:22.581  3090  4908 I WS1_ASMLog: (CoreOperationalDataProvider.cpp.369) not storing 'store.secure.internal.operationaldata.activity.service' activity: '2026-11-16T00:00:00Z' lastUpdated: '2026-11-16T00:00:00Z' since activities are stored once per day (time is 0'd)
+11-16 14:21:22.582  3090  4908 I XSW     : (CoreOperationalDataProvider.cpp.408) 'shouldSendPayload: not sending payload as we successfully sent within the send cadence
+11-16 14:21:22.583  3090  4908 I WS1_ASMLog: (CoreOperationalDataProvider.cpp.408) 'shouldSendPayload: not sending payload as we successfully sent within the send cadence
+11-16 14:21:22.584 20868 20868 I EuiccGoogle: [2] EuiccServiceImpl.onCreate: onCreate Single-SIM mode: simCardState is 11
+11-16 14:21:22.591  3090  4879 I DynDCD  : Script -> Super User File Path Check : true
+11-16 14:21:22.591 20868  4912 I EuiccGoogle: [1077] EuiccServiceImpl.onGetEuiccProfileInfoList: onGetEuiccProfileInfoList: slotId = -1
+11-16 14:21:22.595 20868  4912 W EuiccGoogle: [1077] EuiccServiceImpl.onGetEuiccProfileInfoList: slotId=-1. No eUICC is active. Return null.
+11-16 14:21:22.603  3090  3936 D WM-SystemJobScheduler: Scheduling work ID 658445e1-ece3-47c2-8f35-e78ac5822560Job ID 1013242
+11-16 14:21:22.606  3090  3936 D WM-GreedyScheduler: Starting work for 658445e1-ece3-47c2-8f35-e78ac5822560
+11-16 14:21:22.607  3090  4879 I DynDCD  : Script -> Super User Check : true
+11-16 14:21:22.608  3090  3090 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=658445e1-ece3-47c2-8f35-e78ac5822560, generation=0)
+11-16 14:21:22.609  3090  3936 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=658445e1-ece3-47c2-8f35-e78ac5822560, generation=0)
+11-16 14:21:22.610  3090  3936 D WM-Processor: Work WorkGenerationalId(workSpecId=658445e1-ece3-47c2-8f35-e78ac5822560, generation=0) is already enqueued for processing
+11-16 14:21:22.610  3090  4879 I DynDCD  : Script -> Xposed Check : true
+11-16 14:21:22.613  3090  3936 W WS1_SE_SmpWrkFct_WV8VHC: com.airwatch.agent.intent.processors.IntentProcessorWorker not resolved in SamplingWorkerFactory
+11-16 14:21:22.616  3090  3090 D WM-WorkerWrapper: Starting work for com.airwatch.agent.intent.processors.IntentProcessorWorker
+11-16 14:21:22.616  3090  4114 I WS1_IntentProcessorWorker: doWork started for intent action: android.intent.action.PACKAGE_RESTARTED
+11-16 14:21:22.627  3090  3936 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=658445e1-ece3-47c2-8f35-e78ac5822560, tags={ com.airwatch.agent.intent.processors.IntentProcessorWorker,intent_processor_work,android.intent.action.PACKAGE_RESTARTED } ]
+11-16 14:21:22.629  3090  3090 D WM-Processor: Processor 658445e1-ece3-47c2-8f35-e78ac5822560 executed; reschedule = false
+11-16 14:21:22.629  3090  3090 D WM-SystemJobService: 658445e1-ece3-47c2-8f35-e78ac5822560 executed on JobScheduler
+11-16 14:21:22.630  3090  4879 I DynDCD  : Script -> Malicious Files Check : true
+11-16 14:21:22.637  3090  4879 I DynDCD  : Script -> Ro Secure Flag Check : true
+11-16 14:21:22.637  3090  4879 I DynDCD  : Script -> Magisk String Check : true
+11-16 14:21:22.637  3090  4879 D DynDCD  : Script -> [{"id":"BundledRules_SDK_20201027"},{"name":"superUserScan","passed":true},{"name":"writableFilePaths","passed":true},{"name":"installedPackages","passed":true},{"name":"superUserFilePath","passed":true},{"name":"superUser","passed":true},{"name":"xposed","passed":true},{"name":"maliciousFiles","passed":true},{"name":"roSecureFlag","passed":true},{"name":"magisk","passed":true},{"failedReasonCodes":[]}]
+11-16 14:21:22.638  3090  4879 I DynDCD  : EngineDelegateImpl.cpp -> Compromised detection successfully completed
+11-16 14:21:22.639  3090  4879 I WS1_DynDCD_DynamicCDD: Dynamic compromise detection is a success for rulesId: BundledRules_SDK_20201027!
+11-16 14:21:22.640  3090  3090 E WS1_DetailsLog: runDynamicCompromiseDetection passed SUCCESS
+11-16 14:21:22.641  3090  4879 I WS1_AirWatchApp: AW SDK, ENABLE_SDK_FRIDA_DETECTION: false , ENABLE_SDK_ROOT_DETECTION: false
+11-16 14:21:22.641  3090  3936 D WM-GreedyScheduler: Cancelling work ID 658445e1-ece3-47c2-8f35-e78ac5822560
+11-16 14:21:22.641  3090  4879 I WS1_TamperCheckService: Starting tamper checker!
+11-16 14:21:22.642  3090  4879 I NativeMain: Finding SDK Logger class!
+11-16 14:21:22.642  3090  4879 W NativeMain: SDK Logger class is invalid, logging via android logger!
+11-16 14:21:22.642  3090  4879 D NativeMain: tamper check initiated
+11-16 14:21:22.670  3090  3936 D WM-SystemJobScheduler: Scheduling work ID 9801c9da-dce8-46d3-bedc-527f280ca579Job ID 1013243
+11-16 14:21:22.672  3090  3936 D WM-GreedyScheduler: Starting work for 9801c9da-dce8-46d3-bedc-527f280ca579
+11-16 14:21:22.674  3090  3090 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=9801c9da-dce8-46d3-bedc-527f280ca579, generation=0)
+11-16 14:21:22.677  3090  3936 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=9801c9da-dce8-46d3-bedc-527f280ca579, generation=0)
+11-16 14:21:22.678  3090  3936 D WM-Processor: Work WorkGenerationalId(workSpecId=9801c9da-dce8-46d3-bedc-527f280ca579, generation=0) is already enqueued for processing
+11-16 14:21:22.678  3090  3936 W WS1_SE_SmpWrkFct_WV8VHC: com.airwatch.app.TamperCheckerWorker not resolved in SamplingWorkerFactory
+11-16 14:21:22.678  3090  3936 W WS1_IntentProcessorWorkerFct: com.airwatch.app.TamperCheckerWorker not resolved
+11-16 14:21:22.679  3090  3936 E WS1_TaskWorkerFactory: Worker class:com.airwatch.app.TamperCheckerWorker not resolved in TaskWorkerFactory
+11-16 14:21:22.680  3090  3090 D WM-WorkerWrapper: Starting work for com.airwatch.app.TamperCheckerWorker
+11-16 14:21:22.685  1064  1064 I keystore: del USRPKEY_k8curUi2sFTAe8KlihKG7Q== 10261
+11-16 14:21:22.685  1064  1064 I keystore: del USRSKEY_k8curUi2sFTAe8KlihKG7Q== 10261
+11-16 14:21:22.685  1064  1064 I keystore: del USRCERT_k8curUi2sFTAe8KlihKG7Q== 10261
+11-16 14:21:22.686  1064  1064 I keystore: del CACERT_k8curUi2sFTAe8KlihKG7Q== 10261
+11-16 14:21:22.688   549   569 D DrmLibTime: got the req here! ret=0
+11-16 14:21:22.688   549   569 D DrmLibTime: command id, time_cmd_id = 770
+11-16 14:21:22.688   549   569 D DrmLibTime: time_getutcsec starts!
+11-16 14:21:22.688   549   569 D DrmLibTime: QSEE Time Listener: time_getutcsec
+11-16 14:21:22.688   549   569 D DrmLibTime: QSEE Time Listener: get_utc_seconds
+11-16 14:21:22.688   549   569 D DrmLibTime: QSEE Time Listener: time_get_modem_time
+11-16 14:21:22.688   549   569 D DrmLibTime: QSEE Time Listener: Checking if ATS_MODEM is set or not.
+11-16 14:21:22.688   549   569 D QC-time-services: Lib:time_genoff_operation: pargs->base = 13
+11-16 14:21:22.688   549   569 D QC-time-services: Lib:time_genoff_operation: pargs->operation = 2
+11-16 14:21:22.688   549   569 D QC-time-services: Lib:time_genoff_operation: pargs->ts_val = 0
+11-16 14:21:22.688   549   569 D QC-time-services: Lib:time_genoff_operation: Send to server  passed!!
+11-16 14:21:22.688   761   930 D QC-time-services: Daemon: Connection accepted:time_genoff
+11-16 14:21:22.690   761  4923 D QC-time-services: Daemon:Received base = 13, unit = 1, operation = 2,value = 0
+11-16 14:21:22.690   761  4923 D QC-time-services: Daemon:genoff_opr: Base = 13, val = 0, operation = 2
+11-16 14:21:22.690   761  4923 D QC-time-services: offset is: 1 for base: 13
+11-16 14:21:22.690   549   569 E QC-time-services: Receive Passed == base = 13, unit = 1, operation = 2, result = 0
+11-16 14:21:22.690   549   569 D DrmLibTime: QSEE Time Listener: ATS_MODEM is set. Try to retrieve it.
+11-16 14:21:22.690   761   930 E QC-time-services: Daemon: Time-services: Waiting to acceptconnection
+11-16 14:21:22.690   761   930 D QC-time-services: Daemon: Connection accepted:time_genoff
+11-16 14:21:22.691   761  4925 D QC-time-services: Daemon:Received base = 13, unit = 1, operation = 1,value = 0
+11-16 14:21:22.691   761  4925 D QC-time-services: Daemon:genoff_opr: Base = 13, val = 0, operation = 1
+11-16 14:21:22.691   761  4925 D QC-time-services: Daemon: genoff get for 13
+11-16 14:21:22.691   761  4925 D QC-time-services: Daemon:Value read from QTimer mseconds = 3661411
+11-16 14:21:22.691   761  4925 D QC-time-services: Daemon:Value read from RTC mseconds on boot = 139302101000
+11-16 14:21:22.691   761  4925 D QC-time-services: Daemon:Value read from QTimer mseconds = 3661411
+11-16 14:21:22.691   761  4925 D QC-time-services: Daemon:Value read from generic offset = 1634329500731
+11-16 14:21:22.691   761  4925 D QC-time-services: Daemon:Delta read on boot mseconds = 139302095275
+11-16 14:21:22.691   761  4925 D QC-time-services: Daemon:Final Time = 1773635257417
+11-16 14:21:22.691   549   569 D DrmLibTime: QSEE Time Listener: Time GenOff - seconds: 1773635257
+11-16 14:21:22.691   549   569 D DrmLibTime: time_getutcsec returns 0, sec = 1773635257; nsec = 0
+11-16 14:21:22.691   549   569 D DrmLibTime: time_getutcsec finished! 
+11-16 14:21:22.691   549   569 D DrmLibTime: iotcl_continue_command finished! and return 0 
+11-16 14:21:22.691   549   569 D DrmLibTime: before calling ioctl to read the next time_cmd
+11-16 14:21:22.691   761   930 E QC-time-services: Daemon: Time-services: Waiting to acceptconnection
+11-16 14:21:22.705  3090  4112 I WS1_TamperChecker: CompDetectionResponse is 14
+11-16 14:21:22.705  3090  4112 I WS1_TamperChecker: DI status=false
+11-16 14:21:22.706  3090  4112 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:21:22.706  3090  4112 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:21:22.706  3090  4112 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 14:21:22.706  3090  4112 I WS1_TamperChecker: Root status=false
+11-16 14:21:22.706  3090  4112 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:21:22.707  3090  4112 I WS1_TamperCheckService: Beginning of tamper checker operation!
+11-16 14:21:22.708  3090  4103 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=9801c9da-dce8-46d3-bedc-527f280ca579, tags={ com.airwatch.app.TamperCheckerWorker } ]
+11-16 14:21:22.710  3090  3090 D WM-Processor: Processor 9801c9da-dce8-46d3-bedc-527f280ca579 executed; reschedule = false
+11-16 14:21:22.710  3090  3090 D WM-SystemJobService: 9801c9da-dce8-46d3-bedc-527f280ca579 executed on JobScheduler
+11-16 14:21:22.714  3090  4103 D WM-GreedyScheduler: Cancelling work ID 9801c9da-dce8-46d3-bedc-527f280ca579
+11-16 14:21:22.759  3090  4924 I WS1_TamperChecker: CompDetectionResponse is 20
+11-16 14:21:22.759  3090  4924 I WS1_TamperChecker: DI status=false
+11-16 14:21:22.759  3090  4924 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:21:22.759  3090  4924 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:21:22.760  3090  4924 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 14:21:22.760  3090  4924 I WS1_TamperChecker: Root status=false
+11-16 14:21:22.760  3090  4924 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:21:23.065  3090  3103 I ch.androidagen: Background concurrent copying GC freed 752877(25MB) AllocSpace objects, 80(1956KB) LOS objects, 75% free, 11MB/46MB, paused 190us total 230.494ms
+11-16 14:21:23.207  3090  4921 I WS1_TamperChecker: CompDetectionResponse is 18
+11-16 14:21:23.207  3090  4921 I WS1_TamperChecker: DI status=false
+11-16 14:21:23.207  3090  4921 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:21:23.208  3090  4921 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:21:23.208  3090  4921 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 14:21:23.209  3090  4921 I WS1_TamperChecker: Root status=false
+11-16 14:21:23.209  3090  4921 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:21:23.528 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:23.531 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:23.650  1064  1064 I keystore: del USRPKEY_k8curUi2sFTAe8KlihKG7Q== 10261
+11-16 14:21:23.651  1064  1064 I keystore: del USRCERT_k8curUi2sFTAe8KlihKG7Q== 10261
+11-16 14:21:23.652  1064  1064 I keystore: del CACERT_k8curUi2sFTAe8KlihKG7Q== 10261
+11-16 14:21:23.654  3090  4920 I WS1_TamperChecker: CompDetectionResponse is 22
+11-16 14:21:23.655  3090  4920 I WS1_TamperChecker: DI status=false
+11-16 14:21:23.655  3090  4920 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:21:23.656  3090  4920 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:21:23.656  3090  4920 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 14:21:23.656  3090  4920 I WS1_TamperChecker: Root status=false
+11-16 14:21:23.657  3090  4920 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:21:24.537 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:24.540 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:24.928 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:21:25.292  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:21:24.932 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:21:25.546 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:25.549 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:25.852   588  2651 D TimeStats: Cleared global stats
+11-16 14:21:25.852   588  2651 D TimeStats: Cleared layer stats
+11-16 14:21:25.941   588  2651 D TimeStats: Enabled
+11-16 14:21:26.038  1563  2011 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=dev.vieww.marketwatch/android.app.NativeActivity} from uid 2000
+11-16 14:21:26.048  4943  4945 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-16 14:21:26.049  1563  1599 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10266; state: DISABLED
+11-16 14:21:26.049  1563  1599 D CompatibilityChangeReporter: Compat change id reported: 135754954; UID 10266; state: ENABLED
+11-16 14:21:26.049  1563  1609 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10266; state: ENABLED
+11-16 14:21:26.058   769   769 D Zygote  : Forked child process 4946
+11-16 14:21:26.059  1563  1600 W Choreographer: Frame time is 0.058727 ms in the future!  Check that graphics HAL is generating vsync timestamps using the correct timebase.
+11-16 14:21:26.066  1563  1609 I ActivityManager: Start proc 4946:dev.vieww.marketwatch/u0a266 for pre-top-activity {dev.vieww.marketwatch/android.app.NativeActivity}
+11-16 14:21:26.068  4946  4946 E eww.marketwatc: Not starting debugger since process cannot load the jdwp agent.
+11-16 14:21:26.086  4946  4946 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-16 14:21:26.086  4946  4946 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-16 14:21:26.088 10572 10572 I WallpaperService: engine paused
+11-16 14:21:26.089   894   894 I sensors-hal: [hal]activate_physical_sensor:238, android.sensor.gyroscope/41 en=0
+11-16 14:21:26.090   894   894 D Diag_Lib: diag: Diag_LSM_DeInit done for pid: 894
+11-16 14:21:26.091   894   894 D Diag_Lib: diag: Diag_LSM_DeInit done for pid: 894
+11-16 14:21:26.091   894   894 I sensors-hal: [hal]activate_physical_sensor:249, android.sensor.gyroscope/41 en=0 completed
+11-16 14:21:26.094   588  1610 W DisplayIdentification: Invalid EDID: falling back to serial number due to missing display name.
+11-16 14:21:26.094   588  1610 W DisplayIdentification: Invalid EDID: falling back to ASCII text due to missing serial number.
+11-16 14:21:26.114  4946  4946 I android-activity: Creating: Activity = 0x28e6, saved state size = 0
+11-16 14:21:26.150 17139 17139 I chil    : onPause
+11-16 14:21:26.151 17139 17139 W dxzb    : measuring already stopped.
+11-16 14:21:26.161  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"start","path":"cpu","phases":16}
+11-16 14:21:26.175  4946  4946 W android_main: type=1400 audit(0.0:15548): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:26.180  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"surface","w":393,"h":851,"t":18.7}
+11-16 14:21:26.180  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"quality","line":"blur off (tier medium), fill off (tier medium), raster threads serial (VIEWW_RASTER_THREADS=1)","t":18.8}
+11-16 14:21:26.181  4946  4972 I vieww   : vieww_platform_winit::insets: display refresh: 90.0Hz from Display.getRefreshRate()
+11-16 14:21:26.181  4946  4972 I vieww   : vieww_platform_winit::app: vieww: window#primary reports 90.0Hz; frame budget follows it, falling to 60 Hz while it cannot be held
+11-16 14:21:26.175  4946  4946 W android_main: type=1400 audit(0.0:15549): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:26.188  4946  4972 I vieww   : vieww_platform_winit::insets: window insets: bars [0, 145, 0, 44] ime [0, 0, 0, 0] physical at 2.75x -> SystemInsets { safe_area: EdgeInsets { left: 0.0, top: 52.727272, right: 0.0, bottom: 16.0 }, keyboard: EdgeInsets { left: 0.0, top: 0.0, right: 0.0, bottom: 0.0 } }
+11-16 14:21:26.189  1563  1607 I ActivityTaskManager: Displayed dev.vieww.marketwatch/android.app.NativeActivity: +144ms
+11-16 14:21:26.189 17139 17139 I chil    : onStop
+11-16 14:21:26.192  1563  2000 D ConnectivityService: releasing NetworkRequest [ TRACK_DEFAULT id=181, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10192 AdministratorUids: [] RequestorUid: 10192 RequestorPackageName: com.google.android.googlequicksearchbox] ] (release request)
+11-16 14:21:26.193  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load2k","t":31.5}
+11-16 14:21:26.205 15508 15508 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2276 
+11-16 14:21:26.207 15508  4988 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatusInternal():129 repeatCheckTimes = 0, locked = false
+11-16 14:21:26.208 15508 15508 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1460 onStartInput(EditorInfo{EditorInfo{packageName=dev.vieww.marketwatch, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=-1, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+11-16 14:21:26.210 15508 15508 I LatinIMEBase: LatinIMEBase.updateInputViewCoverNavigation():317 Update input view padding, isNavbarOverInputWindow=true, bottom inset=132
+11-16 14:21:26.217 15508  4990 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatusInternal():129 repeatCheckTimes = 1, locked = false
+11-16 14:21:26.285  4946  4972 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:21:26.286  4946  4972 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:21:26.285  4946  4946 W android_main: type=1400 audit(0.0:15550): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:26.285  4946  4946 W android_main: type=1400 audit(0.0:15551): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:26.291  4946  4972 I vieww   : vieww_platform_winit::perf_hint: vieww: performance hint unavailable (Android 12 or older: no APerformanceHint)
+11-16 14:21:26.292  4946  4972 I vieww   : vieww_platform_winit::a11y_android: a11y: host is the activity's content view
+11-16 14:21:26.292  4946  4972 I vieww   : vieww_platform_winit::a11y_android: a11y: the host sits at (0, 145) inside the window, so bounds are corrected by that much
+11-16 14:21:26.292  4946  4972 I vieww   : vieww_platform_winit::a11y_android: a11y: injected an AccessKit delegate into the activity's view
+11-16 14:21:26.335  4946  4946 W android_main: type=1400 audit(0.0:15552): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:26.557 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:26.560 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:26.971 17907 27267 I AlarmManager: setExactAndAllowWhileIdle [name: GCM_HB_ALARM type: 2 triggerAtMillis: 4022944]
+11-16 14:21:26.973 17907 27267 I AlarmManager: setExactAndAllowWhileIdle [name: GCM_HB_ALARM type: 2 triggerAtMillis: 4022946]
+11-16 14:21:27.500  2425  2425 D DeviceStatisticsService: chargerType=2 batteryLevel=78 totalBatteryCapacity=4040000
+11-16 14:21:27.500  2425  2425 D DeviceInfoHidlClient: getPowerInfoSupportStatus()=1
+11-16 14:21:27.500  2425  2425 D DeviceInfoHidlClient: isRadioOn()=true
+11-16 14:21:27.501  2425  2425 I DeviceInfoHidlClient: isPowerInfoNeverSent=false batteryLevel=78 batteryLevelIndex=2 chargingMode=2 totalCapacity=4040000 powerSaveMode=false
+11-16 14:21:27.510  2050  6862 D PowerUI : can't show warning due to - plugged: true status unknown: false
+11-16 14:21:27.566 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:27.569 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:27.638   900   937 D rlsservice: MonitorDisplayStatus client num 1, display status 1, sensor status 0
+11-16 14:21:28.320  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:21:28.578 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:28.581 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:29.586 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:29.589 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:29.667  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load2k","frames":3,"work_ms":[51.499,94.726,94.726,94.726],"interval_ms":[3320.669,3320.669,3320.669,3320.669],"jank":2,"budget_ms":11.11,"t":3505.0}
+11-16 14:21:29.667  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load2k","frames":3,"build_ms":[0.16,10.38,10.38],"raster_ms":[39.34,75.99,75.99],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[4.52,4.98,4.98],"present_ms":[3.80,7.05,7.05],"gpu_ms":[0,0,0],"budget_ms_end":11.11,"scale_ms":[0.03,0.07,0.07],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[7.43,8.43,8.43],"paths":[15.74,16.48,16.48],"text":[2.10,8.70,8.70],"images":[0.00,0.00,0.00],"shadows":[3.93,10.97,10.97],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":3505.1}
+11-16 14:21:29.667  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"idle2k","t":3505.1}
+11-16 14:21:29.974 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:21:29.977 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:21:30.161   588   628 D TimeStats: Dumping TimeStats as text
+11-16 14:21:30.252   588   628 D TimeStats: Cleared global stats
+11-16 14:21:30.252   588   628 D TimeStats: Cleared layer stats
+11-16 14:21:30.593 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:30.595 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:30.657  5064  5064 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:21:30.657  5064  5064 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:21:31.602 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:31.605 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:31.669  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"idle2k","frames":1,"work_ms":[0.226,0.226,0.226,0.226],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":5507.1}
+11-16 14:21:31.669  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"idle2k","frames":1,"build_ms":[0.15,0.15,0.15],"raster_ms":[0.01,0.01,0.01],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.00,0.00,0.00],"present_ms":[0.00,0.00,0.00],"gpu_ms":[0,0,0],"budget_ms_end":11.11,"scale_ms":[0.06,0.06,0.06],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[0.00,0.00,0.00],"paths":[0.00,0.00,0.00],"text":[0.00,0.00,0.00],"images":[0.00,0.00,0.00],"shadows":[0.00,0.00,0.00],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":5507.3}
+11-16 14:21:31.669  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"tick2k","t":5507.3}
+11-16 14:21:31.688  4946  4946 W android_main: type=1400 audit(0.0:15554): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:31.688  4946  4946 W android_main: type=1400 audit(0.0:15555): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:32.122   588   628 D TimeStats: Dumping TimeStats as text
+11-16 14:21:32.215   588   628 D TimeStats: Cleared global stats
+11-16 14:21:32.216   588   628 D TimeStats: Cleared layer stats
+11-16 14:21:32.613 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:32.616 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:32.671  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"tick2k","frames":1,"work_ms":[28.649,28.649,28.649,28.649],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":6509.3}
+11-16 14:21:32.671  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"tick2k","frames":1,"build_ms":[1.29,1.29,1.29],"raster_ms":[18.00,18.00,18.00],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[2.03,2.03,2.03],"present_ms":[7.27,7.27,7.27],"gpu_ms":[0,0,0],"budget_ms_end":11.11,"scale_ms":[0.06,0.06,0.06],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[1.43,1.43,1.43],"paths":[9.71,9.71,9.71],"text":[2.72,2.72,2.72],"images":[0.00,0.00,0.00],"shadows":[0.07,0.07,0.07],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":6509.5}
+11-16 14:21:32.671  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"jump2k","t":6509.5}
+11-16 14:21:32.752  4946  4946 W android_main: type=1400 audit(0.0:15556): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:32.752  4946  4946 W android_main: type=1400 audit(0.0:15557): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:33.206   588   628 D TimeStats: Dumping TimeStats as text
+11-16 14:21:33.296   588   628 D TimeStats: Cleared global stats
+11-16 14:21:33.296   588   628 D TimeStats: Cleared layer stats
+11-16 14:21:33.620 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:33.622 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:33.631  5137  5137 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:21:33.631  5137  5137 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:21:33.671  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"jump2k","frames":1,"work_ms":[86.455,86.455,86.455,86.455],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":7509.1}
+11-16 14:21:33.671  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"jump2k","frames":1,"build_ms":[9.30,9.30,9.30],"raster_ms":[71.54,71.54,71.54],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.90,0.90,0.90],"present_ms":[4.63,4.63,4.63],"gpu_ms":[0,0,0],"budget_ms_end":11.11,"scale_ms":[0.07,0.07,0.07],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[16.64,16.64,16.64],"paths":[29.31,29.31,29.31],"text":[7.44,7.44,7.44],"images":[0.00,0.00,0.00],"shadows":[5.77,5.77,5.77],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":7509.1}
+11-16 14:21:33.671  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"scroll2k","t":7509.1}
+11-16 14:21:33.678  4946  4946 W android_main: type=1400 audit(0.0:15558): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:33.708  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 4 lines
+11-16 14:21:33.708  4946  4946 W android_main: type=1400 audit(0.0:15563): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:34.217   588   628 D TimeStats: Dumping TimeStats as text
+11-16 14:21:34.301   588   628 D TimeStats: Cleared global stats
+11-16 14:21:34.302   588   628 D TimeStats: Cleared layer stats
+11-16 14:21:34.628 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:34.631 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:34.651  5700  5700 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:21:34.651  5700  5700 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:21:34.688  4946  4946 W android_main: type=1400 audit(0.0:15728): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:34.698  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:34.708  4946  4946 W android_main: type=1400 audit(0.0:15732): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:34.728  4946  4972 I vieww   : vieww_platform_winit::app: vieww: window#primary frame rate 90 -> 60 Hz on a 90 Hz panel; asked (ANativeWindow_setFrameRate)
+11-16 14:21:34.739   590 18449 I SDM     : HWDeviceDRM::UpdateMixerAttributes: Mixer WxH 1080x2340-1 for Peripheral
+11-16 14:21:34.739   590 18449 I SDM     : DisplayBase::SetActiveConfig: Active configuration changed to: 0
+11-16 14:21:34.739   590 18449 I SDM     : StrategyImpl::SetIdleTimeoutMs: Idle timeout set to zero for command mode panels
+11-16 14:21:34.747   894  2683 I sensors-hal: [ssc_utils]get_qmi_debug_flag:244, support_qmi_debug : false
+11-16 14:21:31.332  1563  2000 I chatty  : uid=1000(system) ConnectivitySer identical 1 line
+11-16 14:21:34.345  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:21:34.759  1563  1599 I DisplayManagerService: Display device changed: DisplayDeviceInfo{"Built-in Screen": uniqueId="local:19260504575090817", 1080 x 2340, modeId 2, defaultModeId 2, supportedModes [{id=1, width=1080, height=2340, fps=90.0}, {id=2, width=1080, height=2340, fps=60.000004}], colorMode 0, supportedColorModes [0, 7, 9], HdrCapabilities HdrCapabilities{mSupportedHdrTypes=[2, 3], mMaxLuminance=500.0, mMaxAverageLuminance=500.0, mMinLuminance=0.0}, allmSupported false, gameContentTypeSupported false, density 440, 435.428 x 433.839 dpi, appVsyncOff 2333332, presDeadline 11500000, cutout DisplayCutout{insets=Rect(0, 136 - 0, 0) waterfall=Insets{left=0, top=0, right=0, bottom=0} boundingRect={Bounds=[Rect(0, 0 - 0, 0), Rect(0, 0 - 136, 136), Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0)]}}, touch INTERNAL, rotation 0, type INTERNAL, address {port=129, model=0x446d53ad64a0}, deviceProductInfo DeviceProductInfo{name=, manufacturerPnpId=QCM, productId=1, modelYear=null, manufactureDate=ManufactureDate{week=27, year=2006}, relativeAddress=null}, state ON, FLAG_DEFAULT_DISPLAY, FLAG_ROTATES_WITH_CONTENT, FLAG_SECURE, FLAG_SUPPORTS_PROTECTED_BUFFERS}
+11-16 14:21:34.760   590 18449 I SDM     : StrategyImpl::SetIdleTimeoutMs: Idle timeout set to zero for command mode panels
+11-16 14:21:34.778   894  1008 W ASH     : @ 3673.499: Unhandled msg ID 999: line 1277
+11-16 14:21:34.778   894  1008 E ASH     : @ 3673.499: No pb callback assigned
+11-16 14:21:34.778   894  1008 E ASH     : @ 3673.499: Nanopb error: callback failed:1588
+11-16 14:21:34.978 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:21:34.979 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:21:35.633 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:35.636 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:35.695  4946  4946 W android_main: type=1400 audit(0.0:15850): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:35.708  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:35.728  4946  4946 W android_main: type=1400 audit(0.0:15854): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:36.640 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:36.641 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:36.708  4946  4946 W android_main: type=1400 audit(0.0:15972): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:37.360  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:21:36.725  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:36.742  4946  4946 W android_main: type=1400 audit(0.0:15976): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:37.643 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:37.644 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:37.725  4946  4946 W android_main: type=1400 audit(0.0:16094): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:37.742  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:37.758  4946  4946 W android_main: type=1400 audit(0.0:16098): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:38.648 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:38.650 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:38.742  4946  4946 W android_main: type=1400 audit(0.0:16216): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:38.758  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:38.775  4946  4946 W android_main: type=1400 audit(0.0:16220): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:39.654 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:39.656 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:39.758  4946  4946 W android_main: type=1400 audit(0.0:16338): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:39.775  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:39.792  4946  4946 W android_main: type=1400 audit(0.0:16342): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:40.020 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:21:40.024 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:21:40.659 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:40.664 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:40.775  4946  4946 W android_main: type=1400 audit(0.0:16460): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:40.792  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:40.808  4946  4946 W android_main: type=1400 audit(0.0:16464): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:41.667 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:41.670 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:41.684  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"scroll2k","frames":506,"work_ms":[14.850,17.139,18.928,21.387],"interval_ms":[16.666,17.194,18.973,21.444],"jank":206,"budget_ms":11.11,"t":15522.2}
+11-16 14:21:41.684  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"scroll2k","frames":506,"build_ms":[0.36,0.69,1.94],"raster_ms":[5.51,6.98,9.46],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[4.61,6.82,8.50],"present_ms":[4.16,5.24,10.14],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.02,0.03,0.07],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[0.71,1.01,1.49],"paths":[1.22,1.63,2.33],"text":[0.22,0.35,0.75],"images":[0.00,0.00,0.00],"shadows":[0.49,0.73,1.03],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":15522.5}
+11-16 14:21:41.684  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"live2k","t":15522.5}
+11-16 14:21:41.788  4946  4946 W android_main: type=1400 audit(0.0:16580): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:41.805  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:41.822  4946  4946 W android_main: type=1400 audit(0.0:16584): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:42.036   588   628 D TimeStats: Dumping TimeStats as text
+11-16 14:21:42.125   588   628 D TimeStats: Cleared global stats
+11-16 14:21:42.125   588   628 D TimeStats: Cleared layer stats
+11-16 14:21:42.673 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:42.675 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:42.798  4946  4946 W android_main: type=1400 audit(0.0:16694): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:42.818  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:42.835  4946  4946 W android_main: type=1400 audit(0.0:16698): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:43.679 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:43.681 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:43.818  4946  4946 W android_main: type=1400 audit(0.0:16808): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:43.835  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:43.852  4946  4946 W android_main: type=1400 audit(0.0:16812): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:44.685 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:44.687 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:44.825  4946  4946 W android_main: type=1400 audit(0.0:16920): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:44.848  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:44.865  4946  4946 W android_main: type=1400 audit(0.0:16924): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:44.924  3090  3854 D TaskQueue: removing queue after quit safely success for task queue handler AWService
+11-16 14:21:45.026 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:21:45.027 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:21:45.692 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:45.694 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:45.828  4946  4946 W android_main: type=1400 audit(0.0:17034): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:45.848  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:45.865  4946  4946 W android_main: type=1400 audit(0.0:17038): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:46.699 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:46.704 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:46.842  4946  4946 W android_main: type=1400 audit(0.0:17150): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:46.858  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:46.872  4946  4946 W android_main: type=1400 audit(0.0:17154): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:47.707 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:47.709 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:47.848  4946  4946 W android_main: type=1400 audit(0.0:17266): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:47.865  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:47.882  4946  4946 W android_main: type=1400 audit(0.0:17270): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:48.712 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:48.714 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:48.855  4946  4946 W android_main: type=1400 audit(0.0:17382): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:48.875  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:48.892  4946  4946 W android_main: type=1400 audit(0.0:17386): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:49.675  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"live2k","frames":454,"work_ms":[17.517,19.596,20.501,39.910],"interval_ms":[17.569,19.648,20.557,39.980],"jank":314,"budget_ms":11.11,"t":23513.8}
+11-16 14:21:49.675  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"live2k","frames":454,"build_ms":[0.65,0.93,2.04],"raster_ms":[11.51,12.76,30.06],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.95,1.03,1.73],"present_ms":[4.26,5.12,10.62],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.02,0.03,0.09],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[1.44,1.70,3.67],"paths":[4.34,4.67,13.62],"text":[0.72,0.83,2.21],"images":[0.00,0.00,0.00],"shadows":[0.55,0.77,2.29],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":23514.0}
+11-16 14:21:49.676  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"storm2k","t":23514.0}
+11-16 14:21:49.717 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:49.719 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:49.868  4946  4946 W android_main: type=1400 audit(0.0:17492): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:49.895  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:49.925  4946  4946 W android_main: type=1400 audit(0.0:17496): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:50.040 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:21:50.041 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:21:50.232   588   628 D TimeStats: Dumping TimeStats as text
+11-16 14:21:50.316   588   628 D TimeStats: Cleared global stats
+11-16 14:21:50.316   588   628 D TimeStats: Cleared layer stats
+11-16 14:21:50.723 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:50.725 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:50.875  4946  4946 W android_main: type=1400 audit(0.0:17564): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:50.905  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:50.935  4946  4946 W android_main: type=1400 audit(0.0:17568): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:51.729 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:51.731 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:51.892  4946  4946 W android_main: type=1400 audit(0.0:17638): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:51.922  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:51.948  4946  4946 W android_main: type=1400 audit(0.0:17642): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:52.734 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:52.737 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:52.902  4946  4946 W android_main: type=1400 audit(0.0:17712): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:52.928  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:52.958  4946  4946 W android_main: type=1400 audit(0.0:17716): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:53.132  9997 10039 I eedh    : (REDACTED) Probing voice interaction service recovery for condition(%s).
+11-16 14:21:53.133  9997 10039 I eedh    : (REDACTED) Skipping voice interaction service recovery(%s) for condition(%s).
+11-16 14:21:53.133  9997 10039 I eedh    : (REDACTED) Skipping voice interaction service recovery(%s) for condition(%s).
+11-16 14:21:53.741 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:53.743 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:53.928  4946  4946 W android_main: type=1400 audit(0.0:17784): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:53.955  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:53.982  4946  4946 W android_main: type=1400 audit(0.0:17788): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:54.746 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:54.749 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:54.932  4946  4946 W android_main: type=1400 audit(0.0:17860): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:54.958  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:54.985  4946  4946 W android_main: type=1400 audit(0.0:17864): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:55.042 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:21:55.045 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:21:55.752 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:55.755 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:55.952  4946  4946 W android_main: type=1400 audit(0.0:17936): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:55.978  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:56.005  4946  4946 W android_main: type=1400 audit(0.0:17940): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:56.758 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:56.761 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:56.968  4946  4946 W android_main: type=1400 audit(0.0:18010): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:56.995  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:21:57.022  4946  4946 W android_main: type=1400 audit(0.0:18014): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:21:57.639   900   937 D rlsservice: MonitorDisplayStatus client num 1, display status 1, sensor status 0
+11-16 14:21:57.682  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"storm2k","frames":293,"work_ms":[27.021,28.909,32.163,61.094],"interval_ms":[27.082,28.969,32.221,61.151],"jank":292,"budget_ms":11.11,"t":31520.1}
+11-16 14:21:57.682  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"storm2k","frames":293,"build_ms":[0.94,1.01,3.36],"raster_ms":[22.37,23.35,55.65],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.95,1.01,1.15],"present_ms":[2.77,3.57,7.91],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.02,0.02,0.05],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[3.50,3.62,5.07],"paths":[8.65,9.22,24.59],"text":[0.85,0.94,2.09],"images":[0.00,0.00,0.00],"shadows":[1.99,2.08,8.77],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":31520.2}
+11-16 14:21:57.682  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load20k","t":31520.2}
+11-16 14:21:57.767 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:57.771 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:58.221   588   628 D TimeStats: Dumping TimeStats as text
+11-16 14:21:58.313   588   628 D TimeStats: Cleared global stats
+11-16 14:21:58.313   588   628 D TimeStats: Cleared layer stats
+11-16 14:21:58.778 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:58.781 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:59.673  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load20k","frames":1,"work_ms":[46.172,46.172,46.172,46.172],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":33511.1}
+11-16 14:21:59.673  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load20k","frames":1,"build_ms":[3.93,3.93,3.93],"raster_ms":[37.65,37.65,37.65],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.87,0.87,0.87],"present_ms":[3.71,3.71,3.71],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.02,0.02,0.02],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[7.05,7.05,7.05],"paths":[15.03,15.03,15.03],"text":[2.40,2.40,2.40],"images":[0.00,0.00,0.00],"shadows":[3.79,3.79,3.79],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":33511.2}
+11-16 14:21:59.673  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"idle20k","t":33511.2}
+11-16 14:21:59.787 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:21:59.791 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:21:59.889   588   628 D TimeStats: Dumping TimeStats as text
+11-16 14:21:59.977   588   628 D TimeStats: Cleared global stats
+11-16 14:21:59.977   588   628 D TimeStats: Cleared layer stats
+11-16 14:22:00.077 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:00.080 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:00.180  9997 10352 V ClearcutMetricXmitter: Transmission is done.
+11-16 14:22:00.332 14724 14724 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:22:00.332 14724 14724 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:22:00.795 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:00.797 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:01.673  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"idle20k","frames":1,"work_ms":[0.297,0.297,0.297,0.297],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":35511.5}
+11-16 14:22:01.673  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"idle20k","frames":1,"build_ms":[0.21,0.21,0.21],"raster_ms":[0.01,0.01,0.01],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.00,0.00,0.00],"present_ms":[0.00,0.00,0.00],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.08,0.08,0.08],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[0.00,0.00,0.00],"paths":[0.00,0.00,0.00],"text":[0.00,0.00,0.00],"images":[0.00,0.00,0.00],"shadows":[0.00,0.00,0.00],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":35511.6}
+11-16 14:22:01.673  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"tick20k","t":35511.6}
+11-16 14:22:01.685  4946  4946 W android_main: type=1400 audit(0.0:18066): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:01.685  4946  4946 W android_main: type=1400 audit(0.0:18067): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:01.802 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:01.805 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:02.017   588   629 D TimeStats: Dumping TimeStats as text
+11-16 14:22:02.108   588   629 D TimeStats: Cleared global stats
+11-16 14:22:02.108   588   629 D TimeStats: Cleared layer stats
+11-16 14:22:02.673  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"tick20k","frames":1,"work_ms":[19.214,19.214,19.214,19.214],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":36511.6}
+11-16 14:22:02.673  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"tick20k","frames":1,"build_ms":[1.29,1.29,1.29],"raster_ms":[10.83,10.83,10.83],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[1.04,1.04,1.04],"present_ms":[6.01,6.01,6.01],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.04,0.04,0.04],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[1.19,1.19,1.19],"paths":[5.22,5.22,5.22],"text":[0.78,0.78,0.78],"images":[0.00,0.00,0.00],"shadows":[0.05,0.05,0.05],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":36511.7}
+11-16 14:22:02.673  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"jump20k","t":36511.7}
+11-16 14:22:02.735  4946  4946 W android_main: type=1400 audit(0.0:18068): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:02.735  4946  4946 W android_main: type=1400 audit(0.0:18069): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:02.811 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:02.815 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:03.191   588   629 D TimeStats: Dumping TimeStats as text
+11-16 14:22:03.280   588   629 D TimeStats: Cleared global stats
+11-16 14:22:03.280   588   629 D TimeStats: Cleared layer stats
+11-16 14:22:03.673  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"jump20k","frames":1,"work_ms":[68.250,68.250,68.250,68.250],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":37511.8}
+11-16 14:22:03.673  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"jump20k","frames":1,"build_ms":[6.63,6.63,6.63],"raster_ms":[56.25,56.25,56.25],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.91,0.91,0.91],"present_ms":[4.41,4.41,4.41],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.05,0.05,0.05],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[11.31,11.31,11.31],"paths":[23.66,23.66,23.66],"text":[3.06,3.06,3.06],"images":[0.00,0.00,0.00],"shadows":[5.54,5.54,5.54],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":37511.9}
+11-16 14:22:03.673  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"scroll20k","t":37511.9}
+11-16 14:22:03.682  4946  4946 W android_main: type=1400 audit(0.0:18070): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:03.705  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 4 lines
+11-16 14:22:03.705  4946  4946 W android_main: type=1400 audit(0.0:18075): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:03.714 14799 14799 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:22:03.714 14799 14799 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:22:03.821 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:03.824 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:04.290   588   629 D TimeStats: Dumping TimeStats as text
+11-16 14:22:04.375   588   629 D TimeStats: Cleared global stats
+11-16 14:22:04.375   588   629 D TimeStats: Cleared layer stats
+11-16 14:22:04.688  4946  4946 W android_main: type=1400 audit(0.0:18192): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:04.705  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 2 lines
+11-16 14:22:04.705  4946  4946 W android_main: type=1400 audit(0.0:18195): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:04.714 15222 15222 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:22:04.714 15222 15222 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:22:04.722  4946  4946 W android_main: type=1400 audit(0.0:18196): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:04.827 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:04.829 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:05.104 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:05.105 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:05.705  4946  4946 W android_main: type=1400 audit(0.0:18314): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:05.722  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:05.738  4946  4946 W android_main: type=1400 audit(0.0:18318): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:05.832 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:05.833 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:06.722  4946  4946 W android_main: type=1400 audit(0.0:18436): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:06.738  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:06.752  4946  4946 W android_main: type=1400 audit(0.0:18440): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:06.837 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:06.839 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:07.738  4946  4946 W android_main: type=1400 audit(0.0:18558): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:07.755  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:07.772  4946  4946 W android_main: type=1400 audit(0.0:18562): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:07.843 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:07.845 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:08.755  4946  4946 W android_main: type=1400 audit(0.0:18680): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:08.768  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:08.788  4946  4946 W android_main: type=1400 audit(0.0:18684): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:08.848 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:08.849 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:09.772  4946  4946 W android_main: type=1400 audit(0.0:18802): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:09.785  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:09.805  4946  4946 W android_main: type=1400 audit(0.0:18806): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:09.853 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:09.856 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:10.122 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:10.124 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:10.788  4946  4946 W android_main: type=1400 audit(0.0:18924): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:10.802  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:10.825  4946  4946 W android_main: type=1400 audit(0.0:18928): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:10.859 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:10.861 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:11.684  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"scroll20k","frames":481,"work_ms":[11.265,14.449,15.610,18.976],"interval_ms":[16.667,17.272,17.468,19.025],"jank":236,"budget_ms":11.11,"t":45522.6}
+11-16 14:22:11.684  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"scroll20k","frames":481,"build_ms":[0.37,0.70,0.99],"raster_ms":[5.46,7.29,9.64],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[1.02,1.31,2.21],"present_ms":[4.25,5.34,9.95],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.03,0.03,0.06],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[0.73,1.08,1.46],"paths":[1.22,1.74,2.07],"text":[0.22,0.32,0.41],"images":[0.00,0.00,0.00],"shadows":[0.51,0.75,1.11],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":45522.8}
+11-16 14:22:11.684  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"live20k","t":45522.9}
+11-16 14:22:11.805  4946  4946 W android_main: type=1400 audit(0.0:19044): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:11.818  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:11.838  4946  4946 W android_main: type=1400 audit(0.0:19048): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:11.865 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:11.867 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:12.061   588   629 D TimeStats: Dumping TimeStats as text
+11-16 14:22:12.153   588   629 D TimeStats: Cleared global stats
+11-16 14:22:12.153   588   629 D TimeStats: Cleared layer stats
+11-16 14:22:12.818  4946  4946 W android_main: type=1400 audit(0.0:19156): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:12.835  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:12.852  4946  4946 W android_main: type=1400 audit(0.0:19160): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:12.870 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:12.874 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:13.838  4946  4946 W android_main: type=1400 audit(0.0:19272): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:13.855  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 2 lines
+11-16 14:22:13.855  4946  4946 W android_main: type=1400 audit(0.0:19275): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:13.876 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:13.880 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:13.875  4946  4946 W android_main: type=1400 audit(0.0:19276): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:14.862  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:14.862  4946  4946 W android_main: type=1400 audit(0.0:19391): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:14.882 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:14.882  4946  4946 W android_main: type=1400 audit(0.0:19392): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:14.885 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:15.123 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:15.124 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:15.848  4946  4946 W android_main: type=1400 audit(0.0:19502): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:15.865  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:15.882  4946  4946 W android_main: type=1400 audit(0.0:19506): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:15.888 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:15.889 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:16.868  4946  4946 W android_main: type=1400 audit(0.0:19614): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:16.885  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 2 lines
+11-16 14:22:16.885  4946  4946 W android_main: type=1400 audit(0.0:19617): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:16.893 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:16.895 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:16.905  4946  4946 W android_main: type=1400 audit(0.0:19618): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:17.878  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 1 line
+11-16 14:22:17.878  4946  4946 W android_main: type=1400 audit(0.0:19731): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:17.898 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:17.895  4946  4946 W android_main: type=1400 audit(0.0:19732): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:17.895  4946  4946 W android_main: type=1400 audit(0.0:19733): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:17.902 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:17.915  4946  4946 W android_main: type=1400 audit(0.0:19734): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:18.888  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 1 line
+11-16 14:22:18.888  4946  4946 W android_main: type=1400 audit(0.0:19847): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:18.905 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:18.908 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:18.908  4946  4946 W android_main: type=1400 audit(0.0:19848): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:18.908  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 1 line
+11-16 14:22:18.928  4946  4946 W android_main: type=1400 audit(0.0:19850): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:19.687  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"live20k","frames":453,"work_ms":[17.537,19.767,21.277,39.676],"interval_ms":[17.590,19.799,21.331,39.742],"jank":319,"budget_ms":11.11,"t":53525.6}
+11-16 14:22:19.687  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"live20k","frames":453,"build_ms":[0.66,0.93,2.73],"raster_ms":[11.61,12.82,30.58],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.94,1.04,1.47],"present_ms":[4.24,5.14,8.80],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.02,0.03,0.07],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[1.45,1.70,3.71],"paths":[4.38,4.76,13.56],"text":[0.74,0.84,1.94],"images":[0.00,0.00,0.00],"shadows":[0.54,0.76,2.36],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":53525.8}
+11-16 14:22:19.687  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"storm20k","t":53525.8}
+11-16 14:22:19.895  4946  4946 W android_main: type=1400 audit(0.0:19952): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:19.895  4946  4946 W android_main: type=1400 audit(0.0:19953): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:19.911 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:19.912 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:19.918  4946  4946 W android_main: type=1400 audit(0.0:19954): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:19.918  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 1 line
+11-16 14:22:19.945  4946  4946 W android_main: type=1400 audit(0.0:19956): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:20.124 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:20.125 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:20.321   588   629 D TimeStats: Dumping TimeStats as text
+11-16 14:22:20.401   588   629 D TimeStats: Cleared global stats
+11-16 14:22:20.401   588   629 D TimeStats: Cleared layer stats
+11-16 14:22:20.898  4946  4946 W android_main: type=1400 audit(0.0:20024): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:20.898  4946  4946 W android_main: type=1400 audit(0.0:20025): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:20.916 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:20.918 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:20.925  4946  4946 W android_main: type=1400 audit(0.0:20026): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:20.928  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 1 line
+11-16 14:22:20.955  4946  4946 W android_main: type=1400 audit(0.0:20028): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:21.923 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:21.922  4946  4946 W android_main: type=1400 audit(0.0:20096): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:21.925 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:21.922  4946  4946 W android_main: type=1400 audit(0.0:20097): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:21.955  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 2 lines
+11-16 14:22:21.982  4946  4946 W android_main: type=1400 audit(0.0:20100): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:22.627  3090  4875 I WS1_AfwUtils: Hub app user id: 0
+11-16 14:22:22.629  3090  4875 I WS1_AfwUtils: isWorkHubDiscoverable - false
+11-16 14:22:22.632  3090  4875 I WS1_SDKDataModelImpl: Returning in memory app token data!
+11-16 14:22:22.634  3090  4879 I DynDCD  : EnginePayloadProvider.cpp -> Loading Previously stored payload
+11-16 14:22:22.635  3090  4879 I DynDCD  : EnginePayloadProvider.cpp -> Trying to fetch rules from the Server
+11-16 14:22:22.635  3090  4879 I WS1_DynDCD_DynamicCDD: Trying to fetch rules from default source
+11-16 14:22:22.638  3090  4879 I WS1_AfwUtils: Hub app user id: 0
+11-16 14:22:22.639  3090  4879 I WS1_AfwUtils: isWorkHubDiscoverable - false
+11-16 14:22:22.641  3090  4879 I WS1_BaseMessage: Sending CddNetworkMessage to https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R
+11-16 14:22:22.642  3090  4879 I WS1     : Setting Timeout Values, Connection:30000, SO Timeout:30000
+11-16 14:22:22.644  3090  4879 I WS1_AppPermissionUtil: Getting signature for com.airwatch.androidagent
+11-16 14:22:22.648  3090  4879 I WS1_AppPermissionUtil: App access allowed with 0 for com.airwatch.androidagent
+11-16 14:22:22.652  3090  4879 I WS1_CorrelationLog: CorrelationID:45050656-54c9-43a6-0001-611142222652  for connection https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R
+11-16 14:22:22.661 20868 20868 I EuiccGoogle: [2] EuiccServiceImpl.onDestroy: onDestroy: EuiccService on destroy.
+11-16 14:22:22.663 20868 20868 I EuiccGoogle: [2] EuiccServiceImpl.disposeEuiccCard: disposeEuiccCard.
+11-16 14:22:22.702  3090  4879 I WS1_ExtendedX509TrustM: TrustMaterialAvailable, check the trust.
+11-16 14:22:22.706  3090  4879 I WS1_ADPublicKeyManager: sdk-config.data.workspaceone-gov.com is trusted by default
+11-16 14:22:22.706  3090  4879 I WS1_PinBasedTrustM: Key match status for sdk-config.data.workspaceone-gov.com/52.61.28.194: true
+11-16 14:22:22.707  3090  4879 I WS1_ExtendedX509TrustM: checkServerTrusted: Server certificate pin match for sdk-config.data.workspaceone-gov.com/52.61.28.194
+11-16 14:22:22.755  3090  4879 I WS1_BaseMessage: Response code for https://sdk-config.data.workspaceone-gov.com/api/v1/sdk/compliance/rules/an5r0i5payl0adg3n3rat0R 200
+11-16 14:22:22.756  3090  4879 I WS1     : Response code is: 200
+11-16 14:22:22.760  3090  4879 I WS1_DynDCD_DynamicCDD: Successfully fetched payload rules from WS1 FedRAMP domain
+11-16 14:22:22.760  3090  4879 I DynDCD  : EnginePayloadProvider.cpp -> Server payload is older than bundled payload.
+11-16 14:22:22.760  3090  4879 I DynDCD  : EnginePayloadProvider.cpp -> Bundled Payload last modified time: 1603812484
+11-16 14:22:22.760  3090  4879 I DynDCD  : EnginePayloadProvider.cpp -> Server Payload last received time: 1588786684
+11-16 14:22:22.771  3090  4879 I DynDCD  : Script -> Starting Dynamic Jail Break Check
+11-16 14:22:22.771  3090  4879 I DynDCD  : Script -> Running Checks
+11-16 14:22:22.873  3090  4879 I DynDCD  : Script -> Super User Scan Check : true
+11-16 14:22:22.873  3090  4879 I DynDCD  : Script -> Writable File Paths Check : true
+11-16 14:22:22.928 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:22.939 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:22.938  4946  4946 W android_main: type=1400 audit(0.0:20182): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:22.938  4946  4946 W android_main: type=1400 audit(0.0:20183): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:22.948  3090  4879 I DynDCD  : Script -> Installed Packages Check : true
+11-16 14:22:22.965  4946  4946 W android_main: type=1400 audit(0.0:20184): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:22.965  4946  4946 W android_main: type=1400 audit(0.0:20185): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:22.985 23100 23100 W sh      : type=1400 audit(0.0:20186): avc: denied { read } for name="/" dev="dm-8" ino=2 scontext=u:r:untrusted_app:s0:c5,c257,c512,c768 tcontext=u:object_r:rootfs:s0 tclass=dir permissive=0 app=com.airwatch.androidagent
+11-16 14:22:23.099  3090  4879 I DynDCD  : Script -> Super User File Path Check : true
+11-16 14:22:23.150  3090  4879 I DynDCD  : Script -> Super User Check : true
+11-16 14:22:23.155  3090  4879 I DynDCD  : Script -> Xposed Check : true
+11-16 14:22:23.190  3090  4879 I DynDCD  : Script -> Malicious Files Check : true
+11-16 14:22:23.211  3090  4879 I DynDCD  : Script -> Ro Secure Flag Check : true
+11-16 14:22:23.211  3090  4879 I DynDCD  : Script -> Magisk String Check : true
+11-16 14:22:23.211  3090  4879 D DynDCD  : Script -> [{"id":"BundledRules_SDK_20201027"},{"name":"superUserScan","passed":true},{"name":"writableFilePaths","passed":true},{"name":"installedPackages","passed":true},{"name":"superUserFilePath","passed":true},{"name":"superUser","passed":true},{"name":"xposed","passed":true},{"name":"maliciousFiles","passed":true},{"name":"roSecureFlag","passed":true},{"name":"magisk","passed":true},{"failedReasonCodes":[]}]
+11-16 14:22:23.213  3090  4879 I DynDCD  : EngineDelegateImpl.cpp -> Compromised detection successfully completed
+11-16 14:22:23.214  3090  4879 I WS1_DynDCD_DynamicCDD: Dynamic compromise detection is a success for rulesId: BundledRules_SDK_20201027!
+11-16 14:22:23.216  3090  3090 E WS1_DetailsLog: runDynamicCompromiseDetection passed SUCCESS
+11-16 14:22:23.216  3090  4879 I WS1_AirWatchApp: AW SDK, ENABLE_SDK_FRIDA_DETECTION: false , ENABLE_SDK_ROOT_DETECTION: false
+11-16 14:22:23.217  3090  4879 I WS1_TamperCheckService: Starting tamper checker!
+11-16 14:22:23.217  3090  4879 I NativeMain: Finding SDK Logger class!
+11-16 14:22:23.218  3090  4879 W NativeMain: SDK Logger class is invalid, logging via android logger!
+11-16 14:22:23.218  3090  4879 D NativeMain: tamper check initiated
+11-16 14:22:23.266  3090  4104 D WM-SystemJobScheduler: Scheduling work ID 0fabb5fb-2f18-41ce-8026-cd6adeae80b2Job ID 1013244
+11-16 14:22:23.270  3090  4104 D WM-GreedyScheduler: Starting work for 0fabb5fb-2f18-41ce-8026-cd6adeae80b2
+11-16 14:22:23.273  3090  3090 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=0fabb5fb-2f18-41ce-8026-cd6adeae80b2, generation=0)
+11-16 14:22:23.276  3090  4104 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=0fabb5fb-2f18-41ce-8026-cd6adeae80b2, generation=0)
+11-16 14:22:23.278  3090  4104 D WM-Processor: Work WorkGenerationalId(workSpecId=0fabb5fb-2f18-41ce-8026-cd6adeae80b2, generation=0) is already enqueued for processing
+11-16 14:22:23.282  3090  4104 W WS1_SE_SmpWrkFct_WV8VHC: com.airwatch.app.TamperCheckerWorker not resolved in SamplingWorkerFactory
+11-16 14:22:23.283  3090  4104 W WS1_IntentProcessorWorkerFct: com.airwatch.app.TamperCheckerWorker not resolved
+11-16 14:22:23.283  3090  4104 E WS1_TaskWorkerFactory: Worker class:com.airwatch.app.TamperCheckerWorker not resolved in TaskWorkerFactory
+11-16 14:22:23.286  3090  3090 D WM-WorkerWrapper: Starting work for com.airwatch.app.TamperCheckerWorker
+11-16 14:22:23.294  1064  1064 I keystore: del USRPKEY_bv03pFfpwpryUSFVFmQwvw== 10261
+11-16 14:22:23.295  1064  1064 I keystore: del USRSKEY_bv03pFfpwpryUSFVFmQwvw== 10261
+11-16 14:22:23.295  1064  1064 I keystore: del USRCERT_bv03pFfpwpryUSFVFmQwvw== 10261
+11-16 14:22:23.295  1064  1064 I keystore: del CACERT_bv03pFfpwpryUSFVFmQwvw== 10261
+11-16 14:22:23.298   549   569 D DrmLibTime: got the req here! ret=0
+11-16 14:22:23.298   549   569 D DrmLibTime: command id, time_cmd_id = 770
+11-16 14:22:23.298   549   569 D DrmLibTime: time_getutcsec starts!
+11-16 14:22:23.298   549   569 D DrmLibTime: QSEE Time Listener: time_getutcsec
+11-16 14:22:23.298   549   569 D DrmLibTime: QSEE Time Listener: get_utc_seconds
+11-16 14:22:23.298   549   569 D DrmLibTime: QSEE Time Listener: time_get_modem_time
+11-16 14:22:23.298   549   569 D DrmLibTime: QSEE Time Listener: Checking if ATS_MODEM is set or not.
+11-16 14:22:23.298   549   569 D QC-time-services: Lib:time_genoff_operation: pargs->base = 13
+11-16 14:22:23.298   549   569 D QC-time-services: Lib:time_genoff_operation: pargs->operation = 2
+11-16 14:22:23.298   549   569 D QC-time-services: Lib:time_genoff_operation: pargs->ts_val = 0
+11-16 14:22:23.298   549   569 D QC-time-services: Lib:time_genoff_operation: Send to server  passed!!
+11-16 14:22:23.298   761   930 D QC-time-services: Daemon: Connection accepted:time_genoff
+11-16 14:22:23.298   761 23191 D QC-time-services: Daemon:Received base = 13, unit = 1, operation = 2,value = 0
+11-16 14:22:23.298   761 23191 D QC-time-services: Daemon:genoff_opr: Base = 13, val = 0, operation = 2
+11-16 14:22:23.298   761 23191 D QC-time-services: offset is: 1 for base: 13
+11-16 14:22:23.299   549   569 E QC-time-services: Receive Passed == base = 13, unit = 1, operation = 2, result = 0
+11-16 14:22:23.299   549   569 D DrmLibTime: QSEE Time Listener: ATS_MODEM is set. Try to retrieve it.
+11-16 14:22:23.299   761   930 E QC-time-services: Daemon: Time-services: Waiting to acceptconnection
+11-16 14:22:23.299   761   930 D QC-time-services: Daemon: Connection accepted:time_genoff
+11-16 14:22:23.299   761 23192 D QC-time-services: Daemon:Received base = 13, unit = 1, operation = 1,value = 0
+11-16 14:22:23.299   761 23192 D QC-time-services: Daemon:genoff_opr: Base = 13, val = 0, operation = 1
+11-16 14:22:23.299   761 23192 D QC-time-services: Daemon: genoff get for 13
+11-16 14:22:23.299   761 23192 D QC-time-services: Daemon:Value read from QTimer mseconds = 3722020
+11-16 14:22:23.299   761 23192 D QC-time-services: Daemon:Value read from RTC mseconds on boot = 139302101000
+11-16 14:22:23.299   761 23192 D QC-time-services: Daemon:Value read from QTimer mseconds = 3722020
+11-16 14:22:23.299   761 23192 D QC-time-services: Daemon:Value read from generic offset = 1634329500731
+11-16 14:22:23.299   761 23192 D QC-time-services: Daemon:Delta read on boot mseconds = 139302095275
+11-16 14:22:23.299   761 23192 D QC-time-services: Daemon:Final Time = 1773635318026
+11-16 14:22:23.299   549   569 D DrmLibTime: QSEE Time Listener: Time GenOff - seconds: 1773635318
+11-16 14:22:23.299   549   569 D DrmLibTime: time_getutcsec returns 0, sec = 1773635318; nsec = 0
+11-16 14:22:23.299   549   569 D DrmLibTime: time_getutcsec finished! 
+11-16 14:22:23.300   549   569 D DrmLibTime: iotcl_continue_command finished! and return 0 
+11-16 14:22:23.300   549   569 D DrmLibTime: before calling ioctl to read the next time_cmd
+11-16 14:22:23.306   761   930 E QC-time-services: Daemon: Time-services: Waiting to acceptconnection
+11-16 14:22:23.314  3090  4111 I WS1_TamperChecker: CompDetectionResponse is 14
+11-16 14:22:23.314  3090  4111 I WS1_TamperChecker: DI status=false
+11-16 14:22:23.314  3090  4111 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:22:23.315  3090  4111 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:22:23.315  3090  4111 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 14:22:23.315  3090  4111 I WS1_TamperChecker: Root status=false
+11-16 14:22:23.315  3090  4111 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:22:23.316  3090  4111 I WS1_TamperCheckService: Beginning of tamper checker operation!
+11-16 14:22:23.317  3090  3936 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=0fabb5fb-2f18-41ce-8026-cd6adeae80b2, tags={ com.airwatch.app.TamperCheckerWorker } ]
+11-16 14:22:23.318  3090  3090 D WM-Processor: Processor 0fabb5fb-2f18-41ce-8026-cd6adeae80b2 executed; reschedule = false
+11-16 14:22:23.318  3090  3090 D WM-SystemJobService: 0fabb5fb-2f18-41ce-8026-cd6adeae80b2 executed on JobScheduler
+11-16 14:22:23.323  3090  3936 D WM-GreedyScheduler: Cancelling work ID 0fabb5fb-2f18-41ce-8026-cd6adeae80b2
+11-16 14:22:23.440  3090 23193 I WS1_TamperChecker: CompDetectionResponse is 20
+11-16 14:22:23.440  3090 23193 I WS1_TamperChecker: DI status=false
+11-16 14:22:23.441  3090 23193 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:22:23.441  3090 23193 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:22:23.442  3090 23193 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 14:22:23.442  3090 23193 I WS1_TamperChecker: Root status=false
+11-16 14:22:23.442  3090 23193 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:22:23.711  3090 23182 I WS1_TamperChecker: CompDetectionResponse is 18
+11-16 14:22:23.711  3090 23182 I WS1_TamperChecker: DI status=false
+11-16 14:22:23.711  3090 23182 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:22:23.711  3090 23182 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:22:23.711  3090 23182 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 14:22:23.711  3090 23182 I WS1_TamperChecker: Root status=false
+11-16 14:22:23.711  3090 23182 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:22:23.807  1064  1064 I keystore: del USRPKEY_bv03pFfpwpryUSFVFmQwvw== 10261
+11-16 14:22:23.808  1064  1064 I keystore: del USRCERT_bv03pFfpwpryUSFVFmQwvw== 10261
+11-16 14:22:23.808  1064  1064 I keystore: del CACERT_bv03pFfpwpryUSFVFmQwvw== 10261
+11-16 14:22:23.809  3090 23181 I WS1_TamperChecker: CompDetectionResponse is 22
+11-16 14:22:23.810  3090 23181 I WS1_TamperChecker: DI status=false
+11-16 14:22:23.810  3090 23181 I WS1_TamperChecker: At launch: Root status=false
+11-16 14:22:23.811  3090 23181 I WS1_TamperChecker: At post-launch: Root status=false
+11-16 14:22:23.811  3090 23181 I WS1_TamperChecker: Bootloader tamper status=false
+11-16 14:22:23.811  3090 23181 I WS1_TamperChecker: Root status=false
+11-16 14:22:23.812  3090 23181 W WS1_SysUtil: There is an error while reading androidboot.flash.locked
+11-16 14:22:23.946 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:23.945  4946  4946 W android_main: type=1400 audit(0.0:20267): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:23.949 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:23.945  4946  4946 W android_main: type=1400 audit(0.0:20268): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:23.975  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 2 lines
+11-16 14:22:24.002  4946  4946 W android_main: type=1400 audit(0.0:20271): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:24.954 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:24.957 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:24.968  4946  4946 W android_main: type=1400 audit(0.0:20339): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:25.005  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:25.035  4946  4946 W android_main: type=1400 audit(0.0:20343): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:25.126 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:25.127 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:25.960 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:25.962 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:25.972  4946  4946 W android_main: type=1400 audit(0.0:20409): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:26.002  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:26.028  4946  4946 W android_main: type=1400 audit(0.0:20413): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:26.966 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:26.968 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:26.978  4946  4946 W android_main: type=1400 audit(0.0:20481): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:27.008  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:27.038  4946  4946 W android_main: type=1400 audit(0.0:20485): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:27.488  2425  2425 D DeviceStatisticsService: chargerType=2 batteryLevel=78 totalBatteryCapacity=4038400
+11-16 14:22:27.488  2425  2425 D DeviceInfoHidlClient: getPowerInfoSupportStatus()=1
+11-16 14:22:27.488  2425  2425 D DeviceInfoHidlClient: isRadioOn()=true
+11-16 14:22:27.488  2425  2425 I DeviceInfoHidlClient: isPowerInfoNeverSent=false batteryLevel=78 batteryLevelIndex=2 chargingMode=2 totalCapacity=4038400 powerSaveMode=false
+11-16 14:22:22.589  1563  2000 I chatty  : uid=1000(system) ConnectivitySer identical 15 lines
+11-16 14:22:25.603  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:22:27.495  2050  7946 D PowerUI : can't show warning due to - plugged: true status unknown: false
+11-16 14:22:27.640   900   937 D rlsservice: MonitorDisplayStatus client num 1, display status 1, sensor status 0
+11-16 14:22:27.698  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"storm20k","frames":278,"work_ms":[28.205,30.505,35.556,76.050],"interval_ms":[28.269,30.566,35.617,76.188],"jank":277,"budget_ms":11.11,"t":61536.6}
+11-16 14:22:27.698  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"storm20k","frames":278,"build_ms":[0.94,1.02,3.36],"raster_ms":[23.32,24.40,66.68],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.95,1.02,1.48],"present_ms":[2.94,3.90,9.94],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.02,0.02,0.08],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[3.57,3.68,5.48],"paths":[9.28,9.87,30.98],"text":[0.89,0.97,3.04],"images":[0.00,0.00,0.00],"shadows":[2.03,2.13,8.86],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":61536.7}
+11-16 14:22:27.698  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"load2k-thermal","t":61536.7}
+11-16 14:22:27.972 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:27.975 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:28.188   588   628 D TimeStats: Dumping TimeStats as text
+11-16 14:22:28.278   588   628 D TimeStats: Cleared global stats
+11-16 14:22:28.278   588   628 D TimeStats: Cleared layer stats
+11-16 14:22:28.629  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:22:28.981 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:28.986 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:29.595 20923 20923 W TimedProcessReaper: Current importance is: 400
+11-16 14:22:29.595 20923 20923 W TimedProcessReaper: Killing process to refresh configuration
+11-16 14:22:29.595 20923 20923 I Process : Sending signal. PID: 20923 SIG: 9
+11-16 14:22:29.633  1563  3458 I ActivityManager: Process com.google.android.apps.nbu.files (pid 20923) has died: cch+45 CEM 
+11-16 14:22:29.635   769   769 I Zygote  : Process 20923 exited due to signal 9 (Killed)
+11-16 14:22:29.640  1563  1615 I libprocessgroup: Successfully killed process cgroup uid 10190 pid 20923 in 6ms
+11-16 14:22:29.674  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"load2k-thermal","frames":1,"work_ms":[51.277,51.277,51.277,51.277],"interval_ms":[0.000,0.000,0.000,0.000],"jank":0,"budget_ms":11.11,"t":63512.6}
+11-16 14:22:29.674  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"load2k-thermal","frames":1,"build_ms":[8.51,8.51,8.51],"raster_ms":[37.54,37.54,37.54],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.93,0.93,0.93],"present_ms":[4.29,4.29,4.29],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.02,0.02,0.02],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[7.07,7.07,7.07],"paths":[15.41,15.41,15.41],"text":[2.01,2.01,2.01],"images":[0.00,0.00,0.00],"shadows":[3.74,3.74,3.74],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":63512.7}
+11-16 14:22:29.674  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"phase","phase":"thermal","t":63512.7}
+11-16 14:22:29.692  4946  4946 W android_main: type=1400 audit(0.0:20535): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:29.708  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:29.728  4946  4946 W android_main: type=1400 audit(0.0:20539): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:29.991 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:29.992 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:30.087   588   628 D TimeStats: Dumping TimeStats as text
+11-16 14:22:30.130 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:30.132 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:30.168   588   628 D TimeStats: Cleared global stats
+11-16 14:22:30.168   588   628 D TimeStats: Cleared layer stats
+11-16 14:22:30.538 24630 24630 W AdrenoUtils: <ReadGpuID_from_sysfs:197>: Failed to open /sys/class/kgsl/kgsl-3d0/gpu_model
+11-16 14:22:30.539 24630 24630 W AdrenoUtils: <ReadGpuID:221>: Failed to read chip ID from gpu_model. Fallback to use the GSL path
+11-16 14:22:30.698  4946  4946 W android_main: type=1400 audit(0.0:20649): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:30.715  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:30.735  4946  4946 W android_main: type=1400 audit(0.0:20653): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:30.997 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:30.997 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:31.648  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:22:31.718  4946  4946 W android_main: type=1400 audit(0.0:20763): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:31.738  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:31.752  4946  4946 W android_main: type=1400 audit(0.0:20767): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:31.999 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:32.001 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:32.735  4946  4946 W android_main: type=1400 audit(0.0:20875): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:32.752  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:32.772  4946  4946 W android_main: type=1400 audit(0.0:20879): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:33.005 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:33.012 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:33.752  4946  4946 W android_main: type=1400 audit(0.0:20987): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:33.765  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:33.782  4946  4946 W android_main: type=1400 audit(0.0:20991): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:34.016 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:34.021 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:34.755  4946  4946 W android_main: type=1400 audit(0.0:21101): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:34.775  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:34.792  4946  4946 W android_main: type=1400 audit(0.0:21105): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:35.024 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:35.025 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:35.131 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:35.132 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:35.723 21715 21790 I gle.android.gm: Explicit concurrent copying GC freed 180(68KB) AllocSpace objects, 0(0B) LOS objects, 50% free, 9547KB/18MB, paused 146us total 106.532ms
+11-16 14:22:35.775  4946  4946 W android_main: type=1400 audit(0.0:21215): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:35.792  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:35.812  4946  4946 W android_main: type=1400 audit(0.0:21219): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:36.030 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:36.032 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:36.778  4946  4946 W android_main: type=1400 audit(0.0:21331): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:36.798  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:36.818  4946  4946 W android_main: type=1400 audit(0.0:21335): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:37.035 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:37.038 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:37.795  4946  4946 W android_main: type=1400 audit(0.0:21445): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:37.812  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:37.828  4946  4946 W android_main: type=1400 audit(0.0:21449): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:38.041 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:38.042 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:38.812  4946  4946 W android_main: type=1400 audit(0.0:21559): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:38.828  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:38.845  4946  4946 W android_main: type=1400 audit(0.0:21563): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:39.046 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:39.047 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:39.828  4946  4946 W android_main: type=1400 audit(0.0:21675): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:39.845  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:39.862  4946  4946 W android_main: type=1400 audit(0.0:21679): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:40.050 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:40.051 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:40.145 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:40.146 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:40.838  4946  4946 W android_main: type=1400 audit(0.0:21787): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:40.855  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:40.872  4946  4946 W android_main: type=1400 audit(0.0:21791): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:41.056 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:41.058 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:41.842  4946  4946 W android_main: type=1400 audit(0.0:21901): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:41.858  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:41.878  4946  4946 W android_main: type=1400 audit(0.0:21905): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:42.063 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:42.065 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:42.848  4946  4946 W android_main: type=1400 audit(0.0:22015): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:42.868  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:42.888  4946  4946 W android_main: type=1400 audit(0.0:22019): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:43.067 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:43.069 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:43.852  4946  4946 W android_main: type=1400 audit(0.0:22129): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:43.868  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:43.885  4946  4946 W android_main: type=1400 audit(0.0:22133): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:44.074 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:44.076 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:44.868  4946  4946 W android_main: type=1400 audit(0.0:22245): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:44.885  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:44.902  4946  4946 W android_main: type=1400 audit(0.0:22249): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:44.926  3090  3854 D TaskQueue: removing queue after quit safely success for task queue handler IntentProcessor
+11-16 14:22:45.078 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:45.080 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:45.149 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:45.151 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:45.875  4946  4946 W android_main: type=1400 audit(0.0:22359): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:45.895  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:45.912  4946  4946 W android_main: type=1400 audit(0.0:22363): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:46.082 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:46.084 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:46.885  4946  4946 W android_main: type=1400 audit(0.0:22473): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:46.905  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:46.922  4946  4946 W android_main: type=1400 audit(0.0:22477): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:47.088 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:47.091 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:47.888  4946  4946 W android_main: type=1400 audit(0.0:22587): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:47.908  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:47.922  4946  4946 W android_main: type=1400 audit(0.0:22591): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:48.096 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:48.097 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:48.902  4946  4946 W android_main: type=1400 audit(0.0:22701): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:48.922  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:48.938  4946  4946 W android_main: type=1400 audit(0.0:22705): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:49.101 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:49.102 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:49.918  4946  4946 W android_main: type=1400 audit(0.0:22817): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:49.935  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:49.955  4946  4946 W android_main: type=1400 audit(0.0:22821): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:50.105 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:50.110 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:50.158 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:50.159 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:50.925  4946  4946 W android_main: type=1400 audit(0.0:22931): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:50.942  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:50.962  4946  4946 W android_main: type=1400 audit(0.0:22935): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:51.114 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:51.116 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:51.938  4946  4946 W android_main: type=1400 audit(0.0:23047): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:51.955  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:51.972  4946  4946 W android_main: type=1400 audit(0.0:23051): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:52.119 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:52.121 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:52.942  4946  4946 W android_main: type=1400 audit(0.0:23159): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:52.958  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:52.975  4946  4946 W android_main: type=1400 audit(0.0:23163): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:53.124 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:53.126 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:53.952  4946  4946 W android_main: type=1400 audit(0.0:23275): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:53.968  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:53.988  4946  4946 W android_main: type=1400 audit(0.0:23279): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:54.129 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:54.131 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:54.955  4946  4946 W android_main: type=1400 audit(0.0:23387): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:54.972  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:54.988  4946  4946 W android_main: type=1400 audit(0.0:23391): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:55.134 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:55.136 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:55.200 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:55.201 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:22:55.958  4946  4946 W android_main: type=1400 audit(0.0:23497): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:55.975  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:55.995  4946  4946 W android_main: type=1400 audit(0.0:23501): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:56.141 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:56.144 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:56.972  4946  4946 W android_main: type=1400 audit(0.0:23613): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:56.992  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:57.008  4946  4946 W android_main: type=1400 audit(0.0:23617): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:57.147 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:57.150 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:57.640   900   937 D rlsservice: MonitorDisplayStatus client num 1, display status 1, sensor status 1
+11-16 14:22:57.988  4946  4946 W android_main: type=1400 audit(0.0:23729): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:58.005  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:58.022  4946  4946 W android_main: type=1400 audit(0.0:23733): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:58.153 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:58.156 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:22:59.005  4946  4946 W android_main: type=1400 audit(0.0:23845): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:59.022  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:22:59.038  4946  4946 W android_main: type=1400 audit(0.0:23849): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:22:59.161 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:22:59.163 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:00.008  4946  4946 W android_main: type=1400 audit(0.0:23959): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:00.025  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:00.042  4946  4946 W android_main: type=1400 audit(0.0:23963): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:00.167 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:00.169 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:00.204 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:23:00.205 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:23:01.012  4946  4946 W android_main: type=1400 audit(0.0:24073): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:01.032  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:01.052  4946  4946 W android_main: type=1400 audit(0.0:24077): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:01.171 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:01.175 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:02.028  4946  4946 W android_main: type=1400 audit(0.0:24189): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:02.045  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:02.065  4946  4946 W android_main: type=1400 audit(0.0:24193): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:02.177 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:02.179 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:03.035  4946  4946 W android_main: type=1400 audit(0.0:24297): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:03.052  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:03.072  4946  4946 W android_main: type=1400 audit(0.0:24301): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:03.181 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:03.184 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:04.055  4946  4946 W android_main: type=1400 audit(0.0:24413): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:04.075  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:04.095  4946  4946 W android_main: type=1400 audit(0.0:24417): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:04.187 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:04.189 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:05.062  4946  4946 W android_main: type=1400 audit(0.0:24527): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:05.078  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:05.095  4946  4946 W android_main: type=1400 audit(0.0:24531): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:05.194 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:05.197 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:05.206 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:23:05.207 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:23:06.078  4946  4946 W android_main: type=1400 audit(0.0:24641): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:06.098  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:06.115  4946  4946 W android_main: type=1400 audit(0.0:24645): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:06.201 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:06.204 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:07.095  4946  4946 W android_main: type=1400 audit(0.0:24755): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:07.115  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:07.132  4946  4946 W android_main: type=1400 audit(0.0:24759): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:07.210 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:07.211 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:08.102  4946  4946 W android_main: type=1400 audit(0.0:24869): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:08.118  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:08.138  4946  4946 W android_main: type=1400 audit(0.0:24873): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:08.213 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:08.216 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:09.118  4946  4946 W android_main: type=1400 audit(0.0:24983): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:09.135  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:09.152  4946  4946 W android_main: type=1400 audit(0.0:24987): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:09.219 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:09.221 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:10.132  4946  4946 W android_main: type=1400 audit(0.0:25097): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:10.148  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:10.168  4946  4946 W android_main: type=1400 audit(0.0:25101): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:10.226 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:10.227 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:10.231 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:23:10.234 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:23:11.152  4946  4946 W android_main: type=1400 audit(0.0:25213): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:11.172  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:11.192  4946  4946 W android_main: type=1400 audit(0.0:25217): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:11.230 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:11.232 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:12.162  4946  4946 W android_main: type=1400 audit(0.0:25327): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:12.178  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:12.195  4946  4946 W android_main: type=1400 audit(0.0:25331): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:12.235 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:12.237 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:13.172  4946  4946 W android_main: type=1400 audit(0.0:25433): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:13.192  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:13.212  4946  4946 W android_main: type=1400 audit(0.0:25437): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:13.239 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:13.241 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:14.182  4946  4946 W android_main: type=1400 audit(0.0:25547): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:14.198  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:14.215  4946  4946 W android_main: type=1400 audit(0.0:25551): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:14.245 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:14.247 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:15.192  4946  4946 W android_main: type=1400 audit(0.0:25661): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:15.208  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 2 lines
+11-16 14:23:15.208  4946  4946 W android_main: type=1400 audit(0.0:25664): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:15.231 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:23:15.232 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:23:15.225  4946  4946 W android_main: type=1400 audit(0.0:25665): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:15.249 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:15.251 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:16.198  4946  4946 W android_main: type=1400 audit(0.0:25775): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:16.215  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:16.235  4946  4946 W android_main: type=1400 audit(0.0:25779): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:16.256 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:16.259 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:17.212  4946  4946 W android_main: type=1400 audit(0.0:25891): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:17.232  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:17.252  4946  4946 W android_main: type=1400 audit(0.0:25895): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:17.262 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:17.265 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:18.215  4946  4946 W android_main: type=1400 audit(0.0:26001): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:18.232  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:18.248  4946  4946 W android_main: type=1400 audit(0.0:26005): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:18.269 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:18.272 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:19.225  4946  4946 W android_main: type=1400 audit(0.0:26115): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:19.245  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:19.262  4946  4946 W android_main: type=1400 audit(0.0:26119): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:19.275 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:19.277 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:20.228  4946  4946 W android_main: type=1400 audit(0.0:26229): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:20.228  4946  4946 W android_main: type=1400 audit(0.0:26230): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:20.243 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:23:20.244 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:23:20.245  4946  4946 W android_main: type=1400 audit(0.0:26231): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:20.245  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 1 line
+11-16 14:23:20.265  4946  4946 W android_main: type=1400 audit(0.0:26233): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:20.282 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:20.285 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:21.232  4946  4946 W android_main: type=1400 audit(0.0:26343): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:21.252  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:21.265  4946  4946 W android_main: type=1400 audit(0.0:26347): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:21.289 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:21.291 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:22.248  4946  4946 W android_main: type=1400 audit(0.0:26455): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:22.268  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:22.288  4946  4946 W android_main: type=1400 audit(0.0:26459): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:22.294 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:22.295 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:23.252  4946  4946 W android_main: type=1400 audit(0.0:26567): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:23.268  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:23.285  4946  4946 W android_main: type=1400 audit(0.0:26571): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:23.300 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:23.303 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:24.262  4946  4946 W android_main: type=1400 audit(0.0:26681): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:24.278  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:24.295  4946  4946 W android_main: type=1400 audit(0.0:26685): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:24.306 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:24.308 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:25.271 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:23:25.268  4946  4946 W android_main: type=1400 audit(0.0:26795): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:25.273 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:23:25.268  4946  4946 W android_main: type=1400 audit(0.0:26796): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:25.288  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 2 lines
+11-16 14:23:25.305  4946  4946 W android_main: type=1400 audit(0.0:26799): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:25.311 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:25.313 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:26.272  4946  4946 W android_main: type=1400 audit(0.0:26909): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:26.288  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:26.305  4946  4946 W android_main: type=1400 audit(0.0:26913): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:26.316 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:26.318 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:27.278  4946  4946 W android_main: type=1400 audit(0.0:27023): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:27.295  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:27.312  4946  4946 W android_main: type=1400 audit(0.0:27027): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:27.320 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:27.323 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:27.499  2425  2425 D DeviceStatisticsService: chargerType=2 batteryLevel=78 totalBatteryCapacity=4031500
+11-16 14:23:27.499  2425  2425 D DeviceInfoHidlClient: getPowerInfoSupportStatus()=1
+11-16 14:23:27.499  2425  2425 D DeviceInfoHidlClient: isRadioOn()=true
+11-16 14:23:27.499  2425  2425 I DeviceInfoHidlClient: isPowerInfoNeverSent=false batteryLevel=78 batteryLevelIndex=2 chargingMode=2 totalCapacity=4031500 powerSaveMode=false
+11-16 14:23:22.913  1563  2000 I chatty  : uid=1000(system) ConnectivitySer identical 17 lines
+11-16 14:23:25.925  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:23:27.507  2050  8178 D PowerUI : can't show warning due to - plugged: true status unknown: false
+11-16 14:23:27.641   900   937 D rlsservice: MonitorDisplayStatus client num 1, display status 1, sensor status 1
+11-16 14:23:28.282  4946  4946 W android_main: type=1400 audit(0.0:27133): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:28.298  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 3 lines
+11-16 14:23:28.318  4946  4946 W android_main: type=1400 audit(0.0:27137): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:28.325 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:28.328 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:28.944  1563  2000 D ConnectivityService: NetReassign [no changes]
+11-16 14:23:29.298  4946  4946 W android_main: type=1400 audit(0.0:27249): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:29.315  4946  4946 I chatty  : uid=10266(dev.vieww.marketwatch) identical 2 lines
+11-16 14:23:29.315  4946  4946 W android_main: type=1400 audit(0.0:27252): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:29.331 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:29.334 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:29.335  4946  4946 W android_main: type=1400 audit(0.0:27253): avc: denied { search } for name="/" dev="cgroup2" ino=1 scontext=u:r:untrusted_app:s0:c10,c257,c512,c768 tcontext=u:object_r:cgroup_bpf:s0 tclass=dir permissive=0 app=dev.vieww.marketwatch
+11-16 14:23:29.680  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stats","phase":"thermal","frames":3379,"work_ms":[17.611,19.815,21.713,47.128],"interval_ms":[17.667,19.871,21.753,47.206],"jank":2502,"budget_ms":11.11,"t":123518.4}
+11-16 14:23:29.681  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"stages","phase":"thermal","frames":3379,"build_ms":[0.66,0.93,2.76],"raster_ms":[11.64,12.84,37.88],"gpu_cpu_ms":[0.00,0.00,0.00],"fence_ms":[0.00,0.00,0.00],"acquire_ms":[0.95,1.03,3.09],"present_ms":[4.32,5.18,13.54],"gpu_ms":[0,0,0],"budget_ms_end":16.67,"scale_ms":[0.02,0.03,0.52],"plan_ms":[0.00,0.00,0.00],"gpu_draw_ms":[0,0,0],"gpu_layers_ms":[0,0,0],"gpu_filters_ms":[0,0,0],"gpu_shadows_ms":[0,0,0],"gpu_blit_ms":[0,0,0],"kinds":{"rects":[1.45,1.70,4.43],"paths":[4.37,4.72,16.70],"text":[0.73,0.83,2.70],"images":[0.00,0.00,0.00],"shadows":[0.56,0.77,3.36],"layers":[0.00,0.00,0.00],"composite":[0.00,0.00,0.00]},"t":123519.4}
+11-16 14:23:29.681  4946  4972 I vieww   : android::app: __MW__ {"fw":"vieww","ev":"done","t":123519.4}
+11-16 14:23:30.277 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:23:30.280 18893 18924 D DeviceStateHelper: Audo mode: 0
+11-16 14:23:30.280   588   628 D TimeStats: Dumping TimeStats as text
+11-16 14:23:30.339 17907 18058 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:30.342 17907 18058 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+11-16 14:23:30.369   588   628 D TimeStats: Cleared global stats
+11-16 14:23:30.369   588   628 D TimeStats: Cleared layer stats
+11-16 14:23:31.042   588   628 D TimeStats: Disabled
+11-16 14:23:31.224  4946  4985 I eww.marketwatc: Explicit concurrent copying GC freed 11045(654KB) AllocSpace objects, 32(640KB) LOS objects, 93% free, 1829KB/25MB, paused 92us total 12.094ms
+11-16 14:23:31.346 17907 18026 I FusedLocation: (REDACTED) mock location %s injected by %s
+11-16 14:23:31.349 17907 18026 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
