@@ -1,0 +1,27 @@
+-----
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:09.7637668Z   CI_PART: main
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:09.7637885Z ##[endgroup]
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:09.8149647Z ##[group]Check the secrets are there
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:09.8174675Z -rw-r--r-- 1 runner runner 2830752 Nov 17 10:56 ../dist/vieww-market-watch.apk
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:09.8176693Z ##[endgroup]
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:09.8181513Z ##[group]gcloud
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:19.2036387Z Activated service account credentials for: [firebase-adminsdk-fbsvc@***.iam.gserviceaccount.com]
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:21.8578104Z Updated property [core/project].
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:21.9445005Z ##[endgroup]
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:21.9451350Z ##[group]Refuse a project that can be billed
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:23.0268148Z billing enabled: unknown
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:23.0289510Z ##[warning]Could not read the project's billing state (the service account may lack billing.resourceAssociations.list). A Spark project cannot be billed; make sure this one is on Spark.
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:23.0294981Z ##[endgroup]
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:23.0295374Z ##[group]Run on phones
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:23.4069079Z WARNING: Firebase Test Lab is deprecated and will be fully shut down on September 30, 2027. To maintain your testing workflows, you can migrate to the Developer Device Platform on Google Cloud. See the Developer Device Platform Migration Guide (https://docs.cloud.google.com/developer-device-platform/device-run/migrate) and FAQ (https://docs.cloud.google.com/developer-device-platform/troubleshooting) for more details.
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:24.1180841Z ERROR: (gcloud.firebase.test.android.models.list) Unable to access the test environment catalog: ResponseError 403: Not authorized for project ***
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:24.1859508Z ##[endgroup]
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:24.1872378Z ##[error]Run on phones failed (exit 1)
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:24.1874088Z ##[group]mark: upload compare-firebase
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:24.1883704Z ##[endgroup]
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:24.1978500Z ##[error]Process completed with exit code 1.
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:24.2059763Z ##[group]Run actions/upload-artifact@v4
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:24.2060070Z with:
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:24.2060307Z   name: compare-firebase
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:24.2060593Z   path: /home/runner/work/_temp/firebase
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T10:56:24.2060891Z   if-no-files-found: warn
