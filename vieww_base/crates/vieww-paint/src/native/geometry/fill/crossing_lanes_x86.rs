@@ -3,6 +3,19 @@
 //! argument. SSE2 is part of the x86-64 baseline (`native::simd`'s module
 //! doc holds the reasoning); the `target_feature` attribute is Rust's
 //! asking price for the intrinsics, not a negotiation with the hardware.
+//!
+//! # Why it stayed four lanes when the AVX2 dispatch arrived
+//!
+//! Eight edges per group needs two of these 4x4 transposes plus the
+//! lane-crossing combines that stack their outputs into 256-bit registers:
+//! about two and a half lane operations per edge against the two the
+//! four-edge group spends, to share an arithmetic chain that costs under
+//! two ops per edge at four wide. Half an op saved per edge out of five,
+//! and only when eight or more edges are active in one subsample — a
+//! rectangle never gets there (four edges), and the shapes that do are the
+//! minority of any real frame, so the eight-group would mostly run as a
+//! four-group with dead lanes. Not a win; left at four until a profile
+//! says otherwise.
 
 use core::arch::x86_64::{
     _mm_add_ps, _mm_div_ps, _mm_loadu_ps, _mm_movelh_ps, _mm_movehl_ps, _mm_mul_ps,

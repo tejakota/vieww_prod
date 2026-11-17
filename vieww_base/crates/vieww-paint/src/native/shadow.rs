@@ -423,8 +423,10 @@ fn box_blur_3_radius(data: &mut [f32], w: u32, h: u32, radius: i32) {
 /// means gathering four strided samples and scattering four strided results
 /// per step — more shuffle traffic than the arithmetic it saves. The
 /// vertical pass below is strip-wise over *contiguous* columns and takes the
-/// lanes directly (`native::simd`); when an AVX2 dispatch exists the gather
-/// is one `vgatherdps` and this pass is its first customer.
+/// lanes directly (`native::simd`), eight columns per op where AVX2 was
+/// detected; the gather this horizontal pass would want — one `vgatherdps`
+/// per step — is the one thing that dispatch does not hand it, so it stays
+/// scalar until a profile asks for it.
 fn box_blur_horizontal(src: &[f32], dst: &mut [f32], w: u32, h: u32, radius: i32) {
     let window = (2 * radius + 1) as f32;
     let width = w as i32;
@@ -481,7 +483,8 @@ fn box_blur_horizontal(src: &[f32], dst: &mut [f32], w: u32, h: u32, radius: i32
 /// How many columns the vertical pass carries at once — see
 /// `native/effects.rs`'s `STRIP`, which has the measurement and the trade.
 /// Sixteen here rather than eight because a shadow mask is one `f32` per pixel,
-/// not four, so sixteen of them is the same 64 bytes.
+/// not four, so sixteen of them is the same 64 bytes — and, on a machine that
+/// reports AVX2, the two 256-bit registers the strip kernels pair into.
 const STRIP: usize = 16;
 
 /// The same, down each column — but [`STRIP`] columns at a time, for the reason
@@ -491,14 +494,16 @@ const STRIP: usize = 16;
 /// bit-for-bit what the single-column loop produced.
 ///
 /// **The strip's arithmetic is lane-wise.** The strip is one `f32` per pixel,
-/// so the seed, the store and the window step for its columns now run
-/// through the `native::simd` lane ops in groups of four: each column's sum
-/// keeps its own scalar sequence, unchanged, lane for lane — the same
-/// contract `simd.rs`'s row kernels are held to, and
+/// so the seed, the store and the window step for its columns run through
+/// `native::simd`'s strip kernels — the whole strip per call, so a machine
+/// that reports AVX2 runs the columns in groups of eight (sixteen columns is
+/// two 256-bit registers) and every other machine keeps the four-lane
+/// grouping. Each column's sum keeps its own scalar sequence, unchanged,
+/// lane for lane — the same contract `simd.rs`'s row kernels are held to, and
 /// `shadow_box_blurs_match_scalar` below pins it for this kernel. The
 /// remaining scalar work is address arithmetic, which no widening touches.
 fn box_blur_vertical(src: &[f32], dst: &mut [f32], w: u32, h: u32, radius: i32) {
-    use super::simd::{lanes_add, lanes_div_scalar, lanes_sub};
+    use super::simd::{strip_add, strip_shift, strip_store};
     let window = (2 * radius + 1) as f32;
     let (width, height) = (w as usize, h as i32);
 
@@ -506,77 +511,48 @@ fn box_blur_vertical(src: &[f32], dst: &mut [f32], w: u32, h: u32, radius: i32) 
     while x0 < width {
         let strip = STRIP.min(width - x0);
         let mut sums = [0.0f32; STRIP];
-        let whole = strip - strip % 4;
 
-        // The seed, groups of four columns at a time: same adds per column,
-        // same order per column, the group only widening them.
+        // The seed, the whole strip per step: same adds per column, same
+        // order per column — the strip kernels only widen the groups.
         for y in 0..=radius.min(height - 1) {
             let row = y as usize * width + x0;
-            let mut i = 0;
-            while i < whole {
-                let next = lanes_add(
-                    <[f32; 4]>::try_from(&sums[i..i + 4]).unwrap(),
-                    <[f32; 4]>::try_from(&src[row + i..row + i + 4]).unwrap(),
-                );
-                sums[i..i + 4].copy_from_slice(&next);
-                i += 4;
-            }
-            while i < strip {
-                sums[i] += src[row + i];
-                i += 1;
-            }
+            strip_add(&mut sums[..strip], &src[row..row + strip]);
         }
 
         for y in 0..height {
             let out_row = y as usize * width + x0;
-            let mut i = 0;
-            while i < whole {
-                let out =
-                    lanes_div_scalar(<[f32; 4]>::try_from(&sums[i..i + 4]).unwrap(), window);
-                dst[out_row + i..out_row + i + 4].copy_from_slice(&out);
-                i += 4;
-            }
-            while i < strip {
-                dst[out_row + i] = sums[i] / window;
-                i += 1;
-            }
+            strip_store(&sums[..strip], &mut dst[out_row..out_row + strip], window);
             let entering = y + radius + 1;
             let leaving = y - radius;
             // The clamp is per *row*, not per column — `entering` and
             // `leaving` are row indices — so the whole strip takes one path:
-            // the lane-wise one only where both samples are genuinely in
+            // the lane-wise shift only where both samples are genuinely in
             // range, the scalar one with its zeros on the edge rows, exactly
             // as the original walk read them.
-            let mut i = 0;
             if entering < height && leaving >= 0 {
                 let entering_row = entering as usize * width + x0;
                 let leaving_row = leaving as usize * width + x0;
-                while i < whole {
-                    let a = <[f32; 4]>::try_from(&src[entering_row + i..entering_row + i + 4])
-                        .unwrap();
-                    let b =
-                        <[f32; 4]>::try_from(&src[leaving_row + i..leaving_row + i + 4]).unwrap();
-                    let next = lanes_add(
-                        <[f32; 4]>::try_from(&sums[i..i + 4]).unwrap(),
-                        lanes_sub(a, b),
-                    );
-                    sums[i..i + 4].copy_from_slice(&next);
-                    i += 4;
+                strip_shift(
+                    &mut sums[..strip],
+                    &src[entering_row..entering_row + strip],
+                    &src[leaving_row..leaving_row + strip],
+                );
+            } else {
+                let mut i = 0;
+                while i < strip {
+                    let a = if entering < height {
+                        src[entering as usize * width + x0 + i]
+                    } else {
+                        0.0
+                    };
+                    let b = if leaving >= 0 {
+                        src[leaving as usize * width + x0 + i]
+                    } else {
+                        0.0
+                    };
+                    sums[i] += a - b;
+                    i += 1;
                 }
-            }
-            while i < strip {
-                let a = if entering < height {
-                    src[entering as usize * width + x0 + i]
-                } else {
-                    0.0
-                };
-                let b = if leaving >= 0 {
-                    src[leaving as usize * width + x0 + i]
-                } else {
-                    0.0
-                };
-                sums[i] += a - b;
-                i += 1;
             }
         }
         x0 += strip;
