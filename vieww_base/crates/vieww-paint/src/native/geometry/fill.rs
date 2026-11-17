@@ -389,6 +389,11 @@ impl LcdMaskView<'_> {
     }
 }
 
+/// `repr(C)` so the interpolation kernel can load an edge's first four
+/// floats - `x0, y0, x1, y1` - as one 128-bit register: the field order the
+/// declaration happens to have, made a guarantee (`native::simd`'s `load`
+/// does the same with `Premul`).
+#[repr(C)]
 struct Edge {
     x0: f32,
     y0: f32,
@@ -915,6 +920,77 @@ struct RowGeometry {
     width: u32,
 }
 
+/// The active edges' crossing `x` values for one subsample - the
+/// interpolation the walk used to spell out per edge:
+///
+/// ```text
+/// t = (sy - y0) / (y1 - y0)
+/// x = x0 + t * (x1 - x0)
+/// ```
+///
+/// **Lanes over edges, not steps.** Each edge's `t` and `x` is independent
+/// of every other edge's, and keeps its exact formula - what widened is
+/// four edges sharing one register set, so the one divide in the pair
+/// serves four edges at once instead of one. A 4x4 transpose builds the
+/// `[x0; 4]`, `[y0; 4]`, `[x1; 4]`, `[y1; 4]` lanes out of the four edges'
+/// own `[x0, y0, x1, y1]` words (one load each - `Edge` is `repr(C)`);
+/// the arithmetic is then the scalar one, lane for lane, never fused and
+/// never incremental (`x += dx` would change bits). The repair sort that
+/// follows is untouched: it is already repair-shaped, and its `(x, rank)`
+/// order is what `crossings_come_in_the_stable_sort_order` pins.
+///
+/// The SSE2/NEON halves live in `crossing_lanes`; any other architecture
+/// and the 1-3 edge tail of a group get the scalar loop, verbatim.
+fn interpolate_active(active: &mut [ActiveEdge], table: &EdgeTable, sy: f32) {
+    let edges = &table.edges;
+    #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
+    let mut rest = active;
+    #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
+    {
+        let whole = rest.len() - rest.len() % 4;
+        let (body, back) = rest.split_at_mut(whole);
+        for group in body.as_chunks_mut::<4>().0 {
+            let words = [
+                &edges[group[0].edge],
+                &edges[group[1].edge],
+                &edges[group[2].edge],
+                &edges[group[3].edge],
+            ];
+            // SAFETY: SSE2/NEON are baselines of their architectures -
+            // `native::simd`'s module doc holds the argument.
+            let x = unsafe { crossing_lanes::interpolate4(words, sy) };
+            group[0].x = x[0];
+            group[1].x = x[1];
+            group[2].x = x[2];
+            group[3].x = x[3];
+        }
+        rest = back;
+    }
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    let rest = active;
+    for a in rest.iter_mut() {
+        let edge = &edges[a.edge];
+        let t = (sy - edge.y0) / (edge.y1 - edge.y0);
+        a.x = edge.x0 + t * (edge.x1 - edge.x0);
+    }
+}
+
+/// The four-edge interpolation kernel, per architecture. Same contract as
+/// `native::simd`'s modules: the lanes are the scalar formula, and the
+/// caller's bit test (`edge_interpolation_matches_scalar_lane_for_lane`)
+/// holds it.
+#[cfg(target_arch = "x86_64")]
+mod crossing_lanes_x86;
+#[cfg(target_arch = "aarch64")]
+mod crossing_lanes_arm;
+#[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
+mod crossing_lanes {
+    #[cfg(target_arch = "x86_64")]
+    pub(super) use super::crossing_lanes_x86::interpolate4;
+    #[cfg(target_arch = "aarch64")]
+    pub(super) use super::crossing_lanes_arm::interpolate4;
+}
+
 /// Walk the rows `rows` into `data` (which covers exactly those rows),
 /// admitting edges as the serial walk would.
 ///
@@ -992,11 +1068,9 @@ fn rasterize_row_range(
             // span `sy` out of it keeps it — so the crossings, their order
             // and the arithmetic producing each `x` are exactly the old
             // walk's (`crossings_come_in_the_stable_sort_order` pins it).
-            for a in active.iter_mut() {
-                let edge = &table.edges[a.edge];
-                let t = (sy - edge.y0) / (edge.y1 - edge.y0);
-                a.x = edge.x0 + t * (edge.x1 - edge.x0);
-            }
+            // The `x` values themselves come from `interpolate_active`
+            // above — lanes over edges, same formula per edge to the bit.
+            interpolate_active(active, table, sy);
             for i in 1..active.len() {
                 let item = active[i];
                 let mut j = i;
@@ -2197,5 +2271,87 @@ mod tests {
             1,
             "no cores reported is serial"
         );
+    }
+}
+
+#[cfg(test)]
+mod crossing_tests {
+    //! The crossing interpolation, bit for bit against the scalar pair it
+    //! widened. The rest of the walk is already pinned by
+    //! `crossings_come_in_the_stable_sort_order`; this pins the arithmetic
+    //! that feeds it.
+
+    use super::{interpolate_active, ActiveEdge, Edge, EdgeTable};
+
+    /// Random edges and an active list over them, every length 0..=9 so the
+    /// four-edge groups and the 1-3 edge tails both run: lane i must be the
+    /// scalar `x` for that edge, to the bit.
+    #[test]
+    fn edge_interpolation_matches_scalar_lane_for_lane() {
+        struct Rng(u64);
+        impl Rng {
+            fn f(&mut self) -> f32 {
+                self.0 ^= self.0 << 13;
+                self.0 ^= self.0 >> 7;
+                self.0 ^= self.0 << 17;
+                (self.0 >> 40) as f32 / (1u64 << 24) as f32 * 1.3 - 0.15
+            }
+        }
+        let canon = |v: f32| {
+            if v.is_nan() {
+                f32::NAN.to_bits()
+            } else {
+                v.to_bits()
+            }
+        };
+        let mut rng = Rng(0xC0FF_EE01_2345_6789);
+        for n in 0..=9usize {
+            let edges: Vec<Edge> = (0..24)
+                .map(|_| {
+                    let x0 = rng.f() * 400.0;
+                    let y0 = rng.f() * 200.0;
+                    let x1 = x0 + rng.f() * 60.0;
+                    // A real edge table never holds a zero y-span (they are
+                    // dropped at build); keep the denominator clear of it.
+                    let y1 = y0 + 0.01 + rng.f() * 40.0;
+                    Edge {
+                        x0,
+                        y0,
+                        x1,
+                        y1,
+                        ymin: y0.min(y1),
+                        ymax: y0.max(y1),
+                        winding: 1,
+                    }
+                })
+                .collect();
+            let table = EdgeTable {
+                edges: &edges,
+                order: &[],
+            };
+            let mut active: Vec<ActiveEdge> = (0..n)
+                .map(|i| ActiveEdge {
+                    rank: i,
+                    edge: (i * 7 + 3) % edges.len(),
+                    x: 0.0,
+                })
+                .collect();
+            let scalar_x: Vec<f32> = active
+                .iter()
+                .map(|a| {
+                    let edge = &edges[a.edge];
+                    let t = (0.37 - edge.y0) / (edge.y1 - edge.y0);
+                    edge.x0 + t * (edge.x1 - edge.x0)
+                })
+                .collect();
+            interpolate_active(&mut active, &table, 0.37);
+            for (a, sx) in active.iter().zip(scalar_x) {
+                assert_eq!(
+                    canon(a.x),
+                    canon(sx),
+                    "lane {sx:?} against the walk"
+                );
+            }
+        }
     }
 }
