@@ -27,6 +27,8 @@
 //! Everything the three backends must agree on is here: the clip algebra a
 //! damaged frame may redraw ([`frame_passes`]' `damage` handling, including
 //! the retained-frame guard and the skip of whole untouched layers), the
+//! damage-grown band its filter chains run over (`filter_passes`,
+//! `chain_margins`), the
 //! `post.wgsl` push-constant layout ([`PostPush`]) and mode table
 //! ([`mode`]), the 28 blend modes' numbering ([`blend_index`]), the
 //! layer/backdrop-filter/shadow pass construction, and the per-op
@@ -410,9 +412,15 @@ pub fn frame_passes(
     // (`depth`), so this is one function with helpers, not a struct.
     let mut depth = 0usize;
     let mut index = 0usize;
+    // How a damaged frame may bound each of its filter chains, per step —
+    // computed only when there is one. An undamaged frame runs every chain
+    // over its whole rectangle and reads none of this, which is also what
+    // keeps its op stream byte for byte what it always was.
+    let margins = clip.is_some().then(|| chain_margins(plan));
     while index < plan.steps.len() {
-        let step = plan.steps[index];
-        if let Some(&pop) = skip.get(&index) {
+        let at = index;
+        let step = plan.steps[at];
+        if let Some(&pop) = skip.get(&at) {
             index = pop + 1;
             continue;
         }
@@ -486,6 +494,7 @@ pub fn frame_passes(
                         depth,
                         rect,
                         filter,
+                        margins.as_ref().map(|m| m[at]),
                         PassKind::Filters,
                     );
                 }
@@ -510,6 +519,7 @@ pub fn frame_passes(
                             child,
                             rect,
                             filter,
+                            margins.as_ref().map(|m| m[at]),
                             PassKind::Filters,
                         );
                     }
@@ -638,6 +648,51 @@ fn post(
 /// colour matrix through the scratch, with `edge = 1` — the nearest-edge
 /// clamp `effects::blur` uses, CSS's `duplicate` edge mode for `filter` and
 /// `backdrop-filter`.
+///
+/// `margin` — [`chain_margins`] computes it — says how a damaged frame may
+/// bound the chain. `None` (no damage), or a chain whose output a backdrop
+/// filter snapshots: the chain runs over its whole `rect`, exactly as an
+/// undamaged frame's does. Any other chain runs over each damage rectangle
+/// grown by its own reach plus the enclosing chains' ([`damage_band`]),
+/// and the pixels come out the same as a full redraw's — by construction,
+/// not by tolerance:
+///
+/// * The chain's *input* is pixel for pixel a full redraw's. A layer raster
+///   is cleared and redrawn in whole every damaged frame — draws inside a
+///   layer are deliberately unclipped — and a backdrop's seed copy still
+///   runs over the whole `rect`, reading a parent that is either redrawn in
+///   whole (`L[k >= 1]`) or the frame itself: a top-level backdrop whose
+///   rect the damage does not contain is refused outright (`usable_clip`'s
+///   guard), and one whose rect it does contain copies only pixels the
+///   frame redrew this pass. And when the parent's content holds another
+///   chain's output, that chain is `snapshotted`, running its whole rect,
+///   so what the seed copies is a full redraw's values there too.
+/// * The chain's *own* boundary is the margin. A box pass of radius `r`
+///   reads its partner at most `r` away; three rounds of them read at most
+///   `3r` away in each direction, and a sample outside `rect` is clamped to
+///   `rect`'s edge — the same pixel a full redraw's pass reads there. So the
+///   chain's value at a pixel is the full-redraw value exactly when every
+///   pixel of `rect` within its own reach is inside the band, and the band
+///   is the damage grown by that reach plus the enclosing chains': what the
+///   frame can still read of the chain's output — directly under the
+///   damage, and through the enclosing chains' filters, wherever their total
+///   reach can carry it — lies within `outer` of the damage, which the band
+///   covers with the chain's whole reach to spare. No composite, mask or
+///   blend reads sideways, so what the band leaves raw outside itself —
+///   further than its own reach plus `outer` from every damage rectangle —
+///   cannot reach `L[0]` at all.
+///
+/// The honest caveat: this is the blit route's own retained-frame model. It
+/// holds while what `L[0]` holds outside the damage is the previous frame's
+/// *finished* picture of this scene — which is what a caller's damage
+/// promises and `Retained` checks — and the moment that is not true the
+/// caller passes no damage, the traversal clips nothing, and the chain runs
+/// over its whole rectangle again. Inside that model the equivalence is
+/// exact, not a tolerance: a damaged frame's bytes cannot differ from a
+/// full redraw's — outside the damaged band because the promise says the
+/// two frames' scenes agree there, inside it because every pixel the frame
+/// redraws is computed, per the two bullets above, from values that are a
+/// full redraw's own.
 #[allow(clippy::too_many_arguments)]
 fn filter_passes(
     ops: &mut Vec<SceneOp>,
@@ -646,59 +701,325 @@ fn filter_passes(
     level: usize,
     rect: PixelRect,
     filter: FilterOp,
+    margin: Option<ChainMargin>,
     kind: PassKind,
 ) {
+    // The margin the band must cover: this chain's own blur plus the
+    // enclosing chains' — the accumulated reach, the same rule
+    // `effects::blur`'s `band_plan` states for one chain (`reach = 3 *
+    // radius`, `grow_ink(3 * radius)`).
+    let own = filter.box_radius.map_or(0, blur_reach);
+    let band = match (frame_clip.as_deref(), margin) {
+        // No damage, or a chain a backdrop filter snapshots (see
+        // `chain_margins`): the chain runs as an undamaged frame's does,
+        // over its whole rectangle.
+        (Some(clip), Some(m)) if !m.snapshotted => {
+            damage_band(clip, rect, m.outer.saturating_add(own))
+        }
+        _ => vec![rect],
+    };
+    if band.is_empty() {
+        return;
+    }
     if let Some(radius) = filter.box_radius {
         #[allow(clippy::cast_precision_loss)]
         let r = radius as f32;
         let edge = 1.0;
         for _ in 0..3 {
-            let mut h = PostPass::new(
-                TargetId::Scratch(level),
-                rect,
-                TargetId::Level(level),
-                mode::BOX_H,
-            );
-            h.push.args[1] = r;
-            h.push.args[2] = edge;
-            post(ops, frame_clip, frame, h, kind);
-            let mut v = PostPass::new(
-                TargetId::Level(level),
-                rect,
-                TargetId::Scratch(level),
-                mode::BOX_V,
-            );
-            v.push.args[1] = r;
-            v.push.args[2] = edge;
-            post(ops, frame_clip, frame, v, kind);
+            // Every horizontal pass of a round runs before the first
+            // vertical one. A vertical pass reads up to `r` past its band,
+            // which growing may have brought into a neighbouring band, and
+            // that neighbour's horizontal pass must already have run for
+            // the read to see this round's value rather than a stale one.
+            for run in &band {
+                let mut h = PostPass::new(
+                    TargetId::Scratch(level),
+                    *run,
+                    TargetId::Level(level),
+                    mode::BOX_H,
+                );
+                h.read = rect;
+                h.push.args[1] = r;
+                h.push.args[2] = edge;
+                post(ops, frame_clip, frame, h, kind);
+            }
+            for run in &band {
+                let mut v = PostPass::new(
+                    TargetId::Level(level),
+                    *run,
+                    TargetId::Scratch(level),
+                    mode::BOX_V,
+                );
+                v.read = rect;
+                v.push.args[1] = r;
+                v.push.args[2] = edge;
+                post(ops, frame_clip, frame, v, kind);
+            }
         }
     }
     if let Some(m) = filter.color_matrix {
-        let mut pass = PostPass::new(
-            TargetId::Scratch(level),
-            rect,
-            TargetId::Level(level),
-            mode::MATRIX,
-        );
-        pass.push.p[0] = [m[0], m[1], m[2], m[3]];
-        pass.push.p[1] = [m[5], m[6], m[7], m[8]];
-        pass.push.p[2] = [m[10], m[11], m[12], m[13]];
-        pass.push.p[3] = [m[15], m[16], m[17], m[18]];
-        pass.push.p[4] = [m[4], m[9], m[14], m[19]];
-        post(ops, frame_clip, frame, pass, kind);
-        post(
-            ops,
-            frame_clip,
-            frame,
-            PostPass::new(
+        for run in &band {
+            let mut pass = PostPass::new(
+                TargetId::Scratch(level),
+                *run,
                 TargetId::Level(level),
-                rect,
+                mode::MATRIX,
+            );
+            pass.read = rect;
+            pass.push.p[0] = [m[0], m[1], m[2], m[3]];
+            pass.push.p[1] = [m[5], m[6], m[7], m[8]];
+            pass.push.p[2] = [m[10], m[11], m[12], m[13]];
+            pass.push.p[3] = [m[15], m[16], m[17], m[18]];
+            pass.push.p[4] = [m[4], m[9], m[14], m[19]];
+            post(ops, frame_clip, frame, pass, kind);
+        }
+        for run in &band {
+            let mut copy = PostPass::new(
+                TargetId::Level(level),
+                *run,
                 TargetId::Scratch(level),
                 mode::COPY,
-            ),
-            kind,
-        );
+            );
+            copy.read = rect;
+            post(ops, frame_clip, frame, copy, kind);
+        }
     }
+}
+
+/// The reach of a three-pass box blur of radius `r`: `3 * r` pixels in
+/// every direction, the reach `effects::blur`'s `band_plan` grows a band by
+/// — every sample feeding a pixel further out passed through one of the
+/// three windows, so none of them can have contributed.
+#[expect(
+    clippy::cast_possible_truncation,
+    reason = "clamped to a quarter of the coordinate range first, so the cast is lossless"
+)]
+fn blur_reach(radius: u32) -> i32 {
+    // Clamped, never wrapped: an absurd radius still means "everything the
+    // rect touches", not a negative margin.
+    let reach = 3 * i64::from(radius);
+    if reach > i64::from(i32::MAX / 4) {
+        i32::MAX / 4
+    } else {
+        reach as i32
+    }
+}
+
+/// The rectangles a filter chain runs over on a damaged frame: each damage
+/// rectangle grown by `reach` and kept inside the filter's `rect`, with
+/// rectangles that growing brought into contact merged into their union so
+/// no pixel is drawn twice. The union is the damage dilated by `reach`
+/// (dilation distributes over union), so it is a superset of the exact
+/// window a chain needs — a bound may round outward, never inward.
+fn damage_band(clip: &[PixelRect], rect: PixelRect, reach: i32) -> Vec<PixelRect> {
+    let mut band: Vec<PixelRect> = clip
+        .iter()
+        .map(|c| c.inflate(reach).intersect(rect))
+        .filter(|band| !band.is_empty())
+        .collect();
+    merge_overlapping(&mut band);
+    band
+}
+
+/// Merge rectangles that overlap — or that merging made overlap — into
+/// their union, until none do. Growing damage rectangles can bring ones
+/// that were apart into contact; overlapping scissors would draw the same
+/// pixels of a pass twice for no gain.
+fn merge_overlapping(rects: &mut Vec<PixelRect>) {
+    let mut again = true;
+    while again {
+        again = false;
+        'pair: for i in 0..rects.len() {
+            for j in i + 1..rects.len() {
+                if rects[i].intersect(rects[j]).is_empty() {
+                    continue;
+                }
+                let other = rects.swap_remove(j);
+                rects[i] = rects[i].union(other);
+                again = true;
+                break 'pair;
+            }
+        }
+    }
+}
+
+/// How a damaged frame may bound one filter chain: how far the damage must
+/// grow for it, and whether it may be bounded at all.
+#[derive(Clone, Copy)]
+struct ChainMargin {
+    /// The accumulated blur reach of the chains *enclosing* this chain's
+    /// layer — the total reach between its result and the frame.
+    outer: i32,
+    /// Whether a backdrop filter snapshots this chain's output: such a
+    /// chain runs its whole rect, never a band.
+    snapshotted: bool,
+}
+
+/// One filter chain in the plan, for [`chain_margins`]'s walks: which step
+/// runs it, which step pushed its layer, and of which kind it is.
+struct ChainStep {
+    /// The step that runs the chain: the pop for a pop filter, the push for
+    /// a backdrop.
+    at: usize,
+    /// The step that pushed the chain's layer.
+    pushed: usize,
+    /// A pop filter (`Step::PopLayer`'s `filter`), not a backdrop.
+    pop: bool,
+}
+
+/// The [`ChainMargin`] of every filter chain, by its step: the band algebra
+/// a damaged frame runs under. Computed only when there is one — an
+/// undamaged frame runs every chain over its whole rectangle.
+///
+/// `outer` is the sum of the open layers' pop-filter reaches over the
+/// chain's step. Composites, masks and blends read pixel for pixel, so
+/// between a filtered pixel and `L[0]` only an *enclosing* layer's own
+/// filter can carry a difference sideways — and a layer's pop filter, not
+/// its backdrop, is the one that sits over what is nested inside it: a
+/// backdrop runs at the push, before any of the layer's own content, and
+/// the planner puts a filter on one side of a layer or the other, never
+/// both. A pop chain's own filter never counts at its own step — it runs
+/// *before* the layer composites, so past its result only an *enclosing*
+/// filter or nothing lies.
+///
+/// `snapshotted` marks the chains a *backdrop* filter snapshots, which may
+/// not be bounded. A bounded chain's output is correct exactly on the
+/// damage grown by `outer` — the region its layer's composite and the
+/// enclosing chains' kernels can read. But a backdrop's seed copy is a
+/// *snapshot*: its own kernel then reads the parent's raster up to its own
+/// reach further out, and a bounded chain's raw edge there would ride the
+/// backdrop's blur back into the damage. Rather than grow every
+/// contributor's band by every later reader's reach, the chain simply runs
+/// unbounded — its output is then correct everywhere, whatever reads it.
+/// The mark spreads, because an unbounded chain reads its input everywhere:
+/// everything nested inside a pop chain's layer is unbounded too, and so is
+/// everything a backdrop snapshots — which is what marked it.
+fn chain_margins(plan: &ScenePlan) -> Vec<ChainMargin> {
+    let steps = plan.steps.len();
+    let mut out = vec![ChainMargin { outer: 0, snapshotted: false }; steps];
+    // First walk: the chains, in step order, each layer's own pop-filter
+    // reach — which sits on the layer's `PopLayer` step, after all of its
+    // nesting, the one fact that makes these pre-computed walks rather than
+    // state the traversal could keep — and the initial marking. A backdrop
+    // chain snapshots the parent's raster as of its push: every chain
+    // composited into it since the parent opened, plus the parent's own seed
+    // chain, sitting in its raster since the parent's push. A top-level one
+    // snapshots the frame, whose mark is the beginning.
+    let mut chains: Vec<ChainStep> = Vec::new();
+    let mut snapshotted: Vec<bool> = Vec::new();
+    let mut own = vec![0i32; steps];
+    // Per open layer: its push step, where the chains composited into its
+    // raster begin, and its seed chain, if it is a backdrop layer.
+    let mut open: Vec<(usize, usize, Option<usize>)> = Vec::new();
+    for (at, step) in plan.steps.iter().enumerate() {
+        match *step {
+            Step::PushLayer { backdrop, .. } => {
+                let seed = if backdrop.is_some() {
+                    let (mark, parent_seed) = match open.last() {
+                        Some(&(_, mark, seed)) => (mark, seed),
+                        None => (0, None),
+                    };
+                    for flag in &mut snapshotted[mark..] {
+                        *flag = true;
+                    }
+                    if let Some(slot) = parent_seed {
+                        snapshotted[slot] = true;
+                    }
+                    let slot = chains.len();
+                    chains.push(ChainStep {
+                        at,
+                        pushed: at,
+                        pop: false,
+                    });
+                    snapshotted.push(false);
+                    Some(slot)
+                } else {
+                    None
+                };
+                open.push((at, chains.len(), seed));
+            }
+            Step::PopLayer { filter, .. } => {
+                // A backdrop layer's pop carries no filter — the planner
+                // puts a filter on one side of a layer or the other — and
+                // the margins below depend on that: a layer with both would
+                // smear its own backdrop chain's output by a reach no
+                // margin accounts for.
+                if let Some((pushed, _, seed)) = open.pop() {
+                    debug_assert!(
+                        filter.is_none() || seed.is_none(),
+                        "a layer with both a backdrop and a pop filter breaks \
+                         the band margins"
+                    );
+                    if let Some(filter) = filter {
+                        chains.push(ChainStep { at, pushed, pop: true });
+                        snapshotted.push(false);
+                        own[pushed] = filter.box_radius.map_or(0, blur_reach);
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    // The mark spreads: an unbounded chain reads its input everywhere, and
+    // for a pop chain that input is its layer's raster — everything nested
+    // inside it, the chains whose steps lie in the layer's `[pushed, at)`.
+    // Spreading can mark pop chains that have not spread yet, so round and
+    // round until nothing changes.
+    let mut spread = vec![false; chains.len()];
+    loop {
+        let mut again = false;
+        for slot in 0..chains.len() {
+            if !snapshotted[slot] || spread[slot] || !chains[slot].pop {
+                continue;
+            }
+            spread[slot] = true;
+            let (push_step, pop_step) = (chains[slot].pushed, chains[slot].at);
+            for other in 0..chains.len() {
+                if push_step < chains[other].at && chains[other].at < pop_step {
+                    snapshotted[other] = true;
+                }
+            }
+            again = true;
+        }
+        if !again {
+            break;
+        }
+    }
+    // The enclosing reach, per chain: the sum of the open layers' own
+    // reaches over the chain's step — before the push for a backdrop (its
+    // layer adds nothing to what is inside it), after the pop for a pop
+    // filter (its own filter is the chain). Saturating, and capped at a
+    // quarter of the coordinate range: past any frame's width the band is
+    // everything the rect touches either way, and the cap keeps
+    // `PixelRect::inflate`'s arithmetic inside `i32` for every coordinate a
+    // frame can have.
+    let sum = |open: &[i32]| {
+        open.iter()
+            .fold(0i32, |a, b| a.saturating_add(*b))
+            .min(i32::MAX / 4)
+    };
+    let mut open: Vec<i32> = Vec::new();
+    for (at, step) in plan.steps.iter().enumerate() {
+        match *step {
+            Step::PushLayer { backdrop, .. } => {
+                if backdrop.is_some() {
+                    out[at].outer = sum(&open);
+                }
+                open.push(own[at]);
+            }
+            Step::PopLayer { filter, .. } => {
+                open.pop();
+                if filter.is_some() {
+                    out[at].outer = sum(&open);
+                }
+            }
+            _ => {}
+        }
+    }
+    for (slot, chain) in chains.iter().enumerate() {
+        out[chain.at].snapshotted = snapshotted[slot];
+    }
+    out
 }
 
 /// Convert a frame of premultiplied RGBA16F texels into the straight-alpha
@@ -1326,6 +1647,10 @@ mod tests {
                     TargetId::Level(1)
                 }
             );
+            // No damage: the chain still covers the whole rect, reads the
+            // whole rect.
+            assert_eq!(pass.scissor, layer);
+            assert_eq!(pass.read, layer);
         }
     }
 
@@ -1597,6 +1922,380 @@ mod tests {
         let damage = rect(20, 20, 30, 30);
         let frame = frame_passes(&plan, W, H, CLEAR, Some(&[damage]), retained);
         assert_eq!(frame.redrawn, Redrawn::Full);
+    }
+
+    /// A damaged frame runs a layer's blur chain over the damage grown by
+    /// the chain's reach — three box passes of radius 2 read 6 pixels away —
+    /// not over the layer's whole rectangle, while the composite into
+    /// `L[0]` keeps its own clip: the damage alone.
+    #[test]
+    fn a_damaged_frame_blurs_only_the_damage_grown_by_the_blurs_reach() {
+        let layer = rect(10, 10, 90, 90);
+        let plan = plan(
+            vec![
+                Step::PushLayer {
+                    rect: layer,
+                    backdrop: None,
+                },
+                Step::Draw {
+                    first_run: 0,
+                    run_count: 1,
+                },
+                Step::PopLayer {
+                    rect: layer,
+                    composite: Some(layer),
+                    filter: Some(FilterOp {
+                        box_radius: Some(2),
+                        color_matrix: None,
+                    }),
+                    mask: None,
+                    blend: BlendMode::Normal,
+                    alpha: 1.0,
+                },
+            ],
+            1,
+        );
+        let retained = Some(Retained {
+            size: (W, H),
+            clear: CLEAR,
+        });
+        let damage = rect(30, 40, 50, 60);
+        let frame = frame_passes(&plan, W, H, CLEAR, Some(&[damage]), retained);
+        let band = damage.inflate(3 * 2).intersect(layer);
+        let blurs: Vec<&PostPass> = frame
+            .ops
+            .iter()
+            .filter_map(|op| match op {
+                SceneOp::Post { pass, .. }
+                    if pass.push.args[0] == mode::BOX_H || pass.push.args[0] == mode::BOX_V =>
+                {
+                    Some(pass)
+                }
+                _ => None,
+            })
+            .collect();
+        assert_eq!(blurs.len(), 6, "the chain still ping-pongs three times");
+        for pass in blurs {
+            assert_eq!(
+                pass.scissor, band,
+                "the chain runs over the damage grown by 3r"
+            );
+            assert_eq!(
+                pass.read, layer,
+                "the edge clamp still reads the whole layer rect"
+            );
+        }
+        let (pass, scissors) = frame
+            .ops
+            .iter()
+            .find_map(|op| match op {
+                SceneOp::Post { pass, scissors, .. } if pass.push.args[0] == mode::OVER => {
+                    Some((pass, scissors))
+                }
+                _ => None,
+            })
+            .expect("the layer composites");
+        assert_eq!(pass.src, TargetId::Level(1));
+        assert_eq!(scissors, &vec![damage], "the composite is held to the damage");
+    }
+
+    /// A blur inside a blur: the inner chain's band grows by the outer
+    /// blur's reach as well as its own. Its raw, unblurred edge outside a
+    /// per-filter band would ride the outer blur back into the damage — the
+    /// accumulated reach is what the margin must cover.
+    #[test]
+    fn a_blur_inside_a_blur_grows_its_band_by_what_still_encloses_it() {
+        let outer_rect = rect(0, 0, 100, 100);
+        let inner_rect = rect(20, 20, 60, 60);
+        let plan = plan(
+            vec![
+                Step::PushLayer {
+                    rect: outer_rect,
+                    backdrop: None,
+                },
+                Step::PushLayer {
+                    rect: inner_rect,
+                    backdrop: None,
+                },
+                Step::Draw {
+                    first_run: 0,
+                    run_count: 1,
+                },
+                Step::PopLayer {
+                    rect: inner_rect,
+                    composite: Some(inner_rect),
+                    filter: Some(FilterOp {
+                        box_radius: Some(1),
+                        color_matrix: None,
+                    }),
+                    mask: None,
+                    blend: BlendMode::Normal,
+                    alpha: 1.0,
+                },
+                Step::PopLayer {
+                    rect: outer_rect,
+                    composite: Some(outer_rect),
+                    filter: Some(FilterOp {
+                        box_radius: Some(5),
+                        color_matrix: None,
+                    }),
+                    mask: None,
+                    blend: BlendMode::Normal,
+                    alpha: 1.0,
+                },
+            ],
+            2,
+        );
+        let retained = Some(Retained {
+            size: (W, H),
+            clear: CLEAR,
+        });
+        let damage = rect(40, 40, 44, 44);
+        let frame = frame_passes(&plan, W, H, CLEAR, Some(&[damage]), retained);
+        let bands = |level: usize| -> Vec<PixelRect> {
+            frame
+                .ops
+                .iter()
+                .filter_map(|op| match op {
+                    SceneOp::Post { pass, .. }
+                        if (pass.push.args[0] == mode::BOX_H
+                            || pass.push.args[0] == mode::BOX_V)
+                            && (pass.into == TargetId::Scratch(level)
+                                || pass.into == TargetId::Level(level)) =>
+                    {
+                        Some(pass.scissor)
+                    }
+                    _ => None,
+                })
+                .collect()
+        };
+        // The inner chain: radius 1 (reach 3) inside radius 5 (reach 15).
+        assert_eq!(
+            bands(2),
+            vec![damage.inflate(3 + 15).intersect(inner_rect); 6],
+            "the inner band grows by both reaches"
+        );
+        // The outer chain: radius 5 (reach 15), nothing enclosing it.
+        assert_eq!(
+            bands(1),
+            vec![damage.inflate(15).intersect(outer_rect); 6],
+            "the outer band grows by its own reach alone"
+        );
+    }
+
+    /// A nested blurred layer the damage cannot reach runs no filter pass at
+    /// all. Its parent's composite touches the damage, so the layer is not
+    /// skipped whole — but nothing it filters can influence a damaged pixel,
+    /// so the chain has nothing to contribute.
+    #[test]
+    fn a_filter_the_damage_cannot_reach_runs_not_at_all() {
+        let full = rect(0, 0, 100, 100);
+        let far = rect(60, 60, 90, 90);
+        let plan = plan(
+            vec![
+                Step::PushLayer {
+                    rect: full,
+                    backdrop: None,
+                },
+                Step::PushLayer {
+                    rect: far,
+                    backdrop: None,
+                },
+                Step::Draw {
+                    first_run: 0,
+                    run_count: 1,
+                },
+                Step::PopLayer {
+                    rect: far,
+                    composite: Some(far),
+                    filter: Some(FilterOp {
+                        box_radius: Some(2),
+                        color_matrix: None,
+                    }),
+                    mask: None,
+                    blend: BlendMode::Normal,
+                    alpha: 1.0,
+                },
+                Step::PopLayer {
+                    rect: full,
+                    composite: Some(full),
+                    filter: None,
+                    mask: None,
+                    blend: BlendMode::Normal,
+                    alpha: 1.0,
+                },
+            ],
+            2,
+        );
+        let retained = Some(Retained {
+            size: (W, H),
+            clear: CLEAR,
+        });
+        let frame = frame_passes(
+            &plan,
+            W,
+            H,
+            CLEAR,
+            Some(&[rect(0, 0, 20, 20)]),
+            retained,
+        );
+        assert!(
+            !frame.ops.iter().any(|op| match op {
+                SceneOp::Post { pass, .. } => {
+                    pass.push.args[0] == mode::BOX_H || pass.push.args[0] == mode::BOX_V
+                }
+                _ => false,
+            }),
+            "the chain has nothing to contribute: {:?}",
+            frame.ops
+        );
+        // The layer still composites into its parent, unclipped as ever.
+        assert!(frame.ops.iter().any(|op| match op {
+            SceneOp::Post { pass, .. } => {
+                pass.push.args[0] == mode::OVER && pass.into == TargetId::Level(1)
+            }
+            _ => false,
+        }));
+    }
+
+    /// A colour matrix has no reach of its own: on a damaged frame it runs
+    /// over the damage inside its rect, no more.
+    #[test]
+    fn a_colour_matrix_runs_only_over_the_damage() {
+        let layer = rect(10, 10, 90, 90);
+        let plan = plan(
+            vec![
+                Step::PushLayer {
+                    rect: layer,
+                    backdrop: None,
+                },
+                Step::Draw {
+                    first_run: 0,
+                    run_count: 1,
+                },
+                Step::PopLayer {
+                    rect: layer,
+                    composite: Some(layer),
+                    filter: Some(FilterOp {
+                        box_radius: None,
+                        color_matrix: Some([1.0; 20]),
+                    }),
+                    mask: None,
+                    blend: BlendMode::Normal,
+                    alpha: 1.0,
+                },
+            ],
+            1,
+        );
+        let retained = Some(Retained {
+            size: (W, H),
+            clear: CLEAR,
+        });
+        let damage = rect(20, 20, 40, 40);
+        let frame = frame_passes(&plan, W, H, CLEAR, Some(&[damage]), retained);
+        let matrix = frame
+            .ops
+            .iter()
+            .find_map(|op| match op {
+                SceneOp::Post { pass, .. } if pass.push.args[0] == mode::MATRIX => Some(pass),
+                _ => None,
+            })
+            .expect("the matrix pass");
+        assert_eq!(matrix.scissor, damage);
+        assert_eq!(matrix.read, layer, "the readable region is still the rect");
+        let copy = frame
+            .ops
+            .iter()
+            .find_map(|op| match op {
+                SceneOp::Post { pass, .. }
+                    if pass.push.args[0] == mode::COPY
+                        && pass.into == TargetId::Level(1)
+                        && pass.src == TargetId::Scratch(1) =>
+                {
+                    Some(pass)
+                }
+                _ => None,
+            })
+            .expect("the copy back");
+        assert_eq!(copy.scissor, damage);
+        assert_eq!(copy.read, layer);
+    }
+
+    /// A damaged frame bounds a backdrop filter's chain but not its seed
+    /// copy: the chain reads up to its reach past the band, and the seed is
+    /// what it reads there — a parent that is either redrawn in whole, or
+    /// refused by the damaged frame outright.
+    #[test]
+    fn a_backdrop_chain_is_bounded_but_its_seed_copies_the_whole_rect() {
+        let outer = rect(0, 0, 100, 100);
+        let panel = rect(10, 10, 90, 90);
+        let plan = plan(
+            vec![
+                Step::PushLayer {
+                    rect: outer,
+                    backdrop: None,
+                },
+                Step::PushLayer {
+                    rect: panel,
+                    backdrop: Some(FilterOp {
+                        box_radius: Some(2),
+                        color_matrix: None,
+                    }),
+                },
+                Step::Draw {
+                    first_run: 0,
+                    run_count: 1,
+                },
+                Step::PopLayer {
+                    rect: panel,
+                    composite: Some(panel),
+                    filter: None,
+                    mask: None,
+                    blend: BlendMode::Normal,
+                    alpha: 1.0,
+                },
+                Step::PopLayer {
+                    rect: outer,
+                    composite: Some(outer),
+                    filter: None,
+                    mask: None,
+                    blend: BlendMode::Normal,
+                    alpha: 1.0,
+                },
+            ],
+            2,
+        );
+        let retained = Some(Retained {
+            size: (W, H),
+            clear: CLEAR,
+        });
+        let damage = rect(30, 30, 50, 50);
+        let frame = frame_passes(&plan, W, H, CLEAR, Some(&[damage]), retained);
+        assert_eq!(frame.redrawn, Redrawn::Damage { pixels: 400 });
+        let seed = frame
+            .ops
+            .iter()
+            .find_map(|op| match op {
+                SceneOp::Post { pass, .. }
+                    if pass.push.args[0] == mode::COPY
+                        && pass.into == TargetId::Level(2)
+                        && pass.src == TargetId::Level(1) =>
+                {
+                    Some(pass)
+                }
+                _ => None,
+            })
+            .expect("the backdrop seed copies the parent");
+        assert_eq!(seed.scissor, panel, "the seed still copies the whole rect");
+        let band = damage.inflate(3 * 2).intersect(panel);
+        for op in &frame.ops {
+            if let SceneOp::Post { pass, .. } = op {
+                if pass.push.args[0] == mode::BOX_H || pass.push.args[0] == mode::BOX_V {
+                    assert_eq!(pass.scissor, band, "the chain runs over the band");
+                    assert_eq!(pass.read, panel);
+                }
+            }
+        }
     }
 
     #[test]

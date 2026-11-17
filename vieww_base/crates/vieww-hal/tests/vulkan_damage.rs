@@ -12,10 +12,16 @@
 //!
 //! The scenes are built to break the ways clipping can go wrong: a blurred
 //! layer and a shadow straddling the damage (their blurs read pixels outside
-//! it), a blend-mode layer (it snapshots the frame and reads it back), and a
+//! it), a blend-mode layer (it snapshots the frame and reads it back), a
 //! backdrop filter both inside the damage and reaching outside it (outside,
 //! the frame target holds last frame's *finished* picture, so the renderer
-//! must refuse the damage and redraw everything).
+//! must refuse the damage and redraw everything), and — the damage-bounded
+//! filter bands — a frosted header whose rectangle is only partially damaged
+//! (nested, so the damaged path is taken at all; the damage names the ticking
+//! row *grown by the header's blur reach*, because that grown region is what
+//! actually differs between the frames) and a blur inside a wider blur (the
+//! inner band must grow by the outer's reach, or its raw edge rides the
+//! outer blur back into the damage).
 //!
 //! `#[ignore]`d like the other Vulkan suites: run with
 //! `cargo test -p vieww-hal --features vulkan -- --ignored --test-threads=1`.
@@ -199,6 +205,93 @@ fn chip_damage() -> Vec<PixelRect> {
         .collect()
 }
 
+/// Rows of content under a frosted header, with the ticking row's colour the
+/// only change between frames. The header is a backdrop-blur panel *nested*
+/// in a group layer: a top-level backdrop whose rect the damage only partly
+/// covers must refuse the damage (outside it, the frame target holds last
+/// frame's finished picture), while a nested one reads a parent that is
+/// redrawn in whole — so the damaged path runs with the panel's rectangle
+/// only partially damaged, and its chain runs over the damage grown by its
+/// reach instead of the whole header.
+fn frosted_header(tick: Color) -> Scene {
+    let mut scene = Scene::default();
+    checker(&mut scene);
+    // The group: translucent, so it gets a target of its own to nest in.
+    push_layer(
+        &mut scene,
+        Rect::new(0.0, 0.0, 128.0, 96.0),
+        BlendMode::Normal,
+        ImageFilter::NONE,
+        Clip::NONE,
+    );
+    // Five rows; the third is the one that ticks.
+    for row in 0..5u32 {
+        let color = if row == 2 {
+            tick
+        } else {
+            Color::rgba(110, 130, 150, 255)
+        };
+        #[expect(clippy::cast_precision_loss, reason = "small row index")]
+        let top = 10.0 + 16.0 * row as f32;
+        fill(&mut scene, Rect::new(8.0, top, 120.0, top + 12.0), color);
+    }
+    // The frosted header over the top three rows.
+    let panel = Rect::new(4.0, 4.0, 124.0, 58.0);
+    push_layer(
+        &mut scene,
+        panel,
+        BlendMode::Normal,
+        ImageFilter::backdrop_blur(3.0),
+        rounded_clip(panel, 6.0),
+    );
+    fill(&mut scene, panel, Color::rgba(255, 255, 255, 70));
+    scene.push_command(Command::PopLayer);
+    scene.push_command(Command::PopLayer);
+    scene
+}
+
+/// A blurred panel holding a differently-blurred chip, with the colour of a
+/// small square inside the chip the only change between frames. Both chains
+/// run on bands; the chip's must grow by the panel's reach as well as its
+/// own — grown by its own reach alone it would leave the chip's rim raw
+/// exactly where the panel's blur reads it back into the damage. The chip is
+/// wide and its fill runs near its rim so that rim has ink to leave raw: a
+/// per-filter margin here is a visible wrong answer, not a smaller band.
+fn nested_blurs(tick: Color) -> Scene {
+    let mut scene = Scene::default();
+    checker(&mut scene);
+    // The panel: blur(6.0), box radius 6, reach 18.
+    push_layer(
+        &mut scene,
+        Rect::new(8.0, 8.0, 120.0, 88.0),
+        BlendMode::Normal,
+        ImageFilter::blur(6.0),
+        Clip::NONE,
+    );
+    fill(
+        &mut scene,
+        Rect::new(16.0, 16.0, 112.0, 80.0),
+        Color::rgba(30, 30, 60, 130),
+    );
+    // The chip: blur(1.5), box radius 1, reach 3.
+    push_layer(
+        &mut scene,
+        Rect::new(24.0, 16.0, 104.0, 80.0),
+        BlendMode::Normal,
+        ImageFilter::blur(1.5),
+        Clip::NONE,
+    );
+    fill(
+        &mut scene,
+        Rect::new(28.0, 20.0, 100.0, 76.0),
+        Color::rgba(240, 240, 240, 220),
+    );
+    fill(&mut scene, Rect::new(56.0, 44.0, 72.0, 56.0), tick);
+    scene.push_command(Command::PopLayer);
+    scene.push_command(Command::PopLayer);
+    scene
+}
+
 fn render(
     gpu: &mut Gpu,
     planner: &mut Planner,
@@ -321,6 +414,61 @@ fn a_backdrop_filter_reaching_outside_the_damage_redraws_everything() {
         &chip_damage(),
     );
     assert_eq!(redrawn, Redrawn::Full);
+}
+
+/// A filter's rect only partially damaged: a frosted header over ticking
+/// rows, the header nested so the damaged path is taken at all. The damage
+/// names the ticking row grown by the header's blur reach — the row's new
+/// colour shows through the frosted panel smeared by its blur, so that
+/// grown region, not the bare row, is what differs between the frames — and
+/// the panel's own rectangle is still only partially inside it, so its chain
+/// runs over the damage grown by its reach instead of the whole header. The
+/// damaged frame must still be the full frame, byte for byte.
+#[test]
+#[ignore = "needs a Vulkan loader + ICD; run with `cargo test -p vieww-hal --features vulkan -- --ignored --test-threads=1`"]
+fn a_partially_damaged_backdrop_blur_matches_a_full_redraw() {
+    // The ticking row is (8, 42)-(120, 54); the header's backdrop blur is
+    // box radius 3, reach 9, so the damage names the row grown by 9 (plus
+    // the antialiasing margin every fixture here uses).
+    let damage = [PixelRect::round_out(Rect::new(2.0, 31.0, 126.0, 60.0))];
+    let redrawn = damaged_matches_full(
+        "backdrop header",
+        &frosted_header(Color::rgba(250, 250, 250, 255)),
+        &frosted_header(Color::rgba(60, 200, 90, 255)),
+        &damage,
+    );
+    assert_eq!(
+        redrawn,
+        Redrawn::Damage { pixels: 124 * 29 },
+        "the nested panel keeps the damaged path usable"
+    );
+}
+
+/// The accumulated margin: a blur inside a *wider* blur, with a small
+/// damaged square inside the inner one. The damage names the square grown by
+/// both blurs' reaches — through the chip's blur (3) and then the panel's
+/// (18) is how far the tick's new colour carries, so that is what differs
+/// between the frames — and the inner chain's band must grow by the outer
+/// blur's reach too: a per-filter margin would leave the chip's rim raw
+/// where the panel's blur reads it, and the damaged frame would diverge from
+/// a full redraw. This is the pixel-level proof it does not.
+#[test]
+#[ignore = "needs a Vulkan loader + ICD; run with `cargo test -p vieww-hal --features vulkan -- --ignored --test-threads=1`"]
+fn a_blur_inside_a_blur_matches_a_full_redraw_under_partial_damage() {
+    // The ticking square is (56, 44)-(72, 56); the damage names it grown by
+    // 3 + 18, plus the antialiasing margin.
+    let damage = [PixelRect::round_out(Rect::new(33.0, 21.0, 95.0, 79.0))];
+    let redrawn = damaged_matches_full(
+        "blur in blur",
+        &nested_blurs(Color::rgba(250, 80, 80, 255)),
+        &nested_blurs(Color::rgba(80, 80, 250, 255)),
+        &damage,
+    );
+    assert_eq!(
+        redrawn,
+        Redrawn::Damage { pixels: 62 * 58 },
+        "nothing here forces a full redraw"
+    );
 }
 
 #[test]
