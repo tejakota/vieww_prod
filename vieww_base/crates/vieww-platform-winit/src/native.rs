@@ -1682,6 +1682,37 @@ impl NativeRenderer {
             }
             _ => None,
         };
+        // **A no-op present for a frame that draws nothing.** `gpu_damage`
+        // is `Some` only when the screen shows the GPU's own last frame at
+        // exactly this scale (the arm's guard above), so an empty region
+        // list with no copies to carry means plan, render and present would
+        // all redraw a picture that is already on screen - the direct route
+        // by design, the blit route by default, 1.7-5.0 ms of app work plus
+        // a GPU woken per idle wake on every phone (the battery regression
+        // the CPU path never had: its Android presenter posts nothing).
+        //
+        // Present nothing and keep the state that licensed the no-op, so
+        // consecutive idle frames chain: the next frame's `gpu_damage` arm
+        // matches again. Anything else - damage, copies, a first frame, a
+        // resize, a mixed frame that reset `gpu_frame_current` - takes the
+        // full path as before. `drawn_on_gpu` is true (the GPU route owns
+        // the screen, and the stats class on it), and `presented_directly`
+        // is true in the sense that counter exists for: this frame reached
+        // the screen without host memory, by staying on it. The wait_loop
+        // gpu_frame scenario's readback-or-direct assertion holds for a
+        // frame that presented nothing, because nothing went through the
+        // readback - and the counter must not become a third state the
+        // suites have to learn.
+        if gpu_damage.as_deref().is_some_and(<[PixelRect]>::is_empty) && gpu_copies.is_empty() {
+            self.gpu_frame_current = Some(render_scale);
+            return Ok(PlannedFrame {
+                report: SceneReport::default(),
+                drawn_on_gpu: true,
+                presented_directly: true,
+                stages: self.stages,
+                gpu_redrawn: None,
+            });
+        }
         let lifting = Instant::now();
         let (lifted_extent, lifted_scale) = if render_scale < 1.0 {
             #[expect(
