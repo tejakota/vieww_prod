@@ -295,8 +295,53 @@ fn shade(frag: vec4<f32>, with_blur: bool) -> vec4<f32> {
     return vec4<f32>(0.0);
 }
 
+// The blur's tap at `q` pixels along a scanline from `anchor`, read in the
+// pass's edge mode — the same two reads the per-pixel tap loop made at each
+// offset.
+fn blur_tap(anchor: vec2<i32>, step: vec2<i32>, q: i32, clamped: bool) -> vec4<f32> {
+    if clamped {
+        return src_clamped(anchor + step * q);
+    }
+    return src_at(anchor + step * q);
+}
+
 // Modes 1 (horizontal) and 2 (vertical): a box blur of radius args.y,
 // clamped to the source rectangle when args.z > 0.5.
+//
+// A running sum — the form the CPU kernels already use (`effects.rs`'s
+// `horizontal`/`vertical` for the clamp mode, `shadow.rs`'s
+// `box_blur_horizontal`/`box_blur_vertical` for the transparent one): seed
+// the window once at the scanline's first pixel, then advance it with one
+// add and one sub per pixel — `sum + (entering - leaving)` — instead of
+// gathering all `2r + 1` taps again at every pixel.
+//
+// **Seed derivation** (the window's content at x = 0 / y = 0, which the
+// tap loop gathered as taps `-r..=r`):
+//
+// * *Duplicate* (`args.z > 0.5`, the backdrop/layer edge mode): taps before
+//   the near edge read the edge pixel, so the first sample counts `r + 1`
+//   times, then offsets `1..=min(r, span - 1)` follow, and when
+//   `span <= r` the taps past the far edge repeat the last sample
+//   `r + 1 - span` times — `src_clamped`'s clamp written out as a sum, the
+//   same three adds `effects.rs`'s seed makes, in the same order.
+// * *Transparent* (the shadow edge mode): taps before the near edge are
+//   transparent, so the seed sums offsets `0..=min(r, span - 1)` over a
+//   zero — the out-of-window half of `shadow.rs`'s seed, which starts its
+//   sum at 0 for exactly this reason; taps past the far edge read as
+//   transparent too, just as `src_at` reads them.
+//
+// The slide reads the entering tap (`i + r + 1`) and the leaving tap
+// (`i - r`) through the same edge-mode read the tap loop used, so every
+// pixel's window holds the same samples the tap loop gathered; only the
+// order the additions happen in differs, which is the one place the parity
+// suites' 2/255 tolerance is the referee rather than byte identity — and
+// the CPU oracle runs this same running order, so the shader now follows
+// it addition for addition.
+//
+// Still divided by `2r + 1`, never multiplied by a reciprocal: the CPU
+// divides (`effects.rs`: "`x / w` and `x * (1/w)` differ in the last bit"),
+// and the running form's subtract-then-add is already the drift that
+// tolerance budget exists to cover.
 fn box_blur(p: vec2<i32>, mode: i32) -> vec4<f32> {
     let r = i32(round(pc.args.y));
     var step = vec2<i32>(1, 0);
@@ -304,15 +349,56 @@ fn box_blur(p: vec2<i32>, mode: i32) -> vec4<f32> {
         step = vec2<i32>(0, 1);
     }
     let clamped = pc.args.z > 0.5;
+    let lo = vec2<i32>(i32(pc.region.x), i32(pc.region.y));
+    // This pixel's scanline — its row for a horizontal pass, its column for
+    // a vertical one — anchored at the region's near edge: `anchor` is the
+    // scanline's first pixel, `span` its length, `pos` this pixel's offset
+    // along it. Fragments run only inside the scissored band, which the
+    // executor keeps inside the read rectangle, so `pos` is in 0..span.
+    var anchor = vec2<i32>(lo.x, p.y);
+    var span = i32(pc.region.z) - i32(pc.region.x);
+    var pos = p.x - lo.x;
+    if mode == 2 {
+        anchor = vec2<i32>(p.x, lo.y);
+        span = i32(pc.region.w) - i32(pc.region.y);
+        pos = p.y - lo.y;
+    }
+    let far = min(r, span - 1);
+
     var sum = vec4<f32>(0.0);
-    // `0 - r`, not `-r`: naga lowers integer negation to
-    // `asint(-asuint(v))`, and FXC aborts compiling that (see fs_main).
-    for (var k = 0 - r; k <= r; k = k + 1) {
-        if clamped {
-            sum = sum + src_clamped(p + step * k);
-        } else {
-            sum = sum + src_at(p + step * k);
+    if clamped {
+        // Duplicate: the first sample counts r + 1 times — once here, r
+        // more below; one load, the same r adds the CPU's seed makes of
+        // `src_row[0]` (likewise the far-edge repeats at the bottom).
+        let first = blur_tap(anchor, step, 0, true);
+        sum = first;
+        for (var i = 0; i < r; i = i + 1) {
+            sum = sum + first;
         }
+        for (var i = 1; i <= far; i = i + 1) {
+            sum = sum + blur_tap(anchor, step, i, true);
+        }
+        if span <= r {
+            let last = blur_tap(anchor, step, span - 1, true);
+            for (var i = 0; i < r + 1 - span; i = i + 1) {
+                sum = sum + last;
+            }
+        }
+    } else {
+        // Transparent: only the in-range taps contribute; the rest of the
+        // window is the zeros the sum started at.
+        for (var i = 0; i <= far; i = i + 1) {
+            sum = sum + blur_tap(anchor, step, i, false);
+        }
+    }
+
+    // One add and one sub per pixel between the seed and this one. All
+    // offsets are binary subtractions (`i - r`, never `-r`): naga lowers
+    // integer negation to `asint(-asuint(v))`, which FXC aborts on (see
+    // fs_main).
+    for (var i = 0; i < pos; i = i + 1) {
+        sum = sum + (blur_tap(anchor, step, i + r + 1, clamped)
+            - blur_tap(anchor, step, i - r, clamped));
     }
     return sum / f32(2 * r + 1);
 }
