@@ -6,12 +6,12 @@
 | job | verdict | failed steps |
 |---|---|---|
 | plan / plan | PASS |  |
+| phase-1 / matrix.title | skipped |  |
 | phase-1 / Market Watch · compare-vieww-apk | PASS |  |
 | phase-1 / approve | skipped |  |
-| phase-1 / matrix.title | skipped |  |
 | phase-2 / Market Watch · compare-firebase | FAIL | Market Watch · compare-firebase |
-| phase-2 / matrix.title | skipped |  |
 | phase-2 / approve | skipped |  |
+| phase-2 / matrix.title | skipped |  |
 | results / publish | running |  |
 | phase-3 | skipped |  |
 
@@ -24,6 +24,8 @@
 - PASS: What runs
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
+
+### phase-1 / matrix.title — skipped
 
 ### phase-1 / Market Watch · compare-vieww-apk — PASS
 - PASS: Set up job
@@ -59,8 +61,6 @@
 
 ### phase-1 / approve — skipped
 
-### phase-1 / matrix.title — skipped
-
 ### phase-2 / Market Watch · compare-firebase — FAIL
 - PASS: Set up job
 - skipped: Long paths (Windows)
@@ -92,16 +92,13 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-2 / matrix.title — skipped
-
 ### phase-2 / approve — skipped
 
+### phase-2 / matrix.title — skipped
+
 ### results / publish — running
-- PASS: Set up job
-- running: Collect the run
-- running: Run actions/checkout@v4
-- running: Write to the ci-results branch
+- running: Set up job
 
 ### phase-3 — skipped
 
-- artifacts: compare-vieww-apk compare-firebase 
+- artifacts: compare-firebase compare-vieww-apk compare-firebase 
