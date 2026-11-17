@@ -27,7 +27,8 @@
 //! assert that equality directly.
 //!
 //! The key hashes the band's pixel values (four `f32` bit patterns per
-//! pixel, FNV-1a), plus the three kernel parameters the output actually
+//! pixel, FNV-1a eight bytes at a time — see [`WordHasher`]), plus the
+//! three kernel parameters the output actually
 //! depends on: width, band height and `radius`. Note what is *not* in the
 //! key: `sigma` itself. Two sigmas that round to the same `radius` produce
 //! identical output by construction — the kernel never sees the difference —
@@ -245,8 +246,9 @@ pub(crate) const DEFAULT_BLUR_CACHE_BUDGET_BYTES: usize = 8 * 1024 * 1024;
 /// * **The hash, not a `&[Premul]` compare.** The band is tens of
 ///   thousands of pixels; comparing it entry-by-entry would cost what the
 ///   cache exists to save. FNV-1a over the four `f32` bit patterns per
-///   pixel is one sequential pass (cheaper than *one* box pass, let alone
-///   six) and exact: the rasterizer is deterministic — the raster-identity
+///   pixel — eight bytes per step, [`WordHasher`] — is one sequential
+///   pass (cheaper than *one* box pass, let alone six) and exact: the
+///   rasterizer is deterministic — the raster-identity
 ///   gate's own premise — so identical frames produce identical bits, and
 ///   `to_bits()` keeps that promise through the hash where `PartialEq`
 ///   on floats would not (-0.0 and 0.0 are "equal" but blur differently
@@ -286,21 +288,154 @@ pub(crate) fn default_blur_cache() -> BlurCache {
     super::residency::ResidencyCache::new(budget)
 }
 
-/// FNV-1a 64, byte-wise over each channel's IEEE bit pattern. Byte-wise
-/// rather than word-wise so a change in any of the 32 bits spreads; the
-/// constants are the standard ones, and the loop is over `Premul`s the
-/// band walk already has in cache.
-fn hash_band(rows: &[Premul]) -> u64 {
-    let mut hash: u64 = 0xcbf2_9ce4_8422_2325;
-    for pixel in rows {
-        for channel in [pixel.r, pixel.g, pixel.b, pixel.a] {
-            for byte in channel.to_bits().to_le_bytes() {
-                hash ^= byte as u64;
-                hash = hash.wrapping_mul(0x100_0000_01b3);
-            }
-        }
+/// The shared engine of the cache-probe hashes: FNV-1a 64 taken eight
+/// bytes at a time. [`hash_band`] below and `fill_cache::hash_polylines`
+/// both probe through this one hasher — their requirements are the same
+/// requirements, so there is one copy of the rule, not two near-copies
+/// drifting apart.
+///
+/// **Why word-wise.** Both probes used to run textbook byte-wise FNV-1a:
+/// one xor-multiply per input byte — sixteen per `Premul`, eight per path
+/// point — a full serial pass over every input byte on every cache
+/// probe. A probe that costs that much is half the reason the fill cache
+/// lost its A/B (`fill_cache.rs`'s module docs), so the step here is a
+/// whole `u64`: xor it in, multiply by the FNV prime. Two arithmetic ops
+/// where the byte form spent eight or sixteen, with the same single
+/// pass, no allocation, no branch.
+///
+/// **Keys, not pixels — the values are allowed to move.** These hashes
+/// are cache keys; the values they address are pure functions of
+/// content, so a hit still returns exactly the bytes a miss would have
+/// produced, and the key space itself is not under the raster-identity
+/// gate: identical content now hashes to a different 64-bit value than
+/// the byte-wise form gave it. What must hold is the collision class,
+/// and it does. Multiplication by the odd FNV prime is a bijection on
+/// `u64`, so the per-word step never merges two different words, and
+/// [`finish`](Self::finish)'s avalanche is a bijection too, so it cannot
+/// merge two different final states. Collisions stay 2^-64-class per
+/// pair — the arithmetic [`BlurKey`]'s docs already carry.
+///
+/// **Fixed constants, never `DefaultHasher`.** A key must be stable
+/// across processes and renderer instances: `SipHash` under a
+/// per-`RandomState` seed would hand every process a different key
+/// space — invisible within one run, fatal to any cross-run comparison.
+/// FNV's standard offset basis and prime, no seed, no dependency.
+///
+/// **Tail and length.** A sub-word run (the fill key's one-byte closed
+/// flag) is zero-padded on the right into one word — so `abc` and
+/// `abc\0` pad to the same word — which is exactly why `finish` folds
+/// the total byte count in before the avalanche: two streams that agree
+/// on every word but differ in length cannot share a key. The band's
+/// pixel count is already implied by `BlurKey`'s `width`/`band_h` and
+/// the fill key's by the point counts hashed inside it; folding the
+/// length in anyway is defense-in-depth at three ops, and it is what
+/// makes the shared tail rule safe.
+pub(super) struct WordHasher {
+    state: u64,
+    /// Total bytes mixed — words count 8, tails their own length —
+    /// folded in at `finish`.
+    bytes: u64,
+}
+
+impl WordHasher {
+    /// The FNV-1a 64 offset basis: the standard starting state, so every
+    /// process and every run hashes the same stream to the same key.
+    pub(super) const fn new() -> Self {
+        Self { state: 0xcbf2_9ce4_8422_2325, bytes: 0 }
     }
-    hash
+
+    /// One FNV-1a step at word granularity: xor the whole 8-byte word
+    /// in, then multiply by the prime. The xor puts every input bit
+    /// straight into the state, so "a change in any bit spreads" — the
+    /// byte-wise form's own claim — survives the widening; what the
+    /// per-byte loop added was cost, not diffusion.
+    pub(super) fn mix_word(&mut self, word: u64) {
+        self.state ^= word;
+        self.state = self.state.wrapping_mul(0x100_0000_01b3);
+        self.bytes += 8;
+    }
+
+    /// The tail rule: a run shorter than 8 bytes is zero-padded on the
+    /// right and mixed as one word. Padding alone cannot merge two
+    /// streams — `abc` and `abc\0` produce the same padded word — which
+    /// is why the byte count `finish` folds in is part of the key, not
+    /// bookkeeping.
+    pub(super) fn mix_tail(&mut self, bytes: &[u8]) {
+        debug_assert!(bytes.len() < 8, "a tail is sub-word by contract");
+        if bytes.is_empty() {
+            return;
+        }
+        let mut word = [0u8; 8];
+        word[..bytes.len()].copy_from_slice(bytes);
+        self.state ^= u64::from_le_bytes(word);
+        self.state = self.state.wrapping_mul(0x100_0000_01b3);
+        self.bytes += bytes.len() as u64;
+    }
+
+    /// Seal the stream: fold the byte count in, then avalanche.
+    ///
+    /// The fold is the tail rule's other half — length is content, and a
+    /// stream and its extension must not share a key. The avalanche is
+    /// MurmurHash3's `fmix64`: FNV's multiply diffuses bits strictly
+    /// upward (low into high), so without a final mix the last word's
+    /// high bits would reach the result's high bits barely spread.
+    /// `fmix64` is a bijection on `u64` — it permutes final states
+    /// without merging any, so the 2^-64 collision class survives it.
+    pub(super) fn finish(mut self) -> u64 {
+        self.state ^= self.bytes;
+        self.state = self.state.wrapping_mul(0x100_0000_01b3);
+        self.state ^= self.state >> 33;
+        self.state = self.state.wrapping_mul(0xff51_afd7_ed55_8ccd);
+        self.state ^= self.state >> 33;
+        self.state = self.state.wrapping_mul(0xc4ce_b9fe_1a85_ec53);
+        self.state ^= self.state >> 33;
+        self.state
+    }
+}
+
+/// [`WordHasher`] over one contiguous byte slice: whole words while they
+/// last, the zero-padded tail rule for the last partial chunk, the
+/// length folded in at [`WordHasher::finish`]. The production probes
+/// feed naturally word-aligned fields (`Premul` channels, path points,
+/// counts) and drive the steps directly; this one-shot form is the
+/// byte-slice statement of the rule — the contract the tests pin, kept
+/// compiled outside `cfg(test)` the same way the `blur` oracle is: the
+/// readable statement of the rule, not dead weight.
+#[cfg_attr(not(test), allow(dead_code))]
+pub(super) fn hash_bytes_wordwise(bytes: &[u8]) -> u64 {
+    let mut hasher = WordHasher::new();
+    let (chunks, remainder) = bytes.as_chunks::<8>();
+    for chunk in chunks {
+        hasher.mix_word(u64::from_le_bytes(*chunk));
+    }
+    hasher.mix_tail(remainder);
+    hasher.finish()
+}
+
+/// The blur band's content hash: [`WordHasher`] over every pixel's 16
+/// bytes as two little-endian words. [`Premul`] is `#[repr(C)]` with its
+/// channels in `r, g, b, a` order (`color.rs`), so `r` low half / `g`
+/// high half, then `b` low / `a` high, is exactly the pixel's memory
+/// bytes read as two `u64`s on a little-endian target — built field by
+/// field rather than through a byte-view cast, so no `unsafe` and no
+/// endianness dependence: the packing is fixed by construction, and a
+/// cache key needs a fixed order, not any particular one. Two
+/// xor-multiplies per pixel where the byte-wise FNV-1a this replaces
+/// spent sixteen.
+///
+/// `to_bits()` throughout, as ever: `-0.0` and `0.0` are "equal" to
+/// `PartialEq` but blur differently in the last bit, so the key hashes
+/// them as the different inputs they are. The byte count `finish` folds
+/// in is the pixel count in disguise (16 bytes each) — `BlurKey` already
+/// carries `width` and `band_h`, so a band and its prefix are separated
+/// twice over.
+fn hash_band(rows: &[Premul]) -> u64 {
+    let mut hasher = WordHasher::new();
+    for pixel in rows {
+        hasher.mix_word((pixel.r.to_bits() as u64) | ((pixel.g.to_bits() as u64) << 32));
+        hasher.mix_word((pixel.b.to_bits() as u64) | ((pixel.a.to_bits() as u64) << 32));
+    }
+    hasher.finish()
 }
 
 /// [`blur`], with its result remembered: a layer whose band matches one
@@ -1041,5 +1176,82 @@ mod tests {
                 }
             }
         }
+    }
+
+    // The band hash's contract, pinned. The values it produces are cache
+    // keys, not pixels: they were allowed to move when the byte-wise
+    // FNV-1a became word-wise (they did), and no test may pin a value.
+    // What the tests pin is behavior — the same contract
+    // `fill_cache.rs`'s tests pin for the shared hasher from their side.
+
+    /// xorshift64, the same deterministic no-dependency shape the
+    /// scalar-reference test above uses, over `from_bits` pixels so every
+    /// bit pattern a `Premul` channel can hold is in the sweep, NaNs
+    /// included: the hash reads bits, so bits are the honest input.
+    struct HashRng(u64);
+    impl HashRng {
+        fn word(&mut self) -> u64 {
+            self.0 ^= self.0 << 13;
+            self.0 ^= self.0 >> 7;
+            self.0 ^= self.0 << 17;
+            self.0
+        }
+        fn premul(&mut self) -> Premul {
+            Premul {
+                r: f32::from_bits(self.word() as u32),
+                g: f32::from_bits(self.word() as u32),
+                b: f32::from_bits(self.word() as u32),
+                a: f32::from_bits(self.word() as u32),
+            }
+        }
+    }
+
+    #[test]
+    fn distinct_bands_hash_distinctly_over_a_seeded_sweep() {
+        // 100k three-pixel bands — 48 random bytes each. The expected
+        // number of 64-bit collisions in 100k samples is ~10^-10, so one
+        // here means a broken mixer, not bad luck.
+        let mut rng = HashRng(0x9E37_79B9_7F4A_7C15);
+        let mut seen = std::collections::HashSet::with_capacity(100_000);
+        for _ in 0..100_000 {
+            let band = [rng.premul(), rng.premul(), rng.premul()];
+            seen.insert(hash_band(&band));
+        }
+        assert_eq!(seen.len(), 100_000, "two distinct bands shared a key");
+    }
+
+    #[test]
+    fn equal_bands_hash_equal_and_calls_are_deterministic() {
+        // Two separately generated copies of the same content — the
+        // generator, not a clone, so a stray dependence on anything but
+        // the bits would show — and the same slice twice: a cache key is
+        // a pure function, twice over.
+        let build = || {
+            let mut rng = HashRng(0x0123_4567_89AB_CDEF);
+            (0..9).map(|_| rng.premul()).collect::<Vec<Premul>>()
+        };
+        let (a, b) = (build(), build());
+        assert_eq!(hash_band(&a), hash_band(&b), "same content, same key");
+        assert_eq!(hash_band(&a), hash_band(&a), "stable across calls");
+    }
+
+    #[test]
+    fn a_band_and_its_extension_hash_differently() {
+        // The length mixing. A band and the same band plus one pixel
+        // agree on every word the shorter one mixed, so the folded byte
+        // count and the new words are what separate them. And at the
+        // byte level, through the one-shot form: `abc` and `abc\0` pad
+        // to the same tail word, so nothing but the length fold can
+        // tell them apart — the sharpest statement of the rule.
+        let mut rng = HashRng(0xDEAD_BEEF_CAFE_F00D);
+        let band: Vec<Premul> = (0..4).map(|_| rng.premul()).collect();
+        let mut extended = band.clone();
+        extended.push(rng.premul());
+        assert_ne!(hash_band(&band), hash_band(&extended));
+        assert_ne!(
+            hash_bytes_wordwise(b"abc"),
+            hash_bytes_wordwise(b"abc\0"),
+            "same padded word, different lengths: the fold must separate"
+        );
     }
 }

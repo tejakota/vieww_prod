@@ -19,9 +19,11 @@
 //!
 //! [`rasterize`](super::geometry::fill::rasterize) reads exactly two things:
 //! the polylines (their point bits, their closed flags, their count) and the
-//! clip rectangle. The key is an FNV-1a 64 over all of it, byte-wise, the
-//! same discipline as the blur band's hash — a change in any bit of any
-//! coordinate spreads. Two keys are equal exactly when the walk's inputs are
+//! clip rectangle. The key is an FNV-1a 64 over all of it, word-wise through
+//! the same hasher the blur band's hash uses (`effects.rs`'s `WordHasher` —
+//! eight bytes per step, where both probes used to spend a full serial pass
+//! per byte) — a change in any bit of any coordinate spreads. Two keys are
+//! equal exactly when the walk's inputs are
 //! equal, so a hit is definitionally the same bytes a miss would have
 //! produced: **byte-identity here is structural** — the oracle is
 //! memoised, never reimplemented. (A 64-bit hash collision would hand one
@@ -47,6 +49,10 @@
 //! tier, and the cache is an opt-in (`VIEWW_PATH_CACHE_MB`) until a
 //! workload measures a win — a cheaper hit (shared masks rather than
 //! clones) and admission only for keys seen twice are what it would take.
+//! (The probe's hash is no longer part of that bill: it runs word-wise
+//! now, not the byte-per-step serial pass this account was written
+//! against — the hit cost and the churn are the halves a future A/B
+//! still has to beat.)
 //!
 //! # The budget
 //!
@@ -59,31 +65,33 @@
 
 use vieww_foundation::Rect;
 
+use super::effects::WordHasher;
 use super::geometry::fill::rasterize;
 use super::geometry::flatten::Polyline;
 use super::residency::ResidencyCache;
 
-/// FNV-1a 64, byte-wise, over everything [`rasterize`] reads: each
-/// polyline's point count and point bits and closed flag, the polyline
-/// count, and the clip rectangle's four bits.
+/// The polylines' content hash: the shared word-wise hasher
+/// (`effects.rs`'s [`WordHasher`]) over everything [`rasterize`] reads —
+/// the polyline count, then per polyline the point count, each point's
+/// two `f32` bit patterns packed as one little-endian word, and the
+/// closed flag as the tail rule's one zero-padded byte. The byte-wise
+/// FNV-1a this replaces spent a full serial pass per byte on every
+/// probe — the probe itself was half the reason this cache lost its A/B
+/// (module docs). The hash values moved with the key space, which keys
+/// are allowed to do: the masks under them are pure functions of
+/// content, so a hit is still exactly the bytes a miss would have
+/// produced.
 fn hash_polylines(polylines: &[Polyline]) -> u64 {
-    let mut hash: u64 = 0xcbf2_9ce4_8422_2325;
-    let mix = |hash: &mut u64, bytes: &[u8]| {
-        for &byte in bytes {
-            *hash ^= byte as u64;
-            *hash = hash.wrapping_mul(0x100_0000_01b3);
-        }
-    };
-    mix(&mut hash, &polylines.len().to_le_bytes());
+    let mut hasher = WordHasher::new();
+    hasher.mix_word(polylines.len() as u64);
     for polyline in polylines {
-        mix(&mut hash, &polyline.points.len().to_le_bytes());
+        hasher.mix_word(polyline.points.len() as u64);
         for &(x, y) in &polyline.points {
-            mix(&mut hash, &x.to_bits().to_le_bytes());
-            mix(&mut hash, &y.to_bits().to_le_bytes());
+            hasher.mix_word((x.to_bits() as u64) | ((y.to_bits() as u64) << 32));
         }
-        mix(&mut hash, &[u8::from(polyline.closed)]);
+        hasher.mix_tail(&[u8::from(polyline.closed)]);
     }
-    hash
+    hasher.finish()
 }
 
 /// The fill cache's key: the content hash of the polylines plus the clip
@@ -356,5 +364,104 @@ mod tests {
         let b = cache.coverage(&empty, clip);
         assert!(a.is_empty() && b.is_empty());
         assert_eq!(cache.stats().hits, 1, "even emptiness is memoised");
+    }
+
+    // The polyline hash's contract, pinned from this side of the shared
+    // hasher (`effects.rs`'s tests pin it over bands and raw bytes): the
+    // values are keys, not pixels — allowed to move when byte-wise FNV-1a
+    // became word-wise, and never pinned to a number here. Behavior only:
+    // deterministic, equal for equal content, distinct for distinct
+    // content, and length-sensitive at every granularity the key has.
+
+    /// xorshift64 over `from_bits` coordinates, so every bit pattern an
+    /// `f32` can hold is in the sweep, not just friendly ones: the hash
+    /// reads bits, so bits are the honest input.
+    struct HashRng(u64);
+    impl HashRng {
+        fn word(&mut self) -> u64 {
+            self.0 ^= self.0 << 13;
+            self.0 ^= self.0 >> 7;
+            self.0 ^= self.0 << 17;
+            self.0
+        }
+        fn point(&mut self) -> (f32, f32) {
+            (
+                f32::from_bits(self.word() as u32),
+                f32::from_bits(self.word() as u32),
+            )
+        }
+    }
+
+    #[test]
+    fn distinct_polyline_sets_hash_distinctly_over_a_seeded_sweep() {
+        // 100k one-polyline sets of three random points and a random
+        // closed flag — every field the key reads is swept. Expected
+        // 64-bit collisions in 100k samples: ~10^-10; one here is a
+        // broken mixer, not bad luck.
+        let mut rng = HashRng(0x2545_F491_4F6C_DD1D);
+        let mut seen = std::collections::HashSet::with_capacity(100_000);
+        for _ in 0..100_000 {
+            let polylines = vec![Polyline {
+                points: vec![rng.point(), rng.point(), rng.point()],
+                closed: (rng.word() & 1) == 0,
+            }];
+            seen.insert(hash_polylines(&polylines));
+        }
+        assert_eq!(seen.len(), 100_000, "two distinct shape sets shared a key");
+    }
+
+    #[test]
+    fn equal_polyline_sets_hash_equal_and_calls_are_deterministic() {
+        // Separately generated copies — including an empty polyline, so
+        // the count-only parts of the stream are exercised too — and the
+        // same slice twice: a cache key is a pure function, twice over.
+        let build = || {
+            let mut rng = HashRng(0x853C_49E6_748F_EA9B);
+            vec![
+                Polyline {
+                    points: vec![rng.point(), rng.point()],
+                    closed: true,
+                },
+                Polyline {
+                    points: Vec::new(),
+                    closed: false,
+                },
+            ]
+        };
+        let (a, b) = (build(), build());
+        assert_eq!(hash_polylines(&a), hash_polylines(&b), "same content, same key");
+        assert_eq!(hash_polylines(&a), hash_polylines(&a), "stable across calls");
+    }
+
+    #[test]
+    fn a_polyline_set_and_its_extension_hash_differently() {
+        // The length mixing at every granularity the key has: one more
+        // point (a changed count word and a new word), one more polyline
+        // (a changed count word), and the tail rule's own case — the same
+        // points with the closed flag flipped, a one-byte input whose
+        // padded word is 0 or 1.
+        let mut rng = HashRng(0xB529_7A4D_3F84_D5C1);
+        let points = vec![rng.point(), rng.point(), rng.point()];
+        let base = vec![Polyline {
+            points: points.clone(),
+            closed: false,
+        }];
+
+        let mut with_point = vec![Polyline {
+            points: points.clone(),
+            closed: false,
+        }];
+        with_point[0].points.push(rng.point());
+        assert_ne!(hash_polylines(&base), hash_polylines(&with_point));
+
+        let mut with_polyline = base.clone();
+        with_polyline.push(Polyline {
+            points: vec![rng.point()],
+            closed: false,
+        });
+        assert_ne!(hash_polylines(&base), hash_polylines(&with_polyline));
+
+        let closed = vec![Polyline { points, closed: true }];
+        assert_ne!(hash_polylines(&base), hash_polylines(&closed));
     }
 }
