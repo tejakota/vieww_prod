@@ -36,6 +36,7 @@ CHANGED, ALL = "What this branch changed", "All projects"
 # Devices ▸ Phone farm's two Market Watch choices (2-devices.yml's options).
 COMPARE = "Valdi vs Vieww (Android)"
 COMPARE_WIDE = "Valdi vs Vieww · wide (phones + machines)"
+COMPARE_FIREBASE = "Vieww on Firebase Test Lab (free)"
 COMPARE_QUICK = "Valdi vs Vieww · quick (Vieww only, ~$2)"
 SKIP_DIRS = {".git", "target", "node_modules", ".gradle", "build", "dist", "feature_branch_variants", "__pycache__"}
 PHASES = 3
@@ -447,6 +448,10 @@ def form_flags(workflow, form, vars_):
     # phone on USB when ticked, and the CPU path on machines — GitHub's six
     # OS/CPU pairs and your own Linux / Windows / Mac when ticked.
     flags["farm.wide"] = farm == COMPARE_WIDE
+    # Firebase Test Lab: Vieww's two paths as a Game Loop test on the free
+    # Spark plan. It builds the Vieww APK and nothing that runs on AWS.
+    flags["farm.firebase"] = farm == COMPARE_FIREBASE
+    flags["farm.vieww_apk"] = farm in (COMPARE, COMPARE_WIDE, COMPARE_QUICK, COMPARE_FIREBASE)
     # Quick: Vieww's two paths only, no thermal pass, short rests. Valdi is
     # pinned, so its numbers stand from the last full report.
     flags["farm.quick"] = "1" if farm == COMPARE_QUICK else "0"

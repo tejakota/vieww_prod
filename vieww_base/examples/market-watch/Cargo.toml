@@ -33,6 +33,8 @@ vieww-animation.workspace = true
 vieww-platform-winit.workspace = true
 android_logger = "0.14"
 log = "0.4"
+# Reading the Game Loop intent Firebase Test Lab launches the app with.
+jni = "0.21"
 
 # Read by `cargo apk`, ignored by every other build. Its own package, so it
 # installs beside the demo app and the Valdi app without replacing either.
@@ -56,6 +58,13 @@ config_changes = "orientation|screenSize|smallestScreenSize|keyboardHidden|scree
 [[package.metadata.android.application.activity.intent_filter]]
 actions = ["android.intent.action.MAIN"]
 categories = ["android.intent.category.LAUNCHER"]
+
+# Firebase Test Lab's Game Loop launch (see firebase/): scenario 1 CPU, 2 GPU.
+[[package.metadata.android.application.activity.intent_filter]]
+actions = ["com.google.intent.action.TEST_LOOP"]
+categories = ["android.intent.category.DEFAULT"]
+[[package.metadata.android.application.activity.intent_filter.data]]
+mime_type = "application/javascript"
 
 # `examples/gpu_plan.rs`: the GPU path's planning and damage, headless.
 [dev-dependencies]

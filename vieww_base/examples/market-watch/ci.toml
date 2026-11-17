@@ -29,6 +29,11 @@
 # numbers stand from the last full report), no 60 s thermal pass, two cold
 # starts, 15 s rests.
 #
+# "Vieww on Firebase Test Lab (free)" builds the Vieww APK and runs it on
+# up to three physical phones (high refresh rate first) as a Game Loop test
+# on a Firebase project on the free Spark plan; it refuses a project that can
+# be billed. Vieww only, no AWS. Setup: firebase/README.md.
+#
 # Both apps are compared as they ship on phones: Valdi as native Android views
 # from a release build made with its own CLI's flags (compare/valdi/), Vieww
 # as its APK. The Valdi side is dropped into a Valdi checkout by
@@ -46,7 +51,7 @@ id = "compare-vieww-apk"
 title = "Valdi vs Vieww · Vieww APK"
 file = "ci/jobs/compare-vieww-apk.toml"
 stage = "devices"
-when = "farm.compare"
+when = "farm.vieww_apk"
 runs_on = "ubuntu-24.04"
 timeout = 60
 main_only = true
@@ -167,6 +172,28 @@ with = { workspaces = "vieww_base -> target", key = "mw-machines-${{ matrix.name
 name = "compare-machine-${{ matrix.name }}"
 path = "${{ runner.temp }}/compare-machines/${{ matrix.name }}"
 if-no-files-found = "warn"
+
+[[job]]
+id = "compare-firebase"
+title = "Vieww · Firebase Test Lab (free)"
+file = "ci/jobs/compare-firebase.toml"
+stage = "devices"
+phase = 2
+needs = ["compare-vieww-apk"]
+when = "farm.firebase"
+runs_on = "ubuntu-24.04"
+timeout = 40
+main_only = true
+write = true
+secrets = ["FIREBASE_PROJECT", "FIREBASE_SA_KEY"]
+checkout = { persist-credentials = false, fetch-depth = 1 }
+[[job.upload]]
+name = "compare-firebase"
+path = "${{ runner.temp }}/firebase"
+if-no-files-found = "warn"
+[[job.download]]
+name = "compare-vieww-apk"
+path = "dist"
 
 [[job]]
 id = "compare-report"

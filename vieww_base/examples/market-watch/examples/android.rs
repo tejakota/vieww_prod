@@ -27,6 +27,11 @@
 //! __MW__ {"fw":"vieww","ev":"done","t":…}
 //! ```
 //!
+//! **Firebase Test Lab** launches it as a Game Loop test instead
+//! (`com.google.intent.action.TEST_LOOP`, see `firebase/`): scenario 1 is the
+//! CPU rasterizer, scenario 2 the GPU path, both without the thermal pass,
+//! and the app exits once the schedule is done so the test ends there.
+//!
 //! The `kinds` half of the `stages` line is there only when
 //! `debug.mw.profile=1` asked for it (`VIEWW_RASTER_PROFILE`): the raster
 //! stage split by command kind, the same p50/p90/max shape — where a heavy
@@ -61,6 +66,73 @@ mod app {
             .output()
             .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_owned())
             .unwrap_or_default()
+    }
+
+    /// The Game Loop scenario Firebase Test Lab launched this activity with,
+    /// or `None` for any other launch (the launcher, the device runner's
+    /// `am start`). Read from the activity's intent: an app started by Test
+    /// Lab has no shell to set the `debug.mw.*` properties from.
+    fn game_loop_scenario(android: &AndroidApp) -> Option<i32> {
+        use jni::objects::{JObject, JString};
+        use jni::JavaVM;
+        if android.vm_as_ptr().is_null() || android.activity_as_ptr().is_null() {
+            return None;
+        }
+        // SAFETY: both pointers come from the running activity, which
+        // outlives this call on its own main thread.
+        let vm = unsafe { JavaVM::from_raw(android.vm_as_ptr().cast()) }.ok()?;
+        let mut env = vm.attach_current_thread_permanently().ok()?;
+        let activity = unsafe { JObject::from_raw(android.activity_as_ptr().cast()) };
+        let intent = env
+            .call_method(&activity, "getIntent", "()Landroid/content/Intent;", &[])
+            .and_then(|v| v.l())
+            .ok()?;
+        if intent.is_null() {
+            return None;
+        }
+        let action = env
+            .call_method(&intent, "getAction", "()Ljava/lang/String;", &[])
+            .and_then(|v| v.l())
+            .ok()?;
+        if action.is_null() {
+            return None;
+        }
+        let action: String = env.get_string(&JString::from(action)).ok()?.into();
+        if action != "com.google.intent.action.TEST_LOOP" {
+            return None;
+        }
+        let name = env.new_string("scenario").ok()?;
+        let scenario = env
+            .call_method(
+                &intent,
+                "getIntExtra",
+                "(Ljava/lang/String;I)I",
+                &[(&name).into(), 0.into()],
+            )
+            .and_then(|v| v.i())
+            .ok()?;
+        Some(scenario)
+    }
+
+    /// End a Game Loop launch the way Test Lab expects: `Activity.finish()`.
+    /// The process is then ended a few seconds later regardless, so the next
+    /// scenario starts from a fresh one.
+    fn finish_game_loop(android: &AndroidApp) {
+        use jni::objects::JObject;
+        use jni::JavaVM;
+        if !android.vm_as_ptr().is_null() && !android.activity_as_ptr().is_null() {
+            // SAFETY: as in `game_loop_scenario`.
+            if let Ok(vm) = unsafe { JavaVM::from_raw(android.vm_as_ptr().cast()) } {
+                if let Ok(mut env) = vm.attach_current_thread_permanently() {
+                    let activity = unsafe { JObject::from_raw(android.activity_as_ptr().cast()) };
+                    let _ = env.call_method(&activity, "finish", "()V", &[]);
+                }
+            }
+        }
+        std::thread::spawn(|| {
+            std::thread::sleep(Duration::from_secs(3));
+            std::process::exit(0);
+        });
     }
 
     fn emit(line: &str) {
@@ -195,6 +267,9 @@ mod app {
         /// The display's frame budget, from the first presented frame.
         budget_ms: f64,
         done: bool,
+        /// A Game Loop launch: finish once the schedule is done, which is how
+        /// Test Lab learns the test is over.
+        exit_when_done: Option<AndroidApp>,
     }
 
     impl Run {
@@ -293,6 +368,9 @@ mod app {
                         "{{\"fw\":\"vieww\",\"ev\":\"done\",\"t\":{:.1}}}",
                         self.t()
                     ));
+                    if let Some(android) = &self.exit_when_done {
+                        finish_game_loop(android);
+                    }
                     return;
                 }
                 self.current = Some(target);
@@ -392,7 +470,23 @@ mod app {
                 .with_max_level(log::LevelFilter::Info)
                 .with_tag("vieww"),
         );
-        let gpu = prop("debug.mw.gpu") == "1";
+        let scenario = game_loop_scenario(&android);
+        let gpu = match scenario {
+            Some(n) => n == 2,
+            None => prop("debug.mw.gpu") == "1",
+        };
+        if let Some(n) = scenario {
+            emit(&format!(
+                "{{\"fw\":\"vieww\",\"ev\":\"device\",\"scenario\":{n},\"model\":\"{}\",\"android\":\"{}\",\"soc\":\"{}\"}}",
+                prop("ro.product.model").replace('"', ""),
+                prop("ro.build.version.release").replace('"', ""),
+                {
+                    let soc = prop("ro.soc.model");
+                    if soc.is_empty() { prop("ro.board.platform") } else { soc }
+                }
+                .replace('"', ""),
+            ));
+        }
         // `adb shell setprop debug.mw.direct 0` keeps the GPU pass on the
         // blit route (`VIEWW_GPU_DIRECT=0`), for an A/B of the two routes on
         // one phone: an app started by the launcher has no environment to
@@ -428,7 +522,7 @@ mod app {
         if prop("debug.mw.profile").trim_matches('"') == "1" {
             std::env::set_var("VIEWW_RASTER_PROFILE", "1");
         }
-        let thermal = prop("debug.mw.thermal") != "0";
+        let thermal = scenario.is_none() && prop("debug.mw.thermal") != "0";
         let phases = schedule(thermal);
         emit(&format!(
             "{{\"fw\":\"vieww\",\"ev\":\"start\",\"path\":\"{}\",\"phases\":{}}}",
@@ -456,6 +550,7 @@ mod app {
             budget_now_ms: 0.0,
             budget_ms: 0.0,
             done: false,
+            exit_when_done: scenario.is_some().then(|| android.clone()),
         }));
         // Which raster policy this process actually took — the tier's thread
         // request, the cache budgets, any override — is emitted from the

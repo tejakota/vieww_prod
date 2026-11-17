@@ -193,6 +193,15 @@ class Planner(unittest.TestCase):
         self.assertIn("compare-farm", out)
         self.assertNotIn("compare-machines", out)
 
+    def test_compare_firebase(self):
+        rc, out = plan("devices", {"linux": False, "windows": False, "mac": False, "suite": "off",
+                                   "usb_phone": False, "farm": "Vieww on Firebase Test Lab (free)"})
+        self.assertEqual(rc, 0, out)
+        self.assertIn("compare-vieww-apk", out)
+        self.assertIn("compare-firebase", out)
+        for aws in ("compare-farm", "compare-valdi-apk", "compare-report"):
+            self.assertNotIn(aws, out)
+
     def test_release_publish_waits(self):
         rc, out = plan("release", {"mode": "publish", "include_machines": False, "version": "2.0.0"})
         self.assertEqual(rc, 0, out)

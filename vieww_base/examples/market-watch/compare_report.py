@@ -176,6 +176,12 @@ def phase_stats(config_dir, package, budget_ms):
             n = sum(gaps.values())
             if n and budget_ms:
                 p["sf_jank_pct"] = round(100.0 * sum(c for ms, c in gaps.items() if ms > 1.5 * budget_ms) / n, 1)
+        # No compositor counts (Firebase Test Lab has no timestats): the
+        # app's own presented frames over the phase's wall time, and its own
+        # count of frames that came a vsync late.
+        if "sf_fps" not in p and wall and a.get("frames"):
+            p["app_fps"] = round(a["frames"] / (wall / 1000.0), 1)
+            p["app_jank_pct"] = round(100.0 * (a.get("jank") or 0) / a["frames"], 1)
         gx_file = config_dir / f"gfxinfo-{name}.txt"
         gx = parse_gfxinfo(gx_file.read_text(errors="replace")) if gx_file.exists() else None
         if gx:
@@ -302,6 +308,10 @@ def render(farm, meta):
             lines = cfg.get(c, {}).get("rate_log")
             if lines:
                 md.append(f"- {c} frame rate: " + " · ".join(f"`{x}`" for x in lines))
+        if info.get("mode") == "firebase":
+            md.append("")
+            md.append("_Firebase Test Lab (free): Vieww CPU and GPU only. Presented fps and jank come from "
+                      "the app's own frame log, as Test Lab has no compositor counts._")
         if info.get("mode") == "quick":
             md.append("")
             md.append("_Quick run: Vieww CPU and GPU only, no thermal pass. Valdi is pinned, "
@@ -340,9 +350,9 @@ def render(farm, meta):
             p = {c: cfg.get(c, {}).get("phases", {}).get(name, {}) for c in CONFIGS}
             if not any(p.values()):
                 continue
-            fps = {c: p[c].get("sf_fps") for c in CONFIGS}
+            fps = {c: p[c].get("sf_fps") or p[c].get("app_fps") for c in CONFIGS}
             gap = {c: p[c].get("sf_gap_p95") for c in CONFIGS}
-            jank = {c: p[c].get("sf_jank_pct") for c in CONFIGS}
+            jank = {c: p[c].get("sf_jank_pct", p[c].get("app_jank_pct")) for c in CONFIGS}
             work = {c: (p[c].get("app", {}).get("work_ms") or p[c].get("app", {}).get("render_ms") or [None, None])[1]
                     for c in CONFIGS}
             cpu = {c: p[c].get("cpu_pct") for c in CONFIGS}
@@ -434,7 +444,7 @@ def render(farm, meta):
         for name in CONTINUOUS:
             cells = []
             for ph in farm:
-                v = {c: ph["configs"].get(c, {}).get("phases", {}).get(name, {}).get("sf_fps") for c in CONFIGS}
+                v = {c: (lambda q: q.get("sf_fps") or q.get("app_fps"))(ph["configs"].get(c, {}).get("phases", {}).get(name, {})) for c in CONFIGS}
                 cells.append(cell(v, "fps", True))
             md.append(f"| {name} | " + " | ".join(cells) + " |")
         md.append("")

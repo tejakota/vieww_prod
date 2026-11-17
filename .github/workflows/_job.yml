@@ -67,6 +67,8 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ contains(matrix.secret_names, ',CLOUDFLARE_ACCOUNT_ID,') && secrets.CLOUDFLARE_ACCOUNT_ID || '' }}
       CLOUDFLARE_API_TOKEN: ${{ contains(matrix.secret_names, ',CLOUDFLARE_API_TOKEN,') && secrets.CLOUDFLARE_API_TOKEN || '' }}
       DEVICE_FARM_PROJECT_ARN: ${{ contains(matrix.secret_names, ',DEVICE_FARM_PROJECT_ARN,') && secrets.DEVICE_FARM_PROJECT_ARN || '' }}
+      FIREBASE_PROJECT: ${{ contains(matrix.secret_names, ',FIREBASE_PROJECT,') && secrets.FIREBASE_PROJECT || '' }}
+      FIREBASE_SA_KEY: ${{ contains(matrix.secret_names, ',FIREBASE_SA_KEY,') && secrets.FIREBASE_SA_KEY || '' }}
       IOS_CERT_P12: ${{ contains(matrix.secret_names, ',IOS_CERT_P12,') && secrets.IOS_CERT_P12 || '' }}
       IOS_CERT_PASSWORD: ${{ contains(matrix.secret_names, ',IOS_CERT_PASSWORD,') && secrets.IOS_CERT_PASSWORD || '' }}
       IOS_IDENTITY: ${{ contains(matrix.secret_names, ',IOS_IDENTITY,') && secrets.IOS_IDENTITY || '' }}
@@ -336,6 +338,8 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ contains(matrix.secret_names, ',CLOUDFLARE_ACCOUNT_ID,') && secrets.CLOUDFLARE_ACCOUNT_ID || '' }}
       CLOUDFLARE_API_TOKEN: ${{ contains(matrix.secret_names, ',CLOUDFLARE_API_TOKEN,') && secrets.CLOUDFLARE_API_TOKEN || '' }}
       DEVICE_FARM_PROJECT_ARN: ${{ contains(matrix.secret_names, ',DEVICE_FARM_PROJECT_ARN,') && secrets.DEVICE_FARM_PROJECT_ARN || '' }}
+      FIREBASE_PROJECT: ${{ contains(matrix.secret_names, ',FIREBASE_PROJECT,') && secrets.FIREBASE_PROJECT || '' }}
+      FIREBASE_SA_KEY: ${{ contains(matrix.secret_names, ',FIREBASE_SA_KEY,') && secrets.FIREBASE_SA_KEY || '' }}
       IOS_CERT_P12: ${{ contains(matrix.secret_names, ',IOS_CERT_P12,') && secrets.IOS_CERT_P12 || '' }}
       IOS_CERT_PASSWORD: ${{ contains(matrix.secret_names, ',IOS_CERT_PASSWORD,') && secrets.IOS_CERT_PASSWORD || '' }}
       IOS_IDENTITY: ${{ contains(matrix.secret_names, ',IOS_IDENTITY,') && secrets.IOS_IDENTITY || '' }}

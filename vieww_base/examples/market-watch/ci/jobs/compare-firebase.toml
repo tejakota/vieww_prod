@@ -1,0 +1,116 @@
+# Vieww on Firebase Test Lab · free
+# Market Watch as a Game Loop test (scenario 1: CPU rasterizer, 2: GPU path)
+# on up to three physical phones, high refresh rate first. Built to cost
+# nothing: it runs only when the Firebase project is on the free Spark plan
+# (5 physical-device test runs a day) unless FIREBASE_ALLOW_BLAZE=yes says
+# otherwise, and each phone is cut off after 6 minutes. See firebase/README.md.
+
+name = "Vieww · Firebase Test Lab"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[env]
+FIREBASE_PROJECT = "${{ secrets.FIREBASE_PROJECT }}"
+FIREBASE_SA_KEY = "${{ secrets.FIREBASE_SA_KEY }}"
+FIREBASE_DEVICES = "${{ vars.FIREBASE_DEVICES }}"
+FIREBASE_ALLOW_BLAZE = "${{ vars.FIREBASE_ALLOW_BLAZE }}"
+OUT = "${{ runner.temp }}/firebase"
+
+[[step]]
+name = "Check the secrets are there"
+run = '''
+[ -n "$FIREBASE_PROJECT" ] || { echo "::error::secret FIREBASE_PROJECT is not set (see examples/market-watch/firebase/README.md)"; exit 1; }
+[ -n "$FIREBASE_SA_KEY" ] || { echo "::error::secret FIREBASE_SA_KEY is not set (see examples/market-watch/firebase/README.md)"; exit 1; }
+ls -l ../dist/vieww-market-watch.apk
+'''
+
+[[step]]
+name = "gcloud"
+run = '''
+if ! command -v gcloud >/dev/null; then
+  curl -sSL https://dl.google.com/dl/cloudsdk/channels/rapid/google-cloud-sdk.tar.gz | tar -xz -C "$RUNNER_TEMP"
+  echo "$RUNNER_TEMP/google-cloud-sdk/bin" >> "$GITHUB_PATH"
+  export PATH="$RUNNER_TEMP/google-cloud-sdk/bin:$PATH"
+fi
+printf '%s' "$FIREBASE_SA_KEY" > "$RUNNER_TEMP/sa.json"
+gcloud --quiet auth activate-service-account --key-file "$RUNNER_TEMP/sa.json"
+gcloud --quiet config set project "$FIREBASE_PROJECT"
+rm -f "$RUNNER_TEMP/sa.json"
+'''
+
+[[step]]
+name = "Refuse a project that can be billed"
+run = '''
+# The free Spark plan has no billing account, so nothing it runs can cost
+# money. A project on Blaze can: Test Lab's free 30 physical minutes a day,
+# then $5 an hour a phone. Refuse it unless the repository variable
+# FIREBASE_ALLOW_BLAZE=yes says that was meant.
+billing="$(gcloud billing projects describe "$FIREBASE_PROJECT" --format='value(billingEnabled)' 2>/dev/null || echo unknown)"
+echo "billing enabled: $billing" | tee -a "$GITHUB_STEP_SUMMARY"
+case "$billing" in
+  True|true)
+    if [ "$FIREBASE_ALLOW_BLAZE" != yes ]; then
+      echo "::error::Firebase project $FIREBASE_PROJECT has billing enabled (Blaze). Refusing to run: set the repository variable FIREBASE_ALLOW_BLAZE=yes to allow it."
+      exit 1
+    fi ;;
+  unknown)
+    echo "::warning::Could not read the project's billing state (the service account may lack billing.resourceAssociations.list). A Spark project cannot be billed; make sure this one is on Spark." ;;
+esac
+'''
+
+[[step]]
+name = "Run on phones"
+run = '''
+mkdir -p "$OUT/results" "$OUT/farm"
+gcloud firebase test android models list --format=json > "$OUT/models.json"
+mapfile -t devices < <(python3 examples/market-watch/firebase/pick_devices.py "$OUT/models.json" --count 3 --only "$FIREBASE_DEVICES")
+[ "${#devices[@]}" -gt 0 ] || { echo "::error::no physical phone found in the Test Lab catalog"; exit 1; }
+printf 'phones: %s\n' "${devices[*]}" | tee -a "$GITHUB_STEP_SUMMARY"
+args=()
+for d in "${devices[@]}"; do args+=(--device "$d"); done
+dir="mw-${GITHUB_SHA:0:10}-${GITHUB_RUN_ID}"
+set +e
+# Scenario 1 then 2 in one launch sequence per phone; about 70 s each plus
+# install. --timeout is the per-phone ceiling, the cost guard on Blaze.
+gcloud firebase test android run --type game-loop \
+  --app ../dist/vieww-market-watch.apk --scenario-numbers 1,2 \
+  "${args[@]}" --timeout 6m --no-record-video --results-dir "$dir" 2>&1 | tee "$OUT/run.log"
+status=${PIPESTATUS[0]}
+set -e
+bucket="$(grep -oE 'storage/browser/[^/ ]+' "$OUT/run.log" | head -1 | cut -d/ -f3)"
+[ -n "$bucket" ] || { echo "::error::could not find the results bucket in gcloud's output"; exit 1; }
+gsutil -m -q cp -r "gs://$bucket/$dir" "$OUT/results/" || gcloud storage cp -r "gs://$bucket/$dir" "$OUT/results/"
+python3 examples/market-watch/firebase/to_farm.py --results "$OUT/results" --out "$OUT/farm"
+python3 examples/market-watch/compare_report.py --farm "$OUT/farm" --out "$OUT/report" \
+  --header "run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} · vieww ${GITHUB_SHA:0:10} · Firebase Test Lab (free)" > /dev/null
+cat "$OUT/report/COMPARE.md" >> "$GITHUB_STEP_SUMMARY"
+echo "gcloud exited $status (a test the app did not finish is 'failed'; the report says which)"
+'''
+
+[[step]]
+name = "Push to ci-runs/compare-<branch>"
+if = "github.ref == 'refs/heads/main'"
+env = { TOKEN = "${{ github.token }}", REPO = "${{ github.repository }}" }
+run = '''
+mkdir -p "$OUT/publish"
+cp "$OUT/report/COMPARE.md" "$OUT/report/compare.json" "$OUT/publish/"
+branch="ci-runs/compare-${GITHUB_REF_NAME//\//-}"
+cd "$OUT/publish"
+git init -q
+git checkout -q -b "$branch"
+git config user.name "vieww-ci"
+git config user.email "vieww-ci@users.noreply.github.com"
+git add -A
+git commit -q -m "Vieww on Firebase Test Lab for ${GITHUB_SHA} (${GITHUB_REF_NAME})"
+git push -q -f "https://x-access-token:${TOKEN}@github.com/${REPO}.git" "HEAD:refs/heads/$branch"
+'''
+
+[[step]]
+name = "mark: upload compare-firebase"
+if = "always()"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''
