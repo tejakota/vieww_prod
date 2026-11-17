@@ -1,7 +1,7 @@
-# 2 · Devices — FAILURE
+# 2 · Devices — SUCCESS
 
 - branch: `main`  sha: `5892c66ffbc8c8d25a7f3b931e9cfbfe7b10b249`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/44082679754
+- run: https://github.com/tejakota/vieww_prod/actions/runs/44085244072
 
 | job | verdict | failed steps |
 |---|---|---|
@@ -9,9 +9,9 @@
 | phase-1 / Market Watch · compare-vieww-apk | PASS |  |
 | phase-1 / approve | skipped |  |
 | phase-1 / matrix.title | skipped |  |
-| phase-2 / Market Watch · compare-firebase | FAIL | Market Watch · compare-firebase |
-| phase-2 / matrix.title | skipped |  |
+| phase-2 / Market Watch · compare-firebase | PASS |  |
 | phase-2 / approve | skipped |  |
+| phase-2 / matrix.title | skipped |  |
 | results / publish | running |  |
 | phase-3 | skipped |  |
 
@@ -61,7 +61,7 @@
 
 ### phase-1 / matrix.title — skipped
 
-### phase-2 / Market Watch · compare-firebase — FAIL
+### phase-2 / Market Watch · compare-firebase — PASS
 - PASS: Set up job
 - skipped: Long paths (Windows)
 - PASS: Run actions/checkout@v4
@@ -79,7 +79,7 @@
 - skipped: AWS credentials (access keys)
 - PASS: Run actions/download-artifact@v4
 - skipped: Run actions/download-artifact@v4
-- FAIL: Market Watch · compare-firebase
+- PASS: Market Watch · compare-firebase
 - skipped: Android emulator
 - skipped: Build provenance (Sigstore, keyless)
 - skipped: After
@@ -87,18 +87,21 @@
 - skipped: Run actions/upload-artifact@v4
 - skipped: Run actions/upload-artifact@v4
 - skipped: Run actions/upload-artifact@v4
-- skipped: Post Python for the runner (self-host machines)
-- skipped: Post Python for the runner (GitHub's machines)
+- PASS: Post Python for the runner (self-host machines)
+- PASS: Post Python for the runner (GitHub's machines)
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-2 / matrix.title — skipped
-
 ### phase-2 / approve — skipped
+
+### phase-2 / matrix.title — skipped
 
 ### results / publish — running
 - running: Set up job
+- running: Collect the run
+- running: Run actions/checkout@v4
+- running: Write to the ci-results branch
 
 ### phase-3 — skipped
 
-- artifacts: compare-firebase compare-vieww-apk 
+- artifacts: compare-vieww-apk compare-firebase 
