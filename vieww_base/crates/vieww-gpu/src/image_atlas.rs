@@ -4,7 +4,9 @@
 //! `Image`'s own equality semantics. The atlas is deliberately simple and
 //! frame-stable: it grows and repacks between frames, never evicts while a
 //! `ScenePlan` is being built, and exposes a generation so a backend uploads
-//! only when pixels or packing changed.
+//! only when pixels or packing changed — and *which rectangles* changed, via
+//! [`ImageAtlas::changes_since`], so a frame that decodes one image sends that
+//! image's texels instead of the whole (up to 64 MB) texture.
 
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
@@ -12,6 +14,7 @@ use std::sync::{Arc, Weak};
 use vieww_foundation::Image;
 
 use crate::atlas::AtlasSlot;
+use crate::dirty::{AtlasChanges, DirtyRects};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ImageKey(u64);
@@ -71,7 +74,8 @@ pub struct ImageAtlas {
     pen_x: u32,
     shelf_y: u32,
     shelf_height: u32,
-    version: u64,
+    /// The version and this frame's dirty rectangles — see [`DirtyRects`].
+    dirty: DirtyRects,
     frame: u64,
     used_texels: u64,
 }
@@ -125,7 +129,7 @@ impl ImageAtlas {
             pen_x: 0,
             shelf_y: 0,
             shelf_height: 0,
-            version: crate::generation::next(),
+            dirty: DirtyRects::new(),
             frame: 1,
             used_texels: 0,
         }
@@ -137,6 +141,7 @@ impl ImageAtlas {
     /// Entries never move *within* a frame — vertices hold their texel
     /// positions — so this is the only place eviction happens.
     pub fn begin_frame(&mut self) {
+        self.dirty.begin_frame();
         let previous = self.frame;
         self.frame += 1;
         // Dead images are forgotten immediately — which releases their `Weak`
@@ -155,6 +160,11 @@ impl ImageAtlas {
             .filter(|(_, e)| e.last_used >= previous)
             .map(|(k, e)| (*k, e.clone(), self.copy_out(e.placement)))
             .collect();
+        // Everything from here on rewrites the texture wholesale, so this
+        // frame's difference is "all of it" — a backend cannot be told that
+        // only the re-placed images moved, because the reset cleared texels
+        // the rectangles would not cover.
+        self.dirty.rewrote();
         self.texels.iter_mut().for_each(|t| *t = 0);
         self.entries.clear();
         self.pen_x = 0;
@@ -171,7 +181,6 @@ impl ImageAtlas {
                 self.entries.insert(key, Entry { placement, ..entry });
             }
         }
-        self.version = crate::generation::next();
     }
 
     fn copy_out(&self, p: Placement) -> Vec<u8> {
@@ -193,7 +202,19 @@ impl ImageAtlas {
     }
     #[must_use]
     pub const fn version(&self) -> u64 {
-        self.version
+        self.dirty.version()
+    }
+    /// What a backend whose texture holds `held` (the
+    /// [`version`](Self::version) it last uploaded, `None` if it has never
+    /// uploaded) must be sent — the same answer
+    /// [`MaskAtlas::changes_since`](crate::MaskAtlas::changes_since) gives for
+    /// masks. An insert's rectangle is the image plus its one-texel padding
+    /// ring (linear sampling reads it, so it changes with the image); a
+    /// compaction or a grow is a full upload, as is any backend that missed a
+    /// frame.
+    #[must_use]
+    pub fn changes_since(&self, held: Option<u64>) -> AtlasChanges<'_> {
+        self.dirty.changes_since(held)
     }
     #[must_use]
     pub fn len(&self) -> usize {
@@ -251,7 +272,6 @@ impl ImageAtlas {
                 last_used: frame,
             },
         );
-        self.version = crate::generation::next();
         Some(self.slot(placement))
     }
 
@@ -307,10 +327,23 @@ impl ImageAtlas {
             let n = (old_side * 4) as usize;
             self.texels[to..to + n].copy_from_slice(&old[from..from + n]);
         }
-        self.version = crate::generation::next();
+        // A resize is a full upload for every backend — the texture must be
+        // recreated — so the frame's recording is abandoned rather than
+        // appended to.
+        self.dirty.rewrote();
     }
     fn blit(&mut self, p: Placement, src: &[u8]) {
         debug_assert_eq!(src.len(), (p.width * p.height * 4) as usize);
+        // The recorded rectangle covers the padding ring too: blitting an
+        // image writes its texels *and* replicates its edges one texel out
+        // (below), and a backend that only took the image's own rectangle
+        // would leave the ring holding the previous image's edge.
+        self.dirty.blit(
+            p.x - Self::PAD,
+            p.y - Self::PAD,
+            p.width + Self::PAD * 2,
+            p.height + Self::PAD * 2,
+        );
         for row in 0..p.height {
             let from = (row * p.width * 4) as usize;
             let to = ((p.y + row) * self.side * 4 + p.x * 4) as usize;
@@ -520,5 +553,129 @@ mod tests {
             &atlas.texels()[row + left..row + left + 4],
             &[0, 0, 255, 255]
         );
+    }
+
+    // ------------------------------------------------- partial uploads
+
+    /// A "texture" the way a backend holds one: the texels it was last sent,
+    /// replayed exactly as `changes_since` prescribes.
+    #[derive(Default)]
+    struct Backend {
+        texels: Vec<u8>,
+        held: Option<u64>,
+        fulls: u32,
+        region_bytes: u64,
+    }
+
+    impl Backend {
+        /// Apply what `changes_since` says to send, and check the result
+        /// equals the atlas — the replay every partial-upload backend
+        /// performs, held to byte identity after every frame.
+        fn sync(&mut self, atlas: &ImageAtlas) {
+            let side = atlas.side() as usize;
+            match atlas.changes_since(self.held) {
+                crate::AtlasChanges::None => {}
+                crate::AtlasChanges::Full => {
+                    self.texels = atlas.texels().to_vec();
+                    self.fulls += 1;
+                }
+                crate::AtlasChanges::Regions(rects) => {
+                    assert_eq!(
+                        self.texels.len(),
+                        atlas.texels().len(),
+                        "a region upload never resizes"
+                    );
+                    for &[x, y, w, h] in rects {
+                        for row in y..y + h {
+                            let i = (row as usize * side + x as usize) * 4;
+                            let n = w as usize * 4;
+                            self.texels[i..i + n]
+                                .copy_from_slice(&atlas.texels()[i..i + n]);
+                            self.region_bytes += n as u64;
+                        }
+                    }
+                }
+            }
+            self.held = Some(atlas.version());
+            assert_eq!(
+                self.texels, atlas.texels(),
+                "the backend's texture must equal the atlas after syncing"
+            );
+        }
+    }
+
+    /// `changes_since` replayed onto a texture must leave it equal to the
+    /// atlas after every sync — the property `vieww-hal`'s partial image
+    /// uploads are held to. The padding ring is the point: an insert's
+    /// rectangle has to cover the one-texel ring the blit writes by edge
+    /// replication, or a backend would hold the ring as it was before the
+    /// image. Runs the atlas through a first upload, a frame the backend
+    /// skips, a growth, and a compaction.
+    #[test]
+    fn changes_since_replayed_leaves_a_texture_equal_to_the_atlas() {
+        let mut atlas = ImageAtlas::new();
+        let mut backend = Backend::default();
+
+        // Frame 1: two adjacent images. The first upload is a full one.
+        atlas.begin_frame();
+        let red = image(4, 4, [255, 0, 0, 255]);
+        let blue = image(4, 4, [0, 0, 255, 255]);
+        atlas.insert(&red);
+        atlas.insert(&blue);
+        backend.sync(&atlas);
+        assert_eq!(backend.fulls, 1);
+
+        // Frame 2: one new image. Only its rectangle goes: the image plus its
+        // ring, 6x6 of RGBA8, against a whole 512x512 texture of 1 MiB.
+        let before = backend.region_bytes;
+        atlas.begin_frame();
+        let green = image(4, 4, [0, 255, 0, 255]);
+        atlas.insert(&green);
+        backend.sync(&atlas);
+        assert_eq!(
+            backend.region_bytes - before,
+            6 * 6 * 4,
+            "the rectangle is the image plus its padding ring"
+        );
+
+        // Frames 3-4: the backend skips a frame; the one after is a full one.
+        drop((red, blue, green)); // their texels are reclaimed at the compaction
+        atlas.begin_frame();
+        let _ = atlas.insert(&image(6, 6, [9, 9, 9, 255]));
+        atlas.begin_frame();
+        atlas.insert(&image(6, 6, [1, 2, 3, 255]));
+        backend.sync(&atlas);
+        assert_eq!(backend.fulls, 2);
+
+        // Frames 5-7: four big images past the half line, then a compaction
+        // that keeps only the one drawn last — a full upload, never the
+        // re-placed images as rectangles.
+        let big: Vec<Image> = (0..4).map(|i| image(400, 400, [i, 1, 2, 255])).collect();
+        for img in &big {
+            atlas.insert(img);
+        }
+        backend.sync(&atlas);
+        atlas.begin_frame(); // the all-live rewrite; same content, new version
+        atlas.insert(&big[3]);
+        atlas.begin_frame(); // the compaction: only big[3] survives
+        assert_eq!(
+            atlas.len(),
+            1,
+            "only the image drawn last frame survives compaction"
+        );
+        backend.sync(&atlas);
+        assert_eq!(backend.fulls, 4, "the growth and the compaction are fulls");
+
+        // The frame after it is a rectangle again, on the compacted atlas.
+        let before = backend.region_bytes;
+        atlas.begin_frame();
+        atlas.insert(&image(3, 3, [7, 7, 7, 255]));
+        backend.sync(&atlas);
+        assert_eq!(
+            backend.region_bytes - before,
+            5 * 5 * 4,
+            "a 3x3 image plus its ring is 5x5 of RGBA8"
+        );
+        assert_eq!(backend.texels, atlas.texels());
     }
 }

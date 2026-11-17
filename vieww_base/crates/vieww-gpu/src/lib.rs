@@ -35,6 +35,7 @@
 pub mod atlas;
 pub mod batch;
 pub mod device;
+pub mod dirty;
 pub mod generation;
 pub mod image_atlas;
 pub mod mask_atlas;
@@ -50,6 +51,7 @@ pub use device::{
     AddressMode, Buffer, CommandEncoder, Device, Fence, FilterMode, Pipeline, Queue, SamplerDesc,
     Surface, Texture,
 };
+pub use dirty::{AtlasChanges, DirtyRects};
 pub use image_atlas::{ImageAtlas, ImageKey, ImageSlot};
 pub use mask_atlas::{MaskAtlas, MaskChanges, MaskKey, MaskSlot};
 pub use ramp_atlas::RampAtlas;

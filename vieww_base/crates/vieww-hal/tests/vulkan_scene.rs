@@ -34,11 +34,12 @@
 #[path = "support/parity_row.rs"]
 mod parity_row;
 
-use vieww_foundation::{Color, Offset, Path, Rect, Transform};
+use vieww_foundation::{Color, Gradient, Image, Offset, Path, Rect, TextStyle, Transform};
 use vieww_gpu::{plan_scene, Unsupported};
 use vieww_hal::vulkan::{SceneRenderer, VulkanDevice};
 use vieww_paint::native::NativeRenderer;
 use vieww_paint::{Clip, Command, Paint, Scene, Stroke};
+use vieww_text::{FontStore, Paragraph, TextSpan};
 
 const WIDTH: u32 = 120;
 const HEIGHT: u32 = 90;
@@ -840,4 +841,315 @@ fn partial_mask_uploads_match_full_uploads_frame_for_frame() {
         "partial uploads should send well under half the bytes of whole-texture ones: {sent} vs {whole}"
     );
     eprintln!("{partial} partial, {full} full; {sent} bytes sent against {whole} for whole-texture uploads");
+}
+
+/// Text whose visible run grows a few characters a frame — a line scrolling
+/// in, a font fallback appearing — adds a few new glyphs to the atlas per
+/// frame; the glyph texture then takes only the changed rectangles instead of
+/// the whole atlas. Held here to a renderer built fresh for every frame —
+/// whose first upload is always a full one — byte for byte, with a frame
+/// skipped in the middle (the planner advances, the renderer does not
+/// upload), and a steady label whose glyphs must survive every partial
+/// upload.
+#[test]
+#[ignore = "needs a Vulkan loader + ICD (lavapipe or a real GPU); run with `cargo test --features vulkan -- --ignored`"]
+fn partial_glyph_uploads_match_full_uploads_frame_for_frame() {
+    let Some((_lock, device, mut renderer)) = try_renderer() else {
+        return;
+    };
+    const W: u32 = 260;
+    const H: u32 = 100;
+    let base = Color::rgba(250, 250, 248, 255);
+    // One font store for the whole run, the way an application holds one: a
+    // fresh store per frame would be a new font identity and re-rasterise
+    // everything, which is a different test — see `vulkan_text.rs`'s
+    // `text_scene_in` for why that is a trap.
+    let mut store = FontStore::embedded_only();
+    // A reveal that mixes scripts: every few characters bring in glyphs the
+    // atlas has not seen, which is what a line scrolling in does. Whether the
+    // embedded font covers a script only changes what the glyphs look like;
+    // the atlas packs whatever is rasterised.
+    let reveal = "Hamburgefonstiv 123 — The quick brown fox jumps over the lazy dog! \
+                  ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ; αβγδεζ. \
+                  Съешь ещё этих мягких французских булок, да выпей чаю.";
+    let body = TextStyle {
+        color: Color::rgba(20, 20, 30, 255),
+        size: 24.0,
+        ..TextStyle::default()
+    };
+    let label_style = TextStyle {
+        color: Color::rgba(120, 30, 30, 255),
+        size: 17.0,
+        ..TextStyle::default()
+    };
+    let mut planner = vieww_gpu::Planner::new();
+    let (mut partial, mut full) = (0, 0);
+    let (mut sent, mut whole) = (0u64, 0u64);
+    for frame in 0..40 {
+        let shown: String = reveal.chars().take((frame as usize + 1) * 3).collect();
+        let mut scene = Scene::default();
+        for (text, style, y) in [
+            (shown.as_str(), body, 40.0),
+            ("0123456789", label_style, 82.0),
+        ] {
+            let paragraph = Paragraph::layout(&mut store, &[TextSpan::new(text, style)], 1_000.0);
+            for run in paragraph.runs() {
+                let mut run = run.clone();
+                run.origin = Offset::new(run.origin.dx + 8.0, run.origin.dy + y);
+                run.color = style.color;
+                scene.push_command(Command::DrawGlyphs {
+                    run,
+                    transform: Transform::IDENTITY,
+                    clip: Clip::NONE,
+                });
+            }
+        }
+        let plan = planner.plan(&scene, W as f32, H as f32);
+        assert!(plan.is_complete(), "{:?}", plan.unsupported);
+        if frame == 21 {
+            continue; // the renderer misses this frame's upload entirely
+        }
+        let got = renderer
+            .render_planned(&planner, &plan, W, H, base)
+            .expect("render should succeed");
+        if frame == 0 {
+            let inked = got
+                .as_chunks::<4>()
+                .0
+                .iter()
+                .filter(|p| **p != [250, 250, 248, 255])
+                .count();
+            assert!(inked > 300, "the frame must have drawn text: {inked} inked pixels");
+        }
+        let side = u64::from(planner.atlas().side());
+        sent += renderer.last_glyph_upload_bytes();
+        whole += side * side;
+        match renderer.last_glyph_upload_bytes() {
+            0 => {}
+            b if b == side * side => full += 1,
+            _ => partial += 1,
+        }
+        let mut fresh = SceneRenderer::new(&device).expect("the pipeline should build");
+        let want = fresh
+            .render_planned(&planner, &plan, W, H, base)
+            .expect("render should succeed");
+        drop(fresh);
+        assert_eq!(
+            got, want,
+            "frame {frame}: partial-upload pixels differ from a full upload"
+        );
+    }
+    assert!(
+        partial >= 10,
+        "partial uploads should be common: {partial} partial, {full} full"
+    );
+    assert!(
+        full >= 2,
+        "the run should cross the first upload and the skipped frame: {full} full"
+    );
+    assert!(
+        sent * 2 < whole,
+        "partial uploads should send well under half the bytes of whole-texture ones: {sent} vs {whole}"
+    );
+    eprintln!(
+        "{partial} partial, {full} full; {sent} bytes sent against {whole} for whole-texture uploads"
+    );
+}
+
+/// A scene that builds a fresh `Image` every frame — a video frame, a
+/// regenerated chart — inserts one image per frame, and its texture takes
+/// only the changed rectangles (the image plus its padding ring) instead of
+/// the whole atlas. Held here to a renderer built fresh for every frame,
+/// byte for byte, with a steady image that must survive every partial upload
+/// and a run long enough to cross the atlas's compaction, plus a frame
+/// skipped in the middle.
+#[test]
+#[ignore = "needs a Vulkan loader + ICD (lavapipe or a real GPU); run with `cargo test --features vulkan -- --ignored`"]
+fn partial_image_uploads_match_full_uploads_frame_for_frame() {
+    let Some((_lock, device, mut renderer)) = try_renderer() else {
+        return;
+    };
+    const W: u32 = 200;
+    const H: u32 = 150;
+    let base = Color::rgba(250, 250, 248, 255);
+    let churn = |frame: u32| {
+        let (w, h) = (96u32, 96u32);
+        let mut rgba = Vec::with_capacity((w * h * 4) as usize);
+        for y in 0..h {
+            for x in 0..w {
+                let r = (x * 3 + y * 5 + frame * 17) as u8;
+                let g = (x * 7 + y * 11 + frame * 3) as u8;
+                let b = (x * 13 + y * 3 + frame * 29) as u8;
+                rgba.extend_from_slice(&[r, g, b, 255]);
+            }
+        }
+        Image::from_rgba8(rgba, w, h)
+    };
+    // The steady element: drawn every frame from frame zero, so its texels
+    // must survive every partial upload and the compaction.
+    let logo = churn(200);
+    let mut planner = vieww_gpu::Planner::new();
+    let (mut partial, mut full) = (0, 0);
+    let (mut sent, mut whole) = (0u64, 0u64);
+    for frame in 0..40 {
+        let mut scene = Scene::default();
+        scene.push_command(Command::DrawImage {
+            rect: Rect::new(8.0, 8.0, 72.0, 72.0),
+            image: logo.clone(),
+            transform: Transform::IDENTITY,
+            clip: Clip::NONE,
+        });
+        let frame_image = churn(frame);
+        scene.push_command(Command::DrawImage {
+            rect: Rect::new(100.0, 20.0, 196.0, 116.0),
+            image: frame_image.clone(),
+            transform: Transform::IDENTITY,
+            clip: Clip::NONE,
+        });
+        let plan = planner.plan(&scene, W as f32, H as f32);
+        assert!(plan.is_complete(), "{:?}", plan.unsupported);
+        if frame == 31 {
+            continue; // the renderer misses this frame's upload entirely
+        }
+        let got = renderer
+            .render_planned(&planner, &plan, W, H, base)
+            .expect("render should succeed");
+        if frame == 0 {
+            let inked = got
+                .as_chunks::<4>()
+                .0
+                .iter()
+                .filter(|p| **p != [250, 250, 248, 255])
+                .count();
+            assert!(inked > 3_000, "the frame must have drawn images: {inked} inked pixels");
+        }
+        let side = u64::from(planner.image_atlas().side());
+        sent += renderer.last_image_upload_bytes();
+        whole += side * side * 4;
+        match renderer.last_image_upload_bytes() {
+            0 => {}
+            b if b == side * side * 4 => full += 1,
+            _ => partial += 1,
+        }
+        let mut fresh = SceneRenderer::new(&device).expect("the pipeline should build");
+        let want = fresh
+            .render_planned(&planner, &plan, W, H, base)
+            .expect("render should succeed");
+        drop(fresh);
+        assert_eq!(
+            got, want,
+            "frame {frame}: partial-upload pixels differ from a full upload"
+        );
+    }
+    assert!(
+        partial >= 10,
+        "partial uploads should be common: {partial} partial, {full} full"
+    );
+    assert!(
+        full >= 2,
+        "the run should cross the compaction and the skipped frame: {full} full"
+    );
+    assert!(
+        sent * 2 < whole,
+        "partial uploads should send well under half the bytes of whole-texture ones: {sent} vs {whole}"
+    );
+    eprintln!(
+        "{partial} partial, {full} full; {sent} bytes sent against {whole} for whole-texture uploads"
+    );
+}
+
+/// A gradient whose stops animate — a spinner's hue, a hover transition — is
+/// a new ramp row every frame, and the ramp texture takes only that row
+/// instead of the whole texture. Held here to a renderer built fresh for
+/// every frame, byte for byte, with a steady gradient that must survive
+/// every partial upload and a run long enough to cross the atlas's
+/// compaction (rows move to new indices), plus a frame skipped in the middle.
+#[test]
+#[ignore = "needs a Vulkan loader + ICD (lavapipe or a real GPU); run with `cargo test --features vulkan -- --ignored`"]
+fn partial_ramp_uploads_match_full_uploads_frame_for_frame() {
+    let Some((_lock, device, mut renderer)) = try_renderer() else {
+        return;
+    };
+    const W: u32 = 140;
+    const H: u32 = 90;
+    let base = Color::rgba(250, 250, 248, 255);
+    let steady = Gradient::horizontal().with_stops(&[
+        (0.0, Color::rgba(30, 30, 200, 255)),
+        (1.0, Color::rgba(200, 30, 30, 255)),
+    ]);
+    let mut planner = vieww_gpu::Planner::new();
+    let (mut partial, mut full) = (0, 0);
+    let (mut sent, mut whole) = (0u64, 0u64);
+    for frame in 0..24 {
+        let hue = (frame * 11 % 256) as u8;
+        let animated = Gradient::horizontal().with_stops(&[
+            (0.0, Color::rgba(255, 0, 0, 255)),
+            (0.5, Color::rgba(hue, 200, 60, 255)),
+            (1.0, Color::rgba(0, 0, 255, 255)),
+        ]);
+        let mut scene = Scene::default();
+        scene.push_command(Command::FillRect {
+            rect: Rect::new(10.0, 10.0, 130.0, 38.0),
+            paint: Paint::gradient(steady),
+            transform: Transform::IDENTITY,
+            clip: Clip::NONE,
+        });
+        scene.push_command(Command::FillRect {
+            rect: Rect::new(10.0, 50.0, 130.0, 80.0),
+            paint: Paint::gradient(animated),
+            transform: Transform::IDENTITY,
+            clip: Clip::NONE,
+        });
+        let plan = planner.plan(&scene, W as f32, H as f32);
+        assert!(plan.is_complete(), "{:?}", plan.unsupported);
+        if frame == 17 {
+            continue; // the renderer misses this frame's upload entirely
+        }
+        let got = renderer
+            .render_planned(&planner, &plan, W, H, base)
+            .expect("render should succeed");
+        if frame == 0 {
+            let inked = got
+                .as_chunks::<4>()
+                .0
+                .iter()
+                .filter(|p| **p != [250, 250, 248, 255])
+                .count();
+            assert!(inked > 4_000, "the frame must have drawn gradients: {inked} inked pixels");
+        }
+        let texture = u64::from(vieww_gpu::RampAtlas::WIDTH)
+            * u64::from(planner.ramp_atlas().rows())
+            * 16;
+        sent += renderer.last_ramp_upload_bytes();
+        whole += texture;
+        match renderer.last_ramp_upload_bytes() {
+            0 => {}
+            b if b == texture => full += 1,
+            _ => partial += 1,
+        }
+        let mut fresh = SceneRenderer::new(&device).expect("the pipeline should build");
+        let want = fresh
+            .render_planned(&planner, &plan, W, H, base)
+            .expect("render should succeed");
+        drop(fresh);
+        assert_eq!(
+            got, want,
+            "frame {frame}: partial-upload pixels differ from a full upload"
+        );
+    }
+    assert!(
+        partial >= 10,
+        "partial uploads should be common: {partial} partial, {full} full"
+    );
+    assert!(
+        full >= 2,
+        "the run should cross a compaction and the skipped frame: {full} full"
+    );
+    assert!(
+        sent * 2 < whole,
+        "partial uploads should send well under half the bytes of whole-texture ones: {sent} vs {whole}"
+    );
+    eprintln!(
+        "{partial} partial, {full} full; {sent} bytes sent against {whole} for whole-texture uploads"
+    );
 }

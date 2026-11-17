@@ -70,6 +70,8 @@
 
 use std::collections::HashMap;
 
+use crate::dirty::{AtlasChanges, DirtyRects};
+
 /// Everything about a rasterised glyph that decides which texels it owns.
 ///
 /// The same identity `vieww_paint`'s glyph raster cache keys on — font, id,
@@ -122,7 +124,8 @@ pub struct Atlas {
     shelf_y: u32,
     /// The tallest glyph on the current shelf — how far up the next shelf goes.
     shelf_height: u32,
-    version: u64,
+    /// The version and this frame's dirty rectangles — see [`DirtyRects`].
+    dirty: DirtyRects,
     /// Which frame `get` and `insert` are currently stamping. A frame is one
     /// `plan`; see [`begin_frame`](Self::begin_frame).
     frame: u32,
@@ -150,7 +153,7 @@ impl std::fmt::Debug for Atlas {
         f.debug_struct("Atlas")
             .field("side", &self.side)
             .field("glyphs", &self.entries.len())
-            .field("version", &self.version)
+            .field("version", &self.dirty.version())
             .finish()
     }
 }
@@ -199,7 +202,7 @@ impl Atlas {
             pen_x: 0,
             shelf_y: 0,
             shelf_height: 0,
-            version: crate::generation::next(),
+            dirty: DirtyRects::new(),
             frame: 0,
             full: false,
         };
@@ -240,14 +243,27 @@ impl Atlas {
 
     /// Bumped whenever a texel or the size changed.
     ///
-    /// A backend keeps the version it last uploaded and re-uploads when this
-    /// differs. Cheaper schemes exist (dirty rectangles, a ring of staging
-    /// buffers) and none of them is worth anything until a profile says the
-    /// upload is a cost: a full 4096x4096 atlas is 16 MB, and a *steady* frame
-    /// re-uploads nothing at all because no new glyph was rasterised.
+    /// A backend that cannot ask which texels changed re-uploads when this
+    /// differs from what it holds. One that can calls
+    /// [`changes_since`](Self::changes_since) instead and sends only the
+    /// rectangles — one new glyph is a few hundred bytes, where a whole
+    /// 4096x4096 `R8` atlas is 16 MB.
     #[must_use]
     pub const fn version(&self) -> u64 {
-        self.version
+        self.dirty.version()
+    }
+
+    /// What a backend whose texture holds `held` (the
+    /// [`version`](Self::version) it last uploaded, `None` if it has never
+    /// uploaded) must be sent — the same answer
+    /// [`MaskAtlas::changes_since`](crate::MaskAtlas::changes_since) gives for
+    /// masks. Glyphs are packed append-only into stable slots and never
+    /// rewritten, so a new glyph's rectangle is the whole of the difference; a
+    /// compaction or a grow is a full upload, as is any backend that missed a
+    /// frame.
+    #[must_use]
+    pub fn changes_since(&self, held: Option<u64>) -> AtlasChanges<'_> {
+        self.dirty.changes_since(held)
     }
 
     /// How many distinct glyphs are packed.
@@ -290,6 +306,7 @@ impl Atlas {
     /// by a planner never needs it called by hand; the call is public because
     /// the atlas is and a hand-held one deserves the same safety.
     pub fn begin_frame(&mut self) {
+        self.dirty.begin_frame();
         self.frame = self.frame.wrapping_add(1);
         if !self.full {
             return;
@@ -326,6 +343,11 @@ impl Atlas {
         }
         keep.sort_unstable_by_key(|(_, p, _)| (p.y, p.x));
 
+        // Everything from here on rewrites the texture wholesale — the reset
+        // and every re-placement — so this frame's difference is "all of it",
+        // not the sum of the re-placed rectangles.
+        self.dirty.rewrote();
+
         // Reset at the *current* side, not the initial one: the live set has
         // already demanded this much texture once, and growing back to it a
         // frame later would re-upload four times to arrive at the same place.
@@ -355,7 +377,6 @@ impl Atlas {
             );
         }
         self.full = false;
-        self.version = crate::generation::next();
     }
 
     /// Pack `alpha` — `width * height` coverage bytes, row-major — under
@@ -391,7 +412,6 @@ impl Atlas {
         placement.last_used = self.frame;
         self.blit(placement, alpha);
         self.entries.insert(key, placement);
-        self.version = crate::generation::next();
         Some(self.slot(placement))
     }
 
@@ -471,10 +491,14 @@ impl Atlas {
             self.texels[to..to + old_side as usize]
                 .copy_from_slice(&old_texels[from..from + old_side as usize]);
         }
-        self.version = crate::generation::next();
+        // A resize is a full upload for every backend — the texture must be
+        // recreated — so the frame's recording is abandoned rather than
+        // appended to.
+        self.dirty.rewrote();
     }
 
     fn blit(&mut self, at: Placement, alpha: &[u8]) {
+        self.dirty.blit(at.x, at.y, at.width, at.height);
         for row in 0..at.height {
             let from = (row * at.width) as usize;
             let to = ((at.y + row) * self.side + at.x) as usize;
@@ -815,5 +839,131 @@ mod tests {
         assert_eq!(atlas.version(), version);
         assert_eq!(atlas.len(), len);
         assert!(atlas.get(&key(1)).is_some());
+    }
+
+    // ------------------------------------------------- partial uploads
+
+    /// A "texture" the way a backend holds one: the texels it was last sent,
+    /// replayed exactly as `changes_since` prescribes.
+    #[derive(Default)]
+    struct Backend {
+        texels: Vec<u8>,
+        held: Option<u64>,
+        fulls: u32,
+        region_bytes: u64,
+    }
+
+    impl Backend {
+        /// Apply what `changes_since` says to send, and check the result
+        /// equals the atlas — the replay every partial-upload backend
+        /// performs, held to byte identity after every frame.
+        fn sync(&mut self, atlas: &Atlas) {
+            let side = atlas.side() as usize;
+            match atlas.changes_since(self.held) {
+                crate::AtlasChanges::None => {}
+                crate::AtlasChanges::Full => {
+                    self.texels = atlas.texels().to_vec();
+                    self.fulls += 1;
+                }
+                crate::AtlasChanges::Regions(rects) => {
+                    assert_eq!(
+                        self.texels.len(),
+                        atlas.texels().len(),
+                        "a region upload never resizes"
+                    );
+                    for &[x, y, w, h] in rects {
+                        for row in y..y + h {
+                            let i = row as usize * side + x as usize;
+                            let n = w as usize;
+                            self.texels[i..i + n]
+                                .copy_from_slice(&atlas.texels()[i..i + n]);
+                            self.region_bytes += u64::from(w);
+                        }
+                    }
+                }
+            }
+            self.held = Some(atlas.version());
+            assert_eq!(
+                self.texels, atlas.texels(),
+                "the backend's texture must equal the atlas after syncing"
+            );
+        }
+    }
+
+    /// `changes_since` replayed onto a texture must leave it equal to the
+    /// atlas after every sync — the property `vieww-hal`'s partial glyph
+    /// uploads are held to, frame for frame. Runs the atlas through a whole
+    /// life: a first upload, a steady frame, a new glyph, a grow, a frame the
+    /// backend skips, and a compaction.
+    #[test]
+    fn changes_since_replayed_leaves_a_texture_equal_to_the_atlas() {
+        let mut atlas = Atlas::new();
+        let mut backend = Backend::default();
+
+        // Frame 1: two glyphs. The backend's first upload is a full one.
+        atlas.begin_frame();
+        atlas.insert(key(1), 20, 14, &[11; 280]);
+        atlas.insert(key(2), 6, 9, &[12; 54]);
+        backend.sync(&atlas);
+        assert_eq!(backend.fulls, 1);
+
+        // Frame 2: steady — nothing new rasterised, nothing sent.
+        atlas.begin_frame();
+        backend.sync(&atlas);
+        assert_eq!(backend.region_bytes, 0);
+
+        // Frame 3: one new glyph. Only its rectangle goes: 8x8, 64 bytes,
+        // against a whole 256x256 texture of 64 KiB.
+        atlas.begin_frame();
+        atlas.insert(key(3), 8, 8, &[13; 64]);
+        backend.sync(&atlas);
+        assert_eq!(
+            backend.region_bytes, 64,
+            "one 8x8 glyph is 64 bytes, not the whole texture"
+        );
+
+        // Frame 4: a glyph too tall for the first shelf of a 256 atlas. A
+        // grow is a resize for a backend, so a full upload.
+        atlas.begin_frame();
+        atlas.insert(key(4), 100, 255, &[5; 25_500]);
+        assert!(atlas.side() > Atlas::INITIAL_SIDE, "the frame grew the atlas");
+        backend.sync(&atlas);
+        assert_eq!(backend.fulls, 2);
+
+        // Frame 5: the backend skips the frame. The one after cannot be
+        // described by rectangles — the backend's version predates that
+        // frame's base — so it is sent everything.
+        atlas.begin_frame();
+        atlas.insert(key(5), 10, 10, &[3; 100]);
+        atlas.begin_frame();
+        atlas.insert(key(6), 10, 10, &[4; 100]);
+        backend.sync(&atlas);
+        assert_eq!(backend.fulls, 3);
+
+        // Frames 6-8: fill to the ceiling, compact, insert again. The
+        // compaction must reach the backend as a full upload — never as the
+        // rectangles of the re-placed glyphs, which the reset has made wrong.
+        fill(&mut atlas);
+        backend.sync(&atlas);
+        atlas.begin_frame();
+        for g in 0..50u16 {
+            atlas.get(&key(g));
+        }
+        atlas.begin_frame();
+        assert!(atlas.len() < 1_000, "the compaction must have run");
+        backend.sync(&atlas);
+        assert_eq!(backend.fulls, 5, "the compaction is a full upload");
+
+        // The frame after it is a rectangle again, on the compacted atlas.
+        let before = backend.region_bytes;
+        atlas.begin_frame();
+        atlas.insert(key(65_535), 128, 128, &[7; 16_384]);
+        backend.sync(&atlas);
+        assert_eq!(
+            backend.region_bytes - before,
+            16_384,
+            "one 128x128 glyph after the compaction is its own rectangle"
+        );
+        assert_eq!(backend.texels, atlas.texels());
     }
 }

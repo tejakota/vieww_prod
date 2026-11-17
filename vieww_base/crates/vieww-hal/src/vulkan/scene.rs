@@ -278,6 +278,15 @@ pub struct SceneRenderer {
     readback: Buffer,
     /// Bytes the last [`SceneRenderer::upload_masks`] sent.
     mask_upload_bytes: u64,
+    /// Bytes the last glyph-atlas upload sent — see
+    /// [`Self::last_glyph_upload_bytes`].
+    glyph_upload_bytes: u64,
+    /// Bytes the last image-atlas upload sent — see
+    /// [`Self::last_image_upload_bytes`].
+    image_upload_bytes: u64,
+    /// Bytes the last ramp-atlas upload sent — see
+    /// [`Self::last_ramp_upload_bytes`].
+    ramp_upload_bytes: u64,
     /// Where the last frame's time went — see [`GpuFrameTimings`].
     timings: GpuFrameTimings,
     /// What `L[0]` holds between frames — see [`Retained`].
@@ -876,6 +885,9 @@ impl SceneRenderer {
             scratch: Vec::new(),
             readback: Buffer::EMPTY,
             mask_upload_bytes: 0,
+            glyph_upload_bytes: 0,
+            image_upload_bytes: 0,
+            ramp_upload_bytes: 0,
             timings: GpuFrameTimings::default(),
             retained: None,
             frame_clip: None,
@@ -981,22 +993,19 @@ impl SceneRenderer {
         Ok(index)
     }
 
-    /// Upload the glyph atlas if it changed. For callers that manage a
-    /// `vieww_gpu::Atlas` outside a [`Planner`].
+    /// Upload the parts of the glyph atlas that changed — [`Self::upload_masks`]
+    /// for callers that manage a `vieww_gpu::Atlas` outside a [`Planner`]:
+    /// only the rectangles that changed, when the atlas can say which ones
+    /// those are.
     ///
     /// # Errors
     ///
     /// Any Vulkan call failing.
     pub fn upload_atlas(&mut self, atlas: &vieww_gpu::Atlas) -> Result<(), VulkanError> {
         self.settle()?;
-        self.upload(
-            Slot::Glyphs,
-            atlas.texels(),
-            atlas.side(),
-            atlas.side(),
-            Some(atlas.version()),
-            false,
-        )
+        self.begin_commands(0)?;
+        self.record_glyphs(atlas)?;
+        self.submit_and_wait(None).map(|_| ())
     }
 
     /// Upload every atlas `planner` holds that changed since the last upload,
@@ -1027,34 +1036,10 @@ impl SceneRenderer {
     ///
     /// Any Vulkan call failing.
     fn record_planner_uploads(&mut self, planner: &Planner) -> Result<(), VulkanError> {
-        let atlas = planner.atlas();
-        self.record_upload(
-            Slot::Glyphs,
-            atlas.texels(),
-            atlas.side(),
-            atlas.side(),
-            Some(atlas.version()),
-            false,
-        )?;
-        let images = planner.image_atlas();
-        self.record_upload(
-            Slot::Images,
-            images.texels(),
-            images.side(),
-            images.side(),
-            Some(images.version()),
-            false,
-        )?;
+        self.record_glyphs(planner.atlas())?;
+        self.record_images(planner.image_atlas())?;
         self.record_masks(planner.mask_atlas())?;
-        let ramps = planner.ramp_atlas();
-        self.record_upload(
-            Slot::Ramps,
-            as_bytes(ramps.texels()),
-            vieww_gpu::RampAtlas::WIDTH,
-            ramps.rows(),
-            Some(ramps.version()),
-            false,
-        )
+        self.record_ramps(planner.ramp_atlas())
     }
 
     /// Bring the mask texture up to `masks`, sending only the rectangles that
@@ -1114,14 +1099,170 @@ impl SceneRenderer {
             }
         };
         let version = Some(masks.version());
+        self.mask_upload_bytes =
+            self.record_regions(Slot::Masks, masks.texels(), 1, side, version, rects)?;
+        Ok(())
+    }
+
+    /// Bring the glyph texture up to `atlas` the way [`Self::record_masks`]
+    /// brings the mask texture up: only the rectangles that changed, when the
+    /// atlas can say which ones those are.
+    ///
+    /// # Why not just the whole-texture upload
+    ///
+    /// The glyph atlas never evicts, so its version moves only when a *new*
+    /// glyph is rasterised — and one new glyph is a few hundred coverage
+    /// bytes, where the whole texture is up to 4096x4096 of `R8`, 16 MB. The
+    /// frames that pay are the almost-steady ones: a line of text scrolling
+    /// in, a font fallback appearing — one new glyph per frame, each a full
+    /// re-upload before this existed.
+    ///
+    /// # Errors
+    ///
+    /// Any Vulkan call failing.
+    fn record_glyphs(&mut self, atlas: &vieww_gpu::Atlas) -> Result<(), VulkanError> {
+        let held = self.texture(Slot::Glyphs).version;
+        let side = atlas.side();
+        let same_size = {
+            let t = self.texture(Slot::Glyphs);
+            t.width == side && t.height == side
+        };
+        self.glyph_upload_bytes = 0;
+        let rects = match atlas.changes_since(held) {
+            vieww_gpu::AtlasChanges::None => return Ok(()),
+            vieww_gpu::AtlasChanges::Regions(rects) if same_size => rects,
+            _ => {
+                self.record_upload(
+                    Slot::Glyphs,
+                    atlas.texels(),
+                    side,
+                    side,
+                    Some(atlas.version()),
+                    false,
+                )?;
+                self.glyph_upload_bytes = u64::from(side) * u64::from(side);
+                return Ok(());
+            }
+        };
+        let version = Some(atlas.version());
+        self.glyph_upload_bytes =
+            self.record_regions(Slot::Glyphs, atlas.texels(), 1, side, version, rects)?;
+        Ok(())
+    }
+
+    /// Bring the image texture up to `images` the way [`Self::record_masks`]
+    /// brings the mask texture up. An insert's rectangle is the image plus
+    /// its one-texel padding ring (linear sampling reads the ring, so it
+    /// changes with the image); a frame that decodes one image sends that
+    /// image's texels instead of the whole (up to 64 MB) texture.
+    ///
+    /// # Errors
+    ///
+    /// Any Vulkan call failing.
+    fn record_images(&mut self, images: &vieww_gpu::ImageAtlas) -> Result<(), VulkanError> {
+        let held = self.texture(Slot::Images).version;
+        let side = images.side();
+        let same_size = {
+            let t = self.texture(Slot::Images);
+            t.width == side && t.height == side
+        };
+        self.image_upload_bytes = 0;
+        let rects = match images.changes_since(held) {
+            vieww_gpu::AtlasChanges::None => return Ok(()),
+            vieww_gpu::AtlasChanges::Regions(rects) if same_size => rects,
+            _ => {
+                self.record_upload(
+                    Slot::Images,
+                    images.texels(),
+                    side,
+                    side,
+                    Some(images.version()),
+                    false,
+                )?;
+                self.image_upload_bytes = u64::from(side) * u64::from(side) * 4;
+                return Ok(());
+            }
+        };
+        let version = Some(images.version());
+        self.image_upload_bytes =
+            self.record_regions(Slot::Images, images.texels(), 4, side, version, rects)?;
+        Ok(())
+    }
+
+    /// Bring the ramp texture up to `ramps` the way [`Self::record_masks`]
+    /// brings the mask texture up. A new ramp is exactly one row — 4 KB, the
+    /// smallest write of the four atlases — and the only unit of ramp churn:
+    /// a gradient whose stops animate is a new row every frame, which
+    /// whole-texture uploads paid at 4 KB times the row count, every frame,
+    /// growing until the compaction.
+    ///
+    /// # Errors
+    ///
+    /// Any Vulkan call failing.
+    fn record_ramps(&mut self, ramps: &vieww_gpu::RampAtlas) -> Result<(), VulkanError> {
+        let held = self.texture(Slot::Ramps).version;
+        let rows = ramps.rows();
+        let same_size = {
+            let t = self.texture(Slot::Ramps);
+            t.width == vieww_gpu::RampAtlas::WIDTH && t.height == rows
+        };
+        self.ramp_upload_bytes = 0;
+        let rects = match ramps.changes_since(held) {
+            vieww_gpu::AtlasChanges::None => return Ok(()),
+            vieww_gpu::AtlasChanges::Regions(rects) if same_size => rects,
+            _ => {
+                self.record_upload(
+                    Slot::Ramps,
+                    as_bytes(ramps.texels()),
+                    vieww_gpu::RampAtlas::WIDTH,
+                    rows,
+                    Some(ramps.version()),
+                    false,
+                )?;
+                self.ramp_upload_bytes =
+                    u64::from(vieww_gpu::RampAtlas::WIDTH) * u64::from(rows) * 16;
+                return Ok(());
+            }
+        };
+        let version = Some(ramps.version());
+        self.ramp_upload_bytes = self.record_regions(
+            Slot::Ramps,
+            as_bytes(ramps.texels()),
+            16,
+            vieww_gpu::RampAtlas::WIDTH,
+            version,
+            rects,
+        )?;
+        Ok(())
+    }
+
+    /// The rectangle half of [`Self::record_masks`], shared by every atlas
+    /// that can say which of its texels changed: `rects` — rectangles over a
+    /// texture `pitch` texels wide of `stride`-byte texels — packed into
+    /// `slot`'s staging buffer, one copy region per rectangle, leaving the
+    /// texels outside them alone. Returns the bytes sent; an empty `rects`
+    /// only stamps `version`, because a copy of no regions is not a no-op a
+    /// driver is required to accept.
+    ///
+    /// # Errors
+    ///
+    /// Any Vulkan call failing.
+    fn record_regions(
+        &mut self,
+        slot: Slot,
+        texels: &[u8],
+        stride: usize,
+        pitch: u32,
+        version: Option<u64>,
+        rects: &[[u32; 4]],
+    ) -> Result<u64, VulkanError> {
         if rects.is_empty() {
-            self.texture_mut(Slot::Masks).version = version;
-            return Ok(());
+            self.texture_mut(slot).version = version;
+            return Ok(0);
         }
 
         // Pack each rectangle's rows contiguously in the staging buffer, one
         // copy region per rectangle.
-        let texels = masks.texels();
         let mut packed = Vec::new();
         let mut regions = Vec::with_capacity(rects.len());
         for &[x, y, w, h] in rects {
@@ -1142,17 +1283,15 @@ impl SceneRenderer {
                 },
             });
             for row in y..y + h {
-                let from = (row * side + x) as usize;
-                packed.extend_from_slice(&texels[from..from + w as usize]);
+                let from = ((row * pitch + x) as usize) * stride;
+                let bytes = w as usize * stride;
+                packed.extend_from_slice(&texels[from..from + bytes]);
             }
         }
         let needed = packed.len() as u64;
         let flight = self.recording;
-        if self.texture(Slot::Masks).staging[flight].capacity < needed {
-            let old = std::mem::replace(
-                &mut self.texture_mut(Slot::Masks).staging[flight],
-                Buffer::EMPTY,
-            );
+        if self.texture(slot).staging[flight].capacity < needed {
+            let old = std::mem::replace(&mut self.texture_mut(slot).staging[flight], Buffer::EMPTY);
             unsafe { destroy_buffer(&self.device, old) };
             let staging = allocate_buffer(
                 &self.device,
@@ -1160,16 +1299,16 @@ impl SceneRenderer {
                 self.host_visible_memory,
                 needed,
             )?;
-            self.texture_mut(Slot::Masks).staging[flight] = staging;
+            self.texture_mut(slot).staging[flight] = staging;
         }
         write_bytes(
             &self.device,
-            self.texture(Slot::Masks).staging[flight].memory,
+            self.texture(slot).staging[flight].memory,
             &packed,
         )?;
 
         let (image, staging) = {
-            let t = self.texture(Slot::Masks);
+            let t = self.texture(slot);
             (t.image, t.staging[flight].handle)
         };
         let cmd = self.cmd();
@@ -1198,9 +1337,8 @@ impl SceneRenderer {
                 vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
             );
         }
-        self.texture_mut(Slot::Masks).version = version;
-        self.mask_upload_bytes = needed;
-        Ok(())
+        self.texture_mut(slot).version = version;
+        Ok(needed)
     }
 
     /// How many bytes the most recent [`Self::upload_masks`] sent — the whole
@@ -1209,6 +1347,30 @@ impl SceneRenderer {
     #[must_use]
     pub const fn last_mask_upload_bytes(&self) -> u64 {
         self.mask_upload_bytes
+    }
+
+    /// How many bytes the most recent glyph-atlas upload sent — the whole
+    /// texture after a full upload, the changed rectangles otherwise, zero
+    /// when nothing changed. For tests and measurement.
+    #[must_use]
+    pub const fn last_glyph_upload_bytes(&self) -> u64 {
+        self.glyph_upload_bytes
+    }
+
+    /// How many bytes the most recent image-atlas upload sent — the whole
+    /// texture after a full upload, the changed rectangles otherwise, zero
+    /// when nothing changed. For tests and measurement.
+    #[must_use]
+    pub const fn last_image_upload_bytes(&self) -> u64 {
+        self.image_upload_bytes
+    }
+
+    /// How many bytes the most recent ramp-atlas upload sent — the whole
+    /// texture after a full upload, the changed rectangles otherwise, zero
+    /// when nothing changed. For tests and measurement.
+    #[must_use]
+    pub const fn last_ramp_upload_bytes(&self) -> u64 {
+        self.ramp_upload_bytes
     }
 
     /// [`render`](Self::render), with `planner`'s atlases uploaded first — the
