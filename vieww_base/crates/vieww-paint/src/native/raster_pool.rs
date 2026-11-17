@@ -39,6 +39,17 @@
 //! once per process); a request of one runs everything on the calling
 //! thread, exactly as before. Desktops keep the core count — a large
 //! window's full repaint is the long raster the walk was built for.
+//!
+//! Since C-12 the platform layer's Android CPU present routes its row
+//! copies through [`run_chunks`] as well — the same rows through the same
+//! workers, no spawn per present. Two callers means the "first multi-thread
+//! request" that sizes the pool is whichever of them goes parallel first;
+//! a later call with a smaller request simply finds its chunks claimed
+//! sooner. That is safe because the pool's contract is per-call: every
+//! chunk of *this* batch runs exactly once before *this* call returns —
+//! the invariant both callers' SAFETY arguments rest on — and neither
+//! request changes while the process runs, so whichever sized the pool,
+//! it sized it once and forever.
 
 use std::sync::{Condvar, Mutex, OnceLock};
 
@@ -283,10 +294,11 @@ unsafe fn scoped<T: Sync>(data: &T, count: usize, workers: usize, run: fn(&T, us
 /// its own index in `0..count`, across `workers` threads including this
 /// one.
 ///
-/// This is the pool's only safe public face. The chunks' shared data is
-/// the caller's borrow; the pool's scoped argument is what makes pointing
-/// workers at it sound.
-pub(crate) fn run_chunks<T: Sync>(data: &T, count: usize, workers: usize, run: fn(&T, usize)) {
+/// This is the pool's only safe public face — the seam the fill walk uses
+/// and, since C-12, the platform layer's Android CPU present. The chunks'
+/// shared data is the caller's borrow; the pool's scoped argument is what
+/// makes pointing workers at it sound.
+pub fn run_chunks<T: Sync>(data: &T, count: usize, workers: usize, run: fn(&T, usize)) {
     // SAFETY: `run` is the caller's; the pool does not store it beyond the
     // batch, which this call outlives, and the data borrow is the caller's
     // own, alive for the whole call.

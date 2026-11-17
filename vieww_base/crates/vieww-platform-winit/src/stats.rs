@@ -1338,12 +1338,17 @@ mod wait_tests {
 
     use super::{FrameLog, FrameStages};
     use std::time::Duration;
+    use vieww_hal::vulkan::GpuFrameTimings;
 
     fn stages_with(acquire: Duration, fence: Duration) -> FrameStages {
-        let mut st = FrameStages::default();
-        st.acquire = acquire;
-        st.gpu.wait = fence;
-        st
+        FrameStages {
+            acquire,
+            gpu: GpuFrameTimings {
+                wait: fence,
+                ..GpuFrameTimings::default()
+            },
+            ..FrameStages::default()
+        }
     }
 
     #[test]

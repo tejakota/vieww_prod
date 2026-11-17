@@ -484,8 +484,10 @@ impl BufferAges {
     }
 
     /// What buffer `address` must have copied into it for this frame, whose
-    /// own change is `changed`; `None` means everything. Records the answer:
-    /// after this call the buffer holds this frame.
+    /// own change is `changed`; `None` means everything. The regions come
+    /// back disjoint (`disjoint_regions`) and with adjacent runs merged
+    /// (`coalesce_regions`). Records the answer: after this call the buffer
+    /// holds this frame.
     fn plan(&mut self, address: usize, changed: Changed) -> Option<Vec<(u32, u32, u32, u32)>> {
         self.frame += 1;
         let now = self.frame;
@@ -511,7 +513,7 @@ impl BufferAges {
             }
             _ => plan = None,
         }
-        let plan = plan.map(disjoint_regions);
+        let plan = plan.map(disjoint_regions).map(coalesce_regions);
         match self.holds.iter_mut().find(|(a, _)| *a == address) {
             Some(slot) => slot.1 = now,
             None => {
@@ -604,6 +606,75 @@ fn disjoint_regions(regions: Vec<(u32, u32, u32, u32)>) -> Vec<(u32, u32, u32, u
         out.extend_from_slice(&pieces);
     }
     out
+}
+
+/// `regions` with abutting runs merged into one rectangle: two rectangles
+/// that share their columns and touch in rows, or share their rows and
+/// touch in columns, become the single rectangle that covers exactly
+/// both — C-12's plan half, run after [`disjoint_regions`].
+///
+/// `disjoint_regions` turns a scroll's per-frame damage into a staircase:
+/// each frame's strip clipped to what newer frames had not already
+/// covered, abutting its neighbours but separate. Both shapes cost the
+/// present: every rectangle in the plan is another entry the flattening
+/// loop walks and clips (`native_android.rs` makes one copy span per
+/// rectangle-row), and two rectangles that share rows make two copy
+/// spans for a row where one longer one would do. Merging unions only
+/// the *borders between* those adjacent writes: the merged rectangle's
+/// pixels are exactly the two fragments' pixels, never a row more and
+/// never one twice, so the bytes moved are the same rows. Overlapping
+/// rectangles never reach this pass — `disjoint_regions` has already
+/// clipped them, each overlap row written once, by whichever rectangle
+/// came first — but the merge conditions below are written as unions, so
+/// a pair that *overlapped* would union too: same rows, once, either
+/// way.
+///
+/// Both merge shapes are exact unions, which is what keeps the pool's
+/// parallel copy sound: the write path's SAFETY argument
+/// (`native_android.rs`, `run_piece`) rests on the jobs' rows being
+/// disjoint, and the union of two disjoint rectangles is disjoint from
+/// every rectangle disjoint from both — so merged or not, no two rows in
+/// the plan are ever the same bytes twice.
+///
+/// The list stays in damage order — a merge lands in the earlier
+/// rectangle's slot — which is the order the plan's readers already
+/// walk, none of them caring which fragment came first.
+///
+/// The pass repeats until it merges nothing: a rectangle can absorb its
+/// neighbours in one round and be absorbed into another in the next (a
+/// bridging fragment listed before what it bridges), and the lists are
+/// plan-sized — a history of six frames' damage — so the rounds are few,
+/// and what a round misses costs list length only, never rows.
+fn coalesce_regions(mut regions: Vec<(u32, u32, u32, u32)>) -> Vec<(u32, u32, u32, u32)> {
+    loop {
+        let mut out: Vec<(u32, u32, u32, u32)> = Vec::with_capacity(regions.len());
+        let mut merged = false;
+        'next: for &(l, t, r, b) in &regions {
+            for earlier in out.iter_mut() {
+                // Same columns, rows touching or overlapping: the union is
+                // the taller rectangle on the same span.
+                if earlier.0 == l && earlier.2 == r && t <= earlier.3 && earlier.1 <= b {
+                    earlier.1 = earlier.1.min(t);
+                    earlier.3 = earlier.3.max(b);
+                    merged = true;
+                    continue 'next;
+                }
+                // Same rows, columns touching or overlapping: the union is
+                // the wider rectangle on the same rows.
+                if earlier.1 == t && earlier.3 == b && l <= earlier.2 && earlier.0 <= r {
+                    earlier.0 = earlier.0.min(l);
+                    earlier.2 = earlier.2.max(r);
+                    merged = true;
+                    continue 'next;
+                }
+            }
+            out.push((l, t, r, b));
+        }
+        if !merged {
+            return out;
+        }
+        regions = out;
+    }
 }
 
 /// Straight RGBA8 bytes to `0x00RRGGBB` words, for the rows and columns of
@@ -2431,6 +2502,105 @@ mod tests {
         assert_eq!(ages.plan(0x1000, regions(&[a])), None);
         assert_eq!(ages.plan(0x1000, regions(&[a])), Some(vec![a]));
         assert_eq!(ages.plan(0x1000, regions(&[])), Some(vec![]));
+    }
+
+    /// C-12's plan half: what a buffer missed arrives as a staircase of
+    /// fragments — `disjoint_regions` clipped each frame's strip to what
+    /// newer frames had not already covered — and the plan now hands back
+    /// the runs merged. Overlapping rows (the scroll's strip crossing
+    /// itself between frames) and abutting columns (two rectangles on the
+    /// same rows) union into the one rectangle that covers exactly both
+    /// fragments' pixels; a pair whose union is not a rectangle stays two.
+    #[test]
+    fn plan_merges_overlapping_and_adjacent_regions_into_their_union() {
+        let mut ages = BufferAges::default();
+        // Frame 1 into buffer A: a scroll's strip.
+        assert_eq!(ages.plan(0x1000, regions(&[(40, 100, 360, 220)])), None);
+        // Frames 2 and 3 into other buffers: the strip walks down the
+        // screen, overlapping the rows it covered a frame earlier, and
+        // frame 3 adds a sidebar to the strip's right that reaches higher
+        // up the screen than the strip does.
+        assert_eq!(ages.plan(0x2000, regions(&[(40, 180, 360, 300)])), None);
+        assert_eq!(
+            ages.plan(
+                0x3000,
+                regions(&[(40, 290, 360, 400), (360, 180, 400, 400)])
+            ),
+            None
+        );
+        // Frame 4 back into A, which last held frame 1: it is missing
+        // frames 2 and 3. Frame 2's strip overlaps frame 3's in rows
+        // 290..300 on the same columns, so `disjoint_regions` hands on two
+        // abutting fragments; the sidebar abuts the strips' columns and
+        // spans exactly the rows their union covers; frame 4 itself
+        // changed a status bar far from all of it.
+        let bar = (0, 2000, 100, 2080);
+        let got = ages.plan(0x1000, regions(&[bar])).expect("A is known");
+        // The union: rows 180..400 across columns 40..400 — one rectangle —
+        // and the status bar, which touches nothing.
+        assert_eq!(got, vec![bar, (40, 180, 400, 400)]);
+        // Golden: the same rows are covered. These are the fragments the
+        // history implies before any merging — the clipped frame-2 strip
+        // is what `disjoint_regions` hands on — and the write path makes
+        // one copy span per rectangle-row, so comparing the rows covered
+        // is comparing the copies: no row dropped, none duplicated, none
+        // widened.
+        let raw = [
+            bar,
+            (40, 290, 360, 400),
+            (360, 180, 400, 400),
+            (40, 180, 360, 290),
+        ];
+        assert_eq!(rows_covered(&got), rows_covered(&raw));
+        // Still disjoint — the pool's parallel copy needs no two jobs
+        // writing the same bytes, so a merge that overlapped would be a
+        // defect, not a saving.
+        assert_disjoint(&got);
+        // Frame 5 into B, which last held frame 2: it is missing frames 3
+        // and 4 — the strip and the sidebar, which abut in columns on
+        // shared rows but whose union is an L, not a rectangle. They stay
+        // two: merging them would copy rows the plan never named.
+        let got = ages.plan(0x2000, regions(&[])).expect("B is known");
+        assert_eq!(got, vec![bar, (40, 290, 360, 400), (360, 180, 400, 400)]);
+        assert_disjoint(&got);
+    }
+
+    /// Every row a list of regions covers, with the columns covered in it
+    /// merged into one interval per run — the write path's own shape
+    /// (`native_android.rs` flattens a plan into per-row copy spans), so
+    /// comparing this is comparing the copies: a dropped row loses an
+    /// entry, a widened one changes its interval, a duplicated one is
+    /// caught by `assert_disjoint` beside it.
+    fn rows_covered(regions: &[(u32, u32, u32, u32)]) -> Vec<(u32, u32, u32)> {
+        let mut spans: Vec<(u32, u32, u32)> = Vec::new();
+        for &(l, t, r, b) in regions {
+            for y in t..b {
+                spans.push((y, l, r));
+            }
+        }
+        spans.sort_unstable();
+        let mut rows: Vec<(u32, u32, u32)> = Vec::new();
+        for &(y, l, r) in &spans {
+            if let Some(last) = rows.last_mut() {
+                if last.0 == y && l <= last.2 {
+                    last.2 = last.2.max(r);
+                    continue;
+                }
+            }
+            rows.push((y, l, r));
+        }
+        rows
+    }
+
+    /// No two rectangles share a pixel — the invariant the parallel copy's
+    /// SAFETY argument is written on, in both the fill walk and the present.
+    fn assert_disjoint(got: &[(u32, u32, u32, u32)]) {
+        for (i, a) in got.iter().enumerate() {
+            for b in &got[i + 1..] {
+                let apart = a.2 <= b.0 || b.2 <= a.0 || a.3 <= b.1 || b.3 <= a.1;
+                assert!(apart, "{a:?} overlaps {b:?}");
+            }
+        }
     }
 
     /// A scroll's carried pixels changed on screen: a copy's destination is

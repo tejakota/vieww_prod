@@ -91,7 +91,9 @@ mod instancing;
 mod linear;
 mod pixels;
 mod pool;
-mod raster_pool;
+/// The persistent worker pool the row-parallel walks run on — and, since
+/// C-12, the Android CPU present's row copies. See the module doc.
+pub mod raster_pool;
 mod reference;
 mod residency;
 mod rounded_rect;
