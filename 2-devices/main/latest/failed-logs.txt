@@ -1,302 +1,302 @@
 ===== phase-2 / Market Watch · compare-firebase	log =====
-2026-11-17T12:08:45.8407300Z [36;1m"$***CI_PY:-python3***" ci/lib/prepare.py[0m
-2026-11-17T12:08:45.8431422Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail ***0***
-2026-11-17T12:08:45.8431878Z env:
-2026-11-17T12:08:45.8432150Z   CI_INPUTS: ***
-2026-11-17T12:08:45.8432438Z   CI_MATRIX: ***
-2026-11-17T12:08:45.8433931Z   CI_JOB: ***"title": "Market Watch \u00b7 compare-firebase", "project": "Market Watch", "id": "compare-firebase", "file": "vieww_base/examples/market-watch/ci/jobs/compare-firebase.toml", "if": "", "needs": ["compare-vieww-apk"], "setup": [], "uploads": [***"name": "compare-firebase", "path": "$*** runner.temp ***/firebase", "if-no-files-found": "warn"***], "downloads": [***"name": "compare-vieww-apk", "path": "dist"***]***
-2026-11-17T12:08:45.8435786Z   CI_PROJECT: Market Watch
-2026-11-17T12:08:45.8436795Z   CI_VARS: ***
+2026-11-17T12:19:54.9020269Z [36;1m"$***CI_PY:-python3***" ci/lib/prepare.py[0m
+2026-11-17T12:19:54.9040657Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail ***0***
+2026-11-17T12:19:54.9041332Z env:
+2026-11-17T12:19:54.9041565Z   CI_INPUTS: ***
+2026-11-17T12:19:54.9041806Z   CI_MATRIX: ***
+2026-11-17T12:19:54.9043046Z   CI_JOB: ***"title": "Market Watch \u00b7 compare-firebase", "project": "Market Watch", "id": "compare-firebase", "file": "vieww_base/examples/market-watch/ci/jobs/compare-firebase.toml", "if": "", "needs": ["compare-vieww-apk"], "setup": [], "uploads": [***"name": "compare-firebase", "path": "$*** runner.temp ***/firebase", "if-no-files-found": "warn"***], "downloads": [***"name": "compare-vieww-apk", "path": "dist"***]***
+2026-11-17T12:19:54.9044344Z   CI_PROJECT: Market Watch
+2026-11-17T12:19:54.9045220Z   CI_VARS: ***
   "AWS_REGION": "us-west-2",
   "AWS_ROLE_ARN": "***",
   "DEVICE_FARM_PROJECT_ARN": "***"
 ***
-2026-11-17T12:08:45.8439653Z   CI_GITHUB_TOKEN: ***
-2026-11-17T12:08:45.8440011Z   CI_SECRET_NAMES: FIREBASE_PROJECT,FIREBASE_SA_KEY
-2026-11-17T12:08:45.8440444Z   CI_HAS_AWS_ROLE: true
-2026-11-17T12:08:45.8440727Z   ANDROID_KEYSTORE: 
-2026-11-17T12:08:45.8441017Z   ANDROID_KEYSTORE_PASSWORD: 
-2026-11-17T12:08:45.8441335Z   ANDROID_KEY_ALIAS: 
-2026-11-17T12:08:45.8441620Z   ANDROID_KEY_PASSWORD: 
-2026-11-17T12:08:45.8441938Z   APPLE_DEVELOPER_ID_P12: 
-2026-11-17T12:08:45.8442245Z   APPLE_NOTARY_ISSUER: 
-2026-11-17T12:08:45.8442528Z   APPLE_NOTARY_KEY: 
-2026-11-17T12:08:45.8442811Z   APPLE_NOTARY_KEY_ID: 
-2026-11-17T12:08:45.8443099Z   APPLE_P12_PASSWORD: 
-2026-11-17T12:08:45.8443385Z   APPLE_SIGNING_IDENTITY: 
-2026-11-17T12:08:45.8443679Z   AWS_ACCESS_KEY_ID: 
-2026-11-17T12:08:45.8443946Z   AWS_ROLE_ARN: 
-2026-11-17T12:08:45.8444219Z   AWS_SECRET_ACCESS_KEY: 
-2026-11-17T12:08:45.8444520Z   CARGO_REGISTRY_TOKEN: 
-2026-11-17T12:08:45.8444954Z   CLOUDFLARE_ACCOUNT_ID: 
-2026-11-17T12:08:45.8445240Z   CLOUDFLARE_API_TOKEN: 
-2026-11-17T12:08:45.8445533Z   DEVICE_FARM_PROJECT_ARN: 
-2026-11-17T12:08:45.8445867Z   FIREBASE_PROJECT: ***
-2026-11-17T12:08:45.8460848Z   FIREBASE_SA_KEY: ***
-2026-11-17T12:08:45.8461350Z   IOS_CERT_P12: 
-2026-11-17T12:08:45.8461796Z   IOS_CERT_PASSWORD: 
-2026-11-17T12:08:45.8462261Z   IOS_IDENTITY: 
-2026-11-17T12:08:45.8462686Z   IOS_PROFILE: 
-2026-11-17T12:08:45.8463119Z   WINDOWS_CERT_PASSWORD: 
-2026-11-17T12:08:45.8463425Z   WINDOWS_CERT_PFX: 
-2026-11-17T12:08:45.8463719Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
-2026-11-17T12:08:45.8464056Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
-2026-11-17T12:08:45.8464385Z   WRIGHT_SECRET_MACOS_P12: 
-2026-11-17T12:08:45.8465090Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
-2026-11-17T12:08:45.8465676Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
-2026-11-17T12:08:45.8466060Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
-2026-11-17T12:08:45.8466391Z   WRIGHT_SECRET_WINDOWS_PFX: 
-2026-11-17T12:08:45.8466731Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
-2026-11-17T12:08:45.8467086Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
-2026-11-17T12:08:45.8467495Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
-2026-11-17T12:08:45.8467891Z ##[endgroup]
-2026-11-17T12:08:46.5227308Z ***
-2026-11-17T12:08:46.5227769Z  "go": "true",
-2026-11-17T12:08:46.5228203Z  "tools": "",
-2026-11-17T12:08:46.5228631Z  "has_final": "false",
-2026-11-17T12:08:46.5229126Z  "up0_name": "compare-firebase",
-2026-11-17T12:08:46.5229713Z  "up0_path": "/home/runner/work/_temp/firebase",
-2026-11-17T12:08:46.5230296Z  "up0_ifnf": "warn",
-2026-11-17T12:08:46.5230734Z  "up0_days": "",
-2026-11-17T12:08:46.5231161Z  "up0_hidden": "false",
-2026-11-17T12:08:46.5231607Z  "dl0": "true",
-2026-11-17T12:08:46.5232148Z  "dl0_name": "compare-vieww-apk",
-2026-11-17T12:08:46.5232916Z  "dl0_pattern": "",
-2026-11-17T12:08:46.5233535Z  "dl0_path": "dist",
-2026-11-17T12:08:46.5234122Z  "dl0_merge": "false",
-2026-11-17T12:08:46.5235282Z  "dl0_soft": "false"
-2026-11-17T12:08:46.5235755Z ***
-2026-11-17T12:08:46.5501839Z ##[group]Run actions/download-artifact@v4
-2026-11-17T12:08:46.5502248Z with:
-2026-11-17T12:08:46.5502529Z   name: compare-vieww-apk
-2026-11-17T12:08:46.5502833Z   path: dist
-2026-11-17T12:08:46.5503279Z   merge-multiple: false
-2026-11-17T12:08:46.5503594Z   repository: tejakota/vieww_prod
-2026-11-17T12:08:46.5503918Z   run-id: 44079854887
-2026-11-17T12:08:46.5504184Z env:
-2026-11-17T12:08:46.5504455Z   CI_INPUTS: ***
-2026-11-17T12:08:46.5505079Z   CI_MATRIX: ***
-2026-11-17T12:08:46.5506589Z   CI_JOB: ***"title": "Market Watch \u00b7 compare-firebase", "project": "Market Watch", "id": "compare-firebase", "file": "vieww_base/examples/market-watch/ci/jobs/compare-firebase.toml", "if": "", "needs": ["compare-vieww-apk"], "setup": [], "uploads": [***"name": "compare-firebase", "path": "$*** runner.temp ***/firebase", "if-no-files-found": "warn"***], "downloads": [***"name": "compare-vieww-apk", "path": "dist"***]***
-2026-11-17T12:08:46.5508121Z   CI_PROJECT: Market Watch
-2026-11-17T12:08:46.5509112Z   CI_VARS: ***
+2026-11-17T12:19:54.9047795Z   CI_GITHUB_TOKEN: ***
+2026-11-17T12:19:54.9048092Z   CI_SECRET_NAMES: FIREBASE_PROJECT,FIREBASE_SA_KEY
+2026-11-17T12:19:54.9048422Z   CI_HAS_AWS_ROLE: true
+2026-11-17T12:19:54.9048675Z   ANDROID_KEYSTORE: 
+2026-11-17T12:19:54.9048940Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-17T12:19:54.9049209Z   ANDROID_KEY_ALIAS: 
+2026-11-17T12:19:54.9049453Z   ANDROID_KEY_PASSWORD: 
+2026-11-17T12:19:54.9049704Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-17T12:19:54.9049971Z   APPLE_NOTARY_ISSUER: 
+2026-11-17T12:19:54.9050227Z   APPLE_NOTARY_KEY: 
+2026-11-17T12:19:54.9050483Z   APPLE_NOTARY_KEY_ID: 
+2026-11-17T12:19:54.9050738Z   APPLE_P12_PASSWORD: 
+2026-11-17T12:19:54.9051000Z   APPLE_SIGNING_IDENTITY: 
+2026-11-17T12:19:54.9051303Z   AWS_ACCESS_KEY_ID: 
+2026-11-17T12:19:54.9051544Z   AWS_ROLE_ARN: 
+2026-11-17T12:19:54.9051779Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-17T12:19:54.9052050Z   CARGO_REGISTRY_TOKEN: 
+2026-11-17T12:19:54.9052310Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-17T12:19:54.9052569Z   CLOUDFLARE_API_TOKEN: 
+2026-11-17T12:19:54.9052828Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-17T12:19:54.9053128Z   FIREBASE_PROJECT: ***
+2026-11-17T12:19:54.9061403Z   FIREBASE_SA_KEY: ***
+2026-11-17T12:19:54.9061734Z   IOS_CERT_P12: 
+2026-11-17T12:19:54.9062051Z   IOS_CERT_PASSWORD: 
+2026-11-17T12:19:54.9062363Z   IOS_IDENTITY: 
+2026-11-17T12:19:54.9062644Z   IOS_PROFILE: 
+2026-11-17T12:19:54.9062956Z   WINDOWS_CERT_PASSWORD: 
+2026-11-17T12:19:54.9063285Z   WINDOWS_CERT_PFX: 
+2026-11-17T12:19:54.9063611Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-17T12:19:54.9063953Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-17T12:19:54.9064248Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-17T12:19:54.9064528Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-17T12:19:54.9064860Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-17T12:19:54.9065166Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-17T12:19:54.9065438Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-17T12:19:54.9065722Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-17T12:19:54.9066021Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-17T12:19:54.9066372Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-17T12:19:54.9066707Z ##[endgroup]
+2026-11-17T12:19:55.5199939Z ***
+2026-11-17T12:19:55.5200263Z  "go": "true",
+2026-11-17T12:19:55.5200561Z  "tools": "",
+2026-11-17T12:19:55.5200857Z  "has_final": "false",
+2026-11-17T12:19:55.5201148Z  "up0_name": "compare-firebase",
+2026-11-17T12:19:55.5201482Z  "up0_path": "/home/runner/work/_temp/firebase",
+2026-11-17T12:19:55.5201802Z  "up0_ifnf": "warn",
+2026-11-17T12:19:55.5202049Z  "up0_days": "",
+2026-11-17T12:19:55.5202288Z  "up0_hidden": "false",
+2026-11-17T12:19:55.5202513Z  "dl0": "true",
+2026-11-17T12:19:55.5202684Z  "dl0_name": "compare-vieww-apk",
+2026-11-17T12:19:55.5202875Z  "dl0_pattern": "",
+2026-11-17T12:19:55.5203035Z  "dl0_path": "dist",
+2026-11-17T12:19:55.5203198Z  "dl0_merge": "false",
+2026-11-17T12:19:55.5203638Z  "dl0_soft": "false"
+2026-11-17T12:19:55.5203806Z ***
+2026-11-17T12:19:55.5415729Z ##[group]Run actions/download-artifact@v4
+2026-11-17T12:19:55.5415948Z with:
+2026-11-17T12:19:55.5416113Z   name: compare-vieww-apk
+2026-11-17T12:19:55.5416290Z   path: dist
+2026-11-17T12:19:55.5416451Z   merge-multiple: false
+2026-11-17T12:19:55.5416636Z   repository: tejakota/vieww_prod
+2026-11-17T12:19:55.5416977Z   run-id: 44081659092
+2026-11-17T12:19:55.5417333Z env:
+2026-11-17T12:19:55.5417493Z   CI_INPUTS: ***
+2026-11-17T12:19:55.5417655Z   CI_MATRIX: ***
+2026-11-17T12:19:55.5418452Z   CI_JOB: ***"title": "Market Watch \u00b7 compare-firebase", "project": "Market Watch", "id": "compare-firebase", "file": "vieww_base/examples/market-watch/ci/jobs/compare-firebase.toml", "if": "", "needs": ["compare-vieww-apk"], "setup": [], "uploads": [***"name": "compare-firebase", "path": "$*** runner.temp ***/firebase", "if-no-files-found": "warn"***], "downloads": [***"name": "compare-vieww-apk", "path": "dist"***]***
+2026-11-17T12:19:55.5419265Z   CI_PROJECT: Market Watch
+2026-11-17T12:19:55.5419827Z   CI_VARS: ***
   "AWS_REGION": "us-west-2",
   "AWS_ROLE_ARN": "***",
   "DEVICE_FARM_PROJECT_ARN": "***"
 ***
-2026-11-17T12:08:46.5511959Z   CI_GITHUB_TOKEN: ***
-2026-11-17T12:08:46.5512319Z   CI_SECRET_NAMES: FIREBASE_PROJECT,FIREBASE_SA_KEY
-2026-11-17T12:08:46.5512715Z   CI_HAS_AWS_ROLE: true
-2026-11-17T12:08:46.5513010Z   ANDROID_KEYSTORE: 
-2026-11-17T12:08:46.5513305Z   ANDROID_KEYSTORE_PASSWORD: 
-2026-11-17T12:08:46.5513614Z   ANDROID_KEY_ALIAS: 
-2026-11-17T12:08:46.5513900Z   ANDROID_KEY_PASSWORD: 
-2026-11-17T12:08:46.5514211Z   APPLE_DEVELOPER_ID_P12: 
-2026-11-17T12:08:46.5514515Z   APPLE_NOTARY_ISSUER: 
-2026-11-17T12:08:46.5515052Z   APPLE_NOTARY_KEY: 
-2026-11-17T12:08:46.5515352Z   APPLE_NOTARY_KEY_ID: 
-2026-11-17T12:08:46.5515655Z   APPLE_P12_PASSWORD: 
-2026-11-17T12:08:46.5515950Z   APPLE_SIGNING_IDENTITY: 
-2026-11-17T12:08:46.5516260Z   AWS_ACCESS_KEY_ID: 
-2026-11-17T12:08:46.5516542Z   AWS_ROLE_ARN: 
-2026-11-17T12:08:46.5516822Z   AWS_SECRET_ACCESS_KEY: 
-2026-11-17T12:08:46.5517147Z   CARGO_REGISTRY_TOKEN: 
-2026-11-17T12:08:46.5517455Z   CLOUDFLARE_ACCOUNT_ID: 
-2026-11-17T12:08:46.5517756Z   CLOUDFLARE_API_TOKEN: 
-2026-11-17T12:08:46.5518060Z   DEVICE_FARM_PROJECT_ARN: 
-2026-11-17T12:08:46.5518405Z   FIREBASE_PROJECT: ***
-2026-11-17T12:08:46.5528097Z   FIREBASE_SA_KEY: ***
-2026-11-17T12:08:46.5528405Z   IOS_CERT_P12: 
-2026-11-17T12:08:46.5528688Z   IOS_CERT_PASSWORD: 
-2026-11-17T12:08:46.5528976Z   IOS_IDENTITY: 
-2026-11-17T12:08:46.5529239Z   IOS_PROFILE: 
-2026-11-17T12:08:46.5529518Z   WINDOWS_CERT_PASSWORD: 
-2026-11-17T12:08:46.5529822Z   WINDOWS_CERT_PFX: 
-2026-11-17T12:08:46.5530126Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
-2026-11-17T12:08:46.5530468Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
-2026-11-17T12:08:46.5530815Z   WRIGHT_SECRET_MACOS_P12: 
-2026-11-17T12:08:46.5531140Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
-2026-11-17T12:08:46.5531496Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
-2026-11-17T12:08:46.5531850Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
-2026-11-17T12:08:46.5532189Z   WRIGHT_SECRET_WINDOWS_PFX: 
-2026-11-17T12:08:46.5532532Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
-2026-11-17T12:08:46.5532899Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
-2026-11-17T12:08:46.5533314Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
-2026-11-17T12:08:46.5533711Z ##[endgroup]
-2026-11-17T12:08:46.7092312Z Downloading single artifact
-2026-11-17T12:08:46.7300127Z (node:2486) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-2026-11-17T12:08:46.7301222Z (Use `node --trace-deprecation ...` to show where the warning was created)
-2026-11-17T12:08:46.8873879Z Preparing to download the following artifacts:
-2026-11-17T12:08:46.8875371Z - compare-vieww-apk (ID: 14326706948, Size: 2817281, Expected Digest: sha256:d807b2d1a936e6a6e1e290eafc713de5d1c666800eb8a4d5ae96fc11d50cf49f)
-2026-11-17T12:08:47.0745923Z Redirecting to blob download url: https://productionresultssa19.blob.core.windows.net/actions-results/17b5b756-b692-41ab-b164-a2bdfa87e657/workflow-job-run-3ee90c76-257e-59a3-88c4-edcaad38cc2a/artifacts/ab5fc56eb26ea0efd623189b12fe58fb33637c39f60646bc504c809ae0d96cc8.zip
-2026-11-17T12:08:47.0748446Z Starting download of artifact to: /home/runner/work/vieww_prod/vieww_prod/dist
-2026-11-17T12:08:47.6183788Z (node:2486) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
-2026-11-17T12:08:48.8919748Z SHA256 digest of downloaded artifact is d807b2d1a936e6a6e1e290eafc713de5d1c666800eb8a4d5ae96fc11d50cf49f
-2026-11-17T12:08:48.8920825Z Artifact download completed successfully.
-2026-11-17T12:08:48.8921496Z Total of 1 artifact(s) downloaded
-2026-11-17T12:08:48.8925374Z Download artifact has finished successfully
-2026-11-17T12:08:48.9140744Z ##[group]Run "$***CI_PY:-python3***" ci/lib/run.py "vieww_base/examples/market-watch/ci/jobs/compare-firebase.toml"
-2026-11-17T12:08:48.9141775Z [36;1m"$***CI_PY:-python3***" ci/lib/run.py "vieww_base/examples/market-watch/ci/jobs/compare-firebase.toml"[0m
-2026-11-17T12:08:48.9162329Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail ***0***
-2026-11-17T12:08:48.9162774Z env:
-2026-11-17T12:08:48.9163044Z   CI_INPUTS: ***
-2026-11-17T12:08:48.9163351Z   CI_MATRIX: ***
-2026-11-17T12:08:48.9165086Z   CI_JOB: ***"title": "Market Watch \u00b7 compare-firebase", "project": "Market Watch", "id": "compare-firebase", "file": "vieww_base/examples/market-watch/ci/jobs/compare-firebase.toml", "if": "", "needs": ["compare-vieww-apk"], "setup": [], "uploads": [***"name": "compare-firebase", "path": "$*** runner.temp ***/firebase", "if-no-files-found": "warn"***], "downloads": [***"name": "compare-vieww-apk", "path": "dist"***]***
-2026-11-17T12:08:48.9166634Z   CI_PROJECT: Market Watch
-2026-11-17T12:08:48.9167626Z   CI_VARS: ***
+2026-11-17T12:19:55.5421381Z   CI_GITHUB_TOKEN: ***
+2026-11-17T12:19:55.5421581Z   CI_SECRET_NAMES: FIREBASE_PROJECT,FIREBASE_SA_KEY
+2026-11-17T12:19:55.5421802Z   CI_HAS_AWS_ROLE: true
+2026-11-17T12:19:55.5421975Z   ANDROID_KEYSTORE: 
+2026-11-17T12:19:55.5422149Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-17T12:19:55.5422332Z   ANDROID_KEY_ALIAS: 
+2026-11-17T12:19:55.5422496Z   ANDROID_KEY_PASSWORD: 
+2026-11-17T12:19:55.5422671Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-17T12:19:55.5422849Z   APPLE_NOTARY_ISSUER: 
+2026-11-17T12:19:55.5423016Z   APPLE_NOTARY_KEY: 
+2026-11-17T12:19:55.5423180Z   APPLE_NOTARY_KEY_ID: 
+2026-11-17T12:19:55.5423348Z   APPLE_P12_PASSWORD: 
+2026-11-17T12:19:55.5423513Z   APPLE_SIGNING_IDENTITY: 
+2026-11-17T12:19:55.5423685Z   AWS_ACCESS_KEY_ID: 
+2026-11-17T12:19:55.5423846Z   AWS_ROLE_ARN: 
+2026-11-17T12:19:55.5424005Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-17T12:19:55.5424190Z   CARGO_REGISTRY_TOKEN: 
+2026-11-17T12:19:55.5424360Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-17T12:19:55.5424535Z   CLOUDFLARE_API_TOKEN: 
+2026-11-17T12:19:55.5424710Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-17T12:19:55.5424905Z   FIREBASE_PROJECT: ***
+2026-11-17T12:19:55.5429884Z   FIREBASE_SA_KEY: ***
+2026-11-17T12:19:55.5430055Z   IOS_CERT_P12: 
+2026-11-17T12:19:55.5430215Z   IOS_CERT_PASSWORD: 
+2026-11-17T12:19:55.5430373Z   IOS_IDENTITY: 
+2026-11-17T12:19:55.5430524Z   IOS_PROFILE: 
+2026-11-17T12:19:55.5430685Z   WINDOWS_CERT_PASSWORD: 
+2026-11-17T12:19:55.5430863Z   WINDOWS_CERT_PFX: 
+2026-11-17T12:19:55.5431035Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-17T12:19:55.5431236Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-17T12:19:55.5431431Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-17T12:19:55.5431614Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-17T12:19:55.5431816Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-17T12:19:55.5432016Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-17T12:19:55.5432206Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-17T12:19:55.5432393Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-17T12:19:55.5432595Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-17T12:19:55.5432825Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-17T12:19:55.5433052Z ##[endgroup]
+2026-11-17T12:19:55.6475693Z Downloading single artifact
+2026-11-17T12:19:55.6631719Z (node:2263) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-17T12:19:55.6632200Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-17T12:19:55.8116577Z Preparing to download the following artifacts:
+2026-11-17T12:19:55.8117046Z - compare-vieww-apk (ID: 14328370080, Size: 2817286, Expected Digest: sha256:ed96094ee16c885df48984ce84e70655028f0646d197855be644b82e573c49cf)
+2026-11-17T12:19:56.0004276Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/1cfd031b-59f5-468c-b6d6-f10055eaffe6/workflow-job-run-5c1a676b-89ad-555c-a3b9-d834bf76e4cb/artifacts/ab5fc56eb26ea0efd623189b12fe58fb33637c39f60646bc504c809ae0d96cc8.zip
+2026-11-17T12:19:56.0005072Z Starting download of artifact to: /home/runner/work/vieww_prod/vieww_prod/dist
+2026-11-17T12:19:56.1993413Z (node:2263) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-11-17T12:19:56.4382032Z SHA256 digest of downloaded artifact is ed96094ee16c885df48984ce84e70655028f0646d197855be644b82e573c49cf
+2026-11-17T12:19:56.4383016Z Artifact download completed successfully.
+2026-11-17T12:19:56.4383596Z Total of 1 artifact(s) downloaded
+2026-11-17T12:19:56.4386388Z Download artifact has finished successfully
+2026-11-17T12:19:56.4547628Z ##[group]Run "$***CI_PY:-python3***" ci/lib/run.py "vieww_base/examples/market-watch/ci/jobs/compare-firebase.toml"
+2026-11-17T12:19:56.4548180Z [36;1m"$***CI_PY:-python3***" ci/lib/run.py "vieww_base/examples/market-watch/ci/jobs/compare-firebase.toml"[0m
+2026-11-17T12:19:56.4564879Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail ***0***
+2026-11-17T12:19:56.4565130Z env:
+2026-11-17T12:19:56.4565289Z   CI_INPUTS: ***
+2026-11-17T12:19:56.4565457Z   CI_MATRIX: ***
+2026-11-17T12:19:56.4566280Z   CI_JOB: ***"title": "Market Watch \u00b7 compare-firebase", "project": "Market Watch", "id": "compare-firebase", "file": "vieww_base/examples/market-watch/ci/jobs/compare-firebase.toml", "if": "", "needs": ["compare-vieww-apk"], "setup": [], "uploads": [***"name": "compare-firebase", "path": "$*** runner.temp ***/firebase", "if-no-files-found": "warn"***], "downloads": [***"name": "compare-vieww-apk", "path": "dist"***]***
+2026-11-17T12:19:56.4567265Z   CI_PROJECT: Market Watch
+2026-11-17T12:19:56.4567838Z   CI_VARS: ***
   "AWS_REGION": "us-west-2",
   "AWS_ROLE_ARN": "***",
   "DEVICE_FARM_PROJECT_ARN": "***"
 ***
-2026-11-17T12:08:48.9170486Z   CI_GITHUB_TOKEN: ***
-2026-11-17T12:08:48.9170849Z   CI_SECRET_NAMES: FIREBASE_PROJECT,FIREBASE_SA_KEY
-2026-11-17T12:08:48.9171240Z   CI_HAS_AWS_ROLE: true
-2026-11-17T12:08:48.9171545Z   ANDROID_KEYSTORE: 
-2026-11-17T12:08:48.9171861Z   ANDROID_KEYSTORE_PASSWORD: 
-2026-11-17T12:08:48.9172180Z   ANDROID_KEY_ALIAS: 
-2026-11-17T12:08:48.9172483Z   ANDROID_KEY_PASSWORD: 
-2026-11-17T12:08:48.9172791Z   APPLE_DEVELOPER_ID_P12: 
-2026-11-17T12:08:48.9173095Z   APPLE_NOTARY_ISSUER: 
-2026-11-17T12:08:48.9173387Z   APPLE_NOTARY_KEY: 
-2026-11-17T12:08:48.9173670Z   APPLE_NOTARY_KEY_ID: 
-2026-11-17T12:08:48.9173954Z   APPLE_P12_PASSWORD: 
-2026-11-17T12:08:48.9174245Z   APPLE_SIGNING_IDENTITY: 
-2026-11-17T12:08:48.9174539Z   AWS_ACCESS_KEY_ID: 
-2026-11-17T12:08:48.9175071Z   AWS_ROLE_ARN: 
-2026-11-17T12:08:48.9175353Z   AWS_SECRET_ACCESS_KEY: 
-2026-11-17T12:08:48.9175661Z   CARGO_REGISTRY_TOKEN: 
-2026-11-17T12:08:48.9175959Z   CLOUDFLARE_ACCOUNT_ID: 
-2026-11-17T12:08:48.9176280Z   CLOUDFLARE_API_TOKEN: 
-2026-11-17T12:08:48.9176570Z   DEVICE_FARM_PROJECT_ARN: 
-2026-11-17T12:08:48.9176913Z   FIREBASE_PROJECT: ***
-2026-11-17T12:08:48.9186688Z   FIREBASE_SA_KEY: ***
-2026-11-17T12:08:48.9186996Z   IOS_CERT_P12: 
-2026-11-17T12:08:48.9187274Z   IOS_CERT_PASSWORD: 
-2026-11-17T12:08:48.9187558Z   IOS_IDENTITY: 
-2026-11-17T12:08:48.9211930Z   IOS_PROFILE: 
-2026-11-17T12:08:48.9212324Z   WINDOWS_CERT_PASSWORD: 
-2026-11-17T12:08:48.9212686Z   WINDOWS_CERT_PFX: 
-2026-11-17T12:08:48.9213014Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
-2026-11-17T12:08:48.9213380Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
-2026-11-17T12:08:48.9213730Z   WRIGHT_SECRET_MACOS_P12: 
-2026-11-17T12:08:48.9214060Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
-2026-11-17T12:08:48.9214413Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
-2026-11-17T12:08:48.9215036Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
-2026-11-17T12:08:48.9215384Z   WRIGHT_SECRET_WINDOWS_PFX: 
-2026-11-17T12:08:48.9215717Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
-2026-11-17T12:08:48.9216068Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
-2026-11-17T12:08:48.9216483Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
-2026-11-17T12:08:48.9216900Z   CI_PART: main
-2026-11-17T12:08:48.9217181Z ##[endgroup]
-2026-11-17T12:08:48.9916651Z ##[group]Check the secrets are there
-2026-11-17T12:08:48.9949460Z -rw-r--r-- 1 runner runner 2830752 Nov 17 12:08 ../dist/vieww-market-watch.apk
-2026-11-17T12:08:48.9953753Z ##[endgroup]
-2026-11-17T12:08:48.9962940Z ##[group]gcloud
-2026-11-17T12:08:54.0711476Z Activated service account credentials for: [firebase-adminsdk-fbsvc@***.iam.gserviceaccount.com]
-2026-11-17T12:08:55.8469479Z Updated property [core/project].
-2026-11-17T12:08:55.9436257Z ##[endgroup]
-2026-11-17T12:08:55.9445253Z ##[group]Refuse a project that can be billed
-2026-11-17T12:08:56.8115384Z billing enabled: unknown
-2026-11-17T12:08:56.8139786Z ##[warning]Could not read the project's billing state (the service account may lack billing.resourceAssociations.list). A Spark project cannot be billed; make sure this one is on Spark.
-2026-11-17T12:08:56.8148077Z ##[endgroup]
-2026-11-17T12:08:56.8148587Z ##[group]Run on phones
-2026-11-17T12:08:57.2008656Z WARNING: Firebase Test Lab is deprecated and will be fully shut down on September 30, 2027. To maintain your testing workflows, you can migrate to the Developer Device Platform on Google Cloud. See the Developer Device Platform Migration Guide (https://docs.cloud.google.com/developer-device-platform/device-run/migrate) and FAQ (https://docs.cloud.google.com/developer-device-platform/troubleshooting) for more details.
-2026-11-17T12:08:58.2631829Z phones: model=tokay,version=36,orientation=portrait model=caiman,version=35,orientation=portrait model=komodo,version=35,orientation=portrait
-2026-11-17T12:08:58.6565755Z WARNING: Firebase Test Lab is deprecated and will be fully shut down on September 30, 2027. To maintain your testing workflows, you can migrate to the Developer Device Platform on Google Cloud. See the Developer Device Platform Migration Guide (https://docs.cloud.google.com/developer-device-platform/device-run/migrate) and FAQ (https://docs.cloud.google.com/developer-device-platform/troubleshooting) for more details.
-2026-11-17T12:08:58.8095629Z 
-2026-11-17T12:08:58.8096114Z Have questions, feedback, or issues? Get support by visiting:
-2026-11-17T12:08:58.8096808Z   https://firebase.google.com/support/
-2026-11-17T12:08:58.8097171Z 
-2026-11-17T12:08:59.5371280Z Uploading [../dist/vieww-market-watch.apk] to Firebase Test Lab...
-2026-11-17T12:08:59.9420666Z ERROR: (gcloud.firebase.test.android.run) Could not copy [../dist/vieww-market-watch.apk] to [gs://test-lab-1k0ztm046956a-h83tracnkfq0z/mw-5892c66ffb-44079854887/] ResponseError 403: firebase-adminsdk-fbsvc@***.iam.gserviceaccount.com does not have storage.objects.create access to the Google Cloud Storage object. Permission 'storage.objects.create' denied on resource '//storage.googleapis.com/projects/_/buckets/test-lab-1k0ztm046956a-h83tracnkfq0z/objects/mw-5892c66ffb-44079854887/vieww-market-watch.apk' (or it may not exist)..
-2026-11-17T12:09:00.0147430Z ##[endgroup]
-2026-11-17T12:09:00.0164964Z ##[error]Run on phones failed (exit 1)
-2026-11-17T12:09:00.0166286Z ##[group]mark: upload compare-firebase
-2026-11-17T12:09:00.0181206Z ##[endgroup]
-2026-11-17T12:09:00.0289511Z ##[error]Process completed with exit code 1.
-2026-11-17T12:09:00.0397841Z ##[group]Run actions/upload-artifact@v4
-2026-11-17T12:09:00.0398263Z with:
-2026-11-17T12:09:00.0398542Z   name: compare-firebase
-2026-11-17T12:09:00.0398880Z   path: /home/runner/work/_temp/firebase
-2026-11-17T12:09:00.0399239Z   if-no-files-found: warn
-2026-11-17T12:09:00.0399564Z   include-hidden-files: false
-2026-11-17T12:09:00.0399885Z   compression-level: 6
-2026-11-17T12:09:00.0400179Z   overwrite: false
-2026-11-17T12:09:00.0400451Z env:
-2026-11-17T12:09:00.0400722Z   CI_INPUTS: ***
-2026-11-17T12:09:00.0401001Z   CI_MATRIX: ***
-2026-11-17T12:09:00.0402493Z   CI_JOB: ***"title": "Market Watch \u00b7 compare-firebase", "project": "Market Watch", "id": "compare-firebase", "file": "vieww_base/examples/market-watch/ci/jobs/compare-firebase.toml", "if": "", "needs": ["compare-vieww-apk"], "setup": [], "uploads": [***"name": "compare-firebase", "path": "$*** runner.temp ***/firebase", "if-no-files-found": "warn"***], "downloads": [***"name": "compare-vieww-apk", "path": "dist"***]***
-2026-11-17T12:09:00.0404045Z   CI_PROJECT: Market Watch
-2026-11-17T12:09:00.0405521Z   CI_VARS: ***
+2026-11-17T12:19:56.4569455Z   CI_GITHUB_TOKEN: ***
+2026-11-17T12:19:56.4569655Z   CI_SECRET_NAMES: FIREBASE_PROJECT,FIREBASE_SA_KEY
+2026-11-17T12:19:56.4569877Z   CI_HAS_AWS_ROLE: true
+2026-11-17T12:19:56.4570045Z   ANDROID_KEYSTORE: 
+2026-11-17T12:19:56.4570220Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-17T12:19:56.4570410Z   ANDROID_KEY_ALIAS: 
+2026-11-17T12:19:56.4570579Z   ANDROID_KEY_PASSWORD: 
+2026-11-17T12:19:56.4570761Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-17T12:19:56.4570936Z   APPLE_NOTARY_ISSUER: 
+2026-11-17T12:19:56.4571107Z   APPLE_NOTARY_KEY: 
+2026-11-17T12:19:56.4571273Z   APPLE_NOTARY_KEY_ID: 
+2026-11-17T12:19:56.4571441Z   APPLE_P12_PASSWORD: 
+2026-11-17T12:19:56.4571612Z   APPLE_SIGNING_IDENTITY: 
+2026-11-17T12:19:56.4571826Z   AWS_ACCESS_KEY_ID: 
+2026-11-17T12:19:56.4572017Z   AWS_ROLE_ARN: 
+2026-11-17T12:19:56.4572212Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-17T12:19:56.4572427Z   CARGO_REGISTRY_TOKEN: 
+2026-11-17T12:19:56.4572653Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-17T12:19:56.4572877Z   CLOUDFLARE_API_TOKEN: 
+2026-11-17T12:19:56.4573084Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-17T12:19:56.4573334Z   FIREBASE_PROJECT: ***
+2026-11-17T12:19:56.4586195Z   FIREBASE_SA_KEY: ***
+2026-11-17T12:19:56.4586426Z   IOS_CERT_P12: 
+2026-11-17T12:19:56.4586753Z   IOS_CERT_PASSWORD: 
+2026-11-17T12:19:56.4586919Z   IOS_IDENTITY: 
+2026-11-17T12:19:56.4587210Z   IOS_PROFILE: 
+2026-11-17T12:19:56.4587446Z   WINDOWS_CERT_PASSWORD: 
+2026-11-17T12:19:56.4587694Z   WINDOWS_CERT_PFX: 
+2026-11-17T12:19:56.4615762Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-17T12:19:56.4616177Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-17T12:19:56.4616468Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-17T12:19:56.4616690Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-17T12:19:56.4616942Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-17T12:19:56.4618953Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-17T12:19:56.4619225Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-17T12:19:56.4621122Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-17T12:19:56.4621415Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-17T12:19:56.4623236Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-17T12:19:56.4624834Z   CI_PART: main
+2026-11-17T12:19:56.4625055Z ##[endgroup]
+2026-11-17T12:19:56.5140430Z ##[group]Check the secrets are there
+2026-11-17T12:19:56.5168169Z -rw-r--r-- 1 runner runner 2830752 Nov 17 12:19 ../dist/vieww-market-watch.apk
+2026-11-17T12:19:56.5171879Z ##[endgroup]
+2026-11-17T12:19:56.5177286Z ##[group]gcloud
+2026-11-17T12:20:01.8758457Z Activated service account credentials for: [firebase-adminsdk-fbsvc@***.iam.gserviceaccount.com]
+2026-11-17T12:20:04.2614408Z Updated property [core/project].
+2026-11-17T12:20:04.4101816Z ##[endgroup]
+2026-11-17T12:20:04.4107697Z ##[group]Refuse a project that can be billed
+2026-11-17T12:20:05.4276095Z billing enabled: unknown
+2026-11-17T12:20:05.4295013Z ##[warning]Could not read the project's billing state (the service account may lack billing.resourceAssociations.list). A Spark project cannot be billed; make sure this one is on Spark.
+2026-11-17T12:20:05.4301422Z ##[endgroup]
+2026-11-17T12:20:05.4301729Z ##[group]Run on phones
+2026-11-17T12:20:05.8289384Z WARNING: Firebase Test Lab is deprecated and will be fully shut down on September 30, 2027. To maintain your testing workflows, you can migrate to the Developer Device Platform on Google Cloud. See the Developer Device Platform Migration Guide (https://docs.cloud.google.com/developer-device-platform/device-run/migrate) and FAQ (https://docs.cloud.google.com/developer-device-platform/troubleshooting) for more details.
+2026-11-17T12:20:06.8131108Z phones: model=tokay,version=36,orientation=portrait model=caiman,version=35,orientation=portrait model=komodo,version=35,orientation=portrait
+2026-11-17T12:20:07.3016628Z WARNING: Firebase Test Lab is deprecated and will be fully shut down on September 30, 2027. To maintain your testing workflows, you can migrate to the Developer Device Platform on Google Cloud. See the Developer Device Platform Migration Guide (https://docs.cloud.google.com/developer-device-platform/device-run/migrate) and FAQ (https://docs.cloud.google.com/developer-device-platform/troubleshooting) for more details.
+2026-11-17T12:20:07.4177310Z 
+2026-11-17T12:20:07.4178170Z Have questions, feedback, or issues? Get support by visiting:
+2026-11-17T12:20:07.4178706Z   https://firebase.google.com/support/
+2026-11-17T12:20:07.4178952Z 
+2026-11-17T12:20:07.9937842Z Uploading [../dist/vieww-market-watch.apk] to Firebase Test Lab...
+2026-11-17T12:20:08.3901570Z ERROR: (gcloud.firebase.test.android.run) Could not copy [../dist/vieww-market-watch.apk] to [gs://test-lab-1k0ztm046956a-h83tracnkfq0z/mw-5892c66ffb-44081659092/] ResponseError 403: firebase-adminsdk-fbsvc@***.iam.gserviceaccount.com does not have storage.objects.create access to the Google Cloud Storage object. Permission 'storage.objects.create' denied on resource '//storage.googleapis.com/projects/_/buckets/test-lab-1k0ztm046956a-h83tracnkfq0z/objects/mw-5892c66ffb-44081659092/vieww-market-watch.apk' (or it may not exist)..
+2026-11-17T12:20:08.5351215Z ##[endgroup]
+2026-11-17T12:20:08.5362750Z ##[error]Run on phones failed (exit 1)
+2026-11-17T12:20:08.5364014Z ##[group]mark: upload compare-firebase
+2026-11-17T12:20:08.5376007Z ##[endgroup]
+2026-11-17T12:20:08.5478089Z ##[error]Process completed with exit code 1.
+2026-11-17T12:20:08.5557245Z ##[group]Run actions/upload-artifact@v4
+2026-11-17T12:20:08.5557504Z with:
+2026-11-17T12:20:08.5557688Z   name: compare-firebase
+2026-11-17T12:20:08.5557882Z   path: /home/runner/work/_temp/firebase
+2026-11-17T12:20:08.5558099Z   if-no-files-found: warn
+2026-11-17T12:20:08.5558290Z   include-hidden-files: false
+2026-11-17T12:20:08.5558481Z   compression-level: 6
+2026-11-17T12:20:08.5558657Z   overwrite: false
+2026-11-17T12:20:08.5558820Z env:
+2026-11-17T12:20:08.5558992Z   CI_INPUTS: ***
+2026-11-17T12:20:08.5559159Z   CI_MATRIX: ***
+2026-11-17T12:20:08.5560004Z   CI_JOB: ***"title": "Market Watch \u00b7 compare-firebase", "project": "Market Watch", "id": "compare-firebase", "file": "vieww_base/examples/market-watch/ci/jobs/compare-firebase.toml", "if": "", "needs": ["compare-vieww-apk"], "setup": [], "uploads": [***"name": "compare-firebase", "path": "$*** runner.temp ***/firebase", "if-no-files-found": "warn"***], "downloads": [***"name": "compare-vieww-apk", "path": "dist"***]***
+2026-11-17T12:20:08.5560851Z   CI_PROJECT: Market Watch
+2026-11-17T12:20:08.5561397Z   CI_VARS: ***
   "AWS_REGION": "us-west-2",
   "AWS_ROLE_ARN": "***",
   "DEVICE_FARM_PROJECT_ARN": "***"
 ***
-2026-11-17T12:09:00.0408380Z   CI_GITHUB_TOKEN: ***
-2026-11-17T12:09:00.0408740Z   CI_SECRET_NAMES: FIREBASE_PROJECT,FIREBASE_SA_KEY
-2026-11-17T12:09:00.0409132Z   CI_HAS_AWS_ROLE: true
-2026-11-17T12:09:00.0409430Z   ANDROID_KEYSTORE: 
-2026-11-17T12:09:00.0409730Z   ANDROID_KEYSTORE_PASSWORD: 
-2026-11-17T12:09:00.0410049Z   ANDROID_KEY_ALIAS: 
-2026-11-17T12:09:00.0410341Z   ANDROID_KEY_PASSWORD: 
-2026-11-17T12:09:00.0410653Z   APPLE_DEVELOPER_ID_P12: 
-2026-11-17T12:09:00.0410959Z   APPLE_NOTARY_ISSUER: 
-2026-11-17T12:09:00.0411250Z   APPLE_NOTARY_KEY: 
-2026-11-17T12:09:00.0411532Z   APPLE_NOTARY_KEY_ID: 
-2026-11-17T12:09:00.0411823Z   APPLE_P12_PASSWORD: 
-2026-11-17T12:09:00.0412123Z   APPLE_SIGNING_IDENTITY: 
-2026-11-17T12:09:00.0412429Z   AWS_ACCESS_KEY_ID: 
-2026-11-17T12:09:00.0412710Z   AWS_ROLE_ARN: 
-2026-11-17T12:09:00.0412998Z   AWS_SECRET_ACCESS_KEY: 
-2026-11-17T12:09:00.0413313Z   CARGO_REGISTRY_TOKEN: 
-2026-11-17T12:09:00.0413618Z   CLOUDFLARE_ACCOUNT_ID: 
-2026-11-17T12:09:00.0413919Z   CLOUDFLARE_API_TOKEN: 
-2026-11-17T12:09:00.0414221Z   DEVICE_FARM_PROJECT_ARN: 
-2026-11-17T12:09:00.0414586Z   FIREBASE_PROJECT: ***
-2026-11-17T12:09:00.0424270Z   FIREBASE_SA_KEY: ***
-2026-11-17T12:09:00.0424568Z   IOS_CERT_P12: 
-2026-11-17T12:09:00.0425068Z   IOS_CERT_PASSWORD: 
-2026-11-17T12:09:00.0425356Z   IOS_IDENTITY: 
-2026-11-17T12:09:00.0425621Z   IOS_PROFILE: 
-2026-11-17T12:09:00.0425900Z   WINDOWS_CERT_PASSWORD: 
-2026-11-17T12:09:00.0426201Z   WINDOWS_CERT_PFX: 
-2026-11-17T12:09:00.0426501Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
-2026-11-17T12:09:00.0426851Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
-2026-11-17T12:09:00.0427189Z   WRIGHT_SECRET_MACOS_P12: 
-2026-11-17T12:09:00.0427514Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
-2026-11-17T12:09:00.0427875Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
-2026-11-17T12:09:00.0428238Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
-2026-11-17T12:09:00.0428575Z   WRIGHT_SECRET_WINDOWS_PFX: 
-2026-11-17T12:09:00.0428915Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
-2026-11-17T12:09:00.0429275Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
-2026-11-17T12:09:00.0429689Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
-2026-11-17T12:09:00.0430092Z   CI_UPLOAD_0: yes
-2026-11-17T12:09:00.0430376Z ##[endgroup]
-2026-11-17T12:09:00.2099846Z (node:2577) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-2026-11-17T12:09:00.2100908Z (Use `node --trace-deprecation ...` to show where the warning was created)
-2026-11-17T12:09:00.2166338Z With the provided path, there will be 2 files uploaded
-2026-11-17T12:09:00.2172030Z Artifact name is valid!
-2026-11-17T12:09:00.2172702Z Root directory input is valid!
-2026-11-17T12:09:00.4626853Z Beginning upload of artifact content to blob storage
-2026-11-17T12:09:00.4919556Z (node:2577) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
-2026-11-17T12:09:00.6506362Z Uploaded bytes 17019
-2026-11-17T12:09:00.6942656Z Finished uploading artifact content to blob storage!
-2026-11-17T12:09:00.6944193Z SHA256 digest of uploaded artifact zip is a810bea00256a362559491739c8d4249d0a58feb400045d813224ef2ab99acc0
-2026-11-17T12:09:00.6946192Z Finalizing artifact upload
-2026-11-17T12:09:01.1240128Z Artifact compare-firebase.zip successfully finalized. Artifact ID 14327375443
-2026-11-17T12:09:01.1241738Z Artifact compare-firebase has been successfully uploaded! Final size is 17019 bytes. Artifact ID is 14327375443
-2026-11-17T12:09:01.1247708Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/44079854887/artifacts/14327375443
-2026-11-17T12:09:01.1536265Z Post job cleanup.
-2026-11-17T12:09:01.2419255Z [command]/usr/bin/git version
-2026-11-17T12:09:01.2464861Z git version 2.56.1
-2026-11-17T12:09:01.2503935Z Temporarily overriding HOME='/home/runner/work/_temp/a030c0c7-8c34-4668-90dc-02f81799d96e' before making global git config changes
-2026-11-17T12:09:01.2505906Z Adding repository directory to the temporary git global config as a safe directory
-2026-11-17T12:09:01.2511085Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
-2026-11-17T12:09:01.2552836Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
-2026-11-17T12:09:01.2607011Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
-2026-11-17T12:09:01.2896530Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
-2026-11-17T12:09:01.2967086Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
-2026-11-17T12:09:01.3285888Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
-2026-11-17T12:09:01.3384013Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
-2026-11-17T12:09:01.3888280Z Cleaning up orphan processes
-2026-11-17T12:09:01.4252649Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-11-17T12:20:08.5563190Z   CI_GITHUB_TOKEN: ***
+2026-11-17T12:20:08.5563400Z   CI_SECRET_NAMES: FIREBASE_PROJECT,FIREBASE_SA_KEY
+2026-11-17T12:20:08.5563628Z   CI_HAS_AWS_ROLE: true
+2026-11-17T12:20:08.5563804Z   ANDROID_KEYSTORE: 
+2026-11-17T12:20:08.5563985Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-17T12:20:08.5564172Z   ANDROID_KEY_ALIAS: 
+2026-11-17T12:20:08.5564347Z   ANDROID_KEY_PASSWORD: 
+2026-11-17T12:20:08.5564529Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-17T12:20:08.5564713Z   APPLE_NOTARY_ISSUER: 
+2026-11-17T12:20:08.5564889Z   APPLE_NOTARY_KEY: 
+2026-11-17T12:20:08.5565055Z   APPLE_NOTARY_KEY_ID: 
+2026-11-17T12:20:08.5565230Z   APPLE_P12_PASSWORD: 
+2026-11-17T12:20:08.5565403Z   APPLE_SIGNING_IDENTITY: 
+2026-11-17T12:20:08.5565581Z   AWS_ACCESS_KEY_ID: 
+2026-11-17T12:20:08.5565748Z   AWS_ROLE_ARN: 
+2026-11-17T12:20:08.5565921Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-17T12:20:08.5566103Z   CARGO_REGISTRY_TOKEN: 
+2026-11-17T12:20:08.5566289Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-17T12:20:08.5566470Z   CLOUDFLARE_API_TOKEN: 
+2026-11-17T12:20:08.5566651Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-17T12:20:08.5566854Z   FIREBASE_PROJECT: ***
+2026-11-17T12:20:08.5572072Z   FIREBASE_SA_KEY: ***
+2026-11-17T12:20:08.5572253Z   IOS_CERT_P12: 
+2026-11-17T12:20:08.5572418Z   IOS_CERT_PASSWORD: 
+2026-11-17T12:20:08.5572587Z   IOS_IDENTITY: 
+2026-11-17T12:20:08.5572747Z   IOS_PROFILE: 
+2026-11-17T12:20:08.5572912Z   WINDOWS_CERT_PASSWORD: 
+2026-11-17T12:20:08.5573091Z   WINDOWS_CERT_PFX: 
+2026-11-17T12:20:08.5573271Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-17T12:20:08.5573478Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-17T12:20:08.5573679Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-17T12:20:08.5573870Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-17T12:20:08.5574078Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-17T12:20:08.5574293Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-17T12:20:08.5574488Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-17T12:20:08.5574689Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-17T12:20:08.5574900Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-17T12:20:08.5575139Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-17T12:20:08.5575373Z   CI_UPLOAD_0: yes
+2026-11-17T12:20:08.5575541Z ##[endgroup]
+2026-11-17T12:20:08.6821905Z (node:2355) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-17T12:20:08.6822683Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-17T12:20:08.6877764Z With the provided path, there will be 2 files uploaded
+2026-11-17T12:20:08.6878392Z Artifact name is valid!
+2026-11-17T12:20:08.6878684Z Root directory input is valid!
+2026-11-17T12:20:08.9761317Z Beginning upload of artifact content to blob storage
+2026-11-17T12:20:08.9955969Z (node:2355) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-17T12:20:09.1819286Z Uploaded bytes 17021
+2026-11-17T12:20:09.2274217Z Finished uploading artifact content to blob storage!
+2026-11-17T12:20:09.2274922Z SHA256 digest of uploaded artifact zip is 066aa82ed9102930173da1eae1ca3609c953f8115e8e1068cb964d31adeb416f
+2026-11-17T12:20:09.2275454Z Finalizing artifact upload
+2026-11-17T12:20:09.6429795Z Artifact compare-firebase.zip successfully finalized. Artifact ID 14328285859
+2026-11-17T12:20:09.6430490Z Artifact compare-firebase has been successfully uploaded! Final size is 17021 bytes. Artifact ID is 14328285859
+2026-11-17T12:20:09.6434569Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/44081659092/artifacts/14328285859
+2026-11-17T12:20:09.6714835Z Post job cleanup.
+2026-11-17T12:20:09.7402707Z [command]/usr/bin/git version
+2026-11-17T12:20:09.7445322Z git version 2.56.1
+2026-11-17T12:20:09.7476076Z Temporarily overriding HOME='/home/runner/work/_temp/3daee8b0-e6e5-4d0b-a77e-9ba7d5a9a183' before making global git config changes
+2026-11-17T12:20:09.7477799Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-17T12:20:09.7483158Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-17T12:20:09.7532754Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-17T12:20:09.7575468Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-17T12:20:09.7819669Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-17T12:20:09.7899880Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-17T12:20:09.8152394Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-17T12:20:09.8197197Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-17T12:20:09.8552987Z Cleaning up orphan processes
+2026-11-17T12:20:09.8812125Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
 

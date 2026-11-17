@@ -1,27 +1,27 @@
 -----
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:08:55.8469479Z Updated property [core/project].
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:08:55.9436257Z ##[endgroup]
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:08:55.9445253Z ##[group]Refuse a project that can be billed
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:08:56.8115384Z billing enabled: unknown
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:08:56.8139786Z ##[warning]Could not read the project's billing state (the service account may lack billing.resourceAssociations.list). A Spark project cannot be billed; make sure this one is on Spark.
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:08:56.8148077Z ##[endgroup]
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:08:56.8148587Z ##[group]Run on phones
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:08:57.2008656Z WARNING: Firebase Test Lab is deprecated and will be fully shut down on September 30, 2027. To maintain your testing workflows, you can migrate to the Developer Device Platform on Google Cloud. See the Developer Device Platform Migration Guide (https://docs.cloud.google.com/developer-device-platform/device-run/migrate) and FAQ (https://docs.cloud.google.com/developer-device-platform/troubleshooting) for more details.
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:08:58.2631829Z phones: model=tokay,version=36,orientation=portrait model=caiman,version=35,orientation=portrait model=komodo,version=35,orientation=portrait
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:08:58.6565755Z WARNING: Firebase Test Lab is deprecated and will be fully shut down on September 30, 2027. To maintain your testing workflows, you can migrate to the Developer Device Platform on Google Cloud. See the Developer Device Platform Migration Guide (https://docs.cloud.google.com/developer-device-platform/device-run/migrate) and FAQ (https://docs.cloud.google.com/developer-device-platform/troubleshooting) for more details.
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:08:58.8095629Z 
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:08:58.8096114Z Have questions, feedback, or issues? Get support by visiting:
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:08:58.8096808Z   https://firebase.google.com/support/
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:08:58.8097171Z 
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:08:59.5371280Z Uploading [../dist/vieww-market-watch.apk] to Firebase Test Lab...
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:08:59.9420666Z ERROR: (gcloud.firebase.test.android.run) Could not copy [../dist/vieww-market-watch.apk] to [gs://test-lab-1k0ztm046956a-h83tracnkfq0z/mw-5892c66ffb-44079854887/] ResponseError 403: firebase-adminsdk-fbsvc@***.iam.gserviceaccount.com does not have storage.objects.create access to the Google Cloud Storage object. Permission 'storage.objects.create' denied on resource '//storage.googleapis.com/projects/_/buckets/test-lab-1k0ztm046956a-h83tracnkfq0z/objects/mw-5892c66ffb-44079854887/vieww-market-watch.apk' (or it may not exist)..
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:09:00.0147430Z ##[endgroup]
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:09:00.0164964Z ##[error]Run on phones failed (exit 1)
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:09:00.0166286Z ##[group]mark: upload compare-firebase
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:09:00.0181206Z ##[endgroup]
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:09:00.0289511Z ##[error]Process completed with exit code 1.
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:09:00.0397841Z ##[group]Run actions/upload-artifact@v4
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:09:00.0398263Z with:
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:09:00.0398542Z   name: compare-firebase
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:09:00.0398880Z   path: /home/runner/work/_temp/firebase
-phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:09:00.0399239Z   if-no-files-found: warn
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:04.2614408Z Updated property [core/project].
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:04.4101816Z ##[endgroup]
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:04.4107697Z ##[group]Refuse a project that can be billed
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:05.4276095Z billing enabled: unknown
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:05.4295013Z ##[warning]Could not read the project's billing state (the service account may lack billing.resourceAssociations.list). A Spark project cannot be billed; make sure this one is on Spark.
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:05.4301422Z ##[endgroup]
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:05.4301729Z ##[group]Run on phones
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:05.8289384Z WARNING: Firebase Test Lab is deprecated and will be fully shut down on September 30, 2027. To maintain your testing workflows, you can migrate to the Developer Device Platform on Google Cloud. See the Developer Device Platform Migration Guide (https://docs.cloud.google.com/developer-device-platform/device-run/migrate) and FAQ (https://docs.cloud.google.com/developer-device-platform/troubleshooting) for more details.
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:06.8131108Z phones: model=tokay,version=36,orientation=portrait model=caiman,version=35,orientation=portrait model=komodo,version=35,orientation=portrait
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:07.3016628Z WARNING: Firebase Test Lab is deprecated and will be fully shut down on September 30, 2027. To maintain your testing workflows, you can migrate to the Developer Device Platform on Google Cloud. See the Developer Device Platform Migration Guide (https://docs.cloud.google.com/developer-device-platform/device-run/migrate) and FAQ (https://docs.cloud.google.com/developer-device-platform/troubleshooting) for more details.
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:07.4177310Z 
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:07.4178170Z Have questions, feedback, or issues? Get support by visiting:
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:07.4178706Z   https://firebase.google.com/support/
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:07.4178952Z 
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:07.9937842Z Uploading [../dist/vieww-market-watch.apk] to Firebase Test Lab...
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:08.3901570Z ERROR: (gcloud.firebase.test.android.run) Could not copy [../dist/vieww-market-watch.apk] to [gs://test-lab-1k0ztm046956a-h83tracnkfq0z/mw-5892c66ffb-44081659092/] ResponseError 403: firebase-adminsdk-fbsvc@***.iam.gserviceaccount.com does not have storage.objects.create access to the Google Cloud Storage object. Permission 'storage.objects.create' denied on resource '//storage.googleapis.com/projects/_/buckets/test-lab-1k0ztm046956a-h83tracnkfq0z/objects/mw-5892c66ffb-44081659092/vieww-market-watch.apk' (or it may not exist)..
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:08.5351215Z ##[endgroup]
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:08.5362750Z ##[error]Run on phones failed (exit 1)
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:08.5364014Z ##[group]mark: upload compare-firebase
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:08.5376007Z ##[endgroup]
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:08.5478089Z ##[error]Process completed with exit code 1.
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:08.5557245Z ##[group]Run actions/upload-artifact@v4
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:08.5557504Z with:
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:08.5557688Z   name: compare-firebase
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:08.5557882Z   path: /home/runner/work/_temp/firebase
+phase-2 / Market Watch · compare-firebase	log	2026-11-17T12:20:08.5558099Z   if-no-files-found: warn
