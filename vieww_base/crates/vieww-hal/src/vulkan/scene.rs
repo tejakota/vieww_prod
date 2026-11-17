@@ -1405,7 +1405,16 @@ impl SceneRenderer {
         scale: f32,
         damage: Option<&[PixelRect]>,
     ) -> Result<Redrawn, VulkanError> {
-        self.settle()?;
+        // The ring, not the full stop: the oldest slot is waited for and the
+        // frame before stays in flight — the overlap the direct route already
+        // has, extended to the layered and scaled frames that take this route.
+        // Safe for the same reasons it is there: the acquire semaphore is
+        // keyed to this slot and its previous wait belonged to the frame two
+        // back, which just finished; everything the frame records over is its
+        // slot's own; a resize and the probe path's image reads settle in full
+        // where they stand. A frame the CPU reads back (`render_planned`)
+        // still settles everything.
+        self.settle_for_next_frame()?;
         if !plan.is_complete() {
             return Err(VulkanError::Vulkan("incomplete plan".into()));
         }
