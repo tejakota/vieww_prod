@@ -29,21 +29,32 @@
 //!   their readback only — no `render_planned_to`, no present history, no
 //!   partial-copy probing, no frame overlap: every frame waits for its own
 //!   command buffer. The window path on macOS still goes through MoltenVK
-//!   until a winit surface lands for this backend.
-//! * **Whole-atlas uploads.** A changed atlas version uploads the whole
-//!   texture; the Vulkan backend's changed-rectangle mask upload is a
-//!   follow-up with the same shape.
-//! * **Host timing.** [`FrameTimings`] is `Instant`-based; there are no
-//!   Metal timestamp queries in v1, so there is no `GpuPassTimes` here.
-//!   The numbers say where the CPU spent and waited, not where the GPU
-//!   spent cycles — the module docs' own rule for what such numbers may
-//!   claim.
+//!   (`vieww-platform-winit`'s `PresentPath::Vulkan`) until a Metal surface
+//!   lands there: a `SurfaceKind::Metal` variant over the winit window's
+//!   `CAMetalLayer`, a `VIEWW_PRESENT=metal` arm in `PresentPath::choose`,
+//!   and presents that read `MTLDrawable::presentedTime` so the drawable
+//!   wait can be told from GPU work on the iPhone (PENDING 1.4's open
+//!   question). The macOS runner validates this renderer first — the plan's
+//!   order, not a shortcut.
+//! * **Whole-atlas uploads, except masks.** Glyphs, images and ramps upload
+//!   the whole texture on a version change, as Vulkan's do; masks upload
+//!   only the changed rectangles, `vulkan::scene`'s `record_masks` ported
+//!   to this backend's blits — [`MetalSceneRenderer::upload_masks`].
+//! * **Host timing.** [`FrameTimings`] is `Instant`-based. Metal's real
+//!   timestamps are counter samples (`MTLCounterSampleBuffer`, which the
+//!   `metal` crate binds) — unported here, so there is no `GpuPassTimes`
+//!   on this backend; `scene_exec`'s ops already carry the `PassKind`
+//!   marks a port would sample at, which is the seam. The numbers say
+//!   where the CPU spent and waited, not where the GPU spent cycles — the
+//!   module docs' own rule for what such numbers may claim.
 //! * **One encoder per target segment.** Consecutive ops on one target
 //!   share a render encoder (and its pipeline binds, deduplicated); every
 //!   target switch ends it and the next segment rebinds. Vulkan's render
 //!   passes achieve the same sharing; Metal has no `cmd_clear_attachments`
-//!   inside an encoder, so a damaged frame's region clears draw
-//!   `clear.wgsl` under the scissor instead.
+//!   inside an encoder, so a damaged frame's region clears are blits of
+//!   the clear colour under the damage's rectangles — the draw-based clear
+//!   this doc used to describe came back all-zero inside the damage on the
+//!   macOS CI, and the blit replaced it.
 //!
 //! # Verification
 //!
@@ -72,9 +83,9 @@ use super::{check_size, Attribute, Blend, MetalDevice, MetalError};
 /// Where one frame's wall time went, on the CPU's clock — this backend's
 /// counterpart of `vulkan::scene`'s
 /// [`GpuFrameTimings`](crate::vulkan::GpuFrameTimings), with the fields a
-/// backend without Metal timestamp queries can honestly fill. `submit`
-/// includes waiting for the GPU, because this backend never leaves a frame
-/// in flight.
+/// backend that records no counter samples can honestly fill (the module
+/// doc names what a port would sample). `submit` includes waiting for the
+/// GPU, because this backend never leaves a frame in flight.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct FrameTimings {
     /// Atlas and geometry uploads, and any target (re)allocation.
@@ -101,6 +112,8 @@ pub struct MetalSceneRenderer {
     size: (u32, u32),
     retained: Option<Retained>,
     timings: FrameTimings,
+    /// Bytes the most recent [`Self::upload_masks`] sent.
+    mask_upload_bytes: u64,
 }
 
 /// One atlas texture, and the version last uploaded.
@@ -332,6 +345,7 @@ impl MetalSceneRenderer {
             size: (0, 0),
             retained: None,
             timings: FrameTimings::default(),
+            mask_upload_bytes: 0,
         };
         // New textures hold nothing: clear the dummy to transparent, and
         // give each atlas slot one zeroed texel of its own format.
@@ -506,15 +520,14 @@ impl MetalSceneRenderer {
                 }
                 SceneOp::ClearRegions { rects, color } => {
                     // Never a first op: the frame's own begin precedes it.
-                    // Metal has no `cmd_clear_attachments`; a region clear is
-                    // a draw of `clear.wgsl` under the scissor, blending
-                    // `Replace`.
+                    // A blit of the clear colour, not a draw: no pipeline,
+                    // no shader, no binding — the draw-based clear (`clear.wgsl`
+                    // under the scissor, blending `Replace`) came back
+                    // all-zero inside the damage on the macOS CI, and this
+                    // replaced it.
                     let target = open.expect("a region clear follows a begin");
                     end_current(&mut encoder);
                     bound = Bound::None;
-                    // A blit of the clear colour, not a draw: no pipeline,
-                    // no shader, no binding — the draw-based clear came back
-                    // all-zero inside the damage on the macOS CI.
                     let texel: [u16; 4] = color.map(crate::scene_exec::f32_to_half);
                     let blit = commands.new_blit_command_encoder();
                     let mut staging_buffers = Vec::new();
@@ -731,7 +744,9 @@ impl MetalSceneRenderer {
     }
 
     /// Upload every atlas `planner` holds that changed since the last
-    /// upload — whole-texture uploads in v1; see the module doc.
+    /// upload — whole-texture for glyphs, images and ramps, only the
+    /// changed rectangles for masks ([`Self::upload_masks`]); see the
+    /// module doc.
     fn upload_planner(&mut self, planner: &Planner) -> Result<(), MetalError> {
         let atlas = planner.atlas();
         self.upload_atlas(
@@ -749,14 +764,7 @@ impl MetalSceneRenderer {
             images.side(),
             Some(images.version()),
         )?;
-        let masks = planner.mask_atlas();
-        self.upload_atlas(
-            Slot::Masks,
-            masks.texels(),
-            masks.side(),
-            masks.side(),
-            Some(masks.version()),
-        )?;
+        self.upload_masks(planner.mask_atlas())?;
         let ramps = planner.ramp_atlas();
         self.upload_atlas(
             Slot::Ramps,
@@ -842,6 +850,120 @@ impl MetalSceneRenderer {
         super::check(commands)?;
         atlas.version = version;
         Ok(())
+    }
+
+    /// Bring the mask texture up to `masks`, sending only the rectangles
+    /// that changed when the atlas can say which ones those are —
+    /// `vulkan::scene`'s `record_masks` on this backend's primitives. The
+    /// one shape difference is the submit: Vulkan records its copies into
+    /// the frame's open command buffer, while every upload here is its own
+    /// commit-and-wait, so the folded form `upload_planner` uses and this
+    /// public one are the same function.
+    ///
+    /// # Why not just the whole-texture upload
+    ///
+    /// The reasons are `record_masks`'s own, and its numbers stand: a shape
+    /// that changes every frame adds a new mask every frame, and a
+    /// whole-texture upload on every version change made each of those
+    /// frames send the entire atlas (measured 4.2 MB a frame for one
+    /// rotating panel, 16.8 MB for three, against masks of a few hundred
+    /// kilobytes). [`vieww_gpu::MaskAtlas::changes_since`] answers which
+    /// texels differ from the version this texture holds; the rest of the
+    /// texture is kept — Metal needs no barrier for that, the blit's own
+    /// ordering is the whole story, where Vulkan transitions the image
+    /// layout both ways. Anything the atlas cannot vouch for is a full
+    /// upload, as before.
+    ///
+    /// # Errors
+    ///
+    /// Metal refusing the copy or the command buffer — the same failures
+    /// the whole-texture upload path reports.
+    pub fn upload_masks(&mut self, masks: &vieww_gpu::MaskAtlas) -> Result<(), MetalError> {
+        let held = self.atlases[Slot::Masks.index()].version;
+        let side = masks.side();
+        let same_size = {
+            let atlas = &self.atlases[Slot::Masks.index()];
+            atlas.width == side && atlas.height == side
+        };
+        self.mask_upload_bytes = 0;
+        let rects = match masks.changes_since(held) {
+            vieww_gpu::MaskChanges::None => return Ok(()),
+            vieww_gpu::MaskChanges::Regions(rects) if same_size => rects,
+            _ => {
+                self.upload_atlas(
+                    Slot::Masks,
+                    masks.texels(),
+                    side,
+                    side,
+                    Some(masks.version()),
+                )?;
+                self.mask_upload_bytes = u64::from(side) * u64::from(side);
+                return Ok(());
+            }
+        };
+        let version = Some(masks.version());
+        if rects.is_empty() {
+            self.atlases[Slot::Masks.index()].version = version;
+            return Ok(());
+        }
+
+        // Pack each rectangle's rows contiguously in the staging buffer.
+        // Vulkan hands its copy regions to one `cmd_copy_buffer_to_image`;
+        // Metal's blit takes one destination origin a call, so the packed
+        // buffer is walked rectangle by rectangle. The pitch and offsets
+        // this produces are legal by Metal's documented rule — a multiple
+        // of the texture's pixel size, which the R8 mask atlas makes 1 —
+        // where a wider format would need padding.
+        let texels = masks.texels();
+        let mut packed = Vec::new();
+        let mut regions = Vec::with_capacity(rects.len());
+        for &[x, y, w, h] in rects {
+            regions.push((len64(&packed), x, y, w, h));
+            for row in y..y + h {
+                let from = (row * side + x) as usize;
+                packed.extend_from_slice(&texels[from..from + w as usize]);
+            }
+        }
+        let staging = shared_buffer(&self.device, &packed);
+        let commands = self.queue.new_command_buffer();
+        let blit = commands.new_blit_command_encoder();
+        for &(offset, x, y, w, h) in &regions {
+            blit.copy_from_buffer_to_texture(
+                &staging,
+                offset,
+                u64::from(w), // the R8 atlas: a row is as many bytes as texels
+                0,
+                MTLSize {
+                    width: u64::from(w),
+                    height: u64::from(h),
+                    depth: 1,
+                },
+                &self.atlases[Slot::Masks.index()].texture,
+                0,
+                0,
+                MTLOrigin {
+                    x: u64::from(x),
+                    y: u64::from(y),
+                    z: 0,
+                },
+                MTLBlitOption::empty(),
+            );
+        }
+        blit.end_encoding();
+        commands.commit();
+        commands.wait_until_completed();
+        super::check(commands)?;
+        self.atlases[Slot::Masks.index()].version = version;
+        self.mask_upload_bytes = len64(&packed);
+        Ok(())
+    }
+
+    /// How many bytes the most recent [`Self::upload_masks`] sent — the
+    /// whole texture after a full upload, the changed rectangles otherwise,
+    /// zero when nothing changed. For tests and measurement.
+    #[must_use]
+    pub const fn last_mask_upload_bytes(&self) -> u64 {
+        self.mask_upload_bytes
     }
 }
 

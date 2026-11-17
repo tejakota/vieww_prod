@@ -83,25 +83,39 @@ the blit readback, converted through the shared
 `straight_rgba8_from_rgba16f`. Premultiplied RGBA16F levels and scratch,
 the four atlases, the clear-colour contract, the retained-damage path —
 `vulkan::scene`'s contract, one definition of what a frame does. A damaged
-frame's region clears draw `clear.wgsl` under the scissor, because Metal
-has no `cmd_clear_attachments` inside an encoder. Deliberately simpler and
-documented as such: readback frames only (no swapchain path), whole-atlas
-uploads, `Instant`-based `FrameTimings` with no Metal timestamp queries.
+frame's region clears are blits of the clear colour (Metal has no
+`cmd_clear_attachments` inside an encoder; the `clear.wgsl` draw this port
+first used came back all-zero inside the damage on the macOS CI, and the
+blit replaced it — commit c19661d0). Deliberately simpler and documented as
+such: readback frames only (no swapchain path), whole-atlas uploads for
+glyphs/images/ramps with the mask atlas's changed rectangles only
+(`upload_masks`, `vulkan::scene`'s `record_masks` ported 2026-11-17,
+unexecuted), `Instant`-based `FrameTimings` with Metal's counter samples
+unported (the module doc names the seam).
 
 **Why not closed.** The port type-checks from Linux
 (`ci/check/cross-check.sh macos` — verified in this delivery) and
 `tests/metal_scene.rs` mirrors the Vulkan parity suites' claims (empty
 frame, geometry, translucent overlap, group opacity, the incomplete-plan
-refusal, reuse across sizes, the retained-damage contract byte for byte),
-but it has never *executed*: there is no software Metal, so the
-`framework-checks` macOS runner is the first place any of it runs. The
-runner's GPU is paravirtual, so no number from it will be a performance
-claim either. The window path still renders through MoltenVK until a winit
-surface lands for this backend.
+refusal, reuse across sizes, the retained-damage contract byte for byte,
+and — added with the `upload_masks` port, equally unexecuted — partial mask
+uploads matching full ones frame for frame), but it has never *executed*
+against this code: there is no software Metal, so the `framework-checks`
+macOS runner is the only place any of it runs, and the WORKLOG's last
+recorded runs (2026-11-15) show `framework-macos` and
+`framework-ios-simulator` cancelled with no steps and no runner —
+availability or quota, still unexplained. The last commits that
+did run it (2026-10-25, f0e7547) found the empty-scene SIGSEGV and the
+all-zero region clears, fixed in c19661d0; the shared `scene_exec` has
+moved ~900 lines since. The runner's GPU is paravirtual, so no number from
+it will be a performance claim either. The window path still renders
+through MoltenVK until a winit surface lands for this backend.
 
 **Blocks.** Native Metal rendering (dropping the MoltenVK dependency).
 
-**Start.** Run `tests/metal_scene.rs` on the macOS runner
+**Start.** Get the `framework-macos` leg to start again (runner
+availability or quota — WORKLOG's open question), then run
+`tests/metal_scene.rs` on it
 (`cargo test -p vieww-hal --features metal -- --ignored --test-threads=1`),
 fix what the first real execution finds, then bring the compositor suite's
 scenes (`vulkan_compositor.rs`'s blend/blur/mask/shadow matrix) across as

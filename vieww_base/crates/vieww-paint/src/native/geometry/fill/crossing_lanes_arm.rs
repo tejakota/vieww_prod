@@ -6,8 +6,8 @@
 //! the bit test below is its verdict. NEON is part of the aarch64 baseline.
 
 use core::arch::aarch64::{
-    float32x4_t, vaddq_f32, vcombine_f32, vdivq_f32, vdupq_n_f32, vget_high_f32, vget_low_f32,
-    vld1q_f32, vmulq_f32, vst1q_f32, vsubq_f32, vtrnq_f32,
+    vaddq_f32, vcombine_f32, vdivq_f32, vdupq_n_f32, vget_high_f32, vget_low_f32, vld1q_f32,
+    vmulq_f32, vst1q_f32, vsubq_f32, vtrnq_f32,
 };
 
 use super::Edge;

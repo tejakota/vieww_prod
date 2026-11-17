@@ -22,11 +22,11 @@
 #[path = "support/parity_row.rs"]
 mod parity_row;
 
-use vieww_foundation::{Color, Rect, Transform};
+use vieww_foundation::{Color, Offset, Path, Rect, Transform};
 use vieww_gpu::Planner;
 use vieww_hal::metal::{MetalDevice, MetalSceneRenderer};
 use vieww_paint::native::NativeRenderer;
-use vieww_paint::{Canvas, Clip, Command, Paint, Scene};
+use vieww_paint::{Canvas, Clip, Command, Paint, Scene, Stroke};
 
 const WIDTH: u32 = 120;
 const HEIGHT: u32 = 90;
@@ -418,4 +418,104 @@ fn a_damaged_frame_keeps_the_previous_frame_outside_the_damage() {
             );
         }
     }
+}
+
+/// A shape that changes every frame adds a new mask every frame; the mask
+/// texture then takes only the changed rectangles (`upload_masks`) instead
+/// of the whole atlas — `tests/vulkan_scene.rs`'s
+/// `partial_mask_uploads_match_full_uploads_frame_for_frame`, on this
+/// backend. Held to a renderer built fresh for every frame — whose first
+/// upload is always a full one — byte for byte, over enough frames for the
+/// atlas to compact more than once, with a frame skipped in the middle (the
+/// planner advances, the renderer does not upload).
+#[test]
+#[ignore = "needs a Metal GPU — the framework-checks macOS runner; run with `cargo test --features metal -- --ignored`"]
+fn partial_mask_uploads_match_full_uploads_frame_for_frame() {
+    let Some((_lock, device, mut renderer)) = try_renderer() else {
+        return;
+    };
+    const W: u32 = 160;
+    const H: u32 = 120;
+    let base = Color::rgba(250, 250, 248, 255);
+    let star = |t: f32| {
+        let mut p = Path::new();
+        for i in 0..14 {
+            let r = if i % 2 == 0 { 34.0 } else { 15.0 };
+            let a = i as f32 * std::f32::consts::PI / 7.0 + t;
+            let pt = Offset::new(50.0 + r * a.cos(), 60.0 + r * a.sin());
+            if i == 0 {
+                p.move_to(pt);
+            } else {
+                p.line_to(pt);
+            }
+        }
+        p.close();
+        p
+    };
+    let mut planner = Planner::new();
+    let (mut partial, mut full) = (0, 0);
+    let (mut sent, mut whole) = (0u64, 0u64);
+    for frame in 0..48 {
+        let t = frame as f32 * 0.13;
+        let mut scene = Scene::new();
+        scene.push_command(Command::FillPath {
+            path: star(t),
+            paint: Paint::solid(Color::rgba(200, 70, 30, 255)),
+            transform: Transform::IDENTITY,
+            clip: Clip::NONE,
+        });
+        scene.push_command(Command::FillPath {
+            path: Path::rounded_rect(Rect::new(-28.0, -18.0, 28.0, 18.0), 7.0),
+            paint: Paint::solid(Color::rgba(30, 120, 80, 220)),
+            transform: Transform::rotate(t * 0.7)
+                .then(Transform::translate(Offset::new(115.0, 60.0))),
+            clip: Clip::NONE,
+        });
+        // A steady shape: its mask must survive every partial upload.
+        scene.push_command(Command::StrokePath {
+            path: Path::arc(Offset::new(80.0, 100.0), 12.0, 0.3, 4.0),
+            stroke: Stroke::new(2.5),
+            paint: Paint::solid(Color::rgba(20, 40, 160, 255)),
+            transform: Transform::IDENTITY,
+            clip: Clip::NONE,
+        });
+        let plan = planner.plan(&scene, W as f32, H as f32);
+        assert!(plan.is_complete(), "{:?}", plan.unsupported);
+        if frame == 23 {
+            continue; // the renderer misses this frame's upload entirely
+        }
+        let got = renderer
+            .render_planned(&planner, &plan, W, H, base)
+            .expect("render should succeed");
+        let side = u64::from(planner.mask_atlas().side());
+        sent += renderer.last_mask_upload_bytes();
+        whole += side * side;
+        match renderer.last_mask_upload_bytes() {
+            0 => {}
+            b if b == side * side => full += 1,
+            _ => partial += 1,
+        }
+        let mut fresh = MetalSceneRenderer::new(&device).expect("the pipelines should build");
+        let want = fresh
+            .render_planned(&planner, &plan, W, H, base)
+            .expect("render should succeed");
+        drop(fresh);
+        assert!(
+            got == want,
+            "frame {frame}: partial-upload pixels differ from a full upload"
+        );
+    }
+    assert!(
+        partial >= 10,
+        "partial uploads should be common: {partial} partial, {full} full"
+    );
+    assert!(
+        full >= 2,
+        "the run should cross compactions and the skipped frame: {full} full"
+    );
+    assert!(
+        sent * 2 < whole,
+        "partial uploads should send well under half the bytes of whole-texture ones: {sent} vs {whole}"
+    );
+    eprintln!("{partial} partial, {full} full; {sent} bytes sent against {whole} for whole-texture uploads");
 }
