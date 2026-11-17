@@ -1241,6 +1241,11 @@ fn raster_thread_request(env: Option<&str>, available: usize) -> usize {
 /// [`SUBSAMPLE_OFFSETS`] — because LCD sharpens the *horizontal* axis, where
 /// the display's sub-pixel stripes are, and changing both axes would make
 /// this a different rasterizer rather than a finer reading of the same one.
+///
+/// The row walk is the gray walk's — the same active-edge table, and the same
+/// keep-the-order-and-repair crossing sort rather than a re-sort per
+/// subsample — so the mask is the stable-sort walk's, byte for byte; the
+/// comment at the repair site holds the argument.
 pub(crate) fn rasterize_lcd(polylines: &[Polyline], clip_bounds: Rect) -> LcdMask {
     let edges = edges_from(polylines);
     if edges.is_empty() || clip_bounds.is_empty() {
@@ -1270,7 +1275,6 @@ pub(crate) fn rasterize_lcd(polylines: &[Polyline], clip_bounds: Rect) -> LcdMas
     let sub_width = width as usize * LCD_SUBPIXELS;
     let mut data = vec![0.0f32; sub_width * height as usize];
 
-    let mut crossings: Vec<(f32, i32)> = Vec::new();
     // Per-subsample accumulation, in *pixel fractions*: entry j holds how much
     // of sub-column j's third of the pixel the spans so far covered. The
     // finalisation pass multiplies by 3 to turn that into a fraction *of the
@@ -1282,17 +1286,25 @@ pub(crate) fn rasterize_lcd(polylines: &[Polyline], clip_bounds: Rect) -> LcdMas
     // common case for every row of every glyph.
     let mut order: Vec<usize> = (0..edges.len()).collect();
     order.sort_unstable_by(|&a, &b| edges[a].ymin.total_cmp(&edges[b].ymin));
+    let table = EdgeTable {
+        edges: &edges,
+        order: &order,
+    };
     let mut pending = 0usize;
-    let mut active: Vec<usize> = Vec::new();
+    let mut active: Vec<ActiveEdge> = Vec::new();
 
     for py in by0..by1 {
         let row_top = py as f32;
         let row_bottom = row_top + 1.0;
         while pending < order.len() && edges[order[pending]].ymin < row_bottom {
-            active.push(order[pending]);
+            active.push(ActiveEdge {
+                rank: pending,
+                edge: order[pending],
+                x: 0.0,
+            });
             pending += 1;
         }
-        active.retain(|&index| edges[index].ymax > row_top);
+        active.retain(|a| table.edges[a.edge].ymax > row_top);
         if active.is_empty() {
             continue;
         }
@@ -1300,24 +1312,46 @@ pub(crate) fn rasterize_lcd(polylines: &[Polyline], clip_bounds: Rect) -> LcdMas
         row.iter_mut().for_each(|c| *c = 0.0);
         for &sub in &SUBSAMPLE_OFFSETS {
             let sy = py as f32 + sub;
-            crossings.clear();
-            for &index in &active {
-                let edge = &edges[index];
-                if sy < edge.ymin || sy >= edge.ymax {
-                    continue;
+            // **The crossings in `x` order without sorting them each time** —
+            // the gray walk's repair (`rasterize_row_range` above), which
+            // this walk was paying for too: it used to collect the spanning
+            // edges' crossings in admission order and stable-sort them by
+            // `x`, four sorts a row from scratch, though one subsample's
+            // order is almost the last one's. The gray walk measured that
+            // sort at ~6% of a storm frame's raster on stroke-heavy shapes;
+            // this walk runs it per glyph, on the same outlines' curves.
+            //
+            // Now every active edge keeps its place from the previous
+            // subsample, gets this scanline's `x`, and an insertion sort
+            // repairs the few that moved. The key is `(x, rank)`: a stable
+            // sort by `x` of a list in admission order *is* the order by
+            // `(x, rank)`, and since `rank` is unique that order is the
+            // same whatever the list started as. Filtering the edges that
+            // span `sy` out of it keeps it — so the crossings, their order
+            // and the arithmetic producing each `x` are exactly the old
+            // walk's (`lcd_crossings_come_in_the_stable_sort_order` pins
+            // it). The `x` values themselves come from `interpolate_active`
+            // above — the gray walk's lanes over edges, the same formula per
+            // edge this walk used to spell out, to the bit.
+            interpolate_active(&mut active, &table, sy);
+            for i in 1..active.len() {
+                let item = active[i];
+                let mut j = i;
+                while j > 0 && after(&active[j - 1], &item) {
+                    active[j] = active[j - 1];
+                    j -= 1;
                 }
-                let t = (sy - edge.y0) / (edge.y1 - edge.y0);
-                let x = edge.x0 + t * (edge.x1 - edge.x0);
-                crossings.push((x, edge.winding));
+                active[j] = item;
             }
-            if crossings.is_empty() {
-                continue;
-            }
-            crossings.sort_by(|a, b| a.0.total_cmp(&b.0));
 
             let mut winding_number = 0i32;
             let mut span_start: Option<f32> = None;
-            for &(x, w) in &crossings {
+            for a in active.iter() {
+                let edge = &table.edges[a.edge];
+                if sy < edge.ymin || sy >= edge.ymax {
+                    continue;
+                }
+                let (x, w) = (a.x, edge.winding);
                 let was_inside = winding_number != 0;
                 winding_number += w;
                 let is_inside = winding_number != 0;
@@ -2166,6 +2200,183 @@ mod tests {
             for request in [1usize, 3, 8] {
                 assert_same_mask(&want, &rasterize_general(polylines, clip, request));
             }
+        }
+    }
+
+    /// The LCD walk as it was before its active edges kept their `x` order:
+    /// crossings collected in admission order, stable-sorted by `x` four
+    /// times a row — `reference_walk`'s shape, at three times the horizontal
+    /// resolution. [`lcd_crossings_come_in_the_stable_sort_order`] holds the
+    /// walk to it, bit for bit.
+    fn reference_lcd_walk(polylines: &[Polyline], clip_bounds: Rect) -> LcdMask {
+        let edges = edges_from(polylines);
+        if edges.is_empty() || clip_bounds.is_empty() {
+            return LcdMask::empty();
+        }
+        let (mut min_x, mut max_x, mut min_y, mut max_y) = (
+            f32::INFINITY,
+            f32::NEG_INFINITY,
+            f32::INFINITY,
+            f32::NEG_INFINITY,
+        );
+        for edge in &edges {
+            min_x = min_x.min(edge.x0).min(edge.x1);
+            max_x = max_x.max(edge.x0).max(edge.x1);
+            min_y = min_y.min(edge.y0).min(edge.y1);
+            max_y = max_y.max(edge.y0).max(edge.y1);
+        }
+        let bx0 = min_x.floor().max(clip_bounds.left) as i32;
+        let bx1 = max_x.ceil().min(clip_bounds.right) as i32;
+        let by0 = min_y.floor().max(clip_bounds.top) as i32;
+        let by1 = max_y.ceil().min(clip_bounds.bottom) as i32;
+        if bx1 <= bx0 || by1 <= by0 {
+            return LcdMask::empty();
+        }
+        let width = (bx1 - bx0) as u32;
+        let height = (by1 - by0) as u32;
+        let sub_width = width as usize * LCD_SUBPIXELS;
+        let mut data = vec![0.0f32; sub_width * height as usize];
+        let mut order: Vec<usize> = (0..edges.len()).collect();
+        order.sort_unstable_by(|&a, &b| edges[a].ymin.total_cmp(&edges[b].ymin));
+        let mut pending = 0usize;
+        let mut active: Vec<usize> = Vec::new();
+        let mut row = vec![0.0f32; sub_width];
+        let mut crossings: Vec<(f32, i32)> = Vec::new();
+        for py in by0..by1 {
+            let (row_top, row_bottom) = (py as f32, py as f32 + 1.0);
+            while pending < order.len() && edges[order[pending]].ymin < row_bottom {
+                active.push(order[pending]);
+                pending += 1;
+            }
+            active.retain(|&index| edges[index].ymax > row_top);
+            if active.is_empty() {
+                continue;
+            }
+            row.iter_mut().for_each(|c| *c = 0.0);
+            for &sub in &SUBSAMPLE_OFFSETS {
+                let sy = py as f32 + sub;
+                crossings.clear();
+                for &index in &active {
+                    let edge = &edges[index];
+                    if sy < edge.ymin || sy >= edge.ymax {
+                        continue;
+                    }
+                    let t = (sy - edge.y0) / (edge.y1 - edge.y0);
+                    crossings.push((edge.x0 + t * (edge.x1 - edge.x0), edge.winding));
+                }
+                crossings.sort_by(|a, b| a.0.total_cmp(&b.0));
+                let (mut winding, mut start) = (0i32, None);
+                for &(x, w) in &crossings {
+                    let was = winding != 0;
+                    winding += w;
+                    if !was && winding != 0 {
+                        start = Some(x);
+                    } else if was && winding == 0 {
+                        if let Some(s) = start.take() {
+                            accumulate_span_lcd(&mut row, bx0, sub_width, s, x);
+                        }
+                    }
+                }
+            }
+            let dest = &mut data[(py - by0) as usize * sub_width..][..sub_width];
+            for (d, s) in dest.iter_mut().zip(row.iter()) {
+                *d = (s * SUBSAMPLE_WEIGHT * LCD_SUBPIXELS as f32).clamp(0.0, 1.0);
+            }
+        }
+        LcdMask {
+            x0: bx0,
+            y0: by0,
+            width,
+            height,
+            data,
+        }
+    }
+
+    /// `assert_same_mask`, three channels wide: LCD masks agree as bits.
+    fn assert_same_lcd_mask(a: &LcdMask, b: &LcdMask) {
+        assert_eq!(a.x0, b.x0, "origin x");
+        assert_eq!(a.y0, b.y0, "origin y");
+        assert_eq!(a.width, b.width, "width");
+        assert_eq!(a.height, b.height, "height");
+        assert_eq!(a.data.len(), b.data.len(), "data length");
+        for (index, (x, y)) in a.data.iter().zip(b.data.iter()).enumerate() {
+            assert_eq!(
+                x.to_bits(),
+                y.to_bits(),
+                "channel {index} differs as bits: {:?} vs {:?}",
+                x,
+                y
+            );
+        }
+    }
+
+    /// The LCD walk keeps its active edges in `x` order instead of sorting
+    /// each subsample's crossings — the repair the gray walk made, applied to
+    /// this walk — so its masks are the old stable-sort walk's, bit for bit:
+    /// on the LCD tests' own shapes (general-path rectangles at sub-pixel
+    /// offsets in thirds of a pixel, where the channels disagree most, and a
+    /// rotated diamond, whose slanted edges are where a crossing order is
+    /// easiest to get subtly wrong), on the soup, and on the adversarial
+    /// families the gray pinning test uses — zig-zags whose admission order
+    /// is unrelated to `x`, and edges that meet at one `x`, where the
+    /// `(x, rank)` tie-break is the whole answer.
+    #[test]
+    fn lcd_crossings_come_in_the_stable_sort_order() {
+        let clip = Rect::new(0.0, 0.0, 220.0, 220.0);
+        let mut shapes: Vec<Vec<Polyline>> =
+            [3u64, 11, 29, 57].iter().map(|&s| soup(30, s)).collect();
+        // The LCD tests' shapes: `general_rect` at the three sub-pixel
+        // offsets `lcd_channels_average_to_the_gray_coverage` sweeps, and its
+        // rotated diamond.
+        shapes.push(vec![general_rect(2.0, 2.0, 9.5, 8.25)]);
+        shapes.push(vec![general_rect(2.25, 3.0, 10.0, 9.0)]);
+        shapes.push(vec![general_rect(3.1, 2.4, 11.75, 7.0)]);
+        shapes.push(vec![Polyline {
+            points: vec![(12.0, 2.0), (18.0, 8.0), (12.0, 14.0), (6.0, 8.0)],
+            closed: true,
+        }]);
+        // Zig-zags: one closed outline back and forth across the clip, so a
+        // scanline crosses many edges whose admission order is unrelated to x.
+        for teeth in [8usize, 24, 40] {
+            let mut points = Vec::new();
+            for k in 0..=teeth {
+                let x = 5.0 + 210.0 * k as f32 / teeth as f32;
+                points.push((x, if k % 2 == 0 { 10.0 } else { 200.0 }));
+            }
+            for k in (0..=teeth).rev() {
+                let x = 9.0 + 200.0 * k as f32 / teeth as f32;
+                points.push((x, if k % 2 == 0 { 30.0 } else { 180.0 }));
+            }
+            shapes.push(vec![Polyline {
+                points,
+                closed: true,
+            }]);
+        }
+        // Coincident crossings: two triangles sharing an edge, and a square
+        // traced twice in opposite directions.
+        shapes.push(vec![
+            Polyline {
+                points: vec![(20.0, 20.0), (100.0, 150.0), (20.0, 150.0)],
+                closed: true,
+            },
+            Polyline {
+                points: vec![(20.0, 20.0), (100.0, 150.0), (180.0, 20.0)],
+                closed: true,
+            },
+        ]);
+        shapes.push(vec![
+            Polyline {
+                points: vec![(40.0, 40.0), (90.0, 40.0), (90.0, 90.0), (40.0, 90.0)],
+                closed: true,
+            },
+            Polyline {
+                points: vec![(40.0, 40.0), (40.0, 90.0), (90.0, 90.0), (90.0, 40.0)],
+                closed: true,
+            },
+        ]);
+        for polylines in &shapes {
+            let want = reference_lcd_walk(polylines, clip);
+            assert_same_lcd_mask(&want, &rasterize_lcd(polylines, clip));
         }
     }
 
