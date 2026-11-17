@@ -21,11 +21,20 @@
 //!
 //! ```text
 //! __MW__ {"fw":"vieww","ev":"phase","phase":"live2k","t":12345.6}
-//! __MW__ {"fw":"vieww","ev":"stats","phase":"live2k","frames":478,"work_ms":[..],"interval_ms":[..],"jank":3}
+//! __MW__ {"fw":"vieww","ev":"stats","phase":"live2k","frames":478,"work_ms":[..],"wait_ms":[..],"interval_ms":[..],"jank":3}
 //! __MW__ {"fw":"vieww","ev":"stages","phase":"live2k","frames":478,"build_ms":[p50,p90,max],..,"gpu_blit_ms":[..],"budget_ms_end":16.7,"kinds":{"rects":[..],"paths":[..],"text":[..],..},"t":…}
 //! __MW__ {"fw":"vieww","ev":"touch","events":212,"latency_ms":[p50,p95,p99,worst],"unanswered":0,"t":…}
 //! __MW__ {"fw":"vieww","ev":"done","t":…}
 //! ```
+//!
+//! `work_ms` and `wait_ms` are the two halves of a frame's wall clock:
+//! what the application did, and what the display made it wait (the image
+//! acquire and the flight-slot fence). The 60Hz Pixel 9's published "work
+//! p50 18.8ms" in the continuous phases was 5ms of work and 13.8ms of
+//! standing in line for an image; a table that cannot say which half is
+//! which is a table every later decision argues from a number that was
+//! never effort. Old runs without `wait_ms` parse as before — a reader
+//! that does not know the field skips it as one token.
 //!
 //! **Firebase Test Lab** launches it as a Game Loop test instead
 //! (`com.google.intent.action.TEST_LOOP`, see `firebase/`): scenario 1 is the
@@ -250,6 +259,13 @@ mod app {
         viewport: f32,
         keepalive: Option<Animation<f32>>,
         work: Vec<f64>,
+        /// The same frames' display waits — the acquire and the fence wait —
+        /// that `work` had subtracted, so the stats line can say both halves.
+        /// The 60Hz Pixel 9's published "work p50 18.8ms" was 5ms of work
+        /// and 13.8ms of standing in line for an image; a table that cannot
+        /// say which half is which is a table every later decision argues
+        /// from a number that was never effort.
+        wait: Vec<f64>,
         interval: Vec<f64>,
         last_present: Option<Instant>,
         /// This phase's stage samples — see [`Split`].
@@ -283,6 +299,7 @@ mod app {
             let Some(i) = self.current else { return };
             let name = &self.phases[i].0;
             let (wm, w95, w99, wmax) = summary(&self.work);
+            let (wtm, wt95, wt99, wtmax) = summary(&self.wait);
             let (im, i95, i99, imax) = summary(&self.interval);
             let jank = self
                 .interval
@@ -298,7 +315,7 @@ mod app {
             // greps `__MW__`, whatever it carries.
             emit(&format!(
                 "{{\"fw\":\"vieww\",\"ev\":\"stats\",\"phase\":\"{name}\",\"frames\":{},\
-\"work_ms\":[{wm:.3},{w95:.3},{w99:.3},{wmax:.3}],\"interval_ms\":[{im:.3},{i95:.3},{i99:.3},{imax:.3}],\"jank\":{jank},\"budget_ms\":{:.2},\"t\":{:.1}}}",
+\"work_ms\":[{wm:.3},{w95:.3},{w99:.3},{wmax:.3}],\"wait_ms\":[{wtm:.3},{wt95:.3},{wt99:.3},{wtmax:.3}],\"interval_ms\":[{im:.3},{i95:.3},{i99:.3},{imax:.3}],\"jank\":{jank},\"budget_ms\":{:.2},\"t\":{:.1}}}",
                 self.work.len(),
                 self.budget_ms,
                 self.t()
@@ -349,6 +366,7 @@ mod app {
                 self.t()
             ));
             self.work.clear();
+            self.wait.clear();
             self.interval.clear();
         }
 
@@ -450,6 +468,11 @@ mod app {
                         self.split.record(&st, *w);
                     }
                     self.work.push(w.as_secs_f64() * 1e3);
+                    // The waits that work had subtracted (acquire + fence);
+                    // the same frame's sample, so the halves line up.
+                    if let Some(wait) = log.wait_samples().last() {
+                        self.wait.push(wait.as_secs_f64() * 1e3);
+                    }
                 }
                 let now = Instant::now();
                 if let Some(prev) = self.last_present.replace(now) {
@@ -540,6 +563,7 @@ mod app {
             viewport: 0.0,
             keepalive: None,
             work: Vec::new(),
+            wait: Vec::new(),
             interval: Vec::new(),
             last_present: None,
             split: Split::default(),

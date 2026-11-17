@@ -46,6 +46,19 @@ const WINDOW: usize = 240;
 pub struct Frame {
     /// Pipeline phases plus rasterisation and present, on the CPU.
     pub work: Duration,
+    /// Of [`work`](Self::work), the part the application spent *waiting*,
+    /// not working: the display's image acquire and the flight-slot fence
+    /// wait, the two waits a frame cannot refuse and a report must not sell
+    /// as effort. Zero until [`FrameLog::note_stages`] fills it, which is
+    /// also the CPU-rasterized frame's honest answer — its present path has
+    /// no acquire and no fence.
+    ///
+    /// The same subtraction the cadence makes for its own decisions
+    /// (`crate::cadence::own_work` calls these "display waits"); carried
+    /// here so every *report* can make it too — the published tables' work
+    /// columns were intervals with the acquire hiding in them, which is
+    /// how a 60Hz phone's "work p50" could be 18.8ms while the app did 5.
+    pub wait: Duration,
     /// Wall clock since the previous presented frame. This is the number a
     /// frame rate is made of; `work` is why it is what it is.
     ///
@@ -309,6 +322,7 @@ impl FrameLog {
         }
         self.recent.push_back(Frame {
             work,
+            wait: Duration::ZERO,
             interval,
             continuous,
             pixels,
@@ -323,6 +337,7 @@ impl FrameLog {
     pub fn note_stages(&mut self, stages: FrameStages) {
         if let Some(frame) = self.recent.back_mut() {
             frame.stages = stages;
+            frame.wait = Self::display_waits(&stages);
         }
     }
 
@@ -512,6 +527,17 @@ impl FrameLog {
 
     /// What each recent frame cost, oldest first.
     ///
+    /// The display waits in a stage breakdown — the part of a frame's
+    /// wall clock the application spent waiting rather than working: the
+    /// swapchain image acquire and the flight-slot fence wait. The same two
+    /// the cadence already subtracts for its own decisions
+    /// (`crate::cadence::own_work`, whose test names the rule: "leaves out
+    /// display waits but not gpu time"). Zero for a CPU-rasterized frame's
+    /// default stages, which is that path's honest answer.
+    fn display_waits(stages: &FrameStages) -> Duration {
+        stages.acquire + stages.gpu.wait
+    }
+
     /// Feeds `vieww_widget::PerformanceOverlay`, which cannot be handed a
     /// [`FrameLog`] directly: it lives in `vieww-widget`, several crates below
     /// the one that owns the window, and this crate depends on it only for
@@ -521,9 +547,29 @@ impl FrameLog {
     /// a budget *for*. An interval is partly vsync waiting, so a perfectly
     /// healthy app pegged at 60Hz has 16.7ms intervals no matter how much room
     /// it had to spare, and a graph of that is a flat line that says nothing.
+    ///
+    /// **Waiting is separated out**: what this returns is the frame's work
+    /// minus its display waits (see [`Frame::wait`]), and [`wait_samples`]
+    /// returns what was subtracted. A budget is judged against the wall clock
+    /// the thread actually spent — [`Frame::work`], unchanged — so a frame
+    /// that acquires for 12ms is still over a 16.7ms budget; but the *report*
+    /// of what the application did no longer includes the wait, which is how
+    /// the published tables' "work p50" said 18.8ms on a 60Hz phone whose app
+    /// did 5.
     #[must_use]
     pub fn work_samples(&self) -> Vec<Duration> {
-        self.recent.iter().map(|frame| frame.work).collect()
+        self.recent
+            .iter()
+            .map(|frame| frame.work.saturating_sub(frame.wait))
+            .collect()
+    }
+
+    /// The display waits that [`work_samples`](Self::work_samples) subtracted
+    /// — the acquire and the fence wait per frame, so a report can say both
+    /// halves: what the application did, and what the display made it wait.
+    #[must_use]
+    pub fn wait_samples(&self) -> Vec<Duration> {
+        self.recent.iter().map(|frame| frame.wait).collect()
     }
 
     /// The stage breakdown of the frame most recently recorded — the one a
@@ -576,8 +622,19 @@ impl FrameLog {
         // measured cost at all, which is strictly worse than the mix-dependence
         // it would remove. See
         // `a_session_that_slept_between_every_frame_says_so_rather_than_zero`.
-        let mut work: Vec<Duration> = self.recent.iter().map(|frame| frame.work).collect();
+        let mut work: Vec<Duration> = self
+            .recent
+            .iter()
+            .map(|frame| frame.work.saturating_sub(frame.wait))
+            .collect();
         work.sort_unstable();
+        // The waits the work above subtracted — the acquire and the fence
+        // wait — so a report can say both halves: what the application did,
+        // and what the display made it wait. Same rule as the work: not
+        // filtered by `continuous`; a wait the user woke the loop into is
+        // still a wait the display charged.
+        let mut waits: Vec<Duration> = self.recent.iter().map(|frame| frame.wait).collect();
+        waits.sort_unstable();
 
         let elapsed = match (self.first, self.last) {
             (Some(first), Some(last)) => last - first,
@@ -606,6 +663,7 @@ impl FrameLog {
             continuous_intervals: intervals.len(),
             median_work: percentile(&work, 0.50),
             worst_work: work.last().copied().unwrap_or_default(),
+            median_wait: percentile(&waits, 0.50),
             rasterised: self.rasterised,
             surface_pixels: self.surface_pixels,
             full_repaint_frames: self.full_repaint_frames,
@@ -706,6 +764,11 @@ pub struct FrameReport {
     pub median_work: Duration,
     /// Worst CPU cost of a frame.
     pub worst_work: Duration,
+    /// The median of the display waits that [`median_work`](Self::median_work)
+    /// and its neighbours had subtracted — the acquire and the fence wait.
+    /// Reported beside the work so "18.8ms of work" can never again mean
+    /// "5ms of work and 13.8ms of standing in line for an image".
+    pub median_wait: Duration,
     /// Pixels rasterised across the whole run.
     pub rasterised: u64,
     /// Pixels a single full repaint would cost.
@@ -789,7 +852,8 @@ impl fmt::Display for FrameReport {
         write!(
             f,
             "{} frames in {:.2}s — {:.1}fps ({gaps}); \
-             work median {:.2}ms, worst {:.2}ms; {} over a {:.2}ms budget; \
+             work median {:.2}ms, worst {:.2}ms (waits median {:.2}ms); \
+             {} over a {:.2}ms budget; \
              rasterised {:.2} full repaints \
              ({} frame(s) cost a whole surface, {} of them idle)",
             self.frames,
@@ -797,6 +861,7 @@ impl fmt::Display for FrameReport {
             self.fps,
             self.median_work.as_secs_f64() * 1000.0,
             self.worst_work.as_secs_f64() * 1000.0,
+            self.median_wait.as_secs_f64() * 1000.0,
             self.over_budget,
             self.budget.as_secs_f64() * 1000.0,
             self.full_repaints(),
@@ -1261,5 +1326,73 @@ mod tests {
             "the frames still happened, and their work is still measured"
         );
         assert!(report.median_work > Duration::ZERO);
+    }
+}
+
+#[cfg(test)]
+mod wait_tests {
+    //! Waiting is separated from work in every report that feeds a decision:
+    //! `work_samples` subtracts the display waits, `wait_samples` returns
+    //! them, and the report carries both halves. The 60Hz GPU phone whose
+    //! published "work p50" was 18.8ms is the case this exists for.
+
+    use super::{FrameLog, FrameStages};
+    use std::time::Duration;
+
+    fn stages_with(acquire: Duration, fence: Duration) -> FrameStages {
+        let mut st = FrameStages::default();
+        st.acquire = acquire;
+        st.gpu.wait = fence;
+        st
+    }
+
+    #[test]
+    fn waiting_is_reported_separately_from_work() {
+        // One frame: 18.8ms of wall clock, 12.5ms of it the acquire and
+        // 1.3ms the fence wait - the Pixel 9's continuous-phase shape, and
+        // the published "work p50 18.8ms" that was 5ms of work.
+        let mut log = FrameLog::new(Duration::from_millis(167), 0);
+        log.record(
+            None,
+            Duration::from_micros(18800),
+            0,
+            std::time::Instant::now(),
+            true,
+        );
+        log.note_stages(stages_with(
+            Duration::from_micros(12500),
+            Duration::from_micros(1300),
+        ));
+        let work = log.work_samples();
+        let waits = log.wait_samples();
+        assert_eq!(work, vec![Duration::from_micros(5000)]);
+        assert_eq!(waits, vec![Duration::from_micros(13800)]);
+        // And the report carries the wait half beside the work half.
+        let report = log.report();
+        assert_eq!(report.median_work, Duration::from_micros(5000));
+        assert_eq!(report.median_wait, Duration::from_micros(13800));
+        let text = format!("{report}");
+        assert!(
+            text.contains("waits median 13.80ms"),
+            "the report line says both halves: {text}"
+        );
+    }
+
+    #[test]
+    fn a_frame_with_no_stages_waits_nothing() {
+        // A CPU-rasterized frame records no stages, so it waits nothing:
+        // its present path has no acquire and no fence. Its work is its
+        // whole wall clock, unchanged by the subtraction.
+        let mut log = FrameLog::new(Duration::from_millis(167), 0);
+        log.record(
+            None,
+            Duration::from_millis(5),
+            0,
+            std::time::Instant::now(),
+            false,
+        );
+        assert_eq!(log.wait_samples(), vec![Duration::ZERO]);
+        assert_eq!(log.work_samples(), vec![Duration::from_millis(5)]);
+        assert_eq!(log.report().median_wait, Duration::ZERO);
     }
 }
