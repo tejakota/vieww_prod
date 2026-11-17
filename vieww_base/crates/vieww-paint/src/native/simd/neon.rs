@@ -208,20 +208,6 @@ pub(super) fn lanes_sub(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
 }
 
 #[target_feature(enable = "neon")]
-pub(super) fn lanes_mul(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
-    let mut out = [0.0; 4];
-    store4(&mut out, vmulq_f32(load4(&a), load4(&b)));
-    out
-}
-
-#[target_feature(enable = "neon")]
-pub(super) fn lanes_div(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
-    let mut out = [0.0; 4];
-    store4(&mut out, vdivq_f32(load4(&a), load4(&b)));
-    out
-}
-
-#[target_feature(enable = "neon")]
 pub(super) fn lanes_div_scalar(a: [f32; 4], k: f32) -> [f32; 4] {
     let mut out = [0.0; 4];
     store4(&mut out, vdivq_f32(load4(&a), vdupq_n_f32(k)));

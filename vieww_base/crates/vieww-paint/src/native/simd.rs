@@ -176,51 +176,6 @@ pub(crate) fn lanes_sub(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
     ]
 }
 
-/// Four independent `f32` lanes, multiplied lane for lane.
-#[must_use]
-pub(crate) fn lanes_mul(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
-    #[cfg(target_arch = "x86_64")]
-    {
-        // SAFETY: SSE2 is part of the x86-64 baseline; see `sse2`'s doc.
-        unsafe { sse2::lanes_mul(a, b) }
-    }
-    #[cfg(target_arch = "aarch64")]
-    {
-        // SAFETY: NEON is part of the aarch64 baseline; see `neon`'s doc.
-        unsafe { neon::lanes_mul(a, b) }
-    }
-    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
-    [
-        a[0] * b[0],
-        a[1] * b[1],
-        a[2] * b[2],
-        a[3] * b[3],
-    ]
-}
-
-/// Four independent `f32` lanes, divided lane for lane. A divide, never a
-/// reciprocal multiply — see the callers, whose own docs carry the reason.
-#[must_use]
-pub(crate) fn lanes_div(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
-    #[cfg(target_arch = "x86_64")]
-    {
-        // SAFETY: SSE2 is part of the x86-64 baseline; see `sse2`'s doc.
-        unsafe { sse2::lanes_div(a, b) }
-    }
-    #[cfg(target_arch = "aarch64")]
-    {
-        // SAFETY: NEON is part of the aarch64 baseline; see `neon`'s doc.
-        unsafe { neon::lanes_div(a, b) }
-    }
-    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
-    [
-        a[0] / b[0],
-        a[1] / b[1],
-        a[2] / b[2],
-        a[3] / b[3],
-    ]
-}
-
 /// Four `f32` lanes divided by one scalar, lane for lane. Divided, never
 /// multiplied by a precomputed reciprocal: `x / w` and `x * (1/w)` differ in
 /// the last bit, and the blur kernels are correctness oracles before they
@@ -534,20 +489,6 @@ mod sse2 {
     }
 
     #[target_feature(enable = "sse2")]
-    pub(super) fn lanes_mul(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
-        let mut out = [0.0; 4];
-        store4(&mut out, _mm_mul_ps(load4(&a), load4(&b)));
-        out
-    }
-
-    #[target_feature(enable = "sse2")]
-    pub(super) fn lanes_div(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
-        let mut out = [0.0; 4];
-        store4(&mut out, _mm_div_ps(load4(&a), load4(&b)));
-        out
-    }
-
-    #[target_feature(enable = "sse2")]
     pub(super) fn lanes_div_scalar(a: [f32; 4], k: f32) -> [f32; 4] {
         let mut out = [0.0; 4];
         store4(&mut out, _mm_div_ps(load4(&a), _mm_set1_ps(k)));
@@ -772,16 +713,6 @@ mod tests {
                 lanes(lanes_sub(a, b)),
                 lanes([a[0] - b[0], a[1] - b[1], a[2] - b[2], a[3] - b[3]]),
                 "lanes_sub {a:?} {b:?}"
-            );
-            assert_eq!(
-                lanes(lanes_mul(a, b)),
-                lanes([a[0] * b[0], a[1] * b[1], a[2] * b[2], a[3] * b[3]]),
-                "lanes_mul {a:?} {b:?}"
-            );
-            assert_eq!(
-                lanes(lanes_div(a, b)),
-                lanes([a[0] / b[0], a[1] / b[1], a[2] / b[2], a[3] / b[3]]),
-                "lanes_div {a:?} {b:?}"
             );
             assert_eq!(
                 lanes(lanes_div_scalar(a, k)),

@@ -906,6 +906,7 @@ mod tests {
     }
 }
 
+#[cfg(test)]
 mod blur_bit_tests {
     //! The two box-blur kernels, bit for bit against the scalar walks they
     //! replaced. The reference bodies are the file's own pre-widening loops,
