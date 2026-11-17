@@ -94,10 +94,87 @@ struct FlatRow<'t> {
     replaces: bool,
 }
 
+/// Where a coverage row's run of full coverage is, if it has one worth
+/// filling: `Some((lo, hi))` when `raw[lo..hi]` is all `>= 1.0`, at least 16
+/// wide, with nothing full outside it.
+fn full_run(raw: &[f32]) -> Option<(usize, usize)> {
+    let span = raw.len();
+    let lo = raw.iter().position(|&c| c >= 1.0).unwrap_or(span);
+    let hi = raw.iter().rposition(|&c| c >= 1.0).map_or(lo, |i| i + 1);
+    (hi - lo >= 16 && raw[lo..hi].iter().all(|&c| c >= 1.0)).then_some((lo, hi))
+}
+
+/// [`full_run`] for consecutive rows, remembered across rows that are the
+/// *same slice*. A rectangle's middle band is served as one row with stride
+/// zero (`BandedMask`), so every row of a card or a list row's background is
+/// the same memory; scanning it three times a row was the largest part of
+/// `composite_flat` on Market Watch's storm (callgrind, 2026-11-17: 12% of
+/// the frame in the scans' iterator code). Same data, same answer: the bytes
+/// cannot change.
+///
+/// It remembers the row's **inked span** too: the part between its first and
+/// last pixel of coverage above zero. A stroke's row (a sparkline, a chart
+/// line) is as wide as the stroke's bounding box and zero nearly everywhere,
+/// and every one of those zeros went through the coverage transfer and the
+/// blend to leave its pixel as it was. The reference loop
+/// (`simd::over_flat_row_scalar`, which the SIMD rows match bit for bit)
+/// skips a pixel whose coverage is `<= 0.0` without touching it, so cutting
+/// those ends off first writes the same bytes.
+#[derive(Default)]
+struct RunMemo {
+    row: Option<(*const f32, usize)>,
+    /// `(inked span, full run within that span)`.
+    found: Option<(Span, Span)>,
+}
+
+/// A half-open range of a row, if there is one.
+type Span = Option<(usize, usize)>;
+
+/// Whether a coverage value reaches its pixel: anything but `<= 0.0`
+/// (`NaN` included, as the reference loop's `c <= 0.0` test lets it through).
+fn reaches(c: f32) -> bool {
+    c > 0.0 || c.is_nan()
+}
+
+/// Where `raw` has coverage above zero: `[first, last + 1)`, or `None`.
+fn inked(raw: &[f32]) -> Span {
+    let first = raw.iter().position(|&c| reaches(c))?;
+    let last = raw.iter().rposition(|&c| reaches(c))?;
+    Some((first, last + 1))
+}
+
+impl RunMemo {
+    /// `raw`'s inked span, and its full run relative to that span.
+    fn spans(&mut self, raw: &[f32]) -> (Span, Span) {
+        let key = (raw.as_ptr(), raw.len());
+        if self.row != Some(key) || self.found.is_none() {
+            self.row = Some(key);
+            let ink = inked(raw);
+            let run = ink.and_then(|(a, b)| full_run(&raw[a..b]));
+            self.found = Some((ink, run));
+        }
+        self.found.expect("just set")
+    }
+}
+
 impl FlatRow<'_> {
-    /// `color` through the coverage `raw` over `dst` (one row's visible span).
-    fn paint(&self, dst: &mut [Premul], raw: &[f32], scratch: &mut Vec<f32>) {
+    /// `color` through the coverage `raw` over `dst` (one row's visible
+    /// span), with the row's full run looked up in `memo`.
+    fn paint_with(
+        &self,
+        dst: &mut [Premul],
+        raw: &[f32],
+        scratch: &mut Vec<f32>,
+        memo: &mut RunMemo,
+    ) {
         let (table, color, replaces) = (self.table, self.color, self.replaces);
+        // Only the inked span: outside it every coverage is `<= 0.0`, which
+        // leaves its pixel untouched on every path below.
+        let (ink, run) = memo.spans(raw);
+        let Some((a, b)) = ink else {
+            return;
+        };
+        let (dst, raw) = (&mut dst[a..b], &raw[a..b]);
         let span = raw.len();
         if self.normal {
             // **The covered middle skips the gamma.** A shape's row is
@@ -109,9 +186,7 @@ impl FlatRow<'_> {
             // `composite_flat`'s cost on a panel-heavy frame (callgrind,
             // `00-layers-nested`, FW-07). Same bytes: the edges still go
             // through the shared transfer.
-            let lo = raw.iter().position(|&c| c >= 1.0).unwrap_or(span);
-            let hi = raw.iter().rposition(|&c| c >= 1.0).map_or(lo, |i| i + 1);
-            if hi - lo >= 16 && raw[lo..hi].iter().all(|&c| c >= 1.0) {
+            if let Some((lo, hi)) = run {
                 for (from, to) in [(0, lo), (hi, span)] {
                     if from < to {
                         scratch.clear();
@@ -1062,10 +1137,11 @@ impl Target {
         let (x_left, ty0) = (x_left as usize, ty0 as usize);
         let band = &mut self.pixels[ty0 * width..(ty0 + rows) * width];
         let paint_rows = |band: &mut [Premul], first: usize, scratch: &mut Vec<f32>| {
+            let mut memo = RunMemo::default();
             for (k, line) in band.chunks_exact_mut(width).enumerate() {
                 let dy = (dy_start as usize + first + k) as u32;
                 let raw = &coverage.row(dy)[dx_start as usize..dx_end as usize];
-                row.paint(&mut line[x_left..x_left + span], raw, scratch);
+                row.paint_with(&mut line[x_left..x_left + span], raw, scratch, &mut memo);
             }
         };
 
@@ -1093,10 +1169,11 @@ impl Target {
         // walk stays on `std::thread::scope`: its calls are the many-small
         // kind.
         let paint_rows = |band: &mut [Premul], first: usize, scratch: &mut Vec<f32>| {
+            let mut memo = RunMemo::default();
             for (k, line) in band.chunks_exact_mut(width).enumerate() {
                 let dy = (dy_start as usize + first + k) as u32;
                 let raw = &coverage.row(dy)[dx_start as usize..dx_end as usize];
-                row.paint(&mut line[x_left..x_left + span], raw, scratch);
+                row.paint_with(&mut line[x_left..x_left + span], raw, scratch, &mut memo);
             }
         };
         let chunk = rows.div_ceil(workers);

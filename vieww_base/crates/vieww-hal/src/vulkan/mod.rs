@@ -407,6 +407,28 @@ impl VulkanDevice {
         self.pipeline_cache_seed
     }
 
+    /// This GPU and driver, as one string: vendor, device, driver version and
+    /// the pipeline-cache UUID, which every driver update changes. What a
+    /// measurement taken on this device is keyed by, so a remembered answer
+    /// is not carried to another GPU or past a driver update.
+    #[must_use]
+    pub fn driver_key(&self) -> String {
+        // SAFETY: a physical device of this live instance.
+        let props = unsafe {
+            self.instance
+                .get_physical_device_properties(self.physical_device)
+        };
+        let uuid: String = props
+            .pipeline_cache_uuid
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect();
+        format!(
+            "{:04x}:{:04x}:{:08x}:{uuid}",
+            props.vendor_id, props.device_id, props.driver_version
+        )
+    }
+
     /// Write the pipeline cache to its file, if it has one. Returns the bytes
     /// written. Call it once the pipelines that matter exist: a phone app is
     /// killed rather than dropped, so `Drop`'s own save is a second chance,

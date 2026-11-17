@@ -2330,8 +2330,9 @@ impl NativeRenderer {
         use super::geometry::fill;
         let banded = if narrowed || !self.fills.is_enabled() {
             match rrect {
-                Some(rr) => Some(fill::rrect_bands(rr, polylines, bound)),
-                None => fill::axis_aligned_rect(polylines).map(|r| fill::rect_bands(r, bound)),
+                Some(rr) => Some(self.fills.rrect_bands(rr, polylines, bound)),
+                None => fill::axis_aligned_rect(polylines)
+                    .map(|r| fill::rect_bands(r, bound).map(std::rc::Rc::new)),
             }
         } else {
             None
@@ -2446,7 +2447,7 @@ impl NativeRenderer {
 /// What `paint_shape` composites from: a mask, or a rectangle's bands.
 enum Coverage {
     Mask(super::geometry::fill::CoverageMask),
-    Banded(super::geometry::fill::BandedMask),
+    Banded(std::rc::Rc<super::geometry::fill::BandedMask>),
 }
 
 impl Coverage {
@@ -2461,7 +2462,7 @@ impl Coverage {
     fn into_mask(self) -> super::geometry::fill::CoverageMask {
         match self {
             Self::Mask(m) => m,
-            Self::Banded(b) => b.assemble(),
+            Self::Banded(b) => std::rc::Rc::unwrap_or_clone(b).assemble(),
         }
     }
 }

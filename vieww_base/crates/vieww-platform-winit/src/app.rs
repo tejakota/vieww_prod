@@ -2553,6 +2553,7 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
             // that did not prewarm agree too.
             let file = self.pipeline_cache_file();
             vieww_hal::vulkan::set_pipeline_cache_file(file.clone());
+            crate::gpu_route::set_memory_file(self.gpu_route_file());
             // The event loop is the display: its surface extensions are known
             // before the window is, so the instance can be made beside it.
             let extensions = vieww_hal::vulkan::surface_extensions(event_loop).ok();
@@ -2630,6 +2631,7 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
         // from the pipelines an earlier launch compiled
         // (`vieww_hal::vulkan::pipeline_cache`).
         vieww_hal::vulkan::set_pipeline_cache_file(self.pipeline_cache_file());
+        crate::gpu_route::set_memory_file(self.gpu_route_file());
         // And before the first renderer, so its blur and fill caches start at
         // this device tier's budgets (`quality::cache_budgets_for`) and the
         // scanline walk's small-mask gate follows this window's present path
@@ -2818,6 +2820,18 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
                 Some(calibration.with_file_name(name))
             }
         }
+    }
+
+    /// Where the GPU route's answer is kept between launches
+    /// (`crate::gpu_route`): beside the pipeline cache, and off with it.
+    fn gpu_route_file(&self) -> Option<std::path::PathBuf> {
+        let pipelines = self.pipeline_cache_file()?;
+        let name = pipelines
+            .file_name()?
+            .to_string_lossy()
+            .replacen("pipelines-", "gpu-route-", 1)
+            .replace(".bin", ".txt");
+        Some(pipelines.with_file_name(name))
     }
 
     /// Attach the accessibility adapter for a window that has just been made.

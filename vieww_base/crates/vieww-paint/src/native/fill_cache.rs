@@ -122,10 +122,24 @@ impl FillKey {
 /// re-derivable at any time") applies to a coverage mask word for word.
 pub(crate) struct FillCache {
     inner: ResidencyCache<FillKey, super::geometry::fill::CoverageMask>,
+    /// Rounded rectangles' corner bands ([`Self::rrect_bands`]), shared.
+    bands: ResidencyCache<(FillKey, [u32; 5]), std::rc::Rc<super::geometry::fill::BandedMask>>,
+    bands_enabled: bool,
     /// `false` when the budget is 0 — `VIEWW_PATH_CACHE_MB=0`, or the process
     /// default, which is 0: a bypass skips even the key hash, and the stats
     /// stay at zero because no cache is running.
     enabled: bool,
+}
+
+/// The corner-band cache's budget: `VIEWW_BAND_CACHE_MB` (`0` turns it off),
+/// else 4 MiB. Market Watch's storm keeps about 1.3 MiB resident: twenty
+/// row cards, each two bands of a dozen rows by the screen's width.
+fn band_budget() -> usize {
+    std::env::var("VIEWW_BAND_CACHE_MB")
+        .ok()
+        .as_deref()
+        .and_then(super::pool::mb_env_bytes)
+        .unwrap_or(4 << 20)
 }
 
 impl FillCache {
@@ -149,10 +163,63 @@ impl FillCache {
 
     /// A fill cache at exactly this budget; `0` is the bypass.
     pub(crate) fn with_budget(bytes: usize) -> Self {
+        let bands = band_budget();
         Self {
             inner: ResidencyCache::new(bytes),
             enabled: bytes > 0,
+            bands: ResidencyCache::new(bands),
+            bands_enabled: bands > 0,
         }
+    }
+
+    /// A rounded rectangle's [`BandedMask`](super::geometry::fill::BandedMask)
+    /// — resident if these exact inputs are, built by
+    /// [`rrect_bands`](super::geometry::fill::rrect_bands) if not.
+    ///
+    /// # Why this one is cached when the general fill is not
+    ///
+    /// The general cache lost time on phones (module docs): animated shapes
+    /// rarely repeat bit for bit, and a hit cloned a whole mask. A rounded
+    /// rectangle's bands are the other way round. Cards, list rows and pills
+    /// stay put while their contents change, so the same inputs come back
+    /// frame after frame. Market Watch's storm re-walked every row card's
+    /// corner bands on every frame: 7.8% of a storm frame's raster
+    /// instructions (callgrind, 2026-11-17), for bands that never changed.
+    /// And a hit here costs a reference count, not a copy: the bands are
+    /// shared (`Rc`) and only read.
+    ///
+    /// The key is the fill cache's own (the flattened polylines' bits and
+    /// the clip's), plus the rounded rectangle's five numbers, which are
+    /// everything `rrect_bands` reads besides those. Equal keys are equal
+    /// inputs, so a hit is the bytes a miss would have built.
+    pub(crate) fn rrect_bands(
+        &mut self,
+        rrect: super::geometry::fill::RoundedRect,
+        polylines: &[Polyline],
+        clip: Rect,
+    ) -> Option<std::rc::Rc<super::geometry::fill::BandedMask>> {
+        use super::geometry::fill::rrect_bands;
+        if !self.bands_enabled {
+            return rrect_bands(rrect, polylines, clip).map(std::rc::Rc::new);
+        }
+        let key = (
+            FillKey::new(polylines, clip),
+            [
+                rrect.left.to_bits(),
+                rrect.top.to_bits(),
+                rrect.right.to_bits(),
+                rrect.bottom.to_bits(),
+                rrect.ry.to_bits(),
+            ],
+        );
+        if let Some(hit) = self.bands.lookup(&key) {
+            return Some(std::rc::Rc::clone(hit));
+        }
+        let bands = std::rc::Rc::new(rrect_bands(rrect, polylines, clip)?);
+        self.bands.insert(key, std::rc::Rc::clone(&bands), |b| {
+            (b.top.data.len() + b.bottom.data.len() + b.full.len()) * std::mem::size_of::<f32>()
+        });
+        Some(bands)
     }
 
     /// Whether fills go through the cache at all (`false`: budget 0) —
@@ -318,6 +385,8 @@ mod tests {
         let mut cache = FillCache {
             inner: ResidencyCache::new(0),
             enabled: false,
+            bands: ResidencyCache::new(0),
+            bands_enabled: false,
         };
         let polylines = blob(8);
         let clip = Rect::new(0.0, 0.0, 200.0, 200.0);
@@ -337,6 +406,8 @@ mod tests {
         let mut cache = FillCache {
             inner: ResidencyCache::new(64 * 1024),
             enabled: true,
+            bands: ResidencyCache::new(0),
+            bands_enabled: false,
         };
         let clip = Rect::new(0.0, 0.0, 200.0, 200.0);
         let mut first_mask = None;
@@ -463,5 +534,48 @@ mod tests {
 
         let closed = vec![Polyline { points, closed: true }];
         assert_ne!(hash_polylines(&base), hash_polylines(&closed));
+    }
+
+    /// A rounded rectangle's bands: a hit is the same shared value, holding
+    /// the bytes the builder makes; a different clip or shape is a miss.
+    #[test]
+    fn rounded_rect_bands_are_shared_and_exact() {
+        use crate::native::geometry::fill::{rrect_bands, RoundedRect};
+        use crate::native::geometry::flatten::flatten_path;
+        use std::rc::Rc;
+        use vieww_foundation::{Path, Transform};
+
+        let path = Path::rounded_rect(Rect::new(10.3, 20.6, 410.3, 150.6), 33.0);
+        let polylines = flatten_path(&path, Transform::IDENTITY);
+        let (back, radius) = path.as_rounded_rect().expect("recognized");
+        let rrect = RoundedRect {
+            left: back.left,
+            top: back.top,
+            right: back.right,
+            bottom: back.bottom,
+            ry: radius,
+        };
+        let clip = Rect::new(0.0, 0.0, 500.0, 500.0);
+        let mut cache = FillCache::with_budget(0);
+        assert!(
+            cache.bands_enabled,
+            "on by default, apart from the general cache"
+        );
+        let first = cache.rrect_bands(rrect, &polylines, clip).expect("bands");
+        let again = cache.rrect_bands(rrect, &polylines, clip).expect("bands");
+        assert!(Rc::ptr_eq(&first, &again), "a hit shares, never copies");
+        let built = rrect_bands(rrect, &polylines, clip).expect("bands");
+        let bits = |v: &[f32]| v.iter().map(|f| f.to_bits()).collect::<Vec<_>>();
+        assert_eq!(bits(&first.top.data), bits(&built.top.data));
+        assert_eq!(bits(&first.bottom.data), bits(&built.bottom.data));
+        assert_eq!(bits(&first.full), bits(&built.full));
+        assert_eq!(first.middle, built.middle);
+        let narrower = cache
+            .rrect_bands(rrect, &polylines, Rect::new(0.0, 0.0, 200.0, 500.0))
+            .expect("bands");
+        assert!(
+            !Rc::ptr_eq(&first, &narrower),
+            "another clip is another entry"
+        );
     }
 }

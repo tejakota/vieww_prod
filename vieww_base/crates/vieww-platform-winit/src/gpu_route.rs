@@ -53,13 +53,96 @@
 //! renderer reports a frame's GPU time a frame or two late, and the frame
 //! that changes route redraws in full on either.
 //!
+//! # Remembered between launches
+//!
+//! Measuring costs the first trial: a second on the losing route, which on
+//! the Redmi (2026-11-17, a Game Loop launch over USB) was most of a scroll
+//! phase's jank, 38 late frames with a 265 ms worst one. So each trial's
+//! answer is written to a small file beside the pipeline cache
+//! ([`set_memory_file`]), keyed by the GPU, its driver (`driver_key`) and
+//! this crate's version. The next launch on the same device starts on the
+//! remembered route, with the loser's median as `other`, and so begins by
+//! *measuring the route in use*: if it fits, or is still clearly ahead of
+//! what the loser measured, nothing is tried. A different GPU, a driver
+//! update or a new build finds no match and measures from scratch.
+//!
 //! # What this is not
 //!
 //! It is not consulted for a frame that cannot go direct (layers, a
 //! translucent window, a resolution scale, a surface without colour
 //! attachments): those blit, and are not samples of anything.
 
+use std::path::{Path, PathBuf};
+use std::sync::Mutex;
 use std::time::Duration;
+
+static MEMORY_FILE: Mutex<Option<PathBuf>> = Mutex::new(None);
+
+/// Where route answers are kept between launches, or `None` for nowhere.
+/// Set before the first GPU frame (beside the pipeline cache).
+pub(crate) fn set_memory_file(file: Option<PathBuf>) {
+    if let Ok(mut current) = MEMORY_FILE.lock() {
+        *current = file;
+    }
+}
+
+fn memory_file() -> Option<PathBuf> {
+    MEMORY_FILE.lock().ok()?.clone()
+}
+
+/// A remembered answer: the route, and both medians that decided it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct Memory {
+    key: String,
+    route: Route,
+    direct: Duration,
+    blit: Duration,
+}
+
+impl Memory {
+    fn to_text(&self) -> String {
+        format!(
+            "key={}\nroute={}\ndirect_us={}\nblit_us={}\n",
+            self.key,
+            match self.route {
+                Route::Direct => "direct",
+                Route::Blit => "blit",
+            },
+            self.direct.as_micros(),
+            self.blit.as_micros()
+        )
+    }
+
+    fn parse(text: &str) -> Option<Self> {
+        let field = |name: &str| {
+            text.lines()
+                .find_map(|line| line.strip_prefix(name)?.strip_prefix('='))
+                .map(str::trim)
+        };
+        let us = |name: &str| field(name)?.parse::<u64>().ok().map(Duration::from_micros);
+        Some(Self {
+            key: field("key")?.to_owned(),
+            route: match field("route")? {
+                "direct" => Route::Direct,
+                "blit" => Route::Blit,
+                _ => return None,
+            },
+            direct: us("direct_us")?,
+            blit: us("blit_us")?,
+        })
+    }
+
+    fn read(file: &Path, key: &str) -> Option<Self> {
+        Self::parse(&std::fs::read_to_string(file).ok()?).filter(|m| m.key == key)
+    }
+}
+
+/// The key a remembered answer is filed under: the GPU and driver, and this
+/// crate's version (the routes' costs are the renderer's as much as the
+/// GPU's).
+pub(crate) fn memory_key(driver_key: &str) -> String {
+    format!("{driver_key}:{}", env!("CARGO_PKG_VERSION"))
+}
 
 /// A way to the swapchain image.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -131,6 +214,10 @@ pub(crate) struct RouteChooser {
     /// What the route *not* in use last measured, and how many eligible
     /// frames ago.
     other: Option<(Duration, u32)>,
+    /// Where a trial's answer is written, and under which key.
+    memory: Option<(PathBuf, String)>,
+    /// Whether this launch started from a remembered answer.
+    remembered: bool,
 }
 
 impl RouteChooser {
@@ -148,7 +235,60 @@ impl RouteChooser {
             switches: 0,
             compared: None,
             other: None,
+            memory: None,
+            remembered: false,
         }
+    }
+
+    /// Start from what an earlier launch measured on this device, and keep
+    /// this launch's answers there too. `key` is [`memory_key`]'s. Called
+    /// once, when the GPU device is known; does nothing outside
+    /// [`Mode::Auto`] or without a [`set_memory_file`].
+    pub(crate) fn remember(&mut self, key: String) {
+        if self.mode != Mode::Auto {
+            return;
+        }
+        let Some(file) = memory_file() else {
+            return;
+        };
+        if let Some(m) = Memory::read(&file, &key) {
+            self.current = m.route;
+            self.other = Some((
+                match m.route {
+                    Route::Direct => m.blit,
+                    Route::Blit => m.direct,
+                },
+                0,
+            ));
+            self.compared = Some((m.direct, m.blit));
+            self.remembered = true;
+            self.begin(Phase::Measure);
+        }
+        self.memory = Some((file, key));
+    }
+
+    /// Whether this launch started on a remembered route.
+    pub(crate) const fn is_remembered(&self) -> bool {
+        self.remembered
+    }
+
+    fn save(&self) {
+        let (Some((file, key)), Some((direct, blit))) = (&self.memory, self.compared) else {
+            return;
+        };
+        let text = Memory {
+            key: key.clone(),
+            route: self.current,
+            direct,
+            blit,
+        }
+        .to_text();
+        // A few bytes, once per trial: rare, and losing it costs only the
+        // next launch's head start.
+        if let Some(dir) = file.parent() {
+            let _ = std::fs::create_dir_all(dir);
+        }
+        let _ = std::fs::write(file, text);
     }
 
     /// The route an eligible frame takes now.
@@ -235,6 +375,8 @@ impl RouteChooser {
                     self.other = Some((median, 0));
                 }
                 self.begin(Phase::Hold { left: self.hold });
+                self.save();
+                self.remembered = false;
                 !wins
             }
             Phase::Hold { .. } => false,
@@ -271,6 +413,122 @@ mod tests {
             };
             chooser.observe(gpu);
         }
+    }
+
+    /// The memory file is process-wide; tests that use it take turns.
+    static FILE_LOCK: Mutex<()> = Mutex::new(());
+
+    fn temp_file(name: &str) -> PathBuf {
+        let dir =
+            std::env::temp_dir().join(format!("vieww-gpu-route-{}-{name}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        dir.join("gpu-route-test.txt")
+    }
+
+    #[test]
+    fn a_memory_reads_back_what_it_wrote() {
+        let m = Memory {
+            key: "5143:6040:01020304:ab:0.1".into(),
+            route: Route::Blit,
+            direct: ms(29),
+            blit: ms(12),
+        };
+        assert_eq!(Memory::parse(&m.to_text()), Some(m));
+        assert_eq!(Memory::parse("route=sideways\n"), None);
+    }
+
+    /// The Redmi's second launch: the first launch's trial is remembered, so
+    /// it starts on blit and never spends a window on direct.
+    #[test]
+    fn a_remembered_answer_skips_the_first_trial() {
+        let _turn = FILE_LOCK.lock().unwrap();
+        let file = temp_file("skip");
+        set_memory_file(Some(file.clone()));
+        // First launch: measures, tries blit, keeps it, writes it down.
+        let mut first = RouteChooser::new(Mode::Auto);
+        first.remember("redmi".into());
+        assert!(!first.is_remembered());
+        run(&mut first, 200, ms(29), ms(12));
+        assert_eq!(first.route(), Route::Blit);
+        assert!(std::fs::read_to_string(&file)
+            .unwrap()
+            .contains("route=blit"));
+        // Second launch: on blit from its first frame, no frame on direct.
+        let mut second = RouteChooser::new(Mode::Auto);
+        second.remember("redmi".into());
+        assert!(second.is_remembered());
+        let mut on_direct = 0;
+        for _ in 0..5_000 {
+            on_direct += usize::from(second.route() == Route::Direct);
+            second.observe(match second.route() {
+                Route::Direct => ms(29),
+                Route::Blit => ms(12),
+            });
+        }
+        assert_eq!(
+            on_direct, 0,
+            "{on_direct} frames re-trying the remembered loser"
+        );
+        // Another GPU or driver (another key) measures from scratch.
+        let mut other = RouteChooser::new(Mode::Auto);
+        other.remember("another-gpu".into());
+        assert!(!other.is_remembered());
+        assert_eq!(other.route(), Route::Direct);
+        set_memory_file(None);
+        let _ = std::fs::remove_dir_all(file.parent().unwrap());
+    }
+
+    /// A remembered answer that has gone stale (the blit route got slow) is
+    /// still checked: measuring it first finds it no longer ahead.
+    #[test]
+    fn a_stale_memory_is_corrected() {
+        let _turn = FILE_LOCK.lock().unwrap();
+        let file = temp_file("stale");
+        std::fs::create_dir_all(file.parent().unwrap()).unwrap();
+        std::fs::write(
+            &file,
+            Memory {
+                key: "k".into(),
+                route: Route::Blit,
+                direct: ms(6),
+                blit: ms(5),
+            }
+            .to_text(),
+        )
+        .unwrap();
+        set_memory_file(Some(file.clone()));
+        let mut c = RouteChooser::new(Mode::Auto);
+        c.remember("k".into());
+        assert_eq!(c.route(), Route::Blit);
+        run(&mut c, 400, ms(6), ms(25));
+        assert_eq!(c.route(), Route::Direct);
+        set_memory_file(None);
+        let _ = std::fs::remove_dir_all(file.parent().unwrap());
+    }
+
+    /// A fixed mode never reads or writes a memory.
+    #[test]
+    fn a_fixed_route_ignores_memory() {
+        let _turn = FILE_LOCK.lock().unwrap();
+        let file = temp_file("fixed");
+        std::fs::create_dir_all(file.parent().unwrap()).unwrap();
+        std::fs::write(
+            &file,
+            Memory {
+                key: "k".into(),
+                route: Route::Blit,
+                direct: ms(30),
+                blit: ms(5),
+            }
+            .to_text(),
+        )
+        .unwrap();
+        set_memory_file(Some(file.clone()));
+        let mut c = RouteChooser::new(Mode::Fixed(Route::Direct));
+        c.remember("k".into());
+        assert_eq!(c.route(), Route::Direct);
+        set_memory_file(None);
+        let _ = std::fs::remove_dir_all(file.parent().unwrap());
     }
 
     /// The Redmi Note 7 Pro: direct 29 ms, blit 14-19.

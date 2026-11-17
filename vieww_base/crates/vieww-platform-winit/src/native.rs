@@ -1728,6 +1728,10 @@ impl NativeRenderer {
                         planner: GpuPlanner::new(),
                         renderer,
                     });
+                    // An earlier launch's answer on this GPU and driver,
+                    // so this one starts on it (`crate::gpu_route`).
+                    self.gpu_route
+                        .remember(crate::gpu_route::memory_key(&device.driver_key()));
                 }
                 Err(error) => {
                     self.gpu_unavailable = true;
@@ -2053,10 +2057,15 @@ impl NativeRenderer {
                                 )
                             })
                     };
+                    let by = if self.gpu_route.is_remembered() {
+                        "remembered from an earlier launch's measurement"
+                    } else {
+                        "chosen by measurement"
+                    };
                     if direct && self.gpu_route.is_auto() {
                         note_gpu_route(&format!(
                             "direct: depth-0 opaque frame rendered into the swapchain image; \
-                             chosen by measurement{}",
+                             {by}{}",
                             measured()
                         ));
                     } else if direct {
@@ -2065,7 +2074,7 @@ impl NativeRenderer {
                         );
                     } else if eligible && self.gpu_route.is_auto() {
                         note_gpu_route(&format!(
-                            "blit: damage into the intermediate; chosen by measurement{}",
+                            "blit: damage into the intermediate; {by}{}",
                             measured()
                         ));
                     } else if eligible {

@@ -271,9 +271,10 @@ pub(crate) fn write_straight_u8(pixels: &[Premul], out: &mut [u8]) {
 #[cfg(target_arch = "aarch64")]
 mod neon {
     use core::arch::aarch64::{
-        float32x4_t, uint32x4_t, vaddq_f32, vandq_u32, vcgtq_f32, vcombine_u16, vcombine_u8,
-        vcvtq_u32_f32, vdivq_f32, vdupq_laneq_f32, vdupq_n_f32, vld1q_f32, vmulq_f32, vqmovn_u16,
-        vqmovn_u32, vreinterpretq_f32_u32, vreinterpretq_u32_f32, vsetq_lane_f32, vst1q_u8,
+        float32x4_t, uint32x4_t, vaddq_f32, vandq_u32, vceqq_f32, vcgtq_f32, vcombine_u16,
+        vcombine_u8, vcvtq_u32_f32, vdivq_f32, vdupq_laneq_f32, vdupq_n_f32, vgetq_lane_f32,
+        vld1q_f32, vminvq_u32, vmulq_f32, vqmovn_u16, vqmovn_u32, vreinterpretq_f32_u32,
+        vreinterpretq_u32_f32, vsetq_lane_f32, vsetq_lane_f32 as set_lane, vst1q_u8,
     };
 
     use super::Premul;
@@ -295,6 +296,18 @@ mod neon {
         vcvtq_u32_f32(v)
     }
 
+    /// [`convert`] for a pixel whose alpha is exactly `1.0`: there `1.0 / a`
+    /// is exactly `1.0` and multiplying by it is the identity, so the
+    /// division and that multiply are skipped and the bytes are the same.
+    #[inline]
+    #[target_feature(enable = "neon")]
+    fn convert_opaque(p: float32x4_t) -> uint32x4_t {
+        vcvtq_u32_f32(vaddq_f32(
+            vmulq_f32(p, vdupq_n_f32(255.0)),
+            vdupq_n_f32(0.5),
+        ))
+    }
+
     /// Converts whole groups of four pixels and returns how many it did; the
     /// caller finishes the remainder with the scalar path.
     #[target_feature(enable = "neon")]
@@ -307,8 +320,29 @@ mod neon {
             let [p0, p1, p2, p3] = group
                 .each_ref()
                 .map(|p| unsafe { vld1q_f32(std::ptr::from_ref(p).cast::<f32>()) });
-            let lo = vcombine_u16(vqmovn_u32(convert(p0)), vqmovn_u32(convert(p1)));
-            let hi = vcombine_u16(vqmovn_u32(convert(p2)), vqmovn_u32(convert(p3)));
+            // **Opaque groups skip the division** (Market Watch's storm,
+            // 2026-11-17: nearly every pixel a frame writes out is opaque,
+            // and `FDIV` is the slow instruction here on the phones' cores).
+            let alphas = set_lane::<3>(
+                vgetq_lane_f32::<3>(p3),
+                set_lane::<2>(
+                    vgetq_lane_f32::<3>(p2),
+                    set_lane::<1>(vgetq_lane_f32::<3>(p1), vdupq_laneq_f32::<3>(p0)),
+                ),
+            );
+            let opaque = vminvq_u32(vceqq_f32(alphas, vdupq_n_f32(1.0))) != 0;
+            let (c0, c1, c2, c3) = if opaque {
+                (
+                    convert_opaque(p0),
+                    convert_opaque(p1),
+                    convert_opaque(p2),
+                    convert_opaque(p3),
+                )
+            } else {
+                (convert(p0), convert(p1), convert(p2), convert(p3))
+            };
+            let lo = vcombine_u16(vqmovn_u32(c0), vqmovn_u32(c1));
+            let hi = vcombine_u16(vqmovn_u32(c2), vqmovn_u32(c3));
             let bytes = vcombine_u8(vqmovn_u16(lo), vqmovn_u16(hi));
             // SAFETY: `slot` is exactly 16 writable bytes; `vst1q_u8` has no
             // alignment requirement.
@@ -348,6 +382,17 @@ mod sse2 {
         _mm_cvttps_epi32(v)
     }
 
+    /// [`convert`] for a pixel whose alpha is exactly `1.0`: `1.0 / a` is
+    /// exactly `1.0` and multiplying by it is the identity, so both are
+    /// skipped and the bytes are the same.
+    #[inline]
+    #[target_feature(enable = "sse2")]
+    fn convert_opaque(p: __m128) -> __m128i {
+        let v = _mm_add_ps(_mm_mul_ps(p, _mm_set1_ps(255.0)), _mm_set1_ps(0.5));
+        let v = _mm_min_ps(_mm_max_ps(v, _mm_setzero_ps()), _mm_set1_ps(255.0));
+        _mm_cvttps_epi32(v)
+    }
+
     /// Converts whole groups of four pixels and returns how many it did; the
     /// caller finishes the remainder with the scalar path.
     #[target_feature(enable = "sse2")]
@@ -360,8 +405,20 @@ mod sse2 {
             let [p0, p1, p2, p3] = group
                 .each_ref()
                 .map(|p| unsafe { _mm_loadu_ps(std::ptr::from_ref(p).cast::<f32>()) });
-            let lo = _mm_packs_epi32(convert(p0), convert(p1));
-            let hi = _mm_packs_epi32(convert(p2), convert(p3));
+            // Opaque groups skip the division, as on aarch64.
+            let opaque = group.iter().all(|p| p.a == 1.0);
+            let (c0, c1, c2, c3) = if opaque {
+                (
+                    convert_opaque(p0),
+                    convert_opaque(p1),
+                    convert_opaque(p2),
+                    convert_opaque(p3),
+                )
+            } else {
+                (convert(p0), convert(p1), convert(p2), convert(p3))
+            };
+            let lo = _mm_packs_epi32(c0, c1);
+            let hi = _mm_packs_epi32(c2, c3);
             let bytes = _mm_packus_epi16(lo, hi);
             // SAFETY: `slot` is exactly 16 writable bytes; `storeu` has no
             // alignment requirement.
