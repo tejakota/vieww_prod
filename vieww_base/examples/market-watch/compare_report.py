@@ -24,7 +24,9 @@ phones. SurfaceFlinger's per-layer timestats are the yardstick: frames
   the same way for Vieww's NativeActivity surface and Valdi's HWUI views. A
   phase's frame rate is its presented frames over its length; jank is the
   share of gaps over 1.5 display frames. Each app's own numbers (Vieww's frame
-  work, Valdi's JS render cost) and HWUI's gfxinfo (Valdi only) say *where*
+  work and, on new runs, the display waits `wait_ms` beside it — the other
+  half of a frame's wall clock, optional, absent on old runs; Valdi's JS
+  render cost) and HWUI's gfxinfo (Valdi only) say *where*
   the time went. CPU is the process's utime + stime over the phase.
 
 Standard library only.
@@ -344,8 +346,8 @@ def render(farm, meta):
         apk = {k: (int(v) / 2**20 if v else None) for k, v in apk.items()}
         md.append(f"| APK (MB) | {cell(apk, 'apk', False)} |")
         md.append("")
-        md.append("| phase | presented fps | frame gap p95 (ms) | jank % | app work p95 (ms) | CPU % |")
-        md.append("|---|---|---|---|---|---|")
+        md.append("| phase | presented fps | frame gap p95 (ms) | jank % | app work p95 (ms) | app wait p95 (ms) | CPU % |")
+        md.append("|---|---|---|---|---|---|---|")
         for name in CONTINUOUS:
             p = {c: cfg.get(c, {}).get("phases", {}).get(name, {}) for c in CONFIGS}
             if not any(p.values()):
@@ -355,9 +357,15 @@ def render(farm, meta):
             jank = {c: p[c].get("sf_jank_pct", p[c].get("app_jank_pct")) for c in CONFIGS}
             work = {c: (p[c].get("app", {}).get("work_ms") or p[c].get("app", {}).get("render_ms") or [None, None])[1]
                     for c in CONFIGS}
+            # `wait_ms` is the other half of a frame's wall clock, what `work`
+            # now excludes: the display waits (image acquire, fence). It is
+            # optional — a line without it is an old run's, and wait stays
+            # absent there, never a zero folded into work.
+            wait = {c: (p[c].get("app", {}).get("wait_ms") or [None, None])[1] for c in CONFIGS}
             cpu = {c: p[c].get("cpu_pct") for c in CONFIGS}
             md.append(f"| {name} | {cell(fps, 'fps', True)} | {cell(gap, 'gap', False, '', 0)} | "
-                      f"{cell(jank, 'jank', False)} | {cell(work, 'work', False, '', 2)} | {cell(cpu, 'cpu', False)} |")
+                      f"{cell(jank, 'jank', False)} | {cell(work, 'work', False, '', 2)} | "
+                      f"{cell(wait, 'wait', False, '', 2)} | {cell(cpu, 'cpu', False)} |")
         md.append("")
 
         # The same-unit A/B the fourth leg exists for: the default CPU path
@@ -370,8 +378,8 @@ def render(farm, meta):
             md.append("Cells read parallel / serial; the raster kinds are the p50 of the "
                       "raster stage split by command kind (a profiled run's `kinds` field).")
             md.append("")
-            md.append("| phase | raster p50 (ms) | present p50 (ms) | work p95 (ms) | jank % |")
-            md.append("|---|---|---|---|---|")
+            md.append("| phase | raster p50 (ms) | present p50 (ms) | work p95 (ms) | wait p95 (ms) | jank % |")
+            md.append("|---|---|---|---|---|---|")
             legs = ["vieww-cpu", AB_LEG]
             for name in CONTINUOUS:
                 p = {c: cfg.get(c, {}).get("phases", {}).get(name, {}) for c in legs}
@@ -383,9 +391,11 @@ def render(farm, meta):
                     return " / ".join(fmt(v, "", nd) for v in vals)
 
                 work = {c: (p[c].get("app", {}).get("work_ms") or [None, None])[1] for c in legs}
+                wait = {c: (p[c].get("app", {}).get("wait_ms") or [None, None])[1] for c in legs}
                 jank = {c: p[c].get("sf_jank_pct") for c in legs}
                 md.append(f"| {name} | {pair('raster_p50')} | {pair('present_p50')} | "
                           f"{fmt(work['vieww-cpu'], '', 2)} / {fmt(work[AB_LEG], '', 2)} | "
+                          f"{fmt(wait['vieww-cpu'], '', 2)} / {fmt(wait[AB_LEG], '', 2)} | "
                           f"{fmt(jank['vieww-cpu'])} / {fmt(jank[AB_LEG])} |")
             kinds_rows = [(name, {c: cfg.get(c, {}).get("phases", {}).get(name, {}).get("stages", {}).get("kinds")
                                   for c in legs})
@@ -409,17 +419,19 @@ def render(farm, meta):
             md.append("</details>")
             md.append("")
         md.append("")
-        md.append("| event | app time (ms) | frames presented | CPU % |")
-        md.append("|---|---|---|---|")
+        md.append("| event | app time (ms) | app wait (ms) | frames presented | CPU % |")
+        md.append("|---|---|---|---|---|")
         for name in EVENTS + IDLE:
             p = {c: cfg.get(c, {}).get("phases", {}).get(name, {}) for c in CONFIGS}
             if not any(p.values()):
                 continue
             t = {c: (p[c].get("app", {}).get("work_ms") or p[c].get("app", {}).get("render_ms") or [None])[0]
                  for c in CONFIGS}
+            wait = {c: (p[c].get("app", {}).get("wait_ms") or [None])[0] for c in CONFIGS}
             fr = {c: p[c].get("sf_frames") for c in CONFIGS}
             cpu = {c: p[c].get("cpu_pct") for c in CONFIGS}
-            md.append(f"| {name} | {cell(t, 't', False, '', 2)} | {cell(fr, 'fr', name not in IDLE, '', 0)} | "
+            md.append(f"| {name} | {cell(t, 't', False, '', 2)} | {cell(wait, 'wait', False, '', 2)} | "
+                      f"{cell(fr, 'fr', name not in IDLE, '', 0)} | "
                       f"{cell(cpu, 'cpu', False)} |")
         md.append("")
         hw = cfg.get("valdi", {}).get("phases", {})
@@ -460,6 +472,9 @@ def render(farm, meta):
         "- A production Valdi build narrates nothing (its runtime logs are compiled out), so the runner reads "
         "its phases from the schedule both apps share — 'app work' is blank for Valdi, its JS-side numbers "
         "being unobservable in a build that ships; the compositor and HWUI numbers cover it.\n"
+        "- **App wait** is the other half of a frame's wall clock beside app work: what the display made the "
+        "frame wait (the image acquire and the flight-slot fence). Runs from before the field was logged show "
+        "a dash there — and their work counts the waits in, so it runs high beside a new run's work + wait.\n"
         "- Valdi's continuous phases are paced on its platform draw callback (`onNextDraw`), Vieww's on "
         "`before_frame`: one change per drawn frame on both sides.\n"
         "- Configurations run in the order Vieww CPU → Valdi → Vieww CPU (serial, the A/B leg) → Vieww GPU with a "
@@ -575,11 +590,19 @@ def self_test():
         if c != "valdi":
             # A Vieww leg narrates: the stats line the tables read, the stages
             # line the A/B block reads (with `kinds`, as a profiled run emits)
-            # and the quality line that says which raster policy it took.
+            # and the quality line that says which raster policy it took. The
+            # parallel leg's live2k line carries the new `wait_ms` half; the
+            # serial leg's is an old run's, without it — as is both legs'
+            # load2k line, an event phase's old-format stats.
+            stats = {"fw": c, "ev": "stats", "phase": "live2k", "frames": 470,
+                     "work_ms": [5.0, 9.0, 12.0, 20.0],
+                     "interval_ms": [16.6, 17.0, 33.0, 40.0]}
+            if c == "vieww-cpu":
+                stats["wait_ms"] = [1.0, 2.0, 3.0, 4.0]
             (d / "events.jsonl").write_text(
-                json.dumps({"fw": c, "ev": "stats", "phase": "live2k", "frames": 470,
-                            "work_ms": [5.0, 9.0, 12.0, 20.0],
-                            "interval_ms": [16.6, 17.0, 33.0, 40.0]}) + "\n" +
+                json.dumps(stats) + "\n" +
+                json.dumps({"fw": c, "ev": "stats", "phase": "load2k", "frames": 30,
+                            "work_ms": [4.0, 5.0, 6.0, 7.0]}) + "\n" +
                 json.dumps({"fw": c, "ev": "stages", "phase": "live2k", "frames": 470,
                             "raster_ms": [4.0, 6.0, 8.0], "present_ms": [2.0, 3.0, 4.0],
                             "acquire_ms": [1.0, 1.0, 1.0],
@@ -617,10 +640,12 @@ def self_test():
     assert live["cpu_pct"] == 50.0, live  # 400 ticks = 4000 ms over 8000 ms
     assert live["stages"]["raster_p50"] == 4.0, live  # the stages line's p50
     assert live["stages"]["kinds"]["text"] == [1.5, 2.0, 3.0], live
+    assert live["app"]["wait_ms"] == [1.0, 2.0, 3.0, 4.0], live  # the wait half, when the run logged it
     assert farm[0]["configs"]["vieww-cpu"]["quality"].endswith("vieww-cpu")
     # The A/B leg is parsed beside the contenders, cold starts empty.
     serial = farm[0]["configs"]["vieww-cpuserial"]
     assert serial["cold_start_median"] is None and serial["phases"]["live2k"]["stages"]["raster_p50"] == 4.0
+    assert "wait_ms" not in serial["phases"]["live2k"]["app"], serial  # an old run's line: wait stays absent
     assert farm[0]["configs"]["valdi"]["phases"]["live2k"]["hwui"]["p95_ms"] == 15
     assert farm[0]["configs"]["vieww-cpu"]["cold_start_median"] == 310
     # A phone where the Valdi app was refused: the reason reaches the report.
@@ -640,6 +665,12 @@ def self_test():
     assert "parallel vs serial raster" in md, md
     assert "raster threads vieww-cpuserial" in md, md
     assert "4.00 / 4.00" in md, md  # raster p50, parallel / serial
+    # The wait column, beside work wherever work is shown: a value where a run
+    # logged it, a dash where one did not (an old run — never a zero).
+    assert "app wait p95 (ms)" in md and "app wait (ms)" in md, md
+    assert "| live2k | 58.8 / – / 58.8 | 17 / – / 17 | 2.1 / – / 2.1 | 9.00 / – / 9.00 | 2.00 / – / – | 50.0 / – / 50.0 |" in md, md
+    assert "| live2k | 4.00 / 4.00 | 2.00 / 2.00 | 9.00 / 9.00 | 2.00 / – | 2.1 / 2.1 |" in md, md
+    assert "| load2k | 4.00 / – / – | – / – / – | – / – / – | – / – / – |" in md, md
     assert md.count("1.50 / 1.00 / 0.50 / 0.00 / 0.50") == 2, md  # kinds p50, both legs
     assert "--snap_flavor=production" in md and "quickjs" in md, md
     # Machines: two legs' verdicts become rows beside the phones.
