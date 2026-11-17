@@ -586,31 +586,31 @@ fn directed(src: &[Premul], dst: &mut [Premul], w: u32, h: u32, radius: i32, dx:
     }
 }
 
+// The three pixel arithmetics below are the blur passes' whole per-pixel
+// cost, and they are exactly the `native::simd` lane ops: the same add,
+// subtract and divide, in the same order, with the four channels widened
+// into one register — lane for lane, the operation the scalar bodies ran
+// (`simd::lane_ops_match_scalar_bit_for_bit` pins that to the bit). The
+// scalar spellings stay in these one-line bodies for the third
+// architectures and for the reader; the vector half is one instruction.
+//
+// Nothing about the *order* of operations moved: each call site — the seeds,
+// the three-span step, the strip loop, the directed tap sum — runs the same
+// expression it always did, so `raster-identity.sh`'s byte gate and the
+// `blur_passes_match_scalar_reference_bit_for_bit` test below hold it.
+
 fn add(a: Premul, b: Premul) -> Premul {
-    Premul {
-        r: a.r + b.r,
-        g: a.g + b.g,
-        b: a.b + b.b,
-        a: a.a + b.a,
-    }
+    super::simd::premul_add(a, b)
 }
 
 fn sub(a: Premul, b: Premul) -> Premul {
-    Premul {
-        r: a.r - b.r,
-        g: a.g - b.g,
-        b: a.b - b.b,
-        a: a.a - b.a,
-    }
+    super::simd::premul_sub(a, b)
 }
 
 fn divide(p: Premul, k: f32) -> Premul {
-    Premul {
-        r: p.r / k,
-        g: p.g / k,
-        b: p.b / k,
-        a: p.a / k,
-    }
+    // Still a divide, never a reciprocal multiply — `premul_div` carries the
+    // same rule, and the reason is `horizontal`'s, above.
+    super::simd::premul_div(p, k)
 }
 
 /// Apply a 5x4 colour matrix to every pixel, in **straight** alpha (spec
@@ -817,5 +817,229 @@ mod tests {
         blur_cached(&mut a, 0.0, None, &mut cache);
         assert_eq!(a.pixels, reference);
         assert_eq!(cache.len(), 0);
+    }
+
+    /// The three passes, bit for bit against the scalar reference the vector
+    /// half replaced: the same seeds, the same three-span split, the same
+    /// one-expression window step, written with the scalar `+`, `-` and `/`
+    /// the file used before the lane ops. The blur kernels are correctness
+    /// oracles (`vieww_foundation::blur_rgba` is diffed against them), so
+    /// this is the pin the whole widening stands on.
+    #[test]
+    fn blur_passes_match_scalar_reference_bit_for_bit() {
+        fn s_add(a: Premul, b: Premul) -> Premul {
+            Premul {
+                r: a.r + b.r,
+                g: a.g + b.g,
+                b: a.b + b.b,
+                a: a.a + b.a,
+            }
+        }
+        fn s_sub(a: Premul, b: Premul) -> Premul {
+            Premul {
+                r: a.r - b.r,
+                g: a.g - b.g,
+                b: a.b - b.b,
+                a: a.a - b.a,
+            }
+        }
+        fn s_div(p: Premul, k: f32) -> Premul {
+            Premul {
+                r: p.r / k,
+                g: p.g / k,
+                b: p.b / k,
+                a: p.a / k,
+            }
+        }
+        // Verbatim `horizontal` with the scalar ops.
+        fn horizontal_ref(src: &[Premul], dst: &mut [Premul], w: u32, h: u32, radius: i32) {
+            let window = (2 * radius + 1) as f32;
+            let width = w as i32;
+            for y in 0..h as usize {
+                let row = y * w as usize;
+                let src_row = &src[row..row + w as usize];
+                let dst_row = &mut dst[row..row + w as usize];
+                let mut sum = src_row[0];
+                for _ in 0..radius {
+                    sum = s_add(sum, src_row[0]);
+                }
+                for x in 1..=radius.min(width - 1) {
+                    sum = s_add(sum, src_row[x as usize]);
+                }
+                if width <= radius {
+                    for _ in 0..(radius + 1 - width) {
+                        sum = s_add(sum, src_row[(width - 1) as usize]);
+                    }
+                }
+                let step = |sum: &mut Premul, dst: &mut Premul, x: i32| {
+                    *dst = s_div(*sum, window);
+                    let entering = (x + radius + 1).min(width - 1);
+                    let leaving = (x - radius).max(0);
+                    *sum = s_add(
+                        *sum,
+                        s_sub(src_row[entering as usize], src_row[leaving as usize]),
+                    );
+                };
+                let mid_start = radius.min(width);
+                let mid_end = (width - radius - 1).max(mid_start);
+                for x in 0..mid_start {
+                    step(&mut sum, &mut dst_row[x as usize], x);
+                }
+                let (r, ms, me) = (radius as usize, mid_start as usize, mid_end as usize);
+                if ms < me {
+                    for ((out, entering), leaving) in dst_row[ms..me]
+                        .iter_mut()
+                        .zip(&src_row[ms + r + 1..me + r + 1])
+                        .zip(&src_row[ms - r..me - r])
+                    {
+                        *out = s_div(sum, window);
+                        sum = s_add(sum, s_sub(*entering, *leaving));
+                    }
+                }
+                for x in mid_end..width {
+                    step(&mut sum, &mut dst_row[x as usize], x);
+                }
+                let _ = &sum;
+            }
+        }
+        // Verbatim `vertical` with the scalar ops.
+        fn vertical_ref(src: &[Premul], dst: &mut [Premul], w: u32, h: u32, radius: i32) {
+            let window = (2 * radius + 1) as f32;
+            let (width, height) = (w as usize, h as i32);
+            let strip_w = 8usize;
+            let mut x0 = 0usize;
+            while x0 < width {
+                let strip = strip_w.min(width - x0);
+                let mut sums = [Premul::TRANSPARENT; 8];
+                for (i, sum) in sums.iter_mut().take(strip).enumerate() {
+                    *sum = src[x0 + i];
+                }
+                for _ in 0..radius {
+                    for (i, sum) in sums.iter_mut().take(strip).enumerate() {
+                        *sum = s_add(*sum, src[x0 + i]);
+                    }
+                }
+                for y in 1..=radius.min(height - 1) {
+                    let row = y as usize * width + x0;
+                    for (i, sum) in sums.iter_mut().take(strip).enumerate() {
+                        *sum = s_add(*sum, src[row + i]);
+                    }
+                }
+                if height <= radius {
+                    let row = (height - 1) as usize * width + x0;
+                    for _ in 0..(radius + 1 - height) {
+                        for (i, sum) in sums.iter_mut().take(strip).enumerate() {
+                            *sum = s_add(*sum, src[row + i]);
+                        }
+                    }
+                }
+                for y in 0..height {
+                    let out_row = y as usize * width + x0;
+                    let entering = (y + radius + 1).min(height - 1) as usize * width + x0;
+                    let leaving = (y - radius).max(0) as usize * width + x0;
+                    for (((sum, out), entering), leaving) in sums[..strip]
+                        .iter_mut()
+                        .zip(&mut dst[out_row..out_row + strip])
+                        .zip(&src[entering..entering + strip])
+                        .zip(&src[leaving..leaving + strip])
+                    {
+                        *out = s_div(*sum, window);
+                        *sum = s_add(*sum, s_sub(*entering, *leaving));
+                    }
+                }
+                x0 += strip;
+            }
+        }
+        // Verbatim `directed` with the scalar ops.
+        fn directed_ref(
+            src: &[Premul],
+            dst: &mut [Premul],
+            w: u32,
+            h: u32,
+            radius: i32,
+            dx: f32,
+            dy: f32,
+        ) {
+            let window = (2 * radius + 1) as f32;
+            let (width, height) = (w as usize, h as usize);
+            let max_x = (width - 1) as f32;
+            let max_y = (height - 1) as f32;
+            for y in 0..height {
+                for x in 0..width {
+                    let mut sum = Premul::TRANSPARENT;
+                    for t in -radius..=radius {
+                        let step = t as f32;
+                        let sx = (x as f32 + step * dx).round().clamp(0.0, max_x) as usize;
+                        let sy = (y as f32 + step * dy).round().clamp(0.0, max_y) as usize;
+                        sum = s_add(sum, src[sy * width + sx]);
+                    }
+                    dst[y * width + x] = s_div(sum, window);
+                }
+            }
+        }
+
+        // xorshift again: deterministic, hostile to the edge conventions
+        // (values around 0, 1 and past both), no dependency.
+        struct Rng(u64);
+        impl Rng {
+            fn f(&mut self) -> f32 {
+                self.0 ^= self.0 << 13;
+                self.0 ^= self.0 >> 7;
+                self.0 ^= self.0 << 17;
+                (self.0 >> 40) as f32 / (1u64 << 24) as f32 * 1.3 - 0.15
+            }
+            fn premul(&mut self) -> Premul {
+                let a = self.f().abs();
+                Premul {
+                    r: self.f() * a,
+                    g: self.f() * a,
+                    b: self.f() * a,
+                    a,
+                }
+            }
+        }
+        let canon = |p: Premul| {
+            let c = |v: f32| {
+                if v.is_nan() {
+                    f32::NAN.to_bits()
+                } else {
+                    v.to_bits()
+                }
+            };
+            [c(p.r), c(p.g), c(p.b), c(p.a)]
+        };
+        let mut rng = Rng(0x1BD1_1DBA_A5FC_5317);
+        for (w, h) in [(1u32, 1u32), (2, 9), (7, 3), (9, 7), (24, 20), (33, 17)] {
+            for radius in [0i32, 1, 3, 5, 9, 40] {
+                let mut src = Vec::with_capacity(w as usize * h as usize);
+                for _ in 0..w as usize * h as usize {
+                    src.push(rng.premul());
+                }
+                // Horizontal and vertical share the buffer shape.
+                let (mut a, mut b) = (vec![Premul::TRANSPARENT; src.len()], src.clone());
+                horizontal(&src, &mut a, w, h, radius);
+                horizontal_ref(&src, &mut b, w, h, radius);
+                assert!(
+                    a.iter().zip(b.iter()).all(|(x, y)| canon(*x) == canon(*y)),
+                    "horizontal w={w} h={h} r={radius}"
+                );
+                let (mut a, mut b) = (vec![Premul::TRANSPARENT; src.len()], src.clone());
+                vertical(&src, &mut a, w, h, radius);
+                vertical_ref(&src, &mut b, w, h, radius);
+                assert!(
+                    a.iter().zip(b.iter()).all(|(x, y)| canon(*x) == canon(*y)),
+                    "vertical w={w} h={h} r={radius}"
+                );
+                for (dx, dy) in [(0.8f32, 0.6), (1.0, 0.0), (-0.7, 0.7)] {
+                    let (mut a, mut b) = (vec![Premul::TRANSPARENT; src.len()], src.clone());
+                    directed(&src, &mut a, w, h, radius, dx, dy);
+                    directed_ref(&src, &mut b, w, h, radius, dx, dy);
+                    assert!(
+                        a.iter().zip(b.iter()).all(|(x, y)| canon(*x) == canon(*y)),
+                        "directed w={w} h={h} r={radius} d=({dx},{dy})"
+                    );
+                }
+            }
+        }
     }
 }

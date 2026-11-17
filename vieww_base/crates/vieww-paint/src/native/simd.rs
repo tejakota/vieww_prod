@@ -112,6 +112,210 @@ pub(crate) fn over_flat_row(dst: &mut [Premul], mask: &[f32], color: Premul, rep
     over_flat_row_scalar(dst, mask, color, replaces);
 }
 
+// ---------------------------------------------------------------------------
+// Lane-wise float ops: add, subtract, multiply, divide.
+//
+// The blur passes (`native/effects.rs`, `native/shadow.rs`) and the fill
+// walk's edge interpolation (`native/geometry/fill.rs`) are running sums and
+// closed-form expressions over one, four or sixteen independent `f32` values
+// at a time. The kernels there already keep each value's operation sequence
+// in a fixed order — a running sum is sequential by construction and each
+// sum is independent of every other — so widening each *group* of four
+// values into one register lane-for-lane changes no operation, no order and
+// no rounding: lane `i` of `lanes_add(a, b)` is exactly `a[i] + b[i]`, the
+// op the scalar loop ran for that value. These four entry points are the
+// whole contract; the callers decide the grouping.
+//
+// The same "no runtime detection" argument as the row kernels above applies:
+// SSE2 and NEON are baselines of their architectures, and the scalar
+// fallback below is the reference any third architecture gets — and the one
+// the bit tests compare against on this one.
+// ---------------------------------------------------------------------------
+
+/// Four independent `f32` lanes, added lane for lane.
+#[must_use]
+pub(crate) fn lanes_add(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
+    #[cfg(target_arch = "x86_64")]
+    {
+        // SAFETY: SSE2 is part of the x86-64 baseline; see `sse2`'s doc.
+        unsafe { sse2::lanes_add(a, b) }
+    }
+    #[cfg(target_arch = "aarch64")]
+    {
+        // SAFETY: NEON is part of the aarch64 baseline; see `neon`'s doc.
+        unsafe { neon::lanes_add(a, b) }
+    }
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    [
+        a[0] + b[0],
+        a[1] + b[1],
+        a[2] + b[2],
+        a[3] + b[3],
+    ]
+}
+
+/// Four independent `f32` lanes, subtracted lane for lane.
+#[must_use]
+pub(crate) fn lanes_sub(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
+    #[cfg(target_arch = "x86_64")]
+    {
+        // SAFETY: SSE2 is part of the x86-64 baseline; see `sse2`'s doc.
+        unsafe { sse2::lanes_sub(a, b) }
+    }
+    #[cfg(target_arch = "aarch64")]
+    {
+        // SAFETY: NEON is part of the aarch64 baseline; see `neon`'s doc.
+        unsafe { neon::lanes_sub(a, b) }
+    }
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    [
+        a[0] - b[0],
+        a[1] - b[1],
+        a[2] - b[2],
+        a[3] - b[3],
+    ]
+}
+
+/// Four independent `f32` lanes, multiplied lane for lane.
+#[must_use]
+pub(crate) fn lanes_mul(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
+    #[cfg(target_arch = "x86_64")]
+    {
+        // SAFETY: SSE2 is part of the x86-64 baseline; see `sse2`'s doc.
+        unsafe { sse2::lanes_mul(a, b) }
+    }
+    #[cfg(target_arch = "aarch64")]
+    {
+        // SAFETY: NEON is part of the aarch64 baseline; see `neon`'s doc.
+        unsafe { neon::lanes_mul(a, b) }
+    }
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    [
+        a[0] * b[0],
+        a[1] * b[1],
+        a[2] * b[2],
+        a[3] * b[3],
+    ]
+}
+
+/// Four independent `f32` lanes, divided lane for lane. A divide, never a
+/// reciprocal multiply — see the callers, whose own docs carry the reason.
+#[must_use]
+pub(crate) fn lanes_div(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
+    #[cfg(target_arch = "x86_64")]
+    {
+        // SAFETY: SSE2 is part of the x86-64 baseline; see `sse2`'s doc.
+        unsafe { sse2::lanes_div(a, b) }
+    }
+    #[cfg(target_arch = "aarch64")]
+    {
+        // SAFETY: NEON is part of the aarch64 baseline; see `neon`'s doc.
+        unsafe { neon::lanes_div(a, b) }
+    }
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    [
+        a[0] / b[0],
+        a[1] / b[1],
+        a[2] / b[2],
+        a[3] / b[3],
+    ]
+}
+
+/// Four `f32` lanes divided by one scalar, lane for lane. Divided, never
+/// multiplied by a precomputed reciprocal: `x / w` and `x * (1/w)` differ in
+/// the last bit, and the blur kernels are correctness oracles before they
+/// are fast paths (`native/effects.rs`'s `horizontal` records the six-pixel
+/// panel the fixture gallery caught on exactly that difference).
+#[must_use]
+pub(crate) fn lanes_div_scalar(a: [f32; 4], k: f32) -> [f32; 4] {
+    #[cfg(target_arch = "x86_64")]
+    {
+        // SAFETY: SSE2 is part of the x86-64 baseline; see `sse2`'s doc.
+        unsafe { sse2::lanes_div_scalar(a, k) }
+    }
+    #[cfg(target_arch = "aarch64")]
+    {
+        // SAFETY: NEON is part of the aarch64 baseline; see `neon`'s doc.
+        unsafe { neon::lanes_div_scalar(a, k) }
+    }
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    [
+        a[0] / k,
+        a[1] / k,
+        a[2] / k,
+        a[3] / k,
+    ]
+}
+
+/// A `Premul`'s four channels, added as one register — `a.r + b.r` and
+/// friends, lane for lane, the operation the scalar caller ran.
+#[must_use]
+pub(crate) fn premul_add(a: Premul, b: Premul) -> Premul {
+    #[cfg(target_arch = "x86_64")]
+    {
+        // SAFETY: SSE2 is part of the x86-64 baseline; see `sse2`'s doc.
+        unsafe { sse2::premul_add(a, b) }
+    }
+    #[cfg(target_arch = "aarch64")]
+    {
+        // SAFETY: NEON is part of the aarch64 baseline; see `neon`'s doc.
+        unsafe { neon::premul_add(a, b) }
+    }
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    Premul {
+        r: a.r + b.r,
+        g: a.g + b.g,
+        b: a.b + b.b,
+        a: a.a + b.a,
+    }
+}
+
+/// A `Premul`'s four channels, subtracted as one register.
+#[must_use]
+pub(crate) fn premul_sub(a: Premul, b: Premul) -> Premul {
+    #[cfg(target_arch = "x86_64")]
+    {
+        // SAFETY: SSE2 is part of the x86-64 baseline; see `sse2`'s doc.
+        unsafe { sse2::premul_sub(a, b) }
+    }
+    #[cfg(target_arch = "aarch64")]
+    {
+        // SAFETY: NEON is part of the aarch64 baseline; see `neon`'s doc.
+        unsafe { neon::premul_sub(a, b) }
+    }
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    Premul {
+        r: a.r - b.r,
+        g: a.g - b.g,
+        b: a.b - b.b,
+        a: a.a - b.a,
+    }
+}
+
+/// A `Premul`'s four channels divided by one scalar, as one register.
+/// Divided, never reciprocal-multiplied — `native/effects.rs`'s `horizontal`
+/// documents the fixture-gallery panel that caught the difference.
+#[must_use]
+pub(crate) fn premul_div(p: Premul, k: f32) -> Premul {
+    #[cfg(target_arch = "x86_64")]
+    {
+        // SAFETY: SSE2 is part of the x86-64 baseline; see `sse2`'s doc.
+        unsafe { sse2::premul_div(p, k) }
+    }
+    #[cfg(target_arch = "aarch64")]
+    {
+        // SAFETY: NEON is part of the aarch64 baseline; see `neon`'s doc.
+        unsafe { neon::premul_div(p, k) }
+    }
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    Premul {
+        r: p.r / k,
+        g: p.g / k,
+        b: p.b / k,
+        a: p.a / k,
+    }
+}
+
 /// The scalar loop `composite_layer` ran for the normal blend, verbatim.
 #[cfg_attr(any(target_arch = "x86_64", target_arch = "aarch64"), allow(dead_code))]
 pub(crate) fn over_layer_row_scalar(
@@ -173,8 +377,8 @@ mod neon;
 mod sse2 {
     use core::arch::x86_64::{
         __m128, _mm_add_ps, _mm_and_ps, _mm_andnot_ps, _mm_castsi128_ps, _mm_cmpeq_ps,
-        _mm_cmple_ps, _mm_loadu_ps, _mm_mul_ps, _mm_or_ps, _mm_set1_epi32, _mm_set1_ps,
-        _mm_setzero_ps, _mm_shuffle_ps, _mm_storeu_ps, _mm_sub_ps,
+        _mm_cmple_ps, _mm_div_ps, _mm_loadu_ps, _mm_mul_ps, _mm_or_ps, _mm_set1_epi32,
+        _mm_set1_ps, _mm_setzero_ps, _mm_shuffle_ps, _mm_storeu_ps, _mm_sub_ps,
     };
 
     use super::Premul;
@@ -282,6 +486,87 @@ mod sse2 {
             let out = select(skip, d, select(copy, s, over(s, a, d)));
             store(px, out);
         }
+    }
+
+    #[inline]
+    #[target_feature(enable = "sse2")]
+    fn load4(a: &[f32; 4]) -> __m128 {
+        // SAFETY: `[f32; 4]` is four readable `f32`s: 16 readable bytes.
+        unsafe { _mm_loadu_ps(a.as_ptr()) }
+    }
+
+    #[inline]
+    #[target_feature(enable = "sse2")]
+    fn store4(a: &mut [f32; 4], v: __m128) {
+        // SAFETY: as `load4`, 16 writable bytes.
+        unsafe { _mm_storeu_ps(a.as_mut_ptr(), v) }
+    }
+
+    /// A `__m128` back into a `Premul` by value — the mirror of `store` for
+    /// the kernels that *return* pixels rather than writing rows of them.
+    #[inline]
+    #[target_feature(enable = "sse2")]
+    fn put(v: __m128) -> Premul {
+        // SAFETY: `__m128` is four `f32`s; `Premul` is `repr(C)`, four
+        // `f32`s: 16 writable bytes in a value being returned.
+        let mut out = Premul {
+            r: 0.0,
+            g: 0.0,
+            b: 0.0,
+            a: 0.0,
+        };
+        store(&mut out, v);
+        out
+    }
+
+    #[target_feature(enable = "sse2")]
+    pub(super) fn lanes_add(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
+        let mut out = [0.0; 4];
+        store4(&mut out, _mm_add_ps(load4(&a), load4(&b)));
+        out
+    }
+
+    #[target_feature(enable = "sse2")]
+    pub(super) fn lanes_sub(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
+        let mut out = [0.0; 4];
+        store4(&mut out, _mm_sub_ps(load4(&a), load4(&b)));
+        out
+    }
+
+    #[target_feature(enable = "sse2")]
+    pub(super) fn lanes_mul(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
+        let mut out = [0.0; 4];
+        store4(&mut out, _mm_mul_ps(load4(&a), load4(&b)));
+        out
+    }
+
+    #[target_feature(enable = "sse2")]
+    pub(super) fn lanes_div(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
+        let mut out = [0.0; 4];
+        store4(&mut out, _mm_div_ps(load4(&a), load4(&b)));
+        out
+    }
+
+    #[target_feature(enable = "sse2")]
+    pub(super) fn lanes_div_scalar(a: [f32; 4], k: f32) -> [f32; 4] {
+        let mut out = [0.0; 4];
+        store4(&mut out, _mm_div_ps(load4(&a), _mm_set1_ps(k)));
+        out
+    }
+
+    #[target_feature(enable = "sse2")]
+    pub(super) fn premul_add(a: Premul, b: Premul) -> Premul {
+        put(_mm_add_ps(load(&a), load(&b)))
+    }
+
+    #[target_feature(enable = "sse2")]
+    pub(super) fn premul_sub(a: Premul, b: Premul) -> Premul {
+        put(_mm_sub_ps(load(&a), load(&b)))
+    }
+
+    #[target_feature(enable = "sse2")]
+    pub(super) fn premul_div(p: Premul, k: f32) -> Premul {
+        put(_mm_div_ps(load(&p), _mm_set1_ps(k)))
     }
 
     #[target_feature(enable = "sse2")]
@@ -456,6 +741,87 @@ mod tests {
                     "flat row: {color:?}, replaces {replaces}"
                 );
             }
+        }
+    }
+
+    /// The lane ops are each the scalar op, lane for lane — the whole
+    /// byte-identity argument for the blur and fill callers rests on it, so
+    /// they get their own sweep over the same hostile edges the row test
+    /// uses, plus the div-by-scalar that must stay a divide.
+    #[test]
+    fn lane_ops_match_scalar_bit_for_bit() {
+        let canon = |v: f32| {
+            if v.is_nan() {
+                f32::NAN.to_bits()
+            } else {
+                v.to_bits()
+            }
+        };
+        let lanes = |v: [f32; 4]| v.map(canon);
+        let mut rng = Rng(0x9E37_79B9_7F4A_7C15);
+        for _ in 0..100_000 {
+            let a: [f32; 4] = core::array::from_fn(|_| rng.f());
+            let b: [f32; 4] = core::array::from_fn(|_| rng.f());
+            let k = rng.f();
+            assert_eq!(
+                lanes(lanes_add(a, b)),
+                lanes([a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3] + b[3]]),
+                "lanes_add {a:?} {b:?}"
+            );
+            assert_eq!(
+                lanes(lanes_sub(a, b)),
+                lanes([a[0] - b[0], a[1] - b[1], a[2] - b[2], a[3] - b[3]]),
+                "lanes_sub {a:?} {b:?}"
+            );
+            assert_eq!(
+                lanes(lanes_mul(a, b)),
+                lanes([a[0] * b[0], a[1] * b[1], a[2] * b[2], a[3] * b[3]]),
+                "lanes_mul {a:?} {b:?}"
+            );
+            assert_eq!(
+                lanes(lanes_div(a, b)),
+                lanes([a[0] / b[0], a[1] / b[1], a[2] / b[2], a[3] / b[3]]),
+                "lanes_div {a:?} {b:?}"
+            );
+            assert_eq!(
+                lanes(lanes_div_scalar(a, k)),
+                lanes([a[0] / k, a[1] / k, a[2] / k, a[3] / k]),
+                "lanes_div_scalar {a:?} {k:?}"
+            );
+            let (pa, pb) = (rng.premul(), rng.premul());
+            let scalar_add = Premul {
+                r: pa.r + pb.r,
+                g: pa.g + pb.g,
+                b: pa.b + pb.b,
+                a: pa.a + pb.a,
+            };
+            let scalar_sub = Premul {
+                r: pa.r - pb.r,
+                g: pa.g - pb.g,
+                b: pa.b - pb.b,
+                a: pa.a - pb.a,
+            };
+            let scalar_div = Premul {
+                r: pa.r / k,
+                g: pa.g / k,
+                b: pa.b / k,
+                a: pa.a / k,
+            };
+            assert_eq!(
+                bits(&[premul_add(pa, pb)]),
+                bits(&[scalar_add]),
+                "premul_add"
+            );
+            assert_eq!(
+                bits(&[premul_sub(pa, pb)]),
+                bits(&[scalar_sub]),
+                "premul_sub"
+            );
+            assert_eq!(
+                bits(&[premul_div(pa, k)]),
+                bits(&[scalar_div]),
+                "premul_div"
+            );
         }
     }
 }

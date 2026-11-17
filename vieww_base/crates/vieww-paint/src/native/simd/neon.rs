@@ -46,7 +46,8 @@
 
 use core::arch::aarch64::{
     float32x4_t, uint32x4_t, vaddq_f32, vandq_u32, vbslq_f32, vceqq_f32, vcleq_f32,
-    vdupq_laneq_f32, vdupq_n_f32, vdupq_n_u32, vld1q_f32, vmulq_f32, vst1q_f32, vsubq_f32,
+    vdivq_f32, vdupq_laneq_f32, vdupq_n_f32, vdupq_n_u32, vld1q_f32, vmulq_f32, vst1q_f32,
+    vsubq_f32,
 };
 
 use super::Premul;
@@ -160,6 +161,86 @@ fn layer_loop<const SCALE: bool>(
         let out = select(skip, d, select(copy, s, over(s, a, d)));
         store(px, out);
     }
+}
+
+#[inline]
+#[target_feature(enable = "neon")]
+fn put(v: float32x4_t) -> Premul {
+    // SAFETY: a `float32x4_t` is four `f32`s; `Premul` is `repr(C)`,
+    // four `f32`s: 16 writable bytes in a value being returned.
+    let mut out = Premul {
+        r: 0.0,
+        g: 0.0,
+        b: 0.0,
+        a: 0.0,
+    };
+    store(&mut out, v);
+    out
+}
+
+/// A `[f32; 4]`'s four lanes, as one register.
+#[inline]
+#[target_feature(enable = "neon")]
+fn load4(a: &[f32; 4]) -> float32x4_t {
+    // SAFETY: `[f32; 4]` is four readable `f32`s: 16 readable bytes.
+    unsafe { vld1q_f32(a.as_ptr()) }
+}
+
+#[inline]
+#[target_feature(enable = "neon")]
+fn store4(a: &mut [f32; 4], v: float32x4_t) {
+    // SAFETY: as `load4`, 16 writable bytes.
+    unsafe { vst1q_f32(a.as_mut_ptr(), v) }
+}
+
+#[target_feature(enable = "neon")]
+pub(super) fn lanes_add(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
+    let mut out = [0.0; 4];
+    store4(&mut out, vaddq_f32(load4(&a), load4(&b)));
+    out
+}
+
+#[target_feature(enable = "neon")]
+pub(super) fn lanes_sub(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
+    let mut out = [0.0; 4];
+    store4(&mut out, vsubq_f32(load4(&a), load4(&b)));
+    out
+}
+
+#[target_feature(enable = "neon")]
+pub(super) fn lanes_mul(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
+    let mut out = [0.0; 4];
+    store4(&mut out, vmulq_f32(load4(&a), load4(&b)));
+    out
+}
+
+#[target_feature(enable = "neon")]
+pub(super) fn lanes_div(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
+    let mut out = [0.0; 4];
+    store4(&mut out, vdivq_f32(load4(&a), load4(&b)));
+    out
+}
+
+#[target_feature(enable = "neon")]
+pub(super) fn lanes_div_scalar(a: [f32; 4], k: f32) -> [f32; 4] {
+    let mut out = [0.0; 4];
+    store4(&mut out, vdivq_f32(load4(&a), vdupq_n_f32(k)));
+    out
+}
+
+#[target_feature(enable = "neon")]
+pub(super) fn premul_add(a: Premul, b: Premul) -> Premul {
+    put(vaddq_f32(load(&a), load(&b)))
+}
+
+#[target_feature(enable = "neon")]
+pub(super) fn premul_sub(a: Premul, b: Premul) -> Premul {
+    put(vsubq_f32(load(&a), load(&b)))
+}
+
+#[target_feature(enable = "neon")]
+pub(super) fn premul_div(p: Premul, k: f32) -> Premul {
+    put(vdivq_f32(load(&p), vdupq_n_f32(k)))
 }
 
 #[target_feature(enable = "neon")]

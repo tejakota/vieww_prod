@@ -397,20 +397,34 @@ fn box_blur_3_radius(data: &mut [f32], w: u32, h: u32, radius: i32) {
 
 /// A running-sum box blur along each row.
 ///
-/// # No bounds check per sample
+/// # Three spans, one arithmetic
 ///
 /// The window is advanced by adding the sample entering it and subtracting
 /// the one leaving, and both of those are only *sometimes* off the end of the
-/// row. This used to ask a bounds-checked reader for every one of them —
-/// twelve checked reads per pixel across the six passes of a three-box blur —
-/// to get a zero on the handful that were genuinely outside. Reading the row
-/// as a slice and testing the index instead keeps the same convention
-/// (outside is transparent, which is what makes a shadow fade at its own
-/// edge) with no work in the common case.
+/// row — the entering one on the last `radius + 1` columns, the leaving one
+/// on the first `radius`. This used to ask a bounds-checked reader for every
+/// one of them — twelve checked reads per pixel across the six passes of a
+/// three-box blur — to get a zero on the handful that were genuinely outside.
+/// The row is now walked as three spans — the first `radius` columns and the
+/// last `radius + 1` keep their per-sample clamp, and the middle is three
+/// zipped slices with no clamp and no bounds check per pixel — the same
+/// restructure `native/effects.rs`'s `horizontal` carries, with its
+/// callgrind measurement. The convention does not move: outside is
+/// transparent, which is what makes a shadow fade at its own edge.
 ///
 /// The arithmetic is written as `sum += entering - leaving`, one expression,
 /// because splitting it into an add and a subtract changes the last bit of
 /// the result and this kernel is a correctness reference.
+///
+/// # Not lane-wise here, and why that is honest
+///
+/// A shadow mask is one `f32` per pixel, so the only parallelism in a
+/// *horizontal* running sum is across rows, which on the SSE2/NEON baselines
+/// means gathering four strided samples and scattering four strided results
+/// per step — more shuffle traffic than the arithmetic it saves. The
+/// vertical pass below is strip-wise over *contiguous* columns and takes the
+/// lanes directly (`native::simd`); when an AVX2 dispatch exists the gather
+/// is one `vgatherdps` and this pass is its first customer.
 fn box_blur_horizontal(src: &[f32], dst: &mut [f32], w: u32, h: u32, radius: i32) {
     let window = (2 * radius + 1) as f32;
     let width = w as i32;
@@ -423,8 +437,10 @@ fn box_blur_horizontal(src: &[f32], dst: &mut [f32], w: u32, h: u32, radius: i32
         for x in 0..=radius.min(width - 1) {
             sum += src_row[x as usize];
         }
-        for x in 0..width {
-            dst_row[x as usize] = sum / window;
+        // The edge spans keep their per-sample clamp; the middle span is
+        // zipped slices — same convention, same order, no checks.
+        let step = |sum: &mut f32, dst: &mut f32, x: i32| {
+            *dst = *sum / window;
             let entering = x + radius + 1;
             let leaving = x - radius;
             let a = if entering < width {
@@ -437,7 +453,27 @@ fn box_blur_horizontal(src: &[f32], dst: &mut [f32], w: u32, h: u32, radius: i32
             } else {
                 0.0
             };
-            sum += a - b;
+            *sum += a - b;
+        };
+        // Middle: x - radius >= 0 and x + radius + 1 <= width - 1.
+        let mid_start = radius.min(width);
+        let mid_end = (width - radius - 1).max(mid_start);
+        for x in 0..mid_start {
+            step(&mut sum, &mut dst_row[x as usize], x);
+        }
+        let (r, ms, me) = (radius as usize, mid_start as usize, mid_end as usize);
+        if ms < me {
+            for ((out, entering), leaving) in dst_row[ms..me]
+                .iter_mut()
+                .zip(&src_row[ms + r + 1..me + r + 1])
+                .zip(&src_row[ms - r..me - r])
+            {
+                *out = sum / window;
+                sum += entering - leaving;
+            }
+        }
+        for x in mid_end..width {
+            step(&mut sum, &mut dst_row[x as usize], x);
         }
     }
 }
@@ -453,7 +489,16 @@ const STRIP: usize = 16;
 /// row-major buffer uses a quarter of every cache line it fetches. Each column
 /// keeps its own running sum and they never interact, so the result is
 /// bit-for-bit what the single-column loop produced.
+///
+/// **The strip's arithmetic is lane-wise.** The strip is one `f32` per pixel,
+/// so the seed, the store and the window step for its columns now run
+/// through the `native::simd` lane ops in groups of four: each column's sum
+/// keeps its own scalar sequence, unchanged, lane for lane — the same
+/// contract `simd.rs`'s row kernels are held to, and
+/// `shadow_box_blurs_match_scalar` below pins it for this kernel. The
+/// remaining scalar work is address arithmetic, which no widening touches.
 fn box_blur_vertical(src: &[f32], dst: &mut [f32], w: u32, h: u32, radius: i32) {
+    use super::simd::{lanes_add, lanes_div_scalar, lanes_sub};
     let window = (2 * radius + 1) as f32;
     let (width, height) = (w as usize, h as i32);
 
@@ -461,22 +506,65 @@ fn box_blur_vertical(src: &[f32], dst: &mut [f32], w: u32, h: u32, radius: i32) 
     while x0 < width {
         let strip = STRIP.min(width - x0);
         let mut sums = [0.0f32; STRIP];
+        let whole = strip - strip % 4;
 
+        // The seed, groups of four columns at a time: same adds per column,
+        // same order per column, the group only widening them.
         for y in 0..=radius.min(height - 1) {
             let row = y as usize * width + x0;
-            for (i, sum) in sums.iter_mut().take(strip).enumerate() {
-                *sum += src[row + i];
+            let mut i = 0;
+            while i < whole {
+                let next = lanes_add(
+                    <[f32; 4]>::try_from(&sums[i..i + 4]).unwrap(),
+                    <[f32; 4]>::try_from(&src[row + i..row + i + 4]).unwrap(),
+                );
+                sums[i..i + 4].copy_from_slice(&next);
+                i += 4;
+            }
+            while i < strip {
+                sums[i] += src[row + i];
+                i += 1;
             }
         }
 
         for y in 0..height {
             let out_row = y as usize * width + x0;
-            for (i, sum) in sums.iter_mut().take(strip).enumerate() {
-                dst[out_row + i] = *sum / window;
+            let mut i = 0;
+            while i < whole {
+                let out =
+                    lanes_div_scalar(<[f32; 4]>::try_from(&sums[i..i + 4]).unwrap(), window);
+                dst[out_row + i..out_row + i + 4].copy_from_slice(&out);
+                i += 4;
+            }
+            while i < strip {
+                dst[out_row + i] = sums[i] / window;
+                i += 1;
             }
             let entering = y + radius + 1;
             let leaving = y - radius;
-            for (i, sum) in sums.iter_mut().take(strip).enumerate() {
+            // The clamp is per *row*, not per column — `entering` and
+            // `leaving` are row indices — so the whole strip takes one path:
+            // the lane-wise one only where both samples are genuinely in
+            // range, the scalar one with its zeros on the edge rows, exactly
+            // as the original walk read them.
+            let mut i = 0;
+            if entering < height && leaving >= 0 {
+                let entering_row = entering as usize * width + x0;
+                let leaving_row = leaving as usize * width + x0;
+                while i < whole {
+                    let a = <[f32; 4]>::try_from(&src[entering_row + i..entering_row + i + 4])
+                        .unwrap();
+                    let b =
+                        <[f32; 4]>::try_from(&src[leaving_row + i..leaving_row + i + 4]).unwrap();
+                    let next = lanes_add(
+                        <[f32; 4]>::try_from(&sums[i..i + 4]).unwrap(),
+                        lanes_sub(a, b),
+                    );
+                    sums[i..i + 4].copy_from_slice(&next);
+                    i += 4;
+                }
+            }
+            while i < strip {
                 let a = if entering < height {
                     src[entering as usize * width + x0 + i]
                 } else {
@@ -487,7 +575,8 @@ fn box_blur_vertical(src: &[f32], dst: &mut [f32], w: u32, h: u32, radius: i32) 
                 } else {
                     0.0
                 };
-                *sum += a - b;
+                sums[i] += a - b;
+                i += 1;
             }
         }
         x0 += strip;
@@ -814,5 +903,140 @@ mod tests {
         for (a, b) in cached.alpha.iter().zip(&direct.alpha) {
             assert!((a - b).abs() < 1e-4, "{a} against {b}");
         }
+    }
+}
+
+mod blur_bit_tests {
+    //! The two box-blur kernels, bit for bit against the scalar walks they
+    //! replaced. The reference bodies are the file's own pre-widening loops,
+    //! verbatim; `box_blur_3_radius` above decides which passes run, and the
+    //! shadow cache and every DestOut inset ride on these two being the same
+    //! bytes they always were.
+
+    use super::{box_blur_horizontal, box_blur_vertical};
+
+    // Verbatim `box_blur_horizontal` before the three-span restructure.
+    fn horizontal_ref(src: &[f32], dst: &mut [f32], w: u32, h: u32, radius: i32) {
+        let window = (2 * radius + 1) as f32;
+        let width = w as i32;
+        for y in 0..h as usize {
+            let row = y * w as usize;
+            let src_row = &src[row..row + w as usize];
+            let dst_row = &mut dst[row..row + w as usize];
+            let mut sum = 0.0f32;
+            for x in 0..=radius.min(width - 1) {
+                sum += src_row[x as usize];
+            }
+            for x in 0..width {
+                dst_row[x as usize] = sum / window;
+                let entering = x + radius + 1;
+                let leaving = x - radius;
+                let a = if entering < width {
+                    src_row[entering as usize]
+                } else {
+                    0.0
+                };
+                let b = if leaving >= 0 {
+                    src_row[leaving as usize]
+                } else {
+                    0.0
+                };
+                sum += a - b;
+            }
+        }
+    }
+
+    // Verbatim `box_blur_vertical` before the lane-wise strip.
+    fn vertical_ref(src: &[f32], dst: &mut [f32], w: u32, h: u32, radius: i32) {
+        let window = (2 * radius + 1) as f32;
+        let (width, height) = (w as usize, h as i32);
+        let mut x0 = 0usize;
+        while x0 < width {
+            let strip = 16usize.min(width - x0);
+            let mut sums = [0.0f32; 16];
+            for y in 0..=radius.min(height - 1) {
+                let row = y as usize * width + x0;
+                for (i, sum) in sums.iter_mut().take(strip).enumerate() {
+                    *sum += src[row + i];
+                }
+            }
+            for y in 0..height {
+                let out_row = y as usize * width + x0;
+                for (i, sum) in sums.iter_mut().take(strip).enumerate() {
+                    dst[out_row + i] = *sum / window;
+                }
+                let entering = y + radius + 1;
+                let leaving = y - radius;
+                for (i, sum) in sums.iter_mut().take(strip).enumerate() {
+                    let a = if entering < height {
+                        src[entering as usize * width + x0 + i]
+                    } else {
+                        0.0
+                    };
+                    let b = if leaving >= 0 {
+                        src[leaving as usize * width + x0 + i]
+                    } else {
+                        0.0
+                    };
+                    *sum += a - b;
+                }
+            }
+            x0 += strip;
+        }
+    }
+
+    /// Both kernels, over the sizes and radii a shadow patch actually takes
+    /// (and past them), against the scalar references.
+    #[test]
+    fn shadow_box_blurs_match_scalar() {
+        struct Rng(u64);
+        impl Rng {
+            fn f(&mut self) -> f32 {
+                self.0 ^= self.0 << 13;
+                self.0 ^= self.0 >> 7;
+                self.0 ^= self.0 << 17;
+                (self.0 >> 40) as f32 / (1u64 << 24) as f32 * 1.3 - 0.15
+            }
+        }
+        let mut rng = Rng(0x0FC5_BE03_5711_9AED);
+        let canon = |v: f32| {
+            if v.is_nan() {
+                f32::NAN.to_bits()
+            } else {
+                v.to_bits()
+            }
+        };
+        for (w, h) in [
+            (1u32, 1u32),
+            (2, 9),
+            (7, 3),
+            (9, 7),
+            (17, 13),
+            (64, 48),
+            (100, 37),
+        ] {
+            for radius in [0i32, 1, 2, 5, 9, 31] {
+                let len = w as usize * h as usize;
+                let src: Vec<f32> = (0..len).map(|_| rng.f()).collect();
+                let (mut a, mut b) = (vec![0.0f32; len], vec![0.0f32; len]);
+                box_blur_horizontal(&src, &mut a, w, h, radius);
+                horizontal_ref(&src, &mut b, w, h, radius);
+                assert!(
+                    a.iter().zip(b.iter()).all(|(x, y)| canon(*x) == canon(*y)),
+                    "horizontal w={w} h={h} r={radius}"
+                );
+                let (mut a, mut b) = (vec![0.0f32; len], vec![0.0f32; len]);
+                box_blur_vertical(&src, &mut a, w, h, radius);
+                vertical_ref(&src, &mut b, w, h, radius);
+                assert!(
+                    a.iter().zip(b.iter()).all(|(x, y)| canon(*x) == canon(*y)),
+                    "vertical w={w} h={h} r={radius}"
+                );
+            }
+        }
+        // End to end, the widened kernels are already held to the drawn
+        // shadow by `a_shadow_from_the_cache_is_the_shadow_drawn_in_place`
+        // and by `raster-identity.sh` over the whole gallery: the cache path
+        // and the in-place path both go through these two kernels.
     }
 }
