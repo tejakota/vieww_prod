@@ -1,7 +1,7 @@
 # 2 · Devices — FAILURE
 
 - branch: `main`  sha: `5892c66ffbc8c8d25a7f3b931e9cfbfe7b10b249`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/44081659092
+- run: https://github.com/tejakota/vieww_prod/actions/runs/44082679754
 
 | job | verdict | failed steps |
 |---|---|---|
@@ -97,11 +97,8 @@
 ### phase-2 / approve — skipped
 
 ### results / publish — running
-- PASS: Set up job
-- running: Collect the run
-- running: Run actions/checkout@v4
-- running: Write to the ci-results branch
+- running: Set up job
 
 ### phase-3 — skipped
 
-- artifacts: compare-vieww-apk compare-firebase 
+- artifacts: compare-firebase compare-vieww-apk 
