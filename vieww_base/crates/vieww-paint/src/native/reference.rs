@@ -163,6 +163,166 @@ fn skippable_layers(commands: &[Command]) -> Vec<Option<usize>> {
     ends
 }
 
+/// The per-frame index a damaged frame's region replays walk: memoised
+/// bounds, a y-banded admission table for the content commands, and the
+/// layer list, so a region visits only the commands that can reach it.
+///
+/// # What this replaces, and what it must not change
+///
+/// The region walk used to iterate the whole command list per region with a
+/// `Command::bounds()` call at every step - and `bounds()` is measured, not
+/// remembered: a path walks its points, a glyph run walks its glyphs, a
+/// stroke inflates, a shadow reaches. Sixteen damage regions over a
+/// twenty-thousand-row scene paid that three hundred and twenty thousand
+/// times for the handful of commands that would ever draw (the Stylo's
+/// damaged-frame anomaly: 30 ms of raster for 8.6% of the screen - PENDING
+/// 4.6). A tick on a phone pays a smaller version of the same every frame.
+///
+/// Per frame, once: every command's `bounds()` (N walks, not R x N), the
+/// content commands admitted into 64-px y bands like the fill walk's
+/// `EdgeTable` admits edges, and the layer list. Per region: the bands it
+/// spans are scanned (a stamp dedups commands tall enough to sit in several
+/// bands), the survivors are merged with the layer list in command order,
+/// and the group-skip rule runs where it always did - at a plain group's
+/// `PushLayer`, when the group's own bounds miss the region, the whole
+/// block is dropped. Layer commands are applied however they reach, exactly
+/// as before: the stack has to stay balanced across the commands that do
+/// draw.
+///
+/// The applied list is therefore the same commands in the same order the
+/// full walk produced, and `skipped_commands` is `len - applied.len()` -
+/// the sum the walk accumulated (one per skipped content command,
+/// `pop - push + 1` per skipped group) is exactly the complement of the
+/// applied set. `damage_replay_index_matches_the_full_walk` pins the
+/// identity; `coalesced_retained_repaint_matches_a_full_frame` and
+/// `raster-identity.sh` hold the pixels.
+struct ReplayIndex {
+    /// `Command::bounds()`, once per command per frame.
+    bounds: Vec<Rect>,
+    /// Content (non-layer) commands by 64-px y band, ascending within each
+    /// band; a command spanning several bands is admitted to each.
+    bands: Vec<Vec<u32>>,
+    /// Push/Pop commands in command order - they are applied regardless of
+    /// their own bounds, so they cannot live in the bands.
+    layers: Vec<u32>,
+    /// Per-command dedup stamp for the current region's band scan.
+    stamp: Vec<u32>,
+    epoch: u32,
+}
+
+/// The y band height, in device pixels. Rows are the unit damage arrives in
+/// (a tick, a jumped-to list row), 64 px covers the card-plus-shadow class
+/// of content with one or two bands, and the band count for a 2.75x phone
+/// surface stays in the dozens.
+const REPLAY_BAND: f32 = 64.0;
+
+impl ReplayIndex {
+    fn build(commands: &[Command], height: u32) -> Self {
+        let n = commands.len();
+        let nbands = (height as f32 / REPLAY_BAND).ceil().max(1.0) as usize;
+        let mut index = ReplayIndex {
+            bounds: Vec::with_capacity(n),
+            bands: vec![Vec::new(); nbands],
+            layers: Vec::new(),
+            stamp: vec![0; n],
+            epoch: 0,
+        };
+        for (i, command) in commands.iter().enumerate() {
+            let bounds = command.bounds();
+            index.bounds.push(bounds);
+            if matches!(command, Command::PushLayer { .. } | Command::PopLayer) {
+                index.layers.push(i as u32);
+                continue;
+            }
+            if bounds.is_empty() {
+                continue;
+            }
+            // Admission by y span, clamped to the surface: a command whose
+            // bounds sit partly off-surface is still admitted to the edge
+            // band - the emit test is the region intersect, not the band.
+            let first = (bounds.top.max(0.0) / REPLAY_BAND).floor() as usize;
+            let last = ((bounds.bottom.min(height as f32) - f32::EPSILON) / REPLAY_BAND)
+                .floor()
+                .max(first as f32) as usize;
+            for band in first..=last.min(nbands - 1) {
+                index.bands[band].push(i as u32);
+            }
+        }
+        index
+    }
+
+    /// The commands `region` replays, in command order: content commands
+    /// whose bounds intersect it, plus every layer command outside a
+    /// group-skipped block. Written into `out` (reused across regions).
+    fn applied_for(&mut self, ends: &[Option<usize>], region: Rect, out: &mut Vec<u32>) {
+        out.clear();
+        self.epoch = self.epoch.wrapping_add(1).max(1);
+        let nbands = self.bands.len();
+        let top = (region.top.max(0.0) / REPLAY_BAND).floor() as usize;
+        let bottom = ((region.bottom.max(0.0) - f32::EPSILON) / REPLAY_BAND).floor() as usize;
+        let first = top.min(nbands - 1);
+        let last = bottom.min(nbands - 1).max(first);
+        // Band scan, stamp-deduped; a band's list is ascending, the union
+        // across bands is not, so the scan fills a scratch that is then
+        // sorted - the merge below needs command order.
+        let mut raw: Vec<u32> = Vec::new();
+        for band in first..=last {
+            for &i in &self.bands[band] {
+                if self.stamp[i as usize] == self.epoch {
+                    continue;
+                }
+                self.stamp[i as usize] = self.epoch;
+                raw.push(i);
+            }
+        }
+        raw.sort_unstable();
+        // Merge with the layer list in command order, group-skipping where
+        // the old walk did: at a plain group's push, when the group's bounds
+        // miss the region, the block is dropped whole.
+        let mut content = raw.iter();
+        let mut layer = self.layers.iter();
+        let mut next_content = content.next().copied();
+        let mut next_layer = layer.next().copied();
+        loop {
+            let take = match (next_content, next_layer) {
+                (Some(c), Some(l)) => Some(if c < l { 0 } else { 1 }),
+                (Some(_), None) => Some(0),
+                (None, Some(_)) => Some(1),
+                (None, None) => None,
+            };
+            let Some(from_layer) = take else { break };
+            let (i, is_layer) = if from_layer == 0 {
+                (next_content.unwrap(), false)
+            } else {
+                (next_layer.unwrap(), true)
+            };
+            if is_layer {
+                if let Some(pop) = ends.get(i as usize).and_then(|e| *e) {
+                    // A plain group the region cannot reach: skip its whole
+                    // block, both streams, exactly as the walk jumped.
+                    if self.bounds[i as usize].intersect(region).is_empty() {
+                        let pop = pop as u32;
+                        while next_content.is_some_and(|c| c <= pop) {
+                            next_content = content.next().copied();
+                        }
+                        while next_layer.is_some_and(|l| l <= pop) {
+                            next_layer = layer.next().copied();
+                        }
+                        continue;
+                    }
+                }
+                out.push(i);
+                next_layer = layer.next().copied();
+            } else {
+                if !self.bounds[i as usize].intersect(region).is_empty() {
+                    out.push(i);
+                }
+                next_content = content.next().copied();
+            }
+        }
+    }
+}
+
 /// [`NativeRenderer::glyph_raster_cache_stats`].
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct GlyphRasterStats {
@@ -1037,6 +1197,16 @@ impl NativeRenderer {
         let clear = Premul::from_straight(base);
         let mut failure = None;
         let layer_ends = skippable_layers(scene.commands());
+        // **The replay index, built once per frame, walked per region.**
+        // Every region used to pay the whole command list - with a
+        // `Command::bounds()` at every step, and `bounds()` is measured, not
+        // remembered (a path walks its points, a glyph run its glyphs).
+        // See `ReplayIndex`: the applied list it produces is the walk's, in
+        // order, so the replay result is unchanged - same commands, same
+        // order, same pixels.
+        let commands = scene.commands();
+        let mut replay = ReplayIndex::build(commands, height);
+        let mut applied: Vec<u32> = Vec::new();
 
         for region in regions {
             let region = region.intersect(full);
@@ -1068,27 +1238,14 @@ impl NativeRenderer {
             root.set_write_mask(Some(bounds));
 
             // Commands that cannot reach this region at all are skipped —
-            // this is the work a damaged frame actually saves.
+            // this is the work a damaged frame actually saves, and the
+            // index above is what makes it scale with the region rather
+            // than with the scene.
             let mut stack: Vec<LayerFrame> = Vec::new();
-            let commands = scene.commands();
-            let mut index = 0;
-            while index < commands.len() {
-                let command = &commands[index];
-                // A plain group that cannot reach this region is skipped
-                // whole, its target never acquired — see `skippable_layers`.
-                if let Some(pop) = layer_ends[index] {
-                    if command.bounds().intersect(region_rect).is_empty() {
-                        report.skipped_commands += pop - index + 1;
-                        index = pop + 1;
-                        continue;
-                    }
-                }
-                index += 1;
-                let is_layer = matches!(command, Command::PushLayer { .. } | Command::PopLayer);
-                if !is_layer && command.bounds().intersect(region_rect).is_empty() {
-                    report.skipped_commands += 1;
-                    continue;
-                }
+            replay.applied_for(&layer_ends, region_rect, &mut applied);
+            report.skipped_commands += commands.len() - applied.len();
+            for index in applied.iter() {
+                let command = &commands[*index as usize];
                 if let Err(error) =
                     self.apply_timed(command, &mut root, &mut stack, full, &mut report)
                 {
@@ -3330,5 +3487,145 @@ mod tests {
             "the chip still shows its translucent fill over the (flat, so \
              blur-invariant) backdrop"
         );
+    }
+}
+
+#[cfg(test)]
+mod replay_tests {
+    //! The replay index against the walk it replaced: the applied list and
+    //! the skipped count must be the full walk's, command for command, for
+    //! every region shape - the identity `render_retained_in_place`'s pixels
+    //! and `SceneReport` ride on. The walk below is the old one, verbatim.
+
+    use crate::canvas::Canvas;
+    use crate::scene::Command;
+    use crate::{Scene, Paint, Path};
+    use vieww_foundation::{BlendMode, Color, Rect};
+
+    use super::{skippable_layers, ReplayIndex};
+
+    /// The old per-region walk, verbatim: returns the applied command
+    /// indices in order and the skipped count it accumulated.
+    fn walk_applied(commands: &[Command], ends: &[Option<usize>], region: Rect) -> (Vec<u32>, usize) {
+        let mut applied = Vec::new();
+        let mut skipped = 0usize;
+        let mut index = 0;
+        while index < commands.len() {
+            let command = &commands[index];
+            if let Some(pop) = ends[index] {
+                if command.bounds().intersect(region).is_empty() {
+                    skipped += pop - index + 1;
+                    index = pop + 1;
+                    continue;
+                }
+            }
+            index += 1;
+            let is_layer = matches!(command, Command::PushLayer { .. } | Command::PopLayer);
+            if !is_layer && command.bounds().intersect(region).is_empty() {
+                skipped += 1;
+                continue;
+            }
+            applied.push((index - 1) as u32);
+        }
+        (applied, skipped)
+    }
+
+    /// A scene shaped like the ones the replay actually serves: a full-
+    /// surface background, plain groups that hit and miss a given region, a
+    /// non-plain group (never group-skipped), content inside and outside
+    /// every group, and empty-bounds content.
+    fn sample_scene() -> Scene {
+        let mut scene = Scene::new();
+        scene.fill_rect(Rect::new(0.0, 0.0, 400.0, 300.0), Paint::solid(Color::WHITE));
+        // Plain group near the top (y 20..90), content inside it.
+        scene.push_layer(Rect::new(10.0, 20.0, 200.0, 90.0), 1.0, BlendMode::Normal);
+        scene.fill_rect(Rect::new(30.0, 40.0, 160.0, 80.0), Paint::solid(Color::rgba(0, 0, 0, 255)));
+        scene.pop_layer();
+        // Plain group far below (y 400..470): misses every top region.
+        scene.push_layer(Rect::new(10.0, 400.0, 200.0, 470.0), 1.0, BlendMode::Normal);
+        scene.fill_rect(Rect::new(30.0, 420.0, 160.0, 460.0), Paint::solid(Color::rgba(0, 0, 0, 255)));
+        scene.pop_layer();
+        // Non-plain group: a Multiply blend is never group-skipped, however
+        // far away it sits.
+        scene.push_layer(Rect::new(220.0, 400.0, 390.0, 470.0), 1.0, BlendMode::Multiply);
+        scene.fill_path(
+            &Path::rounded_rect(Rect::new(230.0, 410.0, 380.0, 460.0), 8.0),
+            Paint::solid(Color::rgba(120, 120, 120, 255)),
+        );
+        scene.pop_layer();
+        // Ungrouped content, above and below; a PopLayer-shaped bounds is
+        // Rect::ZERO only for real pops, but empty content bounds happen.
+        scene.draw_shadow(
+            Rect::new(50.0, 120.0, 150.0, 170.0),
+            10.0,
+            vieww_foundation::Shadow::new(Color::rgba(0, 0, 0, 40), vieww_foundation::Offset::new(0.0, 3.0), 8.0),
+        );
+        scene.fill_rect(Rect::new(0.0, 480.0, 400.0, 500.0), Paint::solid(Color::BLUE));
+        scene
+    }
+
+    /// Every region shape the walk and the index must agree on: hitting a
+    /// group, missing one, spanning bands, off-surface, empty, and the whole
+    /// surface.
+    #[test]
+    fn damage_replay_index_matches_the_full_walk() {
+        let scene = sample_scene();
+        let commands = scene.commands();
+        let ends = skippable_layers(commands);
+        let mut index = ReplayIndex::build(commands, 500);
+        let mut applied: Vec<u32> = Vec::new();
+        let regions = [
+            Rect::new(20.0, 30.0, 180.0, 85.0),
+            Rect::new(20.0, 430.0, 180.0, 465.0),
+            Rect::new(240.0, 415.0, 370.0, 455.0),
+            Rect::new(0.0, 0.0, 400.0, 500.0),
+            Rect::new(55.0, 125.0, 145.0, 165.0),
+            Rect::new(-20.0, -20.0, 420.0, 520.0),
+            Rect::new(0.0, 0.0, 0.0, 0.0),
+            Rect::new(210.0, 350.0, 220.0, 360.0),
+        ];
+        for region in regions {
+            let (walk_list, walk_skipped) = walk_applied(commands, &ends, region);
+            index.applied_for(&ends, region, &mut applied);
+            assert_eq!(
+                applied, walk_list,
+                "applied list for {region:?}: the index must be the walk"
+            );
+            assert_eq!(
+                commands.len() - applied.len(),
+                walk_skipped,
+                "skipped count for {region:?}: len - applied must be the walk's sum"
+            );
+        }
+    }
+
+    /// And end to end: a damaged retained repaint through the index equals
+    /// the same scene rendered in full, byte for byte - the no-exception
+    /// identity the retained path owes.
+    #[test]
+    fn damaged_replay_through_the_index_matches_a_full_render() {
+        use crate::Damage;
+        use super::super::NativeRenderer;
+        let scene = sample_scene();
+        let mut renderer = NativeRenderer::new();
+        let (full, _) = renderer
+            .render_to_pixels(&scene, 400, 500, Color::WHITE)
+            .expect("full render");
+        for region in [
+            Rect::new(20.0, 30.0, 180.0, 85.0),
+            Rect::new(0.0, 470.0, 400.0, 500.0),
+            Rect::new(40.0, 100.0, 300.0, 200.0),
+        ] {
+            let mut damage = Damage::new(Rect::new(0.0, 0.0, 400.0, 500.0));
+            damage.add(region);
+            let damaged = renderer
+                .render_retained(&scene, &damage, 400, 500, Color::WHITE)
+                .expect("retained render");
+            assert_eq!(
+                damaged.0.data(),
+                full.data(),
+                "damaged repaint equals a full repaint for {region:?}"
+            );
+        }
     }
 }
