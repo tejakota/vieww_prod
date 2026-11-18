@@ -303,6 +303,16 @@ pub struct SceneRenderer {
     /// being recorded**, so they cannot be destroyed until that buffer has
     /// been submitted and finished. Drained by [`settle`](Self::settle).
     retired_textures: Vec<Texture>,
+    /// Per flight slot, the texture bindings (bit = [`Slot::binding`]) its
+    /// scene set still points at a replaced texture for. A resize of the
+    /// glyph, image or ramp texture rewrites the recording slot's set at
+    /// once and leaves the others here — they may belong to frames still in
+    /// flight, whose sets cannot be written — for [`begin_commands`](Self::begin_commands)
+    /// to rewrite when that slot is next recorded. That is what lets the
+    /// resize skip the device-wide wait it used to take: the first scroll
+    /// of a text-heavy screen grew the glyph atlas mid-phase, and the wait
+    /// was a visible hitch on every phone in the 2026-11-18 Test Lab run.
+    stale_scene_bindings: [u8; FLIGHT_SLOTS],
     /// Consecutive frames whose plans used fewer targets than are allocated
     /// — the idle signal that frees the surplus. See [`TARGET_TRIM_FRAMES`].
     idle_target_frames: u32,
@@ -573,7 +583,7 @@ enum Slot {
     Ramps,
 }
 
-/// The public name of a [`Slot`], for [`SceneRenderer::staging_capacity`].
+/// The public name of a `Slot`, for [`SceneRenderer::staging_capacity`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StagingSlot {
     Glyphs,
@@ -960,6 +970,7 @@ impl SceneRenderer {
             target_trim_frames: TARGET_TRIM_FRAMES,
             staging_trim_frames: STAGING_TRIM_FRAMES,
             retired_textures: Vec::new(),
+            stale_scene_bindings: [0; FLIGHT_SLOTS],
             frame_clip: None,
             pending_copies: Vec::new(),
             pass_times: None,
@@ -1497,10 +1508,9 @@ impl SceneRenderer {
     ) -> Result<(), VulkanError> {
         let format = self.texture(slot).format;
         let (old_w, old_h) = (self.texture(slot).width, self.texture(slot).height);
-        // Frames still in flight may be sampling the old texture; the copy
-        // recorded below will not run until they have. Waiting here is the
-        // same licence `record_upload`'s resize takes.
-        unsafe { self.device.device_wait_idle() }?;
+        // Frames still in flight may be sampling the old texture: it is
+        // retired, not destroyed, and their scene sets keep pointing at it
+        // until they are next recorded (`rebind_resized`). Nothing waits.
         let mut old = {
             let fresh = create_texture(&self.device, &self.mem_props, format, width, height)?;
             std::mem::replace(self.texture_mut(slot), fresh)
@@ -1560,27 +1570,7 @@ impl SceneRenderer {
             );
         }
         // The scene sets sample the new view, as any resize must rebind.
-        let info = [vk::DescriptorImageInfo {
-            sampler: vk::Sampler::null(),
-            image_view: self.texture(slot).view,
-            image_layout: vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
-        }];
-        let writes: Vec<vk::WriteDescriptorSet> = self
-            .scene_sets
-            .iter()
-            .map(|set| {
-                vk::WriteDescriptorSet::default()
-                    .dst_set(*set)
-                    .dst_binding(slot.binding())
-                    .descriptor_type(vk::DescriptorType::SAMPLED_IMAGE)
-                    .image_info(&info)
-            })
-            .collect();
-        unsafe { self.device.update_descriptor_sets(&writes, &[]) };
-        if slot == Slot::Masks {
-            self.reset_post_sets()?;
-        }
-        Ok(())
+        self.rebind_resized(slot)
     }
 
     /// How many bytes the most recent [`Self::upload_masks`] sent — the whole
@@ -1638,7 +1628,7 @@ impl SceneRenderer {
     /// Narrow the idle thresholds that free the renderer's surplus memory:
     /// how many frames of unused layer targets before they are freed, and of
     /// eight-times-oversized staging before it is released. The defaults
-    /// ([`TARGET_TRIM_FRAMES`], [`STAGING_TRIM_FRAMES`]) are for a
+    /// (`TARGET_TRIM_FRAMES`, `STAGING_TRIM_FRAMES`) are for a
     /// production process; a test that wants to *see* a trim renders far
     /// fewer frames than ten seconds of them.
     pub fn set_memory_trim_frames(&mut self, frames: u32) {
@@ -2348,6 +2338,54 @@ impl SceneRenderer {
         }
     }
 
+    /// Point the scene sets at `slot`'s (new) texture view.
+    ///
+    /// The recording slot's set is written now; the other flight slots'
+    /// sets are marked in [`stale_scene_bindings`](Self::stale_scene_bindings)
+    /// and written when each is next recorded, so no frame in flight has its
+    /// set changed under it. The mask texture is the exception: the post
+    /// sets bind it too and share one pool, which cannot be reset while a
+    /// frame uses it, so a mask resize settles every slot first and writes
+    /// everything at once, as every resize once did.
+    fn rebind_resized(&mut self, slot: Slot) -> Result<(), VulkanError> {
+        let all: Vec<usize> = if slot == Slot::Masks {
+            for index in 0..FLIGHT_SLOTS {
+                self.settle_slot(index)?;
+            }
+            (0..FLIGHT_SLOTS).collect()
+        } else {
+            for index in 0..FLIGHT_SLOTS {
+                if index != self.recording {
+                    self.stale_scene_bindings[index] |= 1 << slot.binding();
+                }
+            }
+            vec![self.recording]
+        };
+        for index in all {
+            self.stale_scene_bindings[index] &= !(1 << slot.binding());
+            self.write_scene_binding(index, slot);
+        }
+        if slot == Slot::Masks {
+            self.reset_post_sets()?;
+        }
+        Ok(())
+    }
+
+    /// Write one texture binding of one flight slot's scene set.
+    fn write_scene_binding(&self, index: usize, slot: Slot) {
+        let info = [vk::DescriptorImageInfo {
+            sampler: vk::Sampler::null(),
+            image_view: self.texture(slot).view,
+            image_layout: vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
+        }];
+        let write = vk::WriteDescriptorSet::default()
+            .dst_set(self.scene_sets[index])
+            .dst_binding(slot.binding())
+            .descriptor_type(vk::DescriptorType::SAMPLED_IMAGE)
+            .image_info(&info);
+        unsafe { self.device.update_descriptor_sets(&[write], &[]) };
+    }
+
     fn reset_post_sets(&mut self) -> Result<(), VulkanError> {
         if !self.post_sets.is_empty() {
             unsafe {
@@ -2464,10 +2502,17 @@ impl SceneRenderer {
             width as usize * height as usize * bytes_per_texel(format)
         );
         if resized {
-            unsafe { self.device.device_wait_idle() }?;
+            // As `resize_with_carry`: the old texture may still be sampled
+            // by a frame in flight, so it is retired (freed at the next
+            // `settle`) rather than destroyed, and nothing waits — the mask
+            // texture's rebind settles for itself (`rebind_resized`). The
+            // staging arrays are the slot's and move across.
             let fresh = create_texture(&self.device, &self.mem_props, format, width, height)?;
-            let old = std::mem::replace(self.texture_mut(slot), fresh);
-            unsafe { destroy_texture(&self.device, old) };
+            let mut old = std::mem::replace(self.texture_mut(slot), fresh);
+            self.texture_mut(slot).staging =
+                std::mem::replace(&mut old.staging, [Buffer::EMPTY; FLIGHT_SLOTS]);
+            self.texture_mut(slot).staging_idle = old.staging_idle;
+            self.retired_textures.push(old);
         }
 
         let needed = bytes.len() as u64;
@@ -2534,29 +2579,8 @@ impl SceneRenderer {
             );
         }
 
-        if resized || force {
-            let info = [vk::DescriptorImageInfo {
-                sampler: vk::Sampler::null(),
-                image_view: self.texture(slot).view,
-                image_layout: vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
-            }];
-            let writes: Vec<vk::WriteDescriptorSet> = self
-                .scene_sets
-                .iter()
-                .map(|set| {
-                    vk::WriteDescriptorSet::default()
-                        .dst_set(*set)
-                        .dst_binding(slot.binding())
-                        .descriptor_type(vk::DescriptorType::SAMPLED_IMAGE)
-                        .image_info(&info)
-                })
-                .collect();
-            unsafe {
-                self.device.update_descriptor_sets(&writes, &[]);
-            }
-            if slot == Slot::Masks {
-                self.reset_post_sets()?;
-            }
+        if resized {
+            self.rebind_resized(slot)?;
         }
         self.texture_mut(slot).version = version;
         Ok(())
@@ -2721,6 +2745,16 @@ impl SceneRenderer {
             "the command buffer of a frame still in flight was re-recorded; settle it first"
         );
         self.recording = slot;
+        // Bindings a resize left for this slot (`rebind_resized`): it is
+        // settled now, so its set can be written.
+        let stale = std::mem::take(&mut self.stale_scene_bindings[slot]);
+        if stale != 0 {
+            for texture in [Slot::Glyphs, Slot::Images, Slot::Masks, Slot::Ramps] {
+                if stale & (1 << texture.binding()) != 0 {
+                    self.write_scene_binding(slot, texture);
+                }
+            }
+        }
         let cmd = self.slots[slot].command_buffer;
         unsafe {
             self.device

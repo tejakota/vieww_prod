@@ -2,8 +2,10 @@
 
 Market Watch runs as a Firebase Test Lab **Game Loop** test: Test Lab
 launches the app with `com.google.intent.action.TEST_LOOP`. Scenario 1 plays
-the schedule on the CPU rasterizer, scenario 2 on the GPU path. Neither runs
-the thermal pass. The app finishes itself when the schedule is done.
+the schedule on the CPU rasterizer, scenario 2 on the GPU path. Both include
+the 60 s thermal pass. The app finishes itself when the schedule is done, and
+narrates what Test Lab has no shell to measure: CPU time, RSS and battery
+temperature per phase, PSS after the run, and process start to first frame.
 `to_farm.py` turns each phone's device log into the layout
 `compare_report.py` reads, so the report looks like the AWS one.
 

@@ -3237,6 +3237,6 @@ fn run(
         }
     }
     #[cfg(target_os = "ios")]
-    let made_device = None;
+    let (made_device, made_instance) = (None, None);
     (what, made_device, made_instance)
 }

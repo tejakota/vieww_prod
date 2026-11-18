@@ -301,7 +301,10 @@ def render(farm, meta):
         md.append("")
 
     # ── phones
-    md.append("## Phones (AWS Device Farm)")
+    modes = {ph["info"].get("mode") for ph in farm}
+    where = ("Firebase Test Lab" if modes == {"firebase"}
+             else "AWS Device Farm" if "firebase" not in modes else "AWS Device Farm and Firebase Test Lab")
+    md.append(f"## Phones ({where})")
     md.append("")
     if not farm:
         md.append("_No phone results: the farm leg did not run or produced nothing. See the run's artifacts._")
@@ -362,7 +365,10 @@ def render(farm, meta):
         md.append("| | Vieww CPU / Vieww GPU / Valdi |")
         md.append("|---|---|")
         g = lambda key: {c: cfg.get(c, {}).get(key) for c in CONFIGS}  # noqa: E731
-        md.append(f"| cold start, median of 5 (ms) | {cell(g('cold_start_median'), 'cs', False, '', 0)} |")
+        # Test Lab launches each scenario once, so its "median" is one start.
+        starts = max((len(cfg[c].get("cold_start_ms") or []) for c in cfg), default=0)
+        label = "cold start (ms)" if starts <= 1 else f"cold start, median of {starts} (ms)"
+        md.append(f"| {label} | {cell(g('cold_start_median'), 'cs', False, '', 0)} |")
         pss = {c: (float(cfg[c]['pss_kb']) / 1024 if cfg.get(c, {}).get('pss_kb') not in (None, '') else None)
                for c in CONFIGS}
         md.append(f"| memory after the run, PSS (MB) | {cell(pss, 'pss', False)} |")

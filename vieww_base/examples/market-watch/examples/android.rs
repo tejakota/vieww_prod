@@ -38,7 +38,7 @@
 //!
 //! **Firebase Test Lab** launches it as a Game Loop test instead
 //! (`com.google.intent.action.TEST_LOOP`, see `firebase/`): scenario 1 is the
-//! CPU rasterizer, scenario 2 the GPU path, both without the thermal pass,
+//! CPU rasterizer, scenario 2 the GPU path, both with the thermal pass,
 //! and the app exits once the schedule is done so the test ends there.
 //!
 //! The `kinds` half of the `stages` line is there only when
@@ -146,6 +146,64 @@ mod app {
 
     fn emit(line: &str) {
         log::info!("__MW__ {line}");
+    }
+
+    /// The fields of `/proc/self/stat` after the command name, which may
+    /// hold spaces: field 3 (`state`) is index 0 here.
+    fn stat_fields() -> Option<Vec<u64>> {
+        let stat = std::fs::read_to_string("/proc/self/stat").ok()?;
+        let rest = stat.rsplit_once(") ")?.1;
+        Some(
+            rest.split_whitespace()
+                .map(|f| f.parse().unwrap_or(0))
+                .collect(),
+        )
+    }
+
+    /// This process's CPU time so far (utime + stime), in clock ticks.
+    ///
+    /// The device runner reads the same counter from `adb shell`; on Test
+    /// Lab there is no shell, so the app reads its own and narrates the
+    /// per-phase delta (`proc` events).
+    fn cpu_ticks() -> Option<u64> {
+        let f = stat_fields()?;
+        Some(f.get(11)? + f.get(12)?)
+    }
+
+    /// Milliseconds since this process was started — Test Lab's launch is a
+    /// cold one, so at the first presented frame this is the cold start.
+    fn since_process_start_ms() -> Option<f64> {
+        // CLK_TCK is 100 on every Android ABI.
+        let start_ticks = *stat_fields()?.get(19)?;
+        let uptime = std::fs::read_to_string("/proc/uptime").ok()?;
+        let up_s: f64 = uptime.split_whitespace().next()?.parse().ok()?;
+        Some((up_s - start_ticks as f64 / 100.0) * 1e3)
+    }
+
+    /// One `kB` line of `/proc/self/smaps_rollup` (`Pss:`, `Rss:`).
+    fn rollup_kb(key: &str) -> Option<u64> {
+        let text = std::fs::read_to_string("/proc/self/smaps_rollup").ok()?;
+        text.lines()
+            .find(|l| l.starts_with(key))?
+            .split_whitespace()
+            .nth(1)?
+            .parse()
+            .ok()
+    }
+
+    /// The battery's temperature in tenths of a degree, where the device
+    /// lets an app read it (most do; some SELinux policies do not).
+    fn battery_temp_dc() -> Option<i64> {
+        std::fs::read_to_string("/sys/class/power_supply/battery/temp")
+            .ok()?
+            .trim()
+            .parse()
+            .ok()
+    }
+
+    /// A JSON number, or `null` for a reading the device refused.
+    fn num<T: std::fmt::Display>(v: Option<T>) -> String {
+        v.map_or_else(|| "null".to_owned(), |v| v.to_string())
     }
 
     /// A phase's frames, split by where their time went — the `stages` line's
@@ -282,6 +340,10 @@ mod app {
         budget_now_ms: f64,
         /// The display's frame budget, from the first presented frame.
         budget_ms: f64,
+        /// CPU ticks at the current phase's start (`proc` events).
+        phase_ticks: Option<u64>,
+        /// Whether the first presented frame has been narrated.
+        first_frame_emitted: bool,
         done: bool,
         /// A Game Loop launch: finish once the schedule is done, which is how
         /// Test Lab learns the test is over.
@@ -365,6 +427,21 @@ mod app {
                 p50_90_max(&s.g_blit),
                 self.t()
             ));
+            // What the device runner measures from `adb shell` and Test
+            // Lab gives no shell for: the phase's CPU time, the resident
+            // set and the battery temperature at its end, read by the app.
+            let ticks = cpu_ticks();
+            let delta = match (self.phase_ticks, ticks) {
+                (Some(a), Some(b)) => Some(b.saturating_sub(a)),
+                _ => None,
+            };
+            emit(&format!(
+                "{{\"fw\":\"vieww\",\"ev\":\"proc\",\"phase\":\"{name}\",\"cpu_ticks\":{},\"rss_kb\":{},\"batt_temp_dC\":{},\"t\":{:.1}}}",
+                num(delta),
+                num(rollup_kb("Rss:")),
+                num(battery_temp_dc()),
+                self.t()
+            ));
             self.work.clear();
             self.wait.clear();
             self.interval.clear();
@@ -382,6 +459,14 @@ mod app {
                 if target >= self.phases.len() {
                     self.keepalive = None;
                     self.done = true;
+                    // Memory after the run, the device runner's `dumpsys
+                    // meminfo` PSS, read from the kernel's own rollup.
+                    emit(&format!(
+                        "{{\"fw\":\"vieww\",\"ev\":\"mem\",\"pss_kb\":{},\"rss_kb\":{},\"t\":{:.1}}}",
+                        num(rollup_kb("Pss:")),
+                        num(rollup_kb("Rss:")),
+                        self.t()
+                    ));
                     emit(&format!(
                         "{{\"fw\":\"vieww\",\"ev\":\"done\",\"t\":{:.1}}}",
                         self.t()
@@ -392,6 +477,7 @@ mod app {
                     return;
                 }
                 self.current = Some(target);
+                self.phase_ticks = cpu_ticks();
                 let (name, load, _) = self.phases[target].clone();
                 emit(&format!(
                     "{{\"fw\":\"vieww\",\"ev\":\"phase\",\"phase\":\"{name}\",\"t\":{:.1}}}",
@@ -436,6 +522,15 @@ mod app {
                         r.total_events, ms(r.p50), ms(r.p95), ms(r.p99), ms(r.worst), r.unanswered, self.t()
                     ));
                 }
+            }
+            // Cold start: process start to the first presented frame.
+            if !self.first_frame_emitted && log.frames() > 0 {
+                self.first_frame_emitted = true;
+                emit(&format!(
+                    "{{\"fw\":\"vieww\",\"ev\":\"first_frame\",\"since_process_ms\":{},\"t\":{:.1}}}",
+                    num(since_process_start_ms().map(|ms| format!("{ms:.1}"))),
+                    self.t()
+                ));
             }
             if self.done || self.current.is_none() {
                 return;
@@ -545,7 +640,10 @@ mod app {
         if prop("debug.mw.profile").trim_matches('"') == "1" {
             std::env::set_var("VIEWW_RASTER_PROFILE", "1");
         }
-        let thermal = scenario.is_none() && prop("debug.mw.thermal") != "0";
+        // The thermal pass runs on Test Lab too (about a minute, well inside
+        // the job's 6-minute timeout): it is the only sustained-load number
+        // the free farm can give.
+        let thermal = prop("debug.mw.thermal") != "0";
         let phases = schedule(thermal);
         emit(&format!(
             "{{\"fw\":\"vieww\",\"ev\":\"start\",\"path\":\"{}\",\"phases\":{}}}",
@@ -573,6 +671,8 @@ mod app {
             route_emitted: None,
             budget_now_ms: 0.0,
             budget_ms: 0.0,
+            phase_ticks: None,
+            first_frame_emitted: false,
             done: false,
             exit_when_done: scenario.is_some().then(|| android.clone()),
         }));

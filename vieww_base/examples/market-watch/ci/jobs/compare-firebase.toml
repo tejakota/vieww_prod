@@ -82,7 +82,7 @@ set -e
 bucket="$(grep -oE 'storage/browser/[^/ ]+' "$OUT/run.log" | head -1 | cut -d/ -f3)"
 [ -n "$bucket" ] || { echo "::error::could not find the results bucket in gcloud's output"; exit 1; }
 gsutil -m -q cp -r "gs://$bucket/$dir" "$OUT/results/" || gcloud storage cp -r "gs://$bucket/$dir" "$OUT/results/"
-python3 examples/market-watch/firebase/to_farm.py --results "$OUT/results" --out "$OUT/farm"
+python3 examples/market-watch/firebase/to_farm.py --results "$OUT/results" --out "$OUT/farm" --apk ../dist/vieww-market-watch.apk
 python3 examples/market-watch/compare_report.py --farm "$OUT/farm" --out "$OUT/report" \
   --header "run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} · vieww ${GITHUB_SHA:0:10} · Firebase Test Lab (free)" > /dev/null
 cat "$OUT/report/COMPARE.md" >> "$GITHUB_STEP_SUMMARY"

@@ -3237,10 +3237,25 @@ mod tests {
         // the SIMD blur, and on CI the fill came out 33 ms to the
         // composite's 21 ms - the test failing aborted the whole coverage
         // run. The attribution checks above and below still hold there.
+        //
+        // The ordering is also a timing claim, and one frame of it is at the
+        // mercy of the scheduler: in CI, with the rest of the suite running
+        // alongside, a preempted 400x400 rect fill once read 2.2 ms against
+        // the blur's 1.4 ms. The best of a few frames is what the claim is
+        // about.
         if std::env::var_os("LLVM_PROFILE_FILE").is_none() {
+            let (mut paths, mut composite) = (kinds.paths, kinds.composite);
+            for _ in 0..7 {
+                renderer
+                    .render_in_place(&scene, 400, 400, Color::TRANSPARENT)
+                    .expect("render");
+                let again = renderer.last_kind_times().expect("on");
+                paths = paths.min(again.paths);
+                composite = composite.min(again.composite);
+            }
             assert!(
-                kinds.composite > kinds.paths,
-                "the blur is the work: {kinds:?}"
+                composite > paths,
+                "the blur is the work: best paths {paths:?}, best composite {composite:?}"
             );
         }
         assert_eq!(kinds.text, Duration::ZERO);

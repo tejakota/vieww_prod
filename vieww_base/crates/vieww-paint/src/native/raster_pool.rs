@@ -41,7 +41,7 @@
 //! window's full repaint is the long raster the walk was built for.
 //!
 //! Since C-12 the platform layer's Android CPU present routes its row
-//! copies through [`run_chunks`] as well — the same rows through the same
+//! copies through `run_chunks` as well — the same rows through the same
 //! workers, no spawn per present. Two callers means the "first multi-thread
 //! request" that sizes the pool is whichever of them goes parallel first;
 //! a later call with a smaller request simply finds its chunks claimed

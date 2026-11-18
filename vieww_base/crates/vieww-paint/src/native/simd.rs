@@ -236,6 +236,10 @@ pub(crate) fn over_masked_row(dst: &mut [Premul], src: &[Premul], mask: &[f32]) 
 
 /// Four independent `f32` lanes, added lane for lane.
 #[must_use]
+#[cfg_attr(
+    not(any(target_arch = "x86_64", target_arch = "aarch64")),
+    allow(dead_code)
+)]
 pub(crate) fn lanes_add(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
     #[cfg(target_arch = "x86_64")]
     {
@@ -258,6 +262,10 @@ pub(crate) fn lanes_add(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
 
 /// Four independent `f32` lanes, subtracted lane for lane.
 #[must_use]
+#[cfg_attr(
+    not(any(target_arch = "x86_64", target_arch = "aarch64")),
+    allow(dead_code)
+)]
 pub(crate) fn lanes_sub(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
     #[cfg(target_arch = "x86_64")]
     {
@@ -284,6 +292,10 @@ pub(crate) fn lanes_sub(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
 /// are fast paths (`native/effects.rs`'s `horizontal` records the six-pixel
 /// panel the fixture gallery caught on exactly that difference).
 #[must_use]
+#[cfg_attr(
+    not(any(target_arch = "x86_64", target_arch = "aarch64")),
+    allow(dead_code)
+)]
 pub(crate) fn lanes_div_scalar(a: [f32; 4], k: f32) -> [f32; 4] {
     #[cfg(target_arch = "x86_64")]
     {

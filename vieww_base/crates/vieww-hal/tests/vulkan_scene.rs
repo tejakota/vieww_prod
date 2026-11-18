@@ -1437,7 +1437,7 @@ fn an_atlas_grow_is_carried_not_reuploaded() {
 
     // The frame after is steady again: nothing new, nothing sent.
     let plan = planner.plan(&scene, W as f32, H as f32);
-    renderer
+    let after = renderer
         .render_planned(&planner, &plan, W, H, base)
         .expect("render should succeed");
     assert_eq!(
@@ -1445,4 +1445,18 @@ fn an_atlas_grow_is_carried_not_reuploaded() {
         0,
         "a steady frame after the doubling uploads nothing"
     );
+    assert_eq!(
+        after, want,
+        "the frame after the doubling sampled the old texture"
+    );
+    // Every flight slot's scene set must reach the grown texture: a resize
+    // rewrites the recording slot's set and leaves the others to be
+    // rewritten when each is next recorded. A slot that was missed would
+    // sample the retired texture's 16 rows and lose the seventeenth ramp.
+    for frame in 0..4 {
+        let got = renderer
+            .render_planned(&planner, &plan, W, H, base)
+            .expect("render should succeed");
+        assert_eq!(got, want, "frame {frame} after the doubling differs");
+    }
 }

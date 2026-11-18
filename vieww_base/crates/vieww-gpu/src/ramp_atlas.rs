@@ -16,7 +16,7 @@
 //! A new ramp is exactly one row — 4 KB, the smallest write of the three
 //! atlases — and the honest question is whether recording it is worth any
 //! machinery at all. It is, for two reasons. The machinery is not per-atlas:
-//! [`DirtyRects`](crate::DirtyRects) is shared, so a row costs the recorder
+//! [`DirtyRects`] is shared, so a row costs the recorder
 //! one `blit(0, row, WIDTH, 1)` call. And a row is also the *only* unit of
 //! churn: a gradient whose stops animate — the reason
 //! [`RampAtlas::begin_frame`] compacts at all — is a new key and therefore a

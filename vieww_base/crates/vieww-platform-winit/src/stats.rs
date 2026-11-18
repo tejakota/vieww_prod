@@ -549,7 +549,7 @@ impl FrameLog {
     /// it had to spare, and a graph of that is a flat line that says nothing.
     ///
     /// **Waiting is separated out**: what this returns is the frame's work
-    /// minus its display waits (see [`Frame::wait`]), and [`wait_samples`]
+    /// minus its display waits (see [`Frame::wait`]), and [`wait_samples`](Self::wait_samples)
     /// returns what was subtracted. A budget is judged against the wall clock
     /// the thread actually spent — [`Frame::work`], unchanged — so a frame
     /// that acquires for 12ms is still over a 16.7ms budget; but the *report*

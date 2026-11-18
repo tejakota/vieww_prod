@@ -105,6 +105,10 @@ fn a_scaffolded_project_builds() {
         eprintln!("skipping: no cargo on PATH");
         return;
     }
+    if under_coverage() {
+        eprintln!("skipping: under coverage the child build is instrumented too");
+        return;
+    }
 
     let _turn = BUILD_LOCK
         .lock()
@@ -160,6 +164,10 @@ fn a_scaffolded_say_project_builds_and_contains_its_screen() {
     };
     if !have_cargo() {
         eprintln!("skipping: no cargo on PATH");
+        return;
+    }
+    if under_coverage() {
+        eprintln!("skipping: under coverage the child build is instrumented too");
         return;
     }
 
@@ -239,4 +247,14 @@ fn a_scaffolded_project_is_recognised_as_one() {
         .expect("scaffold::create should write every file it lists");
 
     assert!(scaffold::is_vieww_project(&scratch.0));
+}
+
+/// Whether this binary is a coverage-instrumented one (`LLVM_PROFILE_FILE` is
+/// how an instrumented binary finds where to write). The child `cargo build`
+/// inherits coverage's `RUSTFLAGS`, so it builds an instrumented static and
+/// dynamic copy of the whole stack - twice - and that filled the CI runner's
+/// disk (os error 28). It measures no workspace line, so it is skipped there;
+/// the plain test run still builds both projects.
+fn under_coverage() -> bool {
+    std::env::var_os("LLVM_PROFILE_FILE").is_some()
 }

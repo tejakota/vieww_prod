@@ -23,19 +23,19 @@
 //! few hundred kilobytes. Its scheme is recorded here once, unchanged, so the
 //! other three atlases can share it instead of copying it:
 //!
-//! - The atlas keeps a [`DirtyRects`]: the current [`version`](Self::version),
+//! - The atlas keeps a [`DirtyRects`]: the current [`version`](DirtyRects::version),
 //!   the rectangles written since the frame began, and a flag for "this frame
 //!   rewrote the texture wholesale".
-//! - [`begin_frame`](Self::begin_frame) starts a frame's recording:
+//! - [`begin_frame`](DirtyRects::begin_frame) starts a frame's recording:
 //!   rectangles are cleared, and the base — the version a backend must hold
 //!   for the rectangles to describe its difference — is set to the current
 //!   version.
-//! - A rect-bounded write ([`blit`](Self::blit)) appends its rectangle and
+//! - A rect-bounded write ([`blit`](DirtyRects::blit)) appends its rectangle and
 //!   bumps the version.
-//! - A wholesale rewrite ([`rewrote`](Self::rewrote)) — a compaction, a grow —
+//! - A wholesale rewrite ([`rewrote`](DirtyRects::rewrote)) — a compaction, a grow —
 //!   bumps the version and sets the flag: the rectangles no longer describe
 //!   the difference.
-//! - [`changes_since`](Self::changes_since) turns what a backend holds into
+//! - [`changes_since`](DirtyRects::changes_since) turns what a backend holds into
 //!   what it must be sent: nothing, the rectangles, or everything.
 //!
 //! The mask atlas keeps its own name for the answer —
