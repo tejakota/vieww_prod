@@ -1,10 +1,1822 @@
-===== phase-1 / vieww · framework-ios-simulator	log =====
-﻿<?xml version="1.0" encoding="utf-8"?><Error><Code>BlobNotFound</Code><Message>The specified blob does not exist.
-RequestId:8d9cee10-801e-008e-0a32-75d4bc000000
-Time:2026-11-15T18:49:16.8057688Z</Message></Error>
+===== phase-1 / vieww · framework-coverage	log =====
+2026-11-18T12:11:02.8446349Z [1m[92m   Compiling[0m ttf-parser v0.25.1
+2026-11-18T12:11:02.8446703Z [1m[92m   Compiling[0m toml_datetime v1.1.3+spec-1.1.0
+2026-11-18T12:11:02.8447068Z [1m[92m   Compiling[0m toml_edit v0.25.19+spec-1.1.0
+2026-11-18T12:11:02.8447424Z [1m[92m   Compiling[0m zvariant_utils v4.2.0
+2026-11-18T12:11:02.8447941Z [1m[92m   Compiling[0m enumflags2_derive v0.7.12
+2026-11-18T12:11:02.8448430Z [1m[92m   Compiling[0m proc-macro-crate v3.5.0
+2026-11-18T12:11:02.8448775Z [1m[92m   Compiling[0m parking v2.2.1
+2026-11-18T12:11:02.8449105Z [1m[92m   Compiling[0m enumflags2 v0.7.12
+2026-11-18T12:11:02.8449629Z [1m[92m   Compiling[0m zcheapstr v1.2.0
+2026-11-18T12:11:02.8449964Z [1m[92m   Compiling[0m zvariant_derive v5.15.1
+2026-11-18T12:11:02.8450305Z [1m[92m   Compiling[0m font-types v0.12.7
+2026-11-18T12:11:02.8450678Z [1m[92m   Compiling[0m futures-core v0.3.34
+2026-11-18T12:11:02.8451033Z [1m[92m   Compiling[0m slab v0.4.12
+2026-11-18T12:11:02.8451362Z [1m[92m   Compiling[0m endi v1.1.1
+2026-11-18T12:11:02.8451688Z [1m[92m   Compiling[0m version_check v0.9.5
+2026-11-18T12:11:02.8452007Z [1m[92m   Compiling[0m read-fonts v0.41.0
+2026-11-18T12:11:02.8452336Z [1m[92m   Compiling[0m simd-adler32 v0.3.10
+2026-11-18T12:11:02.8452671Z [1m[92m   Compiling[0m crossbeam-utils v0.8.23
+2026-11-18T12:11:02.8453018Z [1m[92m   Compiling[0m find-msvc-tools v0.1.15
+2026-11-18T12:11:02.8453355Z [1m[92m   Compiling[0m shlex v2.0.1
+2026-11-18T12:11:02.8453666Z [1m[92m   Compiling[0m wayland-sys v0.31.11
+2026-11-18T12:11:02.8453983Z [1m[92m   Compiling[0m dlib v0.5.3
+2026-11-18T12:11:02.8454289Z [1m[92m   Compiling[0m cc v1.11.2
+2026-11-18T12:11:02.8454599Z [1m[92m   Compiling[0m polling v3.11.0
+2026-11-18T12:11:02.8454921Z [1m[92m   Compiling[0m fastrand v2.5.0
+2026-11-18T12:11:02.8455231Z [1m[92m   Compiling[0m crc32fast v1.5.5
+2026-11-18T12:11:02.8455544Z [1m[92m   Compiling[0m adler2 v2.0.1
+2026-11-18T12:11:02.8455855Z [1m[92m   Compiling[0m memmap2 v0.9.12
+2026-11-18T12:11:02.8456162Z [1m[92m   Compiling[0m futures-io v0.3.34
+2026-11-18T12:11:02.8456489Z [1m[92m   Compiling[0m concurrent-queue v2.5.0
+2026-11-18T12:11:02.8456813Z [1m[92m   Compiling[0m miniz_oxide v0.9.1
+2026-11-18T12:11:02.8457146Z [1m[92m   Compiling[0m event-listener v5.4.2
+2026-11-18T12:11:02.8457482Z [1m[92m   Compiling[0m num-traits v0.2.19
+2026-11-18T12:11:02.8458067Z [1m[92m   Compiling[0m memchr v2.8.3
+2026-11-18T12:11:02.8458392Z [1m[92m   Compiling[0m scoped-tls v1.0.1
+2026-11-18T12:11:02.8458718Z [1m[92m   Compiling[0m downcast-rs v1.2.1
+2026-11-18T12:11:02.8459033Z [1m[92m   Compiling[0m flate2 v1.1.11
+2026-11-18T12:11:02.8459365Z [1m[92m   Compiling[0m wayland-backend v0.3.17
+2026-11-18T12:11:02.8459687Z [1m[92m   Compiling[0m quick-xml v0.41.0
+2026-11-18T12:11:02.8460045Z [1m[92m   Compiling[0m event-listener-strategy v0.5.4
+2026-11-18T12:11:02.8460410Z [1m[92m   Compiling[0m futures-lite v2.6.1
+2026-11-18T12:11:02.8460731Z [1m[92m   Compiling[0m miniz_oxide v0.8.9
+2026-11-18T12:11:02.8461061Z [1m[92m   Compiling[0m fdeflate v0.3.7
+2026-11-18T12:11:02.8461376Z [1m[92m   Compiling[0m zvariant v5.15.1
+2026-11-18T12:11:02.8461700Z [1m[92m   Compiling[0m wayland-client v0.31.15
+2026-11-18T12:11:02.8462026Z [1m[92m   Compiling[0m png v0.18.1
+2026-11-18T12:11:02.8462352Z [1m[92m   Compiling[0m wayland-scanner v0.31.11
+2026-11-18T12:11:02.8462706Z [1m[92m   Compiling[0m zbus_names v4.3.5
+2026-11-18T12:11:02.8463040Z [1m[92m   Compiling[0m skrifa v0.44.0
+2026-11-18T12:11:02.8463353Z [1m[92m   Compiling[0m slotmap v1.1.1
+2026-11-18T12:11:02.8463688Z [1m[92m   Compiling[0m font-types v0.11.3
+2026-11-18T12:11:02.8464041Z [1m[92m   Compiling[0m tracing-attributes v0.1.31
+2026-11-18T12:11:02.8464387Z [1m[92m   Compiling[0m async-io v2.6.0
+2026-11-18T12:11:02.8464717Z [1m[92m   Compiling[0m tracing-core v0.1.36
+2026-11-18T12:11:02.8465044Z [1m[92m   Compiling[0m cfg_aliases v0.2.2
+2026-11-18T12:11:02.8465362Z [1m[92m   Compiling[0m read-fonts v0.37.0
+2026-11-18T12:11:02.8465677Z [1m[92m   Compiling[0m tracing v0.1.44
+2026-11-18T12:11:02.8465979Z [1m[92m   Compiling[0m errno v0.3.15
+2026-11-18T12:11:02.8466296Z [1m[92m   Compiling[0m async-task v4.7.1
+2026-11-18T12:11:02.8466608Z [1m[92m   Compiling[0m roxmltree v0.20.0
+2026-11-18T12:11:02.8466955Z [1m[92m   Compiling[0m signal-hook-registry v1.4.8
+2026-11-18T12:11:02.8467327Z [1m[92m   Compiling[0m fontconfig-parser v0.5.8
+2026-11-18T12:11:02.8467668Z [1m[92m   Compiling[0m async-channel v2.5.0
+2026-11-18T12:11:02.8468185Z [1m[92m   Compiling[0m uuid v1.29.3
+2026-11-18T12:11:02.8468615Z [1m[92m   Compiling[0m yazi v0.2.2
+2026-11-18T12:11:02.8468931Z [1m[92m   Compiling[0m atomic-waker v1.1.2
+2026-11-18T12:11:02.8469259Z [1m[92m   Compiling[0m tinyvec v1.13.3
+2026-11-18T12:11:02.8469568Z [1m[92m   Compiling[0m arrayvec v0.7.8
+2026-11-18T12:11:02.8469876Z [1m[92m   Compiling[0m zeno v0.3.3
+2026-11-18T12:11:02.8470184Z [1m[92m   Compiling[0m fontdb v0.23.0
+2026-11-18T12:11:02.8470489Z [1m[92m   Compiling[0m piper v0.2.5
+2026-11-18T12:11:02.8470812Z [1m[92m   Compiling[0m async-signal v0.2.14
+2026-11-18T12:11:02.8471129Z [1m[92m   Compiling[0m swash v0.2.10
+2026-11-18T12:11:02.8471443Z [1m[92m   Compiling[0m zbus_xml v5.2.1
+2026-11-18T12:11:02.8471764Z [1m[92m   Compiling[0m async-lock v3.5.0
+2026-11-18T12:11:02.8472324Z [1m[92m   Compiling[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+2026-11-18T12:11:02.8472892Z [1m[92m   Compiling[0m self_cell v1.3.0
+2026-11-18T12:11:02.8473220Z [1m[92m   Compiling[0m siphasher v1.0.4
+2026-11-18T12:11:02.8473527Z [1m[92m   Compiling[0m smol_str v0.3.7
+2026-11-18T12:11:02.8473884Z [1m[92m   Compiling[0m linebender_resource_handle v0.1.1
+2026-11-18T12:11:02.8474269Z [1m[92m   Compiling[0m unicode-linebreak v0.1.5
+2026-11-18T12:11:02.8474598Z [1m[92m   Compiling[0m sys-locale v0.3.2
+2026-11-18T12:11:02.8474931Z [1m[92m   Compiling[0m unicode-script v0.5.9
+2026-11-18T12:11:02.8475254Z [1m[92m   Compiling[0m rustc-hash v2.1.3
+2026-11-18T12:11:02.8475563Z [1m[92m   Compiling[0m rangemap v1.8.0
+2026-11-18T12:11:02.8475872Z [1m[92m   Compiling[0m harfrust v0.5.2
+2026-11-18T12:11:02.8476174Z [1m[92m   Compiling[0m skrifa v0.40.0
+2026-11-18T12:11:02.8476499Z [1m[92m   Compiling[0m unicode-bidi v0.3.18
+2026-11-18T12:11:02.8476934Z [1m[92m   Compiling[0m thiserror v2.0.21
+2026-11-18T12:11:02.8477252Z [1m[92m   Compiling[0m rustix v0.38.44
+2026-11-18T12:11:02.8477566Z [1m[92m   Compiling[0m zerocopy v0.8.63
+2026-11-18T12:11:02.8478055Z [1m[92m   Compiling[0m thiserror v1.0.69
+2026-11-18T12:11:02.8478386Z [1m[92m   Compiling[0m zbus-lockstep v0.5.2
+2026-11-18T12:11:02.8478720Z [1m[92m   Compiling[0m async-process v2.5.0
+2026-11-18T12:11:02.8479035Z [1m[92m   Compiling[0m blocking v1.7.0
+2026-11-18T12:11:02.8479367Z [1m[92m   Compiling[0m async-executor v1.14.1
+2026-11-18T12:11:02.8479899Z [1m[92m   Compiling[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-18T12:11:02.8505392Z [1m[92m   Compiling[0m cosmic-text v0.19.0
+2026-11-18T12:11:02.8505900Z [1m[92m   Compiling[0m zbus_macros v5.19.0
+2026-11-18T12:11:02.8506273Z [1m[92m   Compiling[0m async-broadcast v0.7.2
+2026-11-18T12:11:02.8506635Z [1m[92m   Compiling[0m ordered-stream v0.2.0
+2026-11-18T12:11:02.8506981Z [1m[92m   Compiling[0m async-trait v0.1.92
+2026-11-18T12:11:02.8507332Z [1m[92m   Compiling[0m async-recursion v1.2.0
+2026-11-18T12:11:02.8507687Z [1m[92m   Compiling[0m serde_repr v0.1.21
+2026-11-18T12:11:02.8508219Z [1m[92m   Compiling[0m thiserror-impl v2.0.21
+2026-11-18T12:11:02.8508706Z [1m[92m   Compiling[0m zerocopy-derive v0.8.63
+2026-11-18T12:11:02.8509112Z [1m[92m   Compiling[0m thiserror-impl v1.0.69
+2026-11-18T12:11:02.8509581Z [1m[92m   Compiling[0m hex v0.4.3
+2026-11-18T12:11:02.8509909Z [1m[92m   Compiling[0m linux-raw-sys v0.4.15
+2026-11-18T12:11:02.8510234Z [1m[92m   Compiling[0m zbus v5.19.0
+2026-11-18T12:11:02.8510741Z [1m[92m   Compiling[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-18T12:11:02.8511248Z [1m[92m   Compiling[0m zbus-lockstep-macros v0.5.2
+2026-11-18T12:11:02.8511713Z [1m[92m   Compiling[0m phf_shared v0.14.0
+2026-11-18T12:11:02.8512074Z [1m[92m   Compiling[0m wayland-protocols v0.32.13
+2026-11-18T12:11:02.8512433Z [1m[92m   Compiling[0m naga v30.0.2
+2026-11-18T12:11:02.8512999Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-18T12:11:02.8513871Z [1m[92m   Compiling[0m bit-vec v0.9.1
+2026-11-18T12:11:02.8514227Z [1m[92m   Compiling[0m as-raw-xcb-connection v1.0.1
+2026-11-18T12:11:02.8514585Z [1m[92m   Compiling[0m unicode-width v0.2.3
+2026-11-18T12:11:02.8515049Z [1m[92m   Compiling[0m static_assertions v1.1.0
+2026-11-18T12:11:02.8515392Z [1m[92m   Compiling[0m rustc-hash v1.1.0
+2026-11-18T12:11:02.8515740Z [1m[92m   Compiling[0m codespan-reporting v0.13.1
+2026-11-18T12:11:02.8516085Z [1m[92m   Compiling[0m naga-types v30.0.2
+2026-11-18T12:11:02.8516415Z [1m[92m   Compiling[0m phf_generator v0.14.0
+2026-11-18T12:11:02.8516747Z [1m[92m   Compiling[0m atspi-common v0.13.0
+2026-11-18T12:11:02.8517125Z [1m[92m   Compiling[0m bit-set v0.10.0
+2026-11-18T12:11:02.8517538Z [1m[92m   Compiling[0m spirv v0.4.0+sdk-1.4.341.0
+2026-11-18T12:11:02.8518251Z [1m[92m   Compiling[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-18T12:11:02.8518851Z [1m[92m   Compiling[0m half v2.7.1
+2026-11-18T12:11:02.8519171Z [1m[92m   Compiling[0m calloop v0.13.0
+2026-11-18T12:11:02.8519484Z [1m[92m   Compiling[0m euclid v0.22.14
+2026-11-18T12:11:02.8519804Z [1m[92m   Compiling[0m gethostname v1.1.0
+2026-11-18T12:11:02.8520135Z [1m[92m   Compiling[0m cursor-icon v1.2.0
+2026-11-18T12:11:02.8520455Z [1m[92m   Compiling[0m xkeysym v0.2.1
+2026-11-18T12:11:02.8520775Z [1m[92m   Compiling[0m getrandom v0.3.4
+2026-11-18T12:11:02.8521242Z [1m[92m   Compiling[0m smithay-client-toolkit v0.19.2
+2026-11-18T12:11:02.8521593Z [1m[92m   Compiling[0m zune-core v0.5.3
+2026-11-18T12:11:02.8521906Z [1m[92m   Compiling[0m strict-num v0.1.1
+2026-11-18T12:11:02.8522354Z [1m[92m   Compiling[0m arrayref v0.3.9
+2026-11-18T12:11:02.8522670Z [1m[92m   Compiling[0m pxfm v0.1.30
+2026-11-18T12:11:02.8523000Z [1m[92m   Compiling[0m x11rb-protocol v0.13.2
+2026-11-18T12:11:02.8523466Z [1m[92m   Compiling[0m raw-window-handle v0.6.2
+2026-11-18T12:11:02.8523801Z [1m[92m   Compiling[0m xcursor v0.3.11
+2026-11-18T12:11:02.8524124Z [1m[92m   Compiling[0m wayland-cursor v0.31.14
+2026-11-18T12:11:02.8524468Z [1m[92m   Compiling[0m zune-jpeg v0.5.15
+2026-11-18T12:11:02.8524907Z [1m[92m   Compiling[0m tiny-skia-path v0.11.4
+2026-11-18T12:11:02.8525232Z [1m[92m   Compiling[0m moxcms v0.8.1
+2026-11-18T12:11:02.8525556Z [1m[92m   Compiling[0m wayland-csd-frame v0.3.0
+2026-11-18T12:11:02.8525885Z [1m[92m   Compiling[0m lyon_geom v1.0.20
+2026-11-18T12:11:02.8526336Z [1m[92m   Compiling[0m calloop-wayland-source v0.3.0
+2026-11-18T12:11:02.8526907Z [1m[92m   Compiling[0m wayland-protocols-wlr v0.3.12
+2026-11-18T12:11:02.8527431Z [1m[92m   Compiling[0m phf_macros v0.14.0
+2026-11-18T12:11:02.8527950Z [1m[92m   Compiling[0m accesskit v0.25.2
+2026-11-18T12:11:02.8528264Z [1m[92m   Compiling[0m ahash v0.8.12
+2026-11-18T12:11:02.8528710Z [1m[92m   Compiling[0m owned_ttf_parser v0.25.1
+2026-11-18T12:11:02.8529041Z [1m[92m   Compiling[0m x11-dl v2.21.0
+2026-11-18T12:11:02.8529365Z [1m[92m   Compiling[0m byteorder-lite v0.1.0
+2026-11-18T12:11:02.8529705Z [1m[92m   Compiling[0m parking_lot_core v0.9.12
+2026-11-18T12:11:02.8530043Z [1m[92m   Compiling[0m ash v0.38.0+1.3.281
+2026-11-18T12:11:02.8530399Z [1m[92m   Compiling[0m ab_glyph_rasterizer v0.1.10
+2026-11-18T12:11:02.8530836Z [1m[92m   Compiling[0m ab_glyph v0.2.32
+2026-11-18T12:11:02.8531143Z [1m[92m   Compiling[0m image v0.25.10
+2026-11-18T12:11:02.8531472Z [1m[92m   Compiling[0m accesskit_consumer v0.39.2
+2026-11-18T12:11:02.8531797Z [1m[92m   Compiling[0m x11rb v0.13.2
+2026-11-18T12:11:02.8532095Z [1m[92m   Compiling[0m phf v0.14.0
+2026-11-18T12:11:02.8532511Z [1m[92m   Compiling[0m lyon_path v1.0.19
+2026-11-18T12:11:02.8533214Z [1m[92m   Compiling[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+2026-11-18T12:11:02.8533890Z [1m[92m   Compiling[0m tiny-skia v0.11.4
+2026-11-18T12:11:02.8534509Z [1m[92m   Compiling[0m atspi-proxies v0.13.0
+2026-11-18T12:11:02.8535220Z [1m[92m   Compiling[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+2026-11-18T12:11:02.8535919Z [1m[92m   Compiling[0m winit v0.30.13
+2026-11-18T12:11:02.8536369Z [1m[92m   Compiling[0m tiny-xlib v0.2.5
+2026-11-18T12:11:02.8536869Z [1m[92m   Compiling[0m futures-macro v0.3.34
+2026-11-18T12:11:02.8537680Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-18T12:11:02.8538592Z [1m[92m   Compiling[0m futures-task v0.3.34
+2026-11-18T12:11:02.8539117Z [1m[92m   Compiling[0m percent-encoding v2.3.2
+2026-11-18T12:11:02.8539641Z [1m[92m   Compiling[0m float_next_after v1.0.0
+2026-11-18T12:11:02.8540208Z [1m[92m   Compiling[0m scopeguard v1.2.0
+2026-11-18T12:11:02.8540677Z [1m[92m   Compiling[0m lyon_tessellation v1.0.23
+2026-11-18T12:11:02.8541023Z [1m[92m   Compiling[0m lock_api v0.4.14
+2026-11-18T12:11:02.8541354Z [1m[92m   Compiling[0m futures-util v0.3.34
+2026-11-18T12:11:02.8541674Z [1m[92m   Compiling[0m atspi v0.29.0
+2026-11-18T12:11:02.8541983Z [1m[92m   Compiling[0m sctk-adwaita v0.10.1
+2026-11-18T12:11:02.8542549Z [1m[92m   Compiling[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-18T12:11:02.8543350Z [1m[92m   Compiling[0m accesskit_atspi_common v0.21.1
+2026-11-18T12:11:02.8543904Z [1m[92m   Compiling[0m xkbcommon-dl v0.4.2
+2026-11-18T12:11:02.8544337Z [1m[92m   Compiling[0m wayland-protocols-plasma v0.3.12
+2026-11-18T12:11:02.8544880Z [1m[92m   Compiling[0m vieww-scene v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
+2026-11-18T12:11:02.8545530Z [1m[92m   Compiling[0m smol_str v0.2.2
+2026-11-18T12:11:02.8545852Z [1m[92m   Compiling[0m ctor v0.10.1
+2026-11-18T12:11:02.8546575Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-18T12:11:02.8547097Z [1m[92m   Compiling[0m dpi v0.1.2
+2026-11-18T12:11:02.8547641Z [1m[92m   Compiling[0m vieww-render-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
+2026-11-18T12:11:02.8548454Z [1m[92m   Compiling[0m parking_lot v0.12.5
+2026-11-18T12:11:02.8548799Z [1m[92m   Compiling[0m accesskit_unix v0.24.1
+2026-11-18T12:11:02.8549445Z [1m[92m   Compiling[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-18T12:11:02.8550310Z [1m[92m   Compiling[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+2026-11-18T12:11:02.8550966Z [1m[92m   Compiling[0m vieww-asset v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
+2026-11-18T12:11:02.8551755Z [1m[92m   Compiling[0m vieww-image v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-image)
+2026-11-18T12:11:02.8552238Z [1m[92m   Compiling[0m accesskit_winit v0.34.2
+2026-11-18T12:11:02.8552579Z [1m[92m   Compiling[0m arboard v3.7.0
+2026-11-18T12:11:02.8553039Z [1m[92m   Compiling[0m ash-window v0.13.0
+2026-11-18T12:11:02.8553531Z [1m[92m   Compiling[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-18T12:11:02.8554176Z [1m[92m   Compiling[0m vieww-video v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-video)
+2026-11-18T12:11:02.8555012Z [1m[92m   Compiling[0m vieww-render-planner v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
+2026-11-18T12:11:02.8555565Z [1m[92m   Compiling[0m softbuffer v0.4.8
+2026-11-18T12:11:02.8556106Z [1m[92m   Compiling[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
+2026-11-18T12:11:02.8556772Z [1m[92m   Compiling[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
+2026-11-18T12:11:02.8557699Z [1m[92m   Compiling[0m vieww-spatial v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-spatial)
+2026-11-18T12:11:02.8558602Z [1m[92m   Compiling[0m vieww-physics v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-physics)
+2026-11-18T12:11:02.8559391Z [1m[92m   Compiling[0m vieww-network v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-network)
+2026-11-18T12:11:02.8560041Z [1m[92m   Compiling[0m vieww-mesh v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-mesh)
+2026-11-18T12:11:02.8560725Z [1m[92m   Compiling[0m vieww-interaction v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-interaction)
+2026-11-18T12:11:02.8561620Z [1m[92m   Compiling[0m vieww-platform-winit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
+2026-11-18T12:11:02.8562293Z [1m[92m   Compiling[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
+2026-11-18T12:11:02.8562863Z [1m[92m   Compiling[0m scaffold_build_check v0.1.0 (/tmp/vieww-scaffold-build-builds)
+2026-11-18T12:11:02.8563818Z [1m[91merror[0m[1m: failed to build archive at `/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/tmp/scaffold-build/debug/deps/libscaffold_build_check.a`: No space left on device (os error 28)[0m
+2026-11-18T12:11:02.8564808Z 
+2026-11-18T12:11:02.8569114Z error: process didn't exit successfully: `/home/runner/.rustup/toolchains/1.98.1-x86_64-unknown-linux-gnu/bin/rustc --crate-name scaffold_build_check --edition=2021 src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type rlib --crate-type cdylib --crate-type staticlib --emit=dep-info,link -C embed-bitcode=no -C debuginfo=1 --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=bc2b0c0b4b225c51 --out-dir /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/tmp/scaffold-build/debug/deps -C incremental=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/tmp/scaffold-build/debug/incremental -L dependency=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/tmp/scaffold-build/debug/deps --extern vieww=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/tmp/scaffold-build/debug/deps/libvieww-7fe0ffa82c1abbf2.rlib --extern vieww_platform_winit=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/tmp/scaffold-build/debug/deps/libvieww_platform_winit-ec2e7bd030694594.rlib -C prefer-dynamic -C rpath -C prefer-dynamic -C rpath` (exit status: 1)
+2026-11-18T12:11:02.8573204Z [1m[91merror[0m: could not compile `scaffold_build_check` (lib) due to 1 previous error
+2026-11-18T12:11:02.8573497Z 
+2026-11-18T12:11:02.8573670Z stack backtrace:
+2026-11-18T12:11:02.8573970Z    0: __rustc::rust_begin_unwind
+2026-11-18T12:11:02.8574382Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-18T12:11:02.8574808Z    1: core::panicking::panic_fmt
+2026-11-18T12:11:02.8575196Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-18T12:11:02.8575617Z    2: scaffold::a_scaffolded_project_builds
+2026-11-18T12:11:02.8575906Z              at ./tests/scaffold.rs:129:5
+2026-11-18T12:11:02.8576293Z    3: scaffold::a_scaffolded_project_builds::***closure#0***
+2026-11-18T12:11:02.8576631Z              at ./tests/scaffold.rs:96:33
+2026-11-18T12:11:02.8577083Z    4: <scaffold::a_scaffolded_project_builds::***closure#0*** as core::ops::function::FnOnce<()>>::call_once
+2026-11-18T12:11:02.8577669Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-18T12:11:02.8578400Z    5: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-11-18T12:11:02.8579077Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-18T12:11:02.8579601Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-18T12:11:02.8579921Z 
+2026-11-18T12:11:02.8580110Z ---- a_scaffolded_say_project_builds_and_contains_its_screen stdout ----
+2026-11-18T12:11:02.8580365Z 
+2026-11-18T12:11:02.8580680Z thread 'a_scaffolded_say_project_builds_and_contains_its_screen' (83722) panicked at apps/viewwstudio/tests/scaffold.rs:191:5:
+2026-11-18T12:11:02.8581175Z the scaffolded Say project failed to build:
+2026-11-18T12:11:02.8581524Z [1m[92m    Updating[0m crates.io index
+2026-11-18T12:11:02.8581904Z [1m[92m     Locking[0m 401 packages to latest compatible versions
+2026-11-18T12:11:02.8582516Z [1m[92m   Compiling[0m vieww-say-codegen v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-say-codegen)
+2026-11-18T12:11:02.8583133Z [1m[92m   Compiling[0m say_build_check v0.1.0 (/tmp/vieww-scaffold-build-say-builds)
+2026-11-18T12:11:02.8584058Z [1m[91merror[0m[1m: failed to build archive at `/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/tmp/scaffold-build/debug/deps/libsay_build_check.a`: No space left on device (os error 28)[0m
+2026-11-18T12:11:02.8584652Z 
+2026-11-18T12:11:02.8588036Z error: process didn't exit successfully: `/home/runner/.rustup/toolchains/1.98.1-x86_64-unknown-linux-gnu/bin/rustc --crate-name say_build_check --edition=2021 src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type rlib --crate-type cdylib --crate-type staticlib --emit=dep-info,link -C embed-bitcode=no -C debuginfo=1 --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=65bbc4b07f53ec9b --out-dir /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/tmp/scaffold-build/debug/deps -C incremental=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/tmp/scaffold-build/debug/incremental -L dependency=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/tmp/scaffold-build/debug/deps --extern vieww=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/tmp/scaffold-build/debug/deps/libvieww-7fe0ffa82c1abbf2.rlib --extern vieww_platform_winit=/home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target/tmp/scaffold-build/debug/deps/libvieww_platform_winit-ec2e7bd030694594.rlib -C prefer-dynamic -C rpath -C prefer-dynamic -C rpath` (exit status: 1)
+2026-11-18T12:11:02.8591672Z [1m[91merror[0m: could not compile `say_build_check` (lib) due to 1 previous error
+2026-11-18T12:11:02.8591941Z 
+2026-11-18T12:11:02.8592045Z stack backtrace:
+2026-11-18T12:11:02.8592289Z    0: __rustc::rust_begin_unwind
+2026-11-18T12:11:02.8592686Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+2026-11-18T12:11:02.8593092Z    1: core::panicking::panic_fmt
+2026-11-18T12:11:02.8593480Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+2026-11-18T12:11:02.8593964Z    2: scaffold::a_scaffolded_say_project_builds_and_contains_its_screen
+2026-11-18T12:11:02.8594315Z              at ./tests/scaffold.rs:191:5
+2026-11-18T12:11:02.8594716Z    3: scaffold::a_scaffolded_say_project_builds_and_contains_its_screen::***closure#0***
+2026-11-18T12:11:02.8595110Z              at ./tests/scaffold.rs:153:61
+2026-11-18T12:11:02.8595612Z    4: <scaffold::a_scaffolded_say_project_builds_and_contains_its_screen::***closure#0*** as core::ops::function::FnOnce<()>>::call_once
+2026-11-18T12:11:02.8596243Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-18T12:11:02.8596790Z    5: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+2026-11-18T12:11:02.8597320Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+2026-11-18T12:11:02.8598118Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-18T12:11:02.8598404Z 
+2026-11-18T12:11:02.8598408Z 
+2026-11-18T12:11:02.8598509Z failures:
+2026-11-18T12:11:02.8598743Z     a_scaffolded_project_builds
+2026-11-18T12:11:02.8599069Z     a_scaffolded_say_project_builds_and_contains_its_screen
+2026-11-18T12:11:02.8599290Z 
+2026-11-18T12:11:02.8599530Z test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 86.33s
+2026-11-18T12:11:02.8599835Z 
+2026-11-18T12:11:02.8954447Z [1m[91merror[0m: test failed, to rerun pass `-p viewwstudio --test scaffold`
+2026-11-18T12:11:03.0346660Z error: process didn't exit successfully: `/home/runner/.rustup/toolchains/1.98.1-x86_64-unknown-linux-gnu/bin/cargo test --tests --manifest-path /home/runner/work/vieww_prod/vieww_prod/vieww_base/Cargo.toml --target-dir /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/llvm-cov-target --workspace --features vieww-paint/native --exclude vieww-platform-winit --exclude reload-host --exclude reload-guest --exclude reload-android` (exit status: 101)
+2026-11-18T12:11:03.0398150Z 
+2026-11-18T12:11:03.0398439Z error: line coverage is below 70%.
+2026-11-18T12:11:03.0398719Z 
+2026-11-18T12:11:03.0399055Z Untested code is not automatically a defect, but it is always a decision. If the
+2026-11-18T12:11:03.0402554Z uncovered lines are a deliberate gap — a platform path this machine cannot run,
+2026-11-18T12:11:03.0403106Z a panic arm that exists to be loud — say so in TRACKER.md rather than lowering
+2026-11-18T12:11:03.0403493Z the floor quietly.
+2026-11-18T12:11:03.0596790Z ##[endgroup]
+2026-11-18T12:11:03.1340265Z ##[error]Coverage failed (exit 1)
+2026-11-18T12:11:03.2488672Z ##[error]Process completed with exit code 1.
+2026-11-18T12:11:03.4981542Z Post job cleanup.
+2026-11-18T12:11:03.7535490Z [command]/usr/bin/git version
+2026-11-18T12:11:03.7566380Z git version 2.56.1
+2026-11-18T12:11:03.7605305Z Temporarily overriding HOME='/home/runner/work/_temp/3da41d98-05cc-4aaf-b6d5-cb5b1c9269ee' before making global git config changes
+2026-11-18T12:11:03.7606241Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-18T12:11:03.7609012Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-18T12:11:03.7655548Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-18T12:11:03.7723330Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-18T12:11:03.8047534Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-18T12:11:03.8073855Z http.https://github.com/.extraheader
+2026-11-18T12:11:03.8084548Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-18T12:11:03.8160649Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-18T12:11:03.8428633Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-18T12:11:03.8478712Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-18T12:11:03.8938350Z Cleaning up orphan processes
+2026-11-18T12:11:04.0039261Z Terminate orphan process: pid (50973) (java)
+2026-11-18T12:11:04.0239425Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== phase-1 / vieww · goldens	log =====
+2026-11-18T11:47:18.7564703Z identical    feature-canvas-dataviz-0.png
+2026-11-18T11:47:18.7565054Z identical    feature-canvas-dataviz-1.png
+2026-11-18T11:47:18.7565405Z identical    feature-canvas-dataviz-2.png
+2026-11-18T11:47:18.7565759Z identical    feature-canvas-dataviz-3.png
+2026-11-18T11:47:18.7566106Z identical    feature-canvas-dataviz-4.png
+2026-11-18T11:47:18.7566448Z identical    feature-checkbox.png
+2026-11-18T11:47:18.7566771Z identical    feature-chip-badge.png
+2026-11-18T11:47:18.7567082Z identical    feature-circle.png
+2026-11-18T11:47:18.7567421Z identical    feature-circular-progress-0.png
+2026-11-18T11:47:18.7567788Z identical    feature-circular-progress-1.png
+2026-11-18T11:47:18.7568155Z identical    feature-circular-progress-2.png
+2026-11-18T11:47:18.7568520Z identical    feature-circular-progress-3.png
+2026-11-18T11:47:18.7568877Z identical    feature-circular-progress-4.png
+2026-11-18T11:47:18.7569219Z identical    feature-clip-rounded.png
+2026-11-18T11:47:18.7569703Z identical    feature-code-binding-sprites-0.png
+2026-11-18T11:47:18.7570103Z identical    feature-code-binding-sprites-1.png
+2026-11-18T11:47:18.7570490Z identical    feature-code-binding-sprites-2.png
+2026-11-18T11:47:18.7570881Z identical    feature-code-binding-sprites-3.png
+2026-11-18T11:47:18.7571313Z identical    feature-code-binding-sprites-4.png
+2026-11-18T11:47:18.7571671Z identical    feature-colors-rgb.png
+2026-11-18T11:47:18.7572005Z identical    feature-colors-rgba.png
+2026-11-18T11:47:18.7572356Z identical    feature-container-padding.png
+2026-11-18T11:47:18.7572717Z identical    feature-curves.png
+2026-11-18T11:47:18.7573040Z identical    feature-custom-paint.png
+2026-11-18T11:47:18.7573373Z identical    feature-data-table.png
+2026-11-18T11:47:18.7573711Z identical    feature-decoration.png
+2026-11-18T11:47:18.7574067Z identical    feature-directionality-rtl.png
+2026-11-18T11:47:18.7574429Z identical    feature-donut-chart.png
+2026-11-18T11:47:18.7652907Z DIFFERS      feature-easing-presets.png — 1 of 285200 pixel(s), worst channel delta 1, inside (394,260)-(395,261)
+2026-11-18T11:47:18.7653480Z identical    feature-embed.png
+2026-11-18T11:47:18.7653809Z identical    feature-flex-column.png
+2026-11-18T11:47:18.7654150Z identical    feature-flex-row.png
+2026-11-18T11:47:18.7654513Z identical    feature-form-controls-0-volume0.25.png
+2026-11-18T11:47:18.7654916Z identical    feature-form-controls-1-volume0.7.png
+2026-11-18T11:47:18.7655309Z identical    feature-form-controls-2-volume1.png
+2026-11-18T11:47:18.7655678Z identical    feature-function-graph.png
+2026-11-18T11:47:18.7656050Z identical    feature-graph-game-collab-lottie-0.png
+2026-11-18T11:47:18.7656444Z identical    feature-graph-game-collab-lottie-1.png
+2026-11-18T11:47:18.7656846Z identical    feature-graph-game-collab-lottie-2.png
+2026-11-18T11:47:18.7657241Z identical    feature-graph-game-collab-lottie-3.png
+2026-11-18T11:47:18.7657639Z identical    feature-graph-game-collab-lottie-4.png
+2026-11-18T11:47:18.7658012Z identical    feature-grayscale.png
+2026-11-18T11:47:18.7658346Z identical    feature-grid-view-0-offset0.png
+2026-11-18T11:47:18.7658729Z identical    feature-grid-view-1-offset98.png
+2026-11-18T11:47:18.7659116Z identical    feature-grid-view-2-offset980.png
+2026-11-18T11:47:18.7659584Z identical    feature-ik-0.png
+2026-11-18T11:47:18.7659892Z identical    feature-ik-1.png
+2026-11-18T11:47:18.7660193Z identical    feature-ik-2.png
+2026-11-18T11:47:18.7660507Z identical    feature-ik-3.png
+2026-11-18T11:47:18.7660834Z identical    feature-ik-4.png
+2026-11-18T11:47:18.7661152Z identical    feature-image-display.png
+2026-11-18T11:47:18.7661500Z identical    feature-keyframes-0.png
+2026-11-18T11:47:18.7661839Z identical    feature-keyframes-1.png
+2026-11-18T11:47:18.7662319Z identical    feature-keyframes-2.png
+2026-11-18T11:47:18.7662643Z identical    feature-keyframes-3.png
+2026-11-18T11:47:18.7662976Z identical    feature-keyframes-4.png
+2026-11-18T11:47:18.7712815Z DIFFERS      feature-lfo-0.png — 1 of 260400 pixel(s), worst channel delta 1, inside (547,160)-(548,161)
+2026-11-18T11:47:18.7766382Z DIFFERS      feature-lfo-1.png — 1 of 260400 pixel(s), worst channel delta 1, inside (547,160)-(548,161)
+2026-11-18T11:47:18.7820668Z DIFFERS      feature-lfo-2.png — 1 of 260400 pixel(s), worst channel delta 1, inside (547,160)-(548,161)
+2026-11-18T11:47:18.7873641Z DIFFERS      feature-lfo-3.png — 1 of 260400 pixel(s), worst channel delta 1, inside (547,160)-(548,161)
+2026-11-18T11:47:18.7926505Z DIFFERS      feature-lfo-4.png — 1 of 260400 pixel(s), worst channel delta 1, inside (547,160)-(548,161)
+2026-11-18T11:47:18.7927019Z identical    feature-line-chart.png
+2026-11-18T11:47:18.7927369Z identical    feature-linear-progress.png
+2026-11-18T11:47:18.7927727Z identical    feature-list-view-0-offset0.png
+2026-11-18T11:47:18.7928115Z identical    feature-list-view-1-offset220.png
+2026-11-18T11:47:18.7928492Z identical    feature-list-view-2-offset4400.png
+2026-11-18T11:47:18.7928876Z identical    feature-locale-formatting.png
+2026-11-18T11:47:18.7929236Z identical    feature-markdown.png
+2026-11-18T11:47:18.7929725Z identical    feature-math-text.png
+2026-11-18T11:47:18.7930049Z identical    feature-media-player.png
+2026-11-18T11:47:18.7930382Z identical    feature-mesh-0.png
+2026-11-18T11:47:18.7930697Z identical    feature-mesh-1.png
+2026-11-18T11:47:18.7972222Z DIFFERS      feature-mesh-2.png — 2 of 193200 pixel(s), worst channel delta 1, inside (180,285)-(183,316)
+2026-11-18T11:47:18.8006473Z DIFFERS      feature-mesh-3.png — 2 of 193200 pixel(s), worst channel delta 1, inside (91,147)-(107,241)
+2026-11-18T11:47:18.8051805Z DIFFERS      feature-mesh-4.png — 2 of 193200 pixel(s), worst channel delta 1, inside (354,211)-(355,215)
+2026-11-18T11:47:18.8187532Z DIFFERS      feature-midi-dsp-osc-0.png — 1 of 560000 pixel(s), worst channel delta 1, inside (912,174)-(913,175)
+2026-11-18T11:47:18.8316563Z DIFFERS      feature-midi-dsp-osc-1.png — 1 of 560000 pixel(s), worst channel delta 1, inside (912,174)-(913,175)
+2026-11-18T11:47:18.8446694Z DIFFERS      feature-midi-dsp-osc-2.png — 1 of 560000 pixel(s), worst channel delta 1, inside (912,174)-(913,175)
+2026-11-18T11:47:18.8575485Z DIFFERS      feature-midi-dsp-osc-3.png — 1 of 560000 pixel(s), worst channel delta 1, inside (912,174)-(913,175)
+2026-11-18T11:47:18.8705814Z DIFFERS      feature-midi-dsp-osc-4.png — 1 of 560000 pixel(s), worst channel delta 1, inside (912,174)-(913,175)
+2026-11-18T11:47:18.8706396Z identical    feature-motion-tokens.png
+2026-11-18T11:47:18.8706759Z identical    feature-network.png
+2026-11-18T11:47:18.8707086Z identical    feature-noise-0.png
+2026-11-18T11:47:18.8707405Z identical    feature-noise-1.png
+2026-11-18T11:47:18.8707717Z identical    feature-noise-2.png
+2026-11-18T11:47:18.8708040Z identical    feature-noise-3.png
+2026-11-18T11:47:18.8708397Z identical    feature-noise-4.png
+2026-11-18T11:47:18.8708713Z identical    feature-opacity.png
+2026-11-18T11:47:18.8709037Z identical    feature-particles-0.png
+2026-11-18T11:47:18.8709413Z identical    feature-particles-1.png
+2026-11-18T11:47:18.8709884Z identical    feature-particles-2.png
+2026-11-18T11:47:18.8710221Z identical    feature-particles-3.png
+2026-11-18T11:47:18.8710547Z identical    feature-particles-4.png
+2026-11-18T11:47:18.8710897Z identical    feature-particles-retarget-0.png
+2026-11-18T11:47:18.8711306Z identical    feature-particles-retarget-1.png
+2026-11-18T11:47:18.8711706Z identical    feature-particles-retarget-2.png
+2026-11-18T11:47:18.8712092Z identical    feature-particles-retarget-3.png
+2026-11-18T11:47:18.8712473Z identical    feature-particles-retarget-4.png
+2026-11-18T11:47:18.8712842Z identical    feature-path-ops-0.png
+2026-11-18T11:47:18.8713187Z identical    feature-path-ops-1.png
+2026-11-18T11:47:18.8713517Z identical    feature-path-ops-2.png
+2026-11-18T11:47:18.8714036Z identical    feature-path-ops-3.png
+2026-11-18T11:47:18.8714365Z identical    feature-path-ops-4.png
+2026-11-18T11:47:18.8714704Z identical    feature-physics-0.png
+2026-11-18T11:47:18.8715051Z identical    feature-physics-1.png
+2026-11-18T11:47:18.8715374Z identical    feature-physics-2.png
+2026-11-18T11:47:18.8715701Z identical    feature-physics-3.png
+2026-11-18T11:47:18.8716028Z identical    feature-physics-4.png
+2026-11-18T11:47:18.8716379Z identical    feature-physics-advanced-0.png
+2026-11-18T11:47:18.8716750Z identical    feature-physics-advanced-1.png
+2026-11-18T11:47:18.8717128Z identical    feature-physics-advanced-2.png
+2026-11-18T11:47:18.8717496Z identical    feature-physics-advanced-3.png
+2026-11-18T11:47:18.8717859Z identical    feature-physics-advanced-4.png
+2026-11-18T11:47:18.8757326Z DIFFERS      feature-physics-joint-0.png — 1 of 272800 pixel(s), worst channel delta 1, inside (223,238)-(224,239)
+2026-11-18T11:47:18.8789685Z DIFFERS      feature-physics-joint-1.png — 1 of 272800 pixel(s), worst channel delta 1, inside (197,76)-(198,77)
+2026-11-18T11:47:18.8790271Z identical    feature-physics-joint-2.png
+2026-11-18T11:47:18.8790640Z identical    feature-physics-joint-3.png
+2026-11-18T11:47:18.8791006Z identical    feature-physics-joint-4.png
+2026-11-18T11:47:18.8791361Z identical    feature-pie-chart.png
+2026-11-18T11:47:18.8791692Z identical    feature-radio.png
+2026-11-18T11:47:18.8792048Z identical    feature-rectangle-animation-0.png
+2026-11-18T11:47:18.8792453Z identical    feature-rectangle-animation-1.png
+2026-11-18T11:47:18.8792833Z identical    feature-rectangle-animation-2.png
+2026-11-18T11:47:18.8793211Z identical    feature-rectangle-animation-3.png
+2026-11-18T11:47:18.8793587Z identical    feature-rectangle-animation-4.png
+2026-11-18T11:47:18.8793938Z identical    feature-rectangle.png
+2026-11-18T11:47:18.8794259Z identical    feature-rigging-0.png
+2026-11-18T11:47:18.8794573Z identical    feature-rigging-1.png
+2026-11-18T11:47:18.8794894Z identical    feature-rigging-2.png
+2026-11-18T11:47:18.8795214Z identical    feature-rigging-3.png
+2026-11-18T11:47:18.8795533Z identical    feature-rigging-4.png
+2026-11-18T11:47:18.8795858Z identical    feature-scatter-chart.png
+2026-11-18T11:47:18.8796391Z identical    feature-scroll-driven-0-offset0.png
+2026-11-18T11:47:18.8796789Z identical    feature-scroll-driven-1-offset60.png
+2026-11-18T11:47:18.8797192Z identical    feature-scroll-driven-2-offset120.png
+2026-11-18T11:47:18.8797596Z identical    feature-scroll-driven-3-offset180.png
+2026-11-18T11:47:18.8797981Z identical    feature-scroll-driven-4-offset240.png
+2026-11-18T11:47:18.8798343Z identical    feature-sepia.png
+2026-11-18T11:47:18.8798664Z identical    feature-shape-morph-0.png
+2026-11-18T11:47:18.8798998Z identical    feature-shape-morph-1.png
+2026-11-18T11:47:18.8799325Z identical    feature-shape-morph-2.png
+2026-11-18T11:47:18.8799765Z identical    feature-shape-morph-3.png
+2026-11-18T11:47:18.8800088Z identical    feature-shape-morph-4.png
+2026-11-18T11:47:18.8800412Z identical    feature-sized-box.png
+2026-11-18T11:47:18.8800724Z identical    feature-skeletal-0.png
+2026-11-18T11:47:18.8801051Z identical    feature-skeletal-1.png
+2026-11-18T11:47:18.8801386Z identical    feature-skeletal-2.png
+2026-11-18T11:47:18.8803860Z identical    feature-skeletal-3.png
+2026-11-18T11:47:18.8804222Z identical    feature-skeletal-4.png
+2026-11-18T11:47:18.8804578Z identical    feature-splash-screen-0.png
+2026-11-18T11:47:18.8804972Z identical    feature-splash-screen-1.png
+2026-11-18T11:47:18.8805357Z identical    feature-splash-screen-2.png
+2026-11-18T11:47:18.8805739Z identical    feature-splash-screen-3.png
+2026-11-18T11:47:18.8806094Z identical    feature-splash-screen-4.png
+2026-11-18T11:47:18.8806441Z identical    feature-split-text-0.png
+2026-11-18T11:47:18.8806812Z identical    feature-split-text-1.png
+2026-11-18T11:47:18.8807155Z identical    feature-split-text-2.png
+2026-11-18T11:47:18.8807483Z identical    feature-split-text-3.png
+2026-11-18T11:47:18.8808041Z identical    feature-split-text-4.png
+2026-11-18T11:47:18.8808373Z identical    feature-spring-animation-0.png
+2026-11-18T11:47:18.8808715Z identical    feature-spring-animation-1.png
+2026-11-18T11:47:18.8809059Z identical    feature-spring-animation-2.png
+2026-11-18T11:47:18.8809404Z identical    feature-spring-animation-3.png
+2026-11-18T11:47:18.8809873Z identical    feature-spring-animation-4.png
+2026-11-18T11:47:18.8810216Z identical    feature-stack-positioned.png
+2026-11-18T11:47:18.8810551Z identical    feature-state-machine-0.png
+2026-11-18T11:47:18.8825406Z identical    feature-state-machine-1.png
+2026-11-18T11:47:18.8825892Z identical    feature-state-machine-2.png
+2026-11-18T11:47:18.8826274Z identical    feature-state-machine-3.png
+2026-11-18T11:47:18.8826643Z identical    feature-state-machine-4.png
+2026-11-18T11:47:18.8826978Z identical    feature-switch.png
+2026-11-18T11:47:18.8827304Z identical    feature-text-box.png
+2026-11-18T11:47:18.8827638Z identical    feature-text-display.png
+2026-11-18T11:47:18.8828004Z identical    feature-theme-light-dark.png
+2026-11-18T11:47:18.8828370Z identical    feature-timeline-stagger-0.png
+2026-11-18T11:47:18.8828721Z identical    feature-timeline-stagger-1.png
+2026-11-18T11:47:18.8829085Z identical    feature-timeline-stagger-2.png
+2026-11-18T11:47:18.8829448Z identical    feature-timeline-stagger-3.png
+2026-11-18T11:47:18.8830322Z identical    feature-timeline-stagger-4.png
+2026-11-18T11:47:18.8830693Z identical    feature-timelines-0.png
+2026-11-18T11:47:18.8831044Z identical    feature-timelines-1.png
+2026-11-18T11:47:18.8831391Z identical    feature-timelines-2.png
+2026-11-18T11:47:18.8831725Z identical    feature-timelines-3.png
+2026-11-18T11:47:18.8832047Z identical    feature-timelines-4.png
+2026-11-18T11:47:18.8832377Z identical    feature-tint-frosted.png
+2026-11-18T11:47:18.8832724Z identical    feature-transform-translate.png
+2026-11-18T11:47:18.8833128Z identical    feature-transition-fade.png
+2026-11-18T11:47:18.8833502Z identical    feature-transition-slide.png
+2026-11-18T11:47:18.8833869Z identical    feature-tween-0.png
+2026-11-18T11:47:18.8834187Z identical    feature-tween-1.png
+2026-11-18T11:47:18.8834504Z identical    feature-tween-2.png
+2026-11-18T11:47:18.8834976Z identical    feature-tween-3.png
+2026-11-18T11:47:18.8835236Z identical    feature-tween-4.png
+2026-11-18T11:47:18.8835446Z identical    feature-video-effects-0.png
+2026-11-18T11:47:18.8835670Z identical    feature-video-effects-1.png
+2026-11-18T11:47:18.8835886Z identical    feature-video-effects-2.png
+2026-11-18T11:47:18.8836107Z identical    feature-video-effects-3.png
+2026-11-18T11:47:18.8836328Z identical    feature-video-effects-4.png
+2026-11-18T11:47:18.8836548Z identical    feature-video-filmstrip.png
+2026-11-18T11:47:18.8836766Z identical    feature-wide-gamut-color.png
+2026-11-18T11:47:18.8836908Z 
+2026-11-18T11:47:18.8837180Z 228 shot(s), 212 matched, 16 failed — target/goldens/run/diff/index.html
+2026-11-18T11:47:18.8837693Z ##[endgroup]
+2026-11-18T11:47:18.8854316Z ##[error]Capture and compare failed (exit 1)
+2026-11-18T11:47:18.8861384Z ##[group]mark: upload goldens-diff
+2026-11-18T11:47:18.8861860Z ##[endgroup]
+2026-11-18T11:47:18.8961121Z ##[error]Process completed with exit code 1.
+2026-11-18T11:47:18.9028212Z ##[group]Run actions/upload-artifact@v4
+2026-11-18T11:47:18.9028438Z with:
+2026-11-18T11:47:18.9028598Z   name: goldens-diff
+2026-11-18T11:47:18.9028937Z   path: vieww_base/target/goldens/run/diff/
+vieww_base/target/goldens/run/manifest.txt
+vieww_base/target/goldens/run/stderr.txt
+
+2026-11-18T11:47:18.9029309Z   if-no-files-found: warn
+2026-11-18T11:47:18.9029681Z   include-hidden-files: false
+2026-11-18T11:47:18.9029875Z   compression-level: 6
+2026-11-18T11:47:18.9030054Z   overwrite: false
+2026-11-18T11:47:18.9030214Z env:
+2026-11-18T11:47:18.9030389Z   CI_INPUTS: ***"update": false***
+2026-11-18T11:47:18.9030588Z   CI_MATRIX: ***
+2026-11-18T11:47:18.9031664Z   CI_JOB: ***"title": "vieww \u00b7 goldens", "project": "vieww", "id": "goldens", "file": "vieww_base/ci/jobs/goldens.toml", "if": "", "needs": [], "setup": [***"uses": "rust-cache", "with": ***"workspaces": "vieww_base", "key": "goldens"***], "uploads": [***"name": "goldens-diff", "path": "vieww_base/target/goldens/run/diff/\nvieww_base/target/goldens/run/manifest.txt\nvieww_base/target/goldens/run/stderr.txt\n"***, ***"name": "goldens-new-baseline", "path": "vieww_base/target/goldens/run/*.png\nvieww_base/target/goldens/run/manifest.txt\n"***], "downloads": []***
+2026-11-18T11:47:18.9032832Z   CI_PROJECT: vieww
+2026-11-18T11:47:18.9033354Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f"
+***
+2026-11-18T11:47:18.9035314Z   CI_GITHUB_TOKEN: ***
+2026-11-18T11:47:18.9035494Z   CI_SECRET_NAMES: 
+2026-11-18T11:47:18.9035670Z   CI_HAS_AWS_ROLE: false
+2026-11-18T11:47:18.9035851Z   ANDROID_KEYSTORE: 
+2026-11-18T11:47:18.9036036Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-18T11:47:18.9036230Z   ANDROID_KEY_ALIAS: 
+2026-11-18T11:47:18.9036412Z   ANDROID_KEY_PASSWORD: 
+2026-11-18T11:47:18.9036595Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-18T11:47:18.9036789Z   APPLE_NOTARY_ISSUER: 
+2026-11-18T11:47:18.9037000Z   APPLE_NOTARY_KEY: 
+2026-11-18T11:47:18.9037180Z   APPLE_NOTARY_KEY_ID: 
+2026-11-18T11:47:18.9037355Z   APPLE_P12_PASSWORD: 
+2026-11-18T11:47:18.9037538Z   APPLE_SIGNING_IDENTITY: 
+2026-11-18T11:47:18.9037717Z   AWS_ACCESS_KEY_ID: 
+2026-11-18T11:47:18.9037889Z   AWS_ROLE_ARN: 
+2026-11-18T11:47:18.9038057Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-18T11:47:18.9038244Z   CARGO_REGISTRY_TOKEN: 
+2026-11-18T11:47:18.9038426Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-18T11:47:18.9038610Z   CLOUDFLARE_API_TOKEN: 
+2026-11-18T11:47:18.9038792Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-18T11:47:18.9038977Z   FIREBASE_PROJECT: 
+2026-11-18T11:47:18.9039152Z   FIREBASE_SA_KEY: 
+2026-11-18T11:47:18.9039320Z   IOS_CERT_P12: 
+2026-11-18T11:47:18.9039612Z   IOS_CERT_PASSWORD: 
+2026-11-18T11:47:18.9039790Z   IOS_IDENTITY: 
+2026-11-18T11:47:18.9039957Z   IOS_PROFILE: 
+2026-11-18T11:47:18.9040127Z   WINDOWS_CERT_PASSWORD: 
+2026-11-18T11:47:18.9040309Z   WINDOWS_CERT_PFX: 
+2026-11-18T11:47:18.9040501Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-18T11:47:18.9040719Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-18T11:47:18.9040931Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-18T11:47:18.9041130Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-18T11:47:18.9041351Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-18T11:47:18.9041569Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-18T11:47:18.9041768Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-18T11:47:18.9041967Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-18T11:47:18.9042183Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-18T11:47:18.9042431Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-18T11:47:18.9042673Z   CACHE_ON_FAILURE: false
+2026-11-18T11:47:18.9042852Z   CARGO_INCREMENTAL: 0
+2026-11-18T11:47:18.9043036Z   CI_UPLOAD_0: yes
+2026-11-18T11:47:18.9043206Z ##[endgroup]
+2026-11-18T11:47:19.0168766Z (node:7920) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-18T11:47:19.0169911Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-18T11:47:19.0244661Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-11-18T11:47:19.0246440Z The least common ancestor is /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/goldens/run. This will be the root directory of the artifact
+2026-11-18T11:47:19.0257511Z With the provided path, there will be 19 files uploaded
+2026-11-18T11:47:19.0258470Z Artifact name is valid!
+2026-11-18T11:47:19.0258898Z Root directory input is valid!
+2026-11-18T11:47:19.3311607Z Beginning upload of artifact content to blob storage
+2026-11-18T11:47:19.3662768Z (node:7920) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-18T11:47:19.6814973Z Uploaded bytes 450218
+2026-11-18T11:47:19.7220106Z Finished uploading artifact content to blob storage!
+2026-11-18T11:47:19.7220838Z SHA256 digest of uploaded artifact zip is 0553b1581b58ddd1522f3aa9e16c6724ab833d076130a68ef933109a7f7da7aa
+2026-11-18T11:47:19.7221407Z Finalizing artifact upload
+2026-11-18T11:47:20.1208961Z Artifact goldens-diff.zip successfully finalized. Artifact ID 14424796214
+2026-11-18T11:47:20.1209848Z Artifact goldens-diff has been successfully uploaded! Final size is 450218 bytes. Artifact ID is 14424796214
+2026-11-18T11:47:20.1214848Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/44296879878/artifacts/14424796214
+2026-11-18T11:47:20.1468010Z Post job cleanup.
+2026-11-18T11:47:20.2104253Z [command]/usr/bin/git version
+2026-11-18T11:47:20.2139827Z git version 2.56.1
+2026-11-18T11:47:20.2165919Z Temporarily overriding HOME='/home/runner/work/_temp/2c91fc90-5b05-472f-8a79-fa375511c59b' before making global git config changes
+2026-11-18T11:47:20.2166860Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-18T11:47:20.2172306Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-18T11:47:20.2208190Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-18T11:47:20.2245463Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-18T11:47:20.2529992Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-18T11:47:20.2565145Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-18T11:47:20.2860863Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-18T11:47:20.2899288Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-18T11:47:20.3457400Z Cleaning up orphan processes
+2026-11-18T11:47:20.3800681Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== phase-1 / vieww · quick	log =====
+2026-11-18T12:01:59.8560772Z     [1m[94m|[0m               [1m[33m^^^^^^^^^[0m
+2026-11-18T12:01:59.8590311Z 
+2026-11-18T12:01:59.8620945Z [1m[33mwarning[0m[1m: function `lanes_div_scalar` is never used[0m
+2026-11-18T12:01:59.8650862Z    [1m[94m--> [0mcrates/vieww-paint/src/native/simd.rs:287:15
+2026-11-18T12:01:59.8680646Z     [1m[94m|[0m
+2026-11-18T12:01:59.8711152Z [1m[94m287[0m [1m[94m|[0m pub(crate) fn lanes_div_scalar(a: [f32; 4], k: f32) -> [f32; 4] ***
+2026-11-18T12:01:59.8740777Z     [1m[94m|[0m               [1m[33m^^^^^^^^^^^^^^^^[0m
+2026-11-18T12:01:59.8770291Z 
+2026-11-18T12:02:00.2281807Z [1m[33mwarning[0m: `vieww-paint` (lib) generated 3 warnings
+2026-11-18T12:02:01.7030290Z [1m[92m    Checking[0m harfrust v0.5.2
+2026-11-18T12:02:01.7031761Z [1m[92m    Checking[0m skrifa v0.40.0
+2026-11-18T12:02:04.1406445Z [1m[92m    Checking[0m cosmic-text v0.19.0
+2026-11-18T12:02:04.9038486Z [1m[92m    Checking[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-18T12:02:05.1188628Z [1m[92m    Checking[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-18T12:02:06.3314165Z [1m[92m    Checking[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-18T12:02:06.5774227Z [1m[92m    Checking[0m web-sys v0.3.106
+2026-11-18T12:02:06.7112293Z [1m[92m    Checking[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-18T12:02:12.4769297Z [1m[92m    Checking[0m vieww-platform-web v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web)
+2026-11-18T12:02:12.6123455Z [1m[92m    Finished[0m `dev` profile [unoptimized] target(s) in 1m 00s
+2026-11-18T12:02:12.6359482Z ==> cargo clippy -p vieww-platform-web --target wasm32-unknown-unknown
+2026-11-18T12:02:12.9079240Z [1m[92m    Checking[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-18T12:02:12.9138297Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-18T12:02:12.9146059Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-18T12:02:12.9147985Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-18T12:02:13.0208927Z [1m[92m    Checking[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
+2026-11-18T12:02:14.0972946Z [1m[92m    Checking[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+2026-11-18T12:02:14.0975196Z [1m[92m    Checking[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-18T12:02:14.0976997Z [1m[92m    Checking[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-18T12:02:15.0923901Z [1m[91merror[0m[1m: function `lanes_add` is never used[0m
+2026-11-18T12:02:15.0925249Z    [1m[94m--> [0mcrates/vieww-paint/src/native/simd.rs:239:15
+2026-11-18T12:02:15.0926454Z     [1m[94m|[0m
+2026-11-18T12:02:15.0927730Z [1m[94m239[0m [1m[94m|[0m pub(crate) fn lanes_add(a: [f32; 4], b: [f32; 4]) -> [f32; 4] ***
+2026-11-18T12:02:15.0928995Z     [1m[94m|[0m               [1m[91m^^^^^^^^^[0m
+2026-11-18T12:02:15.0929918Z     [1m[94m|[0m
+2026-11-18T12:02:15.0931076Z     [1m[94m= [0m[1mnote[0m: `-D dead-code` implied by `-D warnings`
+2026-11-18T12:02:15.0932931Z     [1m[94m= [0m[1mhelp[0m: to override `-D warnings` add `#[expect(dead_code)]` or `#[allow(dead_code)]`
+2026-11-18T12:02:15.0933959Z 
+2026-11-18T12:02:15.0934622Z [1m[91merror[0m[1m: function `lanes_sub` is never used[0m
+2026-11-18T12:02:15.0935728Z    [1m[94m--> [0mcrates/vieww-paint/src/native/simd.rs:261:15
+2026-11-18T12:02:15.0936613Z     [1m[94m|[0m
+2026-11-18T12:02:15.0937660Z [1m[94m261[0m [1m[94m|[0m pub(crate) fn lanes_sub(a: [f32; 4], b: [f32; 4]) -> [f32; 4] ***
+2026-11-18T12:02:15.0938825Z     [1m[94m|[0m               [1m[91m^^^^^^^^^[0m
+2026-11-18T12:02:15.0939442Z 
+2026-11-18T12:02:15.0940246Z [1m[91merror[0m[1m: function `lanes_div_scalar` is never used[0m
+2026-11-18T12:02:15.0941360Z    [1m[94m--> [0mcrates/vieww-paint/src/native/simd.rs:287:15
+2026-11-18T12:02:15.0942231Z     [1m[94m|[0m
+2026-11-18T12:02:15.0943246Z [1m[94m287[0m [1m[94m|[0m pub(crate) fn lanes_div_scalar(a: [f32; 4], k: f32) -> [f32; 4] ***
+2026-11-18T12:02:15.0944438Z     [1m[94m|[0m               [1m[91m^^^^^^^^^^^^^^^^[0m
+2026-11-18T12:02:15.0945072Z 
+2026-11-18T12:02:15.2419397Z [1m[91merror[0m: could not compile `vieww-paint` (lib) due to 3 previous errors
+2026-11-18T12:02:15.2421616Z [1m[33mwarning[0m: build failed, waiting for other jobs to finish...
+2026-11-18T12:02:18.0081657Z     FAILED: web-sys feature audit (the half of ci/check/wasm-check.sh that needs no target) (exit 1)
+2026-11-18T12:02:18.0082233Z 
+2026-11-18T12:02:18.0082656Z ==> fixture gallery (renders every screen; fails on a layout overflow)
+2026-11-18T12:02:18.2799417Z [1m[92m   Compiling[0m proc-macro2 v1.0.107
+2026-11-18T12:02:18.2800297Z [1m[92m   Compiling[0m unicode-ident v1.0.26
+2026-11-18T12:02:18.2801240Z [1m[92m   Compiling[0m quote v1.0.47
+2026-11-18T12:02:18.2802064Z [1m[92m   Compiling[0m libm v0.2.16
+2026-11-18T12:02:18.3399443Z [1m[92m   Compiling[0m unicode-segmentation v1.13.3
+2026-11-18T12:02:18.4197216Z [1m[92m   Compiling[0m autocfg v1.5.1
+2026-11-18T12:02:18.7508138Z [1m[92m   Compiling[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-18T12:02:19.1412398Z [1m[92m   Compiling[0m syn v3.0.6
+2026-11-18T12:02:19.1478127Z [1m[92m   Compiling[0m bitflags v2.13.2
+2026-11-18T12:02:19.4439525Z [1m[92m   Compiling[0m once_cell v1.21.4
+2026-11-18T12:02:19.5601500Z [1m[92m   Compiling[0m core_maths v0.1.1
+2026-11-18T12:02:19.6141627Z [1m[92m   Compiling[0m ttf-parser v0.25.1
+2026-11-18T12:02:20.2252062Z [1m[92m   Compiling[0m syn v2.0.119
+2026-11-18T12:02:21.6762304Z [1m[92m   Compiling[0m bytemuck_derive v1.12.1
+2026-11-18T12:02:22.7721765Z [1m[92m   Compiling[0m bytemuck v1.25.2
+2026-11-18T12:02:23.0171565Z [1m[92m   Compiling[0m font-types v0.12.5
+2026-11-18T12:02:23.4572595Z [1m[92m   Compiling[0m read-fonts v0.41.0
+2026-11-18T12:02:24.2108169Z [1m[92m   Compiling[0m simd-adler32 v0.3.10
+2026-11-18T12:02:24.4552195Z [1m[92m   Compiling[0m cfg-if v1.0.5
+2026-11-18T12:02:24.4871840Z [1m[92m   Compiling[0m crc32fast v1.5.2
+2026-11-18T12:02:24.6011561Z [1m[92m   Compiling[0m adler2 v2.0.1
+2026-11-18T12:02:24.9859665Z [1m[92m   Compiling[0m miniz_oxide v0.9.1
+2026-11-18T12:02:25.0341389Z [1m[92m   Compiling[0m num-traits v0.2.19
+2026-11-18T12:02:25.1021502Z [1m[92m   Compiling[0m libc v0.2.189
+2026-11-18T12:02:25.3274328Z [1m[92m   Compiling[0m version_check v0.9.5
+2026-11-18T12:02:25.5721714Z [1m[92m   Compiling[0m slotmap v1.1.1
+2026-11-18T12:02:25.6461377Z [1m[92m   Compiling[0m flate2 v1.1.10
+2026-11-18T12:02:26.2851599Z [1m[92m   Compiling[0m miniz_oxide v0.8.9
+2026-11-18T12:02:26.5971648Z [1m[92m   Compiling[0m fdeflate v0.3.7
+2026-11-18T12:02:27.4732688Z [1m[92m   Compiling[0m font-types v0.11.3
+2026-11-18T12:02:27.7831568Z [1m[92m   Compiling[0m png v0.18.1
+2026-11-18T12:02:27.8771589Z [1m[92m   Compiling[0m read-fonts v0.37.0
+2026-11-18T12:02:30.4051588Z [1m[92m   Compiling[0m roxmltree v0.20.0
+2026-11-18T12:02:31.0862855Z [1m[92m   Compiling[0m memmap2 v0.9.11
+2026-11-18T12:02:31.3452097Z [1m[92m   Compiling[0m fontconfig-parser v0.5.8
+2026-11-18T12:02:32.4161684Z [1m[92m   Compiling[0m skrifa v0.44.0
+2026-11-18T12:02:33.8921951Z [1m[92m   Compiling[0m zeno v0.3.3
+2026-11-18T12:02:34.9621626Z [1m[92m   Compiling[0m log v0.4.34
+2026-11-18T12:02:35.1271480Z [1m[92m   Compiling[0m smallvec v1.16.2
+2026-11-18T12:02:35.3411658Z [1m[92m   Compiling[0m tinyvec v1.13.3
+2026-11-18T12:02:35.8481723Z [1m[92m   Compiling[0m yazi v0.2.1
+2026-11-18T12:02:37.2211838Z [1m[92m   Compiling[0m swash v0.2.10
+2026-11-18T12:02:46.2641704Z [1m[92m   Compiling[0m fontdb v0.23.0
+2026-11-18T12:02:47.9821781Z [1m[92m   Compiling[0m harfrust v0.5.2
+2026-11-18T12:02:48.4501554Z [1m[92m   Compiling[0m skrifa v0.40.0
+2026-11-18T12:02:48.8182313Z [1m[92m   Compiling[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+2026-11-18T12:02:54.2962117Z [1m[92m   Compiling[0m linebender_resource_handle v0.1.1
+2026-11-18T12:02:54.3631502Z [1m[92m   Compiling[0m zerocopy v0.8.59
+2026-11-18T12:02:54.5701574Z [1m[92m   Compiling[0m thiserror v2.0.21
+2026-11-18T12:02:54.7492153Z [1m[92m   Compiling[0m rangemap v1.8.0
+2026-11-18T12:02:55.0701568Z [1m[92m   Compiling[0m smol_str v0.3.6
+2026-11-18T12:02:55.3221735Z [1m[92m   Compiling[0m unicode-linebreak v0.1.5
+2026-11-18T12:02:55.5413009Z [1m[92m   Compiling[0m unicode-script v0.5.8
+2026-11-18T12:02:56.0141633Z [1m[92m   Compiling[0m unicode-bidi v0.3.18
+2026-11-18T12:02:57.1601627Z [1m[92m   Compiling[0m foldhash v0.2.0
+2026-11-18T12:02:57.2631474Z [1m[92m   Compiling[0m sys-locale v0.3.2
+2026-11-18T12:02:57.4829424Z [1m[92m   Compiling[0m rustc-hash v2.1.3
+2026-11-18T12:02:57.5371580Z [1m[92m   Compiling[0m self_cell v1.3.0
+2026-11-18T12:02:57.5911471Z [1m[92m   Compiling[0m cosmic-text v0.19.0
+2026-11-18T12:03:00.5631745Z [1m[92m   Compiling[0m hashbrown v0.17.1
+2026-11-18T12:03:02.4401956Z [1m[92m   Compiling[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-18T12:03:02.5172374Z [1m[92m   Compiling[0m zerocopy-derive v0.8.59
+2026-11-18T12:03:02.9121531Z [1m[92m   Compiling[0m thiserror-impl v2.0.21
+2026-11-18T12:03:04.0891621Z [1m[92m   Compiling[0m cfg_aliases v0.2.2
+2026-11-18T12:03:04.1281716Z [1m[92m   Compiling[0m equivalent v1.0.2
+2026-11-18T12:03:04.1608607Z [1m[92m   Compiling[0m indexmap v2.14.2
+2026-11-18T12:03:04.8438758Z [1m[92m   Compiling[0m naga v30.0.1
+2026-11-18T12:03:05.8132543Z [1m[92m   Compiling[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-18T12:03:06.6942519Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-18T12:03:07.1111467Z [1m[92m   Compiling[0m bit-vec v0.9.1
+2026-11-18T12:03:07.2991618Z [1m[92m   Compiling[0m rustc-hash v1.1.0
+2026-11-18T12:03:07.3463536Z [1m[92m   Compiling[0m unicode-width v0.2.2
+2026-11-18T12:03:07.5598581Z [1m[92m   Compiling[0m codespan-reporting v0.13.1
+2026-11-18T12:03:08.0133927Z [1m[92m   Compiling[0m naga-types v30.0.1
+2026-11-18T12:03:08.1151723Z [1m[92m   Compiling[0m bit-set v0.10.0
+2026-11-18T12:03:08.2252169Z [1m[92m   Compiling[0m spirv v0.4.0+sdk-1.4.341.0
+2026-11-18T12:03:08.6302068Z [1m[92m   Compiling[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-18T12:03:08.9761687Z [1m[92m   Compiling[0m half v2.7.1
+2026-11-18T12:03:09.3556022Z [1m[92m   Compiling[0m euclid v0.22.14
+2026-11-18T12:03:09.9311462Z [1m[92m   Compiling[0m arrayvec v0.7.8
+2026-11-18T12:03:10.3011654Z [1m[92m   Compiling[0m lyon_geom v1.0.19
+2026-11-18T12:03:10.8211714Z [1m[92m   Compiling[0m zune-core v0.5.3
+2026-11-18T12:03:11.0749235Z [1m[92m   Compiling[0m pxfm v0.1.30
+2026-11-18T12:03:17.1153182Z [1m[92m   Compiling[0m moxcms v0.8.1
+2026-11-18T12:03:22.1113041Z [1m[92m   Compiling[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+2026-11-18T12:03:22.3762333Z [1m[92m   Compiling[0m zune-jpeg v0.5.15
+2026-11-18T12:03:22.5281754Z [1m[92m   Compiling[0m lyon_path v1.0.19
+2026-11-18T12:03:23.1262231Z [1m[92m   Compiling[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+2026-11-18T12:03:23.2852160Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-18T12:03:23.3551544Z [1m[92m   Compiling[0m byteorder-lite v0.1.0
+2026-11-18T12:03:23.6241970Z [1m[92m   Compiling[0m float_next_after v1.0.0
+2026-11-18T12:03:23.6891451Z [1m[92m   Compiling[0m ash v0.38.0+1.3.281
+2026-11-18T12:03:23.7681706Z [1m[92m   Compiling[0m lyon_tessellation v1.0.22
+2026-11-18T12:03:23.9351072Z [1m[92m   Compiling[0m image v0.25.10
+2026-11-18T12:03:24.5262212Z [1m[92m   Compiling[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-18T12:03:26.2052935Z [1m[92m   Compiling[0m vieww-scene v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
+2026-11-18T12:03:26.5742032Z [1m[92m   Compiling[0m libloading v0.8.9
+2026-11-18T12:03:26.7352183Z [1m[92m   Compiling[0m vieww-image v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-image)
+2026-11-18T12:03:31.7552312Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-18T12:03:33.6331765Z [1m[92m   Compiling[0m vieww-video v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-video)
+2026-11-18T12:03:37.2432060Z [1m[92m   Compiling[0m vieww-asset v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
+2026-11-18T12:03:39.7184327Z [1m[92m   Compiling[0m vieww-render-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
+2026-11-18T12:03:42.2752045Z [1m[92m   Compiling[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-18T12:03:48.0212044Z [1m[92m   Compiling[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+2026-11-18T12:03:51.6982068Z [1m[92m   Compiling[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
+2026-11-18T12:03:51.9560388Z [1m[92m   Compiling[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
+2026-11-18T12:03:52.1432072Z [1m[92m   Compiling[0m vieww-spatial v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-spatial)
+2026-11-18T12:03:54.0202352Z [1m[92m   Compiling[0m vieww-mesh v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-mesh)
+2026-11-18T12:03:55.0342525Z [1m[92m   Compiling[0m vieww-physics v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-physics)
+2026-11-18T12:03:56.0102454Z [1m[92m   Compiling[0m vieww-network v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-network)
+2026-11-18T12:03:58.3211786Z [1m[92m   Compiling[0m color_quant v1.1.0
+2026-11-18T12:03:58.5989188Z [1m[92m   Compiling[0m weezl v0.1.12
+2026-11-18T12:03:59.6392090Z [1m[92m   Compiling[0m fixtures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/fixtures)
+2026-11-18T12:03:59.8163728Z [1m[92m   Compiling[0m gif v0.14.2
+2026-11-18T12:03:59.8448016Z [1m[92m   Compiling[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
+2026-11-18T12:03:59.8992341Z [1m[92m   Compiling[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-18T12:04:01.5712484Z [1m[92m   Compiling[0m vieww-render-planner v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
+2026-11-18T12:04:19.3473034Z [1m[92m    Finished[0m `release` profile [optimized] target(s) in 2m 01s
+2026-11-18T12:04:19.3604758Z [1m[92m     Running[0m `target/release/fixtures /tmp/tmp.XI95RWnkMy`
+2026-11-18T12:04:23.8452124Z 
+2026-11-18T12:04:23.8452783Z --- formatting: its diagnostics ---
+2026-11-18T12:04:23.8453817Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/scene_exec.rs:896:
+2026-11-18T12:04:23.8455163Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/scene_exec.rs:951:
+2026-11-18T12:04:23.8456514Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/scene_exec.rs:1996:
+2026-11-18T12:04:23.8457391Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/scene_exec.rs:2131:
+2026-11-18T12:04:23.8458228Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/mod.rs:336:
+2026-11-18T12:04:23.8459071Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/mod.rs:710:
+2026-11-18T12:04:23.8459896Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/mod.rs:1995:
+2026-11-18T12:04:23.8460919Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/mod.rs:2137:
+2026-11-18T12:04:23.8461783Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:1411:
+2026-11-18T12:04:23.8462563Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:1512:
+2026-11-18T12:04:23.8463344Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:3735:
+2026-11-18T12:04:23.8464106Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:3743:
+2026-11-18T12:04:23.8464894Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/effects.rs:341:
+2026-11-18T12:04:23.8465712Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/fill_cache.rs:500:
+2026-11-18T12:04:23.8466521Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/fill_cache.rs:532:
+2026-11-18T12:04:23.8467806Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/geometry/fill/crossing_lanes_x86.rs:18:
+2026-11-18T12:04:23.8468719Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/geometry/fill.rs:975:
+2026-11-18T12:04:23.8469543Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/geometry/fill.rs:981:
+2026-11-18T12:04:23.8470902Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/geometry/fill.rs:2557:
+2026-11-18T12:04:23.8472345Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/reference.rs:3587:
+2026-11-18T12:04:23.8473840Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/reference.rs:3594:
+2026-11-18T12:04:23.8475766Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/reference.rs:3624:
+2026-11-18T12:04:23.8476812Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/reference.rs:3634:
+2026-11-18T12:04:23.8477619Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/reference.rs:3638:
+2026-11-18T12:04:23.8478389Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/reference.rs:3646:
+2026-11-18T12:04:23.8479158Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/reference.rs:3692:
+2026-11-18T12:04:23.8479928Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/simd/neon.rs:45:
+2026-11-18T12:04:23.8480931Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/simd.rs:248:
+2026-11-18T12:04:23.8481898Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/simd.rs:270:
+2026-11-18T12:04:23.8482660Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/simd.rs:296:
+2026-11-18T12:04:23.8483403Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/simd.rs:608:
+2026-11-18T12:04:23.8484178Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/target.rs:301:
+2026-11-18T12:04:23.8485054Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/target.rs:1037:
+2026-11-18T12:04:23.8485946Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/target.rs:1698:
+2026-11-18T12:04:23.8486841Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/tests/retained_equivalence.rs:304:
+2026-11-18T12:04:23.8487897Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit/src/app.rs:2648:
+2026-11-18T12:04:23.8488694Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/market-watch/examples/cpu_bench.rs:81:
+2026-11-18T12:04:23.8489317Z 
+2026-11-18T12:04:23.8489801Z --- docs (workspace, broken intra-doc links are errors): its diagnostics ---
+2026-11-18T12:04:23.8491303Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/doc/vieww/index.html
+2026-11-18T12:04:23.8492466Z error: unresolved link to `Self::version`
+2026-11-18T12:04:23.8492961Z   --> crates/vieww-gpu/src/dirty.rs:26:65
+2026-11-18T12:04:23.8493353Z error: unresolved link to `Self::begin_frame`
+2026-11-18T12:04:23.8493731Z   --> crates/vieww-gpu/src/dirty.rs:29:23
+2026-11-18T12:04:23.8494097Z error: unresolved link to `Self::blit`
+2026-11-18T12:04:23.8494445Z   --> crates/vieww-gpu/src/dirty.rs:33:38
+2026-11-18T12:04:23.8494799Z error: unresolved link to `Self::rewrote`
+2026-11-18T12:04:23.8495230Z   --> crates/vieww-gpu/src/dirty.rs:35:40
+2026-11-18T12:04:23.8495841Z error: unresolved link to `Self::changes_since`
+2026-11-18T12:04:23.8496468Z   --> crates/vieww-gpu/src/dirty.rs:38:25
+2026-11-18T12:04:23.8497051Z error: redundant explicit link target
+2026-11-18T12:04:23.8497721Z   --> crates/vieww-gpu/src/ramp_atlas.rs:19:20
+2026-11-18T12:04:23.8498814Z error: could not document `vieww-gpu`
+2026-11-18T12:04:23.8499526Z warning: build failed, waiting for other jobs to finish...
+2026-11-18T12:04:23.8500899Z error: public documentation for `StagingSlot` links to private item `Slot`
+2026-11-18T12:04:23.8501796Z    --> crates/vieww-hal/src/vulkan/scene.rs:576:28
+2026-11-18T12:04:23.8502763Z error: public documentation for `set_memory_trim_frames` links to private item `TARGET_TRIM_FRAMES`
+2026-11-18T12:04:23.8503791Z     --> crates/vieww-hal/src/vulkan/scene.rs:1641:12
+2026-11-18T12:04:23.8504722Z error: public documentation for `set_memory_trim_frames` links to private item `STAGING_TRIM_FRAMES`
+2026-11-18T12:04:23.8505657Z     --> crates/vieww-hal/src/vulkan/scene.rs:1641:36
+2026-11-18T12:04:23.8506271Z error: could not document `vieww-hal`
+2026-11-18T12:04:23.8506853Z error: unresolved link to `wait_samples`
+2026-11-18T12:04:23.8507482Z    --> crates/vieww-platform-winit/src/stats.rs:552:62
+2026-11-18T12:04:23.8508154Z error: could not document `vieww-platform-winit`
+2026-11-18T12:04:23.8508785Z error: unresolved link to `run_chunks`
+2026-11-18T12:04:23.8509358Z error: could not document `vieww-paint`
+2026-11-18T12:04:23.8509724Z 
+2026-11-18T12:04:23.8509971Z --- tests (workspace): its diagnostics ---
+2026-11-18T12:04:23.8511230Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/libandroid.so
+2026-11-18T12:04:23.8512705Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/libandroid.so.dwp
+2026-11-18T12:04:23.8514144Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline
+2026-11-18T12:04:23.8515876Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline.dwp
+2026-11-18T12:04:23.8517347Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/snapshot
+2026-11-18T12:04:23.8518798Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/snapshot.dwp
+2026-11-18T12:04:23.8520363Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench
+2026-11-18T12:04:23.8521759Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench.dwp
+2026-11-18T12:04:23.8523266Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render
+2026-11-18T12:04:23.8524752Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render.dwp
+2026-11-18T12:04:23.8526083Z error: could not find `Cargo.toml` in `/tmp/vieww-cli-dev-fail` or any parent directory
+2026-11-18T12:04:23.8527242Z error: could not find `Cargo.toml` in `/tmp/vieww-cli-cmd-cargo-test` or any parent directory
+2026-11-18T12:04:23.8528594Z test native::reference::tests::raster_time_by_kind_is_opt_in_and_lands_on_the_kind_that_did_the_work ... FAILED
+2026-11-18T12:04:23.8530199Z ---- native::reference::tests::raster_time_by_kind_is_opt_in_and_lands_on_the_kind_that_did_the_work stdout ----
+2026-11-18T12:04:23.8531989Z thread 'native::reference::tests::raster_time_by_kind_is_opt_in_and_lands_on_the_kind_that_did_the_work' (41182) panicked at crates/vieww-paint/src/native/reference.rs:3241:13:
+2026-11-18T12:04:23.8533382Z error: test failed, to rerun pass `-p vieww-paint --lib`
+2026-11-18T12:04:23.8533798Z 
+2026-11-18T12:04:23.8534339Z --- web-sys feature audit (the half of ci/check/wasm-check.sh that needs no target): its diagnostics ---
+2026-11-18T12:04:23.8535356Z warning: function `lanes_add` is never used
+2026-11-18T12:04:23.8536102Z    --> crates/vieww-paint/src/native/simd.rs:239:15
+2026-11-18T12:04:23.8536819Z warning: function `lanes_sub` is never used
+2026-11-18T12:04:23.8537520Z    --> crates/vieww-paint/src/native/simd.rs:261:15
+2026-11-18T12:04:23.8538514Z warning: function `lanes_div_scalar` is never used
+2026-11-18T12:04:23.8539275Z    --> crates/vieww-paint/src/native/simd.rs:287:15
+2026-11-18T12:04:23.8540194Z warning: `vieww-paint` (lib) generated 3 warnings
+2026-11-18T12:04:23.8540915Z error: function `lanes_add` is never used
+2026-11-18T12:04:23.8541617Z    --> crates/vieww-paint/src/native/simd.rs:239:15
+2026-11-18T12:04:23.8542338Z error: function `lanes_sub` is never used
+2026-11-18T12:04:23.8543051Z    --> crates/vieww-paint/src/native/simd.rs:261:15
+2026-11-18T12:04:23.8543758Z error: function `lanes_div_scalar` is never used
+2026-11-18T12:04:23.8544451Z    --> crates/vieww-paint/src/native/simd.rs:287:15
+2026-11-18T12:04:23.8545313Z error: could not compile `vieww-paint` (lib) due to 3 previous errors
+2026-11-18T12:04:23.8546224Z warning: build failed, waiting for other jobs to finish...
+2026-11-18T12:04:23.8546725Z 
+2026-11-18T12:04:23.8546937Z 4 stage(s) failed:
+2026-11-18T12:04:23.8547404Z   - formatting (exit 1)
+2026-11-18T12:04:23.8548015Z   - docs (workspace, broken intra-doc links are errors) (exit 101)
+2026-11-18T12:04:23.8548767Z   - tests (workspace) (exit 101)
+2026-11-18T12:04:23.8549647Z   - web-sys feature audit (the half of ci/check/wasm-check.sh that needs no target) (exit 1)
+2026-11-18T12:04:23.8551142Z ##[endgroup]
+2026-11-18T12:04:23.8581260Z ##[error]Quick checks failed (exit 1)
+2026-11-18T12:04:23.8635442Z ##[error]Process completed with exit code 1.
+2026-11-18T12:04:23.8842417Z Post job cleanup.
+2026-11-18T12:04:23.9807699Z [command]/usr/bin/git version
+2026-11-18T12:04:23.9859871Z git version 2.56.1
+2026-11-18T12:04:23.9906898Z Temporarily overriding HOME='/home/runner/work/_temp/0b2cfa13-1fb4-4ef6-aa90-9fe174989380' before making global git config changes
+2026-11-18T12:04:23.9908347Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-18T12:04:23.9919104Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-18T12:04:23.9970684Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-18T12:04:24.0019180Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-18T12:04:24.0346072Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-18T12:04:24.0392548Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-18T12:04:24.0794202Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-18T12:04:24.0828650Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-18T12:04:24.1306255Z Cleaning up orphan processes
+2026-11-18T12:04:24.1887916Z Terminate orphan process: pid (35196) (java)
+2026-11-18T12:04:24.1992775Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
 
 ===== phase-1 / vieww · framework-macos	log =====
 ﻿<?xml version="1.0" encoding="utf-8"?><Error><Code>BlobNotFound</Code><Message>The specified blob does not exist.
-RequestId:09887d00-101e-00b7-7d32-753d4d000000
-Time:2026-11-15T18:49:17.4384475Z</Message></Error>
+RequestId:b9bf254b-601e-003c-6856-777f3a000000
+Time:2026-11-18T12:17:57.8868692Z</Message></Error>
+
+===== phase-1 / vieww · framework-cross	log =====
+2026-11-18T11:41:35.9120630Z Updating files:  92% (3212/3491)
+2026-11-18T11:41:35.9167809Z Updating files:  93% (3247/3491)
+2026-11-18T11:41:35.9184313Z Updating files:  94% (3282/3491)
+2026-11-18T11:41:35.9249018Z Updating files:  95% (3317/3491)
+2026-11-18T11:41:35.9310907Z Updating files:  96% (3352/3491)
+2026-11-18T11:41:35.9336976Z Updating files:  97% (3387/3491)
+2026-11-18T11:41:35.9362329Z Updating files:  98% (3422/3491)
+2026-11-18T11:41:36.0999075Z Updating files:  99% (3457/3491)
+2026-11-18T11:41:36.0999518Z Updating files: 100% (3491/3491)
+2026-11-18T11:41:36.1010870Z Updating files: 100% (3491/3491), done.
+2026-11-18T11:41:36.1039783Z Switched to a new branch 'main'
+2026-11-18T11:41:36.1044471Z branch 'main' set up to track 'origin/main'.
+2026-11-18T11:41:36.1137795Z ##[endgroup]
+2026-11-18T11:41:36.1192899Z [command]/usr/bin/git log -1 --format=%H
+2026-11-18T11:41:36.1228255Z ee5a473927c2afb59c895056b1e0ac209a3e18c3
+2026-11-18T11:41:36.1440573Z ##[group]Run actions/setup-python@v5
+2026-11-18T11:41:36.1440804Z with:
+2026-11-18T11:41:36.1440972Z   python-version: 3.12
+2026-11-18T11:41:36.1441166Z   update-environment: false
+2026-11-18T11:41:36.1441364Z   check-latest: false
+2026-11-18T11:41:36.1443130Z   token: ***
+2026-11-18T11:41:36.1443305Z   allow-prereleases: false
+2026-11-18T11:41:36.1443496Z   freethreaded: false
+2026-11-18T11:41:36.1443670Z env:
+2026-11-18T11:41:36.1443836Z   CI_INPUTS: ***
+2026-11-18T11:41:36.1444009Z   CI_MATRIX: ***
+2026-11-18T11:41:36.1444511Z   CI_JOB: ***"title": "vieww \u00b7 framework-cross", "project": "vieww", "id": "framework-cross", "file": "vieww_base/ci/jobs/framework-cross.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []***
+2026-11-18T11:41:36.1445274Z   CI_PROJECT: vieww
+2026-11-18T11:41:36.1445850Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f"
+***
+2026-11-18T11:41:36.1447996Z   CI_GITHUB_TOKEN: ***
+2026-11-18T11:41:36.1448177Z   CI_SECRET_NAMES: 
+2026-11-18T11:41:36.1448351Z   CI_HAS_AWS_ROLE: false
+2026-11-18T11:41:36.1448538Z   ANDROID_KEYSTORE: 
+2026-11-18T11:41:36.1448718Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-18T11:41:36.1448917Z   ANDROID_KEY_ALIAS: 
+2026-11-18T11:41:36.1449096Z   ANDROID_KEY_PASSWORD: 
+2026-11-18T11:41:36.1449282Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-18T11:41:36.1449474Z   APPLE_NOTARY_ISSUER: 
+2026-11-18T11:41:36.1449654Z   APPLE_NOTARY_KEY: 
+2026-11-18T11:41:36.1449837Z   APPLE_NOTARY_KEY_ID: 
+2026-11-18T11:41:36.1450207Z   APPLE_P12_PASSWORD: 
+2026-11-18T11:41:36.1450385Z   APPLE_SIGNING_IDENTITY: 
+2026-11-18T11:41:36.1450573Z   AWS_ACCESS_KEY_ID: 
+2026-11-18T11:41:36.1450740Z   AWS_ROLE_ARN: 
+2026-11-18T11:41:36.1450910Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-18T11:41:36.1451095Z   CARGO_REGISTRY_TOKEN: 
+2026-11-18T11:41:36.1451279Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-18T11:41:36.1451466Z   CLOUDFLARE_API_TOKEN: 
+2026-11-18T11:41:36.1451654Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-18T11:41:36.1451839Z   FIREBASE_PROJECT: 
+2026-11-18T11:41:36.1452012Z   FIREBASE_SA_KEY: 
+2026-11-18T11:41:36.1452176Z   IOS_CERT_P12: 
+2026-11-18T11:41:36.1452341Z   IOS_CERT_PASSWORD: 
+2026-11-18T11:41:36.1452511Z   IOS_IDENTITY: 
+2026-11-18T11:41:36.1452670Z   IOS_PROFILE: 
+2026-11-18T11:41:36.1452840Z   WINDOWS_CERT_PASSWORD: 
+2026-11-18T11:41:36.1453018Z   WINDOWS_CERT_PFX: 
+2026-11-18T11:41:36.1453205Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-18T11:41:36.1453421Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-18T11:41:36.1453632Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-18T11:41:36.1453831Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-18T11:41:36.1454045Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-18T11:41:36.1454261Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-18T11:41:36.1454459Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-18T11:41:36.1454662Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-18T11:41:36.1454880Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-18T11:41:36.1455082Z ##[endgroup]
+2026-11-18T11:41:36.2500825Z ##[group]Installed versions
+2026-11-18T11:41:36.2564359Z (node:2170) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-18T11:41:36.2565070Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-18T11:41:36.2565530Z Successfully set up CPython (3.12.16)
+2026-11-18T11:41:36.2566097Z ##[endgroup]
+2026-11-18T11:41:36.2784615Z ##[group]Run actions/setup-python@v5
+2026-11-18T11:41:36.2784970Z with:
+2026-11-18T11:41:36.2785144Z   python-version: 3.12
+2026-11-18T11:41:36.2785336Z   update-environment: false
+2026-11-18T11:41:36.2785534Z   check-latest: false
+2026-11-18T11:41:36.2787316Z   token: ***
+2026-11-18T11:41:36.2787495Z   allow-prereleases: false
+2026-11-18T11:41:36.2787691Z   freethreaded: false
+2026-11-18T11:41:36.2787862Z env:
+2026-11-18T11:41:36.2788029Z   CI_INPUTS: ***
+2026-11-18T11:41:36.2788199Z   CI_MATRIX: ***
+2026-11-18T11:41:36.2788693Z   CI_JOB: ***"title": "vieww \u00b7 framework-cross", "project": "vieww", "id": "framework-cross", "file": "vieww_base/ci/jobs/framework-cross.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []***
+2026-11-18T11:41:36.2789209Z   CI_PROJECT: vieww
+2026-11-18T11:41:36.2790724Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f"
+***
+2026-11-18T11:41:36.2793092Z   CI_GITHUB_TOKEN: ***
+2026-11-18T11:41:36.2793289Z   CI_SECRET_NAMES: 
+2026-11-18T11:41:36.2793564Z   CI_HAS_AWS_ROLE: false
+2026-11-18T11:41:36.2793921Z   ANDROID_KEYSTORE: 
+2026-11-18T11:41:36.2794285Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-18T11:41:36.2794679Z   ANDROID_KEY_ALIAS: 
+2026-11-18T11:41:36.2795041Z   ANDROID_KEY_PASSWORD: 
+2026-11-18T11:41:36.2795419Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-18T11:41:36.2795802Z   APPLE_NOTARY_ISSUER: 
+2026-11-18T11:41:36.2796161Z   APPLE_NOTARY_KEY: 
+2026-11-18T11:41:36.2796495Z   APPLE_NOTARY_KEY_ID: 
+2026-11-18T11:41:36.2823989Z   APPLE_P12_PASSWORD: 
+2026-11-18T11:41:36.2824290Z   APPLE_SIGNING_IDENTITY: 
+2026-11-18T11:41:36.2824571Z   AWS_ACCESS_KEY_ID: 
+2026-11-18T11:41:36.2824832Z   AWS_ROLE_ARN: 
+2026-11-18T11:41:36.2825098Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-18T11:41:36.2825377Z   CARGO_REGISTRY_TOKEN: 
+2026-11-18T11:41:36.2825671Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-18T11:41:36.2825953Z   CLOUDFLARE_API_TOKEN: 
+2026-11-18T11:41:36.2826244Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-18T11:41:36.2826524Z   FIREBASE_PROJECT: 
+2026-11-18T11:41:36.2826797Z   FIREBASE_SA_KEY: 
+2026-11-18T11:41:36.2827050Z   IOS_CERT_P12: 
+2026-11-18T11:41:36.2827316Z   IOS_CERT_PASSWORD: 
+2026-11-18T11:41:36.2827581Z   IOS_IDENTITY: 
+2026-11-18T11:41:36.2827837Z   IOS_PROFILE: 
+2026-11-18T11:41:36.2828097Z   WINDOWS_CERT_PASSWORD: 
+2026-11-18T11:41:36.2828382Z   WINDOWS_CERT_PFX: 
+2026-11-18T11:41:36.2828677Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-18T11:41:36.2829028Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-18T11:41:36.2829358Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-18T11:41:36.2829670Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-18T11:41:36.2830202Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-18T11:41:36.2830553Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-18T11:41:36.2830874Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-18T11:41:36.2831202Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-18T11:41:36.2831552Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-18T11:41:36.2831887Z ##[endgroup]
+2026-11-18T11:41:36.3843093Z ##[group]Installed versions
+2026-11-18T11:41:36.3890349Z (node:2178) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-18T11:41:36.3891125Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-18T11:41:36.3891653Z Successfully set up CPython (3.12.16)
+2026-11-18T11:41:36.3892221Z ##[endgroup]
+2026-11-18T11:41:36.4035871Z ##[group]Run [ -n "$CI_PY" ] && echo "CI_PY=$CI_PY" >> "$GITHUB_ENV"
+2026-11-18T11:41:36.4036481Z [36;1m[ -n "$CI_PY" ] && echo "CI_PY=$CI_PY" >> "$GITHUB_ENV"[0m
+2026-11-18T11:41:36.4036983Z [36;1m"$***CI_PY:-python3***" ci/lib/prepare.py[0m
+2026-11-18T11:41:36.4072397Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail ***0***
+2026-11-18T11:41:36.4072868Z env:
+2026-11-18T11:41:36.4073136Z   CI_INPUTS: ***
+2026-11-18T11:41:36.4073403Z   CI_MATRIX: ***
+2026-11-18T11:41:36.4074229Z   CI_JOB: ***"title": "vieww \u00b7 framework-cross", "project": "vieww", "id": "framework-cross", "file": "vieww_base/ci/jobs/framework-cross.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []***
+2026-11-18T11:41:36.4075134Z   CI_PROJECT: vieww
+2026-11-18T11:41:36.4076075Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f"
+***
+2026-11-18T11:41:36.4079559Z   CI_GITHUB_TOKEN: ***
+2026-11-18T11:41:36.4079837Z   CI_SECRET_NAMES: 
+2026-11-18T11:41:36.4080247Z   CI_HAS_AWS_ROLE: false
+2026-11-18T11:41:36.4080531Z   ANDROID_KEYSTORE: 
+2026-11-18T11:41:36.4080812Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-18T11:41:36.4081114Z   ANDROID_KEY_ALIAS: 
+2026-11-18T11:41:36.4081388Z   ANDROID_KEY_PASSWORD: 
+2026-11-18T11:41:36.4081672Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-18T11:41:36.4081963Z   APPLE_NOTARY_ISSUER: 
+2026-11-18T11:41:36.4082237Z   APPLE_NOTARY_KEY: 
+2026-11-18T11:41:36.4082798Z   APPLE_NOTARY_KEY_ID: 
+2026-11-18T11:41:36.4083077Z   APPLE_P12_PASSWORD: 
+2026-11-18T11:41:36.4083361Z   APPLE_SIGNING_IDENTITY: 
+2026-11-18T11:41:36.4083670Z   AWS_ACCESS_KEY_ID: 
+2026-11-18T11:41:36.4083963Z   AWS_ROLE_ARN: 
+2026-11-18T11:41:36.4084251Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-18T11:41:36.4084573Z   CARGO_REGISTRY_TOKEN: 
+2026-11-18T11:41:36.4084897Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-18T11:41:36.4085240Z   CLOUDFLARE_API_TOKEN: 
+2026-11-18T11:41:36.4085557Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-18T11:41:36.4085867Z   FIREBASE_PROJECT: 
+2026-11-18T11:41:36.4086132Z   FIREBASE_SA_KEY: 
+2026-11-18T11:41:36.4086395Z   IOS_CERT_P12: 
+2026-11-18T11:41:36.4086664Z   IOS_CERT_PASSWORD: 
+2026-11-18T11:41:36.4086938Z   IOS_IDENTITY: 
+2026-11-18T11:41:36.4087204Z   IOS_PROFILE: 
+2026-11-18T11:41:36.4087478Z   WINDOWS_CERT_PASSWORD: 
+2026-11-18T11:41:36.4087768Z   WINDOWS_CERT_PFX: 
+2026-11-18T11:41:36.4088062Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-18T11:41:36.4088400Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-18T11:41:36.4088752Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-18T11:41:36.4089064Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-18T11:41:36.4089409Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-18T11:41:36.4089754Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-18T11:41:36.4090173Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-18T11:41:36.4090485Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-18T11:41:36.4090876Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-18T11:41:36.4091275Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-18T11:41:36.4091658Z ##[endgroup]
+2026-11-18T11:41:36.5337748Z ***
+2026-11-18T11:41:36.5338057Z  "go": "true",
+2026-11-18T11:41:36.5338328Z  "tools": "",
+2026-11-18T11:41:36.5338614Z  "has_final": "false"
+2026-11-18T11:41:36.5338892Z ***
+2026-11-18T11:41:36.5560347Z ##[group]Run "$***CI_PY:-python3***" ci/lib/run.py "vieww_base/ci/jobs/framework-cross.toml"
+2026-11-18T11:41:36.5560827Z [36;1m"$***CI_PY:-python3***" ci/lib/run.py "vieww_base/ci/jobs/framework-cross.toml"[0m
+2026-11-18T11:41:36.5578296Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail ***0***
+2026-11-18T11:41:36.5578560Z env:
+2026-11-18T11:41:36.5578733Z   CI_INPUTS: ***
+2026-11-18T11:41:36.5578903Z   CI_MATRIX: ***
+2026-11-18T11:41:36.5579399Z   CI_JOB: ***"title": "vieww \u00b7 framework-cross", "project": "vieww", "id": "framework-cross", "file": "vieww_base/ci/jobs/framework-cross.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []***
+2026-11-18T11:41:36.5580059Z   CI_PROJECT: vieww
+2026-11-18T11:41:36.5580656Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f"
+***
+2026-11-18T11:41:36.5582841Z   CI_GITHUB_TOKEN: ***
+2026-11-18T11:41:36.5583020Z   CI_SECRET_NAMES: 
+2026-11-18T11:41:36.5583198Z   CI_HAS_AWS_ROLE: false
+2026-11-18T11:41:36.5583387Z   ANDROID_KEYSTORE: 
+2026-11-18T11:41:36.5583598Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-18T11:41:36.5583793Z   ANDROID_KEY_ALIAS: 
+2026-11-18T11:41:36.5583972Z   ANDROID_KEY_PASSWORD: 
+2026-11-18T11:41:36.5584158Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-18T11:41:36.5584347Z   APPLE_NOTARY_ISSUER: 
+2026-11-18T11:41:36.5584527Z   APPLE_NOTARY_KEY: 
+2026-11-18T11:41:36.5584698Z   APPLE_NOTARY_KEY_ID: 
+2026-11-18T11:41:36.5584878Z   APPLE_P12_PASSWORD: 
+2026-11-18T11:41:36.5585057Z   APPLE_SIGNING_IDENTITY: 
+2026-11-18T11:41:36.5585239Z   AWS_ACCESS_KEY_ID: 
+2026-11-18T11:41:36.5585414Z   AWS_ROLE_ARN: 
+2026-11-18T11:41:36.5585585Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-18T11:41:36.5585772Z   CARGO_REGISTRY_TOKEN: 
+2026-11-18T11:41:36.5585953Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-18T11:41:36.5586136Z   CLOUDFLARE_API_TOKEN: 
+2026-11-18T11:41:36.5586325Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-18T11:41:36.5586511Z   FIREBASE_PROJECT: 
+2026-11-18T11:41:36.5586683Z   FIREBASE_SA_KEY: 
+2026-11-18T11:41:36.5586850Z   IOS_CERT_P12: 
+2026-11-18T11:41:36.5587213Z   IOS_CERT_PASSWORD: 
+2026-11-18T11:41:36.5587388Z   IOS_IDENTITY: 
+2026-11-18T11:41:36.5587548Z   IOS_PROFILE: 
+2026-11-18T11:41:36.5587719Z   WINDOWS_CERT_PASSWORD: 
+2026-11-18T11:41:36.5587901Z   WINDOWS_CERT_PFX: 
+2026-11-18T11:41:36.5588088Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-18T11:41:36.5588304Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-18T11:41:36.5588511Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-18T11:41:36.5588714Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-18T11:41:36.5588930Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-18T11:41:36.5589146Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-18T11:41:36.5589344Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-18T11:41:36.5589547Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-18T11:41:36.5589760Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-18T11:41:36.5590200Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-18T11:41:36.5590443Z   CI_PART: main
+2026-11-18T11:41:36.5590613Z ##[endgroup]
+2026-11-18T11:41:36.6117146Z ##[group]Toolchain with std sources
+2026-11-18T11:41:36.6492211Z info: syncing channel updates for 1.98.1-x86_64-unknown-linux-gnu
+2026-11-18T11:41:36.7546052Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-18T11:41:36.7546420Z info: downloading 4 components
+2026-11-18T11:41:44.2854535Z 
+2026-11-18T11:41:44.2921407Z   1.98.1-x86_64-unknown-linux-gnu installed - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-18T11:41:44.2921698Z 
+2026-11-18T11:41:44.3039014Z ##[endgroup]
+2026-11-18T11:41:44.3045567Z ##[group]Cross type-check
+2026-11-18T11:41:44.3558747Z info: syncing channel updates for 1.98.1-x86_64-unknown-linux-gnu
+2026-11-18T11:41:44.4297848Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-18T11:41:44.4405093Z info: downloading 3 components
+2026-11-18T11:41:47.8320741Z 
+2026-11-18T11:41:47.8321773Z [1m== macos (aarch64-apple-darwin)[0m
+2026-11-18T11:44:20.5423994Z    [32mOK[0m — the workspace type-checks for aarch64-apple-darwin
+2026-11-18T11:44:21.1382044Z 
+2026-11-18T11:44:21.1382995Z [1m== ios (aarch64-apple-ios)[0m
+2026-11-18T11:45:09.2601840Z [1m[91merror[E0425][0m[1m: cannot find value `made_instance` in this scope[0m
+2026-11-18T11:45:09.2621079Z     [1m[94m--> [0mcrates/vieww-platform-winit/src/native.rs:3241:25
+2026-11-18T11:45:09.2621845Z      [1m[94m|[0m
+2026-11-18T11:45:09.2622555Z [1m[94m3241[0m [1m[94m|[0m     (what, made_device, made_instance)
+2026-11-18T11:45:09.2623367Z      [1m[94m|[0m                         [1m[91m^^^^^^^^^^^^^[0m [1m[91mnot found in this scope[0m
+2026-11-18T11:45:09.2623807Z 
+2026-11-18T11:45:09.9251665Z [1mFor more information about this error, try `rustc --explain E0425`.[0m
+2026-11-18T11:45:09.9512437Z [1m[91merror[0m: could not compile `vieww-platform-winit` (lib) due to 1 previous error
+2026-11-18T11:45:10.2144076Z    [31mFAILED[0m — see above
+2026-11-18T11:45:10.2144400Z 
+2026-11-18T11:45:10.2144615Z [1m== windows (x86_64-pc-windows-msvc)[0m
+2026-11-18T11:46:58.9470784Z    [32mOK[0m — the workspace type-checks for x86_64-pc-windows-msvc
+2026-11-18T11:46:59.6670236Z 
+2026-11-18T11:46:59.6671262Z [1m== android (aarch64-linux-android)[0m
+2026-11-18T11:49:01.4237166Z    [32mOK[0m — the workspace type-checks for aarch64-linux-android
+2026-11-18T11:49:01.9135033Z 
+2026-11-18T11:49:01.9142716Z ##[endgroup]
+2026-11-18T11:49:01.9166209Z ##[error]Cross type-check failed (exit 1)
+2026-11-18T11:49:01.9258009Z ##[error]Process completed with exit code 1.
+2026-11-18T11:49:01.9399300Z Post job cleanup.
+2026-11-18T11:49:02.0090790Z [command]/usr/bin/git version
+2026-11-18T11:49:02.0131582Z git version 2.56.1
+2026-11-18T11:49:02.0160691Z Temporarily overriding HOME='/home/runner/work/_temp/7985083b-95a3-4a63-8dbe-7c7324b77504' before making global git config changes
+2026-11-18T11:49:02.0161528Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-18T11:49:02.0166209Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-18T11:49:02.0207840Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-18T11:49:02.0271103Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-18T11:49:02.0515366Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-18T11:49:02.0546841Z http.https://github.com/.extraheader
+2026-11-18T11:49:02.0558522Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-18T11:49:02.0600835Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-18T11:49:02.0848057Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-18T11:49:02.0901424Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-18T11:49:02.1390981Z Cleaning up orphan processes
+2026-11-18T11:49:02.1656633Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== phase-1 / vieww · framework-web	log =====
+2026-11-18T11:41:46.0549658Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-18T11:41:46.0549932Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-18T11:41:46.0550224Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-18T11:41:46.0550558Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-18T11:41:46.0550879Z   CI_PART: main
+2026-11-18T11:41:46.0551107Z ##[endgroup]
+2026-11-18T11:41:46.1118089Z ##[group]Toolchain and target
+2026-11-18T11:41:46.5972706Z info: syncing channel updates for 1.98.1-x86_64-unknown-linux-gnu
+2026-11-18T11:41:46.9157254Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-18T11:41:46.9157768Z info: downloading 4 components
+2026-11-18T11:41:57.2090333Z 
+2026-11-18T11:41:57.2155701Z   1.98.1-x86_64-unknown-linux-gnu installed - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-18T11:41:57.2156178Z 
+2026-11-18T11:41:57.2681090Z info: downloading component rust-std
+2026-11-18T11:41:59.2808690Z ##[endgroup]
+2026-11-18T11:41:59.2815477Z ##[group]wasm-check
+2026-11-18T11:41:59.3766337Z ==> auditing web-sys features against the types the crate names
+2026-11-18T11:41:59.3853317Z     every web-sys type the crate names is enabled
+2026-11-18T11:42:02.3827353Z ==> cargo check -p vieww-platform-web --target wasm32-unknown-unknown
+2026-11-18T11:42:02.4866289Z [1m[92m    Updating[0m crates.io index
+2026-11-18T11:42:03.4376481Z [1m[92m Downloading[0m crates ...
+2026-11-18T11:42:03.4810265Z [1m[92m  Downloaded[0m core_maths v0.1.1
+2026-11-18T11:42:03.4822826Z [1m[92m  Downloaded[0m cfg-if v1.0.5
+2026-11-18T11:42:03.4838200Z [1m[92m  Downloaded[0m adler2 v2.0.1
+2026-11-18T11:42:03.4912071Z [1m[92m  Downloaded[0m crc32fast v1.5.2
+2026-11-18T11:42:03.4985708Z [1m[92m  Downloaded[0m font-types v0.12.5
+2026-11-18T11:42:03.5073007Z [1m[92m  Downloaded[0m quote v1.0.47
+2026-11-18T11:42:03.5129180Z [1m[92m  Downloaded[0m wasm-bindgen-macro v0.2.129
+2026-11-18T11:42:03.5159374Z [1m[92m  Downloaded[0m linebender_resource_handle v0.1.1
+2026-11-18T11:42:03.5170896Z [1m[92m  Downloaded[0m sys-locale v0.3.2
+2026-11-18T11:42:03.5182642Z [1m[92m  Downloaded[0m wasm-bindgen-shared v0.2.129
+2026-11-18T11:42:03.5192114Z [1m[92m  Downloaded[0m futures-core v0.3.34
+2026-11-18T11:42:03.5204176Z [1m[92m  Downloaded[0m futures-task v0.3.34
+2026-11-18T11:42:03.5214855Z [1m[92m  Downloaded[0m font-types v0.11.3
+2026-11-18T11:42:03.5234185Z [1m[92m  Downloaded[0m rustc-hash v2.1.3
+2026-11-18T11:42:03.5248880Z [1m[92m  Downloaded[0m bitflags v2.13.2
+2026-11-18T11:42:03.5290876Z [1m[92m  Downloaded[0m miniz_oxide v0.9.1
+2026-11-18T11:42:03.5316642Z [1m[92m  Downloaded[0m unicode-linebreak v0.1.5
+2026-11-18T11:42:03.5326924Z [1m[92m  Downloaded[0m fdeflate v0.3.7
+2026-11-18T11:42:03.5346237Z [1m[92m  Downloaded[0m pin-project-lite v0.2.17
+2026-11-18T11:42:03.5406202Z [1m[92m  Downloaded[0m simd-adler32 v0.3.10
+2026-11-18T11:42:03.5425660Z [1m[92m  Downloaded[0m version_check v0.9.5
+2026-11-18T11:42:03.5435201Z [1m[92m  Downloaded[0m yazi v0.2.1
+2026-11-18T11:42:03.5445340Z [1m[92m  Downloaded[0m bytemuck_derive v1.12.1
+2026-11-18T11:42:03.5455970Z [1m[92m  Downloaded[0m rustversion v1.0.23
+2026-11-18T11:42:03.5476571Z [1m[92m  Downloaded[0m self_cell v1.3.0
+2026-11-18T11:42:03.5484521Z [1m[92m  Downloaded[0m slab v0.4.12
+2026-11-18T11:42:03.5494035Z [1m[92m  Downloaded[0m smallvec v1.16.2
+2026-11-18T11:42:03.5504481Z [1m[92m  Downloaded[0m log v0.4.34
+2026-11-18T11:42:03.5523332Z [1m[92m  Downloaded[0m smol_str v0.3.6
+2026-11-18T11:42:03.5536625Z [1m[92m  Downloaded[0m unicode-ident v1.0.26
+2026-11-18T11:42:03.5557564Z [1m[92m  Downloaded[0m miniz_oxide v0.8.9
+2026-11-18T11:42:03.5576302Z [1m[92m  Downloaded[0m memmap2 v0.9.11
+2026-11-18T11:42:03.5589086Z [1m[92m  Downloaded[0m once_cell v1.21.4
+2026-11-18T11:42:03.5608062Z [1m[92m  Downloaded[0m rangemap v1.8.0
+2026-11-18T11:42:03.5625407Z [1m[92m  Downloaded[0m zeno v0.3.3
+2026-11-18T11:42:03.5642250Z [1m[92m  Downloaded[0m fontconfig-parser v0.5.8
+2026-11-18T11:42:03.5684051Z [1m[92m  Downloaded[0m tinyvec v1.13.3
+2026-11-18T11:42:03.5709559Z [1m[92m  Downloaded[0m unicode-bidi v0.3.18
+2026-11-18T11:42:03.5728047Z [1m[92m  Downloaded[0m slotmap v1.1.1
+2026-11-18T11:42:03.5744627Z [1m[92m  Downloaded[0m roxmltree v0.20.0
+2026-11-18T11:42:03.5839658Z [1m[92m  Downloaded[0m wasm-bindgen v0.2.129
+2026-11-18T11:42:03.5860466Z [1m[92m  Downloaded[0m unicode-script v0.5.8
+2026-11-18T11:42:03.5873845Z [1m[92m  Downloaded[0m proc-macro2 v1.0.107
+2026-11-18T11:42:03.5895961Z [1m[92m  Downloaded[0m bytemuck v1.25.2
+2026-11-18T11:42:03.5919452Z [1m[92m  Downloaded[0m bumpalo v3.20.3
+2026-11-18T11:42:03.5939719Z [1m[92m  Downloaded[0m flate2 v1.1.10
+2026-11-18T11:42:03.5976016Z [1m[92m  Downloaded[0m fontdb v0.23.0
+2026-11-18T11:42:03.5994184Z [1m[92m  Downloaded[0m unicode-segmentation v1.13.3
+2026-11-18T11:42:03.6016565Z [1m[92m  Downloaded[0m js-sys v0.3.106
+2026-11-18T11:42:03.6040447Z [1m[92m  Downloaded[0m wasm-bindgen-macro-support v0.2.129
+2026-11-18T11:42:03.6059868Z [1m[92m  Downloaded[0m png v0.18.1
+2026-11-18T11:42:03.6091466Z [1m[92m  Downloaded[0m ttf-parser v0.25.1
+2026-11-18T11:42:03.6162704Z [1m[92m  Downloaded[0m libm v0.2.16
+2026-11-18T11:42:03.6244847Z [1m[92m  Downloaded[0m futures-util v0.3.34
+2026-11-18T11:42:03.6342349Z [1m[92m  Downloaded[0m zlib-rs v0.6.8
+2026-11-18T11:42:03.6383645Z [1m[92m  Downloaded[0m swash v0.2.10
+2026-11-18T11:42:03.6441704Z [1m[92m  Downloaded[0m skrifa v0.40.0
+2026-11-18T11:42:03.6510719Z [1m[92m  Downloaded[0m skrifa v0.44.0
+2026-11-18T11:42:03.6582235Z [1m[92m  Downloaded[0m harfrust v0.5.2
+2026-11-18T11:42:03.6645017Z [1m[92m  Downloaded[0m syn v2.0.119
+2026-11-18T11:42:03.6725807Z [1m[92m  Downloaded[0m syn v3.0.6
+2026-11-18T11:42:03.6806708Z [1m[92m  Downloaded[0m read-fonts v0.37.0
+2026-11-18T11:42:03.6922127Z [1m[92m  Downloaded[0m read-fonts v0.41.0
+2026-11-18T11:42:03.7066642Z [1m[92m  Downloaded[0m web-sys v0.3.106
+2026-11-18T11:42:03.7954404Z [1m[92m  Downloaded[0m libc v0.2.189
+2026-11-18T11:42:03.8275811Z [1m[92m  Downloaded[0m cosmic-text v0.19.0
+2026-11-18T11:42:03.9041690Z [1m[92m   Compiling[0m proc-macro2 v1.0.107
+2026-11-18T11:42:03.9042445Z [1m[92m   Compiling[0m unicode-ident v1.0.26
+2026-11-18T11:42:03.9043195Z [1m[92m   Compiling[0m quote v1.0.47
+2026-11-18T11:42:03.9077776Z [1m[92m   Compiling[0m libm v0.2.16
+2026-11-18T11:42:03.9849876Z [1m[92m    Checking[0m once_cell v1.21.4
+2026-11-18T11:42:04.0564770Z [1m[92m    Checking[0m unicode-segmentation v1.13.3
+2026-11-18T11:42:04.3400333Z [1m[92m   Compiling[0m wasm-bindgen-shared v0.2.129
+2026-11-18T11:42:04.4843337Z [1m[92m   Compiling[0m version_check v0.9.5
+2026-11-18T11:42:04.6893823Z [1m[92m    Checking[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-18T11:42:05.6108859Z [1m[92m   Compiling[0m syn v3.0.6
+2026-11-18T11:42:06.0393489Z [1m[92m    Checking[0m core_maths v0.1.1
+2026-11-18T11:42:06.0783353Z [1m[92m   Compiling[0m slotmap v1.1.1
+2026-11-18T11:42:06.1223487Z [1m[92m    Checking[0m cfg-if v1.0.5
+2026-11-18T11:42:06.1490417Z [1m[92m    Checking[0m bitflags v2.13.2
+2026-11-18T11:42:06.2333332Z [1m[92m    Checking[0m ttf-parser v0.25.1
+2026-11-18T11:42:06.2493424Z [1m[92m   Compiling[0m rustversion v1.0.23
+2026-11-18T11:42:06.9243430Z [1m[92m    Checking[0m simd-adler32 v0.3.10
+2026-11-18T11:42:07.1186977Z [1m[92m    Checking[0m log v0.4.34
+2026-11-18T11:42:07.2039296Z [1m[92m    Checking[0m yazi v0.2.1
+2026-11-18T11:42:07.2824028Z [1m[92m   Compiling[0m crc32fast v1.5.2
+2026-11-18T11:42:07.4863468Z [1m[92m    Checking[0m zeno v0.3.3
+2026-11-18T11:42:07.6313450Z [1m[92m    Checking[0m memmap2 v0.9.11
+2026-11-18T11:42:07.6913348Z [1m[92m    Checking[0m adler2 v2.0.1
+2026-11-18T11:42:07.7413238Z [1m[92m    Checking[0m tinyvec v1.13.3
+2026-11-18T11:42:07.8413220Z [1m[92m    Checking[0m smallvec v1.16.2
+2026-11-18T11:42:07.9763295Z [1m[92m    Checking[0m fontdb v0.23.0
+2026-11-18T11:42:08.1433156Z [1m[92m   Compiling[0m bumpalo v3.20.3
+2026-11-18T11:42:08.3533499Z [1m[92m    Checking[0m unicode-script v0.5.8
+2026-11-18T11:42:08.5918083Z [1m[92m    Checking[0m self_cell v1.3.0
+2026-11-18T11:42:08.6343216Z [1m[92m    Checking[0m rangemap v1.8.0
+2026-11-18T11:42:08.7498252Z [1m[92m    Checking[0m linebender_resource_handle v0.1.1
+2026-11-18T11:42:08.7956613Z [1m[92m    Checking[0m sys-locale v0.3.2
+2026-11-18T11:42:08.8039497Z [1m[92m    Checking[0m unicode-linebreak v0.1.5
+2026-11-18T11:42:08.8268044Z [1m[92m    Checking[0m smol_str v0.3.6
+2026-11-18T11:42:08.9242447Z [1m[92m    Checking[0m unicode-bidi v0.3.18
+2026-11-18T11:42:08.9456195Z [1m[92m    Checking[0m rustc-hash v2.1.3
+2026-11-18T11:42:09.0653136Z [1m[92m    Checking[0m miniz_oxide v0.9.1
+2026-11-18T11:42:09.1953481Z [1m[92m   Compiling[0m wasm-bindgen-macro-support v0.2.129
+2026-11-18T11:42:09.4199343Z [1m[92m    Checking[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+2026-11-18T11:42:09.5203821Z [1m[92m   Compiling[0m wasm-bindgen v0.2.129
+2026-11-18T11:42:09.7953355Z [1m[92m   Compiling[0m syn v2.0.119
+2026-11-18T11:42:10.6433229Z [1m[92m    Checking[0m flate2 v1.1.10
+2026-11-18T11:42:10.9093321Z [1m[92m    Checking[0m miniz_oxide v0.8.9
+2026-11-18T11:42:11.2583340Z [1m[92m    Checking[0m fdeflate v0.3.7
+2026-11-18T11:42:11.4963226Z [1m[92m    Checking[0m futures-task v0.3.34
+2026-11-18T11:42:11.5682999Z [1m[92m    Checking[0m pin-project-lite v0.2.17
+2026-11-18T11:42:11.6013194Z [1m[92m    Checking[0m slab v0.4.12
+2026-11-18T11:42:11.6893260Z [1m[92m    Checking[0m futures-core v0.3.34
+2026-11-18T11:42:11.7463398Z [1m[92m    Checking[0m futures-util v0.3.34
+2026-11-18T11:42:13.1463202Z [1m[92m    Checking[0m png v0.18.1
+2026-11-18T11:42:13.7973888Z [1m[92m    Checking[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+2026-11-18T11:42:13.9651044Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-18T11:42:14.0883564Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-18T11:42:19.2833824Z [1m[92m    Checking[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
+2026-11-18T11:42:30.9152307Z [1m[92m   Compiling[0m bytemuck_derive v1.12.1
+2026-11-18T11:42:35.5953840Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-18T11:42:41.0073332Z [1m[92m    Checking[0m bytemuck v1.25.2
+2026-11-18T11:42:41.1489397Z [1m[92m    Checking[0m font-types v0.12.5
+2026-11-18T11:42:41.3953336Z [1m[92m    Checking[0m read-fonts v0.41.0
+2026-11-18T11:42:47.0053585Z [1m[92m    Checking[0m font-types v0.11.3
+2026-11-18T11:42:47.2503345Z [1m[92m    Checking[0m read-fonts v0.37.0
+2026-11-18T11:42:49.7033200Z [1m[92m    Checking[0m skrifa v0.44.0
+2026-11-18T11:42:51.6329142Z [1m[92m    Checking[0m swash v0.2.10
+2026-11-18T11:42:51.6334368Z [1m[92m    Checking[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-18T11:42:51.9862969Z [1m[92m    Checking[0m harfrust v0.5.2
+2026-11-18T11:42:52.7853414Z [1m[33mwarning[0m[1m: function `lanes_add` is never used[0m
+2026-11-18T11:42:52.7912916Z    [1m[94m--> [0mcrates/vieww-paint/src/native/simd.rs:239:15
+2026-11-18T11:42:52.7942421Z     [1m[94m|[0m
+2026-11-18T11:42:52.7953084Z [1m[94m239[0m [1m[94m|[0m pub(crate) fn lanes_add(a: [f32; 4], b: [f32; 4]) -> [f32; 4] ***
+2026-11-18T11:42:52.7982614Z     [1m[94m|[0m               [1m[33m^^^^^^^^^[0m
+2026-11-18T11:42:52.8012577Z     [1m[94m|[0m
+2026-11-18T11:42:52.8042756Z     [1m[94m= [0m[1mnote[0m: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+2026-11-18T11:42:52.8072098Z 
+2026-11-18T11:42:52.8072813Z [1m[33mwarning[0m[1m: function `lanes_sub` is never used[0m
+2026-11-18T11:42:52.8073582Z    [1m[94m--> [0mcrates/vieww-paint/src/native/simd.rs:261:15
+2026-11-18T11:42:52.8074107Z     [1m[94m|[0m
+2026-11-18T11:42:52.8074886Z [1m[94m261[0m [1m[94m|[0m pub(crate) fn lanes_sub(a: [f32; 4], b: [f32; 4]) -> [f32; 4] ***
+2026-11-18T11:42:52.8075624Z     [1m[94m|[0m               [1m[33m^^^^^^^^^[0m
+2026-11-18T11:42:52.8102080Z 
+2026-11-18T11:42:52.8102673Z [1m[33mwarning[0m[1m: function `lanes_div_scalar` is never used[0m
+2026-11-18T11:42:52.8103411Z    [1m[94m--> [0mcrates/vieww-paint/src/native/simd.rs:287:15
+2026-11-18T11:42:52.8103896Z     [1m[94m|[0m
+2026-11-18T11:42:52.8104563Z [1m[94m287[0m [1m[94m|[0m pub(crate) fn lanes_div_scalar(a: [f32; 4], k: f32) -> [f32; 4] ***
+2026-11-18T11:42:52.8105323Z     [1m[94m|[0m               [1m[33m^^^^^^^^^^^^^^^^[0m
+2026-11-18T11:42:52.8105640Z 
+2026-11-18T11:42:52.8853476Z [1m[33mwarning[0m: `vieww-paint` (lib) generated 3 warnings
+2026-11-18T11:42:52.8862991Z [1m[92m    Checking[0m skrifa v0.40.0
+2026-11-18T11:42:53.7603488Z [1m[92m   Compiling[0m wasm-bindgen-macro v0.2.129
+2026-11-18T11:42:54.5914111Z [1m[92m    Checking[0m cosmic-text v0.19.0
+2026-11-18T11:42:54.9372374Z [1m[92m    Checking[0m js-sys v0.3.106
+2026-11-18T11:42:55.2691580Z [1m[92m    Checking[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-18T11:42:55.4452697Z [1m[92m    Checking[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-18T11:42:56.7773393Z [1m[92m    Checking[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-18T11:42:57.1975179Z [1m[92m    Checking[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-18T11:43:00.7041351Z [1m[92m    Checking[0m web-sys v0.3.106
+2026-11-18T11:43:05.6730316Z [1m[92m    Checking[0m vieww-platform-web v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web)
+2026-11-18T11:43:05.8282350Z [1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 1m 03s
+2026-11-18T11:43:05.9317081Z ==> cargo clippy -p vieww-platform-web --target wasm32-unknown-unknown
+2026-11-18T11:43:06.1646660Z [1m[92m    Checking[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-18T11:43:06.1697216Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-18T11:43:06.1738811Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-18T11:43:06.1780612Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-18T11:43:06.2858762Z [1m[92m    Checking[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
+2026-11-18T11:43:07.4873744Z [1m[92m    Checking[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+2026-11-18T11:43:07.4875074Z [1m[92m    Checking[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-18T11:43:07.4876226Z [1m[92m    Checking[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-18T11:43:08.5672205Z [1m[91merror[0m[1m: function `lanes_add` is never used[0m
+2026-11-18T11:43:08.5673689Z    [1m[94m--> [0mcrates/vieww-paint/src/native/simd.rs:239:15
+2026-11-18T11:43:08.5674685Z     [1m[94m|[0m
+2026-11-18T11:43:08.5675747Z [1m[94m239[0m [1m[94m|[0m pub(crate) fn lanes_add(a: [f32; 4], b: [f32; 4]) -> [f32; 4] ***
+2026-11-18T11:43:08.5676714Z     [1m[94m|[0m               [1m[91m^^^^^^^^^[0m
+2026-11-18T11:43:08.5677408Z     [1m[94m|[0m
+2026-11-18T11:43:08.5678146Z     [1m[94m= [0m[1mnote[0m: `-D dead-code` implied by `-D warnings`
+2026-11-18T11:43:08.5679225Z     [1m[94m= [0m[1mhelp[0m: to override `-D warnings` add `#[expect(dead_code)]` or `#[allow(dead_code)]`
+2026-11-18T11:43:08.5679919Z 
+2026-11-18T11:43:08.5680458Z [1m[91merror[0m[1m: function `lanes_sub` is never used[0m
+2026-11-18T11:43:08.5681337Z    [1m[94m--> [0mcrates/vieww-paint/src/native/simd.rs:261:15
+2026-11-18T11:43:08.5682235Z     [1m[94m|[0m
+2026-11-18T11:43:08.5683078Z [1m[94m261[0m [1m[94m|[0m pub(crate) fn lanes_sub(a: [f32; 4], b: [f32; 4]) -> [f32; 4] ***
+2026-11-18T11:43:08.5684000Z     [1m[94m|[0m               [1m[91m^^^^^^^^^[0m
+2026-11-18T11:43:08.5684482Z 
+2026-11-18T11:43:08.5684995Z [1m[91merror[0m[1m: function `lanes_div_scalar` is never used[0m
+2026-11-18T11:43:08.5685891Z    [1m[94m--> [0mcrates/vieww-paint/src/native/simd.rs:287:15
+2026-11-18T11:43:08.5686629Z     [1m[94m|[0m
+2026-11-18T11:43:08.5687809Z [1m[94m287[0m [1m[94m|[0m pub(crate) fn lanes_div_scalar(a: [f32; 4], k: f32) -> [f32; 4] ***
+2026-11-18T11:43:08.5688819Z     [1m[94m|[0m               [1m[91m^^^^^^^^^^^^^^^^[0m
+2026-11-18T11:43:08.5689309Z 
+2026-11-18T11:43:08.7305555Z [1m[92m    Checking[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+2026-11-18T11:43:08.7309760Z [1m[92m    Checking[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-18T11:43:08.7629916Z [1m[91merror[0m: could not compile `vieww-paint` (lib) due to 3 previous errors
+2026-11-18T11:43:08.7632336Z [1m[33mwarning[0m: build failed, waiting for other jobs to finish...
+2026-11-18T11:43:11.3976705Z ##[endgroup]
+2026-11-18T11:43:11.4012736Z ##[error]wasm-check failed (exit 101)
+2026-11-18T11:43:11.4020744Z ##[group]mark: upload web-readbacks
+2026-11-18T11:43:11.4021347Z ##[endgroup]
+2026-11-18T11:43:11.4113986Z ##[error]Process completed with exit code 1.
+2026-11-18T11:43:11.4202343Z ##[group]Run actions/upload-artifact@v4
+2026-11-18T11:43:11.4202679Z with:
+2026-11-18T11:43:11.4202908Z   name: web-readbacks
+2026-11-18T11:43:11.4203183Z   path: /home/runner/work/_temp/web/out
+2026-11-18T11:43:11.4203474Z   if-no-files-found: warn
+2026-11-18T11:43:11.4203744Z   include-hidden-files: false
+2026-11-18T11:43:11.4204018Z   compression-level: 6
+2026-11-18T11:43:11.4204264Z   overwrite: false
+2026-11-18T11:43:11.4204491Z env:
+2026-11-18T11:43:11.4204730Z   CI_INPUTS: ***
+2026-11-18T11:43:11.4204968Z   CI_MATRIX: ***
+2026-11-18T11:43:11.4205718Z   CI_JOB: ***"title": "vieww \u00b7 framework-web", "project": "vieww", "id": "framework-web", "file": "vieww_base/ci/jobs/framework-web.toml", "if": "", "needs": [], "setup": [], "uploads": [***"name": "web-readbacks", "path": "$*** runner.temp ***/web/out"***], "downloads": []***
+2026-11-18T11:43:11.4206679Z   CI_PROJECT: vieww
+2026-11-18T11:43:11.4207435Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f"
+***
+2026-11-18T11:43:11.4209862Z   CI_GITHUB_TOKEN: ***
+2026-11-18T11:43:11.4210115Z   CI_SECRET_NAMES: 
+2026-11-18T11:43:11.4210362Z   CI_HAS_AWS_ROLE: false
+2026-11-18T11:43:11.4210616Z   ANDROID_KEYSTORE: 
+2026-11-18T11:43:11.4210866Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-18T11:43:11.4211133Z   ANDROID_KEY_ALIAS: 
+2026-11-18T11:43:11.4211379Z   ANDROID_KEY_PASSWORD: 
+2026-11-18T11:43:11.4211635Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-18T11:43:11.4212073Z   APPLE_NOTARY_ISSUER: 
+2026-11-18T11:43:11.4212324Z   APPLE_NOTARY_KEY: 
+2026-11-18T11:43:11.4212570Z   APPLE_NOTARY_KEY_ID: 
+2026-11-18T11:43:11.4212822Z   APPLE_P12_PASSWORD: 
+2026-11-18T11:43:11.4213085Z   APPLE_SIGNING_IDENTITY: 
+2026-11-18T11:43:11.4213331Z   AWS_ACCESS_KEY_ID: 
+2026-11-18T11:43:11.4213573Z   AWS_ROLE_ARN: 
+2026-11-18T11:43:11.4213809Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-18T11:43:11.4214062Z   CARGO_REGISTRY_TOKEN: 
+2026-11-18T11:43:11.4214318Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-18T11:43:11.4214563Z   CLOUDFLARE_API_TOKEN: 
+2026-11-18T11:43:11.4214810Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-18T11:43:11.4215058Z   FIREBASE_PROJECT: 
+2026-11-18T11:43:11.4215290Z   FIREBASE_SA_KEY: 
+2026-11-18T11:43:11.4215522Z   IOS_CERT_P12: 
+2026-11-18T11:43:11.4215816Z   IOS_CERT_PASSWORD: 
+2026-11-18T11:43:11.4216060Z   IOS_IDENTITY: 
+2026-11-18T11:43:11.4216281Z   IOS_PROFILE: 
+2026-11-18T11:43:11.4216519Z   WINDOWS_CERT_PASSWORD: 
+2026-11-18T11:43:11.4216777Z   WINDOWS_CERT_PFX: 
+2026-11-18T11:43:11.4217022Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-18T11:43:11.4217311Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-18T11:43:11.4217592Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-18T11:43:11.4217869Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-18T11:43:11.4218162Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-18T11:43:11.4218445Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-18T11:43:11.4218717Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-18T11:43:11.4218995Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-18T11:43:11.4219281Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-18T11:43:11.4219614Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-18T11:43:11.4219929Z   CI_UPLOAD_0: yes
+2026-11-18T11:43:11.4220163Z ##[endgroup]
+2026-11-18T11:43:11.5582652Z (node:3549) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-18T11:43:11.5583308Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-18T11:43:11.5598830Z ##[warning]No files were found with the provided path: /home/runner/work/_temp/web/out. No artifacts will be uploaded.
+2026-11-18T11:43:11.5852383Z Post job cleanup.
+2026-11-18T11:43:11.6618552Z [command]/usr/bin/git version
+2026-11-18T11:43:11.6686072Z git version 2.56.1
+2026-11-18T11:43:11.6717132Z Temporarily overriding HOME='/home/runner/work/_temp/0909dd45-4260-4d5b-a771-e668f3ba33e7' before making global git config changes
+2026-11-18T11:43:11.6718287Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-18T11:43:11.6720981Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-18T11:43:11.6758626Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-18T11:43:11.6792935Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-18T11:43:11.7025842Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-18T11:43:11.7053551Z http.https://github.com/.extraheader
+2026-11-18T11:43:11.7066335Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-18T11:43:11.7102081Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-18T11:43:11.7333238Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-18T11:43:11.7380472Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-18T11:43:11.7762385Z Cleaning up orphan processes
+2026-11-18T11:43:11.8046631Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== phase-1 / vieww · framework-gate	log =====
+2026-11-18T12:10:24.1266474Z running 3 tests
+2026-11-18T12:11:28.8124665Z test a_guest_that_panics_while_building_does_not_take_the_host_down ... ok
+2026-11-18T12:12:31.9733065Z test a_guest_whose_state_changed_shape_forces_a_restart ... ok
+2026-11-18T12:13:35.4315595Z test a_rebuilt_guest_reloads_and_the_tree_is_kept ... ok
+2026-11-18T12:13:35.4316055Z 
+2026-11-18T12:13:35.4316541Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 191.30s
+2026-11-18T12:13:35.4317130Z 
+2026-11-18T12:13:35.4444814Z 
+2026-11-18T12:13:35.4445784Z ==> packaging (layout and a preview compiled against the bundle)
+2026-11-18T12:13:35.5110793Z ==> building viewwstudio 0.1.0 (debug, linux)
+2026-11-18T12:13:35.7847803Z [1m[92m   Compiling[0m zvariant_utils v4.2.0
+2026-11-18T12:13:35.7898564Z [1m[92m   Compiling[0m uuid v1.26.1
+2026-11-18T12:13:35.7967833Z [1m[92m   Compiling[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-18T12:13:35.8044476Z [1m[92m   Compiling[0m zerocopy v0.8.59
+2026-11-18T12:13:36.4301093Z [1m[92m   Compiling[0m accesskit v0.25.1
+2026-11-18T12:13:36.7650944Z [1m[92m   Compiling[0m zvariant v5.15.0
+2026-11-18T12:13:37.5041554Z [1m[92m   Compiling[0m hashbrown v0.17.1
+2026-11-18T12:13:38.2291085Z [1m[92m   Compiling[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-18T12:13:39.9670964Z [1m[92m   Compiling[0m zbus_names v4.3.4
+2026-11-18T12:13:40.0441440Z [1m[92m   Compiling[0m accesskit_consumer v0.39.1
+2026-11-18T12:13:41.1570858Z [1m[92m   Compiling[0m zbus_xml v5.2.1
+2026-11-18T12:13:42.3200835Z [1m[92m   Compiling[0m zbus-lockstep v0.5.2
+2026-11-18T12:13:42.5631212Z [1m[92m   Compiling[0m zbus v5.19.0
+2026-11-18T12:13:45.5271138Z [1m[92m   Compiling[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+2026-11-18T12:13:46.1071347Z [1m[92m   Compiling[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-18T12:13:48.4721135Z [1m[92m   Compiling[0m ahash v0.8.12
+2026-11-18T12:13:48.6720926Z [1m[92m   Compiling[0m atspi-common v0.13.0
+2026-11-18T12:13:48.8391205Z [1m[92m   Compiling[0m winit v0.30.13
+2026-11-18T12:13:49.5011375Z [1m[92m   Compiling[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
+2026-11-18T12:13:49.6291626Z [1m[92m   Compiling[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-18T12:13:56.4571729Z [1m[92m   Compiling[0m atspi-proxies v0.13.0
+2026-11-18T12:13:58.8680797Z [1m[92m   Compiling[0m atspi v0.29.0
+2026-11-18T12:13:58.9115330Z [1m[92m   Compiling[0m accesskit_atspi_common v0.21.0
+2026-11-18T12:14:03.0940861Z [1m[92m   Compiling[0m accesskit_unix v0.24.0
+2026-11-18T12:14:08.1991382Z [1m[92m   Compiling[0m accesskit_winit v0.34.1
+2026-11-18T12:14:08.4341261Z [1m[92m   Compiling[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
+2026-11-18T12:14:10.3193444Z [1m[92m   Compiling[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
+2026-11-18T12:14:10.3681249Z [1m[92m   Compiling[0m vieww-platform-winit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
+2026-11-18T12:14:13.2891352Z [1m[92m   Compiling[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
+2026-11-18T12:14:13.3106518Z [1m[92m   Compiling[0m vieww-platform-web-dom v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web-dom)
+2026-11-18T12:14:25.4239959Z [1m[92m    Finished[0m `dev` profile [unoptimized] target(s) in 49.88s
+2026-11-18T12:14:25.4577003Z ==> drawing icons
+2026-11-18T12:14:25.7271373Z [1m[92m   Compiling[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
+2026-11-18T12:14:25.7272963Z [1m[92m   Compiling[0m vieww-hardware v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
+2026-11-18T12:14:25.7274068Z [1m[92m   Compiling[0m vieww-accessibility v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-accessibility)
+2026-11-18T12:14:25.7275190Z [1m[92m   Compiling[0m vieww-test-harness v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-test-harness)
+2026-11-18T12:14:32.5237253Z [1m[92m    Finished[0m `dev` profile [unoptimized] target(s) in 7.04s
+2026-11-18T12:14:32.5443138Z [1m[92m     Running[0m `target/debug/examples/icon /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/icons`
+2026-11-18T12:14:33.5773616Z ==> verifying the bundle compiles a preview
+2026-11-18T12:15:01.5230207Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/viewwstudio-linux-x86_64.tar.gz
+2026-11-18T12:15:01.5251020Z     211M
+2026-11-18T12:15:01.7038924Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/SHA256SUMS
+2026-11-18T12:15:01.7056710Z     1 asset(s)
+2026-11-18T12:15:01.7072630Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/index.html
+2026-11-18T12:15:01.7073405Z     links point at github.com/tejakota/vieww_prod
+2026-11-18T12:15:01.7096952Z done
+2026-11-18T12:15:01.7571749Z 
+2026-11-18T12:15:01.7572272Z --- formatting: its diagnostics ---
+2026-11-18T12:15:01.7573217Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/scene_exec.rs:896:
+2026-11-18T12:15:01.7574341Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/scene_exec.rs:951:
+2026-11-18T12:15:01.7575455Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/scene_exec.rs:1996:
+2026-11-18T12:15:01.7576812Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/scene_exec.rs:2131:
+2026-11-18T12:15:01.7577626Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/mod.rs:336:
+2026-11-18T12:15:01.7578354Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/mod.rs:710:
+2026-11-18T12:15:01.7579232Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/mod.rs:1995:
+2026-11-18T12:15:01.7580047Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/mod.rs:2137:
+2026-11-18T12:15:01.7581025Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:1411:
+2026-11-18T12:15:01.7581793Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:1512:
+2026-11-18T12:15:01.7582509Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:3735:
+2026-11-18T12:15:01.7583208Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal/src/vulkan/scene.rs:3743:
+2026-11-18T12:15:01.7583965Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/effects.rs:341:
+2026-11-18T12:15:01.7584699Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/fill_cache.rs:500:
+2026-11-18T12:15:01.7585441Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/fill_cache.rs:532:
+2026-11-18T12:15:01.7586289Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/geometry/fill/crossing_lanes_x86.rs:18:
+2026-11-18T12:15:01.7587116Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/geometry/fill.rs:975:
+2026-11-18T12:15:01.7587888Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/geometry/fill.rs:981:
+2026-11-18T12:15:01.7588658Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/geometry/fill.rs:2557:
+2026-11-18T12:15:01.7589833Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/reference.rs:3587:
+2026-11-18T12:15:01.7590640Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/reference.rs:3594:
+2026-11-18T12:15:01.7591418Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/reference.rs:3624:
+2026-11-18T12:15:01.7592186Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/reference.rs:3634:
+2026-11-18T12:15:01.7593154Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/reference.rs:3638:
+2026-11-18T12:15:01.7594375Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/reference.rs:3646:
+2026-11-18T12:15:01.7595387Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/reference.rs:3692:
+2026-11-18T12:15:01.7596143Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/simd/neon.rs:45:
+2026-11-18T12:15:01.7596970Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/simd.rs:248:
+2026-11-18T12:15:01.7597921Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/simd.rs:270:
+2026-11-18T12:15:01.7598932Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/simd.rs:296:
+2026-11-18T12:15:01.7600197Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/simd.rs:608:
+2026-11-18T12:15:01.7601320Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/target.rs:301:
+2026-11-18T12:15:01.7602528Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/target.rs:1037:
+2026-11-18T12:15:01.7603716Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/src/native/target.rs:1698:
+2026-11-18T12:15:01.7604928Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint/tests/retained_equivalence.rs:304:
+2026-11-18T12:15:01.7606170Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit/src/app.rs:2648:
+2026-11-18T12:15:01.7607355Z Diff in /home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/market-watch/examples/cpu_bench.rs:81:
+2026-11-18T12:15:01.7607986Z 
+2026-11-18T12:15:01.7608417Z --- docs (workspace, broken intra-doc links are errors): its diagnostics ---
+2026-11-18T12:15:01.7610011Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/doc/vieww/index.html
+2026-11-18T12:15:01.7611107Z error: unresolved link to `Self::version`
+2026-11-18T12:15:01.7611738Z   --> crates/vieww-gpu/src/dirty.rs:26:65
+2026-11-18T12:15:01.7612360Z error: unresolved link to `Self::begin_frame`
+2026-11-18T12:15:01.7612997Z   --> crates/vieww-gpu/src/dirty.rs:29:23
+2026-11-18T12:15:01.7613534Z error: unresolved link to `Self::blit`
+2026-11-18T12:15:01.7614116Z   --> crates/vieww-gpu/src/dirty.rs:33:38
+2026-11-18T12:15:01.7614711Z error: unresolved link to `Self::rewrote`
+2026-11-18T12:15:01.7615279Z   --> crates/vieww-gpu/src/dirty.rs:35:40
+2026-11-18T12:15:01.7615894Z error: unresolved link to `Self::changes_since`
+2026-11-18T12:15:01.7616490Z   --> crates/vieww-gpu/src/dirty.rs:38:25
+2026-11-18T12:15:01.7617031Z error: redundant explicit link target
+2026-11-18T12:15:01.7617614Z   --> crates/vieww-gpu/src/ramp_atlas.rs:19:20
+2026-11-18T12:15:01.7618003Z error: could not document `vieww-gpu`
+2026-11-18T12:15:01.7618436Z warning: build failed, waiting for other jobs to finish...
+2026-11-18T12:15:01.7619347Z error: public documentation for `StagingSlot` links to private item `Slot`
+2026-11-18T12:15:01.7620024Z    --> crates/vieww-hal/src/vulkan/scene.rs:576:28
+2026-11-18T12:15:01.7620618Z error: public documentation for `set_memory_trim_frames` links to private item `TARGET_TRIM_FRAMES`
+2026-11-18T12:15:01.7621212Z     --> crates/vieww-hal/src/vulkan/scene.rs:1641:12
+2026-11-18T12:15:01.7621962Z error: public documentation for `set_memory_trim_frames` links to private item `STAGING_TRIM_FRAMES`
+2026-11-18T12:15:01.7622554Z     --> crates/vieww-hal/src/vulkan/scene.rs:1641:36
+2026-11-18T12:15:01.7622969Z error: could not document `vieww-hal`
+2026-11-18T12:15:01.7623339Z error: unresolved link to `wait_samples`
+2026-11-18T12:15:01.7623756Z    --> crates/vieww-platform-winit/src/stats.rs:552:62
+2026-11-18T12:15:01.7624198Z error: could not document `vieww-platform-winit`
+2026-11-18T12:15:01.7624613Z error: unresolved link to `run_chunks`
+2026-11-18T12:15:01.7624981Z error: could not document `vieww-paint`
+2026-11-18T12:15:01.7625205Z 
+2026-11-18T12:15:01.7625544Z --- web-sys feature audit (the half of ci/check/wasm-check.sh that needs no target): its diagnostics ---
+2026-11-18T12:15:01.7626140Z warning: function `lanes_add` is never used
+2026-11-18T12:15:01.7626556Z    --> crates/vieww-paint/src/native/simd.rs:239:15
+2026-11-18T12:15:01.7626960Z warning: function `lanes_sub` is never used
+2026-11-18T12:15:01.7627372Z    --> crates/vieww-paint/src/native/simd.rs:261:15
+2026-11-18T12:15:01.7627789Z warning: function `lanes_div_scalar` is never used
+2026-11-18T12:15:01.7628211Z    --> crates/vieww-paint/src/native/simd.rs:287:15
+2026-11-18T12:15:01.7628634Z warning: `vieww-paint` (lib) generated 3 warnings
+2026-11-18T12:15:01.7629202Z error: function `lanes_add` is never used
+2026-11-18T12:15:01.7629727Z    --> crates/vieww-paint/src/native/simd.rs:239:15
+2026-11-18T12:15:01.7630141Z error: function `lanes_sub` is never used
+2026-11-18T12:15:01.7630528Z    --> crates/vieww-paint/src/native/simd.rs:261:15
+2026-11-18T12:15:01.7630946Z error: function `lanes_div_scalar` is never used
+2026-11-18T12:15:01.7631357Z    --> crates/vieww-paint/src/native/simd.rs:287:15
+2026-11-18T12:15:01.7631834Z error: could not compile `vieww-paint` (lib) due to 3 previous errors
+2026-11-18T12:15:01.7632350Z warning: build failed, waiting for other jobs to finish...
+2026-11-18T12:15:01.7632633Z 
+2026-11-18T12:15:01.7632768Z 3 stage(s) failed:
+2026-11-18T12:15:01.7633076Z   - formatting (exit 1)
+2026-11-18T12:15:01.7633486Z   - docs (workspace, broken intra-doc links are errors) (exit 101)
+2026-11-18T12:15:01.7634084Z   - web-sys feature audit (the half of ci/check/wasm-check.sh that needs no target) (exit 1)
+2026-11-18T12:15:01.7635131Z ##[endgroup]
+2026-11-18T12:15:01.7636322Z ##[error]The gate failed (exit 1)
+2026-11-18T12:15:01.7637653Z ##[group]Performance budget (advisory, FW-08)
+2026-11-18T12:15:02.5616209Z perf-baseline: no previous perf-linux/perf-measured.json under ci-results/framework-checks
+2026-11-18T12:17:12.2804830Z 
+2026-11-18T12:17:12.2805798Z fixture                                 size    cmds      best     worst    us/cmd      fps  what it covers
+2026-11-18T12:17:12.2806772Z ----------------------------------------------------------------------------------------------------------------------------------------
+2026-11-18T12:17:12.2808100Z 00-fills                            840x560      384     2.72ms     3.65ms       7.1        6  384 plain fills — the control
+2026-11-18T12:17:12.2809375Z 00-fills-rounded                    840x560      384     1.61ms     1.80ms       4.2       10  the same fills, rounded — cost of curves
+2026-11-18T12:17:12.2810628Z 00-fills-gradient                   840x560      384     2.77ms     2.86ms       7.2        6  the same fills, gradient-shaded — cost of shading
+2026-11-18T12:17:12.2811782Z 00-fills-rrect-clip                 840x560      384     3.73ms     3.85ms       9.7        4  the same fills under ONE rounded clip
+2026-11-18T12:17:12.2812935Z 00-fills-nested-clips               840x560      384     3.55ms     3.82ms       9.2        5  the same fills, three clips deep
+2026-11-18T12:17:12.2814018Z 00-strokes                          840x560      384    12.28ms    12.63ms      32.0        1  stroke expansion: joins, caps
+2026-11-18T12:17:12.2815228Z 00-curves                           840x560      384     9.28ms     9.81ms      24.2        2  open cubics — the flattener's real workload
+2026-11-18T12:17:12.2816656Z 00-shadows                          840x560      768     4.11ms     4.24ms       5.4        4  384 blurred shadow masks
+2026-11-18T12:17:12.2817578Z 00-layers-flat                      840x560     1152     1.81ms     1.95ms       1.6        9  384 sibling isolated layers
+2026-11-18T12:17:12.2818727Z 00-layers-nested                    840x560       74     6.73ms     9.86ms      90.9        2  24 layers deep — compositor depth
+2026-11-18T12:17:12.2819945Z 00-blend-modes                      840x560       71     2.95ms     3.09ms      41.5        6  12 blend modes over one backdrop
+2026-11-18T12:17:12.2820914Z 00-blurs                            840x560       24     1.82ms     2.02ms      76.0        9  blur at five sigmas, incl. bounds
+2026-11-18T12:17:12.2821873Z 00-transforms                       840x560       97     1.74ms     1.89ms      17.9       10  96 rotated + scaled boxes
+2026-11-18T12:17:12.2822801Z 10-icon-grid                        840x560       46     1.04ms     1.14ms      22.5       16  120 vector icons, four sizes
+2026-11-18T12:17:12.2823736Z 10-icon-strokes                     840x560       46     2.61ms     2.85ms      56.6        6  stroked line-art icons at small sizes
+2026-11-18T12:17:12.2824733Z 11-typography                       840x560       11     0.97ms     1.08ms      88.6       17  a type scale, real glyph outlines
+2026-11-18T12:17:12.2825892Z 11-code-block                       840x560       56     0.79ms     0.86ms      14.1       21  syntax-coloured code — many small runs
+2026-11-18T12:17:12.2826853Z 12-avatar                           840x560       18     2.45ms     2.67ms     136.2        7  one complex layered vector portrait
+2026-11-18T12:17:12.2827823Z 12-avatar-wall                      840x560      362     6.39ms     6.73ms      17.7        3  24 of them, clipped to circles
+2026-11-18T12:17:12.2828839Z 20-settings                         840x560       45     1.26ms     1.45ms      28.0       13  a settings form: rows, switches, chrome
+2026-11-18T12:17:12.2830046Z 21-dashboard                        840x560       39     2.16ms     2.30ms      55.4        8  cards, charts, elevation, gradients
+2026-11-18T12:17:12.2830945Z 22-editor                          1366x679      129     2.38ms     2.64ms      18.4        7  an IDE shell: sidebar, code, panels
+2026-11-18T12:17:12.2831901Z 23-editor-glass                    1366x679      149     6.46ms     6.78ms      43.4        3  the same, with blur, shadows and overlays
+2026-11-18T12:17:12.2833190Z ----------------------------------------------------------------------------------------------------------------------------------------
+2026-11-18T12:17:12.2833951Z 23 fixtures, 81.6 ms of rendering in total
+2026-11-18T12:17:12.2834663Z drawn across the gallery: 4178 shapes, 2743 glyphs, 449 layers, 394 shadows (0 commands culled)
+2026-11-18T12:17:12.2835414Z every fixture renders inside a 60 Hz frame budget
+2026-11-18T12:17:12.2835953Z no fixture's layout overflows
+2026-11-18T12:17:12.2896661Z receipt  : /tmp/tmp.W8lVe7NPI9/receipt.json
+2026-11-18T12:17:12.2897102Z 
+2026-11-18T12:17:12.2897385Z motion                frames       mean      worst   moving   stall  what it covers
+2026-11-18T12:17:12.2898110Z ----------------------------------------------------------------------------------------------------------------------
+2026-11-18T12:17:12.7139302Z 30-fade-in                24     1.00ms     1.51ms     23/23       0  opacity 0 -> 1: the simplest reveal
+2026-11-18T12:17:13.1765584Z 31-stagger                24     1.52ms     2.66ms     15/23       0  five rows revealing in sequence
+2026-11-18T12:17:13.4664817Z 32-splash                 24     1.28ms     3.29ms     21/23       2  a launch splash: scale, rise, fade out
+2026-11-18T12:17:14.0883473Z 33-sheet                  24     4.45ms     7.31ms     14/23       0  a modal sheet over a blurred backdrop
+2026-11-18T12:17:14.5017936Z 34-spinner                24     0.73ms     1.26ms     23/23       0  a continuous sweep — transforms every frame
+2026-11-18T12:17:15.0973367Z 35-shared-element         24     4.89ms     7.40ms     23/23       0  a card expanding into a detail view — the hard transition
+2026-11-18T12:17:15.5051455Z 36-morph                  24     1.50ms     1.68ms     23/23       0  one vector path morphing into another, stroked and filled
+2026-11-18T12:17:15.5145854Z 
+2026-11-18T12:17:15.5146978Z interaction                       damage  full frame    retained  speed-up  identical?
+2026-11-18T12:17:15.5148276Z ------------------------------------------------------------------------------------------------
+2026-11-18T12:17:15.5255149Z light row 4                        8.01%      2.05ms      0.46ms      4.5x  yes
+2026-11-18T12:17:15.5356503Z move the light to row 9           16.03%      1.76ms      0.59ms      3.0x  yes
+2026-11-18T12:17:15.5454111Z clear the selection                8.01%      1.76ms      0.38ms      4.6x  yes
+2026-11-18T12:17:15.5544044Z nothing changes at all            -0.00%      1.74ms      0.14ms     12.5x  yes
+2026-11-18T12:17:15.6097182Z glass: highlight moves             0.72%      7.45ms      3.53ms      2.1x  yes  within 60Hz
+2026-11-18T12:17:15.6400958Z glass: highlight clears            0.72%      7.06ms      3.58ms      2.0x  yes  within 60Hz
+2026-11-18T12:17:15.6403950Z 
+2026-11-18T12:17:15.6404148Z wrote 23 PNGs to /tmp/tmp.W8lVe7NPI9/out
+2026-11-18T12:17:15.6707713Z | class | metric | budget | now | change | verdict (tolerance ±10%) |
+2026-11-18T12:17:15.6708258Z |---|---|---|---|---|---|
+2026-11-18T12:17:15.6709454Z perf-budget: no budget and no previous run for class 'ubuntu-24-04-5-lts/x86-64/intel-r-xeon-r-platinum-8573c': not gated this time (this run is the baseline for the next)
+2026-11-18T12:17:15.6710289Z perf-budget: nothing gated
+2026-11-18T12:17:15.6765367Z ##[endgroup]
+2026-11-18T12:17:15.6773142Z ##[group]mark: upload perf-linux
+2026-11-18T12:17:15.6794277Z ##[endgroup]
+2026-11-18T12:17:15.6903182Z ##[error]Process completed with exit code 1.
+2026-11-18T12:17:15.7013674Z ##[group]Run actions/upload-artifact@v4
+2026-11-18T12:17:15.7014091Z with:
+2026-11-18T12:17:15.7014386Z   name: perf-linux
+2026-11-18T12:17:15.7014721Z   path: /home/runner/work/_temp/perf
+2026-11-18T12:17:15.7015098Z   if-no-files-found: ignore
+2026-11-18T12:17:15.7015441Z   include-hidden-files: false
+2026-11-18T12:17:15.7015791Z   compression-level: 6
+2026-11-18T12:17:15.7016102Z   overwrite: false
+2026-11-18T12:17:15.7016409Z env:
+2026-11-18T12:17:15.7016722Z   CI_INPUTS: ***
+2026-11-18T12:17:15.7017017Z   CI_MATRIX: ***
+2026-11-18T12:17:15.7018134Z   CI_JOB: ***"title": "vieww \u00b7 framework-gate", "project": "vieww", "id": "framework-gate", "file": "vieww_base/ci/jobs/framework-gate.toml", "if": "", "needs": [], "setup": [], "uploads": [***"name": "perf-linux", "path": "$*** runner.temp ***/perf", "if-no-files-found": "ignore"***], "downloads": []***
+2026-11-18T12:17:15.7019485Z   CI_PROJECT: vieww
+2026-11-18T12:17:15.7020473Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f"
+***
+2026-11-18T12:17:15.7023606Z   CI_GITHUB_TOKEN: ***
+2026-11-18T12:17:15.7023902Z   CI_SECRET_NAMES: 
+2026-11-18T12:17:15.7024196Z   CI_HAS_AWS_ROLE: false
+2026-11-18T12:17:15.7024499Z   ANDROID_KEYSTORE: 
+2026-11-18T12:17:15.7024794Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-18T12:17:15.7025110Z   ANDROID_KEY_ALIAS: 
+2026-11-18T12:17:15.7025411Z   ANDROID_KEY_PASSWORD: 
+2026-11-18T12:17:15.7025716Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-18T12:17:15.7026029Z   APPLE_NOTARY_ISSUER: 
+2026-11-18T12:17:15.7026313Z   APPLE_NOTARY_KEY: 
+2026-11-18T12:17:15.7026609Z   APPLE_NOTARY_KEY_ID: 
+2026-11-18T12:17:15.7026910Z   APPLE_P12_PASSWORD: 
+2026-11-18T12:17:15.7027204Z   APPLE_SIGNING_IDENTITY: 
+2026-11-18T12:17:15.7027579Z   AWS_ACCESS_KEY_ID: 
+2026-11-18T12:17:15.7027958Z   AWS_ROLE_ARN: 
+2026-11-18T12:17:15.7028265Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-18T12:17:15.7028732Z   CARGO_REGISTRY_TOKEN: 
+2026-11-18T12:17:15.7029172Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-18T12:17:15.7029495Z   CLOUDFLARE_API_TOKEN: 
+2026-11-18T12:17:15.7029792Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-18T12:17:15.7030099Z   FIREBASE_PROJECT: 
+2026-11-18T12:17:15.7030382Z   FIREBASE_SA_KEY: 
+2026-11-18T12:17:15.7030659Z   IOS_CERT_P12: 
+2026-11-18T12:17:15.7030939Z   IOS_CERT_PASSWORD: 
+2026-11-18T12:17:15.7031218Z   IOS_IDENTITY: 
+2026-11-18T12:17:15.7031489Z   IOS_PROFILE: 
+2026-11-18T12:17:15.7031770Z   WINDOWS_CERT_PASSWORD: 
+2026-11-18T12:17:15.7032058Z   WINDOWS_CERT_PFX: 
+2026-11-18T12:17:15.7032361Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-18T12:17:15.7032701Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-18T12:17:15.7033042Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-18T12:17:15.7033364Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-18T12:17:15.7033711Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-18T12:17:15.7034065Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-18T12:17:15.7034426Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-18T12:17:15.7034789Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-18T12:17:15.7035134Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-18T12:17:15.7035519Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-18T12:17:15.7035906Z   CI_UPLOAD_0: yes
+2026-11-18T12:17:15.7036188Z ##[endgroup]
+2026-11-18T12:17:15.8686304Z (node:94044) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-18T12:17:15.8687040Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-18T12:17:15.8747682Z With the provided path, there will be 1 file uploaded
+2026-11-18T12:17:15.8749509Z Artifact name is valid!
+2026-11-18T12:17:15.8750338Z Root directory input is valid!
+2026-11-18T12:17:16.1567052Z Beginning upload of artifact content to blob storage
+2026-11-18T12:17:16.2328437Z (node:94044) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-18T12:17:16.3583654Z Uploaded bytes 556
+2026-11-18T12:17:16.3957637Z Finished uploading artifact content to blob storage!
+2026-11-18T12:17:16.3958766Z SHA256 digest of uploaded artifact zip is f2df7d4df1a7e6dcb1f32d7de8c5f51c09fc80710f5102386e204159342ef335
+2026-11-18T12:17:16.3960459Z Finalizing artifact upload
+2026-11-18T12:17:16.7990594Z Artifact perf-linux.zip successfully finalized. Artifact ID 14426047510
+2026-11-18T12:17:16.7991397Z Artifact perf-linux has been successfully uploaded! Final size is 556 bytes. Artifact ID is 14426047510
+2026-11-18T12:17:16.7992427Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/44296879878/artifacts/14426047510
+2026-11-18T12:17:16.8205824Z Post job cleanup.
+2026-11-18T12:17:16.9064244Z [command]/usr/bin/git version
+2026-11-18T12:17:16.9107214Z git version 2.56.1
+2026-11-18T12:17:16.9140323Z Temporarily overriding HOME='/home/runner/work/_temp/feb3511e-9e97-4653-8722-cebc6ff728b7' before making global git config changes
+2026-11-18T12:17:16.9141871Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-18T12:17:16.9146607Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-18T12:17:16.9186544Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-18T12:17:16.9221633Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-18T12:17:16.9439676Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-18T12:17:16.9461395Z http.https://github.com/.extraheader
+2026-11-18T12:17:16.9472221Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-18T12:17:16.9509788Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-18T12:17:16.9744954Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-18T12:17:16.9782148Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-18T12:17:17.0133615Z Cleaning up orphan processes
+2026-11-18T12:17:17.0489507Z Terminate orphan process: pid (36856) (java)
+2026-11-18T12:17:17.0618705Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== phase-1 / vieww · framework-ios-simulator	log =====
+﻿<?xml version="1.0" encoding="utf-8"?><Error><Code>BlobNotFound</Code><Message>The specified blob does not exist.
+RequestId:1f05dafc-701e-00c6-5956-77b6dd000000
+Time:2026-11-18T12:18:00.0527071Z</Message></Error>
 
