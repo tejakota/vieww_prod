@@ -365,6 +365,34 @@ fn box_blur(p: vec2<i32>, mode: i32) -> vec4<f32> {
     }
     let far = min(r, span - 1);
 
+    // **The cheaper of the two forms, per pixel.** A fragment cannot carry a
+    // running sum from its neighbour, so the running form re-derives its
+    // window from the scanline's seed: `far + 1` loads (plus one for a
+    // short span's far edge) and then two per slide step to reach `pos` -
+    // `2 * pos + far + 2` reads against the tap loop's `2r + 1`. That only
+    // wins near the scanline's start: past `pos ~ r / 2` it costs more,
+    // and on a 1080-px-wide radius-24 layer the average pixel paid ~1,100
+    // reads instead of 49 (the running form as first landed, 77c6a3c).
+    // Both forms gather the same window and both sit inside the parity
+    // suites' 2/255 tolerance (the tap loop is the form those suites
+    // certified for years), so taking the cheaper one per pixel moves
+    // nothing the tolerance does not already cover. The one-add-one-sub
+    // per pixel win needs rows carried across pixels - a compute pass -
+    // which is the follow-up 77c6a3c names.
+    if 2 * pos + far + 2 >= 2 * r + 1 {
+        var taps = vec4<f32>(0.0);
+        // `0 - r`, not `-r`: naga lowers integer negation to
+        // `asint(-asuint(v))`, and FXC aborts compiling that (see fs_main).
+        for (var k = 0 - r; k <= r; k = k + 1) {
+            if clamped {
+                taps = taps + src_clamped(p + step * k);
+            } else {
+                taps = taps + src_at(p + step * k);
+            }
+        }
+        return taps / f32(2 * r + 1);
+    }
+
     var sum = vec4<f32>(0.0);
     if clamped {
         // Duplicate: the first sample counts r + 1 times — once here, r
