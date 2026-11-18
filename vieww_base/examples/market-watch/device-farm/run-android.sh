@@ -241,6 +241,26 @@ run_config() {
     # lands first; the two agree to well inside a poll.
     local -A closed=()
 
+    # **Power and heat, per phase.** Each poll reads the battery's current,
+    # voltage and status in one shell call; a phase's average power is the
+    # mean of |current| x voltage over its polls. Only meaningful on battery:
+    # a phone on USB is charging, and its battery current is the charger's
+    # business, not the app's. So the status rides along, and the report
+    # shows energy only for phases that ran discharging (a phone on wireless
+    # adb, unplugged). Units: current_now uA, voltage_now uV, so uA x uV / 1e9
+    # is mW; the sign of current_now differs by vendor, hence |current|.
+    local p_sum=0 p_n=0 p_dis=0
+    power_sample() {
+        local line
+        line="$(sh_ 'cat /sys/class/power_supply/battery/current_now /sys/class/power_supply/battery/voltage_now /sys/class/power_supply/battery/status 2>/dev/null' | tr '\n' ' ')"
+        read -r cur volt stat _ <<< "$line"
+        [[ "$cur" =~ ^-?[0-9]+$ && "$volt" =~ ^[0-9]+$ ]] || return 0
+        p_sum=$(( p_sum + ${cur#-} * volt / 1000000000 ))
+        p_n=$(( p_n + 1 ))
+        [ "$stat" = Discharging ] && p_dis=$(( p_dis + 1 ))
+        return 0
+    }
+
     close_phase() { # $1 = phase that just ended
         local p="$1" t_end cpu_end rss
         t_end="$(now_ms)"
@@ -251,8 +271,14 @@ run_config() {
         sh_ dumpsys gfxinfo "$pkg" > "$dir/gfxinfo-$p.txt"
         sh_ dumpsys gfxinfo "$pkg" reset >/dev/null
         case "$p" in load*|tick*|jump*) adb exec-out screencap -p > "$dir/shot-$p.png" ;; esac
-        printf '{"phase":"%s","wall_ms":%s,"cpu_ticks":%s,"rss_kb":%s,"layer":"%s"}\n' \
-            "$p" "$(( t_end - t_phase ))" "$(( cpu_end - cpu_phase ))" "${rss:-0}" "$layer" >> "$runner"
+        local temp power discharging=false
+        temp="$(sh_ cat /sys/class/power_supply/battery/temp 2>/dev/null | tr -dc 0-9-)"
+        power=0; [ "$p_n" -gt 0 ] && power=$(( p_sum / p_n ))
+        [ "$p_n" -gt 0 ] && [ "$p_dis" -eq "$p_n" ] && discharging=true
+        printf '{"phase":"%s","wall_ms":%s,"cpu_ticks":%s,"rss_kb":%s,"layer":"%s","power_mw":%s,"power_samples":%s,"discharging":%s,"batt_temp_dC":%s}\n' \
+            "$p" "$(( t_end - t_phase ))" "$(( cpu_end - cpu_phase ))" "${rss:-0}" "$layer" \
+            "$power" "$p_n" "$discharging" "${temp:-0}" >> "$runner"
+        p_sum=0; p_n=0; p_dis=0
     }
 
     enter_phase() { # $1 = phase name, starting now
@@ -395,8 +421,9 @@ run_config() {
             break
         fi
 
-        # (b) the narration
+        # (b) the narration, and (c) one power sample
         scan_dump
+        power_sample
         [ "$status" = PASS ] && break
         sleep 0.3
     done

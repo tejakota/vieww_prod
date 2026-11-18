@@ -165,6 +165,16 @@ def phase_stats(config_dir, package, budget_ms):
             if isinstance(ticks, (int, float)) and ticks >= 0:
                 p["cpu_pct"] = round(100.0 * ticks * (1000 / CLK_TCK) / wall, 1)
         p["rss_kb"] = r.get("rss_kb")
+        # Battery power over the phase (run-android.sh's power_sample), and
+        # energy per presented frame — only where the phase ran on battery:
+        # on USB the battery current is the charger's, not the app's.
+        if r.get("batt_temp_dC"):
+            p["batt_temp_c"] = round(r["batt_temp_dC"] / 10.0, 1)
+        if r.get("discharging") and r.get("power_mw") and wall:
+            p["power_mw"] = r["power_mw"]
+            frames = a.get("frames") or 0
+            if frames:
+                p["energy_mj_per_frame"] = round(r["power_mw"] * (wall / 1000.0) / frames, 2)
         ts_file = config_dir / f"timestats-{name}.txt"
         ts = parse_timestats(ts_file.read_text(errors="replace"), package) if ts_file.exists() else None
         if ts:
@@ -318,6 +328,21 @@ def render(farm, meta):
             md.append("")
             md.append("_Quick run: Vieww CPU and GPU only, no thermal pass. Valdi is pinned, "
                       "so its numbers stand from the last full report._")
+        # Energy, where any phase ran on battery (an unplugged phone on
+        # wireless adb): average power and energy per presented frame.
+        powered = [(name, {c: cfg.get(c, {}).get("phases", {}).get(name, {}) for c in CONFIGS})
+                   for name in CONTINUOUS]
+        powered = [(n, p) for n, p in powered if any(q.get("power_mw") for q in p.values())]
+        if powered:
+            md.append("")
+            md.append("| phase (on battery) | power (mW) | energy per frame (mJ) | battery °C |")
+            md.append("|---|---|---|---|")
+            for name, p in powered:
+                pw = {c: p[c].get("power_mw") for c in CONFIGS}
+                ej = {c: p[c].get("energy_mj_per_frame") for c in CONFIGS}
+                tc = {c: p[c].get("batt_temp_c") for c in CONFIGS}
+                md.append(f"| {name} | {cell(pw, 'pw', False, '', 0)} | {cell(ej, 'ej', False, '', 2)} | "
+                          f"{cell(tc, 'tc', False, '', 1)} |")
         # Each Vieww leg's own statement of its raster policy, when it said
         # one: the thread request the frames actually ran with.
         for c in ["vieww-cpu", AB_LEG]:
@@ -696,6 +721,28 @@ def self_test():
     assert main(["--farm", str(tmp / "none"), "--machines", str(mdir), "--out", str(out),
                  "--header", "run: x"]) == 0
     assert "No phones in this run" in (out / "COMPARE.md").read_text()
+    # Energy: a phase that ran on battery reports power and energy per
+    # frame; one on USB (charging) reports neither.
+    e = tmp / "energy" / "Redmi" / "mw" / "vieww-cpu"
+    e.mkdir(parents=True)
+    (e / "events.jsonl").write_text(json.dumps({"fw": "vieww", "ev": "stats", "phase": "live2k", "frames": 480,
+                                                "work_ms": [5, 9, 12, 20], "interval_ms": [16.6, 17, 33, 40]}) + "\n" +
+                                    json.dumps({"fw": "vieww", "ev": "stats", "phase": "storm2k", "frames": 480,
+                                                "work_ms": [5, 9, 12, 20], "interval_ms": [16.6, 17, 33, 40]}) + "\n")
+    (e / "runner.jsonl").write_text(
+        json.dumps({"phase": "live2k", "wall_ms": 8000, "cpu_ticks": 400, "rss_kb": 1, "layer": "x",
+                    "power_mw": 1200, "power_samples": 26, "discharging": True, "batt_temp_dC": 312}) + "\n" +
+        json.dumps({"phase": "storm2k", "wall_ms": 8000, "cpu_ticks": 400, "rss_kb": 1, "layer": "x",
+                    "power_mw": 900, "power_samples": 26, "discharging": False, "batt_temp_dC": 315}) + "\n")
+    (e.parent / "result.txt").write_text("device_name=Redmi\nrefresh_hz=60\nvieww-cpu_status=PASS\nstatus=PASS\n")
+    energy = parse_farm(tmp / "energy")
+    live = energy[0]["configs"]["vieww-cpu"]["phases"]["live2k"]
+    storm = energy[0]["configs"]["vieww-cpu"]["phases"]["storm2k"]
+    assert live["power_mw"] == 1200 and live["energy_mj_per_frame"] == 20.0, live
+    assert "power_mw" not in storm and storm["batt_temp_c"] == 31.5, storm
+    emd = render(energy, {"header": "", "valdi_build": {}})
+    assert "| live2k | 1200 / – / – | 20.00 / – / – | 31.2 / – / – |" in emd, emd
+    assert "| storm2k | 900" not in emd, "a charging phase reports no energy"
     print("compare_report self-test: ok")
     return 0
 
